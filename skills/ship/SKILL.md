@@ -5,6 +5,11 @@ description: Release VegaStack Design end to end — changesets, root CHANGELOG.
 
 # Ship a VegaStack Design release
 
+**MK-gated:** shipping is always MK's decision. Prepare everything, then STOP and present
+the plan (versions, changelog entry, what deploys) and wait for an explicit "yes proceed"
+BEFORE: pushing changesets, merging the Version PR, or dispatching deploy.yml. Never
+auto-ship. Each gate is separate — approval to push is not approval to merge or deploy.
+
 Run from the repo root. Every step is required unless marked optional. Never publish
 manually with npm tokens — publishing is CI-only (OIDC trusted publishing).
 
@@ -53,7 +58,13 @@ Commit changesets + CHANGELOG.md + the regenerated page together.
 ## 4. Version PR → publish
 
 ```bash
-git push origin main
+git push origin main            # MK approval required first
+```
+
+Watch runs by POLLING status (`gh run watch` can exit early):
+
+```bash
+until [ "$(gh run view <id> -R VegaStack/vegastack-design --json status --jq .status)" != "in_progress" ]; do sleep 60; done
 ```
 
 The Release workflow (path-routed: pixel gate only for component-visual changes) opens the
@@ -68,7 +79,7 @@ npm view @vegastack/design version
 ## 5. Deploy the registry + docs
 
 ```bash
-gh workflow run deploy.yml -R VegaStack/vegastack-design
+gh workflow run deploy.yml -R VegaStack/vegastack-design   # MK approval required first
 ```
 
 Wait for success. The run self-verifies the Access boundary; confirm its log shows all three:
