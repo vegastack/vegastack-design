@@ -57,3 +57,14 @@ npx vegastack-design verify --post-write --item /tmp/x.json --target-dir .  # TO
 - Scheduled CI bot: `check-updates --fail-on-update --json` → opens a "design-system updates" PR.
 - npm path for animated icons (`@vegastack/design/icons` animated mirrors) so they update via `npm update`.
 - Per-item independent semver instead of the global `@vegastack/ui` version.
+
+## Known edge: workflow files + the Version PR
+
+The Actions `GITHUB_TOKEN` cannot push changes to `.github/workflows/*`. If a release run's
+commit has workflow files that differ from the current `main` tip (e.g. a workflow edit landed
+right after it, or the same push carries both a changeset AND a workflow change), the changesets
+action's `changeset-release/main` branch push is rejected with
+`refusing to allow a GitHub App to … update workflow … without 'workflows' permission`.
+**Fix:** re-run the Release workflow on the current `main` tip (or push any no-op commit) — a run
+whose base matches main has no workflow diff and the Version PR push succeeds. Avoid bundling
+workflow edits with changeset-bearing pushes.

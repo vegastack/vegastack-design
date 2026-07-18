@@ -35,7 +35,8 @@ One package — `@vegastack/design-tokens` (the zero-dependency token layer) arr
 as its dependency. **Proof:** `ls node_modules/@vegastack` shows `design`. Under pnpm,
 `design-tokens` resolves transitively at this point — you won't see it top-level yet;
 later, `shadcn add` will list it as a direct dependency of your project (many registry
-items declare it). Both states are normal; the two packages version in lockstep.
+items declare it). Both states are normal; the packages share a Changesets `linked`
+group (same version whenever both change in a release).
 
 ## 3. One-line CSS setup
 
