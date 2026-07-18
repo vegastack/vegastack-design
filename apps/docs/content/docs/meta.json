@@ -4,11 +4,17 @@
   "pages": [
     "index",
     "install",
+    "---Guides---",
     "...guides",
+    "---Foundations---",
     "...foundations",
+    "---Components---",
     "...components",
+    "---Blocks---",
     "...blocks",
+    "---Utilities---",
     "...utilities",
+    "---Releases---",
     "changelog"
   ]
 }

@@ -9,7 +9,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "node tooling/verify-shadcn-base.mjs && turbo run lint",
+    "lint": "node tooling/verify-shadcn-base.mjs && node tooling/skill-lint.mjs && turbo run lint",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
     "registry:build": "shadcn registry validate packages/ui/registry.json && shadcn build packages/ui/registry.json -o apps/docs/public/r && node tooling/registry-stamp.mjs && node tooling/registry-header.mjs && node tooling/verify-headers.mjs && node tooling/verify-registry-deps.mjs",

@@ -1,13 +1,13 @@
----
-title: Changelog
-description: Release history by design-system version — new and changed components with doc links and commit refs — plus how updates reach you.
----
+# Changelog
 
-Release history for the whole system, versioned by the **design-system (registry) version**;
-npm package versions are listed per entry. This page is generated from the repo's root
-`CHANGELOG.md` — the two can never drift (CI enforces it).
+All notable changes to VegaStack Design, versioned by the **design-system (registry) version**
+— the version every registry item carries. npm package versions are listed per entry under
+**📦 npm**. Sections use a fixed vocabulary (enforced by `tooling/changelog-lint.mjs`):
+`🧩 New components` · `🔧 Changed components` · `🗑 Removed / renamed` · `🛠 CLI & tooling` ·
+`📦 npm` · `📚 Docs` · `🐛 Fixed` · `⚠️ Breaking`.
 
-{/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
+The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
+file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
 ## [0.2.0] — July 19, 2026
 
@@ -15,7 +15,7 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 - **Provider** — the app-root wrapper (theme, toasts, tooltip coordination, text direction);
   install once via `shadcn add @vegastack/provider`, composes the `sonner` Toaster item.
-  [docs](/docs/components/provider) ·
+  [docs](https://design.vegastack.com/docs/components/provider) ·
   [`c7de692`](https://github.com/VegaStack/vegastack-design/commit/c7de692)
 
 ### 🔧 Changed components
@@ -23,13 +23,13 @@ npm package versions are listed per entry. This page is generated from the repo'
 - **Checkbox**, **Switch** — Story explorer controls narrowed to human-usable props (the raw
   Base UI prop graph serialized to ~24 MB per page, over Cloudflare's 25 MiB asset limit).
   No API change.
-  [checkbox](/docs/components/checkbox) ·
-  [switch](/docs/components/switch) ·
+  [checkbox](https://design.vegastack.com/docs/components/checkbox) ·
+  [switch](https://design.vegastack.com/docs/components/switch) ·
   [`45c7cf8`](https://github.com/VegaStack/vegastack-design/commit/45c7cf8)
 - **dashboard-01** (block) — component files now target `app/dashboard/components/` (the page's
   relative imports were broken on clean installs) and `page.tsx` ships the default export Next
   requires for route files.
-  [docs](/docs/blocks/dashboard-01) ·
+  [docs](https://design.vegastack.com/docs/blocks/dashboard-01) ·
   [`ac6288a`](https://github.com/VegaStack/vegastack-design/commit/ac6288a)
 - **use-animation-replay** (hook) — stray duplicate header line removed (caused a false drift
   flag in `check-updates`).
@@ -41,7 +41,7 @@ npm package versions are listed per entry. This page is generated from the repo'
   headers on copy-in, so copies are now identified by filename against the registry index and
   compared by alias-normalized content. New `≈ drift` status (differs — upstream update or
   local edits); `--fail-on-update` fails on `update` + `drift`.
-  [guide](/docs/guides/components) ·
+  [guide](https://design.vegastack.com/docs/guides/components) ·
   [`ac6288a`](https://github.com/VegaStack/vegastack-design/commit/ac6288a)
 - Release workflow is path-routed: the container pixel gate runs only when component-visual
   code changes; the release job only when something is publishable.
@@ -57,7 +57,7 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 ### 📚 Docs
 
-- New **Guides** section — [Quickstart](/docs/guides/quickstart),
+- New **Guides** section — [Quickstart](https://design.vegastack.com/docs/guides/quickstart),
   Registry access & auth, Working with components, Provider setup, Theming, Production
   checklist, Troubleshooting. Every command executed for real against the reference starter
   before being written down; 29 adversarial-review findings applied.
@@ -75,7 +75,7 @@ npm package versions are listed per entry. This page is generated from the repo'
   Tailwind v4, semantic-token-only, WCAG 2.1 AA, distributed as copy-in via the private
   registry at `design.vegastack.com/r/*` (Cloudflare Access service-token auth,
   Sigstore-signed manifest).
-  [components](/docs/components/button) ·
+  [components](https://design.vegastack.com/docs/components/button) ·
   [`8a5bb2a`](https://github.com/VegaStack/vegastack-design/commit/8a5bb2a)
 
 ### 📦 npm
@@ -90,49 +90,3 @@ npm package versions are listed per entry. This page is generated from the repo'
 - Fumadocs showcase: 91 pages, live previews rendering the real shipped source, VRT-covered
   (both desktop + mobile lanes), deployed behind Cloudflare Access SSO.
   [`8a5bb2a`](https://github.com/VegaStack/vegastack-design/commit/8a5bb2a)
-
-{/* CHANGELOG:END */}
-
-## How you receive updates
-
-Two delivery paths, because the system is hybrid.
-
-**Packages** (`@vegastack/design` + `@vegastack/design-tokens`) are normal npm dependencies — bump them
-with your package manager when a new version publishes. They share a Changesets `linked` group:
-releases that touch both give them the same version; otherwise versions may differ (e.g.
-`design` 0.1.1 alongside `design-tokens` 0.1.0 — nothing changed in the tokens).
-
-**Components are pulled, never pushed.** They are copied into your repo by the shadcn CLI, so an
-upstream change does not silently rewrite your files. You decide when to re-pull, review the diff,
-then overwrite.
-
-```bash
-# 1. See what changed upstream (content comparison against the live registry)
-vegastack-design check-updates
-
-# 2. Review the diff for a component before taking it
-shadcn add @vegastack/button --diff
-
-# 3. Pull the update in, overwriting your copy
-shadcn add @vegastack/button --overwrite
-```
-
-### Status is by content, not version number
-
-`check-updates` identifies your copies by filename against the registry index and compares
-**alias-normalized content** (a provenance header, when present, is only a fast-path pin). A
-component reads **`up to date`** when the global version bumped but *that component's content*
-didn't change — you only re-pull what actually moved. `≈ differs` means the bytes diverged — an
-upstream update or your local edits; `add --diff` disambiguates.
-
-<Callout type="info">
-  Every registry item carries a `meta.integrity` SHA-256 plus a provenance header in its
-  registry content, and the consume flow supports a fail-closed verify
-  (`vegastack-design verify`). If a hash doesn't match, the add is rejected rather than
-  silently trusted.
-</Callout>
-
-<DoDont
-  do="Run check-updates, then shadcn add --diff before --overwrite so you review every incoming change."
-  dont="Assume a global version bump means a component changed — status is by content, not the version number."
-/>
