@@ -1,4 +1,4 @@
-// @vegastack sonner@0.1.0 sha256-NB2+QZRVg66Ce2yOMnuT+UNJMKeamuj8Jaml+4g2Vjg=
+// @vegastack sonner@0.2.0 sha256-Znz3oHpLxZG0LCH3i30G8+alY2SDpoYh8ChnwMzlOkk=
 
 "use client";
 

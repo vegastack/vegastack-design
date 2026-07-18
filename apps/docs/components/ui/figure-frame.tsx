@@ -1,4 +1,4 @@
-// @vegastack figure-frame@0.1.0 sha256-6YpE+xCv+dDzvLgfont7sq+6eBBYOADS+zv98q2ZrnA=
+// @vegastack figure-frame@0.2.0 sha256-aMHK2x3qiseXNmeg3CWS98T65K0qQ/tSsU10LLOsRSk=
 
 // @vegastack figure-frame@0.1.0 — new component; run `pnpm run registry:build` to stamp
 // integrity + regenerate the copy-in/JSON.

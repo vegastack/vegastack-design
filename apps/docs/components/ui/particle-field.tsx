@@ -1,4 +1,4 @@
-// @vegastack particle-field@0.1.0 sha256-eRKLnz0SsOfcZJ31PNPYn1/kSojop7T/DBxMiPIUmd4=
+// @vegastack particle-field@0.2.0 sha256-vGtBQxfw//ZPmKoTofZpDa0t5PKlXHdbstmojSYnmuI=
 
 // @vegastack particle-field@0.1.0 — new component; run `pnpm run registry:build` to stamp
 // integrity + regenerate the copy-in/JSON.

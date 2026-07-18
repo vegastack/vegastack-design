@@ -1,4 +1,4 @@
-// @vegastack staggered-text-reveal@0.1.0 sha256-RCM1xnUKvpPJWEwf3nw+t+5mowZrwN514B9dv971VrA=
+// @vegastack staggered-text-reveal@0.2.0 sha256-XrxNVT9Copb6/RYAedrVzrcNcq1rlzxB2n9/md+drWY=
 
 // @vegastack staggered-text-reveal@0.1.0 — new component; run `pnpm run registry:build` to
 // stamp integrity + regenerate the copy-in/JSON.

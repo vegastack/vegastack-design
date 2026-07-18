@@ -1,4 +1,4 @@
-// @vegastack region-select@0.1.0 sha256-sDq8EZAFeXN/WlzcWI6FieHcR8TYoJPl8Y/KDUq6TU8=
+// @vegastack region-select@0.2.0 sha256-eNjdiU5qurADHXTPQnuYXwUf362omwf7EZgoCJjtWEM=
 
 import type { Region } from './region-select';
 

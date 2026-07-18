@@ -1,4 +1,4 @@
-// @vegastack testimonial@0.1.0 sha256-Pl5TFvBe/k05z3mfGdjaWQwXXc7bjUoEQhXwvK/x76c=
+// @vegastack testimonial@0.2.0 sha256-IBIcaBow051dB1A89jbier0xyuF/7PK4pj+ibVW+Adw=
 
 // @vegastack testimonial@0.1.0 — new component; run `pnpm run registry:build` to stamp
 // integrity + regenerate the copy-in/JSON.

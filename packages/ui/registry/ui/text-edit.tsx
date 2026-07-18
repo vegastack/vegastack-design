@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.1.0 sha256-OXRB3OEYCaKhm6rUWdke8xmt85oTf6FWCES39IVDge8=
+// @vegastack text-edit@0.2.0 sha256-jTFk7B1l7+MxVRVw6UX88py6BjnejY/zSKLMB2KHsg8=
 
 "use client";
 

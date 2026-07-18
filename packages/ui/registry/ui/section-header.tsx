@@ -1,4 +1,4 @@
-// @vegastack section-header@0.1.0 sha256-URrmpx4shfngDC1DkX6bbijKMzHtRO2N7cBBiUaNy6c=
+// @vegastack section-header@0.2.0 sha256-NYJeGXnkUcskUSR2s5H7lY7ONFzIxtXTvBlCyAqwKB4=
 
 // @vegastack section-header@0.1.0 — new component; run `pnpm run registry:build` to stamp
 // integrity + regenerate the copy-in/JSON.
