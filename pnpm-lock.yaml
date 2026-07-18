@@ -233,6 +233,9 @@ importers:
       thesvg:
         specifier: ^3.2.6
         version: 3.2.6
+      tw-animate-css:
+        specifier: ^1.4.0
+        version: 1.4.0
     devDependencies:
       '@tailwindcss/node':
         specifier: 4.3.1
@@ -264,9 +267,6 @@ importers:
       tailwindcss:
         specifier: 'catalog:'
         version: 4.3.2
-      tw-animate-css:
-        specifier: ^1.4.0
-        version: 1.4.0
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
