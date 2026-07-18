@@ -1,0 +1,120 @@
+---
+title: Working with components
+description: The copy-in ownership model end to end — add, verify, customize, and pull updates by integrity hash.
+---
+
+VegaStack components are **copy-in**: `shadcn add` writes real source files into
+your repo and you own them. Nothing updates behind your back; updates are *pulled*
+when you decide. This page is the full lifecycle.
+
+## The four item kinds
+
+| Kind | Example | Behavior |
+| --- | --- | --- |
+| Component (`registry:ui`) | `@vegastack/button` | copied to `components/ui/`, update-tracked via its provenance header |
+| Hook (`registry:hook`) | `@vegastack/use-mobile` | plain `.ts` into `hooks/`, same tracking |
+| Icon item | `@vegastack/icon-arrow-right` | one animated-icon mirror per item — 440 of them; bare names never collide with components |
+| Block (`registry:block`) | `@vegastack/dashboard-01` | a multi-file **starter composition** (page + components + data) you own outright — deliberately NOT update-tracked |
+
+## Adding
+
+```bash
+pnpm dlx shadcn@latest add @vegastack/dialog
+```
+
+- **Always the `@vegastack/` prefix.** A bare `shadcn add dialog` installs
+  shadcn's own Radix-based dialog — a different component tree that will not
+  match this system (and overwrites files if names collide).
+- `registryDependencies` come transitively: adding `@vegastack/field` also brings
+  `input`; `data-list` brings `table`+`checkbox`+`skeleton`+`empty`; `provider`
+  brings `sonner`. You never chase dependencies manually.
+- npm dependencies of each item (`@base-ui/react`, `class-variance-authority`, …)
+  are installed by the CLI into your project automatically.
+
+Every copied file starts with a **provenance header**:
+
+```tsx
+// @vegastack dialog@0.1.0 sha256-Qm3…=
+```
+
+Keep it — it is the version pin the update tooling reads. Deleting it orphans the
+file (updates can no longer be detected for it).
+
+## Verifying integrity (recommended for CI-critical repos)
+
+The registry signs its item manifest (Sigstore, GitHub OIDC identity) and every
+item carries a whole-item SHA-256. The `vegastack-design` CLI (a bin inside
+`@vegastack/design` — already installed) closes the fetch-time/copy-time gap:
+
+```bash
+# 1. verify the item BEFORE copy-in, save the verified bytes
+pnpm exec vegastack-design verify --save /tmp/vega-dialog.json dialog
+
+# 2. copy in
+pnpm dlx shadcn@latest add @vegastack/dialog
+
+# 3. prove the files on disk match the verified bytes (alias-rewrite aware)
+pnpm exec vegastack-design verify --post-write --item /tmp/vega-dialog.json --target-dir .
+```
+
+`--hash-only` skips the Sigstore signature check for local development when
+`cosign` isn't installed; full mode verifies the signed manifest identity too.
+
+## Customizing
+
+Edit the copied files freely — that's the point of the model. Two practices keep
+future updates painless:
+
+- **Additive edits over rewrites.** Add variants/classes/props; avoid reshuffling
+  the file wholesale, so `--diff` output stays reviewable.
+- **Compose in new files where possible** — wrap `Button` in your own
+  `SubmitButton` rather than forking `button.tsx` for one use case.
+
+Customized files still show as `update available` when upstream changes — the
+hash comparison detects upstream drift; your local edits mean you'll review the
+diff and re-apply (below).
+
+## Updating — pulled, never pushed
+
+```bash
+pnpm exec vegastack-design check-updates
+```
+
+```
+  ⬆  button   0.1.0 → 0.2.0   update available
+  ✓  field    0.2.0           up to date
+  ?  legacy   0.1.0           not in registry (renamed/removed)
+```
+
+Status compares the provenance header's **integrity hash** against the live
+registry — not version numbers. That means a component reads `up to date` even
+when the registry's global version bumped but that component's content didn't
+change: you only re-pull what actually moved.
+
+Per component, review then take:
+
+```bash
+pnpm dlx shadcn@latest add @vegastack/button --diff       # see exactly what changed
+pnpm dlx shadcn@latest add @vegastack/button --overwrite  # take it
+```
+
+`--overwrite` replaces the file — if you customized it, `git diff` afterwards and
+re-apply your edits (they're in your git history; nothing is lost).
+
+Useful flags: `--dir` (scan a non-default location), `--filter <name>`, `--json`
+(machine-readable — the right entry point for agents), `--fail-on-update` (exit
+non-zero when anything is stale — the CI drift gate), `--registry` / `--cwd`.
+
+> **For agents:** the reliable loop is `vegastack-design check-updates --json` →
+> for each stale name, `shadcn add @vegastack/<name> --diff` → present the diff →
+> only after approval `--overwrite`. Never edit the provenance header by hand,
+> never "update" by pasting source from elsewhere — the header hash must come
+> from the registry pipeline or drift detection breaks silently.
+
+## Blocks are different — by design
+
+`dashboard-01` copies once and is then **yours**; `check-updates` will not track
+its page/data files. Rationale: a starter composition you've built a real page on
+top of must never be at risk of an upstream overwrite. Its underlying
+*components* (Card, Chart, Sidebar, …) remain individually tracked like any
+other.

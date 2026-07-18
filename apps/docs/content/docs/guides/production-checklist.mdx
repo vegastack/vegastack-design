@@ -1,0 +1,86 @@
+---
+title: Production checklist
+description: The floors, the gates, and the gotchas — everything to verify before a VegaStack-consuming app ships.
+---
+
+Work through this top to bottom before the first production deploy of a consuming
+app. Each item says how to *verify*, not just what to believe.
+
+## Environment floors
+
+| Requirement | Floor | Verify |
+| --- | --- | --- |
+| React / React DOM | **19.x** (peer of `@vegastack/design`) | `pnpm why react` |
+| Tailwind CSS | **4.x** — the preset is CSS-first; v3 configs are incompatible | `pnpm why tailwindcss` |
+| Node | ≥ 20 runtime; ≥ 24 matches the design-system repo | `node --version` |
+| shadcn CLI | `shadcn@latest`, project base **`base`** (Base UI) — never `radix` | `pnpm dlx shadcn@latest info --json` → `"base": "base"` |
+
+## Package hygiene
+
+- Pin/track `@vegastack/design` normally (semver; it and `@vegastack/design-tokens`
+  version in lockstep). Renovate/Dependabot works as usual — these are ordinary
+  npm packages.
+- Don't add `@vegastack/design-tokens` to an app's dependencies — it arrives
+  transitively, and the CSS subpaths you import are re-exported through
+  `@vegastack/design`. (Token-pipeline repos are the exception — they install only
+  the tokens.)
+- **pnpm-strict note:** never deep-import anything not in the package `exports`
+  map. Everything supported is exported: `.`, `./icons`, `./preset`,
+  `./preset.css`, `./theme.css`, `./base.css`, `./utilities.css`.
+
+## The four silent a11y/UX breakers
+
+Each of these fails without an error message. Check them explicitly:
+
+1. **Provider mounted once at the root** — else toasts no-op and dark mode is
+   dead. Verify: fire a `toast()` in the app; see
+   [Provider setup](/docs/guides/provider-setup).
+2. **Base a11y layer present** — tab through the app; every focused control must
+   show a visible ring. If not, you skipped `base.css` (the preset includes it) —
+   see [Theming](/docs/guides/theming).
+3. **Portal stacking** — open a Dialog over your app chrome; it must render on
+   top. If it renders under, `body { isolation: isolate }` (from base.css) isn't
+   applied.
+4. **`suppressHydrationWarning` on `<html>`** — else theme hydration warnings on
+   every page load.
+
+## CI gates (copy this shape)
+
+```yaml title=".github/workflows/ci.yml (fragment)"
+- run: pnpm typecheck
+- run: pnpm build
+# Component drift: red build when the registry has newer versions of anything
+# you've copied in. Review with `--diff`, take with `--overwrite`, re-run.
+- run: pnpm exec vegastack-design check-updates --fail-on-update
+  env:
+    CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+    CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+```
+
+Add a smoke suite that exercises the copied components *in your app* (the
+reference starter ships one to copy: render + dialog focus trap + toast fires +
+dark-mode persists). Your app owns these files now — your CI is what proves them.
+
+## Secrets
+
+- Registry token only in `.env.local` (dev) and CI secrets — never in git, never
+  in `NEXT_PUBLIC_*`, never in client bundles. It's build-time tooling
+  credentials; no runtime code should read it.
+- `.env.example` with placeholders is committed so onboarding is one copy+fill.
+
+## Updates policy (decide before you need it)
+
+- Run `check-updates` on a schedule (the CI gate above) rather than ad hoc.
+- Review every `--diff` before `--overwrite` — you own the files; an update is a
+  code review, not a package bump.
+- After `--overwrite` on a file you'd customized, re-apply your edits from git
+  history and re-run your smoke suite.
+
+## Pre-launch sanity sweep (10 minutes, manual)
+
+- [ ] Keyboard-only pass: reach and operate nav, forms, dialogs; focus visible everywhere; Esc closes overlays
+- [ ] Dark mode: toggle, reload (choice persists), check charts/borders/empty states in both themes
+- [ ] Mobile viewport: no horizontal scroll; touch targets comfortable; sheets/dialogs usable
+- [ ] Empty/error/loading states reachable and styled (not raw fallbacks)
+- [ ] `prefers-reduced-motion` on: no large animations remain
+- [ ] Lighthouse a11y pass on the two most complex pages

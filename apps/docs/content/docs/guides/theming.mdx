@@ -1,0 +1,109 @@
+---
+title: Theming, dark mode & tokens
+description: The one-file override model, the base a11y layer you must not skip, and consuming the token contract outside React.
+---
+
+Everything visual routes through **semantic OKLCH tokens** — CSS variables defined
+by `@vegastack/design-tokens`, bridged into Tailwind utilities (`bg-primary`,
+`text-muted-foreground`) via the `@theme inline` block. Components never use raw
+palettes, so re-theming is a variable override, not a component change.
+
+## The import you already have
+
+`@import '@vegastack/design/preset.css'` (from the [Quickstart](/docs/guides/quickstart))
+bundles, in order: Tailwind, tw-animate-css, `theme.css` (the tokens, light + dark),
+`base.css` (the a11y layer), `utilities.css` (shimmer / scroll-fade / scrollbar).
+You rarely need anything else on this page.
+
+## Override: your brand in one file
+
+Redefine variables **after** the preset import — that's the entire theming API:
+
+```css title="app/globals.css"
+@import '@vegastack/design/preset.css';
+
+:root {
+  --primary: oklch(0.55 0.2 260);          /* your brand */
+  --primary-foreground: oklch(0.98 0.005 260);
+  --radius: 0.5rem;                         /* every rounded-* follows */
+}
+.dark {
+  --primary: oklch(0.7 0.18 260);
+}
+```
+
+Every component repaints — buttons, focus rings, charts, badges — because nothing
+references anything but the tokens. The full variable list with live values is on
+[Colors](/docs/foundations/colors); the override contract is identical for
+spacing, radius, typography and motion tokens
+([Foundations](/docs/foundations/design-principles)).
+
+Scope overrides to a subtree for per-client theming: any selector
+(`[data-theme='acme'] { --primary: … }`) works — the tokens cascade.
+
+## Dark mode
+
+Class-based (`.dark` on `<html>`), owned by the provider — see
+[Provider setup](/docs/guides/provider-setup). You never toggle classes yourself;
+call `setTheme('dark' | 'light' | 'system')` from `useVegaStackTheme()`.
+
+Authoring rule for your own code: style with tokens and you get dark mode for
+free (`bg-card` is different in each theme). Reach for the `dark:` variant only
+for genuinely theme-specific art direction.
+
+## The base layer is load-bearing — don't bypass it
+
+If you ever import pieces individually instead of the preset, know that
+`base.css` ships **accessibility-critical globals**:
+
+- the global **`:focus-visible` ring** — components deliberately carry no focus
+  ring of their own; skip base.css and keyboard users lose focus visibility
+  entirely (a WCAG 2.4.7 failure)
+- the `prefers-reduced-motion` reset
+- pointer cursors on interactive controls
+- `body { isolation: isolate }` — the stacking context that keeps portalled
+  overlays (dialogs, menus, tooltips) above app chrome
+
+Granular imports, only if you know why you're doing it:
+
+```css
+@import 'tailwindcss';
+@import '@vegastack/design/theme.css';
+@import '@vegastack/design/base.css';      /* NOT optional in practice */
+@import '@vegastack/design/utilities.css'; /* shimmer / scroll-fade / scrollbar */
+```
+
+These subpaths are **re-exports** through `@vegastack/design`, resolvable under
+strict pnpm without declaring the tokens package yourself.
+
+## Fonts
+
+Tokens define the families as variables (`--font-family-sans` → Geist, mono →
+Geist Mono); the app supplies the actual font files. In Next:
+
+```tsx title="app/layout.tsx (fragment)"
+import { Geist, Geist_Mono } from 'next/font/google';
+const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
+const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
+// <html className={`${geistSans.variable} ${geistMono.variable}`}>
+```
+
+Details and non-Next guidance: [Typography](/docs/foundations/typography).
+
+## Tokens without React (design-tokens standalone)
+
+`@vegastack/design-tokens` has **zero dependencies** — it's the portable design
+contract for surfaces that aren't React/Tailwind at all:
+
+```bash
+npm i @vegastack/design-tokens
+```
+
+| Artifact | Use |
+| --- | --- |
+| `theme.css` / `base.css` / `utilities.css` | any web page, no Tailwind required |
+| `tokens.json` | DTCG-format source — pipe into Figma sync, native platforms, codegen |
+| the JS export (`import { tokens } from '@vegastack/design-tokens'`) | typed token values in Node tooling |
+
+App-builders never install it directly (it arrives via `@vegastack/design`);
+token-pipeline and native consumers install **only** it.

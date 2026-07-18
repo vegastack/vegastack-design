@@ -1,0 +1,203 @@
+---
+title: Quickstart
+description: Zero to a working VegaStack dashboard in one sitting — every command, every file, no surprises. Mirrors the reference starter step for step.
+---
+
+This is the **complete** path from an empty directory to a themed, toast-firing,
+dark-mode dashboard built from copy-in components. Every command below was executed
+verbatim to build the reference starter (`vegastack-design-starter`); if a step here
+disagrees with reality, that's a bug — report it.
+
+**You need:** Node ≥ 20 (≥ 24 recommended), pnpm, the registry **service token**
+(see [Registry access & auth](/docs/guides/registry-auth)), and ~10 minutes.
+
+> **For agents:** every step is idempotent and non-interactive unless marked. Execute
+> in order; each step names the file it creates or changes and the proof it worked.
+> Do not substitute `radix` for `base` anywhere — VegaStack components are Base UI.
+
+## 1. Scaffold (Next 16 + Tailwind v4 + pnpm)
+
+```bash
+pnpm create next-app@latest my-app --ts --app --tailwind --eslint \
+  --src-dir=false --import-alias "@/*" --use-pnpm --turbopack --yes
+cd my-app
+```
+
+**Proof:** `package.json` shows `next` 16.x, `react` 19.x, `tailwindcss` ^4.
+
+## 2. Install the runtime package
+
+```bash
+pnpm add @vegastack/design
+```
+
+One package — `@vegastack/design-tokens` (the zero-dependency token layer) arrives
+as its dependency. **Proof:** `ls node_modules/@vegastack` shows `design` (and under
+pnpm, `design-tokens` resolves transitively — you won't see it top-level; that's
+normal and fine, the CSS below never imports it directly).
+
+## 3. One-line CSS setup
+
+Replace the entire contents of `app/globals.css`:
+
+```css title="app/globals.css"
+/* preset.css bundles: tailwindcss + tw-animate-css + the token theme (:root/.dark)
+ * + the base a11y layer (focus rings, reduced-motion, portal isolation)
+ * + the utility helpers (shimmer / scroll-fade / scrollbar).
+ * Do NOT also import "tailwindcss" here — the preset already does. */
+@import '@vegastack/design/preset.css';
+```
+
+**Proof:** `pnpm build` succeeds. If it fails with `Can't resolve 'tw-animate-css'`,
+your `@vegastack/design` is older than 0.1.1 — run `pnpm update @vegastack/design`.
+
+## 4. Consumer config: `components.json`
+
+The shadcn CLI reads this to know where components go and where the private
+registry lives. Create it at the project root:
+
+```json title="components.json"
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "base-vega",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "app/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "iconLibrary": "lucide",
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  },
+  "registries": {
+    "@vegastack": {
+      "url": "https://design.vegastack.com/r/{name}.json",
+      "headers": {
+        "CF-Access-Client-Id": "${CF_ACCESS_CLIENT_ID}",
+        "CF-Access-Client-Secret": "${CF_ACCESS_CLIENT_SECRET}"
+      }
+    }
+  }
+}
+```
+
+The `${…}` placeholders expand from your environment — next step.
+
+## 5. Registry credentials (never in git)
+
+```bash
+cat > .env.local <<'EOF'
+CF_ACCESS_CLIENT_ID=<your-id>.access
+CF_ACCESS_CLIENT_SECRET=<your-long-hex-secret>
+EOF
+```
+
+Get the values per [Registry access & auth](/docs/guides/registry-auth). Commit a
+placeholder `.env.example`; **`.env.local` stays gitignored** (create-next-app's
+default `.gitignore` already covers `.env*.local` — verify yours does).
+
+**Proof:**
+
+```bash
+curl -s -o /dev/null -w "%{http_code}" \
+  -H "CF-Access-Client-Id: $CF_ACCESS_CLIENT_ID" \
+  -H "CF-Access-Client-Secret: $CF_ACCESS_CLIENT_SECRET" \
+  https://design.vegastack.com/r/registry.json
+# → 200   (a 403 means wrong/missing token values)
+```
+
+## 6. The provider — before any component
+
+```bash
+pnpm dlx shadcn@latest add @vegastack/provider
+```
+
+This copies `components/ui/provider.tsx` (+ its `sonner` Toaster dependency) into
+your repo. Wrap your root layout **exactly once**:
+
+```tsx title="app/layout.tsx"
+import { VegaStackProvider } from '@/components/ui/provider';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <VegaStackProvider>{children}</VegaStackProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+Two non-negotiables, both silent failures if skipped:
+
+- `suppressHydrationWarning` on `<html>` — next-themes mutates it client-side.
+- Provider before components — without it, **every `toast()` call does nothing**,
+  dark mode never applies, and tooltips lose shared-delay coordination. See
+  [Provider setup](/docs/guides/provider-setup).
+
+## 7. A real page in one command — the dashboard block
+
+```bash
+pnpm dlx shadcn@latest add @vegastack/dashboard-01
+```
+
+This is a `registry:block`: it copies a complete dashboard page
+(`app/dashboard/page.tsx` + sidebar/chart/stat/activity components + `data.json`)
+plus its 16 component dependencies (AppShell, Sidebar, Card, Chart, Badge, …) in one
+shot. Unlike components, a block is a **starter you own from day one** — edit the
+page freely; it is not update-tracked.
+
+```bash
+pnpm dev
+# open http://localhost:3000/dashboard
+```
+
+**Proof:** a sidebar-navigated dashboard with stat cards, a usage chart, and an
+activity feed — all themed, all dark-mode-ready.
+
+## 8. Add individual components as you build
+
+```bash
+pnpm dlx shadcn@latest add @vegastack/dialog @vegastack/field @vegastack/table
+```
+
+Each lands in `components/ui/`, brings its own `registryDependencies`
+transitively, and stamps a provenance header (`// @vegastack <name>@<version>
+sha256-…`) used later by update tooling. For the verify-before-copy flow and the
+update loop (`check-updates` → `--diff` → `--overwrite`), see
+[Working with components](/docs/guides/components).
+
+## 9. Wire the drift gate (CI)
+
+```json title="package.json (scripts)"
+{
+  "check-updates": "vegastack-design check-updates",
+  "ci": "pnpm typecheck && pnpm build && pnpm check-updates --fail-on-update"
+}
+```
+
+`vegastack-design` is the CLI bin shipped inside `@vegastack/design` — zero extra
+installs. `--fail-on-update` turns component drift into a red build instead of a
+surprise. Details in [Production checklist](/docs/guides/production-checklist).
+
+## Complete file inventory after this guide
+
+| File | Origin | Yours to edit? |
+| --- | --- | --- |
+| `app/globals.css` | you (step 3) | yes |
+| `components.json` | you (step 4) | yes |
+| `.env.local` | you (step 5) | yes — never commit |
+| `components/ui/*.tsx` | copied by `shadcn add` | yes — you own them; updates are pulled, never pushed |
+| `app/dashboard/*` | the `dashboard-01` block | yes — a starter, not update-tracked |
+| `lib/utils.ts` | may be created by the CLI | it re-exports `cn` from `@vegastack/design` |
+
+Anything unclear or broken on this path → [Troubleshooting](/docs/guides/troubleshooting).

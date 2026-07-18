@@ -1,0 +1,134 @@
+---
+title: Troubleshooting
+description: Exact error text → root cause → fix, for every failure mode hit while building the reference starter and running real consume tests.
+---
+
+Errors below are **verbatim** from real runs. Find yours, apply the fix. If you
+hit something not listed, that's a doc bug — report it with the exact output.
+
+## Install & build
+
+### `Can't resolve 'tw-animate-css' in '…/node_modules/@vegastack/design'`
+
+Turbopack/webpack error the moment `preset.css` is imported.
+**Cause:** `@vegastack/design` older than `0.1.1` marked tw-animate-css as an
+optional peer that pnpm never installs.
+**Fix:** `pnpm update @vegastack/design` (≥ 0.1.1). Workaround on old versions:
+`pnpm add tw-animate-css`.
+
+### `Cannot find module '@vegastack/design/theme.css'` (or base/utilities)
+
+**Cause:** an import path outside the exports map — usually
+`@vegastack/design-tokens/theme.css` in an app that never installed the tokens
+package (it's transitive; pnpm-strict hides it).
+**Fix:** import the re-exports: `@vegastack/design/theme.css` etc. Apps should
+never import `@vegastack/design-tokens/*` directly.
+
+### Tailwind utilities exist but everything is unstyled
+
+**Cause:** `app/globals.css` still contains create-next-app's own
+`@import "tailwindcss"` block **instead of** (or as well as) the preset.
+**Fix:** the file should contain exactly one entry:
+`@import '@vegastack/design/preset.css';` — the preset imports Tailwind itself.
+
+## Registry & CLI
+
+### `shadcn add` → `403` (or "Failed to fetch registry")
+
+```bash
+curl -s -o /dev/null -w "%{http_code}" \
+  -H "CF-Access-Client-Id: $CF_ACCESS_CLIENT_ID" \
+  -H "CF-Access-Client-Secret: $CF_ACCESS_CLIENT_SECRET" \
+  https://design.vegastack.com/r/registry.json
+```
+
+- curl 403 too → the **values** are wrong: expired token, or the classic
+  header-name-in-value mistake (`CF-Access-Client-Id: abc…` stored as the value).
+  See [Registry access & auth](/docs/guides/registry-auth).
+- curl 200 but the CLI fails → the CLI isn't seeing your env: `.env.local` not in
+  the directory you're running from, or the shell doesn't export the vars. Run
+  from the project root; check `components.json` uses `${CF_ACCESS_CLIENT_ID}`
+  placeholder syntax exactly.
+
+### Component installed but looks/behaves wrong (Radix imports inside)
+
+**Cause:** a bare `shadcn add dialog` — without `@vegastack/`, you got shadcn's
+own Radix-based component (and possibly overwrote ours).
+**Fix:** `git checkout` the file, re-add with the namespace:
+`pnpm dlx shadcn@latest add @vegastack/dialog`. Grep check:
+`grep -r "@radix-ui" components/ui/` should return nothing.
+
+### `shadcn init` hangs forever
+
+**Cause:** the CLI is waiting on an interactive prompt (non-tty shells, CI,
+agents).
+**Fix:** skip init — write `components.json` yourself; the complete known-good
+file is in the [Quickstart §4](/docs/guides/quickstart). Init is a convenience,
+not a requirement.
+
+### `vegastack-design: command not found`
+
+**Cause:** running it bare, outside a project that has `@vegastack/design`
+installed.
+**Fix:** `pnpm exec vegastack-design …` inside the project (the bin ships with
+the package), or one-off anywhere:
+`npx --package=@vegastack/design vegastack-design …`.
+
+## Runtime
+
+### `toast(...)` does nothing — no error, no toast
+
+The #1 report. **Cause:** no `VegaStackProvider` above the calling component (or
+at all). **Fix:** [Provider setup](/docs/guides/provider-setup). Related: toasts
+appearing **twice** → two Toasters mounted; pass `toaster={false}` to one.
+
+### Hydration warning: server `class="…"` didn't match client, mentions `<html>`
+
+**Cause:** missing `suppressHydrationWarning` on `<html>` — next-themes sets the
+theme class pre-hydration.
+**Fix:** add the attribute (Quickstart §6). This suppresses only that one
+attribute's check, nothing else.
+
+### Dialog / dropdown renders *under* the page header
+
+**Cause:** the `body { isolation: isolate }` stacking context from `base.css`
+isn't applied — usually a granular-import setup that skipped base.css, or a CSS
+layer conflict overriding `isolation`.
+**Fix:** import the preset (it includes base.css), or re-add
+`body { isolation: isolate }`. Never "fix" this with z-index arms races.
+
+### No focus ring anywhere when tabbing
+
+**Cause:** same as above — `base.css` skipped. Components intentionally carry no
+per-component focus ring; the global `:focus-visible` layer is the mechanism.
+**Fix:** import the preset. This is a WCAG failure, not a cosmetic issue — treat
+as ship-blocking.
+
+### Tooltips each wait ~600ms even when moving across a toolbar
+
+**Cause:** no provider → no shared Base UI `Tooltip.Provider` delay group.
+**Fix:** [Provider setup](/docs/guides/provider-setup).
+
+## Updates
+
+### `check-updates` says `up to date` but the registry version number is higher
+
+Not a bug. Status is by **content hash**, not version: the global version bumped
+but that component's bytes didn't change. Nothing to pull.
+
+### `? <name> — not in registry (renamed/removed)`
+
+The component was renamed or retired upstream. Check the
+[Changelog](/docs/changelog) for the mapping; the copy in your repo keeps working
+regardless (you own it) — migrate when convenient.
+
+### `--overwrite` clobbered my customizations
+
+Expected — overwrite replaces the file. Your edits are in git:
+`git diff HEAD~1 -- components/ui/<name>.tsx`, re-apply on top, run your smoke
+tests. Prevention: review with `--diff` first, keep customizations additive, or
+compose in wrapper files instead of editing the copy.
+
+> **For agents:** prefer exact-error-text search on this page over improvising.
+> If a fix requires credentials or accounts (tokens, npm, Cloudflare), surface to
+> a human — never work around an auth boundary.
