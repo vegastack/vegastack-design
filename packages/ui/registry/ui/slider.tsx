@@ -1,4 +1,4 @@
-// @vegastack slider@0.1.0 sha256-U7353DIQK4y4+/d2CWClFXPKPm0ly5e7Uetw2zJI93s=
+// @vegastack slider@0.2.0 sha256-OJwO5XvuUT1dMvFM6HafzCQdvPa+UuDoIc6hGidoTAM=
 
 "use client";
 

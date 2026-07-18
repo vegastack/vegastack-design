@@ -1,4 +1,4 @@
-// @vegastack terminal@0.1.0 sha256-5c0kuTNpz9kAJv/U4Sj9ymMi30lDZtbThX1g/hZKRJc=
+// @vegastack terminal@0.2.0 sha256-gs/8AgqdvDxdHgYSn4LIglqTimt8E4GRomWOIg3S+Vo=
 
 // @vegastack terminal@0.1.0 — new component; run `pnpm run registry:build` to stamp integrity +
 // regenerate the copy-in/JSON.

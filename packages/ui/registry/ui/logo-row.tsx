@@ -1,4 +1,4 @@
-// @vegastack logo-row@0.1.0 sha256-Svf9ZS4Te98u/xFH6fyCUcYOhuQbP1/eBfZI4111I1s=
+// @vegastack logo-row@0.2.0 sha256-pzilx7f9u0mN5Am4ZH7ikJuF3SSLfnm92CRGGNhDmv4=
 
 // @vegastack logo-row@0.1.0 — new component; run `pnpm run registry:build` to stamp integrity +
 // regenerate the copy-in/JSON.

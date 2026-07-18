@@ -1,4 +1,4 @@
-// @vegastack marketing-surface@0.1.0 sha256-abPOpbSv6+tCf3koh9Zb7WYGgvF+jTjesyxUd91Xhhc=
+// @vegastack marketing-surface@0.2.0 sha256-rrVo0BMSmKA6VrM3zwFJNvivnZ8aMB33e60hsgHMmRQ=
 
 // @vegastack marketing-surface@0.1.0 — new component; run `pnpm run registry:build` to stamp
 // integrity + regenerate the copy-in/JSON.
