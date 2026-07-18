@@ -33,7 +33,9 @@ jobs:
       - run: pnpm build # static-export the docs so VRT renders the compiled, shipped CSS
       - name: Require committed VRT baselines (fail-closed for release)
         run: |
-          ls apps/docs/vrt/**/*-snapshots/*.png >/dev/null 2>&1 || {
+          # find, not `ls **`: CI steps run POSIX sh where ** is NOT recursive — a `**` glob
+          # here can never match vrt/<spec>-snapshots/*.png and would fail even with baselines committed.
+          [ -n "$(find apps/docs/vrt -type f -path '*-snapshots/*' -name '*.png' 2>/dev/null | head -1)" ] || {
             echo "::error title=VRT baselines missing::Cannot deploy without committed baseline screenshots. Run the VRT workflow's update_baselines bootstrap in the pinned container and commit apps/docs/vrt/**/*-snapshots/** first.";
             exit 1;
           }
