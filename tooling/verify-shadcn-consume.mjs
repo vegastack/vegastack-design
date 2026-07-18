@@ -104,13 +104,13 @@ const LAYOUTS = [
     name: 'default (components/ui)',
     aliases: { components: '@/components', utils: '@/lib/utils', ui: '@/components/ui', lib: '@/lib', hooks: '@/hooks' },
     tscPaths: { [`${CONSUMER_ALIAS}/*`]: ['./*'] },
-    tscInclude: ['components/**/*.ts', 'components/**/*.tsx'],
+    tscInclude: ['components/**/*.ts', 'components/**/*.tsx', 'app/**/*.ts', 'app/**/*.tsx'],
   },
   {
     name: 'non-default (src/components/ui)',
     aliases: { components: 'src/components', utils: 'src/lib/utils', ui: 'src/components/ui', lib: 'src/lib', hooks: 'src/hooks' },
     tscPaths: { [`${CONSUMER_ALIAS}/*`]: ['./src/*'] },
-    tscInclude: ['src/**/*.ts', 'src/**/*.tsx'],
+    tscInclude: ['src/**/*.ts', 'src/**/*.tsx', 'app/**/*.ts', 'app/**/*.tsx'],
   },
 ];
 

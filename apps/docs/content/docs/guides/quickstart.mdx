@@ -171,9 +171,9 @@ pnpm dlx shadcn@latest add @vegastack/dialog @vegastack/field @vegastack/table
 ```
 
 Each lands in `components/ui/`, brings its own `registryDependencies`
-transitively, and stamps a provenance header (`// @vegastack <name>@<version>
-sha256-…`) used later by update tooling. For the verify-before-copy flow and the
-update loop (`check-updates` → `--diff` → `--overwrite`), see
+transitively, and is tracked for updates by content (no in-file marker needed).
+For the verify-before-copy flow and the update loop
+(`check-updates` → `--diff` → `--overwrite`), see
 [Working with components](/docs/guides/components).
 
 ## 9. Wire the drift gate (CI)

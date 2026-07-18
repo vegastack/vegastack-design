@@ -1,4 +1,4 @@
-// @vegastack dashboard-01@0.1.0 sha256-bQ5C3Dqq63GGGE/ugAZjdnji5JhPV8kJ4hU0iZU61SY=
+// @vegastack dashboard-01@0.1.0 sha256-Y/pYrxWGCPZZ2pSM0tGLrww5YEd4w6EfahXXRxkN/tA=
 
 /**
  * `page.tsx` — registry:page, target `app/dashboard/page.tsx`. The dashboard-01 block's sample
@@ -147,3 +147,7 @@ export function DashboardPage({
     </AppShell>
   );
 }
+
+// Next.js app-route target (`app/dashboard/page.tsx`) — route files REQUIRE a default
+// export; the named export above stays for composition/tests.
+export default DashboardPage;

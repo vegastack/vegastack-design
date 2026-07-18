@@ -31,14 +31,18 @@ pnpm dlx shadcn@latest add @vegastack/dialog
 - npm dependencies of each item (`@base-ui/react`, `class-variance-authority`, …)
   are installed by the CLI into your project automatically.
 
-Every copied file starts with a **provenance header**:
+Every registry item carries a **provenance header** in its source:
 
 ```tsx
 // @vegastack dialog@0.1.0 sha256-Qm3…=
 ```
 
-Keep it — it is the version pin the update tooling reads. Deleting it orphans the
-file (updates can no longer be detected for it).
+Heads-up: the current shadcn CLI **strips leading comments during copy-in**, so
+the header usually won't appear in your copied file — that's fine. Update
+tracking does not depend on it: `check-updates` identifies your copies by
+filename against the registry index and compares **alias-normalized content**.
+If a header *is* present (older CLIs, or files synced by other tooling), it's
+used as a fast-path version pin — keep it in that case.
 
 ## Verifying integrity (recommended for CI-critical repos)
 
@@ -82,14 +86,18 @@ pnpm exec vegastack-design check-updates
 
 ```
   ⬆  button   0.1.0 → 0.2.0   update available
+  ≈  card     → 0.2.0         differs from registry (update or local edits — review with --diff)
   ✓  field    0.2.0           up to date
   ?  legacy   0.1.0           not in registry (renamed/removed)
 ```
 
-Status compares the provenance header's **integrity hash** against the live
-registry — not version numbers. That means a component reads `up to date` even
-when the registry's global version bumped but that component's content didn't
-change: you only re-pull what actually moved.
+Status is by **content**, not version numbers: headered files compare their
+integrity hash; headerless files (the normal real-CLI case) compare
+alias-normalized bytes against the live item. Either way a component reads
+`up to date` when the registry's global version bumped but that component's
+content didn't change — you only re-pull what actually moved. The `≈ differs`
+status means the bytes diverged — an upstream update *or* your local edits;
+`add --diff` shows which.
 
 Per component, review then take:
 
@@ -106,10 +114,10 @@ Useful flags: `--dir` (scan a non-default location), `--filter <name>`, `--json`
 non-zero when anything is stale — the CI drift gate), `--registry` / `--cwd`.
 
 > **For agents:** the reliable loop is `vegastack-design check-updates --json` →
-> for each stale name, `shadcn add @vegastack/<name> --diff` → present the diff →
-> only after approval `--overwrite`. Never edit the provenance header by hand,
-> never "update" by pasting source from elsewhere — the header hash must come
-> from the registry pipeline or drift detection breaks silently.
+> for each item with status `update` or `drift`, `shadcn add @vegastack/<name>
+> --diff` → present the diff → only after approval `--overwrite`. Never hand-edit
+> a provenance header, and never "update" by pasting source from elsewhere — pull
+> through the CLI so content and registry stay comparable.
 
 ## Blocks are different — by design
 

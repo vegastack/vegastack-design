@@ -14140,19 +14140,23 @@
         },
         {
           "path": "packages/ui/registry/blocks/dashboard-01/components/app-sidebar.tsx",
-          "type": "registry:component"
+          "type": "registry:component",
+          "target": "app/dashboard/components/app-sidebar.tsx"
         },
         {
           "path": "packages/ui/registry/blocks/dashboard-01/components/stat-cards.tsx",
-          "type": "registry:component"
+          "type": "registry:component",
+          "target": "app/dashboard/components/stat-cards.tsx"
         },
         {
           "path": "packages/ui/registry/blocks/dashboard-01/components/dashboard-chart.tsx",
-          "type": "registry:component"
+          "type": "registry:component",
+          "target": "app/dashboard/components/dashboard-chart.tsx"
         },
         {
           "path": "packages/ui/registry/blocks/dashboard-01/components/recent-activity.tsx",
-          "type": "registry:component"
+          "type": "registry:component",
+          "target": "app/dashboard/components/recent-activity.tsx"
         }
       ],
       "meta": {

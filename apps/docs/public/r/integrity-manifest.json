@@ -21,7 +21,7 @@
   "context-menu": "sha256-yqBTBNMYpWxlm972LgBZEHfMy+BTJ6RRG+QEUYBANFE=",
   "copy-button": "sha256-PQTwvjd55XCwVuNh9bjfESNqQwtnSUXBzcbIYnAfnK4=",
   "country-select": "sha256-ei4DGdbyL21QHjtjEefik7Z+txJuzKxEdn57KgayZr8=",
-  "dashboard-01": "sha256-bQ5C3Dqq63GGGE/ugAZjdnji5JhPV8kJ4hU0iZU61SY=",
+  "dashboard-01": "sha256-Y/pYrxWGCPZZ2pSM0tGLrww5YEd4w6EfahXXRxkN/tA=",
   "data-list": "sha256-i5o0bFTNhemCo44mqhboLaC9LcZiQHzgjw7pe5ZWvik=",
   "date-picker": "sha256-nhNyLI4op6vJVl05t+Ubtca7c4X2ipHW9gYlNFRtgfA=",
   "dialog": "sha256-USCNaIHdlSO2nsQ8kGsgFh57R6BMbVOXgnyVRqMTwSU=",
@@ -523,6 +523,6 @@
   "toggle": "sha256-+RTKwseWmxQS5bATMKNa2KmvM+M61h6a8X8DZ+283N0=",
   "tooltip": "sha256-r5ntkBlLZCr80aBpxpOSwN6fA9YW4RaO+oRvX2R9mW8=",
   "truncated-text": "sha256-hlApXu6cZP+dEA8JOiPchl2LTvJRE98TnhZZxKnh1G4=",
-  "use-animation-replay": "sha256-+3D8aK3iVPq0oajY67w+hBmbpmyMnY55UbVMDzp9WYY=",
+  "use-animation-replay": "sha256-uZJ6LP1weJbHDzGEXmN5wYGtAVkNvqKfF21rHY8oJ44=",
   "use-mobile": "sha256-n8DQ1PvhUun2lD68D6R0Dx0YMvN6cpj/WQvl3HYd67o="
 }

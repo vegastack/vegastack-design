@@ -27,16 +27,35 @@ process.env.TEST_TOKEN = 's3cr3t';
 const BTN_OLD = 'sha256-AAAAbbbbCCCCddddEEEE1111++//==';
 const BTN_NEW = 'sha256-ZZZZyyyyXXXXwwwwVVVV9999++//==';
 const DLG_SAME = 'sha256-DLGdlgDLGdlg0000111122223333==';
+// input/card: headerless-consumer cases (the REAL `shadcn add` strips provenance headers)
+const INPUT_CONTENT = `// @vegastack input@0.2.0 sha256-INPUTinput00001111==\n\nimport { cn } from '@vegastack/design';\nexport const Input = () => null;\n`;
+const CARD_CONTENT = `// @vegastack card@0.2.0 sha256-CARDcard000011112222==\n\nexport const Card = () => 'v2';\n`;
 const INDEX = {
   items: [
     { name: 'button', meta: { version: '0.2.0', integrity: BTN_NEW } },
     { name: 'dialog', meta: { version: '0.2.0', integrity: DLG_SAME } },
+    { name: 'input', meta: { version: '0.2.0', integrity: 'sha256-INPUTinput00001111==' } },
+    { name: 'card', meta: { version: '0.2.0', integrity: 'sha256-CARDcard000011112222==' } },
     // 'gone' intentionally absent → "missing"
   ],
 };
+const ITEMS = {
+  input: { name: 'input', files: [{ path: 'packages/ui/registry/ui/input.tsx', target: '@ui/input.tsx', content: INPUT_CONTENT }] },
+  card: { name: 'card', files: [{ path: 'packages/ui/registry/ui/card.tsx', target: '@ui/card.tsx', content: CARD_CONTENT }] },
+};
 let lastFetch = null;
+let firstFetch = null; // the index fetch (item fetches for headerless files follow it)
 globalThis.fetch = async (url, init) => {
   lastFetch = { url, headers: init?.headers ?? {} };
+  if (String(url).endsWith('/registry.json')) firstFetch = lastFetch;
+  const m = /\/([a-z0-9-]+)\.json$/.exec(String(url));
+  const name = m?.[1];
+  if (name && name !== 'registry' && ITEMS[name]) {
+    return { ok: true, status: 200, statusText: 'OK', json: async () => ITEMS[name] };
+  }
+  if (name && name !== 'registry' && !ITEMS[name]) {
+    return { ok: false, status: 404, statusText: 'Not Found', json: async () => ({}) };
+  }
   return { ok: true, status: 200, statusText: 'OK', json: async () => INDEX };
 };
 
@@ -60,8 +79,12 @@ function makeProject() {
   writeFileSync(join(ui, 'dialog.tsx'), `// @vegastack dialog@0.1.0 ${DLG_SAME}\nexport const Dialog = () => null;\n`);
   // gone: not in index → MISSING
   writeFileSync(join(ui, 'gone.tsx'), `// @vegastack gone@0.1.0 sha256-GONEgone000011112222==\nexport const Gone = () => null;\n`);
-  // plain: no provenance header → ignored
+  // plain: no provenance header AND not a registry name → ignored (the consumer's own file)
   writeFileSync(join(ui, 'plain.tsx'), `export const Plain = () => null;\n`);
+  // input: HEADERLESS (real shadcn add strips the header) but content matches the item → CURRENT
+  writeFileSync(join(ui, 'input.tsx'), `import { cn } from '@vegastack/design';\nexport const Input = () => null;\n`);
+  // card: HEADERLESS and content differs from the item → DRIFT
+  writeFileSync(join(ui, 'card.tsx'), `export const Card = () => 'LOCALLY EDITED';\n`);
   return root;
 }
 
@@ -85,7 +108,7 @@ async function run(args) {
 
 const root = makeProject();
 try {
-  await t('default run: reports update/current/missing, exit 0', async () => {
+  await t('default run: reports update/drift/current/missing, exit 0', async () => {
     lastFetch = null;
     const { code, out } = await run(['--cwd', root, '--no-color']);
     assert.equal(code, 0);
@@ -94,26 +117,32 @@ try {
     // version bumped to 0.2.0. It shows the local version (0.1.0) — re-pulling yields identical bytes.
     assert.match(out, /dialog\s+0\.1\.0\s+up to date/);
     assert.match(out, /gone\s+0\.1\.0\s+not in registry/);
-    assert.doesNotMatch(out, /plain/); // no header → ignored
-    assert.match(out, /1 update\(s\) available/);
+    assert.doesNotMatch(out, /plain/); // headerless AND not a registry name → ignored
+    // headerless consumer copies (real shadcn add strips headers):
+    assert.match(out, /input\s+.*up to date/); // content matches item minus header
+    assert.match(out, /card\s+.*differs from registry/); // content diverged → drift
+    assert.match(out, /2 update\(s\) available/); // button (update) + card (drift)
   });
 
   await t('index url derived ({name}->registry) + ${ENV} header expanded', async () => {
+    firstFetch = null;
     await run(['--cwd', root, '--no-color']);
-    assert.equal(lastFetch.url, 'https://example.test/r/registry.json');
-    assert.equal(lastFetch.headers['X-Token'], 's3cr3t');
+    assert.equal(firstFetch.url, 'https://example.test/r/registry.json');
+    assert.equal(firstFetch.headers['X-Token'], 's3cr3t');
   });
 
-  await t('--json: shape + counts + statuses', async () => {
+  await t('--json: shape + counts + statuses (incl. headerless drift/current)', async () => {
     const { code, out } = await run(['--cwd', root, '--json']);
     assert.equal(code, 0);
     const j = JSON.parse(out);
-    assert.equal(j.checked, 3);
-    assert.equal(j.updates, 1);
+    assert.equal(j.checked, 5);
+    assert.equal(j.updates, 2); // button (update) + card (drift)
     const by = Object.fromEntries(j.items.map((i) => [i.name, i.status]));
     assert.equal(by.button, 'update');
     assert.equal(by.dialog, 'current');
     assert.equal(by.gone, 'missing');
+    assert.equal(by.input, 'current'); // headerless, content-matched
+    assert.equal(by.card, 'drift'); // headerless, content diverged
   });
 
   await t('--fail-on-update: exit 1 when stale', async () => {
@@ -129,8 +158,9 @@ try {
   });
 
   await t('--registry overrides components.json (precedence)', async () => {
+    firstFetch = null;
     await run(['--cwd', root, '--no-color', '--registry', 'https://other.test/r/{name}.json']);
-    assert.equal(lastFetch.url, 'https://other.test/r/registry.json');
+    assert.equal(firstFetch.url, 'https://other.test/r/registry.json');
   });
 
   await t('no components found → exit 0 with message', async () => {

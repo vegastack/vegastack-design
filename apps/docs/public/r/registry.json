@@ -2255,7 +2255,7 @@
         "whenToUse": "Replaying a motion-* utility on a user action (error shake, retry pop, etc.), especially on an element that might be focused (form controls) where a key-remount would steal focus.",
         "whenNotToUse": "One-shot mount animations that never need to replay — just apply the motion-* class directly.",
         "version": "0.1.0",
-        "integrity": "sha256-+3D8aK3iVPq0oajY67w+hBmbpmyMnY55UbVMDzp9WYY="
+        "integrity": "sha256-uZJ6LP1weJbHDzGEXmN5wYGtAVkNvqKfF21rHY8oJ44="
       }
     },
     {
@@ -14657,26 +14657,30 @@
         },
         {
           "path": "packages/ui/registry/blocks/dashboard-01/components/app-sidebar.tsx",
-          "type": "registry:component"
+          "type": "registry:component",
+          "target": "app/dashboard/components/app-sidebar.tsx"
         },
         {
           "path": "packages/ui/registry/blocks/dashboard-01/components/stat-cards.tsx",
-          "type": "registry:component"
+          "type": "registry:component",
+          "target": "app/dashboard/components/stat-cards.tsx"
         },
         {
           "path": "packages/ui/registry/blocks/dashboard-01/components/dashboard-chart.tsx",
-          "type": "registry:component"
+          "type": "registry:component",
+          "target": "app/dashboard/components/dashboard-chart.tsx"
         },
         {
           "path": "packages/ui/registry/blocks/dashboard-01/components/recent-activity.tsx",
-          "type": "registry:component"
+          "type": "registry:component",
+          "target": "app/dashboard/components/recent-activity.tsx"
         }
       ],
       "meta": {
         "whenToUse": "Starting a new AI-platform-style dashboard route — pull once and own it (not hash-tracked/re-pulled like app-shell).",
         "whenNotToUse": "You just need the shared shell mechanics across many routes — install app-shell/sidebar directly instead.",
         "version": "0.1.0",
-        "integrity": "sha256-bQ5C3Dqq63GGGE/ugAZjdnji5JhPV8kJ4hU0iZU61SY="
+        "integrity": "sha256-Y/pYrxWGCPZZ2pSM0tGLrww5YEd4w6EfahXXRxkN/tA="
       }
     },
     {

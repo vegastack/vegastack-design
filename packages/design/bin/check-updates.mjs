@@ -163,16 +163,43 @@ function walk(dir, out = []) {
   return out;
 }
 
-function readHeader(file) {
-  let firstLine = '';
+// Read a copied-in file. Returns { file, name, content, header? } where header is the parsed
+// provenance line when present. The header is the fast path — but the REAL `shadcn add`
+// pipeline strips leading comments during its transform, so most consumer copies have NO
+// header. Headerless files are identified by filename against the registry index and compared
+// by alias-normalized CONTENT instead (see `normalizeForCompare`).
+function readInstalled(file) {
+  let content;
   try {
-    const fd = readFileSync(file, 'utf8');
-    firstLine = fd.slice(0, fd.indexOf('\n') === -1 ? fd.length : fd.indexOf('\n'));
+    content = readFileSync(file, 'utf8');
   } catch {
     return null;
   }
+  const firstLine = content.slice(0, content.indexOf('\n') === -1 ? content.length : content.indexOf('\n'));
   const m = PROVENANCE_RE.exec(firstLine);
-  return m ? { name: m[1], version: m[2], hash: `sha256-${m[3]}`, file } : null;
+  const name = basename(file).replace(/\.tsx?$/, '');
+  return m
+    ? { file, name: m[1], content, header: { version: m[2], hash: `sha256-${m[3]}` } }
+    : { file, name, content, header: null };
+}
+
+// Strip a provenance header (with its optional following blank line) from file content.
+function stripHeader(content) {
+  return content.replace(/^\/\/ @vegastack \S+@\S+ sha256-\S+\r?\n(?:\r?\n)?/, '');
+}
+
+/**
+ * Normalize content for the headerless comparison: drop the provenance header, unify line
+ * endings, rewrite the registry's canonical `@/…` import prefix to the consumer's alias root
+ * (the same class of rewrite `shadcn add` performs), and ignore trailing whitespace.
+ * Consumers on the default `@/*` alias need no rewrite at all.
+ */
+function normalizeForCompare(content, aliasRoot) {
+  let s = stripHeader(content).replace(/\r\n/g, '\n');
+  if (aliasRoot && aliasRoot !== '@') {
+    s = s.replace(/((?:from\s*|import\s*|import\(\s*|require\(\s*))(['"])@\//g, (_, head, q) => `${head}${q}${aliasRoot}/`);
+  }
+  return s.trimEnd() + '\n';
 }
 
 function globToRe(pattern) {
@@ -223,19 +250,8 @@ export async function main(argv) {
   const idxUrl = indexUrl(urlTemplate);
   const dir = resolveComponentsDir(cwd, opts.dir, componentsJson);
 
-  // scan for installed VegaStack components
-  let installed = walk(dir).map(readHeader).filter(Boolean);
-  if (opts.filter) {
-    const res = opts.filter.split(',').map((s) => globToRe(s.trim()));
-    installed = installed.filter((c) => res.some((re) => re.test(c.name)));
-  }
-  if (installed.length === 0) {
-    if (opts.json) console.log(JSON.stringify({ registry: idxUrl, checked: 0, updates: 0, items: [] }, null, 2));
-    else console.log(`No VegaStack components found in ${dir}. (Add some with \`shadcn add @vegastack/<name>\`.)`);
-    return 0;
-  }
-
-  // fetch the registry index once
+  // fetch the registry index once (needed up front: headerless files are identified by
+  // matching their filename against the index's item names)
   let index;
   try {
     const res = await fetch(idxUrl, { headers });
@@ -252,22 +268,62 @@ export async function main(argv) {
   const remote = new Map();
   for (const item of index.items ?? []) remote.set(item.name, { version: item.meta?.version, integrity: item.meta?.integrity });
 
-  // compare by hash
-  const rows = installed
-    .map((c) => {
-      const r = remote.get(c.name);
-      let status;
-      if (!r) status = 'missing';
-      else if (r.integrity && c.hash === r.integrity) status = 'current';
-      else status = 'update';
-      return { name: c.name, current: c.version, latest: r?.version ?? null, status };
-    })
-    .sort((a, b) => {
-      const rank = { update: 0, current: 1, missing: 2 };
-      return rank[a.status] - rank[b.status] || a.name.localeCompare(b.name);
-    });
+  // scan for installed VegaStack components:
+  //  - headered files (our own tooling / older CLIs preserve the provenance line) — always included
+  //  - headerless files whose basename matches a registry item — the REAL `shadcn add` strips
+  //    the header, so this is the normal consumer case
+  //  - headerless files NOT in the index are skipped (they're the consumer's own components)
+  let installed = walk(dir)
+    .map(readInstalled)
+    .filter(Boolean)
+    .filter((c) => c.header || remote.has(c.name));
+  if (opts.filter) {
+    const res = opts.filter.split(',').map((s) => globToRe(s.trim()));
+    installed = installed.filter((c) => res.some((re) => re.test(c.name)));
+  }
+  if (installed.length === 0) {
+    if (opts.json) console.log(JSON.stringify({ registry: idxUrl, checked: 0, updates: 0, items: [] }, null, 2));
+    else console.log(`No VegaStack components found in ${dir}. (Add some with \`shadcn add @vegastack/<name>\`.)`);
+    return 0;
+  }
 
-  const updates = rows.filter((r) => r.status === 'update');
+  // the consumer's alias root ('@' default; '~', 'src', … supported) for content normalization
+  const aliasRoot = (componentsJson?.aliases?.components ?? '@/components').split('/')[0];
+
+  // Resolve each installed file to a status:
+  //  - headered:  compare the header's item hash against the index integrity (fast, no item fetch)
+  //  - headerless: fetch the item and compare alias-normalized CONTENT; equal → current,
+  //    different → 'drift' (an upstream update OR local edits — `add --diff` disambiguates)
+  const itemUrlFor = (name) =>
+    urlTemplate.includes('{name}') ? urlTemplate.replace('{name}', name) : `${urlTemplate.replace(/\/$/, '')}/${name}.json`;
+
+  async function resolveStatus(c) {
+    const r = remote.get(c.name);
+    if (!r) return { name: c.name, current: c.header?.version ?? null, latest: null, status: 'missing' };
+    if (c.header) {
+      const status = r.integrity && c.header.hash === r.integrity ? 'current' : 'update';
+      return { name: c.name, current: c.header.version, latest: r.version ?? null, status };
+    }
+    try {
+      const res = await fetch(itemUrlFor(c.name), { headers });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const item = await res.json();
+      const base = basename(c.file);
+      const entry = (item.files ?? []).find((f) => basename(f.target ?? f.path ?? '') === base) ?? (item.files ?? [])[0];
+      const remoteContent = entry?.content ?? '';
+      const same = normalizeForCompare(remoteContent, aliasRoot) === normalizeForCompare(c.content, aliasRoot);
+      return { name: c.name, current: null, latest: r.version ?? null, status: same ? 'current' : 'drift' };
+    } catch (err) {
+      return { name: c.name, current: null, latest: r.version ?? null, status: 'drift', note: `item fetch failed: ${err.message}` };
+    }
+  }
+
+  const rows = (await Promise.all(installed.map(resolveStatus))).sort((a, b) => {
+    const rank = { update: 0, drift: 0, current: 1, missing: 2 };
+    return rank[a.status] - rank[b.status] || a.name.localeCompare(b.name);
+  });
+
+  const updates = rows.filter((r) => r.status === 'update' || r.status === 'drift');
 
   if (opts.json) {
     console.log(JSON.stringify({ registry: idxUrl, checked: rows.length, updates: updates.length, items: rows }, null, 2));
@@ -284,14 +340,18 @@ export async function main(argv) {
   })();
   console.log(`\nChecking ${rows.length} VegaStack component(s) against ${host} …\n`);
   const nameW = Math.max(...rows.map((r) => r.name.length), 4);
-  const GLYPH = { update: color.yellow('⬆'), current: color.green('✓'), missing: color.dim('?') };
+  const GLYPH = { update: color.yellow('⬆'), drift: color.yellow('≈'), current: color.green('✓'), missing: color.dim('?') };
   for (const r of rows) {
-    const ver = r.status === 'update' ? `${r.current} → ${r.latest ?? '?'}` : r.current;
+    const ver =
+      r.status === 'update' ? `${r.current} → ${r.latest ?? '?'}` :
+      r.status === 'drift' ? `→ ${r.latest ?? '?'}` :
+      (r.current ?? r.latest ?? '—');
     const note =
       r.status === 'update' ? color.yellow('update available') :
+      r.status === 'drift' ? color.yellow('differs from registry (update or local edits — review with --diff)') :
       r.status === 'current' ? color.dim('up to date') :
       color.dim('not in registry (renamed/removed)');
-    console.log(`  ${GLYPH[r.status]}  ${r.name.padEnd(nameW)}  ${ver.padEnd(16)}  ${note}`);
+    console.log(`  ${GLYPH[r.status]}  ${r.name.padEnd(nameW)}  ${String(ver).padEnd(16)}  ${note}`);
   }
   console.log('');
   if (updates.length) {

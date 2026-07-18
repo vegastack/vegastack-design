@@ -111,6 +111,14 @@ as ship-blocking.
 
 ## Updates
 
+### `check-updates` says "No VegaStack components found" despite copied components
+
+**Cause:** `@vegastack/design` older than `0.1.1` — its `check-updates` only
+recognized files with provenance headers, which the current shadcn CLI strips on
+copy-in.
+**Fix:** `pnpm update @vegastack/design`. Current versions identify components by
+filename against the registry index and compare content — no header needed.
+
 ### `check-updates` says `up to date` but the registry version number is higher
 
 Not a bug. Status is by **content hash**, not version: the global version bumped
