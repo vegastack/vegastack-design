@@ -69,6 +69,17 @@ jobs:
           node-version: 24
           cache: pnpm
           registry-url: 'https://registry.npmjs.org'
+      # npm 11.5+ speaks OIDC trusted publishing natively (same pattern as vegastack-cli's
+      # release.yml): with `id-token: write` + a trusted-publisher entry on npmjs.com for
+      # (@vegastack/design, @vegastack/design-tokens) → repo vegastack-design → release.yml,
+      # `npm publish` mints its own credential per publish. NO NPM_TOKEN secret, account 2FA
+      # untouched, and provenance attestations come back automatically.
+      - name: Pin npm to a version that speaks OIDC trusted publishing
+        run: npm install -g npm@latest
+      # Actions containers leave the workspace owned by a different uid than the job user; the
+      # changesets action's git calls die with exit 128 ("dubious ownership") without this.
+      - name: Mark workspace safe for git (container ownership)
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - run: pnpm install --frozen-lockfile
       # Full quality gate BEFORE publish — same as ci.yml. A direct push / merged version PR must not
       # publish public packages without a11y, design-lint, registry integrity, and consumer checks.
@@ -89,6 +100,3 @@ jobs:
           publish: pnpm changeset publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true

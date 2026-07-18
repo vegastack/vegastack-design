@@ -4,7 +4,12 @@ How VegaStack ships updates from this **private** GitHub repo, and how downstrea
 distribution channels, both already wired:
 
 - **npm packages** (`@vegastack/design` + `@vegastack/design-tokens`) → published by `release.yml`
-  (changesets) on push to `main`. Consumers get these via `npm update` (semver).
+  (changesets) on push to `main`, via **npm OIDC trusted publishing** (same pattern as
+  vegastack-cli): no `NPM_TOKEN` secret exists, the account keeps 2FA, and provenance attestations
+  are minted automatically. One-time setup: each package on npmjs.com has a Trusted Publisher entry
+  → GitHub Actions → `vegastack/vegastack-design` → `release.yml`. (The very first 0.1.0 publish
+  was done locally with `pnpm -r publish` + OTP, since a trusted-publisher entry can only be added
+  to an existing package.) Consumers get these via `npm update` (semver).
 - **Component registry** (`/r/*.json`) → built, **Sigstore-signed**, and deployed to Cloudflare by
   `deploy.yml` (manual `workflow_dispatch`). Consumers **pull** updates with `shadcn add` — copy-in,
   so there is **no auto-push** (that's the shadcn model; the provenance header is the version pin).
