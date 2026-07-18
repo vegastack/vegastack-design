@@ -6,6 +6,12 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "vegastack-design-docs",
   "compatibility_date": "2026-06-01",
+  // NEVER serve from workers.dev: that origin bypasses the Cloudflare Access apps (they guard
+  // design.vegastack.com only) — a workers.dev deploy would expose docs + registry unauthenticated.
+  "workers_dev": false,
+  "preview_urls": false,
+  // custom_domain: true → wrangler provisions the DNS record + attaches the domain on deploy.
+  "routes": [{ "pattern": "design.vegastack.com", "custom_domain": true }],
   "assets": {
     // The static-export output. The signed registry must already be in out/r BEFORE deploy — the
     // deploy workflow runs registry:build + cosign sign, THEN `next build`, so out/r carries the
