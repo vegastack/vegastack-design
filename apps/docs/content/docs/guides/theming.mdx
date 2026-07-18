@@ -68,6 +68,7 @@ Granular imports, only if you know why you're doing it:
 
 ```css
 @import 'tailwindcss';
+@import 'tw-animate-css';                  /* the preset includes it — don't lose it */
 @import '@vegastack/design/theme.css';
 @import '@vegastack/design/base.css';      /* NOT optional in practice */
 @import '@vegastack/design/utilities.css'; /* shimmer / scroll-fade / scrollbar */
@@ -86,6 +87,17 @@ import { Geist, Geist_Mono } from 'next/font/google';
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
 // <html className={`${geistSans.variable} ${geistMono.variable}`}>
+```
+
+Loading alone is NOT enough — `next/font` registers hashed family names, and the
+tokens reference literal `Geist`. Point the token variables at the loaded fonts or
+you'll silently render system fonts:
+
+```css title="app/globals.css (append)"
+:root {
+  --font-family-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-family-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
 ```
 
 Details and non-Next guidance: [Typography](/docs/foundations/typography).

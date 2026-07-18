@@ -114,15 +114,17 @@ npx --package=@vegastack/design vegastack-design verify \
   --post-write --item /tmp/vega-button.json --target-dir .
 ```
 
-The registry item installs its npm dependencies, registry dependencies, and stamped
-source files. Keep the provenance header at the top of copied files; registry
-verification uses it to detect drift.
+The registry item installs its npm dependencies, registry dependencies, and
+source files. (The current shadcn CLI strips the stamped provenance header during
+copy-in — that's expected; update tracking identifies copies by filename and
+compares content, no header needed.)
 
 ## Updating components
 
 Registry components are **copy-in — you own the copy**, so updates are pulled, never pushed.
-The provenance header (`// @vegastack <name>@<version> sha256-…`) is the version pin. One command
-shows what's stale against the live registry:
+Tracking is by content: copies are identified by filename against the registry index and
+compared alias-normalized (a provenance header, when present, is only a fast-path pin). One
+command shows what's stale against the live registry:
 
 ```bash
 npx vegastack-design check-updates
@@ -130,12 +132,14 @@ npx vegastack-design check-updates
 
 ```
   ⬆  button   0.1.0 → 0.2.0   update available
+  ≈  card     → 0.2.0         differs from registry (update or local edits — review with --diff)
   ✓  field    0.2.0           up to date
   ?  legacy   0.1.0           not in registry (renamed/removed)
 ```
 
-Status is compared by **integrity hash**, so a component reads `up to date` even when the registry's
-global version bumped but that component's content didn't change. Review and apply per component:
+Status is by **content**, so a component reads `up to date` even when the registry's global
+version bumped but that component's content didn't change; `≈` means the bytes diverged —
+an upstream update or your local edits. Review and apply per component:
 
 ```bash
 npx shadcn@latest add @vegastack/button --diff       # see exactly what changed

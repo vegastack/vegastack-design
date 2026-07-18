@@ -19,7 +19,7 @@ disagrees with reality, that's a bug — report it.
 
 ```bash
 pnpm create next-app@latest my-app --ts --app --tailwind --eslint \
-  --src-dir=false --import-alias "@/*" --use-pnpm --turbopack --yes
+  --import-alias "@/*" --use-pnpm --yes
 cd my-app
 ```
 
@@ -32,9 +32,10 @@ pnpm add @vegastack/design
 ```
 
 One package — `@vegastack/design-tokens` (the zero-dependency token layer) arrives
-as its dependency. **Proof:** `ls node_modules/@vegastack` shows `design` (and under
-pnpm, `design-tokens` resolves transitively — you won't see it top-level; that's
-normal and fine, the CSS below never imports it directly).
+as its dependency. **Proof:** `ls node_modules/@vegastack` shows `design`. Under pnpm,
+`design-tokens` resolves transitively at this point — you won't see it top-level yet;
+later, `shadcn add` will list it as a direct dependency of your project (many registry
+items declare it). Both states are normal; the two packages version in lockstep.
 
 ## 3. One-line CSS setup
 
@@ -49,7 +50,8 @@ Replace the entire contents of `app/globals.css`:
 ```
 
 **Proof:** `pnpm build` succeeds. If it fails with `Can't resolve 'tw-animate-css'`,
-your `@vegastack/design` is older than 0.1.1 — run `pnpm update @vegastack/design`.
+your `@vegastack/design` is older than 0.1.1 — run `pnpm update @vegastack/design`
+(and if 0.1.1 isn't on npm yet, `pnpm add tw-animate-css` unblocks you identically).
 
 ## 4. Consumer config: `components.json`
 
@@ -89,7 +91,12 @@ registry lives. Create it at the project root:
 }
 ```
 
-The `${…}` placeholders expand from your environment — next step.
+The `${…}` placeholders are expanded by the shadcn CLI itself (from `.env.local` /
+`.env` / the shell) — next step.
+
+**Proof:** `node -e "JSON.parse(require('fs').readFileSync('components.json','utf8'))"`
+exits silently (valid JSON). A typo here otherwise surfaces only at step 6 as an
+unrelated-looking fetch error.
 
 ## 5. Registry credentials (never in git)
 
@@ -101,12 +108,20 @@ EOF
 ```
 
 Get the values per [Registry access & auth](/docs/guides/registry-auth). Commit a
-placeholder `.env.example`; **`.env.local` stays gitignored** (create-next-app's
-default `.gitignore` already covers `.env*.local` — verify yours does).
-
-**Proof:**
+placeholder `.env.example` — note create-next-app's default `.gitignore` contains
+`.env*`, which ignores the example file too; add an un-ignore line once:
 
 ```bash
+printf '!.env.example\n' >> .gitignore
+```
+
+`.env.local` stays gitignored either way.
+
+**Proof** (the CLI reads `.env.local` itself, but your *shell* doesn't — source it
+for this one check):
+
+```bash
+set -a; . ./.env.local; set +a
 curl -s -o /dev/null -w "%{http_code}" \
   -H "CF-Access-Client-Id: $CF_ACCESS_CLIENT_ID" \
   -H "CF-Access-Client-Secret: $CF_ACCESS_CLIENT_SECRET" \
@@ -121,14 +136,28 @@ pnpm dlx shadcn@latest add @vegastack/provider
 ```
 
 This copies `components/ui/provider.tsx` (+ its `sonner` Toaster dependency) into
-your repo. Wrap your root layout **exactly once**:
+your repo. Now **edit** your existing `app/layout.tsx` — keep the `globals.css`
+import and the font setup the scaffold gave you; the change is the provider import,
+the wrapper, and `suppressHydrationWarning`. The complete edited file:
 
-```tsx title="app/layout.tsx"
+```tsx title="app/layout.tsx (complete)"
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+import './globals.css'; // ← KEEP THIS — removing it silently un-styles the whole app
 import { VegaStackProvider } from '@/components/ui/provider';
+
+const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
+const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
+
+export const metadata: Metadata = { title: 'My App' };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+    >
       <body>
         <VegaStackProvider>{children}</VegaStackProvider>
       </body>
@@ -137,8 +166,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 ```
 
-Two non-negotiables, both silent failures if skipped:
+And point the token font families at those loaded fonts (append to `app/globals.css`):
 
+```css title="app/globals.css (append)"
+:root {
+  --font-family-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-family-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+```
+
+Three non-negotiables, all silent failures if skipped:
+
+- **Keep `import './globals.css'`** — dropping it produces a successful build with
+  zero CSS emitted. No error anywhere; the app just renders unstyled.
 - `suppressHydrationWarning` on `<html>` — next-themes mutates it client-side.
 - Provider before components — without it, **every `toast()` call does nothing**,
   dark mode never applies, and tooltips lose shared-delay coordination. See
@@ -150,11 +190,13 @@ Two non-negotiables, both silent failures if skipped:
 pnpm dlx shadcn@latest add @vegastack/dashboard-01
 ```
 
-This is a `registry:block`: it copies a complete dashboard page
-(`app/dashboard/page.tsx` + sidebar/chart/stat/activity components + `data.json`)
-plus its 16 component dependencies (AppShell, Sidebar, Card, Chart, Badge, …) in one
-shot. Unlike components, a block is a **starter you own from day one** — edit the
-page freely; it is not update-tracked.
+This is a `registry:block`: it copies a complete dashboard
+(`app/dashboard/page.tsx` + `loading.tsx` + `data.json` + four page components)
+plus its full component dependency graph — expect **~30 files** (AppShell, Sidebar,
+Card, Chart, Badge, hooks, …) in one shot. Unlike components, a block is a
+**starter you own from day one** — edit the page freely; it is not update-tracked.
+(The reference starter's first adaptation was moving the shell into a shared
+`app/dashboard/layout.tsx` so child routes keep the sidebar — copy that pattern.)
 
 ```bash
 pnpm dev
@@ -172,6 +214,8 @@ pnpm dlx shadcn@latest add @vegastack/dialog @vegastack/field @vegastack/table
 
 Each lands in `components/ui/`, brings its own `registryDependencies`
 transitively, and is tracked for updates by content (no in-file marker needed).
+Seeing `ℹ Skipped N files` is normal — those dependencies were already installed
+by an earlier add.
 For the verify-before-copy flow and the update loop
 (`check-updates` → `--diff` → `--overwrite`), see
 [Working with components](/docs/guides/components).
@@ -198,6 +242,6 @@ surprise. Details in [Production checklist](/docs/guides/production-checklist).
 | `.env.local` | you (step 5) | yes — never commit |
 | `components/ui/*.tsx` | copied by `shadcn add` | yes — you own them; updates are pulled, never pushed |
 | `app/dashboard/*` | the `dashboard-01` block | yes — a starter, not update-tracked |
-| `lib/utils.ts` | may be created by the CLI | it re-exports `cn` from `@vegastack/design` |
+| `lib/utils.ts` | optional — create it as `export { cn } from '@vegastack/design';` if any copied file imports `@/lib/utils` | yes |
 
 Anything unclear or broken on this path → [Troubleshooting](/docs/guides/troubleshooting).

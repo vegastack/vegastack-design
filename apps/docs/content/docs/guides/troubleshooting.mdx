@@ -13,8 +13,8 @@ hit something not listed, that's a doc bug — report it with the exact output.
 Turbopack/webpack error the moment `preset.css` is imported.
 **Cause:** `@vegastack/design` older than `0.1.1` marked tw-animate-css as an
 optional peer that pnpm never installs.
-**Fix:** `pnpm update @vegastack/design` (≥ 0.1.1). Workaround on old versions:
-`pnpm add tw-animate-css`.
+**Fix:** `pnpm update @vegastack/design` (≥ 0.1.1). On 0.1.0 (or before 0.1.1 is
+published): `pnpm add tw-animate-css` — identical result.
 
 ### `Cannot find module '@vegastack/design/theme.css'` (or base/utilities)
 
@@ -128,7 +128,11 @@ but that component's bytes didn't change. Nothing to pull.
 
 The component was renamed or retired upstream. Check the
 [Changelog](/docs/changelog) for the mapping; the copy in your repo keeps working
-regardless (you own it) — migrate when convenient.
+regardless (you own it) — migrate when convenient. Caveat: this status only
+appears for files that still carry a provenance header (older CLIs / other
+tooling). A *headerless* copy of a retired component silently drops out of the
+report — after a rename lands in the changelog, grep `components/ui/` for the old
+filename yourself.
 
 ### `--overwrite` clobbered my customizations
 

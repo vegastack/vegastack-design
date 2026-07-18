@@ -1,6 +1,6 @@
 ---
 title: Working with components
-description: The copy-in ownership model end to end — add, verify, customize, and pull updates by integrity hash.
+description: The copy-in ownership model end to end — add, verify, customize, and pull updates tracked by content.
 ---
 
 VegaStack components are **copy-in**: `shadcn add` writes real source files into
@@ -11,8 +11,8 @@ when you decide. This page is the full lifecycle.
 
 | Kind | Example | Behavior |
 | --- | --- | --- |
-| Component (`registry:ui`) | `@vegastack/button` | copied to `components/ui/`, update-tracked via its provenance header |
-| Hook (`registry:hook`) | `@vegastack/use-mobile` | plain `.ts` into `hooks/`, same tracking |
+| Component (`registry:ui`) | `@vegastack/button` | copied to `components/ui/`, update-tracked by content |
+| Hook (`registry:hook`) | `@vegastack/use-mobile` | plain `.ts` into `components/ui/`, same tracking |
 | Icon item | `@vegastack/icon-arrow-right` | one animated-icon mirror per item — 440 of them; bare names never collide with components |
 | Block (`registry:block`) | `@vegastack/dashboard-01` | a multi-file **starter composition** (page + components + data) you own outright — deliberately NOT update-tracked |
 
@@ -74,9 +74,11 @@ future updates painless:
 - **Compose in new files where possible** — wrap `Button` in your own
   `SubmitButton` rather than forking `button.tsx` for one use case.
 
-Customized files still show as `update available` when upstream changes — the
-hash comparison detects upstream drift; your local edits mean you'll review the
-diff and re-apply (below).
+Customized files show as `≈ differs from registry` — the content comparison
+can't tell your edits from an upstream change; `add --diff` is what disambiguates.
+**CI note:** `--fail-on-update` treats that status as failure too, so in-place
+customizations keep the drift gate red. If you customize, prefer wrapper files —
+or scope the gate: `check-updates --fail-on-update --filter <uncustomized,...>`.
 
 ## Updating — pulled, never pushed
 

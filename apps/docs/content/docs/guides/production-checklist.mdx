@@ -20,10 +20,11 @@ app. Each item says how to *verify*, not just what to believe.
 - Pin/track `@vegastack/design` normally (semver; it and `@vegastack/design-tokens`
   version in lockstep). Renovate/Dependabot works as usual — these are ordinary
   npm packages.
-- Don't add `@vegastack/design-tokens` to an app's dependencies — it arrives
-  transitively, and the CSS subpaths you import are re-exported through
-  `@vegastack/design`. (Token-pipeline repos are the exception — they install only
-  the tokens.)
+- You'll find `@vegastack/design-tokens` in your `package.json` — `shadcn add`
+  writes it there (many registry items declare it). Leave it; it versions in
+  lockstep with `@vegastack/design`. Your own code should still import the CSS
+  subpaths through `@vegastack/design` (`/theme.css` etc.), not the tokens package.
+  (Token-pipeline repos are the exception — they install only the tokens.)
 - **pnpm-strict note:** never deep-import anything not in the package `exports`
   map. Everything supported is exported: `.`, `./icons`, `./preset`,
   `./preset.css`, `./theme.css`, `./base.css`, `./utilities.css`.
@@ -49,8 +50,11 @@ Each of these fails without an error message. Check them explicitly:
 ```yaml title=".github/workflows/ci.yml (fragment)"
 - run: pnpm typecheck
 - run: pnpm build
-# Component drift: red build when the registry has newer versions of anything
-# you've copied in. Review with `--diff`, take with `--overwrite`, re-run.
+# Component drift: red build when anything you've copied differs from the registry —
+# an upstream update OR your own in-place edits (status `≈ drift`). If you customize
+# components in place, this stays red by design; keep customizations in wrapper
+# files, or scope with --filter to the components you haven't touched.
+# Review with `--diff`, take with `--overwrite`, re-run.
 - run: pnpm exec vegastack-design check-updates --fail-on-update
   env:
     CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
