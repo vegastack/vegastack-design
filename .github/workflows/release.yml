@@ -1,147 +1,147 @@
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||name: Release
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||on:
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||  push:
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||    branches: [main]
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||concurrency: ${{ github.workflow }}-${{ github.ref }}
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||permissions:
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||  contents: write
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||  pull-requests: write
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||  id-token: write # REQUIRED for npm provenance (OIDC)
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||# Turborepo remote caching (Phase D): activates when MK provisions the Vercel Remote Cache
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||# secrets — inert (local cache only) until then. Signature verification is enabled in
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||# turbo.json so poisoned-cache artifacts are rejected.
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||env:
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||jobs:
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||  # Cheap path-based routing (~1 min) so pushes only pay for the gates they need:
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||  #   visual  → did COMPONENT-VISUAL code change? (registry/src, the design packages, docs
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||  #             previews/copies, the VRT spec, dependency bumps). Prose-only / baseline-only /
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||  #             workflow-only / plans-only pushes skip the ~20-min container pixel gate here.
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||  #             deploy.yml ALWAYS runs the full gate — the site never ships unverified.
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||  #   publish → is there anything to release? (pending changesets, or packages/** changed).
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||  #             Docs-prose pushes stop burning a full quality-gate run for a guaranteed no-op.
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||  changes:
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||    runs-on: ubuntu-latest
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||    outputs:
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      visual: ${{ steps.detect.outputs.visual }}
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      publish: ${{ steps.detect.outputs.publish }}
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||    steps:
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - uses: actions/checkout@v6
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||        with: { fetch-depth: 0 }
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - id: detect
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||        run: |
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          BEFORE="${{ github.event.before }}"
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          # force-push / first push: before is unresolvable — fall back to the last commit only
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          if ! git rev-parse --verify -q "$BEFORE" >/dev/null 2>&1 || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||            BEFORE="${{ github.sha }}~1"
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          fi
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          CHANGED=$(git diff --name-only "$BEFORE" "${{ github.sha }}")
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          printf 'changed files:\n%s\n' "$CHANGED"
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          if echo "$CHANGED" | grep -qE '^(packages/ui/registry/|packages/ui/src/|packages/design/|packages/design-tokens/|apps/docs/components/|apps/docs/app/|apps/docs/lib/|apps/docs/vrt/components\.spec\.ts|pnpm-lock\.yaml|apps/docs/package\.json)'; then
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||            echo "visual=true" >> "$GITHUB_OUTPUT"
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          else
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||            echo "visual=false" >> "$GITHUB_OUTPUT"
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          fi
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          if ls .changeset/*.md >/dev/null 2>&1 || echo "$CHANGED" | grep -qE '^packages/'; then
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||            echo "publish=true" >> "$GITHUB_OUTPUT"
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          else
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||            echo "publish=false" >> "$GITHUB_OUTPUT"
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          fi
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||  # Publishing is a RELEASE: it must NOT bypass the same gates CI/deploy enforce (Codex R12). The
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||  # visual-regression pixel gate runs in the pinned Playwright container and FAILS CLOSED if no
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||  # baselines are committed, so a publish can't happen without proven visual coverage. It runs
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||  # only when component-visual code changed (see `changes` above); the release job below keeps
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||  # its own always-on baselines-present check either way.
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||  vrt-gate:
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||    needs: changes
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||    if: needs.changes.outputs.visual == 'true'
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||    runs-on: ubuntu-latest
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||    container: mcr.microsoft.com/playwright:v1.61.0-noble # MUST match ci.yml / vrt.yml / deploy.yml
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||    steps:
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - uses: actions/checkout@v6
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - uses: pnpm/action-setup@v6
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - uses: actions/setup-node@v6
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||        with: { node-version: 24, cache: pnpm }
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - run: pnpm install --frozen-lockfile
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - run: pnpm build # static-export the docs so VRT renders the compiled, shipped CSS
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - name: Require committed VRT baselines (fail-closed for release)
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||        run: |
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          # find, not `ls **`: CI steps run POSIX sh where ** is NOT recursive — a `**` glob
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          # here can never match vrt/<spec>-snapshots/*.png and would fail even with baselines committed.
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          [ -n "$(find apps/docs/vrt -type f -path '*-snapshots/*' -name '*.png' 2>/dev/null | head -1)" ] || {
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||            echo "::error title=VRT baselines missing::Cannot publish without committed baseline screenshots. Bootstrap them via vrt.yml (update_baselines) in the pinned container and commit apps/docs/vrt/**/*-snapshots/** first.";
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||            exit 1;
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          }
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - name: VRT pixel gate (blocking)
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||        working-directory: apps/docs
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||        env:
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          PLAYWRIGHT_JSON_OUTPUT_NAME: vrt-report.json
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||        run: pnpm exec playwright test --reporter=list,json
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - name: Guard — fail if zero screenshot tests executed
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||        working-directory: apps/docs
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||        run: |
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          node -e '
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||            const r = require("./vrt-report.json");
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||            const ran = (r.stats?.expected||0)+(r.stats?.unexpected||0)+(r.stats?.flaky||0);
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||            if (ran === 0) { console.error("✗ VRT executed 0 screenshot tests — not valid passing evidence for a release."); process.exit(1); }
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||            console.log(`✓ VRT executed ${ran} screenshot test(s).`);
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          '
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||  release:
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||    # Runs only when there's something to publish. Fail-closed on the pixel gate WHEN it ran
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||    # (visual change); a skipped gate is acceptable only because `changes` proved no
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||    # component-visual code moved — and the baselines-present check below still always runs.
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||    needs: [changes, vrt-gate]
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||    if: >-
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      always() && needs.changes.outputs.publish == 'true' &&
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      (needs.vrt-gate.result == 'success' || (needs.vrt-gate.result == 'skipped' && needs.changes.outputs.visual == 'false'))
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||    runs-on: ubuntu-latest
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||    # Same pinned container as ci.yml / vrt.yml: `pnpm test` runs Vitest BROWSER mode, which
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||    # needs the Playwright browsers baked into this image (a bare runner has none and the
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||    # quality gate dies at browserType.launch).
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||    container: mcr.microsoft.com/playwright:v1.61.0-noble
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||    steps:
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - uses: actions/checkout@v6
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - uses: pnpm/action-setup@v6
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - uses: actions/setup-node@v6
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||        with:
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          node-version: 24
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          cache: pnpm
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          registry-url: 'https://registry.npmjs.org'
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      # npm 11.5+ speaks OIDC trusted publishing natively (same pattern as vegastack-cli's
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      # release.yml): with `id-token: write` + a trusted-publisher entry on npmjs.com for
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      # (@vegastack/design, @vegastack/design-tokens) → repo vegastack-design → release.yml,
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      # `npm publish` mints its own credential per publish. NO NPM_TOKEN secret, account 2FA
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      # untouched, and provenance attestations come back automatically.
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - name: Pin npm to a version that speaks OIDC trusted publishing
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||        run: npm install -g npm@latest
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      # Actions containers leave the workspace owned by a different uid than the job user; the
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      # changesets action's git calls die with exit 128 ("dubious ownership") without this.
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - name: Mark workspace safe for git (container ownership)
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - run: pnpm install --frozen-lockfile
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      # Full quality gate BEFORE publish — same as ci.yml. A direct push / merged version PR must not
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      # publish public packages without a11y, design-lint, registry integrity, and consumer checks.
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - run: pnpm typecheck
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - run: pnpm lint
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      # Vitest browser mode needs PLAYWRIGHT_BROWSERS_PATH passed through turbo (see ci.yml note).
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - run: pnpm test
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - run: pnpm build
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - run: pnpm registry:build
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - run: test -z "$(git status --porcelain)" # registry:build must be idempotent (no stale/untracked)
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - run: pnpm registry:verify-consume # the built registry is actually consumable
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||      - uses: changesets/action@v1
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||        with:
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          # version-packages = `changeset version` + tooling/version-sync.mjs (CX-3): the version PR
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          # carries the re-synced registry item meta.version + rebuilt public/r + re-stamped headers,
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          # so package version = item meta.version = provenance header version, always.
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          version: pnpm run version-packages
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          publish: pnpm changeset publish
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||        env:
- if ls .changeset/*.md 2>/dev/null | grep -qv README ||          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+name: Release
+on:
+  push:
+    branches: [main]
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write # REQUIRED for npm provenance (OIDC)
+
+# Turborepo remote caching (Phase D): activates when MK provisions the Vercel Remote Cache
+# secrets — inert (local cache only) until then. Signature verification is enabled in
+# turbo.json so poisoned-cache artifacts are rejected.
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
+jobs:
+  # Cheap path-based routing (~1 min) so pushes only pay for the gates they need:
+  #   visual  → did COMPONENT-VISUAL code change? (registry/src, the design packages, docs
+  #             previews/copies, the VRT spec, dependency bumps). Prose-only / baseline-only /
+  #             workflow-only / plans-only pushes skip the ~20-min container pixel gate here.
+  #             deploy.yml ALWAYS runs the full gate — the site never ships unverified.
+  #   publish → is there anything to release? (pending changesets, or packages/** changed).
+  #             Docs-prose pushes stop burning a full quality-gate run for a guaranteed no-op.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      visual: ${{ steps.detect.outputs.visual }}
+      publish: ${{ steps.detect.outputs.publish }}
+    steps:
+      - uses: actions/checkout@v6
+        with: { fetch-depth: 0 }
+      - id: detect
+        run: |
+          BEFORE="${{ github.event.before }}"
+          # force-push / first push: before is unresolvable — fall back to the last commit only
+          if ! git rev-parse --verify -q "$BEFORE" >/dev/null 2>&1 || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            BEFORE="${{ github.sha }}~1"
+          fi
+          CHANGED=$(git diff --name-only "$BEFORE" "${{ github.sha }}")
+          printf 'changed files:\n%s\n' "$CHANGED"
+          if echo "$CHANGED" | grep -qE '^(packages/ui/registry/|packages/ui/src/|packages/design/|packages/design-tokens/|apps/docs/components/|apps/docs/app/|apps/docs/lib/|apps/docs/vrt/components\.spec\.ts|pnpm-lock\.yaml|apps/docs/package\.json)'; then
+            echo "visual=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "visual=false" >> "$GITHUB_OUTPUT"
+          fi
+          if ls .changeset/*.md 2>/dev/null | grep -qv 'README' >/dev/null || echo "$CHANGED" | grep -qE '^packages/'; then
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  # Publishing is a RELEASE: it must NOT bypass the same gates CI/deploy enforce (Codex R12). The
+  # visual-regression pixel gate runs in the pinned Playwright container and FAILS CLOSED if no
+  # baselines are committed, so a publish can't happen without proven visual coverage. It runs
+  # only when component-visual code changed (see `changes` above); the release job below keeps
+  # its own always-on baselines-present check either way.
+  vrt-gate:
+    needs: changes
+    if: needs.changes.outputs.visual == 'true'
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.61.0-noble # MUST match ci.yml / vrt.yml / deploy.yml
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build # static-export the docs so VRT renders the compiled, shipped CSS
+      - name: Require committed VRT baselines (fail-closed for release)
+        run: |
+          # find, not `ls **`: CI steps run POSIX sh where ** is NOT recursive — a `**` glob
+          # here can never match vrt/<spec>-snapshots/*.png and would fail even with baselines committed.
+          [ -n "$(find apps/docs/vrt -type f -path '*-snapshots/*' -name '*.png' 2>/dev/null | head -1)" ] || {
+            echo "::error title=VRT baselines missing::Cannot publish without committed baseline screenshots. Bootstrap them via vrt.yml (update_baselines) in the pinned container and commit apps/docs/vrt/**/*-snapshots/** first.";
+            exit 1;
+          }
+      - name: VRT pixel gate (blocking)
+        working-directory: apps/docs
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: vrt-report.json
+        run: pnpm exec playwright test --reporter=list,json
+      - name: Guard — fail if zero screenshot tests executed
+        working-directory: apps/docs
+        run: |
+          node -e '
+            const r = require("./vrt-report.json");
+            const ran = (r.stats?.expected||0)+(r.stats?.unexpected||0)+(r.stats?.flaky||0);
+            if (ran === 0) { console.error("✗ VRT executed 0 screenshot tests — not valid passing evidence for a release."); process.exit(1); }
+            console.log(`✓ VRT executed ${ran} screenshot test(s).`);
+          '
+
+  release:
+    # Runs only when there's something to publish. Fail-closed on the pixel gate WHEN it ran
+    # (visual change); a skipped gate is acceptable only because `changes` proved no
+    # component-visual code moved — and the baselines-present check below still always runs.
+    needs: [changes, vrt-gate]
+    if: >-
+      always() && needs.changes.outputs.publish == 'true' &&
+      (needs.vrt-gate.result == 'success' || (needs.vrt-gate.result == 'skipped' && needs.changes.outputs.visual == 'false'))
+    runs-on: ubuntu-latest
+    # Same pinned container as ci.yml / vrt.yml: `pnpm test` runs Vitest BROWSER mode, which
+    # needs the Playwright browsers baked into this image (a bare runner has none and the
+    # quality gate dies at browserType.launch).
+    container: mcr.microsoft.com/playwright:v1.61.0-noble
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+          registry-url: 'https://registry.npmjs.org'
+      # npm 11.5+ speaks OIDC trusted publishing natively (same pattern as vegastack-cli's
+      # release.yml): with `id-token: write` + a trusted-publisher entry on npmjs.com for
+      # (@vegastack/design, @vegastack/design-tokens) → repo vegastack-design → release.yml,
+      # `npm publish` mints its own credential per publish. NO NPM_TOKEN secret, account 2FA
+      # untouched, and provenance attestations come back automatically.
+      - name: Pin npm to a version that speaks OIDC trusted publishing
+        run: npm install -g npm@latest
+      # Actions containers leave the workspace owned by a different uid than the job user; the
+      # changesets action's git calls die with exit 128 ("dubious ownership") without this.
+      - name: Mark workspace safe for git (container ownership)
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - run: pnpm install --frozen-lockfile
+      # Full quality gate BEFORE publish — same as ci.yml. A direct push / merged version PR must not
+      # publish public packages without a11y, design-lint, registry integrity, and consumer checks.
+      - run: pnpm typecheck
+      - run: pnpm lint
+      # Vitest browser mode needs PLAYWRIGHT_BROWSERS_PATH passed through turbo (see ci.yml note).
+      - run: pnpm test
+      - run: pnpm build
+      - run: pnpm registry:build
+      - run: test -z "$(git status --porcelain)" # registry:build must be idempotent (no stale/untracked)
+      - run: pnpm registry:verify-consume # the built registry is actually consumable
+      - uses: changesets/action@v1
+        with:
+          # version-packages = `changeset version` + tooling/version-sync.mjs (CX-3): the version PR
+          # carries the re-synced registry item meta.version + rebuilt public/r + re-stamped headers,
+          # so package version = item meta.version = provenance header version, always.
+          version: pnpm run version-packages
+          publish: pnpm changeset publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
