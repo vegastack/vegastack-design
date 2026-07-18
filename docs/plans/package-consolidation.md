@@ -1,6 +1,6 @@
 # Package consolidation: 4 public packages → 2 (`@vegastack/design` + `@vegastack/design-tokens`)
 
-**Date:** 2026-07-18 · **Approved by:** MK (chat, 2026-07-18) · **Status:** executing
+**Date:** 2026-07-18 · **Approved by:** MK (chat, 2026-07-18) · **Status:** SHIPPED — 0.1.0 on npm (design + design-tokens, trusted publishers configured), design.vegastack.com live behind Cloudflare Access (docs=SSO, /r/*=service token), all CI pipelines green
 **Supersedes** the 4-package distribution shape in `docs/requirements.md` §3 / `docs/gap-analysis.md` (locked-decision change, MK-approved). Greenfield: **no backward compatibility**, git history will be reset to a fresh first commit and 0.1.0 re-cut.
 
 ## Decision
