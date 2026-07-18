@@ -53,6 +53,7 @@ export * from './settings-row';
 export * from './image';
 export * from './notification-bell';
 export * from './markdown-view';
+export * from './provider';
 export * from './sonner';
 export * from './command';
 export * from './page-header';

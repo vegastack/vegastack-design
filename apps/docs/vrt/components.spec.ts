@@ -79,6 +79,7 @@ const PAGES = [
   '/docs/components/image',
   '/docs/components/notification-bell',
   '/docs/components/markdown-view',
+  '/docs/components/provider',
   '/docs/components/toast',
   '/docs/components/command',
   '/docs/components/page-header',

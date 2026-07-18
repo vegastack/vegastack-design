@@ -1671,6 +1671,34 @@
       }
     },
     {
+      "name": "provider",
+      "type": "registry:ui",
+      "title": "Provider",
+      "description": "The single app-root wrapper — theme (next-themes), Sonner toasts, tooltip coordination, and text direction in one mount-once component.",
+      "categories": [
+        "feedback"
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "next-themes@0.4.6"
+      ],
+      "registryDependencies": [
+        "@vegastack/sonner"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/provider.tsx",
+          "type": "registry:ui",
+          "target": "@ui/provider.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Once, around your app root (layout.tsx) — every VegaStack component below it gets dark mode, working toast() calls, shared tooltip delays, and direction context.",
+        "whenNotToUse": "Anywhere below the root, or a second time — the bundled Toaster is a mount-once portal; pass toaster={false} if you must render your own.",
+        "version": "0.1.0"
+      }
+    },
+    {
       "name": "command",
       "type": "registry:ui",
       "title": "Command Menu",

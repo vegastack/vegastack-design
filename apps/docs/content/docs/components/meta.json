@@ -68,6 +68,7 @@
     "---Feedback & Status---",
     "alert",
     "toast",
+    "provider",
     "progress",
     "progress-indicator",
     "spinner",
