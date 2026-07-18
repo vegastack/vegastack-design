@@ -15,20 +15,12 @@ metadata:
 npm i @vegastack/design
 ```
 
-> **The provider (`VegaStackProvider` + `Toaster`, wired in step 3) — distribution is an UNRESOLVED owner
-> decision; not yet downstream-consumable.** `@vegastack/ui` ships these in this repo but is marked
-> `private`, and there is **no `provider` registry item** yet — so today the provider is workspace-internal
-> only (the docs dogfood it via `workspace:*`). The locked model (requirements §NG4, as amended by
-> `docs/plans/package-consolidation.md`) makes only `@vegastack/design` + `@vegastack/design-tokens`
-> public and keeps component source private (registry copy-in), which does not place
-> the *provider*. **The owner must pick ONE and implement it before this consume path works:**
-> 1. **Publish `@vegastack/ui`** as a public runtime package (extend §NG4 to list it, flip `private` off,
->    re-add a changeset) → then downstream does `npm i @vegastack/ui` and imports `VegaStackProvider` (step 3).
-> 2. **Ship a real `provider` registry item** (source + tests + integrity + docs) → then downstream does
->    `shadcn add @vegastack/provider` and imports it from the copied-in `@/components/...` path.
->
-> See `docs/plans/HANDOFF-STATUS.md` → §4 for this decision. The steps below assume option 1's import path;
-> adjust the import if option 2 is chosen. Component *source* always comes via the registry copy-in (step 4).
+> **The provider is a registry item (RESOLVED 2026-07-18, MK):** `npx shadcn@latest add
+> @vegastack/provider` copies `VegaStackProvider` + `useVegaStackTheme` into the consumer
+> (composing the `sonner` Toaster item). Wrap the app root once, `suppressHydrationWarning`
+> on `<html>`. Full setup + failure modes: the docs' Guides → Provider setup page. The
+> private `@vegastack/ui` package remains internal (the docs dogfood it via workspace);
+> downstream never installs it.
 
 ## 2. Tailwind v4 CSS (consumers must be on v4)
 ```css
@@ -51,7 +43,7 @@ usual; this `@source` is *only* for the classes that live inside our published p
 
 ## 3. Wrap the app root in the provider
 ```tsx
-import { VegaStackProvider } from '@vegastack/ui';
+import { VegaStackProvider } from '@/components/ui/provider'; // the copied-in registry item
 // <html suppressHydrationWarning> (next-themes mutates it)
 <body className="isolate"><VegaStackProvider>{children}</VegaStackProvider></body>
 ```
@@ -93,9 +85,9 @@ npx --package=@vegastack/design vegastack-design verify \
   --hash-only --save /tmp/vega-button.json button
 
 # ── 2) COPY-IN: shadcn writes the files (rewriting import aliases per your components.json) ──
-# Each copied file's line 1 is a provenance header that ships INSIDE the registry item content —
-# `// @vegastack <name>@<version> sha256-<integrity>` — so shadcn writes it verbatim (it is not a
-# shadcn feature; it travels in the item). The design-audit skill reads it later for drift detection.
+# The registry item content carries a provenance header (`// @vegastack <name>@<ver> sha256-…`)
+# but the current shadcn CLI STRIPS leading comments on copy-in — expected; update tracking is
+# header-optional (check-updates matches by filename + alias-normalized content).
 pnpm dlx shadcn@latest add @vegastack/button
 
 # ── 3) POST-WRITE: prove the COPIED files match the SAVED item — fail-closed (exit 1 on tamper) ──
@@ -123,8 +115,8 @@ Pass `--help` to see all flags and env vars (`VEGASTACK_REGISTRY`, the `CF_ACCES
 in step 3). If `@vegastack/design` is a devDep, wire `verify:registry` (pre-write) + `verify:registry:post`
 (post-write) scripts instead of npx.
 
-> Status: the bin (all three steps, including `--post-write`) is delivered the moment `@vegastack/design`
-> is published. Until then it lives at `packages/utils/bin/verify-registry-item.mjs` (run with `node …`).
+> Status: the bin ships with the published `@vegastack/design` (all three steps, including
+> `--post-write`); repo-internal source: `packages/design/bin/verify-registry-item.mjs`.
 > Our own CI uses the repo-internal `tooling/verify-item.mjs`, which is **pre-write only** (CI never runs
 > `shadcn add`, so it has no copied files to post-write-check); both share the same canonical hash logic.
 
