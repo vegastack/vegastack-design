@@ -82,6 +82,17 @@ jobs:
           # the exported manifest must be byte-identical to the signed one
           cmp apps/docs/public/r/integrity-manifest.json apps/docs/out/r/integrity-manifest.json
           cmp apps/docs/public/r/integrity-manifest.sigstore apps/docs/out/r/integrity-manifest.sigstore
+      # Cloudflare Workers Static Assets rejects any file ≥25MiB with a bare "Asset too large."
+      # Catch it here with the offending paths named (first hit: the Story explorer's type
+      # introspection once ballooned checkbox/switch pages to ~26MB — fixed by narrowing the
+      # story wrapper props; this guard keeps the failure diagnosable if it ever recurs).
+      - name: Guard — no static asset may exceed Cloudflare's 25MiB limit
+        run: |
+          BIG=$(find apps/docs/out -type f -size +24M | head -20)
+          if [ -n "$BIG" ]; then
+            echo "::error title=Asset over 25MiB::These exported files exceed Cloudflare's per-asset limit:"; echo "$BIG" | while read -r f; do ls -lh "$f" | awk '{print "  "$5" "$9}'; done
+            exit 1
+          fi
       - name: Deploy to Cloudflare Workers Static Assets
         run: pnpm --filter @vegastack/docs exec wrangler deploy # uses apps/docs/wrangler.jsonc (assets.directory=./out)
         env:
