@@ -1,0 +1,129 @@
+---
+title: Switch
+description: An on/off toggle for instant, self-saving binary settings — built on Base UI Switch.
+preview: switchExample
+---
+
+import { story } from '@/components/stories/switch.story';
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/switch
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Switch } from "@/components/ui/switch";
+
+<Switch defaultChecked aria-label="Email notifications" />;
+```
+
+Pair it with `Field` (horizontal orientation) for an associated, clickable label:
+
+```tsx
+import { Field } from "@/components/ui/field";
+import { Switch } from "@/components/ui/switch";
+
+<Field label="Email notifications" orientation="horizontal">
+  <Switch defaultChecked />
+</Field>;
+```
+
+Base UI renders the default switch root as a `<span role="switch">` plus a hidden
+`<input>`. When your markup needs a sibling `<label htmlFor>`, render the root as
+a native button so the `id` targets the visible interactive element:
+
+```tsx
+<label htmlFor="notifications-switch">Notifications</label>
+<Switch
+  id="notifications-switch"
+  nativeButton
+  render={<button type="button" />}
+/>
+```
+
+<ComponentPreview name="switchExample" file="components/preview/switch.tsx" />
+
+## Playground
+
+Try every size and the disabled state, then copy the generated JSX.
+
+<SwitchPlayground />
+
+## Explorer
+
+Every `Switch` prop, auto-generated from its TypeScript types — the exhaustive counterpart to the
+curated playground above.
+
+<story.WithControl />
+
+## Sizes
+
+`sm` (16px), `default` (20px), and `lg` (24px) — the track and thumb scale together.
+The grid shows every size in both the off and on positions, since the thumb-travel
+geometry (the inset gap at rest vs. when checked) differs per size.
+
+<ComponentPreview name="switchSizes" file="components/preview/switch.tsx" />
+
+## States
+
+On, off, and disabled (in both positions). State is driven by Base UI's `data-checked` /
+`data-unchecked` attributes, so it works controlled (`checked` + `onCheckedChange`) or uncontrolled
+(`defaultChecked`).
+
+<ComponentPreview name="switchStates" file="components/preview/switch.tsx" />
+
+## Controlled
+
+Drive the switch from state with `checked` + `onCheckedChange`. Use this when the value
+must stay in sync with other UI or be persisted on change.
+
+```tsx
+const [enabled, setEnabled] = useState(true);
+
+<Switch checked={enabled} onCheckedChange={setEnabled} aria-label="Email notifications" />;
+```
+
+<ComponentPreview name="switchControlled" file="components/preview/switch.tsx" />
+
+## Invalid
+
+The switch picks up a destructive border tint when `aria-invalid` is set — either directly
+on a standalone `Switch`, or automatically when a wrapping `<Field error=…>` marks the
+control invalid.
+
+<ComponentPreview name="switchInvalid" file="components/preview/switch.tsx" />
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/switch.tsx"
+  name="SwitchProps"
+/>
+
+## Accessibility
+
+- Renders a `<span role="switch">` with a hidden `<input>` for form submission by default — exposes
+  `aria-checked` to assistive tech. Use `nativeButton render={<button />}` for sibling
+  `<label htmlFor>` patterns.
+- Keyboard: <kbd>Tab</kbd> to focus, <kbd>Space</kbd> / <kbd>Enter</kbd> to toggle.
+- `:focus-visible` shows a 2px ring (`outline-ring`) — never `outline: none`.
+- `disabled` removes it from the tab order and blocks toggling.
+- Always give the switch an accessible name — a `<Field>` label, or `aria-label` when standalone.
+
+| Key              | Action                     |
+| ---------------- | -------------------------- |
+| <kbd>Tab</kbd>   | Move focus to the switch   |
+| <kbd>Space</kbd> | Toggle the switch on / off |
+| <kbd>Enter</kbd> | Toggle the switch on / off |
+
+## Do / Don't
+
+<DoDont
+  do="Use a Switch for instant settings, and use Field or nativeButton when pairing it with a label."
+  dont="Use an htmlFor sibling label against the default span root, or use a Switch inside a form that needs a Submit step."
+/>

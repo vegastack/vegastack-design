@@ -1,0 +1,181 @@
+---
+title: Popover
+description: A click-triggered floating panel for arbitrary content — positioning, an optional arrow, and built-in dismiss.
+preview: popover
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/popover
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverClose,
+  PopoverTitle,
+  PopoverDescription,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+
+<Popover>
+  <PopoverTrigger render={<Button variant="outline">Open popover</Button>} />
+  <PopoverContent>
+    <PopoverTitle>About this layer</PopoverTitle>
+    <PopoverDescription>
+      Floats arbitrary content next to the trigger.
+    </PopoverDescription>
+  </PopoverContent>
+</Popover>;
+```
+
+## Playground
+
+Pick a side and toggle the arrow, open the popover, then copy the generated JSX.
+
+<PopoverPlayground />
+
+## Anatomy
+
+`Popover` is a compound component built on Base UI's Popover. Compose the parts inside the root:
+
+```tsx
+<Popover>
+  <PopoverTrigger render={<Button>Open</Button>} />
+  <PopoverContent side="bottom" align="center">
+    <PopoverTitle>Title</PopoverTitle>
+    <PopoverDescription>Supporting description text.</PopoverDescription>
+    {/* arbitrary content — text, a form, a menu, ... */}
+    <PopoverClose render={<Button variant="outline">Done</Button>} />
+    {/* <PopoverArrow /> — or pass `arrow` to PopoverContent */}
+  </PopoverContent>
+</Popover>
+```
+
+- `Popover` — the root; owns open/close state (`open` / `defaultOpen` / `onOpenChange`). Modal by default in VegaStack so anchored pickers do not shift while the page scrolls; pass `modal={false}` for a lightweight non-blocking popover.
+- `PopoverTrigger` — the control that opens the popover on click (`data-slot="popover-trigger"`). Pass `render` to compose it with a `Button`.
+- `PopoverContent` — the floating panel (`data-slot="popover-content"`). Composes Base UI's Portal + Positioner + Popup, owns `side` / `sideOffset` / `align` / `collisionPadding`, exposes `portalProps` / `positionerProps`, can wrap children in an optional Base UI Viewport via `viewportProps`, animates enter/exit, and optionally renders an arrow.
+- `PopoverTitle` — the popover's accessible name (`data-slot="popover-title"`, `<h2>`). Wired to the popup via `aria-labelledby`.
+- `PopoverDescription` — supporting text (`data-slot="popover-description"`, `<p>`). Wired via `aria-describedby`.
+- `PopoverClose` — closes the popover (`data-slot="popover-close"`). Pass `render` to compose it with a `Button`.
+- `PopoverArrow` — a triangle anchored to the trigger (`data-slot="popover-arrow"`). Rendered automatically when `PopoverContent` gets `arrow`, or composed directly.
+
+## Examples
+
+### Form panel
+
+Popovers can host arbitrary interactive content — here a small inline form. Use `PopoverClose` for the action buttons so they dismiss the panel.
+
+<ComponentPreview name="popoverForm" file="components/preview/popover.tsx" />
+
+### Sides
+
+`side` places the panel on the `top`, `right`, `bottom`, or `left` of the trigger (default `bottom`). Base UI flips the side automatically when it would collide with the viewport edge.
+
+<ComponentPreview name="popoverSides" file="components/preview/popover.tsx" />
+
+### Alignment
+
+`align` shifts the panel along the chosen side — `start`, `center` (default), or `end` — to line its edge up with the trigger.
+
+<ComponentPreview name="popoverAlign" file="components/preview/popover.tsx" />
+
+### Arrow
+
+Pass `arrow` to `PopoverContent` to render a directional `PopoverArrow` pointing back at the trigger. You can also compose `PopoverArrow` directly inside the content for full control.
+
+<ComponentPreview name="popoverArrow" file="components/preview/popover.tsx" />
+
+```tsx
+<PopoverContent>
+  <PopoverArrow />
+  <PopoverTitle>Direct compose</PopoverTitle>
+  {/* ... */}
+</PopoverContent>
+```
+
+<ComponentPreview name="popoverArrowComposed" file="components/preview/popover.tsx" />
+
+### Non-modal
+
+By default a popover is modal — it locks background scroll so anchored pickers don't shift. Pass `modal={false}` for a lightweight, non-blocking popover that keeps the rest of the page scrollable and interactive.
+
+<ComponentPreview name="popoverNonModal" file="components/preview/popover.tsx" />
+
+## API Reference
+
+### Popover
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/popover.tsx"
+  name="PopoverProps"
+/>
+
+### PopoverTrigger
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/popover.tsx"
+  name="PopoverTriggerProps"
+/>
+
+### PopoverContent
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/popover.tsx"
+  name="PopoverContentProps"
+/>
+
+### PopoverClose
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/popover.tsx"
+  name="PopoverCloseProps"
+/>
+
+### PopoverArrow
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/popover.tsx"
+  name="PopoverArrowProps"
+/>
+
+### PopoverTitle
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/popover.tsx"
+  name="PopoverTitleProps"
+/>
+
+### PopoverDescription
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/popover.tsx"
+  name="PopoverDescriptionProps"
+/>
+
+## Accessibility
+
+- When a `PopoverTitle` / `PopoverDescription` are present, the popup is wired to them as its `aria-labelledby` / `aria-describedby` — include a title whenever the panel has a heading.
+- The popover opens on trigger click. Focus moves into the panel (first tabbable element) on open and is restored to the trigger on close.
+- Dismiss is built in — clicking outside the panel or pressing <kbd>Esc</kbd> closes it.
+- The popup itself can receive keyboard focus (initial focus, focus wrap), so its native outline is deliberately not stripped — the centralized `:focus-visible` outline is its indicator (WCAG 2.4.7, register P0-02). Composed controls — the `Button` trigger, any `Input` inside, and the `PopoverClose` buttons — each carry their own visible focus treatment.
+
+| Key                                                | Action                                             |
+| -------------------------------------------------- | -------------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>                | Activate the focused trigger to open the popover.  |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Move focus between controls inside the open panel. |
+| <kbd>Esc</kbd>                                     | Close the popover and return focus to the trigger. |
+
+## Do / Don't
+
+<DoDont
+  do="Use a Popover for lightweight, optional content tied to a trigger — a settings form, a color picker, extra detail. Include a PopoverTitle when the panel has a heading."
+  dont="Use a Popover for content that must block the rest of the page or demands a decision — use a Dialog instead. And don't put a tooltip's worth of plain text in one — use a Tooltip."
+/>

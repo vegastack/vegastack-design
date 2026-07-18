@@ -1,0 +1,132 @@
+---
+title: Accordion
+description: A stack of collapsible sections — single or multiple open, animated height expand/collapse, and a rotating chevron, with full keyboard support.
+preview: accordion
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/accordion
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from '@/components/ui/accordion';
+
+<Accordion defaultValue={['shipping']}>
+  <AccordionItem value="shipping">
+    <AccordionTrigger>Shipping</AccordionTrigger>
+    <AccordionContent>Ships in 2–3 business days.</AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="returns">
+    <AccordionTrigger>Returns</AccordionTrigger>
+    <AccordionContent>30-day return window.</AccordionContent>
+  </AccordionItem>
+</Accordion>;
+```
+
+## Anatomy
+
+`Accordion` is a compound component built on Base UI Accordion. Compose the parts inside the root,
+pairing each `AccordionTrigger` with its `AccordionContent` inside a single `AccordionItem`:
+
+```tsx
+<Accordion multiple defaultValue={['shipping']}>
+  <AccordionItem value="shipping">
+    <AccordionTrigger>Shipping</AccordionTrigger>
+    <AccordionContent>…</AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="returns" disabled>
+    <AccordionTrigger>Returns</AccordionTrigger>
+    <AccordionContent>…</AccordionContent>
+  </AccordionItem>
+</Accordion>;
+```
+
+- `Accordion` — the root that groups the items and owns single/multiple open behavior
+  (`data-slot="accordion"`). Single-open by default; pass `multiple` when several items may stay
+  open. Controlled via `value`/`onValueChange` (an array), or uncontrolled via `defaultValue`.
+- `AccordionItem` — a single collapsible section identified by `value` (`data-slot="accordion-item"`).
+  Pass `disabled` to lock it. Renders a bottom rule between stacked items.
+- `AccordionTrigger` — the header button that toggles the panel (`data-slot="accordion-trigger"`).
+  Open state is exposed as `data-panel-open`, which rotates the trailing chevron. Wrapped in an
+  `AccordionHeader` heading for accessible structure.
+- `AccordionContent` — the collapsible panel shown when its trigger is open
+  (`data-slot="accordion-content"`). Animates its height between `0` and the measured content height.
+
+## Examples
+
+Single-open is the default: opening one section collapses the previously open section.
+
+<ComponentPreview name="accordion" file="components/preview/accordion.tsx" />
+
+Multiple-open via `multiple` — several sections can stay expanded at once, and a section can be
+`disabled`:
+
+<ComponentPreview name="accordionMultiple" file="components/preview/accordion.tsx" />
+
+### Controlled
+
+Drive the open state yourself with `value` (an array of open item ids) and `onValueChange`. Use this
+when the open section needs to stay in sync with other state — deep-linking, a wizard step, or
+mutually exclusive panels you coordinate externally. Pass `defaultValue` instead for the uncontrolled
+case.
+
+```tsx
+const [value, setValue] = useState<string[]>(['account']);
+
+<Accordion value={value} onValueChange={(next) => setValue(next)}>
+  <AccordionItem value="account">
+    <AccordionTrigger>Account</AccordionTrigger>
+    <AccordionContent>…</AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="billing">
+    <AccordionTrigger>Billing</AccordionTrigger>
+    <AccordionContent>…</AccordionContent>
+  </AccordionItem>
+</Accordion>;
+```
+
+<ComponentPreview name="accordionControlled" file="components/preview/accordion.tsx" />
+
+## API Reference
+
+`Accordion`, `AccordionItem`, `AccordionTrigger`, and `AccordionContent` add no
+props of their own — each accepts everything the corresponding [Base UI
+Accordion](https://base-ui.com/react/components/accordion) part accepts
+(`Root`, `Item`, `Trigger`, `Panel`): `value` / `defaultValue` /
+`onValueChange` and `multiple` on the root, `value` and `disabled` on an item,
+plus `className`, `ref`, and `render` everywhere.
+
+## Accessibility
+
+- Built on Base UI Accordion: each `AccordionTrigger` is a `<button>` wrapped in a heading, wired to
+  its panel with `aria-controls`/`aria-expanded`; each panel is labelled by its trigger.
+- The panel animates height with the `--accordion-panel-height` CSS variable on Base UI's
+  `data-starting-style`/`data-ending-style` transition hooks — no layout-thrashing measurement loops.
+- Each trigger is keyboard-focusable and relies on the browser's default focus indicator — the
+  component never sets `outline: none`, so the platform focus ring stays visible.
+- Disabled items carry `data-disabled`, are not focusable for activation, and cannot be expanded.
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Move focus to the next accordion trigger (and out to the open panel). |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Toggle the focused section open or closed. |
+| <kbd>↓</kbd> / <kbd>↑</kbd> | Move focus between triggers. |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Move focus to the first / last trigger. |
+
+## Do / Don't
+
+<DoDont
+  do="Keep trigger labels short and scannable, group genuinely related content, and use the default single-open mode when sections are mutually exclusive."
+  dont="Nest accordions deeply or hide critical content (primary actions, required form fields) behind a collapsed panel."
+/>

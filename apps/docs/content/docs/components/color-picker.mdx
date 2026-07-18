@@ -1,0 +1,159 @@
+---
+title: Color Picker
+description: A swatch-triggered popover that presents a grid of preset colors — pick one, fire onValueChange, mark the selection with a check.
+preview: colorPicker
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/color-picker
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { useState } from "react";
+import { ColorPicker } from "@/components/ui/color-picker";
+
+function Example() {
+  const [color, setColor] = useState("blue");
+  return <ColorPicker value={color} onValueChange={setColor} />;
+}
+```
+
+`ColorPicker` is controlled — pass `value` (matched against each option's `name`) and `onValueChange` (called with the picked color's `name`). The trigger is a `rounded-md` outline control with a `rounded-sm` fill chip showing the current selection; opening it reveals the palette. Only the in-grid preset swatches are `rounded-full`.
+
+## Palette
+
+The colors are **data backed by semantic tokens**. The default palette exposes stable hue names
+(`green`, `blue`, `rose`, …), and each swatch uses VegaStack semantic CSS variables — info,
+status, neutral, and chart tokens — rather than raw Tailwind palette variables. Pass your own
+`colors` to override:
+
+```tsx
+import { ColorPicker, type ColorOption } from "@/components/ui/color-picker";
+
+const palette: ColorOption[] = [
+  { name: "info", label: "Info", color: "var(--color-info)" },
+  { name: "accent", label: "Accent", color: "var(--color-accent)" },
+  { name: "danger", label: "Danger", color: "var(--color-destructive)" },
+];
+
+<ColorPicker
+  value="blue"
+  onValueChange={setColor}
+  colors={palette}
+  columns={3}
+/>;
+```
+
+<ComponentPreview
+  name="colorPickerCustomPalette"
+  file="components/preview/color-picker.tsx"
+/>
+
+Each `ColorOption` is `{ name, label, color }`:
+
+- `name` — the stable value the picker emits and matches selection against.
+- `label` — the swatch's accessible name (`aria-label`) and tooltip.
+- `color` — a CSS color value. Prefer semantic variables like `var(--color-info)` or
+  `var(--color-chart-2)`. Arbitrary CSS colors are reserved for dynamic user-authored palette data;
+  this is the one place the design system renders a dynamic swatch fill via inline
+  `style={{ backgroundColor }}`. Every other style (sizing, borders, focus, spacing) uses semantic tokens.
+
+### `DEFAULT_COLORS`
+
+When you omit `colors`, the picker renders the exported `DEFAULT_COLORS` palette — 12 named options,
+each mapped to a VegaStack semantic token (status, neutral, or chart series) so the registry
+component never ships raw Tailwind palette variables:
+
+| `name`   | `label` | `color` token            |
+| -------- | ------- | ------------------------ |
+| `gray`   | Gray    | `var(--color-primary)`   |
+| `red`    | Red     | `var(--color-destructive)` |
+| `orange` | Orange  | `var(--color-chart-4)`   |
+| `amber`  | Amber   | `var(--color-warning)`   |
+| `yellow` | Yellow  | `var(--color-chart-7)`   |
+| `green`  | Green   | `var(--color-success)`   |
+| `teal`   | Teal    | `var(--color-chart-2)`   |
+| `sky`    | Sky     | `var(--color-info)`      |
+| `blue`   | Blue    | `var(--color-chart-8)`   |
+| `indigo` | Indigo  | `var(--color-chart-3)`   |
+| `pink`   | Pink    | `var(--color-chart-5)`   |
+| `rose`   | Rose    | `var(--color-chart-6)`   |
+
+## Examples
+
+### States
+
+Default (a selection chosen), empty (no selection yet — a transparent trigger), and disabled.
+
+<ComponentPreview
+  name="colorPickerStates"
+  file="components/preview/color-picker.tsx"
+/>
+
+### Custom palette
+
+Pass `colors` to render your own curated set — here a 3-color tag palette in a 3-wide grid.
+
+<ComponentPreview
+  name="colorPickerCustomPalette"
+  file="components/preview/color-picker.tsx"
+/>
+
+### Columns
+
+`columns` sets the swatch-grid width (default `7`), driving the dynamic `--swatch-cols` grid
+template. Below: the default 12-color palette at `columns={4}`, `7`, and `14`.
+
+<ComponentPreview
+  name="colorPickerColumns"
+  file="components/preview/color-picker.tsx"
+/>
+
+## API Reference
+
+### ColorPicker
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/color-picker.tsx"
+  name="ColorPickerProps"
+/>
+
+### ColorOption
+
+The shape of each entry in a `colors` palette.
+
+### ColorOption
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/color-picker.tsx"
+  name="ColorOption"
+/>
+
+## Accessibility
+
+- The trigger is a `Button` with an accessible name (`aria-label`, default `"Pick a color"`); customize it to describe what the color is for (e.g. `"Label color"`).
+- Each preset is a `<button>` labelled by its color name, grouped in a `role="group"` labelled
+  `"Colors"`. The selected swatch carries `aria-pressed="true"` and uses a semantic-surface check
+  badge (`bg-background text-foreground`) so the check stays legible on light or custom swatches.
+- The picker opens on trigger click; focus moves into the grid and is restored to the trigger on close.
+- Dismiss is built in — clicking outside the panel or pressing <kbd>Esc</kbd> closes it.
+- Every control keeps the global 2px `:focus-visible` ring (`outline-ring`); the `outline`-variant trigger additionally re-colors its border with the `ring` token (`focus-visible:border-ring/70`), and the `ghost` swatch buttons rely on that global ring — never `outline: none`.
+
+| Key                                                | Action                                                          |
+| -------------------------------------------------- | --------------------------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>                | Open the picker (on the trigger), or select the focused swatch. |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Move focus between swatches in the open grid.                   |
+| <kbd>Esc</kbd>                                     | Close the picker and return focus to the trigger.               |
+
+## Do / Don't
+
+<DoDont
+  do="Use a ColorPicker for a small, curated set of preset colors — labels, tags, calendar categories. Give the trigger a descriptive aria-label, and emit a stable name you can persist."
+  dont="Use it as a full-spectrum color picker (hue/saturation/alpha) — that's a different control. And don't hardcode hex in your palette when a semantic token (var(--color-…)) is available."
+/>

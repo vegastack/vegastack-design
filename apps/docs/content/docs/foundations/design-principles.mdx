@@ -1,0 +1,145 @@
+---
+title: Design Principles
+description: The philosophy behind the system — neutral ink, color rationed to meaning, serif headings never bold, borders-only surfaces, and one sanctioned shadow.
+---
+
+VegaStack's look is **restraint, with color spent only where it carries meaning**. The product reads as
+calm, dense, and typographic; color and elevation are spent sparingly so the few places that use them
+actually mean something. Every rule below is enforced by `design-lint` and the design-audit skill — they
+are not suggestions.
+
+## Neutral ink, minimal color
+
+The primary action color is a **near-neutral ink**, not a brand hue. `--primary` is
+`oklch(0.353 0.003 75)` in light and `oklch(0.922 0.003 75)` in dark — a warm, almost-chromaless tone.
+Default buttons, focus rings, key text, and every **selected / active** state all sit in this neutral
+register, so the interface stays quiet by default.
+
+**Color is rationed to meaning.** Beyond the neutral ink, color is reserved for the status families
+(`success`, `warning`, `destructive`) and blue `info` for links and informational UI. There is no
+decorative brand hue — if a mark isn't neutral, it is carrying a status or a link, never decoration.
+
+<ColorPalette />
+
+<Callout title="Spend nothing you don't have to">
+Reach for `bg-primary` (neutral ink) for actions, selection, and active states; reach for a colored
+token only when it means something — a status or a link. A color that appears without meaning is wrong.
+</Callout>
+
+<DoDont
+  do="Use bg-primary (neutral ink) for actions, selection, and active states; use color only for status or links."
+  dont="Introduce a decorative brand hue, or use a colored token where a neutral would do."
+/>
+
+## Size does hierarchy, never bold
+
+Headings, body, and prose are all **Geist**; code and data are **Geist Mono**. Hierarchy comes
+from **size, tracking, and color — weight never exceeds 500** (`font-medium`). There is no
+`font-bold` anywhere in the system.
+
+<TypeScaleSizes />
+
+The ramp pairs size with a tightening letter-spacing rather than heavier weight: the display
+tier (`--text-display-xl` 4.5rem at −0.06em, down to `--text-display-sm` 2rem at −0.04em)
+through `--text-h1` (1.5rem, −0.02em) to `--text-h4` (1rem, weight 500). Use `font-sans` for
+everything textual, `font-mono` for numbers, currency, and code; the serif face is a rationed
+display accent (emphasis words, pull-quotes), never running text.
+
+<DoDont
+  do="Let size, tracking, and color carry hierarchy at weight 400–500."
+  dont="Use font-bold or font-semibold — maximum weight in the system is 500."
+/>
+
+## Borders-only surfaces, one shadow
+
+Surfaces are defined by **borders, not elevation**. Cards, inputs, and panels use `border-border`
+with no drop shadow. The system ships **exactly one** elevation token —
+
+```css
+--shadow-overlay: 0 4px 14px -4px oklch(0.13 0.002 75 / 0.10),
+                  0 2px 4px -2px oklch(0.13 0.002 75 / 0.06);
+```
+
+— and it is reserved for **floating overlays only**: popover, dialog, and menu surfaces that lift off
+the page. No other elevation tokens exist, so there is no `shadow-sm` / `shadow-md` ladder to reach
+for.
+
+<ShadowScale />
+
+Corners come from a small radius scale (`--radius-sm` 0.375rem → `--radius-lg`/`--radius` 0.75rem,
+with an `--radius-xl` bridged as `calc(--radius-lg + 0.25rem)`). Use the named `rounded-*` utilities,
+not arbitrary pixel radii.
+
+<RadiusScale />
+
+<DoDont
+  do="Separate surfaces with border-border; use shadow-overlay only on popovers, dialogs, and menus."
+  dont="Add drop shadows to cards or invent a shadow-sm/md/lg elevation ladder."
+/>
+
+## Semantic tokens only
+
+Components reference **semantic utilities** (`bg-primary`, `text-muted-foreground`, `border-border`),
+never raw palettes or hardcoded values. Tokens are OKLCH variables defined in
+`@vegastack/design-tokens/theme.css` and bridged to Tailwind through `@theme inline`, so redefining a single
+`--primary` in your app repaints every component in both themes.
+
+```tsx
+// good — semantic tokens, themeable
+<button className="bg-primary text-primary-foreground rounded-md" />
+
+// bad — hardcoded hex / raw palette, opaque to overrides
+<button className="bg-[#18181b] text-white rounded-[6px]" />
+```
+
+`design-lint` fails any hardcoded hex/px, raw palette class (`bg-neutral-900`), or visual property in
+an inline `style` — the only sanctioned inline-style use is assigning CSS custom properties (and a
+single, file-scoped swatch-fill exception in `ColorPicker`).
+
+<DoDont
+  do="Style with semantic tokens: bg-primary, text-muted-foreground, border-border, rounded-md."
+  dont="Hardcode hex or px, use raw palettes (bg-neutral-900), or put visual props in inline styles."
+/>
+
+## 4px spacing scale
+
+Spacing follows Tailwind v4's **4px base unit** — every gap, pad, and margin is a multiple of 4px via
+the standard scale (`p-1` 4px, `p-2` 8px, `p-4` 16px, …). Stick to scale steps; don't reach for
+arbitrary spacing values.
+
+<SpacingScale />
+
+## Motion is quiet and CSS-first
+
+Motion uses three duration tokens (`--duration-fast` 150ms, `--duration-base` 200ms,
+`--duration-slow` 300ms) and three easings (`--ease-standard`, `--ease-emphasized`, `--ease-exit`).
+Transitions are subtle and CSS-first; the JS `motion` library is an optional peer used only where
+genuinely needed. `prefers-reduced-motion: reduce` is enforced globally in
+`@vegastack/design-tokens/base.css`, so reduced-motion is honored without per-component work.
+
+<MotionSpecimen />
+
+## Accessible by default — WCAG 2.1 AA
+
+Accessibility is a **build rule, not a review step**. Every component must pass `axe` and meet
+**WCAG 2.1 AA**, with every applicable UI state implemented — default, hover, focus, loading, empty,
+error, success, disabled. Interactive elements carry a visible `:focus-visible` ring: a
+**2px outline at 2px offset**, keyed off `--ring` (which mirrors the neutral `--primary` ink). There
+are no separate ring-width or offset tokens — the 2px / 2px convention is the ring.
+
+<FocusRingSpecimen />
+
+Color choices are AA-aware: `subtle`/`text` variants are theme-tuned for on-surface contrast, and
+`--muted-foreground-faint` is the one deliberately sub-AA tone, reserved strictly for placeholders.
+The full contract — axe gate, keyboard semantics, and reduced motion — lives on the
+[Accessibility](/docs/foundations/accessibility) page.
+
+<Callout type="warn" title="Focus is non-negotiable">
+Never remove the focus outline to "clean up" a design. Keyboard users rely on it, and the
+design-audit skill flags any interactive element that suppresses `:focus-visible`.
+</Callout>
+
+<DoDont
+  do="Keep a visible 2px focus-visible ring and meet AA contrast on every interactive element."
+  dont="Strip focus outlines or rely on muted-foreground-faint for anything but placeholders."
+/>

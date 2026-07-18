@@ -1,0 +1,129 @@
+---
+title: Alert
+description: A status banner — five intents (default and four status colors), an optional icon, and an optional dismiss button.
+preview: alert
+---
+
+import { story } from '@/components/stories/alert.story';
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/alert
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Alert, AlertActions, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
+<Alert intent="info">
+  <AlertTitle>Heads up</AlertTitle>
+  <AlertDescription>This is an informational alert.</AlertDescription>
+</Alert>;
+```
+
+## Playground
+
+Try every intent with the icon and dismiss options, then copy the generated JSX.
+
+<AlertPlayground />
+
+## Explorer
+
+Every `Alert` prop, auto-generated from its TypeScript types — the exhaustive counterpart to
+the curated playground above.
+
+<story.WithControl />
+
+## Anatomy
+
+`Alert` is a compound component. Compose the parts inside the root:
+
+```tsx
+<Alert intent="success" dismissable onDismiss={handleDismiss}>
+  <AlertTitle>Title</AlertTitle>
+  <AlertDescription>Supporting description text.</AlertDescription>
+  <AlertActions>{/* action buttons */}</AlertActions>
+</Alert>;
+```
+
+- `Alert` — the client root banner (`role="alert"`, `data-slot="alert"`). Owns the intent, leading icon, and optional dismiss/self-dismiss behavior.
+- `AlertTitle` — the bold leading line (`data-slot="alert-title"`).
+- `AlertDescription` — supporting body text (`data-slot="alert-description"`).
+- `AlertActions` — a row of action controls below the description (`data-slot="alert-actions"`).
+
+## Variants
+
+`default`, plus four semantic statuses — `info`, `success`, `warning`, `destructive` —
+each with a matching leading icon and status color tokens (`bg-X-subtle text-X-text border-X/20`).
+
+<ComponentPreview name="alertVariants" file="components/preview/alert.tsx" />
+
+## Dismissable
+
+Set `dismissable` to render a close button. Provide `onDismiss` to control visibility yourself, or
+omit it to let the alert remove itself from the DOM.
+
+<ComponentPreview name="alertDismissable" file="components/preview/alert.tsx" />
+
+## Actions & controlled dismiss
+
+Add an `AlertActions` row for follow-up controls, and pass `onDismiss` to drive visibility from your
+own state instead of letting the alert self-remove. This is the recommended production path — it keeps
+the alert in React's control so you can re-show it, log the dismissal, or coordinate other UI.
+
+<ComponentPreview name="alertActions" file="components/preview/alert.tsx" />
+
+## Icon options
+
+Pass a custom leading `icon` (any `lucide-react` element) to override the intent's default, or set
+`hideIcon` to drop the leading icon gutter entirely.
+
+<ComponentPreview name="alertIconOptions" file="components/preview/alert.tsx" />
+
+## Variant matrix
+
+Each intent rendered in its plain (icon-only) form and again with an `AlertActions` row, so the icon
+gutter and action layout read consistently across every tone.
+
+<ComponentPreview name="alertMatrix" file="components/preview/alert.tsx" />
+
+## API Reference
+
+### Alert
+
+<AutoTypeTable path="../../packages/ui/registry/ui/alert.tsx" name="AlertProps" />
+
+### AlertTitle
+
+<AutoTypeTable path="../../packages/ui/registry/ui/alert.tsx" name="AlertTitleProps" />
+
+### AlertDescription
+
+<AutoTypeTable path="../../packages/ui/registry/ui/alert.tsx" name="AlertDescriptionProps" />
+
+### AlertActions
+
+<AutoTypeTable path="../../packages/ui/registry/ui/alert.tsx" name="AlertActionsProps" />
+
+## Accessibility
+
+- The root renders with `role="alert"`, so assistive technology announces its contents when it appears.
+- The leading icon is decorative (`aria-hidden`); meaning is carried by the title and description text.
+- The dismiss button is a native `<button type="button">` with an accessible label (`dismissLabel`, default `"Dismiss"`).
+- The dismiss button shows a `:focus-visible` ring (`outline-ring`) — never `outline: none`.
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Move focus to the dismiss button (when `dismissable`). |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused dismiss button. |
+
+## Do / Don't
+
+<DoDont
+  do="Use the intent that matches the message — destructive for errors, success for confirmations."
+  dont="Use an Alert for transient feedback after an action — use a toast instead."
+/>

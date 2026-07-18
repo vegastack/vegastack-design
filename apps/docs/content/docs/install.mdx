@@ -1,0 +1,149 @@
+---
+title: Install From VegaStack Registry
+description: Configure shadcn to consume the private VegaStack Base UI registry.
+---
+
+VegaStack components are copy-in registry items. One public npm package provides the
+runtime layer (utilities, icons, Tailwind preset, CLI); component source comes from the
+private shadcn registry. Design tokens ship separately as the zero-dependency
+`@vegastack/design-tokens` (installed automatically as a dependency of `@vegastack/design`).
+
+## Public Packages
+
+Install the public layer first. It does not require VegaStack credentials.
+
+```npm
+npm install @vegastack/design
+```
+
+Import the VegaStack preset in your app stylesheet. `preset.css` bundles Tailwind, the theme
+tokens, the **base a11y layer**, and the utility helpers in one import.
+
+```css
+@import "@vegastack/design/preset.css";
+```
+
+> **Don't skip the base layer.** The preset bundles the tokens' `base.css`, which ships the
+> global `:focus-visible` ring, the `prefers-reduced-motion` reset, pointer cursors, and portal
+> `isolation`. By design, components carry **no** focus ring of their own — keyboard focus visibility
+> (WCAG 2.4.7) comes from this layer. If you import `@vegastack/design/theme.css` directly instead,
+> you **must** also `@import "@vegastack/design/base.css";`, or focus rings disappear for shipped users.
+
+> **Tokens without React?** A non-Tailwind or non-React consumer (native app, token pipeline,
+> marketing site) can install just the design contract: `npm install @vegastack/design-tokens` —
+> zero dependencies, pure CSS/JSON.
+
+## shadcn Base UI
+
+Initialize shadcn with the Base UI implementation.
+
+```npm
+npx shadcn@latest init --base base
+```
+
+Verify the resolved project base before installing components.
+
+```npm
+npx shadcn@latest info --json
+```
+
+The result must report `"base": "base"`. A Radix-resolved config is not a valid
+VegaStack component consumer.
+
+## Registry Namespace
+
+Internal consumers add the VegaStack namespace to `components.json`. Production
+registry reads require Cloudflare Access service-token headers; human SSO access
+to the docs site is separate from `/r/*` registry access.
+
+```json
+{
+  "registries": {
+    "@vegastack": {
+      "url": "https://design.vegastack.com/r/{name}.json",
+      "headers": {
+        "CF-Access-Client-Id": "${CF_ACCESS_CLIENT_ID}",
+        "CF-Access-Client-Secret": "${CF_ACCESS_CLIENT_SECRET}"
+      }
+    }
+  }
+}
+```
+
+The docs app dogfoods the same registry shape against a local server:
+
+```json
+{
+  "registries": {
+    "@vegastack": {
+      "url": "http://localhost:4000/{name}.json"
+    }
+  }
+}
+```
+
+## Integrity Preflight
+
+Verify each registry item before copy-in, save the verified bytes, then verify the files
+written by `shadcn add`. This is the fail-closed flow that closes the registry fetch
+time-of-check/time-of-use gap.
+
+```bash
+npx --package=@vegastack/design vegastack-design verify \
+  --save /tmp/vega-button.json button
+```
+
+Use `--hash-only` only for local development when the signed manifest or `cosign` is unavailable.
+The full mode verifies the signed manifest identity and the item hash.
+
+## Add Components
+
+After the namespace is configured and the preflight passes, install components by name.
+
+```bash
+pnpm dlx shadcn@latest add @vegastack/button
+pnpm dlx shadcn@latest add @vegastack/field
+```
+
+Then prove the copied files match the saved item bytes.
+
+```bash
+npx --package=@vegastack/design vegastack-design verify \
+  --post-write --item /tmp/vega-button.json --target-dir .
+```
+
+The registry item installs its npm dependencies, registry dependencies, and stamped
+source files. Keep the provenance header at the top of copied files; registry
+verification uses it to detect drift.
+
+## Updating components
+
+Registry components are **copy-in — you own the copy**, so updates are pulled, never pushed.
+The provenance header (`// @vegastack <name>@<version> sha256-…`) is the version pin. One command
+shows what's stale against the live registry:
+
+```bash
+npx vegastack-design check-updates
+```
+
+```
+  ⬆  button   0.1.0 → 0.2.0   update available
+  ✓  field    0.2.0           up to date
+  ?  legacy   0.1.0           not in registry (renamed/removed)
+```
+
+Status is compared by **integrity hash**, so a component reads `up to date` even when the registry's
+global version bumped but that component's content didn't change. Review and apply per component:
+
+```bash
+npx shadcn@latest add @vegastack/button --diff       # see exactly what changed
+npx shadcn@latest add @vegastack/button --overwrite  # take it (re-apply any local edits)
+```
+
+`--overwrite` replaces the file, so `git diff` first if you customized it. For CI drift detection,
+`vegastack-design check-updates --fail-on-update` exits non-zero when anything is stale. The CLI reads
+the `@vegastack` registry URL + headers from `components.json` — `${ENV}` placeholders expand from
+`.env.local` / `.env` or the shell (same as `shadcn`), falling back to `VEGASTACK_REGISTRY` + `CF_ACCESS_*`.
+
+External/client projects do not receive registry service tokens. VegaStack copies
+component source during development, and the shipped app remains self-contained.

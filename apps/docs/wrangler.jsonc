@@ -1,0 +1,15 @@
+{
+  // Cloudflare Workers Static Assets host for the Fumadocs showcase + the signed registry (/r/*).
+  // `next build` static-exports to ./out (which includes public/r — the registry items, the
+  // integrity manifest, and its Sigstore bundle once signed). Deploy is manual (workflow_dispatch
+  // in .github/workflows/deploy.yml) per the build-LOCAL-stop policy.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "vegastack-design-docs",
+  "compatibility_date": "2026-06-01",
+  "assets": {
+    // The static-export output. The signed registry must already be in out/r BEFORE deploy — the
+    // deploy workflow runs registry:build + cosign sign, THEN `next build`, so out/r carries the
+    // integrity-manifest.json + .sigstore.
+    "directory": "./out"
+  }
+}

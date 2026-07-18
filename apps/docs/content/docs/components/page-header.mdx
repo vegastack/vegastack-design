@@ -1,0 +1,195 @@
+---
+title: Page Header
+description: The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star.
+preview: pageHeader
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/page-header
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { PageHeader } from '@/components/ui/page-header';
+import { Button } from '@/components/ui/button';
+
+<PageHeader
+  title="Spaces"
+  description="Organize work into shared spaces."
+  actions={<Button>New space</Button>}
+/>;
+```
+
+`PageHeader` is **presentational** — it owns layout, not behavior. You pass navigation
+(`backHref` / `onBack`), the `breadcrumb` node, right-side `actions` and `secondaryMenu`
+slots, and a `favorite` config; the host owns routing and persistence.
+
+The registry component is client-rendered because it includes the optional favorite toggle and
+imperative `onBack` button path. Prefer `backHref` for URL-backed navigation; use `onBack` only for
+app-local behavior such as closing a picker or returning to a non-URL state.
+
+## Anatomy
+
+`PageHeader` lays out, top to bottom, an optional breadcrumb row, then a title row split into a
+left **title block** (back button, `<h1>`, favorite star, description) and a right **actions block**
+(actions + secondary menu), followed by any `children` (tabs, search bars). Every region exposes a
+`data-slot` for styling and testing:
+
+```tsx
+<PageHeader
+  backHref="/settings"            // ← page-header-back   (<a>, ChevronLeft)
+  breadcrumb={<Breadcrumb>…</Breadcrumb>}  // ← page-header-breadcrumb
+  title="API Keys"               // ← page-header-title  (<h1>)
+  description="Manage keys."      // ← page-header-description
+  favorite={{ defaultActive: true }}  // ← page-header-favorite (Star toggle)
+  actions={<Button>Create key</Button>}  // ← page-header-actions
+  secondaryMenu={<DropdownMenu>…</DropdownMenu>}
+>
+  {/* children render below the header row */}
+</PageHeader>;
+```
+
+- `page-header` — the root container (`<header>`, vertical stack). A banner landmark when
+  `PageHeader` sits at the top of the page — not nested inside `<article>` / `<aside>` /
+  `<main>` / `<nav>` / `<section>`.
+- `page-header-breadcrumb` — wraps the breadcrumb node above the title row. Omitted when no `breadcrumb`.
+- `page-header-back` — the back affordance (`<a>` with a `ChevronLeft` when `backHref` is set, a button when `onBack` is set). Omitted when neither is set.
+- `page-header-title` — the page `<h1>`. The title text itself routes through `TruncatedText`
+  (`data-slot="truncated-text"`, nested inside the `<h1>`), so an overlong tenant/workspace title
+  clips with an ellipsis instead of overflowing the header row, and reveals in full via a tooltip
+  on hover/focus. The `<h1>` stays the accessible heading — `TruncatedText` composes inside it,
+  never replaces it.
+- `page-header-favorite` — the star toggle. Sets `aria-pressed` and `data-active`. Omitted when no `favorite`.
+- `page-header-description` — the muted description under the title. Omitted when no `description`.
+- `page-header-actions` — the right-aligned slot holding `actions` then `secondaryMenu`. Omitted when both are empty.
+
+## Examples
+
+### Minimal
+
+The only required prop is `title`. With nothing else, `PageHeader` renders just the `<h1>` —
+every other slot (back button, breadcrumb, description, favorite, actions) is opt-in:
+
+<ComponentPreview name="pageHeaderMinimal" file="components/preview/page-header.tsx" />
+
+```tsx
+<PageHeader title="Profile" />
+```
+
+### With breadcrumb, back button, and actions
+
+A back button (rendered as a link via `backHref`), a full breadcrumb trail, a description, and two
+actions on the right:
+
+<ComponentPreview name="pageHeaderWithBreadcrumb" file="components/preview/page-header.tsx" />
+
+### Back navigation
+
+Pass `backHref` for URL-backed navigation (renders an `<a>`) or `onBack` for an app-specific
+imperative action (renders a `<button>`). The two render different elements; `onBack` takes
+precedence when both are set. The preview below uses `onBack`, so the back affordance is a
+real `<button>`:
+
+<ComponentPreview name="pageHeaderBack" file="components/preview/page-header.tsx" />
+
+```tsx
+// Link — renders an <a>
+<PageHeader title="Select plan" backHref="/billing" />
+
+// Imperative app action — renders a <button>
+<PageHeader title="Select plan" onBack={() => closePlanPicker()} />
+```
+
+### Long title
+
+An overlong tenant or workspace title truncates with an ellipsis instead of overflowing the
+header row. The full title reveals via a tooltip on hover or keyboard focus — a tap-to-toggle
+disclosure on devices that can't hover (see `TruncatedText`):
+
+<ComponentPreview name="pageHeaderLongTitle" file="components/preview/page-header.tsx" />
+
+```tsx
+<PageHeader title="Q3 Platform Reliability & Performance Engineering Initiative Retrospective" />
+```
+
+### Favorite star
+
+The star is controlled when you pass `active`, or uncontrolled when you pass `defaultActive`. It
+reports the next state through `onToggle`. Pass `disabled` to remove it from the tab order. The
+preview shows a controlled star (click to toggle) above a disabled one:
+
+<ComponentPreview name="pageHeaderFavoriteControlled" file="components/preview/page-header.tsx" />
+
+```tsx
+// Uncontrolled — seeds initial state, host persists on toggle
+<PageHeader title="Doc" favorite={{ defaultActive: true, onToggle: (next) => persist(next) }} />
+
+// Controlled — host owns the state
+<PageHeader title="Doc" favorite={{ active: isStarred, onToggle: setStarred }} />
+
+// Disabled — non-interactive, out of the tab order
+<PageHeader title="Doc" favorite={{ defaultActive: true, disabled: true }} />
+```
+
+### Secondary menu
+
+Compose your own overflow menu (e.g. a `DropdownMenu` with an `IconButton` trigger) and pass it via
+`secondaryMenu` — it renders to the right of `actions`:
+
+<ComponentPreview name="pageHeaderSecondaryMenu" file="components/preview/page-header.tsx" />
+
+```tsx
+<PageHeader
+  title="Spaces"
+  actions={<Button>New space</Button>}
+  secondaryMenu={
+    <DropdownMenu>
+      <DropdownMenuTrigger render={<IconButton aria-label="More actions"><MoreVertical /></IconButton>} />
+      <DropdownMenuContent>{/* … */}</DropdownMenuContent>
+    </DropdownMenu>
+  }
+/>;
+```
+
+## API Reference
+
+### PageHeader
+
+<AutoTypeTable path="../../packages/ui/registry/ui/page-header.tsx" name="PageHeaderProps" />
+
+### PageHeaderFavorite
+
+<AutoTypeTable path="../../packages/ui/registry/ui/page-header.tsx" name="PageHeaderFavorite" />
+
+## Accessibility
+
+- The root renders `<header>`, a banner landmark when `PageHeader` sits at the top of the page
+  (outside `<article>`/`<aside>`/`<main>`/`<nav>`/`<section>`), so assistive tech can jump straight
+  to it.
+- The title renders as a single `<h1>` — one per page — so assistive tech announces the page's
+  primary heading. Pass the breadcrumb as a labelled `<nav aria-label="breadcrumb">`.
+- An overlong title is keyboard-focusable when clipped (`TruncatedText`'s overflow measurement),
+  so the full title is reachable via `Tab` and a focus-triggered tooltip — not hover-only.
+- The back affordance is a real link (`backHref`) or button (`onBack`) with an accessible
+  `backLabel` (default `"Go back"`), and shows a visible `:focus-visible` ring.
+- The favorite star is a toggle button: it carries `aria-pressed` reflecting the starred state and a
+  `label` (default `"Favorite"`); the visual fill is decorative.
+- All interactive parts are keyboard reachable and operable; the visual order matches the DOM order.
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Move focus through the back button, favorite star, and actions. |
+| <kbd>Enter</kbd> | Follow the back link, or activate the focused button. |
+| <kbd>Space</kbd> | Activate the focused button (back / favorite / action). |
+
+## Do / Don't
+
+<DoDont
+  do="Keep one PageHeader (one h1) per page, use backHref for routing, and reserve onBack for app-local behavior."
+  dont="Stack multiple PageHeaders or nest an h1 inside another heading — and don't hardcode navigation inside the header."
+/>

@@ -1,0 +1,184 @@
+---
+title: Field
+description: A form-field wrapper — label, inline label action, description, and error/success message, built on Base UI Field.
+preview: field
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/field
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Field, FieldControl } from '@/components/ui/field';
+
+<Field label="Email" description="We'll never share it.">
+  <FieldControl type="email" placeholder="you@vegastack.com" />
+</Field>;
+```
+
+`Field` is the ergonomic, prop-driven wrapper: pass `label`, `description`, `error`, or `success` and
+it composes the parts for you. Built on [Base UI Field](https://base-ui.com/react/components/field),
+which auto-wires `aria-describedby` and `aria-invalid` between the label, control, description, and
+error — no manual ARIA wiring.
+
+## Playground
+
+Try every orientation with a description, an error message (watch it slide in), and the disabled state, then copy the generated JSX.
+
+<FieldPlayground />
+
+## Anatomy
+
+`Field` is prop-driven by default, but the underlying primitives are exported for full control over
+composition. Compose them inside `FieldRoot`:
+
+```tsx
+import {
+  FieldRoot,
+  FieldLabel,
+  FieldControl,
+  FieldDescription,
+  FieldError,
+} from '@/components/ui/field';
+
+<FieldRoot>
+  <FieldLabel>Email</FieldLabel>
+  <FieldDescription>We'll never share it.</FieldDescription>
+  <FieldControl type="email" />
+  <FieldError match>Enter a valid email.</FieldError>
+</FieldRoot>;
+```
+
+- `FieldRoot` — groups the parts and wires accessibility between them (`data-slot="field"`). Owns the `orientation` variant. Renders a `<div>`.
+- `FieldLabel` — accessible label, auto-associated with the control (`data-slot="field-label"`). Renders a `<label>`.
+- `FieldControl` — the form control to label and validate (`data-slot="field-control"`). Renders an `<input>`; omit it and drop in any Base UI input/select/checkbox instead.
+- `FieldDescription` — helper text linked via `aria-describedby` (`data-slot="field-description"`). Renders a `<p>`.
+- `FieldError` — validation message shown when the control is invalid (`data-slot="field-error"`, `role="alert"`). Renders a `<div>`.
+- `FieldSuccess` — positive confirmation message (`data-slot="field-success"`). Renders a `<p>`.
+- `FieldGroup` — stacks fields with consistent rhythm and provides the `@container` that `orientation="responsive"` responds to (`data-slot="field-group"`). Renders a `<div>`.
+- `FieldSet` / `FieldLegend` — a semantic `<fieldset>`/`<legend>` pair grouping related fields; the set dims as a unit when disabled (`data-slot="field-set"` / `"field-legend"`).
+- `FieldContent` — the label + description column beside a control in horizontal/responsive fields (`data-slot="field-content"`). Renders a `<div>`.
+
+## Orientations
+
+`vertical` (default) stacks the label above the control. `horizontal` places the control before an
+inline label — for checkboxes and switches. `responsive` renders the label+description column beside
+the control from the wrapping `FieldGroup`'s `@md` container width, stacked below it.
+
+<ComponentPreview name="fieldOrientations" file="components/preview/field.tsx" />
+
+## States
+
+An inline `labelAction` (e.g. a "Forgot?" link) sits end-aligned on the label row. `error` tints the
+message destructive and sets `aria-invalid`; `success` confirms in success color; `borderless`
+flattens the control for inline editing.
+
+<ComponentPreview name="fieldStates" file="components/preview/field.tsx" />
+
+### Horizontal validation
+
+In `horizontal` orientation the `error`/`success` message takes `basis-full`, so it wraps onto its
+own row beneath the control and inline label instead of being squeezed into the flex row. This is the
+layout you get when a required checkbox or switch fails validation.
+
+<ComponentPreview name="fieldHorizontalError" file="components/preview/field.tsx" />
+
+### Disabled
+
+Pass `disabled` on `Field` to deactivate the whole field from one prop: it flows to the control and
+dims the label and description via the `group-has-disabled/field` hook. Works in either orientation.
+
+<ComponentPreview name="fieldDisabled" file="components/preview/field.tsx" />
+
+### Borderless
+
+`borderless` strips the border, background, and shadow from the child control for inline editing. The
+override map targets the `input`, `textarea`, and `select-trigger` slots alike, so the same prop
+flattens any of them while keeping the focus border tint.
+
+<ComponentPreview name="fieldBorderless" file="components/preview/field.tsx" />
+
+## Form integration
+
+`Field` works with [react-hook-form](https://react-hook-form.com) via `Controller`. Base UI's
+`Field.Control` emits `onValueChange` (not a raw `onChange`), and the `invalid`/`touched`/`dirty`
+props let the validation library drive field state — Base UI handles the ARIA. This exact wiring is
+covered by a browser test (`field-form.test.tsx`), so the contract below is type-checked and run.
+
+> `react-hook-form` (`^7.80.0`) and `@hookform/resolvers` (`^5.4.0`) are **consumer-installed peers**
+> for this pattern — `shadcn add @vegastack/field` does **not** pull them. Install them yourself:
+> `pnpm add react-hook-form @hookform/resolvers` (`zod` too, if you don't already have it).
+
+```tsx
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Form } from '@base-ui/react/form';
+import { FieldRoot, FieldLabel, FieldControl, FieldError } from '@/components/ui/field';
+
+const schema = z.object({ email: z.email('Invalid email') });
+
+function SignupForm() {
+  const { control, handleSubmit } = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: { email: '' },
+  });
+  return (
+    <Form onSubmit={handleSubmit((d) => console.log(d))}>
+      <Controller
+        name="email"
+        control={control}
+        render={({ field: { name, ref, value, onBlur, onChange }, fieldState }) => (
+          <FieldRoot name={name} invalid={fieldState.invalid} touched={fieldState.isTouched}>
+            <FieldLabel>Email</FieldLabel>
+            <FieldControl value={value} onBlur={onBlur} onValueChange={onChange} ref={ref} />
+            <FieldError match={!!fieldState.error}>{fieldState.error?.message}</FieldError>
+          </FieldRoot>
+        )}
+      />
+      <button type="submit">Sign up</button>
+    </Form>
+  );
+}
+```
+
+## API Reference
+
+### Field
+
+<AutoTypeTable path="../../packages/ui/registry/ui/field.tsx" name="FieldProps" />
+
+### FieldRoot
+
+<AutoTypeTable path="../../packages/ui/registry/ui/field.tsx" name="FieldRootProps" />
+
+`FieldLabel`, `FieldControl`, `FieldDescription`, `FieldError`, `FieldSuccess`,
+`FieldGroup`, `FieldSet`, `FieldLegend`, and `FieldContent` add no props of
+their own — each accepts everything its underlying Base UI Field part or native
+element accepts (`className`, `ref`, event handlers; `FieldError` additionally
+takes Base UI's `match` to control when the message shows).
+
+## Accessibility
+
+- Base UI Field auto-associates the label with the control and links the description and error via `aria-describedby` — no manual `htmlFor`/`id` wiring needed.
+- An `error` (or `invalid`) sets `aria-invalid` on the control and announces the message via `role="alert"`.
+- On focus the control re-colors its border with the `ring` token (`focus:border-ring/(--alpha-tint-border)`) — the border tint is the text-field focus treatment, and it stays even in `borderless` mode.
+- The label is non-selectable and dims when the field is disabled.
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Move focus into the field control. |
+| <kbd>Enter</kbd> | Submit the surrounding form (single-line controls). |
+
+## Do / Don't
+
+<DoDont
+  do="Pair every control with a Field so it gets a label, description, and an accessible error."
+  dont="Hand-wire htmlFor/aria-describedby/aria-invalid — Field does it for you via Base UI."
+/>

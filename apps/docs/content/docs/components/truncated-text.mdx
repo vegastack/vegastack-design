@@ -1,0 +1,172 @@
+---
+title: Truncated Text
+description: Truncate text to one line or N lines with an ellipsis — and reveal the full text in a tooltip only when it actually overflows.
+preview: truncatedText
+---
+
+import { story } from '@/components/stories/truncated-text.story';
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/truncated-text
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { TruncatedText } from '@/components/ui/truncated-text';
+
+<div className="max-w-48">
+  <TruncatedText>{longTitle}</TruncatedText>
+</div>;
+```
+
+`TruncatedText` is purely presentational: it applies the truncation utility and,
+when the text is actually clipped, wraps it in a Tooltip that surfaces the full
+text on hover or keyboard focus. Width is owned by the parent — constrain the
+surrounding box (a table cell, a `max-w-*` wrapper) and the text truncates to fit.
+
+On devices that can't hover (phones, tablets — `(hover: none)`), Base UI's
+Tooltip has no touch trigger, so clipped text would otherwise be permanently
+unreadable. `TruncatedText` detects this and swaps in a **tap-to-toggle
+disclosure** instead: a tap expands the text in place (it wraps instead of
+clamping), and a second tap, <kbd>Esc</kbd>, or blur re-clamps it. Hover-capable
+devices are unaffected, and keyboard focus keeps opening the Tooltip exactly as
+before on every device.
+
+## Playground
+
+Change the line budget, tooltip side, and rendered element on an overflowing string, then copy the generated JSX.
+
+<TruncatedTextPlayground />
+
+## Explorer
+
+Every `TruncatedText` prop, auto-generated from its TypeScript types — the exhaustive counterpart to
+the curated playground above.
+
+<story.WithControl />
+
+## Examples
+
+### Single-line
+
+The default — clamp to one line with a trailing ellipsis. Hover the clipped text
+to read it in full.
+
+<ComponentPreview name="truncatedText" file="components/preview/truncated-text.tsx" />
+
+### Multi-line
+
+Set `lines` greater than `1` to clamp to that many lines with CSS `line-clamp`
+(supported up to 6). Use `as="p"` or `as="div"` for block-level copy.
+
+<ComponentPreview name="truncatedTextMultiline" file="components/preview/truncated-text.tsx" />
+
+### Line scale
+
+`lines={1}` truncates to a single line (`truncate`); `2`–`6` clamp to that many
+lines (`line-clamp-N`). Values above `6` fall back to `line-clamp-6`. The same
+overflowing copy is clamped at three line budgets below.
+
+<ComponentPreview name="truncatedTextLines" file="components/preview/truncated-text.tsx" />
+
+### IconText
+
+`IconText` lays out a fixed leading icon, a truncating label, and an optional
+trailing slot (a badge, count, or kbd) on a single line. Only the label
+truncates — the icon and trailing slot stay pinned — and the full label is
+revealed in a Tooltip when it overflows. The common shape for sidebar items,
+file rows, and nav labels.
+
+<ComponentPreview name="iconText" file="components/preview/truncated-text.tsx" />
+
+```tsx
+import { IconText } from '@/components/ui/truncated-text';
+import { Icon } from '@/components/ui/icon';
+import { Badge } from '@/components/ui/badge';
+
+<div className="max-w-48">
+  <IconText icon={<Icon name="file" />} text={fileName} trailing={<Badge>New</Badge>} tooltipSide="right" />
+</div>;
+```
+
+The icon is rendered decoratively (`aria-hidden`), so the label carries the
+accessible name.
+
+`tooltipSide` places the overflow tooltip on any edge of the row — `top`
+(default), `right`, `bottom`, or `left`.
+
+<ComponentPreview name="iconTextSides" file="components/preview/truncated-text.tsx" />
+
+### TableCellText
+
+`TableCellText` is `TruncatedText` tuned for table cells: a `width` that matches
+the column header so truncation engages predictably, plus an optional `mono` mode
+for IDs and paths. It reuses the same overflow measurement and tooltip.
+
+<ComponentPreview name="tableCellText" file="components/preview/truncated-text.tsx" />
+
+```tsx
+import { TableCellText } from '@/components/ui/truncated-text';
+
+<TableCell>
+  <TableCellText text={space.name} width="200px" />
+</TableCell>
+<TableCell>
+  <TableCellText text={space.id} width="160px" mono />
+</TableCell>;
+```
+
+`mono` renders the value in the monospace family at a smaller size — for IDs,
+paths, and other fixed-width values. Set `width` to match the column header so
+truncation engages within the column.
+
+## API Reference
+
+### TruncatedText
+
+<AutoTypeTable path="../../packages/ui/registry/ui/truncated-text.tsx" name="TruncatedTextProps" />
+
+### IconText
+
+<AutoTypeTable path="../../packages/ui/registry/ui/truncated-text.tsx" name="IconTextProps" />
+
+### TableCellText
+
+<AutoTypeTable path="../../packages/ui/registry/ui/truncated-text.tsx" name="TableCellTextProps" />
+
+## Accessibility
+
+- Overflow is **measured**, not assumed — the disclosure (Tooltip or tap-toggle)
+  only engages when the text is genuinely clipped, so screen-reader and keyboard
+  users aren't offered an empty hint when the full text is already visible.
+- When clipped, the text becomes a Tooltip trigger and opens on **hover and
+  keyboard focus** (never hover-only), so the full text is reachable without a
+  pointer. The popup carries `role="tooltip"`.
+- **Touch fallback:** Base UI's Tooltip is hover/focus-only — it has no touch
+  trigger — so on a `(hover: none)` device the clipped element additionally
+  becomes a tap-to-toggle disclosure: `role="button"` + `aria-expanded` track
+  the expand/collapse state, a tap toggles it, and <kbd>Enter</kbd>/<kbd>Space</kbd>
+  do the same for keyboard activation on hybrid devices. This never replaces the
+  Tooltip — hover-capable devices and keyboard focus behave exactly as before.
+- The on-screen (truncated) text remains the element's text content, so the full
+  string is still exposed to assistive technology through the trigger.
+- A tooltip supplements text — it is not interactive. Keep links and controls out
+  of the truncated content.
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Move focus to clipped text — its tooltip opens. |
+| <kbd>Esc</kbd> | Dismiss the open tooltip, or (touch fallback) re-clamp an expanded disclosure. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | (Touch fallback only) Toggle the expand/collapse disclosure. |
+
+## Do / Don't
+
+<DoDont
+  do="Constrain the parent (a cell or max-w wrapper) and let TruncatedText clamp the text to fit — the full value stays one hover away."
+  dont="Truncate essential, action-bearing text behind a tooltip — a tooltip isn't reliably reachable on touch; show the full value or use a different layout."
+/>

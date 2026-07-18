@@ -1,0 +1,125 @@
+---
+title: Settings Row
+description: A borders-only settings layout — titled sections, bordered cards, and label-plus-control rows for building account, workspace, and preference screens.
+preview: settingsRow
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/settings-row
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { SettingsCard, SettingsRow, SettingsSection } from '@/components/ui/settings-row';
+import { Switch } from '@/components/ui/switch';
+
+<SettingsSection title="Notifications" description="Choose what you want to hear about.">
+  <SettingsCard>
+    <SettingsRow label="Email" description="Product updates and tips.">
+      <Switch defaultChecked aria-label="Email notifications" />
+    </SettingsRow>
+    <SettingsRow label="SMS" description="Critical alerts only.">
+      <Switch aria-label="SMS alerts" />
+    </SettingsRow>
+  </SettingsCard>
+</SettingsSection>;
+```
+
+## Anatomy
+
+The settings layout is three flat parts that nest from the outside in. Each is a plain, server-safe
+element with a forwarded ref and a `data-slot` for styling and targeting:
+
+```tsx
+<SettingsSection title="…" description="…">
+  <SettingsCard>
+    <SettingsRow label="…" description="…">
+      {/* control: Switch, Input, Button, badge, or read-only value */}
+    </SettingsRow>
+    <SettingsRow label="…">{/* control */}</SettingsRow>
+  </SettingsCard>
+</SettingsSection>;
+```
+
+- `SettingsSection` — a titled group (`data-slot="settings-section"`). Renders an optional `title`
+  and `description` above its children. Use one section per logical group (Account, Notifications,
+  Danger zone).
+- `SettingsCard` — a borders-only container (`data-slot="settings-card"`) that groups rows into a
+  single `rounded-lg` surface. It collapses the last row's bottom border so the rows read as a
+  divided list.
+- `SettingsRow` — one setting (`data-slot="settings-row"`): a `label` and optional `description` on
+  the left, the control `children` on the right, with a `border-b` divider. The row is its own named
+  `@container` — it stacks or goes horizontal based on **its own measured width**, not the viewport,
+  so a row placed in a narrow card (a settings panel in a split view, a dialog) stacks even on a wide
+  screen, while the same row in a full-width page goes horizontal. Works standalone; no `SettingsCard`
+  required.
+
+All three are flat named exports — there is no dotted namespace.
+
+## Examples
+
+A bordered card grouping a mix of rows — a `Switch`, a `Select`, and another `Switch`:
+
+<ComponentPreview name="settingsRow" file="components/preview/settings-row.tsx" />
+
+A full section with a titled header above a card of switch rows:
+
+<ComponentPreview name="settingsSection" file="components/preview/settings-row.tsx" />
+
+### Native labels with `controlId`
+
+Pass `controlId` when the row wraps a native form control with a matching `id`. The visual label
+renders as a real `<label htmlFor={controlId}>`, so clicking the label focuses the input and screen
+readers announce the pairing. Use `labelProps` to merge extra attributes (e.g. analytics hooks) onto
+the generated label.
+
+<ComponentPreview name="settingsRowControlId" file="components/preview/settings-row.tsx" />
+
+### Control variety
+
+The control slot accepts any node — `Input`, `Switch`, a read-only value, a `Badge`, or a `Button`.
+A row with **no `children`** renders label-only (no control slot), which suits headings such as a
+danger-zone intro.
+
+<ComponentPreview name="settingsRowControlTypes" file="components/preview/settings-row.tsx" />
+
+## API Reference
+
+### SettingsRow
+
+<AutoTypeTable path="../../packages/ui/registry/ui/settings-row.tsx" name="SettingsRowProps" />
+
+### SettingsCard
+
+<AutoTypeTable path="../../packages/ui/registry/ui/settings-row.tsx" name="SettingsCardProps" />
+
+### SettingsSection
+
+<AutoTypeTable path="../../packages/ui/registry/ui/settings-row.tsx" name="SettingsSectionProps" />
+
+## Accessibility
+
+- `SettingsSection` renders its `title` as a real `<h3>` so the page outline stays meaningful — keep
+  one section per heading and order them logically.
+- Pass `controlId` when the row contains a form control with a matching `id`; the row label becomes a
+  real `<label htmlFor={controlId}>`. For composite controls that do not expose an input id, keep an
+  explicit `aria-label` or `aria-labelledby` on the control itself.
+- Borders-only by design: rows are separated by `border-border`, not shadows, so the layout stays
+  legible in high-contrast and forced-colors modes.
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Move focus through the controls in each row, top to bottom. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate or toggle the focused control. |
+
+## Do / Don't
+
+<DoDont
+  do="Pair each row with a labelled control, using controlId for native inputs and explicit ARIA labels for composite controls."
+  dont="Stack bare rows without a card, or rely on visual proximity alone to name an interactive control."
+/>

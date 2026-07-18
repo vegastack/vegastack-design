@@ -1,0 +1,102 @@
+---
+title: Button
+description: Trigger an action — 15 variants × 8 sizes, with loading and Base UI Button semantics.
+preview: button
+---
+
+import { story } from '@/components/stories/button.story';
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/button
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Button } from '@/components/ui/button';
+
+<Button>Save changes</Button>;
+```
+
+## Playground
+
+Try all 15 variants and all 8 sizes — the square `icon-*` sizes switch to an icon child with an
+`aria-label` — plus the `disabled` and `loading` states, then copy the generated JSX.
+
+<ButtonPlayground />
+
+## Explorer
+
+Every `Button` prop, auto-generated from its TypeScript types — the exhaustive counterpart to the
+curated playground above.
+
+<story.WithControl />
+
+## Variants
+
+Neutral (`default`, `secondary`, `outline`, `ghost`, `link`),
+semantic-filled (`destructive`, `success`, `warning`, `info`), semantic-outline (`*-outline`), and
+`glass`. The `link` variant is styled as a text link in the `info` color.
+
+<ComponentPreview name="buttonVariants" file="components/preview/button.tsx" />
+
+## Marketing CTA
+
+`cta` is the ONE sanctioned use of the `--brand` phosphor accent as a button (audit
+17-brand-direction §Color & surface) — an accent-outline treatment, sharp corners
+(`rounded-(--radius-sharp)`), and a mono-uppercase label (the brand voice layer). Reserve it for
+marketing surfaces, typically inside a [`MarketingSurface`](/docs/components/marketing-surface).
+Compose a trailing icon (e.g. `lucide-react`'s `ChevronRight`) as a **child** — the variant is
+style-only and never bakes one in.
+
+<ComponentPreview name="buttonCta" file="components/preview/button.tsx" />
+
+```tsx
+<Button variant="cta">
+  Get started
+  <ChevronRight />
+</Button>
+```
+
+## Sizes
+
+`xs`, `sm`, `default`, `lg`, plus square icon sizes `icon-xs`, `icon-sm`, `icon`, `icon-lg`.
+
+<ComponentPreview name="buttonSizes" file="components/preview/button.tsx" />
+
+## States
+
+Icons compose as children; `loading` shows a spinner and sets `aria-busy`; `disabled` is supported.
+
+<ComponentPreview name="buttonStates" file="components/preview/button.tsx" />
+
+## Variant × size matrix
+
+The same variant reads differently at each size — padding, height, and text-size shift together
+(`xs` drops to `text-xs`, `lg` grows the hit target). The grid pairs `default` / `outline` /
+`destructive` against `xs` / `default` / `lg` so the interplay is visible at a glance.
+
+<ComponentPreview name="buttonMatrix" file="components/preview/button.tsx" />
+
+## API Reference
+
+<AutoTypeTable path="../../packages/ui/registry/ui/button.tsx" name="ButtonProps" />
+
+## Accessibility
+
+- Renders a native `<button type="button">` by default; keyboard <kbd>Enter</kbd> / <kbd>Space</kbd> activate it.
+- On `:focus-visible` every variant keeps the design system's global 2px focus ring (`outline-ring`) — `Button` sets no `outline: none` of its own, so the single global focus rule applies. The `outline` and `glass` variants additionally re-color their border with the `ring` token (`focus-visible:border-ring/70`).
+- `loading` sets `aria-busy="true"`, prevents interaction, and remains focusable through Base UI `focusableWhenDisabled`.
+- `render` is for action elements. Do not render links through `Button`; style anchors with `buttonVariants({ variant, size })` when navigation should look like a button.
+- Icon-only buttons must use `size="icon-*"` with an `aria-label`.
+
+## Do / Don't
+
+<DoDont
+  do="Use semantic variants to signal intent — destructive for delete, success for confirm."
+  dont="Use Button for navigation to a URL — use a link styled with buttonVariants."
+/>

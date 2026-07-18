@@ -1,0 +1,125 @@
+name: Deploy (docs + signed registry)
+# Manual until the build + Cloudflare provisioning are ready (build-LOCAL-stop policy).
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # Sigstore keyless signing (GitHub OIDC)
+
+# Turborepo remote caching (Phase D): activates when MK provisions the Vercel Remote Cache
+# secrets — inert (local cache only) until then. Signature verification is enabled in
+# turbo.json so poisoned-cache artifacts are rejected.
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
+jobs:
+  # Release-blocking VRT gate. Deploy is a RELEASE: per the day-one VRT requirement, a missing
+  # baseline must NOT be an acceptable "ship anyway" state (Codex R8). This job runs in the pinned
+  # Playwright container, FAILS CLOSED if no baseline screenshots are committed, and runs the pixel
+  # diff as a blocking check — so you cannot deploy without committed VRT baselines that pass. The
+  # one-time baseline bootstrap (vrt.yml → update_baselines, then commit) is therefore a hard
+  # prerequisite of the first deploy.
+  vrt-gate:
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.61.0-noble # MUST match ci.yml / vrt.yml
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build # static-export the docs so VRT renders the compiled, shipped CSS
+      - name: Require committed VRT baselines (fail-closed for release)
+        run: |
+          ls apps/docs/vrt/**/*-snapshots/*.png >/dev/null 2>&1 || {
+            echo "::error title=VRT baselines missing::Cannot deploy without committed baseline screenshots. Run the VRT workflow's update_baselines bootstrap in the pinned container and commit apps/docs/vrt/**/*-snapshots/** first.";
+            exit 1;
+          }
+      - name: VRT pixel gate (blocking)
+        working-directory: apps/docs
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: vrt-report.json
+        run: pnpm exec playwright test --reporter=list,json
+      - name: Guard — fail if zero screenshot tests executed
+        working-directory: apps/docs
+        run: |
+          node -e '
+            const r = require("./vrt-report.json");
+            const ran = (r.stats?.expected||0)+(r.stats?.unexpected||0)+(r.stats?.flaky||0);
+            if (ran === 0) { console.error("✗ VRT executed 0 screenshot tests — not valid passing evidence for a release."); process.exit(1); }
+            console.log(`✓ VRT executed ${ran} screenshot test(s).`);
+          '
+
+  deploy:
+    needs: vrt-gate # release is fail-closed on the VRT pixel gate above
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      # ORDER MATTERS: build + stamp + SIGN the registry into apps/docs/public/r FIRST, then static-
+      # export. `next build` copies public/* into out/, so signing before export is what gets the
+      # signed integrity-manifest.sigstore into out/r (what Cloudflare actually serves). Signing
+      # after export would deploy an UNSIGNED out/r.
+      - run: pnpm registry:build # shadcn build + whole-item integrity stamp (writes public/r)
+      - uses: sigstore/cosign-installer@v3
+      - name: Sign the integrity manifest (keyless, GitHub OIDC)
+        run: |
+          cosign sign-blob --yes \
+            --bundle apps/docs/public/r/integrity-manifest.sigstore \
+            apps/docs/public/r/integrity-manifest.json
+      - run: pnpm build # static-export the docs → out/ (copies the signed public/r into out/r)
+      - name: Assert the signed registry made it into the deploy artifact
+        run: |
+          test -f apps/docs/out/r/integrity-manifest.json || { echo "::error::out/r missing integrity-manifest.json"; exit 1; }
+          test -f apps/docs/out/r/integrity-manifest.sigstore || { echo "::error::out/r missing integrity-manifest.sigstore (signed bundle not exported)"; exit 1; }
+          # the exported manifest must be byte-identical to the signed one
+          cmp apps/docs/public/r/integrity-manifest.json apps/docs/out/r/integrity-manifest.json
+          cmp apps/docs/public/r/integrity-manifest.sigstore apps/docs/out/r/integrity-manifest.sigstore
+      - name: Deploy to Cloudflare Workers Static Assets
+        run: pnpm --filter @vegastack/docs exec wrangler deploy # uses apps/docs/wrangler.jsonc (assets.directory=./out)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+      # Fail-closed verification of the locked registry-auth trust boundary (requirements §8.5; Codex
+      # R10). The Cloudflare Access policies themselves are configured in Zero Trust (an MK account
+      # action — not in-repo IaC), so this step PROVES the live policy is actually enforcing rather
+      # than assuming it: human docs must require SSO (no anonymous 200), and /r/* must be
+      # service-token-only (anonymous rejected, valid service-token accepted). Any drift blocks the
+      # deploy. Requires repo var DOCS_URL + secrets CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET.
+      - name: Verify Cloudflare Access policy (fail-closed)
+        env:
+          DOCS_URL: ${{ vars.DOCS_URL }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "${DOCS_URL:-}" ]; then echo "::error title=DOCS_URL unset::Set repo variable DOCS_URL to the deployed origin so the Access policy can be verified."; exit 1; fi
+          if [ -z "${CF_ACCESS_CLIENT_ID:-}" ] || [ -z "${CF_ACCESS_CLIENT_SECRET:-}" ]; then echo "::error title=Service token unset::Set secrets CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET (the /r/* CF Access service token)."; exit 1; fi
+          base="${DOCS_URL%/}"
+          # cURL the live origin, NOT following redirects, so a 302 to the Access login counts as "gated".
+          code() { curl -sS -m 20 -o /dev/null -w '%{http_code}' "$@"; }
+          # (1) Human docs must be SSO-gated — anonymous access must NOT return 200.
+          anon_docs=$(code "$base/")
+          case "$anon_docs" in
+            200) echo "::error title=Docs not SSO-gated::GET / returned 200 without auth — Cloudflare Access SSO is not enforcing on the human docs."; exit 1;;
+            30*|401|403) echo "✓ docs gated (anonymous → $anon_docs)";;
+            *) echo "::error::Unexpected status $anon_docs for anonymous GET / (expected a redirect/401/403)"; exit 1;;
+          esac
+          # (2) /r/* must reject anonymous requests (service-token-only).
+          anon_reg=$(code "$base/r/registry.json")
+          case "$anon_reg" in
+            401|403|30*) echo "✓ /r/* rejects anonymous (→ $anon_reg)";;
+            *) echo "::error title=/r/* not protected::GET /r/registry.json returned $anon_reg without a service token — the registry endpoint is not service-token-only."; exit 1;;
+          esac
+          # (3) /r/* must ACCEPT the valid CF Access service token.
+          auth_reg=$(code -H "CF-Access-Client-Id: $CF_ACCESS_CLIENT_ID" -H "CF-Access-Client-Secret: $CF_ACCESS_CLIENT_SECRET" "$base/r/registry.json")
+          case "$auth_reg" in
+            200) echo "✓ /r/* accepts the service token (→ 200)";;
+            *) echo "::error title=Service token rejected::GET /r/registry.json with the CF Access service token returned $auth_reg (expected 200) — token/policy misconfigured."; exit 1;;
+          esac
+          echo "✓ Cloudflare Access policy verified: docs SSO-gated, /r/* service-token-only."

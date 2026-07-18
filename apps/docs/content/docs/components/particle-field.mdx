@@ -1,0 +1,64 @@
+---
+title: Particle Field
+description: A deterministic, very-low-alpha canvas field of drifting phosphor dots — hero atmosphere only.
+preview: particleField
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/particle-field
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { ParticleField } from '@/components/ui/particle-field';
+
+<div className="relative">
+  <ParticleField seed={7} count={48} />
+  <h1 className="relative">Ship agentic UI, fast.</h1>
+</div>;
+```
+
+`ParticleField` is absolutely positioned to fill its parent (`inset-0`) — wrap it in a `relative`
+container and stack your real content above it (`relative` + normal document order, or `z-*`).
+
+<ComponentPreview name="particleField" file="components/preview/particle-field.tsx" />
+
+## Lazy by construction
+
+The draw/animate effect only starts once the element is intersecting the viewport **and** the
+browser reports idle (`requestIdleCallback`, falling back to `setTimeout(0)` where unsupported) —
+a hero hidden below the fold never spends a frame budget before it's visible. For true
+code-splitting (not loading the component's JS at all until needed), wrap the **import** at the
+call site in `next/dynamic(() => import(...), { ssr: false })` — see the docs-home hero for the
+reference usage.
+
+## Reduced motion & determinism
+
+Renders exactly **one static frame** (no `requestAnimationFrame` loop at all) under
+`prefers-reduced-motion: reduce`. Particle positions come from a seeded PRNG (mulberry32) — never
+`Math.random()` — so the same `seed` always produces the same layout. `count` is capped
+(`PARTICLE_FIELD_MAX_COUNT`) regardless of the value passed, so it stays subtle and performant by
+construction. The root element carries `data-drawn` once the first frame has actually painted —
+wait on that attribute instead of guessing a delay (a VRT harness should).
+
+## API Reference
+
+<AutoTypeTable path="../../packages/ui/registry/ui/particle-field.tsx" name="ParticleFieldProps" />
+
+## Accessibility
+
+- Purely decorative — rendered `aria-hidden="true"` in full; it never carries content a screen
+  reader needs.
+- Respects `prefers-reduced-motion: reduce` by rendering one static frame.
+
+## Do / Don't
+
+<DoDont
+  do="Use it as subtle hero-background atmosphere over a dark marketing ground — keep the particle count and alpha low."
+  dont="Use it as a focal element, or stack more than one ParticleField in the same viewport."
+/>

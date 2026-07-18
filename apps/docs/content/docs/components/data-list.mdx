@@ -1,0 +1,284 @@
+---
+title: Data List
+description: A generic, typed data table — configurable columns, row selection, sortable headers, plus loading and empty states.
+preview: dataList
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/data-list
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { DataList, type DataListColumn } from "@/components/ui/data-list";
+
+interface User {
+  id: string;
+  name: string;
+  role: string;
+}
+
+const columns: DataListColumn<User>[] = [
+  { key: "name", header: "Name", sortable: true },
+  { key: "role", header: "Role" },
+];
+
+<DataList columns={columns} data={users} getRowId={(u) => u.id} />;
+```
+
+`DataList<T>` is generic over the row type, so `render`, `getRowId`, and the selection/sort callbacks
+are all fully typed against your data.
+
+<ComponentPreview name="dataList" file="components/preview/data-list.tsx" />
+
+## Anatomy
+
+`DataList` is a single generic component composed on top of the design-system primitives — it renders a
+[`Table`](/docs/components/table) with [`Checkbox`](/docs/components/checkbox) selection,
+[`Skeleton`](/docs/components/skeleton) loading rows, and an [`Empty`](/docs/components/empty)
+when there is no data.
+
+```tsx
+<DataList<T>
+  columns={[{ key, header, render?, sortable?, align?, className?, headerClassName?, interactive? }]}
+  data={rows}
+  getRowId={(row, index) => string}
+  selectable
+  selectedIds={selected}            // controlled selection (Set<string>)
+  onSelectionChange={setSelected}
+  sort={sort}                       // controlled sort ({ key, direction } | null)
+  onSortChange={setSort}
+  loading={false}
+  emptyState={/* optional override */}
+/>;
+```
+
+- **Root** — a `<table data-slot="data-list">` wrapped in a horizontally scrollable container.
+- **Selection column** — when `selectable`, a leading checkbox column with a tri-state select-all in the
+  header (`data-slot="checkbox"`); each body row carries `data-selected` when picked.
+- **Sortable header** — sortable columns render a `<button>` inside `<th data-slot="data-list-head">` that
+  carries `aria-sort` and `data-sorted="asc|desc"`; clicking cycles **asc → desc → cleared**.
+- **Body** — one `<tr data-slot="data-list-row">` per row; cells use `column.render` or fall back to
+  `row[column.key]`.
+- **Loading** — skeleton rows (`data-slot="data-list-skeleton-row"`) replace the body while
+  `loading`; the table gets `aria-busy` and a live status while placeholder rows stay `aria-hidden`.
+- **Empty** — a single full-width row (`data-slot="data-list-empty-row"`) hosting the `emptyState`.
+
+## Selection
+
+Pass `selectable` to add the checkbox column. Selection is **controllable** — lift it with
+`selectedIds` + `onSelectionChange`, or omit both for built-in uncontrolled state. The header checkbox is
+indeterminate when only some rows are selected, checked when all are, and toggles every row on click.
+
+<ComponentPreview
+  name="dataListSelectable"
+  file="components/preview/data-list.tsx"
+/>
+
+## Sorting
+
+Mark a column `sortable` to make its header interactive. Sorting is **controlled by intent**: `onSortChange`
+fires with the next `{ key, direction }` (or `null` when cleared) and **you** re-order `data` — the same API
+works for client-side and server-side sorting. The header reflects the active sort with an arrow icon,
+`aria-sort`, and `data-sorted`.
+
+```tsx
+const [sort, setSort] = React.useState<SortState | null>(null);
+
+<DataList
+  columns={columns}
+  data={sortRows(rows, sort)} // your comparator
+  getRowId={(r) => r.id}
+  sort={sort}
+  onSortChange={setSort}
+/>;
+```
+
+## Row activation
+
+Pass `onRowClick` to make rows activatable — for navigating to a detail page, opening a drawer, and
+so on. `DataList` stays presentational: it only _signals_ the activation; the host decides what it does.
+
+```tsx
+<DataList
+  columns={columns}
+  data={rows}
+  getRowId={(r) => r.id}
+  onRowClick={(row) => router.push(`/people/${row.id}`)}
+/>
+```
+
+<ComponentPreview
+  name="dataListClickable"
+  file="components/preview/data-list.tsx"
+/>
+
+### Activation accessibility
+
+Activatable rows are built to **preserve native table semantics**. The `<tr>` is **not** given
+`role="button"` / `tabIndex` — overriding the implicit `role="row"` would make its `<td>`/`<th>`
+children invalid cells for assistive tech and break row/column navigation. Instead:
+
+- The `<tr>` keeps `role="row"` and gets a mouse-only `onClick` (a `<tr>` may carry `onClick` with no
+  role — that's valid) plus `data-clickable` for styling.
+- A real `<button data-slot="data-list-row-action">` is injected into the **first** cell as the
+  keyboard / screen-reader activation control — it is focusable and fires on <kbd>Enter</kbd> /
+  <kbd>Space</kbd>, with a `:focus-visible` ring, all inside a valid `<td>`.
+- Clicks on the selection checkbox, the injected button, or any nested control are excluded from the
+  row's `onClick`, so there's **no double-activation**.
+
+If the **first column already renders its own interactive control** (a link or button), set
+`column.interactive` on it so `DataList` skips the injected button (it never nests one interactive
+element inside another) — keyboard activation then comes from your in-cell control.
+
+```tsx
+const columns: DataListColumn<Person>[] = [
+  {
+    key: "name",
+    header: "Name",
+    interactive: true, // first column owns its focusable control → skip injected button
+    render: (p) => <a href={`/people/${p.id}`}>{p.name}</a>,
+  },
+  // …
+];
+
+<DataList columns={columns} data={rows} getRowId={(p) => p.id} onRowClick={open} />;
+```
+
+<ComponentPreview
+  name="dataListInteractiveColumn"
+  file="components/preview/data-list.tsx"
+/>
+
+## Loading & Empty states
+
+`loading` swaps the body for `loadingRows` skeleton rows (default `5`). When `data` is empty and not loading,
+`DataList` renders a built-in `Empty` — override it with the `emptyState` prop.
+
+<ComponentPreview
+  name="dataListLoading"
+  file="components/preview/data-list.tsx"
+/>
+
+<ComponentPreview
+  name="dataListEmpty"
+  file="components/preview/data-list.tsx"
+/>
+
+Pass `emptyState` to fully replace the built-in node — for a filtered "no results" message with its own
+icon and actions, for example:
+
+<ComponentPreview
+  name="dataListCustomEmpty"
+  file="components/preview/data-list.tsx"
+/>
+
+## Scope
+
+`DataList` is the **presentational data table** — columns, render functions, row selection,
+sortable-header signalling, loading, and empty state. It deliberately does **not** own
+data-fetching or app-coupled data management. To make host composition ergonomic it exposes
+**presentational slots + callbacks** (no app logic of its own): a `toolbar` slot (above the table),
+a `footer` slot (below it), and `onRowClick` (activatable, keyboard-accessible rows). The host drops
+its own search/filter and pagination controls into the slots and passes the already-filtered /
+already-paged rows:
+
+| Behaviour                                            | Where it lives                        | Mount point           |
+| ---------------------------------------------------- | ------------------------------------- | --------------------- |
+| Search / filtering                                   | Host owns the query + filtered `data` | `toolbar` slot        |
+| Pagination / page-size / load-more                   | Host owns paging + the current page   | `footer` slot         |
+| Row activation (navigate / open)                     | Host's handler                        | `onRowClick`          |
+| Drag-and-drop reordering                             | App-coupled (persisted order)         | future composed addon |
+| Board / Kanban layout, grouping & collapsible groups | Separate layout component             | future scope          |
+| View persistence (URL / saved views)                 | Host owns the persisted view state    | —                     |
+
+```tsx
+// Host composes search + paging around the primitive
+<DataList
+  columns={columns}
+  data={pageRows} // already filtered + paged by the host
+  toolbar={<SearchInput value={q} onValueChange={setQ} />}
+  footer={<Pagination page={page} onPageChange={setPage} />}
+  onRowClick={(row) => router.push(`/items/${row.id}`)}
+/>
+```
+
+Here the host owns a search box (in `toolbar`) and a pager (in `footer`), filtering and paging the
+data itself — `DataList` only renders the already-filtered, already-paged rows and the two slots:
+
+<ComponentPreview
+  name="dataListComposed"
+  file="components/preview/data-list.tsx"
+/>
+
+This split mirrors the design system's [G7 presentational/app-coupled rule](/docs) — the primitive
+stays presentational and reusable; the app wires the data and view state. Full platform parity (a
+single component owning drag/Kanban/grouping/persistence) is a deliberately deferred **`data-grid`**
+follow-up, not this primitive.
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/data-list.tsx"
+  name="DataListProps"
+/>
+
+### Column
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/data-list.tsx"
+  name="DataListColumn"
+/>
+
+### Sort types
+
+`SortDirection` is a string-union alias and `SortState` is the small object you pass to `sort` /
+receive from `onSortChange`, so they are documented as hand-written tables:
+
+<TypeTable
+  type={{
+    key: {
+      type: "string",
+      description: "`key` of the column being sorted.",
+    },
+    direction: {
+      type: '"asc" | "desc"',
+      description: "Sort direction (`SortDirection`).",
+    },
+  }}
+/>
+
+`SortDirection` is `"asc" | "desc"`. `onSortChange` receives `SortState | null` — `null` means the sort
+was cleared (the third click on a header).
+
+## Accessibility
+
+- Renders a real semantic `<table>` with `<thead>`/`<tbody>` and `<th>` header cells, so screen readers
+  announce row/column structure natively.
+- Sortable headers expose `aria-sort` (`ascending` / `descending` / `none`) and are real `<button>`s —
+  keyboard <kbd>Enter</kbd> / <kbd>Space</kbd> activate them, with a `:focus-visible` ring.
+- The select-all and per-row checkboxes have explicit `aria-label`s (e.g. _Select all rows_, _Select row 1_)
+  and are fully keyboard operable.
+- While loading, the table has `aria-busy="true"` and is described by a polite `role="status"` node.
+  Skeleton rows are decorative (`aria-hidden`); the empty state carries its meaning in the
+  title/description text, never by icon or color alone.
+- Activatable rows (`onRowClick`) keep native table semantics: the `<tr>` is **never** given
+  `role="button"`/`tabIndex` (which would invalidate its cells). A real `<button>` injected into the first
+  cell is the focusable keyboard / screen-reader activation; the row's `onClick` is mouse-only convenience.
+
+| Key                                 | Action                                                                                                           |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| <kbd>Tab</kbd>                      | Move focus between sortable headers, row checkboxes, and (when activatable) each row's first-cell action button. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused sort header, toggle the focused checkbox, or activate the focused row.                      |
+
+## Do / Don't
+
+<DoDont
+  do="Pass a stable getRowId (a real record id) so selection survives sorting and data refreshes."
+  dont="Rely on the default index-based row id when rows can re-order — selection will jump to the wrong rows."
+/>

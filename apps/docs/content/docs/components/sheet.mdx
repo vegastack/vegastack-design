@@ -1,0 +1,140 @@
+---
+title: Sheet
+description: A dialog that slides in from a screen edge — four sides, a header/footer layout, focus trapping, and an animated slide transition.
+preview: sheet
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/sheet
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetHeader,
+  SheetFooter,
+  SheetTitle,
+  SheetDescription,
+  SheetClose,
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+
+<Sheet>
+  <SheetTrigger render={<Button variant="outline">Edit profile</Button>} />
+  <SheetContent side="right">
+    <SheetHeader>
+      <SheetTitle>Edit profile</SheetTitle>
+      <SheetDescription>Make changes to your profile here.</SheetDescription>
+    </SheetHeader>
+    <SheetFooter>
+      <SheetClose render={<Button variant="outline">Cancel</Button>} />
+      <Button>Save changes</Button>
+    </SheetFooter>
+  </SheetContent>
+</Sheet>;
+```
+
+## Playground
+
+Choose the edge the panel slides in from and toggle the close button, then copy the generated JSX.
+
+<SheetPlayground />
+
+## Anatomy
+
+`Sheet` is a compound component built on Base UI's Dialog. Compose the parts inside the root:
+
+```tsx
+<Sheet>
+  <SheetTrigger render={<Button>Open</Button>} />
+  <SheetContent side="right">
+    <SheetHeader>
+      <SheetTitle>Title</SheetTitle>
+      <SheetDescription>Supporting description text.</SheetDescription>
+    </SheetHeader>
+    {/* body content */}
+    <SheetFooter>
+      <SheetClose render={<Button variant="outline">Cancel</Button>} />
+      <Button>Confirm</Button>
+    </SheetFooter>
+  </SheetContent>
+</Sheet>
+```
+
+- `Sheet` — the root; owns open/close state (`open` / `defaultOpen` / `onOpenChange`). Modal by default — focus is trapped and page scroll is locked.
+- `SheetTrigger` — the control that opens the sheet (`data-slot="sheet-trigger"`). Pass `render` to compose it with a `Button`.
+- `SheetContent` — the slide-in panel (`data-slot="sheet-content"`). Composes Base UI's Portal + Backdrop + Viewport + Popup, owns the `side`, slides enter/exit, and renders the top-right close button.
+- `SheetHeader` — groups the title and description (`data-slot="sheet-header"`).
+- `SheetTitle` — the sheet's accessible name (`data-slot="sheet-title"`, `<h2>`). Wired to the popup via `aria-labelledby`.
+- `SheetDescription` — supporting text (`data-slot="sheet-description"`, `<p>`). Wired via `aria-describedby`.
+- `SheetFooter` — the action row pinned to the bottom (`data-slot="sheet-footer"`).
+- `SheetClose` — closes the sheet (`data-slot="sheet-close-action"`). Pass `render` to compose it with a `Button` (e.g. a "Cancel" action).
+
+> **Sheet vs. Dialog:** reach for a Sheet when the panel should anchor to a screen edge — filters, detail panels, secondary forms, navigation. Use a [Dialog](/docs/components/dialog) for a centered, focused confirmation or short form.
+
+## Sides
+
+`SheetContent` takes a `side` prop controlling which edge the panel pins to and slides in from: `top`, `right` (default), `bottom`, and `left`. `left`/`right` pin full-height and cap their width; `top`/`bottom` span full-width and cap their height.
+
+<ComponentPreview name="sheetSides" file="components/preview/sheet.tsx" />
+
+## Customization
+
+`SheetContent` exposes two close-button props and forwards `className` to the panel. Pass `showCloseButton={false}` to drop the top-right `X` (force dismissal through a footer action or `Esc`), `closeLabel` to relabel that button for screen readers, and a width utility in `className` to override the default `max-w-sm` cap on `left`/`right` sheets.
+
+<ComponentPreview name="sheetCustom" file="components/preview/sheet.tsx" />
+
+```tsx
+{/* No X button — dismiss only via an explicit action */}
+<SheetContent showCloseButton={false}>{/* … */}</SheetContent>
+
+{/* Wider panel + a custom close-button label */}
+<SheetContent className="max-w-md" closeLabel="Dismiss filters">
+  {/* … */}
+</SheetContent>
+```
+
+## API Reference
+
+### SheetContent
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/sheet.tsx"
+  name="SheetContentProps"
+/>
+
+`Sheet`, `SheetTrigger`, `SheetTitle`, `SheetDescription`, and `SheetClose` add
+no props of their own — each accepts everything the corresponding [Base UI
+Dialog](https://base-ui.com/react/components/dialog) part accepts (`Root`,
+`Trigger`, `Title`, `Description`, `Close`): `open` / `defaultOpen` /
+`onOpenChange` on the root, `render` on the trigger and close, plus `className`
+and `ref`. `SheetHeader` and `SheetFooter` are plain layout wrappers that
+accept standard `<div>` props.
+
+## Accessibility
+
+- The panel renders with `role="dialog"` + `aria-modal="true"`. `SheetTitle` and `SheetDescription` are auto-wired as its `aria-labelledby` / `aria-describedby` — always include a title.
+- Focus is trapped inside the panel while open and restored to the trigger on close. Page scroll is locked.
+- The close button is a native button with an accessible label (`closeLabel`, default `"Close"`); meaning of the `X` icon is carried by that label. On hover it shifts to `bg-muted text-foreground`, and the browser's default focus outline is preserved (no `outline: none`).
+- The trigger and footer actions render as native buttons (or your composed `Button` via `render`), so they keep their own focus-visible treatment — the panel itself never suppresses focus indicators.
+
+| Key                                                | Action                                                       |
+| -------------------------------------------------- | ------------------------------------------------------------ |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>                | Activate the focused trigger to open the sheet.              |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Move focus between controls — trapped within the open sheet. |
+| <kbd>Esc</kbd>                                     | Close the sheet.                                             |
+
+## Do / Don't
+
+<DoDont
+  do="Always include a SheetTitle so the sheet has an accessible name, and pick a side that matches the panel's purpose — right/left for forms and detail, top/bottom for navigation or short pickers."
+  dont="Cram a long, multi-step flow into a Sheet — route to a dedicated page instead, and don't stack multiple sheets at once."
+/>

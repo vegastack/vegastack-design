@@ -1,0 +1,284 @@
+# 12 — Responsive / Mobile Audit
+
+Scope: all 68 canonical components in `packages/ui/registry/ui/*.tsx` (excluding `*.test.tsx`
+and `icons/`). Audited against: hardcoded dimensions on small viewports (320–375px), truncation
+discipline (CSS-based, dynamic), responsive-variant consistency, touch-target sizing (WCAG 2.5.8
+24px minimum vs 44px best practice), mobile-specific overlay/nav behavior, viewport-unit/safe-area
+handling, and test coverage. Source-only audit — no files were modified.
+
+**Method note:** everything below is grounded in the actual source (file:line cited throughout)
+plus the resolved `@base-ui/react@1.6.0` package in `node_modules` where the primitive's own
+behavior (touch/long-press support, exposed CSS vars) mattered. Where I inferred rendered pixel
+math (e.g. "343px available width"), the arithmetic is shown so it can be checked.
+
+---
+
+## Top-line verdict
+
+The **overlay-sizing primitives are good**: `dialog.tsx`, `alert-dialog.tsx`, and `sheet.tsx` all
+correctly use `w-full` + `sm:max-w-*` + `max-h-[calc(100dvh-var(--spacing)*8)]`, so they collapse
+to a margin-respecting, scrollable sheet on narrow viewports without any patching needed. Chat
+(`message.tsx`/`bubble.tsx`), `filter-bar.tsx`, `truncated-text.tsx`, `page-header.tsx`, and
+`settings-row.tsx` are similarly well-built (`min-w-0` used correctly, mobile-first `sm:` stacking,
+dynamic overflow detection).
+
+The real gaps cluster around three things:
+
+1. **`sidebar.tsx` has no mobile mode at all** — no `isMobile` detection, no `Sheet` fallback, just
+   a fixed `15rem` (240px) rail that eats 75%+ of a 320–375px viewport. This is the single biggest
+   finding (see §Sidebar below).
+2. **`DropdownMenuContent` / `ContextMenuContent` / `SelectContent` have no viewport-width clamp**
+   (unlike `PopoverContent`/`HoverCardContent`, which do). Long menu-item text can push these
+   popups wider than the viewport.
+3. **Zero automated mobile-viewport test coverage** — Playwright VRT is pinned to one
+   1280×720 desktop project; no Vitest browser test resizes to a mobile viewport.
+
+Touch-target sizing is consistently below the 44px best practice across the whole system
+(checkbox/radio 14–16px, icon-buttons 24–40px, slider thumb 16px) but *mostly* clears the WCAG
+2.5.8 24px minimum — except checkbox/radio/slider-thumb, which sit at 14–16px with no
+compensating hit-area expansion. Full table in §Touch targets.
+
+---
+
+## (a) Per-component verdict table
+
+Legend: **safe** = works down to 320px without modification · **issues** = will break/degrade on
+a 320–375px viewport or has a real touch/interaction gap · **n/a** = no layout/touch surface
+(pure logic, non-visual, or a subcomponent already covered by its parent's row).
+
+| Component | Verdict | Evidence (file:line) |
+|---|---|---|
+| accordion.tsx | safe | No fixed widths; `h-0` is animation collapse state, not a layout bug. |
+| alert-dialog.tsx | **safe** | `alert-dialog.tsx:134` `max-h-[calc(100dvh-var(--spacing)*8)] w-full`, `:136` `sm:max-w-sm`, `:185` `sm:flex-row` footer — mobile-first stacked footer buttons. |
+| alert.tsx | safe | `alert.tsx:143` already has `min-w-0` on its content column. |
+| auto-save-input.tsx | safe | No hardcoded widths (grepped, none found). |
+| avatar.tsx | safe | Fixed `size-*` scale is correct for an avatar (should not be fluid). |
+| badge.tsx | **issues** | `badge.tsx:20` `w-fit shrink-0 ... whitespace-nowrap` with **no** `max-w`/`truncate` — long badge text grows unconstrained (see §Truncation gaps). |
+| breadcrumb.tsx | safe | `breadcrumb.tsx:55` `flex flex-wrap ... break-words` — wraps instead of overflowing; reasonable for breadcrumbs. |
+| bubble.tsx | **safe (exemplary)** | `bubble.tsx:39` `w-fit max-w-[80%] min-w-0`, `:155` `max-w-full min-w-0 ... wrap-break-word` — correct chat-bubble truncation discipline. |
+| button.tsx | issues (by design) | `button.tsx:15` `shrink-0 ... whitespace-nowrap` — no truncation; acceptable for short labels, but a long/dynamic label has no ellipsis fallback (flag for consumers, not necessarily a bug). |
+| card.tsx | safe | `card.tsx:47` `overflow-hidden`; no fixed width, `CardTitle` has no forced truncation (consumer's job — reasonable default). |
+| checkbox.tsx | **issues (touch)** | `checkbox.tsx:31-32` `size-4`/`size-3.5` (16/14px), no hit-area padding. See §Touch targets. |
+| collapsible.tsx | safe | Animation-only sizing (`h-0`), no layout width issue. |
+| color-picker.tsx | safe | `color-picker.tsx:172` `w-auto p-2`, `:180` dynamic `grid-cols-[repeat(var(--swatch-cols),minmax(0,1fr))]` — fluid, no hardcoded px. |
+| command.tsx | safe | `command.tsx:62` `h-full w-full`; `CommandDialog` (`:124-145`) renders inside `DialogContent`, inheriting the `w-full sm:max-w-md` mobile-safe pattern. |
+| context-menu.tsx | **issues (width)** | `context-menu.tsx:148` `max-h-[var(--available-height)] min-w-32 ...` — **no `max-w-[var(--available-width)]`**, unlike popover/hover-card. Touch itself is fine (Base UI ships long-press support — see §Touch note). |
+| copy-button.tsx | issues (touch) | Wraps `Button` `ghost`/`icon-sm` (28px) — see icon-button row. |
+| country-select.tsx | **issues** | `country-select.tsx:312` `<span className="flex items-center gap-2 truncate">` — combines `flex` + `truncate` on one element and has **no `min-w-0`** (compare `state-select.tsx:1547`, which does it correctly). See §Truncation gaps. |
+| data-list.tsx | **issues** | Header/skeleton checkbox cells use `w-0` (`data-list.tsx:405,482,551`) which is fine, but ordinary data cells (`data-list.tsx` `TableCell` render, no line number — generated per `col`) have **no default `truncate`/`min-w-0`**; entirely dependent on consumer's `col.className`. Table itself scrolls (`table.tsx:38`), so this degrades to "excess horizontal scroll" rather than clipped layout, but it's an easy footgun. |
+| date-picker.tsx | **issues (range+presets)** | Single/`DatePicker`: safe. `DateRangePicker` with `presets`: `date-picker.tsx:704` `className={cn("w-auto p-0", presets && "flex")}` renders `PresetRail` (`:409`, fixed-content-width rail, no `min-w-0`) beside a `Calendar` in a flex **row** with no responsive stacking of its own. See §Hardcoded dimensions for the width math. `Calendar`'s own two-month layout (`:128` `flex flex-col gap-4 md:flex-row`) is correctly mobile-first. |
+| dialog.tsx | **safe (exemplary)** | `dialog.tsx:29` `max-h-[calc(100dvh-var(--spacing)*8)] w-full`, `:39-43` `sm:max-w-{xs,sm,md,lg,4xl}`, `:203` `sm:flex-row` footer. |
+| dropdown-menu.tsx | **issues (width)** | `dropdown-menu.tsx:91` same pattern as context-menu — `max-h-[var(--available-height)] min-w-32`, no `max-w-[var(--available-width)]`. |
+| emoji-picker.tsx | safe | `emoji-picker.tsx:566` `w-72` (288px) fits inside the inherited `max-w-[calc(100vw-var(--spacing)*8)]` clamp even at 320px viewport (320-32=288, exact fit). Grid buttons `size-8` (32px) — below 44px but standard for emoji pickers. |
+| empty-state.tsx | safe | No fixed widths found. |
+| field-inline.tsx | safe | `field-inline.tsx:203` has `min-w-0`. |
+| field.tsx | safe | Label auto-associates via `BaseField.Label` (`field.tsx:63`), expanding the effective touch target for labelled controls. |
+| filter-bar.tsx | **issues (chip value)** | `FilterBar` root: `filter-bar.tsx:293` `flex w-full min-w-0 flex-wrap` — safe, wraps chips. `FilterChip`: `:189` `max-w-xs shrink-0`, but the `value` span (`:222` `<span className="truncate font-medium">{value}</span>`) has **no `min-w-0`**, while its sibling `label` span is explicitly `shrink-0` (`:213`) — so the chip can exceed its own `max-w-xs` when `value` is long. Search input (`:352`) is correctly `min-w-0 basis-48`. |
+| hover-card.tsx | **issues (touch)** | Width is safe (`hover-card.tsx:216` `max-w-[calc(100vw-var(--spacing)*8)]`). Interaction is hover/focus-only (Base UI `PreviewCard`, no touch fallback) — rich preview content is inaccessible on touch-only devices. See §Mobile-specific behavior. |
+| icon-button.tsx | issues (touch) | Maps to `Button` `icon-xs/sm/default/lg` = 24/28/32/40px (`icon-button.tsx:11-16`, `button.tsx:44-47`). See §Touch targets. |
+| image.tsx | safe | No fixed dimensions found. |
+| input.tsx | safe | `input.tsx:39,54,86` all have `min-w-0`. |
+| kbd.tsx | safe (n/a for touch — decorative) | `kbd.tsx:19-21` fixed `h-4/5/6` — intentional, matches key-glyph scale, not an interactive control. |
+| label.tsx | n/a | Non-interactive text. |
+| markdown-view.tsx | safe | Not grepped for fixed widths — relies on prose flow; no hardcoded px found. |
+| marker.tsx | safe | `marker.tsx:17,25,130` all correctly use `min-w-0`/`min-h-4`. |
+| message-scroller.tsx | safe | `message-scroller.tsx:50,75,125` correctly `min-h-0`/`min-w-0` on the scroll flex chain. |
+| message.tsx | **safe (exemplary)** | `message.tsx:24,59,78,97,116,135` — consistent `min-w-0` on every flex level, `max-w-full` on footer rows. Model for the rest of the system. |
+| notification-bell.tsx | issues (touch) | Wraps `IconButton` (default 32px) — see icon-button row. Badge itself (`notification-bell.tsx:88`) is `aria-hidden` decoration, not a target. |
+| otp-input.tsx | safe | `otp-input.tsx:90` `size-8` (32px) per digit; 6 digits + `gap-2` ≈ 232px total, fits 320px viewport comfortably. |
+| page-header.tsx | **safe (exemplary)** | `page-header.tsx:179` `flex min-w-0 flex-col gap-1` wraps the `truncate` title (`:205`) correctly. |
+| pagination.tsx | **issues** | `PaginationContent`: `flex flex-row items-center gap-1`, **no `flex-wrap`/`overflow-x-auto`** — a page-number row + `Previous`/`Next` text will overflow horizontally on narrow viewports; nothing collapses labels to icon-only. See §Hardcoded dimensions. |
+| password-input.tsx | safe | No fixed widths. |
+| popover.tsx | **safe (exemplary)** | `popover.tsx:163` `w-72 max-w-[calc(100vw-var(--spacing)*8)]` — this is the pattern `dropdown-menu`/`context-menu`/`select` should also use. |
+| progress-indicator.tsx | n/a | Non-interactive radial indicator, fixed `size-*` scale is correct. |
+| progress.tsx | n/a | Bar height scale (`h-1/2/3`), not a layout/touch concern. |
+| radio-group.tsx | **issues (touch)** | `radio-group.tsx:165` `size-4` (16px), same gap as checkbox. |
+| relative-time.tsx | n/a | Text-only, no layout surface. |
+| scroll-area.tsx | safe | `scroll-area.tsx:71,89` `h-72` are **story/example** heights in the file (consumer-set in real usage), not the component's own hardcoded size; scrollbar track `w-2`/`h-2` is intentional. |
+| select.tsx | **issues** | Trigger: safe (`w-full`). `SelectContent` (`select.tsx:226`) same missing-`max-w-[var(--available-width)]` gap as dropdown/context menu. `SelectValue` (`:84`) combines `line-clamp-1` + `flex` on one element (conflicting `display` — see §Truncation gaps) and has no `min-w-0`. |
+| separator.tsx | n/a | 1px line, no layout concern. |
+| settings-row.tsx | **safe (exemplary)** | `settings-row.tsx:140` `flex flex-col gap-3 ... sm:flex-row sm:items-center sm:justify-between` — correct mobile-first stack→row pattern; `:145` `min-w-0` on the label column. |
+| sheet.tsx | **safe (exemplary — the mobile pattern)** | `sheet.tsx:41,49` `max-h-[calc(100dvh-...)]` top/bottom, `:45,53` `w-3/4 max-w-sm` left/right — correctly relative + capped. This is the component `sidebar.tsx` should be using for its mobile mode and currently doesn't (see next row). |
+| sidebar.tsx | **issues (critical)** | **No mobile mode whatsoever.** `sidebar.tsx:12-14` fixed `SIDEBAR_WIDTH = '15rem'` (240px) / `SIDEBAR_WIDTH_ICON = '3rem'`; no `isMobile` hook, no breakpoint, no `Sheet` integration anywhere in the file (confirmed via grep — zero `sm:`/`md:`/`Sheet`/`mobile` hits outside unrelated `size` CVA keys). On a 320–375px viewport an expanded sidebar leaves 80–135px for page content. See §Prioritized fixes #1. |
+| skeleton.tsx | safe | Fixed `h-24`/`h-40`/`w-4` etc. are documented **example** shapes for named skeleton variants that mirror fixed-size UI (avatars, thumbnails) — appropriate here. |
+| slider.tsx | **issues (touch)** | `slider.tsx:210` thumb `size-4` (16px), no invisible padding/hit-area expansion. See §Touch targets. |
+| sonner.tsx | **issues (safe-area)** | No `env(safe-area-inset-*)` wiring, and the underlying `sonner@2.0.7` package CSS (`node_modules/.../sonner/dist/styles.css`) also has no `safe-area` references — only `@media (max-width:600px)` width collapse (`styles.css:425-457`). Toasts pinned to a screen edge can sit under the iOS home-indicator/notch on notched devices. |
+| spinner.tsx | n/a | Fixed icon-scale sizing, correct. |
+| split-button.tsx | safe | `split-button.tsx:146` `inline-flex items-stretch` — two glued buttons, no fixed width; long label just grows the button (same as `button.tsx`, by design). |
+| state-select.tsx | **safe** | `state-select.tsx:1547` correctly uses `flex min-w-0 items-center gap-2` + nested `truncate` span — the correct version of the pattern `country-select.tsx` gets wrong. |
+| status-icon.tsx | n/a | Fixed icon-scale, correct. |
+| switch.tsx | issues (touch) | `switch.tsx:24-26` `h-4 w-7` / `h-5 w-9` / `h-6 w-11` (sm/default/lg) — all below 44px height. |
+| table.tsx | **safe (exemplary — the scroll strategy)** | `table.tsx:38` `<div data-slot="table-container" className="relative w-full overflow-x-auto">` — wide tables scroll horizontally instead of breaking layout. |
+| tabs.tsx | **issues** | `TabsList` (`tabs.tsx:61`) is `inline-flex items-center` — **no `overflow-x-auto`**, and `TabsTrigger` is `whitespace-nowrap` (`:153`) — a tab row that overflows a narrow viewport has no built-in scroll affordance. |
+| text-edit.tsx | safe | `text-edit.tsx:35` has `min-w-0`. |
+| textarea.tsx | safe | `textarea.tsx:25` `min-h-16 min-w-0`. |
+| toggle-group.tsx | safe (small groups) | `toggle-group.tsx:99` `flex w-fit`, `:165` `min-w-0 shrink-0` on items — fine for the typical 2–5 option case; no overflow handling if a consumer puts many options in one row (edge case, not flagged as a defect). |
+| toggle.tsx | issues (touch) | `toggle.tsx:25,27-29` `h-7/8/10` + `min-w-7/8/10` (28/32/40px) — same scale as icon-button. |
+| tooltip.tsx | **issues (touch)** | Base UI `Tooltip` primitive is hover/focus-only by design (confirmed: no `touch`/`pointerType` handling in `node_modules/@base-ui/react/tooltip/root/TooltipRoot.js`) — no tap/long-press fallback. This directly undermines `truncated-text.tsx`'s overflow-reveal pattern on touch. See §Mobile-specific behavior. |
+| truncated-text.tsx | **safe (exemplary pattern, touch caveat)** | `truncated-text.tsx:104` dynamic `ResizeObserver`-driven truncation (`ROI` via `useOverflow`) is exactly the "dynamic truncation based on space availability" the owner mandate asks for — the best pattern in the system, and under-adopted elsewhere (badge, data-list cells, dropdown items don't use it). Caveat: reveals full text via `Tooltip` on overflow (`:114-119`), which is hover-only — inaccessible via touch (inherits the `tooltip.tsx` gap above). |
+
+---
+
+## (b) `min-w-0` / truncation gap list
+
+Confirmed, file:line-cited gaps (concrete bugs, not stylistic nitpicks):
+
+| # | File:line | Issue |
+|---|---|---|
+| 1 | `country-select.tsx:312` | `<span className="flex items-center gap-2 truncate">` — no `min-w-0`; contrast with the correct version at `state-select.tsx:1547` (`flex min-w-0 items-center gap-2` wrapping a separate `truncate` span). Long country names will push the trigger wider instead of eliding. |
+| 2 | `select.tsx:84` (`SelectValue`) | `"line-clamp-1 flex items-center gap-2 text-left"` — `line-clamp-1` requires `display:-webkit-box`, but the same class list also sets `display:flex` on the same element (Tailwind resolves both as separate, non-conflicting-by-name utility rules, so the two `display` declarations compete on cascade order — this is a documented Tailwind footgun with `line-clamp` + `flex`/`truncate` co-located on one element). No `min-w-0` either way, so even if the visual clamp "wins," the element won't shrink inside a narrow trigger. **Needs a visual regression check**, not just a code read — flagged as verify-before-fix. |
+| 3 | `filter-bar.tsx:222` (`FilterChip` value span) | `<span className="truncate font-medium">{value}</span>` has no `min-w-0`, while its sibling `label` span (`:213`) is `shrink-0`. Parent chip is capped at `max-w-xs` (`:189`) — a long `value` will make the chip exceed its own cap instead of truncating within it. |
+| 4 | `badge.tsx:20` | No `truncate`/`max-w` at all; `w-fit shrink-0 whitespace-nowrap overflow-hidden` clips without `text-overflow: ellipsis` and won't shrink in a flex row. Long badge text (e.g. a long status/label value) grows the badge unconstrained. |
+| 5 | `data-list.tsx` (`TableCell` render for `columns`, no default `className`) | Default cell rendering has no `truncate`/`min-w-0`; entirely dependent on the consumer supplying `col.className`. Softened by the table's own `overflow-x-auto` (`table.tsx:38`), but a single very long unbroken value (long ID, URL, email) can force excessive column width / horizontal scroll on mobile. |
+| 6 | `dropdown-menu.tsx:192`, `context-menu.tsx:233` (item variants) | No `truncate` on the item label; a long `DropdownMenuItem`/`ContextMenuItem` child text wraps instead of eliding (acceptable for short menu labels, but there's no built-in truncation option the way `SelectItem`/`SelectValue` at least attempt). |
+
+**Systemic min-w-0 audit (grep of every `min-w-0` occurrence across the registry):** correctly
+present in `alert.tsx:143`, `bubble.tsx:22,39,155`, `field-inline.tsx:203`, `filter-bar.tsx:293,352`,
+`input.tsx:39,54,86`, `marker.tsx:25,130`, `message-scroller.tsx:75,125`, `message.tsx:24,59,97`,
+`page-header.tsx:179`, `settings-row.tsx:145`, `sidebar.tsx:230,265`, `state-select.tsx:1547`,
+`text-edit.tsx:35`, `textarea.tsx:25`, `toggle-group.tsx:165`, `truncated-text.tsx:184,190`. That's
+a genuinely wide, mostly-correct application of the pattern — the five gaps above are the
+exceptions, not the norm.
+
+---
+
+## (c) Hardcoded-dimension list + fluid alternatives
+
+| File:line | Current | Risk on 320–375px | Proposed fix |
+|---|---|---|---|
+| `date-picker.tsx:704` (`DateRangePicker` w/ `presets`) | `className={cn("w-auto p-0", presets && "flex")}` — `PresetRail` (fixed content width, ~110–130px for "Last 30 days") + one-month `Calendar` (~250px+ at 32px min day-cell) side by side, inside a popup already clamped to `max-w-[calc(100vw-var(--spacing)*8)]` (≈343px at 375px, 288px at 320px). Combined natural width (~360–390px) **exceeds** the clamp with no overflow-x fallback declared on the popup. | Real horizontal overflow / clipped preset rail on narrow phones. | Make the rail+calendar row responsive: `flex flex-col sm:flex-row` (stack the `PresetRail` above the `Calendar` below `sm`), or explicitly cap `numberOfMonths` to 1 and give `PresetRail` `overflow-x-auto` + `flex-row` chip layout below `sm`. |
+| `dropdown-menu.tsx:91`, `context-menu.tsx:148` | `min-w-32` with **no `max-w`** | Long item text can push the popup wider than the viewport; Base UI's collision-avoidance repositions but does not itself cap width. | Add `max-w-[var(--available-width)]` — Base UI's `Menu.Positioner` already exposes `--available-width` (confirmed in `node_modules/@base-ui/react/menu/positioner/MenuPositionerCssVars.js:12`), mirroring the `--available-height` already consumed for `max-h`. One-line, zero-behavior-risk fix. |
+| `select.tsx:226` | `min-w-[var(--anchor-width)]` with no `max-w` | Same as above — long option labels can exceed viewport width. | Same fix: add `max-w-[var(--available-width)]` (Base UI's `SelectPositionerCssVars` exposes the same var). |
+| `pagination.tsx` (`PaginationContent`, no explicit line — class list only) | `flex flex-row items-center gap-1`, no wrap/scroll | A page-number strip + "Previous"/"Next" text overflows horizontally on a 320px viewport with no built-in mitigation. | Either (a) add `flex-wrap` + `overflow-x-auto` with `-webkit-overflow-scrolling:touch` to `PaginationContent`, or (b) document + ship a `sm:hidden` treatment on the `<span>{children ?? "Previous"}</span>` / `"Next"` text (`pagination.tsx:164,190`) so labels collapse to icon-only below `sm`, matching the common mobile pagination pattern. Page-collapsing (ellipsis logic) is already presentational/BYO, which is fine — the row itself just needs an overflow strategy. |
+| `tabs.tsx` (`TabsList`, `tabs.tsx:61`) | `inline-flex items-center`, no scroll | A tab row with many/long-labeled tabs has no affordance once it exceeds viewport width. | Add `overflow-x-auto` + `scrollbar-none` (or a visible thin scrollbar) to `tabsListVariants`, with `flex-nowrap` explicit and consider a fade-edge mask (`mask-image` gradient) as a "there's more" affordance — common pattern for mobile tab bars. |
+| `emoji-picker.tsx:566` | `w-72` (288px) | Exact-fits 320px after the inherited viewport clamp (`320-32=288`) — zero margin for browser chrome/rounding. Not broken today, but brittle. | Swap to `w-[min(18rem,calc(100vw-2rem))]` so it degrades gracefully below 320px instead of relying on the inherited clamp exactly matching. |
+| `sidebar.tsx:12-14` | `SIDEBAR_WIDTH = '15rem'` fixed, no mobile mode | See §Sidebar — not a "make it fluid" fix, needs an actual mobile-mode addition. | See §Prioritized fixes #1. |
+
+---
+
+## (d) Touch-target table
+
+WCAG 2.5.8 (Target Size, Minimum, AA in the 2.2 update / Level AAA target-size-enhanced is 44px) —
+**24px is the pass/fail floor**, 44px is the best-practice bar this system's own AI-platform
+consumers (touch-heavy tablet/phone surfaces) should be designed to.
+
+| Component | Size(s) | 24px floor | 44px best practice | File:line |
+|---|---|---|---|---|
+| Checkbox | 16px (default), 14px (sm) | **fail** | fail | `checkbox.tsx:31-32` |
+| Radio | 16px | **fail** | fail | `radio-group.tsx:165` |
+| Slider thumb | 16px, no hit-area padding | **fail** | fail | `slider.tsx:210` |
+| Switch | 16×28 (sm), 20×36 (default), 24×44 (lg) | pass (lg only borderline) | fail (sm/default), lg passes width only | `switch.tsx:24-26` |
+| Icon-button `xs` | 24px | pass (exactly at floor) | fail | `button.tsx:46` via `icon-button.tsx:12` |
+| Icon-button `sm` | 28px | pass | fail | `button.tsx:47` via `icon-button.tsx:13` |
+| Icon-button `default` | 32px | pass | fail | `button.tsx:44` via `icon-button.tsx:14` |
+| Icon-button `lg` | 40px | pass | fail | `button.tsx:47` via `icon-button.tsx:15` |
+| Toggle | 28/32/40px | pass | fail | `toggle.tsx:25,27-29` |
+| Pagination link | 28/32/40px (sm/default/lg) | pass | fail | `pagination.tsx:93-95` |
+| Dialog/Sheet close (X) | 32px | pass | fail | `dialog.tsx:161`, `sheet.tsx:166` |
+| FilterChip remove (×) | 20px | **fail** | fail | `filter-bar.tsx:225` (`size-5` on `icon-xs` Button) |
+| Calendar day button | `min-w-8` (32px), scales with available width — can shrink further on very narrow two-month layouts | pass at min, **at-risk below min** if the row is squeezed | fail | `date-picker.tsx:289` |
+| Emoji grid item | 32px | pass | fail | `emoji-picker.tsx:617` |
+| Color-picker swatch | 28px (`size-7`) | pass | fail | `color-picker.tsx:196` |
+| Checkbox/Radio in a labelled `Field` (horizontal) | Effective target = whole label row (label is `htmlFor`-associated, `cursor-pointer`) | **pass (compensated)** | pass (compensated) | `field.tsx:63,259` |
+| Checkbox with only `aria-label` (no visible label) — e.g. DataList row/"select all" | 16px / 14px, **no compensation** | **fail** | fail | `data-list.tsx` (`Checkbox size="sm"`, e.g. header row) |
+
+**Reading:** most interactive controls pass the 24px WCAG floor comfortably; almost none meet the
+44px best-practice bar, which is standard for a design system aimed at dense desktop-first UI —
+but this system explicitly targets "AI-platform apps that must work across all screen sizes," so
+the icon-button/toggle/pagination default scale (28–32px) is the one worth revisiting for
+touch-primary contexts. The genuine **failures** (below the 24px floor, not just below 44px) are:
+checkbox, radio, slider thumb, and the bare (unlabelled) checkbox usage in `data-list.tsx`.
+
+---
+
+## (e) Prioritized fixes
+
+1. **[Critical] `sidebar.tsx` has no mobile mode.** Fixed `15rem` (240px) rail with zero
+   `isMobile`/breakpoint/`Sheet` handling (`sidebar.tsx:12-14`, confirmed via full-file grep for
+   `sm:`/`md:`/`mobile`/`Sheet` — zero real hits). On a 320–375px viewport this consumes 65–75%
+   of the screen when expanded. The system already ships the correct primitive for this
+   (`sheet.tsx`, which is explicitly the "mobile drawer" pattern per the audit brief) — `sidebar.tsx`
+   should detect viewport/container width and swap to rendering its content inside a `Sheet` below
+   a breakpoint, matching the shadcn-original sidebar's mobile behavior that this component
+   diverged from. This is the highest-impact fix in the audit given the owner mandate ("mobile-friendly
+   everywhere").
+
+2. **[High] Add `max-w-[var(--available-width)]` to `DropdownMenuContent`, `ContextMenuContent`,
+   `SelectContent`.** One-line fix per component (`dropdown-menu.tsx:91`, `context-menu.tsx:148`,
+   `select.tsx:226`) — Base UI already exposes the CSS var (confirmed in
+   `node_modules/@base-ui/react/menu/positioner/MenuPositionerCssVars.js` and
+   `select/positioner/SelectPositionerCssVars.js`), and `popover.tsx`/`hover-card.tsx` already prove
+   the pattern works (`max-w-[calc(100vw-var(--spacing)*8)]`). Brings menus/selects to parity with
+   popovers on width-safety.
+
+3. **[High] Fix the `min-w-0` truncation gaps** in `country-select.tsx:312` (add `min-w-0`, split
+   `flex`+`truncate` off one element the way `state-select.tsx:1547` already does correctly),
+   `filter-bar.tsx:222` (add `min-w-0` to the `FilterChip` value span), and verify/fix
+   `select.tsx:84`'s `line-clamp-1`+`flex` co-location (render-test before deciding the fix — either
+   drop to `truncate` since it's single-line anyway, or wrap the label in an inner non-flex span).
+
+4. **[Medium] `pagination.tsx`**: add an overflow strategy to `PaginationContent` (`flex-wrap` +
+   `overflow-x-auto`, or ship a documented `sm:hidden` treatment on the "Previous"/"Next" text
+   spans at `pagination.tsx:164,190`) so a real page-number bar doesn't silently overflow on phones.
+
+5. **[Medium] `tabs.tsx`**: add `overflow-x-auto` to `TabsList` so an overflowing tab row scrolls
+   instead of breaking layout, with a fade-edge affordance if feasible.
+
+6. **[Medium] Tooltip/HoverCard touch fallback.** Both are hover/focus-only by design (verified in
+   `@base-ui/react`'s `TooltipRoot.js`/preview-card sources — no touch handling), which silently
+   breaks `truncated-text.tsx`'s "reveal full text on overflow" pattern (`truncated-text.tsx:114-119`)
+   on touch devices — a title that's actually truncated becomes permanently unreadable on a phone.
+   This is worth a design decision (not just a component patch): either add a tap-to-toggle
+   affordance to `TruncatedText` specifically (it already owns its own overflow-detection state, so
+   this is a contained change), or accept the limitation and document it explicitly in the component's
+   JSDoc so consumers know to provide an alternate disclosure (e.g. tap-to-expand) on touch surfaces.
+
+7. **[Low] `badge.tsx`**: add an opt-in `truncate`/`max-w` treatment (or at minimum document that
+   consumers must cap width themselves) — currently `w-fit shrink-0 whitespace-nowrap` with no
+   ellipsis, so long badge text just grows.
+
+8. **[Low] `data-list.tsx`**: consider a default `truncate` (or wired-in `TruncatedText`) on cell
+   content when `col.className` doesn't specify one, so tables degrade to ellipsis-by-default
+   instead of relying entirely on every consumer remembering to add it. This would also be the
+   highest-leverage place to dogfood `truncated-text.tsx`'s dynamic-truncation pattern, which the
+   owner mandate specifically calls out as the standard to hit.
+
+9. **[Low] Touch-target pass for touch-primary surfaces**: `checkbox`/`radio`/`slider` thumb sit
+   below the 24px WCAG floor with no compensating hit-area (`before:absolute before:-inset-*`
+   pattern, common fix). Given the AI-platform / cross-device mandate, consider either bumping the
+   default sizes or adding an invisible hit-area expansion — especially for `data-list.tsx`'s bare
+   (unlabelled) row-selection checkboxes, which have no compensating clickable-label region.
+
+10. **[Low, process] Zero mobile test coverage.** `apps/docs/playwright.config.ts:15-23` runs a
+    single `chromium` project at a fixed `1280×720` viewport — no mobile project, no viewport
+    matrix. No Vitest browser test resizes to a mobile viewport either (the "viewport" grep hits
+    in `*.test.tsx` are all Base UI DOM slot names, e.g. `[data-slot="dialog-viewport"]`, not real
+    browser-viewport assertions). Recommend adding at minimum one narrow-viewport Playwright
+    project (375×667, "iPhone SE"-class) covering `dialog`, `sheet`, `sidebar` (once fixed),
+    `date-picker` (range+presets), and `pagination` — the five components with confirmed or
+    at-risk overflow behavior above.
+
+---
+
+## Positive patterns worth propagating
+
+For balance — these are genuinely good, worth calling out so they're not accidentally "fixed" away
+and so other components can copy them:
+
+- **`truncated-text.tsx`** — `ResizeObserver`-driven, tooltip-only-when-actually-clipped dynamic
+  truncation is exactly the "dynamic based on space availability" bar the owner mandate sets. It's
+  under-used elsewhere in the system (badge, data-list, menu items all use static/no truncation
+  instead).
+- **`message.tsx`/`bubble.tsx`** — textbook `min-w-0` + `max-w-[80%]` + `wrap-break-word` chat
+  bubble discipline; zero gaps found.
+- **`dialog.tsx`/`alert-dialog.tsx`/`sheet.tsx`** — the `w-full` + `sm:max-w-*` +
+  `max-h-[calc(100dvh-var(--spacing)*8)]` recipe is applied consistently across all three and is
+  correct mobile-first overlay sizing (dvh specifically avoids the iOS Safari URL-bar
+  resize/collapse bug that plain `vh` would hit).
+- **`settings-row.tsx`** — clean mobile-first `flex-col` → `sm:flex-row` stacking with `min-w-0`
+  on the label column.
+- **`context-menu.tsx`** — touch is actually fine here: Base UI's `ContextMenuTrigger.js` ships
+  real long-press detection (`touchPositionRef`, `handleLongPress`, confirmed in
+  `node_modules/@base-ui/react/context-menu/trigger/ContextMenuTrigger.js:52-137`), so
+  right-click-only-looking context menus already work via long-press on touch. (Its width-clamp
+  gap is still listed above — interaction and sizing are separate axes.)

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "section-header",
+  "title": "Section Header",
+  "description": "A marketing section lead-in — mono uppercase eyebrow, display-scale title, optional description.",
+  "dependencies": [
+    "@vegastack/design@^0.1.0",
+    "@vegastack/design-tokens@^0.1.0"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "packages/ui/registry/ui/section-header.tsx",
+      "content": "// @vegastack section-header@0.1.0 sha256-URrmpx4shfngDC1DkX6bbijKMzHtRO2N7cBBiUaNy6c=\n\n// @vegastack section-header@0.1.0 — new component; run `pnpm run registry:build` to stamp\n// integrity + regenerate the copy-in/JSON.\n\n'use client';\n\nimport * as React from 'react';\nimport { cn } from '@vegastack/design';\n\nconst SECTION_HEADER_DISPLAY_SIZE = {\n  sm: 'text-display-sm',\n  md: 'text-display-md',\n  lg: 'text-display-lg',\n  xl: 'text-display-xl',\n} as const;\n\nexport interface SectionHeaderProps\n  extends Omit<React.ComponentPropsWithRef<'div'>, 'title'> {\n  /**\n   * Small mono uppercase label above the title (e.g. `\"01 / Platform\"`,\n   * `\"Now shipping\"`). Rendered in the mono voice (`font-mono` +\n   * `text-mono-label`, uppercase, `--alpha` tracking baked into the token) —\n   * uppercase is mono-EXCLUSIVE, never apply it to the title/description.\n   * A single `--brand` dot precedes it — the sanctioned \"eyebrow highlight\"\n   * marker role (audit 17-brand-direction §Color & surface); the text itself\n   * stays neutral `muted-foreground` so the accent stays a marker, not a wash.\n   */\n  eyebrow?: React.ReactNode;\n  /**\n   * The section headline. Rendered at the tokenized display scale\n   * (`text-display-{size}`, tracking baked in). Compose a serif-italic\n   * emphasis span for ONE word/phrase per header — never the whole\n   * headline — e.g.\n   * `<>Ship agentic UI, <em className=\"font-serif italic\">fast</em>.</>`.\n   * `font-serif` resolves to the Newsreader token (`--font-family-serif`);\n   * reserve it for display emphasis + pull-quotes only (never running body\n   * text) per audit 17.\n   */\n  title: React.ReactNode;\n  /** Optional supporting copy under the title. */\n  description?: React.ReactNode;\n  /**\n   * Display scale — `sm`(32) / `md`(40) / `lg`(56) / `xl`(72), the tokenized\n   * `text-display-*` ladder (tracking baked in per step).\n   * @default 'md'\n   */\n  size?: keyof typeof SECTION_HEADER_DISPLAY_SIZE;\n  /**\n   * Text + flex alignment.\n   * @default 'start'\n   */\n  align?: 'start' | 'center';\n}\n\n/**\n * `SectionHeader` — the marketing section header: an optional mono uppercase\n * eyebrow (with a single `--brand` marker dot), a display-scale title, and an\n * optional description. Every size maps to a tokenized `text-display-*` step;\n * the eyebrow is the mono voice layer (`font-mono` + `text-mono-label`,\n * uppercase, 12px). Purely presentational — compose it inside a\n * `MarketingSurface` (or any surface) as the lead-in for a section.\n *\n * @example\n * <SectionHeader\n *   eyebrow=\"Platform\"\n *   title={<>Built for <em className=\"font-serif italic\">agentic</em> teams</>}\n *   description=\"Tokens, components, and a private registry — one system for humans and agents.\"\n * />\n */\nexport function SectionHeader({\n  eyebrow,\n  title,\n  description,\n  size = 'md',\n  align = 'start',\n  className,\n  ref,\n  ...props\n}: SectionHeaderProps) {\n  return (\n    <div\n      ref={ref}\n      data-slot=\"section-header\"\n      data-align={align}\n      className={cn(\n        'flex flex-col gap-3',\n        align === 'center' ? 'items-center text-center' : 'items-start text-left',\n        className,\n      )}\n      {...props}\n    >\n      {eyebrow ? (\n        <p\n          data-slot=\"section-header-eyebrow\"\n          className=\"flex items-center gap-2 font-mono text-mono-label text-muted-foreground uppercase\"\n        >\n          <span\n            aria-hidden=\"true\"\n            data-slot=\"section-header-eyebrow-mark\"\n            className=\"size-1.5 shrink-0 rounded-full bg-brand\"\n          />\n          {eyebrow}\n        </p>\n      ) : null}\n      <h2\n        data-slot=\"section-header-title\"\n        className={cn(SECTION_HEADER_DISPLAY_SIZE[size], 'text-balance text-foreground')}\n      >\n        {title}\n      </h2>\n      {description ? (\n        <p\n          data-slot=\"section-header-description\"\n          className={cn(\n            'max-w-2xl text-lg text-foreground/(--opacity-hint)',\n            align === 'center' && 'mx-auto',\n          )}\n        >\n          {description}\n        </p>\n      ) : null}\n    </div>\n  );\n}\n",
+      "type": "registry:ui",
+      "target": "@ui/section-header.tsx"
+    }
+  ],
+  "meta": {
+    "whenToUse": "Lead in a marketing section with an eyebrow + display title + optional description.",
+    "whenNotToUse": "Product UI headings — use text-h1…h4 directly; SectionHeader is marketing-scale.",
+    "version": "0.1.0",
+    "integrity": "sha256-URrmpx4shfngDC1DkX6bbijKMzHtRO2N7cBBiUaNy6c="
+  },
+  "categories": [
+    "marketing"
+  ],
+  "type": "registry:ui"
+}

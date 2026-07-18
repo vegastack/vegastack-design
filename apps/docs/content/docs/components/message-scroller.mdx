@@ -1,0 +1,247 @@
+---
+title: Message Scroller
+description: A virtualised, auto-scrolling conversation viewport — pins to the latest message, preserves position on prepend, tracks the anchor, with a floating jump-to-latest button.
+preview: messageScroller
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/message-scroller
+```
+
+<RegistryInstallCallout />
+
+This component is built on the headless `@shadcn/react/message-scroller`
+primitive (installed automatically) — the one primitive in the system beyond
+Base UI. It supplies the scroll/anchor/visibility engine; this wrapper is the
+token-styled skin.
+
+## Usage
+
+```tsx
+import {
+  MessageScroller,
+  MessageScrollerButton,
+  MessageScrollerContent,
+  MessageScrollerItem,
+  MessageScrollerProvider,
+  MessageScrollerViewport,
+} from "@/components/ui/message-scroller";
+
+<MessageScrollerProvider autoScroll defaultScrollPosition="end">
+  <MessageScroller className="h-96">
+    <MessageScrollerViewport aria-label="Conversation">
+      <MessageScrollerContent>
+        {messages.map((m) => (
+          <MessageScrollerItem key={m.id} messageId={m.id}>
+            {/* a Message row */}
+          </MessageScrollerItem>
+        ))}
+      </MessageScrollerContent>
+    </MessageScrollerViewport>
+    {/* The button is a SIBLING of the viewport — a direct child of the
+        relative MessageScroller frame — so it floats over the bottom edge. */}
+    <MessageScrollerButton direction="end" />
+  </MessageScroller>
+</MessageScrollerProvider>;
+```
+
+Give `MessageScroller` (or its parent) a bounded height so the viewport can
+overflow and scroll.
+
+## Anatomy
+
+- `MessageScrollerProvider` — holds scroll state: `autoScroll`,
+  `defaultScrollPosition` (`"start" | "end" | "last-anchor"`),
+  `scrollPreviousItemPeek`, `scrollMargin`.
+- `MessageScroller` — the root flex column.
+- `MessageScrollerViewport` — the scrollable region. Fades its bottom edge with
+  [`scroll-fade`](/docs/utilities/scroll-fade) and hides the scrollbar during
+  programmatic auto-scroll.
+- `MessageScrollerContent` — the inner column; set `aria-busy` while streaming.
+- `MessageScrollerItem` — one item. `content-visibility` skips off-screen items;
+  set `scrollAnchor` on the item that should stay in view and `messageId` to
+  target it.
+- `MessageScrollerButton` — the floating jump-to-end (or start) button; renders
+  our [`Button`](/docs/components/button) and animates in only when scrolled away.
+  Place it as a **direct child of `MessageScroller`, alongside the viewport** (not
+  inside it) so it pins to the frame and floats over the bottom edge.
+
+### Hooks
+
+- `useMessageScroller()` → `scrollToEnd()`, `scrollToStart()`, `scrollToMessage(id)`.
+- `useMessageScrollerScrollable()` → `{ start, end }` (whether each edge can scroll).
+- `useMessageScrollerVisibility()` → `{ currentAnchorId, visibleMessageIds }`.
+
+## Examples
+
+### Auto-scrolling thread
+
+Sends pin to the bottom; scroll up and the jump-to-latest button slides in.
+
+<ComponentPreview
+  name="messageScroller"
+  file="components/preview/message-scroller.tsx"
+/>
+
+### Commands
+
+Drive the transcript from outside with `useMessageScroller().scrollToMessage(id)`
+— here a "Jump to…" menu.
+
+<ComponentPreview
+  name="messageScrollerCommands"
+  file="components/preview/message-scroller.tsx"
+/>
+
+### Scrollable state + scroll-to-start
+
+`useMessageScrollerScrollable()` reports which edges can scroll. Render a second
+`MessageScrollerButton direction="start"` to jump back to the top.
+
+<ComponentPreview
+  name="messageScrollerScrollable"
+  file="components/preview/message-scroller.tsx"
+/>
+
+### Streaming
+
+Set `aria-busy` on `MessageScrollerContent` while a response streams; `autoScroll`
+follows the live edge. Pair a `shimmer` typing bubble for the in-progress cue.
+
+<ComponentPreview
+  name="messageScrollerStreaming"
+  file="components/preview/message-scroller.tsx"
+/>
+
+### Visibility outline
+
+`useMessageScrollerVisibility().currentAnchorId` tracks the in-view turn — drive a
+mini-map / outline that highlights and jumps to the active message.
+
+<ComponentPreview
+  name="messageScrollerVisibility"
+  file="components/preview/message-scroller.tsx"
+/>
+
+### Restore the anchor on open
+
+Set `defaultScrollPosition="last-anchor"` on the provider to open at the last item
+flagged with `scrollAnchor` instead of the top or bottom — for resuming a thread
+where the reader left off. `scrollPreviousItemPeek` leaves a sliver of the message
+above the anchor visible so the position reads as continuous.
+
+<ComponentPreview
+  name="messageScrollerLastAnchor"
+  file="components/preview/message-scroller.tsx"
+/>
+
+### A restyled jump button + live visibility count
+
+`MessageScrollerButton` forwards `variant` and `size` from
+[`Button`](/docs/components/button), and accepts custom `children` in place of the
+default arrow. `useMessageScrollerVisibility()` reports every message currently in
+the viewport via its `visibleMessageIds` array.
+
+<ComponentPreview
+  name="messageScrollerButtonVariants"
+  file="components/preview/message-scroller.tsx"
+/>
+
+## API Reference
+
+### MessageScrollerProvider
+
+> `MessageScrollerProviderProps` aliases `React.ComponentProps<typeof Primitive.Provider>`,
+> a re-exported primitive type the docs type extractor can't introspect — so the rows
+> below are hand-maintained and kept in sync with the primitive.
+
+<TypeTable
+  type={{
+    autoScroll: {
+      type: "boolean",
+      default: "false",
+      description:
+        "Pin the viewport to the latest message and follow new content as it appends.",
+    },
+    defaultScrollPosition: {
+      type: '"start" | "end" | "last-anchor"',
+      default: '"end"',
+      description:
+        "Where the viewport rests on mount: the top, the bottom, or the last item flagged with scrollAnchor.",
+    },
+    scrollEdgeThreshold: {
+      type: "number",
+      default: "8",
+      description:
+        "Distance in px from an edge at which it counts as 'at the edge' for auto-scroll/scrollable state.",
+    },
+    scrollPreviousItemPeek: {
+      type: "number",
+      default: "64",
+      description:
+        "Pixels of the item above the anchor to keep visible when restoring to last-anchor.",
+    },
+    scrollMargin: {
+      type: "number",
+      default: "0",
+      description:
+        "Default margin (px) applied when scrolling an item into view via the hooks.",
+    },
+    children: {
+      type: "React.ReactNode",
+      description: "The MessageScroller tree that reads this scroll state.",
+    },
+  }}
+/>
+
+### MessageScrollerItem
+
+> `MessageScrollerItemProps` aliases `React.ComponentProps<typeof Primitive.Item>`.
+> It accepts all standard `<div>` props plus the two fields below.
+
+<TypeTable
+  type={{
+    messageId: {
+      type: "string",
+      description:
+        "Stable id used to target this item from useMessageScroller().scrollToMessage(id).",
+    },
+    scrollAnchor: {
+      type: "boolean",
+      default: "false",
+      description:
+        "Mark this item as the one to keep in view on prepend, and (when last) the last-anchor target.",
+    },
+  }}
+/>
+
+### MessageScrollerButton
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/message-scroller.tsx"
+  name="MessageScrollerButtonProps"
+/>
+
+`MessageScroller`, `MessageScrollerViewport`, and `MessageScrollerContent` accept
+standard `<div>` props; the viewport also takes `aria-label`/`aria-labelledby` and
+the content takes `aria-busy`.
+
+## Accessibility
+
+- Give `MessageScrollerViewport` an `aria-label` (or `aria-labelledby`); it is the
+  focusable, scrollable region and uses the global `:focus-visible` ring.
+- The jump button has a visually-hidden label ("Scroll to end" / "Scroll to
+  start") and stays out of the tab order while inactive (`pointer-events-none`).
+- Set `aria-busy` on `MessageScrollerContent` while a response streams so
+  assistive tech announces the in-progress state.
+- The slide/fade animations honour `prefers-reduced-motion` via the shared motion
+  tokens.
+
+## Do / Don't
+
+<DoDont
+  do="Use a Message Scroller for live chat/AI threads that must auto-scroll, virtualise long histories, and offer a jump-to-latest control."
+  dont="Use it for a short, static list that already fits — render Message rows in a plain container or a Scroll Area instead."
+/>

@@ -1,0 +1,89 @@
+---
+title: Icon Button
+description: A square, icon-only action button — a thin Button wrapper that requires an accessible label.
+preview: iconButton
+---
+
+import { story } from '@/components/stories/icon-button.story';
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/icon-button
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { IconButton } from '@/components/ui/icon-button';
+import { Plus } from 'lucide-react';
+
+<IconButton aria-label="Add item">
+  <Plus />
+</IconButton>;
+```
+
+`IconButton` is a thin wrapper over [`Button`](/docs/components/button): it forces a square `icon-*`
+size and **requires** `aria-label`, since the icon carries no visible text.
+
+## Playground
+
+Try every pass-through variant, the square size scale, and the disabled / loading states, then copy the generated JSX.
+
+<IconButtonPlayground />
+
+## Explorer
+
+Every `IconButton` prop, auto-generated from its TypeScript types — the exhaustive counterpart to
+the curated playground above.
+
+<story.WithControl />
+
+## Variants
+
+Every [`Button`](/docs/components/button) variant passes straight through — the base set (`default`,
+`secondary`, `outline`, `ghost`, `link`, `glass`), the semantic-filled tones (`success`,
+`warning`, `destructive`, `info`), and their semantic-outline counterparts all work.
+
+<ComponentPreview name="iconButtonVariants" file="components/preview/icon-button.tsx" />
+
+## Sizes
+
+`xs`, `sm`, `default`, and `lg` map to `Button`'s square `icon-xs`, `icon-sm`, `icon`, and `icon-lg`
+sizes respectively.
+
+<ComponentPreview name="iconButtonSizes" file="components/preview/icon-button.tsx" />
+
+## States
+
+Idle, `disabled`, and `loading` — both flags inherited from `Button`. `disabled` removes the button from
+the tab order; `loading` shows a spinner, sets `aria-busy`, and stays focusable.
+
+<ComponentPreview name="iconButtonStates" file="components/preview/icon-button.tsx" />
+
+## API Reference
+
+<AutoTypeTable path="../../packages/ui/registry/ui/icon-button.tsx" name="IconButtonProps" />
+
+## Accessibility
+
+- An accessible name is **mandatory** — pass `aria-label`. The build fails to type-check without one,
+  so an unlabeled icon button can never ship.
+- Renders a native `<button type="button">`; keyboard <kbd>Enter</kbd> / <kbd>Space</kbd> activate it.
+- `:focus-visible` shows a 2px ring (`outline-ring`) — never `outline: none`.
+- `loading` sets `aria-busy="true"` and disables interaction; `disabled` removes it from the tab order.
+
+| Key | Action |
+| --- | --- |
+| <kbd>Enter</kbd> | Activate the button |
+| <kbd>Space</kbd> | Activate the button |
+| <kbd>Tab</kbd> | Move focus to / from the button |
+
+## Do / Don't
+
+<DoDont
+  do="Always give an aria-label that names the action — 'Delete row', not 'Trash'."
+  dont="Render an IconButton with text children — use a Button with an icon and a label instead."
+/>

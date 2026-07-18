@@ -1,0 +1,154 @@
+---
+title: Region Select
+description: A searchable combobox of states/provinces for a country — Combobox-powered filtering, with a free-text fallback for countries with no subdivisions.
+preview: regionSelect
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/region-select
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { RegionSelect } from "@/components/ui/region-select";
+
+const [state, setState] = React.useState("");
+
+<RegionSelect country="US" value={state} onValueChange={setState} />;
+```
+
+`RegionSelect` is controlled: pass the selected subdivision `code` as `value` and update it from
+`onValueChange`. The `country` prop (an ISO-3166-1 alpha-2 code) decides which subdivisions are
+offered — and whether the searchable dropdown or the free-text fallback is shown.
+
+It is a single composite: a thin, data-fed composition of our [Combobox](/docs/components/combobox)
+(the "Select-style" pattern — the search input lives inside the popup, not on the always-visible
+trigger) for the combobox path, or `Input` for the fallback path. A leading `MapPin` icon marks the
+field as a location input in both modes.
+
+## Countries
+
+The embedded `REGIONS_BY_COUNTRY` dataset covers 45 countries and 1,187 subdivisions: US states,
+Canadian provinces, Australian states/territories, Indian states/UTs, UK regions, and high-volume
+billing/shipping markets across the Americas, Europe, Africa, the Middle East, and Asia-Pacific. Each
+supported country renders a searchable combobox with live filtering; countries outside the dataset fall
+back to free text.
+
+<ComponentPreview
+  name="regionSelectCountries"
+  file="components/preview/region-select.tsx"
+/>
+
+## States
+
+A country with **no** predefined subdivisions (e.g. Singapore) falls back to a plain text `Input` so
+the value is still captured — and `disabled` makes the control inert.
+
+<ComponentPreview
+  name="regionSelectStates"
+  file="components/preview/region-select.tsx"
+/>
+
+## Toggle to clear
+
+Re-selecting the **already-selected** state clears the field — `onValueChange` fires with an empty
+string (`""`) and the trigger returns to its placeholder. This lets a user reset the value without a
+separate "clear" affordance.
+
+<ComponentPreview
+  name="regionSelectToggleClear"
+  file="components/preview/region-select.tsx"
+/>
+
+## Empty results
+
+When a search query matches no subdivision, the listbox shows a **"No state found."** message. The
+selection is unchanged until the user picks a matching row.
+
+<ComponentPreview
+  name="regionSelectEmptyResults"
+  file="components/preview/region-select.tsx"
+/>
+
+## API Reference
+
+### RegionSelect
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/region-select.tsx"
+  name="RegionSelectProps"
+/>
+
+`className` is applied to the focusable trigger/input. Use `containerClassName` for wrapper layout
+classes.
+
+### State
+
+A single administrative division (state / province / region). Entries of `REGIONS_BY_COUNTRY` and the
+return type of `getRegionsByCountry`.
+
+### Region
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/region-select.tsx"
+  name="Region"
+/>
+
+### Data API
+
+The same embedded dataset that powers the combobox is exported so consumers can resolve, count, or
+gate subdivisions without re-rendering the control (e.g. to label a field or validate a stored code).
+
+<ComponentPreview
+  name="regionSelectDataApi"
+  file="components/preview/region-select.tsx"
+/>
+
+<TypeTable
+  type={{
+    REGIONS_BY_COUNTRY: {
+      type: "Record<string, State[]>",
+      description:
+        "The embedded dataset of subdivisions keyed by ISO-3166-1 alpha-2 country code (45 countries, 1,187 subdivisions). Countries absent from the map have no predefined states and fall back to free text.",
+    },
+    getRegionsByCountry: {
+      type: "(country: string) => State[]",
+      description:
+        "Look up the states/provinces for a country code (case-insensitive). Returns an empty array when the country has no predefined subdivisions.",
+    },
+    hasRegions: {
+      type: "(country: string) => boolean",
+      description:
+        "Whether a country has predefined subdivisions in REGIONS_BY_COUNTRY (case-insensitive). Use it to decide between a combobox and a free-text input upstream.",
+    },
+  }}
+/>
+
+## Accessibility
+
+- The trigger exposes `role="combobox"` with `aria-expanded`/`aria-haspopup="dialog"`; opening
+  reveals a listbox of options with live, type-to-filter search inside the popup.
+- Full keyboard support is handled by the underlying Combobox: type to filter, <kbd>↑</kbd> /
+  <kbd>↓</kbd> to move the highlight, <kbd>Enter</kbd> to select, and
+  <kbd>Esc</kbd> to dismiss — focus returns to the trigger on close.
+- The free-text fallback is a native `<input>`; associate a label via `id` for both modes.
+- Focus re-colors the trigger/search border with the `ring` token (`border-ring/70`) — never `outline: none`.
+
+| Key                                 | Action                                      |
+| ----------------------------------- | ------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the popover from the trigger.          |
+| <kbd>↑</kbd> / <kbd>↓</kbd>         | Move the highlight between matching states. |
+| <kbd>Enter</kbd>                    | Select the highlighted state and close.     |
+| <kbd>Esc</kbd>                      | Close without changing the selection.       |
+
+## Do / Don't
+
+<DoDont
+  do="Store the subdivision code (e.g. 'CA') as the value, and pass the country so the right states — or the free-text fallback — are shown."
+  dont="Hardcode a single country's state list inline — pass country and let RegionSelect pick the dataset or fall back to a text input."
+/>

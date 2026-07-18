@@ -1,0 +1,10 @@
+/* Compiled-CSS entry for the rendered color-contrast a11y gate (contrast.browser.test.tsx).
+   Imports Tailwind + the real @vegastack token theme and scans the registry components + the
+   contrast test so every utility the components render is generated. Lets axe evaluate REAL
+   rendered colors (the unit a11y tests run without compiled CSS, so they suppress color-contrast;
+   THIS test is the active compiled-CSS compensating gate Codex R3 asked for). */
+@import 'tailwindcss';
+@import '@vegastack/design-tokens/theme.css';
+
+@source '../registry/ui/**/*.tsx';
+@source './contrast.browser.test.tsx';

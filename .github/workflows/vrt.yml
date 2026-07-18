@@ -1,0 +1,110 @@
+name: VRT (visual regression)
+# Playwright visual-regression over the Fumadocs component previews (compiled-CSS, real shipped
+# components). Runs in the SAME pinned image as ci.yml so browsers/fonts are identical.
+#
+# Lifecycle (no permanently-disabled state to remember to flip):
+#   1. One-time bootstrap — a maintainer runs this workflow via `workflow_dispatch` with
+#      `update_baselines=true`; it regenerates the PNG baselines inside the pinned container and
+#      uploads them as an artifact. The maintainer commits `apps/docs/vrt/**/*-snapshots/**`.
+#   2. From then on — every `pull_request` runs the screenshots as a BLOCKING pixel gate. The spec
+#      (components.spec.ts) auto-enables once the baselines are committed (`hasBaselines`), and the
+#      zero-screenshot guard rejects a fully-skipped run as non-evidence.
+# Before baselines exist a PR run is a visible NO-OP (a no-baseline run can only write-then-fail), not
+# a red failure — so adding this workflow never blocks PRs until the baselines are deliberately landed.
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      update_baselines:
+        description: 'Regenerate baseline screenshots (--update-snapshots) and upload them as an artifact'
+        type: boolean
+        default: false
+
+# Turborepo remote caching (Phase D): activates when MK provisions the Vercel Remote Cache
+# secrets — inert (local cache only) until then. Signature verification is enabled in
+# turbo.json so poisoned-cache artifacts are rejected.
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
+jobs:
+  vrt:
+    runs-on: ubuntu-latest
+    # MUST match ci.yml's container so Vitest browser mode + VRT share identical browsers/fonts.
+    container: mcr.microsoft.com/playwright:v1.61.0-noble
+    steps:
+      - uses: actions/checkout@v6
+        with: { fetch-depth: 0 } # full history so we can diff the PR against its base
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build # static export the docs (out/) so VRT renders the compiled, shipped CSS
+      - name: Detect committed baselines
+        id: baselines
+        run: |
+          # find, not `ls **`: CI steps run POSIX sh where ** is NOT recursive — a `**` glob
+          # here can never match vrt/<spec>-snapshots/*.png and silently reports "no baselines".
+          if [ -n "$(find apps/docs/vrt -type f -path '*-snapshots/*' -name '*.png' 2>/dev/null | head -1)" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+      # Did THIS PR touch visually-relevant source (component source or showcase render surface)? If so,
+      # a missing baseline is NOT acceptable — there'd be zero pixel coverage for a visual change (Codex
+      # R9). Docs-prose-only / tooling-only PRs don't need a baseline and stay a no-op until bootstrap.
+      - name: Detect visual-surface changes in this PR
+        id: visual
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          BASE="origin/${{ github.base_ref }}"
+          CHANGED=$(git diff --name-only "$BASE"...HEAD || git diff --name-only HEAD~1)
+          if echo "$CHANGED" | grep -qE '^(packages/ui/registry/ui/|packages/ui/src/|packages/design-tokens/|packages/design/|apps/docs/components/|apps/docs/content/)'; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Bootstrap baselines (--update-snapshots)
+        if: ${{ inputs.update_baselines }}
+        working-directory: apps/docs
+        env:
+          VRT_UPDATE: '1' # force the suite on even with no baselines yet, so the first PNGs are written
+        run: pnpm exec playwright test --update-snapshots --reporter=list,json
+      - name: Upload regenerated baselines
+        if: ${{ inputs.update_baselines }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: vrt-baselines
+          path: apps/docs/vrt/**/*-snapshots/**
+      # Pixel gate — runs on every PR (and on a non-update dispatch) ONCE baselines are committed.
+      - name: VRT pixel gate (blocking)
+        if: ${{ !inputs.update_baselines && steps.baselines.outputs.present == 'true' }}
+        working-directory: apps/docs
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: vrt-report.json
+        run: pnpm exec playwright test --reporter=list,json
+      # Codex R5 guard: a validation run that executed ZERO screenshot tests (suite fully skipped /
+      # empty) must NOT be read as passing evidence.
+      - name: Guard — fail if zero screenshot tests executed
+        if: ${{ !inputs.update_baselines && steps.baselines.outputs.present == 'true' }}
+        working-directory: apps/docs
+        run: |
+          node -e '
+            const r = require("./vrt-report.json");
+            const ran = (r.stats?.expected||0)+(r.stats?.unexpected||0)+(r.stats?.flaky||0);
+            if (ran === 0) { console.error("✗ VRT executed 0 screenshot tests (suite fully skipped/empty) — not valid passing evidence."); process.exit(1); }
+            console.log(`✓ VRT executed ${ran} screenshot test(s).`);
+          '
+      # FAIL-CLOSED: a PR that changes visual surface but has no committed baselines has zero pixel
+      # coverage for that change — reject it (Codex R9). The fix is to bootstrap baselines once.
+      - name: VRT required — visual change without baselines (fail-closed)
+        if: ${{ !inputs.update_baselines && steps.baselines.outputs.present != 'true' && steps.visual.outputs.changed == 'true' }}
+        run: |
+          echo "::error title=VRT baselines required::This PR changes component/showcase source but no baseline screenshots are committed, so there is zero visual-regression coverage for the change. Run this workflow via 'Run workflow' with update_baselines=true, commit apps/docs/vrt/**/*-snapshots/**, then re-run."
+          exit 1
+      # No baselines AND no visual change (docs-prose / tooling only) — a no-op until the one-time
+      # baseline bootstrap; unrelated PRs are not blocked.
+      - name: VRT pending (no baselines, no visual change)
+        if: ${{ !inputs.update_baselines && steps.baselines.outputs.present != 'true' && steps.visual.outputs.changed != 'true' }}
+        run: |
+          echo "::notice title=VRT pending::No committed baseline screenshots and no visual-surface changes in this PR. Bootstrap baselines via 'Run workflow' (update_baselines=true) + commit apps/docs/vrt/**/*-snapshots/** to activate the per-PR pixel gate."

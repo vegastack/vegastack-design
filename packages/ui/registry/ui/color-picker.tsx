@@ -1,0 +1,320 @@
+// @vegastack color-picker@0.1.0 sha256-oJH28H97iWOodZa7U7nxkSyQZbnGA0H/whmOFzymE34=
+
+"use client";
+
+import * as React from "react";
+import { Check } from "lucide-react";
+import { cn } from "@vegastack/design";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+
+/* ------------------------------------------------------------------------------------------------
+ * ColorPicker — a swatch-triggered popover that presents a grid of preset colors. The trigger shows
+ * the current selection; opening it reveals the palette, and picking a swatch fires `onValueChange`
+ * and marks the chosen swatch with a check. Built on our `Popover` + `Button`.
+ *
+ * The palette is data: each `ColorOption` carries a `name` (the stable value the picker emits and
+ * matches selection against) plus a CSS color `value`. The default palette keeps familiar hue names
+ * while using only VegaStack semantic CSS variables (`var(--color-info)`, `var(--color-success)`,
+ * chart tokens, etc.).
+ *
+ * INLINE-STYLE EXCEPTION (the one allowed case): a swatch's background is a *dynamic, user-supplied
+ * color value*, not a static design token — there is no semantic Tailwind utility for "the color the
+ * consumer passed in". It is therefore set via `style={{ backgroundColor }}`. This is the single
+ * sanctioned direct-visual-property `style={}` usage in the design system (design-lint scopes the
+ * exception to this file's swatch fill). Everything else (sizing, borders, focus, spacing) uses
+ * semantic tokens. The dynamic swatch-grid column count is NOT a direct visual property: it is
+ * passed as a CSS custom property (`--swatch-cols`) and consumed by an arbitrary-value class, so the
+ * inline `style` there only sets a `--*` variable (the contract-clean form for runtime layout).
+ * ----------------------------------------------------------------------------------------------*/
+
+/**
+ * A single selectable color in the picker's palette.
+ */
+export interface ColorOption {
+  /**
+   * Stable identifier for the color — this is the value `onValueChange` emits and the value matched
+   * against `value` to determine the selected swatch (e.g. `"blue"`).
+   */
+  name: string;
+  /**
+   * Human-readable label, used as the swatch's accessible name (`aria-label`) and its tooltip
+   * (`title`) — e.g. `"Blue"`.
+   */
+  label: string;
+  /**
+   * Any CSS color the swatch renders as its background. Prefer semantic design-token variables
+   * (`var(--color-info)`, `var(--color-chart-2)`, …). Consumer-provided arbitrary colors are
+   * allowed only as dynamic user data, so the value is applied via inline `style` (the sanctioned
+   * exception — see the file header).
+   */
+  color: string;
+}
+
+/**
+ * Default 12-color palette. Names are stable semantic values for form state, and each swatch uses a
+ * VegaStack token (status, neutral, or chart series) so the registry component does not ship
+ * raw Tailwind palette variables.
+ *
+ * `yellow` maps to `--color-chart-7` (hue ~104 — the one token that is genuinely yellow in BOTH
+ * themes). There is no second yellow-family token, so the palette carries a single yellow/olive
+ * entry rather than a near-duplicate `lime` swatch.
+ */
+export const DEFAULT_COLORS: readonly ColorOption[] = [
+  { name: "gray", label: "Gray", color: "var(--color-primary)" },
+  { name: "red", label: "Red", color: "var(--color-destructive)" },
+  { name: "orange", label: "Orange", color: "var(--color-chart-4)" },
+  { name: "amber", label: "Amber", color: "var(--color-warning)" },
+  { name: "yellow", label: "Yellow", color: "var(--color-chart-7)" },
+  { name: "green", label: "Green", color: "var(--color-success)" },
+  { name: "teal", label: "Teal", color: "var(--color-chart-2)" },
+  { name: "sky", label: "Sky", color: "var(--color-info)" },
+  { name: "blue", label: "Blue", color: "var(--color-chart-8)" },
+  { name: "indigo", label: "Indigo", color: "var(--color-chart-3)" },
+  { name: "pink", label: "Pink", color: "var(--color-chart-5)" },
+  { name: "rose", label: "Rose", color: "var(--color-chart-6)" },
+] as const;
+
+export interface ColorPickerProps {
+  /**
+   * The currently selected color, matched against each `ColorOption.name`. When it matches an option,
+   * that swatch shows a check and the trigger renders its color.
+   */
+  value?: string;
+  /**
+   * Fired when a swatch is picked, with the chosen `ColorOption.name`.
+   */
+  onValueChange?: (value: string) => void;
+  /**
+   * The palette to render.
+   * @default DEFAULT_COLORS
+   */
+  colors?: readonly ColorOption[];
+  /**
+   * Number of columns in the swatch grid.
+   * @default 7
+   */
+  columns?: number;
+  /**
+   * Disables the trigger and every swatch.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Accessible name for the trigger button.
+   * @default "Pick a color"
+   */
+  "aria-label"?: string;
+  /**
+   * Extra classes for the trigger swatch button.
+   */
+  className?: string;
+  /**
+   * Ref forwarded to the trigger button — the component's focusable root (the popover content is
+   * portaled, so the trigger is the stable host element to focus/measure).
+   */
+  ref?: React.Ref<HTMLButtonElement>;
+}
+
+/**
+ * `ColorPicker` — pick a preset color from a popover grid. The trigger is a `rounded-md` control
+ * showing the current selection; opening it reveals the palette, and selecting a swatch fires
+ * `onValueChange` (with the color's `name`) and marks that swatch with a primary border plus a
+ * semantic-surface check badge.
+ *
+ * Controlled-only: pass `value` + `onValueChange`. The displayed colors come from `colors` (defaults
+ * to {@link DEFAULT_COLORS}).
+ *
+ * **Keyboard:** the swatch grid uses a roving tabindex (WAI-ARIA grid pattern) — only one swatch is
+ * ever Tab-reachable at a time. `ArrowLeft`/`ArrowRight` move one swatch; `ArrowUp`/`ArrowDown` move
+ * by `columns`; `Home`/`End` jump to the first/last swatch in the whole grid. The active swatch
+ * starts on the current `value` (falling back to the first swatch), and clicking or focusing a
+ * swatch updates it — click selection itself is unchanged.
+ *
+ * @example
+ * const [color, setColor] = React.useState('blue');
+ * <ColorPicker value={color} onValueChange={setColor} />
+ */
+export function ColorPicker({
+  value,
+  onValueChange,
+  colors = DEFAULT_COLORS,
+  columns = 7,
+  disabled = false,
+  className,
+  "aria-label": ariaLabel = "Pick a color",
+  ref,
+}: ColorPickerProps) {
+  const selected = colors.find((c) => c.name === value);
+
+  // Roving tabindex: exactly one swatch is in the tab order (`tabIndex 0`) at a time — the rest are
+  // `-1` — so Tab only stops once on the grid, matching the WAI-ARIA grid pattern. Arrow keys move
+  // the "active" index (and DOM focus) around the grid; click selection is unchanged. The active
+  // index tracks the palette's currently-selected color when it's present (so re-opening the popover
+  // lands keyboard focus on the current value), falling back to the first swatch otherwise.
+  const selectedIndex = Math.max(
+    0,
+    colors.findIndex((c) => c.name === value),
+  );
+  const [activeIndex, setActiveIndex] = React.useState(selectedIndex);
+  // `HTMLElement`, not `HTMLButtonElement` — `Button`'s underlying Base UI ref type is
+  // `React.RefAttributes<HTMLElement>` (it supports `render` composition onto any element).
+  const swatchRefs = React.useRef<(HTMLElement | null)[]>([]);
+
+  // Keep the active index in range if `colors` shrinks (e.g. a dynamic palette prop).
+  React.useEffect(() => {
+    setActiveIndex((i) => Math.min(i, Math.max(colors.length - 1, 0)));
+  }, [colors.length]);
+
+  const focusSwatch = React.useCallback(
+    (index: number) => {
+      const clamped = Math.max(0, Math.min(index, colors.length - 1));
+      setActiveIndex(clamped);
+      swatchRefs.current[clamped]?.focus();
+    },
+    [colors.length],
+  );
+
+  // Moves the roving-tabindex focus. Home/End jump to the first/last swatch in the ENTIRE grid
+  // (not just the current row) — with only ~13 single-row-wrapped swatches by default, a
+  // whole-grid Home/End reads as more useful than a row-local one; call out to a row-relative
+  // implementation instead if a future consumer renders many rows.
+  const handleGridKeyDown = React.useCallback(
+    (event: React.KeyboardEvent<HTMLDivElement>) => {
+      if (disabled || colors.length === 0) return;
+      switch (event.key) {
+        case "ArrowRight":
+          event.preventDefault();
+          focusSwatch(activeIndex + 1);
+          break;
+        case "ArrowLeft":
+          event.preventDefault();
+          focusSwatch(activeIndex - 1);
+          break;
+        case "ArrowDown":
+          event.preventDefault();
+          focusSwatch(activeIndex + columns);
+          break;
+        case "ArrowUp":
+          event.preventDefault();
+          focusSwatch(activeIndex - columns);
+          break;
+        case "Home":
+          event.preventDefault();
+          focusSwatch(0);
+          break;
+        case "End":
+          event.preventDefault();
+          focusSwatch(colors.length - 1);
+          break;
+        default:
+          break;
+      }
+    },
+    [activeIndex, colors.length, columns, disabled, focusSwatch],
+  );
+
+  return (
+    <Popover>
+      <PopoverTrigger
+        ref={ref}
+        disabled={disabled}
+        render={
+          <Button
+            variant="outline"
+            size="icon-sm"
+            aria-label={ariaLabel}
+            // Trigger is a control → `rounded-md` (Button's native radius); no `rounded-full`.
+            className={className}
+          >
+            <span
+              data-slot="color-picker-swatch"
+              // Fill chip echoes the control geometry (`rounded-sm`), not a round dot.
+              className="size-3.5 rounded-sm border border-border bg-clip-padding"
+              // Dynamic user color — the sanctioned inline-style exception (see file header).
+              // Dynamic swatch color, not a design token.
+              style={{ backgroundColor: selected?.color ?? "transparent" }}
+            />
+          </Button>
+        }
+      />
+      <PopoverContent
+        data-slot="color-picker"
+        align="start"
+        className="w-auto p-2"
+      >
+        <div
+          role="group"
+          aria-label="Colors"
+          onKeyDown={handleGridKeyDown}
+          // Grid column count is dynamic (driven by `columns`). The inline style sets ONLY a CSS
+          // custom property (`--swatch-cols`); the arbitrary-value class consumes it as the grid
+          // template — so no direct visual property is set inline (contract-clean per §7.1).
+          className="grid gap-1.5 grid-cols-[repeat(var(--swatch-cols),minmax(0,1fr))]"
+          style={{ ["--swatch-cols"]: String(columns) } as React.CSSProperties}
+        >
+          {colors.map((color, index) => {
+            const isSelected = color.name === value;
+            const isActive = index === activeIndex;
+            return (
+              <Button
+                key={color.name}
+                ref={(node) => {
+                  swatchRefs.current[index] = node;
+                }}
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                disabled={disabled}
+                aria-label={color.label}
+                aria-pressed={isSelected}
+                title={color.label}
+                // Roving tabindex: only the active swatch is Tab-reachable; arrows move it.
+                tabIndex={isActive ? 0 : -1}
+                onClick={() => {
+                  setActiveIndex(index);
+                  onValueChange?.(color.name);
+                }}
+                onFocus={() => setActiveIndex(index)}
+                className="size-(--size-sm) rounded-full p-0 hover:bg-transparent"
+              >
+                <span
+                  data-slot="color-picker-swatch"
+                  className={cn(
+                    "flex size-5 items-center justify-center rounded-full border border-border bg-clip-padding",
+                    // Selected swatch reads its state through the primary border (selection = primary ink).
+                    isSelected && "border-primary",
+                  )}
+                  // Dynamic user color — the sanctioned inline-style exception (see file header).
+                  // `--swatch-color` mirrors it so the check ink below can derive from it in CSS.
+                  style={{ backgroundColor: color.color, '--swatch-color': color.color } as React.CSSProperties}
+                >
+                  {isSelected ? (
+                    // The check draws DIRECTLY on the swatch so the color identity stays visible
+                    // (a background disc would cover most of a 20px swatch). Its ink is
+                    // LUMINANCE-AWARE via CSS relative color syntax: derived from the swatch's
+                    // own resolved color — pure white when the swatch is dark (oklch L < 0.65),
+                    // pure black when it is light — a step function built from clamp(). This is
+                    // deterministic per swatch in both themes; a blend-mode inversion (the
+                    // previous approach) produced a DIFFERENT murky hue per swatch (dark-ish on
+                    // blue, blue-ish on yellow) instead of a legible neutral.
+                    <Check
+                      data-slot="color-picker-check"
+                      className="size-(--icon-compact) [color:oklch(from_var(--swatch-color)_clamp(0,(0.65_-_l)_*_999,1)_0_h)]"
+                      strokeWidth={3}
+                      aria-hidden
+                    />
+                  ) : null}
+                </span>
+              </Button>
+            );
+          })}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}

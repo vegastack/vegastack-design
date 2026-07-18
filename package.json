@@ -1,0 +1,33 @@
+{
+  "name": "design",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.7.0",
+  "engines": {
+    "node": ">=24.14.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "node tooling/verify-shadcn-base.mjs && turbo run lint",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "registry:build": "shadcn registry validate packages/ui/registry.json && shadcn build packages/ui/registry.json -o apps/docs/public/r && node tooling/registry-stamp.mjs && node tooling/registry-header.mjs && node tooling/verify-headers.mjs && node tooling/verify-registry-deps.mjs",
+    "version-sync": "node tooling/version-sync.mjs",
+    "version-packages": "changeset version && node tooling/version-sync.mjs",
+    "registry:verify-parity": "node tooling/verify-bin-parity.mjs",
+    "registry:verify-headers": "node tooling/verify-headers.mjs",
+    "registry:verify-consume": "node tooling/verify-shadcn-consume.mjs",
+    "shadcn:verify-base": "node tooling/verify-shadcn-base.mjs",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@changesets/changelog-github": "^0.5.1",
+    "@changesets/cli": "^2.31.1",
+    "prettier": "^3.9.5",
+    "shadcn": "4.13.0",
+    "tsup": "^8.5.0",
+    "turbo": "^2.10.5",
+    "typescript": "catalog:"
+  }
+}

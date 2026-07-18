@@ -1,0 +1,39 @@
+/**
+ * @vegastack/design/preset.css
+ * One-import Tailwind v4 setup for VegaStack consumers.
+ */
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "@vegastack/design-tokens/theme.css";
+@import "@vegastack/design-tokens/base.css";
+@import "@vegastack/design-tokens/utilities.css"; /* shimmer / scroll-fade / scrollbar @utility helpers */
+
+/**
+ * Distribution contract — scan the classes shipped INSIDE our own packages.
+ *
+ * This package's own `dist` ships the icon runtime (`BrandIcon`'s
+ * `inline-flex shrink-0 [&>svg]:size-full`), and `@vegastack/ui` ships a compiled
+ * provider + `Toaster` whose sonner `classNames` (e.g. `group-[.toaster]:bg-popover`)
+ * live in its published `dist/*.js`, NOT in the consumer's own source — so without
+ * an explicit `@source` a real npm consumer importing ONLY this preset would get
+ * a partially-unstyled provider/Toaster + icon UI.
+ *
+ * Why `./dist` + a RELATIVE `../ui/dist` path and NOT `@source "@vegastack/ui"`:
+ *   - Tailwind v4.3.1 (the pinned version) does NOT resolve a bare package-name
+ *     `@source` through node_modules — it treats `@vegastack/ui` as a literal
+ *     glob and silently scans nothing (verified: tooling/verify-preset-source.mjs).
+ *   - Tailwind resolves `@source` relative to this file's realpath. The icon runtime
+ *     is INSIDE this package now (`./dist`). `@vegastack/ui` — when present — sits as
+ *     a sibling under the same `@vegastack` scope in node_modules, making `../ui`
+ *     resolvable from any consumer layout (flat npm OR strict pnpm). When a consumer
+ *     does NOT have ui installed, the path simply doesn't exist and Tailwind skips
+ *     it — no error, graceful degradation. (ui is deliberately NOT a peerDependency:
+ *     it is a private workspace package, and declaring it would create a
+ *     ui → design → ui cycle in the workspace graph.)
+ *
+ * Consumers need to do NOTHING extra: importing this preset self-contains the
+ * `@source`. (The packages' `dist` is what ships per their `files` field, so we
+ * point at `dist`, never `src`.)
+ */
+@source "./dist";
+@source "../ui/dist";

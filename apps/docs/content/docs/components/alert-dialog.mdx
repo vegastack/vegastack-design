@@ -1,0 +1,173 @@
+---
+title: Alert Dialog
+description: A modal confirmation dialog with four semantic intents, backdrop lock, and deliberate cancel/confirm actions.
+preview: alertDialog
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/alert-dialog
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+
+<AlertDialog>
+  <AlertDialogTrigger
+    render={<Button variant="destructive-outline">Delete project</Button>}
+  />
+  <AlertDialogContent intent="destructive">
+    <AlertDialogHeader>
+      <AlertDialogTitle>Delete project?</AlertDialogTitle>
+      <AlertDialogDescription>
+        This action cannot be undone.
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+    <AlertDialogFooter>
+      <AlertDialogCancel>Cancel</AlertDialogCancel>
+      <AlertDialogAction intent="destructive" onClick={handleDelete}>
+        Delete project
+      </AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>;
+```
+
+Unlike `Dialog`, an alert dialog is **not** dismissable by clicking the backdrop — the user can
+cancel with `AlertDialogCancel` or <kbd>Esc</kbd>, or confirm with `AlertDialogAction`. Reach for it
+for destructive or irreversible confirmations; for everything else use `Dialog`.
+
+## Anatomy
+
+`AlertDialog` is a compound component built on Base UI's AlertDialog. Compose the parts inside the
+root:
+
+```tsx
+<AlertDialog>
+  <AlertDialogTrigger render={<Button>Delete</Button>} />
+  <AlertDialogContent intent="destructive">
+    <AlertDialogHeader>
+      <AlertDialogTitle>Title</AlertDialogTitle>
+      <AlertDialogDescription>
+        Supporting description text.
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+    {/* optional body content */}
+    <AlertDialogFooter>
+      <AlertDialogCancel>Cancel</AlertDialogCancel>
+      <AlertDialogAction intent="destructive">Confirm</AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>
+```
+
+- `AlertDialog` — the root; owns open/close state (`open` / `defaultOpen` / `onOpenChange`). Always
+  modal — focus is trapped, page scroll is locked, and the backdrop does not dismiss.
+- `AlertDialogTrigger` — the control that opens the dialog (`data-slot="alert-dialog-trigger"`).
+  Pass `render` to compose it with a `Button`.
+- `AlertDialogContent` — the centered popup (`data-slot="alert-dialog-content"`). Composes Base UI's
+  Portal + Backdrop + Viewport + Popup, takes the `intent`, animates enter/exit. No top-right close
+  button.
+- `AlertDialogHeader` — groups the title and description (`data-slot="alert-dialog-header"`).
+- `AlertDialogTitle` — the dialog's accessible name (`data-slot="alert-dialog-title"`, `<h2>`).
+  Wired to the popup via `aria-labelledby`.
+- `AlertDialogDescription` — supporting text (`data-slot="alert-dialog-description"`, `<p>`). Wired
+  via `aria-describedby`.
+- `AlertDialogFooter` — the action row at the bottom (`data-slot="alert-dialog-footer"`).
+- `AlertDialogCancel` — closes without confirming (`data-slot="alert-dialog-cancel"`). Neutral
+  outline tint.
+- `AlertDialogAction` — the confirm button (`data-slot="alert-dialog-action"`). Closes the dialog;
+  wire confirm work through `onClick`. Carries the `intent` tint.
+
+> **Not backdrop-dismissable:** there is intentionally no close (`X`) button and backdrop clicks do
+> not dismiss. The user can cancel with Cancel or <kbd>Esc</kbd>, or choose the confirm Action —
+> that's what separates an alert dialog from a regular `Dialog`.
+
+## Intents
+
+Set `intent` on `AlertDialogContent` (for grouping) and on `AlertDialogAction` (to tint the confirm
+button): `default`, `destructive`, `success`, and `warning`.
+
+<ComponentPreview
+  name="alertDialogIntents"
+  file="components/preview/alert-dialog.tsx"
+/>
+
+The `intent` on `AlertDialogContent` is **metadata only** — it sets a `data-intent` attribute for
+grouping/styling hooks but does **not** tint the popup itself. The visible color comes entirely from
+the matching `intent` on `AlertDialogAction`, which maps to a semantic `Button` variant
+(`destructive-outline`, `success-outline`, `warning-outline`). Always set both so the data hook and
+the confirm button stay in sync.
+
+## Scrollable content
+
+When the body is long, drop a scrolling region (`overflow-y-auto`) between the header and footer. The
+popup caps its own height (`max-h-[calc(100dvh-…)]`) and keeps the header and footer pinned while the
+middle scrolls.
+
+<ComponentPreview
+  name="alertDialogScrollable"
+  file="components/preview/alert-dialog.tsx"
+/>
+
+## API Reference
+
+### AlertDialogContent
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/alert-dialog.tsx"
+  name="AlertDialogContentProps"
+/>
+
+### AlertDialogAction
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/alert-dialog.tsx"
+  name="AlertDialogActionProps"
+/>
+
+`AlertDialog`, `AlertDialogTrigger`, `AlertDialogHeader`, `AlertDialogFooter`,
+`AlertDialogTitle`, `AlertDialogDescription`, and `AlertDialogCancel` add no props of their
+own — they accept everything the underlying Base UI part or element accepts (`className`,
+`render`, ARIA attributes, event handlers, …).
+
+## Accessibility
+
+- The popup renders with `role="alertdialog"` + `aria-modal="true"`. `AlertDialogTitle` and
+  `AlertDialogDescription` are auto-wired as its `aria-labelledby` / `aria-describedby` — always
+  include a title.
+- Focus is trapped inside the popup while open and restored to the trigger on close. Page scroll is
+  locked.
+- The backdrop is non-dismissable by design — closing requires `AlertDialogCancel`,
+  `AlertDialogAction`, or <kbd>Esc</kbd> as a cancel request, so a confirmation is never dismissed by
+  accident.
+- Every interactive control is a `Button` and follows `Button`'s focus treatment: each keeps the global 2px `:focus-visible` ring (`outline-ring`), and the bordered `AlertDialogCancel` (`outline` variant) additionally re-colors its border with the `ring` token (`focus-visible:border-ring/70`) — never `outline: none`.
+
+| Key                                                | Action                                                                 |
+| -------------------------------------------------- | ---------------------------------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>                | Activate the focused trigger to open the dialog.                       |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Move focus between Cancel and Action — trapped within the open dialog. |
+| <kbd>Esc</kbd>                                     | Close the dialog (treated as cancel).                                  |
+
+## Do / Don't
+
+<DoDont
+  do="Use an AlertDialog for destructive or irreversible confirmations, match the Action intent to the consequence, and put Cancel before Action in the footer."
+  dont="Use an AlertDialog for routine, dismissable content — use a Dialog instead. Don't bury the confirm action behind a neutral tint when it's destructive."
+/>

@@ -1,0 +1,136 @@
+---
+title: Message
+description: Layout primitives for a conversation row — avatar anchoring, a content column, header/footer slots, and start/end alignment. Server-safe.
+preview: message
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/message
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Avatar } from "@/components/ui/avatar";
+import { Bubble, BubbleContent } from "@/components/ui/bubble";
+import {
+  Message,
+  MessageAvatar,
+  MessageContent,
+} from "@/components/ui/message";
+
+<Message>
+  <MessageAvatar>
+    <Avatar fallback="AL" />
+  </MessageAvatar>
+  <MessageContent>
+    <Bubble>
+      <BubbleContent>Hello there!</BubbleContent>
+    </Bubble>
+  </MessageContent>
+</Message>;
+```
+
+## Anatomy
+
+`Message` is pure layout — it owns no colours and is server-safe. Compose
+[`Avatar`](/docs/components/avatar), [`Bubble`](/docs/components/bubble), and
+[`Marker`](/docs/components/marker) as children.
+
+- `Message` — one row (`data-slot="message"`, `data-align`). `align="end"`
+  reverses the row for the current user's own messages.
+- `MessageGroup` — stacks consecutive messages from one sender.
+- `MessageAvatar` — anchors an `Avatar` to the bottom of the row.
+- `MessageContent` — the vertical column (bubbles, header, footer).
+- `MessageHeader` / `MessageFooter` — small muted lines above / below the bubble.
+
+## Examples
+
+### A conversation
+
+Received (`align="start"`) and sent (`align="end"`) rows, with an avatar, a
+header, and a footer.
+
+<ComponentPreview name="message" file="components/preview/message.tsx" />
+
+### Message group
+
+`MessageGroup` stacks consecutive messages from the same sender, with the avatar
+anchored once to the group.
+
+<ComponentPreview name="messageGroup" file="components/preview/message.tsx" />
+
+### Header and footer
+
+`MessageHeader` sits above the bubble (sender name) and `MessageFooter` below
+(status / timestamp). With a footer, the avatar lifts to stay aligned.
+
+<ComponentPreview
+  name="messageHeaderFooter"
+  file="components/preview/message.tsx"
+/>
+
+### Actions
+
+Put a row of `Button`s in `MessageFooter` for per-message actions. Pair a
+`destructive` bubble with a retry affordance for a failed message.
+
+<ComponentPreview name="messageActions" file="components/preview/message.tsx" />
+
+### Attachments
+
+Compose rich content inside a bubble — a `ghost` bubble for flush media, or an
+`outline` bubble framing a file chip.
+
+<ComponentPreview
+  name="messageAttachment"
+  file="components/preview/message.tsx"
+/>
+
+### Motion
+
+Pass `animateIn` on a message you append **after mount** — a streamed reply, or the message the
+user just sent — to fade + rise it in (`motion-enter-up`). It's **off by default**: an existing
+transcript rendered on page load must not animate every row. `Bubble` takes the same prop, so set
+either or both; a `MessageScroller` composes fine with it.
+
+<ComponentPreview name="messageAnimateIn" file="components/preview/message.tsx" />
+
+### Ghost bubble
+
+`MessageHeader` and `MessageFooter` drop their inline padding when the bubble
+uses the `ghost` variant, so the muted lines align flush with edge-to-edge media.
+
+<ComponentPreview
+  name="messageGhostBubble"
+  file="components/preview/message.tsx"
+/>
+
+## API Reference
+
+`Message` is the only part with its own prop (`align`). `MessageGroup`,
+`MessageAvatar`, `MessageContent`, `MessageHeader`, and `MessageFooter` are plain
+layout wrappers — they accept the standard `div` props plus `className`.
+
+<AutoTypeTable path="../../packages/ui/registry/ui/message.tsx" name="MessageProps" />
+
+## Accessibility
+
+- `Message` is presentational layout — it adds no roles. Convey conversation
+  semantics at the container level (e.g. a `log` / `feed` region) as your app
+  requires.
+- `align` only changes visual order; DOM order stays logical for screen readers
+  and keyboard users.
+- Pair with [`Avatar`](/docs/components/avatar) (which carries the accessible
+  name) rather than relying on the avatar image alone.
+
+## Do / Don't
+
+<DoDont
+  do="Compose Avatar, Bubble, and Marker inside Message to build a conversation row, and use align='end' for the user's own messages."
+  dont="Use Message for non-conversational list rows — reach for a plain layout, Data List, or Settings Row."
+/>

@@ -1,0 +1,149 @@
+---
+title: Checkbox
+description: A binary (or tri-state) toggle — checked, unchecked, indeterminate, and disabled, built on Base UI Checkbox.
+preview: checkbox
+---
+
+import { story } from '@/components/stories/checkbox.story';
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/checkbox
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Checkbox } from "@/components/ui/checkbox";
+
+<Checkbox aria-label="Accept terms" defaultChecked />;
+```
+
+Built on [Base UI Checkbox](https://base-ui.com/react/components/checkbox): it renders a styled
+`<span>` plus a hidden `<input>` and a lucide check/minus indicator. Pair it with a label for
+accessibility — either inside a [`Field`](/docs/components/field) (which auto-associates the label)
+or by rendering a native button when you need a sibling `<label htmlFor>`. For a standalone checkbox
+with no visible label, pass an `aria-label`.
+
+## Playground
+
+Try both sizes with the disabled and indeterminate states, then copy the generated JSX.
+
+<CheckboxPlayground />
+
+## Explorer
+
+Every `Checkbox` prop, auto-generated from its TypeScript types — the exhaustive counterpart to the
+curated playground above.
+
+<story.WithControl />
+
+## With a Field
+
+`Field` with `orientation="horizontal"` places the checkbox before an inline label and wires the
+label association for you — no manual `htmlFor`/`id`.
+
+```tsx
+import { Checkbox } from "@/components/ui/checkbox";
+import { Field } from "@/components/ui/field";
+
+<Field label="Subscribe to product updates" orientation="horizontal">
+  <Checkbox defaultChecked />
+</Field>;
+```
+
+## Sibling label
+
+Base UI's default checkbox root is a `<span>` so enclosing-label patterns work well. When your markup
+needs a sibling `<label htmlFor>`, render the root as a native button so the `id` targets the visible
+interactive element:
+
+```tsx
+<label htmlFor="terms-checkbox">Accept terms</label>
+<Checkbox id="terms-checkbox" nativeButton render={<button type="button" />} />
+```
+
+## States
+
+`checked`/`defaultChecked` tick it; `indeterminate` renders the minus indicator and sets
+`aria-checked="mixed"` (for a "select all" parent); `disabled` removes interaction. Every state shows
+a `:focus-visible` ring on keyboard focus.
+
+<ComponentPreview
+  name="checkboxStates"
+  file="components/preview/checkbox.tsx"
+/>
+
+## Sizes
+
+`default` (size-4) and `sm` (size-3.5) — the icon scales with the box so checkboxes line up with
+sibling inputs and switches.
+
+<ComponentPreview
+  name="checkboxSizes"
+  file="components/preview/checkbox.tsx"
+/>
+
+```tsx
+<Checkbox size="sm" aria-label="Compact" />
+<Checkbox size="default" aria-label="Default" />
+```
+
+## Invalid
+
+Set `aria-invalid` (or place the checkbox inside a [`Field`](/docs/components/field) with an `error`)
+to show the destructive border. A `Field` error also renders a `role="alert"` message for assistive
+tech.
+
+<ComponentPreview
+  name="checkboxInvalid"
+  file="components/preview/checkbox.tsx"
+/>
+
+```tsx
+<Checkbox aria-invalid aria-label="Invalid checkbox" />
+
+<Field label="Accept the terms to continue" orientation="horizontal" error="This field is required.">
+  <Checkbox />
+</Field>
+```
+
+## Size × state matrix
+
+Because the indicator icon scales with the box, the `sm` and `default` sizes read distinctly across
+every state — unchecked, checked, and indeterminate.
+
+<ComponentPreview
+  name="checkboxSizeStateMatrix"
+  file="components/preview/checkbox.tsx"
+/>
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/checkbox.tsx"
+  name="CheckboxProps"
+/>
+
+## Accessibility
+
+- Renders a native checkbox (`role="checkbox"`) with a hidden `<input>` for form submission; supports controlled (`checked`) and uncontrolled (`defaultChecked`) use.
+- `indeterminate` sets `aria-checked="mixed"`; checked/unchecked set `aria-checked="true"`/`"false"`.
+- Always give it an accessible name — wrap it in a `Field`, use a sibling `<label htmlFor>` with
+  `nativeButton render={<button />}`, or pass `aria-label`.
+- `:focus-visible` shows a 2px ring (`outline-ring`) — never `outline: none`. `disabled` removes it from the tab order.
+
+| Key              | Action                                   |
+| ---------------- | ---------------------------------------- |
+| <kbd>Tab</kbd>   | Move focus to / from the checkbox.       |
+| <kbd>Space</kbd> | Toggle the checkbox checked / unchecked. |
+
+## Do / Don't
+
+<DoDont
+  do="Give every checkbox a label — wrap it in a Field, or use nativeButton when pairing a sibling htmlFor label."
+  dont="Use an htmlFor sibling label against the default span root, or use indeterminate as a third user-selectable value."
+/>

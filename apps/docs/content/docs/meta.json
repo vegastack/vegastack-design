@@ -1,0 +1,5 @@
+{
+  "title": "VegaStack Design",
+  "root": true,
+  "pages": ["index", "install", "...foundations", "...components", "...blocks", "...utilities", "changelog"]
+}

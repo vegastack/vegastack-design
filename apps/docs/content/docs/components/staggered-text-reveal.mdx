@@ -1,0 +1,65 @@
+---
+title: Staggered Text Reveal
+description: Display text whose words rise in on mount, staggered one motion-enter-up step apart — CSS-only.
+preview: staggeredTextReveal
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/staggered-text-reveal
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { StaggeredTextReveal } from '@/components/ui/staggered-text-reveal';
+
+<h1>
+  <StaggeredTextReveal text="Ship agentic UI, fast." />
+</h1>;
+```
+
+Compose it **inside** a heading — it renders a `<span>`, never a heading element itself, so it
+never changes your document's semantic structure.
+
+<ComponentPreview name="staggeredTextReveal" file="components/preview/staggered-text-reveal.tsx" />
+
+## Slower stagger
+
+`stepMultiplier` scales the per-word delay as a multiple of the `--duration-fast` motion token
+(never a raw millisecond value).
+
+<ComponentPreview name="staggeredTextRevealStep" file="components/preview/staggered-text-reveal.tsx" />
+
+## How it works
+
+CSS-only — no JS animation driver. Each word is an `inline-block` span carrying the shared
+`motion-enter-up` utility with a per-word `animation-delay` derived from `--duration-fast` via
+`calc()`, and `animation-fill-mode: backwards` so a not-yet-started word sits at the animation's
+FROM state instead of flashing visible-then-hidden-then-in. The delay is purely
+`word index × stepMultiplier × --duration-fast` — no randomness, no measured layout — so the same
+`text` always produces the same timeline (deterministic, VRT-stable once animations settle).
+
+## Reduced motion
+
+The global `prefers-reduced-motion: reduce` reset collapses `motion-enter-up`'s duration to ~0.
+This component additionally zeros the delay itself — without that, words would still visibly
+stagger in over real time (just with an instant pop each), which is not the static end state
+reduced motion requires.
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/staggered-text-reveal.tsx"
+  name="StaggeredTextRevealProps"
+/>
+
+## Do / Don't
+
+<DoDont
+  do="Compose it inside a real heading element for a hero headline."
+  dont="Use it for body copy or anywhere the staggered entrance would repeat on every re-render/scroll."
+/>

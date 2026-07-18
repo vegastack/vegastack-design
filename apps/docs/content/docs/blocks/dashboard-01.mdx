@@ -1,0 +1,183 @@
+---
+title: dashboard-01
+description: A ready-to-pull AI-platform dashboard page — sidebar nav, stat cards, a usage chart, and a recent-activity list, built entirely from existing VegaStack components.
+preview: dashboard01Demo
+---
+
+## What it is
+
+`dashboard-01` is a **registry block**, not a component — a starter dashboard PAGE you pull once
+with `shadcn add` and then own (edit freely; it is not hash-tracked/re-pulled the way
+[`app-shell`](/docs/components/app-shell) is). It composes `AppShell` + `AppShellSidebar` +
+`AppShellHeader` + `AppShellContent` (the hash-tracked shared layout) with an AI-platform-flavored
+sample page: a nav rail (Dashboard / Agents / Tasks / Usage / Settings + a user menu), a four-up
+stat-card row, a "usage over time" chart, and a recent-activity list — plus a full-page empty
+state and per-region loading/error handling.
+
+This mirrors shadcn/ui's own `sidebar` (component) ↔ `dashboard-01` (block) split: the shell
+mechanics live in `app-shell`/`sidebar` (pulled and updated forever), the page-specific nav items,
+stat cards, and sample data live here (expected to diverge per app from day one).
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/dashboard-01
+```
+
+<RegistryInstallCallout />
+
+This installs the block's own files (below) plus every `registryDependencies` component it
+composes (`app-shell`, `sidebar`, `breadcrumb`, `card`, `badge`, `animated-number`, `chart`,
+`data-list`, `truncated-text`, `status-icon`, `relative-time`, `empty`, `avatar`,
+`dropdown-menu`, `button`) that your project doesn't already have.
+
+## Live preview
+
+<ComponentPreview name="dashboard01Demo" file="../../packages/ui/registry/blocks/dashboard-01/page.tsx" />
+
+### Full-page empty state
+
+Rendered when the workspace genuinely has no agents/tasks yet (`isEmpty` prop) — a standard SaaS
+zero-state, in place of the stat/chart/activity regions (audit §e item 5). This is the block's own
+responsibility, not `AppShell`'s — `AppShell` has no opinion on page content.
+
+<ComponentPreview name="dashboard01EmptyDemo" />
+
+### Per-region loading
+
+Each region — the stat row, the chart, and the recent-activity list — carries its OWN `loading`
+flag, so one slow region never blocks the others from rendering. `RecentActivity` reuses
+`DataList`'s built-in skeleton rows; `StatCards`/`DashboardChart` render their own `Skeleton`
+placeholders shaped like the real content.
+
+<ComponentPreview name="dashboard01LoadingDemo" />
+
+## File manifest
+
+| File | Registry type | Target |
+| --- | --- | --- |
+| `page.tsx` | `registry:page` | `app/dashboard/page.tsx` |
+| `loading.tsx` | `registry:page` | `app/dashboard/loading.tsx` |
+| `data.json` | `registry:file` | `app/dashboard/data.json` |
+| `components/app-sidebar.tsx` | `registry:component` | — (resolves to your configured components dir) |
+| `components/stat-cards.tsx` | `registry:component` | — |
+| `components/dashboard-chart.tsx` | `registry:component` | — |
+| `components/recent-activity.tsx` | `registry:component` | — |
+
+`page.tsx` is server-safe (no hooks, no `'use client'`) — the interactive pieces
+(`AppSidebar`'s nav-user menu, `StatCards`' `AnimatedNumber`, `DashboardChart`'s Recharts
+composition, `RecentActivity`'s `DataList`/`RelativeTime`) are client leaves it imports as JSX,
+per the same Server/Client Component boundary rule [`AppShellSkeleton`](/docs/components/app-shell)
+documents for `SidebarMenuSkeleton`. The block carries **zero Next.js imports** — nav links and
+the breadcrumb render as plain `<a>`; swap in your router's `Link` via each `render` prop at the
+call site without touching the block's structure.
+
+## Usage
+
+```tsx
+import { DashboardPage } from '@/app/dashboard/page'; // after `shadcn add`, this IS your page
+
+export default function Page() {
+  return <DashboardPage />;
+}
+```
+
+`DashboardPage` accepts optional `stats` / `usage` / `activity` (each defaults to the bundled
+`data.json`), plus `loading` / `error` (per-region) and `isEmpty` (full-page) — wire these to your
+real data-fetching once the block is installed:
+
+```tsx
+<DashboardPage
+  stats={realStats}
+  usage={realUsage}
+  activity={realActivity}
+  loading={{ activity: isActivityLoading }}
+  error={{ chart: chartError?.message }}
+  isEmpty={workspace.agentCount === 0}
+/>
+```
+
+## View Transitions
+
+**What was verified.** Next.js 16.2.9 (the version installed in this workspace) documents a single
+opt-in mechanism for animating `<Link>` navigations with the browser's native View Transitions API:
+the `experimental.viewTransition` flag in `next.config.js`
+([source](https://github.com/vercel/next.js/blob/v16.2.9/docs/01-app/03-api-reference/05-config/01-next-config-js/viewTransition.mdx)),
+which wraps every `<Link>` navigation in `document.startViewTransition` and unlocks React's
+`<ViewTransition>` component + `transitionTypes` prop on `next/link`. This is a purely
+client-side mechanism (it calls a browser API in response to a link click) — nothing about it
+requires server rendering, so it is compatible with this workspace's `output: 'export'` static
+export ([source](https://github.com/vercel/next.js/blob/v16.2.9/docs/01-app/02-guides/static-exports.mdx)
+confirms static export has no such restriction).
+
+**What this block wires.** The flag itself is `apps/docs/next.config.mjs` config this block's
+files cannot carry (out of a registry block's file scope — and, in THIS repository, editing that
+file was explicitly out of scope for this change), so per the brief this is documented, not
+hacked in. What the block DOES wire, inside its own files: `AppShellHeader` and `AppSidebar`'s
+`AppShellSidebar` each carry a `[view-transition-name:dashboard-shell-header]` /
+`[view-transition-name:dashboard-shell-sidebar]` arbitrary CSS property (Tailwind v4 native
+arbitrary-property syntax — a plain CSS custom-ident, not a hex/px literal, so it stays clean
+under `design-lint`'s arbitrary-value contract). Once a consuming app enables the flag, this is
+the MINIMAL, honest mechanism for "shell stays stable while content crossfades": giving the
+header/sidebar a `view-transition-name` pulls them out of the default whole-page
+`::view-transition-old(root)`/`::view-transition-new(root)` crossfade and into their OWN stable
+group — since their content is pixel-identical before/after a same-shell navigation, that group
+reads as "not animating" while the rest of the page (still under the `root` pseudo) crossfades.
+This works with pure CSS + the Next config flag alone; it does **not** require React's
+`<ViewTransition>` component.
+
+**Consumer setup required (this block cannot do this for you):**
+
+1. **Enable the flag:**
+   ```ts
+   // next.config.ts
+   const nextConfig: NextConfig = { experimental: { viewTransition: true } };
+   ```
+2. **Hoist the shell into a layout, not a page.** This block's file manifest mirrors shadcn's
+   `dashboard-01` shape — a single `app/dashboard/page.tsx` that renders the ENTIRE `AppShell`
+   (sidebar + header + content) itself. That is correct for a single-route starter, but it means
+   the sidebar/header literally unmount and remount on every navigation to a DIFFERENT route,
+   same as any other page-scoped tree. For the "shell stays visually stable across route changes"
+   effect to read as true continuity (not just an inert same-position crossfade), move the
+   `AppShell` + `AppSidebar` + `AppShellHeader` composition into a shared
+   `app/dashboard/layout.tsx` that wraps `{children}` inside `AppShellContent`, and keep each
+   route's `page.tsx` to just its own content (the stat/chart/activity regions here, for example).
+   This is a real, deliberate restructuring the block does not do for you — the file manifest
+   above is intentionally the single-page shadcn-mirroring shape; layout-hoisting is an
+   app-specific decision left to the consumer once there is more than one route to navigate
+   between.
+3. **Add the reduced-motion override.** This workspace's global `prefers-reduced-motion` reset
+   (`packages/design-tokens/src/base.css`) targets `*, ::before, ::after` — it does **not** reach the
+   browser's `::view-transition-*` pseudo-element tree (a separate top-layer tree the universal
+   selector doesn't match). Until that token-layer gap is closed, add this to your app's global
+   CSS yourself:
+   ```css
+   @media (prefers-reduced-motion: reduce) {
+     ::view-transition-old(*),
+     ::view-transition-new(*),
+     ::view-transition-group(*) {
+       animation-duration: 0s !important;
+       animation-delay: 0s !important;
+     }
+   }
+   ```
+
+This workspace's own docs app does not have the flag enabled (`apps/docs/next.config.mjs` was out
+of scope for this change), so the crossfade cannot be interactively demonstrated on this page —
+the `view-transition-name` styling above is inert CSS until a consuming app opts in.
+
+## Determinism (VRT)
+
+Every value this block renders is static (`data.json`) or derived from it — no `Date.now()` or
+`Math.random()` anywhere in the render path, so a screenshot is pixel-identical on every run.
+The one place this needed real investigation: `RecentActivity`'s "started" column uses
+[`RelativeTime`](/docs/components/relative-time), which defaults to the LIVE clock. Its API
+exposes a documented deterministic mode — pass `now` (a fixed epoch-ms reference instant) together
+with `refresh={false}` (which also suppresses its internal re-render timer) — and
+`recent-activity.tsx` uses exactly that, pinned to `data.json`'s own `generatedAt` timestamp.
+
+## API Reference
+
+<AutoTypeTable path="../../packages/ui/registry/blocks/dashboard-01/page.tsx" name="DashboardPageProps" />
+
+<AutoTypeTable path="../../packages/ui/registry/blocks/dashboard-01/components/app-sidebar.tsx" name="AppSidebarProps" />

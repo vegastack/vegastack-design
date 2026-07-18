@@ -1,0 +1,113 @@
+---
+title: Spinner
+description: An indeterminate loading indicator — a spinning icon that inherits currentColor, in four sizes, accessible by default.
+preview: spinner
+---
+
+import { story } from '@/components/stories/spinner.story';
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/spinner
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Spinner } from '@/components/ui/spinner';
+
+<Spinner />;
+```
+
+The spinner inherits `currentColor`, so set its color via the surrounding text color:
+
+```tsx
+<span className="text-muted-foreground">
+  <Spinner />
+</span>;
+```
+
+## Playground
+
+Step through the four sizes, then copy the generated JSX.
+
+<SpinnerPlayground />
+
+## Explorer
+
+Every `Spinner` prop, auto-generated from its TypeScript types — the exhaustive counterpart to the
+curated playground above.
+
+<story.WithControl />
+
+## With a label
+
+The recommended pattern: pair the spinner with visible loading text. The text labels the
+loading region, so the spinner itself is marked decorative (`label=""`) to avoid a double
+announcement to assistive tech.
+
+```tsx
+<span className="flex items-center gap-2 text-muted-foreground">
+  <Spinner size="sm" label="" />
+  Saving changes…
+</span>;
+```
+
+<ComponentPreview name="spinnerLabelled" file="components/preview/spinner.tsx" />
+
+## Color
+
+The spinner has no hardcoded color — it draws in `currentColor` and defaults to
+`text-muted-foreground`. Recolor it by setting the text color on any ancestor (or via a
+`className`), including inside a button where it inherits the button's text color.
+
+```tsx
+<span className="text-primary">
+  <Spinner />
+</span>;
+
+<Button disabled>
+  <Spinner size="sm" label="" />
+  Saving…
+</Button>;
+```
+
+<ComponentPreview name="spinnerColors" file="components/preview/spinner.tsx" />
+
+## Sizes
+
+`xs`, `sm`, `default`, and `lg` — mapped to the `size-*` token scale.
+
+<ComponentPreview name="spinnerSizes" file="components/preview/spinner.tsx" />
+
+## API Reference
+
+<AutoTypeTable path="../../packages/ui/registry/ui/spinner.tsx" name="SpinnerProps" />
+
+## Accessibility
+
+- By default the spinner renders `role="status"` with `aria-label="Loading"`, so assistive tech
+  announces the loading state. Override the wording with the `label` prop (e.g. `"Saving changes"`).
+- When the surrounding UI already labels the loading region — for example a button that swaps its text
+  to "Saving…" — pass `label=""` to make the spinner decorative (`aria-hidden`) and avoid a double
+  announcement.
+- Motion respects user preference: the spin animation is disabled under
+  `prefers-reduced-motion: reduce` (`motion-reduce:animate-none`).
+- Color is conveyed through `currentColor` only — never rely on the spinner alone to communicate
+  meaning; pair it with text where the state matters.
+
+| Concern        | Behavior                                                        |
+| -------------- | --------------------------------------------------------------- |
+| Role           | `role="status"` (live region) unless `label=""` (decorative)    |
+| Accessible name| `aria-label` from the `label` prop (default `"Loading"`)        |
+| Reduced motion | Animation removed under `prefers-reduced-motion: reduce`        |
+
+## Do / Don't
+
+<DoDont
+  do="Give the spinner a meaningful label (Saving changes…), or pair it with visible loading text and mark it decorative with label=''."
+  dont="Render two announced spinners in the same region, or rely on the spinner alone — with no text — to explain what is loading."
+/>

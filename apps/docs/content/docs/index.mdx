@@ -1,0 +1,36 @@
+---
+title: Introduction
+description: VegaStack Design — Base UI + Tailwind v4 design system, tokens, and a private registry.
+---
+
+VegaStack Design is the internal design system: **design tokens** (public npm), **68 components**
+(private shadcn registry, copy-in), a **live Fumadocs showcase**, and **agent-ready** metadata.
+
+## Architecture
+
+- **Tokens** — `@vegastack/design-tokens` ships `theme.css` (OKLCH `:root` + `.dark` + `@theme inline`) and a
+  typed `{ light, dark }` model. One-file override: redefine `--primary` and every component repaints.
+- **Components** — authored on [Base UI](https://base-ui.com) with CVA variants, `cn()` from
+  `@vegastack/design`, and `data-*` state hooks. Configure the private registry first, then install
+  with `shadcn add @vegastack/<name>` (copy-in).
+- **Showcase** — this site. Every component page renders the **real shipped source** via a live preview.
+
+## Foundations
+
+Start with [Colors](/docs/foundations/colors) and [Typography](/docs/foundations/typography), then
+[Icons](/docs/foundations/icons) and [Motion](/docs/foundations/motion).
+
+## Components
+
+Browse the 68-component library, grouped by role — Buttons & Actions, Inputs & Controls, Overlays,
+Menus & Commands, Navigation, Layout & Structure, Data Display, Feedback & Status, Content & Typography,
+and Chat & Communication. Start with [Button](/docs/components/button).
+
+## Utilities
+
+CSS-only helpers that ship with `@vegastack/design-tokens` — [Shimmer](/docs/utilities/shimmer) and
+[Scroll Fade](/docs/utilities/scroll-fade).
+
+## Installation
+
+Start with [Install From VegaStack Registry](/docs/install) before copying component commands.

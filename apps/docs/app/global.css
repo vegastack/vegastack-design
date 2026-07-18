@@ -1,0 +1,119 @@
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/shadcn.css'; /* maps shadcn --background/--foreground onto --color-fd-* */
+@import 'fumadocs-ui/css/preset.css';
+@import '@fumadocs/story/css/preset.css'; /* Story explorer controls chrome */
+@import '@vegastack/design/theme.css'; /* our tokens (after preset so they remap fd vars) */
+@import '@vegastack/design/utilities.css'; /* shimmer / scroll-fade / scrollbar @utility helpers */
+@import 'tw-animate-css';
+@import 'fumadocs-twoslash/twoslash.css';
+
+/* Scan workspace package source (provider + icon classes live in node_modules at runtime;
+   copied-in components in apps/docs are auto-scanned). Path is relative to THIS file. */
+@source '../../../packages/ui/src/**/*.{ts,tsx}';
+@source '../../../packages/icons/src/**/*.{ts,tsx}';
+
+/* Bind the runtime font tokens to the next/font faces loaded in layout.tsx (one-file override). */
+:root {
+  --font-family-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-family-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-family-serif: var(--font-newsreader), ui-serif, Georgia, serif;
+}
+
+/* ── Two-layer type-scale boundary (plan v5 T1, CX-6) ─────────────────────────────────────────
+   The token theme remaps Tailwind's `text-*` ladder to the PRODUCT scale (xs 11 → 3xl 24,
+   base = 14) via the `--type-*` binding vars. The DOCS SHELL is deliberately NOT a product
+   surface: Fumadocs chrome and MDX prose were authored against Tailwind's stock ladder (the
+   deliberate 16px-prose spec — long-form documentation reads at 16px, not the product's 14px
+   density), so the shell re-binds to the tokenized DOC ladder here.
+   Product surfaces then re-enter the product scale explicitly:
+   - `.vs-type-product` — the ComponentPreview demo container (and any future product-like
+     surface, e.g. blocks, the dashboard demo).
+   - `[data-base-ui-portal]` — every Base UI portal container (popovers, dialogs, menus,
+     selects, tooltips portal to <body>, OUTSIDE the preview subtree; without this their text
+     would silently fall back to the doc ladder). Fumadocs' own portals don't carry this
+     attribute, so the docs search dialog etc. stay on the doc ladder. */
+:root {
+  --type-xs: var(--type-doc-xs);
+  --type-xs--line-height: var(--type-doc-xs--line-height);
+  --type-sm: var(--type-doc-sm);
+  --type-sm--line-height: var(--type-doc-sm--line-height);
+  --type-base: var(--type-doc-base);
+  --type-base--line-height: var(--type-doc-base--line-height);
+  --type-lg: var(--type-doc-lg);
+  --type-lg--line-height: var(--type-doc-lg--line-height);
+  --type-xl: var(--type-doc-xl);
+  --type-xl--line-height: var(--type-doc-xl--line-height);
+  --type-2xl: var(--type-doc-2xl);
+  --type-2xl--line-height: var(--type-doc-2xl--line-height);
+  --type-3xl: var(--type-doc-3xl);
+  --type-3xl--line-height: var(--type-doc-3xl--line-height);
+}
+.vs-type-product,
+[data-base-ui-portal] {
+  --type-xs: var(--type-product-xs);
+  --type-xs--line-height: var(--type-product-xs--line-height);
+  --type-sm: var(--type-product-sm);
+  --type-sm--line-height: var(--type-product-sm--line-height);
+  --type-base: var(--type-product-base);
+  --type-base--line-height: var(--type-product-base--line-height);
+  --type-lg: var(--type-product-lg);
+  --type-lg--line-height: var(--type-product-lg--line-height);
+  --type-xl: var(--type-product-xl);
+  --type-xl--line-height: var(--type-product-xl--line-height);
+  --type-2xl: var(--type-product-2xl);
+  --type-2xl--line-height: var(--type-product-2xl--line-height);
+  --type-3xl: var(--type-product-3xl);
+  --type-3xl--line-height: var(--type-product-3xl--line-height);
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+/* Mirror of the pointer-cursor rule in `@vegastack/design-tokens/base.css` (the docs load `theme.css` but
+   not the full `base.css`, the same reason `isolation: isolate` is mirrored in layout.tsx). Keep this
+   in sync with base.css: pointer on every enabled interactive control; disabled controls opt out. */
+@layer base {
+  button,
+  [role='button'],
+  [role='tab'],
+  [role='switch'],
+  [role='checkbox'],
+  [role='radio'],
+  [role='menuitem'],
+  [role='menuitemcheckbox'],
+  [role='menuitemradio'],
+  [role='option'],
+  summary {
+    cursor: pointer;
+  }
+  :disabled,
+  [aria-disabled='true'],
+  [data-disabled] {
+    cursor: default;
+  }
+  /* a11y: the ONE neutral focus ring (mirror of base.css — docs load theme.css, not full base.css).
+     Keep in sync with base.css. Components no longer carry their own focus ring; this is the single
+     source of truth, re-skinnable from the `ring` token. */
+  :focus-visible {
+    @apply outline-2 outline-offset-1 outline-ring;
+  }
+}
+
+/* Scroll-lock scrollbar-compensation override — the ONE non-reduced-motion `!important` exception
+   (Codex R16 MED; documented + lint-scoped, mirrors the WCAG reduced-motion reset). `<html>` reserves
+   the scrollbar track permanently via `scrollbar-gutter: stable` above, so there is NO layout shift
+   when a scroll-lock engages. But `react-remove-scroll-bar` (pulled in by the Fumadocs `SearchDialog`
+   + the Base UI copy-in components) doesn't know about the gutter: on lock it measures the
+   scrollbar width and injects a runtime `<style>` singleton setting
+   `body[data-scroll-locked] { margin-right: <gap>px !important }` + `--removed-body-scroll-bar-size`,
+   double-compensating and shifting all content left by the scrollbar width. `!important` is
+   UNAVOIDABLE here: a plain declaration can NEVER override the library's `!important`. The
+   `html > body` selector (more specific than the library's `body[…]`) wins the cascade; we zero both
+   the margin and the size var so the reserved gutter is the single source of compensation.
+   Lint exception is scoped to exactly these two zero-out declarations under this selector — see
+   tooling/design-lint.mjs (SCROLL_LOCK_* ) + requirements §7.5. */
+html > body[data-scroll-locked] {
+  margin-right: 0px !important;
+  --removed-body-scroll-bar-size: 0px !important;
+}

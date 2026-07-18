@@ -1,0 +1,97 @@
+---
+title: Accessibility
+description: The a11y contract every component honors — WCAG 2.1 AA, a single focus-visible ring, axe-clean from day one, full keyboard support, reduced motion respected.
+---
+
+Accessibility is a **build rule, not a review step**. Every component in `@vegastack/ui` is held to
+**WCAG 2.1 AA** and is enforced by lint, the design-audit skill, and a day-one
+[`axe`](https://github.com/dequelabs/axe-core) gate. Consumers inherit that contract by installing the
+component — there is nothing extra to wire up.
+
+## The contract
+
+- **WCAG 2.1 AA** — the floor for every component, color pair, and interaction.
+- **Visible `:focus-visible` ring** — one keyboard-focus treatment, system-wide (see below).
+- **`axe`-clean** — automated checks run on day one, not retrofitted.
+- **Every applicable UI state** — `default / hover / focus / loading / empty / error / success / disabled`.
+- **`prefers-reduced-motion` respected** — enforced globally in tokens, no opt-in needed.
+- **Full keyboard support** — every interactive control is reachable and operable without a pointer.
+- **Semantic roles** — correct elements and ARIA via Base UI primitives, never `<div>` buttons.
+
+## Focus ring
+
+The system ships **one** focus treatment: a `:focus-visible` outline keyed off the `--ring` token.
+It appears only on **keyboard** focus (`:focus-visible`), never on mouse click, so pointer users don't
+see a ring on every press. The convention is a **2px outline at 2px offset** — there are no separate
+ring-width or ring-offset tokens; `--ring` (light `oklch(0.353 0.003 75)`, dark `oklch(0.922 0.003 75)`)
+is the only knob.
+
+<FocusRingSpecimen />
+
+```tsx
+// The sanctioned focus treatment — outline keyed off the --ring token.
+<button className="outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+  Save
+</button>
+```
+
+<Callout type="info">
+  Use `focus-visible:`, not `focus:`. The `:focus-visible` pseudo-class lets the browser decide when a
+  focus ring is appropriate (keyboard yes, mouse no) — matching the specimen above.
+</Callout>
+
+## Axe-clean from day one
+
+A11y isn't asserted by hand — it's a test gate. Components are audited with `axe-core` (WCAG 2.1 AA
+tags) on render, and any violation fails the build:
+
+```ts
+// packages/ui/test/a11y.ts — runOnly: wcag2a, wcag2aa, wcag21a, wcag21aa
+await expectNoA11yViolations(el);
+```
+
+`color-contrast` can't be evaluated by the fast unit tests (they run without compiled Tailwind, so
+semantic tokens like `text-popover-foreground` don't resolve). Real rendered contrast is instead proven
+by a dedicated **compiled-CSS browser gate** (`test/contrast.browser.test.tsx`) that compiles the token
+theme and runs `axe`'s `color-contrast` rule for real, in **both** light and dark.
+
+## Reduced motion
+
+`prefers-reduced-motion: reduce` is honored **globally** — there is no per-component opt-in. The tokens'
+`base.css` collapses every animation and transition for users who request reduced motion:
+
+```css
+/* @vegastack/design-tokens/base.css */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+```
+
+This is the **only** sanctioned use of `!important` in the system — the build fails on any `!important`
+outside this block. See [Motion](/docs/foundations/motion) for the duration and easing tokens this
+overrides.
+
+## Keyboard & semantics
+
+Interactivity is built on **Base UI** primitives, which supply the correct roles, ARIA wiring, and focus
+management out of the box. Components are **server-safe by default** — `'use client'` lives only at the
+lowest interactive leaf — and compose via Base UI's `render` prop rather than wrapping native semantics
+in non-semantic markup.
+
+- **Reachable** — every interactive control is in the tab order; nothing is mouse-only.
+- **Operable** — `Enter` / `Space` activate, `Esc` dismisses overlays, arrow keys move within menus,
+  listboxes, and tabs.
+- **Labeled** — every control has an accessible name; decorative [icons](/docs/foundations/icons) are
+  `aria-hidden` unless given an `aria-label`.
+- **Roles** — Base UI emits the right `role` and state attributes; we never ship `<div onClick>` as a
+  button.
+
+<DoDont
+  do="Use focus-visible:outline-ring, build on Base UI primitives, label every control, and let the global reduced-motion block do its job."
+  dont="Use focus: (rings on mouse click), add !important outside the reduced-motion block, or hand-roll <div onClick> controls without roles or keyboard support."
+/>

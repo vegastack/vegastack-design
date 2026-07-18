@@ -1,0 +1,131 @@
+---
+title: Scroll Area
+description: A scroll container with custom, auto-hiding scrollbars — dual-axis, token-styled, replacing the native browser scrollbar.
+preview: scrollArea
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/scroll-area
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+<ScrollArea className="h-72 w-full">
+  <div>Long, overflowing content…</div>
+</ScrollArea>;
+```
+
+Constrain the viewport with `className` (e.g. `h-72`). Without a bounded height (or width, for
+horizontal) the content cannot overflow and no scrollbar appears.
+
+## Playground
+
+Switch the scrollbar orientation over content that overflows on the matching axis, then copy the generated JSX.
+
+<ScrollAreaPlayground />
+
+## Anatomy
+
+`ScrollArea` is a thin wrapper over Base UI's compound `ScrollArea` (Root → Viewport → Scrollbar →
+Thumb, plus a Corner for dual-axis). The flat `ScrollArea` composes those parts for you and renders
+the scrollbar(s) for the chosen `orientation`; `ScrollBar` is exported separately for custom layouts.
+
+```tsx
+<ScrollArea orientation="both" className="h-72 w-full">
+  {/* viewport content */}
+</ScrollArea>
+```
+
+- `ScrollArea` — the root scroll container (`data-slot="scroll-area"`). The `className` sizes the
+  scrollable **viewport** (`data-slot="scroll-area-viewport"`); `orientation` picks which scrollbars
+  to render.
+- `ScrollBar` — one custom scrollbar track for a single axis (`data-slot="scroll-area-scrollbar"`,
+  `data-orientation`). Auto-hides when idle, fading in on hover/scroll via Base UI's `data-hovering`
+  / `data-scrolling` state attributes. Rendered automatically; use it directly only for custom
+  compositions.
+- `scrollbarProps` — optional props passed to the automatically rendered scrollbar(s), such as
+  `keepMounted` for deterministic tests or a custom visibility policy.
+- The **thumb** (`data-slot="scroll-area-thumb"`) is the draggable bar — `bg-border rounded-full`.
+- The **corner** (`data-slot="scroll-area-corner"`) fills the intersection when `orientation="both"`.
+
+## Examples
+
+### Vertical (default)
+
+A bounded-height list. The scrollbar sits on the right edge and fades in while you hover or scroll.
+
+<ComponentPreview name="scrollArea" file="components/preview/scroll-area.tsx" />
+
+### Horizontal
+
+Set `orientation="horizontal"` for a row that overflows sideways; constrain the width instead of the
+height.
+
+<ComponentPreview
+  name="scrollAreaHorizontal"
+  file="components/preview/scroll-area.tsx"
+/>
+
+### Both axes
+
+Set `orientation="both"` for content that overflows on both axes. Two scrollbars render plus a
+corner (`data-slot="scroll-area-corner"`) filling their intersection.
+
+<ComponentPreview name="scrollAreaBoth" file="components/preview/scroll-area.tsx" />
+
+### Orientations
+
+`vertical` (default), `horizontal`, and `both` side by side — `both` is the one case that adds the
+intersection corner and a second scrollbar.
+
+<ComponentPreview
+  name="scrollAreaOrientations"
+  file="components/preview/scroll-area.tsx"
+/>
+
+## API Reference
+
+### ScrollArea
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/scroll-area.tsx"
+  name="ScrollAreaProps"
+/>
+
+### ScrollBar
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/scroll-area.tsx"
+  name="ScrollBarProps"
+/>
+
+## Accessibility
+
+- The viewport is explicitly keyboard-focusable (`tabIndex={0}`). Pass `aria-label` or
+  `aria-labelledby` to `ScrollArea`; the component applies it to the focusable viewport.
+- The focused viewport uses the global `:focus-visible` ring (`outline-ring`) — never `outline: none`.
+- Scrollbars are pointer affordances only and stay out of the tab order; the native scroll keys remain
+  fully functional, so the custom scrollbar never blocks keyboard access.
+- `overscroll-contain` keeps scroll momentum inside the area instead of chaining to the page.
+
+| Key                                       | Action                                           |
+| ----------------------------------------- | ------------------------------------------------ |
+| <kbd>Tab</kbd>                            | Move focus to the viewport (when it can scroll). |
+| <kbd>↑</kbd> / <kbd>↓</kbd>               | Scroll vertically by a line.                     |
+| <kbd>←</kbd> / <kbd>→</kbd>               | Scroll horizontally by a line.                   |
+| <kbd>Page Up</kbd> / <kbd>Page Down</kbd> | Scroll by a page.                                |
+| <kbd>Home</kbd> / <kbd>End</kbd>          | Scroll to the start / end.                       |
+
+## Do / Don't
+
+<DoDont
+  do="Give the viewport a bounded size via className (e.g. h-72) so its content can overflow and the scrollbar appears."
+  dont="Wrap whole-page content in a ScrollArea — let the document scroll natively and reserve this for bounded panels."
+/>

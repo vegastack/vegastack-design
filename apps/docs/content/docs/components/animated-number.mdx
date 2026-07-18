@@ -1,0 +1,94 @@
+---
+title: Animated Number
+description: A number display that tweens from its previous value to a new one on every change — the dashboard stat-card counter.
+preview: animatedNumber
+---
+
+import { story } from '@/components/stories/animated-number.story';
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/animated-number
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { AnimatedNumber } from '@/components/ui/animated-number';
+
+<AnimatedNumber value={revenue} />;
+```
+
+Renders the exact `value` statically on mount — no count-up flash, no hydration mismatch. Every
+LATER `value` change tweens the displayed number from whatever is currently shown to the new
+value, over the `duration` motion token.
+
+## Playground
+
+Pick a different value preset to watch the tween, try the format and duration options, then copy the generated JSX.
+
+<AnimatedNumberPlayground />
+
+## Explorer
+
+Every `AnimatedNumber` prop, auto-generated from its TypeScript types — the exhaustive counterpart to
+the curated playground above.
+
+<story.WithControl />
+
+## Currency and compact formats
+
+`format` takes full `Intl.NumberFormatOptions` — currency, percent, compact notation, custom
+grouping. Every intermediate frame of the tween is formatted through the same
+`Intl.NumberFormat(locale, format)` instance as the settled value, so the `$` symbol, cent
+grouping, or compact suffix (`"12.4K"`) stay correct throughout the animation, not just at rest.
+
+<ComponentPreview name="animatedNumberCurrency" file="components/preview/animated-number.tsx" />
+
+<ComponentPreview name="animatedNumberCompact" file="components/preview/animated-number.tsx" />
+
+## Duration
+
+`duration` is a motion-token name (`'fast' | 'base' | 'slow'`, default `'base'`) — resolved from
+the live `--duration-fast/base/slow` CSS custom property at animation start, never a hardcoded
+millisecond value. Easing reads `--motion-ease-standard` the same way. Overriding either token at
+runtime (e.g. scoping `--duration-base` on a container) retunes the tween without a prop.
+
+## Interruption
+
+Changing `value` again before a tween finishes retargets it smoothly from wherever the number
+currently sits — it never snaps back to an earlier value first.
+
+```tsx
+// Rapid updates (e.g. a live ticker) each interrupt the last, always converging on
+// the LATEST value with one continuous motion, not a stutter per update.
+<AnimatedNumber value={livePrice} format={{ style: 'currency', currency: 'USD' }} />
+```
+
+## API Reference
+
+<AutoTypeTable path="../../packages/ui/registry/ui/animated-number.tsx" name="AnimatedNumberProps" />
+
+## Accessibility
+
+- The ticking visual text is `aria-hidden` — a rapid stream of announcements while a number
+  climbs would be noise, not useful information.
+- A visually-hidden `role="status"` / `aria-live="polite"` region announces **only the settled
+  value**, once per tween completion — never the intermediate frames.
+- `prefers-reduced-motion: reduce` renders every value change **instantly**, with no tween at all
+  — the same SSR-safe `matchMedia` hook used by `TruncatedText`'s no-hover detection and
+  `MessageScroller`'s reduced-motion handling.
+- Digits use `tabular-nums` so the layout never jitters horizontally as the character count
+  changes mid-animation (e.g. `99` → `100`).
+- Server-safe: the initial render (server AND client) always shows the static final value —
+  there is no hydration mismatch to reconcile.
+
+## Do / Don't
+
+<DoDont
+  do="Re-render with a new value prop to trigger the tween (e.g. after a data refetch or a live-update event) — the component owns the animation, not the caller."
+  dont="Roll your own setInterval count-up loop, or format intermediate frames with a different Intl.NumberFormat than the settled value — use format/locale so every frame is correct, not just the final one."
+/>

@@ -1,0 +1,169 @@
+---
+title: Hover Card
+description: A rich preview panel that opens on hover or focus of a trigger — interactive content, four directions, and forgiving open/close delays.
+preview: hoverCard
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/hover-card
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import {
+  HoverCard,
+  HoverCardTrigger,
+  HoverCardContent,
+} from "@/components/ui/hover-card";
+import { Button } from "@/components/ui/button";
+
+<HoverCard>
+  <HoverCardTrigger render={<Button variant="ghost">@ada</Button>} />
+  <HoverCardContent>
+    {/* app passes already-resolved preview content here */}
+    <UserPreview user={user} />
+  </HoverCardContent>
+</HoverCard>;
+```
+
+<Callout title="Presentational component">
+  `HoverCard` is **presentational** — it renders whatever children you give it
+  and never fetches or resolves an entity. Your app owns the data: an app-side
+  wrapper looks up the user / agent / team and passes the rendered preview (with
+  its own loading / empty / error states) as `HoverCardContent` children. Keep
+  that wrapper in the app, not in the design system.
+</Callout>
+
+## Anatomy
+
+`HoverCard` is a compound component built on Base UI's PreviewCard. Compose the parts inside the root:
+
+```tsx
+<HoverCard openDelay={700} closeDelay={300}>
+  <HoverCardTrigger render={<Button variant="ghost">@ada</Button>} />
+  <HoverCardContent side="bottom" align="center">
+    {/* arbitrary, app-resolved content — an avatar + name + stats, a team summary, ... */}
+    {/* <HoverCardArrow /> — or pass `arrow` to HoverCardContent */}
+  </HoverCardContent>
+</HoverCard>
+```
+
+- `HoverCard` — the root; owns open/close state (`open` / `defaultOpen` / `onOpenChange`) and the
+  `openDelay` / `closeDelay`. Renders no DOM of its own.
+- `HoverCardTrigger` — the element the card attaches to (`data-slot="hover-card-trigger"`). Renders
+  an `<a>` by default; pass `render` to project the card onto a `Button` or any other element.
+- `HoverCardContent` — the floating preview panel (`data-slot="hover-card-content"`). Composes Base
+  UI's Portal + Positioner + Popup, owns `side` / `sideOffset` / `align` / `collisionPadding`,
+  exposes `portalProps` / `positionerProps`, can wrap children in an optional Base UI Viewport via
+  `viewportProps`, animates enter/exit, and optionally renders an arrow.
+- `HoverCardArrow` — a triangle anchored to the trigger (`data-slot="hover-card-arrow"`). Rendered
+  automatically when `HoverCardContent` gets `arrow`, or composed directly.
+
+## Examples
+
+### Direction
+
+Place the card on any of four sides with `side`. The position flips automatically when it would
+collide with the viewport edge.
+
+<ComponentPreview
+  name="hoverCardSides"
+  file="components/preview/hover-card.tsx"
+/>
+
+### Alignment
+
+Use `align` (`start` / `center` / `end`) to position the card along the chosen `side`. All three
+are shown on `side="bottom"` below.
+
+<ComponentPreview
+  name="hoverCardAlign"
+  file="components/preview/hover-card.tsx"
+/>
+
+### Open & close delays
+
+`openDelay` guards against accidental opens while the pointer passes over the trigger; `closeDelay`
+keeps the interactive card open long enough for the pointer to travel into it. Both default to a
+forgiving pace (`700` / `300` ms). This example sets both to `0` so the card opens and closes
+instantly on hover.
+
+<ComponentPreview
+  name="hoverCardDelay"
+  file="components/preview/hover-card.tsx"
+/>
+
+```tsx
+<HoverCard openDelay={0} closeDelay={0}>
+  <HoverCardTrigger render={<Button variant="ghost">@grace</Button>} />
+  <HoverCardContent>{/* ... */}</HoverCardContent>
+</HoverCard>
+```
+
+### Interactive content with an arrow
+
+Unlike a tooltip, the panel is fully interactive — the close delay gives the pointer time to travel
+from the trigger into the card, so links and buttons inside stay reachable.
+
+<ComponentPreview
+  name="hoverCardArrow"
+  file="components/preview/hover-card.tsx"
+/>
+
+## API Reference
+
+### HoverCard
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/hover-card.tsx"
+  name="HoverCardProps"
+/>
+
+### HoverCardTrigger
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/hover-card.tsx"
+  name="HoverCardTriggerProps"
+/>
+
+### HoverCardContent
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/hover-card.tsx"
+  name="HoverCardContentProps"
+/>
+
+### HoverCardArrow
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/hover-card.tsx"
+  name="HoverCardArrowProps"
+/>
+
+## Accessibility
+
+- The card opens on pointer hover **and** keyboard focus of the trigger, and closes on blur or
+  Escape — it is reachable without a mouse.
+- The `openDelay` guards against accidental opens; the `closeDelay` keeps the (interactive) card
+  open long enough for the pointer to move into it.
+- The panel portals to the end of `<body>` and is positioned with collision detection so it never
+  clips at the viewport edge.
+- Controls inside the card show a `:focus-visible` ring (`outline-ring`) — never `outline: none`.
+
+| Key                                                | Action                                               |
+| -------------------------------------------------- | ---------------------------------------------------- |
+| <kbd>Tab</kbd>                                     | Move focus to the trigger — the card opens on focus. |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Move focus between controls inside the open card.    |
+| <kbd>Esc</kbd>                                     | Close the card.                                      |
+
+## Do / Don't
+
+<DoDont
+  do="Use a Hover Card for a rich, optional preview of an entity behind a trigger — a user/agent/team card with an avatar, stats, and a link. Pass already-resolved content as children and keep data-loading in an app-side wrapper."
+  dont="Use a Hover Card for short plain-text labels (use a Tooltip), for content that must block the page or demand a decision (use a Dialog), or for anything essential — hover-only content isn't reliably reachable on touch."
+/>

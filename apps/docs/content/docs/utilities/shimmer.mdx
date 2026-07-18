@@ -1,0 +1,112 @@
+---
+title: Shimmer
+description: An animated text-highlight sweep for streaming or loading copy — pure CSS, dark-mode aware, and reduced-motion safe.
+preview: shimmer
+---
+
+`shimmer` is a Tailwind `@utility` that animates a highlight across text — ideal
+for "Generating response…" streaming states. It is pure CSS (no JavaScript), the
+highlight is derived from the text colour (so it adapts automatically), it
+brightens in dark mode, and it stops under `prefers-reduced-motion`.
+
+## Installation
+
+These utilities ship with **`@vegastack/design-tokens`** — no `shadcn add` step. They
+are already available wherever you import the tokens or the
+`@vegastack/design`:
+
+```css
+@import "@vegastack/design-tokens/utilities.css";
+```
+
+The preset imports it for you, so consumers using `@vegastack/design`
+get `shimmer` (and [`scroll-fade`](/docs/utilities/scroll-fade)) automatically.
+
+## Usage
+
+```tsx
+<p className="shimmer text-muted-foreground">Generating response…</p>
+```
+
+The highlight derives from the current text colour — set the text colour with a
+semantic token and the sweep follows.
+
+<ComponentPreview name="shimmer" file="components/preview/utilities.tsx" />
+
+## Examples
+
+### Pairing with a Marker
+
+Use `shimmer` on `MarkerContent` for a streaming status row.
+
+<ComponentPreview name="shimmerWithMarker" file="components/preview/utilities.tsx" />
+
+### Color
+
+Override the highlight with a theme colour via `shimmer-color-*` (with an
+optional `/opacity` modifier).
+
+<ComponentPreview name="shimmerColor" file="components/preview/utilities.tsx" />
+
+### Duration
+
+`shimmer-duration-<ms>` controls the sweep speed (default `2000`).
+
+<ComponentPreview name="shimmerDuration" file="components/preview/utilities.tsx" />
+
+### Spread
+
+`shimmer-spread-<n>` widens or narrows the highlight band.
+
+<ComponentPreview name="shimmerSpread" file="components/preview/utilities.tsx" />
+
+### Angle
+
+`shimmer-angle-<deg>` tilts the sweep (default `20`).
+
+<ComponentPreview name="shimmerAngle" file="components/preview/utilities.tsx" />
+
+### Reverse
+
+`shimmer-reverse` flips the sweep direction.
+
+<ComponentPreview name="shimmerReverse" file="components/preview/utilities.tsx" />
+
+### Play once
+
+`shimmer-once` runs a single sweep — useful on completion.
+
+<ComponentPreview name="shimmerOnce" file="components/preview/utilities.tsx" />
+
+### RTL
+
+The sweep follows reading direction automatically in `dir="rtl"`.
+
+<ComponentPreview name="shimmerRtl" file="components/preview/utilities.tsx" />
+
+## Classes
+
+| Class | Effect |
+| --- | --- |
+| `shimmer` | Animate the highlight sweep (loops by default). |
+| `shimmer-once` | Run the sweep a single time. |
+| `shimmer-reverse` | Reverse the sweep direction. |
+| `shimmer-none` | Disable the effect (e.g. `md:shimmer-none`). |
+| `shimmer-color-*` | Override the highlight colour from the theme (e.g. `shimmer-color-primary`, `shimmer-color-info/60`). |
+| `shimmer-duration-*` | Sweep duration in ms (default `2000`). |
+| `shimmer-spread-*` | Highlight band width (spacing scale). |
+| `shimmer-angle-*` | Highlight tilt in degrees (default `20`). |
+
+## Accessibility
+
+- The sweep is purely decorative; it never conveys meaning on its own. Pair it
+  with a real status (a spinner, `aria-busy`, or visible text).
+- Under `prefers-reduced-motion: reduce` the animation is removed and the text
+  renders in its normal colour.
+
+## Do / Don't
+
+<DoDont
+  do="Use shimmer on short, transient status copy like 'Generating…' and let the text colour drive the highlight."
+  dont="Shimmer large blocks of body text or use it as the only signal that something is loading."
+/>

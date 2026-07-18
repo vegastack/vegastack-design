@@ -1,0 +1,137 @@
+---
+title: Theming & dark mode
+description: The override model — how .dark works, the OKLCH :root/.dark token sets, the @theme inline bridge, and the one-file custom theme.
+---
+
+Theming is a single idea: **every visual decision is a CSS variable, and you override it in one file.**
+Tokens are defined once in `@vegastack/design-tokens/theme.css` as `--<name>` variables, bridged into Tailwind
+through `@theme inline`, and consumed by components only as semantic utilities (`bg-primary`,
+`text-muted-foreground`). Redefine a variable and **every component repaints** — light and dark, no
+component edits.
+
+## How `.dark` works
+
+`theme.css` ships **two token sets for the same variable names**: light values on `:root`, dark values
+on `.dark`. Dark mode is a class toggle, declared at the top of `theme.css`:
+
+```css
+@custom-variant dark (&:where(.dark, .dark *));
+```
+
+A component never asks "am I dark?" — it reads `var(--background)`, and the cascade resolves it to the
+light value under `:root` or the dark value under `.dark`:
+
+```css
+:root {
+  --background: oklch(0.994 0.002 75);
+  --foreground: oklch(0.145 0.003 75);
+}
+
+.dark {
+  --background: oklch(0.175 0.003 75);
+  --foreground: oklch(0.922 0.003 75);
+}
+```
+
+<Callout type="info">
+Not every token is redefined in `.dark`. The saturated marks (`--primary` fill, the status + `--info` fills, the
+`hover`/`active`/`foreground` states) are **theme-independent** — a `bg-destructive` button reads the
+same on a light or dark page. Only the theme-aware tokens (surfaces, `--muted-foreground`, the `subtle`
+/ `text` pairs, `--border`, `--ring`, `--overlay`) appear in both blocks. See [Colors](/docs/foundations/colors).
+</Callout>
+
+## The `@theme inline` bridge
+
+Components don't reference `--background` directly — they use Tailwind utilities like `bg-background`.
+The link between the two is the `@theme inline` block, which maps each raw token to a Tailwind
+`--color-*` (and `--radius-*`, `--text-*`, `--font-*`, `--ease-*`) variable:
+
+```css
+@theme inline {
+  --color-background: var(--background);
+  --color-primary: var(--primary);
+  --color-muted-foreground: var(--muted-foreground);
+  /* …radius, type, font, motion bridges… */
+}
+```
+
+Because the bridge points at `var(--primary)` (not a baked value), it is **transparent to overrides**.
+Change `--primary` and `--color-primary` follows automatically, so `bg-primary`, `bg-primary/10`, and
+`ring-primary` all repaint at once.
+
+The bridge also exposes the non-color scales as Tailwind theme keys:
+
+- **Radius** — `--radius-sm` / `--radius-md` / `--radius-lg` (`--radius` aliases `--radius-lg` at `0.75rem`), plus a bridge-only `--radius-xl` = `calc(var(--radius-lg) + 0.25rem)`.
+- **Type** — the `--text-*` ramp (`display`, `h1`…`h4`, `label`, `label-sm`, `code`, `code-sm`), each with a paired `--text-<name>--line-height`.
+- **Fonts** — `--font-sans` / `--font-mono` / `--font-serif`, bridged from `--font-family-*`.
+- **Motion** — `--ease-standard` / `--ease-emphasized` / `--ease-exit`, bridged from `--motion-ease-*`; durations as `--duration-fast|base|slow`.
+
+<RadiusScale />
+
+## The one-file override
+
+This is the headline. To rebrand the entire system, redefine the variables you care about in your app's
+global CSS — **nothing else changes.** Override on `:root` for both themes, or scope to `.dark` to
+diverge a token in dark mode only:
+
+```css
+/* app/globals.css — loaded after @vegastack/design-tokens/theme.css */
+:root {
+  /* brand action color, light + dark */
+  --primary: oklch(0.53 0.189 295);
+  --primary-hover: oklch(0.48 0.189 295);
+  --primary-active: oklch(0.44 0.189 295);
+
+  /* rounder corners everywhere */
+  --radius: 0.5rem;
+}
+
+.dark {
+  /* lift the brand fill in dark mode only */
+  --primary: oklch(0.72 0.155 295);
+}
+```
+
+Every `Button`, `Badge`, focus ring, and `bg-primary` surface picks this up — because they all resolve
+through the same variable. You never touch a component file. Keep overrides in OKLCH and reuse the
+semantic names; **do not** hardcode hex or introduce new raw palettes.
+
+<ColorPalette />
+
+## Focus rings
+
+Focus is one convention, theme-aware via a single token. The visible `:focus-visible` outline is keyed
+off `--ring` (light `oklch(0.353 0.003 75)`, dark `oklch(0.922 0.003 75)`), drawn as a **2px outline
+with 2px offset** — there are no separate ring-width or offset tokens. Override `--ring` and every
+focusable element follows.
+
+<FocusRingSpecimen />
+
+## Reduced motion
+
+Motion respects the OS preference globally — it is baked into `@vegastack/design-tokens/base.css`, not left to
+individual components:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+```
+
+This is the **only** sanctioned `!important` in the system. For JS-driven motion (the optional `motion`
+peer), wrap the tree in Framer Motion's `<MotionConfig reducedMotion="user">` so programmatic animations
+honor the same preference. The specimen below collapses to its static state under reduced motion:
+
+<MotionSpecimen />
+
+<DoDont
+  do="Override semantic tokens in one global file: redefine --primary in OKLCH and let components repaint."
+  dont="Edit component files or hardcode hex/raw palettes (bg-[#5b21b6], bg-violet-700) to rebrand."
+/>

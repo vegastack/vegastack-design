@@ -1,0 +1,138 @@
+---
+title: Table
+description: Styled semantic table primitives — a scrollable container plus header, body, footer, row, head, cell, and caption parts.
+preview: table
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/table
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableFooter,
+  TableRow,
+  TableHead,
+  TableCell,
+  TableCaption,
+} from "@/components/ui/table";
+
+<Table>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Name</TableHead>
+      <TableHead>Role</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell>Ada</TableCell>
+      <TableCell>Engineer</TableCell>
+    </TableRow>
+  </TableBody>
+</Table>;
+```
+
+## Anatomy
+
+`Table` is a set of flat, server-safe primitives that map directly onto native table elements. The
+root `Table` wraps a `<table>` in a horizontally scrollable container so wide tables never overflow
+their parent. Every part forwards its ref and exposes a `data-slot`:
+
+```tsx
+<Table>
+  <TableCaption>{/* describes the table */}</TableCaption>
+  <TableHeader>
+    <TableRow>
+      <TableHead>{/* column label */}</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell>{/* data */}</TableCell>
+    </TableRow>
+  </TableBody>
+  <TableFooter>
+    <TableRow>
+      <TableCell>{/* summary / totals */}</TableCell>
+    </TableRow>
+  </TableFooter>
+</Table>
+```
+
+- `Table` — wraps a `<table>` in an overflow container (`data-slot="table"`, container is `data-slot="table-container"`). `w-full caption-bottom text-sm`.
+- `TableHeader` — the `<thead>` group (`data-slot="table-header"`). Adds a bottom border to each header row.
+- `TableBody` — the `<tbody>` group (`data-slot="table-body"`). Drops the last row's border for a clean bottom edge.
+- `TableFooter` — the `<tfoot>` group (`data-slot="table-footer"`). Muted background with a top border for totals.
+- `TableRow` — a `<tr>` (`data-slot="table-row"`). Hover highlight and `data-selected` selected state.
+- `TableHead` — a header cell `<th>` (`data-slot="table-head"`). Muted, left-aligned, medium-weight label.
+- `TableCell` — a data cell `<td>` (`data-slot="table-cell"`). Vertically centered with consistent padding.
+- `TableCaption` — the `<caption>` (`data-slot="table-caption"`), rendered below the table.
+
+## Examples
+
+A caption, a selected row, and a footer totals row:
+
+<ComponentPreview
+  name="tableWithCaptionAndFooter"
+  file="components/preview/table.tsx"
+/>
+
+### Horizontal overflow
+
+When a table is wider than its parent, the `data-slot="table-container"` wrapper (`overflow-x-auto`)
+scrolls horizontally instead of overflowing — wide tables never break the surrounding layout. Scroll
+the table below sideways to reach the `Amount` column.
+
+<ComponentPreview name="tableOverflow" file="components/preview/table.tsx" />
+
+### Selectable rows
+
+A leading checkbox column for row selection. The header checkbox toggles all rows (and shows the
+indeterminate state for a partial selection), each selected `TableRow` carries `data-selected` (paired
+with `aria-selected`) for the highlight, and the checkbox cells collapse their right padding via the
+`[&:has([role=checkbox])]:pr-0` rule on `TableHead`/`TableCell`.
+
+<ComponentPreview name="tableSelectable" file="components/preview/table.tsx" />
+
+## API Reference
+
+`Table`, `TableHeader`, `TableBody`, `TableFooter`, `TableRow`, `TableHead`,
+`TableCell`, and `TableCaption` add no props of their own — each accepts
+everything its underlying native element accepts (`<table>`, `<thead>`,
+`<tbody>`, `<tfoot>`, `<tr>`, `<th>`, `<td>`, `<caption>`), plus `className`
+and `ref`.
+
+## Accessibility
+
+- Built on native table semantics — screen readers announce the table, its caption, headers, and the
+  row/column relationships automatically.
+- Use `TableCaption` (or an `aria-label` / `aria-labelledby` on `Table`) to give the table an
+  accessible name.
+- Set `scope="col"` on column `TableHead`s (and `scope="row"` on row headers) so assistive technology
+  maps each cell to the right header.
+- Selection is expressed with the `data-selected` attribute on `TableRow`; pair it with
+  `aria-selected` when the rows are interactive so the state is announced.
+- Borders-only by design: rows are distinguished by `border-border`, keeping the table legible in
+  high-contrast and forced-colors modes.
+
+| Key                                 | Action                                                                             |
+| ----------------------------------- | ---------------------------------------------------------------------------------- |
+| <kbd>Tab</kbd>                      | Move focus through interactive controls inside cells (links, buttons, checkboxes). |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused control.                                                      |
+
+## Do / Don't
+
+<DoDont
+  do="Use TableCaption and scope='col' headers, and font-mono for numeric/amount columns."
+  dont="Use a Table for page layout — it's for tabular data only; use a grid/flex layout instead."
+/>

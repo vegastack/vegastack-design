@@ -1,0 +1,61 @@
+# AGENTS.md — vegastack-design
+
+VegaStack's internal design system + design skills, for humans **and** AI coding agents (Claude Code, Codex).
+
+> **If you are the BUILD agent:** read **`docs/plans/00-START-HERE.md`** first, then execute **`docs/plans/implementation-plan.md`** phase by phase. **Operating mode: build LOCAL, stop at publish/deploy** — the user triggers all irreversible/public actions (npm publish, Cloudflare deploy, repo pushes beyond the scaffold).
+
+## Locked decisions (do NOT re-open — full rationale in `docs/requirements.md` §3 + `docs/gap-analysis.md`)
+- **Primitives:** `@base-ui/react` via shadcn `--base base`. **Tailwind v4.** Next 16 / React 19 / **Node ≥24.14** / pnpm 11 / Turborepo 2.
+  - **Sanctioned exception (MK-approved 2026-06-28, `docs/plans/add-chat-components.md`):** `@vegastack/message-scroller` is built on the headless `@shadcn/react/message-scroller` primitive (the auto-scroll/anchor/visibility engine has no Base UI equivalent). This is the ONLY non-Base-UI **headless primitive**; do not add others without re-opening this decision. (The plan-anticipated `@shadcn/react` Attachment primitive turned out not to exist in any published version — verified via npm, 0.2.1 exports only `./message-scroller` — so Attachment ships self-owned presentational like the rest of the chat family; this exception's wording stays true, unbroadened.)
+  - **Engine vs. primitive — a separate, narrower class:** `react-resizable-panels` (Resizable), `recharts` (Chart, dashboard-01), `motion` (the `lucide-animated` icon mirrors), and `tiptap` (TextEdit) — same category as the pre-existing `sonner` (toast) — are sanctioned **renderer/behavior-engine** dependencies, each named per-component in `packages/ui/registry.json`, NOT Base-UI-category headless primitives (they render/animate; they don't own interaction semantics the way `@shadcn/react/message-scroller` does). Adding a new engine dependency needs the same MK sign-off as the primitive exception above, tracked the same way.
+- **Distribution = hybrid:** PUBLIC npm (`@vegastack/design` + zero-dep `@vegastack/design-tokens` — consolidated 2026-07-18, MK-approved: `docs/plans/package-consolidation.md`) + PRIVATE shadcn registry (components, copy-in).
+- **Component model A (own it), NO `Vega*` prefix** → export `Button`, not `VegaButton`. No pristine-shadcn tier; the maintenance skill surfaces `shadcn add --diff` for cherry-pick.
+- **Tokens:** DTCG → Style Dictionary (custom `color/oklch` transform + separate light/dark builds + `@theme inline` bridge). Runtime font/ease vars are `--font-family-*` / `--motion-ease-*` (never self-referential).
+- **Docs/showcase:** Fumadocs, static export → Cloudflare Workers Static Assets. VRT is day-one (Vitest browser + vitest-axe + Playwright). Storybook deferred.
+- **Registry integrity:** whole-canonical-item SHA-256 in `meta.integrity` + **Sigstore-signed manifest** (GitHub OIDC) + fail-closed consume preflight.
+- **Auth:** human docs = SSO identity login; `/r/*` registry = service-token-only.
+
+## Component build rules (enforced by lint + the design-audit skill)
+- **Semantic Tailwind tokens only** (`bg-primary`, `text-muted-foreground`) — NEVER hardcoded hex/px or raw palettes (`bg-neutral-900`). No raw `z-N` (two bands: `z-(--z-raised)`/`z-(--z-overlay)`), no raw `/NN` alpha or `opacity-NN` (route through `--alpha-*`/`--opacity-*`), no `rounded-xl` (removed — cap at `rounded-lg`), no raw control/icon sizes (`--size-*`/`--icon-*`).
+- **CVA** for variants; **`cn()`** from `@vegastack/design`; **`data-*`** attributes for state styling; **ref-as-prop** (React 19 — never `React.forwardRef`); Base UI **`render`** for composition (single-polymorphic-root components must not `Omit<…, 'render'>`).
+- **Motion:** route through the token scale — `duration-fast/base/slow` + `ease-standard/emphasized/exit/spring`, paired in the same class-string literal (`transition-pairing` lint), or a sanctioned `motion-*` utility (`motion-pop-in`/`motion-enter-up`/`motion-shake`). Never a raw `duration-[…]`/`ease-[…]`/`cubic-bezier()`/bare `linear()` in a class string (`raw-motion` lint); `animate-spin`/`animate-pulse` are the one documented loader exception. Mechanism choice (Base UI lifecycle vs. keyed presence vs. replay APIs vs. `AnimatedNumber`) — see `skills/add-component/SKILL.md` §2.
+- **Uppercase is mono-exclusive** (D20): any uppercase TYPE (a `text-*` utility) must carry `font-mono`/`text-mono-label` in the same literal and stay ≤14px — uppercase Geist Sans is lint-banned (`uppercase-mono`). Uppercase content-transforms (avatar initials) are exempt.
+- **Responsive:** `min-w-0` on a truncating flex child, `truncate`/`line-clamp-*` on an inner span never combined with `flex`/`inline-flex` on the same element (`flex-truncate-conflict` lint — `.flex` always wins the display conflict). Touch targets ≥24px via an invisible hit-area (`before:absolute before:-inset-N`), not a bigger visual control — verify with a real `elementFromPoint` boundary probe, not just `getComputedStyle` (a native `<button>`'s Preflight `appearance:button` can clip an overflowing `::before` when nested).
+- **Icons:** ONLY `lucide-react` (functional), lucide-animated (motion), `thesvg` (brand) — via `Icon`/`BrandIcon`. No other icon libraries, no inline `<svg>` as an icon. Icon **registry items** install as `@vegastack/icon-<name>` (440 items) — the bare `<name>` is reserved for components, so an icon item never collides with one.
+- **Registry item types beyond `registry:ui`:** `registry:hook` for a pure-hook item (plain `.ts`, no `.tsx` — `use-mobile`, `use-animation-replay`) and `registry:block` for a copy-once starter composition (`dashboard-01` — hash-tracked AppShell primitive + a page/loading/data.json a consumer owns after install, not update-tracked like a component).
+- **AppShell** (`packages/ui/registry/ui/app-shell.tsx`) is the shared-layout source of truth — landmark trio (banner/nav/main) + skip-link + `@container/app-shell-content`; compose it rather than hand-rolling a sidebar+header+main shell.
+- **Server-safe by default**; `'use client'` only at the lowest interactive leaf.
+- **Accessibility:** WCAG 2.1 AA; visible `:focus-visible` (text-entry fields use a border-tint instead — see `design.md` §Accessibility); must pass `axe`. Every applicable UI state implemented (default/hover/focus/loading/empty/error/success/disabled).
+
+## Editing a component — SINGLE SOURCE OF TRUTH (do not hand-edit the copy)
+Every component exists in three synced places. **You edit ONE; a script regenerates the rest.**
+- **Canonical source (EDIT THIS):** `packages/ui/registry/ui/<name>.tsx` — the only file you change.
+- **Docs copy-in (GENERATED, never hand-edit):** `apps/docs/components/ui/<name>.tsx` — what the docs preview actually renders (imported as `@/components/ui/<name>`). It is re-synced **byte-for-byte** from canonical by `tooling/registry-header.mjs`.
+- **Registry JSON (GENERATED):** `apps/docs/public/r/<name>.json` — built by `shadcn build`; carries the `meta.integrity` SHA-256 and the `// @vegastack <name>@<ver> sha256-…` provenance header that is also stamped onto the source + copy-in.
+
+**Workflow:** edit canonical → run `pnpm run registry:build` (= `shadcn registry validate` → `shadcn build` → `registry-stamp` → `registry-header` → `verify-headers` → `verify-registry-deps`). It regenerates the copy-in + JSON, re-stamps headers, and is **idempotent + fully local** (no publish/push). Verified working 2026-06-23 via a canonical-only edit → rebuild → copy auto-synced round-trip.
+
+- **JSON payloads carry no provenance header.** A `registry:file` data fixture (e.g. `dashboard-01`'s `data.json`) can't take a `//` comment header without breaking as JSON — `registry-header`/`verify-headers` skip any `files[].path` ending `.json`; item-level `meta.integrity` still covers them.
+- **`public/r` is pruned to current items on every build.** `shadcn build` is additive-only, so a renamed/removed item's stale JSON would otherwise linger and can re-stamp a source file with a dead identity; `registry-header` deletes any `public/r/*.json` not matching a current `registry.json` item name before regenerating.
+
+> ⚠️ Do **not** assume you must edit both `packages/ui/registry/ui/` and `apps/docs/components/ui/` by hand — that is the drift footgun. Edit canonical only, then rebuild. The copy-in exists to **dogfood the `shadcn add` copy-in distribution** (proven by `verify-shadcn-consume.mjs` running the real CLI) — do NOT replace it with a path-alias/symlink to canonical without reopening the locked distribution decision. `preview/*.tsx` files only COMPOSE components; never fix component styling there.
+
+## Releasing & consuming updates (full runbook: `docs/RELEASING.md`)
+- **CLI:** `vegastack-design` (bin from `@vegastack/design`) is the consumer entrypoint. Subcommands: `check-updates` (what to re-pull) + `verify` (integrity pre/post `shadcn add`). Bin name is `vegastack-design` (NOT `vegastack`) so it never collides with a platform CLI.
+- **Ship a component update:** edit canonical → `registry:build` (re-stamps integrity = the change signal) → `pnpm changeset` (bump `@vegastack/ui`, list affected components) → merge to `main` (`release.yml` publishes npm) → run the **Deploy** workflow (`deploy.yml`, manual: build + Sigstore-sign + Cloudflare). Registry updates are **pulled, never pushed** (shadcn copy-in).
+- **Receive an update (downstream):** `vegastack-design check-updates` → `shadcn add @vegastack/<name> --diff` → `--overwrite`. Status is by **integrity hash**, so a component reads `up to date` when the global version bumped but its content didn't change.
+
+## Layout
+- `docs/` — requirements, gap-analysis, the implementation plan (`docs/plans/`), and research catalogs (`docs/research/`).
+- `packages/` — `design-tokens` (zero-dep design contract), `design` (cn + icons + preset + CLI), `ui`. `packages/ui/registry/ui/` holds components + hooks; `packages/ui/registry/blocks/` holds `registry:block` starter compositions (currently `dashboard-01`).
+- `apps/docs/` — the Fumadocs showcase (91 pages) + the registry host (`public/r/`).
+- `tooling/` — registry hashing/signing/verify scripts + `design-lint.mjs`/`content-lint.mjs`. `.github/workflows/` — CI, release, deploy.
+- `skills/` — `add-component` and `design-audit` are the post-overhaul authoring/audit canon (v0.2.0, synced 2026-07); re-read them (not this file's summary) before authoring or auditing a component.
+
+## Numbers (verify against source before quoting a stale one elsewhere)
+- **Registry: 525 items** in `packages/ui/registry.json` — 522 `registry:ui` (440 of them `icon-<name>` items) + 2 `registry:hook` (`use-mobile`, `use-animation-replay`) + 1 `registry:block` (`dashboard-01`).
+- **Component matrix: 75** — `docs/ledger/component-matrix.md` tracks 71 rows fully green; the chat family (`Marker`, `Message`, `Bubble`/`BubbleContent`, `MessageScroller` — 4 more shipped, tested, registered items) is a documented tracking gap, never backfilled into the matrix.
+- **Showcase/VRT: 91 pages** (`apps/docs/vrt/components.spec.ts`'s `PAGES` array) × **2 lanes** (`chromium` desktop 1280×720, `mobile-chromium` 375×812 touch) = 182 baseline shots. Every new component's showcase route must be added to `PAGES`; a route in only one lane's committed baselines is incomplete coverage.
+- **Cross-browser smoke lane** (`pnpm --filter @vegastack/ui test:smoke`, `vitest.smoke.config.ts`): a deliberate subset of motion-exercising files run against real WebKit + Firefox, not just Chromium — add a file only if it exercises a motion mechanism or a cross-engine-risky interaction; the full unit suite already runs Chromium on every PR.
+
+Reference repos to read (don't re-derive): `/Users/kmanojkumar/code/references/fumadocs`, `/Users/kmanojkumar/code/engg-vegastack-platform`, `/Users/kmanojkumar/code/references/resend-design-skills`.

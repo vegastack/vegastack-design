@@ -1,0 +1,157 @@
+---
+title: Toggle Group
+description: A set of joined toggle buttons sharing one selection — single or multiple selection, three sizes, horizontal or vertical layout, full keyboard navigation.
+preview: toggleGroup
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/toggle-group
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+
+<ToggleGroup defaultValue={['bold']} aria-label="Text formatting">
+  <ToggleGroupItem value="bold">Bold</ToggleGroupItem>
+  <ToggleGroupItem value="italic">Italic</ToggleGroupItem>
+  <ToggleGroupItem value="underline">Underline</ToggleGroupItem>
+</ToggleGroup>;
+```
+
+## Playground
+
+Try both orientations, the three sizes, and single vs multiple selection, then copy the generated JSX.
+
+<ToggleGroupPlayground />
+
+## Anatomy
+
+`ToggleGroup` is a compound component built on Base UI Toggle Group. Compose the items inside the
+root; set `size` once on the root and it flows to every item via context. Selection is an
+array of item `value`s:
+
+```tsx
+<ToggleGroup defaultValue={['center']} orientation="horizontal">
+  <ToggleGroupItem value="left">
+    <Icon />
+  </ToggleGroupItem>
+  <ToggleGroupItem value="center">
+    <Icon />
+  </ToggleGroupItem>
+  <ToggleGroupItem value="right">
+    <Icon />
+  </ToggleGroupItem>
+</ToggleGroup>;
+```
+
+- `ToggleGroup` — the root that owns the shared selection and `orientation` (`data-slot="toggle-group"`,
+  `data-size`, `data-orientation`, `data-multiple` when multi-select). Controlled via
+  `value`/`onValueChange` (an array of pressed values), or uncontrolled via `defaultValue`. Pass
+  `multiple` to allow more than one item pressed at a time.
+- `ToggleGroupItem` — a single toggle button (`data-slot="toggle-group-item"`). Identify it with
+  `value`; pressed state is exposed as `data-pressed` and announced via `aria-pressed`. Inherits the
+  group's `size` from context unless overridden. The first and last items round the group's
+  outer corners so the buttons read as one joined control.
+
+## Selection
+
+By default a Toggle Group is **single-select** — pressing an item unpresses the others, like a radio
+group. The selected value is the first (and only) entry in the array.
+
+<ComponentPreview name="toggleGroup" file="components/preview/toggle-group.tsx" />
+
+Pass `multiple` for **multiple selection** — each item presses independently, like a set of
+checkboxes. Common for formatting toolbars where bold, italic, and underline can all be active at once.
+
+<ComponentPreview name="toggleGroupMultiple" file="components/preview/toggle-group.tsx" />
+
+## Sizes
+
+`size` (`sm` / `default` / `lg`) is set once on the root and flows to every item. Items render flush
+with shared rounded ends so the group reads as a single control; the pressed item takes the same
+evident neutral fill as a standalone `Toggle`.
+
+<ComponentPreview name="toggleGroupSizes" file="components/preview/toggle-group.tsx" />
+
+```tsx
+<ToggleGroup size="lg" aria-label="Text alignment">
+  <ToggleGroupItem value="left">
+    <AlignLeft />
+  </ToggleGroupItem>
+  <ToggleGroupItem value="center">
+    <AlignCenter />
+  </ToggleGroupItem>
+  <ToggleGroupItem value="right">
+    <AlignRight />
+  </ToggleGroupItem>
+</ToggleGroup>;
+```
+
+## Orientation
+
+Set `orientation="vertical"` on the root to stack the items into a column — the joined corners round
+the top of the first item and the bottom of the last. Keyboard navigation switches to the up/down
+arrow keys automatically.
+
+<ComponentPreview name="toggleGroupVertical" file="components/preview/toggle-group.tsx" />
+
+```tsx
+<ToggleGroup orientation="vertical" aria-label="View">
+  <ToggleGroupItem value="list">List</ToggleGroupItem>
+  <ToggleGroupItem value="grid">Grid</ToggleGroupItem>
+</ToggleGroup>;
+```
+
+## States
+
+Pass `disabled` on the root to disable the whole group — it flows to every item, dims the group via
+`disabled:opacity-(--opacity-dim)`, and skips it for pointer and keyboard interaction. (A single item can be
+disabled the same way — see the Selection example above.)
+
+<ComponentPreview name="toggleGroupDisabled" file="components/preview/toggle-group.tsx" />
+
+## API Reference
+
+### ToggleGroup
+
+<AutoTypeTable path="../../packages/ui/registry/ui/toggle-group.tsx" name="ToggleGroupProps" />
+
+### ToggleGroupItem
+
+<AutoTypeTable path="../../packages/ui/registry/ui/toggle-group.tsx" name="ToggleGroupItemProps" />
+
+## Accessibility
+
+- Built on Base UI Toggle Group: each item renders as a `<button>` with `aria-pressed` reflecting its
+  state; the pressed state is also exposed as `data-pressed` for styling.
+- Always pass an `aria-label` (or `aria-labelledby`) to the group so assistive tech announces its
+  purpose — icon-only items should each carry their own `aria-label` too.
+- Roving tabindex — the group is a single tab stop; arrow keys move focus between items and wrap
+  around (`loopFocus`, on by default).
+- Items carry no custom ring class and never set `outline: none`, so keyboard focus shows the design
+  system's global 2px `:focus-visible` ring (`outline-ring`). On focus an item raises its stacking
+  order (`focus-visible:z-10`) so that ring is painted on top and never clipped by the adjacent
+  joined buttons.
+- A disabled group (or item) sets `disabled` on the underlying button, is skipped by pointer and
+  keyboard interaction, and is dimmed via `disabled:opacity-(--opacity-dim)`.
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Move focus into the group (lands on the first or pressed item), then out. |
+| <kbd>←</kbd> / <kbd>→</kbd> | Move focus between items (horizontal orientation). |
+| <kbd>↑</kbd> / <kbd>↓</kbd> | Move focus between items (vertical orientation). |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Move focus to the first / last item. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Toggle the focused item. |
+
+## Do / Don't
+
+<DoDont
+  do="Add an aria-label to the group and to each icon-only item, use single-select for mutually exclusive choices (alignment) and multiple for independent ones (bold/italic/underline)."
+  dont="Use a Toggle Group for navigation (use Tabs) or for a single on/off control (use a standalone Toggle or Switch)."
+/>

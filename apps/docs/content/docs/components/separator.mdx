@@ -1,0 +1,79 @@
+---
+title: Separator
+description: A thin rule that visually or semantically divides content — horizontal or vertical, decorative by default.
+preview: separator
+---
+
+import { story } from '@/components/stories/separator.story';
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/separator
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Separator } from '@/components/ui/separator';
+
+<Separator />;
+```
+
+## Playground
+
+Flip the orientation and the decorative flag, then copy the generated JSX.
+
+<SeparatorPlayground />
+
+## Explorer
+
+Every `Separator` prop, auto-generated from its TypeScript types — the exhaustive counterpart to
+the curated playground above.
+
+<story.WithControl />
+
+## Examples
+
+A horizontal rule between blocks of content, plus inline vertical dividers between links. The
+top horizontal rule (`<Separator />`) is **decorative** — it's hidden from assistive tech because
+the heading and paragraph already convey the grouping. The inline vertical dividers use
+`decorative={false}` so screen readers announce each `separator` boundary. Vertical separators need
+a parent with height (e.g. a flex row).
+
+<ComponentPreview name="separator" file="components/preview/separator.tsx" />
+
+## Orientation
+
+Pass `orientation="vertical"` to divide along the cross axis. The parent must provide height — place
+it inside a flex row.
+
+<ComponentPreview name="separatorVertical" file="components/preview/separator.tsx" />
+
+## API Reference
+
+<AutoTypeTable path="../../packages/ui/registry/ui/separator.tsx" name="SeparatorProps" />
+
+## Accessibility
+
+- **Decorative by default** (`decorative` is `true`): the separator is hidden from assistive tech
+  (`role="presentation"`, `aria-hidden="true"`) because the surrounding layout already conveys the
+  grouping. This avoids redundant "separator" announcements.
+- Set `decorative={false}` when the divider carries meaning — e.g. between sections of a menu or
+  toolbar — so screen readers announce it as a `separator` with the correct `aria-orientation`.
+- Built on Base UI's accessible `Separator`, which manages `role` and `aria-orientation`.
+
+| Attribute              | Value                                                |
+| ---------------------- | ---------------------------------------------------- |
+| `role`                 | `separator` (semantic) / `presentation` (decorative) |
+| `aria-orientation`     | `horizontal` \| `vertical` (semantic only)           |
+| `data-orientation`     | `horizontal` \| `vertical`                           |
+
+## Do / Don't
+
+<DoDont
+  do="Use a semantic separator (decorative={false}) to divide distinct sections of a menu or toolbar so screen readers announce the boundary."
+  dont="Add decorative separators between every item — redundant announcements add noise; keep them decorative when layout already implies the grouping."
+/>

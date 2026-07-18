@@ -1,0 +1,119 @@
+---
+title: Image
+description: A presentational framed image with aspect-ratio, rounding, a loading skeleton, and an error fallback.
+preview: image
+---
+
+import { story } from '@/components/stories/image.story';
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/image
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Image } from "@/components/ui/image";
+
+<Image
+  src="https://cdn.example.com/cover.webp"
+  alt="Cover"
+  aspectRatio="video"
+/>;
+```
+
+> **Presentational only.** `Image` takes a fully-resolved, public `src`. It does **not**
+> resolve Cloudflare/R2 storage keys, build CDN URLs, pick optimized variants, or fetch data —
+> that stays app-side. Resolve the key to a URL (and choose the optimized variant / `srcSet`)
+> before passing it in. This mirrors the platform `R2Image`, which keeps key → URL resolution
+> (`getR2ImageUrl`) in the app while this component owns only the presentation.
+
+## Playground
+
+Combine an aspect ratio with a corner radius, then copy the generated JSX.
+
+<ImagePlayground />
+
+## Explorer
+
+Every `Image` prop, auto-generated from its TypeScript types — the exhaustive counterpart to
+the curated playground above.
+
+<story.WithControl />
+
+## Aspect ratios
+
+`square` (1:1) and `video` (16:9) reserve space so the layout never shifts as the image decodes;
+`auto` lets the intrinsic size drive the box. The three square tiles below show the rendered
+**states** side by side: a loaded image, the bare `bg-muted` placeholder (no `src`), and the
+**error fallback** — when the `src` fails to load, the `fallback` node replaces the broken image.
+
+<ComponentPreview
+  name="imageAspectRatios"
+  file="components/preview/image.tsx"
+/>
+
+### Auto (default)
+
+`aspectRatio="auto"` is the **default** — no ratio is enforced, so the image's own intrinsic
+dimensions drive the box height. Constrain the width and the frame follows the source's natural
+proportions (use `square`/`video` instead when you need a fixed, shift-free aspect).
+
+<ComponentPreview
+  name="imageAuto"
+  file="components/preview/image.tsx"
+/>
+
+## Rounding
+
+`rounded` controls the corner radius of the frame (and the image clipped inside it): `none` → `sm`
+→ `md` (default) → `lg` → `full`. `full` clips the image to a circle for avatar-style media.
+
+<ComponentPreview
+  name="imageRounded"
+  file="components/preview/image.tsx"
+/>
+
+## States
+
+- **Loading** — a `bg-muted` skeleton pulses over the frame until the image decodes; the image
+  fades in on load (`prefers-reduced-motion` suppresses the pulse).
+- **Loaded** — the image is shown, `object-cover` cropped to the frame.
+- **Error / empty** — when the image fails (or no `src` is given), the `fallback` node renders;
+  there is never a broken-image icon.
+
+> The **loading skeleton** is transient — it shows only between mount and decode, so it can't be
+> captured in a static preview (the sample images decode immediately). In the docs you see only the
+> loaded, placeholder, and error states above; the pulsing `bg-muted` skeleton appears in real use
+> while a remote image is still in flight.
+
+```tsx
+// square thumbnail with an initials fallback on error
+<Image src={url} alt="Ada Lovelace" aspectRatio="square" fallback="AL" />
+```
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/image.tsx"
+  name="ImageProps"
+/>
+
+## Accessibility
+
+- Requires an explicit `alt` prop. Pass descriptive `alt` for meaningful images.
+- For purely decorative images or empty placeholder frames, pass `alt=""` so screen readers skip the
+  image intent deliberately.
+- The skeleton and fallback layers are `aria-hidden` / decorative, so assistive tech only sees the image (or nothing for decorative ones) — no duplicate announcements.
+- Must pass `axe` with no violations.
+
+## Do / Don't
+
+<DoDont
+  do="Pass a resolved, public URL and a descriptive alt; pick the aspectRatio that matches your layout to avoid shift."
+  dont="Pass an R2/storage key or expect this component to fetch or resolve URLs — resolve them app-side first."
+/>

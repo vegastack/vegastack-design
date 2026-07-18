@@ -1,0 +1,175 @@
+---
+title: Slider
+description: Pick a number or a range from a continuous track — keyboard accessible, with optional steps. Built on Base UI Slider.
+preview: slider
+---
+
+import { story } from '@/components/stories/slider.story';
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/slider
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Slider } from "@/components/ui/slider";
+
+<Slider defaultValue={40} aria-label="Volume" />;
+```
+
+Pass an array for a range (one thumb per value):
+
+```tsx
+<Slider
+  defaultValue={[20, 80]}
+  thumbAriaLabels={["Minimum price", "Maximum price"]}
+/>
+```
+
+<ComponentPreview name="slider" file="components/preview/slider.tsx" />
+
+## Explorer
+
+Every `Slider` prop, auto-generated from its TypeScript types.
+
+<story.WithControl />
+
+## Anatomy
+
+`Slider` composes Base UI's `Slider` parts internally — you use the single `Slider`
+export and it renders the structure for you:
+
+```tsx
+<Slider.Root>
+  {/* the clickable hit area */}
+  <Slider.Control>
+    {/* the rail (bg-muted) */}
+    <Slider.Track>
+      {/* the filled portion (bg-primary) */}
+      <Slider.Indicator />
+      {/* one draggable handle per value; each owns a hidden <input type="range"> */}
+      <Slider.Thumb />
+    </Slider.Track>
+  </Slider.Control>
+</Slider.Root>
+```
+
+- **Root** — owns the value, `min`/`max`/`step`, and `disabled` state. Exposes
+  `data-slot="slider"`.
+- **Control** — the interactive hit area; pressing it jumps the nearest thumb.
+- **Track** — the rail spanning the full `min`→`max` range (`bg-muted`).
+- **Indicator** — the filled portion from `min` (or the lower thumb) up to the value
+  (`bg-primary`).
+- **Thumb** — the draggable handle. One is rendered per value, so a single number gets
+  one thumb and an array gets a range. Each thumb wraps a hidden `<input type="range">`
+  for keyboard control and form submission.
+
+## Range
+
+Provide an array to render a range. The component renders one thumb per entry and keeps
+the thumbs from crossing.
+
+<ComponentPreview name="sliderRange" file="components/preview/slider.tsx" />
+
+## Steps
+
+Set `min`, `max`, and `step` to snap the value to a coarser scale — here, multiples of
+50 between 0 and 1000.
+
+<ComponentPreview name="sliderSteps" file="components/preview/slider.tsx" />
+
+## Controlled
+
+Pass `value` + `onValueChange` to drive the slider from your own state (mirror it back as
+text, sync it to a query param, etc.).
+
+<ComponentPreview
+  name="sliderControlled"
+  file="components/preview/slider.tsx"
+/>
+
+## Thumb labels
+
+A range needs a distinct accessible name per thumb. Pass a static `thumbAriaLabels`
+array (see [Range](#range)), or compute names dynamically with `getThumbAriaLabel` — a
+callback that receives the thumb's `index` and current `value` and returns its name.
+`getThumbAriaLabel` takes precedence over the slider-level `aria-label` fallback, so it's
+the right tool when the name should reflect live state (for example announcing the value).
+
+```tsx
+<Slider
+  defaultValue={[20, 80]}
+  getThumbAriaLabel={(index, value) =>
+    `${index === 0 ? "Minimum" : "Maximum"} price, $${value ?? 0}`
+  }
+/>
+```
+
+<ComponentPreview
+  name="sliderThumbAriaLabel"
+  file="components/preview/slider.tsx"
+/>
+
+## Orientation
+
+Slider is **horizontal only**. The Base UI `orientation` prop is inherited on the type,
+but the token styling (track height, indicator fill, thumb geometry) assumes a horizontal
+rail — `orientation="vertical"` is out of scope and not supported. For a vertical control,
+lay sliders out horizontally in your layout instead.
+
+## Disabled
+
+`disabled` drops the thumb(s) from the tab order, blocks interaction, and dims the control.
+It applies to both single-value and range sliders — every thumb is dimmed and removed from
+the tab order.
+
+<ComponentPreview name="sliderDisabled" file="components/preview/slider.tsx" />
+
+A disabled range dims both thumbs:
+
+<ComponentPreview
+  name="sliderDisabledRange"
+  file="components/preview/slider.tsx"
+/>
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/slider.tsx"
+  name="SliderProps"
+/>
+
+## Accessibility
+
+- Each thumb renders a native `<input type="range">` with `role="slider"` and
+  `aria-valuenow` / `aria-valuemin` / `aria-valuemax`, so screen readers announce the
+  current value and bounds.
+- Fully keyboard operable — focus a thumb and use the arrow keys (see the table below).
+  Range thumbs are independently focusable.
+- Always give the slider an accessible name via `aria-label` (or wire it to a `<label>` /
+  `Field`). A range needs a distinct name for each thumb; pass `thumbAriaLabels`
+  (for example `['Minimum price', 'Maximum price']`) or `getThumbAriaLabel`.
+- `:focus-visible` shows a 2px ring (`outline-ring`) on the focused thumb — never
+  `outline: none`.
+- `disabled` removes the thumb(s) from the tab order and blocks all interaction.
+
+| Key                                       | Action                                |
+| ----------------------------------------- | ------------------------------------- |
+| <kbd>Tab</kbd>                            | Move focus to the next thumb          |
+| <kbd>←</kbd> / <kbd>↓</kbd>               | Decrease the value by one step        |
+| <kbd>→</kbd> / <kbd>↑</kbd>               | Increase the value by one step        |
+| <kbd>Page Down</kbd> / <kbd>Page Up</kbd> | Decrease / increase by the large step |
+| <kbd>Home</kbd>                           | Jump to the minimum                   |
+| <kbd>End</kbd>                            | Jump to the maximum                   |
+
+## Do / Don't
+
+<DoDont
+  do="Use a Slider for an imprecise value over a known range — volume, brightness, a price filter — and give it an aria-label."
+  dont="Use a Slider when the exact value matters or the range is large and open-ended — use a number input instead."
+/>

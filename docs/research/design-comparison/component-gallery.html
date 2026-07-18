@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>VegaStack — Component Gallery (finalized tokens)</title>
+<style>
+/* ============ FINALIZED VEGASTACK TOKENS ============ */
+:root{
+  --neutral-0:#ffffff;--neutral-50:#fafafa;--neutral-100:#f4f4f4;--neutral-200:#e4e4e4;
+  --neutral-300:#bebebe;--neutral-400:#989898;--neutral-500:#898989;--neutral-550:#747474;
+  --neutral-600:#606060;--neutral-700:#3b3b3b;--neutral-800:#2e2e2e;--neutral-850:#232323;
+  --neutral-900:#191919;--neutral-1000:#000;
+  --background:var(--neutral-0);--foreground:var(--neutral-900);--card:var(--neutral-0);
+  --muted:var(--neutral-100);--muted-foreground:var(--neutral-600);--faint:var(--neutral-500);
+  --secondary:var(--neutral-50);--accent:var(--neutral-100);
+  --primary:var(--neutral-700);--primary-foreground:var(--neutral-0);
+  --border:rgba(0,0,0,.09);--border-strong:rgba(0,0,0,.14);--input:rgba(0,0,0,.12);--ring:var(--neutral-500);
+  --overlay-border:rgba(0,0,0,.16);--scrim:rgba(0,0,0,.28);
+  --action:#006bd6;--action-hover:#005dbd;--action-active:#0052a8;--action-fg:#fff;--action-text:#0065cd;--action-subtle:#eaf3fe;
+  --agent:#774cc9;--agent-hover:#6741b1;--agent-fg:#fff;--agent-text:#7447c8;--agent-subtle:#f2effe;
+  --success:#0c853d;--success-hover:#007433;--success-fg:#fff;--success-text:#137738;--success-subtle:#d8f9dd;
+  --warning:#c94d08;--warning-hover:#b54303;--warning-fg:#fff;--warning-text:#a8471b;--warning-subtle:#feeee8;
+  --destructive:#d72630;--destructive-hover:#c50220;--destructive-fg:#fff;--destructive-text:#c21725;--destructive-subtle:#fde9e7;
+  /* charts — 8-hue categorical data-viz palette (light marks) */
+  --chart-1:#c74b47;--chart-2:#a96b00;--chart-3:#5a8b00;--chart-4:#009168;--chart-5:#088a9b;--chart-6:#2f79d6;--chart-7:#8a5fc9;--chart-8:#b94c90;
+  --radius-sm:6px;--radius-md:8px;--radius-lg:12px;--radius-full:9999px;
+  --shadow-overlay:0 4px 14px -4px rgba(0,0,0,.10),0 2px 4px -2px rgba(0,0,0,.06);
+  --font:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+html[data-theme="dark"]{
+  --background:var(--neutral-900);--foreground:var(--neutral-100);--card:var(--neutral-850);
+  --muted:var(--neutral-800);--muted-foreground:var(--neutral-400);--faint:var(--neutral-550);
+  --secondary:var(--neutral-850);--accent:var(--neutral-800);
+  --primary:var(--neutral-200);--primary-foreground:var(--neutral-900);
+  --border:rgba(255,255,255,.10);--border-strong:rgba(255,255,255,.16);--input:rgba(255,255,255,.12);--ring:var(--neutral-550);
+  --overlay-border:rgba(255,255,255,.18);--scrim:rgba(0,0,0,.55);
+  --action-text:#67a6fb;--action-subtle:#122844;--agent-text:#b298f9;--agent-subtle:#2b2243;
+  --success-text:#5dc879;--success-subtle:#0d3017;--warning-text:#f7a062;--warning-subtle:#441b09;
+  --destructive-text:#f47b74;--destructive-subtle:#441715;
+  --chart-1:#f2716a;--chart-2:#d98b09;--chart-3:#7db138;--chart-4:#01ba87;--chart-5:#09b2c7;--chart-6:#569fff;--chart-7:#ae84f2;--chart-8:#e271b5;
+  --shadow-overlay:0 8px 24px -8px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--background);color:var(--foreground);font-family:var(--font);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+:focus-visible{outline:none}
+button:focus-visible,a:focus-visible,[tabindex]:focus-visible{box-shadow:inset 0 0 0 1.5px var(--ring)}
+code{font-family:var(--mono);font-size:.85em;background:var(--muted);padding:1px 5px;border-radius:var(--radius-sm)}
+.wrap{max-width:1080px;margin:0 auto;padding:40px 28px 120px}
+h1{font-size:24px;font-weight:600;letter-spacing:-.02em;margin:0 0 4px}
+.lede{color:var(--muted-foreground);font-size:15px;margin:0 0 8px}
+h2{font-size:18px;font-weight:600;letter-spacing:-.01em;margin:44px 0 4px;padding-top:22px;border-top:1px solid var(--border)}
+.sub{color:var(--faint);font-size:12.5px;margin:0 0 16px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin:12px 0}
+.field{display:flex;flex-direction:column;gap:6px}
+.label{font-size:13px;font-weight:500}
+.hint{font-size:12px;color:var(--faint)}
+.err-text{font-size:12px;color:var(--destructive-text)}
+.tag{font-size:11px;color:var(--faint);font-family:var(--mono)}
+
+/* ---- buttons ---- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:34px;padding:0 14px;border-radius:var(--radius-md);
+  font-size:13px;font-weight:500;white-space:nowrap;transition:background-color .12s,border-color .12s,opacity .12s;border:1px solid transparent}
+.btn svg{width:15px;height:15px}
+.btn-primary{background:var(--primary);color:var(--primary-foreground)}.btn-primary:hover{opacity:.9}
+.btn-action{background:var(--action);color:var(--action-fg)}.btn-action:hover{background:var(--action-hover)}
+.btn-agent{background:var(--agent);color:var(--agent-fg)}.btn-agent:hover{background:var(--agent-hover)}
+.btn-destructive{background:var(--destructive);color:var(--destructive-fg)}.btn-destructive:hover{background:var(--destructive-hover)}
+.btn-success{background:var(--success);color:var(--success-fg)}.btn-success:hover{background:var(--success-hover)}
+.btn-secondary{background:var(--card);color:var(--foreground);border-color:var(--border-strong)}.btn-secondary:hover{background:var(--accent)}
+.btn-ghost{background:none;color:var(--foreground)}.btn-ghost:hover{background:var(--accent)}
+.btn-soft{background:var(--destructive-subtle);color:var(--destructive-text)}.btn-soft:hover{filter:brightness(.97)}
+.btn-sm{height:28px;padding:0 10px;font-size:12.5px}.btn-lg{height:40px;padding:0 18px;font-size:14px}
+.btn-icon{width:34px;padding:0}.btn-icon.btn-sm{width:28px}
+.btn-pill{border-radius:var(--radius-full)}
+.btn:disabled{opacity:.45;pointer-events:none}
+.spin{width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---- inputs ---- */
+.input{height:36px;padding:0 11px;border:1px solid var(--input);border-radius:var(--radius-md);background:var(--secondary);
+  color:var(--foreground);font:inherit;font-size:14px;width:100%;transition:border-color .12s}
+.input::placeholder{color:var(--faint)}
+.input:focus{outline:none;border-color:var(--ring)} /* NEUTRAL darker border on focus — not blue */
+.input.is-error{border-color:var(--destructive)}
+.input:disabled{background:var(--muted);color:var(--faint);cursor:not-allowed}
+textarea.input{height:auto;padding:9px 11px;resize:vertical;min-height:74px}
+.input-search{display:flex;align-items:center;gap:8px;height:36px;padding:0 11px;border:1px solid var(--input);border-radius:var(--radius-md);background:var(--secondary);color:var(--faint)}
+.input-search:focus-within{border-color:var(--ring)}
+.input-search input{border:0;outline:none;background:none;font:inherit;color:var(--foreground);width:100%}
+
+/* checkbox / radio / switch */
+.check{appearance:none;width:18px;height:18px;border:1.5px solid var(--input);border-radius:var(--radius-sm);cursor:pointer;position:relative;flex-shrink:0}
+.check:checked{background:var(--action);border-color:var(--action)}
+.check:checked::after{content:"";position:absolute;left:5px;top:1.5px;width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.radio{appearance:none;width:18px;height:18px;border:1.5px solid var(--input);border-radius:var(--radius-full);cursor:pointer;position:relative;flex-shrink:0}
+.radio:checked{border-color:var(--action)}
+.radio:checked::after{content:"";position:absolute;inset:3.5px;border-radius:50%;background:var(--action)}
+.opt{display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer}
+.switch{width:36px;height:20px;border-radius:var(--radius-full);background:var(--neutral-300);position:relative;cursor:pointer;transition:background .15s;flex-shrink:0}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .15s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.switch.on{background:var(--action)}.switch.on::after{transform:translateX(16px)}
+.slider{height:5px;border-radius:var(--radius-full);background:var(--muted);position:relative;width:180px}
+.slider .fill{position:absolute;left:0;top:0;bottom:0;width:60%;background:var(--action);border-radius:var(--radius-full)}
+.slider .thumb{position:absolute;left:60%;top:50%;transform:translate(-50%,-50%);width:16px;height:16px;border-radius:50%;background:#fff;border:1px solid var(--border-strong);box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.segmented{display:inline-flex;background:var(--muted);border-radius:var(--radius-md);padding:3px}
+.segmented button{height:26px;padding:0 12px;border-radius:6px;font-size:12.5px;font-weight:500;color:var(--muted-foreground)}
+.segmented button.on{background:var(--card);color:var(--foreground);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+
+/* ---- card / surfaces ---- */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px}
+.stat .n{font-size:24px;font-weight:600;font-family:var(--mono)}.stat .l{font-size:12px;color:var(--muted-foreground)}
+
+/* ---- badges ---- */
+.badge{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 8px;border-radius:var(--radius-full);font-size:11px;font-weight:500}
+.badge .d{width:6px;height:6px;border-radius:50%}
+.badge.success{background:var(--success-subtle);color:var(--success-text)}.badge.success .d{background:var(--success)}
+.badge.warning{background:var(--warning-subtle);color:var(--warning-text)}.badge.warning .d{background:var(--warning)}
+.badge.destructive{background:var(--destructive-subtle);color:var(--destructive-text)}.badge.destructive .d{background:var(--destructive)}
+.badge.info{background:var(--action-subtle);color:var(--action-text)}.badge.info .d{background:var(--action)}
+.badge.agent{background:var(--agent-subtle);color:var(--agent-text)}.badge.agent .d{background:var(--agent)}
+.badge.neutral{background:var(--muted);color:var(--muted-foreground)}
+.badge.solid{background:var(--action);color:#fff}
+.badge.count{min-width:18px;height:18px;justify-content:center;background:var(--destructive);color:#fff;padding:0 5px;font-size:10.5px}
+
+/* ---- alerts ---- */
+.alert{display:flex;gap:11px;padding:12px 14px;border-radius:var(--radius-md);font-size:13px;border:1px solid transparent}
+.alert .ic{flex-shrink:0;margin-top:1px}
+.alert .t{font-weight:600;margin-bottom:2px}
+.alert .b{color:var(--muted-foreground)}
+.alert.info{background:var(--action-subtle);color:var(--action-text);border-color:var(--action-subtle)}
+.alert.success{background:var(--success-subtle);color:var(--success-text)}
+.alert.warning{background:var(--warning-subtle);color:var(--warning-text)}
+.alert.destructive{background:var(--destructive-subtle);color:var(--destructive-text)}
+
+/* ---- tabs ---- */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border)}
+.tabs button{height:36px;padding:0 12px;font-size:13px;font-weight:500;color:var(--muted-foreground);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs button:hover{color:var(--foreground)}
+.tabs button.on{color:var(--foreground);border-color:var(--action)}
+
+/* ---- avatar ---- */
+.av{width:32px;height:32px;border-radius:var(--radius-full);background:linear-gradient(135deg,#b79cff,#7a5af8);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600;position:relative;flex-shrink:0}
+.av .pres{position:absolute;right:-1px;bottom:-1px;width:9px;height:9px;border-radius:50%;background:var(--success);border:2px solid var(--background)}
+.av-group{display:flex}.av-group .av{margin-left:-8px;border:2px solid var(--background)}.av-group .av:first-child{margin-left:0}
+
+/* ---- table ---- */
+table.data{border-collapse:collapse;width:100%;font-size:13px}
+table.data th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--faint);font-weight:600;padding:8px 12px;border-bottom:1px solid var(--border-strong)}
+table.data td{padding:9px 12px;border-bottom:1px solid var(--border)}
+table.data tbody tr:hover{background:var(--accent)}
+
+/* progress / skeleton / dots */
+.progress{height:6px;border-radius:var(--radius-full);background:var(--muted);overflow:hidden;width:220px}
+.progress i{display:block;height:100%;width:64%;background:var(--action);border-radius:var(--radius-full)}
+.skel{background:var(--muted);border-radius:var(--radius-sm);height:12px;animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.sdot{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted-foreground)}
+.sdot .d{width:8px;height:8px;border-radius:50%}
+.sdot.run .d{background:var(--action);box-shadow:0 0 0 3px var(--action-subtle)}
+.sdot.ok .d{background:var(--success)}.sdot.err .d{background:var(--destructive)}.sdot.idle .d{border:1.5px solid var(--faint)}
+
+/* ---- dropdown / menu (overlay) ---- */
+.menu{position:absolute;z-index:30;min-width:200px;background:var(--card);border:1px solid var(--overlay-border);
+  border-radius:var(--radius-md);box-shadow:var(--shadow-overlay);padding:5px;display:none}
+.menu.open{display:block}
+.menu-item{display:flex;align-items:center;gap:9px;height:32px;padding:0 9px;border-radius:6px;font-size:13px;cursor:pointer;color:var(--foreground)}
+.menu-item:hover{background:var(--accent)}
+.menu-item svg{width:15px;height:15px;color:var(--muted-foreground)}
+.menu-item .k{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--faint)}
+.menu-item.danger{color:var(--destructive-text)}.menu-item.danger svg{color:var(--destructive-text)}
+.menu-sep{height:1px;background:var(--border);margin:5px 0}
+.menu-label{font-size:11px;color:var(--faint);padding:5px 9px 3px;font-weight:500}
+.anchor{position:relative;display:inline-block}
+
+/* tooltip */
+.tip-anchor{position:relative;display:inline-block}
+.tip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);white-space:nowrap;
+  background:var(--neutral-900);color:var(--neutral-0);font-size:12px;padding:5px 9px;border-radius:var(--radius-sm);
+  box-shadow:var(--shadow-overlay);opacity:0;pointer-events:none;transition:opacity .12s}
+html[data-theme="dark"] .tip{background:var(--neutral-200);color:var(--neutral-900)}
+.tip-anchor:hover .tip{opacity:1}
+.tip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--neutral-900)}
+html[data-theme="dark"] .tip::after{border-top-color:var(--neutral-200)}
+
+/* popover */
+.pop{position:absolute;z-index:30;top:calc(100% + 8px);left:0;width:260px;background:var(--card);border:1px solid var(--overlay-border);
+  border-radius:var(--radius-lg);box-shadow:var(--shadow-overlay);padding:14px;display:none}
+.pop.open{display:block}
+
+/* modal */
+.scrim{position:fixed;inset:0;background:var(--scrim);backdrop-filter:blur(2px);z-index:40;display:none;align-items:center;justify-content:center;padding:20px}
+.scrim.open{display:flex}
+.modal{width:100%;max-width:440px;background:var(--card);border:1px solid var(--overlay-border);border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-overlay);overflow:hidden}
+.modal .mh{padding:18px 20px 0}.modal .mt{font-size:18px;font-weight:600;letter-spacing:-.01em}
+.modal .md{padding:8px 20px 0;color:var(--muted-foreground);font-size:14px}
+.modal .mf{display:flex;justify-content:flex-end;gap:9px;padding:20px}
+
+/* toast */
+.toast-wrap{position:fixed;right:20px;bottom:20px;z-index:50;display:flex;flex-direction:column;gap:10px}
+.toast{display:flex;align-items:center;gap:10px;min-width:280px;background:var(--card);border:1px solid var(--overlay-border);
+  border-radius:var(--radius-md);box-shadow:var(--shadow-overlay);padding:11px 13px;font-size:13px;
+  animation:slidein .2s ease}
+@keyframes slidein{from{transform:translateX(20px);opacity:0}}
+.toast .ic{flex-shrink:0}.toast .close{margin-left:auto;color:var(--faint);cursor:pointer}
+
+/* agent primitives */
+.chip-line{display:flex;flex-wrap:wrap;gap:10px}
+.reason-chip{display:inline-flex;align-items:center;gap:7px;height:28px;padding:0 11px;border-radius:var(--radius-full);
+  background:var(--agent-subtle);color:var(--agent-text);font-size:12.5px;font-weight:500}
+.tool-chip{display:inline-flex;align-items:center;gap:7px;height:28px;padding:0 11px;border-radius:var(--radius-md);
+  border:1px solid var(--border);font-size:12.5px;font-family:var(--mono);color:var(--muted-foreground)}
+.meter{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted-foreground);font-family:var(--mono)}
+.meter .bar{width:60px;height:5px;border-radius:var(--radius-full);background:var(--muted);overflow:hidden}.meter .bar i{display:block;height:100%;width:38%;background:var(--action)}
+.workdots{display:inline-flex;gap:4px;align-items:center}.workdots i{width:5px;height:5px;border-radius:50%;background:var(--agent);animation:bob 1s infinite}
+.workdots i:nth-child(2){animation-delay:.15s}.workdots i:nth-child(3){animation-delay:.3s}
+@keyframes bob{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-4px);opacity:1}}
+
+.theme-toggle{position:fixed;top:14px;right:18px;z-index:60;display:inline-flex;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--card);overflow:hidden}
+.theme-toggle button{padding:6px 12px;font-size:12px;font-weight:500;color:var(--muted-foreground)}
+.theme-toggle button[aria-pressed="true"]{background:var(--foreground);color:var(--background)}
+svg{display:block}
+</style>
+</head>
+<body>
+<div class="theme-toggle">
+  <button id="tl" aria-pressed="true" onclick="setTheme('light')">Light</button>
+  <button id="td" aria-pressed="false" onclick="setTheme('dark')">Dark</button>
+</div>
+
+<div class="wrap">
+  <h1>VegaStack — Component Gallery</h1>
+  <p class="lede">Every component family &amp; variant on the finalized tokens. Dropdowns, modals, tooltips and toasts are interactive. Toggle dark above.</p>
+
+  <!-- BUTTONS -->
+  <h2>Buttons</h2>
+  <p class="sub">Intents · sizes · icon · loading · disabled · pill. Hover changes colour; <b>focus is a neutral inset border, never a blue ring</b>.</p>
+  <div class="row">
+    <button class="btn btn-primary">Primary</button>
+    <button class="btn btn-action">Action</button>
+    <button class="btn btn-agent"><span style="color:#fff">✦</span> Ask AI</button>
+    <button class="btn btn-secondary">Secondary</button>
+    <button class="btn btn-ghost">Ghost</button>
+    <button class="btn btn-destructive">Delete</button>
+    <button class="btn btn-soft">Soft danger</button>
+  </div>
+  <div class="row">
+    <button class="btn btn-primary btn-sm">Small</button>
+    <button class="btn btn-primary">Medium</button>
+    <button class="btn btn-primary btn-lg">Large</button>
+    <button class="btn btn-secondary btn-icon" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2 2 2 0 1 1-4 0 1.7 1.7 0 0 0-2.9-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 10 4.6a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg></button>
+    <button class="btn btn-action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> With icon</button>
+    <button class="btn btn-primary" disabled><span class="spin"></span> Loading</button>
+    <button class="btn btn-secondary" disabled>Disabled</button>
+    <button class="btn btn-action btn-pill">Pill CTA</button>
+  </div>
+
+  <!-- FORMS -->
+  <h2>Inputs &amp; forms</h2>
+  <p class="sub">Default / focus (click in) / error / disabled · textarea · search · checkbox · radio · switch · slider · segmented.</p>
+  <div class="grid">
+    <div class="field"><span class="label">Email</span><input class="input" placeholder="you@vegastack.com" /><span class="hint">We never share it.</span></div>
+    <div class="field"><span class="label">Password</span><input class="input is-error" type="password" value="hunter2" /><span class="err-text">Too short — min 8 characters.</span></div>
+    <div class="field"><span class="label">Workspace</span><input class="input" value="vegastack-prod" disabled /><span class="hint">Locked by admin.</span></div>
+    <div class="field"><span class="label">Search</span><div class="input-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input placeholder="Search components"/></div></div>
+  </div>
+  <div class="field" style="margin:12px 0"><span class="label">Notes</span><textarea class="input" placeholder="Add context for the agent…"></textarea></div>
+  <div class="row" style="gap:28px">
+    <label class="opt"><input type="checkbox" class="check" checked /> Enable VRT</label>
+    <label class="opt"><input type="checkbox" class="check" /> Sign manifest</label>
+    <label class="opt"><input type="radio" name="r" class="radio" checked /> Light</label>
+    <label class="opt"><input type="radio" name="r" class="radio" /> Dark</label>
+    <span class="opt" onclick="this.querySelector('.switch').classList.toggle('on')"><span class="switch on"></span> Auto-deploy</span>
+    <div class="slider"><div class="fill"></div><div class="thumb"></div></div>
+    <div class="segmented"><button class="on">Day</button><button>Week</button><button>Month</button></div>
+  </div>
+
+  <!-- DROPDOWN / SELECT / MENU -->
+  <h2>Dropdowns &amp; menus <span class="tag">overlay tier · subtle shadow</span></h2>
+  <p class="sub">Click to open. Overlays are the only thing that gets a shadow (everything else is flat).</p>
+  <div class="row">
+    <div class="anchor">
+      <button class="btn btn-secondary" onclick="toggleMenu('m1',event)">Opus 4.8 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="menu" id="m1" style="top:calc(100% + 6px);left:0">
+        <div class="menu-label">Model</div>
+        <div class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 5 5L20 7"/></svg> Opus 4.8 <span class="k">⌘1</span></div>
+        <div class="menu-item"><span style="width:15px"></span> Sonnet 4.6 <span class="k">⌘2</span></div>
+        <div class="menu-item"><span style="width:15px"></span> Haiku 4.5 <span class="k">⌘3</span></div>
+      </div>
+    </div>
+    <div class="anchor">
+      <button class="btn btn-secondary btn-icon" onclick="toggleMenu('m2',event)" title="Actions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button>
+      <div class="menu" id="m2" style="top:calc(100% + 6px);left:0">
+        <div class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4v16h16v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg> Rename</div>
+        <div class="menu-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg> Duplicate</div>
+        <div class="menu-sep"></div>
+        <div class="menu-item danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg> Delete chat</div>
+      </div>
+    </div>
+    <span class="tag">↑ click either — closes on outside-click</span>
+  </div>
+
+  <!-- OVERLAYS: tooltip / popover / modal / toast -->
+  <h2>Overlays — tooltip · popover · modal · toast</h2>
+  <div class="row" style="gap:18px">
+    <span class="tip-anchor"><button class="btn btn-secondary">Hover for tooltip</button><span class="tip">Hairline + subtle shadow</span></span>
+    <div class="anchor"><button class="btn btn-secondary" onclick="togglePop(event)">Open popover</button>
+      <div class="pop" id="pop">
+        <div style="font-weight:600;margin-bottom:6px">Quick settings</div>
+        <label class="opt" style="margin:8px 0"><span class="switch on"></span> Stream tokens</label>
+        <label class="opt"><span class="switch"></span> Show reasoning</label>
+      </div>
+    </div>
+    <button class="btn btn-action" onclick="openModal()">Open modal</button>
+    <button class="btn btn-secondary" onclick="toast('success','Deployment ready','Pushed to main · 12s')">Toast: success</button>
+    <button class="btn btn-secondary" onclick="toast('info','Agent started','Running 3 tools')">Toast: info</button>
+  </div>
+
+  <!-- STATUS & FEEDBACK -->
+  <h2>Status &amp; feedback</h2>
+  <p class="sub">Alerts (soft) · badges · progress · skeleton · status dots.</p>
+  <div class="grid">
+    <div class="alert info"><span class="ic">ⓘ</span><div><div class="t">Heads up</div><div class="b">New capability available in this workspace.</div></div></div>
+    <div class="alert success"><span class="ic">✓</span><div><div class="t">All checks passed</div><div class="b">28/28 contrast pairs clear AA.</div></div></div>
+    <div class="alert warning"><span class="ic">⚠</span><div><div class="t">Rate limit near</div><div class="b">82% of your hourly budget used.</div></div></div>
+    <div class="alert destructive"><span class="ic">✕</span><div><div class="t">Build failed</div><div class="b">Bundle exceeds 50 MB. Reduce it or raise the limit.</div></div></div>
+  </div>
+  <div class="row" style="gap:10px">
+    <span class="badge success"><span class="d"></span>Passed</span>
+    <span class="badge warning"><span class="d"></span>Degraded</span>
+    <span class="badge destructive"><span class="d"></span>Failed</span>
+    <span class="badge info"><span class="d"></span>Running</span>
+    <span class="badge agent"><span class="d"></span>AI</span>
+    <span class="badge neutral">Draft</span>
+    <span class="badge solid">Pro</span>
+    <span style="display:inline-flex;align-items:center;gap:6px">Inbox <span class="badge count">12</span></span>
+  </div>
+  <div class="row" style="gap:24px;margin-top:18px">
+    <div class="progress"><i></i></div>
+    <span class="sdot run"><span class="d"></span>Running</span>
+    <span class="sdot ok"><span class="d"></span>Succeeded</span>
+    <span class="sdot err"><span class="d"></span>Failed</span>
+    <span class="sdot idle"><span class="d"></span>Queued</span>
+    <span class="spin" style="color:var(--action)"></span>
+  </div>
+  <div class="card" style="max-width:300px;margin-top:14px">
+    <div class="skel" style="width:40%;margin-bottom:10px"></div>
+    <div class="skel" style="width:100%;margin-bottom:6px"></div>
+    <div class="skel" style="width:80%"></div>
+  </div>
+
+  <!-- DATA DISPLAY -->
+  <h2>Data display — tabs · table · avatars · cards</h2>
+  <div class="tabs" style="margin-bottom:14px">
+    <button class="on">Overview</button><button>Activity</button><button>Settings</button><button>Members</button>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <table class="data">
+      <thead><tr><th>Deployment</th><th>Status</th><th>Author</th><th>Duration</th></tr></thead>
+      <tbody>
+        <tr><td><code>main@a1f7c2</code></td><td><span class="badge success"><span class="d"></span>Ready</span></td><td>mk</td><td>42s</td></tr>
+        <tr><td><code>main@dafe33</code></td><td><span class="badge info"><span class="d"></span>Building</span></td><td>codex</td><td>—</td></tr>
+        <tr><td><code>feat@22a9b2</code></td><td><span class="badge destructive"><span class="d"></span>Error</span></td><td>mk</td><td>1m 04s</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="row" style="gap:24px;margin-top:18px">
+    <div class="av">MK<span class="pres"></span></div>
+    <div class="av-group"><div class="av">MK</div><div class="av" style="background:linear-gradient(135deg,#84c3f9,#4f7df9)">CX</div><div class="av" style="background:linear-gradient(135deg,#43c463,#2aabc8)">AL</div><div class="av" style="background:var(--muted);color:var(--muted-foreground)">+5</div></div>
+    <div class="card stat" style="min-width:130px"><div class="n">99.9%</div><div class="l">Uptime · 30d</div></div>
+  </div>
+
+  <!-- AGENT PRIMITIVES -->
+  <h2>Agent primitives <span class="tag">purple = AI moments</span></h2>
+  <div class="chip-line">
+    <span class="reason-chip">✦ Reasoned for 5s</span>
+    <span class="tool-chip"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 17 6-6-6-6M12 19h8"/></svg> Bash · done</span>
+    <span class="tool-chip" style="color:var(--action-text)"><span class="sdot run" style="gap:0"><span class="d"></span></span> Edit · running</span>
+    <span class="meter">47.2k / 200k <span class="bar"><i></i></span> $0.71</span>
+    <span class="reason-chip" style="background:var(--agent-subtle)"><span class="workdots"><i></i><i></i><i></i></span> Thinking…</span>
+  </div>
+
+  <!-- CHARTS / DATA-VIZ -->
+  <h2>Charts &amp; data-viz <span class="tag">8-hue categorical · in-gamut · ≥3:1 vs bg both themes</span></h2>
+  <p class="sub">Evenly-spaced hues, assigned in order (chart-1 first). Light/dark marks differ. Never colour-alone — label series.</p>
+  <div style="display:flex;gap:44px;flex-wrap:wrap;align-items:flex-end;margin:16px 0 18px">
+    <div style="display:flex;align-items:flex-end;gap:9px;height:120px" title="bar chart">
+      <div style="width:24px;height:58%;background:var(--chart-1);border-radius:4px 4px 0 0"></div>
+      <div style="width:24px;height:82%;background:var(--chart-2);border-radius:4px 4px 0 0"></div>
+      <div style="width:24px;height:46%;background:var(--chart-3);border-radius:4px 4px 0 0"></div>
+      <div style="width:24px;height:70%;background:var(--chart-4);border-radius:4px 4px 0 0"></div>
+      <div style="width:24px;height:38%;background:var(--chart-5);border-radius:4px 4px 0 0"></div>
+      <div style="width:24px;height:92%;background:var(--chart-6);border-radius:4px 4px 0 0"></div>
+      <div style="width:24px;height:64%;background:var(--chart-7);border-radius:4px 4px 0 0"></div>
+      <div style="width:24px;height:50%;background:var(--chart-8);border-radius:4px 4px 0 0"></div>
+    </div>
+    <div style="width:260px">
+      <div style="display:flex;height:20px;border-radius:var(--radius-full);overflow:hidden;border:1px solid var(--border)">
+        <div style="flex:5;background:var(--chart-6)"></div><div style="flex:3;background:var(--chart-4)"></div>
+        <div style="flex:2;background:var(--chart-2)"></div><div style="flex:2;background:var(--chart-7)"></div>
+        <div style="flex:1;background:var(--chart-1)"></div>
+      </div>
+      <div class="hint" style="margin-top:8px">Stacked / proportion bar</div>
+    </div>
+    <div title="donut" style="width:96px;height:96px;border-radius:50%;
+      background:conic-gradient(var(--chart-6) 0 38%,var(--chart-4) 38% 60%,var(--chart-2) 60% 78%,var(--chart-7) 78% 92%,var(--chart-1) 92% 100%);
+      -webkit-mask:radial-gradient(circle, transparent 52%, #000 53%);mask:radial-gradient(circle, transparent 52%, #000 53%)"></div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:14px">
+    <span class="opt" style="cursor:default;font-size:12px"><span style="width:12px;height:12px;border-radius:3px;background:var(--chart-1)"></span>chart-1</span>
+    <span class="opt" style="cursor:default;font-size:12px"><span style="width:12px;height:12px;border-radius:3px;background:var(--chart-2)"></span>chart-2</span>
+    <span class="opt" style="cursor:default;font-size:12px"><span style="width:12px;height:12px;border-radius:3px;background:var(--chart-3)"></span>chart-3</span>
+    <span class="opt" style="cursor:default;font-size:12px"><span style="width:12px;height:12px;border-radius:3px;background:var(--chart-4)"></span>chart-4</span>
+    <span class="opt" style="cursor:default;font-size:12px"><span style="width:12px;height:12px;border-radius:3px;background:var(--chart-5)"></span>chart-5</span>
+    <span class="opt" style="cursor:default;font-size:12px"><span style="width:12px;height:12px;border-radius:3px;background:var(--chart-6)"></span>chart-6</span>
+    <span class="opt" style="cursor:default;font-size:12px"><span style="width:12px;height:12px;border-radius:3px;background:var(--chart-7)"></span>chart-7</span>
+    <span class="opt" style="cursor:default;font-size:12px"><span style="width:12px;height:12px;border-radius:3px;background:var(--chart-8)"></span>chart-8</span>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="scrim" id="scrim" onclick="if(event.target===this)closeModal()">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="mh"><div class="mt">Delete this chat?</div></div>
+    <div class="md">“Design token overhaul” and its 47 messages will be permanently removed. This can't be undone.</div>
+    <div class="mf"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-destructive" onclick="closeModal();toast('destructive','Chat deleted','Design token overhaul')">Delete</button></div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+function setTheme(t){document.documentElement.setAttribute('data-theme',t);tl.setAttribute('aria-pressed',t==='light');td.setAttribute('aria-pressed',t==='dark');}
+function toggleMenu(id,e){e.stopPropagation();document.querySelectorAll('.menu').forEach(m=>{if(m.id!==id)m.classList.remove('open')});document.getElementById(id).classList.toggle('open');}
+function togglePop(e){e.stopPropagation();document.getElementById('pop').classList.toggle('open');}
+document.addEventListener('click',()=>{document.querySelectorAll('.menu,.pop').forEach(m=>m.classList.remove('open'));});
+function openModal(){document.getElementById('scrim').classList.add('open');}
+function closeModal(){document.getElementById('scrim').classList.remove('open');}
+const ICON={success:'<span style="color:var(--success)">✓</span>',info:'<span style="color:var(--action)">ⓘ</span>',destructive:'<span style="color:var(--destructive)">✕</span>'};
+function toast(kind,title,body){
+  const el=document.createElement('div');el.className='toast';
+  el.innerHTML=`<span class="ic">${ICON[kind]||''}</span><div><div style="font-weight:600">${title}</div><div style="color:var(--muted-foreground);font-size:12px">${body||''}</div></div><span class="close" onclick="this.closest('.toast').remove()">✕</span>`;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(()=>el.remove(),4200);
+}
+</script>
+</body>
+</html>

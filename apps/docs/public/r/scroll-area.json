@@ -1,0 +1,30 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "scroll-area",
+  "title": "Scroll Area",
+  "description": "A scroll container with custom, auto-hiding scrollbars — dual-axis, token-styled, built on Base UI ScrollArea.",
+  "dependencies": [
+    "@base-ui/react@^1.6.0",
+    "@vegastack/design@^0.1.0",
+    "@vegastack/design-tokens@^0.1.0"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "packages/ui/registry/ui/scroll-area.tsx",
+      "content": "// @vegastack scroll-area@0.1.0 sha256-S/MGOHw6/XUC5isj/hJQK+1g7sD8OQkC2FLIOA8/otU=\n\n\"use client\";\n\nimport * as React from \"react\";\nimport { ScrollArea as BaseScrollArea } from \"@base-ui/react/scroll-area\";\nimport { cn } from \"@vegastack/design\";\n\nexport interface ScrollBarProps extends React.ComponentProps<\n  typeof BaseScrollArea.Scrollbar\n> {\n  /**\n   * Which axis the scrollbar controls.\n   * @default 'vertical'\n   */\n  orientation?: \"vertical\" | \"horizontal\";\n}\n\n/**\n * `ScrollBar` — a single custom scrollbar track + thumb for one axis. Rendered\n * automatically by `ScrollArea`; export it on its own only when composing a\n * custom layout (e.g. a horizontal-only area). Auto-hides when idle and fades\n * in while hovering or scrolling, driven by Base UI's `data-hovering` /\n * `data-scrolling` state attributes.\n */\nexport function ScrollBar({\n  className,\n  orientation = \"vertical\",\n  children,\n  ...props\n}: ScrollBarProps) {\n  return (\n    <BaseScrollArea.Scrollbar\n      data-slot=\"scroll-area-scrollbar\"\n      orientation={orientation}\n      className={cn(\n        // Layout: a thin, non-selecting track inset from the viewport edges.\n        \"flex touch-none select-none p-px transition-opacity duration-fast ease-standard\",\n        // Auto-hide: invisible at rest, visible while hovering or scrolling.\n        \"opacity-0 data-[hovering]:opacity-100 data-[scrolling]:opacity-100\",\n        // Vertical: a 10px-wide column hugging the right edge.\n        \"data-[orientation=vertical]:h-full data-[orientation=vertical]:w-2.5 data-[orientation=vertical]:flex-col\",\n        // Horizontal: a 10px-tall row hugging the bottom edge.\n        \"data-[orientation=horizontal]:h-2.5 data-[orientation=horizontal]:flex-row\",\n        className,\n      )}\n      {...props}\n    >\n      {children ?? (\n        <BaseScrollArea.Thumb\n          data-slot=\"scroll-area-thumb\"\n          className=\"relative flex-1 rounded-full bg-border\"\n        />\n      )}\n    </BaseScrollArea.Scrollbar>\n  );\n}\n\nexport interface ScrollAreaProps extends React.ComponentProps<\n  typeof BaseScrollArea.Root\n> {\n  /**\n   * Which scrollbar(s) to render. `vertical` (the default) and `horizontal`\n   * each render a single axis; `both` renders both plus the intersection\n   * corner for dual-axis content.\n   * @default 'vertical'\n   */\n  orientation?: \"vertical\" | \"horizontal\" | \"both\";\n  /**\n   * Classes for the scroll container. Set the height/width constraints here\n   * (e.g. `h-72 w-full`) — without a bounded size the content cannot overflow\n   * and no scrollbar appears. The inner viewport fills this box.\n   */\n  className?: string;\n  /**\n   * Props applied to the automatically rendered scrollbar(s). Useful for tests\n   * or custom visibility policy, e.g. `keepMounted`.\n   */\n  scrollbarProps?: Omit<ScrollBarProps, \"orientation\">;\n  /** Scrollable content. */\n  children?: React.ReactNode;\n}\n\n/**\n * `ScrollArea` — a scroll container with custom, auto-hiding scrollbars. Built\n * on Base UI's `ScrollArea`, it composes Root → Viewport → Scrollbar → Thumb\n * (plus a Corner for dual-axis), replacing the native browser scrollbar with a\n * token-styled one that fades in on hover/scroll. Constrain the container via\n * `className` (e.g. `h-72`) so its content can overflow.\n */\nexport function ScrollArea({\n  className,\n  children,\n  orientation = \"vertical\",\n  scrollbarProps,\n  \"aria-label\": ariaLabel,\n  \"aria-labelledby\": ariaLabelledBy,\n  ...props\n}: ScrollAreaProps) {\n  return (\n    <BaseScrollArea.Root\n      data-slot=\"scroll-area\"\n      className={cn(\"relative overflow-hidden\", className)}\n      {...props}\n    >\n      <BaseScrollArea.Viewport\n        data-slot=\"scroll-area-viewport\"\n        tabIndex={0}\n        aria-label={ariaLabel}\n        aria-labelledby={ariaLabelledBy}\n        className=\"size-full overscroll-contain rounded-[inherit]\"\n      >\n        {children}\n      </BaseScrollArea.Viewport>\n      {(orientation === \"vertical\" || orientation === \"both\") && (\n        <ScrollBar orientation=\"vertical\" {...scrollbarProps} />\n      )}\n      {(orientation === \"horizontal\" || orientation === \"both\") && (\n        <ScrollBar orientation=\"horizontal\" {...scrollbarProps} />\n      )}\n      {orientation === \"both\" && (\n        <BaseScrollArea.Corner data-slot=\"scroll-area-corner\" />\n      )}\n    </BaseScrollArea.Root>\n  );\n}\n",
+      "type": "registry:ui",
+      "target": "@ui/scroll-area.tsx"
+    }
+  ],
+  "meta": {
+    "whenToUse": "Bounded panels whose content overflows — sidebars, log viewers, modal bodies, chat histories.",
+    "whenNotToUse": "Whole-page scrolling, or content that already fits.",
+    "version": "0.1.0",
+    "integrity": "sha256-S/MGOHw6/XUC5isj/hJQK+1g7sD8OQkC2FLIOA8/otU="
+  },
+  "categories": [
+    "layout"
+  ],
+  "type": "registry:ui"
+}

@@ -1,0 +1,59 @@
+---
+title: Testimonial
+description: A pull-quote — a serif-italic quote over a mono uppercase attribution line.
+preview: testimonial
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/testimonial
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Testimonial } from '@/components/ui/testimonial';
+
+<Testimonial
+  quote="VegaStack cut our design-to-ship time in half."
+  name="A. Rivera"
+  role="CTO, Example Co."
+/>;
+```
+
+<ComponentPreview name="testimonial" file="components/preview/testimonial.tsx" />
+
+## Without a role
+
+`role` is optional — omit it for a bare name attribution.
+
+<ComponentPreview name="testimonialNoRole" file="components/preview/testimonial.tsx" />
+
+## The serif accent
+
+The quote renders `font-serif italic` at `text-display-sm` — the Newsreader display-emphasis
+accent, reserved for display emphasis words and pull-quotes ONLY (audit 17-brand-direction
+§Typography roles), never running body text. `Testimonial` is one of the two sanctioned uses (the
+other is a single emphasis span inside [`SectionHeader`](/docs/components/section-header)).
+
+## API Reference
+
+<AutoTypeTable path="../../packages/ui/registry/ui/testimonial.tsx" name="TestimonialProps" />
+
+## Accessibility
+
+- Renders a semantic `<figure>` / `<blockquote>` / `<figcaption>` structure — the quote is a real
+  `<blockquote>`, the attribution a real `<figcaption>`.
+- Pass `quote` WITHOUT its own quotation marks — the component wraps it in curly quotes
+  automatically.
+- The decorative middot between name and role is `aria-hidden`.
+
+## Do / Don't
+
+<DoDont
+  do="Keep the quote short — it's a display-scale pull-quote, not a paragraph."
+  dont="Wrap the quote text in your own quotation marks — Testimonial adds curly quotes for you."
+/>

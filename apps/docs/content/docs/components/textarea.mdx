@@ -1,0 +1,100 @@
+---
+title: Textarea
+description: A styled native textarea for multi-line text — error and disabled states, a focus border tint, and an optional auto-grow mode.
+preview: textarea
+---
+
+import { story } from '@/components/stories/textarea.story';
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/textarea
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Textarea } from "@/components/ui/textarea";
+
+<Textarea placeholder="Tell us about your project…" />;
+```
+
+`Textarea` is a thin wrapper over the native `<textarea>`, so every standard
+attribute (`value`/`defaultValue`, `onChange`, `name`, `rows`, `required`,
+`readOnly`, `maxLength`, …) works as expected, and its ref forwards to the
+underlying element. It shares its border and token styling with
+[`Input`](/docs/components/input) so the two fields look identical.
+
+## Playground
+
+Try every size with the auto-grow, disabled, and invalid states, then copy the generated JSX.
+
+<TextareaPlayground />
+
+## Explorer
+
+Every `Textarea` prop, auto-generated from its TypeScript types — the exhaustive counterpart to the
+curated playground above.
+
+<story.WithControl />
+
+## States
+
+The field reflects `disabled`, `readOnly`, and `aria-invalid`. The invalid state
+re-colors the border with the `destructive` token — pair it with a
+visible error message for non-color-dependent feedback. It resizes vertically by
+default; the last example below uses `autoGrow` to size to its content instead.
+
+<ComponentPreview
+  name="textareaStates"
+  file="components/preview/textarea.tsx"
+/>
+
+## Auto-grow
+
+Pass `autoGrow` to grow the field to fit its content instead of scrolling, using
+native CSS `field-sizing: content`. Set a starting height with `rows` and cap the
+growth with a `max-h-*` utility via `className`. The first field below is a normal
+fixed-height textarea (it scrolls); the second is the live `autoGrow` field — type
+into it (or edit the text) and it grows line by line until it hits the `max-h-40`
+cap, then scrolls.
+
+<ComponentPreview
+  name="textareaAutoGrow"
+  file="components/preview/textarea.tsx"
+/>
+
+```tsx
+<Textarea autoGrow rows={2} className="max-h-40" placeholder="Auto-grows…" />
+```
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/textarea.tsx"
+  name="TextareaProps"
+/>
+
+## Accessibility
+
+- Renders a native `<textarea>` — always associate a visible `<label>` (wrap it or
+  use `htmlFor`/`id`); use `aria-label` only when a visible label is impossible.
+- The surface sets `outline-none` and replaces it with the text-field focus
+  treatment: on focus the border re-colors with the `ring` token
+  (`focus:border-ring/(--alpha-tint-border)`). The darkened border is the sole
+  focus cue — no ring, matching [`Input`](/docs/components/input) — never
+  `outline: none` with no replacement.
+- Set `aria-invalid` (and `aria-describedby` pointing at the error text) to mark a
+  field invalid; the styling is token-driven and never relies on color alone.
+- The resize handle and `autoGrow` are visual conveniences only — keyboard and
+  screen-reader interaction is the standard native `<textarea>` behavior.
+
+## Do / Don't
+
+<DoDont
+  do="Pair every textarea with a label and, when invalid, an aria-describedby error message."
+  dont="Use aria-invalid styling as the only error signal, or rely on placeholder text as a label."
+/>

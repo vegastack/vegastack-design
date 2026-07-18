@@ -1,0 +1,276 @@
+---
+title: Context Menu
+description: A menu of actions revealed by right-clicking (or long-pressing) a target — items, submenus, separators, labels, shortcuts, and checkbox/radio selections.
+preview: contextMenu
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/context-menu
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import {
+  ContextMenu,
+  ContextMenuTrigger,
+  ContextMenuContent,
+  ContextMenuItem,
+} from "@/components/ui/context-menu";
+
+<ContextMenu>
+  <ContextMenuTrigger>Right-click here</ContextMenuTrigger>
+  <ContextMenuContent>
+    <ContextMenuItem>Copy</ContextMenuItem>
+    <ContextMenuItem variant="destructive">Delete</ContextMenuItem>
+  </ContextMenuContent>
+</ContextMenu>;
+```
+
+## Anatomy
+
+`ContextMenu` is a compound component built on Base UI's `ContextMenu`. Unlike `DropdownMenu`, the
+trigger is a right-click target area (not a button); the content portals to `<body>` and positions
+itself against the pointer where the menu was opened.
+
+```tsx
+<ContextMenu>
+  <ContextMenuTrigger />
+  <ContextMenuContent>
+    <ContextMenuGroup>
+      <ContextMenuLabel />
+      <ContextMenuItem />
+      <ContextMenuShortcut />
+    </ContextMenuGroup>
+
+    <ContextMenuSeparator />
+
+    <ContextMenuCheckboxItem />
+
+    <ContextMenuRadioGroup>
+      <ContextMenuRadioItem />
+    </ContextMenuRadioGroup>
+
+    <ContextMenuSub>
+      <ContextMenuSubTrigger />
+      <ContextMenuSubContent>
+        <ContextMenuItem />
+      </ContextMenuSubContent>
+    </ContextMenuSub>
+  </ContextMenuContent>
+</ContextMenu>
+```
+
+- `ContextMenu` — the root that groups every part (`ContextMenu.Root`; renders no element).
+- `ContextMenuTrigger` — the area you right-click, long-press, or focus and open with <kbd>Menu</kbd> / <kbd>Shift</kbd>+<kbd>F10</kbd> (`data-slot="context-menu-trigger"`; renders a `<div>`). Use `render` to compose with your own element.
+- `ContextMenuContent` — the floating popup; portals to `<body>` and positions against the pointer (`data-slot="context-menu-content"`). Accepts `side`, `align`, `sideOffset`, `collisionPadding`, and exposes `portalProps` / `positionerProps`.
+- `ContextMenuItem` — a selectable action (`data-slot="context-menu-item"`). Supports `variant="destructive"` and `inset`.
+- `ContextMenuGroup` + `ContextMenuLabel` — a labelled section; the label becomes the group's accessible name.
+- `ContextMenuSeparator` — a divider between sections (`role="separator"`).
+- `ContextMenuShortcut` — a right-aligned keyboard hint inside an item.
+- `ContextMenuCheckboxItem` — a togglable item with a check indicator (`checked` / `onCheckedChange`).
+- `ContextMenuRadioGroup` + `ContextMenuRadioItem` — single-select items (`value` / `onValueChange`).
+- `ContextMenuSub` + `ContextMenuSubTrigger` + `ContextMenuSubContent` — a nested submenu.
+
+## Examples
+
+A rich menu with grouped items, labels, keyboard shortcuts, checkbox + radio selections, a disabled
+item, a destructive action, and a nested submenu.
+
+<ComponentPreview
+  name="contextMenuRich"
+  file="components/preview/context-menu.tsx"
+/>
+
+## Items
+
+Items take leading `lucide-react` icons as children, a trailing `ContextMenuShortcut`, and a
+`variant="destructive"` for delete/remove actions. Use `inset` to align items that have no leading
+icon with those that do.
+
+```tsx
+<ContextMenuItem>
+  <Copy />
+  Copy
+  <ContextMenuShortcut>⌘C</ContextMenuShortcut>
+</ContextMenuItem>
+<ContextMenuItem variant="destructive">
+  <Trash2 />
+  Delete
+</ContextMenuItem>
+```
+
+### Inset items
+
+Set `inset` on `ContextMenuItem`, `ContextMenuLabel`, and `ContextMenuSubTrigger` to add left
+padding so icon-less rows line up with the indicator column of checkbox / radio items.
+
+<ComponentPreview
+  name="contextMenuInset"
+  file="components/preview/context-menu.tsx"
+/>
+
+```tsx
+<ContextMenuLabel inset>Layout</ContextMenuLabel>
+<ContextMenuItem inset>Back</ContextMenuItem>
+<ContextMenuSubTrigger inset>More tools</ContextMenuSubTrigger>
+```
+
+## Checkbox & radio items
+
+`ContextMenuCheckboxItem` toggles a setting and stays open on click; `ContextMenuRadioGroup`
+wraps `ContextMenuRadioItem`s for single-select.
+
+```tsx
+<ContextMenuCheckboxItem checked={showGrid} onCheckedChange={setShowGrid}>
+  Show grid
+</ContextMenuCheckboxItem>
+
+<ContextMenuRadioGroup value={role} onValueChange={setRole}>
+  <ContextMenuRadioItem value="admin">Admin</ContextMenuRadioItem>
+  <ContextMenuRadioItem value="member">Member</ContextMenuRadioItem>
+</ContextMenuRadioGroup>
+```
+
+## Submenus
+
+Nest a `ContextMenuSub` to reveal a second-level popup. The trigger shows a trailing chevron and
+opens on hover or with the <kbd>→</kbd> arrow key.
+
+```tsx
+<ContextMenuSub>
+  <ContextMenuSubTrigger>Invite users</ContextMenuSubTrigger>
+  <ContextMenuSubContent>
+    <ContextMenuItem>Email</ContextMenuItem>
+    <ContextMenuItem>Message</ContextMenuItem>
+  </ContextMenuSubContent>
+</ContextMenuSub>
+```
+
+## API Reference
+
+### ContextMenu
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/context-menu.tsx"
+  name="ContextMenuProps"
+/>
+
+### ContextMenuTrigger
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/context-menu.tsx"
+  name="ContextMenuTriggerProps"
+/>
+
+### ContextMenuGroup
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/context-menu.tsx"
+  name="ContextMenuGroupProps"
+/>
+
+### ContextMenuSub
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/context-menu.tsx"
+  name="ContextMenuSubProps"
+/>
+
+### ContextMenuRadioGroup
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/context-menu.tsx"
+  name="ContextMenuRadioGroupProps"
+/>
+
+### ContextMenuContent
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/context-menu.tsx"
+  name="ContextMenuContentProps"
+/>
+
+### ContextMenuItem
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/context-menu.tsx"
+  name="ContextMenuItemProps"
+/>
+
+### ContextMenuCheckboxItem
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/context-menu.tsx"
+  name="ContextMenuCheckboxItemProps"
+/>
+
+### ContextMenuRadioItem
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/context-menu.tsx"
+  name="ContextMenuRadioItemProps"
+/>
+
+### ContextMenuLabel
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/context-menu.tsx"
+  name="ContextMenuLabelProps"
+/>
+
+### ContextMenuSeparator
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/context-menu.tsx"
+  name="ContextMenuSeparatorProps"
+/>
+
+### ContextMenuShortcut
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/context-menu.tsx"
+  name="ContextMenuShortcutProps"
+/>
+
+### ContextMenuSubTrigger
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/context-menu.tsx"
+  name="ContextMenuSubTriggerProps"
+/>
+
+### ContextMenuSubContent
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/context-menu.tsx"
+  name="ContextMenuSubContentProps"
+/>
+
+## Accessibility
+
+- The popup renders with `role="menu"`; items are `menuitem`, `menuitemcheckbox`, and `menuitemradio`. A `ContextMenuLabel` inside a group becomes that group's accessible name.
+- Open with a right-click or a long-press; the keyboard <kbd>Menu</kbd>/<kbd>Shift</kbd>+<kbd>F10</kbd> shortcut also opens the menu when the trigger is focused.
+- Full keyboard support via Base UI's roving focus; the highlighted item uses `data-highlighted` (`bg-accent text-accent-foreground`) — there is no `outline: none` without a visible focus state.
+- The menu is modal: page scroll locks and focus is trapped while open, then returns to the trigger on close.
+- Icons inside items are decorative; the item's text carries the meaning.
+
+| Key                                                        | Action                                                        |
+| ---------------------------------------------------------- | ------------------------------------------------------------- |
+| Right-click / long-press / <kbd>Shift</kbd>+<kbd>F10</kbd> | Open the menu on the target.                                  |
+| <kbd>↑</kbd> / <kbd>↓</kbd>                                | Move between items (wraps at the ends).                       |
+| <kbd>→</kbd>                                               | Open the focused submenu.                                     |
+| <kbd>←</kbd> / <kbd>Esc</kbd>                              | Close the current submenu (or the whole menu).                |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>                        | Activate the focused item.                                    |
+| <kbd>A</kbd>–<kbd>Z</kbd>                                  | Typeahead — jump to the next item matching the typed letters. |
+
+## Do / Don't
+
+<DoDont
+  do="Mirror the actions a user expects on the target (copy, rename, delete) and put destructive actions last, behind a separator."
+  dont="Hide primary actions only behind a right-click — surface essential actions in visible UI too, since context menus aren't discoverable on touch."
+/>

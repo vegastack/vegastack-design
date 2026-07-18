@@ -1,0 +1,103 @@
+---
+title: Field Inline
+description: Click-to-edit text — displays a value, swaps to a focused input on click, commits on Enter or blur, cancels on Escape.
+preview: fieldInline
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/field-inline
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { FieldInline } from "@/components/ui/field-inline";
+
+<FieldInline value={title} onCommit={(next) => updateTitle(next)} />;
+```
+
+`FieldInline` shows `value` as plain text with a hover affordance. Clicking it
+(or pressing <kbd>Enter</kbd> / <kbd>Space</kbd> when focused) swaps in a focused
+[`Input`](/docs/components/input). It is purely presentational: `onCommit` fires
+only when the value actually changed, and your app owns persistence — the handler
+can be synchronous or kick off an async mutation.
+
+The example above is interactive: click the value to enter edit mode, then press
+<kbd>Enter</kbd> to commit or <kbd>Escape</kbd> to cancel.
+
+## Playground
+
+Toggle borderless, disabled, and read-only on a click-to-edit value, then copy the generated JSX.
+
+<FieldInlinePlayground />
+
+## Empty state
+
+When `value` is empty, display mode renders the `placeholder` as muted text so
+there is always something to click. If no `placeholder` is supplied either, it
+falls back to a generic `"Edit value"` label — which also becomes the display
+element's accessible name, so the control is never unnamed even when blank.
+
+<ComponentPreview
+  name="fieldInlineEmpty"
+  file="components/preview/field-inline.tsx"
+/>
+
+## Accessible name
+
+`label` names the edit-mode input for assistive tech without rendering any
+visible text. `placeholder`, by contrast, is the visible empty-state hint and is
+used as the accessible name only as a last resort. Prefer `label` (or
+`aria-label` / `aria-labelledby`) for a clear semantic name.
+
+<ComponentPreview
+  name="fieldInlineAccessibleName"
+  file="components/preview/field-inline.tsx"
+/>
+
+## Borderless
+
+Set `borderless` to strip the input's border, background, and padding so the edit
+state sits seamlessly within surrounding text — ideal for editing a title in
+place.
+
+<ComponentPreview
+  name="fieldInlineBorderless"
+  file="components/preview/field-inline.tsx"
+/>
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/field-inline.tsx"
+  name="FieldInlineProps"
+/>
+
+## Accessibility
+
+- The display element is a `role="button"` in the tab order — <kbd>Enter</kbd> or
+  <kbd>Space</kbd> enters edit mode, mirroring a mouse click.
+- Entering edit mode focuses the input and selects its contents, so typing
+  replaces the value immediately.
+- <kbd>Enter</kbd> or blur commits; <kbd>Escape</kbd> cancels and restores the
+  original value without firing `onCommit`.
+- The display affordance and edit-mode input are never unnamed. Accessible-name
+  resolution is `aria-labelledby` → `aria-label` → `label` → `placeholder` →
+  `"Edit value"`. When `value` and `placeholder` are both empty, the display mode
+  visibly renders `"Edit value"` as the fallback.
+- Focus treatment differs by mode: the display affordance is a
+  `role="button"` `<span>` with `hover:bg-muted` and the default browser focus
+  outline (no custom ring class). The edit-mode [`Input`](/docs/components/input)
+  sets `outline-none` and re-colors its border on focus via `focus:border-ring/70`
+  — a border recolor, not a 2px ring.
+
+## Do / Don't
+
+<DoDont
+  do="Prefer a meaningful label or aria-labelledby, and use placeholder for the visible empty state."
+  dont="Treat onCommit like an onChange — it fires once per commit (only when changed), not on every keystroke."
+/>

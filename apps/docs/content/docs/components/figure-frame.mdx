@@ -1,0 +1,64 @@
+---
+title: Figure Frame
+description: A sharp-cornered media frame with an optional mono FIG-annotation caption.
+preview: figureFrame
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/figure-frame
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { FigureFrame } from '@/components/ui/figure-frame';
+
+<FigureFrame figureNumber="01" caption="Component registry — live preview">
+  <img src="/screenshot.png" alt="The VegaStack component registry" />
+</FigureFrame>;
+```
+
+<ComponentPreview name="figureFrame" file="components/preview/figure-frame.tsx" />
+
+## The marketing "sharp" gesture
+
+`FigureFrame` uses `rounded-(--radius-sharp)` (2px) — the marketing sharp gesture is **rationed**
+to CTAs, chips, and figure frames (audit 17-brand-direction §Shape). Product surfaces keep the
+6/8/12px radius scale unchanged; this is the one deliberate exception.
+
+## Aspect ratio
+
+`aspectRatio` accepts any CSS `aspect-ratio` value (`"16/9"` default, `"1/1"`, `"4/3"`, …).
+
+<ComponentPreview name="figureFrameAspectRatio" file="components/preview/figure-frame.tsx" />
+
+## Without a caption
+
+`caption` and `figureNumber` are both optional — omit them for a bare frame.
+
+<ComponentPreview name="figureFrameNoCaption" file="components/preview/figure-frame.tsx" />
+
+## API Reference
+
+<AutoTypeTable path="../../packages/ui/registry/ui/figure-frame.tsx" name="FigureFrameProps" />
+
+## Accessibility
+
+- Renders a semantic `<figure>` / `<figcaption>` pair — the caption is real, readable text
+  associated with its figure.
+- The caption uses the mono voice at its 12px floor (`text-mono-label`) — this component
+  intentionally does not reach for the spec's optional 10px FIG-annotation minimum, since no token
+  below 12px is shipped yet.
+- The framed media (an `<img>`, video, or live demo) must carry its own accessible description
+  (e.g. `alt` text) — `FigureFrame` adds no accessibility semantics to its children.
+
+## Do / Don't
+
+<DoDont
+  do="Use FigureFrame to frame a single screenshot, video, or live demo on a marketing surface."
+  dont="Nest multiple unrelated pieces of content inside one FigureFrame — it's a frame for ONE figure."
+/>

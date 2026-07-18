@@ -1,0 +1,79 @@
+---
+title: Toggle
+description: A two-state button that can be pressed on or off — bold/italic, mute, pin.
+preview: toggle
+---
+
+import { story } from '@/components/stories/toggle.story';
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/toggle
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Toggle } from '@/components/ui/toggle';
+
+<Toggle aria-label="Toggle bold">
+  <Bold />
+</Toggle>;
+```
+
+`Toggle` is uncontrolled by default — pass `defaultPressed` for an initial value, or control it with
+`pressed` + `onPressedChange`.
+
+```tsx
+const [bold, setBold] = useState(false);
+
+<Toggle pressed={bold} onPressedChange={setBold} aria-label="Toggle bold">
+  <Bold />
+</Toggle>;
+```
+
+## Playground
+
+Try the three sizes and the disabled and default-pressed states, then copy the generated JSX.
+
+<TogglePlayground />
+
+## Explorer
+
+Every `Toggle` prop, auto-generated from its TypeScript types — the exhaustive counterpart to the
+curated playground above.
+
+<story.WithControl />
+
+## Sizes & States
+
+One look (**no variant prop**) in three sizes (`sm`, `default`, `lg`). Icons compose as children via
+`lucide-react`. The toggle is a borderless ghost at rest; when pressed it takes an evident neutral fill
+(a light grey — not a brand colour, and no border) so the "on" state reads clearly. The states row shows
+off, on (`defaultPressed`), disabled, and disabled+on. A genuine selection (single/multi) belongs in
+`ToggleGroup`, whose pressed items take the exact same fill.
+
+<ComponentPreview name="toggleSizesAndStates" file="components/preview/toggle.tsx" />
+
+## API Reference
+
+<AutoTypeTable path="../../packages/ui/registry/ui/toggle.tsx" name="ToggleProps" />
+
+## Accessibility
+
+- Renders a native `<button>` with `aria-pressed` reflecting the on/off state — keyboard
+  <kbd>Enter</kbd> / <kbd>Space</kbd> toggle it.
+- The pressed state is also exposed as `data-pressed` for styling; never style state with `outline: none`.
+- The component adds no custom ring class of its own and never sets `outline: none`, so keyboard focus shows the design system's global 2px `:focus-visible` ring (`outline-ring`) — keep it visible; never remove it with `outline: none`.
+- Icon-only toggles **must** have an `aria-label` (or visible text) so the action is announced.
+- `disabled` removes the toggle from the tab order and blocks interaction.
+
+## Do / Don't
+
+<DoDont
+  do="Use a Toggle for a binary on/off control that stays in the UI, like a bold or mute button — and give icon-only toggles an aria-label."
+  dont="Use a Toggle for a one-shot action (use a Button) or for mutually-exclusive options (use a ToggleGroup or Radio Group)."
+/>

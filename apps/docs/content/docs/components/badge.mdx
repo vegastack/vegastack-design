@@ -1,0 +1,105 @@
+---
+title: Badge
+description: A compact status or label chip — 3 variants × 6 semantic colors × 3 sizes, with dot, loading, and icons.
+preview: badge
+---
+
+import { story } from '@/components/stories/badge.story';
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/badge
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Badge } from "@/components/ui/badge";
+
+<Badge intent="success" dot>
+  Active
+</Badge>;
+```
+
+## Playground
+
+Mix variant, color, size, and the dot / loading / animate-in states, then copy the generated JSX.
+
+<BadgePlayground />
+
+## Explorer
+
+Every `Badge` prop, auto-generated from its TypeScript types — the exhaustive counterpart to
+the curated playground above.
+
+<story.WithControl />
+
+## Variants
+
+`subtle` (tinted background, the default), `solid` (full-color background with
+on-color text), and `minimal` (borderless text only).
+
+<ComponentPreview name="badgeVariants" file="components/preview/badge.tsx" />
+
+## Colors
+
+Color is a semantic token (`default`, `success`, `warning`, `destructive`,
+`info`) — never an arbitrary hex. Each color maps to design-system tokens across every
+variant: `subtle` (soft tint), `solid` (full fill), and `minimal` (colored text only).
+
+<ComponentPreview name="badgeColors" file="components/preview/badge.tsx" />
+
+## Sizes
+
+`sm`, `default`, and `lg` — the dot and icon scale with the badge.
+
+<ComponentPreview name="badgeSizes" file="components/preview/badge.tsx" />
+
+## States
+
+Add a leading `dot` indicator, compose an icon as the first child, or set `loading` to show a
+spinner and `aria-busy`. `loading` takes precedence over both `dot` and a leading icon — the
+`dot` is ignored while loading.
+
+<ComponentPreview name="badgeStates" file="components/preview/badge.tsx" />
+
+On the `solid` variant the `dot` switches to `bg-current`, inheriting the on-color foreground so
+it stays legible against the filled background.
+
+<ComponentPreview name="badgeSolidDot" file="components/preview/badge.tsx" />
+
+## Motion
+
+Pass `animateIn` to pop the badge in (`motion-pop-in`) when its own appearance is the signal — a
+status that just flipped, a label freshly applied. It's **off by default**: a badge rendered as
+part of a static list (a table column, a filter chip row) must not pop every time its parent
+re-renders or mounts.
+
+<ComponentPreview name="badgeAnimateIn" file="components/preview/badge.tsx" />
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/badge.tsx"
+  name="BadgeProps"
+/>
+
+## Accessibility
+
+- Renders a non-interactive `<span>` by default — a badge is a label, not a control.
+- The `dot` and `loading` spinner are decorative (`aria-hidden`); the badge text carries the meaning,
+  so never rely on color or the dot alone to convey status.
+- `loading` sets `aria-busy="true"` while content is updating.
+- The loading spinner pairs `animate-spin` with `motion-reduce:animate-none`.
+- Use `render` to compose with a link when a badge needs to navigate, keeping the surrounding text as
+  the accessible name.
+
+## Do / Don't
+
+<DoDont
+  do="Use a semantic color to signal status — success for active, destructive for errors — with text that states the meaning."
+  dont="Rely on the dot or color alone to convey state, or use a Badge as a clickable button."
+/>

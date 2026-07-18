@@ -1,0 +1,108 @@
+---
+title: Card
+description: A borders-only content surface for grouping related information — no shadows, with composable header, content, and footer parts.
+preview: card
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/card
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+
+<Card>
+  <CardHeader>
+    <CardTitle>Account activity</CardTitle>
+    <CardDescription>A summary of your recent sign-ins.</CardDescription>
+  </CardHeader>
+  <CardContent>You signed in from 3 devices in the last 7 days.</CardContent>
+</Card>;
+```
+
+## Playground
+
+Toggle the density between default and small, then copy the generated JSX.
+
+<CardPlayground />
+
+## Anatomy
+
+`Card` is a compound component built from plain, server-safe `div`s. Compose the parts inside the
+root — every part forwards its ref and exposes a `data-slot`:
+
+```tsx
+<Card>
+  <CardHeader>
+    <CardTitle>Title</CardTitle>
+    <CardDescription>Supporting description text.</CardDescription>
+    <CardAction>{/* optional top-right control */}</CardAction>
+  </CardHeader>
+  <CardContent>{/* main body */}</CardContent>
+  <CardFooter>{/* actions */}</CardFooter>
+</Card>
+```
+
+- `Card` — the root surface (`data-slot="card"`). Borders-only, `rounded-lg`, `bg-card text-card-foreground`. Owns the `size` density (`default` / `sm`).
+- `CardHeader` — top region (`data-slot="card-header"`). Switches to a two-column grid when a `CardAction` is present.
+- `CardTitle` — the heading line (`data-slot="card-title"`).
+- `CardDescription` — muted supporting text under the title (`data-slot="card-description"`).
+- `CardAction` — an optional control anchored top-right of the header (`data-slot="card-action"`).
+- `CardContent` — the main body region (`data-slot="card-content"`).
+- `CardFooter` — a bottom region with a top border and muted background (`data-slot="card-footer"`). When a footer is present, the root drops its own bottom padding (`pb-0`) so the footer sits flush against the bottom edge.
+
+
+## Examples
+
+A card with a header, content, and a footer action row:
+
+<ComponentPreview name="cardWithFooter" file="components/preview/card.tsx" />
+
+### Sizes
+
+`Card` exposes a single `size` density prop (`default` / `sm`). `sm` tightens the
+internal padding (`py-3` / `px-3` instead of `py-4` / `px-4`), shrinks the part gap
+(`gap-3` vs `gap-4`), and steps the title down to `text-sm`. Set it once on the root —
+the header, content, and footer all react via `group-data-[size=sm]`.
+
+<ComponentPreview name="cardSizes" file="components/preview/card.tsx" />
+
+## API Reference
+
+### Card
+
+<AutoTypeTable path="../../packages/ui/registry/ui/card.tsx" name="CardProps" />
+
+`CardHeader`, `CardTitle`, `CardDescription`, `CardAction`, `CardContent`, and
+`CardFooter` add no props of their own — each accepts everything a `<div>`
+accepts (`className`, `ref`, `children`, …).
+
+## Accessibility
+
+- `Card` is a presentational grouping element with no implicit ARIA role — give it semantic meaning
+  through its content (a real heading inside `CardTitle`, a `role`/`aria-label` on the root if it
+  is interactive).
+- `CardTitle` renders a styled `div`. When the card should participate in the page outline, place
+  a real heading inside it, for example `<CardTitle><h3>Team plan</h3></CardTitle>`.
+- Interactive controls (`CardAction`, footer buttons) are native elements and keep their own focus
+  rings — the card never suppresses `outline`.
+- Borders-only by design: the surface is distinguished by `border-border`, not a shadow, keeping it
+  legible in high-contrast and forced-colors modes.
+
+| Key                                 | Action                                                                             |
+| ----------------------------------- | ---------------------------------------------------------------------------------- |
+| <kbd>Tab</kbd>                      | Move focus through interactive controls inside the card (actions, footer buttons). |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused control.                                                      |
+
+## Do / Don't
+
+<DoDont
+  do="Group genuinely related content and put primary actions in the footer."
+  dont="Add a drop shadow or nest cards inside cards — the design system is borders-only and flat."
+/>

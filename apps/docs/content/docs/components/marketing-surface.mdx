@@ -1,0 +1,76 @@
+---
+title: Marketing Surface
+description: Opt a subtree into the brand's dark warm ground — independent of the page's .dark class.
+preview: marketingSurface
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/marketing-surface
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { MarketingSurface } from '@/components/ui/marketing-surface';
+
+<MarketingSurface className="px-6 py-24">
+  <h1>Ship agentic UI, fast.</h1>
+</MarketingSurface>;
+```
+
+## Why this exists
+
+VegaStack's marketing surfaces are **dark-first** (the warm neutral ramp's dark end — see
+[Colors](/docs/foundations/colors)), but the product is **light-primary** by default.
+`.dark` alone can't express "product stays light, but THIS hero renders dark" on the same page —
+`MarketingSurface` re-binds the same semantic custom properties `.dark` sets
+(`--background`, `--foreground`, `--card`, `--border`, `--brand`, …), scoped to a `.vs-marketing`
+class instead of gated on the page-root `.dark` class. Every token utility inside it —
+`bg-background`, `text-foreground`, `border-border`, `bg-brand`, or a composed `Button` / `Badge` /
+`Card` — resolves correctly with **zero code changes**.
+
+<ComponentPreview name="marketingSurface" file="components/preview/marketing-surface.tsx" />
+
+## Composing a different element
+
+Pass `render` (Base UI composition) to render a `<section>` or another host element instead of the
+default `<div>`.
+
+<ComponentPreview name="marketingSurfaceRender" file="components/preview/marketing-surface.tsx" />
+
+```tsx
+<MarketingSurface render={<section />}>…</MarketingSurface>
+```
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/marketing-surface.tsx"
+  name="MarketingSurfaceProps"
+/>
+
+## Accessibility
+
+- Renders a plain `<div>` (or the composed `render` element) — no semantics of its own; give it a
+  real landmark (`render={<section />}`, `aria-label`, a heading) as appropriate for the content.
+- Sets `color-scheme: dark` locally so native form controls and scrollbars inside it render
+  dark-appropriate.
+
+### Portal limitation
+
+Base UI floating surfaces (`Dialog`, `Popover`, `Menu`, `Select`, `Tooltip`, …) portal to
+`<body>`, **outside** any `MarketingSurface` subtree — anything portaled from inside one renders
+with the **page** theme, not the marketing dark ground. Marketing surfaces rarely need portals (a
+hero or section band is not app chrome); if one genuinely does, style it explicitly at the portal
+root.
+
+## Do / Don't
+
+<DoDont
+  do="Wrap a marketing hero or section band in MarketingSurface so it stays dark even when the surrounding product page is light."
+  dont="Rely on MarketingSurface for anything that opens a Base UI portal (Select, Dialog, Popover, …) and expect the portal to inherit the dark ground."
+/>

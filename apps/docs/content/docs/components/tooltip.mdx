@@ -1,0 +1,175 @@
+---
+title: Tooltip
+description: A floating label that appears on hover or focus — smart shared delay, rich content, optional keyboard hints, and collision-aware positioning.
+preview: tooltip
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/tooltip
+```
+
+<RegistryInstallCallout />
+
+## Provider
+
+`Tooltip` needs a single `Tooltip.Provider` ancestor that owns the shared
+open/close delay. In VegaStack apps it is already mounted inside
+`VegaStackProvider`, so you never render it yourself — just drop tooltips
+anywhere below the app root. Once one tooltip opens, neighbouring tooltips open
+instantly (skip delay).
+
+For a standalone tree (Storybook, tests, an isolated widget) wrap the region in
+the re-exported `TooltipProvider`.
+
+## Usage
+
+```tsx
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
+
+<Tooltip>
+  <TooltipTrigger render={<Button variant="outline">Hover me</Button>} />
+  <TooltipContent>Add to your library</TooltipContent>
+</Tooltip>;
+```
+
+## Playground
+
+Pick a side and toggle the arrow, hover the trigger, then copy the generated JSX.
+
+<TooltipPlayground />
+
+## Anatomy
+
+`Tooltip` is a compound component. Compose the flat parts inside the root:
+
+```tsx
+<Tooltip delay={400}>
+  <TooltipTrigger render={<Button />} />
+  <TooltipContent side="top" arrow>
+    Label
+    <TooltipKbd keys={["⌘", "K"]} />
+  </TooltipContent>
+</Tooltip>
+```
+
+- `Tooltip` — the root (`data-slot="tooltip"`). Groups the trigger and content; renders no DOM of its own. Accepts `delay` to override the provider's shared delay.
+- `TooltipTrigger` — the anchored element (`data-slot="tooltip-trigger"`). Renders a `<button>`; pass `render` to project the tooltip onto your own element (Base UI `render` composition).
+- `TooltipContent` — the floating panel (`data-slot="tooltip-content"`). Bundles Base UI's `Portal` + `Positioner` + `Popup` into one part, exposes `portalProps` / `positionerProps`, and can wrap children in an optional Base UI Viewport via `viewportProps`. Themed with the inverted `bg-foreground` / `text-background` surface; animated via `data-[starting-style]` / `data-[ending-style]`.
+- `TooltipArrow` — an optional triangle pointing at the trigger (`data-slot="tooltip-arrow"`). Rendered automatically when `TooltipContent` gets `arrow`, or compose it directly.
+- `TooltipKbd` — render a keyboard shortcut hint as styled `<kbd>` keys (`data-slot="tooltip-kbd"`).
+
+## Examples
+
+### Positioning
+
+Set `side` (`top` / `right` / `bottom` / `left`) and `sideOffset` on the
+content. `sideOffset` accepts Base UI Positioner offset values, including offset functions. The
+tooltip flips automatically to avoid viewport collisions.
+
+<ComponentPreview name="tooltipSides" file="components/preview/tooltip.tsx" />
+
+### Alignment
+
+Use `align` (`start` / `center` / `end`) to shift the tooltip along the chosen
+side. The default is `center`.
+
+<ComponentPreview name="tooltipAlign" file="components/preview/tooltip.tsx" />
+
+### Offset
+
+`sideOffset` controls the gap between the trigger and the tooltip (default
+`8`, the shared detached-panel offset). Pass a number for a fixed gap, or an
+offset function `({ side, align, anchor, positioner }) => number` to resolve
+the distance per placement.
+
+<ComponentPreview name="tooltipOffset" file="components/preview/tooltip.tsx" />
+
+```tsx
+<TooltipContent side="top" sideOffset={({ side }) => (side === "top" ? 24 : 8)}>
+  Resolved per side
+</TooltipContent>
+```
+
+### Delay
+
+Set `delay` (in milliseconds) on the root to override the provider's shared
+open delay for a single tooltip — `delay={0}` opens instantly, a larger value
+makes it more deliberate.
+
+<ComponentPreview name="tooltipDelay" file="components/preview/tooltip.tsx" />
+
+### Keyboard hint
+
+Pair a label with a shortcut using `TooltipKbd`. Pass an array of key tokens
+(or a string, split per glyph).
+
+<ComponentPreview name="tooltipKbd" file="components/preview/tooltip.tsx" />
+
+### Arrow
+
+Set `arrow` on the content to render a directional pointer.
+
+<ComponentPreview name="tooltipArrow" file="components/preview/tooltip.tsx" />
+
+## API Reference
+
+### Tooltip
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/tooltip.tsx"
+  name="TooltipProps"
+/>
+
+### TooltipTrigger
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/tooltip.tsx"
+  name="TooltipTriggerProps"
+/>
+
+### TooltipContent
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/tooltip.tsx"
+  name="TooltipContentProps"
+/>
+
+### TooltipArrow
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/tooltip.tsx"
+  name="TooltipArrowProps"
+/>
+
+### TooltipKbd
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/tooltip.tsx"
+  name="TooltipKbdProps"
+/>
+
+## Accessibility
+
+- The popup carries `role="tooltip"`, so assistive technology announces it as a tooltip and associates it with the trigger.
+- Tooltips open on **hover and keyboard focus** — never hover-only — so keyboard and screen-reader users get the same hint.
+- **Hover/focus-only by design — no touch trigger.** This is a Base UI upstream constraint, not a bug: `Tooltip` opens on `pointerenter`/focus and has no touch-tap handling, so on phones/tablets (any device that can't hover) content that lives *only* inside a tooltip is permanently unreachable. Never make tooltip content essential-only — the trigger's own label/icon must stand on its own. When the tooltip exists specifically to reveal overflow/clipped text, reach for [`TruncatedText`](/docs/components/truncated-text) instead of a bare `Tooltip` — it detects `(hover: none)` and swaps the hover-only tooltip for a tap-to-toggle disclosure on touch, while keeping the Tooltip (and its focus trigger) unchanged for keyboard/mouse users. That component is the reference pattern for touch disclosure of clipped content.
+- A tooltip is a supplement, not a replacement for an accessible name. Give icon-only triggers their own `aria-label`; don't rely on the tooltip alone.
+- Content is non-interactive by design (it dismisses on blur/escape). Put actions in a Popover, not a Tooltip.
+
+| Key            | Action                                         |
+| -------------- | ---------------------------------------------- |
+| <kbd>Tab</kbd> | Move focus to the trigger — the tooltip opens. |
+| <kbd>Esc</kbd> | Dismiss the open tooltip.                      |
+
+## Do / Don't
+
+<DoDont
+  do="Use tooltips for short, supplementary labels on icon buttons and toolbar actions."
+  dont="Put links, buttons, or essential content inside a tooltip — it isn't focusable or reliably reachable. Use a Popover."
+/>

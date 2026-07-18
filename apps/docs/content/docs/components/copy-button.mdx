@@ -1,0 +1,106 @@
+---
+title: Copy Button
+description: Copy a value to the clipboard with transient check feedback — built on Button.
+preview: copyButton
+---
+
+import { story } from '@/components/stories/copy-button.story';
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/copy-button
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { CopyButton } from '@/components/ui/copy-button';
+
+<CopyButton value="npx shadcn add @vegastack/button" />;
+```
+
+## Playground
+
+Try the forwarded variant and size axes and the disabled state — the copy action is live — then copy the generated JSX.
+
+<CopyButtonPlayground />
+
+## Explorer
+
+Every `CopyButton` prop, auto-generated from its TypeScript types — the exhaustive counterpart to
+the curated playground above.
+
+<story.WithControl />
+
+## Examples
+
+A `ghost` / `icon-sm` button that writes `value` to the clipboard and swaps the
+`Copy` icon for a `Check` for ~1.5s. Pair it with the value it copies — an API
+key, an invite link, a code snippet — and use `onCopied` to surface a toast.
+
+<ComponentPreview name="copyButton" file="components/preview/copy-button.tsx" />
+
+### With a toast
+
+`onCopied` fires after a successful clipboard write — use it to confirm the action
+with a toast or to log an analytics event. The transient check feedback is handled
+internally, so `onCopied` is purely for your side effects.
+
+<ComponentPreview name="copyButtonWithToast" file="components/preview/copy-button.tsx" />
+
+```tsx
+<CopyButton value={apiKey} onCopied={() => toast.success('API key copied')} />
+```
+
+## States
+
+Idle shows the `Copy` icon. After a successful copy the icon swaps to a `Check`
+tinted `text-success-text` and the accessible label flips from `Copy` to `Copied`
+for `timeout` ms (default 1500), with `data-copied` set for that window. `disabled`
+is forwarded straight to the underlying button. The copied state is owned internally
+and only appears after a real write, so the middle cell below is live — click it.
+
+<ComponentPreview name="copyButtonStates" file="components/preview/copy-button.tsx" />
+
+## Variants
+
+`CopyButton` defaults to `variant="ghost"` but forwards any [`Button`](/docs/components/button)
+variant unchanged.
+
+<ComponentPreview name="copyButtonVariants" file="components/preview/copy-button.tsx" />
+
+## Sizes
+
+`size` is forwarded too. It defaults to `icon-sm`; the icon sizes keep the button square.
+
+<ComponentPreview name="copyButtonSizes" file="components/preview/copy-button.tsx" />
+
+## API Reference
+
+`CopyButton` forwards supported [`Button`](/docs/components/button) presentation props
+(`variant`, `size`, `className`, `disabled`, …) and owns the clipboard action, button
+type, accessible labels, and icon children.
+
+<AutoTypeTable path="../../packages/ui/registry/ui/copy-button.tsx" name="CopyButtonProps" />
+
+## Accessibility
+
+- Renders a native `<button type="button">`; keyboard <kbd>Enter</kbd> / <kbd>Space</kbd> activate it.
+- The accessible name switches from `Copy` to `Copied` on success so screen readers announce the result; the icon is decorative (`aria-hidden`).
+- Inherits the underlying `Button`'s focus treatment: the default `ghost` variant shows the design system's global 2px focus ring (`outline-ring`) on `:focus-visible` and never sets `outline: none`. The bordered `outline` / `glass` variants additionally re-color their border with the `ring` token (`focus-visible:border-ring/70`).
+- A failed clipboard write (denied permission or insecure context) leaves the button in its default state instead of showing a false success.
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Move focus to the button. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Copy `value` to the clipboard. |
+
+## Do / Don't
+
+<DoDont
+  do="Place the CopyButton next to the value it copies and pass onCopied to confirm the action with a toast."
+  dont="Use it for long-form content a user should read or edit — copy buttons are for short, opaque values (keys, links, IDs)."
+/>

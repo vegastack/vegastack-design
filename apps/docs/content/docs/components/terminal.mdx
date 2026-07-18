@@ -1,0 +1,62 @@
+---
+title: Terminal
+description: A dark mono command block with a phosphor prompt glyph and a composed copy button.
+preview: terminal
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/terminal
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Terminal } from '@/components/ui/terminal';
+
+<Terminal
+  title="Install"
+  lines={['pnpm dlx shadcn@latest add @vegastack/button', { output: '✓ Installed 1 component' }]}
+/>;
+```
+
+`Terminal` self-scopes to the marketing dark ground (`.vs-marketing`) — it reads correctly even
+embedded in a light-theme docs page (like this one), with no
+[`MarketingSurface`](/docs/components/marketing-surface) wrapper required.
+
+<ComponentPreview name="terminal" file="components/preview/terminal.tsx" />
+
+## Multi-line, custom prompt
+
+Each line is a plain string (a command) or `{ output: string }` (dimmed, no prompt glyph). The
+prompt glyph — the sanctioned "terminal prompt glyph" `--brand` marker role — defaults to `$` and
+is overridable.
+
+<ComponentPreview name="terminalMultiline" file="components/preview/terminal.tsx" />
+
+## Copying
+
+The header composes a [`CopyButton`](/docs/components/copy-button) that copies every `command`
+line (not `output` lines), joined by newline, unless you pass an explicit `copyValue`.
+
+## API Reference
+
+<AutoTypeTable path="../../packages/ui/registry/ui/terminal.tsx" name="TerminalProps" />
+
+## Accessibility
+
+- The prompt glyph is decorative (`aria-hidden`) — command text itself is real, readable text.
+- The composed `CopyButton` carries its own accessible name (`"Copy command"` / `"Copied
+  command"`) and announces the copy via a visually-hidden live region.
+- Content is fully caller-supplied — no timestamps, no randomness — so the block is deterministic
+  and safe for visual regression testing.
+
+## Do / Don't
+
+<DoDont
+  do="Use Terminal for install snippets and short command sequences with real, copyable text."
+  dont="Put a Terminal inside a MarketingSurface expecting a visual change — it already self-scopes to the dark ground; nesting is harmless but redundant."
+/>

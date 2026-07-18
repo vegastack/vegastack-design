@@ -1,0 +1,541 @@
+---
+title: Command Menu
+description: A searchable command palette — filtered, grouped items with keyboard navigation, optionally inside a ⌘K dialog.
+preview: command
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/command
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandSeparator,
+  CommandShortcut,
+} from "@/components/ui/command";
+
+const groups = [
+  {
+    heading: "Suggestions",
+    items: [
+      { value: "calendar", label: "Calendar" },
+      { value: "search", label: "Search" },
+    ],
+  },
+  {
+    heading: "Settings",
+    items: [{ value: "profile", label: "Profile", shortcut: "⌘P" }],
+  },
+];
+
+function Groups() {
+  const filtered = useCommandFilteredItems<(typeof groups)[number]>();
+  return filtered.map((group, i) => (
+    <React.Fragment key={group.heading}>
+      {i > 0 ? <CommandSeparator /> : null}
+      <CommandGroup heading={group.heading} items={group.items}>
+        {(item) => (
+          <CommandItem
+            key={item.value}
+            value={item.value}
+            onSelect={(value) => router.push(`/${value}`)}
+          >
+            {item.label}
+            {item.shortcut ? <CommandShortcut>{item.shortcut}</CommandShortcut> : null}
+          </CommandItem>
+        )}
+      </CommandGroup>
+    </React.Fragment>
+  ));
+}
+
+<Command items={groups}>
+  <CommandInput placeholder="Type a command or search…" />
+  <CommandEmpty>No results found.</CommandEmpty>
+  <CommandList>
+    <Groups />
+  </CommandList>
+</Command>;
+```
+
+> **Presentational.** `Command` handles search filtering, grouping, and keyboard navigation; each `CommandItem` exposes an `onSelect` callback. Wiring those callbacks to routes or actions — and binding the ⌘K shortcut that opens `CommandDialog` — is the consuming app's responsibility.
+>
+> **Data-driven.** `Command` is built on [Base UI's `Combobox`](https://base-ui.com/react/components/combobox), rendered always-open in its `inline` mode (the list is part of the normal layout flow, never a floating popup). Base UI only filters — and drives `CommandEmpty` — off a query-filtered `items` array on the root; static `CommandItem` children never narrow. Pass `items` to `Command` (a flat array, or an array of `{ heading, items }` groups) and render with a function child on `CommandList` (flat) or `useCommandFilteredItems` + `CommandGroup` (grouped) — see [Anatomy](#anatomy).
+
+## Anatomy
+
+`Command` is a compound component built on Base UI's `Combobox`. Compose the parts inside the root:
+
+<Callout title="Anatomy change">
+  `CommandEmpty` and `CommandLoading` render `role="status"`, which is not a
+  valid child of `CommandList`'s `role="listbox"` (ARIA only permits
+  `option`/`group`). Render them as **siblings** of `CommandList`, not its
+  children.
+</Callout>
+
+```tsx
+<Command items={items}>
+  <CommandInput placeholder="Search…" />
+  {loading ? (
+    <CommandLoading>
+      <Spinner size="inherit" label="" />
+      Fetching commands…
+    </CommandLoading>
+  ) : null}
+  <CommandEmpty>No results found.</CommandEmpty>
+  <CommandList>
+    {(item) => (
+      <CommandItem key={item.value} value={item.value}>
+        {item.label}
+        <CommandShortcut>⌘K</CommandShortcut>
+      </CommandItem>
+    )}
+  </CommandList>
+</Command>
+```
+
+- `Command` — the palette root (`data-slot="command"`). Owns the query, the query-filtered `items`, and keyboard navigation over its items. Always rendered "open" (Base UI's `inline` mode); renders an inline `bg-popover` surface.
+- `CommandInput` — the search field (`data-slot="command-input"`) with a leading search icon. Control it with `inputValue` / `onInputValueChange` on `Command`, or let it manage its own state.
+- `CommandList` — the scrollable listbox (`data-slot="command-list"`, `role="listbox"`) holding groups and items. Accepts a function child (`{(item) => <CommandItem .../>}`) for flat, filtered rendering, or static composition (e.g. `CommandGroup`s) for grouped rendering.
+- `CommandEmpty` — shown when the query-filtered `items` is empty (`data-slot="command-empty"`). Requires `items` on `Command`. Renders as a sibling of `CommandList`.
+- `CommandLoading` — an announced status row for asynchronous results (`data-slot="command-loading"`, Base UI's `Combobox.Status`). Compose `<Spinner size="inherit" label="" />` + a message as children. Renders as a sibling of `CommandList`.
+- `CommandGroup` — a labeled section (`data-slot="command-group"`). Pass `heading` and `items` — `items` must be the already query-filtered subset (from `useCommandFilteredItems`), not the group's original static array.
+- `CommandItem` — a selectable row (`data-slot="command-item"`). Wire `onSelect` to run a command — fires on click, or `Enter` while the item is highlighted. The active row carries Base UI's `data-highlighted` and is styled with `bg-accent`; pass `disabled` to mute it (see [States](#states) for a caveat on keyboard navigation).
+- `CommandSeparator` — a thin divider between groups (`data-slot="command-separator"`). Decorative; marked `aria-hidden`.
+- `CommandShortcut` — trailing, muted keyboard-hint text on an item (`data-slot="command-shortcut"`). Purely visual.
+- `CommandDialog` — a `Command` rendered inside the [Dialog](/docs/components/dialog) for the ⌘K overlay (`data-slot="command-dialog-content"`). Controlled like `Dialog` (`open` / `onOpenChange`); the title/description are visually hidden but announced to screen readers.
+- `useCommandFilteredItems` — reads `Command`'s query-filtered `items` (call inside `Command`). Required for grouped rendering; a thin re-export of Base UI's `Combobox.useFilteredItems`.
+
+## States
+
+Pass `disabled` to a `CommandItem` to mute it — it stays visible but dimmed (`data-[disabled]`) and clicking/activating it via `Enter` is a no-op. Base UI's arrow-key navigation does **not** skip `disabled` items the way the prior build did (a verified upstream limitation, not a design choice here) — it still lands on them, it just won't select them. Omit an item from `items` entirely if it must be unreachable by keyboard. When the query matches no items, `CommandEmpty` is shown automatically.
+
+```tsx
+<CommandItem value="billing" disabled>
+  <CreditCard />
+  Billing
+  <CommandShortcut>⌘B</CommandShortcut>
+</CommandItem>
+```
+
+<ComponentPreview name="commandStates" file="components/preview/command.tsx" />
+
+## Command dialog (⌘K)
+
+Render the palette inside `CommandDialog` for the classic command-menu overlay. Open/close is controlled like `Dialog`; bind the ⌘K shortcut in your app.
+
+```tsx
+import {
+  CommandDialog,
+  CommandInput,
+  CommandEmpty,
+  CommandList,
+  CommandItem,
+} from "@/components/ui/command";
+
+const [open, setOpen] = React.useState(false);
+
+React.useEffect(() => {
+  const onKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      setOpen((prev) => !prev);
+    }
+  };
+  document.addEventListener("keydown", onKeyDown);
+  return () => document.removeEventListener("keydown", onKeyDown);
+}, []);
+
+<CommandDialog
+  open={open}
+  onOpenChange={setOpen}
+  commandProps={{ items: [{ value: "dashboard", label: "Dashboard" }], loop: true }}
+>
+  <CommandInput placeholder="Type a command or search…" />
+  <CommandEmpty>No results found.</CommandEmpty>
+  <CommandList>
+    {(item) => (
+      <CommandItem key={item.value} value={item.value} onSelect={() => setOpen(false)}>
+        {item.label}
+      </CommandItem>
+    )}
+  </CommandList>
+</CommandDialog>;
+```
+
+<ComponentPreview name="commandDialog" file="components/preview/command.tsx" />
+
+## Async results
+
+Use `CommandLoading` while fetching remote results. Once items arrive, feed them into `items` reactively — filtering runs automatically once they're present.
+
+```tsx
+const [loading, setLoading] = React.useState(false);
+const [items, setItems] = React.useState<{ value: string; label: string }[]>([]);
+
+React.useEffect(() => {
+  let cancelled = false;
+
+  async function loadItems() {
+    setLoading(true);
+    const nextItems = await getCommands();
+    if (!cancelled) {
+      setItems(nextItems);
+      setLoading(false);
+    }
+  }
+
+  loadItems();
+  return () => {
+    cancelled = true;
+  };
+}, []);
+
+<Command items={items}>
+  <CommandInput placeholder="Search remote commands…" />
+  <CommandLoading>
+    {loading ? (
+      <>
+        <Spinner size="inherit" label="" />
+        Fetching commands…
+      </>
+    ) : null}
+  </CommandLoading>
+  <CommandEmpty>No results found.</CommandEmpty>
+  <CommandList>
+    {(item) => (
+      <CommandItem key={item.value} value={item.value}>
+        {item.label}
+      </CommandItem>
+    )}
+  </CommandList>
+</Command>;
+```
+
+<ComponentPreview name="commandAsync" file="components/preview/command.tsx" />
+
+## Advanced filtering
+
+Use a custom `filter` on `Command` to match against more than the visible label — fold alias terms into the item data and check them yourself (there's no per-item `keywords` prop; filtering is data-driven off `items`, not per-rendered-item metadata). Control `inputValue` / `onInputValueChange` when a sibling (like a custom empty state) needs the current query.
+
+```tsx
+const items = [
+  { value: "invoices", label: "Invoices", keywords: ["billing", "payments"] },
+  { value: "docs", label: "Docs", keywords: ["files", "knowledge"] },
+];
+
+const [search, setSearch] = React.useState("");
+
+<Command
+  items={items}
+  inputValue={search}
+  onInputValueChange={setSearch}
+  filter={(item, query) => {
+    const haystack = [item.label, ...(item.keywords ?? [])].join(" ").toLowerCase();
+    return haystack.includes(query.toLowerCase());
+  }}
+  loop
+>
+  <CommandInput placeholder="Search by label or alias…" />
+  <CommandEmpty>No commands found for "{search}".</CommandEmpty>
+  <CommandList>
+    {(item) => (
+      <CommandItem key={item.value} value={item.value}>
+        {item.label}
+      </CommandItem>
+    )}
+  </CommandList>
+</Command>;
+```
+
+<ComponentPreview
+  name="commandAdvanced"
+  file="components/preview/command.tsx"
+/>
+
+## API Reference
+
+### Command
+
+<TypeTable
+  type={{
+    items: {
+      type: "unknown[] | { heading?: React.ReactNode; items: unknown[] }[]",
+      description: "Flat items, or groups of items. Drives filtering and CommandEmpty.",
+    },
+    children: {
+      type: "React.ReactNode",
+      description: "Command parts rendered inside the root.",
+    },
+    className: {
+      type: "string",
+      description: "Merged onto the styled command root.",
+    },
+    defaultValue: {
+      type: "unknown",
+      description: "Initial selected item value.",
+    },
+    value: {
+      type: "unknown",
+      description: "Controlled selected item value.",
+    },
+    onValueChange: {
+      type: "(value: unknown) => void",
+      description: "Called when the selected item value changes.",
+    },
+    inputValue: {
+      type: "string",
+      description: "Controlled search query.",
+    },
+    onInputValueChange: {
+      type: "(value: string) => void",
+      description: "Called when the search query changes.",
+    },
+    filter: {
+      type: "((item: unknown, query: string) => boolean) | null",
+      description:
+        "Custom item filter. Pass null to disable filtering entirely (all items stay mounted).",
+    },
+    loop: {
+      type: "boolean",
+      default: "false",
+      description: "Wrap arrow-key navigation from the end back to the start.",
+    },
+    autoHighlight: {
+      type: 'boolean | "always"',
+      default: '"always"',
+      description: "Highlight the first matching item automatically.",
+    },
+    disabled: {
+      type: "boolean",
+      description: "Disable the whole palette.",
+    },
+  }}
+/>
+
+### CommandDialog
+
+<TypeTable
+  type={{
+    children: {
+      type: "React.ReactNode",
+      description: "Command parts rendered inside the dialog shell.",
+    },
+    open: {
+      type: "boolean",
+      description: "Controlled dialog open state.",
+    },
+    defaultOpen: {
+      type: "boolean",
+      description: "Initial uncontrolled dialog open state.",
+    },
+    onOpenChange: {
+      type: "(open: boolean) => void",
+      description: "Called when the dialog requests an open-state change.",
+    },
+    title: {
+      type: "string",
+      default: '"Command Menu"',
+      description: "Accessible dialog title, visually hidden.",
+    },
+    description: {
+      type: "string",
+      default: '"Search for a command to run."',
+      description: "Accessible dialog description, visually hidden.",
+    },
+    className: {
+      type: "string",
+      description: "Merged onto the inner Command root.",
+    },
+    commandProps: {
+      type: 'Omit<CommandProps, "className" | "children">',
+      description:
+        "Props forwarded to the inner Command root, such as items, loop, filter, value, and onValueChange.",
+    },
+  }}
+/>
+
+### CommandInput
+
+<TypeTable
+  type={{
+    placeholder: {
+      type: "string",
+      description: "Placeholder text and fallback accessible name.",
+    },
+    "aria-label": {
+      type: "string",
+      description: "Explicit accessible name for the input.",
+    },
+    "aria-labelledby": {
+      type: "string",
+      description: "ID reference for an external accessible label.",
+    },
+    className: {
+      type: "string",
+      description: "Merged onto the underlying input.",
+    },
+  }}
+/>
+
+### CommandList
+
+<TypeTable
+  type={{
+    children: {
+      type: "React.ReactNode | ((item, index: number) => React.ReactNode)",
+      description:
+        "A function child for flat, filtered rendering, or static composition (e.g. CommandGroups) for grouped rendering.",
+    },
+    className: {
+      type: "string",
+      description: "Merged onto the scrollable listbox.",
+    },
+  }}
+/>
+
+### CommandEmpty
+
+<TypeTable
+  type={{
+    children: {
+      type: "React.ReactNode",
+      description: "Empty-state content shown when no items match.",
+    },
+    className: {
+      type: "string",
+      description: "Merged onto the empty-state row.",
+    },
+  }}
+/>
+
+### CommandLoading
+
+<TypeTable
+  type={{
+    children: {
+      type: "React.ReactNode",
+      description: "Loading content shown while async results are pending.",
+    },
+    className: {
+      type: "string",
+      description: "Merged onto the loading row.",
+    },
+  }}
+/>
+
+### CommandGroup
+
+<TypeTable
+  type={{
+    heading: {
+      type: "React.ReactNode",
+      description: "Visible group heading.",
+    },
+    items: {
+      type: "unknown[]",
+      description:
+        "This group's query-filtered items (from useCommandFilteredItems) — read verbatim, not re-filtered.",
+    },
+    children: {
+      type: "(item: unknown, index: number) => React.ReactNode",
+      description: "Render function invoked once per item in items.",
+    },
+    className: {
+      type: "string",
+      description: "Merged onto the group wrapper.",
+    },
+  }}
+/>
+
+### CommandItem
+
+<TypeTable
+  type={{
+    value: {
+      type: "unknown",
+      description: "The item's value, matched against Command's items/selection.",
+    },
+    disabled: {
+      type: "boolean",
+      description: "Mute the item; clicking/Enter-activating it is a no-op.",
+    },
+    onSelect: {
+      type: "(value: unknown) => void",
+      description: "Called when the item is activated (click, or Enter while highlighted).",
+    },
+    children: {
+      type: "React.ReactNode",
+      description: "Item label, icon, and optional shortcut.",
+    },
+    className: {
+      type: "string",
+      description: "Merged onto the item row.",
+    },
+  }}
+/>
+
+### CommandSeparator
+
+<TypeTable
+  type={{
+    className: {
+      type: "string",
+      description: "Merged onto the decorative divider.",
+    },
+  }}
+/>
+
+### CommandShortcut
+
+<TypeTable
+  type={{
+    children: {
+      type: "React.ReactNode",
+      description: "Shortcut hint text.",
+    },
+    className: {
+      type: "string",
+      description: "Merged onto the trailing shortcut text.",
+    },
+  }}
+/>
+
+### useCommandFilteredItems
+
+`useCommandFilteredItems()` reads `Command`'s query-filtered `items` (call it inside a `Command` tree). Required for grouped rendering: `CommandGroup`'s own `items` prop is read verbatim, not re-filtered — map each group's items from this hook's result, not the original static array, or typing won't narrow the groups.
+
+## Accessibility
+
+- `Command` exposes a `role="listbox"` of `role="option"` items, with the search input wired via `aria-controls` / `aria-activedescendant` — assistive tech announces the highlighted item as you navigate.
+- `CommandDialog` renders the palette inside a `role="dialog"` + `aria-modal="true"` popup. Its title/description are visually hidden (`sr-only`) but wired as `aria-labelledby` / `aria-describedby` — always announced.
+- Focus is trapped in the dialog while open and restored to the opener on close. The input keeps focus so typing filters immediately.
+- The search icon is decorative (`aria-hidden`); the input gets an accessible name from `aria-label`, `aria-labelledby`, or its placeholder fallback.
+- `CommandSeparator` is marked `aria-hidden` (decorative) and `CommandEmpty`/`CommandLoading` render outside the listbox — together this keeps `CommandList`'s `role="listbox"` owning only valid `group` / `option` children, so the markup passes `axe` with no rule suppression.
+
+| Key                               | Action                                                                 |
+| ---------------------------------- | ----------------------------------------------------------------------- |
+| <kbd>↑</kbd> / <kbd>↓</kbd>        | Move the highlight between items (does **not** skip `disabled` items — see [States](#states)). |
+| <kbd>Home</kbd> / <kbd>End</kbd>   | Jump to the first / last item.                                          |
+| <kbd>Enter</kbd>                   | Activate the highlighted item (fires its `onSelect`).                   |
+| <kbd>Esc</kbd>                     | Close the dialog (when inside `CommandDialog`).                         |
+| _typing_                           | Filter the list against the query.                                      |
+
+## Do / Don't
+
+<DoDont
+  do="Wire each CommandItem's onSelect to a route or action, group related commands with a heading, and keep labels short and scannable."
+  dont="Bind the ⌘K shortcut inside the component, or rely on disabled items being skipped by keyboard navigation — the app owns the toggle, and unreachable items must be left out of items entirely."
+/>

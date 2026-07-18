@@ -1,0 +1,183 @@
+---
+title: App Shell
+description: The shared dashboard layout — a skip-linked sidebar + header + scrollable main region, wrapping Sidebar/PageHeader/Breadcrumb into one reusable, hash-tracked composition.
+preview: appShellDemo
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/app-shell
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { AppShell, AppShellContent, AppShellHeader, AppShellSidebar } from '@/components/ui/app-shell';
+import { SidebarContent, SidebarHeader } from '@/components/ui/sidebar';
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbPage } from '@/components/ui/breadcrumb';
+import { Button } from '@/components/ui/button';
+
+<AppShell defaultOpen>
+  <AppShellSidebar>
+    <SidebarHeader>…logo / workspace switcher…</SidebarHeader>
+    <SidebarContent>…nav groups…</SidebarContent>
+  </AppShellSidebar>
+  <div className="flex h-svh min-w-0 flex-1 flex-col">
+    <AppShellHeader actions={<Button size="sm">New agent</Button>}>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Dashboard</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+    </AppShellHeader>
+    <AppShellContent>…page content…</AppShellContent>
+  </div>
+</AppShell>;
+```
+
+## Anatomy
+
+`AppShell` is a composition layer over `Sidebar` (+ `Sheet`/`useIsMobile` for its mobile behavior) —
+not a new primitive. It wraps `SidebarProvider` and renders a skip-to-content link as the first
+focusable element; you compose `AppShellSidebar` as one child and your own content column (a plain
+`flex h-svh flex-col` `<div>`) wrapping `AppShellHeader` + `AppShellContent` as the other:
+
+```tsx
+<AppShell defaultOpen keyboardShortcut mobileBreakpoint={768}>
+  <AppShellSidebar variant="sidebar" collapsible="icon">
+    <SidebarHeader>…</SidebarHeader>
+    <SidebarContent>…</SidebarContent>
+    <SidebarFooter>…</SidebarFooter>
+  </AppShellSidebar>
+  <div className="flex h-svh min-w-0 flex-1 flex-col">
+    <AppShellHeader actions={<>…buttons…</>}>
+      <Breadcrumb>…</Breadcrumb>
+    </AppShellHeader>
+    <AppShellContent variant="sidebar">…</AppShellContent>
+  </div>
+</AppShell>
+```
+
+- `AppShell` — the root (`data-slot="app-shell"`). Wraps `SidebarProvider`, forwarding
+  `defaultOpen`/`open`/`onOpenChange`/`mobileBreakpoint`/`keyboardShortcut`. Renders the skip link.
+- `AppShellSidebar` — a thin wrapper over `Sidebar` (`data-slot="app-shell-sidebar"`) that defaults
+  `aria-label="Main navigation"` and passes `variant`/`collapsible`/`side` straight through.
+- `AppShellHeader` — a `<header>` `banner` landmark (`data-slot="app-shell-header"`): always-visible
+  `SidebarTrigger` + a `min-w-0` middle slot (`children`) + a `shrink-0` `actions` slot.
+- `AppShellContent` — the `<main id="main-content" tabIndex={-1}>` `data-slot="app-shell-content"` —
+  the skip link's target, carrying `@container/app-shell-content` for width-aware grids.
+- `AppShellSkeleton` — a full-shell loading composition for `loading.tsx` (`data-slot="app-shell-skeleton"`).
+
+**Why no `AppShellBody`/column component?** Keeping the content column a plain, undecorated
+`<div>` you write yourself keeps `AppShellHeader`'s `<header>` a true SIBLING of
+`AppShellContent`'s `<main>` — never nested inside it, which is what lets the header keep its
+`banner` landmark role. A wrapping component that owned both would tempt collapsing them into one
+element, silently losing that landmark.
+
+## Variants
+
+`AppShellSidebar` passes `variant` straight through to `Sidebar` (`sidebar` / `floating` / `inset`).
+Pass the SAME `variant` to `AppShellContent` to keep the shell visually consistent — unlike
+`Sidebar` + `SidebarInset`'s CSS `peer` selector, `AppShellContent` applies its panel treatment
+directly via the prop (see the API reference for why).
+
+<ComponentPreview name="appShellInset" file="components/preview/app-shell.tsx" />
+
+<ComponentPreview name="appShellFloating" file="components/preview/app-shell.tsx" />
+
+## Skeleton
+
+`AppShellSkeleton` composes a full loading shell — a sidebar column, a header line, and a
+stat-card + chart-placeholder content region — server-safe, so it drops straight into a Next.js
+`loading.tsx` with no `'use client'` needed.
+
+<ComponentPreview name="appShellSkeletonDemo" file="components/preview/app-shell.tsx" />
+
+```tsx
+// app/(dashboard)/loading.tsx — a Server Component.
+import { AppShellSkeleton } from '@/components/ui/app-shell';
+
+export default function Loading() {
+  return <AppShellSkeleton navItemCount={6} statCardCount={4} />;
+}
+```
+
+## Mobile
+
+Below `mobileBreakpoint` (768px by default), `Sidebar` swaps to a `Sheet` drawer — `AppShellHeader`
+already renders `SidebarTrigger` OUTSIDE `AppShellSidebar` (it's a sibling in the content column,
+not nested inside the rail), so the one control that opens the mobile sheet is always reachable,
+with zero extra composition on your part. The header's middle slot truncates (`min-w-0 flex-1`)
+instead of wrapping — pair it with `BreadcrumbTrail`'s `maxItems` for long trails on narrow screens.
+
+## Route-change focus
+
+`AppShell` is deliberately router-agnostic — it has no dependency on Next.js/React Router and
+never imports one. Moving keyboard focus to the new page's heading on a client-side route change
+is standard SPA accessibility practice, and it's the DOWNSTREAM app's responsibility: focus your
+`PageHeader`'s title (give it `tabIndex={-1}`) or `AppShellContent`'s `#main-content` itself,
+keyed on the router's pathname:
+
+```tsx
+'use client';
+import { usePathname } from 'next/navigation';
+import { useEffect, useRef } from 'react';
+
+function RouteFocus() {
+  const pathname = usePathname();
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    headingRef.current?.focus();
+  }, [pathname]);
+  return <h1 ref={headingRef} tabIndex={-1}>…</h1>;
+}
+```
+
+## API Reference
+
+### AppShell
+
+<AutoTypeTable path="../../packages/ui/registry/ui/app-shell.tsx" name="AppShellProps" />
+
+### AppShellSidebar
+
+<AutoTypeTable path="../../packages/ui/registry/ui/app-shell.tsx" name="AppShellSidebarProps" />
+
+### AppShellHeader
+
+<AutoTypeTable path="../../packages/ui/registry/ui/app-shell.tsx" name="AppShellHeaderProps" />
+
+### AppShellContent
+
+<AutoTypeTable path="../../packages/ui/registry/ui/app-shell.tsx" name="AppShellContentProps" />
+
+### AppShellSkeleton
+
+<AutoTypeTable path="../../packages/ui/registry/ui/app-shell.tsx" name="AppShellSkeletonProps" />
+
+## Accessibility
+
+- **Skip link.** The very first focusable element in the shell (`sr-only focus:not-sr-only`),
+  targeting `AppShellContent`'s `#main-content`. Tab once on page load to reach it.
+- **Landmark trio.** `AppShellHeader` is a `banner` (`<header>`, never nested inside `<main>`),
+  `AppShellSidebar` is a `navigation` (`<nav aria-label="Main navigation">`, overridable), and
+  `AppShellContent` is the single `main` on the page.
+- **Mobile trigger.** `SidebarTrigger` always renders in `AppShellHeader` — below the mobile
+  breakpoint it's the only way to open the sidebar, and it's never nested inside the collapsible
+  rail it controls (see `sidebar.tsx`'s own composition note).
+- **Reduced motion.** The sidebar's collapse/expand and the mobile sheet's slide-in both route
+  through the design system's centralized `prefers-reduced-motion` block — no shell-specific
+  motion to opt out of.
+- **Route-change focus** is the host app's responsibility (see above) — `AppShell` stays
+  router-agnostic and cannot own it.
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> (on page load) | Focus the skip link. |
+| <kbd>Enter</kbd> on the skip link | Move focus to `AppShellContent`'s `<main>`. |
+| <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>B</kbd> | Toggle the sidebar (desktop) or the mobile sheet — customizable/disableable via `keyboardShortcut`. |

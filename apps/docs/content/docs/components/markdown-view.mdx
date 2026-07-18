@@ -1,0 +1,104 @@
+---
+title: Markdown View
+description: Render a markdown string to safe, token-styled HTML — headings, lists, code, blockquotes, links, and GFM tables — XSS-safe with no raw HTML.
+preview: markdownView
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/markdown-view
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { MarkdownView } from '@/components/ui/markdown-view';
+
+<MarkdownView>{`# Hello\n\nThis is **markdown**.`}</MarkdownView>;
+```
+
+Pass the markdown as `children` (a string) or via the `content` prop when the
+source comes from a data field:
+
+```tsx
+<MarkdownView content={task.description} />;
+```
+
+`MarkdownView` is built on [`react-markdown`](https://github.com/remarkjs/react-markdown)
+with `remark-gfm` (tables, strikethrough, task lists, autolinks). It builds a
+React tree directly — never `dangerouslySetInnerHTML` — so any raw HTML in the
+source is escaped to inert text. It is server-safe (no `'use client'`) and
+renders nothing for empty/whitespace input.
+
+## Examples
+
+### Default
+
+Headings, paragraphs, inline code, links, lists, and blockquotes — styled with
+semantic tokens (no `@tailwindcss/typography` dependency).
+
+<ComponentPreview name="markdownView" file="components/preview/markdown-view.tsx" />
+
+### GitHub-flavored markdown
+
+`remark-gfm` adds tables, `~~strikethrough~~`, and `- [ ]` task lists. Task-list
+checkboxes are rendered read-only (display only).
+
+<ComponentPreview name="markdownViewGfm" file="components/preview/markdown-view.tsx" />
+
+### Code blocks
+
+Inline code renders as a muted `font-mono` chip; fenced code blocks render inside
+a bordered, scrollable `<pre>`.
+
+<ComponentPreview name="markdownViewCode" file="components/preview/markdown-view.tsx" />
+
+### Links
+
+External links (those starting with `http(s)://`) open in a new tab with
+`target="_blank"` and `rel="noreferrer noopener"`; relative/internal links stay
+in the same tab. The link color (`text-info-text`) and underline are identical in
+both cases.
+
+<ComponentPreview name="markdownViewLinks" file="components/preview/markdown-view.tsx" />
+
+### Full element set
+
+A consolidated sample exercising every styled element — all six heading levels,
+ordered and unordered lists, a horizontal rule, an image, and inline emphasis —
+so the complete prose surface renders in one view.
+
+<ComponentPreview name="markdownViewKitchenSink" file="components/preview/markdown-view.tsx" />
+
+## API Reference
+
+<AutoTypeTable path="../../packages/ui/registry/ui/markdown-view.tsx" name="MarkdownViewProps" />
+
+## Accessibility
+
+- Markdown maps to **semantic HTML** — `# ` → `<h1>`, `- ` → `<ul><li>`, `> ` →
+  `<blockquote>`, ` ``` ` → `<pre><code>` — so the document structure is exposed
+  to assistive technology and heading navigation works.
+- **XSS-safe by construction:** react-markdown never uses
+  `dangerouslySetInnerHTML` and escapes raw HTML, so `<script>`, `<img onerror>`,
+  and inline event handlers in untrusted input render as plain text rather than
+  executing. `rehype-raw` is intentionally **not** added.
+- Links open in a new tab with `rel="noreferrer noopener"` (no reverse
+  tabnabbing); unsafe URL protocols (e.g. `javascript:`) are dropped.
+- Body text inherits the page text color (`text-foreground`); links use
+  `text-info-text` with an underline, keeping a visible, color-independent affordance.
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Move focus through rendered links in document order. |
+| <kbd>Enter</kbd> | Follow the focused link. |
+
+## Do / Don't
+
+<DoDont
+  do="Use MarkdownView for trusted-or-untrusted markdown — it escapes raw HTML, so user-authored comments and descriptions render safely without extra sanitization."
+  dont="Add rehype-raw to render embedded HTML — it re-enables the XSS vectors this component exists to avoid. Build a dedicated, separately-sanitized renderer if raw HTML is truly required."
+/>

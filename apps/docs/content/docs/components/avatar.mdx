@@ -1,0 +1,138 @@
+---
+title: Avatar
+description: A circular user or entity image with an initials fallback, five sizes, and an overlapping AvatarGroup stack.
+preview: avatar
+---
+
+import { story } from '@/components/stories/avatar.story';
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/avatar
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Avatar, AvatarGroup } from "@/components/ui/avatar";
+
+<Avatar
+  src="https://cdn.example.com/u/ada.webp"
+  alt="Ada Lovelace"
+  fallback="AL"
+/>;
+```
+
+> **Presentational only.** `Avatar` takes a fully-resolved, public `src`. It does **not** fetch
+> data or resolve storage keys — resolving an R2 (or any CDN) key to a public URL stays app-side, so
+> resolve it before passing `src`. The image only paints once it has loaded; until then (or on
+> error) the `fallback` shows, so there is never a broken-image icon.
+
+## Playground
+
+Adjust the avatar size and the group's overlap spacing, then copy the generated JSX.
+
+<AvatarPlayground />
+
+## Explorer
+
+Every `Avatar` prop, auto-generated from its TypeScript types — the exhaustive counterpart to
+the curated playground above.
+
+<story.WithControl />
+
+## Anatomy
+
+`Avatar` wraps Base UI `Avatar.Root` → `Avatar.Image` → `Avatar.Fallback` behind a single flat prop
+API. `AvatarGroup` is a layout shell that overlaps its `Avatar` children.
+
+```tsx
+<AvatarGroup>
+  <Avatar src={url} alt="…" fallback="AL" /> {/* Root → Image → Fallback */}
+  <Avatar fallback="+5" /> {/* overflow indicator (no src → fallback) */}
+</AvatarGroup>
+```
+
+## Sizes
+
+`xs`, `sm`, `default`, `lg`, and `xl` — the diameter and the fallback text scale together.
+
+<ComponentPreview name="avatarSizes" file="components/preview/avatar.tsx" />
+
+## Fallback
+
+When `src` is absent or the image fails to load, the `fallback` shows — typically 1–2 uppercase
+initials, or an icon. Without a `fallback`, the bare `bg-accent` circle remains.
+
+<ComponentPreview name="avatar" file="components/preview/avatar.tsx" />
+
+Both the no-`src` path **and** the image-error path resolve to the same `fallback`, so a broken or
+unreachable `src` never leaves a broken-image icon — it falls back to the initials (or icon):
+
+<ComponentPreview name="avatarFallback" file="components/preview/avatar.tsx" />
+
+### Fallback delay
+
+`fallbackDelay` (ms) waits before swapping in the `fallback`, avoiding a flash of initials for
+fast-loading images — the bare `bg-accent` circle holds the space until either the image paints or
+the delay elapses. It is forwarded to Base UI `Avatar.Fallback`.
+
+```tsx
+<Avatar src={url} alt="Ada Lovelace" fallback="AL" fallbackDelay={600} />
+```
+
+<ComponentPreview name="avatarFallbackDelay" file="components/preview/avatar.tsx" />
+
+## Group
+
+`AvatarGroup` overlaps its children into a stack and gives each a `ring-background` so the overlap
+reads cleanly on any surface. Add a trailing `Avatar` with a `+N` fallback to indicate overflow.
+Control overlap density with `spacing` (`tight` · `default` · `loose`).
+
+<ComponentPreview name="avatarGroup" file="components/preview/avatar.tsx" />
+
+The three `spacing` values side by side — `tight` tucks each avatar furthest under the previous,
+`loose` overlaps the least:
+
+<ComponentPreview name="avatarGroupSpacing" file="components/preview/avatar.tsx" />
+
+## API Reference
+
+### Avatar
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/avatar.tsx"
+  name="AvatarProps"
+/>
+
+### AvatarGroup
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/avatar.tsx"
+  name="AvatarGroupProps"
+/>
+
+## Accessibility
+
+- When `src` is provided, `alt` is required. Pass the person's or entity's name for meaningful
+  avatars; pass `alt=""` only when adjacent text or the wrapping control already names the entity.
+- When `src` is absent, no `<img>` is rendered; the fallback/root carries the visible identity.
+- The `fallback` (initials or icon) is the visible label when no image loads; keep it meaningful
+  (initials of the same name) so the avatar stays identifiable without the picture.
+- `Avatar` is non-interactive by default. When an avatar links to a profile, wrap it in an
+  interactive element (a `Button`/link) that owns the accessible name and focus ring — don't rely on
+  the image alone.
+
+| Key   | Action                                                                               |
+| ----- | ------------------------------------------------------------------------------------ |
+| `Tab` | Moves focus only when the avatar is wrapped in an interactive element (link/button). |
+
+## Do / Don't
+
+<DoDont
+  do="Pass a resolved public src plus an alt with the person's name, and a fallback with their initials so the avatar stays identifiable while loading or on error."
+  dont="Pass a raw R2/storage key as src or skip the fallback — resolve keys app-side, and always provide initials so a failed image doesn't leave an empty circle."
+/>

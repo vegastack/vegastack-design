@@ -1,0 +1,160 @@
+---
+title: Progress
+description: A determinate horizontal progress bar for measurable, ongoing tasks — built on Base UI Progress.
+preview: progress
+---
+
+import { story } from '@/components/stories/progress.story';
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/progress
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Progress } from "@/components/ui/progress";
+
+<Progress value={60} aria-label="Upload progress" />;
+```
+
+<ComponentPreview name="progress" file="components/preview/progress.tsx" />
+
+## Playground
+
+Adjust the bar's value and size — the fill sweeps to each new value — then copy the generated JSX.
+
+<ProgressPlayground />
+
+## Explorer
+
+Every `Progress` prop, auto-generated from its TypeScript types — the exhaustive counterpart to
+the curated playground above.
+
+<story.WithControl />
+
+## Anatomy
+
+`Progress` exposes a flat API while composing Base UI's Root → Track → Indicator parts internally:
+
+- **Root** — the `role="progressbar"` element (`data-slot="progress"`). `className` applies here.
+- **Track** — the muted rail (`data-slot="progress-track"`). Use `trackClassName` for rail styling.
+- **Indicator** — the primary fill (`data-slot="progress-indicator"`). Use `indicatorClassName` for
+  fill styling; width and progress semantics are managed by Base UI.
+
+## Examples
+
+### Values
+
+`value` is reported against `max` (default `100`). The indicator width animates between values with a token-driven transition.
+
+<ComponentPreview
+  name="progressValues"
+  file="components/preview/progress.tsx"
+/>
+
+### Sizes
+
+`sm` (6px), `default` (8px), and `lg` (12px) — the track and indicator scale together.
+
+<ComponentPreview name="progressSizes" file="components/preview/progress.tsx" />
+
+### Custom scale
+
+Pass `max` to track progress on an arbitrary scale — e.g. step `3` of `5`. The value is reported to assistive tech as `value / max` (here, 60%):
+
+```tsx
+<Progress value={3} max={5} size="lg" aria-label="Step 3 of 5" />
+```
+
+<ComponentPreview
+  name="progressCustomScale"
+  file="components/preview/progress.tsx"
+/>
+
+### Indeterminate
+
+Pass `value={null}` when the duration is unknown. Base UI drops `aria-valuenow`, sets `data-indeterminate`, and animates the fill:
+
+```tsx
+<Progress value={null} aria-label="Loading" />
+```
+
+<ComponentPreview
+  name="progressIndeterminate"
+  file="components/preview/progress.tsx"
+/>
+
+### Colored fill
+
+Recolor the fill with `indicatorClassName` to signal a status tone — the default is `bg-primary`. Use a semantic token (`bg-success`, `bg-warning`, `bg-destructive`):
+
+```tsx
+<Progress value={66} indicatorClassName="bg-success" aria-label="Success fill" />
+```
+
+<ComponentPreview name="progressColors" file="components/preview/progress.tsx" />
+
+### Custom track
+
+`trackClassName` styles the rail behind the fill (default `bg-muted`). Pair it with `indicatorClassName` to theme both layers — `className` stays on the accessible progressbar root:
+
+```tsx
+<Progress
+  value={50}
+  trackClassName="bg-info-subtle"
+  indicatorClassName="bg-info"
+  aria-label="Custom track"
+/>
+```
+
+<ComponentPreview name="progressTrack" file="components/preview/progress.tsx" />
+
+### Size × value
+
+`size` and `value` are independent axes — every height works at every fill level.
+
+<ComponentPreview name="progressMatrix" file="components/preview/progress.tsx" />
+
+### Custom root element (`render`)
+
+Use Base UI's `render` to swap the root element while keeping the `role="progressbar"` semantics, the merged `data-slot` / state `data-*`, the forwarded ref, and the `Track` / `Indicator` children. The replacement element must support progressbar semantics:
+
+```tsx
+<Progress value={60} aria-label="Upload progress" render={<output />} />
+```
+
+<ComponentPreview name="progressRender" file="components/preview/progress.tsx" />
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/progress.tsx"
+  name="ProgressProps"
+/>
+
+## Accessibility
+
+- Renders `role="progressbar"` with `aria-valuenow` / `aria-valuemin` / `aria-valuemax` managed by Base UI.
+- When `value` is `null` the bar is indeterminate — `aria-valuenow` is omitted and `data-indeterminate` is set.
+- Always give the bar an accessible name — an `aria-label`, or associate a visible label via `aria-labelledby`.
+- The fill transition includes `motion-reduce:transition-none` so users requesting reduced motion do
+  not get animated width changes.
+
+| Attribute                         | Purpose                                                 |
+| --------------------------------- | ------------------------------------------------------- |
+| `role="progressbar"`              | Exposes the element as a progress bar to assistive tech |
+| `aria-valuenow`                   | Current value (omitted while indeterminate)             |
+| `aria-valuemin` / `aria-valuemax` | Bounds of the scale (`0` and `max`)                     |
+| `aria-label` / `aria-labelledby`  | Accessible name (author-provided)                       |
+
+## Do / Don't
+
+<DoDont
+  do="Use Progress for measurable, determinate tasks — uploads, multi-step forms, onboarding completion."
+  dont="Use Progress for an indefinite wait with no measurable value — use a Spinner there instead."
+/>

@@ -1,0 +1,62 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "$description": "Dark-theme OVERRIDES only. Omissions are intentional: the chromatic fills, on-fill foregrounds, and the derived hover/active steps are theme-invariant by design (contrast only rises on dark), radius/size/motion/type tokens are theme-independent, and the *-subtle-hover steps are DERIVED per-theme by the SD preprocessor. The build asserts every key here has a light counterpart.",
+
+  "background": { "$type": "color", "$value": "{color.neutral.925}" },
+  "foreground": { "$type": "color", "$value": "{color.neutral.200}" },
+  "card": { "$type": "color", "$value": "{color.neutral.900}" },
+  "card-foreground": { "$type": "color", "$value": "{color.neutral.200}" },
+  "popover": { "$type": "color", "$value": "{color.neutral.900}" },
+  "popover-foreground": { "$type": "color", "$value": "{color.neutral.200}" },
+
+  "primary": { "$type": "color", "$value": "{color.neutral.200}" },
+  "primary-foreground": { "$type": "color", "$value": "{color.neutral.950}" },
+  "primary-hover": { "$type": "color", "$value": "{color.neutral.100}" },
+  "primary-active": { "$type": "color", "$value": "{color.white}" },
+
+  "track": { "$type": "color", "$value": "{color.neutral.600}" },
+  "secondary": { "$type": "color", "$value": "{color.neutral.800}" },
+  "secondary-foreground": { "$type": "color", "$value": "{color.neutral.200}" },
+  "muted": { "$type": "color", "$value": "{color.neutral.800}" },
+  "muted-foreground": { "$type": "color", "$value": "{color.neutral.450}" },
+  "muted-foreground-faint": { "$type": "color", "$value": "{color.neutral.550}" },
+  "accent": { "$type": "color", "$value": "{color.neutral.800}" },
+  "accent-foreground": { "$type": "color", "$value": "{color.neutral.100b}" },
+
+  "destructive-subtle": { "$type": "color", "$value": "{color.red.925}" },
+  "destructive-text": { "$type": "color", "$value": "{color.red.400}" },
+  "success-subtle": { "$type": "color", "$value": "{color.green.925}" },
+  "success-text": { "$type": "color", "$value": "{color.green.500}" },
+  "warning-subtle": { "$type": "color", "$value": "{color.amber.925}" },
+  "warning-text": { "$type": "color", "$value": "{color.amber.500}" },
+  "info-subtle": { "$type": "color", "$value": "{color.blue.925}" },
+  "info-text": { "$type": "color", "$value": "{color.blue.400}" },
+
+  "overlay": { "$type": "color", "$value": { "colorSpace": "oklch", "components": [0, 0, 0], "alpha": 0.55 } },
+  "border": { "$type": "color", "$value": "{color.neutral.800}" },
+  "input": { "$type": "color", "$value": "{border}" },
+  "ring": { "$type": "color", "$value": "{primary}" },
+
+  "chart-1": { "$type": "color", "$value": "{color.blue.500}" },
+  "chart-2": { "$type": "color", "$value": "{color.emerald.500}" },
+  "chart-3": { "$type": "color", "$value": "{color.amber.500}" },
+  "chart-4": { "$type": "color", "$value": "{color.orange.400}" },
+  "chart-5": { "$type": "color", "$value": "{color.rose.500}" },
+  "chart-6": { "$type": "color", "$value": "{color.red.500}" },
+  "chart-7": { "$type": "color", "$value": "{color.olive.400}" },
+  "chart-8": { "$type": "color", "$value": "{color.blue.400}" },
+
+  "sidebar": { "$type": "color", "$value": "{color.neutral.950}" },
+  "sidebar-foreground": { "$type": "color", "$value": "{color.neutral.300}" },
+  "sidebar-primary": { "$type": "color", "$value": "{color.neutral.200}" },
+  "sidebar-primary-foreground": { "$type": "color", "$value": "{color.neutral.950}" },
+  "sidebar-accent": { "$type": "color", "$value": "{color.neutral.900}" },
+  "sidebar-accent-foreground": { "$type": "color", "$value": "{color.neutral.200}" },
+  "sidebar-border": { "$type": "color", "$value": "{border}" },
+  "sidebar-ring": { "$type": "color", "$value": "{primary}" },
+
+  "brand": { "$type": "color", "$value": { "colorSpace": "oklch", "components": [0.86, 0.21, 148], "alpha": 1 }, "$description": "The phosphor-green brand accent, DARK half — MK's pick (13.3:1 on the dark canvas). Marker roles only." },
+
+  "alpha-soft-hover": { "$type": "dimension", "$value": { "value": 30, "unit": "%" }, "$description": "Dark half of the theme-split soft-surface hover wash." },
+  "alpha-soft-surface": { "$type": "dimension", "$value": { "value": 20, "unit": "%" }, "$description": "Dark half of the theme-split soft-surface resting wash." }
+}

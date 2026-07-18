@@ -1,0 +1,55 @@
+---
+title: Logo Row
+description: A muted logo/wordmark strip — alpha-dimmed at rest, restoring on hover for linked items.
+preview: logoRow
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/logo-row
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { LogoRow } from '@/components/ui/logo-row';
+
+<LogoRow
+  label="Built with"
+  items={[{ name: 'ACME' }, { name: 'NIMBUS' }, { name: 'COREBASE' }]}
+/>;
+```
+
+<ComponentPreview name="logoRow" file="components/preview/logo-row.tsx" />
+
+## Linked items
+
+Pass `href` on an item to render it as a link, restoring to full alpha on hover/focus.
+
+<ComponentPreview name="logoRowLinked" file="components/preview/logo-row.tsx" />
+
+## Text only — never a fake logo
+
+`LogoRow` renders wordmarks as plain **text**, never image/SVG logo assets — and never real
+third-party brand names, since that would imply an unverified partnership. Use generic or
+placeholder names on marketing pages until real, cleared logos exist.
+
+## API Reference
+
+<AutoTypeTable path="../../packages/ui/registry/ui/logo-row.tsx" name="LogoRowProps" />
+
+## Accessibility
+
+- Linked items render real `<a>` elements with visible, readable text — no icon-only logos to
+  label.
+- The optional `label` is a normal text node, read in document order before the list.
+
+## Do / Don't
+
+<DoDont
+  do="Use generic or fictional wordmarks (ACME, NIMBUS, …) until real, cleared partner logos exist."
+  dont="Use a real company's name or logo without their explicit clearance — it implies a partnership."
+/>

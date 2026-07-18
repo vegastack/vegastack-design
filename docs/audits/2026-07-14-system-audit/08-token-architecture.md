@@ -1,0 +1,245 @@
+# Token Architecture Audit — 2026-07-14
+
+Scope: `packages/tokens/**`, `packages/tailwind-preset/**`, `apps/docs/app/global.css`, cross-checked
+against component usage in `packages/ui/registry/ui/**`. Read-only audit; no source modified.
+
+---
+
+## (a) Pipeline map
+
+```
+packages/tokens/tokens/primitives.tokens.json       — raw OKLCH scale (color.* only). Never emitted to CSS.
+packages/tokens/tokens/semantic.tokens.json          — LIGHT semantic tokens (colors + radius + size +
+                                                        shadow + typography + font-family + duration + ease).
+packages/tokens/tokens/semantic.dark.tokens.json     — DARK color overrides ONLY (subset — see §c).
+packages/tokens/sd-hooks.mjs                         — custom SD transforms (color/oklch, dimension/css,
+                                                        duration/css, cubicBezier/css, fontFamily/css,
+                                                        shadow/css) + the `tailwind/inline-bridge` format.
+packages/tokens/build-tokens.mjs                     — 3 SD runs (light→:root, dark→.dark, TS/JSON) → concat.
+  ├─ dist/theme.css   = @custom-variant dark + :root{…} + .dark{…} + @theme inline{…}
+  ├─ dist/base.css    = copy of src/base.css (opt-in reset)
+  ├─ dist/utilities.css = copy of src/utilities.css (scroll-fade/shimmer/scrollbar @utility helpers)
+  ├─ dist/tokens.json = { light: {...}, dark: {...} } — dark is a FULL MERGE (`{...light, ...dark}`)
+  └─ src/tokens.ts → dist/tokens.js + .d.ts (tsup) — typed JS/TS export, `Theme`/`TokenName` types.
+packages/tailwind-preset/preset.css                  — one-import consumer entry: tailwindcss + tw-animate-css
+                                                        + tokens/theme.css + tokens/base.css + tokens/utilities.css
+                                                        + @source into ui/icons dist (compiled class strings).
+apps/docs/app/global.css                              — docs-specific composition (fumadocs + tokens/theme.css
+                                                        + tokens/utilities.css), duplicates focus-ring/cursor
+                                                        rules from base.css (docs doesn't import full base.css).
+```
+
+Full chain trace, `bg-primary` in light: `packages/ui/.../button.tsx` class `bg-primary` → Tailwind utility
+generated from `@theme inline { --color-primary: var(--primary); }` (sd-hooks.mjs:97) → `:root { --primary:
+oklch(0.353 0.003 75); }` (semantic.tokens.json:11, alias of `color.neutral.700`, resolved literal because
+`outputReferences:false`) → rendered `oklch(0.353 0.003 75)`. Dark: `.dark` sets `--primary: oklch(0.922
+0.003 75)` (semantic.dark.tokens.json:11, `color.neutral.200`) — cascade override, verified in
+`packages/tokens/dist/theme.css`. Chain is correct and traceable in both themes.
+
+**JS/TS export for programmatic use (e.g. chart color-picking in AI products) already exists**:
+`packages/tokens/package.json` exports `.` → `dist/tokens.js`/`dist/tokens.d.ts`, generated from
+`src/tokens.ts` (typed `{ light, dark }` const + `Theme`/`TokenName` types). This satisfies the "need
+JS/TS export for programmatic use" check in §6 — no gap here.
+
+---
+
+## (b) Category coverage table
+
+| Category | Status | Evidence |
+|---|---|---|
+| Color (primitive + semantic) | **Present, mostly clean** | `primitives.tokens.json` (10 hue families), `semantic.tokens.json` (45 alias refs). See §1 for the literal-value gap. |
+| Radius | **Present, partial bridge** | `radius`/`radius-sm/md/lg` tokens (semantic.tokens.json:76-79); bridge exposes `radius-sm/md/lg` + derives `radius-xl` (sd-hooks.mjs:116-119). **Gap:** no `radius-xs` token — `rounded-xs` used raw 3× (`popover.tsx:221`, `hover-card.tsx:260`, `tooltip.tsx:210`) resolves to Tailwind's *default* 2px scale, not a VegaStack token. `radius` (0.75rem) itself is defined at `:root` but never bridged into `@theme inline` — it's a dead/duplicate of `radius-lg` (same value); no `rounded` (bare) utility is token-driven. |
+| Control-size (button/input heights) | **Tokens exist, ZERO usage — dead tokens** | `size-sm`/`size-md`/`size-lg` (1.75rem/2rem/2.5rem = 28/32/40px) defined `semantic.tokens.json:81-83`, never bridged to `@theme inline` (sd-hooks.mjs has no `--size-*` mapping) and **zero references** in `packages/ui/registry/ui/**` or `apps/docs/components/**` (`grep -rn "size-sm\|size-md\|size-lg"` → 0 hits outside token files). Components hardcode raw Tailwind `h-*`/`size-*` per component instead: `button.tsx:44-51` uses `h-6/h-7/h-8/h-10` + `size-6/7/8/10` for its 8 size variants — the *values* happen to line up with the tokens (h-7=28px≈size-sm, h-8=32px=size-md, h-10=40px=size-lg) but there is no wired token, so a control-height rebrand requires editing every component instead of one token. |
+| Opacity scale | **Missing entirely** | No `opacity-*` semantic tokens. 96 raw Tailwind opacity-modifier utilities (`bg-X/5|10|20|30|40|50|60|70|80|90`) across `packages/ui/registry/ui/**` (e.g. `button.tsx:32,36,38,40,41` — `bg-info/30`, `bg-destructive/5`, `bg-warning/10`; `input.tsx:41,55` — `bg-input/30`; `select.tsx:21` — `bg-input/50`). Some of this is a **documented, deliberate** decision (`docs/plans/color-token-consistency.md` line 11: "decided to NOT do… kept as deliberate opacities; no `bg-{family}/NN` lint ban added") but there is still no formal `--opacity-hover`/`--opacity-pressed`/`--opacity-disabled` scale, so the same intent (e.g. "10% tint on hover") is re-typed as a magic number in every component. |
+| Z-index / layer scale | **Missing entirely** | No z-index token in either token file. Raw Tailwind `z-10`/`z-50` used directly ~20× across overlay primitives: `tooltip.tsx:156,164`, `popover.tsx:156,163`, `dropdown-menu.tsx:91` (`z-50`), `select.tsx:220,226,236,243`, `sheet.tsx:31,145,152`, `hover-card.tsx:209,216`, `context-menu.tsx`, `toggle-group.tsx:165`, `text-edit.tsx:514`, `otp-input.tsx:93`, `bubble.tsx:168`. With ~10 independent overlay-capable primitives (Dialog/Sheet/Popover/Tooltip/DropdownMenu/ContextMenu/Select/HoverCard/Sonner) all landing on the *same* `z-50`, stacking order between simultaneously-open overlays (e.g. a `Select` inside a `Dialog`, or a `Tooltip` over a `Sheet`) is accidental, not designed. |
+| Elevation strategy | **Intentionally border-based; under-formalized** | Matches the owner's "no shadows/rings, borders only" preference — cards/tables use `border-border` with no shadow. One shared `shadow-overlay` token (`semantic.tokens.json:85`, single OKLCH-shadow value) is reused verbatim by 12 floating-layer components (`dialog.tsx:30`, `popover.tsx:163`, `sheet.tsx:31`, `tooltip.tsx:164`, `dropdown-menu.tsx:91`, `select.tsx:226`, `context-menu.tsx:148`, `hover-card.tsx:216`, `sonner.tsx:108`, `alert-dialog.tsx:135`) — consistent in practice, but there is no *named* elevation scale (e.g. `surface-raised`/`surface-overlay` tokens pairing a border-color step + `shadow-overlay`), so "elevation" is really one raw shadow token + convention, not a system. One outlier: `color-picker.tsx:212` uses raw Tailwind `shadow-sm` (not the token) — a small drift instance. |
+| Motion durations | **Present, one gap** | `duration-fast`/`base`/`slow` (150/200/300ms, `semantic.tokens.json:101-103`) bridged to `--transition-duration-*` (sd-hooks.mjs:130-132) and consumed as `duration-fast`/`duration-base` utilities ~24× correctly (e.g. `alert-dialog.tsx:120`, `progress.tsx:129`, `tabs.tsx:114`). **Gap:** `message-scroller.tsx:164` uses raw `duration-200` (coincides with `duration-base`, but not the token utility — untraceable if the base duration is retuned) and raw `duration-400` (**no token covers 400ms at all** — falls outside the fast/base/slow 3-step scale entirely). |
+| Motion easings | **Present, complete** | `motion-ease-standard/emphasized/exit` (cubicBezier) bridged to `ease-standard/emphasized/exit` utilities, used consistently (~20 hits) with only `ease-linear` (Tailwind built-in, appropriate for indeterminate progress) as the one non-token easing. No gap. |
+| Typography scale | **Present, good coverage; one drift** | `text-display`/`h1-h4`/`label`/`label-sm`/`code`/`code-sm` (9 composite tokens: size+leading+weight+tracking, `semantic.tokens.json:87-95`) emitted as `@theme inline` composite utilities (sd-hooks.mjs:99-111). Used in ~49 places (`page-header.tsx:205`, `foundations.tsx`, mdx prose). Coexists with 123 raw Tailwind `text-xs/sm/base/lg/xl/2xl/3xl` body-text utilities — intentional per `sd-hooks.mjs:90` comment ("our 14/12/16 scale maps onto those existing names by shift") but that shift/remap is **not itself expressed as a token or bridge entry** — it's a comment-only convention, unverifiable by lint. |
+| Spacing | **Relies on Tailwind default 4px scale — acceptable** | No custom spacing tokens; CLAUDE.md itself mandates "4px spacing scale (4,8,12,16,24,32)" which is exactly Tailwind's default `--spacing` scale. This is standard 2026 practice for a Tailwind-v4-based system; not a gap. |
+| Border widths | **Relies on Tailwind default — acceptable, thinly used** | Only `border` (1px, implicit default, pervasive) + `border-0` (2×) + `border-2` (1×, `avatar.tsx`/`date-picker.tsx` ring-like today-indicator) appear. No dedicated `border-width-*` token, but given the border-centric elevation philosophy a single explicit `--border-width-default: 1px` token (rather than relying on Tailwind's implicit default) would make the "borders are our elevation system" decision self-documenting in the token layer, not just in convention. |
+| Focus-indicator spec | **Present, single source of truth, correctly centralized** | `packages/tokens/src/base.css:13-18` — `:focus-visible { @apply outline-2 outline-offset-1 outline-ring; }`, re-skinned from the `ring` token (`ring: {$type:"color","$value":"{primary}"}`). Mirrored (must stay in sync) in `apps/docs/app/global.css:47-52` since docs imports `theme.css` but not full `base.css`. No component carries its own focus ring (confirmed by design-lint contract comment in `tooling/design-lint.mjs`). Good pattern; the docs-mirror duplication is a minor DRY risk (two files to keep in sync) but is explicitly commented as intentional. |
+| Icon-size tokens | **Missing entirely** | No `--icon-size-*` scale. Icon sizing is done ad hoc per component via raw `size-3`/`size-3.5`/`size-4`/`size-6`/`size-7`/`size-8` (12/14/16/24/28/32px) wired through the `[&_svg:not([class*='size-'])]:size-N` CVA pattern (`button.tsx:45-51`) that's re-derived per component/size-variant rather than driven by one icon-size scale. |
+| Control heights beyond buttons | **Same gap as control-size row** | `h-6/7/8/9/10/12` appear raw across `input.tsx`, `select.tsx`, `otp-input.tsx`, `avatar.tsx`, etc., not routed through `size-sm/md/lg`. |
+| Breakpoints / container widths | **Relies on Tailwind defaults — acceptable** | 61 raw `sm:/md:/lg:/xl:` hits, no custom `--breakpoint-*` overrides. Standard, unremarkable for a Tailwind v4 system; no evidence of a need for custom breakpoints. |
+| Data-viz / chart colors | **Present, extended beyond shadcn** | `chart-1`…`chart-8` (shadcn ships 1-5; VegaStack ships 8, additive) — see §d. |
+| Status semantics (success/warning/info) | **Present, ahead of shadcn** | `success`/`warning`/`info` (+ `-foreground/-hover/-active/-subtle/-text` each) fully shipped in both themes — see §d, this is *more* complete than shadcn's own contract. |
+| Sidebar tokens | **Present, matches shadcn 1:1** | `sidebar`, `sidebar-foreground`, `sidebar-primary(-foreground)`, `sidebar-accent(-foreground)`, `sidebar-border`, `sidebar-ring` — exact name parity with shadcn's sidebar block. |
+
+---
+
+## (c) Light/dark parity
+
+Diffed `semantic.tokens.json` (45 top-level tokens) vs `semantic.dark.tokens.json` (30 top-level tokens).
+
+- **This asymmetry is an intentional, documented design decision**, not drift: `docs/plans/color-token-consistency.md` (executed, "✅ DONE") §"Locked decisions" #3 — *"Dark-mode philosophy → chromatic fill/hover/active/foreground are theme-independent; only subtle + text + charts vary by theme."* Concretely, `destructive`/`destructive-foreground`/`destructive-hover`/`destructive-active` (and the same 4 for `success`/`warning`/`info`) are **absent** from `semantic.dark.tokens.json` by design — they inherit the light value through the CSS cascade (`.dark` never redeclares them) and are explicitly re-merged in the TS/JSON model (`build-tokens.mjs:87`, `const darkModel = { ...light, ...dark }`). Verified: `src/tokens.ts` dark.destructive === light.destructive === `oklch(0.505 0.213 27.518)`, same for success/warning/info. This is correct-as-designed, confirmed AA-safe in both themes by the color-token-consistency doc's contrast pass — **not a bug**, but worth flagging to a future maintainer since it looks like a bug at first read of `semantic.dark.tokens.json` alone (16 tokens silently missing with no comment in the file itself explaining why).
+- **Real gap: the decision is not self-documented in the source file.** `semantic.dark.tokens.json` has zero comments (JSON has no comment syntax) explaining the "theme-independent by design" contract; a future editor adding a new chromatic family (or "fixing" what looks like a missing override) could easily reintroduce accidental drift. Recommend a sibling `.md`/README note colocated in `packages/tokens/tokens/` or a `$description` field per DTCG spec on the affected tokens.
+- **Build-time enforcement is solid**: `build-tokens.mjs:81` and `:90-91` assert dark ⊆ light and light ⊆ darkModel key sets — a typo'd or orphaned dark token fails the build. Good fail-closed design.
+- **No accidental identical-by-omission bugs found** in the *overridden* tokens — every token dark *does* redefine (`background`, `foreground`, `card`, `popover`, `primary`, `track`, `secondary`, `muted`, `accent`, `-subtle`, `-text`, `overlay`, `border`, `input`, `ring`, `chart-1..8`, `sidebar-*`) has a genuinely different OKLCH value from light; spot-checked `chart-1` (light `blue.600` 0.546L vs dark `blue.500` 0.623L — correctly brightened for dark) and `overlay` (light 0.28 alpha on near-black vs dark 0.55 alpha on pure black — correctly differentiated).
+- **Radius/typography/motion/font tokens are absent from `semantic.dark.tokens.json` entirely** (theme-invariant by nature, correctly so) — `build-tokens.mjs:83-91` explicitly documents and handles this via the `darkModel` spread-merge so `tokens.dark.radius` etc. resolve at the TS-type level. Correct.
+
+---
+
+## (d) shadcn CSS-variable contract compat check
+
+Compared against `ui.shadcn.com/docs/theming` (fetched 2026-07-14).
+
+| shadcn variable | VegaStack | Compat |
+|---|---|---|
+| `--background`/`--foreground` | ✓ identical name | ✓ |
+| `--card`/`--card-foreground` | ✓ | ✓ |
+| `--popover`/`--popover-foreground` | ✓ | ✓ |
+| `--primary`/`--primary-foreground` | ✓ (+ extended `-hover`/`-active`, additive) | ✓ |
+| `--secondary`/`--secondary-foreground` | ✓ | ✓ |
+| `--muted`/`--muted-foreground` | ✓ (+ extended `muted-foreground-faint`, additive) | ✓ |
+| `--accent`/`--accent-foreground` | ✓ | ✓ |
+| `--destructive` | ✓ (VegaStack also ships `-foreground`/`-hover`/`-active`/`-subtle`/`-text` — **more complete** than upstream, which in current shadcn commonly omits a dedicated `destructive-foreground` and hardcodes `text-white`) | ✓, additive-safe |
+| `--border`/`--input`/`--ring` | ✓ | ✓ |
+| `--chart-1`…`--chart-5` | ✓ plus `--chart-6/7/8` (additive) | ✓ |
+| `--sidebar` + 6 sidebar sub-vars | ✓ exact name parity | ✓ |
+| `--radius` | ✓ present, **but shadcn derives `sm/md/lg/xl/2xl/3xl/4xl` from ONE `--radius` via multipliers (0.6×…2.6×)**; VegaStack instead ships **independent explicit values** for `radius-sm/md/lg` (AGENTS.md/detail-02 confirm this is deliberate: "our 6/8/12, not shadcn's calc-derive"). Functionally fine (same variable *names* resolve), but a consumer used to shadcn's "change one `--radius`, everything scales" mental model will find VegaStack's `--radius-sm/md/lg` don't move together — worth a callout in the theming docs since it's a deliberate divergence, not a bug. Also: shadcn goes up to `2xl`/`3xl`/`4xl`; VegaStack stops at `xl`. |
+| `--success`/`--warning`/`--info` | **Not part of shadcn's default contract at all** (shadcn ships only `destructive` as a semantic status color out of the box; success/warning/info are a common *community* extension, not upstream-standard) | VegaStack is ahead of upstream here — good for downstream, but means a plain `shadcn add <foreign-component>` from a different registry that assumes only `destructive` exists won't break (additive), while a component assuming shadcn's *bare* palette (no success/warning/info) also still works. No compat risk either direction. |
+| Font vars (`--font-sans` etc.) | ✓ present, bridged as `--font-family-sans` (runtime) → `--font-sans` (Tailwind) per the documented self-reference fix (Codex F7) | ✓ |
+| Chart data-viz beyond 5 | Additive-only (6,7,8) | ✓ safe, per the additive-only token policy in `docs/requirements.md` §5.4 |
+
+**Verdict:** no drift that would break a downstream consumer pulling both a VegaStack component and a foreign shadcn-registry component into the same project — all VegaStack additions are additive, and every token shadcn's own components expect (`background/foreground/card/popover/primary/secondary/muted/accent/destructive/border/input/ring/chart-N/sidebar-*`) is present with the same name. The one real behavioral divergence (independent vs. calc-derived radius scale) is intentional and already documented in `AGENTS.md`/`docs/plans/detail/02-tokens-and-theming.md`, but is **not surfaced in the public-facing docs** (checked `apps/docs/content/docs/foundations/*.mdx` — no callout found for a shadcn-familiar consumer).
+
+---
+
+## (e) Bridge gaps (`@theme inline` completeness)
+
+Bridge is generated by `sd-hooks.mjs`'s `tailwind/inline-bridge` format (packages/tokens/sd-hooks.mjs:91-136).
+
+**Fully bridged (token → Tailwind utility, verified in `dist/theme.css`):**
+All `$type: color` tokens (auto-loop, sd-hooks.mjs:95-98) · `radius-sm/md/lg` (+ derived `radius-xl`) ·
+`shadow-overlay` · all 9 typography role tokens (`text-display`…`text-code-sm`, as composite `--text-*`/
+`--text-*--line-height`/`--text-*--font-weight`/`--text-*--letter-spacing`) · `font-sans/mono/serif` ·
+`ease-standard/emphasized/exit` · `transition-duration-fast/base/slow`.
+
+**Defined in `semantic.tokens.json` but NOT bridged (dead in the `@theme inline` sense — CSS var exists at
+`:root` but no Tailwind *utility* is generated for it):**
+- `radius` (bare, 0.75rem) — no `rounded` (DEFAULT) utility maps to it; Tailwind's own built-in default
+  (0.25rem) governs bare `rounded` instead. Duplicate of `radius-lg`'s value; likely intended as the
+  DEFAULT/base but never wired.
+- `size-sm`/`size-md`/`size-lg` — CSS vars exist at `:root` (`dist/theme.css:74-76`) but no
+  `--width-*`/`--height-*`/utility mapping in the bridge, and (per §b) zero component usage. Fully dead
+  end-to-end: authored → built → shipped → **never consumed**.
+
+**Utility used in components but NOT token-backed (would NOT survive a downstream app consuming only
+`@vegastack/tailwind-preset` + `@vegastack/tokens` without also vendoring the exact component source):**
+This is not actually a risk in practice — the components ship their own literal Tailwind class strings
+(`z-50`, `duration-200`, `rounded-xs`, `size-6` for icons, opacity modifiers) which resolve via Tailwind's
+own built-in default theme, not via `@vegastack/tokens`. A downstream app gets *a* value for these (Tailwind
+defaults), just not one derived from — or overridable through — the VegaStack token layer. That is the
+practical consequence of §b's z-index/opacity/icon-size/control-height gaps: **today, "one-file override"
+(the documented promise in `docs/requirements.md` — redefine one CSS var to re-theme) does not cover
+z-index, opacity intensity, icon sizing, or non-button control heights**, because there is no token for a
+consumer to override in the first place.
+
+**Chain answer for §5's specific question** ("would a downstream app get EXACTLY the same utilities the
+registry components need?"): **Yes for color/radius/typography/motion** (fully token-driven, would repaint
+correctly on override) — **no for z-index/opacity/icon-size/control-height** (components hardcode Tailwind
+defaults directly; a consumer cannot re-theme these without editing the copied-in component source, which
+is technically allowed under the "own it" component model but undercuts the "propagates via token bump"
+promise for these specific properties).
+
+---
+
+## (f) Build & versioning
+
+- **Style Dictionary**: pinned `5.4.4` (`packages/tokens/package.json`); latest is `5.5.0` (npm, checked
+  2026-07-14) — minor patch drift, low risk, no breaking changes expected in a patch bump. Custom
+  `color/oklch` transform is correct and necessary (built-in `color/css` would emit hex/rgba and destroy
+  OKLCH, per `sd-hooks.mjs:10-11` comment — verified against Style Dictionary docs).
+- **Output formats**: CSS (`theme.css`) + JS/TS (`tokens.js`/`.d.ts` via tsup) + JSON (`tokens.json`) all
+  shipped — good, covers programmatic consumers (chart palettes, non-Tailwind renderers) already.
+- **Versioning/changelog**: tokens/tailwind-preset/icons are `linked` in `.changeset/config.json` (bump
+  together) — consistent with the "additive-only within a major" policy in `docs/requirements.md` §5.4.
+  Per-component token binding is real and verified: `apps/docs/public/r/button.json` declares
+  `"@vegastack/tokens@^0.1.0"` as a dependency, matching the documented contract.
+- **DTCG schema currency**: `$schema` pins `.../schemas/2025.10/format.json`. As of the DTCG announcement
+  (28 Oct 2025), **2025.10 is now the first STABLE release** of the spec, not a draft — `docs/plans/
+  detail/02-tokens-and-theming.md:255` still calls it "a draft CG report" (written 2026-06-21, now stale
+  prose only; the schema pin itself is correct and needs no change).
+- **Minor tooling drift found**: `tooling/contrast-check.mjs:20,57` still references a `purple`/
+  `purple-foreground` pair and includes `'purple'` in `SUBTLE_FAMILIES` (line 57) — but `purple` was fully
+  removed from both token files by `docs/plans/remove-purple-system-wide.md` (executed 2026-07-03, status
+  "✅ executed"). The check **fails open silently** (`if (!vars[bg] || !vars[fg]) continue`, line 84) so
+  this causes no false failures today, but it's dead code that should have been deleted alongside the
+  purple removal — low-priority cleanup.
+
+---
+
+## (g) 2026 best-practice gaps
+
+Checked against current DTCG 2025.10 stable spec and Style Dictionary 5.5 (WebSearch, 2026-07-14).
+
+1. **No `$description` metadata on tokens.** DTCG 2025.10 supports `$description` per token — none of the
+   ~75 tokens across the three JSON files use it. Given the "theme-independent by design" dark-mode
+   decision (§c) is invisible in the file itself, this is a concrete missed opportunity, not just
+   best-practice box-ticking.
+2. **No opacity scale token** (industry-standard in mature 2026 systems — Radix, Material 3, and Polaris
+   all ship an interaction-state opacity scale: hover/pressed/disabled/overlay percentages as named
+   tokens) — confirmed missing, see §b.
+3. **No APCA / perceptual contrast option.** `tooling/contrast-check.mjs` implements WCAG 2.1 AA (4.5:1)
+   only. APCA (the WCAG 3 candidate contrast algorithm) is increasingly used alongside WCAG 2.1 in 2026
+   token pipelines for OKLCH-based systems specifically because OKLCH lightness doesn't map linearly to
+   WCAG 2.1 contrast — the project already computes OKLCH→luminance manually (contrast-check.mjs:34-42),
+   so adding an APCA pass would reuse the same math. Not currently present; not blocking, but a natural
+   next step given the OKLCH-native pipeline already exists.
+4. **No fluid/clamp() typography.** All 9 typography tokens are fixed rem values (no `clamp()`/viewport-
+   relative sizing). Given this is a component-registry system (fixed-width component chrome, not full-
+   page marketing type), this is a reasonable and likely intentional scope limit, not a real gap.
+5. **Preprocessors (Style Dictionary 5.x feature)** could formalize the "hover = fill −0.05L, active =
+   fill −0.09L" derivation rule documented in `docs/plans/color-token-consistency.md:9` as code (a
+   preprocessor computing hover/active from a single fill primitive) instead of hand-baked literal OKLCH
+   values in `semantic.tokens.json` (see §1 below) — this would also fix the primitive-layer bypass.
+
+---
+
+## Priority-ranked recommendations
+
+**P0 — dead/misleading tokens (fix or remove):**
+1. Wire `size-sm/md/lg` into components (button/input/select/etc. size variants) OR delete them if the
+   per-component CVA `h-*` scale is the intended long-term pattern — currently they're pure dead weight
+   that will mislead the next engineer who assumes changing `--size-md` re-themes control heights.
+2. Delete the stale `purple`/`SUBTLE_FAMILIES` references in `tooling/contrast-check.mjs` (lines 20, 57) —
+   trivial cleanup, prevents future confusion about whether purple is coming back.
+
+**P1 — real coverage gaps with proven component need (add tokens):**
+3. **Z-index/layer scale** — add to `semantic.tokens.json`:
+   `z-dropdown: 30`, `z-sticky: 40`, `z-overlay: 50` (matches current de-facto `z-50`), `z-modal: 50`,
+   `z-popover: 50`, `z-tooltip: 60`, `z-toast: 70` — bridge via `@theme inline { --z-index-dropdown: var(--z-dropdown); … }`
+   so components can move from raw `z-50` to `z-[var(--z-tooltip)]` (or plain utilities if bridged as a
+   named scale, e.g. `z-tooltip`). Needed because ~10 independent overlay primitives currently share one
+   undifferentiated `z-50`.
+4. **Opacity/state scale** — add `opacity-hover: 0.10`, `opacity-active: 0.16`/`opacity-pressed`,
+   `opacity-disabled: 0.5` (already the de-facto value via `disabled:opacity-50` in `button.tsx`),
+   `opacity-subtle: 0.05`. Formalizes the 96 raw opacity-modifier call sites without necessarily requiring
+   every one be migrated immediately (additive, non-breaking).
+5. **Icon-size scale** — `icon-size-xs: 0.75rem` (12px) … `icon-size-lg: 2rem` (32px), matching the
+   existing `size-3/3.5/4/6/7/8` spread already used ad hoc, bridged as `--icon-size-*` so the `[&_svg]:size-N`
+   CVA pattern in `button.tsx` and friends can reference a token instead of a raw number.
+6. **`radius-xs`** token (2px, matches current `rounded-xs` usage in popover/hover-card/tooltip arrow
+   carets) so the radius scale has no Tailwind-default fallback gap.
+7. **`duration-slower: 400ms`** (or retune `message-scroller.tsx` to reuse `duration-slow`) — closes the
+   one motion-duration gap found.
+
+**P2 — documentation/traceability (no functional change):**
+8. Add `$description` (DTCG-native) to the ~16 dark-mode-omitted chromatic tokens explaining the
+   "theme-independent by design" decision directly in `semantic.dark.tokens.json`'s sibling tokens, or at
+   minimum a header comment convention — currently that rationale lives only in a plans/ doc, invisible to
+   someone reading the token source.
+9. Surface the shadcn-radius-model divergence (independent `radius-sm/md/lg` vs. shadcn's single-`--radius`
+   calc-derived scale) in the public theming docs (`apps/docs/content/docs/foundations/*.mdx`) — currently
+   only documented internally in `AGENTS.md`/`docs/plans/detail/02-tokens-and-theming.md`.
+10. Consider a Style Dictionary preprocessor (5.x feature, confirmed available) to derive `-hover`/`-active`
+    programmatically from each family's fill primitive (per the documented −0.05L/−0.09L rule) instead of
+    17 hand-baked literal OKLCH values in `semantic.tokens.json` that bypass the primitive layer — would
+    make the primitives→semantic layering fully clean and make future hue/lightness rebalances a one-line
+    change instead of a manual re-derivation across 4 families × 3 tokens.
+
+**P3 — currency (low effort, low risk):**
+11. Bump `style-dictionary` `5.4.4` → `5.5.0`.
+12. Fix the stale "draft CG report" line in `docs/plans/detail/02-tokens-and-theming.md:255` (DTCG 2025.10
+    is now stable, not draft) — doc-only, doesn't affect the pipeline.

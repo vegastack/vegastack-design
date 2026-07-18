@@ -1,0 +1,213 @@
+---
+title: Toast
+description: Brief, non-blocking notifications — a token-styled Sonner toaster with success, error, warning, and info variants that follows the active theme.
+preview: toastDemo
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/sonner
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+The component is documented as Toast because that is the design-system pattern; the
+registry item is named `sonner` because it wraps and re-exports Sonner.
+The package provider mirrors the same canonical `sonner` implementation so docs/registry and provider
+toasts share the same icons, token CSS variables, and variant classes.
+
+The `<Toaster />` is **already mounted** in `<VegaStackProvider>`, so you rarely
+render it yourself — just import `toast` and call it from anywhere.
+
+```tsx
+import { toast } from "@/components/ui/sonner";
+
+<Button onClick={() => toast.success("Saved")}>Save</Button>;
+```
+
+If you are not using `<VegaStackProvider>`, mount the toaster once at your app root:
+
+```tsx
+import { Toaster } from "@/components/ui/sonner";
+
+export default function RootLayout({ children }) {
+  return (
+    <body>
+      {children}
+      <Toaster />
+    </body>
+  );
+}
+```
+
+## Playground
+
+Compose an intent and an optional description, fire the toast, then copy the matching call.
+
+<SonnerPlayground />
+
+## Examples
+
+`toast.success` / `toast.error` / `toast.warning` / `toast.info` carry a matching
+lucide icon and a tinted surface; the bare `toast()` is neutral.
+
+<ComponentPreview name="sonnerVariants" file="components/preview/sonner.tsx" />
+
+Toasts support a `description`, an `action` button, and `toast.promise(...)` to
+drive loading → success / error from an async call automatically.
+
+<ComponentPreview name="sonnerStates" file="components/preview/sonner.tsx" />
+
+```tsx
+toast.success("File uploaded", { description: "2.5 MB saved" });
+
+toast("Invitation sent", {
+  description: "sent to jane@vegastack.com",
+  action: { label: "Undo", onClick: () => toast("Invitation revoked") },
+});
+
+toast.promise(saveData(), {
+  loading: "Saving…",
+  success: "Saved!",
+  error: "Save failed",
+});
+```
+
+### Loading toasts
+
+`toast.loading(...)` shows a pending spinner and returns the toast id. Resolve it
+in place by calling `toast.success` / `toast.error` (or `toast.dismiss`) with the
+same id once the async work finishes — this updates the existing toast instead of
+stacking a new one.
+
+<ComponentPreview name="sonnerLoading" file="components/preview/sonner.tsx" />
+
+```tsx
+const id = toast.loading("Uploading file…");
+await uploadFile();
+toast.success("File uploaded", { id });
+```
+
+### Message and custom toasts
+
+`toast.message(...)` renders a neutral, non-status notification (no tinted
+surface or status icon). `toast.custom((id) => …)` renders fully custom JSX for
+branded or richly-structured toasts — call `toast.dismiss(id)` from inside to
+close it.
+
+<ComponentPreview name="sonnerMessageCustom" file="components/preview/sonner.tsx" />
+
+```tsx
+toast.message("New comment", { description: "Jane replied to your thread." });
+
+toast.custom((id) => (
+  <CustomToast onDismiss={() => toast.dismiss(id)} />
+));
+```
+
+### Toaster options
+
+Mount exactly **one** `<Toaster />` per app (usually at the root via
+`<VegaStackProvider>`) — Sonner broadcasts every `toast()` to every mounted
+toaster, so a second mount shows every toast twice. Host-level defaults
+(`position`, `expand`) live on that single mount; toasts are **dismissable by
+default** (the close X on the toast's top-right — pass `closeButton={false}` to
+opt out). Per-toast overrides — including `position` — go on the `toast()` call
+itself, as in the demo below.
+
+<ComponentPreview name="sonnerToasterOptions" file="components/preview/sonner.tsx" />
+
+```tsx
+// App root — the single Toaster mount sets the defaults…
+<Toaster expand position="bottom-right" />
+
+// …and a specific toast can override per call:
+toast('Deployment queued', { position: 'top-center' });
+```
+
+## API Reference
+
+`toast(message, options?)` is re-exported directly from
+[Sonner](https://sonner.emilkowal.ski/). It is an imperative function, so its
+methods are documented by hand below rather than via `<AutoTypeTable>`. The
+`ToasterProps` table that follows configures the `Toaster` host.
+
+### `toast` function
+
+<TypeTable
+  type={{
+    "toast(message, options?)": {
+      type: "(message, options?) => string | number",
+      description:
+        "Show a neutral toast. Returns the toast id. `options` accepts `description`, `action`, `cancel`, `duration`, `id`, and more (Sonner ExternalToast).",
+    },
+    "toast.success(message, options?)": {
+      type: "(message, options?) => string | number",
+      description: "Success toast — success tint + CircleCheck icon.",
+    },
+    "toast.error(message, options?)": {
+      type: "(message, options?) => string | number",
+      description: "Error toast — destructive tint + OctagonX icon.",
+    },
+    "toast.warning(message, options?)": {
+      type: "(message, options?) => string | number",
+      description: "Warning toast — warning tint + TriangleAlert icon.",
+    },
+    "toast.info(message, options?)": {
+      type: "(message, options?) => string | number",
+      description: "Info toast — info tint + Info icon.",
+    },
+    "toast.loading(message, options?)": {
+      type: "(message, options?) => string | number",
+      description:
+        "Pending toast with a spinner. Resolve it in place by reusing the returned id with `toast.success` / `toast.error` / `toast.dismiss`.",
+    },
+    "toast.message(message, options?)": {
+      type: "(message, options?) => string | number",
+      description:
+        "Neutral, non-status notification — no tinted surface or status icon.",
+    },
+    "toast.promise(promise, options)": {
+      type: "(promise, { loading, success, error }) => string | number",
+      description:
+        "Drive a toast through loading → success / error from an async call automatically.",
+    },
+    "toast.custom(jsx, options?)": {
+      type: "((id) => ReactElement, options?) => string | number",
+      description:
+        "Render fully custom JSX instead of the default toast surface. Receives the toast id for self-dismissal.",
+    },
+    "toast.dismiss(id?)": {
+      type: "(id?: string | number) => void",
+      description:
+        "Dismiss a toast by id, or all toasts when called with no argument.",
+    },
+  }}
+/>
+
+### `ToasterProps`
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/sonner.tsx"
+  name="ToasterProps"
+/>
+
+## Accessibility
+
+- The toaster renders an `aria-live` notifications region — new toasts are
+  announced by screen readers without stealing focus.
+- Status variants pair color with an icon, so meaning is not conveyed by color
+  alone; the surface uses semantic tokens (`bg-popover` / `text-popover-foreground`).
+- Toasts are non-modal and dismiss on a timer; provide an `action` (or
+  `closeButton`) for anything that requires a user decision rather than a Toast.
+- Theme follows `next-themes`, so contrast holds in both light and dark modes.
+
+## Do / Don't
+
+<DoDont
+  do="Use Toast for brief, non-blocking confirmations — 'Saved', 'Copied', 'Invitation sent'."
+  dont="Use Toast for errors the user must resolve or destructive confirmations — use an inline message or a Dialog."
+/>

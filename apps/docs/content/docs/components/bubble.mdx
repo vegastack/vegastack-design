@@ -1,0 +1,166 @@
+---
+title: Bubble
+description: A chat speech bubble — seven token-driven variants (incl. a brand-tinted surface), start/end alignment, interactive content, and a floating reactions chip.
+preview: bubble
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/bubble
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Bubble, BubbleContent } from "@/components/ui/bubble";
+
+<Bubble variant="tinted" align="end">
+  <BubbleContent>On my way.</BubbleContent>
+</Bubble>;
+```
+
+## Playground
+
+Try all seven surface variants, both alignments, and the opt-in entry animation — each change replays it — then copy the generated JSX.
+
+<BubblePlayground />
+
+## Anatomy
+
+A `Bubble` skins its `BubbleContent` child via the `variant` — the surface
+colour lives on the content element so padding and the rounded corners stay put.
+
+- `Bubble` — the container (`data-slot="bubble"`, `data-variant`, `data-align`).
+  Inside a [`Message`](/docs/components/message) the row's `align` is inherited.
+- `BubbleContent` — the rounded surface that carries the text. Built on Base UI
+  `useRender`: pass `render={<button />}` (or an `a`) for an interactive bubble —
+  it gets a hover surface, the global `:focus-visible` outline, and a focus
+  border tint.
+- `BubbleGroup` — stacks consecutive bubbles from one sender.
+- `BubbleReactions` — a floating reactions chip pinned to a bubble corner
+  (`side`, `align`).
+
+## Examples
+
+### Variants
+
+`default` (the dark "sent" surface), `secondary`, `muted`, `tinted` (a brand
+surface), `outline`, `ghost`, and `destructive`.
+
+<ComponentPreview name="bubble" file="components/preview/bubble.tsx" />
+
+### Alignment
+
+`align="start"` for received, `align="end"` for sent. Inside a `Message` the
+row's alignment is inherited automatically.
+
+<ComponentPreview name="bubbleAlignment" file="components/preview/bubble.tsx" />
+
+### Grouped
+
+`BubbleGroup` stacks consecutive bubbles from the same sender.
+
+<ComponentPreview name="bubbleGroup" file="components/preview/bubble.tsx" />
+
+### Conversation with reactions
+
+Sent / received alignment, grouped, with a `BubbleReactions` chip.
+
+<ComponentPreview
+  name="bubbleConversation"
+  file="components/preview/bubble.tsx"
+/>
+
+### Reaction placement
+
+`BubbleReactions` pins to a corner via `side` (`top`/`bottom`) and `align`
+(`start`/`end`); it also holds multiple emoji or an overflow count.
+
+<ComponentPreview name="bubbleReactions" file="components/preview/bubble.tsx" />
+
+### Interactive (quick replies)
+
+Render `BubbleContent` as a `button` (or an `a`) for tappable quick-reply or
+link bubbles — they get a hover surface and the global `:focus-visible` outline.
+
+<ComponentPreview name="bubbleInteractive" file="components/preview/bubble.tsx" />
+
+### Motion
+
+Pass `animateIn` on a bubble you append **after mount** — a streamed reply, or one the user just
+sent — to fade + rise it in (`motion-enter-up`). It's **off by default**: an existing transcript
+must not animate every bubble on page load. `Message` takes the same prop, so set either or both.
+
+<ComponentPreview name="bubbleAnimateIn" file="components/preview/bubble.tsx" />
+
+### Collapsible
+
+Compose a [`Collapsible`](/docs/components/collapsible) inside a bubble for
+"show more / less" on long messages.
+
+<ComponentPreview name="bubbleCollapsible" file="components/preview/bubble.tsx" />
+
+### With a popover
+
+Hang a [`Popover`](/docs/components/popover) off a reaction chip — e.g. error
+details on a failed message.
+
+<ComponentPreview name="bubblePopover" file="components/preview/bubble.tsx" />
+
+### With a tooltip
+
+A read-receipt check icon in a reaction chip with a
+[`Tooltip`](/docs/components/tooltip).
+
+<ComponentPreview name="bubbleTooltip" file="components/preview/bubble.tsx" />
+
+## API Reference
+
+### Bubble
+
+<AutoTypeTable path="../../packages/ui/registry/ui/bubble.tsx" name="BubbleProps" />
+
+### BubbleContent
+
+The `render` prop turns the surface into an interactive element — pass
+`render={<button />}` (or an `a`) for a tappable quick-reply or link bubble; it
+then gets a hover surface and the global `:focus-visible` outline.
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/bubble.tsx"
+  name="BubbleContentProps"
+/>
+
+### BubbleReactions
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/bubble.tsx"
+  name="BubbleReactionsProps"
+/>
+
+### BubbleGroup
+
+`BubbleGroup` is a layout wrapper with no own props — it accepts standard
+`<div>` props (`className`, `children`, …).
+
+## Accessibility
+
+- A non-interactive `BubbleContent` is a plain surface. Render it as a
+  `button`/`a` only when it is genuinely actionable — the interactive surface
+  never strips the outline: it keeps the global `:focus-visible` outline and
+  additionally tints its border with the `ring` token
+  (`[button,a]:focus-visible:border-ring/(--alpha-tint-border)`).
+- Variant colours are token-driven and contrast-checked in both themes; the
+  `tinted` surface uses the brand family and stays readable light + dark.
+- `BubbleReactions` is presentational — give interactive reaction controls their
+  own accessible labels.
+
+## Do / Don't
+
+<DoDont
+  do="Use Bubble inside a Message, picking a variant for sent vs received and align for the side."
+  dont="Use Bubble for non-conversational callouts — reach for Alert or Card instead."
+/>

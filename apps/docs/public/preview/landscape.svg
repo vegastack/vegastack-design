@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="260" viewBox="0 0 400 260" role="img" aria-label="Abstract landscape placeholder">
+  <!-- Deterministic local fixture for docs previews/VRT — warm neutral abstract landscape. -->
+  <rect width="400" height="260" fill="#d8d3ca"/>
+  <circle cx="312" cy="70" r="30" fill="#f3efe7"/>
+  <path d="M0 196 L128 92 L252 196 Z" fill="#8d867b"/>
+  <path d="M148 196 L276 116 L400 196 Z" fill="#a8a196"/>
+  <rect y="196" width="400" height="64" fill="#6e685f"/>
+</svg>

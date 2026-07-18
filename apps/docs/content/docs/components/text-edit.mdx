@@ -1,0 +1,174 @@
+---
+title: Text Edit
+description: A Tiptap-based rich-text editor with a compact, token-styled toolbar and markdown-ish input — controlled HTML in, HTML out.
+preview: textEdit
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/text-edit
+```
+
+<RegistryInstallCallout />
+
+This also pulls in `@vegastack/toggle` (the toolbar buttons) and installs the Tiptap peer
+dependencies: `@tiptap/react`, `@tiptap/starter-kit`, and `@tiptap/pm`.
+
+## Usage
+
+```tsx
+import { TextEdit } from "@/components/ui/text-edit";
+
+const [html, setHtml] = useState("<p>Hello</p>");
+
+<TextEdit
+  value={html}
+  onValueChange={setHtml}
+  placeholder="Write something…"
+  aria-label="Body"
+  aria-describedby="body-help"
+/>;
+```
+
+`TextEdit` is **controlled** with `value` / `onValueChange` (HTML strings), or **uncontrolled** with
+`defaultValue`. It is built on [Tiptap v3](https://tiptap.dev) `StarterKit`, which bundles undo/redo
+history, the **bold / italic / strike / code** marks, **headings**, **bullet & ordered lists**,
+**blockquote**, and markdown-ish input rules (type `**bold**`, `# Heading`, `- ` for a list,
+`> ` for a quote, `` `code` ``).
+
+```tsx
+// Uncontrolled — seed initial content and read changes via onValueChange.
+<TextEdit
+  defaultValue="<p>Draft…</p>"
+  onValueChange={(html) => save(html)}
+  aria-label="Notes"
+/>
+```
+
+## Anatomy
+
+`TextEdit` is a single self-contained component, but it composes three layered pieces internally:
+
+```tsx
+<TextEdit>
+  {" "}
+  {/* data-slot="text-edit" — bordered container, focus-within border tint (no ring) */}
+  <Toolbar />{" "}
+  {/* data-slot="text-edit-toolbar" — role="toolbar", Toggle buttons */}
+  <EditorContent />{" "}
+  {/* Tiptap contenteditable, role="textbox" aria-multiline */}
+</TextEdit>
+```
+
+- **Container** (`data-slot="text-edit"`) — the bordered surface. Re-colors its border with the
+  `ring` token on `:focus-within` and to destructive when it wraps an `aria-invalid` control (also
+  setting `data-invalid`). Carries `data-editable` when editable.
+- **Toolbar** (`data-slot="text-edit-toolbar"`, `role="toolbar"`) — a row of `Toggle` buttons
+  (bold, italic, strike, heading, bullet list, ordered list, blockquote, inline code). Each button's
+  pressed state is derived from `editor.isActive(...)` via Tiptap's `useEditorState`, so it stays in
+  sync with the caret. Hidden when `editable={false}`.
+- **Editor surface** (`role="textbox"`, `aria-multiline`) — the Tiptap/ProseMirror contenteditable.
+  Prose is styled entirely with semantic tokens (headings, lists, code, blockquote), so it tracks the
+  active theme with no `@tailwindcss/typography` dependency.
+
+## Examples
+
+An empty editor with a placeholder, and a read-only editor (toolbar hidden) for rendering stored
+content.
+
+<ComponentPreview
+  name="textEditStates"
+  file="components/preview/text-edit.tsx"
+/>
+
+### Invalid
+
+Pass `aria-invalid` to mark the editor invalid: it forwards to the contenteditable textbox and the
+container border turns destructive (`has-aria-invalid:border-destructive/70`, plus `data-invalid`).
+Connect the error text with `aria-describedby` so it is announced with the region. `aria-invalid`
+also accepts `"grammar"` and `"spelling"`.
+
+<ComponentPreview
+  name="textEditInvalid"
+  file="components/preview/text-edit.tsx"
+/>
+
+### Submit on Cmd/Ctrl+Enter
+
+Set `onSubmit` to get a keyboard submit affordance — pressing <kbd>Cmd/Ctrl</kbd>+<kbd>Enter</kbd>
+fires it with the current HTML. It's presentational only: the **host** decides what submitting means
+(save, send, …), and plain <kbd>Enter</kbd> still inserts a newline. Omit `onSubmit` to disable it.
+
+<ComponentPreview
+  name="textEditSubmit"
+  file="components/preview/text-edit.tsx"
+/>
+
+### Sized content area
+
+`minHeight` sets a starting height and `maxHeight` caps it — content past the cap scrolls
+(`overflow-y-auto`) while the toolbar stays pinned. A number is treated as `px`; a string (e.g.
+`'8rem'`) is used verbatim. Both are fed to the `--te-min-h` / `--te-max-h` CSS variables.
+
+<ComponentPreview
+  name="textEditHeights"
+  file="components/preview/text-edit.tsx"
+/>
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/text-edit.tsx"
+  name="TextEditProps"
+/>
+
+## Accessibility
+
+- The editable surface is a `role="textbox"` with `aria-multiline="true"`. Give it an `aria-label`
+  (or associate a visible label) so the region is announced.
+- Use `aria-invalid` and `aria-describedby` to connect validation state and helper/error text to the
+  contenteditable textbox.
+- The toolbar is a `role="toolbar"` labelled “Formatting”; each button is an icon-only `Toggle` with
+  an `aria-label` and `aria-pressed` reflecting the active mark/node.
+- Editing keymaps come from Tiptap `StarterKit` — see the table below. Focus re-colors the container
+  border with the `ring` token (`focus-within:border-ring/70`); never styled with `outline: none`.
+- An invalid control (`aria-invalid`) re-colors the container border to destructive
+  (`has-aria-invalid:border-destructive/70`) and sets `data-invalid` for downstream styling.
+- `editable={false}` removes the toolbar and marks the surface read-only.
+
+| Key                                                   | Action                                            |
+| ----------------------------------------------------- | ------------------------------------------------- |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>B</kbd>                    | Toggle **bold**.                                  |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>I</kbd>                    | Toggle _italic_.                                  |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Z</kbd>                    | Undo.                                             |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> | Redo.                                             |
+| <kbd>Enter</kbd>                                      | New paragraph (or new list item inside a list).   |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Enter</kbd>                | Fire `onSubmit` with the current HTML (when set). The host decides what submitting means; plain <kbd>Enter</kbd> still inserts a newline. |
+| <kbd>Tab</kbd>                                        | Move focus out of the editor to the next control. |
+
+## Scope
+
+`TextEdit` is the **presentational base editor** — a controlled HTML value, the StarterKit
+formatting set, the styled toolbar, the placeholder, read-only mode, a `Cmd/Ctrl+Enter` `onSubmit`
+affordance, and `minHeight`/`maxHeight` sizing. Heavier, app-coupled capabilities are intentionally
+**out of this core** (each needs app infrastructure or ships as a separate composed extension),
+mirroring the design system's G7 presentational/app-coupled rule:
+
+| Capability                                                           | Why it's out of the base                                         | Where it lives                            |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------- |
+| Image upload / paste-to-upload                                       | Needs app storage (R2/CDN)                                       | App resolves URLs (same split as `Image`) |
+| @mentions                                                            | Needs the app's user/entity data                                 | App-supplied data source + query          |
+| Markdown import/export, emoji, task lists, code-block language menus | Composed Tiptap extensions                                       | Future composed addons                    |
+| Real-time collaboration (multi-cursor, awareness, Yjs CRDT)          | Needs `@tiptap/extension-collaboration` + `yjs` + a sync backend | Separate `text-edit-collab` component     |
+
+This base ships no `@tiptap/extension-collaboration` and no `yjs` dependency — it is a self-contained
+single-user editor. For richer needs, compose the relevant extension on top or use the dedicated
+follow-up component.
+
+## Do / Don't
+
+<DoDont
+  do="Use TextEdit for short-to-medium rich text — comments, descriptions, release notes — and drive it with controlled value/onValueChange HTML."
+  dont="Use it for plain single-line input (use Input) or for collaborative real-time docs (use the deferred text-edit-collab)."
+/>

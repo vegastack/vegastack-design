@@ -1,0 +1,67 @@
+---
+title: Spacing
+description: The 4px spacing scale — one base unit, Tailwind's spacing utilities, and var(--spacing).
+---
+
+Spacing is a **single base unit** stepped on a 4px scale. Tailwind v4 supplies the base
+`--spacing` variable (`0.25rem` = 4px); every spacing utility (`p-4`, `gap-2`, `mt-6`, `w-12`)
+resolves to `calc(var(--spacing) * N)`. Use the scale — never one-off `px` values.
+
+<SpacingScale />
+
+## The scale
+
+Steps compose from the 4px base: **4 / 8 / 12 / 16 / 24 / 32 / 48 / 64px** (and beyond). The
+`SpacingScale` bars above are derived live with `calc(var(--spacing) * step)` — the px figures are
+descriptive labels, not separate tokens. There is **no per-step token**; the scale is the base unit
+multiplied by Tailwind's numeric utility name.
+
+| Utility step | Computed | Typical use |
+| --- | --- | --- |
+| `1` | 4px | hairline gaps, icon-to-label |
+| `2` | 8px | tight inline spacing |
+| `3` | 12px | control padding |
+| `4` | 16px | default block gap |
+| `6` | 24px | section padding |
+| `8` | 32px | between groups |
+| `12` | 48px | large vertical rhythm |
+| `16` | 64px | page-level separation |
+
+## `var(--spacing)`
+
+`--spacing` is Tailwind v4's own base unit (`0.25rem`), not a `@vegastack/design-tokens` value — the tokens
+package ships no `--spacing` of its own. Internal utilities reference it directly when they need a
+spacing-relative length, e.g. the scroll-fade reveal in `@vegastack/design-tokens/utilities.css` uses
+`calc(var(--spacing) * 24)`. In app code, reach for the named utility first; drop to the variable
+only for a computed length:
+
+```tsx
+<div className="p-4 gap-2" />
+
+// computed length — same 4px grid, expressed once
+<div style={{ paddingInline: 'calc(var(--spacing) * 6)' }} />
+```
+
+## Tailwind usage
+
+Padding, margin, `gap`, `width`/`height`, `inset`, and `space-*` all read the same scale, so a
+layout stays on-grid by construction. Prefer `gap` on flex/grid containers over per-child margins.
+
+```tsx
+<div className="flex flex-col gap-4 p-6">
+  <header className="flex items-center gap-2" />
+  <section className="space-y-3" />
+</div>
+```
+
+<DoDont
+  do="Use scale steps: p-4, gap-2, mt-6 — multiples of the 4px base."
+  dont="Hardcode off-grid lengths: p-[15px], gap-[7px], mt-[18px]."
+/>
+
+## Related
+
+- [Radius](/docs/foundations/radius) — the corner-rounding scale (`--radius-sm` / `--radius-md` /
+  `--radius-lg`) that pairs with spacing on every surface.
+- [Card](/docs/components/card) and [Separator](/docs/components/separator) — layout primitives that
+  consume the spacing scale for their internal padding and rhythm.

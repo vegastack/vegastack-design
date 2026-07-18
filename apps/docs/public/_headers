@@ -1,0 +1,14 @@
+# Cloudflare Workers Static Assets header rules (https://developers.cloudflare.com/workers/static-assets/headers/).
+# Applied on top of `out/` at deploy (wrangler.jsonc `assets.directory`). More specific rules
+# below win over less specific ones for the same response header.
+
+# Registry JSON is the update channel consumers poll (`vegastack-design check-updates`, `shadcn
+# add --diff`) — it must revalidate quickly, not be treated as immutable, and is fetched
+# cross-origin by consumer tooling that isn't on design.vegastack.com.
+/r/*
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=300, must-revalidate
+
+# Next's content-hashed build assets never change under a given URL — safe to cache forever.
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable

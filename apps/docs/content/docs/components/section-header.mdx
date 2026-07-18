@@ -1,0 +1,76 @@
+---
+title: Section Header
+description: A marketing section lead-in — a mono uppercase eyebrow, a display-scale title, and an optional description.
+preview: sectionHeader
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/section-header
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { SectionHeader } from '@/components/ui/section-header';
+
+<SectionHeader
+  eyebrow="Platform"
+  title="Ship agentic UI, fast."
+  description="Tokens, components, and a private registry — one system for humans and agents."
+/>;
+```
+
+<ComponentPreview name="sectionHeader" file="components/preview/section-header.tsx" />
+
+## Serif emphasis
+
+Compose a serif-italic emphasis span for **one** word or phrase inside `title` — never the whole
+headline. `font-serif` resolves to the Newsreader token; reserve it for display emphasis and
+pull-quotes only (see [`Testimonial`](/docs/components/testimonial)), never running body text.
+
+<ComponentPreview name="sectionHeaderEmphasis" file="components/preview/section-header.tsx" />
+
+```tsx
+<SectionHeader
+  title={
+    <>
+      Built for <em className="font-serif italic">agentic</em> teams
+    </>
+  }
+/>
+```
+
+## Sizes
+
+`sm` / `md` (default) / `lg` / `xl` map to the tokenized `text-display-*` ladder (32 / 40 / 56 /
+72px, tracking baked in per step).
+
+<ComponentPreview name="sectionHeaderSizes" file="components/preview/section-header.tsx" />
+
+## Center alignment
+
+<ComponentPreview name="sectionHeaderCenter" file="components/preview/section-header.tsx" />
+
+## API Reference
+
+<AutoTypeTable path="../../packages/ui/registry/ui/section-header.tsx" name="SectionHeaderProps" />
+
+## Accessibility
+
+- The title renders as an `<h2>` — place `SectionHeader` where an `<h2>` is the correct level for
+  the page outline (it does not accept a level prop; wrap it or adjust the surrounding structure
+  if a different level is required).
+- The eyebrow's `--brand` marker dot is `aria-hidden` — the eyebrow TEXT carries the meaning.
+- Uppercase is applied only to the mono eyebrow (`font-mono` + `text-mono-label`) — never to the
+  title or description (uppercase is mono-exclusive, audit 17-brand-direction).
+
+## Do / Don't
+
+<DoDont
+  do="Reserve the serif-italic emphasis span for a single word or short phrase per header."
+  dont="Set the whole title in font-serif, or uppercase the title/description to match the eyebrow."
+/>

@@ -1,0 +1,136 @@
+---
+title: Tabs
+description: A set of layered sections — line or pill variants, optional icons and count badges, horizontal or vertical orientation, full keyboard navigation.
+preview: tabs
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/tabs
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+
+<Tabs defaultValue="overview">
+  <TabsList>
+    <TabsTrigger value="overview">Overview</TabsTrigger>
+    <TabsTrigger value="activity" count={3}>
+      Activity
+    </TabsTrigger>
+  </TabsList>
+  <TabsContent value="overview">Overview content</TabsContent>
+  <TabsContent value="activity">Activity content</TabsContent>
+</Tabs>;
+```
+
+## Playground
+
+Switch between the variants and orientations, then copy the generated JSX.
+
+<TabsPlayground />
+
+## Anatomy
+
+`Tabs` is a compound component built on Base UI Tabs. Compose the parts inside the root, matching
+each `TabsTrigger` to a `TabsContent` by `value`:
+
+```tsx
+<Tabs defaultValue="overview" orientation="horizontal">
+  <TabsList variant="line">
+    <TabsTrigger value="overview">
+      <Icon />
+      Overview
+    </TabsTrigger>
+    <TabsTrigger value="activity" count={3}>
+      Activity
+    </TabsTrigger>
+  </TabsList>
+  <TabsContent value="overview">…</TabsContent>
+  <TabsContent value="activity">…</TabsContent>
+</Tabs>;
+```
+
+- `Tabs` — the root that groups the list and panels and owns `orientation` (`data-slot="tabs"`,
+  `data-orientation`). Controlled via `value`/`onValueChange`, or uncontrolled via `defaultValue`.
+- `TabsList` — the row (or column) of triggers (`data-slot="tabs-list"`, `data-variant`). Hosts the
+  moving underline indicator for the `line` variant.
+- `TabsTrigger` — an individual tab button (`data-slot="tabs-trigger"`). Active state is exposed as
+  `data-active`. Compose a leading icon as the first child; pass `count` for a trailing badge.
+- `TabsContent` — the panel shown for the active tab (`data-slot="tabs-content"`), matched by `value`.
+
+## Variants
+
+`line` (a moving underline tracks the active tab, the default) and `pill` (a muted track where the
+active tab becomes a raised `bg-background` chip). Both support a leading icon composed as the first
+child and a trailing `count` badge.
+
+<ComponentPreview name="tabsVariants" file="components/preview/tabs.tsx" />
+
+## Orientation
+
+Set `orientation="vertical"` on the root to stack the tab list beside the panels — useful for
+settings-style navigation. Keyboard navigation switches to the up/down arrow keys automatically.
+With the `line` variant, the moving underline indicator rides the left rail instead of the bottom
+rule:
+
+<ComponentPreview name="tabsVerticalLine" file="components/preview/tabs.tsx" />
+
+The `pill` variant stacks the raised-chip triggers in a column:
+
+<ComponentPreview name="tabsVertical" file="components/preview/tabs.tsx" />
+
+## Disabled
+
+Mark a `TabsTrigger` `disabled` to render it dimmed and non-interactive. It carries `data-disabled`,
+is skipped by keyboard navigation, and cannot be selected:
+
+<ComponentPreview name="tabsDisabled" file="components/preview/tabs.tsx" />
+
+## API Reference
+
+### Tabs
+
+<AutoTypeTable path="../../packages/ui/registry/ui/tabs.tsx" name="TabsProps" />
+
+### TabsList
+
+<AutoTypeTable path="../../packages/ui/registry/ui/tabs.tsx" name="TabsListProps" />
+
+### TabsTrigger
+
+<AutoTypeTable path="../../packages/ui/registry/ui/tabs.tsx" name="TabsTriggerProps" />
+
+### TabsContent
+
+<AutoTypeTable path="../../packages/ui/registry/ui/tabs.tsx" name="TabsContentProps" />
+
+## Accessibility
+
+- Built on Base UI Tabs: the list renders with `role="tablist"`, each trigger with `role="tab"`, and
+  each panel with `role="tabpanel"`, all wired together with `aria-controls`/`aria-selected`.
+- Roving tabindex — only the active tab is in the tab order; arrow keys move between tabs within the
+  list.
+- Activation is manual by default: arrow keys move focus, <kbd>Enter</kbd>/<kbd>Space</kbd> selects.
+- Every interactive part shows a visible `:focus-visible` ring (`outline-ring`) — never `outline: none`.
+- Disabled triggers carry `data-disabled`, are skipped by keyboard navigation, and are not selectable.
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Move focus into the tab list (lands on the active tab), then out to the panel. |
+| <kbd>←</kbd> / <kbd>→</kbd> | Move focus between tabs (horizontal orientation). |
+| <kbd>↑</kbd> / <kbd>↓</kbd> | Move focus between tabs (vertical orientation). |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Move focus to the first / last tab. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused tab. |
+
+## Do / Don't
+
+<DoDont
+  do="Keep tab labels short and parallel, match each trigger to a panel by value, and use a count badge to surface pending items."
+  dont="Use tabs for sequential steps (use a stepper/wizard) or nest tabs more than one level deep."
+/>

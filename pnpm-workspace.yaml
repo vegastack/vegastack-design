@@ -1,0 +1,29 @@
+packages:
+  - 'packages/*'
+  - 'apps/*'
+  - 'config/*'
+
+# Default catalog — pins shared versions across all packages (referenced as "catalog:")
+catalog:
+  react: ^19.2.7
+  react-dom: ^19.2.7
+  tailwindcss: ^4.3.2
+  typescript: ^6.0.3
+
+# LOCAL: let `shadcn add` (which runs `pnpm add @vegastack/x@^0.1.0`) resolve the
+# unpublished @vegastack/* packages from the workspace instead of hitting npm.
+# Post-publish these resolve from npm normally (workspace still preferred when version matches).
+linkWorkspacePackages: true
+preferWorkspacePackages: true
+
+allowBuilds:
+  esbuild: true
+  msw: false
+  sharp: true
+  # workerd is wrangler's runtime (Cloudflare, trusted); its install script fetches the platform
+  # binary the deploy workflow (`wrangler deploy`) needs. Enabled so CI install builds it cleanly.
+  workerd: true
+
+minimumReleaseAgeExclude:
+  - fumadocs-core@16.10.5
+  - fumadocs-ui@16.10.5

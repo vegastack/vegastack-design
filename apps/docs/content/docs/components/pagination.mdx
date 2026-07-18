@@ -1,0 +1,185 @@
+---
+title: Pagination
+description: Page navigation — previous/next, numbered page links, an ellipsis for long ranges, and the active page.
+preview: pagination
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/pagination
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+
+<Pagination>
+  <PaginationContent>
+    <PaginationItem>
+      <PaginationPrevious href="?page=1" />
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationLink href="?page=1">1</PaginationLink>
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationLink href="?page=2" isActive>
+        2
+      </PaginationLink>
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationEllipsis />
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationNext href="?page=2" />
+    </PaginationItem>
+  </PaginationContent>
+</Pagination>;
+```
+
+## Playground
+
+Try every page-link size on a live pagination bar, then copy the generated JSX.
+
+<PaginationPlayground />
+
+## Anatomy
+
+`Pagination` is a compound component built from a presentational
+`<nav role="navigation" aria-label="pagination">` wrapping an unordered list of page controls.
+Compose the parts inside the root — every part exposes a `data-slot`:
+
+```tsx
+<Pagination>
+  <PaginationContent>
+    <PaginationItem>
+      <PaginationPrevious href="?page=1" />
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationLink href="?page=1">1</PaginationLink>
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationLink href="?page=2" isActive>
+        2 {/* current page */}
+      </PaginationLink>
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationEllipsis /> {/* collapse a long range */}
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationNext href="?page=2" />
+    </PaginationItem>
+  </PaginationContent>
+</Pagination>
+```
+
+- `Pagination` — the navigation landmark (`data-slot="pagination"`). Renders `<nav role="navigation" aria-label="pagination">`.
+- `PaginationContent` — the list of controls (`<ul>`, `data-slot="pagination-content"`). Flex-aligned with a consistent gap.
+- `PaginationItem` — a single list slot (`<li>`, `data-slot="pagination-item"`).
+- `PaginationLink` — a navigable page link (`<a>`, `data-slot="pagination-link"`). Styled like a ghost/outline button; set `isActive` on the current page and choose a `size`. Supports the Base UI `render` prop for client-side routing.
+- `PaginationPrevious` — a labelled "previous page" control (`<a>`) with a leading chevron.
+- `PaginationNext` — a labelled "next page" control (`<a>`) with a trailing chevron.
+- `PaginationEllipsis` — a decorative collapsed-pages indicator (`data-slot="pagination-ellipsis"`, `aria-hidden`) for long ranges.
+
+## Examples
+
+<ComponentPreview name="pagination" file="components/preview/pagination.tsx" />
+
+### Routing links
+
+Use the `render` prop on `PaginationLink` (and `PaginationPrevious`/`PaginationNext`) to compose with
+your router's link component while keeping pagination styling and semantics:
+
+```tsx
+import Link from "next/link";
+
+<PaginationLink render={<Link href="?page=2" />} isActive>
+  2
+</PaginationLink>;
+```
+
+<ComponentPreview
+  name="paginationRouting"
+  file="components/preview/pagination.tsx"
+/>
+
+### Sizes
+
+`PaginationLink` takes a `size` prop — `sm` (28px), `default` (32px), `lg` (40px), and `icon` (a 32px square,
+the square default for numbered pages) — on the same 28/32/40 control scale as buttons and inputs. The
+grid below renders all four: `icon` is the squared-off default, `sm`/`default`/`lg` widen the hit target
+with horizontal padding.
+
+<ComponentPreview
+  name="paginationSizes"
+  file="components/preview/pagination.tsx"
+/>
+
+### Edge states
+
+When a previous/next control is unavailable, omit `href` and set `aria-disabled="true"` — the link
+then enforces the disabled state itself (removed from the tab order, clicks and Enter blocked). A
+disabled link can never navigate.
+
+On the **first page**, disable `PaginationPrevious`:
+
+<ComponentPreview
+  name="paginationFirstPage"
+  file="components/preview/pagination.tsx"
+/>
+
+On the **last page**, mirror the pattern on `PaginationNext`:
+
+<ComponentPreview
+  name="paginationLastPage"
+  file="components/preview/pagination.tsx"
+/>
+
+## API Reference
+
+### PaginationLink
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/pagination.tsx"
+  name="PaginationLinkProps"
+/>
+
+### PaginationPrevious / PaginationNext
+
+`PaginationPrevious` and `PaginationNext` accept exactly the same props as
+`PaginationLink` (`isActive`, `size`, `render`, plus native `<a>` props) — they
+pre-compose the directional chevron and label.
+
+`Pagination`, `PaginationContent`, `PaginationItem`, and `PaginationEllipsis`
+add no props of their own — each accepts everything its underlying native
+element accepts (`<nav>`, `<ul>`, `<li>`, `<span>`), plus `className` and
+`ref`.
+
+## Accessibility
+
+- The root is a navigation landmark: `<nav role="navigation" aria-label="pagination">`, so assistive tech
+  announces and lists it distinctly from other `<nav>` regions.
+- The active page uses `aria-current="page"`, so it is announced as the current location in the set.
+- Previous/Next controls carry an explicit `aria-label` ("Go to previous page" / "Go to next page") so the
+  icon-only direction is still meaningful to screen readers.
+- `PaginationEllipsis` is decorative (`aria-hidden="true"`). Use real page links or a separate
+  labelled menu trigger when skipped pages need to be reachable.
+- Disabled Previous/Next controls omit `href` and set `aria-disabled` — the component then removes
+  them from the tab order and blocks activation itself (an `aria-disabled` anchor is otherwise not
+  inert).
+- Links use the native `<a>` and keep a visible `:focus-visible` ring — never `outline: none`.
+
+| Key              | Action                                      |
+| ---------------- | ------------------------------------------- |
+| <kbd>Tab</kbd>   | Move focus through the pagination controls. |
+| <kbd>Enter</kbd> | Follow the focused page link.               |
+
+## Do / Don't
+
+<DoDont
+  do="Mark the current page with isActive so it gets aria-current='page' and the active styling, and give icon-only Previous/Next controls a clear label."
+  dont="Render the active page as a plain non-link or omit Previous/Next labels — screen-reader users lose the current position and direction."
+/>

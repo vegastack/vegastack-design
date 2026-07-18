@@ -1,0 +1,96 @@
+---
+title: Colors
+description: The semantic OKLCH color tokens — light and dark, with a one-file override.
+---
+
+Every color is a **semantic token** in OKLCH, defined in `@vegastack/design-tokens/theme.css` as a `--<name>`
+CSS variable on `:root` (light) and `.dark`. Components only ever use semantic utilities
+(`bg-primary`, `text-muted-foreground`), never raw palettes or hex.
+
+<ColorPalette />
+
+## Per-family variants
+
+Each chromatic family (`info`, `destructive`, `success`, `warning`) ships **six real tokens** — no opacity-derived colors:
+
+- **fill** (`--info`) + **foreground** (`--info-foreground`) — the solid surface and its on-fill text.
+- **hover** / **active** (`--info-hover`, `--info-active`) — the interaction-state fills (`hover:bg-info-hover active:bg-info-active`).
+- **subtle** (`--info-subtle`) + **text** (`--info-text`) — the soft tinted background (badges, alerts) and the page-readable on-surface color.
+
+`subtle` and `text` are **theme-aware** (distinct light/dark values); `fill` / `hover` / `active` / `foreground` are **theme-independent** — the same saturated mark with white text in both themes, so a `bg-destructive` button reads the same way on a light or dark page. The neutral action color mirrors this with `--primary-hover` / `--primary-active`, and `--muted-foreground-faint` is the deliberately sub-AA tone reserved for placeholders.
+
+## Charts — categorical series
+
+The **Charts** group ships **eight categorical tokens** (`--chart-1` … `--chart-8`), consumed as
+`bg-chart-1`, `text-chart-2`, `fill-chart-3`, etc. via the `@theme inline` bridge
+(`--color-chart-N: var(--chart-N)`). They exist to color **categorical data series** — one hue per
+series so adjacent slices, bars, or lines stay distinguishable — not as general-purpose accents.
+
+Unlike the chromatic families, charts are **theme-aware**: every token has a distinct light and dark
+value (e.g. `--chart-1` is `oklch(0.53 0.189 295)` on `:root` and `oklch(0.72 0.155 295)` in `.dark`),
+so the palette stays legible against either page background. There is no per-token foreground; pick
+text/axis colors from the surface tokens (`text-foreground`, `text-muted-foreground`).
+
+<Callout type="info">
+  Assign chart colors **by index in series order** (`chart-1`, `chart-2`, …), not by meaning. For
+  status semantics (success / warning / destructive) use the chromatic families instead, so the same
+  hue carries the same meaning everywhere.
+</Callout>
+
+## Sidebar surface
+
+The **Sidebar surface** group is a self-contained eight-token set for the app navigation rail, so it
+can carry a different surface treatment from the main page without redefining the global tokens:
+
+- **`--sidebar`** + **`--sidebar-foreground`** — the rail background and its default text.
+- **`--sidebar-primary`** + **`--sidebar-primary-foreground`** — the active/selected nav item fill and its on-fill text.
+- **`--sidebar-accent`** + **`--sidebar-accent-foreground`** — the hover/secondary surface and its text.
+- **`--sidebar-border`** + **`--sidebar-ring`** — the divider lines and the focus ring inside the rail.
+
+All eight are **theme-aware** and bridged to utilities through `@theme inline`
+(`--color-sidebar: var(--sidebar)`, etc.), so they consume as `bg-sidebar`, `text-sidebar-foreground`,
+`border-sidebar-border`, `ring-sidebar-ring`, and so on. In light mode `--sidebar` is a near-white
+`oklch(0.985 0.003 75)`; in dark mode it inverts to `oklch(0.145 0.003 75)`.
+
+## Beyond color
+
+Color is one of several token families. The same semantic-token, light/dark, single-override model
+extends to the rest of the system:
+
+- **[Radius](/docs/foundations/radius)** — one base radius (`--radius`, `0.75rem`) plus the
+  `--radius-sm` / `--radius-md` / `--radius-lg` scale, bridged to Tailwind `rounded-*`.
+- **[Elevation](/docs/foundations/elevation)** — borders-only by default; exactly one sanctioned
+  shadow (`--shadow-overlay`), reserved for floating overlays (popover / dialog / menu).
+
+## Override model
+
+Redefine a single variable in your app's global CSS and **every component repaints** — light and dark:
+
+```css
+:root {
+  --primary: oklch(0.55 0.2 264); /* your brand */
+}
+```
+
+Because components reference `--primary` through the `@theme inline` bridge (`--color-primary:
+var(--primary)`), the override flows to `bg-primary`, `bg-primary/10`, `ring-primary`, everywhere.
+
+<DoDont
+  do="Use semantic tokens: bg-primary, text-muted-foreground, border-border."
+  dont="Hardcode hex or raw palettes: bg-[#18181b], bg-neutral-900."
+/>
+
+## The brand accent
+
+`--brand` is the **phosphor-green marker** — theme-split (CX-9): `oklch(0.6 0.17 148)` in light
+(3.5:1 on `background`/`card`, so meaningful glyphs clear WCAG 1.4.11) and the full
+`oklch(0.86 0.21 148)` phosphor in dark (13.3:1). It is rationed to **marker roles only**: the
+live/AI-state dot, a sparkline endpoint, an eyebrow highlight, the terminal prompt glyph. Never
+fills, borders-at-rest, headlines, or buttons.
+
+Brand and `success` share the green region deliberately (the brand IS a green); they are never
+distinguished by hue alone — an AI-live marker always pairs shape/motion/label with the color
+(pulse dot + "LIVE"/"REASONING" mono label), and success states always carry an icon. Under
+deuteranopia/protanopia simulation the pair keeps a luminance separation (ΔL ≈ 0.10 light /
+0.28 dark) on top of those structural cues, and `chart-7` was reassigned from green to olive
+(hue 104) so data series never collide with the marker.

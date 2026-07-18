@@ -1,0 +1,103 @@
+---
+title: Motion
+description: CSS-first motion. Duration + easing tokens, Base UI transitions, reduced-motion baked in.
+---
+
+Motion is **CSS-first**: plain `transition-*` classes + Base UI's built-in `data-starting-style` /
+`data-ending-style` transitions for overlays, plus a small set of mount-animation `motion-*`
+utilities for state feedback. The JS `motion` library appears in exactly one sanctioned place —
+the mirrored [lucide-animated icons](/docs/foundations/icons) — and is a real dependency there,
+not an optional one.
+
+## Tokens
+
+- **Duration** — `--duration-fast` (150ms), `--duration-base` (200ms), `--duration-slow` (300ms)
+- **Easing** — `--ease-standard`, `--ease-emphasized`, `--ease-exit`, `--ease-spring` (a `linear()`
+  spring with a tiny ~1.05 overshoot — the arrival/success curve) — bridged from `--motion-ease-*`
+
+<MotionSpecimen />
+
+## Motion at a glance
+
+The whole vocabulary in plain language — what each animation looks like, where it lives, and how
+to see it. Everything is deliberately subtle (150–400ms, state-triggered, never on page load) and
+disappears entirely under OS "Reduce Motion".
+
+| Animation | What it looks like | Where it's used | How to see it |
+|---|---|---|---|
+| `motion-pop-in` | A tiny springy "pop" — scales up from 90% while fading in, with a slight bounce | copy-button ✓-swap, password-input eye-swap, auto-save status icons, notification-bell count, `Badge`/`Marker` `animateIn` (opt-in) | Click any Copy button and watch the check arrive |
+| `motion-enter-up` | Fades in while rising 4px — "slides up into place" | `FieldError` messages, chat `Message`/`Bubble` `animateIn` (opt-in), `SkeletonReveal`, `StaggeredTextReveal` | Submit an empty required Field; the error slides up |
+| `motion-shake` | A quick decaying left-right wiggle (±4px) | `Input`, `Checkbox`, `RadioGroup`, `OTPInput` — fires automatically on becoming invalid | Enter a wrong OTP in the demo; the field shakes once |
+| `--ease-spring` | The bouncy arrival curve (CSS `linear()` spring) powering the pop | The easing inside `motion-pop-in`; available to any `transition-*` pair | It's the personality inside the pop, not a separate effect |
+| `AnimatedNumber` | Numbers count smoothly up/down to their new value, locale/currency aware | dashboard-01 stat cards, its own component page | Change the value in the [Animated Number](/docs/components/animated-number) demo |
+| Keyed presence | A changed icon/label is *replaced* by a freshly-animated one instead of mutating in place | copy-button, password-input, auto-save-input, split-button | The mechanism behind the pop-in sightings above |
+| Animated icons | Per-icon micro-animations with an imperative `startAnimation()` handle (e.g. the check that draws its stroke) | All 440 `icon-*` mirror items | Hover icons in the [icon gallery](/docs/foundations/icons) |
+| Shimmer | A moving highlight over loading placeholders | `Skeleton`, the `shimmer` text utility | Any skeleton demo |
+| Overlay transitions | Fade/scale/slide on open and close, reversible mid-flight | Every dialog, sheet, popover, menu, select, tooltip | Open and quickly re-close any overlay |
+
+## Mechanism matrix
+
+Base UI's `data-starting-style` / `data-ending-style` attributes can't express everything — three
+mechanisms cover the system, each with a defined home:
+
+| Mechanism | What it's for | How it works |
+|---|---|---|
+| **Base UI lifecycle** | Overlays & disclosures — dialog, sheet, popover, menus, select, tooltip, hover-card, accordion, collapsible, tabs indicator | Plain CSS `transition-*` driven by `data-[starting-style]` / `data-[ending-style]` (+ `--transform-origin`, `--accordion-panel-height`). Interruptible by construction — a transition reverses mid-flight if state flips back. |
+| **Keyed presence** | Icon/text swaps & arrivals — copy-button ✓, auto-save status, password eye, notification-bell badge, `Badge`/`Marker`/`Message`/`Bubble` `animateIn`, `SkeletonReveal` | The swapped element gets a React `key` tied to its state, so a state change **remounts** it and its `motion-*` mount animation plays once: `motion-pop-in` (scale 0.9→1 + fade, `--ease-spring`) for swaps/badges, `motion-enter-up` (fade + 4px rise) for content arrivals. |
+| **Explicit replay APIs** | Effects that must re-run on demand — error **shake**, success **check draw**, **number** ticks | `useAnimationReplay` / `useShakeOnInvalid` (class-toggle + `animationend` cleanup — replays `motion-shake` without remounting, so a focused input keeps focus/caret); the lucide-animated icons' imperative `startAnimation()` handle (the check's `pathLength` draw-in lives there); `AnimatedNumber`'s rAF tween. |
+
+Form controls (`Input`, `OTPInput`, `Checkbox`, `RadioGroup`) auto-shake once when they *transition*
+into `aria-invalid`; repeated failures replay via `shakeSignal` / the hook. `FieldError` enters with
+`motion-enter-up`, so "message slides in + control shakes" composes from two independent mechanisms.
+
+## Sanctioned utilities
+
+`motion-pop-in`, `motion-enter-up`, `motion-shake` (from `@vegastack/design-tokens/utilities.css`) are the
+only mount-animation classes; everything else is a `transition-*` + token pair. Raw motion values —
+`animate-[…]`, `cubic-bezier(…)`, `linear(…)`, `duration-[…]`, `ease-[…]` — are lint-banned
+(`raw-motion`); every `transition-*` must carry `duration-*` **and** `ease-*` in the same class
+string (`transition-pairing`).
+
+## Documented exceptions
+
+- **Toasts (sonner)** — motion is owned by the sonner library on purpose: a toast is an
+  interruption that should feel considered, not snappy, and sonner's tuning is the well-regarded
+  reference implementation. Not on the token scale; do not "fix" it.
+- **Indeterminate loaders** — `animate-spin` (Spinner) and `animate-pulse` (Skeleton) are platform
+  defaults, allowed as-is.
+- **Animated icons** — the `registry/ui/icons/*` mirrors carry their own Motion-driven variants
+  (including the check `pathLength` draw); their inline values are regenerated by the mirror
+  script, not hand-tuned.
+
+## Exclusions (deliberate)
+
+Adapted-from-reference effects we chose **not** to ship, per the dense dev-tool aesthetic: avatar
+hover lift, card 3D tilt, FAB morph. No button hover animations anywhere — press feedback is the
+`active:translate-y-px` state change, which stays.
+
+## Duration utility bridge
+
+The raw duration tokens live under `--duration-*`, but the `@theme inline` block in
+`@vegastack/design-tokens/theme.css` also re-exports them into Tailwind's transition-duration namespace:
+
+```css
+@theme inline {
+  --transition-duration-fast: var(--duration-fast);
+  --transition-duration-base: var(--duration-base);
+  --transition-duration-slow: var(--duration-slow);
+}
+```
+
+That bridge is what lets you write the named `duration-*` utility instead of an arbitrary value —
+both compile to the same `150ms`:
+
+```tsx
+<div className="transition-colors ease-standard duration-fast" />
+```
+
+## Reduced motion
+
+`prefers-reduced-motion: reduce` is enforced globally in `@vegastack/design-tokens/base.css`: every
+`animation-duration` / `transition-duration` collapses to `0.01ms` with a single iteration, so no
+component opts out by accident. The specimen above also carries `motion-reduce:animate-none`
+defensively.

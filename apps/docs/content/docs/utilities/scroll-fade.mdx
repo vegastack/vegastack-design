@@ -1,0 +1,85 @@
+---
+title: Scroll Fade
+description: Mask-based fade hints on the edges of a scroll container — pure CSS, scroll-position aware, and RTL-safe.
+preview: scrollFade
+---
+
+`scroll-fade` is a Tailwind `@utility` that fades the edges of a scroll container
+to hint at more content. It uses `mask-image` with a scroll-driven timeline — no
+JavaScript and no scroll listeners. The fade is crisp at the start/end and softens
+mid-scroll; without scroll-driven-animation support it degrades to a static fade.
+
+## Installation
+
+These utilities ship with **`@vegastack/design-tokens`** — no `shadcn add` step:
+
+```css
+@import "@vegastack/design-tokens/utilities.css";
+```
+
+The `@vegastack/design` imports it for you, so it is available
+automatically alongside [`shimmer`](/docs/utilities/shimmer).
+
+## Usage
+
+```tsx
+<div className="scroll-fade h-72 overflow-y-auto">{/* content */}</div>
+```
+
+The container needs a bounded size and `overflow` so it can actually scroll.
+
+<ComponentPreview name="scrollFade" file="components/preview/utilities.tsx" />
+
+## Examples
+
+### Horizontal
+
+`scroll-fade-x` fades the start/end edges of a horizontally-scrolling row.
+
+<ComponentPreview
+  name="scrollFadeHorizontal"
+  file="components/preview/utilities.tsx"
+/>
+
+### Single edge
+
+Fade only one edge with `scroll-fade-t` or `scroll-fade-b` (and `-l`/`-r` or the
+logical `-s`/`-e`).
+
+<ComponentPreview name="scrollFadeEdge" file="components/preview/utilities.tsx" />
+
+### Fixed size
+
+`scroll-fade-<n>` sets a fixed fade depth from the spacing scale.
+
+<ComponentPreview name="scrollFadeSize" file="components/preview/utilities.tsx" />
+
+## Classes
+
+| Class | Effect |
+| --- | --- |
+| `scroll-fade` / `scroll-fade-y` | Vertical fade (top + bottom). |
+| `scroll-fade-x` | Horizontal fade (start + end). |
+| `scroll-fade-t` / `scroll-fade-b` | Top / bottom edge only. |
+| `scroll-fade-l` / `scroll-fade-r` | Left / right edge only. |
+| `scroll-fade-s` / `scroll-fade-e` | Logical start / end edge (RTL-aware). |
+| `scroll-fade-*` | Fixed fade depth for all active edges (spacing scale or a length/percentage). |
+| `scroll-fade-t-*` | Fixed fade depth for the top edge only (spacing scale or a length/percentage). |
+| `scroll-fade-b-*` | Fixed fade depth for the bottom edge only (spacing scale or a length/percentage). |
+| `scroll-fade-s-*` | Fixed fade depth for the logical start edge only, RTL-aware (spacing scale or a length/percentage). |
+| `scroll-fade-e-*` | Fixed fade depth for the logical end edge only, RTL-aware (spacing scale or a length/percentage). |
+| `scroll-fade-none` | Disable the fade. |
+
+## Notes
+
+- Relies on CSS scroll-driven animations (`animation-timeline: scroll()`); in
+  engines without support it falls back to a static bilateral fade.
+- It is the edge treatment used by the
+  [Message Scroller](/docs/components/message-scroller) viewport.
+
+## Do / Don't
+
+<DoDont
+  do="Apply scroll-fade to a bounded, overflowing container to hint that more content is scrollable."
+  dont="Apply it to a container that does not scroll — there is nothing to fade toward."
+/>

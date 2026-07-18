@@ -1,0 +1,193 @@
+---
+title: Attachment
+description: A file chip / thumbnail card for chat and message-compose surfaces — media slot, name + meta, uploading/error/complete states, and remove/download actions.
+preview: attachmentFileChip
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/attachment
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { X } from "lucide-react";
+import {
+  Attachment,
+  AttachmentActions,
+  AttachmentContent,
+  AttachmentDescription,
+  AttachmentMedia,
+  AttachmentTitle,
+} from "@/components/ui/attachment";
+import { IconButton } from "@/components/ui/icon-button";
+import { FileText } from "lucide-react";
+
+<Attachment state="complete">
+  <AttachmentMedia>
+    <FileText />
+  </AttachmentMedia>
+  <AttachmentContent>
+    <AttachmentTitle>release-notes.pdf</AttachmentTitle>
+    <AttachmentDescription>248 KB</AttachmentDescription>
+  </AttachmentContent>
+  <AttachmentActions>
+    <IconButton aria-label="Remove release-notes.pdf" variant="ghost" size="xs">
+      <X />
+    </IconButton>
+  </AttachmentActions>
+</Attachment>;
+```
+
+## Playground
+
+Step through the lifecycle states, densities, orientations, and media treatments, then copy the generated JSX.
+
+<AttachmentPlayground />
+
+## Anatomy
+
+There is no headless `@shadcn/react` Attachment primitive published (0.2.1
+exports only `./message-scroller`), so — like the rest of the chat family
+([`Message`](/docs/components/message), [`Bubble`](/docs/components/bubble),
+[`Marker`](/docs/components/marker)) — `Attachment` is fully self-owned: plain
+CVA + `data-slot`/`data-*` styling, no new npm dependency.
+
+- `Attachment` — the root chip/card (`data-slot="attachment"`). Owns `state`,
+  `size`, `orientation`.
+- `AttachmentMedia` — the leading file-type icon or image thumbnail
+  (`data-slot="attachment-media"`, decorative `aria-hidden`). Shows an inline
+  `Spinner` overlay automatically while `state="uploading"`.
+- `AttachmentContent` — the vertical column of title / description / progress.
+- `AttachmentTitle` — the file name. Always truncates.
+- `AttachmentDescription` — the meta line (size, upload %, error message). Pass
+  `live` to make it an `aria-live="polite"` region.
+- `AttachmentProgress` — a thin determinate bar (wraps
+  [`Progress`](/docs/components/progress)) for the uploading state.
+- `AttachmentActions` — the trailing action row. Compose
+  [`IconButton`](/docs/components/icon-button) directly — its type-level
+  `aria-label` requirement covers the "remove button needs an accessible name"
+  contract, so there is no separate `AttachmentAction` wrapper.
+- `AttachmentTrigger` — an optional invisible overlay that turns the whole card
+  into one activation target (open/download). Built on Base UI `useRender`.
+- `AttachmentGroup` — wraps multiple attachments in a message-compose row.
+
+## Examples
+
+### File chip
+
+The default anatomy: a file-type icon, name + size, and a remove action.
+
+<ComponentPreview name="attachmentFileChip" file="components/preview/attachment.tsx" />
+
+### Image thumbnail
+
+`orientation="vertical"` stacks the media on top; `AttachmentMedia
+variant="image"` expects a filled thumbnail — compose
+[`Image`](/docs/components/image) (`aspectRatio="square"
+className="size-full"`) for a real, resolved URL. `AttachmentActions` floats
+over the corner and an `AttachmentTrigger` makes the whole card open the file.
+
+<ComponentPreview
+  name="attachmentImageThumbnail"
+  file="components/preview/attachment.tsx"
+/>
+
+### Uploading
+
+`state="uploading"` shimmers the title and reveals the `AttachmentMedia`
+spinner overlay automatically. Pair `AttachmentProgress` (the visual bar) with
+a `live` `AttachmentDescription` (the text screen readers actually hear as the
+percentage changes).
+
+<ComponentPreview name="attachmentUploading" file="components/preview/attachment.tsx" />
+
+### Error
+
+`state="error"` tints the border, media, title, and description with
+destructive tokens. Give the `AttachmentDescription` `live` so the failure
+reason is announced.
+
+<ComponentPreview name="attachmentError" file="components/preview/attachment.tsx" />
+
+### Removable compose list
+
+`AttachmentGroup` wraps several `size="sm"` attachments under a
+message-compose input; each `IconButton` remove action drives real client
+state.
+
+<ComponentPreview
+  name="attachmentComposeList"
+  file="components/preview/attachment.tsx"
+/>
+
+## API Reference
+
+### Attachment
+
+<AutoTypeTable path="../../packages/ui/registry/ui/attachment.tsx" name="AttachmentProps" />
+
+### AttachmentMedia
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/attachment.tsx"
+  name="AttachmentMediaProps"
+/>
+
+### AttachmentDescription
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/attachment.tsx"
+  name="AttachmentDescriptionProps"
+/>
+
+### AttachmentProgress
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/attachment.tsx"
+  name="AttachmentProgressProps"
+/>
+
+### AttachmentTrigger
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/attachment.tsx"
+  name="AttachmentTriggerProps"
+/>
+
+### AttachmentGroup / AttachmentContent / AttachmentTitle / AttachmentActions
+
+Plain layout wrappers with no own props — they accept standard `<div>` /
+`<span>` props (`className`, `children`, …).
+
+## Accessibility
+
+- `AttachmentMedia` is decorative (`aria-hidden`) — `AttachmentTitle` (the file
+  name) carries the accessible identity, never the icon or thumbnail alone.
+- The remove/download action is a real `IconButton`, which **requires**
+  `aria-label` at the type level — always include the file name in it (e.g.
+  `"Remove release-notes.pdf"`) so multiple attachments stay distinguishable to
+  screen reader users.
+- Transient state changes (an upload percentage, an error message) are not
+  announced by color or a bare `role="progressbar"` alone — pass `live` to
+  `AttachmentDescription` so the text is read out via `role="status"
+  aria-live="polite"`, the same pattern as
+  [`AutoSaveInput`](/docs/components/auto-save-input) and
+  [`CopyButton`](/docs/components/copy-button).
+- `state="disabled"` visually dims the card and sets `pointer-events-none` +
+  `aria-disabled`, but it cannot reach into children — also pass `disabled` to
+  any nested `IconButton` so it is unreachable by keyboard, not just the mouse.
+- `AttachmentTrigger` and `AttachmentActions` share the same `z-(--z-raised)`
+  stacking band; place `AttachmentTrigger` first in JSX so the actions stay on
+  top and clickable.
+
+## Do / Don't
+
+<DoDont
+  do="Pair a live AttachmentDescription with AttachmentProgress while uploading, and always include the file name in the remove IconButton's aria-label."
+  dont="Rely on the border/icon color alone to convey the error state, or drop AttachmentTitle's truncation by overriding className with `whitespace-normal`."
+/>

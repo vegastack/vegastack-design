@@ -1,0 +1,4 @@
+/* Re-export: token values live in @vegastack/design-tokens (a direct dependency of this package),
+ * so pnpm-strict consumers can import "@vegastack/design/theme.css" without declaring the
+ * transitive tokens package themselves. Tokens-only consumers install @vegastack/design-tokens. */
+@import '@vegastack/design-tokens/theme.css';

@@ -1,0 +1,196 @@
+---
+title: Emoji Picker
+description: A popover with a searchable, category-grouped grid of emoji that returns the selected character.
+preview: emojiPicker
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/emoji-picker
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { EmojiPicker } from "@/components/ui/emoji-picker";
+
+<EmojiPicker onValueChange={(emoji) => console.log(emoji)} />;
+```
+
+<ComponentPreview
+  name="emojiPicker"
+  file="components/preview/emoji-picker.tsx"
+/>
+
+## How it works
+
+`EmojiPicker` composes our [`Popover`](/docs/components/popover) (trigger + floating panel), a search
+[`Input`](/docs/components/input), and a scrollable grid of icon [`Button`](/docs/components/button)s.
+Selecting an emoji fires `onValueChange(emoji)` with the character and (by default) closes the panel.
+
+The emoji data is a **curated, embedded set** (`EMOJI`) — a few hundred of the most common emoji
+grouped into nine categories: Smileys, People, Animals, Food, Activities, Travel, Objects, Symbols,
+and Flags. It is intentionally **not** the full Unicode set: keeping the data inline makes the
+component self-contained and zero-dependency (no heavy emoji library, no sprite sheets). Search
+matches each emoji's name and keywords. To support more emoji, extend or replace the exported
+`EMOJI` record.
+
+## Examples
+
+### Insert into a field
+
+Append the picked emoji to a text input — the picker is presentational, so the parent owns the value.
+
+<ComponentPreview
+  name="emojiPickerInput"
+  file="components/preview/emoji-picker.tsx"
+/>
+
+### Custom trigger
+
+Pass a button-like element as `trigger` (composed via Base UI's `render`) to replace the default ghost
+icon button. The forwarded ref lands on the trigger button.
+
+<ComponentPreview
+  name="emojiPickerCustomTrigger"
+  file="components/preview/emoji-picker.tsx"
+/>
+
+### Multi-pick (keep open)
+
+Set `closeOnSelect={false}` so the panel stays open after each selection — useful for
+building a reaction bar or inserting several emoji in a row.
+
+```tsx
+<EmojiPicker
+  closeOnSelect={false}
+  onValueChange={(emoji) => setReactions((prev) => [...prev, emoji])}
+/>
+```
+
+<ComponentPreview
+  name="emojiPickerMultiPick"
+  file="components/preview/emoji-picker.tsx"
+/>
+
+### Side and labels
+
+Use `side` to place the panel relative to the trigger, and `triggerLabel` /
+`searchPlaceholder` to customise the trigger's `aria-label` and the search placeholder copy.
+
+```tsx
+<EmojiPicker
+  side="right"
+  triggerLabel="Insert symbol"
+  searchPlaceholder="Find a symbol…"
+  onValueChange={insert}
+/>
+```
+
+<ComponentPreview
+  name="emojiPickerSideAndLabels"
+  file="components/preview/emoji-picker.tsx"
+/>
+
+### Custom panel class
+
+`className` is forwarded to the popover panel, so you can override its width (or other layout)
+without touching the trigger. Here the default `w-72` panel is widened to `w-80`.
+
+```tsx
+<EmojiPicker className="w-80" onValueChange={insert} />
+```
+
+<ComponentPreview
+  name="emojiPickerClassName"
+  file="components/preview/emoji-picker.tsx"
+/>
+
+### Empty state
+
+When the search query matches nothing, the grid is replaced by a **"No emoji found."**
+message and a polite `role="status"` region announces the result count (or the empty state)
+as the query changes. This is owned by the picker's internal search state, so the example
+below is **live** — open it and type a non-matching query like `zzz`.
+
+<ComponentPreview
+  name="emojiPickerEmptyState"
+  file="components/preview/emoji-picker.tsx"
+/>
+
+## API Reference
+
+### EmojiPicker
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/emoji-picker.tsx"
+  name="EmojiPickerProps"
+/>
+
+### EmojiEntry
+
+A single entry in the `EMOJI` dataset — the rendered character, its accessible name, and
+optional search keywords.
+
+### EmojiEntry
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/emoji-picker.tsx"
+  name="EmojiEntry"
+/>
+
+### EmojiCategory
+
+The category keys of the `EMOJI` record, rendered as section headings in their declared
+order. (`EmojiCategory` is a string-union type alias, so the values are listed by hand.)
+
+<TypeTable
+  type={{
+    EmojiCategory: {
+      type: '"Smileys" | "People" | "Animals" | "Food" | "Activities" | "Travel" | "Objects" | "Symbols" | "Flags"',
+      description:
+        "One of the nine emoji categories. The keys of EMOJI, used as grid section headings and search groupings.",
+    },
+  }}
+/>
+
+### EMOJI
+
+The exported, curated emoji dataset you extend or replace to support more emoji. It is a
+`Record<EmojiCategory, EmojiEntry[]>` — each category key maps to an ordered array of
+`EmojiEntry` objects.
+
+<TypeTable
+  type={{
+    EMOJI: {
+      type: "Record<EmojiCategory, EmojiEntry[]>",
+      description:
+        "Curated, embedded emoji dataset (~300 entries). Not the full Unicode set — kept inline so the component ships zero extra dependencies. Add entries or swap in your own data to extend coverage.",
+    },
+  }}
+/>
+
+## Accessibility
+
+- The trigger is a real `<button>`; <kbd>Enter</kbd> / <kbd>Space</kbd> open the popover and focus moves into the panel.
+- Each emoji is a focusable `<button>` with an `aria-label` (the emoji name) and `title`, so the grid is screen-reader navigable and keyboard-operable.
+- The search field is a labelled `<input type="search">`; typing filters the grid live, and a polite
+  `role="status"` announces result counts or the empty state when nothing matches.
+- Focus is always visible: the default ghost trigger keeps the browser's native focus outline, the search field re-colours its border to the `ring` token (`focus:border-ring/70`), and each emoji button highlights with a `focus-visible:bg-accent` background — never `outline: none`.
+- Dismiss is built in (via `Popover`) — clicking outside the panel or pressing <kbd>Esc</kbd> closes it and returns focus to the trigger.
+
+| Key                                                | Action                                                        |
+| -------------------------------------------------- | ------------------------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>                | Open the picker (on the trigger) or select the focused emoji. |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Move focus between the search field and emoji buttons.        |
+| <kbd>Esc</kbd>                                     | Close the picker and return focus to the trigger.             |
+
+## Do / Don't
+
+<DoDont
+  do="Use it for lightweight emoji insertion — reactions, comments, status, icon selection. Keep ownership of the value in the parent via onValueChange."
+  dont="Rely on it as a complete Unicode emoji browser — it ships a curated subset. Extend the EMOJI dataset if you need full coverage, or use a dedicated library."
+/>

@@ -1,0 +1,203 @@
+---
+title: Chart
+description: A themed Recharts wrapper — token-only series colors, a bordered tooltip/legend, and Recharts' own built-in keyboard + screen-reader layer.
+preview: chartDemoLine
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/chart
+```
+
+<RegistryInstallCallout />
+
+This installs `recharts` alongside the component — `Chart` themes Recharts' own primitives
+(`LineChart`, `BarChart`, `AreaChart`, `CartesianGrid`, `XAxis`, …), it doesn't replace them. Import
+those directly from `recharts` in your chart code.
+
+## Usage
+
+```tsx
+import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
+
+const chartConfig = {
+  desktop: { label: "Desktop", color: "chart-1" },
+} satisfies ChartConfig;
+
+const data = [
+  { month: "Jan", desktop: 186 },
+  { month: "Feb", desktop: 305 },
+];
+
+<ChartContainer config={chartConfig} className="h-56 w-full">
+  <LineChart accessibilityLayer data={data}>
+    <CartesianGrid vertical={false} stroke="var(--border)" />
+    <XAxis dataKey="month" tickLine={false} axisLine={false} />
+    <ChartTooltip content={<ChartTooltipContent />} />
+    <Line dataKey="desktop" stroke="var(--color-desktop)" strokeWidth={2} dot={false} />
+  </LineChart>
+</ChartContainer>;
+```
+
+<ComponentPreview name="chartDemoLine" file="components/preview/chart.tsx" />
+
+## Anatomy
+
+`Chart` is not a compound wrapper around Recharts — it themes and sizes Recharts' own primitives,
+which you import from `recharts` directly and compose as children:
+
+```tsx
+<ChartContainer config={chartConfig}>
+  <BarChart data={data}>
+    {/* any recharts primitive: CartesianGrid, XAxis, YAxis, Bar, Line, Area, … */}
+    <ChartTooltip content={<ChartTooltipContent />} />
+    <ChartLegend content={<ChartLegendContent />} />
+  </BarChart>
+</ChartContainer>
+```
+
+- `ChartContainer` — sizes the chart (`ResponsiveContainer`) and provides `config` via context
+  (`data-slot="chart"`, `<div>`). Resolves each `config` entry to a `--color-<key>` CSS var — see
+  [Theming](#theming) below.
+- `ChartTooltip` — Recharts' `Tooltip`, re-exported so you don't need a second import from `recharts`.
+- `ChartTooltipContent` — the themed `content` for `ChartTooltip` (`data-slot="chart-tooltip-content"`,
+  `<div>`): a bordered `bg-popover` card with a label row and one row per series (color swatch, label,
+  `font-mono` value).
+- `ChartLegend` — Recharts' `Legend`, re-exported for the same reason as `ChartTooltip`.
+- `ChartLegendContent` — the themed `content` for `ChartLegend` (`data-slot="chart-legend-content"`,
+  `<div>`): a centered row of swatch/icon + label pairs.
+- `ChartConfig` — the type for `config`: maps a data key to a `label`, optional `icon`, and a
+  token-only `color` — see [Theming](#theming).
+
+## Theming
+
+`ChartConfig.color` accepts **only** a chart-token reference: a bare token name (`'chart-1'` …
+`'chart-8'`) or the literal CSS var (`'var(--chart-1)'`) — both resolve to the same
+`--chart-1`…`--chart-8` custom properties defined once in `packages/design-tokens` for `:root` **and**
+`.dark`. There is no hex/oklch literal, and no `{ light, dark }` theme pair.
+
+```tsx
+const chartConfig = {
+  desktop: { label: "Desktop", color: "chart-1" },
+  mobile: { label: "Mobile", color: "var(--chart-2)" }, // equivalent form
+} satisfies ChartConfig;
+```
+
+`ChartContainer` reads `config` and sets one `--color-<key>` custom property per entry directly on its
+own `style` (e.g. `--color-desktop: var(--chart-1)`) — reference it from any series:
+`stroke="var(--color-desktop)"`, `fill="var(--color-desktop)"`.
+
+This deliberately **drops** shadcn/ui's reference `Chart`'s `THEMES`/`ChartStyle` mechanism (an
+injected `<style>` tag keyed off a `{ light: '', dark: '.dark' }` selector map, with per-config
+`{ light, dark }` hex/oklch pairs). VegaStack's chart palette is already theme-split at the token
+layer, so that machinery would only duplicate work the tokens already do — and per-config hex/oklch
+literals are exactly what this repo's design-lint bans. A useful side effect: because the color is a
+plain CSS var scoped by ordinary DOM ancestry (not a global id-keyed selector), there's no
+`React.useId()`/`data-chart` id-scoping to manage either — multiple charts on one page just work.
+
+### Styling Recharts primitives directly
+
+`ChartContainer` themes only what a generic sizing wrapper safely can for *every* chart shape: axis
+tick label color, plus a few outline resets on Recharts' SVG layers. Grid-line, hover-cursor, and
+point-dot colors are Recharts **SVG presentation attributes** baked into the library (`CartesianGrid`
+defaults to `stroke="#ccc"`, a `Line`'s dot defaults to `stroke="#fff"`, the `BarChart` hover cursor
+defaults to `stroke="#ccc"`) — set them directly, with tokens, on the primitive you compose:
+
+```tsx
+<CartesianGrid stroke="var(--border)" vertical={false} />
+<ChartTooltip cursor={{ stroke: "var(--border)" }} /> {/* Line/Area hover cursor */}
+<ChartTooltip cursor={{ fill: "var(--muted)" }} />    {/* Bar hover cursor */}
+<Line dot={{ fill: "var(--color-desktop)", r: 3 }} />
+```
+
+Every example on this page does this. We don't replicate the shadcn reference's
+`[&_.recharts-x[stroke='#ccc']]:stroke-border/50`-style attribute-value selector hack — it embeds hex
+literals this repo's design-lint bans outright, and it silently stops matching the moment a future
+Recharts version changes its internal default (verified against the installed `recharts@3.9.2` source
+while building this component).
+
+## Area chart
+
+<ComponentPreview name="chartDemoArea" file="components/preview/chart.tsx" />
+
+## Bar chart
+
+<ComponentPreview name="chartDemoBar" file="components/preview/chart.tsx" />
+
+## Line chart
+
+<ComponentPreview name="chartDemoLine" file="components/preview/chart.tsx" />
+
+## Tooltip indicator variants
+
+`ChartTooltipContent` takes an `indicator`: `'dot'` (default), `'line'`, or `'dashed'`. This demo pins
+each tooltip open at a fixed data point via Recharts' `defaultIndex` — a real, hover-free Recharts 3
+prop, not a hack — so it stays deterministic under VRT.
+
+<ComponentPreview name="chartDemoTooltipVariants" file="components/preview/chart.tsx" />
+
+## Legend
+
+Pass a `config` entry's `icon` (any component, e.g. a `lucide-react` icon) to render it instead of the
+default color swatch, in both the legend and the tooltip.
+
+<ComponentPreview name="chartDemoLegend" file="components/preview/chart.tsx" />
+
+## API Reference
+
+### ChartContainer
+
+<AutoTypeTable path="../../packages/ui/registry/ui/chart.tsx" name="ChartContainerProps" />
+
+### ChartTooltipContent
+
+<AutoTypeTable path="../../packages/ui/registry/ui/chart.tsx" name="ChartTooltipContentProps" />
+
+### ChartLegendContent
+
+<AutoTypeTable path="../../packages/ui/registry/ui/chart.tsx" name="ChartLegendContentProps" />
+
+### ChartConfig
+
+`ChartConfig` is `Record<string, { label?, icon?, color? }>` (a mapped type, not a plain interface —
+not auto-tabled). Per entry:
+
+| Key     | Type                                            | Description                                                                 |
+| ------- | ------------------------------------------------ | ----------------------------------------------------------------------------- |
+| `label` | `React.ReactNode`                                 | Shown in the tooltip label row and the legend.                                |
+| `icon`  | `React.ComponentType`                             | Replaces the color swatch in both the tooltip and the legend when set.        |
+| `color` | `ChartColorToken \| 'var(--' + ChartColorToken + ')'` | `'chart-1'` … `'chart-8'`, or the literal `var(--chart-N)` form. Omit for an entry that only supplies a `label`/`icon` for lookup (e.g. an axis field). |
+
+`ChartColorToken` is `'chart-1' | 'chart-2' | … | 'chart-8'`.
+
+## Accessibility
+
+Pass `accessibilityLayer` on the Recharts chart element (`<LineChart accessibilityLayer>`,
+`<BarChart accessibilityLayer>`, …) — every example on this page does. Verified against the installed
+`recharts@3.9.2`: when on, the chart's root `<svg>` gets `role="application"` and `tabIndex={0}`, and
+Recharts' own accessibility layer wires arrow-key navigation between data points plus a live region
+that announces the active point — a real interaction layer, not a static image. `ChartContainer` does
+**not** add its own `role="img"`, which would collide with Recharts' `role="application"`; the
+accessible surface is Recharts' own. As of `3.9.2`, `accessibilityLayer` already **defaults to `true`**
+on every Cartesian/Polar chart — set it explicitly anyway, so it reads as intentional and survives a
+future Recharts version changing that default.
+
+| Key                          | Action                                                        |
+| ----------------------------- | ---------------------------------------------------------------- |
+| <kbd>Tab</kbd>                 | Move focus into the chart's `<svg>` (`role="application"`).       |
+| <kbd>←</kbd> / <kbd>→</kbd>    | Move the active data point (Recharts' built-in accessibility layer). |
+| <kbd>Esc</kbd>                 | Clear the active data point / close the tooltip.                  |
+
+## Do / Don't
+
+<DoDont
+  do="Set ChartConfig.color to a chart token ('chart-1' … 'chart-8') and reference it as var(--color-<key>) on your series — it stays correct in both themes automatically."
+  dont="Hardcode a hex/oklch color on a series, or reach for a { light, dark } config pair — there is no theme-map escape hatch, and design-lint rejects the literal anyway."
+/>

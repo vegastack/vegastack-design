@@ -1,0 +1,156 @@
+---
+title: Empty
+description: A zero-data placeholder — icon, title, description, and actions, with intent tints and an optional dashed border.
+preview: emptyDemo
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/empty
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Empty, EmptyContent, EmptyDescription, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
+import { Inbox } from 'lucide-react';
+
+<Empty bordered>
+  <EmptyHeader>
+    <EmptyMedia>
+      <Inbox />
+    </EmptyMedia>
+    <EmptyTitle>No messages</EmptyTitle>
+    <EmptyDescription>Your inbox is empty.</EmptyDescription>
+  </EmptyHeader>
+</Empty>;
+```
+
+## Playground
+
+Combine size, surface, and the dashed border with the media chip's variant and intent, then copy the generated JSX.
+
+<EmptyPlayground />
+
+## Anatomy
+
+`Empty` is a compound component. Compose the parts inside the root:
+
+```tsx
+<Empty bordered size="default" surface="transparent">
+  <EmptyHeader>
+    <EmptyMedia intent="default">{/* lucide icon */}</EmptyMedia>
+    <EmptyTitle>Title</EmptyTitle>
+    <EmptyDescription>Supporting description text.</EmptyDescription>
+  </EmptyHeader>
+  <EmptyContent>{/* action buttons */}</EmptyContent>
+</Empty>;
+```
+
+- `Empty` — the centered container (`data-slot="empty"`). Owns `size`, `bordered`, and `surface`.
+- `EmptyMedia` — a tinted circular chip around a `lucide-react` icon (`data-slot="empty-media"`, decorative `aria-hidden`). Owns the `intent` tint.
+- `EmptyTitle` — the primary heading (`<h3>`, `data-slot="empty-title"`).
+- `EmptyDescription` — supporting body text (`<p>`, `data-slot="empty-description"`).
+- `EmptyContent` — a centered row of call-to-action controls (`data-slot="empty-content"`).
+
+## Sizes
+
+`size` controls vertical density only — `sm` (`py-8`) for empties inside cards, `default` (`py-12`)
+standalone, and `lg` (`py-16`) for full-page zero-data screens.
+
+<ComponentPreview name="emptyDemoSizes" file="components/preview/empty.tsx" />
+
+## Surfaces
+
+`surface` switches the background — `transparent` (the default) inherits the parent surface and is
+usually paired with `bordered` for a drop-zone outline, while `card` paints a filled `bg-card`
+panel that reads as a self-contained block on any background.
+
+<ComponentPreview name="emptyDemoSurfaces" file="components/preview/empty.tsx" />
+
+## Border
+
+`bordered` is `false` by default — a borderless empty blends into the surrounding layout. Set
+`bordered` to draw the classic dashed "drop zone" outline.
+
+<ComponentPreview name="emptyDemoBorderless" file="components/preview/empty.tsx" />
+
+## Without an icon
+
+`EmptyMedia` and `EmptyContent` are both optional. A title-and-description-only empty is
+a common compact form — for example, a "no filters applied" hint.
+
+<ComponentPreview name="emptyDemoIconless" file="components/preview/empty.tsx" />
+
+## Size × surface matrix
+
+The three root axes — `size`, `surface`, and `bordered` — combine freely. This grid crosses
+`surface` (transparent vs. card) with `size` (sm vs. lg) to show how padding, panel fill, and the
+dashed outline interact.
+
+<ComponentPreview name="emptyDemoMatrix" file="components/preview/empty.tsx" />
+
+## Intents
+
+`EmptyMedia` takes an `intent` that tints the chip — neutral `default`, `info`, or
+`destructive` — each mapping to semantic status tokens (`bg-X-subtle text-X-text`). Use
+`destructive` for error/failure empties, `info` for search/filter empties, and `default` for plain
+zero-data states.
+
+<ComponentPreview name="emptyDemoIntents" file="components/preview/empty.tsx" />
+
+## API Reference
+
+### Empty
+
+<AutoTypeTable path="../../packages/ui/registry/ui/empty.tsx" name="EmptyProps" />
+
+### EmptyMedia
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/empty.tsx"
+  name="EmptyMediaProps"
+/>
+
+### EmptyTitle
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/empty.tsx"
+  name="EmptyTitleProps"
+/>
+
+### EmptyDescription
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/empty.tsx"
+  name="EmptyDescriptionProps"
+/>
+
+### EmptyContent
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/empty.tsx"
+  name="EmptyContentProps"
+/>
+
+## Accessibility
+
+- The title renders as a real `<h3>` heading so assistive technology can navigate to it.
+- The icon chip is decorative (`aria-hidden`) — meaning is carried by the title and description text, never by the icon or color alone.
+- Action controls inside `EmptyContent` are real buttons/links with their own accessible names and `:focus-visible` rings.
+- The container is non-interactive; keyboard focus order flows through the action controls only.
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Move focus to the first action control (when actions are present). |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused action control. |
+
+## Do / Don't
+
+<DoDont
+  do="Pair a clear title with a description and a single primary action that resolves the empty state — e.g. Create your first project."
+  dont="Leave a blank area or show only a spinner — distinguish empty (no data) from loading and explain what the user can do next."
+/>

@@ -1,0 +1,252 @@
+---
+title: Date Picker
+description: Pick a single date or a date range from a calendar popover — token-styled, keyboard-navigable, with optional quick presets.
+preview: datePicker
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/date-picker
+```
+
+<RegistryInstallCallout />
+
+> Requires `react-day-picker@^10` as a peer dependency — `shadcn add` lists it; install it if your project doesn't already have it.
+
+## Usage
+
+```tsx
+import { DatePicker } from "@/components/ui/date-picker";
+
+function Example() {
+  const [date, setDate] = React.useState<Date>();
+  return <DatePicker value={date} onValueChange={setDate} />;
+}
+```
+
+## Anatomy
+
+The Date Picker module exports three building blocks. `DatePicker` and `DateRangePicker` compose a
+`Calendar` inside a `Popover`; use `Calendar` directly when you want an inline grid.
+
+```tsx
+// Single date — Button-triggered Popover hosting a Calendar.
+<DatePicker
+  value={date}
+  onValueChange={setDate}
+  presets={defaultDatePresets()}
+  calendarProps={{ timeZone: 'UTC', captionLayout: 'dropdown' }}
+/>
+
+// Range — two-month Calendar, closes once both ends are chosen.
+<DateRangePicker value={range} onValueChange={setRange} />
+
+// Inline — the styled DayPicker with no popover.
+<Calendar mode="single" selected={date} onSelect={setDate} />
+```
+
+- `Calendar` — a token-styled `react-day-picker` `DayPicker` (`data-slot="calendar"`). Forwards every DayPicker prop (`mode`, `selected`, `onSelect`, `defaultMonth`, `numberOfMonths`, `disabled`, …); overrides the nav chevrons (lucide) and the day button.
+- `CalendarDayButton` — the per-day `Button` (`data-slot="calendar-day"`). Paints selection/range/today state from `data-*` attributes and auto-focuses on keyboard navigation.
+- `DatePicker` — single date. An outline `Button` (`data-slot="date-picker-trigger"`) shows the formatted date and opens the calendar in a `Popover` (`data-slot="date-picker-content"`). Pass `calendarProps` for DayPicker knobs such as `timeZone`, `locale`, `footer`, `captionLayout`, `startMonth`, `endMonth`, `labels`, and `formatters`.
+- `DateRangePicker` — a `{ from, to }` range, same shape, across two months (`data-slot="date-range-picker-trigger"` / `…-content`). It also accepts `calendarProps`; top-level selection props remain owned by the wrapper.
+- `defaultDatePresets()` / `defaultRangePresets()` — ready-made quick-select rails (Today / Tomorrow, Last 7 / 30 days). Pass your own `presets` to override.
+
+## Examples
+
+### With presets
+
+A left rail of quick-select buttons (Today / Tomorrow) sits beside the calendar. Selecting a preset closes the popover.
+
+<ComponentPreview
+  name="datePickerPresets"
+  file="components/preview/date-picker.tsx"
+/>
+
+### Date range
+
+Pick a start and end across two months. The popover stays open until both ends are chosen; presets cover common windows.
+
+<ComponentPreview
+  name="datePickerRange"
+  file="components/preview/date-picker.tsx"
+/>
+
+### Inline calendar
+
+The bare `Calendar` with no popover — drop it into a card or sidebar.
+
+<ComponentPreview
+  name="calendarInline"
+  file="components/preview/date-picker.tsx"
+/>
+
+### Disabled dates
+
+Pass `disabledDates` (a single `Matcher`, or an array) to block days in the grid and gate presets. A blocked day renders at reduced opacity and can't be selected; a preset whose date — or, for ranges, any day it spans — falls inside the blocked set is rendered inert and **never emits**, using the same react-day-picker matcher the grid applies (so the preset gate can't drift from the grid).
+
+<ComponentPreview
+  name="datePickerDisabledDates"
+  file="components/preview/date-picker.tsx"
+/>
+
+### Disabled
+
+Set `disabled` to make the whole control inert — the trigger reads dimmed and won't open the popover.
+
+<ComponentPreview
+  name="datePickerDisabled"
+  file="components/preview/date-picker.tsx"
+/>
+
+### Dropdown caption
+
+Forward DayPicker knobs through `calendarProps`. Here `captionLayout="dropdown"` (bounded by `startMonth` / `endMonth`) swaps the static month/year heading for navigable dropdowns — handy for jumping across years.
+
+<ComponentPreview
+  name="datePickerDropdownCaption"
+  file="components/preview/date-picker.tsx"
+/>
+
+```tsx
+<DatePicker
+  value={date}
+  onValueChange={setDate}
+  calendarProps={{
+    captionLayout: 'dropdown',
+    startMonth: new Date(2024, 0),
+    endMonth: new Date(2027, 11),
+  }}
+/>
+```
+
+### Single-month range
+
+`DateRangePicker` shows two months by default; pass `numberOfMonths={1}` for a compact single-month grid that fits tight layouts.
+
+<ComponentPreview
+  name="datePickerSingleMonthRange"
+  file="components/preview/date-picker.tsx"
+/>
+
+### Custom formatting & locale
+
+The trigger label is formatted with native `Intl.DateTimeFormat`. Pass `formatOptions` for a custom shape and `locale` for a BCP-47 locale (here a long German date).
+
+<ComponentPreview
+  name="datePickerFormatting"
+  file="components/preview/date-picker.tsx"
+/>
+
+## API Reference
+
+### DatePicker
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/date-picker.tsx"
+  name="DatePickerProps"
+/>
+
+### DateRangePicker
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/date-picker.tsx"
+  name="DateRangePickerProps"
+/>
+
+### Calendar
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/date-picker.tsx"
+  name="CalendarProps"
+/>
+
+### CalendarDayButton
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/date-picker.tsx"
+  name="CalendarDayButtonProps"
+/>
+
+### DatePreset
+
+The shape of each entry in `DatePicker`'s `presets` array.
+
+### DatePreset
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/date-picker.tsx"
+  name="DatePreset"
+/>
+
+### DateRangePreset
+
+The shape of each entry in `DateRangePicker`'s `presets` array.
+
+### DateRangePreset
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/date-picker.tsx"
+  name="DateRangePreset"
+/>
+
+### Preset helpers
+
+Ready-made preset rails. Pass your own `presets` to override either.
+
+<TypeTable
+  type={{
+    "defaultDatePresets": {
+      type: "(now?: Date) => DatePreset[]",
+      description:
+        "Today / Tomorrow presets for a single DatePicker. Accepts an optional reference date (defaults to now).",
+    },
+    "defaultRangePresets": {
+      type: "(now?: Date) => DateRangePreset[]",
+      description:
+        "Today / Last 7 days / Last 30 days presets for a DateRangePicker. Accepts an optional reference date (defaults to now).",
+    },
+  }}
+/>
+
+### DateRange & Matcher
+
+Re-exported from `react-day-picker`. `DateRange` is the shape of a range `value`; `Matcher` is what `disabledDates` accepts (a single matcher or an array).
+
+<TypeTable
+  type={{
+    "DateRange": {
+      type: "{ from: Date | undefined; to?: Date | undefined }",
+      description:
+        "A selected range. Used by DateRangePicker's value / onValueChange and DateRangePreset.range.",
+    },
+    "Matcher": {
+      type: "Date | Date[] | DateRange | DayOfWeek | DateBefore | DateAfter | DateInterval | ((date: Date) => boolean)",
+      description:
+        "A react-day-picker day predicate. Passed (singly or as an array) to disabledDates to block days.",
+    },
+  }}
+/>
+
+## Accessibility
+
+- Built on `react-day-picker`, which renders the month as a `grid` of `gridcell` day buttons with descriptive `aria-label`s ("Saturday, June 21st, 2026").
+- The selected day, range ends, today, and disabled days are all distinguishable by state — not by color alone — via `data-*` driven surfaces (`bg-primary`, `ring`, `bg-accent`, reduced opacity).
+- Opening the picker moves focus into the calendar; arrow keys move day-to-day, and selection restores focus to the trigger. Pressing <kbd>Esc</kbd> closes the popover.
+- Focus is always visible: the outline `Button` trigger brightens its border on `:focus-visible` (`focus-visible:border-ring/70`), and the day grid manages roving focus itself (react-day-picker focuses the active day on keyboard navigation). Today's cell additionally carries a neutral `ring` (`ring-ring/50`).
+- The trigger has no visible text label when empty beyond its placeholder, so pass `aria-label` (or wrap it in a `Field`) to name it for assistive tech.
+
+| Key                                                 | Action                                                                    |
+| --------------------------------------------------- | ------------------------------------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>                 | Open the picker (on the trigger) or select the focused day (in the grid). |
+| <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> | Move focus between days (±1 week / ±1 day).                               |
+| <kbd>PageUp</kbd> / <kbd>PageDown</kbd>             | Move to the previous / next month.                                        |
+| <kbd>Home</kbd> / <kbd>End</kbd>                    | Move to the first / last day of the week.                                 |
+| <kbd>Esc</kbd>                                      | Close the popover and return focus to the trigger.                        |
+
+## Do / Don't
+
+<DoDont
+  do="Use a DatePicker for a single calendar date and a DateRangePicker for a span. Give the trigger an aria-label (or a Field label), and pass disabledDates to block invalid days. Format with the consumer's locale via the locale prop."
+  dont="Don't use a date picker for free-form or partial dates (a plain Input with a mask is better), and don't rely on color alone to mark the selection — the state styling already encodes selection, today, and disabled."
+/>

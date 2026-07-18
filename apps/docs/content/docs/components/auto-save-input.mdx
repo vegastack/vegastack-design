@@ -1,0 +1,137 @@
+---
+title: Auto Save Input
+description: An input that debounces edits and persists them via an async onSave, with an inline idle/saving/saved/error status.
+preview: autoSaveInput
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/auto-save-input
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { AutoSaveInput } from "@/components/ui/auto-save-input";
+
+<AutoSaveInput
+  aria-label="Workspace name"
+  defaultValue={workspace.name}
+  onSave={async (name) => {
+    await updateWorkspace({ name });
+  }}
+  validate={(v) => v.trim().length > 0}
+/>;
+```
+
+`AutoSaveInput` wraps [`Input`](/docs/components/input). It owns its value as
+local state from `defaultValue` (or follows `value` + `onValueChange` when
+controlled), debounces keystrokes, and calls `onSave(value)` once the field
+settles. A trailing indicator reflects the outcome: a spinner while saving, a
+success check once saved, and an error cross on failure.
+
+<Callout title="Presentational component">
+  The component owns only the debounce timer and the inline status UI. **It does
+  not persist anything itself** — `onSave` is yours, and so is everything around
+  it (success/error toasts, optimistic cache updates, cross-field effects).
+  There is no toast coupling; if you want a toast, fire it from `onSave` or
+  `onStatusChange`. This split keeps the component reusable across apps while
+  the app keeps the side effects.
+</Callout>
+
+## Examples
+
+A failing `onSave` (rejected promise) flags the `error` state and sets
+`aria-invalid`; a failing `validate` skips the save entirely and flags `error`
+without ever calling `onSave`. Edit the field below and pause — it saves after
+800ms; clear it and the validator blocks the save.
+
+<ComponentPreview
+  name="autoSaveInput"
+  file="components/preview/auto-save-input.tsx"
+/>
+
+## States
+
+Status is owned by the component and only advances when the field is edited, so
+this is a **live** example — type into each field and pause for the debounce to
+watch the trailing indicator move. Each field is wired to a different outcome:
+
+- **Saving** — a deliberately slow `onSave` holds the spinning `Loader` in
+  flight.
+- **Saved** — a fast `onSave` resolves to the `text-success-text` `Check`.
+- **Error (rejecting onSave)** — a rejected promise flags the
+  `text-destructive-text` `X` and sets `aria-invalid`.
+- **Error (failed validate)** — clearing the field fails `validate`, which flags
+  `error` _without_ ever calling `onSave`.
+
+<ComponentPreview
+  name="autoSaveInputStates"
+  file="components/preview/auto-save-input.tsx"
+/>
+
+## Controlled value
+
+Pass `value` + `onValueChange` to let the parent own the draft. External `value`
+changes — like switching records — are treated as a **new saved baseline**, so
+moving between records never auto-saves stale data and never re-flags a status.
+Edit the field to save after the debounce, or switch records to reset the
+baseline.
+
+<ComponentPreview
+  name="autoSaveInputControlled"
+  file="components/preview/auto-save-input.tsx"
+/>
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/auto-save-input.tsx"
+  name="AutoSaveInputProps"
+/>
+
+`AutoSaveStatus` is the union of states the trailing indicator can reflect; pass
+`onStatusChange` to react to transitions (e.g. disable a submit button while
+saving).
+
+<TypeTable
+  type={{
+    AutoSaveStatus: {
+      type: '"idle" | "saving" | "saved" | "error"',
+      description:
+        "Lifecycle of an auto-save: idle (no pending change), saving (onSave in flight), saved (last save resolved), error (rejected or failed validation).",
+    },
+  }}
+/>
+
+## Accessibility
+
+- Renders a native `<input>` — always associate a visible `<label>` (wrap it or
+  use `htmlFor`/`id`); use `aria-label` only when a visible label is impossible.
+- Status is conveyed by a **distinct icon per state** (spinner / check / cross)
+  paired with a semantic color token, so it never depends on color alone.
+- A single `role="status" aria-live="polite" aria-atomic="true"` slot announces
+  `"Saving"`, `"Saved"`, or `"Save failed"` as hidden text while the visible icon
+  remains decorative.
+- The `error` status sets `aria-invalid` on the field, matching `Input`'s invalid
+  styling and announcing the failure to screen readers.
+- The spinner respects `prefers-reduced-motion` (`motion-reduce:animate-none`).
+- On focus the underlying [`Input`](/docs/components/input) recolors its border
+  with the `ring` token (`focus:border-ring/70`) instead of removing the outline —
+  never `outline: none` with no replacement affordance. (Like the standalone
+  field, this is a border recolor, not a 2px ring.)
+
+| Key          | Action                                             |
+| ------------ | -------------------------------------------------- |
+| Any text key | Edits the value and (re)starts the debounce timer. |
+| `Tab`        | Moves focus to/from the field as a normal input.   |
+
+## Do / Don't
+
+<DoDont
+  do="Use defaultValue for an uncontrolled draft, value/onValueChange for a controlled draft, and keep persistence/toasts in onSave/onStatusChange."
+  dont="Name an initial uncontrolled value value, or rely on color alone for save status."
+/>

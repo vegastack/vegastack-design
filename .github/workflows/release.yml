@@ -1,0 +1,94 @@
+name: Release
+on:
+  push:
+    branches: [main]
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write # REQUIRED for npm provenance (OIDC)
+
+# Turborepo remote caching (Phase D): activates when MK provisions the Vercel Remote Cache
+# secrets — inert (local cache only) until then. Signature verification is enabled in
+# turbo.json so poisoned-cache artifacts are rejected.
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
+jobs:
+  # Publishing is a RELEASE: it must NOT bypass the same gates CI/deploy enforce (Codex R12). The
+  # visual-regression pixel gate runs in the pinned Playwright container and FAILS CLOSED if no
+  # baselines are committed, so a publish can't happen without proven visual coverage.
+  vrt-gate:
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.61.0-noble # MUST match ci.yml / vrt.yml / deploy.yml
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build # static-export the docs so VRT renders the compiled, shipped CSS
+      - name: Require committed VRT baselines (fail-closed for release)
+        run: |
+          # find, not `ls **`: CI steps run POSIX sh where ** is NOT recursive — a `**` glob
+          # here can never match vrt/<spec>-snapshots/*.png and would fail even with baselines committed.
+          [ -n "$(find apps/docs/vrt -type f -path '*-snapshots/*' -name '*.png' 2>/dev/null | head -1)" ] || {
+            echo "::error title=VRT baselines missing::Cannot publish without committed baseline screenshots. Bootstrap them via vrt.yml (update_baselines) in the pinned container and commit apps/docs/vrt/**/*-snapshots/** first.";
+            exit 1;
+          }
+      - name: VRT pixel gate (blocking)
+        working-directory: apps/docs
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: vrt-report.json
+        run: pnpm exec playwright test --reporter=list,json
+      - name: Guard — fail if zero screenshot tests executed
+        working-directory: apps/docs
+        run: |
+          node -e '
+            const r = require("./vrt-report.json");
+            const ran = (r.stats?.expected||0)+(r.stats?.unexpected||0)+(r.stats?.flaky||0);
+            if (ran === 0) { console.error("✗ VRT executed 0 screenshot tests — not valid passing evidence for a release."); process.exit(1); }
+            console.log(`✓ VRT executed ${ran} screenshot test(s).`);
+          '
+
+  release:
+    needs: vrt-gate # publish is fail-closed on the VRT pixel gate above
+    runs-on: ubuntu-latest
+    # Same pinned container as ci.yml / vrt.yml: `pnpm test` runs Vitest BROWSER mode, which
+    # needs the Playwright browsers baked into this image (a bare runner has none and the
+    # quality gate dies at browserType.launch).
+    container: mcr.microsoft.com/playwright:v1.61.0-noble
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+          registry-url: 'https://registry.npmjs.org'
+      - run: pnpm install --frozen-lockfile
+      # Full quality gate BEFORE publish — same as ci.yml. A direct push / merged version PR must not
+      # publish public packages without a11y, design-lint, registry integrity, and consumer checks.
+      - run: pnpm typecheck
+      - run: pnpm lint
+      # Vitest browser mode needs PLAYWRIGHT_BROWSERS_PATH passed through turbo (see ci.yml note).
+      - run: pnpm test
+      - run: pnpm build
+      - run: pnpm registry:build
+      - run: test -z "$(git status --porcelain)" # registry:build must be idempotent (no stale/untracked)
+      - run: pnpm registry:verify-consume # the built registry is actually consumable
+      - uses: changesets/action@v1
+        with:
+          # version-packages = `changeset version` + tooling/version-sync.mjs (CX-3): the version PR
+          # carries the re-synced registry item meta.version + rebuilt public/r + re-stamped headers,
+          # so package version = item meta.version = provenance header version, always.
+          version: pnpm run version-packages
+          publish: pnpm changeset publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true

@@ -1,0 +1,155 @@
+---
+title: Country Select
+description: A button-triggered searchable country popover returning the ISO 3166-1 alpha-2 code.
+preview: countrySelect
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/country-select
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { CountrySelect } from "@/components/ui/country-select";
+
+const [country, setCountry] = useState<string>();
+<CountrySelect value={country} onValueChange={setCountry} />;
+```
+
+`CountrySelect` is controlled: pass the selected country's ISO 3166-1 alpha-2 `code` as `value` and
+update it from `onValueChange`. The component is a single composite — there are no subcomponents to
+compose.
+
+## Anatomy
+
+The trigger is a `Button variant="outline"` showing the selected flag + name (or the muted
+placeholder), with a `ChevronsUpDown` affordance. It's a thin, data-fed composition of our
+[Combobox](/docs/components/combobox): `items={countries}` drives filtering, and the trigger is
+the "Select-style" pattern — the search input lives inside the popup, not on the always-visible
+trigger:
+
+```tsx
+<CountrySelect value={code} onValueChange={setCode} />
+// ↓ renders, internally:
+//   <Combobox items={countries} value={selected} onValueChange={...}>
+//     <Combobox.Trigger render={<Button variant="outline" />}>  flag + name | placeholder, ChevronsUpDown
+//     <ComboboxContent>
+//       <ComboboxInput placeholder="Search countries…" />
+//       <ComboboxEmpty>No country found.</ComboboxEmpty>  ← empty-results copy
+//       <ComboboxList> … one ComboboxItem per country … </ComboboxList>
+```
+
+The trigger defaults to **`w-full`** — it fills its container. Constrain it by wrapping in a
+fixed-width parent (the examples use `w-64`) or pass layout classes via `className`; the popover
+panel matches the trigger width.
+
+## Examples
+
+A flag + name list with type-to-filter search inside a popup; the value is the ISO 3166-1 alpha-2 code.
+
+### Selected & disabled
+
+With a value set, the trigger shows the country's flag + name and the matching row carries a check;
+`disabled` renders an inert trigger that won't open.
+
+<ComponentPreview
+  name="countrySelectVariants"
+  file="components/preview/country-select.tsx"
+/>
+
+### Empty
+
+Nothing selected yet, so the trigger shows a muted placeholder. Open it and type to filter — when no
+country matches the search, the list shows the empty-results message **"No country found."**
+
+<ComponentPreview
+  name="countrySelectEmpty"
+  file="components/preview/country-select.tsx"
+/>
+
+### Custom dataset
+
+Pass a `countries` array to restrict or extend the offered list (it defaults to the full embedded
+`COUNTRIES` set). The selected value is still the ISO code.
+
+<ComponentPreview
+  name="countrySelectCustom"
+  file="components/preview/country-select.tsx"
+/>
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/country-select.tsx"
+  name="CountrySelectProps"
+/>
+
+### Data API
+
+The component ships an embedded dataset and a lookup helper, both exported so you can resolve a code
+to a display name (e.g. rendering a stored billing country) without re-deriving the list.
+
+#### `Country`
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/country-select.tsx"
+  name="Country"
+/>
+
+#### `COUNTRIES`
+
+<TypeTable
+  type={{
+    COUNTRIES: {
+      type: "Country[]",
+      description:
+        "The full embedded dataset — 198 ISO 3166-1 alpha-2 entries (code + English name + flag emoji), covering all regions. The default value of the `countries` prop. Extend it by editing the array; codes are unique.",
+    },
+  }}
+/>
+
+#### `getCountryByCode(code)`
+
+<TypeTable
+  type={{
+    getCountryByCode: {
+      type: "(code: string | undefined) => Country | undefined",
+      description:
+        "Case-insensitive lookup of a country by its ISO 3166-1 alpha-2 code. Returns undefined for an unknown or missing code.",
+    },
+  }}
+/>
+
+```tsx
+import { getCountryByCode } from "@/components/ui/country-select";
+
+getCountryByCode("us")?.name; // "United States"  (case-insensitive)
+getCountryByCode("ZZ"); // undefined
+```
+
+## Accessibility
+
+- The trigger carries `role="combobox"`, an explicit `aria-label` (the selected country name, or
+  the placeholder), and `aria-expanded`/`aria-haspopup="dialog"` (Base UI's Select-style combobox
+  pattern — the search input lives inside the popup).
+- The list is keyboard-navigable (↑/↓/Enter); typing filters by country name or code.
+- Flag emoji are `aria-hidden` (decorative); the name carries the accessible text.
+
+| Key                                 | Action                                       |
+| ----------------------------------- | -------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the popover from the trigger.           |
+| <kbd>↑</kbd> / <kbd>↓</kbd>         | Move the highlight between matching countries. |
+| <kbd>Enter</kbd>                    | Select the highlighted country and close.    |
+| <kbd>Esc</kbd>                      | Close without changing the selection.        |
+
+## Do / Don't
+
+<DoDont
+  do="Store the ISO 3166-1 alpha-2 code (US, GB, IN) as the value — stable and locale-independent."
+  dont="Store the localized display name — it changes with language and breaks lookups."
+/>

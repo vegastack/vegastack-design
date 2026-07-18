@@ -1,0 +1,235 @@
+---
+title: Breadcrumb
+description: A hierarchical navigation trail — links, separators, the current page, and ellipsis collapse for long paths.
+preview: breadcrumb
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/breadcrumb
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+
+<Breadcrumb>
+  <BreadcrumbList>
+    <BreadcrumbItem>
+      <BreadcrumbLink href="/">Home</BreadcrumbLink>
+    </BreadcrumbItem>
+    <BreadcrumbSeparator />
+    <BreadcrumbItem>
+      <BreadcrumbPage>Settings</BreadcrumbPage>
+    </BreadcrumbItem>
+  </BreadcrumbList>
+</Breadcrumb>;
+```
+
+## Anatomy
+
+`Breadcrumb` is a compound component built from a presentational `<nav aria-label="breadcrumb">`
+wrapping an ordered list. Compose the parts inside the root — every part exposes a `data-slot`:
+
+```tsx
+<Breadcrumb>
+  <BreadcrumbList>
+    <BreadcrumbItem>
+      <BreadcrumbLink href="/">Home</BreadcrumbLink>
+    </BreadcrumbItem>
+    <BreadcrumbSeparator />
+    <BreadcrumbItem>
+      <BreadcrumbEllipsis /> {/* collapse long trails */}
+    </BreadcrumbItem>
+    <BreadcrumbSeparator />
+    <BreadcrumbItem>
+      <BreadcrumbPage>Current page</BreadcrumbPage>
+    </BreadcrumbItem>
+  </BreadcrumbList>
+</Breadcrumb>
+```
+
+- `Breadcrumb` — the navigation landmark (`data-slot="breadcrumb"`). Renders `<nav aria-label="breadcrumb">`.
+- `BreadcrumbList` — the ordered list (`<ol>`, `data-slot="breadcrumb-list"`). Muted, wrapping, flex-aligned. `flex-wrap` is the fallback when nothing collapses the trail.
+- `BreadcrumbItem` — a single trail segment (`<li>`, `data-slot="breadcrumb-item"`).
+- `BreadcrumbLink` — a navigable segment (`<a>`, `data-slot="breadcrumb-link"`). Supports the Base UI `render` prop for client-side routing.
+- `BreadcrumbPage` — the current, non-navigable page (`data-slot="breadcrumb-page"`, `aria-current="page"`).
+- `BreadcrumbSeparator` — the divider between items (`data-slot="breadcrumb-separator"`, `aria-hidden`). Defaults to a chevron; pass `children` to override.
+- `BreadcrumbEllipsis` — a decorative collapsed-segments indicator (`data-slot="breadcrumb-ellipsis"`, `aria-hidden`) for long paths. Pair it with a real trigger (see `BreadcrumbCollapsed` below) when the collapsed segments need to be reachable.
+- `BreadcrumbCollapsed` — a real, navigable stand-in for a run of collapsed segments: the `BreadcrumbEllipsis` glyph behind a labelled `DropdownMenu` trigger (`data-slot="breadcrumb-collapsed-trigger"`), so hidden segments stay reachable by keyboard and assistive tech. Each item is a real link.
+- `BreadcrumbTrail` — the ergonomic `items` + `maxItems` API: pass the full trail and it wires up `BreadcrumbCollapsed` for you. Renders a `BreadcrumbList`.
+
+
+## Examples
+
+### Custom separator
+
+`BreadcrumbSeparator` renders a `lucide-react` chevron by default. Pass `children` to swap it for any
+custom divider — here a slash. The separator stays decorative (`aria-hidden`) whatever you put inside:
+
+<ComponentPreview
+  name="breadcrumbCustomSeparator"
+  file="components/preview/breadcrumb.tsx"
+/>
+
+```tsx
+<BreadcrumbSeparator>/</BreadcrumbSeparator>
+```
+
+### Ellipsis collapse
+
+Collapse the middle of a long trail with a decorative `BreadcrumbEllipsis`:
+
+<ComponentPreview
+  name="breadcrumbEllipsis"
+  file="components/preview/breadcrumb.tsx"
+/>
+
+### Ellipsis with a menu
+
+`BreadcrumbEllipsis` is decorative on its own. When the collapsed segments need to be reachable, wrap
+it in a labelled menu trigger (here a `DropdownMenu`) so the hidden links stay navigable by keyboard and
+assistive tech:
+
+<ComponentPreview
+  name="breadcrumbEllipsisMenu"
+  file="components/preview/breadcrumb.tsx"
+/>
+
+### Collapsed segments (`BreadcrumbCollapsed`)
+
+`BreadcrumbCollapsed` formalizes the manual composition above into one piece — pass the hidden
+segments as `items` (each a real `href`, or a `render`-composed router link) and it renders the
+`BreadcrumbEllipsis` glyph behind a labelled `DropdownMenu` trigger for you:
+
+<ComponentPreview
+  name="breadcrumbCollapsed"
+  file="components/preview/breadcrumb.tsx"
+/>
+
+```tsx
+<BreadcrumbItem>
+  <BreadcrumbCollapsed
+    items={[
+      { label: "Workspace", href: "/w" },
+      { label: "Projects", href: "/w/p" },
+    ]}
+  />
+</BreadcrumbItem>
+```
+
+### Responsive trail (`BreadcrumbTrail`)
+
+For a long trail built from data, `BreadcrumbTrail` is the primary, SSR-safe ergonomic API: pass
+the full `items` array and a `maxItems` — the first item and the last `itemsAfterCollapse` items
+(default `1`) always stay visible, and everything between collapses behind `BreadcrumbCollapsed`.
+Collapsing is computed from `items.length` alone (no measurement), so it's deterministic on the
+server and the client and never re-flows after hydration. Omit `maxItems` and the trail falls back
+to `BreadcrumbList`'s `flex-wrap` — nothing collapses:
+
+<ComponentPreview
+  name="breadcrumbTrail"
+  file="components/preview/breadcrumb.tsx"
+/>
+
+```tsx
+<Breadcrumb>
+  <BreadcrumbTrail
+    items={[
+      { label: "Home", href: "/" },
+      { label: "Workspace", href: "/w" },
+      { label: "Projects", href: "/w/p" },
+      { label: "Settings", href: "/w/p/settings" },
+      { label: "Billing" },
+    ]}
+    maxItems={4}
+  />
+</Breadcrumb>
+```
+
+A width-driven **dynamic** collapse (mirroring `TruncatedText`'s `ResizeObserver` measurer) was
+evaluated and deliberately deferred — measuring a *set of items* (not one text node) needs a
+resize-and-recompute loop that tries collapse states until the trail fits, which risks visible
+layout thrash and SSR/hydration mismatches for a component that sits at the very top of the page.
+An honest, deterministic `maxItems` beats a flaky measurer; drop `maxItems` at a smaller value on
+narrow breakpoints (e.g. via a responsive className) if you need the trail to shrink.
+
+### Routing links
+
+Use the `render` prop on `BreadcrumbLink` to compose with your router's link component while keeping
+breadcrumb styling and semantics:
+
+```tsx
+import Link from "next/link";
+
+<BreadcrumbLink render={<Link href="/settings" />}>Settings</BreadcrumbLink>;
+```
+
+## API Reference
+
+### BreadcrumbLink
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/breadcrumb.tsx"
+  name="BreadcrumbLinkProps"
+/>
+
+### BreadcrumbCollapsed
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/breadcrumb.tsx"
+  name="BreadcrumbCollapsedProps"
+/>
+
+### BreadcrumbTrail
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/breadcrumb.tsx"
+  name="BreadcrumbTrailProps"
+/>
+
+### BreadcrumbSegment
+
+The item shape consumed by `BreadcrumbCollapsed` and `BreadcrumbTrail`:
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/breadcrumb.tsx"
+  name="BreadcrumbSegment"
+/>
+
+`Breadcrumb`, `BreadcrumbList`, `BreadcrumbItem`, `BreadcrumbPage`,
+`BreadcrumbSeparator`, and `BreadcrumbEllipsis` add no props of their own —
+each accepts everything its underlying native element accepts (`<nav>`, `<ol>`,
+`<li>`, `<span>`), plus `className` and `ref`.
+
+## Accessibility
+
+- The root is a navigation landmark: `<nav aria-label="breadcrumb">`, so assistive tech announces and
+  lists it distinctly from other `<nav>` regions.
+- Segments live in an ordered list (`<ol>`/`<li>`), conveying the hierarchy and position to screen readers.
+- The current page uses `aria-current="page"` (and is not a link) so it is announced as the active location.
+- Separators are decorative: `aria-hidden="true"` + `role="presentation"`, so they are skipped by screen readers.
+- `BreadcrumbEllipsis` is decorative (`aria-hidden="true"`). Pair it with a separate labelled
+  control (for example, a menu trigger) when the collapsed segments need to be reachable.
+- `BreadcrumbCollapsed` (and `BreadcrumbTrail`'s `maxItems` collapse) is that labelled control: an
+  `aria-label`'d menu trigger (default `"Show hidden breadcrumbs"`, override with `label` /
+  `collapsedLabel`) that opens a `DropdownMenu`. Every hidden segment inside it is a real link
+  (`<a href>` or a `render`-composed router link) — not a JS-only action — so middle-click, "open
+  in new tab", and crawlers keep working.
+- Links use the native `<a>` and keep a visible `:focus-visible` ring — never `outline: none`.
+
+| Key              | Action                                   |
+| ---------------- | ---------------------------------------- |
+| <kbd>Tab</kbd>   | Move focus through the breadcrumb links. |
+| <kbd>Enter</kbd> | Follow the focused link.                 |
+
+## Do / Don't
+
+<DoDont
+  do="Mark the last segment as BreadcrumbPage so the current location is announced and not a dead link."
+  dont="Make the current page a clickable link, or use a breadcrumb as primary navigation — it reflects location, it isn't a menu."
+/>

@@ -1,0 +1,28 @@
+node_modules/
+dist/
+out/
+.next/
+.turbo/
+.open-next/
+.wrangler/
+.source/
+coverage/
+test-results/
+playwright-report/
+*.tsbuildinfo
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
+.dev.vars
+
+# vitest browser-mode artifacts
+.vitest-attachments/
+**/__screenshots__/
+
+# VRT baselines are platform-specific: local darwin PNGs stay untracked (~100MB scratch);
+# the LINUX baselines produced by vrt.yml's update_baselines artifact ARE committed — they
+# are the pixel gate's reference set.
+apps/docs/vrt/components.spec.ts-snapshots/*-darwin.png
+.playwright-cli/

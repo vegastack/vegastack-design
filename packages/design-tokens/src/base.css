@@ -1,0 +1,78 @@
+/* @vegastack/design-tokens/base.css — opt-in base reset (kept separate so consumers aren't forced into it). */
+@layer base {
+  * {
+    @apply border-border outline-ring/(--alpha-outline-soft);
+  }
+  body {
+    /* `isolate` creates a root stacking context so Base UI portaled popups (Dialog, Popover,
+       Tooltip, Select, menus, Sheet) reliably stack above page content — required by Base UI's
+       Quick Start ("Set up portals"). Consumers importing base.css get this for free; if you don't
+       import base.css, add `isolation: isolate` to your app root yourself. */
+    @apply bg-background text-foreground isolate;
+  }
+  /* a11y: real focus ring (fixes the platform's outline:none defect — requirements §7.5).
+     2px solid neutral outline, offset 1 (hugs the control — reads as a crisp border, not a halo).
+     Single source of truth: components carry NO focus ring of their own; this re-skins from `ring`. */
+  :focus-visible {
+    @apply outline-2 outline-offset-1 outline-ring;
+  }
+  /* Pointer cursor on every interactive control. Tailwind v4 Preflight no longer sets it and the
+     native <button> cursor is an arrow, so without this every button / icon-button / menu item /
+     select option / tab / toggle would miss the hand cursor. This is the SINGLE global source of
+     truth — components must NOT re-declare `cursor-pointer` locally; only genuinely non-standard
+     clickables (a clickable table row, a label tied to a control) or non-pointer cursors
+     (`cursor-text`, the select scroll-arrows) set a cursor of their own. */
+  button,
+  [role='button'],
+  [role='tab'],
+  [role='switch'],
+  [role='checkbox'],
+  [role='radio'],
+  [role='menuitem'],
+  [role='menuitemcheckbox'],
+  [role='menuitemradio'],
+  [role='option'],
+  summary {
+    cursor: pointer;
+  }
+  /* Disabled controls opt out (those that don't already set `pointer-events-none` /
+     `cursor-not-allowed`). Higher specificity than the element/role selectors above, so it wins;
+     a component's own `disabled:cursor-not-allowed` lives in the later utilities layer and still wins. */
+  :disabled,
+  [aria-disabled='true'],
+  [data-disabled] {
+    cursor: default;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────────────────────────
+ * THE ONE SANCTIONED `!important` EXCEPTION (WCAG 2.1 — reduced-motion accessibility override).
+ * Users who set `prefers-reduced-motion: reduce` MUST have animations/transitions neutralized even
+ * over component-authored durations; `!important` is the standard, intentional mechanism for this
+ * reset (it has to win against any animated rule, including ones defined later or with higher
+ * specificity). This is the SOLE place `!important` is permitted in shipped VegaStack CSS — the
+ * design-audit contract bans `!important` everywhere else, and `design-lint` (token-css mode)
+ * FAILS on any `!important` that is NOT inside this `prefers-reduced-motion: reduce` block. Do not
+ * add `!important` to win a specificity fight elsewhere; restructure the selector or token instead.
+ * (requirements §7.5 / skills/design-audit.)
+ * ──────────────────────────────────────────────────────────────────────────────────────────────*/
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* View Transitions (Phase S): the universal selector above never reaches the
+   * ::view-transition-* pseudo-element tree (it lives on the root's snapshot layer,
+   * outside normal element matching), so route-change cross-fades/morphs need their
+   * own reduced-motion kill switch. */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

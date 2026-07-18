@@ -1,0 +1,108 @@
+---
+title: Collapsible
+description: A single toggleable open/close region with an animated height, built on Base UI Collapsible.
+preview: collapsible
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/collapsible
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
+import { ChevronDown } from 'lucide-react';
+
+<Collapsible defaultOpen>
+  <CollapsibleTrigger>
+    Show details
+    <ChevronDown />
+  </CollapsibleTrigger>
+  <CollapsibleContent>
+    <p className="pt-2">The revealed content goes here.</p>
+  </CollapsibleContent>
+</Collapsible>;
+```
+
+## Anatomy
+
+`Collapsible` is a compound component built on Base UI's Collapsible. Compose the parts inside the root:
+
+```tsx
+<Collapsible>
+  <CollapsibleTrigger>
+    Label
+    <ChevronDown />
+  </CollapsibleTrigger>
+  <CollapsibleContent>{/* revealed content */}</CollapsibleContent>
+</Collapsible>;
+```
+
+- `Collapsible` — the root (`data-slot="collapsible"`); owns the open/close state (`open` / `defaultOpen` / `onOpenChange`) and the `disabled` flag.
+- `CollapsibleTrigger` — the native `<button>` that toggles the region (`data-slot="collapsible-trigger"`). Open state is exposed as `data-panel-open`; a composed chevron rotates via that attribute. Wired to the panel with `aria-controls` + `aria-expanded`.
+- `CollapsibleContent` — the panel (`data-slot="collapsible-content"`) revealed when open. Animates its height between `0` and the measured content height via Base UI's `--collapsible-panel-height` CSS var.
+
+> **Padding:** the panel itself is `overflow-hidden` and height-animated, so apply padding to an inner wrapper (e.g. `<p className="pt-2">`) rather than to `CollapsibleContent` — padding on the panel fights the height transition.
+
+## Examples
+
+States — closed by default, open by default, and disabled.
+
+<ComponentPreview name="collapsibleStates" file="components/preview/collapsible.tsx" />
+
+### Controlled
+
+Drive the open state yourself with `open` + `onOpenChange` (instead of the uncontrolled `defaultOpen`). Useful when another control toggles the region or when the open state lives in your own store.
+
+<ComponentPreview name="collapsibleControlled" file="components/preview/collapsible.tsx" />
+
+```tsx
+const [open, setOpen] = useState(false);
+
+<Collapsible open={open} onOpenChange={setOpen}>
+  <CollapsibleTrigger>
+    Show details
+    <ChevronDown />
+  </CollapsibleTrigger>
+  <CollapsibleContent>…</CollapsibleContent>
+</Collapsible>;
+```
+
+### Keep mounted for find-in-page
+
+By default the panel is unmounted while closed (`keepMounted={false}`). Pass `keepMounted` together with `hiddenUntilFound` on `CollapsibleContent` to keep the content in the DOM while collapsed — the browser&rsquo;s find-in-page and search crawlers can then reach it and auto-expand the region.
+
+<ComponentPreview name="collapsibleKeepMounted" file="components/preview/collapsible.tsx" />
+
+## API Reference
+
+`Collapsible`, `CollapsibleTrigger`, and `CollapsibleContent` add no props of
+their own — each accepts everything the corresponding [Base UI
+Collapsible](https://base-ui.com/react/components/collapsible) part accepts
+(`Root`, `Trigger`, `Panel`): `open` / `defaultOpen` / `onOpenChange` and
+`disabled` on the root, `keepMounted` / `hiddenUntilFound` on the panel, plus
+`className`, `ref`, and `render` everywhere.
+
+## Accessibility
+
+- The trigger renders a native `<button>` with `aria-expanded` reflecting the open state and `aria-controls` pointing at the panel — assistive tech announces it as an expandable control.
+- The panel is removed from the DOM while closed by default (`keepMounted={false}`); pass `keepMounted`/`hiddenUntilFound` on `CollapsibleContent` to keep it findable by in-page search (see the [Keep mounted for find-in-page](#keep-mounted-for-find-in-page) example).
+- The trigger is a native `<button>`, so it keeps the browser&rsquo;s focus outline — it adds `hover:underline` as a pointer affordance and never sets `outline: none`.
+- `disabled` on the root removes interaction from the whole region.
+
+| Key | Action |
+| --- | --- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Toggle the region open or closed when the trigger is focused. |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Move focus to and from the trigger, then into the revealed panel content. |
+
+## Do / Don't
+
+<DoDont
+  do="Use a Collapsible for a single, self-contained show/hide region — extra detail, an optional form section, a 'read more'."
+  dont="Stack several Collapsibles to fake an accordion where only one opens at a time — use an Accordion, which coordinates a single-open group."
+/>

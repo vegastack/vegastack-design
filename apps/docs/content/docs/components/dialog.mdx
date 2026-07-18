@@ -1,0 +1,148 @@
+---
+title: Dialog
+description: A modal overlay — five sizes, a header/footer layout, focus trapping, and animated enter/exit.
+preview: dialog
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/dialog
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+
+<Dialog>
+  <DialogTrigger render={<Button variant="outline">Open dialog</Button>} />
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Delete project</DialogTitle>
+      <DialogDescription>This action cannot be undone.</DialogDescription>
+    </DialogHeader>
+    <DialogFooter>
+      <DialogClose render={<Button variant="outline">Cancel</Button>} />
+      <Button variant="destructive">Delete project</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>;
+```
+
+## Playground
+
+Pick a size and toggle the close button, open the dialog, then copy the generated JSX.
+
+<DialogPlayground />
+
+## Anatomy
+
+`Dialog` is a compound component built on Base UI's Dialog. Compose the parts inside the root:
+
+```tsx
+<Dialog>
+  <DialogTrigger render={<Button>Open</Button>} />
+  <DialogContent size="default">
+    <DialogHeader>
+      <DialogTitle>Title</DialogTitle>
+      <DialogDescription>Supporting description text.</DialogDescription>
+    </DialogHeader>
+    {/* body content */}
+    <DialogFooter>
+      <DialogClose render={<Button variant="outline">Cancel</Button>} />
+      <Button>Confirm</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+```
+
+- `Dialog` — the root; owns open/close state (`open` / `defaultOpen` / `onOpenChange`). Modal by default — focus is trapped and page scroll is locked.
+- `DialogTrigger` — the control that opens the dialog (`data-slot="dialog-trigger"`). Pass `render` to compose it with a `Button`.
+- `DialogContent` — the centered popup (`data-slot="dialog-content"`). Composes Base UI's Portal + Backdrop + Viewport + Popup, owns the `size`, animates enter/exit, and renders the top-right close button.
+- `DialogHeader` — groups the title and description (`data-slot="dialog-header"`).
+- `DialogTitle` — the dialog's accessible name (`data-slot="dialog-title"`, `<h2>`). Wired to the popup via `aria-labelledby`.
+- `DialogDescription` — supporting text (`data-slot="dialog-description"`, `<p>`). Wired via `aria-describedby`.
+- `DialogFooter` — the action row at the bottom (`data-slot="dialog-footer"`).
+- `DialogClose` — closes the dialog (`data-slot="dialog-close-action"`). Pass `render` to compose it with a `Button` (e.g. a "Cancel" action).
+
+> **Mobile:** Dialog stays a centered modal at every breakpoint. There is intentionally no mobile-drawer variant — a full-screen **Drawer/Sheet** is a separate component.
+
+## Sizes
+
+`DialogContent` takes a `size` prop controlling the popup's max-width: `xs`, `sm`, `default`, `lg`, and `full`.
+
+<ComponentPreview name="dialogSizes" file="components/preview/dialog.tsx" />
+
+## Close button
+
+By default `DialogContent` renders a top-right close (`X`) button. Pass `showCloseButton={false}` to remove it — leaving an explicit footer action as the only way out (useful for deliberate confirmations).
+
+<ComponentPreview name="dialogNoCloseButton" file="components/preview/dialog.tsx" />
+
+```tsx
+<DialogContent showCloseButton={false}>{/* … */}</DialogContent>
+```
+
+The close button's accessible label defaults to `"Close"`. Override it with `closeLabel` when a more specific label reads better for screen readers.
+
+<ComponentPreview name="dialogCloseLabel" file="components/preview/dialog.tsx" />
+
+```tsx
+<DialogContent closeLabel="Dismiss dialog">{/* … */}</DialogContent>
+```
+
+## Scrollable content
+
+The popup caps its height at `max-h-[calc(100dvh-2rem)]`. When the body is taller than the viewport, give the body region `overflow-y-auto` so it scrolls while the header and footer stay pinned.
+
+<ComponentPreview name="dialogScrollable" file="components/preview/dialog.tsx" />
+
+## API Reference
+
+### DialogContent
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/dialog.tsx"
+  name="DialogContentProps"
+/>
+
+`Dialog`, `DialogTrigger`, `DialogTitle`, `DialogDescription`, and
+`DialogClose` add no props of their own — each accepts everything the
+corresponding [Base UI Dialog](https://base-ui.com/react/components/dialog)
+part accepts (`Root`, `Trigger`, `Title`, `Description`, `Close`): `open` /
+`defaultOpen` / `onOpenChange` on the root, `render` on the trigger and close,
+plus `className` and `ref`. `DialogHeader` and `DialogFooter` are plain layout
+wrappers that accept standard `<div>` props.
+
+## Accessibility
+
+- The popup renders with `role="dialog"` + `aria-modal="true"`. `DialogTitle` and `DialogDescription` are auto-wired as its `aria-labelledby` / `aria-describedby` — always include a title.
+- Focus is trapped inside the popup while open and restored to the trigger on close. Page scroll is locked.
+- The close button is a native button with an accessible label (`closeLabel`, default `"Close"`); meaning of the `X` icon is carried by that label.
+- Controls composed with `Button` (trigger, footer actions) carry `Button`'s own `:focus-visible` ring. The top-right `X` close button keeps the browser's default focus outline and changes colour on hover/focus — it never sets `outline: none`.
+
+| Key                                                | Action                                                        |
+| -------------------------------------------------- | ------------------------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>                | Activate the focused trigger to open the dialog.              |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Move focus between controls — trapped within the open dialog. |
+| <kbd>Esc</kbd>                                     | Close the dialog.                                             |
+
+## Do / Don't
+
+<DoDont
+  do="Always include a DialogTitle so the dialog has an accessible name, and put primary actions in the DialogFooter."
+  dont="Use a Dialog for a full-screen, scroll-heavy mobile experience — use a Drawer/Sheet instead."
+/>

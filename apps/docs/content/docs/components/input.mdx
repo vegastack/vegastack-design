@@ -1,0 +1,121 @@
+---
+title: Input
+description: A styled Base UI input — all input types, Field state data attributes, error and disabled states, focus border recolor, and optional prefix/suffix addons.
+preview: input
+---
+
+import { story } from '@/components/stories/input.story';
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/input
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Input } from '@/components/ui/input';
+
+<Input type="email" placeholder="you@vegastack.com" />;
+```
+
+`Input` is built on Base UI Input, so standard input attributes work alongside
+Base UI `render`, `onValueChange`, Field state data attributes, and
+state-function `className`. Its ref forwards to the underlying input element.
+
+## Playground
+
+Try every type, size, and state — flipping Invalid on replays the built-in shake — then copy the generated JSX.
+
+<InputPlayground />
+
+## Explorer
+
+Every `Input` prop, auto-generated from its TypeScript types — the exhaustive counterpart to the
+curated playground above.
+
+<story.WithControl />
+
+## States
+
+The field reflects `disabled`, `readOnly`, and `aria-invalid`. The invalid state
+re-colors the border with the `destructive` token (`aria-invalid:border-destructive/70`) —
+pair it with a visible error message for non-color-dependent feedback.
+
+<ComponentPreview name="inputStates" file="components/preview/input.tsx" />
+
+## Input types
+
+`Input` forwards any HTML `type` to the underlying `<input>` — `number`, `tel`,
+`url`, `password`, `date`, and the rest all work alongside the shared field
+styling. `type` defaults to `'text'`.
+
+<ComponentPreview name="inputTypes" file="components/preview/input.tsx" />
+
+## Addons
+
+Pass a `prefix` and/or `suffix` to render non-editable content inside the field —
+a domain like `app.vegastack.com/`, a unit, or an icon. In addon mode the
+`<input>` is wrapped in a bordered group, and focus/invalid/disabled styling
+moves to the wrapper so the whole field reacts as one unit. Use `className` for
+the Base UI input and `containerClassName` for the addon wrapper.
+
+<ComponentPreview name="inputWithAddon" file="components/preview/input.tsx" />
+
+In addon mode the wrapper reads the inner input's state through `has-*`
+selectors, so `disabled` and `aria-invalid` recolor the whole group rather than
+just the `<input>` — `has-disabled:*` dims the group and `has-aria-invalid:border-destructive/70`
+marks it invalid.
+
+<ComponentPreview name="inputAddonStates" file="components/preview/input.tsx" />
+
+## Controlled value (`onValueChange`)
+
+Base UI exposes `onValueChange`, which receives the next string value directly
+(no event unwrapping) — convenient for controlled fields and derived UI. It fires
+alongside the native `onChange`.
+
+```tsx
+const [value, setValue] = useState('');
+
+<Input value={value} onValueChange={setValue} placeholder="Type a workspace name" />;
+```
+
+<ComponentPreview name="inputValueChange" file="components/preview/input.tsx" />
+
+## Polymorphism (`render`)
+
+Use Base UI's `render` prop to swap the underlying element while keeping the
+field styling and behavior — pass an element to merge props into, or a function
+for full control.
+
+```tsx
+<Input render={<input data-testid="rendered-input" />} type="email" />;
+```
+
+<ComponentPreview name="inputRender" file="components/preview/input.tsx" />
+
+## API Reference
+
+<AutoTypeTable path="../../packages/ui/registry/ui/input.tsx" name="InputProps" />
+
+## Accessibility
+
+- Renders Base UI Input as a native `<input>` by default — always associate a
+  visible `<label>` (wrap it or use `htmlFor`/`id`); use `aria-label` only when a
+  visible label is impossible.
+- On focus the field recolors its border with the `ring` token (`focus:border-ring/(--alpha-tint-border)`) instead of removing the outline — never `outline: none` with no replacement affordance. `Textarea` and `OTPInput` use the identical border tint, so text-entry focus reads the same across all three.
+- Set `aria-invalid` (and `aria-describedby` pointing at the error text) to mark a
+  field invalid; the styling is token-driven and never relies on color alone.
+- `prefix`/`suffix` addons are decorative label text; keep the meaningful value in
+  the input itself so assistive tech reads the field, not the chrome.
+
+## Do / Don't
+
+<DoDont
+  do="Pair every input with a label and, when invalid, an aria-describedby error message."
+  dont="Use aria-invalid styling as the only error signal, or rely on placeholder text as a label."
+/>

@@ -1,0 +1,42 @@
+{
+  "name": "@vegastack/design-tokens",
+  "version": "0.1.0",
+  "description": "VegaStack design tokens (DTCG → Tailwind v4 theme + TS)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VegaStack/vegastack-design.git",
+    "directory": "packages/design-tokens"
+  },
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/tokens.d.ts",
+      "import": "./dist/tokens.js"
+    },
+    "./theme.css": "./dist/theme.css",
+    "./base.css": "./dist/base.css",
+    "./utilities.css": "./dist/utilities.css",
+    "./tokens.json": "./dist/tokens.json"
+  },
+  "scripts": {
+    "build": "node build-tokens.mjs && node ../../tooling/contrast-check.mjs dist/theme.css && tsup src/tokens.ts --format esm --dts --out-dir dist",
+    "lint": "node ../../tooling/contrast-check.mjs dist/theme.css && node ../../tooling/design-lint.mjs --token-css src",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@vegastack/typescript-config": "workspace:*",
+    "style-dictionary": "5.5.0",
+    "typescript": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

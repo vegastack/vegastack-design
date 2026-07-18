@@ -1,0 +1,153 @@
+---
+title: Marker
+description: An inline conversation marker — status lines, system notes, and labelled dividers — built on Base UI render, polymorphic to a link or button.
+preview: marker
+---
+
+import { story } from '@/components/stories/marker.story';
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/marker
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Marker, MarkerContent, MarkerIcon } from "@/components/ui/marker";
+
+<Marker>
+  <MarkerIcon>
+    <CheckIcon />
+  </MarkerIcon>
+  <MarkerContent>All checks passed</MarkerContent>
+</Marker>;
+```
+
+## Explorer
+
+Every `Marker` prop, auto-generated from its TypeScript types.
+
+<story.WithControl />
+
+## Anatomy
+
+A `Marker` is a single inline row inside a conversation. `MarkerIcon` is a
+decorative leading slot; `MarkerContent` is the (wrapping) text. The root is a
+`group/marker`, so content can react to the chosen `variant`.
+
+- `Marker` — the row (`data-slot="marker"`, `data-variant`). Built on Base UI
+  `useRender`, so `render` turns it into any element (a link, a button).
+- `MarkerIcon` — the leading icon (`data-slot="marker-icon"`, `aria-hidden`).
+  Any bare `svg` child is sized to `size-4`.
+- `MarkerContent` — the text (`data-slot="marker-content"`). Wraps long content;
+  centres itself under the `separator` variant.
+
+## Examples
+
+### Status markers
+
+<ComponentPreview name="marker" file="components/preview/marker.tsx" />
+
+### Variants
+
+`default`, `separator` (a centred label with divider lines), and `border` (a row
+with a bottom hairline).
+
+<ComponentPreview name="markerVariants" file="components/preview/marker.tsx" />
+
+### Separators
+
+`variant="separator"` renders a centred label flanked by divider lines — useful
+for date dividers and section breaks within a thread.
+
+<ComponentPreview name="markerSeparator" file="components/preview/marker.tsx" />
+
+### Bordered list
+
+`variant="border"` stacks status rows with a hairline under each.
+
+<ComponentPreview name="markerBorder" file="components/preview/marker.tsx" />
+
+### Status (live region)
+
+Give an in-progress marker `role="status"` so assistive tech announces it. Pair
+with a [`Spinner`](/docs/components/spinner) for the visual cue.
+
+<ComponentPreview name="markerStatus" file="components/preview/marker.tsx" />
+
+### Streaming text
+
+Pair `MarkerContent` with the [`shimmer`](/docs/utilities/shimmer) utility (with
+or without a spinner) for in-progress, streaming copy.
+
+<ComponentPreview name="markerStreaming" file="components/preview/marker.tsx" />
+
+### As a link or button
+
+Pass `render` to make the whole row a link or a button without losing the marker
+styling.
+
+<ComponentPreview name="markerLinkButton" file="components/preview/marker.tsx" />
+
+### Motion
+
+Pass `animateIn` to pop a marker in (`motion-pop-in`) when its own appearance is the event — a
+status note that just landed, a divider inserted at the head of a live thread. It's **off by
+default**: markers that are part of an already-rendered thread history must not pop on page load.
+
+<ComponentPreview name="markerAnimateIn" file="components/preview/marker.tsx" />
+
+### Inline link in content
+
+For a marker where only part of the text links — not the whole row — nest an
+`<a>` inside `MarkerContent`. It inherits the underlined, hover-brightening link
+affordance, leaving the rest of the row plain. Use this instead of `render` when
+the marker itself isn't the link target.
+
+<ComponentPreview name="markerInlineLink" file="components/preview/marker.tsx" />
+
+## API Reference
+
+### Marker
+
+<AutoTypeTable path="../../packages/ui/registry/ui/marker.tsx" name="MarkerProps" />
+
+### MarkerIcon
+
+The leading icon slot. Accepts the standard `<span>` props plus `className`; it
+is `aria-hidden` and sizes any bare `svg` child to `size-4`.
+
+### MarkerIcon
+
+<AutoTypeTable path="../../packages/ui/registry/ui/marker.tsx" name="MarkerIconProps" />
+
+### MarkerContent
+
+The wrapping text slot. Accepts the standard `<span>` props plus `className`; it
+centres under the `separator` variant and gives any nested `<a>` the underlined,
+hover-brightening link affordance.
+
+### MarkerContent
+
+<AutoTypeTable path="../../packages/ui/registry/ui/marker.tsx" name="MarkerContentProps" />
+
+## Accessibility
+
+- `MarkerIcon` is `aria-hidden` — the adjacent `MarkerContent` text carries the
+  meaning, so never rely on the icon alone.
+- When rendered as a link/button via `render`, the element keeps native
+  semantics and the global `:focus-visible` ring.
+- For an in-progress marker, add `role="status"` so the row is announced as a
+  live region when its text updates.
+- A streaming `shimmer` marker honours `prefers-reduced-motion` (the sweep stops).
+
+## Do / Don't
+
+<DoDont
+  do="Use a Marker for inline thread annotations — a status line, a date divider, or a small action row."
+  dont="Use it as a standalone status chip outside a conversation — reach for Badge, or Alert for a full banner."
+/>

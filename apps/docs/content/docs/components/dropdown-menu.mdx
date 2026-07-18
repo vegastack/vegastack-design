@@ -1,0 +1,279 @@
+---
+title: Dropdown Menu
+description: A menu of actions triggered by a button — items, submenus, separators, labels, shortcuts, and checkbox/radio selections.
+preview: dropdownMenu
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/dropdown-menu
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+
+<DropdownMenu>
+  <DropdownMenuTrigger render={<Button variant="outline">Open menu</Button>} />
+  <DropdownMenuContent>
+    <DropdownMenuItem>Profile</DropdownMenuItem>
+    <DropdownMenuItem variant="destructive">Delete account</DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>;
+```
+
+## Anatomy
+
+`DropdownMenu` is a compound component built on Base UI's `Menu`. The trigger and the content
+sit inside the root; the content portals to `<body>` and positions itself against the trigger.
+
+```tsx
+<DropdownMenu>
+  <DropdownMenuTrigger />
+  <DropdownMenuContent>
+    <DropdownMenuGroup>
+      <DropdownMenuLabel />
+      <DropdownMenuItem />
+      <DropdownMenuShortcut />
+    </DropdownMenuGroup>
+
+    <DropdownMenuSeparator />
+
+    <DropdownMenuCheckboxItem />
+
+    <DropdownMenuRadioGroup>
+      <DropdownMenuRadioItem />
+    </DropdownMenuRadioGroup>
+
+    <DropdownMenuSub>
+      <DropdownMenuSubTrigger />
+      <DropdownMenuSubContent>
+        <DropdownMenuItem />
+      </DropdownMenuSubContent>
+    </DropdownMenuSub>
+  </DropdownMenuContent>
+</DropdownMenu>
+```
+
+- `DropdownMenu` — the root that groups every part (`Menu.Root`; renders no element).
+- `DropdownMenuTrigger` — the button that opens the menu (`data-slot="dropdown-menu-trigger"`). Use `render` to compose with a `Button`.
+- `DropdownMenuContent` — the floating popup; portals to `<body>` and positions against the trigger (`data-slot="dropdown-menu-content"`). Accepts `side`, `align`, `sideOffset`, `collisionPadding`, exposes `portalProps` / `positionerProps`, and can wrap items in an optional Base UI Viewport via `viewportProps`.
+- `DropdownMenuItem` — a selectable action (`data-slot="dropdown-menu-item"`). Supports `variant="destructive"` and `inset`.
+- `DropdownMenuGroup` + `DropdownMenuLabel` — a labelled section; the label becomes the group's accessible name.
+- `DropdownMenuSeparator` — a divider between sections (`role="separator"`).
+- `DropdownMenuShortcut` — a right-aligned keyboard hint inside an item.
+- `DropdownMenuCheckboxItem` — a togglable item with a check indicator (`checked` / `onCheckedChange`).
+- `DropdownMenuRadioGroup` + `DropdownMenuRadioItem` — single-select items (`value` / `onValueChange`).
+- `DropdownMenuSub` + `DropdownMenuSubTrigger` + `DropdownMenuSubContent` — a nested submenu.
+
+## Examples
+
+A rich menu with grouped items, labels, keyboard shortcuts, checkbox + radio selections, a disabled
+item, a destructive action, and a nested submenu.
+
+<ComponentPreview
+  name="dropdownMenuRich"
+  file="components/preview/dropdown-menu.tsx"
+/>
+
+## Items
+
+Items take leading `lucide-react` icons as children, a trailing `DropdownMenuShortcut`, and a
+`variant="destructive"` for delete/remove actions. Use `inset` to align items that have no leading
+icon with those that do.
+
+```tsx
+<DropdownMenuItem>
+  <Settings />
+  Settings
+  <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+</DropdownMenuItem>
+<DropdownMenuItem variant="destructive">
+  <Trash2 />
+  Delete
+</DropdownMenuItem>
+```
+
+## Inset alignment
+
+When a menu mixes items that have a leading icon (or a checkbox/radio indicator) with items
+that don't, add `inset` to the icon-less items — and to a `DropdownMenuLabel` — so their text
+lines up with the indented rows instead of jumping back to the edge.
+
+<ComponentPreview
+  name="dropdownMenuInset"
+  file="components/preview/dropdown-menu.tsx"
+/>
+
+```tsx
+<DropdownMenuLabel inset>Appearance</DropdownMenuLabel>
+<DropdownMenuItem>
+  <User />
+  Profile
+</DropdownMenuItem>
+<DropdownMenuItem inset>Compact mode</DropdownMenuItem>
+```
+
+## Checkbox & radio items
+
+`DropdownMenuCheckboxItem` toggles a setting and stays open on click; `DropdownMenuRadioGroup`
+wraps `DropdownMenuRadioItem`s for single-select.
+
+```tsx
+<DropdownMenuCheckboxItem checked={showGrid} onCheckedChange={setShowGrid}>
+  Show grid
+</DropdownMenuCheckboxItem>
+
+<DropdownMenuRadioGroup value={role} onValueChange={setRole}>
+  <DropdownMenuRadioItem value="admin">Admin</DropdownMenuRadioItem>
+  <DropdownMenuRadioItem value="member">Member</DropdownMenuRadioItem>
+</DropdownMenuRadioGroup>
+```
+
+## Submenus
+
+Nest a `DropdownMenuSub` to reveal a second-level popup. The trigger shows a trailing chevron and
+opens on hover or with the <kbd>→</kbd> arrow key.
+
+```tsx
+<DropdownMenuSub>
+  <DropdownMenuSubTrigger>Invite users</DropdownMenuSubTrigger>
+  <DropdownMenuSubContent>
+    <DropdownMenuItem>Email</DropdownMenuItem>
+    <DropdownMenuItem>Message</DropdownMenuItem>
+  </DropdownMenuSubContent>
+</DropdownMenuSub>
+```
+
+## API Reference
+
+### DropdownMenu
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
+  name="DropdownMenuProps"
+/>
+
+### DropdownMenuTrigger
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
+  name="DropdownMenuTriggerProps"
+/>
+
+### DropdownMenuGroup
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
+  name="DropdownMenuGroupProps"
+/>
+
+### DropdownMenuSub
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
+  name="DropdownMenuSubProps"
+/>
+
+### DropdownMenuRadioGroup
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
+  name="DropdownMenuRadioGroupProps"
+/>
+
+### DropdownMenuContent
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
+  name="DropdownMenuContentProps"
+/>
+
+### DropdownMenuItem
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
+  name="DropdownMenuItemProps"
+/>
+
+### DropdownMenuCheckboxItem
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
+  name="DropdownMenuCheckboxItemProps"
+/>
+
+### DropdownMenuRadioItem
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
+  name="DropdownMenuRadioItemProps"
+/>
+
+### DropdownMenuLabel
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
+  name="DropdownMenuLabelProps"
+/>
+
+### DropdownMenuSeparator
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
+  name="DropdownMenuSeparatorProps"
+/>
+
+### DropdownMenuShortcut
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
+  name="DropdownMenuShortcutProps"
+/>
+
+### DropdownMenuSubTrigger
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
+  name="DropdownMenuSubTriggerProps"
+/>
+
+### DropdownMenuSubContent
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/dropdown-menu.tsx"
+  name="DropdownMenuSubContentProps"
+/>
+
+## Accessibility
+
+- The popup renders with `role="menu"`; items are `menuitem`, `menuitemcheckbox`, and `menuitemradio`. A `DropdownMenuLabel` inside a group becomes that group's accessible name.
+- Full keyboard support via Base UI's roving focus; the highlighted item uses `data-highlighted` (`bg-accent text-accent-foreground`) — there is no `outline: none` without a visible focus state.
+- The menu is modal by default: page scroll locks and focus is trapped while open, then returns to the trigger on close.
+- Icons inside items are decorative; the item's text carries the meaning.
+
+| Key                                                | Action                                                        |
+| -------------------------------------------------- | ------------------------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> / <kbd>↓</kbd> | Open the menu from the trigger.                               |
+| <kbd>↑</kbd> / <kbd>↓</kbd>                        | Move between items (wraps at the ends).                       |
+| <kbd>→</kbd>                                       | Open the focused submenu.                                     |
+| <kbd>←</kbd> / <kbd>Esc</kbd>                      | Close the current submenu (or the whole menu).                |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>                | Activate the focused item.                                    |
+| <kbd>A</kbd>–<kbd>Z</kbd>                          | Typeahead — jump to the next item matching the typed letters. |
+
+## Do / Don't
+
+<DoDont
+  do="Group related actions with a label and separate destructive actions with a separator."
+  dont="Use a dropdown menu for selecting a single value from a form — use a Select instead."
+/>

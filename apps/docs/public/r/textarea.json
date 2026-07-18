@@ -1,0 +1,29 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "textarea",
+  "title": "Textarea",
+  "description": "A styled native textarea for multi-line text — error/disabled states, a focus-visible ring, and an optional auto-grow mode.",
+  "dependencies": [
+    "@vegastack/design@^0.1.0",
+    "@vegastack/design-tokens@^0.1.0"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "packages/ui/registry/ui/textarea.tsx",
+      "content": "// @vegastack textarea@0.1.0 sha256-9aomujBZCVTA9T98FdlNBM8kjzZu35TbRIBpVItk/O8=\n\nimport * as React from \"react\";\nimport { cn } from \"@vegastack/design\";\n\nexport interface TextareaProps extends React.ComponentProps<\"textarea\"> {\n  /**\n   * Density tier — `sm` compact, `default`, `lg` roomy. Multiline fields scale by\n   * min-height + padding (register P1-04).\n   * @default 'default'\n   */\n  size?: keyof typeof sizeClasses;\n  /**\n   * When `true`, the field grows to fit its content instead of scrolling,\n   * using native CSS `field-sizing: content`. Combine with `rows` for a\n   * starting height and the `max-h-*` utility (via `className`) for a cap.\n   * Falls back to a fixed, scrollable height in browsers without support.\n   * @default false\n   */\n  autoGrow?: boolean;\n}\n\n/**\n * Shared field classes for the textarea surface — border, `aria-invalid`,\n * and `disabled` styling all live here. Mirrors `Input` exactly so the two\n * fields are visually identical: the darkened `ring/70` border is the sole\n * focus cue (no ring). Every value is a semantic token (no hardcoded colors,\n * no arbitrary values).\n */\n\n/**\n * Density scale (register P1-04) — multiline fields size by minimum height and\n * padding rather than the fixed control heights; `sm` steps the type down a tier.\n */\nconst sizeClasses = {\n  sm: 'min-h-12 px-2.5 py-1.5 text-sm',\n  default: 'min-h-16 px-3 py-2',\n  lg: 'min-h-24 px-3 py-2.5',\n} as const;\n\nconst fieldClasses =\n  \"w-full min-w-0 rounded-md border border-input bg-transparent text-base transition-colors duration-fast ease-standard outline-none \" +\n  \"focus:border-ring/(--alpha-tint-border) \" +\n  \"dark:bg-input/(--alpha-input) \" +\n  \"placeholder:text-muted-foreground-faint \" +\n  \"selection:bg-primary selection:text-primary-foreground \" +\n  \"aria-invalid:border-destructive/(--alpha-tint-border) \" +\n  \"disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-(--opacity-dim) disabled:bg-muted\";\n\n/**\n * `Textarea` — a styled native `<textarea>` for multi-line text entry, with\n * `error` (`aria-invalid`) and `disabled` states and a darkened focus border\n * (no ring, matching `Input`). Resizes vertically by default; pass `autoGrow` to\n * size to content via CSS `field-sizing`. Shares its border/token styling with `Input`. Pure\n * presentational and server-safe — no hooks, no `'use client'`. Forwards its\n * ref to the underlying `<textarea>` for focus management and form libraries.\n */\nexport function Textarea({ className, autoGrow = false, size = 'default', ref, ...props }: TextareaProps) {\n    return (\n      <textarea\n        ref={ref}\n        data-slot=\"textarea\"\n        data-size={size}\n        className={cn(\n          fieldClasses,\n          sizeClasses[size],\n          autoGrow ? \"resize-none field-sizing-content\" : \"resize-y\",\n          className,\n        )}\n        {...props}\n      />\n    );\n}\n",
+      "type": "registry:ui",
+      "target": "@ui/textarea.tsx"
+    }
+  ],
+  "meta": {
+    "whenToUse": "Multi-line free text — descriptions, comments, messages, notes.",
+    "whenNotToUse": "Single-line entry (input), rich text (editor), or fixed options (select).",
+    "version": "0.1.0",
+    "integrity": "sha256-9aomujBZCVTA9T98FdlNBM8kjzZu35TbRIBpVItk/O8="
+  },
+  "categories": [
+    "form"
+  ],
+  "type": "registry:ui"
+}

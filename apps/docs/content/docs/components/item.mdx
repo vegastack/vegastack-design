@@ -1,0 +1,157 @@
+---
+title: Item
+description: A compact anatomy row for list/feed content — media, title, description, and actions, groupable with dividers.
+preview: itemDemo
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/item
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item';
+import { Mail } from 'lucide-react';
+
+<Item variant="outline">
+  <ItemMedia variant="icon">
+    <Mail />
+  </ItemMedia>
+  <ItemContent>
+    <ItemTitle>New message</ItemTitle>
+    <ItemDescription>Ada Lovelace sent you a message.</ItemDescription>
+  </ItemContent>
+  <ItemActions>
+    <Button size="sm">View</Button>
+  </ItemActions>
+</Item>;
+```
+
+## Playground
+
+Mix the row's surface, density, and media treatment, then copy the generated JSX.
+
+<ItemPlayground />
+
+## Anatomy
+
+`Item` is a compound component. Compose the parts inside the root, and group multiple rows in an
+`ItemGroup` separated by `ItemSeparator`:
+
+```tsx
+<ItemGroup>
+  <Item variant="default" size="default">
+    <ItemMedia variant="icon">{/* lucide icon */}</ItemMedia>
+    <ItemContent>
+      <ItemHeader>{/* title + trailing meta */}</ItemHeader>
+      <ItemTitle>Title</ItemTitle>
+      <ItemDescription>Supporting description text.</ItemDescription>
+      <ItemFooter>{/* secondary actions */}</ItemFooter>
+    </ItemContent>
+    <ItemActions>{/* buttons, badges */}</ItemActions>
+  </Item>
+  <ItemSeparator />
+  <Item>{/* … */}</Item>
+</ItemGroup>;
+```
+
+- `Item` — the row container (`data-slot="item"`). Owns `variant`, `size`, and the `render`
+  composition prop. `role="listitem"` by default.
+- `ItemMedia` — the leading visual slot (`data-slot="item-media"`). Owns the `variant` chip style.
+- `ItemContent` — the flexible text column (`data-slot="item-content"`).
+- `ItemTitle` — the primary label (`data-slot="item-title"`).
+- `ItemDescription` — supporting body text, clamped to two lines (`<p>`, `data-slot="item-description"`).
+- `ItemActions` — a trailing row of controls (`data-slot="item-actions"`).
+- `ItemHeader` / `ItemFooter` — full-width top/bottom rows for multi-row layouts (`data-slot="item-header"` / `"item-footer"`).
+- `ItemGroup` — a `role="list"` container of `Item` rows (`data-slot="item-group"`).
+- `ItemSeparator` — a decorative divider between rows, wraps `Separator` (`data-slot="item-separator"`).
+
+## Variants
+
+`variant` sets the row's surface — `default` (no surface, blends into the parent), `outline` (a
+hairline border), or `muted` (a filled neutral wash). `size` sets the padding density — roomy
+`default` or compact `sm` for dense lists.
+
+<ComponentPreview name="itemDemoVariants" file="components/preview/item.tsx" />
+
+## Media
+
+`ItemMedia` takes a `variant`: `default` renders children bare (compose an `Avatar` or any custom
+glyph), `icon` wraps a single `lucide-react` icon in a bordered, muted square chip, and `image`
+clips a thumbnail `<img>` into a rounded square tile. When the row also has an `ItemDescription`,
+the media nudges down to align with the title instead of the row's vertical center.
+
+<ComponentPreview name="itemDemoMedia" file="components/preview/item.tsx" />
+
+## Actions
+
+`ItemActions` holds trailing controls — buttons, icon-buttons, badges — right-aligned in the row.
+
+<ComponentPreview name="itemDemoActions" file="components/preview/item.tsx" />
+
+## Interactive rows
+
+Pass `render` to turn the whole row into a single focusable control — an `<a>` for navigation, a
+`<button>` for an action. The row keeps the composed element's native `link`/`button` role instead
+of the default `listitem` role, so it stays fully operable and discoverable by assistive tech.
+
+<ComponentPreview name="itemDemoLink" file="components/preview/item.tsx" />
+
+## Groups & separators
+
+Wrap rows in `ItemGroup` (`role="list"`) and divide them with `ItemSeparator` — a decorative
+`Separator` that never breaks the list's ARIA structure. Compose `ItemHeader` / `ItemFooter`
+inside `ItemContent` for multi-row layouts like a comment or activity feed.
+
+<ComponentPreview name="itemDemoGroup" file="components/preview/item.tsx" />
+
+## API Reference
+
+### Item
+
+<AutoTypeTable path="../../packages/ui/registry/ui/item.tsx" name="ItemProps" />
+
+### ItemMedia
+
+<AutoTypeTable path="../../packages/ui/registry/ui/item.tsx" name="ItemMediaProps" />
+
+### ItemSeparator
+
+<AutoTypeTable path="../../packages/ui/registry/ui/item.tsx" name="ItemSeparatorProps" />
+
+`ItemContent`, `ItemTitle`, `ItemDescription`, `ItemActions`, `ItemHeader`,
+`ItemFooter`, and `ItemGroup` add no props of their own — each accepts
+everything its underlying element accepts (a `<div>`, or a `<p>` for
+`ItemDescription`), plus `className` and `ref`.
+
+## Accessibility
+
+- A non-interactive `Item` renders `role="listitem"` by default, pairing with `ItemGroup`'s
+  `role="list"` so assistive tech announces the row count and position.
+- An interactive `Item` (`render={<a />}` or `render={<button />}`) keeps its native `link` /
+  `button` role instead — ARIA has no dual-role concept, and forcing `listitem` onto it would hide
+  the interactive affordance. Compose interactive rows standalone, or alongside non-interactive
+  rows in a group, rather than as the *only* children of a `role="list"` `ItemGroup`.
+- `ItemSeparator` is decorative (`role="presentation"`, `aria-hidden`) — it never breaks the
+  `ItemGroup`'s list structure for assistive tech.
+- `ItemMedia` carries no independent semantics — an icon or image inside it should stay decorative;
+  put the meaning in `ItemTitle` / `ItemDescription`.
+- Keyboard focus uses the centralized `:focus-visible` outline — no custom ring.
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Move focus to the next interactive `Item` (or control inside `ItemActions`). |
+| <kbd>Enter</kbd> | Activate a focused link/button `Item`, or a focused action control. |
+| <kbd>Space</kbd> | Activate a focused button `Item`, or a focused action control. |
+
+## Do / Don't
+
+<DoDont
+  do="Put the row's meaning in ItemTitle and ItemDescription — ItemMedia's icon or image stays decorative."
+  dont="Make the whole row a link AND nest another link or button inside ItemActions — a control can't be both a landmark link and contain interactive descendants without confusing keyboard/AT navigation."
+/>

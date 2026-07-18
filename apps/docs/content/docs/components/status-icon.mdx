@@ -1,0 +1,97 @@
+---
+title: Status Icon
+description: A small status indicator icon for the canonical task states — todo, in progress, blocked, and done.
+preview: statusIcon
+---
+
+import { story } from '@/components/stories/status-icon.story';
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/status-icon
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { StatusIcon } from '@/components/ui/status-icon';
+
+<StatusIcon status="progress" />;
+```
+
+## Playground
+
+Pick a status and size to preview each state's icon and color, then copy the generated JSX.
+
+<StatusIconPlayground />
+
+## Explorer
+
+Every `StatusIcon` prop, auto-generated from its TypeScript types — the exhaustive counterpart to
+the curated playground above.
+
+<story.WithControl />
+
+## States
+
+Each `status` maps to a `lucide-react` icon and a semantic color token: `todo` (`Circle`,
+muted), `progress` (spinning `Loader`, info), `blocked` (`CircleAlert`, destructive), and `done`
+(`CircleCheck`, success).
+
+<ComponentPreview name="statusIconStates" file="components/preview/status-icon.tsx" />
+
+## Sizes
+
+`xs`, `sm`, `default`, and `lg` — mapped to the `size-*` token scale.
+
+<ComponentPreview name="statusIconSizes" file="components/preview/status-icon.tsx" />
+
+Each `status` renders at every size — only `progress` animates (its spinning `Loader`):
+
+<ComponentPreview name="statusIconStatusSizeMatrix" file="components/preview/status-icon.tsx" />
+
+## With a text label
+
+When adjacent text already states the status, pass `label=""` so the icon is marked decorative
+(`aria-hidden`) and the screen reader announces the text once rather than twice. This is the
+recommended accessible pattern.
+
+<ComponentPreview name="statusIconWithLabel" file="components/preview/status-icon.tsx" />
+
+```tsx
+<span className="flex items-center gap-2 text-info-text">
+  <StatusIcon status="progress" label="" />
+  In progress
+</span>
+```
+
+## API Reference
+
+<AutoTypeTable path="../../packages/ui/registry/ui/status-icon.tsx" name="StatusIconProps" />
+
+## Accessibility
+
+- By default the icon renders `role="img"` with an `aria-label` derived from `status` (e.g.
+  `"In progress"`), so assistive tech announces the state. Override the wording with the `label` prop.
+- When adjacent text already states the status — for example a label next to the icon — pass `label=""`
+  to make the icon decorative (`aria-hidden`) and avoid a redundant announcement.
+- Color is conveyed through a semantic token (`currentColor`) only — never rely on color alone to
+  communicate the status; the distinct icon shapes carry the meaning too.
+- The `progress` spin animation is disabled under `prefers-reduced-motion: reduce`
+  (`motion-reduce:animate-none`).
+
+| Concern         | Behavior                                                       |
+| --------------- | -------------------------------------------------------------- |
+| Role            | `role="img"` unless `label=""` (decorative, `aria-hidden`)     |
+| Accessible name | `aria-label` from `label`, or a default derived from `status`  |
+| Reduced motion  | `progress` animation removed under `prefers-reduced-motion`    |
+
+## Do / Don't
+
+<DoDont
+  do="Pair the icon with a text label, or give it a meaningful aria-label so the status is announced — distinct icon shapes back up the color."
+  dont="Rely on color alone to convey status, or leave the icon unlabeled when no adjacent text describes the state."
+/>

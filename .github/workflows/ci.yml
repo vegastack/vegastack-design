@@ -1,0 +1,51 @@
+name: CI
+on:
+  pull_request:
+
+# Turborepo remote caching (Phase D): activates when MK provisions the Vercel Remote Cache
+# secrets — inert (local cache only) until then. Signature verification is enabled in
+# turbo.json so poisoned-cache artifacts are rejected.
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    # Pinned Playwright image so Vitest browser mode + Playwright VRT share identical browsers/fonts.
+    container: mcr.microsoft.com/playwright:v1.61.0-noble
+    steps:
+      - uses: actions/checkout@v6
+        with: { fetch-depth: 0 } # needed for `changeset status --since=origin/main`
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      # Workspace gates (Turborepo, package-scoped). Root-level `pnpm exec tsc/vitest` do NOT
+      # resolve the per-package tsconfig path aliases / vitest configs and fail before validating
+      # anything — always go through the package scripts.
+      - run: pnpm typecheck # turbo run typecheck — per-package `tsc --noEmit`
+      - run: pnpm lint # turbo run lint — design-lint (semantic-token + sanctioned-icon gate) + eslint
+      # NOTE: Vitest browser mode finds the image's browsers via PLAYWRIGHT_BROWSERS_PATH, which
+      # turbo.json must pass through (globalPassThroughEnv) — turbo's strict env otherwise strips
+      # it and vitest dies at browserType.launch looking in $HOME/.cache.
+      - run: pnpm test # turbo run test — Vitest browser mode + axe, incl. compiled-CSS color-contrast
+      - run: pnpm build
+      - run: pnpm registry:build
+      # `registry:build` stamps THREE surfaces (registry JSON in apps/docs/public/r, the
+      # registry SOURCE in packages/ui/registry/ui, and the docs copy-in in apps/docs/components/ui).
+      # Check the FULL worktree — not just public/r — so an un-stamped copy-in, drifted source, or
+      # any other registry-build side-effect fails CI (Codex R11: public/r-only was too narrow).
+      - run: git status --porcelain && test -z "$(git status --porcelain)" # any stale/untracked file after registry:build fails CI
+      # Prove the built registry is actually CONSUMABLE end-to-end (not just hash-green): registry
+      # fetch + transitive registryDependencies + shipped-verifier integrity preflight + alias
+      # rewrite + post-write verify + tsc of the consumed output. The final npm-install of the
+      # unpublished @vegastack/* is publish-gated and resolved here via the workspace link.
+      - run: pnpm registry:verify-consume
+      - run: pnpm exec changeset status --since=origin/main
+      # NOTE: Playwright visual-regression (VRT) runs as its OWN per-PR workflow (.github/workflows/
+      # vrt.yml), in this same pinned image, so a slow screenshot job never blocks the fast typecheck/
+      # lint/test gate here. It self-activates into a blocking pixel gate the moment baseline
+      # screenshots are committed (a one-time `update_baselines` bootstrap, since deterministic PNGs
+      # require the pinned Linux container). Color-contrast a11y is already enforced HERE via the
+      # compiled-CSS Vitest browser run, independent of VRT.

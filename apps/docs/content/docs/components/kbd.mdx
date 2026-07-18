@@ -1,0 +1,116 @@
+---
+title: Kbd
+description: A styled keyboard-key indicator — deterministic modifier labels, a keys array, and small sizes.
+preview: kbd
+---
+
+import { story } from '@/components/stories/kbd.story';
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/kbd
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Kbd, KbdGroup } from '@/components/ui/kbd';
+
+// Single key
+<Kbd>⌘</Kbd>
+
+// A combo as an array — each token is its own chip
+<Kbd keys={['⌘', 'K']} />;
+```
+
+## Playground
+
+Change the size and platform to watch the ⌘ glyph swap to Ctrl, then copy the generated JSX.
+
+<KbdPlayground />
+
+## Explorer
+
+Every `Kbd` prop, auto-generated from its TypeScript types — the exhaustive counterpart to the
+curated playground above.
+
+<story.WithControl />
+
+## Anatomy
+
+`Kbd` renders a single `<kbd>` chip, or — when given a `keys` array — a row of chips wrapped in a
+`KbdGroup`. Compose `KbdGroup` yourself to mix in non-key content.
+
+```tsx
+<KbdGroup>
+  <Kbd>⌘</Kbd>
+  <Kbd>K</Kbd>
+</KbdGroup>
+```
+
+## Combos
+
+Pass a `keys` array to render a shortcut, or compose individual `Kbd` chips inside a `KbdGroup`.
+Modifier glyphs render as mac glyphs by default; pass `os="other"` to rewrite them to words
+(`⌘` → `Ctrl`, `⌥` → `Alt`).
+
+<ComponentPreview name="kbdCombos" file="components/preview/kbd.tsx" />
+
+## Sizes
+
+`xs`, `sm`, and `default` — sized to sit inline with text, menus, and tooltips.
+
+<ComponentPreview name="kbdSizes" file="components/preview/kbd.tsx" />
+
+## Platform Labels
+
+`Kbd` is server-safe and deterministic. It defaults to mac glyphs; pass `os="other"` when the
+surrounding UI is for Windows/Linux shortcuts. The rewrite applies whether you pass a `keys` array
+or a single string child (`⌘` → `Ctrl`, `⇧` → `Shift`, `⌥` → `Alt`, `⌃` → `Ctrl`, `⏎`/`↵` →
+`Enter`, `⌫` → `Bksp`).
+
+<ComponentPreview name="kbdPlatformLabels" file="components/preview/kbd.tsx" />
+
+```tsx
+<Kbd os="mac" keys={['⌘', 'K']} />   {/* ⌘ K */}
+<Kbd os="other" keys={['⌘', 'K']} /> {/* Ctrl K */}
+
+// Single string children are rewritten too
+<Kbd os="other">⌘</Kbd>             {/* Ctrl */}
+```
+
+## API Reference
+
+### Kbd
+
+<AutoTypeTable path="../../packages/ui/registry/ui/kbd.tsx" name="KbdProps" />
+
+### KbdGroup
+
+<AutoTypeTable path="../../packages/ui/registry/ui/kbd.tsx" name="KbdGroupProps" />
+
+The `kbdVariants` CVA helper is also exported for advanced styling — call `kbdVariants({ size })`
+to reuse the chip classes (the single `size` axis: `xs` | `sm` | `default`) on a custom element.
+
+## Accessibility
+
+- Renders a native, non-interactive `<kbd>` element — the semantic element for keyboard input, so
+  assistive tech announces it as such.
+- The chip is a label, never a control: it does not receive focus and carries no `tabindex`. Wire the
+  actual shortcut up on the relevant control (e.g. a button or a menu item).
+- Modifier glyphs are rewritten to readable words on non-mac platforms, so a shortcut is never
+  announced as an unfamiliar symbol.
+
+| Key       | Behavior                                                            |
+| --------- | ------------------------------------------------------------------ |
+| _(none)_  | `Kbd` is presentational — it has no interactive keyboard behavior. |
+
+## Do / Don't
+
+<DoDont
+  do="Use Kbd to display a shortcut alongside the control it triggers, and pass os when the shortcut copy targets a non-mac platform."
+  dont="Make a Kbd clickable or focusable, or hardcode ⌘ in copy that Windows and Linux users will also read."
+/>

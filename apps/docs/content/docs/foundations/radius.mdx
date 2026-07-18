@@ -1,0 +1,66 @@
+---
+title: Radius
+description: The corner-radius tokens — one base radius plus a four-step scale, bridged to Tailwind.
+---
+
+Corner radii are a small, fixed scale defined in `@vegastack/design-tokens/theme.css` as `--radius-*`
+CSS variables on `:root`. Components only ever use the rounded utilities (`rounded-md`,
+`rounded-lg`) that the `@theme inline` bridge wires to these tokens — never a hardcoded `px`.
+
+<RadiusScale />
+
+## Tokens
+
+Four real radii ship in `:root`, plus one alias and one `calc`-derived step:
+
+- **`--radius-sm`** — `0.375rem`
+- **`--radius-md`** — `0.5rem`
+- **`--radius` / `--radius-lg`** — `0.75rem` (both names resolve to the same value; `--radius` is the alias)
+- **`--radius-xl`** — `calc(var(--radius-lg) + 0.25rem)` → `1rem` effective
+
+<Callout type="info">
+There is **no standalone `--radius-xl` in `:root`**. It exists **only** in the `@theme inline` block
+as a `calc` on top of `--radius-lg`, so changing the base radius shifts `xl` with it. `--radius` and
+`--radius-lg` are identical (`0.75rem`) by design — `--radius` is the single knob most components reach for.
+</Callout>
+
+## The `@theme inline` bridge
+
+The raw `--radius-*` variables are bridged to Tailwind's radius scale in the `@theme inline` block,
+which is what turns them into the `rounded-*` utilities:
+
+```css
+@theme inline {
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: calc(var(--radius-lg) + 0.25rem);
+}
+```
+
+That mapping yields the utilities components use: `rounded-sm` (`0.375rem`), `rounded-md` (`0.5rem`),
+`rounded-lg` (`0.75rem`), `rounded-xl` (`1rem`). Because `xl` is derived from `--radius-lg`, redefining
+the base radius cascades through the whole scale.
+
+## Overriding the base
+
+Redefine `--radius-lg` (or the `--radius` alias) in your app's global CSS and every `rounded-lg`
+surface — plus the `calc`-derived `rounded-xl` — repaints together:
+
+```css
+:root {
+  --radius-lg: 1rem; /* softer corners everywhere */
+}
+```
+
+## Which radius goes where
+
+- **`rounded-sm` (`0.375rem`)** — small inset controls and tightly-packed chips: badges, kbd keys, the inner track of compact inputs.
+- **`rounded-md` (`0.5rem`)** — the default interactive surface: buttons, inputs, selects, menu items.
+- **`rounded-lg` (`0.75rem`)** — the base radius (`--radius`) for grouped containers: cards, popovers, dialogs, dropdown panels.
+- **`rounded-xl` (`1rem`)** — the largest step, reserved for the biggest floating surfaces where the soft corner reads at a distance.
+
+<DoDont
+  do="Use the rounded utilities tied to tokens: rounded-md, rounded-lg."
+  dont="Hardcode a pixel radius: rounded-[10px], style={{ borderRadius: '8px' }}."
+/>

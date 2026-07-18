@@ -1,0 +1,78 @@
+---
+title: Typography
+description: Geist sans + Geist Mono on a token-driven two-layer scale. 14px body, weight capped at 500.
+---
+
+The type system is **Geist** (sans UI + prose) and **Geist Mono** (code, data, tabular figures).
+Hierarchy comes from **size and color, never bold** — functional headings sit at weight 400,
+labels at 500, and nothing exceeds 500.
+
+<TypeScale />
+
+## The two-layer scale
+
+`text-xs` … `text-3xl` are **token-driven**: on product surfaces they resolve to the product
+ladder below (base = **14px**, the default body size for dense, reading-heavy enterprise UI).
+The docs shell you are reading is deliberately **not** a product surface — Fumadocs chrome and
+MDX prose stay on the classic 16px documentation ladder (the `--type-doc-*` tokens). The
+boundary is a pair of CSS bindings (see `global.css`): the shell binds `--type-*` to the doc
+ladder, and every component preview (plus every Base UI portal) re-enters the product ladder.
+
+<TypeCoreLadder />
+
+A consuming product app gets the product ladder everywhere, automatically — the binding
+defaults to product in `@vegastack/design-tokens/theme.css`. Re-scope any subtree by re-pointing the
+`--type-*` variables.
+
+## Role tokens & display tier
+
+Named roles bake the full recipe (size, line-height, weight, tracking) so call sites never
+hand-set typography: `text-h1`(24) → `text-h4`(16/500) for headings, `text-label` /
+`text-label-sm` (500) for UI labels, `text-code` / `text-code-sm` (mono) for code and compact
+numbers. Above the heading scale sits the **display tier** — `text-display-sm/md/lg/xl`
+(32/40/56/72) with a tokenized negative-tracking ramp (−0.04em → −0.06em) for marketing and
+docs heros.
+
+<TypeScaleSizes />
+
+**Weight rule:** 400 default and headings h1–h3 · 500 for h4, labels, and emphasis · never
+600+. At most two weights in one view — color (`foreground` over `muted-foreground`) does the
+rest of the hierarchy work.
+
+## Tokens
+
+- `--font-family-sans` → Geist (UI + prose)
+- `--font-family-mono` → Geist Mono (numbers, code, currency)
+- `--font-family-serif` → **Newsreader** serif accent (display emphasis + pull-quotes only, never running text)
+- `--font-family-display` → Geist display tier (split token so marketing can retune independently)
+- `--font-family-pixel` → **Geist Pixel Square** — THE single sanctioned pixel flourish (one deliberate hero use per surface)
+
+Use `font-sans`, `font-mono`, `font-serif` utilities (bridged from the runtime tokens).
+
+## Font loading
+
+**The font-delivery contract (CX-10):** Geist Sans / Geist Mono ship from the `geist` npm
+package (`geist/font/sans`, `geist/font/mono`; the five Geist Pixel cuts live at
+`geist/font/pixel` — this system sanctions `GeistPixelSquare` only). **Newsreader** loads via
+`next/font/google`, which self-hosts the subset woff2 at build time — so the static export
+serves every face itself: no render-blocking external request, no layout shift, and the fonts
+work offline. `app/global.css` binds the loaded faces onto the runtime font tokens (with system
+fallbacks):
+
+```css
+:root {
+  --font-family-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-family-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+```
+
+<Callout type="info">
+  This is the **one-file override** point: a consuming app supplies its own faces by redefining
+  `--font-family-sans` / `-mono` / `-serif`, and every `font-sans` / `font-mono` / `font-serif` utility
+  repaints — the `@theme inline` bridge maps these tokens to Tailwind's font utilities.
+</Callout>
+
+<DoDont
+  do="Apply the type tokens — text-base body, text-h*/text-label* roles, font-mono for numbers."
+  dont="Hand-set font-size/line-height/weight, or reach past text-3xl (use the display tier)."
+/>

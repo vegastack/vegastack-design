@@ -1,0 +1,30 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "icon-button",
+  "title": "Icon Button",
+  "description": "A square, icon-only action button — a thin Button wrapper that requires an accessible label.",
+  "dependencies": [
+    "@vegastack/design-tokens@^0.1.0"
+  ],
+  "registryDependencies": [
+    "@vegastack/button"
+  ],
+  "files": [
+    {
+      "path": "packages/ui/registry/ui/icon-button.tsx",
+      "content": "// @vegastack icon-button@0.1.0 sha256-DMO9x/v2ZySvYvCMy0NhqncmCGce87M0Pwx/N5eAfjs=\n\n'use client';\n\nimport * as React from 'react';\nimport { Button, type ButtonProps } from '@/components/ui/button';\n\n/** The four square icon-only sizes, mapped onto `Button`'s `icon-*` size scale. */\nexport type IconButtonSize = 'xs' | 'sm' | 'default' | 'lg';\n\nconst sizeMap = {\n  xs: 'icon-xs',\n  sm: 'icon-sm',\n  default: 'icon',\n  lg: 'icon-lg',\n} as const satisfies Record<IconButtonSize, NonNullable<ButtonProps['size']>>;\n\n/**\n * Props for {@link IconButton}. Inherits every `Button` prop except `size`\n * (remapped to the square `IconButtonSize` scale) and requires an accessible\n * `aria-label` because the icon child carries no text.\n */\nexport interface IconButtonProps extends Omit<ButtonProps, 'size' | 'aria-label'> {\n  /**\n   * The icon to render. Pass a single `lucide-react` (or `@vegastack/design/icons`)\n   * element — it is sized automatically by the chosen `size`.\n   */\n  children: React.ReactNode;\n  /**\n   * Square size — maps to `Button`'s `icon-xs` / `icon-sm` / `icon` / `icon-lg`.\n   * @default 'default'\n   */\n  size?: IconButtonSize;\n  /**\n   * Accessible name announced to assistive tech (required — the icon has no\n   * visible text).\n   */\n  'aria-label': string;\n}\n\n/**\n * `IconButton` — a square, icon-only action button. A thin wrapper over\n * {@link Button} that forces an `icon-*` size and **requires** an accessible\n * `aria-label`, since there is no visible text to name it. Variants, `loading`,\n * `disabled`, and `render` pass straight through.\n *\n * **Why this exists (RETAINED by decision — register P1-21 reversed):** the whole job of the\n * wrapper is the **compile-time accessible-name guarantee**. `Button size=\"icon\"` accepts an\n * unnamed icon-only button silently; `IconButton` makes the missing `aria-label` a TYPE ERROR.\n * Docs previews and app code should reach for `IconButton` for every icon-only case.\n *\n * @example\n * <IconButton aria-label=\"Add item\" variant=\"outline\" size=\"sm\">\n *   <Plus />\n * </IconButton>\n */\nexport function IconButton({\n  size = 'default',\n  children,\n  ...props\n}: IconButtonProps) {\n  return (\n    <Button {...props} size={sizeMap[size]} data-slot=\"icon-button\">\n      {children}\n    </Button>\n  );\n}\n",
+      "type": "registry:ui",
+      "target": "@ui/icon-button.tsx"
+    }
+  ],
+  "meta": {
+    "whenToUse": "A compact icon-only action — toolbar buttons, row actions, close/dismiss.",
+    "whenNotToUse": "Actions needing a visible text label (Button with icon) or URL navigation (link).",
+    "version": "0.1.0",
+    "integrity": "sha256-DMO9x/v2ZySvYvCMy0NhqncmCGce87M0Pwx/N5eAfjs="
+  },
+  "categories": [
+    "actions"
+  ],
+  "type": "registry:ui"
+}

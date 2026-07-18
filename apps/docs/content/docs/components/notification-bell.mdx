@@ -1,0 +1,106 @@
+---
+title: Notification Bell
+description: A bell icon button with an unread-count badge overlay — presentational; the app supplies the count.
+preview: notificationBell
+---
+
+import { story } from '@/components/stories/notification-bell.story';
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/notification-bell
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { NotificationBell } from '@/components/ui/notification-bell';
+
+<NotificationBell count={unread} onClick={openPanel} />;
+```
+
+`NotificationBell` is **presentational** — it never fetches. Your application owns the unread `count`
+(from its own query, websocket, etc.) and the `onClick` that opens the notifications surface. The
+component just renders a bell [`IconButton`](/docs/components/icon-button) with the count badge overlaid
+top-right.
+
+## Playground
+
+Try the count values — including the 99+ overflow — and the dot mode, then copy the generated JSX.
+
+<NotificationBellPlayground />
+
+## Explorer
+
+Every `NotificationBell` prop, auto-generated from its TypeScript types — the exhaustive counterpart to
+the curated playground above.
+
+<story.WithControl />
+
+## Examples
+
+The badge appears only when `count > 0`, shows the number (capped to `99+`), or a minimal dot when
+`dot` is set. `count={0}` renders the bare bell with no badge.
+
+<ComponentPreview name="notificationBellCounts" file="components/preview/notification-bell.tsx" />
+
+### Overflow boundary
+
+`count={99}` is the exact cap and still renders the number; `count={100}` is the first value that
+overflows to the `99+` label.
+
+<ComponentPreview name="notificationBellOverflow" file="components/preview/notification-bell.tsx" />
+
+### Motion
+
+The badge pops in (`motion-pop-in`) whenever unread activity first appears, and in count mode it
+replays the pop each time the displayed number changes — the "new activity" cue. This is
+unconditional, not opt-in: the badge only ever mounts in response to a real state change.
+
+<ComponentPreview name="notificationBellMotion" file="components/preview/notification-bell.tsx" />
+
+### Sizes & variants
+
+`NotificationBell` extends [`IconButton`](/docs/components/icon-button), so every
+[`IconButtonProps`](/docs/components/icon-button#api-reference) — `size` (`xs` / `sm` / `default` /
+`lg`), `variant`, `disabled`, `loading`, `render`, `onClick` — forwards straight through to the
+underlying button. Only `children`, `aria-label`, and `label` are managed for you (the bell icon and
+the count-folded accessible name).
+
+<ComponentPreview name="notificationBellPassthrough" file="components/preview/notification-bell.tsx" />
+
+## API Reference
+
+`NotificationBell` adds the three props below and inherits the rest from
+[`IconButtonProps`](/docs/components/icon-button#api-reference) (e.g. `size`, `variant`, `disabled`,
+`loading`, `render`, `onClick`), minus `children` / `aria-label` / `label`, which it manages.
+
+<AutoTypeTable path="../../packages/ui/registry/ui/notification-bell.tsx" name="NotificationBellProps" />
+
+## Accessibility
+
+- The unread count is folded into the accessible name automatically — screen readers hear
+  "Notifications, 3 unread". Pass the base name via `aria-label` (defaults to `"Notifications"`); do
+  **not** append the count yourself.
+- The visual count badge is `aria-hidden` and `pointer-events-none`, so it never double-announces or
+  intercepts the click.
+- Renders a native `<button type="button">` (via `IconButton` → `Button`); keyboard
+  <kbd>Enter</kbd> / <kbd>Space</kbd> activate it, and `:focus-visible` shows the neutral 2px outline
+  ring (`outline-ring`, the global focus style) — the bell uses the default `IconButton` variant, which
+  carries no per-component focus ring.
+
+| Key | Action |
+| --- | --- |
+| <kbd>Enter</kbd> | Activate the bell |
+| <kbd>Space</kbd> | Activate the bell |
+| <kbd>Tab</kbd> | Move focus to / from the bell |
+
+## Do / Don't
+
+<DoDont
+  do="Pass the unread count from your app's own data and let the component announce it."
+  dont="Fetch inside the bell or hand-write the count into aria-label — it's appended for you."
+/>

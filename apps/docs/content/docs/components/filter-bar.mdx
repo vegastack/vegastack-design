@@ -1,0 +1,231 @@
+---
+title: Filter Bar
+description: A row of removable filter chips, an "Add filter" dropdown, and an optional search input — for building list and table filter toolbars.
+preview: filterBar
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/filter-bar
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { FilterBar } from "@/components/ui/filter-bar";
+
+<FilterBar
+  aria-label="Task filters"
+  filters={[
+    {
+      id: "status",
+      label: "Status",
+      value: "In Progress",
+      onRemove: removeStatus,
+    },
+  ]}
+  addFilters={[{ id: "priority", label: "Priority" }]}
+  onAddFilter={(id) => openFilter(id)}
+  search={{ value: query, onValueChange: setQuery }}
+/>;
+```
+
+`FilterBar` is **presentational** — it never holds filter state. You own the array of active
+`filters` and update it in each filter's `onRemove`; you decide what an `addFilters` option does in
+`onAddFilter`; and `search` is a controlled `value` / `onValueChange` pair.
+
+## Anatomy
+
+The bar lays out three regions left-to-right, all built from VegaStack primitives:
+
+```tsx
+<FilterBar
+  filters={
+    [
+      /* … */
+    ]
+  } // → one removable <FilterChip> per active filter
+  addFilters={
+    [
+      /* … */
+    ]
+  } // → an "Add filter" <DropdownMenu> (Button trigger)
+  onAddFilter={(id) => {}}
+  search={{ value, onValueChange }} // → a trailing search <Input type="search">
+  trailing={/* e.g. a "Clear all" Button */}
+/>
+```
+
+- `FilterBar` — the container (`data-slot="filter-bar"`, `role="group"`). A wrapping flex row that
+  reflows its children when space is tight. It defaults to `aria-label="Filters"`; pass
+  `aria-label` or `aria-labelledby` when the surrounding UI needs a more specific group name.
+- `FilterChip` — one active filter (`data-slot="filter-chip"`): an optional leading `icon`, a muted
+  `label`, an optional emphasized `value` beside it, and a trailing `×` `Button` that fires
+  `onRemove`. Rendered once per `filters` entry, and also exported standalone for custom layouts.
+- **Add filter** — a `DropdownMenu` whose trigger is a dashed-outline `Button`
+  (`data-slot="filter-bar-add"`). Built from the declarative `addFilters` array, or replaced wholesale
+  with the `addFilterMenu` slot for submenus / multi-select.
+- **Search** — a controlled `Input` of `type="search"` (`data-slot="filter-bar-search"`),
+  pushed to the trailing edge. Omit `search` to hide it.
+
+## Examples
+
+### With search
+
+A query input is pushed to the trailing edge alongside the chips and the "Add filter" menu.
+
+<ComponentPreview
+  name="filterBarSearch"
+  file="components/preview/filter-bar.tsx"
+/>
+
+### Empty
+
+With no active filters, only the "Add filter" menu (and search, if enabled) remain.
+
+<ComponentPreview
+  name="filterBarEmpty"
+  file="components/preview/filter-bar.tsx"
+/>
+
+### Presence-only chip & disabled option
+
+A filter without a `value` renders as a label-only **presence chip** (the filter is simply on or
+off). The "Add filter" menu here also carries a `disabled` option — it stays visible but is skipped
+by arrow-key navigation.
+
+<ComponentPreview
+  name="filterBarPresenceChip"
+  file="components/preview/filter-bar.tsx"
+/>
+
+### Custom add-filter menu
+
+Pass `addFilterMenu` to replace the declarative menu wholesale with any `DropdownMenu` tree — here a
+multi-select checkbox group. `addFilterMenu` takes precedence over `addFilters`; supply the whole
+menu including its trigger.
+
+<ComponentPreview
+  name="filterBarCustomMenu"
+  file="components/preview/filter-bar.tsx"
+/>
+
+### Standalone chips
+
+`FilterChip` is exported on its own for custom toolbars. The example shows an `active` (neutral `accent`
+selection tint) chip, a neutral `active={false}` chip, and a value-less presence chip.
+
+<ComponentPreview
+  name="filterBarStandaloneChips"
+  file="components/preview/filter-bar.tsx"
+/>
+
+## Scope (presentational core)
+
+`FilterBar` is a **presentational** primitive (Model A — the component owns
+rendering; your app owns the filter state). It renders the chips, the add-filter
+menu, the search field, and a `trailing` slot. Stateful/data behavior from the
+platform demo is **deliberately consumer-owned**, not built-in (a recorded scope
+decision — requirements §12), and each has a composition path:
+
+- **Active-filter state** — you hold the filter model and map it to `filters`; the
+  component is controlled.
+- **Clear-all** — compose a button into `trailing`:
+  ```tsx
+  <FilterBar
+    filters={chips}
+    trailing={
+      active.length > 0 && (
+        <Button variant="ghost" size="sm" onClick={clearAll}>
+          Clear all
+        </Button>
+      )
+    }
+  />
+  ```
+- **Editable chip popovers** — wrap a `FilterChip` in a [`Popover`](/docs/components/popover)
+  to edit a filter's value in place.
+- **AI-suggested filters** — an app/data concern (out of the DS primitive); render
+  your suggestions into the add-filter menu or `trailing`.
+
+The component matrix marks `FilterBar` complete for this presentational-core scope;
+a fully-stateful `filter-bar-managed` is a separate, deferred inventory item.
+
+## API Reference
+
+### FilterBar
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/filter-bar.tsx"
+  name="FilterBarProps"
+/>
+
+### FilterChip
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/filter-bar.tsx"
+  name="FilterChipProps"
+/>
+
+### FilterBarFilter
+
+The shape of each entry in `FilterBar`'s `filters` array — one removable chip.
+
+### FilterBarFilter
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/filter-bar.tsx"
+  name="FilterBarFilter"
+/>
+
+### FilterBarAddOption
+
+The shape of each entry in the declarative `addFilters` menu.
+
+### FilterBarAddOption
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/filter-bar.tsx"
+  name="FilterBarAddOption"
+/>
+
+### FilterBarSearch
+
+The controlled `search` config passed to `FilterBar`.
+
+### FilterBarSearch
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/filter-bar.tsx"
+  name="FilterBarSearch"
+/>
+
+## Accessibility
+
+- The bar is a named `role="group"` (`"Filters"` by default) so assistive tech announces the
+  filter controls as a single related set. Use `aria-label`/`aria-labelledby` for a more specific
+  group name like `"Task filters"`.
+- Each chip's remove control is a real `<button>` with an accessible name — `Remove <label> filter`
+  when `label` is a string, overridable via `FilterChip`'s `removeLabel`.
+- The "Add filter" trigger is a labelled `Button` that opens a keyboard-navigable
+  `DropdownMenu`; arrow keys move between options and <kbd>Esc</kbd> closes it.
+- The search field always has an accessible name — it falls back to the `placeholder`, then `Search`.
+  Provide `aria-label` on `search` for a name distinct from the placeholder.
+- Every interactive part keeps a visible `:focus-visible` ring — never `outline: none`.
+
+| Key                                 | Action                                                                                        |
+| ----------------------------------- | --------------------------------------------------------------------------------------------- |
+| <kbd>Tab</kbd>                      | Move focus through the chips' remove buttons, the "Add filter" trigger, and the search field. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Remove the focused chip, or open the "Add filter" menu.                                       |
+| <kbd>↑</kbd> / <kbd>↓</kbd>         | Move between options in the open "Add filter" menu.                                           |
+| <kbd>Esc</kbd>                      | Close the open "Add filter" menu.                                                             |
+
+## Do / Don't
+
+<DoDont
+  do="Keep filter state in the host and reflect it through filters/onRemove and onAddFilter — show a chip for every active filter so users can see and remove each one."
+  dont="Put filtering logic inside the bar or render an 'Add filter' option for a filter that's already active — hide active options from the menu instead."
+/>
