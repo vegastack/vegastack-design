@@ -1,0 +1,12 @@
+{
+  "title": "Guides",
+  "pages": [
+    "quickstart",
+    "registry-auth",
+    "components",
+    "provider-setup",
+    "theming",
+    "production-checklist",
+    "troubleshooting"
+  ]
+}

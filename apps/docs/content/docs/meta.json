@@ -1,5 +1,14 @@
 {
   "title": "VegaStack Design",
   "root": true,
-  "pages": ["index", "install", "...foundations", "...components", "...blocks", "...utilities", "changelog"]
+  "pages": [
+    "index",
+    "install",
+    "...guides",
+    "...foundations",
+    "...components",
+    "...blocks",
+    "...utilities",
+    "changelog"
+  ]
 }
