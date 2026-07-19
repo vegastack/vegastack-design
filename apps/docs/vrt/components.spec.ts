@@ -84,6 +84,8 @@ const PAGES = [
   '/docs/guides/components',
   '/docs/guides/provider-setup',
   '/docs/guides/theming',
+  '/docs/guides/internal-projects',
+  '/docs/guides/external-projects',
   '/docs/guides/production-checklist',
   '/docs/guides/troubleshooting',
   '/docs/components/provider',

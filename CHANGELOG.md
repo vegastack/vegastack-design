@@ -65,6 +65,12 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   [`11836b6`](https://github.com/VegaStack/vegastack-design/commit/11836b6)
 - Sidebar sections labeled; doc pages carry a server-rendered "Last updated" stamp.
   [`a323cba`](https://github.com/VegaStack/vegastack-design/commit/a323cba)
+- Lifecycle guides for both audiences: **Internal projects** (the two-speed update
+  model: npm = global on dep bump, registry = frozen until reviewed pull; the
+  token-ordering trap) and **Client projects** (delivery model, handover checklist,
+  zero-lock-in dependency table). Repo also gains a maintainer README.
+  [internal](https://design.vegastack.com/docs/guides/internal-projects) ·
+  [external](https://design.vegastack.com/docs/guides/external-projects)
 
 ## [0.1.0] — July 18, 2026
 

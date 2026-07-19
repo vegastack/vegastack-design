@@ -6,6 +6,8 @@
     "components",
     "provider-setup",
     "theming",
+    "internal-projects",
+    "external-projects",
     "production-checklist",
     "troubleshooting"
   ]

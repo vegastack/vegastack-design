@@ -68,3 +68,6 @@ action's `changeset-release/main` branch push is rejected with
 **Fix:** re-run the Release workflow on the current `main` tip (or push any no-op commit) — a run
 whose base matches main has no workflow diff and the Version PR push succeeds. Avoid bundling
 workflow edits with changeset-bearing pushes.
+
+Downstream lifecycles (who gets updates and how, handover model): the docs Guides —
+Internal projects + Client projects pages.

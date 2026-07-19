@@ -1,0 +1,62 @@
+---
+title: Client projects
+description: Building for external clients — the delivery model, what a handed-over codebase depends on, the handover checklist, and the zero-lock-in guarantee.
+---
+
+For projects VegaStack builds and **hands over to a client**. The rule that shapes
+everything here (a locked distribution decision): **clients never receive registry
+credentials.** VegaStack engineers use the registry during development; the delivered
+codebase is self-contained.
+
+## The delivery model
+
+1. **During development** — VegaStack engineers work exactly like an
+   [internal project](/docs/guides/internal-projects): full Quickstart setup, service
+   token in `.env.local`/CI, components pulled and updated from the registry.
+2. **At handover** — the client receives a normal, self-contained Next.js codebase.
+   Every component is source in their repo; the registry was only ever the delivery
+   pipe, and it exits the picture entirely.
+3. **After handover** — their app builds, runs, and deploys anywhere with **no
+   VegaStack credentials, infrastructure, or services** in any path.
+
+## What the client depends on after handover
+
+| Layer | Dependency? | Notes |
+| --- | --- | --- |
+| `@vegastack/design` + `@vegastack/design-tokens` | **Yes — public npm, MIT** | Ordinary credential-free packages (`cn()`, icon runtime, token/preset CSS). Pin or bump on their schedule, like any library. |
+| The registry (`design.vegastack.com/r/*`) | **No** | Components are source in their repo; their build never contacts it. |
+| Component updates | **No channel** | Without a token, `check-updates` has nothing to talk to. Components are frozen at handover quality — which is what a handover should be. |
+| VegaStack infra (Access, docs site, CI secrets) | **No** | Not in their runtime, build, or CI path. |
+
+## Handover checklist
+
+- [ ] **Remove the drift-gate CI step** (`check-updates --fail-on-update`) and delete the
+  `CF_ACCESS_CLIENT_ID` / `CF_ACCESS_CLIENT_SECRET` secrets from their CI — without a
+  token the step can only fail.
+- [ ] Confirm **no token anywhere** in the delivered repo or CI (the token was only ever
+  in `.env.local` — gitignored — and CI secrets).
+- [ ] Optionally delete the `registries` block from `components.json` (inert without
+  credentials; removing it is just tidiness).
+- [ ] Record the **design-system version baseline** in their README (the
+  [Changelog](/docs/changelog) entry the components came from) — a future re-engagement
+  starts from this line.
+- [ ] Their CI keeps: typecheck, build, and the app's own smoke suite. Those prove the
+  copies they now own.
+
+## After handover
+
+- **npm bumps are optional and safe.** Token-value updates would restyle their app if
+  they bump; staying pinned is equally valid. Semver + the public changelog on the
+  package apply as with any dependency.
+- **No update channel is not a defect** — it's the contract. Nothing VegaStack ships
+  after handover can change their app.
+- **Full severability:** both packages are MIT and small. A client wanting *zero*
+  VegaStack dependency can vendor `cn()` + the CSS files into their repo and remove the
+  packages. There is no lock-in anywhere in the model.
+
+## Re-engagement
+
+A future contract resumes exactly where handover ended: issue a service token, restore
+the `registries` block + CI secrets, run `check-updates` — the content comparison shows
+precisely which components moved since their recorded baseline, each reviewable with
+`--diff` before adoption.

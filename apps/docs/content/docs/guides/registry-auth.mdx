@@ -12,7 +12,9 @@ shadcn registry behind Cloudflare Access. Two audiences, two auth models:
 | `/r/*` (the registry JSON) | machines: the shadcn CLI, `vegastack-design`, CI | a Cloudflare Access **service token** sent as two HTTP headers |
 
 There is deliberately **no anonymous access to either**. A request without
-credentials gets a `302` to SSO (docs) or a `403` (registry).
+credentials gets a `302` to SSO (docs) or a `403` (registry). Full lifecycles per
+audience: [Internal projects](/docs/guides/internal-projects) ·
+[Client projects](/docs/guides/external-projects).
 
 ## The service token
 
