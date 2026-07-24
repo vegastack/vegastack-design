@@ -16,6 +16,11 @@ export default mergeConfig(
   defineConfig({
     test: {
       include: smokeTests,
+      // One file at a time, with Chromium/WebKit/Firefox still running concurrently. Four file
+      // workers multiply into twelve active browser pages and starve requestAnimationFrame-driven
+      // motion/replay assertions on the two-core pinned CI runner. The full release lane already
+      // uses this proven concurrency ceiling for the same resource-contention reason.
+      maxWorkers: 1,
       browser: {
         enabled: true,
         headless: true,
