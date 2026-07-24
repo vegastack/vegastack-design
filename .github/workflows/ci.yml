@@ -5,23 +5,28 @@ on:
 permissions:
   contents: read
 
+# Self-hosted capacity is finite: a superseded push must not keep a mini busy.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  # Static gates, unit tests, builds, and registry integrity. Fast lane — no browser navigation.
   verify:
-    runs-on: ubuntu-latest
-    # Pinned Playwright image so Vitest browser mode + Playwright VRT share identical browsers/fonts.
-    container: mcr.microsoft.com/playwright:v1.61.0-noble@sha256:57b65fdc9ceabe0ef613124c7bbe2babcf9362c4d85e382fe3b03604e84b428a
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0 # needed for `changeset status --since=origin/main`
           persist-credentials: false
-      # The repository is mounted into the pinned container with host ownership. Trust only this
-      # exact ephemeral workspace so git-backed gates (secret scan, drift checks, Changesets) work.
-      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      # Vitest browser mode drives real Playwright browsers. There is no job container supplying
+      # them, so install them explicitly. No `--with-deps`: that flag is apt-based and Linux-only.
+      # The download is a no-op on a warm runner — Playwright caches outside the workspace.
+      - run: pnpm --filter @vegastack/ui exec playwright install chromium firefox webkit
       # Self-contained on a clean checkout: design:verify builds the gitignored token dist before
       # checking generated design.md, the 538-item contracts, contrast, and dark/marketing parity.
       - run: pnpm design:verify
@@ -30,15 +35,8 @@ jobs:
       # anything — always go through the package scripts.
       - run: pnpm typecheck # turbo run typecheck — per-package `tsc --noEmit`
       - run: pnpm lint # turbo run lint — design-lint (semantic-token + sanctioned-icon gate) + eslint
-      # NOTE: Vitest browser mode finds the image's browsers via PLAYWRIGHT_BROWSERS_PATH, which
-      # turbo.json must pass through (globalPassThroughEnv) — turbo's strict env otherwise strips
-      # it and vitest dies at browserType.launch looking in $HOME/.cache.
       - run: pnpm test # turbo run test — Vitest browser mode + axe, incl. compiled-CSS color-contrast
       - run: pnpm --filter @vegastack/ui test:smoke # Firefox/WebKit for contract-marked motion/cross-engine risks
-        # The pinned container executes as root, while Actions otherwise points HOME at a pwuser-owned
-        # directory. Firefox refuses that ownership mismatch before any test can execute.
-        env:
-          HOME: /root
       - name: Build private-discovery matrix
         run: SITE_VISIBILITY=private pnpm build
       - name: Build public-discovery matrix
@@ -55,9 +53,54 @@ jobs:
       # unpublished @vegastack/* is publish-gated and resolved here via the workspace link.
       - run: pnpm registry:verify-consume
       - run: pnpm exec changeset status --since=origin/main
-      # NOTE: Playwright visual-regression (VRT) runs as its OWN per-PR workflow (.github/workflows/
-      # vrt.yml), in this same pinned image, so a slow screenshot job never blocks the fast typecheck/
-      # lint/test gate here. It self-activates into a blocking pixel gate the moment baseline
-      # screenshots are committed (a one-time `update_baselines` bootstrap, since deterministic PNGs
-      # require the pinned Linux container). Color-contrast a11y is already enforced HERE via the
-      # compiled-CSS Vitest browser run, independent of VRT.
+
+  # The blocking visual-surface gate: 768 behaviour contracts over every component route — 320px
+  # reflow, RTL containment, forced-colors focus visibility, and effective 24px pointer targets.
+  # It takes NO screenshots and needs no baselines, so it runs anywhere and can never be cleared by
+  # regenerating its own evidence. Pixel review is a local `/ship` step (tooling/vrt-review.mjs).
+  # Separate job so a slow browser lane never blocks the fast gate above.
+  contracts:
+    runs-on: [self-hosted, vsk-runners-mac-mini]
+    env:
+      SITE_VISIBILITY: public
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @vegastack/docs exec playwright install chromium
+      # Build the docs' workspace dependencies; Playwright's webServer runs the docs build itself.
+      - run: pnpm exec turbo run build --filter=@vegastack/docs^...
+      # These runners are PERSISTENT. `reuseExistingServer: false` makes Playwright throw when the
+      # port is taken, and a cancelled job (concurrency above cancels superseded runs) kills
+      # Playwright without running webServer teardown — orphaning `serve` on the port. A fixed port
+      # would brick every later run on that mini until someone SSHed in. Bind a free one instead,
+      # and reap it unconditionally below.
+      - name: Reserve a free capture port
+        run: |
+          set -euo pipefail
+          PORT=$(node -e 'const s=require("net").createServer();s.listen(0,"127.0.0.1",()=>{process.stdout.write(String(s.address().port));s.close()})')
+          echo "VRT_PORT=$PORT" >> "$GITHUB_ENV"
+          echo "Capture server will bind 127.0.0.1:$PORT"
+      - run: pnpm --filter @vegastack/docs test:contracts
+      - name: Reap the capture server
+        if: ${{ always() }}
+        run: |
+          PIDS=$(lsof -ti "tcp:${VRT_PORT:-0}" 2>/dev/null || true)
+          if [ -n "$PIDS" ]; then echo "killing leftover server: $PIDS"; kill -9 $PIDS || true; fi
+      # Without this a red gate is a bare exit code: no trace, no error context, and the only way to
+      # see what broke is another full run. That is what trapped an earlier release for two days.
+      - name: Upload the failing run's report and traces
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: contracts-failure-${{ github.run_id }}
+          path: |
+            apps/docs/playwright-report
+            apps/docs/test-results
+          if-no-files-found: ignore
+          retention-days: 7

@@ -26,9 +26,22 @@ concurrency:
   group: production-docs
   cancel-in-progress: false
 
+# RUNNER SPLIT. Jobs that execute repository code run on the self-hosted mac minis. Three classes
+# deliberately stay on GitHub-hosted runners:
+#
+#   sign-curated       the only OIDC job. Sigstore has no documented self-hosted restriction, but
+#                      that is unverified and a failure breaks the release. ~30s, no repository code.
+#   deploy-curated     credential-only. Third-party wrangler + cosign actions, ~1min, no repository
+#                      code. Nothing is gained by moving it and an outward deploy is what breaks.
+#   the boundary jobs  CORRECTNESS, not caution. pre-cutover-purge, verify-protected-boundary, and
+#                      verify-public-boundary assert that ANONYMOUS requests are rejected. A runner
+#                      inside VegaStack's network can be silently authenticated by Cloudflare device
+#                      posture, which would make "anonymous" mean something else and void the proof.
+#                      A boundary test has to originate outside the trusted network.
+
 jobs:
   ref-guard:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     steps:
       - name: Require the protected production ref
         env:
@@ -46,11 +59,14 @@ jobs:
             exit 1
           fi
 
-  # Release-blocking VRT gate. The complete authoritative Linux baseline set must exist and pass.
-  vrt-gate:
+  # Release-blocking visual-surface gate. This deliberately does NOT trust the pull-request run:
+  # `main` carries no branch protection, `ci.yml` only fires on `pull_request`, and `release.yml`'s
+  # gate is conditional on a visual-surface change — so a direct push to `main` can reach a deploy
+  # having never executed a single contract assertion. This is the last place to catch that, and it
+  # is the only workflow that ships to production. ~6 minutes, no screenshots, no baselines.
+  contracts-gate:
     needs: ref-guard
-    runs-on: ubuntu-latest
-    container: mcr.microsoft.com/playwright:v1.61.0-noble@sha256:57b65fdc9ceabe0ef613124c7bbe2babcf9362c4d85e382fe3b03604e84b428a
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -61,28 +77,46 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - name: Require complete Linux VRT baselines (fail-closed for release)
-        run: pnpm --filter @vegastack/docs verify:vrt-baselines
-      - name: VRT pixel gate (blocking)
-        working-directory: apps/docs
+      - run: pnpm --filter @vegastack/docs exec playwright install chromium
+      - run: pnpm exec turbo run build --filter=@vegastack/docs^...
+      - name: Reserve a free capture port
+        run: |
+          set -euo pipefail
+          PORT=$(node -e 'const s=require("net").createServer();s.listen(0,"127.0.0.1",()=>{process.stdout.write(String(s.address().port));s.close()})')
+          echo "VRT_PORT=$PORT" >> "$GITHUB_ENV"
+      - name: Component contract gate
         env:
-          PLAYWRIGHT_JSON_OUTPUT_NAME: vrt-report.json
-        run: pnpm exec playwright test --reporter=list,json
-      - name: Guard — fail if zero screenshot tests executed
+          PLAYWRIGHT_JSON_OUTPUT_NAME: contracts-report.json
+        run: pnpm --filter @vegastack/docs test:contracts
+      - name: Guard — fail if zero contract tests executed
         working-directory: apps/docs
         run: |
           node -e '
-            const r = require("./vrt-report.json");
+            const r = require("./contracts-report.json");
             const ran = (r.stats?.expected||0)+(r.stats?.unexpected||0)+(r.stats?.flaky||0);
-            if (ran === 0) { console.error("✗ VRT executed 0 screenshot tests — not valid passing evidence for a release."); process.exit(1); }
-            console.log(`✓ VRT executed ${ran} screenshot test(s).`);
+            if (ran === 0) { console.error("✗ Contract gate executed 0 tests — not valid passing evidence for a deploy."); process.exit(1); }
+            console.log(`✓ Contract gate executed ${ran} test(s).`);
           '
+      - name: Upload the failing run's report and traces
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: contracts-failure-${{ github.run_id }}
+          path: |
+            apps/docs/playwright-report
+            apps/docs/test-results
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Reap the capture server
+        if: ${{ always() }}
+        run: |
+          PIDS=$(lsof -ti "tcp:${VRT_PORT:-0}" 2>/dev/null || true)
+          if [ -n "$PIDS" ]; then echo "killing leftover server: $PIDS"; kill -9 $PIDS || true; fi
 
   # Build and validate repository-controlled code without OIDC or Cloudflare credentials.
   build-curated:
-    needs: vrt-gate
-    runs-on: ubuntu-latest
+    needs: contracts-gate
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:

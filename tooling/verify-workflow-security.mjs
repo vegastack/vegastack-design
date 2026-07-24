@@ -10,7 +10,7 @@ const WORKFLOW_DIR = ".github/workflows";
 const discovered = readdirSync(WORKFLOW_DIR)
   .filter((name) => /\.ya?ml$/.test(name))
   .sort();
-const REQUIRED_WORKFLOWS = ["ci.yml", "deploy.yml", "release.yml", "vrt.yml"];
+const REQUIRED_WORKFLOWS = ["ci.yml", "deploy.yml", "release.yml"];
 for (const name of REQUIRED_WORKFLOWS) {
   assert.ok(
     discovered.includes(name),
@@ -23,8 +23,59 @@ const sources = Object.fromEntries(
     readFileSync(join(WORKFLOW_DIR, name), "utf8"),
   ]),
 );
-const PLAYWRIGHT_IMAGE =
-  "mcr.microsoft.com/playwright:v1.61.0-noble@sha256:57b65fdc9ceabe0ef613124c7bbe2babcf9362c4d85e382fe3b03604e84b428a";
+
+// The self-hosted runners are macOS. `runs-on` is an allowlist, not a free choice: a job moved onto
+// GitHub-hosted infrastructure without a recorded reason silently reintroduces the billed capacity
+// this repository deliberately left, and a job moved OFF ubuntu-latest can break publishing or void
+// a boundary proof. Every entry below states why it is where it is.
+const SELF_HOSTED = "[self-hosted, vsk-runners-mac-mini]";
+const GITHUB_HOSTED_JOBS = {
+  // npm trusted publishing does not support self-hosted runners, and this repository holds no
+  // NPM_TOKEN. Moving this job breaks publishing outright.
+  "release.yml": ["publish"],
+  // sign-curated: the only OIDC job; self-hosted Sigstore behaviour is unverified, ~30s, no
+  // repository code. deploy-curated: credential-only, third-party actions, nothing to gain.
+  // The three boundary jobs must originate OUTSIDE VegaStack's network — a runner inside it can be
+  // silently authenticated by Cloudflare device posture, which would void an anonymous-rejection
+  // proof rather than merely risk it.
+  "deploy.yml": [
+    "sign-curated",
+    "deploy-curated",
+    "pre-cutover-purge",
+    "verify-protected-boundary",
+    "verify-public-boundary",
+  ],
+};
+
+/**
+ * Job name → its `runs-on` value, for one workflow source. Only keys under the top-level `jobs:`
+ * mapping count, and a job whose `runs-on` is absent or written in the block/mapping form is
+ * returned as `null` rather than omitted — an omitted job would be silently exempt from the
+ * allowlist below, which is the exact fail-open this gate exists to prevent.
+ */
+function jobRunners(source) {
+  const runners = new Map();
+  const lines = source.split("\n");
+  let inJobs = false;
+  let current = null;
+  for (const line of lines) {
+    if (/^jobs:\s*$/.test(line)) {
+      inJobs = true;
+      continue;
+    }
+    if (/^\S/.test(line)) inJobs = false;
+    if (!inJobs) continue;
+    const job = /^ {2}([a-zA-Z0-9_-]+):\s*$/.exec(line);
+    if (job) {
+      current = job[1];
+      runners.set(current, null);
+      continue;
+    }
+    const runsOn = /^ {4}runs-on:[ \t]*(\S.*?)\s*$/.exec(line);
+    if (runsOn && current) runners.set(current, runsOn[1]);
+  }
+  return runners;
+}
 
 /**
  * Yield every line that ends up inside a `run:` script — both the inline form (`run: echo hi`) and
@@ -139,13 +190,51 @@ for (const [name, source] of Object.entries(sources)) {
       `${name}: checkout persists a token`,
     );
   }
-  for (const containerImage of containerImages(source)) {
+  // Actions job containers are Linux-only. On a macOS self-hosted runner a `container:` key is not
+  // a portability warning — the job cannot run at all. Colima/OrbStack does not change this.
+  assert.equal(
+    containerImages(source).length,
+    0,
+    `${name}: job containers are Linux-only and cannot run on the self-hosted macOS runners`,
+  );
+
+  const allowed = new Set(GITHUB_HOSTED_JOBS[name] ?? []);
+  const runners = jobRunners(source);
+  assert.ok(runners.size > 0, `${name}: no jobs found — the parser or the file changed shape`);
+  for (const [job, runner] of runners) {
+    assert.ok(
+      runner !== null,
+      `${name}: job ${job} has no inline \`runs-on: <value>\`; the block/mapping form would skip the runner allowlist`,
+    );
+    if (allowed.has(job)) {
+      assert.equal(
+        runner,
+        "ubuntu-latest",
+        `${name}: job ${job} is recorded as GitHub-hosted but runs on ${runner}`,
+      );
+      continue;
+    }
     assert.equal(
-      containerImage,
-      PLAYWRIGHT_IMAGE,
-      `${name}: container image is not digest-pinned`,
+      runner,
+      SELF_HOSTED,
+      `${name}: job ${job} must run on ${SELF_HOSTED}; add it to GITHUB_HOSTED_JOBS with a recorded reason if that is deliberate`,
     );
   }
+  for (const job of allowed) {
+    assert.ok(
+      runners.has(job),
+      `${name}: GITHUB_HOSTED_JOBS lists ${job}, which no longer exists`,
+    );
+  }
+
+  // The committed-baseline pixel gate is gone: screenshots are captured locally by
+  // tooling/vrt-review.mjs, on one machine, and never committed. A workflow reaching for its
+  // machinery is reintroducing a gate that could only be cleared by overwriting its own evidence.
+  assert.doesNotMatch(
+    source,
+    /verify:vrt-baselines|update_baselines|-snapshots/,
+    `${name}: references the removed committed-baseline VRT machinery`,
+  );
 
   assert.match(
     source,
@@ -185,12 +274,6 @@ for (const [name, source] of Object.entries(sources)) {
     `${name}: unexpected OIDC permission count`,
   );
 }
-
-assert.match(
-  sources["vrt.yml"],
-  /update_baselines:\n\s{8}description:[^\n]+\n\s{8}type: boolean\n\s{8}default: false/,
-  "vrt.yml: workflow_dispatch.update_baselines must be a valid boolean input mapping",
-);
 
 assert.equal(
   [...sources["deploy.yml"].matchAll(/id-token:\s*write/g)].length,

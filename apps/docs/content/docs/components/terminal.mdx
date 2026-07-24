@@ -65,8 +65,19 @@ explicit `copyValue`; successful writes swap the copy icon for the standard succ
 - The prompt glyph is decorative (`aria-hidden`) — command text itself is real, readable text.
 - The composed `CopyButton` carries its own accessible name (`"Copy command"` / `"Copied
 command"`) and announces the copy via a visually-hidden live region.
+- The command pane scrolls independently, so it is keyboard-focusable — a scrollable region must be
+  reachable without a pointer. Focus is shown as an **inset** outline: an outward one is not painted
+  at all here, because the block's root is `overflow-hidden` and `scroll-fade-x` masks the pane to
+  its own border box. A border tint is not an option either — `forced-colors: active` replaces
+  `border-color`, which would leave the pane with no indicator in the forced palette.
 - Content is fully caller-supplied — no timestamps, no randomness — so the block is deterministic
-  and safe for visual regression testing.
+  and safe for visual capture.
+
+| Key                                 | Action                                                            |
+| ----------------------------------- | ----------------------------------------------------------------- |
+| <kbd>Tab</kbd>                      | Move focus to the command pane, then on to the copy button.       |
+| <kbd>←</kbd> / <kbd>→</kbd>         | Scroll a clipped command horizontally while the pane has focus.   |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Copy the command, when the copy button has focus.                 |
 
 ## Do / Don't
 

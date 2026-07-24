@@ -37,9 +37,14 @@ test("body scrolls horizontally with a scroll-fade edge affordance (clipped comm
   expect(body.classList.contains("overflow-x-auto")).toBe(true);
   expect(body.classList.contains("scroll-fade-x")).toBe(true);
   expect(body.tabIndex).toBe(0);
-  expect(
-    body.classList.contains("focus-visible:border-ring/(--alpha-tint-border)"),
-  ).toBe(true);
+  // The focus affordance must be an INSET outline, not a border tint and not an outward outline.
+  // A border tint is erased by `forced-colors: active` (which replaces border-color outright), and
+  // an outward outline is clipped twice — by the terminal root's `overflow-hidden` and by
+  // `scroll-fade-x`'s mask, which limits painting to this element's own border box. Both mistakes
+  // shipped here once and left the pane with no visible focus indicator at all in the forced
+  // palette; see docs/ledger/bugs.md, 2026-07-25.
+  expect(body.classList.contains("focus-visible:-outline-offset-2")).toBe(true);
+  expect(body.className).not.toMatch(/focus-visible:(outline-none|border-)/);
 });
 
 test("a custom prompt glyph replaces the default", async () => {

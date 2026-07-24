@@ -146,22 +146,40 @@ Severity:
 Report format: grouped by file, each finding `file:line` · rule id or class · suggested fix ·
 severity. **If the task was an audit, stop here — report, never auto-fix.**
 
-## 8. VRT review discipline
+## 8. Visual review discipline
 
-Review-only rules for evaluating a VRT run or a set of new or changed baselines:
+Visual verification is split: **behaviour** is a CI gate (`apps/docs/vrt/contracts.spec.ts`, 768
+checks, no screenshots, no baselines); **pixels** are a local review step
+(`tooling/vrt-review.mjs`, before/after on one machine, nothing committed).
 
-- **Individually review every diff.** N failures is N decisions. Classify intended vs. regression
-  BEFORE touching any baseline. Never bulk-accept.
-- **Delete-then-regenerate a suspect baseline — never `--update-snapshots`.** It overwrites in place
-  even when the current baseline was already wrong (e.g. captured mid-animation), and on a tall page
-  `maxDiffPixelRatio: 0.01` can mask a large absolute pixel count as within tolerance.
-- **Fresh-build requirement.** `webServer.reuseExistingServer` must stay `false`. A reused dev server
-  has served pre-rewrite pages into a "passing" baseline twice in this program's history. Flag any
-  config that reuses a server for VRT as a correctness risk, not a performance choice.
-- **All four lanes.** Every route runs desktop light/dark and mobile light/dark. A route present in
-  only one lane's committed baselines is incomplete coverage.
-- **No skipped visual test** and **no VRT-referencing TODO**. `tooling/content-lint.mjs` rejects
-  both; also flag prose that still describes deferred VRT coverage as acceptable.
+Reviewing a before/after report:
+
+- **Individually review every entry.** N non-unchanged entries is N decisions. Read the before,
+  after, AND diff image for each. Never bulk-accept, and never let a reading of an image substitute
+  for the pixel count — the count decides what gets looked at, the image decides what it means.
+- **A SKIPPED run is not a clean diff.** If the tool captured nothing, say so. Treating "no capture"
+  as "no change" is the exact false-coverage claim this section exists to catch.
+- **Exit code 2 is an infrastructure failure**, not a pass. A build or server died and no report
+  exists. An empty report presented as evidence is a high finding.
+- **A `note` field means the capture broke** (navigation error, timeout) — that entry has no visual
+  verdict at all and must not be counted as unchanged.
+- **Fresh-build requirement.** `webServer.reuseExistingServer` must stay `false`. A reused server has
+  served pre-rewrite pages into a "passing" capture twice in this program's history. Flag any config
+  that reuses a server as a correctness risk, not a performance choice.
+- **All four lanes.** Every route captures desktop light/dark and mobile light/dark. An entry present
+  in only one lane means the scope filter dropped the others — investigate rather than assume.
+- **No committed screenshot, ever.** `.gitignore` excludes `apps/docs/vrt/*-snapshots/` and
+  `.vrt-review/`; `tooling/verify-workflow-security.mjs` rejects any workflow reaching for the
+  removed baseline machinery. A PR reintroducing either is a high finding.
+- **No skipped visual test.** `tooling/content-lint.mjs` rejects one; also flag prose that still
+  describes deferred visual coverage as acceptable.
+
+Reviewing the contract gate:
+
+- It is the only blocking visual-surface gate. Weakening an assertion in `contracts.spec.ts` without
+  a recorded reason removes coverage nothing else replaces.
+- A gate run that executed zero tests is not passing evidence — `release.yml` guards this explicitly.
+  Verify the guard still exists whenever the job is edited.
 
 ## 9. Fix at the root
 

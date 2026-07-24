@@ -18,17 +18,21 @@ const PUBLIC_DOCS_DIR = join(ROOT, "apps/docs/content/docs");
 const INTERNAL_DOCS_DIR = join(ROOT, "apps/docs/content/internal");
 const DOCS_GLOBAL_CSS = join(ROOT, "apps/docs/app/global.css");
 
-// Deferred-VRT-coverage rot (Codex R14): the VRT suite no longer ships as `describe.skip` with a
-// `TODO(VRT)` until Docker — `apps/docs/vrt/components.spec.ts` self-activates and snapshots every
-// route in its `PAGES` array. So a skipped visual `describe` or a literal `TODO(VRT)` in a VRT spec
-// or in an authoring skill is now stale guidance that would yield components with NO active visual
-// coverage. Reject both, scoped to the VRT specs + the skill markdown that teach the workflow.
-const VRT_SCAN_DIRS = [join(ROOT, "apps/docs/vrt"), join(ROOT, "skills")];
-const VRT_EXT = /\.(md|mdx|ts|tsx|mts|cts|js|mjs|cjs|jsx)$/;
-// A SKIPPED visual/VRT describe — `describe.skip(`, `test.describe.skip(`, `it.skip(` style calls.
+// Deferred-visual-coverage rot (Codex R14). `apps/docs/vrt/contracts.spec.ts` is the blocking gate
+// and derives its routes from the component contract, so a skipped visual `describe` in a spec — or
+// in an authoring skill that teaches the workflow — leaves a component with NO active behaviour
+// coverage while reading as covered. Reject it, scoped to the specs plus the skill markdown.
+const VISUAL_SCAN_DIRS = [join(ROOT, "apps/docs/vrt"), join(ROOT, "skills")];
+const VISUAL_EXT = /\.(md|mdx|ts|tsx|mts|cts|js|mjs|cjs|jsx)$/;
+// A SKIPPED visual describe — `describe.skip(`, `test.describe.skip(`, `it.skip(` style calls.
 const SKIPPED_DESCRIBE_RE = /\b(?:test\.|it\.)?describe\.skip\s*\(/g;
-// The exact deferred-coverage token.
-const TODO_VRT_RE = /TODO\(VRT\)/g;
+// Committed screenshots were removed on 2026-07-25: captures are local, before/after, and never
+// stored. Guidance that still tells an author to commit or regenerate a baseline sends them to a
+// workflow that no longer exists — and `tooling/verify-workflow-security.mjs` will reject it.
+// `--update-snapshots` is deliberately NOT matched: it is how tooling/vrt-review.mjs writes the
+// base-ref capture, and with no persistent baseline there is nothing for it to silently overwrite.
+const COMMITTED_BASELINE_RE =
+  /commit\s+(?:the\s+)?(?:VRT\s+)?baselines?|update_baselines|verify:vrt-baselines/g;
 
 function walk(dir, out = [], ext = /\.(md|mdx)$/) {
   let entries;
@@ -151,24 +155,24 @@ for (const dir of SCAN_DIRS) {
   }
 }
 
-// Reject stale deferred-VRT-coverage guidance: skipped visual describes + `TODO(VRT)`.
-const seenVrtFiles = new Set();
-for (const dir of VRT_SCAN_DIRS) {
-  for (const file of walk(dir, [], VRT_EXT)) {
-    if (seenVrtFiles.has(file)) continue;
-    seenVrtFiles.add(file);
+// Reject stale visual-coverage guidance: skipped visual describes + committed-baseline instructions.
+const seenVisualFiles = new Set();
+for (const dir of VISUAL_SCAN_DIRS) {
+  for (const file of walk(dir, [], VISUAL_EXT)) {
+    if (seenVisualFiles.has(file)) continue;
+    seenVisualFiles.add(file);
     const lines = readFileSync(file, "utf8").split("\n");
     lines.forEach((line, i) => {
       for (const { re, label, msg } of [
         {
           re: SKIPPED_DESCRIBE_RE,
-          label: "vrt-skip",
-          msg: "a skipped visual `describe.skip(` leaves a component with no active VRT coverage — the suite self-activates per contract-generated route, so add the component contract instead of skipping.",
+          label: "visual-skip",
+          msg: "a skipped visual `describe.skip(` leaves a component with no active behaviour coverage — the contract suite derives its routes from packages/ui/component-contracts.json, so add the component contract instead of skipping.",
         },
         {
-          re: TODO_VRT_RE,
-          label: "vrt-todo",
-          msg: "the `TODO(VRT)` deferred-coverage workflow is obsolete — VRT runs on every PR via vrt.yml. Add the component contract and commit all four Linux lanes instead.",
+          re: COMMITTED_BASELINE_RE,
+          label: "committed-baseline",
+          msg: "committed screenshot baselines were removed on 2026-07-25 — captures are local before/after via `node tooling/vrt-review.mjs` and are never committed. Rewrite this guidance.",
         },
       ]) {
         re.lastIndex = 0;
@@ -189,5 +193,5 @@ if (violations) {
   process.exit(1);
 }
 console.log(
-  "✓ content-lint: clean (docs audience/metadata, shadcn CLI, and VRT guidance)",
+  "✓ content-lint: clean (docs audience/metadata, shadcn CLI, and visual-coverage guidance)",
 );

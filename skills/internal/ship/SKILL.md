@@ -16,7 +16,7 @@ manually with npm tokens — publishing is CI-only (OIDC trusted publishing).
 ## 1. Preflight
 
 Refresh the contract-derived public inventory first. This regenerates the homepage component
-catalog and counts alongside the route, VRT, matrix, and audit surfaces. If it changes files,
+catalog and counts alongside the contract route, matrix, and audit surfaces. If it changes files,
 include those outputs with the component change before rerunning preflight; never hand-edit them.
 
 ```bash
@@ -26,7 +26,7 @@ pnpm lint && pnpm typecheck && pnpm test
 pnpm registry:build             # must be idempotent: git status stays clean after
 pnpm registry:verify-consume    # real `shadcn add` round-trip against the built registry
 node tooling/changelog-lint.mjs
-pnpm --filter @vegastack/docs verify:vrt-baselines   # blocking in vrt.yml, deploy.yml AND release.yml
+pnpm --filter @vegastack/docs test:contracts   # 768 behaviour contracts — blocking in ci.yml and release.yml
 SITE_VISIBILITY=private pnpm --filter @vegastack/docs build
 SITE_VISIBILITY=public pnpm --filter @vegastack/docs build
 ```
@@ -34,12 +34,27 @@ SITE_VISIBILITY=public pnpm --filter @vegastack/docs build
 **If `git status` is not empty:** that is the signal, not an obstacle. Either the regenerated
 surfaces above changed (commit them with the work that caused them) or there is unrelated
 uncommitted work in the tree (finish or stash it). Never ship from a dirty tree — the version job
-and the pixel gate both snapshot the pushed commit.
+snapshots the pushed commit.
 
-**If `verify:vrt-baselines` reports missing images:** baselines are pinned-Linux-only and cannot be
-produced on darwin. Bootstrap them before going further —
-[references/vrt-baselines.md](references/vrt-baselines.md). This gate blocks deploy and release, so
-a red result here stops the ship regardless of how green everything else is.
+## 1b. Visual review
+
+Run this whenever the release contains a component, token, preview, or docs-shell change. It is a
+review step, not a gate: it exits 0 for any pixel outcome.
+
+```bash
+node tooling/vrt-review.mjs
+```
+
+Then follow [references/visual-review.md](references/visual-review.md) exactly:
+
+1. Read `.vrt-review/report.json`.
+2. For every entry with `status !== "unchanged"`, **read the before, after, and diff images**.
+3. Classify each **intended** / **unintended** / **uncertain**.
+4. Present a table — route, project, pixels changed, verdict, one-line reasoning.
+5. **Stop. MK decides.** Never self-clear a diff.
+
+A run that captured nothing prints SKIPPED. Report it as skipped; it is not evidence of a clean diff.
+An exit code of 2 means no report could be produced — an infrastructure failure, not a pass.
 
 ## 2. Changesets (one per user-visible package change)
 
@@ -169,8 +184,13 @@ correct). If the release changed the starter's own components, pull them
 ## Failure recovery
 
 - Version PR push rejected mentioning `workflows permission` → re-run Release on current
-  main (`docs/RELEASING.md` § Known edge).
-- Pixel gate red on pages you edited → baselines are stale:
-  [references/vrt-baselines.md](references/vrt-baselines.md).
+  main (`docs/RELEASING.md` § Known edge). Never bundle `.github/workflows/*` edits into a
+  changeset-bearing push; land them as their own PR first.
+- Contract gate red → the run's Playwright report and traces are uploaded as the
+  `contracts-failure-<run-id>` artifact. Download it and read the failure before re-running; the
+  same failure reproduces locally with
+  `cd apps/docs && pnpm exec playwright test contracts.spec.ts -g "<route>"`.
 - Deploy "Asset too large" → a page exceeds Cloudflare's 25 MiB limit; the deploy log names
   it. Usually Story-controls type explosion — see `apps/docs/components/stories/story-shims.tsx`.
+- A self-hosted job is queued with no runner → both `vsk-runners-mac-mini` minis are busy or offline.
+  Nothing to fix in the repository; check the runners.

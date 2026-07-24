@@ -1,4 +1,4 @@
-// @vegastack terminal@0.2.0 sha256-OCpfI26HnghxQw+NFWxB+EjMRgHsoYzxacdsO+oS6EI=
+// @vegastack terminal@0.2.0 sha256-V1dNPSXUHgchTjM0iK1nl1ggku3gSEFB6C90YITS+FY=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -108,7 +108,14 @@ export function Terminal({
           // same family tabs' list uses) masks the clipped edge so a command cut mid-token on
           // narrow screens reads as "more this way" instead of a hard cut — the fade only
           // appears on the edge that actually has off-screen content (scroll-driven, zero JS).
-          className="flex min-w-0 flex-col gap-1.5 overflow-x-auto scroll-fade-x border border-transparent px-4 py-3 font-mono text-code text-foreground focus-visible:border-ring/(--alpha-tint-border) focus-visible:outline-none"
+          //
+          // The focus affordance is the shared `:focus-visible` outline, pulled INSIDE the box with
+          // a negative offset. Two things clip an outward outline here: the terminal root is
+          // `overflow-hidden`, and `scroll-fade-x` masks this element to its own border box — an
+          // outline drawn outside that box is not painted at all. A border tint is not an option
+          // either: `forced-colors: active` replaces border-color outright, which left this
+          // scrollable region with no focus indicator whatsoever in the forced palette.
+          className="flex min-w-0 flex-col gap-1.5 overflow-x-auto scroll-fade-x px-4 py-3 font-mono text-code text-foreground focus-visible:-outline-offset-2"
         >
           {normalized.map((line, index) => (
             <div

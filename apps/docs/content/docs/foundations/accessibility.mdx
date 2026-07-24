@@ -31,6 +31,14 @@ Text-entry controls are the deliberate exception: `Input`, `Textarea`, `Select`,
 re-color their border on `:focus` so caret and pointer focus remain visible without adding an outer
 ring inside dense forms. Other controls use the shared `:focus-visible` outline.
 
+One further case changes the **offset only**, never the treatment. If a focusable element cannot
+paint outside its own border box — because an ancestor is `overflow-hidden`, or because a mask
+utility such as [`scroll-fade`](/docs/utilities/scroll-fade) is applied to it — the outline is
+pulled inside with `focus-visible:-outline-offset-2`. Same width, same `--ring` token. Do not reach
+for the border-tint instead: outside text-entry fields it is not a focus indicator at all, because
+`forced-colors: active` replaces `border-color` with a system value. `Terminal`'s scrollable command
+pane is the shipped example.
+
 Content links remain underlined at rest and keep this same neutral focus-visible outline. Navigation
 and button-like anchors may rely on their explicit control geometry instead of a resting underline,
 but never remove the outline without an equally visible replacement.
@@ -47,7 +55,8 @@ but never remove the outline without an equally visible replacement.
 <Callout type="info">
   Use `focus-visible:` for the shared outer outline. Use `focus:` only for the
   sanctioned text-entry border-tint pattern described above; do not invent a
-  second focus treatment.
+  second focus treatment. Inverting the offset on a clipped or masked container
+  is not a second treatment — it is the same outline, drawn inside.
 </Callout>
 
 ## Axe-clean from day one

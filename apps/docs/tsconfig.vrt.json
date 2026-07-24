@@ -1,0 +1,10 @@
+{
+  "comment": "The Playwright-owned sources are excluded from tsconfig.json so @playwright/test types stay out of the Next build. Without this second project they were typechecked by nothing — Playwright transpiles specs without type errors, and eslint ignores the directory — so a stale import or a renamed export survived silently. Wired into the docs `typecheck` script.",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "incremental": false,
+    "types": ["node"]
+  },
+  "include": ["playwright.config.ts", "vrt/**/*.ts"],
+  "exclude": ["node_modules"]
+}
