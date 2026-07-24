@@ -35,6 +35,10 @@ jobs:
       # it and vitest dies at browserType.launch looking in $HOME/.cache.
       - run: pnpm test # turbo run test — Vitest browser mode + axe, incl. compiled-CSS color-contrast
       - run: pnpm --filter @vegastack/ui test:smoke # Firefox/WebKit for contract-marked motion/cross-engine risks
+        # The pinned container executes as root, while Actions otherwise points HOME at a pwuser-owned
+        # directory. Firefox refuses that ownership mismatch before any test can execute.
+        env:
+          HOME: /root
       - name: Build private-discovery matrix
         run: SITE_VISIBILITY=private pnpm build
       - name: Build public-discovery matrix

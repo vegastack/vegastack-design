@@ -110,6 +110,9 @@ jobs:
       - run: pnpm lint
       - run: pnpm test
       - run: pnpm --filter @vegastack/ui test:all-browsers
+        # Firefox requires HOME to be owned by the current container user (root).
+        env:
+          HOME: /root
       - run: pnpm build
       - run: pnpm registry:build
       - name: Require registry build idempotency
