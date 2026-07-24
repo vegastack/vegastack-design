@@ -332,9 +332,7 @@ test("DateRangePicker forwards calendarProps and lets top-level numberOfMonths w
 });
 
 test("no a11y violations — disabled", async () => {
-  const screen = await render(
-    <DatePicker aria-label="Event date" disabled />,
-  );
+  const screen = await render(<DatePicker aria-label="Event date" disabled />);
   await expectNoA11yViolations(screen.container);
 });
 
@@ -367,9 +365,8 @@ test("dropdown caption keeps the label and chevron on one line (inline-flex on r
       endMonth={new Date(2030, 11, 1)}
     />,
   );
-  const roots = screen.container.querySelectorAll<HTMLElement>(
-    ".rdp-dropdown_root",
-  );
+  const roots =
+    screen.container.querySelectorAll<HTMLElement>(".rdp-dropdown_root");
   // Month + year dropdowns.
   expect(roots.length).toBe(2);
   for (const root of Array.from(roots)) {

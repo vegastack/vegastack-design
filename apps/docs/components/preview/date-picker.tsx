@@ -1,7 +1,8 @@
-'use client';
+"use client";
 
-import { type ReactNode, useState } from 'react';
-import { Wrapper } from './wrapper';
+import * as React from "react";
+import { type ReactNode, useState } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/date-picker` (dogfoods the registry) → auto-scanned.
 import {
   Calendar,
@@ -11,7 +12,7 @@ import {
   defaultRangePresets,
   type DatePreset,
   type DateRange,
-} from '@/components/ui/date-picker';
+} from "@/components/ui/date-picker";
 
 /** A fixed reference month so the preview is stable: June 2026. */
 const REF = new Date(2026, 5, 12);
@@ -23,7 +24,11 @@ export function datePicker(): ReactNode {
   const [date, setDate] = useState<Date | undefined>(SELECTED);
   return (
     <Wrapper className="flex-col items-start gap-4">
-      <DatePicker value={date} onValueChange={setDate} aria-label="Pick a date" />
+      <DatePicker
+        value={date}
+        onValueChange={setDate}
+        aria-label="Pick a date"
+      />
       <Calendar
         mode="single"
         selected={date}
@@ -92,11 +97,14 @@ export function calendarInline(): ReactNode {
 export function datePickerDisabledDates(): ReactNode {
   const [date, setDate] = useState<Date | undefined>(undefined);
   // Block the whole third week of June 2026.
-  const blocked: DateRange = { from: new Date(2026, 5, 14), to: new Date(2026, 5, 20) };
+  const blocked: DateRange = {
+    from: new Date(2026, 5, 14),
+    to: new Date(2026, 5, 20),
+  };
   // A preset that lands inside the blocked week → gated; one outside → live.
   const presets: DatePreset[] = [
-    { label: 'Jun 9 (open)', date: new Date(2026, 5, 9) },
-    { label: 'Jun 17 (blocked)', date: new Date(2026, 5, 17) },
+    { label: "Jun 9 (open)", date: new Date(2026, 5, 9) },
+    { label: "Jun 17 (blocked)", date: new Date(2026, 5, 17) },
   ];
   return (
     <Wrapper className="flex-col items-start gap-4">
@@ -176,16 +184,70 @@ export function datePickerSingleMonthRange(): ReactNode {
  * `Intl.DateTimeFormat` options (here a long weekday/month) and a `de-DE` locale.
  */
 export function datePickerFormatting(): ReactNode {
+  return <DatePickerFormattingDemo />;
+}
+
+/**
+ * The trigger label is produced by `Intl.DateTimeFormat`, so the display format is
+ * fully controllable without a date library. The DEFAULT is the readable
+ * "Jun 24, 2026" — never an ISO string and never the OS date-input format.
+ */
+function DatePickerFormattingDemo(): ReactNode {
   const [date, setDate] = useState<Date | undefined>(SELECTED);
+  const rows: {
+    label: string;
+    props: Partial<React.ComponentProps<typeof DatePicker>>;
+  }[] = [
+    { label: "Default — Jun 24, 2026", props: {} },
+    {
+      label: "With weekday",
+      props: {
+        formatOptions: {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        },
+      },
+    },
+    {
+      label: "Long month",
+      props: {
+        formatOptions: { month: "long", day: "numeric", year: "numeric" },
+      },
+    },
+    { label: "Numeric", props: { formatOptions: { dateStyle: "short" } } },
+    {
+      label: "Locale — de-DE",
+      props: {
+        locale: "de-DE",
+        formatOptions: {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        },
+      },
+    },
+  ];
   return (
-    <Wrapper>
-      <DatePicker
-        value={date}
-        onValueChange={setDate}
-        locale="de-DE"
-        formatOptions={{ weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }}
-        aria-label="Datum wählen"
-      />
+    <Wrapper className="flex-col items-stretch gap-3">
+      {rows.map((row) => (
+        <div
+          key={row.label}
+          className="flex items-center justify-between gap-4"
+        >
+          <span className="text-label-sm text-muted-foreground">
+            {row.label}
+          </span>
+          <DatePicker
+            value={date}
+            onValueChange={setDate}
+            aria-label={row.label}
+            {...row.props}
+          />
+        </div>
+      ))}
     </Wrapper>
   );
 }

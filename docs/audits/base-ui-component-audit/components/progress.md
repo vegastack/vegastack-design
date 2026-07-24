@@ -13,9 +13,9 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P2 | Only `Progress` is exported at `progress.tsx:81`; Base/shadcn expose Root/Label/Value/Track/Indicator composition. `className` is applied to Track at `progress.tsx:84`; test acknowledges this at `progress.test.tsx:50`. | Root styling and labelled/value composition are unavailable or surprising. | Export compound parts or document simplification; consider root `className` plus `trackClassName`. |
+| Priority | Evidence                                                                                                                                                                                                                   | Impact                                                                     | Suggested fix                                                                                      |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| P2       | Only `Progress` is exported at `progress.tsx:81`; Base/shadcn expose Root/Label/Value/Track/Indicator composition. `className` is applied to Track at `progress.tsx:84`; test acknowledges this at `progress.test.tsx:50`. | Root styling and labelled/value composition are unavailable or surprising. | Export compound parts or document simplification; consider root `className` plus `trackClassName`. |
 
 ## Residual Risks
 
@@ -24,4 +24,3 @@ No Radix issue found.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- progress.test.tsx`
-

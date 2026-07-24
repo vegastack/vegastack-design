@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 import {
   Bell,
   Check,
@@ -14,10 +14,10 @@ import {
   Sparkles,
   Trash2,
   TriangleAlert,
-} from 'lucide-react';
-import { Wrapper } from './wrapper';
+} from "lucide-react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/icon-button` (dogfoods the registry) → auto-scanned.
-import { IconButton } from '@/components/ui/icon-button';
+import { IconButton } from "@/components/ui/icon-button";
 
 export function iconButton(): ReactNode {
   return (

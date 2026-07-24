@@ -1,0 +1,59 @@
+---
+title: Ruled Band
+description: A hairline-bounded editorial strip with mono-label ends — changelog and serial-number furniture.
+audience: public
+preview: ruledBand
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/ruled-band
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+<RuledBand>
+  <RuledBandLabel className="uppercase">Changelog / 2026</RuledBandLabel>
+  <RuledBandLabel className="uppercase">39 updates</RuledBandLabel>
+</RuledBand>
+```
+
+## Examples
+
+<ComponentPreview name="ruledBand" file="components/preview/ruled-band.tsx" />
+
+## Voice
+
+`RuledBandLabel` bakes in the mono-label voice; `uppercase` stays call-site-applied because
+uppercase is mono-exclusive (D20). Use for editorial meta — dates, counts, serials, section
+codes — not for interactive headers (that's `PageHeader`).
+
+## API Reference
+
+### RuledBand
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/ruled-band.tsx"
+  name="RuledBandProps"
+/>
+
+### RuledBandLabel
+
+`RuledBandLabel` accepts the native props, `className`, and `ref` of its underlying `<span>`.
+
+## Accessibility
+
+- The band is presentational page furniture and adds no landmark or heading semantics.
+- Labels are real text in document order; use a heading outside the band when it introduces a section.
+- Uppercase content remains in the named mono-label role at a readable 12px floor.
+
+## Do / Don't
+
+<DoDont
+  do="Use short dates, counts, serials, or editorial metadata at the two ends of the band."
+  dont="Place buttons or a page title in the band, or use its rules as a substitute for content hierarchy."
+/>

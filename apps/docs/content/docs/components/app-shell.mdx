@@ -1,6 +1,7 @@
 ---
 title: App Shell
-description: The shared dashboard layout — a skip-linked sidebar + header + scrollable main region, wrapping Sidebar/PageHeader/Breadcrumb into one reusable, hash-tracked composition.
+description: A shared dashboard layout with skip-linked sidebar, header, and scrollable main region composed from VegaStack navigation primitives.
+audience: public
 preview: appShellDemo
 ---
 
@@ -15,10 +16,20 @@ npx shadcn@latest add @vegastack/app-shell
 ## Usage
 
 ```tsx
-import { AppShell, AppShellContent, AppShellHeader, AppShellSidebar } from '@/components/ui/app-shell';
-import { SidebarContent, SidebarHeader } from '@/components/ui/sidebar';
-import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbPage } from '@/components/ui/breadcrumb';
-import { Button } from '@/components/ui/button';
+import {
+  AppShell,
+  AppShellContent,
+  AppShellHeader,
+  AppShellSidebar,
+} from "@/components/ui/app-shell";
+import { SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbPage,
+} from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
 
 <AppShell defaultOpen>
   <AppShellSidebar>
@@ -79,35 +90,46 @@ focusable element; you compose `AppShellSidebar` as one child and your own conte
 `banner` landmark role. A wrapping component that owned both would tempt collapsing them into one
 element, silently losing that landmark.
 
-## Variants
+## Examples
+
+### Variants
 
 `AppShellSidebar` passes `variant` straight through to `Sidebar` (`sidebar` / `floating` / `inset`).
 Pass the SAME `variant` to `AppShellContent` to keep the shell visually consistent — unlike
 `Sidebar` + `SidebarInset`'s CSS `peer` selector, `AppShellContent` applies its panel treatment
 directly via the prop (see the API reference for why).
 
-<ComponentPreview name="appShellInset" file="components/preview/app-shell.tsx" />
+<ComponentPreview
+  name="appShellInset"
+  file="components/preview/app-shell.tsx"
+/>
 
-<ComponentPreview name="appShellFloating" file="components/preview/app-shell.tsx" />
+<ComponentPreview
+  name="appShellFloating"
+  file="components/preview/app-shell.tsx"
+/>
 
-## Skeleton
+### Skeleton
 
 `AppShellSkeleton` composes a full loading shell — a sidebar column, a header line, and a
 stat-card + chart-placeholder content region — server-safe, so it drops straight into a Next.js
 `loading.tsx` with no `'use client'` needed.
 
-<ComponentPreview name="appShellSkeletonDemo" file="components/preview/app-shell.tsx" />
+<ComponentPreview
+  name="appShellSkeletonDemo"
+  file="components/preview/app-shell.tsx"
+/>
 
 ```tsx
 // app/(dashboard)/loading.tsx — a Server Component.
-import { AppShellSkeleton } from '@/components/ui/app-shell';
+import { AppShellSkeleton } from "@/components/ui/app-shell";
 
 export default function Loading() {
   return <AppShellSkeleton navItemCount={6} statCardCount={4} />;
 }
 ```
 
-## Mobile
+### Mobile
 
 Below `mobileBreakpoint` (768px by default), `Sidebar` swaps to a `Sheet` drawer — `AppShellHeader`
 already renders `SidebarTrigger` OUTSIDE `AppShellSidebar` (it's a sibling in the content column,
@@ -115,7 +137,7 @@ not nested inside the rail), so the one control that opens the mobile sheet is a
 with zero extra composition on your part. The header's middle slot truncates (`min-w-0 flex-1`)
 instead of wrapping — pair it with `BreadcrumbTrail`'s `maxItems` for long trails on narrow screens.
 
-## Route-change focus
+### Route-change focus
 
 `AppShell` is deliberately router-agnostic — it has no dependency on Next.js/React Router and
 never imports one. Moving keyboard focus to the new page's heading on a client-side route change
@@ -124,9 +146,9 @@ is standard SPA accessibility practice, and it's the DOWNSTREAM app's responsibi
 keyed on the router's pathname:
 
 ```tsx
-'use client';
-import { usePathname } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+"use client";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 
 function RouteFocus() {
   const pathname = usePathname();
@@ -134,7 +156,11 @@ function RouteFocus() {
   useEffect(() => {
     headingRef.current?.focus();
   }, [pathname]);
-  return <h1 ref={headingRef} tabIndex={-1}>…</h1>;
+  return (
+    <h1 ref={headingRef} tabIndex={-1}>
+      …
+    </h1>
+  );
 }
 ```
 
@@ -142,23 +168,38 @@ function RouteFocus() {
 
 ### AppShell
 
-<AutoTypeTable path="../../packages/ui/registry/ui/app-shell.tsx" name="AppShellProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/app-shell.tsx"
+  name="AppShellProps"
+/>
 
 ### AppShellSidebar
 
-<AutoTypeTable path="../../packages/ui/registry/ui/app-shell.tsx" name="AppShellSidebarProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/app-shell.tsx"
+  name="AppShellSidebarProps"
+/>
 
 ### AppShellHeader
 
-<AutoTypeTable path="../../packages/ui/registry/ui/app-shell.tsx" name="AppShellHeaderProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/app-shell.tsx"
+  name="AppShellHeaderProps"
+/>
 
 ### AppShellContent
 
-<AutoTypeTable path="../../packages/ui/registry/ui/app-shell.tsx" name="AppShellContentProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/app-shell.tsx"
+  name="AppShellContentProps"
+/>
 
 ### AppShellSkeleton
 
-<AutoTypeTable path="../../packages/ui/registry/ui/app-shell.tsx" name="AppShellSkeletonProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/app-shell.tsx"
+  name="AppShellSkeletonProps"
+/>
 
 ## Accessibility
 
@@ -176,8 +217,15 @@ function RouteFocus() {
 - **Route-change focus** is the host app's responsibility (see above) — `AppShell` stays
   router-agnostic and cannot own it.
 
-| Key | Action |
-| --- | --- |
-| <kbd>Tab</kbd> (on page load) | Focus the skip link. |
-| <kbd>Enter</kbd> on the skip link | Move focus to `AppShellContent`'s `<main>`. |
+| Key                                       | Action                                                                                              |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| <kbd>Tab</kbd> (on page load)             | Focus the skip link.                                                                                |
+| <kbd>Enter</kbd> on the skip link         | Move focus to `AppShellContent`'s `<main>`.                                                         |
 | <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>B</kbd> | Toggle the sidebar (desktop) or the mobile sheet — customizable/disableable via `keyboardShortcut`. |
+
+## Do / Don't
+
+<DoDont
+  do="Compose the landmark trio once, keep the mobile trigger in AppShellHeader, and preserve the skip-link target."
+  dont="Hand-roll another sidebar/header/main shell or nest the banner landmark inside main content."
+/>

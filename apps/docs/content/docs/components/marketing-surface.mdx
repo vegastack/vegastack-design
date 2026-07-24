@@ -1,6 +1,7 @@
 ---
 title: Marketing Surface
 description: Opt a subtree into the brand's dark warm ground — independent of the page's .dark class.
+audience: public
 preview: marketingSurface
 ---
 
@@ -15,14 +16,16 @@ npx shadcn@latest add @vegastack/marketing-surface
 ## Usage
 
 ```tsx
-import { MarketingSurface } from '@/components/ui/marketing-surface';
+import { MarketingSurface } from "@/components/ui/marketing-surface";
 
 <MarketingSurface className="px-6 py-24">
   <h1>Ship agentic UI, fast.</h1>
 </MarketingSurface>;
 ```
 
-## Why this exists
+## Examples
+
+### Scoped dark surface
 
 VegaStack's marketing surfaces are **dark-first** (the warm neutral ramp's dark end — see
 [Colors](/docs/foundations/colors)), but the product is **light-primary** by default.
@@ -33,14 +36,20 @@ class instead of gated on the page-root `.dark` class. Every token utility insid
 `bg-background`, `text-foreground`, `border-border`, `bg-brand`, or a composed `Button` / `Badge` /
 `Card` — resolves correctly with **zero code changes**.
 
-<ComponentPreview name="marketingSurface" file="components/preview/marketing-surface.tsx" />
+<ComponentPreview
+  name="marketingSurface"
+  file="components/preview/marketing-surface.tsx"
+/>
 
-## Composing a different element
+### Composing a different element
 
 Pass `render` (Base UI composition) to render a `<section>` or another host element instead of the
 default `<div>`.
 
-<ComponentPreview name="marketingSurfaceRender" file="components/preview/marketing-surface.tsx" />
+<ComponentPreview
+  name="marketingSurfaceRender"
+  file="components/preview/marketing-surface.tsx"
+/>
 
 ```tsx
 <MarketingSurface render={<section />}>…</MarketingSurface>
@@ -60,17 +69,17 @@ default `<div>`.
 - Sets `color-scheme: dark` locally so native form controls and scrollbars inside it render
   dark-appropriate.
 
-### Portal limitation
+### Portaled overlays
 
 Base UI floating surfaces (`Dialog`, `Popover`, `Menu`, `Select`, `Tooltip`, …) portal to
-`<body>`, **outside** any `MarketingSurface` subtree — anything portaled from inside one renders
-with the **page** theme, not the marketing dark ground. Marketing surfaces rarely need portals (a
-hero or section band is not app chrome); if one genuinely does, style it explicitly at the portal
-root.
+`<body>`, outside the surface DOM subtree. VegaStack propagates the active marketing scope through
+an internal context and applies `.vs-marketing` to each supported portal root, so those overlays keep
+the same semantic dark values without consumer classes. This plumbing is internal; consumers still
+compose the normal overlay APIs.
 
 ## Do / Don't
 
 <DoDont
   do="Wrap a marketing hero or section band in MarketingSurface so it stays dark even when the surrounding product page is light."
-  dont="Rely on MarketingSurface for anything that opens a Base UI portal (Select, Dialog, Popover, …) and expect the portal to inherit the dark ground."
+  dont="Add hardcoded dark colors to descendants or portal content — semantic tokens and the propagated scope already provide the correct theme."
 />

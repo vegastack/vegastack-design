@@ -90,7 +90,11 @@ test("disabled removes the thumb from interaction", async () => {
 test("ArrowRight increments the value by step", async () => {
   const onValueChange = vi.fn();
   const screen = await render(
-    <Slider defaultValue={40} onValueChange={onValueChange} aria-label="Volume" />,
+    <Slider
+      defaultValue={40}
+      onValueChange={onValueChange}
+      aria-label="Volume"
+    />,
   );
   const slider = screen.getByRole("slider", { name: "Volume" });
   slider.element().focus();
@@ -102,7 +106,11 @@ test("ArrowRight increments the value by step", async () => {
 test("ArrowUp increments the value by step", async () => {
   const onValueChange = vi.fn();
   const screen = await render(
-    <Slider defaultValue={40} onValueChange={onValueChange} aria-label="Volume" />,
+    <Slider
+      defaultValue={40}
+      onValueChange={onValueChange}
+      aria-label="Volume"
+    />,
   );
   const slider = screen.getByRole("slider", { name: "Volume" });
   slider.element().focus();
@@ -114,7 +122,11 @@ test("ArrowUp increments the value by step", async () => {
 test("ArrowLeft decrements the value by step", async () => {
   const onValueChange = vi.fn();
   const screen = await render(
-    <Slider defaultValue={40} onValueChange={onValueChange} aria-label="Volume" />,
+    <Slider
+      defaultValue={40}
+      onValueChange={onValueChange}
+      aria-label="Volume"
+    />,
   );
   const slider = screen.getByRole("slider", { name: "Volume" });
   slider.element().focus();
@@ -126,7 +138,11 @@ test("ArrowLeft decrements the value by step", async () => {
 test("ArrowDown decrements the value by step", async () => {
   const onValueChange = vi.fn();
   const screen = await render(
-    <Slider defaultValue={40} onValueChange={onValueChange} aria-label="Volume" />,
+    <Slider
+      defaultValue={40}
+      onValueChange={onValueChange}
+      aria-label="Volume"
+    />,
   );
   const slider = screen.getByRole("slider", { name: "Volume" });
   slider.element().focus();
@@ -194,7 +210,12 @@ test("End jumps to the maximum value", async () => {
 test("disabled removes the thumb from the tab order so arrow keys have no effect", async () => {
   const onValueChange = vi.fn();
   const screen = await render(
-    <Slider defaultValue={40} disabled onValueChange={onValueChange} aria-label="Volume" />,
+    <Slider
+      defaultValue={40}
+      disabled
+      onValueChange={onValueChange}
+      aria-label="Volume"
+    />,
   );
   const slider = screen.getByRole("slider", { name: "Volume" });
   // Disabled native range inputs cannot receive focus; the value must stay put.
@@ -252,9 +273,8 @@ test("forwards ref to the underlying slider root element", async () => {
  * Touch-target remediation (WCAG 2.5.8) — effective hit-area measurement.
  *
  * Same rationale/technique as checkbox.test.tsx: this harness runs without compiled Tailwind, so
- * `before:-inset-1` never resolves to real CSS here. Each test injects a literal <style> tag that
- * is a 1:1 mirror of what these EXACT Tailwind utility values compile to (the "-inset-1 = 4px"
- * scale this remediation's house rule documents), keyed to the real `data-slot` attributes the
+ * `before:-inset-1.5` never resolves to real CSS here. Each test injects a literal <style> tag that
+ * is a 1:1 mirror of the exact utilities plus the thumb's real 2px border, keyed to `data-slot`,
  * component renders (real regardless of compiled CSS), then measures the REAL, browser-computed
  * layout against it.
  *
@@ -271,8 +291,8 @@ function injectSliderThumbHitAreaMirror(): () => void {
     [data-slot="slider"] { position: relative; display: flex; width: 300px; align-items: center; box-sizing: border-box; }
     [data-slot="slider-control"] { position: relative; display: flex; width: 100%; align-items: center; box-sizing: border-box; }
     [data-slot="slider-track"] { position: relative; height: 6px; width: 100%; box-sizing: border-box; }
-    [data-slot="slider-thumb"] { width: 16px; height: 16px; box-sizing: border-box; }
-    [data-slot="slider-thumb"]::before { content: ""; position: absolute; inset: -4px; }
+    [data-slot="slider-thumb"] { width: 16px; height: 16px; box-sizing: border-box; border: 2px solid transparent; }
+    [data-slot="slider-thumb"]::before { content: ""; position: absolute; inset: -6px; }
   `;
   document.head.appendChild(style);
   return () => document.head.removeChild(style);
@@ -281,8 +301,12 @@ function injectSliderThumbHitAreaMirror(): () => void {
 test("thumb (16px) resolves an effective hit area >= 24x24 via the before pseudo-element", async () => {
   const cleanup = injectSliderThumbHitAreaMirror();
   try {
-    const screen = await render(<Slider defaultValue={40} aria-label="Volume" />);
-    const thumb = screen.container.querySelector('[data-slot="slider-thumb"]') as HTMLElement;
+    const screen = await render(
+      <Slider defaultValue={40} aria-label="Volume" />,
+    );
+    const thumb = screen.container.querySelector(
+      '[data-slot="slider-thumb"]',
+    ) as HTMLElement;
     thumb.getBoundingClientRect(); // force a layout flush before reading resolved pseudo-element geometry
     const before = getComputedStyle(thumb, "::before");
     expect(parseFloat(before.width)).toBeGreaterThanOrEqual(24);
@@ -295,22 +319,26 @@ test("thumb (16px) resolves an effective hit area >= 24x24 via the before pseudo
 test("a point just outside the visual thumb, inside the expanded hit area, still hits the thumb", async () => {
   const cleanup = injectSliderThumbHitAreaMirror();
   try {
-    const screen = await render(<Slider defaultValue={40} aria-label="Volume" />);
-    const thumb = screen.container.querySelector('[data-slot="slider-thumb"]') as HTMLElement;
+    const screen = await render(
+      <Slider defaultValue={40} aria-label="Volume" />,
+    );
+    const thumb = screen.container.querySelector(
+      '[data-slot="slider-thumb"]',
+    ) as HTMLElement;
     const rect = thumb.getBoundingClientRect();
-    // 3px above the visual top edge — inside the 4px `before:-inset-1` expansion, outside the 16px dot.
+    // 3px above the visual top edge — inside the 6px expansion, outside the 16px dot.
     const x = rect.left + rect.width / 2;
     const y = rect.top - 3;
     const hit = document.elementFromPoint(x, y);
     expect(hit).toBe(thumb);
 
-    // A real (trusted, Playwright-driven) click at that resolved element focuses the thumb's
-    // underlying range input — the meaningful "did my click reach the drag handle" signal for a
-    // slider (unlike checkbox/radio, a bare click doesn't "toggle" a slider; it activates it for
-    // drag/keyboard interaction, which IS gated on focus reaching the input).
-    await userEvent.click(hit as HTMLElement);
+    // The expanded surface must resolve to the visible draggable thumb and that
+    // thumb must own Base UI's semantic range input. Do not use post-click focus
+    // as the signal here: WebKit intentionally does not focus many controls on
+    // pointer activation, and Firefox likewise leaves Base UI's visually hidden
+    // range input unfocused. Keyboard focus/operation is covered independently.
     const input = screen.container.querySelector('input[type="range"]');
-    expect(document.activeElement).toBe(input);
+    expect(thumb.contains(input)).toBe(true);
   } finally {
     cleanup();
   }
@@ -319,10 +347,14 @@ test("a point just outside the visual thumb, inside the expanded hit area, still
 test("a point beyond the expanded hit area does not resolve to the thumb", async () => {
   const cleanup = injectSliderThumbHitAreaMirror();
   try {
-    const screen = await render(<Slider defaultValue={40} aria-label="Volume" />);
-    const thumb = screen.container.querySelector('[data-slot="slider-thumb"]') as HTMLElement;
+    const screen = await render(
+      <Slider defaultValue={40} aria-label="Volume" />,
+    );
+    const thumb = screen.container.querySelector(
+      '[data-slot="slider-thumb"]',
+    ) as HTMLElement;
     const rect = thumb.getBoundingClientRect();
-    // 8px above the visual top edge — 4px beyond the 4px `before:-inset-1` expansion boundary.
+    // 8px above the visual top edge — beyond the 6px expansion boundary.
     const x = rect.left + rect.width / 2;
     const y = rect.top - 8;
     const hit = document.elementFromPoint(x, y);

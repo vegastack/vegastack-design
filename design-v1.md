@@ -201,6 +201,7 @@ in both. The aesthetic is **calm neutral chrome**: surfaces are white (or near-b
 articulated by **hairline alpha borders**, not heavy fills or shadows. Colour is reserved and meaningful.
 
 **Key characteristics**
+
 - **One neutral ramp.** Every grey, black, and white resolves to a single 14-step OKLCH scale; translucent neutrals to a 5-step alpha scale (black in light, white in dark).
 - **Hairline depth, flat by default.** 1px alpha borders carry separation; only overlays get a single subtle shadow.
 - **Two brand accents with distinct jobs.** `action` (blue) = interactive (links, selection, active, info); `agent` (purple) = AI/agent moments. Neither is the focus colour.
@@ -210,39 +211,44 @@ articulated by **hairline alpha borders**, not heavy fills or shadows. Colour is
 ## Colours
 
 ### The neutral ramp
+
 Every neutral — every grey, black, and white — is one of 14 steps on a single OKLCH (chroma 0) ramp,
 shared by both themes. Light and dark are **mirror references** into it (e.g. `foreground` is
 `neutral-900` in light and `neutral-100` in dark). See the frontmatter `colors.ramp` for exact values.
 
 ### Surfaces, text & lines
+
 - **`background`** is the page; **`card`/`popover`** are surfaces (white in light; lifted to `neutral-850` in dark).
-- **`secondary`** (`neutral-50` light / `neutral-850` dark) is the *subtlest* inset fill — used for input/control backgrounds. **`muted`** is one step stronger. **`accent`** is the neutral hover/active fill (it is *not* a colour — `bg-accent` must never be blue).
+- **`secondary`** (`neutral-50` light / `neutral-850` dark) is the _subtlest_ inset fill — used for input/control backgrounds. **`muted`** is one step stronger. **`accent`** is the neutral hover/active fill (it is _not_ a colour — `bg-accent` must never be blue).
 - **Text ramp:** `foreground` (ink) → `muted-foreground` (secondary text, the gated workhorse, AA) → `muted-foreground-faint` (placeholders & disabled **only** — intentionally below AA; never use it for content, including captions).
 - **`primary`** is a charcoal (`neutral-700`), deliberately softer than ink, for the single most important action.
 - **Borders are alpha hairlines:** `border` 9% · `border-strong` 14% (data-dense tables/grids, where many faint lines would otherwise mush) · `input` 12% · `sidebar-border` 5% · `overlay-border` 16% — black in light, white in dark, so they composite over any surface. (`ring` is the neutral focus-colour basis — see Accessibility.)
 - **The sidebar** is a self-contained surface: `sidebar` / `sidebar-foreground` / `sidebar-border` (above). Its active, hover, and focus states **reuse the main `primary` / `accent` / `ring`** — there is no separate `sidebar-primary` / `sidebar-accent` / `sidebar-ring`.
 
 ### Chromatic accents
+
 The chrome is neutral; colour carries meaning. Five hue families, each a six-token ramp
 (`fill` / `hover` / `active` / `foreground` / `subtle` / `text`). **All five use white on-fill text**
 uniformly; `hover`/`active` darken away from the white so contrast only rises. `subtle` (soft tinted
 background) and `text` (the readable colour for the page/alert) adapt per theme.
 
-| Family | Role | Fill | On-fill | Notes |
-|---|---|---|---|---|
-| `destructive` | danger, errors, destructive actions | `#d72630` | white (4.97:1) | red, hue 25 |
-| `success` | success, positive state | `#0c853d` | white (4.74:1) | green, hue 150 |
-| `warning` | warning, caution | `#c94d08` | white (4.61:1) | **deep orange**, hue 42 — bright amber can't carry white text |
-| `action` | interactive: links, selection, active, info | `#006bd6` | white (5.16:1) | blue, hue 256 |
-| `agent` | AI / agent moments | `#774cc9` | white (5.74:1) | purple, hue 295 |
+| Family        | Role                                        | Fill      | On-fill        | Notes                                                         |
+| ------------- | ------------------------------------------- | --------- | -------------- | ------------------------------------------------------------- |
+| `destructive` | danger, errors, destructive actions         | `#d72630` | white (4.97:1) | red, hue 25                                                   |
+| `success`     | success, positive state                     | `#0c853d` | white (4.74:1) | green, hue 150                                                |
+| `warning`     | warning, caution                            | `#c94d08` | white (4.61:1) | **deep orange**, hue 42 — bright amber can't carry white text |
+| `action`      | interactive: links, selection, active, info | `#006bd6` | white (5.16:1) | blue, hue 256                                                 |
+| `agent`       | AI / agent moments                          | `#774cc9` | white (5.74:1) | purple, hue 295                                               |
 
 **Usage rules**
-- `action` is for *interactivity* (links, selection, active nav, info alerts) — **not** the focus colour (focus is the neutral `ring`).
-- `agent` is reserved for *AI/agent* surfaces (generative output, agent actions, "the AI did this") so they're instantly distinct from ordinary controls.
+
+- `action` is for _interactivity_ (links, selection, active nav, info alerts) — **not** the focus colour (focus is the neutral `ring`).
+- `agent` is reserved for _AI/agent_ surfaces (generative output, agent actions, "the AI did this") so they're instantly distinct from ordinary controls.
 - `info` is **not** a token name — informational UI uses `action`.
 - For a solid button use `{family}.fill` + white text; for an alert/badge use `{family}.subtle` background + `{family}.text`; for hover/active step to `{family}.hover` / `.active`.
 
 ### Charts & data-viz
+
 A separate **8-hue categorical palette** (`chart-1…8`) for data series — intentionally outside the
 quiet-chrome discipline, because data needs hue separation. The hues are evenly spaced (45° apart) at a
 consistent lightness/chroma register, so a chart reads as one family yet every series stays distinct.
@@ -262,7 +268,8 @@ sizes (the frontmatter carries exact `fontSize`/`lineHeight`/`fontWeight`/`lette
 - **Small** `text-small`(12) — captions at 400; section labels and badges at 500.
 
 **Principles**
-- **14px is the default**, chosen for the reading-heavy surfaces of an agentic-enterprise product (logs, descriptions, agent output). Dense product surfaces (e.g. an agent console) may drop body to a 13px *compact* density where warranted — this is a documented allowance, applied per-surface, not a separate token.
+
+- **14px is the default**, chosen for the reading-heavy surfaces of an agentic-enterprise product (logs, descriptions, agent output). Dense product surfaces (e.g. an agent console) may drop body to a 13px _compact_ density where warranted — this is a documented allowance, applied per-surface, not a separate token.
 - **Weight rule:** 400 body · 500 labels/badges · **600 headings**. Nothing above 600. At most two weights in one view.
 - **Colour does hierarchy work:** `foreground` title over `muted-foreground` subtitle at the same size reads as two clear levels.
 - **Apply the type tokens** — never hand-set font-size, line-height, or weight.
@@ -294,7 +301,7 @@ long, looping, or attention-grabbing animation, and **honour `prefers-reduced-mo
 Four radii (frontmatter `rounded`): `sm` 6 · `md` 8 · `lg` 12 · `full`.
 
 **The `rounded-full` rule** — `full` is for inherently round / tag-like objects (avatars, switch tracks,
-badges/chips, status dots, slider thumbs) and *deliberate* pill CTAs. **Container highlights echo their
+badges/chips, status dots, slider thumbs) and _deliberate_ pill CTAs. **Container highlights echo their
 container's geometry** — sidebar/nav-row hover & active backgrounds, menu-item highlights, and cards use
 `md`/`lg`, **never** `full` (a pill behind a left-aligned row reads as a lozenge and breaks the rhythm).
 Keep one radius family per view.
@@ -304,7 +311,7 @@ Keep one radius family per view.
 Each component composes from tokens (frontmatter `components` gives the recipe). Defaults below are the
 medium size; control heights step **sm 28 / md 34 / lg 40**.
 
-- **Button** — `primary` (charcoal `primary` fill, white label) for the single most important action; `action` (blue) and `agent` (purple) for interactive and AI actions; `secondary` (card fill + stronger border) and `ghost` (transparent, `accent` hover) for lower emphasis; `destructive` (solid red) and *soft* variants (`{status}.subtle` fill + `{status}.text`) for status actions. Radius `md`; `text-body`/500 label. Hover steps the fill colour; **focus is a neutral border/colour shift, never a ring**.
+- **Button** — `primary` (charcoal `primary` fill, white label) for the single most important action; `action` (blue) and `agent` (purple) for interactive and AI actions; `secondary` (card fill + stronger border) and `ghost` (transparent, `accent` hover) for lower emphasis; `destructive` (solid red) and _soft_ variants (`{status}.subtle` fill + `{status}.text`) for status actions. Radius `md`; `text-body`/500 label. Hover steps the fill colour; **focus is a neutral border/colour shift, never a ring**.
 - **Input / Select / Textarea** — `secondary` fill (the subtlest, so it reads active not greyed), `input` hairline border, radius `md`, 36px. **On focus the border darkens to `ring` (neutral)** — not blue. Error uses a `destructive` border + `destructive.text` helper. Disabled uses `muted` fill + `muted-foreground-faint`.
 - **Card / Panel** — `card` surface, `border` hairline, radius `lg`, **flat (no shadow)**.
 - **Badge / Chip / Tag** — radius `full`; status badges use `{status}.subtle` + `{status}.text` (+ a 6px status dot); neutral badge uses `muted`.
@@ -330,6 +337,7 @@ Copy is part of the design — precise, no filler.
 ## Do's and Don'ts
 
 **Do**
+
 - Use **semantic tokens only** — `bg-primary`, `text-muted-foreground`, `border-border`. Apply **type tokens** instead of hand-set size/weight.
 - Rank information with the neutral ramp: `foreground` primary text, `muted-foreground` secondary, `muted-foreground-faint` disabled.
 - Keep colour for state and the single most important action. Pair every state colour with an icon or text label.
@@ -337,6 +345,7 @@ Copy is part of the design — precise, no filler.
 - Use `action` for interactivity, `agent` for AI moments, `accent`(neutral) for hover fills.
 
 **Don't**
+
 - Don't hardcode hex/px, use raw palettes (`bg-neutral-900`), or off-scale arbitrary values.
 - Don't make `accent` (the neutral hover fill) a colour, or use `action`/`agent`/`info` interchangeably.
 - Don't put a **blue (or any coloured) focus ring** on anything — focus is the neutral `ring` shift. Don't remove focus without a visible replacement.

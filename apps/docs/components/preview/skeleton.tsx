@@ -85,7 +85,9 @@ export function skeletonReveal(): ReactNode {
             <Avatar fallback="AL" />
             <div className="flex min-w-0 flex-col">
               <span className="font-medium">Ada Lovelace</span>
-              <span className="text-sm text-muted-foreground">Analytical Engine, v2</span>
+              <span className="text-sm text-muted-foreground">
+                Analytical Engine, v2
+              </span>
             </div>
           </div>
         </SkeletonReveal>

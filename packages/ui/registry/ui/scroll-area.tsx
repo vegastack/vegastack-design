@@ -1,4 +1,4 @@
-// @vegastack scroll-area@0.2.0 sha256-E/+Srg+IEr8fKGclFmGaSMo0a8ehU16vjNBrAWxeTGM=
+// @vegastack scroll-area@0.2.0 sha256-FX40DFikP4EhFXom1OZK4i91Q1BWp9sB+ZWglEEUozI=
 
 "use client";
 
@@ -6,6 +6,7 @@ import * as React from "react";
 import { ScrollArea as BaseScrollArea } from "@base-ui/react/scroll-area";
 import { cn } from "@vegastack/design";
 
+/** Props for one axis-specific custom scrollbar. */
 export interface ScrollBarProps extends React.ComponentProps<
   typeof BaseScrollArea.Scrollbar
 > {
@@ -22,6 +23,7 @@ export interface ScrollBarProps extends React.ComponentProps<
  * custom layout (e.g. a horizontal-only area). Auto-hides when idle and fades
  * in while hovering or scrolling, driven by Base UI's `data-hovering` /
  * `data-scrolling` state attributes.
+ * @example <ScrollBar orientation="horizontal" />
  */
 export function ScrollBar({
   className,
@@ -38,10 +40,11 @@ export function ScrollBar({
         "flex touch-none select-none p-px transition-opacity duration-fast ease-standard",
         // Auto-hide: invisible at rest, visible while hovering or scrolling.
         "opacity-0 data-[hovering]:opacity-100 data-[scrolling]:opacity-100",
-        // Vertical: a 10px-wide column hugging the right edge.
-        "data-[orientation=vertical]:h-full data-[orientation=vertical]:w-2.5 data-[orientation=vertical]:flex-col",
-        // Horizontal: a 10px-tall row hugging the bottom edge.
-        "data-[orientation=horizontal]:h-2.5 data-[orientation=horizontal]:flex-row",
+        // Vertical: a 10px visual track at inline-end with a 24px invisible target
+        // extending inward, so the root's overflow clip never cuts it off.
+        "data-[orientation=vertical]:h-full data-[orientation=vertical]:w-2.5 data-[orientation=vertical]:flex-col data-[orientation=vertical]:before:absolute data-[orientation=vertical]:before:inset-y-0 data-[orientation=vertical]:before:end-0 data-[orientation=vertical]:before:w-6 data-[orientation=vertical]:before:content-['']",
+        // Horizontal: the same 10px visual / 24px target recipe on the block axis.
+        "data-[orientation=horizontal]:h-2.5 data-[orientation=horizontal]:flex-row data-[orientation=horizontal]:before:absolute data-[orientation=horizontal]:before:inset-x-0 data-[orientation=horizontal]:before:bottom-0 data-[orientation=horizontal]:before:h-6 data-[orientation=horizontal]:before:content-['']",
         className,
       )}
       {...props}
@@ -56,6 +59,7 @@ export function ScrollBar({
   );
 }
 
+/** Props for the scroll viewport and its generated scrollbar axes. */
 export interface ScrollAreaProps extends React.ComponentProps<
   typeof BaseScrollArea.Root
 > {
@@ -70,14 +74,16 @@ export interface ScrollAreaProps extends React.ComponentProps<
    * Classes for the scroll container. Set the height/width constraints here
    * (e.g. `h-72 w-full`) — without a bounded size the content cannot overflow
    * and no scrollbar appears. The inner viewport fills this box.
+   * @default undefined
    */
   className?: string;
   /**
    * Props applied to the automatically rendered scrollbar(s). Useful for tests
    * or custom visibility policy, e.g. `keepMounted`.
+   * @default undefined
    */
   scrollbarProps?: Omit<ScrollBarProps, "orientation">;
-  /** Scrollable content. */
+  /** Scrollable content. @default undefined */
   children?: React.ReactNode;
 }
 
@@ -87,6 +93,7 @@ export interface ScrollAreaProps extends React.ComponentProps<
  * (plus a Corner for dual-axis), replacing the native browser scrollbar with a
  * token-styled one that fades in on hover/scroll. Constrain the container via
  * `className` (e.g. `h-72`) so its content can overflow.
+ * @example <ScrollArea aria-label="Release notes" className="h-72">Content</ScrollArea>
  */
 export function ScrollArea({
   className,

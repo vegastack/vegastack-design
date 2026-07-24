@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, type ReactNode } from 'react';
-import { Wrapper } from './wrapper';
+import { useState, type ReactNode } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/notification-bell` (dogfoods the registry) → auto-scanned.
-import { NotificationBell } from '@/components/ui/notification-bell';
-import { Button } from '@/components/ui/button';
+import { NotificationBell } from "@/components/ui/notification-bell";
+import { Button } from "@/components/ui/button";
 
 export function notificationBell(): ReactNode {
   return (
@@ -41,7 +41,11 @@ export function notificationBellMotion(): ReactNode {
   return (
     <Wrapper className="flex-col gap-4">
       <NotificationBell count={count} />
-      <Button variant="outline" size="sm" onClick={() => setCount((c) => c + 1)}>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setCount((c) => c + 1)}
+      >
         Simulate new notification
       </Button>
     </Wrapper>

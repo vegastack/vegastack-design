@@ -3,17 +3,23 @@
 **Date:** 2026-07-18 · **Approved by:** MK (chat, 2026-07-18) · **Status:** SHIPPED — 0.1.0 on npm (design + design-tokens, trusted publishers configured), design.vegastack.com live behind Cloudflare Access (docs=SSO, /r/*=service token), all CI pipelines green
 **Supersedes** the 4-package distribution shape in `docs/requirements.md` §3 / `docs/gap-analysis.md` (locked-decision change, MK-approved). Greenfield: **no backward compatibility**, git history will be reset to a fresh first commit and 0.1.0 re-cut.
 
+> **Historical deployment status:** the package decision remains current, but the broad docs SSO
+> topology above is superseded by `public-docs-cutover.md`: public human docs, `/internal/*` SSO,
+> and `/r/*` Service Auth. The private source repository also cannot receive npm provenance
+> attestations; current OIDC publishing policy is defined by `../RELEASING.md` and
+> `../../skills/internal/ship/SKILL.md`.
+
 ## Decision
 
-| Package | Contents | Why it exists |
-|---|---|---|
-| **`@vegastack/design`** (NEW) | `cn()` (ex-utils) · icons runtime (ex-icons, at `./icons`) · Tailwind preset (ex-tailwind-preset, at `./preset` + `./preset.css`) · the `vegastack-design` CLI bin · thin CSS re-exports of tokens (`./theme.css`, `./base.css`, `./utilities.css` via `@import "@vegastack/design-tokens/…"`) | The one package app-builders install. One dep line per copied-in component. |
-| **`@vegastack/design-tokens`** (renamed from `@vegastack/tokens`, 2026-07-18 — MK: "tokens will be confusing") | DTCG → Style Dictionary output: `theme.css`, `base.css`, `utilities.css`, `tokens.json`, `tokens.js` | Zero-dep portable design contract (Figma sync / native / non-Tailwind consumers install this alone). |
-| `@vegastack/ui` (private, unchanged name) | registry workspace | not published |
+| Package                                                                                                        | Contents                                                                                                                                                                                                                                                                                       | Why it exists                                                                                        |
+| -------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **`@vegastack/design`** (NEW)                                                                                  | `cn()` (ex-utils) · icons runtime (ex-icons, at `./icons`) · Tailwind preset (ex-tailwind-preset, at `./preset` + `./preset.css`) · the `vegastack-design` CLI bin · thin CSS re-exports of tokens (`./theme.css`, `./base.css`, `./utilities.css` via `@import "@vegastack/design-tokens/…"`) | The one package app-builders install. One dep line per copied-in component.                          |
+| **`@vegastack/design-tokens`** (renamed from `@vegastack/tokens`, 2026-07-18 — MK: "tokens will be confusing") | DTCG → Style Dictionary output: `theme.css`, `base.css`, `utilities.css`, `tokens.json`, `tokens.js`                                                                                                                                                                                           | Zero-dep portable design contract (Figma sync / native / non-Tailwind consumers install this alone). |
+| `@vegastack/ui` (private, unchanged name)                                                                      | registry workspace                                                                                                                                                                                                                                                                             | not published                                                                                        |
 
 **Deleted:** `packages/utils`, `packages/icons`, `packages/tailwind-preset` (merged into `packages/design`).
 
-Rationale (from chat): consumers always need all four together; tokens is the only artifact with a genuine standalone use-case (zero deps). The CSS re-export subpaths exist so a pnpm-strict consumer never has to import a transitive dep directly — `@vegastack/design/theme.css` resolves tokens from *inside* design, where tokens is a direct dependency.
+Rationale (from chat): consumers always need all four together; tokens is the only artifact with a genuine standalone use-case (zero deps). The CSS re-export subpaths exist so a pnpm-strict consumer never has to import a transitive dep directly — `@vegastack/design/theme.css` resolves tokens from _inside_ design, where tokens is a direct dependency.
 
 ## `@vegastack/design` package spec
 
@@ -23,19 +29,19 @@ Rationale (from chat): consumers always need all four together; tokens is the on
 - **dependencies:** `@vegastack/design-tokens` (workspace:\*), `clsx`, `tailwind-merge`, `lucide-react`, `thesvg`.
 - **peerDependencies:** `react`/`react-dom` ^19 (icons subpath); carry over the preset's optional peers (`@vegastack/ui`, `tailwindcss`, `tw-animate-css`) with `peerDependenciesMeta` as in the old tailwind-preset package.
 - **build:** single tsup config, three entries (`src/index.ts`, `src/icons/index.tsx`, `src/preset.ts`), esm + dts, `--external react`.
-- `preset.css`: `@source` relative paths updated — icons sources are now *inside this package*; `@vegastack/ui` stays a node_modules sibling (`../ui/dist`).
+- `preset.css`: `@source` relative paths updated — icons sources are now _inside this package_; `@vegastack/ui` stays a node_modules sibling (`../ui/dist`).
 - `src/preset.ts` metadata: `css: '@vegastack/design/preset.css'`, `tokens: '@vegastack/design-tokens'`.
 - utils' `test/` (compare + check-updates tests) moves in unchanged.
 
 ## Import-specifier rewrites (source of truth: canonical only; copies regenerate)
 
-| Old | New | Where |
-|---|---|---|
-| `from "@vegastack/utils"` | `from "@vegastack/design"` | `packages/ui/registry/**` (520 files incl. 440 icon mirrors), `packages/ui/src`, `tooling/mirror-animated-icons.mjs` template |
-| `from "@vegastack/icons"` | `from "@vegastack/design/icons"` | `icon-button`, `filter-bar`, `split-button` + mirror template |
-| registry.json npm dep `@vegastack/utils@^0.1.0` | `@vegastack/design@^0.1.0` | 522 items (node script, not sed) |
-| registry.json npm dep `@vegastack/icons` (any form) | `@vegastack/design@^0.1.0` (dedupe) | 3 items |
-| `@vegastack/design-tokens@^0.1.0` npm dep | **unchanged** | 84 items |
+| Old                                                 | New                                 | Where                                                                                                                         |
+| --------------------------------------------------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `from "@vegastack/utils"`                           | `from "@vegastack/design"`          | `packages/ui/registry/**` (520 files incl. 440 icon mirrors), `packages/ui/src`, `tooling/mirror-animated-icons.mjs` template |
+| `from "@vegastack/icons"`                           | `from "@vegastack/design/icons"`    | `icon-button`, `filter-bar`, `split-button` + mirror template                                                                 |
+| registry.json npm dep `@vegastack/utils@^0.1.0`     | `@vegastack/design@^0.1.0`          | 522 items (node script, not sed)                                                                                              |
+| registry.json npm dep `@vegastack/icons` (any form) | `@vegastack/design@^0.1.0` (dedupe) | 3 items                                                                                                                       |
+| `@vegastack/design-tokens@^0.1.0` npm dep           | **unchanged**                       | 84 items                                                                                                                      |
 
 `apps/docs/components/ui/*` (521) and `apps/docs/public/r/*.json` (525) are **generated** — never hand-edited; `pnpm registry:build` re-syncs after canonical edits.
 

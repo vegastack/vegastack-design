@@ -13,9 +13,9 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P3 | All links get `target="_blank"` at `markdown-view.tsx:86`, including internal/relative links. | Internal docs/app links can unexpectedly open new tabs and bypass route transitions. | Apply blank-target hardening only to external `http(s)` URLs. |
+| Priority | Evidence                                                                                      | Impact                                                                               | Suggested fix                                                 |
+| -------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------- |
+| P3       | All links get `target="_blank"` at `markdown-view.tsx:86`, including internal/relative links. | Internal docs/app links can unexpectedly open new tabs and bypass route transitions. | Apply blank-target hardening only to external `http(s)` URLs. |
 
 ## Residual Risks
 
@@ -24,4 +24,3 @@ Security depends on markdown source trust/sanitization; current audit did not fi
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- markdown-view.test.tsx`
-

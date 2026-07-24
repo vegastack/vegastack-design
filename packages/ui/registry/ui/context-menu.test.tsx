@@ -315,10 +315,13 @@ test("opens and closes a submenu with ArrowRight and ArrowLeft", async () => {
         document.querySelectorAll('[data-slot="context-menu-content"]').length,
     )
     .toBe(2);
-  await expect
-    .element(page.getByRole("menuitem", { name: "Email" }))
-    .toBeInTheDocument();
+  const subItem = page.getByRole("menuitem", { name: "Email" });
+  await expect.element(subItem).toBeInTheDocument();
 
+  // Submenu mount and focus transfer are distinct tasks in WebKit. Establish
+  // the documented ArrowLeft precondition explicitly before closing it.
+  subItem.element().focus();
+  expect(document.activeElement).toBe(subItem.element());
   await userEvent.keyboard("{ArrowLeft}");
   await expect
     .poll(

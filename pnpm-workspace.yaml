@@ -1,12 +1,12 @@
 packages:
-  - 'packages/*'
-  - 'apps/*'
-  - 'config/*'
+  - "packages/*"
+  - "apps/*"
+  - "config/*"
 
 # Default catalog — pins shared versions across all packages (referenced as "catalog:")
 catalog:
-  react: ^19.2.7
-  react-dom: ^19.2.7
+  react: ^19.2.8
+  react-dom: ^19.2.8
   tailwindcss: ^4.3.2
   typescript: ^6.0.3
 

@@ -13,9 +13,9 @@
   // custom_domain: true → wrangler provisions the DNS record + attaches the domain on deploy.
   "routes": [{ "pattern": "design.vegastack.com", "custom_domain": true }],
   "assets": {
-    // The static-export output. The signed registry must already be in out/r BEFORE deploy — the
-    // deploy workflow runs registry:build + cosign sign, THEN `next build`, so out/r carries the
-    // integrity-manifest.json + .sigstore.
-    "directory": "./out"
-  }
+    // The static-export output. The workflow builds first, signs the exported out/r manifest in an
+    // isolated OIDC job, then deploys that exact reverified artifact, so out/r carries both the
+    // integrity-manifest.json and its .sigstore bundle.
+    "directory": "./out",
+  },
 }

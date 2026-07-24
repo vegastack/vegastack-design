@@ -10,40 +10,81 @@
 // SAME sha256-… already stamped by registry-stamp.mjs). itemHash() strips the header before
 // hashing, so the embedded sha == meta.integrity stays self-consistent and re-running
 // `registry:build` is IDEMPOTENT (stable hashes → stable headers → zero diff).
-import { readdirSync, readFileSync, writeFileSync, existsSync, mkdirSync, rmSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
-import { applyProvenanceHeader } from './registry-hash.mjs';
+import {
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+  existsSync,
+  mkdirSync,
+  rmSync,
+} from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+import { applyProvenanceHeader } from "./registry-hash.mjs";
+import {
+  assertExistingPathInside,
+  assertPathInside,
+  assertWritablePathInside,
+  resolveInside,
+} from "./safe-path.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const repoRoot = join(here, '..');
+const repoRoot = join(here, "..");
 
-const dir = join(repoRoot, 'apps/docs/public/r');
-const SKIP = new Set(['integrity-manifest.json', 'registry.json']);
+const dir = join(repoRoot, "apps/docs/public/r");
+const SKIP = new Set(["integrity-manifest.json", "registry.json"]);
 
 // Registry items use shadcn target PLACEHOLDERS (`@ui/`, `@components/`, `@lib/`, `@hooks/`,
 // `@utils/`) so they install under each consumer's configured aliases (portable across layouts).
 // The docs app is itself such a consumer: resolve the placeholder to its on-disk copy-in path via
 // apps/docs/components.json aliases (`@/` ⇒ the docs app root). e.g. `@ui/button.tsx` →
 // apps/docs/components/ui/button.tsx.
-const docsRoot = join(repoRoot, 'apps/docs');
-const docsAliases = JSON.parse(readFileSync(join(docsRoot, 'components.json'), 'utf8')).aliases ?? {};
+const docsRoot = join(repoRoot, "apps/docs");
+const docsAliases =
+  JSON.parse(readFileSync(join(docsRoot, "components.json"), "utf8")).aliases ??
+  {};
 function resolveDocsCopyPath(target) {
   const m = /^@([a-z]+)\/(.+)$/.exec(target);
-  if (m) {
-    const aliasValue = docsAliases[m[1]]; // e.g. "@/components/ui"
-    if (aliasValue) {
-      // alias value's leading `@/` maps to the docs app root.
-      const rel = aliasValue.replace(/^@\//, '');
-      return join(docsRoot, rel, m[2]);
+  if (!m)
+    throw new Error(
+      `docs copy target is not a registry alias placeholder: ${target}`,
+    );
+  const aliasValue = docsAliases[m[1]]; // e.g. "@/components/ui"
+  if (typeof aliasValue !== "string") {
+    throw new Error(`docs components.json has no alias for target ${target}`);
+  }
+  // Bound the generated file to the resolved alias directory, not merely the docs app. Otherwise
+  // `@ui/../../package.json` could overwrite an unrelated same-app file while staying in docsRoot.
+  const aliasRoot = resolveInside(docsRoot, aliasValue.replace(/^@\//, ""));
+  const safeAliasRoot = assertWritablePathInside(docsRoot, aliasRoot);
+  return assertWritablePathInside(
+    safeAliasRoot,
+    resolveInside(safeAliasRoot, m[2]),
+  );
+}
+
+const registrySourceRoots = [
+  join(repoRoot, "packages/ui/registry/ui"),
+  join(repoRoot, "packages/ui/registry/blocks"),
+];
+function resolveRegistrySourcePath(sourcePath) {
+  const candidate = resolveInside(repoRoot, sourcePath);
+  for (const root of registrySourceRoots) {
+    try {
+      return { candidate: assertPathInside(root, candidate), root };
+    } catch {
+      // Try the next sanctioned canonical-source root.
     }
   }
-  // non-placeholder (legacy relative) target — join under the docs app as before.
-  return join(docsRoot, target);
+  throw new Error(
+    `registry source is outside sanctioned canonical roots: ${sourcePath}`,
+  );
 }
 
 // <version> comes from @vegastack/ui's package.json (the package that ships these components).
-const uiPkg = JSON.parse(readFileSync(join(repoRoot, 'packages/ui/package.json'), 'utf8'));
+const uiPkg = JSON.parse(
+  readFileSync(join(repoRoot, "packages/ui/package.json"), "utf8"),
+);
 const version = uiPkg.version;
 
 let stampedItems = 0;
@@ -57,36 +98,49 @@ let syncedCopyIns = 0;
 // registry.json item is generated garbage — delete it.
 {
   const currentNames = new Set(
-    JSON.parse(readFileSync(join(repoRoot, 'packages/ui/registry.json'), 'utf8')).items.map((i) => i.name),
+    JSON.parse(
+      readFileSync(join(repoRoot, "packages/ui/registry.json"), "utf8"),
+    ).items.map((i) => i.name),
   );
-  for (const f of readdirSync(dir).filter((n) => n.endsWith('.json') && !SKIP.has(n))) {
-    if (!currentNames.has(f.replace(/\.json$/, ''))) {
+  for (const f of readdirSync(dir).filter(
+    (n) => n.endsWith(".json") && !SKIP.has(n),
+  )) {
+    if (!currentNames.has(f.replace(/\.json$/, ""))) {
       rmSync(join(dir, f));
       console.log(`pruned stale ${f}`);
     }
   }
 }
 
-for (const f of readdirSync(dir).filter((n) => n.endsWith('.json') && !SKIP.has(n))) {
+for (const f of readdirSync(dir).filter(
+  (n) => n.endsWith(".json") && !SKIP.has(n),
+)) {
   const itemPath = join(dir, f);
-  const item = JSON.parse(readFileSync(itemPath, 'utf8'));
+  const item = JSON.parse(readFileSync(itemPath, "utf8"));
   const integrity = item.meta?.integrity;
   if (!integrity) {
-    console.error(`✗ ${item.name ?? f}: missing meta.integrity — run registry-stamp.mjs first`);
+    console.error(
+      `✗ ${item.name ?? f}: missing meta.integrity — run registry-stamp.mjs first`,
+    );
     process.exit(1);
   }
 
   let jsonChanged = false;
   for (const file of item.files ?? []) {
-    if (typeof file.content !== 'string') continue;
+    if (typeof file.content !== "string") continue;
 
     // JSON payloads (registry:file data fixtures, e.g. a block's data.json) can't carry a `//`
     // provenance header — it would corrupt the JSON. Their integrity is still covered by the
     // ITEM-level meta.integrity hash; skip per-file stamping entirely.
-    if (file.path?.endsWith('.json')) continue;
+    if (file.path?.endsWith(".json")) continue;
 
     // (a) refresh header on the registry-JSON content
-    const stamped = applyProvenanceHeader(file.content, item.name, version, integrity);
+    const stamped = applyProvenanceHeader(
+      file.content,
+      item.name,
+      version,
+      integrity,
+    );
     if (stamped !== file.content) {
       file.content = stamped;
       jsonChanged = true;
@@ -94,16 +148,24 @@ for (const f of readdirSync(dir).filter((n) => n.endsWith('.json') && !SKIP.has(
 
     // (b) refresh header at the top of the registry SOURCE file
     if (file.path) {
-      const srcPath = join(repoRoot, file.path);
+      const { candidate: srcPath } = resolveRegistrySourcePath(file.path);
       if (existsSync(srcPath)) {
-        const srcRaw = readFileSync(srcPath, 'utf8');
-        const srcStamped = applyProvenanceHeader(srcRaw, item.name, version, integrity);
+        const safeSrcPath = assertExistingPathInside(repoRoot, srcPath);
+        const srcRaw = readFileSync(safeSrcPath, "utf8");
+        const srcStamped = applyProvenanceHeader(
+          srcRaw,
+          item.name,
+          version,
+          integrity,
+        );
         if (srcStamped !== srcRaw) {
-          writeFileSync(srcPath, srcStamped);
+          writeFileSync(safeSrcPath, srcStamped);
           stampedSources++;
         }
       } else {
-        console.error(`✗ ${item.name}: registry source not found at ${file.path}`);
+        console.error(
+          `✗ ${item.name}: registry source not found at ${file.path}`,
+        );
         process.exit(1);
       }
 
@@ -114,13 +176,21 @@ for (const f of readdirSync(dir).filter((n) => n.endsWith('.json') && !SKIP.has(
       // registry:file, e.g. a block's `app/dashboard/page.tsx`) address the CONSUMER app's file
       // tree — installing them into the docs app would create real routes there (caught: the
       // dashboard-01 block briefly shipped a broken /dashboard route into the showcase).
-      if (file.target && file.target.startsWith('@')) {
+      if (file.target && file.target.startsWith("@")) {
         const copyPath = resolveDocsCopyPath(file.target);
-        const sourceContent = readFileSync(join(repoRoot, file.path), 'utf8');
-        const copyContent = existsSync(copyPath) ? readFileSync(copyPath, 'utf8') : null;
+        const sourceContent = readFileSync(
+          assertExistingPathInside(repoRoot, srcPath),
+          "utf8",
+        );
+        const safeCopyPath = existsSync(copyPath)
+          ? assertExistingPathInside(docsRoot, copyPath)
+          : copyPath;
+        const copyContent = existsSync(copyPath)
+          ? readFileSync(safeCopyPath, "utf8")
+          : null;
         if (sourceContent !== copyContent) {
-          mkdirSync(dirname(copyPath), { recursive: true });
-          writeFileSync(copyPath, sourceContent);
+          mkdirSync(dirname(safeCopyPath), { recursive: true });
+          writeFileSync(safeCopyPath, sourceContent);
           syncedCopyIns++;
         }
       }

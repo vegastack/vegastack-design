@@ -1,6 +1,7 @@
 ---
 title: Sidebar
 description: A collapsible app navigation rail — header / content / footer, labelled groups, menu items with active state, and an expand/collapse trigger.
+audience: public
 preview: sidebar
 ---
 
@@ -27,7 +28,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
-} from '@/components/ui/sidebar';
+} from "@/components/ui/sidebar";
 
 <SidebarProvider>
   <Sidebar aria-label="Main navigation">
@@ -90,7 +91,7 @@ rail out next to your page content; everything else composes inside the `<nav>` 
     </SidebarContent>
     <SidebarFooter>…user menu…</SidebarFooter>
   </Sidebar>
-</SidebarProvider>;
+</SidebarProvider>
 ```
 
 - `SidebarProvider` — owns the open state (controlled `open`/`onOpenChange` or uncontrolled
@@ -124,7 +125,10 @@ Multiple labelled groups, each with its own menu items:
 The collapsed icon rail — labels and group headings hide, leaving only icons (toggle it with the
 trigger):
 
-<ComponentPreview name="sidebarCollapsed" file="components/preview/sidebar.tsx" />
+<ComponentPreview
+  name="sidebarCollapsed"
+  file="components/preview/sidebar.tsx"
+/>
 
 ### Right edge
 
@@ -144,13 +148,19 @@ itself after the page content:
 Drive the open state yourself with `open` / `onOpenChange` on `SidebarProvider`, and read or toggle
 it from any descendant with `useSidebar()` — here an external button outside the rail:
 
-<ComponentPreview name="sidebarControlled" file="components/preview/sidebar.tsx" />
+<ComponentPreview
+  name="sidebarControlled"
+  file="components/preview/sidebar.tsx"
+/>
 
 ### Variants
 
 `variant="floating"` detaches the rail into its own bordered, shadowed panel:
 
-<ComponentPreview name="sidebarFloating" file="components/preview/sidebar.tsx" />
+<ComponentPreview
+  name="sidebarFloating"
+  file="components/preview/sidebar.tsx"
+/>
 
 `variant="inset"` keeps the rail flush, and instead makes `SidebarInset` (the main content) the
 rounded/bordered/shadowed panel. Pair it with `SidebarRail` for a click-to-toggle edge strip
@@ -163,7 +173,10 @@ alongside the explicit trigger:
 `collapsible="offcanvas"` slides the rail fully off-screen (instead of shrinking to an icon rail)
 when toggled — page content reflows to fill the space:
 
-<ComponentPreview name="sidebarOffcanvas" file="components/preview/sidebar.tsx" />
+<ComponentPreview
+  name="sidebarOffcanvas"
+  file="components/preview/sidebar.tsx"
+/>
 
 `collapsible="none"` is also available for a rail that should never collapse at all (and never
 becomes the mobile Sheet) — useful inside a fixed-size panel where collapsing doesn't make sense.
@@ -174,7 +187,10 @@ becomes the mobile Sheet) — useful inside a fixed-size panel where collapsing 
 `SidebarMenuButton`. Pass each row's `index` so the text-line widths vary — deterministically, off
 a small fixed cycle, never `Math.random()` — instead of every row rendering identically:
 
-<ComponentPreview name="sidebarMenuSkeleton" file="components/preview/sidebar.tsx" />
+<ComponentPreview
+  name="sidebarMenuSkeleton"
+  file="components/preview/sidebar.tsx"
+/>
 
 ## Mobile
 
@@ -193,7 +209,8 @@ work at every width composes it like this:
 
 ```tsx
 <SidebarProvider>
-  <SidebarTrigger /> {/* outside Sidebar — always mounted, opens the Sheet on mobile */}
+  <SidebarTrigger />{" "}
+  {/* outside Sidebar — always mounted, opens the Sheet on mobile */}
   <Sidebar aria-label="Main navigation">…</Sidebar>
   <SidebarInset>…page content…</SidebarInset>
 </SidebarProvider>
@@ -209,11 +226,17 @@ server layout and pass it as `defaultOpen`:
 
 ```tsx
 // app/layout.tsx (Server Component)
-import { cookies } from 'next/headers';
+import { cookies } from "next/headers";
 
-export default async function Layout({ children }: { children: React.ReactNode }) {
-  const defaultOpen = (await cookies()).get('sidebar_state')?.value !== 'false';
-  return <SidebarProvider defaultOpen={defaultOpen}>{children}</SidebarProvider>;
+export default async function Layout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const defaultOpen = (await cookies()).get("sidebar_state")?.value !== "false";
+  return (
+    <SidebarProvider defaultOpen={defaultOpen}>{children}</SidebarProvider>
+  );
 }
 ```
 
@@ -221,27 +244,45 @@ export default async function Layout({ children }: { children: React.ReactNode }
 
 ### SidebarProvider
 
-<AutoTypeTable path="../../packages/ui/registry/ui/sidebar.tsx" name="SidebarProviderProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/sidebar.tsx"
+  name="SidebarProviderProps"
+/>
 
 ### Sidebar
 
-<AutoTypeTable path="../../packages/ui/registry/ui/sidebar.tsx" name="SidebarProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/sidebar.tsx"
+  name="SidebarProps"
+/>
 
 ### SidebarMenuButton
 
-<AutoTypeTable path="../../packages/ui/registry/ui/sidebar.tsx" name="SidebarMenuButtonProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/sidebar.tsx"
+  name="SidebarMenuButtonProps"
+/>
 
 ### SidebarMenuSkeleton
 
-<AutoTypeTable path="../../packages/ui/registry/ui/sidebar.tsx" name="SidebarMenuSkeletonProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/sidebar.tsx"
+  name="SidebarMenuSkeletonProps"
+/>
 
 ### SidebarSeparator
 
-<AutoTypeTable path="../../packages/ui/registry/ui/sidebar.tsx" name="SidebarSeparatorProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/sidebar.tsx"
+  name="SidebarSeparatorProps"
+/>
 
 ### SidebarTrigger
 
-<AutoTypeTable path="../../packages/ui/registry/ui/sidebar.tsx" name="SidebarTriggerProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/sidebar.tsx"
+  name="SidebarTriggerProps"
+/>
 
 `SidebarHeader`, `SidebarContent`, `SidebarFooter`, `SidebarGroup`,
 `SidebarGroupLabel`, `SidebarMenu`, `SidebarMenuItem`, `SidebarMenuBadge`,
@@ -274,10 +315,10 @@ everything its underlying element accepts (`<div>`, `<h3>`, `<ul>`, `<li>`,
   `keyboardShortcut={false}` or pass a custom key on `SidebarProvider` when embedding the sidebar in
   a context with conflicting shortcuts.
 
-| Key | Action |
-| --- | --- |
-| <kbd>Tab</kbd> | Move focus through the trigger and menu items. |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused menu item or trigger. |
+| Key                                           | Action                                          |
+| --------------------------------------------- | ----------------------------------------------- |
+| <kbd>Tab</kbd>                                | Move focus through the trigger and menu items.  |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>           | Activate the focused menu item or trigger.      |
 | <kbd>⌘</kbd> / <kbd>Ctrl</kbd> + <kbd>B</kbd> | Toggle the rail between expanded and collapsed. |
 
 ## Do / Don't

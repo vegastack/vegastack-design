@@ -1,10 +1,11 @@
 ---
 title: Truncated Text
 description: Truncate text to one line or N lines with an ellipsis — and reveal the full text in a tooltip only when it actually overflows.
+audience: public
 preview: truncatedText
 ---
 
-import { story } from '@/components/stories/truncated-text.story';
+import { story } from "@/components/stories/truncated-text.story";
 
 ## Installation
 
@@ -17,7 +18,7 @@ npx shadcn@latest add @vegastack/truncated-text
 ## Usage
 
 ```tsx
-import { TruncatedText } from '@/components/ui/truncated-text';
+import { TruncatedText } from "@/components/ui/truncated-text";
 
 <div className="max-w-48">
   <TruncatedText>{longTitle}</TruncatedText>
@@ -57,14 +58,20 @@ the curated playground above.
 The default — clamp to one line with a trailing ellipsis. Hover the clipped text
 to read it in full.
 
-<ComponentPreview name="truncatedText" file="components/preview/truncated-text.tsx" />
+<ComponentPreview
+  name="truncatedText"
+  file="components/preview/truncated-text.tsx"
+/>
 
 ### Multi-line
 
 Set `lines` greater than `1` to clamp to that many lines with CSS `line-clamp`
 (supported up to 6). Use `as="p"` or `as="div"` for block-level copy.
 
-<ComponentPreview name="truncatedTextMultiline" file="components/preview/truncated-text.tsx" />
+<ComponentPreview
+  name="truncatedTextMultiline"
+  file="components/preview/truncated-text.tsx"
+/>
 
 ### Line scale
 
@@ -72,7 +79,10 @@ Set `lines` greater than `1` to clamp to that many lines with CSS `line-clamp`
 lines (`line-clamp-N`). Values above `6` fall back to `line-clamp-6`. The same
 overflowing copy is clamped at three line budgets below.
 
-<ComponentPreview name="truncatedTextLines" file="components/preview/truncated-text.tsx" />
+<ComponentPreview
+  name="truncatedTextLines"
+  file="components/preview/truncated-text.tsx"
+/>
 
 ### IconText
 
@@ -82,15 +92,24 @@ truncates — the icon and trailing slot stay pinned — and the full label is
 revealed in a Tooltip when it overflows. The common shape for sidebar items,
 file rows, and nav labels.
 
-<ComponentPreview name="iconText" file="components/preview/truncated-text.tsx" />
+<ComponentPreview
+  name="iconText"
+  file="components/preview/truncated-text.tsx"
+/>
 
 ```tsx
-import { IconText } from '@/components/ui/truncated-text';
-import { Icon } from '@/components/ui/icon';
-import { Badge } from '@/components/ui/badge';
+import { IconText } from "@/components/ui/truncated-text";
+import { Badge } from "@/components/ui/badge";
+import { Icon } from "@vegastack/design/icons";
+import { FileText } from "lucide-react";
 
 <div className="max-w-48">
-  <IconText icon={<Icon name="file" />} text={fileName} trailing={<Badge>New</Badge>} tooltipSide="right" />
+  <IconText
+    icon={<Icon as={FileText} />}
+    text={fileName}
+    trailing={<Badge>New</Badge>}
+    tooltipSide="right"
+  />
 </div>;
 ```
 
@@ -100,7 +119,10 @@ accessible name.
 `tooltipSide` places the overflow tooltip on any edge of the row — `top`
 (default), `right`, `bottom`, or `left`.
 
-<ComponentPreview name="iconTextSides" file="components/preview/truncated-text.tsx" />
+<ComponentPreview
+  name="iconTextSides"
+  file="components/preview/truncated-text.tsx"
+/>
 
 ### TableCellText
 
@@ -108,7 +130,10 @@ accessible name.
 the column header so truncation engages predictably, plus an optional `mono` mode
 for IDs and paths. It reuses the same overflow measurement and tooltip.
 
-<ComponentPreview name="tableCellText" file="components/preview/truncated-text.tsx" />
+<ComponentPreview
+  name="tableCellText"
+  file="components/preview/truncated-text.tsx"
+/>
 
 ```tsx
 import { TableCellText } from '@/components/ui/truncated-text';
@@ -129,15 +154,24 @@ truncation engages within the column.
 
 ### TruncatedText
 
-<AutoTypeTable path="../../packages/ui/registry/ui/truncated-text.tsx" name="TruncatedTextProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/truncated-text.tsx"
+  name="TruncatedTextProps"
+/>
 
 ### IconText
 
-<AutoTypeTable path="../../packages/ui/registry/ui/truncated-text.tsx" name="IconTextProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/truncated-text.tsx"
+  name="IconTextProps"
+/>
 
 ### TableCellText
 
-<AutoTypeTable path="../../packages/ui/registry/ui/truncated-text.tsx" name="TableCellTextProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/truncated-text.tsx"
+  name="TableCellTextProps"
+/>
 
 ## Accessibility
 
@@ -158,11 +192,11 @@ truncation engages within the column.
 - A tooltip supplements text — it is not interactive. Keep links and controls out
   of the truncated content.
 
-| Key | Action |
-| --- | --- |
-| <kbd>Tab</kbd> | Move focus to clipped text — its tooltip opens. |
-| <kbd>Esc</kbd> | Dismiss the open tooltip, or (touch fallback) re-clamp an expanded disclosure. |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | (Touch fallback only) Toggle the expand/collapse disclosure. |
+| Key                                 | Action                                                                         |
+| ----------------------------------- | ------------------------------------------------------------------------------ |
+| <kbd>Tab</kbd>                      | Move focus to clipped text — its tooltip opens.                                |
+| <kbd>Esc</kbd>                      | Dismiss the open tooltip, or (touch fallback) re-clamp an expanded disclosure. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | (Touch fallback only) Toggle the expand/collapse disclosure.                   |
 
 ## Do / Don't
 

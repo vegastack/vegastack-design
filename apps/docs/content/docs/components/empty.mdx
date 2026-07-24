@@ -1,6 +1,7 @@
 ---
 title: Empty
 description: A zero-data placeholder — icon, title, description, and actions, with intent tints and an optional dashed border.
+audience: public
 preview: emptyDemo
 ---
 
@@ -15,8 +16,14 @@ npx shadcn@latest add @vegastack/empty
 ## Usage
 
 ```tsx
-import { Empty, EmptyContent, EmptyDescription, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
-import { Inbox } from 'lucide-react';
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { Inbox } from "lucide-react";
 
 <Empty bordered>
   <EmptyHeader>
@@ -29,7 +36,7 @@ import { Inbox } from 'lucide-react';
 </Empty>;
 ```
 
-## Playground
+## Examples
 
 Combine size, surface, and the dashed border with the media chip's variant and intent, then copy the generated JSX.
 
@@ -47,7 +54,7 @@ Combine size, surface, and the dashed border with the media chip's variant and i
     <EmptyDescription>Supporting description text.</EmptyDescription>
   </EmptyHeader>
   <EmptyContent>{/* action buttons */}</EmptyContent>
-</Empty>;
+</Empty>
 ```
 
 - `Empty` — the centered container (`data-slot="empty"`). Owns `size`, `bordered`, and `surface`.
@@ -69,21 +76,30 @@ standalone, and `lg` (`py-16`) for full-page zero-data screens.
 usually paired with `bordered` for a drop-zone outline, while `card` paints a filled `bg-card`
 panel that reads as a self-contained block on any background.
 
-<ComponentPreview name="emptyDemoSurfaces" file="components/preview/empty.tsx" />
+<ComponentPreview
+  name="emptyDemoSurfaces"
+  file="components/preview/empty.tsx"
+/>
 
 ## Border
 
 `bordered` is `false` by default — a borderless empty blends into the surrounding layout. Set
 `bordered` to draw the classic dashed "drop zone" outline.
 
-<ComponentPreview name="emptyDemoBorderless" file="components/preview/empty.tsx" />
+<ComponentPreview
+  name="emptyDemoBorderless"
+  file="components/preview/empty.tsx"
+/>
 
 ## Without an icon
 
 `EmptyMedia` and `EmptyContent` are both optional. A title-and-description-only empty is
 a common compact form — for example, a "no filters applied" hint.
 
-<ComponentPreview name="emptyDemoIconless" file="components/preview/empty.tsx" />
+<ComponentPreview
+  name="emptyDemoIconless"
+  file="components/preview/empty.tsx"
+/>
 
 ## Size × surface matrix
 
@@ -106,7 +122,10 @@ zero-data states.
 
 ### Empty
 
-<AutoTypeTable path="../../packages/ui/registry/ui/empty.tsx" name="EmptyProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/empty.tsx"
+  name="EmptyProps"
+/>
 
 ### EmptyMedia
 
@@ -143,14 +162,27 @@ zero-data states.
 - Action controls inside `EmptyContent` are real buttons/links with their own accessible names and `:focus-visible` rings.
 - The container is non-interactive; keyboard focus order flows through the action controls only.
 
-| Key | Action |
-| --- | --- |
-| <kbd>Tab</kbd> | Move focus to the first action control (when actions are present). |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused action control. |
+| Key                                 | Action                                                             |
+| ----------------------------------- | ------------------------------------------------------------------ |
+| <kbd>Tab</kbd>                      | Move focus to the first action control (when actions are present). |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused action control.                               |
 
 ## Do / Don't
 
 <DoDont
   do="Pair a clear title with a description and a single primary action that resolves the empty state — e.g. Create your first project."
   dont="Leave a blank area or show only a spinner — distinguish empty (no data) from loading and explain what the user can do next."
+/>
+
+## Illustration & value tiers
+
+The empty-state system spans eight tiers; two are Wave-2 additions. `EmptyIllustration`
+renders one of six built-in monoline drawings (`clipboard`, `bell`, `search`, `box`, `error`,
+`not-found`) on a faint grid-paper ground — all `currentColor`, so the error tier is just
+`text-destructive-text` on the media slot, no extra asset. `EmptyValue` is the inline tier: a
+single faint phrase for a value slot ("No value", "Set a value…").
+
+<ComponentPreview
+  name="emptyIllustrations"
+  file="components/preview/empty.tsx"
 />

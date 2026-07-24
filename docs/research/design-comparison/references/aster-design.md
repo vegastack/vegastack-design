@@ -589,6 +589,7 @@ Aster is a light-mode AI workspace web app — a calm, white-on-white shell that
 The home screen is an empty state organized around a single centered column: the ✱ brand mark, the question "Where should we begin?", a white composer card with a gray **upgrade strip tucked beneath it**, a row of three suggestion cards, and a connect-channel banner that sits near the bottom as a small stacked deck (white card edge + gold sticky note peeking out behind).
 
 **Key Characteristics:**
+
 - **White on white.** Canvas and cards are both #ffffff; only hairlines (neutral black at 4–7%) articulate structure. Ink is neutral #1a1a1a.
 - **Hairline-only depth.** 1px neutral borders carry all separation; the composer's faint lift is the single shadow.
 - **One neutral system, many scoped accents.** The UI chrome is entirely neutral; each chromatic accent is bound to exactly one role (red = feature badge, blue = capability badge, terracotta = model mark, periwinkle = send, gold = sticky note, violet = avatar).
@@ -601,17 +602,20 @@ The home screen is an empty state organized around a single centered column: the
 ## Colors
 
 ### Surfaces
+
 - **Canvas** (`{colors.canvas}` — #ffffff): Pure white — top bar, sidebar, and main share it; regions are separated by hairlines, not fills.
 - **Surface Card** (`{colors.surface-card}` — #ffffff): Composer, suggestion cards, search field, banner — the same white; the hairline alone marks the edge.
 - **Surface Strip** (`{colors.surface-strip}` — #fafafa): The upgrade strip and other inset fills, one step below white (measured).
 
 ### Ink & Text
+
 - **Ink** (`{colors.ink}` — #1a1a1a): Headings, active labels, card titles. Neutral near-black.
 - **Secondary** (`{colors.text-secondary}` — #555555): The workhorse chrome gray (measured #5d on white) — sidebar rows and icons, inactive tabs, topbar icons, composer chips ("Super Computer", "Opus 4.7"), strip text, card subtitles, banner title. In dark mode the icon/label uses map to `{colors.dark-text-muted}` (50% white), not the near-white dark secondary.
 - **Muted** (`{colors.text-muted}` — #8a8a8a): Mic/chevron glyphs, card icons, banner subtitle.
 - **Faint** (`{colors.text-faint}` — #a9a9a9): Placeholders, section labels, ⌘K hint.
 
 ### Hairlines & Fills
+
 - **Hairline** (`{colors.hairline}` — black @ 7%): Card borders.
 - **Hairline Soft** (`{colors.hairline-soft}` — black @ 4%): Region dividers (topbar bottom, sidebar right).
 - **Modal Border** (`{colors.modal-border}` — black @ 40%): The onboarding dialog's edge line only (measured ≈ #999) — the one heavy border in light mode; a 7% hairline would vanish against the scrim.
@@ -620,7 +624,9 @@ The home screen is an empty state organized around a single centered column: the
 - **Fill CTA** (`{colors.fill-cta}` — #333333): The filled-button charcoal (Upgrade pill, button-primary) — measured #333 exactly; deliberately softer than ink.
 
 ### Scoped Accents
+
 Each accent appears in exactly one place — never reuse them as general UI color:
+
 - **New (red)** (`{colors.accent-new}` — #e5484d): Sidebar feature badge text, on its `{colors.accent-new-soft}` pill wash.
 - **Danger (red)** (`{colors.accent-danger}` — #e5484d; #ff5d62 on dark): Destructive button intent (`.btn--danger`) — solid fill, or a tinted line + `{colors.accent-danger-soft}` hover when outlined. Shares the New red's hue but is a separate, button-only role.
 - **New (blue)** (`{colors.accent-info}` on `{colors.accent-info-soft}`): Capability badge pill in the composer ("Super Computer · New").
@@ -632,18 +638,20 @@ Each accent appears in exactly one place — never reuse them as general UI colo
 - **Traffic lights** (`{colors.traffic-red/amber/green}`): The three 10px window dots atop the welcome page's terminal card — never reused as status colors elsewhere.
 - **Run cyan** (`{colors.status-run}` — #00bcff): The 6px active-run dot on Agent-mode recents (sidebar and phone). Idle items get a `{colors.text-muted}` ring instead — the cyan never marks anything but a live run.
 - **Device-panel pastels** (`{colors.panel-grad-sky/lav/peri/deep}`): The mobile pair page's gradient panel only; they hold their light values in both themes.
-- **Info blue** (`{colors.accent-info}` — #3b82f6): The one accent blue — the "New" capability badge *and* the `.btn--info` fill (e.g. the Book-a-Demo CTA on the plans page). Formerly two separate blues (`accent-demo` #0391ff + `accent-info`); merged into one.
+- **Info blue** (`{colors.accent-info}` — #3b82f6): The one accent blue — the "New" capability badge _and_ the `.btn--info` fill (e.g. the Book-a-Demo CTA on the plans page). Formerly two separate blues (`accent-demo` #0391ff + `accent-info`); merged into one.
 - **Price blue** (`{colors.accent-price-deep}` on `{colors.accent-price-soft}`): A standalone deep-text-on-pale-wash pair for the plan price badge ("$650/month") — its own cyan-leaning family, not reused elsewhere.
 - **Plan-banner pastels** (`{colors.plan-grad-cyan/gold/sand}` + `{colors.plan-grad-blue/amber/orchid}`): The plan cards' gradient art headers only; imagery that holds its light values in both themes. The amber bloom (#f3b24e) is deliberately NOT `accent-gold` — the sticky note keeps its own scoped value.
 - **Modal pastels** (`{colors.modal-grad-violet/peri/sky}`): The onboarding modal's gradient art header only; imagery that holds its light values in both themes. The violet family is adjacent to the avatar gradient but deliberately its own tokens — the avatar keeps its scoped pair.
 - **Marketplace pastels** (`{colors.apps-grad-violet/indigo/sky/cyan}`): The apps page's promo banner only; imagery that holds its light values in both themes. Adjacent to the device-panel family but its own tokens — each art surface keeps its own scoped set.
 
 ### Dark Theme (measured from reference screenshots)
-Dark mode is **measured from the dark-mode reference screenshots** (home, plans, and the artifacts/agent quadrants, retina-sampled). The key correction over the earlier draft: dark is **flat and full-bleed, exactly like light mode** — it does *not* layer the chrome lighter than the canvas. Regions are separated by hairlines, not by surface steps:
+
+Dark mode is **measured from the dark-mode reference screenshots** (home, plans, and the artifacts/agent quadrants, retina-sampled). The key correction over the earlier draft: dark is **flat and full-bleed, exactly like light mode** — it does _not_ layer the chrome lighter than the canvas. Regions are separated by hairlines, not by surface steps:
+
 - **Surfaces:** the canvas, topbar, and sidebar all sit at `{colors.dark-canvas}` (#1a1a1a, measured) — one flat base, hairline-separated, mirroring light mode's white-on-white. The composer, cards, inputs, and the search field lift to `{colors.dark-surface-card}` (#212121, measured); filled buttons (Explore, Upgrade pill, primary) go one step further to `{colors.dark-accent-cta}` (#3a3a3a — lifted from the measured #262626, which read too dull on dark). Receding insets — the "Upgrade to PRO" strip tucked under the composer — drop to `{colors.dark-surface-strip}` (#161616, a recessed footer tray; the reference measures ~#1c1c1c but that barely clears the canvas, so it is deepened for clear separation from the #212121 card and to let the Upgrade pill pop). The suggestion cards stay **transparent on the canvas** (border-defined, not filled) — exactly like light mode, where a card fill equals the white canvas and so reads as nothing.
 - **Dividers and borders stay soft:** the sidebar/main boundary and topbar underline are `{colors.dark-divider}` (white @ 8% — measured), and card/chip borders are `{colors.dark-hairline}` (white @ 6%, measured) — no heavy region lines.
 - **Text:** ink is white (headings measured #ffffff exact); body and card descriptions read at `{colors.dark-text-secondary}` (white @ 78%, measured #c8c8c8); the "What you get" labels at `{colors.dark-text-label}` (white @ 70%, measured #b8b8b8); placeholders, icons, and captions at `{colors.dark-text-muted}` (white @ 58%, measured #a0a0a0); section labels at `{colors.dark-text-faint}` (white @ 45%, measured #828282).
-- **Fills:** active pill white @ 5% (measured #212121), hover @ 3%. One consequence: surfaces that *rest* on an 8% wash (the marketplace `app-add-btn`) can't hover to fill-active — they step to `{colors.dark-badge-neutral-hover}` (white @ 14%) instead.
+- **Fills:** active pill white @ 5% (measured #212121), hover @ 3%. One consequence: surfaces that _rest_ on an 8% wash (the marketplace `app-add-btn`) can't hover to fill-active — they step to `{colors.dark-badge-neutral-hover}` (white @ 14%) instead.
 - **Accents:** red badge → `{colors.dark-accent-new}` (#ff3771 text, measured) on a deep-crimson wash (`{colors.dark-accent-new-soft}`, measured #4f0117); blue badge → `{colors.dark-accent-info}` (#4285fd, measured #3873fd) on the navy `{colors.dark-accent-info-soft}` (#172552, measured). The model starburst, gold note, avatar gradient, banner pastels, terminal traffic lights, run cyan, the device-panel gradient (plus its phone mockup), the onboarding modal's art header (plus its white terminal sheet), and the marketplace banner (plus its white prompt pills) hold their light values — they sit on enough contrast already.
 - **The modal scrim:** `{colors.scrim}` (black @ 28%, measured) → `{colors.dark-scrim}` (black @ 50%, estimated — the plans-modal backdrop reads ~#141414 but is not cleanly separable from the window frame).
 - **Filled CTAs are neutral gray, not blue:** `modal-cta` (Explore), `upgrade-pill`, and `button-primary` switch from the charcoal `{colors.fill-cta}` to `{colors.dark-accent-cta}` (#3a3a3a — lifted from the measured #262626, which read too dull) with a white label; the blue is reserved for the `.btn--info` CTA (`{colors.accent-info}`) so the two never collide.
@@ -657,24 +665,26 @@ Switching: a `theme-toggle` icon button in the top bar (left of the bell) flips 
 ## Typography
 
 ### Font Family
+
 System-native sans: `-apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif`. No display family; hierarchy is carried by size steps of 1–2px and a single weight bump to 500.
 
 ### Hierarchy
 
-| Token | Size | Weight | Use |
-|---|---|---|---|
-| `{typography.display}` | 21px | 400 | Doc-page section headings ("Build AI apps locally", "Pair with Mobile app"). |
-| `{typography.title-dialog}` | 19px | 400 | Onboarding-modal title ("Welcome to Alpaca"). |
-| `{typography.hero}` | 17px | 400 | "Where should we begin?" empty-state question — regular, not medium. |
-| `{typography.title-lg}` | 15px | 400 | Feature-row titles on the mobile pair page — ink against muted subtitles. |
-| `{typography.body-lg}` | 15px | 400 | Doc-page ledes, checklist items, feature-row subtitles. |
-| `{typography.title}` | 13px | 500 | Connect-apps footer title, artifact card titles. |
-| `{typography.body}` | 13px | 400 | Default — nav rows, tabs, chips, composer input, card titles, subtitles. |
-| `{typography.code}` | 13px | 400 | Command snippets — the only monospace on the surface. |
-| `{typography.body-sm}` | 12px | 400 | Section labels, descriptions, strip text, Upgrade pill. |
-| `{typography.badge}` | 11px | 500 | "New" badges. |
+| Token                       | Size | Weight | Use                                                                          |
+| --------------------------- | ---- | ------ | ---------------------------------------------------------------------------- |
+| `{typography.display}`      | 21px | 400    | Doc-page section headings ("Build AI apps locally", "Pair with Mobile app"). |
+| `{typography.title-dialog}` | 19px | 400    | Onboarding-modal title ("Welcome to Alpaca").                                |
+| `{typography.hero}`         | 17px | 400    | "Where should we begin?" empty-state question — regular, not medium.         |
+| `{typography.title-lg}`     | 15px | 400    | Feature-row titles on the mobile pair page — ink against muted subtitles.    |
+| `{typography.body-lg}`      | 15px | 400    | Doc-page ledes, checklist items, feature-row subtitles.                      |
+| `{typography.title}`        | 13px | 500    | Connect-apps footer title, artifact card titles.                             |
+| `{typography.body}`         | 13px | 400    | Default — nav rows, tabs, chips, composer input, card titles, subtitles.     |
+| `{typography.code}`         | 13px | 400    | Command snippets — the only monospace on the surface.                        |
+| `{typography.body-sm}`      | 12px | 400    | Section labels, descriptions, strip text, Upgrade pill.                      |
+| `{typography.badge}`        | 11px | 500    | "New" badges.                                                                |
 
 ### Principles
+
 - **Weight 400 is the default everywhere; 500 is scarce.** The hero, tabs, card titles, banner title, doc-page display headings, feature titles, and even the Upgrade pill are regular — 500 appears only on small labels: the footer title, artifact titles, page headers, badges, marketplace app and prompt-pill names, the plan "What you get:" label, and `button-primary`. Nothing on the surface is bold (600+); emphasis comes from size steps and ink-vs-muted contrast alone.
 - **Scale is compressed.** The app chrome lives between 11px and 17px; only the doc pages' display headings step up to 21px.
 - **Color does hierarchy work.** Title (ink) over subtitle (muted) at nearly the same size reads as two clear levels.
@@ -685,11 +695,13 @@ System-native sans: `-apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", san
 ## Layout
 
 ### Spacing System
+
 - **Base unit:** 4px. Tokens `{spacing.1}` 4px through `{spacing.8}` 32px.
 - **Shell:** full-bleed viewport; top bar `{spacing.topbar-h}` 48px; sidebar `{spacing.sidebar-w}` 216px.
 - **Rows:** sidebar rows 28px tall, 8px horizontal padding, 8px icon-label gap, 2px vertical gap between rows so an active pill never touches an adjacent hovered one.
 
 ### Grid & Container
+
 - **Hero column:** everything in the main area centers on a `{spacing.content-w}` (600px) column — composer, strip, and the 3-card suggestion row (equal thirds, 16px gaps).
 - **Banner:** 456px, horizontally centered, pinned toward the bottom with the stacked-deck decoration behind it.
 - **Artifact grid:** list screens reuse the same 600px column as a 2-up grid (16px column gap, 32px row gap), headed by a `page-header` row.
@@ -700,6 +712,7 @@ System-native sans: `-apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", san
 - **Sidebar:** fixed 216px; nav → Projects section → Recents → spring → Connect-apps footer. The nav set swaps per mode — Agent mode shows New task / Workspace / Active runs / Live Artifacts / Plugins / Mobile, a "Workspace" project section, dot-status recents, and no Connect-apps footer.
 
 ### Whitespace Philosophy
+
 The working column is compact (28px rows, 13px type) while the canvas around it stays open — emptiness is part of the empty state. Decorations (dot-matrix band, banner stack) occupy the margins so the center remains a single calm task: the composer.
 
 ---
@@ -708,15 +721,16 @@ The working column is compact (28px rows, 13px type) while the canvas around it 
 
 **Hairline-only, with three exceptions.** The composer card carries a single faint lift shadow (`0 2px 6px` ink @ 4%) so it reads as floating over its upgrade strip; the pair page's `phone-mockup` carries a soft ambient shadow scoped to the device imagery; and the `onboarding-modal` carries a deeper drop over its scrim — the one true floating layer in the system. Nothing else has a shadow.
 
-| Level | Treatment | Use |
-|---|---|---|
-| Canvas | `{colors.canvas}` white, full-bleed, regions split by `{colors.hairline-soft}` | Top bar, sidebar, main |
-| Card | `{colors.surface-card}` + 1px `{colors.hairline}` | Composer, cards, search, banner |
-| Inset | `{colors.surface-strip}` | Upgrade strip |
-| Stack | offset card edge + rotated gold note behind the banner | Decorative depth only |
-| Overlay | `{colors.scrim}` wash + 10px backdrop blur, dialog with its scoped shadow and 1px `{colors.modal-border}` edge | Onboarding modal |
+| Level   | Treatment                                                                                                      | Use                             |
+| ------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| Canvas  | `{colors.canvas}` white, full-bleed, regions split by `{colors.hairline-soft}`                                 | Top bar, sidebar, main          |
+| Card    | `{colors.surface-card}` + 1px `{colors.hairline}`                                                              | Composer, cards, search, banner |
+| Inset   | `{colors.surface-strip}`                                                                                       | Upgrade strip                   |
+| Stack   | offset card edge + rotated gold note behind the banner                                                         | Decorative depth only           |
+| Overlay | `{colors.scrim}` wash + 10px backdrop blur, dialog with its scoped shadow and 1px `{colors.modal-border}` edge | Onboarding modal                |
 
 ### Decorative Depth
+
 - **Stacked deck:** the banner reveals a white card edge below and a `{colors.accent-gold}` sticky note rotated ~-7° peeking bottom-left — depth by overlap, not shadow.
 - **Dot-matrix band:** a faint speckled dot texture at the canvas top (two offset dot grids at ~10–16% ink, masked to fade out toward the edges and bottom), purely atmospheric — not text.
 - **Pastel tile:** the banner's gradient tile with overlapping channel dots adds chromatic depth without elevation.
@@ -727,17 +741,17 @@ The working column is compact (28px rows, 13px type) while the canvas around it 
 
 ### Border Radius Scale
 
-| Token | Value | Use |
-|---|---|---|
-| `{rounded.sm}` | 6px | Sticky note, micro chips. |
-| `{rounded.md}` | 8px | Tabs, nav rows, search field, model chips. |
-| 9px (one-off) | 9px | Composer mini-buttons (rounded squares). |
-| `{rounded.lg}` | 12px | Suggestion cards, banner tile, stacked edge, code snippets, modal terminal sheet (top corners). |
-| `{rounded.xl}` | 16px | Banner card, terminal card. |
-| `{rounded.2xl}` | 20px | Composer card, upgrade strip, plan cards. |
-| `{rounded.3xl}` | 28px | Device gradient panel (mobile pair page), onboarding modal. |
-| 44px (one-off) | 44px | Phone-mockup frame — device-scale, not a UI radius. |
-| `{rounded.pill}` | 9999px | Mini buttons, send, badges, CTAs, avatar, channel + status dots. |
+| Token            | Value  | Use                                                                                             |
+| ---------------- | ------ | ----------------------------------------------------------------------------------------------- |
+| `{rounded.sm}`   | 6px    | Sticky note, micro chips.                                                                       |
+| `{rounded.md}`   | 8px    | Tabs, nav rows, search field, model chips.                                                      |
+| 9px (one-off)    | 9px    | Composer mini-buttons (rounded squares).                                                        |
+| `{rounded.lg}`   | 12px   | Suggestion cards, banner tile, stacked edge, code snippets, modal terminal sheet (top corners). |
+| `{rounded.xl}`   | 16px   | Banner card, terminal card.                                                                     |
+| `{rounded.2xl}`  | 20px   | Composer card, upgrade strip, plan cards.                                                       |
+| `{rounded.3xl}`  | 28px   | Device gradient panel (mobile pair page), onboarding modal.                                     |
+| 44px (one-off)   | 44px   | Phone-mockup frame — device-scale, not a UI radius.                                             |
+| `{rounded.pill}` | 9999px | Mini buttons, send, badges, CTAs, avatar, channel + status dots.                                |
 
 **Rule:** the bigger and more focal the surface, the rounder it gets (banner 16 → composer 20); anything small and interactive is either an 8px soft rect or a full pill.
 
@@ -752,42 +766,55 @@ Minimal and functional: hover fills and active pills transition `background-colo
 ## Components
 
 ### App Shell (`app-shell`)
+
 The app is a full-bleed web shell: the `{colors.canvas}` fill covers the entire viewport with no outer margin, border, or rounding.
 
 ### Top Bar (`topbar`)
+
 48px, chrome fill (canvas-white in light; `{colors.dark-surface-chrome}` in dark), `{colors.hairline-soft}` bottom border (`{colors.dark-divider}` in dark). Left: ✱ logo + mode tabs (`tab` — 28px, `{rounded.md}`, secondary 13px/400; active gets `{colors.fill-active}` + ink). Center: `search-field` (270×30 white, hairline, magnifier + "Search" + ⌘K hint in faint). Right: bell and notes icon buttons (secondary), "Invite" with person-plus (13px/400 secondary), then the violet-gradient `avatar` (24px).
 
 ### Sidebar
+
 216px, chrome fill (canvas-white in light; `{colors.dark-surface-chrome}` in dark), soft hairline on its trailing edge (`{colors.dark-divider}` in dark).
-- **Nav rows** (`side-row`): 28px, `{rounded.md}`, 14px icons in **muted** beside 13px labels in **secondary** — the icon sits one gray step lighter than its label (measured #8a vs #5d); hover `{colors.fill-hover}`; active (`side-row-active`) ink text *and* ink icon on `{colors.fill-active}`. "Apps" carries the red `badge-new-red` pill.
+
+- **Nav rows** (`side-row`): 28px, `{rounded.md}`, 14px icons in **muted** beside 13px labels in **secondary** — the icon sits one gray step lighter than its label (measured #8a vs #5d); hover `{colors.fill-hover}`; active (`side-row-active`) ink text _and_ ink icon on `{colors.fill-active}`. "Apps" carries the red `badge-new-red` pill.
 - **Section labels** (`side-section-label`): 12px faint ("Projects", "Recents").
 - **Recents:** icon-less 27px rows.
 - **Footer:** hairline-topped block — "Connect apps" (13px/500 ink), two-line description (12px faint), and a row of six 15px third-party app icons (the chrome's only full-color glyphs — elsewhere, brand logos appear only as marketplace content: `app-tile`s and `prompt-pill`s on the apps page).
 
 ### Composer (`composer`)
+
 The hero control: 600px white card, `{rounded.2xl}`, hairline border, and the system's only shadow (faint lift). "Ask anything..." placeholder in faint **13px** over a roomy input area. Footer row: two bordered 28px **rounded-square** `composer-mini-btn`s (+ and a ⌘-style tools glyph, secondary), the `capability-chip` — paper-plane icon + "Super Computer" in secondary 13px + blue `badge-new-blue` — then right-aligned: `model-picker` (red-orange 12-spoke starburst + "Opus 4.7" in secondary 13px + chevron), mic, and the periwinkle `send-button` (28px pill, white up arrow). Everything in the footer is 13px/400 gray — nothing in the composer is ink except typed text.
 
 ### Upgrade Strip (`upgrade-strip`)
+
 Tucks under the composer (negative margin, lower z-index): borderless `{colors.surface-strip}` fill with **square top corners** — its sides run straight down past the composer's bottom-corner curves so no gray pokes out — and only the bottom corners rounded `{rounded.xl}`. The strip is **shallow**: ~33px visible (7px above the pill, 8px below). Contents: a **filled** 12px crown icon + "Upgrade to PRO" in secondary 12px, and the charcoal `upgrade-pill` ("Upgrade", 19px tall, 12px/400 white on `{colors.fill-cta}`, full-round, label optically centered — equal cap-top and baseline-bottom gaps) flushed right. Keep both small — an oversized strip or pill is the most visible way to break this design.
 
 ### Suggestion Cards (`suggest-card`)
+
 Three equal cards under the composer (Create / Find / Research): white, `{rounded.lg}`, hairline, 16px padding; 16px muted icon top-left followed by a **16px air gap**, then the 13px/400 ink title, 4px, and a 13px secondary subtitle ("Tasks, Images, Docs" · "Answers & Files" · "Apps & Web"). Titles are regular weight — the ink-vs-gray contrast alone separates title from subtitle.
 
 ### Connect Banner (`banner`)
+
 456px white card near the bottom: a 56px `banner-tile` (pastel 135° gradient with three overlapping 22px white-ringed channel dots — teal, green, blue) beside "Connect your channel" (13px/400 secondary) and a truncating muted subtitle. Behind it, the **stacked deck**: an inset white card edge and the rotated gold sticky note.
 
 ### Page Header & Primary Button (`page-header`, `button-primary`)
+
 List screens (e.g. Artifacts) open with a header row on the 600px column: a 16px secondary-colored icon beside a 16px/500 ink title, with the `button-primary` flushed right — the only ink-filled rectangular button (24px tall, `{rounded.md}`, white 12px/500 label, e.g. "New artifact"). Distinct from `upgrade-pill`, which is full-round.
 
 ### Artifact Cards (`artifact-card`)
+
 A 2-up grid of borderless cards. Each is: an `artifact-tile` — a 110px `{colors.surface-tile}` rounded-`{rounded.lg}` well with `overflow: hidden` — containing an `artifact-sheet`, a white hairline-bordered mini page (83% width, 21px from the tile top, top corners `{rounded.md}`) that **extends past the tile's bottom edge** so it reads as a document peeking into frame. The sheet holds a 13px muted icon, a 12px muted one-line caption (must fit without truncation), then **solid full-width `skeleton-bar`s** — 5px tall, pill-rounded, `{colors.skeleton}`, 10px apart — clipping at the tile edge. Below the tile, a roomy 16px gap, then the 13px/500 ink title, 4px, and a 12px faint timestamp ("1h ago"). The tile darkens one step on hover.
 
 ### Badges
+
 - `badge-new-red` (`.badge-new`): 11px/500 red text on a soft-red (`{colors.accent-new-soft}`) full-round pill, right-aligned in its row. The base "New" pill.
 - `badge-new-blue` (`.badge-new.badge-new--info`): the same pill with a blue color override — soft-blue wash, blue text. Same geometry as the red base; only the two color lines differ.
 
 ### Welcome Page (`welcome-mascot`, `display-title`, `code-snippet`, `terminal-card`, `check-item`)
+
 An onboarding doc screen on the 680px `{spacing.content-doc}` column, under the same shell and ghost-dots band. Top to bottom:
+
 - **Mascot:** a 56px hand-drawn line illustration (`welcome-mascot` — an alpaca in round glasses holding a steaming mug), drawn in 1.5px ink strokes like an oversized line icon.
 - **Display heading + lede:** `display-title` (21px/400 ink — the biggest type on the surface, still regular) over a `lede` (15px secondary, 1.6 line height): "Build AI apps locally" / "Run powerful open models in minutes."
 - **Code snippet (`code-snippet`):** a full-column borderless `{colors.surface-tile}` well, `{rounded.lg}`, 10×16px padding, 13px monospace command in secondary, with a 24px copy icon button flushed right. The well reuses the tile gray — no new surface.
@@ -796,7 +823,9 @@ An onboarding doc screen on the 680px `{spacing.content-doc}` column, under the 
 - **Closing section:** `display-title` + `lede` ("Local first. Cloud ready."), then a `check-item` list — 15px faint check glyph beside 15px muted copy, 20px row gap.
 
 ### Onboarding Modal (`modal-scrim`, `onboarding-modal`, `modal-art`, `modal-sheet`, `modal-title`, `modal-cta`)
+
 A welcome dialog over the welcome page (measured from the modal mock at 1.5× scale). The page dims and softens behind a `modal-scrim` — `{colors.scrim}` (black @ 28%) over a **10px backdrop blur** — and the 456px `onboarding-modal` (the banner's width, `{rounded.3xl}` — the roundest surface in the system, fitting the focality rule) floats on it with the system's deepest shadow **and its one heavy border**: a 1px `{colors.modal-border}` edge line (measured ≈ #999 — the standard 7% hairline would vanish against the scrim). Top to bottom:
+
 - **Art header (`modal-art`):** a 247px gradient zone bleeding to the card edges — a `{colors.modal-grad-violet}` bloom hugging the left edge, a `{colors.modal-grad-peri}` band across the top, `{colors.modal-grad-sky}` in the top-right corner, all fading to white under a faint white halftone dot screen. Imagery: light values in both themes.
 - **Terminal sheet (`modal-sheet`):** a white sheet inset 39px from the top and 28px from the sides, top corners `{rounded.lg}`, its bottom edge merging seamlessly into the white body below. It **replays the welcome page's launch narrative** — the same `traffic-dots` and five `terminal-step` rows ("alpaca launch openclaw" → "openclaw is running") at a tighter 12px row gap. Like the phone screen, the sheet holds light values (white fill, #8a8a8a steps) in both themes.
 - **Body:** `modal-title` ("Welcome to Alpaca", `{typography.title-dialog}` 19px/400 ink) over a standard `lede`, on 28px side padding.
@@ -804,7 +833,9 @@ A welcome dialog over the welcome page (measured from the modal mock at 1.5× sc
 - **Behavior:** Explore or Escape dismisses; a `?modal=0` URL parameter suppresses it. No entrance animation — consistent with the system's no-choreography rule.
 
 ### Plans Page (`plan-card`, `plan-banner`, `badge-plan`, `plan-perk`, `plan-cta`)
+
 A standalone plan-select screen — **no top bar or sidebar**, just the ghost-dots band over a centered stack: a 22px ✱ mark, a `{typography.hero}` headline ("Start free, no demo required"), a 13px secondary subline, then two `plan-card`s side by side (`{spacing.plan-card-w}` 303px each, 24px gap, centered — a 630px column). All values were measured on the 1.5×-scale pricing mock and divided by 1.5; the type sizes that fall out (17px hero, 13px body, 12px label, 11px badge, 19px badge pill) snap exactly onto the existing token scale, confirming the capture scale.
+
 - **Hero rhythm (measured):** mark top ~100px from the canvas top → 24px → heading → 12px → subline → 48px → cards. The whole stack sits high; the canvas below the cards stays empty.
 - **Card:** `{rounded.2xl}` white card, hairline border, `overflow: hidden`, ~455px tall. The CTA pins to the bottom; the air lives **between the perks and the CTA** (~112px), not spread through the body.
 - **Banner art (`plan-banner`):** a 76px art header bleeding to the card edges — each banner is a **flower**: a gold (starter) or amber (pro) core ringed by petal radials — white petals on a cyan sky for Starter (plus a sand corner), pink (`{colors.plan-grad-orchid}`) petals on blue for Pro — under a faint white halftone dot screen. Imagery: light values in both themes.
@@ -814,23 +845,28 @@ A standalone plan-select screen — **no top bar or sidebar**, just the ghost-do
 - **CTA (`plan-cta`):** a 38px pill — the `button-cta` scale, not a compact control. It outdents 4px past the 24px body padding to a 20px card inset and sits 20px off the card foot. Two variants: **neutral** (Create Account — `{colors.fill-cta}` charcoal, inverts to white-on-dark in dark mode) and **info** (Book a Demo — `{colors.accent-info}`, white label in both themes). The neutral CTA does not take the dark-CTA blue: side by side with the info blue, it must stay neutral.
 
 ### Mobile Pair Page (`button-cta`, `feature-list`, `status-dot`, `device-panel`, `phone-mockup`)
+
 An Agent-mode screen that splits the main area: copy on the left, a device showcase on the right. The sidebar swaps to the Agent nav set (New task, Workspace, Active runs, Live Artifacts, Plugins, **Mobile** active — the one filled glyph in the nav) and its recents trade icons for `status-dot`s: 6px `{colors.status-run}` cyan for live runs, a `{colors.text-muted}` ring for idle items.
+
 - **Left column** (max 460px, under the ghost-dots band): a 34px filled Apple mark, `display-title` ("Pair with Mobile app") + `lede`, then `button-cta` — the large 40px `{colors.fill-cta}` pill ("Connect device", white 15px label; the only large CTA in the system, distinct from the 19px `upgrade-pill` and rectangular `button-primary`).
 - **Feature list** (`feature-list`): one hairline card, `{rounded.lg}`, three rows split by `{colors.hairline-soft}` — each a 22px **filled** secondary glyph (cast / terminal-circle / paper plane) beside a `title-lg` (15px/400 ink) title and a 15px muted subtitle — same size, ink-vs-muted does the separating. The filled glyphs are the deliberate counterpoint to the line-icon chrome.
 - **Device panel** (`device-panel`): a `{rounded.3xl}` rounded panel pinned right (556px), painted with layered radial pastels (`panel-grad-sky/lav/peri/deep` over a vertical blue base, white bloom behind the phone). It reads as imagery: light values in both themes.
 - **Phone mockup** (`phone-mockup`): a 288×622 white iPhone — 9px #111 frame, 44px radius, dynamic-island pill, 9:41 status bar — running a mini Alpaca Labs screen: ✱ mark, 16px/400 title, 13px nav rows (MCP carries the red "New"), faint section labels, dot-status recents, and a full-width `{colors.fill-cta}` "New task" pill inset at the bottom. The phone holds light values in both themes and carries the system's only other shadow (a soft ambient lift, scoped to the mockup).
 
 ### Apps Marketplace Page (`marketplace-search`, `apps-banner`, `prompt-pill`, `app-card`, `app-add-btn`)
+
 The Apps screen (Chat-mode sidebar, **Apps** active with its red New badge) on the 680px `{spacing.content-doc}` column under the ghost-dots band. Top to bottom:
+
 - **Centered heading:** the shared `display-title` (21px/400 ink), centered: "Connect the tools your team already uses".
 - **Marketplace search (`marketplace-search`):** a full-column capsule variant of the search field — 34px, `{rounded.pill}`, hairline, magnifier + "Search marketplace..." in faint. Same anatomy as the topbar search, different proportions.
 - **Promo banner (`apps-banner`):** a 200px `{rounded.xl}` art panel (violet→sky pastels, `apps-grad-*`) holding three left-aligned, **staggered** `prompt-pill`s — white 30px capsules pairing a 14px brand glyph + brand-colored 12px/500 app name with a 12px example prompt ("Slack · Summarize key updates from recent conversations"). The pills stay white with light-value text in both themes; the stagger (0/24/32px indents) gives the art a casual, chat-like rhythm.
 - **Featured grid:** a `page-header`-type "Featured" label (16px/500 ink), then a 2-up grid of `app-card` rows — a 38px hairline `app-tile` with a 20px full-color brand logo, a 15px/500 ink name over a truncating 14px muted description, and a trailing 30px `app-add-btn` (`{colors.badge-neutral}` rounded square, secondary + glyph). A connected app (X) swaps the button for a bare muted check — no fill marks done states.
 
 ### CSS Architecture — Shared Component Layer
+
 `globals.css` is organized as a **shared component layer above per-page sections**, mirroring this spec's one-entry-per-component structure. Anything that repeats across screens is defined **once** with a bare class selector; pages only carry their genuine differences. Two component families lead the file:
 
-- **Buttons** — a `.btn` base (inline-flex, 13px/400, `{rounded.md}`, 0.15s color/opacity transition) plus composable modifiers across four axes — **size** (`.btn--sm` 24px·12px, `.btn--md` 28px, `.btn--lg` 36px·14px), **shape** (`.btn--pill`, `.btn--bordered`, `.btn--icon` — icon honours sm/lg as a square), **intent** (`.btn--primary`, `.btn--neutral` = secondary, `.btn--danger`, `.btn--info`, `.btn--send`, `.btn--quiet`, `.btn--muted` = ghost/text), and **state** (`:hover` and `:active` are built in per intent; `:disabled` dims to 45% and blocks pointer input — except `.btn--send`, whose idle is a *designed* soft-blue state, not a greyed-out one). **Outlined** variants come from `.btn--bordered` + an intent: `+ .btn--primary` paints an ink line, `+ .btn--danger` a tinted red line that hovers to `{colors.accent-danger-soft}`, others read as a neutral hairline outline. Destructive intent uses `{colors.accent-danger}` (#e5484d; #ff5d62 on dark). The role buttons above (`button-primary`, `button-cta`, `upgrade-pill`, `plan-cta`, `modal-cta`, `send-button`) compose a base + modifiers; their one-off geometry stays in a small "keeper" rule on the original class (and ignores the `--sm/md/lg` scale).
+- **Buttons** — a `.btn` base (inline-flex, 13px/400, `{rounded.md}`, 0.15s color/opacity transition) plus composable modifiers across four axes — **size** (`.btn--sm` 24px·12px, `.btn--md` 28px, `.btn--lg` 36px·14px), **shape** (`.btn--pill`, `.btn--bordered`, `.btn--icon` — icon honours sm/lg as a square), **intent** (`.btn--primary`, `.btn--neutral` = secondary, `.btn--danger`, `.btn--info`, `.btn--send`, `.btn--quiet`, `.btn--muted` = ghost/text), and **state** (`:hover` and `:active` are built in per intent; `:disabled` dims to 45% and blocks pointer input — except `.btn--send`, whose idle is a _designed_ soft-blue state, not a greyed-out one). **Outlined** variants come from `.btn--bordered` + an intent: `+ .btn--primary` paints an ink line, `+ .btn--danger` a tinted red line that hovers to `{colors.accent-danger-soft}`, others read as a neutral hairline outline. Destructive intent uses `{colors.accent-danger}` (#e5484d; #ff5d62 on dark). The role buttons above (`button-primary`, `button-cta`, `upgrade-pill`, `plan-cta`, `modal-cta`, `send-button`) compose a base + modifiers; their one-off geometry stays in a small "keeper" rule on the original class (and ignores the `--sm/md/lg` scale).
 - **App shell** — the page reset, the `.app` frame, the top bar (`.topbar`, `.logo-mark`, `.tabs`/`.tab`, `.topbar-search`/`.kbd`, `.topbar-actions`, `.avatar`, and the `.theme-toggle` light/dark icon swap), the sidebar (`.body`, `.sidebar`, `.side-row` + states, `.side-section`, `.sidebar-footer`, `.badge-new`, `.app-icons`), and the `.main` scroll region with its `.ghost-dots` band — each defined once and picked up by every page that uses the class.
 - **Content typography** — the doc-page heading and lede are shared too: `.display-title` (21px/400 ink, `marginBelow {spacing.3}`) and `.lede` (15px/1.6 secondary). The apps page centers its `.display-title` (keeper); the templates page runs a tighter 13px `.lede` variant (keeper). Note: templates' equivalent heading is still named `.page-title` — same visual as `.display-title`, a leftover naming inconsistency.
 
@@ -843,6 +879,7 @@ The Apps screen (Chat-mode sidebar, **Apps** active with its red New badge) on t
 ## Do's and Don'ts
 
 ### Do
+
 - Keep canvas and cards the same pure white; let hairlines alone articulate structure.
 - Separate every region with neutral hairlines at 4–7% black — never tinted fills.
 - Keep each accent in its single scoped role (red badge, blue badge, terracotta model, periwinkle send, gold note, violet avatar, terminal traffic lights, run cyan, device-panel pastels, demo blue, plan-banner pastels, marketplace pastels).
@@ -851,6 +888,7 @@ The Apps screen (Chat-mode sidebar, **Apps** active with its red New badge) on t
 - Keep decorations (dot-matrix band, sticky stack, pastel tile) at the margins of the working column.
 
 ### Don't
+
 - Don't add drop shadows beyond the composer's faint lift, the phone mockup's scoped ambient shadow, and the onboarding modal's drop over its scrim — depth is hairlines and overlap.
 - Don't promote an accent into general UI chrome (no blue buttons, no red highlights).
 - Don't use blue focus rings — keyboard focus is a 1px neutral `{colors.text-muted}` outline, never an accent color (and never the browser's default blue ring).
@@ -864,17 +902,19 @@ The Apps screen (Chat-mode sidebar, **Apps** active with its red New badge) on t
 
 ### Breakpoints
 
-| Range | Behavior |
-|---|---|
-| < 860px | Sidebar hides; search compresses to 180px; banner clamps to viewport. |
-| 860–1280px | Full shell; hero column stays 600px centered. |
-| > 1280px | Identical; extra space becomes canvas margin. |
+| Range      | Behavior                                                              |
+| ---------- | --------------------------------------------------------------------- |
+| < 860px    | Sidebar hides; search compresses to 180px; banner clamps to viewport. |
+| 860–1280px | Full shell; hero column stays 600px centered.                         |
+| > 1280px   | Identical; extra space becomes canvas margin.                         |
 
 ### Touch & Hit Targets
+
 - Interactive rows are 27–30px — dense desktop targets; mini-buttons (24px) rely on surrounding whitespace.
 - Composer is the only large target and stays ≥ 600×90.
 
 ### Collapsing Strategy
+
 - Sidebar disappears entirely below 860px (no rail state observed).
 - The suggestion row may wrap below the composer width; the banner truncates its subtitle with ellipsis first.
 - The welcome `split-section` stacks to a single column below 860px; snippets scroll their command horizontally rather than wrap.
@@ -887,7 +927,7 @@ The Apps screen (Chat-mode sidebar, **Apps** active with its red New badge) on t
 ## Iteration Guide
 
 1. Work one component at a time, referencing its `components:` entry.
-2. Shared chrome (buttons, app shell, top bar, sidebar, main) lives once in the global component layer (see *CSS Architecture*); add a page rule only for a genuine per-screen delta, overriding just the changed properties — never re-declare a whole shared rule under `html[data-page="…"]`.
+2. Shared chrome (buttons, app shell, top bar, sidebar, main) lives once in the global component layer (see _CSS Architecture_); add a page rule only for a genuine per-screen delta, overriding just the changed properties — never re-declare a whole shared rule under `html[data-page="…"]`.
 3. Never inline hex — every value routes through the token tables above.
 4. New interactive elements default to: 13px/400 secondary text, `{rounded.md}`, `{colors.fill-hover}` hover, `{colors.fill-active}` active.
 5. New surfaces are white cards with 1px `{colors.hairline}` — pick radius by focality (12 → 16 → 20).

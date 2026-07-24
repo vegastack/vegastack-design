@@ -1,0 +1,7 @@
+Source: https://vercel.com/design.md
+Snapshot: docs/research/design-md-references/Vercel_DESIGN.md
+Retrieved: 2026-07-22T09:53:33Z
+
+No standalone license or SPDX notice is present in the retrieved design.md document. Vercel retains
+the applicable rights. The local snapshot is retained verbatim for attributed comparative research
+and audit evidence; it is not treated as reusable VegaStack source code.

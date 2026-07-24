@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import type { ReactNode } from 'react';
-import { Wrapper } from './wrapper';
+import * as React from "react";
+import type { ReactNode } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/region-select` (dogfoods the registry) → auto-scanned.
 import {
   RegionSelect,
   getRegionsByCountry,
   hasRegions,
-} from '@/components/ui/region-select';
+} from "@/components/ui/region-select";
 
 /**
  * Default example — a searchable US-state combobox. Starts empty (placeholder);
@@ -16,7 +16,7 @@ import {
  * the chosen row in the list.
  */
 export function regionSelect(): ReactNode {
-  const [value, setValue] = React.useState('');
+  const [value, setValue] = React.useState("");
   return (
     <Wrapper>
       <div className="w-64">
@@ -42,7 +42,7 @@ export function regionSelectCountries(): ReactNode {
  * plain text input, and a pre-selected `disabled` control is inert.
  */
 export function regionSelectStates(): ReactNode {
-  const [fallback, setFallback] = React.useState('');
+  const [fallback, setFallback] = React.useState("");
   return (
     <Wrapper>
       <div className="w-64">
@@ -66,7 +66,7 @@ export function regionSelectStates(): ReactNode {
  * code badge echoes the current `value` so the empty-string reset is visible.
  */
 export function regionSelectToggleClear(): ReactNode {
-  const [value, setValue] = React.useState('CA');
+  const [value, setValue] = React.useState("CA");
   return (
     <Wrapper>
       <div className="flex w-64 flex-col gap-2">
@@ -77,9 +77,9 @@ export function regionSelectToggleClear(): ReactNode {
           aria-label="US state"
         />
         <p className="text-sm text-muted-foreground">
-          value:{' '}
+          value:{" "}
           <code className="font-mono text-foreground">
-            {value === '' ? '"" (cleared)' : `"${value}"`}
+            {value === "" ? '"" (cleared)' : `"${value}"`}
           </code>
         </p>
       </div>
@@ -93,7 +93,7 @@ export function regionSelectToggleClear(): ReactNode {
  * The leading `MapPin` affordance marks the trigger as a location field.
  */
 export function regionSelectEmptyResults(): ReactNode {
-  const [value, setValue] = React.useState('');
+  const [value, setValue] = React.useState("");
   return (
     <Wrapper>
       <div className="w-64">
@@ -114,8 +114,8 @@ export function regionSelectEmptyResults(): ReactNode {
  * live control consumes the looked-up subdivisions.
  */
 export function regionSelectDataApi(): ReactNode {
-  const [value, setValue] = React.useState('');
-  const country = 'CA';
+  const [value, setValue] = React.useState("");
+  const country = "CA";
   const states = getRegionsByCountry(country);
   return (
     <Wrapper>
@@ -140,7 +140,7 @@ export function regionSelectDataApi(): ReactNode {
 function CountryDemo({
   country,
   placeholder,
-  initial = '',
+  initial = "",
 }: {
   country: string;
   placeholder: string;

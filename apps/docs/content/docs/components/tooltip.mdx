@@ -1,6 +1,7 @@
 ---
 title: Tooltip
 description: A floating label that appears on hover or focus — smart shared delay, rich content, optional keyboard hints, and collision-aware positioning.
+audience: public
 preview: tooltip
 ---
 
@@ -158,7 +159,7 @@ Set `arrow` on the content to render a directional pointer.
 
 - The popup carries `role="tooltip"`, so assistive technology announces it as a tooltip and associates it with the trigger.
 - Tooltips open on **hover and keyboard focus** — never hover-only — so keyboard and screen-reader users get the same hint.
-- **Hover/focus-only by design — no touch trigger.** This is a Base UI upstream constraint, not a bug: `Tooltip` opens on `pointerenter`/focus and has no touch-tap handling, so on phones/tablets (any device that can't hover) content that lives *only* inside a tooltip is permanently unreachable. Never make tooltip content essential-only — the trigger's own label/icon must stand on its own. When the tooltip exists specifically to reveal overflow/clipped text, reach for [`TruncatedText`](/docs/components/truncated-text) instead of a bare `Tooltip` — it detects `(hover: none)` and swaps the hover-only tooltip for a tap-to-toggle disclosure on touch, while keeping the Tooltip (and its focus trigger) unchanged for keyboard/mouse users. That component is the reference pattern for touch disclosure of clipped content.
+- **Hover/focus-only by design — no touch trigger.** This is a Base UI upstream constraint, not a bug: `Tooltip` opens on `pointerenter`/focus and has no touch-tap handling, so on phones/tablets (any device that can't hover) content that lives _only_ inside a tooltip is permanently unreachable. Never make tooltip content essential-only — the trigger's own label/icon must stand on its own. When the tooltip exists specifically to reveal overflow/clipped text, reach for [`TruncatedText`](/docs/components/truncated-text) instead of a bare `Tooltip` — it detects `(hover: none)` and swaps the hover-only tooltip for a tap-to-toggle disclosure on touch, while keeping the Tooltip (and its focus trigger) unchanged for keyboard/mouse users. That component is the reference pattern for touch disclosure of clipped content.
 - A tooltip is a supplement, not a replacement for an accessible name. Give icon-only triggers their own `aria-label`; don't rely on the tooltip alone.
 - Content is non-interactive by design (it dismisses on blur/escape). Put actions in a Popover, not a Tooltip.
 

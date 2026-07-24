@@ -13,11 +13,11 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P2 | Docs promise keyboard open via Menu/Shift+F10 at `context-menu.mdx:142`; tests dispatch mouse `contextmenu` at `context-menu.test.tsx:20`. | Non-pointer access path is unverified. | Add focused-trigger keyboard tests for Menu and Shift+F10. |
-| P2 | Submenu API/docs exist at `context-menu.tsx:342` and `context-menu.mdx:118`, but tests stop at basic/radio/ref coverage. | Nested context menu behavior can regress. | Add submenu pointer and keyboard tests. |
-| P3 | `positionerProps` spread at `context-menu.tsx:137` can overwrite local className. | Consumer className can remove local z-index/outline classes. | Destructure and merge `positionerProps.className` with `cn()`. |
+| Priority | Evidence                                                                                                                                   | Impact                                                       | Suggested fix                                                  |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------ | -------------------------------------------------------------- |
+| P2       | Docs promise keyboard open via Menu/Shift+F10 at `context-menu.mdx:142`; tests dispatch mouse `contextmenu` at `context-menu.test.tsx:20`. | Non-pointer access path is unverified.                       | Add focused-trigger keyboard tests for Menu and Shift+F10.     |
+| P2       | Submenu API/docs exist at `context-menu.tsx:342` and `context-menu.mdx:118`, but tests stop at basic/radio/ref coverage.                   | Nested context menu behavior can regress.                    | Add submenu pointer and keyboard tests.                        |
+| P3       | `positionerProps` spread at `context-menu.tsx:137` can overwrite local className.                                                          | Consumer className can remove local z-index/outline classes. | Destructure and merge `positionerProps.className` with `cn()`. |
 
 ## Residual Risks
 
@@ -26,4 +26,3 @@ No direct Radix import found.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- context-menu.test.tsx`
-

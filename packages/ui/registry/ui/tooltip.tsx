@@ -1,10 +1,11 @@
-// @vegastack tooltip@0.2.0 sha256-frAVT8ygWNmMkOWlyF5MhYsW2eVP4ieF9bC/PXVw5VQ=
+// @vegastack tooltip@0.2.0 sha256-0N7aRdDgKkBeaDD6r+q7YkkI2gUZAf+BTaf37PkMpGs=
 
 "use client";
 
 import * as React from "react";
 import { Tooltip as BaseTooltip } from "@base-ui/react/tooltip";
 import { cn, FLOATING } from "@vegastack/design";
+import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 
 function mergeStateClassName<State>(
   className: string,
@@ -53,12 +54,21 @@ export interface TooltipProps extends Omit<
   /**
    * How long to wait before opening, in milliseconds. Forwarded to the trigger.
    * Falls back to the provider's shared delay when omitted.
+
+   * @default undefined
    */
   delay?: number;
-  /** The trigger and content parts. */
+  /** The trigger and content parts.
+   * @default undefined
+   */
   children?: React.ReactNode;
 }
 
+/** `Tooltip` root; shares an optional delay with the composed trigger.
+ *
+ * @example
+ * <Tooltip />
+ */
 export function Tooltip({ children, delay, ...props }: TooltipProps) {
   return (
     <BaseTooltip.Root data-slot="tooltip" {...props}>
@@ -80,6 +90,11 @@ export interface TooltipTriggerProps extends React.ComponentProps<
   typeof BaseTooltip.Trigger
 > {}
 
+/** `TooltipTrigger` forwards root delay context to Base UI's focus/hover trigger.
+ *
+ * @example
+ * <TooltipTrigger />
+ */
 export function TooltipTrigger({ delay, ...props }: TooltipTriggerProps) {
   const inheritedDelay = React.useContext(DelayContext);
   return (
@@ -119,17 +134,23 @@ export interface TooltipContentProps extends React.ComponentProps<
    * @default 'center'
    */
   align?: React.ComponentProps<typeof BaseTooltip.Positioner>["align"];
-  /** Props forwarded to the underlying Base UI `Portal`. */
+  /** Props forwarded to the underlying Base UI `Portal`.
+   * @default undefined
+   */
   portalProps?: Omit<
     React.ComponentProps<typeof BaseTooltip.Portal>,
     "children"
   >;
-  /** Props forwarded to the underlying Base UI `Positioner`. */
+  /** Props forwarded to the underlying Base UI `Positioner`.
+   * @default undefined
+   */
   positionerProps?: Omit<
     React.ComponentProps<typeof BaseTooltip.Positioner>,
     "side" | "sideOffset" | "align" | "children"
   >;
-  /** Props forwarded to an optional Base UI `Viewport` that wraps tooltip children. */
+  /** Props forwarded to an optional Base UI `Viewport` that wraps tooltip children.
+   * @default undefined
+   */
   viewportProps?: Omit<
     React.ComponentProps<typeof BaseTooltip.Viewport>,
     "children"
@@ -141,6 +162,11 @@ export interface TooltipContentProps extends React.ComponentProps<
   arrow?: boolean;
 }
 
+/** `TooltipContent` renders the scoped portaled positioner, popup, and optional viewport.
+ *
+ * @example
+ * <TooltipContent />
+ */
 export function TooltipContent({
   className,
   children,
@@ -153,8 +179,11 @@ export function TooltipContent({
   arrow = false,
   ...props
 }: TooltipContentProps) {
+  const themeScope = useInternalThemeScope();
   const { className: positionerClassName, ...positionerPropsRest } =
     positionerProps ?? {};
+  const { className: viewportClassName, ...viewportPropsRest } =
+    viewportProps ?? {};
 
   return (
     <BaseTooltip.Portal {...portalProps}>
@@ -165,7 +194,7 @@ export function TooltipContent({
         sideOffset={sideOffset}
         align={align}
         className={mergeStateClassName<BaseTooltip.Positioner.State>(
-          "z-(--z-overlay)",
+          cn(themeScope, "z-(--z-overlay)"),
           positionerClassName,
         )}
       >
@@ -173,6 +202,7 @@ export function TooltipContent({
           data-slot="tooltip-content"
           role="tooltip"
           className={cn(
+            themeScope,
             "z-(--z-overlay) flex w-fit max-w-xs origin-(--transform-origin) items-center gap-2 rounded-md bg-foreground px-2.5 py-1 text-sm text-background shadow-overlay select-none",
             // Enter/exit transitions driven by Base UI transition data attributes.
             "transition-[transform,scale,opacity] duration-fast ease-standard",
@@ -186,8 +216,12 @@ export function TooltipContent({
           {arrow ? <TooltipArrow /> : null}
           {viewportProps ? (
             <BaseTooltip.Viewport
-              {...viewportProps}
+              {...viewportPropsRest}
               data-slot="tooltip-viewport"
+              className={mergeStateClassName<BaseTooltip.Viewport.State>(
+                themeScope ?? "",
+                viewportClassName,
+              )}
             >
               {children}
             </BaseTooltip.Viewport>
@@ -209,6 +243,11 @@ export interface TooltipArrowProps extends React.ComponentProps<
   typeof BaseTooltip.Arrow
 > {}
 
+/** `TooltipArrow` renders the directional pointer for a tooltip popup.
+ *
+ * @example
+ * <TooltipArrow />
+ */
 export function TooltipArrow({ className, ...props }: TooltipArrowProps) {
   return (
     <BaseTooltip.Arrow
@@ -234,6 +273,11 @@ export interface TooltipKbdProps extends React.ComponentProps<"span"> {
   keys: string | readonly string[];
 }
 
+/** `TooltipKbd` renders a sequence of compact keyboard-key labels.
+ *
+ * @example
+ * <TooltipKbd />
+ */
 export function TooltipKbd({ keys, className, ...props }: TooltipKbdProps) {
   const tokens = Array.isArray(keys) ? keys : [...(keys as string)];
   return (

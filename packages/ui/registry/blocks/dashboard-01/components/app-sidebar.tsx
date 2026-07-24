@@ -1,6 +1,6 @@
-// @vegastack dashboard-01@0.2.0 sha256-0n5FBIpJDwhYVC5aSLixZGo20UEXyAgyNmM4+AHClFc=
+// @vegastack dashboard-01@0.2.0 sha256-qm7+2LKVAhfwH5v5FXl7Weku+tAmcp/QpP0RBAnmHOM=
 
-'use client';
+"use client";
 
 /**
  * `app-sidebar.tsx` — the dashboard-01 block's navigation rail: an AI-platform-flavored nav-main
@@ -28,9 +28,9 @@ import {
   Settings,
   User,
   type LucideIcon,
-} from 'lucide-react';
-import { AppShellSidebar } from '@/components/ui/app-shell';
-import { Avatar } from '@/components/ui/avatar';
+} from "lucide-react";
+import { AppShellSidebar } from "@/components/ui/app-shell";
+import { Avatar } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,7 +38,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 import {
   SidebarContent,
   SidebarFooter,
@@ -48,48 +48,62 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '@/components/ui/sidebar';
+} from "@/components/ui/sidebar";
 
 interface NavItem {
-  key: 'dashboard' | 'agents' | 'tasks' | 'usage' | 'settings';
+  key: "dashboard" | "agents" | "tasks" | "usage" | "settings";
   label: string;
   href: string;
   icon: LucideIcon;
 }
 
 const NAV_ITEMS: readonly NavItem[] = [
-  { key: 'dashboard', label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { key: 'agents', label: 'Agents', href: '/dashboard/agents', icon: Bot },
-  { key: 'tasks', label: 'Tasks', href: '/dashboard/tasks', icon: ListChecks },
-  { key: 'usage', label: 'Usage', href: '/dashboard/usage', icon: BarChart3 },
-  { key: 'settings', label: 'Settings', href: '/dashboard/settings', icon: Settings },
+  {
+    key: "dashboard",
+    label: "Dashboard",
+    href: "/dashboard",
+    icon: LayoutDashboard,
+  },
+  { key: "agents", label: "Agents", href: "/dashboard/agents", icon: Bot },
+  { key: "tasks", label: "Tasks", href: "/dashboard/tasks", icon: ListChecks },
+  { key: "usage", label: "Usage", href: "/dashboard/usage", icon: BarChart3 },
+  {
+    key: "settings",
+    label: "Settings",
+    href: "/dashboard/settings",
+    icon: Settings,
+  },
 ];
 
 export interface AppSidebarUser {
   name: string;
   email: string;
-  /** Resolved, public avatar URL — see `Avatar`'s doc; this component does not resolve storage keys. */
+  /** Resolved, public avatar URL — see `Avatar`'s doc; this component does not resolve storage keys. @default undefined */
   avatarUrl?: string;
 }
 
+/** Props accepted by `AppSidebar`. */
 export interface AppSidebarProps {
-  /** Which nav item is current — highlights it and sets `aria-current="page"`. */
-  activeKey?: NavItem['key'];
-  /** The signed-in user shown in the footer menu. */
+  /** Which nav item is current — highlights it and sets `aria-current="page"`. @default 'dashboard' */
+  activeKey?: NavItem["key"];
+  /** The signed-in user shown in the footer menu. @default bundled sample user */
   user?: AppSidebarUser;
-  /** Called when "Log out" is selected — presentational only, no session logic here. */
+  /** Called when "Log out" is selected — presentational only, no session logic here. @default undefined */
   onLogout?: () => void;
 }
 
-const DEFAULT_USER: AppSidebarUser = { name: 'Ada Lovelace', email: 'ada@vegastack.com' };
+const DEFAULT_USER: AppSidebarUser = {
+  name: "Ada Lovelace",
+  email: "ada@vegastack.com",
+};
 
 function initialsOf(name: string): string {
   return name
-    .split(' ')
+    .split(" ")
     .filter(Boolean)
     .map((part) => part[0])
     .slice(0, 2)
-    .join('')
+    .join("")
     .toUpperCase();
 }
 
@@ -100,8 +114,14 @@ function initialsOf(name: string): string {
  * design-lint's arbitrary-value contract) marks the rail as a STABLE region for the block's View
  * Transitions wiring — see the block's docs page "View Transitions" section for the full
  * mechanism and the required `next.config.js` flag.
+ *
+ * @example <AppSidebar activeKey="usage" user={{ name: 'Ada', email: 'ada@example.com' }} />
  */
-export function AppSidebar({ activeKey = 'dashboard', user = DEFAULT_USER, onLogout }: AppSidebarProps) {
+export function AppSidebar({
+  activeKey = "dashboard",
+  user = DEFAULT_USER,
+  onLogout,
+}: AppSidebarProps) {
   const initials = initialsOf(user.name);
 
   return (
@@ -126,7 +146,10 @@ export function AppSidebar({ activeKey = 'dashboard', user = DEFAULT_USER, onLog
           <SidebarMenu>
             {NAV_ITEMS.map((item) => (
               <SidebarMenuItem key={item.key}>
-                <SidebarMenuButton isActive={activeKey === item.key} render={<a href={item.href} />}>
+                <SidebarMenuButton
+                  isActive={activeKey === item.key}
+                  render={<a href={item.href} />}
+                >
                   <item.icon />
                   <span>{item.label}</span>
                 </SidebarMenuButton>
@@ -138,19 +161,23 @@ export function AppSidebar({ activeKey = 'dashboard', user = DEFAULT_USER, onLog
 
       <SidebarFooter>
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex w-full items-center gap-2 rounded-md p-2 text-left transition-colors duration-fast ease-standard hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+          <DropdownMenuTrigger className="flex w-full items-center gap-2 rounded-md p-2 text-left hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
             <Avatar
               size="sm"
               src={user.avatarUrl}
-              alt={user.avatarUrl ? user.name : ''}
+              alt={user.avatarUrl ? user.name : ""}
               fallback={initials}
             />
             {/* min-w-0 on the label column — the sidebar footer row's trailing chevron is a fixed
                 sibling, so the name/email column needs min-w-0 to truncate instead of overflowing
                 (the same flex-discipline footgun the app-shell audit flags for stat cards/cards). */}
             <span className="flex min-w-0 flex-1 flex-col group-data-[state=collapsed]/sidebar:hidden">
-              <span className="truncate text-sm font-medium text-sidebar-foreground">{user.name}</span>
-              <span className="truncate text-sm text-muted-foreground">{user.email}</span>
+              <span className="truncate text-sm font-medium text-sidebar-foreground">
+                {user.name}
+              </span>
+              <span className="truncate text-sm text-muted-foreground">
+                {user.email}
+              </span>
             </span>
             <ChevronsUpDown
               aria-hidden

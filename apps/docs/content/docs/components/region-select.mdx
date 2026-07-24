@@ -1,6 +1,7 @@
 ---
 title: Region Select
 description: A searchable combobox of states/provinces for a country — Combobox-powered filtering, with a free-text fallback for countries with no subdivisions.
+audience: public
 preview: regionSelect
 ---
 
@@ -31,7 +32,9 @@ It is a single composite: a thin, data-fed composition of our [Combobox](/docs/c
 trigger) for the combobox path, or `Input` for the fallback path. A leading `MapPin` icon marks the
 field as a location input in both modes.
 
-## Countries
+## Examples
+
+### Countries
 
 The embedded `REGIONS_BY_COUNTRY` dataset covers 45 countries and 1,187 subdivisions: US states,
 Canadian provinces, Australian states/territories, Indian states/UTs, UK regions, and high-volume
@@ -44,7 +47,7 @@ back to free text.
   file="components/preview/region-select.tsx"
 />
 
-## States
+### States
 
 A country with **no** predefined subdivisions (e.g. Singapore) falls back to a plain text `Input` so
 the value is still captured — and `disabled` makes the control inert.
@@ -54,7 +57,7 @@ the value is still captured — and `disabled` makes the control inert.
   file="components/preview/region-select.tsx"
 />
 
-## Toggle to clear
+### Toggle to clear
 
 Re-selecting the **already-selected** state clears the field — `onValueChange` fires with an empty
 string (`""`) and the trigger returns to its placeholder. This lets a user reset the value without a
@@ -65,7 +68,7 @@ separate "clear" affordance.
   file="components/preview/region-select.tsx"
 />
 
-## Empty results
+### Empty results
 
 When a search query matches no subdivision, the listbox shows a **"No state found."** message. The
 selection is unchanged until the user picks a matching row.
@@ -137,7 +140,7 @@ gate subdivisions without re-rendering the control (e.g. to label a field or val
   <kbd>↓</kbd> to move the highlight, <kbd>Enter</kbd> to select, and
   <kbd>Esc</kbd> to dismiss — focus returns to the trigger on close.
 - The free-text fallback is a native `<input>`; associate a label via `id` for both modes.
-- Focus re-colors the trigger/search border with the `ring` token (`border-ring/70`) — never `outline: none`.
+- Focus re-colors the trigger/search border with the `ring` token (`border-ring/(--alpha-tint-border)`) — never `outline: none`.
 
 | Key                                 | Action                                      |
 | ----------------------------------- | ------------------------------------------- |

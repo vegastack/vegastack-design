@@ -67,19 +67,15 @@ test("default palette uses semantic token variables, not raw Tailwind palette va
   }
 });
 
-test("selected swatch draws the check directly on the color (no covering disc)", async () => {
+test("selected swatch uses a semantic-surface check disc", async () => {
   const screen = await render(<ColorPicker value="blue" />);
   await screen.getByRole("button", { name: "Pick a color" }).click();
   const selected = screen.getByRole("button", { name: "Blue" }).element();
   const check = selected.querySelector('[data-slot="color-picker-check"]');
   expect(check).not.toBeNull();
-  // The check is the glyph itself, blended for legible ink on any swatch color —
-  // NOT a bg-background disc that would cover the swatch's color identity.
-  expect(check?.tagName.toLowerCase()).toBe("svg");
-  // Luminance-aware ink: the check derives white-or-black from the swatch's own color via
-  // CSS relative color syntax (a blend-mode inversion gave a different murky hue per swatch).
-  expect(check?.getAttribute("class")).toContain("oklch(from_var(--swatch-color)");
-  expect(check?.getAttribute("class")).not.toContain("bg-background");
+  expect(check?.tagName.toLowerCase()).toBe("span");
+  expect(check?.getAttribute("class")).toContain("bg-background");
+  expect(check?.querySelector("svg")).not.toBeNull();
 });
 
 test("yellow maps to the chart-7 token (the one genuinely-yellow token) and has no duplicate", () => {
@@ -153,6 +149,31 @@ test("ArrowRight moves the roving tabindex (and focus) to the next swatch", asyn
   await expect.element(red).toHaveFocus();
   await expect.element(red).toHaveAttribute("tabindex", "0");
   await expect.element(gray).toHaveAttribute("tabindex", "-1");
+});
+
+test("ArrowLeft moves to the next visual swatch in RTL", async () => {
+  const previousDir = document.documentElement.dir;
+  document.documentElement.dir = "rtl";
+  try {
+    const screen = await render(<ColorPicker value="gray" />);
+    await screen.getByRole("button", { name: "Pick a color" }).click();
+    const gray = screen.getByRole("button", { name: "Gray" });
+    const red = screen.getByRole("button", { name: "Red" });
+    gray.element().focus();
+    await userEvent.keyboard("{ArrowLeft}");
+    await expect.element(red).toHaveFocus();
+  } finally {
+    document.documentElement.dir = previousDir;
+  }
+});
+
+test("normalizes invalid column counts", async () => {
+  const screen = await render(<ColorPicker value="gray" columns={0} />);
+  await screen.getByRole("button", { name: "Pick a color" }).click();
+  const group = screen
+    .getByRole("group", { name: "Colors" })
+    .element() as HTMLElement;
+  expect(group.style.getPropertyValue("--swatch-cols")).toBe("1");
 });
 
 test("forwards ref to the trigger button", async () => {

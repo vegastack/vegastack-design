@@ -13,9 +13,9 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P2 | `Calendar` forwards DayPicker props at `date-picker.tsx:65`, but `DatePicker` and `DateRangePicker` expose narrowed props at `date-picker.tsx:350` and `date-picker.tsx:489`. | Consumers needing timezone, localization, footer, caption/year controls must drop down to `Calendar` or fork. | Add guarded `calendarProps` passthrough or promote high-value DayPicker props. |
+| Priority | Evidence                                                                                                                                                                      | Impact                                                                                                        | Suggested fix                                                                  |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| P2       | `Calendar` forwards DayPicker props at `date-picker.tsx:65`, but `DatePicker` and `DateRangePicker` expose narrowed props at `date-picker.tsx:350` and `date-picker.tsx:489`. | Consumers needing timezone, localization, footer, caption/year controls must drop down to `Calendar` or fork. | Add guarded `calendarProps` passthrough or promote high-value DayPicker props. |
 
 ## Residual Risks
 
@@ -24,4 +24,3 @@
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- date-picker.test.tsx`
-

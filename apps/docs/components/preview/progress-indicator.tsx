@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, type ReactNode } from 'react';
-import { Wrapper } from './wrapper';
+import { useState, type ReactNode } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/progress-indicator` (dogfoods the registry) → auto-scanned.
-import { ProgressIndicator } from '@/components/ui/progress-indicator';
-import { Button } from '@/components/ui/button';
+import { ProgressIndicator } from "@/components/ui/progress-indicator";
+import { Button } from "@/components/ui/button";
 
 export function progressIndicator(): ReactNode {
   return (
@@ -29,8 +29,16 @@ export function progressIndicatorValues(): ReactNode {
 export function progressIndicatorShapes(): ReactNode {
   return (
     <Wrapper className="gap-6">
-      <ProgressIndicator value={60} shape="circle" aria-label="Circle 60 percent" />
-      <ProgressIndicator value={60} shape="squircle" aria-label="Squircle 60 percent" />
+      <ProgressIndicator
+        value={60}
+        shape="circle"
+        aria-label="Circle 60 percent"
+      />
+      <ProgressIndicator
+        value={60}
+        shape="squircle"
+        aria-label="Squircle 60 percent"
+      />
     </Wrapper>
   );
 }
@@ -50,9 +58,21 @@ export function progressIndicatorColors(): ReactNode {
   return (
     <Wrapper className="gap-6">
       <ProgressIndicator value={70} aria-label="Primary" />
-      <ProgressIndicator value={70} className="text-success-text" aria-label="Success" />
-      <ProgressIndicator value={70} className="text-warning-text" aria-label="Warning" />
-      <ProgressIndicator value={70} className="text-destructive-text" aria-label="Destructive" />
+      <ProgressIndicator
+        value={70}
+        className="text-success-text"
+        aria-label="Success"
+      />
+      <ProgressIndicator
+        value={70}
+        className="text-warning-text"
+        aria-label="Warning"
+      />
+      <ProgressIndicator
+        value={70}
+        className="text-destructive-text"
+        aria-label="Destructive"
+      />
     </Wrapper>
   );
 }
@@ -72,7 +92,11 @@ export function progressIndicatorSweep(): ReactNode {
   const [i, setI] = useState(0);
   return (
     <Wrapper className="flex-col gap-4">
-      <ProgressIndicator value={steps[i]} size="lg" aria-label={`${steps[i]}% complete`} />
+      <ProgressIndicator
+        value={steps[i]}
+        size="lg"
+        aria-label={`${steps[i]}% complete`}
+      />
       <Button
         variant="outline"
         size="sm"
@@ -86,7 +110,7 @@ export function progressIndicatorSweep(): ReactNode {
 
 export function progressIndicatorShapeValueMatrix(): ReactNode {
   const values = [0, 25, 50, 75, 100];
-  const shapes = ['circle', 'squircle'] as const;
+  const shapes = ["circle", "squircle"] as const;
   return (
     <Wrapper>
       <div className="grid grid-cols-5 gap-6">
@@ -102,6 +126,34 @@ export function progressIndicatorShapeValueMatrix(): ReactNode {
           )),
         )}
       </div>
+    </Wrapper>
+  );
+}
+export function progressIndicatorSegments(): ReactNode {
+  // Dash-segment mode: step counts, not smooth percentages.
+  return (
+    <Wrapper className="items-center gap-8">
+      <ProgressIndicator
+        segments={6}
+        value={2}
+        max={6}
+        aria-label="2 of 6 steps complete"
+      />
+      <ProgressIndicator
+        segments={4}
+        value={4}
+        max={4}
+        size="lg"
+        className="text-success-text"
+        aria-label="Setup complete"
+      />
+      <ProgressIndicator
+        segments={5}
+        value={0}
+        max={5}
+        size="sm"
+        aria-label="Not started"
+      />
     </Wrapper>
   );
 }

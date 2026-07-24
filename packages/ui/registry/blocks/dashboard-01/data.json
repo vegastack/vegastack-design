@@ -1,10 +1,31 @@
 {
   "generatedAt": "2026-07-14T09:00:00.000Z",
   "stats": [
-    { "key": "activeAgents", "label": "Active agents", "value": 128, "delta": 12.4 },
-    { "key": "tasksCompleted", "label": "Tasks completed today", "value": 946, "delta": 4.1 },
-    { "key": "apiCalls", "label": "API calls (24h)", "value": 18452, "delta": -2.3 },
-    { "key": "avgResponseMs", "label": "Avg. response time", "value": 284, "delta": -6.8, "unit": "ms" }
+    {
+      "key": "activeAgents",
+      "label": "Active agents",
+      "value": 128,
+      "delta": 12.4
+    },
+    {
+      "key": "tasksCompleted",
+      "label": "Tasks completed today",
+      "value": 946,
+      "delta": 4.1
+    },
+    {
+      "key": "apiCalls",
+      "label": "API calls (24h)",
+      "value": 18452,
+      "delta": -2.3
+    },
+    {
+      "key": "avgResponseMs",
+      "label": "Avg. response time",
+      "value": 284,
+      "delta": -6.8,
+      "unit": "ms"
+    }
   ],
   "usage": [
     { "date": "Jul 08", "requests": 3120, "errors": 42 },

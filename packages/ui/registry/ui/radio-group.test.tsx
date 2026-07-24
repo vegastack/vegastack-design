@@ -21,6 +21,7 @@ test("renders a radiogroup with its options", async () => {
   await expect.element(group).toBeInTheDocument();
   await expect.element(group).toHaveAttribute("data-slot", "radio-group");
   await expect.element(group).toHaveAttribute("data-orientation", "vertical");
+  await expect.element(group).toHaveClass("gap-3");
 
   await expect
     .element(screen.getByRole("radio", { name: "Comfortable" }))
@@ -91,6 +92,7 @@ test("reflects the layout orientation on the data attribute", async () => {
   const group = screen.getByRole("radiogroup", { name: "Density" });
   await expect.element(group).toHaveAttribute("data-orientation", "horizontal");
   await expect.element(group).toHaveAttribute("aria-orientation", "horizontal");
+  await expect.element(group).toHaveClass("gap-4");
 });
 
 test("no a11y violations when options are labelled", async () => {
@@ -205,7 +207,9 @@ test("does not shake an item that is already invalid at mount", async () => {
   );
   const item = screen.getByRole("radio", { name: "Compact" });
   await new Promise((resolve) => setTimeout(resolve, 100));
-  expect((item.element() as HTMLElement).className).not.toContain("motion-shake");
+  expect((item.element() as HTMLElement).className).not.toContain(
+    "motion-shake",
+  );
 });
 
 test("shakeSignal re-shakes a still-invalid item on repeated failure", async () => {
@@ -217,7 +221,12 @@ test("shakeSignal re-shakes a still-invalid item on repeated failure", async () 
           retry
         </button>
         <RadioGroup aria-label="Density">
-          <RadioGroupItem value="compact" aria-label="Compact" aria-invalid shakeSignal={signal} />
+          <RadioGroupItem
+            value="compact"
+            aria-label="Compact"
+            aria-invalid
+            shakeSignal={signal}
+          />
         </RadioGroup>
       </div>
     );
@@ -246,8 +255,8 @@ test("applies the size data attribute", async () => {
  *
  * Same rationale/technique as checkbox.test.tsx: this harness runs without compiled Tailwind, so
  * `before:-inset-1` etc. never resolve to real CSS here. Each test injects a literal <style> tag
- * that is a 1:1 mirror of what these EXACT Tailwind utility values compile to (the "-inset-1 =
- * 4px" scale this remediation's house rule documents), keyed to the item's own `data-slot`/
+ * that is a 1:1 mirror of what these EXACT Tailwind utility values compile to, including the
+ * real 1px border that reduces the pseudo-element containing box, keyed to the item's `data-slot`/
  * `data-size` attributes (real regardless of compiled CSS), then measures the REAL,
  * browser-computed layout against it.
  * ------------------------------------------------------------------------------------------- */
@@ -256,10 +265,10 @@ function injectRadioItemHitAreaMirror(): () => void {
   const style = document.createElement("style");
   style.textContent = `
     body { margin: 24px; }
-    [data-slot="radio-group-item"] { position: relative; display: inline-flex; box-sizing: border-box; }
+    [data-slot="radio-group-item"] { position: relative; display: inline-flex; box-sizing: border-box; border: 1px solid transparent; }
     [data-slot="radio-group-item"][data-size="default"] { width: 16px; height: 16px; }
     [data-slot="radio-group-item"][data-size="sm"] { width: 14px; height: 14px; }
-    [data-slot="radio-group-item"][data-size="default"]::before { content: ""; position: absolute; inset: -4px; }
+    [data-slot="radio-group-item"][data-size="default"]::before { content: ""; position: absolute; inset: -6px; }
     [data-slot="radio-group-item"][data-size="sm"]::before { content: ""; position: absolute; inset: -6px; }
   `;
   document.head.appendChild(style);
@@ -270,7 +279,9 @@ test("default size (16px) resolves an effective hit area >= 24x24 via the before
   const cleanup = injectRadioItemHitAreaMirror();
   try {
     const screen = await render(<Basic />);
-    const el = screen.getByRole("radio", { name: "Comfortable" }).element() as HTMLElement;
+    const el = screen
+      .getByRole("radio", { name: "Comfortable" })
+      .element() as HTMLElement;
     el.getBoundingClientRect(); // force a layout flush before reading resolved pseudo-element geometry
     const before = getComputedStyle(el, "::before");
     expect(parseFloat(before.width)).toBeGreaterThanOrEqual(24);
@@ -288,7 +299,9 @@ test("sm size (14px) resolves an effective hit area >= 24x24 via the before pseu
         <RadioGroupItem value="compact" aria-label="Compact" size="sm" />
       </RadioGroup>,
     );
-    const el = screen.getByRole("radio", { name: "Compact" }).element() as HTMLElement;
+    const el = screen
+      .getByRole("radio", { name: "Compact" })
+      .element() as HTMLElement;
     el.getBoundingClientRect(); // force a layout flush before reading resolved pseudo-element geometry
     const before = getComputedStyle(el, "::before");
     expect(parseFloat(before.width)).toBeGreaterThanOrEqual(24);
@@ -303,16 +316,21 @@ test("a point just outside the visual dot, inside the expanded hit area, still h
   try {
     const onValueChange = vi.fn();
     const screen = await render(<Basic onValueChange={onValueChange} />);
-    const el = screen.getByRole("radio", { name: "Comfortable" }).element() as HTMLElement;
+    const el = screen
+      .getByRole("radio", { name: "Comfortable" })
+      .element() as HTMLElement;
     const rect = el.getBoundingClientRect();
-    // 3px left of the visual left edge — inside the 4px `before:-inset-1` expansion.
+    // 3px left of the visual left edge — inside the 6px expansion.
     const x = rect.left - 3;
     const y = rect.top + rect.height / 2;
     const hit = document.elementFromPoint(x, y);
     expect(hit).toBe(el);
     (hit as HTMLElement).click();
     expect(onValueChange).toHaveBeenCalledTimes(1);
-    expect(onValueChange).toHaveBeenLastCalledWith("comfortable", expect.anything());
+    expect(onValueChange).toHaveBeenLastCalledWith(
+      "comfortable",
+      expect.anything(),
+    );
   } finally {
     cleanup();
   }
@@ -322,9 +340,11 @@ test("a point beyond the expanded hit area does not resolve to the item", async 
   const cleanup = injectRadioItemHitAreaMirror();
   try {
     const screen = await render(<Basic />);
-    const el = screen.getByRole("radio", { name: "Comfortable" }).element() as HTMLElement;
+    const el = screen
+      .getByRole("radio", { name: "Comfortable" })
+      .element() as HTMLElement;
     const rect = el.getBoundingClientRect();
-    // 8px left of the visual left edge — 4px beyond the 4px `before:-inset-1` expansion boundary.
+    // 8px left of the visual left edge — beyond the 6px expansion boundary.
     const x = rect.left - 8;
     const y = rect.top + rect.height / 2;
     const hit = document.elementFromPoint(x, y);

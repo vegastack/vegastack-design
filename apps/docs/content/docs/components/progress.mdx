@@ -1,10 +1,11 @@
 ---
 title: Progress
 description: A determinate horizontal progress bar for measurable, ongoing tasks — built on Base UI Progress.
+audience: public
 preview: progress
 ---
 
-import { story } from '@/components/stories/progress.story';
+import { story } from "@/components/stories/progress.story";
 
 ## Installation
 
@@ -24,20 +25,22 @@ import { Progress } from "@/components/ui/progress";
 
 <ComponentPreview name="progress" file="components/preview/progress.tsx" />
 
-## Playground
+## Examples
+
+### Playground
 
 Adjust the bar's value and size — the fill sweeps to each new value — then copy the generated JSX.
 
 <ProgressPlayground />
 
-## Explorer
+### Explorer
 
 Every `Progress` prop, auto-generated from its TypeScript types — the exhaustive counterpart to
 the curated playground above.
 
 <story.WithControl />
 
-## Anatomy
+### Anatomy
 
 `Progress` exposes a flat API while composing Base UI's Root → Track → Indicator parts internally:
 
@@ -46,7 +49,7 @@ the curated playground above.
 - **Indicator** — the primary fill (`data-slot="progress-indicator"`). Use `indicatorClassName` for
   fill styling; width and progress semantics are managed by Base UI.
 
-## Examples
+### Determinate and indeterminate
 
 ### Values
 
@@ -94,10 +97,17 @@ Pass `value={null}` when the duration is unknown. Base UI drops `aria-valuenow`,
 Recolor the fill with `indicatorClassName` to signal a status tone — the default is `bg-primary`. Use a semantic token (`bg-success`, `bg-warning`, `bg-destructive`):
 
 ```tsx
-<Progress value={66} indicatorClassName="bg-success" aria-label="Success fill" />
+<Progress
+  value={66}
+  indicatorClassName="bg-success"
+  aria-label="Success fill"
+/>
 ```
 
-<ComponentPreview name="progressColors" file="components/preview/progress.tsx" />
+<ComponentPreview
+  name="progressColors"
+  file="components/preview/progress.tsx"
+/>
 
 ### Custom track
 
@@ -118,7 +128,10 @@ Recolor the fill with `indicatorClassName` to signal a status tone — the defau
 
 `size` and `value` are independent axes — every height works at every fill level.
 
-<ComponentPreview name="progressMatrix" file="components/preview/progress.tsx" />
+<ComponentPreview
+  name="progressMatrix"
+  file="components/preview/progress.tsx"
+/>
 
 ### Custom root element (`render`)
 
@@ -128,7 +141,10 @@ Use Base UI's `render` to swap the root element while keeping the `role="progres
 <Progress value={60} aria-label="Upload progress" render={<output />} />
 ```
 
-<ComponentPreview name="progressRender" file="components/preview/progress.tsx" />
+<ComponentPreview
+  name="progressRender"
+  file="components/preview/progress.tsx"
+/>
 
 ## API Reference
 

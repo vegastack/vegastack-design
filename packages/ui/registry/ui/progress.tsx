@@ -1,4 +1,4 @@
-// @vegastack progress@0.2.0 sha256-RyPX369UBmt82J/S2bRWKB1XGPLOvkkcD7kupuxrSzY=
+// @vegastack progress@0.2.0 sha256-eoaLBrDrBt68av4ZDJ8+T+peMQdCTiFSDX/Hhcw8l2I=
 
 "use client";
 
@@ -31,6 +31,7 @@ export type ProgressSize = NonNullable<
   VariantProps<typeof progressVariants>["size"]
 >;
 
+/** Props accepted by `Progress`. */
 export interface ProgressProps
   extends
     Omit<React.ComponentProps<typeof BaseProgress.Root>, "value">,
@@ -55,11 +56,15 @@ export interface ProgressProps
   /**
    * Classes for the inner track rail. Use this for track width/height/color
    * overrides; `className` belongs to the root progressbar element.
+
+   * @default undefined
    */
   trackClassName?: string;
   /**
    * Classes for the fill indicator. Use this to change the fill token or motion
    * treatment without replacing the accessible progress root.
+
+   * @default undefined
    */
   indicatorClassName?: string;
   /**
@@ -68,6 +73,8 @@ export interface ProgressProps
    * wrapper's `data-slot` and state `data-*` onto your element, forwards the ref,
    * and keeps the `<Progress.Track>` / `<Progress.Indicator>` children. The
    * element must support `role="progressbar"` semantics.
+
+   * @default undefined
    */
   render?: React.ComponentProps<typeof BaseProgress.Root>["render"];
 }
@@ -95,15 +102,15 @@ export interface ProgressProps
  * <Progress value={null} aria-label="Loading" />
  */
 export function Progress({
-      className,
-      trackClassName,
-      indicatorClassName,
-      size = "default",
-      value = null,
-      max = 100,
-      ref,
-      ...props
-    }: ProgressProps) {
+  className,
+  trackClassName,
+  indicatorClassName,
+  size = "default",
+  value = null,
+  max = 100,
+  ref,
+  ...props
+}: ProgressProps) {
   return (
     <BaseProgress.Root
       ref={ref}

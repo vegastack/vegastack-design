@@ -13,9 +13,9 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P3 | `'use client'` at `kbd.tsx:3`; OS detection around `kbd.tsx:58`. | Static key chips ship JS and may show Mac glyphs until hydration for non-Mac users. | Split static `Kbd` from opt-in `KbdAuto`, or default docs to explicit `os`. |
+| Priority | Evidence                                                         | Impact                                                                              | Suggested fix                                                               |
+| -------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| P3       | `'use client'` at `kbd.tsx:3`; OS detection around `kbd.tsx:58`. | Static key chips ship JS and may show Mac glyphs until hydration for non-Mac users. | Split static `Kbd` from opt-in `KbdAuto`, or default docs to explicit `os`. |
 
 ## Residual Risks
 
@@ -24,4 +24,3 @@ No registry issue found.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- kbd.test.tsx`
-

@@ -1,6 +1,7 @@
 ---
 title: Date Picker
 description: Pick a single date or a date range from a calendar popover — token-styled, keyboard-navigable, with optional quick presets.
+audience: public
 preview: datePicker
 ---
 
@@ -25,7 +26,9 @@ function Example() {
 }
 ```
 
-## Anatomy
+## Examples
+
+### Anatomy
 
 The Date Picker module exports three building blocks. `DatePicker` and `DateRangePicker` compose a
 `Calendar` inside a `Popover`; use `Calendar` directly when you want an inline grid.
@@ -52,7 +55,7 @@ The Date Picker module exports three building blocks. `DatePicker` and `DateRang
 - `DateRangePicker` — a `{ from, to }` range, same shape, across two months (`data-slot="date-range-picker-trigger"` / `…-content`). It also accepts `calendarProps`; top-level selection props remain owned by the wrapper.
 - `defaultDatePresets()` / `defaultRangePresets()` — ready-made quick-select rails (Today / Tomorrow, Last 7 / 30 days). Pass your own `presets` to override.
 
-## Examples
+### Date and range selection
 
 ### With presets
 
@@ -113,7 +116,7 @@ Forward DayPicker knobs through `calendarProps`. Here `captionLayout="dropdown"`
   value={date}
   onValueChange={setDate}
   calendarProps={{
-    captionLayout: 'dropdown',
+    captionLayout: "dropdown",
     startMonth: new Date(2024, 0),
     endMonth: new Date(2027, 11),
   }}
@@ -131,7 +134,16 @@ Forward DayPicker knobs through `calendarProps`. Here `captionLayout="dropdown"`
 
 ### Custom formatting & locale
 
-The trigger label is formatted with native `Intl.DateTimeFormat`. Pass `formatOptions` for a custom shape and `locale` for a BCP-47 locale (here a long German date).
+The trigger label is formatted with native `Intl.DateTimeFormat` — no date library. The
+**default is the readable `Jun 24, 2026`** (`{ year: 'numeric', month: 'short', day: 'numeric' }`),
+never an ISO string and never the browser's date-input format. Pass `formatOptions` for any
+other shape and `locale` for a BCP-47 locale.
+
+<Callout type="info">
+  Use `DatePicker` wherever you'd reach for `<input type="date">`. The native input summons the
+  OS picker, which ignores the design tokens and differs per browser and platform; this
+  component is themed, keyboard-accessible, and formats consistently everywhere.
+</Callout>
 
 <ComponentPreview
   name="datePickerFormatting"
@@ -196,12 +208,12 @@ Ready-made preset rails. Pass your own `presets` to override either.
 
 <TypeTable
   type={{
-    "defaultDatePresets": {
+    defaultDatePresets: {
       type: "(now?: Date) => DatePreset[]",
       description:
         "Today / Tomorrow presets for a single DatePicker. Accepts an optional reference date (defaults to now).",
     },
-    "defaultRangePresets": {
+    defaultRangePresets: {
       type: "(now?: Date) => DateRangePreset[]",
       description:
         "Today / Last 7 days / Last 30 days presets for a DateRangePicker. Accepts an optional reference date (defaults to now).",
@@ -215,12 +227,12 @@ Re-exported from `react-day-picker`. `DateRange` is the shape of a range `value`
 
 <TypeTable
   type={{
-    "DateRange": {
+    DateRange: {
       type: "{ from: Date | undefined; to?: Date | undefined }",
       description:
         "A selected range. Used by DateRangePicker's value / onValueChange and DateRangePreset.range.",
     },
-    "Matcher": {
+    Matcher: {
       type: "Date | Date[] | DateRange | DayOfWeek | DateBefore | DateAfter | DateInterval | ((date: Date) => boolean)",
       description:
         "A react-day-picker day predicate. Passed (singly or as an array) to disabledDates to block days.",
@@ -233,7 +245,7 @@ Re-exported from `react-day-picker`. `DateRange` is the shape of a range `value`
 - Built on `react-day-picker`, which renders the month as a `grid` of `gridcell` day buttons with descriptive `aria-label`s ("Saturday, June 21st, 2026").
 - The selected day, range ends, today, and disabled days are all distinguishable by state — not by color alone — via `data-*` driven surfaces (`bg-primary`, `ring`, `bg-accent`, reduced opacity).
 - Opening the picker moves focus into the calendar; arrow keys move day-to-day, and selection restores focus to the trigger. Pressing <kbd>Esc</kbd> closes the popover.
-- Focus is always visible: the outline `Button` trigger brightens its border on `:focus-visible` (`focus-visible:border-ring/70`), and the day grid manages roving focus itself (react-day-picker focuses the active day on keyboard navigation). Today's cell additionally carries a neutral `ring` (`ring-ring/50`).
+- Focus is always visible: the outline `Button` trigger brightens its border on `:focus-visible` (`focus-visible:border-ring/(--alpha-tint-border)`), and the day grid manages roving focus itself (react-day-picker focuses the active day on keyboard navigation). Today's cell additionally carries a neutral `ring` (`ring-ring/(--alpha-outline-soft)`).
 - The trigger has no visible text label when empty beyond its placeholder, so pass `aria-label` (or wrap it in a `Field`) to name it for assistive tech.
 
 | Key                                                 | Action                                                                    |

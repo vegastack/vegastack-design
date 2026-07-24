@@ -1,16 +1,17 @@
 ---
 title: Accessibility
-description: The a11y contract every component honors — WCAG 2.1 AA, a single focus-visible ring, axe-clean from day one, full keyboard support, reduced motion respected.
+description: The a11y contract every component honors — WCAG 2.2 AA, a single focus-visible outline, axe-clean states, keyboard support, and reduced motion.
+audience: public
 ---
 
 Accessibility is a **build rule, not a review step**. Every component in `@vegastack/ui` is held to
-**WCAG 2.1 AA** and is enforced by lint, the design-audit skill, and a day-one
+**WCAG 2.2 AA**—without dropping any existing 2.1 assertion—and is enforced by lint, the design-audit skill, and a day-one
 [`axe`](https://github.com/dequelabs/axe-core) gate. Consumers inherit that contract by installing the
 component — there is nothing extra to wire up.
 
 ## The contract
 
-- **WCAG 2.1 AA** — the floor for every component, color pair, and interaction.
+- **WCAG 2.2 AA** — the target for every component, color pair, and interaction; existing 2.1 checks remain mandatory.
 - **Visible `:focus-visible` ring** — one keyboard-focus treatment, system-wide (see below).
 - **`axe`-clean** — automated checks run on day one, not retrofitted.
 - **Every applicable UI state** — `default / hover / focus / loading / empty / error / success / disabled`.
@@ -22,31 +23,41 @@ component — there is nothing extra to wire up.
 
 The system ships **one** focus treatment: a `:focus-visible` outline keyed off the `--ring` token.
 It appears only on **keyboard** focus (`:focus-visible`), never on mouse click, so pointer users don't
-see a ring on every press. The convention is a **2px outline at 2px offset** — there are no separate
+see a ring on every press. The convention is a **2px outline at 1px offset** — there are no separate
 ring-width or ring-offset tokens; `--ring` (light `oklch(0.353 0.003 75)`, dark `oklch(0.922 0.003 75)`)
 is the only knob.
+
+Text-entry controls are the deliberate exception: `Input`, `Textarea`, `Select`, and combobox inputs
+re-color their border on `:focus` so caret and pointer focus remain visible without adding an outer
+ring inside dense forms. Other controls use the shared `:focus-visible` outline.
+
+Content links remain underlined at rest and keep this same neutral focus-visible outline. Navigation
+and button-like anchors may rely on their explicit control geometry instead of a resting underline,
+but never remove the outline without an equally visible replacement.
 
 <FocusRingSpecimen />
 
 ```tsx
 // The sanctioned focus treatment — outline keyed off the --ring token.
-<button className="outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+<button className="outline-none focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring">
   Save
 </button>
 ```
 
 <Callout type="info">
-  Use `focus-visible:`, not `focus:`. The `:focus-visible` pseudo-class lets the browser decide when a
-  focus ring is appropriate (keyboard yes, mouse no) — matching the specimen above.
+  Use `focus-visible:` for the shared outer outline. Use `focus:` only for the
+  sanctioned text-entry border-tint pattern described above; do not invent a
+  second focus treatment.
 </Callout>
 
 ## Axe-clean from day one
 
-A11y isn't asserted by hand — it's a test gate. Components are audited with `axe-core` (WCAG 2.1 AA
-tags) on render, and any violation fails the build:
+A11y isn't asserted by hand — it's a test gate. Components are audited with `axe-core` using its
+WCAG 2.0, 2.1, and 2.2 AA tags on render, and any violation fails the build:
 
 ```ts
-// packages/ui/test/a11y.ts — runOnly: wcag2a, wcag2aa, wcag21a, wcag21aa
+// packages/ui/test/a11y.ts — preserves 2.0/2.1 and adds WCAG 2.2 AA.
+// runOnly: wcag2a, wcag2aa, wcag21a, wcag21aa, wcag22aa
 await expectNoA11yViolations(el);
 ```
 
@@ -63,7 +74,9 @@ theme and runs `axe`'s `color-contrast` rule for real, in **both** light and dar
 ```css
 /* @vegastack/design-tokens/base.css */
 @media (prefers-reduced-motion: reduce) {
-  *, ::before, ::after {
+  *,
+  ::before,
+  ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

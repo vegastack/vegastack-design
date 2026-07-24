@@ -1,6 +1,7 @@
 ---
 title: Settings Row
 description: A borders-only settings layout — titled sections, bordered cards, and label-plus-control rows for building account, workspace, and preference screens.
+audience: public
 preview: settingsRow
 ---
 
@@ -15,10 +16,17 @@ npx shadcn@latest add @vegastack/settings-row
 ## Usage
 
 ```tsx
-import { SettingsCard, SettingsRow, SettingsSection } from '@/components/ui/settings-row';
-import { Switch } from '@/components/ui/switch';
+import {
+  SettingsCard,
+  SettingsRow,
+  SettingsSection,
+} from "@/components/ui/settings-row";
+import { Switch } from "@/components/ui/switch";
 
-<SettingsSection title="Notifications" description="Choose what you want to hear about.">
+<SettingsSection
+  title="Notifications"
+  description="Choose what you want to hear about."
+>
   <SettingsCard>
     <SettingsRow label="Email" description="Product updates and tips.">
       <Switch defaultChecked aria-label="Email notifications" />
@@ -30,7 +38,9 @@ import { Switch } from '@/components/ui/switch';
 </SettingsSection>;
 ```
 
-## Anatomy
+## Examples
+
+### Anatomy
 
 The settings layout is three flat parts that nest from the outside in. Each is a plain, server-safe
 element with a forwarded ref and a `data-slot` for styling and targeting:
@@ -43,7 +53,7 @@ element with a forwarded ref and a `data-slot` for styling and targeting:
     </SettingsRow>
     <SettingsRow label="…">{/* control */}</SettingsRow>
   </SettingsCard>
-</SettingsSection>;
+</SettingsSection>
 ```
 
 - `SettingsSection` — a titled group (`data-slot="settings-section"`). Renders an optional `title`
@@ -61,15 +71,21 @@ element with a forwarded ref and a `data-slot` for styling and targeting:
 
 All three are flat named exports — there is no dotted namespace.
 
-## Examples
+### Settings layouts
 
 A bordered card grouping a mix of rows — a `Switch`, a `Select`, and another `Switch`:
 
-<ComponentPreview name="settingsRow" file="components/preview/settings-row.tsx" />
+<ComponentPreview
+  name="settingsRow"
+  file="components/preview/settings-row.tsx"
+/>
 
 A full section with a titled header above a card of switch rows:
 
-<ComponentPreview name="settingsSection" file="components/preview/settings-row.tsx" />
+<ComponentPreview
+  name="settingsSection"
+  file="components/preview/settings-row.tsx"
+/>
 
 ### Native labels with `controlId`
 
@@ -78,7 +94,10 @@ renders as a real `<label htmlFor={controlId}>`, so clicking the label focuses t
 readers announce the pairing. Use `labelProps` to merge extra attributes (e.g. analytics hooks) onto
 the generated label.
 
-<ComponentPreview name="settingsRowControlId" file="components/preview/settings-row.tsx" />
+<ComponentPreview
+  name="settingsRowControlId"
+  file="components/preview/settings-row.tsx"
+/>
 
 ### Control variety
 
@@ -86,21 +105,33 @@ The control slot accepts any node — `Input`, `Switch`, a read-only value, a `B
 A row with **no `children`** renders label-only (no control slot), which suits headings such as a
 danger-zone intro.
 
-<ComponentPreview name="settingsRowControlTypes" file="components/preview/settings-row.tsx" />
+<ComponentPreview
+  name="settingsRowControlTypes"
+  file="components/preview/settings-row.tsx"
+/>
 
 ## API Reference
 
 ### SettingsRow
 
-<AutoTypeTable path="../../packages/ui/registry/ui/settings-row.tsx" name="SettingsRowProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/settings-row.tsx"
+  name="SettingsRowProps"
+/>
 
 ### SettingsCard
 
-<AutoTypeTable path="../../packages/ui/registry/ui/settings-row.tsx" name="SettingsCardProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/settings-row.tsx"
+  name="SettingsCardProps"
+/>
 
 ### SettingsSection
 
-<AutoTypeTable path="../../packages/ui/registry/ui/settings-row.tsx" name="SettingsSectionProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/settings-row.tsx"
+  name="SettingsSectionProps"
+/>
 
 ## Accessibility
 
@@ -112,10 +143,10 @@ danger-zone intro.
 - Borders-only by design: rows are separated by `border-border`, not shadows, so the layout stays
   legible in high-contrast and forced-colors modes.
 
-| Key | Action |
-| --- | --- |
-| <kbd>Tab</kbd> | Move focus through the controls in each row, top to bottom. |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate or toggle the focused control. |
+| Key                                 | Action                                                      |
+| ----------------------------------- | ----------------------------------------------------------- |
+| <kbd>Tab</kbd>                      | Move focus through the controls in each row, top to bottom. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate or toggle the focused control.                     |
 
 ## Do / Don't
 

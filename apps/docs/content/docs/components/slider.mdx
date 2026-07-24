@@ -1,10 +1,11 @@
 ---
 title: Slider
 description: Pick a number or a range from a continuous track — keyboard accessible, with optional steps. Built on Base UI Slider.
+audience: public
 preview: slider
 ---
 
-import { story } from '@/components/stories/slider.story';
+import { story } from "@/components/stories/slider.story";
 
 ## Installation
 
@@ -33,13 +34,15 @@ Pass an array for a range (one thumb per value):
 
 <ComponentPreview name="slider" file="components/preview/slider.tsx" />
 
-## Explorer
+## Examples
+
+### Explorer
 
 Every `Slider` prop, auto-generated from its TypeScript types.
 
 <story.WithControl />
 
-## Anatomy
+### Anatomy
 
 `Slider` composes Base UI's `Slider` parts internally — you use the single `Slider`
 export and it renders the structure for you:
@@ -69,21 +72,21 @@ export and it renders the structure for you:
   one thumb and an array gets a range. Each thumb wraps a hidden `<input type="range">`
   for keyboard control and form submission.
 
-## Range
+### Range
 
 Provide an array to render a range. The component renders one thumb per entry and keeps
 the thumbs from crossing.
 
 <ComponentPreview name="sliderRange" file="components/preview/slider.tsx" />
 
-## Steps
+### Steps
 
 Set `min`, `max`, and `step` to snap the value to a coarser scale — here, multiples of
 50 between 0 and 1000.
 
 <ComponentPreview name="sliderSteps" file="components/preview/slider.tsx" />
 
-## Controlled
+### Controlled
 
 Pass `value` + `onValueChange` to drive the slider from your own state (mirror it back as
 text, sync it to a query param, etc.).
@@ -93,7 +96,7 @@ text, sync it to a query param, etc.).
   file="components/preview/slider.tsx"
 />
 
-## Thumb labels
+### Thumb labels
 
 A range needs a distinct accessible name per thumb. Pass a static `thumbAriaLabels`
 array (see [Range](#range)), or compute names dynamically with `getThumbAriaLabel` — a
@@ -115,14 +118,14 @@ the right tool when the name should reflect live state (for example announcing t
   file="components/preview/slider.tsx"
 />
 
-## Orientation
+### Orientation
 
 Slider is **horizontal only**. The Base UI `orientation` prop is inherited on the type,
 but the token styling (track height, indicator fill, thumb geometry) assumes a horizontal
 rail — `orientation="vertical"` is out of scope and not supported. For a vertical control,
 lay sliders out horizontally in your layout instead.
 
-## Disabled
+### Disabled
 
 `disabled` drops the thumb(s) from the tab order, blocks interaction, and dims the control.
 It applies to both single-value and range sliders — every thumb is dimmed and removed from

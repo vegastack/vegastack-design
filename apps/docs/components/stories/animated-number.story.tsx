@@ -1,5 +1,5 @@
-import { defineStory } from '@/lib/story';
-import { AnimatedNumber } from '@/components/ui/animated-number';
+import { defineStory } from "@/lib/story";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 
 /**
  * Story explorer for `AnimatedNumber` — controls auto-generated from
@@ -9,18 +9,18 @@ export const story = defineStory({
   Component: AnimatedNumber,
   args: [
     {
-      variant: 'Default',
+      variant: "Default",
       initial: {
         value: 1204,
       },
     },
     {
-      variant: 'Currency',
+      variant: "Currency",
       initial: {
         value: 1204,
       },
       fixed: {
-        format: { style: 'currency', currency: 'USD' },
+        format: { style: "currency", currency: "USD" },
       },
     },
   ],

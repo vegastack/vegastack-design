@@ -12,30 +12,34 @@
 //
 // Runs as `@vegastack/ui` `postbuild`, so it fires on every build of the package — locally and in CI
 // (`pnpm build` → turbo → this package's build).
-import { readFileSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { readFileSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const DIST = join(ROOT, 'packages/ui/dist/index.js');
-const rel = DIST.replace(ROOT + '/', '');
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const DIST = join(ROOT, "packages/ui/dist/index.js");
+const rel = DIST.replace(ROOT + "/", "");
 
 let src;
 try {
-  src = readFileSync(DIST, 'utf8');
+  src = readFileSync(DIST, "utf8");
 } catch {
-  console.error(`\n✗ verify-ui-use-client: cannot read ${rel} — build @vegastack/ui first`);
+  console.error(
+    `\n✗ verify-ui-use-client: cannot read ${rel} — build @vegastack/ui first`,
+  );
   process.exit(1);
 }
 
 // The FIRST line must be exactly the client directive (single or double quotes, optional semicolon).
 // A leading BOM, blank lines, comments, or imports before it would defeat Next's directive detection.
-const firstLine = src.replace(/^﻿/, '').split('\n', 1)[0].trim();
+const firstLine = src.replace(/^﻿/, "").split("\n", 1)[0].trim();
 const isUseClient = /^(['"])use client\1;?$/.test(firstLine);
 
 if (!isUseClient) {
   console.error(`\n✗ verify-ui-use-client: ${rel}`);
-  console.error(`    - first line of the built entry must be the 'use client' directive`);
+  console.error(
+    `    - first line of the built entry must be the 'use client' directive`,
+  );
   console.error(`    - got: ${JSON.stringify(firstLine)}`);
   console.error(
     `\n  The @vegastack/ui entry is client-only; Next App Router needs 'use client' at the TOP of\n` +

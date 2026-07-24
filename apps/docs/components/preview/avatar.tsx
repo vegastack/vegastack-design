@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { UserRound } from 'lucide-react';
-import { Wrapper } from './wrapper';
+import type { ReactNode } from "react";
+import { UserRound } from "lucide-react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/avatar` (dogfoods the registry) → auto-scanned.
-import { Avatar, AvatarGroup } from '@/components/ui/avatar';
+import { Avatar, AvatarGroup } from "@/components/ui/avatar";
 
 // Local fixtures (abstract portrait marks) — demos and VRT must never depend on a live
 // third-party image service (same determinism rule as preview/image.tsx's fixture).
-const ADA = '/preview/avatar-1.svg';
-const LINUS = '/preview/avatar-2.svg';
-const GRACE = '/preview/avatar-3.svg';
+const ADA = "/preview/avatar-1.svg";
+const LINUS = "/preview/avatar-2.svg";
+const GRACE = "/preview/avatar-3.svg";
 
 // Image avatar alongside the neutral initials fallback (no src → bg-accent + initials).
 export function avatar(): ReactNode {

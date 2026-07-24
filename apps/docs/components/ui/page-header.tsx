@@ -1,13 +1,13 @@
-// @vegastack page-header@0.2.0 sha256-WVs8ccul43V5vu38I+kzmtkT0ksQQVRzp12AJSXn0wo=
+// @vegastack page-header@0.2.0 sha256-q8qzPQmjYRgZ15eIc9jqKW7qPChI7OE3Z5fag7eK7nI=
 
-'use client';
+"use client";
 
-import * as React from 'react';
-import { ChevronLeft, Star } from 'lucide-react';
-import { cn } from '@vegastack/design';
-import { buttonVariants } from '@/components/ui/button';
-import { IconButton } from '@/components/ui/icon-button';
-import { TruncatedText } from '@/components/ui/truncated-text';
+import * as React from "react";
+import { ChevronLeft, Star } from "lucide-react";
+import { cn } from "@vegastack/design";
+import { buttonVariants } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
+import { TruncatedText } from "@/components/ui/truncated-text";
 
 /**
  * Controls the optional favorite-star toggle next to the title. Supports both
@@ -41,7 +41,11 @@ export interface PageHeaderFavorite {
   disabled?: boolean;
 }
 
-export interface PageHeaderProps extends Omit<React.ComponentPropsWithRef<'header'>, 'title'> {
+/** Props accepted by `PageHeader`. */
+export interface PageHeaderProps extends Omit<
+  React.ComponentPropsWithRef<"header">,
+  "title"
+> {
   /**
    * The page title — rendered as the `<h1>`. Accepts a string or rich nodes.
    * Truncated via `TruncatedText` when it overflows the title row, revealing
@@ -50,18 +54,24 @@ export interface PageHeaderProps extends Omit<React.ComponentPropsWithRef<'heade
   title: React.ReactNode;
   /**
    * Optional supporting copy rendered under the title (muted).
+
+   * @default undefined
    */
   description?: React.ReactNode;
   /**
    * Optional breadcrumb trail (or section name) rendered above the title row.
    * Pass a `Breadcrumb` element or any node — the header is presentational and
    * does not build the trail for you.
+
+   * @default undefined
    */
   breadcrumb?: React.ReactNode;
   /**
    * Renders a back button (`ChevronLeft`) before the title as a link to this
    * href. Use for declarative navigation; prefer over `onBack` when you have a
    * URL. Ignored when `onBack` is also set.
+
+   * @default undefined
    */
   backHref?: string;
   /**
@@ -69,6 +79,8 @@ export interface PageHeaderProps extends Omit<React.ComponentPropsWithRef<'heade
    * handler. Use for app-local imperative behavior, such as closing a picker
    * or returning to the previous in-app state. Prefer `backHref` for URL-backed
    * navigation.
+
+   * @default undefined
    */
   onBack?: () => void;
   /**
@@ -79,16 +91,22 @@ export interface PageHeaderProps extends Omit<React.ComponentPropsWithRef<'heade
   /**
    * Right-aligned action slot — typically one or more `Button`s. Rendered on the
    * title row, opposite the title block.
+
+   * @default undefined
    */
   actions?: React.ReactNode;
   /**
    * Optional overflow / secondary menu slot, rendered after `actions` on the
    * right. Compose your own menu trigger (e.g. a `DropdownMenu` with an
    * `IconButton` trigger) — kept as a slot so the header stays presentational.
+
+   * @default undefined
    */
   secondaryMenu?: React.ReactNode;
   /**
    * Optional favorite-star toggle rendered after the title. Omit to hide it.
+
+   * @default undefined
    */
   favorite?: PageHeaderFavorite;
 }
@@ -96,12 +114,16 @@ export interface PageHeaderProps extends Omit<React.ComponentPropsWithRef<'heade
 /**
  * `FavoriteStar` — the star toggle rendered next to the title. Controlled when
  * `active` is supplied, otherwise tracks its own state seeded by `defaultActive`.
+
+ *
+ * @example
+ * <FavoriteStar />
  */
 function FavoriteStar({
   active,
   defaultActive = false,
   onToggle,
-  label = 'Favorite',
+  label = "Favorite",
   disabled = false,
 }: PageHeaderFavorite) {
   const isControlled = active !== undefined;
@@ -123,10 +145,10 @@ function FavoriteStar({
       aria-label={label}
       aria-pressed={isActive}
       data-slot="page-header-favorite"
-      data-active={isActive ? '' : undefined}
+      data-active={isActive ? "" : undefined}
       className="shrink-0 text-muted-foreground hover:text-foreground"
     >
-      <Star className={cn(isActive && 'fill-current text-warning-text')} />
+      <Star className={cn(isActive && "fill-current text-warning-text")} />
     </IconButton>
   );
 }
@@ -169,7 +191,7 @@ export function PageHeader({
   breadcrumb,
   backHref,
   onBack,
-  backLabel = 'Go back',
+  backLabel = "Go back",
   actions,
   secondaryMenu,
   favorite,
@@ -181,8 +203,14 @@ export function PageHeader({
   const hasRight = Boolean(actions || secondaryMenu);
 
   return (
-    <header data-slot="page-header" className={cn('flex flex-col gap-2', className)} {...props}>
-      {breadcrumb ? <div data-slot="page-header-breadcrumb">{breadcrumb}</div> : null}
+    <header
+      data-slot="page-header"
+      className={cn("flex flex-col gap-2", className)}
+      {...props}
+    >
+      {breadcrumb ? (
+        <div data-slot="page-header-breadcrumb">{breadcrumb}</div>
+      ) : null}
 
       {/* flex-wrap + the title block's basis-48 let the actions row wrap BELOW the title once
           the row can't give the h1 a readable minimum (~basis-48) — without it, the shrink-0
@@ -209,7 +237,10 @@ export function PageHeader({
                 href={backHref}
                 aria-label={backLabel}
                 data-slot="page-header-back"
-                className={cn(buttonVariants({ variant: 'ghost', size: 'icon-sm' }), '-ml-2 shrink-0')}
+                className={cn(
+                  buttonVariants({ variant: "ghost", size: "icon-sm" }),
+                  "-ml-2 shrink-0",
+                )}
               >
                 <ChevronLeft aria-hidden />
               </a>
@@ -218,13 +249,19 @@ export function PageHeader({
                 without it, the flex item's default `min-width: auto` would stop TruncatedText's
                 inner span from ever measuring an overflow. TruncatedText owns the actual
                 truncate/line-clamp class; the h1 stays the accessible heading. */}
-            <h1 data-slot="page-header-title" className="min-w-0 text-h2 text-foreground">
+            <h1
+              data-slot="page-header-title"
+              className="min-w-0 text-h2 text-foreground"
+            >
               <TruncatedText>{title}</TruncatedText>
             </h1>
             {favorite ? <FavoriteStar {...favorite} /> : null}
           </div>
           {description ? (
-            <p data-slot="page-header-description" className="text-base text-muted-foreground">
+            <p
+              data-slot="page-header-description"
+              className="text-base text-muted-foreground"
+            >
               {description}
             </p>
           ) : null}
@@ -232,7 +269,10 @@ export function PageHeader({
 
         {/* Actions */}
         {hasRight ? (
-          <div data-slot="page-header-actions" className="ml-auto flex shrink-0 items-center gap-2">
+          <div
+            data-slot="page-header-actions"
+            className="ml-auto flex shrink-0 items-center gap-2"
+          >
             {actions}
             {secondaryMenu}
           </div>

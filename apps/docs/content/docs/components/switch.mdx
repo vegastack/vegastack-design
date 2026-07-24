@@ -1,10 +1,11 @@
 ---
 title: Switch
 description: An on/off toggle for instant, self-saving binary settings — built on Base UI Switch.
+audience: public
 preview: switchExample
 ---
 
-import { story } from '@/components/stories/switch.story';
+import { story } from "@/components/stories/switch.story";
 
 ## Installation
 
@@ -48,20 +49,22 @@ a native button so the `id` targets the visible interactive element:
 
 <ComponentPreview name="switchExample" file="components/preview/switch.tsx" />
 
-## Playground
+## Examples
+
+### Playground
 
 Try every size and the disabled state, then copy the generated JSX.
 
 <SwitchPlayground />
 
-## Explorer
+### Explorer
 
 Every `Switch` prop, auto-generated from its TypeScript types — the exhaustive counterpart to the
 curated playground above.
 
 <story.WithControl />
 
-## Sizes
+### Sizes
 
 `sm` (16px), `default` (20px), and `lg` (24px) — the track and thumb scale together.
 The grid shows every size in both the off and on positions, since the thumb-travel
@@ -69,7 +72,7 @@ geometry (the inset gap at rest vs. when checked) differs per size.
 
 <ComponentPreview name="switchSizes" file="components/preview/switch.tsx" />
 
-## States
+### States
 
 On, off, and disabled (in both positions). State is driven by Base UI's `data-checked` /
 `data-unchecked` attributes, so it works controlled (`checked` + `onCheckedChange`) or uncontrolled
@@ -77,7 +80,7 @@ On, off, and disabled (in both positions). State is driven by Base UI's `data-ch
 
 <ComponentPreview name="switchStates" file="components/preview/switch.tsx" />
 
-## Controlled
+### Controlled
 
 Drive the switch from state with `checked` + `onCheckedChange`. Use this when the value
 must stay in sync with other UI or be persisted on change.
@@ -85,12 +88,19 @@ must stay in sync with other UI or be persisted on change.
 ```tsx
 const [enabled, setEnabled] = useState(true);
 
-<Switch checked={enabled} onCheckedChange={setEnabled} aria-label="Email notifications" />;
+<Switch
+  checked={enabled}
+  onCheckedChange={setEnabled}
+  aria-label="Email notifications"
+/>;
 ```
 
-<ComponentPreview name="switchControlled" file="components/preview/switch.tsx" />
+<ComponentPreview
+  name="switchControlled"
+  file="components/preview/switch.tsx"
+/>
 
-## Invalid
+### Invalid
 
 The switch picks up a destructive border tint when `aria-invalid` is set — either directly
 on a standalone `Switch`, or automatically when a wrapping `<Field error=…>` marks the

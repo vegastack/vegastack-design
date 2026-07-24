@@ -1,6 +1,7 @@
 ---
 title: Dialog
 description: A modal overlay — five sizes, a header/footer layout, focus trapping, and animated enter/exit.
+audience: public
 preview: dialog
 ---
 
@@ -80,17 +81,22 @@ Pick a size and toggle the close button, open the dialog, then copy the generate
 
 > **Mobile:** Dialog stays a centered modal at every breakpoint. There is intentionally no mobile-drawer variant — a full-screen **Drawer/Sheet** is a separate component.
 
-## Sizes
+## Examples
+
+### Sizes
 
 `DialogContent` takes a `size` prop controlling the popup's max-width: `xs`, `sm`, `default`, `lg`, and `full`.
 
 <ComponentPreview name="dialogSizes" file="components/preview/dialog.tsx" />
 
-## Close button
+### Close button
 
 By default `DialogContent` renders a top-right close (`X`) button. Pass `showCloseButton={false}` to remove it — leaving an explicit footer action as the only way out (useful for deliberate confirmations).
 
-<ComponentPreview name="dialogNoCloseButton" file="components/preview/dialog.tsx" />
+<ComponentPreview
+  name="dialogNoCloseButton"
+  file="components/preview/dialog.tsx"
+/>
 
 ```tsx
 <DialogContent showCloseButton={false}>{/* … */}</DialogContent>
@@ -98,17 +104,23 @@ By default `DialogContent` renders a top-right close (`X`) button. Pass `showClo
 
 The close button's accessible label defaults to `"Close"`. Override it with `closeLabel` when a more specific label reads better for screen readers.
 
-<ComponentPreview name="dialogCloseLabel" file="components/preview/dialog.tsx" />
+<ComponentPreview
+  name="dialogCloseLabel"
+  file="components/preview/dialog.tsx"
+/>
 
 ```tsx
 <DialogContent closeLabel="Dismiss dialog">{/* … */}</DialogContent>
 ```
 
-## Scrollable content
+### Scrollable content
 
 The popup caps its height at `max-h-[calc(100dvh-2rem)]`. When the body is taller than the viewport, give the body region `overflow-y-auto` so it scrolls while the header and footer stay pinned.
 
-<ComponentPreview name="dialogScrollable" file="components/preview/dialog.tsx" />
+<ComponentPreview
+  name="dialogScrollable"
+  file="components/preview/dialog.tsx"
+/>
 
 ## API Reference
 
@@ -118,6 +130,16 @@ The popup caps its height at `max-h-[calc(100dvh-2rem)]`. When the body is talle
   path="../../packages/ui/registry/ui/dialog.tsx"
   name="DialogContentProps"
 />
+
+### DialogTitleBar
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/dialog.tsx"
+  name="DialogTitleBarProps"
+/>
+
+`DialogTitleBar` is the optional window-chrome header row for desktop-style dialogs. Compose the
+accessible `DialogTitle` inside it; the title bar does not replace the dialog's accessible name.
 
 `Dialog`, `DialogTrigger`, `DialogTitle`, `DialogDescription`, and
 `DialogClose` add no props of their own — each accepts everything the

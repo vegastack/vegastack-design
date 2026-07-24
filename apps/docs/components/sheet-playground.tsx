@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 import {
   Sheet,
   SheetTrigger,
@@ -11,23 +11,37 @@ import {
   SheetDescription,
   SheetClose,
   type SheetSide,
-} from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
-import { PropsPlayground, type PlaygroundConfig } from '@/components/playground';
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import {
+  PropsPlayground,
+  type PlaygroundConfig,
+} from "@/components/playground";
 
-type SheetPlaygroundKey = 'side' | 'showCloseButton';
+type SheetPlaygroundKey = "side" | "showCloseButton";
 
 const SIDE_OPTIONS = [
-  { value: 'top', label: 'Top' },
-  { value: 'right', label: 'Right' },
-  { value: 'bottom', label: 'Bottom' },
-  { value: 'left', label: 'Left' },
+  { value: "top", label: "Top" },
+  { value: "right", label: "Right" },
+  { value: "bottom", label: "Bottom" },
+  { value: "left", label: "Left" },
 ] as const;
 
 const sheetPlaygroundConfig: PlaygroundConfig<SheetPlaygroundKey> = {
   controls: [
-    { type: 'select', key: 'side', label: 'Side', options: SIDE_OPTIONS, defaultValue: 'right' },
-    { type: 'switch', key: 'showCloseButton', label: 'Close button', defaultValue: true },
+    {
+      type: "select",
+      key: "side",
+      label: "Side",
+      options: SIDE_OPTIONS,
+      defaultValue: "right",
+    },
+    {
+      type: "switch",
+      key: "showCloseButton",
+      label: "Close button",
+      defaultValue: true,
+    },
   ],
   // Renders CLOSED — the reader opens it via the trigger, so the initial state is deterministic.
   render: (state): ReactNode => (
@@ -39,7 +53,9 @@ const sheetPlaygroundConfig: PlaygroundConfig<SheetPlaygroundKey> = {
       >
         <SheetHeader>
           <SheetTitle>Edit profile</SheetTitle>
-          <SheetDescription>Make changes to your profile here.</SheetDescription>
+          <SheetDescription>
+            Make changes to your profile here.
+          </SheetDescription>
         </SheetHeader>
         <SheetFooter>
           <SheetClose render={<Button variant="outline">Cancel</Button>} />
@@ -50,24 +66,24 @@ const sheetPlaygroundConfig: PlaygroundConfig<SheetPlaygroundKey> = {
   ),
   toCode: (state) => {
     const props: string[] = [];
-    if (state.side !== 'right') props.push(`side="${state.side}"`);
-    if (!state.showCloseButton) props.push('showCloseButton={false}');
-    const propsString = props.length > 0 ? ` ${props.join(' ')}` : '';
+    if (state.side !== "right") props.push(`side="${state.side}"`);
+    if (!state.showCloseButton) props.push("showCloseButton={false}");
+    const propsString = props.length > 0 ? ` ${props.join(" ")}` : "";
     return [
-      '<Sheet>',
+      "<Sheet>",
       '  <SheetTrigger render={<Button variant="outline">Open sheet</Button>} />',
       `  <SheetContent${propsString}>`,
-      '    <SheetHeader>',
-      '      <SheetTitle>Edit profile</SheetTitle>',
-      '      <SheetDescription>Make changes to your profile here.</SheetDescription>',
-      '    </SheetHeader>',
-      '    <SheetFooter>',
+      "    <SheetHeader>",
+      "      <SheetTitle>Edit profile</SheetTitle>",
+      "      <SheetDescription>Make changes to your profile here.</SheetDescription>",
+      "    </SheetHeader>",
+      "    <SheetFooter>",
       '      <SheetClose render={<Button variant="outline">Cancel</Button>} />',
-      '      <Button>Save changes</Button>',
-      '    </SheetFooter>',
-      '  </SheetContent>',
-      '</Sheet>',
-    ].join('\n');
+      "      <Button>Save changes</Button>",
+      "    </SheetFooter>",
+      "  </SheetContent>",
+      "</Sheet>",
+    ].join("\n");
   },
 };
 

@@ -1,4 +1,4 @@
-// @vegastack select@0.2.0 sha256-jFpSuVN8sjBDwebndzOo3i1edBDEeodLprbhBaSJdU8=
+// @vegastack select@0.2.0 sha256-uxy3r/LGp2QGwupbgHxRiWyu35QBjcKRqZ3sED4Rks4=
 
 "use client";
 
@@ -7,6 +7,18 @@ import { Select as BaseSelect } from "@base-ui/react/select";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn, FLOATING } from "@vegastack/design";
+import { useInternalThemeScope } from "@vegastack/design/theme-scope";
+
+function mergeStateClassName<State>(
+  className: string,
+  userClassName: string | ((state: State) => string | undefined) | undefined,
+) {
+  if (typeof userClassName === "function") {
+    return (state: State) => cn(className, userClassName(state));
+  }
+
+  return cn(className, userClassName);
+}
 
 /**
  * Trigger variants. `size` mirrors the input/button scale — `sm` (h-(--size-sm)),
@@ -16,11 +28,11 @@ import { cn, FLOATING } from "@vegastack/design";
  */
 export const selectTriggerVariants = cva(
   [
-    "group/select-trigger flex w-full items-center justify-between gap-2 rounded-md border border-input bg-transparent text-base whitespace-nowrap transition-[color,box-shadow,border-color] duration-fast ease-standard select-none",
+    "group/select-trigger flex w-full items-center justify-between gap-2 rounded-md border border-input bg-transparent text-base whitespace-nowrap select-none",
     "focus:border-ring/(--alpha-tint-border)",
     "dark:bg-input/(--alpha-input) dark:hover:bg-input/(--alpha-input-hover)",
     "data-[placeholder]:text-muted-foreground",
-    "aria-invalid:border-destructive/(--alpha-tint-border) data-invalid:border-destructive/(--alpha-tint-border)",
+    "aria-invalid:border-destructive-border/(--alpha-tint-border) data-invalid:border-destructive-border/(--alpha-tint-border)",
     "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-(--opacity-dim)",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
   ].join(" "),
@@ -41,6 +53,7 @@ export const selectTriggerVariants = cva(
  * Base UI `Select.Root`; it doesn't render an element of its own.
  * ----------------------------------------------------------------------------------------------*/
 
+/** Props accepted by `Select`. */
 export type SelectProps<
   Value,
   Multiple extends boolean | undefined = false,
@@ -70,6 +83,7 @@ export function Select<Value, Multiple extends boolean | undefined = false>({
   return <BaseSelect.Root data-slot="select" modal={modal} {...props} />;
 }
 
+/** Props accepted by `SelectValue`. */
 export type SelectValueProps = React.ComponentProps<typeof BaseSelect.Value>;
 
 /**
@@ -80,22 +94,29 @@ export type SelectValueProps = React.ComponentProps<typeof BaseSelect.Value>;
  * ellipsis (`min-w-0 truncate`). For composite content (icon + label via a children
  * function), pass `className="flex min-w-0 items-center gap-2"` and put `truncate` on
  * the text span — a flex container can't ellipsize its children itself.
+ *
+ * @example
+ * <SelectValue placeholder="Choose a plan" />
  */
 export function SelectValue({ className, ...props }: SelectValueProps) {
   return (
     <BaseSelect.Value
       data-slot="select-value"
-      className={cn("min-w-0 truncate text-left", className)}
+      className={cn("min-w-0 truncate text-start", className)}
       {...props}
     />
   );
 }
 
+/** Props accepted by `SelectGroup`. */
 export type SelectGroupProps = React.ComponentProps<typeof BaseSelect.Group>;
 
 /**
  * `SelectGroup` — groups related items with a {@link SelectLabel}. Renders a
  * `<div role="group">` auto-associated with its label. Renders a `<div>`.
+ *
+ * @example
+ * <SelectGroup><SelectLabel>Plans</SelectLabel>{items}</SelectGroup>
  */
 export function SelectGroup({ className, ...props }: SelectGroupProps) {
   return (
@@ -112,6 +133,7 @@ export function SelectGroup({ className, ...props }: SelectGroupProps) {
  * chevron via Base UI `Select.Icon`. Open-state rotates the chevron.
  * ----------------------------------------------------------------------------------------------*/
 
+/** Props accepted by `SelectTrigger`. */
 export interface SelectTriggerProps
   extends
     React.ComponentProps<typeof BaseSelect.Trigger>,
@@ -122,6 +144,9 @@ export interface SelectTriggerProps
  * that flips while open. Focus = the darkened `ring/70` border (button-style trigger:
  * the centralized base.css `:focus-visible` outline also applies for keyboard nav); reflects
  * `aria-invalid`/`disabled`. Renders a `<button>`.
+ *
+ * @example
+ * <SelectTrigger><SelectValue placeholder="Choose" /></SelectTrigger>
  */
 export function SelectTrigger({
   className,
@@ -152,6 +177,7 @@ export function SelectTrigger({
  * `data-starting-style`/`data-ending-style` + transitions (idiomatic Base UI).
  * ----------------------------------------------------------------------------------------------*/
 
+/** Props accepted by `SelectList`. */
 export type SelectListProps = React.ComponentProps<typeof BaseSelect.List>;
 
 /**
@@ -159,6 +185,9 @@ export type SelectListProps = React.ComponentProps<typeof BaseSelect.List>;
  * {@link SelectContent}. Most consumers let `SelectContent` render it
  * automatically; export is available for direct composition and custom list
  * props. Renders a `<div>`.
+ *
+ * @example
+ * <SelectList><SelectItem value="pro">Pro</SelectItem></SelectList>
  */
 export function SelectList({ className, ...props }: SelectListProps) {
   return (
@@ -170,6 +199,7 @@ export function SelectList({ className, ...props }: SelectListProps) {
   );
 }
 
+/** Props accepted by `SelectContent`. */
 export interface SelectContentProps extends React.ComponentProps<
   typeof BaseSelect.Popup
 > {
@@ -188,9 +218,13 @@ export interface SelectContentProps extends React.ComponentProps<
   alignItemWithTrigger?: React.ComponentProps<
     typeof BaseSelect.Positioner
   >["alignItemWithTrigger"];
-  /** Props forwarded to the Base UI `Select.Positioner`. */
+  /** Props forwarded to the Base UI `Select.Positioner`.
+   * @default undefined
+   */
   positionerProps?: React.ComponentProps<typeof BaseSelect.Positioner>;
-  /** Props forwarded to the Base UI `Select.List` rendered around the options. */
+  /** Props forwarded to the Base UI `Select.List` rendered around the options.
+   * @default undefined
+   */
   listProps?: SelectListProps;
 }
 
@@ -200,6 +234,9 @@ export interface SelectContentProps extends React.ComponentProps<
  * `data-starting-style`/`data-ending-style`. Sized to at least the trigger width
  * and capped to the available viewport height (scrolls past that). Renders a
  * `<div>`.
+ *
+ * @example
+ * <SelectContent><SelectItem value="pro">Pro</SelectItem></SelectContent>
  */
 export function SelectContent({
   className,
@@ -212,20 +249,28 @@ export function SelectContent({
   listProps,
   ...props
 }: SelectContentProps) {
+  const themeScope = useInternalThemeScope();
+  const { className: positionerClassName, ...positionerPropsRest } =
+    positionerProps ?? {};
+
   return (
     <BaseSelect.Portal>
       <BaseSelect.Positioner
+        {...positionerPropsRest}
         data-slot="select-positioner"
         side={side}
         align={align}
         sideOffset={sideOffset}
         alignItemWithTrigger={alignItemWithTrigger}
-        className="z-(--z-overlay) outline-none"
-        {...positionerProps}
+        className={mergeStateClassName<BaseSelect.Positioner.State>(
+          cn(themeScope, "z-(--z-overlay) outline-none"),
+          positionerClassName,
+        )}
       >
         <BaseSelect.Popup
           data-slot="select-content"
           className={cn(
+            themeScope,
             "relative z-(--z-overlay) max-h-[var(--available-height)] min-w-[var(--anchor-width)] max-w-[var(--available-width)] origin-[var(--transform-origin)] overflow-x-hidden overflow-y-auto overscroll-contain rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-overlay",
             // `scale` must be listed explicitly — Tailwind v4 `scale-*` sets the CSS `scale`
             // property, which `transform` does not cover (register P0-06; matches every sibling).
@@ -260,19 +305,23 @@ export function SelectContent({
  * `data-highlighted` (keyboard/hover) tints the accent; `data-disabled` dims.
  * ----------------------------------------------------------------------------------------------*/
 
+/** Props accepted by `SelectItem`. */
 export type SelectItemProps = React.ComponentProps<typeof BaseSelect.Item>;
 
 /**
  * `SelectItem` — a single option. Shows a trailing check when selected; tints on
  * `data-highlighted` (keyboard nav / hover) and dims on `data-disabled`. Renders
  * a `<div role="option">`.
+ *
+ * @example
+ * <SelectItem value="pro">Pro</SelectItem>
  */
 export function SelectItem({ className, children, ...props }: SelectItemProps) {
   return (
     <BaseSelect.Item
       data-slot="select-item"
       className={cn(
-        "relative flex w-full items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-base outline-none select-none",
+        "relative flex w-full items-center gap-2 rounded-sm py-1.5 pe-8 ps-2 text-base outline-none select-none",
         "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim)",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
@@ -280,7 +329,7 @@ export function SelectItem({ className, children, ...props }: SelectItemProps) {
       )}
       {...props}
     >
-      <span className="absolute right-2 flex size-(--icon-default) items-center justify-center text-foreground">
+      <span className="absolute end-2 flex size-(--icon-default) items-center justify-center text-foreground">
         <BaseSelect.ItemIndicator data-slot="select-item-indicator">
           <Check className="size-(--icon-default)" aria-hidden />
         </BaseSelect.ItemIndicator>
@@ -299,6 +348,7 @@ export function SelectItem({ className, children, ...props }: SelectItemProps) {
  * Label + Separator — group heading and divider.
  * ----------------------------------------------------------------------------------------------*/
 
+/** Props accepted by `SelectLabel`. */
 export type SelectLabelProps = React.ComponentProps<
   typeof BaseSelect.GroupLabel
 >;
@@ -306,6 +356,9 @@ export type SelectLabelProps = React.ComponentProps<
 /**
  * `SelectLabel` — a heading for a {@link SelectGroup}, auto-associated with it.
  * Muted, small. Renders a `<div>`.
+ *
+ * @example
+ * <SelectLabel>Plans</SelectLabel>
  */
 export function SelectLabel({ className, ...props }: SelectLabelProps) {
   return (
@@ -320,6 +373,7 @@ export function SelectLabel({ className, ...props }: SelectLabelProps) {
   );
 }
 
+/** Props accepted by `SelectSeparator`. */
 export type SelectSeparatorProps = React.ComponentProps<
   typeof BaseSelect.Separator
 >;
@@ -327,6 +381,9 @@ export type SelectSeparatorProps = React.ComponentProps<
 /**
  * `SelectSeparator` — a horizontal divider between items or groups. Renders a
  * `<div role="separator">`.
+ *
+ * @example
+ * <SelectSeparator />
  */
 export function SelectSeparator({ className, ...props }: SelectSeparatorProps) {
   return (

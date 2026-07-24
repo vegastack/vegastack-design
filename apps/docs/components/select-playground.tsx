@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 import {
   Select,
   SelectTrigger,
@@ -8,29 +8,42 @@ import {
   SelectContent,
   SelectItem,
   type SelectTriggerProps,
-} from '@/components/ui/select';
-import { PropsPlayground, type PlaygroundConfig } from '@/components/playground';
+} from "@/components/ui/select";
+import {
+  PropsPlayground,
+  type PlaygroundConfig,
+} from "@/components/playground";
 
-type SelectPlaygroundKey = 'size' | 'disabled';
+type SelectPlaygroundKey = "size" | "disabled";
 
 const SIZE_OPTIONS = [
-  { value: 'sm', label: 'Small' },
-  { value: 'default', label: 'Default' },
-  { value: 'lg', label: 'Large' },
+  { value: "sm", label: "Small" },
+  { value: "default", label: "Default" },
+  { value: "lg", label: "Large" },
 ] as const;
 
-const FONTS = { sans: 'Sans-serif', serif: 'Serif', mono: 'Monospace' };
+const FONTS = { sans: "Sans-serif", serif: "Serif", mono: "Monospace" };
 
 const selectPlaygroundConfig: PlaygroundConfig<SelectPlaygroundKey> = {
   controls: [
-    { type: 'select', key: 'size', label: 'Size', options: SIZE_OPTIONS, defaultValue: 'default' },
-    { type: 'switch', key: 'disabled', label: 'Disabled', defaultValue: false },
+    {
+      type: "select",
+      key: "size",
+      label: "Size",
+      options: SIZE_OPTIONS,
+      defaultValue: "default",
+    },
+    { type: "switch", key: "disabled", label: "Disabled", defaultValue: false },
   ],
   render: (state): ReactNode => (
     <div className="w-56">
-      <Select items={FONTS} defaultValue="serif" disabled={Boolean(state.disabled)}>
+      <Select
+        items={FONTS}
+        defaultValue="serif"
+        disabled={Boolean(state.disabled)}
+      >
         <SelectTrigger
-          size={state.size as SelectTriggerProps['size']}
+          size={state.size as SelectTriggerProps["size"]}
           aria-label="Font family"
         >
           <SelectValue placeholder="Select a font" />
@@ -46,22 +59,23 @@ const selectPlaygroundConfig: PlaygroundConfig<SelectPlaygroundKey> = {
     </div>
   ),
   toCode: (state) => {
-    const rootProps = state.disabled ? ' disabled' : '';
-    const triggerProps = state.size !== 'default' ? ` size="${state.size}"` : '';
+    const rootProps = state.disabled ? " disabled" : "";
+    const triggerProps =
+      state.size !== "default" ? ` size="${state.size}"` : "";
     return [
       'const fonts = { sans: "Sans-serif", serif: "Serif", mono: "Monospace" };',
-      '',
+      "",
       `<Select items={fonts} defaultValue="serif"${rootProps}>`,
       `  <SelectTrigger${triggerProps} aria-label="Font family">`,
       '    <SelectValue placeholder="Select a font" />',
-      '  </SelectTrigger>',
-      '  <SelectContent>',
+      "  </SelectTrigger>",
+      "  <SelectContent>",
       '    <SelectItem value="sans">Sans-serif</SelectItem>',
       '    <SelectItem value="serif">Serif</SelectItem>',
       '    <SelectItem value="mono">Monospace</SelectItem>',
-      '  </SelectContent>',
-      '</Select>',
-    ].join('\n');
+      "  </SelectContent>",
+      "</Select>",
+    ].join("\n");
   },
 };
 

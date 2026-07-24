@@ -13,9 +13,9 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P2 | `table.mdx:83` documents only `TableProps`, while source exports multiple part prop types starting at `table.tsx:49`. | API section is incomplete for compound parts. | Add tables for public table parts or explicitly mark them native passthrough. |
+| Priority | Evidence                                                                                                              | Impact                                        | Suggested fix                                                                 |
+| -------- | --------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------------- |
+| P2       | `table.mdx:83` documents only `TableProps`, while source exports multiple part prop types starting at `table.tsx:49`. | API section is incomplete for compound parts. | Add tables for public table parts or explicitly mark them native passthrough. |
 
 ## Residual Risks
 
@@ -24,4 +24,3 @@ No component-specific implementation defect found.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- table.test.tsx`
-

@@ -1,6 +1,7 @@
 ---
 title: Field Inline
 description: Click-to-edit text — displays a value, swaps to a focused input on click, commits on Enter or blur, cancels on Escape.
+audience: public
 preview: fieldInline
 ---
 
@@ -27,15 +28,18 @@ only when the value actually changed, and your app owns persistence — the hand
 can be synchronous or kick off an async mutation.
 
 The example above is interactive: click the value to enter edit mode, then press
+
 <kbd>Enter</kbd> to commit or <kbd>Escape</kbd> to cancel.
 
-## Playground
+## Examples
+
+### Playground
 
 Toggle borderless, disabled, and read-only on a click-to-edit value, then copy the generated JSX.
 
 <FieldInlinePlayground />
 
-## Empty state
+### Empty state
 
 When `value` is empty, display mode renders the `placeholder` as muted text so
 there is always something to click. If no `placeholder` is supplied either, it
@@ -47,7 +51,7 @@ element's accessible name, so the control is never unnamed even when blank.
   file="components/preview/field-inline.tsx"
 />
 
-## Accessible name
+### Accessible name
 
 `label` names the edit-mode input for assistive tech without rendering any
 visible text. `placeholder`, by contrast, is the visible empty-state hint and is
@@ -59,11 +63,11 @@ used as the accessible name only as a last resort. Prefer `label` (or
   file="components/preview/field-inline.tsx"
 />
 
-## Borderless
+### Borderless
 
-Set `borderless` to strip the input's border, background, and padding so the edit
-state sits seamlessly within surrounding text — ideal for editing a title in
-place.
+Set `borderless` to make the resting border transparent and remove the background and padding so the
+edit state sits seamlessly within surrounding text. The retained border geometry still provides the
+text-entry focus tint.
 
 <ComponentPreview
   name="fieldInlineBorderless"
@@ -92,7 +96,7 @@ place.
 - Focus treatment differs by mode: the display affordance is a
   `role="button"` `<span>` with `hover:bg-muted` and the default browser focus
   outline (no custom ring class). The edit-mode [`Input`](/docs/components/input)
-  sets `outline-none` and re-colors its border on focus via `focus:border-ring/70`
+  sets `outline-none` and re-colors its border on focus via `focus:border-ring/(--alpha-tint-border)`
   — a border recolor, not a 2px ring.
 
 ## Do / Don't

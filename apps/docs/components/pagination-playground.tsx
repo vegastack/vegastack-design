@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 import {
   Pagination,
   PaginationContent,
@@ -9,25 +9,34 @@ import {
   PaginationPrevious,
   PaginationNext,
   type PaginationLinkProps,
-} from '@/components/ui/pagination';
-import { PropsPlayground, type PlaygroundConfig } from '@/components/playground';
+} from "@/components/ui/pagination";
+import {
+  PropsPlayground,
+  type PlaygroundConfig,
+} from "@/components/playground";
 
-type PaginationPlaygroundKey = 'size';
+type PaginationPlaygroundKey = "size";
 
 // `icon` (a square) is the default for numbered page links; `sm`/`default`/`lg`
 // widen the hit target with horizontal padding on the shared control scale.
 const SIZE_OPTIONS = [
-  { value: 'icon', label: 'Icon (square)' },
-  { value: 'sm', label: 'Small' },
-  { value: 'default', label: 'Default' },
-  { value: 'lg', label: 'Large' },
+  { value: "icon", label: "Icon (square)" },
+  { value: "sm", label: "Small" },
+  { value: "default", label: "Default" },
+  { value: "lg", label: "Large" },
 ] as const;
 
 const PAGES = [1, 2, 3, 4, 5] as const;
 
 const paginationPlaygroundConfig: PlaygroundConfig<PaginationPlaygroundKey> = {
   controls: [
-    { type: 'select', key: 'size', label: 'Size', options: SIZE_OPTIONS, defaultValue: 'icon' },
+    {
+      type: "select",
+      key: "size",
+      label: "Size",
+      options: SIZE_OPTIONS,
+      defaultValue: "icon",
+    },
   ],
   render: (state): ReactNode => (
     <Pagination>
@@ -39,7 +48,7 @@ const paginationPlaygroundConfig: PlaygroundConfig<PaginationPlaygroundKey> = {
           <PaginationItem key={page}>
             <PaginationLink
               href="#"
-              size={state.size as PaginationLinkProps['size']}
+              size={state.size as PaginationLinkProps["size"]}
               isActive={page === 2}
             >
               {page}
@@ -53,28 +62,28 @@ const paginationPlaygroundConfig: PlaygroundConfig<PaginationPlaygroundKey> = {
     </Pagination>
   ),
   toCode: (state) => {
-    const sizeProp = state.size !== 'icon' ? ` size="${state.size}"` : '';
+    const sizeProp = state.size !== "icon" ? ` size="${state.size}"` : "";
     return [
-      '<Pagination>',
-      '  <PaginationContent>',
-      '    <PaginationItem>',
+      "<Pagination>",
+      "  <PaginationContent>",
+      "    <PaginationItem>",
       '      <PaginationPrevious href="?page=1" />',
-      '    </PaginationItem>',
-      '    <PaginationItem>',
+      "    </PaginationItem>",
+      "    <PaginationItem>",
       `      <PaginationLink href="?page=1"${sizeProp}>1</PaginationLink>`,
-      '    </PaginationItem>',
-      '    <PaginationItem>',
+      "    </PaginationItem>",
+      "    <PaginationItem>",
       `      <PaginationLink href="?page=2"${sizeProp} isActive>2</PaginationLink>`,
-      '    </PaginationItem>',
-      '    <PaginationItem>',
+      "    </PaginationItem>",
+      "    <PaginationItem>",
       `      <PaginationLink href="?page=3"${sizeProp}>3</PaginationLink>`,
-      '    </PaginationItem>',
-      '    <PaginationItem>',
+      "    </PaginationItem>",
+      "    <PaginationItem>",
       '      <PaginationNext href="?page=3" />',
-      '    </PaginationItem>',
-      '  </PaginationContent>',
-      '</Pagination>',
-    ].join('\n');
+      "    </PaginationItem>",
+      "  </PaginationContent>",
+      "</Pagination>",
+    ].join("\n");
   },
 };
 

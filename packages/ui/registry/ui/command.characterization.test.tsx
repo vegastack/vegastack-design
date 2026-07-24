@@ -1,7 +1,7 @@
-import * as React from 'react';
-import { render } from 'vitest-browser-react';
-import { expect, test, vi } from 'vitest';
-import { userEvent } from 'vitest/browser';
+import * as React from "react";
+import { render } from "vitest-browser-react";
+import { expect, test, vi } from "vitest";
+import { userEvent } from "vitest/browser";
 import {
   Command,
   CommandInput,
@@ -10,7 +10,7 @@ import {
   CommandGroup,
   CommandItem,
   useCommandFilteredItems,
-} from './command';
+} from "./command";
 
 /**
  * CHARACTERIZATION SPEC (plan v5 X1, CX-4): pins the palette behavior the system promises,
@@ -40,18 +40,21 @@ function Palette(props: {
   items?: PaletteItem[];
 }) {
   const items = props.items ?? [
-    { value: 'calendar', label: 'Calendar' },
-    { value: 'calculator', label: 'Calculator' },
-    { value: 'settings', label: 'Settings', disabled: false },
+    { value: "calendar", label: "Calendar" },
+    { value: "calculator", label: "Calculator" },
+    { value: "settings", label: "Settings", disabled: false },
   ];
   return (
     <Command
       loop={props.loop}
       value={props.value}
       onValueChange={props.onValueChange}
-      items={[{ heading: 'Tools', items }]}
+      items={[{ heading: "Tools", items }]}
     >
-      <CommandInput placeholder="Type a command…" aria-label="Command palette" />
+      <CommandInput
+        placeholder="Type a command…"
+        aria-label="Command palette"
+      />
       <CommandEmpty>No results found.</CommandEmpty>
       <CommandList>
         <PaletteGroups onSelect={props.onSelect} />
@@ -61,11 +64,18 @@ function Palette(props: {
 }
 
 function PaletteGroups({ onSelect }: { onSelect?: (v: string) => void }) {
-  const groups = useCommandFilteredItems<{ heading: string; items: PaletteItem[] }>();
+  const groups = useCommandFilteredItems<{
+    heading: string;
+    items: PaletteItem[];
+  }>();
   return (
     <>
       {groups.map((group) => (
-        <CommandGroup key={group.heading} heading={group.heading} items={group.items}>
+        <CommandGroup
+          key={group.heading}
+          heading={group.heading}
+          items={group.items}
+        >
           {(item) => (
             <CommandItem
               key={item.value}
@@ -84,8 +94,11 @@ function PaletteGroups({ onSelect }: { onSelect?: (v: string) => void }) {
 
 function visibleItems(): string[] {
   return [...document.querySelectorAll('[data-slot="command-item"]')]
-    .filter((el) => el.getAttribute('aria-hidden') !== 'true' && !el.closest('[hidden]'))
-    .map((el) => el.textContent?.trim() ?? '');
+    .filter(
+      (el) =>
+        el.getAttribute("aria-hidden") !== "true" && !el.closest("[hidden]"),
+    )
+    .map((el) => el.textContent?.trim() ?? "");
 }
 
 // DEVIATION: the prior implementation conflated "highlighted" (keyboard/pointer cursor) and "selected" (a persisted
@@ -96,58 +109,62 @@ function visibleItems(): string[] {
 // value" test below, which now asserts against THAT instead). Verified via Base UI's
 // ComboboxItem.mjs: `highlighted = isActive(activeIndex)`, `selected = isSelected(selectedValue)`.
 function selectedItem(): string | null {
-  const el = document.querySelector('[data-slot="command-item"][data-highlighted]');
-  return el ? (el.textContent?.trim() ?? '') : null;
+  const el = document.querySelector(
+    '[data-slot="command-item"][data-highlighted]',
+  );
+  return el ? (el.textContent?.trim() ?? "") : null;
 }
 
-test('SPEC filtering: typing narrows to substring matches; clearing restores all', async () => {
+test("SPEC filtering: typing narrows to substring matches; clearing restores all", async () => {
   const screen = await render(<Palette />);
-  const input = screen.getByRole('combobox', { name: 'Command palette' });
-  await input.fill('calc');
-  expect(visibleItems()).toEqual(['Calculator']);
-  await input.fill('');
-  expect(visibleItems()).toEqual(['Calendar', 'Calculator', 'Settings']);
+  const input = screen.getByRole("combobox", { name: "Command palette" });
+  await input.fill("calc");
+  expect(visibleItems()).toEqual(["Calculator"]);
+  await input.fill("");
+  expect(visibleItems()).toEqual(["Calendar", "Calculator", "Settings"]);
 });
 
-test('SPEC filtering: no match shows the Empty slot', async () => {
+test("SPEC filtering: no match shows the Empty slot", async () => {
   const screen = await render(<Palette />);
-  await screen.getByRole('combobox', { name: 'Command palette' }).fill('zzz');
-  await expect.element(screen.getByText('No results found.')).toBeInTheDocument();
+  await screen.getByRole("combobox", { name: "Command palette" }).fill("zzz");
+  await expect
+    .element(screen.getByText("No results found."))
+    .toBeInTheDocument();
   expect(visibleItems()).toEqual([]);
 });
 
-test('SPEC arrows: ArrowDown/ArrowUp move the selection highlight', async () => {
+test("SPEC arrows: ArrowDown/ArrowUp move the selection highlight", async () => {
   const screen = await render(<Palette />);
-  const input = screen.getByRole('combobox', { name: 'Command palette' });
+  const input = screen.getByRole("combobox", { name: "Command palette" });
   await input.click();
-  await userEvent.keyboard('{ArrowDown}');
-  expect(selectedItem()).toBe('Calculator');
-  await userEvent.keyboard('{ArrowUp}');
-  expect(selectedItem()).toBe('Calendar');
+  await userEvent.keyboard("{ArrowDown}");
+  expect(selectedItem()).toBe("Calculator");
+  await userEvent.keyboard("{ArrowUp}");
+  expect(selectedItem()).toBe("Calendar");
 });
 
-test('SPEC Home/End: jump to first/last item', async () => {
+test("SPEC Home/End: jump to first/last item", async () => {
   const screen = await render(<Palette />);
-  const input = screen.getByRole('combobox', { name: 'Command palette' });
+  const input = screen.getByRole("combobox", { name: "Command palette" });
   await input.click();
-  await userEvent.keyboard('{End}');
-  expect(selectedItem()).toBe('Settings');
-  await userEvent.keyboard('{Home}');
-  expect(selectedItem()).toBe('Calendar');
+  await userEvent.keyboard("{End}");
+  expect(selectedItem()).toBe("Settings");
+  await userEvent.keyboard("{Home}");
+  expect(selectedItem()).toBe("Calendar");
 });
 
-test('SPEC loop: with loop, ArrowUp from the first item wraps to the last', async () => {
+test("SPEC loop: with loop, ArrowUp from the first item wraps to the last", async () => {
   const screen = await render(<Palette loop />);
-  await screen.getByRole('combobox', { name: 'Command palette' }).click();
-  await userEvent.keyboard('{ArrowUp}');
-  expect(selectedItem()).toBe('Settings');
+  await screen.getByRole("combobox", { name: "Command palette" }).click();
+  await userEvent.keyboard("{ArrowUp}");
+  expect(selectedItem()).toBe("Settings");
 });
 
-test('SPEC no-loop: ArrowUp from the first item stays on the first', async () => {
+test("SPEC no-loop: ArrowUp from the first item stays on the first", async () => {
   const screen = await render(<Palette />);
-  await screen.getByRole('combobox', { name: 'Command palette' }).click();
-  await userEvent.keyboard('{ArrowUp}');
-  expect(selectedItem()).toBe('Calendar');
+  await screen.getByRole("combobox", { name: "Command palette" }).click();
+  await userEvent.keyboard("{ArrowUp}");
+  expect(selectedItem()).toBe("Calendar");
 });
 
 // DEVIATION: reproduced, not guessed — Base UI's Combobox hard-codes `disabledIndices: EMPTY_ARRAY`
@@ -157,27 +174,27 @@ test('SPEC no-loop: ArrowUp from the first item stays on the first', async () =>
 // "a disabled item ... does not fire onSelect" coverage in command.test.tsx), so a disabled item
 // is inert but no longer skipped in *navigation*. A consumer that needs true skip-in-navigation
 // must omit the item from `items` entirely. Assertion updated to the real, verified behavior.
-test('SPEC disabled-skip: arrow navigation does not skip disabled items (Base UI limitation)', async () => {
+test("SPEC disabled-skip: arrow navigation does not skip disabled items (Base UI limitation)", async () => {
   const screen = await render(
     <Palette
       items={[
-        { value: 'a', label: 'Alpha' },
-        { value: 'b', label: 'Beta', disabled: true },
-        { value: 'c', label: 'Gamma' },
+        { value: "a", label: "Alpha" },
+        { value: "b", label: "Beta", disabled: true },
+        { value: "c", label: "Gamma" },
       ]}
     />,
   );
-  await screen.getByRole('combobox', { name: 'Command palette' }).click();
-  await userEvent.keyboard('{ArrowDown}');
-  expect(selectedItem()).toBe('Beta');
+  await screen.getByRole("combobox", { name: "Command palette" }).click();
+  await userEvent.keyboard("{ArrowDown}");
+  expect(selectedItem()).toBe("Beta");
 });
 
-test('SPEC Enter activates the highlighted item (onSelect fires with its value)', async () => {
+test("SPEC Enter activates the highlighted item (onSelect fires with its value)", async () => {
   const onSelect = vi.fn();
   const screen = await render(<Palette onSelect={onSelect} />);
-  await screen.getByRole('combobox', { name: 'Command palette' }).click();
-  await userEvent.keyboard('{ArrowDown}{Enter}');
-  expect(onSelect).toHaveBeenCalledWith('calculator');
+  await screen.getByRole("combobox", { name: "Command palette" }).click();
+  await userEvent.keyboard("{ArrowDown}{Enter}");
+  expect(onSelect).toHaveBeenCalledWith("calculator");
 });
 
 // DEVIATION: the prior implementation's `value`/`onValueChange` controlled the keyboard HIGHLIGHT. Base UI's Combobox
@@ -188,14 +205,16 @@ test('SPEC Enter activates the highlighted item (onSelect fires with its value)'
 // Reinterpreted as the more useful/idiomatic mapping for a greenfield API: assert the item matching
 // the controlled `value` renders as SELECTED (`aria-selected`/`data-selected`, Base UI's own,
 // unconditional-of-`open` state), not highlighted.
-test('SPEC controlled value: the item matching the controlled value is marked selected', async () => {
+test("SPEC controlled value: the item matching the controlled value is marked selected", async () => {
   function Controlled() {
-    const [value, setValue] = React.useState<string | null>('settings');
+    const [value, setValue] = React.useState<string | null>("settings");
     return <Palette value={value ?? undefined} onValueChange={setValue} />;
   }
   await render(<Controlled />);
-  const el = document.querySelector('[data-slot="command-item"][aria-selected="true"]');
-  expect(el?.textContent?.trim()).toBe('Settings');
+  const el = document.querySelector(
+    '[data-slot="command-item"][aria-selected="true"]',
+  );
+  expect(el?.textContent?.trim()).toBe("Settings");
 });
 
 // DEVIATION: the old version rendered a fully static (no `items` prop) palette relying on the prior library's
@@ -205,11 +224,14 @@ test('SPEC controlled value: the item matching the controlled value is marked se
 // filtering mode to fall back to. Rewritten so the async items flow through `items` reactively
 // (`setItems` once "loaded"), which is the natural, idiomatic way to express "items that appear
 // later" in the new API and proves the same thing: once present, they're filterable/navigable.
-test('SPEC async: items that appear later become filterable/navigable', async () => {
+test("SPEC async: items that appear later become filterable/navigable", async () => {
   function AsyncPalette() {
     const [items, setItems] = React.useState<PaletteItem[]>([]);
     React.useEffect(() => {
-      const t = setTimeout(() => setItems([{ value: 'late-item', label: 'Late item' }]), 50);
+      const t = setTimeout(
+        () => setItems([{ value: "late-item", label: "Late item" }]),
+        50,
+      );
       return () => clearTimeout(t);
     }, []);
     return (
@@ -227,22 +249,27 @@ test('SPEC async: items that appear later become filterable/navigable', async ()
     );
   }
   const screen = await render(<AsyncPalette />);
-  await expect.element(screen.getByText('Late item')).toBeInTheDocument();
-  await screen.getByRole('combobox', { name: 'Async palette' }).fill('late');
-  expect(visibleItems()).toEqual(['Late item']);
+  await expect.element(screen.getByText("Late item")).toBeInTheDocument();
+  await screen.getByRole("combobox", { name: "Async palette" }).fill("late");
+  expect(visibleItems()).toEqual(["Late item"]);
 });
 
-test('SPEC IME: composition input does not activate items until committed', async () => {
+test("SPEC IME: composition input does not activate items until committed", async () => {
   const onSelect = vi.fn();
   const screen = await render(<Palette onSelect={onSelect} />);
-  const input = screen.getByRole('combobox', { name: 'Command palette' });
+  const input = screen.getByRole("combobox", { name: "Command palette" });
   await input.click();
   const el = input.element() as HTMLInputElement;
   // Simulate an in-flight IME composition, then press Enter mid-composition.
-  el.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true }));
+  el.dispatchEvent(new CompositionEvent("compositionstart", { bubbles: true }));
   el.dispatchEvent(
-    new KeyboardEvent('keydown', { key: 'Enter', keyCode: 229, isComposing: true, bubbles: true }),
+    new KeyboardEvent("keydown", {
+      key: "Enter",
+      keyCode: 229,
+      isComposing: true,
+      bubbles: true,
+    }),
   );
   expect(onSelect).not.toHaveBeenCalled();
-  el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true }));
+  el.dispatchEvent(new CompositionEvent("compositionend", { bubbles: true }));
 });

@@ -1,6 +1,6 @@
-// @vegastack dashboard-01@0.2.0 sha256-0n5FBIpJDwhYVC5aSLixZGo20UEXyAgyNmM4+AHClFc=
+// @vegastack dashboard-01@0.2.0 sha256-qm7+2LKVAhfwH5v5FXl7Weku+tAmcp/QpP0RBAnmHOM=
 
-'use client';
+"use client";
 
 /**
  * `stat-cards.tsx` — the dashboard-01 block's four-up metrics row (audit §e item 2): "Active
@@ -10,26 +10,30 @@
  * 'use client' — `AnimatedNumber` is a client leaf (tween + `prefers-reduced-motion` hook).
  */
 
-import { ArrowDown, ArrowUp, Minus } from 'lucide-react';
-import { AnimatedNumber } from '@/components/ui/animated-number';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { ArrowDown, ArrowUp, Minus } from "lucide-react";
+import { AnimatedNumber } from "@/components/ui/animated-number";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export interface StatCardDatum {
   /** Stable identifier — used as the React key. */
   key: string;
+  /** Human-readable metric label. */
   label: string;
+  /** Numeric metric value. */
   value: number;
   /** Percentage change vs. the prior period. Positive = up (`success`), negative = down (`destructive`), 0 = flat. */
   delta: number;
   /** Formatting hint for `value` — omit for a plain grouped integer, or `'ms'` for a millisecond duration. */
-  unit?: 'ms';
+  unit?: "ms";
 }
 
+/** Props accepted by `StatCards`. */
 export interface StatCardsProps {
+  /** Metrics rendered in the responsive card grid. */
   stats: StatCardDatum[];
-  /** Shows 4 skeleton placeholder cards instead of `stats` — the region's own loading state. */
+  /** Shows 4 skeleton placeholder cards instead of `stats` — the region's own loading state. @default false */
   loading?: boolean;
 }
 
@@ -43,6 +47,8 @@ function formatDelta(delta: number): string {
  * `@lg/app-shell-content:grid-cols-4` — driven by the CONTENT region's own width (sidebar
  * collapse-aware via a Tailwind v4 native container query), not the viewport, since collapsing
  * the sidebar changes available width independent of viewport size (`app-shell.tsx`'s own doc).
+ *
+ * @example <StatCards stats={stats} />
  */
 export function StatCards({ stats, loading = false }: StatCardsProps) {
   return (
@@ -62,7 +68,8 @@ export function StatCards({ stats, loading = false }: StatCardsProps) {
             </Card>
           ))
         : stats.map((stat) => {
-            const trend = stat.delta > 0 ? 'up' : stat.delta < 0 ? 'down' : 'flat';
+            const trend =
+              stat.delta > 0 ? "up" : stat.delta < 0 ? "down" : "flat";
             return (
               <Card key={stat.key} data-slot="dashboard-stat-card">
                 <CardHeader>
@@ -75,10 +82,22 @@ export function StatCards({ stats, loading = false }: StatCardsProps) {
                     </CardTitle>
                     <Badge
                       variant="subtle"
-                      intent={trend === 'up' ? 'success' : trend === 'down' ? 'destructive' : 'default'}
+                      intent={
+                        trend === "up"
+                          ? "success"
+                          : trend === "down"
+                            ? "destructive"
+                            : "default"
+                      }
                       className="shrink-0"
                     >
-                      {trend === 'up' ? <ArrowUp /> : trend === 'down' ? <ArrowDown /> : <Minus />}
+                      {trend === "up" ? (
+                        <ArrowUp />
+                      ) : trend === "down" ? (
+                        <ArrowDown />
+                      ) : (
+                        <Minus />
+                      )}
                       {formatDelta(stat.delta)}
                     </Badge>
                   </div>
@@ -87,8 +106,12 @@ export function StatCards({ stats, loading = false }: StatCardsProps) {
                   <AnimatedNumber
                     value={stat.value}
                     format={
-                      stat.unit === 'ms'
-                        ? { style: 'unit', unit: 'millisecond', unitDisplay: 'short' }
+                      stat.unit === "ms"
+                        ? {
+                            style: "unit",
+                            unit: "millisecond",
+                            unitDisplay: "short",
+                          }
                         : { maximumFractionDigits: 0 }
                     }
                     className="font-mono text-2xl text-foreground"

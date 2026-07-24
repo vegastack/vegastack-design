@@ -1,0 +1,115 @@
+---
+title: Agent skills
+description: Install the VegaStack agent skills so Claude Code and Codex build on-system by default — what each one covers, and how to install and update them.
+audience: public
+---
+
+VegaStack ships **agent skills**: packaged instructions that teach a coding agent how to build with
+the design system correctly. They are the same format Claude Code, Codex, and other agents read —
+a `SKILL.md` per skill — and they are versioned with the design system itself.
+
+Without them, an agent has to infer your conventions from whatever code it can see, and will
+reliably invent a hex colour, a `font-semibold`, or a hand-rolled dialog. With them, it reaches for
+the right component and the right token because it was told which ones exist.
+
+## Install
+
+<Callout type="warn">
+  Requires `@vegastack/design` **0.2.0 or newer**. Earlier versions do not
+  bundle the skills and the `skills` subcommand does not exist —
+  `vegastack-design skills list` on an older install exits with `unknown
+  command: skills`. Check with `npm ls @vegastack/design`.
+</Callout>
+
+```bash
+npm i @vegastack/design      # if you have not already
+npx --package=@vegastack/design vegastack-design skills install
+```
+
+Once the package is a local dependency you can use the shorter, faster form, which resolves the
+binary from `node_modules` and never contacts the registry:
+
+```bash
+pnpm exec vegastack-design skills install
+```
+
+Prefer one of those two over a bare `npx vegastack-design …`. The bin is named `vegastack-design`
+but the package is `@vegastack/design`, so a bare `npx` in a project that does not already have it
+installed would try to fetch an unrelated, unscoped `vegastack-design` package from npm.
+
+That writes the skills into **both** agent surfaces:
+
+```
+.claude/skills/     # Claude Code
+.agents/skills/     # Codex
+```
+
+No credentials, no registry access, no network call — the skills ship inside the public
+`@vegastack/design` package, so they work in external and client projects that hold zero VegaStack
+credentials.
+
+Restart your agent afterwards if it was already running, so it picks up the new directory.
+
+### Options
+
+| Flag           | Effect                                                             |
+| -------------- | ------------------------------------------------------------------ |
+| `--claude`     | Install only `.claude/skills`                                      |
+| `--codex`      | Install only `.agents/skills`                                      |
+| `--dir <path>` | Install into another project root (default: the current directory) |
+| `--dry-run`    | Print exactly what would be written; write nothing                 |
+| `--force`      | Overwrite files that already exist and differ                      |
+
+The installer is safe by default: it **never** overwrites an existing file that differs without
+`--force`, it **never** writes through a symlink, and a conflict on any single file aborts the whole
+run rather than leaving a half-installed set.
+
+```bash
+npx --package=@vegastack/design vegastack-design skills list      # what this version bundles
+```
+
+## What you get
+
+| Skill                     | What it covers                                                                                                                                                                                                                                               |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `vegastack-design-system` | Component selection, the semantic token vocabulary, composition patterns for forms and overlays, and the do/don't rules. Includes the full component roster, generated from the design system's own contract — so it never drifts from what actually exists. |
+| `vegastack-consume`       | Project setup: the npm layer, Tailwind v4 CSS, the provider, registry auth, the fail-closed add flow, token overrides, and staying current.                                                                                                                  |
+| `vegastack-design-audit`  | A read-only audit of your app — hardcoded values, off-system utilities, raw HTML where a component exists, accessibility gaps, setup mistakes, and copied-in components that have drifted.                                                                   |
+| `vegastack-brand`         | Marketing and external visual identity. A deliberate stub until brand assets land — it exists so an agent says "not defined yet" instead of inventing a palette.                                                                                             |
+
+Agents load a skill automatically when the work matches its description; you can also invoke one
+directly by name, for example `/vegastack-design-audit`.
+
+## Updating
+
+The skills are versioned with the package, so they update when it does:
+
+```bash
+npm update @vegastack/design
+npx --package=@vegastack/design vegastack-design skills install --force
+```
+
+`--force` is needed because the previously installed files exist and differ. If you have edited an
+installed skill, move your version aside first — `--force` overwrites it.
+
+## Customising
+
+Treat installed skills as copied-in, the same as components: yours to keep, not to edit, because the
+next update overwrites them. To add project-specific guidance, create your own skill alongside them
+rather than editing a `vegastack-` one:
+
+```
+.claude/skills/
+  my-project-conventions/SKILL.md   # yours
+  vegastack-design-system/SKILL.md  # ours — do not edit
+```
+
+Every VegaStack skill directory is `vegastack-`-prefixed precisely so it can never collide with one
+of yours.
+
+## Committing them
+
+Commit the installed skills. They are small, they are part of how your repo builds, and committing
+them means every teammate and every CI agent gets the same guidance without a setup step. They also
+travel to cloud and scheduled agent sessions, which read a repository's committed
+`.claude/skills/` but not a developer's machine.

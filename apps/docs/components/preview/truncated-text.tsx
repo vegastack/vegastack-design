@@ -1,21 +1,32 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { FileText } from 'lucide-react';
-import { Wrapper } from './wrapper';
-import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import type { ReactNode } from "react";
+import { FileText } from "lucide-react";
+import { Wrapper } from "./wrapper";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 // Copied INTO apps/docs via `shadcn add @vegastack/truncated-text` (dogfoods the registry) → auto-scanned.
-import { IconText, TableCellText, TruncatedText } from '@/components/ui/truncated-text';
+import {
+  IconText,
+  TableCellText,
+  TruncatedText,
+} from "@/components/ui/truncated-text";
 
 // The Tooltip.Provider already lives in the docs <Provider> (mirrors
 // VegaStackProvider), so the overflow tooltip works without extra wiring.
 
 const LONG_TITLE =
-  'Quarterly revenue reconciliation report — North America region, fiscal year 2026';
+  "Quarterly revenue reconciliation report — North America region, fiscal year 2026";
 
 const LONG_DESCRIPTION =
-  'A long-form description that comfortably exceeds two lines inside a constrained column, so the text clamps with an ellipsis and the full copy is revealed in a tooltip on hover or keyboard focus.';
+  "A long-form description that comfortably exceeds two lines inside a constrained column, so the text clamps with an ellipsis and the full copy is revealed in a tooltip on hover or keyboard focus.";
 
 export function truncatedText(): ReactNode {
   return (
@@ -23,7 +34,9 @@ export function truncatedText(): ReactNode {
       <div className="w-56 space-y-1 rounded-md border border-fd-border p-3">
         <p className="text-sm text-muted-foreground">Report name</p>
         {/* Single line: hover or focus to reveal the full title in a tooltip. */}
-        <TruncatedText className="text-base text-foreground">{LONG_TITLE}</TruncatedText>
+        <TruncatedText className="text-base text-foreground">
+          {LONG_TITLE}
+        </TruncatedText>
       </div>
     </Wrapper>
   );
@@ -35,7 +48,11 @@ export function truncatedTextMultiline(): ReactNode {
       <div className="w-56 space-y-1 rounded-md border border-fd-border p-3">
         <p className="text-sm text-muted-foreground">Description</p>
         {/* Clamp to two lines; the overflow tooltip carries the rest. */}
-        <TruncatedText as="p" lines={2} className="text-base text-muted-foreground">
+        <TruncatedText
+          as="p"
+          lines={2}
+          className="text-base text-muted-foreground"
+        >
           {LONG_DESCRIPTION}
         </TruncatedText>
       </div>
@@ -50,7 +67,10 @@ export function truncatedTextLines(): ReactNode {
   return (
     <Wrapper className="flex-col items-start gap-4">
       {([1, 3, 6] as const).map((n) => (
-        <div key={n} className="w-56 space-y-1 rounded-md border border-fd-border p-3">
+        <div
+          key={n}
+          className="w-56 space-y-1 rounded-md border border-fd-border p-3"
+        >
           <p className="text-sm text-muted-foreground">lines={n}</p>
           <TruncatedText as="p" lines={n} className="text-base text-foreground">
             {LONG_DESCRIPTION}
@@ -61,7 +81,7 @@ export function truncatedTextLines(): ReactNode {
   );
 }
 
-const FILE_NAME = 'Q3-2026-revenue-reconciliation-north-america-final-v7.xlsx';
+const FILE_NAME = "Q3-2026-revenue-reconciliation-north-america-final-v7.xlsx";
 
 export function iconText(): ReactNode {
   return (
@@ -70,7 +90,7 @@ export function iconText(): ReactNode {
         {/* Icon and trailing Badge stay pinned (shrink-0); only the label
             truncates and reveals the full name in a tooltip on hover/focus. */}
         <IconText
-          icon={<FileText className="size-4" />}
+          icon={<FileText className="size-(--icon-default)" />}
           text={FILE_NAME}
           trailing={<Badge>New</Badge>}
           className="text-base text-foreground"
@@ -85,10 +105,10 @@ export function iconTextSides(): ReactNode {
   // overflows, so hovering/focusing reveals the full label on the chosen side.
   return (
     <Wrapper className="flex-col items-start gap-3">
-      {(['top', 'right', 'bottom', 'left'] as const).map((side) => (
+      {(["top", "right", "bottom", "left"] as const).map((side) => (
         <div key={side} className="w-56 rounded-md border border-fd-border p-2">
           <IconText
-            icon={<FileText className="size-4" />}
+            icon={<FileText className="size-(--icon-default)" />}
             text={`tooltipSide="${side}" — ${FILE_NAME}`}
             tooltipSide={side}
             className="text-base text-foreground"
@@ -99,7 +119,7 @@ export function iconTextSides(): ReactNode {
   );
 }
 
-const SPACE_ID = 'spc_3f9a17c4e2b84d6f9a01c5e7';
+const SPACE_ID = "spc_3f9a17c4e2b84d6f9a01c5e7";
 
 export function tableCellText(): ReactNode {
   // `width` matches the column header so truncation engages within the column;

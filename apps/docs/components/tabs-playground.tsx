@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 import {
   Tabs,
   TabsList,
@@ -8,39 +8,48 @@ import {
   TabsContent,
   type TabsProps,
   type TabsListProps,
-} from '@/components/ui/tabs';
-import { PropsPlayground, type PlaygroundConfig } from '@/components/playground';
+} from "@/components/ui/tabs";
+import {
+  PropsPlayground,
+  type PlaygroundConfig,
+} from "@/components/playground";
 
-type TabsPlaygroundKey = 'variant' | 'orientation';
+type TabsPlaygroundKey = "variant" | "orientation";
 
 const VARIANT_OPTIONS = [
-  { value: 'line', label: 'Line' },
-  { value: 'pill', label: 'Pill' },
+  { value: "line", label: "Line" },
+  { value: "pill", label: "Pill" },
 ] as const;
 
 const ORIENTATION_OPTIONS = [
-  { value: 'horizontal', label: 'Horizontal' },
-  { value: 'vertical', label: 'Vertical' },
+  { value: "horizontal", label: "Horizontal" },
+  { value: "vertical", label: "Vertical" },
 ] as const;
 
 const tabsPlaygroundConfig: PlaygroundConfig<TabsPlaygroundKey> = {
   controls: [
-    { type: 'select', key: 'variant', label: 'Variant', options: VARIANT_OPTIONS, defaultValue: 'line' },
     {
-      type: 'select',
-      key: 'orientation',
-      label: 'Orientation',
+      type: "select",
+      key: "variant",
+      label: "Variant",
+      options: VARIANT_OPTIONS,
+      defaultValue: "line",
+    },
+    {
+      type: "select",
+      key: "orientation",
+      label: "Orientation",
       options: ORIENTATION_OPTIONS,
-      defaultValue: 'horizontal',
+      defaultValue: "horizontal",
     },
   ],
   render: (state): ReactNode => (
     <Tabs
       defaultValue="overview"
-      orientation={state.orientation as TabsProps['orientation']}
+      orientation={state.orientation as TabsProps["orientation"]}
       className="w-full max-w-md"
     >
-      <TabsList variant={state.variant as TabsListProps['variant']}>
+      <TabsList variant={state.variant as TabsListProps["variant"]}>
         <TabsTrigger value="overview">Overview</TabsTrigger>
         <TabsTrigger value="activity">Activity</TabsTrigger>
         <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -52,20 +61,23 @@ const tabsPlaygroundConfig: PlaygroundConfig<TabsPlaygroundKey> = {
   ),
   toCode: (state) => {
     const rootProps =
-      state.orientation !== 'horizontal' ? ` orientation="${state.orientation}"` : '';
-    const listProps = state.variant !== 'line' ? ` variant="${state.variant}"` : '';
+      state.orientation !== "horizontal"
+        ? ` orientation="${state.orientation}"`
+        : "";
+    const listProps =
+      state.variant !== "line" ? ` variant="${state.variant}"` : "";
     return [
       `<Tabs defaultValue="overview"${rootProps}>`,
       `  <TabsList${listProps}>`,
       '    <TabsTrigger value="overview">Overview</TabsTrigger>',
       '    <TabsTrigger value="activity">Activity</TabsTrigger>',
       '    <TabsTrigger value="settings">Settings</TabsTrigger>',
-      '  </TabsList>',
+      "  </TabsList>",
       '  <TabsContent value="overview">Overview content</TabsContent>',
       '  <TabsContent value="activity">Activity content</TabsContent>',
       '  <TabsContent value="settings">Settings content</TabsContent>',
-      '</Tabs>',
-    ].join('\n');
+      "</Tabs>",
+    ].join("\n");
   },
 };
 

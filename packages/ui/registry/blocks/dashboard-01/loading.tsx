@@ -1,4 +1,4 @@
-// @vegastack dashboard-01@0.2.0 sha256-0n5FBIpJDwhYVC5aSLixZGo20UEXyAgyNmM4+AHClFc=
+// @vegastack dashboard-01@0.2.0 sha256-qm7+2LKVAhfwH5v5FXl7Weku+tAmcp/QpP0RBAnmHOM=
 
 /**
  * `loading.tsx` — registry:page, target `app/dashboard/loading.tsx`. Next.js App Router treats a
@@ -9,8 +9,14 @@
  * doc for why that's a supported RSC pattern.
  */
 
-import { AppShellSkeleton } from '@/components/ui/app-shell';
+import { AppShellSkeleton } from "@/components/ui/app-shell";
 
+/**
+ * Full-shell route fallback for the dashboard starter.
+ * @example <Loading />
+ */
 export default function Loading() {
-  return <AppShellSkeleton navItemCount={5} statCardCount={4} className="h-svh" />;
+  return (
+    <AppShellSkeleton navItemCount={5} statCardCount={4} className="h-svh" />
+  );
 }

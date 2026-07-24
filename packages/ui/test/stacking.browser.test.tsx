@@ -1,14 +1,39 @@
-import './stacking.css'; // compiled Tailwind + @vegastack token theme (Vite via @tailwindcss/vite)
-import * as React from 'react';
-import { render } from 'vitest-browser-react';
-import { expect, test } from 'vitest';
-import { Dialog, DialogTrigger, DialogContent, DialogTitle } from '../registry/ui/dialog';
-import { Sheet, SheetTrigger, SheetContent, SheetTitle } from '../registry/ui/sheet';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../registry/ui/select';
-import { Popover, PopoverTrigger, PopoverContent } from '../registry/ui/popover';
-import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '../registry/ui/tooltip';
-import { Toaster, toast } from '../registry/ui/sonner';
-import { Button } from '../registry/ui/button';
+import "./stacking.css"; // compiled Tailwind + @vegastack token theme (Vite via @tailwindcss/vite)
+import * as React from "react";
+import { render } from "vitest-browser-react";
+import { expect, test } from "vitest";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogTitle,
+} from "../registry/ui/dialog";
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetTitle,
+} from "../registry/ui/sheet";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "../registry/ui/select";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "../registry/ui/popover";
+import {
+  Tooltip,
+  TooltipProvider,
+  TooltipTrigger,
+  TooltipContent,
+} from "../registry/ui/tooltip";
+import { Toaster, toast } from "../registry/ui/sonner";
+import { Button } from "../registry/ui/button";
 
 /**
  * Nested-overlay stacking contract (plan v5 T3, CX-8): every portaled surface sits in the ONE
@@ -29,7 +54,7 @@ function hitTestInside(target: Element) {
   return hit != null && (target === hit || target.contains(hit));
 }
 
-test('Select inside Dialog: the open listbox paints above the dialog', async () => {
+test("Select inside Dialog: the open listbox paints above the dialog", async () => {
   const screen = await render(
     <Dialog>
       <DialogTrigger>Open dialog</DialogTrigger>
@@ -47,40 +72,50 @@ test('Select inside Dialog: the open listbox paints above the dialog', async () 
       </DialogContent>
     </Dialog>,
   );
-  await screen.getByRole('button', { name: 'Open dialog' }).click();
-  await expect.element(screen.getByRole('dialog')).toBeInTheDocument();
+  await screen.getByRole("button", { name: "Open dialog" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
 
-  await screen.getByRole('combobox', { name: 'Fruit' }).click();
-  const listbox = await screen.getByRole('listbox').element();
+  // Native click dispatch avoids a WebKit Playwright race when opening a
+  // second portaled popup from inside a modal focus trap. Poll the observable
+  // portaled contract instead of assuming it mounts in the click task.
+  screen.getByRole("combobox", { name: "Fruit" }).element().click();
+  await expect
+    .poll(() => document.querySelector('[role="listbox"]'))
+    .not.toBeNull();
+  const listbox = document.querySelector('[role="listbox"]')!;
   // Same band…
   const dialogPopup = document.querySelector('[data-slot="dialog-content"]')!;
-  expect(getComputedStyle(listbox.closest('[data-slot="select-positioner"]') ?? listbox).zIndex).toBe(
-    getComputedStyle(dialogPopup).zIndex,
-  );
+  expect(
+    getComputedStyle(
+      listbox.closest('[data-slot="select-positioner"]') ?? listbox,
+    ).zIndex,
+  ).toBe(getComputedStyle(dialogPopup).zIndex);
   // …but the select popup wins by DOM order: its centre is hittable.
   await expect.poll(() => hitTestInside(listbox)).toBe(true);
 });
 
-test('Popover inside Dialog: the popover paints above the dialog', async () => {
+test("Popover inside Dialog: the popover paints above the dialog", async () => {
   const screen = await render(
     <Dialog>
       <DialogTrigger>Open dialog</DialogTrigger>
       <DialogContent>
         <DialogTitle>With popover</DialogTitle>
         <Popover>
-          <PopoverTrigger render={<Button variant="outline">Open popover</Button>} />
+          <PopoverTrigger
+            render={<Button variant="outline">Open popover</Button>}
+          />
           <PopoverContent>Popover body content</PopoverContent>
         </Popover>
       </DialogContent>
     </Dialog>,
   );
-  await screen.getByRole('button', { name: 'Open dialog' }).click();
-  await screen.getByRole('button', { name: 'Open popover' }).click();
-  const popup = await screen.getByText('Popover body content').element();
+  await screen.getByRole("button", { name: "Open dialog" }).click();
+  await screen.getByRole("button", { name: "Open popover" }).click();
+  const popup = await screen.getByText("Popover body content").element();
   await expect.poll(() => hitTestInside(popup)).toBe(true);
 });
 
-test('Tooltip inside Sheet: the tooltip paints above the sheet', async () => {
+test("Tooltip inside Sheet: the tooltip paints above the sheet", async () => {
   const screen = await render(
     <TooltipProvider delay={0}>
       <Sheet>
@@ -88,21 +123,23 @@ test('Tooltip inside Sheet: the tooltip paints above the sheet', async () => {
         <SheetContent>
           <SheetTitle>Sheet panel</SheetTitle>
           <Tooltip>
-            <TooltipTrigger render={<Button variant="outline">Hover me</Button>} />
+            <TooltipTrigger
+              render={<Button variant="outline">Hover me</Button>}
+            />
             <TooltipContent>Tooltip text</TooltipContent>
           </Tooltip>
         </SheetContent>
       </Sheet>
     </TooltipProvider>,
   );
-  await screen.getByRole('button', { name: 'Open sheet' }).click();
-  await expect.element(screen.getByRole('dialog')).toBeInTheDocument();
-  await screen.getByRole('button', { name: 'Hover me' }).hover();
-  const tip = await screen.getByText('Tooltip text').element();
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  await screen.getByRole("button", { name: "Hover me" }).hover();
+  const tip = await screen.getByText("Tooltip text").element();
   await expect.poll(() => hitTestInside(tip)).toBe(true);
 });
 
-test('nested Dialog paints above its parent Dialog', async () => {
+test("nested Dialog paints above its parent Dialog", async () => {
   const screen = await render(
     <Dialog>
       <DialogTrigger>Open outer</DialogTrigger>
@@ -117,13 +154,13 @@ test('nested Dialog paints above its parent Dialog', async () => {
       </DialogContent>
     </Dialog>,
   );
-  await screen.getByRole('button', { name: 'Open outer' }).click();
-  await screen.getByRole('button', { name: 'Open inner' }).click();
-  const inner = await screen.getByText('Inner dialog title').element();
+  await screen.getByRole("button", { name: "Open outer" }).click();
+  await screen.getByRole("button", { name: "Open inner" }).click();
+  const inner = await screen.getByText("Inner dialog title").element();
   await expect.poll(() => hitTestInside(inner)).toBe(true);
 });
 
-test('a toast fired while a Dialog is open stays visible above it (documented sonner exemption)', async () => {
+test("a toast fired while a Dialog is open stays visible above it (documented sonner exemption)", async () => {
   const screen = await render(
     <>
       <Toaster />
@@ -131,13 +168,15 @@ test('a toast fired while a Dialog is open stays visible above it (documented so
         <DialogTrigger>Open dialog</DialogTrigger>
         <DialogContent>
           <DialogTitle>Busy modal</DialogTitle>
-          <Button onClick={() => toast('Saved to workspace')}>Fire toast</Button>
+          <Button onClick={() => toast("Saved to workspace")}>
+            Fire toast
+          </Button>
         </DialogContent>
       </Dialog>
     </>,
   );
-  await screen.getByRole('button', { name: 'Open dialog' }).click();
-  await screen.getByRole('button', { name: 'Fire toast' }).click();
-  const toastEl = await screen.getByText('Saved to workspace').element();
+  await screen.getByRole("button", { name: "Open dialog" }).click();
+  await screen.getByRole("button", { name: "Fire toast" }).click();
+  const toastEl = await screen.getByText("Saved to workspace").element();
   await expect.poll(() => hitTestInside(toastEl)).toBe(true);
 });

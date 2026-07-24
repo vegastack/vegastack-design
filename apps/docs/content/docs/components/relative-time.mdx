@@ -1,10 +1,11 @@
 ---
 title: Relative Time
 description: Render a date as a human-relative string ("2 hours ago", "yesterday", "in 3 days") with the native Intl.RelativeTimeFormat — no date library.
+audience: public
 preview: relativeTime
 ---
 
-import { story } from '@/components/stories/relative-time.story';
+import { story } from "@/components/stories/relative-time.story";
 
 ## Installation
 
@@ -17,7 +18,7 @@ npx shadcn@latest add @vegastack/relative-time
 ## Usage
 
 ```tsx
-import { RelativeTime } from '@/components/ui/relative-time';
+import { RelativeTime } from "@/components/ui/relative-time";
 
 <RelativeTime date={comment.createdAt} />;
 ```
@@ -26,40 +27,51 @@ import { RelativeTime } from '@/components/ui/relative-time';
 timer while the date is recent. It uses the platform-native `Intl.RelativeTimeFormat`
 — no `date-fns` or other date dependency.
 
-## Playground
+## Examples
+
+### Playground
 
 Switch the formatting mode and the instant being rendered, then copy the generated JSX.
 
 <RelativeTimePlayground />
 
-## Explorer
+### Explorer
 
 Every `RelativeTime` prop, auto-generated from its TypeScript types — the exhaustive counterpart to
 the curated playground above.
 
 <story.WithControl />
 
-## Examples
+### Formats and modes
 
 Past and future instants, from seconds to days. Sub-minute deltas collapse to `now`;
 future dates read `in …`.
 
-<ComponentPreview name="relativeTimeExamples" file="components/preview/relative-time.tsx" />
+<ComponentPreview
+  name="relativeTimeExamples"
+  file="components/preview/relative-time.tsx"
+/>
 
-## Modes
+### Modes
 
 `mode="ago"` (default) is duration-relative — `"2 hours ago"`, `"in 3 days"`.
 `mode="day"` is calendar-relative — `"today"`, `"yesterday"`, `"tomorrow"`, and an
 absolute date (`"March 15"`, `"March 15, 2025"`) once a date is further out.
 
-<ComponentPreview name="relativeTimeModes" file="components/preview/relative-time.tsx" />
+<ComponentPreview
+  name="relativeTimeModes"
+  file="components/preview/relative-time.tsx"
+/>
 
-## States
+### States
 
 By default the absolute date-time is revealed in a Tooltip on hover or focus. Pass a
 string to `title` for a custom label, or `title={false}` to drop the tooltip.
 
-<ComponentPreview name="relativeTimeStates" file="components/preview/relative-time.tsx" />
+<ComponentPreview
+  name="relativeTimeStates"
+  file="components/preview/relative-time.tsx"
+/>
 
 ### Tooltip delay
 
@@ -67,26 +79,35 @@ string to `title` for a custom label, or `title={false}` to drop the tooltip.
 tooltip opens. The default `0` reveals it instantly; raise it to avoid flashing the
 tooltip on a quick pass-through. Ignored when `title={false}`.
 
-<ComponentPreview name="relativeTimeTooltipDelay" file="components/preview/relative-time.tsx" />
+<ComponentPreview
+  name="relativeTimeTooltipDelay"
+  file="components/preview/relative-time.tsx"
+/>
 
-## Localization
+### Localization
 
 `RelativeTime` formats with the platform-native `Intl.RelativeTimeFormat`, so passing
 a BCP-47 `locale` localizes the string for free — no translation table. Omit `locale`
 to follow the runtime locale.
 
-<ComponentPreview name="relativeTimeLocale" file="components/preview/relative-time.tsx" />
+<ComponentPreview
+  name="relativeTimeLocale"
+  file="components/preview/relative-time.tsx"
+/>
 
-## Live updates
+### Live updates
 
 While the date is recent and `now` is left unset, the component reads the live clock
 and refreshes on an adaptive timer (every 10s under an hour old, every minute under a
 day, then static). The example below is intentionally **live** — it seeds a timestamp
 30s in the past and climbs as you watch. Pass `refresh={false}` to opt out.
 
-<ComponentPreview name="relativeTimeLive" file="components/preview/relative-time.tsx" />
+<ComponentPreview
+  name="relativeTimeLive"
+  file="components/preview/relative-time.tsx"
+/>
 
-## Determinism
+### Determinism
 
 The displayed value depends on the current time. For tests, SSR snapshots, or
 Storybook, pass a fixed `now` (epoch ms) to render deterministically — this also
@@ -98,7 +119,10 @@ disables the refresh timer.
 
 ## API Reference
 
-<AutoTypeTable path="../../packages/ui/registry/ui/relative-time.tsx" name="RelativeTimeProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/relative-time.tsx"
+  name="RelativeTimeProps"
+/>
 
 ## Accessibility
 
@@ -110,10 +134,10 @@ disables the refresh timer.
 - Color is inherited from context — the component never encodes meaning in color, so
   the relative string stands on its own.
 
-| Key | Action |
-| --- | --- |
+| Key            | Action                                                     |
+| -------------- | ---------------------------------------------------------- |
 | <kbd>Tab</kbd> | Move focus to the timestamp (when the tooltip is enabled). |
-| <kbd>Esc</kbd> | Dismiss the open absolute-date tooltip. |
+| <kbd>Esc</kbd> | Dismiss the open absolute-date tooltip.                    |
 
 ## Do / Don't
 

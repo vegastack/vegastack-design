@@ -1,8 +1,8 @@
-// @vegastack progress-indicator@0.2.0 sha256-WhvFlvhsqTj33I0GVkva1aCsl5gJ5Zpdv6A8kVmelfA=
+// @vegastack progress-indicator@0.2.0 sha256-+ClJSCd/DNGxz2tb+ne+UECEbWPr98TY8oCUl+ziUNA=
 
-import * as React from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@vegastack/design';
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@vegastack/design";
 
 /**
  * ProgressIndicator size scale — mirrors the system scale (`xs`/`sm`/`default`/`lg`)
@@ -13,28 +13,33 @@ import { cn } from '@vegastack/design';
  * in the neutral primary ink (matching the linear `Progress` bar). Override with a
  * status `text-*` utility (e.g. `text-success-text`) when the value carries a state.
  */
-export const progressIndicatorVariants = cva('inline-flex shrink-0 text-primary', {
-  variants: {
-    size: {
-      xs: 'size-3.5',
-      sm: 'size-4',
-      default: 'size-5',
-      lg: 'size-6',
+export const progressIndicatorVariants = cva(
+  "inline-flex shrink-0 text-primary",
+  {
+    variants: {
+      size: {
+        xs: "size-3.5",
+        sm: "size-4",
+        default: "size-5",
+        lg: "size-6",
+      },
     },
+    defaultVariants: { size: "default" },
   },
-  defaultVariants: { size: 'default' },
-});
+);
 
 /** Size variant union — kept in sync with `progressIndicatorVariants` for JSDoc. */
 export type ProgressIndicatorSize = NonNullable<
-  VariantProps<typeof progressIndicatorVariants>['size']
+  VariantProps<typeof progressIndicatorVariants>["size"]
 >;
 
 /** Shape of the indicator outline — a true circle or a rounded-square "squircle". */
-export type ProgressIndicatorShape = 'circle' | 'squircle';
+export type ProgressIndicatorShape = "circle" | "squircle";
 
+/** Props accepted by `ProgressIndicator`. */
 export interface ProgressIndicatorProps
-  extends Omit<React.ComponentProps<'span'>, 'role'>,
+  extends
+    Omit<React.ComponentProps<"span">, "role">,
     VariantProps<typeof progressIndicatorVariants> {
   /**
    * Fill percentage between `0` and `max`. `0` renders an empty track, `max`
@@ -54,6 +59,17 @@ export interface ProgressIndicatorProps
    */
   shape?: ProgressIndicatorShape;
   /**
+   * Dash-segment mode (Wave 2 — the checklist/steps progress voice): render a
+   * row of `segments` bars instead of the radial glyph, with
+   * `round(value / max × segments)` of them filled in `currentColor` and the
+   * rest on the track opacity. Use for step counts ("2 of 6 steps"), not for
+   * smooth percentages — the radial glyph stays the default. Takes precedence
+   * over `shape` when set; minimum 2.
+
+   * @default undefined
+   */
+  segments?: number;
+  /**
    * Size variant — mirrors the system scale and maps to the `size-*` tokens.
    * `xs` (14px), `sm` (16px), `default` (20px), `lg` (24px).
    * @default 'default'
@@ -64,8 +80,10 @@ export interface ProgressIndicatorProps
    * string (e.g. `"60% complete"`). The element always exposes
    * `role="progressbar"` with `aria-valuenow` / `aria-valuemin` /
    * `aria-valuemax`, so a custom label is optional.
+
+   * @default undefined
    */
-  'aria-label'?: string;
+  "aria-label"?: string;
 }
 
 /**
@@ -103,85 +121,128 @@ export interface ProgressIndicatorProps
  * // custom scale + explicit label
  * <ProgressIndicator value={3} max={5} aria-label="Step 3 of 5" />
  */
-export function ProgressIndicator(
-    {
-      className,
-      size = 'default',
-      shape = 'circle',
-      value = 0,
-      max = 100,
-      'aria-label': ariaLabel,
-      ref,
-      ...props
-    }: ProgressIndicatorProps,
-  ) {
-    // Clamp into [0, max] and derive the announced percentage.
-    const safeMax = max > 0 ? max : 100;
-    const clamped = Math.min(Math.max(value, 0), safeMax);
-    const percent = Math.round((clamped / safeMax) * 100);
+export function ProgressIndicator({
+  className,
+  size = "default",
+  shape = "circle",
+  segments,
+  value = 0,
+  max = 100,
+  "aria-label": ariaLabel,
+  ref,
+  ...props
+}: ProgressIndicatorProps) {
+  // Clamp into [0, max] and derive the announced percentage.
+  const safeMax = max > 0 ? max : 100;
+  const clamped = Math.min(Math.max(value, 0), safeMax);
+  const percent = Math.round((clamped / safeMax) * 100);
 
-    // 24-unit viewBox keeps the geometry crisp at every size. The arc is a
-    // stroke whose width equals the radius, so the dashed stroke fills the disc
-    // from the center outward — producing a pie-fill rather than a thin ring.
-    const VIEWBOX = 24;
-    const center = VIEWBOX / 2;
-    // Inset by 1 unit so the outline ring (strokeWidth 2) is never clipped.
-    const outlineInset = 1;
-    const pieRadius = center / 2; // stroke of width = radius => fully filled disc
-    const circumference = 2 * Math.PI * pieRadius;
-    const dash = (percent / 100) * circumference;
+  // 24-unit viewBox keeps the geometry crisp at every size. The arc is a
+  // stroke whose width equals the radius, so the dashed stroke fills the disc
+  // from the center outward — producing a pie-fill rather than a thin ring.
+  const VIEWBOX = 24;
+  const center = VIEWBOX / 2;
+  // Inset by 1 unit so the outline ring (strokeWidth 2) is never clipped.
+  const outlineInset = 1;
+  const pieRadius = center / 2; // stroke of width = radius => fully filled disc
+  const circumference = 2 * Math.PI * pieRadius;
+  const dash = (percent / 100) * circumference;
 
-    const isCircle = shape === 'circle';
-    // Squircle corner radius (in viewBox units) — rounded square, not a circle.
-    const squircleRadius = 6;
+  const isCircle = shape === "circle";
+  // Squircle corner radius (in viewBox units) — rounded square, not a circle.
+  const squircleRadius = 6;
 
+  // Dash-segment mode: a row of bars, filled count derived from the same
+  // clamped percentage. Server-safe like the radial glyph (pure markup).
+  if (segments != null && segments >= 2) {
+    const count = Math.floor(segments);
+    const filled = Math.round((percent / 100) * count);
+    const barSize = {
+      xs: "h-0.5 w-2",
+      sm: "h-0.5 w-2.5",
+      default: "h-1 w-3",
+      lg: "h-1 w-4",
+    }[size ?? "default"];
     return (
       <span
         ref={ref}
         data-slot="progress-indicator"
         data-size={size}
-        data-shape={shape}
+        data-shape="segments"
         data-value={percent}
         role="progressbar"
         aria-valuenow={percent}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-label={ariaLabel ?? `${percent}% complete`}
-        className={cn(progressIndicatorVariants({ size }), className)}
+        className={cn(
+          "inline-flex shrink-0 items-center gap-1 text-primary",
+          className,
+        )}
         {...props}
       >
-        <svg
-          viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`}
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-          className="size-full"
-        >
-          {/* Track outline — current color at reduced opacity. */}
-          {isCircle ? (
-            <circle
-              cx={center}
-              cy={center}
-              r={center - outlineInset}
-              stroke="currentColor"
-              strokeWidth={2}
-              className="opacity-(--opacity-track)"
-            />
-          ) : (
-            <rect
-              x={outlineInset}
-              y={outlineInset}
-              width={VIEWBOX - outlineInset * 2}
-              height={VIEWBOX - outlineInset * 2}
-              rx={squircleRadius}
-              ry={squircleRadius}
-              stroke="currentColor"
-              strokeWidth={2}
-              className="opacity-(--opacity-track)"
-            />
-          )}
+        {Array.from({ length: count }, (_, i) => (
+          <span
+            key={i}
+            aria-hidden="true"
+            className={cn(
+              "rounded-full bg-current transition-opacity duration-base ease-standard",
+              barSize,
+              i < filled ? undefined : "opacity-(--opacity-track)",
+            )}
+          />
+        ))}
+      </span>
+    );
+  }
 
-          {/* Pie fill — a thick stroke (width = radius) dashed to `value`, so
+  return (
+    <span
+      ref={ref}
+      data-slot="progress-indicator"
+      data-size={size}
+      data-shape={shape}
+      data-value={percent}
+      role="progressbar"
+      aria-valuenow={percent}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label={ariaLabel ?? `${percent}% complete`}
+      className={cn(progressIndicatorVariants({ size }), className)}
+      {...props}
+    >
+      <svg
+        viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`}
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+        className="size-full"
+      >
+        {/* Track outline — current color at reduced opacity. */}
+        {isCircle ? (
+          <circle
+            cx={center}
+            cy={center}
+            r={center - outlineInset}
+            stroke="currentColor"
+            strokeWidth={2}
+            className="opacity-(--opacity-track)"
+          />
+        ) : (
+          <rect
+            x={outlineInset}
+            y={outlineInset}
+            width={VIEWBOX - outlineInset * 2}
+            height={VIEWBOX - outlineInset * 2}
+            rx={squircleRadius}
+            ry={squircleRadius}
+            stroke="currentColor"
+            strokeWidth={2}
+            className="opacity-(--opacity-track)"
+          />
+        )}
+
+        {/* Pie fill — a thick stroke (width = radius) dashed to `value`, so
               the disc fills from the center outward. Rotated -90° so it grows
               clockwise from 12 o'clock. The fill disc sits inside the outline
               (circle or squircle), so the outline shape reads as the indicator
@@ -190,19 +251,19 @@ export function ProgressIndicator(
               duration-base/ease-standard sweeps the wedge to the new `value`
               instead of jumping — the same value-sweep the linear `Progress`
               bar gets from its own width transition. */}
-          {percent > 0 && (
-            <circle
-              cx={center}
-              cy={center}
-              r={pieRadius}
-              stroke="currentColor"
-              strokeWidth={pieRadius * 2}
-              strokeDasharray={`${dash} ${circumference}`}
-              transform={`rotate(-90 ${center} ${center})`}
-              className="transition-[stroke-dasharray] duration-base ease-standard motion-reduce:transition-none"
-            />
-          )}
-        </svg>
-      </span>
-    );
+        {percent > 0 && (
+          <circle
+            cx={center}
+            cy={center}
+            r={pieRadius}
+            stroke="currentColor"
+            strokeWidth={pieRadius * 2}
+            strokeDasharray={`${dash} ${circumference}`}
+            transform={`rotate(-90 ${center} ${center})`}
+            className="transition-[stroke-dasharray] duration-base ease-standard motion-reduce:transition-none"
+          />
+        )}
+      </svg>
+    </span>
+  );
 }

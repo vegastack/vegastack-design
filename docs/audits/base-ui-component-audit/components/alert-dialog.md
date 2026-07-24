@@ -13,11 +13,11 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P2 | Source says alert dialog is not dismissible by backdrop or Escape at `alert-dialog.tsx:17`; docs say Escape closes at `alert-dialog.mdx:121`; tests cover backdrop but not Escape. | Critical confirmation behavior is ambiguous. | Decide intended Escape behavior, align docs/comments, add Escape test. |
-| P2 | Local content composes Portal/Backdrop/Popup directly at `alert-dialog.tsx:100` and `alert-dialog.tsx:109`; Base UI anatomy includes Viewport. | Long/scrollable alert content and nested modal edge cases have less coverage. | Add `AlertDialog.Viewport` or document/test the intentional omission. |
-| P2 | `pnpm run lint` flags `registry/ui/alert-dialog.tsx [outline-none]`. | Lint gate fails and focus affordance is not component-local. | Add tokenized focus-visible style or adjust approved global-outline contract. |
+| Priority | Evidence                                                                                                                                                                           | Impact                                                                        | Suggested fix                                                                 |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| P2       | Source says alert dialog is not dismissible by backdrop or Escape at `alert-dialog.tsx:17`; docs say Escape closes at `alert-dialog.mdx:121`; tests cover backdrop but not Escape. | Critical confirmation behavior is ambiguous.                                  | Decide intended Escape behavior, align docs/comments, add Escape test.        |
+| P2       | Local content composes Portal/Backdrop/Popup directly at `alert-dialog.tsx:100` and `alert-dialog.tsx:109`; Base UI anatomy includes Viewport.                                     | Long/scrollable alert content and nested modal edge cases have less coverage. | Add `AlertDialog.Viewport` or document/test the intentional omission.         |
+| P2       | `pnpm run lint` flags `registry/ui/alert-dialog.tsx [outline-none]`.                                                                                                               | Lint gate fails and focus affordance is not component-local.                  | Add tokenized focus-visible style or adjust approved global-outline contract. |
 
 ## Residual Risks
 
@@ -27,4 +27,3 @@ No Radix import found.
 
 - `pnpm --filter @vegastack/ui test -- alert-dialog.test.tsx`
 - `pnpm run lint`
-

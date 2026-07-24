@@ -13,11 +13,11 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P2 | `className` docs say trigger/input at `state-select.tsx:1455`, but combobox path applies it to outer div at `state-select.tsx:1512`; Button has fixed classes at `state-select.tsx:1523`; fallback also applies to wrapper at `state-select.tsx:1497`. | Consumers cannot style the focusable control as documented. | Apply to focusable control or split `className`/`containerClassName`. |
-| P3 | Docs understate dataset scope at `state-select.mdx:29`; source says 45 countries at `state-select.tsx:37`. | Search/discovery expectations are unclear. | Document supported country/subdivision scope. |
-| P3 | Embedded 45-country dataset starts at `state-select.tsx:43`. | Bundle size may grow unnoticed. | Track bundle size or allow data injection/lazy loading if it grows. |
+| Priority | Evidence                                                                                                                                                                                                                                               | Impact                                                      | Suggested fix                                                         |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- | --------------------------------------------------------------------- |
+| P2       | `className` docs say trigger/input at `state-select.tsx:1455`, but combobox path applies it to outer div at `state-select.tsx:1512`; Button has fixed classes at `state-select.tsx:1523`; fallback also applies to wrapper at `state-select.tsx:1497`. | Consumers cannot style the focusable control as documented. | Apply to focusable control or split `className`/`containerClassName`. |
+| P3       | Docs understate dataset scope at `state-select.mdx:29`; source says 45 countries at `state-select.tsx:37`.                                                                                                                                             | Search/discovery expectations are unclear.                  | Document supported country/subdivision scope.                         |
+| P3       | Embedded 45-country dataset starts at `state-select.tsx:43`.                                                                                                                                                                                           | Bundle size may grow unnoticed.                             | Track bundle size or allow data injection/lazy loading if it grows.   |
 
 ## Residual Risks
 
@@ -26,4 +26,3 @@ No Radix import found.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- state-select.test.tsx`
-

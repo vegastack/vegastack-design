@@ -1,5 +1,5 @@
-import { defineStory } from '@/lib/story';
-import { Separator } from '@/components/ui/separator';
+import { defineStory } from "@/lib/story";
+import { Separator } from "@/components/ui/separator";
 
 /**
  * Story explorer for `Separator` — controls auto-generated from `SeparatorProps` by the
@@ -10,9 +10,9 @@ export const story = defineStory({
   Component: Separator,
   args: [
     {
-      variant: 'Default',
+      variant: "Default",
       initial: {
-        orientation: 'horizontal',
+        orientation: "horizontal",
         decorative: true,
       },
     },

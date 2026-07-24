@@ -60,7 +60,10 @@ export function combobox(): ReactNode {
 }
 
 const TIMEZONE_GROUPS = [
-  { label: "North America", items: ["Eastern (EST)", "Central (CST)", "Pacific (PST)"] },
+  {
+    label: "North America",
+    items: ["Eastern (EST)", "Central (CST)", "Pacific (PST)"],
+  },
   { label: "Europe", items: ["Greenwich (GMT)", "Central European (CET)"] },
   { label: "Asia", items: ["Japan (JST)", "India (IST)"] },
 ];
@@ -95,7 +98,10 @@ export function comboboxGroups(): ReactNode {
     <Wrapper>
       <Combobox items={TIMEZONE_GROUPS} defaultValue="Eastern (EST)">
         <ComboboxInputGroup className="w-64">
-          <ComboboxInput aria-label="Timezone" placeholder="Search timezones…" />
+          <ComboboxInput
+            aria-label="Timezone"
+            placeholder="Search timezones…"
+          />
           <ComboboxTrigger aria-label="Toggle timezones" />
         </ComboboxInputGroup>
         <ComboboxContent>
@@ -109,7 +115,16 @@ export function comboboxGroups(): ReactNode {
   );
 }
 
-const FRUITS = ["Apple", "Apricot", "Banana", "Blueberry", "Cherry", "Cranberry", "Date", "Fig"];
+const FRUITS = [
+  "Apple",
+  "Apricot",
+  "Banana",
+  "Blueberry",
+  "Cherry",
+  "Cranberry",
+  "Date",
+  "Fig",
+];
 
 /**
  * Simulated async search — a controlled `inputValue` drives a fake network request
@@ -163,7 +178,10 @@ function ComboboxAsyncDemo() {
         }}
       >
         <ComboboxInputGroup>
-          <ComboboxInput aria-label="Search fruit" placeholder="Search fruit…" />
+          <ComboboxInput
+            aria-label="Search fruit"
+            placeholder="Search fruit…"
+          />
           <ComboboxClear aria-label="Clear" />
           <ComboboxTrigger aria-label="Toggle fruit" />
         </ComboboxInputGroup>

@@ -10,6 +10,9 @@
     "url": "git+https://github.com/VegaStack/vegastack-design.git",
     "directory": "packages/ui"
   },
+  "engines": {
+    "node": ">=24.14.0"
+  },
   "type": "module",
   "files": [
     "dist"
@@ -27,7 +30,8 @@
     "design-lint": "node ../../tooling/design-lint.mjs registry",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:smoke": "vitest run --config vitest.smoke.config.ts"
+    "test:smoke": "vitest run --config vitest.smoke.config.ts",
+    "test:all-browsers": "vitest run --config vitest.all-browsers.config.ts"
   },
   "dependencies": {
     "@base-ui/react": "1.6.0",
@@ -62,6 +66,7 @@
     "@vegastack/typescript-config": "workspace:*",
     "@vitest/browser-playwright": "4.1.9",
     "axe-core": "4.12.1",
+    "motion": "^12.42.2",
     "playwright": "1.61.0",
     "react": "catalog:",
     "react-dom": "catalog:",
@@ -74,7 +79,6 @@
     "zod": "^4.4.3"
   },
   "publishConfig": {
-    "access": "restricted",
-    "provenance": true
+    "access": "restricted"
   }
 }

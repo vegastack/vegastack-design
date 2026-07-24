@@ -1,6 +1,7 @@
 ---
 title: Radio Group
 description: A set of mutually-exclusive options — single selection, arrow-key navigation, and disabled, built on Base UI Radio Group.
+audience: public
 preview: radioGroup
 ---
 
@@ -30,13 +31,15 @@ it in a [`Field`](/docs/components/field) (which auto-associates the label), use
 `nativeButton render={<button />}` when pairing a sibling `<label htmlFor>`, or pass an
 `aria-label`.
 
-## Playground
+## Examples
+
+### Playground
 
 Try both orientations, both item sizes, and the disabled state, then copy the generated JSX.
 
 <RadioGroupPlayground />
 
-## Anatomy
+### Anatomy
 
 `RadioGroup` is a compound component. Compose `RadioGroupItem`s inside the root; the root owns the
 selection and shares it across the items by `value`:
@@ -59,7 +62,7 @@ selection and shares it across the items by `value`:
   state is exposed as `data-checked`; the primary dot indicator scales in when checked. Each item
   needs a unique `value` and an accessible name (via `Field`, `<label>`, or `aria-label`).
 
-## With a Field
+### With a Field
 
 `Field` with `orientation="horizontal"` places each radio before an inline label and wires the label
 association for you — no manual `htmlFor`/`id`.
@@ -78,7 +81,7 @@ import { Field } from "@/components/ui/field";
 </RadioGroup>;
 ```
 
-## Sibling labels
+### Sibling labels
 
 Base UI's default radio root is a `<span>` so enclosing-label and `Field` patterns work well. When
 your markup needs a sibling `<label htmlFor>`, render the item as a native button so the `id` targets
@@ -96,7 +99,7 @@ the visible interactive element:
 </RadioGroup>
 ```
 
-## States
+### States
 
 Use `value` + `onValueChange` for controlled selection, or `defaultValue` for uncontrolled. A single
 item can be `disabled`, or set `disabled` on the `RadioGroup` to disable the whole set. Every item
@@ -107,7 +110,7 @@ shows a `:focus-visible` ring on keyboard focus.
   file="components/preview/radio-group.tsx"
 />
 
-## Orientation
+### Orientation
 
 Set `orientation="horizontal"` on the root to lay the options out in a wrapping row instead of a
 column. The value is mirrored to `aria-orientation`; selection still moves with any arrow key. The
@@ -131,7 +134,7 @@ last option below is `disabled`, so the same preview covers the `orientation × 
 </RadioGroup>
 ```
 
-## Invalid
+### Invalid
 
 When the group fails validation, set `aria-invalid` (often via a [`Field`](/docs/components/field)
 `error`) — each item's border tints destructive (`aria-invalid:border-destructive/70`). Pair it with
@@ -177,7 +180,7 @@ a visible, announced error message.
   `aria-label`. Label the group itself with `aria-label`/`aria-labelledby`.
 - Keyboard focus is visible — Base UI Radio Group renders its default `:focus-visible` ring on the
   focused item (the component never sets `outline: none`), and hover deepens the border
-  (`hover:border-ring/70`). `disabled` items are skipped by keyboard navigation.
+  (`hover:border-ring/(--alpha-tint-border)`). `disabled` items are skipped by keyboard navigation.
 
 | Key                         | Action                                                            |
 | --------------------------- | ----------------------------------------------------------------- |

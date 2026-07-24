@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, type ReactNode } from 'react';
-import { Wrapper } from './wrapper';
-import { AtSign, Search } from 'lucide-react';
+import { useState, type ReactNode } from "react";
+import { Wrapper } from "./wrapper";
+import { AtSign, Search } from "lucide-react";
 // Copied INTO apps/docs via `shadcn add @vegastack/input` (dogfoods the registry) → auto-scanned.
-import { Input } from '@/components/ui/input';
+import { Input } from "@/components/ui/input";
 
 export function input(): ReactNode {
   return (
@@ -41,11 +41,15 @@ export function inputWithAddon(): ReactNode {
         placeholder="workspace-slug"
         className="font-mono"
       />
-      <Input aria-label="Domain" suffix=".vegastack.com" placeholder="my-team" />
+      <Input
+        aria-label="Domain"
+        suffix=".vegastack.com"
+        placeholder="my-team"
+      />
       <Input
         aria-label="Search"
         type="search"
-        prefix={<Search aria-hidden className="size-4" />}
+        prefix={<Search aria-hidden className="size-(--icon-default)" />}
         placeholder="Search…"
       />
     </Wrapper>
@@ -63,7 +67,7 @@ export function inputAddonStates(): ReactNode {
       />
       <Input
         aria-label="Invalid handle"
-        prefix={<AtSign aria-hidden className="size-4" />}
+        prefix={<AtSign aria-hidden className="size-(--icon-default)" />}
         defaultValue="bad handle"
         aria-invalid
       />
@@ -77,8 +81,12 @@ export function inputTypes(): ReactNode {
       <Input aria-label="Number" type="number" placeholder="42" />
       <Input aria-label="Telephone" type="tel" placeholder="+1 555 0100" />
       <Input aria-label="URL" type="url" placeholder="https://vegastack.com" />
+      <Input aria-label="Email" type="email" placeholder="ada@vegastack.com" />
       <Input aria-label="Password" type="password" defaultValue="secret" />
-      <Input aria-label="Date" type="date" defaultValue="2026-06-29" />
+      {/* NOTE: `type="date"` / `"time"` / `"datetime-local"` are deliberately NOT shown.
+          They summon the OS picker, which ignores every design token (its own surface,
+          radius, type ramp, focus ring) and renders differently per browser/platform.
+          Use `DatePicker` instead — it formats as "Jun 24, 2026" and is themed. */}
     </Wrapper>
   );
 }
@@ -88,7 +96,7 @@ export function inputValueChange(): ReactNode {
 }
 
 function InputValueChangeDemo(): ReactNode {
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState("");
   return (
     <Wrapper className="flex-col items-stretch">
       <Input
@@ -98,7 +106,9 @@ function InputValueChangeDemo(): ReactNode {
         onValueChange={(next) => setValue(next)}
       />
       <p className="text-center text-base text-muted-foreground">
-        {value ? `Slug: ${value.trim().toLowerCase().replace(/\s+/g, '-')}` : 'Slug preview appears here'}
+        {value
+          ? `Slug: ${value.trim().toLowerCase().replace(/\s+/g, "-")}`
+          : "Slug preview appears here"}
       </p>
     </Wrapper>
   );

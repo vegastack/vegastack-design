@@ -1,28 +1,37 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
   type TooltipContentProps,
-} from '@/components/ui/tooltip';
-import { Button } from '@/components/ui/button';
-import { PropsPlayground, type PlaygroundConfig } from '@/components/playground';
+} from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
+import {
+  PropsPlayground,
+  type PlaygroundConfig,
+} from "@/components/playground";
 
-type TooltipPlaygroundKey = 'side' | 'arrow';
+type TooltipPlaygroundKey = "side" | "arrow";
 
 const SIDE_OPTIONS = [
-  { value: 'top', label: 'Top' },
-  { value: 'right', label: 'Right' },
-  { value: 'bottom', label: 'Bottom' },
-  { value: 'left', label: 'Left' },
+  { value: "top", label: "Top" },
+  { value: "right", label: "Right" },
+  { value: "bottom", label: "Bottom" },
+  { value: "left", label: "Left" },
 ] as const;
 
 const tooltipPlaygroundConfig: PlaygroundConfig<TooltipPlaygroundKey> = {
   controls: [
-    { type: 'select', key: 'side', label: 'Side', options: SIDE_OPTIONS, defaultValue: 'top' },
-    { type: 'switch', key: 'arrow', label: 'Arrow', defaultValue: false },
+    {
+      type: "select",
+      key: "side",
+      label: "Side",
+      options: SIDE_OPTIONS,
+      defaultValue: "top",
+    },
+    { type: "switch", key: "arrow", label: "Arrow", defaultValue: false },
   ],
   // Renders CLOSED — the reader hovers or focuses the trigger to open it, so the
   // initial state is deterministic.
@@ -30,7 +39,7 @@ const tooltipPlaygroundConfig: PlaygroundConfig<TooltipPlaygroundKey> = {
     <Tooltip>
       <TooltipTrigger render={<Button variant="outline">Hover me</Button>} />
       <TooltipContent
-        side={state.side as TooltipContentProps['side']}
+        side={state.side as TooltipContentProps["side"]}
         arrow={Boolean(state.arrow)}
       >
         Add to your library
@@ -39,15 +48,15 @@ const tooltipPlaygroundConfig: PlaygroundConfig<TooltipPlaygroundKey> = {
   ),
   toCode: (state) => {
     const props: string[] = [];
-    if (state.side !== 'top') props.push(`side="${state.side}"`);
-    if (state.arrow) props.push('arrow');
-    const propsString = props.length > 0 ? ` ${props.join(' ')}` : '';
+    if (state.side !== "top") props.push(`side="${state.side}"`);
+    if (state.arrow) props.push("arrow");
+    const propsString = props.length > 0 ? ` ${props.join(" ")}` : "";
     return [
-      '<Tooltip>',
+      "<Tooltip>",
       '  <TooltipTrigger render={<Button variant="outline">Hover me</Button>} />',
       `  <TooltipContent${propsString}>Add to your library</TooltipContent>`,
-      '</Tooltip>',
-    ].join('\n');
+      "</Tooltip>",
+    ].join("\n");
   },
 };
 

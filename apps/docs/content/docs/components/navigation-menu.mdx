@@ -1,0 +1,121 @@
+---
+title: Navigation Menu
+description: Site-nav mega-dropdown — chip triggers, one shared sliding panel, grid links with color-carried hierarchy.
+audience: public
+preview: navigationMenu
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/navigation-menu
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import {
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuItem,
+  NavigationMenuTrigger,
+  NavigationMenuContent,
+  NavigationMenuLink,
+  NavigationMenuGridLink,
+  NavigationMenuPanel,
+} from "@/components/ui/navigation-menu";
+```
+
+Compose triggers + contents inside the list, then render `NavigationMenuPanel` ONCE after it —
+every item's content slides inside that single shared popup (Base UI viewport model).
+
+## Anatomy
+
+- Triggers follow the ghost-chip grammar and stay lit while open (`data-popup-open`).
+- `NavigationMenuGridLink` carries hierarchy by color at one size — title ink, description
+  muted — per the menu-typography rule.
+- The panel is the standard overlay surface: popover fill, one hairline, `--shadow-overlay`,
+  scale-0.97 + 1px nudge enter.
+- Keyboard/hover open behavior, focus management, and dismissal come from the Base UI
+  primitive.
+
+## Examples
+
+The example composes two disclosure triggers and one direct link. Both disclosure contents
+render through the single shared `NavigationMenuPanel`.
+
+<ComponentPreview
+  name="navigationMenu"
+  file="components/preview/navigation-menu.tsx"
+/>
+
+## API Reference
+
+### Root and list
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/navigation-menu.tsx"
+  name="NavigationMenuProps"
+/>
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/navigation-menu.tsx"
+  name="NavigationMenuListProps"
+/>
+
+### Items, triggers, and links
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/navigation-menu.tsx"
+  name="NavigationMenuItemProps"
+/>
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/navigation-menu.tsx"
+  name="NavigationMenuTriggerProps"
+/>
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/navigation-menu.tsx"
+  name="NavigationMenuLinkProps"
+/>
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/navigation-menu.tsx"
+  name="NavigationMenuGridLinkProps"
+/>
+
+### Content and shared panel
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/navigation-menu.tsx"
+  name="NavigationMenuContentProps"
+/>
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/navigation-menu.tsx"
+  name="NavigationMenuPanelProps"
+/>
+
+## Accessibility
+
+- Give the root a unique navigation label when more than one navigation landmark exists.
+- Base UI owns roving focus, trigger expansion state, dismissal, and focus restoration.
+- Grid-link icons are decorative; the visible title remains each link's accessible name.
+- The shared portaled panel preserves a surrounding `MarketingSurface` theme scope.
+
+| Key                                 | Action                                                       |
+| ----------------------------------- | ------------------------------------------------------------ |
+| <kbd>Tab</kbd>                      | Enter the navigation list and move to the next page control. |
+| <kbd>←</kbd> / <kbd>→</kbd>         | Move between top-level items; direction mirrors in RTL.      |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the focused trigger or follow a direct link.            |
+| <kbd>Esc</kbd>                      | Close the panel and return focus to its trigger.             |
+
+## Do / Don't
+
+<DoDont
+  do="Render one shared NavigationMenuPanel after the list and keep link titles short, specific, and sentence case."
+  dont="Mount a separate popup per item or hide essential destinations behind hover-only interaction."
+/>

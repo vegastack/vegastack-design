@@ -139,7 +139,9 @@ export function markerStreaming(): ReactNode {
           <MarkerIcon>
             <Spinner />
           </MarkerIcon>
-          <MarkerContent className="shimmer">Generating response…</MarkerContent>
+          <MarkerContent className="shimmer">
+            Generating response…
+          </MarkerContent>
         </Marker>
         <Marker variant="separator" role="status">
           <MarkerContent className="shimmer">Reading 4 files</MarkerContent>
@@ -187,7 +189,9 @@ export function markerAnimateIn(): ReactNode {
             <MarkerContent>Pull request merged into main</MarkerContent>
           </Marker>
         ) : (
-          <p className="text-sm text-muted-foreground">Waiting for the merge…</p>
+          <p className="text-sm text-muted-foreground">
+            Waiting for the merge…
+          </p>
         )}
       </div>
       <Button variant="outline" size="sm" onClick={() => setMerged((v) => !v)}>
@@ -212,7 +216,7 @@ export function markerLinkButton(): ReactNode {
             <button
               type="button"
               onClick={() => toast("Reverted the last change")}
-              className="transition-colors duration-fast ease-standard hover:text-foreground"
+              className="hover:text-foreground"
             />
           }
         >

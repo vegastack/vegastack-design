@@ -1,0 +1,67 @@
+---
+title: Announcement Banner
+description: A dismissible one-line announcement — the full-width inverse page-top band.
+audience: public
+preview: announcementBanner
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/announcement-banner
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+<AnnouncementBanner dismissable action={<a href="/changelog">Read more</a>}>
+  Workflows now orchestrate revenue agents.
+</AnnouncementBanner>
+```
+
+## Examples
+
+<ComponentPreview
+  name="announcementBanner"
+  file="components/preview/announcement-banner.tsx"
+/>
+
+## When to use
+
+`AnnouncementBanner` is the one full-width inverse strip that spans the top of a page (foreground
+fill, on-background text, centered copy). For an in-content notice or a plan/trial row, use
+[`Alert`](/docs/components/alert) with `variant="strip"` — a compact single-line ribbon with an
+icon, message, and action — rather than a second banner component.
+
+## Dismissal
+
+Uncontrolled by default (the banner removes itself). Pass `onDismiss` to own it — persist the
+choice and stop rendering; the button then only notifies. `role="status"` keeps the message
+polite for screen readers.
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/announcement-banner.tsx"
+  name="AnnouncementBannerProps"
+/>
+
+## Accessibility
+
+- The banner is a polite status region, so keep its message brief and avoid continuously changing content.
+- The dismiss control has a caller-overridable accessible name and a minimum 24px hit area.
+- A composed action must keep visible link or button text; dismissal is never the only way to continue.
+
+| Key                                 | Action                                           |
+| ----------------------------------- | ------------------------------------------------ |
+| <kbd>Tab</kbd>                      | Move to the optional action and dismiss control. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused button.                     |
+
+## Do / Don't
+
+<DoDont
+  do="Announce one timely change and offer at most one direct follow-up action."
+  dont="Use a banner for validation errors, multi-step forms, or content that needs an interruptive alert."
+/>

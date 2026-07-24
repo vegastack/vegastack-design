@@ -1,6 +1,7 @@
 ---
 title: Context Menu
 description: A menu of actions revealed by right-clicking (or long-pressing) a target — items, submenus, separators, labels, shortcuts, and checkbox/radio selections.
+audience: public
 preview: contextMenu
 ---
 
@@ -71,7 +72,7 @@ itself against the pointer where the menu was opened.
 - `ContextMenuItem` — a selectable action (`data-slot="context-menu-item"`). Supports `variant="destructive"` and `inset`.
 - `ContextMenuGroup` + `ContextMenuLabel` — a labelled section; the label becomes the group's accessible name.
 - `ContextMenuSeparator` — a divider between sections (`role="separator"`).
-- `ContextMenuShortcut` — a right-aligned keyboard hint inside an item.
+- `ContextMenuShortcut` — an inline-end-aligned keyboard hint inside an item.
 - `ContextMenuCheckboxItem` — a togglable item with a check indicator (`checked` / `onCheckedChange`).
 - `ContextMenuRadioGroup` + `ContextMenuRadioItem` — single-select items (`value` / `onValueChange`).
 - `ContextMenuSub` + `ContextMenuSubTrigger` + `ContextMenuSubContent` — a nested submenu.

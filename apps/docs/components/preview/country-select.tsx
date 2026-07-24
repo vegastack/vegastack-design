@@ -1,12 +1,9 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { Wrapper } from './wrapper';
+import * as React from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/country-select` (dogfoods the registry).
-import {
-  CountrySelect,
-  type Country,
-} from '@/components/ui/country-select';
+import { CountrySelect, type Country } from "@/components/ui/country-select";
 
 /**
  * Default example — a searchable country combobox pre-selected to the US (flag +
@@ -14,7 +11,7 @@ import {
  * alongside a disabled control to show the inert state.
  */
 export function countrySelect() {
-  const [value, setValue] = React.useState<string>('US');
+  const [value, setValue] = React.useState<string>("US");
   return (
     <Wrapper>
       <div className="w-64">
@@ -33,7 +30,11 @@ export function countrySelectEmpty() {
   return (
     <Wrapper>
       <div className="w-64">
-        <CountrySelect value={value} onValueChange={setValue} placeholder="Select your country" />
+        <CountrySelect
+          value={value}
+          onValueChange={setValue}
+          placeholder="Select your country"
+        />
       </div>
     </Wrapper>
   );
@@ -44,7 +45,7 @@ export function countrySelectEmpty() {
  * trigger; the matching row carries a check) next to an inert, disabled instance.
  */
 export function countrySelectVariants() {
-  const [value, setValue] = React.useState<string>('US');
+  const [value, setValue] = React.useState<string>("US");
   return (
     <Wrapper>
       <div className="w-64">
@@ -63,13 +64,13 @@ export function countrySelectVariants() {
  */
 export function countrySelectCustom() {
   const EU: Country[] = [
-    { code: 'DE', name: 'Germany', flag: '🇩🇪' },
-    { code: 'FR', name: 'France', flag: '🇫🇷' },
-    { code: 'ES', name: 'Spain', flag: '🇪🇸' },
-    { code: 'IT', name: 'Italy', flag: '🇮🇹' },
-    { code: 'NL', name: 'Netherlands', flag: '🇳🇱' },
+    { code: "DE", name: "Germany", flag: "🇩🇪" },
+    { code: "FR", name: "France", flag: "🇫🇷" },
+    { code: "ES", name: "Spain", flag: "🇪🇸" },
+    { code: "IT", name: "Italy", flag: "🇮🇹" },
+    { code: "NL", name: "Netherlands", flag: "🇳🇱" },
   ];
-  const [value, setValue] = React.useState<string>('DE');
+  const [value, setValue] = React.useState<string>("DE");
   return (
     <Wrapper>
       <div className="w-64">

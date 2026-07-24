@@ -1,6 +1,7 @@
 ---
 title: Section Header
 description: A marketing section lead-in — a mono uppercase eyebrow, a display-scale title, and an optional description.
+audience: public
 preview: sectionHeader
 ---
 
@@ -15,7 +16,7 @@ npx shadcn@latest add @vegastack/section-header
 ## Usage
 
 ```tsx
-import { SectionHeader } from '@/components/ui/section-header';
+import { SectionHeader } from "@/components/ui/section-header";
 
 <SectionHeader
   eyebrow="Platform"
@@ -24,15 +25,23 @@ import { SectionHeader } from '@/components/ui/section-header';
 />;
 ```
 
-<ComponentPreview name="sectionHeader" file="components/preview/section-header.tsx" />
+## Examples
 
-## Serif emphasis
+<ComponentPreview
+  name="sectionHeader"
+  file="components/preview/section-header.tsx"
+/>
+
+### Serif emphasis
 
 Compose a serif-italic emphasis span for **one** word or phrase inside `title` — never the whole
 headline. `font-serif` resolves to the Newsreader token; reserve it for display emphasis and
 pull-quotes only (see [`Testimonial`](/docs/components/testimonial)), never running body text.
 
-<ComponentPreview name="sectionHeaderEmphasis" file="components/preview/section-header.tsx" />
+<ComponentPreview
+  name="sectionHeaderEmphasis"
+  file="components/preview/section-header.tsx"
+/>
 
 ```tsx
 <SectionHeader
@@ -44,20 +53,40 @@ pull-quotes only (see [`Testimonial`](/docs/components/testimonial)), never runn
 />
 ```
 
-## Sizes
+### Sizes
 
 `sm` / `md` (default) / `lg` / `xl` map to the tokenized `text-display-*` ladder (32 / 40 / 56 /
 72px, tracking baked in per step).
 
-<ComponentPreview name="sectionHeaderSizes" file="components/preview/section-header.tsx" />
+<ComponentPreview
+  name="sectionHeaderSizes"
+  file="components/preview/section-header.tsx"
+/>
 
-## Center alignment
+### Center alignment
 
-<ComponentPreview name="sectionHeaderCenter" file="components/preview/section-header.tsx" />
+<ComponentPreview
+  name="sectionHeaderCenter"
+  file="components/preview/section-header.tsx"
+/>
+
+### Two-tone headline
+
+Pass `titleMuted` to continue the headline at the same size/weight in `muted-foreground` —
+hierarchy by color, not scale (the marketing signature: "Live from day one." + "Connect your
+inbox and calendar.").
+
+<ComponentPreview
+  name="sectionHeaderTwoTone"
+  file="components/preview/section-header.tsx"
+/>
 
 ## API Reference
 
-<AutoTypeTable path="../../packages/ui/registry/ui/section-header.tsx" name="SectionHeaderProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/section-header.tsx"
+  name="SectionHeaderProps"
+/>
 
 ## Accessibility
 

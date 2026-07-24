@@ -1,5 +1,5 @@
-import { defineStory } from '@/lib/story';
-import { Input } from '@/components/ui/input';
+import { defineStory } from "@/lib/story";
+import { Input } from "@/components/ui/input";
 
 /**
  * Story explorer for `Input` — controls auto-generated from `InputProps` by the Story
@@ -10,20 +10,20 @@ export const story = defineStory({
   Component: Input,
   args: [
     {
-      variant: 'Default',
+      variant: "Default",
       initial: {
-        placeholder: 'you@example.com',
-        type: 'email',
+        placeholder: "you@example.com",
+        type: "email",
       },
     },
     {
-      variant: 'With addons',
+      variant: "With addons",
       initial: {
-        placeholder: 'acme',
+        placeholder: "acme",
       },
       fixed: {
-        prefix: 'https://',
-        suffix: '.vegastack.com',
+        prefix: "https://",
+        suffix: ".vegastack.com",
       },
     },
   ],

@@ -1,4 +1,4 @@
-// @vegastack sheet@0.2.0 sha256-XQhjkOuBKdslEzSNfhxEcVICljdKaGDNHqADJ8NBpZU=
+// @vegastack sheet@0.2.0 sha256-nemYJ0iL9qNIaYpSSvJxp6IEFYR0Og0yFPIHoEauWeo=
 
 "use client";
 
@@ -7,6 +7,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
 import { cn } from "@vegastack/design";
+import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 
 /* ------------------------------------------------------------------------------------------------
  * Sheet — a dialog that slides in from a screen edge, built on Base UI's Dialog (NOT vaul).
@@ -30,7 +31,7 @@ export const sheetVariants = cva(
   [
     // No `outline-none`: Base UI focuses the panel on open, so the centralized base.css
     // `:focus-visible` outline stays as the keyboard-focus indicator (WCAG 2.4.7, register P0-02).
-    "fixed z-(--z-overlay) flex flex-col gap-4 overflow-y-auto bg-popover text-base text-popover-foreground shadow-overlay",
+    "fixed z-(--z-overlay) flex flex-col gap-4 overflow-y-auto overscroll-contain bg-popover text-base text-popover-foreground shadow-overlay",
     // Enter/exit — slide from the pinned edge, token duration + standard easing.
     "transition-transform duration-fast ease-standard",
   ],
@@ -96,15 +97,25 @@ export type SheetSide = NonNullable<VariantProps<typeof sheetVariants>["side"]>;
  */
 export type SheetProps = React.ComponentProps<typeof BaseDialog.Root>;
 
+/** `Sheet` root; controls the edge panel's open state and modal lifecycle.
+ *
+ * @example
+ * <Sheet />
+ */
 export function Sheet(props: SheetProps) {
   return <BaseDialog.Root {...props} />;
 }
 
+/** Props accepted by `SheetTrigger`. */
 export type SheetTriggerProps = React.ComponentProps<typeof BaseDialog.Trigger>;
 
 /**
  * `SheetTrigger` — the control that opens the sheet. Renders a `<button>`; pass `render` to
  * compose it with a `Button` or any other element (Base UI `render` composition).
+
+ *
+ * @example
+ * <SheetTrigger />
  */
 export function SheetTrigger({ className, ...props }: SheetTriggerProps) {
   return (
@@ -116,6 +127,7 @@ export function SheetTrigger({ className, ...props }: SheetTriggerProps) {
   );
 }
 
+/** Props accepted by `SheetContent`. */
 export interface SheetContentProps
   extends
     React.ComponentProps<typeof BaseDialog.Popup>,
@@ -141,6 +153,10 @@ export interface SheetContentProps
  * `SheetContent` — the slide-in panel. Composes Base UI's `Portal` + `Backdrop` + `Viewport` +
  * `Popup`, pins itself to the `side` edge, slides enter/exit, and renders the close button. Drop
  * `SheetHeader`/`SheetFooter` and the title/description inside it.
+
+ *
+ * @example
+ * <SheetContent />
  */
 export function SheetContent({
   className,
@@ -150,11 +166,14 @@ export function SheetContent({
   closeLabel = "Close",
   ...props
 }: SheetContentProps) {
+  const themeScope = useInternalThemeScope();
+
   return (
     <BaseDialog.Portal>
       <BaseDialog.Backdrop
         data-slot="sheet-backdrop"
         className={cn(
+          themeScope,
           "fixed inset-0 z-(--z-overlay) bg-overlay",
           "transition-opacity duration-fast ease-standard",
           "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
@@ -162,12 +181,15 @@ export function SheetContent({
       />
       <BaseDialog.Viewport
         data-slot="sheet-viewport"
-        className={cn("fixed inset-0 z-(--z-overlay) overflow-y-auto outline-none")}
+        className={cn(
+          themeScope,
+          "fixed inset-0 z-(--z-overlay) overflow-y-auto overscroll-contain outline-none",
+        )}
       >
         <BaseDialog.Popup
           data-slot="sheet-content"
           data-side={side}
-          className={cn(sheetVariants({ side }), className)}
+          className={cn(themeScope, sheetVariants({ side }), className)}
           {...props}
         >
           {children}
@@ -176,9 +198,9 @@ export function SheetContent({
               data-slot="sheet-close"
               aria-label={closeLabel}
               className={cn(
-                // top-3/right-3 matches Dialog's close-button inset — one modal-family rhythm.
-                "absolute top-3 right-3 inline-flex size-(--size-md) shrink-0 items-center justify-center",
-                "rounded-md text-muted-foreground transition-colors duration-fast ease-standard select-none",
+                // top-3/end-3 matches Dialog's close-button inset — one modal-family rhythm.
+                "absolute top-3 end-3 inline-flex size-(--size-md) shrink-0 items-center justify-center",
+                "rounded-md text-muted-foreground  select-none",
                 "hover:bg-muted hover:text-foreground",
                 "[&_svg:not([class*='size-'])]:size-(--icon-default) [&_svg]:pointer-events-none [&_svg]:shrink-0",
               )}
@@ -192,27 +214,37 @@ export function SheetContent({
   );
 }
 
+/** Props accepted by `SheetHeader`. */
 export type SheetHeaderProps = React.ComponentProps<"div">;
 
 /**
  * `SheetHeader` — groups the title and description at the top of the panel.
  * Clears the close button's footprint with end padding.
+
+ *
+ * @example
+ * <SheetHeader />
  */
 export function SheetHeader({ className, ...props }: SheetHeaderProps) {
   return (
     <div
       data-slot="sheet-header"
-      className={cn("flex shrink-0 flex-col gap-1.5 p-5 pr-12", className)}
+      className={cn("flex shrink-0 flex-col gap-1.5 p-5 pe-12", className)}
       {...props}
     />
   );
 }
 
+/** Props accepted by `SheetFooter`. */
 export type SheetFooterProps = React.ComponentProps<"div">;
 
 /**
  * `SheetFooter` — the action row pinned to the bottom of the panel. Stacks (reversed) on narrow
  * screens, becomes an end-aligned row from the `sm` breakpoint up.
+
+ *
+ * @example
+ * <SheetFooter />
  */
 export function SheetFooter({ className, ...props }: SheetFooterProps) {
   return (
@@ -227,25 +259,28 @@ export function SheetFooter({ className, ...props }: SheetFooterProps) {
   );
 }
 
+/** Props accepted by `SheetTitle`. */
 export type SheetTitleProps = React.ComponentProps<typeof BaseDialog.Title>;
 
 /**
  * `SheetTitle` — the sheet's accessible name. Renders an `<h2>`; Base UI wires it to the popup
  * via `aria-labelledby`. Always include one.
+
+ *
+ * @example
+ * <SheetTitle />
  */
 export function SheetTitle({ className, ...props }: SheetTitleProps) {
   return (
     <BaseDialog.Title
       data-slot="sheet-title"
-      className={cn(
-        "text-h4 text-foreground",
-        className,
-      )}
+      className={cn("text-h4 text-foreground", className)}
       {...props}
     />
   );
 }
 
+/** Props accepted by `SheetDescription`. */
 export type SheetDescriptionProps = React.ComponentProps<
   typeof BaseDialog.Description
 >;
@@ -253,6 +288,10 @@ export type SheetDescriptionProps = React.ComponentProps<
 /**
  * `SheetDescription` — supporting text under the title. Renders a `<p>`; Base UI wires it to the
  * popup via `aria-describedby`.
+
+ *
+ * @example
+ * <SheetDescription />
  */
 export function SheetDescription({
   className,
@@ -261,17 +300,25 @@ export function SheetDescription({
   return (
     <BaseDialog.Description
       data-slot="sheet-description"
-      className={cn("text-base leading-relaxed text-muted-foreground", className)}
+      className={cn(
+        "text-base leading-relaxed text-muted-foreground",
+        className,
+      )}
       {...props}
     />
   );
 }
 
+/** Props accepted by `SheetClose`. */
 export type SheetCloseProps = React.ComponentProps<typeof BaseDialog.Close>;
 
 /**
  * `SheetClose` — closes the sheet. Renders a `<button>`; pass `render` to compose it with a
  * `Button` (e.g. a "Cancel" action in the footer).
+
+ *
+ * @example
+ * <SheetClose />
  */
 export function SheetClose({ className, ...props }: SheetCloseProps) {
   return (

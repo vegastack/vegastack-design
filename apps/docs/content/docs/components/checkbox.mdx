@@ -1,10 +1,11 @@
 ---
 title: Checkbox
 description: A binary (or tri-state) toggle — checked, unchecked, indeterminate, and disabled, built on Base UI Checkbox.
+audience: public
 preview: checkbox
 ---
 
-import { story } from '@/components/stories/checkbox.story';
+import { story } from "@/components/stories/checkbox.story";
 
 ## Installation
 
@@ -28,20 +29,22 @@ accessibility — either inside a [`Field`](/docs/components/field) (which auto-
 or by rendering a native button when you need a sibling `<label htmlFor>`. For a standalone checkbox
 with no visible label, pass an `aria-label`.
 
-## Playground
+## Examples
+
+### Playground
 
 Try both sizes with the disabled and indeterminate states, then copy the generated JSX.
 
 <CheckboxPlayground />
 
-## Explorer
+### Explorer
 
 Every `Checkbox` prop, auto-generated from its TypeScript types — the exhaustive counterpart to the
 curated playground above.
 
 <story.WithControl />
 
-## With a Field
+### With a Field
 
 `Field` with `orientation="horizontal"` places the checkbox before an inline label and wires the
 label association for you — no manual `htmlFor`/`id`.
@@ -55,7 +58,7 @@ import { Field } from "@/components/ui/field";
 </Field>;
 ```
 
-## Sibling label
+### Sibling label
 
 Base UI's default checkbox root is a `<span>` so enclosing-label patterns work well. When your markup
 needs a sibling `<label htmlFor>`, render the root as a native button so the `id` targets the visible
@@ -66,7 +69,7 @@ interactive element:
 <Checkbox id="terms-checkbox" nativeButton render={<button type="button" />} />
 ```
 
-## States
+### States
 
 `checked`/`defaultChecked` tick it; `indeterminate` renders the minus indicator and sets
 `aria-checked="mixed"` (for a "select all" parent); `disabled` removes interaction. Every state shows
@@ -77,22 +80,19 @@ a `:focus-visible` ring on keyboard focus.
   file="components/preview/checkbox.tsx"
 />
 
-## Sizes
+### Sizes
 
 `default` (size-4) and `sm` (size-3.5) — the icon scales with the box so checkboxes line up with
 sibling inputs and switches.
 
-<ComponentPreview
-  name="checkboxSizes"
-  file="components/preview/checkbox.tsx"
-/>
+<ComponentPreview name="checkboxSizes" file="components/preview/checkbox.tsx" />
 
 ```tsx
 <Checkbox size="sm" aria-label="Compact" />
 <Checkbox size="default" aria-label="Default" />
 ```
 
-## Invalid
+### Invalid
 
 Set `aria-invalid` (or place the checkbox inside a [`Field`](/docs/components/field) with an `error`)
 to show the destructive border. A `Field` error also renders a `role="alert"` message for assistive
@@ -111,7 +111,7 @@ tech.
 </Field>
 ```
 
-## Size × state matrix
+### Size × state matrix
 
 Because the indicator icon scales with the box, the `sm` and `default` sizes read distinctly across
 every state — unchecked, checked, and indeterminate.

@@ -1,7 +1,9 @@
-import type { ReactNode } from 'react';
-import { Wrapper } from './wrapper';
-import { MarketingSurface } from '@/components/ui/marketing-surface';
-import { SectionHeader } from '@/components/ui/section-header';
+"use client";
+
+import type { ReactNode } from "react";
+import { Wrapper } from "./wrapper";
+import { MarketingSurface } from "@/components/ui/marketing-surface";
+import { SectionHeader } from "@/components/ui/section-header";
 
 export function sectionHeader(): ReactNode {
   return (
@@ -59,6 +61,19 @@ export function sectionHeaderCenter(): ReactNode {
           description="Product and marketing share the same tokens — only the ground shifts."
         />
       </MarketingSurface>
+    </Wrapper>
+  );
+}
+
+export function sectionHeaderTwoTone(): ReactNode {
+  return (
+    <Wrapper>
+      <SectionHeader
+        eyebrow="Self-building"
+        title="Live from day one."
+        titleMuted="Connect your inbox and calendar and the system builds itself around you."
+        size="md"
+      />
     </Wrapper>
   );
 }

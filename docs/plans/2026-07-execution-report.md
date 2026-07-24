@@ -8,15 +8,15 @@
 
 ## Final gate (run at the very end of Phase Z, all green)
 
-| Check | Result |
-|---|---|
-| `pnpm lint` (eslint + design-lint on registry, blocks, previews, token CSS + content-lint + provider-dogfood) | ✓ 10/10 tasks, zero warnings |
-| `pnpm typecheck` | ✓ 10/10 tasks |
-| `pnpm test` (Vitest browser, Chromium) | ✓ **1120/1120** tests, 91 files |
-| `pnpm --filter @vegastack/ui test:smoke` (Chromium + WebKit + Firefox) | ✓ **450/450** (10 motion-exercising files × 3 engines) |
-| `pnpm registry:build` idempotency (build-twice, byte-compare public/r + copy-ins + registry.json) | ✓ byte-identical, **525 items** |
-| `pnpm registry:verify-consume` | ✓ real shadcn CLI 7/7 graphs + simulated 525/525 × 2 layouts, tsc clean |
-| VRT (Playwright, fresh build enforced) | ✓ **182/182** — 91 pages × 2 lanes (desktop 1280×720 + mobile 375×812) |
+| Check                                                                                                         | Result                                                                  |
+| ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `pnpm lint` (eslint + design-lint on registry, blocks, previews, token CSS + content-lint + provider-dogfood) | ✓ 10/10 tasks, zero warnings                                            |
+| `pnpm typecheck`                                                                                              | ✓ 10/10 tasks                                                           |
+| `pnpm test` (Vitest browser, Chromium)                                                                        | ✓ **1120/1120** tests, 91 files                                         |
+| `pnpm --filter @vegastack/ui test:smoke` (Chromium + WebKit + Firefox)                                        | ✓ **450/450** (10 motion-exercising files × 3 engines)                  |
+| `pnpm registry:build` idempotency (build-twice, byte-compare public/r + copy-ins + registry.json)             | ✓ byte-identical, **525 items**                                         |
+| `pnpm registry:verify-consume`                                                                                | ✓ real shadcn CLI 7/7 graphs + simulated 525/525 × 2 layouts, tsc clean |
+| VRT (Playwright, fresh build enforced)                                                                        | ✓ **182/182** — 91 pages × 2 lanes (desktop 1280×720 + mobile 375×812)  |
 
 ## Per-phase outcomes (details in the checklist/decisions log)
 
@@ -53,7 +53,10 @@
 2. **Freeze-commit/tag** `audit-baseline` if still wanted retroactively (Phase −1 note).
 3. **Archive the transitions.dev author's tweet link** in-repo (CX-1 resolution's recorded TODO).
 4. **CI Linux VRT baselines**: run `vrt.yml`'s `update_baselines` job (local darwin baselines are gate evidence only, untracked, ~500MB).
-5. **Turbo remote cache**: provision `TURBO_TOKEN` secret + `TURBO_TEAM` var (wiring is inert until then).
+5. **Turbo remote cache (superseded 2026-07-23)**: do not provision the former two-value wiring.
+   Workflow-wide cache credentials were removed from PR/release/deploy jobs. Any future trusted-job
+   rollout requires `TURBO_TOKEN`, `TURBO_TEAM`, and a ≥32-byte
+   `TURBO_REMOTE_CACHE_SIGNATURE_KEY`; never expose them to pull-request code.
 6. **Release**: merge to `main` (release.yml versions via the authored changeset `2026-07-system-overhaul.md` + version-sync, publishes npm) → run the manual **Deploy** workflow (build + Sigstore-sign + Cloudflare).
 
-*No commit, tag, push, publish, or deploy was performed by this run.*
+_No commit, tag, push, publish, or deploy was performed by this run._

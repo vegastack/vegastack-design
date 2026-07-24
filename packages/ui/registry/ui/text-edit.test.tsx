@@ -193,7 +193,9 @@ test("forwards id and aria-labelledby to the contenteditable textbox", async () 
   );
   const textbox = screen.getByRole("textbox", { name: "Body" });
   await expect.element(textbox).toHaveAttribute("id", "body-editor");
-  await expect.element(textbox).toHaveAttribute("aria-labelledby", "body-label");
+  await expect
+    .element(textbox)
+    .toHaveAttribute("aria-labelledby", "body-label");
 });
 
 test("shows the placeholder only while empty", async () => {

@@ -31,8 +31,9 @@ test("uses the supplied countries array when resolving the selected label", asyn
 test("opens and filters the list, selecting fires onValueChange with the ISO code", async () => {
   const onValueChange = vi.fn();
   const screen = await render(<CountrySelect onValueChange={onValueChange} />);
-  await screen.getByRole("combobox").click();
+  (screen.getByRole("combobox").element() as HTMLButtonElement).click();
   const input = screen.getByPlaceholder("Search countries…");
+  await expect.element(input).toBeInTheDocument();
   await userEvent.fill(input.element() as HTMLInputElement, "Canada");
   await screen.getByText("Canada").click();
   expect(onValueChange).toHaveBeenCalledWith("CA");
@@ -102,7 +103,10 @@ test("no a11y violations (closed)", async () => {
 // DEVIATION: see the role note above `getByRole("button")` -> `getByRole("combobox")`.
 test("no a11y violations (open)", async () => {
   const screen = await render(<CountrySelect />);
-  await screen.getByRole("combobox").click();
+  (screen.getByRole("combobox").element() as HTMLButtonElement).click();
+  await expect
+    .element(screen.getByPlaceholder("Search countries…"))
+    .toBeInTheDocument();
   // No suppression: no separator/status/loading rows are rendered inside the listbox here, so it
   // owns only valid group/option children and `aria-required-children` passes for real.
   await expectNoA11yViolations(document.body);

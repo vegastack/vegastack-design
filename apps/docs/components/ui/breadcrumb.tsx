@@ -1,4 +1,4 @@
-// @vegastack breadcrumb@0.2.0 sha256-hLaUj1FayFgS+W5BOJlSZ8XtFRic5KjnThw5qDcDQF4=
+// @vegastack breadcrumb@0.2.0 sha256-mlyrxi/HZNIuZExW68KoXWyqDDo5cGkG4S7m6xCmpMk=
 
 "use client";
 
@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+/** Props accepted by `Breadcrumb`. */
 export type BreadcrumbProps = React.ComponentPropsWithRef<"nav">;
 
 /**
@@ -47,11 +48,16 @@ function Breadcrumb({ className, ...props }: BreadcrumbProps) {
   );
 }
 
+/** Props accepted by `BreadcrumbList`. */
 export type BreadcrumbListProps = React.ComponentPropsWithRef<"ol">;
 
 /**
  * `BreadcrumbList` — the ordered list (`<ol>`) holding the trail's items and
  * separators. Muted, wrapping, and flex-aligned.
+
+ *
+ * @example
+ * <BreadcrumbList />
  */
 function BreadcrumbList({ className, ...props }: BreadcrumbListProps) {
   return (
@@ -66,9 +72,14 @@ function BreadcrumbList({ className, ...props }: BreadcrumbListProps) {
   );
 }
 
+/** Props accepted by `BreadcrumbItem`. */
 export type BreadcrumbItemProps = React.ComponentPropsWithRef<"li">;
 
-/** `BreadcrumbItem` — a single trail segment (`<li>`) wrapping a link or page. */
+/** `BreadcrumbItem` — a single trail segment (`<li>`) wrapping a link or page.
+ *
+ * @example
+ * <BreadcrumbItem />
+ */
 function BreadcrumbItem({ className, ...props }: BreadcrumbItemProps) {
   return (
     <li
@@ -79,11 +90,14 @@ function BreadcrumbItem({ className, ...props }: BreadcrumbItemProps) {
   );
 }
 
+/** Props accepted by `BreadcrumbLink`. */
 export interface BreadcrumbLinkProps extends React.ComponentPropsWithRef<"a"> {
   /**
    * Replace the rendered `<a>` element via Base UI `render` composition. Pass a
    * routing link element (e.g. `<NextLink href="/x" />`) or a render function to
    * integrate with a router while keeping breadcrumb styling.
+
+   * @default undefined
    */
   render?: useRender.RenderProp;
 }
@@ -91,6 +105,10 @@ export interface BreadcrumbLinkProps extends React.ComponentPropsWithRef<"a"> {
 /**
  * `BreadcrumbLink` — a navigable trail segment. Renders an `<a>` by default and
  * supports the Base UI `render` prop for client-side routing.
+
+ *
+ * @example
+ * <BreadcrumbLink />
  */
 function BreadcrumbLink({
   className,
@@ -105,7 +123,7 @@ function BreadcrumbLink({
     props: {
       "data-slot": "breadcrumb-link",
       className: cn(
-        "rounded-sm transition-colors duration-fast ease-standard hover:text-foreground",
+        "inline-flex min-h-(--size-xs) min-w-(--size-xs) items-center justify-center rounded-sm hover:text-foreground",
         className,
       ),
       ...props,
@@ -113,11 +131,16 @@ function BreadcrumbLink({
   });
 }
 
+/** Props accepted by `BreadcrumbPage`. */
 export type BreadcrumbPageProps = React.ComponentPropsWithRef<"span">;
 
 /**
  * `BreadcrumbPage` — the current page (the last, non-navigable segment).
  * Exposed to assistive tech via `aria-current="page"`.
+
+ *
+ * @example
+ * <BreadcrumbPage />
  */
 function BreadcrumbPage({ className, ...props }: BreadcrumbPageProps) {
   return (
@@ -132,12 +155,17 @@ function BreadcrumbPage({ className, ...props }: BreadcrumbPageProps) {
   );
 }
 
+/** Props accepted by `BreadcrumbSeparator`. */
 export type BreadcrumbSeparatorProps = React.ComponentPropsWithRef<"li">;
 
 /**
  * `BreadcrumbSeparator` — the visual divider between items. Defaults to a
  * `lucide-react` chevron and is `aria-hidden` (decorative only). Pass `children`
  * to use a custom separator (e.g. a slash).
+
+ *
+ * @example
+ * <BreadcrumbSeparator />
  */
 function BreadcrumbSeparator({
   children,
@@ -149,7 +177,10 @@ function BreadcrumbSeparator({
       data-slot="breadcrumb-separator"
       role="presentation"
       aria-hidden="true"
-      className={cn("[&>svg]:size-(--icon-inline) text-muted-foreground-faint", className)}
+      className={cn(
+        "[&>svg]:size-(--icon-inline) text-muted-foreground-faint",
+        className,
+      )}
       {...props}
     >
       {children ?? <ChevronRight />}
@@ -157,12 +188,17 @@ function BreadcrumbSeparator({
   );
 }
 
+/** Props accepted by `BreadcrumbEllipsis`. */
 export type BreadcrumbEllipsisProps = React.ComponentPropsWithRef<"span">;
 
 /**
  * `BreadcrumbEllipsis` — a collapsed-segments indicator (`…`) for long trails.
  * Decorative only: expose hidden segments with a separate accessible menu/trigger
  * when users need to navigate them. Place inside a `BreadcrumbItem`.
+
+ *
+ * @example
+ * <BreadcrumbEllipsis />
  */
 function BreadcrumbEllipsis({ className, ...props }: BreadcrumbEllipsisProps) {
   return (
@@ -207,7 +243,11 @@ export interface BreadcrumbSegment {
   render?: useRender.RenderProp<any>;
 }
 
-export interface BreadcrumbCollapsedProps extends Omit<React.ComponentPropsWithRef<"button">, "children"> {
+/** Props accepted by `BreadcrumbCollapsed`. */
+export interface BreadcrumbCollapsedProps extends Omit<
+  React.ComponentPropsWithRef<"button">,
+  "children"
+> {
   /** The hidden middle segments, revealed as real links inside a menu. */
   items: BreadcrumbSegment[];
   /**
@@ -254,7 +294,7 @@ function BreadcrumbCollapsed({
         aria-label={label}
         data-slot="breadcrumb-collapsed-trigger"
         className={cn(
-          "rounded-sm transition-colors duration-fast ease-standard hover:text-foreground focus-visible:outline-ring",
+          "rounded-sm  hover:text-foreground focus-visible:outline-ring",
           className,
         )}
         {...props}
@@ -263,7 +303,10 @@ function BreadcrumbCollapsed({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
         {items.map((item, index) => (
-          <DropdownMenuItem key={item.key ?? index} render={item.render ?? <a href={item.href} />}>
+          <DropdownMenuItem
+            key={item.key ?? index}
+            render={item.render ?? <a href={item.href} />}
+          >
             {item.label}
           </DropdownMenuItem>
         ))}
@@ -272,7 +315,11 @@ function BreadcrumbCollapsed({
   );
 }
 
-export interface BreadcrumbTrailProps extends Omit<BreadcrumbListProps, "children"> {
+/** Props accepted by `BreadcrumbTrail`. */
+export interface BreadcrumbTrailProps extends Omit<
+  BreadcrumbListProps,
+  "children"
+> {
   /**
    * The full trail, first to last. Every item renders as a `BreadcrumbLink`
    * except the last, which always renders as the current, non-navigable
@@ -291,6 +338,8 @@ export interface BreadcrumbTrailProps extends Omit<BreadcrumbListProps, "childre
    * width-driven dynamic collapse (mirroring `TruncatedText`'s
    * `ResizeObserver` measurer) was evaluated and deliberately deferred; see
    * the component doc.
+
+   * @default undefined
    */
   maxItems?: number;
   /**
@@ -299,7 +348,9 @@ export interface BreadcrumbTrailProps extends Omit<BreadcrumbListProps, "childre
    * @default 1
    */
   itemsAfterCollapse?: number;
-  /** Accessible name for the collapsed-segments menu trigger. */
+  /** Accessible name for the collapsed-segments menu trigger.
+   * @default undefined
+   */
   collapsedLabel?: string;
 }
 
@@ -345,7 +396,8 @@ function BreadcrumbTrail({
 }: BreadcrumbTrailProps) {
   const lastIndex = items.length - 1;
   const tailCount = Math.max(1, itemsAfterCollapse);
-  const shouldCollapse = typeof maxItems === "number" && items.length > maxItems;
+  const shouldCollapse =
+    typeof maxItems === "number" && items.length > maxItems;
   const tailStart = shouldCollapse ? Math.max(1, items.length - tailCount) : 1;
   const collapsedItems = shouldCollapse ? items.slice(1, tailStart) : [];
 
@@ -355,10 +407,15 @@ function BreadcrumbTrail({
     // once, at the run's first index, then skip the rest of the run.
     if (collapsedItems.length > 0 && index > 0 && index < tailStart) {
       if (index === 1) {
-        nodes.push(<BreadcrumbSeparator key="breadcrumb-trail-collapsed-separator" />);
+        nodes.push(
+          <BreadcrumbSeparator key="breadcrumb-trail-collapsed-separator" />,
+        );
         nodes.push(
           <BreadcrumbItem key="breadcrumb-trail-collapsed">
-            <BreadcrumbCollapsed items={collapsedItems} label={collapsedLabel} />
+            <BreadcrumbCollapsed
+              items={collapsedItems}
+              label={collapsedLabel}
+            />
           </BreadcrumbItem>,
         );
       }
@@ -366,7 +423,9 @@ function BreadcrumbTrail({
     }
     if (index > 0) {
       nodes.push(
-        <BreadcrumbSeparator key={`breadcrumb-trail-separator-${String(item.key ?? index)}`} />,
+        <BreadcrumbSeparator
+          key={`breadcrumb-trail-separator-${String(item.key ?? index)}`}
+        />,
       );
     }
     nodes.push(

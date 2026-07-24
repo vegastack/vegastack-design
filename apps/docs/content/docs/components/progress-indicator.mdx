@@ -1,10 +1,11 @@
 ---
 title: Progress Indicator
 description: A compact circular pie-fill progress indicator (0–100%) — a server-safe SVG glyph in circle or squircle shapes.
+audience: public
 preview: progressIndicator
 ---
 
-import { story } from '@/components/stories/progress-indicator.story';
+import { story } from "@/components/stories/progress-indicator.story";
 
 ## Installation
 
@@ -17,12 +18,15 @@ npx shadcn@latest add @vegastack/progress-indicator
 ## Usage
 
 ```tsx
-import { ProgressIndicator } from '@/components/ui/progress-indicator';
+import { ProgressIndicator } from "@/components/ui/progress-indicator";
 
 <ProgressIndicator value={60} />;
 ```
 
-<ComponentPreview name="progressIndicator" file="components/preview/progress-indicator.tsx" />
+<ComponentPreview
+  name="progressIndicator"
+  file="components/preview/progress-indicator.tsx"
+/>
 
 The `ProgressIndicator` is the **radial** counterpart to the linear [`Progress`](/docs/components/progress) bar. Reach for it when a tiny determinate percentage glyph fits better than a full-width bar — inline next to a label, in a dense list row, or beside a metric.
 
@@ -47,34 +51,49 @@ the curated playground above.
 
 `value` is clamped into `[0, max]` (default `max` is `100`) and the fill grows clockwise from 12 o'clock.
 
-<ComponentPreview name="progressIndicatorValues" file="components/preview/progress-indicator.tsx" />
+<ComponentPreview
+  name="progressIndicatorValues"
+  file="components/preview/progress-indicator.tsx"
+/>
 
 ### Shapes
 
 `shape` controls the outline: a true `circle` ring or a rounded-square `squircle`.
 
-<ComponentPreview name="progressIndicatorShapes" file="components/preview/progress-indicator.tsx" />
+<ComponentPreview
+  name="progressIndicatorShapes"
+  file="components/preview/progress-indicator.tsx"
+/>
 
 ### Sizes
 
 `xs` (14px), `sm` (16px), `default` (20px), and `lg` (24px) — mapped to the `size-*` token scale.
 
-<ComponentPreview name="progressIndicatorSizes" file="components/preview/progress-indicator.tsx" />
+<ComponentPreview
+  name="progressIndicatorSizes"
+  file="components/preview/progress-indicator.tsx"
+/>
 
 ### Colors
 
 The SVG inherits `currentColor`, so the track and fill follow the root's text color (`text-primary` by default). Recolor it with any semantic `text-*` token via `className` — never a hardcoded hex.
 
-<ComponentPreview name="progressIndicatorColors" file="components/preview/progress-indicator.tsx" />
+<ComponentPreview
+  name="progressIndicatorColors"
+  file="components/preview/progress-indicator.tsx"
+/>
 
 ### Custom scale
 
 Pass `max` to track progress on an arbitrary scale — the announced `aria-valuenow` is normalized to a percentage (`3 / 5` reports as `60`):
 
-<ComponentPreview name="progressIndicatorCustomScale" file="components/preview/progress-indicator.tsx" />
+<ComponentPreview
+  name="progressIndicatorCustomScale"
+  file="components/preview/progress-indicator.tsx"
+/>
 
 ```tsx
-<ProgressIndicator value={3} max={5} aria-label="Step 3 of 5" />;
+<ProgressIndicator value={3} max={5} aria-label="Step 3 of 5" />
 ```
 
 ### Motion
@@ -83,17 +102,36 @@ A `value` change sweeps the fill wedge instead of jumping to the new position �
 `stroke-dasharray` transitions on `duration-base`/`ease-standard`, matching the linear
 [`Progress`](/docs/components/progress) bar's `transition-[width]`.
 
-<ComponentPreview name="progressIndicatorSweep" file="components/preview/progress-indicator.tsx" />
+<ComponentPreview
+  name="progressIndicatorSweep"
+  file="components/preview/progress-indicator.tsx"
+/>
 
 ### Shape × value matrix
 
 Both `shape` outlines across the full fill range — the squircle's pie wedge reads against its rounded-square frame just as the circle's does against its ring.
 
-<ComponentPreview name="progressIndicatorShapeValueMatrix" file="components/preview/progress-indicator.tsx" />
+<ComponentPreview
+  name="progressIndicatorShapeValueMatrix"
+  file="components/preview/progress-indicator.tsx"
+/>
+
+### Segments mode
+
+Pass `segments={n}` to render a dash row instead of the radial glyph — `round(value/max × n)`
+bars filled. Use it for step counts (checklists, setup progress), not smooth percentages.
+
+<ComponentPreview
+  name="progressIndicatorSegments"
+  file="components/preview/progress-indicator.tsx"
+/>
 
 ## API Reference
 
-<AutoTypeTable path="../../packages/ui/registry/ui/progress-indicator.tsx" name="ProgressIndicatorProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/progress-indicator.tsx"
+  name="ProgressIndicatorProps"
+/>
 
 ## Accessibility
 
@@ -102,12 +140,12 @@ Both `shape` outlines across the full fill range — the squircle's pie wedge re
 - The inner `<svg>` is `aria-hidden` — the accessible state lives on the root element, so screen readers announce one progressbar, not a decorative graphic.
 - Color is token-driven (`currentColor`); contrast follows whichever semantic `text-*` token you apply, so it inherits the theme's AA-compliant pairings.
 
-| Attribute | Purpose |
-| --- | --- |
-| `role="progressbar"` | Exposes the element as a progress indicator to assistive tech |
-| `aria-valuenow` | Current value as a `0–100` percentage |
-| `aria-valuemin` / `aria-valuemax` | Bounds of the announced scale (`0` and `100`) |
-| `aria-label` | Accessible name (defaults to `"{percent}% complete"`) |
+| Attribute                         | Purpose                                                       |
+| --------------------------------- | ------------------------------------------------------------- |
+| `role="progressbar"`              | Exposes the element as a progress indicator to assistive tech |
+| `aria-valuenow`                   | Current value as a `0–100` percentage                         |
+| `aria-valuemin` / `aria-valuemax` | Bounds of the announced scale (`0` and `100`)                 |
+| `aria-label`                      | Accessible name (defaults to `"{percent}% complete"`)         |
 
 ## Do / Don't
 

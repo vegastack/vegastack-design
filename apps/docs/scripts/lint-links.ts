@@ -7,8 +7,8 @@
  *
  * Run: `pnpm --filter @vegastack/docs lint:links` (fail-closed; wired into the package lint).
  */
-import { register } from 'fumadocs-mdx/node';
+import { register } from "fumadocs-mdx/node";
 
 register();
 
-await import('./lint-links-impl');
+await import("./lint-links-impl");

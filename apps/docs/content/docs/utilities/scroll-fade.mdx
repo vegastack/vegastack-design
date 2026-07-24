@@ -1,6 +1,7 @@
 ---
 title: Scroll Fade
 description: Mask-based fade hints on the edges of a scroll container — pure CSS, scroll-position aware, and RTL-safe.
+audience: public
 preview: scrollFade
 ---
 
@@ -46,29 +47,35 @@ The container needs a bounded size and `overflow` so it can actually scroll.
 Fade only one edge with `scroll-fade-t` or `scroll-fade-b` (and `-l`/`-r` or the
 logical `-s`/`-e`).
 
-<ComponentPreview name="scrollFadeEdge" file="components/preview/utilities.tsx" />
+<ComponentPreview
+  name="scrollFadeEdge"
+  file="components/preview/utilities.tsx"
+/>
 
 ### Fixed size
 
 `scroll-fade-<n>` sets a fixed fade depth from the spacing scale.
 
-<ComponentPreview name="scrollFadeSize" file="components/preview/utilities.tsx" />
+<ComponentPreview
+  name="scrollFadeSize"
+  file="components/preview/utilities.tsx"
+/>
 
 ## Classes
 
-| Class | Effect |
-| --- | --- |
-| `scroll-fade` / `scroll-fade-y` | Vertical fade (top + bottom). |
-| `scroll-fade-x` | Horizontal fade (start + end). |
-| `scroll-fade-t` / `scroll-fade-b` | Top / bottom edge only. |
-| `scroll-fade-l` / `scroll-fade-r` | Left / right edge only. |
-| `scroll-fade-s` / `scroll-fade-e` | Logical start / end edge (RTL-aware). |
-| `scroll-fade-*` | Fixed fade depth for all active edges (spacing scale or a length/percentage). |
-| `scroll-fade-t-*` | Fixed fade depth for the top edge only (spacing scale or a length/percentage). |
-| `scroll-fade-b-*` | Fixed fade depth for the bottom edge only (spacing scale or a length/percentage). |
-| `scroll-fade-s-*` | Fixed fade depth for the logical start edge only, RTL-aware (spacing scale or a length/percentage). |
-| `scroll-fade-e-*` | Fixed fade depth for the logical end edge only, RTL-aware (spacing scale or a length/percentage). |
-| `scroll-fade-none` | Disable the fade. |
+| Class                             | Effect                                                                                              |
+| --------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `scroll-fade` / `scroll-fade-y`   | Vertical fade (top + bottom).                                                                       |
+| `scroll-fade-x`                   | Horizontal fade (start + end).                                                                      |
+| `scroll-fade-t` / `scroll-fade-b` | Top / bottom edge only.                                                                             |
+| `scroll-fade-l` / `scroll-fade-r` | Left / right edge only.                                                                             |
+| `scroll-fade-s` / `scroll-fade-e` | Logical start / end edge (RTL-aware).                                                               |
+| `scroll-fade-*`                   | Fixed fade depth for all active edges (spacing scale or a length/percentage).                       |
+| `scroll-fade-t-*`                 | Fixed fade depth for the top edge only (spacing scale or a length/percentage).                      |
+| `scroll-fade-b-*`                 | Fixed fade depth for the bottom edge only (spacing scale or a length/percentage).                   |
+| `scroll-fade-s-*`                 | Fixed fade depth for the logical start edge only, RTL-aware (spacing scale or a length/percentage). |
+| `scroll-fade-e-*`                 | Fixed fade depth for the logical end edge only, RTL-aware (spacing scale or a length/percentage).   |
+| `scroll-fade-none`                | Disable the fade.                                                                                   |
 
 ## Notes
 

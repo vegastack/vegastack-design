@@ -3,6 +3,7 @@
 > Durable reference. Source: `/Users/kmanojkumar/code/engg-vegastack-platform`, read 2026-06-20. This is the **source material for the ~50-component port** and the exact token values to migrate into `@vegastack/tokens`. Preserve in full.
 
 ## Stack & tooling (from package.json)
+
 - **Next.js** `^16.2.6`, **React** `19.2.0`, **TypeScript** `5.9.3`, pnpm `10.28.2`.
 - **Deploy:** OpenNext + Cloudflare — `@opennextjs/cloudflare ^1.19.10`; `open-next.config.ts` uses `r2IncrementalCache`.
 - **Tailwind v4** (`@tailwindcss/postcss ^4`, no config file, CSS `@theme`), `@tailwindcss/typography ^0.5.19`, PostCSS 8.5.15.
@@ -12,6 +13,7 @@
 - **Other:** Sonner `^2.0.7`, next-themes `^0.4.6`, next-intl `^4.12.0`, cmdk `^1.1.1`, framer-motion `^12.23.26`, `@floating-ui/dom`, `@dnd-kit/{core,sortable,utilities}`, date-fns `^4.1.0`, react-day-picker `^9.14.0`, emoji-picker-react `^4.18.0`, input-otp `^1.4.2`, Zod `^4.1.13`, Zustand `^5.0.9`, `@tanstack/react-query ^5.90.20`, AI SDKs (`@ai-sdk/google`, `@ai-sdk/openai`, `ai ^6`), shiki `^4.2.0`, lowlight, remark-{parse,stringify,gfm,frontmatter}, dompurify `^3.4.5`, nanoid, unicode-emoji-json.
 
 ## Component layers
+
 ```
 src/components/
   ui/         # 40 shadcn primitives (radix-nova) — DO NOT EDIT, extend via common/
@@ -22,31 +24,35 @@ src/lib/component-meta.ts  # PropMeta, ComponentMeta, defineProps (showcase prop
 ```
 
 ### `src/components/ui/` — 40 shadcn primitives
+
 alert, avatar, badge, button, calendar, card, checkbox, collapsible, command(cmdk), dialog, drawer(vaul), dropdown-menu, empty, field, hover-card, input, input-otp, kbd, label, popover, scroll-area, select, separator, sheet(vaul), shortcuts-dialog, sidebar, skeleton, spinner, switch, table, tabs, textarea, toggle, toggle-group, tooltip, breadcrumb, auth-wrapper, brand-logo-header, sonner. Most wrap Radix (unified pkg); badge/card/empty/field/kbd/breadcrumb are div-based.
 
 ### `src/components/common/` — ~50 Vega wrappers
+
 **Primary (mandatory in app code):**
-| Component | Features |
-|---|---|
-| VegaButton | 11 variants (default, secondary, outline, ghost, link, glass, destructive, success, warning, info, +outline versions), 8 sizes (xs, sm, default, lg, icon-*), loading spinner, icon support, kbd shortcut display (OS-aware ⌘/Ctrl), dropdown split-menu |
-| VegaBadge | 3 variants (outline, solid, minimal), **dynamic `color-mix()` for unlimited colors** from CSS vars, 4 sizes, dot indicator, loading, icon, preset+Tailwind palette |
-| VegaField | vertical/horizontal orientation, label + inline labelAction, error/success msg, description, borderless, gap-2, child-input styling via `[data-slot]` selectors |
-| VegaInput | prefix mode (e.g. "app.vegastack.com/"), error/disabled, all input types, wraps `<Input>` |
-| VegaTextarea | rich (Tiptap+markdown) or plain, compact/inline, toolbar slots, onSubmit, auto-grow |
-| VegaTextEdit | full Tiptap editor: slash commands, bubble menu, @mentions, emoji, markdown I/O, inline variant, Yjs collab-ready |
-| VegaMarkdownView | static render: interactive task checkboxes, code highlight, blockquotes, @mentions, DOMPurify |
-| VegaDatePicker | single/range, presets (Today/Tomorrow/Last 7d…), DOB dropdown, integrates VegaField |
-| VegaDialog | 5 sizes (xs, sm, default, lg, full), mobile drawer (vaul), header/footer styling, kbd nav |
-| VegaAlertDialog | 4 intents (default, destructive, success, warning), confirm/cancel auto-layout |
-| VegaDropdownMenu | actions array, destructive variant, custom trigger, sub-menus, separators, shortcuts, a11y |
-| VegaCommand | single/multi-select, grouped, search/filter, icons, kbd nav |
-| VegaPageHeader | back nav, breadcrumb (ellipsis collapse), actions row, secondary menu, centered, favorite star |
-| VegaTooltip | smart delay, kbd display, rich content, button action, staggered reveal |
-| VegaAvatar | auto R2 URL resolution, 3 sizes, group/stack, badge overlay, tooltip |
+
+| Component        | Features                                                                                                                                                                                                                                                 |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| VegaButton       | 11 variants (default, secondary, outline, ghost, link, glass, destructive, success, warning, info, +outline versions), 8 sizes (xs, sm, default, lg, icon-*), loading spinner, icon support, kbd shortcut display (OS-aware ⌘/Ctrl), dropdown split-menu |
+| VegaBadge        | 3 variants (outline, solid, minimal), **dynamic `color-mix()` for unlimited colors** from CSS vars, 4 sizes, dot indicator, loading, icon, preset+Tailwind palette                                                                                       |
+| VegaField        | vertical/horizontal orientation, label + inline labelAction, error/success msg, description, borderless, gap-2, child-input styling via `[data-slot]` selectors                                                                                          |
+| VegaInput        | prefix mode (e.g. "app.vegastack.com/"), error/disabled, all input types, wraps `<Input>`                                                                                                                                                                |
+| VegaTextarea     | rich (Tiptap+markdown) or plain, compact/inline, toolbar slots, onSubmit, auto-grow                                                                                                                                                                      |
+| VegaTextEdit     | full Tiptap editor: slash commands, bubble menu, @mentions, emoji, markdown I/O, inline variant, Yjs collab-ready                                                                                                                                        |
+| VegaMarkdownView | static render: interactive task checkboxes, code highlight, blockquotes, @mentions, DOMPurify                                                                                                                                                            |
+| VegaDatePicker   | single/range, presets (Today/Tomorrow/Last 7d…), DOB dropdown, integrates VegaField                                                                                                                                                                      |
+| VegaDialog       | 5 sizes (xs, sm, default, lg, full), mobile drawer (vaul), header/footer styling, kbd nav                                                                                                                                                                |
+| VegaAlertDialog  | 4 intents (default, destructive, success, warning), confirm/cancel auto-layout                                                                                                                                                                           |
+| VegaDropdownMenu | actions array, destructive variant, custom trigger, sub-menus, separators, shortcuts, a11y                                                                                                                                                               |
+| VegaCommand      | single/multi-select, grouped, search/filter, icons, kbd nav                                                                                                                                                                                              |
+| VegaPageHeader   | back nav, breadcrumb (ellipsis collapse), actions row, secondary menu, centered, favorite star                                                                                                                                                           |
+| VegaTooltip      | smart delay, kbd display, rich content, button action, staggered reveal                                                                                                                                                                                  |
+| VegaAvatar       | auto R2 URL resolution, 3 sizes, group/stack, badge overlay, tooltip                                                                                                                                                                                     |
 
 **Extended:** VegaEmptyState (3 intents, dashed border) · VegaTabs (line+pill, icons, count badges, vertical) · VegaHoverCard (4 dirs, +User/Agent/Team variants) · VegaAlert (5 variants, dismissable, actions) · VegaSkeleton (lines/circles/tables/cards) · VegaProgressIndicator (pie-fill: circle/squircle, 3 sizes) · VegaStatusIcon (todo/progress/blocked/done) · VegaColorPicker (14-color grid, Tailwind palette, CSS-var output) · VegaFilterBar (removable chips, sub-dropdown, AI query input) · VegaScroll (macOS auto-hide, dual axis) · VegaDataList (row selection, sortable cols, board/Kanban, grouping, dnd-kit, loading, mobile-responsive) · VegaFieldInline (click-to-edit, borderless/bordered) · VegaEmojiPicker (theme-aware, skin-tone persist) · CopyButton · TruncatedText (single/multi + IconText + TableCellText) · PasswordInput (eye toggle, requirements) · SettingsRow/Card/Section · AutoSaveInput (debounced, validation, toast) · VegaUserHoverCard/AgentHoverCard/TeamHoverCard (ID → resolves name/email/avatar/role) · VegaRelativeDay · VegaTimeAgo · CommandMenu (⌘K singleton) · CountrySelect (240+ countries, flags) · StateSelect (country-aware) · R2Image · NotificationBell · OAuthIcons · VegaOTPInput · auth-showcase/.
 
 ## Design tokens (exact values — migrate to `@vegastack/tokens`)
+
 `src/app/globals.css` (`@theme inline`) + `src/app/tailwind-palette.css` (`@theme static`). **OKLCH throughout.**
 
 **Backgrounds:** `--background: oklch(1 0 0)` · `--foreground: oklch(14.5% 0 0)` · `--card: oklch(98.5% 0 0)` · `--card-foreground: oklch(14.5% 0 0)` · `--popover: oklch(1 0 0)` · `--popover-foreground: oklch(14.5% 0 0)`.
@@ -61,6 +67,7 @@ alert, avatar, badge, button, calendar, card, checkbox, collapsible, command(cmd
 **Dark mode** (`.dark{}`): bg → `oklch(17.5% 0 0)`; text inverts; borders/semantics toned for AA.
 
 ## Typography & utilities
+
 - Fonts: `--font-sans` Geist Sans, `--font-mono` Geist Mono, `--font-lora` Lora serif (headings only).
 - Headings (all serif, tracking-tight, **no bold/semibold** — serif weight carries hierarchy): h1 `text-xl sm:text-2xl`, h2 `text-base sm:text-lg`, h3 `text-sm sm:text-base`, h4 `text-sm`.
 - Component classes: `.text-page-title/.text-section-title/.text-card-title/.text-body/.text-caption`.
@@ -70,22 +77,39 @@ alert, avatar, badge, button, calendar, card, checkbox, collapsible, command(cmd
 - Data attributes for styling: `data-slot`, `data-variant`, `data-state`, `data-size`, `data-disabled`.
 
 ## ⚠️ A11y defect to FIX (not carry forward)
+
 `globals.css` base reset: `* { outline: none !important; }` and globally disabled focus states; cursor-pointer on all interactive, not-allowed on disabled. **The `outline: none !important` + killed focus is a WCAG keyboard-nav regression** — the locked system must use proper `:focus-visible` rings. (requirements §7.5)
 
 ## CVA pattern (carry over, formalized)
+
 ```ts
-const vegaButtonVariants = cva("inline-flex items-center justify-center … outline-none", {
-  variants: {
-    variant: { default: "bg-primary text-primary-foreground hover:bg-primary/90", secondary: "…", outline: "border-border bg-background hover:bg-muted", /*…*/ },
-    size: { xs: "h-6 gap-1 rounded-md px-2 text-xs", sm: "h-7 …", default: "h-8 gap-1.5 px-2.5", lg: "h-9 …" },
+const vegaButtonVariants = cva(
+  "inline-flex items-center justify-center … outline-none",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        secondary: "…",
+        outline: "border-border bg-background hover:bg-muted" /*…*/,
+      },
+      size: {
+        xs: "h-6 gap-1 rounded-md px-2 text-xs",
+        sm: "h-7 …",
+        default: "h-8 gap-1.5 px-2.5",
+        lg: "h-9 …",
+      },
+    },
+    defaultVariants: { variant: "default", size: "default" },
   },
-  defaultVariants: { variant: "default", size: "default" },
-});
-type VegaButtonProps = React.ComponentProps<"button"> & VariantProps<typeof vegaButtonVariants>;
+);
+type VegaButtonProps = React.ComponentProps<"button"> &
+  VariantProps<typeof vegaButtonVariants>;
 ```
+
 `cn()` = `twMerge(clsx(inputs))` in `src/lib/utils.ts`.
 
 ## Showcase (the page we productize)
+
 Route `src/app/[locale]/components/`: overview gallery (cards: icon, name, description, variant count, feature tags, hover arrow) + ~40 **per-component pages** in dedicated dirs (each `page.tsx` server + `*-client.tsx`). Helpers in `_showcase-helpers/`: `SectionHeader`, `DemoRow`, `DemoGrid`, `OverviewSection`, `PropsTable`, `SourceLink`. Props metadata via `src/lib/component-meta.ts` (`defineProps`, `ComponentMeta`, `PropMeta`). Per-page structure: PageHeader+back → SectionHeader+source link → demo sections by variant (base/semantic/size/state) → PropsTable → guidelines.
 
 **Verdict:** this is ~80% of a design system already — it just lives inside an app. The port = lift `common/` onto Base UI primitives, externalize tokens to `@vegastack/tokens`, productize the showcase as Fumadocs.

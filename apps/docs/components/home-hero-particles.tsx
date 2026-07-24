@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 
 /**
  * Lazily code-splits `ParticleField`'s JS (not just its draw loop — the
@@ -10,10 +10,13 @@ import dynamic from 'next/dynamic';
  * stays a Server Component and just renders this.
  */
 const ParticleField = dynamic(
-  () => import('@/components/ui/particle-field').then((mod) => mod.ParticleField),
+  () =>
+    import("@/components/ui/particle-field").then((mod) => mod.ParticleField),
   { ssr: false },
 );
 
-export function HomeHeroParticles(props: React.ComponentProps<typeof ParticleField>) {
+export function HomeHeroParticles(
+  props: React.ComponentProps<typeof ParticleField>,
+) {
   return <ParticleField {...props} />;
 }

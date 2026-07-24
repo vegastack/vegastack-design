@@ -1,6 +1,7 @@
 ---
 title: Emoji Picker
 description: A popover with a searchable, category-grouped grid of emoji that returns the selected character.
+audience: public
 preview: emojiPicker
 ---
 
@@ -179,7 +180,7 @@ The exported, curated emoji dataset you extend or replace to support more emoji.
 - Each emoji is a focusable `<button>` with an `aria-label` (the emoji name) and `title`, so the grid is screen-reader navigable and keyboard-operable.
 - The search field is a labelled `<input type="search">`; typing filters the grid live, and a polite
   `role="status"` announces result counts or the empty state when nothing matches.
-- Focus is always visible: the default ghost trigger keeps the browser's native focus outline, the search field re-colours its border to the `ring` token (`focus:border-ring/70`), and each emoji button highlights with a `focus-visible:bg-accent` background — never `outline: none`.
+- Focus is always visible: the default ghost trigger keeps the browser's native focus outline, the search field re-colours its border to the `ring` token (`focus:border-ring/(--alpha-tint-border)`), and each emoji button highlights with a `focus-visible:bg-accent` background — never `outline: none`.
 - Dismiss is built in (via `Popover`) — clicking outside the panel or pressing <kbd>Esc</kbd> closes it and returns focus to the trigger.
 
 | Key                                                | Action                                                        |

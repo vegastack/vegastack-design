@@ -1,4 +1,4 @@
-// @vegastack item@0.2.0 sha256-HYQKwv1oQ5rp9pFearsMxu7OQ1oJzKJ4nuIuFXd4r2A=
+// @vegastack item@0.2.0 sha256-MItMzeXjUAlOlMqs6HADbOYw0XtejzWe1yPks07Jx+o=
 
 "use client";
 
@@ -17,7 +17,7 @@ import { Separator } from "@/components/ui/separator";
  * ----------------------------------------------------------------------------------------------*/
 
 export const itemVariants = cva(
-  "group/item relative flex w-full flex-wrap items-center rounded-md border border-transparent text-base transition-colors duration-fast ease-standard [&_svg]:pointer-events-none [&_svg]:shrink-0 [&:is(a,button)]:cursor-pointer [&:is(a,button)]:hover:bg-accent/(--alpha-wash)",
+  "group/item relative flex w-full flex-wrap items-center rounded-md border border-transparent text-base [&_svg]:pointer-events-none [&_svg]:shrink-0 [&:is(a,button)]:hover:bg-accent/(--alpha-wash)",
   {
     variants: {
       variant: {
@@ -40,11 +40,17 @@ export const itemVariants = cva(
 );
 
 /** Surface treatment an `Item` row can take. */
-export type ItemVariant = NonNullable<VariantProps<typeof itemVariants>["variant"]>;
+export type ItemVariant = NonNullable<
+  VariantProps<typeof itemVariants>["variant"]
+>;
 /** Padding density an `Item` row can take. */
 export type ItemSize = NonNullable<VariantProps<typeof itemVariants>["size"]>;
 
-export interface ItemProps extends React.ComponentProps<"div">, VariantProps<typeof itemVariants> {
+/** Props accepted by `Item`. */
+export interface ItemProps
+  extends
+    React.ComponentPropsWithRef<"div">,
+    VariantProps<typeof itemVariants> {
   /**
    * Surface treatment.
    * - `default`: no surface, blends into the parent background.
@@ -65,6 +71,8 @@ export interface ItemProps extends React.ComponentProps<"div">, VariantProps<typ
    * `render` composition, making the whole row a single interactive/focusable control. Pass a
    * `ReactElement` or a render function. When set, the row keeps the composed element's native
    * `link`/`button` role instead of the default `listitem` role (see the `role` note below).
+
+   * @default undefined
    */
   render?: useRender.RenderProp;
 }
@@ -135,7 +143,8 @@ export const itemMediaVariants = cva(
         /** A bordered, muted square chip around a `lucide-react` icon. */
         icon: "size-(--size-md) rounded-sm border border-border bg-muted [&_svg:not([class*='size-'])]:size-(--icon-default)",
         /** A clipped square tile for a thumbnail `<img>`. */
-        image: "size-(--size-lg) overflow-hidden rounded-sm [&_img]:size-full [&_img]:object-cover",
+        image:
+          "size-(--size-lg) overflow-hidden rounded-sm [&_img]:size-full [&_img]:object-cover",
       },
     },
     defaultVariants: { variant: "default" },
@@ -143,10 +152,15 @@ export const itemMediaVariants = cva(
 );
 
 /** Visual treatment an `ItemMedia` slot can take. */
-export type ItemMediaVariant = NonNullable<VariantProps<typeof itemMediaVariants>["variant"]>;
+export type ItemMediaVariant = NonNullable<
+  VariantProps<typeof itemMediaVariants>["variant"]
+>;
 
+/** Props accepted by `ItemMedia`. */
 export interface ItemMediaProps
-  extends React.ComponentProps<"div">, VariantProps<typeof itemMediaVariants> {
+  extends
+    React.ComponentPropsWithRef<"div">,
+    VariantProps<typeof itemMediaVariants> {
   /**
    * Visual treatment.
    * - `default`: bare children (default) — an `Avatar`, a custom glyph.
@@ -161,8 +175,17 @@ export interface ItemMediaProps
  * `ItemMedia` — the leading visual slot of an `Item`. When the sibling `ItemContent` holds an
  * `ItemDescription`, the media nudges down and top-aligns so it sits level with the title instead
  * of the vertical center of the whole row.
+
+ *
+ * @example
+ * <ItemMedia />
  */
-export function ItemMedia({ className, variant = "default", ref, ...props }: ItemMediaProps) {
+export function ItemMedia({
+  className,
+  variant = "default",
+  ref,
+  ...props
+}: ItemMediaProps) {
   return (
     <div
       ref={ref}
@@ -179,38 +202,63 @@ export function ItemMedia({ className, variant = "default", ref, ...props }: Ite
  * trailing timestamp column) automatically shrinks instead of sharing the flex-grow.
  * ----------------------------------------------------------------------------------------------*/
 
-export type ItemContentProps = React.ComponentProps<"div">;
+/** Props accepted by `ItemContent`. */
+export type ItemContentProps = React.ComponentPropsWithRef<"div">;
 
-/** `ItemContent` — the flexible text column of an `Item` (title + description). */
+/** `ItemContent` — the flexible text column of an `Item` (title + description).
+ *
+ * @example
+ * <ItemContent />
+ */
 export function ItemContent({ className, ref, ...props }: ItemContentProps) {
   return (
     <div
       ref={ref}
       data-slot="item-content"
-      className={cn("flex min-w-0 flex-1 flex-col gap-1 [&+[data-slot=item-content]]:flex-none", className)}
+      className={cn(
+        "flex min-w-0 flex-1 flex-col gap-1 [&+[data-slot=item-content]]:flex-none",
+        className,
+      )}
       {...props}
     />
   );
 }
 
-export type ItemTitleProps = React.ComponentProps<"div">;
+/** Props accepted by `ItemTitle`. */
+export type ItemTitleProps = React.ComponentPropsWithRef<"div">;
 
-/** `ItemTitle` — the primary label of an `Item` row. */
+/** `ItemTitle` — the primary label of an `Item` row.
+ *
+ * @example
+ * <ItemTitle />
+ */
 export function ItemTitle({ className, ref, ...props }: ItemTitleProps) {
   return (
     <div
       ref={ref}
       data-slot="item-title"
-      className={cn("flex w-fit items-center gap-2 text-sm leading-snug font-medium text-foreground", className)}
+      className={cn(
+        "flex w-fit items-center gap-2 text-sm leading-snug font-medium text-foreground",
+        className,
+      )}
       {...props}
     />
   );
 }
 
-export type ItemDescriptionProps = React.ComponentProps<"p">;
+/** Props accepted by `ItemDescription`. */
+export type ItemDescriptionProps = React.ComponentPropsWithRef<"p">;
 
-/** `ItemDescription` — supporting body text under the `ItemTitle`. Clamps to two lines. */
-export function ItemDescription({ className, ref, ...props }: ItemDescriptionProps) {
+/** `ItemDescription` — supporting body text under the `ItemTitle`. Clamps to two lines.
+ *
+ * @example
+ * <ItemDescription />
+ */
+export function ItemDescription({
+  className,
+  ref,
+  ...props
+}: ItemDescriptionProps) {
   return (
     <p
       ref={ref}
@@ -228,9 +276,14 @@ export function ItemDescription({ className, ref, ...props }: ItemDescriptionPro
  * ItemActions / ItemHeader / ItemFooter — layout slots for controls and multi-row compositions.
  * ----------------------------------------------------------------------------------------------*/
 
-export type ItemActionsProps = React.ComponentProps<"div">;
+/** Props accepted by `ItemActions`. */
+export type ItemActionsProps = React.ComponentPropsWithRef<"div">;
 
-/** `ItemActions` — the trailing row of controls (buttons, icon-buttons, a badge) on an `Item`. */
+/** `ItemActions` — the trailing row of controls (buttons, icon-buttons, a badge) on an `Item`.
+ *
+ * @example
+ * <ItemActions />
+ */
 export function ItemActions({ className, ref, ...props }: ItemActionsProps) {
   return (
     <div
@@ -242,29 +295,45 @@ export function ItemActions({ className, ref, ...props }: ItemActionsProps) {
   );
 }
 
-export type ItemHeaderProps = React.ComponentProps<"div">;
+/** Props accepted by `ItemHeader`. */
+export type ItemHeaderProps = React.ComponentPropsWithRef<"div">;
 
-/** `ItemHeader` — a full-width top row inside a multi-row `Item` (e.g. title + trailing meta). */
+/** `ItemHeader` — a full-width top row inside a multi-row `Item` (e.g. title + trailing meta).
+ *
+ * @example
+ * <ItemHeader />
+ */
 export function ItemHeader({ className, ref, ...props }: ItemHeaderProps) {
   return (
     <div
       ref={ref}
       data-slot="item-header"
-      className={cn("flex basis-full items-center justify-between gap-2", className)}
+      className={cn(
+        "flex basis-full items-center justify-between gap-2",
+        className,
+      )}
       {...props}
     />
   );
 }
 
-export type ItemFooterProps = React.ComponentProps<"div">;
+/** Props accepted by `ItemFooter`. */
+export type ItemFooterProps = React.ComponentPropsWithRef<"div">;
 
-/** `ItemFooter` — a full-width bottom row inside a multi-row `Item` (e.g. secondary actions). */
+/** `ItemFooter` — a full-width bottom row inside a multi-row `Item` (e.g. secondary actions).
+ *
+ * @example
+ * <ItemFooter />
+ */
 export function ItemFooter({ className, ref, ...props }: ItemFooterProps) {
   return (
     <div
       ref={ref}
       data-slot="item-footer"
-      className={cn("flex basis-full items-center justify-between gap-2", className)}
+      className={cn(
+        "flex basis-full items-center justify-between gap-2",
+        className,
+      )}
       {...props}
     />
   );
@@ -276,9 +345,14 @@ export function ItemFooter({ className, ref, ...props }: ItemFooterProps) {
  * `role="presentation"` + `aria-hidden` and never breaks the list's ARIA owned-elements contract.
  * ----------------------------------------------------------------------------------------------*/
 
-export type ItemGroupProps = React.ComponentProps<"div">;
+/** Props accepted by `ItemGroup`. */
+export type ItemGroupProps = React.ComponentPropsWithRef<"div">;
 
-/** `ItemGroup` — groups `Item` rows as a semantic list (`role="list"`). */
+/** `ItemGroup` — groups `Item` rows as a semantic list (`role="list"`).
+ *
+ * @example
+ * <ItemGroup />
+ */
 export function ItemGroup({ className, ref, ...props }: ItemGroupProps) {
   return (
     <div
@@ -291,9 +365,14 @@ export function ItemGroup({ className, ref, ...props }: ItemGroupProps) {
   );
 }
 
-export type ItemSeparatorProps = React.ComponentProps<typeof Separator>;
+/** Props accepted by `ItemSeparator`. */
+export type ItemSeparatorProps = React.ComponentPropsWithRef<typeof Separator>;
 
-/** `ItemSeparator` — a hairline divider between rows inside an `ItemGroup`. Decorative. */
+/** `ItemSeparator` — a hairline divider between rows inside an `ItemGroup`. Decorative.
+ *
+ * @example
+ * <ItemSeparator />
+ */
 export function ItemSeparator({ className, ...props }: ItemSeparatorProps) {
   return (
     <Separator

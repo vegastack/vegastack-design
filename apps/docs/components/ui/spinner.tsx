@@ -1,9 +1,9 @@
-// @vegastack spinner@0.2.0 sha256-Tc2SlgvOdWYE0k2hfKWGgy2KXTeFXFt6zzwf8Cu8re0=
+// @vegastack spinner@0.2.0 sha256-0dij1hm0Jv+RxR2efQq6tnyDPp4dKpcmLx1rc+3bXvM=
 
-import * as React from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
-import { Loader } from 'lucide-react';
-import { cn } from '@vegastack/design';
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { Loader } from "lucide-react";
+import { cn } from "@vegastack/design";
 
 /**
  * Spinner size scale — mirrors the rest of the system (`xs`/`sm`/`default`/`lg`)
@@ -15,27 +15,29 @@ import { cn } from '@vegastack/design';
  * (dark-on-dark) — the loading glyph must read in the host's own ink.
  */
 export const spinnerVariants = cva(
-  'shrink-0 animate-spin text-muted-foreground motion-reduce:animate-none',
+  "shrink-0 animate-spin text-muted-foreground motion-reduce:animate-none",
   {
     variants: {
       size: {
-        xs: 'size-(--icon-compact)',
-        sm: 'size-(--icon-inline)',
-        default: 'size-(--icon-default)',
-        lg: 'size-(--icon-feature)',
+        xs: "size-(--icon-compact)",
+        sm: "size-(--icon-inline)",
+        default: "size-(--icon-default)",
+        lg: "size-(--icon-feature)",
         /**
          * No size class — the host's `[&_svg]` selector sizing applies (Button/Badge) —
          * and `text-current` so the spinner spins in the host's ink, not detached gray.
          */
-        inherit: 'text-current',
+        inherit: "text-current",
       },
     },
-    defaultVariants: { size: 'default' },
+    defaultVariants: { size: "default" },
   },
 );
 
+/** Props accepted by `Spinner`. */
 export interface SpinnerProps
-  extends Omit<React.ComponentProps<'svg'>, 'color'>,
+  extends
+    Omit<React.ComponentProps<"svg">, "color">,
     VariantProps<typeof spinnerVariants> {
   /**
    * Size variant — mirrors the rest of the scale and maps to the `size-*`
@@ -43,7 +45,7 @@ export interface SpinnerProps
    * parent's text color.
    * @default 'default'
    */
-  size?: 'xs' | 'sm' | 'default' | 'lg' | 'inherit';
+  size?: "xs" | "sm" | "default" | "lg" | "inherit";
   /**
    * Accessible label announced by assistive tech while the spinner is visible.
    * When provided, the spinner exposes `role="status"` + `aria-label` so screen
@@ -70,19 +72,28 @@ export interface SpinnerProps
  *
  * Pure presentational and server-safe — no hooks, no `'use client'`. Forwards
  * its ref to the underlying `<svg>`.
+ *
+ * @example
+ * <Spinner label="Saving" size="sm" />
  */
-export function Spinner({ className, size = 'default', label = 'Loading', ref, ...props }: SpinnerProps) {
-    const decorative = label === '';
-    return (
-      <Loader
-        ref={ref}
-        data-slot="spinner"
-        data-size={size}
-        className={cn(spinnerVariants({ size }), className)}
-        {...(decorative
-          ? { 'aria-hidden': true }
-          : { role: 'status', 'aria-label': label })}
-        {...props}
-      />
-    );
+export function Spinner({
+  className,
+  size = "default",
+  label = "Loading",
+  ref,
+  ...props
+}: SpinnerProps) {
+  const decorative = label === "";
+  return (
+    <Loader
+      ref={ref}
+      data-slot="spinner"
+      data-size={size}
+      className={cn(spinnerVariants({ size }), className)}
+      {...(decorative
+        ? { "aria-hidden": true }
+        : { role: "status", "aria-label": label })}
+      {...props}
+    />
+  );
 }

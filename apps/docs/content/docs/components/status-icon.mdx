@@ -1,10 +1,11 @@
 ---
 title: Status Icon
 description: A small status indicator icon for the canonical task states — todo, in progress, blocked, and done.
+audience: public
 preview: statusIcon
 ---
 
-import { story } from '@/components/stories/status-icon.story';
+import { story } from "@/components/stories/status-icon.story";
 
 ## Installation
 
@@ -17,49 +18,63 @@ npx shadcn@latest add @vegastack/status-icon
 ## Usage
 
 ```tsx
-import { StatusIcon } from '@/components/ui/status-icon';
+import { StatusIcon } from "@/components/ui/status-icon";
 
 <StatusIcon status="progress" />;
 ```
 
-## Playground
+## Examples
+
+### Playground
 
 Pick a status and size to preview each state's icon and color, then copy the generated JSX.
 
 <StatusIconPlayground />
 
-## Explorer
+### Explorer
 
 Every `StatusIcon` prop, auto-generated from its TypeScript types — the exhaustive counterpart to
 the curated playground above.
 
 <story.WithControl />
 
-## States
+### States
 
 Each `status` maps to a `lucide-react` icon and a semantic color token: `todo` (`Circle`,
 muted), `progress` (spinning `Loader`, info), `blocked` (`CircleAlert`, destructive), and `done`
 (`CircleCheck`, success).
 
-<ComponentPreview name="statusIconStates" file="components/preview/status-icon.tsx" />
+<ComponentPreview
+  name="statusIconStates"
+  file="components/preview/status-icon.tsx"
+/>
 
-## Sizes
+### Sizes
 
 `xs`, `sm`, `default`, and `lg` — mapped to the `size-*` token scale.
 
-<ComponentPreview name="statusIconSizes" file="components/preview/status-icon.tsx" />
+<ComponentPreview
+  name="statusIconSizes"
+  file="components/preview/status-icon.tsx"
+/>
 
 Each `status` renders at every size — only `progress` animates (its spinning `Loader`):
 
-<ComponentPreview name="statusIconStatusSizeMatrix" file="components/preview/status-icon.tsx" />
+<ComponentPreview
+  name="statusIconStatusSizeMatrix"
+  file="components/preview/status-icon.tsx"
+/>
 
-## With a text label
+### With a text label
 
 When adjacent text already states the status, pass `label=""` so the icon is marked decorative
 (`aria-hidden`) and the screen reader announces the text once rather than twice. This is the
 recommended accessible pattern.
 
-<ComponentPreview name="statusIconWithLabel" file="components/preview/status-icon.tsx" />
+<ComponentPreview
+  name="statusIconWithLabel"
+  file="components/preview/status-icon.tsx"
+/>
 
 ```tsx
 <span className="flex items-center gap-2 text-info-text">
@@ -70,7 +85,10 @@ recommended accessible pattern.
 
 ## API Reference
 
-<AutoTypeTable path="../../packages/ui/registry/ui/status-icon.tsx" name="StatusIconProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/status-icon.tsx"
+  name="StatusIconProps"
+/>
 
 ## Accessibility
 
@@ -83,11 +101,11 @@ recommended accessible pattern.
 - The `progress` spin animation is disabled under `prefers-reduced-motion: reduce`
   (`motion-reduce:animate-none`).
 
-| Concern         | Behavior                                                       |
-| --------------- | -------------------------------------------------------------- |
-| Role            | `role="img"` unless `label=""` (decorative, `aria-hidden`)     |
-| Accessible name | `aria-label` from `label`, or a default derived from `status`  |
-| Reduced motion  | `progress` animation removed under `prefers-reduced-motion`    |
+| Concern         | Behavior                                                      |
+| --------------- | ------------------------------------------------------------- |
+| Role            | `role="img"` unless `label=""` (decorative, `aria-hidden`)    |
+| Accessible name | `aria-label` from `label`, or a default derived from `status` |
+| Reduced motion  | `progress` animation removed under `prefers-reduced-motion`   |
 
 ## Do / Don't
 

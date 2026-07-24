@@ -1,6 +1,7 @@
 ---
 title: Motion
 description: CSS-first motion. Duration + easing tokens, Base UI transitions, reduced-motion baked in.
+audience: public
 ---
 
 Motion is **CSS-first**: plain `transition-*` classes + Base UI's built-in `data-starting-style` /
@@ -23,36 +24,37 @@ The whole vocabulary in plain language — what each animation looks like, where
 to see it. Everything is deliberately subtle (150–400ms, state-triggered, never on page load) and
 disappears entirely under OS "Reduce Motion".
 
-| Animation | What it looks like | Where it's used | How to see it |
-|---|---|---|---|
-| `motion-pop-in` | A tiny springy "pop" — scales up from 90% while fading in, with a slight bounce | copy-button ✓-swap, password-input eye-swap, auto-save status icons, notification-bell count, `Badge`/`Marker` `animateIn` (opt-in) | Click any Copy button and watch the check arrive |
-| `motion-enter-up` | Fades in while rising 4px — "slides up into place" | `FieldError` messages, chat `Message`/`Bubble` `animateIn` (opt-in), `SkeletonReveal`, `StaggeredTextReveal` | Submit an empty required Field; the error slides up |
-| `motion-shake` | A quick decaying left-right wiggle (±4px) | `Input`, `Checkbox`, `RadioGroup`, `OTPInput` — fires automatically on becoming invalid | Enter a wrong OTP in the demo; the field shakes once |
-| `--ease-spring` | The bouncy arrival curve (CSS `linear()` spring) powering the pop | The easing inside `motion-pop-in`; available to any `transition-*` pair | It's the personality inside the pop, not a separate effect |
-| `AnimatedNumber` | Numbers count smoothly up/down to their new value, locale/currency aware | dashboard-01 stat cards, its own component page | Change the value in the [Animated Number](/docs/components/animated-number) demo |
-| Keyed presence | A changed icon/label is *replaced* by a freshly-animated one instead of mutating in place | copy-button, password-input, auto-save-input, split-button | The mechanism behind the pop-in sightings above |
-| Animated icons | Per-icon micro-animations with an imperative `startAnimation()` handle (e.g. the check that draws its stroke) | All 440 `icon-*` mirror items | Hover icons in the [icon gallery](/docs/foundations/icons) |
-| Shimmer | A moving highlight over loading placeholders | `Skeleton`, the `shimmer` text utility | Any skeleton demo |
-| Overlay transitions | Fade/scale/slide on open and close, reversible mid-flight | Every dialog, sheet, popover, menu, select, tooltip | Open and quickly re-close any overlay |
+| Animation           | What it looks like                                                                                            | Where it's used                                                                                                                     | How to see it                                                                    |
+| ------------------- | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `motion-pop-in`     | A tiny springy "pop" — scales up from 90% while fading in, with a slight bounce                               | copy-button ✓-swap, password-input eye-swap, auto-save status icons, notification-bell count, `Badge`/`Marker` `animateIn` (opt-in) | Click any Copy button and watch the check arrive                                 |
+| `motion-enter-up`   | Fades in while rising 4px — "slides up into place"                                                            | `FieldError` messages, chat `Message`/`Bubble` `animateIn` (opt-in), `SkeletonReveal`, `StaggeredTextReveal`                        | Submit an empty required Field; the error slides up                              |
+| `motion-shake`      | A quick decaying left-right wiggle (±4px)                                                                     | `Input`, `Checkbox`, `RadioGroup`, `OTPInput` — fires automatically on becoming invalid                                             | Enter a wrong OTP in the demo; the field shakes once                             |
+| `motion-flash`      | A 2px semantic accent ring expands and settles around changed content                                         | Live updates that need a brief, non-status highlight                                                                                | Update a live value and apply `--vs-flash-color` for its semantic accent         |
+| `--ease-spring`     | The bouncy arrival curve (CSS `linear()` spring) powering the pop                                             | The easing inside `motion-pop-in`; available to any `transition-*` pair                                                             | It's the personality inside the pop, not a separate effect                       |
+| `AnimatedNumber`    | Numbers count smoothly up/down to their new value, locale/currency aware                                      | dashboard-01 stat cards, its own component page                                                                                     | Change the value in the [Animated Number](/docs/components/animated-number) demo |
+| Keyed presence      | A changed icon/label is _replaced_ by a freshly-animated one instead of mutating in place                     | copy-button, password-input, auto-save-input, split-button                                                                          | The mechanism behind the pop-in sightings above                                  |
+| Animated icons      | Per-icon micro-animations with an imperative `startAnimation()` handle (e.g. the check that draws its stroke) | All 439 `icon-*` mirror items                                                                                                       | Hover icons in the [icon gallery](/docs/foundations/icons)                       |
+| Shimmer             | A moving highlight over loading placeholders                                                                  | `Skeleton`, the `shimmer` text utility                                                                                              | Any skeleton demo                                                                |
+| Overlay transitions | Fade/scale/slide on open and close, reversible mid-flight                                                     | Every dialog, sheet, popover, menu, select, tooltip                                                                                 | Open and quickly re-close any overlay                                            |
 
 ## Mechanism matrix
 
 Base UI's `data-starting-style` / `data-ending-style` attributes can't express everything — three
 mechanisms cover the system, each with a defined home:
 
-| Mechanism | What it's for | How it works |
-|---|---|---|
-| **Base UI lifecycle** | Overlays & disclosures — dialog, sheet, popover, menus, select, tooltip, hover-card, accordion, collapsible, tabs indicator | Plain CSS `transition-*` driven by `data-[starting-style]` / `data-[ending-style]` (+ `--transform-origin`, `--accordion-panel-height`). Interruptible by construction — a transition reverses mid-flight if state flips back. |
-| **Keyed presence** | Icon/text swaps & arrivals — copy-button ✓, auto-save status, password eye, notification-bell badge, `Badge`/`Marker`/`Message`/`Bubble` `animateIn`, `SkeletonReveal` | The swapped element gets a React `key` tied to its state, so a state change **remounts** it and its `motion-*` mount animation plays once: `motion-pop-in` (scale 0.9→1 + fade, `--ease-spring`) for swaps/badges, `motion-enter-up` (fade + 4px rise) for content arrivals. |
-| **Explicit replay APIs** | Effects that must re-run on demand — error **shake**, success **check draw**, **number** ticks | `useAnimationReplay` / `useShakeOnInvalid` (class-toggle + `animationend` cleanup — replays `motion-shake` without remounting, so a focused input keeps focus/caret); the lucide-animated icons' imperative `startAnimation()` handle (the check's `pathLength` draw-in lives there); `AnimatedNumber`'s rAF tween. |
+| Mechanism                | What it's for                                                                                                                                                          | How it works                                                                                                                                                                                                                                                                                                        |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Base UI lifecycle**    | Overlays & disclosures — dialog, sheet, popover, menus, select, tooltip, hover-card, accordion, collapsible, tabs indicator                                            | Plain CSS `transition-*` driven by `data-[starting-style]` / `data-[ending-style]` (+ `--transform-origin`, `--accordion-panel-height`). Interruptible by construction — a transition reverses mid-flight if state flips back.                                                                                      |
+| **Keyed presence**       | Icon/text swaps & arrivals — copy-button ✓, auto-save status, password eye, notification-bell badge, `Badge`/`Marker`/`Message`/`Bubble` `animateIn`, `SkeletonReveal` | The swapped element gets a React `key` tied to its state, so a state change **remounts** it and its `motion-*` mount animation plays once: `motion-pop-in` (scale 0.9→1 + fade, `--ease-spring`) for swaps/badges, `motion-enter-up` (fade + 4px rise) for content arrivals.                                        |
+| **Explicit replay APIs** | Effects that must re-run on demand — error **shake**, success **check draw**, **number** ticks                                                                         | `useAnimationReplay` / `useShakeOnInvalid` (class-toggle + `animationend` cleanup — replays `motion-shake` without remounting, so a focused input keeps focus/caret); the lucide-animated icons' imperative `startAnimation()` handle (the check's `pathLength` draw-in lives there); `AnimatedNumber`'s rAF tween. |
 
-Form controls (`Input`, `OTPInput`, `Checkbox`, `RadioGroup`) auto-shake once when they *transition*
+Form controls (`Input`, `OTPInput`, `Checkbox`, `RadioGroup`) auto-shake once when they _transition_
 into `aria-invalid`; repeated failures replay via `shakeSignal` / the hook. `FieldError` enters with
 `motion-enter-up`, so "message slides in + control shakes" composes from two independent mechanisms.
 
 ## Sanctioned utilities
 
-`motion-pop-in`, `motion-enter-up`, `motion-shake` (from `@vegastack/design-tokens/utilities.css`) are the
+`motion-pop-in`, `motion-enter-up`, `motion-shake`, `motion-flash` (from `@vegastack/design-tokens/utilities.css`) are the
 only mount-animation classes; everything else is a `transition-*` + token pair. Raw motion values —
 `animate-[…]`, `cubic-bezier(…)`, `linear(…)`, `duration-[…]`, `ease-[…]` — are lint-banned
 (`raw-motion`); every `transition-*` must carry `duration-*` **and** `ease-*` in the same class
@@ -92,7 +94,7 @@ That bridge is what lets you write the named `duration-*` utility instead of an 
 both compile to the same `150ms`:
 
 ```tsx
-<div className="transition-colors ease-standard duration-fast" />
+<div className="transition-opacity ease-standard duration-fast" />
 ```
 
 ## Reduced motion

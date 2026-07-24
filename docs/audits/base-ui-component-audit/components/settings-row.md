@@ -13,10 +13,10 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P3 | Row label is visual at `settings-row.tsx:135`; docs warn consumers to label controls themselves at `settings-row.mdx:86`. | Downstream settings controls can easily miss programmatic names. | Add optional `controlId`/`htmlFor` or `labelProps` to make safe path ergonomic. |
-| P3 | Fixed horizontal layout at `settings-row.tsx:130`. | Long labels/controls may squeeze on narrow screens. | Add responsive stacking/wrapping and visual coverage for long labels. |
+| Priority | Evidence                                                                                                                  | Impact                                                           | Suggested fix                                                                   |
+| -------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| P3       | Row label is visual at `settings-row.tsx:135`; docs warn consumers to label controls themselves at `settings-row.mdx:86`. | Downstream settings controls can easily miss programmatic names. | Add optional `controlId`/`htmlFor` or `labelProps` to make safe path ergonomic. |
+| P3       | Fixed horizontal layout at `settings-row.tsx:130`.                                                                        | Long labels/controls may squeeze on narrow screens.              | Add responsive stacking/wrapping and visual coverage for long labels.           |
 
 ## Residual Risks
 
@@ -25,4 +25,3 @@ No registry or Radix issue found.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- settings-row.test.tsx`
-

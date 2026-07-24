@@ -1,28 +1,42 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { Textarea, type TextareaProps } from '@/components/ui/textarea';
-import { PropsPlayground, type PlaygroundConfig } from '@/components/playground';
+import type { ReactNode } from "react";
+import { Textarea, type TextareaProps } from "@/components/ui/textarea";
+import {
+  PropsPlayground,
+  type PlaygroundConfig,
+} from "@/components/playground";
 
-type TextareaPlaygroundKey = 'size' | 'autoGrow' | 'disabled' | 'invalid';
+type TextareaPlaygroundKey = "size" | "autoGrow" | "disabled" | "invalid";
 
 const SIZE_OPTIONS = [
-  { value: 'sm', label: 'Small' },
-  { value: 'default', label: 'Default' },
-  { value: 'lg', label: 'Large' },
+  { value: "sm", label: "Small" },
+  { value: "default", label: "Default" },
+  { value: "lg", label: "Large" },
 ] as const;
 
 const textareaPlaygroundConfig: PlaygroundConfig<TextareaPlaygroundKey> = {
   controls: [
-    { type: 'select', key: 'size', label: 'Size', options: SIZE_OPTIONS, defaultValue: 'default' },
-    { type: 'switch', key: 'autoGrow', label: 'Auto-grow', defaultValue: false },
-    { type: 'switch', key: 'disabled', label: 'Disabled', defaultValue: false },
-    { type: 'switch', key: 'invalid', label: 'Invalid', defaultValue: false },
+    {
+      type: "select",
+      key: "size",
+      label: "Size",
+      options: SIZE_OPTIONS,
+      defaultValue: "default",
+    },
+    {
+      type: "switch",
+      key: "autoGrow",
+      label: "Auto-grow",
+      defaultValue: false,
+    },
+    { type: "switch", key: "disabled", label: "Disabled", defaultValue: false },
+    { type: "switch", key: "invalid", label: "Invalid", defaultValue: false },
   ],
   render: (state): ReactNode => (
     <div className="w-64">
       <Textarea
-        size={state.size as TextareaProps['size']}
+        size={state.size as TextareaProps["size"]}
         autoGrow={Boolean(state.autoGrow)}
         placeholder="Tell us about your project…"
         aria-label="Project details"
@@ -33,12 +47,12 @@ const textareaPlaygroundConfig: PlaygroundConfig<TextareaPlaygroundKey> = {
   ),
   toCode: (state) => {
     const props: string[] = [];
-    if (state.size !== 'default') props.push(`size="${state.size}"`);
-    if (state.autoGrow) props.push('autoGrow');
+    if (state.size !== "default") props.push(`size="${state.size}"`);
+    if (state.autoGrow) props.push("autoGrow");
     props.push('placeholder="Tell us about your project…"');
-    if (state.disabled) props.push('disabled');
+    if (state.disabled) props.push("disabled");
     if (state.invalid) props.push('aria-invalid="true"');
-    return `<Textarea ${props.join(' ')} />`;
+    return `<Textarea ${props.join(" ")} />`;
   },
 };
 

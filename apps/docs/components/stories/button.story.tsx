@@ -1,5 +1,5 @@
-import { defineStory } from '@/lib/story';
-import { Button } from '@/components/ui/button';
+import { defineStory } from "@/lib/story";
+import { Button } from "@/components/ui/button";
 
 /**
  * Story explorer for `Button` — controls auto-generated from `ButtonProps` by the Story
@@ -9,24 +9,24 @@ export const story = defineStory({
   Component: Button,
   args: [
     {
-      variant: 'Default',
+      variant: "Default",
       initial: {
-        children: 'Save changes',
+        children: "Save changes",
       },
     },
     {
-      variant: 'Destructive',
+      variant: "Destructive",
       initial: {
-        children: 'Delete project',
+        children: "Delete project",
       },
       fixed: {
-        variant: 'destructive',
+        variant: "destructive",
       },
     },
     {
-      variant: 'Loading',
+      variant: "Loading",
       initial: {
-        children: 'Saving…',
+        children: "Saving…",
         loading: true,
       },
     },

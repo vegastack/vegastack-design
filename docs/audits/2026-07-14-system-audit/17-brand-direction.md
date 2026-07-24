@@ -15,14 +15,14 @@ Sharp corners are PI's outlier move (Vercel/Linear read equally "technical" at 2
 
 ## Typography roles (all tokenized)
 
-| Role | Face | Spec | Where |
-|---|---|---|---|
-| UI & body | Geist Sans | 400 default · 500 labels · 600 rare emphasis (D3 cap) | product + marketing |
-| Display | Geist Sans | 32/40/56/72 · weight 400–500 · tracking −2% (24px) → −5/−6% (56–72px), tokenized `tracking-display-*` | marketing, docs heros |
-| **Brand voice** | Geist Mono | **uppercase · 12px floor (10px only for FIG-style annotations) · tracking +0.04–0.06em · weight 400/500 · `tnum` when numeric** | eyebrows, section numbers (01/1.1), FIG annotations, marketing CTAs, live-state labels, terminal, IDs/hashes |
-| Data numerals | Geist Mono | `tabular-nums` | stat tiles, tables, prices (MK standing preference: mono for numbers) |
-| Serif accent | **Newsreader italic** (recommended over Lora) | display emphasis words + pull-quotes ONLY — never long-form italic (readability research) | marketing heros, testimonials |
-| ~~Geist Pixel~~ | decorative display cut (Feb 2026) | **skip** — decorative register, trend-dated risk; revisit only as a single deliberate hero flourish | — |
+| Role            | Face                                          | Spec                                                                                                                            | Where                                                                                                        |
+| --------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| UI & body       | Geist Sans                                    | 400 default · 500 labels · 600 rare emphasis (D3 cap)                                                                           | product + marketing                                                                                          |
+| Display         | Geist Sans                                    | 32/40/56/72 · weight 400–500 · tracking −2% (24px) → −5/−6% (56–72px), tokenized `tracking-display-*`                           | marketing, docs heros                                                                                        |
+| **Brand voice** | Geist Mono                                    | **uppercase · 12px floor (10px only for FIG-style annotations) · tracking +0.04–0.06em · weight 400/500 · `tnum` when numeric** | eyebrows, section numbers (01/1.1), FIG annotations, marketing CTAs, live-state labels, terminal, IDs/hashes |
+| Data numerals   | Geist Mono                                    | `tabular-nums`                                                                                                                  | stat tiles, tables, prices (MK standing preference: mono for numbers)                                        |
+| Serif accent    | **Newsreader italic** (recommended over Lora) | display emphasis words + pull-quotes ONLY — never long-form italic (readability research)                                       | marketing heros, testimonials                                                                                |
+| ~~Geist Pixel~~ | decorative display cut (Feb 2026)             | **skip** — decorative register, trend-dated risk; revisit only as a single deliberate hero flourish                             | —                                                                                                            |
 
 Hard rules (lintable): **uppercase is mono-exclusive** (uppercase Geist Sans is banned — matches PI/Vercel measured behavior 100%); mono never in headlines or long-form body; italic never for running text. Geist Serif is in development at Vercel — revisit the serif accent when it ships.
 
@@ -41,7 +41,7 @@ Hard rules (lintable): **uppercase is mono-exclusive** (uppercase Geist Sans is 
 
 ## Durability judgment (from the survey)
 
-- Terminal-green-on-dark reads current *because of discipline*, not nostalgia — the saturating cliché in 2026 is undisciplined dark-navy-plus-gradient.
+- Terminal-green-on-dark reads current _because of discipline_, not nostalgia — the saturating cliché in 2026 is undisciplined dark-navy-plus-gradient.
 - Restrained mono (labels/data) is durable dev-culture vocabulary; full mono-headline branding is niche/indie and would date.
 - The serif-accent trend (Claude, Perplexity school) + mono voice combination is the current "2026 and beyond" synthesis — exactly the D17 direction, with Newsreader sharpening it.
 

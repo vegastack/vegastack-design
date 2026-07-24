@@ -1,0 +1,89 @@
+---
+title: Tag Group
+description: Hue-tinted label chips on the 10-hue tag palette — bordered tints, +N overflow collapsing, removable tags.
+audience: public
+preview: tagGroup
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/tag-group
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Tag, TagGroup } from "@/components/ui/tag-group";
+
+<TagGroup max={3} aria-label="Categories">
+  <Tag hue="yellow">Information Technology</Tag>
+  <Tag hue="blue">B2B</Tag>
+  <Tag hue="green">SaaS</Tag>
+  <Tag hue="purple">Enterprise</Tag>
+</TagGroup>;
+```
+
+## Examples
+
+### The 10-hue palette
+
+Tags ride the `--tag-{hue}` token trios (`-subtle` fill, `-text` ink, base accent) — 10
+chromatic hues plus the neutral `muted` chip, each AA-gated in both themes by the token
+contrast gate. Hue is a **decorative label color**: it never signals status (that's `Badge`'s
+five semantic intents).
+
+<ComponentPreview name="tagGroupHues" file="components/preview/tag-group.tsx" />
+
+### Removable tags
+
+<ComponentPreview
+  name="tagGroupRemovable"
+  file="components/preview/tag-group.tsx"
+/>
+
+### Overflow
+
+`max` collapses the group behind a `+N` chip; activating it expands the group inline — the
+"View all values" pattern from record panes. The group renders `role="list"`, so tag counts
+are announced; the overflow control lives inside its own `listitem`.
+
+### Badge vs Tag
+
+|        | `Badge`                     | `Tag`                         |
+| ------ | --------------------------- | ----------------------------- |
+| Voice  | status (5 semantic intents) | label (10 decorative hues)    |
+| Shape  | pill (`rounded-full`)       | pill (`rounded-full`)         |
+| Extras | dot, loading, animate-in    | remove button, group overflow |
+
+## API Reference
+
+### Tag
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/tag-group.tsx"
+  name="TagProps"
+/>
+
+### TagGroup
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/tag-group.tsx"
+  name="TagGroupProps"
+/>
+
+## Accessibility
+
+- Give each `TagGroup` an `aria-label` or another accessible name; it exposes list/listitem semantics.
+- Supply a specific `removeLabel` whenever a tag is removable, such as “Remove SaaS”.
+- Remove and overflow controls keep compact glyphs while expanding their effective target to at least 24px.
+- Hue is decorative. Do not rely on a tag color alone to communicate status or meaning.
+
+## Do / Don't
+
+<DoDont
+  do="Use tags for editable labels and decorative categorization, with explicit remove labels."
+  dont="Use a tag hue as the only status signal or omit the group’s accessible name."
+/>

@@ -6,6 +6,7 @@ Two proven, minimal patterns — apply the one that matches each component. Gold
 landed: `registry/ui/button.tsx` (useRender) and `registry/ui/alert.tsx` (type-swap).
 
 ## Pattern A — plain function that spreads `{...props}` onto its host root (MOST components)
+
 Change ONLY the props type; the existing `{...props}` spread carries the ref onto the host element.
 
 ```tsx
@@ -16,10 +17,12 @@ export function Foo({ className, ...props }: FooProps) {
   return <div data-slot="foo" className={cn(…)} {...props} />;   // ref flows via {...props}
 }
 ```
+
 Requirement: the root host element must receive `{...props}` AFTER any fixed attrs. If `{...props}`
 is already there (it almost always is), the type change alone is the entire fix.
 
 ## Pattern B — `useRender` root (Base UI Model-A polymorphic components)
+
 `useRender` takes a top-level `ref` param. Type the props with `ComponentPropsWithRef`, destructure
 `ref`, pass it to `useRender`.
 
@@ -36,28 +39,32 @@ export function Foo({ className, render, ref, ...props }: FooProps) {
 ```
 
 ## Pattern C — component that does NOT spread props onto a single host root
+
 (e.g. wraps children conditionally, renders a list, or portals). Type with `ComponentPropsWithRef`,
 destructure `ref`, and place it explicitly on the intended root host element: `<div ref={ref} …>`.
 If there is genuinely no single host root (a pure portal like a toaster), leave it and note why in
 the component's JSDoc.
 
 ## Pattern D — delegating wrapper (extends another component's props, spreads onto it)
+
 NO code change needed: if `FooProps extends ButtonProps` (now ref-bearing) and the body does
 `<Button {...props} />`, the ref auto-forwards. Just ADD a ref test.
 
 ## Test to add to each component's *.test.tsx (adapt element type + data-slot)
+
 Ensure `import * as React from 'react';` is at the top of the test file.
 
 ```tsx
-test('forwards ref to the root element', async () => {
-  const ref = React.createRef<HTMLDivElement>();   // match the root element type
-  await render(<Foo ref={ref} />);                  // give it required props
+test("forwards ref to the root element", async () => {
+  const ref = React.createRef<HTMLDivElement>(); // match the root element type
+  await render(<Foo ref={ref} />); // give it required props
   expect(ref.current).toBeInstanceOf(HTMLElement);
-  expect(ref.current?.dataset.slot).toBe('foo');    // the root's data-slot
+  expect(ref.current?.dataset.slot).toBe("foo"); // the root's data-slot
 });
 ```
 
 ## Hard requirements for every change
+
 - Keep ALL existing tests passing. Do not change behavior, styling, or public prop names.
 - `cd packages/ui && PATH="/opt/homebrew/opt/node@24/bin:$PATH" pnpm exec tsc --noEmit` must be clean.
 - `PATH=… pnpm exec vitest run registry/ui/<name>.test.tsx` must pass for every file you touch.

@@ -13,9 +13,9 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| None | No material component-specific finding survived review. | No action. | Keep coverage during future Base UI updates. |
+| Priority | Evidence                                                | Impact     | Suggested fix                                |
+| -------- | ------------------------------------------------------- | ---------- | -------------------------------------------- |
+| None     | No material component-specific finding survived review. | No action. | Keep coverage during future Base UI updates. |
 
 ## Residual Risks
 
@@ -24,4 +24,3 @@ Only system-wide shadcn config drift applies.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- collapsible.test.tsx`
-

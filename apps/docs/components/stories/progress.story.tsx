@@ -1,5 +1,5 @@
-import { defineStory } from '@/lib/story';
-import { Progress } from '@/components/ui/progress';
+import { defineStory } from "@/lib/story";
+import { Progress } from "@/components/ui/progress";
 
 /**
  * Story explorer for `Progress` — controls auto-generated from `ProgressProps` by the Story
@@ -9,16 +9,16 @@ export const story = defineStory({
   Component: Progress,
   args: [
     {
-      variant: 'Default',
+      variant: "Default",
       initial: {
         value: 60,
-        'aria-label': 'Upload progress',
+        "aria-label": "Upload progress",
       },
     },
     {
-      variant: 'Indeterminate',
+      variant: "Indeterminate",
       initial: {
-        'aria-label': 'Loading',
+        "aria-label": "Loading",
       },
       fixed: {
         value: null,

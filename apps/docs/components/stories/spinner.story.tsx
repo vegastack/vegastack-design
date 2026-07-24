@@ -1,5 +1,5 @@
-import { defineStory } from '@/lib/story';
-import { Spinner } from './spinner.client';
+import { defineStory } from "@/lib/story";
+import { Spinner } from "./spinner.client";
 
 /**
  * Story explorer for `Spinner` — controls auto-generated from `SpinnerProps` by the Story
@@ -9,18 +9,18 @@ export const story = defineStory({
   Component: Spinner,
   args: [
     {
-      variant: 'Default',
+      variant: "Default",
       initial: {
-        label: 'Loading',
+        label: "Loading",
       },
     },
     {
-      variant: 'Large',
+      variant: "Large",
       initial: {
-        label: 'Loading dashboard',
+        label: "Loading dashboard",
       },
       fixed: {
-        size: 'lg',
+        size: "lg",
       },
     },
   ],

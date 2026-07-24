@@ -13,7 +13,7 @@ No source files were modified.
    sibling `useRender` component treats as mandatory.** `marker.tsx` and `bubble.tsx`
    (`BubbleContent`) call `useRender` from `@base-ui/react/use-render` with no client
    boundary, while `badge.tsx`, `breadcrumb.tsx`, `pagination.tsx`, and `sidebar.tsx`
-   all carry `'use client'` *specifically because* they use the same hook (documented
+   all carry `'use client'` _specifically because_ they use the same hook (documented
    in `breadcrumb.tsx`'s own JSDoc). This is very likely a real SSR/RSC bug, not just
    a style nit — see §(c).
 2. **`React.forwardRef` vs React-19 ref-as-prop is split roughly 50/50**, in direct
@@ -26,7 +26,7 @@ No source files were modified.
    every time.
 4. **Compound-component export style is inconsistent.** 5 components (`Card`, `Alert`,
    `Breadcrumb`, `EmptyState`, `Pagination`) expose both a dotted namespace
-   (`Card.Header`) *and* flat named exports. Every other multi-part component
+   (`Card.Header`) _and_ flat named exports. Every other multi-part component
    (`Dialog`, `AlertDialog`, `Sheet`, `DropdownMenu`, `ContextMenu`, `Select`, `Tabs`,
    `Accordion`, `Collapsible`, `RadioGroup`, `ToggleGroup`, `Command`, `Table`) exposes
    **only** flat names — no `Object.assign` namespace at all.
@@ -65,33 +65,33 @@ No source files were modified.
 
 ### Control-height scale (the shared 24/28/32/40 px ladder)
 
-| Component | xs (24px) | sm (28px) | default (32px) | lg (40px) | notes |
-|---|---|---|---|---|---|
-| `Button` | ✅ h-6 | ✅ h-7 | ✅ h-8 | ✅ h-10 | canonical scale + `icon-*` mirror |
-| `IconButton` | ✅ (→icon-xs) | ✅ (→icon-sm) | ✅ (→icon) | ✅ (→icon-lg) | delegates to Button |
-| `SplitButton` | ✅ | ✅ | ✅ | ✅ | delegates to Button |
-| `Select` trigger | ❌ none | ✅ h-7 | ✅ h-8 | ✅ h-10 | missing `xs` |
-| `Toggle` / `ToggleGroupItem` | ❌ none | ✅ h-7 | ✅ h-8 | ✅ h-10 | missing `xs` |
-| `Pagination.Link` | ❌ none | ✅ h-7 | ✅ h-8 | ✅ h-10 | + a separate `icon` size |
-| `Sidebar.MenuButton` | ❌ none | ✅ h-7 | ✅ h-8 | ✅ h-10 | missing `xs` |
-| `Input` | ❌ | ❌ | fixed h-8 only | ❌ | **no `size` prop at all** |
-| `Textarea` | ❌ | ❌ | fixed min-h-16 | ❌ | **no `size` prop at all** |
-| `RadioGroupItem` | ❌ | ❌ | fixed size-4 | ❌ | **no `size` prop at all** |
-| `OTPInput` slot | ❌ | ❌ | fixed size-8 | ❌ | **no `size` prop at all** |
+| Component                    | xs (24px)     | sm (28px)     | default (32px) | lg (40px)     | notes                             |
+| ---------------------------- | ------------- | ------------- | -------------- | ------------- | --------------------------------- |
+| `Button`                     | ✅ h-6        | ✅ h-7        | ✅ h-8         | ✅ h-10       | canonical scale + `icon-*` mirror |
+| `IconButton`                 | ✅ (→icon-xs) | ✅ (→icon-sm) | ✅ (→icon)     | ✅ (→icon-lg) | delegates to Button               |
+| `SplitButton`                | ✅            | ✅            | ✅             | ✅            | delegates to Button               |
+| `Select` trigger             | ❌ none       | ✅ h-7        | ✅ h-8         | ✅ h-10       | missing `xs`                      |
+| `Toggle` / `ToggleGroupItem` | ❌ none       | ✅ h-7        | ✅ h-8         | ✅ h-10       | missing `xs`                      |
+| `Pagination.Link`            | ❌ none       | ✅ h-7        | ✅ h-8         | ✅ h-10       | + a separate `icon` size          |
+| `Sidebar.MenuButton`         | ❌ none       | ✅ h-7        | ✅ h-8         | ✅ h-10       | missing `xs`                      |
+| `Input`                      | ❌            | ❌            | fixed h-8 only | ❌            | **no `size` prop at all**         |
+| `Textarea`                   | ❌            | ❌            | fixed min-h-16 | ❌            | **no `size` prop at all**         |
+| `RadioGroupItem`             | ❌            | ❌            | fixed size-4   | ❌            | **no `size` prop at all**         |
+| `OTPInput` slot              | ❌            | ❌            | fixed size-8   | ❌            | **no `size` prop at all**         |
 
 ### Icon / indicator scale (separate, smaller ladder)
 
-| Component | xs | sm | default | lg | notes |
-|---|---|---|---|---|---|
-| `Spinner` | size-3 (12) | size-3.5 (14) | size-4 (16) | size-6 (24) | |
-| `StatusIcon` | size-3.5 (14) | size-4 (16) | size-5 (20) | size-6 (24) | |
-| `ProgressIndicator` | size-3.5 (14) | size-4 (16) | size-5 (20) | size-6 (24) | identical to StatusIcon — good |
-| `Avatar` | size-6 (24) | size-7 (28) | size-8 (32) | size-10 (40) + `xl` size-12 (48) | matches Button's control scale, plus an extra `xl` |
-| `Checkbox` | ❌ | size-3.5 (14) | size-4 (16) | ❌ | only 2 steps, no `xs`/`lg` |
-| `Kbd` | h-4 (16) | h-5 (20) | h-6 (24) | ❌ | only 3 steps, no `lg` |
-| `Switch` | ❌ | h-4/w-7 | h-5/w-9 | h-6/w-11 | 3 steps, no `xs` (expected — smaller control) |
-| `Progress` (bar) | ❌ | h-1.5 (6) | h-2 (8) | h-3 (12) | 3 steps, no `xs` |
-| `Badge` | ❌ | h-5 (20) | h-5 (20) | h-6 (24) | **`sm` and `default` render the same height** — differ only in horizontal padding (`px-1.5` vs `px-2`) |
+| Component           | xs            | sm            | default     | lg                               | notes                                                                                                  |
+| ------------------- | ------------- | ------------- | ----------- | -------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `Spinner`           | size-3 (12)   | size-3.5 (14) | size-4 (16) | size-6 (24)                      |                                                                                                        |
+| `StatusIcon`        | size-3.5 (14) | size-4 (16)   | size-5 (20) | size-6 (24)                      |                                                                                                        |
+| `ProgressIndicator` | size-3.5 (14) | size-4 (16)   | size-5 (20) | size-6 (24)                      | identical to StatusIcon — good                                                                         |
+| `Avatar`            | size-6 (24)   | size-7 (28)   | size-8 (32) | size-10 (40) + `xl` size-12 (48) | matches Button's control scale, plus an extra `xl`                                                     |
+| `Checkbox`          | ❌            | size-3.5 (14) | size-4 (16) | ❌                               | only 2 steps, no `xs`/`lg`                                                                             |
+| `Kbd`               | h-4 (16)      | h-5 (20)      | h-6 (24)    | ❌                               | only 3 steps, no `lg`                                                                                  |
+| `Switch`            | ❌            | h-4/w-7       | h-5/w-9     | h-6/w-11                         | 3 steps, no `xs` (expected — smaller control)                                                          |
+| `Progress` (bar)    | ❌            | h-1.5 (6)     | h-2 (8)     | h-3 (12)                         | 3 steps, no `xs`                                                                                       |
+| `Badge`             | ❌            | h-5 (20)      | h-5 (20)    | h-6 (24)                         | **`sm` and `default` render the same height** — differ only in horizontal padding (`px-1.5` vs `px-2`) |
 
 **Finding:** "Same visual size = same token value" mostly holds for the icon-scale
 group (Spinner/StatusIcon/ProgressIndicator/Avatar all agree at each step), but the
@@ -103,14 +103,14 @@ overriding the Input's fixed `h-8`.
 
 ### "Semantic color family" prop naming
 
-| Component | Prop name | Values |
-|---|---|---|
-| `Button` | `variant` | `default/secondary/outline/ghost/link/destructive/success/warning/info/glass/destructive-outline/success-outline/warning-outline/info-outline` (13, conflates style+color) |
-| `Alert` | `variant` | `default/info/success/warning/destructive` |
-| `Badge` | `color` (+ separate `variant` for style) | `default/success/warning/destructive/info` |
-| `AlertDialog(Action)` | `intent` | `default/destructive/success/warning` |
-| `EmptyState.Icon` | `intent` | `default/info/destructive` |
-| `StatusIcon` | `status` | `todo/progress/blocked/done` (different domain, but same "pick a semantic tint" shape) |
+| Component             | Prop name                                | Values                                                                                                                                                                     |
+| --------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Button`              | `variant`                                | `default/secondary/outline/ghost/link/destructive/success/warning/info/glass/destructive-outline/success-outline/warning-outline/info-outline` (13, conflates style+color) |
+| `Alert`               | `variant`                                | `default/info/success/warning/destructive`                                                                                                                                 |
+| `Badge`               | `color` (+ separate `variant` for style) | `default/success/warning/destructive/info`                                                                                                                                 |
+| `AlertDialog(Action)` | `intent`                                 | `default/destructive/success/warning`                                                                                                                                      |
+| `EmptyState.Icon`     | `intent`                                 | `default/info/destructive`                                                                                                                                                 |
+| `StatusIcon`          | `status`                                 | `todo/progress/blocked/done` (different domain, but same "pick a semantic tint" shape)                                                                                     |
 
 Three names (`variant`, `color`, `intent`) for what is architecturally the same
 "pick a semantic status family" decision — see Finding (a)3.
@@ -157,19 +157,19 @@ Three names (`variant`, `color`, `intent`) for what is architecturally the same
   drift, though partially explained by Base UI's own native vocabulary differing
   per primitive.
 - Async-lifecycle naming split: `AutoSaveInput` → `data-status` (`idle/saving/
-  saved/error`, `auto-save-input.tsx:203`) vs `Image` → `data-state`
+saved/error`, `auto-save-input.tsx:203`) vs `Image` → `data-state`
   (`loading/loaded/error`, `image.tsx:139`). Same shape of concept, different
   attribute name.
 - One-off state attributes that are fine as-is (distinct concepts, no real sibling
   to align with): `data-copied` (`copy-button.tsx:101`), `data-unread`
   (`notification-bell.tsx:74`), `data-fallback` (`state-select.tsx:1507`,
   free-text-input branch), `data-loading` (`badge.tsx:204`, `button.tsx:112` — these
-  two *do* agree with each other, good).
+  two _do_ agree with each other, good).
 
 ### 4. Ref forwarding — the ref-forwarding-spec vs actual code
 
-`docs/ledger/ref-forwarding-spec.md:4` states plainly: *"React 19 ref-as-prop is the
-idiom here (NOT `React.forwardRef`, which is deprecated in React 19)."* Gold
+`docs/ledger/ref-forwarding-spec.md:4` states plainly: _"React 19 ref-as-prop is the
+idiom here (NOT `React.forwardRef`, which is deprecated in React 19)."_ Gold
 references cited are `button.tsx` (useRender/Pattern B) and `alert.tsx` (Pattern A
 type-swap). Actual code is split:
 
@@ -192,13 +192,14 @@ exports), `textarea.tsx`, `toggle-group.tsx` (both exports).
 
 **Missing ref support entirely (neither pattern, DOM-root component with no ref
 path):**
+
 - `bubble.tsx`'s `Bubble` and `BubbleGroup` — typed `React.ComponentProps<"div">`
   (not `WithRef`), and the function bodies don't destructure/forward `ref` at all
   (`bubble.tsx:12-26`, `bubble.tsx:111-126`). `BubbleReactions` too
   (`bubble.tsx:187-229`, typed `React.ComponentProps<"div">`).
 - `marker.tsx`'s `MarkerIcon` and `MarkerContent` — typed `React.ComponentProps<"span">`
   (not `WithRef`) and don't destructure `ref` (`marker.tsx:97-136`). Note `Marker`
-  itself (the root) *does* correctly support ref via `useRender`.
+  itself (the root) _does_ correctly support ref via `useRender`.
 - `message.tsx` — every export (`MessageGroup`, `Message`, `MessageAvatar`,
   `MessageContent`, `MessageHeader`, `MessageFooter`) is typed
   `React.ComponentProps<"div">`, no ref support (whole file, `message.tsx:14-141`).
@@ -213,8 +214,9 @@ leaf parts, which is a strict regression versus the ref-forwarding-spec's blanke
 requirement ("every exported DOM-root component must forward a consumer ref").
 
 **Typing inconsistency layered on top:** even among files that do the right thing,
-the *type* used to describe props varies three ways for what should be one
+the _type_ used to describe props varies three ways for what should be one
 decision:
+
 - `ComponentPropsWithRef<'x'>` (spec-correct, e.g. `alert.tsx:52`, `kbd.tsx:50`,
   `truncated-text.tsx:23`)
 - `ComponentPropsWithoutRef<'x'>` (old style, still used in a dozen files even
@@ -225,7 +227,7 @@ decision:
   and the majority of the overlay wrappers (`dialog.tsx`, `popover.tsx`,
   `tooltip.tsx`, `hover-card.tsx`, `sheet.tsx`, `dropdown-menu.tsx`,
   `context-menu.tsx` all type their sub-parts as bare `React.ComponentProps<typeof
-  Base…>`).
+Base…>`).
 
 ### 5. className merging
 
@@ -237,7 +239,7 @@ decision:
   handled correctly and consistently in `button.tsx:99-102`, `toggle.tsx:48-51`,
   `toggle-group.tsx:100-103` and `:169-172`, `input.tsx:64-73` — all wrap with the
   same `typeof className === 'function' ? (state) => cn(base, className(state)) :
-  cn(base, className)` idiom. Good consistency for a subtle pattern.
+cn(base, className)` idiom. Good consistency for a subtle pattern.
 
 ### 6. `'use client'` placement
 
@@ -245,9 +247,9 @@ decision:
   without `'use client'`.** Compare:
   - `badge.tsx:1-9` — has `'use client'`, uses `useRender` (`badge.tsx:195`).
   - `breadcrumb.tsx:1-8` — has `'use client'`; its own JSDoc at
-    `breadcrumb.tsx:15-16` explicitly says *"`Breadcrumb.Link` uses Base UI
+    `breadcrumb.tsx:15-16` explicitly says _"`Breadcrumb.Link` uses Base UI
     `useRender` composition for router links, so the module keeps a client
-    boundary even though the DOM it emits is presentational."*
+    boundary even though the DOM it emits is presentational."_
   - `pagination.tsx:1-10` — has `'use client'`, uses `useRender` at `pagination.tsx:134`.
   - `sidebar.tsx:1-10` — has `'use client'`, uses `useRender` at `sidebar.tsx:346`
     and `:410`.
@@ -255,11 +257,11 @@ decision:
     `marker.tsx:84`.
   - `bubble.tsx:1-6` — **no `'use client'`**, yet `BubbleContent` calls `useRender`
     at `bubble.tsx:148`.
-  This is the single clearest, highest-confidence finding in the audit: two files
-  break an established, self-documented convention that four sibling files follow
-  precisely because of the same hook. Left as-is, importing `Marker` or
-  `BubbleContent` from a Server Component boundary is likely to throw ("hooks can
-  only be used in Client Components" or an equivalent Base UI runtime error).
+    This is the single clearest, highest-confidence finding in the audit: two files
+    break an established, self-documented convention that four sibling files follow
+    precisely because of the same hook. Left as-is, importing `Marker` or
+    `BubbleContent` from a Server Component boundary is likely to throw ("hooks can
+    only be used in Client Components" or an equivalent Base UI runtime error).
 - Otherwise, `'use client'` placement is largely correct and matches the "only at
   interactive/hook-using leaves" rule: `card.tsx`, `table.tsx`, `label.tsx`,
   `kbd.tsx`, `empty-state.tsx`, `settings-row.tsx`, `skeleton.tsx`,
@@ -282,7 +284,7 @@ decision:
   `dropdown-menu.tsx`, `context-menu.tsx`, `select.tsx`, `tabs.tsx`,
   `accordion.tsx`, `collapsible.tsx`, `radio-group.tsx`, `toggle-group.tsx`,
   `command.tsx`, `table.tsx`) is flat-only. There is no documented rule anywhere
-  in the ledger for *when* a compound component should get the dotted namespace —
+  in the ledger for _when_ a compound component should get the dotted namespace —
   it appears to be author preference rather than a system decision.
 - `<Name>Props` type export: consistently present and consistently named
   `<PascalName>Props` across all 68 files — a real strength, no violations.
@@ -302,7 +304,7 @@ decision:
   `RadioGroupItem`, `Slider`, `Progress`, and the rest of the overlay/menu/tabs
   family via unrestricted prop spreading).
 - **Undocumented in the ledger but present in code:** `Marker` (`marker.tsx:55,
-  84`) and `BubbleContent` (`bubble.tsx:133, 148`) both expose `render` via
+84`) and `BubbleContent` (`bubble.tsx:133, 148`) both expose `render` via
   `useRender` — the exact same pattern as `Badge`/`Breadcrumb.Link`, but absent
   from `component-matrix.md`'s §7.6 list. The matrix needs an update pass for the
   chat-component addition.
@@ -365,7 +367,7 @@ decision:
 - `displayName` is set only on `forwardRef`-based components (where it's needed
   because forwardRef obscures the function name) and correctly omitted from plain
   function-component exports (which get their name from the function declaration
-  automatically) — this is actually the *correct*, non-redundant behavior, not an
+  automatically) — this is actually the _correct_, non-redundant behavior, not an
   inconsistency, despite looking asymmetric at first glance.
 - File structure (imports → cva → types → component → exports) is followed
   consistently across all 68 files — no violations found.
@@ -389,14 +391,14 @@ decision:
 
 ## (d) Violations of the repo's own stated conventions
 
-| Convention (source) | Violated by |
-|---|---|
-| "React 19 ref-as-prop is the idiom here (NOT `React.forwardRef`, which is deprecated in React 19)" — `ref-forwarding-spec.md:4` | 24 files still use `forwardRef` (full list in §c.4) |
-| "Every exported DOM-root component must forward a consumer `ref`" — `ref-forwarding-spec.md:3` | `bubble.tsx` (`Bubble`, `BubbleGroup`, `BubbleReactions`), `marker.tsx` (`MarkerIcon`, `MarkerContent`), `message.tsx` (all 6 exports) forward no ref at all |
-| "`'use client'` at the top ONLY for interactive components (anything using hooks/Base UI interactive parts)" — `authoring-guide.md:15`, and the file-local precedent set by `badge.tsx`/`breadcrumb.tsx`/`pagination.tsx`/`sidebar.tsx` for `useRender` specifically | `marker.tsx`, `bubble.tsx` use `useRender` (a hook) with no `'use client'` |
-| "8. Consistent variant/size naming across components (mirror Button's scale where applicable: sizes xs/sm/default/lg)" — `authoring-guide.md:17` | `Select`, `Toggle`, `Pagination.Link`, `Sidebar.MenuButton` omit `xs`; `Input`, `Textarea`, `RadioGroupItem`, `OTPInput` omit `size` entirely; `Checkbox` and `Kbd` use truncated scales |
-| §7.6 render-contract primitive list — `component-matrix.md:126` | Doesn't list `Marker` / `BubbleContent`, which use the identical `useRender` pattern (stale doc, not a code bug, but a doc/code drift item) |
-| §7.6 render-contract exemption list — `component-matrix.md:131` | Only documents `SplitButton`; `ColorPicker`/`CountrySelect`/`StateSelect`/`DatePicker`/`DateRangePicker`/`EmojiPicker` share the identical "composite, no single root, no `render`" shape and are undocumented |
+| Convention (source)                                                                                                                                                                                                                                                  | Violated by                                                                                                                                                                                                    |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "React 19 ref-as-prop is the idiom here (NOT `React.forwardRef`, which is deprecated in React 19)" — `ref-forwarding-spec.md:4`                                                                                                                                      | 24 files still use `forwardRef` (full list in §c.4)                                                                                                                                                            |
+| "Every exported DOM-root component must forward a consumer `ref`" — `ref-forwarding-spec.md:3`                                                                                                                                                                       | `bubble.tsx` (`Bubble`, `BubbleGroup`, `BubbleReactions`), `marker.tsx` (`MarkerIcon`, `MarkerContent`), `message.tsx` (all 6 exports) forward no ref at all                                                   |
+| "`'use client'` at the top ONLY for interactive components (anything using hooks/Base UI interactive parts)" — `authoring-guide.md:15`, and the file-local precedent set by `badge.tsx`/`breadcrumb.tsx`/`pagination.tsx`/`sidebar.tsx` for `useRender` specifically | `marker.tsx`, `bubble.tsx` use `useRender` (a hook) with no `'use client'`                                                                                                                                     |
+| "8. Consistent variant/size naming across components (mirror Button's scale where applicable: sizes xs/sm/default/lg)" — `authoring-guide.md:17`                                                                                                                     | `Select`, `Toggle`, `Pagination.Link`, `Sidebar.MenuButton` omit `xs`; `Input`, `Textarea`, `RadioGroupItem`, `OTPInput` omit `size` entirely; `Checkbox` and `Kbd` use truncated scales                       |
+| §7.6 render-contract primitive list — `component-matrix.md:126`                                                                                                                                                                                                      | Doesn't list `Marker` / `BubbleContent`, which use the identical `useRender` pattern (stale doc, not a code bug, but a doc/code drift item)                                                                    |
+| §7.6 render-contract exemption list — `component-matrix.md:131`                                                                                                                                                                                                      | Only documents `SplitButton`; `ColorPicker`/`CountrySelect`/`StateSelect`/`DatePicker`/`DateRangePicker`/`EmojiPicker` share the identical "composite, no single root, no `render`" shape and are undocumented |
 
 ---
 
@@ -420,7 +422,7 @@ decision:
    communicates," and doesn't collide with Badge's separate visual-style axis).
    Migrate `Button.variant`'s color-carrying values and `Badge.color` to `intent`
    in a future major version; keep `variant` reserved exclusively for
-   *visual treatment* (`solid`/`outline`/`ghost`/`subtle`/`minimal`/`glass`, no
+   _visual treatment_ (`solid`/`outline`/`ghost`/`subtle`/`minimal`/`glass`, no
    color words in the enum).
 4. **Compound namespace exports:** either (a) drop `Object.assign` everywhere and
    go flat-only (simplest, matches the 13-component majority), or (b) add it to
@@ -435,7 +437,7 @@ decision:
    fix in the whole registry, since forms mixing `Input` + `Select` + `Button` are
    the single most common composition in the system.
 6. **Prop-type spelling for Base UI wrappers:** adopt `ComponentPropsWithRef<typeof
-   X>` uniformly (per the ref-forwarding-spec) instead of the current 3-way mix of
+X>` uniformly (per the ref-forwarding-spec) instead of the current 3-way mix of
    `ComponentProps` / `ComponentPropsWithRef` / `ComponentPropsWithoutRef`; add a
    lint rule banning bare `React.ComponentProps<typeof Base…>` in
    `packages/ui/registry/ui/*.tsx` outside of intrinsic-element props (`'div'`,

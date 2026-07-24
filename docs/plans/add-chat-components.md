@@ -31,12 +31,12 @@ to the session scratchpad during research.
 
 ## 1. Decisions (locked via interview, 2026-06-28)
 
-| # | Decision | Choice |
-|---|----------|--------|
-| 1 | Include `bubble` (Message's chat-bubble companion, not in the original list) | **Yes — add Bubble** |
-| 2 | `message-scroller` needs `@shadcn/react` (new headless-primitive vendor; deviates from the "Primitives = `@base-ui/react`" locked decision) | **Add `@shadcn/react` dep** |
-| 3 | Where `shimmer` + `scroll-fade` CSS utilities live | **`@vegastack/tokens`** (new `utilities.css`, imported by docs `global.css` + consumer `preset.css`) |
-| 4 | Docs IA | **New "Communication" component group + new "Utilities" docs section** |
+| #   | Decision                                                                                                                                    | Choice                                                                                               |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| 1   | Include `bubble` (Message's chat-bubble companion, not in the original list)                                                                | **Yes — add Bubble**                                                                                 |
+| 2   | `message-scroller` needs `@shadcn/react` (new headless-primitive vendor; deviates from the "Primitives = `@base-ui/react`" locked decision) | **Add `@shadcn/react` dep**                                                                          |
+| 3   | Where `shimmer` + `scroll-fade` CSS utilities live                                                                                          | **`@vegastack/tokens`** (new `utilities.css`, imported by docs `global.css` + consumer `preset.css`) |
+| 4   | Docs IA                                                                                                                                     | **New "Communication" component group + new "Utilities" docs section**                               |
 
 > Decision #2 is an explicit, user-approved deviation from a locked decision in
 > `AGENTS.md`. Record it in the scope ledger when implementing (see §8).
@@ -59,14 +59,14 @@ message-scroller ──────┘  ← Phase 5  (needs scroll-fade + scroll
 
 **What each item actually is** (verified from the base-rhea source, not the docs prose):
 
-| Item | Kind | Exports | External deps | Lint as-is |
-|------|------|---------|---------------|-----------|
-| **shimmer** | CSS `@utility` (~80 ln) | classes `shimmer`, `shimmer-once/-reverse/-none`, `shimmer-color-*`, `shimmer-duration-*`, `shimmer-spread-*`, `shimmer-angle-*` + `@keyframes tw-shimmer` | none | n/a (CSS exempt from utility rules; has `prefers-reduced-motion` + `@variant dark`) |
-| **scroll-fade** | CSS `@utility` (~430 ln) | `scroll-fade`, `-y/-x/-t/-b/-l/-r/-s/-e`, `scroll-fade-*`, `scroll-fade-none` + `@property` + `@keyframes scroll-fade-reveal-*` | none | n/a |
-| **marker** | Base UI component | `Marker`, `MarkerIcon`, `MarkerContent`, `markerVariants` (default/separator/border) | `@base-ui/react` (have), `cva`, `cn` | ✅ clean |
-| **message** | Layout component | `MessageGroup`, `Message`, `MessageAvatar`, `MessageContent`, `MessageHeader`, `MessageFooter` | `cn` only | ✅ clean; **no `'use client'`** |
-| **bubble** | Base UI component | `BubbleGroup`, `Bubble`, `BubbleContent`, `BubbleReactions` (variants default/secondary/muted/tinted/outline/ghost/destructive) | `@base-ui/react`, `cva`, `cn` | ⚠️ **fails** — `bg-[oklch(…)]` / `bg-[color-mix(…)]` (see §7) |
-| **message-scroller** | Component + 3 hooks | `MessageScrollerProvider/`, `MessageScroller`, `…Viewport`, `…Content`, `…Item`, `…Button`, `useMessageScroller`, `useMessageScrollerScrollable`, `useMessageScrollerVisibility` | **`@shadcn/react@^0.1.0`** (new), `Button` (have), `lucide ArrowDown`, scroll-fade + scrollbar utils | ⚠️ rewrite icon + scrollbar utils |
+| Item                 | Kind                     | Exports                                                                                                                                                                          | External deps                                                                                        | Lint as-is                                                                          |
+| -------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| **shimmer**          | CSS `@utility` (~80 ln)  | classes `shimmer`, `shimmer-once/-reverse/-none`, `shimmer-color-*`, `shimmer-duration-*`, `shimmer-spread-*`, `shimmer-angle-*` + `@keyframes tw-shimmer`                       | none                                                                                                 | n/a (CSS exempt from utility rules; has `prefers-reduced-motion` + `@variant dark`) |
+| **scroll-fade**      | CSS `@utility` (~430 ln) | `scroll-fade`, `-y/-x/-t/-b/-l/-r/-s/-e`, `scroll-fade-*`, `scroll-fade-none` + `@property` + `@keyframes scroll-fade-reveal-*`                                                  | none                                                                                                 | n/a                                                                                 |
+| **marker**           | Base UI component        | `Marker`, `MarkerIcon`, `MarkerContent`, `markerVariants` (default/separator/border)                                                                                             | `@base-ui/react` (have), `cva`, `cn`                                                                 | ✅ clean                                                                            |
+| **message**          | Layout component         | `MessageGroup`, `Message`, `MessageAvatar`, `MessageContent`, `MessageHeader`, `MessageFooter`                                                                                   | `cn` only                                                                                            | ✅ clean; **no `'use client'`**                                                     |
+| **bubble**           | Base UI component        | `BubbleGroup`, `Bubble`, `BubbleContent`, `BubbleReactions` (variants default/secondary/muted/tinted/outline/ghost/destructive)                                                  | `@base-ui/react`, `cva`, `cn`                                                                        | ⚠️ **fails** — `bg-[oklch(…)]` / `bg-[color-mix(…)]` (see §7)                       |
+| **message-scroller** | Component + 3 hooks      | `MessageScrollerProvider/`, `MessageScroller`, `…Viewport`, `…Content`, `…Item`, `…Button`, `useMessageScroller`, `useMessageScrollerScrollable`, `useMessageScrollerVisibility` | **`@shadcn/react@^0.1.0`** (new), `Button` (have), `lucide ArrowDown`, scroll-fade + scrollbar utils | ⚠️ rewrite icon + scrollbar utils                                                   |
 
 **Categories:** existing set is `actions, data, data-display, feedback, form, icons,
 layout, media, navigation, overlay, rich-text`. Add **`communication`** for
@@ -155,10 +155,16 @@ only CSS lint is `!important` outside reduced-motion — the source has **none**
   ```css
   @utility scrollbar-none {
     scrollbar-width: none;
-    &::-webkit-scrollbar { display: none; }
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
-  @utility scrollbar-thin { scrollbar-width: thin; }
-  @utility scrollbar-gutter-stable { scrollbar-gutter: stable; }
+  @utility scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  @utility scrollbar-gutter-stable {
+    scrollbar-gutter: stable;
+  }
   ```
 
 **Verify:** `pnpm --filter @vegastack/tokens lint` (contrast-check + design-lint on
@@ -173,6 +179,7 @@ command for these — they ship inside the already-imported token package.
 For each: do the §3 pipeline. Component-specific notes only below.
 
 ### Phase 2 — `marker`
+
 - Port `marker.tsx`. Swap imports to ours: `cn` from `@vegastack/utils`;
   `useRender`/`mergeProps` from `@base-ui/react/use-render` + `@base-ui/react/merge-props`
   (already used by badge/breadcrumb/pagination/sidebar — confirmed available).
@@ -182,6 +189,7 @@ For each: do the §3 pipeline. Component-specific notes only below.
 - Docs: show default / separator / border variants + the "render as link/button" example + a shimmer-on-streaming-text example + a Spinner-paired example.
 
 ### Phase 3 — `message`
+
 - Port `message.tsx`. Only `cn` import → `@vegastack/utils`. **No `'use client'`**
   (pure layout, server-safe). Lint-clean.
 - It composes Avatar/Bubble via **children** (no imports), so registry
@@ -192,7 +200,8 @@ For each: do the §3 pipeline. Component-specific notes only below.
 - Docs: start/end alignment, MessageGroup, header/footer slots, avatar anchoring;
   compose with Bubble in the rich example.
 
-### Phase 4 — `bubble`  ⚠️ requires tokenization (see §7)
+### Phase 4 — `bubble` ⚠️ requires tokenization (see §7)
+
 - Port `bubble.tsx`. Imports → ours. Keep `render` on `BubbleContent`.
 - Apply the §7 rewrites so it passes `design-lint`. Everything else
   (`max-w-[80%]` → `%` is allowed; `ring-card`, `ring-3`, `bg-primary/80`,
@@ -201,7 +210,8 @@ For each: do the §3 pipeline. Component-specific notes only below.
   `registryDependencies: []`, `categories: ["communication"]`.
 - Docs: all variants, sent vs received (`align`), `BubbleGroup`, `BubbleReactions`.
 
-### Phase 5 — `message-scroller`  ⚠️ new dep + rewrites
+### Phase 5 — `message-scroller` ⚠️ new dep + rewrites
+
 - Port `message-scroller.tsx` (`'use client'` stays). Swap:
   - `cn` → `@vegastack/utils`; keep `@shadcn/react/message-scroller` import.
   - `Button` import → our registry Button (`@/components/ui/button` in copy-in;
@@ -212,7 +222,7 @@ For each: do the §3 pipeline. Component-specific notes only below.
     `import { ArrowDown } from "lucide-react";` → render `<ArrowDown />` + keep the
     `<span className="sr-only">Scroll to {end|start}</span>`.
   - Viewport scrollbar classes (`scrollbar-thin scrollbar-gutter-stable
-    data-autoscrolling:scrollbar-none` + `scroll-fade-b`) resolve against the Phase 1
+data-autoscrolling:scrollbar-none` + `scroll-fade-b`) resolve against the Phase 1
     utilities. Verify `data-autoscrolling:` variant works (primitive sets
     `data-autoscrolling` during programmatic scroll).
 - `Button` defaults used by `MessageScrollerButton` (`variant="secondary"`,
@@ -232,6 +242,7 @@ For each: do the §3 pipeline. Component-specific notes only below.
   (`useMessageScroller().scrollToEnd()`, `useMessageScrollerVisibility()`).
 
 ### Docs IA (Decision #4)
+
 - `apps/docs/content/docs/components/meta.json`: append a **Communication** grouping —
   `marker`, `message`, `bubble`, `message-scroller`. (Fumadocs renders a flat list;
   add a `---Communication---` separator entry if the existing meta uses separators,
@@ -254,11 +265,11 @@ is `var(--…)`, a `--*` custom prop, a `calc()` containing `var(--…)`, a nume
 `fr/%/auto/min-content/max-content/0`, or a CSS-wide keyword. The offending Bubble
 classes and their fixes:
 
-| Variant / state | Source (fails lint) | Fix |
-|---|---|---|
-| `secondary` hover | `bg-[color-mix(in oklch,var(--secondary),var(--foreground) 5%)]` | `bg-secondary/80` (opacity modifier — matches Button's `hover:bg-secondary/80`) |
-| `muted` hover | `bg-[color-mix(in oklch,var(--muted),var(--foreground) 5%)]` | `bg-muted/80` |
-| `tinted` fill (light/dark) + hover | `bg-[oklch(from var(--primary) 0.93 calc(c*0.4) h)]` etc. | **Recommended:** add `--bubble-tinted`, `--bubble-tinted-foreground`, `--bubble-tinted-hover` to `@vegastack/tokens` (derive from `--primary` via the same `oklch(from …)` formulas, with a `dark` override) and reference via `bg-[var(--bubble-tinted)]` / `hover:bg-[var(--bubble-tinted-hover)]` — `var(--…)` passes lint and preserves the exact design. **Fallback:** drop the `tinted` variant entirely (zero token additions) if we don't want component-scoped tokens. |
+| Variant / state                    | Source (fails lint)                                              | Fix                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| ---------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `secondary` hover                  | `bg-[color-mix(in oklch,var(--secondary),var(--foreground) 5%)]` | `bg-secondary/80` (opacity modifier — matches Button's `hover:bg-secondary/80`)                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `muted` hover                      | `bg-[color-mix(in oklch,var(--muted),var(--foreground) 5%)]`     | `bg-muted/80`                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `tinted` fill (light/dark) + hover | `bg-[oklch(from var(--primary) 0.93 calc(c*0.4) h)]` etc.        | **Recommended:** add `--bubble-tinted`, `--bubble-tinted-foreground`, `--bubble-tinted-hover` to `@vegastack/tokens` (derive from `--primary` via the same `oklch(from …)` formulas, with a `dark` override) and reference via `bg-[var(--bubble-tinted)]` / `hover:bg-[var(--bubble-tinted-hover)]` — `var(--…)` passes lint and preserves the exact design. **Fallback:** drop the `tinted` variant entirely (zero token additions) if we don't want component-scoped tokens. |
 
 Everything else in Bubble already passes: `max-w-[80%]` (numeric `%`), `ring-card`,
 `ring-3`, `bg-primary/80`, the `*:data-[slot=…]` and `[&>[data-slot=…]:hover]`
@@ -301,13 +312,14 @@ Everything else in Bubble already passes: `max-w-[80%]` (numeric `%`), `ring-car
    design, passes lint); fallback is dropping `tinted`. Confirm preference at
    implementation time if uncertain (low-risk either way).
 3. **scroll-driven CSS support** — `scroll-fade` relies on `animation-timeline:
-   scroll()`; older engines fall back to a static fade (acceptable; documented).
+scroll()`; older engines fall back to a static fade (acceptable; documented).
 4. **`data-autoscrolling:` variant** — depends on the primitive emitting the attribute;
    verify against `@shadcn/react@0.1.0`'s actual DOM output during Phase 5 smoke test.
 5. **Fumadocs nav grouping** — confirm whether `components/meta.json` supports inline
    group separators or needs a sub-folder; adjust §6 accordingly.
 
 ## 10. Out of scope (build-local mode)
+
 - `pnpm changeset` version bump that publishes, `release.yml`, the Deploy workflow,
   npm publish, Cloudflare deploy, Sigstore signing — all user-triggered.
 - Any second new primitive vendor beyond the approved `@shadcn/react`.

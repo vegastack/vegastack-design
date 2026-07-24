@@ -1,4 +1,4 @@
-// @vegastack attachment@0.2.0 sha256-7ryHoVByrooaHrKM9hp8fFhFsGtmZ2wGXc8T1/2hek0=
+// @vegastack attachment@0.2.0 sha256-KBGWVYvx+6CVrf4dwpD1NGfM8cfhMJglPf3uNkSZVMY=
 
 "use client";
 
@@ -24,10 +24,11 @@ import { Progress, type ProgressProps } from "@/components/ui/progress";
  * ----------------------------------------------------------------------------------------------*/
 
 /** Lifecycle state of an attachment — drives the card's border, media, and text tinting. */
-export type AttachmentState = "idle" | "uploading" | "error" | "complete" | "disabled";
+export type AttachmentState =
+  "idle" | "uploading" | "error" | "complete" | "disabled";
 
 export const attachmentVariants = cva(
-  "group/attachment relative flex w-fit max-w-full min-w-0 shrink-0 items-center gap-2 rounded-md border border-border bg-card text-sm text-card-foreground transition-colors duration-fast ease-standard focus-within:border-ring/(--alpha-tint-border) data-[state=error]:border-destructive/(--alpha-outline-border) data-[state=disabled]:pointer-events-none data-[state=disabled]:opacity-(--opacity-dim)",
+  "group/attachment relative flex w-fit max-w-full min-w-0 shrink-0 items-center gap-2 rounded-md border border-border bg-card text-sm text-card-foreground  focus-within:border-ring/(--alpha-tint-border) data-[state=error]:border-destructive/(--alpha-outline-border) data-[state=disabled]:pointer-events-none data-[state=disabled]:opacity-(--opacity-dim)",
   {
     variants: {
       size: {
@@ -48,15 +49,20 @@ export const attachmentVariants = cva(
 );
 
 /** Density — `default` for a standalone chip, `sm` for a tighter message-compose row. */
-export type AttachmentSize = NonNullable<VariantProps<typeof attachmentVariants>["size"]>;
+export type AttachmentSize = NonNullable<
+  VariantProps<typeof attachmentVariants>["size"]
+>;
 
 /** Layout — `horizontal` for a file chip row, `vertical` for an image-thumbnail card. */
 export type AttachmentOrientation = NonNullable<
   VariantProps<typeof attachmentVariants>["orientation"]
 >;
 
+/** Props accepted by `Attachment`. */
 export interface AttachmentProps
-  extends React.ComponentPropsWithRef<"div">, VariantProps<typeof attachmentVariants> {
+  extends
+    React.ComponentPropsWithRef<"div">,
+    VariantProps<typeof attachmentVariants> {
   /**
    * Lifecycle state.
    * - `idle`: attached, not yet acted on.
@@ -133,6 +139,7 @@ export function Attachment({
   );
 }
 
+/** Props accepted by `AttachmentGroup`. */
 export type AttachmentGroupProps = React.ComponentPropsWithRef<"div">;
 
 /**
@@ -140,8 +147,16 @@ export type AttachmentGroupProps = React.ComponentPropsWithRef<"div">;
  * wrapping onto new rows as they fill. A plain flex-wrap layout — no horizontal-scroll/snap
  * behavior, by judgment call: a wrapping row reads better than a scrolling carousel for the
  * few-to-a-dozen attachments a compose box typically holds.
+
+ *
+ * @example
+ * <AttachmentGroup />
  */
-export function AttachmentGroup({ className, ref, ...props }: AttachmentGroupProps) {
+export function AttachmentGroup({
+  className,
+  ref,
+  ...props
+}: AttachmentGroupProps) {
   return (
     <div
       ref={ref}
@@ -172,8 +187,11 @@ export type AttachmentMediaVariant = NonNullable<
   VariantProps<typeof attachmentMediaVariants>["variant"]
 >;
 
+/** Props accepted by `AttachmentMedia`. */
 export interface AttachmentMediaProps
-  extends React.ComponentPropsWithRef<"div">, VariantProps<typeof attachmentMediaVariants> {
+  extends
+    React.ComponentPropsWithRef<"div">,
+    VariantProps<typeof attachmentMediaVariants> {
   /**
    * `icon` centers a bare `lucide-react` glyph; `image` expects a filled thumbnail (compose
    * {@link "@/components/ui/image" Image} with `aspectRatio="square"` and `className="size-full"`).
@@ -187,6 +205,10 @@ export interface AttachmentMediaProps
  * (`aria-hidden`) — the file name in `AttachmentTitle` carries the accessible identity, not the
  * media. While the parent `Attachment` is `state="uploading"`, an inline {@link Spinner} overlay
  * fades in automatically (composed here, not by the consumer) over a translucent backdrop.
+
+ *
+ * @example
+ * <AttachmentMedia />
  */
 export function AttachmentMedia({
   className,
@@ -216,13 +238,22 @@ export function AttachmentMedia({
   );
 }
 
+/** Props accepted by `AttachmentContent`. */
 export type AttachmentContentProps = React.ComponentPropsWithRef<"div">;
 
 /**
  * `AttachmentContent` — the vertical column of `AttachmentTitle`, `AttachmentDescription`, and
  * (while uploading) `AttachmentProgress`. Flexes to fill the remaining width of the row.
+
+ *
+ * @example
+ * <AttachmentContent />
  */
-export function AttachmentContent({ className, ref, ...props }: AttachmentContentProps) {
+export function AttachmentContent({
+  className,
+  ref,
+  ...props
+}: AttachmentContentProps) {
   return (
     <div
       ref={ref}
@@ -236,6 +267,7 @@ export function AttachmentContent({ className, ref, ...props }: AttachmentConten
   );
 }
 
+/** Props accepted by `AttachmentTitle`. */
 export type AttachmentTitleProps = React.ComponentPropsWithRef<"span">;
 
 /**
@@ -243,8 +275,16 @@ export type AttachmentTitleProps = React.ComponentPropsWithRef<"span">;
  * never breaks the chip's layout — pass the full name as `title` (or wrap in a `Tooltip`) if it
  * needs to be readable on hover. Shimmers while `state="uploading"` and tints destructive on
  * `state="error"`.
+
+ *
+ * @example
+ * <AttachmentTitle />
  */
-export function AttachmentTitle({ className, ref, ...props }: AttachmentTitleProps) {
+export function AttachmentTitle({
+  className,
+  ref,
+  ...props
+}: AttachmentTitleProps) {
   return (
     <span
       ref={ref}
@@ -258,6 +298,7 @@ export function AttachmentTitle({ className, ref, ...props }: AttachmentTitlePro
   );
 }
 
+/** Props accepted by `AttachmentDescription`. */
 export interface AttachmentDescriptionProps extends React.ComponentPropsWithRef<"span"> {
   /**
    * Mark this line as a polite live region — announce its text as it changes. Set this whenever
@@ -273,6 +314,10 @@ export interface AttachmentDescriptionProps extends React.ComponentPropsWithRef<
  * `AttachmentDescription` — the secondary meta line under the title: a file size, an upload
  * percentage, or an error message. Tints destructive on `state="error"`. Pass `live` to also make
  * it a `role="status"` `aria-live="polite"` region — see {@link AttachmentDescriptionProps.live}.
+
+ *
+ * @example
+ * <AttachmentDescription />
  */
 export function AttachmentDescription({
   className,
@@ -289,13 +334,18 @@ export function AttachmentDescription({
         className,
       )}
       {...(live
-        ? { role: "status" as const, "aria-live": "polite" as const, "aria-atomic": "true" as const }
+        ? {
+            role: "status" as const,
+            "aria-live": "polite" as const,
+            "aria-atomic": "true" as const,
+          }
         : undefined)}
       {...props}
     />
   );
 }
 
+/** Props accepted by `AttachmentProgress`. */
 export interface AttachmentProgressProps extends Omit<ProgressProps, "size"> {
   /**
    * Accessible name for the underlying progress bar — required (there is no visible label). Include
@@ -314,7 +364,11 @@ export interface AttachmentProgressProps extends Omit<ProgressProps, "size"> {
  * @example
  * <AttachmentProgress value={67} aria-label="quarterly-report.xlsx upload progress" />
  */
-export function AttachmentProgress({ className, value = null, ...props }: AttachmentProgressProps) {
+export function AttachmentProgress({
+  className,
+  value = null,
+  ...props
+}: AttachmentProgressProps) {
   return (
     <Progress
       data-slot="attachment-progress"
@@ -326,6 +380,7 @@ export function AttachmentProgress({ className, value = null, ...props }: Attach
   );
 }
 
+/** Props accepted by `AttachmentActions`. */
 export type AttachmentActionsProps = React.ComponentPropsWithRef<"div">;
 
 /**
@@ -338,8 +393,16 @@ export type AttachmentActionsProps = React.ComponentPropsWithRef<"div">;
  * `AttachmentActions` *after* it in JSX — both share the `z-(--z-raised)` stacking band, and DOM
  * order (not extra z-index tiers) decides who wins the pointer, per the token system's two-band
  * contract.
+
+ *
+ * @example
+ * <AttachmentActions />
  */
-export function AttachmentActions({ className, ref, ...props }: AttachmentActionsProps) {
+export function AttachmentActions({
+  className,
+  ref,
+  ...props
+}: AttachmentActionsProps) {
   return (
     <div
       ref={ref}
@@ -353,10 +416,13 @@ export function AttachmentActions({ className, ref, ...props }: AttachmentAction
   );
 }
 
+/** Props accepted by `AttachmentTrigger`. */
 export interface AttachmentTriggerProps extends React.ComponentPropsWithRef<"button"> {
   /**
    * Render the trigger as a different element (e.g. an `a` to open/download the file) via Base UI
    * `render` composition. Pass a `ReactElement` or a render function.
+
+   * @default undefined
    */
   render?: useRender.RenderProp;
 }
@@ -366,8 +432,18 @@ export interface AttachmentTriggerProps extends React.ComponentPropsWithRef<"but
  * `Attachment` into one activation target (open a preview, download the file). Built on Base UI
  * `useRender`, so `render={<a href={url} download />}` swaps it to a real link. Optional — omit it
  * when the only interactive parts are the actions in `AttachmentActions`.
+
+ *
+ * @example
+ * <AttachmentTrigger />
  */
-export function AttachmentTrigger({ className, render, type, ref, ...props }: AttachmentTriggerProps) {
+export function AttachmentTrigger({
+  className,
+  render,
+  type,
+  ref,
+  ...props
+}: AttachmentTriggerProps) {
   return useRender({
     render: render ?? <button type={type ?? "button"} />,
     defaultTagName: "button",

@@ -1,5 +1,6 @@
-import { defineConfig, mergeConfig } from 'vitest/config';
-import baseConfig from './vitest.config';
+import { defineConfig, mergeConfig } from "vitest/config";
+import baseConfig from "./vitest.config";
+import smokeTests from "./contract-smoke-tests.generated.json";
 
 // Phase M cross-browser smoke lane (CX-13): the motion pack's three mechanisms — keyed presence,
 // replay APIs, and the CSS motion-* utilities — run against real WebKit and Firefox engines, not
@@ -14,22 +15,11 @@ export default mergeConfig(
   baseConfig,
   defineConfig({
     test: {
-      include: [
-        'registry/ui/use-animation-replay.test.tsx',
-        'registry/ui/copy-button.test.tsx',
-        'registry/ui/auto-save-input.test.tsx',
-        'registry/ui/password-input.test.tsx',
-        'registry/ui/notification-bell.test.tsx',
-        'registry/ui/animated-number.test.tsx',
-        'registry/ui/progress-indicator.test.tsx',
-        'registry/ui/skeleton.test.tsx',
-        'registry/ui/checkbox.test.tsx',
-        'registry/ui/input.test.tsx',
-      ],
+      include: smokeTests,
       browser: {
         enabled: true,
         headless: true,
-        instances: [{ browser: 'webkit' }, { browser: 'firefox' }],
+        instances: [{ browser: "webkit" }, { browser: "firefox" }],
       },
     },
   }),

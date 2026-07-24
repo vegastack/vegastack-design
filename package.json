@@ -9,7 +9,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "node tooling/verify-shadcn-base.mjs && node tooling/skill-lint.mjs && turbo run lint",
+    "lint": "node tooling/verify-shadcn-base.mjs && node tooling/skill-lint.mjs && node tooling/sync-package-skills.mjs --check && node tooling/security-boundaries.test.mjs && node tooling/verify-workflow-security.mjs && node tooling/secret-scan.mjs && pnpm design:verify && turbo run lint",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
     "registry:build": "shadcn registry validate packages/ui/registry.json && shadcn build packages/ui/registry.json -o apps/docs/public/r && node tooling/registry-stamp.mjs && node tooling/registry-header.mjs && node tooling/verify-headers.mjs && node tooling/verify-registry-deps.mjs",
@@ -18,6 +18,12 @@
     "registry:verify-parity": "node tooling/verify-bin-parity.mjs",
     "registry:verify-headers": "node tooling/verify-headers.mjs",
     "registry:verify-consume": "node tooling/verify-shadcn-consume.mjs",
+    "design:sync": "node tooling/sync-design-md.mjs",
+    "design:sync:check": "node tooling/sync-design-md.mjs --check",
+    "design:sync:self-test": "node tooling/sync-design-md.mjs --self-test",
+    "design:derived": "node tooling/sync-component-derived.mjs",
+    "design:derived:check": "node tooling/sync-component-derived.mjs --check",
+    "design:verify": "pnpm --filter @vegastack/design-tokens build && pnpm --filter @vegastack/design build && node tooling/verify-package-exports.mjs && pnpm design:sync:check && pnpm design:sync:self-test && pnpm design:derived:check && node tooling/verify-component-contracts.mjs && node tooling/verify-public-api-docs.mjs && node tooling/verify-animated-icons.mjs && node tooling/verify-theme-parity.mjs packages/design-tokens/dist/theme.css && node tooling/verify-portal-theme-scope.mjs && node tooling/verify-rsc-safety.mjs && node tooling/verify-ui-use-client.mjs && node tooling/sync-toaster-mirror.mjs --check && node tooling/verify-design-lint-structural.mjs && node tooling/verify-registry-integrity-negative.mjs && node tooling/verify-bin-parity.mjs",
     "shadcn:verify-base": "node tooling/verify-shadcn-base.mjs",
     "format": "prettier --write ."
   },
@@ -26,8 +32,10 @@
     "@changesets/cli": "^2.31.1",
     "prettier": "^3.9.5",
     "shadcn": "4.13.0",
+    "style-dictionary": "^5.5.0",
     "tsup": "^8.5.0",
     "turbo": "^2.10.5",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "yaml": "^2.9.0"
   }
 }

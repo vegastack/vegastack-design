@@ -8,7 +8,7 @@
 //
 //   A) THE LOAD-BEARING GATE — REAL `shadcn add` (Codex R13): for a representative
 //      dependency-graph set (button leaf, split-button→button+dropdown-menu,
-//      data-list→table+checkbox+skeleton+empty-state) we run the ACTUAL shadcn 4.7.0 CLI
+//      data-list→table+checkbox+skeleton+empty-state) we run the repository-pinned shadcn CLI
 //      against a served local component registry, with the declared `@vegastack/*` deps made
 //      INSTALLABLE LOCALLY (no public-npm publish) by:
 //         • `pnpm pack`-ing each declared @vegastack/* dep (utils, tokens) into tarballs, and
@@ -22,12 +22,13 @@
 //   B) COMPREHENSIVE COVERAGE — SIMULATED consume over ALL registry items × TWO layouts
 //      (default `components/ui` + non-default `src/components/ui`): fetch + transitive
 //      registryDependencies + integrity preflight (shipped `itemHash`) + `@ui/…` placeholder
-//      → consumer-layout resolution (shipped `resolveTargetPath`) + `@/`→`~/` alias rewrite +
+//      → consumer-layout resolution (including standard tsconfig `@/*`→`src/*`) + exact
+//      components.json alias rewriting +
 //      shipped `--post-write` alias-aware verify + one consolidated `tsc --noEmit` per layout.
 //      This is breadth; the real `shadcn add` above is the load-bearing depth.
 //
 // The verdict states BOTH: "real shadcn add: N/N item graphs installed via the CLI ✓" AND
-// "simulated coverage: 64/64 × 2 layouts ✓". Exit 0 only when BOTH pass.
+// "simulated coverage: 538/538 × 2 layouts ✓". Exit 0 only when BOTH pass.
 //
 // NOTHING IS PUBLISH-GATED ANY MORE: the one previously-gated step (npm-install of the
 // unpublished @vegastack/*@^0.1.0) is solved LOCALLY via pack + local npm registry. We do NOT
@@ -36,7 +37,7 @@
 // Run:  export PATH="/opt/homebrew/opt/node@24/bin:$PATH"; node tooling/verify-shadcn-consume.mjs
 // Exit: 0 only when the real-shadcn-add representative set AND the all-items×2-layout sim pass.
 
-import { spawnSync, spawn } from 'node:child_process';
+import { spawnSync, spawn } from "node:child_process";
 import {
   mkdtempSync,
   mkdirSync,
@@ -46,37 +47,48 @@ import {
   existsSync,
   symlinkSync,
   rmSync,
-} from 'node:fs';
-import { tmpdir } from 'node:os';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-import { dirname, join, resolve } from 'node:path';
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { dirname, join, resolve } from "node:path";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const repoRoot = join(here, '..');
-const registryDir = join(repoRoot, 'apps/docs/public/r');
-const shippedVerifier = join(repoRoot, 'packages/design/bin/verify-registry-item.mjs');
-const docsNodeModules = join(repoRoot, 'apps/docs/node_modules');
-const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
-const shadcnBin = join(docsNodeModules, '.bin/shadcn');
+const repoRoot = join(here, "..");
+const registryDir = join(repoRoot, "apps/docs/public/r");
+const shippedVerifier = join(
+  repoRoot,
+  "packages/design/bin/verify-registry-item.mjs",
+);
+const docsNodeModules = join(repoRoot, "apps/docs/node_modules");
+const tscBin = join(repoRoot, "node_modules/.bin/tsc");
+const shadcnBin = join(docsNodeModules, ".bin/shadcn");
 
 // Import the SHIPPED verifier's canonical logic directly — the SAME functions the bin uses, so
 // the simulated path verifies "the same way" the shipped verifier does, in-process.
-const { itemHash, resolveTargetPath, readConsumerAliases } = await import(
-  pathToFileURL(shippedVerifier).href
-);
+const {
+  itemHash,
+  resolveTargetPath,
+  readConsumerConfiguration,
+  rewriteRegistryAliases,
+  stripShadcnLeadingCommentPrologue,
+  stripProvenanceHeader,
+} = await import(pathToFileURL(shippedVerifier).href);
 
 // Hard caps so the run can NEVER hang — every subprocess gets these.
 const SUBPROCESS_TIMEOUT_MS = 60_000;
-const KILL = 'SIGKILL';
+const KILL = "SIGKILL";
 
 // Declared @vegastack/* deps across registry items — these must be installable locally for the
 // REAL `shadcn add` (verified: items declare exactly @vegastack/design + @vegastack/design-tokens).
 const VEGASTACK_DEP_PKGS = [
-  { name: '@vegastack/design', dir: join(repoRoot, 'packages/design') },
-  { name: '@vegastack/design-tokens', dir: join(repoRoot, 'packages/design-tokens') },
+  { name: "@vegastack/design", dir: join(repoRoot, "packages/design") },
+  {
+    name: "@vegastack/design-tokens",
+    dir: join(repoRoot, "packages/design-tokens"),
+  },
 ];
 
-// Representative dependency-graph set for the REAL `shadcn add` gate.
+// Baseline dependency-graph set for the REAL `shadcn add` gate.
 //   button         — leaf (no registryDependencies).
 //   split-button   — → button + dropdown-menu.
 //   data-list      — → table + checkbox + skeleton + empty-state (deep fan-out).
@@ -84,33 +96,77 @@ const VEGASTACK_DEP_PKGS = [
 //   sonner         — dependency-sensitive provider/toaster item.
 //   text-edit      — heavy rich-text dependency graph.
 //   country-select — search/select graph with popover + command + button.
-const REAL_REPRESENTATIVE = [
-  'button',
-  'split-button',
-  'data-list',
-  'field',
-  'sonner',
-  'text-edit',
-  'country-select',
+const REAL_CRITICAL_GRAPHS = [
+  "button",
+  "split-button",
+  "data-list",
+  "field",
+  "sonner",
+  "text-edit",
+  "country-select",
 ];
 
-// The import alias root the SIMULATED path rewrites to (`@/` → `~/`), deliberately different so
-// the rewrite + post-write alias-aware compare are genuinely exercised.
-const CONSUMER_ALIAS = '~';
+// Required external dependency/engine families. The actual roots are selected from the built
+// registry with a deterministic greedy set-cover over TRANSITIVE registry graphs. This prevents a
+// hand-maintained representative list from silently dropping Motion, message-scroller, date-picker,
+// Markdown, resizable, Recharts, or the dashboard block when dependency ownership changes.
+const REQUIRED_EXTERNAL_FAMILIES = {
+  motion: (dependencies, name) =>
+    dependencies.some(
+      (dependency) =>
+        dependency === "motion" || dependency.startsWith("motion@"),
+    ),
+  "message-scroller": (dependencies, name) =>
+    dependencies.some((dependency) => dependency.startsWith("@shadcn/react")),
+  "date-picker": (dependencies, name) =>
+    dependencies.some((dependency) =>
+      dependency.startsWith("react-day-picker"),
+    ),
+  markdown: (dependencies, name) =>
+    dependencies.some((dependency) =>
+      dependency.startsWith("react-markdown"),
+    ) && dependencies.some((dependency) => dependency.startsWith("remark-gfm")),
+  resizable: (dependencies, name) =>
+    dependencies.some((dependency) =>
+      dependency.startsWith("react-resizable-panels"),
+    ),
+  recharts: (dependencies, name) =>
+    dependencies.some((dependency) => dependency.startsWith("recharts")),
+  "dashboard-block": (_dependencies, name) => name === "dashboard-01",
+};
 
 // ── the two consumer layouts the SIMULATED path proves (Codex R12: non-default required) ──
 const LAYOUTS = [
   {
-    name: 'default (components/ui)',
-    aliases: { components: '@/components', utils: '@/lib/utils', ui: '@/components/ui', lib: '@/lib', hooks: '@/hooks' },
-    tscPaths: { [`${CONSUMER_ALIAS}/*`]: ['./*'] },
-    tscInclude: ['components/**/*.ts', 'components/**/*.tsx', 'app/**/*.ts', 'app/**/*.tsx'],
+    name: "default (components/ui)",
+    sourceRoot: "",
+    aliases: {
+      components: "@/components",
+      utils: "@/lib/utils",
+      ui: "@/components/ui",
+      lib: "@/lib",
+      hooks: "@/hooks",
+    },
+    tscPaths: { "@/*": ["./*"] },
+    tscInclude: [
+      "components/**/*.ts",
+      "components/**/*.tsx",
+      "app/**/*.ts",
+      "app/**/*.tsx",
+    ],
   },
   {
-    name: 'non-default (src/components/ui)',
-    aliases: { components: 'src/components', utils: 'src/lib/utils', ui: 'src/components/ui', lib: 'src/lib', hooks: 'src/hooks' },
-    tscPaths: { [`${CONSUMER_ALIAS}/*`]: ['./src/*'] },
-    tscInclude: ['src/**/*.ts', 'src/**/*.tsx', 'app/**/*.ts', 'app/**/*.tsx'],
+    name: "standard Next src layout (@/* → src/*)",
+    sourceRoot: "src",
+    aliases: {
+      components: "@/components",
+      utils: "@/lib/utils",
+      ui: "@/components/ui",
+      lib: "@/lib",
+      hooks: "@/hooks",
+    },
+    tscPaths: { "@/*": ["./src/*"] },
+    tscInclude: ["src/**/*.ts", "src/**/*.tsx", "app/**/*.ts", "app/**/*.tsx"],
   },
 ];
 
@@ -122,16 +178,18 @@ const fail = (m) => console.error(`  ✗ ${m}`);
 function readItem(name) {
   const p = join(registryDir, `${name}.json`);
   if (!existsSync(p)) throw new Error(`registry item not found: ${name}.json`);
-  return JSON.parse(readFileSync(p, 'utf8'));
+  return JSON.parse(readFileSync(p, "utf8"));
 }
 
 function allItemNames() {
-  const reg = JSON.parse(readFileSync(join(registryDir, 'registry.json'), 'utf8'));
+  const reg = JSON.parse(
+    readFileSync(join(registryDir, "registry.json"), "utf8"),
+  );
   return reg.items.map((i) => i.name);
 }
 
 function depToItemName(dep) {
-  return dep.startsWith('@vegastack/') ? dep.slice('@vegastack/'.length) : dep;
+  return dep.startsWith("@vegastack/") ? dep.slice("@vegastack/".length) : dep;
 }
 
 // Transitively resolve an item + all its registryDependencies (deps before dependents).
@@ -142,39 +200,75 @@ function resolveGraph(rootName) {
     if (seen.has(name)) return;
     seen.add(name);
     const item = readItem(name);
-    for (const dep of item.registryDependencies ?? []) visit(depToItemName(dep));
+    for (const dep of item.registryDependencies ?? [])
+      visit(depToItemName(dep));
     order.push(name);
   };
   visit(rootName);
   return order;
 }
 
-// shadcn's import-alias rewrite (SIMULATED path): `@/...` → `~/...` inside import/export module
-// specifiers only. Symbol only — category+path preserved — the sanctioned transform class.
-const SPEC_RE = /(\bfrom\s*|^\s*import\s*|^\s*}\s*from\s*)(['"])(@\/[^'"]*)\2/gm;
-function rewriteAliases(content) {
-  let count = 0;
-  const out = content.replace(SPEC_RE, (_m, head, quote, spec) => {
-    count++;
-    return `${head}${quote}${CONSUMER_ALIAS}${spec.slice(1)}${quote}`;
-  });
-  return { out, count };
+function externalFamilySetCover(itemNames) {
+  const coverageByRoot = new Map();
+  for (const name of itemNames) {
+    const dependencies = resolveGraph(name).flatMap(
+      (graphName) => readItem(graphName).dependencies ?? [],
+    );
+    const covered = Object.entries(REQUIRED_EXTERNAL_FAMILIES)
+      .filter(([, matches]) => matches(dependencies, name))
+      .map(([family]) => family);
+    if (covered.length) coverageByRoot.set(name, covered);
+  }
+
+  const uncovered = new Set(Object.keys(REQUIRED_EXTERNAL_FAMILIES));
+  const selected = [];
+  while (uncovered.size) {
+    const candidates = [...coverageByRoot.entries()]
+      .map(([name, families]) => ({
+        name,
+        families: families.filter((family) => uncovered.has(family)),
+      }))
+      .filter((candidate) => candidate.families.length)
+      .sort(
+        (a, b) =>
+          b.families.length - a.families.length || a.name.localeCompare(b.name),
+      );
+    const best = candidates[0];
+    if (!best)
+      throw new Error(
+        `external dependency set-cover cannot cover: ${[...uncovered].join(", ")}`,
+      );
+    selected.push(best);
+    for (const family of best.families) uncovered.delete(family);
+  }
+  return selected;
 }
 
 // Run a subprocess with a hard timeout + SIGKILL. Returns { ok, status, signal, out }.
 function runCapped(cmd, cmdArgs, opts = {}) {
   const r = spawnSync(cmd, cmdArgs, {
-    encoding: 'utf8',
+    encoding: "utf8",
     timeout: SUBPROCESS_TIMEOUT_MS,
     killSignal: KILL,
-    stdio: ['ignore', 'pipe', 'pipe'],
+    stdio: ["ignore", "pipe", "pipe"],
     ...opts,
   });
-  const out = `${r.stdout || ''}${r.stderr || ''}`;
-  if (r.signal === KILL || r.error?.code === 'ETIMEDOUT') {
-    return { ok: false, status: r.status, signal: r.signal, out: `${out}\n[timed out — killed]` };
+  const out = `${r.stdout || ""}${r.stderr || ""}`;
+  if (r.signal === KILL || r.error?.code === "ETIMEDOUT") {
+    return {
+      ok: false,
+      status: r.status,
+      signal: r.signal,
+      out: `${out}\n[timed out — killed]`,
+    };
   }
-  if (r.error) return { ok: false, status: r.status, signal: r.signal, out: `${out}\n[spawn error: ${r.error.message}]` };
+  if (r.error)
+    return {
+      ok: false,
+      status: r.status,
+      signal: r.signal,
+      out: `${out}\n[spawn error: ${r.error.message}]`,
+    };
   return { ok: r.status === 0, status: r.status, signal: r.signal, out };
 }
 
@@ -267,40 +361,63 @@ npmServer.listen(0, '127.0.0.1', announce);
 
 // Start the sidecar; resolve once it prints its two ports. Returns { child, componentPort, npmPort }.
 function startSidecar(scratchRoot, tarballDir) {
-  const sidecarPath = join(scratchRoot, 'registry-sidecar.mjs');
+  const sidecarPath = join(scratchRoot, "registry-sidecar.mjs");
   writeFileSync(sidecarPath, SIDECAR_SRC);
   return new Promise((resolveServer, reject) => {
-    const child = spawn('node', [sidecarPath, registryDir, tarballDir, repoRoot], { stdio: ['ignore', 'pipe', 'pipe'] });
-    let buf = '';
+    const child = spawn(
+      "node",
+      [sidecarPath, registryDir, tarballDir, repoRoot],
+      { stdio: ["ignore", "pipe", "pipe"] },
+    );
+    let buf = "";
     const timer = setTimeout(() => {
-      child.kill('SIGKILL');
-      reject(new Error('sidecar did not report ports within 10s'));
+      child.kill("SIGKILL");
+      reject(new Error("sidecar did not report ports within 10s"));
     }, 10_000);
-    child.stdout.on('data', (d) => {
+    child.stdout.on("data", (d) => {
       buf += d.toString();
       const m = /PORTS (\d+) (\d+)/.exec(buf);
       if (m) {
         clearTimeout(timer);
-        resolveServer({ child, componentPort: Number(m[1]), npmPort: Number(m[2]) });
+        resolveServer({
+          child,
+          componentPort: Number(m[1]),
+          npmPort: Number(m[2]),
+        });
       }
     });
-    child.on('error', (err) => { clearTimeout(timer); reject(err); });
-    child.on('exit', (code) => { if (code !== null && code !== 0) reject(new Error(`sidecar exited early (${code})`)); });
+    child.on("error", (err) => {
+      clearTimeout(timer);
+      reject(err);
+    });
+    child.on("exit", (code) => {
+      if (code !== null && code !== 0)
+        reject(new Error(`sidecar exited early (${code})`));
+    });
   });
 }
 
 // `pnpm pack` each declared @vegastack/* dep into <scratch>/.tarballs (the sidecar npm registry
 // serves these). Returns { tarballDir, packed: [{name, version}] }.
 function packVegastackDeps(scratchRoot) {
-  const tarballDir = join(scratchRoot, '.tarballs');
+  const tarballDir = join(scratchRoot, ".tarballs");
   mkdirSync(tarballDir, { recursive: true });
   const packed = [];
   for (const { name, dir } of VEGASTACK_DEP_PKGS) {
-    const r = runCapped('pnpm', ['pack', '--pack-destination', tarballDir], { cwd: dir, timeout: 30_000 });
+    const r = runCapped("pnpm", ["pack", "--pack-destination", tarballDir], {
+      cwd: dir,
+      timeout: 30_000,
+    });
     if (!r.ok) throw new Error(`pnpm pack ${name} failed:\n${r.out}`);
-    const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'));
-    const file = join(tarballDir, `vegastack-${name.split('/')[1]}-${manifest.version}.tgz`);
-    if (!existsSync(file)) throw new Error(`expected packed tarball missing: ${file}`);
+    const manifest = JSON.parse(
+      readFileSync(join(dir, "package.json"), "utf8"),
+    );
+    const file = join(
+      tarballDir,
+      `vegastack-${name.split("/")[1]}-${manifest.version}.tgz`,
+    );
+    if (!existsSync(file))
+      throw new Error(`expected packed tarball missing: ${file}`);
     packed.push({ name, version: manifest.version });
   }
   return { tarballDir, packed };
@@ -330,8 +447,10 @@ async function preflightIntegrity(base, name, manifest) {
   }
   const item = JSON.parse(itemText);
   const got = itemHash(item);
-  if (got !== item.meta?.integrity) throw new Error(`hash ${got} ≠ meta.integrity ${item.meta?.integrity}`);
-  if (got !== manifest[name]) throw new Error(`hash ${got} ≠ manifest[${name}] ${manifest[name]}`);
+  if (got !== item.meta?.integrity)
+    throw new Error(`hash ${got} ≠ meta.integrity ${item.meta?.integrity}`);
+  if (got !== manifest[name])
+    throw new Error(`hash ${got} ≠ manifest[${name}] ${manifest[name]}`);
   return itemText;
 }
 
@@ -342,110 +461,287 @@ async function preflightIntegrity(base, name, manifest) {
 // typecheck; .npmrc → local npm registry; components.json registries → served component registry.
 // Run the actual shadcn CLI for each representative graph, assert exit 0 + files written, then
 // one tsc over everything. Returns { installed: [{root, files[]}], problems[] }.
-function proveRealShadcnAdd(scratchRoot, componentPort, npmPort) {
+function proveRealShadcnAdd(
+  layout,
+  representative,
+  scratchRoot,
+  componentPort,
+  npmPort,
+) {
   const problems = [];
-  const consumerRoot = join(scratchRoot, '__real-shadcn');
-  mkdirSync(join(consumerRoot, 'components/ui'), { recursive: true });
-  mkdirSync(join(consumerRoot, 'lib'), { recursive: true });
-  mkdirSync(join(consumerRoot, 'app'), { recursive: true });
+  const consumerRoot = join(
+    scratchRoot,
+    "__real-shadcn-" + layout.name.replace(/[^a-z0-9]+/gi, "-"),
+  );
+  const relativeAlias = (alias) =>
+    alias.replace(/^@\//, "").replace(/^\.\//, "");
+  const sourceRoot = layout.sourceRoot ? `${layout.sourceRoot}/` : "";
+  const appRoot = `${sourceRoot}app`;
+  mkdirSync(join(consumerRoot, sourceRoot, relativeAlias(layout.aliases.ui)), {
+    recursive: true,
+  });
+  mkdirSync(join(consumerRoot, sourceRoot, relativeAlias(layout.aliases.lib)), {
+    recursive: true,
+  });
+  mkdirSync(join(consumerRoot, appRoot), { recursive: true });
 
-  // package.json with @types/react|react-dom|typescript so the consumed files have React types.
-  writeFileSync(join(consumerRoot, 'package.json'), JSON.stringify({
-    name: 'vega-real-consumer', private: true, version: '0.0.0', type: 'module',
-    devDependencies: { '@types/react': '19.2.17', '@types/react-dom': '19.2.3', typescript: '6.0.3' },
-  }, null, 2));
+  // A real Next App Router config marker is required so shadcn recognizes the
+  // framework and installs registry:page files instead of correctly skipping
+  // pages for an unknown framework. Typescript/React types keep the consumed
+  // graph typecheckable.
+  writeFileSync(
+    join(consumerRoot, "package.json"),
+    JSON.stringify(
+      {
+        name: "vega-real-consumer",
+        private: true,
+        version: "0.0.0",
+        type: "module",
+        devDependencies: {
+          "@types/react": "19.2.17",
+          "@types/react-dom": "19.2.3",
+          typescript: "6.0.3",
+        },
+      },
+      null,
+      2,
+    ),
+  );
+  writeFileSync(join(consumerRoot, "next.config.mjs"), "export default {};\n");
   // .npmrc → @vegastack scope resolves from our LOCAL npm registry (the publish-gate solver).
-  writeFileSync(join(consumerRoot, '.npmrc'), `@vegastack:registry=http://127.0.0.1:${npmPort}/\n`);
+  writeFileSync(
+    join(consumerRoot, ".npmrc"),
+    `@vegastack:registry=http://127.0.0.1:${npmPort}/\n`,
+  );
   // tsconfig + global.css shadcn requires; components.json registries → served component registry.
-  writeFileSync(join(consumerRoot, 'tsconfig.json'), JSON.stringify({
-    compilerOptions: {
-      target: 'ES2022', lib: ['ES2022', 'DOM', 'DOM.Iterable'], module: 'ESNext',
-      moduleResolution: 'Bundler', jsx: 'react-jsx', strict: true, skipLibCheck: true,
-      esModuleInterop: true, noEmit: true, ignoreDeprecations: '6.0',
-      baseUrl: '.', paths: { '@/*': ['./*'] },
-    },
-    include: ['components/**/*.tsx'],
-  }, null, 2));
-  writeFileSync(join(consumerRoot, 'app/global.css'), '/* tailwind entry */\n');
-  writeFileSync(join(consumerRoot, 'components.json'), JSON.stringify({
-    $schema: 'https://ui.shadcn.com/schema.json',
-    style: 'base-vega', rsc: true, tsx: true,
-    tailwind: { config: '', css: 'app/global.css', baseColor: 'neutral', cssVariables: true, prefix: '' },
-    iconLibrary: 'lucide',
-    aliases: { components: '@/components', utils: '@/lib/utils', ui: '@/components/ui', lib: '@/lib', hooks: '@/hooks' },
-    registries: { '@vegastack': { url: `http://127.0.0.1:${componentPort}/r/{name}.json` } },
-  }, null, 2));
+  writeFileSync(
+    join(consumerRoot, "tsconfig.json"),
+    JSON.stringify(
+      {
+        compilerOptions: {
+          target: "ES2022",
+          lib: ["ES2022", "DOM", "DOM.Iterable"],
+          module: "ESNext",
+          moduleResolution: "Bundler",
+          jsx: "react-jsx",
+          strict: true,
+          skipLibCheck: true,
+          esModuleInterop: true,
+          noEmit: true,
+          ignoreDeprecations: "6.0",
+          baseUrl: ".",
+          paths: layout.tscPaths,
+          resolveJsonModule: true,
+        },
+        include: layout.tscInclude,
+      },
+      null,
+      2,
+    ),
+  );
+  writeFileSync(
+    join(consumerRoot, appRoot, "global.css"),
+    "/* tailwind entry */\n",
+  );
+  writeFileSync(
+    join(consumerRoot, appRoot, "page.tsx"),
+    "export default function Page() { return null; }\n",
+  );
+  writeFileSync(
+    join(consumerRoot, "components.json"),
+    JSON.stringify(
+      {
+        $schema: "https://ui.shadcn.com/schema.json",
+        style: "base-vega",
+        rsc: true,
+        tsx: true,
+        tailwind: {
+          config: "",
+          css: `${appRoot}/global.css`,
+          baseColor: "neutral",
+          cssVariables: true,
+          prefix: "",
+        },
+        iconLibrary: "lucide",
+        aliases: layout.aliases,
+        registries: {
+          "@vegastack": {
+            url: `http://127.0.0.1:${componentPort}/r/{name}.json`,
+          },
+        },
+      },
+      null,
+      2,
+    ),
+  );
 
   // Install @types up front (offline from the pnpm content-addressable store).
-  const inst = runCapped('pnpm', ['install'], { cwd: consumerRoot, timeout: 60_000 });
+  const inst = runCapped("pnpm", ["install"], {
+    cwd: consumerRoot,
+    timeout: 60_000,
+  });
   if (!inst.ok) {
     problems.push(`real-shadcn: pre-install of @types failed\n${inst.out}`);
     return { installed: [], problems };
   }
 
   const installedGraphs = [];
-  for (const name of REAL_REPRESENTATIVE) {
-    const before = new Set(safeReaddir(join(consumerRoot, 'components/ui')));
-    const r = runCapped(shadcnBin, ['add', `@vegastack/${name}`, '--yes', '--cwd', consumerRoot], { timeout: 60_000 });
+  const consumerConfiguration = readConsumerConfiguration(consumerRoot);
+  const consumerAliases = consumerConfiguration.aliases;
+  for (const name of representative) {
+    const before = new Set(
+      safeReaddir(
+        join(consumerRoot, sourceRoot, relativeAlias(layout.aliases.ui)),
+      ),
+    );
+    const r = runCapped(
+      shadcnBin,
+      ["add", `@vegastack/${name}`, "--yes", "--cwd", consumerRoot],
+      { timeout: 60_000 },
+    );
     if (!r.ok) {
-      problems.push(`real-shadcn: \`shadcn add @vegastack/${name}\` FAILED (exit ${r.status})\n${r.out}`);
+      problems.push(
+        `real-shadcn: \`shadcn add @vegastack/${name}\` FAILED (exit ${r.status})\n${r.out}`,
+      );
       continue;
     }
-    // Assert the expected graph files exist on disk at the components.json-resolved target.
-    // Components are .tsx; hooks (registry:hook, e.g. use-animation-replay) are plain .ts.
+    // Assert every file in the expected graph exists at its components.json-resolved target,
+    // including registry:page/file targets owned by dashboard-01.
     const expected = resolveGraph(name);
-    const missing = expected.filter(
-      (n) =>
-        !existsSync(join(consumerRoot, 'components/ui', `${n}.tsx`)) &&
-        !existsSync(join(consumerRoot, 'components/ui', `${n}.ts`)),
+    const missing = expected.flatMap((graphName) =>
+      (readItem(graphName).files ?? [])
+        .map((file) =>
+          resolveTargetPath(
+            file,
+            consumerRoot,
+            consumerAliases,
+            consumerConfiguration.paths,
+          ),
+        )
+        .filter((target) => !existsSync(target)),
     );
     if (missing.length) {
-      problems.push(`real-shadcn: ${name}: CLI exited 0 but expected file(s) missing: ${missing.map((m) => `components/ui/${m}.tsx|.ts`).join(', ')}`);
+      problems.push(
+        `real-shadcn[${layout.name}]: ${name}: CLI exited 0 but expected file(s) missing: ${missing.join(", ")}`,
+      );
       continue;
     }
     // Assert the declared @vegastack/* deps were installed from the LOCAL npm registry.
-    const depsMissing = VEGASTACK_DEP_PKGS
-      .map((p) => p.name)
-      .filter((n) => !existsSync(join(consumerRoot, 'node_modules', n, 'package.json')));
+    const depsMissing = VEGASTACK_DEP_PKGS.map((p) => p.name).filter(
+      (n) => !existsSync(join(consumerRoot, "node_modules", n, "package.json")),
+    );
     if (depsMissing.length) {
-      problems.push(`real-shadcn: ${name}: CLI exited 0 but @vegastack dep(s) not installed: ${depsMissing.join(', ')}`);
+      problems.push(
+        `real-shadcn: ${name}: CLI exited 0 but @vegastack dep(s) not installed: ${depsMissing.join(", ")}`,
+      );
       continue;
     }
-    const after = safeReaddir(join(consumerRoot, 'components/ui'));
+    // Exercise the shipped verifier against bytes produced by the actual shadcn transform. This
+    // catches provenance-header stripping, exact alias rewriting, and target-resolution drift.
+    const postWriteDir = join(consumerRoot, ".real-post-write");
+    mkdirSync(postWriteDir, { recursive: true });
+    let postWriteFailed = false;
+    for (const graphName of expected) {
+      const graphItem = readItem(graphName);
+      const savedItemPath = join(postWriteDir, `${graphName}.json`);
+      writeFileSync(savedItemPath, JSON.stringify(graphItem));
+      const verification = runCapped("node", [
+        shippedVerifier,
+        "--post-write",
+        "--item",
+        savedItemPath,
+        "--expected-integrity",
+        graphItem.meta.integrity,
+        "--target-dir",
+        consumerRoot,
+      ]);
+      if (!verification.ok) {
+        problems.push(
+          `real-shadcn[${layout.name}]: ${name}/${graphName}: shipped POST-WRITE FAILED\n${verification.out}`,
+        );
+        postWriteFailed = true;
+        break;
+      }
+    }
+    if (postWriteFailed) continue;
+    const after = safeReaddir(
+      join(consumerRoot, sourceRoot, relativeAlias(layout.aliases.ui)),
+    );
     const newFiles = after.filter((f) => !before.has(f));
     installedGraphs.push({ name, graph: expected, newFiles });
   }
 
   // One consolidated tsc over ALL real-consumed files (uses the consumer's OWN installed tsc +
   // @types + the @vegastack/design it installed from the local registry).
-  if (installedGraphs.length === REAL_REPRESENTATIVE.length) {
-    const consumerTsc = join(consumerRoot, 'node_modules/.bin/tsc');
+  if (installedGraphs.length === representative.length) {
+    const consumerTsc = join(consumerRoot, "node_modules/.bin/tsc");
     const tscPath = existsSync(consumerTsc) ? consumerTsc : tscBin;
-    const tsc = runCapped(tscPath, ['-p', join(consumerRoot, 'tsconfig.json')], { timeout: 60_000 });
-    if (!tsc.ok) problems.push(`real-shadcn: consolidated tsc --noEmit of consumed files FAILED\n${tsc.out}`);
+    const tsc = runCapped(
+      tscPath,
+      ["-p", join(consumerRoot, "tsconfig.json")],
+      { timeout: 60_000 },
+    );
+    if (!tsc.ok)
+      problems.push(
+        `real-shadcn[${layout.name}]: consolidated tsc --noEmit of consumed files FAILED\n${tsc.out}`,
+      );
   }
 
   return { installed: installedGraphs, problems };
 }
 
 function safeReaddir(dir) {
-  try { return readdirSync(dir); } catch { return []; }
+  try {
+    return readdirSync(dir);
+  } catch {
+    return [];
+  }
 }
 
 // ════════════════════════════════════════════════════════════════════════════════════════
 // B) COMPREHENSIVE COVERAGE — SIMULATED consume, all items × one layout
 // ════════════════════════════════════════════════════════════════════════════════════════
 async function proveLayout(layout, base, manifest, itemNames, scratchRoot) {
-  const consumerRoot = join(scratchRoot, 'sim-' + layout.name.replace(/[^a-z0-9]+/gi, '-'));
+  const consumerRoot = join(
+    scratchRoot,
+    "sim-" + layout.name.replace(/[^a-z0-9]+/gi, "-"),
+  );
   mkdirSync(consumerRoot, { recursive: true });
   writeFileSync(
-    join(consumerRoot, 'components.json'),
-    JSON.stringify({ $schema: 'https://ui.shadcn.com/schema.json', aliases: layout.aliases }, null, 2),
+    join(consumerRoot, "components.json"),
+    JSON.stringify(
+      { $schema: "https://ui.shadcn.com/schema.json", aliases: layout.aliases },
+      null,
+      2,
+    ),
   );
-  symlinkSync(docsNodeModules, join(consumerRoot, 'node_modules'), 'dir');
-  const consumerAliases = readConsumerAliases(consumerRoot);
+  const tsconfig = {
+    compilerOptions: {
+      target: "ES2022",
+      lib: ["ES2022", "DOM", "DOM.Iterable"],
+      module: "ESNext",
+      moduleResolution: "Bundler",
+      jsx: "react-jsx",
+      strict: true,
+      skipLibCheck: true,
+      esModuleInterop: true,
+      resolveJsonModule: true,
+      isolatedModules: true,
+      noEmit: true,
+      ignoreDeprecations: "6.0",
+      paths: layout.tscPaths,
+    },
+    include: layout.tscInclude,
+  };
+  writeFileSync(
+    join(consumerRoot, "tsconfig.json"),
+    JSON.stringify(tsconfig, null, 2),
+  );
+  symlinkSync(docsNodeModules, join(consumerRoot, "node_modules"), "dir");
+  const consumerConfiguration = readConsumerConfiguration(consumerRoot);
+  const consumerAliases = consumerConfiguration.aliases;
 
-  const savedDir = join(consumerRoot, '.verified-items');
+  const savedDir = join(consumerRoot, ".verified-items");
   mkdirSync(savedDir, { recursive: true });
 
   const problems = [];
@@ -458,7 +754,9 @@ async function proveLayout(layout, base, manifest, itemNames, scratchRoot) {
     try {
       order = resolveGraph(rootName);
     } catch (err) {
-      problems.push(`[${layout.name}] ${rootName}: graph resolution failed: ${err.message}`);
+      problems.push(
+        `[${layout.name}] ${rootName}: graph resolution failed: ${err.message}`,
+      );
       continue;
     }
     let itemFailed = false;
@@ -467,7 +765,9 @@ async function proveLayout(layout, base, manifest, itemNames, scratchRoot) {
       try {
         itemText = await preflightIntegrity(base, name, manifest);
       } catch (err) {
-        problems.push(`[${layout.name}] ${rootName}/${name}: integrity preflight FAILED — ${err.message}`);
+        problems.push(
+          `[${layout.name}] ${rootName}/${name}: integrity preflight FAILED — ${err.message}`,
+        );
         itemFailed = true;
         break;
       }
@@ -475,132 +775,239 @@ async function proveLayout(layout, base, manifest, itemNames, scratchRoot) {
       writeFileSync(savedItemPath, itemText);
       const verifiedItem = JSON.parse(itemText);
       for (const file of verifiedItem.files ?? []) {
-        if (typeof file.content !== 'string') continue;
-        const { out, count } = rewriteAliases(file.content);
-        rewrites += count;
-        const dest = resolveTargetPath(file, consumerRoot, consumerAliases);
+        if (typeof file.content !== "string") continue;
+        const rewritten = rewriteRegistryAliases(file.content, consumerAliases);
+        rewrites += rewritten === file.content ? 0 : 1;
+        const out = stripShadcnLeadingCommentPrologue(
+          stripProvenanceHeader(rewritten),
+          file.target ?? file.path ?? "",
+          file.type,
+        );
+        const dest = resolveTargetPath(
+          file,
+          consumerRoot,
+          consumerAliases,
+          consumerConfiguration.paths,
+        );
         mkdirSync(dirname(dest), { recursive: true });
         writeFileSync(dest, out);
       }
-      if (!savedForPostWrite.some((s) => s.name === name)) savedForPostWrite.push({ name, savedItemPath });
+      if (!savedForPostWrite.some((s) => s.name === name)) {
+        savedForPostWrite.push({
+          name,
+          savedItemPath,
+          expectedIntegrity: verifiedItem.meta.integrity,
+        });
+      }
     }
     if (itemFailed) continue;
     provenItems++;
   }
 
-  for (const { name, savedItemPath } of savedForPostWrite) {
-    const r = runCapped('node', [shippedVerifier, '--post-write', '--item', savedItemPath, '--target-dir', consumerRoot]);
-    if (!r.ok) problems.push(`[${layout.name}] ${name}: shipped-verifier POST-WRITE FAILED\n${r.out}`);
+  for (const { name, savedItemPath, expectedIntegrity } of savedForPostWrite) {
+    const r = runCapped("node", [
+      shippedVerifier,
+      "--post-write",
+      "--item",
+      savedItemPath,
+      "--expected-integrity",
+      expectedIntegrity,
+      "--target-dir",
+      consumerRoot,
+    ]);
+    if (!r.ok)
+      problems.push(
+        `[${layout.name}] ${name}: shipped-verifier POST-WRITE FAILED\n${r.out}`,
+      );
   }
 
-  const tsconfig = {
-    compilerOptions: {
-      target: 'ES2022', lib: ['ES2022', 'DOM', 'DOM.Iterable'], module: 'ESNext',
-      moduleResolution: 'Bundler', jsx: 'react-jsx', strict: true, skipLibCheck: true,
-      esModuleInterop: true, resolveJsonModule: true, isolatedModules: true, noEmit: true,
-      ignoreDeprecations: '6.0', paths: layout.tscPaths,
-    },
-    include: layout.tscInclude,
-  };
-  writeFileSync(join(consumerRoot, 'tsconfig.json'), JSON.stringify(tsconfig, null, 2));
-  const tsc = runCapped(tscBin, ['-p', join(consumerRoot, 'tsconfig.json')]);
-  if (!tsc.ok) problems.push(`[${layout.name}] consolidated tsc --noEmit FAILED\n${tsc.out}`);
+  const tsc = runCapped(tscBin, ["-p", join(consumerRoot, "tsconfig.json")]);
+  if (!tsc.ok)
+    problems.push(
+      `[${layout.name}] consolidated tsc --noEmit FAILED\n${tsc.out}`,
+    );
 
-  return { provenItems, totalItems: itemNames.length, rewrites, tscOk: tsc.ok, installed: savedForPostWrite.length, problems };
+  return {
+    provenItems,
+    totalItems: itemNames.length,
+    rewrites,
+    tscOk: tsc.ok,
+    installed: savedForPostWrite.length,
+    problems,
+  };
 }
 
 async function main() {
-  log('verify-shadcn-consume — local end-to-end consumability proof\n');
+  log("verify-shadcn-consume — local end-to-end consumability proof\n");
   log(`registry source : ${registryDir}`);
   log(`shipped verifier: ${shippedVerifier}`);
   log(`shadcn CLI      : ${shadcnBin}\n`);
 
-  for (const f of [registryDir, shippedVerifier, docsNodeModules, tscBin, shadcnBin]) {
+  for (const f of [
+    registryDir,
+    shippedVerifier,
+    docsNodeModules,
+    tscBin,
+    shadcnBin,
+  ]) {
     if (!existsSync(f)) {
       fail(`prerequisite missing: ${f}`);
-      fail('run `pnpm install` and `pnpm registry:build` first (Node 24).');
+      fail("run `pnpm install` and `pnpm registry:build` first (Node 24).");
       return 2;
     }
   }
 
   const itemNames = allItemNames();
-  const scratchRoot = mkdtempSync(join(tmpdir(), 'vega-consume-'));
+  const scratchRoot = mkdtempSync(join(tmpdir(), "vega-consume-"));
   let sidecar;
   const allProblems = [];
-  let realResult = { installed: [], problems: ['real-shadcn: did not run'] };
+  const realResults = [];
   const simSummaries = [];
 
   try {
     // ── pack @vegastack/* deps + start the SIDECAR registry process ──
-    log('── preparing local install path (no publish) ' + '─'.repeat(20));
+    log("── preparing local install path (no publish) " + "─".repeat(20));
     const { tarballDir, packed } = packVegastackDeps(scratchRoot);
-    ok(`pnpm pack → ${packed.map((p) => `${p.name}@${p.version}`).join(', ')} (local tarballs)`);
+    ok(
+      `pnpm pack → ${packed.map((p) => `${p.name}@${p.version}`).join(", ")} (local tarballs)`,
+    );
 
     sidecar = await startSidecar(scratchRoot, tarballDir);
     const componentPort = sidecar.componentPort;
     const npmPort = sidecar.npmPort;
-    ok(`sidecar registry process up — component registry on :${componentPort}  ·  local npm registry on :${npmPort}`);
+    ok(
+      `sidecar registry process up — component registry on :${componentPort}  ·  local npm registry on :${npmPort}`,
+    );
     const base = `http://127.0.0.1:${componentPort}`;
-    log('');
+    log("");
 
     // ── A) REAL shadcn add (the load-bearing gate) ──
-    log('── REAL `shadcn add` (load-bearing gate — Codex R13) ' + '─'.repeat(12));
-    info(`representative graphs: ${REAL_REPRESENTATIVE.join(', ')}`);
-    realResult = proveRealShadcnAdd(scratchRoot, componentPort, npmPort);
-    for (const g of realResult.installed) {
-      ok(`shadcn add @vegastack/${g.name} → CLI exit 0 · wrote [${g.newFiles.join(', ')}] · @vegastack/* installed from local registry`);
+    log(
+      "── REAL `shadcn add` (load-bearing gate — Codex R13) " + "─".repeat(12),
+    );
+    const setCover = externalFamilySetCover(itemNames);
+    const representative = [
+      ...new Set([
+        ...REAL_CRITICAL_GRAPHS,
+        ...setCover.map((entry) => entry.name),
+      ]),
+    ];
+    info(
+      `external dependency set cover: ${setCover.map((entry) => `${entry.name} → ${entry.families.join("+")}`).join("; ")}`,
+    );
+    info(`real CLI roots: ${representative.join(", ")}`);
+    for (const layout of LAYOUTS) {
+      const realResult = proveRealShadcnAdd(
+        layout,
+        representative,
+        scratchRoot,
+        componentPort,
+        npmPort,
+      );
+      realResults.push({ layout: layout.name, representative, ...realResult });
+      for (const g of realResult.installed) {
+        ok(
+          `[${layout.name}] shadcn add @vegastack/${g.name} → CLI exit 0 · wrote [${g.newFiles.join(", ")}] · local @vegastack/* deps`,
+        );
+      }
+      if (realResult.problems.length === 0) {
+        ok(
+          `[${layout.name}] real shadcn add: ${realResult.installed.length}/${representative.length} item graphs + consumed files tsc ✓`,
+        );
+      } else {
+        fail(
+          `[${layout.name}] real shadcn add FAILED (${realResult.installed.length}/${representative.length} graphs ok)`,
+        );
+      }
+      allProblems.push(...realResult.problems);
     }
-    if (realResult.problems.length === 0) {
-      ok(`real shadcn add: ${realResult.installed.length}/${REAL_REPRESENTATIVE.length} item graphs installed via the CLI + consumed files tsc ✓`);
-    } else {
-      fail(`real shadcn add FAILED (${realResult.installed.length}/${REAL_REPRESENTATIVE.length} graphs ok)`);
-    }
-    allProblems.push(...realResult.problems);
-    log('');
+    log("");
 
     // ── B) SIMULATED comprehensive coverage (all items × both layouts) ──
-    log('── SIMULATED coverage (all items × both layouts) ' + '─'.repeat(15));
-    const manifest = await fetch(`${base}/integrity-manifest.json`).then((r) => {
-      if (!r.ok) throw new Error(`fetch integrity-manifest.json → HTTP ${r.status}`);
-      return r.json();
-    });
+    log("── SIMULATED coverage (all items × both layouts) " + "─".repeat(15));
+    const manifest = await fetch(`${base}/integrity-manifest.json`).then(
+      (r) => {
+        if (!r.ok)
+          throw new Error(`fetch integrity-manifest.json → HTTP ${r.status}`);
+        return r.json();
+      },
+    );
     for (const layout of LAYOUTS) {
-      const res = await proveLayout(layout, base, manifest, itemNames, scratchRoot);
+      const res = await proveLayout(
+        layout,
+        base,
+        manifest,
+        itemNames,
+        scratchRoot,
+      );
       simSummaries.push({ layout: layout.name, ...res });
-      const status = res.provenItems === res.totalItems && res.tscOk && !res.problems.length ? '✓' : '✗';
-      const logFn = status === '✓' ? ok : fail;
-      logFn(`${layout.name}: ${res.provenItems}/${res.totalItems} graphs · ${res.installed} files · ` +
-        `${res.rewrites} alias rewrites · post-write ${res.problems.some((p) => p.includes('POST-WRITE')) ? '✗' : '✓'} · tsc ${res.tscOk ? '✓' : '✗'}`);
+      const status =
+        res.provenItems === res.totalItems && res.tscOk && !res.problems.length
+          ? "✓"
+          : "✗";
+      const logFn = status === "✓" ? ok : fail;
+      logFn(
+        `${layout.name}: ${res.provenItems}/${res.totalItems} graphs · ${res.installed} files · ` +
+          `${res.rewrites} alias rewrites · post-write ${res.problems.some((p) => p.includes("POST-WRITE")) ? "✗" : "✓"} · tsc ${res.tscOk ? "✓" : "✗"}`,
+      );
       allProblems.push(...res.problems);
     }
-    log('');
+    log("");
   } catch (err) {
     allProblems.push(`fatal: ${err.message}`);
   } finally {
-    if (sidecar?.child) sidecar.child.kill('SIGKILL');
+    if (sidecar?.child) sidecar.child.kill("SIGKILL");
     if (!process.env.KEEP_SCRATCH) {
-      try { rmSync(scratchRoot, { recursive: true, force: true }); } catch { /* best effort */ }
+      try {
+        rmSync(scratchRoot, { recursive: true, force: true });
+      } catch {
+        /* best effort */
+      }
     } else {
       log(`KEEP_SCRATCH set — scratch left at ${scratchRoot}\n`);
     }
   }
 
   // ── verdict ─────────────────────────────────────────────────────────────────────────
-  log('═'.repeat(68));
+  log("═".repeat(68));
   if (allProblems.length) {
     fail(`verify-shadcn-consume FAILED — ${allProblems.length} problem(s):`);
     for (const p of allProblems) console.error(`\n${p}`);
     return 1;
   }
   const totalItems = simSummaries[0]?.totalItems ?? 0;
-  log('✓ verify-shadcn-consume PASSED — registry is consumable end-to-end:');
-  log(`    · real shadcn add   : ${realResult.installed.length}/${REAL_REPRESENTATIVE.length} item graphs installed via the actual CLI ✓`);
-  log(`                          (${REAL_REPRESENTATIVE.join(', ')}; @vegastack/* installed from a local npm registry — no publish)`);
-  log(`    · simulated coverage: ${totalItems}/${totalItems} items × ${LAYOUTS.length} layouts ✓`);
-  for (const s of simSummaries) log(`                          - ${s.layout}: ${s.provenItems}/${s.totalItems} · ${s.installed} files · tsc ✓`);
-  log('  Real CLI proves: registry fetch · registryDependencies install · @ui/… target resolution ·');
-  log('  @vegastack/* dep install (local npm registry, pack-based — no publish) · files written · tsc.');
-  log('  Simulation proves the SAME across ALL items × both layouts via the shipped verifier + post-write.');
+  log("✓ verify-shadcn-consume PASSED — registry is consumable end-to-end:");
+  const realInstalled = realResults.reduce(
+    (sum, result) => sum + result.installed.length,
+    0,
+  );
+  const realExpected = realResults.reduce(
+    (sum, result) => sum + result.representative.length,
+    0,
+  );
+  log(
+    `    · real shadcn add   : ${realInstalled}/${realExpected} item graphs across ${realResults.length} layouts via the actual CLI ✓`,
+  );
+  for (const result of realResults)
+    log(
+      `                          - ${result.layout}: ${result.representative.join(", ")}`,
+    );
+  log(
+    `    · simulated coverage: ${totalItems}/${totalItems} items × ${LAYOUTS.length} layouts ✓`,
+  );
+  for (const s of simSummaries)
+    log(
+      `                          - ${s.layout}: ${s.provenItems}/${s.totalItems} · ${s.installed} files · tsc ✓`,
+    );
+  log(
+    "  Real CLI proves: registry fetch · registryDependencies install · @ui/… target resolution ·",
+  );
+  log(
+    "  @vegastack/* dep install (local npm registry, pack-based — no publish) · files written · tsc.",
+  );
+  log(
+    "  Simulation proves the SAME across ALL items × both layouts via the shipped verifier + post-write.",
+  );
   return 0;
 }
 

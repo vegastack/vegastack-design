@@ -1,4 +1,4 @@
-// @vegastack country-select@0.2.0 sha256-td5c0eKqflZcXvV3CoL0yI0RtWkkNAUnfV3bDCS2wIQ=
+// @vegastack country-select@0.2.0 sha256-82Sx3De5gW+Tg3oUIybA028a8FKuKGOJB5TGUcpK2bY=
 
 "use client";
 
@@ -257,10 +257,15 @@ export function getCountryByCode(
   return COUNTRIES.find((c) => c.code === upper);
 }
 
+/** Props accepted by `CountrySelect`. */
 export interface CountrySelectProps {
-  /** The selected country's ISO 3166-1 alpha-2 code (controlled). */
+  /** The selected country's ISO 3166-1 alpha-2 code (controlled).
+   * @default ISO
+   */
   value?: string;
-  /** Fired with the selected ISO code when the user picks a country. */
+  /** Fired with the selected ISO code when the user picks a country.
+   * @default undefined
+   */
   onValueChange?: (code: string) => void;
   /** Placeholder shown on the trigger when nothing is selected. @default 'Select country' */
   placeholder?: string;
@@ -268,13 +273,19 @@ export interface CountrySelectProps {
   disabled?: boolean;
   /** Override the country list. @default COUNTRIES */
   countries?: Country[];
-  /** Accessible name for the trigger. Defaults to the selected country name or the placeholder. */
+  /** Accessible name for the trigger. Defaults to the selected country name or the placeholder.
+   * @default undefined
+   */
   "aria-label"?: string;
-  /** Additional class names merged onto the trigger button. */
+  /** Additional class names merged onto the trigger button.
+   * @default undefined
+   */
   className?: string;
   /**
    * Ref forwarded to the trigger button — the component's focusable root (the popover panel is
    * portaled, so the trigger is the stable host element to focus/measure).
+
+   * @default undefined
    */
   ref?: React.Ref<HTMLButtonElement>;
 }
@@ -312,7 +323,9 @@ export function CountrySelect({
         if (country) onValueChange?.(country.code);
       }}
       isItemEqualToValue={(a: Country, b: Country) => a.code === b.code}
-      itemToStringLabel={(country: Country) => `${country.name} ${country.code}`}
+      itemToStringLabel={(country: Country) =>
+        `${country.name} ${country.code}`
+      }
       autoHighlight
       disabled={disabled}
     >
@@ -346,11 +359,18 @@ export function CountrySelect({
         />
       </BaseCombobox.Trigger>
       <ComboboxContent className="w-(--anchor-width) p-0">
-        <ComboboxPopupInput aria-label="Search countries" placeholder="Search countries…" />
+        <ComboboxPopupInput
+          aria-label="Search countries"
+          placeholder="Search countries…"
+        />
         <ComboboxEmpty>No country found.</ComboboxEmpty>
         <ComboboxList className="p-1">
           {(country: Country) => (
-            <ComboboxItem key={country.code} value={country} data-slot="country-select-item">
+            <ComboboxItem
+              key={country.code}
+              value={country}
+              data-slot="country-select-item"
+            >
               <span aria-hidden>{country.flag}</span>
               <span className="truncate">{country.name}</span>
             </ComboboxItem>

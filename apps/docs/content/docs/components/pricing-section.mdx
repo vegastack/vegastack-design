@@ -1,0 +1,75 @@
+---
+title: Pricing Section
+description: Marketing plan cards — mono price display, check feature lists, highlighted-plan treatment.
+audience: public
+preview: pricingSection
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/pricing-section
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+<PricingSection>
+  <PlanCard
+    name="Pro"
+    price="$79"
+    priceNote="Per user/month"
+    features={["Call intelligence"]}
+    action={
+      <Button finish="lit" className="w-full">
+        Continue with Pro
+      </Button>
+    }
+    highlighted
+  />
+</PricingSection>
+```
+
+## Examples
+
+<ComponentPreview
+  name="pricingSection"
+  file="components/preview/pricing-section.tsx"
+/>
+
+## Notes
+
+- Prices render in mono with tabular numerals — the system's numbers rule (a deliberate
+  improvement over the reference).
+- `highlighted` promotes a plan with the info-family border + a bordered `Popular` badge.
+- Billing-cycle toggles compose from [`Segmented`](/docs/components/segmented) above the grid.
+- Pair with [`ComparisonMatrix`](/docs/components/comparison-matrix) for the feature detail.
+
+## API Reference
+
+### PricingSection
+
+`PricingSection` accepts the native props, `className`, and `ref` of its grid `<div>`.
+
+### PlanCard
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/pricing-section.tsx"
+  name="PlanCardProps"
+/>
+
+## Accessibility
+
+- Every plan name is an `<h3>`; place the grid beneath a section heading so the page outline remains coherent.
+- Included features use a decorative check plus visible feature text, never color alone.
+- The promoted plan is identified by the visible highlight badge in addition to its categorical surface treatment.
+- Keep CTA labels explicit about the outcome, such as “Start for free” or “Talk to sales.”
+
+## Do / Don't
+
+<DoDont
+  do="Use parallel feature phrasing and one clear, outcome-labelled CTA per plan."
+  dont="Rely on the highlighted border alone to identify the recommended plan or hide material billing details."
+/>

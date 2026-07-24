@@ -181,7 +181,7 @@ test.each([
   },
 );
 
-test("modal-family rhythm matches Dialog: p-5 header/footer inset, close at top-3 right-3", async () => {
+test("modal-family rhythm matches Dialog: p-5 header/footer inset, close at top-3 end-3", async () => {
   const screen = await render(<Example />);
   await screen.getByRole("button", { name: "Open sheet" }).click();
   await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
@@ -192,7 +192,7 @@ test("modal-family rhythm matches Dialog: p-5 header/footer inset, close at top-
   expect(header.classList.contains("p-5")).toBe(true);
   expect(footer.classList.contains("p-5")).toBe(true);
   expect(close.classList.contains("top-3")).toBe(true);
-  expect(close.classList.contains("right-3")).toBe(true);
+  expect(close.classList.contains("end-3")).toBe(true);
 });
 
 test("panel keeps the centralized focus-visible outline (no outline-none — register P0-02)", async () => {

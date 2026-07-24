@@ -1,169 +1,1132 @@
 {
   "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
-
-  "background": { "$type": "color", "$value": "{color.white}" },
-  "foreground": { "$type": "color", "$value": "{color.neutral.950}" },
-  "card": { "$type": "color", "$value": "{color.neutral.50}" },
-  "card-foreground": { "$type": "color", "$value": "{color.neutral.950}" },
-  "popover": { "$type": "color", "$value": "{color.white}" },
-  "popover-foreground": { "$type": "color", "$value": "{color.neutral.950}" },
-
-  "primary": { "$type": "color", "$value": "{color.neutral.700}" },
-  "primary-foreground": { "$type": "color", "$value": "{color.neutral.50}" },
-  "primary-hover": { "$type": "color", "$value": "{color.neutral.800}" },
-  "primary-active": { "$type": "color", "$value": "{color.neutral.850}" },
-
-  "track": { "$type": "color", "$value": "{color.neutral.300}" },
-  "secondary": { "$type": "color", "$value": "{color.neutral.100}" },
-  "secondary-foreground": { "$type": "color", "$value": "{color.neutral.900}" },
-  "muted": { "$type": "color", "$value": "{color.neutral.100}" },
-  "muted-foreground": { "$type": "color", "$value": "{color.neutral.600}" },
-  "muted-foreground-faint": { "$type": "color", "$value": "{color.neutral.500}" },
-  "accent": { "$type": "color", "$value": "{color.neutral.100}" },
-  "accent-foreground": { "$type": "color", "$value": "{color.neutral.900}" },
-
-  "destructive": { "$type": "color", "$value": "{color.red.700}" },
-  "destructive-foreground": { "$type": "color", "$value": "{color.neutral.50}" },
-  "destructive-subtle": { "$type": "color", "$value": "{color.red.100}" },
-  "destructive-text": { "$type": "color", "$value": "{color.red.650}" },
-
-  "success": { "$type": "color", "$value": "{color.green.750}" },
-  "success-foreground": { "$type": "color", "$value": "{color.neutral.50}" },
-  "success-subtle": { "$type": "color", "$value": "{color.green.100}" },
-  "success-text": { "$type": "color", "$value": "{color.green.650}" },
-
-  "warning": { "$type": "color", "$value": "{color.amber.750}" },
-  "warning-foreground": { "$type": "color", "$value": "{color.neutral.50}" },
-  "warning-subtle": { "$type": "color", "$value": "{color.amber.100}" },
-  "warning-text": { "$type": "color", "$value": "{color.amber.650}" },
-
-  "info": { "$type": "color", "$value": "{color.blue.700}" },
-  "info-foreground": { "$type": "color", "$value": "{color.neutral.50}" },
-  "info-subtle": { "$type": "color", "$value": "{color.blue.100}" },
-  "info-text": { "$type": "color", "$value": "{color.blue.650}" },
-
-  "overlay": { "$type": "color", "$value": { "colorSpace": "oklch", "components": [0.13, 0.002, 75], "alpha": 0.28 }, "$description": "Modal scrim — the ONE sanctioned alpha-composite literal (a translucent wash has no primitive step; alpha is intrinsic to the role)." },
-  "border": { "$type": "color", "$value": "{color.neutral.200}" },
-  "input": { "$type": "color", "$value": "{border}" },
-  "ring": { "$type": "color", "$value": "{primary}" },
-
-  "chart-1": { "$type": "color", "$value": "{color.blue.600}" },
-  "chart-2": { "$type": "color", "$value": "{color.teal.600}" },
-  "chart-3": { "$type": "color", "$value": "{color.cyan.900}" },
-  "chart-4": { "$type": "color", "$value": "{color.orange.600}" },
-  "chart-5": { "$type": "color", "$value": "{color.rose.500}" },
-  "chart-6": { "$type": "color", "$value": "{color.red.700}" },
-  "chart-7": { "$type": "color", "$value": "{color.olive.500}", "$description": "Olive (hue 104) — reassigned from green.600, which collided with the brand phosphor hue (CX-9)." },
-  "chart-8": { "$type": "color", "$value": "{color.blue.700}" },
-
-  "brand": { "$type": "color", "$value": { "colorSpace": "oklch", "components": [0.6, 0.17, 148], "alpha": 1 }, "$description": "The phosphor-green brand accent, LIGHT half (theme-split per CX-9): marker roles ONLY (live/AI-state dot, sparkline endpoint, eyebrow highlight, terminal prompt glyph). 3.5:1 on card/background — meaningful glyphs pass WCAG 1.4.11. Never fills, borders-at-rest, headlines, or buttons." },
-
-  "sidebar": { "$type": "color", "$value": "{color.neutral.50}" },
-  "sidebar-foreground": { "$type": "color", "$value": "{color.neutral.800}" },
-  "sidebar-primary": { "$type": "color", "$value": "{color.neutral.950}" },
-  "sidebar-primary-foreground": { "$type": "color", "$value": "{color.neutral.50}" },
-  "sidebar-accent": { "$type": "color", "$value": "{color.neutral.150}" },
-  "sidebar-accent-foreground": { "$type": "color", "$value": "{color.neutral.950}" },
-  "sidebar-border": { "$type": "color", "$value": "{border}" },
-  "sidebar-ring": { "$type": "color", "$value": "{primary}" },
-
-  "radius": { "$type": "dimension", "$value": { "value": 0.75, "unit": "rem" } },
-  "radius-xs": { "$type": "dimension", "$value": { "value": 0.125, "unit": "rem" }, "$description": "Micro radius — caret/arrow triangles and other sub-control geometry (was a silent Tailwind fallback, register P1-10)." },
-  "radius-sharp": { "$type": "dimension", "$value": { "value": 2, "unit": "px" }, "$description": "The rationed marketing 'sharp' gesture (audit 17/D18): CTAs, chips, figure frames on marketing surfaces. 2px, not 0 — sharp at a glance, kin to the product scale." },
-  "radius-sm": { "$type": "dimension", "$value": { "value": 0.375, "unit": "rem" } },
-  "radius-md": { "$type": "dimension", "$value": { "value": 0.5, "unit": "rem" } },
-  "radius-lg": { "$type": "dimension", "$value": { "value": 0.75, "unit": "rem" } },
-
-  "size-xs": { "$type": "dimension", "$value": { "value": 1.5, "unit": "rem" }, "$description": "24px — the compact control tier (Button xs, icon-only affordances like the password eye)." },
-  "size-sm": { "$type": "dimension", "$value": { "value": 1.75, "unit": "rem" } },
-  "size-md": { "$type": "dimension", "$value": { "value": 2, "unit": "rem" } },
-  "size-lg": { "$type": "dimension", "$value": { "value": 2.5, "unit": "rem" } },
-
-  "icon-compact": { "$type": "dimension", "$value": { "value": 0.75, "unit": "rem" }, "$description": "12px icon — inside xs controls only (below design.md's named scale; exists for the kept Button xs tier)." },
-  "icon-inline": { "$type": "dimension", "$value": { "value": 0.875, "unit": "rem" }, "$description": "14px icon — inline with body text and sm controls (design.md §Iconography 'inline')." },
-  "icon-default": { "$type": "dimension", "$value": { "value": 1, "unit": "rem" }, "$description": "16px icon — the default control icon (design.md 'default')." },
-  "icon-action": { "$type": "dimension", "$value": { "value": 1.25, "unit": "rem" }, "$description": "20px icon — standalone action icons (design.md 'action')." },
-  "icon-feature": { "$type": "dimension", "$value": { "value": 1.5, "unit": "rem" }, "$description": "24px icon — feature/empty-state glyphs (design.md 'feature')." },
-
-  "sidebar-width": { "$type": "dimension", "$value": { "value": 15, "unit": "rem" }, "$description": "Expanded sidebar rail width (was a JS constant invisible to design-lint, register P2-13)." },
-  "sidebar-width-icon": { "$type": "dimension", "$value": { "value": 3, "unit": "rem" }, "$description": "Collapsed icon-only rail width." },
-
-  "shadow-overlay": { "$type": "shadow", "$value": "0 4px 14px -4px oklch(0.13 0.002 75 / 0.10), 0 2px 4px -2px oklch(0.13 0.002 75 / 0.06)" },
-
-  "z-raised": { "$type": "number", "$value": 10, "$description": "Local raise WITHIN a component's own stacking context (focused OTP slot / segmented item, floating label, bubble reactions, select scroll arrows). Never for portaled surfaces." },
-  "z-overlay": { "$type": "number", "$value": 50, "$description": "The single portal band: every portaled floating surface (dialog, sheet, popover, menu, select, tooltip, hover-card). Nesting resolves by DOM order — Base UI appends portals to <body>, so a Select inside a Dialog mounts later and stacks above within the same band. Toasts (sonner) are the documented exemption ABOVE this band (library-managed z; a toast must outrank a modal regardless of mount order)." },
-
-  "opacity-dim": { "$type": "dimension", "$value": { "value": 50, "unit": "%" }, "$description": "Element opacity for disabled controls and dimmed affordances (outside-month days, decorative chevrons)." },
-  "opacity-hint-soft": { "$type": "dimension", "$value": { "value": 60, "unit": "%" }, "$description": "Element opacity for hover-revealed hints (e.g. sort affordance on row hover)." },
-  "opacity-hint": { "$type": "dimension", "$value": { "value": 70, "unit": "%" }, "$description": "Element opacity for resting secondary controls that reach 100% on hover (e.g. alert close)." },
-  "opacity-track": { "$type": "dimension", "$value": { "value": 25, "unit": "%" }, "$description": "Element opacity of the circular progress track ring." },
-
-  "alpha-tint-border": { "$type": "dimension", "$value": { "value": 70, "unit": "%" }, "$description": "Border tint for focus (ring) and error (destructive) borders — design.md's ring/70 pattern." },
-  "alpha-outline-border": { "$type": "dimension", "$value": { "value": 50, "unit": "%" }, "$description": "Resting border of the outline button family (border-<family>)." },
-  "alpha-border-subtle": { "$type": "dimension", "$value": { "value": 20, "unit": "%" }, "$description": "Alert variant border tint (border-<family>)." },
-  "alpha-border-soft": { "$type": "dimension", "$value": { "value": 30, "unit": "%" }, "$description": "Toast (sonner) status border tint (border-<family>)." },
-  "alpha-surface-faint": { "$type": "dimension", "$value": { "value": 5, "unit": "%" }, "$description": "Resting wash of the outline button family (bg-<family>)." },
-  "alpha-surface-subtle": { "$type": "dimension", "$value": { "value": 10, "unit": "%" }, "$description": "Hover wash of the outline button family (bg-<family>)." },
-  "alpha-ink-tint": { "$type": "dimension", "$value": { "value": 10, "unit": "%" }, "$description": "Neutral pressed/hover ink tint (bg-foreground) — toggle pressed, chip remove hover." },
-  "alpha-ink-tint-strong": { "$type": "dimension", "$value": { "value": 15, "unit": "%" }, "$description": "Hovered pressed-state ink tint (bg-foreground)." },
-  "alpha-soft-hover": { "$type": "dimension", "$value": { "value": 20, "unit": "%" }, "$description": "Hover wash of soft (subtle-filled) status surfaces. Theme-split: 30% in dark." },
-  "alpha-soft-surface": { "$type": "dimension", "$value": { "value": 10, "unit": "%" }, "$description": "Resting wash of soft status surfaces (chat destructive bubble). Theme-split: 20% in dark." },
-  "alpha-input": { "$type": "dimension", "$value": { "value": 30, "unit": "%" }, "$description": "Dark-theme input fill tint (bg-input) — see the dark-tint scoping note." },
-  "alpha-input-hover": { "$type": "dimension", "$value": { "value": 50, "unit": "%" }, "$description": "Dark-theme input fill tint on hover (bg-input)." },
-  "alpha-fill-hover": { "$type": "dimension", "$value": { "value": 80, "unit": "%" }, "$description": "Hover dim of an interactive solid fill (bg-primary/secondary/muted/accent on chat bubbles, secondary button)." },
-  "alpha-wash-faint": { "$type": "dimension", "$value": { "value": 40, "unit": "%" }, "$description": "Faint neutral wash (bg-muted) — rich-text toolbar." },
-  "alpha-wash": { "$type": "dimension", "$value": { "value": 50, "unit": "%" }, "$description": "Neutral wash (bg-muted) — card/table footers, ghost dark hover." },
-  "alpha-wash-strong": { "$type": "dimension", "$value": { "value": 60, "unit": "%" }, "$description": "Stronger neutral wash (bg-muted) — line-tab hover." },
-  "alpha-backdrop-soft": { "$type": "dimension", "$value": { "value": 60, "unit": "%" }, "$description": "Translucent surface backdrop (bg-background) — pill tab list." },
-  "alpha-glass": { "$type": "dimension", "$value": { "value": 90, "unit": "%" }, "$description": "Glass button surface (bg-background + backdrop-blur)." },
-  "alpha-glass-hover": { "$type": "dimension", "$value": { "value": 95, "unit": "%" }, "$description": "Glass button surface on hover." },
-  "alpha-link-hover": { "$type": "dimension", "$value": { "value": 80, "unit": "%" }, "$description": "Hovered link text dim (text-info-text) in rendered rich text." },
-  "alpha-outline-soft": { "$type": "dimension", "$value": { "value": 50, "unit": "%" }, "$description": "Soft neutral outline/ring (base outline default, date-picker today ring)." },
-
-  "type-product-xs": { "$type": "typography", "$value": { "fontSize": "0.6875rem", "lineHeight": "calc(16 / 11)" } },
-  "type-product-sm": { "$type": "typography", "$value": { "fontSize": "0.75rem", "lineHeight": "calc(16 / 12)" } },
-  "type-product-base": { "$type": "typography", "$value": { "fontSize": "0.875rem", "lineHeight": "calc(21 / 14)" } },
-  "type-product-lg": { "$type": "typography", "$value": { "fontSize": "1rem", "lineHeight": "calc(24 / 16)" } },
-  "type-product-xl": { "$type": "typography", "$value": { "fontSize": "1.125rem", "lineHeight": "calc(26 / 18)" } },
-  "type-product-2xl": { "$type": "typography", "$value": { "fontSize": "1.25rem", "lineHeight": "calc(28 / 20)" } },
-  "type-product-3xl": { "$type": "typography", "$value": { "fontSize": "1.5rem", "lineHeight": "calc(32 / 24)" } },
-
-  "type-doc-xs": { "$type": "typography", "$value": { "fontSize": "0.75rem", "lineHeight": "calc(1 / 0.75)" } },
-  "type-doc-sm": { "$type": "typography", "$value": { "fontSize": "0.875rem", "lineHeight": "calc(1.25 / 0.875)" } },
-  "type-doc-base": { "$type": "typography", "$value": { "fontSize": "1rem", "lineHeight": "calc(1.5 / 1)" } },
-  "type-doc-lg": { "$type": "typography", "$value": { "fontSize": "1.125rem", "lineHeight": "calc(1.75 / 1.125)" } },
-  "type-doc-xl": { "$type": "typography", "$value": { "fontSize": "1.25rem", "lineHeight": "calc(1.75 / 1.25)" } },
-  "type-doc-2xl": { "$type": "typography", "$value": { "fontSize": "1.5rem", "lineHeight": "calc(2 / 1.5)" } },
-  "type-doc-3xl": { "$type": "typography", "$value": { "fontSize": "1.875rem", "lineHeight": "calc(2.25 / 1.875)" } },
-
-  "text-display-sm": { "$type": "typography", "$value": { "fontSize": "2rem", "lineHeight": "2.25rem", "fontWeight": "400", "letterSpacing": "-0.04em" } },
-  "text-display-md": { "$type": "typography", "$value": { "fontSize": "2.5rem", "lineHeight": "2.75rem", "fontWeight": "400", "letterSpacing": "-0.045em" } },
-  "text-display-lg": { "$type": "typography", "$value": { "fontSize": "3.5rem", "lineHeight": "3.75rem", "fontWeight": "400", "letterSpacing": "-0.05em" } },
-  "text-display-xl": { "$type": "typography", "$value": { "fontSize": "4.5rem", "lineHeight": "4.75rem", "fontWeight": "400", "letterSpacing": "-0.06em" } },
-
-  "text-h1": { "$type": "typography", "$value": { "fontSize": "1.5rem", "lineHeight": "2rem", "fontWeight": "400", "letterSpacing": "-0.02em" } },
-  "text-h2": { "$type": "typography", "$value": { "fontSize": "1.25rem", "lineHeight": "1.75rem", "fontWeight": "400", "letterSpacing": "-0.015em" } },
-  "text-h3": { "$type": "typography", "$value": { "fontSize": "1.125rem", "lineHeight": "1.5rem", "fontWeight": "400", "letterSpacing": "-0.01em" } },
-  "text-h4": { "$type": "typography", "$value": { "fontSize": "1rem", "lineHeight": "1.375rem", "fontWeight": "500", "letterSpacing": "0em" } },
-  "text-label": { "$type": "typography", "$value": { "fontSize": "0.875rem", "lineHeight": "1.25rem", "fontWeight": "500", "letterSpacing": "0em" } },
-  "text-label-sm": { "$type": "typography", "$value": { "fontSize": "0.75rem", "lineHeight": "1rem", "fontWeight": "500", "letterSpacing": "0em" } },
-  "text-code": { "$type": "typography", "$value": { "fontSize": "0.8125rem", "lineHeight": "1.25rem", "fontWeight": "400", "letterSpacing": "0em" } },
-  "text-code-sm": { "$type": "typography", "$value": { "fontSize": "0.75rem", "lineHeight": "1rem", "fontWeight": "400", "letterSpacing": "0em" } },
-  "text-mono-label": { "$type": "typography", "$value": { "fontSize": "0.75rem", "lineHeight": "1rem", "fontWeight": "400", "letterSpacing": "0.05em" }, "$description": "The mono VOICE layer (audit 17/D20): uppercase Geist Mono eyebrows, section numbers, live-state labels, terminal annotations. 12px floor; uppercase is applied at the call site and is mono-exclusive (lint)." },
-
-  "font-family-sans": { "$type": "fontFamily", "$value": ["Geist", "sans-serif"] },
-  "font-family-mono": { "$type": "fontFamily", "$value": ["Geist Mono", "monospace"] },
-  "font-family-serif": { "$type": "fontFamily", "$value": ["Newsreader", "serif"], "$description": "Serif ACCENT (D17): display emphasis words + pull-quotes only, never running text. Newsreader (opsz axis) until Geist Serif ships." },
-  "font-family-display": { "$type": "fontFamily", "$value": ["Geist", "sans-serif"], "$description": "Display tier face — same family as sans today, split as a token so marketing can retune independently." },
-  "font-family-pixel": { "$type": "fontFamily", "$value": ["Geist Pixel Square", "monospace"], "$description": "THE single sanctioned Geist Pixel flourish cut (D17: one deliberate hero use per surface, no more)." },
-
-  "duration-fast": { "$type": "duration", "$value": { "value": 150, "unit": "ms" } },
-  "duration-base": { "$type": "duration", "$value": { "value": 200, "unit": "ms" } },
-  "duration-slow": { "$type": "duration", "$value": { "value": 300, "unit": "ms" } },
-
-  "motion-ease-standard": { "$type": "cubicBezier", "$value": [0.2, 0, 0, 1] },
-  "motion-ease-emphasized": { "$type": "cubicBezier", "$value": [0.3, 0, 0, 1] },
-  "motion-ease-exit": { "$type": "cubicBezier", "$value": [0.4, 0, 1, 1] },
-  "motion-ease-spring": { "$type": "easing", "$value": "linear(0, 0.5 60%, 1.05 80%, 0.98 90%, 1)", "$description": "CSS linear() spring with a very small overshoot — the success-bounce/appear curve for state-feedback micro-interactions (Phase M). Subtle by design: dense dev-tool aesthetic, not playful." },
-  "motion-blur": { "$type": "dimension", "$value": { "value": 2, "unit": "px" }, "$description": "Motion-blur amount for blur-fade entrances (Phase M text/element reveals)." }
+  "background": {
+    "$type": "color",
+    "$value": "{color.white}"
+  },
+  "foreground": {
+    "$type": "color",
+    "$value": "{color.neutral.950}"
+  },
+  "card": {
+    "$type": "color",
+    "$value": "{color.neutral.50}"
+  },
+  "card-foreground": {
+    "$type": "color",
+    "$value": "{color.neutral.950}"
+  },
+  "popover": {
+    "$type": "color",
+    "$value": "{color.white}"
+  },
+  "popover-foreground": {
+    "$type": "color",
+    "$value": "{color.neutral.950}"
+  },
+  "primary": {
+    "$type": "color",
+    "$value": "{color.neutral.700}"
+  },
+  "primary-foreground": {
+    "$type": "color",
+    "$value": "{color.neutral.50}"
+  },
+  "primary-hover": {
+    "$type": "color",
+    "$value": "{color.neutral.800}"
+  },
+  "primary-active": {
+    "$type": "color",
+    "$value": "{color.neutral.850}"
+  },
+  "track": {
+    "$type": "color",
+    "$value": "{color.neutral.300}"
+  },
+  "secondary": {
+    "$type": "color",
+    "$value": "{color.neutral.100}"
+  },
+  "secondary-foreground": {
+    "$type": "color",
+    "$value": "{color.neutral.900}"
+  },
+  "muted": {
+    "$type": "color",
+    "$value": "{color.neutral.100}"
+  },
+  "muted-foreground": {
+    "$type": "color",
+    "$value": "{color.neutral.600}"
+  },
+  "muted-foreground-faint": {
+    "$type": "color",
+    "$value": "{color.neutral.500}"
+  },
+  "accent": {
+    "$type": "color",
+    "$value": "{color.neutral.100}"
+  },
+  "accent-foreground": {
+    "$type": "color",
+    "$value": "{color.neutral.900}"
+  },
+  "destructive": {
+    "$type": "color",
+    "$value": "{color.red.700}"
+  },
+  "destructive-foreground": {
+    "$type": "color",
+    "$value": "{color.neutral.50}"
+  },
+  "destructive-subtle": {
+    "$type": "color",
+    "$value": "{color.red.100}"
+  },
+  "destructive-text": {
+    "$type": "color",
+    "$value": "{color.red.650}"
+  },
+  "destructive-border": {
+    "$type": "color",
+    "$value": "{color.red.700}",
+    "$description": "Invalid-state border ink, composited at --alpha-tint-border. A DEDICATED role because the fill hue cannot serve both: on the dark ground, destructive at 70% measures 1.92:1, far under the 3:1 WCAG 1.4.11 floor for a non-text UI indicator, and lightening `destructive` itself would drop destructive-foreground on the solid button below 4.5:1. Light keeps the fill hue (4.24:1); dark re-grounds to red.400 (4.00:1)."
+  },
+  "success": {
+    "$type": "color",
+    "$value": "{color.green.750}"
+  },
+  "success-foreground": {
+    "$type": "color",
+    "$value": "{color.neutral.50}"
+  },
+  "success-subtle": {
+    "$type": "color",
+    "$value": "{color.green.100}"
+  },
+  "success-text": {
+    "$type": "color",
+    "$value": "{color.green.650}"
+  },
+  "warning": {
+    "$type": "color",
+    "$value": "{color.amber.750}"
+  },
+  "warning-foreground": {
+    "$type": "color",
+    "$value": "{color.neutral.50}"
+  },
+  "warning-subtle": {
+    "$type": "color",
+    "$value": "{color.amber.100}"
+  },
+  "warning-text": {
+    "$type": "color",
+    "$value": "{color.amber.650}"
+  },
+  "info": {
+    "$type": "color",
+    "$value": "{color.blue.700}"
+  },
+  "info-foreground": {
+    "$type": "color",
+    "$value": "{color.neutral.50}"
+  },
+  "info-subtle": {
+    "$type": "color",
+    "$value": "{color.blue.100}"
+  },
+  "info-text": {
+    "$type": "color",
+    "$value": "{color.blue.650}"
+  },
+  "overlay": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.13, 0.002, 75],
+      "alpha": 0.28
+    },
+    "$description": "Modal scrim \u2014 the ONE sanctioned alpha-composite literal (a translucent wash has no primitive step; alpha is intrinsic to the role)."
+  },
+  "border": {
+    "$type": "color",
+    "$value": "{color.neutral.200}"
+  },
+  "input": {
+    "$type": "color",
+    "$value": "{border}"
+  },
+  "ring": {
+    "$type": "color",
+    "$value": "{primary}"
+  },
+  "chart-1": {
+    "$type": "color",
+    "$value": "{color.blue.600}"
+  },
+  "chart-2": {
+    "$type": "color",
+    "$value": "{color.teal.600}"
+  },
+  "chart-3": {
+    "$type": "color",
+    "$value": "{color.cyan.900}"
+  },
+  "chart-4": {
+    "$type": "color",
+    "$value": "{color.orange.600}"
+  },
+  "chart-5": {
+    "$type": "color",
+    "$value": "{color.rose.500}"
+  },
+  "chart-6": {
+    "$type": "color",
+    "$value": "{color.red.700}"
+  },
+  "chart-7": {
+    "$type": "color",
+    "$value": "{color.olive.500}",
+    "$description": "Olive (hue 104) \u2014 reassigned from green.600, which collided with the brand phosphor hue (CX-9)."
+  },
+  "chart-8": {
+    "$type": "color",
+    "$value": "{color.blue.700}"
+  },
+  "brand": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.6, 0.17, 148],
+      "alpha": 1
+    },
+    "$description": "The phosphor-green brand accent, LIGHT half (theme-split per CX-9): marker roles ONLY (live/AI-state dot, sparkline endpoint, eyebrow highlight, terminal prompt glyph). 3.5:1 on card/background \u2014 meaningful glyphs pass WCAG 1.4.11. Never fills, borders-at-rest, headlines, or buttons."
+  },
+  "tag-blue": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.6, 0.16, 256],
+      "alpha": 1
+    },
+    "$description": "Tag palette (Attio-teardown Wave 1): 10 chromatic hues x base/subtle/text mirroring the family/family-subtle/family-text shape. base = dots/accents (>=3:1 non-text vs background), subtle = chip fill, text = chip text (>=4.5:1 on subtle AND page). Neutral tags use muted/muted-foreground. AA-validated fail-closed in contrast-check.mjs."
+  },
+  "tag-blue-subtle": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.955, 0.02, 256],
+      "alpha": 1
+    }
+  },
+  "tag-blue-text": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.51, 0.15, 256],
+      "alpha": 1
+    }
+  },
+  "tag-cyan": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.6, 0.11, 226],
+      "alpha": 1
+    }
+  },
+  "tag-cyan-subtle": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.955, 0.028, 226],
+      "alpha": 1
+    }
+  },
+  "tag-cyan-text": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.51, 0.09, 226],
+      "alpha": 1
+    }
+  },
+  "tag-green": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.6, 0.16, 150],
+      "alpha": 1
+    }
+  },
+  "tag-green-subtle": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.955, 0.028, 150],
+      "alpha": 1
+    }
+  },
+  "tag-green-text": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.51, 0.14, 150],
+      "alpha": 1
+    }
+  },
+  "tag-lime": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.6, 0.13, 117],
+      "alpha": 1
+    }
+  },
+  "tag-lime-subtle": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.955, 0.028, 117],
+      "alpha": 1
+    }
+  },
+  "tag-lime-text": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.51, 0.11, 117],
+      "alpha": 1
+    }
+  },
+  "tag-yellow": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.6, 0.12, 86],
+      "alpha": 1
+    }
+  },
+  "tag-yellow-subtle": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.955, 0.028, 86],
+      "alpha": 1
+    }
+  },
+  "tag-yellow-text": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.51, 0.1, 86],
+      "alpha": 1
+    }
+  },
+  "tag-orange": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.6, 0.15, 52],
+      "alpha": 1
+    }
+  },
+  "tag-orange-subtle": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.955, 0.02, 52],
+      "alpha": 1
+    }
+  },
+  "tag-orange-text": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.51, 0.13, 52],
+      "alpha": 1
+    }
+  },
+  "tag-red": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.6, 0.16, 25],
+      "alpha": 1
+    }
+  },
+  "tag-red-subtle": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.955, 0.02, 25],
+      "alpha": 1
+    }
+  },
+  "tag-red-text": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.51, 0.15, 25],
+      "alpha": 1
+    }
+  },
+  "tag-pink": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.6, 0.16, 356],
+      "alpha": 1
+    }
+  },
+  "tag-pink-subtle": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.955, 0.02, 356],
+      "alpha": 1
+    }
+  },
+  "tag-pink-text": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.51, 0.15, 356],
+      "alpha": 1
+    }
+  },
+  "tag-magenta": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.6, 0.16, 323],
+      "alpha": 1
+    }
+  },
+  "tag-magenta-subtle": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.955, 0.028, 323],
+      "alpha": 1
+    }
+  },
+  "tag-magenta-text": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.51, 0.15, 323],
+      "alpha": 1
+    }
+  },
+  "tag-purple": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.6, 0.16, 295],
+      "alpha": 1
+    }
+  },
+  "tag-purple-subtle": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.955, 0.02, 295],
+      "alpha": 1
+    }
+  },
+  "tag-purple-text": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.51, 0.15, 295],
+      "alpha": 1
+    }
+  },
+  "sidebar": {
+    "$type": "color",
+    "$value": "{color.neutral.50}"
+  },
+  "sidebar-foreground": {
+    "$type": "color",
+    "$value": "{color.neutral.800}"
+  },
+  "sidebar-primary": {
+    "$type": "color",
+    "$value": "{color.neutral.950}"
+  },
+  "sidebar-primary-foreground": {
+    "$type": "color",
+    "$value": "{color.neutral.50}"
+  },
+  "sidebar-accent": {
+    "$type": "color",
+    "$value": "{color.neutral.150}"
+  },
+  "sidebar-accent-foreground": {
+    "$type": "color",
+    "$value": "{color.neutral.950}"
+  },
+  "sidebar-border": {
+    "$type": "color",
+    "$value": "{border}"
+  },
+  "sidebar-ring": {
+    "$type": "color",
+    "$value": "{primary}"
+  },
+  "radius": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0.75,
+      "unit": "rem"
+    }
+  },
+  "radius-xs": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0.125,
+      "unit": "rem"
+    },
+    "$description": "Micro radius \u2014 caret/arrow triangles and other sub-control geometry (was a silent Tailwind fallback, register P1-10)."
+  },
+  "radius-sharp": {
+    "$type": "dimension",
+    "$value": {
+      "value": 2,
+      "unit": "px"
+    },
+    "$description": "The rationed marketing 'sharp' gesture (audit 17/D18): CTAs, chips, figure frames on marketing surfaces. 2px, not 0 \u2014 sharp at a glance, kin to the product scale."
+  },
+  "radius-sm": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0.375,
+      "unit": "rem"
+    }
+  },
+  "radius-md": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0.5,
+      "unit": "rem"
+    }
+  },
+  "radius-lg": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0.75,
+      "unit": "rem"
+    }
+  },
+  "size-xs": {
+    "$type": "dimension",
+    "$value": {
+      "value": 1.5,
+      "unit": "rem"
+    },
+    "$description": "24px \u2014 the compact control tier (Button xs, icon-only affordances like the password eye)."
+  },
+  "size-sm": {
+    "$type": "dimension",
+    "$value": {
+      "value": 1.75,
+      "unit": "rem"
+    }
+  },
+  "size-md": {
+    "$type": "dimension",
+    "$value": {
+      "value": 2,
+      "unit": "rem"
+    }
+  },
+  "size-lg": {
+    "$type": "dimension",
+    "$value": {
+      "value": 2.5,
+      "unit": "rem"
+    }
+  },
+  "icon-compact": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0.75,
+      "unit": "rem"
+    },
+    "$description": "12px icon \u2014 inside xs controls only (below design.md's named scale; exists for the kept Button xs tier)."
+  },
+  "icon-inline": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0.875,
+      "unit": "rem"
+    },
+    "$description": "14px icon \u2014 inline with body text and sm controls (design.md \u00a7Iconography 'inline')."
+  },
+  "icon-default": {
+    "$type": "dimension",
+    "$value": {
+      "value": 1,
+      "unit": "rem"
+    },
+    "$description": "16px icon \u2014 the default control icon (design.md 'default')."
+  },
+  "icon-action": {
+    "$type": "dimension",
+    "$value": {
+      "value": 1.25,
+      "unit": "rem"
+    },
+    "$description": "20px icon \u2014 standalone action icons (design.md 'action')."
+  },
+  "icon-feature": {
+    "$type": "dimension",
+    "$value": {
+      "value": 1.5,
+      "unit": "rem"
+    },
+    "$description": "24px icon \u2014 feature/empty-state glyphs (design.md 'feature')."
+  },
+  "sidebar-width": {
+    "$type": "dimension",
+    "$value": {
+      "value": 15,
+      "unit": "rem"
+    },
+    "$description": "Expanded sidebar rail width (was a JS constant invisible to design-lint, register P2-13)."
+  },
+  "sidebar-width-icon": {
+    "$type": "dimension",
+    "$value": {
+      "value": 3,
+      "unit": "rem"
+    },
+    "$description": "Collapsed icon-only rail width."
+  },
+  "shadow-overlay": {
+    "$type": "shadow",
+    "$value": "0 4px 14px -4px oklch(0.13 0.002 75 / 0.10), 0 2px 4px -2px oklch(0.13 0.002 75 / 0.06)"
+  },
+  "shadow-lit": {
+    "$type": "shadow",
+    "$value": "inset 0 1px 0 0 oklch(1 0 0 / 0.12), 0 1px 2px 0 oklch(0.13 0.002 75 / 0.18), 0 2px 6px -2px oklch(0.13 0.002 75 / 0.14)",
+    "$description": "Wave 2 'lit' action finish (MK-approved amendment to flat-by-default): a 1px on-fill top-light + warm-ink ambient pair for PRIMARY actions only. Attio-calibrated, warm-adapted. Never on cards/surfaces \u2014 the flat elevation model stands everywhere else."
+  },
+  "effect-blur-glass": {
+    "$type": "dimension",
+    "$value": {
+      "value": 8,
+      "unit": "px"
+    },
+    "$description": "Backdrop blur for the existing glass Button finish. Matches Tailwind v4's shipped blur-sm value while exposing the effect through a semantic contract."
+  },
+  "z-raised": {
+    "$type": "number",
+    "$value": 10,
+    "$description": "Local raise WITHIN a component's own stacking context (focused OTP slot / segmented item, floating label, bubble reactions, select scroll arrows). Never for portaled surfaces."
+  },
+  "z-overlay": {
+    "$type": "number",
+    "$value": 50,
+    "$description": "The single portal band: every portaled floating surface (dialog, sheet, popover, menu, select, tooltip, hover-card). Nesting resolves by DOM order \u2014 Base UI appends portals to <body>, so a Select inside a Dialog mounts later and stacks above within the same band. Toasts (sonner) are the documented exemption ABOVE this band (library-managed z; a toast must outrank a modal regardless of mount order)."
+  },
+  "opacity-dim": {
+    "$type": "dimension",
+    "$value": {
+      "value": 50,
+      "unit": "%"
+    },
+    "$description": "Element opacity for disabled controls and dimmed affordances (outside-month days, decorative chevrons)."
+  },
+  "opacity-hint-soft": {
+    "$type": "dimension",
+    "$value": {
+      "value": 60,
+      "unit": "%"
+    },
+    "$description": "Element opacity for hover-revealed hints (e.g. sort affordance on row hover)."
+  },
+  "opacity-hint": {
+    "$type": "dimension",
+    "$value": {
+      "value": 70,
+      "unit": "%"
+    },
+    "$description": "Element opacity for resting secondary controls that reach 100% on hover (e.g. alert close)."
+  },
+  "opacity-track": {
+    "$type": "dimension",
+    "$value": {
+      "value": 25,
+      "unit": "%"
+    },
+    "$description": "Element opacity of the circular progress track ring."
+  },
+  "alpha-tint-border": {
+    "$type": "dimension",
+    "$value": {
+      "value": 70,
+      "unit": "%"
+    },
+    "$description": "Border tint for focus (ring) and error (destructive) borders \u2014 design.md's ring/70 pattern."
+  },
+  "alpha-outline-border": {
+    "$type": "dimension",
+    "$value": {
+      "value": 50,
+      "unit": "%"
+    },
+    "$description": "Resting border of the outline button family (border-<family>)."
+  },
+  "alpha-border-subtle": {
+    "$type": "dimension",
+    "$value": {
+      "value": 20,
+      "unit": "%"
+    },
+    "$description": "Alert variant border tint (border-<family>)."
+  },
+  "alpha-border-soft": {
+    "$type": "dimension",
+    "$value": {
+      "value": 30,
+      "unit": "%"
+    },
+    "$description": "Toast (sonner) status border tint (border-<family>)."
+  },
+  "alpha-surface-faint": {
+    "$type": "dimension",
+    "$value": {
+      "value": 5,
+      "unit": "%"
+    },
+    "$description": "Resting wash of the outline button family (bg-<family>)."
+  },
+  "alpha-surface-subtle": {
+    "$type": "dimension",
+    "$value": {
+      "value": 10,
+      "unit": "%"
+    },
+    "$description": "Hover wash of the outline button family (bg-<family>)."
+  },
+  "alpha-ink-tint": {
+    "$type": "dimension",
+    "$value": {
+      "value": 10,
+      "unit": "%"
+    },
+    "$description": "Neutral pressed/hover ink tint (bg-foreground) \u2014 toggle pressed, chip remove hover."
+  },
+  "alpha-ink-tint-strong": {
+    "$type": "dimension",
+    "$value": {
+      "value": 15,
+      "unit": "%"
+    },
+    "$description": "Hovered pressed-state ink tint (bg-foreground)."
+  },
+  "alpha-soft-hover": {
+    "$type": "dimension",
+    "$value": {
+      "value": 20,
+      "unit": "%"
+    },
+    "$description": "Hover wash of soft (subtle-filled) status surfaces. Theme-split: 30% in dark."
+  },
+  "alpha-soft-surface": {
+    "$type": "dimension",
+    "$value": {
+      "value": 10,
+      "unit": "%"
+    },
+    "$description": "Resting wash of soft status surfaces (chat destructive bubble). Theme-split: 20% in dark."
+  },
+  "alpha-input": {
+    "$type": "dimension",
+    "$value": {
+      "value": 30,
+      "unit": "%"
+    },
+    "$description": "Dark-theme input fill tint (bg-input) \u2014 see the dark-tint scoping note."
+  },
+  "alpha-input-hover": {
+    "$type": "dimension",
+    "$value": {
+      "value": 50,
+      "unit": "%"
+    },
+    "$description": "Dark-theme input fill tint on hover (bg-input)."
+  },
+  "alpha-fill-hover": {
+    "$type": "dimension",
+    "$value": {
+      "value": 80,
+      "unit": "%"
+    },
+    "$description": "Hover dim of an interactive solid fill (bg-primary/secondary/muted/accent on chat bubbles, secondary button)."
+  },
+  "alpha-wash-faint": {
+    "$type": "dimension",
+    "$value": {
+      "value": 40,
+      "unit": "%"
+    },
+    "$description": "Faint neutral wash (bg-muted) \u2014 rich-text toolbar."
+  },
+  "alpha-wash": {
+    "$type": "dimension",
+    "$value": {
+      "value": 50,
+      "unit": "%"
+    },
+    "$description": "Neutral wash (bg-muted) \u2014 card/table footers, ghost dark hover."
+  },
+  "alpha-wash-strong": {
+    "$type": "dimension",
+    "$value": {
+      "value": 60,
+      "unit": "%"
+    },
+    "$description": "Stronger neutral wash (bg-muted) \u2014 line-tab hover."
+  },
+  "alpha-backdrop-soft": {
+    "$type": "dimension",
+    "$value": {
+      "value": 60,
+      "unit": "%"
+    },
+    "$description": "Translucent surface backdrop (bg-background) \u2014 pill tab list."
+  },
+  "alpha-glass": {
+    "$type": "dimension",
+    "$value": {
+      "value": 90,
+      "unit": "%"
+    },
+    "$description": "Glass button surface (bg-background + backdrop-blur)."
+  },
+  "alpha-glass-hover": {
+    "$type": "dimension",
+    "$value": {
+      "value": 95,
+      "unit": "%"
+    },
+    "$description": "Glass button surface on hover."
+  },
+  "alpha-link-hover": {
+    "$type": "dimension",
+    "$value": {
+      "value": 80,
+      "unit": "%"
+    },
+    "$description": "Hovered link text dim (text-info-text) in rendered rich text."
+  },
+  "alpha-outline-soft": {
+    "$type": "dimension",
+    "$value": {
+      "value": 50,
+      "unit": "%"
+    },
+    "$description": "Soft neutral outline/ring (base outline default, date-picker today ring)."
+  },
+  "type-product-xs": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "0.6875rem",
+      "lineHeight": "calc(16 / 11)"
+    }
+  },
+  "type-product-sm": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "0.75rem",
+      "lineHeight": "calc(16 / 12)"
+    }
+  },
+  "type-product-base": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "0.875rem",
+      "lineHeight": "calc(21 / 14)"
+    }
+  },
+  "type-product-lg": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "1rem",
+      "lineHeight": "calc(24 / 16)"
+    }
+  },
+  "type-product-xl": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "1.125rem",
+      "lineHeight": "calc(26 / 18)"
+    }
+  },
+  "type-product-2xl": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "1.25rem",
+      "lineHeight": "calc(28 / 20)"
+    }
+  },
+  "type-product-3xl": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "1.5rem",
+      "lineHeight": "calc(32 / 24)"
+    }
+  },
+  "type-doc-xs": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "0.75rem",
+      "lineHeight": "calc(1 / 0.75)"
+    }
+  },
+  "type-doc-sm": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "0.875rem",
+      "lineHeight": "calc(1.25 / 0.875)"
+    }
+  },
+  "type-doc-base": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "1rem",
+      "lineHeight": "calc(1.5 / 1)"
+    }
+  },
+  "type-doc-lg": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "1.125rem",
+      "lineHeight": "calc(1.75 / 1.125)"
+    }
+  },
+  "type-doc-xl": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "1.25rem",
+      "lineHeight": "calc(1.75 / 1.25)"
+    }
+  },
+  "type-doc-2xl": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "1.5rem",
+      "lineHeight": "calc(2 / 1.5)"
+    }
+  },
+  "type-doc-3xl": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "1.875rem",
+      "lineHeight": "calc(2.25 / 1.875)"
+    }
+  },
+  "text-display-sm": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "2rem",
+      "lineHeight": "2.25rem",
+      "fontWeight": "400",
+      "letterSpacing": "-0.04em"
+    }
+  },
+  "text-display-md": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "2.5rem",
+      "lineHeight": "2.75rem",
+      "fontWeight": "400",
+      "letterSpacing": "-0.045em"
+    }
+  },
+  "text-display-lg": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "3.5rem",
+      "lineHeight": "3.75rem",
+      "fontWeight": "400",
+      "letterSpacing": "-0.05em"
+    }
+  },
+  "text-display-xl": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "4.5rem",
+      "lineHeight": "4.75rem",
+      "fontWeight": "400",
+      "letterSpacing": "-0.06em"
+    }
+  },
+  "text-h1": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "1.5rem",
+      "lineHeight": "2rem",
+      "fontWeight": "400",
+      "letterSpacing": "-0.02em"
+    }
+  },
+  "text-h2": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "1.25rem",
+      "lineHeight": "1.75rem",
+      "fontWeight": "400",
+      "letterSpacing": "-0.015em"
+    }
+  },
+  "text-h3": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "1.125rem",
+      "lineHeight": "1.5rem",
+      "fontWeight": "400",
+      "letterSpacing": "-0.01em"
+    }
+  },
+  "text-h4": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "1rem",
+      "lineHeight": "1.375rem",
+      "fontWeight": "500",
+      "letterSpacing": "0em"
+    }
+  },
+  "text-label": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "0.875rem",
+      "lineHeight": "1.25rem",
+      "fontWeight": "500",
+      "letterSpacing": "-0.01em"
+    },
+    "$description": "Label voice tracking -1% (Wave 1, T3 final): chrome text only, never prose \u2014 matches the app-teardown 14/500 chrome standard."
+  },
+  "text-strong": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "0.875rem",
+      "lineHeight": "1.25rem",
+      "fontWeight": "600",
+      "letterSpacing": "-0.01em"
+    },
+    "$description": "Rare 600-weight emphasis role. Use text-strong only when 500 cannot carry the hierarchy; raw font-semibold/font-bold utilities remain forbidden."
+  },
+  "text-label-sm": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "0.75rem",
+      "lineHeight": "1rem",
+      "fontWeight": "500",
+      "letterSpacing": "-0.01em"
+    }
+  },
+  "text-code": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "0.8125rem",
+      "lineHeight": "1.25rem",
+      "fontWeight": "400",
+      "letterSpacing": "0em"
+    }
+  },
+  "text-code-sm": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "0.75rem",
+      "lineHeight": "1rem",
+      "fontWeight": "400",
+      "letterSpacing": "0em"
+    }
+  },
+  "text-mono-label": {
+    "$type": "typography",
+    "$value": {
+      "fontSize": "0.75rem",
+      "lineHeight": "1rem",
+      "fontWeight": "400",
+      "letterSpacing": "0.05em"
+    },
+    "$description": "The mono VOICE layer (audit 17/D20): uppercase Geist Mono eyebrows, section numbers, live-state labels, terminal annotations. 12px floor; uppercase is applied at the call site and is mono-exclusive (lint)."
+  },
+  "font-family-sans": {
+    "$type": "fontFamily",
+    "$value": ["Geist", "sans-serif"]
+  },
+  "font-family-mono": {
+    "$type": "fontFamily",
+    "$value": ["Geist Mono", "monospace"]
+  },
+  "font-family-serif": {
+    "$type": "fontFamily",
+    "$value": ["Newsreader", "serif"],
+    "$description": "Serif ACCENT (D17): display emphasis words + pull-quotes only, never running text. Newsreader (opsz axis) until Geist Serif ships."
+  },
+  "font-family-display": {
+    "$type": "fontFamily",
+    "$value": ["Geist", "sans-serif"],
+    "$description": "Display tier face \u2014 same family as sans today, split as a token so marketing can retune independently."
+  },
+  "font-family-pixel": {
+    "$type": "fontFamily",
+    "$value": ["Geist Pixel Square", "monospace"],
+    "$description": "THE single sanctioned Geist Pixel flourish cut (D17: one deliberate hero use per surface, no more)."
+  },
+  "duration-fast": {
+    "$type": "duration",
+    "$value": {
+      "value": 150,
+      "unit": "ms"
+    }
+  },
+  "duration-base": {
+    "$type": "duration",
+    "$value": {
+      "value": 200,
+      "unit": "ms"
+    }
+  },
+  "duration-slow": {
+    "$type": "duration",
+    "$value": {
+      "value": 300,
+      "unit": "ms"
+    }
+  },
+  "motion-ease-standard": {
+    "$type": "cubicBezier",
+    "$value": [0.2, 0, 0, 1]
+  },
+  "motion-ease-emphasized": {
+    "$type": "cubicBezier",
+    "$value": [0.3, 0, 0, 1]
+  },
+  "motion-ease-exit": {
+    "$type": "cubicBezier",
+    "$value": [0.4, 0, 1, 1]
+  },
+  "motion-ease-spring": {
+    "$type": "easing",
+    "$value": "linear(0, 0.5 60%, 1.05 80%, 0.98 90%, 1)",
+    "$description": "CSS linear() spring with a very small overshoot \u2014 the success-bounce/appear curve for state-feedback micro-interactions (Phase M). Subtle by design: dense dev-tool aesthetic, not playful."
+  },
+  "motion-blur": {
+    "$type": "dimension",
+    "$value": {
+      "value": 2,
+      "unit": "px"
+    },
+    "$description": "Motion-blur amount for blur-fade entrances (Phase M text/element reveals)."
+  }
 }

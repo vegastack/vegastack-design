@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { Wrapper } from './wrapper';
+import type { ReactNode } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/kbd` (dogfoods the registry) → auto-scanned.
-import { Kbd, KbdGroup } from '@/components/ui/kbd';
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
 
 export function kbd(): ReactNode {
   return (
@@ -18,9 +18,9 @@ export function kbd(): ReactNode {
 export function kbdCombos(): ReactNode {
   return (
     <Wrapper>
-      <Kbd keys={['⌘', 'K']} />
-      <Kbd keys={['⌘', '⇧', 'P']} />
-      <Kbd keys={['⌘', '⏎']} />
+      <Kbd keys={["⌘", "K"]} />
+      <Kbd keys={["⌘", "⇧", "P"]} />
+      <Kbd keys={["⌘", "⏎"]} />
       <KbdGroup>
         <Kbd>⌃</Kbd>
         <Kbd>⌫</Kbd>
@@ -56,16 +56,16 @@ export function kbdPlatformLabels(): ReactNode {
           <span className="text-sm text-muted-foreground">other</span>
 
           <span className="text-sm text-muted-foreground">Command palette</span>
-          <Kbd os="mac" keys={['⌘', 'K']} />
-          <Kbd os="other" keys={['⌘', 'K']} />
+          <Kbd os="mac" keys={["⌘", "K"]} />
+          <Kbd os="other" keys={["⌘", "K"]} />
 
           <span className="text-sm text-muted-foreground">Save</span>
-          <Kbd os="mac" keys={['⌘', '⇧', 'S']} />
-          <Kbd os="other" keys={['⌘', '⇧', 'S']} />
+          <Kbd os="mac" keys={["⌘", "⇧", "S"]} />
+          <Kbd os="other" keys={["⌘", "⇧", "S"]} />
 
           <span className="text-sm text-muted-foreground">Delete back</span>
-          <Kbd os="mac" keys={['⌃', '⌫']} />
-          <Kbd os="other" keys={['⌃', '⌫']} />
+          <Kbd os="mac" keys={["⌃", "⌫"]} />
+          <Kbd os="other" keys={["⌃", "⌫"]} />
 
           {/* Single string child is rewritten too — ⌘ becomes "Ctrl" under `other`. */}
           <span className="text-sm text-muted-foreground">Single key</span>

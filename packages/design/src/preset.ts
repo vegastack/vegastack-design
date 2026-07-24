@@ -8,9 +8,9 @@
  */
 export const vegastackPreset = {
   /** The token package this preset is bound to. */
-  tokens: '@vegastack/design-tokens',
+  tokens: "@vegastack/design-tokens",
   /** CSS entry consumers import to get the full setup. */
-  css: '@vegastack/design/preset.css',
+  css: "@vegastack/design/preset.css",
   /** Tailwind major version this preset targets. */
   tailwind: 4,
 } as const;

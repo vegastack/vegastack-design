@@ -1,4 +1,4 @@
-// @vegastack bubble@0.2.0 sha256-0ur7XdazREaygOJYzMWikfpVcHLEXOB+GaLzFBS/2N4=
+// @vegastack bubble@0.2.0 sha256-QNRt5V7t4o5HsFydf982HniXqM2WElwSWlDJnKDSgT4=
 
 "use client";
 
@@ -11,11 +11,13 @@ import { cn } from "@vegastack/design";
  * BubbleGroup — stacks consecutive bubbles from one sender with tight spacing.
  * ----------------------------------------------------------------------------------------------*/
 
-export type BubbleGroupProps = React.ComponentProps<"div">;
+/** Props accepted by `BubbleGroup`. */
+export type BubbleGroupProps = React.ComponentPropsWithRef<"div">;
 
 /**
  * `BubbleGroup` — wraps consecutive `Bubble`s from the same sender so they stack
  * with consistent spacing.
+ * @example <BubbleGroup><Bubble /><Bubble /></BubbleGroup>
  */
 export function BubbleGroup({ className, ref, ...props }: BubbleGroupProps) {
   return (
@@ -77,9 +79,10 @@ export type BubbleVariant = NonNullable<
   VariantProps<typeof bubbleVariants>["variant"]
 >;
 
+/** Props accepted by `Bubble`. */
 export interface BubbleProps
   extends
-    React.ComponentProps<"div">,
+    React.ComponentPropsWithRef<"div">,
     VariantProps<typeof bubbleVariants> {
   /**
    * Surface skin.
@@ -137,16 +140,23 @@ export function Bubble({
       data-slot="bubble"
       data-variant={variant}
       data-align={align}
-      className={cn(bubbleVariants({ variant }), animateIn && "motion-enter-up", className)}
+      className={cn(
+        bubbleVariants({ variant }),
+        animateIn && "motion-enter-up",
+        className,
+      )}
       {...props}
     />
   );
 }
 
+/** Props accepted by `BubbleContent`. */
 export interface BubbleContentProps extends React.ComponentPropsWithRef<"div"> {
   /**
    * Render the content surface as a different element (e.g. a `button` for an
    * interactive bubble, or an `a` for a link bubble) via Base UI `render`.
+
+   * @default undefined
    */
   render?: useRender.RenderProp;
 }
@@ -156,6 +166,7 @@ export interface BubbleContentProps extends React.ComponentPropsWithRef<"div"> {
  * The parent `Bubble`'s `variant` colours it via `data-slot=bubble-content`.
  * Render it as a `button`/`a` for an interactive bubble — it gets a hover
  * surface and the global focus-visible ring.
+ * @example <BubbleContent>Hello!</BubbleContent>
  */
 export function BubbleContent({
   className,
@@ -170,7 +181,7 @@ export function BubbleContent({
     props: {
       "data-slot": "bubble-content",
       className: cn(
-        "w-fit max-w-full min-w-0 overflow-hidden rounded-lg border border-transparent px-3 py-2.5 text-base leading-relaxed wrap-break-word group-data-[align=end]/bubble:self-end [button]:text-left [button,a]:transition-colors [button,a]:duration-fast [button,a]:ease-standard [button,a]:focus-visible:border-ring/(--alpha-tint-border)",
+        "w-fit max-w-full min-w-0 overflow-hidden rounded-lg border border-transparent px-3 py-2.5 text-base leading-relaxed wrap-break-word group-data-[align=end]/bubble:self-end [button]:text-left  [button,a]:focus-visible:border-ring/(--alpha-tint-border)",
         className,
       ),
       ...props,
@@ -202,9 +213,10 @@ export const bubbleReactionsVariants = cva(
   },
 );
 
+/** Props accepted by `BubbleReactions`. */
 export interface BubbleReactionsProps
   extends
-    React.ComponentProps<"div">,
+    React.ComponentPropsWithRef<"div">,
     VariantProps<typeof bubbleReactionsVariants> {
   /**
    * Vertical anchor relative to the bubble.

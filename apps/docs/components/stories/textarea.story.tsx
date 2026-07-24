@@ -1,5 +1,5 @@
-import { defineStory } from '@/lib/story';
-import { Textarea } from './textarea.client';
+import { defineStory } from "@/lib/story";
+import { Textarea } from "./textarea.client";
 
 /**
  * Story explorer for `Textarea` — controls auto-generated from `TextareaProps` by the
@@ -10,15 +10,15 @@ export const story = defineStory({
   Component: Textarea,
   args: [
     {
-      variant: 'Default',
+      variant: "Default",
       initial: {
-        placeholder: 'Add a comment…',
+        placeholder: "Add a comment…",
       },
     },
     {
-      variant: 'Auto-grow',
+      variant: "Auto-grow",
       initial: {
-        placeholder: 'Type to grow…',
+        placeholder: "Type to grow…",
         autoGrow: true,
         rows: 2,
       },

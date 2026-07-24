@@ -19,6 +19,7 @@ and all navigation `meta.json` files. Cross-referenced against the real token/ut
 ## Per-page findings
 
 ### apps/docs/content/docs/index.mdx
+
 - **Purpose / sections:** Landing/intro. Sections: Architecture (Tokens/Components/Showcase), Foundations, Components, Installation.
 - **GAPS:**
   - [PROSE] `index.mdx:6-7` — stale count. Quoted: `"VegaStack Design is the internal design system: **design tokens** (public npm), **64 components**"`. **Correction: 68 components** (verified: 68 MDX pages, 68 non-divider entries in `components/meta.json`).
@@ -28,6 +29,7 @@ and all navigation `meta.json` files. Cross-referenced against the real token/ut
 - **Verdict:** Minor. **Effort: S** (fix count 64→68, add Icons/Motion/Utilities links).
 
 ### apps/docs/content/docs/install.mdx
+
 - **Purpose / sections:** Registry consumer setup. Sections: Public Packages, shadcn Base UI, Registry Namespace, Integrity Preflight, Add Components, Updating components.
 - **GAPS:**
   - [PROSE] **VERIFIED ACCURATE** — all CLI commands match the real bin. `packages/utils/package.json` bin = `vegastack-design` (`bin/vegastack-design.mjs`) + deprecated alias `vegastack-verify-registry-item`. Subcommands `verify`, `check-updates` and flags `--save`, `--post-write`, `--item`, `--target-dir`, `--hash-only`, `--fail-on-update` all line up with `docs/RELEASING.md:44-52`. No stale CLI prose found.
@@ -38,6 +40,7 @@ and all navigation `meta.json` files. Cross-referenced against the real token/ut
 - **Verdict:** Minor. **Effort: S**.
 
 ### apps/docs/content/docs/foundations/colors.mdx
+
 - **Purpose / sections:** Semantic OKLCH color tokens. Sections: intro + `<ColorPalette/>`, Per-family variants, Override model, DoDont.
 - **GAPS:**
   - [PROSE] **VERIFIED ACCURATE** — "six real tokens" per family claim (`:14`) matches `foundations.tsx` `COLOR_GROUPS`: each of purple/info/destructive/success/warning lists exactly 6 (`fill, foreground, hover, active, subtle, text`). The `--primary-hover`/`--primary-active`, `--muted-foreground-faint`, `--track`, `--overlay` tokens referenced in prose **all exist** in `dist/theme.css` (`:16,29,24,56`).
@@ -47,6 +50,7 @@ and all navigation `meta.json` files. Cross-referenced against the real token/ut
 - **Verdict:** Complete (accurate). **Effort: S** if expanding prose to cover charts/sidebar groups.
 
 ### apps/docs/content/docs/foundations/typography.mdx
+
 - **Purpose / sections:** Type system. Sections: intro + `<TypeScale/>`, Tokens, DoDont.
 - **GAPS:**
   - [PROSE] **VERIFIED ACCURATE** — documented vars `--font-family-sans` (Geist), `--font-family-mono` (Geist Mono), `--font-family-serif` (Lora) at `:14-16` exactly match `dist/theme.css:84-86`. The "bridged" claim matches `theme.css:255-257` (`--font-sans: var(--font-family-sans)` etc.). `<TypeScale/>` in `foundations.tsx:78-88` renders real font-serif/sans/mono specimens.
@@ -55,6 +59,7 @@ and all navigation `meta.json` files. Cross-referenced against the real token/ut
 - **Verdict:** Minor (accurate but thin). **Effort: M** to add a size/line-height scale.
 
 ### apps/docs/content/docs/foundations/icons.mdx
+
 - **Purpose / sections:** Three icon sources. Sections: intro (Icon/BrandIcon/AnimatedIcon), code samples, reduced-motion note, `<IconGallery/>`, DoDont.
 - **GAPS:**
   - [PROSE] **VERIFIED ACCURATE** — the **"439 icons"** claim (`:13`) is exactly right: `ls packages/ui/registry/ui/icons/*.tsx` = 439. Size tokens `xs/sm/md/lg (14/16/20/24px)` and the three sanctioned sources match AGENTS.md ("ONLY lucide-react, lucide-animated, thesvg").
@@ -64,6 +69,7 @@ and all navigation `meta.json` files. Cross-referenced against the real token/ut
 - **Verdict:** Complete. **Effort: S** (no changes needed).
 
 ### apps/docs/content/docs/foundations/motion.mdx
+
 - **Purpose / sections:** CSS-first motion. Sections: intro, Tokens (Duration/Easing), code sample, reduced-motion note.
 - **GAPS:**
   - [PROSE] **VERIFIED ACCURATE** — duration tokens `--duration-fast (150ms)`, `--duration-base (200ms)`, `--duration-slow (300ms)` (`:13`) match `theme.css:87-89` exactly. Easing `--ease-standard/emphasized/exit` "bridged from `--motion-ease-*`" (`:14`) matches `theme.css:90-92` (raw `--motion-ease-*`) + `:258-260` (bridge `--ease-standard: var(--motion-ease-standard)`). Naming convention matches AGENTS.md locked decision ("Runtime ... vars are ... `--motion-ease-*`").
@@ -73,6 +79,7 @@ and all navigation `meta.json` files. Cross-referenced against the real token/ut
 - **Verdict:** Minor (accurate but thinnest, no live demo). **Effort: M** to add a motion specimen.
 
 ### apps/docs/content/docs/utilities/shimmer.mdx
+
 - **Purpose / sections:** Animated text shimmer. Sections: Installation, Usage, Examples (8 variants), Classes table, Accessibility, DoDont.
 - **GAPS:**
   - [API] **VERIFIED ACCURATE** — every documented class exists as a real `@utility` in `dist/utilities.css`: `shimmer` (`:472`), `shimmer-once` (`:513`), `shimmer-reverse` (`:517`), `shimmer-none` (`:521`), `shimmer-color-*` (`:526`), `shimmer-duration-*` (`:535`), `shimmer-spread-*` (`:539`), `shimmer-angle-*` (`:544`). Defaults documented (duration `2000`, angle `20`) match the impl. The Classes table (`:89-98`) is complete and correct.
@@ -81,6 +88,7 @@ and all navigation `meta.json` files. Cross-referenced against the real token/ut
 - **Verdict:** Complete (API-accurate). **Effort: S**.
 
 ### apps/docs/content/docs/utilities/scroll-fade.mdx
+
 - **Purpose / sections:** Mask-based edge fades. Sections: Installation, Usage, Examples (Horizontal/Single-edge/Fixed-size), Classes table, Notes, DoDont.
 - **GAPS:**
   - [API] **VERIFIED ACCURATE** — documented classes all exist as `@utility` in `dist/utilities.css`: `scroll-fade` (`:83`), `scroll-fade-y` (`:123`), `scroll-fade-x` (`:163`), `scroll-fade-t` (`:212`), `scroll-fade-b` (`:242`), `scroll-fade-l` (`:275`), `scroll-fade-r` (`:305`), `scroll-fade-s` (`:338`), `scroll-fade-e` (`:376`), `scroll-fade-*` (`:417`), `scroll-fade-none` (`:442`). Classes table (`:59-67`) is complete and correct.
@@ -94,22 +102,37 @@ and all navigation `meta.json` files. Cross-referenced against the real token/ut
 ## Current navigation structure (verbatim summary of all meta.json)
 
 **Root — `content/docs/meta.json`:**
+
 ```json
-{ "title": "VegaStack Design", "root": true,
-  "pages": ["index", "install", "...foundations", "...components", "...utilities"] }
+{
+  "title": "VegaStack Design",
+  "root": true,
+  "pages": [
+    "index",
+    "install",
+    "...foundations",
+    "...components",
+    "...utilities"
+  ]
+}
 ```
+
 → Top-level order: **index → install → Foundations → Components → Utilities**. Only THREE content sections exist.
 
 **`content/docs/foundations/meta.json`:**
+
 ```json
 { "title": "Foundations", "pages": ["colors", "typography", "icons", "motion"] }
 ```
+
 → 4 pages, no sub-dividers.
 
 **`content/docs/utilities/meta.json`:**
+
 ```json
 { "title": "Utilities", "pages": ["---Utilities---", "shimmer", "scroll-fade"] }
 ```
+
 → 2 pages + 1 redundant `---Utilities---` divider (label duplicates the section title).
 
 **`content/docs/components/meta.json`:** `title: "Components"`, **68 component entries + ONE divider**. The order is roughly: button → toggle/toggle-group → badge/alert → form inputs (input, textarea, field, label, checkbox, switch, radio-group, slider, select) → overlays (dialog, alert-dialog, popover, tooltip, dropdown-menu) → tabs/breadcrumb/accordion/collapsible → card/avatar/kbd/skeleton/spinner/progress/separator/empty-state → sheet/hover-card/context-menu/pagination/scroll-area/table → status-icon/progress-indicator/truncated-text → icon-button/copy-button/password-input/otp-input/split-button/field-inline/relative-time/settings-row/image/notification-bell/markdown-view/toast/command/page-header/sidebar/filter-bar/auto-save-input/country-select/state-select/date-picker/color-picker/emoji-picker/data-list/text-edit → **`---Communication---`** → marker/message/bubble/message-scroller.
@@ -125,45 +148,46 @@ and all navigation `meta.json` files. Cross-referenced against the real token/ut
 Implement via `---Group Name---` dividers in `components/meta.json` (the existing divider mechanism), or split into sub-folders each with their own `meta.json`. Recommended section order top-to-bottom, components ordered most-common-first within each:
 
 **1. Buttons & Actions** — `button`, `icon-button`, `split-button`, `copy-button`, `toggle`, `toggle-group`
-*Rationale: primary interactive triggers; what a consumer reaches for first.*
+_Rationale: primary interactive triggers; what a consumer reaches for first._
 
 **2. Forms & Inputs** — `input`, `textarea`, `password-input`, `otp-input`, `auto-save-input`, `text-edit`, `field`, `field-inline`, `label`, `slider`
-*Rationale: text-entry + field-wrapping primitives.*
+_Rationale: text-entry + field-wrapping primitives._
 
 **3. Selection Controls** — `checkbox`, `radio-group`, `switch`, `select`, `country-select`, `state-select`
-*Rationale: bounded-choice inputs (toggle/toggle-group could also live here, but read as actions).*
+_Rationale: bounded-choice inputs (toggle/toggle-group could also live here, but read as actions)._
 
 **4. Pickers** — `date-picker`, `color-picker`, `emoji-picker`
-*Rationale: specialized popover-driven value pickers.*
+_Rationale: specialized popover-driven value pickers._
 
 **5. Overlays** — `dialog`, `alert-dialog`, `sheet`, `popover`, `hover-card`, `tooltip`
-*Rationale: floating/portalled surfaces.*
+_Rationale: floating/portalled surfaces._
 
 **6. Menus & Commands** — `dropdown-menu`, `context-menu`, `command`
-*Rationale: actionable menu surfaces / command palette.*
+_Rationale: actionable menu surfaces / command palette._
 
 **7. Navigation** — `breadcrumb`, `pagination`, `tabs`, `sidebar`, `page-header`, `filter-bar`
-*Rationale: wayfinding + page-level chrome.*
+_Rationale: wayfinding + page-level chrome._
 
 **8. Disclosure** — `accordion`, `collapsible`
-*Rationale: expand/collapse content regions.*
+_Rationale: expand/collapse content regions._
 
 **9. Layout & Structure** — `card`, `separator`, `scroll-area`, `settings-row`
-*Rationale: containers and structural dividers.*
+_Rationale: containers and structural dividers._
 
 **10. Data Display** — `table`, `data-list`, `avatar`, `image`, `kbd`, `badge`, `marker`, `relative-time`, `truncated-text`
-*Rationale: rendering values/content (marker/relative-time/truncated-text are content-display helpers).*
+_Rationale: rendering values/content (marker/relative-time/truncated-text are content-display helpers)._
 
 **11. Feedback & Status** — `alert`, `toast` (sonner), `progress`, `progress-indicator`, `spinner`, `skeleton`, `status-icon`, `empty-state`, `notification-bell`
-*Rationale: loading/empty/status/notification states.*
+_Rationale: loading/empty/status/notification states._
 
 **12. Content & Typography** — `markdown-view`
-*Rationale: rich-text rendering. (Could fold into Data Display if a one-item section feels thin.)*
+_Rationale: rich-text rendering. (Could fold into Data Display if a one-item section feels thin.)_
 
 **13. Chat & Communication** — `message`, `bubble`, `message-scroller`
-*Rationale: the existing `---Communication---` group; `marker` was moved to Data Display since it's a generic indicator, not chat-specific — confirm with maintainers since it's currently grouped under Communication.*
+_Rationale: the existing `---Communication---` group; `marker` was moved to Data Display since it's a generic indicator, not chat-specific — confirm with maintainers since it's currently grouped under Communication._
 
 **Notes on the proposal:**
+
 - This regroups all 68 into 13 sections; every one of the prompt's 68 components is placed exactly once.
 - `marker` reassignment (Communication → Data Display) is the one judgment call — flag for owner confirmation.
 - If 13 sections feel heavy, merge **Pickers→Selection Controls**, **Disclosure→Layout**, and **Content→Data Display** to land at ~10 sections.
@@ -186,6 +210,7 @@ These tokens/concepts already exist in the implementation (or are standard for a
 - **[MISSING] Getting Started / Guides** top-level section — `install` is the only onboarding page; a "first component" walkthrough + "consuming updates" guide would round it out.
 
 **Also fix (cross-cutting):**
+
 - [PROSE] Update **"64 components" → "68"** in BOTH `index.mdx:6` and `app/(home)/page.tsx:8`.
 - [STRUCTURE] Remove the redundant `---Utilities---` divider in `utilities/meta.json` (duplicates the section title), OR keep dividers consistent by adding role dividers to Foundations + Components too.
 - [API] Add `scroll-fade-{t,b,s,e}-*` per-edge sized variants to the scroll-fade Classes table.

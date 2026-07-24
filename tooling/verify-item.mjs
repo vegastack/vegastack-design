@@ -10,7 +10,7 @@
 // copied files to check). The post-write / TOCTOU closer — comparing the files shadcn
 // actually copied on disk against the EXACT verified item bytes — lives in the shipped
 // bin's `--post-write` mode (packages/design/bin/verify-registry-item.mjs). Consumers who
-// run `shadcn add` are the ones who must run that post-write pass; see skills/consume/SKILL.md.
+// run `shadcn add` are the ones who must run that post-write pass; see skills/public/vegastack-consume/SKILL.md.
 //
 // Two modes:
 //   • full (default)  — 1) verify the Sigstore-signed manifest against the pinned GitHub
@@ -25,9 +25,17 @@
 // Usage:
 //   node tooling/verify-item.mjs [--hash-only] <name>
 //   node tooling/verify-item.mjs --help
-import { execFileSync } from 'node:child_process';
-import { writeFileSync, readFileSync } from 'node:fs';
-import { itemHash } from './registry-hash.mjs';
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, writeFileSync, readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { itemHash } from "./registry-hash.mjs";
+import {
+  DEFAULT_REGISTRY,
+  fetchRegistryText,
+  serviceTokenHeaders,
+} from "./registry-request.mjs";
+import { assertGeneratedName } from "./safe-path.mjs";
 
 const USAGE = `node tooling/verify-item.mjs [--hash-only] <name>
 
@@ -35,64 +43,100 @@ Modes:
   full (default)   Sigstore signature (cosign) + item hash. Needs the deployed signed
                    manifest and the cosign CLI. The real trust boundary.
   --hash-only      Item hash only (skips cosign). Local dev / no cosign / pre-deploy.
-                   Does NOT prove provenance.`;
+                   Does NOT prove provenance.
+
+Credentialed requests require the exact HTTPS VEGASTACK_TRUSTED_REGISTRY_ORIGIN
+(default https://design.vegastack.com) and reject redirects.`;
 
 const args = process.argv.slice(2);
-if (args.includes('--help') || args.includes('-h')) {
+if (args.includes("--help") || args.includes("-h")) {
   console.log(USAGE);
   process.exit(0);
 }
 
-const hashOnly = args.includes('--hash-only');
-const name = args.filter((a) => !a.startsWith('-'))[0];
-if (!name) { console.error(USAGE); process.exit(2); }
+const hashOnly = args.includes("--hash-only");
+const name = args.filter((a) => !a.startsWith("-"))[0];
+if (!name) {
+  console.error(USAGE);
+  process.exit(2);
+}
+assertGeneratedName(name, "registry item name");
 
-const base = process.env.VEGASTACK_REGISTRY ?? 'https://design.vegastack.com/r';
-const headers = {
-  'CF-Access-Client-Id': process.env.CF_ACCESS_CLIENT_ID,
-  'CF-Access-Client-Secret': process.env.CF_ACCESS_CLIENT_SECRET,
-};
+const base = (process.env.VEGASTACK_REGISTRY ?? DEFAULT_REGISTRY).replace(
+  /\/$/,
+  "",
+);
+const headers = serviceTokenHeaders();
+const workDir = mkdtempSync(join(tmpdir(), "vegastack-internal-verify-"));
+const manifestPath = join(workDir, "manifest.json");
+const signaturePath = join(workDir, "manifest.sigstore");
 
 if (hashOnly) {
-  const mRes = await fetch(`${base}/integrity-manifest.json`, { headers });
-  writeFileSync('/tmp/vega-manifest.json', await mRes.text());
-  console.warn('[hash-only] skipping Sigstore signature verification — provenance NOT proven');
+  const manifestText = await fetchRegistryText(
+    `${base}/integrity-manifest.json`,
+    headers,
+    "integrity manifest",
+  );
+  writeFileSync(manifestPath, manifestText, { mode: 0o600 });
+  console.warn(
+    "[hash-only] skipping Sigstore signature verification — provenance NOT proven",
+  );
 } else {
-  const [mRes, bRes] = await Promise.all([
-    fetch(`${base}/integrity-manifest.json`, { headers }),
-    fetch(`${base}/integrity-manifest.sigstore`, { headers }),
+  const [manifestText, signatureText] = await Promise.all([
+    fetchRegistryText(
+      `${base}/integrity-manifest.json`,
+      headers,
+      "integrity manifest",
+    ),
+    fetchRegistryText(
+      `${base}/integrity-manifest.sigstore`,
+      headers,
+      "signature bundle",
+    ),
   ]);
-  writeFileSync('/tmp/vega-manifest.json', await mRes.text());
-  writeFileSync('/tmp/vega-manifest.sigstore', await bRes.text());
+  writeFileSync(manifestPath, manifestText, { mode: 0o600 });
+  writeFileSync(signaturePath, signatureText, { mode: 0o600 });
 
   // throws (aborts) if the signature is invalid or not from our EXACT release identity.
   // Pin the precise signer (the deploy workflow at the trusted ref) + repo, NOT a repo-prefix
   // regexp — a broad prefix would accept a manifest signed by ANY workflow/ref in the repo that
   // can obtain GitHub OIDC, defeating the registry trust boundary. Override the ref (e.g. a tag)
   // via env for tagged releases.
-  const SIGNER_REPO = process.env.VEGASTACK_SIGNER_REPO ?? 'VegaStack/vegastack-design';
-  const SIGNER_REF = process.env.VEGASTACK_SIGNER_REF ?? 'refs/heads/main';
+  const SIGNER_REPO =
+    process.env.VEGASTACK_SIGNER_REPO ?? "vegastack/vegastack-design";
+  const SIGNER_REF = process.env.VEGASTACK_SIGNER_REF ?? "refs/heads/main";
   const SIGNER_IDENTITY = `https://github.com/${SIGNER_REPO}/.github/workflows/deploy.yml@${SIGNER_REF}`;
   execFileSync(
-    'cosign',
+    "cosign",
     [
-      'verify-blob',
-      '--bundle', '/tmp/vega-manifest.sigstore',
-      '--certificate-identity', SIGNER_IDENTITY,
-      '--certificate-oidc-issuer', 'https://token.actions.githubusercontent.com',
-      '--certificate-github-workflow-repository', SIGNER_REPO,
-      '--certificate-github-workflow-ref', SIGNER_REF,
-      '/tmp/vega-manifest.json',
+      "verify-blob",
+      "--bundle",
+      signaturePath,
+      "--certificate-identity",
+      SIGNER_IDENTITY,
+      "--certificate-oidc-issuer",
+      "https://token.actions.githubusercontent.com",
+      "--certificate-github-workflow-repository",
+      SIGNER_REPO,
+      "--certificate-github-workflow-ref",
+      SIGNER_REF,
+      manifestPath,
     ],
-    { stdio: 'inherit' },
+    { stdio: "inherit" },
   );
 }
 
-const manifest = JSON.parse(readFileSync('/tmp/vega-manifest.json', 'utf8'));
-const item = await fetch(`${base}/${name}.json`, { headers }).then((r) => r.json());
+const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+const item = JSON.parse(
+  await fetchRegistryText(
+    `${base}/${name}.json`,
+    headers,
+    `registry item ${name}`,
+  ),
+);
 const got = itemHash(item);
 if (got !== item.meta?.integrity || got !== manifest[name]) {
   console.error(`integrity mismatch for ${name}`);
   process.exit(1);
 }
-console.log(`verified ${name}${hashOnly ? ' (hash-only)' : ''}`);
+console.log(`verified ${name}${hashOnly ? " (hash-only)" : ""}`);

@@ -23,25 +23,48 @@
      clickables (a clickable table row, a label tied to a control) or non-pointer cursors
      (`cursor-text`, the select scroll-arrows) set a cursor of their own. */
   button,
-  [role='button'],
-  [role='tab'],
-  [role='switch'],
-  [role='checkbox'],
-  [role='radio'],
-  [role='menuitem'],
-  [role='menuitemcheckbox'],
-  [role='menuitemradio'],
-  [role='option'],
+  [role="button"],
+  [role="tab"],
+  [role="switch"],
+  [role="checkbox"],
+  [role="radio"],
+  [role="menuitem"],
+  [role="menuitemcheckbox"],
+  [role="menuitemradio"],
+  [role="option"],
   summary {
     cursor: pointer;
+    /* Keep touch controls responsive without disabling page pan/pinch zoom.
+       Text-entry fields and document links stay untouched. */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
   /* Disabled controls opt out (those that don't already set `pointer-events-none` /
      `cursor-not-allowed`). Higher specificity than the element/role selectors above, so it wins;
      a component's own `disabled:cursor-not-allowed` lives in the later utilities layer and still wins. */
   :disabled,
-  [aria-disabled='true'],
+  [aria-disabled="true"],
   [data-disabled] {
     cursor: default;
+  }
+}
+
+/* Preserve the focus contract when authored colors are replaced by a forced-colors palette. */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline-color: Highlight;
+  }
+
+  /* Composite text-entry surfaces (TextEdit) put their focus affordance on a WRAPPER via
+     `focus-within:border-ring/…` — a border TINT. The wrapper itself never matches
+     `:focus-visible` (the contenteditable inside it does), and forced-colors replaces
+     border-color outright, so in forced-colors mode that surface had NO visible focus indicator
+     at all. A real outline is the only affordance the forced palette preserves.
+     Simple fields (Input/Textarea/Select) need no equivalent: there the focused element IS the
+     control, so the `:focus-visible` rule above already covers them. */
+  [data-slot="text-edit"]:focus-within {
+    outline: 2px solid Highlight;
+    outline-offset: 1px;
   }
 }
 

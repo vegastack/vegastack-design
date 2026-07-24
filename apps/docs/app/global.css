@@ -1,20 +1,36 @@
-@import 'tailwindcss';
-@import 'fumadocs-ui/css/shadcn.css'; /* maps shadcn --background/--foreground onto --color-fd-* */
-@import 'fumadocs-ui/css/preset.css';
-@import '@fumadocs/story/css/preset.css'; /* Story explorer controls chrome */
-@import '@vegastack/design/theme.css'; /* our tokens (after preset so they remap fd vars) */
-@import '@vegastack/design/utilities.css'; /* shimmer / scroll-fade / scrollbar @utility helpers */
-@import 'tw-animate-css';
-@import 'fumadocs-twoslash/twoslash.css';
+@import "tailwindcss";
+@import "fumadocs-ui/css/shadcn.css"; /* maps shadcn --background/--foreground onto --color-fd-* */
+@import "fumadocs-ui/css/preset.css";
+@import "@fumadocs/story/css/preset.css"; /* Story explorer controls chrome */
+@import "@vegastack/design/theme.css"; /* our tokens (after preset so they remap fd vars) */
+@import "@vegastack/design/utilities.css"; /* shimmer / scroll-fade / scrollbar @utility helpers */
+@import "tw-animate-css";
+@import "fumadocs-twoslash/twoslash.css";
 
 /* Scan workspace package source (provider + icon classes live in node_modules at runtime;
    copied-in components in apps/docs are auto-scanned). Path is relative to THIS file. */
 @source '../../../packages/ui/src/**/*.{ts,tsx}';
-@source '../../../packages/icons/src/**/*.{ts,tsx}';
+/* `packages/icons` was folded into `packages/design` by the 2026-07 package
+   consolidation — the old path scanned nothing, so utility classes authored in
+   Icon/BrandIcon/AnimatedIcon were silently never generated. */
+@source '../../../packages/design/src/**/*.{ts,tsx}';
+
+/* Official VegaStack wordmark geometry, used as a mask so it follows the active docs theme. */
+.vegastack-wordmark-mask {
+  display: block;
+  width: 7.5rem;
+  aspect-ratio: 2500 / 435.96;
+  background-color: currentColor;
+  mask-image: url("/brand/vegastack-wordmark.svg");
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+}
 
 /* Bind the runtime font tokens to the next/font faces loaded in layout.tsx (one-file override). */
 :root {
-  --font-family-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-family-sans:
+    var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-family-mono: var(--font-geist-mono), ui-monospace, monospace;
   --font-family-serif: var(--font-newsreader), ui-serif, Georgia, serif;
 }
@@ -70,25 +86,42 @@ html {
   scrollbar-gutter: stable;
 }
 
+/* Scroll progress is written once on the sentence and distributed across its
+   words. The readable opacity floor is the named hint token; no decorative blur or
+   colour interpolation is involved. */
+.home-proof-word {
+  opacity: calc(
+    var(--opacity-hint) +
+      (
+        (100% - var(--opacity-hint)) *
+          clamp(
+            0,
+            (var(--home-proof-progress) - var(--home-proof-offset)) * 4,
+            1
+          )
+      )
+  );
+}
+
 /* Mirror of the pointer-cursor rule in `@vegastack/design-tokens/base.css` (the docs load `theme.css` but
    not the full `base.css`, the same reason `isolation: isolate` is mirrored in layout.tsx). Keep this
    in sync with base.css: pointer on every enabled interactive control; disabled controls opt out. */
 @layer base {
   button,
-  [role='button'],
-  [role='tab'],
-  [role='switch'],
-  [role='checkbox'],
-  [role='radio'],
-  [role='menuitem'],
-  [role='menuitemcheckbox'],
-  [role='menuitemradio'],
-  [role='option'],
+  [role="button"],
+  [role="tab"],
+  [role="switch"],
+  [role="checkbox"],
+  [role="radio"],
+  [role="menuitem"],
+  [role="menuitemcheckbox"],
+  [role="menuitemradio"],
+  [role="option"],
   summary {
     cursor: pointer;
   }
   :disabled,
-  [aria-disabled='true'],
+  [aria-disabled="true"],
   [data-disabled] {
     cursor: default;
   }
@@ -97,6 +130,38 @@ html {
      source of truth, re-skinnable from the `ring` token. */
   :focus-visible {
     @apply outline-2 outline-offset-1 outline-ring;
+  }
+}
+
+/* a11y: forced-colors focus (mirror of base.css — keep in sync). When the OS replaces authored
+   colors, any focus affordance expressed as a COLOUR change disappears: TextEdit, Input, Textarea
+   and Select signal focus with a border tint, and forced-colors overrides border-color, leaving no
+   visible indicator at all. `Highlight` is a system colour the forced palette preserves.
+   Without this the docs site fails the contract suite's forced-colors focus assertion — consumers
+   already get it because they import the real `base.css`. */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline-color: Highlight;
+  }
+  /* TextEdit signals focus on a WRAPPER via border tint; that wrapper never matches
+     `:focus-visible` and forced-colors replaces border-color, so it needs a real outline. */
+  [data-slot="text-edit"]:focus-within {
+    outline: 2px solid Highlight;
+    outline-offset: 1px;
+  }
+}
+
+/* a11y: reduced-motion reset (mirror of base.css — keep in sync). The sanctioned `!important`
+   exception, and the ONE the design-lint token-css pass exempts. The `motion-*` utilities depend on
+   this reset existing; without it the published docs animate for users who asked the OS not to. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

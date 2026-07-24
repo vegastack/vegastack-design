@@ -1,5 +1,5 @@
-import { defineStory } from '@/lib/story';
-import { Avatar } from '@/components/ui/avatar';
+import { defineStory } from "@/lib/story";
+import { Avatar } from "@/components/ui/avatar";
 
 /**
  * Story explorer for `Avatar` — controls auto-generated from `AvatarProps` by the Story
@@ -9,17 +9,17 @@ export const story = defineStory({
   Component: Avatar,
   args: [
     {
-      variant: 'Initials',
+      variant: "Initials",
       initial: {
-        fallback: 'AL',
+        fallback: "AL",
       },
     },
     {
-      variant: 'With image',
+      variant: "With image",
       initial: {
-        src: '/preview/landscape.svg',
-        alt: 'Ada Lovelace',
-        fallback: 'AL',
+        src: "/preview/landscape.svg",
+        alt: "Ada Lovelace",
+        fallback: "AL",
       },
     },
   ],

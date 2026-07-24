@@ -1,6 +1,7 @@
 ---
 title: Color Picker
 description: A swatch-triggered popover that presents a grid of preset colors — pick one, fire onValueChange, mark the selection with a check.
+audience: public
 preview: colorPicker
 ---
 
@@ -26,7 +27,9 @@ function Example() {
 
 `ColorPicker` is controlled — pass `value` (matched against each option's `name`) and `onValueChange` (called with the picked color's `name`). The trigger is a `rounded-md` outline control with a `rounded-sm` fill chip showing the current selection; opening it reveals the palette. Only the in-grid preset swatches are `rounded-full`.
 
-## Palette
+## Examples
+
+### Palette
 
 The colors are **data backed by semantic tokens**. The default palette exposes stable hue names
 (`green`, `blue`, `rose`, …), and each swatch uses VegaStack semantic CSS variables — info,
@@ -70,22 +73,22 @@ When you omit `colors`, the picker renders the exported `DEFAULT_COLORS` palette
 each mapped to a VegaStack semantic token (status, neutral, or chart series) so the registry
 component never ships raw Tailwind palette variables:
 
-| `name`   | `label` | `color` token            |
-| -------- | ------- | ------------------------ |
-| `gray`   | Gray    | `var(--color-primary)`   |
+| `name`   | `label` | `color` token              |
+| -------- | ------- | -------------------------- |
+| `gray`   | Gray    | `var(--color-primary)`     |
 | `red`    | Red     | `var(--color-destructive)` |
-| `orange` | Orange  | `var(--color-chart-4)`   |
-| `amber`  | Amber   | `var(--color-warning)`   |
-| `yellow` | Yellow  | `var(--color-chart-7)`   |
-| `green`  | Green   | `var(--color-success)`   |
-| `teal`   | Teal    | `var(--color-chart-2)`   |
-| `sky`    | Sky     | `var(--color-info)`      |
-| `blue`   | Blue    | `var(--color-chart-8)`   |
-| `indigo` | Indigo  | `var(--color-chart-3)`   |
-| `pink`   | Pink    | `var(--color-chart-5)`   |
-| `rose`   | Rose    | `var(--color-chart-6)`   |
+| `orange` | Orange  | `var(--color-chart-4)`     |
+| `amber`  | Amber   | `var(--color-warning)`     |
+| `yellow` | Yellow  | `var(--color-chart-7)`     |
+| `green`  | Green   | `var(--color-success)`     |
+| `teal`   | Teal    | `var(--color-chart-2)`     |
+| `sky`    | Sky     | `var(--color-info)`        |
+| `blue`   | Blue    | `var(--color-chart-8)`     |
+| `indigo` | Indigo  | `var(--color-chart-3)`     |
+| `pink`   | Pink    | `var(--color-chart-5)`     |
+| `rose`   | Rose    | `var(--color-chart-6)`     |
 
-## Examples
+### Controlled selection
 
 ### States
 
@@ -143,7 +146,7 @@ The shape of each entry in a `colors` palette.
   badge (`bg-background text-foreground`) so the check stays legible on light or custom swatches.
 - The picker opens on trigger click; focus moves into the grid and is restored to the trigger on close.
 - Dismiss is built in — clicking outside the panel or pressing <kbd>Esc</kbd> closes it.
-- Every control keeps the global 2px `:focus-visible` ring (`outline-ring`); the `outline`-variant trigger additionally re-colors its border with the `ring` token (`focus-visible:border-ring/70`), and the `ghost` swatch buttons rely on that global ring — never `outline: none`.
+- Every control keeps the global 2px `:focus-visible` ring (`outline-ring`); the `outline`-variant trigger additionally re-colors its border with the `ring` token (`focus-visible:border-ring/(--alpha-tint-border)`), and the `ghost` swatch buttons rely on that global ring — never `outline: none`.
 
 | Key                                                | Action                                                          |
 | -------------------------------------------------- | --------------------------------------------------------------- |

@@ -13,12 +13,12 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P2 | `SidebarSeparator` hand-rolls `<hr>` at `sidebar.tsx:378` instead of using the design-system `Separator` at `separator.tsx:34`. | Separator behavior/styling can drift. | Add registry dependency on `@vegastack/separator` or document exception. |
-| P2 | Sidebar docs API tables cover only a subset while source exports many public prop interfaces starting at `sidebar.tsx:42`. | API section is not complete. | Add tables or generated API coverage for all public parts. |
-| P3 | Global Cmd/Ctrl+B listener is always installed at `sidebar.tsx:84`. | Shortcut conflicts in embedded contexts. | Add `keyboardShortcut?: boolean | string` and tests. |
-| P3 | Group label is visual `div` at `sidebar.tsx:232`. | Screen-reader users may not get grouped navigation context. | Consider heading semantics or `aria-labelledby`. |
+| Priority | Evidence                                                                                                                        | Impact                                                      | Suggested fix                                                            |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------ |
+| P2       | `SidebarSeparator` hand-rolls `<hr>` at `sidebar.tsx:378` instead of using the design-system `Separator` at `separator.tsx:34`. | Separator behavior/styling can drift.                       | Add registry dependency on `@vegastack/separator` or document exception. |
+| P2       | Sidebar docs API tables cover only a subset while source exports many public prop interfaces starting at `sidebar.tsx:42`.      | API section is not complete.                                | Add tables or generated API coverage for all public parts.               |
+| P3       | Global Cmd/Ctrl+B listener is always installed at `sidebar.tsx:84`.                                                             | Shortcut conflicts in embedded contexts.                    | Add `keyboardShortcut?: boolean                                          | string` and tests. |
+| P3       | Group label is visual `div` at `sidebar.tsx:232`.                                                                               | Screen-reader users may not get grouped navigation context. | Consider heading semantics or `aria-labelledby`.                         |
 
 ## Residual Risks
 
@@ -27,4 +27,3 @@ The component intentionally does not mirror full upstream shadcn Sidebar; docume
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- sidebar.test.tsx`
-

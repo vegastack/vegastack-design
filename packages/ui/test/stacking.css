@@ -2,8 +2,8 @@
    The stacking contract IS CSS behavior (z-index bands + fixed positioning + DOM order), so this
    suite runs with Tailwind + the real @vegastack token theme compiled — the CSS-less unit suites
    can't see z/position utilities at all. Mirrors test/contrast.css. */
-@import 'tailwindcss';
-@import '@vegastack/design-tokens/theme.css';
+@import "tailwindcss";
+@import "@vegastack/design-tokens/theme.css";
 
 @source '../registry/ui/**/*.tsx';
 @source './stacking.browser.test.tsx';

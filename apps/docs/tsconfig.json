@@ -21,7 +21,13 @@
     },
     "plugins": [{ "name": "next" }]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", ".next/dev/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
   "comment:exclude": "playwright.config.ts + vrt/** are the deferred VRT scaffold (TODO(VRT)); their @playwright/test dep is installed only in the pinned Playwright Docker image, so they are excluded from the Next/local typecheck and run separately in CI.",
   "exclude": ["node_modules", "playwright.config.ts", "vrt"]
 }

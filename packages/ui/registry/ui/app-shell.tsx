@@ -1,17 +1,18 @@
-// @vegastack app-shell@0.2.0 sha256-FSGkMjSwivqog5vIg+OYmwY+pdkNMCpa2ib68f4sdqc=
+// @vegastack app-shell@0.2.0 sha256-A90AM4W/PQSFPNZAOwrKtvRh69wKYRVuMbkpQJvuVW0=
 
-import * as React from 'react';
-import { cn } from '@vegastack/design';
+import * as React from "react";
+import { cn } from "@vegastack/design";
 import {
   Sidebar,
   SidebarMenuSkeleton,
   SidebarProvider,
   SidebarTrigger,
   type SidebarProps,
-} from '@/components/ui/sidebar';
-import { Skeleton } from '@/components/ui/skeleton';
+} from "@/components/ui/sidebar";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export interface AppShellProps extends React.ComponentProps<'div'> {
+/** Props accepted by `AppShell`. */
+export interface AppShellProps extends React.ComponentProps<"div"> {
   /**
    * Initial sidebar open state when uncontrolled — forwarded to `SidebarProvider`.
    * @default true
@@ -19,9 +20,13 @@ export interface AppShellProps extends React.ComponentProps<'div'> {
   defaultOpen?: boolean;
   /**
    * Controlled sidebar open state — forwarded to `SidebarProvider`. Pair with `onOpenChange`.
+
+   * @default undefined
    */
   open?: boolean;
-  /** Called whenever the sidebar's open state changes — forwarded to `SidebarProvider`. */
+  /** Called whenever the sidebar's open state changes — forwarded to `SidebarProvider`.
+   * @default undefined
+   */
   onOpenChange?: (open: boolean) => void;
   /**
    * Viewport width (px) below which the sidebar switches into the mobile Sheet — forwarded to
@@ -90,7 +95,7 @@ export function AppShell({
   onOpenChange,
   mobileBreakpoint,
   keyboardShortcut,
-  skipLinkLabel = 'Skip to content',
+  skipLinkLabel = "Skip to content",
   className,
   children,
   ...props
@@ -109,7 +114,7 @@ export function AppShell({
       <a
         href="#main-content"
         data-slot="app-shell-skip-link"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-(--z-overlay) focus:rounded-md focus:border focus:border-border focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-foreground focus:shadow-overlay focus-visible:outline-ring"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:start-2 focus:z-(--z-overlay) focus:rounded-md focus:border focus:border-border focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-foreground focus:shadow-overlay focus-visible:outline-ring"
       >
         {skipLinkLabel}
       </a>
@@ -118,6 +123,7 @@ export function AppShell({
   );
 }
 
+/** Props accepted by `AppShellSidebar`. */
 export interface AppShellSidebarProps extends SidebarProps {}
 
 /**
@@ -137,16 +143,21 @@ export interface AppShellSidebarProps extends SidebarProps {}
  * </AppShellSidebar>
  */
 export function AppShellSidebar({
-  'aria-label': ariaLabel = 'Main navigation',
+  "aria-label": ariaLabel = "Main navigation",
   ...props
 }: AppShellSidebarProps) {
-  return <Sidebar aria-label={ariaLabel} data-slot="app-shell-sidebar" {...props} />;
+  return (
+    <Sidebar aria-label={ariaLabel} data-slot="app-shell-sidebar" {...props} />
+  );
 }
 
-export interface AppShellHeaderProps extends React.ComponentProps<'header'> {
+/** Props accepted by `AppShellHeader`. */
+export interface AppShellHeaderProps extends React.ComponentProps<"header"> {
   /**
    * Right-aligned, `shrink-0` end slot — page-level actions (typically one or more `Button`s or
    * a menu trigger). Omit to hide the slot entirely.
+
+   * @default undefined
    */
   actions?: React.ReactNode;
 }
@@ -170,22 +181,33 @@ export interface AppShellHeaderProps extends React.ComponentProps<'header'> {
  *   </Breadcrumb>
  * </AppShellHeader>
  */
-export function AppShellHeader({ className, actions, children, ...props }: AppShellHeaderProps) {
+export function AppShellHeader({
+  className,
+  actions,
+  children,
+  ...props
+}: AppShellHeaderProps) {
   return (
     <header
       data-slot="app-shell-header"
       className={cn(
-        'flex h-14 shrink-0 items-center gap-2 border-b border-border bg-background px-4',
+        "flex h-14 shrink-0 items-center gap-2 border-b border-border bg-background px-4",
         className,
       )}
       {...props}
     >
       <SidebarTrigger />
-      <div data-slot="app-shell-header-middle" className="flex min-w-0 flex-1 items-center gap-2">
+      <div
+        data-slot="app-shell-header-middle"
+        className="flex min-w-0 flex-1 items-center gap-2"
+      >
         {children}
       </div>
       {actions ? (
-        <div data-slot="app-shell-header-actions" className="flex shrink-0 items-center gap-2">
+        <div
+          data-slot="app-shell-header-actions"
+          className="flex shrink-0 items-center gap-2"
+        >
           {actions}
         </div>
       ) : null}
@@ -193,14 +215,15 @@ export function AppShellHeader({ className, actions, children, ...props }: AppSh
   );
 }
 
-export interface AppShellContentProps extends React.ComponentProps<'main'> {
+/** Props accepted by `AppShellContent`. */
+export interface AppShellContentProps extends React.ComponentProps<"main"> {
   /**
    * Panel treatment mirroring the sibling `Sidebar`/`AppShellSidebar`'s `variant` — pass the SAME
    * value on both so the shell reads as one consistent layout. Applied directly as a prop here
    * (not shadcn's `SidebarInset` + CSS `peer` selector) — see the component doc for why.
    * @default 'sidebar'
    */
-  variant?: 'sidebar' | 'floating' | 'inset';
+  variant?: "sidebar" | "floating" | "inset";
 }
 
 /**
@@ -244,7 +267,11 @@ export interface AppShellContentProps extends React.ComponentProps<'main'> {
  *   </div>
  * </AppShellContent>
  */
-export function AppShellContent({ className, variant = 'sidebar', ...props }: AppShellContentProps) {
+export function AppShellContent({
+  className,
+  variant = "sidebar",
+  ...props
+}: AppShellContentProps) {
   return (
     <main
       id="main-content"
@@ -252,9 +279,9 @@ export function AppShellContent({ className, variant = 'sidebar', ...props }: Ap
       data-slot="app-shell-content"
       data-variant={variant}
       className={cn(
-        '@container/app-shell-content relative flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto bg-background',
-        variant === 'inset' &&
-          'md:m-2 md:ml-0 md:rounded-lg md:border md:border-border md:shadow-overlay',
+        "@container/app-shell-content relative flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto bg-background",
+        variant === "inset" &&
+          "md:m-2 md:ms-0 md:rounded-lg md:border md:border-border md:shadow-overlay",
         className,
       )}
       {...props}
@@ -262,7 +289,8 @@ export function AppShellContent({ className, variant = 'sidebar', ...props }: Ap
   );
 }
 
-export interface AppShellSkeletonProps extends React.ComponentProps<'div'> {
+/** Props accepted by `AppShellSkeleton`. */
+export interface AppShellSkeletonProps extends React.ComponentProps<"div"> {
   /**
    * Number of nav-row placeholders (`SidebarMenuSkeleton`) in the sidebar column.
    * @default 5
@@ -308,13 +336,13 @@ export function AppShellSkeleton({
       role="presentation"
       aria-hidden="true"
       aria-busy="true"
-      className={cn('flex min-h-svh w-full', className)}
+      className={cn("flex min-h-svh w-full", className)}
       {...props}
     >
       {/* hidden md:flex mirrors the real shell: below the mobile breakpoint (SidebarProvider's
           default 768px = Tailwind `md`) the rail collapses into an off-screen Sheet, so the
           skeleton must not paint a sidebar column the loaded shell won't have. */}
-      <div className="hidden h-svh w-(--sidebar-width) shrink-0 flex-col gap-2 border-r border-border bg-sidebar p-2 md:flex">
+      <div className="hidden h-svh w-(--sidebar-width) shrink-0 flex-col gap-2 border-e border-border bg-sidebar p-2 md:flex">
         <div className="flex items-center gap-2 p-2">
           <Skeleton shape="circle" className="size-(--icon-default)" />
           <Skeleton className="h-4 w-24" />

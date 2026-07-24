@@ -1,18 +1,21 @@
-// @vegastack separator@0.2.0 sha256-i+7BboV+yhYT21RhZpzHY3DYBxorZGniCsN/UcEVUCA=
+// @vegastack separator@0.2.0 sha256-GnPBWB+3bLcwQmdr1eOt+RwpFfXJnOIw6MpD0hHqCr0=
 
-'use client';
+"use client";
 
-import * as React from 'react';
-import { Separator as BaseSeparator } from '@base-ui/react/separator';
-import { cn } from '@vegastack/design';
+import * as React from "react";
+import { Separator as BaseSeparator } from "@base-ui/react/separator";
+import { cn } from "@vegastack/design";
 
-export interface SeparatorProps extends React.ComponentProps<typeof BaseSeparator> {
+/** Props accepted by `Separator`. */
+export interface SeparatorProps extends React.ComponentProps<
+  typeof BaseSeparator
+> {
   /**
    * Axis the separator divides along. `horizontal` renders a 1px-tall full-width
    * rule; `vertical` renders a 1px-wide full-height rule.
    * @default 'horizontal'
    */
-  orientation?: 'horizontal' | 'vertical';
+  orientation?: "horizontal" | "vertical";
   /**
    * Whether the separator is purely visual. When `true` (the default) it is
    * hidden from assistive tech (`role="presentation"`, `aria-hidden`) since the
@@ -30,10 +33,13 @@ export interface SeparatorProps extends React.ComponentProps<typeof BaseSeparato
  * `orientation="vertical"` inside a flex row (the parent must give it height).
  * Decorative by default — set `decorative={false}` to expose it to assistive
  * technology as a `separator`.
+ *
+ * @example
+ * <Separator decorative={false} />
  */
 export function Separator({
   className,
-  orientation = 'horizontal',
+  orientation = "horizontal",
   decorative = true,
   ...props
 }: SeparatorProps) {
@@ -41,7 +47,11 @@ export function Separator({
   // decorative rule we override the semantics so assistive tech skips it; for a
   // semantic one we let Base UI manage the ARIA so we don't fight it.
   const decorativeProps = decorative
-    ? ({ role: 'presentation', 'aria-hidden': true, 'aria-orientation': undefined } as const)
+    ? ({
+        role: "presentation",
+        "aria-hidden": true,
+        "aria-orientation": undefined,
+      } as const)
     : {};
 
   return (
@@ -50,7 +60,7 @@ export function Separator({
       orientation={orientation}
       {...decorativeProps}
       className={cn(
-        'shrink-0 bg-border data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px',
+        "shrink-0 bg-border data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px",
         className,
       )}
       {...props}

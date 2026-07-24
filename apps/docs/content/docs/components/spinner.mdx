@@ -1,10 +1,11 @@
 ---
 title: Spinner
 description: An indeterminate loading indicator — a spinning icon that inherits currentColor, in four sizes, accessible by default.
+audience: public
 preview: spinner
 ---
 
-import { story } from '@/components/stories/spinner.story';
+import { story } from "@/components/stories/spinner.story";
 
 ## Installation
 
@@ -17,7 +18,7 @@ npx shadcn@latest add @vegastack/spinner
 ## Usage
 
 ```tsx
-import { Spinner } from '@/components/ui/spinner';
+import { Spinner } from "@/components/ui/spinner";
 
 <Spinner />;
 ```
@@ -27,23 +28,25 @@ The spinner inherits `currentColor`, so set its color via the surrounding text c
 ```tsx
 <span className="text-muted-foreground">
   <Spinner />
-</span>;
+</span>
 ```
 
-## Playground
+## Examples
+
+### Playground
 
 Step through the four sizes, then copy the generated JSX.
 
 <SpinnerPlayground />
 
-## Explorer
+### Explorer
 
 Every `Spinner` prop, auto-generated from its TypeScript types — the exhaustive counterpart to the
 curated playground above.
 
 <story.WithControl />
 
-## With a label
+### With a label
 
 The recommended pattern: pair the spinner with visible loading text. The text labels the
 loading region, so the spinner itself is marked decorative (`label=""`) to avoid a double
@@ -53,12 +56,15 @@ announcement to assistive tech.
 <span className="flex items-center gap-2 text-muted-foreground">
   <Spinner size="sm" label="" />
   Saving changes…
-</span>;
+</span>
 ```
 
-<ComponentPreview name="spinnerLabelled" file="components/preview/spinner.tsx" />
+<ComponentPreview
+  name="spinnerLabelled"
+  file="components/preview/spinner.tsx"
+/>
 
-## Color
+### Color
 
 The spinner has no hardcoded color — it draws in `currentColor` and defaults to
 `text-muted-foreground`. Recolor it by setting the text color on any ancestor (or via a
@@ -77,7 +83,7 @@ The spinner has no hardcoded color — it draws in `currentColor` and defaults t
 
 <ComponentPreview name="spinnerColors" file="components/preview/spinner.tsx" />
 
-## Sizes
+### Sizes
 
 `xs`, `sm`, `default`, and `lg` — mapped to the `size-*` token scale.
 
@@ -85,7 +91,10 @@ The spinner has no hardcoded color — it draws in `currentColor` and defaults t
 
 ## API Reference
 
-<AutoTypeTable path="../../packages/ui/registry/ui/spinner.tsx" name="SpinnerProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/spinner.tsx"
+  name="SpinnerProps"
+/>
 
 ## Accessibility
 
@@ -99,11 +108,11 @@ The spinner has no hardcoded color — it draws in `currentColor` and defaults t
 - Color is conveyed through `currentColor` only — never rely on the spinner alone to communicate
   meaning; pair it with text where the state matters.
 
-| Concern        | Behavior                                                        |
-| -------------- | --------------------------------------------------------------- |
-| Role           | `role="status"` (live region) unless `label=""` (decorative)    |
-| Accessible name| `aria-label` from the `label` prop (default `"Loading"`)        |
-| Reduced motion | Animation removed under `prefers-reduced-motion: reduce`        |
+| Concern         | Behavior                                                     |
+| --------------- | ------------------------------------------------------------ |
+| Role            | `role="status"` (live region) unless `label=""` (decorative) |
+| Accessible name | `aria-label` from the `label` prop (default `"Loading"`)     |
+| Reduced motion  | Animation removed under `prefers-reduced-motion: reduce`     |
 
 ## Do / Don't
 

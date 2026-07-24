@@ -1,10 +1,11 @@
-// @vegastack popover@0.2.0 sha256-kIqDO/cOced+LLaT0NySLsa02Gld6ZYg/Uomb41rxg0=
+// @vegastack popover@0.2.0 sha256-5Zfu0OZnybaVpHCyxU4TCToOOx3hS+5ORc/vlLOQa0o=
 
 "use client";
 
 import * as React from "react";
 import { Popover as BasePopover } from "@base-ui/react/popover";
 import { cn, FLOATING } from "@vegastack/design";
+import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 
 function mergeStateClassName<State>(
   className: string,
@@ -47,10 +48,16 @@ function mergeStateClassName<State>(
  */
 export type PopoverProps = React.ComponentProps<typeof BasePopover.Root>;
 
+/** `Popover` root; controls anchored-panel open state and modality.
+ *
+ * @example
+ * <Popover />
+ */
 export function Popover({ modal = true, ...props }: PopoverProps) {
   return <BasePopover.Root modal={modal} {...props} />;
 }
 
+/** Props accepted by `PopoverTrigger`. */
 export type PopoverTriggerProps = React.ComponentProps<
   typeof BasePopover.Trigger
 >;
@@ -59,6 +66,10 @@ export type PopoverTriggerProps = React.ComponentProps<
  * `PopoverTrigger` — the control that opens the popover on click. Renders a
  * `<button>`; pass `render` to compose it with a `Button` or any other action
  * element.
+
+ *
+ * @example
+ * <PopoverTrigger />
  */
 export function PopoverTrigger({ className, ...props }: PopoverTriggerProps) {
   return (
@@ -70,6 +81,7 @@ export function PopoverTrigger({ className, ...props }: PopoverTriggerProps) {
   );
 }
 
+/** Props accepted by `PopoverContent`. */
 export interface PopoverContentProps extends React.ComponentProps<
   typeof BasePopover.Popup
 > {
@@ -97,17 +109,23 @@ export interface PopoverContentProps extends React.ComponentProps<
   collisionPadding?: React.ComponentProps<
     typeof BasePopover.Positioner
   >["collisionPadding"];
-  /** Props forwarded to the underlying Base UI `Portal`. */
+  /** Props forwarded to the underlying Base UI `Portal`.
+   * @default undefined
+   */
   portalProps?: Omit<
     React.ComponentProps<typeof BasePopover.Portal>,
     "children"
   >;
-  /** Props forwarded to the underlying Base UI `Positioner`. */
+  /** Props forwarded to the underlying Base UI `Positioner`.
+   * @default undefined
+   */
   positionerProps?: Omit<
     React.ComponentProps<typeof BasePopover.Positioner>,
     "side" | "sideOffset" | "align" | "collisionPadding" | "children"
   >;
-  /** Props forwarded to an optional Base UI `Viewport` that wraps popup children. */
+  /** Props forwarded to an optional Base UI `Viewport` that wraps popup children.
+   * @default undefined
+   */
   viewportProps?: Omit<
     React.ComponentProps<typeof BasePopover.Viewport>,
     "children"
@@ -126,6 +144,10 @@ export interface PopoverContentProps extends React.ComponentProps<
  * bordered `rounded-lg` surface with `p-4` padding, and animated in/out via
  * `data-[starting-style]` / `data-[ending-style]`. Place arbitrary content inside — text, forms,
  * menus, etc.
+
+ *
+ * @example
+ * <PopoverContent />
  */
 export function PopoverContent({
   className,
@@ -140,8 +162,11 @@ export function PopoverContent({
   arrow = false,
   ...props
 }: PopoverContentProps) {
+  const themeScope = useInternalThemeScope();
   const { className: positionerClassName, ...positionerPropsRest } =
     positionerProps ?? {};
+  const { className: viewportClassName, ...viewportPropsRest } =
+    viewportProps ?? {};
 
   return (
     <BasePopover.Portal {...portalProps}>
@@ -153,13 +178,14 @@ export function PopoverContent({
         align={align}
         collisionPadding={collisionPadding}
         className={mergeStateClassName<BasePopover.Positioner.State>(
-          "z-(--z-overlay)",
+          cn(themeScope, "z-(--z-overlay)"),
           positionerClassName,
         )}
       >
         <BasePopover.Popup
           data-slot="popover-content"
           className={cn(
+            themeScope,
             // The native outline is deliberately NOT stripped: the popup itself can receive
             // keyboard focus (initial focus / focus wrap), so the centralized base.css
             // `:focus-visible` outline stays as the indicator (WCAG 2.4.7, register P0-02).
@@ -175,8 +201,12 @@ export function PopoverContent({
           {arrow ? <PopoverArrow /> : null}
           {viewportProps ? (
             <BasePopover.Viewport
-              {...viewportProps}
+              {...viewportPropsRest}
               data-slot="popover-viewport"
+              className={mergeStateClassName<BasePopover.Viewport.State>(
+                themeScope ?? "",
+                viewportClassName,
+              )}
             >
               {children}
             </BasePopover.Viewport>
@@ -189,11 +219,16 @@ export function PopoverContent({
   );
 }
 
+/** Props accepted by `PopoverClose`. */
 export type PopoverCloseProps = React.ComponentProps<typeof BasePopover.Close>;
 
 /**
  * `PopoverClose` — closes the popover. Renders a `<button>`; pass `render` to compose it with a
  * `Button` (e.g. a "Done" or "Cancel" action inside the panel).
+
+ *
+ * @example
+ * <PopoverClose />
  */
 export function PopoverClose({ className, ...props }: PopoverCloseProps) {
   return (
@@ -205,11 +240,16 @@ export function PopoverClose({ className, ...props }: PopoverCloseProps) {
   );
 }
 
+/** Props accepted by `PopoverArrow`. */
 export type PopoverArrowProps = React.ComponentProps<typeof BasePopover.Arrow>;
 
 /**
  * `PopoverArrow` — a small triangle anchored to the trigger. Rendered automatically when
  * `PopoverContent` receives `arrow`, or compose it directly. Wraps Base UI's `Popover.Arrow`.
+
+ *
+ * @example
+ * <PopoverArrow />
  */
 export function PopoverArrow({ className, ...props }: PopoverArrowProps) {
   return (
@@ -226,25 +266,28 @@ export function PopoverArrow({ className, ...props }: PopoverArrowProps) {
   );
 }
 
+/** Props accepted by `PopoverTitle`. */
 export type PopoverTitleProps = React.ComponentProps<typeof BasePopover.Title>;
 
 /**
  * `PopoverTitle` — the popover's accessible name. Renders an `<h2>`; Base UI wires it to the popup
  * via `aria-labelledby`. Include one whenever the panel needs a heading.
+
+ *
+ * @example
+ * <PopoverTitle />
  */
 export function PopoverTitle({ className, ...props }: PopoverTitleProps) {
   return (
     <BasePopover.Title
       data-slot="popover-title"
-      className={cn(
-        "text-label text-foreground",
-        className,
-      )}
+      className={cn("text-label text-foreground", className)}
       {...props}
     />
   );
 }
 
+/** Props accepted by `PopoverDescription`. */
 export type PopoverDescriptionProps = React.ComponentProps<
   typeof BasePopover.Description
 >;
@@ -252,6 +295,10 @@ export type PopoverDescriptionProps = React.ComponentProps<
 /**
  * `PopoverDescription` — supporting text under the title. Renders a `<p>`; Base UI wires it to the
  * popup via `aria-describedby`.
+
+ *
+ * @example
+ * <PopoverDescription />
  */
 export function PopoverDescription({
   className,
@@ -260,7 +307,10 @@ export function PopoverDescription({
   return (
     <BasePopover.Description
       data-slot="popover-description"
-      className={cn("text-base leading-relaxed text-muted-foreground", className)}
+      className={cn(
+        "text-base leading-relaxed text-muted-foreground",
+        className,
+      )}
       {...props}
     />
   );

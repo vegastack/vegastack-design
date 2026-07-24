@@ -1,4 +1,4 @@
-// @vegastack emoji-picker@0.2.0 sha256-FFzp00S6WZ0TWffd/TajE3GQPjFyi+TvU7lDQRqpkL0=
+// @vegastack emoji-picker@0.2.0 sha256-G7472zmWKtwwIUbpQPqPAnx3slT8yA/SDpVtXX0Y6ik=
 
 "use client";
 
@@ -424,6 +424,7 @@ function matchesQuery(entry: EmojiEntry, query: string): boolean {
   );
 }
 
+/** Props accepted by `EmojiPicker`. */
 export interface EmojiPickerProps {
   /**
    * Called with the selected emoji character when the user picks one. The popover closes after
@@ -433,6 +434,8 @@ export interface EmojiPickerProps {
   /**
    * Custom button-like trigger element (composed via Base UI `render`). Defaults to a ghost
    * `SmilePlus` icon button.
+
+   * @default undefined
    */
   trigger?: React.ReactElement<React.ComponentPropsWithoutRef<"button">>;
   /**
@@ -447,10 +450,14 @@ export interface EmojiPickerProps {
   searchPlaceholder?: string;
   /**
    * Controlled open state of the popover. Omit for uncontrolled usage.
+
+   * @default undefined
    */
   open?: boolean;
   /**
    * Called when the popover's open state changes (controlled or uncontrolled).
+
+   * @default undefined
    */
   onOpenChange?: (open: boolean) => void;
   /**
@@ -468,11 +475,15 @@ export interface EmojiPickerProps {
    * @default "start"
    */
   align?: React.ComponentProps<typeof PopoverContent>["align"];
-  /** Extra classes for the popover panel. */
+  /** Extra classes for the popover panel.
+   * @default undefined
+   */
   className?: string;
   /**
    * Ref forwarded to the trigger button — the component's focusable root (the popover panel is
    * portaled, so the trigger is the stable host element to focus/measure).
+
+   * @default undefined
    */
   ref?: React.Ref<HTMLButtonElement>;
 }
@@ -562,7 +573,7 @@ export function EmojiPicker({
     [filtered],
   );
   const [activeIndex, setActiveIndex] = React.useState(0);
-  const itemRefs = React.useRef<(HTMLButtonElement | null)[]>([]);
+  const itemRefs = React.useRef<(HTMLElement | null)[]>([]);
 
   // Re-clamp the active index whenever the visible set changes (search narrows/widens it, or the
   // popover reopens) so it never points past the end of the list.
@@ -640,7 +651,10 @@ export function EmojiPicker({
         side={side}
         align={align}
         sideOffset={FLOATING.sideOffsetAttached}
-        className={cn("w-72 max-w-[calc(100vw-var(--spacing)*8)] p-0", className)}
+        className={cn(
+          "w-72 max-w-[calc(100vw-var(--spacing)*8)] p-0",
+          className,
+        )}
       >
         <div className="flex flex-col">
           {/* Search */}
@@ -693,12 +707,14 @@ export function EmojiPicker({
                         const index = flatIndex;
                         const isActive = index === activeIndex;
                         return (
-                          <button
+                          <Button
                             key={entry.char}
                             ref={(node) => {
                               itemRefs.current[index] = node;
                             }}
                             type="button"
+                            variant="ghost"
+                            size="icon"
                             data-slot="emoji-picker-item"
                             aria-label={entry.name}
                             title={entry.name}
@@ -709,13 +725,10 @@ export function EmojiPicker({
                               handleSelect(entry.char);
                             }}
                             onFocus={() => setActiveIndex(index)}
-                            className={cn(
-                              "flex size-(--size-md) items-center justify-center rounded-md text-xl leading-none transition-colors duration-fast ease-standard",
-                              "hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent",
-                            )}
+                            className="text-xl leading-none"
                           >
                             <span aria-hidden>{entry.char}</span>
-                          </button>
+                          </Button>
                         );
                       })}
                     </div>

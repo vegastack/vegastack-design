@@ -16,15 +16,15 @@ modified.**
 
 **Present (verified by full read):**
 
-| Capability | Evidence |
-|---|---|
-| `SidebarProvider` owns expanded/collapsed state, controlled (`open`/`onOpenChange`) or uncontrolled (`defaultOpen`) | `sidebar.tsx:68-130` |
-| CSS-var-driven widths — `--sidebar-width` (15rem), `--sidebar-width-icon` (3rem) | `sidebar.tsx:13-15,116-122` — routes through a var + arbitrary-value class, matching the inline-style contract (`docs/requirements.md:214`) |
-| Keyboard shortcut, Cmd/Ctrl+B, customizable key or disable | `sidebar.tsx:92-103` (`keyboardShortcut` prop) |
-| `Sidebar` is a `<nav>` landmark, exposes `data-state`/`data-collapsible`/`data-side` | `sidebar.tsx:148-167` |
-| Compound parts: `SidebarHeader`, `SidebarContent`, `SidebarFooter`, `SidebarGroup`, `SidebarGroupLabel`, `SidebarMenu`, `SidebarMenuItem`, `SidebarMenuButton`, `SidebarMenuBadge`, `SidebarSeparator`, `SidebarTrigger` | `sidebar.tsx:175-430` |
-| `SidebarMenuButton` supports Base UI `render` composition (for router `<a>`) and `isActive` → `aria-current="page"` | `sidebar.tsx:338-359` |
-| Label truncation on collapse is CSS-only (`[&>span:last-child]:truncate`) and the label is hidden entirely (not just clipped) when collapsed | `sidebar.tsx:301` |
+| Capability                                                                                                                                                                                                               | Evidence                                                                                                                                    |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SidebarProvider` owns expanded/collapsed state, controlled (`open`/`onOpenChange`) or uncontrolled (`defaultOpen`)                                                                                                      | `sidebar.tsx:68-130`                                                                                                                        |
+| CSS-var-driven widths — `--sidebar-width` (15rem), `--sidebar-width-icon` (3rem)                                                                                                                                         | `sidebar.tsx:13-15,116-122` — routes through a var + arbitrary-value class, matching the inline-style contract (`docs/requirements.md:214`) |
+| Keyboard shortcut, Cmd/Ctrl+B, customizable key or disable                                                                                                                                                               | `sidebar.tsx:92-103` (`keyboardShortcut` prop)                                                                                              |
+| `Sidebar` is a `<nav>` landmark, exposes `data-state`/`data-collapsible`/`data-side`                                                                                                                                     | `sidebar.tsx:148-167`                                                                                                                       |
+| Compound parts: `SidebarHeader`, `SidebarContent`, `SidebarFooter`, `SidebarGroup`, `SidebarGroupLabel`, `SidebarMenu`, `SidebarMenuItem`, `SidebarMenuButton`, `SidebarMenuBadge`, `SidebarSeparator`, `SidebarTrigger` | `sidebar.tsx:175-430`                                                                                                                       |
+| `SidebarMenuButton` supports Base UI `render` composition (for router `<a>`) and `isActive` → `aria-current="page"`                                                                                                      | `sidebar.tsx:338-359`                                                                                                                       |
+| Label truncation on collapse is CSS-only (`[&>span:last-child]:truncate`) and the label is hidden entirely (not just clipped) when collapsed                                                                             | `sidebar.tsx:301`                                                                                                                           |
 
 **Missing (confirmed absent — file is 430 lines, no other exports; zero hits for `mobile`/`isMobile`/`Sheet`/`breakpoint` in `sidebar.tsx` or `sidebar.test.tsx`):**
 
@@ -58,26 +58,27 @@ modified.**
 Verified live against `ui.shadcn.com` (docs fetch + the actual `dashboard-01.json` registry item).
 
 - **Registry item `type`** is a discriminated union (`registry-item.json` schema): `registry:block` = "complex components with multiple files"; `registry:component` = "simple components"; `registry:ui` = single-file primitives; `registry:page` = page/file-based routes (its `files[].target` field is **required**, since it must land at a specific app route); `registry:file` = misc file, also requires `target`; `registry:lib`/`registry:hook`/`registry:theme`/`registry:style`/`registry:item`/`registry:base`/`registry:font` round out the set.
-- **Multi-file blocks**: each entry in `files[]` carries `path` (source in the registry), `type`, and optional `target` (destination in the consumer's project; supports `@ui/`, `@components/`, `@lib/`, `@hooks/` placeholders). Files without an explicit `target` resolve into the consumer's configured `components` dir; files that *need* a fixed location (a page, a data fixture) declare `target` explicitly.
+- **Multi-file blocks**: each entry in `files[]` carries `path` (source in the registry), `type`, and optional `target` (destination in the consumer's project; supports `@ui/`, `@components/`, `@lib/`, `@hooks/` placeholders). Files without an explicit `target` resolve into the consumer's configured `components` dir; files that _need_ a fixed location (a page, a data fixture) declare `target` explicitly.
 - **`dashboard-01.json`** (fetched directly): top-level `"type": "registry:block"`, `"name": "dashboard-01"`. File list:
 
-  | path | type | target |
-  |---|---|---|
-  | `blocks/dashboard-01/page.tsx` | `registry:page` | `app/dashboard/page.tsx` |
-  | `blocks/dashboard-01/data.json` | `registry:file` | `app/dashboard/data.json` |
-  | `.../components/app-sidebar.tsx` | `registry:component` | — |
-  | `.../components/chart-area-interactive.tsx` | `registry:component` | — |
-  | `.../components/data-table.tsx` | `registry:component` | — |
-  | `.../components/nav-documents.tsx` | `registry:component` | — |
-  | `.../components/nav-main.tsx` | `registry:component` | — |
-  | `.../components/nav-secondary.tsx` | `registry:component` | — |
-  | `.../components/nav-user.tsx` | `registry:component` | — |
-  | `.../components/section-cards.tsx` | `registry:component` | — |
-  | `.../components/site-header.tsx` | `registry:component` | — |
+  | path                                        | type                 | target                    |
+  | ------------------------------------------- | -------------------- | ------------------------- |
+  | `blocks/dashboard-01/page.tsx`              | `registry:page`      | `app/dashboard/page.tsx`  |
+  | `blocks/dashboard-01/data.json`             | `registry:file`      | `app/dashboard/data.json` |
+  | `.../components/app-sidebar.tsx`            | `registry:component` | —                         |
+  | `.../components/chart-area-interactive.tsx` | `registry:component` | —                         |
+  | `.../components/data-table.tsx`             | `registry:component` | —                         |
+  | `.../components/nav-documents.tsx`          | `registry:component` | —                         |
+  | `.../components/nav-main.tsx`               | `registry:component` | —                         |
+  | `.../components/nav-secondary.tsx`          | `registry:component` | —                         |
+  | `.../components/nav-user.tsx`               | `registry:component` | —                         |
+  | `.../components/section-cards.tsx`          | `registry:component` | —                         |
+  | `.../components/site-header.tsx`            | `registry:component` | —                         |
 
   `registryDependencies`: `sidebar, breadcrumb, separator, label, chart, card, select, tabs, table, toggle-group, badge, button, checkbox, dropdown-menu, drawer, input, avatar, sheet, sonner`. `dependencies`: `@dnd-kit/*`, `@tabler/icons-react`, `@tanstack/react-table`, `zod`.
+
 - **Consumer pull**: `npx shadcn add dashboard-01` (or our equivalent, `shadcn add @vegastack/<name>`) resolves the block, installs its `registryDependencies` first (transitively pulling `sidebar`, `chart`, `card`, etc. as normal `registry:component`/`registry:ui` items), then writes every `files[]` entry to its `target` (or the default components path). It is **copied**, not referenced — the block becomes local, editable, app-owned code from that point on.
-- **Sidebar block catalog (`sidebar-01`…`sidebar-16`)**: demonstrates the *variants* the primitive supports — static, collapsible-sections, icon-collapsed (`sidebar-07`), floating (`sidebar-04`), inset (`sidebar-08`, `sidebar-16`), right-side (`sidebar-14`), dual left+right (`sidebar-15`), popover-triggered (`sidebar-10`, `sidebar-13`), nested-collapsible (`sidebar-09`), file-tree (`sidebar-11`), calendar (`sidebar-12`). These are all thin compositions over one `SidebarProvider`/`Sidebar` component — the variety lives in how `app-sidebar.tsx` is authored, not in the primitive itself.
+- **Sidebar block catalog (`sidebar-01`…`sidebar-16`)**: demonstrates the _variants_ the primitive supports — static, collapsible-sections, icon-collapsed (`sidebar-07`), floating (`sidebar-04`), inset (`sidebar-08`, `sidebar-16`), right-side (`sidebar-14`), dual left+right (`sidebar-15`), popover-triggered (`sidebar-10`, `sidebar-13`), nested-collapsible (`sidebar-09`), file-tree (`sidebar-11`), calendar (`sidebar-12`). These are all thin compositions over one `SidebarProvider`/`Sidebar` component — the variety lives in how `app-sidebar.tsx` is authored, not in the primitive itself.
 - **Mobile**: shadcn's `SidebarProvider` renders the desktop `<Sidebar>` under `md:` and a `Sheet`-based drawer below it, gated by a `useIsMobile()` hook (matchMedia against the mobile breakpoint), with a separate `--sidebar-width-mobile` CSS var for the drawer's width. Confirmed present in shadcn's docs; **confirmed absent** in ours (§a).
 
 Sources: [shadcn/ui sidebar docs](https://ui.shadcn.com/docs/components/sidebar), [registry-item.json schema](https://ui.shadcn.com/docs/registry/registry-item-json), [dashboard-01 view](https://ui.shadcn.com/view/new-york-v4/dashboard-01), [blocks catalog](https://ui.shadcn.com/blocks).
@@ -92,16 +93,18 @@ Sources: [shadcn/ui sidebar docs](https://ui.shadcn.com/docs/components/sidebar)
 
 **Why not a primitive alone (b):** A composable `AppShell`/`AppShellHeader`/`AppShellSidebar`/`AppShellContent` set is necessary but not sufficient — it proves the pieces fit together but gives a new downstream app nothing to start from. Every team would independently reinvent the same nav-item list, the same stat-card row, the same "how do I wire `SidebarProvider` + `PageHeader` + a route" boilerplate. shadcn itself doesn't ship `dashboard-01` as documentation prose — it ships it as pullable starter code precisely because the primitive alone leaves a blank-page problem.
 
-**Why both, mirroring shadcn's own relationship between `sidebar` (component) and `dashboard-01` (block):** the primitive owns the cross-app-consistent mechanics (hash-tracked, pulled/updated forever); the block owns the app-specific starting point (nav items, stat cards, page route) that is *expected* to diverge and is never meant to be re-pulled after the initial `shadcn add`.
+**Why both, mirroring shadcn's own relationship between `sidebar` (component) and `dashboard-01` (block):** the primitive owns the cross-app-consistent mechanics (hash-tracked, pulled/updated forever); the block owns the app-specific starting point (nav items, stat cards, page route) that is _expected_ to diverge and is never meant to be re-pulled after the initial `shadcn add`.
 
 ### File manifest sketch
 
 **Primitive — extend existing canonical `packages/ui/registry/ui/sidebar.tsx`** (single-source-of-truth rule: edit canonical, run `registry:build`) to close the gaps in §(a):
+
 - `useIsMobile()` hook (matchMedia, SSR-safe via `useEffect`, default breakpoint 768px to match Tailwind's `md`).
 - Mobile-mode render path: under the breakpoint, `Sidebar`'s children render inside `Sheet`/`SheetContent side="left"` (already-built primitive, §a) instead of the static `<nav>`; `SidebarTrigger` opens it.
 - `SidebarRail`, `SidebarInset`, `SidebarMenuSkeleton`, `collapsible` prop (`offcanvas | icon | none`), optional cookie persistence for `open`.
 
 **New canonical `packages/ui/registry/ui/app-shell.tsx`** — the three-part composition layer sitting above `Sidebar`/`PageHeader`/`ScrollArea`:
+
 - `AppShell` — root; wraps `SidebarProvider`, renders the flex row, owns the skip-to-content link.
 - `AppShellSidebar` — thin, opinionated wrapper around `Sidebar` (fixes `aria-label`, wires the shell's nav-item shape).
 - `AppShellHeader` — renders a real `<header>` (`banner` landmark, fixing the gap in `page-header.tsx:174`); composes `SidebarTrigger` + responsive `Breadcrumb`/`PageHeader` + `actions` slot; handles the mobile collapse (hide breadcrumb, show trigger only).
@@ -119,31 +122,31 @@ Our registry tooling **already supports `registry:block`** — the 14-value disc
 ### Responsive strategy
 
 - **Sidebar → Sheet on mobile**: not implemented today (§a) — build per shadcn's pattern: `useIsMobile()` + conditional render into `Sheet`/`SheetContent side="left"`, using our own already-built `sheet.tsx` (focus-trapped, scroll-locked, `Escape`-to-close for free via Base UI `Dialog`).
-- **Container queries over viewport breakpoints for shell *regions***: confirmed **zero** `@container`/`container-type` usage anywhere in the repo today (`grep -rl "@container|container-type"` = no hits) — responsive behavior is 100% viewport-breakpoint-driven currently. Tailwind v4 ships `@container` and `@min-*`/`@max-*` variants natively (no plugin). Recommend `AppShellContent` sets `@container` and stat-card/chart grids use `grid-cols-1 @sm:grid-cols-2 @lg:grid-cols-4` instead of `sm:`/`lg:` viewport variants — this matters specifically *because* the sidebar's expand/collapse changes the content area's actual width independent of the viewport width; a viewport-breakpoint grid will misjudge available space right after a collapse/expand toggle, a container-query grid won't.
+- **Container queries over viewport breakpoints for shell _regions_**: confirmed **zero** `@container`/`container-type` usage anywhere in the repo today (`grep -rl "@container|container-type"` = no hits) — responsive behavior is 100% viewport-breakpoint-driven currently. Tailwind v4 ships `@container` and `@min-*`/`@max-*` variants natively (no plugin). Recommend `AppShellContent` sets `@container` and stat-card/chart grids use `grid-cols-1 @sm:grid-cols-2 @lg:grid-cols-4` instead of `sm:`/`lg:` viewport variants — this matters specifically _because_ the sidebar's expand/collapse changes the content area's actual width independent of the viewport width; a viewport-breakpoint grid will misjudge available space right after a collapse/expand toggle, a container-query grid won't.
 - **Header collapse pattern**: on mobile, `AppShellHeader` hides the breadcrumb trail (or collapses to "‹ Back" + current page only) and shows just the `SidebarTrigger` + title; the title continues to truncate via `TruncatedText` (once wired in, replacing the hardcoded `truncate` at `page-header.tsx:205`).
 - **Safe-area insets**: no `env(safe-area-inset-*)` usage anywhere today. Recommend routing it the same way the inline-style contract already mandates for runtime sizing (`docs/requirements.md:214` — CSS var + arbitrary-value class, e.g. `pb-[env(safe-area-inset-bottom)]` is a function call, not a literal, so it's compatible with the existing hex/px ban) on the mobile `SheetContent` and the header's top edge.
 - **Touch targets (44px)**: `SidebarTrigger` is `size-7` (28px, `sidebar.tsx:422`) — under 44px. WCAG 2.1 AA itself doesn't mandate 44px (that's 2.5.5 Target Size, AAA in 2.1 / "Enhanced" at 24px minimum in 2.2), but the owner explicitly asked for 44px as a product requirement layered on top. Recommend a touch-target pass on shell interactive controls specifically in the mobile/coarse-pointer context (`SidebarTrigger`, `SidebarMenuButton` in icon mode, breadcrumb links) rather than globally resizing the desktop-density controls.
 - **Responsive tables**: `Table`'s existing strategy is a horizontal-scroll container (`table.tsx`, `overflow-x-auto`), not reflow/collapse. Acceptable as-is for the sample "recent activity" `DataList` in v1 (reuses an existing, tested pattern); a card-list fallback under a container-query threshold is a reasonable future enhancement, not required for the shell's first cut.
-- **Chart responsiveness**: **no `Chart` primitive exists in the registry yet** (confirmed — only `lucide-react` chart *icons* under `registry/ui/icons/chart-*.tsx`, no chart-rendering component). shadcn's own `dashboard-01` depends on a `chart` registry item (a Recharts wrapper) that we don't have an equivalent of. This is a real gap for the sample page's "usage over time" card — flagged explicitly in §(e) rather than assumed away.
+- **Chart responsiveness**: **no `Chart` primitive exists in the registry yet** (confirmed — only `lucide-react` chart _icons_ under `registry/ui/icons/chart-*.tsx`, no chart-rendering component). shadcn's own `dashboard-01` depends on a `chart` registry item (a Recharts wrapper) that we don't have an equivalent of. This is a real gap for the sample page's "usage over time" card — flagged explicitly in §(e) rather than assumed away.
 
 ### Dynamic truncation (no hardcoded character counts)
 
 Apply `TruncatedText`/`IconText`/`TableCellText` (already built, §a) shell-wide instead of the ad-hoc `truncate` class:
 
-| Shell region | Current state | Recommendation |
-|---|---|---|
-| Sidebar nav labels | CSS `truncate`, no tooltip (`sidebar.tsx:301`) | Swap `SidebarMenuButton`'s label `<span>` for `IconText`'s label pattern (or compose `TruncatedText` directly) so a clipped label reveals its full text via `Tooltip` — the exact shape `IconText` was already built for |
-| Breadcrumb trail | `flex-wrap` (`breadcrumb.tsx:54-57`), decorative `Ellipsis` with no measurement logic | Needs new logic: measure available width, collapse middle segments into the existing `Breadcrumb.Ellipsis`, expose the collapsed segments via a small menu (Ellipsis is presentation-only today per its own docstring) |
-| Page title (`PageHeader` `<h1>`) | hardcoded `truncate` (`page-header.tsx:205`) | Swap for `TruncatedText` so an overlong title (e.g. a long tenant/workspace name) gets a tooltip instead of silent clipping |
-| Table/DataList cells | `whitespace-nowrap`, no clipping — relies on consumer wrapping cells in `TableCellText` (confirmed: `table.tsx`/`data-list.tsx` have zero `min-w-0`) | Already correct pattern — just requires the sample page's `recent-activity-table.tsx` to actually use `TableCellText` per column, not raw strings |
-| Card titles (stat cards) | `card.tsx` has no `min-w-0` anywhere | Stat-card layout must add `min-w-0` on the flex row wrapping the label + trailing badge, or the badge will force overflow instead of letting the label truncate |
+| Shell region                     | Current state                                                                                                                                        | Recommendation                                                                                                                                                                                                           |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Sidebar nav labels               | CSS `truncate`, no tooltip (`sidebar.tsx:301`)                                                                                                       | Swap `SidebarMenuButton`'s label `<span>` for `IconText`'s label pattern (or compose `TruncatedText` directly) so a clipped label reveals its full text via `Tooltip` — the exact shape `IconText` was already built for |
+| Breadcrumb trail                 | `flex-wrap` (`breadcrumb.tsx:54-57`), decorative `Ellipsis` with no measurement logic                                                                | Needs new logic: measure available width, collapse middle segments into the existing `Breadcrumb.Ellipsis`, expose the collapsed segments via a small menu (Ellipsis is presentation-only today per its own docstring)   |
+| Page title (`PageHeader` `<h1>`) | hardcoded `truncate` (`page-header.tsx:205`)                                                                                                         | Swap for `TruncatedText` so an overlong title (e.g. a long tenant/workspace name) gets a tooltip instead of silent clipping                                                                                              |
+| Table/DataList cells             | `whitespace-nowrap`, no clipping — relies on consumer wrapping cells in `TableCellText` (confirmed: `table.tsx`/`data-list.tsx` have zero `min-w-0`) | Already correct pattern — just requires the sample page's `recent-activity-table.tsx` to actually use `TableCellText` per column, not raw strings                                                                        |
+| Card titles (stat cards)         | `card.tsx` has no `min-w-0` anywhere                                                                                                                 | Stat-card layout must add `min-w-0` on the flex row wrapping the label + trailing badge, or the badge will force overflow instead of letting the label truncate                                                          |
 
 ### A11y
 
 - **Landmarks**: `Sidebar` is already `<nav>` (good). `PageHeader`/`AppShellHeader` should render `<header>` (currently a bare `<div>`, `page-header.tsx:174` — gap). `AppShellContent` needs a `<main>` (doesn't exist anywhere in the registry today — new).
 - **Skip-to-content link**: not present anywhere in the registry — add as the first focusable element in `AppShell`, `sr-only focus:not-sr-only` pattern, targeting `#main-content` on `AppShellContent`'s `<main>`.
 - **Focus management on collapse**: verified non-issue — `SidebarTrigger`'s `onClick` only flips context state (`sidebar.tsx:408-430`); the DOM stays mounted, so focus never gets orphaned on desktop collapse/expand. On mobile, opening the `Sheet` auto-focuses inside the popup via Base UI `Dialog`'s built-in focus trap (verified pattern in `05-a11y-states.md`'s architecture notes) — no extra work needed.
-- **Focus management on route change**: nothing router-aware exists in the layout layer (correct — `AppShell` shouldn't know about the router). Document as the *downstream app's* responsibility: move focus to the page `<h1>` (`PageHeader`'s title, given a `tabIndex={-1}`) on pathname change, a standard SPA a11y pattern; flag the hook point rather than build it into a router-agnostic primitive.
+- **Focus management on route change**: nothing router-aware exists in the layout layer (correct — `AppShell` shouldn't know about the router). Document as the _downstream app's_ responsibility: move focus to the page `<h1>` (`PageHeader`'s title, given a `tabIndex={-1}`) on pathname change, a standard SPA a11y pattern; flag the hook point rather than build it into a router-agnostic primitive.
 - **`aria-current` for nav**: already correct — `SidebarMenuButton`'s `isActive` sets `aria-current="page"` (`sidebar.tsx:354`), verified.
 - **Keyboard shortcut**: already correct — Cmd/Ctrl+B, customizable/disableable (`sidebar.tsx:92-103`), verified.
 - **Reduced motion for collapse animation**: no local guard on the sidebar's `transition-[width]` (`sidebar.tsx:157`), but per the existing a11y audit (`05-a11y-states.md`, architecture fact #3) there's a global `!important` `prefers-reduced-motion` block in `packages/tokens/src/base.css:59-68` that covers **all CSS transitions/animations** system-wide — so this is already handled globally, not a shell-specific gap. Same applies to the `Sheet` backdrop/slide transitions.
@@ -152,7 +155,7 @@ Apply `TruncatedText`/`IconText`/`TableCellText` (already built, §a) shell-wide
 
 - **Foundation is solid**: `Skeleton`'s `shape`/`count` API (§a) is sufficient to compose every shell-region skeleton with zero new primitives, and it's already `motion-reduce`-safe and server-safe.
 - **Missing piece**: `SidebarMenuSkeleton` (shadcn has one; ours doesn't) — add to the extended `sidebar.tsx`, composing `Skeleton shape="circle"` (icon) + a `Skeleton` line at a randomized-but-stable width per row (shadcn seeds this with `useMemo` so skeleton rows don't look uniformly identical).
-- **Region-composed skeleton for the whole shell** (`AppShellSkeleton` or documented composition): header skeleton (breadcrumb-dot + title-width line + action-rect placeholders), sidebar skeleton (logo circle + N `SidebarMenuSkeleton` rows), content skeleton (4× `shape="card"` for the stat-card row + one tall `shape="rect"` for the chart + the table's *own* `loading` state).
+- **Region-composed skeleton for the whole shell** (`AppShellSkeleton` or documented composition): header skeleton (breadcrumb-dot + title-width line + action-rect placeholders), sidebar skeleton (logo circle + N `SidebarMenuSkeleton` rows), content skeleton (4× `shape="card"` for the stat-card row + one tall `shape="rect"` for the chart + the table's _own_ `loading` state).
 - **`DataList` already has a built-in loading state** — confirmed `loading`/`loadingRows` props wired to render `Skeleton` rows (`data-list.tsx`). The sample page's recent-activity table gets a correctly-shaped loading state for free; no new skeleton needed there.
 - **Next App Router `loading.tsx` pattern**: each downstream route should ship a colocated `loading.tsx` rendering the matching region skeleton. `Skeleton` is server-safe (no hooks, no `'use client'` per its own docstring) so this composes cleanly as a server component, and Suspense-driven streaming/navigation shows the correct shape automatically.
 

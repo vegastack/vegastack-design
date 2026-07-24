@@ -1,6 +1,7 @@
 ---
 title: Popover
 description: A click-triggered floating panel for arbitrary content — positioning, an optional arrow, and built-in dismiss.
+audience: public
 preview: popover
 ---
 
@@ -101,13 +102,19 @@ Pass `arrow` to `PopoverContent` to render a directional `PopoverArrow` pointing
 </PopoverContent>
 ```
 
-<ComponentPreview name="popoverArrowComposed" file="components/preview/popover.tsx" />
+<ComponentPreview
+  name="popoverArrowComposed"
+  file="components/preview/popover.tsx"
+/>
 
 ### Non-modal
 
 By default a popover is modal — it locks background scroll so anchored pickers don't shift. Pass `modal={false}` for a lightweight, non-blocking popover that keeps the rest of the page scrollable and interactive.
 
-<ComponentPreview name="popoverNonModal" file="components/preview/popover.tsx" />
+<ComponentPreview
+  name="popoverNonModal"
+  file="components/preview/popover.tsx"
+/>
 
 ## API Reference
 

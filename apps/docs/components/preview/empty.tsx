@@ -1,11 +1,19 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { FileX, Inbox, Search, Users } from 'lucide-react';
-import { Wrapper } from './wrapper';
+import type { ReactNode } from "react";
+import { FileX, Inbox, Search, Users } from "lucide-react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/empty` (dogfoods the registry) → auto-scanned.
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
-import { Button } from '@/components/ui/button';
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+  EmptyIllustration,
+} from "@/components/ui/empty";
+import { Button } from "@/components/ui/button";
 
 export function emptyDemo(): ReactNode {
   return (
@@ -31,7 +39,7 @@ export function emptyDemo(): ReactNode {
 export function emptyDemoSizes(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch gap-4">
-      {(['sm', 'default', 'lg'] as const).map((size) => (
+      {(["sm", "default", "lg"] as const).map((size) => (
         <Empty key={size} bordered size={size} className="w-full">
           <EmptyHeader>
             <EmptyMedia>
@@ -39,8 +47,8 @@ export function emptyDemoSizes(): ReactNode {
             </EmptyMedia>
             <EmptyTitle>No messages yet</EmptyTitle>
             <EmptyDescription>
-              Density <code>{size}</code> — vertical padding scales from compact (in-card) to
-              full-page.
+              Density <code>{size}</code> — vertical padding scales from compact
+              (in-card) to full-page.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -59,7 +67,8 @@ export function emptyDemoSurfaces(): ReactNode {
           </EmptyMedia>
           <EmptyTitle>Transparent surface</EmptyTitle>
           <EmptyDescription>
-            Inherits the parent background — pair with <code>bordered</code> for a drop-zone outline.
+            Inherits the parent background — pair with <code>bordered</code> for
+            a drop-zone outline.
           </EmptyDescription>
         </EmptyHeader>
       </Empty>
@@ -70,7 +79,8 @@ export function emptyDemoSurfaces(): ReactNode {
           </EmptyMedia>
           <EmptyTitle>Card surface</EmptyTitle>
           <EmptyDescription>
-            Filled <code>bg-card</code> panel — a self-contained block that reads on any background.
+            Filled <code>bg-card</code> panel — a self-contained block that
+            reads on any background.
           </EmptyDescription>
         </EmptyHeader>
       </Empty>
@@ -88,7 +98,8 @@ export function emptyDemoBorderless(): ReactNode {
           </EmptyMedia>
           <EmptyTitle>No messages yet</EmptyTitle>
           <EmptyDescription>
-            The borderless default — no dashed outline, blends into the surrounding layout.
+            The borderless default — no dashed outline, blends into the
+            surrounding layout.
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
@@ -106,7 +117,8 @@ export function emptyDemoIconless(): ReactNode {
         <EmptyHeader>
           <EmptyTitle>No filters applied</EmptyTitle>
           <EmptyDescription>
-            A compact title-and-description empty with no icon chip and no actions.
+            A compact title-and-description empty with no icon chip and no
+            actions.
           </EmptyDescription>
         </EmptyHeader>
       </Empty>
@@ -117,13 +129,13 @@ export function emptyDemoIconless(): ReactNode {
 export function emptyDemoMatrix(): ReactNode {
   return (
     <Wrapper className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
-      {(['transparent', 'card'] as const).map((surface) =>
-        (['sm', 'lg'] as const).map((size) => (
+      {(["transparent", "card"] as const).map((surface) =>
+        (["sm", "lg"] as const).map((size) => (
           <Empty
             key={`${surface}-${size}`}
             surface={surface}
             size={size}
-            bordered={surface === 'transparent'}
+            bordered={surface === "transparent"}
             className="w-full"
           >
             <EmptyHeader>
@@ -153,7 +165,9 @@ export function emptyDemoIntents(): ReactNode {
             <Users />
           </EmptyMedia>
           <EmptyTitle>No members yet</EmptyTitle>
-          <EmptyDescription>Invite teammates to start collaborating.</EmptyDescription>
+          <EmptyDescription>
+            Invite teammates to start collaborating.
+          </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
           <Button size="sm" variant="outline">
@@ -167,7 +181,9 @@ export function emptyDemoIntents(): ReactNode {
             <Search />
           </EmptyMedia>
           <EmptyTitle>No results found</EmptyTitle>
-          <EmptyDescription>Try adjusting your search or filters.</EmptyDescription>
+          <EmptyDescription>
+            Try adjusting your search or filters.
+          </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
           <Button size="sm" variant="info">
@@ -191,6 +207,57 @@ export function emptyDemoIntents(): ReactNode {
           </Button>
         </EmptyContent>
       </Empty>
+    </Wrapper>
+  );
+}
+export function emptyIllustrations(): ReactNode {
+  // The monoline drawing tier — six built-ins on a faint grid-paper ground.
+  return (
+    <Wrapper className="flex-col items-stretch gap-4">
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Empty size="sm" bordered>
+          <EmptyHeader>
+            <EmptyMedia variant="default">
+              <EmptyIllustration
+                name="clipboard"
+                className="text-muted-foreground"
+              />
+            </EmptyMedia>
+            <EmptyTitle>No tasks yet</EmptyTitle>
+            <EmptyDescription>
+              Create your first task to get started.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+        <Empty size="sm" bordered>
+          <EmptyHeader>
+            <EmptyMedia variant="default" className="text-destructive-text">
+              <EmptyIllustration name="error" />
+            </EmptyMedia>
+            <EmptyTitle>No mailboxes configured</EmptyTitle>
+            <EmptyDescription>
+              Configure a mailbox to unlock sending.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+        <Empty size="sm" bordered>
+          <EmptyHeader>
+            <EmptyMedia variant="default">
+              <EmptyIllustration
+                name="search"
+                className="text-muted-foreground"
+              />
+            </EmptyMedia>
+            <EmptyTitle>No results</EmptyTitle>
+            <EmptyDescription>Try a different query.</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      </div>
+      <div className="flex items-center justify-center gap-6 text-muted-foreground">
+        <EmptyIllustration name="bell" className="size-16" />
+        <EmptyIllustration name="box" className="size-16" />
+        <EmptyIllustration name="not-found" className="size-16" />
+      </div>
     </Wrapper>
   );
 }

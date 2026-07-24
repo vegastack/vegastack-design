@@ -1,17 +1,21 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { Wrapper } from './wrapper';
+import type { ReactNode } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/separator` (dogfoods the registry) → auto-scanned.
-import { Separator } from '@/components/ui/separator';
+import { Separator } from "@/components/ui/separator";
 
 export function separator(): ReactNode {
   return (
     <Wrapper>
       <div className="w-full max-w-xs">
         <div className="space-y-1">
-          <h4 className="text-base font-medium leading-none text-foreground">VegaStack UI</h4>
-          <p className="text-base text-muted-foreground">An open-source design system.</p>
+          <h4 className="text-base font-medium leading-none text-foreground">
+            VegaStack UI
+          </h4>
+          <p className="text-base text-muted-foreground">
+            An open-source design system.
+          </p>
         </div>
         <Separator className="my-4" />
         <div className="flex h-5 items-center gap-3 text-base text-muted-foreground">

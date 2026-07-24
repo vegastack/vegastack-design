@@ -1,6 +1,7 @@
 ---
 title: Theming, dark mode & tokens
 description: The one-file override model, the base a11y layer you must not skip, and consuming the token contract outside React.
+audience: public
 ---
 
 Everything visual routes through **semantic OKLCH tokens** — CSS variables defined
@@ -20,12 +21,12 @@ You rarely need anything else on this page.
 Redefine variables **after** the preset import — that's the entire theming API:
 
 ```css title="app/globals.css"
-@import '@vegastack/design/preset.css';
+@import "@vegastack/design/preset.css";
 
 :root {
-  --primary: oklch(0.55 0.2 260);          /* your brand */
+  --primary: oklch(0.55 0.2 260); /* your brand */
   --primary-foreground: oklch(0.98 0.005 260);
-  --radius: 0.5rem;                         /* every rounded-* follows */
+  --radius: 0.5rem; /* every rounded-* follows */
 }
 .dark {
   --primary: oklch(0.7 0.18 260);
@@ -67,11 +68,11 @@ If you ever import pieces individually instead of the preset, know that
 Granular imports, only if you know why you're doing it:
 
 ```css
-@import 'tailwindcss';
-@import 'tw-animate-css';                  /* the preset includes it — don't lose it */
-@import '@vegastack/design/theme.css';
-@import '@vegastack/design/base.css';      /* NOT optional in practice */
-@import '@vegastack/design/utilities.css'; /* shimmer / scroll-fade / scrollbar */
+@import "tailwindcss";
+@import "tw-animate-css"; /* the preset includes it — don't lose it */
+@import "@vegastack/design/theme.css";
+@import "@vegastack/design/base.css"; /* NOT optional in practice */
+@import "@vegastack/design/utilities.css"; /* shimmer / scroll-fade / scrollbar */
 ```
 
 These subpaths are **re-exports** through `@vegastack/design`, resolvable under
@@ -83,9 +84,12 @@ Tokens define the families as variables (`--font-family-sans` → Geist, mono �
 Geist Mono); the app supplies the actual font files. In Next:
 
 ```tsx title="app/layout.tsx (fragment)"
-import { Geist, Geist_Mono } from 'next/font/google';
-const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
-const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
+import { Geist, Geist_Mono } from "next/font/google";
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 // <html className={`${geistSans.variable} ${geistMono.variable}`}>
 ```
 
@@ -95,7 +99,8 @@ you'll silently render system fonts:
 
 ```css title="app/globals.css (append)"
 :root {
-  --font-family-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-family-sans:
+    var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-family-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 ```
@@ -111,11 +116,11 @@ contract for surfaces that aren't React/Tailwind at all:
 npm i @vegastack/design-tokens
 ```
 
-| Artifact | Use |
-| --- | --- |
-| `theme.css` / `base.css` / `utilities.css` | any web page, no Tailwind required |
-| `tokens.json` | DTCG-format source — pipe into Figma sync, native platforms, codegen |
-| the JS export (`import { tokens } from '@vegastack/design-tokens'`) | typed token values in Node tooling |
+| Artifact                                                            | Use                                                                  |
+| ------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `theme.css` / `base.css` / `utilities.css`                          | any web page, no Tailwind required                                   |
+| `tokens.json`                                                       | DTCG-format source — pipe into Figma sync, native platforms, codegen |
+| the JS export (`import { tokens } from '@vegastack/design-tokens'`) | typed token values in Node tooling                                   |
 
 App-builders never install it directly (it arrives via `@vegastack/design`);
 token-pipeline and native consumers install **only** it.

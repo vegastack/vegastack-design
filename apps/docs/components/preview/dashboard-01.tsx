@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * `preview/dashboard-01.tsx` — the docs live-preview demo for the `dashboard-01` registry block.
@@ -17,9 +17,9 @@
  * whole composed shell is visible without the demo taking over the docs page.
  */
 
-import type { ReactNode } from 'react';
-import { DashboardPage } from '../../../../packages/ui/registry/blocks/dashboard-01/page';
-import { Wrapper } from './wrapper';
+import type { ReactNode } from "react";
+import { DashboardPage } from "../../../../packages/ui/registry/blocks/dashboard-01/page";
+import { Wrapper } from "./wrapper";
 
 export function dashboard01Demo(): ReactNode {
   return (

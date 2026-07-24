@@ -1,15 +1,13 @@
-// @vegastack staggered-text-reveal@0.2.0 sha256-XrxNVT9Copb6/RYAedrVzrcNcq1rlzxB2n9/md+drWY=
+// @vegastack staggered-text-reveal@0.2.0 sha256-xs+2o4pw+m999AKa0LvRLSa5Lg6a/cg9xFhRbaCe5DE=
 
-// @vegastack staggered-text-reveal@0.1.0 — new component; run `pnpm run registry:build` to
-// stamp integrity + regenerate the copy-in/JSON.
+import * as React from "react";
+import { cn } from "@vegastack/design";
 
-'use client';
-
-import * as React from 'react';
-import { cn } from '@vegastack/design';
-
-export interface StaggeredTextRevealProps
-  extends Omit<React.ComponentPropsWithRef<'span'>, 'children'> {
+/** Props accepted by `StaggeredTextReveal`. */
+export interface StaggeredTextRevealProps extends Omit<
+  React.ComponentPropsWithRef<"span">,
+  "children"
+> {
   /** Text to reveal, split on whitespace into individually-staggered words. */
   text: string;
   /**
@@ -57,27 +55,32 @@ export function StaggeredTextReveal({
   const words = text.split(/\s+/).filter(Boolean);
 
   return (
-    <span ref={ref} data-slot="staggered-text-reveal" className={cn('inline', className)} {...props}>
+    <span
+      ref={ref}
+      data-slot="staggered-text-reveal"
+      className={cn("inline", className)}
+      {...props}
+    >
       {words.map((word, index) => (
         <React.Fragment key={index}>
           <span
             data-slot="staggered-text-reveal-word"
             className={cn(
-              'motion-enter-up inline-block',
-              '[animation-delay:calc(var(--stagger-i)*var(--stagger-step))]',
-              '[animation-fill-mode:backwards]',
-              'motion-reduce:[animation-delay:0s]',
+              "motion-enter-up inline-block",
+              "[animation-delay:calc(var(--stagger-i)*var(--stagger-step))]",
+              "[animation-fill-mode:backwards]",
+              "motion-reduce:[animation-delay:0s]",
             )}
             style={
               {
-                '--stagger-i': index,
-                '--stagger-step': `calc(var(--duration-fast) * ${stepMultiplier})`,
+                "--stagger-i": index,
+                "--stagger-step": `calc(var(--duration-fast) * ${stepMultiplier})`,
               } as React.CSSProperties
             }
           >
             {word}
           </span>
-          {index < words.length - 1 ? ' ' : null}
+          {index < words.length - 1 ? " " : null}
         </React.Fragment>
       ))}
     </span>

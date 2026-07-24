@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from "react";
 import {
   Cloud,
   Copy,
@@ -13,8 +13,8 @@ import {
   Trash2,
   User,
   UserPlus,
-} from 'lucide-react';
-import { Wrapper } from './wrapper';
+} from "lucide-react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/context-menu` (dogfoods the registry) → auto-scanned.
 import {
   ContextMenu,
@@ -31,7 +31,7 @@ import {
   ContextMenuCheckboxItem,
   ContextMenuRadioGroup,
   ContextMenuRadioItem,
-} from '@/components/ui/context-menu';
+} from "@/components/ui/context-menu";
 
 export function contextMenu(): ReactNode {
   return (
@@ -65,7 +65,7 @@ export function contextMenu(): ReactNode {
 export function contextMenuRich(): ReactNode {
   const [showBookmarks, setShowBookmarks] = useState(true);
   const [showFullUrls, setShowFullUrls] = useState(false);
-  const [person, setPerson] = useState('pedro');
+  const [person, setPerson] = useState("pedro");
 
   return (
     <Wrapper>
@@ -97,10 +97,16 @@ export function contextMenuRich(): ReactNode {
 
           <ContextMenuGroup>
             <ContextMenuLabel>View</ContextMenuLabel>
-            <ContextMenuCheckboxItem checked={showBookmarks} onCheckedChange={setShowBookmarks}>
+            <ContextMenuCheckboxItem
+              checked={showBookmarks}
+              onCheckedChange={setShowBookmarks}
+            >
               Show bookmarks
             </ContextMenuCheckboxItem>
-            <ContextMenuCheckboxItem checked={showFullUrls} onCheckedChange={setShowFullUrls}>
+            <ContextMenuCheckboxItem
+              checked={showFullUrls}
+              onCheckedChange={setShowFullUrls}
+            >
               Show full URLs
             </ContextMenuCheckboxItem>
           </ContextMenuGroup>
@@ -109,7 +115,9 @@ export function contextMenuRich(): ReactNode {
 
           <ContextMenuRadioGroup value={person} onValueChange={setPerson}>
             <ContextMenuLabel>People</ContextMenuLabel>
-            <ContextMenuRadioItem value="pedro">Pedro Duarte</ContextMenuRadioItem>
+            <ContextMenuRadioItem value="pedro">
+              Pedro Duarte
+            </ContextMenuRadioItem>
             <ContextMenuRadioItem value="colm">Colm Tuite</ContextMenuRadioItem>
           </ContextMenuRadioGroup>
 

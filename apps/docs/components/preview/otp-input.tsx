@@ -53,7 +53,11 @@ export function otpInputGrouped(): ReactNode {
   return (
     <Wrapper className="flex-col items-start gap-6">
       {/* Default `-` separator, two groups of three. */}
-      <OTPInput aria-label="Grouped 3-3" groups={[3, 3]} defaultValue="123456" />
+      <OTPInput
+        aria-label="Grouped 3-3"
+        groups={[3, 3]}
+        defaultValue="123456"
+      />
       {/* Three groups of two. */}
       <OTPInput
         aria-label="Grouped 2-2-2"

@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import type { ReactNode } from 'react';
-import { Wrapper } from './wrapper';
+import * as React from "react";
+import type { ReactNode } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/emoji-picker` (dogfoods the registry) → auto-scanned.
-import { EmojiPicker } from '@/components/ui/emoji-picker';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { EmojiPicker } from "@/components/ui/emoji-picker";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 /** Default example — click the trigger to open the searchable category grid; the picked emoji shows beside it. */
 export function emojiPicker(): ReactNode {
@@ -18,13 +18,15 @@ export function emojiPicker(): ReactNode {
 }
 
 function EmojiPickerDemo() {
-  const [value, setValue] = React.useState<string>('🚀');
+  const [value, setValue] = React.useState<string>("🚀");
 
   return (
     <div className="flex items-center gap-2">
       <EmojiPicker onValueChange={setValue} />
       <span className="min-w-12 text-3xl leading-none" aria-live="polite">
-        {value || <span className="text-base text-muted-foreground">Pick one →</span>}
+        {value || (
+          <span className="text-base text-muted-foreground">Pick one →</span>
+        )}
       </span>
     </div>
   );
@@ -39,7 +41,7 @@ export function emojiPickerInput(): ReactNode {
 }
 
 function EmojiPickerInputDemo() {
-  const [text, setText] = React.useState('Great work ');
+  const [text, setText] = React.useState("Great work ");
 
   return (
     <div className="flex w-full max-w-sm items-center gap-1.5">
@@ -79,7 +81,7 @@ export function emojiPickerMultiPick(): ReactNode {
 }
 
 function EmojiPickerMultiPickDemo() {
-  const [picked, setPicked] = React.useState<string[]>(['🚀', '🔥']);
+  const [picked, setPicked] = React.useState<string[]>(["🚀", "🔥"]);
 
   return (
     <div className="flex items-center gap-2">
@@ -93,7 +95,9 @@ function EmojiPickerMultiPickDemo() {
         {picked.length > 0 ? (
           picked.map((emoji, i) => <span key={`${emoji}-${i}`}>{emoji}</span>)
         ) : (
-          <span className="text-base text-muted-foreground">No reactions yet</span>
+          <span className="text-base text-muted-foreground">
+            No reactions yet
+          </span>
         )}
       </div>
     </div>
@@ -112,8 +116,8 @@ export function emojiPickerEmptyState(): ReactNode {
       <div className="flex flex-col items-center gap-2">
         <EmojiPicker onValueChange={() => {}} triggerLabel="Search emoji" />
         <p className="text-base text-muted-foreground">
-          Open the picker and type <span className="font-mono">zzz</span> in the search field
-          to see the empty state.
+          Open the picker and type <span className="font-mono">zzz</span> in the
+          search field to see the empty state.
         </p>
       </div>
     </Wrapper>

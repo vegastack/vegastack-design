@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useTheme } from 'next-themes';
+import { useTheme } from "next-themes";
 
 /**
  * `useVegaStackTheme` — thin wrapper over next-themes' `useTheme()`.

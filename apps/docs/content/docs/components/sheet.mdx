@@ -1,6 +1,7 @@
 ---
 title: Sheet
 description: A dialog that slides in from a screen edge — four sides, a header/footer layout, focus trapping, and an animated slide transition.
+audience: public
 preview: sheet
 ---
 
@@ -80,26 +81,32 @@ Choose the edge the panel slides in from and toggle the close button, then copy 
 
 > **Sheet vs. Dialog:** reach for a Sheet when the panel should anchor to a screen edge — filters, detail panels, secondary forms, navigation. Use a [Dialog](/docs/components/dialog) for a centered, focused confirmation or short form.
 
-## Sides
+## Examples
+
+### Sides
 
 `SheetContent` takes a `side` prop controlling which edge the panel pins to and slides in from: `top`, `right` (default), `bottom`, and `left`. `left`/`right` pin full-height and cap their width; `top`/`bottom` span full-width and cap their height.
 
 <ComponentPreview name="sheetSides" file="components/preview/sheet.tsx" />
 
-## Customization
+### Customization
 
 `SheetContent` exposes two close-button props and forwards `className` to the panel. Pass `showCloseButton={false}` to drop the top-right `X` (force dismissal through a footer action or `Esc`), `closeLabel` to relabel that button for screen readers, and a width utility in `className` to override the default `max-w-sm` cap on `left`/`right` sheets.
 
 <ComponentPreview name="sheetCustom" file="components/preview/sheet.tsx" />
 
 ```tsx
-{/* No X button — dismiss only via an explicit action */}
-<SheetContent showCloseButton={false}>{/* … */}</SheetContent>
+{
+  /* No X button — dismiss only via an explicit action */
+}
+<SheetContent showCloseButton={false}>{/* … */}</SheetContent>;
 
-{/* Wider panel + a custom close-button label */}
+{
+  /* Wider panel + a custom close-button label */
+}
 <SheetContent className="max-w-md" closeLabel="Dismiss filters">
   {/* … */}
-</SheetContent>
+</SheetContent>;
 ```
 
 ## API Reference

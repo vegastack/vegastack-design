@@ -136,3 +136,56 @@ test("ScrollArea forwards ref to its host root element", async () => {
   expect(ref.current).toBeInstanceOf(HTMLElement);
   expect(ref.current?.dataset.slot).toBe("scroll-area");
 });
+
+test("the 10px visual scrollbar exposes a real 24px inward pointer target", async () => {
+  const style = document.createElement("style");
+  style.textContent = `
+    [data-testid="scroll-hit-area"] {
+      position: fixed;
+      inset: auto;
+      top: 100px;
+      left: 300px;
+      width: 100px;
+      height: 80px;
+      overflow: hidden;
+    }
+    .scroll-hit-bar {
+      position: absolute;
+      inset-block: 0;
+      inset-inline-end: 0;
+      width: 10px;
+      height: 80px;
+      z-index: 10;
+    }
+    .scroll-hit-bar::before {
+      content: "";
+      position: absolute;
+      inset-block: 0;
+      inset-inline-end: 0;
+      width: 24px;
+    }
+  `;
+  document.head.append(style);
+
+  try {
+    const screen = await render(
+      <ScrollArea
+        data-testid="scroll-hit-area"
+        aria-label="Hit target probe"
+        scrollbarProps={{ keepMounted: true, className: "scroll-hit-bar" }}
+      >
+        <LongContent />
+      </ScrollArea>,
+    );
+    const root = screen.getByTestId("scroll-hit-area").element();
+    const bar = root.querySelector<HTMLElement>(".scroll-hit-bar");
+    expect(bar).not.toBeNull();
+    const rect = root.getBoundingClientRect();
+    expect(document.elementFromPoint(rect.right - 23, rect.top + 10)).toBe(bar);
+    expect(document.elementFromPoint(rect.right - 25, rect.top + 10)).not.toBe(
+      bar,
+    );
+  } finally {
+    style.remove();
+  }
+});

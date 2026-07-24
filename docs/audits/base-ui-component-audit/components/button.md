@@ -13,10 +13,10 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P1 | Imports `useRender` at `button.tsx:7`; exposes `render` at `button.tsx:66`; always passes `type` at `button.tsx:97` and `disabled` at `button.tsx:103`; tests/docs use `render={<a />}`. Base UI Button docs provide `nativeButton` and warn links should not be rendered as buttons. | Invalid attributes and wrong semantics can leak to non-button renders; loading focus can be lost. | Rebase on `@base-ui/react/button` or implement `nativeButton` and `focusableWhenDisabled`; document link styling via `buttonVariants` on anchors. |
-| P3 | Registry description says "14 variants" while source comment says 15 at `button.tsx:75`. | Registry search/metadata is inaccurate. | Update registry metadata and rebuild. |
+| Priority | Evidence                                                                                                                                                                                                                                                                              | Impact                                                                                            | Suggested fix                                                                                                                                     |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| P1       | Imports `useRender` at `button.tsx:7`; exposes `render` at `button.tsx:66`; always passes `type` at `button.tsx:97` and `disabled` at `button.tsx:103`; tests/docs use `render={<a />}`. Base UI Button docs provide `nativeButton` and warn links should not be rendered as buttons. | Invalid attributes and wrong semantics can leak to non-button renders; loading focus can be lost. | Rebase on `@base-ui/react/button` or implement `nativeButton` and `focusableWhenDisabled`; document link styling via `buttonVariants` on anchors. |
+| P3       | Registry description says "14 variants" while source comment says 15 at `button.tsx:75`.                                                                                                                                                                                              | Registry search/metadata is inaccurate.                                                           | Update registry metadata and rebuild.                                                                                                             |
 
 ## Residual Risks
 
@@ -26,4 +26,3 @@ Fix Button before fixing dependent components such as IconButton, CopyButton, Sp
 
 - `pnpm --filter @vegastack/ui test -- button.test.tsx`
 - `pnpm dlx shadcn@latest docs button --base base --json -c apps/docs`
-

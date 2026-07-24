@@ -1,6 +1,7 @@
 ---
 title: Command Menu
 description: A searchable command palette — filtered, grouped items with keyboard navigation, optionally inside a ⌘K dialog.
+audience: public
 preview: command
 ---
 
@@ -53,7 +54,9 @@ function Groups() {
             onSelect={(value) => router.push(`/${value}`)}
           >
             {item.label}
-            {item.shortcut ? <CommandShortcut>{item.shortcut}</CommandShortcut> : null}
+            {item.shortcut ? (
+              <CommandShortcut>{item.shortcut}</CommandShortcut>
+            ) : null}
           </CommandItem>
         )}
       </CommandGroup>
@@ -118,7 +121,9 @@ function Groups() {
 - `CommandDialog` — a `Command` rendered inside the [Dialog](/docs/components/dialog) for the ⌘K overlay (`data-slot="command-dialog-content"`). Controlled like `Dialog` (`open` / `onOpenChange`); the title/description are visually hidden but announced to screen readers.
 - `useCommandFilteredItems` — reads `Command`'s query-filtered `items` (call inside `Command`). Required for grouped rendering; a thin re-export of Base UI's `Combobox.useFilteredItems`.
 
-## States
+## Examples
+
+### States
 
 Pass `disabled` to a `CommandItem` to mute it — it stays visible but dimmed (`data-[disabled]`) and clicking/activating it via `Enter` is a no-op. Base UI's arrow-key navigation does **not** skip `disabled` items the way the prior build did (a verified upstream limitation, not a design choice here) — it still lands on them, it just won't select them. Omit an item from `items` entirely if it must be unreachable by keyboard. When the query matches no items, `CommandEmpty` is shown automatically.
 
@@ -132,7 +137,7 @@ Pass `disabled` to a `CommandItem` to mute it — it stays visible but dimmed (`
 
 <ComponentPreview name="commandStates" file="components/preview/command.tsx" />
 
-## Command dialog (⌘K)
+### Command dialog (⌘K)
 
 Render the palette inside `CommandDialog` for the classic command-menu overlay. Open/close is controlled like `Dialog`; bind the ⌘K shortcut in your app.
 
@@ -161,13 +166,20 @@ React.useEffect(() => {
 <CommandDialog
   open={open}
   onOpenChange={setOpen}
-  commandProps={{ items: [{ value: "dashboard", label: "Dashboard" }], loop: true }}
+  commandProps={{
+    items: [{ value: "dashboard", label: "Dashboard" }],
+    loop: true,
+  }}
 >
   <CommandInput placeholder="Type a command or search…" />
   <CommandEmpty>No results found.</CommandEmpty>
   <CommandList>
     {(item) => (
-      <CommandItem key={item.value} value={item.value} onSelect={() => setOpen(false)}>
+      <CommandItem
+        key={item.value}
+        value={item.value}
+        onSelect={() => setOpen(false)}
+      >
         {item.label}
       </CommandItem>
     )}
@@ -177,13 +189,15 @@ React.useEffect(() => {
 
 <ComponentPreview name="commandDialog" file="components/preview/command.tsx" />
 
-## Async results
+### Async results
 
 Use `CommandLoading` while fetching remote results. Once items arrive, feed them into `items` reactively — filtering runs automatically once they're present.
 
 ```tsx
 const [loading, setLoading] = React.useState(false);
-const [items, setItems] = React.useState<{ value: string; label: string }[]>([]);
+const [items, setItems] = React.useState<{ value: string; label: string }[]>(
+  [],
+);
 
 React.useEffect(() => {
   let cancelled = false;
@@ -226,7 +240,7 @@ React.useEffect(() => {
 
 <ComponentPreview name="commandAsync" file="components/preview/command.tsx" />
 
-## Advanced filtering
+### Advanced filtering
 
 Use a custom `filter` on `Command` to match against more than the visible label — fold alias terms into the item data and check them yourself (there's no per-item `keywords` prop; filtering is data-driven off `items`, not per-rendered-item metadata). Control `inputValue` / `onInputValueChange` when a sibling (like a custom empty state) needs the current query.
 
@@ -243,7 +257,9 @@ const [search, setSearch] = React.useState("");
   inputValue={search}
   onInputValueChange={setSearch}
   filter={(item, query) => {
-    const haystack = [item.label, ...(item.keywords ?? [])].join(" ").toLowerCase();
+    const haystack = [item.label, ...(item.keywords ?? [])]
+      .join(" ")
+      .toLowerCase();
     return haystack.includes(query.toLowerCase());
   }}
   loop
@@ -273,7 +289,8 @@ const [search, setSearch] = React.useState("");
   type={{
     items: {
       type: "unknown[] | { heading?: React.ReactNode; items: unknown[] }[]",
-      description: "Flat items, or groups of items. Drives filtering and CommandEmpty.",
+      description:
+        "Flat items, or groups of items. Drives filtering and CommandEmpty.",
     },
     children: {
       type: "React.ReactNode",
@@ -466,7 +483,8 @@ const [search, setSearch] = React.useState("");
   type={{
     value: {
       type: "unknown",
-      description: "The item's value, matched against Command's items/selection.",
+      description:
+        "The item's value, matched against Command's items/selection.",
     },
     disabled: {
       type: "boolean",
@@ -474,7 +492,8 @@ const [search, setSearch] = React.useState("");
     },
     onSelect: {
       type: "(value: unknown) => void",
-      description: "Called when the item is activated (click, or Enter while highlighted).",
+      description:
+        "Called when the item is activated (click, or Enter while highlighted).",
     },
     children: {
       type: "React.ReactNode",
@@ -513,6 +532,17 @@ const [search, setSearch] = React.useState("");
   }}
 />
 
+### CommandFooter
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/command.tsx"
+  name="CommandFooterProps"
+/>
+
+`CommandFooter` is the hairline-topped action bar at the bottom of a palette. Put keyboard hints on
+the left and the primary action on the right; keep it outside `CommandList` so the listbox owns only
+valid options and groups.
+
 ### useCommandFilteredItems
 
 `useCommandFilteredItems()` reads `Command`'s query-filtered `items` (call it inside a `Command` tree). Required for grouped rendering: `CommandGroup`'s own `items` prop is read verbatim, not re-filtered — map each group's items from this hook's result, not the original static array, or typing won't narrow the groups.
@@ -525,13 +555,13 @@ const [search, setSearch] = React.useState("");
 - The search icon is decorative (`aria-hidden`); the input gets an accessible name from `aria-label`, `aria-labelledby`, or its placeholder fallback.
 - `CommandSeparator` is marked `aria-hidden` (decorative) and `CommandEmpty`/`CommandLoading` render outside the listbox — together this keeps `CommandList`'s `role="listbox"` owning only valid `group` / `option` children, so the markup passes `axe` with no rule suppression.
 
-| Key                               | Action                                                                 |
-| ---------------------------------- | ----------------------------------------------------------------------- |
-| <kbd>↑</kbd> / <kbd>↓</kbd>        | Move the highlight between items (does **not** skip `disabled` items — see [States](#states)). |
-| <kbd>Home</kbd> / <kbd>End</kbd>   | Jump to the first / last item.                                          |
-| <kbd>Enter</kbd>                   | Activate the highlighted item (fires its `onSelect`).                   |
-| <kbd>Esc</kbd>                     | Close the dialog (when inside `CommandDialog`).                         |
-| _typing_                           | Filter the list against the query.                                      |
+| Key                              | Action                                                                                         |
+| -------------------------------- | ---------------------------------------------------------------------------------------------- |
+| <kbd>↑</kbd> / <kbd>↓</kbd>      | Move the highlight between items (does **not** skip `disabled` items — see [States](#states)). |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Jump to the first / last item.                                                                 |
+| <kbd>Enter</kbd>                 | Activate the highlighted item (fires its `onSelect`).                                          |
+| <kbd>Esc</kbd>                   | Close the dialog (when inside `CommandDialog`).                                                |
+| _typing_                         | Filter the list against the query.                                                             |
 
 ## Do / Don't
 

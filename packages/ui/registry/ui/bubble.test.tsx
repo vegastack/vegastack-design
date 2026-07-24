@@ -2,12 +2,7 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import {
-  Bubble,
-  BubbleContent,
-  BubbleGroup,
-  BubbleReactions,
-} from "./bubble";
+import { Bubble, BubbleContent, BubbleGroup, BubbleReactions } from "./bubble";
 
 test("renders the bubble + content slots with variant/align data", async () => {
   const screen = await render(
@@ -28,7 +23,10 @@ test("does not carry the motion-enter-up class by default", async () => {
       <BubbleContent>Hey there</BubbleContent>
     </Bubble>,
   );
-  const root = screen.getByText("Hey there").element().closest('[data-slot="bubble"]');
+  const root = screen
+    .getByText("Hey there")
+    .element()
+    .closest('[data-slot="bubble"]');
   expect(root?.className).not.toContain("motion-enter-up");
 });
 
@@ -38,7 +36,10 @@ test("animateIn applies the motion-enter-up entry class", async () => {
       <BubbleContent>Just sent</BubbleContent>
     </Bubble>,
   );
-  const root = screen.getByText("Just sent").element().closest('[data-slot="bubble"]');
+  const root = screen
+    .getByText("Just sent")
+    .element()
+    .closest('[data-slot="bubble"]');
   expect(root?.className).toContain("motion-enter-up");
 });
 

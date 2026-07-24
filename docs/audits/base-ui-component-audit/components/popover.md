@@ -13,11 +13,11 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P2 | `PopoverContentProps` exposes selected Positioner props at `popover.tsx:52`; internals own Portal/Positioner at `popover.tsx:96`. | Consumers cannot pass portal container/keepMounted or advanced Positioner options without forking. | Add `portalProps` and `positionerProps`. |
-| P2 | `pnpm run lint` flags `registry/ui/popover.tsx [outline-none]`. | Lint gate fails. | Add focus-visible affordance or update approved global-outline rule/docs. |
-| P3 | Base UI Popover has optional Viewport; local source renders Popup directly at `popover.tsx:106`. | Viewport-tied measurement/animation features are unavailable. | Document simplified anatomy or expose viewport path. |
+| Priority | Evidence                                                                                                                          | Impact                                                                                             | Suggested fix                                                             |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| P2       | `PopoverContentProps` exposes selected Positioner props at `popover.tsx:52`; internals own Portal/Positioner at `popover.tsx:96`. | Consumers cannot pass portal container/keepMounted or advanced Positioner options without forking. | Add `portalProps` and `positionerProps`.                                  |
+| P2       | `pnpm run lint` flags `registry/ui/popover.tsx [outline-none]`.                                                                   | Lint gate fails.                                                                                   | Add focus-visible affordance or update approved global-outline rule/docs. |
+| P3       | Base UI Popover has optional Viewport; local source renders Popup directly at `popover.tsx:106`.                                  | Viewport-tied measurement/animation features are unavailable.                                      | Document simplified anatomy or expose viewport path.                      |
 
 ## Residual Risks
 
@@ -27,4 +27,3 @@ No direct Radix import found.
 
 - `pnpm --filter @vegastack/ui test -- popover.test.tsx`
 - `pnpm run lint`
-

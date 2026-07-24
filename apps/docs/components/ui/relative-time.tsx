@@ -1,10 +1,14 @@
-// @vegastack relative-time@0.2.0 sha256-kG1rCDnwKyzS0/wxQH8TfqKJMdPb+CNopyBPFE6xzyw=
+// @vegastack relative-time@0.2.0 sha256-ZtPywRkf42tj2VYvyWz+T+le3ALanImWE1A+idv1z1o=
 
-'use client';
+"use client";
 
-import * as React from 'react';
-import { cn } from '@vegastack/design';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import * as React from "react";
+import { cn } from "@vegastack/design";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 /** Parse a `Date | string | number` input into a `Date`. */
 function toDate(date: Date | string | number): Date {
@@ -23,15 +27,16 @@ const MS = {
 } as const;
 
 /** Ordered `[unit, ms-per-unit]` thresholds, largest → smallest. */
-const DIVISIONS: ReadonlyArray<readonly [Intl.RelativeTimeFormatUnit, number]> = [
-  ['year', MS.year],
-  ['month', MS.month],
-  ['week', MS.week],
-  ['day', MS.day],
-  ['hour', MS.hour],
-  ['minute', MS.minute],
-  ['second', MS.second],
-];
+const DIVISIONS: ReadonlyArray<readonly [Intl.RelativeTimeFormatUnit, number]> =
+  [
+    ["year", MS.year],
+    ["month", MS.month],
+    ["week", MS.week],
+    ["day", MS.day],
+    ["hour", MS.hour],
+    ["minute", MS.minute],
+    ["second", MS.second],
+  ];
 
 /**
  * Pick the largest whole unit for a signed millisecond delta and format it with
@@ -42,13 +47,13 @@ const DIVISIONS: ReadonlyArray<readonly [Intl.RelativeTimeFormatUnit, number]> =
  * @param deltaMs - `target − now` in ms (negative = past, positive = future).
  */
 function formatAgo(deltaMs: number, rtf: Intl.RelativeTimeFormat): string {
-  if (Math.abs(deltaMs) < MS.minute) return rtf.format(0, 'second');
+  if (Math.abs(deltaMs) < MS.minute) return rtf.format(0, "second");
   for (const [unit, ms] of DIVISIONS) {
-    if (Math.abs(deltaMs) >= ms || unit === 'second') {
+    if (Math.abs(deltaMs) >= ms || unit === "second") {
       return rtf.format(Math.round(deltaMs / ms), unit);
     }
   }
-  return rtf.format(0, 'second');
+  return rtf.format(0, "second");
 }
 
 /**
@@ -56,19 +61,25 @@ function formatAgo(deltaMs: number, rtf: Intl.RelativeTimeFormat): string {
  * for the adjacent days (via `Intl.RelativeTimeFormat`'s `numeric: 'auto'`), and
  * an absolute `"March 15"` / `"March 15, 2025"` for anything further out.
  */
-function formatDay(target: Date, now: Date, locale: string | undefined, rtf: Intl.RelativeTimeFormat): string {
-  const startOf = (d: Date) => Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+function formatDay(
+  target: Date,
+  now: Date,
+  locale: string | string[] | undefined,
+  rtf: Intl.RelativeTimeFormat,
+): string {
+  const startOf = (d: Date) =>
+    Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
   const dayDelta = Math.round((startOf(target) - startOf(now)) / MS.day);
 
   if (Math.abs(dayDelta) <= 1) {
     // numeric: 'auto' yields "today"/"yesterday"/"tomorrow" for -1..1.
-    return rtf.format(dayDelta, 'day');
+    return rtf.format(dayDelta, "day");
   }
   const sameYear = target.getFullYear() === now.getFullYear();
   return new Intl.DateTimeFormat(locale, {
-    month: 'long',
-    day: 'numeric',
-    ...(sameYear ? {} : { year: 'numeric' }),
+    month: "long",
+    day: "numeric",
+    ...(sameYear ? {} : { year: "numeric" }),
   }).format(target);
 }
 
@@ -84,8 +95,11 @@ function tickInterval(deltaMs: number): number {
   return 0; // ≥ 1 day: static, no timer needed
 }
 
-export interface RelativeTimeProps
-  extends Omit<React.ComponentPropsWithRef<'time'>, 'title' | 'children'> {
+/** Props accepted by `RelativeTime`. */
+export interface RelativeTimeProps extends Omit<
+  React.ComponentPropsWithRef<"time">,
+  "title" | "children"
+> {
   /**
    * The instant to render, relative to `now`. Accepts a `Date`, an ISO string,
    * or an epoch-millisecond number.
@@ -97,14 +111,14 @@ export interface RelativeTimeProps
    * - `day`: calendar-relative — `"today"`, `"yesterday"`, else an absolute date.
    * @default 'ago'
    */
-  mode?: 'ago' | 'day';
+  mode?: "ago" | "day";
   /**
    * Unit length, mapped to `Intl.RelativeTimeFormat`'s `style` — `'long'` gives
    * `"2 hours ago"`, `'short'` `"2 hr. ago"`, `'narrow'` the compact `"2h ago"`
    * (dense tables, activity feeds). Applies to `mode="day"`'s relative words too.
    * @default 'long'
    */
-  unitStyle?: 'long' | 'short' | 'narrow';
+  unitStyle?: "long" | "short" | "narrow";
   /**
    * Reference instant the relative string is measured against, as epoch ms.
    * Defaults to the live clock (`Date.now()`); pass a fixed value to render
@@ -120,6 +134,8 @@ export interface RelativeTimeProps
   refresh?: boolean;
   /**
    * BCP-47 locale(s) for `Intl` formatting. Defaults to the runtime locale.
+
+   * @default undefined
    */
   locale?: string | string[];
   /**
@@ -153,17 +169,17 @@ export interface RelativeTimeProps
  * <RelativeTime date={comment.createdAt} />            // "2 hours ago"
  * <RelativeTime date={dueDate} mode="day" />            // "tomorrow" / "March 15"
  * <RelativeTime date={ts} now={FIXED} refresh={false} /> // deterministic
-  *
+ *
  * **Announcements (register P2-40, deliberate):** the periodic re-render is intentionally
  * SILENT to assistive tech — no `aria-live`. A ticking timestamp that announced every minute
  * would be noise; the absolute time is always available via the Tooltip (keyboard-reachable)
  * and the `dateTime` attribute. Wrap in your own `role="status"` region only if a specific
  * surface genuinely needs announced updates.
-*/
+ */
 export function RelativeTime({
   date,
-  mode = 'ago',
-  unitStyle = 'long',
+  mode = "ago",
+  unitStyle = "long",
   now,
   refresh = true,
   locale,
@@ -175,26 +191,33 @@ export function RelativeTime({
 }: RelativeTimeProps) {
   const target = React.useMemo(() => toDate(date), [date]);
   const targetMs = target.getTime();
-  const localeKey = Array.isArray(locale) ? locale.join(',') : locale;
+  const localeKey = Array.isArray(locale) ? locale.join(",") : locale;
 
   // When `now` is provided the output is deterministic (no clock, no timer).
   const isControlled = now !== undefined;
 
-  // Live clock state — seeded from `now` (or the current time) so the first
-  // client render matches what the timer will produce.
-  const [clock, setClock] = React.useState(() => now ?? Date.now());
+  // Uncontrolled live time cannot be reproduced by the server at hydration.
+  // Start from a deterministic empty state on both sides, then reveal the live
+  // label after mount. Controlled `now` output remains server-renderable.
+  const [hydrated, setHydrated] = React.useState(isControlled);
+  const [clock, setClock] = React.useState(() => now ?? 0);
 
   const rtf = React.useMemo(
-    () => new Intl.RelativeTimeFormat(locale, { numeric: 'auto', style: unitStyle }),
+    () =>
+      new Intl.RelativeTimeFormat(locale, {
+        numeric: "auto",
+        style: unitStyle,
+      }),
     [localeKey, unitStyle], // eslint-disable-line react-hooks/exhaustive-deps -- locale array compared by joined key
   );
 
   React.useEffect(() => {
-    if (isControlled || !refresh) return;
+    if (isControlled) return;
+    setClock(Date.now());
+    setHydrated(true);
+    if (!refresh) return;
     // Resync clock on mount + reschedule adaptive tick. (set-state-in-effect is
     // intentional here; the rule is not enabled in @vegastack/eslint-config.)
-    setClock(Date.now());
-
     let timerId: ReturnType<typeof setTimeout>;
     const schedule = () => {
       const interval = tickInterval(targetMs - Date.now());
@@ -212,11 +235,13 @@ export function RelativeTime({
   const nowDate = React.useMemo(() => new Date(nowMs), [nowMs]);
 
   const isValid = !Number.isNaN(targetMs);
-  const display = !isValid
-    ? ''
-    : mode === 'day'
-      ? formatDay(target, nowDate, Array.isArray(locale) ? locale[0] : locale, rtf)
-      : formatAgo(targetMs - nowMs, rtf);
+  const isPendingHydration = !isControlled && !hydrated;
+  const display =
+    !isValid || isPendingHydration
+      ? ""
+      : mode === "day"
+        ? formatDay(target, nowDate, locale, rtf)
+        : formatAgo(targetMs - nowMs, rtf);
 
   const isoString = isValid ? target.toISOString() : undefined;
   const hasTooltip = Boolean(title) && isValid;
@@ -227,10 +252,14 @@ export function RelativeTime({
       data-slot="relative-time"
       data-mode={mode}
       dateTime={isoString}
+      aria-busy={isPendingHydration || undefined}
       // When wrapped in a Tooltip the <time> becomes the trigger; it must be
       // focusable so keyboard users can reveal the absolute date.
       tabIndex={hasTooltip ? 0 : undefined}
-      className={cn('rounded-sm tabular-nums', className)}
+      className={cn(
+        "relative inline-flex rounded-sm tabular-nums before:absolute before:inset-x-0 before:-inset-y-1",
+        className,
+      )}
       {...props}
     >
       {display}
@@ -240,11 +269,11 @@ export function RelativeTime({
   if (!hasTooltip) return timeEl;
 
   const tooltipLabel =
-    typeof title === 'string'
+    typeof title === "string"
       ? title
-      : new Intl.DateTimeFormat(Array.isArray(locale) ? locale[0] : locale, {
-          dateStyle: 'long',
-          timeStyle: 'short',
+      : new Intl.DateTimeFormat(locale, {
+          dateStyle: "long",
+          timeStyle: "short",
         }).format(target);
 
   return (

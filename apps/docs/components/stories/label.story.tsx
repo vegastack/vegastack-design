@@ -1,5 +1,5 @@
-import { defineStory } from '@/lib/story';
-import { Label } from './label.client';
+import { defineStory } from "@/lib/story";
+import { Label } from "./label.client";
 
 /**
  * Story explorer for `Label` — controls auto-generated from `LabelProps` by the Story
@@ -9,15 +9,15 @@ export const story = defineStory({
   Component: Label,
   args: [
     {
-      variant: 'Default',
+      variant: "Default",
       initial: {
-        children: 'Email address',
+        children: "Email address",
       },
     },
     {
-      variant: 'Required',
+      variant: "Required",
       initial: {
-        children: 'Password',
+        children: "Password",
       },
       fixed: {
         required: true,

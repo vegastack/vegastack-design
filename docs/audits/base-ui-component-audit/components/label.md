@@ -13,9 +13,9 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| None | No material component-specific finding survived review. | No action. | Keep tests for required marker and label association. |
+| Priority | Evidence                                                | Impact     | Suggested fix                                         |
+| -------- | ------------------------------------------------------- | ---------- | ----------------------------------------------------- |
+| None     | No material component-specific finding survived review. | No action. | Keep tests for required marker and label association. |
 
 ## Residual Risks
 
@@ -24,4 +24,3 @@ Consumers still need to put `required`/`aria-required` on the control itself.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- label.test.tsx`
-

@@ -1,6 +1,6 @@
-// @vegastack dashboard-01@0.2.0 sha256-0n5FBIpJDwhYVC5aSLixZGo20UEXyAgyNmM4+AHClFc=
+// @vegastack dashboard-01@0.2.0 sha256-qm7+2LKVAhfwH5v5FXl7Weku+tAmcp/QpP0RBAnmHOM=
 
-'use client';
+"use client";
 
 /**
  * `recent-activity.tsx` — the dashboard-01 block's recent-activity `DataList` (audit §e item 4):
@@ -12,21 +12,32 @@
  * (ResizeObserver / Tooltip / timers).
  */
 
-import * as React from 'react';
-import { FileText, ListChecks } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { DataList, type DataListColumn } from '@/components/ui/data-list';
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
-import { RelativeTime } from '@/components/ui/relative-time';
-import { StatusIcon, type StatusIconProps } from '@/components/ui/status-icon';
-import { IconText, TableCellText } from '@/components/ui/truncated-text';
+import * as React from "react";
+import { FileText, ListChecks } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { DataList, type DataListColumn } from "@/components/ui/data-list";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { RelativeTime } from "@/components/ui/relative-time";
+import { StatusIcon, type StatusIconProps } from "@/components/ui/status-icon";
+import { IconText, TableCellText } from "@/components/ui/truncated-text";
 
 export interface ActivityRow {
+  /** Stable row identifier. */
   id: string;
+  /** Human-readable task or run name. */
   name: string;
-  status: NonNullable<StatusIconProps['status']>;
+  /** Semantic run status. */
+  status: NonNullable<StatusIconProps["status"]>;
   /** ISO instant the task/run started. */
   startedAt: string;
+  /** Elapsed duration in milliseconds. */
   durationMs: number;
 }
 
@@ -44,7 +55,7 @@ export interface ActivityRow {
  * `generatedAt` so the demo's relative strings stay sensible (e.g. "6 minutes ago") without ever
  * reading the real clock.
  */
-const DASHBOARD_NOW_MS = Date.parse('2026-07-14T09:00:00.000Z');
+const DASHBOARD_NOW_MS = Date.parse("2026-07-14T09:00:00.000Z");
 
 function formatDuration(ms: number): string {
   if (ms < 1000) return `${ms}ms`;
@@ -57,25 +68,29 @@ function formatDuration(ms: number): string {
 
 const columns: DataListColumn<ActivityRow>[] = [
   {
-    key: 'name',
-    header: 'Task',
+    key: "name",
+    header: "Task",
     render: (row) => <IconText icon={<FileText />} text={row.name} />,
   },
   {
-    key: 'status',
-    header: 'Status',
+    key: "status",
+    header: "Status",
     render: (row) => (
       <span className="flex items-center gap-1.5">
         <StatusIcon status={row.status} size="sm" />
         <span className="text-base text-foreground">
-          {row.status === 'progress' ? 'In progress' : row.status === 'todo' ? 'To do' : row.status}
+          {row.status === "progress"
+            ? "In progress"
+            : row.status === "todo"
+              ? "To do"
+              : row.status}
         </span>
       </span>
     ),
   },
   {
-    key: 'startedAt',
-    header: 'Started',
+    key: "startedAt",
+    header: "Started",
     render: (row) => (
       <RelativeTime
         date={row.startedAt}
@@ -86,20 +101,24 @@ const columns: DataListColumn<ActivityRow>[] = [
     ),
   },
   {
-    key: 'durationMs',
-    header: 'Duration',
-    align: 'end',
-    render: (row) => <TableCellText text={formatDuration(row.durationMs)} mono />,
+    key: "durationMs",
+    header: "Duration",
+    align: "end",
+    render: (row) => (
+      <TableCellText text={formatDuration(row.durationMs)} mono />
+    ),
   },
 ];
 
+/** Props accepted by `RecentActivity`. */
 export interface RecentActivityProps {
+  /** Deterministic activity rows to display. */
   data: ActivityRow[];
-  /** Shows `DataList`'s built-in skeleton rows instead of `data` — the region's own loading state. */
+  /** Shows `DataList`'s built-in skeleton rows instead of `data` — the region's own loading state. @default false */
   loading?: boolean;
 }
 
-/** `RecentActivity` — the recent-activity `DataList`, per audit §e item 4. */
+/** `RecentActivity` — the recent-activity `DataList`. @example <RecentActivity data={activity} /> */
 export function RecentActivity({ data, loading = false }: RecentActivityProps) {
   return (
     <DataList
@@ -116,10 +135,16 @@ export function RecentActivity({ data, loading = false }: RecentActivityProps) {
               <ListChecks />
             </EmptyMedia>
             <EmptyTitle>No activity yet</EmptyTitle>
-            <EmptyDescription>Tasks and agent runs will show up here once they start.</EmptyDescription>
+            <EmptyDescription>
+              Tasks and agent runs will show up here once they start.
+            </EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
-            <Button size="sm" variant="outline" render={<a href="/dashboard/tasks" />}>
+            <Button
+              size="sm"
+              variant="outline"
+              render={<a href="/dashboard/tasks" />}
+            >
               View tasks
             </Button>
           </EmptyContent>

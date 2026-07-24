@@ -13,9 +13,9 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P2 | Canonical renders native input at `input.tsx:61` and `input.tsx:95`; registry has no `@base-ui/react` dependency. Official shadcn Base Input uses Base UI Input. | Standalone Input lacks Base UI Input `render`, `onValueChange`, and Field state data attrs. | Migrate to Base UI Input or document native Input as an approved exception. |
+| Priority | Evidence                                                                                                                                                         | Impact                                                                                      | Suggested fix                                                               |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| P2       | Canonical renders native input at `input.tsx:61` and `input.tsx:95`; registry has no `@base-ui/react` dependency. Official shadcn Base Input uses Base UI Input. | Standalone Input lacks Base UI Input `render`, `onValueChange`, and Field state data attrs. | Migrate to Base UI Input or document native Input as an approved exception. |
 
 ## Residual Risks
 
@@ -25,4 +25,3 @@ Native choice may be acceptable if Base UI Input features are not needed, but it
 
 - `pnpm --filter @vegastack/ui test -- input.test.tsx`
 - `pnpm dlx shadcn@latest docs input --base base --json -c apps/docs`
-

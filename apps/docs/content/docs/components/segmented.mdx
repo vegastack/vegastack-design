@@ -1,0 +1,89 @@
+---
+title: Segmented
+description: A single-select, always-one-selected view/mode switcher — a muted track with a raised active chip. The canonical segmented-control formula.
+audience: public
+preview: segmented
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/segmented
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Segmented, SegmentedItem } from "@/components/ui/segmented";
+
+<Segmented defaultValue="monthly" aria-label="Billing cycle">
+  <SegmentedItem value="monthly">Monthly</SegmentedItem>
+  <SegmentedItem value="annual">Annual</SegmentedItem>
+</Segmented>;
+```
+
+## Examples
+
+### Controlled
+
+`value`/`onValueChange` use plain strings (not arrays — this is not a ToggleGroup). The
+callback never fires with "nothing selected": clicking the active segment is a no-op.
+
+<ComponentPreview
+  name="segmentedControlled"
+  file="components/preview/segmented.tsx"
+/>
+
+### When to use which
+
+| Component     | Selection model     | Use for                                                              |
+| ------------- | ------------------- | -------------------------------------------------------------------- |
+| `Segmented`   | exactly one, always | peer view/mode switches (table/board, monthly/annual, filter scopes) |
+| `Tabs`        | exactly one, always | swapping **content panels** below the control                        |
+| `ToggleGroup` | zero-or-one / many  | formatting toggles where empty or multiple selection is meaningful   |
+| `Switch`      | on/off              | a single boolean                                                     |
+
+### Anatomy & geometry
+
+The track is `bg-muted rounded-md p-0.5`; the active chip is `rounded-sm bg-background` with
+the one hairline border — the nested-radius formula (container radius minus padding). Sizes:
+`default` (24px chips in a 28px track — dense chrome) and `lg` (28px chips — form rows).
+Keyboard: arrow keys move focus, Space/Enter selects (Base UI Toggle Group contract);
+`aria-pressed` marks the active segment.
+
+## API Reference
+
+### Segmented
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/segmented.tsx"
+  name="SegmentedProps"
+/>
+
+### SegmentedItem
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/segmented.tsx"
+  name="SegmentedItemProps"
+/>
+
+## Accessibility
+
+- Always pass `aria-label` (or `aria-labelledby`) on the root — the group needs a name.
+- Icon-only segments need their own `aria-label`.
+- Focus is the global 2px `:focus-visible` outline; the raised chip is not the only state
+  signal (`aria-pressed` + border + text color change together).
+
+| Key                                            | Action                               |
+| ---------------------------------------------- | ------------------------------------ |
+| <kbd>Arrow Left</kbd> / <kbd>Arrow Right</kbd> | Move focus between enabled segments. |
+| <kbd>Space</kbd> / <kbd>Enter</kbd>            | Select the focused segment.          |
+
+## Do / Don't
+
+<DoDont
+  do="Use Segmented for a short set of peer modes where one option must remain active."
+  dont="Use it to switch content panels or for selections that may be empty or multiple."
+/>

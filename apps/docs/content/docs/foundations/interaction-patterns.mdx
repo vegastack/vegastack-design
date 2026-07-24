@@ -1,0 +1,60 @@
+---
+title: Interaction patterns
+description: System-wide behaviors — how state, selection, live updates, and keyboard affordances read consistently across every component.
+audience: public
+---
+
+These are behaviors, not components: patterns that must read the same everywhere so the system
+feels like one product. Each is already expressed in tokens/components — this page is where the
+rule lives.
+
+## Open triggers stay lit
+
+A trigger whose menu/popover is open keeps its hover treatment (`data-popup-open` →
+`bg-muted`). An open dropdown, nav trigger, or select never drops back to rest while its
+surface is showing — the lit trigger is the anchor the eye tracks. Built into
+`NavigationMenuTrigger`, `DropdownMenu`, `ContextMenu`, and `Select`. A plain `Button` used as a
+custom trigger does not carry it: set `data-popup-open` yourself from your open state.
+
+## Highlight-on-change
+
+When a value updates live (a record field synced, a row inserted), pulse it with
+`motion-flash` — a 2px accent ring that swells and settles. Set `--vs-flash-color` to match the
+context (`var(--info)` for a synced field, the default `ring` otherwise). Honours
+`prefers-reduced-motion` (collapses to no-op). Use it for _events the user should notice_, not
+on every re-render.
+
+## Selection & cell focus
+
+- **List/menu selection** rides `data-selected` / `data-highlighted` → the neutral `accent`
+  fill (never a hue).
+- **Grid cell focus** (future `data-grid`) uses an accent **inset ring**
+  (`box-shadow 0 0 0 1px inset`), not the outer 2px outline — a cell can't afford the offset.
+- **Everything else** keyboard-focusable gets the one 2px `:focus-visible` outline; text
+  fields use the border-tint instead (a raw input can't tell mouse from keyboard).
+
+## Keyboard affordances are visible
+
+- Shortcut hints render in `Kbd`, and `Kbd` composes **inside** buttons and menu rows
+  (`Cancel [ESC]`, `Save [↵]`, `Search records ↵`) — the shortcut lives next to the action.
+- Command palettes and rich pickers pin a footer hint bar: navigation hints left
+  (`↑ ↓ Navigate`), the primary action right (`CommandFooter`).
+
+## Dirty-state save model
+
+A surface with unsaved shared changes (a saved view, a settings panel) surfaces an explicit
+**Discard / Save** pair rather than auto-saving silently — the user owns when a change becomes
+everyone's. (The `data-grid` view bar is the canonical case.)
+
+## Progressive disclosure
+
+- **Overflow collapses behind a count**: `TagGroup` `+N`, `Tabs` "+N more", record
+  "View all values" — the collapsed control expands in place, it never navigates away.
+- **In-place drilldown** beats cascading flyouts for multi-step pickers (the filter builder):
+  a back chevron swaps the panel content within one popover.
+
+## Density has tiers, not one size
+
+Chrome runs tighter than content: 28px controls (`size="sm"`), 12/500 labels, alpha-muted
+secondary text. Reach for the compact tier (`Table density="compact"`, `Segmented`,
+`size="sm"` controls) on data-dense surfaces; keep the default 32px tier for primary flows.

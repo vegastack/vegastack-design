@@ -1,4 +1,4 @@
-// @vegastack command@0.2.0 sha256-SJqfiJFnQb1umPscqgUc3grHJdrKssTdYD7Hg/kbspc=
+// @vegastack command@0.2.0 sha256-lV+cxLzvfi8DJQl9kxrUoK+SbAZL0GCac7nIgH4VzrQ=
 
 "use client";
 
@@ -48,6 +48,7 @@ import {
  * PRESENTATIONAL (G7): items take `onSelect` callbacks — the consuming app wires routes/actions.
  * ----------------------------------------------------------------------------------------------*/
 
+/** Props accepted by `Command`. */
 export type CommandProps<Value = unknown> = Omit<
   React.ComponentProps<typeof BaseCombobox.Root<Value, false>>,
   "inline" | "open" | "defaultOpen" | "multiple" | "children" | "autoHighlight"
@@ -140,8 +141,13 @@ export function Command<Value = unknown>({
   );
 }
 
-export interface CommandDialogProps extends React.ComponentProps<typeof Dialog> {
-  /** Command palette content (CommandInput, CommandList, CommandGroup, …). */
+/** Props accepted by `CommandDialog`. */
+export interface CommandDialogProps extends React.ComponentProps<
+  typeof Dialog
+> {
+  /** Command palette content (CommandInput, CommandList, CommandGroup, …).
+   * @default undefined
+   */
   children?: React.ReactNode;
   /**
    * Accessible title for the dialog. Visually hidden by default (the search input is the visible
@@ -154,12 +160,16 @@ export interface CommandDialogProps extends React.ComponentProps<typeof Dialog> 
    * @default "Search for a command to run."
    */
   description?: string;
-  /** Additional className on the inner `Command` element. */
+  /** Additional className on the inner `Command` element.
+   * @default undefined
+   */
   className?: string;
   /**
    * Props forwarded to the inner `Command` root (`items`, `loop`, `filter`, `value`,
    * `onValueChange`, …). `className` and `children` stay on `CommandDialog` so the styled shell
    * remains stable.
+
+   * @default undefined
    */
   commandProps?: Omit<CommandProps, "className" | "children">;
 }
@@ -213,12 +223,17 @@ export function CommandDialog({
   );
 }
 
+/** Props accepted by `CommandInput`. */
 export type CommandInputProps = React.ComponentProps<typeof BaseCombobox.Input>;
 
 /**
  * `CommandInput` — the search field. Renders a leading search icon plus Base UI's combobox input
  * (`role="combobox"`); typing live-filters `Command`'s `items`. Control it with `inputValue` +
  * `onInputValueChange` on `Command`, or let it manage its own state.
+
+ *
+ * @example
+ * <CommandInput />
  */
 export function CommandInput({ className, ...props }: CommandInputProps) {
   // ARIA prohibits name-from-content on role=combobox, so default an accessible name from the
@@ -235,7 +250,10 @@ export function CommandInput({ className, ...props }: CommandInputProps) {
       data-slot="command-input-wrapper"
       className="flex h-(--size-md) items-center gap-2 border-b border-border px-3 focus-within:border-ring/(--alpha-tint-border)"
     >
-      <Search aria-hidden className="size-(--icon-default) shrink-0 text-muted-foreground" />
+      <Search
+        aria-hidden
+        className="size-(--icon-default) shrink-0 text-muted-foreground"
+      />
       <BaseCombobox.Input
         data-slot="command-input"
         aria-label={accessibleName}
@@ -256,6 +274,7 @@ export function CommandInput({ className, ...props }: CommandInputProps) {
   );
 }
 
+/** Props accepted by `CommandList`. */
 export type CommandListProps<Item = unknown> = Omit<
   React.ComponentProps<typeof BaseCombobox.List>,
   "children"
@@ -273,8 +292,15 @@ export type CommandListProps<Item = unknown> = Omit<
  * **not** render `CommandEmpty`/`CommandLoading` — place those as its siblings (see the anatomy
  * note on {@link Command}); nesting them inside trips ARIA's `aria-required-children` (a listbox
  * only owns `option`/`group`).
+
+ *
+ * @example
+ * <CommandList />
  */
-export function CommandList<Item = unknown>({ className, ...props }: CommandListProps<Item>) {
+export function CommandList<Item = unknown>({
+  className,
+  ...props
+}: CommandListProps<Item>) {
   return (
     <BaseCombobox.List
       data-slot="command-list"
@@ -287,6 +313,7 @@ export function CommandList<Item = unknown>({ className, ...props }: CommandList
   );
 }
 
+/** Props accepted by `CommandEmpty`. */
 export type CommandEmptyProps = React.ComponentProps<typeof BaseCombobox.Empty>;
 
 /**
@@ -294,18 +321,28 @@ export type CommandEmptyProps = React.ComponentProps<typeof BaseCombobox.Empty>;
  * Politely announced to screen readers. Must stay mounted (Base UI toggles its children
  * internally) and render as a SIBLING of `CommandList`, not its child (see {@link Command}'s
  * anatomy note).
+
+ *
+ * @example
+ * <CommandEmpty />
  */
 export function CommandEmpty({ className, ...props }: CommandEmptyProps) {
   return (
     <BaseCombobox.Empty
       data-slot="command-empty"
-      className={cn("py-6 text-center text-base text-muted-foreground empty:hidden", className)}
+      className={cn(
+        "py-6 text-center text-base text-muted-foreground empty:hidden",
+        className,
+      )}
       {...props}
     />
   );
 }
 
-export type CommandLoadingProps = React.ComponentProps<typeof BaseCombobox.Status>;
+/** Props accepted by `CommandLoading`. */
+export type CommandLoadingProps = React.ComponentProps<
+  typeof BaseCombobox.Status
+>;
 
 /**
  * `CommandLoading` — an announced status row for asynchronous command results (built on Base UI's
@@ -336,6 +373,7 @@ export function CommandLoading({ className, ...props }: CommandLoadingProps) {
   );
 }
 
+/** Props accepted by `CommandGroup`. */
 export type CommandGroupProps<Item = unknown> = Omit<
   React.ComponentProps<typeof BaseCombobox.Group>,
   "children" | "items"
@@ -355,6 +393,10 @@ export type CommandGroupProps<Item = unknown> = Omit<
 /**
  * `CommandGroup` — a labeled section of items. Pass `heading` for the section label and `items`
  * for its (filtered) items; the group hides itself automatically when its `items` is empty.
+
+ *
+ * @example
+ * <CommandGroup />
  */
 export function CommandGroup<Item = unknown>({
   className,
@@ -378,11 +420,14 @@ export function CommandGroup<Item = unknown>({
           {heading}
         </BaseCombobox.GroupLabel>
       ) : null}
-      {children ? <BaseCombobox.Collection>{children}</BaseCombobox.Collection> : null}
+      {children ? (
+        <BaseCombobox.Collection>{children}</BaseCombobox.Collection>
+      ) : null}
     </BaseCombobox.Group>
   );
 }
 
+/** Props accepted by `CommandSeparator`. */
 export type CommandSeparatorProps = React.ComponentProps<typeof BaseSeparator>;
 
 /**
@@ -394,8 +439,15 @@ export type CommandSeparatorProps = React.ComponentProps<typeof BaseSeparator>;
  * `aria-hidden` (same fix the prior build used): purely decorative, so removing it from the
  * accessibility tree is the correct ARIA treatment and `aria-required-children` passes with no
  * suppression.
+
+ *
+ * @example
+ * <CommandSeparator />
  */
-export function CommandSeparator({ className, ...props }: CommandSeparatorProps) {
+export function CommandSeparator({
+  className,
+  ...props
+}: CommandSeparatorProps) {
   return (
     <BaseSeparator
       data-slot="command-separator"
@@ -406,8 +458,11 @@ export function CommandSeparator({ className, ...props }: CommandSeparatorProps)
   );
 }
 
-export interface CommandItemProps<Value = unknown>
-  extends Omit<React.ComponentProps<typeof BaseCombobox.Item>, "onClick" | "onSelect"> {
+/** Props accepted by `CommandItem`. */
+export interface CommandItemProps<Value = unknown> extends Omit<
+  React.ComponentProps<typeof BaseCombobox.Item>,
+  "onClick" | "onSelect"
+> {
   /**
    * Fired when the item is activated — by click, or by pressing `Enter` while it's highlighted
    * (Base UI's `Combobox.Item.onClick` covers both; see its own doc comment). Receives the item's
@@ -415,6 +470,8 @@ export interface CommandItemProps<Value = unknown>
    *
    * Note: shadows the native DOM `onSelect` text-selection event (irrelevant on a non-input
    * `<div>`) — intentional, kept for continuity with the prior API.
+
+   * @default undefined
    */
   onSelect?: (value: Value) => void;
 }
@@ -424,6 +481,10 @@ export interface CommandItemProps<Value = unknown>
  * keyboard/pointer-active item carries Base UI's `data-highlighted` and is styled with
  * `bg-accent`; pass `disabled` to skip it in navigation. Render an icon + label (and optionally a
  * `CommandShortcut`) as children.
+
+ *
+ * @example
+ * <CommandItem />
  */
 export function CommandItem<Value = unknown>({
   className,
@@ -449,6 +510,7 @@ export function CommandItem<Value = unknown>({
   );
 }
 
+/** Props accepted by `CommandShortcut`. */
 export type CommandShortcutProps = React.ComponentProps<"span">;
 
 /**
@@ -459,12 +521,50 @@ export type CommandShortcutProps = React.ComponentProps<"span">;
  * (DropdownMenuShortcut / ContextMenu) are plain muted text too, and chip-styled keys would
  * make every palette row read busier than the menus it sits beside. Compose `Kbd` yourself
  * for a one-off if a surface genuinely needs the chip treatment.
+
+ *
+ * @example
+ * <CommandShortcut />
  */
 export function CommandShortcut({ className, ...props }: CommandShortcutProps) {
   return (
     <span
       data-slot="command-shortcut"
-      className={cn("ml-auto text-sm tracking-widest text-muted-foreground", className)}
+      className={cn("ms-auto text-mono-label text-muted-foreground", className)}
+      {...props}
+    />
+  );
+}
+
+/** Props accepted by `CommandFooter`. */
+export type CommandFooterProps = React.ComponentProps<"div">;
+
+/**
+ * `CommandFooter` — the palette footer action bar (Wave 2, from the app-teardown
+ * command-menu anatomy): a hairline-topped row pinned under the list, with
+ * keyboard hints on the left and a primary action on the right. Compose
+ * `Kbd` + muted copy for the hints and a small `Button` for the action:
+ *
+ * @example
+ * <Command items={items}>
+ *   <CommandInput placeholder="Search…" />
+ *   <CommandList>{…}</CommandList>
+ *   <CommandFooter>
+ *     <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+ *       <Kbd keys="↑" size="sm" /> <Kbd keys="↓" size="sm" /> Navigate
+ *     </span>
+ *     <Button size="sm">Open<Kbd keys="↵" size="sm" className="ms-1" /></Button>
+ *   </CommandFooter>
+ * </Command>
+ */
+export function CommandFooter({ className, ...props }: CommandFooterProps) {
+  return (
+    <div
+      data-slot="command-footer"
+      className={cn(
+        "flex shrink-0 items-center justify-between gap-2 border-t border-border px-3 py-2",
+        className,
+      )}
       {...props}
     />
   );

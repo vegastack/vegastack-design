@@ -1,6 +1,6 @@
 # Research & Catalog — Findings Dossier (synthesis)
 
-> Supporting reference for [`/docs/requirements.md`](../requirements.md). Compiled 2026-06-20 from a full read of the two reference repos + adversarial web/Context7 research. Version and tooling claims are cited to primary sources (June 2026). Read this when you need the *why* behind a requirement decision.
+> Supporting reference for [`/docs/requirements.md`](../requirements.md). Compiled 2026-06-20 from a full read of the two reference repos + adversarial web/Context7 research. Version and tooling claims are cited to primary sources (June 2026). Read this when you need the _why_ behind a requirement decision.
 >
 > **This is the condensed synthesis.** Full-detail per-stream research (exact token values, component APIs, config snippets, per-system breakdowns, citations) is preserved in the sibling docs — see [research/README.md](README.md) for the index. Use those when building; use this for the overview.
 
@@ -8,9 +8,10 @@
 
 ## A. `resend-design-skills` — full catalog
 
-**Path:** `/Users/kmanojkumar/code/references/resend-design-skills` · **Nature:** a *skills-only* repo (no `package.json`, no npm). Installed via `npx skills add resend/design-skills`. Versioned per-skill.
+**Path:** `/Users/kmanojkumar/code/references/resend-design-skills` · **Nature:** a _skills-only_ repo (no `package.json`, no npm). Installed via `npx skills add resend/design-skills`. Versioned per-skill.
 
 **Structure:**
+
 ```
 resend-design-skills/
 ├─ README.md
@@ -30,14 +31,16 @@ resend-design-skills/
 ```
 
 **The 4 skills:**
-| Skill | Purpose | Notable |
-|---|---|---|
-| `resend-brand` | External/marketing visual identity | Colors (Black/White + status), Domaine/Favorit/Inter/CommitMono type, logo rules, gradients, layout scenes. Dark-first. |
+
+| Skill                  | Purpose                                          | Notable                                                                                                                                                |
+| ---------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `resend-brand`         | External/marketing visual identity               | Colors (Black/White + status), Domaine/Favorit/Inter/CommitMono type, logo rules, gradients, layout scenes. Dark-first.                                |
 | `resend-design-system` | Product UI: component APIs + tokens + heuristics | CVA + compound components + Radix slot/`asChild`. **Two-layer tokens** (semantic primary, primitives as escapes). `state` prop over manual `disabled`. |
-| `marketing-pages` | Public page structure | **Strict separation**: `src/ui/` (product) never used on marketing pages; `src/website/` primitives only. |
-| `design-audit` | Read-only DS-compliance audit | 7 grep-based categories (substitution, token misuse, deprecated, pattern candidates, copy/voice). Reports → Linear, never edits. |
+| `marketing-pages`      | Public page structure                            | **Strict separation**: `src/ui/` (product) never used on marketing pages; `src/website/` primitives only.                                              |
+| `design-audit`         | Read-only DS-compliance audit                    | 7 grep-based categories (substitution, token misuse, deprecated, pattern candidates, copy/voice). Reports → Linear, never edits.                       |
 
 **Patterns worth stealing (→ adopted in requirements):**
+
 1. **Three knowledge layers** — component APIs (concrete) · patterns (copy-paste compositions) · **heuristics** (decision guides like "dialog vs stepper"). We adopt the API + do/don't layers in §7.3; heuristics are a future addition.
 2. **Two-layer tokens** (semantic + primitive escapes) → requirements §5.1.
 3. **Read-only audit** that reports rather than edits → `vegastack-design-audit` skill.
@@ -53,12 +56,14 @@ resend-design-skills/
 **Path:** `/Users/kmanojkumar/code/engg-vegastack-platform` · **Org:** `github.com/VegaStack` · **Stack:** Next.js 16, React 19.2, **Tailwind v4** (CSS `@theme`, OKLCH, no config file), `radix-ui` unified pkg, **OpenNext + Cloudflare + R2** (`open-next.config.ts` uses `r2IncrementalCache`), pnpm 10.28.2, lucide icons, CVA + clsx + tailwind-merge.
 
 **Component layers:**
+
 - `src/components/ui/` — **40 shadcn primitives** (style `radix-nova`, marked DO-NOT-EDIT). Button, Input, Dialog, Select, Popover, Tooltip, DropdownMenu, Tabs, Checkbox, Switch, Calendar, Command, ScrollArea, Sheet/Drawer, Sidebar, Table, etc.
 - `src/components/common/` — **~50 `Vega*` wrappers** (all CVA-based), the real design system. Highlights: VegaButton (11 variants, 8 sizes, loading, kbd hints, split menu), VegaBadge (dynamic `color-mix` for unlimited colors), VegaField, VegaInput, VegaTextarea/VegaTextEdit (Tiptap + markdown + Yjs-ready), VegaMarkdownView, VegaDatePicker, VegaDialog/VegaAlertDialog (mobile drawer via vaul), VegaDropdownMenu, VegaCommand, VegaPageHeader, VegaTooltip, VegaAvatar (R2 resolution), VegaDataList (sortable/selectable/Kanban/dnd-kit), VegaFilterBar, VegaEmptyState, VegaTabs, VegaHoverCard (+User/Agent/Team), VegaColorPicker, VegaEmojiPicker, VegaScroll, plus CopyButton, TruncatedText, PasswordInput, SettingsRow, AutoSaveInput, CommandMenu, CountrySelect/StateSelect, R2Image.
 
 **Showcase:** route `src/app/[locale]/components/` — overview gallery (cards: icon, name, description, variant count, feature tags) + **per-component pages** in dedicated dirs, with `_showcase-helpers/` (`SectionHeader`, `DemoRow`, `DemoGrid`, `PropsTable`, `SourceLink`) and a `src/lib/component-meta.ts` props system (`defineProps`, `ComponentMeta`). ~40 showcase pages. **This is the page we productize as the Fumadocs showcase.**
 
 **Tokens & identity** (`globals.css` + `tailwind-palette.css`):
+
 - **OKLCH** variables: background hierarchy, primary (near-black), secondary/muted/accent, semantic `destructive/success/warning/info` (+foregrounds), overlay, border/input/ring, chart-1..5, full sidebar token set, 22-color Tailwind palette.
 - **Radius:** `--radius: 0.625rem` + sm/md/lg/xl derivations.
 - **Type:** Geist Sans/Mono + **Lora serif for headings**; headings `tracking-tight`, **no `font-bold`/`font-semibold` on headings** (serif weight carries hierarchy). Utility classes `.text-page-title/.text-section-title/...` and `.status-{success,warning,...}`.
@@ -84,23 +89,23 @@ resend-design-skills/
 
 - shadcn is **copy-in: you own the code** ("once installed, they become your code and you are responsible for updating them"). No auto-update path because it's not a dependency.
 - Upgrade tooling **exists and is current** (CLI v4, Mar 2026): `add --overwrite` re-pulls latest; **`--diff`** previews upstream vs local; `--dry-run`/`--view` inspect. Refs: ui.shadcn.com/docs/cli, /docs/changelog/2026-03-cli-v4.
-- **"Never edit, always wrap" is a myth as an absolute.** shadcn's value *is* owning/editing the code. Real practice = **hybrid**: edit-in-place where a component must diverge (accept the merge cost), wrap for additive behavior, and **centralize authoring in your own custom registry**. The canonical maintenance pattern is "pristine copy + `--diff` merge."
+- **"Never edit, always wrap" is a myth as an absolute.** shadcn's value _is_ owning/editing the code. Real practice = **hybrid**: edit-in-place where a component must diverge (accept the merge cost), wrap for additive behavior, and **centralize authoring in your own custom registry**. The canonical maintenance pattern is "pristine copy + `--diff` merge."
 - **Custom registry = the real "one place to maintain" mechanism.** `registry.json` + `registry-item.json` → `shadcn build` → static JSON → downstream `npx shadcn add @org/x`. CLI v4 added **`registry:base`** (ship an entire DS — components + CSS vars + fonts + config — as one payload) and `registry:font`. Refs: ui.shadcn.com/docs/registry/*.
-- **Honest limit:** even with your own registry, updates **do not auto-propagate** — downstream must re-run `add`. Registry centralizes *authoring*, not *distribution*. Anyone claiming registry = npm auto-update is wrong. (This is exactly why requirements use the **hybrid**: npm for the auto-propagate layer, registry for the owned layer.)
+- **Honest limit:** even with your own registry, updates **do not auto-propagate** — downstream must re-run `add`. Registry centralizes _authoring_, not _distribution_. Anyone claiming registry = npm auto-update is wrong. (This is exactly why requirements use the **hybrid**: npm for the auto-propagate layer, registry for the owned layer.)
 
 ---
 
 ## E. Distribution model — npm vs registry vs hybrid
 
-| | npm package | shadcn registry |
-|---|---|---|
-| Code location | `node_modules` (opaque) | copied into downstream repo |
-| Ownership | central | downstream |
-| Updates | `npm update` (auto) | re-run `add` (manual) |
-| Customizable | only via exposed props/wrap | fully (it's their file) |
-| Agent-editable | ❌ | ✅ |
+|                | npm package                 | shadcn registry             |
+| -------------- | --------------------------- | --------------------------- |
+| Code location  | `node_modules` (opaque)     | copied into downstream repo |
+| Ownership      | central                     | downstream                  |
+| Updates        | `npm update` (auto)         | re-run `add` (manual)       |
+| Customizable   | only via exposed props/wrap | fully (it's their file)     |
+| Agent-editable | ❌                          | ✅                          |
 
-- **Big mature systems = npm packages** (Polaris, React Spectrum, Primer, Atlaskit) — central control, but deep customization means "drop to the headless layer and rebuild." 
+- **Big mature systems = npm packages** (Polaris, React Spectrum, Primer, Atlaskit) — central control, but deep customization means "drop to the headless layer and rebuild."
 - **shadcn registry = copy-in ownership**, agent-native, can ship tokens+config+components together; updates are manual.
 - **Hybrid is the production sweet spot.** Real example: **OpenStatus** runs a monorepo `packages/ui` consumed internally as a dep **and** exposed as a shadcn registry for copy-in. shadcn's `init --monorepo` scaffolds this shape.
 - **Fundamental tension (sourced):** npm = central control + trivial updates but locked; registry = full customization + ownership but no auto-propagation. The hybrid puts each layer on the favorable side. → requirements §4.
@@ -129,7 +134,7 @@ resend-design-skills/
 
 ## H. Docs/showcase tooling
 
-- **What real DS docs run on (verified):** shadcn/ui = **Next.js App Router + Fumadocs (`fumadocs-mdx`)**; Radix = custom Next.js + MDX; MUI = Next.js (usage page + separate auto-gen API page); React Spectrum = Parcel. **None use Storybook as the public docs site** — Storybook is a component *workbench*.
+- **What real DS docs run on (verified):** shadcn/ui = **Next.js App Router + Fumadocs (`fumadocs-mdx`)**; Radix = custom Next.js + MDX; MUI = Next.js (usage page + separate auto-gen API page); React Spectrum = Parcel. **None use Storybook as the public docs site** — Storybook is a component _workbench_.
 - **Storybook is at v10** (Oct 2025, ESM-only, −29% install; v10.3 added a Storybook MCP) — not v9. Strength: variants-as-tests via Vitest+Playwright + Chromatic visual regression.
 - **Fumadocs** (v16, very active) = the modern Next.js-native docs framework; MDX + Shiki + Twoslash, Orama search, **AutoTypeTable** (TS→props), `fumadocs-openapi`. Multi-framework since v15.2. **Nextra 4** = more opinionated content-first alternative. **Ladle** = fast Vite workbench (React-only, no auto prop tables). **Histoire = avoid** (Vue-first, stalled). **Avoid Sandpack** (unmaintained since Mar 2026) and **Contentlayer** (dead — shadcn migrated off it to Fumadocs).
 - **Recommendation (→ D9):** Fumadocs for the showcase (live previews + `react-docgen-typescript` props + Shiki + MDX do/don't); Storybook deferred to phase 2. Refs: storybook.js.org/blog/storybook-10, fumadocs.dev, ui.shadcn.com.
@@ -140,18 +145,19 @@ resend-design-skills/
 
 - **`@opennextjs/cloudflare` v1.19.x — stable/GA**, weekly cadence. Supports Next 15 (latest minor) + 16; App Router GA; runs Node runtime in Workers. `@cloudflare/next-on-pages` is **deprecated** → use OpenNext. Cloudflare committed to an official first-party adapter built on OpenNext later in 2026 → building on OpenNext now is future-aligned.
 - **For a static docs site**, `output: "export"` on **Workers Static Assets** is leaner/cheaper than OpenNext (no server) — Cloudflare's recommended direction. Use OpenNext only for SSR/ISR/route-handlers/live playground. → requirements §8.5.
-- Worker limits: 3 MB (Free)/10 MB (Paid) gzipped *server* bundle; static assets don't count. Do Shiki highlighting at **build time**. `nodejs_compat` + `compatibility_date ≥ 2024-09-23` required for OpenNext. Local dev: `next dev` (fast) + `opennextjs-cloudflare preview` (prod-accurate). Refs: opennext.js.org/cloudflare, developers.cloudflare.com/workers/static-assets, npmjs.com/package/@opennextjs/cloudflare.
+- Worker limits: 3 MB (Free)/10 MB (Paid) gzipped _server_ bundle; static assets don't count. Do Shiki highlighting at **build time**. `nodejs_compat` + `compatibility_date ≥ 2024-09-23` required for OpenNext. Local dev: `next dev` (fast) + `opennextjs-cloudflare preview` (prod-accurate). Refs: opennext.js.org/cloudflare, developers.cloudflare.com/workers/static-assets, npmjs.com/package/@opennextjs/cloudflare.
 
 ---
 
 ## J. AI-agent-consumable design systems
 
 - **Load-bearing finding (Atlassian A/B test):** a static markdown spec (DESIGN.md) made agents **re-implement** components (~92% more tokens, ~30% DS coverage); an **MCP/registry pointing at real importable components hit ~80%**. → ship the registry/MCP for components; markdown only for rules.
-- **What to ship (priority):** (1) shadcn-compatible **`registry.json`/`registry-item.json`** (private, namespaced) — `title`/`description`/`categories`/`meta` drive agent *selection*; (2) **MCP server** (`npx shadcn mcp`) for discover→search→inspect→install→verify; (3) **`AGENTS.md` + `CLAUDE.md`**; (4) **`SKILL.md`** suite; (5) **`llms.txt`/`llms-full.txt`**. Extend `meta` with `whenToUse`/`whenNotToUse` for disambiguation; auto-generate from JSDoc to avoid drift. Refs: ui.shadcn.com/docs/{registry,mcp}, agents.md, storybook.js.org/docs/ai/manifests.
+- **What to ship (priority):** (1) shadcn-compatible **`registry.json`/`registry-item.json`** (private, namespaced) — `title`/`description`/`categories`/`meta` drive agent _selection_; (2) **MCP server** (`npx shadcn mcp`) for discover→search→inspect→install→verify; (3) **`AGENTS.md` + `CLAUDE.md`**; (4) **`SKILL.md`** suite; (5) **`llms.txt`/`llms-full.txt`**. Extend `meta` with `whenToUse`/`whenNotToUse` for disambiguation; auto-generate from JSDoc to avoid drift. Refs: ui.shadcn.com/docs/{registry,mcp}, agents.md, storybook.js.org/docs/ai/manifests.
 
 ---
 
 ### Source caveats
+
 - No primary-source bundle-size benchmark for Base UI vs Radix (treat KB claims skeptically).
 - "OpenAI/Sonos/Adobe use shadcn private registries" is shadcn marketing, not independent case studies; **OpenStatus** is the one concrete documented hybrid example.
 - The Radix "liability" quote is from a Base UI principal — conflicted.

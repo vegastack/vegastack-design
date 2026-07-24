@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { Wrapper } from './wrapper';
-import { ChevronRight, Plus, Trash2 } from 'lucide-react';
+import type { ReactNode } from "react";
+import { Wrapper } from "./wrapper";
+import { ChevronRight, Plus, Trash2 } from "lucide-react";
 // Copied INTO apps/docs via `shadcn add @vegastack/button` (dogfoods the registry) → auto-scanned.
-import { Button } from '@/components/ui/button';
-import { MarketingSurface } from '@/components/ui/marketing-surface';
+import { Button } from "@/components/ui/button";
+import { MarketingSurface } from "@/components/ui/marketing-surface";
 
 export function button(): ReactNode {
   return (
@@ -90,12 +90,12 @@ export function buttonCta(): ReactNode {
 }
 
 export function buttonMatrix(): ReactNode {
-  const variants = ['default', 'outline', 'destructive'] as const;
-  const sizes = ['xs', 'default', 'lg'] as const;
+  const variants = ["default", "outline", "destructive"] as const;
+  const sizes = ["xs", "default", "lg"] as const;
   const sizeLabels: Record<(typeof sizes)[number], string> = {
-    xs: 'Extra small',
-    default: 'Default',
-    lg: 'Large',
+    xs: "Extra small",
+    default: "Default",
+    lg: "Large",
   };
   return (
     <Wrapper className="flex-col items-stretch gap-3">
@@ -108,6 +108,20 @@ export function buttonMatrix(): ReactNode {
           ))}
         </div>
       ))}
+    </Wrapper>
+  );
+}
+
+export function buttonFinish(): ReactNode {
+  // Wave 2 `lit` finish: the `--shadow-lit` top-light + warm ambient on the PRIMARY
+  // action only — every other variant stays flat (passing finish="lit" there is a no-op).
+  return (
+    <Wrapper className="items-center gap-3">
+      <Button>Flat (default)</Button>
+      <Button finish="lit">Lit primary</Button>
+      <Button variant="outline" finish="lit">
+        Outline stays flat
+      </Button>
     </Wrapper>
   );
 }

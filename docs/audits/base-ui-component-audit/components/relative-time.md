@@ -13,9 +13,9 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| None | No material component-specific finding survived review. | No action. | Keep tests around refresh intervals and absolute-time disclosure. |
+| Priority | Evidence                                                | Impact     | Suggested fix                                                     |
+| -------- | ------------------------------------------------------- | ---------- | ----------------------------------------------------------------- |
+| None     | No material component-specific finding survived review. | No action. | Keep tests around refresh intervals and absolute-time disclosure. |
 
 ## Residual Risks
 
@@ -24,4 +24,3 @@ Time-zone and "now" behavior should remain deterministic in tests.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- relative-time.test.tsx`
-

@@ -1,0 +1,63 @@
+---
+title: Registry operations
+description: Administer the VegaStack registry service token, CI secrets, rotation, revocation, handover, and incident recovery.
+audience: internal
+---
+
+This runbook covers the operational side of the private registry. Consumer setup stays
+in the public [Registry access & auth](/docs/guides/registry-auth) guide.
+
+## Ownership
+
+The shared internal service token is named `vegastack-design-registry`. The designated
+Cloudflare account owner controls issuance, renewal, rotation, revocation, and handover.
+The Client Secret is visible only at creation time and must be transferred through the
+approved secret-sharing channel.
+
+Do not create per-developer copies without recording an explicit exception. External or
+client-owned projects never receive the token.
+
+## Cloudflare application
+
+The Access application for `design.vegastack.com/r/*` must contain a Service Auth policy
+that includes the registry service token. It must remain more specific than any broader
+application on the hostname.
+
+Before changing it, record the application ID, policy IDs, current service-token
+identity, expiration, and the previous known-good configuration.
+
+## CI secret wiring
+
+Each authorized internal repository stores two masked secrets:
+
+- `CF_ACCESS_CLIENT_ID`
+- `CF_ACCESS_CLIENT_SECRET`
+
+Expose them only to registry install or update-check steps. Never print environment
+variables or enable shell tracing around an authenticated request.
+
+## Rotation and renewal
+
+1. Create or renew the token in Cloudflare Zero Trust.
+2. Update both secrets in every authorized repository and local development vault.
+3. Verify `GET /r/registry.json` returns `200` with the new token.
+4. Verify anonymous access is still rejected.
+5. Revoke the old token only after every authorized consumer is green.
+6. Record the owner, date, expiry, affected repositories, and verification evidence.
+
+## Revocation and incident recovery
+
+Revoke immediately if a value appears in source control, logs, screenshots, support
+messages, an untrusted environment, or a client-owned repository. Restore consumers
+with a newly issued token, rotate CI secrets, invalidate affected local values, and run
+the authenticated/anonymous boundary probe again.
+
+If `/r/*` becomes anonymously accessible, restore the last known-good Access policy
+before investigating other failures. Do not rely on `robots.txt`, undocumented paths,
+or application code as a registry authorization boundary.
+
+## Handover
+
+Handover must include Cloudflare account access, application and policy IDs, token
+identity and expiry, the authorized-repository inventory, the rotation record, and this
+recovery procedure. Never place the Client Secret itself in the handover document.

@@ -13,9 +13,9 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P2 | Source/docs claim `<button role="switch">` at `switch.tsx:77` and `switch.mdx:54`, but test confirms Base UI renders `<span role="switch">` plus hidden input at `switch.test.tsx:92`. | Docs/comments are inaccurate and can mislead a11y expectations. | Correct docs/comments and add nativeButton guidance where sibling labels are used. |
+| Priority | Evidence                                                                                                                                                                               | Impact                                                          | Suggested fix                                                                      |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| P2       | Source/docs claim `<button role="switch">` at `switch.tsx:77` and `switch.mdx:54`, but test confirms Base UI renders `<span role="switch">` plus hidden input at `switch.test.tsx:92`. | Docs/comments are inaccurate and can mislead a11y expectations. | Correct docs/comments and add nativeButton guidance where sibling labels are used. |
 
 ## Residual Risks
 
@@ -24,4 +24,3 @@ Implementation itself is Base UI-aligned.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- switch.test.tsx`
-

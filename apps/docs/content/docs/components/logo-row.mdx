@@ -1,6 +1,7 @@
 ---
 title: Logo Row
-description: A muted logo/wordmark strip — alpha-dimmed at rest, restoring on hover for linked items.
+description: A contrast-safe muted logo/wordmark strip that restores to foreground on linked-item hover.
+audience: public
 preview: logoRow
 ---
 
@@ -15,31 +16,43 @@ npx shadcn@latest add @vegastack/logo-row
 ## Usage
 
 ```tsx
-import { LogoRow } from '@/components/ui/logo-row';
+import { LogoRow } from "@/components/ui/logo-row";
 
 <LogoRow
   label="Built with"
-  items={[{ name: 'ACME' }, { name: 'NIMBUS' }, { name: 'COREBASE' }]}
+  items={[{ name: "ACME" }, { name: "NIMBUS" }, { name: "COREBASE" }]}
 />;
 ```
 
+## Examples
+
 <ComponentPreview name="logoRow" file="components/preview/logo-row.tsx" />
 
-## Linked items
+### Linked items
 
-Pass `href` on an item to render it as a link, restoring to full alpha on hover/focus.
+Pass `href` on an item to render it as a link, restoring to `foreground` on hover and focus.
 
 <ComponentPreview name="logoRowLinked" file="components/preview/logo-row.tsx" />
 
-## Text only — never a fake logo
+### Text only — never a fake logo
 
 `LogoRow` renders wordmarks as plain **text**, never image/SVG logo assets — and never real
 third-party brand names, since that would imply an unverified partnership. Use generic or
 placeholder names on marketing pages until real, cleared logos exist.
 
+### Wall variant
+
+`variant="wall"` lays the wordmarks out as a hairline-cell grid — the cell borders form the
+grid, no gaps. Set `wallColumns` to 2, 3, or 4.
+
+<ComponentPreview name="logoRowWall" file="components/preview/logo-row.tsx" />
+
 ## API Reference
 
-<AutoTypeTable path="../../packages/ui/registry/ui/logo-row.tsx" name="LogoRowProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/logo-row.tsx"
+  name="LogoRowProps"
+/>
 
 ## Accessibility
 

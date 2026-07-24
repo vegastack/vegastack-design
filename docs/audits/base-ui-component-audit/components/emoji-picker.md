@@ -13,10 +13,10 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P3 | Empty search state is plain visual text at `emoji-picker.tsx:523`; test checks text only at `emoji-picker.test.tsx:56`. | Screen reader users may not hear that filtering produced no results. | Add `role="status" aria-live="polite"` for empty/result count updates. |
-| P3 | `trigger` accepts any `ReactElement` at `emoji-picker.tsx:350`, but ref is typed `HTMLButtonElement` at `emoji-picker.tsx:387`. | Non-button custom triggers make ref typing unsound. | Type ref as `HTMLElement` or enforce/document button-like triggers. |
+| Priority | Evidence                                                                                                                        | Impact                                                               | Suggested fix                                                          |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| P3       | Empty search state is plain visual text at `emoji-picker.tsx:523`; test checks text only at `emoji-picker.test.tsx:56`.         | Screen reader users may not hear that filtering produced no results. | Add `role="status" aria-live="polite"` for empty/result count updates. |
+| P3       | `trigger` accepts any `ReactElement` at `emoji-picker.tsx:350`, but ref is typed `HTMLButtonElement` at `emoji-picker.tsx:387`. | Non-button custom triggers make ref typing unsound.                  | Type ref as `HTMLElement` or enforce/document button-like triggers.    |
 
 ## Residual Risks
 
@@ -25,4 +25,3 @@ Embedded emoji set should be documented accurately if size/count changes.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- emoji-picker.test.tsx`
-

@@ -1,65 +1,314 @@
 # AGENTS.md — vegastack-design
 
-VegaStack's internal design system + design skills, for humans **and** AI coding agents (Claude Code, Codex).
+VegaStack's internal design system: Base UI + Tailwind v4 + OKLCH semantic tokens, distributed as
+two public npm packages plus a private, Sigstore-signed shadcn registry. Consumed by humans and by
+agents (Claude Code, Codex).
 
-> **Status: SHIPPED and live.** npm `@vegastack/design` 0.1.1 + `@vegastack/design-tokens` 0.1.0 (OIDC trusted publishing, tokenless), docs + registry at `design.vegastack.com` behind Cloudflare Access. **Operating mode: build LOCAL; publishes/deploys go through the `ship` skill** (`skills/ship/SKILL.md`) — never manual npm publishes. The historical build plan lives in `docs/plans/` (start: `00-START-HERE.md`); architecture decisions are locked below and in `docs/requirements.md` §3 — if something is genuinely missing, stop and ask.
+**This file is loaded into every session.** It holds the rules you can break before loading anything
+else, the map, and a router. Procedures live in skills, loaded on demand.
 
-## Locked decisions (do NOT re-open — full rationale in `docs/requirements.md` §3 + `docs/gap-analysis.md`)
-- **Primitives:** `@base-ui/react` via shadcn `--base base`. **Tailwind v4.** Next 16 / React 19 / **Node ≥24.14** / pnpm 11 / Turborepo 2.
-  - **Sanctioned exception (MK-approved 2026-06-28, `docs/plans/add-chat-components.md`):** `@vegastack/message-scroller` is built on the headless `@shadcn/react/message-scroller` primitive (the auto-scroll/anchor/visibility engine has no Base UI equivalent). This is the ONLY non-Base-UI **headless primitive**; do not add others without re-opening this decision. (The plan-anticipated `@shadcn/react` Attachment primitive turned out not to exist in any published version — verified via npm, 0.2.1 exports only `./message-scroller` — so Attachment ships self-owned presentational like the rest of the chat family; this exception's wording stays true, unbroadened.)
-  - **Engine vs. primitive — a separate, narrower class:** `react-resizable-panels` (Resizable), `recharts` (Chart, dashboard-01), `motion` (the `lucide-animated` icon mirrors), and `tiptap` (TextEdit) — same category as the pre-existing `sonner` (toast) — are sanctioned **renderer/behavior-engine** dependencies, each named per-component in `packages/ui/registry.json`, NOT Base-UI-category headless primitives (they render/animate; they don't own interaction semantics the way `@shadcn/react/message-scroller` does). Adding a new engine dependency needs the same MK sign-off as the primitive exception above, tracked the same way.
-- **Distribution = hybrid:** PUBLIC npm (`@vegastack/design` + zero-dep `@vegastack/design-tokens` — consolidated 2026-07-18, MK-approved: `docs/plans/package-consolidation.md`) + PRIVATE shadcn registry (components, copy-in).
-- **Provider ships as a registry item** (MK-approved 2026-07-18, `docs/plans/consumer-starter-and-guide.md`): `shadcn add @vegastack/provider` is the sanctioned install path for `VegaStackProvider`/`useVegaStackTheme` (composes the `sonner` item); the private `@vegastack/ui` provider is a documented MIRROR of the canonical registry source (same discipline as the Toaster pair) — edit canonical, re-mirror.
-- **Component model A (own it), NO `Vega*` prefix** → export `Button`, not `VegaButton`. No pristine-shadcn tier; the maintenance skill surfaces `shadcn add --diff` for cherry-pick.
-- **Tokens:** DTCG → Style Dictionary (custom `color/oklch` transform + separate light/dark builds + `@theme inline` bridge). Runtime font/ease vars are `--font-family-*` / `--motion-ease-*` (never self-referential).
-- **Docs/showcase:** Fumadocs, static export → Cloudflare Workers Static Assets. VRT is day-one (Vitest browser + vitest-axe + Playwright). Storybook deferred.
-- **Registry integrity:** whole-canonical-item SHA-256 in `meta.integrity` + **Sigstore-signed manifest** (GitHub OIDC) + fail-closed consume preflight.
-- **Auth:** human docs = SSO identity login; `/r/*` registry = service-token-only.
+**Status:** shipped and live on public npm via OIDC trusted publishing (tokenless). Production docs
+and registry at `design.vegastack.com` remain behind Cloudflare Access until the separately approved
+public-docs cutover. Operating mode: **build local; publishes and deploys go through the `ship`
+skill.** For actual versions, ask the registry and the workspace rather than any document:
 
-## Component build rules (enforced by lint + the design-audit skill)
-- **Semantic Tailwind tokens only** (`bg-primary`, `text-muted-foreground`) — NEVER hardcoded hex/px or raw palettes (`bg-neutral-900`). No raw `z-N` (two bands: `z-(--z-raised)`/`z-(--z-overlay)`), no raw `/NN` alpha or `opacity-NN` (route through `--alpha-*`/`--opacity-*`), no `rounded-xl` (removed — cap at `rounded-lg`), no raw control/icon sizes (`--size-*`/`--icon-*`).
-- **CVA** for variants; **`cn()`** from `@vegastack/design`; **`data-*`** attributes for state styling; **ref-as-prop** (React 19 — never `React.forwardRef`); Base UI **`render`** for composition (single-polymorphic-root components must not `Omit<…, 'render'>`).
-- **Motion:** route through the token scale — `duration-fast/base/slow` + `ease-standard/emphasized/exit/spring`, paired in the same class-string literal (`transition-pairing` lint), or a sanctioned `motion-*` utility (`motion-pop-in`/`motion-enter-up`/`motion-shake`). Never a raw `duration-[…]`/`ease-[…]`/`cubic-bezier()`/bare `linear()` in a class string (`raw-motion` lint); `animate-spin`/`animate-pulse` are the one documented loader exception. Mechanism choice (Base UI lifecycle vs. keyed presence vs. replay APIs vs. `AnimatedNumber`) — see `skills/add-component/SKILL.md` §2.
-- **Uppercase is mono-exclusive** (D20): any uppercase TYPE (a `text-*` utility) must carry `font-mono`/`text-mono-label` in the same literal and stay ≤14px — uppercase Geist Sans is lint-banned (`uppercase-mono`). Uppercase content-transforms (avatar initials) are exempt.
-- **Responsive:** `min-w-0` on a truncating flex child, `truncate`/`line-clamp-*` on an inner span never combined with `flex`/`inline-flex` on the same element (`flex-truncate-conflict` lint — `.flex` always wins the display conflict). Touch targets ≥24px via an invisible hit-area (`before:absolute before:-inset-N`), not a bigger visual control — verify with a real `elementFromPoint` boundary probe, not just `getComputedStyle` (a native `<button>`'s Preflight `appearance:button` can clip an overflowing `::before` when nested).
-- **Icons:** ONLY `lucide-react` (functional), lucide-animated (motion), `thesvg` (brand) — via `Icon`/`BrandIcon`. No other icon libraries, no inline `<svg>` as an icon. Icon **registry items** install as `@vegastack/icon-<name>` (440 items) — the bare `<name>` is reserved for components, so an icon item never collides with one.
-- **Registry item types beyond `registry:ui`:** `registry:hook` for a pure-hook item (plain `.ts`, no `.tsx` — `use-mobile`, `use-animation-replay`) and `registry:block` for a copy-once starter composition (`dashboard-01` — hash-tracked AppShell primitive + a page/loading/data.json a consumer owns after install, not update-tracked like a component).
-- **AppShell** (`packages/ui/registry/ui/app-shell.tsx`) is the shared-layout source of truth — landmark trio (banner/nav/main) + skip-link + `@container/app-shell-content`; compose it rather than hand-rolling a sidebar+header+main shell.
-- **Server-safe by default**; `'use client'` only at the lowest interactive leaf.
-- **Accessibility:** WCAG 2.1 AA; visible `:focus-visible` (text-entry fields use a border-tint instead — see `design.md` §Accessibility); must pass `axe`. Every applicable UI state implemented (default/hover/focus/loading/empty/error/success/disabled).
+```bash
+npm view @vegastack/design version                              # what consumers have
+node -p "require('./packages/design/package.json').version"     # what this tree would publish
+```
 
-## Editing a component — SINGLE SOURCE OF TRUTH (do not hand-edit the copy)
-Every component exists in three synced places. **You edit ONE; a script regenerates the rest.**
-- **Canonical source (EDIT THIS):** `packages/ui/registry/ui/<name>.tsx` — the only file you change.
-- **Docs copy-in (GENERATED, never hand-edit):** `apps/docs/components/ui/<name>.tsx` — what the docs preview actually renders (imported as `@/components/ui/<name>`). It is re-synced **byte-for-byte** from canonical by `tooling/registry-header.mjs`.
-- **Registry JSON (GENERATED):** `apps/docs/public/r/<name>.json` — built by `shadcn build`; carries the `meta.integrity` SHA-256 and the `// @vegastack <name>@<ver> sha256-…` provenance header that is also stamped onto the source + copy-in.
+## Truth hierarchy
 
-**Workflow:** edit canonical → run `pnpm run registry:build` (= `shadcn registry validate` → `shadcn build` → `registry-stamp` → `registry-header` → `verify-headers` → `verify-registry-deps`). It regenerates the copy-in + JSON, re-stamps headers, and is **idempotent + fully local** (no publish/push). Verified working 2026-06-23 via a canonical-only edit → rebuild → copy auto-synced round-trip.
+When two sources disagree, the higher one wins. This ordering matters more than any individual rule
+below, because most wrong answers come from trusting a document that stopped being true.
 
-- **JSON payloads carry no provenance header.** A `registry:file` data fixture (e.g. `dashboard-01`'s `data.json`) can't take a `//` comment header without breaking as JSON — `registry-header`/`verify-headers` skip any `files[].path` ending `.json`; item-level `meta.integrity` still covers them.
-- **`public/r` is pruned to current items on every build.** `shadcn build` is additive-only, so a renamed/removed item's stale JSON would otherwise linger and can re-stamp a source file with a dead identity; `registry-header` deletes any `public/r/*.json` not matching a current `registry.json` item name before regenerating.
+1. **The source and the scripts that enforce it** — `packages/ui/registry/ui/*`,
+   `tooling/design-lint.mjs`, and the `verify-*`/`sync-*` gates. If prose disagrees with an enforcing
+   script, the script is right and the prose is a bug.
+2. **Machine authorities** — `packages/ui/component-contracts.json` and `packages/ui/registry.json`
+   for inventory, membership, and counts. Never quote a count from prose.
+3. **Official docs for the version actually installed** — Base UI, Tailwind v4, shadcn, Next, React.
+   Check `package.json`/the lockfile for the real version, then read that version's docs. These
+   libraries change under us; recalled API knowledge is frequently a version behind.
+4. **`design.md`** — the canonical design doctrine, and a _living_ document: it is gated by
+   `pnpm design:sync:check`, so it must be brought forward whenever the system's direction changes.
+   A change to component direction that leaves `design.md` behind is an incomplete change.
+5. **This file** — always-on rules, the map, the router.
+6. **Skills** — procedures, loaded on demand. More specific and usually newer than this file.
 
-> ⚠️ Do **not** assume you must edit both `packages/ui/registry/ui/` and `apps/docs/components/ui/` by hand — that is the drift footgun. Edit canonical only, then rebuild. The copy-in exists to **dogfood the `shadcn add` copy-in distribution** (proven by `verify-shadcn-consume.mjs` running the real CLI) — do NOT replace it with a path-alias/symlink to canonical without reopening the locked distribution decision. `preview/*.tsx` files only COMPOSE components; never fix component styling there.
+**Everything under `docs/plans/`, `docs/gap-analysis.md`, `docs/audits/`, and `docs/requirements.md`
+is a point-in-time record.** They say what was believed and decided on a given date — several
+declare themselves "preserved as the historical record" — and they are the right place to answer
+_"why was this chosen, back then"_. They are **not** a source of current behaviour, current package
+names, current counts, or current APIs. Do not cite them as evidence that something is true today;
+confirm against 1–4 first. Locked decisions stay locked regardless of where they are written down.
 
-## Releasing & consuming updates (runbook: the `ship` skill; reference: `docs/RELEASING.md`)
-- **Shipping is ALWAYS MK's decision.** Agents prepare releases but never execute the outward steps — pushing changeset-bearing commits, merging the Version Packages PR, or dispatching `deploy.yml` — without an explicit "yes proceed" from MK for THAT step. Approval for one step does not carry to the next.
-- **Ship via the `ship` skill** (`skills/ship/SKILL.md`, discoverable by Claude Code AND Codex through the `.claude/skills/ship` + `.agents/skills/ship` symlinks — agentskills standard; `tooling/skill-lint.mjs` in root lint enforces frontmatter + symlink integrity). It covers preflight → changesets → changelog → Version PR → OIDC publish → deploy → verification.
-- **Changelog is a system:** the root `/CHANGELOG.md` is canonical (design-system version, friendly dates, fixed section vocabulary `🧩/🔧/🗑/🛠/📦/📚/🐛/⚠️` — format spec in `skills/ship/references/changelog-format.md`). The docs Changelog page is GENERATED from it by `tooling/sync-changelog.mjs` between its START/END markers; `tooling/changelog-lint.mjs` + the sync `--check` drift gate run inside docs lint. Edit the root file, run the sync, never touch the generated region.
-- **CLI:** `vegastack-design` (bin from `@vegastack/design`) is the consumer entrypoint. Subcommands: `check-updates` (what to re-pull — HEADER-OPTIONAL: the real shadcn CLI strips provenance headers on copy-in, so headerless files are identified by filename against the registry index and compared by alias-normalized content; `≈ drift` = differs, `--fail-on-update` fails on update+drift) + `verify` (integrity pre/post `shadcn add`). Bin name is `vegastack-design` (NOT `vegastack`) so it never collides with a platform CLI.
-- **Ship a component update:** edit canonical → `registry:build` (re-stamps integrity = the change signal) → `pnpm changeset` (bump `@vegastack/ui`, list affected components) → merge to `main` (`release.yml` publishes npm) → run the **Deploy** workflow (`deploy.yml`, manual: build + Sigstore-sign + Cloudflare). Registry updates are **pulled, never pushed** (shadcn copy-in).
-- **Receive an update (downstream):** `vegastack-design check-updates` → `shadcn add @vegastack/<name> --diff` → `--overwrite`. Status is by **integrity hash**, so a component reads `up to date` when the global version bumped but its content didn't change.
+## The five non-negotiables
 
-## Layout
-- `docs/` — requirements, gap-analysis, the implementation plan (`docs/plans/`), and research catalogs (`docs/research/`).
-- `packages/` — `design-tokens` (zero-dep design contract), `design` (cn + icons + preset + CLI), `ui`. `packages/ui/registry/ui/` holds components + hooks; `packages/ui/registry/blocks/` holds `registry:block` starter compositions (currently `dashboard-01`).
-- `apps/docs/` — the Fumadocs showcase (incl. the 9-page consumer **Guides** section, `content/docs/guides/`) + the registry host (`public/r/`).
-- `tooling/` — registry hashing/signing/verify scripts + `design-lint.mjs`/`content-lint.mjs`. `.github/workflows/` — CI, release, deploy.
-- `skills/` — `add-component` and `design-audit` are the post-overhaul authoring/audit canon (v0.2.0, synced 2026-07); re-read them (not this file's summary) before authoring or auditing a component.
+1. **Edit the canonical source only.** Every component exists in three places; two are generated.
+2. **Semantic tokens only.** No hex, no px, no raw Tailwind palette, anywhere in component source.
+3. **Server-safe by default.** `'use client'` only at the lowest interactive leaf.
+4. **Never hand-edit a generated file.** If a file says GENERATED, change its authority and rerun.
+5. **Shipping is always MK's decision.** Prepare and stop. Approval for one step is never approval
+   for the next.
 
-## Numbers (verify against source before quoting a stale one elsewhere)
-- **Registry: 526 items** in `packages/ui/registry.json` — 523 `registry:ui` (440 of them `icon-<name>` items; incl. `provider`) + 2 `registry:hook` (`use-mobile`, `use-animation-replay`) + 1 `registry:block` (`dashboard-01`).
-- **Component matrix: 75** — `docs/ledger/component-matrix.md` tracks 71 rows fully green; the chat family (`Marker`, `Message`, `Bubble`/`BubbleContent`, `MessageScroller`) and `provider` (shipped 2026-07-18, tested, registered) are documented tracking gaps, never backfilled into the matrix.
-- **Showcase/VRT: 100 routes** in `apps/docs/vrt/components.spec.ts`'s `PAGES` (× 2 lanes = 200 baselines); docs content is 112 MDX pages (109 link-lint-validated pages incl. the 9-page Guides section). Sidebar sections are labeled via root `meta.json` separators (`---Guides---` …) × **2 lanes** (`chromium` desktop 1280×720, `mobile-chromium` 375×812 touch) = 182 baseline shots. Every new component's showcase route must be added to `PAGES`; a route in only one lane's committed baselines is incomplete coverage.
-- **Cross-browser smoke lane** (`pnpm --filter @vegastack/ui test:smoke`, `vitest.smoke.config.ts`): a deliberate subset of motion-exercising files run against real WebKit + Firefox, not just Chromium — add a file only if it exercises a motion mechanism or a cross-engine-risky interaction; the full unit suite already runs Chromium on every PR.
+## Task router
 
-Reference repos to read (don't re-derive): `/Users/kmanojkumar/code/references/fumadocs`, `/Users/kmanojkumar/code/engg-vegastack-platform`, `/Users/kmanojkumar/code/references/resend-design-skills`. **Reference consumer** (the executable ground truth for the Guides): `/Users/kmanojkumar/code/vegastack-design-starter` — local-only, consumes production npm + registry; its 10-spec smoke suite is the contract; guide claims must match it.
+| You are about to…                                          | Do this                                                                                  |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Add or change a component, hook, or block                  | Load the **`component`** skill                                                           |
+| Review or audit this repo — gates, compliance, drift, bugs | Load the **`review`** skill                                                              |
+| Release, publish, deploy, or write a changelog entry       | Load the **`ship`** skill                                                                |
+| Plan a non-trivial change                                  | Write a plan to `docs/plans/`, present it, wait for approval (§Planning)                 |
+| Write or change a docs page                                | §Docs authoring below, then the `component` skill §6                                     |
+| Understand what a component does                           | `docs/ledger/component-matrix.md`, or the MDX page                                       |
+| Know the current counts                                    | §Numbers below — generated from the contract; never quote a count from prose             |
+| Answer "why was this chosen"                               | The point-in-time record in `docs/` — see §Truth hierarchy before trusting it as current |
+| Find a past bug or judgment call                           | `docs/ledger/bugs.md` · `docs/ledger/operator-review.md`                                 |
+
+Skills live in `skills/{internal,public}/`, symlinked into `.claude/skills/` (Claude Code) and
+`.agents/skills/` (Codex). Both agents load a skill automatically when the task matches its
+description; Claude Code additionally accepts `/<directory-name>` to invoke one directly. Load the
+skill rather than working from this file's summary — the summary is deliberately lossy.
+See `skills/README.md` for the audience split and the rules that govern it.
+
+## Locked decisions
+
+Do not re-open these. The original rationale is in `docs/requirements.md` §3 and
+`docs/gap-analysis.md` — historical records, so read them for _why_, never for _what is true now_.
+
+- **Stack** — `@base-ui/react` primitives via shadcn `--base base`; Tailwind v4; Next 16; React 19;
+  Node ≥24.14; pnpm 11; Turborepo 2.
+- **Distribution is hybrid** — public npm (`@vegastack/design` + zero-dep
+  `@vegastack/design-tokens`) plus a private shadcn registry for components (copy-in).
+- **Component model A (own it), no `Vega*` prefix** — export `Button`, not `VegaButton`. There is no
+  pristine-shadcn tier; `shadcn add --diff` surfaces upstream changes for deliberate cherry-pick.
+- **The provider ships as a registry item** — `shadcn add @vegastack/provider` is the sanctioned
+  install path. The `@vegastack/ui` provider is a documented mirror of the canonical registry source.
+- **Tokens** — DTCG → Style Dictionary (custom `color/oklch` transform, separate light/dark builds,
+  `@theme inline` bridge). Runtime font/ease vars are `--font-family-*` / `--motion-ease-*`, never
+  self-referential.
+- **Docs** — Fumadocs, static export to Cloudflare Workers Static Assets. VRT is day-one (Vitest
+  browser + vitest-axe + Playwright). Storybook is deferred.
+- **Registry integrity** — whole-item SHA-256 in `meta.integrity`, a Sigstore-signed manifest
+  (GitHub OIDC), and a fail-closed consume preflight.
+- **Auth topology (approved target)** — public human docs anonymous; `/internal/*` SSO;
+  `/r/*` registry service-token only. `SITE_VISIBILITY` controls discovery metadata only, never
+  authorization.
+
+### Sanctioned dependency exceptions
+
+Adding to either list needs MK sign-off, tracked the same way.
+
+- **Headless primitive** — `@shadcn/react/message-scroller` (MessageScroller) is the ONLY non-Base-UI
+  headless primitive. Nothing else.
+- **Renderer / behavior engines** — `react-resizable-panels`, `recharts`, `motion`, `tiptap`, and the
+  pre-existing `sonner`. Each is named per-component in `packages/ui/registry.json`. These render or
+  animate; they do not own interaction semantics, which is why they are a narrower class than the
+  primitive exception above.
+
+## Build rules
+
+Enforced by `tooling/design-lint.mjs` and the `review` skill. Full token vocabulary:
+`skills/internal/component/references/tokens.md`. Rule-by-rule explanations:
+`skills/internal/review/references/lint-rules.md`.
+
+- **Colour** — semantic tokens only (`bg-primary`, `text-muted-foreground`, `border-border`). No hex,
+  no raw palette. `text-muted-foreground-faint` is sub-AA: placeholder and disabled copy only.
+- **Size** — `--size-*` for control heights, `--icon-*` for icon sizes. Never pass `size`/`width`/
+  `height` directly to a lucide component.
+- **Radius** — caps at `rounded-lg`. `rounded-xl` was removed and is banned.
+- **Alpha vs. opacity** — different roles, not interchangeable. Colour compositing takes `--alpha-*`;
+  whole-element opacity takes `--opacity-*`. Never a raw `/NN` or `opacity-NN`.
+- **Z-index** — two bands: `z-(--z-raised)`, `z-(--z-overlay)`. No raw `z-N`.
+- **Type** — the weight ladder is 400/500; `font-bold`/`font-semibold` are banned. Letter-spacing,
+  blur, and shadow are owned by named roles — raw `tracking-*`/`blur-*`/`shadow-*` are banned.
+  `text-4xl`+ is off-scale; use the display tier. **Uppercase is mono-exclusive** and ≤14px.
+- **Motion** — `duration-fast/base/slow` paired with `ease-standard/emphasized/exit/spring` in the
+  same class literal, or `motion-pop-in`/`motion-enter-up`/`motion-shake`/`motion-flash`. No raw `duration-[…]`/`ease-[…]`/
+  `cubic-bezier()`. `animate-spin`/`animate-pulse` are the one loader exception. Colour changes are
+  immediate: `transition-colors` and `transition-all` are banned.
+- **Structure** — CVA for variants; `cn()` from `@vegastack/design`; `data-*` for state; ref-as-prop
+  (React 19 — never `React.forwardRef`); Base UI `render` for composition (single-polymorphic-root
+  components must not `Omit<…, 'render'>`).
+- **Icons** — `lucide-react`, the lucide-animated mirrors, and `thesvg` via `Icon`/`BrandIcon`. No
+  other library, no inline `<svg>` as an icon. Icon registry items install as
+  `@vegastack/icon-<name>`; the bare name is reserved for components, so `icon-button` is a component.
+- **Responsive** — `min-w-0` on a truncating flex child, with `truncate` on an inner span, never on
+  the same element as `flex`. Touch targets ≥24px via an invisible hit area, verified with a real
+  `elementFromPoint` probe rather than `getComputedStyle`.
+- **Layout** — compose `AppShell` (`packages/ui/registry/ui/app-shell.tsx`) rather than hand-rolling
+  a sidebar + header + main shell. It owns the landmark trio, the skip link, and the content
+  container query.
+- **Server-safe by default** — a _runtime_ claim enforced by `tooling/verify-rsc-safety.mjs`, not a
+  style preference: under the `react-server` condition most React hooks are `undefined`, so touching
+  one without `'use client'` throws on import in an RSC. Which hooks, and why
+  `@vegastack/design/theme-scope` is a separate subpath: `component` skill §3.
+- **Accessibility** — WCAG 2.2 AA while preserving every existing 2.1 assertion. Visible
+  `:focus-visible` (text-entry fields use a border tint instead). Must pass `axe`. Every applicable
+  state implemented: default, hover, focus, loading, empty, error, success, disabled.
+
+## Single source of truth
+
+Every component exists in three synced places. **Edit one; a script regenerates the rest.**
+
+| Place         | Path                                 | Status                              |
+| ------------- | ------------------------------------ | ----------------------------------- |
+| Canonical     | `packages/ui/registry/ui/<name>.tsx` | **EDIT THIS**                       |
+| Docs copy-in  | `apps/docs/components/ui/<name>.tsx` | generated, byte-for-byte            |
+| Registry JSON | `apps/docs/public/r/<name>.json`     | generated, carries `meta.integrity` |
+
+```bash
+pnpm run registry:build   # validate → build → stamp → header → verify-headers → verify-registry-deps
+```
+
+Idempotent and fully local. The copy-in exists to dogfood the `shadcn add` distribution (proven by
+`verify-shadcn-consume.mjs` running the real CLI) — do not replace it with a path alias or symlink
+without reopening the locked distribution decision. `preview/*.tsx` files only compose components;
+never fix component styling there.
+
+The same discipline governs every other generated surface:
+
+| Authority                              | Regenerate with                        | Generated output                                                                          |
+| -------------------------------------- | -------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `packages/ui/registry/ui/*`            | `pnpm registry:build`                  | docs copy-in, `public/r/*.json`                                                           |
+| `packages/ui/component-contracts.json` | `pnpm design:derived`                  | component matrix, VRT routes, home catalog, the public skill roster, this file's §Numbers |
+| `/CHANGELOG.md`                        | `node tooling/sync-changelog.mjs`      | the docs Changelog page                                                                   |
+| `skills/public/**`                     | `node tooling/sync-package-skills.mjs` | `packages/design/skills/**` (shipped in npm)                                              |
+| `design.md`                            | `pnpm design:sync`                     | its derived doc surfaces                                                                  |
+
+## Workflows
+
+### Planning
+
+Plan before implementing anything non-trivial. Write the plan to `docs/plans/`, present it, and wait
+for explicit approval before writing code. A plan states scope, non-goals, the verification that will
+prove it worked, and the risks. Historical plans stay — they are the decision record, not clutter.
+
+### Verification ladder
+
+Run the cheapest gate that can disprove your change, then widen.
+
+```bash
+node tooling/design-lint.mjs packages/ui/registry   # token + AST rules on component source
+pnpm typecheck                                       # workspace-wide
+pnpm test                                            # browser-mode unit + axe
+pnpm --filter @vegastack/ui test:smoke               # WebKit + Firefox, contract-selected subset
+pnpm lint                                            # the full gate chain — see package.json
+pnpm registry:build && git status --porcelain        # must be idempotent: clean tree after
+pnpm design:derived && git status --porcelain        # contract-derived surfaces must be current
+```
+
+`pnpm lint` is the umbrella: shadcn base check, skill lint, the public-skill mirror, security
+boundaries, workflow security, secret scan, `design:verify` (token build, design.md sync, contract
+reconciliation, public API docs, animated icons, theme parity, portal theme scope, **RSC safety**,
+toaster mirror, structural design-lint, negative registry-integrity fixtures), then per-package lint.
+
+Every gate fails closed. A gate that has never been observed failing is an assumption — that is why
+`verify-design-lint-structural.mjs` and `verify-registry-integrity-negative.mjs` exist.
+
+**VRT** is a pinned-Linux pixel contract and is blocking for deploy and release. Baselines cannot be
+produced on darwin; generate them via the VRT workflow's `update_baselines` run and commit
+`apps/docs/vrt/**/*-snapshots/**`. For the current required-vs-committed count, run the check rather
+than quoting a number:
+
+```bash
+pnpm --filter @vegastack/docs verify:vrt-baselines
+```
+
+Cross-browser policy: every PR runs the full Chromium suite plus the contract-selected WebKit/Firefox
+risk smoke; main and release additionally run the complete suite in all three engines. Add a smoke
+file only for motion or another evidenced cross-engine risk.
+
+### Docs authoring
+
+A component page is part of the component, not a follow-up. Section order is Installation → Usage →
+Examples → API Reference → Accessibility → Do/Don't, plus Anatomy for compound components. Register
+the page in `apps/docs/content/docs/components/meta.json`, re-export the preview from the barrel, and
+add the component's record to `component-contracts.json` so its VRT route is generated. No `{@link}`
+— MDX parses `{…}` as JS. `tooling/content-lint.mjs` rejects skipped visual tests and
+VRT-referencing TODOs. Guides pages live in `apps/docs/content/docs/guides/`; the SSO-gated internal
+guides live in `apps/docs/content/internal/`.
+
+### Review and audit
+
+The `review` skill covers both halves. **Audit** is deterministic — run the gates, triage against
+the 34-rule set. **Adversarial review** hunts what no gate can see: false coverage claims, fail-open
+gates, stale generated files. Verify every claim by execution, classify high/medium/low, fix at the
+root, and record the round in `docs/ledger/codex-rounds.md`, `bugs.md`, and `operator-review.md`.
+Run both before shipping anything user-visible.
+
+### Releasing
+
+Read the `ship` skill; `docs/RELEASING.md` is the reference. The parts you must know before you touch
+anything:
+
+- **Shipping is always MK's decision.** Agents prepare; agents never push changeset-bearing commits,
+  merge the Version PR, or dispatch `deploy.yml` without an explicit "yes proceed" for _that step_.
+- **GitHub Team/private approval model** — required-reviewer environments are unavailable, so the
+  workflows use the proven repository secrets and trusted-publisher identity. Review the change PR;
+  merging the reviewed Version Packages PR authorizes npm publication; manually dispatching Deploy
+  authorizes the registry/docs release. MK may be the actor, but each outward step still requires its
+  own explicit MK decision under the `ship` skill.
+- **The changelog is a system.** `/CHANGELOG.md` is canonical, with a fixed section vocabulary
+  (`🧩/🔧/🗑/🛠/📦/📚/🐛/⚠️`). Edit it, run the sync, never touch the generated docs page.
+- **The public-docs cutover is one-time and opt-in.** Ordinary deploys use `cutover_phase=ordinary`;
+  `prepare` and `verify` are separate dispatches with the Access change between them. Runbook:
+  `docs/plans/public-docs-cutover.md`.
+- **Registry updates are pulled, never pushed.** Downstream: `check-updates` → `--diff` →
+  `--overwrite`. Status is by integrity hash, so a component reads `up to date` when the global
+  version bumped but its content did not change.
+
+## Repo map
+
+```
+packages/
+  design-tokens/   zero-dep DTCG token contract (theme/base/utilities CSS + JSON)
+  design/          cn() · icon runtime · Tailwind v4 preset · vegastack-design CLI · shipped skills
+  ui/              PRIVATE registry workspace — canonical component sources + registry.json
+apps/docs/         Fumadocs showcase, guides, and the registry host (public/r)
+tooling/           registry hashing/verification · design-lint · content, changelog, skill lints
+skills/internal/   maintainer skills (never published)
+skills/public/     consumer skills (mirrored into @vegastack/design)
+docs/              requirements · gap analysis · plans · ledgers · research
+.github/workflows/ ci · release · deploy · vrt
+```
+
+`packages/ui/registry/ui/` holds components and hooks; `packages/ui/registry/blocks/` holds
+copy-once starter compositions. Registry item types beyond `registry:ui`: `registry:hook` for a pure
+hook (plain `.ts`, no `.tsx`) and `registry:block` for a starter the consumer owns after install
+rather than tracking for updates.
+
+**Reference repos** — read these rather than re-deriving: `~/code/references/fumadocs`,
+`~/code/engg-vegastack-platform`, `~/code/references/resend-design-skills`. The **reference
+consumer**, and the executable ground truth for every guide claim, is
+`~/code/vegastack-design-starter` (local-only; consumes production npm + registry; its smoke suite is
+the contract).
+
+## Numbers
+
+`packages/ui/component-contracts.json` is the machine authority;
+`tooling/verify-component-contracts.mjs` fails on any missing or duplicate reconciliation. The block
+below is generated — never hand-edit it, and never quote a count from memory.
+
+<!-- NUMBERS:START — generated by tooling/sync-component-derived.mjs from packages/ui/component-contracts.json. DO NOT EDIT. -->
+- **Registry items: 538** — 96 components · 439 animated icons · 2 hooks (`use-animation-replay`, `use-mobile`) · 1 block (`dashboard-01`)
+- Contract SHA-256: `e7214c6b14f08166fb80bad73adffe842a6d61356619f8977039d4b0fbff4b5e`
+<!-- NUMBERS:END -->
+
+Everything else is volatile and has a command instead of a number: VRT baselines
+(`pnpm --filter @vegastack/docs verify:vrt-baselines`), docs pages
+(`find apps/docs/content -name '*.mdx' | wc -l`), registry items served
+(`ls apps/docs/public/r/*.json | wc -l`).
+
+## Escalation
+
+- **Needs MK, always** — any outward step (push a changeset-bearing commit, merge a Version PR,
+  dispatch a deploy, run the public-docs cutover, change Cloudflare Access), and any new sanctioned
+  dependency exception.
+- **A rule here conflicts with a skill** — the skill is more specific and usually newer; follow it,
+  and flag the conflict so one of them gets fixed. Never silently pick one.
+- **A rule conflicts with the code** — the enforcing script is ground truth over any prose, including
+  this file. Fix the prose.
+- **Something is genuinely missing or ambiguous** — stop and ask. Do not invent a decision, and do
+  not re-open a locked one to work around a blocker.

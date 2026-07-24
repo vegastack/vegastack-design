@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 // This PACKAGE provider mirrors the canonical registry source
 // (`packages/ui/registry/ui/provider.tsx`) so the npm build and the registry copy-in do
@@ -7,17 +7,19 @@
 // alias `@/components/ui/sonner` there) and the registry header stamp. If they must
 // differ, change ONLY the registry source and re-mirror here — do not let behaviour drift.
 
-import * as React from 'react';
-import { ThemeProvider as NextThemesProvider } from 'next-themes';
-import { Tooltip } from '@base-ui/react/tooltip';
-import { DirectionProvider } from '@base-ui/react/direction-provider';
-import { Toaster } from './toaster';
+import * as React from "react";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { Tooltip } from "@base-ui/react/tooltip";
+import { DirectionProvider } from "@base-ui/react/direction-provider";
+import { Toaster } from "./toaster";
 
-export interface VegaStackProviderProps
-  extends Omit<React.ComponentProps<typeof NextThemesProvider>, 'children'> {
+export interface VegaStackProviderProps extends Omit<
+  React.ComponentProps<typeof NextThemesProvider>,
+  "children"
+> {
   children: React.ReactNode;
   /** Text direction for Base UI components. @default 'ltr' */
-  direction?: 'ltr' | 'rtl';
+  direction?: "ltr" | "rtl";
   /**
    * Controls the bundled `Toaster`. Mount-once portal toasters must not be
    * double-mounted, so pass `false` if you already render a `<Toaster />`
@@ -40,11 +42,12 @@ export interface VegaStackProviderProps
  */
 export function VegaStackProvider({
   children,
-  direction = 'ltr',
+  direction = "ltr",
   toaster = true,
   ...themeProps
 }: VegaStackProviderProps) {
-  const toasterNode = toaster === true ? <Toaster /> : toaster === false ? null : toaster;
+  const toasterNode =
+    toaster === true ? <Toaster /> : toaster === false ? null : toaster;
   return (
     <NextThemesProvider
       attribute="class"

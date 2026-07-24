@@ -1,7 +1,9 @@
-import type { ReactNode } from 'react';
-import { Wrapper } from './wrapper';
-import { MarketingSurface } from '@/components/ui/marketing-surface';
-import { StaggeredTextReveal } from '@/components/ui/staggered-text-reveal';
+"use client";
+
+import type { ReactNode } from "react";
+import { Wrapper } from "./wrapper";
+import { MarketingSurface } from "@/components/ui/marketing-surface";
+import { StaggeredTextReveal } from "@/components/ui/staggered-text-reveal";
 
 export function staggeredTextReveal(): ReactNode {
   return (
@@ -20,7 +22,10 @@ export function staggeredTextRevealStep(): ReactNode {
     <Wrapper className="p-0">
       <MarketingSurface className="w-full rounded-lg p-8">
         <h1 className="text-display-md text-foreground">
-          <StaggeredTextReveal text="Slower per-word stagger" stepMultiplier={2} />
+          <StaggeredTextReveal
+            text="Slower per-word stagger"
+            stepMultiplier={2}
+          />
         </h1>
       </MarketingSurface>
     </Wrapper>

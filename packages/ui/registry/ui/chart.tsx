@@ -1,4 +1,4 @@
-// @vegastack chart@0.2.0 sha256-3JYnGUx7sZJVscZurR9d1sjP0ezTYm5MqpwnACPe3XE=
+// @vegastack chart@0.2.0 sha256-FHISaP3cBssQiRRNqY2Ss9vWFpwVk7tr4gdVKQoV/do=
 
 "use client";
 
@@ -94,7 +94,9 @@ export type ChartConfig = Record<
   }
 >;
 
-function resolveChartColor(color: ChartColorToken | `var(--${ChartColorToken})`): string {
+function resolveChartColor(
+  color: ChartColorToken | `var(--${ChartColorToken})`,
+): string {
   return color.startsWith("var(") ? color : `var(--${color})`;
 }
 
@@ -116,14 +118,20 @@ function useChart(): ChartContextProps {
 
 const DEFAULT_INITIAL_DIMENSION = { width: 320, height: 200 } as const;
 
-export interface ChartContainerProps extends Omit<React.ComponentProps<"div">, "children"> {
+/** Props accepted by `ChartContainer`. */
+export interface ChartContainerProps extends Omit<
+  React.ComponentProps<"div">,
+  "children"
+> {
   /** Series/label/icon config — see {@link ChartConfig}. Drives each series' `--color-<key>` CSS var
    * and the label/icon lookups in {@link ChartTooltipContent} / {@link ChartLegendContent}. */
   config: ChartConfig;
   /** The Recharts chart element (e.g. `<LineChart>…</LineChart>`) — forwarded as `ResponsiveContainer`'s
    * child (a plain element, not a render-prop — `ResponsiveContainer`'s `children` is `ReactNode` in
    * this recharts version). */
-  children: React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>["children"];
+  children: React.ComponentProps<
+    typeof RechartsPrimitive.ResponsiveContainer
+  >["children"];
   /** Size used for the very first render, before `ResizeObserver` reports the real parent box —
    * avoids a 0×0 flash on mount. @default { width: 320, height: 200 } */
   initialDimension?: { width: number; height: number };
@@ -192,7 +200,9 @@ function ChartContainer({
         )}
         {...props}
       >
-        <RechartsPrimitive.ResponsiveContainer initialDimension={initialDimension}>
+        <RechartsPrimitive.ResponsiveContainer
+          initialDimension={initialDimension}
+        >
           {children}
         </RechartsPrimitive.ResponsiveContainer>
       </div>
@@ -211,9 +221,18 @@ type TooltipNameType = number | string;
 // A `type` intersection, NOT `interface extends` — `React.ComponentProps<typeof Tooltip>` and
 // `React.ComponentProps<'div'>` both declare `formatter`/`content`-shaped members with incompatible
 // signatures, which `interface extends` rejects (TS2320) but a plain `&` intersection resolves fine.
-export type ChartTooltipContentProps = React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
+/** Props accepted by `ChartTooltipContent`. */
+export type ChartTooltipContentProps = React.ComponentProps<
+  typeof RechartsPrimitive.Tooltip
+> &
   React.ComponentProps<"div"> &
-  Omit<RechartsPrimitive.DefaultTooltipContentProps<TooltipValueType, TooltipNameType>, "accessibilityLayer"> & {
+  Omit<
+    RechartsPrimitive.DefaultTooltipContentProps<
+      TooltipValueType,
+      TooltipNameType
+    >,
+    "accessibilityLayer"
+  > & {
     /** Hide the label row above the item rows. @default false */
     hideLabel?: boolean;
     /** Hide the per-item color indicator swatch. @default false */
@@ -261,11 +280,15 @@ function ChartTooltipContent({
     const key = `${labelKey ?? item?.dataKey ?? item?.name ?? "value"}`;
     const itemConfig = getPayloadConfigFromPayload(config, item, key);
     const value =
-      !labelKey && typeof label === "string" ? (config[label]?.label ?? label) : itemConfig?.label;
+      !labelKey && typeof label === "string"
+        ? (config[label]?.label ?? label)
+        : itemConfig?.label;
 
     if (labelFormatter) {
       return (
-        <div className={cn("font-medium", labelClassName)}>{labelFormatter(value, payload)}</div>
+        <div className={cn("font-medium", labelClassName)}>
+          {labelFormatter(value, payload)}
+        </div>
       );
     }
 
@@ -274,7 +297,15 @@ function ChartTooltipContent({
     }
 
     return <div className={cn("font-medium", labelClassName)}>{value}</div>;
-  }, [label, labelFormatter, payload, hideLabel, labelClassName, config, labelKey]);
+  }, [
+    label,
+    labelFormatter,
+    payload,
+    hideLabel,
+    labelClassName,
+    config,
+    labelKey,
+  ]);
 
   if (!active || !payload?.length) {
     return null;
@@ -317,12 +348,16 @@ function ChartTooltipContent({
                       !hideIndicator && (
                         <div
                           data-slot="chart-tooltip-indicator"
-                          className={cn("shrink-0 rounded-xs border-(--color-border) bg-(--color-bg)", {
-                            "size-2.5": indicator === "dot",
-                            "w-1": indicator === "line",
-                            "w-0 border-2 border-dashed bg-transparent": indicator === "dashed",
-                            "my-0.5": nestLabel && indicator === "dashed",
-                          })}
+                          className={cn(
+                            "shrink-0 rounded-xs border-(--color-border) bg-(--color-bg)",
+                            {
+                              "size-2.5": indicator === "dot",
+                              "w-1": indicator === "line",
+                              "w-0 border-2 border-dashed bg-transparent":
+                                indicator === "dashed",
+                              "my-0.5": nestLabel && indicator === "dashed",
+                            },
+                          )}
                           style={
                             {
                               "--color-bg": indicatorColor,
@@ -340,11 +375,15 @@ function ChartTooltipContent({
                     >
                       <div className="grid gap-1.5">
                         {nestLabel ? tooltipLabel : null}
-                        <span className="text-muted-foreground">{itemConfig?.label ?? item.name}</span>
+                        <span className="text-muted-foreground">
+                          {itemConfig?.label ?? item.name}
+                        </span>
                       </div>
                       {item.value != null && (
                         <span className="font-mono font-medium text-foreground tabular-nums">
-                          {typeof item.value === "number" ? item.value.toLocaleString() : String(item.value)}
+                          {typeof item.value === "number"
+                            ? item.value.toLocaleString()
+                            : String(item.value)}
                         </span>
                       )}
                     </div>
@@ -367,6 +406,7 @@ const ChartLegend = RechartsPrimitive.Legend;
 // A `type` intersection for the same reason as ChartTooltipContentProps above: `React.ComponentProps<'div'>`
 // and `DefaultLegendContentProps` both declare incompatible members (e.g. `onClick`) that `interface
 // extends` rejects.
+/** Props accepted by `ChartLegendContent`. */
 export type ChartLegendContentProps = React.ComponentProps<"div"> &
   RechartsPrimitive.DefaultLegendContentProps & {
     /** Hide each series' `config.icon` (when present) and always use the color swatch. @default false */
@@ -436,29 +476,77 @@ function ChartLegendContent({
 // Reads the item config for a tooltip/legend payload entry: prefers a string value found ON the
 // payload (or its nested `payload`) at `key` as the config lookup key (lets a `nameKey`/`labelKey`
 // resolve through a data field), falling back to `key` itself.
-function getPayloadConfigFromPayload(config: ChartConfig, payload: unknown, key: string) {
+function getPayloadConfigFromPayload(
+  config: ChartConfig,
+  payload: unknown,
+  key: string,
+) {
   if (typeof payload !== "object" || payload === null) {
     return undefined;
   }
 
   const payloadPayload =
-    "payload" in payload && typeof payload.payload === "object" && payload.payload !== null
+    "payload" in payload &&
+    typeof payload.payload === "object" &&
+    payload.payload !== null
       ? payload.payload
       : undefined;
 
   let configLabelKey: string = key;
 
-  if (key in payload && typeof payload[key as keyof typeof payload] === "string") {
+  if (
+    key in payload &&
+    typeof payload[key as keyof typeof payload] === "string"
+  ) {
     configLabelKey = payload[key as keyof typeof payload] as string;
   } else if (
     payloadPayload &&
     key in payloadPayload &&
     typeof payloadPayload[key as keyof typeof payloadPayload] === "string"
   ) {
-    configLabelKey = payloadPayload[key as keyof typeof payloadPayload] as string;
+    configLabelKey = payloadPayload[
+      key as keyof typeof payloadPayload
+    ] as string;
   }
 
   return configLabelKey in config ? config[configLabelKey] : config[key];
 }
 
-export { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent };
+/** Props accepted by `ChartGrid`. */
+export type ChartGridProps = React.ComponentProps<
+  typeof RechartsPrimitive.CartesianGrid
+>;
+
+/**
+ * `ChartGrid` — `CartesianGrid` pre-configured to the system's dashboard voice
+ * (Wave 2): horizontal-only, DASHED hairlines on the `border` token. Recharts
+ * would otherwise default to solid `#ccc` in both themes. Every prop remains
+ * overridable (`vertical`, `strokeDasharray`, …).
+ *
+ * @example
+ * <ChartContainer config={config}>
+ *   <RechartsPrimitive.BarChart data={data}>
+ *     <ChartGrid />
+ *     …
+ *   </RechartsPrimitive.BarChart>
+ * </ChartContainer>
+ */
+function ChartGrid(props: ChartGridProps) {
+  return (
+    <RechartsPrimitive.CartesianGrid
+      vertical={false}
+      stroke="var(--border)"
+      strokeDasharray="3 3"
+      {...props}
+    />
+  );
+}
+
+export {
+  ChartContainer,
+  ChartGrid,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+};

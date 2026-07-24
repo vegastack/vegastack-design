@@ -13,10 +13,10 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P2 | `'use client'` at `breadcrumb.tsx:3` while comments describe a pure/server-safe component at `breadcrumb.tsx:12`. | Static breadcrumbs hydrate unnecessarily. | Remove client boundary if `useRender` remains compatible, or split only interactive pieces. |
-| P3 | `Breadcrumb.Ellipsis` sets `aria-hidden` at `breadcrumb.tsx:148` but contains sr-only "More" at `breadcrumb.tsx:153`; docs mention the hidden label at `breadcrumb.mdx:96`. | The label is hidden from assistive tech, so docs are misleading. | Remove the sr-only claim or expose a real accessible menu/trigger label. |
+| Priority | Evidence                                                                                                                                                                    | Impact                                                           | Suggested fix                                                                               |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| P2       | `'use client'` at `breadcrumb.tsx:3` while comments describe a pure/server-safe component at `breadcrumb.tsx:12`.                                                           | Static breadcrumbs hydrate unnecessarily.                        | Remove client boundary if `useRender` remains compatible, or split only interactive pieces. |
+| P3       | `Breadcrumb.Ellipsis` sets `aria-hidden` at `breadcrumb.tsx:148` but contains sr-only "More" at `breadcrumb.tsx:153`; docs mention the hidden label at `breadcrumb.mdx:96`. | The label is hidden from assistive tech, so docs are misleading. | Remove the sr-only claim or expose a real accessible menu/trigger label.                    |
 
 ## Residual Risks
 
@@ -25,4 +25,3 @@ No Radix import found.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- breadcrumb.test.tsx`
-

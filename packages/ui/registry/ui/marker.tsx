@@ -1,4 +1,4 @@
-// @vegastack marker@0.2.0 sha256-5eyDOqbRsJNvnm24AMriN4qcYRJUEz3sIeqF1n+judo=
+// @vegastack marker@0.2.0 sha256-2/5D8zQRkNnJjTb2D3BsGZWKgSPNakUv03So7BYUvOY=
 
 "use client";
 
@@ -38,6 +38,7 @@ export type MarkerVariant = NonNullable<
   VariantProps<typeof markerVariants>["variant"]
 >;
 
+/** Props accepted by `Marker`. */
 export interface MarkerProps
   extends
     React.ComponentPropsWithRef<"div">,
@@ -53,6 +54,8 @@ export interface MarkerProps
   /**
    * Render the marker as a different element (e.g. a link or button) via Base UI
    * `render` composition. Pass a `ReactElement` or a render function.
+
+   * @default undefined
    */
   render?: useRender.RenderProp;
   /**
@@ -102,18 +105,24 @@ export function Marker({
     props: {
       "data-slot": "marker",
       "data-variant": variant,
-      className: cn(markerVariants({ variant }), animateIn && "motion-pop-in", className),
+      className: cn(
+        markerVariants({ variant }),
+        animateIn && "motion-pop-in",
+        className,
+      ),
       ...props,
     },
   });
 }
 
-export type MarkerIconProps = React.ComponentProps<"span">;
+/** Props accepted by `MarkerIcon`. */
+export type MarkerIconProps = React.ComponentPropsWithRef<"span">;
 
 /**
  * `MarkerIcon` — the leading icon slot for a `Marker`. Decorative by default
  * (`aria-hidden`) so screen readers skip it; the adjacent `MarkerContent` text
- * carries the meaning. Sizes any bare `svg` child to `size-4`.
+ * carries the meaning. Sizes the slot and any bare `svg` child with the default icon role.
+ * @example <MarkerIcon><Check aria-hidden /></MarkerIcon>
  */
 export function MarkerIcon({ className, ref, ...props }: MarkerIconProps) {
   return (
@@ -122,7 +131,7 @@ export function MarkerIcon({ className, ref, ...props }: MarkerIconProps) {
       data-slot="marker-icon"
       aria-hidden="true"
       className={cn(
-        "size-4 shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
+        "size-(--icon-default) shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
         className,
       )}
       {...props}
@@ -130,14 +139,20 @@ export function MarkerIcon({ className, ref, ...props }: MarkerIconProps) {
   );
 }
 
-export type MarkerContentProps = React.ComponentProps<"span">;
+/** Props accepted by `MarkerContent`. */
+export type MarkerContentProps = React.ComponentPropsWithRef<"span">;
 
 /**
  * `MarkerContent` — the text content of a `Marker`. Wraps long content and,
  * under the `separator` variant, centres itself between the divider lines. Any
  * nested `<a>` inherits the underlined, hover-brightening link affordance.
+ * @example <MarkerContent>Connected</MarkerContent>
  */
-export function MarkerContent({ className, ref, ...props }: MarkerContentProps) {
+export function MarkerContent({
+  className,
+  ref,
+  ...props
+}: MarkerContentProps) {
   return (
     <span
       ref={ref}

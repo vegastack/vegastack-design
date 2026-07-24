@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { Inbox } from 'lucide-react';
+import type { ReactNode } from "react";
+import { Inbox } from "lucide-react";
 import {
   Empty,
   EmptyDescription,
@@ -10,54 +10,82 @@ import {
   EmptyTitle,
   type EmptyMediaProps,
   type EmptyProps,
-} from '@/components/ui/empty';
-import { PropsPlayground, type PlaygroundConfig } from '@/components/playground';
+} from "@/components/ui/empty";
+import {
+  PropsPlayground,
+  type PlaygroundConfig,
+} from "@/components/playground";
 
-type EmptyPlaygroundKey = 'size' | 'variant' | 'intent' | 'surface' | 'bordered';
+type EmptyPlaygroundKey =
+  "size" | "variant" | "intent" | "surface" | "bordered";
 
 const SIZE_OPTIONS = [
-  { value: 'sm', label: 'Small' },
-  { value: 'default', label: 'Default' },
-  { value: 'lg', label: 'Large' },
+  { value: "sm", label: "Small" },
+  { value: "default", label: "Default" },
+  { value: "lg", label: "Large" },
 ] as const;
 
 const MEDIA_VARIANT_OPTIONS = [
-  { value: 'default', label: 'Default (bare)' },
-  { value: 'icon', label: 'Icon chip' },
+  { value: "default", label: "Default (bare)" },
+  { value: "icon", label: "Icon chip" },
 ] as const;
 
 const INTENT_OPTIONS = [
-  { value: 'default', label: 'Default' },
-  { value: 'info', label: 'Info' },
-  { value: 'destructive', label: 'Destructive' },
+  { value: "default", label: "Default" },
+  { value: "info", label: "Info" },
+  { value: "destructive", label: "Destructive" },
 ] as const;
 
 const SURFACE_OPTIONS = [
-  { value: 'transparent', label: 'Transparent' },
-  { value: 'card', label: 'Card' },
+  { value: "transparent", label: "Transparent" },
+  { value: "card", label: "Card" },
 ] as const;
 
 const emptyPlaygroundConfig: PlaygroundConfig<EmptyPlaygroundKey> = {
   controls: [
-    { type: 'select', key: 'size', label: 'Size', options: SIZE_OPTIONS, defaultValue: 'default' },
-    { type: 'select', key: 'variant', label: 'Media variant', options: MEDIA_VARIANT_OPTIONS, defaultValue: 'icon' },
-    { type: 'select', key: 'intent', label: 'Intent', options: INTENT_OPTIONS, defaultValue: 'default' },
-    { type: 'select', key: 'surface', label: 'Surface', options: SURFACE_OPTIONS, defaultValue: 'transparent' },
-    { type: 'switch', key: 'bordered', label: 'Bordered', defaultValue: false },
+    {
+      type: "select",
+      key: "size",
+      label: "Size",
+      options: SIZE_OPTIONS,
+      defaultValue: "default",
+    },
+    {
+      type: "select",
+      key: "variant",
+      label: "Media variant",
+      options: MEDIA_VARIANT_OPTIONS,
+      defaultValue: "icon",
+    },
+    {
+      type: "select",
+      key: "intent",
+      label: "Intent",
+      options: INTENT_OPTIONS,
+      defaultValue: "default",
+    },
+    {
+      type: "select",
+      key: "surface",
+      label: "Surface",
+      options: SURFACE_OPTIONS,
+      defaultValue: "transparent",
+    },
+    { type: "switch", key: "bordered", label: "Bordered", defaultValue: false },
   ],
   render: (state): ReactNode => (
     // The outer div is preview-only chrome (constrains the demo width); the generated JSX
     // mirrors the `Empty` element itself.
     <div className="w-full max-w-md">
       <Empty
-        size={state.size as EmptyProps['size']}
-        surface={state.surface as EmptyProps['surface']}
+        size={state.size as EmptyProps["size"]}
+        surface={state.surface as EmptyProps["surface"]}
         bordered={Boolean(state.bordered)}
       >
         <EmptyHeader>
           <EmptyMedia
-            variant={state.variant as EmptyMediaProps['variant']}
-            intent={state.intent as EmptyMediaProps['intent']}
+            variant={state.variant as EmptyMediaProps["variant"]}
+            intent={state.intent as EmptyMediaProps["intent"]}
           >
             <Inbox />
           </EmptyMedia>
@@ -69,14 +97,15 @@ const emptyPlaygroundConfig: PlaygroundConfig<EmptyPlaygroundKey> = {
   ),
   toCode: (state) => {
     const rootProps: string[] = [];
-    if (state.size !== 'default') rootProps.push(`size="${state.size}"`);
-    if (state.surface !== 'transparent') rootProps.push(`surface="${state.surface}"`);
-    if (state.bordered) rootProps.push('bordered');
+    if (state.size !== "default") rootProps.push(`size="${state.size}"`);
+    if (state.surface !== "transparent")
+      rootProps.push(`surface="${state.surface}"`);
+    if (state.bordered) rootProps.push("bordered");
     const mediaProps: string[] = [];
-    if (state.variant !== 'icon') mediaProps.push(`variant="${state.variant}"`);
-    if (state.intent !== 'default') mediaProps.push(`intent="${state.intent}"`);
-    const root = rootProps.length > 0 ? ` ${rootProps.join(' ')}` : '';
-    const media = mediaProps.length > 0 ? ` ${mediaProps.join(' ')}` : '';
+    if (state.variant !== "icon") mediaProps.push(`variant="${state.variant}"`);
+    if (state.intent !== "default") mediaProps.push(`intent="${state.intent}"`);
+    const root = rootProps.length > 0 ? ` ${rootProps.join(" ")}` : "";
+    const media = mediaProps.length > 0 ? ` ${mediaProps.join(" ")}` : "";
     return `<Empty${root}>
   <EmptyHeader>
     <EmptyMedia${media}>

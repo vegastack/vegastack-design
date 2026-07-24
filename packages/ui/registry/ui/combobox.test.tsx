@@ -63,7 +63,12 @@ function MultipleFixture({
   onValueChange?: (value: string[]) => void;
 }) {
   return (
-    <Combobox multiple items={LABELS} defaultValue={["Bug"]} onValueChange={onValueChange}>
+    <Combobox
+      multiple
+      items={LABELS}
+      defaultValue={["Bug"]}
+      onValueChange={onValueChange}
+    >
       <ComboboxInputGroup>
         <ComboboxChips>
           <ComboboxValue>
@@ -123,7 +128,9 @@ test("typing narrows the list to matching items", async () => {
   await input.click();
   await userEvent.type(input.element() as HTMLInputElement, "Mono");
   const doc = screen.container.ownerDocument;
-  await expect.poll(() => doc.querySelectorAll('[role="option"]').length).toBe(1);
+  await expect
+    .poll(() => doc.querySelectorAll('[role="option"]').length)
+    .toBe(1);
   expect(doc.querySelector('[role="option"]')?.textContent).toBe("Monospace");
 });
 
@@ -132,11 +139,11 @@ test("ComboboxEmpty shows when no item matches the query", async () => {
   const input = screen.getByRole("combobox", { name: "Font" });
   await input.click();
   await userEvent.type(input.element() as HTMLInputElement, "zzz");
-  await expect
-    .element(screen.getByText("No fonts found."))
-    .toBeInTheDocument();
+  await expect.element(screen.getByText("No fonts found.")).toBeInTheDocument();
   const doc = screen.container.ownerDocument;
-  await expect.poll(() => doc.querySelectorAll('[role="option"]').length).toBe(0);
+  await expect
+    .poll(() => doc.querySelectorAll('[role="option"]').length)
+    .toBe(0);
 });
 
 const TIMEZONE_GROUPS = [
@@ -187,7 +194,9 @@ test("grouped rendering: useComboboxFilteredItems narrows groups with the query"
   const doc = screen.container.ownerDocument;
   const input = screen.getByRole("combobox", { name: "Timezone" });
   await input.click();
-  await expect.poll(() => doc.querySelectorAll('[role="option"]').length).toBe(5);
+  await expect
+    .poll(() => doc.querySelectorAll('[role="option"]').length)
+    .toBe(5);
   await expect
     .element(screen.getByRole("group", { name: "North America" }))
     .toBeInTheDocument();
@@ -195,7 +204,9 @@ test("grouped rendering: useComboboxFilteredItems narrows groups with the query"
   await userEvent.type(input.element() as HTMLInputElement, "Cent");
   await expect
     .poll(() =>
-      Array.from(doc.querySelectorAll('[role="option"]')).map((o) => o.textContent),
+      Array.from(doc.querySelectorAll('[role="option"]')).map(
+        (o) => o.textContent,
+      ),
     )
     .toEqual(["Central", "Central European"]);
 });
@@ -271,7 +282,11 @@ test("a disabled trigger does not open the popup", async () => {
       </ComboboxInputGroup>
       <ComboboxContent>
         <ComboboxList>
-          {(item: string) => <ComboboxItem key={item} value={item}>{item}</ComboboxItem>}
+          {(item: string) => (
+            <ComboboxItem key={item} value={item}>
+              {item}
+            </ComboboxItem>
+          )}
         </ComboboxList>
       </ComboboxContent>
     </Combobox>,
@@ -284,28 +299,41 @@ test("a disabled trigger does not open the popup", async () => {
 
 test("multiple mode: selecting an item adds a chip and fires onValueChange", async () => {
   const onValueChange = vi.fn();
-  const screen = await render(<MultipleFixture onValueChange={onValueChange} />);
+  const screen = await render(
+    <MultipleFixture onValueChange={onValueChange} />,
+  );
   const doc = screen.container.ownerDocument;
   expect(
-    Array.from(doc.querySelectorAll('[data-slot="combobox-chip"]')).map((c) => c.textContent),
+    Array.from(doc.querySelectorAll('[data-slot="combobox-chip"]')).map(
+      (c) => c.textContent,
+    ),
   ).toEqual(["Bug"]);
 
   await screen.getByRole("combobox", { name: "Labels" }).click();
   await screen.getByRole("option", { name: "Feature" }).click();
   await expect
     .poll(() =>
-      Array.from(doc.querySelectorAll('[data-slot="combobox-chip"]')).map((c) => c.textContent),
+      Array.from(doc.querySelectorAll('[data-slot="combobox-chip"]')).map(
+        (c) => c.textContent,
+      ),
     )
     .toEqual(["Bug", "Feature"]);
-  expect(onValueChange).toHaveBeenCalledWith(["Bug", "Feature"], expect.anything());
+  expect(onValueChange).toHaveBeenCalledWith(
+    ["Bug", "Feature"],
+    expect.anything(),
+  );
 });
 
 test("multiple mode: ComboboxChipRemove removes one chip, ComboboxClear removes the rest", async () => {
   const onValueChange = vi.fn();
-  const screen = await render(<MultipleFixture onValueChange={onValueChange} />);
+  const screen = await render(
+    <MultipleFixture onValueChange={onValueChange} />,
+  );
   const doc = screen.container.ownerDocument;
   const chipText = () =>
-    Array.from(doc.querySelectorAll('[data-slot="combobox-chip"]')).map((c) => c.textContent);
+    Array.from(doc.querySelectorAll('[data-slot="combobox-chip"]')).map(
+      (c) => c.textContent,
+    );
 
   // Add a second chip so removal (below) leaves one behind — Clear removing the LAST chip is
   // covered by the a11y test's fixture instead, since ComboboxClear unmounts once there's
@@ -333,11 +361,23 @@ test("ComboboxContent's positioner carries the z-(--z-overlay) token class", asy
   const screen = await render(<Fixture />);
   await screen.getByRole("button", { name: "Toggle fonts" }).click();
   const doc = screen.container.ownerDocument;
-  const positioner = doc.querySelector('[data-slot="combobox-positioner"]');
-  expect(positioner).not.toBeNull();
-  expect(positioner).toHaveClass("z-(--z-overlay)");
-  const content = doc.querySelector('[data-slot="combobox-content"]');
-  expect(content).toHaveClass("z-(--z-overlay)");
+
+  // Positioning is committed asynchronously after the popup opens. Chromium often mounts the
+  // portal before click() resolves, while WebKit/Firefox legitimately commit it on a later task.
+  await expect
+    .poll(() =>
+      doc
+        .querySelector('[data-slot="combobox-positioner"]')
+        ?.classList.contains("z-(--z-overlay)"),
+    )
+    .toBe(true);
+  await expect
+    .poll(() =>
+      doc
+        .querySelector('[data-slot="combobox-content"]')
+        ?.classList.contains("z-(--z-overlay)"),
+    )
+    .toBe(true);
 });
 
 test("no a11y violations — default (closed)", async () => {
@@ -370,7 +410,11 @@ test("ComboboxInputGroup forwards ref to its host element", async () => {
       </ComboboxInputGroup>
       <ComboboxContent>
         <ComboboxList>
-          {(item: string) => <ComboboxItem key={item} value={item}>{item}</ComboboxItem>}
+          {(item: string) => (
+            <ComboboxItem key={item} value={item}>
+              {item}
+            </ComboboxItem>
+          )}
         </ComboboxList>
       </ComboboxContent>
     </Combobox>,

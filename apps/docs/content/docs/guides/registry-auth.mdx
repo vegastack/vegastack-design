@@ -1,45 +1,44 @@
 ---
 title: Registry access & auth
-description: How the private registry is protected, who gets a service token, where the values go, and how rotation works.
+description: Configure authenticated registry access locally and in CI with Cloudflare service-token headers and secret-safe placeholders.
+audience: public
 ---
 
-Components are distributed from **`https://design.vegastack.com/r/*`** — a private
-shadcn registry behind Cloudflare Access. Two audiences, two auth models:
+Components are distributed from **`https://design.vegastack.com/r/*`**, a private
+shadcn registry protected by Cloudflare Access. Registry JSON is always
+machine-authenticated — that never changes, whoever you are and however you reach the site.
 
-| Surface | Who | Auth |
-| --- | --- | --- |
-| Docs (this site) | humans | SSO — your `@vegastack.com` identity |
-| `/r/*` (the registry JSON) | machines: the shadcn CLI, `vegastack-design`, CI | a Cloudflare Access **service token** sent as two HTTP headers |
+| Surface           | Access                                                                                                                             |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `/` and `/docs/*` | Human documentation — anonymous once the public cutover completes; until then the whole site sits behind the same organisation SSO |
+| `/r/*`            | Cloudflare Access **service token** (never an identity login)                                                                      |
 
-There is deliberately **no anonymous access to either**. A request without
-credentials gets a `302` to SSO (docs) or a `403` (registry). Full lifecycles per
-audience: [Internal projects](/docs/guides/internal-projects) ·
-[Client projects](/docs/guides/external-projects).
+The registry's service-token requirement is independent of the documentation's visibility:
+making the docs anonymous does **not** open `/r/*`. If you are reading this behind an SSO
+prompt, the cutover has not happened yet and your browser session is why you can see the page —
+it is not credentials for the registry.
 
-## The service token
-
-One shared internal token (`vegastack-design-registry`) — not per-app, not
-per-developer. It lives in the Zero Trust dashboard (Access → Service Auth); the
-**Client Secret is only visible at creation time**, so it's handed out by whoever
-owns the Cloudflare account, not self-served.
+Registry administrators provide a Client ID and Client Secret. Treat both values as
+credentials: keep them out of source control, browser bundles, logs, screenshots, and
+`NEXT_PUBLIC_*` variables.
 
 Every tool that talks to the registry sends the same two headers:
 
+```text
+CF-Access-Client-Id: <client-id>.access
+CF-Access-Client-Secret: <client-secret>
 ```
-CF-Access-Client-Id: <id>.access
-CF-Access-Client-Secret: <long-hex>
-```
 
-Two rules about the values:
+Two common configuration mistakes:
 
-- The **`.access` suffix is part of the Client ID** — keep it.
-- Never include the header *names* in stored values (a secret stored as
-  `CF-Access-Client-Id: abc…` produces a doubled header and a 403).
+- The **`.access` suffix is part of the Client ID**—keep it.
+- Store only the values. A value such as `CF-Access-Client-Id: abc…` produces a
+  doubled header and fails authentication.
 
-## Wiring it — projects
+## Configure a project
 
-`components.json` references environment variables; the CLI (and
-`vegastack-design`) expands `${…}` from the shell, `.env.local`, or `.env`:
+`components.json` references environment variables; the CLI and
+`vegastack-design` expand `${…}` from the shell, `.env.local`, or `.env`:
 
 ```json title="components.json (registries block)"
 "registries": {
@@ -53,52 +52,51 @@ Two rules about the values:
 }
 ```
 
-```bash title=".env.local (gitignored — commit .env.example with placeholders instead)"
+```bash title=".env.local (gitignored)"
 CF_ACCESS_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.access
 CF_ACCESS_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-## Wiring it — CI
+Commit an `.env.example` containing empty placeholders, never working values.
 
-Store both values as CI secrets and export them for the steps that need registry
-access (typically only `check-updates`):
+## Configure CI
+
+Store both values as masked CI secrets and expose them only to steps that need
+registry access:
 
 ```yaml title=".github/workflows/ci.yml (fragment)"
 - run: pnpm check-updates --fail-on-update
   env:
+    VEGASTACK_TRUSTED_REGISTRY_ORIGIN: https://design.vegastack.com
     CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
     CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
 ```
 
-## Verifying access (the 10-second check)
+`check-updates` validates this exact HTTPS origin before attaching credentials and
+rejects redirects. Keep the trust anchor in operator-controlled CI configuration, not
+in a checkout-local dotenv file.
+
+## Verify access
 
 ```bash
-curl -s -o /dev/null -w "%{http_code}\n" \
+curl -sS -o /dev/null -w "%{http_code}\n" \
   -H "CF-Access-Client-Id: $CF_ACCESS_CLIENT_ID" \
   -H "CF-Access-Client-Secret: $CF_ACCESS_CLIENT_SECRET" \
   https://design.vegastack.com/r/registry.json
 ```
 
-| Result | Meaning |
-| --- | --- |
-| `200` | token good — CLI operations will work |
-| `403` | wrong/expired values, header-name-in-value mistake, or env not loaded |
-| `302` | you hit the docs SSO app — check the URL is under `/r/` |
+| Result           | Meaning                                                                       |
+| ---------------- | ----------------------------------------------------------------------------- |
+| `200`            | The token is accepted and registry operations can proceed.                    |
+| `401` or `403`   | Values are missing, invalid, expired, or were stored with their header names. |
+| Any other status | Stop and report the response; do not modify the URL or bypass Access.         |
 
-## External / client projects
+## External projects
 
-They **never receive a token**. The public npm packages (`@vegastack/design`,
-`@vegastack/design-tokens`) are open; component *source* reaches an external
-codebase via dev-time copy-in performed by a VegaStack engineer, and the shipped
-app is self-contained — no runtime or build-time dependency on the registry.
+External teams do not receive registry credentials. Public npm packages remain
+available, while component source is copied into the external codebase by an
+authorized VegaStack engineer. The shipped application has no runtime dependency on
+the registry.
 
-## Rotation & revocation
-
-Rotate in one place — Zero Trust → Access → Service Auth → roll the token — then
-update: each internal project's `.env.local`, each CI's secrets. Old values stop
-working immediately; nothing else changes (component copies already in repos are
-unaffected — the registry is only contacted when pulling or checking updates).
-
-> **For agents:** if any registry operation returns 403, stop and surface it — do
-> not retry with modified URLs or attempt to bypass Access. The fix is always
-> credentials (missing env, stale token), never the request shape.
+> **For agents:** if a registry request returns `401` or `403`, stop and surface the
+> authentication failure. Never retry with modified URLs or attempt to bypass Access.

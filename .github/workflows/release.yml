@@ -6,79 +6,72 @@ on:
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 permissions:
-  contents: write
-  pull-requests: write
-  id-token: write # REQUIRED for npm provenance (OIDC)
+  contents: read
 
-# Turborepo remote caching (Phase D): activates when MK provisions the Vercel Remote Cache
-# secrets — inert (local cache only) until then. Signature verification is enabled in
-# turbo.json so poisoned-cache artifacts are rejected.
 env:
-  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  SITE_VISIBILITY: public
 
 jobs:
-  # Cheap path-based routing (~1 min) so pushes only pay for the gates they need:
-  #   visual  → did COMPONENT-VISUAL code change? (registry/src, the design packages, docs
-  #             previews/copies, the VRT spec, dependency bumps). Prose-only / baseline-only /
-  #             workflow-only / plans-only pushes skip the ~20-min container pixel gate here.
-  #             deploy.yml ALWAYS runs the full gate — the site never ships unverified.
-  #   publish → is there anything to release? (pending changesets, or packages/** changed).
-  #             Docs-prose pushes stop burning a full quality-gate run for a guaranteed no-op.
   changes:
     runs-on: ubuntu-latest
     outputs:
       visual: ${{ steps.detect.outputs.visual }}
       publish: ${{ steps.detect.outputs.publish }}
+      has_changesets: ${{ steps.detect.outputs.has_changesets }}
     steps:
-      - uses: actions/checkout@v6
-        with: { fetch-depth: 0 }
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.sha }}
       - id: detect
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          CURRENT_SHA: ${{ github.sha }}
         run: |
-          BEFORE="${{ github.event.before }}"
-          # force-push / first push: before is unresolvable — fall back to the last commit only
+          set -euo pipefail
+          BEFORE="$BEFORE_SHA"
           if ! git rev-parse --verify -q "$BEFORE" >/dev/null 2>&1 || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
-            BEFORE="${{ github.sha }}~1"
+            BEFORE="${CURRENT_SHA}~1"
           fi
-          CHANGED=$(git diff --name-only "$BEFORE" "${{ github.sha }}")
+          CHANGED=$(git diff --name-only "$BEFORE" "$CURRENT_SHA")
           printf 'changed files:\n%s\n' "$CHANGED"
           if echo "$CHANGED" | grep -qE '^(packages/ui/registry/|packages/ui/src/|packages/design/|packages/design-tokens/|apps/docs/components/|apps/docs/app/|apps/docs/lib/|apps/docs/vrt/components\.spec\.ts|pnpm-lock\.yaml|apps/docs/package\.json)'; then
             echo "visual=true" >> "$GITHUB_OUTPUT"
           else
             echo "visual=false" >> "$GITHUB_OUTPUT"
           fi
-          if ls .changeset/*.md 2>/dev/null | grep -qv 'README' >/dev/null || echo "$CHANGED" | grep -qE '^packages/'; then
+          if find .changeset -maxdepth 1 -type f -name '*.md' ! -name 'README.md' -print -quit | grep -q .; then
+            echo "has_changesets=true" >> "$GITHUB_OUTPUT"
             echo "publish=true" >> "$GITHUB_OUTPUT"
           else
-            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "has_changesets=false" >> "$GITHUB_OUTPUT"
+            if echo "$CHANGED" | grep -qE '^packages/'; then
+              echo "publish=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "publish=false" >> "$GITHUB_OUTPUT"
+            fi
           fi
 
-  # Publishing is a RELEASE: it must NOT bypass the same gates CI/deploy enforce (Codex R12). The
-  # visual-regression pixel gate runs in the pinned Playwright container and FAILS CLOSED if no
-  # baselines are committed, so a publish can't happen without proven visual coverage. It runs
-  # only when component-visual code changed (see `changes` above); the release job below keeps
-  # its own always-on baselines-present check either way.
   vrt-gate:
     needs: changes
     if: needs.changes.outputs.visual == 'true'
     runs-on: ubuntu-latest
-    container: mcr.microsoft.com/playwright:v1.61.0-noble # MUST match ci.yml / vrt.yml / deploy.yml
+    container: mcr.microsoft.com/playwright:v1.61.0-noble@sha256:57b65fdc9ceabe0ef613124c7bbe2babcf9362c4d85e382fe3b03604e84b428a
     steps:
-      - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - run: pnpm build # static-export the docs so VRT renders the compiled, shipped CSS
-      - name: Require committed VRT baselines (fail-closed for release)
-        run: |
-          # find, not `ls **`: CI steps run POSIX sh where ** is NOT recursive — a `**` glob
-          # here can never match vrt/<spec>-snapshots/*.png and would fail even with baselines committed.
-          [ -n "$(find apps/docs/vrt -type f -path '*-snapshots/*' -name '*.png' 2>/dev/null | head -1)" ] || {
-            echo "::error title=VRT baselines missing::Cannot publish without committed baseline screenshots. Bootstrap them via vrt.yml (update_baselines) in the pinned container and commit apps/docs/vrt/**/*-snapshots/** first.";
-            exit 1;
-          }
-      - name: VRT pixel gate (blocking)
+      - run: pnpm build
+      - name: Require complete Linux VRT baselines
+        run: pnpm --filter @vegastack/docs verify:vrt-baselines
+      - name: VRT pixel gate
         working-directory: apps/docs
         env:
           PLAYWRIGHT_JSON_OUTPUT_NAME: vrt-report.json
@@ -89,59 +82,132 @@ jobs:
           node -e '
             const r = require("./vrt-report.json");
             const ran = (r.stats?.expected||0)+(r.stats?.unexpected||0)+(r.stats?.flaky||0);
-            if (ran === 0) { console.error("✗ VRT executed 0 screenshot tests — not valid passing evidence for a release."); process.exit(1); }
-            console.log(`✓ VRT executed ${ran} screenshot test(s).`);
+            if (ran === 0) { console.error("✗ VRT executed 0 screenshot tests — not valid passing evidence."); process.exit(1); }
           '
 
-  release:
-    # Runs only when there's something to publish. Fail-closed on the pixel gate WHEN it ran
-    # (visual change); a skipped gate is acceptable only because `changes` proved no
-    # component-visual code moved — and the baselines-present check below still always runs.
+  # Repository code and dependencies are validated without write or OIDC authority.
+  quality-gate:
     needs: [changes, vrt-gate]
     if: >-
       always() && needs.changes.outputs.publish == 'true' &&
-      (needs.vrt-gate.result == 'success' || (needs.vrt-gate.result == 'skipped' && needs.changes.outputs.visual == 'false'))
+      (needs.vrt-gate.result == 'success' ||
+       (needs.vrt-gate.result == 'skipped' && needs.changes.outputs.visual == 'false'))
     runs-on: ubuntu-latest
-    # Same pinned container as ci.yml / vrt.yml: `pnpm test` runs Vitest BROWSER mode, which
-    # needs the Playwright browsers baked into this image (a bare runner has none and the
-    # quality gate dies at browserType.launch).
-    container: mcr.microsoft.com/playwright:v1.61.0-noble
+    container: mcr.microsoft.com/playwright:v1.61.0-noble@sha256:57b65fdc9ceabe0ef613124c7bbe2babcf9362c4d85e382fe3b03604e84b428a
     steps:
-      - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
-          node-version: 24
-          cache: pnpm
-          registry-url: 'https://registry.npmjs.org'
-      # npm 11.5+ speaks OIDC trusted publishing natively (same pattern as vegastack-cli's
-      # release.yml): with `id-token: write` + a trusted-publisher entry on npmjs.com for
-      # (@vegastack/design, @vegastack/design-tokens) → repo vegastack-design → release.yml,
-      # `npm publish` mints its own credential per publish. NO NPM_TOKEN secret, account 2FA
-      # untouched, and provenance attestations come back automatically.
-      - name: Pin npm to a version that speaks OIDC trusted publishing
-        run: npm install -g npm@latest
-      # Actions containers leave the workspace owned by a different uid than the job user; the
-      # changesets action's git calls die with exit 128 ("dubious ownership") without this.
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with: { node-version: 24, cache: pnpm }
       - name: Mark workspace safe for git (container ownership)
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - run: pnpm install --frozen-lockfile
-      # Full quality gate BEFORE publish — same as ci.yml. A direct push / merged version PR must not
-      # publish public packages without a11y, design-lint, registry integrity, and consumer checks.
       - run: pnpm typecheck
       - run: pnpm lint
-      # Vitest browser mode needs PLAYWRIGHT_BROWSERS_PATH passed through turbo (see ci.yml note).
       - run: pnpm test
+      - run: pnpm --filter @vegastack/ui test:all-browsers
       - run: pnpm build
       - run: pnpm registry:build
-      - run: test -z "$(git status --porcelain)" # registry:build must be idempotent (no stale/untracked)
-      - run: pnpm registry:verify-consume # the built registry is actually consumable
-      - uses: changesets/action@v1
+      - name: Require registry build idempotency
+        run: |
+          set -euo pipefail
+          git status --porcelain > "$RUNNER_TEMP/git-status"
+          if [ -s "$RUNNER_TEMP/git-status" ]; then
+            echo "::error title=Generated registry drift::registry:build changed the checked-out release commit."
+            cat "$RUNNER_TEMP/git-status"
+            exit 1
+          fi
+      - run: pnpm registry:verify-consume
+      - name: Upload validated public-package build outputs
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          # version-packages = `changeset version` + tooling/version-sync.mjs (CX-3): the version PR
-          # carries the re-synced registry item meta.version + rebuilt public/r + re-stamped headers,
-          # so package version = item meta.version = provenance header version, always.
+          name: npm-package-dist-${{ github.sha }}
+          path: |
+            packages/design/dist
+            packages/design-tokens/dist
+          if-no-files-found: error
+          retention-days: 1
+
+  # A changeset-bearing, reviewed main commit creates or updates the Version Packages PR. This job
+  # has write authority for that PR but cannot mint npm OIDC. Merging the reviewed Version PR is
+  # the separate human action that authorizes publication on the next main run.
+  version-pr:
+    needs: [changes, quality-gate]
+    if: >-
+      needs.changes.outputs.has_changesets == 'true' &&
+      needs.quality-gate.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
+        with:
           version: pnpm run version-packages
+          commitMode: github-api
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Publishing is isolated from validation and is the only release job with npm OIDC authority.
+  # It is reachable only after a reviewed Version Packages PR has removed the pending changesets.
+  # The trusted-publisher identity is repository + release.yml, matching the proven 0.1.1 path.
+  publish:
+    needs: [changes, quality-gate]
+    if: >-
+      needs.changes.outputs.has_changesets == 'false' &&
+      needs.quality-gate.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+      - name: Pin npm to the reviewed OIDC-capable release
+        run: npm install -g npm@11.16.0
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
+        with:
+          name: npm-package-dist-${{ github.sha }}
+          path: packages
+      - name: Reject publish-time lifecycle code
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          const lifecycle = ['prepublish', 'prepare', 'prepublishOnly', 'prepack', 'postpack', 'publish', 'postpublish', 'preinstall', 'install', 'postinstall'];
+          for (const directory of ['design', 'design-tokens']) {
+            const pkg = JSON.parse(readFileSync(`packages/${directory}/package.json`, 'utf8'));
+            for (const name of lifecycle) {
+              if (pkg.scripts?.[name]) throw new Error(`${pkg.name} must not execute ${name} with npm OIDC authority`);
+            }
+          }
+          NODE
+      - uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
+        with:
           publish: pnpm changeset publish
+          commitMode: github-api
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

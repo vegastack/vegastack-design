@@ -3,8 +3,9 @@
    contrast test so every utility the components render is generated. Lets axe evaluate REAL
    rendered colors (the unit a11y tests run without compiled CSS, so they suppress color-contrast;
    THIS test is the active compiled-CSS compensating gate Codex R3 asked for). */
-@import 'tailwindcss';
-@import '@vegastack/design-tokens/theme.css';
+@import "tailwindcss";
+@import "@vegastack/design-tokens/theme.css";
+@import "@vegastack/design-tokens/base.css";
 
 @source '../registry/ui/**/*.tsx';
 @source './contrast.browser.test.tsx';

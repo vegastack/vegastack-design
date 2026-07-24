@@ -1,6 +1,6 @@
-// @vegastack region-select@0.2.0 sha256-eNjdiU5qurADHXTPQnuYXwUf362omwf7EZgoCJjtWEM=
+// @vegastack region-select@0.2.0 sha256-1S2om4UWm/vnwZJ8HrIvUINJD3NoSDnoyB5xHGSrMTA=
 
-import type { Region } from './region-select';
+import type { Region } from "./region-select";
 
 /**
  * Region datasets keyed by ISO country code — split out of the component so the

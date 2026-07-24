@@ -1,9 +1,9 @@
-import * as React from 'react';
-import { render } from 'vitest-browser-react';
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { userEvent } from 'vitest/browser';
-import { expectNoA11yViolations } from '../../test/a11y';
-import { Home, Inbox, Settings } from 'lucide-react';
+import * as React from "react";
+import { render } from "vitest-browser-react";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
+import { userEvent } from "vitest/browser";
+import { expectNoA11yViolations } from "../../test/a11y";
+import { Home, Inbox, Settings } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -20,7 +20,7 @@ import {
   SidebarProvider,
   SidebarRail,
   SidebarTrigger,
-} from './sidebar';
+} from "./sidebar";
 
 /* ---------------------------------------------------------------------------------------------
  * This suite's real Playwright viewport is MOBILE-sized (414×896 — verified empirically; there's
@@ -35,8 +35,9 @@ let mobileMediaQueryOverride: string | null = null;
 
 beforeEach(() => {
   mobileMediaQueryOverride = null;
-  vi.spyOn(window, 'matchMedia').mockImplementation((query: string) => ({
-    matches: mobileMediaQueryOverride !== null && query === mobileMediaQueryOverride,
+  vi.spyOn(window, "matchMedia").mockImplementation((query: string) => ({
+    matches:
+      mobileMediaQueryOverride !== null && query === mobileMediaQueryOverride,
     media: query,
     onchange: null,
     addEventListener: () => {},
@@ -88,73 +89,85 @@ function Demo() {
   );
 }
 
-test('renders a menu button for each item', async () => {
-  const screen = await render(<Demo />);
-  await expect.element(screen.getByRole('button', { name: 'Home' })).toBeInTheDocument();
-  await expect.element(screen.getByRole('button', { name: 'Inbox' })).toBeInTheDocument();
-  await expect.element(screen.getByRole('button', { name: 'Settings' })).toBeInTheDocument();
-});
-
-test('the active item is marked with data-active and aria-current', async () => {
-  const screen = await render(<Demo />);
-  const home = screen.getByRole('button', { name: 'Home' });
-  const inbox = screen.getByRole('button', { name: 'Inbox' });
-
-  await expect.element(home).toHaveAttribute('data-active', 'true');
-  await expect.element(home).toHaveAttribute('aria-current', 'page');
-  await expect.element(inbox).toHaveAttribute('data-active', 'false');
-  await expect.element(inbox).not.toHaveAttribute('aria-current');
-});
-
-test('group labels render as headings', async () => {
+test("renders a menu button for each item", async () => {
   const screen = await render(<Demo />);
   await expect
-    .element(screen.getByRole('heading', { level: 3, name: 'Workspace' }))
+    .element(screen.getByRole("button", { name: "Home" }))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("button", { name: "Inbox" }))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("button", { name: "Settings" }))
     .toBeInTheDocument();
 });
 
-test('the trigger toggles the collapsed state', async () => {
+test("the active item is marked with data-active and aria-current", async () => {
   const screen = await render(<Demo />);
-  const sidebar = screen.getByRole('navigation', { name: 'Main navigation' });
+  const home = screen.getByRole("button", { name: "Home" });
+  const inbox = screen.getByRole("button", { name: "Inbox" });
 
-  // Expanded by default.
-  await expect.element(sidebar).toHaveAttribute('data-state', 'expanded');
-
-  // Clicking the trigger collapses the rail to the icon state.
-  await screen.getByRole('button', { name: 'Toggle sidebar' }).click();
-  await expect.element(sidebar).toHaveAttribute('data-state', 'collapsed');
-  await expect.element(sidebar).toHaveAttribute('data-collapsible', 'icon');
-
-  // Clicking again expands it back.
-  await screen.getByRole('button', { name: 'Toggle sidebar' }).click();
-  await expect.element(sidebar).toHaveAttribute('data-state', 'expanded');
+  await expect.element(home).toHaveAttribute("data-active", "true");
+  await expect.element(home).toHaveAttribute("aria-current", "page");
+  await expect.element(inbox).toHaveAttribute("data-active", "false");
+  await expect.element(inbox).not.toHaveAttribute("aria-current");
 });
 
-test('keyboard shortcut can be disabled', async () => {
+test("group labels render as headings", async () => {
+  const screen = await render(<Demo />);
+  await expect
+    .element(screen.getByRole("heading", { level: 3, name: "Workspace" }))
+    .toBeInTheDocument();
+});
+
+test("the trigger toggles the collapsed state", async () => {
+  const screen = await render(<Demo />);
+  const sidebar = screen.getByRole("navigation", { name: "Main navigation" });
+
+  // Expanded by default.
+  await expect.element(sidebar).toHaveAttribute("data-state", "expanded");
+
+  // Clicking the trigger collapses the rail to the icon state.
+  await screen.getByRole("button", { name: "Toggle sidebar" }).click();
+  await expect.element(sidebar).toHaveAttribute("data-state", "collapsed");
+  await expect.element(sidebar).toHaveAttribute("data-collapsible", "icon");
+
+  // Clicking again expands it back.
+  await screen.getByRole("button", { name: "Toggle sidebar" }).click();
+  await expect.element(sidebar).toHaveAttribute("data-state", "expanded");
+});
+
+test("keyboard shortcut can be disabled", async () => {
   const screen = await render(
     <SidebarProvider keyboardShortcut={false}>
       <Sidebar aria-label="Main navigation" />
     </SidebarProvider>,
   );
-  const sidebar = screen.getByRole('navigation', { name: 'Main navigation' });
-  window.dispatchEvent(new KeyboardEvent('keydown', { key: 'b', ctrlKey: true }));
-  await expect.element(sidebar).toHaveAttribute('data-state', 'expanded');
+  const sidebar = screen.getByRole("navigation", { name: "Main navigation" });
+  window.dispatchEvent(
+    new KeyboardEvent("keydown", { key: "b", ctrlKey: true }),
+  );
+  await expect.element(sidebar).toHaveAttribute("data-state", "expanded");
 });
 
-test('keyboard shortcut can be customized', async () => {
+test("keyboard shortcut can be customized", async () => {
   const screen = await render(
     <SidebarProvider keyboardShortcut="k">
       <Sidebar aria-label="Main navigation" />
     </SidebarProvider>,
   );
-  const sidebar = screen.getByRole('navigation', { name: 'Main navigation' });
-  window.dispatchEvent(new KeyboardEvent('keydown', { key: 'b', ctrlKey: true }));
-  await expect.element(sidebar).toHaveAttribute('data-state', 'expanded');
-  window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }));
-  await expect.element(sidebar).toHaveAttribute('data-state', 'collapsed');
+  const sidebar = screen.getByRole("navigation", { name: "Main navigation" });
+  window.dispatchEvent(
+    new KeyboardEvent("keydown", { key: "b", ctrlKey: true }),
+  );
+  await expect.element(sidebar).toHaveAttribute("data-state", "expanded");
+  window.dispatchEvent(
+    new KeyboardEvent("keydown", { key: "k", ctrlKey: true }),
+  );
+  await expect.element(sidebar).toHaveAttribute("data-state", "collapsed");
 });
 
-test('render prop projects a menu button onto a nav link', async () => {
+test("render prop projects a menu button onto a nav link", async () => {
   const screen = await render(
     <SidebarProvider>
       <Sidebar aria-label="Links">
@@ -170,12 +183,12 @@ test('render prop projects a menu button onto a nav link', async () => {
       </Sidebar>
     </SidebarProvider>,
   );
-  const link = screen.getByRole('link', { name: 'Dashboard' });
-  await expect.element(link).toHaveAttribute('href', '/dashboard');
-  await expect.element(link).toHaveAttribute('aria-current', 'page');
+  const link = screen.getByRole("link", { name: "Dashboard" });
+  await expect.element(link).toHaveAttribute("href", "/dashboard");
+  await expect.element(link).toHaveAttribute("aria-current", "page");
 });
 
-test('forwards ref to the root nav element', async () => {
+test("forwards ref to the root nav element", async () => {
   const ref = React.createRef<HTMLElement>();
   await render(
     <SidebarProvider>
@@ -183,36 +196,40 @@ test('forwards ref to the root nav element', async () => {
     </SidebarProvider>,
   );
   expect(ref.current).toBeInstanceOf(HTMLElement);
-  expect(ref.current?.tagName).toBe('NAV');
-  expect(ref.current?.dataset.slot).toBe('sidebar');
+  expect(ref.current?.tagName).toBe("NAV");
+  expect(ref.current?.dataset.slot).toBe("sidebar");
 });
 
-test('no a11y violations', async () => {
+test("no a11y violations", async () => {
   const screen = await render(<Demo />);
   await expectNoA11yViolations(screen.container);
 });
 
-test('no a11y violations — collapsed', async () => {
+test("no a11y violations — collapsed", async () => {
   const screen = await render(<Demo />);
-  await screen.getByRole('button', { name: 'Toggle sidebar' }).click();
+  await screen.getByRole("button", { name: "Toggle sidebar" }).click();
   await expect
-    .element(screen.getByRole('navigation', { name: 'Main navigation' }))
-    .toHaveAttribute('data-state', 'collapsed');
+    .element(screen.getByRole("navigation", { name: "Main navigation" }))
+    .toHaveAttribute("data-state", "collapsed");
   await expectNoA11yViolations(screen.container);
 });
 
-test('collapsed menu buttons keep their accessible name (label is sr-only, not display:none)', async () => {
+test("collapsed menu buttons keep their accessible name (label is sr-only, not display:none)", async () => {
   const screen = await render(<Demo />);
 
-  await screen.getByRole('button', { name: 'Toggle sidebar' }).click();
+  await screen.getByRole("button", { name: "Toggle sidebar" }).click();
   await expect
-    .element(screen.getByRole('navigation', { name: 'Main navigation' }))
-    .toHaveAttribute('data-state', 'collapsed');
+    .element(screen.getByRole("navigation", { name: "Main navigation" }))
+    .toHaveAttribute("data-state", "collapsed");
 
   // The label span must stay in the accessible name while collapsed (register P0-03):
   // `sr-only` keeps it in the accessibility tree where `hidden` (display:none) dropped it.
-  await expect.element(screen.getByRole('button', { name: 'Home' })).toBeInTheDocument();
-  await expect.element(screen.getByRole('button', { name: 'Inbox' })).toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("button", { name: "Home" }))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("button", { name: "Inbox" }))
+    .toBeInTheDocument();
 });
 
 /* ---------------------------------------------------------------------------------------------
@@ -226,7 +243,7 @@ test('collapsed menu buttons keep their accessible name (label is sr-only, not d
  * also reset here in `finally` so nothing downstream in the SAME test observes it.
  */
 async function withMobileViewport(run: () => Promise<void>) {
-  mobileMediaQueryOverride = '(max-width: 767px)';
+  mobileMediaQueryOverride = "(max-width: 767px)";
   try {
     await run();
   } finally {
@@ -234,7 +251,7 @@ async function withMobileViewport(run: () => Promise<void>) {
   }
 }
 
-test('below the mobile breakpoint, the sidebar is closed by default (no dialog in the DOM)', async () => {
+test("below the mobile breakpoint, the sidebar is closed by default (no dialog in the DOM)", async () => {
   await withMobileViewport(async () => {
     await render(<Demo />);
     expect(document.querySelector('[role="dialog"]')).toBeNull();
@@ -268,39 +285,41 @@ function MobileDemo() {
   );
 }
 
-test('below the mobile breakpoint, the trigger opens the sidebar inside a Sheet', async () => {
+test("below the mobile breakpoint, the trigger opens the sidebar inside a Sheet", async () => {
   await withMobileViewport(async () => {
     const screen = await render(<MobileDemo />);
 
-    await screen.getByRole('button', { name: 'Toggle sidebar' }).click();
+    await screen.getByRole("button", { name: "Toggle sidebar" }).click();
 
-    await expect.element(screen.getByRole('dialog')).toBeInTheDocument();
+    await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
     // The nav landmark (and its content) still render, now inside the sheet.
     await expect
-      .element(screen.getByRole('navigation', { name: 'Main navigation' }))
+      .element(screen.getByRole("navigation", { name: "Main navigation" }))
       .toBeInTheDocument();
-    await expect.element(screen.getByRole('button', { name: 'Home' })).toBeInTheDocument();
+    await expect
+      .element(screen.getByRole("button", { name: "Home" }))
+      .toBeInTheDocument();
   });
 });
 
-test('below the mobile breakpoint, Escape closes the sidebar', async () => {
+test("below the mobile breakpoint, Escape closes the sidebar", async () => {
   await withMobileViewport(async () => {
     const screen = await render(<MobileDemo />);
-    await screen.getByRole('button', { name: 'Toggle sidebar' }).click();
-    await expect.element(screen.getByRole('dialog')).toBeInTheDocument();
+    await screen.getByRole("button", { name: "Toggle sidebar" }).click();
+    await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
 
-    await userEvent.keyboard('{Escape}');
+    await userEvent.keyboard("{Escape}");
     await expect
       .poll(() => document.querySelector('[role="dialog"]'), { timeout: 2000 })
       .toBeNull();
   });
 });
 
-test('no a11y violations — mobile sheet open', async () => {
+test("no a11y violations — mobile sheet open", async () => {
   await withMobileViewport(async () => {
     const screen = await render(<MobileDemo />);
-    await screen.getByRole('button', { name: 'Toggle sidebar' }).click();
-    await expect.element(screen.getByRole('dialog')).toBeInTheDocument();
+    await screen.getByRole("button", { name: "Toggle sidebar" }).click();
+    await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
     // The popup portals to <body>, so audit the whole document (same pattern as sheet.test.tsx).
     await expectNoA11yViolations(document.body);
   });
@@ -310,7 +329,11 @@ test('no a11y violations — mobile sheet open', async () => {
  * Phase S — `collapsible` modes.
  * ------------------------------------------------------------------------------------------- */
 
-function CollapsibleDemo({ collapsible }: { collapsible?: 'offcanvas' | 'icon' | 'none' }) {
+function CollapsibleDemo({
+  collapsible,
+}: {
+  collapsible?: "offcanvas" | "icon" | "none";
+}) {
   return (
     <SidebarProvider>
       <Sidebar aria-label="Nav" collapsible={collapsible}>
@@ -324,44 +347,46 @@ function CollapsibleDemo({ collapsible }: { collapsible?: 'offcanvas' | 'icon' |
 
 test('collapsible="icon" (default) is unchanged: data-collapsible is "icon" once collapsed', async () => {
   const screen = await render(<CollapsibleDemo />);
-  const nav = screen.getByRole('navigation', { name: 'Nav' });
-  await expect.element(nav).toHaveAttribute('data-collapsible', '');
-  await screen.getByRole('button', { name: 'Toggle sidebar' }).click();
-  await expect.element(nav).toHaveAttribute('data-collapsible', 'icon');
+  const nav = screen.getByRole("navigation", { name: "Nav" });
+  await expect.element(nav).toHaveAttribute("data-collapsible", "");
+  await screen.getByRole("button", { name: "Toggle sidebar" }).click();
+  await expect.element(nav).toHaveAttribute("data-collapsible", "icon");
 });
 
 test('collapsible="offcanvas" carries the off-canvas width/translate utility classes', async () => {
   const screen = await render(<CollapsibleDemo collapsible="offcanvas" />);
-  const nav = screen.getByRole('navigation', { name: 'Nav' }).element();
-  expect(nav.className).toContain('data-[state=collapsed]:w-0');
-  expect(nav.className).toContain('data-[state=collapsed]:data-[side=left]:-translate-x-full');
+  const nav = screen.getByRole("navigation", { name: "Nav" }).element();
+  expect(nav.className).toContain("data-[state=collapsed]:w-0");
+  expect(nav.className).toContain(
+    "data-[state=collapsed]:data-[side=left]:-translate-x-full",
+  );
 });
 
 test('collapsible="offcanvas": data-collapsible reflects "offcanvas" once collapsed', async () => {
   const screen = await render(<CollapsibleDemo collapsible="offcanvas" />);
-  const nav = screen.getByRole('navigation', { name: 'Nav' });
-  await expect.element(nav).toHaveAttribute('data-collapsible', '');
-  await screen.getByRole('button', { name: 'Toggle sidebar' }).click();
-  await expect.element(nav).toHaveAttribute('data-state', 'collapsed');
-  await expect.element(nav).toHaveAttribute('data-collapsible', 'offcanvas');
+  const nav = screen.getByRole("navigation", { name: "Nav" });
+  await expect.element(nav).toHaveAttribute("data-collapsible", "");
+  await screen.getByRole("button", { name: "Toggle sidebar" }).click();
+  await expect.element(nav).toHaveAttribute("data-state", "collapsed");
+  await expect.element(nav).toHaveAttribute("data-collapsible", "offcanvas");
 });
 
 test('collapsible="none": always renders expanded, and toggling leaves it expanded', async () => {
   const screen = await render(<CollapsibleDemo collapsible="none" />);
-  const nav = screen.getByRole('navigation', { name: 'Nav' });
-  await expect.element(nav).toHaveAttribute('data-state', 'expanded');
-  await expect.element(nav).toHaveAttribute('data-collapsible', 'none');
+  const nav = screen.getByRole("navigation", { name: "Nav" });
+  await expect.element(nav).toHaveAttribute("data-state", "expanded");
+  await expect.element(nav).toHaveAttribute("data-collapsible", "none");
 
-  await screen.getByRole('button', { name: 'Toggle sidebar' }).click();
-  await expect.element(nav).toHaveAttribute('data-state', 'expanded');
-  await expect.element(nav).toHaveAttribute('data-collapsible', 'none');
+  await screen.getByRole("button", { name: "Toggle sidebar" }).click();
+  await expect.element(nav).toHaveAttribute("data-state", "expanded");
+  await expect.element(nav).toHaveAttribute("data-collapsible", "none");
 });
 
 /* ---------------------------------------------------------------------------------------------
  * Phase S — `SidebarRail`.
  * ------------------------------------------------------------------------------------------- */
 
-test('SidebarRail toggles the sidebar open state on click', async () => {
+test("SidebarRail toggles the sidebar open state on click", async () => {
   const screen = await render(
     <SidebarProvider>
       <Sidebar aria-label="Main navigation">
@@ -369,17 +394,17 @@ test('SidebarRail toggles the sidebar open state on click', async () => {
       </Sidebar>
     </SidebarProvider>,
   );
-  const nav = screen.getByRole('navigation', { name: 'Main navigation' });
-  await expect.element(nav).toHaveAttribute('data-state', 'expanded');
+  const nav = screen.getByRole("navigation", { name: "Main navigation" });
+  await expect.element(nav).toHaveAttribute("data-state", "expanded");
 
-  await screen.getByRole('button', { name: 'Toggle sidebar' }).click();
-  await expect.element(nav).toHaveAttribute('data-state', 'collapsed');
+  await screen.getByRole("button", { name: "Toggle sidebar" }).click();
+  await expect.element(nav).toHaveAttribute("data-state", "collapsed");
 
-  await screen.getByRole('button', { name: 'Toggle sidebar' }).click();
-  await expect.element(nav).toHaveAttribute('data-state', 'expanded');
+  await screen.getByRole("button", { name: "Toggle sidebar" }).click();
+  await expect.element(nav).toHaveAttribute("data-state", "expanded");
 });
 
-test('SidebarRail carries an accessible name and a title', async () => {
+test("SidebarRail carries an accessible name and a title", async () => {
   const screen = await render(
     <SidebarProvider>
       <Sidebar aria-label="Main navigation">
@@ -387,32 +412,32 @@ test('SidebarRail carries an accessible name and a title', async () => {
       </Sidebar>
     </SidebarProvider>,
   );
-  const rail = screen.getByRole('button', { name: 'Toggle sidebar' });
-  await expect.element(rail).toHaveAttribute('title', 'Toggle sidebar');
+  const rail = screen.getByRole("button", { name: "Toggle sidebar" });
+  await expect.element(rail).toHaveAttribute("title", "Toggle sidebar");
 });
 
 /* ---------------------------------------------------------------------------------------------
  * Phase S — `SidebarInset`.
  * ------------------------------------------------------------------------------------------- */
 
-test('SidebarInset renders a <main> landmark and forwards className', async () => {
+test("SidebarInset renders a <main> landmark and forwards className", async () => {
   const screen = await render(
     <SidebarProvider>
       <Sidebar variant="inset" aria-label="Main navigation" />
       <SidebarInset className="custom-inset">page content</SidebarInset>
     </SidebarProvider>,
   );
-  const main = screen.getByRole('main');
+  const main = screen.getByRole("main");
   await expect.element(main).toBeInTheDocument();
-  await expect.element(main).toHaveTextContent('page content');
-  expect(main.element().className).toContain('custom-inset');
+  await expect.element(main).toHaveTextContent("page content");
+  expect(main.element().className).toContain("custom-inset");
 });
 
 /* ---------------------------------------------------------------------------------------------
  * Phase S — `SidebarMenuSkeleton`.
  * ------------------------------------------------------------------------------------------- */
 
-test('SidebarMenuSkeleton derives a deterministic, cycling text-line width from `index`', async () => {
+test("SidebarMenuSkeleton derives a deterministic, cycling text-line width from `index`", async () => {
   const screen = await render(
     <div>
       <SidebarMenuSkeleton data-testid="row-0" index={0} />
@@ -422,45 +447,48 @@ test('SidebarMenuSkeleton derives a deterministic, cycling text-line width from 
     </div>,
   );
   const lineClass = (testId: string) =>
-    screen
-      .getByTestId(testId)
-      .element()
-      .querySelector('[data-shape="line"]')!.className;
+    screen.getByTestId(testId).element().querySelector('[data-shape="line"]')!
+      .className;
 
   // Same index -> identical width every time (deterministic, no Math.random).
-  expect(lineClass('row-0')).toBe(lineClass('row-0-again'));
+  expect(lineClass("row-0")).toBe(lineClass("row-0-again"));
   // A different index actually varies the width.
-  expect(lineClass('row-0')).not.toBe(lineClass('row-1'));
+  expect(lineClass("row-0")).not.toBe(lineClass("row-1"));
   // The fixed 5-wide cycle wraps: index 5 (5 % 5 === 0) matches index 0.
-  expect(lineClass('row-5')).toBe(lineClass('row-0'));
+  expect(lineClass("row-5")).toBe(lineClass("row-0"));
 });
 
-test('SidebarMenuSkeleton hides the icon placeholder when showIcon={false}', async () => {
-  const screen = await render(<SidebarMenuSkeleton data-testid="row" showIcon={false} />);
-  const row = screen.getByTestId('row').element();
+test("SidebarMenuSkeleton hides the icon placeholder when showIcon={false}", async () => {
+  const screen = await render(
+    <SidebarMenuSkeleton data-testid="row" showIcon={false} />,
+  );
+  const row = screen.getByTestId("row").element();
   expect(row.querySelector('[data-shape="circle"]')).toBeNull();
   expect(row.querySelector('[data-shape="line"]')).not.toBeNull();
 });
 
-test('SidebarMenuSkeleton is decorative (aria-hidden) like the Skeleton it composes', async () => {
+test("SidebarMenuSkeleton is decorative (aria-hidden) like the Skeleton it composes", async () => {
   const screen = await render(<SidebarMenuSkeleton data-testid="row" />);
-  const circle = screen.getByTestId('row').element().querySelector('[data-shape="circle"]');
-  expect(circle?.getAttribute('aria-hidden')).toBe('true');
+  const circle = screen
+    .getByTestId("row")
+    .element()
+    .querySelector('[data-shape="circle"]');
+  expect(circle?.getAttribute("aria-hidden")).toBe("true");
 });
 
 /* ---------------------------------------------------------------------------------------------
  * Phase S — cookie persistence.
  * ------------------------------------------------------------------------------------------- */
 
-test('SidebarProvider writes the sidebar_state cookie on every desktop toggle', async () => {
-  document.cookie = 'sidebar_state=; path=/; max-age=0'; // clear any leftover value first
+test("SidebarProvider writes the sidebar_state cookie on every desktop toggle", async () => {
+  document.cookie = "sidebar_state=; path=/; max-age=0"; // clear any leftover value first
   const screen = await render(<Demo />);
 
-  await screen.getByRole('button', { name: 'Toggle sidebar' }).click();
-  expect(document.cookie).toContain('sidebar_state=false');
+  await screen.getByRole("button", { name: "Toggle sidebar" }).click();
+  expect(document.cookie).toContain("sidebar_state=false");
 
-  await screen.getByRole('button', { name: 'Toggle sidebar' }).click();
-  expect(document.cookie).toContain('sidebar_state=true');
+  await screen.getByRole("button", { name: "Toggle sidebar" }).click();
+  expect(document.cookie).toContain("sidebar_state=true");
 });
 
 /* ---------------------------------------------------------------------------------------------
@@ -469,7 +497,7 @@ test('SidebarProvider writes the sidebar_state cookie on every desktop toggle', 
  * ------------------------------------------------------------------------------------------- */
 
 function injectTriggerHitAreaMirror(): () => void {
-  const style = document.createElement('style');
+  const style = document.createElement("style");
   style.textContent = `
     body { margin: 24px; }
     /* SidebarTrigger renders a real <button> — this harness runs with no compiled Tailwind, so
@@ -484,13 +512,15 @@ function injectTriggerHitAreaMirror(): () => void {
   return () => document.head.removeChild(style);
 }
 
-test('SidebarTrigger resolves an effective hit area >= 44x44 via the before pseudo-element', async () => {
+test("SidebarTrigger resolves an effective hit area >= 44x44 via the before pseudo-element", async () => {
   const cleanup = injectTriggerHitAreaMirror();
   try {
     const screen = await render(<Demo />);
-    const el = screen.getByRole('button', { name: 'Toggle sidebar' }).element() as HTMLElement;
+    const el = screen
+      .getByRole("button", { name: "Toggle sidebar" })
+      .element() as HTMLElement;
     el.getBoundingClientRect(); // force a layout flush before reading resolved pseudo-element geometry
-    const before = getComputedStyle(el, '::before');
+    const before = getComputedStyle(el, "::before");
     expect(parseFloat(before.width)).toBeGreaterThanOrEqual(44);
     expect(parseFloat(before.height)).toBeGreaterThanOrEqual(44);
   } finally {
@@ -498,11 +528,13 @@ test('SidebarTrigger resolves an effective hit area >= 44x44 via the before pseu
   }
 });
 
-test('a point just outside the visible trigger box, inside the expanded hit area, still hits and toggles it', async () => {
+test("a point just outside the visible trigger box, inside the expanded hit area, still hits and toggles it", async () => {
   const cleanup = injectTriggerHitAreaMirror();
   try {
     const screen = await render(<Demo />);
-    const el = screen.getByRole('button', { name: 'Toggle sidebar' }).element() as HTMLElement;
+    const el = screen
+      .getByRole("button", { name: "Toggle sidebar" })
+      .element() as HTMLElement;
     const rect = el.getBoundingClientRect();
     // 5px above the visual top edge — inside the 8px `before:-inset-2` expansion, outside the 28px box.
     const x = rect.left + rect.width / 2;
@@ -515,7 +547,7 @@ test('a point just outside the visible trigger box, inside the expanded hit area
   }
 });
 
-test('SidebarMenuBadge is vertically centered on its row (top-1/2 -translate-y-1/2)', async () => {
+test("SidebarMenuBadge is vertically centered on its row (top-1/2 -translate-y-1/2)", async () => {
   // Regression: as an absolutely-positioned sibling of the full-width menu button, the badge
   // has no static position — without an explicit vertical anchor it rendered BELOW its row.
   // The half-translate pair centers it for every menu-button size (no per-size top-* classes).
@@ -536,19 +568,23 @@ test('SidebarMenuBadge is vertically centered on its row (top-1/2 -translate-y-1
       </Sidebar>
     </SidebarProvider>,
   );
-  const badge = screen.container.querySelector('[data-slot="sidebar-menu-badge"]') as HTMLElement;
+  const badge = screen.container.querySelector(
+    '[data-slot="sidebar-menu-badge"]',
+  ) as HTMLElement;
   expect(badge).not.toBeNull();
-  expect(badge.textContent).toBe('12');
-  expect(badge.classList.contains('absolute')).toBe(true);
-  expect(badge.classList.contains('top-1/2')).toBe(true);
-  expect(badge.classList.contains('-translate-y-1/2')).toBe(true);
+  expect(badge.textContent).toBe("12");
+  expect(badge.classList.contains("absolute")).toBe(true);
+  expect(badge.classList.contains("top-1/2")).toBe(true);
+  expect(badge.classList.contains("-translate-y-1/2")).toBe(true);
 });
 
-test('a point beyond the expanded hit area does not resolve to the trigger', async () => {
+test("a point beyond the expanded hit area does not resolve to the trigger", async () => {
   const cleanup = injectTriggerHitAreaMirror();
   try {
     const screen = await render(<Demo />);
-    const el = screen.getByRole('button', { name: 'Toggle sidebar' }).element() as HTMLElement;
+    const el = screen
+      .getByRole("button", { name: "Toggle sidebar" })
+      .element() as HTMLElement;
     const rect = el.getBoundingClientRect();
     // 12px above the visual top edge — 4px beyond the 8px `before:-inset-2` expansion boundary.
     const x = rect.left + rect.width / 2;

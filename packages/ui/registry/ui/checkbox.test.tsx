@@ -142,7 +142,9 @@ test("no a11y violations — checked", async () => {
 });
 
 test("no a11y violations — indeterminate", async () => {
-  const screen = await render(<Checkbox aria-label="Select all" indeterminate />);
+  const screen = await render(
+    <Checkbox aria-label="Select all" indeterminate />,
+  );
   await expectNoA11yViolations(screen.container);
 });
 
@@ -159,9 +161,8 @@ test("no a11y violations — disabled", async () => {
  * to real CSS here either. To still get a REAL, browser-computed measurement of the effective hit
  * area (not a hand-rolled arithmetic assertion), each test injects a small literal <style> tag
  * that is a 1:1, mechanical mirror of what these EXACT Tailwind utility values compile to
- * (Tailwind's spacing scale: `-inset-N` = `inset: calc(var(--spacing) * -N)` with
- * `--spacing: 0.25rem` = 4px — the "-inset-1 = 4px" scale this remediation's house rule
- * documents), keyed to the checkbox's own `data-slot`/`data-size` attributes (real regardless of
+ * (including the real 1px border, which makes the pseudo-element containing box 2px smaller),
+ * keyed to the checkbox's own `data-slot`/`data-size` attributes (real regardless of
  * compiled CSS). Chromium then does real layout + hit-testing against it — this measures the
  * actual rendered geometry those exact class values produce, not our assumption about them.
  * ------------------------------------------------------------------------------------------- */
@@ -172,10 +173,10 @@ function injectCheckboxHitAreaMirror(): () => void {
     /* Body margin so the checkbox isn't flush against the viewport edge — the boundary probes
        below need room to sample points OUTSIDE the visual box on every side. */
     body { margin: 24px; }
-    [data-slot="checkbox"] { position: relative; display: inline-flex; box-sizing: border-box; }
+    [data-slot="checkbox"] { position: relative; display: inline-flex; box-sizing: border-box; border: 1px solid transparent; }
     [data-slot="checkbox"][data-size="default"] { width: 16px; height: 16px; }
     [data-slot="checkbox"][data-size="sm"] { width: 14px; height: 14px; }
-    [data-slot="checkbox"][data-size="default"]::before { content: ""; position: absolute; inset: -4px; }
+    [data-slot="checkbox"][data-size="default"]::before { content: ""; position: absolute; inset: -6px; }
     [data-slot="checkbox"][data-size="sm"]::before { content: ""; position: absolute; inset: -6px; }
   `;
   document.head.appendChild(style);
@@ -186,7 +187,9 @@ test("default size (16px) resolves an effective hit area >= 24x24 via the before
   const cleanup = injectCheckboxHitAreaMirror();
   try {
     const screen = await render(<Checkbox aria-label="Accept terms" />);
-    const el = screen.getByRole("checkbox", { name: "Accept terms" }).element() as HTMLElement;
+    const el = screen
+      .getByRole("checkbox", { name: "Accept terms" })
+      .element() as HTMLElement;
     el.getBoundingClientRect(); // force a layout flush before reading resolved pseudo-element geometry
     const before = getComputedStyle(el, "::before");
     expect(parseFloat(before.width)).toBeGreaterThanOrEqual(24);
@@ -200,7 +203,9 @@ test("sm size (14px) resolves an effective hit area >= 24x24 via the before pseu
   const cleanup = injectCheckboxHitAreaMirror();
   try {
     const screen = await render(<Checkbox aria-label="Compact" size="sm" />);
-    const el = screen.getByRole("checkbox", { name: "Compact" }).element() as HTMLElement;
+    const el = screen
+      .getByRole("checkbox", { name: "Compact" })
+      .element() as HTMLElement;
     el.getBoundingClientRect(); // force a layout flush before reading resolved pseudo-element geometry
     const before = getComputedStyle(el, "::before");
     expect(parseFloat(before.width)).toBeGreaterThanOrEqual(24);
@@ -217,9 +222,11 @@ test("a point just outside the visual box, inside the expanded hit area, still h
     const screen = await render(
       <Checkbox aria-label="Accept terms" onCheckedChange={onCheckedChange} />,
     );
-    const el = screen.getByRole("checkbox", { name: "Accept terms" }).element() as HTMLElement;
+    const el = screen
+      .getByRole("checkbox", { name: "Accept terms" })
+      .element() as HTMLElement;
     const rect = el.getBoundingClientRect();
-    // 3px above the visual top edge — inside the 4px `before:-inset-1` expansion, outside the 16px box.
+    // 3px above the visual top edge — inside the 6px expansion, outside the 16px box.
     const x = rect.left + rect.width / 2;
     const y = rect.top - 3;
     const hit = document.elementFromPoint(x, y);
@@ -244,7 +251,10 @@ test("auto-shakes once when it transitions into invalid", async () => {
         <button type="button" onClick={() => setInvalid(true)}>
           invalidate
         </button>
-        <Checkbox aria-label="Accept terms" aria-invalid={invalid || undefined} />
+        <Checkbox
+          aria-label="Accept terms"
+          aria-invalid={invalid || undefined}
+        />
       </div>
     );
   }
@@ -256,10 +266,14 @@ test("auto-shakes once when it transitions into invalid", async () => {
 });
 
 test("does not shake when already invalid at mount", async () => {
-  const screen = await render(<Checkbox aria-label="Accept terms" aria-invalid />);
+  const screen = await render(
+    <Checkbox aria-label="Accept terms" aria-invalid />,
+  );
   const checkbox = screen.getByRole("checkbox", { name: "Accept terms" });
   await new Promise((resolve) => setTimeout(resolve, 100));
-  expect((checkbox.element() as HTMLElement).className).not.toContain("motion-shake");
+  expect((checkbox.element() as HTMLElement).className).not.toContain(
+    "motion-shake",
+  );
 });
 
 test("shakeSignal re-shakes a still-invalid checkbox on repeated failure", async () => {
@@ -284,7 +298,9 @@ test("shakeSignal re-shakes a still-invalid checkbox on repeated failure", async
 
 test("forwards ref alongside the internal shake ref (both land on the root element)", async () => {
   const ref = React.createRef<HTMLElement>();
-  const screen = await render(<Checkbox ref={ref} aria-label="Accept terms" aria-invalid />);
+  const screen = await render(
+    <Checkbox ref={ref} aria-label="Accept terms" aria-invalid />,
+  );
   const checkbox = screen.getByRole("checkbox", { name: "Accept terms" });
   expect(ref.current).toBe(checkbox.element());
 });
@@ -293,9 +309,11 @@ test("a point beyond the expanded hit area does not resolve to the checkbox", as
   const cleanup = injectCheckboxHitAreaMirror();
   try {
     const screen = await render(<Checkbox aria-label="Accept terms" />);
-    const el = screen.getByRole("checkbox", { name: "Accept terms" }).element() as HTMLElement;
+    const el = screen
+      .getByRole("checkbox", { name: "Accept terms" })
+      .element() as HTMLElement;
     const rect = el.getBoundingClientRect();
-    // 8px above the visual top edge — 4px beyond the 4px `before:-inset-1` expansion boundary.
+    // 8px above the visual top edge — beyond the 6px expansion boundary.
     const x = rect.left + rect.width / 2;
     const y = rect.top - 8;
     const hit = document.elementFromPoint(x, y);

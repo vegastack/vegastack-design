@@ -1,0 +1,92 @@
+---
+title: Internal projects
+description: Operate a VegaStack-owned application across npm and registry update channels, CI drift gates, testing, and deployment.
+audience: internal
+---
+
+This guide is for apps owned and operated by VegaStack. For a project that will be
+handed to a client, use the public [Client projects](/docs/guides/external-projects)
+guide instead.
+
+## Setup
+
+Follow the public [Quickstart](/docs/guides/quickstart). VegaStack-owned projects use
+the full path: public npm packages plus the private registry configured according to
+[Registry access & auth](/docs/guides/registry-auth).
+
+## How updates reach you
+
+Every design-system change arrives through one of two channels. Knowing the channel
+determines what a release changes in an application.
+
+### Channel 1 — npm
+
+`@vegastack/design` and `@vegastack/design-tokens` are ordinary npm dependencies.
+Changes arrive when the application updates the dependency and lockfile.
+
+This channel carries token values, the base accessibility layer, `cn()` merge
+configuration, icon runtime, preset, and CLI. A token update can repaint the
+application after the dependency bump without re-pulling components.
+
+### Channel 2 — registry
+
+Registry components are copies in the consuming repository. A registry release changes
+nothing until the application explicitly reviews and pulls it:
+
+```bash
+pnpm exec vegastack-design check-updates
+pnpm dlx shadcn@latest add @vegastack/<name> --diff
+pnpm dlx shadcn@latest add @vegastack/<name> --overwrite
+```
+
+This channel carries component markup, behavior fixes, and API changes. A breaking API
+change surfaces in the consuming application's typecheck after the pull. Blocks such
+as `dashboard-01` are copy-once and are not update-tracked.
+
+| Design-system change         | Delivery              | Review point                         |
+| ---------------------------- | --------------------- | ------------------------------------ |
+| Tokens and base CSS          | npm update            | Design-system VRT and contrast gates |
+| `cn()` merge configuration   | npm update            | Changelog                            |
+| Component markup or behavior | Registry pull         | `--diff` plus application tests      |
+| Breaking component API       | Registry pull         | Typecheck plus changelog warning     |
+| Removed or renamed item      | Existing copy remains | Changelog migration mapping          |
+| New component or block       | Explicit install      | Application review                   |
+
+### Cross-channel ordering
+
+When a component update references a newly added token, update
+`@vegastack/design` first and pull the component second. Reversing the order can leave
+the component referencing a CSS variable absent from the installed token package.
+
+## Development practices
+
+- Use `vegastack-design-starter` as the executable pattern reference.
+- Customize copied components through wrappers when possible; in-place edits remain
+  visible as consumer drift.
+- Implement loading, empty, error, disabled, and success states where applicable.
+- Keep a small Playwright smoke suite for provider setup, portals, theme persistence,
+  dialogs, and toasts.
+
+## CI
+
+```yaml
+- run: pnpm typecheck
+- run: pnpm build
+- run: pnpm exec vegastack-design check-updates --fail-on-update
+  env:
+    VEGASTACK_TRUSTED_REGISTRY_ORIGIN: https://design.vegastack.com
+    CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+    CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+```
+
+The trusted origin is an independent guardrail: `check-updates` refuses to attach
+credentials to a different origin and rejects redirects. Do not source that value from
+checkout-local dotenv files. The drift gate converts upstream registry changes into a
+reviewed CI failure. Use the public
+[Production checklist](/docs/guides/production-checklist) before shipping.
+
+## Deployment
+
+Registry credentials are build-tooling credentials only. Never expose them through
+`NEXT_PUBLIC_*`, client JavaScript, deployment logs, or runtime configuration. A
+deployed app serves copied source and npm-installed CSS and makes no registry request.

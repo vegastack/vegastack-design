@@ -1,10 +1,11 @@
 ---
 title: Image
 description: A presentational framed image with aspect-ratio, rounding, a loading skeleton, and an error fallback.
+audience: public
 preview: image
 ---
 
-import { story } from '@/components/stories/image.story';
+import { story } from "@/components/stories/image.story";
 
 ## Installation
 
@@ -32,20 +33,20 @@ import { Image } from "@/components/ui/image";
 > before passing it in. This mirrors the platform `R2Image`, which keeps key → URL resolution
 > (`getR2ImageUrl`) in the app while this component owns only the presentation.
 
-## Playground
+## Examples
 
 Combine an aspect ratio with a corner radius, then copy the generated JSX.
 
 <ImagePlayground />
 
-## Explorer
+### Explorer
 
 Every `Image` prop, auto-generated from its TypeScript types — the exhaustive counterpart to
 the curated playground above.
 
 <story.WithControl />
 
-## Aspect ratios
+### Aspect ratios
 
 `square` (1:1) and `video` (16:9) reserve space so the layout never shifts as the image decodes;
 `auto` lets the intrinsic size drive the box. The three square tiles below show the rendered
@@ -63,22 +64,16 @@ the curated playground above.
 dimensions drive the box height. Constrain the width and the frame follows the source's natural
 proportions (use `square`/`video` instead when you need a fixed, shift-free aspect).
 
-<ComponentPreview
-  name="imageAuto"
-  file="components/preview/image.tsx"
-/>
+<ComponentPreview name="imageAuto" file="components/preview/image.tsx" />
 
-## Rounding
+### Rounding
 
 `rounded` controls the corner radius of the frame (and the image clipped inside it): `none` → `sm`
 → `md` (default) → `lg` → `full`. `full` clips the image to a circle for avatar-style media.
 
-<ComponentPreview
-  name="imageRounded"
-  file="components/preview/image.tsx"
-/>
+<ComponentPreview name="imageRounded" file="components/preview/image.tsx" />
 
-## States
+### States
 
 - **Loading** — a `bg-muted` skeleton pulses over the frame until the image decodes; the image
   fades in on load (`prefers-reduced-motion` suppresses the pulse).

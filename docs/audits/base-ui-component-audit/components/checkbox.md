@@ -13,9 +13,9 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P2 | Docs recommend sibling `label htmlFor` while default Base UI root is a span-like custom control; `checkbox.tsx:84`, `checkbox.mdx:21`. | Downstream may choose a weaker labeling pattern. | Prefer Field/wrapping label docs, or add a `nativeButton render={<button />}` example for sibling labels. |
+| Priority | Evidence                                                                                                                               | Impact                                           | Suggested fix                                                                                             |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| P2       | Docs recommend sibling `label htmlFor` while default Base UI root is a span-like custom control; `checkbox.tsx:84`, `checkbox.mdx:21`. | Downstream may choose a weaker labeling pattern. | Prefer Field/wrapping label docs, or add a `nativeButton render={<button />}` example for sibling labels. |
 
 ## Residual Risks
 
@@ -24,4 +24,3 @@ Implementation itself is aligned with Base UI.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- checkbox.test.tsx`
-

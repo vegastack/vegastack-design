@@ -1,6 +1,7 @@
 ---
 title: Provider setup
 description: The one mount-once wrapper your app needs — what it wires, where it goes, and every way it can go wrong.
+audience: public
 ---
 
 `VegaStackProvider` is the app-root wrapper that supplies the invisible plumbing
@@ -12,9 +13,13 @@ pnpm dlx shadcn@latest add @vegastack/provider
 ```
 
 ```tsx title="app/layout.tsx"
-import { VegaStackProvider } from '@/components/ui/provider';
+import { VegaStackProvider } from "@/components/ui/provider";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
@@ -27,12 +32,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 ## What it wires
 
-| Wiring | Without the provider you get |
-| --- | --- |
-| **Dark mode** — next-themes, `attribute="class"`, system-aware, no-flash | toggles that do nothing; `.dark` never reaches `<html>` |
-| **Toaster** — the global Sonner portal | `toast(...)` calls that **silently do nothing** — no error anywhere |
-| **Tooltip coordination** — Base UI `Tooltip.Provider` | every tooltip re-waits its full open delay; toolbars feel broken |
-| **Text direction** — Base UI `DirectionProvider` | RTL layouts break |
+| Wiring                                                                   | Without the provider you get                                        |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| **Dark mode** — next-themes, `attribute="class"`, system-aware, no-flash | toggles that do nothing; `.dark` never reaches `<html>`             |
+| **Toaster** — the global Sonner portal                                   | `toast(...)` calls that **silently do nothing** — no error anywhere |
+| **Tooltip coordination** — Base UI `Tooltip.Provider`                    | every tooltip re-waits its full open delay; toolbars feel broken    |
+| **Text direction** — Base UI `DirectionProvider`                         | RTL layouts break                                                   |
 
 Full component reference: [Provider](/docs/components/provider).
 
@@ -50,20 +55,20 @@ Full component reference: [Provider](/docs/components/provider).
 ## Theme toggle (copy-paste)
 
 ```tsx title="components/theme-toggle.tsx"
-'use client';
-import { Moon, Sun } from 'lucide-react';
-import { useVegaStackTheme } from '@/components/ui/provider';
-import { Button } from '@/components/ui/button';
+"use client";
+import { Moon, Sun } from "lucide-react";
+import { useVegaStackTheme } from "@/components/ui/provider";
+import { Button } from "@/components/ui/button";
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useVegaStackTheme();
-  const isDark = resolvedTheme === 'dark';
+  const isDark = resolvedTheme === "dark";
   return (
     <Button
       variant="ghost"
       size="icon"
-      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      onClick={() => setTheme(isDark ? "light" : "dark")}
     >
       {isDark ? <Sun /> : <Moon />}
     </Button>
@@ -86,10 +91,10 @@ instead of a layout file. The `suppressHydrationWarning` note is Next-specific
 
 ## Symptom → cause table
 
-| Symptom | Cause |
-| --- | --- |
-| `toast('…')` does nothing, zero errors | no provider (or it's below the component calling toast) |
-| Toasts appear **twice** | two Toasters — a nested provider or an extra manual `<Toaster />`; use `toaster={false}` |
-| Hydration-mismatch warning mentioning `<html>` class | missing `suppressHydrationWarning` |
-| Dark mode flashes wrong theme on load | provider not at the root layout, or a competing theme script |
-| Tooltips each wait ~600ms even in a toolbar | no provider (no shared `Tooltip.Provider`) |
+| Symptom                                              | Cause                                                                                    |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `toast('…')` does nothing, zero errors               | no provider (or it's below the component calling toast)                                  |
+| Toasts appear **twice**                              | two Toasters — a nested provider or an extra manual `<Toaster />`; use `toaster={false}` |
+| Hydration-mismatch warning mentioning `<html>` class | missing `suppressHydrationWarning`                                                       |
+| Dark mode flashes wrong theme on load                | provider not at the root layout, or a competing theme script                             |
+| Tooltips each wait ~600ms even in a toolbar          | no provider (no shared `Tooltip.Provider`)                                               |

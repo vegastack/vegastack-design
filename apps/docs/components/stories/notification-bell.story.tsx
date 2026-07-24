@@ -1,5 +1,5 @@
-import { defineStory } from '@/lib/story';
-import { NotificationBell } from '@/components/ui/notification-bell';
+import { defineStory } from "@/lib/story";
+import { NotificationBell } from "@/components/ui/notification-bell";
 
 /**
  * Story explorer for `NotificationBell` — controls auto-generated from
@@ -10,13 +10,13 @@ export const story = defineStory({
   Component: NotificationBell,
   args: [
     {
-      variant: 'Default',
+      variant: "Default",
       initial: {
         count: 3,
       },
     },
     {
-      variant: 'Dot',
+      variant: "Dot",
       initial: {
         count: 3,
       },

@@ -1,9 +1,9 @@
-// @vegastack status-icon@0.2.0 sha256-XREGiYxmOCAcrR3a6QdSnnoo5Q/BXnVgC6vbzE9UQZ8=
+// @vegastack status-icon@0.2.0 sha256-YAcVHqXH07Au4fhcapC7IeucWDK9kfGraRD1cAD/RQ8=
 
-import * as React from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
-import { Circle, CircleAlert, CircleCheck, Loader } from 'lucide-react';
-import { cn } from '@vegastack/design';
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { Circle, CircleAlert, CircleCheck, Loader } from "lucide-react";
+import { cn } from "@vegastack/design";
 
 /**
  * StatusIcon variants — `status` selects the semantic color token, `size` maps
@@ -12,22 +12,22 @@ import { cn } from '@vegastack/design';
  * palette): `todo` → `text-muted-foreground`, `progress` → `text-info-text`,
  * `blocked` → `text-destructive-text`, `done` → `text-success-text`.
  */
-export const statusIconVariants = cva('inline-block shrink-0', {
+export const statusIconVariants = cva("inline-block shrink-0", {
   variants: {
     status: {
-      todo: 'text-muted-foreground',
-      progress: 'text-info-text',
-      blocked: 'text-destructive-text',
-      done: 'text-success-text',
+      todo: "text-muted-foreground",
+      progress: "text-info-text",
+      blocked: "text-destructive-text",
+      done: "text-success-text",
     },
     size: {
-      xs: 'size-3.5',
-      sm: 'size-4',
-      default: 'size-5',
-      lg: 'size-6',
+      xs: "size-3.5",
+      sm: "size-4",
+      default: "size-5",
+      lg: "size-6",
     },
   },
-  defaultVariants: { status: 'todo', size: 'default' },
+  defaultVariants: { status: "todo", size: "default" },
 });
 
 /** The lucide icon rendered for each status. */
@@ -39,16 +39,20 @@ const STATUS_ICON = {
 } as const;
 
 /** Default accessible label per status, used when no `label` is supplied. */
-const STATUS_LABEL: Record<NonNullable<VariantProps<typeof statusIconVariants>['status']>, string> =
-  {
-    todo: 'To do',
-    progress: 'In progress',
-    blocked: 'Blocked',
-    done: 'Done',
-  };
+const STATUS_LABEL: Record<
+  NonNullable<VariantProps<typeof statusIconVariants>["status"]>,
+  string
+> = {
+  todo: "To do",
+  progress: "In progress",
+  blocked: "Blocked",
+  done: "Done",
+};
 
+/** Props accepted by `StatusIcon`. */
 export interface StatusIconProps
-  extends Omit<React.ComponentProps<'svg'>, 'color'>,
+  extends
+    Omit<React.ComponentProps<"svg">, "color">,
     VariantProps<typeof statusIconVariants> {
   /**
    * Status to display. Selects both the icon and its semantic color token:
@@ -58,18 +62,20 @@ export interface StatusIconProps
    * - `done` → `CircleCheck`, `text-success-text`
    * @default 'todo'
    */
-  status?: 'todo' | 'progress' | 'blocked' | 'done';
+  status?: "todo" | "progress" | "blocked" | "done";
   /**
    * Size variant — mirrors the rest of the scale and maps to the `size-*`
    * tokens.
    * @default 'default'
    */
-  size?: 'xs' | 'sm' | 'default' | 'lg';
+  size?: "xs" | "sm" | "default" | "lg";
   /**
    * Accessible label announced by assistive tech. Defaults to a human-readable
    * name derived from `status` (e.g. `"In progress"`). Pass an empty string to
    * make the icon decorative (`aria-hidden`) — only do this when adjacent text
    * already conveys the status.
+
+   * @default undefined
    */
   label?: string;
 }
@@ -88,26 +94,36 @@ export interface StatusIconProps
  *
  * Pure presentational and server-safe — no hooks, no `'use client'`. Forwards
  * its ref to the underlying `<svg>`.
+ *
+ * @example
+ * <StatusIcon status="done" label="Completed" />
  */
-export function StatusIcon({ className, status = 'todo', size = 'default', label, ref, ...props }: StatusIconProps) {
-    const Icon = STATUS_ICON[status];
-    const resolvedLabel = label ?? STATUS_LABEL[status];
-    const decorative = resolvedLabel === '';
-    return (
-      <Icon
-        ref={ref}
-        data-slot="status-icon"
-        data-status={status}
-        data-size={size}
-        className={cn(
-          statusIconVariants({ status, size }),
-          status === 'progress' && 'animate-spin motion-reduce:animate-none',
-          className,
-        )}
-        {...(decorative
-          ? { 'aria-hidden': true }
-          : { role: 'img', 'aria-label': resolvedLabel })}
-        {...props}
-      />
-    );
+export function StatusIcon({
+  className,
+  status = "todo",
+  size = "default",
+  label,
+  ref,
+  ...props
+}: StatusIconProps) {
+  const Icon = STATUS_ICON[status];
+  const resolvedLabel = label ?? STATUS_LABEL[status];
+  const decorative = resolvedLabel === "";
+  return (
+    <Icon
+      ref={ref}
+      data-slot="status-icon"
+      data-status={status}
+      data-size={size}
+      className={cn(
+        statusIconVariants({ status, size }),
+        status === "progress" && "animate-spin motion-reduce:animate-none",
+        className,
+      )}
+      {...(decorative
+        ? { "aria-hidden": true }
+        : { role: "img", "aria-label": resolvedLabel })}
+      {...props}
+    />
+  );
 }

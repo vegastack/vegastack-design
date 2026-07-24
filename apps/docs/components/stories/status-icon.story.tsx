@@ -1,5 +1,5 @@
-import { defineStory } from '@/lib/story';
-import { StatusIcon } from './status-icon.client';
+import { defineStory } from "@/lib/story";
+import { StatusIcon } from "./status-icon.client";
 
 /**
  * Story explorer for `StatusIcon` — controls auto-generated from `StatusIconProps` by the
@@ -9,21 +9,21 @@ export const story = defineStory({
   Component: StatusIcon,
   args: [
     {
-      variant: 'Default',
+      variant: "Default",
       initial: {
-        status: 'todo',
+        status: "todo",
       },
     },
     {
-      variant: 'In progress',
+      variant: "In progress",
       fixed: {
-        status: 'progress',
+        status: "progress",
       },
     },
     {
-      variant: 'Done',
+      variant: "Done",
       fixed: {
-        status: 'done',
+        status: "done",
       },
     },
   ],

@@ -1,6 +1,7 @@
 ---
 title: Breadcrumb
 description: A hierarchical navigation trail — links, separators, the current page, and ellipsis collapse for long paths.
+audience: public
 preview: breadcrumb
 ---
 
@@ -15,7 +16,15 @@ npx shadcn@latest add @vegastack/breadcrumb
 ## Usage
 
 ```tsx
-import { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import {
+  Breadcrumb,
+  BreadcrumbEllipsis,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 <Breadcrumb>
   <BreadcrumbList>
@@ -62,7 +71,6 @@ wrapping an ordered list. Compose the parts inside the root — every part expos
 - `BreadcrumbEllipsis` — a decorative collapsed-segments indicator (`data-slot="breadcrumb-ellipsis"`, `aria-hidden`) for long paths. Pair it with a real trigger (see `BreadcrumbCollapsed` below) when the collapsed segments need to be reachable.
 - `BreadcrumbCollapsed` — a real, navigable stand-in for a run of collapsed segments: the `BreadcrumbEllipsis` glyph behind a labelled `DropdownMenu` trigger (`data-slot="breadcrumb-collapsed-trigger"`), so hidden segments stay reachable by keyboard and assistive tech. Each item is a real link.
 - `BreadcrumbTrail` — the ergonomic `items` + `maxItems` API: pass the full trail and it wires up `BreadcrumbCollapsed` for you. Renders a `BreadcrumbList`.
-
 
 ## Examples
 
@@ -152,7 +160,7 @@ to `BreadcrumbList`'s `flex-wrap` — nothing collapses:
 ```
 
 A width-driven **dynamic** collapse (mirroring `TruncatedText`'s `ResizeObserver` measurer) was
-evaluated and deliberately deferred — measuring a *set of items* (not one text node) needs a
+evaluated and deliberately deferred — measuring a _set of items_ (not one text node) needs a
 resize-and-recompute loop that tries collapse states until the trail fits, which risks visible
 layout thrash and SSR/hydration mismatches for a component that sits at the very top of the page.
 An honest, deterministic `maxItems` beats a flaky measurer; drop `maxItems` at a smaller value on

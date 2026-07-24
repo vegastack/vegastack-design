@@ -83,7 +83,9 @@ test("prefers-reduced-motion overrides the primitive's smooth default to an inst
     removeListener: () => {},
     dispatchEvent: () => false,
   }));
-  const matchMediaSpy = vi.spyOn(window, "matchMedia").mockImplementation(matchMediaMock);
+  const matchMediaSpy = vi
+    .spyOn(window, "matchMedia")
+    .mockImplementation(matchMediaMock);
 
   try {
     const screen = await render(
@@ -113,19 +115,28 @@ test("prefers-reduced-motion overrides the primitive's smooth default to an inst
     const viewport = document.querySelector<HTMLElement>(
       '[data-slot="message-scroller-viewport"]',
     )!;
-    const scrollToSpy = vi.spyOn(viewport, "scrollTo").mockImplementation(
-      function scrollToMock(this: HTMLElement, options?: ScrollToOptions | number) {
-        if (options && typeof options === "object" && typeof options.top === "number") {
+    const scrollToSpy = vi
+      .spyOn(viewport, "scrollTo")
+      .mockImplementation(function scrollToMock(
+        this: HTMLElement,
+        options?: ScrollToOptions | number,
+      ) {
+        if (
+          options &&
+          typeof options === "object" &&
+          typeof options.top === "number"
+        ) {
           this.scrollTop = options.top;
         }
-      } as typeof viewport.scrollTo,
-    );
+      } as typeof viewport.scrollTo);
 
     const button = screen.getByRole("button", { name: "Scroll to end" });
     // Wait for the "end" edge to become reachable (real layout: 30 * 20px content vs an 80px
     // viewport is well past the primitive's scroll-edge threshold).
     await expect
-      .poll(() => button.element().getAttribute("data-active"), { timeout: 2000 })
+      .poll(() => button.element().getAttribute("data-active"), {
+        timeout: 2000,
+      })
       .toBe("true");
 
     scrollToSpy.mockClear();

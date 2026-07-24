@@ -1,4 +1,4 @@
-// @vegastack dropdown-menu@0.2.0 sha256-xM/PYgVZgluNrzhwMHKoLK3ZCizh7xQSOH9ETuDaEzA=
+// @vegastack dropdown-menu@0.2.0 sha256-wtTAVRkDHT0z3KEV6V+aUeGFpEZdEfxnUBn3dgeUih4=
 
 "use client";
 
@@ -7,6 +7,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Menu } from "@base-ui/react/menu";
 import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
 import { cn, FLOATING } from "@vegastack/design";
+import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 
 function mergeStateClassName<State>(
   className: string,
@@ -25,17 +26,23 @@ function mergeStateClassName<State>(
  * and carry a `data-slot` where a DOM node exists.
  * ----------------------------------------------------------------------------------------------*/
 
+/** Props accepted by `DropdownMenu`. */
 export type DropdownMenuProps = React.ComponentProps<typeof Menu.Root>;
 
 /**
  * `DropdownMenu` — the root that groups every part of the menu. Renders no DOM
  * element of its own. Compose with {@link DropdownMenuTrigger} and
  * {@link DropdownMenuContent}.
+
+ *
+ * @example
+ * <DropdownMenu />
  */
 export function DropdownMenu(props: DropdownMenuProps) {
   return <Menu.Root {...props} />;
 }
 
+/** Props accepted by `DropdownMenuTrigger`. */
 export type DropdownMenuTriggerProps = React.ComponentProps<
   typeof Menu.Trigger
 >;
@@ -43,21 +50,31 @@ export type DropdownMenuTriggerProps = React.ComponentProps<
 /**
  * `DropdownMenuTrigger` — the button that opens the menu. Renders a `<button>`;
  * pass `render` to compose with your own trigger (Base UI `render` composition).
+
+ *
+ * @example
+ * <DropdownMenuTrigger />
  */
 export function DropdownMenuTrigger(props: DropdownMenuTriggerProps) {
   return <Menu.Trigger data-slot="dropdown-menu-trigger" {...props} />;
 }
 
+/** Props accepted by `DropdownMenuGroup`. */
 export type DropdownMenuGroupProps = React.ComponentProps<typeof Menu.Group>;
 
 /**
  * `DropdownMenuGroup` — groups related items and associates them with a
  * {@link DropdownMenuLabel}. Renders a `<div role="group">`.
+
+ *
+ * @example
+ * <DropdownMenuGroup />
  */
 export function DropdownMenuGroup(props: DropdownMenuGroupProps) {
   return <Menu.Group data-slot="dropdown-menu-group" {...props} />;
 }
 
+/** Props accepted by `DropdownMenuSub`. */
 export type DropdownMenuSubProps = React.ComponentProps<
   typeof Menu.SubmenuRoot
 >;
@@ -65,11 +82,16 @@ export type DropdownMenuSubProps = React.ComponentProps<
 /**
  * `DropdownMenuSub` — the root of a nested submenu. Renders no DOM element. Wrap
  * a {@link DropdownMenuSubTrigger} and {@link DropdownMenuSubContent}.
+
+ *
+ * @example
+ * <DropdownMenuSub />
  */
 export function DropdownMenuSub(props: DropdownMenuSubProps) {
   return <Menu.SubmenuRoot {...props} />;
 }
 
+/** Props accepted by `DropdownMenuRadioGroup`. */
 export type DropdownMenuRadioGroupProps = React.ComponentProps<
   typeof Menu.RadioGroup
 >;
@@ -77,6 +99,10 @@ export type DropdownMenuRadioGroupProps = React.ComponentProps<
 /**
  * `DropdownMenuRadioGroup` — wraps {@link DropdownMenuRadioItem}s for
  * single-select. Controlled via `value` / `onValueChange`.
+
+ *
+ * @example
+ * <DropdownMenuRadioGroup />
  */
 export function DropdownMenuRadioGroup(props: DropdownMenuRadioGroupProps) {
   return <Menu.RadioGroup data-slot="dropdown-menu-radio-group" {...props} />;
@@ -94,6 +120,7 @@ const popupClassName =
   "data-[side=top]:translate-y-1 data-[side=bottom]:-translate-y-1 data-[side=left]:translate-x-1 data-[side=right]:-translate-x-1 " +
   "data-[starting-style]:translate-x-0 data-[starting-style]:translate-y-0 data-[ending-style]:translate-x-0 data-[ending-style]:translate-y-0";
 
+/** Props accepted by `DropdownMenuContent`. */
 export interface DropdownMenuContentProps extends React.ComponentProps<
   typeof Menu.Popup
 > {
@@ -117,14 +144,20 @@ export interface DropdownMenuContentProps extends React.ComponentProps<
    * @default 8
    */
   collisionPadding?: Menu.Positioner.Props["collisionPadding"];
-  /** Props forwarded to the underlying Base UI `Portal`. */
+  /** Props forwarded to the underlying Base UI `Portal`.
+   * @default undefined
+   */
   portalProps?: Omit<Menu.Portal.Props, "children">;
-  /** Props forwarded to the underlying Base UI `Positioner`. */
+  /** Props forwarded to the underlying Base UI `Positioner`.
+   * @default undefined
+   */
   positionerProps?: Omit<
     Menu.Positioner.Props,
     "side" | "align" | "sideOffset" | "collisionPadding" | "children"
   >;
-  /** Props forwarded to an optional Base UI `Viewport` that wraps popup children. */
+  /** Props forwarded to an optional Base UI `Viewport` that wraps popup children.
+   * @default undefined
+   */
   viewportProps?: Omit<Menu.Viewport.Props, "children">;
 }
 
@@ -132,6 +165,10 @@ export interface DropdownMenuContentProps extends React.ComponentProps<
  * `DropdownMenuContent` — the floating popup. Portals to `<body>`, positions
  * against the trigger, and applies enter/exit transitions. Place items, labels,
  * separators, and submenus inside it.
+
+ *
+ * @example
+ * <DropdownMenuContent />
  */
 export function DropdownMenuContent({
   className,
@@ -145,8 +182,11 @@ export function DropdownMenuContent({
   children,
   ...props
 }: DropdownMenuContentProps) {
+  const themeScope = useInternalThemeScope();
   const { className: positionerClassName, ...positionerPropsRest } =
     positionerProps ?? {};
+  const { className: viewportClassName, ...viewportPropsRest } =
+    viewportProps ?? {};
 
   return (
     <Menu.Portal {...portalProps}>
@@ -158,19 +198,23 @@ export function DropdownMenuContent({
         sideOffset={sideOffset}
         collisionPadding={collisionPadding}
         className={mergeStateClassName<Menu.Positioner.State>(
-          "z-(--z-overlay) outline-none",
+          cn(themeScope, "z-(--z-overlay) outline-none"),
           positionerClassName,
         )}
       >
         <Menu.Popup
           data-slot="dropdown-menu-content"
-          className={cn(popupClassName, className)}
+          className={cn(themeScope, popupClassName, className)}
           {...props}
         >
           {viewportProps ? (
             <Menu.Viewport
-              {...viewportProps}
+              {...viewportPropsRest}
               data-slot="dropdown-menu-viewport"
+              className={mergeStateClassName<Menu.Viewport.State>(
+                themeScope ?? "",
+                viewportClassName,
+              )}
             >
               {children}
             </Menu.Viewport>
@@ -189,7 +233,7 @@ export function DropdownMenuContent({
  * ----------------------------------------------------------------------------------------------*/
 
 export const dropdownMenuItemVariants = cva(
-  "group/dropdown-menu-item relative flex items-center gap-2 rounded-sm px-2 py-1.5 text-base outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim) data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
+  "group/dropdown-menu-item relative flex items-center gap-2 rounded-sm px-2 py-1.5 text-base outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim) data-[inset]:ps-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
   {
     variants: {
       variant: {
@@ -203,12 +247,13 @@ export const dropdownMenuItemVariants = cva(
   },
 );
 
+/** Props accepted by `DropdownMenuItem`. */
 export interface DropdownMenuItemProps
   extends
     React.ComponentProps<typeof Menu.Item>,
     VariantProps<typeof dropdownMenuItemVariants> {
   /**
-   * Adds left padding so the label aligns with items that have a leading icon
+   * Adds inline-start padding so the label aligns with items that have a leading icon
    * or indicator.
    * @default false
    */
@@ -219,6 +264,10 @@ export interface DropdownMenuItemProps
  * `DropdownMenuItem` — a selectable action. Use `variant="destructive"` for
  * delete/remove actions and `inset` to align with checkbox/radio rows. Closes
  * the menu on click by default.
+
+ *
+ * @example
+ * <DropdownMenuItem />
  */
 export function DropdownMenuItem({
   className,
@@ -243,8 +292,9 @@ export function DropdownMenuItem({
  * ----------------------------------------------------------------------------------------------*/
 
 const choiceItemClassName =
-  "group/dropdown-menu-item relative flex items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-base text-popover-foreground outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim) data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)";
+  "group/dropdown-menu-item relative flex items-center gap-2 rounded-sm py-1.5 pe-2 ps-8 text-base text-popover-foreground outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim) data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)";
 
+/** Props accepted by `DropdownMenuCheckboxItem`. */
 export type DropdownMenuCheckboxItemProps = React.ComponentProps<
   typeof Menu.CheckboxItem
 >;
@@ -252,6 +302,10 @@ export type DropdownMenuCheckboxItemProps = React.ComponentProps<
 /**
  * `DropdownMenuCheckboxItem` — a togglable item with a check indicator. Control
  * with `checked` / `onCheckedChange`. Stays open on click by default.
+
+ *
+ * @example
+ * <DropdownMenuCheckboxItem />
  */
 export function DropdownMenuCheckboxItem({
   className,
@@ -264,7 +318,7 @@ export function DropdownMenuCheckboxItem({
       className={cn(choiceItemClassName, className)}
       {...props}
     >
-      <span className="pointer-events-none absolute left-2 flex size-(--icon-default) items-center justify-center">
+      <span className="pointer-events-none absolute start-2 flex size-(--icon-default) items-center justify-center">
         <Menu.CheckboxItemIndicator>
           <CheckIcon className="size-(--icon-default) text-foreground" />
         </Menu.CheckboxItemIndicator>
@@ -274,6 +328,7 @@ export function DropdownMenuCheckboxItem({
   );
 }
 
+/** Props accepted by `DropdownMenuRadioItem`. */
 export type DropdownMenuRadioItemProps = React.ComponentProps<
   typeof Menu.RadioItem
 >;
@@ -281,6 +336,10 @@ export type DropdownMenuRadioItemProps = React.ComponentProps<
 /**
  * `DropdownMenuRadioItem` — one option in a {@link DropdownMenuRadioGroup}, with
  * a filled-dot indicator when selected.
+
+ *
+ * @example
+ * <DropdownMenuRadioItem />
  */
 export function DropdownMenuRadioItem({
   className,
@@ -293,7 +352,7 @@ export function DropdownMenuRadioItem({
       className={cn(choiceItemClassName, className)}
       {...props}
     >
-      <span className="pointer-events-none absolute left-2 flex size-(--icon-default) items-center justify-center">
+      <span className="pointer-events-none absolute start-2 flex size-(--icon-default) items-center justify-center">
         <Menu.RadioItemIndicator>
           <CircleIcon className="size-2 fill-current text-foreground" />
         </Menu.RadioItemIndicator>
@@ -307,6 +366,7 @@ export function DropdownMenuRadioItem({
  * Label / Separator / Shortcut — non-interactive chrome.
  * ----------------------------------------------------------------------------------------------*/
 
+/** Props accepted by `DropdownMenuLabel`. */
 export interface DropdownMenuLabelProps extends React.ComponentProps<
   typeof Menu.GroupLabel
 > {
@@ -321,6 +381,10 @@ export interface DropdownMenuLabelProps extends React.ComponentProps<
  * `DropdownMenuLabel` — a non-interactive heading for a {@link DropdownMenuGroup}
  * or {@link DropdownMenuRadioGroup}. Renders Base UI's `GroupLabel` so it's
  * announced as the group's accessible name.
+
+ *
+ * @example
+ * <DropdownMenuLabel />
  */
 export function DropdownMenuLabel({
   className,
@@ -332,7 +396,7 @@ export function DropdownMenuLabel({
       data-slot="dropdown-menu-label"
       data-inset={inset ? "" : undefined}
       className={cn(
-        "px-2 py-1.5 text-label-sm text-muted-foreground data-[inset]:pl-8",
+        "px-2 py-1.5 text-label-sm text-muted-foreground data-[inset]:ps-8",
         className,
       )}
       {...props}
@@ -340,6 +404,7 @@ export function DropdownMenuLabel({
   );
 }
 
+/** Props accepted by `DropdownMenuSeparator`. */
 export type DropdownMenuSeparatorProps = React.ComponentProps<
   typeof Menu.Separator
 >;
@@ -347,6 +412,10 @@ export type DropdownMenuSeparatorProps = React.ComponentProps<
 /**
  * `DropdownMenuSeparator` — a thin divider between item groups. Renders a
  * `<div role="separator">`.
+
+ *
+ * @example
+ * <DropdownMenuSeparator />
  */
 export function DropdownMenuSeparator({
   className,
@@ -361,11 +430,16 @@ export function DropdownMenuSeparator({
   );
 }
 
+/** Props accepted by `DropdownMenuShortcut`. */
 export type DropdownMenuShortcutProps = React.ComponentProps<"span">;
 
 /**
- * `DropdownMenuShortcut` — right-aligned keyboard-shortcut hint inside an item
+ * `DropdownMenuShortcut` — inline-end-aligned keyboard-shortcut hint inside an item
  * (e.g. `⌘K`). Purely visual; use the item's own keybinding for behavior.
+
+ *
+ * @example
+ * <DropdownMenuShortcut />
  */
 export function DropdownMenuShortcut({
   className,
@@ -375,7 +449,7 @@ export function DropdownMenuShortcut({
     <span
       data-slot="dropdown-menu-shortcut"
       className={cn(
-        "ml-auto text-sm tracking-widest text-muted-foreground group-data-[highlighted]/dropdown-menu-item:text-accent-foreground group-data-[variant=destructive]/dropdown-menu-item:text-destructive-text group-data-[variant=destructive]/dropdown-menu-item:group-data-[highlighted]/dropdown-menu-item:text-destructive-text",
+        "ms-auto text-mono-label text-muted-foreground group-data-[highlighted]/dropdown-menu-item:text-accent-foreground group-data-[variant=destructive]/dropdown-menu-item:text-destructive-text group-data-[variant=destructive]/dropdown-menu-item:group-data-[highlighted]/dropdown-menu-item:text-destructive-text",
         className,
       )}
       {...props}
@@ -387,6 +461,7 @@ export function DropdownMenuShortcut({
  * Submenu trigger + content.
  * ----------------------------------------------------------------------------------------------*/
 
+/** Props accepted by `DropdownMenuSubTrigger`. */
 export interface DropdownMenuSubTriggerProps extends React.ComponentProps<
   typeof Menu.SubmenuTrigger
 > {
@@ -401,6 +476,10 @@ export interface DropdownMenuSubTriggerProps extends React.ComponentProps<
  * `DropdownMenuSubTrigger` — the item that opens a nested submenu, with a
  * trailing chevron. Highlighted/open states use `data-highlighted` /
  * `data-popup-open`.
+
+ *
+ * @example
+ * <DropdownMenuSubTrigger />
  */
 export function DropdownMenuSubTrigger({
   className,
@@ -413,22 +492,27 @@ export function DropdownMenuSubTrigger({
       data-slot="dropdown-menu-sub-trigger"
       data-inset={inset ? "" : undefined}
       className={cn(
-        "group/dropdown-menu-item relative flex items-center gap-2 rounded-sm px-2 py-1.5 text-base text-popover-foreground outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim) data-[inset]:pl-8 data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-[popup-open]:bg-accent data-[popup-open]:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:text-muted-foreground [&_svg:not([class*='size-'])]:size-(--icon-default) data-[highlighted]:[&_svg]:text-accent-foreground data-[popup-open]:[&_svg]:text-accent-foreground",
+        "group/dropdown-menu-item relative flex items-center gap-2 rounded-sm px-2 py-1.5 text-base text-popover-foreground outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim) data-[inset]:ps-8 data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-[popup-open]:bg-accent data-[popup-open]:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:text-muted-foreground [&_svg:not([class*='size-'])]:size-(--icon-default) data-[highlighted]:[&_svg]:text-accent-foreground data-[popup-open]:[&_svg]:text-accent-foreground",
         className,
       )}
       {...props}
     >
       {children}
-      <ChevronRightIcon className="ml-auto" />
+      <ChevronRightIcon className="ms-auto rtl:rotate-180" />
     </Menu.SubmenuTrigger>
   );
 }
 
+/** Props accepted by `DropdownMenuSubContent`. */
 export type DropdownMenuSubContentProps = DropdownMenuContentProps;
 
 /**
  * `DropdownMenuSubContent` — the nested popup opened by a
  * {@link DropdownMenuSubTrigger}. Defaults to opening to the right of its parent.
+
+ *
+ * @example
+ * <DropdownMenuSubContent />
  */
 export function DropdownMenuSubContent({
   side = "right",

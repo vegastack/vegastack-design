@@ -1,4 +1,4 @@
-// @vegastack auto-save-input@0.2.0 sha256-XOMz5gvKskKuKC1PaWB6AOer53cTqxVCb801bwyvBj4=
+// @vegastack auto-save-input@0.2.0 sha256-S43hRYKmajVeM9ks/RfIVWtHue60yp6Jp08B94T3eyQ=
 
 "use client";
 
@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
  */
 export type AutoSaveStatus = "idle" | "saving" | "saved" | "error";
 
+/** Props accepted by `AutoSaveInput`. */
 export interface AutoSaveInputProps extends Omit<
   React.ComponentProps<typeof Input>,
   "value" | "defaultValue" | "onChange" | "suffix"
@@ -25,6 +26,8 @@ export interface AutoSaveInputProps extends Omit<
    * Controlled value of the field. Pair with `onValueChange` so user edits are
    * mirrored by the parent. External `value` changes are treated as a new saved
    * baseline, so switching records never auto-saves stale data.
+
+   * @default undefined
    */
   value?: string;
   /**
@@ -37,6 +40,8 @@ export interface AutoSaveInputProps extends Omit<
   /**
    * Fired whenever the draft value changes. Required for controlled `value`
    * usage; optional for uncontrolled `defaultValue` usage.
+
+   * @default undefined
    */
   onValueChange?: (value: string) => void;
   /**
@@ -55,11 +60,15 @@ export interface AutoSaveInputProps extends Omit<
   /**
    * Optional synchronous guard run before saving — return `false` to skip the
    * save and surface the `error` status (e.g. empty or malformed input).
+
+   * @default undefined
    */
   validate?: (value: string) => boolean;
   /**
    * Fired whenever the save status changes. Use it to drive surrounding UI
    * (disable a submit button, etc.) without re-deriving the state yourself.
+
+   * @default undefined
    */
   onStatusChange?: (status: AutoSaveStatus) => void;
 }
@@ -104,158 +113,158 @@ export function AutoSaveInput({
   ref,
   ...props
 }: AutoSaveInputProps) {
-    const isControlled = controlledValue !== undefined;
-    const [uncontrolledValue, setUncontrolledValue] =
-      React.useState(defaultValue);
-    const value = isControlled ? (controlledValue ?? "") : uncontrolledValue;
-    const [status, setStatus] = React.useState<AutoSaveStatus>("idle");
+  const isControlled = controlledValue !== undefined;
+  const [uncontrolledValue, setUncontrolledValue] =
+    React.useState(defaultValue);
+  const value = isControlled ? (controlledValue ?? "") : uncontrolledValue;
+  const [status, setStatus] = React.useState<AutoSaveStatus>("idle");
 
-    // The last value successfully persisted — typing back to it cancels the save.
-    const savedValue = React.useRef(value);
-    const previousControlledValue = React.useRef(controlledValue);
-    const pendingControlledEdit = React.useRef<string | null>(null);
-    // Mirror of `status` so the debounce effect can read the live status without
-    // taking it as a dependency (which would restart the timer on every status change).
-    const statusRef = React.useRef<AutoSaveStatus>("idle");
-    // Latest props captured in refs so the debounce effect doesn't re-fire on
-    // every render (only the value/delay should restart the timer).
-    const onSaveRef = React.useRef(onSave);
-    const validateRef = React.useRef(validate);
-    const onStatusChangeRef = React.useRef(onStatusChange);
-    React.useEffect(() => {
-      onSaveRef.current = onSave;
-      validateRef.current = validate;
-      onStatusChangeRef.current = onStatusChange;
-    });
+  // The last value successfully persisted — typing back to it cancels the save.
+  const savedValue = React.useRef(value);
+  const previousControlledValue = React.useRef(controlledValue);
+  const pendingControlledEdit = React.useRef<string | null>(null);
+  // Mirror of `status` so the debounce effect can read the live status without
+  // taking it as a dependency (which would restart the timer on every status change).
+  const statusRef = React.useRef<AutoSaveStatus>("idle");
+  // Latest props captured in refs so the debounce effect doesn't re-fire on
+  // every render (only the value/delay should restart the timer).
+  const onSaveRef = React.useRef(onSave);
+  const validateRef = React.useRef(validate);
+  const onStatusChangeRef = React.useRef(onStatusChange);
+  React.useEffect(() => {
+    onSaveRef.current = onSave;
+    validateRef.current = validate;
+    onStatusChangeRef.current = onStatusChange;
+  });
 
-    const updateStatus = React.useCallback((next: AutoSaveStatus) => {
-      statusRef.current = next;
-      setStatus(next);
-      onStatusChangeRef.current?.(next);
-    }, []);
+  const updateStatus = React.useCallback((next: AutoSaveStatus) => {
+    statusRef.current = next;
+    setStatus(next);
+    onStatusChangeRef.current?.(next);
+  }, []);
 
-    React.useEffect(() => {
-      if (!isControlled || controlledValue === previousControlledValue.current)
-        return;
-      const nextControlledValue = controlledValue ?? "";
+  React.useEffect(() => {
+    if (!isControlled || controlledValue === previousControlledValue.current)
+      return;
+    const nextControlledValue = controlledValue ?? "";
 
-      // A controlled value that matches the last `onValueChange` came from this
-      // input and should still be saved after the debounce. Any other controlled
-      // value change is an external record/baseline update and should not be
-      // auto-saved back over itself.
-      if (pendingControlledEdit.current === nextControlledValue) {
-        pendingControlledEdit.current = null;
-      } else {
-        savedValue.current = nextControlledValue;
-        if (statusRef.current !== "idle") updateStatus("idle");
+    // A controlled value that matches the last `onValueChange` came from this
+    // input and should still be saved after the debounce. Any other controlled
+    // value change is an external record/baseline update and should not be
+    // auto-saved back over itself.
+    if (pendingControlledEdit.current === nextControlledValue) {
+      pendingControlledEdit.current = null;
+    } else {
+      savedValue.current = nextControlledValue;
+      if (statusRef.current !== "idle") updateStatus("idle");
+    }
+
+    previousControlledValue.current = controlledValue;
+  }, [controlledValue, isControlled, updateStatus]);
+
+  React.useEffect(() => {
+    // Nothing to save while the field matches the last persisted value. If a prior
+    // invalid/in-flight edit was reverted back to the saved value, clear the stale
+    // `error`/`saving` status (and `aria-invalid`) so a valid value never stays flagged.
+    if (value === savedValue.current) {
+      if (statusRef.current === "error" || statusRef.current === "saving")
+        updateStatus("idle");
+      return;
+    }
+
+    if (validateRef.current && !validateRef.current(value)) {
+      updateStatus("error");
+      return;
+    }
+
+    let active = true;
+    const timer = setTimeout(() => {
+      updateStatus("saving");
+      const pending = value;
+      Promise.resolve()
+        .then(() => onSaveRef.current(pending))
+        .then(() => {
+          if (!active) return;
+          savedValue.current = pending;
+          updateStatus("saved");
+        })
+        .catch(() => {
+          if (!active) return;
+          updateStatus("error");
+        });
+    }, debounceMs);
+
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [value, debounceMs, updateStatus]);
+
+  return (
+    <Input
+      ref={ref}
+      data-slot="auto-save-input"
+      data-state={status}
+      value={value}
+      onChange={(e) => {
+        const next = e.target.value;
+        pendingControlledEdit.current = next;
+        if (!isControlled) setUncontrolledValue(next);
+        onValueChange?.(next);
+      }}
+      disabled={disabled}
+      aria-invalid={status === "error" || undefined}
+      suffix={
+        <span
+          data-slot="auto-save-input-status"
+          className={statusSlotClasses}
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          {/*
+           * Keyed presence (CX-13): each icon is keyed to its status so it
+           * remounts and replays its mount animation on every lifecycle swap.
+           * The saved Check uses the pop-in utility, not a stroke-draw-in — see
+           * copy-button.tsx for why the draw-in isn't reachable through
+           * lucide-react's public Check component (props land on the root svg
+           * element, never the generated path), and the same choice is made
+           * here for visual consistency between the two success checks.
+           */}
+          {status === "saving" ? (
+            <Spinner key="saving" label="" className="text-muted-foreground" />
+          ) : status === "saved" ? (
+            <Check
+              key="saved"
+              className="size-(--icon-default) text-success-text motion-pop-in"
+              aria-hidden
+            />
+          ) : status === "error" ? (
+            <X
+              key="error"
+              className="size-(--icon-default) text-destructive-text motion-pop-in"
+              aria-hidden
+            />
+          ) : null}
+          {/*
+           * This status text is visually hidden (sr-only) — a motion class here
+           * would animate a node no sighted user ever sees, so it's left plain.
+           * The screen-reader announcement is carried by aria-live="polite" on
+           * the parent, not by an entrance animation.
+           */}
+          {status === "idle" ? null : (
+            <span className="sr-only">
+              {status === "saving"
+                ? "Saving"
+                : status === "saved"
+                  ? "Saved"
+                  : "Save failed"}
+            </span>
+          )}
+        </span>
       }
-
-      previousControlledValue.current = controlledValue;
-    }, [controlledValue, isControlled, updateStatus]);
-
-    React.useEffect(() => {
-      // Nothing to save while the field matches the last persisted value. If a prior
-      // invalid/in-flight edit was reverted back to the saved value, clear the stale
-      // `error`/`saving` status (and `aria-invalid`) so a valid value never stays flagged.
-      if (value === savedValue.current) {
-        if (statusRef.current === "error" || statusRef.current === "saving")
-          updateStatus("idle");
-        return;
-      }
-
-      if (validateRef.current && !validateRef.current(value)) {
-        updateStatus("error");
-        return;
-      }
-
-      let active = true;
-      const timer = setTimeout(() => {
-        updateStatus("saving");
-        const pending = value;
-        Promise.resolve()
-          .then(() => onSaveRef.current(pending))
-          .then(() => {
-            if (!active) return;
-            savedValue.current = pending;
-            updateStatus("saved");
-          })
-          .catch(() => {
-            if (!active) return;
-            updateStatus("error");
-          });
-      }, debounceMs);
-
-      return () => {
-        active = false;
-        clearTimeout(timer);
-      };
-    }, [value, debounceMs, updateStatus]);
-
-    return (
-      <Input
-        ref={ref}
-        data-slot="auto-save-input"
-        data-state={status}
-        value={value}
-        onChange={(e) => {
-          const next = e.target.value;
-          pendingControlledEdit.current = next;
-          if (!isControlled) setUncontrolledValue(next);
-          onValueChange?.(next);
-        }}
-        disabled={disabled}
-        aria-invalid={status === "error" || undefined}
-        suffix={
-          <span
-            data-slot="auto-save-input-status"
-            className={statusSlotClasses}
-            role="status"
-            aria-live="polite"
-            aria-atomic="true"
-          >
-            {/*
-             * Keyed presence (CX-13): each icon is keyed to its status so it
-             * remounts and replays its mount animation on every lifecycle swap.
-             * The saved Check uses the pop-in utility, not a stroke-draw-in — see
-             * copy-button.tsx for why the draw-in isn't reachable through
-             * lucide-react's public Check component (props land on the root svg
-             * element, never the generated path), and the same choice is made
-             * here for visual consistency between the two success checks.
-             */}
-            {status === "saving" ? (
-              <Spinner key="saving" label="" className="text-muted-foreground" />
-            ) : status === "saved" ? (
-              <Check
-                key="saved"
-                className="size-(--icon-default) text-success-text motion-pop-in"
-                aria-hidden
-              />
-            ) : status === "error" ? (
-              <X
-                key="error"
-                className="size-(--icon-default) text-destructive-text motion-pop-in"
-                aria-hidden
-              />
-            ) : null}
-            {/*
-             * This status text is visually hidden (sr-only) — a motion class here
-             * would animate a node no sighted user ever sees, so it's left plain.
-             * The screen-reader announcement is carried by aria-live="polite" on
-             * the parent, not by an entrance animation.
-             */}
-            {status === "idle" ? null : (
-              <span className="sr-only">
-                {status === "saving"
-                  ? "Saving"
-                  : status === "saved"
-                    ? "Saved"
-                    : "Save failed"}
-              </span>
-            )}
-          </span>
-        }
-        className={cn(className)}
-        {...props}
-      />
-    );
+      className={cn(className)}
+      {...props}
+    />
+  );
 }

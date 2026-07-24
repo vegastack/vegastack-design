@@ -1,10 +1,10 @@
-// @vegastack collapsible@0.2.0 sha256-H9JcL3a0H6xF+LfwZ7+Di5Rfvp1T+ZV6nNYMcFrBJJw=
+// @vegastack collapsible@0.2.0 sha256-jsJddZUiLF0ap+TxtRJGX0jp2bqNHA9hVJM+FYWA1zY=
 
-'use client';
+"use client";
 
-import * as React from 'react';
-import { Collapsible as BaseCollapsible } from '@base-ui/react/collapsible';
-import { cn } from '@vegastack/design';
+import * as React from "react";
+import { Collapsible as BaseCollapsible } from "@base-ui/react/collapsible";
+import { cn } from "@vegastack/design";
 
 /* ------------------------------------------------------------------------------------------------
  * Collapsible — a single toggleable open/close region with an animated height, built on Base UI's
@@ -18,7 +18,10 @@ import { cn } from '@vegastack/design';
  * Collapsible (Root) — owns open/close state for the region.
  * ----------------------------------------------------------------------------------------------*/
 
-export type CollapsibleProps = React.ComponentProps<typeof BaseCollapsible.Root>;
+/** Props accepted by `Collapsible`. */
+export type CollapsibleProps = React.ComponentProps<
+  typeof BaseCollapsible.Root
+>;
 
 /**
  * `Collapsible` — the root that owns the open/close state of a single toggleable
@@ -40,7 +43,7 @@ export function Collapsible({ className, ref, ...props }: CollapsibleProps) {
     <BaseCollapsible.Root
       ref={ref}
       data-slot="collapsible"
-      className={cn('flex flex-col', className)}
+      className={cn("flex flex-col", className)}
       {...props}
     />
   );
@@ -51,28 +54,39 @@ export function Collapsible({ className, ref, ...props }: CollapsibleProps) {
  * `data-panel-open`; compose a chevron as a child and let it rotate via that attribute.
  * ----------------------------------------------------------------------------------------------*/
 
-export type CollapsibleTriggerProps = React.ComponentProps<typeof BaseCollapsible.Trigger>;
+/** Props accepted by `CollapsibleTrigger`. */
+export type CollapsibleTriggerProps = React.ComponentProps<
+  typeof BaseCollapsible.Trigger
+>;
 
 /**
  * `CollapsibleTrigger` — the native `<button>` that toggles the region (Base UI
  * `Collapsible.Trigger`). Open state is exposed as `data-panel-open`; compose a
  * trailing chevron and rotate it via `group-data-[panel-open]` for an affordance.
+
+ *
+ * @example
+ * <CollapsibleTrigger />
  */
-export function CollapsibleTrigger({ className, ref, ...props }: CollapsibleTriggerProps) {
+export function CollapsibleTrigger({
+  className,
+  ref,
+  ...props
+}: CollapsibleTriggerProps) {
   return (
     <BaseCollapsible.Trigger
       ref={ref}
       data-slot="collapsible-trigger"
       className={cn(
-        'group/collapsible-trigger inline-flex items-center justify-between gap-2 text-base font-medium text-foreground transition-colors duration-fast ease-standard select-none',
-        'hover:underline',
+        "group/collapsible-trigger inline-flex min-h-(--size-xs) items-center justify-between gap-2 text-label text-foreground select-none",
+        "hover:underline",
         // Base UI surfaces root-level `disabled` as a `data-disabled` attribute
         // on the trigger (no native `disabled` attribute), so style both.
-        'disabled:pointer-events-none disabled:opacity-(--opacity-dim)',
-        'data-disabled:pointer-events-none data-disabled:opacity-(--opacity-dim)',
+        "disabled:pointer-events-none disabled:opacity-(--opacity-dim)",
+        "data-disabled:pointer-events-none data-disabled:opacity-(--opacity-dim)",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
         "[&_svg]:text-muted-foreground [&_svg]:transition-transform [&_svg]:duration-fast [&_svg]:ease-standard",
-        'data-[panel-open]:[&_svg]:rotate-180',
+        "data-[panel-open]:[&_svg]:rotate-180",
         className,
       )}
       {...props}
@@ -86,7 +100,10 @@ export function CollapsibleTrigger({ className, ref, ...props }: CollapsibleTrig
  * `data-starting-style`/`data-ending-style` boundaries.
  * ----------------------------------------------------------------------------------------------*/
 
-export type CollapsibleContentProps = React.ComponentProps<typeof BaseCollapsible.Panel>;
+/** Props accepted by `CollapsibleContent`. */
+export type CollapsibleContentProps = React.ComponentProps<
+  typeof BaseCollapsible.Panel
+>;
 
 /**
  * `CollapsibleContent` — the panel (Base UI `Collapsible.Panel`) revealed when the
@@ -97,16 +114,24 @@ export type CollapsibleContentProps = React.ComponentProps<typeof BaseCollapsibl
  *
  * `overflow-hidden` clips the content during the height transition. Apply padding
  * to an inner wrapper (not the panel) so it doesn't fight the height animation.
+
+ *
+ * @example
+ * <CollapsibleContent />
  */
-export function CollapsibleContent({ className, ref, ...props }: CollapsibleContentProps) {
+export function CollapsibleContent({
+  className,
+  ref,
+  ...props
+}: CollapsibleContentProps) {
   return (
     <BaseCollapsible.Panel
       ref={ref}
       data-slot="collapsible-content"
       className={cn(
-        'h-[var(--collapsible-panel-height)] overflow-hidden text-base text-muted-foreground',
-        'transition-[height] duration-fast ease-standard',
-        'data-[starting-style]:h-0 data-[ending-style]:h-0',
+        "h-[var(--collapsible-panel-height)] overflow-hidden text-base text-muted-foreground",
+        "transition-[height] duration-fast ease-standard",
+        "data-[starting-style]:h-0 data-[ending-style]:h-0",
         className,
       )}
       {...props}

@@ -271,7 +271,12 @@ test("the saved Check carries motion-pop-in with the vs-pop-in animation resolve
   try {
     const onSave = vi.fn().mockResolvedValue(undefined);
     const screen = await render(
-      <AutoSaveInput aria-label="Name" defaultValue="" onSave={onSave} debounceMs={800} />,
+      <AutoSaveInput
+        aria-label="Name"
+        defaultValue=""
+        onSave={onSave}
+        debounceMs={800}
+      />,
     );
     await screen.getByLabelText("Name").fill("Ada");
     await vi.advanceTimersByTimeAsync(800);
@@ -298,7 +303,12 @@ test("the error X carries motion-pop-in with the vs-pop-in animation resolved", 
   try {
     const onSave = vi.fn().mockRejectedValue(new Error("boom"));
     const screen = await render(
-      <AutoSaveInput aria-label="Name" defaultValue="" onSave={onSave} debounceMs={800} />,
+      <AutoSaveInput
+        aria-label="Name"
+        defaultValue=""
+        onSave={onSave}
+        debounceMs={800}
+      />,
     );
     await screen.getByLabelText("Name").fill("x");
     await vi.advanceTimersByTimeAsync(800);
@@ -321,9 +331,16 @@ test("the status icon remounts (new node identity) across the saving→saved swa
   vi.useFakeTimers();
   try {
     let resolveSave!: () => void;
-    const onSave = vi.fn(() => new Promise<void>((resolve) => (resolveSave = resolve)));
+    const onSave = vi.fn(
+      () => new Promise<void>((resolve) => (resolveSave = resolve)),
+    );
     const screen = await render(
-      <AutoSaveInput aria-label="Name" defaultValue="" onSave={onSave} debounceMs={800} />,
+      <AutoSaveInput
+        aria-label="Name"
+        defaultValue=""
+        onSave={onSave}
+        debounceMs={800}
+      />,
     );
 
     await screen.getByLabelText("Name").fill("Ada");
@@ -358,13 +375,20 @@ test("flipping status twice in quick succession (saving→saved→error) settles
     let rejectSecond!: (err: Error) => void;
     const onSave = vi
       .fn()
-      .mockImplementationOnce(() => new Promise<void>((resolve) => (resolveFirst = resolve)))
+      .mockImplementationOnce(
+        () => new Promise<void>((resolve) => (resolveFirst = resolve)),
+      )
       .mockImplementationOnce(
         () => new Promise<void>((_resolve, reject) => (rejectSecond = reject)),
       );
 
     const screen = await render(
-      <AutoSaveInput aria-label="Name" defaultValue="" onSave={onSave} debounceMs={300} />,
+      <AutoSaveInput
+        aria-label="Name"
+        defaultValue=""
+        onSave={onSave}
+        debounceMs={300}
+      />,
     );
     const input = screen.getByLabelText("Name");
 

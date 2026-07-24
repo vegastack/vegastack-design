@@ -1,7 +1,9 @@
-import type { ReactNode } from 'react';
-import { Wrapper } from './wrapper';
-import { MarketingSurface } from '@/components/ui/marketing-surface';
-import { Testimonial } from '@/components/ui/testimonial';
+"use client";
+
+import type { ReactNode } from "react";
+import { Wrapper } from "./wrapper";
+import { MarketingSurface } from "@/components/ui/marketing-surface";
+import { Testimonial } from "@/components/ui/testimonial";
 
 export function testimonial(): ReactNode {
   return (

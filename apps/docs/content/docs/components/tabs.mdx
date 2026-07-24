@@ -1,6 +1,7 @@
 ---
 title: Tabs
 description: A set of layered sections — line or pill variants, optional icons and count badges, horizontal or vertical orientation, full keyboard navigation.
+audience: public
 preview: tabs
 ---
 
@@ -15,7 +16,7 @@ npx shadcn@latest add @vegastack/tabs
 ## Usage
 
 ```tsx
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 <Tabs defaultValue="overview">
   <TabsList>
@@ -53,7 +54,7 @@ each `TabsTrigger` to a `TabsContent` by `value`:
   </TabsList>
   <TabsContent value="overview">…</TabsContent>
   <TabsContent value="activity">…</TabsContent>
-</Tabs>;
+</Tabs>
 ```
 
 - `Tabs` — the root that groups the list and panels and owns `orientation` (`data-slot="tabs"`,
@@ -64,7 +65,9 @@ each `TabsTrigger` to a `TabsContent` by `value`:
   `data-active`. Compose a leading icon as the first child; pass `count` for a trailing badge.
 - `TabsContent` — the panel shown for the active tab (`data-slot="tabs-content"`), matched by `value`.
 
-## Variants
+## Examples
+
+### Variants
 
 `line` (a moving underline tracks the active tab, the default) and `pill` (a muted track where the
 active tab becomes a raised `bg-background` chip). Both support a leading icon composed as the first
@@ -72,12 +75,12 @@ child and a trailing `count` badge.
 
 <ComponentPreview name="tabsVariants" file="components/preview/tabs.tsx" />
 
-## Orientation
+### Orientation
 
 Set `orientation="vertical"` on the root to stack the tab list beside the panels — useful for
 settings-style navigation. Keyboard navigation switches to the up/down arrow keys automatically.
-With the `line` variant, the moving underline indicator rides the left rail instead of the bottom
-rule:
+With the `line` variant, the moving underline indicator rides the inline-start rail instead of the
+bottom rule, so it mirrors in RTL:
 
 <ComponentPreview name="tabsVerticalLine" file="components/preview/tabs.tsx" />
 
@@ -85,12 +88,22 @@ The `pill` variant stacks the raised-chip triggers in a column:
 
 <ComponentPreview name="tabsVertical" file="components/preview/tabs.tsx" />
 
-## Disabled
+### Disabled
 
 Mark a `TabsTrigger` `disabled` to render it dimmed and non-interactive. It carries `data-disabled`,
 is skipped by keyboard navigation, and cannot be selected:
 
 <ComponentPreview name="tabsDisabled" file="components/preview/tabs.tsx" />
+
+### Chip variant
+
+`variant="chip"` renders free-standing tabs on the 28px chrome scale — no track, no
+underline; the active tab raises to a `secondary` chip with the one hairline. The dense
+record-page treatment; pair with `count` for per-tab totals. For tab sets that outgrow their
+container, compose an overflow menu ("+N more") from `DropdownMenu` — the list itself scrolls
+with an edge fade by default.
+
+<ComponentPreview name="tabsChip" file="components/preview/tabs.tsx" />
 
 ## API Reference
 
@@ -100,15 +113,24 @@ is skipped by keyboard navigation, and cannot be selected:
 
 ### TabsList
 
-<AutoTypeTable path="../../packages/ui/registry/ui/tabs.tsx" name="TabsListProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/tabs.tsx"
+  name="TabsListProps"
+/>
 
 ### TabsTrigger
 
-<AutoTypeTable path="../../packages/ui/registry/ui/tabs.tsx" name="TabsTriggerProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/tabs.tsx"
+  name="TabsTriggerProps"
+/>
 
 ### TabsContent
 
-<AutoTypeTable path="../../packages/ui/registry/ui/tabs.tsx" name="TabsContentProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/tabs.tsx"
+  name="TabsContentProps"
+/>
 
 ## Accessibility
 
@@ -120,13 +142,13 @@ is skipped by keyboard navigation, and cannot be selected:
 - Every interactive part shows a visible `:focus-visible` ring (`outline-ring`) — never `outline: none`.
 - Disabled triggers carry `data-disabled`, are skipped by keyboard navigation, and are not selectable.
 
-| Key | Action |
-| --- | --- |
-| <kbd>Tab</kbd> | Move focus into the tab list (lands on the active tab), then out to the panel. |
-| <kbd>←</kbd> / <kbd>→</kbd> | Move focus between tabs (horizontal orientation). |
-| <kbd>↑</kbd> / <kbd>↓</kbd> | Move focus between tabs (vertical orientation). |
-| <kbd>Home</kbd> / <kbd>End</kbd> | Move focus to the first / last tab. |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused tab. |
+| Key                                 | Action                                                                         |
+| ----------------------------------- | ------------------------------------------------------------------------------ |
+| <kbd>Tab</kbd>                      | Move focus into the tab list (lands on the active tab), then out to the panel. |
+| <kbd>←</kbd> / <kbd>→</kbd>         | Move focus between tabs (horizontal orientation).                              |
+| <kbd>↑</kbd> / <kbd>↓</kbd>         | Move focus between tabs (vertical orientation).                                |
+| <kbd>Home</kbd> / <kbd>End</kbd>    | Move focus to the first / last tab.                                            |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused tab.                                                      |
 
 ## Do / Don't
 

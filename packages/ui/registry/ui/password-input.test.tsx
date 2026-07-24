@@ -83,6 +83,7 @@ test("associates requirements with the field and exposes met/unmet state text", 
   const describedBy = field.element().getAttribute("aria-describedby") ?? "";
   expect(describedBy).toContain("password-help");
   expect(describedBy).toContain(list!.id);
+  expect(describedBy.trim().split(/\s+/)).toHaveLength(2);
   expect(screen.container.textContent).toContain("Met: At least 8 characters");
   expect(screen.container.textContent).toContain("Not met: Contains a number");
   expect(screen.container.textContent).toContain(
@@ -192,7 +193,7 @@ function injectMotionPopInMirror(): () => void {
   return () => document.head.removeChild(style);
 }
 
-test("the Eye icon carries motion-pop-in with the vs-pop-in animation resolved", async () => {
+test("the initial Eye icon stays still on mount", async () => {
   const cleanup = injectMotionPopInMirror();
   try {
     const screen = await render(<PasswordInput aria-label="Password" />);
@@ -200,10 +201,8 @@ test("the Eye icon carries motion-pop-in with the vs-pop-in animation resolved",
       .getByRole("button", { name: "Toggle password visibility" })
       .element() as HTMLElement;
     const icon = toggle.querySelector("svg") as SVGElement;
-    expect(icon.classList.contains("motion-pop-in")).toBe(true);
-    const computed = getComputedStyle(icon);
-    expect(computed.animationName).toBe("vs-pop-in");
-    expect(computed.animationDuration).toBe("0.15s");
+    expect(icon.classList.contains("motion-pop-in")).toBe(false);
+    expect(getComputedStyle(icon).animationName).toBe("none");
   } finally {
     cleanup();
   }

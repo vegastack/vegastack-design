@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { Wrapper } from './wrapper';
+import type { ReactNode } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/progress` (dogfoods the registry) → auto-scanned.
-import { Progress } from '@/components/ui/progress';
+import { Progress } from "@/components/ui/progress";
 
 // Single determinate bar — primary fill on a muted track.
 export function progress(): ReactNode {
@@ -65,9 +65,21 @@ export function progressIndeterminate(): ReactNode {
 export function progressColors(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch gap-4">
-      <Progress value={66} indicatorClassName="bg-success" aria-label="Success fill" />
-      <Progress value={45} indicatorClassName="bg-warning" aria-label="Warning fill" />
-      <Progress value={20} indicatorClassName="bg-destructive" aria-label="Destructive fill" />
+      <Progress
+        value={66}
+        indicatorClassName="bg-success"
+        aria-label="Success fill"
+      />
+      <Progress
+        value={45}
+        indicatorClassName="bg-warning"
+        aria-label="Warning fill"
+      />
+      <Progress
+        value={20}
+        indicatorClassName="bg-destructive"
+        aria-label="Destructive fill"
+      />
     </Wrapper>
   );
 }
@@ -89,7 +101,7 @@ export function progressTrack(): ReactNode {
 
 // Size × value matrix — the two axes are independent.
 export function progressMatrix(): ReactNode {
-  const sizes = ['sm', 'default', 'lg'] as const;
+  const sizes = ["sm", "default", "lg"] as const;
   const values = [25, 60, 100];
   return (
     <Wrapper className="flex-col items-stretch gap-4">

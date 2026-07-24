@@ -1,10 +1,15 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { Wrapper } from './wrapper';
+import type { ReactNode } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/tooltip` (dogfoods the registry) → auto-scanned.
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipKbd } from '@/components/ui/tooltip';
-import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipKbd,
+} from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
 
 // The Tooltip.Provider already lives in the docs <Provider> (mirrors
 // VegaStackProvider), so these demos render Root → Trigger → Content directly.
@@ -50,7 +55,7 @@ export function tooltipKbd(): ReactNode {
         <TooltipTrigger render={<Button variant="outline">Search</Button>} />
         <TooltipContent>
           Search
-          <TooltipKbd keys={['⌘', 'K']} />
+          <TooltipKbd keys={["⌘", "K"]} />
         </TooltipContent>
       </Tooltip>
     </Wrapper>
@@ -61,7 +66,9 @@ export function tooltipArrow(): ReactNode {
   return (
     <Wrapper>
       <Tooltip>
-        <TooltipTrigger render={<Button variant="outline">With arrow</Button>} />
+        <TooltipTrigger
+          render={<Button variant="outline">With arrow</Button>}
+        />
         <TooltipContent arrow>Pointing at the trigger</TooltipContent>
       </Tooltip>
     </Wrapper>
@@ -97,18 +104,27 @@ export function tooltipOffset(): ReactNode {
   return (
     <Wrapper className="gap-6">
       <Tooltip>
-        <TooltipTrigger render={<Button variant="outline">Default (6px)</Button>} />
+        <TooltipTrigger
+          render={<Button variant="outline">Default (6px)</Button>}
+        />
         <TooltipContent side="top">Default gap</TooltipContent>
       </Tooltip>
       <Tooltip>
-        <TooltipTrigger render={<Button variant="outline">Fixed offset</Button>} />
+        <TooltipTrigger
+          render={<Button variant="outline">Fixed offset</Button>}
+        />
         <TooltipContent side="top" sideOffset={16}>
           16px away
         </TooltipContent>
       </Tooltip>
       <Tooltip>
-        <TooltipTrigger render={<Button variant="outline">Offset function</Button>} />
-        <TooltipContent side="top" sideOffset={({ side }) => (side === 'top' ? 24 : 6)}>
+        <TooltipTrigger
+          render={<Button variant="outline">Offset function</Button>}
+        />
+        <TooltipContent
+          side="top"
+          sideOffset={({ side }) => (side === "top" ? 24 : 6)}
+        >
           Resolved per side
         </TooltipContent>
       </Tooltip>
@@ -120,15 +136,21 @@ export function tooltipDelay(): ReactNode {
   return (
     <Wrapper className="gap-6">
       <Tooltip>
-        <TooltipTrigger render={<Button variant="outline">Shared delay</Button>} />
+        <TooltipTrigger
+          render={<Button variant="outline">Shared delay</Button>}
+        />
         <TooltipContent>Uses the provider delay</TooltipContent>
       </Tooltip>
       <Tooltip delay={0}>
-        <TooltipTrigger render={<Button variant="outline">Instant (delay 0)</Button>} />
+        <TooltipTrigger
+          render={<Button variant="outline">Instant (delay 0)</Button>}
+        />
         <TooltipContent>Opens immediately</TooltipContent>
       </Tooltip>
       <Tooltip delay={800}>
-        <TooltipTrigger render={<Button variant="outline">Slow (delay 800)</Button>} />
+        <TooltipTrigger
+          render={<Button variant="outline">Slow (delay 800)</Button>}
+        />
         <TooltipContent>Waits 800ms</TooltipContent>
       </Tooltip>
     </Wrapper>

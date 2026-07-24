@@ -16,27 +16,28 @@ on:
   workflow_dispatch:
     inputs:
       update_baselines:
-        description: 'Regenerate baseline screenshots (--update-snapshots) and upload them as an artifact'
+        description: "Regenerate baseline screenshots (--update-snapshots) and upload them as an artifact"
         type: boolean
         default: false
 
-# Turborepo remote caching (Phase D): activates when MK provisions the Vercel Remote Cache
-# secrets — inert (local cache only) until then. Signature verification is enabled in
-# turbo.json so poisoned-cache artifacts are rejected.
+permissions:
+  contents: read
+
 env:
-  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  SITE_VISIBILITY: public
 
 jobs:
   vrt:
     runs-on: ubuntu-latest
     # MUST match ci.yml's container so Vitest browser mode + VRT share identical browsers/fonts.
-    container: mcr.microsoft.com/playwright:v1.61.0-noble
+    container: mcr.microsoft.com/playwright:v1.61.0-noble@sha256:57b65fdc9ceabe0ef613124c7bbe2babcf9362c4d85e382fe3b03604e84b428a
     steps:
-      - uses: actions/checkout@v6
-        with: { fetch-depth: 0 } # full history so we can diff the PR against its base
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0 # full history so we can diff the PR against its base
+          persist-credentials: false
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
       - run: pnpm build # static export the docs (out/) so VRT renders the compiled, shipped CSS
@@ -56,26 +57,45 @@ jobs:
       - name: Detect visual-surface changes in this PR
         id: visual
         if: ${{ github.event_name == 'pull_request' }}
+        # BASE_REF travels via env, never interpolated into the script body: a `${{ }}` expansion is
+        # substituted as raw text before bash parses the line, so any shell metacharacter in the value
+        # would execute. Enforced for every workflow by tooling/verify-workflow-security.mjs.
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
-          BASE="origin/${{ github.base_ref }}"
+          BASE="origin/${BASE_REF}"
           CHANGED=$(git diff --name-only "$BASE"...HEAD || git diff --name-only HEAD~1)
           if echo "$CHANGED" | grep -qE '^(packages/ui/registry/ui/|packages/ui/src/|packages/design-tokens/|packages/design/|apps/docs/components/|apps/docs/content/)'; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "changed=false" >> "$GITHUB_OUTPUT"
           fi
+      # Bootstrap runs ONLY the screenshot spec. `contracts.spec.ts` is in the same testDir but
+      # writes no baselines (it asserts reflow/forced-colors/target contracts), so including it
+      # added ~776 tests whose failure would abort the bootstrap before any baseline was uploaded —
+      # making the sanctioned path to regenerating baselines unusable exactly when it is needed.
+      # Contract regressions are still caught: the gate below and the per-PR job run the full dir.
       - name: Bootstrap baselines (--update-snapshots)
         if: ${{ inputs.update_baselines }}
         working-directory: apps/docs
         env:
-          VRT_UPDATE: '1' # force the suite on even with no baselines yet, so the first PNGs are written
-        run: pnpm exec playwright test --update-snapshots --reporter=list,json
+          VRT_UPDATE: "1" # force the suite on even with no baselines yet, so the first PNGs are written
+        run: pnpm exec playwright test components.spec.ts --update-snapshots --reporter=list,json
+      # Upload BEFORE verifying completeness, and even if a step failed: a partial baseline set is
+      # the input a maintainer needs to diagnose and finish the bootstrap. Losing it to a failed
+      # gate means re-running the whole container job for nothing.
       - name: Upload regenerated baselines
-        if: ${{ inputs.update_baselines }}
-        uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.update_baselines }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: vrt-baselines
           path: apps/docs/vrt/**/*-snapshots/**
+      - name: Verify regenerated baseline completeness
+        if: ${{ inputs.update_baselines }}
+        run: pnpm --filter @vegastack/docs verify:vrt-baselines
+      - name: Verify committed baseline completeness
+        if: ${{ !inputs.update_baselines && steps.baselines.outputs.present == 'true' }}
+        run: pnpm --filter @vegastack/docs verify:vrt-baselines
       # Pixel gate — runs on every PR (and on a non-update dispatch) ONCE baselines are committed.
       - name: VRT pixel gate (blocking)
         if: ${{ !inputs.update_baselines && steps.baselines.outputs.present == 'true' }}

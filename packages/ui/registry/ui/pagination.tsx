@@ -1,13 +1,20 @@
-// @vegastack pagination@0.2.0 sha256-GVBog9E91x0z3bDlWNZ1ffkMRa+r87+w8PIUABcV4yE=
+// @vegastack pagination@0.2.0 sha256-9VrH9BCc+Cuo5EAI4W3SWoIwPlBdnya6F4+FXFDVI2g=
 
 "use client";
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { useRender } from "@base-ui/react/use-render";
-import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  MoreHorizontal,
+} from "lucide-react";
 import { cn } from "@vegastack/design";
 
+/** Props accepted by `Pagination`. */
 export type PaginationProps = React.ComponentPropsWithRef<"nav">;
 
 /**
@@ -51,11 +58,16 @@ function Pagination({ className, ...props }: PaginationProps) {
   );
 }
 
+/** Props accepted by `PaginationContent`. */
 export type PaginationContentProps = React.ComponentPropsWithRef<"ul">;
 
 /**
  * `PaginationContent` — the unordered list (`<ul>`) holding the page items.
  * Flex-aligned with a consistent gap between controls.
+
+ *
+ * @example
+ * <PaginationContent />
  */
 function PaginationContent({ className, ...props }: PaginationContentProps) {
   return (
@@ -67,9 +79,14 @@ function PaginationContent({ className, ...props }: PaginationContentProps) {
   );
 }
 
+/** Props accepted by `PaginationItem`. */
 export type PaginationItemProps = React.ComponentPropsWithRef<"li">;
 
-/** `PaginationItem` — a single list slot (`<li>`) wrapping a link or ellipsis. */
+/** `PaginationItem` — a single list slot (`<li>`) wrapping a link or ellipsis.
+ *
+ * @example
+ * <PaginationItem />
+ */
 function PaginationItem({ className, ...props }: PaginationItemProps) {
   return <li data-slot="pagination-item" className={className} {...props} />;
 }
@@ -82,7 +99,7 @@ function PaginationItem({ className, ...props }: PaginationItemProps) {
  * value is a semantic token (no hardcoded colors).
  */
 export const paginationLinkVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border border-transparent bg-clip-padding text-base font-medium whitespace-nowrap tabular-nums transition-all duration-fast ease-standard select-none hover:bg-accent hover:text-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim) [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
+  "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border border-transparent bg-clip-padding text-label whitespace-nowrap tabular-nums  select-none hover:bg-accent hover:text-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim) [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
   {
     variants: {
       isActive: {
@@ -100,6 +117,7 @@ export const paginationLinkVariants = cva(
   },
 );
 
+/** Props accepted by `PaginationLink`. */
 export interface PaginationLinkProps
   extends
     React.ComponentPropsWithRef<"a">,
@@ -114,6 +132,8 @@ export interface PaginationLinkProps
    * Replace the rendered `<a>` element via Base UI `render` composition. Pass a
    * routing link element (e.g. `<NextLink href="/x" />`) or a render function to
    * integrate with a router while keeping pagination styling.
+
+   * @default undefined
    */
   render?: useRender.RenderProp;
 }
@@ -129,6 +149,10 @@ export interface PaginationLinkProps
  * keyboard-Enter/programmatic-click gap. No extra prop needed on the consumer
  * side (previously `tabIndex={-1}` had to be set by hand alongside
  * `aria-disabled`).
+
+ *
+ * @example
+ * <PaginationLink />
  */
 function PaginationLink({
   className,
@@ -166,12 +190,17 @@ function PaginationLink({
   });
 }
 
+/** Props accepted by `PaginationPrevious`. */
 export type PaginationPreviousProps = PaginationLinkProps;
 
 /**
  * `PaginationPrevious` — a labelled "previous page" control. A
  * `PaginationLink` with a leading `lucide-react` chevron and an accessible
  * `aria-label`.
+
+ *
+ * @example
+ * <PaginationPrevious />
  */
 function PaginationPrevious({
   className,
@@ -193,11 +222,16 @@ function PaginationPrevious({
   );
 }
 
+/** Props accepted by `PaginationNext`. */
 export type PaginationNextProps = PaginationLinkProps;
 
 /**
  * `PaginationNext` — a labelled "next page" control. A `PaginationLink` with a
  * trailing `lucide-react` chevron and an accessible `aria-label`.
+
+ *
+ * @example
+ * <PaginationNext />
  */
 function PaginationNext({
   className,
@@ -217,12 +251,17 @@ function PaginationNext({
   );
 }
 
+/** Props accepted by `PaginationEllipsis`. */
 export type PaginationEllipsisProps = React.ComponentPropsWithRef<"span">;
 
 /**
  * `PaginationEllipsis` — a collapsed-pages indicator (`…`) for long ranges.
  * Decorative only; expose skipped pages through real links or a labelled menu
  * trigger when they need to be reachable. Place inside a `PaginationItem`.
+
+ *
+ * @example
+ * <PaginationEllipsis />
  */
 function PaginationEllipsis({ className, ...props }: PaginationEllipsisProps) {
   return (
@@ -241,6 +280,99 @@ function PaginationEllipsis({ className, ...props }: PaginationEllipsisProps) {
   );
 }
 
+/** Props accepted by `PaginationPager`. */
+export interface PaginationPagerProps extends React.ComponentPropsWithRef<"div"> {
+  /** 1-based position of the current item. */
+  index: number;
+  /** Total number of items. */
+  total: number;
+  /**
+   * Context suffix after the count — e.g. `in All Companies` renders
+   * "3 of 10 in All Companies". Plain string; keep it short.
+
+   * @default undefined
+   */
+  context?: string;
+  /** Called with the next 1-based index. Buttons disable at the ends.
+   * @default undefined
+   */
+  onIndexChange?: (index: number) => void;
+  /** Accessible labels for the step buttons.
+   * @default 'Previous item'
+   */
+  previousLabel?: string;
+  /** Accessible label for the next-item button.
+   * @default 'Next item'
+   */
+  nextLabel?: string;
+}
+
+/**
+ * `PaginationPager` — the compact positional pager (Wave 2 — the record-pager
+ * pattern): previous/next icon buttons + a "n of N [context]" label. For
+ * stepping through items of a known list (records in a view, results of a
+ * search), not for numbered page navigation — that stays `Pagination`.
+ * `role="status"` on the label announces position changes politely.
+
+ *
+ * @example
+ * <PaginationPager />
+ */
+function PaginationPager({
+  className,
+  index,
+  total,
+  context,
+  onIndexChange,
+  previousLabel = "Previous item",
+  nextLabel = "Next item",
+  ref,
+  ...props
+}: PaginationPagerProps) {
+  const clampedTotal = Math.max(total, 0);
+  const clamped = Math.min(Math.max(index, 1), Math.max(clampedTotal, 1));
+  return (
+    <div
+      ref={ref}
+      data-slot="pagination-pager"
+      className={cn("flex w-fit items-center gap-1", className)}
+      {...props}
+    >
+      <button
+        type="button"
+        aria-label={previousLabel}
+        disabled={clamped <= 1}
+        onClick={() => onIndexChange?.(clamped - 1)}
+        className={cn(
+          paginationLinkVariants({ isActive: false }),
+          "size-(--size-sm) disabled:pointer-events-none disabled:opacity-(--opacity-dim)",
+        )}
+      >
+        <ChevronUp aria-hidden />
+      </button>
+      <button
+        type="button"
+        aria-label={nextLabel}
+        disabled={clamped >= clampedTotal}
+        onClick={() => onIndexChange?.(clamped + 1)}
+        className={cn(
+          paginationLinkVariants({ isActive: false }),
+          "size-(--size-sm) disabled:pointer-events-none disabled:opacity-(--opacity-dim)",
+        )}
+      >
+        <ChevronDown aria-hidden />
+      </button>
+      <span
+        role="status"
+        className="text-sm whitespace-nowrap text-muted-foreground"
+      >
+        <span className="tabular-nums">{clamped}</span> of{" "}
+        <span className="tabular-nums">{clampedTotal}</span>
+        {context ? ` ${context}` : null}
+      </span>
+    </div>
+  );
+}
 
 export {
   Pagination,
@@ -250,4 +382,5 @@ export {
   PaginationPrevious,
   PaginationNext,
   PaginationEllipsis,
+  PaginationPager,
 };

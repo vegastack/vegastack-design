@@ -39,4 +39,3 @@
 3. Add reduced-motion polish to loading spinners where missing.
 4. Review semantic layer tokens for overlay `z-50`.
 5. Add visual examples for empty/error/success/loading states where missing.
-

@@ -203,9 +203,7 @@ export function filterBarCustomMenu(): ReactNode {
 
   function toggle(label: string) {
     setSelected((prev) =>
-      prev.includes(label)
-        ? prev.filter((l) => l !== label)
-        : [...prev, label],
+      prev.includes(label) ? prev.filter((l) => l !== label) : [...prev, label],
     );
   }
 

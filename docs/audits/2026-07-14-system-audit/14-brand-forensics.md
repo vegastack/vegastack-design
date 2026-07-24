@@ -4,38 +4,38 @@ Method: ran a computed-style extractor in the live browser on each site's homepa
 
 ## primeintellect.ai (MK's primary reference)
 
-| Dimension | Measured |
-|---|---|
-| Fonts | **Geist 294** text els (body+headlines!) · **ABC Favorit Mono 94** (brand voice, commercial face by Dinamo) · ABC Favorit 13 · Geist Mono 4 (code only) |
-| Mono role | **Labels only**: 12px ×72, 10px ×12, 14px ×4 — 100% of mono usage is `uppercase`, tracking +0.02–0.05em, weight 400 (some 500). **Zero mono headlines.** |
-| Headlines | Geist at 20/28/36px, **weight 400** — hierarchy is size+color, never weight |
-| Weights | 400 across the board (Geist 294/294 at 400!) |
-| Text color system | **White-alpha ramp**: white @ /0.85 /0.62 /0.5 /0.45 /0.4 /0.25 /0.2 — no gray tokens, alpha does hierarchy |
-| Backgrounds | Neutral near-blacks: rgb(14/16/22/25) + white-alpha washes /0.02–0.25 |
-| Accent | rgb(133,237,117) phosphor green on **9 elements total** on the entire homepage |
-| Radius | **0px everywhere** (only 9999px pills ×9 for dots/avatars); buttons 0px |
+| Dimension         | Measured                                                                                                                                                 |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fonts             | **Geist 294** text els (body+headlines!) · **ABC Favorit Mono 94** (brand voice, commercial face by Dinamo) · ABC Favorit 13 · Geist Mono 4 (code only)  |
+| Mono role         | **Labels only**: 12px ×72, 10px ×12, 14px ×4 — 100% of mono usage is `uppercase`, tracking +0.02–0.05em, weight 400 (some 500). **Zero mono headlines.** |
+| Headlines         | Geist at 20/28/36px, **weight 400** — hierarchy is size+color, never weight                                                                              |
+| Weights           | 400 across the board (Geist 294/294 at 400!)                                                                                                             |
+| Text color system | **White-alpha ramp**: white @ /0.85 /0.62 /0.5 /0.45 /0.4 /0.25 /0.2 — no gray tokens, alpha does hierarchy                                              |
+| Backgrounds       | Neutral near-blacks: rgb(14/16/22/25) + white-alpha washes /0.02–0.25                                                                                    |
+| Accent            | rgb(133,237,117) phosphor green on **9 elements total** on the entire homepage                                                                           |
+| Radius            | **0px everywhere** (only 9999px pills ×9 for dots/avatars); buttons 0px                                                                                  |
 
 ## vercel.com (Geist's home)
 
-| Dimension | Measured |
-|---|---|
-| Fonts | GeistSans 130 · **Geist Mono 48 (27% share)** |
-| Mono role | 14px ×28 (uppercase ×20), 8px ×9 (uppercase micro-annotations), 12px ×8; weights **600 ×24 / 400 ×23** — Vercel semibolds small mono labels |
-| Headlines | Sans 24–64px, tracking **−5% to −6%** (24px @ −1.2px, 48px @ −2.88px, 64px @ −3.84px), weights 400/500 only |
-| Text colors | Cool grays: 136/136/136, 237, 161 — effectively achromatic; single blue occurrence |
-| Backgrounds | rgb(10,10,10) black, near-blacks |
-| Radius | 2px ×9 · 4px · **6px ×14** · pills; buttons 4–6px |
+| Dimension   | Measured                                                                                                                                    |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fonts       | GeistSans 130 · **Geist Mono 48 (27% share)**                                                                                               |
+| Mono role   | 14px ×28 (uppercase ×20), 8px ×9 (uppercase micro-annotations), 12px ×8; weights **600 ×24 / 400 ×23** — Vercel semibolds small mono labels |
+| Headlines   | Sans 24–64px, tracking **−5% to −6%** (24px @ −1.2px, 48px @ −2.88px, 64px @ −3.84px), weights 400/500 only                                 |
+| Text colors | Cool grays: 136/136/136, 237, 161 — effectively achromatic; single blue occurrence                                                          |
+| Backgrounds | rgb(10,10,10) black, near-blacks                                                                                                            |
+| Radius      | 2px ×9 · 4px · **6px ×14** · pills; buttons 4–6px                                                                                           |
 
 ## linear.app
 
-| Dimension | Measured |
-|---|---|
-| Fonts | Inter Variable 395 · **Berkeley Mono 132 (25% share)** |
-| Mono role | **14px ×118** — Linear pushes mono into short descriptive body blocks, not just labels; 12px ×12; all weight 400; uppercase rare (Berkeley 12px ×7) |
-| UI text | Inter 12/13/15px dense; weights 400/510/590 (variable); headlines 24/38px, tracking −1% to −2.2% |
-| Text colors | Cool grays + pastel accents (pink/peach/green) but accents live in illustration washes, not chrome |
-| Backgrounds | White-alpha washes (/0.02 /0.03 /0.05 /0.08) on near-black — same alpha-ramp trick as PI |
-| Radius | 2px ×48 · 6px ×41 · 4px ×27 · 8px · pills — small-radius, not sharp |
+| Dimension   | Measured                                                                                                                                            |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fonts       | Inter Variable 395 · **Berkeley Mono 132 (25% share)**                                                                                              |
+| Mono role   | **14px ×118** — Linear pushes mono into short descriptive body blocks, not just labels; 12px ×12; all weight 400; uppercase rare (Berkeley 12px ×7) |
+| UI text     | Inter 12/13/15px dense; weights 400/510/590 (variable); headlines 24/38px, tracking −1% to −2.2%                                                    |
+| Text colors | Cool grays + pastel accents (pink/peach/green) but accents live in illustration washes, not chrome                                                  |
+| Backgrounds | White-alpha washes (/0.02 /0.03 /0.05 /0.08) on near-black — same alpha-ramp trick as PI                                                            |
+| Radius      | 2px ×48 · 6px ×41 · 4px ×27 · 8px · pills — small-radius, not sharp                                                                                 |
 
 ## Convergent findings (all three sites)
 

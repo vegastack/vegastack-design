@@ -1,6 +1,7 @@
 ---
 title: Alert Dialog
 description: A modal confirmation dialog with four semantic intents, backdrop lock, and deliberate cancel/confirm actions.
+audience: public
 preview: alertDialog
 ---
 
@@ -99,7 +100,9 @@ root:
 > not dismiss. The user can cancel with Cancel or <kbd>Esc</kbd>, or choose the confirm Action —
 > that's what separates an alert dialog from a regular `Dialog`.
 
-## Intents
+## Examples
+
+### Intents
 
 Set `intent` on `AlertDialogContent` (for grouping) and on `AlertDialogAction` (to tint the confirm
 button): `default`, `destructive`, `success`, and `warning`.
@@ -115,7 +118,7 @@ the matching `intent` on `AlertDialogAction`, which maps to a semantic `Button` 
 (`destructive-outline`, `success-outline`, `warning-outline`). Always set both so the data hook and
 the confirm button stay in sync.
 
-## Scrollable content
+### Scrollable content
 
 When the body is long, drop a scrolling region (`overflow-y-auto`) between the header and footer. The
 popup caps its own height (`max-h-[calc(100dvh-…)]`) and keeps the header and footer pinned while the
@@ -157,7 +160,7 @@ own — they accept everything the underlying Base UI part or element accepts (`
 - The backdrop is non-dismissable by design — closing requires `AlertDialogCancel`,
   `AlertDialogAction`, or <kbd>Esc</kbd> as a cancel request, so a confirmation is never dismissed by
   accident.
-- Every interactive control is a `Button` and follows `Button`'s focus treatment: each keeps the global 2px `:focus-visible` ring (`outline-ring`), and the bordered `AlertDialogCancel` (`outline` variant) additionally re-colors its border with the `ring` token (`focus-visible:border-ring/70`) — never `outline: none`.
+- Every interactive control is a `Button` and follows `Button`'s focus treatment: each keeps the global 2px `:focus-visible` ring (`outline-ring`), and the bordered `AlertDialogCancel` (`outline` variant) additionally re-colors its border with the `ring` token (`focus-visible:border-ring/(--alpha-tint-border)`) — never `outline: none`.
 
 | Key                                                | Action                                                                 |
 | -------------------------------------------------- | ---------------------------------------------------------------------- |

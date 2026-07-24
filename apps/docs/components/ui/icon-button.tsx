@@ -1,26 +1,27 @@
-// @vegastack icon-button@0.2.0 sha256-QxSGeki73LUg6dC7/tYogggsbskZ04hIGnKulfZSX50=
+// @vegastack icon-button@0.2.0 sha256-ToRoP7YcqoFRjuDegW4IyihWkxWjkw/8Q78rgO/+o9E=
 
-'use client';
-
-import * as React from 'react';
-import { Button, type ButtonProps } from '@/components/ui/button';
+import * as React from "react";
+import { Button, type ButtonProps } from "@/components/ui/button";
 
 /** The four square icon-only sizes, mapped onto `Button`'s `icon-*` size scale. */
-export type IconButtonSize = 'xs' | 'sm' | 'default' | 'lg';
+export type IconButtonSize = "xs" | "sm" | "default" | "lg";
 
 const sizeMap = {
-  xs: 'icon-xs',
-  sm: 'icon-sm',
-  default: 'icon',
-  lg: 'icon-lg',
-} as const satisfies Record<IconButtonSize, NonNullable<ButtonProps['size']>>;
+  xs: "icon-xs",
+  sm: "icon-sm",
+  default: "icon",
+  lg: "icon-lg",
+} as const satisfies Record<IconButtonSize, NonNullable<ButtonProps["size"]>>;
 
 /**
  * Props for {@link IconButton}. Inherits every `Button` prop except `size`
  * (remapped to the square `IconButtonSize` scale) and requires an accessible
  * `aria-label` because the icon child carries no text.
  */
-export interface IconButtonProps extends Omit<ButtonProps, 'size' | 'aria-label'> {
+export interface IconButtonProps extends Omit<
+  ButtonProps,
+  "size" | "aria-label"
+> {
   /**
    * The icon to render. Pass a single `lucide-react` (or `@vegastack/design/icons`)
    * element — it is sized automatically by the chosen `size`.
@@ -35,7 +36,7 @@ export interface IconButtonProps extends Omit<ButtonProps, 'size' | 'aria-label'
    * Accessible name announced to assistive tech (required — the icon has no
    * visible text).
    */
-  'aria-label': string;
+  "aria-label": string;
 }
 
 /**
@@ -55,7 +56,7 @@ export interface IconButtonProps extends Omit<ButtonProps, 'size' | 'aria-label'
  * </IconButton>
  */
 export function IconButton({
-  size = 'default',
+  size = "default",
   children,
   ...props
 }: IconButtonProps) {

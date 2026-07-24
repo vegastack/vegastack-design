@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Copy, Download, FileText, RotateCcw, ThumbsDown, ThumbsUp } from "lucide-react";
+import {
+  Copy,
+  Download,
+  FileText,
+  RotateCcw,
+  ThumbsDown,
+  ThumbsUp,
+} from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/{message,bubble,avatar,button}` → auto-scanned.
 import { Avatar } from "@/components/ui/avatar";
@@ -234,12 +241,14 @@ export function messageAttachment(): ReactNode {
             <Bubble variant="outline">
               <BubbleContent>
                 <span className="flex items-center gap-3">
-                  <FileText className="size-5 shrink-0 text-muted-foreground" />
+                  <FileText className="size-(--icon-action) shrink-0 text-muted-foreground" />
                   <span className="flex min-w-0 flex-col">
                     <span className="truncate font-medium">
                       release-notes.pdf
                     </span>
-                    <span className="text-sm text-muted-foreground">248 KB</span>
+                    <span className="text-sm text-muted-foreground">
+                      248 KB
+                    </span>
                   </span>
                   <Button
                     variant="ghost"

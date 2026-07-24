@@ -1,6 +1,7 @@
 ---
 title: Select
 description: A dropdown for choosing one option — trigger with value and chevron, grouped and scrollable popup, full keyboard navigation, and animated enter/exit.
+audience: public
 preview: select
 ---
 
@@ -42,13 +43,15 @@ option in the trigger instead of its raw `value`. Control the selection with `va
 `onValueChange`, or leave it uncontrolled with `defaultValue`. Add the `multiple` prop to collect
 several values at once (see [Multiple selection](#multiple-selection)).
 
-## Playground
+## Examples
+
+### Playground
 
 Try every trigger size and the disabled state on a small option list, then copy the generated JSX.
 
 <SelectPlayground />
 
-## Anatomy
+### Anatomy
 
 `Select` is a compound component built on [Base UI Select](https://base-ui.com/react/components/select).
 Compose the parts inside the root:
@@ -80,7 +83,7 @@ Compose the parts inside the root:
 - `SelectLabel` — a heading for a `SelectGroup`, auto-associated with it (`data-slot="select-label"`).
 - `SelectSeparator` — a divider between items or groups (`data-slot="select-separator"`, `role="separator"`).
 
-## Groups & separators
+### Groups & separators
 
 Wrap related options in a `SelectGroup` with a `SelectLabel`, and divide sections with a
 `SelectSeparator`. Long lists scroll, with hover scroll arrows at the edges; individual options can be
@@ -88,14 +91,14 @@ Wrap related options in a `SelectGroup` with a `SelectLabel`, and divide section
 
 <ComponentPreview name="selectGroups" file="components/preview/select.tsx" />
 
-## Sizes
+### Sizes
 
 `SelectTrigger` takes a `size` prop: `sm` (h-7), `default` (h-8), and `lg` (h-10) — matching the
 input/button scale so selects line up with sibling form controls.
 
 <ComponentPreview name="selectSizes" file="components/preview/select.tsx" />
 
-## States
+### States
 
 A `disabled` root makes the trigger inert; a list taller than the available viewport height becomes
 scrollable with edge arrows.
@@ -111,7 +114,7 @@ just color-coded.
 
 <ComponentPreview name="selectInvalid" file="components/preview/select.tsx" />
 
-## Multiple selection
+### Multiple selection
 
 Set `multiple` on the root to let a Select collect several values. `value` / `defaultValue` /
 `onValueChange` then work with **arrays**, and the popup stays open after each pick. Because the trigger
@@ -136,7 +139,7 @@ selection (for example, a comma-joined list with a placeholder when the array is
 > Prefer a few always-visible **Checkboxes** when there are only a handful of options that should stay
 > on screen; reach for a `multiple` Select to pick several values compactly from a longer list.
 
-## Popup alignment
+### Popup alignment
 
 By default Base UI aligns the **selected item's text** over the trigger value, so an open popup can
 overlap the trigger. Set `alignItemWithTrigger={false}` on `SelectContent` to align the popup edge to
@@ -145,7 +148,7 @@ familiar dropdown behaviour.
 
 <ComponentPreview name="selectAlignItem" file="components/preview/select.tsx" />
 
-## Form integration
+### Form integration
 
 Pair `Select` with a `Field` for a label, description, and error message — Base UI wires the ARIA. Set
 `name` on the root to submit the value with a form:
@@ -243,7 +246,7 @@ import {
 - The trigger exposes `role="combobox"` with `aria-haspopup="listbox"`; the popup is a `role="listbox"` of `role="option"` items — no manual ARIA wiring needed.
 - Selection is announced via `aria-selected`; the selected option shows a check indicator. Disabled options carry `aria-disabled` and are skipped by keyboard navigation.
 - Full keyboard support: open/close, arrow navigation, type-ahead, and `Esc` to dismiss. Focus returns to the trigger on close.
-- On `:focus` the trigger re-colors its border with the `ring` token (`focus:border-ring/70`) rather than removing the outline; highlighted options use the `accent` token. `aria-invalid` (or `data-invalid`) tints the trigger border destructive for use inside a `Field`.
+- On `:focus` the trigger re-colors its border with the `ring` token (`focus:border-ring/(--alpha-tint-border)`) rather than removing the outline; highlighted options use the `accent` token. `aria-invalid` (or `data-invalid`) tints the trigger border destructive for use inside a `Field`.
 
 | Key                                 | Action                                                              |
 | ----------------------------------- | ------------------------------------------------------------------- |

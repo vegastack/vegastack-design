@@ -1,6 +1,7 @@
 ---
 title: Provider
 description: The single app-root wrapper — theme, toasts, tooltip coordination, and text direction. Mount it once; every VegaStack component below it just works.
+audience: public
 preview: providerDemo
 ---
 
@@ -23,9 +24,13 @@ the client before hydration:
 
 ```tsx
 // app/layout.tsx
-import { VegaStackProvider } from '@/components/ui/provider';
+import { VegaStackProvider } from "@/components/ui/provider";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
@@ -38,29 +43,31 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 ### What it wires — and what silently breaks without it
 
-| Wiring | Without the provider |
-| --- | --- |
-| **Dark mode** (next-themes, `attribute="class"`, system-aware) | Theme toggles do nothing; the `.dark` class never reaches `<html>` |
-| **Toaster** (the global Sonner portal) | Every `toast(...)` call — from CopyButton, forms, anywhere — silently does nothing. No error, no toast. |
-| **Tooltip coordination** (Base UI `Tooltip.Provider`) | Tooltips lose shared-delay: hover across a toolbar and each tooltip re-waits the full open delay |
-| **Text direction** (Base UI `DirectionProvider`) | RTL layouts break for direction-aware components |
+| Wiring                                                         | Without the provider                                                                                    |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Dark mode** (next-themes, `attribute="class"`, system-aware) | Theme toggles do nothing; the `.dark` class never reaches `<html>`                                      |
+| **Toaster** (the global Sonner portal)                         | Every `toast(...)` call — from CopyButton, forms, anywhere — silently does nothing. No error, no toast. |
+| **Tooltip coordination** (Base UI `Tooltip.Provider`)          | Tooltips lose shared-delay: hover across a toolbar and each tooltip re-waits the full open delay        |
+| **Text direction** (Base UI `DirectionProvider`)               | RTL layouts break for direction-aware components                                                        |
 
-## Theme toggle
+## Examples
+
+### Theme toggle
 
 `useVegaStackTheme()` (exported from the same file) is a thin wrapper over
 next-themes' `useTheme()` — use it anywhere below the provider:
 
 ```tsx
-'use client';
-import { useVegaStackTheme } from '@/components/ui/provider';
-import { Button } from '@/components/ui/button';
+"use client";
+import { useVegaStackTheme } from "@/components/ui/provider";
+import { Button } from "@/components/ui/button";
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useVegaStackTheme();
   return (
     <Button
       variant="ghost"
-      onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
     >
       Toggle theme
     </Button>
@@ -68,14 +75,17 @@ export function ThemeToggle() {
 }
 ```
 
-## Tooltip coordination
+### Tooltip coordination
 
 Hover the first button, then move across — with the provider mounted, the rest open
 instantly instead of each re-waiting the open delay:
 
-<ComponentPreview name="providerTooltips" file="components/preview/provider.tsx" />
+<ComponentPreview
+  name="providerTooltips"
+  file="components/preview/provider.tsx"
+/>
 
-## The mount-once rule
+### The mount-once rule
 
 The bundled `<Toaster />` is a portal that must exist **exactly once**. Never nest a
 second `VegaStackProvider`, and if some other part of your app already renders a
@@ -101,7 +111,10 @@ All remaining props pass through to next-themes — e.g. force a default:
 
 ## API Reference
 
-<AutoTypeTable path="../../packages/ui/registry/ui/provider.tsx" name="VegaStackProviderProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/provider.tsx"
+  name="VegaStackProviderProps"
+/>
 
 ## Accessibility
 
@@ -110,6 +123,8 @@ portal. Toast announcements are handled by Sonner's built-in live region (see
 [Toast](/docs/components/toast)); `disableTransitionOnChange` prevents a
 full-page transition flash on theme switch, complementing the global
 `prefers-reduced-motion` reset in the base layer.
+
+## Do / Don't
 
 <DoDont
   do="Mount VegaStackProvider once at the app root and build your theme toggle on useVegaStackTheme."
