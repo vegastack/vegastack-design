@@ -36,6 +36,9 @@ jobs:
         with:
           fetch-depth: 0 # full history so we can diff the PR against its base
           persist-credentials: false
+      # The checkout is host-mounted into the pinned container. Trust only this exact ephemeral
+      # workspace before the PR path-routing step asks git for the base-to-head diff.
+      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with: { node-version: 24, cache: pnpm }

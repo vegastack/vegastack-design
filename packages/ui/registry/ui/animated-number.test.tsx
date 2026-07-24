@@ -111,8 +111,11 @@ test("tweens to the new target on a value change and settles exactly on it", asy
 });
 
 test("interrupting a tween mid-flight retargets to the NEW value with no snap-back", async () => {
-  // A longer tween so there's real time to interrupt it mid-flight, but still fast for the suite.
-  const cleanup = injectFastDurationMirror(80);
+  // Leave enough time for every engine to render a proven intermediate frame before retargeting.
+  // A fixed 15ms delay raced WebKit's first requestAnimationFrame under CI load: the second click
+  // could land before React committed the first value change, so the test measured batching rather
+  // than an in-flight interruption.
+  const cleanup = injectFastDurationMirror(500);
   try {
     const screen = await render(<StatefulNumber initial={0} duration="fast" />);
     const increment = screen.getByRole("button", { name: "Increment" });
@@ -120,13 +123,22 @@ test("interrupting a tween mid-flight retargets to the NEW value with no snap-ba
 
     (increment.element() as HTMLElement).click(); // 0 -> 100, tweening
 
-    // Interrupt shortly after the tween starts (well before 80ms), while it's mid-flight.
-    await new Promise((resolve) => setTimeout(resolve, 15));
-    (jump.element() as HTMLElement).click(); // retarget 0..100-ish -> 9999
+    // Synchronize on an actual rendered frame instead of assuming a browser frame fits inside a
+    // wall-clock delay. This proves the next click really interrupts an active tween.
+    await expect
+      .poll(
+        () => {
+          const current = visibleText(screen.container);
+          return current !== "0" && current !== "100";
+        },
+        { timeout: 2000 },
+      )
+      .toBe(true);
+    (jump.element() as HTMLElement).click(); // retarget the in-flight value -> 9999
 
     const finalTarget = new Intl.NumberFormat().format(9999);
     await expect
-      .poll(() => visibleText(screen.container), { timeout: 2000 })
+      .poll(() => visibleText(screen.container), { timeout: 3000 })
       .toBe(finalTarget);
     // Never settles back on the pre-interruption target.
     expect(visibleText(screen.container)).not.toBe("100");
