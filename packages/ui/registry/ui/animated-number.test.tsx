@@ -1,6 +1,7 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test, vi } from "vitest";
+import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { AnimatedNumber } from "./animated-number";
 
@@ -121,7 +122,10 @@ test("interrupting a tween mid-flight retargets to the NEW value with no snap-ba
     const increment = screen.getByRole("button", { name: "Increment" });
     const jump = screen.getByRole("button", { name: "Jump" });
 
-    (increment.element() as HTMLElement).click(); // 0 -> 100, tweening
+    // Await the browser interaction so React commits the first target before we look for its
+    // animation frames. A synchronous HTMLElement.click() can remain batched with the later click
+    // under WebKit load, which never creates an interruptible first tween.
+    await userEvent.click(increment); // 0 -> 100, tweening
 
     // Synchronize on an actual rendered frame instead of assuming a browser frame fits inside a
     // wall-clock delay. This proves the next click really interrupts an active tween.
@@ -134,7 +138,7 @@ test("interrupting a tween mid-flight retargets to the NEW value with no snap-ba
         { timeout: 2000 },
       )
       .toBe(true);
-    (jump.element() as HTMLElement).click(); // retarget the in-flight value -> 9999
+    await userEvent.click(jump); // retarget the in-flight value -> 9999
 
     const finalTarget = new Intl.NumberFormat().format(9999);
     await expect
