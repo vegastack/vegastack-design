@@ -2,8 +2,8 @@ import { test, expect } from "@playwright/test";
 import { existsSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { BLOCK_ROUTES, COMPONENT_ROUTES } from "./contract-routes.generated";
 import { ANIMATED_ICON_CHUNK_COUNT } from "./icon-chunks.generated";
+import { VRT_PAGE_ROUTES } from "./page-routes";
 
 // Visual-regression baseline over every showcase page (real shipped source). Deterministic snapshots
 // require the digest-pinned Playwright Docker image (`mcr.microsoft.com/playwright:v1.61.0-noble`)
@@ -27,30 +27,8 @@ const isBootstrap = process.env.VRT_UPDATE === "1";
 const describeVRT =
   hasBaselines || isBootstrap ? test.describe : test.describe.skip;
 
-const PAGES = [
-  "/docs/foundations/colors",
-  "/docs/foundations/typography",
-  "/docs/foundations/icons",
-  "/docs/foundations/motion",
-  ...COMPONENT_ROUTES,
-  "/docs/guides/quickstart",
-  "/docs/guides/registry-auth",
-  "/docs/guides/agent-skills",
-  "/docs/guides/components",
-  "/docs/guides/provider-setup",
-  "/docs/guides/theming",
-  "/internal/internal-projects",
-  "/docs/guides/external-projects",
-  "/docs/guides/production-checklist",
-  "/docs/guides/troubleshooting",
-  ...BLOCK_ROUTES,
-  "/docs/utilities/shimmer",
-  "/docs/utilities/scroll-fade",
-  "/",
-];
-
 describeVRT("VRT — showcase pages", () => {
-  for (const path of PAGES) {
+  for (const path of VRT_PAGE_ROUTES) {
     test(`VRT ${path}`, async ({ page }, testInfo) => {
       // `toHaveScreenshot` only disables CSS animations — JS-driven animation (recharts' line/area
       // draw tween is the first in the system) races the capture. Emulating reduced motion makes
@@ -89,10 +67,10 @@ describeVRT("VRT — showcase pages", () => {
 });
 
 // The full-page lane protects the docs composition. This second lane isolates the primary rendered
-// fixture for every one of the 97 component pages, so a component-state pixel change cannot hide
+// fixture for every contract component page, so a component-state pixel change cannot hide
 // inside a tall page's fixed allowance. The first preview on each page is the documented canonical
 // specimen; additional state matrices remain covered by the full-page capture.
-const COMPONENT_PAGES = PAGES.filter((path) =>
+const COMPONENT_PAGES = VRT_PAGE_ROUTES.filter((path) =>
   path.startsWith("/docs/components/"),
 );
 

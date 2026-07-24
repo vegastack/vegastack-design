@@ -4,31 +4,16 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import playwrightConfig from "../playwright.config";
-import {
-  BLOCK_ROUTES,
-  COMPONENT_ROUTES,
-} from "../vrt/contract-routes.generated";
 import { ANIMATED_ICON_CHUNK_COUNT } from "../vrt/icon-chunks.generated";
+import { VRT_PAGE_ROUTES } from "../vrt/page-routes";
 
 const APP_DIR = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
 );
-const SPEC_PATH = path.join(APP_DIR, "vrt/components.spec.ts");
 const SNAPSHOT_DIR = path.join(APP_DIR, "vrt/components.spec.ts-snapshots");
 
-const spec = await readFile(SPEC_PATH, "utf8");
-const pagesBlock = spec.match(/const PAGES = \[([\s\S]*?)\];/);
-assert.ok(
-  pagesBlock,
-  "Could not find the PAGES inventory in components.spec.ts",
-);
-
-const pages = [
-  ...[...pagesBlock[1].matchAll(/'([^']+)'/g)].map((match) => match[1]),
-  ...COMPONENT_ROUTES,
-  ...BLOCK_ROUTES,
-];
+const pages = [...VRT_PAGE_ROUTES];
 assert.ok(pages.length > 0, "The VRT page inventory is empty");
 assert.equal(
   new Set(pages).size,

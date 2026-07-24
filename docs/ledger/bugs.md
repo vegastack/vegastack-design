@@ -122,3 +122,9 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
 - **Symptom:** static production export failed while prerendering internal routes because `app/not-found.tsx` called `buttonVariants()` across an RSC boundary.
 - **Root cause:** the generated Button module is a client module, so a server page may render its component but may not invoke one of its exported functions.
 - **Systemic fix:** compose `Button` with Next `Link` through Base UI's `render` prop. Both private and public 386-route builds now prerender successfully.
+
+## 2026-07-24 — VRT verifier parsed quotes instead of sharing route data
+
+- **Symptom:** the pinned-Linux bootstrap captured 876 screenshots successfully, but completeness verification rejected 68 fixed-route images as orphans and claimed only 808 images were required.
+- **Root cause:** `verify-vrt-baselines.ts` scraped the Playwright spec with a regular expression that recognized single-quoted paths only; all fixed routes in the spec were double-quoted. Contract-derived component/block routes still appeared, which made the incomplete expectation look plausible.
+- **Systemic fix:** move the complete full-page inventory into a typed, data-only `VRT_PAGE_ROUTES` module imported by both capture and verification. Exact-set, Linux-only, PNG-signature, and lane-width checks remain fail-closed. The corrected authority accepts exactly 876 artifact images with no missing or orphaned paths.

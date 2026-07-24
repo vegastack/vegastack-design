@@ -870,6 +870,10 @@ const vrtSource = readFileSync(
   join(root, "apps/docs/vrt/components.spec.ts"),
   "utf8",
 );
+const vrtPageRoutesSource = readFileSync(
+  join(root, "apps/docs/vrt/page-routes.ts"),
+  "utf8",
+);
 const generatedRouteSource = readFileSync(
   join(root, "apps/docs/vrt/contract-routes.generated.ts"),
   "utf8",
@@ -894,17 +898,23 @@ sameStrings(
   "generated block VRT routes",
 );
 assert(
-  vrtSource.includes("...COMPONENT_ROUTES") &&
-    vrtSource.includes("...BLOCK_ROUTES"),
-  "VRT PAGES must consume both generated contract route lists",
+  vrtSource.includes("VRT_PAGE_ROUTES"),
+  "VRT capture spec must consume the shared page-route authority",
+);
+assert(
+  vrtPageRoutesSource.includes("...COMPONENT_ROUTES") &&
+    vrtPageRoutesSource.includes("...BLOCK_ROUTES"),
+  "shared VRT page routes must consume both generated contract route lists",
 );
 assert(
   vrtSource.includes("VRT — component fixtures") &&
     /maxDiffPixels:\s*0/.test(vrtSource),
   "VRT must include element-scoped component fixtures at maxDiffPixels: 0",
 );
-const pagesMatch = vrtSource.match(/const\s+PAGES\s*=\s*\[([\s\S]*?)\];/);
-assert(Boolean(pagesMatch), "could not parse VRT PAGES");
+const pagesMatch = vrtPageRoutesSource.match(
+  /export\s+const\s+VRT_PAGE_ROUTES\s*=\s*\[([\s\S]*?)\]\s+as\s+const;/,
+);
+assert(Boolean(pagesMatch), "could not parse shared VRT page routes");
 const supplementalVrtPages = pagesMatch
   ? [...pagesMatch[1].matchAll(/['"]([^'"]+)['"]/g)].map((match) => match[1])
   : [];
@@ -915,17 +925,17 @@ const vrtPages = [
 ];
 assert(
   new Set(vrtPages).size === vrtPages.length,
-  "VRT PAGES contains duplicates",
+  "shared VRT page routes contain duplicates",
 );
 for (const record of [...components, ...blocks]) {
   assert(
     vrtPages.includes(record.docsSlug),
-    `${record.name}: VRT PAGES is missing ${record.docsSlug}`,
+    `${record.name}: shared VRT page routes are missing ${record.docsSlug}`,
   );
 }
 assert(
   vrtPages.includes(contracts.animatedIcons.sharedContract.docsSlug),
-  "VRT PAGES is missing the shared animated-icon docs route",
+  "shared VRT page routes are missing the animated-icon docs route",
 );
 const iconDocsFile = join(
   root,

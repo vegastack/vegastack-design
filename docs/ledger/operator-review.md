@@ -30,7 +30,15 @@ Every judgment-call / assumption / best-guess decision made instead of pausing �
 
 **Decision:** Do not synthesize or update screenshots on macOS; push the reviewed branch, run the pinned-Linux update workflow, review the full artifact, then commit it before release.
 
-- **Why:** the release/deploy gates define Linux pixels as the contract. The local machine can prove render/type/a11y behavior, but committing platform-different images would weaken the blocking visual check. Current inventory is 808 required with 638 missing, so this remains the only open ship blocker.
+- **Why:** the release/deploy gates define Linux pixels as the contract. The local machine can prove render/type/a11y behavior, but committing platform-different images would weaken the blocking visual check. The pinned-Linux bootstrap is now complete: the shared capture/verifier route authority proves all 876 required images, so this blocker is resolved.
+
+## 2026-07-24 — VRT route inventory authority
+
+**Decision:** Share a typed route inventory between the Playwright capture spec and the completeness verifier; do not parse test source text to infer expected baselines.
+
+- **Options:** (a) broaden the verifier's quote-matching regular expression; (b) keep independent route arrays; (c) import one data-only route module from both capture and verification.
+- **Why (c):** the original single-quote parser silently omitted 17 double-quoted fixed routes and understated the four-lane contract by 68 images. A shared data module removes the lexical failure mode and retains exact-set, PNG-signature, and lane-width checks.
+- **Verification:** the Linux artifact contains exactly 876 accepted images, byte-matches the copied snapshot tree, and the corrected verifier reports no missing or orphaned paths.
 
 ## 2026-06-21 — Token pipeline transform choice
 
