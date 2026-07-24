@@ -180,6 +180,11 @@ Reviewing the contract gate:
   a recorded reason removes coverage nothing else replaces.
 - A gate run that executed zero tests is not passing evidence — `release.yml` guards this explicitly.
   Verify the guard still exists whenever the job is edited.
+- **Whether it RUNS at all is `release.yml`'s `changes` job, and that is shell you must execute, not
+  read.** `node tooling/release-classify.mjs [--before <ref>] [--after <ref>]` extracts the step
+  verbatim and reports what it decides. An output the step never set reads as false in an `if:`, so
+  the gate is silently skipped rather than failed — a green log with no coverage. This has happened;
+  the header of that script records how.
 
 ## 9. Fix at the root
 

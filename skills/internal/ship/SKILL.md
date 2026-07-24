@@ -36,6 +36,34 @@ surfaces above changed (commit them with the work that caused them) or there is 
 uncommitted work in the tree (finish or stash it). Never ship from a dirty tree — the version job
 snapshots the pushed commit.
 
+Then find out what the push will actually DO, before pushing:
+
+```bash
+node tooling/release-classify.mjs        # origin/main → HEAD
+```
+
+It extracts `release.yml`'s `detect` step verbatim and runs it, printing whether the contract gate
+runs, whether the quality gate runs, and whether the run opens a Version PR or publishes. Reconcile
+that against what you expect. **A surprise here is the finding** — most often the gate you assumed
+would run is being skipped. Exit 1 means the step left an output unset, which in an `if:` reads as
+false, so the gate it guards is silently skipped rather than failed. Run it again on the Version PR
+branch before merging it (`--before main --after changeset-release/main`).
+
+## 1a. What the gates cannot see
+
+`pnpm lint` is thorough and will still pass while the release is wrong in two specific ways. Both
+have shipped.
+
+- **A claim about a gate that was never executed.** A workflow condition, an `if:`, an artifact
+  upload, a `--reporter` flag — reading it is not verifying it. Execute it: run the shell, force the
+  failure, check the artifact actually contains something. An upload step configured against a
+  reporter that was never enabled collects nothing and reports success.
+- **Prose that went stale.** `design.md` is truth-hierarchy #4 and `design:sync:check` only gates its
+  DERIVED surfaces — it cannot tell that the doctrine now contradicts a component. If this release
+  changes how a component behaves in a way `design.md` describes in prose, `design.md` is part of the
+  release. So is the matching consumer-facing foundations page under
+  `apps/docs/content/docs/foundations/`.
+
 ## 1b. Visual review
 
 Run this whenever the release contains a component, token, preview, or docs-shell change. It is a
@@ -71,8 +99,14 @@ pnpm changeset
 - Body: one sentence, imperative, states the consumer-visible effect. It lands verbatim in
   the package CHANGELOG.
 
-Do NOT bundle workflow-file edits (`.github/workflows/*`) in the same push as changesets —
-the version-PR branch push gets rejected (see `docs/RELEASING.md` § Known edge).
+**Workflow edits and changesets — check the precondition before applying the workaround.** The
+Actions `GITHUB_TOKEN` cannot push `.github/workflows/*`, so the standing advice is to land workflow
+edits as their own PR first (`docs/RELEASING.md` § Known edge). That advice assumes `main` is
+changeset-free. **Verify it — `git ls-tree --name-only origin/main .changeset/`.** If changesets are
+already pending on `main`, the next Release run is changeset-bearing no matter what you do, splitting
+your PR buys nothing, and you end up with a changeset-only PR describing already-merged code. Take
+the recovery path below instead; it is one action. This was applied wrongly on 2026-07-25 precisely
+because the rule was followed without checking the condition it depends on.
 
 ## 3. Root CHANGELOG.md entry
 
@@ -103,6 +137,16 @@ Watch runs by POLLING status (`gh run watch` can exit early):
 
 ```bash
 until [ "$(gh run view <id> -R VegaStack/vegastack-design --json status --jq .status)" != "in_progress" ]; do sleep 60; done
+```
+
+**A green PR page is not evidence the gates ran.** `main` carries no branch protection and no
+required status checks (`gh api repos/VegaStack/vegastack-design/branches/main/protection` → 404), so
+a red or skipped check does not block a merge. Read the run's job list and confirm the jobs you
+expected actually executed — a skipped `contracts-gate` looks identical to an absent one:
+
+```bash
+gh run view <id> -R VegaStack/vegastack-design --json jobs \
+  --jq '.jobs[] | "\(.conclusion // .status)  \(.name)"'
 ```
 
 The unprivileged Release quality gate runs first. A changeset-bearing run opens or updates the
@@ -183,13 +227,22 @@ correct). If the release changed the starter's own components, pull them
 
 ## Failure recovery
 
-- Version PR push rejected mentioning `workflows permission` → re-run Release on current
-  main (`docs/RELEASING.md` § Known edge). Never bundle `.github/workflows/*` edits into a
-  changeset-bearing push; land them as their own PR first.
-- Contract gate red → the run's Playwright report and traces are uploaded as the
-  `contracts-failure-<run-id>` artifact. Download it and read the failure before re-running; the
-  same failure reproduces locally with
+- Version PR push rejected mentioning `workflows permission` → re-run Release on the current `main`
+  tip. Once the workflow commits are ancestors of the remote `main`, the version branch carries no
+  workflow diff and the push succeeds. This is the recovery referenced in §2 — it is one action, and
+  it is why splitting a PR to avoid the edge is usually not worth it.
+- Contract gate red → download the artifact and READ it before re-running. Re-running a browser gate
+  to see the failure again is how a release loses a day:
+
+  ```bash
+  gh run download <id> -R VegaStack/vegastack-design -n contracts-failure-<id> -D /tmp/cf
+  open /tmp/cf/playwright-report/index.html          # or: pnpm exec playwright show-trace /tmp/cf/test-results/**/trace.zip
+  ```
+
+  Then reproduce locally — the same failure is deterministic:
   `cd apps/docs && pnpm exec playwright test contracts.spec.ts -g "<route>"`.
+  **If the artifact is empty, that is its own bug** — the reporter or trace setting in
+  `apps/docs/playwright.config.ts` regressed, and the gate has gone back to being undiagnosable.
 - Deploy "Asset too large" → a page exceeds Cloudflare's 25 MiB limit; the deploy log names
   it. Usually Story-controls type explosion — see `apps/docs/components/stories/story-shims.tsx`.
 - A self-hosted job is queued with no runner → both `vsk-runners-mac-mini` minis are busy or offline.

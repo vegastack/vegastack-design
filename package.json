@@ -19,6 +19,7 @@
     "registry:verify-headers": "node tooling/verify-headers.mjs",
     "registry:verify-consume": "node tooling/verify-shadcn-consume.mjs",
     "vrt:review": "node tooling/vrt-review.mjs",
+    "release:classify": "node tooling/release-classify.mjs",
     "design:sync": "node tooling/sync-design-md.mjs",
     "design:sync:check": "node tooling/sync-design-md.mjs --check",
     "design:sync:self-test": "node tooling/sync-design-md.mjs --self-test",
