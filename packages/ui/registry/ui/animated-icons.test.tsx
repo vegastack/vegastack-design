@@ -64,6 +64,17 @@ function nextFrame() {
   return new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 }
 
+async function waitForMarkupChange(
+  element: Element,
+  initialMarkup: string,
+  maximumFrames = 20,
+) {
+  for (let frame = 0; frame < maximumFrames; frame += 1) {
+    await nextFrame();
+    if (element.outerHTML !== initialMarkup) return;
+  }
+}
+
 afterEach(() => {
   vi.restoreAllMocks();
 });
@@ -136,11 +147,11 @@ test("exposes the imperative start/stop handle through a React 19 ref prop", asy
   expect(path).not.toBeNull();
   const restingMarkup = path?.outerHTML;
   ref.current?.startAnimation();
-  await new Promise((resolve) => setTimeout(resolve, 80));
+  if (path && restingMarkup) await waitForMarkupChange(path, restingMarkup);
   expect(path?.outerHTML).not.toBe(restingMarkup);
 
   ref.current?.stopAnimation();
-  await new Promise((resolve) => setTimeout(resolve, 450));
+  await nextFrame();
   expect(ref.current).not.toBeNull();
 });
 
