@@ -9,6 +9,88 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.3.0] — July 24, 2026
+
+### 🧩 New components
+
+- **AnnouncementBanner**, **CodeBlock**, **ComparisonMatrix**, **NavigationMenu**,
+  **OnboardingChecklist**, **PricingSection**, **PropertyList**, **RuledBand**, **Segmented**,
+  **Stat**, **TagGroup**, and **ToolCallChip** — twelve production-ready additions with complete
+  docs, state coverage, accessibility tests, responsive previews, and registry integrity metadata.
+  [components](https://design.vegastack.com/docs/components/announcement-banner) ·
+  [`6c60d53`](https://github.com/VegaStack/vegastack-design/commit/6c60d53)
+
+### 🔧 Changed components
+
+- **MarkdownView** — remote image sources are now same-origin by default; explicitly allow trusted
+  remote origins with `allowedImageOrigins`. The renderer and copied-file verifier also enforce
+  contained paths and digest-pinned post-write checks.
+  [docs](https://design.vegastack.com/docs/components/markdown-view) ·
+  [`6c60d53`](https://github.com/VegaStack/vegastack-design/commit/6c60d53)
+- **Provider** and all portal-owning components now share an explicit theme-scope contract, while
+  server-safe modules are verified under React's real `react-server` condition.
+  [docs](https://design.vegastack.com/docs/components/provider) ·
+  [`6c60d53`](https://github.com/VegaStack/vegastack-design/commit/6c60d53)
+
+### 🛠 CLI & tooling
+
+- `vegastack-design skills install` now bundles and safely installs the four public VegaStack agent
+  skills for Claude Code and Codex, with atomic conflict handling, symlink containment, dry-run,
+  and single-surface options.
+  [guide](https://design.vegastack.com/docs/guides/agent-skills) ·
+  [`6c60d53`](https://github.com/VegaStack/vegastack-design/commit/6c60d53)
+- `vegastack-design check-updates` now verifies installed file bodies and the complete target set;
+  matching provenance headers can no longer hide edited content, and removed or renamed targets
+  fail `--fail-on-update`.
+  [guide](https://design.vegastack.com/docs/guides/components) ·
+  [`6c60d53`](https://github.com/VegaStack/vegastack-design/commit/6c60d53)
+- Registry builds now prune stale artifacts, reconcile exact authority/index/manifest sets, and
+  prove real shadcn consumption against locally packed npm artifacts before release.
+  [integrity](https://design.vegastack.com/docs/guides/registry-auth) ·
+  [`6c60d53`](https://github.com/VegaStack/vegastack-design/commit/6c60d53)
+
+### 📦 npm
+
+- `@vegastack/design` **0.2.0** — adds bundled public agent skills, the skills installer,
+  CommonJS-compatible exports, and the explicit `./theme-scope` client subpath while preserving a
+  server-safe root.
+  [`6c60d53`](https://github.com/VegaStack/vegastack-design/commit/6c60d53)
+- `@vegastack/design-tokens` **0.2.0** — publishes the unified DTCG-backed doctrine, strong type and
+  effect roles, exact dark/marketing parity, and verified ESM/CommonJS/package exports.
+  [`6c60d53`](https://github.com/VegaStack/vegastack-design/commit/6c60d53)
+- Private `@vegastack/ui` advances to **0.3.0** to stamp the 538-item registry; it remains private
+  and is never published to npm.
+  [`6c60d53`](https://github.com/VegaStack/vegastack-design/commit/6c60d53)
+
+### 📚 Docs
+
+- The public design doctrine, component contracts, homepage catalog, API reference, agent guidance,
+  internal SSO corpus, metadata, and release/cutover runbooks now derive from current machine
+  authorities and build successfully in both private and public visibility modes.
+  [design doctrine](https://design.vegastack.com/docs/foundations/design-principles) ·
+  [`6c60d53`](https://github.com/VegaStack/vegastack-design/commit/6c60d53)
+
+### 🐛 Fixed
+
+- State-specific accessibility coverage now exercises open, expanded, selected, disabled,
+  highlighted, loading, empty, error, success, and removable states across the applicable
+  component contracts; all token contrast pairs pass WCAG 2.2 AA gates in both themes.
+  [accessibility](https://design.vegastack.com/docs/foundations/accessibility) ·
+  [`6c60d53`](https://github.com/VegaStack/vegastack-design/commit/6c60d53)
+- Release and deploy workflows now use the reviewed-merge/manual-dispatch approval model supported
+  by the private GitHub Team repository, retain isolated OIDC and repository secrets, and probe the
+  Cloudflare Access boundary after deployment.
+  [`6c60d53`](https://github.com/VegaStack/vegastack-design/commit/6c60d53)
+
+### ⚠️ Breaking
+
+- `vegastack-design verify --post-write` now requires `--expected-integrity`; use the exact
+  integrity-pinned command printed by the pre-write verification. **MarkdownView** also requires an
+  explicit allowlist for cross-origin images.
+  [verification](https://design.vegastack.com/docs/guides/registry-auth) ·
+  [MarkdownView](https://design.vegastack.com/docs/components/markdown-view) ·
+  [`6c60d53`](https://github.com/VegaStack/vegastack-design/commit/6c60d53)
+
 ## [0.2.0] — July 19, 2026
 
 ### 🧩 New components
@@ -69,14 +151,15 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   model: npm = global on dep bump, registry = frozen until reviewed pull; the
   token-ordering trap) and **Client projects** (delivery model, handover checklist,
   zero-lock-in dependency table). Repo also gains a maintainer README.
-  [internal](https://design.vegastack.com/docs/guides/internal-projects) ·
-  [external](https://design.vegastack.com/docs/guides/external-projects)
+  The internal guide is now SSO-only and intentionally absent from the public corpus;
+  the [client-project guide](https://design.vegastack.com/docs/guides/external-projects)
+  remains public.
 
 ## [0.1.0] — July 18, 2026
 
 ### 🧩 New components
 
-- Initial release: **75 components**, **440 animated-icon items**, 2 hooks
+- Initial release: **75 components**, **439 animated-icon items**, 2 hooks
   (`use-mobile`, `use-animation-replay`), and the `dashboard-01` starter block — all Base UI +
   Tailwind v4, semantic-token-only, WCAG 2.1 AA, distributed as copy-in via the private
   registry at `design.vegastack.com/r/*` (Cloudflare Access service-token auth,
@@ -93,6 +176,8 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
 ### 📚 Docs
 
-- Fumadocs showcase: 91 pages, live previews rendering the real shipped source, VRT-covered
-  (both desktop + mobile lanes), deployed behind Cloudflare Access SSO.
+- At the 0.1.0 release, the Fumadocs showcase had 91 pages, live previews rendering the real
+  shipped source, and complete desktop/mobile VRT coverage; it was deployed behind Cloudflare
+  Access SSO. Current route and baseline counts are verified dynamically rather than inferred
+  from this historical release entry.
   [`8a5bb2a`](https://github.com/VegaStack/vegastack-design/commit/8a5bb2a)
