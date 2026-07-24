@@ -35,13 +35,24 @@ const SEED = [
 ];
 
 /** One chat row — even indexes are received (muted), every third is sent (dark). */
-function ChatRow({ id, index, text }: { id: string; index: number; text: string }) {
+function ChatRow({
+  id,
+  index,
+  text,
+}: {
+  id: string;
+  index: number;
+  text: string;
+}) {
   const sent = index % 3 === 2;
   return (
     <MessageScrollerItem messageId={id} scrollAnchor={sent}>
       <Message align={sent ? "end" : "start"}>
         <MessageContent>
-          <Bubble variant={sent ? "default" : "muted"} align={sent ? "end" : "start"}>
+          <Bubble
+            variant={sent ? "default" : "muted"}
+            align={sent ? "end" : "start"}
+          >
             <BubbleContent>{text}</BubbleContent>
           </Bubble>
         </MessageContent>
@@ -78,7 +89,10 @@ export function messageScroller(): ReactNode {
           <Button
             size="sm"
             onClick={() =>
-              setMessages((prev) => [...prev, `New message #${prev.length + 1}`])
+              setMessages((prev) => [
+                ...prev,
+                `New message #${prev.length + 1}`,
+              ])
             }
           >
             Send a message
@@ -130,7 +144,12 @@ export function messageScrollerCommands(): ReactNode {
             <MessageScrollerViewport aria-label="Conversation" className="p-4">
               <MessageScrollerContent>
                 {ids.map((id, i) => (
-                  <ChatRow key={id} id={id} index={i} text={`Message ${i + 1}`} />
+                  <ChatRow
+                    key={id}
+                    id={id}
+                    index={i}
+                    text={`Message ${i + 1}`}
+                  />
                 ))}
               </MessageScrollerContent>
             </MessageScrollerViewport>
@@ -169,7 +188,12 @@ export function messageScrollerScrollable(): ReactNode {
             <MessageScrollerViewport aria-label="Conversation" className="p-4">
               <MessageScrollerContent>
                 {ids.map((id, i) => (
-                  <ChatRow key={id} id={id} index={i} text={`Message ${i + 1}`} />
+                  <ChatRow
+                    key={id}
+                    id={id}
+                    index={i}
+                    text={`Message ${i + 1}`}
+                  />
                 ))}
               </MessageScrollerContent>
             </MessageScrollerViewport>
@@ -258,7 +282,7 @@ function VisibilityOutline({ ids }: { ids: string[] }) {
           type="button"
           onClick={() => scrollToMessage(id, { align: "start" })}
           className={cn(
-            "text-left text-sm transition-colors duration-fast ease-standard hover:text-foreground",
+            "text-left text-sm hover:text-foreground",
             currentAnchorId === id
               ? "font-medium text-foreground"
               : "text-muted-foreground",
@@ -276,10 +300,16 @@ export function messageScrollerVisibility(): ReactNode {
   return (
     <Wrapper className="justify-stretch">
       <div className="w-full max-w-md">
-        <MessageScrollerProvider defaultScrollPosition="start" scrollMargin={12}>
+        <MessageScrollerProvider
+          defaultScrollPosition="start"
+          scrollMargin={12}
+        >
           <div className="flex gap-3">
             <MessageScroller className="h-64 flex-1 rounded-lg border border-border">
-              <MessageScrollerViewport aria-label="Conversation" className="p-4">
+              <MessageScrollerViewport
+                aria-label="Conversation"
+                className="p-4"
+              >
                 <MessageScrollerContent>
                   {ids.map((id, i) => (
                     <MessageScrollerItem key={id} messageId={id} scrollAnchor>
@@ -289,7 +319,9 @@ export function messageScrollerVisibility(): ReactNode {
                             variant={i % 2 === 1 ? "default" : "muted"}
                             align={i % 2 === 1 ? "end" : "start"}
                           >
-                            <BubbleContent>Turn {i + 1} of the conversation</BubbleContent>
+                            <BubbleContent>
+                              Turn {i + 1} of the conversation
+                            </BubbleContent>
                           </Bubble>
                         </MessageContent>
                       </Message>
@@ -361,8 +393,8 @@ export function messageScrollerLastAnchor(): ReactNode {
           </MessageScroller>
         </MessageScrollerProvider>
         <p className="text-sm text-muted-foreground">
-          Opens at the anchored turn (tinted) rather than the top or bottom, with a
-          peek of the previous message above it.
+          Opens at the anchored turn (tinted) rather than the top or bottom,
+          with a peek of the previous message above it.
         </p>
       </div>
     </Wrapper>
@@ -377,9 +409,8 @@ function VisibleCount({ total }: { total: number }) {
   const { visibleMessageIds } = useMessageScrollerVisibility();
   return (
     <p className="text-sm text-muted-foreground">
-      Visible now:{" "}
-      <span className="font-mono">{visibleMessageIds.length}</span> of{" "}
-      <span className="font-mono">{total}</span> messages
+      Visible now: <span className="font-mono">{visibleMessageIds.length}</span>{" "}
+      of <span className="font-mono">{total}</span> messages
     </p>
   );
 }
@@ -394,16 +425,17 @@ export function messageScrollerButtonVariants(): ReactNode {
             <MessageScrollerViewport aria-label="Conversation" className="p-4">
               <MessageScrollerContent>
                 {ids.map((id, i) => (
-                  <ChatRow key={id} id={id} index={i} text={`Message ${i + 1}`} />
+                  <ChatRow
+                    key={id}
+                    id={id}
+                    index={i}
+                    text={`Message ${i + 1}`}
+                  />
                 ))}
               </MessageScrollerContent>
             </MessageScrollerViewport>
             {/* Forward `variant`/`size` from ButtonProps to restyle the affordance. */}
-            <MessageScrollerButton
-              direction="end"
-              variant="default"
-              size="sm"
-            >
+            <MessageScrollerButton direction="end" variant="default" size="sm">
               Jump to latest
             </MessageScrollerButton>
           </MessageScroller>

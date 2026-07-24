@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.2.0 sha256-jTFk7B1l7+MxVRVw6UX88py6BjnejY/zSKLMB2KHsg8=
+// @vegastack text-edit@0.2.0 sha256-QdtVdDvlt0We8YOCnAchvgcr720RwbYrDiLaDBUjLNA=
 
 "use client";
 
@@ -206,11 +206,14 @@ function Toolbar({ editor }: { editor: Editor }) {
   );
 }
 
+/** Props accepted by `TextEdit`. */
 export interface TextEditProps {
   /**
    * Controlled HTML value. When provided, the editor is synced to this string
    * whenever it changes externally (and the editor isn't focused). Pair with
    * `onValueChange` to drive it from React state.
+
+   * @default undefined
    */
   value?: string;
   /**
@@ -221,10 +224,14 @@ export interface TextEditProps {
   defaultValue?: string;
   /**
    * Called with the serialized HTML whenever the document changes.
+
+   * @default undefined
    */
   onValueChange?: (html: string) => void;
   /**
    * Placeholder shown (overlaid) while the document is empty.
+
+   * @default undefined
    */
   placeholder?: string;
   /**
@@ -238,6 +245,8 @@ export interface TextEditProps {
    * current serialized HTML. A presentational keyboard affordance only — the
    * *host* decides what submitting does (save, send, …); plain Enter still
    * inserts a newline. Omit to disable the shortcut.
+
+   * @default undefined
    */
   onSubmit?: (html: string) => void;
   /**
@@ -252,17 +261,23 @@ export interface TextEditProps {
    * Maximum height of the editable content area. A number is treated as `px`;
    * a string is used verbatim. When set, the content area scrolls past it.
    * Fed from this runtime value into the `--te-max-h` CSS variable.
+
+   * @default undefined
    */
   maxHeight?: number | string;
   /**
    * Accessible label for the editable region (applied to the contenteditable
    * surface). Provide one when there is no associated visible label.
+
+   * @default undefined
    */
   "aria-label"?: string;
   /**
    * `id` applied to the contenteditable surface — the same host element that
    * receives `aria-label`. Use it to target the editor with a `<label htmlFor>`
    * or to reference it from another element's `aria-labelledby`/`aria-controls`.
+
+   * @default undefined
    */
   id?: string;
   /**
@@ -270,22 +285,32 @@ export interface TextEditProps {
    * (space-separated, same as the native ARIA attribute), applied to the
    * contenteditable surface alongside `aria-label`/`id`. Prefer this over
    * `aria-label` when a visible label element already exists.
+
+   * @default undefined
    */
   "aria-labelledby"?: string;
   /**
    * Marks the contenteditable textbox invalid for form integrations. When true
    * (or `"grammar"` / `"spelling"`), the container also receives the destructive
    * invalid styling hook via the child textbox.
+
+   * @default undefined
    */
   "aria-invalid"?: React.AriaAttributes["aria-invalid"];
   /**
    * ID(s) of helper or error text describing the editor. Space-separate
    * multiple ids, same as the native ARIA attribute.
+
+   * @default undefined
    */
   "aria-describedby"?: string;
-  /** Additional class names on the editor container. */
+  /** Additional class names on the editor container.
+   * @default undefined
+   */
   className?: string;
-  /** Ref forwarded to the editor's root container `<div>`. */
+  /** Ref forwarded to the editor's root container `<div>`.
+   * @default undefined
+   */
   ref?: React.Ref<HTMLDivElement>;
 }
 
@@ -511,9 +536,9 @@ export function TextEdit({
       data-editable={editable ? "" : undefined}
       data-invalid={invalid ? "" : undefined}
       className={cn(
-        "relative overflow-hidden rounded-lg border border-input bg-background transition-colors duration-fast ease-standard",
+        "relative overflow-hidden rounded-lg border border-input bg-background ",
         "focus-within:border-ring/(--alpha-tint-border)",
-        "has-aria-invalid:border-destructive/(--alpha-tint-border)",
+        "has-aria-invalid:border-destructive-border/(--alpha-tint-border)",
         className,
       )}
     >
@@ -528,7 +553,7 @@ export function TextEdit({
         style={contentStyle}
       >
         {showPlaceholder ? (
-          <p className="pointer-events-none absolute top-2.5 left-3 z-(--z-raised) text-base leading-relaxed text-muted-foreground select-none">
+          <p className="pointer-events-none absolute top-2.5 start-3 z-(--z-raised) text-base leading-relaxed text-muted-foreground select-none">
             {placeholder}
           </p>
         ) : null}

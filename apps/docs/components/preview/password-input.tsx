@@ -1,14 +1,17 @@
-'use client';
+"use client";
 
-import { type ReactNode, useState } from 'react';
-import { Wrapper } from './wrapper';
+import { type ReactNode, useState } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/password-input` (dogfoods the registry) → auto-scanned.
-import { PasswordInput } from '@/components/ui/password-input';
+import { PasswordInput } from "@/components/ui/password-input";
 
 export function passwordInput(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch">
-      <PasswordInput aria-label="With placeholder" placeholder="Enter your password" />
+      <PasswordInput
+        aria-label="With placeholder"
+        placeholder="Enter your password"
+      />
       <PasswordInput
         aria-label="With value"
         autoComplete="current-password"
@@ -71,7 +74,7 @@ export function passwordInputRevealed(): ReactNode {
 }
 
 export function passwordInputRequirements(): ReactNode {
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState("");
   return (
     <Wrapper className="flex-col items-stretch">
       <PasswordInput
@@ -81,9 +84,12 @@ export function passwordInputRequirements(): ReactNode {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         requirements={[
-          { label: 'At least 8 characters', met: value.length >= 8 },
-          { label: 'Contains a number', met: /\d/.test(value) },
-          { label: 'Contains a special character', met: /[^A-Za-z0-9]/.test(value) },
+          { label: "At least 8 characters", met: value.length >= 8 },
+          { label: "Contains a number", met: /\d/.test(value) },
+          {
+            label: "Contains a special character",
+            met: /[^A-Za-z0-9]/.test(value),
+          },
         ]}
       />
     </Wrapper>
@@ -100,9 +106,9 @@ export function passwordInputRequirementsMet(): ReactNode {
         autoComplete="new-password"
         defaultValue="Sup3r$ecret!"
         requirements={[
-          { label: 'At least 8 characters', met: true },
-          { label: 'Contains a number', met: true },
-          { label: 'Contains a special character', met: true },
+          { label: "At least 8 characters", met: true },
+          { label: "Contains a number", met: true },
+          { label: "Contains a special character", met: true },
         ]}
       />
     </Wrapper>

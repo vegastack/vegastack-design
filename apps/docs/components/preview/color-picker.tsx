@@ -3,10 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/color-picker` (dogfoods the registry) → auto-scanned.
-import {
-  ColorPicker,
-  type ColorOption,
-} from "@/components/ui/color-picker";
+import { ColorPicker, type ColorOption } from "@/components/ui/color-picker";
 
 /**
  * Interactive — click the `rounded-md` trigger to open the swatch grid. The chosen

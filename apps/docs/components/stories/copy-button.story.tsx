@@ -1,5 +1,5 @@
-import { defineStory } from '@/lib/story';
-import { CopyButton } from '@/components/ui/copy-button';
+import { defineStory } from "@/lib/story";
+import { CopyButton } from "@/components/ui/copy-button";
 
 /**
  * Story explorer for `CopyButton` — controls auto-generated from `CopyButtonProps` by the
@@ -10,19 +10,19 @@ export const story = defineStory({
   Component: CopyButton,
   args: [
     {
-      variant: 'Default',
+      variant: "Default",
       initial: {
-        value: 'npm install @vegastack/design',
+        value: "npm install @vegastack/design",
       },
     },
     {
-      variant: 'Outline',
+      variant: "Outline",
       initial: {
-        value: 'sk-live-4242',
+        value: "sk-live-4242",
       },
       fixed: {
-        variant: 'outline',
-        size: 'icon',
+        variant: "outline",
+        size: "icon",
       },
     },
   ],

@@ -1,5 +1,8 @@
 # HANDOFF-STATUS — vegastack-design (build-LOCAL complete)
 
+> **Historical handoff.** Its broad human-docs SSO assertions are superseded by
+> [`public-docs-cutover.md`](public-docs-cutover.md); preserve the remaining build history as written.
+
 **For:** MK · **Branch:** `feat/local-build` (local-only — never pushed) · **Date:** 2026-06-21
 
 The entire design system is **built and proven locally**, then hardened through **16 rounds** of Codex
@@ -14,17 +17,17 @@ the rest is environment/credential actions only.
 
 ## 1. What's done (all green locally — Node 24)
 
-| Gate | Result |
-| --- | --- |
-| `pnpm typecheck` (Turborepo, all packages) | ✅ 10/10 |
-| `pnpm test` (Vitest browser + axe, real Chromium) | ✅ **617 tests / 67 files** |
-| `pnpm lint` (all packages) | ✅ 10/10 — design-lint (token-only + sanctioned-icon + §7.6 render-contract + outline-none focus-contract + inline-style var-only + **token-CSS `!important`** coverage), contrast-check (28 pairs WCAG AA), ESLint, content-lint (no floating tags / no skipped VRT), verify-preset-source, verify-provider-dogfood |
-| `pnpm build` (token build + DTS + Next static export) | ✅ **144 pages**; `@vegastack/ui` dist preserves the `'use client'` directive (postbuild guard) |
-| `pnpm registry:build` + integrity | ✅ 64 items; recomputed hash == `meta.integrity` == signed manifest for **64/64**; idempotent (full-worktree CI check) |
-| `pnpm registry:verify-consume` | ✅ **real `shadcn add` 3/3** dependency graphs via the actual shadcn 4.7.0 CLI (deps from locally-packed tarballs) + **64/64 items × 2 consumer layouts** (`components/ui` + `src/components/ui`) simulated |
-| Compiled-CSS color-contrast a11y gate | ✅ rendered AA in light + dark |
-| Overlay portal-stacking + `--primary` override repaint | ✅ portals out of an isolated root + z-50; `--color-primary: var(--primary)` bridge repaints |
-| **VRT (visual regression)** | ✅ **proven-functional locally**: the suite renders all 68 showcase pages, writes + re-validates baselines — **68/68 twice** (mac). Committable **Linux** baselines need the pinned container → §4/§6.4. |
+| Gate                                                   | Result                                                                                                                                                                                                                                                                                                               |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm typecheck` (Turborepo, all packages)             | ✅ 10/10                                                                                                                                                                                                                                                                                                             |
+| `pnpm test` (Vitest browser + axe, real Chromium)      | ✅ **617 tests / 67 files**                                                                                                                                                                                                                                                                                          |
+| `pnpm lint` (all packages)                             | ✅ 10/10 — design-lint (token-only + sanctioned-icon + §7.6 render-contract + outline-none focus-contract + inline-style var-only + **token-CSS `!important`** coverage), contrast-check (28 pairs WCAG AA), ESLint, content-lint (no floating tags / no skipped VRT), verify-preset-source, verify-provider-dogfood |
+| `pnpm build` (token build + DTS + Next static export)  | ✅ **144 pages**; `@vegastack/ui` dist preserves the `'use client'` directive (postbuild guard)                                                                                                                                                                                                                      |
+| `pnpm registry:build` + integrity                      | ✅ 64 items; recomputed hash == `meta.integrity` == signed manifest for **64/64**; idempotent (full-worktree CI check)                                                                                                                                                                                               |
+| `pnpm registry:verify-consume`                         | ✅ **real `shadcn add` 3/3** dependency graphs via the actual shadcn 4.7.0 CLI (deps from locally-packed tarballs) + **64/64 items × 2 consumer layouts** (`components/ui` + `src/components/ui`) simulated                                                                                                          |
+| Compiled-CSS color-contrast a11y gate                  | ✅ rendered AA in light + dark                                                                                                                                                                                                                                                                                       |
+| Overlay portal-stacking + `--primary` override repaint | ✅ portals out of an isolated root + z-50; `--color-primary: var(--primary)` bridge repaints                                                                                                                                                                                                                         |
+| **VRT (visual regression)**                            | ✅ **proven-functional locally**: the suite renders all 68 showcase pages, writes + re-validates baselines — **68/68 twice** (mac). Committable **Linux** baselines need the pinned container → §4/§6.4.                                                                                                             |
 
 ## 2. Component matrix — 64 primitives, every column ✅
 
@@ -81,7 +84,7 @@ exactly the items in §4. **No third class of issue remains open.**
    paths. Until decided, the provider is workspace-internal (the docs dogfood it via `workspace:*`).
 2. **VRT Linux baselines (Docker/CI only).** The suite + `vrt.yml` are wired and **proven-functional
    locally**, but committable baselines must be generated in the pinned `mcr.microsoft.com/playwright:
-   v1.61.0-noble` container (mac PNGs fail CI on font/render deltas). There's no Docker daemon on the build
+v1.61.0-noble` container (mac PNGs fail CI on font/render deltas). There's no Docker daemon on the build
    machine, so this is a CI action → §6.4. The suite **self-activates** the moment baselines are committed
    (no `describe.skip` to flip); PR VRT is **fail-closed** on visual-surface changes without baselines, and
    release/deploy are fail-closed on a passing VRT gate. Local render + a11y are independently enforced.
@@ -103,15 +106,18 @@ generation, no public-resource creation. **35 commits**, all local on `feat/loca
 > service-token-only (the deploy verifies this fail-closed but does not create it).
 
 ### 6.1 Push + PR (runs `ci.yml`: typecheck/lint/test/build/registry:build+full-worktree/verify-consume/changeset)
+
 ```bash
 git push -u origin feat/local-build
 gh pr create --base main --head feat/local-build --title "feat: VegaStack design system v1" --body-file docs/plans/HANDOFF-STATUS.md
 ```
 
 ### 6.2 Publish the public npm layer (changesets)
+
 Merging to `main` triggers `.github/workflows/release.yml` (now **fail-closed** on the full gate +
 a pinned-container `vrt-gate`) → opens a "Version Packages" PR; merging that runs `changeset publish`.
 Manual equivalent:
+
 ```bash
 pnpm changeset version && pnpm install
 pnpm changeset publish   # publishes ONLY @vegastack/tokens|tailwind-preset|utils|icons (the public 4).
@@ -119,6 +125,7 @@ pnpm changeset publish   # publishes ONLY @vegastack/tokens|tailwind-preset|util
 ```
 
 ### 6.3 Generate VRT baselines FIRST (required before deploy/release — they are fail-closed on it)
+
 ```bash
 gh workflow run "VRT (visual regression)" -f update_baselines=true
 # Download the vrt-baselines artifact, commit it under apps/docs/vrt/**/*-snapshots/**, and push.
@@ -126,9 +133,11 @@ gh workflow run "VRT (visual regression)" -f update_baselines=true
 ```
 
 ### 6.4 Deploy docs + signed registry (`deploy.yml`, manual — needs §6.3 baselines committed)
+
 ```bash
 gh workflow run "Deploy (docs + signed registry)"
 ```
+
 Runs the `vrt-gate` (fail-closed) → `registry:build` → cosign-signs the integrity manifest (keyless,
 GitHub OIDC) → `next build` (out/r carries the signed manifest) → asserts it → `wrangler deploy` →
 **verifies the live Cloudflare Access policy fail-closed** (anonymous docs SSO-gated, `/r/*` rejects
@@ -136,5 +145,5 @@ anonymous + accepts the service token).
 
 ---
 
-*Generated by the build agent. Stop point reached: build complete, locally proven, 15 review rounds
-converged. Awaiting MK's provider-distribution decision + the environment actions above.*
+_Generated by the build agent. Stop point reached: build complete, locally proven, 15 review rounds
+converged. Awaiting MK's provider-distribution decision + the environment actions above._

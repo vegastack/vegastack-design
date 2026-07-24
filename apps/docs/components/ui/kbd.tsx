@@ -1,8 +1,8 @@
-// @vegastack kbd@0.2.0 sha256-USzWuotbh6f7KE63zeFOidU7qlugEuwMU8EIAsDUQK8=
+// @vegastack kbd@0.2.0 sha256-dXjkzpdmnkNFRlvRlYzwkjyoAnGJj2vTeIOyLE2buQI=
 
-import * as React from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@vegastack/design';
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@vegastack/design";
 
 /**
  * Kbd size scale — token-only. Each key is a small, non-interactive code chip
@@ -12,16 +12,16 @@ import { cn } from '@vegastack/design';
  * `px-1.5 py-0.5` and the dense tabular `text-code-sm` mono figure.
  */
 export const kbdVariants = cva(
-  'pointer-events-none inline-flex w-fit shrink-0 select-none items-center justify-center gap-1 rounded-sm border border-border bg-muted font-mono font-medium text-muted-foreground',
+  "pointer-events-none inline-flex w-fit shrink-0 select-none items-center justify-center gap-1 rounded-sm border border-border bg-muted font-mono font-medium text-muted-foreground",
   {
     variants: {
       size: {
-        xs: 'h-4 min-w-4 px-1 py-0.5 text-code-sm leading-none',
-        sm: 'h-5 min-w-5 px-1 py-0.5 text-code-sm leading-none',
-        default: 'h-6 min-w-6 px-1.5 py-0.5 text-sm leading-none',
+        xs: "h-4 min-w-4 px-1 py-0.5 text-code-sm leading-none",
+        sm: "h-5 min-w-5 px-1 py-0.5 text-code-sm leading-none",
+        default: "h-6 min-w-6 px-1.5 py-0.5 text-sm leading-none",
       },
     },
-    defaultVariants: { size: 'default' },
+    defaultVariants: { size: "default" },
   },
 );
 
@@ -31,13 +31,13 @@ export const kbdVariants = cva(
  * shortcut reads correctly on every platform (`⌘` → `Ctrl`, `⌥` → `Alt`, …).
  */
 const MODIFIER_MAP: Record<string, string> = {
-  '⌘': 'Ctrl',
-  '⇧': 'Shift',
-  '⌥': 'Alt',
-  '⌃': 'Ctrl',
-  '⏎': 'Enter',
-  '↵': 'Enter',
-  '⌫': 'Bksp',
+  "⌘": "Ctrl",
+  "⇧": "Shift",
+  "⌥": "Alt",
+  "⌃": "Ctrl",
+  "⏎": "Enter",
+  "↵": "Enter",
+  "⌫": "Bksp",
 };
 
 /** Map a single key token to its OS-appropriate label. */
@@ -46,18 +46,22 @@ function resolveKey(key: string, isMac: boolean): string {
   return MODIFIER_MAP[key] ?? key;
 }
 
+/** Props accepted by `Kbd`. */
 export interface KbdProps
-  extends Omit<React.ComponentPropsWithRef<'kbd'>, 'children'>,
+  extends
+    Omit<React.ComponentPropsWithRef<"kbd">, "children">,
     VariantProps<typeof kbdVariants> {
   /**
    * Size of the key chip — mirrors the lower end of the shared scale.
    * @default 'default'
    */
-  size?: 'xs' | 'sm' | 'default';
+  size?: "xs" | "sm" | "default";
   /**
    * Explicit key tokens to render. Each token becomes its own `<kbd>`. Modifier
    * glyphs (`⌘`, `⇧`, `⌥`, `⌃`, `⏎`, `⌫`) are rewritten to words on non-mac
    * platforms. Takes precedence over `children`.
+
+   * @default undefined
    */
   keys?: readonly string[];
   /**
@@ -65,8 +69,10 @@ export interface KbdProps
    * readable Windows/Linux modifier names.
    * @default 'mac'
    */
-  os?: 'mac' | 'other';
-  /** A single key label — used when `keys` is not provided. */
+  os?: "mac" | "other";
+  /** A single key label — used when `keys` is not provided.
+   * @default undefined
+   */
   children?: React.ReactNode;
 }
 
@@ -87,21 +93,25 @@ export interface KbdProps
  */
 export function Kbd({
   className,
-  size = 'default',
+  size = "default",
   keys,
-  os = 'mac',
+  os = "mac",
   children,
   ref,
   ...props
 }: KbdProps) {
-  const isMac = os === 'mac';
+  const isMac = os === "mac";
 
   // Multi-key form — render each token as its own chip inside a group. The consumer ref + remaining
   // props belong on the single group root, NOT fanned onto every chip (which would duplicate the ref
   // across nodes and warn).
   if (keys && keys.length > 0) {
     return (
-      <KbdGroup ref={ref as React.Ref<HTMLSpanElement>} className={className} {...props}>
+      <KbdGroup
+        ref={ref as React.Ref<HTMLSpanElement>}
+        className={className}
+        {...props}
+      >
         {keys.map((key, i) => (
           <kbd
             key={`${key}-${i}`}
@@ -119,7 +129,7 @@ export function Kbd({
   // Single-key form. If the lone child is a known modifier glyph string, it is
   // rewritten for the resolved OS too.
   const content =
-    typeof children === 'string' ? resolveKey(children, isMac) : children;
+    typeof children === "string" ? resolveKey(children, isMac) : children;
 
   return (
     <kbd
@@ -134,7 +144,8 @@ export function Kbd({
   );
 }
 
-export interface KbdGroupProps extends React.ComponentPropsWithRef<'span'> {}
+/** Props accepted by `KbdGroup`. */
+export interface KbdGroupProps extends React.ComponentPropsWithRef<"span"> {}
 
 /**
  * `KbdGroup` — a flex row that lays out multiple `Kbd` chips with consistent
@@ -151,7 +162,7 @@ export function KbdGroup({ className, ...props }: KbdGroupProps) {
   return (
     <span
       data-slot="kbd-group"
-      className={cn('inline-flex w-fit shrink-0 items-center gap-1', className)}
+      className={cn("inline-flex w-fit shrink-0 items-center gap-1", className)}
       {...props}
     />
   );

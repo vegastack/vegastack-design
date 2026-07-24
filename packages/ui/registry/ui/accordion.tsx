@@ -1,16 +1,17 @@
-// @vegastack accordion@0.2.0 sha256-cjV/yiKTICuEBOT7wuPjlgzfqWzvxqRHkAggrtUlq4E=
+// @vegastack accordion@0.2.0 sha256-3ziuD5VM7pOzUBGlI8pHjejsW1V2hpy1yLX68KxXNCU=
 
-'use client';
+"use client";
 
-import * as React from 'react';
-import { Accordion as BaseAccordion } from '@base-ui/react/accordion';
-import { ChevronDown } from 'lucide-react';
-import { cn } from '@vegastack/design';
+import * as React from "react";
+import { Accordion as BaseAccordion } from "@base-ui/react/accordion";
+import { ChevronDown } from "lucide-react";
+import { cn } from "@vegastack/design";
 
 /* ------------------------------------------------------------------------------------------------
  * Accordion (Root) — groups the collapsible items and owns single/multiple open behavior.
  * ----------------------------------------------------------------------------------------------*/
 
+/** Props accepted by `Accordion`. */
 export type AccordionProps = React.ComponentProps<typeof BaseAccordion.Root>;
 
 /**
@@ -39,7 +40,7 @@ export function Accordion({ className, ref, ...props }: AccordionProps) {
     <BaseAccordion.Root
       ref={ref}
       data-slot="accordion"
-      className={cn('w-full', className)}
+      className={cn("w-full", className)}
       {...props}
     />
   );
@@ -50,19 +51,30 @@ export function Accordion({ className, ref, ...props }: AccordionProps) {
  * separates stacked items; the last item drops its border.
  * ----------------------------------------------------------------------------------------------*/
 
-export type AccordionItemProps = React.ComponentProps<typeof BaseAccordion.Item>;
+/** Props accepted by `AccordionItem`. */
+export type AccordionItemProps = React.ComponentProps<
+  typeof BaseAccordion.Item
+>;
 
 /**
  * `AccordionItem` — pairs an `AccordionTrigger` (header) with its
  * `AccordionContent` (panel). Identify it with a unique `value`; pass `disabled`
  * to lock the section. Renders a bottom rule between stacked items.
+
+ *
+ * @example
+ * <AccordionItem />
  */
-export function AccordionItem({ className, ref, ...props }: AccordionItemProps) {
+export function AccordionItem({
+  className,
+  ref,
+  ...props
+}: AccordionItemProps) {
   return (
     <BaseAccordion.Item
       ref={ref}
       data-slot="accordion-item"
-      className={cn('border-b border-border last:border-b-0', className)}
+      className={cn("border-b border-border last:border-b-0", className)}
       {...props}
     />
   );
@@ -73,26 +85,38 @@ export function AccordionItem({ className, ref, ...props }: AccordionItemProps) 
  * chevron rotates 180° when the panel is open via Base UI's `data-panel-open`.
  * ----------------------------------------------------------------------------------------------*/
 
-export type AccordionTriggerProps = React.ComponentProps<typeof BaseAccordion.Trigger>;
+/** Props accepted by `AccordionTrigger`. */
+export type AccordionTriggerProps = React.ComponentProps<
+  typeof BaseAccordion.Trigger
+>;
 
 /**
  * `AccordionTrigger` — the header button (wrapped in an `AccordionHeader`
  * heading) that toggles its panel. Active state is exposed as `data-panel-open`,
  * which rotates the trailing `ChevronDown` 180°. Compose the label as children.
+
+ *
+ * @example
+ * <AccordionTrigger />
  */
-export function AccordionTrigger({ className, children, ref, ...props }: AccordionTriggerProps) {
+export function AccordionTrigger({
+  className,
+  children,
+  ref,
+  ...props
+}: AccordionTriggerProps) {
   return (
     <BaseAccordion.Header data-slot="accordion-header" className="flex">
       <BaseAccordion.Trigger
         ref={ref}
         data-slot="accordion-trigger"
         className={cn(
-          'group/accordion-trigger flex flex-1 items-center justify-between gap-4 py-3 text-left text-base font-medium text-foreground transition-colors duration-fast ease-standard',
-          'hover:underline',
+          "group/accordion-trigger flex flex-1 items-center justify-between gap-4 py-3 text-start text-label text-foreground ",
+          "hover:underline",
           // Base UI surfaces item/root-level `disabled` as a `data-disabled` attribute
           // on the trigger (no native `disabled` attribute), so style both.
-          'disabled:pointer-events-none disabled:opacity-(--opacity-dim)',
-          'data-disabled:pointer-events-none data-disabled:opacity-(--opacity-dim)',
+          "disabled:pointer-events-none disabled:opacity-(--opacity-dim)",
+          "data-disabled:pointer-events-none data-disabled:opacity-(--opacity-dim)",
           "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
           className,
         )}
@@ -102,8 +126,8 @@ export function AccordionTrigger({ className, children, ref, ...props }: Accordi
         <ChevronDown
           aria-hidden="true"
           className={cn(
-            'shrink-0 text-muted-foreground transition-transform duration-fast ease-standard',
-            'group-data-[panel-open]/accordion-trigger:rotate-180',
+            "shrink-0 text-muted-foreground transition-transform duration-fast ease-standard",
+            "group-data-[panel-open]/accordion-trigger:rotate-180",
           )}
         />
       </BaseAccordion.Trigger>
@@ -117,24 +141,36 @@ export function AccordionTrigger({ className, children, ref, ...props }: Accordi
  * `data-starting-style`/`data-ending-style` transition hooks.
  * ----------------------------------------------------------------------------------------------*/
 
-export type AccordionContentProps = React.ComponentProps<typeof BaseAccordion.Panel>;
+/** Props accepted by `AccordionContent`. */
+export type AccordionContentProps = React.ComponentProps<
+  typeof BaseAccordion.Panel
+>;
 
 /**
  * `AccordionContent` — the collapsible panel (Base UI `Accordion.Panel`) shown
  * when its sibling `AccordionTrigger` is open. Animates its height between `0`
  * and the measured content height via the `--accordion-panel-height` CSS var,
  * transitioning on Base UI's `data-starting-style`/`data-ending-style` hooks.
+
+ *
+ * @example
+ * <AccordionContent />
  */
-export function AccordionContent({ className, children, ref, ...props }: AccordionContentProps) {
+export function AccordionContent({
+  className,
+  children,
+  ref,
+  ...props
+}: AccordionContentProps) {
   return (
     <BaseAccordion.Panel
       ref={ref}
       data-slot="accordion-content"
       className={cn(
         // Height animates the wrapper from 0 → measured height (and back).
-        'h-[var(--accordion-panel-height)] overflow-hidden text-base text-muted-foreground',
-        'transition-[height] duration-fast ease-standard',
-        'data-[starting-style]:h-0 data-[ending-style]:h-0',
+        "h-[var(--accordion-panel-height)] overflow-hidden text-base text-muted-foreground",
+        "transition-[height] duration-fast ease-standard",
+        "data-[starting-style]:h-0 data-[ending-style]:h-0",
         className,
       )}
       {...props}

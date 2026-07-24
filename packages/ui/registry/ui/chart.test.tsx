@@ -50,7 +50,10 @@ test("ChartContainer resolves each config entry to a --color-<key> CSS var", asy
   const screen = await render(
     <ChartContainer config={CONFIG} style={FIXED_SIZE}>
       <RechartsPrimitive.LineChart data={DATA}>
-        <RechartsPrimitive.Line dataKey="desktop" stroke="var(--color-desktop)" />
+        <RechartsPrimitive.Line
+          dataKey="desktop"
+          stroke="var(--color-desktop)"
+        />
       </RechartsPrimitive.LineChart>
     </ChartContainer>,
   );
@@ -58,8 +61,12 @@ test("ChartContainer resolves each config entry to a --color-<key> CSS var", asy
   expect(chart).not.toBeNull();
   // Bare token name ('chart-1') and an already-literal var() reference ('var(--chart-2)') both
   // resolve to the same `var(--chart-N)` form — see ChartContainer's file-level JSDoc.
-  expect((chart as HTMLElement).style.getPropertyValue("--color-desktop")).toBe("var(--chart-1)");
-  expect((chart as HTMLElement).style.getPropertyValue("--color-mobile")).toBe("var(--chart-2)");
+  expect((chart as HTMLElement).style.getPropertyValue("--color-desktop")).toBe(
+    "var(--chart-1)",
+  );
+  expect((chart as HTMLElement).style.getPropertyValue("--color-mobile")).toBe(
+    "var(--chart-2)",
+  );
 });
 
 test("ChartContainer omits --color-<key> for config entries with no color (label/icon-only)", async () => {
@@ -71,7 +78,9 @@ test("ChartContainer omits --color-<key> for config entries with no color (label
       </RechartsPrimitive.LineChart>
     </ChartContainer>,
   );
-  const chart = screen.container.querySelector('[data-slot="chart"]') as HTMLElement;
+  const chart = screen.container.querySelector(
+    '[data-slot="chart"]',
+  ) as HTMLElement;
   expect(chart.style.getPropertyValue("--color-month")).toBe("");
 });
 
@@ -81,7 +90,15 @@ test("ChartTooltipContent renders the label and one row per series (default dot 
       <ChartTooltipContent
         active
         label="April"
-        payload={[tooltipPayload(), tooltipPayload({ dataKey: "mobile", name: "mobile", value: 80, color: "var(--chart-2)" })]}
+        payload={[
+          tooltipPayload(),
+          tooltipPayload({
+            dataKey: "mobile",
+            name: "mobile",
+            value: 80,
+            color: "var(--chart-2)",
+          }),
+        ]}
       />
     </ChartContainer>,
   );
@@ -90,7 +107,9 @@ test("ChartTooltipContent renders the label and one row per series (default dot 
   await expect.element(screen.getByText("Mobile")).toBeInTheDocument();
   await expect.element(screen.getByText("186")).toBeInTheDocument();
   await expect.element(screen.getByText("80")).toBeInTheDocument();
-  const indicators = screen.container.querySelectorAll('[data-slot="chart-tooltip-indicator"]');
+  const indicators = screen.container.querySelectorAll(
+    '[data-slot="chart-tooltip-indicator"]',
+  );
   expect(indicators.length).toBe(2);
   expect(indicators[0]?.className).toContain("size-2.5"); // default "dot" indicator shape
 });
@@ -114,8 +133,12 @@ test("ChartTooltipContent indicator='line' and indicator='dashed' swap the swatc
       </div>
     </ChartContainer>,
   );
-  const line = screen.container.querySelector(".line-variant [data-slot='chart-tooltip-indicator']");
-  const dashed = screen.container.querySelector(".dashed-variant [data-slot='chart-tooltip-indicator']");
+  const line = screen.container.querySelector(
+    ".line-variant [data-slot='chart-tooltip-indicator']",
+  );
+  const dashed = screen.container.querySelector(
+    ".dashed-variant [data-slot='chart-tooltip-indicator']",
+  );
   expect(line?.className).toContain("w-1");
   expect(dashed?.className).toContain("border-dashed");
 });
@@ -123,10 +146,18 @@ test("ChartTooltipContent indicator='line' and indicator='dashed' swap the swatc
 test("ChartTooltipContent hideLabel / hideIndicator suppress their respective parts", async () => {
   const screen = await render(
     <ChartContainer config={CONFIG} style={FIXED_SIZE}>
-      <ChartTooltipContent active hideLabel hideIndicator label="April" payload={[tooltipPayload()]} />
+      <ChartTooltipContent
+        active
+        hideLabel
+        hideIndicator
+        label="April"
+        payload={[tooltipPayload()]}
+      />
     </ChartContainer>,
   );
-  expect(screen.container.querySelector('[data-slot="chart-tooltip-indicator"]')).toBeNull();
+  expect(
+    screen.container.querySelector('[data-slot="chart-tooltip-indicator"]'),
+  ).toBeNull();
   const text = screen.container.textContent ?? "";
   expect(text).not.toContain("April");
   expect(text).toContain("Desktop"); // the series row itself still renders
@@ -138,7 +169,9 @@ test("ChartTooltipContent renders nothing while inactive", async () => {
       <ChartTooltipContent active={false} payload={[tooltipPayload()]} />
     </ChartContainer>,
   );
-  expect(screen.container.querySelector('[data-slot="chart-tooltip-content"]')).toBeNull();
+  expect(
+    screen.container.querySelector('[data-slot="chart-tooltip-content"]'),
+  ).toBeNull();
 });
 
 test("ChartLegendContent renders one row per payload entry, keyed off config", async () => {
@@ -153,9 +186,13 @@ test("ChartLegendContent renders one row per payload entry, keyed off config", a
   );
   await expect.element(screen.getByText("Desktop")).toBeInTheDocument();
   await expect.element(screen.getByText("Mobile")).toBeInTheDocument();
-  const swatches = screen.container.querySelectorAll('[data-slot="chart-legend-indicator"]');
+  const swatches = screen.container.querySelectorAll(
+    '[data-slot="chart-legend-indicator"]',
+  );
   expect(swatches.length).toBe(2);
-  expect((swatches[0] as HTMLElement).style.getPropertyValue("--color-bg")).toBe("var(--chart-1)");
+  expect(
+    (swatches[0] as HTMLElement).style.getPropertyValue("--color-bg"),
+  ).toBe("var(--chart-1)");
 });
 
 test("ChartLegendContent renders nothing with an empty payload", async () => {
@@ -164,20 +201,42 @@ test("ChartLegendContent renders nothing with an empty payload", async () => {
       <ChartLegendContent payload={[]} />
     </ChartContainer>,
   );
-  expect(screen.container.querySelector('[data-slot="chart-legend-content"]')).toBeNull();
+  expect(
+    screen.container.querySelector('[data-slot="chart-legend-content"]'),
+  ).toBeNull();
 });
 
 test("ChartContainer mounts a real Recharts chart (grid, axes, tooltip, legend) without crashing", async () => {
   const screen = await render(
     <ChartContainer config={CONFIG} style={FIXED_SIZE}>
       <RechartsPrimitive.LineChart accessibilityLayer data={DATA}>
-        <RechartsPrimitive.CartesianGrid vertical={false} stroke="var(--border)" />
-        <RechartsPrimitive.XAxis dataKey="month" tickLine={false} axisLine={false} />
+        <RechartsPrimitive.CartesianGrid
+          vertical={false}
+          stroke="var(--border)"
+        />
+        <RechartsPrimitive.XAxis
+          dataKey="month"
+          tickLine={false}
+          axisLine={false}
+        />
         <RechartsPrimitive.YAxis tickLine={false} axisLine={false} />
-        <ChartTooltip cursor={{ stroke: "var(--border)" }} content={<ChartTooltipContent />} />
+        <ChartTooltip
+          cursor={{ stroke: "var(--border)" }}
+          content={<ChartTooltipContent />}
+        />
         <ChartLegend content={<ChartLegendContent />} />
-        <RechartsPrimitive.Line dataKey="desktop" stroke="var(--color-desktop)" strokeWidth={2} dot={false} />
-        <RechartsPrimitive.Line dataKey="mobile" stroke="var(--color-mobile)" strokeWidth={2} dot={false} />
+        <RechartsPrimitive.Line
+          dataKey="desktop"
+          stroke="var(--color-desktop)"
+          strokeWidth={2}
+          dot={false}
+        />
+        <RechartsPrimitive.Line
+          dataKey="mobile"
+          stroke="var(--color-mobile)"
+          strokeWidth={2}
+          dot={false}
+        />
       </RechartsPrimitive.LineChart>
     </ChartContainer>,
   );
@@ -194,8 +253,15 @@ test("token purity: no hex color literal leaks into a rendered chart's style/cla
   const screen = await render(
     <ChartContainer config={CONFIG} style={FIXED_SIZE}>
       <RechartsPrimitive.BarChart accessibilityLayer data={DATA}>
-        <RechartsPrimitive.CartesianGrid vertical={false} stroke="var(--border)" />
-        <RechartsPrimitive.Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
+        <RechartsPrimitive.CartesianGrid
+          vertical={false}
+          stroke="var(--border)"
+        />
+        <RechartsPrimitive.Bar
+          dataKey="desktop"
+          fill="var(--color-desktop)"
+          radius={4}
+        />
       </RechartsPrimitive.BarChart>
     </ChartContainer>,
   );
@@ -210,10 +276,24 @@ test("no a11y violations on a rendered chart with accessibilityLayer", async () 
   const screen = await render(
     <ChartContainer config={CONFIG} style={FIXED_SIZE}>
       <RechartsPrimitive.BarChart accessibilityLayer data={DATA}>
-        <RechartsPrimitive.CartesianGrid vertical={false} stroke="var(--border)" />
-        <RechartsPrimitive.XAxis dataKey="month" tickLine={false} axisLine={false} />
-        <ChartTooltip cursor={{ fill: "var(--muted)" }} content={<ChartTooltipContent />} />
-        <RechartsPrimitive.Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
+        <RechartsPrimitive.CartesianGrid
+          vertical={false}
+          stroke="var(--border)"
+        />
+        <RechartsPrimitive.XAxis
+          dataKey="month"
+          tickLine={false}
+          axisLine={false}
+        />
+        <ChartTooltip
+          cursor={{ fill: "var(--muted)" }}
+          content={<ChartTooltipContent />}
+        />
+        <RechartsPrimitive.Bar
+          dataKey="desktop"
+          fill="var(--color-desktop)"
+          radius={4}
+        />
       </RechartsPrimitive.BarChart>
     </ChartContainer>,
   );

@@ -1,9 +1,10 @@
-// @vegastack label@0.2.0 sha256-GG5coX5mPR2qNayXS9sxQiBDD4kAXfTUfb48vaIungI=
+// @vegastack label@0.2.0 sha256-5+fOCedaKeO1w/6l0sxpnGamhxJXhd7DvJXoo6ZWTpo=
 
-import * as React from 'react';
-import { cn } from '@vegastack/design';
+import * as React from "react";
+import { cn } from "@vegastack/design";
 
-export interface LabelProps extends React.ComponentProps<'label'> {
+/** Props accepted by `Label`. */
+export interface LabelProps extends React.ComponentProps<"label"> {
   /**
    * Marks the labelled control as required by setting `data-required` on the
    * `<label>` (a styling/automation hook — no visual asterisk). Enforce
@@ -37,16 +38,22 @@ export interface LabelProps extends React.ComponentProps<'label'> {
  *   Remember me
  * </Label>
  */
-export function Label({ className, required = false, children, ref, ...props }: LabelProps) {
+export function Label({
+  className,
+  required = false,
+  children,
+  ref,
+  ...props
+}: LabelProps) {
   return (
     <label
       ref={ref}
       data-slot="label"
-      data-required={required ? '' : undefined}
+      data-required={required ? "" : undefined}
       className={cn(
-        'flex items-center gap-2 text-label-sm text-foreground select-none',
-        'peer-disabled:opacity-(--opacity-dim) peer-disabled:cursor-not-allowed',
-        'group-data-[disabled=true]:opacity-(--opacity-dim) group-data-[disabled=true]:pointer-events-none',
+        "flex items-center gap-2 text-label-sm text-foreground select-none",
+        "peer-disabled:opacity-(--opacity-dim) peer-disabled:cursor-not-allowed",
+        "group-data-[disabled=true]:opacity-(--opacity-dim) group-data-[disabled=true]:pointer-events-none",
         className,
       )}
       {...props}

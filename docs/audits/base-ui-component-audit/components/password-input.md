@@ -13,11 +13,11 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P2 | Docs say toggle is removed from tab order at `password-input.mdx:48`; source keeps it tabbable at `password-input.tsx:68`; test asserts keyboard reachability at `password-input.test.tsx:58`. | Docs could encourage an inaccessible regression. | Update docs to state toggle remains keyboard reachable. |
-| P2 | Requirement icons are `aria-hidden` and list text does not expose met/unmet state at `password-input.tsx:91`. | Screen reader users may not know requirements are satisfied as they type. | Add live/atomic status text and associate requirements with input via `aria-describedby`. |
-| P3 | Uses `space-y-1` at `password-input.tsx:92`. | Diverges from local shadcn style preference for flex/grid gaps. | Replace with `flex flex-col gap-1`. |
+| Priority | Evidence                                                                                                                                                                                       | Impact                                                                    | Suggested fix                                                                             |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| P2       | Docs say toggle is removed from tab order at `password-input.mdx:48`; source keeps it tabbable at `password-input.tsx:68`; test asserts keyboard reachability at `password-input.test.tsx:58`. | Docs could encourage an inaccessible regression.                          | Update docs to state toggle remains keyboard reachable.                                   |
+| P2       | Requirement icons are `aria-hidden` and list text does not expose met/unmet state at `password-input.tsx:91`.                                                                                  | Screen reader users may not know requirements are satisfied as they type. | Add live/atomic status text and associate requirements with input via `aria-describedby`. |
+| P3       | Uses `space-y-1` at `password-input.tsx:92`.                                                                                                                                                   | Diverges from local shadcn style preference for flex/grid gaps.           | Replace with `flex flex-col gap-1`.                                                       |
 
 ## Residual Risks
 
@@ -26,4 +26,3 @@ Functional API is useful; docs are more wrong than implementation.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- password-input.test.tsx`
-

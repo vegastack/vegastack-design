@@ -1,14 +1,10 @@
-// @vegastack figure-frame@0.2.0 sha256-aMHK2x3qiseXNmeg3CWS98T65K0qQ/tSsU10LLOsRSk=
+// @vegastack figure-frame@0.2.0 sha256-Cxk1IZWI7pr2h6rt6n1IssJbS5UfQp4aoed1ghAP1U4=
 
-// @vegastack figure-frame@0.1.0 — new component; run `pnpm run registry:build` to stamp
-// integrity + regenerate the copy-in/JSON.
+import * as React from "react";
+import { cn } from "@vegastack/design";
 
-'use client';
-
-import * as React from 'react';
-import { cn } from '@vegastack/design';
-
-export interface FigureFrameProps extends React.ComponentPropsWithRef<'figure'> {
+/** Props accepted by `FigureFrame`. */
+export interface FigureFrameProps extends React.ComponentPropsWithRef<"figure"> {
   /**
    * The framed media — an image, video, or a live component demo. Fills the
    * frame at `aspectRatio`.
@@ -20,12 +16,14 @@ export interface FigureFrameProps extends React.ComponentPropsWithRef<'figure'> 
    * this component intentionally does not reach for the spec's optional
    * 10px FIG-annotation minimum, since no token below 12px is shipped yet —
    * see the component's audit note).
+   * @default undefined
    */
   caption?: React.ReactNode;
   /**
    * Figure number/id prefixed as `FIG. {figureNumber}` before the caption
    * (e.g. `figureNumber="01"` → `"FIG. 01"`). Omit for a caption with no
    * numbering.
+   * @default undefined
    */
   figureNumber?: React.ReactNode;
   /**
@@ -50,7 +48,7 @@ export interface FigureFrameProps extends React.ComponentPropsWithRef<'figure'> 
 export function FigureFrame({
   caption,
   figureNumber,
-  aspectRatio = '16/9',
+  aspectRatio = "16/9",
   className,
   children,
   ref,
@@ -61,7 +59,7 @@ export function FigureFrame({
       ref={ref}
       data-slot="figure-frame"
       className={cn(
-        'overflow-hidden rounded-(--radius-sharp) border border-border bg-card',
+        "overflow-hidden rounded-(--radius-sharp) border border-border bg-card",
         className,
       )}
       {...props}
@@ -69,7 +67,7 @@ export function FigureFrame({
       <div
         data-slot="figure-frame-media"
         className="relative w-full overflow-hidden [aspect-ratio:var(--figure-frame-ratio)]"
-        style={{ '--figure-frame-ratio': aspectRatio } as React.CSSProperties}
+        style={{ "--figure-frame-ratio": aspectRatio } as React.CSSProperties}
       >
         {children}
       </div>
@@ -84,7 +82,7 @@ export function FigureFrame({
               // shrink-0 + nowrap: on narrow screens the flex child would otherwise
               // shrink and wrap internally ("FIG." / number on separate lines),
               // interleaving with the caption text.
-              className="shrink-0 whitespace-nowrap text-foreground/(--opacity-hint)"
+              className="shrink-0 whitespace-nowrap text-foreground"
             >
               FIG. {figureNumber}
             </span>

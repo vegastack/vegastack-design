@@ -1,10 +1,11 @@
 ---
 title: Icon Button
 description: A square, icon-only action button — a thin Button wrapper that requires an accessible label.
+audience: public
 preview: iconButton
 ---
 
-import { story } from '@/components/stories/icon-button.story';
+import { story } from "@/components/stories/icon-button.story";
 
 ## Installation
 
@@ -17,8 +18,8 @@ npx shadcn@latest add @vegastack/icon-button
 ## Usage
 
 ```tsx
-import { IconButton } from '@/components/ui/icon-button';
-import { Plus } from 'lucide-react';
+import { IconButton } from "@/components/ui/icon-button";
+import { Plus } from "lucide-react";
 
 <IconButton aria-label="Add item">
   <Plus />
@@ -28,44 +29,58 @@ import { Plus } from 'lucide-react';
 `IconButton` is a thin wrapper over [`Button`](/docs/components/button): it forces a square `icon-*`
 size and **requires** `aria-label`, since the icon carries no visible text.
 
-## Playground
+## Examples
+
+### Playground
 
 Try every pass-through variant, the square size scale, and the disabled / loading states, then copy the generated JSX.
 
 <IconButtonPlayground />
 
-## Explorer
+### Explorer
 
 Every `IconButton` prop, auto-generated from its TypeScript types — the exhaustive counterpart to
 the curated playground above.
 
 <story.WithControl />
 
-## Variants
+### Variants
 
 Every [`Button`](/docs/components/button) variant passes straight through — the base set (`default`,
 `secondary`, `outline`, `ghost`, `link`, `glass`), the semantic-filled tones (`success`,
 `warning`, `destructive`, `info`), and their semantic-outline counterparts all work.
 
-<ComponentPreview name="iconButtonVariants" file="components/preview/icon-button.tsx" />
+<ComponentPreview
+  name="iconButtonVariants"
+  file="components/preview/icon-button.tsx"
+/>
 
-## Sizes
+### Sizes
 
 `xs`, `sm`, `default`, and `lg` map to `Button`'s square `icon-xs`, `icon-sm`, `icon`, and `icon-lg`
 sizes respectively.
 
-<ComponentPreview name="iconButtonSizes" file="components/preview/icon-button.tsx" />
+<ComponentPreview
+  name="iconButtonSizes"
+  file="components/preview/icon-button.tsx"
+/>
 
-## States
+### States
 
 Idle, `disabled`, and `loading` — both flags inherited from `Button`. `disabled` removes the button from
 the tab order; `loading` shows a spinner, sets `aria-busy`, and stays focusable.
 
-<ComponentPreview name="iconButtonStates" file="components/preview/icon-button.tsx" />
+<ComponentPreview
+  name="iconButtonStates"
+  file="components/preview/icon-button.tsx"
+/>
 
 ## API Reference
 
-<AutoTypeTable path="../../packages/ui/registry/ui/icon-button.tsx" name="IconButtonProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/icon-button.tsx"
+  name="IconButtonProps"
+/>
 
 ## Accessibility
 
@@ -75,11 +90,11 @@ the tab order; `loading` shows a spinner, sets `aria-busy`, and stays focusable.
 - `:focus-visible` shows a 2px ring (`outline-ring`) — never `outline: none`.
 - `loading` sets `aria-busy="true"` and disables interaction; `disabled` removes it from the tab order.
 
-| Key | Action |
-| --- | --- |
-| <kbd>Enter</kbd> | Activate the button |
-| <kbd>Space</kbd> | Activate the button |
-| <kbd>Tab</kbd> | Move focus to / from the button |
+| Key              | Action                          |
+| ---------------- | ------------------------------- |
+| <kbd>Enter</kbd> | Activate the button             |
+| <kbd>Space</kbd> | Activate the button             |
+| <kbd>Tab</kbd>   | Move focus to / from the button |
 
 ## Do / Don't
 

@@ -1,0 +1,111 @@
+---
+title: Property List
+description: Record-facts rows — an icon + label column beside a value column, rendered as an accessible definition list.
+audience: public
+preview: propertyList
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/property-list
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import {
+  PropertyLabel,
+  PropertyList,
+  PropertyRow,
+  PropertyValue,
+} from "@/components/ui/property-list";
+import { EmptyValue } from "@/components/ui/empty";
+
+<PropertyList aria-label="Record details">
+  <PropertyRow>
+    <PropertyLabel icon={<Globe />}>Domains</PropertyLabel>
+    <PropertyValue>
+      <a href="…">attio.com</a>
+    </PropertyValue>
+  </PropertyRow>
+  <PropertyRow>
+    <PropertyLabel icon={<Users />}>Team</PropertyLabel>
+    <PropertyValue>
+      <EmptyValue>Set a value…</EmptyValue>
+    </PropertyValue>
+  </PropertyRow>
+</PropertyList>;
+```
+
+### Anatomy
+
+A `<dl>` of `<dt>`(label)/`<dd>`(value) pairs on a shared 28-spacing-unit + `1fr` grid — labels align
+down the pane, values own the rest and truncate by default. Values are compositions: plain
+text, a link, a `TagGroup` (set `whitespace-normal` on the value to let chips wrap), or an
+`EmptyValue` for the faint "Set a value…" slot.
+
+### Semantics
+
+The definition list announces each label→value relationship natively. Label icons are
+decorative (`aria-hidden`); keep the text label present — never an icon-only `<dt>`.
+
+### PropertyList vs DataList vs SettingsRow
+
+|       | `PropertyList`         | `DataList`             | `SettingsRow`       |
+| ----- | ---------------------- | ---------------------- | ------------------- |
+| Shape | key→value pane         | homogeneous `<table>`  | label + control row |
+| For   | record facts, metadata | collections of records | preference forms    |
+
+## Examples
+
+Compose plain values, links, empty values, and wrapping tag groups in the same aligned definition
+list. Long values truncate by default; opt a value into wrapping when its content needs multiple
+lines.
+
+<ComponentPreview
+  name="propertyList"
+  file="components/preview/property-list.tsx"
+/>
+
+## API Reference
+
+### PropertyList
+
+`PropertyList` accepts native `<dl>` props and forwards its ref to the definition list.
+
+### PropertyRow
+
+`PropertyRow` accepts native `<div>` props and groups one `<dt>`/`<dd>` pair.
+
+### PropertyLabel
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/property-list.tsx"
+  name="PropertyLabelProps"
+/>
+
+### PropertyValue
+
+`PropertyValue` accepts native `<dd>` props and forwards its ref to the value cell.
+
+## Accessibility
+
+- Native `<dl>`, `<dt>`, and `<dd>` semantics expose each label/value relationship.
+- Label icons are decorative; always keep a visible text label.
+- Links and controls inside values keep their native keyboard behavior and focus indicator.
+- Source order remains label then value in both LTR and RTL layouts.
+
+| Key              | Action                                                  |
+| ---------------- | ------------------------------------------------------- |
+| <kbd>Tab</kbd>   | Move through links and controls inside property values. |
+| <kbd>Enter</kbd> | Activate the focused link or control.                   |
+
+## Do / Don't
+
+<DoDont
+  do="Use PropertyList for stable record facts with concise labels and honest empty values."
+  dont="Use it for a homogeneous record collection or hide a label behind an icon alone."
+/>

@@ -13,9 +13,9 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| None | No material component-specific finding survived review. | No action. | Keep reduced-motion and decorative-label tests. |
+| Priority | Evidence                                                | Impact     | Suggested fix                                   |
+| -------- | ------------------------------------------------------- | ---------- | ----------------------------------------------- |
+| None     | No material component-specific finding survived review. | No action. | Keep reduced-motion and decorative-label tests. |
 
 ## Residual Risks
 
@@ -24,4 +24,3 @@ No Radix/Base issue.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- status-icon.test.tsx`
-

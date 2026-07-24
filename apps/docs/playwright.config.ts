@@ -1,11 +1,11 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from "@playwright/test";
 
 // Deterministic VRT over the Fumadocs component previews (which render the real shipped source).
 // Runs in the pinned Playwright Docker image in CI for font/render determinism.
 // The spec self-activates when committed Linux baselines exist, and `VRT_UPDATE=1`
 // bootstraps the first baseline set in the pinned container.
 export default defineConfig({
-  testDir: './vrt',
+  testDir: "./vrt",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -19,34 +19,61 @@ export default defineConfig({
     // full-page captures toHaveScreenshot's stability check requires (Phase −1, CX-2) — and the
     // mobile project's narrow layout makes the same pages taller still (Phase R).
     timeout: 60_000,
-    toHaveScreenshot: { animations: 'disabled', caret: 'hide', scale: 'css', maxDiffPixelRatio: 0.01, threshold: 0.2 },
+    // Full docs pages get a fixed, reviewable allowance. A percentage scales with page height and
+    // previously hid tens of thousands of changed pixels on the tallest showcases.
+    toHaveScreenshot: {
+      animations: "disabled",
+      caret: "hide",
+      scale: "css",
+      maxDiffPixels: 100,
+      threshold: 0.1,
+    },
   },
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: "http://localhost:3000",
     viewport: { width: 1280, height: 720 },
     deviceScaleFactor: 1,
-    colorScheme: 'light',
-    timezoneId: 'UTC',
-    locale: 'en-US',
+    colorScheme: "light",
+    timezoneId: "UTC",
+    locale: "en-US",
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"], colorScheme: "light" },
+    },
+    {
+      name: "chromium-dark",
+      use: { ...devices["Desktop Chrome"], colorScheme: "dark" },
+    },
     {
       // Phase R mobile lane: 375×812 (iPhone-X-class), touch-enabled, dsf 1 for deterministic
       // (and reviewable) baseline sizes. Catches narrow-viewport overflow the desktop lane can't.
-      name: 'mobile-chromium',
+      name: "mobile-chromium",
       use: {
-        ...devices['Desktop Chrome'],
+        ...devices["Desktop Chrome"],
         viewport: { width: 375, height: 812 },
         isMobile: true,
         hasTouch: true,
         deviceScaleFactor: 1,
+        colorScheme: "light",
+      },
+    },
+    {
+      name: "mobile-chromium-dark",
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { width: 375, height: 812 },
+        isMobile: true,
+        hasTouch: true,
+        deviceScaleFactor: 1,
+        colorScheme: "dark",
       },
     },
   ],
   webServer: {
-    command: 'pnpm build && pnpm start',
-    url: 'http://localhost:3000',
+    command: "pnpm build && pnpm start",
+    url: "http://localhost:3000",
     // NEVER reuse a running server: a leftover dev/static server from an earlier build serves
     // STALE pages, and baselines captured against it silently pin outdated content (bit twice:
     // the X2 chart mid-animation baseline and a Phase S sidebar baseline captured pre-rewrite).

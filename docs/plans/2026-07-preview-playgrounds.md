@@ -8,7 +8,7 @@ prop surfaces, verified against canonical source by the authoring agents).
 ## Infrastructure changes
 
 - `preview-controls.tsx` gains `FullscreenToggle` — CSS overlay mode (`fixed inset-0
-  z-(--z-overlay) bg-background`, Esc + close, body scroll-lock). Deliberately NOT native
+z-(--z-overlay) bg-background`, Esc + close, body scroll-lock). Deliberately NOT native
   `requestFullscreen()`: Base UI portals popups to `document.body`, which a natively-fullscreened
   element would hide. Composes with the width toggle (fullscreen + mobile = device frame).
 - `motion.mdx` gains the plain-language "Motion at a glance" table (utility → what it looks like →
@@ -18,13 +18,13 @@ prop surfaces, verified against canonical source by the authoring agents).
 
 ## Playgrounds — 45 components (44 new + Button expanded)
 
-| Group | Components | Axes covered |
-|---|---|---|
-| Form | checkbox, switch, radio-group, input, textarea, field, field-inline, select, combobox | size/orientation axes + disabled/invalid/readOnly/borderless/autoGrow/required switches |
-| Display 1 | badge, avatar, spinner, kbd, status-icon, skeleton, card, separator, image | every CVA axis (badge 3×5×3 + dot/loading/animateIn; image ratio×rounded; kbd os; …) |
-| Display 2 / data | empty (5 axes), item, attachment, progress, progress-indicator, truncated-text, relative-time, animated-number, scroll-area | full CVA + value/mode/duration selects so tweens/states are visible |
-| Overlay / nav / feedback | dialog (size), sheet (side), tooltip (side+arrow), popover (side+arrow), tabs (variant+orientation), pagination (link size), toast (intent, fire-button), alert (intent+hideIcon+dismissable), notification-bell (count+dot) | |
-| Actions / chat / misc | **button (expanded: all 15 variants × 8 sizes incl icon-\*)**, icon-button, copy-button, split-button, toggle, toggle-group, otp-input (mask+length), resizable (direction+handle), bubble (7 variants+align+animateIn) | |
+| Group                    | Components                                                                                                                                                                                                                   | Axes covered                                                                            |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Form                     | checkbox, switch, radio-group, input, textarea, field, field-inline, select, combobox                                                                                                                                        | size/orientation axes + disabled/invalid/readOnly/borderless/autoGrow/required switches |
+| Display 1                | badge, avatar, spinner, kbd, status-icon, skeleton, card, separator, image                                                                                                                                                   | every CVA axis (badge 3×5×3 + dot/loading/animateIn; image ratio×rounded; kbd os; …)    |
+| Display 2 / data         | empty (5 axes), item, attachment, progress, progress-indicator, truncated-text, relative-time, animated-number, scroll-area                                                                                                  | full CVA + value/mode/duration selects so tweens/states are visible                     |
+| Overlay / nav / feedback | dialog (size), sheet (side), tooltip (side+arrow), popover (side+arrow), tabs (variant+orientation), pagination (link size), toast (intent, fire-button), alert (intent+hideIcon+dismissable), notification-bell (count+dot) |                                                                                         |
+| Actions / chat / misc    | **button (expanded: all 15 variants × 8 sizes incl icon-\*)**, icon-button, copy-button, split-button, toggle, toggle-group, otp-input (mask+length), resizable (direction+handle), bubble (7 variants+align+animateIn)      |                                                                                         |
 
 `animateIn` components key-remount the rendered node per state change so toggling replays the
 entrance animation live.

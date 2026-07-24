@@ -1,10 +1,11 @@
 ---
 title: Avatar
 description: A circular user or entity image with an initials fallback, five sizes, and an overlapping AvatarGroup stack.
+audience: public
 preview: avatar
 ---
 
-import { story } from '@/components/stories/avatar.story';
+import { story } from "@/components/stories/avatar.story";
 
 ## Installation
 
@@ -31,20 +32,22 @@ import { Avatar, AvatarGroup } from "@/components/ui/avatar";
 > resolve it before passing `src`. The image only paints once it has loaded; until then (or on
 > error) the `fallback` shows, so there is never a broken-image icon.
 
-## Playground
+## Examples
+
+### Playground
 
 Adjust the avatar size and the group's overlap spacing, then copy the generated JSX.
 
 <AvatarPlayground />
 
-## Explorer
+### Explorer
 
 Every `Avatar` prop, auto-generated from its TypeScript types — the exhaustive counterpart to
 the curated playground above.
 
 <story.WithControl />
 
-## Anatomy
+### Anatomy
 
 `Avatar` wraps Base UI `Avatar.Root` → `Avatar.Image` → `Avatar.Fallback` behind a single flat prop
 API. `AvatarGroup` is a layout shell that overlaps its `Avatar` children.
@@ -56,13 +59,13 @@ API. `AvatarGroup` is a layout shell that overlaps its `Avatar` children.
 </AvatarGroup>
 ```
 
-## Sizes
+### Sizes
 
 `xs`, `sm`, `default`, `lg`, and `xl` — the diameter and the fallback text scale together.
 
 <ComponentPreview name="avatarSizes" file="components/preview/avatar.tsx" />
 
-## Fallback
+### Fallback
 
 When `src` is absent or the image fails to load, the `fallback` shows — typically 1–2 uppercase
 initials, or an icon. Without a `fallback`, the bare `bg-accent` circle remains.
@@ -84,9 +87,12 @@ the delay elapses. It is forwarded to Base UI `Avatar.Fallback`.
 <Avatar src={url} alt="Ada Lovelace" fallback="AL" fallbackDelay={600} />
 ```
 
-<ComponentPreview name="avatarFallbackDelay" file="components/preview/avatar.tsx" />
+<ComponentPreview
+  name="avatarFallbackDelay"
+  file="components/preview/avatar.tsx"
+/>
 
-## Group
+### Group
 
 `AvatarGroup` overlaps its children into a stack and gives each a `ring-background` so the overlap
 reads cleanly on any surface. Add a trailing `Avatar` with a `+N` fallback to indicate overflow.
@@ -97,7 +103,10 @@ Control overlap density with `spacing` (`tight` · `default` · `loose`).
 The three `spacing` values side by side — `tight` tucks each avatar furthest under the previous,
 `loose` overlaps the least:
 
-<ComponentPreview name="avatarGroupSpacing" file="components/preview/avatar.tsx" />
+<ComponentPreview
+  name="avatarGroupSpacing"
+  file="components/preview/avatar.tsx"
+/>
 
 ## API Reference
 

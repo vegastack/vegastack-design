@@ -1,4 +1,4 @@
-// @vegastack color-picker@0.2.0 sha256-renCIzzdbNiq4yD3rd368dfeManCFL+fg45QOo4ZVBQ=
+// @vegastack color-picker@0.2.0 sha256-YkcZ+ayLTdZLtNbmHSbJ8n5u4e5dHRPMog4ocR54awY=
 
 "use client";
 
@@ -79,14 +79,19 @@ export const DEFAULT_COLORS: readonly ColorOption[] = [
   { name: "rose", label: "Rose", color: "var(--color-chart-6)" },
 ] as const;
 
+/** Props accepted by `ColorPicker`. */
 export interface ColorPickerProps {
   /**
    * The currently selected color, matched against each `ColorOption.name`. When it matches an option,
    * that swatch shows a check and the trigger renders its color.
+
+   * @default undefined
    */
   value?: string;
   /**
    * Fired when a swatch is picked, with the chosen `ColorOption.name`.
+
+   * @default undefined
    */
   onValueChange?: (value: string) => void;
   /**
@@ -111,11 +116,15 @@ export interface ColorPickerProps {
   "aria-label"?: string;
   /**
    * Extra classes for the trigger swatch button.
+
+   * @default undefined
    */
   className?: string;
   /**
    * Ref forwarded to the trigger button — the component's focusable root (the popover content is
    * portaled, so the trigger is the stable host element to focus/measure).
+
+   * @default undefined
    */
   ref?: React.Ref<HTMLButtonElement>;
 }
@@ -129,7 +138,7 @@ export interface ColorPickerProps {
  * Controlled-only: pass `value` + `onValueChange`. The displayed colors come from `colors` (defaults
  * to {@link DEFAULT_COLORS}).
  *
- * **Keyboard:** the swatch grid uses a roving tabindex (WAI-ARIA grid pattern) — only one swatch is
+ * **Keyboard:** the swatch group uses a roving tabindex — only one swatch is
  * ever Tab-reachable at a time. `ArrowLeft`/`ArrowRight` move one swatch; `ArrowUp`/`ArrowDown` move
  * by `columns`; `Home`/`End` jump to the first/last swatch in the whole grid. The active swatch
  * starts on the current `value` (falling back to the first swatch), and clicking or focusing a
@@ -150,9 +159,12 @@ export function ColorPicker({
   ref,
 }: ColorPickerProps) {
   const selected = colors.find((c) => c.name === value);
+  const columnCount = Number.isFinite(columns)
+    ? Math.max(1, Math.floor(columns))
+    : 1;
 
   // Roving tabindex: exactly one swatch is in the tab order (`tabIndex 0`) at a time — the rest are
-  // `-1` — so Tab only stops once on the grid, matching the WAI-ARIA grid pattern. Arrow keys move
+  // `-1` — so Tab only stops once on the swatch group. Arrow keys move
   // the "active" index (and DOM focus) around the grid; click selection is unchanged. The active
   // index tracks the palette's currently-selected color when it's present (so re-opening the popover
   // lands keyboard focus on the current value), falling back to the first swatch otherwise.
@@ -186,22 +198,23 @@ export function ColorPicker({
   const handleGridKeyDown = React.useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
       if (disabled || colors.length === 0) return;
+      const isRtl = getComputedStyle(event.currentTarget).direction === "rtl";
       switch (event.key) {
         case "ArrowRight":
           event.preventDefault();
-          focusSwatch(activeIndex + 1);
+          focusSwatch(activeIndex + (isRtl ? -1 : 1));
           break;
         case "ArrowLeft":
           event.preventDefault();
-          focusSwatch(activeIndex - 1);
+          focusSwatch(activeIndex + (isRtl ? 1 : -1));
           break;
         case "ArrowDown":
           event.preventDefault();
-          focusSwatch(activeIndex + columns);
+          focusSwatch(activeIndex + columnCount);
           break;
         case "ArrowUp":
           event.preventDefault();
-          focusSwatch(activeIndex - columns);
+          focusSwatch(activeIndex - columnCount);
           break;
         case "Home":
           event.preventDefault();
@@ -215,7 +228,7 @@ export function ColorPicker({
           break;
       }
     },
-    [activeIndex, colors.length, columns, disabled, focusSwatch],
+    [activeIndex, colors.length, columnCount, disabled, focusSwatch],
   );
 
   return (
@@ -237,7 +250,7 @@ export function ColorPicker({
               className="size-3.5 rounded-sm border border-border bg-clip-padding"
               // Dynamic user color — the sanctioned inline-style exception (see file header).
               // Dynamic swatch color, not a design token.
-              style={{ backgroundColor: selected?.color ?? "transparent" }}
+              style={selected ? { backgroundColor: selected.color } : undefined}
             />
           </Button>
         }
@@ -255,7 +268,9 @@ export function ColorPicker({
           // custom property (`--swatch-cols`); the arbitrary-value class consumes it as the grid
           // template — so no direct visual property is set inline (contract-clean per §7.1).
           className="grid gap-1.5 grid-cols-[repeat(var(--swatch-cols),minmax(0,1fr))]"
-          style={{ ["--swatch-cols"]: String(columns) } as React.CSSProperties}
+          style={
+            { ["--swatch-cols"]: String(columnCount) } as React.CSSProperties
+          }
         >
           {colors.map((color, index) => {
             const isSelected = color.name === value;
@@ -290,24 +305,15 @@ export function ColorPicker({
                     isSelected && "border-primary",
                   )}
                   // Dynamic user color — the sanctioned inline-style exception (see file header).
-                  // `--swatch-color` mirrors it so the check ink below can derive from it in CSS.
-                  style={{ backgroundColor: color.color, '--swatch-color': color.color } as React.CSSProperties}
+                  style={{ backgroundColor: color.color }}
                 >
                   {isSelected ? (
-                    // The check draws DIRECTLY on the swatch so the color identity stays visible
-                    // (a background disc would cover most of a 20px swatch). Its ink is
-                    // LUMINANCE-AWARE via CSS relative color syntax: derived from the swatch's
-                    // own resolved color — pure white when the swatch is dark (oklch L < 0.65),
-                    // pure black when it is light — a step function built from clamp(). This is
-                    // deterministic per swatch in both themes; a blend-mode inversion (the
-                    // previous approach) produced a DIFFERENT murky hue per swatch (dark-ish on
-                    // blue, blue-ish on yellow) instead of a legible neutral.
-                    <Check
+                    <span
                       data-slot="color-picker-check"
-                      className="size-(--icon-compact) [color:oklch(from_var(--swatch-color)_clamp(0,(0.65_-_l)_*_999,1)_0_h)]"
-                      strokeWidth={3}
-                      aria-hidden
-                    />
+                      className="flex size-3.5 items-center justify-center rounded-full bg-background text-foreground"
+                    >
+                      <Check className="size-(--icon-compact)" aria-hidden />
+                    </span>
                   ) : null}
                 </span>
               </Button>

@@ -1,6 +1,7 @@
 ---
 title: Page Header
 description: The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star.
+audience: public
 preview: pageHeader
 ---
 
@@ -15,8 +16,8 @@ npx shadcn@latest add @vegastack/page-header
 ## Usage
 
 ```tsx
-import { PageHeader } from '@/components/ui/page-header';
-import { Button } from '@/components/ui/button';
+import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
 
 <PageHeader
   title="Spaces"
@@ -42,16 +43,16 @@ left **title block** (back button, `<h1>`, favorite star, description) and a rig
 
 ```tsx
 <PageHeader
-  backHref="/settings"            // ← page-header-back   (<a>, ChevronLeft)
-  breadcrumb={<Breadcrumb>…</Breadcrumb>}  // ← page-header-breadcrumb
-  title="API Keys"               // ← page-header-title  (<h1>)
-  description="Manage keys."      // ← page-header-description
-  favorite={{ defaultActive: true }}  // ← page-header-favorite (Star toggle)
-  actions={<Button>Create key</Button>}  // ← page-header-actions
+  backHref="/settings" // ← page-header-back   (<a>, ChevronLeft)
+  breadcrumb={<Breadcrumb>…</Breadcrumb>} // ← page-header-breadcrumb
+  title="API Keys" // ← page-header-title  (<h1>)
+  description="Manage keys." // ← page-header-description
+  favorite={{ defaultActive: true }} // ← page-header-favorite (Star toggle)
+  actions={<Button>Create key</Button>} // ← page-header-actions
   secondaryMenu={<DropdownMenu>…</DropdownMenu>}
 >
   {/* children render below the header row */}
-</PageHeader>;
+</PageHeader>
 ```
 
 - `page-header` — the root container (`<header>`, vertical stack). A banner landmark when
@@ -75,7 +76,10 @@ left **title block** (back button, `<h1>`, favorite star, description) and a rig
 The only required prop is `title`. With nothing else, `PageHeader` renders just the `<h1>` —
 every other slot (back button, breadcrumb, description, favorite, actions) is opt-in:
 
-<ComponentPreview name="pageHeaderMinimal" file="components/preview/page-header.tsx" />
+<ComponentPreview
+  name="pageHeaderMinimal"
+  file="components/preview/page-header.tsx"
+/>
 
 ```tsx
 <PageHeader title="Profile" />
@@ -86,7 +90,10 @@ every other slot (back button, breadcrumb, description, favorite, actions) is op
 A back button (rendered as a link via `backHref`), a full breadcrumb trail, a description, and two
 actions on the right:
 
-<ComponentPreview name="pageHeaderWithBreadcrumb" file="components/preview/page-header.tsx" />
+<ComponentPreview
+  name="pageHeaderWithBreadcrumb"
+  file="components/preview/page-header.tsx"
+/>
 
 ### Back navigation
 
@@ -95,7 +102,10 @@ imperative action (renders a `<button>`). The two render different elements; `on
 precedence when both are set. The preview below uses `onBack`, so the back affordance is a
 real `<button>`:
 
-<ComponentPreview name="pageHeaderBack" file="components/preview/page-header.tsx" />
+<ComponentPreview
+  name="pageHeaderBack"
+  file="components/preview/page-header.tsx"
+/>
 
 ```tsx
 // Link — renders an <a>
@@ -111,7 +121,10 @@ An overlong tenant or workspace title truncates with an ellipsis instead of over
 header row. The full title reveals via a tooltip on hover or keyboard focus — a tap-to-toggle
 disclosure on devices that can't hover (see `TruncatedText`):
 
-<ComponentPreview name="pageHeaderLongTitle" file="components/preview/page-header.tsx" />
+<ComponentPreview
+  name="pageHeaderLongTitle"
+  file="components/preview/page-header.tsx"
+/>
 
 ```tsx
 <PageHeader title="Q3 Platform Reliability & Performance Engineering Initiative Retrospective" />
@@ -123,7 +136,10 @@ The star is controlled when you pass `active`, or uncontrolled when you pass `de
 reports the next state through `onToggle`. Pass `disabled` to remove it from the tab order. The
 preview shows a controlled star (click to toggle) above a disabled one:
 
-<ComponentPreview name="pageHeaderFavoriteControlled" file="components/preview/page-header.tsx" />
+<ComponentPreview
+  name="pageHeaderFavoriteControlled"
+  file="components/preview/page-header.tsx"
+/>
 
 ```tsx
 // Uncontrolled — seeds initial state, host persists on toggle
@@ -141,7 +157,10 @@ preview shows a controlled star (click to toggle) above a disabled one:
 Compose your own overflow menu (e.g. a `DropdownMenu` with an `IconButton` trigger) and pass it via
 `secondaryMenu` — it renders to the right of `actions`:
 
-<ComponentPreview name="pageHeaderSecondaryMenu" file="components/preview/page-header.tsx" />
+<ComponentPreview
+  name="pageHeaderSecondaryMenu"
+  file="components/preview/page-header.tsx"
+/>
 
 ```tsx
 <PageHeader
@@ -149,22 +168,40 @@ Compose your own overflow menu (e.g. a `DropdownMenu` with an `IconButton` trigg
   actions={<Button>New space</Button>}
   secondaryMenu={
     <DropdownMenu>
-      <DropdownMenuTrigger render={<IconButton aria-label="More actions"><MoreVertical /></IconButton>} />
+      <DropdownMenuTrigger
+        render={
+          <IconButton aria-label="More actions">
+            <MoreVertical />
+          </IconButton>
+        }
+      />
       <DropdownMenuContent>{/* … */}</DropdownMenuContent>
     </DropdownMenu>
   }
-/>;
+/>
 ```
 
 ## API Reference
 
 ### PageHeader
 
-<AutoTypeTable path="../../packages/ui/registry/ui/page-header.tsx" name="PageHeaderProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/page-header.tsx"
+  name="PageHeaderProps"
+/>
 
 ### PageHeaderFavorite
 
-<AutoTypeTable path="../../packages/ui/registry/ui/page-header.tsx" name="PageHeaderFavorite" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/page-header.tsx"
+  name="PageHeaderFavorite"
+/>
+
+### FavoriteStar
+
+`FavoriteStar` renders the controlled star toggle used by `PageHeader`'s `favorite` slot. Prefer the
+`favorite` prop for ordinary page headers; export-level composition is available when the same toggle
+must be placed elsewhere.
 
 ## Accessibility
 
@@ -181,11 +218,11 @@ Compose your own overflow menu (e.g. a `DropdownMenu` with an `IconButton` trigg
   `label` (default `"Favorite"`); the visual fill is decorative.
 - All interactive parts are keyboard reachable and operable; the visual order matches the DOM order.
 
-| Key | Action |
-| --- | --- |
-| <kbd>Tab</kbd> | Move focus through the back button, favorite star, and actions. |
-| <kbd>Enter</kbd> | Follow the back link, or activate the focused button. |
-| <kbd>Space</kbd> | Activate the focused button (back / favorite / action). |
+| Key              | Action                                                          |
+| ---------------- | --------------------------------------------------------------- |
+| <kbd>Tab</kbd>   | Move focus through the back button, favorite star, and actions. |
+| <kbd>Enter</kbd> | Follow the back link, or activate the focused button.           |
+| <kbd>Space</kbd> | Activate the focused button (back / favorite / action).         |
 
 ## Do / Don't
 

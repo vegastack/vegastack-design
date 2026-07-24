@@ -1,6 +1,7 @@
 ---
 title: Pagination
 description: Page navigation — previous/next, numbered page links, an ellipsis for long ranges, and the active page.
+audience: public
 preview: pagination
 ---
 
@@ -15,7 +16,15 @@ npx shadcn@latest add @vegastack/pagination
 ## Usage
 
 ```tsx
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 <Pagination>
   <PaginationContent>
@@ -135,6 +144,17 @@ On the **last page**, mirror the pattern on `PaginationNext`:
 
 <ComponentPreview
   name="paginationLastPage"
+  file="components/preview/pagination.tsx"
+/>
+
+### Positional pager
+
+`PaginationPager` is the compact record-pager: previous/next steppers + a "n of N [context]"
+status label (bounds-disabled at the ends, tabular numerals). Use it for stepping through
+items of a known list; keep `Pagination` for numbered page navigation.
+
+<ComponentPreview
+  name="paginationPager"
   file="components/preview/pagination.tsx"
 />
 

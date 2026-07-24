@@ -13,9 +13,9 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P3 | Loading spinner uses `animate-spin` at `badge.tsx:172` without `motion-reduce:animate-none`. | Inconsistent reduced-motion behavior versus status components. | Add reduced-motion class and test if practical. |
+| Priority | Evidence                                                                                     | Impact                                                         | Suggested fix                                   |
+| -------- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | ----------------------------------------------- |
+| P3       | Loading spinner uses `animate-spin` at `badge.tsx:172` without `motion-reduce:animate-none`. | Inconsistent reduced-motion behavior versus status components. | Add reduced-motion class and test if practical. |
 
 ## Residual Risks
 
@@ -24,4 +24,3 @@ Registry metadata says no Radix dependency. No major API issue found.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- badge.test.tsx`
-

@@ -1,7 +1,11 @@
-import * as React from 'react';
-import { render } from 'vitest-browser-react';
-import { expect, test } from 'vitest';
-import { mergeRefs, useAnimationReplay, useShakeOnInvalid } from './use-animation-replay';
+import * as React from "react";
+import { render } from "vitest-browser-react";
+import { expect, test } from "vitest";
+import {
+  mergeRefs,
+  useAnimationReplay,
+  useShakeOnInvalid,
+} from "./use-animation-replay";
 
 /* ---------------------------------------------------------------------------------------------
  * Real-animation mirror (same technique as checkbox.test.tsx's "Touch-target remediation" suite
@@ -12,7 +16,7 @@ import { mergeRefs, useAnimationReplay, useShakeOnInvalid } from './use-animatio
  * exercises the hook's actual class-toggle + `animationend`-cleanup mechanism, not a mocked one.
  * ------------------------------------------------------------------------------------------- */
 function injectShakeMirror(durationMs = 60): () => void {
-  const style = document.createElement('style');
+  const style = document.createElement("style");
   style.textContent = `
     @keyframes test-shake { to { translate: 0 0; } }
     .motion-shake { animation: test-shake ${durationMs}ms linear; }
@@ -26,7 +30,7 @@ function injectShakeMirror(durationMs = 60): () => void {
  * ----------------------------------------------------------------------------------------- */
 
 function ReplayHarness() {
-  const replay = useAnimationReplay('motion-shake');
+  const replay = useAnimationReplay("motion-shake");
   return (
     <div>
       <button type="button" onClick={replay.replay}>
@@ -43,63 +47,69 @@ function ReplayHarness() {
   );
 }
 
-test('at rest, no animation class is applied', async () => {
+test("at rest, no animation class is applied", async () => {
   const screen = await render(<ReplayHarness />);
-  await expect.element(screen.getByTestId('target')).not.toHaveClass('motion-shake');
+  await expect
+    .element(screen.getByTestId("target"))
+    .not.toHaveClass("motion-shake");
 });
 
-test('replay() applies the animation class', async () => {
+test("replay() applies the animation class", async () => {
   const screen = await render(<ReplayHarness />);
-  await screen.getByRole('button', { name: 'replay' }).click();
-  await expect.element(screen.getByTestId('target')).toHaveClass('motion-shake');
+  await screen.getByRole("button", { name: "replay" }).click();
+  await expect
+    .element(screen.getByTestId("target"))
+    .toHaveClass("motion-shake");
 });
 
-test('the class clears itself once the CSS animation actually finishes (animationend)', async () => {
-  const cleanup = injectShakeMirror(50);
+test("the class clears itself once the CSS animation actually finishes (animationend)", async () => {
+  // Keep the class applied long enough for the browser locator to observe it even on a contended
+  // CI worker; 50ms could finish between Playwright's click and its first assertion poll.
+  const cleanup = injectShakeMirror(300);
   try {
     const screen = await render(<ReplayHarness />);
-    const target = screen.getByTestId('target');
-    await screen.getByRole('button', { name: 'replay' }).click();
-    await expect.element(target).toHaveClass('motion-shake');
+    const target = screen.getByTestId("target");
+    await screen.getByRole("button", { name: "replay" }).click();
+    await expect.element(target).toHaveClass("motion-shake");
     await expect
       .poll(() => target.element().className, { timeout: 2000 })
-      .not.toContain('motion-shake');
+      .not.toContain("motion-shake");
   } finally {
     cleanup();
   }
 });
 
-test('replaying while already playing restarts cleanly instead of getting stuck active', async () => {
+test("replaying while already playing restarts cleanly instead of getting stuck active", async () => {
   const cleanup = injectShakeMirror(300);
   try {
     const screen = await render(<ReplayHarness />);
-    const button = screen.getByRole('button', { name: 'replay' });
-    const target = screen.getByTestId('target');
+    const button = screen.getByRole("button", { name: "replay" });
+    const target = screen.getByTestId("target");
 
     await button.click();
-    await expect.element(target).toHaveClass('motion-shake');
+    await expect.element(target).toHaveClass("motion-shake");
 
     // Interrupt mid-animation — a second failed submission while the control is still shaking.
     await button.click();
     // Still (or again) playing — the interruption didn't cancel the animation outright.
-    await expect.element(target).toHaveClass('motion-shake');
+    await expect.element(target).toHaveClass("motion-shake");
 
     // And it still settles back to rest afterwards — doesn't get permanently stuck "active".
     await expect
       .poll(() => target.element().className, { timeout: 3000 })
-      .not.toContain('motion-shake');
+      .not.toContain("motion-shake");
   } finally {
     cleanup();
   }
 });
 
-test('an animationend bubbling from a descendant does not clear the parent state', async () => {
+test("an animationend bubbling from a descendant does not clear the parent state", async () => {
   // The child's own animation is much SHORTER than the parent's, and unconditionally applied —
   // it fires (and bubbles) an `animationend` WHILE the parent's replayed animation is still
   // supposed to be mid-playback. The `event.target === event.currentTarget` guard in
   // `onAnimationEnd` must ignore that bubbled event so the parent doesn't clear early.
   function NestedHarness() {
-    const replay = useAnimationReplay('motion-shake');
+    const replay = useAnimationReplay("motion-shake");
     return (
       <div>
         <button type="button" onClick={replay.replay}>
@@ -115,7 +125,7 @@ test('an animationend bubbling from a descendant does not clear the parent state
       </div>
     );
   }
-  const style = document.createElement('style');
+  const style = document.createElement("style");
   style.textContent = `
     @keyframes test-shake { to { translate: 0 0; } }
     @keyframes test-shake-short { to { translate: 0 0; } }
@@ -125,13 +135,13 @@ test('an animationend bubbling from a descendant does not clear the parent state
   document.head.appendChild(style);
   try {
     const screen = await render(<NestedHarness />);
-    await screen.getByRole('button', { name: 'replay' }).click();
-    const parent = screen.getByTestId('parent');
-    await expect.element(parent).toHaveClass('motion-shake');
+    await screen.getByRole("button", { name: "replay" }).click();
+    const parent = screen.getByTestId("parent");
+    await expect.element(parent).toHaveClass("motion-shake");
     // The child's short animation has already fired+bubbled `animationend` by now, well before
     // the parent's own 400ms animation would naturally finish.
     await new Promise((resolve) => setTimeout(resolve, 150));
-    expect(parent.element().className).toContain('motion-shake');
+    expect(parent.element().className).toContain("motion-shake");
   } finally {
     document.head.removeChild(style);
   }
@@ -141,7 +151,7 @@ test('an animationend bubbling from a descendant does not clear the parent state
  * mergeRefs
  * ----------------------------------------------------------------------------------------- */
 
-test('mergeRefs attaches the same node to an object ref and a callback ref', async () => {
+test("mergeRefs attaches the same node to an object ref and a callback ref", async () => {
   const objectRef = React.createRef<HTMLDivElement>();
   const seen: Array<HTMLDivElement | null> = [];
   const callbackRef = (node: HTMLDivElement | null) => {
@@ -155,7 +165,7 @@ test('mergeRefs attaches the same node to an object ref and a callback ref', asy
   expect(seen.at(-1)).toBe(el);
 });
 
-test('mergeRefs skips null/undefined entries without throwing', async () => {
+test("mergeRefs skips null/undefined entries without throwing", async () => {
   const objectRef = React.createRef<HTMLDivElement>();
   const combined = mergeRefs(objectRef, null, undefined);
   await render(<div ref={combined} data-testid="merged-safe" />);
@@ -185,15 +195,15 @@ function TransitionHarness() {
   );
 }
 
-test('auto-shakes once when the observed element transitions into invalid', async () => {
+test("auto-shakes once when the observed element transitions into invalid", async () => {
   const screen = await render(<TransitionHarness />);
-  const input = screen.getByLabelText('Name');
-  await expect.element(input).not.toHaveClass('motion-shake');
-  await screen.getByRole('button', { name: 'invalidate' }).click();
-  await expect.element(input).toHaveClass('motion-shake');
+  const input = screen.getByLabelText("Name");
+  await expect.element(input).not.toHaveClass("motion-shake");
+  await screen.getByRole("button", { name: "invalidate" }).click();
+  await expect.element(input).toHaveClass("motion-shake");
 });
 
-test('does not shake a control that is already invalid at mount (no shake on first paint)', async () => {
+test("does not shake a control that is already invalid at mount (no shake on first paint)", async () => {
   function AlreadyInvalidHarness() {
     const shake = useShakeOnInvalid();
     return (
@@ -207,13 +217,15 @@ test('does not shake a control that is already invalid at mount (no shake on fir
     );
   }
   const screen = await render(<AlreadyInvalidHarness />);
-  const input = screen.getByLabelText('Code');
+  const input = screen.getByLabelText("Code");
   // Give the mount effect + any (incorrect) auto-shake a moment to run before asserting absence.
   await new Promise((resolve) => setTimeout(resolve, 100));
-  expect((input.element() as HTMLElement).className).not.toContain('motion-shake');
+  expect((input.element() as HTMLElement).className).not.toContain(
+    "motion-shake",
+  );
 });
 
-test('staying invalid across re-renders (no attribute change) does not re-shake', async () => {
+test("staying invalid across re-renders (no attribute change) does not re-shake", async () => {
   function StaysInvalidHarness() {
     const [, forceRerender] = React.useReducer((count: number) => count + 1, 0);
     const shake = useShakeOnInvalid();
@@ -233,11 +245,13 @@ test('staying invalid across re-renders (no attribute change) does not re-shake'
     );
   }
   const screen = await render(<StaysInvalidHarness />);
-  const input = screen.getByLabelText('Code');
+  const input = screen.getByLabelText("Code");
   await new Promise((resolve) => setTimeout(resolve, 100));
-  await screen.getByRole('button', { name: 'rerender' }).click();
-  await screen.getByRole('button', { name: 'rerender' }).click();
-  expect((input.element() as HTMLElement).className).not.toContain('motion-shake');
+  await screen.getByRole("button", { name: "rerender" }).click();
+  await screen.getByRole("button", { name: "rerender" }).click();
+  expect((input.element() as HTMLElement).className).not.toContain(
+    "motion-shake",
+  );
 });
 
 function SignalHarness({ initiallyInvalid }: { initiallyInvalid: boolean }) {
@@ -260,23 +274,25 @@ function SignalHarness({ initiallyInvalid }: { initiallyInvalid: boolean }) {
   );
 }
 
-test('shakeSignal re-triggers the shake on repeated failure while already invalid', async () => {
+test("shakeSignal re-triggers the shake on repeated failure while already invalid", async () => {
   const screen = await render(<SignalHarness initiallyInvalid />);
-  const input = screen.getByLabelText('Name');
+  const input = screen.getByLabelText("Name");
   // Mounts already invalid — no shake yet (see the mount test above).
   await new Promise((resolve) => setTimeout(resolve, 100));
-  await expect.element(input).not.toHaveClass('motion-shake');
+  await expect.element(input).not.toHaveClass("motion-shake");
 
-  await screen.getByRole('button', { name: 'retry' }).click();
-  await expect.element(input).toHaveClass('motion-shake');
+  await screen.getByRole("button", { name: "retry" }).click();
+  await expect.element(input).toHaveClass("motion-shake");
 });
 
-test('shakeSignal is ignored while the control is valid', async () => {
+test("shakeSignal is ignored while the control is valid", async () => {
   const screen = await render(<SignalHarness initiallyInvalid={false} />);
-  const input = screen.getByLabelText('Name');
-  await screen.getByRole('button', { name: 'retry' }).click();
+  const input = screen.getByLabelText("Name");
+  await screen.getByRole("button", { name: "retry" }).click();
   await new Promise((resolve) => setTimeout(resolve, 100));
-  expect((input.element() as HTMLElement).className).not.toContain('motion-shake');
+  expect((input.element() as HTMLElement).className).not.toContain(
+    "motion-shake",
+  );
 });
 
 /* -------------------------------------------------------------------------------------------
@@ -306,22 +322,24 @@ function FocusHarness() {
   );
 }
 
-test('shaking a focused input preserves focus, value, and caret/selection', async () => {
+test("shaking a focused input preserves focus, value, and caret/selection", async () => {
   const cleanup = injectShakeMirror();
   try {
     const screen = await render(<FocusHarness />);
-    const input = screen.getByLabelText('Email').element() as HTMLInputElement;
+    const input = screen.getByLabelText("Email").element() as HTMLInputElement;
 
     input.focus();
-    input.value = 'ada@example.com';
+    input.value = "ada@example.com";
     input.setSelectionRange(3, 6);
     expect(document.activeElement).toBe(input);
 
-    await expect.poll(() => input.className, { timeout: 2000 }).toContain('motion-shake');
+    await expect
+      .poll(() => input.className, { timeout: 2000 })
+      .toContain("motion-shake");
 
     // The element identity never changed (no remount), so all of this survives the shake.
     expect(document.activeElement).toBe(input);
-    expect(input.value).toBe('ada@example.com');
+    expect(input.value).toBe("ada@example.com");
     expect(input.selectionStart).toBe(3);
     expect(input.selectionEnd).toBe(6);
   } finally {

@@ -1,6 +1,7 @@
 ---
 title: Theming & dark mode
 description: The override model — how .dark works, the OKLCH :root/.dark token sets, the @theme inline bridge, and the one-file custom theme.
+audience: public
 ---
 
 Theming is a single idea: **every visual decision is a CSS variable, and you override it in one file.**
@@ -34,10 +35,12 @@ light value under `:root` or the dark value under `.dark`:
 ```
 
 <Callout type="info">
-Not every token is redefined in `.dark`. The saturated marks (`--primary` fill, the status + `--info` fills, the
-`hover`/`active`/`foreground` states) are **theme-independent** — a `bg-destructive` button reads the
-same on a light or dark page. Only the theme-aware tokens (surfaces, `--muted-foreground`, the `subtle`
-/ `text` pairs, `--border`, `--ring`, `--overlay`) appear in both blocks. See [Colors](/docs/foundations/colors).
+  Not every token is redefined in `.dark`. The saturated status + `--info` fills
+  and their `hover`/`active`/`foreground` states) are **theme-independent** — a
+  `bg-destructive` button reads the same on a light or dark page. Theme-aware
+  tokens include `--primary`, surfaces, `--muted-foreground`, the `subtle` /
+  `text` pairs, `--border`, `--ring`, `--overlay`) appear in both blocks. See
+  [Colors](/docs/foundations/colors).
 </Callout>
 
 ## The `@theme inline` bridge
@@ -56,12 +59,12 @@ The link between the two is the `@theme inline` block, which maps each raw token
 ```
 
 Because the bridge points at `var(--primary)` (not a baked value), it is **transparent to overrides**.
-Change `--primary` and `--color-primary` follows automatically, so `bg-primary`, `bg-primary/10`, and
-`ring-primary` all repaint at once.
+Change `--primary` and `--color-primary` follows automatically, so `bg-primary`,
+`bg-primary/(--alpha-surface-subtle)`, and the `--ring`-keyed focus outline all repaint at once.
 
 The bridge also exposes the non-color scales as Tailwind theme keys:
 
-- **Radius** — `--radius-sm` / `--radius-md` / `--radius-lg` (`--radius` aliases `--radius-lg` at `0.75rem`), plus a bridge-only `--radius-xl` = `calc(var(--radius-lg) + 0.25rem)`.
+- **Radius** — the named 2/6/8/12px roles: `--radius-xs`/`--radius-sharp`, `--radius-sm`, `--radius-md`, and `--radius-lg` (`--radius` aliases `--radius-lg`). There is no `--radius-xl`; full pills use the semantic `rounded-full` role.
 - **Type** — the `--text-*` ramp (`display`, `h1`…`h4`, `label`, `label-sm`, `code`, `code-sm`), each with a paired `--text-<name>--line-height`.
 - **Fonts** — `--font-sans` / `--font-mono` / `--font-serif`, bridged from `--font-family-*`.
 - **Motion** — `--ease-standard` / `--ease-emphasized` / `--ease-exit`, bridged from `--motion-ease-*`; durations as `--duration-fast|base|slow`.
@@ -102,7 +105,7 @@ semantic names; **do not** hardcode hex or introduce new raw palettes.
 
 Focus is one convention, theme-aware via a single token. The visible `:focus-visible` outline is keyed
 off `--ring` (light `oklch(0.353 0.003 75)`, dark `oklch(0.922 0.003 75)`), drawn as a **2px outline
-with 2px offset** — there are no separate ring-width or offset tokens. Override `--ring` and every
+with 1px offset** — there are no separate ring-width or offset tokens. Override `--ring` and every
 focusable element follows.
 
 <FocusRingSpecimen />
@@ -125,9 +128,10 @@ individual components:
 }
 ```
 
-This is the **only** sanctioned `!important` in the system. For JS-driven motion (the optional `motion`
-peer), wrap the tree in Framer Motion's `<MotionConfig reducedMotion="user">` so programmatic animations
-honor the same preference. The specimen below collapses to its static state under reduced motion:
+This is the **only** sanctioned `!important` in the system. Generated VegaStack animated icons enforce
+reduced motion intrinsically. For other application-authored JS motion, configure the renderer (for
+example Motion's `<MotionConfig reducedMotion="user">`) to honor the same preference. The specimen
+below collapses to its static state under reduced motion:
 
 <MotionSpecimen />
 

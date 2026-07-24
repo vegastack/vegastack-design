@@ -24,7 +24,7 @@ Three non-negotiable principles drive every fix:
    hex/px, no raw palette utilities (`bg-neutral-900`), no ad-hoc font sizes. Labels, helper text, etc.
    must use the design system's type tokens, not improvised classes.
 3. **Adversarial & skeptical, always.** Trust nothing at face value — not the feedback, not the existing
-   code, not my own fix. Treat each transcript as a *symptom*, not the whole bug: hunt the root cause and
+   code, not my own fix. Treat each transcript as a _symptom_, not the whole bug: hunt the root cause and
    the entire class of the defect. Assume more issues exist than were reported and go looking. Assume the
    existing code is wrong until proven right (the stale registry JSONs proved this). **Try to break every
    fix** before calling it done — every state (hover/focus-visible/active/disabled/loading/empty/error/
@@ -38,12 +38,12 @@ Three non-negotiable principles drive every fix:
 
 Each component exists in **three synced places**, but only **one is hand-edited**:
 
-| Role | Path | Edit it? |
-|------|------|----------|
-| **Canonical source** | `packages/ui/registry/ui/<name>.tsx` | ✅ **EDIT THIS — the only file you change.** |
-| **Consumed copy (generated)** | `apps/docs/components/ui/<name>.tsx` | ❌ Never hand-edit. Re-synced byte-for-byte from canonical. Imported as `@/components/ui/<name>` — what the preview actually renders. |
-| **Registry JSON (generated)** | `apps/docs/public/r/<name>.json` | ❌ Never hand-edit. Holds `meta.integrity` SHA-256 + provenance header. |
-| Demo (compose only) | `apps/docs/components/preview/<name>.tsx` | ❌ Never fix component styling here — demos only COMPOSE. |
+| Role                          | Path                                      | Edit it?                                                                                                                              |
+| ----------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| **Canonical source**          | `packages/ui/registry/ui/<name>.tsx`      | ✅ **EDIT THIS — the only file you change.**                                                                                          |
+| **Consumed copy (generated)** | `apps/docs/components/ui/<name>.tsx`      | ❌ Never hand-edit. Re-synced byte-for-byte from canonical. Imported as `@/components/ui/<name>` — what the preview actually renders. |
+| **Registry JSON (generated)** | `apps/docs/public/r/<name>.json`          | ❌ Never hand-edit. Holds `meta.integrity` SHA-256 + provenance header.                                                               |
+| Demo (compose only)           | `apps/docs/components/preview/<name>.tsx` | ❌ Never fix component styling here — demos only COMPOSE.                                                                             |
 
 **Regeneration:** after editing canonical, run **`npm run registry:build`**
 (= `shadcn build` → `registry-stamp` → `registry-header` → `verify-headers`). It re-syncs the copy-in
@@ -58,6 +58,7 @@ PATH needs `/opt/homebrew/opt/node@24/bin`.
 > rebuild → copy auto-synced round-trip.
 
 **Token/theme layer (ripples across everything):**
+
 - `design.md` — master spec (source of intent)
 - `packages/tokens/tokens/*.json` — token source (primitives / semantic / dark)
 - `packages/tokens/dist/theme.css` + `base.css` — compiled, imported by docs via `apps/docs/app/global.css`
@@ -69,6 +70,7 @@ PATH needs `/opt/homebrew/opt/node@24/bin`.
 For **each** transcript, follow this loop:
 
 ### Step A — Diagnose (no edits yet)
+
 1. Parse the transcript; identify the exact component(s) and the precise visual/behavioral issue.
 2. Open the live preview, **inspect the element** (`preview_inspect` / `preview_snapshot`) to confirm the
    real computed cause — not a guess. Read the canonical + copy source.
@@ -76,20 +78,23 @@ For **each** transcript, follow this loop:
    gap, a11y/state gap, etc.
 
 ### Step B — Systemic scan (**list first, then fix** — locked)
+
 4. Search the **whole library** for the same class of issue (e.g. if a child `Button` is restyled in
    Dialog, check every overlay/compound component for the same leak).
 5. Present MK a **diagnosis + full list of affected components + the planned fix** and **wait for
-   "go"** before editing. (Decision: *Diagnose-then-confirm*.)
+   "go"** before editing. (Decision: _Diagnose-then-confirm_.)
 
 ### Step C — Fix (after approval)
+
 6. Edit **canonical only** (`packages/ui/registry/ui/<name>.tsx`) for every affected component, then run
    **`npm run registry:build`** to regenerate the copy-ins + JSONs + headers. Never hand-edit the copy-in
    or fix styling in `preview/*.tsx`. (Run rebuild **per approved batch**; per component if isolated.)
 7. **Component-level styling → auto-fix** across all affected components in one pass.
    **Token/theme/`design.md` changes → propose first, wait for approval** (they ripple everywhere).
-   (Decision: *Propose-first for tokens, auto for components*.)
+   (Decision: _Propose-first for tokens, auto for components_.)
 
 ### Step D — Verify (adversarially — try to break it)
+
 8. Reload preview, re-inspect to confirm the fix on the originally-reported component **and** on the
    other components found in the sweep. Confirm by **inspecting the computed result**, never by assuming
    the edit "should" work.
@@ -100,12 +105,13 @@ For **each** transcript, follow this loop:
 11. Capture a screenshot as proof for visual changes.
 
 ### Step E — Report
+
 11. Show MK a **report table** (see §5) of components checked + fixed, in plain language, with clickable
     preview links.
 
 **Git/VRT:** All changes stay **uncommitted** in the working tree. I commit only on MK's explicit
 "commit" (then build + full-diff review + approval per standard workflow). VRT screenshot baselines are
-**not** touched unless MK asks. (Decision: *Leave uncommitted, commit on command*.)
+**not** touched unless MK asks. (Decision: _Leave uncommitted, commit on command_.)
 
 ---
 
@@ -129,17 +135,17 @@ For **each** transcript, follow this loop:
 
 **Checked**
 
-| Component | Preview | Result |
-|-----------|---------|--------|
-| Dialog | `/docs/components/dialog` | ✅ Issue confirmed & fixed |
+| Component    | Preview                         | Result                              |
+| ------------ | ------------------------------- | ----------------------------------- |
+| Dialog       | `/docs/components/dialog`       | ✅ Issue confirmed & fixed          |
 | Alert Dialog | `/docs/components/alert-dialog` | ✅ Same issue found & fixed (sweep) |
-| Popover | `/docs/components/popover` | ☑️ Checked, clean |
+| Popover      | `/docs/components/popover`      | ☑️ Checked, clean                   |
 
 **Fixed — what changed (plain language)**
 
-| Component | What was wrong | What I did |
-|-----------|----------------|------------|
-| Dialog | Footer button had a local size override | Removed override; size now comes from `Button` itself |
+| Component | What was wrong                          | What I did                                            |
+| --------- | --------------------------------------- | ----------------------------------------------------- |
+| Dialog    | Footer button had a local size override | Removed override; size now comes from `Button` itself |
 
 Links are relative preview paths MK can open directly.
 
@@ -148,6 +154,7 @@ Links are relative preview paths MK can open directly.
 ## 6. Proactive scope (encouraged, within the rules above)
 
 While fixing, I will proactively flag/fix:
+
 - The same issue class anywhere else in the library (the §3B sweep).
 - Misses where components don't follow `globals.css` / `theme.css` / `base.css` (component-level → fix;
   token/theme source → propose).

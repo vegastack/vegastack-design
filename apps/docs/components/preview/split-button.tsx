@@ -1,29 +1,35 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { ArrowRight, Copy, Send, Star, Trash2 } from 'lucide-react';
-import { Wrapper } from './wrapper';
+import type { ReactNode } from "react";
+import { ArrowRight, Copy, Send, Star, Trash2 } from "lucide-react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/split-button` (dogfoods the registry) → auto-scanned.
-import { SplitButton, type SplitButtonAction } from '@/components/ui/split-button';
-import { DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import {
+  SplitButton,
+  type SplitButtonAction,
+} from "@/components/ui/split-button";
+import {
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 type SplitButtonActions = [SplitButtonAction, ...SplitButtonAction[]];
 
 const saveActions: SplitButtonActions = [
-  { label: 'Save and continue', icon: <ArrowRight /> },
-  { label: 'Save as draft', icon: <Copy /> },
+  { label: "Save and continue", icon: <ArrowRight /> },
+  { label: "Save as draft", icon: <Copy /> },
 ];
 
 const publishActions: SplitButtonActions = [
-  { label: 'Send now', icon: <Send /> },
-  { label: 'Discard', icon: <Trash2 />, destructive: true },
+  { label: "Send now", icon: <Send /> },
+  { label: "Discard", icon: <Trash2 />, destructive: true },
 ];
 
 // Includes a disabled entry so the dimmed, keyboard-skipped item is visible at rest.
 const shareActions: SplitButtonActions = [
-  { label: 'Copy link', icon: <Copy /> },
-  { label: 'Add to favorites', icon: <Star /> },
-  { label: 'Send to channel', icon: <Send />, disabled: true },
+  { label: "Copy link", icon: <Copy /> },
+  { label: "Add to favorites", icon: <Star /> },
+  { label: "Send to channel", icon: <Send />, disabled: true },
 ];
 
 export function splitButton(): ReactNode {

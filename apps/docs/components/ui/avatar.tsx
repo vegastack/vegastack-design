@@ -1,4 +1,4 @@
-// @vegastack avatar@0.2.0 sha256-W6wggLSq6Ys8kCgG+pFiS1rspaEXxmPv5PfOyI19OXc=
+// @vegastack avatar@0.2.0 sha256-kC5tuZ4E5ujZ7a4VFdZImZs0LvXrrW6vzmVim5dAP/w=
 
 "use client";
 
@@ -54,6 +54,7 @@ type AvatarImageContract =
       alt?: string;
     };
 
+/** Props accepted by `Avatar`. */
 export type AvatarProps = Omit<
   React.ComponentProps<typeof BaseAvatar.Root>,
   "children"
@@ -94,43 +95,41 @@ export type AvatarProps = Omit<
  * <Avatar fallback="AL" />            // no src → initials
  * <Avatar size="lg" fallback={<UserIcon />} />
  */
-export function Avatar(
-    {
-      className,
-      size = "default",
-      src,
-      alt,
-      fallback,
-      fallbackDelay,
-      ref,
-      ...props
-    }: AvatarProps,
-  ) {
-    return (
-      <BaseAvatar.Root
-        ref={ref}
-        data-slot="avatar"
-        data-size={size}
-        className={cn(avatarVariants({ size }), className)}
-        {...props}
+export function Avatar({
+  className,
+  size = "default",
+  src,
+  alt,
+  fallback,
+  fallbackDelay,
+  ref,
+  ...props
+}: AvatarProps) {
+  return (
+    <BaseAvatar.Root
+      ref={ref}
+      data-slot="avatar"
+      data-size={size}
+      className={cn(avatarVariants({ size }), className)}
+      {...props}
+    >
+      {src ? (
+        <BaseAvatar.Image
+          data-slot="avatar-image"
+          src={src}
+          alt={alt}
+          className="aspect-square size-full object-cover"
+        />
+      ) : null}
+      <BaseAvatar.Fallback
+        data-slot="avatar-fallback"
+        delay={fallbackDelay}
+        className="flex size-full items-center justify-center font-medium uppercase [&_svg]:size-1/2"
       >
-        {src ? (
-          <BaseAvatar.Image
-            data-slot="avatar-image"
-            src={src}
-            alt={alt}
-            className="aspect-square size-full object-cover"
-          />
-        ) : null}
-        <BaseAvatar.Fallback
-          data-slot="avatar-fallback"
-          delay={fallbackDelay}
-          className="flex size-full items-center justify-center font-medium uppercase [&_svg]:size-1/2"
-        >
-          {fallback}
-        </BaseAvatar.Fallback>
-      </BaseAvatar.Root>
-    );
+        {fallback}
+      </BaseAvatar.Fallback>
+    </BaseAvatar.Root>
+  );
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -145,15 +144,16 @@ export const avatarGroupVariants = cva(
     variants: {
       /** Stack overlap — how far each avatar tucks under the previous one. */
       spacing: {
-        tight: "-space-x-3",
-        default: "-space-x-2",
-        loose: "-space-x-1",
+        tight: "-space-x-3 rtl:space-x-reverse",
+        default: "-space-x-2 rtl:space-x-reverse",
+        loose: "-space-x-1 rtl:space-x-reverse",
       },
     },
     defaultVariants: { spacing: "default" },
   },
 );
 
+/** Props accepted by `AvatarGroup`. */
 export interface AvatarGroupProps
   extends
     React.ComponentProps<"div">,
@@ -180,13 +180,18 @@ export interface AvatarGroupProps
  *   <Avatar fallback="+3" />
  * </AvatarGroup>
  */
-export function AvatarGroup({ className, spacing = "default", ref, ...props }: AvatarGroupProps) {
-    return (
-      <div
-        ref={ref}
-        data-slot="avatar-group"
-        className={cn(avatarGroupVariants({ spacing }), className)}
-        {...props}
-      />
-    );
+export function AvatarGroup({
+  className,
+  spacing = "default",
+  ref,
+  ...props
+}: AvatarGroupProps) {
+  return (
+    <div
+      ref={ref}
+      data-slot="avatar-group"
+      className={cn(avatarGroupVariants({ spacing }), className)}
+      {...props}
+    />
+  );
 }

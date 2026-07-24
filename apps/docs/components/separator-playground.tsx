@@ -1,41 +1,49 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { Separator, type SeparatorProps } from '@/components/ui/separator';
-import { PropsPlayground, type PlaygroundConfig } from '@/components/playground';
+import type { ReactNode } from "react";
+import { Separator, type SeparatorProps } from "@/components/ui/separator";
+import {
+  PropsPlayground,
+  type PlaygroundConfig,
+} from "@/components/playground";
 
-type SeparatorPlaygroundKey = 'orientation' | 'decorative';
+type SeparatorPlaygroundKey = "orientation" | "decorative";
 
 const ORIENTATION_OPTIONS = [
-  { value: 'horizontal', label: 'Horizontal' },
-  { value: 'vertical', label: 'Vertical' },
+  { value: "horizontal", label: "Horizontal" },
+  { value: "vertical", label: "Vertical" },
 ] as const;
 
 const separatorPlaygroundConfig: PlaygroundConfig<SeparatorPlaygroundKey> = {
   controls: [
     {
-      type: 'select',
-      key: 'orientation',
-      label: 'Orientation',
+      type: "select",
+      key: "orientation",
+      label: "Orientation",
       options: ORIENTATION_OPTIONS,
-      defaultValue: 'horizontal',
+      defaultValue: "horizontal",
     },
     // `decorative` has no visual effect — it flips the ARIA exposure
     // (hidden `presentation` vs. an announced `separator`), reflected in the snippet.
-    { type: 'switch', key: 'decorative', label: 'Decorative', defaultValue: true },
+    {
+      type: "switch",
+      key: "decorative",
+      label: "Decorative",
+      defaultValue: true,
+    },
   ],
   render: (state): ReactNode => {
     const separator = (
       <Separator
-        orientation={state.orientation as SeparatorProps['orientation']}
+        orientation={state.orientation as SeparatorProps["orientation"]}
         decorative={Boolean(state.decorative)}
       />
     );
     // A vertical separator needs a parent with height (a fixed-height flex row);
     // the horizontal one divides two stacked text blocks.
-    if (state.orientation === 'vertical') {
+    if (state.orientation === "vertical") {
       return (
-        <div className="flex h-8 items-center gap-3">
+        <div className="flex h-(--size-md) items-center gap-3">
           <span>Docs</span>
           {separator}
           <span>API</span>
@@ -52,9 +60,10 @@ const separatorPlaygroundConfig: PlaygroundConfig<SeparatorPlaygroundKey> = {
   },
   toCode: (state) => {
     const props: string[] = [];
-    if (state.orientation !== 'horizontal') props.push(`orientation="${state.orientation}"`);
-    if (!state.decorative) props.push('decorative={false}');
-    const propsString = props.length > 0 ? ` ${props.join(' ')}` : '';
+    if (state.orientation !== "horizontal")
+      props.push(`orientation="${state.orientation}"`);
+    if (!state.decorative) props.push("decorative={false}");
+    const propsString = props.length > 0 ? ` ${props.join(" ")}` : "";
     return `<Separator${propsString} />`;
   },
 };

@@ -1,4 +1,4 @@
-// @vegastack context-menu@0.2.0 sha256-zMYnpGTC5AqySGt6d14Kq5YQrBZJNsjjRsjyrl28PrM=
+// @vegastack context-menu@0.2.0 sha256-v9VLJ5s5nh/rJf4GDE7ndFPYptDsmqdi18Du9Qkpxhc=
 
 "use client";
 
@@ -7,6 +7,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { ContextMenu as ContextMenuPrimitive } from "@base-ui/react/context-menu";
 import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
 import { cn, FLOATING } from "@vegastack/design";
+import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 
 function mergeStateClassName<State>(
   className: string,
@@ -27,6 +28,7 @@ function mergeStateClassName<State>(
  * than activating a button.
  * ----------------------------------------------------------------------------------------------*/
 
+/** Props accepted by `ContextMenu`. */
 export type ContextMenuProps = React.ComponentProps<
   typeof ContextMenuPrimitive.Root
 >;
@@ -35,11 +37,16 @@ export type ContextMenuProps = React.ComponentProps<
  * `ContextMenu` — the root that groups every part of the menu. Renders no DOM
  * element of its own. Compose with {@link ContextMenuTrigger} and
  * {@link ContextMenuContent}.
+
+ *
+ * @example
+ * <ContextMenu />
  */
 export function ContextMenu(props: ContextMenuProps) {
   return <ContextMenuPrimitive.Root {...props} />;
 }
 
+/** Props accepted by `ContextMenuTrigger`. */
 export type ContextMenuTriggerProps = React.ComponentProps<
   typeof ContextMenuPrimitive.Trigger
 >;
@@ -49,6 +56,10 @@ export type ContextMenuTriggerProps = React.ComponentProps<
  * open the menu. Renders a `<div>`; pass `render` to compose with your own
  * element (Base UI `render` composition). Right-click and long-press are handled by Base UI's
  * native `contextmenu` listener; Shift+F10 / Menu dispatch the same event from the focused trigger.
+
+ *
+ * @example
+ * <ContextMenuTrigger />
  */
 export function ContextMenuTrigger({
   onKeyDown,
@@ -95,6 +106,7 @@ export function ContextMenuTrigger({
   );
 }
 
+/** Props accepted by `ContextMenuGroup`. */
 export type ContextMenuGroupProps = React.ComponentProps<
   typeof ContextMenuPrimitive.Group
 >;
@@ -102,6 +114,10 @@ export type ContextMenuGroupProps = React.ComponentProps<
 /**
  * `ContextMenuGroup` — groups related items and associates them with a
  * {@link ContextMenuLabel}. Renders a `<div role="group">`.
+
+ *
+ * @example
+ * <ContextMenuGroup />
  */
 export function ContextMenuGroup(props: ContextMenuGroupProps) {
   return (
@@ -109,6 +125,7 @@ export function ContextMenuGroup(props: ContextMenuGroupProps) {
   );
 }
 
+/** Props accepted by `ContextMenuSub`. */
 export type ContextMenuSubProps = React.ComponentProps<
   typeof ContextMenuPrimitive.SubmenuRoot
 >;
@@ -116,11 +133,16 @@ export type ContextMenuSubProps = React.ComponentProps<
 /**
  * `ContextMenuSub` — the root of a nested submenu. Renders no DOM element. Wrap
  * a {@link ContextMenuSubTrigger} and {@link ContextMenuSubContent}.
+
+ *
+ * @example
+ * <ContextMenuSub />
  */
 export function ContextMenuSub(props: ContextMenuSubProps) {
   return <ContextMenuPrimitive.SubmenuRoot {...props} />;
 }
 
+/** Props accepted by `ContextMenuRadioGroup`. */
 export type ContextMenuRadioGroupProps = React.ComponentProps<
   typeof ContextMenuPrimitive.RadioGroup
 >;
@@ -128,6 +150,10 @@ export type ContextMenuRadioGroupProps = React.ComponentProps<
 /**
  * `ContextMenuRadioGroup` — wraps {@link ContextMenuRadioItem}s for
  * single-select. Controlled via `value` / `onValueChange`.
+
+ *
+ * @example
+ * <ContextMenuRadioGroup />
  */
 export function ContextMenuRadioGroup(props: ContextMenuRadioGroupProps) {
   return (
@@ -151,6 +177,7 @@ const popupClassName =
   "data-[side=top]:translate-y-1 data-[side=bottom]:-translate-y-1 data-[side=left]:translate-x-1 data-[side=right]:-translate-x-1 " +
   "data-[starting-style]:translate-x-0 data-[starting-style]:translate-y-0 data-[ending-style]:translate-x-0 data-[ending-style]:translate-y-0";
 
+/** Props accepted by `ContextMenuContent`. */
 export interface ContextMenuContentProps extends React.ComponentProps<
   typeof ContextMenuPrimitive.Popup
 > {
@@ -174,9 +201,13 @@ export interface ContextMenuContentProps extends React.ComponentProps<
    * @default 8
    */
   collisionPadding?: ContextMenuPrimitive.Positioner.Props["collisionPadding"];
-  /** Props forwarded to the underlying Base UI `Portal`. */
+  /** Props forwarded to the underlying Base UI `Portal`.
+   * @default undefined
+   */
   portalProps?: Omit<ContextMenuPrimitive.Portal.Props, "children">;
-  /** Props forwarded to the underlying Base UI `Positioner`. */
+  /** Props forwarded to the underlying Base UI `Positioner`.
+   * @default undefined
+   */
   positionerProps?: Omit<
     ContextMenuPrimitive.Positioner.Props,
     "side" | "align" | "sideOffset" | "collisionPadding" | "children"
@@ -187,6 +218,10 @@ export interface ContextMenuContentProps extends React.ComponentProps<
  * `ContextMenuContent` — the floating popup. Portals to `<body>`, positions
  * against the pointer where the menu opened, and applies enter/exit transitions.
  * Place items, labels, separators, and submenus inside it.
+
+ *
+ * @example
+ * <ContextMenuContent />
  */
 export function ContextMenuContent({
   className,
@@ -198,6 +233,7 @@ export function ContextMenuContent({
   positionerProps,
   ...props
 }: ContextMenuContentProps) {
+  const themeScope = useInternalThemeScope();
   const { className: positionerClassName, ...positionerPropsRest } =
     positionerProps ?? {};
 
@@ -211,13 +247,13 @@ export function ContextMenuContent({
         sideOffset={sideOffset}
         collisionPadding={collisionPadding}
         className={mergeStateClassName<ContextMenuPrimitive.Positioner.State>(
-          "z-(--z-overlay) outline-none",
+          cn(themeScope, "z-(--z-overlay) outline-none"),
           positionerClassName,
         )}
       >
         <ContextMenuPrimitive.Popup
           data-slot="context-menu-content"
-          className={cn(popupClassName, className)}
+          className={cn(themeScope, popupClassName, className)}
           {...props}
         />
       </ContextMenuPrimitive.Positioner>
@@ -231,7 +267,7 @@ export function ContextMenuContent({
  * ----------------------------------------------------------------------------------------------*/
 
 export const contextMenuItemVariants = cva(
-  "group/context-menu-item relative flex items-center gap-2 rounded-sm px-2 py-1.5 text-base outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim) data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
+  "group/context-menu-item relative flex items-center gap-2 rounded-sm px-2 py-1.5 text-base outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim) data-[inset]:ps-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
   {
     variants: {
       variant: {
@@ -245,12 +281,13 @@ export const contextMenuItemVariants = cva(
   },
 );
 
+/** Props accepted by `ContextMenuItem`. */
 export interface ContextMenuItemProps
   extends
     React.ComponentProps<typeof ContextMenuPrimitive.Item>,
     VariantProps<typeof contextMenuItemVariants> {
   /**
-   * Adds left padding so the label aligns with items that have a leading icon
+   * Adds inline-start padding so the label aligns with items that have a leading icon
    * or indicator.
    * @default false
    */
@@ -261,6 +298,10 @@ export interface ContextMenuItemProps
  * `ContextMenuItem` — a selectable action. Use `variant="destructive"` for
  * delete/remove actions and `inset` to align with checkbox/radio rows. Closes
  * the menu on click by default.
+
+ *
+ * @example
+ * <ContextMenuItem />
  */
 export function ContextMenuItem({
   className,
@@ -285,8 +326,9 @@ export function ContextMenuItem({
  * ----------------------------------------------------------------------------------------------*/
 
 const choiceItemClassName =
-  "group/context-menu-item relative flex items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-base text-popover-foreground outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim) data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)";
+  "group/context-menu-item relative flex items-center gap-2 rounded-sm py-1.5 pe-2 ps-8 text-base text-popover-foreground outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim) data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)";
 
+/** Props accepted by `ContextMenuCheckboxItem`. */
 export type ContextMenuCheckboxItemProps = React.ComponentProps<
   typeof ContextMenuPrimitive.CheckboxItem
 >;
@@ -294,6 +336,10 @@ export type ContextMenuCheckboxItemProps = React.ComponentProps<
 /**
  * `ContextMenuCheckboxItem` — a togglable item with a check indicator. Control
  * with `checked` / `onCheckedChange`. Stays open on click by default.
+
+ *
+ * @example
+ * <ContextMenuCheckboxItem />
  */
 export function ContextMenuCheckboxItem({
   className,
@@ -306,7 +352,7 @@ export function ContextMenuCheckboxItem({
       className={cn(choiceItemClassName, className)}
       {...props}
     >
-      <span className="pointer-events-none absolute left-2 flex size-(--icon-default) items-center justify-center">
+      <span className="pointer-events-none absolute start-2 flex size-(--icon-default) items-center justify-center">
         <ContextMenuPrimitive.CheckboxItemIndicator>
           <CheckIcon className="size-(--icon-default) text-foreground" />
         </ContextMenuPrimitive.CheckboxItemIndicator>
@@ -316,6 +362,7 @@ export function ContextMenuCheckboxItem({
   );
 }
 
+/** Props accepted by `ContextMenuRadioItem`. */
 export type ContextMenuRadioItemProps = React.ComponentProps<
   typeof ContextMenuPrimitive.RadioItem
 >;
@@ -323,6 +370,10 @@ export type ContextMenuRadioItemProps = React.ComponentProps<
 /**
  * `ContextMenuRadioItem` — one option in a {@link ContextMenuRadioGroup}, with a
  * filled-dot indicator when selected.
+
+ *
+ * @example
+ * <ContextMenuRadioItem />
  */
 export function ContextMenuRadioItem({
   className,
@@ -335,7 +386,7 @@ export function ContextMenuRadioItem({
       className={cn(choiceItemClassName, className)}
       {...props}
     >
-      <span className="pointer-events-none absolute left-2 flex size-(--icon-default) items-center justify-center">
+      <span className="pointer-events-none absolute start-2 flex size-(--icon-default) items-center justify-center">
         <ContextMenuPrimitive.RadioItemIndicator>
           <CircleIcon className="size-2 fill-current text-foreground" />
         </ContextMenuPrimitive.RadioItemIndicator>
@@ -349,6 +400,7 @@ export function ContextMenuRadioItem({
  * Label / Separator / Shortcut — non-interactive chrome.
  * ----------------------------------------------------------------------------------------------*/
 
+/** Props accepted by `ContextMenuLabel`. */
 export interface ContextMenuLabelProps extends React.ComponentProps<
   typeof ContextMenuPrimitive.GroupLabel
 > {
@@ -363,6 +415,10 @@ export interface ContextMenuLabelProps extends React.ComponentProps<
  * `ContextMenuLabel` — a non-interactive heading for a {@link ContextMenuGroup}
  * or {@link ContextMenuRadioGroup}. Renders Base UI's `GroupLabel` so it's
  * announced as the group's accessible name.
+
+ *
+ * @example
+ * <ContextMenuLabel />
  */
 export function ContextMenuLabel({
   className,
@@ -374,7 +430,7 @@ export function ContextMenuLabel({
       data-slot="context-menu-label"
       data-inset={inset ? "" : undefined}
       className={cn(
-        "px-2 py-1.5 text-label-sm text-muted-foreground data-[inset]:pl-8",
+        "px-2 py-1.5 text-label-sm text-muted-foreground data-[inset]:ps-8",
         className,
       )}
       {...props}
@@ -382,6 +438,7 @@ export function ContextMenuLabel({
   );
 }
 
+/** Props accepted by `ContextMenuSeparator`. */
 export type ContextMenuSeparatorProps = React.ComponentProps<
   typeof ContextMenuPrimitive.Separator
 >;
@@ -389,6 +446,10 @@ export type ContextMenuSeparatorProps = React.ComponentProps<
 /**
  * `ContextMenuSeparator` — a thin divider between item groups. Renders a
  * `<div role="separator">`.
+
+ *
+ * @example
+ * <ContextMenuSeparator />
  */
 export function ContextMenuSeparator({
   className,
@@ -403,11 +464,16 @@ export function ContextMenuSeparator({
   );
 }
 
+/** Props accepted by `ContextMenuShortcut`. */
 export type ContextMenuShortcutProps = React.ComponentProps<"span">;
 
 /**
- * `ContextMenuShortcut` — right-aligned keyboard-shortcut hint inside an item
+ * `ContextMenuShortcut` — inline-end-aligned keyboard-shortcut hint inside an item
  * (e.g. `⌘K`). Purely visual; use the item's own keybinding for behavior.
+
+ *
+ * @example
+ * <ContextMenuShortcut />
  */
 export function ContextMenuShortcut({
   className,
@@ -417,7 +483,7 @@ export function ContextMenuShortcut({
     <span
       data-slot="context-menu-shortcut"
       className={cn(
-        "ml-auto text-sm tracking-widest text-muted-foreground group-data-[highlighted]/context-menu-item:text-accent-foreground group-data-[variant=destructive]/context-menu-item:text-destructive-text group-data-[variant=destructive]/context-menu-item:group-data-[highlighted]/context-menu-item:text-destructive-text",
+        "ms-auto text-mono-label text-muted-foreground group-data-[highlighted]/context-menu-item:text-accent-foreground group-data-[variant=destructive]/context-menu-item:text-destructive-text group-data-[variant=destructive]/context-menu-item:group-data-[highlighted]/context-menu-item:text-destructive-text",
         className,
       )}
       {...props}
@@ -429,6 +495,7 @@ export function ContextMenuShortcut({
  * Submenu trigger + content.
  * ----------------------------------------------------------------------------------------------*/
 
+/** Props accepted by `ContextMenuSubTrigger`. */
 export interface ContextMenuSubTriggerProps extends React.ComponentProps<
   typeof ContextMenuPrimitive.SubmenuTrigger
 > {
@@ -443,6 +510,10 @@ export interface ContextMenuSubTriggerProps extends React.ComponentProps<
  * `ContextMenuSubTrigger` — the item that opens a nested submenu, with a
  * trailing chevron. Highlighted/open states use `data-highlighted` /
  * `data-popup-open`.
+
+ *
+ * @example
+ * <ContextMenuSubTrigger />
  */
 export function ContextMenuSubTrigger({
   className,
@@ -455,22 +526,27 @@ export function ContextMenuSubTrigger({
       data-slot="context-menu-sub-trigger"
       data-inset={inset ? "" : undefined}
       className={cn(
-        "group/context-menu-item relative flex items-center gap-2 rounded-sm px-2 py-1.5 text-base text-popover-foreground outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim) data-[inset]:pl-8 data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-[popup-open]:bg-accent data-[popup-open]:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:text-muted-foreground [&_svg:not([class*='size-'])]:size-(--icon-default) data-[highlighted]:[&_svg]:text-accent-foreground data-[popup-open]:[&_svg]:text-accent-foreground",
+        "group/context-menu-item relative flex items-center gap-2 rounded-sm px-2 py-1.5 text-base text-popover-foreground outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim) data-[inset]:ps-8 data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-[popup-open]:bg-accent data-[popup-open]:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:text-muted-foreground [&_svg:not([class*='size-'])]:size-(--icon-default) data-[highlighted]:[&_svg]:text-accent-foreground data-[popup-open]:[&_svg]:text-accent-foreground",
         className,
       )}
       {...props}
     >
       {children}
-      <ChevronRightIcon className="ml-auto" />
+      <ChevronRightIcon className="ms-auto rtl:rotate-180" />
     </ContextMenuPrimitive.SubmenuTrigger>
   );
 }
 
+/** Props accepted by `ContextMenuSubContent`. */
 export type ContextMenuSubContentProps = ContextMenuContentProps;
 
 /**
  * `ContextMenuSubContent` — the nested popup opened by a
  * {@link ContextMenuSubTrigger}. Defaults to opening to the right of its parent.
+
+ *
+ * @example
+ * <ContextMenuSubContent />
  */
 export function ContextMenuSubContent({
   side = "right",

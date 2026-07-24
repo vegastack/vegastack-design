@@ -34,7 +34,9 @@ function Chip({
       </AttachmentMedia>
       <AttachmentContent>
         <AttachmentTitle>{LONG_NAME}</AttachmentTitle>
-        <AttachmentDescription live={state === "uploading" || state === "error"}>
+        <AttachmentDescription
+          live={state === "uploading" || state === "error"}
+        >
           {state === "uploading"
             ? "Uploading — 42%"
             : state === "error"
@@ -42,7 +44,10 @@ function Chip({
               : "1.2 MB"}
         </AttachmentDescription>
         {state === "uploading" ? (
-          <AttachmentProgress value={42} aria-label={`${LONG_NAME} upload progress`} />
+          <AttachmentProgress
+            value={42}
+            aria-label={`${LONG_NAME} upload progress`}
+          />
         ) : null}
       </AttachmentContent>
       <AttachmentActions>
@@ -95,20 +100,25 @@ test("AttachmentGroup exposes its slot and wraps multiple chips", async () => {
   ).toHaveLength(2);
 });
 
-test.each<AttachmentState>(["idle", "uploading", "error", "complete", "disabled"])(
-  "reflects state=%s on the root data-state attribute",
-  async (state) => {
-    const screen = await render(<Chip state={state} />);
-    const root = screen.container.querySelector('[data-slot="attachment"]');
-    expect(root).toHaveAttribute("data-state", state);
-  },
-);
+test.each<AttachmentState>([
+  "idle",
+  "uploading",
+  "error",
+  "complete",
+  "disabled",
+])("reflects state=%s on the root data-state attribute", async (state) => {
+  const screen = await render(<Chip state={state} />);
+  const root = screen.container.querySelector('[data-slot="attachment"]');
+  expect(root).toHaveAttribute("data-state", state);
+});
 
 test("disabled state marks the root aria-disabled and dims it", async () => {
   const screen = await render(<Chip state="disabled" />);
   const root = screen.container.querySelector('[data-slot="attachment"]')!;
   expect(root).toHaveAttribute("aria-disabled", "true");
-  expect(root.className).toContain("data-[state=disabled]:opacity-(--opacity-dim)");
+  expect(root.className).toContain(
+    "data-[state=disabled]:opacity-(--opacity-dim)",
+  );
 });
 
 test("idle/complete are not aria-disabled", async () => {
@@ -123,7 +133,9 @@ test("uploading state reveals the AttachmentMedia spinner overlay and progress b
   const overlay = screen.container.querySelector(
     '[data-slot="attachment-media-overlay"]',
   )!;
-  expect(overlay.className).toContain("group-data-[state=uploading]/attachment:flex");
+  expect(overlay.className).toContain(
+    "group-data-[state=uploading]/attachment:flex",
+  );
   const progress = screen.getByRole("progressbar", {
     name: `${LONG_NAME} upload progress`,
   });
@@ -133,7 +145,9 @@ test("uploading state reveals the AttachmentMedia spinner overlay and progress b
 
 test("error state tints title/description via destructive data-state selectors", async () => {
   const screen = await render(<Chip state="error" />);
-  const title = screen.container.querySelector('[data-slot="attachment-title"]')!;
+  const title = screen.container.querySelector(
+    '[data-slot="attachment-title"]',
+  )!;
   const description = screen.container.querySelector(
     '[data-slot="attachment-description"]',
   )!;
@@ -159,7 +173,9 @@ test("the remove action fires its callback and exposes an accessible name with t
 
 test("AttachmentTitle truncates a long file name instead of wrapping/overflowing", async () => {
   const screen = await render(<Chip state="idle" />);
-  const title = screen.container.querySelector('[data-slot="attachment-title"]')!;
+  const title = screen.container.querySelector(
+    '[data-slot="attachment-title"]',
+  )!;
   expect(title.className).toContain("truncate");
   expect(title.textContent).toBe(LONG_NAME);
 });
@@ -173,7 +189,9 @@ test("AttachmentDescription is a live region only when `live` is set", async () 
   await expect.element(liveEl).toHaveAttribute("aria-live", "polite");
   await expect.element(liveEl).toHaveAttribute("aria-atomic", "true");
 
-  const passive = await render(<AttachmentDescription>1.2 MB</AttachmentDescription>);
+  const passive = await render(
+    <AttachmentDescription>1.2 MB</AttachmentDescription>,
+  );
   const passiveEl = passive.getByText("1.2 MB");
   await expect.element(passiveEl).not.toHaveAttribute("role");
   await expect.element(passiveEl).not.toHaveAttribute("aria-live");
@@ -188,8 +206,12 @@ test("AttachmentTrigger renders as a button by default and supports render compo
       </AttachmentContent>
     </Attachment>,
   );
-  const trigger = screen.getByRole("button", { name: "Open release-notes.pdf" });
-  await expect.element(trigger).toHaveAttribute("data-slot", "attachment-trigger");
+  const trigger = screen.getByRole("button", {
+    name: "Open release-notes.pdf",
+  });
+  await expect
+    .element(trigger)
+    .toHaveAttribute("data-slot", "attachment-trigger");
 
   const linked = await render(
     <Attachment>
@@ -200,7 +222,9 @@ test("AttachmentTrigger renders as a button by default and supports render compo
     </Attachment>,
   );
   const link = linked.getByRole("link", { name: "Download release-notes.pdf" });
-  await expect.element(link).toHaveAttribute("href", "https://example.com/release-notes.pdf");
+  await expect
+    .element(link)
+    .toHaveAttribute("href", "https://example.com/release-notes.pdf");
 });
 
 test("forwards ref to the root element", async () => {
@@ -210,13 +234,16 @@ test("forwards ref to the root element", async () => {
   expect(ref.current?.dataset.slot).toBe("attachment");
 });
 
-test.each<AttachmentState>(["idle", "uploading", "error", "complete", "disabled"])(
-  "no a11y violations — state=%s",
-  async (state) => {
-    const screen = await render(<Chip state={state} />);
-    await expectNoA11yViolations(screen.container);
-  },
-);
+test.each<AttachmentState>([
+  "idle",
+  "uploading",
+  "error",
+  "complete",
+  "disabled",
+])("no a11y violations — state=%s", async (state) => {
+  const screen = await render(<Chip state={state} />);
+  await expectNoA11yViolations(screen.container);
+});
 
 test("no a11y violations — AttachmentGroup with multiple attachments", async () => {
   const screen = await render(
@@ -244,7 +271,13 @@ test("vertical orientation: media releases its fixed height so aspect-square can
       </AttachmentContent>
     </Attachment>,
   );
-  const media = screen.container.querySelector('[data-slot="attachment-media"]');
-  expect(media?.className).toContain("group-data-[orientation=vertical]/attachment:h-auto");
-  expect(media?.className).toContain("group-data-[orientation=vertical]/attachment:aspect-square");
+  const media = screen.container.querySelector(
+    '[data-slot="attachment-media"]',
+  );
+  expect(media?.className).toContain(
+    "group-data-[orientation=vertical]/attachment:h-auto",
+  );
+  expect(media?.className).toContain(
+    "group-data-[orientation=vertical]/attachment:aspect-square",
+  );
 });

@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { Wrapper } from './wrapper';
+import type { ReactNode } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/textarea` (dogfoods the registry) → auto-scanned.
-import { Textarea } from '@/components/ui/textarea';
+import { Textarea } from "@/components/ui/textarea";
 
 export function textarea(): ReactNode {
   return (
@@ -20,7 +20,10 @@ export function textareaStates(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch">
       <Textarea aria-label="Default" />
-      <Textarea aria-label="With placeholder" placeholder="Tell us about your project…" />
+      <Textarea
+        aria-label="With placeholder"
+        placeholder="Tell us about your project…"
+      />
       <Textarea
         aria-label="With value"
         defaultValue="We're building an agentic workflow engine for enterprise teams."

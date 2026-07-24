@@ -56,17 +56,31 @@ test("clicking the value enters edit mode (input appears, focused)", async () =>
   const screen = await render(
     <FieldInline value="Ada" onCommit={() => {}} placeholder="Name" />,
   );
-  await screen.getByText("Ada").click();
+  (
+    screen.getByRole("button", { name: "Ada" }).element() as HTMLSpanElement
+  ).click();
   const input = screen.getByRole("textbox");
   await expect.element(input).toBeInTheDocument();
   await expect.element(input).toHaveValue("Ada");
   await expect.element(input).toHaveFocus();
 });
 
+test("Enter on the focused display control enters edit mode", async () => {
+  const screen = await render(
+    <FieldInline value="Ada" onCommit={() => {}} placeholder="Name" />,
+  );
+  const display = screen.getByRole("button", { name: "Ada" });
+  display.element().focus();
+  await userEvent.keyboard("{Enter}");
+  await expect.element(screen.getByRole("textbox")).toHaveFocus();
+});
+
 test("Enter commits the edited value and fires onCommit once", async () => {
   const onCommit = vi.fn();
   const screen = await render(<Controlled initial="Ada" onCommit={onCommit} />);
-  await screen.getByText("Ada").click();
+  (
+    screen.getByRole("button", { name: "Ada" }).element() as HTMLSpanElement
+  ).click();
   const input = screen.getByRole("textbox");
   await input.fill("Grace");
   await userEvent.keyboard("{Enter}");
@@ -79,7 +93,9 @@ test("Enter commits the edited value and fires onCommit once", async () => {
 test("committing an unchanged value does not fire onCommit", async () => {
   const onCommit = vi.fn();
   const screen = await render(<FieldInline value="Ada" onCommit={onCommit} />);
-  await screen.getByText("Ada").click();
+  (
+    screen.getByRole("button", { name: "Ada" }).element() as HTMLSpanElement
+  ).click();
   await userEvent.keyboard("{Enter}");
   expect(onCommit).not.toHaveBeenCalled();
 });
@@ -87,7 +103,9 @@ test("committing an unchanged value does not fire onCommit", async () => {
 test("Escape cancels — restores the value and skips onCommit", async () => {
   const onCommit = vi.fn();
   const screen = await render(<FieldInline value="Ada" onCommit={onCommit} />);
-  await screen.getByText("Ada").click();
+  (
+    screen.getByRole("button", { name: "Ada" }).element() as HTMLSpanElement
+  ).click();
   const input = screen.getByRole("textbox");
   await input.fill("Grace");
   await userEvent.keyboard("{Escape}");
@@ -108,7 +126,9 @@ test("edit mode has an accessible name even with no placeholder or label", async
   // still produce a named textbox (regression: aria-label used to be the
   // optional placeholder, leaving the input unnamed when omitted).
   const screen = await render(<FieldInline value="Ada" onCommit={() => {}} />);
-  await screen.getByText("Ada").click();
+  (
+    screen.getByRole("button", { name: "Ada" }).element() as HTMLSpanElement
+  ).click();
   // A non-empty accessible name must exist — querying by role with a name
   // succeeds only when the textbox is actually named.
   const input = screen.getByRole("textbox", { name: "Edit value" });
@@ -126,7 +146,11 @@ test("label is used as the accessible name (over a differing placeholder)", asyn
       placeholder="Type a title…"
     />,
   );
-  await screen.getByText("Ada").click();
+  (
+    screen
+      .getByRole("button", { name: "Task title" })
+      .element() as HTMLSpanElement
+  ).click();
   // `label` wins over `placeholder` for the accessible name.
   await expect
     .element(screen.getByRole("textbox", { name: "Task title" }))
@@ -143,7 +167,11 @@ test("an explicit aria-label wins over both label and placeholder", async () => 
       placeholder="Type a title…"
     />,
   );
-  await screen.getByText("Ada").click();
+  (
+    screen
+      .getByRole("button", { name: "Full name" })
+      .element() as HTMLSpanElement
+  ).click();
   await expect
     .element(screen.getByRole("textbox", { name: "Full name" }))
     .toBeInTheDocument();
@@ -153,7 +181,9 @@ test("placeholder is the accessible name when no label is given", async () => {
   const screen = await render(
     <FieldInline value="Ada" onCommit={() => {}} placeholder="Name" />,
   );
-  await screen.getByText("Ada").click();
+  (
+    screen.getByRole("button", { name: "Ada" }).element() as HTMLSpanElement
+  ).click();
   await expect
     .element(screen.getByRole("textbox", { name: "Name" }))
     .toBeInTheDocument();
@@ -177,7 +207,9 @@ test("disabled blocks entering edit mode and dims the display value", async () =
 });
 
 test("readOnly renders plain text with no button role or edit affordance", async () => {
-  const screen = await render(<FieldInline value="Ada" onCommit={() => {}} readOnly />);
+  const screen = await render(
+    <FieldInline value="Ada" onCommit={() => {}} readOnly />,
+  );
   const display = screen.container.querySelector('[data-slot="field-inline"]')!;
   expect(display.getAttribute("role")).toBeNull();
   expect(display.getAttribute("tabindex")).toBeNull();
@@ -196,7 +228,9 @@ test("error marks the edit-mode input invalid and renders an associated error me
     .element(screen.getByRole("alert"))
     .toHaveTextContent("Name is required.");
 
-  await screen.getByText("Ada").click();
+  (
+    screen.getByRole("button", { name: "Ada" }).element() as HTMLSpanElement
+  ).click();
   const input = screen.getByRole("textbox");
   await expect.element(input).toHaveAttribute("aria-invalid", "true");
   const describedBy = input.element().getAttribute("aria-describedby");
@@ -224,7 +258,9 @@ test("no a11y violations — edit mode (open)", async () => {
   const screen = await render(
     <FieldInline value="Ada" onCommit={() => {}} placeholder="Name" />,
   );
-  await screen.getByText("Ada").click();
+  (
+    screen.getByRole("button", { name: "Ada" }).element() as HTMLSpanElement
+  ).click();
   await expect.element(screen.getByRole("textbox")).toBeInTheDocument();
   await expectNoA11yViolations(screen.container);
 });

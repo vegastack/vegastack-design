@@ -1,6 +1,7 @@
 ---
 title: Split Button
 description: A primary action joined to a dropdown of related secondary actions — one default click, plus a chevron menu.
+audience: public
 preview: splitButton
 ---
 
@@ -15,14 +16,18 @@ npx shadcn@latest add @vegastack/split-button
 ## Usage
 
 ```tsx
-import { SplitButton } from '@/components/ui/split-button';
-import { ArrowRight, Copy } from 'lucide-react';
+import { SplitButton } from "@/components/ui/split-button";
+import { ArrowRight, Copy } from "lucide-react";
 
 <SplitButton
   onClick={save}
   actions={[
-    { label: 'Save and continue', icon: <ArrowRight />, onClick: saveAndContinue },
-    { label: 'Save as draft', icon: <Copy />, onClick: saveDraft },
+    {
+      label: "Save and continue",
+      icon: <ArrowRight />,
+      onClick: saveAndContinue,
+    },
+    { label: "Save as draft", icon: <Copy />, onClick: saveDraft },
   ]}
 >
   Save changes
@@ -62,7 +67,9 @@ The dropdown content portals to `<body>` and positions itself against the trigge
 - `split-button-trigger` — the chevron `Button` that opens the menu; named by `menuLabel` (default `"More options"`).
 - The menu is filled either by the declarative `actions` array **or** by composing `DropdownMenuItem` children via the `menu` slot.
 
-## Variants
+## Examples
+
+### Variants
 
 `variant` and `size` pass straight through to both halves, so the joined control always stays visually
 consistent. Use the full 15-value `Button` scale — neutral (`default`, `secondary`, `outline`, `ghost`,
@@ -71,22 +78,31 @@ consistent. Use the full 15-value `Button` scale — neutral (`default`, `second
 on `ghost` / `link` the halves blend into a single hover surface, while bordered variants keep a crisp
 divider between them.
 
-<ComponentPreview name="splitButtonVariants" file="components/preview/split-button.tsx" />
+<ComponentPreview
+  name="splitButtonVariants"
+  file="components/preview/split-button.tsx"
+/>
 
-## Sizes
+### Sizes
 
 `xs`, `sm`, `default`, and `lg` — mirroring `Button`. The chevron trigger's width tracks each size's
 horizontal padding so the two halves stay balanced.
 
-<ComponentPreview name="splitButtonSizes" file="components/preview/split-button.tsx" />
+<ComponentPreview
+  name="splitButtonSizes"
+  file="components/preview/split-button.tsx"
+/>
 
-## States
+### States
 
 Mark a secondary action `destructive` to tint it; `loading` shows a spinner on the primary and
 disables both halves; `disabled` disables the whole control. Compose `DropdownMenuItem` children via
 `menu` when you need separators, labels, or submenus instead of the flat `actions` array.
 
-<ComponentPreview name="splitButtonStates" file="components/preview/split-button.tsx" />
+<ComponentPreview
+  name="splitButtonStates"
+  file="components/preview/split-button.tsx"
+/>
 
 ### Disabled action item
 
@@ -94,15 +110,18 @@ Set `disabled` on an individual `actions` entry to dim it and remove it from key
 keeping the rest of the menu active — distinct from disabling the whole control. Open the menu to see
 the dimmed “Send to channel” row.
 
-<ComponentPreview name="splitButtonDisabledAction" file="components/preview/split-button.tsx" />
+<ComponentPreview
+  name="splitButtonDisabledAction"
+  file="components/preview/split-button.tsx"
+/>
 
 ```tsx
 <SplitButton
   variant="outline"
   actions={[
-    { label: 'Copy link', icon: <Copy /> },
-    { label: 'Add to favorites', icon: <Star /> },
-    { label: 'Send to channel', icon: <Send />, disabled: true },
+    { label: "Copy link", icon: <Copy /> },
+    { label: "Add to favorites", icon: <Star /> },
+    { label: "Send to channel", icon: <Send />, disabled: true },
   ]}
 >
   Share
@@ -113,25 +132,31 @@ the dimmed “Send to channel” row.
 
 ### SplitButton
 
-<AutoTypeTable path="../../packages/ui/registry/ui/split-button.tsx" name="SplitButtonProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/split-button.tsx"
+  name="SplitButtonProps"
+/>
 
 ### SplitButtonAction
 
-<AutoTypeTable path="../../packages/ui/registry/ui/split-button.tsx" name="SplitButtonAction" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/split-button.tsx"
+  name="SplitButtonAction"
+/>
 
 ## Accessibility
 
 - Two distinct buttons: the primary runs the default action on <kbd>Enter</kbd> / <kbd>Space</kbd>; the chevron trigger opens the menu. The chevron is icon-only, so it carries an `aria-label` (`menuLabel`, default `"More options"`).
 - The popup renders with `role="menu"` and its rows as `menuitem`; Base UI provides roving focus, the highlighted item uses `data-highlighted`, and focus returns to the trigger on close.
-- Each half is a real `Button`, so `:focus-visible` follows `Button`'s treatment: every variant keeps the design system's global 2px focus ring (`outline-ring`), and the bordered variants (`outline`, `glass`) additionally re-color their border with the `ring` token (`focus-visible:border-ring/70`) — never `outline: none`.
+- Each half is a real `Button`, so `:focus-visible` follows `Button`'s treatment: every variant keeps the design system's global 2px focus ring (`outline-ring`), and the bordered variants (`outline`, `glass`) additionally re-color their border with the `ring` token (`focus-visible:border-ring/(--alpha-tint-border)`) — never `outline: none`.
 - `loading` / `disabled` disable both halves and remove them from the tab order.
 
-| Key | Action |
-| --- | --- |
+| Key                                 | Action                                                                |
+| ----------------------------------- | --------------------------------------------------------------------- |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused half (run the primary action, or open the menu). |
-| <kbd>↓</kbd> | Open the menu from the trigger, focusing the first item. |
-| <kbd>↑</kbd> / <kbd>↓</kbd> | Move between menu items (wraps at the ends). |
-| <kbd>Esc</kbd> | Close the menu and return focus to the trigger. |
+| <kbd>↓</kbd>                        | Open the menu from the trigger, focusing the first item.              |
+| <kbd>↑</kbd> / <kbd>↓</kbd>         | Move between menu items (wraps at the ends).                          |
+| <kbd>Esc</kbd>                      | Close the menu and return focus to the trigger.                       |
 
 ## Do / Don't
 

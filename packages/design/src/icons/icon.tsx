@@ -1,12 +1,12 @@
-import * as React from 'react';
-import type { LucideIcon } from 'lucide-react';
+import * as React from "react";
+import type { LucideIcon } from "lucide-react";
 
 /** Functional icon size scale (px). */
 const SIZES = { xs: 14, sm: 16, md: 20, lg: 24 } as const;
 
 export type IconSize = keyof typeof SIZES;
 
-export interface IconProps extends Omit<React.SVGProps<SVGSVGElement>, 'ref'> {
+export interface IconProps extends Omit<React.SVGProps<SVGSVGElement>, "ref"> {
   /** The lucide icon component to render. */
   as: LucideIcon;
   /**
@@ -18,7 +18,7 @@ export interface IconProps extends Omit<React.SVGProps<SVGSVGElement>, 'ref'> {
    * Accessible label. When provided the icon is exposed to assistive tech;
    * otherwise it is `aria-hidden`.
    */
-  'aria-label'?: string;
+  "aria-label"?: string;
 }
 
 /**
@@ -31,7 +31,12 @@ export interface IconProps extends Omit<React.SVGProps<SVGSVGElement>, 'ref'> {
  * import { Check } from 'lucide-react';
  * <Icon as={Check} size="sm" aria-label="Done" />
  */
-export function Icon({ as: Cmp, size = 'md', 'aria-label': label, ...props }: IconProps) {
+export function Icon({
+  as: Cmp,
+  size = "md",
+  "aria-label": label,
+  ...props
+}: IconProps) {
   return (
     <Cmp
       width={SIZES[size]}

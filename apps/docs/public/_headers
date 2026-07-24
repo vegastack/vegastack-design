@@ -1,6 +1,17 @@
 # Cloudflare Workers Static Assets header rules (https://developers.cloudflare.com/workers/static-assets/headers/).
-# Applied on top of `out/` at deploy (wrangler.jsonc `assets.directory`). More specific rules
-# below win over less specific ones for the same response header.
+# Applied on top of `out/` at deploy (wrangler.jsonc `assets.directory`). Matching rules inherit
+# the global hardening headers; route-specific rules below add cache and content-type behavior.
+
+# Baseline browser hardening for every static response. A full CSP is deliberately deferred until
+# the Next/Fumadocs inline-script and Story asset inventory has its own rollout and report channel.
+# HTML intentionally keeps Workers Static Assets' documented default
+# `Cache-Control: public, max-age=0, must-revalidate`; adding it to `/*` would comma-join with the
+# route-specific cache policies below because Cloudflare merges every matching custom-header rule.
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  X-Frame-Options: DENY
 
 # Registry JSON is the update channel consumers poll (`vegastack-design check-updates`, `shadcn
 # add --diff`) — it must revalidate quickly, not be treated as immutable, and is fetched
@@ -12,3 +23,71 @@
 # Next's content-hashed build assets never change under a given URL — safe to cache forever.
 /_next/static/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Link-unfurl artwork is content-addressed by page URL but can change with a docs release.
+/og/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+# The design contract, published as a primary artifact for agents to fetch directly. UNLIKE the
+# `/docs/*.md` entries below it is NOT a mirror of an HTML page — it is generated from the root
+# `design.md` by `tooling/sync-design-md.mjs` and byte-checked by `pnpm design:sync:check`, so the
+# published copy can never drift from the doctrine the components are built against. Served from
+# `public/`, so it is a plain static asset with no route handler to set the type: this rule is what
+# makes it `text/markdown` instead of whatever the asset server infers. Cross-origin readable
+# because the consumers are agents and tooling that are not on design.vegastack.com.
+/design.md
+  Content-Type: text/markdown; charset=utf-8
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=300, must-revalidate
+  X-Robots-Tag: noindex, nofollow
+
+# Static-export Markdown siblings are agent-readable mirrors, never independent search results.
+/docs.md
+  Content-Type: text/markdown; charset=utf-8
+  Cache-Control: public, max-age=300, must-revalidate
+  X-Robots-Tag: noindex, nofollow
+
+/docs/*.md
+  Content-Type: text/markdown; charset=utf-8
+  Cache-Control: public, max-age=300, must-revalidate
+  X-Robots-Tag: noindex, nofollow
+
+/llms.txt
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=300, must-revalidate
+  X-Robots-Tag: noindex, nofollow
+
+/llms-full.txt
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=300, must-revalidate
+  X-Robots-Tag: noindex, nofollow
+
+/api/search
+  Content-Type: application/json; charset=utf-8
+  Cache-Control: public, max-age=300, must-revalidate
+  X-Robots-Tag: noindex, nofollow
+
+# Defense in depth: Cloudflare Access is the actual authorization boundary for these routes.
+/internal/*
+  Cache-Control: private, no-store
+  Cloudflare-CDN-Cache-Control: no-store
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex
+
+/internal/*.md
+  Content-Type: text/markdown; charset=utf-8
+
+# Brand metadata changes should propagate promptly without disabling useful browser caching.
+/brand/*
+  Cache-Control: public, max-age=86400, must-revalidate
+
+/favicon.ico
+  Cache-Control: public, max-age=86400, must-revalidate
+
+/icon.svg
+  Cache-Control: public, max-age=86400, must-revalidate
+
+/apple-icon.png
+  Cache-Control: public, max-age=86400, must-revalidate
+
+/manifest.webmanifest
+  Cache-Control: public, max-age=86400, must-revalidate

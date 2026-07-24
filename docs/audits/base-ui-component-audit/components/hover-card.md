@@ -13,11 +13,11 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P2 | `HoverCardContentProps` hides portal/advanced Positioner config at `hover-card.tsx:95`; internals own Portal/Positioner at `hover-card.tsx:133`. | Shadow-root, custom-boundary, or fixed-position consumers must fork. | Add `portalProps` and `positionerProps`. |
-| P2 | `pnpm run lint` flags `registry/ui/hover-card.tsx [outline-none]`. | Lint gate fails. | Add focus-visible affordance or document approved global outline. |
-| P3 | Docs call it Hover Card but source uses Base UI Preview Card at `hover-card.tsx:6`. | Future audits may chase wrong primitive docs. | Add upstream note/link to Base UI Preview Card. |
+| Priority | Evidence                                                                                                                                         | Impact                                                               | Suggested fix                                                     |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| P2       | `HoverCardContentProps` hides portal/advanced Positioner config at `hover-card.tsx:95`; internals own Portal/Positioner at `hover-card.tsx:133`. | Shadow-root, custom-boundary, or fixed-position consumers must fork. | Add `portalProps` and `positionerProps`.                          |
+| P2       | `pnpm run lint` flags `registry/ui/hover-card.tsx [outline-none]`.                                                                               | Lint gate fails.                                                     | Add focus-visible affordance or document approved global outline. |
+| P3       | Docs call it Hover Card but source uses Base UI Preview Card at `hover-card.tsx:6`.                                                              | Future audits may chase wrong primitive docs.                        | Add upstream note/link to Base UI Preview Card.                   |
 
 ## Residual Risks
 
@@ -27,4 +27,3 @@ No Radix import found.
 
 - `pnpm --filter @vegastack/ui test -- hover-card.test.tsx`
 - `pnpm run lint`
-

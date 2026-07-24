@@ -13,9 +13,9 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P3 | Examples use `space-y-2` at `skeleton.tsx:71` and preview `apps/docs/components/preview/skeleton.tsx:41`. | Docs normalize a spacing idiom that local shadcn guidance discourages. | Replace with flex column plus `gap-2`. |
+| Priority | Evidence                                                                                                  | Impact                                                                 | Suggested fix                          |
+| -------- | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | -------------------------------------- |
+| P3       | Examples use `space-y-2` at `skeleton.tsx:71` and preview `apps/docs/components/preview/skeleton.tsx:41`. | Docs normalize a spacing idiom that local shadcn guidance discourages. | Replace with flex column plus `gap-2`. |
 
 ## Residual Risks
 
@@ -24,4 +24,3 @@ No Base UI or Radix issue.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- skeleton.test.tsx`
-

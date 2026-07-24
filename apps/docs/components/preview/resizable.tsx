@@ -5,7 +5,11 @@ import { useRef, useState } from "react";
 import type { PanelImperativeHandle } from "react-resizable-panels";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/resizable` (dogfoods the registry) → auto-scanned.
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
 import { Button } from "@/components/ui/button";
 
 function Pane({ children }: { children: ReactNode }) {

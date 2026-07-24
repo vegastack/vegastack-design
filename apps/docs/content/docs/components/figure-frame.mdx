@@ -1,6 +1,7 @@
 ---
 title: Figure Frame
 description: A sharp-cornered media frame with an optional mono FIG-annotation caption.
+audience: public
 preview: figureFrame
 ---
 
@@ -15,36 +16,50 @@ npx shadcn@latest add @vegastack/figure-frame
 ## Usage
 
 ```tsx
-import { FigureFrame } from '@/components/ui/figure-frame';
+import { FigureFrame } from "@/components/ui/figure-frame";
 
 <FigureFrame figureNumber="01" caption="Component registry — live preview">
   <img src="/screenshot.png" alt="The VegaStack component registry" />
 </FigureFrame>;
 ```
 
-<ComponentPreview name="figureFrame" file="components/preview/figure-frame.tsx" />
+## Examples
 
-## The marketing "sharp" gesture
+<ComponentPreview
+  name="figureFrame"
+  file="components/preview/figure-frame.tsx"
+/>
+
+### The marketing "sharp" gesture
 
 `FigureFrame` uses `rounded-(--radius-sharp)` (2px) — the marketing sharp gesture is **rationed**
 to CTAs, chips, and figure frames (audit 17-brand-direction §Shape). Product surfaces keep the
 6/8/12px radius scale unchanged; this is the one deliberate exception.
 
-## Aspect ratio
+### Aspect ratio
 
 `aspectRatio` accepts any CSS `aspect-ratio` value (`"16/9"` default, `"1/1"`, `"4/3"`, …).
 
-<ComponentPreview name="figureFrameAspectRatio" file="components/preview/figure-frame.tsx" />
+<ComponentPreview
+  name="figureFrameAspectRatio"
+  file="components/preview/figure-frame.tsx"
+/>
 
-## Without a caption
+### Without a caption
 
 `caption` and `figureNumber` are both optional — omit them for a bare frame.
 
-<ComponentPreview name="figureFrameNoCaption" file="components/preview/figure-frame.tsx" />
+<ComponentPreview
+  name="figureFrameNoCaption"
+  file="components/preview/figure-frame.tsx"
+/>
 
 ## API Reference
 
-<AutoTypeTable path="../../packages/ui/registry/ui/figure-frame.tsx" name="FigureFrameProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/figure-frame.tsx"
+  name="FigureFrameProps"
+/>
 
 ## Accessibility
 

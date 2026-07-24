@@ -24,18 +24,18 @@
 //
 // Wired into `pnpm --filter @vegastack/design run verify` (and its `lint`).
 
-import { createRequire } from 'node:module';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const presetDir = join(here, '..', 'packages', 'design');
+const presetDir = join(here, "..", "packages", "design");
 
 // Resolve the Tailwind compile pipeline from the preset's own dependency graph (devDeps),
 // so this gate is self-contained and independent of hoisting.
-const req = createRequire(join(presetDir, 'package.json'));
-const { compile } = await import(req.resolve('@tailwindcss/node'));
-const { Scanner } = await import(req.resolve('@tailwindcss/oxide'));
+const req = createRequire(join(presetDir, "package.json"));
+const { compile } = await import(req.resolve("@tailwindcss/node"));
+const { Scanner } = await import(req.resolve("@tailwindcss/oxide"));
 
 // The ENTIRE consumer stylesheet: a single import of the preset. Nothing else — no docs
 // `@source`, no showcase paths.
@@ -45,20 +45,22 @@ const ENTRY = '@import "@vegastack/design/preset.css";\n';
 // (Escaped form is how Tailwind emits the selector in the compiled stylesheet.)
 const ASSERTIONS = [
   {
-    label: 'Toaster (@vegastack/ui dist) — group-[.toaster]:bg-popover',
-    test: (css) => css.includes('group-\\[\\.toaster\\]\\:bg-popover'),
+    label: "Toaster (@vegastack/ui dist) — group-[.toaster]:bg-popover",
+    test: (css) => css.includes("group-\\[\\.toaster\\]\\:bg-popover"),
   },
   {
-    label: 'Toaster (@vegastack/ui dist) — group-[.toaster]:text-popover-foreground',
-    test: (css) => css.includes('group-\\[\\.toaster\\]\\:text-popover-foreground'),
+    label:
+      "Toaster (@vegastack/ui dist) — group-[.toaster]:text-popover-foreground",
+    test: (css) =>
+      css.includes("group-\\[\\.toaster\\]\\:text-popover-foreground"),
   },
   {
-    label: 'BrandIcon (@vegastack/design/icons dist) — .shrink-0',
+    label: "BrandIcon (@vegastack/design/icons dist) — .shrink-0",
     test: (css) => /\.shrink-0\s*\{/.test(css),
   },
   {
-    label: 'BrandIcon (@vegastack/design/icons dist) — [&>svg]:size-full',
-    test: (css) => css.includes('size-full'),
+    label: "BrandIcon (@vegastack/design/icons dist) — [&>svg]:size-full",
+    test: (css) => css.includes("size-full"),
   },
 ];
 
@@ -75,7 +77,9 @@ try {
   const scanner = new Scanner({ sources: compiler.sources });
   css = compiler.build(scanner.scan());
 } catch (err) {
-  fail(`Tailwind compile of the preset alone errored: ${err.message.split('\n')[0]}`);
+  fail(
+    `Tailwind compile of the preset alone errored: ${err.message.split("\n")[0]}`,
+  );
 }
 
 const missing = ASSERTIONS.filter((a) => !a.test(css)).map((a) => a.label);
@@ -84,7 +88,7 @@ if (missing.length > 0) {
   fail(
     `The preset compiled, but these package-shipped classes were NOT generated from ` +
       `the preset's own @source (a real consumer would get unstyled provider/icon UI):\n` +
-      missing.map((m) => `      - ${m}`).join('\n') +
+      missing.map((m) => `      - ${m}`).join("\n") +
       `\n    Fix: ensure packages/design/preset.css declares @source "./dist" (this package's ` +
       `own icon runtime) and @source "../ui/dist" (@vegastack/ui sits as a sibling under the ` +
       `@vegastack scope when installed — graceful skip when absent).`,

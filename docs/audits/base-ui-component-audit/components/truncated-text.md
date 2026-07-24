@@ -13,9 +13,9 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| None | No material component-specific finding survived review. | No action. | Keep ResizeObserver tests and long-text visual coverage. |
+| Priority | Evidence                                                | Impact     | Suggested fix                                            |
+| -------- | ------------------------------------------------------- | ---------- | -------------------------------------------------------- |
+| None     | No material component-specific finding survived review. | No action. | Keep ResizeObserver tests and long-text visual coverage. |
 
 ## Residual Risks
 
@@ -24,4 +24,3 @@ ResizeObserver behavior should be tested in browser/VRT, not only unit tests.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- truncated-text.test.tsx`
-

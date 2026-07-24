@@ -1,8 +1,9 @@
-// @vegastack textarea@0.2.0 sha256-Rm+a87YoK/c09WFUIDfQsXCcpfsKPWut45FLtevy/J8=
+// @vegastack textarea@0.2.0 sha256-7QcO2hTCoUS9oQL6PtUANEt6nFeOAg6pB8vdvKfbfcE=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
 
+/** Props accepted by `Textarea`. */
 export interface TextareaProps extends React.ComponentProps<"textarea"> {
   /**
    * Density tier — `sm` compact, `default`, `lg` roomy. Multiline fields scale by
@@ -33,18 +34,18 @@ export interface TextareaProps extends React.ComponentProps<"textarea"> {
  * padding rather than the fixed control heights; `sm` steps the type down a tier.
  */
 const sizeClasses = {
-  sm: 'min-h-12 px-2.5 py-1.5 text-sm',
-  default: 'min-h-16 px-3 py-2',
-  lg: 'min-h-24 px-3 py-2.5',
+  sm: "min-h-12 px-2.5 py-1.5 text-sm",
+  default: "min-h-16 px-3 py-2",
+  lg: "min-h-24 px-3 py-2.5",
 } as const;
 
 const fieldClasses =
-  "w-full min-w-0 rounded-md border border-input bg-transparent text-base transition-colors duration-fast ease-standard outline-none " +
+  "w-full min-w-0 rounded-md border border-input bg-transparent text-base  outline-none " +
   "focus:border-ring/(--alpha-tint-border) " +
   "dark:bg-input/(--alpha-input) " +
   "placeholder:text-muted-foreground-faint " +
   "selection:bg-primary selection:text-primary-foreground " +
-  "aria-invalid:border-destructive/(--alpha-tint-border) " +
+  "aria-invalid:border-destructive-border/(--alpha-tint-border) " +
   "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-(--opacity-dim) disabled:bg-muted";
 
 /**
@@ -54,20 +55,29 @@ const fieldClasses =
  * size to content via CSS `field-sizing`. Shares its border/token styling with `Input`. Pure
  * presentational and server-safe — no hooks, no `'use client'`. Forwards its
  * ref to the underlying `<textarea>` for focus management and form libraries.
+ *
+ * @example
+ * <Textarea aria-label="Description" autoGrow />
  */
-export function Textarea({ className, autoGrow = false, size = 'default', ref, ...props }: TextareaProps) {
-    return (
-      <textarea
-        ref={ref}
-        data-slot="textarea"
-        data-size={size}
-        className={cn(
-          fieldClasses,
-          sizeClasses[size],
-          autoGrow ? "resize-none field-sizing-content" : "resize-y",
-          className,
-        )}
-        {...props}
-      />
-    );
+export function Textarea({
+  className,
+  autoGrow = false,
+  size = "default",
+  ref,
+  ...props
+}: TextareaProps) {
+  return (
+    <textarea
+      ref={ref}
+      data-slot="textarea"
+      data-size={size}
+      className={cn(
+        fieldClasses,
+        sizeClasses[size],
+        autoGrow ? "resize-none field-sizing-content" : "resize-y",
+        className,
+      )}
+      {...props}
+    />
+  );
 }

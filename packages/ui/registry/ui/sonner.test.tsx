@@ -60,16 +60,18 @@ test("uses the semantic token bridge and variant icon classes", async () => {
   );
   // Scope to the icon slot — with the closeButton default ON, the dismiss X's
   // svg is also inside the toast and a bare `svg` selector would match it first.
-  expect(document.querySelector("[data-sonner-toast] [data-icon] svg")).toHaveClass(
-    "text-success-text",
-  );
+  expect(
+    document.querySelector("[data-sonner-toast] [data-icon] svg"),
+  ).toHaveClass("text-success-text");
 });
 
 test("toasts are dismissable by default: close X present, top-right via the re-pointed vars", async () => {
   await render(<Toaster />);
   toast("Dismiss me");
   await waitForToast("Dismiss me");
-  const closeBtn = document.querySelector<HTMLElement>("[data-sonner-toast] [data-close-button]");
+  const closeBtn = document.querySelector<HTMLElement>(
+    "[data-sonner-toast] [data-close-button]",
+  );
   expect(closeBtn).not.toBeNull();
   // This suite runs without compiled CSS, so assert the class contract: the arbitrary-property
   // utilities that re-point Sonner's close-button side vars must ride each TOAST element —

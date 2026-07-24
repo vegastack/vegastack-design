@@ -1,4 +1,17 @@
 {
   "title": "Foundations",
-  "pages": ["design-principles", "colors", "typography", "spacing", "radius", "elevation", "motion", "icons", "accessibility", "theming"]
+  "pages": [
+    "design-principles",
+    "colors",
+    "typography",
+    "spacing",
+    "radius",
+    "elevation",
+    "motion",
+    "interaction-patterns",
+    "icons",
+    "empty-states",
+    "accessibility",
+    "theming"
+  ]
 }

@@ -1,6 +1,7 @@
 ---
 title: Message
 description: Layout primitives for a conversation row — avatar anchoring, a content column, header/footer slots, and start/end alignment. Server-safe.
+audience: public
 preview: message
 ---
 
@@ -98,7 +99,10 @@ user just sent — to fade + rise it in (`motion-enter-up`). It's **off by defau
 transcript rendered on page load must not animate every row. `Bubble` takes the same prop, so set
 either or both; a `MessageScroller` composes fine with it.
 
-<ComponentPreview name="messageAnimateIn" file="components/preview/message.tsx" />
+<ComponentPreview
+  name="messageAnimateIn"
+  file="components/preview/message.tsx"
+/>
 
 ### Ghost bubble
 
@@ -110,13 +114,30 @@ uses the `ghost` variant, so the muted lines align flush with edge-to-edge media
   file="components/preview/message.tsx"
 />
 
+### Agent transcripts
+
+The four chat-family pieces compose a full agent transcript:
+
+- **Thinking marker** — `Marker` + the `shimmer` utility:
+  `<Marker><MarkerContent className="shimmer">Thinking</MarkerContent></Marker>`
+- **Tool calls** — [`ToolCallChip`](/docs/components/tool-call-chip) rows between messages;
+  a spinner leading slot while running, then an icon + `meta` once resolved.
+- **Artifacts** — an `Attachment` with the produced thing's icon in `AttachmentMedia`, its
+  name in `AttachmentTitle`, and a status `Badge` composed in `AttachmentActions`.
+- **Code + results** — [`CodeBlock`](/docs/components/code-block) for the query and a compact
+  `Table` with `className="font-mono text-code-sm"` cells for inline results.
+- **Compose states** — keep the submit or stop control's accessible name synchronized with its action.
+
 ## API Reference
 
 `Message` is the only part with its own prop (`align`). `MessageGroup`,
 `MessageAvatar`, `MessageContent`, `MessageHeader`, and `MessageFooter` are plain
 layout wrappers — they accept the standard `div` props plus `className`.
 
-<AutoTypeTable path="../../packages/ui/registry/ui/message.tsx" name="MessageProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/message.tsx"
+  name="MessageProps"
+/>
 
 ## Accessibility
 

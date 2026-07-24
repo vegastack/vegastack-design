@@ -1,4 +1,4 @@
-// @vegastack dashboard-01@0.2.0 sha256-0n5FBIpJDwhYVC5aSLixZGo20UEXyAgyNmM4+AHClFc=
+// @vegastack dashboard-01@0.2.0 sha256-qm7+2LKVAhfwH5v5FXl7Weku+tAmcp/QpP0RBAnmHOM=
 
 /**
  * `page.tsx` — registry:page, target `app/dashboard/page.tsx`. The dashboard-01 block's sample
@@ -23,16 +23,27 @@
  * up itself (this single-route block can't demonstrate a real cross-route transition on its own).
  */
 
-import { AlertTriangle, PlusCircle } from 'lucide-react';
-import { AppShell, AppShellContent, AppShellHeader } from '@/components/ui/app-shell';
-import { Breadcrumb, BreadcrumbTrail } from '@/components/ui/breadcrumb';
-import { Button } from '@/components/ui/button';
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
-import { AppSidebar } from './components/app-sidebar';
-import { DashboardChart, type UsagePoint } from './components/dashboard-chart';
-import { RecentActivity, type ActivityRow } from './components/recent-activity';
-import { StatCards, type StatCardDatum } from './components/stat-cards';
-import sampleData from './data.json';
+import { AlertTriangle, PlusCircle } from "lucide-react";
+import {
+  AppShell,
+  AppShellContent,
+  AppShellHeader,
+} from "@/components/ui/app-shell";
+import { Breadcrumb, BreadcrumbTrail } from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { AppSidebar } from "./components/app-sidebar";
+import { DashboardChart, type UsagePoint } from "./components/dashboard-chart";
+import { RecentActivity, type ActivityRow } from "./components/recent-activity";
+import { StatCards, type StatCardDatum } from "./components/stat-cards";
+import sampleData from "./data.json";
 
 const DEFAULT_DATA = sampleData as {
   stats: StatCardDatum[];
@@ -40,27 +51,35 @@ const DEFAULT_DATA = sampleData as {
   activity: ActivityRow[];
 };
 
+/** Props accepted by `DashboardPage`. */
 export interface DashboardPageProps {
-  /** Stat-card row data. Defaults to the bundled sample `data.json`. */
+  /** Stat-card row data. @default bundled sample `data.json` */
   stats?: StatCardDatum[];
-  /** "Usage over time" chart series. Defaults to the bundled sample `data.json`. */
+  /** "Usage over time" chart series. @default bundled sample `data.json` */
   usage?: UsagePoint[];
-  /** Recent-activity rows. Defaults to the bundled sample `data.json`. */
+  /** Recent-activity rows. @default bundled sample `data.json` */
   activity?: ActivityRow[];
-  /** Per-region loading flags — each region shows its OWN skeleton independently. */
+  /** Per-region loading flags — each region shows its own skeleton independently. @default {} */
   loading?: { stats?: boolean; chart?: boolean; activity?: boolean };
-  /** Per-region error messages — each region shows an inline error `Empty` instead of its content. */
+  /** Per-region error messages — each region shows an inline error `Empty` instead of its content. @default {} */
   error?: { stats?: string; chart?: string; activity?: string };
   /**
    * True when the workspace genuinely has no agents/tasks yet — renders a full-page `Empty`
    * zero-state instead of the stat/chart/activity regions (audit §e item 5, the block's own
    * responsibility, not `AppShell`'s).
+   * @default false
    */
   isEmpty?: boolean;
 }
 
 /** One region's inline error state — an `Empty` in place of that region's normal content. */
-function RegionError({ title, description }: { title: string; description: string }) {
+function RegionError({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
   return (
     <Empty size="sm" bordered>
       <EmptyHeader>
@@ -74,6 +93,12 @@ function RegionError({ title, description }: { title: string; description: strin
   );
 }
 
+/**
+ * A complete, editable dashboard starter composed on the shared `AppShell` landmarks.
+ *
+ * @example
+ * <DashboardPage loading={{ activity: true }} />
+ */
 export function DashboardPage({
   stats = DEFAULT_DATA.stats,
   usage = DEFAULT_DATA.usage,
@@ -96,7 +121,9 @@ export function DashboardPage({
           }
         >
           <Breadcrumb>
-            <BreadcrumbTrail items={[{ label: 'Home', href: '/' }, { label: 'Dashboard' }]} />
+            <BreadcrumbTrail
+              items={[{ label: "Home", href: "/" }, { label: "Dashboard" }]}
+            />
           </Breadcrumb>
         </AppShellHeader>
 
@@ -110,7 +137,8 @@ export function DashboardPage({
                   </EmptyMedia>
                   <EmptyTitle>No agents yet</EmptyTitle>
                   <EmptyDescription>
-                    Create your first agent to start seeing usage, tasks, and activity here.
+                    Create your first agent to start seeing usage, tasks, and
+                    activity here.
                   </EmptyDescription>
                 </EmptyHeader>
                 <EmptyContent>
@@ -124,19 +152,28 @@ export function DashboardPage({
           ) : (
             <div className="flex flex-col gap-4 p-4">
               {error.stats ? (
-                <RegionError title="Couldn't load stats" description={error.stats} />
+                <RegionError
+                  title="Couldn't load stats"
+                  description={error.stats}
+                />
               ) : (
                 <StatCards stats={stats} loading={loading.stats} />
               )}
 
               {error.chart ? (
-                <RegionError title="Couldn't load the usage chart" description={error.chart} />
+                <RegionError
+                  title="Couldn't load the usage chart"
+                  description={error.chart}
+                />
               ) : (
                 <DashboardChart data={usage} loading={loading.chart} />
               )}
 
               {error.activity ? (
-                <RegionError title="Couldn't load recent activity" description={error.activity} />
+                <RegionError
+                  title="Couldn't load recent activity"
+                  description={error.activity}
+                />
               ) : (
                 <RecentActivity data={activity} loading={loading.activity} />
               )}

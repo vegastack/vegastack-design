@@ -1,6 +1,7 @@
 ---
 title: Text Edit
 description: A Tiptap-based rich-text editor with a compact, token-styled toolbar and markdown-ish input — controlled HTML in, HTML out.
+audience: public
 preview: textEdit
 ---
 
@@ -46,7 +47,9 @@ history, the **bold / italic / strike / code** marks, **headings**, **bullet & o
 />
 ```
 
-## Anatomy
+## Examples
+
+### Anatomy
 
 `TextEdit` is a single self-contained component, but it composes three layered pieces internally:
 
@@ -72,7 +75,7 @@ history, the **bold / italic / strike / code** marks, **headings**, **bullet & o
   Prose is styled entirely with semantic tokens (headings, lists, code, blockquote), so it tracks the
   active theme with no `@tailwindcss/typography` dependency.
 
-## Examples
+### Editing patterns
 
 An empty editor with a placeholder, and a read-only editor (toolbar hidden) for rendering stored
 content.
@@ -132,20 +135,20 @@ fires it with the current HTML. It's presentational only: the **host** decides w
 - The toolbar is a `role="toolbar"` labelled “Formatting”; each button is an icon-only `Toggle` with
   an `aria-label` and `aria-pressed` reflecting the active mark/node.
 - Editing keymaps come from Tiptap `StarterKit` — see the table below. Focus re-colors the container
-  border with the `ring` token (`focus-within:border-ring/70`); never styled with `outline: none`.
+  border with the `ring` token (`focus-within:border-ring/(--alpha-tint-border)`); never styled with `outline: none`.
 - An invalid control (`aria-invalid`) re-colors the container border to destructive
   (`has-aria-invalid:border-destructive/70`) and sets `data-invalid` for downstream styling.
 - `editable={false}` removes the toolbar and marks the surface read-only.
 
-| Key                                                   | Action                                            |
-| ----------------------------------------------------- | ------------------------------------------------- |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>B</kbd>                    | Toggle **bold**.                                  |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>I</kbd>                    | Toggle _italic_.                                  |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>Z</kbd>                    | Undo.                                             |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> | Redo.                                             |
-| <kbd>Enter</kbd>                                      | New paragraph (or new list item inside a list).   |
+| Key                                                   | Action                                                                                                                                    |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>B</kbd>                    | Toggle **bold**.                                                                                                                          |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>I</kbd>                    | Toggle _italic_.                                                                                                                          |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Z</kbd>                    | Undo.                                                                                                                                     |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> | Redo.                                                                                                                                     |
+| <kbd>Enter</kbd>                                      | New paragraph (or new list item inside a list).                                                                                           |
 | <kbd>Cmd/Ctrl</kbd> + <kbd>Enter</kbd>                | Fire `onSubmit` with the current HTML (when set). The host decides what submitting means; plain <kbd>Enter</kbd> still inserts a newline. |
-| <kbd>Tab</kbd>                                        | Move focus out of the editor to the next control. |
+| <kbd>Tab</kbd>                                        | Move focus out of the editor to the next control.                                                                                         |
 
 ## Scope
 

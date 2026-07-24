@@ -1,9 +1,9 @@
-import { defineStory } from '@/lib/story';
-import { TruncatedText } from '@/components/ui/truncated-text';
+import { defineStory } from "@/lib/story";
+import { TruncatedText } from "@/components/ui/truncated-text";
 
 /** Long fixture so truncation actually engages inside the constrained box. */
 const LONG_TEXT =
-  'A long file name that overflows its constrained container and reveals the full text on hover or focus';
+  "A long file name that overflows its constrained container and reveals the full text on hover or focus";
 
 /**
  * Story explorer for `TruncatedText` — controls auto-generated from
@@ -14,18 +14,18 @@ export const story = defineStory({
   Component: TruncatedText,
   args: [
     {
-      variant: 'Single line',
+      variant: "Single line",
       initial: {
         children: LONG_TEXT,
-        className: 'max-w-48',
+        className: "max-w-48",
       },
     },
     {
-      variant: 'Multi-line clamp',
+      variant: "Multi-line clamp",
       initial: {
         children: LONG_TEXT,
         lines: 3,
-        className: 'max-w-64',
+        className: "max-w-64",
       },
     },
   ],

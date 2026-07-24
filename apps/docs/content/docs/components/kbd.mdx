@@ -1,10 +1,11 @@
 ---
 title: Kbd
 description: A styled keyboard-key indicator — deterministic modifier labels, a keys array, and small sizes.
+audience: public
 preview: kbd
 ---
 
-import { story } from '@/components/stories/kbd.story';
+import { story } from "@/components/stories/kbd.story";
 
 ## Installation
 
@@ -26,20 +27,22 @@ import { Kbd, KbdGroup } from '@/components/ui/kbd';
 <Kbd keys={['⌘', 'K']} />;
 ```
 
-## Playground
+## Examples
+
+### Playground
 
 Change the size and platform to watch the ⌘ glyph swap to Ctrl, then copy the generated JSX.
 
 <KbdPlayground />
 
-## Explorer
+### Explorer
 
 Every `Kbd` prop, auto-generated from its TypeScript types — the exhaustive counterpart to the
 curated playground above.
 
 <story.WithControl />
 
-## Anatomy
+### Anatomy
 
 `Kbd` renders a single `<kbd>` chip, or — when given a `keys` array — a row of chips wrapped in a
 `KbdGroup`. Compose `KbdGroup` yourself to mix in non-key content.
@@ -51,7 +54,7 @@ curated playground above.
 </KbdGroup>
 ```
 
-## Combos
+### Combos
 
 Pass a `keys` array to render a shortcut, or compose individual `Kbd` chips inside a `KbdGroup`.
 Modifier glyphs render as mac glyphs by default; pass `os="other"` to rewrite them to words
@@ -59,13 +62,13 @@ Modifier glyphs render as mac glyphs by default; pass `os="other"` to rewrite th
 
 <ComponentPreview name="kbdCombos" file="components/preview/kbd.tsx" />
 
-## Sizes
+### Sizes
 
 `xs`, `sm`, and `default` — sized to sit inline with text, menus, and tooltips.
 
 <ComponentPreview name="kbdSizes" file="components/preview/kbd.tsx" />
 
-## Platform Labels
+### Platform Labels
 
 `Kbd` is server-safe and deterministic. It defaults to mac glyphs; pass `os="other"` when the
 surrounding UI is for Windows/Linux shortcuts. The rewrite applies whether you pass a `keys` array
@@ -90,7 +93,10 @@ or a single string child (`⌘` → `Ctrl`, `⇧` → `Shift`, `⌥` → `Alt`, 
 
 ### KbdGroup
 
-<AutoTypeTable path="../../packages/ui/registry/ui/kbd.tsx" name="KbdGroupProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/kbd.tsx"
+  name="KbdGroupProps"
+/>
 
 The `kbdVariants` CVA helper is also exported for advanced styling — call `kbdVariants({ size })`
 to reuse the chip classes (the single `size` axis: `xs` | `sm` | `default`) on a custom element.
@@ -104,9 +110,9 @@ to reuse the chip classes (the single `size` axis: `xs` | `sm` | `default`) on a
 - Modifier glyphs are rewritten to readable words on non-mac platforms, so a shortcut is never
   announced as an unfamiliar symbol.
 
-| Key       | Behavior                                                            |
-| --------- | ------------------------------------------------------------------ |
-| _(none)_  | `Kbd` is presentational — it has no interactive keyboard behavior. |
+| Key      | Behavior                                                           |
+| -------- | ------------------------------------------------------------------ |
+| _(none)_ | `Kbd` is presentational — it has no interactive keyboard behavior. |
 
 ## Do / Don't
 

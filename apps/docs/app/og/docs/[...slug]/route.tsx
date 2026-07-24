@@ -1,21 +1,39 @@
-import { getPageImage, source } from '@/lib/source';
-import { notFound } from 'next/navigation';
-import { ImageResponse } from 'next/og';
-import { OGImage, OG_IMAGE_SIZE } from '@/lib/og';
+import { getPageImage, source } from "@/lib/source";
+import { notFound } from "next/navigation";
+import { ImageResponse } from "next/og";
+import {
+  getOGFonts,
+  getOGWordmarkDataUri,
+  OGImage,
+  OG_IMAGE_SIZE,
+} from "@/lib/og";
 
 export const revalidate = false;
 
-export async function GET(_req: Request, { params }: RouteContext<'/og/docs/[...slug]'>) {
+export async function GET(
+  _req: Request,
+  { params }: RouteContext<"/og/docs/[...slug]">,
+) {
   const { slug } = await params;
   const page = source.getPage(slug.slice(0, -1));
   if (!page) notFound();
+  const [wordmarkSrc, fonts] = await Promise.all([
+    getOGWordmarkDataUri(),
+    getOGFonts(),
+  ]);
 
   return new ImageResponse(
-    <OGImage title={page.data.title} description={page.data.description} />,
-    OG_IMAGE_SIZE,
+    <OGImage
+      title={page.data.title}
+      description={page.data.description}
+      wordmarkSrc={wordmarkSrc}
+    />,
+    { ...OG_IMAGE_SIZE, fonts },
   );
 }
 
 export function generateStaticParams() {
-  return source.getPages().map((page) => ({ slug: getPageImage(page).segments }));
+  return source
+    .getPages()
+    .map((page) => ({ slug: getPageImage(page).segments }));
 }

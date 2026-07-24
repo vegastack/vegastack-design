@@ -1,0 +1,59 @@
+---
+title: Empty states
+description: The eight-tier empty-state system — when a surface has nothing to show, which tier fits, and the shared monoline illustration language.
+audience: public
+---
+
+An empty state is a design surface, not an accident. VegaStack ships a graded system so every
+"nothing here yet" reads as intentional and consistent — from a full-page welcome down to a
+single blank field. Pick the **lowest tier that carries the meaning**; reaching for a big
+illustration where a faint phrase would do is the most common mistake.
+
+## The eight tiers
+
+| #   | Tier                | Component                                                             | Use it for                                              |
+| --- | ------------------- | --------------------------------------------------------------------- | ------------------------------------------------------- |
+| 1   | **Page**            | `Empty` + `EmptyIllustration` + CTA                                   | a whole view with no records ("No companies yet")       |
+| 2   | **Panel**           | `Empty size="sm"`                                                     | a card/pane with no content (a sidebar list, a widget)  |
+| 3   | **Inline value**    | `EmptyValue`                                                          | a single blank value slot ("No value", "Set a value…")  |
+| 4   | **Stat**            | `StatEmpty`                                                           | a metric with nothing to report ("No connection")       |
+| 5   | **Well**            | `Empty bordered`                                                      | a drop target / favourites well (dashed border)         |
+| 6   | **Blocked / error** | `Empty` + `EmptyIllustration name="error"` in `text-destructive-text` | a state the user must resolve ("No mailbox configured") |
+| 7   | **Not found**       | `Empty` + `EmptyIllustration name="not-found"`                        | a thing that doesn't exist (404, deleted record)        |
+| 8   | **Loading→empty**   | `Skeleton` → tier 1/2                                                 | the settled empty after a load resolves to nothing      |
+
+## One drawing language
+
+`EmptyIllustration` ships six built-in monoline drawings — `clipboard`, `bell`, `search`,
+`box`, `error`, `not-found` — on a faint grid-paper ground. They're pure `currentColor`
+strokes, so:
+
+- **themes need no variants** — the drawing tracks `foreground`/`muted-foreground`;
+- **the error tier is just a color** — `text-destructive-text` on the `EmptyMedia`, no second
+  asset;
+- **they read as one family** across every surface, exactly the way the reference app's
+  empty states do.
+
+```tsx
+<Empty>
+  <EmptyHeader>
+    <EmptyMedia variant="default">
+      <EmptyIllustration name="clipboard" className="text-muted-foreground" />
+    </EmptyMedia>
+    <EmptyTitle>No tasks yet</EmptyTitle>
+    <EmptyDescription>Create your first task to get started.</EmptyDescription>
+  </EmptyHeader>
+  <EmptyContent>
+    <Button>New task</Button>
+  </EmptyContent>
+</Empty>
+```
+
+## Rules
+
+- **Never leave a data cell truly blank.** A blank cell reads as broken; `EmptyValue` /
+  `StatEmpty` say "empty on purpose" in the faint placeholder register.
+- **The title carries the meaning; the illustration is decorative** (`aria-hidden`).
+- **One CTA.** An empty state proposes the single next action — not a menu.
+- **Blocked ≠ empty.** If the user must do something to unblock (configure, connect,
+  permission), use the error tier in the destructive register — not the neutral one.

@@ -1,5 +1,5 @@
-import { clsx, type ClassValue } from 'clsx';
-import { extendTailwindMerge } from 'tailwind-merge';
+import { clsx, type ClassValue } from "clsx";
+import { extendTailwindMerge } from "tailwind-merge";
 
 /**
  * tailwind-merge extended to treat EVERY custom design-token font size as a
@@ -16,22 +16,22 @@ import { extendTailwindMerge } from 'tailwind-merge';
 const twMerge = extendTailwindMerge({
   extend: {
     classGroups: {
-      'font-size': [
+      "font-size": [
         {
           text: [
-            'h1',
-            'h2',
-            'h3',
-            'h4',
-            'label',
-            'label-sm',
-            'code',
-            'code-sm',
-            'mono-label',
-            'display-sm',
-            'display-md',
-            'display-lg',
-            'display-xl',
+            "h1",
+            "h2",
+            "h3",
+            "h4",
+            "label",
+            "label-sm",
+            "code",
+            "code-sm",
+            "mono-label",
+            "display-sm",
+            "display-md",
+            "display-lg",
+            "display-xl",
           ],
         },
       ],
@@ -57,6 +57,14 @@ export function cn(...inputs: ClassValue[]): string {
 }
 
 export type { ClassValue };
+
+/**
+ * @internal Registry theme-scope plumbing lives at `@vegastack/design/theme-scope`, NOT here.
+ * It calls `React.createContext()` at module scope, which is `undefined` under the `react-server`
+ * condition — re-exporting it from this entry would make every Server Component that imports
+ * `cn` crash on import. This entry stays server-safe by contract (see tsup.config.ts).
+ * Product code should use `MarketingSurface` rather than either symbol.
+ */
 
 /**
  * Interaction timing constants (ms) — design decisions, not magic numbers (register P2-14).

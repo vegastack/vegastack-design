@@ -1,10 +1,11 @@
 ---
 title: Input
 description: A styled Base UI input — all input types, Field state data attributes, error and disabled states, focus border recolor, and optional prefix/suffix addons.
+audience: public
 preview: input
 ---
 
-import { story } from '@/components/stories/input.story';
+import { story } from "@/components/stories/input.story";
 
 ## Installation
 
@@ -17,7 +18,7 @@ npx shadcn@latest add @vegastack/input
 ## Usage
 
 ```tsx
-import { Input } from '@/components/ui/input';
+import { Input } from "@/components/ui/input";
 
 <Input type="email" placeholder="you@vegastack.com" />;
 ```
@@ -26,20 +27,22 @@ import { Input } from '@/components/ui/input';
 Base UI `render`, `onValueChange`, Field state data attributes, and
 state-function `className`. Its ref forwards to the underlying input element.
 
-## Playground
+## Examples
+
+### Playground
 
 Try every type, size, and state — flipping Invalid on replays the built-in shake — then copy the generated JSX.
 
 <InputPlayground />
 
-## Explorer
+### Explorer
 
 Every `Input` prop, auto-generated from its TypeScript types — the exhaustive counterpart to the
 curated playground above.
 
 <story.WithControl />
 
-## States
+### States
 
 The field reflects `disabled`, `readOnly`, and `aria-invalid`. The invalid state
 re-colors the border with the `destructive` token (`aria-invalid:border-destructive/70`) —
@@ -47,15 +50,25 @@ pair it with a visible error message for non-color-dependent feedback.
 
 <ComponentPreview name="inputStates" file="components/preview/input.tsx" />
 
-## Input types
+### Input types
 
 `Input` forwards any HTML `type` to the underlying `<input>` — `number`, `tel`,
-`url`, `password`, `date`, and the rest all work alongside the shared field
+`url`, `email`, `password`, and the rest all work alongside the shared field
 styling. `type` defaults to `'text'`.
 
 <ComponentPreview name="inputTypes" file="components/preview/input.tsx" />
 
-## Addons
+<Callout type="warn">
+  **Don't use `type="date"`, `"time"`, or `"datetime-local"`.** They summon the
+  browser's native picker, which ignores every design token — its own surface,
+  radius, type ramp and focus ring, rendered differently on each browser and OS.
+  Reach for [`DatePicker`](/docs/components/date-picker) instead: it's built
+  from `Popover` + `Calendar`, themed like the rest of the system, and displays
+  dates in the readable `Jun 24, 2026` format (any `Intl.DateTimeFormat` options
+  via `formatOptions`).
+</Callout>
+
+### Addons
 
 Pass a `prefix` and/or `suffix` to render non-editable content inside the field —
 a domain like `app.vegastack.com/`, a unit, or an icon. In addon mode the
@@ -72,35 +85,42 @@ marks it invalid.
 
 <ComponentPreview name="inputAddonStates" file="components/preview/input.tsx" />
 
-## Controlled value (`onValueChange`)
+### Controlled value (`onValueChange`)
 
 Base UI exposes `onValueChange`, which receives the next string value directly
 (no event unwrapping) — convenient for controlled fields and derived UI. It fires
 alongside the native `onChange`.
 
 ```tsx
-const [value, setValue] = useState('');
+const [value, setValue] = useState("");
 
-<Input value={value} onValueChange={setValue} placeholder="Type a workspace name" />;
+<Input
+  value={value}
+  onValueChange={setValue}
+  placeholder="Type a workspace name"
+/>;
 ```
 
 <ComponentPreview name="inputValueChange" file="components/preview/input.tsx" />
 
-## Polymorphism (`render`)
+### Polymorphism (`render`)
 
 Use Base UI's `render` prop to swap the underlying element while keeping the
 field styling and behavior — pass an element to merge props into, or a function
 for full control.
 
 ```tsx
-<Input render={<input data-testid="rendered-input" />} type="email" />;
+<Input render={<input data-testid="rendered-input" />} type="email" />
 ```
 
 <ComponentPreview name="inputRender" file="components/preview/input.tsx" />
 
 ## API Reference
 
-<AutoTypeTable path="../../packages/ui/registry/ui/input.tsx" name="InputProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/input.tsx"
+  name="InputProps"
+/>
 
 ## Accessibility
 

@@ -1,6 +1,7 @@
 ---
 title: Spacing
 description: The 4px spacing scale — one base unit, Tailwind's spacing utilities, and var(--spacing).
+audience: public
 ---
 
 Spacing is a **single base unit** stepped on a 4px scale. Tailwind v4 supplies the base
@@ -16,30 +17,29 @@ Steps compose from the 4px base: **4 / 8 / 12 / 16 / 24 / 32 / 48 / 64px** (and 
 descriptive labels, not separate tokens. There is **no per-step token**; the scale is the base unit
 multiplied by Tailwind's numeric utility name.
 
-| Utility step | Computed | Typical use |
-| --- | --- | --- |
-| `1` | 4px | hairline gaps, icon-to-label |
-| `2` | 8px | tight inline spacing |
-| `3` | 12px | control padding |
-| `4` | 16px | default block gap |
-| `6` | 24px | section padding |
-| `8` | 32px | between groups |
-| `12` | 48px | large vertical rhythm |
-| `16` | 64px | page-level separation |
+| Utility step | Computed | Typical use                  |
+| ------------ | -------- | ---------------------------- |
+| `1`          | 4px      | hairline gaps, icon-to-label |
+| `2`          | 8px      | tight inline spacing         |
+| `3`          | 12px     | control padding              |
+| `4`          | 16px     | default block gap            |
+| `6`          | 24px     | section padding              |
+| `8`          | 32px     | between groups               |
+| `12`         | 48px     | large vertical rhythm        |
+| `16`         | 64px     | page-level separation        |
 
 ## `var(--spacing)`
 
 `--spacing` is Tailwind v4's own base unit (`0.25rem`), not a `@vegastack/design-tokens` value — the tokens
 package ships no `--spacing` of its own. Internal utilities reference it directly when they need a
 spacing-relative length, e.g. the scroll-fade reveal in `@vegastack/design-tokens/utilities.css` uses
-`calc(var(--spacing) * 24)`. In app code, reach for the named utility first; drop to the variable
-only for a computed length:
+`calc(var(--spacing) * 24)`. In app code, reach for the named utility. If a repeated computed length
+is truly needed, promote it to a named token or sanctioned utility instead of bypassing the component
+lint with an inline style:
 
 ```tsx
-<div className="p-4 gap-2" />
-
-// computed length — same 4px grid, expressed once
-<div style={{ paddingInline: 'calc(var(--spacing) * 6)' }} />
+<div className="gap-2 p-4" />
+<div className="px-6" />
 ```
 
 ## Tailwind usage

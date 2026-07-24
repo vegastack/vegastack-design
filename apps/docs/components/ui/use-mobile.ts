@@ -1,21 +1,8 @@
-// @vegastack use-mobile@0.2.0 sha256-d7xeq0ohlMHQnWZpXmP8nRtCPhNxAquRE6lNCOL5lgw=
+// @vegastack use-mobile@0.2.0 sha256-HOsQht0GEY32laHPigc4B+L6NwdC0Cdjb7Ja2MdBptU=
 
-'use client';
+"use client";
 
-import * as React from 'react';
-
-/**
- * SSR-safe read of `(max-width: <breakpoint - 1>px)` — true once the viewport has narrowed
- * past `breakpoint`. Mirrors `truncated-text.tsx`'s `getPrefersNoHover`: returns `false`
- * (desktop) on the server and whenever `matchMedia` is unavailable, so the pre-hydration
- * render never assumes mobile.
- */
-function getIsMobile(breakpoint: number): boolean {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-    return false;
-  }
-  return window.matchMedia(`(max-width: ${breakpoint - 1}px)`).matches;
-}
+import * as React from "react";
 
 /**
  * `useIsMobile` — tracks whether the viewport is narrower than `breakpoint`, live (resizes,
@@ -38,15 +25,24 @@ function getIsMobile(breakpoint: number): boolean {
  * const isCompact = useIsMobile(1024);
  */
 export function useIsMobile(breakpoint = 768): boolean {
-  const [isMobile, setIsMobile] = React.useState(() => getIsMobile(breakpoint));
+  // The server has no viewport, so both the server render and the client's hydration render must
+  // start from the same conservative value. The effect below synchronizes the real media-query
+  // result immediately after hydration and then keeps it live.
+  const [isMobile, setIsMobile] = React.useState(false);
 
   React.useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
-    const mediaQueryList = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
+    if (
+      typeof window === "undefined" ||
+      typeof window.matchMedia !== "function"
+    )
+      return;
+    const mediaQueryList = window.matchMedia(
+      `(max-width: ${breakpoint - 1}px)`,
+    );
     setIsMobile(mediaQueryList.matches);
     const onChange = (event: MediaQueryListEvent) => setIsMobile(event.matches);
-    mediaQueryList.addEventListener('change', onChange);
-    return () => mediaQueryList.removeEventListener('change', onChange);
+    mediaQueryList.addEventListener("change", onChange);
+    return () => mediaQueryList.removeEventListener("change", onChange);
   }, [breakpoint]);
 
   return isMobile;

@@ -1,8 +1,8 @@
-// @vegastack use-animation-replay@0.2.0 sha256-vnWNZAWhj4S4MgJ+fFYsTckOWhtsvPxVFWIyR1qlNJk=
+// @vegastack use-animation-replay@0.2.0 sha256-kAHog5eVaJnmL4p5GWojZYTwkMSNb33g+hjVUD0dmbE=
 
-'use client';
+"use client";
 
-import * as React from 'react';
+import * as React from "react";
 
 /**
  * MECHANISM (locked, CX-13 / Phase M investigation) — **class-toggle + `animationend`
@@ -74,14 +74,16 @@ export interface UseAnimationReplayResult {
  *   return (
  *     <button onClick={replay.replay}>
  *       <Check
- *         className={cn('size-4', replay.className)}
+ *         className={cn('size-(--icon-default)', replay.className)}
  *         onAnimationEnd={replay.onAnimationEnd}
  *       />
  *     </button>
  *   );
  * }
  */
-export function useAnimationReplay(animationClassName: string): UseAnimationReplayResult {
+export function useAnimationReplay(
+  animationClassName: string,
+): UseAnimationReplayResult {
   const [isActive, setIsActive] = React.useState(false);
   const rafRef = React.useRef<number | null>(null);
 
@@ -169,7 +171,10 @@ export interface UseShakeOnInvalidResult {
 }
 
 function readInvalidAttribute(element: HTMLElement): boolean {
-  return element.getAttribute('aria-invalid') === 'true' || element.hasAttribute('data-invalid');
+  return (
+    element.getAttribute("aria-invalid") === "true" ||
+    element.hasAttribute("data-invalid")
+  );
 }
 
 /**
@@ -209,7 +214,8 @@ export function useShakeOnInvalid(
   options: UseShakeOnInvalidOptions = {},
 ): UseShakeOnInvalidResult {
   const { shakeSignal } = options;
-  const { className, onAnimationEnd, replay, isActive } = useAnimationReplay('motion-shake');
+  const { className, onAnimationEnd, replay, isActive } =
+    useAnimationReplay("motion-shake");
 
   const elementRef = React.useRef<HTMLElement | null>(null);
   const observerRef = React.useRef<MutationObserver | null>(null);
@@ -238,7 +244,7 @@ export function useShakeOnInvalid(
     });
     observer.observe(element, {
       attributes: true,
-      attributeFilter: ['aria-invalid', 'data-invalid'],
+      attributeFilter: ["aria-invalid", "data-invalid"],
     });
     observerRef.current = observer;
   }, []);
@@ -250,7 +256,8 @@ export function useShakeOnInvalid(
   // Repeated-failure signal: only re-shakes while ALREADY invalid (see JSDoc on shakeSignal).
   const lastSignalRef = React.useRef(shakeSignal);
   React.useEffect(() => {
-    if (shakeSignal === undefined || shakeSignal === lastSignalRef.current) return;
+    if (shakeSignal === undefined || shakeSignal === lastSignalRef.current)
+      return;
     lastSignalRef.current = shakeSignal;
     if (wasInvalidRef.current) replay();
   }, [shakeSignal, replay]);
@@ -270,7 +277,7 @@ export function mergeRefs<T>(
   return (node: T | null) => {
     for (const ref of refs) {
       if (ref == null) continue;
-      if (typeof ref === 'function') {
+      if (typeof ref === "function") {
         ref(node);
       } else {
         (ref as React.RefObject<T | null>).current = node;

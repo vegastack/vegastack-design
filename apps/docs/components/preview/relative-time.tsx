@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { Wrapper } from './wrapper';
+import type { ReactNode } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/relative-time` (dogfoods the registry) → auto-scanned.
-import { RelativeTime } from '@/components/ui/relative-time';
+import { RelativeTime } from "@/components/ui/relative-time";
 
 // A fixed reference instant so the showcase renders stable, predictable strings
 // (no live clock drift in docs/screenshots). `offset()` builds dates around it.
@@ -18,7 +18,11 @@ export function relativeTime(): ReactNode {
     <Wrapper>
       <div className="flex items-center gap-2 text-base">
         <span className="text-muted-foreground">Last deployed</span>
-        <RelativeTime date={offset(-2 * HOUR)} now={NOW} className="text-foreground" />
+        <RelativeTime
+          date={offset(-2 * HOUR)}
+          now={NOW}
+          className="text-foreground"
+        />
       </div>
     </Wrapper>
   );
@@ -47,7 +51,11 @@ export function relativeTimeModes(): ReactNode {
       <RelativeTime date={offset(-1 * DAY)} now={NOW} mode="day" />
       <RelativeTime date={offset(0)} now={NOW} mode="day" />
       <RelativeTime date={offset(1 * DAY)} now={NOW} mode="day" />
-      <RelativeTime date={new Date(Date.UTC(2026, 2, 15, 12))} now={NOW} mode="day" />
+      <RelativeTime
+        date={new Date(Date.UTC(2026, 2, 15, 12))}
+        now={NOW}
+        mode="day"
+      />
     </Wrapper>
   );
 }
@@ -60,7 +68,11 @@ export function relativeTimeStates(): ReactNode {
       {/* Tooltip disabled */}
       <RelativeTime date={offset(-2 * HOUR)} now={NOW} title={false} />
       {/* Custom tooltip label */}
-      <RelativeTime date={offset(-2 * HOUR)} now={NOW} title="Created at launch" />
+      <RelativeTime
+        date={offset(-2 * HOUR)}
+        now={NOW}
+        title="Created at launch"
+      />
     </Wrapper>
   );
 }
@@ -70,15 +82,30 @@ export function relativeTimeLocale(): ReactNode {
     <Wrapper className="gap-6 text-base">
       <div className="flex items-center gap-2">
         <span className="text-muted-foreground">en-US</span>
-        <RelativeTime date={offset(-2 * HOUR)} now={NOW} locale="en-US" className="text-foreground" />
+        <RelativeTime
+          date={offset(-2 * HOUR)}
+          now={NOW}
+          locale="en-US"
+          className="text-foreground"
+        />
       </div>
       <div className="flex items-center gap-2">
         <span className="text-muted-foreground">de-DE</span>
-        <RelativeTime date={offset(-2 * HOUR)} now={NOW} locale="de-DE" className="text-foreground" />
+        <RelativeTime
+          date={offset(-2 * HOUR)}
+          now={NOW}
+          locale="de-DE"
+          className="text-foreground"
+        />
       </div>
       <div className="flex items-center gap-2">
         <span className="text-muted-foreground">fr-FR</span>
-        <RelativeTime date={offset(3 * DAY)} now={NOW} locale="fr-FR" className="text-foreground" />
+        <RelativeTime
+          date={offset(3 * DAY)}
+          now={NOW}
+          locale="fr-FR"
+          className="text-foreground"
+        />
       </div>
     </Wrapper>
   );
@@ -89,7 +116,12 @@ export function relativeTimeTooltipDelay(): ReactNode {
     <Wrapper className="gap-6 text-base">
       <div className="flex items-center gap-2">
         <span className="text-muted-foreground">Instant (delay 0)</span>
-        <RelativeTime date={offset(-2 * HOUR)} now={NOW} tooltipDelay={0} className="text-foreground" />
+        <RelativeTime
+          date={offset(-2 * HOUR)}
+          now={NOW}
+          tooltipDelay={0}
+          className="text-foreground"
+        />
       </div>
       <div className="flex items-center gap-2">
         <span className="text-muted-foreground">Delayed 700ms</span>

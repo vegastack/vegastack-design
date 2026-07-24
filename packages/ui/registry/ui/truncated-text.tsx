@@ -1,10 +1,14 @@
-// @vegastack truncated-text@0.2.0 sha256-JVmDSP9vrxbG6rcqyhxjhqpzH4/vJUzsUIp3ZvTl00c=
+// @vegastack truncated-text@0.2.0 sha256-V3gwL/3XQvaJTASp1K3ycmXS8hpvyftvVXuRSUUj3Gg=
 
-'use client';
+"use client";
 
-import * as React from 'react';
-import { cn } from '@vegastack/design';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import * as React from "react";
+import { cn } from "@vegastack/design";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 /**
  * Static `line-clamp-*` utilities, keyed by line count. Listing them as literal
@@ -13,11 +17,11 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
  * generation. `lines={1}` uses `truncate` (single-line ellipsis) instead.
  */
 const LINE_CLAMP: Record<number, string> = {
-  2: 'line-clamp-2',
-  3: 'line-clamp-3',
-  4: 'line-clamp-4',
-  5: 'line-clamp-5',
-  6: 'line-clamp-6',
+  2: "line-clamp-2",
+  3: "line-clamp-3",
+  4: "line-clamp-4",
+  5: "line-clamp-5",
+  6: "line-clamp-6",
 };
 
 /**
@@ -27,10 +31,13 @@ const LINE_CLAMP: Record<number, string> = {
  * pre-hydration render keeps the original Tooltip-only behavior).
  */
 function getPrefersNoHover(): boolean {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+  if (
+    typeof window === "undefined" ||
+    typeof window.matchMedia !== "function"
+  ) {
     return false;
   }
-  return window.matchMedia('(hover: none)').matches;
+  return window.matchMedia("(hover: none)").matches;
 }
 
 /**
@@ -42,12 +49,16 @@ function usePrefersNoHover(): boolean {
   const [noHover, setNoHover] = React.useState(getPrefersNoHover);
 
   React.useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
-    const mediaQueryList = window.matchMedia('(hover: none)');
+    if (
+      typeof window === "undefined" ||
+      typeof window.matchMedia !== "function"
+    )
+      return;
+    const mediaQueryList = window.matchMedia("(hover: none)");
     setNoHover(mediaQueryList.matches);
     const onChange = (event: MediaQueryListEvent) => setNoHover(event.matches);
-    mediaQueryList.addEventListener('change', onChange);
-    return () => mediaQueryList.removeEventListener('change', onChange);
+    mediaQueryList.addEventListener("change", onChange);
+    return () => mediaQueryList.removeEventListener("change", onChange);
   }, []);
 
   return noHover;
@@ -85,17 +96,20 @@ function getTouchToggleProps(
   active: boolean,
   expanded: boolean,
   setExpanded: React.Dispatch<React.SetStateAction<boolean>>,
-): Pick<React.HTMLAttributes<HTMLElement>, 'role' | 'aria-expanded' | 'onClick' | 'onKeyDown' | 'onBlur'> {
+): Pick<
+  React.HTMLAttributes<HTMLElement>,
+  "role" | "aria-expanded" | "onClick" | "onKeyDown" | "onBlur"
+> {
   if (!active) return {};
   return {
-    role: 'button',
-    'aria-expanded': expanded,
+    role: "button",
+    "aria-expanded": expanded,
     onClick: () => setExpanded((value) => !value),
     onKeyDown: (event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
+      if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
         setExpanded((value) => !value);
-      } else if (event.key === 'Escape') {
+      } else if (event.key === "Escape") {
         setExpanded(false);
       }
     },
@@ -103,7 +117,11 @@ function getTouchToggleProps(
   };
 }
 
-export interface TruncatedTextProps extends Omit<React.ComponentPropsWithRef<'span'>, 'children'> {
+/** Props accepted by `TruncatedText`. */
+export interface TruncatedTextProps extends Omit<
+  React.ComponentPropsWithRef<"span">,
+  "children"
+> {
   /**
    * Number of lines to show before truncating with an ellipsis. `1` truncates
    * to a single line (`truncate`); `>1` clamps to that many lines
@@ -122,13 +140,13 @@ export interface TruncatedTextProps extends Omit<React.ComponentPropsWithRef<'sp
    * Which side of the text to place the overflow Tooltip on.
    * @default 'top'
    */
-  tooltipSide?: 'top' | 'right' | 'bottom' | 'left';
+  tooltipSide?: "top" | "right" | "bottom" | "left";
   /**
    * The element to render. Single-line truncation needs a block-level box, so
    * `p` / `div` are also offered alongside the default inline `span`.
    * @default 'span'
    */
-  as?: 'span' | 'p' | 'div';
+  as?: "span" | "p" | "div";
 }
 
 /**
@@ -162,8 +180,8 @@ export interface TruncatedTextProps extends Omit<React.ComponentPropsWithRef<'sp
  */
 export function TruncatedText({
   lines = 1,
-  tooltipSide = 'top',
-  as: Component = 'span',
+  tooltipSide = "top",
+  as: Component = "span",
   className,
   children,
   ref,
@@ -182,7 +200,7 @@ export function TruncatedText({
   const setMergedRef = React.useCallback(
     (instance: HTMLElement | null) => {
       setNode(instance);
-      if (typeof ref === 'function') ref(instance);
+      if (typeof ref === "function") ref(instance);
       else if (ref) ref.current = instance;
     },
     [ref],
@@ -195,7 +213,11 @@ export function TruncatedText({
   // and immediately re-collapse the disclosure it just opened.
   const isTruncated = useOverflow(node, [children], lines > 1, expanded);
   const touchToggleActive = isTruncated && noHover;
-  const touchToggleProps = getTouchToggleProps(touchToggleActive, expanded, setExpanded);
+  const touchToggleProps = getTouchToggleProps(
+    touchToggleActive,
+    expanded,
+    setExpanded,
+  );
 
   const text = (
     <Component
@@ -208,13 +230,17 @@ export function TruncatedText({
       // keyboard-operable as well.
       tabIndex={isTruncated ? 0 : undefined}
       role={touchToggleProps.role}
-      aria-expanded={touchToggleProps['aria-expanded']}
+      aria-expanded={touchToggleProps["aria-expanded"]}
       className={cn(
         expanded
-          ? 'block break-words whitespace-normal'
+          ? "block break-words whitespace-normal"
           : lines > 1
-            ? (LINE_CLAMP[lines] ?? 'line-clamp-6')
-            : 'block truncate',
+            ? (LINE_CLAMP[lines] ?? "line-clamp-6")
+            : "block truncate",
+        // A pseudo-element cannot extend beyond the `overflow-hidden` required
+        // by `truncate`, so the focusable single-line box itself owns the 24px
+        // target floor. Multiline clamps naturally exceed this minimum.
+        "min-h-(--size-xs)",
         className,
       )}
       {...props}
@@ -255,7 +281,12 @@ export function TruncatedText({
  * and immediately re-collapse it. Re-measures for real as soon as `paused`
  * clears (i.e. once re-clamped).
  */
-function useOverflow(node: HTMLElement | null, deps: React.DependencyList, multiline = false, paused = false) {
+function useOverflow(
+  node: HTMLElement | null,
+  deps: React.DependencyList,
+  multiline = false,
+  paused = false,
+) {
   const [isTruncated, setIsTruncated] = React.useState(false);
   React.useEffect(() => {
     if (!node || paused) return;
@@ -274,7 +305,11 @@ function useOverflow(node: HTMLElement | null, deps: React.DependencyList, multi
   return isTruncated;
 }
 
-export interface IconTextProps extends Omit<React.ComponentPropsWithRef<'div'>, 'children'> {
+/** Props accepted by `IconText`. */
+export interface IconTextProps extends Omit<
+  React.ComponentPropsWithRef<"div">,
+  "children"
+> {
   /**
    * Leading icon — render an `Icon`/lucide element (kept at its intrinsic size,
    * never shrunk). Tinted with `text-muted-foreground` to sit quietly beside the
@@ -283,13 +318,15 @@ export interface IconTextProps extends Omit<React.ComponentPropsWithRef<'div'>, 
   icon: React.ReactNode;
   /** The label text; truncated and surfaced in full via Tooltip when it overflows. */
   text: string;
-  /** Optional trailing element (badge, count, kbd…), pinned and never truncated. */
+  /** Optional trailing element (badge, count, kbd…), pinned and never truncated.
+   * @default undefined
+   */
   trailing?: React.ReactNode;
   /**
    * Which side to place the overflow Tooltip on.
    * @default 'top'
    */
-  tooltipSide?: 'top' | 'right' | 'bottom' | 'left';
+  tooltipSide?: "top" | "right" | "bottom" | "left";
 }
 
 /**
@@ -302,9 +339,17 @@ export interface IconTextProps extends Omit<React.ComponentPropsWithRef<'div'>, 
  * shape for sidebar items, file rows, and nav labels.
  *
  * @example
- * <IconText icon={<Icon name="file" />} text={fileName} trailing={<Badge>New</Badge>} tooltipSide="right" />
+ * <IconText icon={<Icon as={FileText} />} text={fileName} trailing={<Badge>New</Badge>} tooltipSide="right" />
  */
-export function IconText({ icon, text, trailing, tooltipSide = 'top', className, ref, ...props }: IconTextProps) {
+export function IconText({
+  icon,
+  text,
+  trailing,
+  tooltipSide = "top",
+  className,
+  ref,
+  ...props
+}: IconTextProps) {
   const [node, setNode] = React.useState<HTMLElement | null>(null);
   const [expanded, setExpanded] = React.useState(false);
   const noHover = usePrefersNoHover();
@@ -312,7 +357,11 @@ export function IconText({ icon, text, trailing, tooltipSide = 'top', className,
   // otherwise flip `isTruncated` false and immediately re-collapse the disclosure).
   const isTruncated = useOverflow(node, [text], false, expanded);
   const touchToggleActive = isTruncated && noHover;
-  const touchToggleProps = getTouchToggleProps(touchToggleActive, expanded, setExpanded);
+  const touchToggleProps = getTouchToggleProps(
+    touchToggleActive,
+    expanded,
+    setExpanded,
+  );
 
   const row = (
     <div
@@ -323,8 +372,8 @@ export function IconText({ icon, text, trailing, tooltipSide = 'top', className,
       // (register P0-04). Stays focusable on touch too, for the tap-toggle below.
       tabIndex={isTruncated ? 0 : undefined}
       role={touchToggleProps.role}
-      aria-expanded={touchToggleProps['aria-expanded']}
-      className={cn('flex min-w-0 items-center gap-2', className)}
+      aria-expanded={touchToggleProps["aria-expanded"]}
+      className={cn("flex min-w-0 items-center gap-2", className)}
       {...props}
       onClick={composeHandlers(touchToggleProps.onClick, props.onClick)}
       onKeyDown={composeHandlers(touchToggleProps.onKeyDown, props.onKeyDown)}
@@ -336,7 +385,10 @@ export function IconText({ icon, text, trailing, tooltipSide = 'top', className,
       <span
         ref={setNode as React.Ref<never>}
         data-slot="icon-text-label"
-        className={cn('min-w-0', expanded ? 'break-words whitespace-normal' : 'truncate')}
+        className={cn(
+          "min-w-0",
+          expanded ? "break-words whitespace-normal" : "truncate",
+        )}
       >
         {text}
       </span>
@@ -358,12 +410,15 @@ export function IconText({ icon, text, trailing, tooltipSide = 'top', className,
   );
 }
 
+/** Props accepted by `TableCellText`. */
 export interface TableCellTextProps {
   /** The cell text; truncated and surfaced in full via Tooltip when it overflows. */
   text: string;
   /**
    * Cell width (match the column header), e.g. `"200px"`. Constrains the box so
    * truncation engages within the column.
+
+   * @default undefined
    */
   width?: string;
   /**
@@ -377,7 +432,9 @@ export interface TableCellTextProps {
    * @default false
    */
   mono?: boolean;
-  /** Extra classes for the text box. */
+  /** Extra classes for the text box.
+   * @default undefined
+   */
   className?: string;
 }
 
@@ -391,7 +448,13 @@ export interface TableCellTextProps {
  * <TableCell><TableCellText text={space.name} width="200px" /></TableCell>
  * <TableCell><TableCellText text={space.id} mono /></TableCell>
  */
-export function TableCellText({ text, width, lines = 1, mono = false, className }: TableCellTextProps) {
+export function TableCellText({
+  text,
+  width,
+  lines = 1,
+  mono = false,
+  className,
+}: TableCellTextProps) {
   // `width` is a runtime consumer value (e.g. `"200px"`), not a token. It's passed as a CSS custom
   // property (`--cell-w`) and consumed by an arbitrary-value class — so the inline style sets ONLY a
   // `--*` variable, never a direct visual property (contract-clean per §7.1). Set only when provided.
@@ -399,8 +462,14 @@ export function TableCellText({ text, width, lines = 1, mono = false, className 
     <TruncatedText
       lines={lines}
       data-slot="table-cell-text"
-      className={cn(width && 'max-w-[var(--cell-w)]', mono && 'font-mono text-sm', className)}
-      style={width ? ({ ['--cell-w']: width } as React.CSSProperties) : undefined}
+      className={cn(
+        width && "max-w-[var(--cell-w)]",
+        mono && "font-mono text-sm",
+        className,
+      )}
+      style={
+        width ? ({ ["--cell-w"]: width } as React.CSSProperties) : undefined
+      }
     >
       {text}
     </TruncatedText>

@@ -70,7 +70,10 @@ export function textEditInvalid(): ReactNode {
           aria-invalid
           aria-describedby="text-edit-invalid-error"
         />
-        <p id="text-edit-invalid-error" className="text-base text-destructive-text">
+        <p
+          id="text-edit-invalid-error"
+          className="text-base text-destructive-text"
+        >
           A comment is required before you can post.
         </p>
       </div>

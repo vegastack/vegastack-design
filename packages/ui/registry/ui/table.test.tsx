@@ -1,7 +1,7 @@
-import * as React from 'react';
-import { render } from 'vitest-browser-react';
-import { expect, test } from 'vitest';
-import { expectNoA11yViolations } from '../../test/a11y';
+import * as React from "react";
+import { render } from "vitest-browser-react";
+import { expect, test } from "vitest";
+import { expectNoA11yViolations } from "../../test/a11y";
 import {
   Table,
   TableHeader,
@@ -11,9 +11,9 @@ import {
   TableHead,
   TableCell,
   TableCaption,
-} from './table';
+} from "./table";
 
-test('renders headers, rows, and cells', async () => {
+test("renders headers, rows, and cells", async () => {
   const screen = await render(
     <Table>
       <TableCaption>Team roster</TableCaption>
@@ -35,15 +35,15 @@ test('renders headers, rows, and cells', async () => {
       </TableBody>
     </Table>,
   );
-  await expect.element(screen.getByText('Name')).toBeInTheDocument();
-  await expect.element(screen.getByText('Role')).toBeInTheDocument();
-  await expect.element(screen.getByText('Ada')).toBeInTheDocument();
-  await expect.element(screen.getByText('Engineer')).toBeInTheDocument();
-  await expect.element(screen.getByText('Grace')).toBeInTheDocument();
-  await expect.element(screen.getByText('Team roster')).toBeInTheDocument();
+  await expect.element(screen.getByText("Name")).toBeInTheDocument();
+  await expect.element(screen.getByText("Role")).toBeInTheDocument();
+  await expect.element(screen.getByText("Ada")).toBeInTheDocument();
+  await expect.element(screen.getByText("Engineer")).toBeInTheDocument();
+  await expect.element(screen.getByText("Grace")).toBeInTheDocument();
+  await expect.element(screen.getByText("Team roster")).toBeInTheDocument();
 });
 
-test('wraps the table in an overflow container and sets data-slots', async () => {
+test("wraps the table in an overflow container and sets data-slots", async () => {
   const screen = await render(
     <Table>
       <TableHeader>
@@ -64,7 +64,9 @@ test('wraps the table in an overflow container and sets data-slots', async () =>
     </Table>,
   );
   const { container } = screen;
-  expect(container.querySelector('[data-slot="table-container"]')).not.toBeNull();
+  expect(
+    container.querySelector('[data-slot="table-container"]'),
+  ).not.toBeNull();
   expect(container.querySelector('[data-slot="table"]')).not.toBeNull();
   expect(container.querySelector('[data-slot="table-header"]')).not.toBeNull();
   expect(container.querySelector('[data-slot="table-body"]')).not.toBeNull();
@@ -74,7 +76,7 @@ test('wraps the table in an overflow container and sets data-slots', async () =>
   expect(container.querySelector('[data-slot="table-cell"]')).not.toBeNull();
 });
 
-test('a selected row carries data-selected', async () => {
+test("a selected row carries data-selected", async () => {
   const screen = await render(
     <Table>
       <TableBody>
@@ -84,14 +86,16 @@ test('a selected row carries data-selected', async () => {
       </TableBody>
     </Table>,
   );
-  const cell = screen.getByText('Selected');
+  const cell = screen.getByText("Selected");
   await expect.element(cell).toBeInTheDocument();
   expect(
-    screen.container.querySelector('[data-slot="table-row"]')?.hasAttribute('data-selected'),
+    screen.container
+      .querySelector('[data-slot="table-row"]')
+      ?.hasAttribute("data-selected"),
   ).toBe(true);
 });
 
-test('forwards ref to the underlying table element', async () => {
+test("forwards ref to the underlying table element", async () => {
   const ref = React.createRef<HTMLTableElement>();
   await render(
     <Table ref={ref}>
@@ -103,10 +107,10 @@ test('forwards ref to the underlying table element', async () => {
     </Table>,
   );
   expect(ref.current).toBeInstanceOf(HTMLTableElement);
-  expect(ref.current?.dataset.slot).toBe('table');
+  expect(ref.current?.dataset.slot).toBe("table");
 });
 
-test('no a11y violations', async () => {
+test("no a11y violations", async () => {
   const screen = await render(
     <Table>
       <TableCaption>Recent invoices.</TableCaption>
@@ -141,7 +145,7 @@ test('no a11y violations', async () => {
   await expectNoA11yViolations(screen.container);
 });
 
-test('no a11y violations — selected row', async () => {
+test("no a11y violations — selected row", async () => {
   const screen = await render(
     <Table>
       <TableHeader>
@@ -157,4 +161,36 @@ test('no a11y violations — selected row', async () => {
     </Table>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+test("grid + headerTone=ink + density=compact flow to head and cells via group data flags", async () => {
+  const screen = await render(
+    <Table grid headerTone="ink" density="compact">
+      <TableHeader>
+        <TableRow>
+          <TableHead>Company</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        <TableRow>
+          <TableCell>Globex</TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>,
+  );
+  const table = document.querySelector('[data-slot="table"]') as HTMLElement;
+  expect(table.dataset.grid).toBe("");
+  expect(table.dataset.headerTone).toBe("ink");
+  expect(table.dataset.density).toBe("compact");
+  const head = document.querySelector(
+    '[data-slot="table-head"]',
+  ) as HTMLElement;
+  expect(head.className).toContain(
+    "group-data-[header-tone=ink]/table:text-label",
+  );
+  const cell = document.querySelector(
+    '[data-slot="table-cell"]',
+  ) as HTMLElement;
+  expect(cell.className).toContain("group-data-[density=compact]/table:py-1");
+  expect(cell.className).toContain("group-data-[grid]/table:border-e");
 });

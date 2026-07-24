@@ -1,11 +1,19 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { Wrapper } from './wrapper';
+import type { ReactNode } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/card` (dogfoods the registry) → auto-scanned.
-import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export function card(): ReactNode {
   return (
@@ -60,7 +68,9 @@ export function cardWithFooter(): ReactNode {
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Team plan</CardTitle>
-          <CardDescription>$20 / user / month, billed annually.</CardDescription>
+          <CardDescription>
+            $20 / user / month, billed annually.
+          </CardDescription>
           <CardAction>
             <Badge intent="info">Popular</Badge>
           </CardAction>

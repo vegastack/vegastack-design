@@ -1,4 +1,5 @@
 # ElevenLabs — Style Reference
+
 > Parchment command terminal — warm paper surfaces beneath monochrome controls, with ambient color appearing only as sound made visible.
 
 **Theme:** light
@@ -7,21 +8,22 @@ ElevenLabs uses a warm-white paper surface system — off-white canvas (#fdfcfc)
 
 ## Tokens — Colors
 
-| Name | Value | Token | Role |
-|------|-------|-------|------|
-| Parchment White | `#fdfcfc` | `--color-parchment-white` | Page canvas — the dominant background behind all sections and nav |
-| Warm Sand | `#f5f3f1` | `--color-warm-sand` | Card surfaces, feature tiles, section backgrounds — one step warmer and darker than canvas |
-| Ash Border | `#e5e5e5` | `--color-ash-border` | All hairline borders on buttons, inputs, cards, nav items, dividers |
-| Midnight Ink | `#000000` | `--color-midnight-ink` | Primary text, headline text, filled pill button background, icon fills |
-| Driftwood | `#777169` | `--color-driftwood` | Secondary body text, muted link text, icon strokes |
-| Fog | `#a59f97` | `--color-fog` | Tertiary helper text, light icon strokes |
-| Silver Mist | `#b1b0b0` | `--color-silver-mist` | Subtle background washes, mid-level surface dividers |
-| Void Violet | `#0447ff` | `--color-void-violet` | Decorative SVG orb fill and stroke in voice-category visuals — color as ambient sound, never as UI state |
-| Ember Orange | `#ff4704` | `--color-ember-orange` | Decorative SVG orb fill and stroke in voice-category visuals — paired with Void Violet in gradient orbs |
+| Name            | Value     | Token                     | Role                                                                                                     |
+| --------------- | --------- | ------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Parchment White | `#fdfcfc` | `--color-parchment-white` | Page canvas — the dominant background behind all sections and nav                                        |
+| Warm Sand       | `#f5f3f1` | `--color-warm-sand`       | Card surfaces, feature tiles, section backgrounds — one step warmer and darker than canvas               |
+| Ash Border      | `#e5e5e5` | `--color-ash-border`      | All hairline borders on buttons, inputs, cards, nav items, dividers                                      |
+| Midnight Ink    | `#000000` | `--color-midnight-ink`    | Primary text, headline text, filled pill button background, icon fills                                   |
+| Driftwood       | `#777169` | `--color-driftwood`       | Secondary body text, muted link text, icon strokes                                                       |
+| Fog             | `#a59f97` | `--color-fog`             | Tertiary helper text, light icon strokes                                                                 |
+| Silver Mist     | `#b1b0b0` | `--color-silver-mist`     | Subtle background washes, mid-level surface dividers                                                     |
+| Void Violet     | `#0447ff` | `--color-void-violet`     | Decorative SVG orb fill and stroke in voice-category visuals — color as ambient sound, never as UI state |
+| Ember Orange    | `#ff4704` | `--color-ember-orange`    | Decorative SVG orb fill and stroke in voice-category visuals — paired with Void Violet in gradient orbs  |
 
 ## Tokens — Typography
 
 ### Waldenburg — Display and section headlines exclusively. Weight 300 is anti-convention for an AI tech brand — these headlines whisper authority rather than shout it. Tight negative tracking (-0.02em) compresses letterforms for density at large scale. · `--font-waldenburg`
+
 - **Substitute:** DM Sans 300 or Figtree 300
 - **Weights:** 300
 - **Sizes:** 32px, 36px, 48px
@@ -30,6 +32,7 @@ ElevenLabs uses a warm-white paper surface system — off-white canvas (#fdfcfc)
 - **Role:** Display and section headlines exclusively. Weight 300 is anti-convention for an AI tech brand — these headlines whisper authority rather than shout it. Tight negative tracking (-0.02em) compresses letterforms for density at large scale.
 
 ### WaldenburgFH — Logo wordmark and brand identifier only. Wide positive tracking (0.05em) at small size creates a tight-but-spaced badge feel distinct from all body text. · `--font-waldenburgfh`
+
 - **Substitute:** Space Grotesk 700
 - **Weights:** 700
 - **Sizes:** 14px
@@ -38,6 +41,7 @@ ElevenLabs uses a warm-white paper surface system — off-white canvas (#fdfcfc)
 - **Role:** Logo wordmark and brand identifier only. Wide positive tracking (0.05em) at small size creates a tight-but-spaced badge feel distinct from all body text.
 
 ### Inter — All functional UI text: nav, buttons, body copy, labels, inputs, captions, footer. Weight 400 for body and 500 for emphasis/nav labels. Subtle tracking at 0.01em adds microscopic breath to dense functional text. · `--font-inter`
+
 - **Substitute:** Inter (Google Fonts)
 - **Weights:** 400, 500
 - **Sizes:** 10px, 12px, 13px, 14px, 15px, 16px, 18px, 20px
@@ -47,6 +51,7 @@ ElevenLabs uses a warm-white paper surface system — off-white canvas (#fdfcfc)
 - **Role:** All functional UI text: nav, buttons, body copy, labels, inputs, captions, footer. Weight 400 for body and 500 for emphasis/nav labels. Subtle tracking at 0.01em adds microscopic breath to dense functional text.
 
 ### Geist Mono — Code snippets, API references, technical inline labels. Looser line-height (1.69) distinguishes it from body text rhythm. · `--font-geist-mono`
+
 - **Substitute:** JetBrains Mono 400 or IBM Plex Mono 400
 - **Weights:** 400
 - **Sizes:** 13px
@@ -55,15 +60,15 @@ ElevenLabs uses a warm-white paper surface system — off-white canvas (#fdfcfc)
 
 ### Type Scale
 
-| Role | Size | Line Height | Letter Spacing | Token |
-|------|------|-------------|----------------|-------|
-| caption | 10px | 1.4 | 0.1px | `--text-caption` |
-| body | 16px | 1.5 | 0.16px | `--text-body` |
-| subheading | 18px | 1.44 | 0.18px | `--text-subheading` |
-| heading-sm | 20px | 1.4 | 0.2px | `--text-heading-sm` |
-| heading | 32px | 1.17 | -0.64px | `--text-heading` |
-| heading-lg | 36px | 1.13 | -0.72px | `--text-heading-lg` |
-| display | 48px | 1.08 | -0.96px | `--text-display` |
+| Role       | Size | Line Height | Letter Spacing | Token               |
+| ---------- | ---- | ----------- | -------------- | ------------------- |
+| caption    | 10px | 1.4         | 0.1px          | `--text-caption`    |
+| body       | 16px | 1.5         | 0.16px         | `--text-body`       |
+| subheading | 18px | 1.44        | 0.18px         | `--text-subheading` |
+| heading-sm | 20px | 1.4         | 0.2px          | `--text-heading-sm` |
+| heading    | 32px | 1.17        | -0.64px        | `--text-heading`    |
+| heading-lg | 36px | 1.13        | -0.72px        | `--text-heading-lg` |
+| display    | 48px | 1.08        | -0.96px        | `--text-display`    |
 
 ## Tokens — Spacing & Shapes
 
@@ -73,52 +78,52 @@ ElevenLabs uses a warm-white paper surface system — off-white canvas (#fdfcfc)
 
 ### Spacing Scale
 
-| Name | Value | Token |
-|------|-------|-------|
-| 4 | 4px | `--spacing-4` |
-| 8 | 8px | `--spacing-8` |
-| 12 | 12px | `--spacing-12` |
-| 16 | 16px | `--spacing-16` |
-| 20 | 20px | `--spacing-20` |
-| 24 | 24px | `--spacing-24` |
-| 28 | 28px | `--spacing-28` |
-| 32 | 32px | `--spacing-32` |
-| 36 | 36px | `--spacing-36` |
-| 40 | 40px | `--spacing-40` |
-| 48 | 48px | `--spacing-48` |
-| 56 | 56px | `--spacing-56` |
-| 64 | 64px | `--spacing-64` |
-| 72 | 72px | `--spacing-72` |
-| 96 | 96px | `--spacing-96` |
-| 160 | 160px | `--spacing-160` |
+| Name | Value | Token           |
+| ---- | ----- | --------------- |
+| 4    | 4px   | `--spacing-4`   |
+| 8    | 8px   | `--spacing-8`   |
+| 12   | 12px  | `--spacing-12`  |
+| 16   | 16px  | `--spacing-16`  |
+| 20   | 20px  | `--spacing-20`  |
+| 24   | 24px  | `--spacing-24`  |
+| 28   | 28px  | `--spacing-28`  |
+| 32   | 32px  | `--spacing-32`  |
+| 36   | 36px  | `--spacing-36`  |
+| 40   | 40px  | `--spacing-40`  |
+| 48   | 48px  | `--spacing-48`  |
+| 56   | 56px  | `--spacing-56`  |
+| 64   | 64px  | `--spacing-64`  |
+| 72   | 72px  | `--spacing-72`  |
+| 96   | 96px  | `--spacing-96`  |
+| 160  | 160px | `--spacing-160` |
 
 ### Border Radius
 
-| Element | Value |
-|---------|-------|
-| tabs | 20px |
-| tags | 14px |
-| cards | 20px |
-| pills | 9999px |
-| badges | 18px |
-| inputs | 4px |
-| buttons | 9999px |
-| tooltips | 8px |
-| cardLarge | 24px |
+| Element   | Value  |
+| --------- | ------ |
+| tabs      | 20px   |
+| tags      | 14px   |
+| cards     | 20px   |
+| pills     | 9999px |
+| badges    | 18px   |
+| inputs    | 4px    |
+| buttons   | 9999px |
+| tooltips  | 8px    |
+| cardLarge | 24px   |
 
 ### Shadows
 
-| Name | Value | Token |
-|------|-------|-------|
-| subtle | `rgba(0, 0, 0, 0.075) 0px 0px 0px 0.5px inset` | `--shadow-subtle` |
+| Name     | Value                                                          | Token               |
+| -------- | -------------------------------------------------------------- | ------------------- |
+| subtle   | `rgba(0, 0, 0, 0.075) 0px 0px 0px 0.5px inset`                 | `--shadow-subtle`   |
 | subtle-2 | `rgba(0, 0, 0, 0.06) 0px 0px 0px 1px, rgba(0, 0, 0, 0.04) ...` | `--shadow-subtle-2` |
-| subtle-3 | `rgba(0, 0, 0, 0.1) 0px 0px 0px 0.5px inset` | `--shadow-subtle-3` |
-| subtle-4 | `rgba(0, 0, 0, 0.1) 0px 0px 0px 1px inset` | `--shadow-subtle-4` |
+| subtle-3 | `rgba(0, 0, 0, 0.1) 0px 0px 0px 0.5px inset`                   | `--shadow-subtle-3` |
+| subtle-4 | `rgba(0, 0, 0, 0.1) 0px 0px 0px 1px inset`                     | `--shadow-subtle-4` |
 | subtle-5 | `rgba(0, 0, 0, 0.4) 0px 0px 1px 0px, rgba(0, 0, 0, 0.04) 0...` | `--shadow-subtle-5` |
 | subtle-6 | `rgba(0, 0, 0, 0.4) 0px 0px 1px 0px, rgba(0, 0, 0, 0.04) 0...` | `--shadow-subtle-6` |
 | subtle-7 | `rgba(0, 0, 0, 0.4) 0px 0px 1px 0px, rgba(0, 0, 0, 0.04) 0...` | `--shadow-subtle-7` |
-| subtle-8 | `rgba(255, 255, 255, 0.6) 0px 0px 0px 1px inset` | `--shadow-subtle-8` |
-| subtle-9 | `rgb(235, 232, 228) 0px 0px 0px 0.5px inset` | `--shadow-subtle-9` |
+| subtle-8 | `rgba(255, 255, 255, 0.6) 0px 0px 0px 1px inset`               | `--shadow-subtle-8` |
+| subtle-9 | `rgb(235, 232, 228) 0px 0px 0px 0.5px inset`                   | `--shadow-subtle-9` |
 
 ### Layout
 
@@ -130,56 +135,67 @@ ElevenLabs uses a warm-white paper surface system — off-white canvas (#fdfcfc)
 ## Components
 
 ### Black Filled Pill Button
+
 **Role:** Primary action — Sign up, Create agent, Learn more
 
 Background #000000, text #ffffff, border-radius 9999px, padding 0px 16px, border 1px solid #e5e5e5. Inter 15px weight 500. The monochrome black-on-white contrast is the only affordance; no color signal is used.
 
 ### White Outlined Pill Button
+
 **Role:** Secondary action — Contact sales, Log in
 
 Background #fdfcfc or rgba(0,0,0,0), text #000000, border-radius 9999px, padding 0px 12px, border 1px solid #e5e5e5. Box-shadow rgba(0,0,0,0.06) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 1px 2px 0px. Inter 15px weight 500.
 
 ### Ghost Text Button
+
 **Role:** Inline tertiary action — nav links, read-all links
 
 Background transparent, text #000000, border-radius 9999px, no border, no padding horizontally. Inter 15px weight 400. Hover triggers color transition. Pure text affordance with no chrome.
 
 ### Rounded Tab Badge Button
+
 **Role:** Product-switcher tabs — ElevenCreative, ElevenAgents, ElevenAPI
 
 Background transparent or #f5f3f1 when active, border-radius 18px, padding 8px 12px, border 1px solid #e5e5e5. Inter 14px weight 500. Active state gets white background with inset shadow rgba(0,0,0,0.075) 0px 0px 0px 0.5px inset.
 
 ### Warm Sand Feature Card
+
 **Role:** Primary content tile — voice categories, feature descriptions
 
 Background #f5f3f1, border-radius 20px, box-shadow none, padding 0px 32px. No border. Sits directly on #fdfcfc canvas — surface contrast does all the separation work.
 
 ### White Elevated Card
+
 **Role:** Dashboard screenshot tiles and floating UI previews
 
 Background #ffffff, border-radius 20px, padding 16px, box-shadow rgba(0,0,0,0.4) 0px 0px 1px 0px, rgba(0,0,0,0.04) 0px 1px 1px 0px, rgba(0,0,0,0.04) 0px 2px 4px 0px. The 0.4 opacity hairline shadow creates a sharp definition edge while the micro blurs add dimensionality.
 
 ### Large Feature Card
+
 **Role:** Platform section insets — platform comparison, two-column product areas
 
 Background #f5f3f1, border-radius 24px, box-shadow none, no padding on container. Used for full-bleed image containers within product sections.
 
 ### Ambient Voice Orb
+
 **Role:** Decorative voice-type illustration — non-interactive visual identity
 
 Circular shape with radial gradient blending Void Violet (#0447ff) and Ember Orange (#ff4704) — the only chromatic element in the UI. Displayed in a horizontal carousel. Functions as sound-to-color translation, not as a UI state indicator.
 
 ### Text Input Field
+
 **Role:** Search and form inputs
 
 Background #ffffff, border-radius 0px (flat/flush), padding 16px 20px, border 1px solid #e5e5e5, text #000000. Zero radius distinguishes inputs from pill buttons and rounded cards — inputs feel editorial/typewritten.
 
 ### Logo Wordmark
+
 **Role:** Brand identifier in top-left nav
 
 WaldenburgFH weight 700, 14px, letter-spacing 0.05em. Rendered in #000000. Preceded by a vertical bar glyph ('||') also in black. Small size + wide tracking creates a dense, stamp-like mark.
 
 ### Trust Logo Grid
+
 **Role:** Social proof — partner/client logos displayed in muted grayscale
 
 Logos rendered in #777169 or filtered to desaturated via CSS brightness(0) invert. Arranged in a 6-column grid inside a rounded-20px card on #f5f3f1 background. All logos reduced to same tonal weight — hierarchy flattened intentionally.
@@ -187,6 +203,7 @@ Logos rendered in #777169 or filtered to desaturated via CSS brightness(0) inver
 ## Do's and Don'ts
 
 ### Do
+
 - Use 9999px border-radius on ALL buttons, nav pills, and tags — no rectangular buttons exist in this system.
 - Apply Waldenburg weight 300 with -0.02em letter-spacing for every headline 32px and above — never use Inter or a heavier weight for display text.
 - Keep all interactive chrome in the #000000 / #fdfcfc / #e5e5e5 axis — color (#0447ff, #ff4704) is reserved for decorative orbs and illustration fills only.
@@ -195,6 +212,7 @@ Logos rendered in #777169 or filtered to desaturated via CSS brightness(0) inver
 - Use surface-color contrast (#fdfcfc → #f5f3f1) as the primary elevation signal — shadows should be sub-pixel hairlines, never soft blurs.
 
 ### Don't
+
 - Never use #0447ff or #ff4704 for button backgrounds, link colors, hover states, or any interactive affordance — they appear only in decorative SVG/gradient orbs.
 - Never use Waldenburg or WaldenburgFH for body text, labels, or buttons — Inter handles all functional text without exception.
 - Never apply heavy shadows (blur > 4px or spread > 2px) — the shadow vocabulary tops out at 4px blur with 0.04 opacity.
@@ -205,12 +223,12 @@ Logos rendered in #777169 or filtered to desaturated via CSS brightness(0) inver
 
 ## Surfaces
 
-| Level | Name | Value | Purpose |
-|-------|------|-------|---------|
-| 1 | Canvas | `#fdfcfc` | Page background — nearly white with a faint warm cast |
-| 2 | Card Surface | `#f5f3f1` | Feature cards, product tile backgrounds, section insets |
-| 3 | Border / Divider | `#e5e5e5` | Hairline borders on all interactive and structural elements |
-| 4 | Elevated Card | `#ffffff` | White cards that float above Warm Sand via subtle ring shadow |
+| Level | Name             | Value     | Purpose                                                       |
+| ----- | ---------------- | --------- | ------------------------------------------------------------- |
+| 1     | Canvas           | `#fdfcfc` | Page background — nearly white with a faint warm cast         |
+| 2     | Card Surface     | `#f5f3f1` | Feature cards, product tile backgrounds, section insets       |
+| 3     | Border / Divider | `#e5e5e5` | Hairline borders on all interactive and structural elements   |
+| 4     | Elevated Card    | `#ffffff` | White cards that float above Warm Sand via subtle ring shadow |
 
 ## Elevation
 
@@ -229,6 +247,7 @@ Max-width approximately 1200px centered on #fdfcfc canvas. Navigation is a stick
 ## Agent Prompt Guide
 
 **Quick Color Reference**
+
 - text (primary): #000000
 - text (secondary): #777169
 - background (canvas): #fdfcfc
@@ -275,10 +294,18 @@ Max-width approximately 1200px centered on #fdfcfc canvas. Navigation is a stick
   --color-ember-orange: #ff4704;
 
   /* Typography — Font Families */
-  --font-waldenburg: 'Waldenburg', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-waldenburgfh: 'WaldenburgFH', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-inter: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-geist-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-waldenburg:
+    "Waldenburg", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif;
+  --font-waldenburgfh:
+    "WaldenburgFH", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif;
+  --font-inter:
+    "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif;
+  --font-geist-mono:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
 
   /* Typography — Scale */
   --text-caption: 10px;
@@ -356,12 +383,18 @@ Max-width approximately 1200px centered on #fdfcfc canvas. Navigation is a stick
 
   /* Shadows */
   --shadow-subtle: rgba(0, 0, 0, 0.075) 0px 0px 0px 0.5px inset;
-  --shadow-subtle-2: rgba(0, 0, 0, 0.06) 0px 0px 0px 1px, rgba(0, 0, 0, 0.04) 0px 1px 2px 0px, rgba(0, 0, 0, 0.04) 0px 2px 4px 0px;
+  --shadow-subtle-2:
+    rgba(0, 0, 0, 0.06) 0px 0px 0px 1px, rgba(0, 0, 0, 0.04) 0px 1px 2px 0px,
+    rgba(0, 0, 0, 0.04) 0px 2px 4px 0px;
   --shadow-subtle-3: rgba(0, 0, 0, 0.1) 0px 0px 0px 0.5px inset;
   --shadow-subtle-4: rgba(0, 0, 0, 0.1) 0px 0px 0px 1px inset;
-  --shadow-subtle-5: rgba(0, 0, 0, 0.4) 0px 0px 1px 0px, rgba(0, 0, 0, 0.04) 0px 4px 4px 0px;
-  --shadow-subtle-6: rgba(0, 0, 0, 0.4) 0px 0px 1px 0px, rgba(0, 0, 0, 0.04) 0px 1px 1px 0px, rgba(0, 0, 0, 0.04) 0px 2px 4px 0px;
-  --shadow-subtle-7: rgba(0, 0, 0, 0.4) 0px 0px 1px 0px, rgba(0, 0, 0, 0.04) 0px 2px 4px 0px;
+  --shadow-subtle-5:
+    rgba(0, 0, 0, 0.4) 0px 0px 1px 0px, rgba(0, 0, 0, 0.04) 0px 4px 4px 0px;
+  --shadow-subtle-6:
+    rgba(0, 0, 0, 0.4) 0px 0px 1px 0px, rgba(0, 0, 0, 0.04) 0px 1px 1px 0px,
+    rgba(0, 0, 0, 0.04) 0px 2px 4px 0px;
+  --shadow-subtle-7:
+    rgba(0, 0, 0, 0.4) 0px 0px 1px 0px, rgba(0, 0, 0, 0.04) 0px 2px 4px 0px;
   --shadow-subtle-8: rgba(255, 255, 255, 0.6) 0px 0px 0px 1px inset;
   --shadow-subtle-9: rgb(235, 232, 228) 0px 0px 0px 0.5px inset;
 
@@ -389,10 +422,18 @@ Max-width approximately 1200px centered on #fdfcfc canvas. Navigation is a stick
   --color-ember-orange: #ff4704;
 
   /* Typography */
-  --font-waldenburg: 'Waldenburg', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-waldenburgfh: 'WaldenburgFH', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-inter: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-geist-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-waldenburg:
+    "Waldenburg", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif;
+  --font-waldenburgfh:
+    "WaldenburgFH", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif;
+  --font-inter:
+    "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif;
+  --font-geist-mono:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
 
   /* Typography — Scale */
   --text-caption: 10px;
@@ -446,12 +487,18 @@ Max-width approximately 1200px centered on #fdfcfc canvas. Navigation is a stick
 
   /* Shadows */
   --shadow-subtle: rgba(0, 0, 0, 0.075) 0px 0px 0px 0.5px inset;
-  --shadow-subtle-2: rgba(0, 0, 0, 0.06) 0px 0px 0px 1px, rgba(0, 0, 0, 0.04) 0px 1px 2px 0px, rgba(0, 0, 0, 0.04) 0px 2px 4px 0px;
+  --shadow-subtle-2:
+    rgba(0, 0, 0, 0.06) 0px 0px 0px 1px, rgba(0, 0, 0, 0.04) 0px 1px 2px 0px,
+    rgba(0, 0, 0, 0.04) 0px 2px 4px 0px;
   --shadow-subtle-3: rgba(0, 0, 0, 0.1) 0px 0px 0px 0.5px inset;
   --shadow-subtle-4: rgba(0, 0, 0, 0.1) 0px 0px 0px 1px inset;
-  --shadow-subtle-5: rgba(0, 0, 0, 0.4) 0px 0px 1px 0px, rgba(0, 0, 0, 0.04) 0px 4px 4px 0px;
-  --shadow-subtle-6: rgba(0, 0, 0, 0.4) 0px 0px 1px 0px, rgba(0, 0, 0, 0.04) 0px 1px 1px 0px, rgba(0, 0, 0, 0.04) 0px 2px 4px 0px;
-  --shadow-subtle-7: rgba(0, 0, 0, 0.4) 0px 0px 1px 0px, rgba(0, 0, 0, 0.04) 0px 2px 4px 0px;
+  --shadow-subtle-5:
+    rgba(0, 0, 0, 0.4) 0px 0px 1px 0px, rgba(0, 0, 0, 0.04) 0px 4px 4px 0px;
+  --shadow-subtle-6:
+    rgba(0, 0, 0, 0.4) 0px 0px 1px 0px, rgba(0, 0, 0, 0.04) 0px 1px 1px 0px,
+    rgba(0, 0, 0, 0.04) 0px 2px 4px 0px;
+  --shadow-subtle-7:
+    rgba(0, 0, 0, 0.4) 0px 0px 1px 0px, rgba(0, 0, 0, 0.04) 0px 2px 4px 0px;
   --shadow-subtle-8: rgba(255, 255, 255, 0.6) 0px 0px 0px 1px inset;
   --shadow-subtle-9: rgb(235, 232, 228) 0px 0px 0px 0.5px inset;
 }

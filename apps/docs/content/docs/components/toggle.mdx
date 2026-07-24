@@ -1,10 +1,11 @@
 ---
 title: Toggle
 description: A two-state button that can be pressed on or off — bold/italic, mute, pin.
+audience: public
 preview: toggle
 ---
 
-import { story } from '@/components/stories/toggle.story';
+import { story } from "@/components/stories/toggle.story";
 
 ## Installation
 
@@ -17,7 +18,7 @@ npx shadcn@latest add @vegastack/toggle
 ## Usage
 
 ```tsx
-import { Toggle } from '@/components/ui/toggle';
+import { Toggle } from "@/components/ui/toggle";
 
 <Toggle aria-label="Toggle bold">
   <Bold />
@@ -35,20 +36,22 @@ const [bold, setBold] = useState(false);
 </Toggle>;
 ```
 
-## Playground
+## Examples
+
+### Playground
 
 Try the three sizes and the disabled and default-pressed states, then copy the generated JSX.
 
 <TogglePlayground />
 
-## Explorer
+### Explorer
 
 Every `Toggle` prop, auto-generated from its TypeScript types — the exhaustive counterpart to the
 curated playground above.
 
 <story.WithControl />
 
-## Sizes & States
+### Sizes & States
 
 One look (**no variant prop**) in three sizes (`sm`, `default`, `lg`). Icons compose as children via
 `lucide-react`. The toggle is a borderless ghost at rest; when pressed it takes an evident neutral fill
@@ -56,11 +59,17 @@ One look (**no variant prop**) in three sizes (`sm`, `default`, `lg`). Icons com
 off, on (`defaultPressed`), disabled, and disabled+on. A genuine selection (single/multi) belongs in
 `ToggleGroup`, whose pressed items take the exact same fill.
 
-<ComponentPreview name="toggleSizesAndStates" file="components/preview/toggle.tsx" />
+<ComponentPreview
+  name="toggleSizesAndStates"
+  file="components/preview/toggle.tsx"
+/>
 
 ## API Reference
 
-<AutoTypeTable path="../../packages/ui/registry/ui/toggle.tsx" name="ToggleProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/toggle.tsx"
+  name="ToggleProps"
+/>
 
 ## Accessibility
 

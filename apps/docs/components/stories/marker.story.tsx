@@ -1,5 +1,5 @@
-import { defineStory } from '@/lib/story';
-import { Marker } from '@/components/ui/marker';
+import { defineStory } from "@/lib/story";
+import { Marker } from "@/components/ui/marker";
 
 /**
  * Story explorer for `Marker` — controls auto-generated from `MarkerProps` by the
@@ -10,18 +10,18 @@ export const story = defineStory({
   Component: Marker,
   args: [
     {
-      variant: 'Default',
+      variant: "Default",
       initial: {
-        children: 'Deployed to production',
+        children: "Deployed to production",
       },
     },
     {
-      variant: 'Separator',
+      variant: "Separator",
       initial: {
-        children: 'Today',
+        children: "Today",
       },
       fixed: {
-        variant: 'separator',
+        variant: "separator",
       },
     },
   ],

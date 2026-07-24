@@ -1,6 +1,7 @@
 ---
 title: Filter Bar
 description: A row of removable filter chips, an "Add filter" dropdown, and an optional search input — for building list and table filter toolbars.
+audience: public
 preview: filterBar
 ---
 
@@ -37,22 +38,16 @@ import { FilterBar } from "@/components/ui/filter-bar";
 `filters` and update it in each filter's `onRemove`; you decide what an `addFilters` option does in
 `onAddFilter`; and `search` is a controlled `value` / `onValueChange` pair.
 
-## Anatomy
+## Examples
+
+### Anatomy
 
 The bar lays out three regions left-to-right, all built from VegaStack primitives:
 
 ```tsx
 <FilterBar
-  filters={
-    [
-      /* … */
-    ]
-  } // → one removable <FilterChip> per active filter
-  addFilters={
-    [
-      /* … */
-    ]
-  } // → an "Add filter" <DropdownMenu> (Button trigger)
+  filters={[/* … */]} // → one removable <FilterChip> per active filter
+  addFilters={[/* … */]} // → an "Add filter" <DropdownMenu> (Button trigger)
   onAddFilter={(id) => {}}
   search={{ value, onValueChange }} // → a trailing search <Input type="search">
   trailing={/* e.g. a "Clear all" Button */}
@@ -71,7 +66,7 @@ The bar lays out three regions left-to-right, all built from VegaStack primitive
 - **Search** — a controlled `Input` of `type="search"` (`data-slot="filter-bar-search"`),
   pushed to the trailing edge. Omit `search` to hide it.
 
-## Examples
+### Filter compositions
 
 ### With search
 
@@ -123,7 +118,7 @@ selection tint) chip, a neutral `active={false}` chip, and a value-less presence
   file="components/preview/filter-bar.tsx"
 />
 
-## Scope (presentational core)
+### Scope (presentational core)
 
 `FilterBar` is a **presentational** primitive (Model A — the component owns
 rendering; your app owns the filter state). It renders the chips, the add-filter

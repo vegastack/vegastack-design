@@ -1,4 +1,4 @@
-// @vegastack region-select@0.2.0 sha256-eNjdiU5qurADHXTPQnuYXwUf362omwf7EZgoCJjtWEM=
+// @vegastack region-select@0.2.0 sha256-1S2om4UWm/vnwZJ8HrIvUINJD3NoSDnoyB5xHGSrMTA=
 
 "use client";
 
@@ -42,8 +42,6 @@ export interface Region {
   name: string;
 }
 
-
-
 /**
  * Look up the states/provinces for a country code (case-insensitive). Returns an empty array when
  * the country has no predefined subdivisions in {@link REGIONS_BY_COUNTRY}.
@@ -57,12 +55,17 @@ export function hasRegions(country: string): boolean {
   return country.toUpperCase() in REGIONS_BY_COUNTRY;
 }
 
+/** Props accepted by `RegionSelect`. */
 export interface RegionSelectProps {
   /** ISO-3166-1 alpha-2 country code that determines the available states (e.g. `"US"`, `"CA"`). */
   country: string;
-  /** The currently selected state code (controlled). Empty string when nothing is selected. */
+  /** The currently selected state code (controlled). Empty string when nothing is selected.
+   * @default ""
+   */
   value?: string;
-  /** Called with the new state code when the selection changes (or the free-text value for fallback countries). */
+  /** Called with the new state code when the selection changes (or the free-text value for fallback countries).
+   * @default undefined
+   */
   onValueChange?: (value: string) => void;
   /**
    * Placeholder shown in the trigger / input when nothing is selected.
@@ -74,19 +77,29 @@ export interface RegionSelectProps {
    * @default false
    */
   disabled?: boolean;
-  /** `id` forwarded to the trigger / input for label association. */
+  /** `id` forwarded to the trigger / input for label association.
+   * @default undefined
+   */
   id?: string;
   /**
    * Accessible name for the trigger / input. `role="combobox"` prohibits name-from-content, so the
    * control always needs an explicit label; defaults to the selected state's name, falling back to
    * the `placeholder`.
+
+   * @default undefined
    */
   "aria-label"?: string;
-  /** Additional className for the trigger / input element. */
+  /** Additional className for the trigger / input element.
+   * @default undefined
+   */
   className?: string;
-  /** Additional className for the outer root wrapper. */
+  /** Additional className for the outer root wrapper.
+   * @default undefined
+   */
   containerClassName?: string;
-  /** Ref forwarded to the component's root `<div>` (wraps either the combobox or the fallback input). */
+  /** Ref forwarded to the component's root `<div>` (wraps either the combobox or the fallback input).
+   * @default undefined
+   */
   ref?: React.Ref<HTMLDivElement>;
 }
 
@@ -144,7 +157,7 @@ export function RegionSelect({
         />
         <MapPin
           aria-hidden
-          className="pointer-events-none absolute top-1/2 left-3 size-(--icon-default) -translate-y-1/2 text-muted-foreground"
+          className="pointer-events-none absolute top-1/2 start-3 size-(--icon-default) -translate-y-1/2 text-muted-foreground"
         />
       </div>
     );
@@ -192,7 +205,10 @@ export function RegionSelect({
           />
         </BaseCombobox.Trigger>
         <ComboboxContent align="start" className="w-(--anchor-width) p-0">
-          <ComboboxPopupInput aria-label="Search states" placeholder="Search states…" />
+          <ComboboxPopupInput
+            aria-label="Search states"
+            placeholder="Search states…"
+          />
           <ComboboxEmpty>No state found.</ComboboxEmpty>
           <ComboboxList className="p-1">
             {(state: Region) => (
@@ -205,7 +221,7 @@ export function RegionSelect({
                   // effect on the PUBLIC value — the root's `onValueChange` is left unwired (see
                   // this file's header note), so this handler is the only source of truth. The
                   // leading checkmark is `ComboboxItem`'s own built-in trailing indicator (moved
-                  // here via its `pr-8`/`pl-2` layout) — no separate manual `<Check>` needed.
+                  // here via its logical end/start padding) — no separate manual `<Check>` needed.
                   onValueChange?.(state.code === value ? "" : state.code);
                   setOpen(false);
                 }}

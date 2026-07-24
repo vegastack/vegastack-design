@@ -13,11 +13,11 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P2 | `'use client'` at `pagination.tsx:3` while comments describe pure/server-safe at `pagination.tsx:13`. | Static pagination hydrates unnecessarily. | Remove client boundary if compatible or split composition helpers. |
-| P2 | Disabled preview uses `href="#" aria-disabled="true"` at `apps/docs/components/preview/pagination.tsx:76`; component styles `aria-disabled` at `pagination.tsx:84`. | Keyboard activation can still navigate/focus disabled anchors. | Remove `href`, set `tabIndex={-1}`, prevent default, or avoid disabled links in docs. |
-| P3 | Ellipsis has `aria-hidden` at `pagination.tsx:200` but contains sr-only text at `pagination.tsx:205`. | Hidden label is not exposed to assistive tech. | Remove hidden-label claim or expose a real accessible control. |
+| Priority | Evidence                                                                                                                                                            | Impact                                                         | Suggested fix                                                                         |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| P2       | `'use client'` at `pagination.tsx:3` while comments describe pure/server-safe at `pagination.tsx:13`.                                                               | Static pagination hydrates unnecessarily.                      | Remove client boundary if compatible or split composition helpers.                    |
+| P2       | Disabled preview uses `href="#" aria-disabled="true"` at `apps/docs/components/preview/pagination.tsx:76`; component styles `aria-disabled` at `pagination.tsx:84`. | Keyboard activation can still navigate/focus disabled anchors. | Remove `href`, set `tabIndex={-1}`, prevent default, or avoid disabled links in docs. |
+| P3       | Ellipsis has `aria-hidden` at `pagination.tsx:200` but contains sr-only text at `pagination.tsx:205`.                                                               | Hidden label is not exposed to assistive tech.                 | Remove hidden-label claim or expose a real accessible control.                        |
 
 ## Residual Risks
 
@@ -26,4 +26,3 @@ No Radix import found.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- pagination.test.tsx`
-

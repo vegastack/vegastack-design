@@ -17,26 +17,27 @@ consistent — no stub pages found. The one real bug found is a stale/incorrect
 
 68/68 canonical components have all five artifacts. No gaps, no missing pieces, in any of:
 
-| Artifact | Location | Coverage |
-|---|---|---|
-| MDX docs page | `apps/docs/content/docs/components/*.mdx` | 68/68 |
-| Preview file | `apps/docs/components/preview/*.tsx` | 68/68 |
-| Preview barrel export | `apps/docs/components/preview/index.tsx` | 68/68 (`export * from './<name>'`) |
-| Registry JSON | `apps/docs/public/r/<name>.json` | 68/68 |
-| `registry.json` item entry | `packages/ui/registry.json` | 68/68 |
-| Copy-in (`apps/docs/components/ui/*.tsx`) | — | 68/68, byte-identical to canonical (§b) |
-| Nav entry (`content/docs/components/meta.json`) | — | 68/68, correctly grouped (§f) |
+| Artifact                                        | Location                                  | Coverage                                |
+| ----------------------------------------------- | ----------------------------------------- | --------------------------------------- |
+| MDX docs page                                   | `apps/docs/content/docs/components/*.mdx` | 68/68                                   |
+| Preview file                                    | `apps/docs/components/preview/*.tsx`      | 68/68                                   |
+| Preview barrel export                           | `apps/docs/components/preview/index.tsx`  | 68/68 (`export * from './<name>'`)      |
+| Registry JSON                                   | `apps/docs/public/r/<name>.json`          | 68/68                                   |
+| `registry.json` item entry                      | `packages/ui/registry.json`               | 68/68                                   |
+| Copy-in (`apps/docs/components/ui/*.tsx`)       | —                                         | 68/68, byte-identical to canonical (§b) |
+| Nav entry (`content/docs/components/meta.json`) | —                                         | 68/68, correctly grouped (§f)           |
 
 One naming wrinkle, **not a gap**: the registry item / canonical file / copy-in file are named
 `sonner`, but the MDX page and nav entry are `toast.mdx` / "Toast". This is intentional and
-self-documented inside `toast.mdx`: *"The component is documented as Toast because that is the
+self-documented inside `toast.mdx`: _"The component is documented as Toast because that is the
 design-system pattern; the registry item is named `sonner` because it wraps and re-exports
-Sonner."* Confirmed no separate `sonner.mdx` orphan exists and no `toast` canonical component
+Sonner."_ Confirmed no separate `sonner.mdx` orphan exists and no `toast` canonical component
 exists — clean 1:1 mapping once the alias is accounted for.
 
 ### Reverse check — orphans (docs/previews/registry items with no canonical component)
 
 None found:
+
 - `apps/docs/content/docs/components/*.mdx` — 68 files, all map to a canonical component (via the
   toast↔sonner alias above).
 - `apps/docs/components/preview/*.tsx` — 71 files = 68 component previews + `index.tsx` (barrel),
@@ -69,19 +70,19 @@ stamped header and the built JSON agree everywhere.
 Cross-referenced `packages/ui/registry.json`'s declared `registryDependencies` against the actual
 `@/components/ui/*` imports found in each canonical source file.
 
-| Component | Declared `registryDependencies` | Actual imports | Match? |
-|---|---|---|---|
-| `button` | `[]` | (none) | Yes |
-| `date-picker` | `popover`, `button` | `popover`, `button` | Yes |
-| `split-button` | `button`, `dropdown-menu` | `button`, `dropdown-menu` | Yes |
-| `color-picker` | `popover`, `button` | `popover`, `button` | Yes |
-| `emoji-picker` | `popover`, `button`, `input` | `popover`, `button`, `input` | Yes |
-| `command` | `dialog` | `dialog` | Yes |
-| `sidebar` | `separator` | `separator` | Yes |
-| `field-inline` | `input` | `input` | Yes |
-| `auto-save-input` | `input` | `input` | Yes |
-| `country-select` | `popover`, `command`, `button` | `popover`, `command`, `button` | Yes |
-| `state-select` | `popover`, `command`, `button`, `input` | `popover`, `command`, `button`, `input` | Yes |
+| Component         | Declared `registryDependencies`         | Actual imports                          | Match? |
+| ----------------- | --------------------------------------- | --------------------------------------- | ------ |
+| `button`          | `[]`                                    | (none)                                  | Yes    |
+| `date-picker`     | `popover`, `button`                     | `popover`, `button`                     | Yes    |
+| `split-button`    | `button`, `dropdown-menu`               | `button`, `dropdown-menu`               | Yes    |
+| `color-picker`    | `popover`, `button`                     | `popover`, `button`                     | Yes    |
+| `emoji-picker`    | `popover`, `button`, `input`            | `popover`, `button`, `input`            | Yes    |
+| `command`         | `dialog`                                | `dialog`                                | Yes    |
+| `sidebar`         | `separator`                             | `separator`                             | Yes    |
+| `field-inline`    | `input`                                 | `input`                                 | Yes    |
+| `auto-save-input` | `input`                                 | `input`                                 | Yes    |
+| `country-select`  | `popover`, `command`, `button`          | `popover`, `command`, `button`          | Yes    |
+| `state-select`    | `popover`, `command`, `button`, `input` | `popover`, `command`, `button`, `input` | Yes    |
 
 I then ran this comparison programmatically across **all 68** components (import-scan vs
 declared `registryDependencies`), not just the 10 above. **1 mismatch found:**
@@ -91,7 +92,7 @@ declared `registryDependencies`), not just the 10 above. **1 mismatch found:**
 > `["@vegastack/separator", "@vegastack/button", "@vegastack/icon-button"]`, but
 > `packages/ui/registry/ui/notification-bell.tsx` only imports `@/components/ui/icon-button`
 > (confirmed via `grep -n "^import"` — no other `@/components/ui/*` import, and `grep -i
-> "separator"` returns zero matches anywhere in the file or its preview). `button` is at least
+"separator"` returns zero matches anywhere in the file or its preview). `button` is at least
 > a legitimate transitive dependency (icon-button depends on it) even if redundant for a shadcn
 > registry (the CLI resolves transitive deps on its own), but `@vegastack/separator` is flatly
 > incorrect — it looks like a copy-paste artifact from another item's entry. A consumer running
@@ -103,7 +104,7 @@ declared `registryDependencies`), not just the 10 above. **1 mismatch found:**
 (`meta.integrity` field, `sha256-...` format) for all 68 sampled/verified items — see the
 header-match check above, which implicitly required the field to exist on every item.
 
-*Note on method:* An initial `diff`-in-a-shell-loop across all 68 pairs hung past the 2-minute
+_Note on method:_ An initial `diff`-in-a-shell-loop across all 68 pairs hung past the 2-minute
 tool timeout for an unclear reason (likely shell/subprocess overhead, not a data problem — file
 counts and line counts on both sides were confirmed normal beforehand). Switched to
 `shasum -a 256` per file + `sort`/`diff` on the hash lists, which completed in seconds with a
@@ -125,6 +126,7 @@ Close-read sample (15 pages spanning simple → complex, plus the two shortest p
 `separator` (shortest file, 64 lines) as a floor check.
 
 Findings:
+
 - **`separator.mdx`** (64 lines, the shortest doc in the set) is still complete: installation,
   usage, orientation variant, full props table, a dedicated a11y table (`role` /
   `aria-orientation` / `data-orientation` per state), and Do/Don't. No stub risk even at minimum
@@ -133,7 +135,7 @@ Findings:
   (loading/disabled with `aria-busy` semantics), a variant×size interaction matrix, full props
   table, and unusually precise a11y notes (focus-ring behavior per variant, `render`-for-links
   guidance). Dense, not thin.
-- **`message.mdx`** correctly has *no* "states" section — `Message` is documented as pure
+- **`message.mdx`** correctly has _no_ "states" section — `Message` is documented as pure
   presentational layout with no loading/disabled concept, and the page explicitly covers the one
   state-adjacent pattern that matters (a `destructive` bubble + retry affordance for a failed
   message) under "Actions." This is a deliberate omission, not a gap.
@@ -175,10 +177,10 @@ scaffolding). **No violations found:**
   `date-picker.tsx`, `scroll-area.tsx`, `message-scroller.tsx`, `collapsible.tsx`,
   `context-menu.tsx`, `skeleton.tsx`, `truncated-text.tsx`, `field-inline.tsx`,
   `relative-time.tsx`) are all legitimate composition, not restyling:
-  - Sizing/positioning on *container* components that have no intrinsic dimensions by design
+  - Sizing/positioning on _container_ components that have no intrinsic dimensions by design
     (`ScrollArea`, `Command`, `MessageScroller`, `Collapsible` — e.g.
     `apps/docs/components/preview/scroll-area.tsx:53` `className="h-56 w-56 rounded-lg border
-    border-border"`), which is the documented/expected shadcn pattern — these components are
+border-border"`), which is the documented/expected shadcn pattern — these components are
     meant to be sized by the consumer.
   - All colors used are semantic tokens (`border-border`, `bg-popover`, `shadow-overlay`,
     `text-muted-foreground`) — never raw palette values, consistent with the design-system rule.

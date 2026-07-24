@@ -88,6 +88,9 @@ test("link render prop swaps the element (routing)", async () => {
   await expect.element(link).toHaveAttribute("href", "/x");
   await expect.element(link).toHaveAttribute("data-router", "");
   await expect.element(link).toHaveAttribute("data-slot", "breadcrumb-link");
+  await expect.element(link).toHaveClass("min-h-(--size-xs)");
+  await expect.element(link).toHaveClass("min-w-(--size-xs)");
+  await expect.element(link).toHaveClass("justify-center");
 });
 
 test("ellipsis renders a decorative collapse indicator", async () => {
@@ -136,16 +139,23 @@ test("BreadcrumbCollapsed exposes a labelled menu trigger, closed by default", a
       </BreadcrumbList>
     </Breadcrumb>,
   );
-  const trigger = screen.getByRole("button", { name: "Show hidden breadcrumbs" });
+  const trigger = screen.getByRole("button", {
+    name: "Show hidden breadcrumbs",
+  });
   await expect.element(trigger).toBeInTheDocument();
-  await expect.element(trigger).toHaveAttribute("data-slot", "breadcrumb-collapsed-trigger");
+  await expect
+    .element(trigger)
+    .toHaveAttribute("data-slot", "breadcrumb-collapsed-trigger");
   // Closed: the menu (and its links) are not in the DOM at all.
   expect(document.querySelector('[role="menu"]')).toBeNull();
 });
 
 test("BreadcrumbCollapsed accepts a custom accessible name", async () => {
   const screen = await render(
-    <BreadcrumbCollapsed label="Show middle segments" items={[{ label: "X", href: "/x" }]} />,
+    <BreadcrumbCollapsed
+      label="Show middle segments"
+      items={[{ label: "X", href: "/x" }]}
+    />,
   );
   await expect
     .element(screen.getByRole("button", { name: "Show middle segments" }))
@@ -201,13 +211,19 @@ test("BreadcrumbTrail renders every item flat when under maxItems", async () => 
       <BreadcrumbTrail items={LONG_TRAIL} maxItems={10} />
     </Breadcrumb>,
   );
-  await expect.element(screen.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
+  await expect
+    .element(screen.getByRole("link", { name: "Home" }))
+    .toHaveAttribute("href", "/");
   await expect
     .element(screen.getByRole("link", { name: "Workspace" }))
     .toHaveAttribute("href", "/w");
   const current = screen.getByText("Billing");
   await expect.element(current).toHaveAttribute("aria-current", "page");
-  expect(screen.container.querySelector('[data-slot="breadcrumb-collapsed-trigger"]')).toBeNull();
+  expect(
+    screen.container.querySelector(
+      '[data-slot="breadcrumb-collapsed-trigger"]',
+    ),
+  ).toBeNull();
 });
 
 test("BreadcrumbTrail without maxItems never collapses (flex-wrap fallback)", async () => {
@@ -219,7 +235,11 @@ test("BreadcrumbTrail without maxItems never collapses (flex-wrap fallback)", as
   await expect
     .element(screen.getByRole("link", { name: "Settings" }))
     .toHaveAttribute("href", "/w/p/settings");
-  expect(screen.container.querySelector('[data-slot="breadcrumb-collapsed-trigger"]')).toBeNull();
+  expect(
+    screen.container.querySelector(
+      '[data-slot="breadcrumb-collapsed-trigger"]',
+    ),
+  ).toBeNull();
 });
 
 test("BreadcrumbTrail collapses the middle beyond maxItems, keeping first + last visible", async () => {
@@ -230,7 +250,9 @@ test("BreadcrumbTrail collapses the middle beyond maxItems, keeping first + last
   );
 
   // First item and the current page stay in the flat list (itemsAfterCollapse defaults to 1).
-  await expect.element(screen.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
+  await expect
+    .element(screen.getByRole("link", { name: "Home" }))
+    .toHaveAttribute("href", "/");
   const current = screen.getByText("Billing");
   await expect.element(current).toHaveAttribute("aria-current", "page");
 
@@ -239,7 +261,9 @@ test("BreadcrumbTrail collapses the middle beyond maxItems, keeping first + last
   expect(document.querySelector('a[href="/w/p"]')).toBeNull();
   expect(document.querySelector('a[href="/w/p/settings"]')).toBeNull();
 
-  const trigger = screen.getByRole("button", { name: "Show hidden breadcrumbs" });
+  const trigger = screen.getByRole("button", {
+    name: "Show hidden breadcrumbs",
+  });
   await expect.element(trigger).toBeInTheDocument();
   await trigger.click();
 
@@ -281,7 +305,11 @@ test("BreadcrumbTrail's itemsAfterCollapse keeps more than one trailing item vis
 test("BreadcrumbTrail accepts a custom collapsedLabel", async () => {
   const screen = await render(
     <Breadcrumb>
-      <BreadcrumbTrail items={LONG_TRAIL} maxItems={3} collapsedLabel="Show middle segments" />
+      <BreadcrumbTrail
+        items={LONG_TRAIL}
+        maxItems={3}
+        collapsedLabel="Show middle segments"
+      />
     </Breadcrumb>,
   );
   await expect

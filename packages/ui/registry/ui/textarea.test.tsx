@@ -42,7 +42,9 @@ test("aria-invalid is reflected on the field", async () => {
 test("darkens its border as the sole focus cue (no ring), matching Input", async () => {
   const screen = await render(<Textarea aria-label="Notes" />);
   const el = screen.getByLabelText("Notes");
-  await expect.element(el).toHaveClass("focus:border-ring/(--alpha-tint-border)");
+  await expect
+    .element(el)
+    .toHaveClass("focus:border-ring/(--alpha-tint-border)");
   await expect.element(el).not.toHaveClass("focus-visible:ring-2");
 });
 

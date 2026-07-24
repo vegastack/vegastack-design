@@ -1,16 +1,20 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { Wrapper } from './wrapper';
+import type { ReactNode } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/label` (dogfoods the registry) → auto-scanned.
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 export function label(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch gap-2">
       <Label htmlFor="label-demo-email">Email</Label>
-      <Input id="label-demo-email" type="email" placeholder="you@vegastack.com" />
+      <Input
+        id="label-demo-email"
+        type="email"
+        placeholder="you@vegastack.com"
+      />
     </Wrapper>
   );
 }
@@ -34,7 +38,12 @@ export function labelRequired(): ReactNode {
       >
         Full name
       </Label>
-      <Input id="label-demo-name" type="text" placeholder="Ada Lovelace" required />
+      <Input
+        id="label-demo-name"
+        type="text"
+        placeholder="Ada Lovelace"
+        required
+      />
     </Wrapper>
   );
 }
@@ -45,13 +54,24 @@ export function labelStates(): ReactNode {
       {/* peer path: Tailwind `peer-*` variants only style LATER siblings, so the label
           must FOLLOW the disabled `peer` control in the DOM. */}
       <div className="flex flex-col gap-2">
-        <Input id="label-demo-peer" className="peer" type="text" placeholder="API key" disabled />
+        <Input
+          id="label-demo-peer"
+          className="peer"
+          type="text"
+          placeholder="API key"
+          disabled
+        />
         <Label htmlFor="label-demo-peer">API key (peer-disabled dim)</Label>
       </div>
       {/* group path: the label sits inside a disabled group container. */}
       <div className="group flex flex-col gap-2" data-disabled="true">
         <Label htmlFor="label-demo-group">Workspace (group-disabled dim)</Label>
-        <Input id="label-demo-group" type="text" placeholder="Acme Inc." disabled />
+        <Input
+          id="label-demo-group"
+          type="text"
+          placeholder="Acme Inc."
+          disabled
+        />
       </div>
     </Wrapper>
   );

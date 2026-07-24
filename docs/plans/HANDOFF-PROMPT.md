@@ -1,5 +1,9 @@
 # HANDOFF-PROMPT — paste this into a fresh session
 
+> **Historical record — do not paste or execute.** The autonomous build this prompt started is
+> complete. Its authority, package names, counts, tools, and commands are stale. Current authority is
+> `AGENTS.md` plus the applicable `component`, `review`, or `ship` skill.
+
 Open a fresh Claude Code session **in `/Users/kmanojkumar/code/org-design`** (Opus 4.8) and paste the prompt below. It runs fully autonomously ("dark"), builds the entire design system locally, self-corrects with subagents, loops the Codex adversarial review until 100% GTG, keeps a ledger, and **stops before any push/publish/deploy** for MK's review.
 
 ---
@@ -47,9 +51,11 @@ STOP CONDITION: when the system builds; tsc/lint pass; **docs/ledger/component-m
 ---
 
 ## The strict Codex review prompt
+
 It lives as a **standalone file** the agent passes verbatim to the companion: **[`codex-review-prompt.md`](codex-review-prompt.md)** (`"$(cat docs/plans/codex-review-prompt.md)"`). That file is the single source of truth for the review focus (not duplicated here, to avoid drift). Edit it if the review scope needs to change.
 
 ---
 
 ## After the loop returns GTG
+
 The agent writes `HANDOFF-STATUS.md` and stops. MK reviews `feat/local-build` + the ledger, then (separately, with credentials provisioned) triggers the first push + `release.yml` (npm publish) + `deploy.yml` (Cloudflare + Sigstore signing).

@@ -1,10 +1,11 @@
 ---
 title: Alert
 description: A status banner — five intents (default and four status colors), an optional icon, and an optional dismiss button.
+audience: public
 preview: alert
 ---
 
-import { story } from '@/components/stories/alert.story';
+import { story } from "@/components/stories/alert.story";
 
 ## Installation
 
@@ -17,7 +18,12 @@ npx shadcn@latest add @vegastack/alert
 ## Usage
 
 ```tsx
-import { Alert, AlertActions, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import {
+  Alert,
+  AlertActions,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/ui/alert";
 
 <Alert intent="info">
   <AlertTitle>Heads up</AlertTitle>
@@ -25,7 +31,7 @@ import { Alert, AlertActions, AlertDescription, AlertTitle } from '@/components/
 </Alert>;
 ```
 
-## Playground
+## Examples
 
 Try every intent with the icon and dismiss options, then copy the generated JSX.
 
@@ -47,7 +53,7 @@ the curated playground above.
   <AlertTitle>Title</AlertTitle>
   <AlertDescription>Supporting description text.</AlertDescription>
   <AlertActions>{/* action buttons */}</AlertActions>
-</Alert>;
+</Alert>
 ```
 
 - `Alert` — the client root banner (`role="alert"`, `data-slot="alert"`). Owns the intent, leading icon, and optional dismiss/self-dismiss behavior.
@@ -59,6 +65,11 @@ the curated playground above.
 
 `default`, plus four semantic statuses — `info`, `success`, `warning`, `destructive` —
 each with a matching leading icon and status color tokens (`bg-X-subtle text-X-text border-X/20`).
+
+The `strip` layout variant is a compact single-line ribbon (icon + message + action, optional
+dismiss). It is the base pattern for in-content notices and plan/trial rows — there is no separate
+"inline banner" or "plan banner" component. For the full-width inverse strip across the top of a
+page, use [`AnnouncementBanner`](/docs/components/announcement-banner) instead.
 
 <ComponentPreview name="alertVariants" file="components/preview/alert.tsx" />
 
@@ -95,19 +106,31 @@ gutter and action layout read consistently across every tone.
 
 ### Alert
 
-<AutoTypeTable path="../../packages/ui/registry/ui/alert.tsx" name="AlertProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/alert.tsx"
+  name="AlertProps"
+/>
 
 ### AlertTitle
 
-<AutoTypeTable path="../../packages/ui/registry/ui/alert.tsx" name="AlertTitleProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/alert.tsx"
+  name="AlertTitleProps"
+/>
 
 ### AlertDescription
 
-<AutoTypeTable path="../../packages/ui/registry/ui/alert.tsx" name="AlertDescriptionProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/alert.tsx"
+  name="AlertDescriptionProps"
+/>
 
 ### AlertActions
 
-<AutoTypeTable path="../../packages/ui/registry/ui/alert.tsx" name="AlertActionsProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/alert.tsx"
+  name="AlertActionsProps"
+/>
 
 ## Accessibility
 
@@ -116,10 +139,10 @@ gutter and action layout read consistently across every tone.
 - The dismiss button is a native `<button type="button">` with an accessible label (`dismissLabel`, default `"Dismiss"`).
 - The dismiss button shows a `:focus-visible` ring (`outline-ring`) — never `outline: none`.
 
-| Key | Action |
-| --- | --- |
-| <kbd>Tab</kbd> | Move focus to the dismiss button (when `dismissable`). |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused dismiss button. |
+| Key                                 | Action                                                 |
+| ----------------------------------- | ------------------------------------------------------ |
+| <kbd>Tab</kbd>                      | Move focus to the dismiss button (when `dismissable`). |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused dismiss button.                   |
 
 ## Do / Don't
 
@@ -127,3 +150,10 @@ gutter and action layout read consistently across every tone.
   do="Use the intent that matches the message — destructive for errors, success for confirmations."
   dont="Use an Alert for transient feedback after an action — use a toast instead."
 />
+
+## Strip variant
+
+`variant="strip"` is the compact single-line info ribbon — centered icon + copy, tighter
+padding — for settings banners and inline notices (distinct from the block alert).
+
+<ComponentPreview name="alertStrip" file="components/preview/alert.tsx" />

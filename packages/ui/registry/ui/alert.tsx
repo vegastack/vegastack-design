@@ -1,9 +1,9 @@
-// @vegastack alert@0.2.0 sha256-GCUy7wC31QvGRvzRU2L93FC783itjliwrZUS9nWS+wA=
+// @vegastack alert@0.2.0 sha256-lFfVijWsG2NZJFDDFNww41aPPzFZavqVoFLh2bKTpsQ=
 
-'use client';
+"use client";
 
-import * as React from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
 import {
   AlertTriangle,
   CircleCheck,
@@ -11,8 +11,8 @@ import {
   X,
   XCircle,
   type LucideIcon,
-} from 'lucide-react';
-import { cn } from '@vegastack/design';
+} from "lucide-react";
+import { cn } from "@vegastack/design";
 
 /**
  * Alert variants — `default` (neutral) plus four semantic statuses. Per the
@@ -24,20 +24,35 @@ export const alertVariants = cva(
   "relative flex w-full items-start gap-3 rounded-md border p-4 text-base [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
   {
     variants: {
+      /**
+       * Layout. `default` is the block alert; `strip` (Wave 2 — the settings
+       * info-banner) is a compact single-line ribbon: centered icon + copy,
+       * tighter padding, inline-sized icon.
+       */
+      variant: {
+        default: "",
+        strip:
+          "items-center gap-2 px-3 py-2 [&_svg:not([class*='size-'])]:size-(--icon-inline)",
+      },
       intent: {
-        default: 'border-border bg-card text-card-foreground',
-        info: 'border-info/(--alpha-border-subtle) bg-info-subtle text-info-text',
-        success: 'border-success/(--alpha-border-subtle) bg-success-subtle text-success-text',
-        warning: 'border-warning/(--alpha-border-subtle) bg-warning-subtle text-warning-text',
-        destructive: 'border-destructive/(--alpha-border-subtle) bg-destructive-subtle text-destructive-text',
+        default: "border-border bg-card text-card-foreground",
+        info: "border-info/(--alpha-border-subtle) bg-info-subtle text-info-text",
+        success:
+          "border-success/(--alpha-border-subtle) bg-success-subtle text-success-text",
+        warning:
+          "border-warning/(--alpha-border-subtle) bg-warning-subtle text-warning-text",
+        destructive:
+          "border-destructive/(--alpha-border-subtle) bg-destructive-subtle text-destructive-text",
       },
     },
-    defaultVariants: { intent: 'default' },
+    defaultVariants: { variant: "default", intent: "default" },
   },
 );
 
 /** The status intents Alert supports. */
-export type AlertIntent = NonNullable<VariantProps<typeof alertVariants>['intent']>;
+export type AlertIntent = NonNullable<
+  VariantProps<typeof alertVariants>["intent"]
+>;
 
 /** Default leading icon per status intent (overridable via `icon` / `hideIcon`). */
 const VARIANT_ICON: Record<AlertIntent, LucideIcon> = {
@@ -48,9 +63,17 @@ const VARIANT_ICON: Record<AlertIntent, LucideIcon> = {
   destructive: XCircle,
 };
 
+/** Props accepted by `Alert`. */
 export interface AlertProps
-  extends React.ComponentPropsWithRef<'div'>,
+  extends
+    React.ComponentPropsWithRef<"div">,
     VariantProps<typeof alertVariants> {
+  /**
+   * Layout — `default` block alert, or `strip`: the compact single-line info
+   * ribbon (settings banners, inline notices).
+   * @default "default"
+   */
+  variant?: "default" | "strip";
   /**
    * Status intent — drives the color tokens and the default leading icon.
    * @default "default"
@@ -59,6 +82,8 @@ export interface AlertProps
   /**
    * Custom leading icon. Falls back to the intent's default icon.
    * Pass a `lucide-react` icon element (e.g. `<Bell />`).
+
+   * @default undefined
    */
   icon?: React.ReactNode;
   /**
@@ -74,6 +99,8 @@ export interface AlertProps
   /**
    * Called when the dismiss button is clicked. When `dismissable` is set and no
    * handler is provided, the alert removes itself from the DOM internally.
+
+   * @default undefined
    */
   onDismiss?: () => void;
   /**
@@ -106,12 +133,13 @@ export interface AlertProps
  */
 function Alert({
   className,
-  intent = 'default',
+  variant = "default",
+  intent = "default",
   icon,
   hideIcon = false,
   dismissable = false,
   onDismiss,
-  dismissLabel = 'Dismiss',
+  dismissLabel = "Dismiss",
   children,
   ...props
 }: AlertProps) {
@@ -131,16 +159,27 @@ function Alert({
     <div
       role="alert"
       data-slot="alert"
+      data-variant={variant}
       data-intent={intent}
-      className={cn(alertVariants({ intent }), dismissable && 'pr-10', className)}
+      className={cn(
+        alertVariants({ variant, intent }),
+        dismissable && "pr-10",
+        className,
+      )}
       {...props}
     >
       {leadingIcon ? (
-        <span data-slot="alert-icon" className="mt-0.5 shrink-0">
+        <span
+          data-slot="alert-icon"
+          className={cn("shrink-0", variant === "strip" ? undefined : "mt-0.5")}
+        >
           {leadingIcon}
         </span>
       ) : null}
-      <div data-slot="alert-content" className="flex min-w-0 flex-1 flex-col gap-1">
+      <div
+        data-slot="alert-content"
+        className="flex min-w-0 flex-1 flex-col gap-1"
+      >
         {children}
       </div>
       {dismissable ? (
@@ -158,44 +197,61 @@ function Alert({
   );
 }
 
-export type AlertTitleProps = React.ComponentPropsWithRef<'div'>;
+/** Props accepted by `AlertTitle`. */
+export type AlertTitleProps = React.ComponentPropsWithRef<"div">;
 
-/** `AlertTitle` — the bold leading line of an alert. */
+/** `AlertTitle` — the emphasized leading line of an alert.
+ *
+ * @example
+ * <AlertTitle />
+ */
 function AlertTitle({ className, ...props }: AlertTitleProps) {
   return (
     <div
       data-slot="alert-title"
-      className={cn('font-medium leading-tight tracking-tight', className)}
+      className={cn("font-medium leading-tight", className)}
       {...props}
     />
   );
 }
 
-export type AlertDescriptionProps = React.ComponentPropsWithRef<'div'>;
+/** Props accepted by `AlertDescription`. */
+export type AlertDescriptionProps = React.ComponentPropsWithRef<"div">;
 
-/** `AlertDescription` — the supporting body text under the title. */
+/** `AlertDescription` — the supporting body text under the title.
+ *
+ * @example
+ * <AlertDescription />
+ */
 function AlertDescription({ className, ...props }: AlertDescriptionProps) {
   return (
     <div
       data-slot="alert-description"
-      className={cn('text-base leading-relaxed [&_p:not(:last-child)]:mb-2', className)}
+      className={cn(
+        "text-base leading-relaxed [&_p:not(:last-child)]:mb-2",
+        className,
+      )}
       {...props}
     />
   );
 }
 
-export type AlertActionsProps = React.ComponentPropsWithRef<'div'>;
+/** Props accepted by `AlertActions`. */
+export type AlertActionsProps = React.ComponentPropsWithRef<"div">;
 
-/** `AlertActions` — a row of action controls below the description. */
+/** `AlertActions` — a row of action controls below the description.
+ *
+ * @example
+ * <AlertActions />
+ */
 function AlertActions({ className, ...props }: AlertActionsProps) {
   return (
     <div
       data-slot="alert-actions"
-      className={cn('mt-2 flex flex-wrap items-center gap-2', className)}
+      className={cn("mt-2 flex flex-wrap items-center gap-2", className)}
       {...props}
     />
   );
 }
-
 
 export { Alert, AlertTitle, AlertDescription, AlertActions };

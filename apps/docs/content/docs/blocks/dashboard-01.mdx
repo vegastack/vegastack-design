@@ -1,6 +1,7 @@
 ---
 title: dashboard-01
-description: A ready-to-pull AI-platform dashboard page — sidebar nav, stat cards, a usage chart, and a recent-activity list, built entirely from existing VegaStack components.
+description: A ready-to-pull AI dashboard with sidebar navigation, stat cards, a usage chart, and recent activity built from VegaStack components.
+audience: public
 preview: dashboard01Demo
 ---
 
@@ -31,9 +32,37 @@ composes (`app-shell`, `sidebar`, `breadcrumb`, `card`, `badge`, `animated-numbe
 `data-list`, `truncated-text`, `status-icon`, `relative-time`, `empty`, `avatar`,
 `dropdown-menu`, `button`) that your project doesn't already have.
 
-## Live preview
+## Usage
 
-<ComponentPreview name="dashboard01Demo" file="../../packages/ui/registry/blocks/dashboard-01/page.tsx" />
+```tsx
+import { DashboardPage } from "@/app/dashboard/page"; // after shadcn add, this is your page
+
+export default function Page() {
+  return <DashboardPage />;
+}
+```
+
+`DashboardPage` accepts optional `stats` / `usage` / `activity` (each defaults to the bundled
+`data.json`), plus `loading` / `error` (per-region) and `isEmpty` (full-page). Wire these to your
+real data fetching once the block is installed:
+
+```tsx
+<DashboardPage
+  stats={realStats}
+  usage={realUsage}
+  activity={realActivity}
+  loading={{ activity: isActivityLoading }}
+  error={{ chart: chartError?.message }}
+  isEmpty={workspace.agentCount === 0}
+/>
+```
+
+## Examples
+
+<ComponentPreview
+  name="dashboard01Demo"
+  file="../../packages/ui/registry/blocks/dashboard-01/page.tsx"
+/>
 
 ### Full-page empty state
 
@@ -54,15 +83,15 @@ placeholders shaped like the real content.
 
 ## File manifest
 
-| File | Registry type | Target |
-| --- | --- | --- |
-| `page.tsx` | `registry:page` | `app/dashboard/page.tsx` |
-| `loading.tsx` | `registry:page` | `app/dashboard/loading.tsx` |
-| `data.json` | `registry:file` | `app/dashboard/data.json` |
-| `components/app-sidebar.tsx` | `registry:component` | — (resolves to your configured components dir) |
-| `components/stat-cards.tsx` | `registry:component` | — |
-| `components/dashboard-chart.tsx` | `registry:component` | — |
-| `components/recent-activity.tsx` | `registry:component` | — |
+| File                             | Registry type        | Target                                         |
+| -------------------------------- | -------------------- | ---------------------------------------------- |
+| `page.tsx`                       | `registry:page`      | `app/dashboard/page.tsx`                       |
+| `loading.tsx`                    | `registry:page`      | `app/dashboard/loading.tsx`                    |
+| `data.json`                      | `registry:file`      | `app/dashboard/data.json`                      |
+| `components/app-sidebar.tsx`     | `registry:component` | — (resolves to your configured components dir) |
+| `components/stat-cards.tsx`      | `registry:component` | —                                              |
+| `components/dashboard-chart.tsx` | `registry:component` | —                                              |
+| `components/recent-activity.tsx` | `registry:component` | —                                              |
 
 `page.tsx` is server-safe (no hooks, no `'use client'`) — the interactive pieces
 (`AppSidebar`'s nav-user menu, `StatCards`' `AnimatedNumber`, `DashboardChart`'s Recharts
@@ -72,32 +101,7 @@ documents for `SidebarMenuSkeleton`. The block carries **zero Next.js imports** 
 the breadcrumb render as plain `<a>`; swap in your router's `Link` via each `render` prop at the
 call site without touching the block's structure.
 
-## Usage
-
-```tsx
-import { DashboardPage } from '@/app/dashboard/page'; // after `shadcn add`, this IS your page
-
-export default function Page() {
-  return <DashboardPage />;
-}
-```
-
-`DashboardPage` accepts optional `stats` / `usage` / `activity` (each defaults to the bundled
-`data.json`), plus `loading` / `error` (per-region) and `isEmpty` (full-page) — wire these to your
-real data-fetching once the block is installed:
-
-```tsx
-<DashboardPage
-  stats={realStats}
-  usage={realUsage}
-  activity={realActivity}
-  loading={{ activity: isActivityLoading }}
-  error={{ chart: chartError?.message }}
-  isEmpty={workspace.agentCount === 0}
-/>
-```
-
-## View Transitions
+## View transitions
 
 **What was verified.** Next.js 16.2.9 (the version installed in this workspace) documents a single
 opt-in mechanism for animating `<Link>` navigations with the browser's native View Transitions API:
@@ -146,20 +150,15 @@ This works with pure CSS + the Next config flag alone; it does **not** require R
    above is intentionally the single-page shadcn-mirroring shape; layout-hoisting is an
    app-specific decision left to the consumer once there is more than one route to navigate
    between.
-3. **Add the reduced-motion override.** This workspace's global `prefers-reduced-motion` reset
-   (`packages/design-tokens/src/base.css`) targets `*, ::before, ::after` — it does **not** reach the
-   browser's `::view-transition-*` pseudo-element tree (a separate top-layer tree the universal
-   selector doesn't match). Until that token-layer gap is closed, add this to your app's global
-   CSS yourself:
-   ```css
-   @media (prefers-reduced-motion: reduce) {
-     ::view-transition-old(*),
-     ::view-transition-new(*),
-     ::view-transition-group(*) {
-       animation-duration: 0s !important;
-       animation-delay: 0s !important;
-     }
-   }
+3. **Keep the token base stylesheet installed.** `@vegastack/design-tokens/base.css` includes a
+   dedicated reduced-motion kill switch for `::view-transition-group(*)`,
+   `::view-transition-old(*)`, and `::view-transition-new(*)`, because the normal universal reset
+   cannot reach the browser's snapshot tree. Consumers following the standard installation path
+   already have this protection; if an app intentionally omits the base stylesheet, it must provide
+   an equivalent rule before enabling route transitions.
+
+   ```
+
    ```
 
 This workspace's own docs app does not have the flag enabled (`apps/docs/next.config.mjs` was out
@@ -178,6 +177,35 @@ with `refresh={false}` (which also suppresses its internal re-render timer) — 
 
 ## API Reference
 
-<AutoTypeTable path="../../packages/ui/registry/blocks/dashboard-01/page.tsx" name="DashboardPageProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/blocks/dashboard-01/page.tsx"
+  name="DashboardPageProps"
+/>
 
-<AutoTypeTable path="../../packages/ui/registry/blocks/dashboard-01/components/app-sidebar.tsx" name="AppSidebarProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/blocks/dashboard-01/components/app-sidebar.tsx"
+  name="AppSidebarProps"
+/>
+
+## Accessibility
+
+- The block composes `AppShell`'s skip link and banner/navigation/main landmark trio; preserve those
+  landmarks when adapting the starter into a shared layout.
+- Sidebar links, the user menu, chart summary, activity table, empty state, loading states, and error
+  regions retain the accessibility contracts of their underlying VegaStack components.
+- Navigation labels and status text remain visible; icons and chart decoration never carry meaning alone.
+- At 320px, the responsive sidebar collapses while data regions contain their own overflow rather than
+  forcing page-level horizontal scrolling.
+
+| Key                                 | Action                                                                     |
+| ----------------------------------- | -------------------------------------------------------------------------- |
+| <kbd>Tab</kbd>                      | Move through the skip link, navigation, user menu, and dashboard controls. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused link, menu trigger, or button.                        |
+| <kbd>Escape</kbd>                   | Close the open user menu and restore focus to its trigger.                 |
+
+## Do / Don't
+
+<DoDont
+  do="Use the block as a one-time starter, then replace its bundled data and links while preserving AppShell landmarks and regional states."
+  dont="Treat the block as an update-tracked component or duplicate its sidebar/header/main shell instead of composing AppShell."
+/>

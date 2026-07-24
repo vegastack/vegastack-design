@@ -1,6 +1,7 @@
 ---
 title: Quickstart
 description: Zero to a working VegaStack dashboard in one sitting — every command, every file, no surprises. Mirrors the reference starter step for step.
+audience: public
 ---
 
 This is the **complete** path from an empty directory to a themed, toast-firing,
@@ -47,7 +48,7 @@ Replace the entire contents of `app/globals.css`:
  * + the base a11y layer (focus rings, reduced-motion, portal isolation)
  * + the utility helpers (shimmer / scroll-fade / scrollbar).
  * Do NOT also import "tailwindcss" here — the preset already does. */
-@import '@vegastack/design/preset.css';
+@import "@vegastack/design/preset.css";
 ```
 
 **Proof:** `pnpm build` succeeds. If it fails with `Can't resolve 'tw-animate-css'`,
@@ -117,7 +118,7 @@ printf '!.env.example\n' >> .gitignore
 
 `.env.local` stays gitignored either way.
 
-**Proof** (the CLI reads `.env.local` itself, but your *shell* doesn't — source it
+**Proof** (the CLI reads `.env.local` itself, but your _shell_ doesn't — source it
 for this one check):
 
 ```bash
@@ -141,17 +142,24 @@ import and the font setup the scaffold gave you; the change is the provider impo
 the wrapper, and `suppressHydrationWarning`. The complete edited file:
 
 ```tsx title="app/layout.tsx (complete)"
-import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
-import './globals.css'; // ← KEEP THIS — removing it silently un-styles the whole app
-import { VegaStackProvider } from '@/components/ui/provider';
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css"; // ← KEEP THIS — removing it silently un-styles the whole app
+import { VegaStackProvider } from "@/components/ui/provider";
 
-const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
-const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
-export const metadata: Metadata = { title: 'My App' };
+export const metadata: Metadata = { title: "My App" };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html
       lang="en"
@@ -170,7 +178,8 @@ And point the token font families at those loaded fonts (append to `app/globals.
 
 ```css title="app/globals.css (append)"
 :root {
-  --font-family-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-family-sans:
+    var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-family-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 ```
@@ -235,13 +244,13 @@ surprise. Details in [Production checklist](/docs/guides/production-checklist).
 
 ## Complete file inventory after this guide
 
-| File | Origin | Yours to edit? |
-| --- | --- | --- |
-| `app/globals.css` | you (step 3) | yes |
-| `components.json` | you (step 4) | yes |
-| `.env.local` | you (step 5) | yes — never commit |
-| `components/ui/*.tsx` | copied by `shadcn add` | yes — you own them; updates are pulled, never pushed |
-| `app/dashboard/*` | the `dashboard-01` block | yes — a starter, not update-tracked |
-| `lib/utils.ts` | optional — create it as `export { cn } from '@vegastack/design';` if any copied file imports `@/lib/utils` | yes |
+| File                  | Origin                                                                                                     | Yours to edit?                                       |
+| --------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `app/globals.css`     | you (step 3)                                                                                               | yes                                                  |
+| `components.json`     | you (step 4)                                                                                               | yes                                                  |
+| `.env.local`          | you (step 5)                                                                                               | yes — never commit                                   |
+| `components/ui/*.tsx` | copied by `shadcn add`                                                                                     | yes — you own them; updates are pulled, never pushed |
+| `app/dashboard/*`     | the `dashboard-01` block                                                                                   | yes — a starter, not update-tracked                  |
+| `lib/utils.ts`        | optional — create it as `export { cn } from '@vegastack/design';` if any copied file imports `@/lib/utils` | yes                                                  |
 
 Anything unclear or broken on this path → [Troubleshooting](/docs/guides/troubleshooting).

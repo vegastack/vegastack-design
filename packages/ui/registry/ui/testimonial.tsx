@@ -1,14 +1,13 @@
-// @vegastack testimonial@0.2.0 sha256-IBIcaBow051dB1A89jbier0xyuF/7PK4pj+ibVW+Adw=
+// @vegastack testimonial@0.2.0 sha256-k4vD/cxghCXIw2DG6mumqXNltfG3Jg0PdTXk3uKGstE=
 
-// @vegastack testimonial@0.1.0 — new component; run `pnpm run registry:build` to stamp
-// integrity + regenerate the copy-in/JSON.
+import * as React from "react";
+import { cn } from "@vegastack/design";
 
-'use client';
-
-import * as React from 'react';
-import { cn } from '@vegastack/design';
-
-export interface TestimonialProps extends Omit<React.ComponentPropsWithRef<'figure'>, 'role'> {
+/** Props accepted by `Testimonial`. */
+export interface TestimonialProps extends Omit<
+  React.ComponentPropsWithRef<"figure">,
+  "role"
+> {
   /**
    * The quote text, WITHOUT its own quotation marks — the component wraps it
    * in curly quotes. Rendered serif italic (`font-serif italic`, the
@@ -19,7 +18,7 @@ export interface TestimonialProps extends Omit<React.ComponentPropsWithRef<'figu
   quote: React.ReactNode;
   /** Attributed name. */
   name: React.ReactNode;
-  /** Optional role/affiliation (e.g. `"CTO, Acme"`). */
+  /** Optional role/affiliation (e.g. `"CTO, Acme"`). @default undefined */
   role?: React.ReactNode;
 }
 
@@ -34,9 +33,21 @@ export interface TestimonialProps extends Omit<React.ComponentPropsWithRef<'figu
  *   role="CTO, Example Co."
  * />
  */
-export function Testimonial({ quote, name, role, className, ref, ...props }: TestimonialProps) {
+export function Testimonial({
+  quote,
+  name,
+  role,
+  className,
+  ref,
+  ...props
+}: TestimonialProps) {
   return (
-    <figure ref={ref} data-slot="testimonial" className={cn('flex flex-col gap-4', className)} {...props}>
+    <figure
+      ref={ref}
+      data-slot="testimonial"
+      className={cn("flex flex-col gap-4", className)}
+      {...props}
+    >
       <blockquote
         data-slot="testimonial-quote"
         className="text-balance font-serif text-display-sm text-foreground italic"

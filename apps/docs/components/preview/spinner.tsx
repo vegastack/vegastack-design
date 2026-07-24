@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { Wrapper } from './wrapper';
+import type { ReactNode } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/spinner` (dogfoods the registry) → auto-scanned.
-import { Spinner } from '@/components/ui/spinner';
-import { Button } from '@/components/ui/button';
+import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@/components/ui/button";
 
 export function spinner(): ReactNode {
   return (

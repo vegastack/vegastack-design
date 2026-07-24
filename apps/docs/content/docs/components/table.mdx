@@ -1,6 +1,7 @@
 ---
 title: Table
 description: Styled semantic table primitives — a scrollable container plus header, body, footer, row, head, cell, and caption parts.
+audience: public
 preview: table
 ---
 
@@ -74,7 +75,7 @@ their parent. Every part forwards its ref and exposes a `data-slot`:
 - `TableBody` — the `<tbody>` group (`data-slot="table-body"`). Drops the last row's border for a clean bottom edge.
 - `TableFooter` — the `<tfoot>` group (`data-slot="table-footer"`). Muted background with a top border for totals.
 - `TableRow` — a `<tr>` (`data-slot="table-row"`). Hover highlight and `data-selected` selected state.
-- `TableHead` — a header cell `<th>` (`data-slot="table-head"`). Muted, left-aligned, medium-weight label.
+- `TableHead` — a header cell `<th>` (`data-slot="table-head"`). Muted, start-aligned, medium-weight label.
 - `TableCell` — a data cell `<td>` (`data-slot="table-cell"`). Vertically centered with consistent padding.
 - `TableCaption` — the `<caption>` (`data-slot="table-caption"`), rendered below the table.
 
@@ -99,10 +100,20 @@ the table below sideways to reach the `Amount` column.
 
 A leading checkbox column for row selection. The header checkbox toggles all rows (and shows the
 indeterminate state for a partial selection), each selected `TableRow` carries `data-selected` (paired
-with `aria-selected`) for the highlight, and the checkbox cells collapse their right padding via the
-`[&:has([role=checkbox])]:pr-0` rule on `TableHead`/`TableCell`.
+with `aria-selected`) for the highlight, and the checkbox cells collapse their inline-end padding via the
+`[&:has([role=checkbox])]:pe-0` rule on `TableHead`/`TableCell`.
 
 <ComponentPreview name="tableSelectable" file="components/preview/table.tsx" />
+
+### Spreadsheet voice
+
+Three Wave-2 props for data-heavy screens, all off by default: `grid` draws the full cell
+grid (every cell's inline-end hairline), `headerTone="ink"` switches headers to the 14/500
+foreground voice, and `density="compact"` tightens rows to ~32px. They compose freely — and
+`density`/`headerTone`/`grid` flow to `TableHead`/`TableCell` via `data-*` flags, so the
+family stays server-safe.
+
+<ComponentPreview name="tableSpreadsheet" file="components/preview/table.tsx" />
 
 ## API Reference
 

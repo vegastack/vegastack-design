@@ -2,25 +2,29 @@ name: CI
 on:
   pull_request:
 
-# Turborepo remote caching (Phase D): activates when MK provisions the Vercel Remote Cache
-# secrets — inert (local cache only) until then. Signature verification is enabled in
-# turbo.json so poisoned-cache artifacts are rejected.
-env:
-  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+permissions:
+  contents: read
 
 jobs:
   verify:
     runs-on: ubuntu-latest
     # Pinned Playwright image so Vitest browser mode + Playwright VRT share identical browsers/fonts.
-    container: mcr.microsoft.com/playwright:v1.61.0-noble
+    container: mcr.microsoft.com/playwright:v1.61.0-noble@sha256:57b65fdc9ceabe0ef613124c7bbe2babcf9362c4d85e382fe3b03604e84b428a
     steps:
-      - uses: actions/checkout@v6
-        with: { fetch-depth: 0 } # needed for `changeset status --since=origin/main`
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0 # needed for `changeset status --since=origin/main`
+          persist-credentials: false
+      # The repository is mounted into the pinned container with host ownership. Trust only this
+      # exact ephemeral workspace so git-backed gates (secret scan, drift checks, Changesets) work.
+      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      # Self-contained on a clean checkout: design:verify builds the gitignored token dist before
+      # checking generated design.md, the 538-item contracts, contrast, and dark/marketing parity.
+      - run: pnpm design:verify
       # Workspace gates (Turborepo, package-scoped). Root-level `pnpm exec tsc/vitest` do NOT
       # resolve the per-package tsconfig path aliases / vitest configs and fail before validating
       # anything — always go through the package scripts.
@@ -30,7 +34,15 @@ jobs:
       # turbo.json must pass through (globalPassThroughEnv) — turbo's strict env otherwise strips
       # it and vitest dies at browserType.launch looking in $HOME/.cache.
       - run: pnpm test # turbo run test — Vitest browser mode + axe, incl. compiled-CSS color-contrast
-      - run: pnpm build
+      - run: pnpm --filter @vegastack/ui test:smoke # Firefox/WebKit for contract-marked motion/cross-engine risks
+        # The pinned container executes as root, while Actions otherwise points HOME at a pwuser-owned
+        # directory. Firefox refuses that ownership mismatch before any test can execute.
+        env:
+          HOME: /root
+      - name: Build private-discovery matrix
+        run: SITE_VISIBILITY=private pnpm build
+      - name: Build public-discovery matrix
+        run: SITE_VISIBILITY=public pnpm --filter @vegastack/docs build
       - run: pnpm registry:build
       # `registry:build` stamps THREE surfaces (registry JSON in apps/docs/public/r, the
       # registry SOURCE in packages/ui/registry/ui, and the docs copy-in in apps/docs/components/ui).

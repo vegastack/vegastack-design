@@ -1,22 +1,27 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { ImageOff } from 'lucide-react';
-import { Wrapper } from './wrapper';
+import type { ReactNode } from "react";
+import { ImageOff } from "lucide-react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/image` (dogfoods the registry) → auto-scanned.
-import { Image } from '@/components/ui/image';
+import { Image } from "@/components/ui/image";
 
 // Deterministic local fixture (no network dependency — VRT-safe): a 400×260 abstract
 // landscape served from apps/docs/public. Shared with the playground (image-playground.tsx).
-const SAMPLE = '/preview/landscape.svg';
+const SAMPLE = "/preview/landscape.svg";
 // A same-origin path that 404s — makes the error fallback fire deterministically and fast.
-const BROKEN = '/missing.png';
+const BROKEN = "/missing.png";
 
 export function image(): ReactNode {
   return (
     <Wrapper>
       <div className="w-48">
-        <Image src={SAMPLE} alt="A scenic landscape" aspectRatio="video" rounded="lg" />
+        <Image
+          src={SAMPLE}
+          alt="A scenic landscape"
+          aspectRatio="video"
+          rounded="lg"
+        />
       </div>
     </Wrapper>
   );
@@ -32,7 +37,12 @@ export function imageAspectRatios(): ReactNode {
   return (
     <Wrapper>
       <div className="w-40">
-        <Image src={SAMPLE} alt="Loaded image" aspectRatio="square" rounded="md" />
+        <Image
+          src={SAMPLE}
+          alt="Loaded image"
+          aspectRatio="square"
+          rounded="md"
+        />
       </div>
       <div className="w-40">
         <Image alt="" aspectRatio="square" rounded="md" fallback={null} />
@@ -55,7 +65,7 @@ export function imageAspectRatios(): ReactNode {
  * `full` clips the image to a circle — the avatar-style media frame.
  */
 export function imageRounded(): ReactNode {
-  const radii = ['none', 'sm', 'md', 'lg', 'full'] as const;
+  const radii = ["none", "sm", "md", "lg", "full"] as const;
   return (
     <Wrapper>
       {radii.map((rounded) => (
@@ -68,7 +78,9 @@ export function imageRounded(): ReactNode {
               rounded={rounded}
             />
           </div>
-          <span className="font-mono text-sm text-muted-foreground">{rounded}</span>
+          <span className="font-mono text-sm text-muted-foreground">
+            {rounded}
+          </span>
         </div>
       ))}
     </Wrapper>

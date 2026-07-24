@@ -23,6 +23,15 @@ playwright-report/
 
 # VRT baselines are platform-specific: local darwin PNGs stay untracked (~100MB scratch);
 # the LINUX baselines produced by vrt.yml's update_baselines artifact ARE committed — they
-# are the pixel gate's reference set.
-apps/docs/vrt/components.spec.ts-snapshots/*-darwin.png
+# are the pixel gate's reference set. Matched across EVERY spec's snapshot dir, not just
+# components.spec.ts — contracts.spec.ts writes its own, and a per-spec pattern would let a
+# local darwin baseline be committed and then fail the Linux pixel gate.
+apps/docs/vrt/*-snapshots/*-darwin.png
 .playwright-cli/
+
+# Ad-hoc screenshots from manual `playwright` CLI runs. Scratch, referenced by nothing, and
+# explicitly skipped by tooling/secret-scan.mjs — so it must never become commit-eligible.
+output/
+
+# Static-export Markdown manifest. Generated deterministically after each docs build.
+apps/docs/.generated/

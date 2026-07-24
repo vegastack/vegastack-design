@@ -1,10 +1,11 @@
 ---
 title: OTP Input
 description: A multi-slot one-time-passcode input — keyboard navigation, paste distribution, autofill, masking, and a disabled state, built on Base UI OTP Field.
+audience: public
 preview: otpInput
 ---
 
-import { story } from '@/components/stories/otp-input.story';
+import { story } from "@/components/stories/otp-input.story";
 
 ## Installation
 
@@ -42,20 +43,22 @@ const [code, setCode] = useState("");
 />;
 ```
 
-## Playground
+## Examples
+
+### Playground
 
 Try the 4- and 6-digit lengths, the three slot sizes, and the mask and disabled states, then copy the generated JSX.
 
 <OTPInputPlayground />
 
-## Explorer
+### Explorer
 
 Every `OTPInput` prop, auto-generated from its TypeScript types — the exhaustive counterpart to
 the curated playground above.
 
 <story.WithControl />
 
-## States
+### States
 
 `OTPInput` renders an **empty** row (every cell `border-input`), a **filled**
 value, a **masked** value (`mask`), an **invalid** row (slots tint destructive —
@@ -67,7 +70,7 @@ raises above its neighbors and recolors its border to the `ring` token.
   file="components/preview/otp-input.tsx"
 />
 
-## Grouped
+### Grouped
 
 Use `groups` to render Base UI `OTPField.Separator` parts between slot groups.
 When `length` is omitted, the group total defines the length. The default
@@ -83,7 +86,7 @@ it (see [Length & separator](#length--separator)).
   file="components/preview/otp-input.tsx"
 />
 
-## Length & separator
+### Length & separator
 
 `length` sets the number of slots (default 6) when no `groups` are supplied.
 `separator` replaces the default `-` node between groups, and `separatorClassName`
@@ -105,7 +108,7 @@ merges extra classes onto every separator.
   file="components/preview/otp-input.tsx"
 />
 
-## With a label
+### With a label
 
 Pair `OTPInput` with a `Field` to attach a visible label, description, and an
 accessible error message. The field's label is auto-associated with the first
@@ -128,7 +131,7 @@ import { OTPInput } from "@/components/ui/otp-input";
   file="components/preview/otp-input.tsx"
 />
 
-## Auto-submit on complete
+### Auto-submit on complete
 
 `onValueComplete` fires the moment every slot is filled — wire it to trigger a
 verification step. This example is **live**: fill all six slots to fire the
@@ -150,11 +153,11 @@ callback.
 
 - Each slot is a real `<input>`, so the field is fully keyboard operable: type to
   advance, `Backspace`/`Delete` to clear, and `←`/`→` to move between slots.
-- Always give the field an accessible name — wrap it in a `Field`/`<label>`, or
+- Always give the field an accessible name — compose it with `Field`, associate an external label, or
   pass `aria-label`. The name labels the first slot; later slots are
   auto-labeled `Character N of M` for screen-reader context. (Base UI ignores
   `aria-label` placed directly on the first slot, so `OTPInput` wires it through a
-  visually-hidden `<label>`.)
+  visually-hidden explicit label. Do not wrap the whole multi-input group in one native `<label>`.)
 - Grouped layouts use Base UI `OTPField.Separator`; separators are visual grouping
   aids while each slot keeps its own positional label.
 - On focus the active slot raises its stacking order and recolors its border to

@@ -13,9 +13,9 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| None | No material component-specific finding survived review. | No action. | Keep tests for progressbar labels and values. |
+| Priority | Evidence                                                | Impact     | Suggested fix                                 |
+| -------- | ------------------------------------------------------- | ---------- | --------------------------------------------- |
+| None     | No material component-specific finding survived review. | No action. | Keep tests for progressbar labels and values. |
 
 ## Residual Risks
 
@@ -24,4 +24,3 @@ Do not replace the SVG with lucide; it is core visualization.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- progress-indicator.test.tsx`
-

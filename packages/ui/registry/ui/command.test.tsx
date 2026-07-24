@@ -16,9 +16,15 @@ import {
   CommandShortcut,
   CommandDialog,
   useCommandFilteredItems,
+  CommandFooter,
 } from "./command";
 
-type ExampleItem = { value: string; label: string; disabled?: boolean; shortcut?: string };
+type ExampleItem = {
+  value: string;
+  label: string;
+  disabled?: boolean;
+  shortcut?: string;
+};
 
 const SUGGESTIONS: ExampleItem[] = [
   { value: "calendar", label: "Calendar" },
@@ -52,7 +58,9 @@ function ExampleGroups({ onSelect }: { onSelect?: (value: string) => void }) {
                 onSelect={() => onSelect?.(item.value)}
               >
                 {item.label}
-                {item.shortcut ? <CommandShortcut>{item.shortcut}</CommandShortcut> : null}
+                {item.shortcut ? (
+                  <CommandShortcut>{item.shortcut}</CommandShortcut>
+                ) : null}
               </CommandItem>
             )}
           </CommandGroup>
@@ -165,7 +173,10 @@ test("a statically-composed item stays mounted while filtering (no forceMount eq
   // achieved by composing it OUTSIDE the filtered `CommandGroup`/`useCommandFilteredItems` result,
   // as an ordinary static sibling.
   function AlwaysAndFiltered() {
-    const filtered = useCommandFilteredItems<{ value: string; label: string }>();
+    const filtered = useCommandFilteredItems<{
+      value: string;
+      label: string;
+    }>();
     return (
       <>
         <CommandItem value="always">Always visible</CommandItem>
@@ -224,7 +235,17 @@ test("Enter activates the highlighted item", async () => {
 
 test("CommandDialog opens and renders its items", async () => {
   const screen = await render(
-    <CommandDialog defaultOpen commandProps={{ items: [{ heading: "Navigation", items: [{ value: "dashboard", label: "Go to dashboard" }] }] }}>
+    <CommandDialog
+      defaultOpen
+      commandProps={{
+        items: [
+          {
+            heading: "Navigation",
+            items: [{ value: "dashboard", label: "Go to dashboard" }],
+          },
+        ],
+      }}
+    >
       <CommandInput placeholder="Type a command…" />
       <CommandEmpty>No results found.</CommandEmpty>
       <CommandList>
@@ -244,7 +265,10 @@ test("CommandDialog forwards commandProps to the inner Command root", async () =
     { value: "profile", label: "Profile" },
   ];
   const screen = await render(
-    <CommandDialog defaultOpen commandProps={{ items, filter: null, loop: true }}>
+    <CommandDialog
+      defaultOpen
+      commandProps={{ items, filter: null, loop: true }}
+    >
       <CommandInput placeholder="Type a command…" />
       <CommandEmpty>No results found.</CommandEmpty>
       <CommandList>
@@ -288,7 +312,17 @@ test("no a11y violations — loading", async () => {
 
 test("no a11y violations — open", async () => {
   const screen = await render(
-    <CommandDialog defaultOpen commandProps={{ items: [{ heading: "Navigation", items: [{ value: "dashboard", label: "Go to dashboard" }] }] }}>
+    <CommandDialog
+      defaultOpen
+      commandProps={{
+        items: [
+          {
+            heading: "Navigation",
+            items: [{ value: "dashboard", label: "Go to dashboard" }],
+          },
+        ],
+      }}
+    >
       <CommandInput placeholder="Type a command…" />
       <CommandEmpty>No results found.</CommandEmpty>
       <CommandList>
@@ -335,4 +369,28 @@ test("CommandInput forwards ref to its host input element", async () => {
   );
   expect(ref.current).toBeInstanceOf(HTMLInputElement);
   expect(ref.current?.dataset.slot).toBe("command-input");
+});
+
+test("CommandFooter renders the hairline-topped action bar inside the palette", async () => {
+  const screen = await render(
+    <Command items={["Alpha", "Beta"]}>
+      <CommandInput placeholder="Search…" aria-label="Search commands" />
+      <CommandList>
+        {(item: string) => (
+          <CommandItem key={item} value={item}>
+            {item}
+          </CommandItem>
+        )}
+      </CommandList>
+      <CommandFooter>
+        <span className="text-sm text-muted-foreground">Navigate</span>
+      </CommandFooter>
+    </Command>,
+  );
+  const footer = document.querySelector(
+    '[data-slot="command-footer"]',
+  ) as HTMLElement;
+  expect(footer).not.toBeNull();
+  expect(footer.className).toContain("border-t");
+  await expect.element(screen.getByText("Navigate")).toBeInTheDocument();
 });

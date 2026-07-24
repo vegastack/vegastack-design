@@ -1,6 +1,7 @@
 ---
 title: Install From VegaStack Registry
 description: Configure shadcn to consume the private VegaStack Base UI registry.
+audience: public
 ---
 
 > **New project?** Follow the [Quickstart](/docs/guides/quickstart) — the full zero-to-dashboard walkthrough. Building for a client? See [Client projects](/docs/guides/external-projects). This page is the registry-setup reference the component pages link to; the [Guides](/docs/guides/quickstart) section covers auth, updates, theming, production readiness, and troubleshooting in depth.
@@ -55,8 +56,8 @@ VegaStack component consumer.
 ## Registry Namespace
 
 Internal consumers add the VegaStack namespace to `components.json`. Production
-registry reads require Cloudflare Access service-token headers; human SSO access
-to the docs site is separate from `/r/*` registry access.
+registry reads require Cloudflare Access service-token headers; browsing the public docs
+does not authenticate `/r/*` registry access.
 
 ```json
 {
@@ -91,9 +92,17 @@ written by `shadcn add`. This is the fail-closed flow that closes the registry f
 time-of-check/time-of-use gap.
 
 ```bash
+VEGASTACK_VERIFY_DIR="$(mktemp -d "${TMPDIR:-/tmp}/vegastack-verify.XXXXXX")"
+VEGASTACK_ITEM="$VEGASTACK_VERIFY_DIR/button.json"
 npx --package=@vegastack/design vegastack-design verify \
-  --save /tmp/vega-button.json button
+  --save "$VEGASTACK_ITEM" button
+# Retain this before running shadcn so it remains independent of the saved file during copy-in.
+VEGASTACK_EXPECTED_INTEGRITY="$(node -e \
+  'process.stdout.write(JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")).meta.integrity)' \
+  "$VEGASTACK_ITEM")"
 ```
+
+The save path must be new; the verifier refuses to overwrite an existing file or follow a symlink.
 
 Use `--hash-only` only for local development when the signed manifest or `cosign` is unavailable.
 The full mode verifies the signed manifest identity and the item hash.
@@ -111,7 +120,8 @@ Then prove the copied files match the saved item bytes.
 
 ```bash
 npx --package=@vegastack/design vegastack-design verify \
-  --post-write --item /tmp/vega-button.json --target-dir .
+  --post-write --item "$VEGASTACK_ITEM" \
+  --expected-integrity "$VEGASTACK_EXPECTED_INTEGRITY" --target-dir .
 ```
 
 The registry item installs its npm dependencies, registry dependencies, and
@@ -127,7 +137,7 @@ compared alias-normalized (a provenance header, when present, is only a fast-pat
 command shows what's stale against the live registry:
 
 ```bash
-npx vegastack-design check-updates
+npx --package=@vegastack/design vegastack-design check-updates
 ```
 
 ```
@@ -149,7 +159,11 @@ npx shadcn@latest add @vegastack/button --overwrite  # take it (re-apply any loc
 `--overwrite` replaces the file, so `git diff` first if you customized it. For CI drift detection,
 `vegastack-design check-updates --fail-on-update` exits non-zero when anything is stale. The CLI reads
 the `@vegastack` registry URL + headers from `components.json` — `${ENV}` placeholders expand from
-`.env.local` / `.env` or the shell (same as `shadcn`), falling back to `VEGASTACK_REGISTRY` + `CF_ACCESS_*`.
+`.env.local` / `.env` or the shell (same as `shadcn`), falling back to `VEGASTACK_REGISTRY` +
+`CF_ACCESS_*`. Before attaching any credential it requires the exact trusted HTTPS origin
+(`https://design.vegastack.com` by default) and rejects redirects. A custom credentialed registry
+must set `VEGASTACK_TRUSTED_REGISTRY_ORIGIN` in operator-controlled process/CI configuration;
+checkout-local dotenv cannot change that trust anchor.
 
 External/client projects do not receive registry service tokens. VegaStack copies
 component source during development, and the shipped app remains self-contained.

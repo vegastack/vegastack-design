@@ -1,9 +1,9 @@
-// @vegastack animated-number@0.2.0 sha256-g4uiORuQfQcnf5QI00psds6HRHlKQZG6PaOCBCp9YkU=
+// @vegastack animated-number@0.2.0 sha256-95+8QW8A78AYVUxjpG+LJ5EpmbJmpTXQVDy848JyyjY=
 
-'use client';
+"use client";
 
-import * as React from 'react';
-import { cn } from '@vegastack/design';
+import * as React from "react";
+import { cn } from "@vegastack/design";
 
 /* ------------------------------------------------------------------------------------------------
  * AnimatedNumber — a number display that tweens from its previous value to a new one whenever
@@ -42,7 +42,7 @@ import { cn } from '@vegastack/design';
  * `truncated-text.tsx`'s `usePrefersNoHover` / `message-scroller.tsx`'s `usePrefersReducedMotion`.
  * ----------------------------------------------------------------------------------------------*/
 
-const FALLBACK_DURATION_MS: Record<'fast' | 'base' | 'slow', number> = {
+const FALLBACK_DURATION_MS: Record<"fast" | "base" | "slow", number> = {
   fast: 150,
   base: 200,
   slow: 300,
@@ -52,9 +52,9 @@ const FALLBACK_DURATION_MS: Record<'fast' | 'base' | 'slow', number> = {
 function parseCssDuration(raw: string): number | null {
   const match = /^(-?[\d.]+)(ms|s)?$/.exec(raw.trim());
   if (!match) return null;
-  const num = parseFloat(match[1] ?? '');
+  const num = parseFloat(match[1] ?? "");
   if (!Number.isFinite(num)) return null;
-  return match[2] === 's' ? num * 1000 : num;
+  return match[2] === "s" ? num * 1000 : num;
 }
 
 /**
@@ -62,20 +62,33 @@ function parseCssDuration(raw: string): number | null {
  * `document.documentElement` when `el` isn't mounted yet). Falls back to
  * {@link FALLBACK_DURATION_MS} when the property resolves empty/unparsable.
  */
-function readDurationMs(el: Element | null, token: 'fast' | 'base' | 'slow'): number {
-  const source = el ?? (typeof document === 'undefined' ? null : document.documentElement);
-  if (source && typeof getComputedStyle === 'function') {
-    const parsed = parseCssDuration(getComputedStyle(source).getPropertyValue(`--duration-${token}`));
+function readDurationMs(
+  el: Element | null,
+  token: "fast" | "base" | "slow",
+): number {
+  const source =
+    el ?? (typeof document === "undefined" ? null : document.documentElement);
+  if (source && typeof getComputedStyle === "function") {
+    const parsed = parseCssDuration(
+      getComputedStyle(source).getPropertyValue(`--duration-${token}`),
+    );
     if (parsed !== null) return parsed;
   }
   return FALLBACK_DURATION_MS[token];
 }
 
 /** Parses a CSS cubic-bezier easing string's four control-point numbers (x1, y1, x2, y2). */
-function parseCubicBezierParams(raw: string): [number, number, number, number] | null {
-  const match = /cubic-bezier\(\s*([\d.]+)\s*,\s*(-?[\d.]+)\s*,\s*([\d.]+)\s*,\s*(-?[\d.]+)\s*\)/.exec(raw);
+function parseCubicBezierParams(
+  raw: string,
+): [number, number, number, number] | null {
+  const match =
+    /cubic-bezier\(\s*([\d.]+)\s*,\s*(-?[\d.]+)\s*,\s*([\d.]+)\s*,\s*(-?[\d.]+)\s*\)/.exec(
+      raw,
+    );
   if (!match) return null;
-  const nums = [match[1], match[2], match[3], match[4]].map((s) => parseFloat(s ?? ''));
+  const nums = [match[1], match[2], match[3], match[4]].map((s) =>
+    parseFloat(s ?? ""),
+  );
   if (nums.some((n) => !Number.isFinite(n))) return null;
   return nums as [number, number, number, number];
 }
@@ -86,7 +99,12 @@ function parseCubicBezierParams(raw: string): [number, number, number, number] |
  * [0,1], find the bezier parameter `t` whose X-component equals `x`, then return its Y-component
  * (the eased progress). 8 iterations is comfortably enough precision for a visual tween.
  */
-function cubicBezier(x1: number, y1: number, x2: number, y2: number): (x: number) => number {
+function cubicBezier(
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+): (x: number) => number {
   const cx = 3 * x1;
   const bx = 3 * (x2 - x1) - cx;
   const ax = 1 - cx - bx;
@@ -120,9 +138,12 @@ const FALLBACK_EASE = cubicBezier(0.2, 0, 0, 1);
  * resolves empty/unparsable (see {@link readDurationMs} for when/why that happens).
  */
 function readEasing(el: Element | null): (t: number) => number {
-  const source = el ?? (typeof document === 'undefined' ? null : document.documentElement);
-  if (source && typeof getComputedStyle === 'function') {
-    const params = parseCubicBezierParams(getComputedStyle(source).getPropertyValue('--motion-ease-standard'));
+  const source =
+    el ?? (typeof document === "undefined" ? null : document.documentElement);
+  if (source && typeof getComputedStyle === "function") {
+    const params = parseCubicBezierParams(
+      getComputedStyle(source).getPropertyValue("--motion-ease-standard"),
+    );
     if (params) return cubicBezier(...params);
   }
   return FALLBACK_EASE;
@@ -134,8 +155,9 @@ function readEasing(el: Element | null): (t: number) => number {
  * {@link usePrefersReducedMotion} can check the real value.
  */
 function getPrefersReducedMotion(): boolean {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false;
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function")
+    return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
 /**
@@ -145,21 +167,34 @@ function getPrefersReducedMotion(): boolean {
  * `usePrefersReducedMotion` / `truncated-text.tsx`'s `usePrefersNoHover`.
  */
 function usePrefersReducedMotion(): boolean {
-  const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(getPrefersReducedMotion);
+  const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(
+    getPrefersReducedMotion,
+  );
 
   React.useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
-    const mediaQueryList = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (
+      typeof window === "undefined" ||
+      typeof window.matchMedia !== "function"
+    )
+      return;
+    const mediaQueryList = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    );
     setPrefersReducedMotion(mediaQueryList.matches);
-    const onChange = (event: MediaQueryListEvent) => setPrefersReducedMotion(event.matches);
-    mediaQueryList.addEventListener('change', onChange);
-    return () => mediaQueryList.removeEventListener('change', onChange);
+    const onChange = (event: MediaQueryListEvent) =>
+      setPrefersReducedMotion(event.matches);
+    mediaQueryList.addEventListener("change", onChange);
+    return () => mediaQueryList.removeEventListener("change", onChange);
   }, []);
 
   return prefersReducedMotion;
 }
 
-export interface AnimatedNumberProps extends Omit<React.ComponentPropsWithRef<'span'>, 'children'> {
+/** Props accepted by `AnimatedNumber`. */
+export interface AnimatedNumberProps extends Omit<
+  React.ComponentPropsWithRef<"span">,
+  "children"
+> {
   /**
    * The number to display. On mount it renders statically (no animation). On every later change,
    * the displayed value tweens from whatever is currently shown to this new value. Changing it
@@ -171,16 +206,20 @@ export interface AnimatedNumberProps extends Omit<React.ComponentPropsWithRef<'s
    * `Intl.NumberFormatOptions` used to format both the settled value and every animated
    * intermediate frame — e.g. `{ style: 'currency', currency: 'USD' }` or
    * `{ notation: 'compact' }`. Omit for plain locale-grouped digits.
+
+   * @default undefined
    */
   format?: Intl.NumberFormatOptions;
-  /** BCP-47 locale(s) for `Intl.NumberFormat`. Defaults to the runtime locale. */
+  /** BCP-47 locale(s) for `Intl.NumberFormat`. Defaults to the runtime locale.
+   * @default undefined
+   */
   locale?: string | string[];
   /**
    * Tween duration, as a motion-token name (never a raw millisecond value) — resolved from the
    * live `--duration-{fast,base,slow}` CSS custom property at animation start.
    * @default 'base'
    */
-  duration?: 'fast' | 'base' | 'slow';
+  duration?: "fast" | "base" | "slow";
 }
 
 /**
@@ -213,7 +252,7 @@ export function AnimatedNumber({
   value,
   format,
   locale,
-  duration = 'base',
+  duration = "base",
   className,
   ref,
   ...props
@@ -225,7 +264,7 @@ export function AnimatedNumber({
   const setMergedRef = React.useCallback(
     (instance: HTMLElement | null) => {
       setNode(instance);
-      if (typeof ref === 'function') ref(instance);
+      if (typeof ref === "function") ref(instance);
       else if (ref) ref.current = instance;
     },
     [ref],
@@ -311,7 +350,7 @@ export function AnimatedNumber({
       data-slot="animated-number"
       // Numerals canon: numbers set in mono with tabular figures (consumer
       // `className` can still override via cn/tw-merge).
-      className={cn('font-mono tabular-nums', className)}
+      className={cn("font-mono tabular-nums", className)}
       {...props}
     >
       <span data-slot="animated-number-value" aria-hidden="true">

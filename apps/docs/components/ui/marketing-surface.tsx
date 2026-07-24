@@ -1,19 +1,19 @@
-// @vegastack marketing-surface@0.2.0 sha256-rrVo0BMSmKA6VrM3zwFJNvivnZ8aMB33e60hsgHMmRQ=
+// @vegastack marketing-surface@0.2.0 sha256-tg5D3sQNT4vdYMuv8yAiidRa6XElJbq6/xF138NzOZ8=
 
-// @vegastack marketing-surface@0.1.0 — new component; run `pnpm run registry:build` to stamp
-// integrity + regenerate the copy-in/JSON.
+"use client";
 
-'use client';
+import * as React from "react";
+import { useRender } from "@base-ui/react/use-render";
+import { cn } from "@vegastack/design";
+import { InternalThemeScopeProvider } from "@vegastack/design/theme-scope";
 
-import * as React from 'react';
-import { useRender } from '@base-ui/react/use-render';
-import { cn } from '@vegastack/design';
-
-export interface MarketingSurfaceProps extends React.ComponentPropsWithRef<'div'> {
+/** Props accepted by `MarketingSurface`. */
+export interface MarketingSurfaceProps extends React.ComponentPropsWithRef<"div"> {
   /**
    * Replace the rendered element via Base UI `render` composition — e.g.
    * `render={<section />}` so a hero band is a real `<section>` landmark.
    * Pass a `ReactElement` or a render function.
+   * @default undefined
    */
   render?: useRender.RenderProp;
 }
@@ -37,12 +37,10 @@ export interface MarketingSurfaceProps extends React.ComponentPropsWithRef<'div'
  * Renders a plain `<div>` by default; pass `render={<section />}` (or a
  * render function) to compose a different host element.
  *
- * **Portal limitation** (documented, not solved here): Base UI floating
- * surfaces (Popover, Dialog, Menu, Select, Tooltip, …) portal to `<body>`,
- * OUTSIDE this scoped subtree — anything portaled from inside a
- * `MarketingSurface` renders with the PAGE theme, not the marketing dark
- * ground. Marketing surfaces rarely need portals (a hero/section band is not
- * app chrome); if one genuinely does, style it explicitly at the portal root.
+ * Portaled VegaStack overlays keep this scope through an internal React
+ * context. Their portaled backdrop/viewport/positioner/surface DOM nodes apply
+ * `vs-marketing`, so they resolve the same semantic values even though Base UI
+ * mounts them under `<body>`.
  *
  * @example
  * <MarketingSurface render={<section />} className="px-6 py-24">
@@ -56,15 +54,21 @@ export function MarketingSurface({
   ref,
   ...props
 }: MarketingSurfaceProps) {
-  return useRender({
+  const surface = useRender({
     render: render ?? <div />,
-    defaultTagName: 'div',
+    defaultTagName: "div",
     ref,
     props: {
-      'data-slot': 'marketing-surface',
-      className: cn('vs-marketing bg-background text-foreground', className),
+      "data-slot": "marketing-surface",
+      className: cn("vs-marketing bg-background text-foreground", className),
       children,
       ...props,
     },
   });
+
+  return (
+    <InternalThemeScopeProvider scope="vs-marketing">
+      {surface}
+    </InternalThemeScopeProvider>
+  );
 }

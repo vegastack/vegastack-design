@@ -1,16 +1,19 @@
-// @vegastack copy-button@0.2.0 sha256-KZ4EyygeodRVjv0HgLcPatg5fGU2uT/2r7wuE5sm41o=
+// @vegastack copy-button@0.2.0 sha256-b+ZnhQ/CfZFmMvQskWQQcs3r7rYQvUR++E7Lv0UtdDg=
 
-'use client';
+"use client";
 
-import * as React from 'react';
-import { Check, Copy } from 'lucide-react';
-import { cn, TIMINGS } from '@vegastack/design';
+import * as React from "react";
+import { Check, Copy } from "lucide-react";
+import { cn, TIMINGS } from "@vegastack/design";
 // `Button` is owned by the sibling Button component; shadcn rewrites this alias on
 // `add`, and vitest/tsconfig map `@/components/ui/*` → `registry/ui/*`.
-import { Button, type ButtonProps } from '@/components/ui/button';
+import { Button, type ButtonProps } from "@/components/ui/button";
 
-export interface CopyButtonProps
-  extends Omit<ButtonProps, 'aria-label' | 'children' | 'onClick' | 'type' | 'value'> {
+/** Props accepted by `CopyButton`. */
+export interface CopyButtonProps extends Omit<
+  ButtonProps,
+  "aria-label" | "children" | "onClick" | "type" | "value"
+> {
   /**
    * The text written to the clipboard when the button is pressed.
    */
@@ -18,6 +21,8 @@ export interface CopyButtonProps
   /**
    * Fired after `value` is successfully copied to the clipboard. Use it to show a
    * toast or analytics event — the transient check feedback is handled internally.
+
+   * @default undefined
    */
   onCopied?: (value: string) => void;
   /**
@@ -37,8 +42,16 @@ export interface CopyButtonProps
    */
   copiedLabel?: string;
   /**
+   * Show the current copy status as visible text beside the icon. When enabled,
+   * the default control size becomes `sm`; an explicit `size` still wins.
+   * @default false
+   */
+  showLabel?: boolean;
+  /**
    * Called when the copy button is pressed before the clipboard write runs.
    * Calling `event.preventDefault()` cancels the write.
+
+   * @default undefined
    */
   onPress?: (event: React.MouseEvent<HTMLElement>) => void;
 }
@@ -48,7 +61,8 @@ export interface CopyButtonProps
  *
  * Wraps {@link Button} (default `ghost` / `icon-sm`) and swaps the `lucide-react`
  * `Copy` icon for a `Check` for ~1.5s after a successful copy, tinting it
- * `text-success-text` for that window. The accessible label switches from `"Copy"` to
+ * `text-primary` for that window. Copying is neutral action feedback rather than a
+ * semantic success status. The accessible label switches from `"Copy"` to
  * `"Copied"` so screen readers announce the result; the icon itself is decorative
  * (`aria-hidden`). A visually-hidden `role="status"` live region also renders the
  * `copiedLabel` text while `copied` is true (empty otherwise) — `aria-label` changes on
@@ -63,16 +77,19 @@ export function CopyButton({
   value,
   onCopied,
   timeout = TIMINGS.feedbackRevertMs,
-  copyLabel = 'Copy',
-  copiedLabel = 'Copied',
-  variant = 'ghost',
-  size = 'icon-sm',
+  copyLabel = "Copy",
+  copiedLabel = "Copied",
+  showLabel = false,
+  variant = "ghost",
+  size,
   className,
   onPress,
   ...props
 }: CopyButtonProps) {
   const [copied, setCopied] = React.useState(false);
-  const timer = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const timer = React.useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
 
   // Clear any pending reset on unmount so we never set state on a gone component.
   React.useEffect(() => () => clearTimeout(timer.current), []);
@@ -100,12 +117,13 @@ export function CopyButton({
       {...props}
       type="button"
       variant={variant}
-      size={size}
+      size={size ?? (showLabel ? "sm" : "icon-sm")}
       data-slot="copy-button"
-      data-copied={copied ? '' : undefined}
+      data-copied={copied ? "" : undefined}
+      data-label-visible={showLabel ? "" : undefined}
       aria-label={copied ? copiedLabel : copyLabel}
       onClick={handleClick}
-      className={cn(copied && 'text-success-text hover:text-success-text', className)}
+      className={cn(copied && "text-primary hover:text-primary", className)}
     >
       {/*
        * Keyed presence (CX-13): the key ties each icon to the copied boundary so
@@ -126,11 +144,16 @@ export function CopyButton({
       ) : (
         <Copy key="copy" aria-hidden className="motion-pop-in" />
       )}
+      {showLabel ? (
+        <span data-slot="copy-button-label">
+          {copied ? copiedLabel : copyLabel}
+        </span>
+      ) : null}
       {/* Visually-hidden live region — announces the copy confirmation to screen readers.
           The button's `aria-label` swap alone isn't reliably announced, so this is the actual
           announcement mechanism. Empty (and un-announced) until `copied` flips true. */}
       <span className="sr-only" role="status">
-        {copied ? copiedLabel : ''}
+        {copied ? copiedLabel : ""}
       </span>
     </Button>
   );

@@ -3,11 +3,7 @@ import { render } from "vitest-browser-react";
 import { expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
-import {
-  RegionSelect,
-  getRegionsByCountry,
-  hasRegions,
-} from "./region-select";
+import { RegionSelect, getRegionsByCountry, hasRegions } from "./region-select";
 import { REGIONS_BY_COUNTRY } from "./region-select-data";
 
 test("renders a combobox trigger with the placeholder for a country with states", async () => {

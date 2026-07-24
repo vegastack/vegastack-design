@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { Wrapper } from './wrapper';
-import { Bold, Italic, Underline } from 'lucide-react';
+import type { ReactNode } from "react";
+import { Wrapper } from "./wrapper";
+import { Bold, Italic, Underline } from "lucide-react";
 // Copied INTO apps/docs via `shadcn add @vegastack/toggle` (dogfoods the registry) → auto-scanned.
-import { Toggle } from '@/components/ui/toggle';
+import { Toggle } from "@/components/ui/toggle";
 
 export function toggle(): ReactNode {
   return (

@@ -166,8 +166,13 @@ test("roving tabindex: only one emoji button is Tab-reachable at a time", async 
     .poll(() => document.querySelector('[data-slot="emoji-picker"]'))
     .not.toBeNull();
 
-  const first = screen.getByRole("button", { name: "grinning face", exact: true });
-  const second = screen.getByRole("button", { name: "grinning face with big eyes" });
+  const first = screen.getByRole("button", {
+    name: "grinning face",
+    exact: true,
+  });
+  const second = screen.getByRole("button", {
+    name: "grinning face with big eyes",
+  });
   await expect.element(first).toHaveAttribute("tabindex", "0");
   await expect.element(second).toHaveAttribute("tabindex", "-1");
 });
@@ -179,8 +184,13 @@ test("ArrowRight moves the roving tabindex (and focus) to the next emoji", async
     .poll(() => document.querySelector('[data-slot="emoji-picker"]'))
     .not.toBeNull();
 
-  const first = screen.getByRole("button", { name: "grinning face", exact: true });
-  const second = screen.getByRole("button", { name: "grinning face with big eyes" });
+  const first = screen.getByRole("button", {
+    name: "grinning face",
+    exact: true,
+  });
+  const second = screen.getByRole("button", {
+    name: "grinning face with big eyes",
+  });
   first.element().focus();
   await userEvent.keyboard("{ArrowRight}");
 

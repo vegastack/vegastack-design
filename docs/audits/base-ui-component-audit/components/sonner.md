@@ -13,10 +13,10 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P1 | Npm entry exports package Toaster at `packages/ui/src/index.ts:5`; package implementation uses `text-success` icons and no CSS-var bridge at `packages/ui/src/provider/toaster.tsx:64`; registry implementation wires Sonner CSS vars at `sonner.tsx:69` and uses `text-success-text` at `sonner.tsx:78`; docs mount registry copy at `apps/docs/components/provider.tsx:17`. | Docs show registry behavior, while npm provider consumers get a different Toaster. | Generate/mirror package Toaster from canonical registry source or share one implementation. |
-| P3 | Docs route/page is `toast`, but install/import paths use `sonner` at `toast.mdx:10`; registry item is `sonner`. | Readers may search for `@vegastack/toast`. | Add one sentence explaining the registry file is named `sonner` because it wraps Sonner, while design-system docs call it Toast. |
+| Priority | Evidence                                                                                                                                                                                                                                                                                                                                                                      | Impact                                                                             | Suggested fix                                                                                                                    |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| P1       | Npm entry exports package Toaster at `packages/ui/src/index.ts:5`; package implementation uses `text-success` icons and no CSS-var bridge at `packages/ui/src/provider/toaster.tsx:64`; registry implementation wires Sonner CSS vars at `sonner.tsx:69` and uses `text-success-text` at `sonner.tsx:78`; docs mount registry copy at `apps/docs/components/provider.tsx:17`. | Docs show registry behavior, while npm provider consumers get a different Toaster. | Generate/mirror package Toaster from canonical registry source or share one implementation.                                      |
+| P3       | Docs route/page is `toast`, but install/import paths use `sonner` at `toast.mdx:10`; registry item is `sonner`.                                                                                                                                                                                                                                                               | Readers may search for `@vegastack/toast`.                                         | Add one sentence explaining the registry file is named `sonner` because it wraps Sonner, while design-system docs call it Toast. |
 
 ## Residual Risks
 
@@ -26,4 +26,3 @@ Not a Base UI primitive; third-party dependency is appropriate for toast.
 
 - `pnpm --filter @vegastack/ui test -- sonner.test.tsx`
 - Compare package and registry Toaster behavior in docs build.
-

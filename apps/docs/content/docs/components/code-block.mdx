@@ -1,0 +1,60 @@
+---
+title: Code Block
+description: A code panel with a language header and copy affordance — the shared code surface for chat transcripts, docs prose, and examples.
+audience: public
+preview: codeBlock
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/code-block
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { CodeBlock } from "@/components/ui/code-block";
+
+<CodeBlock language="sql" copyValue={query}>
+  {query}
+</CodeBlock>;
+```
+
+## Examples
+
+<ComponentPreview name="codeBlock" file="components/preview/code-block.tsx" />
+
+## Anatomy
+
+A `<figure>`: the header (`<figcaption>`) carries the language in the mono-label voice and a
+`CopyButton` when `copyValue` is set; the body is the sunken `bg-muted` panel with
+`overflow-x-auto` and `text-code` mono. Omit both header props for a bare block.
+
+## MarkdownView integration
+
+`MarkdownView` delegates every fenced code block here automatically — the language comes from
+the fence info string and the copy source from the block's text, so chat transcripts and
+rendered markdown get the labelled, copyable surface with no extra wiring.
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/code-block.tsx"
+  name="CodeBlockProps"
+/>
+
+## Accessibility
+
+- A supplied `language` becomes the visible `<figcaption>` label; the code remains real selectable text.
+- The composed `CopyButton` provides its own keyboard interaction, accessible name, and polite copied-state announcement.
+- Horizontal overflow scrolls inside the code panel so long lines do not force page-level overflow at 320px.
+
+## Do / Don't
+
+<DoDont
+  do="Pass the exact raw source to copyValue and a short official language identifier when the block has a header."
+  dont="Put prose paragraphs or interactive controls inside the preformatted code body."
+/>

@@ -127,7 +127,9 @@ test("end-aligned sortable header keeps DOM order (no flex-row-reverse) so the l
   expect(button.className).not.toContain("flex-row-reverse");
   // Label text first, icon span trailing.
   expect(button.childNodes[0]?.textContent).toBe("Role");
-  expect((button.lastElementChild as HTMLElement).querySelector("svg")).not.toBeNull();
+  expect(
+    (button.lastElementChild as HTMLElement).querySelector("svg"),
+  ).not.toBeNull();
 });
 
 test("non-sortable headers are plain (no button, no aria-sort)", async () => {
@@ -711,7 +713,12 @@ test("the header select-all checkbox (sm, 14px) resolves an effective hit area >
   const cleanup = injectDataListCheckboxHitAreaMirror();
   try {
     const screen = await render(
-      <DataList columns={columns} data={data} getRowId={(r) => r.id} selectable />,
+      <DataList
+        columns={columns}
+        data={data}
+        getRowId={(r) => r.id}
+        selectable
+      />,
     );
     const el = screen
       .getByRole("checkbox", { name: "Select all rows" })
@@ -729,7 +736,12 @@ test("a row select checkbox (sm, 14px) resolves an effective hit area >= 24x24 i
   const cleanup = injectDataListCheckboxHitAreaMirror();
   try {
     const screen = await render(
-      <DataList columns={columns} data={data} getRowId={(r) => r.id} selectable />,
+      <DataList
+        columns={columns}
+        data={data}
+        getRowId={(r) => r.id}
+        selectable
+      />,
     );
     const el = screen
       .getByRole("checkbox", { name: "Select row 1" })

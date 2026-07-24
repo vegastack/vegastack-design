@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { type ReactNode, useState } from 'react';
-import { Wrapper } from './wrapper';
+import { type ReactNode, useState } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/checkbox` (dogfoods the registry) → auto-scanned.
-import { Checkbox } from '@/components/ui/checkbox';
-import { Field } from '@/components/ui/field';
+import { Checkbox } from "@/components/ui/checkbox";
+import { Field } from "@/components/ui/field";
 
 export function checkbox(): ReactNode {
   return (
@@ -17,7 +17,9 @@ export function checkbox(): ReactNode {
 }
 
 export function checkboxStates(): ReactNode {
-  const [checked, setChecked] = useState<boolean | 'indeterminate'>('indeterminate');
+  const [checked, setChecked] = useState<boolean | "indeterminate">(
+    "indeterminate",
+  );
 
   return (
     <Wrapper className="flex-col items-start gap-4">
@@ -26,7 +28,7 @@ export function checkboxStates(): ReactNode {
         <Checkbox aria-label="Unchecked" />
         <Checkbox defaultChecked aria-label="Checked" />
         <Checkbox
-          indeterminate={checked === 'indeterminate'}
+          indeterminate={checked === "indeterminate"}
           checked={checked === true}
           onCheckedChange={(next) => setChecked(next)}
           aria-label="Indeterminate"
@@ -76,7 +78,11 @@ export function checkboxInvalid(): ReactNode {
       {/* Bare invalid checkbox via aria-invalid — destructive border at rest. */}
       <Checkbox aria-invalid aria-label="Invalid checkbox" />
       {/* In-Field error — Field sets data-invalid and renders the role="alert" message. */}
-      <Field label="Accept the terms to continue" orientation="horizontal" error="This field is required.">
+      <Field
+        label="Accept the terms to continue"
+        orientation="horizontal"
+        error="This field is required."
+      >
         <Checkbox />
       </Field>
     </Wrapper>
@@ -84,8 +90,12 @@ export function checkboxInvalid(): ReactNode {
 }
 
 export function checkboxSizeStateMatrix(): ReactNode {
-  const [mixedSm, setMixedSm] = useState<boolean | 'indeterminate'>('indeterminate');
-  const [mixedDefault, setMixedDefault] = useState<boolean | 'indeterminate'>('indeterminate');
+  const [mixedSm, setMixedSm] = useState<boolean | "indeterminate">(
+    "indeterminate",
+  );
+  const [mixedDefault, setMixedDefault] = useState<boolean | "indeterminate">(
+    "indeterminate",
+  );
 
   return (
     <Wrapper>
@@ -104,7 +114,7 @@ export function checkboxSizeStateMatrix(): ReactNode {
           <Checkbox size="sm" defaultChecked aria-label="Small checked" />
           <Checkbox
             size="sm"
-            indeterminate={mixedSm === 'indeterminate'}
+            indeterminate={mixedSm === "indeterminate"}
             checked={mixedSm === true}
             onCheckedChange={(next) => setMixedSm(next)}
             aria-label="Small indeterminate"
@@ -113,10 +123,14 @@ export function checkboxSizeStateMatrix(): ReactNode {
           {/* default row */}
           <span className="font-mono">default</span>
           <Checkbox size="default" aria-label="Default unchecked" />
-          <Checkbox size="default" defaultChecked aria-label="Default checked" />
           <Checkbox
             size="default"
-            indeterminate={mixedDefault === 'indeterminate'}
+            defaultChecked
+            aria-label="Default checked"
+          />
+          <Checkbox
+            size="default"
+            indeterminate={mixedDefault === "indeterminate"}
             checked={mixedDefault === true}
             onCheckedChange={(next) => setMixedDefault(next)}
             aria-label="Default indeterminate"

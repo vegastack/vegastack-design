@@ -30,7 +30,11 @@ export function attachmentFileChip(): ReactNode {
           <AttachmentDescription>248 KB</AttachmentDescription>
         </AttachmentContent>
         <AttachmentActions>
-          <IconButton aria-label="Remove release-notes.pdf" variant="ghost" size="xs">
+          <IconButton
+            aria-label="Remove release-notes.pdf"
+            variant="ghost"
+            size="xs"
+          >
             <X />
           </IconButton>
         </AttachmentActions>
@@ -61,7 +65,11 @@ export function attachmentImageThumbnail(): ReactNode {
           <AttachmentDescription>1920×1080 · 3.4 MB</AttachmentDescription>
         </AttachmentContent>
         <AttachmentActions>
-          <IconButton aria-label="Remove cover-photo.png" variant="ghost" size="xs">
+          <IconButton
+            aria-label="Remove cover-photo.png"
+            variant="ghost"
+            size="xs"
+          >
             <X />
           </IconButton>
         </AttachmentActions>
@@ -136,7 +144,12 @@ interface ComposeAttachment {
 
 const initialComposeAttachments: ComposeAttachment[] = [
   { id: "1", name: "release-notes.pdf", meta: "248 KB", icon: <FileText /> },
-  { id: "2", name: "quarterly-report.xlsx", meta: "1.1 MB", icon: <FileSpreadsheet /> },
+  {
+    id: "2",
+    name: "quarterly-report.xlsx",
+    meta: "1.1 MB",
+    icon: <FileSpreadsheet />,
+  },
   { id: "3", name: "roadmap.docx", meta: "84 KB", icon: <File /> },
 ];
 

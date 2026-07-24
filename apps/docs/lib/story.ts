@@ -1,4 +1,4 @@
-import { defineStoryFactory } from '@fumadocs/story/next/client';
+import { defineStoryFactory } from "@fumadocs/story/next/client";
 
 /**
  * Fumadocs Story factory — `defineStory` powers the auto-generated "Explorer" panels on

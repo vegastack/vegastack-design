@@ -1,12 +1,12 @@
-// @vegastack field@0.2.0 sha256-DvZxsqErSwUNsUzXOpSB4KpZhF50h+bf6fuJhdMYqcI=
+// @vegastack field@0.2.0 sha256-zJMpRKZjGtAFcg2YcVBl2laA5l82c7upuq2THyIYyGY=
 
-'use client';
+"use client";
 
-import * as React from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
-import { Field as BaseField } from '@base-ui/react/field';
-import { cn } from '@vegastack/design';
-import { Input } from '@/components/ui/input';
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { Field as BaseField } from "@base-ui/react/field";
+import { cn } from "@vegastack/design";
+import { Input } from "@/components/ui/input";
 
 /**
  * Field layout variants. `orientation` controls how the label sits relative to
@@ -14,17 +14,17 @@ import { Input } from '@/components/ui/input';
  * `horizontal` places the control before an inline label (checkboxes, switches).
  * Every value is a semantic token (no hardcoded spacing colors).
  */
-export const fieldVariants = cva('group/field flex w-full text-foreground', {
+export const fieldVariants = cva("group/field flex w-full text-foreground", {
   variants: {
     orientation: {
-      vertical: 'flex-col gap-2',
-      horizontal: 'flex-row flex-wrap items-center gap-2',
+      vertical: "flex-col gap-2",
+      horizontal: "flex-row flex-wrap items-center gap-2",
       /** Vertical by default, horizontal from the `@md` width of the wrapping FieldGroup container. */
       responsive:
-        'flex-col gap-2 @md/field-group:flex-row @md/field-group:flex-wrap @md/field-group:items-center',
+        "flex-col gap-2 @md/field-group:flex-row @md/field-group:flex-wrap @md/field-group:items-center",
     },
   },
-  defaultVariants: { orientation: 'vertical' },
+  defaultVariants: { orientation: "vertical" },
 });
 
 /* ------------------------------------------------------------------------------------------------
@@ -33,6 +33,7 @@ export const fieldVariants = cva('group/field flex w-full text-foreground', {
  * `aria-invalid` across Root → Label → Control → Description → Error.
  * ----------------------------------------------------------------------------------------------*/
 
+/** Props accepted by `FieldRoot`. */
 export type FieldRootProps = React.ComponentProps<typeof BaseField.Root> &
   VariantProps<typeof fieldVariants>;
 
@@ -40,8 +41,16 @@ export type FieldRootProps = React.ComponentProps<typeof BaseField.Root> &
  * `FieldRoot` — groups all parts of a field and wires accessibility between
  * them. Renders a `<div>`. Use the prop-driven {@link Field} for the common case;
  * reach for the primitives when you need full control over composition.
+ *
+ * @example
+ * <FieldRoot><FieldLabel>Email</FieldLabel><FieldControl /></FieldRoot>
  */
-export function FieldRoot({ className, orientation = 'vertical', ref, ...props }: FieldRootProps) {
+export function FieldRoot({
+  className,
+  orientation = "vertical",
+  ref,
+  ...props
+}: FieldRootProps) {
   return (
     <BaseField.Root
       ref={ref}
@@ -53,12 +62,16 @@ export function FieldRoot({ className, orientation = 'vertical', ref, ...props }
   );
 }
 
+/** Props accepted by `FieldLabel`. */
 export type FieldLabelProps = React.ComponentProps<typeof BaseField.Label>;
 
 /**
  * `FieldLabel` — accessible label, auto-associated with the field control.
  * Renders a `<label>`. Uses the `text-label-sm` token (12/500) in `foreground`,
  * non-selectable; dims when the field group is disabled.
+ *
+ * @example
+ * <FieldLabel>Email</FieldLabel>
  */
 export function FieldLabel({ className, ref, ...props }: FieldLabelProps) {
   return (
@@ -66,8 +79,8 @@ export function FieldLabel({ className, ref, ...props }: FieldLabelProps) {
       ref={ref}
       data-slot="field-label"
       className={cn(
-        'flex items-center gap-2 text-label-sm text-foreground select-none',
-        'group-has-disabled/field:opacity-(--opacity-dim)',
+        "flex items-center gap-2 text-label-sm text-foreground select-none",
+        "group-has-disabled/field:opacity-(--opacity-dim)",
         className,
       )}
       {...props}
@@ -75,6 +88,7 @@ export function FieldLabel({ className, ref, ...props }: FieldLabelProps) {
   );
 }
 
+/** Props accepted by `FieldControl`. */
 export type FieldControlProps = React.ComponentProps<typeof BaseField.Control>;
 
 /**
@@ -83,27 +97,44 @@ export type FieldControlProps = React.ComponentProps<typeof BaseField.Control>;
  * Base UI field context, so `id` / `aria-describedby` / `aria-invalid` are wired
  * automatically. Pass `render` to swap in another control, or skip `FieldControl`
  * and drop a sibling control (`<Input>`, `<Checkbox>`, `<Select>`, …) into the field.
+ *
+ * @example
+ * <FieldControl type="email" autoComplete="email" />
  */
 export function FieldControl({ ref, ...props }: FieldControlProps) {
   return (
-    <BaseField.Control ref={ref} render={<Input data-slot="field-control" />} {...props} />
+    <BaseField.Control
+      ref={ref}
+      render={<Input data-slot="field-control" />}
+      {...props}
+    />
   );
 }
 
-export type FieldDescriptionProps = React.ComponentProps<typeof BaseField.Description>;
+/** Props accepted by `FieldDescription`. */
+export type FieldDescriptionProps = React.ComponentProps<
+  typeof BaseField.Description
+>;
 
 /**
  * `FieldDescription` — supporting helper text. Renders a `<p>`, linked to the
- * control via `aria-describedby`. Links inside underline and tint on hover.
+ * control via `aria-describedby`. Links use the information color and underline.
+ *
+ * @example
+ * <FieldDescription>Use your work address.</FieldDescription>
  */
-export function FieldDescription({ className, ref, ...props }: FieldDescriptionProps) {
+export function FieldDescription({
+  className,
+  ref,
+  ...props
+}: FieldDescriptionProps) {
   return (
     <BaseField.Description
       ref={ref}
       data-slot="field-description"
       className={cn(
-        'text-sm leading-normal text-muted-foreground',
-        '[&_a]:underline [&_a]:underline-offset-4 [&_a:hover]:text-info-text',
+        "text-sm leading-normal text-muted-foreground",
+        "[&_a]:text-info-text [&_a]:underline [&_a]:underline-offset-4",
         className,
       )}
       {...props}
@@ -111,24 +142,18 @@ export function FieldDescription({ className, ref, ...props }: FieldDescriptionP
   );
 }
 
+/** Props accepted by `FieldError`. */
 export type FieldErrorProps = React.ComponentProps<typeof BaseField.Error>;
 
 /**
  * `FieldError` — validation error message. Renders a `<div role="alert">` only
  * when the control is invalid (or `match` says so). Tinted destructive.
  *
- * Base UI mounts this element fresh each time the field transitions into invalid (it isn't
- * rendered at all while valid), so `motion-enter-up` — the same mount-triggered slide+fade used
- * for chat-message/skeleton-reveal arrivals — replays for free on every new error, no JS needed.
+ * The message itself stays still, including when the page first renders invalid.
+ * Interactive controls may provide their own transition-triggered invalid cue.
  *
- * This is deliberately the ONLY auto-motion `Field` adds for the invalid transition. The control
- * itself (`Input`, `Checkbox`, `RadioGroupItem`, `OTPInput` — all self-register with Base UI's
- * Field context, so they receive `aria-invalid`/`data-invalid` directly from `Field` without any
- * extra wiring here) already shakes itself via `useShakeOnInvalid`. Having `Field` ALSO shake a
- * wrapper around the control would double up: the row would shake AND the control inside it would
- * shake again, stacking into an amplified, un-subtle motion for the common `<Field><Input /></Field>`
- * composition. So the message sliding in + the control shaking — the classic combo — is produced by
- * two independent, already-correct mechanisms rather than one delegating to the other.
+ * @example
+ * <FieldError match>Email is required.</FieldError>
  */
 export function FieldError({ className, ref, ...props }: FieldErrorProps) {
   return (
@@ -137,87 +162,118 @@ export function FieldError({ className, ref, ...props }: FieldErrorProps) {
       // Base UI's Field.Error has no role; announce the message to assistive tech.
       role="alert"
       data-slot="field-error"
-      className={cn('motion-enter-up text-sm leading-normal text-destructive-text', className)}
+      className={cn("text-sm leading-normal text-destructive-text", className)}
       {...props}
     />
   );
 }
 
-export type FieldSuccessProps = React.ComponentProps<'p'>;
+/** Props accepted by `FieldSuccess`. */
+export type FieldSuccessProps = React.ComponentProps<"p">;
 
 /**
  * `FieldSuccess` — positive confirmation message (Base UI Field has no success
- * part, so this is a plain token-styled `<p>`). Tinted success.
+ * part, so this is a plain token-styled `<p>`). Tinted success and announced as
+ * a polite, atomic status update.
+ *
+ * @example
+ * <FieldSuccess>Address verified.</FieldSuccess>
  */
 export function FieldSuccess({ className, ref, ...props }: FieldSuccessProps) {
   return (
     <p
       ref={ref}
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
       data-slot="field-success"
-      className={cn('text-sm leading-normal text-success-text', className)}
+      className={cn("text-sm leading-normal text-success-text", className)}
       {...props}
     />
   );
 }
 
-
-export type FieldGroupProps = React.ComponentProps<'div'>;
+/** Props accepted by `FieldGroup`. */
+export type FieldGroupProps = React.ComponentProps<"div">;
 
 /**
  * `FieldGroup` — stacks a set of fields with consistent rhythm and provides the
  * `@container` that `orientation="responsive"` fields respond to (shadcn Field
  * anatomy).
+ *
+ * @example
+ * <FieldGroup><Field label="Name"><Input /></Field></FieldGroup>
  */
 export function FieldGroup({ className, ...props }: FieldGroupProps) {
   return (
     <div
       data-slot="field-group"
-      className={cn('@container/field-group flex w-full flex-col gap-6', className)}
+      className={cn(
+        "@container/field-group flex w-full flex-col gap-6",
+        className,
+      )}
       {...props}
     />
   );
 }
 
-export type FieldSetProps = React.ComponentProps<'fieldset'>;
+/** Props accepted by `FieldSet`. */
+export type FieldSetProps = React.ComponentProps<"fieldset">;
 
 /**
  * `FieldSet` — a semantic `<fieldset>` grouping related fields under a
  * {@link FieldLegend}; dims as a unit when disabled.
+ *
+ * @example
+ * <FieldSet><FieldLegend>Contact details</FieldLegend>{fields}</FieldSet>
  */
 export function FieldSet({ className, ...props }: FieldSetProps) {
   return (
     <fieldset
       data-slot="field-set"
-      className={cn('flex flex-col gap-4 disabled:opacity-(--opacity-dim)', className)}
+      className={cn(
+        "flex flex-col gap-4 disabled:opacity-(--opacity-dim)",
+        className,
+      )}
       {...props}
     />
   );
 }
 
-export type FieldLegendProps = React.ComponentProps<'legend'>;
+/** Props accepted by `FieldLegend`. */
+export type FieldLegendProps = React.ComponentProps<"legend">;
 
-/** `FieldLegend` — the `<legend>` for a {@link FieldSet}, set in the label style. */
+/**
+ * `FieldLegend` — the `<legend>` for a {@link FieldSet}, set in the label style.
+ *
+ * @example
+ * <FieldLegend>Contact details</FieldLegend>
+ */
 export function FieldLegend({ className, ...props }: FieldLegendProps) {
   return (
     <legend
       data-slot="field-legend"
-      className={cn('mb-1.5 text-label text-foreground', className)}
+      className={cn("mb-1.5 text-label text-foreground", className)}
       {...props}
     />
   );
 }
 
-export type FieldContentProps = React.ComponentProps<'div'>;
+/** Props accepted by `FieldContent`. */
+export type FieldContentProps = React.ComponentProps<"div">;
 
 /**
  * `FieldContent` — groups a label + description column beside a control in
  * horizontal/responsive fields (shadcn Field anatomy).
+ *
+ * @example
+ * <FieldContent><FieldLabel>Email</FieldLabel><FieldDescription>Work address</FieldDescription></FieldContent>
  */
 export function FieldContent({ className, ...props }: FieldContentProps) {
   return (
     <div
       data-slot="field-content"
-      className={cn('flex flex-1 flex-col gap-1', className)}
+      className={cn("flex min-w-0 flex-1 flex-col gap-1", className)}
       {...props}
     />
   );
@@ -228,31 +284,42 @@ export function FieldContent({ className, ...props }: FieldContentProps) {
  * `label` / `description` / `error` / `success` props around a single control.
  * ----------------------------------------------------------------------------------------------*/
 
+/** Props accepted by `Field`. */
 export interface FieldProps extends FieldRootProps {
   /**
    * The field label, rendered above (vertical) or beside (horizontal) the
    * control and auto-associated with it for accessibility.
+
+   * @default undefined
    */
   label?: React.ReactNode;
   /**
    * Inline action rendered on the same row as the label, end-aligned — e.g. a
    * "Forgot password?" link. Vertical orientation only.
+
+   * @default undefined
    */
   labelAction?: React.ReactNode;
   /**
    * Helper text rendered under the label. Linked to the control via
    * `aria-describedby`.
+
+   * @default undefined
    */
   description?: React.ReactNode;
   /**
    * Error message. When set (and `invalid` is not explicitly `false`), the field
    * is treated as invalid: the message shows in destructive color and the
    * control receives `aria-invalid`.
+
+   * @default undefined
    */
   error?: React.ReactNode;
   /**
    * Positive confirmation message, rendered in success color below the control.
    * Ignored while `error` is present.
+
+   * @default undefined
    */
   success?: React.ReactNode;
   /**
@@ -266,14 +333,15 @@ export interface FieldProps extends FieldRootProps {
 }
 
 /** Child-control styling hooks, keyed by the control's own `data-slot`. */
-const CONTROL_SLOTS = '[&_[data-slot=field-control]]:text-base [&_[data-slot=input]]:text-base';
+const CONTROL_SLOTS =
+  "[&_[data-slot=field-control]]:text-base [&_[data-slot=input]]:text-base";
 
 /** Borderless overrides — flatten inputs/textareas/select-triggers for inline edit. */
 const BORDERLESS =
-  '[&_[data-slot=field-control]]:border-none [&_[data-slot=field-control]]:bg-transparent [&_[data-slot=field-control]]:px-0 [&_[data-slot=field-control]]:shadow-none ' +
-  '[&_[data-slot=input]]:border-none [&_[data-slot=input]]:bg-transparent [&_[data-slot=input]]:px-0 [&_[data-slot=input]]:shadow-none ' +
-  '[&_[data-slot=textarea]]:border-none [&_[data-slot=textarea]]:bg-transparent [&_[data-slot=textarea]]:px-0 [&_[data-slot=textarea]]:shadow-none ' +
-  '[&_[data-slot=select-trigger]]:border-none [&_[data-slot=select-trigger]]:bg-transparent [&_[data-slot=select-trigger]]:px-0 [&_[data-slot=select-trigger]]:shadow-none';
+  "[&_[data-slot=field-control]]:border-transparent [&_[data-slot=field-control]]:bg-transparent [&_[data-slot=field-control]]:px-0 [&_[data-slot=field-control]]:shadow-none " +
+  "[&_[data-slot=input]]:border-transparent [&_[data-slot=input]]:bg-transparent [&_[data-slot=input]]:px-0 [&_[data-slot=input]]:shadow-none " +
+  "[&_[data-slot=textarea]]:border-transparent [&_[data-slot=textarea]]:bg-transparent [&_[data-slot=textarea]]:px-0 [&_[data-slot=textarea]]:shadow-none " +
+  "[&_[data-slot=select-trigger]]:border-transparent [&_[data-slot=select-trigger]]:bg-transparent [&_[data-slot=select-trigger]]:px-0 [&_[data-slot=select-trigger]]:shadow-none";
 
 /**
  * `Field` — the ergonomic, prop-driven form-field wrapper. Composes a Base UI
@@ -304,7 +372,7 @@ const BORDERLESS =
  */
 export function Field({
   className,
-  orientation = 'vertical',
+  orientation = "vertical",
   label,
   labelAction,
   description,
@@ -315,8 +383,8 @@ export function Field({
   children,
   ...props
 }: FieldProps) {
-  const isHorizontal = orientation === 'horizontal';
-  const isResponsive = orientation === 'responsive';
+  const isHorizontal = orientation === "horizontal";
+  const isResponsive = orientation === "responsive";
   const isInvalid = invalid ?? Boolean(error);
   const hasHeader = label != null || labelAction != null;
 
@@ -333,18 +401,24 @@ export function Field({
               control from the wrapping FieldGroup's @md width, stacked below it. */}
           <FieldContent>
             {label != null ? <FieldLabel>{label}</FieldLabel> : null}
-            {description != null ? <FieldDescription>{description}</FieldDescription> : null}
+            {description != null ? (
+              <FieldDescription>{description}</FieldDescription>
+            ) : null}
           </FieldContent>
           {children}
         </>
       ) : isHorizontal ? (
         <>
           {children}
-          {label != null ? <FieldLabel className="cursor-pointer">{label}</FieldLabel> : null}
+          {label != null ? (
+            <FieldLabel className="cursor-pointer">{label}</FieldLabel>
+          ) : null}
           {/* Description wraps to its own full-width line under the control+label row,
               mirroring FieldError's horizontal treatment (register P0-05). */}
           {description != null ? (
-            <FieldDescription className="basis-full">{description}</FieldDescription>
+            <FieldDescription className="basis-full">
+              {description}
+            </FieldDescription>
           ) : null}
         </>
       ) : (
@@ -358,23 +432,30 @@ export function Field({
               {labelAction != null ? (
                 <span
                   data-slot="field-label-action"
-                  className="text-label-sm text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a:hover]:text-info-text"
+                  className="text-label-sm text-muted-foreground [&_a]:text-info-text [&_a]:underline [&_a]:underline-offset-4"
                 >
                   {labelAction}
                 </span>
               ) : null}
             </div>
           ) : null}
-          {description != null ? <FieldDescription>{description}</FieldDescription> : null}
+          {description != null ? (
+            <FieldDescription>{description}</FieldDescription>
+          ) : null}
           {children}
         </>
       )}
       {error != null ? (
-        <FieldError match={isInvalid} className={cn(isHorizontal && 'basis-full')}>
+        <FieldError
+          match={isInvalid}
+          className={cn(isHorizontal && "basis-full")}
+        >
           {error}
         </FieldError>
       ) : success != null ? (
-        <FieldSuccess className={cn(isHorizontal && 'basis-full')}>{success}</FieldSuccess>
+        <FieldSuccess className={cn(isHorizontal && "basis-full")}>
+          {success}
+        </FieldSuccess>
       ) : null}
     </FieldRoot>
   );

@@ -1,5 +1,5 @@
-import { defineStory } from '@/lib/story';
-import { ProgressIndicator } from './progress-indicator.client';
+import { defineStory } from "@/lib/story";
+import { ProgressIndicator } from "./progress-indicator.client";
 
 /**
  * Story explorer for `ProgressIndicator` — controls auto-generated from
@@ -9,19 +9,19 @@ export const story = defineStory({
   Component: ProgressIndicator,
   args: [
     {
-      variant: 'Default',
+      variant: "Default",
       initial: {
         value: 60,
       },
     },
     {
-      variant: 'Squircle',
+      variant: "Squircle",
       initial: {
         value: 60,
-        size: 'lg',
+        size: "lg",
       },
       fixed: {
-        shape: 'squircle',
+        shape: "squircle",
       },
     },
   ],

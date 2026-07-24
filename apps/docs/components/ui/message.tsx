@@ -1,4 +1,4 @@
-// @vegastack message@0.2.0 sha256-EisuSJVzRaJJDkN+9jh4QHLI+xYBGJLt1REDxkoRNKY=
+// @vegastack message@0.2.0 sha256-vi0FnVCoJv3MwSNsqiFeXdbRiIIyCNi3b2fGR6+7EvU=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -11,11 +11,13 @@ import { cn } from "@vegastack/design";
  * semantic token / layout utility — no hardcoded colours or sizes.
  * ----------------------------------------------------------------------------------------------*/
 
-export type MessageGroupProps = React.ComponentProps<"div">;
+/** Props accepted by `MessageGroup`. */
+export type MessageGroupProps = React.ComponentPropsWithRef<"div">;
 
 /**
  * `MessageGroup` — wraps consecutive messages from the same sender so they stack
  * with consistent spacing.
+ * @example <MessageGroup><Message /><Message /></MessageGroup>
  */
 export function MessageGroup({ className, ref, ...props }: MessageGroupProps) {
   return (
@@ -28,7 +30,8 @@ export function MessageGroup({ className, ref, ...props }: MessageGroupProps) {
   );
 }
 
-export interface MessageProps extends React.ComponentProps<"div"> {
+/** Props accepted by `Message`. */
+export interface MessageProps extends React.ComponentPropsWithRef<"div"> {
   /**
    * Which side the message sits on.
    * - `start`: received message — avatar/content read left-to-right (default).
@@ -85,13 +88,19 @@ export function Message({
   );
 }
 
-export type MessageAvatarProps = React.ComponentProps<"div">;
+/** Props accepted by `MessageAvatar`. */
+export type MessageAvatarProps = React.ComponentPropsWithRef<"div">;
 
 /**
  * `MessageAvatar` — anchors an `Avatar` to the bottom of the message row. When
  * the row has a footer, the avatar lifts to stay aligned with the bubble.
+ * @example <MessageAvatar><Avatar fallback="AL" /></MessageAvatar>
  */
-export function MessageAvatar({ className, ref, ...props }: MessageAvatarProps) {
+export function MessageAvatar({
+  className,
+  ref,
+  ...props
+}: MessageAvatarProps) {
   return (
     <div
       ref={ref}
@@ -105,13 +114,19 @@ export function MessageAvatar({ className, ref, ...props }: MessageAvatarProps) 
   );
 }
 
-export type MessageContentProps = React.ComponentProps<"div">;
+/** Props accepted by `MessageContent`. */
+export type MessageContentProps = React.ComponentPropsWithRef<"div">;
 
 /**
  * `MessageContent` — the vertical content column of a message (bubble(s), header,
  * footer). On an `end`-aligned row its direct slots align to the end edge.
+ * @example <MessageContent><Bubble /></MessageContent>
  */
-export function MessageContent({ className, ref, ...props }: MessageContentProps) {
+export function MessageContent({
+  className,
+  ref,
+  ...props
+}: MessageContentProps) {
   return (
     <div
       ref={ref}
@@ -125,13 +140,19 @@ export function MessageContent({ className, ref, ...props }: MessageContentProps
   );
 }
 
-export type MessageHeaderProps = React.ComponentProps<"div">;
+/** Props accepted by `MessageHeader`. */
+export type MessageHeaderProps = React.ComponentPropsWithRef<"div">;
 
 /**
  * `MessageHeader` — a small, muted line above the bubble for a name or
  * timestamp. Drops its inline padding when the bubble uses the `ghost` variant.
+ * @example <MessageHeader>Ada · 09:42</MessageHeader>
  */
-export function MessageHeader({ className, ref, ...props }: MessageHeaderProps) {
+export function MessageHeader({
+  className,
+  ref,
+  ...props
+}: MessageHeaderProps) {
   return (
     <div
       ref={ref}
@@ -145,13 +166,19 @@ export function MessageHeader({ className, ref, ...props }: MessageHeaderProps) 
   );
 }
 
-export type MessageFooterProps = React.ComponentProps<"div">;
+/** Props accepted by `MessageFooter`. */
+export type MessageFooterProps = React.ComponentPropsWithRef<"div">;
 
 /**
  * `MessageFooter` — a small, muted line below the bubble for status or actions.
  * Aligns to the end edge on `end`-aligned rows.
+ * @example <MessageFooter>Delivered</MessageFooter>
  */
-export function MessageFooter({ className, ref, ...props }: MessageFooterProps) {
+export function MessageFooter({
+  className,
+  ref,
+  ...props
+}: MessageFooterProps) {
   return (
     <div
       ref={ref}

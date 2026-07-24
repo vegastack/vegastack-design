@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "retrievedAt": "2026-07-22T09:53:33Z",
+  "hashAlgorithm": "sha256",
+  "sources": [
+    {
+      "id": "vercel-design-md",
+      "title": "Vercel Geist design.md",
+      "upstreamUrl": "https://vercel.com/design.md",
+      "immutableUrl": null,
+      "upstreamRevision": null,
+      "retrieval": {
+        "method": "HTTPS GET with redirects",
+        "note": "The upstream endpoint is mutable. Immutability is supplied by the exact local snapshot hash; the pre-existing Vercel_DESIGN.md was byte-identical to the 2026-07-22 retrieval."
+      },
+      "snapshot": {
+        "path": "docs/research/design-md-references/Vercel_DESIGN.md",
+        "bytes": 17824,
+        "sha256": "17bec17b9a38461bbfb7181390e72ef0b5adc20bc4f9d9701f83deb03fbeade4"
+      },
+      "license": {
+        "spdx": null,
+        "name": "No standalone license identified in the retrieved document",
+        "copyright": "Vercel",
+        "evidence": {
+          "path": "docs/research/design-md-audit/sources/RIGHTS.vercel-design.txt",
+          "bytes": 404,
+          "sha256": "9662e7f37e314524def1440a638c2ce0f969d9f8f209686e0f62f0819e6293ae"
+        }
+      }
+    },
+    {
+      "id": "cloudflare-kumo-design",
+      "title": "Cloudflare Kumo design skill",
+      "upstreamUrl": "https://raw.githubusercontent.com/cloudflare/kumo/refs/heads/main/skills/kumo-design/SKILL.md",
+      "immutableUrl": "https://raw.githubusercontent.com/cloudflare/kumo/96908f58520aaaaef610213bc02c5e133c462f75/skills/kumo-design/SKILL.md",
+      "upstreamRevision": "96908f58520aaaaef610213bc02c5e133c462f75",
+      "retrieval": {
+        "method": "git ls-remote followed by HTTPS GET of the commit-pinned raw URL"
+      },
+      "snapshot": {
+        "path": "docs/research/design-md-audit/sources/kumo-design.SKILL.md",
+        "bytes": 6373,
+        "sha256": "4e83aa2e17bcf4ee0811f83ef4de93e25f43504f69ed44364aa55a88d0cfd7b7"
+      },
+      "license": {
+        "spdx": "MIT",
+        "name": "MIT License",
+        "copyright": "Copyright (c) 2026 Cloudflare, Inc.",
+        "upstreamUrl": "https://raw.githubusercontent.com/cloudflare/kumo/96908f58520aaaaef610213bc02c5e133c462f75/LICENSE",
+        "evidence": {
+          "path": "docs/research/design-md-audit/sources/LICENSE.kumo.txt",
+          "bytes": 1103,
+          "sha256": "df3e141c129d1804bea95fe087b157b156241b3bb1a4664808630aa85f2cd8fc"
+        }
+      }
+    },
+    {
+      "id": "vercel-web-interface-guidelines",
+      "title": "Vercel Web Interface Guidelines",
+      "upstreamUrl": "https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md",
+      "immutableUrl": "https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/4e799d45c17aec1498c269287a83b9dba22b966b/command.md",
+      "upstreamRevision": "4e799d45c17aec1498c269287a83b9dba22b966b",
+      "retrieval": {
+        "method": "git ls-remote followed by HTTPS GET of the commit-pinned raw URL"
+      },
+      "snapshot": {
+        "path": "docs/research/design-md-audit/sources/vercel-web-interface-guidelines.command.md",
+        "bytes": 6939,
+        "sha256": "eea73cb6dd46fee9faec9973e8e7fe198b5f07ec326f14d276a56e50287e1cab"
+      },
+      "license": {
+        "spdx": "MIT",
+        "name": "MIT License",
+        "copyright": "Copyright (c) 2025 Vercel Labs",
+        "upstreamUrl": "https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/4e799d45c17aec1498c269287a83b9dba22b966b/LICENSE",
+        "evidence": {
+          "path": "docs/research/design-md-audit/sources/LICENSE.vercel-web-interface-guidelines.txt",
+          "bytes": 1068,
+          "sha256": "6cd1609c9c12233507cdd2ce0d32e9a721e3c27494951be06b90090deeeb7af2"
+        }
+      }
+    }
+  ]
+}

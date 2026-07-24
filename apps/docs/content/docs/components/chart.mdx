@@ -1,6 +1,7 @@
 ---
 title: Chart
 description: A themed Recharts wrapper — token-only series colors, a bordered tooltip/legend, and Recharts' own built-in keyboard + screen-reader layer.
+audience: public
 preview: chartDemoLine
 ---
 
@@ -41,7 +42,12 @@ const data = [
     <CartesianGrid vertical={false} stroke="var(--border)" />
     <XAxis dataKey="month" tickLine={false} axisLine={false} />
     <ChartTooltip content={<ChartTooltipContent />} />
-    <Line dataKey="desktop" stroke="var(--color-desktop)" strokeWidth={2} dot={false} />
+    <Line
+      dataKey="desktop"
+      stroke="var(--color-desktop)"
+      strokeWidth={2}
+      dot={false}
+    />
   </LineChart>
 </ChartContainer>;
 ```
@@ -104,7 +110,7 @@ plain CSS var scoped by ordinary DOM ancestry (not a global id-keyed selector), 
 
 ### Styling Recharts primitives directly
 
-`ChartContainer` themes only what a generic sizing wrapper safely can for *every* chart shape: axis
+`ChartContainer` themes only what a generic sizing wrapper safely can for _every_ chart shape: axis
 tick label color, plus a few outline resets on Recharts' SVG layers. Grid-line, hover-cursor, and
 point-dot colors are Recharts **SVG presentation attributes** baked into the library (`CartesianGrid`
 defaults to `stroke="#ccc"`, a `Line`'s dot defaults to `stroke="#fff"`, the `BarChart` hover cursor
@@ -123,27 +129,32 @@ literals this repo's design-lint bans outright, and it silently stops matching t
 Recharts version changes its internal default (verified against the installed `recharts@3.9.2` source
 while building this component).
 
-## Area chart
+## Examples
+
+### Area chart
 
 <ComponentPreview name="chartDemoArea" file="components/preview/chart.tsx" />
 
-## Bar chart
+### Bar chart
 
 <ComponentPreview name="chartDemoBar" file="components/preview/chart.tsx" />
 
-## Line chart
+### Line chart
 
 <ComponentPreview name="chartDemoLine" file="components/preview/chart.tsx" />
 
-## Tooltip indicator variants
+### Tooltip indicator variants
 
 `ChartTooltipContent` takes an `indicator`: `'dot'` (default), `'line'`, or `'dashed'`. This demo pins
 each tooltip open at a fixed data point via Recharts' `defaultIndex` — a real, hover-free Recharts 3
 prop, not a hack — so it stays deterministic under VRT.
 
-<ComponentPreview name="chartDemoTooltipVariants" file="components/preview/chart.tsx" />
+<ComponentPreview
+  name="chartDemoTooltipVariants"
+  file="components/preview/chart.tsx"
+/>
 
-## Legend
+### Legend
 
 Pass a `config` entry's `icon` (any component, e.g. a `lucide-react` icon) to render it instead of the
 default color swatch, in both the legend and the tooltip.
@@ -154,25 +165,44 @@ default color swatch, in both the legend and the tooltip.
 
 ### ChartContainer
 
-<AutoTypeTable path="../../packages/ui/registry/ui/chart.tsx" name="ChartContainerProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/chart.tsx"
+  name="ChartContainerProps"
+/>
+
+### ChartGrid
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/chart.tsx"
+  name="ChartGridProps"
+/>
+
+Use `ChartGrid` instead of a raw `CartesianGrid`: it removes the vertical grid by default and applies
+the design-system stroke token without falling back to Recharts' hardcoded color.
 
 ### ChartTooltipContent
 
-<AutoTypeTable path="../../packages/ui/registry/ui/chart.tsx" name="ChartTooltipContentProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/chart.tsx"
+  name="ChartTooltipContentProps"
+/>
 
 ### ChartLegendContent
 
-<AutoTypeTable path="../../packages/ui/registry/ui/chart.tsx" name="ChartLegendContentProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/chart.tsx"
+  name="ChartLegendContentProps"
+/>
 
 ### ChartConfig
 
 `ChartConfig` is `Record<string, { label?, icon?, color? }>` (a mapped type, not a plain interface —
 not auto-tabled). Per entry:
 
-| Key     | Type                                            | Description                                                                 |
-| ------- | ------------------------------------------------ | ----------------------------------------------------------------------------- |
-| `label` | `React.ReactNode`                                 | Shown in the tooltip label row and the legend.                                |
-| `icon`  | `React.ComponentType`                             | Replaces the color swatch in both the tooltip and the legend when set.        |
+| Key     | Type                                                  | Description                                                                                                                                             |
+| ------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `label` | `React.ReactNode`                                     | Shown in the tooltip label row and the legend.                                                                                                          |
+| `icon`  | `React.ComponentType`                                 | Replaces the color swatch in both the tooltip and the legend when set.                                                                                  |
 | `color` | `ChartColorToken \| 'var(--' + ChartColorToken + ')'` | `'chart-1'` … `'chart-8'`, or the literal `var(--chart-N)` form. Omit for an entry that only supplies a `label`/`icon` for lookup (e.g. an axis field). |
 
 `ChartColorToken` is `'chart-1' | 'chart-2' | … | 'chart-8'`.
@@ -189,11 +219,11 @@ accessible surface is Recharts' own. As of `3.9.2`, `accessibilityLayer` already
 on every Cartesian/Polar chart — set it explicitly anyway, so it reads as intentional and survives a
 future Recharts version changing that default.
 
-| Key                          | Action                                                        |
-| ----------------------------- | ---------------------------------------------------------------- |
-| <kbd>Tab</kbd>                 | Move focus into the chart's `<svg>` (`role="application"`).       |
-| <kbd>←</kbd> / <kbd>→</kbd>    | Move the active data point (Recharts' built-in accessibility layer). |
-| <kbd>Esc</kbd>                 | Clear the active data point / close the tooltip.                  |
+| Key                         | Action                                                               |
+| --------------------------- | -------------------------------------------------------------------- |
+| <kbd>Tab</kbd>              | Move focus into the chart's `<svg>` (`role="application"`).          |
+| <kbd>←</kbd> / <kbd>→</kbd> | Move the active data point (Recharts' built-in accessibility layer). |
+| <kbd>Esc</kbd>              | Clear the active data point / close the tooltip.                     |
 
 ## Do / Don't
 

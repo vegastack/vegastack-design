@@ -13,10 +13,10 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P2 | Comment promises orientation is mirrored to `aria-orientation` at `radio-group.tsx:12`, but implementation sets only `data-orientation` at `radio-group.tsx:83`; test asserts only data attr at `radio-group.test.tsx:81`. | Docs/comments overstate a11y attributes. | Pass `aria-orientation` if needed or remove the claim. |
-| P2 | Same sibling-label/nativeButton caveat as Checkbox applies around `radio-group.tsx:124`. | Consumers may choose weaker labeling patterns. | Prefer Field/wrapping label docs or add nativeButton guidance. |
+| Priority | Evidence                                                                                                                                                                                                                   | Impact                                         | Suggested fix                                                  |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- | -------------------------------------------------------------- |
+| P2       | Comment promises orientation is mirrored to `aria-orientation` at `radio-group.tsx:12`, but implementation sets only `data-orientation` at `radio-group.tsx:83`; test asserts only data attr at `radio-group.test.tsx:81`. | Docs/comments overstate a11y attributes.       | Pass `aria-orientation` if needed or remove the claim.         |
+| P2       | Same sibling-label/nativeButton caveat as Checkbox applies around `radio-group.tsx:124`.                                                                                                                                   | Consumers may choose weaker labeling patterns. | Prefer Field/wrapping label docs or add nativeButton guidance. |
 
 ## Residual Risks
 
@@ -25,4 +25,3 @@ Implementation is otherwise Base UI-aligned.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- radio-group.test.tsx`
-

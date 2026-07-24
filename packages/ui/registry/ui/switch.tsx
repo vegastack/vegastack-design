@@ -1,4 +1,4 @@
-// @vegastack switch@0.2.0 sha256-aLKlhKuV45Pf6Z3I39s8MrHxsdpg/zCO0A/7YFyi7JI=
+// @vegastack switch@0.2.0 sha256-TWCmz0zeSM9q6i2McG3IDpItjGpH79loWvmY/95h8TQ=
 
 "use client";
 
@@ -14,19 +14,20 @@ import { cn } from "@vegastack/design";
  * neutral `bg-primary` ink when on, with a `:focus-visible` ring.
  */
 export const switchVariants = cva(
-  "group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent bg-clip-padding p-0.5 transition-colors duration-fast ease-standard " +
+  "group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent bg-clip-padding p-0.5  " +
     "bg-track data-checked:bg-primary " +
     "disabled:cursor-not-allowed disabled:opacity-(--opacity-dim) " +
-    "aria-invalid:border-destructive/(--alpha-tint-border)",
+    "aria-invalid:border-destructive-border/(--alpha-tint-border)",
   {
     variants: {
       size: {
         // `sm` (16×28) and `default` (20×36) are below the WCAG 2.5.8 24px minimum
         // in HEIGHT only — width already clears 24px at every size — so each adds a
         // vertical-only invisible hit-area expansion (`before:absolute` + the root's
-        // own `relative` above) that brings the effective height to exactly 24px
-        // without changing the visible track: `sm` (16 + 2×4 = 24px), `default`
-        // (20 + 2×2 = 24px). `before:inset-x-0` (left:0/right:0, NOT negative) is
+        // own `relative` above) without changing the visible track.
+        // Their 1px transparent border makes the pseudo-element containing box 2px
+        // smaller than the visible track, so the effective insets are 6px / 4px,
+        // yielding 26px in both cases. `before:inset-x-0` (left:0/right:0, NOT negative) is
         // required alongside `before:-inset-y-*` — an absolutely positioned
         // pseudo-element with only top/bottom set and left/right left `auto`
         // shrink-to-fit to 0 width (no content to size against), which would
@@ -34,8 +35,8 @@ export const switchVariants = cva(
         // left/right to the track's own edges keeps the width unchanged while only
         // top/bottom grow. `lg` (24×44) already meets the minimum, so it's left
         // unchanged.
-        sm: "h-4 w-7 before:absolute before:inset-x-0 before:-inset-y-1",
-        default: "h-5 w-9 before:absolute before:inset-x-0 before:-inset-y-0.5",
+        sm: "h-4 w-7 before:absolute before:inset-x-0 before:-inset-y-1.5",
+        default: "h-5 w-9 before:absolute before:inset-x-0 before:-inset-y-1",
         lg: "h-6 w-11",
       },
     },
@@ -56,15 +57,17 @@ export const switchThumbVariants = cva(
   {
     variants: {
       size: {
-        sm: "size-2.5 data-checked:translate-x-3",
-        default: "size-3.5 data-checked:translate-x-4",
-        lg: "size-4.5 data-checked:translate-x-5",
+        sm: "size-2.5 data-checked:translate-x-3 rtl:data-checked:-translate-x-3",
+        default:
+          "size-3.5 data-checked:translate-x-4 rtl:data-checked:-translate-x-4",
+        lg: "size-4.5 data-checked:translate-x-5 rtl:data-checked:-translate-x-5",
       },
     },
     defaultVariants: { size: "default" },
   },
 );
 
+/** Props accepted by `Switch`. */
 export interface SwitchProps
   extends
     React.ComponentProps<typeof BaseSwitch.Root>,
@@ -80,6 +83,8 @@ export interface SwitchProps
    * wrapper's `className`, `data-slot`, and state `data-*` onto your element,
    * forwards the ref, and keeps the `<Switch.Thumb>` child. The element must
    * support `role="switch"` semantics.
+
+   * @default undefined
    */
   render?: React.ComponentProps<typeof BaseSwitch.Root>["render"];
 }
@@ -106,19 +111,24 @@ export interface SwitchProps
  * // Controlled
  * <Switch checked={enabled} onCheckedChange={setEnabled} aria-label="Enabled" />
  */
-export function Switch({ className, size = "default", ref, ...props }: SwitchProps) {
+export function Switch({
+  className,
+  size = "default",
+  ref,
+  ...props
+}: SwitchProps) {
   return (
-  <BaseSwitch.Root
-    ref={ref}
-    data-slot="switch"
-    data-size={size}
-    className={cn(switchVariants({ size }), className)}
-    {...props}
-  >
-    <BaseSwitch.Thumb
-      data-slot="switch-thumb"
-      className={cn(switchThumbVariants({ size }))}
-    />
-  </BaseSwitch.Root>
+    <BaseSwitch.Root
+      ref={ref}
+      data-slot="switch"
+      data-size={size}
+      className={cn(switchVariants({ size }), className)}
+      {...props}
+    >
+      <BaseSwitch.Thumb
+        data-slot="switch-thumb"
+        className={cn(switchThumbVariants({ size }))}
+      />
+    </BaseSwitch.Root>
   );
 }

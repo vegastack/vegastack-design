@@ -1,6 +1,7 @@
 ---
 title: Toast
 description: Brief, non-blocking notifications — a token-styled Sonner toaster with success, error, warning, and info variants that follows the active theme.
+audience: public
 preview: toastDemo
 ---
 
@@ -98,14 +99,15 @@ surface or status icon). `toast.custom((id) => …)` renders fully custom JSX fo
 branded or richly-structured toasts — call `toast.dismiss(id)` from inside to
 close it.
 
-<ComponentPreview name="sonnerMessageCustom" file="components/preview/sonner.tsx" />
+<ComponentPreview
+  name="sonnerMessageCustom"
+  file="components/preview/sonner.tsx"
+/>
 
 ```tsx
 toast.message("New comment", { description: "Jane replied to your thread." });
 
-toast.custom((id) => (
-  <CustomToast onDismiss={() => toast.dismiss(id)} />
-));
+toast.custom((id) => <CustomToast onDismiss={() => toast.dismiss(id)} />);
 ```
 
 ### Toaster options
@@ -118,14 +120,17 @@ default** (the close X on the toast's top-right — pass `closeButton={false}` t
 opt out). Per-toast overrides — including `position` — go on the `toast()` call
 itself, as in the demo below.
 
-<ComponentPreview name="sonnerToasterOptions" file="components/preview/sonner.tsx" />
+<ComponentPreview
+  name="sonnerToasterOptions"
+  file="components/preview/sonner.tsx"
+/>
 
 ```tsx
 // App root — the single Toaster mount sets the defaults…
-<Toaster expand position="bottom-right" />
+<Toaster expand position="bottom-right" />;
 
 // …and a specific toast can override per call:
-toast('Deployment queued', { position: 'top-center' });
+toast("Deployment queued", { position: "top-center" });
 ```
 
 ## API Reference

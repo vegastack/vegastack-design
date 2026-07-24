@@ -47,7 +47,13 @@ const SUGGESTIONS: Item[] = [
 ];
 const SETTINGS: Item[] = [
   { value: "profile", label: "Profile", icon: User, shortcut: "⌘P" },
-  { value: "billing", label: "Billing", icon: CreditCard, shortcut: "⌘B", disabled: true },
+  {
+    value: "billing",
+    label: "Billing",
+    icon: CreditCard,
+    shortcut: "⌘B",
+    disabled: true,
+  },
   { value: "settings", label: "Settings", icon: Settings, shortcut: "⌘S" },
 ];
 const COMMAND_GROUPS = [
@@ -73,7 +79,9 @@ function CommandGroups({ onSelect }: { onSelect?: (value: string) => void }) {
               >
                 <item.icon />
                 <span>{item.label}</span>
-                {item.shortcut ? <CommandShortcut>{item.shortcut}</CommandShortcut> : null}
+                {item.shortcut ? (
+                  <CommandShortcut>{item.shortcut}</CommandShortcut>
+                ) : null}
               </CommandItem>
             )}
           </CommandGroup>
@@ -86,7 +94,10 @@ function CommandGroups({ onSelect }: { onSelect?: (value: string) => void }) {
 export function command(): ReactNode {
   return (
     <Wrapper>
-      <Command items={COMMAND_GROUPS} className="w-full max-w-sm border border-border shadow-overlay">
+      <Command
+        items={COMMAND_GROUPS}
+        className="w-full max-w-sm border border-border shadow-overlay"
+      >
         <CommandInput placeholder="Type a command or search…" />
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandList>
@@ -105,27 +116,32 @@ export function commandStates(): ReactNode {
   return (
     <Wrapper className="flex-col gap-6 sm:flex-row sm:items-start">
       <div className="flex w-full max-w-sm flex-col gap-2">
-        <span className="text-label-sm text-muted-foreground">
-          Item states
-        </span>
-        <Command items={SETTINGS} className="w-full border border-border shadow-overlay">
+        <span className="text-label-sm text-muted-foreground">Item states</span>
+        <Command
+          items={SETTINGS}
+          className="w-full border border-border shadow-overlay"
+        >
           <CommandInput placeholder="Type a command or search…" />
           <CommandEmpty>No results found.</CommandEmpty>
           <CommandList>
             {(item: Item) => (
-              <CommandItem key={item.value} value={item.value} disabled={item.disabled}>
+              <CommandItem
+                key={item.value}
+                value={item.value}
+                disabled={item.disabled}
+              >
                 <item.icon />
                 <span>{item.label}</span>
-                {item.shortcut ? <CommandShortcut>{item.shortcut}</CommandShortcut> : null}
+                {item.shortcut ? (
+                  <CommandShortcut>{item.shortcut}</CommandShortcut>
+                ) : null}
               </CommandItem>
             )}
           </CommandList>
         </Command>
       </div>
       <div className="flex w-full max-w-sm flex-col gap-2">
-        <span className="text-label-sm text-muted-foreground">
-          Empty state
-        </span>
+        <span className="text-label-sm text-muted-foreground">Empty state</span>
         <Command
           items={emptyItems}
           defaultInputValue="no-such-command"
@@ -164,9 +180,25 @@ export function commandAsync(): ReactNode {
 }
 
 const ADVANCED_ITEMS: Item[] = [
-  { value: "dashboard", label: "Dashboard", icon: LayoutDashboard, keywords: ["home", "overview"] },
-  { value: "invoices", label: "Invoices", icon: CreditCard, shortcut: "⌘I", keywords: ["billing", "payments"] },
-  { value: "docs", label: "Docs", icon: FileText, keywords: ["files", "knowledge"] },
+  {
+    value: "dashboard",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    keywords: ["home", "overview"],
+  },
+  {
+    value: "invoices",
+    label: "Invoices",
+    icon: CreditCard,
+    shortcut: "⌘I",
+    keywords: ["billing", "payments"],
+  },
+  {
+    value: "docs",
+    label: "Docs",
+    icon: FileText,
+    keywords: ["files", "knowledge"],
+  },
 ];
 
 /**
@@ -184,7 +216,9 @@ export function commandAdvanced(): ReactNode {
         inputValue={search}
         onInputValueChange={setSearch}
         filter={(item: Item, query) => {
-          const haystack = [item.label, ...(item.keywords ?? [])].join(" ").toLowerCase();
+          const haystack = [item.label, ...(item.keywords ?? [])]
+            .join(" ")
+            .toLowerCase();
           return haystack.includes(query.toLowerCase());
         }}
         loop
@@ -196,7 +230,9 @@ export function commandAdvanced(): ReactNode {
             <CommandItem key={item.value} value={item.value}>
               <item.icon />
               <span>{item.label}</span>
-              {item.shortcut ? <CommandShortcut>{item.shortcut}</CommandShortcut> : null}
+              {item.shortcut ? (
+                <CommandShortcut>{item.shortcut}</CommandShortcut>
+              ) : null}
             </CommandItem>
           )}
         </CommandList>
@@ -209,8 +245,16 @@ function CommandAsyncDemo() {
   const [loaded, setLoaded] = React.useState(false);
   const items: Item[] = loaded
     ? [
-        { value: "quarterly-report", label: "Quarterly report", icon: FileText },
-        { value: "billing-dashboard", label: "Billing dashboard", icon: CreditCard },
+        {
+          value: "quarterly-report",
+          label: "Quarterly report",
+          icon: FileText,
+        },
+        {
+          value: "billing-dashboard",
+          label: "Billing dashboard",
+          icon: CreditCard,
+        },
         { value: "team-calendar", label: "Team calendar", icon: Calendar },
       ]
     : [];
@@ -226,7 +270,10 @@ function CommandAsyncDemo() {
         <RefreshCw />
         {loaded ? "Reset results" : "Load results"}
       </Button>
-      <Command items={items} className="w-full border border-border shadow-overlay">
+      <Command
+        items={items}
+        className="w-full border border-border shadow-overlay"
+      >
         <CommandInput placeholder="Search remote commands…" />
         <CommandLoading>
           {!loaded ? (

@@ -1,6 +1,7 @@
 ---
 title: Troubleshooting
 description: Exact error text → root cause → fix, for every failure mode hit while building the reference starter and running real consume tests.
+audience: public
 ---
 
 Errors below are **verbatim** from real runs. Find yours, apply the fix. If you
@@ -89,7 +90,7 @@ theme class pre-hydration.
 **Fix:** add the attribute (Quickstart §6). This suppresses only that one
 attribute's check, nothing else.
 
-### Dialog / dropdown renders *under* the page header
+### Dialog / dropdown renders _under_ the page header
 
 **Cause:** the `body { isolation: isolate }` stacking context from `base.css`
 isn't applied — usually a granular-import setup that skipped base.css, or a CSS
@@ -130,7 +131,7 @@ The component was renamed or retired upstream. Check the
 [Changelog](/docs/changelog) for the mapping; the copy in your repo keeps working
 regardless (you own it) — migrate when convenient. Caveat: this status only
 appears for files that still carry a provenance header (older CLIs / other
-tooling). A *headerless* copy of a retired component silently drops out of the
+tooling). A _headerless_ copy of a retired component silently drops out of the
 report — after a rename lands in the changelog, grep `components/ui/` for the old
 filename yourself.
 

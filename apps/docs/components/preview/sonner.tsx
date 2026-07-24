@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { CircleAlert } from 'lucide-react';
-import { Wrapper } from './wrapper';
-import { Button } from '@/components/ui/button';
+import type { ReactNode } from "react";
+import { CircleAlert } from "lucide-react";
+import { Wrapper } from "./wrapper";
+import { Button } from "@/components/ui/button";
 // `toast` is re-exported from the copied-in Sonner component. The `<Toaster />`
 // itself is already mounted in `VegaStackProvider`, so previews just call toast().
-import { toast } from '@/components/ui/sonner';
+import { toast } from "@/components/ui/sonner";
 
 export function toastDemo(): ReactNode {
   return (
     <Wrapper>
-      <Button variant="outline" onClick={() => toast.success('Changes saved')}>
+      <Button variant="outline" onClick={() => toast.success("Changes saved")}>
         Save changes
       </Button>
     </Wrapper>
@@ -21,26 +21,36 @@ export function toastDemo(): ReactNode {
 export function sonnerVariants(): ReactNode {
   return (
     <Wrapper>
-      <Button variant="outline" onClick={() => toast('Event created')}>
+      <Button variant="outline" onClick={() => toast("Event created")}>
         Default
       </Button>
       <Button
         variant="success"
-        onClick={() => toast.success('Project deployed', { description: 'main@a1f7c2 is live' })}
+        onClick={() =>
+          toast.success("Project deployed", {
+            description: "main@a1f7c2 is live",
+          })
+        }
       >
         Success
       </Button>
-      <Button variant="info" onClick={() => toast.info('A new version is available')}>
+      <Button
+        variant="info"
+        onClick={() => toast.info("A new version is available")}
+      >
         Info
       </Button>
-      <Button variant="warning" onClick={() => toast.warning('Storage is almost full')}>
+      <Button
+        variant="warning"
+        onClick={() => toast.warning("Storage is almost full")}
+      >
         Warning
       </Button>
       <Button
         variant="destructive"
         onClick={() =>
-          toast.error('Could not save changes', {
-            description: 'Check your connection and try again',
+          toast.error("Could not save changes", {
+            description: "Check your connection and try again",
           })
         }
       >
@@ -56,9 +66,12 @@ export function sonnerStates(): ReactNode {
       <Button
         variant="outline"
         onClick={() =>
-          toast('Invitation sent', {
-            description: 'sent to jane@vegastack.com',
-            action: { label: 'Undo', onClick: () => toast('Invitation revoked') },
+          toast("Invitation sent", {
+            description: "sent to jane@vegastack.com",
+            action: {
+              label: "Undo",
+              onClick: () => toast("Invitation revoked"),
+            },
           })
         }
       >
@@ -68,9 +81,9 @@ export function sonnerStates(): ReactNode {
         variant="outline"
         onClick={() =>
           toast.promise(new Promise((resolve) => setTimeout(resolve, 1500)), {
-            loading: 'Saving…',
-            success: 'Changes saved',
-            error: 'Save failed',
+            loading: "Saving…",
+            success: "Changes saved",
+            error: "Save failed",
           })
         }
       >
@@ -86,11 +99,11 @@ export function sonnerLoading(): ReactNode {
       <Button
         variant="outline"
         onClick={() => {
-          const id = toast.loading('Uploading file…');
+          const id = toast.loading("Uploading file…");
           // Resolve the pending toast after the async work completes — call
           // `toast.success` (or `toast.dismiss`) with the same id to update it
           // in place rather than stacking a second toast.
-          setTimeout(() => toast.success('File uploaded', { id }), 2000);
+          setTimeout(() => toast.success("File uploaded", { id }), 2000);
         }}
       >
         Loading → success
@@ -98,7 +111,7 @@ export function sonnerLoading(): ReactNode {
       <Button
         variant="outline"
         onClick={() => {
-          const id = toast.loading('Connecting…');
+          const id = toast.loading("Connecting…");
           setTimeout(() => toast.dismiss(id), 1500);
         }}
       >
@@ -114,8 +127,8 @@ export function sonnerMessageCustom(): ReactNode {
       <Button
         variant="outline"
         onClick={() =>
-          toast.message('New comment', {
-            description: 'Jane replied to your thread in #design.',
+          toast.message("New comment", {
+            description: "Jane replied to your thread in #design.",
           })
         }
       >
@@ -128,7 +141,10 @@ export function sonnerMessageCustom(): ReactNode {
           // surface — useful for branded or richly-structured notifications.
           toast.custom((id) => (
             <div className="flex items-start gap-3 rounded-lg border border-border bg-popover p-4 text-popover-foreground shadow-overlay">
-              <CircleAlert className="size-4 text-warning-text" aria-hidden />
+              <CircleAlert
+                className="size-(--icon-default) text-warning-text"
+                aria-hidden
+              />
               <div className="flex flex-col gap-2">
                 <p className="text-base font-medium">Subscription expiring</p>
                 <p className="text-base text-muted-foreground">
@@ -165,9 +181,9 @@ export function sonnerToasterOptions(): ReactNode {
       <Button
         variant="outline"
         onClick={() =>
-          toast('Deployment queued', {
-            description: 'Building from main@a1f7c2 — shown top-center.',
-            position: 'top-center',
+          toast("Deployment queued", {
+            description: "Building from main@a1f7c2 — shown top-center.",
+            position: "top-center",
           })
         }
       >

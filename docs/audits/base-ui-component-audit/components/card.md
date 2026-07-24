@@ -13,9 +13,9 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P3 | `CardTitle` renders fixed `div` at `card.tsx:85`, while docs mention a `render` path at `card.mdx:72`. | Confusing guidance for semantic headings and page outlines. | Add `render` composition to title or correct docs to show nested heading usage. |
+| Priority | Evidence                                                                                               | Impact                                                      | Suggested fix                                                                   |
+| -------- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| P3       | `CardTitle` renders fixed `div` at `card.tsx:85`, while docs mention a `render` path at `card.mdx:72`. | Confusing guidance for semantic headings and page outlines. | Add `render` composition to title or correct docs to show nested heading usage. |
 
 ## Residual Risks
 
@@ -24,4 +24,3 @@ No Base UI primitive is required here.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- card.test.tsx`
-

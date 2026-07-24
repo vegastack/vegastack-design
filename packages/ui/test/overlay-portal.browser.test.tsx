@@ -1,9 +1,23 @@
-import * as React from 'react';
-import { render } from 'vitest-browser-react';
-import { expect, test } from 'vitest';
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from '../registry/ui/dialog';
-import { Popover, PopoverTrigger, PopoverContent } from '../registry/ui/popover';
-import { Sheet, SheetContent, SheetTitle, SheetDescription } from '../registry/ui/sheet';
+import * as React from "react";
+import { render } from "vitest-browser-react";
+import { expect, test } from "vitest";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "../registry/ui/dialog";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "../registry/ui/popover";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetDescription,
+} from "../registry/ui/sheet";
 
 /**
  * Base UI portal contract (Codex R4 MED): overlay popups MUST portal out of their local DOM (to
@@ -30,10 +44,10 @@ function assertPortaled(popup: Element | null) {
   expect(root.contains(popup!)).toBe(false);
   expect(document.body.contains(popup!)).toBe(true);
   // carries the overlay band token so it stacks above page content (T3: z-(--z-overlay)).
-  expect(popup!.className).toContain('z-(--z-overlay)');
+  expect(popup!.className).toContain("z-(--z-overlay)");
 }
 
-test('Dialog content portals out of the app root and carries the overlay band', async () => {
+test("Dialog content portals out of the app root and carries the overlay band", async () => {
   await render(
     <AppRoot>
       <Dialog defaultOpen>
@@ -44,11 +58,13 @@ test('Dialog content portals out of the app root and carries the overlay band', 
       </Dialog>
     </AppRoot>,
   );
-  await expect.element(document.body.querySelector('[data-slot="dialog-content"]')!).toBeInTheDocument();
+  await expect
+    .element(document.body.querySelector('[data-slot="dialog-content"]')!)
+    .toBeInTheDocument();
   assertPortaled(document.querySelector('[data-slot="dialog-content"]'));
 });
 
-test('Popover content portals out of the app root and carries the overlay band', async () => {
+test("Popover content portals out of the app root and carries the overlay band", async () => {
   const screen = await render(
     <AppRoot>
       <Popover defaultOpen>
@@ -57,11 +73,11 @@ test('Popover content portals out of the app root and carries the overlay band',
       </Popover>
     </AppRoot>,
   );
-  await expect.element(screen.getByText('Popover body')).toBeInTheDocument();
+  await expect.element(screen.getByText("Popover body")).toBeInTheDocument();
   assertPortaled(document.querySelector('[data-slot="popover-content"]'));
 });
 
-test('Sheet content portals out of the app root and carries the overlay band', async () => {
+test("Sheet content portals out of the app root and carries the overlay band", async () => {
   await render(
     <AppRoot>
       <Sheet defaultOpen>
@@ -72,6 +88,8 @@ test('Sheet content portals out of the app root and carries the overlay band', a
       </Sheet>
     </AppRoot>,
   );
-  await expect.element(document.body.querySelector('[data-slot="sheet-content"]')!).toBeInTheDocument();
+  await expect
+    .element(document.body.querySelector('[data-slot="sheet-content"]')!)
+    .toBeInTheDocument();
   assertPortaled(document.querySelector('[data-slot="sheet-content"]'));
 });

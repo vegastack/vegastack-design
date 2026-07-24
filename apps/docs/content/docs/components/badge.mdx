@@ -1,10 +1,11 @@
 ---
 title: Badge
-description: A compact status or label chip — 3 variants × 6 semantic colors × 3 sizes, with dot, loading, and icons.
+description: A compact status or label chip — 4 variants × 5 semantic colors × 3 sizes, with dot, loading, and icons.
+audience: public
 preview: badge
 ---
 
-import { story } from '@/components/stories/badge.story';
+import { story } from "@/components/stories/badge.story";
 
 ## Installation
 
@@ -24,27 +25,30 @@ import { Badge } from "@/components/ui/badge";
 </Badge>;
 ```
 
-## Playground
+## Examples
+
+### Playground
 
 Mix variant, color, size, and the dot / loading / animate-in states, then copy the generated JSX.
 
 <BadgePlayground />
 
-## Explorer
+### Explorer
 
 Every `Badge` prop, auto-generated from its TypeScript types — the exhaustive counterpart to
 the curated playground above.
 
 <story.WithControl />
 
-## Variants
+### Variants
 
 `subtle` (tinted background, the default), `solid` (full-color background with
-on-color text), and `minimal` (borderless text only).
+on-color text), `minimal` (borderless text only), and `outline` (hairline border,
+no fill — the neutral/hued tag chip).
 
 <ComponentPreview name="badgeVariants" file="components/preview/badge.tsx" />
 
-## Colors
+### Colors
 
 Color is a semantic token (`default`, `success`, `warning`, `destructive`,
 `info`) — never an arbitrary hex. Each color maps to design-system tokens across every
@@ -52,13 +56,13 @@ variant: `subtle` (soft tint), `solid` (full fill), and `minimal` (colored text 
 
 <ComponentPreview name="badgeColors" file="components/preview/badge.tsx" />
 
-## Sizes
+### Sizes
 
 `sm`, `default`, and `lg` — the dot and icon scale with the badge.
 
 <ComponentPreview name="badgeSizes" file="components/preview/badge.tsx" />
 
-## States
+### States
 
 Add a leading `dot` indicator, compose an icon as the first child, or set `loading` to show a
 spinner and `aria-busy`. `loading` takes precedence over both `dot` and a leading icon — the
@@ -71,7 +75,7 @@ it stays legible against the filled background.
 
 <ComponentPreview name="badgeSolidDot" file="components/preview/badge.tsx" />
 
-## Motion
+### Motion
 
 Pass `animateIn` to pop the badge in (`motion-pop-in`) when its own appearance is the signal — a
 status that just flipped, a label freshly applied. It's **off by default**: a badge rendered as
@@ -103,3 +107,11 @@ re-renders or mounts.
   do="Use a semantic color to signal status — success for active, destructive for errors — with text that states the meaning."
   dont="Rely on the dot or color alone to convey state, or use a Badge as a clickable button."
 />
+
+## Tag chips — bordered & outline
+
+The Attio-teardown chip formula: `bordered` draws the matching-hue hairline on the subtle
+tint (crisper edges on white); `variant="outline"` is the fill-less neutral/hued tag. Compose
+a `+N` overflow as a neutral outline badge — or reach for `TagGroup`, which does it for you.
+
+<ComponentPreview name="badgeTagChips" file="components/preview/badge.tsx" />

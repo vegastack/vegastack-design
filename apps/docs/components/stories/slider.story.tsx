@@ -1,5 +1,5 @@
-import { defineStory } from '@/lib/story';
-import { Slider } from '@/components/ui/slider';
+import { defineStory } from "@/lib/story";
+import { Slider } from "@/components/ui/slider";
 
 /**
  * Story explorer for `Slider` — controls auto-generated from `SliderProps` by the Story
@@ -9,20 +9,20 @@ export const story = defineStory({
   Component: Slider,
   args: [
     {
-      variant: 'Default',
+      variant: "Default",
       initial: {
         defaultValue: 40,
-        'aria-label': 'Volume',
+        "aria-label": "Volume",
       },
     },
     {
-      variant: 'Range',
+      variant: "Range",
       initial: {
-        'aria-label': 'Price',
+        "aria-label": "Price",
       },
       fixed: {
         defaultValue: [20, 80],
-        thumbAriaLabels: ['Minimum price', 'Maximum price'],
+        thumbAriaLabels: ["Minimum price", "Maximum price"],
       },
     },
   ],

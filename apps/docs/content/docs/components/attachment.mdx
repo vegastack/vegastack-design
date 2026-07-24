@@ -1,6 +1,7 @@
 ---
 title: Attachment
 description: A file chip / thumbnail card for chat and message-compose surfaces — media slot, name + meta, uploading/error/complete states, and remove/download actions.
+audience: public
 preview: attachmentFileChip
 ---
 
@@ -82,7 +83,10 @@ CVA + `data-slot`/`data-*` styling, no new npm dependency.
 
 The default anatomy: a file-type icon, name + size, and a remove action.
 
-<ComponentPreview name="attachmentFileChip" file="components/preview/attachment.tsx" />
+<ComponentPreview
+  name="attachmentFileChip"
+  file="components/preview/attachment.tsx"
+/>
 
 ### Image thumbnail
 
@@ -104,7 +108,10 @@ spinner overlay automatically. Pair `AttachmentProgress` (the visual bar) with
 a `live` `AttachmentDescription` (the text screen readers actually hear as the
 percentage changes).
 
-<ComponentPreview name="attachmentUploading" file="components/preview/attachment.tsx" />
+<ComponentPreview
+  name="attachmentUploading"
+  file="components/preview/attachment.tsx"
+/>
 
 ### Error
 
@@ -112,7 +119,10 @@ percentage changes).
 destructive tokens. Give the `AttachmentDescription` `live` so the failure
 reason is announced.
 
-<ComponentPreview name="attachmentError" file="components/preview/attachment.tsx" />
+<ComponentPreview
+  name="attachmentError"
+  file="components/preview/attachment.tsx"
+/>
 
 ### Removable compose list
 
@@ -129,7 +139,10 @@ state.
 
 ### Attachment
 
-<AutoTypeTable path="../../packages/ui/registry/ui/attachment.tsx" name="AttachmentProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/attachment.tsx"
+  name="AttachmentProps"
+/>
 
 ### AttachmentMedia
 
@@ -175,7 +188,7 @@ Plain layout wrappers with no own props — they accept standard `<div>` /
 - Transient state changes (an upload percentage, an error message) are not
   announced by color or a bare `role="progressbar"` alone — pass `live` to
   `AttachmentDescription` so the text is read out via `role="status"
-  aria-live="polite"`, the same pattern as
+aria-live="polite"`, the same pattern as
   [`AutoSaveInput`](/docs/components/auto-save-input) and
   [`CopyButton`](/docs/components/copy-button).
 - `state="disabled"` visually dims the card and sets `pointer-events-none` +

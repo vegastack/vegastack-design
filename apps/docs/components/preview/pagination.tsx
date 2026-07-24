@@ -1,9 +1,20 @@
 "use client";
 
+import * as React from "react";
+
 import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/pagination` (dogfoods the registry) → auto-scanned.
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import {
+  PaginationPager,
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 export function pagination(): ReactNode {
   return (
@@ -160,6 +171,23 @@ export function paginationLastPage(): ReactNode {
           </PaginationItem>
         </PaginationContent>
       </Pagination>
+    </Wrapper>
+  );
+}
+export function paginationPager(): ReactNode {
+  return <PaginationPagerExample />;
+}
+
+function PaginationPagerExample() {
+  const [index, setIndex] = React.useState(3);
+  return (
+    <Wrapper>
+      <PaginationPager
+        index={index}
+        total={10}
+        context="in All Companies"
+        onIndexChange={setIndex}
+      />
     </Wrapper>
   );
 }

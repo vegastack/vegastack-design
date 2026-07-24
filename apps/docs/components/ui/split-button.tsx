@@ -1,18 +1,18 @@
-// @vegastack split-button@0.2.0 sha256-UWVQsMGdNDlaw3iIX7TXhwgwNQpyvUkw+SMIMrCo3QI=
+// @vegastack split-button@0.2.0 sha256-isxGC5UeVKmS0CahHahDPDUhrcmAcgfI7DqL+/75lF0=
 
-'use client';
+"use client";
 
-import * as React from 'react';
-import { ChevronDown } from 'lucide-react';
-import { cn } from '@vegastack/design';
-import { Button, type ButtonProps } from '@/components/ui/button';
+import * as React from "react";
+import { ChevronDown } from "lucide-react";
+import { cn } from "@vegastack/design";
+import { Button, type ButtonProps } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
   type DropdownMenuContentProps,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 
 /**
  * A single secondary action rendered inside the {@link SplitButton} dropdown.
@@ -37,7 +37,7 @@ export interface SplitButtonAction {
  * composite, so there is no single root element a `render` prop could replace.
  * Compose it via its declarative `actions` array or composed `menu` children.
  */
-export type SplitButtonProps = Omit<ButtonProps, 'render'> & {
+export type SplitButtonProps = Omit<ButtonProps, "render"> & {
   /** The primary action's label. */
   children: React.ReactNode;
   /**
@@ -49,9 +49,9 @@ export type SplitButtonProps = Omit<ButtonProps, 'render'> & {
    * Alignment of the dropdown relative to the trigger.
    * @default 'end'
    */
-  menuAlign?: DropdownMenuContentProps['align'];
+  menuAlign?: DropdownMenuContentProps["align"];
   /** Props forwarded to the {@link DropdownMenuContent}. */
-  menuContentProps?: Omit<DropdownMenuContentProps, 'align' | 'children'>;
+  menuContentProps?: Omit<DropdownMenuContentProps, "align" | "children">;
 } & (
     | {
         /**
@@ -71,15 +71,15 @@ export type SplitButtonProps = Omit<ButtonProps, 'render'> & {
   );
 
 /** The chevron trigger's width per size, mirroring `Button`'s horizontal padding scale. */
-const triggerSizeClassName: Record<NonNullable<ButtonProps['size']>, string> = {
-  xs: 'px-1',
-  sm: 'px-1.5',
-  default: 'px-1.5',
-  lg: 'px-2',
-  icon: 'px-1.5',
-  'icon-xs': 'px-1',
-  'icon-sm': 'px-1.5',
-  'icon-lg': 'px-2',
+const triggerSizeClassName: Record<NonNullable<ButtonProps["size"]>, string> = {
+  xs: "px-1",
+  sm: "px-1.5",
+  default: "px-1.5",
+  lg: "px-2",
+  icon: "px-1.5",
+  "icon-xs": "px-1",
+  "icon-sm": "px-1.5",
+  "icon-lg": "px-2",
 };
 
 /**
@@ -109,16 +109,16 @@ const triggerSizeClassName: Record<NonNullable<ButtonProps['size']>, string> = {
  */
 export function SplitButton({
   className,
-  variant = 'default',
-  size = 'default',
+  variant = "default",
+  size = "default",
   loading = false,
   disabled,
   children,
   onClick,
   actions,
   menu,
-  menuLabel = 'More options',
-  menuAlign = 'end',
+  menuLabel = "More options",
+  menuAlign = "end",
   menuContentProps,
   ...props
 }: SplitButtonProps) {
@@ -130,7 +130,7 @@ export function SplitButton({
           key={index}
           onClick={action.onClick}
           disabled={action.disabled}
-          variant={action.destructive ? 'destructive' : 'default'}
+          variant={action.destructive ? "destructive" : "default"}
         >
           {action.icon}
           {action.label}
@@ -143,7 +143,7 @@ export function SplitButton({
       data-slot="split-button"
       data-variant={variant}
       data-size={size}
-      className={cn('inline-flex items-stretch', className)}
+      className={cn("inline-flex items-stretch", className)}
     >
       {/* Primary action — joined on the right (square corner + shared seam). */}
       <Button
@@ -153,7 +153,7 @@ export function SplitButton({
         disabled={disabled}
         onClick={onClick}
         data-slot="split-button-primary"
-        className="rounded-r-none"
+        className="rounded-e-none"
         {...props}
       >
         {children}
@@ -179,12 +179,12 @@ export function SplitButton({
                 // both halves.
                 focusableWhenDisabled={loading && !disabled ? true : undefined}
                 aria-busy={loading || undefined}
-                data-loading={loading ? '' : undefined}
+                data-loading={loading ? "" : undefined}
                 aria-label={menuLabel}
                 data-slot="split-button-trigger"
                 className={cn(
-                  '-ml-px rounded-l-none data-loading:pointer-events-none',
-                  triggerSizeClassName[size ?? 'default'],
+                  "-ms-px rounded-s-none data-loading:pointer-events-none",
+                  triggerSizeClassName[size ?? "default"],
                 )}
               >
                 <ChevronDown aria-hidden />

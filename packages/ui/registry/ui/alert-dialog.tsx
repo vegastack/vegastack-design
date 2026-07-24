@@ -1,10 +1,11 @@
-// @vegastack alert-dialog@0.2.0 sha256-g6PtOun0oYjTKVtyo/xqtVJHPiv2sm+62+22ITkCaIs=
+// @vegastack alert-dialog@0.2.0 sha256-TVwMU+Mi9EwaSe7AmAqqQsUDXTCDNSlfskVnmLCnB84=
 
 "use client";
 
 import * as React from "react";
 import { AlertDialog as BaseAlertDialog } from "@base-ui/react/alert-dialog";
 import { cn } from "@vegastack/design";
+import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { Button } from "@/components/ui/button";
 
 /* ------------------------------------------------------------------------------------------------
@@ -47,10 +48,16 @@ export type AlertDialogProps = React.ComponentProps<
   typeof BaseAlertDialog.Root
 >;
 
+/** `AlertDialog` root; controls confirmation-dialog open state and modality.
+ *
+ * @example
+ * <AlertDialog />
+ */
 export function AlertDialog(props: AlertDialogProps) {
   return <BaseAlertDialog.Root {...props} />;
 }
 
+/** Props accepted by `AlertDialogTrigger`. */
 export type AlertDialogTriggerProps = React.ComponentProps<
   typeof BaseAlertDialog.Trigger
 >;
@@ -58,6 +65,10 @@ export type AlertDialogTriggerProps = React.ComponentProps<
 /**
  * `AlertDialogTrigger` — the control that opens the dialog. Renders a `<button>`;
  * pass `render` to compose it with a `Button` or any other action element.
+
+ *
+ * @example
+ * <AlertDialogTrigger />
  */
 export function AlertDialogTrigger({
   className,
@@ -81,11 +92,9 @@ export function AlertDialogTrigger({
  * - `warning` — cautionary action.
  */
 export type AlertDialogIntent =
-  | "default"
-  | "destructive"
-  | "success"
-  | "warning";
+  "default" | "destructive" | "success" | "warning";
 
+/** Props accepted by `AlertDialogContent`. */
 export interface AlertDialogContentProps extends React.ComponentProps<
   typeof BaseAlertDialog.Popup
 > {
@@ -103,6 +112,10 @@ export interface AlertDialogContentProps extends React.ComponentProps<
  * + `Popup`, animates enter/exit, and traps focus. Drop `AlertDialogHeader`/`AlertDialogFooter`
  * and the title/description inside it. There is no top-right close button — the user must choose
  * `AlertDialogCancel`, press Escape, or choose `AlertDialogAction`.
+
+ *
+ * @example
+ * <AlertDialogContent />
  */
 export function AlertDialogContent({
   className,
@@ -111,11 +124,14 @@ export function AlertDialogContent({
   intent = "default",
   ...props
 }: AlertDialogContentProps) {
+  const themeScope = useInternalThemeScope();
+
   return (
     <BaseAlertDialog.Portal>
       <BaseAlertDialog.Backdrop
         data-slot="alert-dialog-backdrop"
         className={cn(
+          themeScope,
           "fixed inset-0 z-(--z-overlay) bg-overlay",
           "transition-opacity duration-fast ease-standard",
           "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
@@ -124,20 +140,22 @@ export function AlertDialogContent({
       <BaseAlertDialog.Viewport
         data-slot="alert-dialog-viewport"
         className={cn(
-          "fixed inset-0 z-(--z-overlay) flex items-center justify-center overflow-y-auto p-4 outline-none",
+          themeScope,
+          "fixed inset-0 z-(--z-overlay) flex items-center justify-center overflow-y-auto overscroll-contain p-4 outline-none",
         )}
       >
         <BaseAlertDialog.Popup
           data-slot="alert-dialog-content"
           data-intent={intent}
           className={cn(
+            themeScope,
             "relative z-(--z-overlay) flex max-h-[calc(100dvh-var(--spacing)*8)] w-full flex-col gap-4",
             // No `outline-none`: Base UI focuses the popup on open, so the centralized base.css
             // `:focus-visible` outline stays as the keyboard-focus indicator (register P0-02).
             "rounded-lg border border-border bg-popover p-5 text-base text-popover-foreground shadow-overlay",
             "sm:max-w-sm",
             // Enter/exit — scale + fade, token durations + standard easing.
-            "origin-center transition-all duration-fast ease-standard",
+            "origin-center transition-[opacity,transform] duration-fast ease-standard",
             "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
             "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
             className,
@@ -151,10 +169,15 @@ export function AlertDialogContent({
   );
 }
 
+/** Props accepted by `AlertDialogHeader`. */
 export type AlertDialogHeaderProps = React.ComponentProps<"div">;
 
 /**
  * `AlertDialogHeader` — groups the title and description at the top of the content.
+
+ *
+ * @example
+ * <AlertDialogHeader />
  */
 export function AlertDialogHeader({
   className,
@@ -169,12 +192,17 @@ export function AlertDialogHeader({
   );
 }
 
+/** Props accepted by `AlertDialogFooter`. */
 export type AlertDialogFooterProps = React.ComponentProps<"div">;
 
 /**
  * `AlertDialogFooter` — the action row at the bottom of the content. Stacks (reversed) on
  * narrow screens, becomes an end-aligned row from the `sm` breakpoint up. Place
  * `AlertDialogCancel` then `AlertDialogAction` inside it.
+
+ *
+ * @example
+ * <AlertDialogFooter />
  */
 export function AlertDialogFooter({
   className,
@@ -192,6 +220,7 @@ export function AlertDialogFooter({
   );
 }
 
+/** Props accepted by `AlertDialogTitle`. */
 export type AlertDialogTitleProps = React.ComponentProps<
   typeof BaseAlertDialog.Title
 >;
@@ -199,6 +228,10 @@ export type AlertDialogTitleProps = React.ComponentProps<
 /**
  * `AlertDialogTitle` — the dialog's accessible name. Renders an `<h2>`; Base UI wires it to the
  * popup via `aria-labelledby`. Always include one.
+
+ *
+ * @example
+ * <AlertDialogTitle />
  */
 export function AlertDialogTitle({
   className,
@@ -207,15 +240,13 @@ export function AlertDialogTitle({
   return (
     <BaseAlertDialog.Title
       data-slot="alert-dialog-title"
-      className={cn(
-        "text-h4 text-foreground",
-        className,
-      )}
+      className={cn("text-h4 text-foreground", className)}
       {...props}
     />
   );
 }
 
+/** Props accepted by `AlertDialogDescription`. */
 export type AlertDialogDescriptionProps = React.ComponentProps<
   typeof BaseAlertDialog.Description
 >;
@@ -223,6 +254,10 @@ export type AlertDialogDescriptionProps = React.ComponentProps<
 /**
  * `AlertDialogDescription` — supporting text under the title. Renders a `<p>`; Base UI wires it
  * to the popup via `aria-describedby`.
+
+ *
+ * @example
+ * <AlertDialogDescription />
  */
 export function AlertDialogDescription({
   className,
@@ -231,7 +266,10 @@ export function AlertDialogDescription({
   return (
     <BaseAlertDialog.Description
       data-slot="alert-dialog-description"
-      className={cn("text-base leading-relaxed text-muted-foreground", className)}
+      className={cn(
+        "text-base leading-relaxed text-muted-foreground",
+        className,
+      )}
       {...props}
     />
   );
@@ -251,8 +289,10 @@ const ACTION_INTENT_VARIANT: Record<
   warning: "warning-outline",
 };
 
-export interface AlertDialogActionProps
-  extends React.ComponentProps<typeof BaseAlertDialog.Close> {
+/** Props accepted by `AlertDialogAction`. */
+export interface AlertDialogActionProps extends React.ComponentProps<
+  typeof BaseAlertDialog.Close
+> {
   /**
    * Semantic tint of the confirm button — match it to the dialog's `intent`.
    * @default "default"
@@ -275,6 +315,10 @@ export interface AlertDialogActionProps
  * tint (default/destructive/success/warning) and, when `loading` is set, its spinner/busy/disabled
  * state — use it for async confirms (e.g. `onClick={async () => { setLoading(true); await
  * doDelete(); setLoading(false); }}`). Pass `render` to swap the element.
+
+ *
+ * @example
+ * <AlertDialogAction />
  */
 export function AlertDialogAction({
   className,
@@ -298,6 +342,7 @@ export function AlertDialogAction({
   );
 }
 
+/** Props accepted by `AlertDialogCancel`. */
 export type AlertDialogCancelProps = React.ComponentProps<
   typeof BaseAlertDialog.Close
 >;
@@ -305,6 +350,10 @@ export type AlertDialogCancelProps = React.ComponentProps<
 /**
  * `AlertDialogCancel` — the cancel button. Closes the dialog without confirming (Base UI
  * `Close`). Composes the shared {@link Button} `outline` variant. Pass `render` to swap the element.
+
+ *
+ * @example
+ * <AlertDialogCancel />
  */
 export function AlertDialogCancel({
   className,

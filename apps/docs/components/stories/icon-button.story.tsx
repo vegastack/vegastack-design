@@ -1,5 +1,5 @@
-import { defineStory } from '@/lib/story';
-import { IconButtonStory } from './icon-button.client';
+import { defineStory } from "@/lib/story";
+import { IconButtonStory } from "./icon-button.client";
 
 /**
  * Story explorer for `IconButton`, hosted by the narrow {@link IconButtonStory} wrapper —
@@ -9,7 +9,7 @@ export const story = defineStory({
   Component: IconButtonStory,
   args: [
     {
-      variant: 'Default',
+      variant: "Default",
       initial: {},
     },
   ],

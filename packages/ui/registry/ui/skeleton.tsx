@@ -1,4 +1,4 @@
-// @vegastack skeleton@0.2.0 sha256-RRjWEUEXIKqaTfhR5veLADAR2kq9oh6c3PzhjSkWx5Y=
+// @vegastack skeleton@0.2.0 sha256-EPP7JFeZ8tnW8G2P8/pKMfepriB/HdL9BwfvdLZZxNk=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -34,6 +34,7 @@ export type SkeletonShape = NonNullable<
   VariantProps<typeof skeletonVariants>["shape"]
 >;
 
+/** Props accepted by `Skeleton`. */
 export interface SkeletonProps
   extends
     Omit<React.ComponentPropsWithRef<"div">, "children">,
@@ -87,7 +88,7 @@ export function Skeleton({
   ref,
   ...props
 }: SkeletonProps) {
-  const lines = Math.max(1, Math.floor(count));
+  const lines = Number.isFinite(count) ? Math.max(1, Math.floor(count)) : 1;
 
   if (lines === 1) {
     return (
@@ -142,8 +143,11 @@ export function Skeleton({
  * needs its own distinct element/props per branch).
  * ------------------------------------------------------------------------------------------- */
 
-export interface SkeletonRevealProps
-  extends Omit<React.ComponentPropsWithRef<"div">, "children"> {
+/** Props accepted by `SkeletonReveal`. */
+export interface SkeletonRevealProps extends Omit<
+  React.ComponentPropsWithRef<"div">,
+  "children"
+> {
   /**
    * Whether the skeleton placeholder (vs. the real content) should render.
    * Flip this to `false` once the data has arrived.
@@ -157,6 +161,8 @@ export interface SkeletonRevealProps
   /**
    * The real content, rendered — and gently revealed via `motion-enter-up` —
    * once `loading` is `false`.
+
+   * @default undefined
    */
   children?: React.ReactNode;
 }

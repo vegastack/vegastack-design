@@ -1,5 +1,5 @@
-import { defineStory } from '@/lib/story';
-import { Toggle } from '@/components/ui/toggle';
+import { defineStory } from "@/lib/story";
+import { Toggle } from "@/components/ui/toggle";
 
 /**
  * Story explorer for `Toggle` — controls auto-generated from `ToggleProps` by the Story
@@ -10,15 +10,15 @@ export const story = defineStory({
   Component: Toggle,
   args: [
     {
-      variant: 'Default',
+      variant: "Default",
       initial: {
-        children: 'Bold',
+        children: "Bold",
       },
     },
     {
-      variant: 'Pressed',
+      variant: "Pressed",
       initial: {
-        children: 'Italic',
+        children: "Italic",
         defaultPressed: true,
       },
     },

@@ -1,6 +1,7 @@
 ---
 title: Combobox
 description: A filterable, keyboard-navigable listbox behind a text input — type-to-filter, grouped items, async status, and a multi-select chip mode.
+audience: public
 preview: combobox
 ---
 
@@ -54,13 +55,15 @@ selection with `value` + `onValueChange`, or leave it uncontrolled with `default
 to collect several values into an array and unlock the chip parts (see
 [Multiple selection](#multiple-selection)).
 
-## Playground
+## Examples
+
+### Playground
 
 Try every size and the disabled state on a filterable list, then copy the generated JSX.
 
 <ComboboxPlayground />
 
-## Anatomy
+### Anatomy
 
 `Combobox` is a compound component built on
 [Base UI Combobox](https://base-ui.com/react/components/combobox). Compose the parts inside the root:
@@ -75,7 +78,11 @@ Try every size and the disabled state on a filterable list, then copy the genera
   <ComboboxContent>
     <ComboboxEmpty>No results.</ComboboxEmpty>
     <ComboboxList>
-      {(item) => <ComboboxItem key={item} value={item}>{item}</ComboboxItem>}
+      {(item) => (
+        <ComboboxItem key={item} value={item}>
+          {item}
+        </ComboboxItem>
+      )}
     </ComboboxList>
   </ComboboxContent>
 </Combobox>
@@ -97,8 +104,8 @@ Try every size and the disabled state on a filterable list, then copy the genera
   common case of sitting inside a `ComboboxInputGroup`; override `className` for a full-width,
   `Select`-style button trigger paired with `ComboboxValue` instead of a visible input.
 - `ComboboxContent` — the dropdown surface (`data-slot="combobox-content"`). Composes Base UI's Portal
-  + Positioner + Popup and animates enter/exit — but, unlike `SelectContent`, does **not** auto-wrap its
-  children in a list (see below).
+  - Positioner + Popup and animates enter/exit — but, unlike `SelectContent`, does **not** auto-wrap its
+    children in a list (see below).
 - `ComboboxList` — the Base UI list wrapper required for keyboard navigation
   (`data-slot="combobox-list"`, `role="listbox"`). Compose it explicitly as a **sibling** of
   `ComboboxEmpty`/`ComboboxStatus` inside `ComboboxContent`, not their parent — `role="listbox"` only
@@ -117,12 +124,12 @@ Try every size and the disabled state on a filterable list, then copy the genera
 - `ComboboxChips` / `ComboboxChip` / `ComboboxChipRemove` — the `multiple`-mode tag row; see
   [Multiple selection](#multiple-selection).
 
-## Sizes
+### Sizes
 
 `ComboboxInput` takes a `size` prop: `sm` (h-7), `default` (h-8), and `lg` (h-10) — the same scale as
 `Input`/`Select`, so a combobox lines up with sibling form controls.
 
-## Grouped items
+### Grouped items
 
 Pass `items` as an array of groups (`{ items, ...groupMeta }`, e.g. `{ items, label }`) and render one
 `ComboboxGroup` per group with a `ComboboxCollection` function child. **`ComboboxGroup`'s own `items`
@@ -158,16 +165,22 @@ function GroupedItems() {
 </ComboboxContent>;
 ```
 
-<ComponentPreview name="comboboxGroups" file="components/preview/combobox.tsx" />
+<ComponentPreview
+  name="comboboxGroups"
+  file="components/preview/combobox.tsx"
+/>
 
-## Async / loading state
+### Async / loading state
 
 For server-driven search, control `inputValue` (via `onInputValueChange`) and pass the resolved
 results as `filteredItems` — Base UI's escape hatch that bypasses its own built-in filter, so what's
 rendered always matches what the "server" returned. Render `ComboboxStatus` with a `Spinner` while a
 request is in flight:
 
-<ComponentPreview name="comboboxLoading" file="components/preview/combobox.tsx" />
+<ComponentPreview
+  name="comboboxLoading"
+  file="components/preview/combobox.tsx"
+/>
 
 ```tsx
 <Combobox
@@ -194,19 +207,28 @@ request is in flight:
     </ComboboxStatus>
     <ComboboxEmpty>{loading ? null : "No fruit found."}</ComboboxEmpty>
     <ComboboxList>
-      {loading ? null : results.map((item) => <ComboboxItem key={item} value={item}>{item}</ComboboxItem>)}
+      {loading
+        ? null
+        : results.map((item) => (
+            <ComboboxItem key={item} value={item}>
+              {item}
+            </ComboboxItem>
+          ))}
     </ComboboxList>
   </ComboboxContent>
-</Combobox>;
+</Combobox>
 ```
 
-## Multiple selection
+### Multiple selection
 
 Set `multiple` on the root to collect several values into an array. Compose `ComboboxChips` (wraps the
 chip row **and** the input together — put the input last so it keeps filtering) with `ComboboxValue`'s
 function child rendering one `ComboboxChip` + `ComboboxChipRemove` per selected value:
 
-<ComponentPreview name="comboboxMultiple" file="components/preview/combobox.tsx" />
+<ComponentPreview
+  name="comboboxMultiple"
+  file="components/preview/combobox.tsx"
+/>
 
 ```tsx
 <Combobox multiple items={labelKeys} defaultValue={["bug", "docs"]}>
@@ -228,7 +250,7 @@ function child rendering one `ComboboxChip` + `ComboboxChipRemove` per selected 
     <ComboboxTrigger aria-label="Toggle labels" />
   </ComboboxInputGroup>
   <ComboboxContent>{/* ComboboxList / ComboboxItem */}</ComboboxContent>
-</Combobox>;
+</Combobox>
 ```
 
 > While the popup is open, Base UI marks the chip row `aria-hidden` (so a screen reader mid-selection
@@ -236,9 +258,12 @@ function child rendering one `ComboboxChip` + `ComboboxChipRemove` per selected 
 > `ComboboxChipRemove` via assistive tech or an accessibility-tree-based test query. Sighted pointer
 > users can still click it either way.
 
-## States
+### States
 
-<ComponentPreview name="comboboxDisabled" file="components/preview/combobox.tsx" />
+<ComponentPreview
+  name="comboboxDisabled"
+  file="components/preview/combobox.tsx"
+/>
 
 A `disabled` root makes the whole field (input + trigger + clear) inert.
 
@@ -248,13 +273,13 @@ Pass `aria-invalid` to `ComboboxInput` — or wrap the `Combobox` in a `<Field e
 for you — to tint the field border destructive. Pair it with a `FieldError` so the failure is
 announced, not just color-coded.
 
-## Modal usage
+### Modal usage
 
 `Combobox` defaults `modal` to `false` (Base UI's own default), unlike `Select`/`DropdownMenu`. This is
 deliberate: a combobox stays interactive alongside its open popup — typing keeps filtering, and in
 `multiple` mode the `ComboboxChipRemove` controls next to the input must stay clickable. Setting
 `modal` locks the rest of the page as inert behind a backdrop that only carves out the anchor's
-*original* bounding box; once `ComboboxChips` grows the input group (wrapped chips), controls outside
+_original_ bounding box; once `ComboboxChips` grows the input group (wrapped chips), controls outside
 that stale clip fall behind the inert backdrop and become unclickable — verified while building this
 component. Reach for `modal` only for a single-select, button-trigger-style usage that should behave
 like `Select`.
@@ -263,67 +288,125 @@ like `Select`.
 
 ### Combobox
 
-<AutoTypeTable path="../../packages/ui/registry/ui/combobox.tsx" name="ComboboxProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/combobox.tsx"
+  name="ComboboxProps"
+/>
 
 ### ComboboxInputGroup
 
-<AutoTypeTable path="../../packages/ui/registry/ui/combobox.tsx" name="ComboboxInputGroupProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/combobox.tsx"
+  name="ComboboxInputGroupProps"
+/>
 
 ### ComboboxInput
 
-<AutoTypeTable path="../../packages/ui/registry/ui/combobox.tsx" name="ComboboxInputProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/combobox.tsx"
+  name="ComboboxInputProps"
+/>
+
+### ComboboxPopupInput
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/combobox.tsx"
+  name="ComboboxPopupInputProps"
+/>
+
+Use `ComboboxPopupInput` when the searchable input belongs inside `ComboboxContent`, as in the
+country and region selectors. It deliberately omits the outer trigger-input sizing contract.
 
 ### ComboboxTrigger
 
-<AutoTypeTable path="../../packages/ui/registry/ui/combobox.tsx" name="ComboboxTriggerProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/combobox.tsx"
+  name="ComboboxTriggerProps"
+/>
 
 ### ComboboxClear
 
-<AutoTypeTable path="../../packages/ui/registry/ui/combobox.tsx" name="ComboboxClearProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/combobox.tsx"
+  name="ComboboxClearProps"
+/>
 
 ### ComboboxContent
 
-<AutoTypeTable path="../../packages/ui/registry/ui/combobox.tsx" name="ComboboxContentProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/combobox.tsx"
+  name="ComboboxContentProps"
+/>
 
 ### ComboboxList
 
-<AutoTypeTable path="../../packages/ui/registry/ui/combobox.tsx" name="ComboboxListProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/combobox.tsx"
+  name="ComboboxListProps"
+/>
 
 ### ComboboxItem
 
-<AutoTypeTable path="../../packages/ui/registry/ui/combobox.tsx" name="ComboboxItemProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/combobox.tsx"
+  name="ComboboxItemProps"
+/>
 
 ### ComboboxEmpty
 
-<AutoTypeTable path="../../packages/ui/registry/ui/combobox.tsx" name="ComboboxEmptyProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/combobox.tsx"
+  name="ComboboxEmptyProps"
+/>
 
 ### ComboboxStatus
 
-<AutoTypeTable path="../../packages/ui/registry/ui/combobox.tsx" name="ComboboxStatusProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/combobox.tsx"
+  name="ComboboxStatusProps"
+/>
 
 ### ComboboxGroup
 
-<AutoTypeTable path="../../packages/ui/registry/ui/combobox.tsx" name="ComboboxGroupProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/combobox.tsx"
+  name="ComboboxGroupProps"
+/>
 
 ### ComboboxGroupLabel
 
-<AutoTypeTable path="../../packages/ui/registry/ui/combobox.tsx" name="ComboboxGroupLabelProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/combobox.tsx"
+  name="ComboboxGroupLabelProps"
+/>
 
 ### ComboboxValue
 
-<AutoTypeTable path="../../packages/ui/registry/ui/combobox.tsx" name="ComboboxValueProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/combobox.tsx"
+  name="ComboboxValueProps"
+/>
 
 ### ComboboxChips
 
-<AutoTypeTable path="../../packages/ui/registry/ui/combobox.tsx" name="ComboboxChipsProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/combobox.tsx"
+  name="ComboboxChipsProps"
+/>
 
 ### ComboboxChip
 
-<AutoTypeTable path="../../packages/ui/registry/ui/combobox.tsx" name="ComboboxChipProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/combobox.tsx"
+  name="ComboboxChipProps"
+/>
 
 ### ComboboxChipRemove
 
-<AutoTypeTable path="../../packages/ui/registry/ui/combobox.tsx" name="ComboboxChipRemoveProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/combobox.tsx"
+  name="ComboboxChipRemoveProps"
+/>
 
 ## Accessibility
 
@@ -340,13 +423,13 @@ like `Select`.
 - On `:focus` the field re-colors its border with the `ring` token, matching `Input`/`Select`.
   `aria-invalid` tints it destructive for use inside a `Field`.
 
-| Key                         | Action                                                                 |
-| ---------------------------- | ----------------------------------------------------------------------- |
-| <kbd>↓</kbd> / <kbd>↑</kbd>  | Open the popup (if closed) and move the highlight between items.       |
-| <kbd>Enter</kbd>             | Select the highlighted item and close the popup.                       |
-| <kbd>Esc</kbd>               | Close the popup without changing the selection; focus returns to the input. |
-| <kbd>Backspace</kbd>         | (Multiple, empty query) Highlight, then remove, the last chip.         |
-| <kbd>←</kbd> / <kbd>→</kbd>  | (Multiple) Move between chips when the query is empty at either edge.  |
+| Key                         | Action                                                                      |
+| --------------------------- | --------------------------------------------------------------------------- |
+| <kbd>↓</kbd> / <kbd>↑</kbd> | Open the popup (if closed) and move the highlight between items.            |
+| <kbd>Enter</kbd>            | Select the highlighted item and close the popup.                            |
+| <kbd>Esc</kbd>              | Close the popup without changing the selection; focus returns to the input. |
+| <kbd>Backspace</kbd>        | (Multiple, empty query) Highlight, then remove, the last chip.              |
+| <kbd>←</kbd> / <kbd>→</kbd> | (Multiple) Move between chips when the query is empty at either edge.       |
 
 ## Do / Don't
 

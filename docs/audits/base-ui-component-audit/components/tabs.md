@@ -13,11 +13,11 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P3 | Dead/invalid Tailwind variant token at `tabs.tsx:164`. | Maintenance noise and possible CSS scanning confusion. | Remove `group-data-[variant=pill]/tabs-list:`. |
-| P3 | Vertical comments mention right-side rule at `tabs.tsx:70`, but classes place left border/indicator around `tabs.tsx:117`. | Visual/API expectation drift. | Align comments/docs with left rail or move indicator. |
-| P3 | Content comments/docs mention focus-visible ring at `tabs.tsx:193` and `tabs.mdx:88`, but content class has no explicit focus style at `tabs.tsx:204`. | Docs may overstate local focus treatment. | Add focus-visible styling or update docs to global outline wording. |
+| Priority | Evidence                                                                                                                                               | Impact                                                 | Suggested fix                                                       |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------ | ------------------------------------------------------------------- |
+| P3       | Dead/invalid Tailwind variant token at `tabs.tsx:164`.                                                                                                 | Maintenance noise and possible CSS scanning confusion. | Remove `group-data-[variant=pill]/tabs-list:`.                      |
+| P3       | Vertical comments mention right-side rule at `tabs.tsx:70`, but classes place left border/indicator around `tabs.tsx:117`.                             | Visual/API expectation drift.                          | Align comments/docs with left rail or move indicator.               |
+| P3       | Content comments/docs mention focus-visible ring at `tabs.tsx:193` and `tabs.mdx:88`, but content class has no explicit focus style at `tabs.tsx:204`. | Docs may overstate local focus treatment.              | Add focus-visible styling or update docs to global outline wording. |
 
 ## Residual Risks
 
@@ -26,4 +26,3 @@ Core Base UI anatomy and keyboard tests are healthy.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- tabs.test.tsx`
-

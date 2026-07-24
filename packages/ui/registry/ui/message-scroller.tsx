@@ -1,4 +1,4 @@
-// @vegastack message-scroller@0.2.0 sha256-GF5tJxk6vG5mnmYChHCsHDd5YPkiwLV5v9eNfA9cLSQ=
+// @vegastack message-scroller@0.2.0 sha256-qqZyQxwgC4zZIBNIpb0G2TLNrpMqaHs9SyYxeq34slI=
 
 "use client";
 
@@ -23,31 +23,26 @@ import { Button, type ButtonProps } from "@/components/ui/button";
  * ----------------------------------------------------------------------------------------------*/
 
 /**
- * SSR-safe read of the `(prefers-reduced-motion: reduce)` media query. `window`/`matchMedia` are
- * undefined during server rendering, so this returns `false` (no motion assumed reduced) until the
- * client effect in {@link usePrefersReducedMotion} can check the real value.
- */
-function getPrefersReducedMotion(): boolean {
-  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
-    return false;
-  }
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
-/**
  * Tracks the user's `prefers-reduced-motion` OS setting, live — it re-reads on change (e.g. the user
  * flips the setting while the page is open), not just on mount. SSR-safe: the initial render always
- * returns `false` and the real value is picked up in a client-only effect, so this never throws or
- * mismatches during hydration.
+ * returns `false` and the real value is picked up in a client-only effect, so server and hydration
+ * markup agree before the preference is synchronized.
  */
 function usePrefersReducedMotion(): boolean {
-  const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(getPrefersReducedMotion);
+  const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(false);
 
   React.useEffect(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
-    const mediaQueryList = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (
+      typeof window === "undefined" ||
+      typeof window.matchMedia !== "function"
+    )
+      return;
+    const mediaQueryList = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    );
     setPrefersReducedMotion(mediaQueryList.matches);
-    const onChange = (event: MediaQueryListEvent) => setPrefersReducedMotion(event.matches);
+    const onChange = (event: MediaQueryListEvent) =>
+      setPrefersReducedMotion(event.matches);
     mediaQueryList.addEventListener("change", onChange);
     return () => mediaQueryList.removeEventListener("change", onChange);
   }, []);
@@ -55,25 +50,29 @@ function usePrefersReducedMotion(): boolean {
   return prefersReducedMotion;
 }
 
-export type MessageScrollerProviderProps = React.ComponentProps<
+/** Props accepted by `MessageScrollerProvider`. */
+export type MessageScrollerProviderProps = React.ComponentPropsWithRef<
   typeof MessageScrollerPrimitive.Provider
 >;
 
 /**
  * `MessageScrollerProvider` — holds the scroll state (auto-scroll, anchor,
  * visibility). Wrap a `MessageScroller` in it; the hooks read from it.
+ * @example <MessageScrollerProvider><MessageScroller /></MessageScrollerProvider>
  */
 export function MessageScrollerProvider(props: MessageScrollerProviderProps) {
   return <MessageScrollerPrimitive.Provider {...props} />;
 }
 
-export type MessageScrollerProps = React.ComponentProps<
+/** Props accepted by `MessageScroller`. */
+export type MessageScrollerProps = React.ComponentPropsWithRef<
   typeof MessageScrollerPrimitive.Root
 >;
 
 /**
  * `MessageScroller` — the root flex column that fills its parent and clips
  * overflow. Holds the `MessageScrollerViewport`.
+ * @example <MessageScroller><MessageScrollerViewport /></MessageScroller>
  */
 export function MessageScroller({ className, ...props }: MessageScrollerProps) {
   return (
@@ -88,7 +87,8 @@ export function MessageScroller({ className, ...props }: MessageScrollerProps) {
   );
 }
 
-export type MessageScrollerViewportProps = React.ComponentProps<
+/** Props accepted by `MessageScrollerViewport`. */
+export type MessageScrollerViewportProps = React.ComponentPropsWithRef<
   typeof MessageScrollerPrimitive.Viewport
 >;
 
@@ -96,6 +96,7 @@ export type MessageScrollerViewportProps = React.ComponentProps<
  * `MessageScrollerViewport` — the scrollable region. Fades its bottom edge
  * (`scroll-fade-b`), keeps a stable scrollbar gutter, and hides the scrollbar
  * during programmatic auto-scroll.
+ * @example <MessageScrollerViewport><MessageScrollerContent /></MessageScrollerViewport>
  */
 export function MessageScrollerViewport({
   className,
@@ -113,7 +114,8 @@ export function MessageScrollerViewport({
   );
 }
 
-export type MessageScrollerContentProps = React.ComponentProps<
+/** Props accepted by `MessageScrollerContent`. */
+export type MessageScrollerContentProps = React.ComponentPropsWithRef<
   typeof MessageScrollerPrimitive.Content
 >;
 
@@ -121,6 +123,7 @@ export type MessageScrollerContentProps = React.ComponentProps<
  * `MessageScrollerContent` — the inner column that holds the message items.
  * Grows to at least the viewport height so a short thread can still pin to the
  * bottom. Set `aria-busy` while a response is streaming.
+ * @example <MessageScrollerContent aria-busy={streaming}>{messages}</MessageScrollerContent>
  */
 export function MessageScrollerContent({
   className,
@@ -135,7 +138,8 @@ export function MessageScrollerContent({
   );
 }
 
-export type MessageScrollerItemProps = React.ComponentProps<
+/** Props accepted by `MessageScrollerItem`. */
+export type MessageScrollerItemProps = React.ComponentPropsWithRef<
   typeof MessageScrollerPrimitive.Item
 >;
 
@@ -144,6 +148,7 @@ export type MessageScrollerItemProps = React.ComponentProps<
  * skip rendering off-screen items (the `contain-intrinsic-size` hint reserves a
  * sensible default height). Set `scrollAnchor` on the item that should stay in
  * view, and `messageId` to target it from `useMessageScroller().scrollToMessage`.
+ * @example <MessageScrollerItem messageId="message-1">Hello</MessageScrollerItem>
  */
 export function MessageScrollerItem({
   className,
@@ -155,7 +160,7 @@ export function MessageScrollerItem({
       data-slot="message-scroller-item"
       scrollAnchor={scrollAnchor}
       className={cn(
-        "min-w-0 shrink-0 [contain-intrinsic-size:auto_10rem] [content-visibility:auto]",
+        "min-w-0 shrink-0 [contain-intrinsic-size:auto_calc(var(--spacing)*40)] [content-visibility:auto]",
         className,
       )}
       {...props}
@@ -163,7 +168,8 @@ export function MessageScrollerItem({
   );
 }
 
-export type MessageScrollerButtonProps = React.ComponentProps<
+/** Props accepted by `MessageScrollerButton`. */
+export type MessageScrollerButtonProps = React.ComponentPropsWithRef<
   typeof MessageScrollerPrimitive.Button
 > &
   Pick<ButtonProps, "variant" | "size">;
@@ -197,7 +203,9 @@ export function MessageScrollerButton({
   ...props
 }: MessageScrollerButtonProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
-  const resolvedBehavior: ScrollBehavior = prefersReducedMotion ? "auto" : behavior;
+  const resolvedBehavior: ScrollBehavior = prefersReducedMotion
+    ? "auto"
+    : behavior;
 
   return (
     <MessageScrollerPrimitive.Button

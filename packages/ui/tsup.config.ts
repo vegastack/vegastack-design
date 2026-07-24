@@ -1,4 +1,4 @@
-import { defineConfig } from 'tsup';
+import { defineConfig } from "tsup";
 
 // @vegastack/ui ships ONE entry (src/index.ts) and it is 100% client-only: every module it
 // re-exports — the provider (next-themes/Base UI context), the Toaster (Sonner + useTheme), and
@@ -13,9 +13,9 @@ import { defineConfig } from 'tsup';
 // directive preservation, e.g. esbuild-plugin-preserve-directives, instead of this blanket banner.)
 // tooling/verify-ui-use-client.mjs fails the build if the directive is ever missing from the output.
 export default defineConfig({
-  entry: ['src/index.ts'],
-  format: ['esm'],
+  entry: ["src/index.ts"],
+  format: ["esm"],
   dts: true,
-  external: ['react', 'react-dom'],
+  external: ["react", "react-dom"],
   banner: { js: "'use client';" },
 });

@@ -13,9 +13,9 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| None | No material component-specific finding survived review. | No action. | Keep docs clear that `decorative={false}` is needed for semantic separators. |
+| Priority | Evidence                                                | Impact     | Suggested fix                                                                |
+| -------- | ------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------- |
+| None     | No material component-specific finding survived review. | No action. | Keep docs clear that `decorative={false}` is needed for semantic separators. |
 
 ## Residual Risks
 
@@ -24,4 +24,3 @@ Consumers may assume Base UI accessible-by-default separator semantics; docs sho
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- separator.test.tsx`
-

@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { Fragment, useState, type ReactNode } from 'react';
-import { Wrapper } from './wrapper';
+import { Fragment, useState, type ReactNode } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/switch` (dogfoods the registry) → auto-scanned.
-import { Switch } from '@/components/ui/switch';
-import { Field } from '@/components/ui/field';
+import { Switch } from "@/components/ui/switch";
+import { Field } from "@/components/ui/field";
 
 export function switchExample(): ReactNode {
   return (
@@ -19,7 +19,7 @@ export function switchExample(): ReactNode {
 export function switchSizes(): ReactNode {
   // Full size × state matrix — thumb-travel geometry differs per size, so the
   // OFF state is shown alongside ON at every size (not just the default).
-  const sizes = ['sm', 'default', 'lg'] as const;
+  const sizes = ["sm", "default", "lg"] as const;
   return (
     <Wrapper className="flex-col items-start gap-4">
       <div
@@ -31,7 +31,9 @@ export function switchSizes(): ReactNode {
         <span className="text-sm text-muted-foreground">On</span>
         {sizes.map((size) => (
           <Fragment key={size}>
-            <span className="font-mono text-sm text-muted-foreground">{size}</span>
+            <span className="font-mono text-sm text-muted-foreground">
+              {size}
+            </span>
             <Switch size={size} aria-label={`${size} off`} />
             <Switch size={size} defaultChecked aria-label={`${size} on`} />
           </Fragment>
@@ -98,9 +100,9 @@ export function switchControlled(): ReactNode {
         <Switch checked={enabled} onCheckedChange={setEnabled} />
       </Field>
       <p className="text-base text-muted-foreground">
-        Notifications are{' '}
+        Notifications are{" "}
         <span className="font-medium text-foreground">
-          {enabled ? 'on' : 'off'}
+          {enabled ? "on" : "off"}
         </span>
         .
       </p>

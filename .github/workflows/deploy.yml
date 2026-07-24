@@ -1,44 +1,69 @@
 name: Deploy (docs + signed registry)
-# Manual until the build + Cloudflare provisioning are ready (build-LOCAL-stop policy).
+# Manual by design: every outward deploy still requires a fresh MK decision.
 on:
   workflow_dispatch:
+    inputs:
+      cutover_phase:
+        description: >-
+          ordinary for routine deploys; prepare to verify root SSO and purge retired artifacts;
+          verify only after root SSO has been removed.
+        type: choice
+        options:
+          - ordinary
+          - prepare
+          - verify
+        default: ordinary
 
 permissions:
   contents: read
-  id-token: write # Sigstore keyless signing (GitHub OIDC)
 
-# Turborepo remote caching (Phase D): activates when MK provisions the Vercel Remote Cache
-# secrets — inert (local cache only) until then. Signature verification is enabled in
-# turbo.json so poisoned-cache artifacts are rejected.
 env:
-  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  SITE_VISIBILITY: public
+
+# Serialize the complete build/sign/deploy/cutover chain so an older run cannot deploy after or
+# attest a newer run. The manual dispatch from main is the explicit outward-deploy approval.
+concurrency:
+  group: production-docs
+  cancel-in-progress: false
 
 jobs:
-  # Release-blocking VRT gate. Deploy is a RELEASE: per the day-one VRT requirement, a missing
-  # baseline must NOT be an acceptable "ship anyway" state (Codex R8). This job runs in the pinned
-  # Playwright container, FAILS CLOSED if no baseline screenshots are committed, and runs the pixel
-  # diff as a blocking check — so you cannot deploy without committed VRT baselines that pass. The
-  # one-time baseline bootstrap (vrt.yml → update_baselines, then commit) is therefore a hard
-  # prerequisite of the first deploy.
-  vrt-gate:
+  ref-guard:
     runs-on: ubuntu-latest
-    container: mcr.microsoft.com/playwright:v1.61.0-noble # MUST match ci.yml / vrt.yml
     steps:
-      - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v6
+      - name: Require the protected production ref
+        env:
+          DISPATCH_REF: ${{ github.ref }}
+          CUTOVER_PHASE: ${{ inputs.cutover_phase }}
+          CUTOVER_STATE: ${{ vars.PUBLIC_DOCS_CUTOVER }}
+        run: |
+          set -euo pipefail
+          test "$DISPATCH_REF" = "refs/heads/main" || {
+            echo "::error title=Untrusted deployment ref::Production deploys must be dispatched from refs/heads/main, not $DISPATCH_REF."
+            exit 1
+          }
+          if [ "$CUTOVER_PHASE" = "prepare" ] && [ "$CUTOVER_STATE" = "complete" ]; then
+            echo "::error title=Cutover already complete::The one-time prepare phase is permanently retired. Use cutover_phase=ordinary."
+            exit 1
+          fi
+
+  # Release-blocking VRT gate. The complete authoritative Linux baseline set must exist and pass.
+  vrt-gate:
+    needs: ref-guard
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.61.0-noble@sha256:57b65fdc9ceabe0ef613124c7bbe2babcf9362c4d85e382fe3b03604e84b428a
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - run: pnpm build # static-export the docs so VRT renders the compiled, shipped CSS
-      - name: Require committed VRT baselines (fail-closed for release)
-        run: |
-          # find, not `ls **`: CI steps run POSIX sh where ** is NOT recursive — a `**` glob
-          # here can never match vrt/<spec>-snapshots/*.png and would fail even with baselines committed.
-          [ -n "$(find apps/docs/vrt -type f -path '*-snapshots/*' -name '*.png' 2>/dev/null | head -1)" ] || {
-            echo "::error title=VRT baselines missing::Cannot deploy without committed baseline screenshots. Run the VRT workflow's update_baselines bootstrap in the pinned container and commit apps/docs/vrt/**/*-snapshots/** first.";
-            exit 1;
-          }
+      - run: pnpm build
+      - name: Require complete Linux VRT baselines (fail-closed for release)
+        run: pnpm --filter @vegastack/docs verify:vrt-baselines
       - name: VRT pixel gate (blocking)
         working-directory: apps/docs
         env:
@@ -54,85 +79,234 @@ jobs:
             console.log(`✓ VRT executed ${ran} screenshot test(s).`);
           '
 
-  deploy:
-    needs: vrt-gate # release is fail-closed on the VRT pixel gate above
+  # Build and validate repository-controlled code without OIDC or Cloudflare credentials.
+  build-curated:
+    needs: vrt-gate
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      # ORDER MATTERS: build + stamp + SIGN the registry into apps/docs/public/r FIRST, then static-
-      # export. `next build` copies public/* into out/, so signing before export is what gets the
-      # signed integrity-manifest.sigstore into out/r (what Cloudflare actually serves). Signing
-      # after export would deploy an UNSIGNED out/r.
-      - run: pnpm registry:build # shadcn build + whole-item integrity stamp (writes public/r)
-      - uses: sigstore/cosign-installer@v3
-      - name: Sign the integrity manifest (keyless, GitHub OIDC)
+      - run: pnpm registry:build
+      - name: Require registry build idempotency
         run: |
-          cosign sign-blob --yes \
-            --bundle apps/docs/public/r/integrity-manifest.sigstore \
-            apps/docs/public/r/integrity-manifest.json
-      - run: pnpm build # static-export the docs → out/ (copies the signed public/r into out/r)
-      - name: Assert the signed registry made it into the deploy artifact
-        run: |
-          test -f apps/docs/out/r/integrity-manifest.json || { echo "::error::out/r missing integrity-manifest.json"; exit 1; }
-          test -f apps/docs/out/r/integrity-manifest.sigstore || { echo "::error::out/r missing integrity-manifest.sigstore (signed bundle not exported)"; exit 1; }
-          # the exported manifest must be byte-identical to the signed one
-          cmp apps/docs/public/r/integrity-manifest.json apps/docs/out/r/integrity-manifest.json
-          cmp apps/docs/public/r/integrity-manifest.sigstore apps/docs/out/r/integrity-manifest.sigstore
-      # Cloudflare Workers Static Assets rejects any file ≥25MiB with a bare "Asset too large."
-      # Catch it here with the offending paths named (first hit: the Story explorer's type
-      # introspection once ballooned checkbox/switch pages to ~26MB — fixed by narrowing the
-      # story wrapper props; this guard keeps the failure diagnosable if it ever recurs).
-      - name: Guard — no static asset may exceed Cloudflare's 25MiB limit
-        run: |
-          BIG=$(find apps/docs/out -type f -size +24M | head -20)
-          if [ -n "$BIG" ]; then
-            echo "::error title=Asset over 25MiB::These exported files exceed Cloudflare's per-asset limit:"; echo "$BIG" | while read -r f; do ls -lh "$f" | awk '{print "  "$5" "$9}'; done
+          set -euo pipefail
+          git status --porcelain > "$RUNNER_TEMP/git-status"
+          if [ -s "$RUNNER_TEMP/git-status" ]; then
+            echo "::error title=Generated registry drift::registry:build changed the checked-out deploy commit."
+            cat "$RUNNER_TEMP/git-status"
             exit 1
           fi
-      - name: Deploy to Cloudflare Workers Static Assets
-        run: pnpm --filter @vegastack/docs exec wrangler deploy # uses apps/docs/wrangler.jsonc (assets.directory=./out)
+      - run: node tooling/verify-registry-integrity-negative.mjs
+      - run: pnpm build
+      - name: Assert the unsigned artifact is complete
+        run: |
+          set -euo pipefail
+          test -f apps/docs/out/r/integrity-manifest.json
+          test ! -e apps/docs/out/r/integrity-manifest.sigstore
+          BIG=$(find apps/docs/out -type f -size +24M | head -20)
+          if [ -n "$BIG" ]; then
+            echo "::error title=Asset over 25MiB::These exported files exceed Cloudflare's per-asset limit:"
+            echo "$BIG" | while read -r file; do ls -lh "$file" | awk '{print "  "$5" "$9}'; done
+            exit 1
+          fi
+      - name: Upload the validated unsigned artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: docs-unsigned-${{ github.sha }}
+          path: |
+            apps/docs/out
+            apps/docs/wrangler.jsonc
+          if-no-files-found: error
+          retention-days: 1
+
+  # This is the only job allowed to mint GitHub OIDC. It executes no repository code.
+  sign-curated:
+    needs: build-curated
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
+        with:
+          name: docs-unsigned-${{ github.sha }}
+          path: apps/docs
+      - uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
+      - name: Sign and verify the exported integrity manifest
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
-      # Fail-closed verification of the locked registry-auth trust boundary (requirements §8.5; Codex
-      # R10). The Cloudflare Access policies themselves are configured in Zero Trust (an MK account
-      # action — not in-repo IaC), so this step PROVES the live policy is actually enforcing rather
-      # than assuming it: human docs must require SSO (no anonymous 200), and /r/* must be
-      # service-token-only (anonymous rejected, valid service-token accepted). Any drift blocks the
-      # deploy. Requires repo var DOCS_URL + secrets CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET.
-      - name: Verify Cloudflare Access policy (fail-closed)
+          SIGNER_REPOSITORY: ${{ github.repository }}
+          SIGNER_REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          MANIFEST=apps/docs/out/r/integrity-manifest.json
+          BUNDLE=apps/docs/out/r/integrity-manifest.sigstore
+          IDENTITY="https://github.com/${SIGNER_REPOSITORY}/.github/workflows/deploy.yml@${SIGNER_REF}"
+          cosign sign-blob --yes --bundle "$BUNDLE" "$MANIFEST"
+          COMMON=(
+            --bundle "$BUNDLE"
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com
+            --certificate-github-workflow-repository "$SIGNER_REPOSITORY"
+            --certificate-github-workflow-ref "$SIGNER_REF"
+          )
+          cosign verify-blob "${COMMON[@]}" --certificate-identity "$IDENTITY" "$MANIFEST"
+
+          cp "$MANIFEST" "$RUNNER_TEMP/tampered-manifest.json"
+          printf '\n' >> "$RUNNER_TEMP/tampered-manifest.json"
+          if cosign verify-blob "${COMMON[@]}" --certificate-identity "$IDENTITY" "$RUNNER_TEMP/tampered-manifest.json"; then
+            echo "::error::Tampered manifest unexpectedly verified"
+            exit 1
+          fi
+          WRONG_IDENTITY="https://github.com/${SIGNER_REPOSITORY}/.github/workflows/release.yml@${SIGNER_REF}"
+          if cosign verify-blob "${COMMON[@]}" --certificate-identity "$WRONG_IDENTITY" "$MANIFEST"; then
+            echo "::error::Wrong signer identity unexpectedly verified"
+            exit 1
+          fi
+      - name: Upload the immutable signed artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: docs-signed-${{ github.sha }}
+          path: |
+            apps/docs/out
+            apps/docs/wrangler.jsonc
+          if-no-files-found: error
+          retention-days: 1
+
+  # The credential-only deploy job reverifies the signed artifact and uses the existing repository
+  # Cloudflare secrets. It cannot mint OIDC and executes no repository-controlled package scripts.
+  deploy-curated:
+    needs: sign-curated
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
+        with:
+          name: docs-signed-${{ github.sha }}
+          path: apps/docs
+      - uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
+      - name: Reverify the exact artifact immediately before deployment
+        env:
+          SIGNER_REPOSITORY: ${{ github.repository }}
+          SIGNER_REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          cosign verify-blob \
+            --bundle apps/docs/out/r/integrity-manifest.sigstore \
+            --certificate-identity "https://github.com/${SIGNER_REPOSITORY}/.github/workflows/deploy.yml@${SIGNER_REF}" \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+            --certificate-github-workflow-repository "$SIGNER_REPOSITORY" \
+            --certificate-github-workflow-ref "$SIGNER_REF" \
+            apps/docs/out/r/integrity-manifest.json
+      - name: Deploy to Cloudflare Workers Static Assets
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          workingDirectory: apps/docs
+          wranglerVersion: 4.113.0
+          command: deploy
+
+  # Cutover phase 1 is its own explicit dispatch. While broad root SSO is still active, prove the
+  # protected boundary and purge every retired derivative that could carry the old internal page.
+  # The workflow then ENDS so the approved operator can remove root SSO out of band. A later `verify`
+  # dispatch is the separate decision that tests the resulting public boundary.
+  pre-cutover-purge:
+    needs: deploy-curated
+    if: inputs.cutover_phase == 'prepare' && vars.PUBLIC_DOCS_CUTOVER != 'complete'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with: { node-version: 24 }
+      - name: Require recorded Access topology
+        env:
+          CF_ROOT_ACCESS_APPLICATION_ID: ${{ vars.CF_ROOT_ACCESS_APPLICATION_ID }}
+          CF_INTERNAL_ACCESS_APPLICATION_ID: ${{ vars.CF_INTERNAL_ACCESS_APPLICATION_ID }}
+          CF_REGISTRY_ACCESS_APPLICATION_ID: ${{ vars.CF_REGISTRY_ACCESS_APPLICATION_ID }}
+          CF_ACCESS_SERVICE_TOKEN_EXPIRES_AT: ${{ vars.CF_ACCESS_SERVICE_TOKEN_EXPIRES_AT }}
+        run: |
+          set -euo pipefail
+          test -n "${CF_ROOT_ACCESS_APPLICATION_ID:-}" || { echo "::error::Record CF_ROOT_ACCESS_APPLICATION_ID before cutover."; exit 1; }
+          test -n "${CF_INTERNAL_ACCESS_APPLICATION_ID:-}" || { echo "::error::Record CF_INTERNAL_ACCESS_APPLICATION_ID before cutover."; exit 1; }
+          test -n "${CF_REGISTRY_ACCESS_APPLICATION_ID:-}" || { echo "::error::Record CF_REGISTRY_ACCESS_APPLICATION_ID before cutover."; exit 1; }
+          test -n "${CF_ACCESS_SERVICE_TOKEN_EXPIRES_AT:-}" || { echo "::error::Record CF_ACCESS_SERVICE_TOKEN_EXPIRES_AT before cutover."; exit 1; }
+          node -e 'const expiry = Date.parse(process.env.CF_ACCESS_SERVICE_TOKEN_EXPIRES_AT); if (!Number.isFinite(expiry) || expiry <= Date.now()) throw new Error("Recorded service token expiry is invalid or elapsed")'
+      - name: Purge retired public/internal artifacts and aggregate corpora
         env:
           DOCS_URL: ${{ vars.DOCS_URL }}
           CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
           CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
         run: |
-          set -euo pipefail
-          if [ -z "${DOCS_URL:-}" ]; then echo "::error title=DOCS_URL unset::Set repo variable DOCS_URL to the deployed origin so the Access policy can be verified."; exit 1; fi
-          if [ -z "${CF_ACCESS_CLIENT_ID:-}" ] || [ -z "${CF_ACCESS_CLIENT_SECRET:-}" ]; then echo "::error title=Service token unset::Set secrets CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET (the /r/* CF Access service token)."; exit 1; fi
-          base="${DOCS_URL%/}"
-          # cURL the live origin, NOT following redirects, so a 302 to the Access login counts as "gated".
-          code() { curl -sS -m 20 -o /dev/null -w '%{http_code}' "$@"; }
-          # (1) Human docs must be SSO-gated — anonymous access must NOT return 200.
-          anon_docs=$(code "$base/")
-          case "$anon_docs" in
-            200) echo "::error title=Docs not SSO-gated::GET / returned 200 without auth — Cloudflare Access SSO is not enforcing on the human docs."; exit 1;;
-            30*|401|403) echo "✓ docs gated (anonymous → $anon_docs)";;
-            *) echo "::error::Unexpected status $anon_docs for anonymous GET / (expected a redirect/401/403)"; exit 1;;
-          esac
-          # (2) /r/* must reject anonymous requests (service-token-only).
-          anon_reg=$(code "$base/r/registry.json")
-          case "$anon_reg" in
-            401|403|30*) echo "✓ /r/* rejects anonymous (→ $anon_reg)";;
-            *) echo "::error title=/r/* not protected::GET /r/registry.json returned $anon_reg without a service token — the registry endpoint is not service-token-only."; exit 1;;
-          esac
-          # (3) /r/* must ACCEPT the valid CF Access service token.
-          auth_reg=$(code -H "CF-Access-Client-Id: $CF_ACCESS_CLIENT_ID" -H "CF-Access-Client-Secret: $CF_ACCESS_CLIENT_SECRET" "$base/r/registry.json")
-          case "$auth_reg" in
-            200) echo "✓ /r/* accepts the service token (→ 200)";;
-            *) echo "::error title=Service token rejected::GET /r/registry.json with the CF Access service token returned $auth_reg (expected 200) — token/policy misconfigured."; exit 1;;
-          esac
-          echo "✓ Cloudflare Access policy verified: docs SSO-gated, /r/* service-token-only."
+          node apps/docs/scripts/probe-precutover-protection.mjs
+          node apps/docs/scripts/purge-retired-public-route.mjs
+
+  # Before the one-time public cutover, ordinary deploys retain the proven production contract:
+  # broad root SSO rejects anonymous docs traffic and `/r/*` accepts only the service token.
+  verify-protected-boundary:
+    needs: deploy-curated
+    if: inputs.cutover_phase == 'ordinary' && vars.PUBLIC_DOCS_CUTOVER != 'complete'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with: { node-version: 24 }
+      - name: Verify the protected docs and registry boundary (fail-closed)
+        env:
+          DOCS_URL: ${{ vars.DOCS_URL }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+        run: node apps/docs/scripts/probe-precutover-protection.mjs
+
+  # Live route-boundary verification: anonymous public HTML/Markdown/LLM/search/OG must be 200,
+  # `/internal/*` must reject anonymous access, and `/r/*` must reject anonymous but accept the
+  # service token (plus a cosign-verified manifest). It performs no Access mutation.
+  #
+  # Cutover phase 2 is a separate `verify` dispatch after the operator removes root SSO. Once the
+  # cutover is recorded complete, the same public/internal/registry probe runs after every ordinary
+  # deploy. It is deliberately independent of phase 1 so there is a real human pause between them.
+  verify-public-boundary:
+    needs: deploy-curated
+    if: >-
+      inputs.cutover_phase == 'verify'
+      || (inputs.cutover_phase == 'ordinary' && vars.PUBLIC_DOCS_CUTOVER == 'complete')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with: { node-version: 24 }
+      - uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
+      - name: Verify the public/internal/registry boundary (fail-closed)
+        env:
+          DOCS_URL: ${{ vars.DOCS_URL }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+          SIGNER_REPOSITORY: ${{ github.repository }}
+          SIGNER_REF: refs/heads/main
+        run: node apps/docs/scripts/probe-deployment.mjs

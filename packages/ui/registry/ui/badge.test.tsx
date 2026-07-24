@@ -80,3 +80,24 @@ test("forwards ref to the root span element", async () => {
   expect(ref.current).toBeInstanceOf(HTMLSpanElement);
   expect(ref.current?.dataset.slot).toBe("badge");
 });
+
+test("bordered subtle badge carries the matching-hue border class", async () => {
+  const screen = await render(
+    <Badge intent="success" bordered>
+      Active
+    </Badge>,
+  );
+  const el = screen.getByText("Active");
+  await expect.element(el).toHaveAttribute("data-bordered", "");
+  expect((el.element() as HTMLElement).className).toContain(
+    "border-success/(--alpha-outline-border)",
+  );
+});
+
+test("outline variant renders the hairline tag chip without a fill", async () => {
+  const screen = await render(<Badge variant="outline">B2B</Badge>);
+  const el = screen.getByText("B2B");
+  await expect.element(el).toHaveAttribute("data-variant", "outline");
+  expect((el.element() as HTMLElement).className).toContain("border-border");
+  expect((el.element() as HTMLElement).className).toContain("bg-transparent");
+});

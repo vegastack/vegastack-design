@@ -1,4 +1,4 @@
-// @vegastack checkbox@0.2.0 sha256-WSoMPIq9hoJxKEOzNJ+GgMhgpOiI/XmIZMeZQBYpTrQ=
+// @vegastack checkbox@0.2.0 sha256-370VwbV/5+kUVyKW4ZWbnXJpd/Ptlewk2x+SxVUBHFA=
 
 "use client";
 
@@ -7,7 +7,11 @@ import { Checkbox as BaseCheckbox } from "@base-ui/react/checkbox";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Check, Minus } from "lucide-react";
 import { cn } from "@vegastack/design";
-import { mergeRefs, useShakeOnInvalid, type ShakeSignal } from "@/components/ui/use-animation-replay";
+import {
+  mergeRefs,
+  useShakeOnInvalid,
+  type ShakeSignal,
+} from "@/components/ui/use-animation-replay";
 
 /**
  * Checkbox variants. `size` mirrors the form-control scale so checkboxes line up
@@ -19,23 +23,24 @@ import { mergeRefs, useShakeOnInvalid, type ShakeSignal } from "@/components/ui/
  * minimum target size, so each size adds an invisible `::before` hit-area
  * expansion (`relative` + `before:absolute before:-inset-*`, already-transparent
  * generated content) sized to bring the EFFECTIVE hit area to ≥24×24 without
- * touching the visible box: `default` (16 + 2×4 = 24px), `sm` (14 + 2×6 = 26px).
+ * touching the visible box. The 1px border means the pseudo-element is positioned
+ * from a 14px/12px padding box, so both sizes use a 6px inset: 26px / 24px.
  */
 export const checkboxVariants = cva(
   [
-    "peer relative inline-flex shrink-0 items-center justify-center rounded-sm border border-input bg-transparent text-current transition-[color,box-shadow,background-color,border-color] duration-fast ease-standard",
+    "peer relative inline-flex shrink-0 items-center justify-center rounded-sm border border-input bg-transparent text-current",
     "dark:bg-input/(--alpha-input)",
     "hover:border-ring/(--alpha-tint-border)",
     "data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground",
     "data-indeterminate:border-primary data-indeterminate:bg-primary data-indeterminate:text-primary-foreground",
-    "aria-invalid:border-destructive/(--alpha-tint-border) data-invalid:border-destructive/(--alpha-tint-border)",
+    "aria-invalid:border-destructive-border/(--alpha-tint-border) data-invalid:border-destructive-border/(--alpha-tint-border)",
     "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-(--opacity-dim)",
     "group-has-disabled/field:opacity-(--opacity-dim)",
   ].join(" "),
   {
     variants: {
       size: {
-        default: "size-4 before:absolute before:-inset-1",
+        default: "size-4 before:absolute before:-inset-1.5",
         sm: "size-3.5 before:absolute before:-inset-1.5",
       },
     },
@@ -43,6 +48,7 @@ export const checkboxVariants = cva(
   },
 );
 
+/** Props accepted by `Checkbox`. */
 export interface CheckboxProps
   extends
     React.ComponentProps<typeof BaseCheckbox.Root>,
@@ -66,6 +72,8 @@ export interface CheckboxProps
   indeterminate?: boolean;
   /**
    * Called when the checkbox is ticked or unticked, with the next checked value.
+
+   * @default undefined
    */
   onCheckedChange?: (
     checked: boolean,
@@ -81,6 +89,8 @@ export interface CheckboxProps
    * `ReactElement` or a render function — Base UI merges this
    * wrapper's `className`, `data-slot`, and state `data-*` onto your element and
    * forwards the ref. The element must support `role="checkbox"` semantics.
+
+   * @default undefined
    */
   render?: React.ComponentProps<typeof BaseCheckbox.Root>["render"];
   /**
@@ -88,6 +98,8 @@ export interface CheckboxProps
    * ALREADY invalid — e.g. a required checkbox left unticked across repeated failed submits. The
    * checkbox already auto-shakes once the moment it first becomes invalid; this is only for
    * repeat failures against a still-invalid checkbox. See `useShakeOnInvalid` (`use-animation-replay`).
+
+   * @default undefined
    */
   shakeSignal?: ShakeSignal;
 }
@@ -139,13 +151,14 @@ export function Checkbox({
     () => mergeRefs(ref, shakeInvalidRef),
     [ref, shakeInvalidRef],
   );
-  const handleAnimationEnd: NonNullable<CheckboxProps["onAnimationEnd"]> = React.useCallback(
-    (event) => {
-      shakeAnimationEnd(event);
-      onAnimationEnd?.(event);
-    },
-    [onAnimationEnd, shakeAnimationEnd],
-  );
+  const handleAnimationEnd: NonNullable<CheckboxProps["onAnimationEnd"]> =
+    React.useCallback(
+      (event) => {
+        shakeAnimationEnd(event);
+        onAnimationEnd?.(event);
+      },
+      [onAnimationEnd, shakeAnimationEnd],
+    );
 
   return (
     <BaseCheckbox.Root
@@ -160,13 +173,15 @@ export function Checkbox({
         data-slot="checkbox-indicator"
         className={cn(
           "flex items-center justify-center text-current [&_svg]:shrink-0",
-          size === "sm" ? "[&_svg]:size-(--icon-compact)" : "[&_svg]:size-(--icon-inline)",
+          size === "sm"
+            ? "[&_svg]:size-(--icon-compact)"
+            : "[&_svg]:size-(--icon-inline)",
         )}
       >
         {props.indeterminate ? (
-          <Minus strokeWidth={3} aria-hidden />
+          <Minus strokeWidth={2} aria-hidden />
         ) : (
-          <Check strokeWidth={3} aria-hidden />
+          <Check strokeWidth={2} aria-hidden />
         )}
       </BaseCheckbox.Indicator>
     </BaseCheckbox.Root>

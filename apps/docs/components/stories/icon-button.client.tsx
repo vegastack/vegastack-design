@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { Plus } from 'lucide-react';
-import { IconButton, type IconButtonProps } from '@/components/ui/icon-button';
+import { Plus } from "lucide-react";
+import { IconButton, type IconButtonProps } from "@/components/ui/icon-button";
 
 export interface IconButtonStoryProps {
-  variant?: IconButtonProps['variant'];
-  size?: IconButtonProps['size'];
+  variant?: IconButtonProps["variant"];
+  size?: IconButtonProps["size"];
   disabled?: boolean;
   loading?: boolean;
-  'aria-label'?: string;
+  "aria-label"?: string;
 }
 
 /**
@@ -20,7 +20,7 @@ export interface IconButtonStoryProps {
  * and the page fast; the full inherited surface is documented by AutoTypeTable.
  */
 export function IconButtonStory({
-  'aria-label': ariaLabel = 'Add item',
+  "aria-label": ariaLabel = "Add item",
   ...props
 }: IconButtonStoryProps) {
   return (

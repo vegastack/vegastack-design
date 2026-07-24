@@ -1,11 +1,17 @@
-'use client';
+"use client";
 
-import { useState, type ReactNode } from 'react';
-import { Wrapper } from './wrapper';
+import { useState, type ReactNode } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/animated-number` (dogfoods the registry) → auto-scanned.
-import { AnimatedNumber } from '@/components/ui/animated-number';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AnimatedNumber } from "@/components/ui/animated-number";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 // Basic count-up: a plain integer stat that tweens up on each click. The resting render (no
 // interaction) is fully deterministic — a fixed starting count, no Math.random — so VRT screenshots
@@ -42,7 +48,10 @@ export function animatedNumberCurrency(): ReactNode {
         <CardHeader>
           <CardDescription>Revenue this month</CardDescription>
           <CardTitle className="text-3xl">
-            <AnimatedNumber value={revenue} format={{ style: 'currency', currency: 'USD' }} />
+            <AnimatedNumber
+              value={revenue}
+              format={{ style: "currency", currency: "USD" }}
+            />
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -65,7 +74,10 @@ export function animatedNumberCompact(): ReactNode {
         <CardHeader>
           <CardDescription>Followers</CardDescription>
           <CardTitle className="text-3xl">
-            <AnimatedNumber value={followers} format={{ notation: 'compact', maximumFractionDigits: 1 }} />
+            <AnimatedNumber
+              value={followers}
+              format={{ notation: "compact", maximumFractionDigits: 1 }}
+            />
           </CardTitle>
         </CardHeader>
         <CardContent>

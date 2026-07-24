@@ -1,0 +1,74 @@
+---
+title: Onboarding Checklist
+description: A getting-started card — segmented progress and step rows, collapsible to a progress pill.
+audience: public
+preview: onboardingChecklist
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/onboarding-checklist
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+<OnboardingChecklist title="Getting started" done={doneCount} total={6}>
+  <OnboardingChecklistItem icon={<Mail />} done>
+    Sync email account
+  </OnboardingChecklistItem>
+  <OnboardingChecklistItem icon={<BarChart3 />} onClick={openReports}>
+    Create a report
+  </OnboardingChecklistItem>
+</OnboardingChecklist>
+```
+
+## Examples
+
+<ComponentPreview
+  name="onboardingChecklist"
+  file="components/preview/onboarding-checklist.tsx"
+/>
+
+## State model
+
+The HOST owns completion (`done` per item + the `done/total` counts) and each step's action;
+the component owns layout, the segmented progress bar (announced via `progressbar`), and the
+collapse-to-pill toggle (`collapsed`/`defaultCollapsed`/`onCollapsedChange`).
+
+## API Reference
+
+### OnboardingChecklist
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/onboarding-checklist.tsx"
+  name="OnboardingChecklistProps"
+/>
+
+### OnboardingChecklistItem
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/onboarding-checklist.tsx"
+  name="OnboardingChecklistItemProps"
+/>
+
+## Accessibility
+
+- The segmented meter is one named `progressbar`; its decorative segments stay hidden from assistive technology.
+- Collapse and expand controls expose complete action labels, and the collapsed pill preserves the current count in visible text.
+- Completed items are disabled and use a check plus struck label, so completion is never communicated by color alone.
+
+| Key                                 | Action                                                     |
+| ----------------------------------- | ---------------------------------------------------------- |
+| <kbd>Tab</kbd>                      | Move through the collapse control and unfinished steps.    |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Collapse, expand, or activate the focused unfinished step. |
+
+## Do / Don't
+
+<DoDont
+  do="Keep done and total synchronized with the visible steps, and use concise verb-first step labels."
+  dont="Mark a step complete from presentation state alone or leave a completed step keyboard-activatable."
+/>

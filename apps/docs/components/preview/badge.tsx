@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState, type ReactNode } from 'react';
-import { Wrapper } from './wrapper';
-import { Check, Sparkles, Star } from 'lucide-react';
+import { useState, type ReactNode } from "react";
+import { Wrapper } from "./wrapper";
+import { Check, Sparkles, Star } from "lucide-react";
 // Copied INTO apps/docs via `shadcn add @vegastack/badge` (dogfoods the registry) → auto-scanned.
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export function badge(): ReactNode {
   return (
@@ -133,8 +133,12 @@ export function badgeAnimateIn(): ReactNode {
           </Badge>
         )}
       </div>
-      <Button variant="outline" size="sm" onClick={() => setVerified((v) => !v)}>
-        {verified ? 'Reset' : 'Verify'}
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setVerified((v) => !v)}
+      >
+        {verified ? "Reset" : "Verify"}
       </Button>
     </Wrapper>
   );
@@ -161,6 +165,37 @@ export function badgeStates(): ReactNode {
         <Star />
         Minimal
       </Badge>
+    </Wrapper>
+  );
+}
+
+export function badgeTagChips(): ReactNode {
+  // Wave 2: `bordered` subtle chips (tint + matching-hue hairline — the crisp tag read)
+  // and the `outline` hairline tag. Compose `+N` overflow as a neutral outline badge.
+  return (
+    <Wrapper className="flex-col items-center gap-3">
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        <Badge intent="info" bordered>
+          Syncing
+        </Badge>
+        <Badge intent="success" bordered>
+          Active
+        </Badge>
+        <Badge intent="warning" bordered>
+          Degraded
+        </Badge>
+        <Badge intent="destructive" bordered>
+          Failed
+        </Badge>
+      </div>
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        <Badge variant="outline">B2B</Badge>
+        <Badge variant="outline">SaaS</Badge>
+        <Badge variant="outline" intent="info">
+          Enterprise
+        </Badge>
+        <Badge variant="outline">+3</Badge>
+      </div>
     </Wrapper>
   );
 }

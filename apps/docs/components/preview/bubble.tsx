@@ -24,7 +24,11 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const VARIANTS = [
   "default",
@@ -114,13 +118,23 @@ export function bubbleReactions(): ReactNode {
       <div className="flex w-full max-w-md flex-col gap-8 py-4">
         <Bubble variant="muted">
           <BubbleContent>Bottom-start reaction</BubbleContent>
-          <BubbleReactions side="bottom" align="start" role="img" aria-label="heart">
+          <BubbleReactions
+            side="bottom"
+            align="start"
+            role="img"
+            aria-label="heart"
+          >
             ❤️
           </BubbleReactions>
         </Bubble>
         <Bubble align="end">
           <BubbleContent>Top-end, multiple reactions</BubbleContent>
-          <BubbleReactions side="top" align="end" role="img" aria-label="reactions">
+          <BubbleReactions
+            side="top"
+            align="end"
+            role="img"
+            aria-label="reactions"
+          >
             😂🎉👍
           </BubbleReactions>
         </Bubble>
@@ -188,7 +202,12 @@ export function bubbleAnimateIn(): ReactNode {
             <BubbleContent>On my way — be there in five.</BubbleContent>
           </Bubble>
         ) : null}
-        <Button variant="outline" size="sm" disabled={sent} onClick={() => setSent(true)}>
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={sent}
+          onClick={() => setSent(true)}
+        >
           Send message
         </Button>
       </div>
@@ -215,7 +234,9 @@ export function bubbleCollapsible(): ReactNode {
                 </p>
               </CollapsibleContent>
               <CollapsibleTrigger
-                render={<Button variant="link" size="sm" className="mt-1 px-0" />}
+                render={
+                  <Button variant="link" size="sm" className="mt-1 px-0" />
+                }
               >
                 {open ? "Show less" : "Show more"}
                 <ChevronDown
@@ -244,7 +265,11 @@ export function bubblePopover(): ReactNode {
             <Popover>
               <PopoverTrigger
                 render={
-                  <Button variant="ghost" size="icon-xs" aria-label="Why did this fail?">
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    aria-label="Why did this fail?"
+                  >
                     <Info />
                   </Button>
                 }
@@ -274,7 +299,11 @@ export function bubbleTooltip(): ReactNode {
             <Tooltip>
               <TooltipTrigger
                 render={
-                  <Button variant="ghost" size="icon-xs" aria-label="Read receipt">
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    aria-label="Read receipt"
+                  >
                     <Check />
                   </Button>
                 }

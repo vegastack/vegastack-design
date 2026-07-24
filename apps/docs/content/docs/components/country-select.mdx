@@ -1,6 +1,7 @@
 ---
 title: Country Select
 description: A button-triggered searchable country popover returning the ISO 3166-1 alpha-2 code.
+audience: public
 preview: countrySelect
 ---
 
@@ -25,7 +26,9 @@ const [country, setCountry] = useState<string>();
 update it from `onValueChange`. The component is a single composite — there are no subcomponents to
 compose.
 
-## Anatomy
+## Examples
+
+### Anatomy
 
 The trigger is a `Button variant="outline"` showing the selected flag + name (or the muted
 placeholder), with a `ChevronsUpDown` affordance. It's a thin, data-fed composition of our
@@ -48,7 +51,7 @@ The trigger defaults to **`w-full`** — it fills its container. Constrain it by
 fixed-width parent (the examples use `w-64`) or pass layout classes via `className`; the popover
 panel matches the trigger width.
 
-## Examples
+### Country selection
 
 A flag + name list with type-to-filter search inside a popup; the value is the ISO 3166-1 alpha-2 code.
 
@@ -140,12 +143,12 @@ getCountryByCode("ZZ"); // undefined
 - The list is keyboard-navigable (↑/↓/Enter); typing filters by country name or code.
 - Flag emoji are `aria-hidden` (decorative); the name carries the accessible text.
 
-| Key                                 | Action                                       |
-| ----------------------------------- | -------------------------------------------- |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the popover from the trigger.           |
+| Key                                 | Action                                         |
+| ----------------------------------- | ---------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the popover from the trigger.             |
 | <kbd>↑</kbd> / <kbd>↓</kbd>         | Move the highlight between matching countries. |
-| <kbd>Enter</kbd>                    | Select the highlighted country and close.    |
-| <kbd>Esc</kbd>                      | Close without changing the selection.        |
+| <kbd>Enter</kbd>                    | Select the highlighted country and close.      |
+| <kbd>Esc</kbd>                      | Close without changing the selection.          |
 
 ## Do / Don't
 

@@ -1,6 +1,7 @@
 ---
 title: Design Principles
-description: The philosophy behind the system — neutral ink, color rationed to meaning, serif headings never bold, borders-only surfaces, and one sanctioned shadow.
+description: Neutral ink, semantic color, disciplined typography, flat surfaces, and two named shadow roles.
+audience: public
 ---
 
 VegaStack's look is **restraint, with color spent only where it carries meaning**. The product reads as
@@ -15,27 +16,29 @@ The primary action color is a **near-neutral ink**, not a brand hue. `--primary`
 Default buttons, focus rings, key text, and every **selected / active** state all sit in this neutral
 register, so the interface stays quiet by default.
 
-**Color is rationed to meaning.** Beyond the neutral ink, color is reserved for the status families
-(`success`, `warning`, `destructive`) and blue `info` for links and informational UI. There is no
-decorative brand hue — if a mark isn't neutral, it is carrying a status or a link, never decoration.
+**Color is rationed to a named role.** Beyond neutral ink, color belongs to status families
+(`success`, `warning`, `destructive`), blue `info`, categorical chart/tag palettes, or the deliberate
+`brand` role used by VegaStack marketing surfaces. Product controls stay neutral unless color carries
+one of those explicit meanings.
 
 <ColorPalette />
 
 <Callout title="Spend nothing you don't have to">
-Reach for `bg-primary` (neutral ink) for actions, selection, and active states; reach for a colored
-token only when it means something — a status or a link. A color that appears without meaning is wrong.
+  Reach for `bg-primary` (neutral ink) for actions, selection, and active
+  states; reach for a colored token only through its named status, information,
+  category, or brand role. Unnamed decoration is wrong.
 </Callout>
 
 <DoDont
-  do="Use bg-primary (neutral ink) for actions, selection, and active states; use color only for status or links."
-  dont="Introduce a decorative brand hue, or use a colored token where a neutral would do."
+  do="Use bg-primary for product actions; use status, info, category, or brand tokens only for their named roles."
+  dont="Invent an unnamed accent or use a chromatic token where neutral ink communicates the same thing."
 />
 
 ## Size does hierarchy, never bold
 
 Headings, body, and prose are all **Geist**; code and data are **Geist Mono**. Hierarchy comes
-from **size, tracking, and color — weight never exceeds 500** (`font-medium`). There is no
-`font-bold` anywhere in the system.
+from **size, named tracking roles, and color**. Weight is normally 400–500; the rare 600 tier is
+available only through `text-strong`. Raw `font-semibold` and `font-bold` are lint-banned.
 
 <TypeScaleSizes />
 
@@ -46,35 +49,36 @@ everything textual, `font-mono` for numbers, currency, and code; the serif face 
 display accent (emphasis words, pull-quotes), never running text.
 
 <DoDont
-  do="Let size, tracking, and color carry hierarchy at weight 400–500."
-  dont="Use font-bold or font-semibold — maximum weight in the system is 500."
+  do="Let size, named typography roles, and color carry hierarchy; reserve text-strong for rare emphasis."
+  dont="Use raw tracking, font-bold, or font-semibold utilities."
 />
 
-## Borders-only surfaces, one shadow
+## Flat surfaces, two named shadows
 
 Surfaces are defined by **borders, not elevation**. Cards, inputs, and panels use `border-border`
-with no drop shadow. The system ships **exactly one** elevation token —
+with no drop shadow. The system ships two tightly scoped shadow roles:
 
 ```css
---shadow-overlay: 0 4px 14px -4px oklch(0.13 0.002 75 / 0.10),
-                  0 2px 4px -2px oklch(0.13 0.002 75 / 0.06);
+--shadow-overlay:
+  0 4px 14px -4px oklch(0.13 0.002 75 / 0.1),
+  0 2px 4px -2px oklch(0.13 0.002 75 / 0.06);
 ```
 
-— and it is reserved for **floating overlays only**: popover, dialog, and menu surfaces that lift off
-the page. No other elevation tokens exist, so there is no `shadow-sm` / `shadow-md` ladder to reach
-for.
+- `shadow-overlay` is reserved for floating overlay surfaces.
+- `shadow-lit` is an opt-in finish for approved primary actions only.
+
+No other elevation tokens exist, so there is no `shadow-sm` / `shadow-md` ladder to reach for.
 
 <ShadowScale />
 
-Corners come from a small radius scale (`--radius-sm` 0.375rem → `--radius-lg`/`--radius` 0.75rem,
-with an `--radius-xl` bridged as `calc(--radius-lg + 0.25rem)`). Use the named `rounded-*` utilities,
-not arbitrary pixel radii.
+Corners use the fixed 2/6/8/12/full roles. `rounded-lg` is the 12px container cap;
+`rounded-xl` was removed and is lint-banned. Closely nested edges must be concentric.
 
 <RadiusScale />
 
 <DoDont
-  do="Separate surfaces with border-border; use shadow-overlay only on popovers, dialogs, and menus."
-  dont="Add drop shadows to cards or invent a shadow-sm/md/lg elevation ladder."
+  do="Separate surfaces with border-border; use shadow-overlay for overlays and shadow-lit only for approved primary actions."
+  dont="Elevate cards, nest equal-elevation cards, or invent a generic shadow ladder."
 />
 
 ## Semantic tokens only
@@ -112,20 +116,20 @@ arbitrary spacing values.
 ## Motion is quiet and CSS-first
 
 Motion uses three duration tokens (`--duration-fast` 150ms, `--duration-base` 200ms,
-`--duration-slow` 300ms) and three easings (`--ease-standard`, `--ease-emphasized`, `--ease-exit`).
-Transitions are subtle and CSS-first; the JS `motion` library is an optional peer used only where
-genuinely needed. `prefers-reduced-motion: reduce` is enforced globally in
+`--duration-slow` 300ms) and four easings (`--ease-standard`, `--ease-emphasized`, `--ease-exit`,
+`--ease-spring`). Transitions are subtle and CSS-first; the JS `motion` library is installed by the
+registry items that render Motion-driven behavior, including animated icons. `prefers-reduced-motion: reduce` is enforced globally in
 `@vegastack/design-tokens/base.css`, so reduced-motion is honored without per-component work.
 
 <MotionSpecimen />
 
-## Accessible by default — WCAG 2.1 AA
+## Accessible by default — WCAG 2.2 AA
 
 Accessibility is a **build rule, not a review step**. Every component must pass `axe` and meet
-**WCAG 2.1 AA**, with every applicable UI state implemented — default, hover, focus, loading, empty,
+**WCAG 2.2 AA** without dropping existing 2.1 assertions, with every applicable UI state implemented — default, hover, focus, loading, empty,
 error, success, disabled. Interactive elements carry a visible `:focus-visible` ring: a
-**2px outline at 2px offset**, keyed off `--ring` (which mirrors the neutral `--primary` ink). There
-are no separate ring-width or offset tokens — the 2px / 2px convention is the ring.
+**2px outline at 1px offset**, keyed off `--ring` (which mirrors the neutral `--primary` ink). There
+are no separate ring-width or offset tokens — the 2px / 1px convention is the ring.
 
 <FocusRingSpecimen />
 
@@ -135,8 +139,9 @@ The full contract — axe gate, keyboard semantics, and reduced motion — lives
 [Accessibility](/docs/foundations/accessibility) page.
 
 <Callout type="warn" title="Focus is non-negotiable">
-Never remove the focus outline to "clean up" a design. Keyboard users rely on it, and the
-design-audit skill flags any interactive element that suppresses `:focus-visible`.
+  Never remove the focus outline to "clean up" a design. Keyboard users rely on
+  it, and the design-audit skill flags any interactive element that suppresses
+  `:focus-visible`.
 </Callout>
 
 <DoDont

@@ -9,6 +9,14 @@ import { Avatar, AvatarGroup } from "./avatar";
 const PNG_1X1 =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
 
+// Firefox can reuse the completed Image object for an identical data URI while
+// Base UI is transitioning its preload state, so later tests may never observe
+// a fresh load event. A fragment keeps the decoded bytes identical while giving
+// every image-state test an independent URL/cache identity.
+function pngFixture(id: string): string {
+  return `${PNG_1X1}#${id}`;
+}
+
 test("renders the fallback when no src is provided", async () => {
   const screen = await render(<Avatar fallback="AL" />);
   const fallback = screen.getByText("AL");
@@ -21,17 +29,20 @@ test("renders the fallback when no src is provided", async () => {
 });
 
 test("renders an image with alt text when the image loads", async () => {
+  const src = pngFixture("named");
   const screen = await render(
-    <Avatar src={PNG_1X1} alt="Ada Lovelace" fallback="AL" />,
+    <Avatar src={src} alt="Ada Lovelace" fallback="AL" />,
   );
   // Base UI commits the <img> only after it loads; the loadable data URI guarantees it.
   const img = screen.getByRole("img", { name: "Ada Lovelace" });
-  await expect.element(img).toHaveAttribute("src", PNG_1X1);
+  await expect.element(img).toHaveAttribute("src", src);
   await expect.element(img).toHaveAttribute("data-slot", "avatar-image");
 });
 
 test('allows an explicitly decorative image with alt=""', async () => {
-  const screen = await render(<Avatar src={PNG_1X1} alt="" fallback="AL" />);
+  const screen = await render(
+    <Avatar src={pngFixture("decorative")} alt="" fallback="AL" />,
+  );
   await vi.waitFor(() => {
     const img = screen.container.querySelector('img[data-slot="avatar-image"]');
     expect(img).not.toBeNull();
@@ -80,7 +91,7 @@ test("AvatarGroup forwards ref to the underlying root element", async () => {
 
 test("no a11y violations (image avatar with alt text)", async () => {
   const screen = await render(
-    <Avatar src={PNG_1X1} alt="Ada Lovelace" fallback="AL" />,
+    <Avatar src={pngFixture("a11y")} alt="Ada Lovelace" fallback="AL" />,
   );
   // Ensure the image has committed before auditing so axe sees the real img + alt.
   await expect

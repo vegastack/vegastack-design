@@ -51,12 +51,18 @@
       --scroll-fade-t: 0px;
     }
     to {
-      --scroll-fade-t: var(--_scroll-fade-size-t, var(--scroll-fade-size, min(12%, calc(var(--spacing) * 10))));
+      --scroll-fade-t: var(
+        --_scroll-fade-size-t,
+        var(--scroll-fade-size, min(12%, calc(var(--spacing) * 10)))
+      );
     }
   }
   @keyframes scroll-fade-reveal-b {
     from {
-      --scroll-fade-b: var(--_scroll-fade-size-b, var(--scroll-fade-size, min(12%, calc(var(--spacing) * 10))));
+      --scroll-fade-b: var(
+        --_scroll-fade-size-b,
+        var(--scroll-fade-size, min(12%, calc(var(--spacing) * 10)))
+      );
     }
     to {
       --scroll-fade-b: 0px;
@@ -67,12 +73,18 @@
       --scroll-fade-s: 0px;
     }
     to {
-      --scroll-fade-s: var(--_scroll-fade-size-s, var(--scroll-fade-size, min(12%, calc(var(--spacing) * 10))));
+      --scroll-fade-s: var(
+        --_scroll-fade-size-s,
+        var(--scroll-fade-size, min(12%, calc(var(--spacing) * 10)))
+      );
     }
   }
   @keyframes scroll-fade-reveal-e {
     from {
-      --scroll-fade-e: var(--_scroll-fade-size-e, var(--scroll-fade-size, min(12%, calc(var(--spacing) * 10))));
+      --scroll-fade-e: var(
+        --_scroll-fade-size-e,
+        var(--scroll-fade-size, min(12%, calc(var(--spacing) * 10)))
+      );
     }
     to {
       --scroll-fade-e: 0px;
@@ -553,7 +565,6 @@
   }
 }
 
-
 /* ---------------------------------------------------------------------------
  * scrollbar-* — minimal native scrollbar helpers (VegaStack addition; not in
  * upstream shadcn tailwind.css). Used by message-scroller's viewport.
@@ -573,7 +584,6 @@
   scrollbar-gutter: stable;
 }
 
-
 /* ---------------------------------------------------------------------------
  * motion-* — the state-feedback animation vocabulary (VegaStack addition,
  * Phase M). Mount-triggered CSS animations for the "keyed presence" mechanism:
@@ -586,6 +596,8 @@
  *                         (the "success bounce" — spring ease, tiny overshoot).
  *   - motion-enter-up   : fade+rise arrival for content (chat messages,
  *                         skeleton→content reveal).
+ *   - motion-flash      : highlight-on-change ring pulse (live updates); color
+ *                         via --vs-flash-color, defaults to `ring`.
  *   - motion-shake      : horizontal error jiggle. Replayable: re-trigger by
  *                         remounting (key bump) or toggling the class after
  *                         `animationend`.
@@ -643,70 +655,62 @@
   animation: vs-shake var(--duration-slow) var(--motion-ease-standard);
 }
 
-/* ---------------------------------------------------------------------------
- * .vs-marketing — the marketing dark-ground SCOPE MECHANISM (Phase B, audit
- * 17-brand-direction §Color & surface, CX-10). Marketing surfaces (hero,
- * section bands, the Terminal primitive) render the warm ramp's DARK end
- * regardless of the page/product theme — `.dark` alone can't express "product
- * light + marketing dark on the SAME page," which is exactly the co-existing
- * case this class exists for (docs-home is light by default but its hero is
- * dark-first). Any subtree wrapped in `.vs-marketing` (see the
- * `MarketingSurface` primitive, and `Terminal`, which self-scopes) gets the
- * same semantic custom properties `.dark` sets, scoped LOCALLY instead of
- * gated on the page-root class — every `bg-background` / `text-foreground` /
- * `border-border` / `bg-brand` utility inside it resolves through these, with
- * NO component code changes (any existing token-built component composes
- * correctly, since only the custom-property VALUES change, never the
- * utility-to-var wiring).
- *
- * Values are a RATIONED, MANUALLY-SYNCED duplicate of the resolved oklch()
- * output of `packages/design-tokens/tokens/semantic.dark.tokens.json` (the same
- * values `.dark` sets) — the same "one sanctioned literal duplication"
- * precedent as the `overlay` scrim token in that file. The principled fix is
- * a THIRD generated Style Dictionary platform run in `build-tokens.mjs`
- * (source `semantic.dark.tokens.json`, selector `.vs-marketing` instead of
- * `.dark`) so this can never drift silently — that's a tokens-BUILD-PIPELINE
- * change outside this component-level addition; flagged for whoever owns
- * `packages/design-tokens/build-tokens.mjs` next. If `semantic.dark.tokens.json`
- * changes, update this block to match (or land the generated version).
- *
- * LIMITATION (documented, not fixed here): Base UI floating surfaces portal
- * to `<body>`, OUTSIDE this scoped subtree — a popover/tooltip/menu/dialog
- * opened from inside a `.vs-marketing` surface renders with the PAGE theme,
- * not the marketing dark ground. Marketing surfaces rarely need portals (a
- * hero/section band is not app chrome); the docs-home dogfood doesn't use one.
- * ------------------------------------------------------------------------- */
-.vs-marketing {
-  color-scheme: dark;
-
-  --background: oklch(0.175 0.003 75);
-  --foreground: oklch(0.922 0.003 75);
-  --card: oklch(0.205 0.003 75);
-  --card-foreground: oklch(0.922 0.003 75);
-  --popover: oklch(0.205 0.003 75);
-  --popover-foreground: oklch(0.922 0.003 75);
-
-  --primary: oklch(0.922 0.003 75);
-  --primary-foreground: oklch(0.145 0.003 75);
-  --primary-hover: oklch(0.97 0.003 75);
-  --primary-active: oklch(0.994 0.002 75);
-
-  --secondary: oklch(0.269 0.003 75);
-  --secondary-foreground: oklch(0.922 0.003 75);
-  --muted: oklch(0.269 0.003 75);
-  --muted-foreground: oklch(0.66 0.003 75);
-  --muted-foreground-faint: oklch(0.559 0.003 75);
-  --accent: oklch(0.269 0.003 75);
-  --accent-foreground: oklch(0.967 0.003 75);
-
-  --border: oklch(0.269 0.003 75);
-  --input: var(--border);
-  --ring: var(--primary);
-  --overlay: oklch(0 0 0 / 0.55);
-
-  /* Brand phosphor — DARK half (13.3:1 on this ground, MK's pick), independent
-     of whether `.dark` is present anywhere in the ancestor chain. Marker roles
-     only (live-state dot, sparkline endpoint, eyebrow highlight, terminal
-     prompt glyph) — see design.md §Brand & Marketing. */
-  --brand: oklch(0.86 0.21 148);
+@keyframes vs-flash {
+  /* Highlight-on-change ring pulse (Wave 1, Attio record-flash adaptation):
+   * a 2px ring in the component's own accent (defaults to `ring`) swells and
+   * settles. End state = rest, so the base.css reduced-motion collapse renders
+   * it invisible. Override the color per call-site via `--vs-flash-color`
+   * (e.g. `[--vs-flash-color:var(--info)]` on a live-updating row). */
+  0% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+  50% {
+    box-shadow: 0 0 0 2px var(--vs-flash-color, var(--ring));
+  }
+  to {
+    box-shadow: 0 0 0 0 transparent;
+  }
 }
+
+@utility motion-flash {
+  animation: vs-flash var(--duration-slow) var(--motion-ease-standard);
+}
+
+/* ---------------------------------------------------------------------------
+ * BrandIcon theme-aware artwork swap (`<BrandIcon variant="auto">`).
+ *
+ * Single-colour brands ship artwork that only reads on ONE surface — GitHub's
+ * brand mark is #181717, invisible on a dark canvas. `thesvg` therefore ships
+ * `light` (dark ink, FOR light surfaces) and `dark` (white ink, FOR dark
+ * surfaces) variants; `auto` renders both and lets CSS reveal the right one.
+ *
+ * These are plain attribute selectors, NOT Tailwind utilities, on purpose:
+ * `@vegastack/design` is a published package, and a consumer's Tailwind build
+ * does not scan our `src`. A `dark:` utility authored inside the package would
+ * silently never be generated downstream (it wasn't generated in our own docs
+ * either — see the dead `packages/icons` @source). Shipping the rules in the
+ * stylesheet consumers already import makes the swap work everywhere.
+ *
+ * `.vs-marketing` is included so a brand mark inside the marketing dark ground
+ * picks the dark artwork even while the page theme is light.
+ * ------------------------------------------------------------------------- */
+[data-brand-artwork="light"] {
+  display: contents;
+}
+[data-brand-artwork="dark"] {
+  display: none;
+}
+.dark [data-brand-artwork="light"],
+.vs-marketing [data-brand-artwork="light"] {
+  display: none;
+}
+.dark [data-brand-artwork="dark"],
+.vs-marketing [data-brand-artwork="dark"] {
+  display: contents;
+}
+
+/* `.vs-marketing`'s semantic variables and `color-scheme: dark` now live in
+ * generated theme.css. build-tokens.mjs emits the scope from the SAME resolved
+ * Style Dictionary dark run as `.dark`, and verify-theme-parity.mjs rejects any
+ * variable-set or value drift. The artwork selectors above remain here because
+ * they are presentation behavior, not token data. */

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
+import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
@@ -9,6 +10,7 @@ import {
   PaginationItem,
   PaginationLink,
   PaginationNext,
+  PaginationPager,
   PaginationPrevious,
 } from "./pagination";
 
@@ -172,7 +174,11 @@ test("aria-disabled links leave the tab order and swallow clicks", async () => {
     <Pagination>
       <PaginationContent>
         <PaginationItem>
-          <PaginationPrevious href="?page=1" aria-disabled="true" onClick={onClick} />
+          <PaginationPrevious
+            href="?page=1"
+            aria-disabled="true"
+            onClick={onClick}
+          />
         </PaginationItem>
       </PaginationContent>
     </Pagination>,
@@ -225,6 +231,27 @@ test("PaginationLink forwards ref to the composed anchor element", async () => {
 
 test("page links use tabular numerals (numeric width stability across page numbers)", async () => {
   const screen = await render(<Pager />);
-  const link = screen.container.querySelector('[data-slot="pagination-link"]') as HTMLElement;
+  const link = screen.container.querySelector(
+    '[data-slot="pagination-link"]',
+  ) as HTMLElement;
   expect(link.classList.contains("tabular-nums")).toBe(true);
+});
+
+test("PaginationPager: label, context, bounds-disabled steps, onIndexChange", async () => {
+  const onIndexChange = vi.fn();
+  const screen = await render(
+    <PaginationPager
+      index={1}
+      total={10}
+      context="in All Companies"
+      onIndexChange={onIndexChange}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("status"))
+    .toHaveTextContent("1 of 10 in All Companies");
+  const prev = screen.getByRole("button", { name: "Previous item" });
+  await expect.element(prev).toBeDisabled();
+  await userEvent.click(screen.getByRole("button", { name: "Next item" }));
+  expect(onIndexChange).toHaveBeenCalledWith(2);
 });

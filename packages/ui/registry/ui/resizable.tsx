@@ -1,4 +1,4 @@
-// @vegastack resizable@0.2.0 sha256-iTUdZ5aiJb25hPvo4UMRjAOFIEIS5j7hGCJM0LDlqo4=
+// @vegastack resizable@0.2.0 sha256-9CTUTGJzrenXc3qLCM4Y4p2ryJXP+fl5oDK7USo94fQ=
 
 "use client";
 
@@ -20,8 +20,10 @@ import { cn } from "@vegastack/design";
  * classes below key off that `aria-orientation`, not the group's `orientation` prop.
  * ----------------------------------------------------------------------------------------------*/
 
-export interface ResizablePanelGroupProps extends ResizablePrimitive.GroupProps {
-  /** Ref to the root `HTMLDivElement`. */
+/** Props for a horizontal or vertical resizable panel group. */
+export interface ResizablePanelGroupProps
+  extends ResizablePrimitive.GroupProps {
+  /** Ref to the root `HTMLDivElement`. @default undefined */
   ref?: React.Ref<HTMLDivElement | null>;
 }
 
@@ -48,7 +50,11 @@ export interface ResizablePanelGroupProps extends ResizablePrimitive.GroupProps 
  *   </ResizablePanelGroup>
  * </div>
  */
-export function ResizablePanelGroup({ className, ref, ...props }: ResizablePanelGroupProps) {
+export function ResizablePanelGroup({
+  className,
+  ref,
+  ...props
+}: ResizablePanelGroupProps) {
   return (
     <ResizablePrimitive.Group
       data-slot="resizable-panel-group"
@@ -59,8 +65,9 @@ export function ResizablePanelGroup({ className, ref, ...props }: ResizablePanel
   );
 }
 
+/** Props for one region in a resizable panel group. */
 export interface ResizablePanelProps extends ResizablePrimitive.PanelProps {
-  /** Ref to the root `HTMLDivElement`. */
+  /** Ref to the root `HTMLDivElement`. @default undefined */
   ref?: React.Ref<HTMLDivElement | null>;
 }
 
@@ -73,19 +80,28 @@ export interface ResizablePanelProps extends ResizablePrimitive.PanelProps {
  *
  * A panel is unstyled by default (no padding/overflow handling) so it composes
  * with any content; add `className="overflow-auto p-4"` etc. as needed.
+ * @example <ResizablePanel defaultSize="50">Content</ResizablePanel>
  */
 export function ResizablePanel({ ref, ...props }: ResizablePanelProps) {
-  return <ResizablePrimitive.Panel data-slot="resizable-panel" elementRef={ref} {...props} />;
+  return (
+    <ResizablePrimitive.Panel
+      data-slot="resizable-panel"
+      elementRef={ref}
+      {...props}
+    />
+  );
 }
 
-export interface ResizableHandleProps extends ResizablePrimitive.SeparatorProps {
+/** Props for the keyboard- and pointer-operable panel separator. */
+export interface ResizableHandleProps
+  extends ResizablePrimitive.SeparatorProps {
   /**
    * Render a small visible grip glyph centered on the handle, for a clearer
    * drag affordance. The bar itself is always the drag/keyboard target either way.
    * @default false
    */
   withHandle?: boolean;
-  /** Ref to the root `HTMLDivElement`. */
+  /** Ref to the root `HTMLDivElement`. @default undefined */
   ref?: React.Ref<HTMLDivElement | null>;
 }
 
@@ -107,7 +123,12 @@ export interface ResizableHandleProps extends ResizablePrimitive.SeparatorProps 
  * // Grip glyph for a clearer drag affordance
  * <ResizableHandle withHandle />
  */
-export function ResizableHandle({ withHandle = false, className, ref, ...props }: ResizableHandleProps) {
+export function ResizableHandle({
+  withHandle = false,
+  className,
+  ref,
+  ...props
+}: ResizableHandleProps) {
   return (
     <ResizablePrimitive.Separator
       data-slot="resizable-handle"
@@ -117,22 +138,25 @@ export function ResizableHandle({ withHandle = false, className, ref, ...props }
         // on hover / drag / keyboard-focus (the primitive's own hit-test state, exposed
         // as `data-separator`) and dims when `aria-disabled`. `group/handle` lets the
         // grip glyph below react to this element's own `aria-orientation`.
-        "group/handle relative flex shrink-0 touch-none items-center justify-center bg-border transition-colors duration-fast ease-standard select-none hover:bg-primary focus-visible:bg-primary data-[separator=active]:bg-primary aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
+        "group/handle relative flex shrink-0 touch-none items-center justify-center bg-border  select-none hover:bg-primary focus-visible:bg-primary data-[separator=active]:bg-primary aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
         // Default (aria-orientation="vertical" — a vertical bar between horizontally
         // arranged panels): full height, 1px wide, column-resize cursor. A wider
-        // invisible `after` hit target (8px) keeps the drag/tap target comfortable
+        // invisible `after` hit target (24px) meets WCAG 2.2 target-size guidance
         // without widening the visible line.
-        "h-full w-px cursor-col-resize after:absolute after:inset-y-0 after:left-1/2 after:w-2 after:-translate-x-1/2",
+        "h-full w-px cursor-col-resize after:absolute after:inset-y-0 after:start-1/2 after:w-6 after:-translate-x-1/2 after:content-[''] rtl:after:translate-x-1/2",
         // aria-orientation="horizontal" (a horizontal bar between vertically stacked
         // panels): mirror every rule onto the cross axis.
-        "aria-[orientation=horizontal]:h-px aria-[orientation=horizontal]:w-full aria-[orientation=horizontal]:cursor-row-resize aria-[orientation=horizontal]:after:inset-x-0 aria-[orientation=horizontal]:after:inset-y-auto aria-[orientation=horizontal]:after:left-0 aria-[orientation=horizontal]:after:top-1/2 aria-[orientation=horizontal]:after:h-2 aria-[orientation=horizontal]:after:w-full aria-[orientation=horizontal]:after:translate-x-0 aria-[orientation=horizontal]:after:-translate-y-1/2",
+        "aria-[orientation=horizontal]:h-px aria-[orientation=horizontal]:w-full aria-[orientation=horizontal]:cursor-row-resize aria-[orientation=horizontal]:after:inset-x-0 aria-[orientation=horizontal]:after:inset-y-auto aria-[orientation=horizontal]:after:start-0 aria-[orientation=horizontal]:after:top-1/2 aria-[orientation=horizontal]:after:h-6 aria-[orientation=horizontal]:after:w-full aria-[orientation=horizontal]:after:translate-x-0 aria-[orientation=horizontal]:after:-translate-y-1/2 rtl:aria-[orientation=horizontal]:after:translate-x-0",
         className,
       )}
       {...props}
     >
       {withHandle && (
         <div className="z-(--z-raised) flex size-4 items-center justify-center rounded-xs border bg-border group-aria-[orientation=horizontal]/handle:rotate-90">
-          <GripVertical className="size-(--icon-compact) text-muted-foreground" aria-hidden="true" />
+          <GripVertical
+            className="size-(--icon-compact) text-muted-foreground"
+            aria-hidden="true"
+          />
         </div>
       )}
     </ResizablePrimitive.Separator>

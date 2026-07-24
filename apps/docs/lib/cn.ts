@@ -1,1 +1,1 @@
-export { cn } from '@vegastack/design';
+export { cn } from "@vegastack/design";

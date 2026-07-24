@@ -1,6 +1,7 @@
 ---
 title: Bubble
 description: A chat speech bubble — seven token-driven variants (incl. a brand-tinted surface), start/end alignment, interactive content, and a floating reactions chip.
+audience: public
 preview: bubble
 ---
 
@@ -86,7 +87,10 @@ Sent / received alignment, grouped, with a `BubbleReactions` chip.
 Render `BubbleContent` as a `button` (or an `a`) for tappable quick-reply or
 link bubbles — they get a hover surface and the global `:focus-visible` outline.
 
-<ComponentPreview name="bubbleInteractive" file="components/preview/bubble.tsx" />
+<ComponentPreview
+  name="bubbleInteractive"
+  file="components/preview/bubble.tsx"
+/>
 
 ### Motion
 
@@ -101,7 +105,10 @@ must not animate every bubble on page load. `Message` takes the same prop, so se
 Compose a [`Collapsible`](/docs/components/collapsible) inside a bubble for
 "show more / less" on long messages.
 
-<ComponentPreview name="bubbleCollapsible" file="components/preview/bubble.tsx" />
+<ComponentPreview
+  name="bubbleCollapsible"
+  file="components/preview/bubble.tsx"
+/>
 
 ### With a popover
 
@@ -121,7 +128,10 @@ A read-receipt check icon in a reaction chip with a
 
 ### Bubble
 
-<AutoTypeTable path="../../packages/ui/registry/ui/bubble.tsx" name="BubbleProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/bubble.tsx"
+  name="BubbleProps"
+/>
 
 ### BubbleContent
 

@@ -3,7 +3,11 @@ import { render } from "vitest-browser-react";
 import { expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "./resizable";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "./resizable";
 
 // This suite compiles no Tailwind (fast unit tests, no build step) — the component's own
 // `h-full`/`w-full`/etc. classes lay out as plain blocks with no real dimensions. Percentage-based
@@ -12,9 +16,14 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "./resizabl
 // (same convention as message-scroller.test.tsx's scrollable-viewport tests).
 const GROUP_STYLE = { height: 240, width: 480 } as const;
 
-function HorizontalLayout(props: { onLayoutChanged?: (layout: unknown, meta: unknown) => void }) {
+function HorizontalLayout(props: {
+  onLayoutChanged?: (layout: unknown, meta: unknown) => void;
+}) {
   return (
-    <ResizablePanelGroup style={GROUP_STYLE} onLayoutChanged={props.onLayoutChanged}>
+    <ResizablePanelGroup
+      style={GROUP_STYLE}
+      onLayoutChanged={props.onLayoutChanged}
+    >
       <ResizablePanel id="left" defaultSize="50" minSize="20" maxSize="80">
         Left
       </ResizablePanel>
@@ -55,7 +64,9 @@ test("renders the group/panel/handle structure with their data-slots", async () 
 
 test("renders a horizontal group with a vertical separator bar and correct ARIA", async () => {
   const screen = await render(<HorizontalLayout />);
-  const handle = screen.getByRole("separator", { name: "Resize left and right panels" });
+  const handle = screen.getByRole("separator", {
+    name: "Resize left and right panels",
+  });
   await expect.element(handle).toHaveAttribute("aria-orientation", "vertical");
   await expect.element(handle).toHaveAttribute("aria-valuenow", "50");
   await expect.element(handle).toHaveAttribute("aria-valuemin");
@@ -65,15 +76,23 @@ test("renders a horizontal group with a vertical separator bar and correct ARIA"
 
 test("renders a vertical group with a horizontal separator bar", async () => {
   const screen = await render(<VerticalLayout />);
-  const handle = screen.getByRole("separator", { name: "Resize top and bottom panels" });
-  await expect.element(handle).toHaveAttribute("aria-orientation", "horizontal");
+  const handle = screen.getByRole("separator", {
+    name: "Resize top and bottom panels",
+  });
+  await expect
+    .element(handle)
+    .toHaveAttribute("aria-orientation", "horizontal");
   await expect.element(handle).toHaveAttribute("aria-valuenow", "50");
 });
 
 test("ArrowRight grows the left panel and shrinks the right one (horizontal group)", async () => {
   const onLayoutChanged = vi.fn();
-  const screen = await render(<HorizontalLayout onLayoutChanged={onLayoutChanged} />);
-  const handle = screen.getByRole("separator", { name: "Resize left and right panels" });
+  const screen = await render(
+    <HorizontalLayout onLayoutChanged={onLayoutChanged} />,
+  );
+  const handle = screen.getByRole("separator", {
+    name: "Resize left and right panels",
+  });
   handle.element().focus();
   await userEvent.keyboard("{ArrowRight}");
   await expect
@@ -87,7 +106,9 @@ test("ArrowRight grows the left panel and shrinks the right one (horizontal grou
 
 test("ArrowLeft shrinks the left panel (horizontal group)", async () => {
   const screen = await render(<HorizontalLayout />);
-  const handle = screen.getByRole("separator", { name: "Resize left and right panels" });
+  const handle = screen.getByRole("separator", {
+    name: "Resize left and right panels",
+  });
   handle.element().focus();
   await userEvent.keyboard("{ArrowLeft}");
   await expect
@@ -97,7 +118,9 @@ test("ArrowLeft shrinks the left panel (horizontal group)", async () => {
 
 test("Home jumps the left panel to its minimum size", async () => {
   const screen = await render(<HorizontalLayout />);
-  const handle = screen.getByRole("separator", { name: "Resize left and right panels" });
+  const handle = screen.getByRole("separator", {
+    name: "Resize left and right panels",
+  });
   handle.element().focus();
   await userEvent.keyboard("{Home}");
   await expect
@@ -107,7 +130,9 @@ test("Home jumps the left panel to its minimum size", async () => {
 
 test("End jumps the left panel to its maximum size", async () => {
   const screen = await render(<HorizontalLayout />);
-  const handle = screen.getByRole("separator", { name: "Resize left and right panels" });
+  const handle = screen.getByRole("separator", {
+    name: "Resize left and right panels",
+  });
   handle.element().focus();
   await userEvent.keyboard("{End}");
   await expect
@@ -117,7 +142,9 @@ test("End jumps the left panel to its maximum size", async () => {
 
 test("ArrowDown resizes a vertical group's separator", async () => {
   const screen = await render(<VerticalLayout />);
-  const handle = screen.getByRole("separator", { name: "Resize top and bottom panels" });
+  const handle = screen.getByRole("separator", {
+    name: "Resize top and bottom panels",
+  });
   handle.element().focus();
   await userEvent.keyboard("{ArrowDown}");
   await expect
@@ -133,13 +160,17 @@ test("withHandle renders a visible grip glyph", async () => {
       <ResizablePanel id="b">B</ResizablePanel>
     </ResizablePanelGroup>,
   );
-  const handle = screen.container.querySelector('[data-slot="resizable-handle"]')!;
+  const handle = screen.container.querySelector(
+    '[data-slot="resizable-handle"]',
+  )!;
   expect(handle.querySelector("svg")).not.toBeNull();
 });
 
 test("without withHandle, no grip glyph is rendered", async () => {
   const screen = await render(<HorizontalLayout />);
-  const handle = screen.container.querySelector('[data-slot="resizable-handle"]')!;
+  const handle = screen.container.querySelector(
+    '[data-slot="resizable-handle"]',
+  )!;
   expect(handle.querySelector("svg")).toBeNull();
 });
 
@@ -234,12 +265,17 @@ test("nested groups both render and resize independently", async () => {
   );
 
   expect(
-    screen.container.querySelectorAll('[data-slot="resizable-panel-group"]').length,
+    screen.container.querySelectorAll('[data-slot="resizable-panel-group"]')
+      .length,
   ).toBe(2);
   const outerHandle = screen.getByRole("separator", { name: "Resize outer" });
   const innerHandle = screen.getByRole("separator", { name: "Resize inner" });
-  await expect.element(outerHandle).toHaveAttribute("aria-orientation", "vertical");
-  await expect.element(innerHandle).toHaveAttribute("aria-orientation", "horizontal");
+  await expect
+    .element(outerHandle)
+    .toHaveAttribute("aria-orientation", "vertical");
+  await expect
+    .element(innerHandle)
+    .toHaveAttribute("aria-orientation", "horizontal");
 
   innerHandle.element().focus();
   await userEvent.keyboard("{ArrowDown}");
@@ -282,6 +318,54 @@ test("forwards ref to the group's root element", async () => {
   );
   expect(ref.current).toBeInstanceOf(HTMLDivElement);
   expect(ref.current?.dataset.slot).toBe("resizable-panel-group");
+});
+
+test("the 1px separator exposes a real 24px pointer target", async () => {
+  const style = document.createElement("style");
+  style.textContent = `
+    [data-slot="resizable-handle"] {
+      position: fixed;
+      inset: auto;
+      top: 100px;
+      left: 160px;
+      width: 1px;
+      height: 48px;
+      z-index: 2147483647;
+    }
+    [data-slot="resizable-handle"]::after {
+      content: "";
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: 50%;
+      width: 24px;
+      transform: translateX(-50%);
+    }
+  `;
+  document.head.append(style);
+
+  try {
+    const screen = await render(
+      <ResizablePanelGroup style={GROUP_STYLE}>
+        <ResizablePanel id="left">Left</ResizablePanel>
+        <ResizableHandle aria-label="Resize" />
+        <ResizablePanel id="right">Right</ResizablePanel>
+      </ResizablePanelGroup>,
+    );
+    const handle = screen.container.querySelector<HTMLElement>(
+      '[data-slot="resizable-handle"]',
+    );
+    expect(handle).not.toBeNull();
+    if (!handle) throw new Error("ResizableHandle did not render");
+    const rect = handle.getBoundingClientRect();
+    expect(document.elementFromPoint(rect.left - 11, rect.top + 10)).toBe(
+      handle,
+    );
+    expect(document.elementFromPoint(rect.left - 13, rect.top + 10)).not.toBe(
+      handle,
+    );
+  } finally {
+    style.remove();
+  }
 });
 
 // Minimal local shape of the primitive's imperative Panel handle — avoids importing the

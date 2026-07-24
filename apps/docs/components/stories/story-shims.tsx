@@ -1,7 +1,7 @@
-'use client';
-import type { FC } from 'react';
-import { Checkbox, type CheckboxProps } from '@/components/ui/checkbox';
-import { Switch, type SwitchProps } from '@/components/ui/switch';
+"use client";
+import type { FC } from "react";
+import { Checkbox, type CheckboxProps } from "@/components/ui/checkbox";
+import { Switch, type SwitchProps } from "@/components/ui/switch";
 
 /**
  * Narrow-prop client wrappers for Story explorers whose real prop types explode under the
@@ -15,22 +15,26 @@ import { Switch, type SwitchProps } from '@/components/ui/switch';
 
 type CheckboxStoryProps = Pick<
   CheckboxProps,
-  | 'checked'
-  | 'defaultChecked'
-  | 'indeterminate'
-  | 'disabled'
-  | 'required'
-  | 'size'
-  | 'aria-label'
+  | "checked"
+  | "defaultChecked"
+  | "indeterminate"
+  | "disabled"
+  | "required"
+  | "size"
+  | "aria-label"
 >;
 
-export const CheckboxStory: FC<CheckboxStoryProps> = (props) => <Checkbox {...props} />;
-CheckboxStory.displayName = 'Checkbox';
+export const CheckboxStory: FC<CheckboxStoryProps> = (props) => (
+  <Checkbox {...props} />
+);
+CheckboxStory.displayName = "Checkbox";
 
 type SwitchStoryProps = Pick<
   SwitchProps,
-  'checked' | 'defaultChecked' | 'disabled' | 'required' | 'size' | 'aria-label'
+  "checked" | "defaultChecked" | "disabled" | "required" | "size" | "aria-label"
 >;
 
-export const SwitchStory: FC<SwitchStoryProps> = (props) => <Switch {...props} />;
-SwitchStory.displayName = 'Switch';
+export const SwitchStory: FC<SwitchStoryProps> = (props) => (
+  <Switch {...props} />
+);
+SwitchStory.displayName = "Switch";

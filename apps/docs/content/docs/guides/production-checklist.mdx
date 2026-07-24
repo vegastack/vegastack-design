@@ -1,20 +1,21 @@
 ---
 title: Production checklist
 description: The floors, the gates, and the gotchas — everything to verify before a VegaStack-consuming app ships.
+audience: public
 ---
 
 Work through this top to bottom before the first production deploy of a consuming
-app. Each item says how to *verify*, not just what to believe. Shipping to a client?
+app. Each item says how to _verify_, not just what to believe. Shipping to a client?
 Add the [handover checklist](/docs/guides/external-projects#handover-checklist).
 
 ## Environment floors
 
-| Requirement | Floor | Verify |
-| --- | --- | --- |
-| React / React DOM | **19.x** (peer of `@vegastack/design`) | `pnpm why react` |
-| Tailwind CSS | **4.x** — the preset is CSS-first; v3 configs are incompatible | `pnpm why tailwindcss` |
-| Node | ≥ 20 runtime; ≥ 24 matches the design-system repo | `node --version` |
-| shadcn CLI | `shadcn@latest`, project base **`base`** (Base UI) — never `radix` | `pnpm dlx shadcn@latest info --json` → `"base": "base"` |
+| Requirement       | Floor                                                              | Verify                                                  |
+| ----------------- | ------------------------------------------------------------------ | ------------------------------------------------------- |
+| React / React DOM | **19.x** (peer of `@vegastack/design`)                             | `pnpm why react`                                        |
+| Tailwind CSS      | **4.x** — the preset is CSS-first; v3 configs are incompatible     | `pnpm why tailwindcss`                                  |
+| Node              | ≥ 20 runtime; ≥ 24 matches the design-system repo                  | `node --version`                                        |
+| shadcn CLI        | `shadcn@latest`, project base **`base`** (Base UI) — never `radix` | `pnpm dlx shadcn@latest info --json` → `"base": "base"` |
 
 ## Package hygiene
 
@@ -28,8 +29,8 @@ Add the [handover checklist](/docs/guides/external-projects#handover-checklist).
   subpaths through `@vegastack/design` (`/theme.css` etc.), not the tokens package.
   (Token-pipeline repos are the exception — they install only the tokens.)
 - **pnpm-strict note:** never deep-import anything not in the package `exports`
-  map. Everything supported is exported: `.`, `./icons`, `./preset`,
-  `./preset.css`, `./theme.css`, `./base.css`, `./utilities.css`.
+  map. Everything supported is exported: `.`, `./icons`, `./preset`, `./theme-scope`,
+  `./preset.css`, `./theme.css`, `./base.css`, `./utilities.css`, and `./package.json`.
 
 ## The four silent a11y/UX breakers
 
@@ -59,11 +60,12 @@ Each of these fails without an error message. Check them explicitly:
 # Review with `--diff`, take with `--overwrite`, re-run.
 - run: pnpm exec vegastack-design check-updates --fail-on-update
   env:
+    VEGASTACK_TRUSTED_REGISTRY_ORIGIN: https://design.vegastack.com
     CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
     CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
 ```
 
-Add a smoke suite that exercises the copied components *in your app* (the
+Add a smoke suite that exercises the copied components _in your app_ (the
 reference starter ships one to copy: render + dialog focus trap + toast fires +
 dark-mode persists). Your app owns these files now — your CI is what proves them.
 

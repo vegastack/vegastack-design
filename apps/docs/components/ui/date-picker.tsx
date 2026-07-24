@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.2.0 sha256-wJOzJHuDJeL2RlVdJb6B7N5Nmr2yqfuqiwKga5j68Sw=
+// @vegastack date-picker@0.2.0 sha256-EebGJoOkvc664/YrPEcInFuqgtojeW1II7S9hUSAjg0=
 
 "use client";
 
@@ -77,6 +77,7 @@ function formatRange(
 
 // react-day-picker's DayPicker props are a discriminated UNION (single|range|multiple), so we
 // intersect (a `type`, not `interface extends`) to stay assignable across all modes.
+/** Props accepted by `Calendar`. */
 export type CalendarProps = React.ComponentProps<typeof DayPicker> & {
   /**
    * Render days from the adjacent months to fill the leading/trailing week rows.
@@ -134,11 +135,11 @@ export function Calendar({
           defaultClassNames.nav,
         ),
         button_previous: cn(
-          "inline-flex size-(--size-sm) items-center justify-center rounded-md text-muted-foreground transition-colors duration-fast ease-standard select-none hover:bg-accent hover:text-accent-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
+          "inline-flex size-(--size-sm) items-center justify-center rounded-md text-muted-foreground  select-none hover:bg-accent hover:text-accent-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
           defaultClassNames.button_previous,
         ),
         button_next: cn(
-          "inline-flex size-(--size-sm) items-center justify-center rounded-md text-muted-foreground transition-colors duration-fast ease-standard select-none hover:bg-accent hover:text-accent-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
+          "inline-flex size-(--size-sm) items-center justify-center rounded-md text-muted-foreground  select-none hover:bg-accent hover:text-accent-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
           defaultClassNames.button_next,
         ),
         month_caption: cn(
@@ -189,14 +190,14 @@ export function Calendar({
         // Range surfaces — the middle reads from the soft `accent` token; ends are handled on the
         // day button itself so they sit on `bg-primary`.
         range_start: cn(
-          "rounded-l-md bg-accent",
+          "rounded-s-md bg-accent",
           defaultClassNames.range_start,
         ),
         range_middle: cn(
           "rounded-none bg-accent text-accent-foreground",
           defaultClassNames.range_middle,
         ),
-        range_end: cn("rounded-r-md bg-accent", defaultClassNames.range_end),
+        range_end: cn("rounded-e-md bg-accent", defaultClassNames.range_end),
         today: cn("text-foreground", defaultClassNames.today),
         outside: cn(
           "text-muted-foreground aria-selected:text-muted-foreground",
@@ -227,7 +228,7 @@ export function Calendar({
           if (orientation === "left") {
             return (
               <ChevronLeft
-                className={cn("size-4", chevronClassName)}
+                className={cn("size-(--icon-default)", chevronClassName)}
                 {...chevronProps}
               />
             );
@@ -235,14 +236,14 @@ export function Calendar({
           if (orientation === "right") {
             return (
               <ChevronRight
-                className={cn("size-4", chevronClassName)}
+                className={cn("size-(--icon-default)", chevronClassName)}
                 {...chevronProps}
               />
             );
           }
           return (
             <ChevronDown
-              className={cn("size-4", chevronClassName)}
+              className={cn("size-(--icon-default)", chevronClassName)}
               {...chevronProps}
             />
           );
@@ -255,6 +256,7 @@ export function Calendar({
   );
 }
 
+/** Props accepted by `CalendarDayButton`. */
 export type CalendarDayButtonProps = React.ComponentProps<typeof DayButton>;
 
 /**
@@ -262,6 +264,9 @@ export type CalendarDayButtonProps = React.ComponentProps<typeof DayButton>;
  * `data-selected-single` / `data-range-start` / `data-range-end` paint `bg-primary
  * text-primary-foreground` (selection = primary ink); `data-today` adds a neutral `ring`. Auto-focuses when
  * react-day-picker marks the day focused (keyboard navigation).
+ *
+ * @example
+ * <CalendarDayButton day={day} modifiers={modifiers} />
  */
 export function CalendarDayButton({
   className,
@@ -307,8 +312,8 @@ export function CalendarDayButton({
         "data-[today]:ring-2 data-[today]:ring-ring/(--alpha-outline-soft)",
         // Selected single + range ends: solid primary surface (selection = primary ink).
         "data-[selected-single]:bg-primary data-[selected-single]:text-primary-foreground data-[selected-single]:ring-0 data-[selected-single]:hover:bg-primary",
-        "data-[range-start]:rounded-l-md data-[range-start]:bg-primary data-[range-start]:text-primary-foreground data-[range-start]:ring-0 data-[range-start]:hover:bg-primary",
-        "data-[range-end]:rounded-r-md data-[range-end]:bg-primary data-[range-end]:text-primary-foreground data-[range-end]:ring-0 data-[range-end]:hover:bg-primary",
+        "data-[range-start]:rounded-s-md data-[range-start]:bg-primary data-[range-start]:text-primary-foreground data-[range-start]:ring-0 data-[range-start]:hover:bg-primary",
+        "data-[range-end]:rounded-e-md data-[range-end]:bg-primary data-[range-end]:text-primary-foreground data-[range-end]:ring-0 data-[range-end]:hover:bg-primary",
         // Range middle: soft accent surface, square corners.
         "data-[range-middle]:rounded-none data-[range-middle]:bg-accent data-[range-middle]:text-accent-foreground",
         className,
@@ -431,10 +436,15 @@ function PresetRail({ children }: { children: React.ReactNode }) {
  * DatePicker (single)
  * ----------------------------------------------------------------------------------------------*/
 
+/** Props accepted by `DatePicker`. */
 export interface DatePickerProps {
-  /** The selected date (controlled). */
+  /** The selected date (controlled).
+   * @default undefined
+   */
   value?: Date;
-  /** Fires with the new date (or `undefined` when cleared) on selection. */
+  /** Fires with the new date (or `undefined` when cleared) on selection.
+   * @default undefined
+   */
   onValueChange?: (date: Date | undefined) => void;
   /**
    * Trigger text shown when no date is selected.
@@ -446,11 +456,17 @@ export interface DatePickerProps {
    * @default { year: 'numeric', month: 'short', day: 'numeric' }
    */
   formatOptions?: Intl.DateTimeFormatOptions;
-  /** BCP-47 locale for formatting (defaults to the runtime locale). */
+  /** BCP-47 locale for formatting (defaults to the runtime locale).
+   * @default undefined
+   */
   locale?: string;
-  /** Quick-select presets shown in a left rail. Omit for no presets. */
+  /** Quick-select presets shown in a left rail. Omit for no presets.
+   * @default undefined
+   */
   presets?: DatePreset[];
-  /** Dates to disable, forwarded to the calendar's `disabled` matcher. */
+  /** Dates to disable, forwarded to the calendar's `disabled` matcher.
+   * @default undefined
+   */
   disabledDates?: Matcher | Matcher[];
   /**
    * Props forwarded to the inner `Calendar` for DayPicker features such as
@@ -458,12 +474,16 @@ export interface DatePickerProps {
    * `endMonth`, `labels`, and `formatters`. Selection ownership stays with
    * `DatePicker`, so `mode`, `selected`, `onSelect`, and `disabled` are not
    * accepted here.
+
+   * @default undefined
    */
   calendarProps?: Omit<
     CalendarProps,
     "mode" | "selected" | "onSelect" | "disabled"
   >;
-  /** Disable the whole control. */
+  /** Disable the whole control.
+   * @default undefined
+   */
   disabled?: boolean;
   /**
    * Popover side relative to the trigger.
@@ -475,9 +495,13 @@ export interface DatePickerProps {
    * @default "start"
    */
   align?: React.ComponentProps<typeof PopoverContent>["align"];
-  /** Extra classes for the trigger button. */
+  /** Extra classes for the trigger button.
+   * @default undefined
+   */
   className?: string;
-  /** Accessible name for the trigger (recommended when there is no visible label). */
+  /** Accessible name for the trigger (recommended when there is no visible label).
+   * @default undefined
+   */
   "aria-label"?: string;
 }
 
@@ -591,10 +615,15 @@ export function DatePicker({
  * DateRangePicker
  * ----------------------------------------------------------------------------------------------*/
 
+/** Props accepted by `DateRangePicker`. */
 export interface DateRangePickerProps {
-  /** The selected range (controlled). */
+  /** The selected range (controlled).
+   * @default undefined
+   */
   value?: DateRange;
-  /** Fires with the new range (or `undefined` when cleared) on selection. */
+  /** Fires with the new range (or `undefined` when cleared) on selection.
+   * @default undefined
+   */
   onValueChange?: (range: DateRange | undefined) => void;
   /**
    * Trigger text shown when no range is selected.
@@ -606,11 +635,17 @@ export interface DateRangePickerProps {
    * @default { year: 'numeric', month: 'short', day: 'numeric' }
    */
   formatOptions?: Intl.DateTimeFormatOptions;
-  /** BCP-47 locale for formatting (defaults to the runtime locale). */
+  /** BCP-47 locale for formatting (defaults to the runtime locale).
+   * @default undefined
+   */
   locale?: string;
-  /** Quick-select presets shown in a left rail. Omit for no presets. */
+  /** Quick-select presets shown in a left rail. Omit for no presets.
+   * @default undefined
+   */
   presets?: DateRangePreset[];
-  /** Dates to disable, forwarded to the calendar's `disabled` matcher. */
+  /** Dates to disable, forwarded to the calendar's `disabled` matcher.
+   * @default undefined
+   */
   disabledDates?: Matcher | Matcher[];
   /**
    * Props forwarded to the inner `Calendar` for DayPicker features such as
@@ -618,12 +653,16 @@ export interface DateRangePickerProps {
    * `endMonth`, `labels`, and `formatters`. Selection ownership stays with
    * `DateRangePicker`, so `mode`, `selected`, `onSelect`, and `disabled` are
    * not accepted here.
+
+   * @default undefined
    */
   calendarProps?: Omit<
     CalendarProps,
     "mode" | "selected" | "onSelect" | "disabled"
   >;
-  /** Disable the whole control. */
+  /** Disable the whole control.
+   * @default undefined
+   */
   disabled?: boolean;
   /**
    * Number of month grids to show side by side.
@@ -640,9 +679,13 @@ export interface DateRangePickerProps {
    * @default "start"
    */
   align?: React.ComponentProps<typeof PopoverContent>["align"];
-  /** Extra classes for the trigger button. */
+  /** Extra classes for the trigger button.
+   * @default undefined
+   */
   className?: string;
-  /** Accessible name for the trigger (recommended when there is no visible label). */
+  /** Accessible name for the trigger (recommended when there is no visible label).
+   * @default undefined
+   */
   "aria-label"?: string;
 }
 

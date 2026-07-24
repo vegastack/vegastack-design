@@ -1,10 +1,11 @@
 ---
 title: Marker
 description: An inline conversation marker — status lines, system notes, and labelled dividers — built on Base UI render, polymorphic to a link or button.
+audience: public
 preview: marker
 ---
 
-import { story } from '@/components/stories/marker.story';
+import { story } from "@/components/stories/marker.story";
 
 ## Installation
 
@@ -91,7 +92,10 @@ or without a spinner) for in-progress, streaming copy.
 Pass `render` to make the whole row a link or a button without losing the marker
 styling.
 
-<ComponentPreview name="markerLinkButton" file="components/preview/marker.tsx" />
+<ComponentPreview
+  name="markerLinkButton"
+  file="components/preview/marker.tsx"
+/>
 
 ### Motion
 
@@ -108,13 +112,19 @@ For a marker where only part of the text links — not the whole row — nest an
 affordance, leaving the rest of the row plain. Use this instead of `render` when
 the marker itself isn't the link target.
 
-<ComponentPreview name="markerInlineLink" file="components/preview/marker.tsx" />
+<ComponentPreview
+  name="markerInlineLink"
+  file="components/preview/marker.tsx"
+/>
 
 ## API Reference
 
 ### Marker
 
-<AutoTypeTable path="../../packages/ui/registry/ui/marker.tsx" name="MarkerProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/marker.tsx"
+  name="MarkerProps"
+/>
 
 ### MarkerIcon
 
@@ -123,7 +133,10 @@ is `aria-hidden` and sizes any bare `svg` child to `size-4`.
 
 ### MarkerIcon
 
-<AutoTypeTable path="../../packages/ui/registry/ui/marker.tsx" name="MarkerIconProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/marker.tsx"
+  name="MarkerIconProps"
+/>
 
 ### MarkerContent
 
@@ -133,7 +146,10 @@ hover-brightening link affordance.
 
 ### MarkerContent
 
-<AutoTypeTable path="../../packages/ui/registry/ui/marker.tsx" name="MarkerContentProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/marker.tsx"
+  name="MarkerContentProps"
+/>
 
 ## Accessibility
 

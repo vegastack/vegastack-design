@@ -1,0 +1,86 @@
+---
+title: Stat
+description: A labelled value block — muted label over a value, an honest faint empty state, and an optional delta line. Two scales.
+audience: public
+preview: stat
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/stat
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import {
+  Stat,
+  StatDelta,
+  StatEmpty,
+  StatLabel,
+  StatValue,
+} from "@/components/ui/stat";
+
+<Stat>
+  <StatLabel>Estimated ARR</StatLabel>
+  <StatValue>$1M–$10M</StatValue>
+</Stat>;
+```
+
+### Dashboard tiles
+
+`size="lg"` scales the value to the type-scale cap (24px, tabular) for stat tiles; add a
+`StatDelta` with `intent="up" | "down" | "flat"` — the sign/arrow in the copy carries the
+meaning, color is never the only signal.
+
+<ComponentPreview name="statTiles" file="components/preview/stat.tsx" />
+
+### Honest empties
+
+When there is no value, render `StatEmpty` ("No connection", "No team") in the faint
+placeholder register — never a dash or a zero that would read as data. This mirrors the
+system-wide inline-empty tier (`EmptyValue`).
+
+## Examples
+
+The default scale suits record highlights; the tile preview exercises the large value scale and
+all three delta intents.
+
+<ComponentPreview name="stat" file="components/preview/stat.tsx" />
+
+<ComponentPreview name="statTiles" file="components/preview/stat.tsx" />
+
+## API Reference
+
+### Stat
+
+<AutoTypeTable path="../../packages/ui/registry/ui/stat.tsx" name="StatProps" />
+
+### StatLabel, StatValue, and StatEmpty
+
+These structural parts accept native `<div>` props and forward their refs to their respective
+elements.
+
+### StatDelta
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/stat.tsx"
+  name="StatDeltaProps"
+/>
+
+## Accessibility
+
+- Keep the label visible so the value has an adjacent human-readable name.
+- Delta copy carries direction with words or a sign; color is supplementary.
+- Use `StatEmpty` for missing data instead of a dash or a misleading numeric zero.
+- Tabular numerals keep changing values aligned without changing their spoken representation.
+
+## Do / Don't
+
+<DoDont
+  do="Pair every value with a concise label and write delta text that remains meaningful without color."
+  dont="Animate rapidly changing metrics in a live region or substitute zero for unknown data."
+/>

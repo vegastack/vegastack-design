@@ -13,9 +13,9 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P2 | Class uses `outline-none` and only `focus:border-ring/70` at `textarea.tsx:25`; comment promises focus-visible ring at `textarea.tsx:35`; lint flags this file. | Focus indicator may be too subtle and lint gate fails. | Add explicit tokenized `focus-visible` ring/outline or update docs/lint to global outline contract. |
+| Priority | Evidence                                                                                                                                                        | Impact                                                 | Suggested fix                                                                                       |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| P2       | Class uses `outline-none` and only `focus:border-ring/70` at `textarea.tsx:25`; comment promises focus-visible ring at `textarea.tsx:35`; lint flags this file. | Focus indicator may be too subtle and lint gate fails. | Add explicit tokenized `focus-visible` ring/outline or update docs/lint to global outline contract. |
 
 ## Residual Risks
 
@@ -25,4 +25,3 @@ Native textarea is appropriate; `field-sizing-content` progressive CSS is docume
 
 - `pnpm --filter @vegastack/ui test -- textarea.test.tsx`
 - `pnpm run lint`
-

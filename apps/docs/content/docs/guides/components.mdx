@@ -1,20 +1,21 @@
 ---
 title: Working with components
 description: The copy-in ownership model end to end — add, verify, customize, and pull updates tracked by content.
+audience: public
 ---
 
 VegaStack components are **copy-in**: `shadcn add` writes real source files into
-your repo and you own them. Nothing updates behind your back; updates are *pulled*
+your repo and you own them. Nothing updates behind your back; updates are _pulled_
 when you decide. This page is the full lifecycle.
 
 ## The four item kinds
 
-| Kind | Example | Behavior |
-| --- | --- | --- |
-| Component (`registry:ui`) | `@vegastack/button` | copied to `components/ui/`, update-tracked by content |
-| Hook (`registry:hook`) | `@vegastack/use-mobile` | plain `.ts` into `components/ui/`, same tracking |
-| Icon item | `@vegastack/icon-arrow-right` | one animated-icon mirror per item — 440 of them; bare names never collide with components |
-| Block (`registry:block`) | `@vegastack/dashboard-01` | a multi-file **starter composition** (page + components + data) you own outright — deliberately NOT update-tracked |
+| Kind                      | Example                       | Behavior                                                                                                           |
+| ------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Component (`registry:ui`) | `@vegastack/button`           | copied to `components/ui/`, update-tracked by content                                                              |
+| Hook (`registry:hook`)    | `@vegastack/use-mobile`       | plain `.ts` into `components/ui/`, same tracking                                                                   |
+| Icon item                 | `@vegastack/icon-arrow-right` | one animated-icon mirror per item — 439 of them; bare names never collide with components                          |
+| Block (`registry:block`)  | `@vegastack/dashboard-01`     | a multi-file **starter composition** (page + components + data) you own outright — deliberately NOT update-tracked |
 
 ## Adding
 
@@ -41,7 +42,7 @@ Heads-up: the current shadcn CLI **strips leading comments during copy-in**, so
 the header usually won't appear in your copied file — that's fine. Update
 tracking does not depend on it: `check-updates` identifies your copies by
 filename against the registry index and compares **alias-normalized content**.
-If a header *is* present (older CLIs, or files synced by other tooling), it's
+If a header _is_ present (older CLIs, or files synced by other tooling), it's
 used as a fast-path version pin — keep it in that case.
 
 ## Verifying integrity (recommended for CI-critical repos)
@@ -52,14 +53,23 @@ item carries a whole-item SHA-256. The `vegastack-design` CLI (a bin inside
 
 ```bash
 # 1. verify the item BEFORE copy-in, save the verified bytes
-pnpm exec vegastack-design verify --save /tmp/vega-dialog.json dialog
+VEGASTACK_VERIFY_DIR="$(mktemp -d "${TMPDIR:-/tmp}/vegastack-verify.XXXXXX")"
+VEGASTACK_ITEM="$VEGASTACK_VERIFY_DIR/dialog.json"
+pnpm exec vegastack-design verify --save "$VEGASTACK_ITEM" dialog
+VEGASTACK_EXPECTED_INTEGRITY="$(node -e \
+  'process.stdout.write(JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")).meta.integrity)' \
+  "$VEGASTACK_ITEM")"
 
 # 2. copy in
 pnpm dlx shadcn@latest add @vegastack/dialog
 
 # 3. prove the files on disk match the verified bytes (alias-rewrite aware)
-pnpm exec vegastack-design verify --post-write --item /tmp/vega-dialog.json --target-dir .
+pnpm exec vegastack-design verify --post-write --item "$VEGASTACK_ITEM" \
+  --expected-integrity "$VEGASTACK_EXPECTED_INTEGRITY" --target-dir .
 ```
+
+The save path must not already exist. The private directory prevents pre-creation or symlink
+redirection; retaining the digest before copy-in also detects replacement of the saved item.
 
 `--hash-only` skips the Sigstore signature check for local development when
 `cosign` isn't installed; full mode verifies the signed manifest identity too.
@@ -82,9 +92,8 @@ or scope the gate: `check-updates --fail-on-update --filter <uncustomized,...>`.
 
 ## Updating — pulled, never pushed
 
-How registry pulls relate to npm bumps — the two-speed propagation model and the
-token-ordering trap — is covered in
-[Internal projects](/docs/guides/internal-projects#how-updates-reach-you--the-two-speed-model).
+The authenticated internal runbook documents how registry pulls relate to npm bumps, including the
+two-speed propagation model and token-ordering trap for VegaStack-owned applications.
 
 ```bash
 pnpm exec vegastack-design check-updates
@@ -102,7 +111,7 @@ integrity hash; headerless files (the normal real-CLI case) compare
 alias-normalized bytes against the live item. Either way a component reads
 `up to date` when the registry's global version bumped but that component's
 content didn't change — you only re-pull what actually moved. The `≈ differs`
-status means the bytes diverged — an upstream update *or* your local edits;
+status means the bytes diverged — an upstream update _or_ your local edits;
 `add --diff` shows which.
 
 Per component, review then take:
@@ -118,10 +127,12 @@ re-apply your edits (they're in your git history; nothing is lost).
 Useful flags: `--dir` (scan a non-default location), `--filter <name>`, `--json`
 (machine-readable — the right entry point for agents), `--fail-on-update` (exit
 non-zero when anything is stale — the CI drift gate), `--registry` / `--cwd`.
+Credentialed requests are pinned to `VEGASTACK_TRUSTED_REGISTRY_ORIGIN` (production by
+default) and reject redirects; checkout-local dotenv files cannot redefine that trust anchor.
 
 > **For agents:** the reliable loop is `vegastack-design check-updates --json` →
 > for each item with status `update` or `drift`, `shadcn add @vegastack/<name>
-> --diff` → present the diff → only after approval `--overwrite`. Never hand-edit
+--diff` → present the diff → only after approval `--overwrite`. Never hand-edit
 > a provenance header, and never "update" by pasting source from elsewhere — pull
 > through the CLI so content and registry stay comparable.
 
@@ -130,5 +141,5 @@ non-zero when anything is stale — the CI drift gate), `--registry` / `--cwd`.
 `dashboard-01` copies once and is then **yours**; `check-updates` will not track
 its page/data files. Rationale: a starter composition you've built a real page on
 top of must never be at risk of an upstream overwrite. Its underlying
-*components* (Card, Chart, Sidebar, …) remain individually tracked like any
+_components_ (Card, Chart, Sidebar, …) remain individually tracked like any
 other.

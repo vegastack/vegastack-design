@@ -5,11 +5,11 @@
  * per-region loading states render, and the whole composition is axe-clean.
  */
 
-import * as React from 'react';
-import { render } from 'vitest-browser-react';
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { expectNoA11yViolations } from '../../../test/a11y';
-import { DashboardPage } from './page';
+import * as React from "react";
+import { render } from "vitest-browser-react";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
+import { expectNoA11yViolations } from "../../../test/a11y";
+import { DashboardPage } from "./page";
 
 /**
  * This suite's real Playwright viewport is mobile-sized by default (no explicit
@@ -19,7 +19,7 @@ import { DashboardPage } from './page';
  * `sidebar.test.tsx`'s own suite-wide setup.
  */
 beforeEach(() => {
-  vi.spyOn(window, 'matchMedia').mockImplementation((query: string) => ({
+  vi.spyOn(window, "matchMedia").mockImplementation((query: string) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -35,62 +35,99 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-test('renders the app-shell landmarks', async () => {
+test("renders the app-shell landmarks", async () => {
   const screen = await render(<DashboardPage />);
-  await expect.element(screen.getByRole('banner')).toBeInTheDocument();
+  await expect.element(screen.getByRole("banner")).toBeInTheDocument();
   await expect
-    .element(screen.getByRole('navigation', { name: 'Main navigation' }))
+    .element(screen.getByRole("navigation", { name: "Main navigation" }))
     .toBeInTheDocument();
-  await expect.element(screen.getByRole('main')).toBeInTheDocument();
+  await expect.element(screen.getByRole("main")).toBeInTheDocument();
 });
 
-test('renders the stat-card row with formatted values', async () => {
+test("renders the stat-card row with formatted values", async () => {
   const screen = await render(<DashboardPage />);
-  await expect.element(screen.getByText('Active agents')).toBeInTheDocument();
+  await expect.element(screen.getByText("Active agents")).toBeInTheDocument();
   // `AnimatedNumber` renders the value TWICE (an `aria-hidden` visual span + a `sr-only`
   // `role="status"` live-region span carrying the same formatted text — see its own doc) —
   // `.first()` disambiguates the strict-mode-matched pair.
-  await expect.element(screen.getByText('128').first()).toBeInTheDocument();
-  await expect.element(screen.getByText('18,452').first()).toBeInTheDocument();
+  await expect.element(screen.getByText("128").first()).toBeInTheDocument();
+  await expect.element(screen.getByText("18,452").first()).toBeInTheDocument();
 });
 
-test('renders the usage chart card', async () => {
+test("renders the usage chart card", async () => {
   const screen = await render(<DashboardPage />);
-  await expect.element(screen.getByText('Usage over time')).toBeInTheDocument();
+  await expect.element(screen.getByText("Usage over time")).toBeInTheDocument();
 });
 
-test('renders recent-activity rows with status and duration', async () => {
+test("renders recent-activity rows with status and duration", async () => {
   const screen = await render(<DashboardPage />);
-  await expect.element(screen.getByRole('table')).toBeInTheDocument();
-  await expect.element(screen.getByText('Summarize Q2 investor report')).toBeInTheDocument();
-  await expect.element(screen.getByText('1m 24s')).toBeInTheDocument();
+  await expect.element(screen.getByRole("table")).toBeInTheDocument();
+  await expect
+    .element(screen.getByText("Summarize Q2 investor report"))
+    .toBeInTheDocument();
+  await expect.element(screen.getByText("1m 24s")).toBeInTheDocument();
 });
 
-test('renders the full-page empty state when isEmpty', async () => {
+test("renders the full-page empty state when isEmpty", async () => {
   const screen = await render(<DashboardPage isEmpty />);
-  await expect.element(screen.getByText('No agents yet')).toBeInTheDocument();
-  await expect.element(screen.getByText('Active agents')).not.toBeInTheDocument();
+  await expect.element(screen.getByText("No agents yet")).toBeInTheDocument();
+  await expect
+    .element(screen.getByText("Active agents"))
+    .not.toBeInTheDocument();
 });
 
-test('renders per-region loading skeletons independently', async () => {
+test("renders per-region loading skeletons independently", async () => {
   const screen = await render(<DashboardPage loading={{ activity: true }} />);
   // Recent activity shows DataList's built-in loading state...
-  await expect.element(screen.getByText('Loading rows')).toBeInTheDocument();
+  await expect.element(screen.getByText("Loading rows")).toBeInTheDocument();
   // ...while the other regions still render their real data.
-  await expect.element(screen.getByText('Active agents')).toBeInTheDocument();
-  await expect.element(screen.getByText('Usage over time')).toBeInTheDocument();
+  await expect.element(screen.getByText("Active agents")).toBeInTheDocument();
+  await expect.element(screen.getByText("Usage over time")).toBeInTheDocument();
 });
 
-test('renders a per-region error state instead of that region\'s content', async () => {
-  const screen = await render(<DashboardPage error={{ chart: 'Request timed out' }} />);
-  await expect.element(screen.getByText("Couldn't load the usage chart")).toBeInTheDocument();
-  await expect.element(screen.getByText('Request timed out')).toBeInTheDocument();
-  await expect.element(screen.getByText('Usage over time')).not.toBeInTheDocument();
+test("renders a per-region error state instead of that region's content", async () => {
+  const screen = await render(
+    <DashboardPage error={{ chart: "Request timed out" }} />,
+  );
+  await expect
+    .element(screen.getByText("Couldn't load the usage chart"))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByText("Request timed out"))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByText("Usage over time"))
+    .not.toBeInTheDocument();
   // The other regions are unaffected by one region's error.
-  await expect.element(screen.getByText('Active agents')).toBeInTheDocument();
+  await expect.element(screen.getByText("Active agents")).toBeInTheDocument();
 });
 
-test('no a11y violations in the default (populated) state', async () => {
+test("no a11y violations in the default (populated) state", async () => {
   await render(<DashboardPage />);
+  await expectNoA11yViolations(document.body);
+});
+
+test("no a11y violations in the full-page empty state", async () => {
+  await render(<DashboardPage isEmpty />);
+  await expectNoA11yViolations(document.body);
+});
+
+test("no a11y violations across independent loading regions", async () => {
+  await render(
+    <DashboardPage loading={{ stats: true, chart: true, activity: true }} />,
+  );
+  await expectNoA11yViolations(document.body);
+});
+
+test("no a11y violations across independent error regions", async () => {
+  await render(
+    <DashboardPage
+      error={{
+        stats: "Metrics unavailable",
+        chart: "Usage unavailable",
+        activity: "Activity unavailable",
+      }}
+    />,
+  );
   await expectNoA11yViolations(document.body);
 });

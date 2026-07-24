@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { Wrapper } from './wrapper';
+import type { ReactNode } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/field` (dogfoods the registry) → auto-scanned.
-import { Field } from '@/components/ui/field';
+import { Field } from "@/components/ui/field";
 // Copied INTO apps/docs via `shadcn add @vegastack/select` (dogfoods the registry) → auto-scanned.
 import {
   Select,
@@ -14,13 +14,13 @@ import {
   SelectGroup,
   SelectLabel,
   SelectSeparator,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 
 const FONTS = {
-  sans: 'Sans-serif',
-  serif: 'Serif',
-  mono: 'Monospace',
-  cursive: 'Cursive',
+  sans: "Sans-serif",
+  serif: "Serif",
+  mono: "Monospace",
+  cursive: "Cursive",
 };
 
 /**
@@ -58,12 +58,12 @@ export function select(): ReactNode {
 }
 
 const TIMEZONES = {
-  est: 'Eastern (EST)',
-  cst: 'Central (CST)',
-  pst: 'Pacific (PST)',
-  gmt: 'Greenwich (GMT)',
-  cet: 'Central European (CET)',
-  jst: 'Japan (JST)',
+  est: "Eastern (EST)",
+  cst: "Central (CST)",
+  pst: "Pacific (PST)",
+  gmt: "Greenwich (GMT)",
+  cet: "Central European (CET)",
+  jst: "Japan (JST)",
 };
 
 /**
@@ -174,10 +174,10 @@ export function selectStates(): ReactNode {
 }
 
 const ROLES = {
-  viewer: 'Viewer',
-  editor: 'Editor',
-  admin: 'Admin',
-  owner: 'Owner',
+  viewer: "Viewer",
+  editor: "Editor",
+  admin: "Admin",
+  owner: "Owner",
 };
 
 /**
@@ -190,7 +190,11 @@ export function selectInvalid(): ReactNode {
   return (
     <Wrapper className="items-start">
       <Select items={ROLES}>
-        <SelectTrigger className="w-56" aria-invalid aria-label="Role (invalid)">
+        <SelectTrigger
+          className="w-56"
+          aria-invalid
+          aria-label="Role (invalid)"
+        >
           <SelectValue placeholder="Select a role" />
         </SelectTrigger>
         <SelectContent>
@@ -200,11 +204,7 @@ export function selectInvalid(): ReactNode {
           <SelectItem value="owner">Owner</SelectItem>
         </SelectContent>
       </Select>
-      <Field
-        label="Role"
-        error="Select a role to continue."
-        className="w-56"
-      >
+      <Field label="Role" error="Select a role to continue." className="w-56">
         <Select items={ROLES} name="role">
           <SelectTrigger aria-invalid>
             <SelectValue placeholder="Select a role" />
@@ -222,10 +222,10 @@ export function selectInvalid(): ReactNode {
 }
 
 const LABELS_BY_VALUE: Record<string, string> = {
-  bug: 'Bug',
-  feature: 'Feature',
-  docs: 'Documentation',
-  chore: 'Chore',
+  bug: "Bug",
+  feature: "Feature",
+  docs: "Documentation",
+  chore: "Chore",
 };
 
 /**
@@ -237,13 +237,13 @@ const LABELS_BY_VALUE: Record<string, string> = {
 export function selectMultiple(): ReactNode {
   return (
     <Wrapper>
-      <Select multiple defaultValue={['bug', 'docs']}>
+      <Select multiple defaultValue={["bug", "docs"]}>
         <SelectTrigger className="w-64" aria-label="Labels">
           <SelectValue>
             {(value: string[]) =>
               value.length === 0
-                ? 'Select labels'
-                : value.map((v) => LABELS_BY_VALUE[v]).join(', ')
+                ? "Select labels"
+                : value.map((v) => LABELS_BY_VALUE[v]).join(", ")
             }
           </SelectValue>
         </SelectTrigger>

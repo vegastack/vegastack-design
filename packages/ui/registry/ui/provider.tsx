@@ -1,6 +1,6 @@
-// @vegastack provider@0.2.0 sha256-+ZgfMZFxzHZoc6SP3bUHRPuD0HDb4Ai6KFgqzbnG6jA=
+// @vegastack provider@0.2.0 sha256-iqyaO7luPpWDpDhyjxZ2s0OIsg99O2wqezjHoOcJa2o=
 
-'use client';
+"use client";
 
 // Canonical registry source for the app-root provider. The package provider
 // (`packages/ui/src/provider/vegastack-provider.tsx` + `use-vegastack-theme.ts`) is
@@ -8,17 +8,21 @@
 // do not diverge — if they must differ, change ONLY this file and re-mirror there.
 // (Same discipline as the Toaster: `registry/ui/sonner.tsx` ↔ `src/provider/toaster.tsx`.)
 
-import * as React from 'react';
-import { ThemeProvider as NextThemesProvider, useTheme } from 'next-themes';
-import { Tooltip } from '@base-ui/react/tooltip';
-import { DirectionProvider } from '@base-ui/react/direction-provider';
-import { Toaster } from '@/components/ui/sonner';
+import * as React from "react";
+import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes";
+import { Tooltip } from "@base-ui/react/tooltip";
+import { DirectionProvider } from "@base-ui/react/direction-provider";
+import { Toaster } from "@/components/ui/sonner";
 
-export interface VegaStackProviderProps
-  extends Omit<React.ComponentProps<typeof NextThemesProvider>, 'children'> {
+/** Props accepted by `VegaStackProvider`. */
+export interface VegaStackProviderProps extends Omit<
+  React.ComponentProps<typeof NextThemesProvider>,
+  "children"
+> {
+  /** The application subtree that receives theme, direction, tooltip, and toast context. */
   children: React.ReactNode;
   /** Text direction for Base UI components. @default 'ltr' */
-  direction?: 'ltr' | 'rtl';
+  direction?: "ltr" | "rtl";
   /**
    * Controls the bundled `Toaster`. Mount-once portal toasters must not be
    * double-mounted, so pass `false` if you already render a `<Toaster />`
@@ -58,11 +62,12 @@ export interface VegaStackProviderProps
  */
 export function VegaStackProvider({
   children,
-  direction = 'ltr',
+  direction = "ltr",
   toaster = true,
   ...themeProps
 }: VegaStackProviderProps) {
-  const toasterNode = toaster === true ? <Toaster /> : toaster === false ? null : toaster;
+  const toasterNode =
+    toaster === true ? <Toaster /> : toaster === false ? null : toaster;
   return (
     <NextThemesProvider
       attribute="class"

@@ -1,4 +1,4 @@
-// @vegastack dialog@0.2.0 sha256-SwLTwexf+whLkvpcD7DVpnjKMFr9W4qd2/lc00XI1As=
+// @vegastack dialog@0.2.0 sha256-np0951IVtUIvf2AR8vETO+7mZR3AWZjP4HfNQQkSAHM=
 
 "use client";
 
@@ -7,6 +7,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
 import { cn } from "@vegastack/design";
+import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 
 /* ------------------------------------------------------------------------------------------------
  * Dialog — a modal overlay built on Base UI's Dialog. Exported FLAT (shadcn-style):
@@ -31,7 +32,7 @@ export const dialogContentVariants = cva(
     // `:focus-visible` outline stays as the keyboard-focus indicator (WCAG 2.4.7, register P0-02).
     "rounded-lg border border-border bg-popover p-5 text-base text-popover-foreground shadow-overlay",
     // Enter/exit — scale + fade, token durations + standard easing.
-    "origin-center transition-all duration-fast ease-standard",
+    "origin-center transition-[opacity,transform] duration-fast ease-standard",
     "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
     "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
   ],
@@ -76,10 +77,16 @@ export type DialogContentSize = NonNullable<
  */
 export type DialogProps = React.ComponentProps<typeof BaseDialog.Root>;
 
+/** `Dialog` root; controls the modal's open state and focus-management lifecycle.
+ *
+ * @example
+ * <Dialog />
+ */
 export function Dialog(props: DialogProps) {
   return <BaseDialog.Root {...props} />;
 }
 
+/** Props accepted by `DialogTrigger`. */
 export type DialogTriggerProps = React.ComponentProps<
   typeof BaseDialog.Trigger
 >;
@@ -87,6 +94,10 @@ export type DialogTriggerProps = React.ComponentProps<
 /**
  * `DialogTrigger` — the control that opens the dialog. Renders a `<button>`;
  * pass `render` to compose it with a `Button` or any other action element.
+
+ *
+ * @example
+ * <DialogTrigger />
  */
 export function DialogTrigger({ className, ...props }: DialogTriggerProps) {
   return (
@@ -98,6 +109,7 @@ export function DialogTrigger({ className, ...props }: DialogTriggerProps) {
   );
 }
 
+/** Props accepted by `DialogContent`. */
 export interface DialogContentProps
   extends
     React.ComponentProps<typeof BaseDialog.Popup>,
@@ -107,6 +119,14 @@ export interface DialogContentProps
    * @default "default"
    */
   size?: DialogContentSize;
+  /**
+   * Vertical placement of the popup (Wave 2). `center` (default) is the modal
+   * position; `top` anchors the popup near the viewport top — the COMPOSER
+   * posture (quick-create dialogs, task capture) where the eye starts and
+   * follow-up typing happens.
+   * @default 'center'
+   */
+  placement?: "center" | "top";
   /**
    * Render the top-right close (`X`) button.
    * @default true
@@ -123,20 +143,28 @@ export interface DialogContentProps
  * `DialogContent` — the centered popup. Composes Base UI's `Portal` + `Backdrop` + `Viewport` +
  * `Popup`, applies the `size` width token, animates enter/exit, and renders the close button. Drop
  * `DialogHeader`/`DialogFooter` and the title/description inside it.
+
+ *
+ * @example
+ * <DialogContent />
  */
 export function DialogContent({
   className,
   children,
   size = "default",
+  placement = "center",
   showCloseButton = true,
   closeLabel = "Close",
   ...props
 }: DialogContentProps) {
+  const themeScope = useInternalThemeScope();
+
   return (
     <BaseDialog.Portal>
       <BaseDialog.Backdrop
         data-slot="dialog-backdrop"
         className={cn(
+          themeScope,
           "fixed inset-0 z-(--z-overlay) bg-overlay",
           "transition-opacity duration-fast ease-standard",
           "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
@@ -144,14 +172,18 @@ export function DialogContent({
       />
       <BaseDialog.Viewport
         data-slot="dialog-viewport"
+        data-placement={placement}
         className={cn(
-          "fixed inset-0 z-(--z-overlay) flex items-center justify-center overflow-y-auto p-4 outline-none",
+          themeScope,
+          "fixed inset-0 z-(--z-overlay) flex justify-center overflow-y-auto overscroll-contain p-4 outline-none",
+          placement === "top" ? "items-start pt-16" : "items-center",
         )}
       >
         <BaseDialog.Popup
           data-slot="dialog-content"
           data-size={size}
-          className={cn(dialogContentVariants({ size }), className)}
+          data-placement={placement}
+          className={cn(themeScope, dialogContentVariants({ size }), className)}
           {...props}
         >
           {children}
@@ -160,8 +192,8 @@ export function DialogContent({
               data-slot="dialog-close"
               aria-label={closeLabel}
               className={cn(
-                "absolute top-3 right-3 inline-flex size-(--size-md) shrink-0 items-center justify-center",
-                "rounded-md text-muted-foreground transition-colors duration-fast ease-standard select-none",
+                "absolute top-3 end-3 inline-flex size-(--size-md) shrink-0 items-center justify-center",
+                "rounded-md text-muted-foreground  select-none",
                 "hover:bg-muted hover:text-foreground",
                 "[&_svg:not([class*='size-'])]:size-(--icon-default) [&_svg]:pointer-events-none [&_svg]:shrink-0",
               )}
@@ -175,27 +207,37 @@ export function DialogContent({
   );
 }
 
+/** Props accepted by `DialogHeader`. */
 export type DialogHeaderProps = React.ComponentProps<"div">;
 
 /**
  * `DialogHeader` — groups the title and description at the top of the content.
  * Clears the close button's footprint with end padding.
+
+ *
+ * @example
+ * <DialogHeader />
  */
 export function DialogHeader({ className, ...props }: DialogHeaderProps) {
   return (
     <div
       data-slot="dialog-header"
-      className={cn("flex shrink-0 flex-col gap-1.5 pr-10", className)}
+      className={cn("flex shrink-0 flex-col gap-1.5 pe-10", className)}
       {...props}
     />
   );
 }
 
+/** Props accepted by `DialogFooter`. */
 export type DialogFooterProps = React.ComponentProps<"div">;
 
 /**
  * `DialogFooter` — the action row at the bottom of the content. Stacks (reversed) on
  * narrow screens, becomes an end-aligned row from the `sm` breakpoint up.
+
+ *
+ * @example
+ * <DialogFooter />
  */
 export function DialogFooter({ className, ...props }: DialogFooterProps) {
   return (
@@ -210,25 +252,28 @@ export function DialogFooter({ className, ...props }: DialogFooterProps) {
   );
 }
 
+/** Props accepted by `DialogTitle`. */
 export type DialogTitleProps = React.ComponentProps<typeof BaseDialog.Title>;
 
 /**
  * `DialogTitle` — the dialog's accessible name. Renders an `<h2>`; Base UI wires it to the
  * popup via `aria-labelledby`. Always include one.
+
+ *
+ * @example
+ * <DialogTitle />
  */
 export function DialogTitle({ className, ...props }: DialogTitleProps) {
   return (
     <BaseDialog.Title
       data-slot="dialog-title"
-      className={cn(
-        "text-h4 text-foreground",
-        className,
-      )}
+      className={cn("text-h4 text-foreground", className)}
       {...props}
     />
   );
 }
 
+/** Props accepted by `DialogDescription`. */
 export type DialogDescriptionProps = React.ComponentProps<
   typeof BaseDialog.Description
 >;
@@ -236,6 +281,10 @@ export type DialogDescriptionProps = React.ComponentProps<
 /**
  * `DialogDescription` — supporting text under the title. Renders a `<p>`; Base UI wires it to
  * the popup via `aria-describedby`.
+
+ *
+ * @example
+ * <DialogDescription />
  */
 export function DialogDescription({
   className,
@@ -244,23 +293,67 @@ export function DialogDescription({
   return (
     <BaseDialog.Description
       data-slot="dialog-description"
-      className={cn("text-base leading-relaxed text-muted-foreground", className)}
+      className={cn(
+        "text-base leading-relaxed text-muted-foreground",
+        className,
+      )}
       {...props}
     />
   );
 }
 
+/** Props accepted by `DialogClose`. */
 export type DialogCloseProps = React.ComponentProps<typeof BaseDialog.Close>;
 
 /**
  * `DialogClose` — closes the dialog. Renders a `<button>`; pass `render` to compose it with a
  * `Button` (e.g. a "Cancel" action in the footer).
+
+ *
+ * @example
+ * <DialogClose />
  */
 export function DialogClose({ className, ...props }: DialogCloseProps) {
   return (
     <BaseDialog.Close
       data-slot="dialog-close-action"
       className={className}
+      {...props}
+    />
+  );
+}
+
+/** Props accepted by `DialogTitleBar`. */
+export type DialogTitleBarProps = React.ComponentProps<"div">;
+
+/**
+ * `DialogTitleBar` — the window-chrome header (Wave 2, from the app-teardown
+ * "window-in-app" editor shell): a hairline-bottomed bar across the popup's top
+ * for a context chip on the left and window controls (expand, close, `⋮`) on the
+ * right. Use it INSTEAD of `DialogHeader` when the dialog behaves like a
+ * lightweight window (editors, previews); pass `showCloseButton={false}` to
+ * `DialogContent` and compose your own controls here.
+ *
+ * @example
+ * <DialogContent size="lg" showCloseButton={false} className="p-0">
+ *   <DialogTitleBar>
+ *     <span className="flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground">
+ *       <FileText aria-hidden /> <span className="truncate">Meeting notes</span>
+ *     </span>
+ *     <span className="flex items-center gap-0.5">…icon buttons…</span>
+ *   </DialogTitleBar>
+ *   …body…
+ * </DialogContent>
+ */
+export function DialogTitleBar({ className, ...props }: DialogTitleBarProps) {
+  return (
+    <div
+      data-slot="dialog-title-bar"
+      className={cn(
+        "flex shrink-0 items-center justify-between gap-2 border-b border-border px-3 py-2",
+        "[&_svg:not([class*='size-'])]:size-(--icon-inline)",
+        className,
+      )}
       {...props}
     />
   );

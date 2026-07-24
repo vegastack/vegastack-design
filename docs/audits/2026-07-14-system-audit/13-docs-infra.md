@@ -2,7 +2,7 @@
 
 Scope: `apps/docs` as **infrastructure** (Fumadocs 16.10.5 + Next 16.2.9 static export →
 Cloudflare Workers Static Assets, Orama search, twoslash, the private `/r/*` registry host).
-Does **not** re-cover component/docs *content* coverage (see `07-docs-previews.md`, which audited
+Does **not** re-cover component/docs _content_ coverage (see `07-docs-previews.md`, which audited
 all 68 components' MDX/preview/registry sync and found it clean) or the general dependency-version
 sweep (see `04-versions-research.md`, which already flagged the Fumadocs pin — referenced, not
 repeated, below). This file is additive: config wiring, LLM-consumption surface, showcase DX
@@ -21,20 +21,20 @@ concrete, file-line-verified performance finding in this pass.
 
 ## (a) Current-setup map
 
-| Concern | Implementation | File |
-|---|---|---|
-| MDX pipeline | `fumadocs-mdx/next` + `defineDocs`/`defineConfig`, shallow custom frontmatter schema (avoids a TS2589 depth error under TS 6 + Zod 4) | `apps/docs/source.config.ts:1-39` |
-| Next config | `output: 'export'`, `serverExternalPackages: ['typescript', 'twoslash']` | `apps/docs/next.config.mjs:1-12` |
-| Root layout | Geist Sans/Mono via `next/font` (geist pkg) + Lora via `next/font/google`, no `<title>`/`metadata` export at all | `apps/docs/app/layout.tsx:1-27` |
-| Docs layout | `DocsLayout` from `fumadocs-ui/layouts/docs`, `baseOptions()` (nav title + GitHub link only) | `apps/docs/app/docs/layout.tsx`, `apps/docs/lib/layout.shared.tsx` |
-| Page render | `DocsPage` + `MarkdownCopyButton` + `ViewOptionsPopover` + optional page-level `<Preview>` component keyed off frontmatter `preview:` field | `apps/docs/app/docs/[[...slug]]/page.tsx:31-57` |
-| Search | Orama static client (`fumadocs-core/search/client/orama-static`), server route `createFromSource` | `apps/docs/components/search.tsx`, `apps/docs/app/api/search/route.ts` |
-| Theming/providers | Fumadocs `RootProvider` (search only, `theme.enabled:false`) wraps `VegaStackProvider` (single owner of next-themes + Base UI direction + tooltip) + dogfooded copy-in `Toaster` | `apps/docs/components/provider.tsx` |
-| MDX components | Fumadocs defaults + Tabs + Twoslash + `TypeTable`/`AutoTypeTable` + custom `ComponentPreview`, `DoDont`, 8 foundation-spec components, `IconGallery`, `RegistryInstallCallout` | `apps/docs/components/mdx.tsx` |
-| Component preview DX | Tabs("Preview"/"Code"), code tab reads source off disk at build time via `readFileSync` + `highlight()` (build-time only, compatible with `output:'export'`) | `apps/docs/components/component-preview.tsx` |
-| LLM output | `llms.txt` (index), `llms-full.txt` (every page concatenated), `llms.mdx/docs/[...slug]` (per-page raw markdown) — all `revalidate:false` static routes | `apps/docs/app/llms.txt/route.ts`, `llms-full.txt/route.ts`, `llms.mdx/docs/[[...slug]]/route.ts` |
-| Registry hosting | `public/r/*.json` (68 components + ~439 mirrored icons + `registry.json` index + Sigstore-signed `integrity-manifest.json`/`.sigstore`), served as static assets, gated by Cloudflare Access (SSO for docs, service-token for `/r/*`) | `apps/docs/wrangler.jsonc`, `.github/workflows/deploy.yml` |
-| CI | 4 workflows: `ci.yml` (PR gate: typecheck/lint/test/build/registry-verify), `vrt.yml` (PR visual regression, self-activating), `deploy.yml` (manual, signs + deploys + verifies live CF Access policy), `release.yml` (main-push, changesets publish) | `.github/workflows/*.yml` |
+| Concern              | Implementation                                                                                                                                                                                                                                        | File                                                                                              |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| MDX pipeline         | `fumadocs-mdx/next` + `defineDocs`/`defineConfig`, shallow custom frontmatter schema (avoids a TS2589 depth error under TS 6 + Zod 4)                                                                                                                 | `apps/docs/source.config.ts:1-39`                                                                 |
+| Next config          | `output: 'export'`, `serverExternalPackages: ['typescript', 'twoslash']`                                                                                                                                                                              | `apps/docs/next.config.mjs:1-12`                                                                  |
+| Root layout          | Geist Sans/Mono via `next/font` (geist pkg) + Lora via `next/font/google`, no `<title>`/`metadata` export at all                                                                                                                                      | `apps/docs/app/layout.tsx:1-27`                                                                   |
+| Docs layout          | `DocsLayout` from `fumadocs-ui/layouts/docs`, `baseOptions()` (nav title + GitHub link only)                                                                                                                                                          | `apps/docs/app/docs/layout.tsx`, `apps/docs/lib/layout.shared.tsx`                                |
+| Page render          | `DocsPage` + `MarkdownCopyButton` + `ViewOptionsPopover` + optional page-level `<Preview>` component keyed off frontmatter `preview:` field                                                                                                           | `apps/docs/app/docs/[[...slug]]/page.tsx:31-57`                                                   |
+| Search               | Orama static client (`fumadocs-core/search/client/orama-static`), server route `createFromSource`                                                                                                                                                     | `apps/docs/components/search.tsx`, `apps/docs/app/api/search/route.ts`                            |
+| Theming/providers    | Fumadocs `RootProvider` (search only, `theme.enabled:false`) wraps `VegaStackProvider` (single owner of next-themes + Base UI direction + tooltip) + dogfooded copy-in `Toaster`                                                                      | `apps/docs/components/provider.tsx`                                                               |
+| MDX components       | Fumadocs defaults + Tabs + Twoslash + `TypeTable`/`AutoTypeTable` + custom `ComponentPreview`, `DoDont`, 8 foundation-spec components, `IconGallery`, `RegistryInstallCallout`                                                                        | `apps/docs/components/mdx.tsx`                                                                    |
+| Component preview DX | Tabs("Preview"/"Code"), code tab reads source off disk at build time via `readFileSync` + `highlight()` (build-time only, compatible with `output:'export'`)                                                                                          | `apps/docs/components/component-preview.tsx`                                                      |
+| LLM output           | `llms.txt` (index), `llms-full.txt` (every page concatenated), `llms.mdx/docs/[...slug]` (per-page raw markdown) — all `revalidate:false` static routes                                                                                               | `apps/docs/app/llms.txt/route.ts`, `llms-full.txt/route.ts`, `llms.mdx/docs/[[...slug]]/route.ts` |
+| Registry hosting     | `public/r/*.json` (68 components + ~439 mirrored icons + `registry.json` index + Sigstore-signed `integrity-manifest.json`/`.sigstore`), served as static assets, gated by Cloudflare Access (SSO for docs, service-token for `/r/*`)                 | `apps/docs/wrangler.jsonc`, `.github/workflows/deploy.yml`                                        |
+| CI                   | 4 workflows: `ci.yml` (PR gate: typecheck/lint/test/build/registry-verify), `vrt.yml` (PR visual regression, self-activating), `deploy.yml` (manual, signs + deploys + verifies live CF Access policy), `release.yml` (main-push, changesets publish) | `.github/workflows/*.yml`                                                                         |
 
 No `sitemap.ts`, `robots.ts`, `opengraph-image.tsx`, custom `not-found.tsx`, `error.tsx`, or
 `global-error.tsx` exist anywhere under `apps/docs/app` — verified by exhaustive `find`. The `out/`
@@ -92,7 +92,7 @@ Ranked by effort vs. impact (skipping the `MarkdownCopyButton`/`ViewOptionsPopov
    Preview/Code tabs.** The infra to do this is already 90% built: `getPageMarkdownUrl` +
    `getLLMText` (`apps/docs/lib/source.ts:10-18`) already produce a clean `# Title (url)\n\n<md>`
    blob per page, and `MarkdownCopyButton` already copies it. The missing piece is a
-   *component-level* variant scoped to just the preview's source file (not the whole page) — e.g. a
+   _component-level_ variant scoped to just the preview's source file (not the whole page) — e.g. a
    button on the "Code" tab that copies `` `Implement using this VegaStack component:\n\n<file>` ``
    for pasting into an agent chat. Given the project's own positioning ("consumable by humans and
    AI agents alike" — `apps/docs/app/(home)/page.tsx:9`), this is squarely on-brand and reuses
@@ -118,6 +118,7 @@ Ranked by effort vs. impact (skipping the `MarkdownCopyButton`/`ViewOptionsPopov
 ## (d) LLM/agent consumption — already strong, two concrete additions
 
 **What's already shipped (good news, verified in this pass):**
+
 - `GET /llms.txt` — an index of every page with a one-line description, generated via
   `fumadocs-core/source`'s `llms()` helper (`apps/docs/app/llms.txt/route.ts`).
 - `GET /llms-full.txt` — every page's processed markdown concatenated (`llms-full.txt/route.ts`),
@@ -142,6 +143,7 @@ Ranked by effort vs. impact (skipping the `MarkdownCopyButton`/`ViewOptionsPopov
   the documented pattern is correct and current.
 
 **Concrete gaps / additions worth making:**
+
 1. **No `llms.txt` discovery link in page `<head>`** — there's no `<link rel="llms.txt">` or
    equivalent hint, and no mention of `/llms.txt` in `robots.txt` (which doesn't exist — see §e).
    Cheap to add once a `robots.ts` exists.
@@ -149,7 +151,7 @@ Ranked by effort vs. impact (skipping the `MarkdownCopyButton`/`ViewOptionsPopov
    LLM-consumption addition beyond what's shipped — right now an agent (or human copying for an
    agent) has to fetch the whole-page markdown via `llms.mdx/docs/<slug>` and manually extract the
    relevant code block; a scoped button would remove that step.
-3. **No machine-readable component *metadata* endpoint beyond the registry JSON itself** — the
+3. **No machine-readable component _metadata_ endpoint beyond the registry JSON itself** — the
    registry items carry `meta.whenToUse`/`meta.whenNotToUse` (confirmed in
    `packages/ui/registry.json`, e.g. the `marker` item), which is exactly the kind of
    agent-decision-support data a coding agent would want when choosing between components. This is
@@ -161,6 +163,7 @@ Ranked by effort vs. impact (skipping the `MarkdownCopyButton`/`ViewOptionsPopov
 ## (e) Performance/quality findings (file:line where applicable)
 
 **No metadata/SEO infrastructure at all** (the most concrete "not modern" finding):
+
 - No `export const metadata` / `generateMetadata` beyond the bare per-page `{title, description}`
   in `apps/docs/app/docs/[[...slug]]/page.tsx:63-68` — no `metadataBase`, no `openGraph`/`twitter`
   fields, no title template (`%s | VegaStack Design`), confirmed via exhaustive grep across
@@ -173,6 +176,7 @@ Ranked by effort vs. impact (skipping the `MarkdownCopyButton`/`ViewOptionsPopov
   `<title>` tag** distinct from whatever Next's default fallback produces.
 
 **Static-export bloat — the concrete perf finding:**
+
 - `apps/docs/out/docs/` is **543MB** across 745 files (the rest of `out/` — `_next`, `r`, `api`,
   `llms*` — totals ~12MB combined). Several individual component pages are 6–11MB of HTML:
   `sidebar.html` (11MB), `dropdown-menu.html` (11MB), `context-menu.html` (11MB), `select.html`
@@ -199,7 +203,7 @@ Ranked by effort vs. impact (skipping the `MarkdownCopyButton`/`ViewOptionsPopov
   (`apps/docs/app/layout.tsx:2-8`). No render-blocking web-font `<link>` tags. No issues found.
 - **Images**: no `next/image` usage anywhere in the app (confirmed by exhaustive grep — the only
   hit is a code comment inside a copied-in registry component, `markdown-view.tsx:172`, explaining
-  *why* it deliberately avoids `next/image`). Consistent with a near-image-free
+  _why_ it deliberately avoids `next/image`). Consistent with a near-image-free
   icon/color-swatch-driven showcase; not a gap, just worth confirming there's no
   hidden-unoptimized-`<img>` problem — there isn't.
 - **CSS**: single `apps/docs/app/global.css` (71 lines), imports Tailwind v4 + `fumadocs-ui`
@@ -248,7 +252,7 @@ Ranked by effort vs. impact (skipping the `MarkdownCopyButton`/`ViewOptionsPopov
   cache). On a single PR, `ci.yml` and `vrt.yml` both run **independently** and each does its own
   full `pnpm install --frozen-lockfile` + `pnpm build` from a cold Turbo cache — two full builds in
   parallel jobs that could share one cached build via Turborepo remote caching (Vercel Remote Cache
-  or a self-hosted one). `deploy.yml` and `release.yml` each add a *third* and *fourth* independent
+  or a self-hosted one). `deploy.yml` and `release.yml` each add a _third_ and _fourth_ independent
   full build/VRT-gate cycle on their own trigger paths. This is the most actionable CI finding: an
   hour of setup (point `turbo.json` at a remote cache + add the token secret) would cut redundant
   build/VRT time significantly, especially valuable since VRT is in a heavyweight pinned Playwright

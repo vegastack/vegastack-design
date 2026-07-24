@@ -12,7 +12,9 @@ export function scrollArea(): ReactNode {
     <Wrapper>
       <ScrollArea className="h-56 w-56 rounded-lg border border-border">
         <div className="p-4">
-          <p className="mb-3 text-base font-medium text-foreground">Release tags</p>
+          <p className="mb-3 text-base font-medium text-foreground">
+            Release tags
+          </p>
           {TAGS.map((tag) => (
             <div
               key={tag}
@@ -30,7 +32,10 @@ export function scrollArea(): ReactNode {
 export function scrollAreaHorizontal(): ReactNode {
   return (
     <Wrapper>
-      <ScrollArea orientation="horizontal" className="w-72 rounded-lg border border-border">
+      <ScrollArea
+        orientation="horizontal"
+        className="w-72 rounded-lg border border-border"
+      >
         <div className="flex gap-3 p-4">
           {Array.from({ length: 12 }, (_, i) => (
             <div
@@ -49,7 +54,10 @@ export function scrollAreaHorizontal(): ReactNode {
 export function scrollAreaBoth(): ReactNode {
   return (
     <Wrapper>
-      <ScrollArea orientation="both" className="h-56 w-72 rounded-lg border border-border">
+      <ScrollArea
+        orientation="both"
+        className="h-56 w-72 rounded-lg border border-border"
+      >
         <div className="grid w-160 grid-cols-8 gap-2 p-4">
           {Array.from({ length: 80 }, (_, i) => (
             <div
@@ -69,7 +77,9 @@ export function scrollAreaOrientations(): ReactNode {
   return (
     <Wrapper className="items-start gap-6">
       <div className="flex flex-col items-center gap-2">
-        <span className="text-sm font-medium text-muted-foreground">vertical</span>
+        <span className="text-sm font-medium text-muted-foreground">
+          vertical
+        </span>
         <ScrollArea className="h-44 w-40 rounded-lg border border-border">
           <div className="p-3">
             {TAGS.slice(0, 24).map((tag) => (
@@ -84,8 +94,13 @@ export function scrollAreaOrientations(): ReactNode {
         </ScrollArea>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <span className="text-sm font-medium text-muted-foreground">horizontal</span>
-        <ScrollArea orientation="horizontal" className="w-52 rounded-lg border border-border">
+        <span className="text-sm font-medium text-muted-foreground">
+          horizontal
+        </span>
+        <ScrollArea
+          orientation="horizontal"
+          className="w-52 rounded-lg border border-border"
+        >
           <div className="flex gap-2 p-3">
             {Array.from({ length: 10 }, (_, i) => (
               <div
@@ -100,7 +115,10 @@ export function scrollAreaOrientations(): ReactNode {
       </div>
       <div className="flex flex-col items-center gap-2">
         <span className="text-sm font-medium text-muted-foreground">both</span>
-        <ScrollArea orientation="both" className="h-44 w-52 rounded-lg border border-border">
+        <ScrollArea
+          orientation="both"
+          className="h-44 w-52 rounded-lg border border-border"
+        >
           <div className="grid w-112 grid-cols-6 gap-2 p-3">
             {Array.from({ length: 42 }, (_, i) => (
               <div

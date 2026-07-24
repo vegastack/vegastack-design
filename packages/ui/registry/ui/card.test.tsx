@@ -1,10 +1,18 @@
-import * as React from 'react';
-import { render } from 'vitest-browser-react';
-import { expect, test } from 'vitest';
-import { expectNoA11yViolations } from '../../test/a11y';
-import { Card, CardHeader, CardTitle, CardDescription, CardAction, CardContent, CardFooter } from './card';
+import * as React from "react";
+import { render } from "vitest-browser-react";
+import { expect, test } from "vitest";
+import { expectNoA11yViolations } from "../../test/a11y";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardAction,
+  CardContent,
+  CardFooter,
+} from "./card";
 
-test('renders title and content', async () => {
+test("renders title and content", async () => {
   const screen = await render(
     <Card>
       <CardHeader>
@@ -14,24 +22,30 @@ test('renders title and content', async () => {
       <CardContent>Everything in Pro, plus SSO.</CardContent>
     </Card>,
   );
-  await expect.element(screen.getByText('Team plan')).toBeInTheDocument();
-  await expect.element(screen.getByText('$20 / user / month')).toBeInTheDocument();
-  await expect.element(screen.getByText('Everything in Pro, plus SSO.')).toBeInTheDocument();
+  await expect.element(screen.getByText("Team plan")).toBeInTheDocument();
+  await expect
+    .element(screen.getByText("$20 / user / month"))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByText("Everything in Pro, plus SSO."))
+    .toBeInTheDocument();
 });
 
-test('root carries data-slot and default data-size', async () => {
+test("root carries data-slot and default data-size", async () => {
   const screen = await render(<Card>Body</Card>);
-  const card = screen.getByText('Body');
-  await expect.element(card).toHaveAttribute('data-slot', 'card');
-  await expect.element(card).toHaveAttribute('data-size', 'default');
+  const card = screen.getByText("Body");
+  await expect.element(card).toHaveAttribute("data-slot", "card");
+  await expect.element(card).toHaveAttribute("data-size", "default");
 });
 
 test('size="sm" sets the data-size attribute', async () => {
   const screen = await render(<Card size="sm">Compact</Card>);
-  await expect.element(screen.getByText('Compact')).toHaveAttribute('data-size', 'sm');
+  await expect
+    .element(screen.getByText("Compact"))
+    .toHaveAttribute("data-size", "sm");
 });
 
-test('each compound part exposes its data-slot', async () => {
+test("each compound part exposes its data-slot", async () => {
   const screen = await render(
     <Card>
       <CardHeader>
@@ -48,20 +62,22 @@ test('each compound part exposes its data-slot', async () => {
   const { container } = screen;
   expect(container.querySelector('[data-slot="card-header"]')).not.toBeNull();
   expect(container.querySelector('[data-slot="card-title"]')).not.toBeNull();
-  expect(container.querySelector('[data-slot="card-description"]')).not.toBeNull();
+  expect(
+    container.querySelector('[data-slot="card-description"]'),
+  ).not.toBeNull();
   expect(container.querySelector('[data-slot="card-action"]')).not.toBeNull();
   expect(container.querySelector('[data-slot="card-content"]')).not.toBeNull();
   expect(container.querySelector('[data-slot="card-footer"]')).not.toBeNull();
 });
 
-test('forwards ref to the underlying card root element', async () => {
+test("forwards ref to the underlying card root element", async () => {
   const ref = React.createRef<HTMLDivElement>();
   await render(<Card ref={ref}>Ref</Card>);
   expect(ref.current).toBeInstanceOf(HTMLDivElement);
-  expect(ref.current?.dataset.slot).toBe('card');
+  expect(ref.current?.dataset.slot).toBe("card");
 });
 
-test('no a11y violations', async () => {
+test("no a11y violations", async () => {
   const screen = await render(
     <Card>
       <CardHeader>

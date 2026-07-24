@@ -1,12 +1,9 @@
-// @vegastack particle-field@0.2.0 sha256-vGtBQxfw//ZPmKoTofZpDa0t5PKlXHdbstmojSYnmuI=
+// @vegastack particle-field@0.2.0 sha256-SFe0RXG5lMYWURi0fR7oBVZWMk5CdpR/UmAXHaIXbEg=
 
-// @vegastack particle-field@0.1.0 — new component; run `pnpm run registry:build` to stamp
-// integrity + regenerate the copy-in/JSON.
+"use client";
 
-'use client';
-
-import * as React from 'react';
-import { cn } from '@vegastack/design';
+import * as React from "react";
+import { cn } from "@vegastack/design";
 
 /**
  * Deterministic seeded PRNG (mulberry32) — NEVER `Math.random()` at render.
@@ -51,30 +48,30 @@ function createParticles(count: number, seed: number): Particle[] {
   }));
 }
 
-/** Mirrors the DARK-half `--brand` token (packages/design-tokens dark ground) for the no-compiled-CSS
- *  test environment / the rare case `getComputedStyle` resolves empty. */
-const FALLBACK_BRAND = 'oklch(0.86 0.21 148)';
-
-function getPrefersReducedMotion(): boolean {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false;
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
 /** Same SSR-safe pattern as `animated-number.tsx`'s `usePrefersReducedMotion`. */
 function usePrefersReducedMotion(): boolean {
-  const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(getPrefersReducedMotion);
+  const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(false);
   React.useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
-    const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (
+      typeof window === "undefined" ||
+      typeof window.matchMedia !== "function"
+    )
+      return;
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
     setPrefersReducedMotion(mql.matches);
-    const onChange = (event: MediaQueryListEvent) => setPrefersReducedMotion(event.matches);
-    mql.addEventListener('change', onChange);
-    return () => mql.removeEventListener('change', onChange);
+    const onChange = (event: MediaQueryListEvent) =>
+      setPrefersReducedMotion(event.matches);
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
   }, []);
   return prefersReducedMotion;
 }
 
-export interface ParticleFieldProps extends Omit<React.ComponentPropsWithRef<'div'>, 'children'> {
+/** Props accepted by `ParticleField`. */
+export interface ParticleFieldProps extends Omit<
+  React.ComponentPropsWithRef<"div">,
+  "children"
+> {
   /**
    * Deterministic PRNG seed. The same seed always produces the same particle
    * layout — change it to get a different (but still stable) field.
@@ -135,7 +132,7 @@ export function ParticleField({
   const setMergedRef = React.useCallback(
     (instance: HTMLDivElement | null) => {
       setContainer(instance);
-      if (typeof ref === 'function') ref(instance);
+      if (typeof ref === "function") ref(instance);
       else if (ref) ref.current = instance;
     },
     [ref],
@@ -147,7 +144,7 @@ export function ParticleField({
   const [isVisible, setIsVisible] = React.useState(false);
   React.useEffect(() => {
     if (!container) return;
-    if (typeof IntersectionObserver === 'undefined') {
+    if (typeof IntersectionObserver === "undefined") {
       setIsVisible(true);
       return;
     }
@@ -164,7 +161,10 @@ export function ParticleField({
   const [ready, setReady] = React.useState(false);
   React.useEffect(() => {
     if (!isVisible) return;
-    if (typeof window !== 'undefined' && typeof window.requestIdleCallback === 'function') {
+    if (
+      typeof window !== "undefined" &&
+      typeof window.requestIdleCallback === "function"
+    ) {
       const id = window.requestIdleCallback(() => setReady(true));
       return () => window.cancelIdleCallback?.(id);
     }
@@ -180,12 +180,18 @@ export function ParticleField({
     if (!ready) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     const particles = createParticles(clampedCount, seed);
-    const dpr = typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1;
-    const brand = (getComputedStyle(canvas).getPropertyValue('--brand') || FALLBACK_BRAND).trim();
+    const dpr =
+      typeof window === "undefined" ? 1 : window.devicePixelRatio || 1;
+    // `currentColor` is the CSS-native fallback when the token stylesheet is unavailable (for
+    // example, the CSS-less unit harness); the canvas itself carries `text-brand`, so production
+    // rendering still resolves the semantic theme token with no duplicated color literal.
+    const brand = (
+      getComputedStyle(canvas).getPropertyValue("--brand") || "currentColor"
+    ).trim();
 
     function resize() {
       const rect = canvas!.getBoundingClientRect();
@@ -226,7 +232,7 @@ export function ParticleField({
     raf = requestAnimationFrame(tick);
 
     const ro =
-      typeof ResizeObserver !== 'undefined'
+      typeof ResizeObserver !== "undefined"
         ? new ResizeObserver(() => {
             resize();
           })
@@ -243,12 +249,19 @@ export function ParticleField({
     <div
       ref={setMergedRef}
       data-slot="particle-field"
-      data-drawn={drawn ? '' : undefined}
+      data-drawn={drawn ? "" : undefined}
       aria-hidden="true"
-      className={cn('pointer-events-none absolute inset-0 overflow-hidden', className)}
+      className={cn(
+        "pointer-events-none absolute inset-0 overflow-hidden",
+        className,
+      )}
       {...props}
     >
-      <canvas ref={canvasRef} data-slot="particle-field-canvas" className="size-full" />
+      <canvas
+        ref={canvasRef}
+        data-slot="particle-field-canvas"
+        className="size-full text-brand"
+      />
     </div>
   );
 }

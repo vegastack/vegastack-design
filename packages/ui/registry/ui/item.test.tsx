@@ -33,7 +33,9 @@ test("renders title and description content", async () => {
     </ItemGroup>,
   );
   await expect.element(screen.getByText("New message")).toBeInTheDocument();
-  await expect.element(screen.getByText("Ada Lovelace sent you a message.")).toBeInTheDocument();
+  await expect
+    .element(screen.getByText("Ada Lovelace sent you a message."))
+    .toBeInTheDocument();
 });
 
 test("Item defaults to role=listitem, data-slot=item", async () => {
@@ -68,7 +70,9 @@ test("ItemGroup exposes role=list and groups multiple Items", async () => {
   );
   const group = screen.container.querySelector('[data-slot="item-group"]');
   expect(group).toHaveAttribute("role", "list");
-  const items = screen.container.querySelectorAll('[data-slot="item"][role="listitem"]');
+  const items = screen.container.querySelectorAll(
+    '[data-slot="item"][role="listitem"]',
+  );
   expect(items.length).toBe(2);
 });
 
@@ -166,7 +170,9 @@ test("ItemSeparator renders as a decorative, presentational divider", async () =
       </Item>
     </ItemGroup>,
   );
-  const separator = screen.container.querySelector('[data-slot="item-separator"]');
+  const separator = screen.container.querySelector(
+    '[data-slot="item-separator"]',
+  );
   expect(separator).not.toBeNull();
   // Decorative Separator (the default) → role="presentation" + aria-hidden, so it never
   // violates the ARIA "list" owned-elements contract on the surrounding role="list" group.
@@ -206,14 +212,16 @@ test("a link item is keyboard-focusable and activates on Enter", async () => {
       </ItemContent>
     </Item>,
   );
-  const link = screen.getByRole("link", { name: "Open detail" }).element() as HTMLAnchorElement;
+  const link = screen
+    .getByRole("link", { name: "Open detail" })
+    .element() as HTMLAnchorElement;
   link.focus();
   expect(document.activeElement).toBe(link);
   await userEvent.keyboard("{Enter}");
   expect(clicked).toBe(true);
 });
 
-test("Tab moves focus onto a link item and past a non-interactive item", async () => {
+test("only the interactive link item participates in sequential focus order", async () => {
   const screen = await render(
     <ItemGroup>
       <Item>
@@ -229,8 +237,21 @@ test("Tab moves focus onto a link item and past a non-interactive item", async (
     </ItemGroup>,
   );
   const link = screen.getByRole("link", { name: "Interactive" }).element();
-  document.body.focus();
-  await userEvent.tab();
+  const nonInteractiveItem = screen.container.querySelector(
+    '[data-slot="item"][role="listitem"]',
+  );
+  const sequentialFocusCandidates = screen.container.querySelectorAll(
+    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+  );
+
+  // WebKit's synthetic Tab traversal follows the host platform's Full Keyboard Access setting.
+  // Assert the browser-independent DOM focus contract instead: the plain row is absent from the
+  // sequential order and the rendered anchor is the first (and only) candidate.
+  expect(nonInteractiveItem).not.toBeNull();
+  expect(Array.from(sequentialFocusCandidates)).toEqual([link]);
+  expect((link as HTMLElement).tabIndex).toBe(0);
+
+  (link as HTMLElement).focus();
   expect(document.activeElement).toBe(link);
 });
 

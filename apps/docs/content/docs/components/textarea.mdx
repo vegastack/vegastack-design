@@ -1,10 +1,11 @@
 ---
 title: Textarea
 description: A styled native textarea for multi-line text — error and disabled states, a focus border tint, and an optional auto-grow mode.
+audience: public
 preview: textarea
 ---
 
-import { story } from '@/components/stories/textarea.story';
+import { story } from "@/components/stories/textarea.story";
 
 ## Installation
 
@@ -28,20 +29,22 @@ attribute (`value`/`defaultValue`, `onChange`, `name`, `rows`, `required`,
 underlying element. It shares its border and token styling with
 [`Input`](/docs/components/input) so the two fields look identical.
 
-## Playground
+## Examples
+
+### Playground
 
 Try every size with the auto-grow, disabled, and invalid states, then copy the generated JSX.
 
 <TextareaPlayground />
 
-## Explorer
+### Explorer
 
 Every `Textarea` prop, auto-generated from its TypeScript types — the exhaustive counterpart to the
 curated playground above.
 
 <story.WithControl />
 
-## States
+### States
 
 The field reflects `disabled`, `readOnly`, and `aria-invalid`. The invalid state
 re-colors the border with the `destructive` token — pair it with a
@@ -53,7 +56,7 @@ default; the last example below uses `autoGrow` to size to its content instead.
   file="components/preview/textarea.tsx"
 />
 
-## Auto-grow
+### Auto-grow
 
 Pass `autoGrow` to grow the field to fit its content instead of scrolling, using
 native CSS `field-sizing: content`. Set a starting height with `rows` and cap the

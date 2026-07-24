@@ -37,7 +37,10 @@ test("does not carry the motion-pop-in class by default", async () => {
       <MarkerContent>Merged</MarkerContent>
     </Marker>,
   );
-  const root = screen.getByText("Merged").element().closest('[data-slot="marker"]');
+  const root = screen
+    .getByText("Merged")
+    .element()
+    .closest('[data-slot="marker"]');
   expect(root?.className).not.toContain("motion-pop-in");
 });
 
@@ -47,7 +50,10 @@ test("animateIn applies the motion-pop-in arrival class", async () => {
       <MarkerContent>Merged</MarkerContent>
     </Marker>,
   );
-  const root = screen.getByText("Merged").element().closest('[data-slot="marker"]');
+  const root = screen
+    .getByText("Merged")
+    .element()
+    .closest('[data-slot="marker"]');
   expect(root?.className).toContain("motion-pop-in");
 });
 

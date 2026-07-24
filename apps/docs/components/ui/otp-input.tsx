@@ -1,12 +1,17 @@
-// @vegastack otp-input@0.2.0 sha256-M1N0S/K1MugVkXFGf+bhm8Lcw+SQ/3hbY+c+Dh3aWSs=
+// @vegastack otp-input@0.2.0 sha256-4jI+chySMrdhFuMeCeaelp4Muyk4n22ecIpua7waF0w=
 
 "use client";
 
 import * as React from "react";
 import { OTPField } from "@base-ui/react/otp-field";
 import { cn } from "@vegastack/design";
-import { mergeRefs, useShakeOnInvalid, type ShakeSignal } from "@/components/ui/use-animation-replay";
+import {
+  mergeRefs,
+  useShakeOnInvalid,
+  type ShakeSignal,
+} from "@/components/ui/use-animation-replay";
 
+/** Props accepted by `OTPInput`. */
 export interface OTPInputProps extends Omit<
   React.ComponentProps<typeof OTPField.Root>,
   "children" | "length" | "onValueChange"
@@ -25,6 +30,8 @@ export interface OTPInputProps extends Omit<
    * Optional slot grouping for layouts like `123-456`. When omitted, slots are
    * rendered as one flat group. If supplied, the positive numbers must add up to
    * `length` (or they define `length` when the length prop is omitted).
+
+   * @default undefined
    */
   groups?: readonly number[];
   /**
@@ -34,20 +41,28 @@ export interface OTPInputProps extends Omit<
   separator?: React.ReactNode;
   /**
    * Extra classes merged into every group separator.
+
+   * @default undefined
    */
   separatorClassName?: string;
   /**
    * The OTP value (controlled). Pair with {@link OTPInputProps.onValueChange}.
+
+   * @default undefined
    */
   value?: string;
   /**
    * The uncontrolled initial value.
+
+   * @default undefined
    */
   defaultValue?: string;
   /**
    * Callback fired when the value changes. The second argument is Base UI's
    * event-details object (`eventDetails.reason` is `'input-change'`,
    * `'input-clear'`, `'input-paste'`, or `'keyboard'`).
+
+   * @default undefined
    */
   onValueChange?: (
     value: string,
@@ -55,6 +70,8 @@ export interface OTPInputProps extends Omit<
   ) => void;
   /**
    * Fired when every slot is filled — use it to auto-submit a verification code.
+
+   * @default undefined
    */
   onValueComplete?: (
     value: string,
@@ -73,14 +90,20 @@ export interface OTPInputProps extends Omit<
   /**
    * Accessible name for the field, applied to the first slot. Use this when there
    * is no visible `<label>`/`FieldLabel` wired to the input.
+
+   * @default undefined
    */
   "aria-label"?: string;
   /**
    * Extra classes for the slot row (the `OTPField.Root` `<div>`).
+
+   * @default undefined
    */
   className?: string;
   /**
    * Extra classes merged into every slot `<input>`.
+
+   * @default undefined
    */
   slotClassName?: string;
   /**
@@ -89,6 +112,8 @@ export interface OTPInputProps extends Omit<
    * (Base UI sets `data-invalid` when this is wrapped in a `Field.Root`, or pass `aria-invalid`
    * manually); this is only for repeat failures against a still-invalid code. See
    * `useShakeOnInvalid` (`use-animation-replay`).
+
+   * @default undefined
    */
   shakeSignal?: ShakeSignal;
 }
@@ -103,17 +128,17 @@ export interface OTPInputProps extends Omit<
 
 /** Slot scale (register P1-04) — the shared 28/32/40 control tier with a type tier to match. */
 const slotSizeClasses = {
-  sm: 'size-(--size-sm) text-base',
-  default: 'size-(--size-md) text-lg',
-  lg: 'size-(--size-lg) text-xl',
+  sm: "size-(--size-sm) text-base",
+  default: "size-(--size-md) text-lg",
+  lg: "size-(--size-lg) text-xl",
 } as const;
 
 const slotClasses =
-  "relative flex items-center justify-center rounded-md border border-input bg-transparent text-center font-mono text-foreground transition-colors duration-fast ease-standard outline-none " +
+  "relative flex items-center justify-center rounded-md border border-input bg-transparent text-center font-mono text-foreground  outline-none " +
   "dark:bg-input/(--alpha-input) " +
   "caret-foreground selection:bg-primary selection:text-primary-foreground " +
   "focus:z-(--z-raised) focus:border-ring/(--alpha-tint-border) " +
-  "data-invalid:border-destructive/(--alpha-tint-border) " +
+  "data-invalid:border-destructive-border/(--alpha-tint-border) " +
   "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-(--opacity-dim) disabled:bg-muted";
 
 const separatorClasses =
@@ -126,7 +151,7 @@ function normalizeGroups(
   if (groups == null || groups.length === 0) return [length];
 
   const normalized = groups
-    .map((group) => Math.floor(group))
+    .map((group) => (Number.isFinite(group) ? Math.floor(group) : 0))
     .filter((group) => group > 0);
   const total = normalized.reduce((sum, group) => sum + group, 0);
 
@@ -156,104 +181,114 @@ function normalizeGroups(
  * // Auto-submit when complete
  * <OTPInput aria-label="2FA code" onValueComplete={(v) => verify(v)} />
  */
-export function OTPInput(
-    {
-      length: lengthProp,
-      groups,
-      separator = "-",
-      className,
-      slotClassName,
-      separatorClassName,
-      "aria-label": ariaLabel,
-      "aria-labelledby": ariaLabelledBy,
-      size = 'default',
-      shakeSignal,
-      onAnimationEnd,
-      ref,
-      ...props
-    }: OTPInputProps,
-  ) {
-    // Destructured so hook fields (stable across renders) can appear in dependency arrays
+export function OTPInput({
+  length: lengthProp,
+  groups,
+  separator = "-",
+  className,
+  slotClassName,
+  separatorClassName,
+  "aria-label": ariaLabel,
+  "aria-labelledby": ariaLabelledBy,
+  size = "default",
+  shakeSignal,
+  onAnimationEnd,
+  ref,
+  ...props
+}: OTPInputProps) {
+  // Destructured so hook fields (stable across renders) can appear in dependency arrays
   // without dragging the per-render container object in (react-hooks/exhaustive-deps).
   const {
     invalidRef: shakeInvalidRef,
     className: shakeClassName,
     onAnimationEnd: shakeAnimationEnd,
   } = useShakeOnInvalid({ shakeSignal });
-    const rootRef = React.useMemo(
-      () => mergeRefs(ref, shakeInvalidRef),
-      [ref, shakeInvalidRef],
-    );
-    const handleAnimationEnd: NonNullable<OTPInputProps["onAnimationEnd"]> = React.useCallback(
+  const rootRef = React.useMemo(
+    () => mergeRefs(ref, shakeInvalidRef),
+    [ref, shakeInvalidRef],
+  );
+  const handleAnimationEnd: NonNullable<OTPInputProps["onAnimationEnd"]> =
+    React.useCallback(
       (event) => {
         shakeAnimationEnd(event);
         onAnimationEnd?.(event);
       },
       [onAnimationEnd, shakeAnimationEnd],
     );
-    const groupedLength = groups?.reduce(
-      (sum, group) => sum + Math.max(Math.floor(group), 0),
-      0,
-    );
-    const length =
-      lengthProp ?? (groupedLength && groupedLength > 0 ? groupedLength : 6);
-    const inputGroups = normalizeGroups(length, groups);
-    let slotIndex = 0;
+  const firstSlotId = React.useId();
+  const groupedLength = groups?.reduce(
+    (sum, group) =>
+      sum + (Number.isFinite(group) ? Math.max(Math.floor(group), 0) : 0),
+    0,
+  );
+  const requestedLength =
+    lengthProp ?? (groupedLength && groupedLength > 0 ? groupedLength : 6);
+  const length = Number.isFinite(requestedLength)
+    ? Math.max(1, Math.floor(requestedLength))
+    : 6;
+  const inputGroups = normalizeGroups(length, groups);
+  let slotIndex = 0;
 
-    const renderSlot = (index: number) => (
-      <OTPField.Input
-        key={index}
-        data-slot="otp-input-slot"
-        // Slot 0 inherits the field's accessible name (Base UI ignores
-        // `aria-label` here, deferring to a wrapping `<label>` / `FieldLabel`);
-        // later slots get a positional label for screen-reader context.
-        aria-label={
-          index === 0 ? undefined : `Character ${index + 1} of ${length}`
-        }
-        className={cn(slotClasses, slotSizeClasses[size], slotClassName)}
-      />
-    );
+  const renderSlot = (index: number) => (
+    <OTPField.Input
+      key={index}
+      id={index === 0 ? firstSlotId : undefined}
+      data-slot="otp-input-slot"
+      // Slot 0 inherits the field's accessible name (Base UI ignores
+      // `aria-label` here, deferring to a wrapping `<label>` / `FieldLabel`);
+      // later slots get a positional label for screen-reader context.
+      aria-label={
+        index === 0 ? undefined : `Character ${index + 1} of ${length}`
+      }
+      className={cn(slotClasses, slotSizeClasses[size], slotClassName)}
+    />
+  );
 
-    const root = (
-      <OTPField.Root
-        ref={rootRef}
-        length={length}
-        data-slot="otp-input"
-        aria-labelledby={ariaLabelledBy}
-        className={cn("flex items-center gap-2", shakeClassName, className)}
-        onAnimationEnd={handleAnimationEnd}
-        {...props}
-      >
-        {inputGroups.map((groupLength, groupIndex) => (
-          <React.Fragment key={`${groupIndex}-${groupLength}`}>
-            {Array.from({ length: groupLength }, () => renderSlot(slotIndex++))}
-            {groupIndex < inputGroups.length - 1 ? (
-              <OTPField.Separator
-                data-slot="otp-input-separator"
-                className={cn(separatorClasses, separatorClassName)}
-              >
-                {separator}
-              </OTPField.Separator>
-            ) : null}
-          </React.Fragment>
-        ))}
-      </OTPField.Root>
-    );
+  const root = (
+    <OTPField.Root
+      ref={rootRef}
+      length={length}
+      data-slot="otp-input"
+      aria-labelledby={ariaLabelledBy}
+      className={cn(
+        "flex max-w-full items-center gap-2 overflow-x-auto",
+        shakeClassName,
+        className,
+      )}
+      onAnimationEnd={handleAnimationEnd}
+      {...props}
+    >
+      {inputGroups.map((groupLength, groupIndex) => (
+        <React.Fragment key={`${groupIndex}-${groupLength}`}>
+          {Array.from({ length: groupLength }, () => renderSlot(slotIndex++))}
+          {groupIndex < inputGroups.length - 1 ? (
+            <OTPField.Separator
+              data-slot="otp-input-separator"
+              className={cn(separatorClasses, separatorClassName)}
+            >
+              {separator}
+            </OTPField.Separator>
+          ) : null}
+        </React.Fragment>
+      ))}
+    </OTPField.Root>
+  );
 
-    // Base UI ignores `aria-label` on the first slot and labels the field via a
-    // wrapping `<label>` / `FieldLabel` / `aria-labelledby`. When the caller
-    // passes a bare `aria-label` (and no external `aria-labelledby`), wrap the
-    // slots in a visually-hidden-text `<label>`: the implicit label association
-    // targets the first labelable descendant — i.e. slot 0 — giving the field a
-    // real accessible name without needing a generated id.
-    if (ariaLabel != null && ariaLabelledBy == null) {
-      return (
-        <label className="contents">
-          <span className="sr-only">{ariaLabel}</span>
-          {root}
+  // Base UI ignores `aria-label` on the first slot and labels the field via a
+  // wrapping `<label>` / `FieldLabel` / `aria-labelledby`. When the caller
+  // passes a bare `aria-label` (and no external `aria-labelledby`), render a
+  // visually hidden explicit label associated to slot 0. A wrapping label would
+  // be invalid because the OTP root contains several labelable inputs.
+  if (ariaLabel != null && ariaLabelledBy == null) {
+    return (
+      <>
+        <label htmlFor={firstSlotId} className="sr-only">
+          {ariaLabel}
         </label>
-      );
-    }
+        {root}
+      </>
+    );
+  }
 
-    return root;
+  return root;
 }

@@ -13,9 +13,9 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| None | No material component-specific finding survived review. | No action. | Keep axe and visual coverage as variants evolve. |
+| Priority | Evidence                                                | Impact     | Suggested fix                                    |
+| -------- | ------------------------------------------------------- | ---------- | ------------------------------------------------ |
+| None     | No material component-specific finding survived review. | No action. | Keep axe and visual coverage as variants evolve. |
 
 ## Residual Risks
 
@@ -24,4 +24,3 @@ Only downstream action controls must carry their own accessible names.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- empty-state.test.tsx`
-

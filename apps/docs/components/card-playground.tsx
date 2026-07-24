@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 import {
   Card,
   CardHeader,
@@ -8,25 +8,34 @@ import {
   CardDescription,
   CardContent,
   type CardProps,
-} from '@/components/ui/card';
-import { PropsPlayground, type PlaygroundConfig } from '@/components/playground';
+} from "@/components/ui/card";
+import {
+  PropsPlayground,
+  type PlaygroundConfig,
+} from "@/components/playground";
 
-type CardPlaygroundKey = 'size';
+type CardPlaygroundKey = "size";
 
 const SIZE_OPTIONS = [
-  { value: 'default', label: 'Default' },
-  { value: 'sm', label: 'Small' },
+  { value: "default", label: "Default" },
+  { value: "sm", label: "Small" },
 ] as const;
 
 const cardPlaygroundConfig: PlaygroundConfig<CardPlaygroundKey> = {
   controls: [
-    { type: 'select', key: 'size', label: 'Size', options: SIZE_OPTIONS, defaultValue: 'default' },
+    {
+      type: "select",
+      key: "size",
+      label: "Size",
+      options: SIZE_OPTIONS,
+      defaultValue: "default",
+    },
   ],
   render: (state): ReactNode => (
     // Width comes from the wrapper (preview layout only) so the Card itself
     // carries nothing beyond the props shown in the generated snippet.
     <div className="w-full max-w-sm">
-      <Card size={state.size as CardProps['size']}>
+      <Card size={state.size as CardProps["size"]}>
         <CardHeader>
           <CardTitle>Team plan</CardTitle>
           <CardDescription>$20 / user / month</CardDescription>
@@ -36,16 +45,16 @@ const cardPlaygroundConfig: PlaygroundConfig<CardPlaygroundKey> = {
     </div>
   ),
   toCode: (state) => {
-    const sizeProp = state.size !== 'default' ? ` size="${state.size}"` : '';
+    const sizeProp = state.size !== "default" ? ` size="${state.size}"` : "";
     return [
       `<Card${sizeProp}>`,
-      '  <CardHeader>',
-      '    <CardTitle>Team plan</CardTitle>',
-      '    <CardDescription>$20 / user / month</CardDescription>',
-      '  </CardHeader>',
-      '  <CardContent>Everything in Pro, plus SSO and audit logs.</CardContent>',
-      '</Card>',
-    ].join('\n');
+      "  <CardHeader>",
+      "    <CardTitle>Team plan</CardTitle>",
+      "    <CardDescription>$20 / user / month</CardDescription>",
+      "  </CardHeader>",
+      "  <CardContent>Everything in Pro, plus SSO and audit logs.</CardContent>",
+      "</Card>",
+    ].join("\n");
   },
 };
 

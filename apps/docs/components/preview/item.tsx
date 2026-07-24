@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { Bell, ChevronRight, FileText, Mail, ShieldCheck } from 'lucide-react';
-import { Wrapper } from './wrapper';
+import type { ReactNode } from "react";
+import { Bell, ChevronRight, FileText, Mail, ShieldCheck } from "lucide-react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/item` (dogfoods the registry) → auto-scanned.
 import {
   Item,
@@ -15,14 +15,14 @@ import {
   ItemMedia,
   ItemSeparator,
   ItemTitle,
-} from '@/components/ui/item';
-import { Avatar } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { IconButton } from '@/components/ui/icon-button';
+} from "@/components/ui/item";
+import { Avatar } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 
 // Local fixture — no live third-party image dependencies in demos/VRT.
-const THUMBNAIL = '/preview/avatar-2.svg';
+const THUMBNAIL = "/preview/avatar-2.svg";
 
 export function itemDemo(): ReactNode {
   return (
@@ -50,16 +50,18 @@ export function itemDemo(): ReactNode {
 export function itemDemoVariants(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch gap-3">
-      {(['default', 'outline', 'muted'] as const).map((variant) => (
+      {(["default", "outline", "muted"] as const).map((variant) => (
         <Item key={variant} variant={variant} className="w-full">
           <ItemContent>
             <ItemTitle>
               variant=<code>{variant}</code>
             </ItemTitle>
             <ItemDescription>
-              {variant === 'default' && 'No surface — blends into the parent background.'}
-              {variant === 'outline' && 'A hairline border around the row.'}
-              {variant === 'muted' && 'A filled neutral wash — reads as a self-contained block.'}
+              {variant === "default" &&
+                "No surface — blends into the parent background."}
+              {variant === "outline" && "A hairline border around the row."}
+              {variant === "muted" &&
+                "A filled neutral wash — reads as a self-contained block."}
             </ItemDescription>
           </ItemContent>
         </Item>
@@ -77,7 +79,9 @@ export function itemDemoMedia(): ReactNode {
         </ItemMedia>
         <ItemContent>
           <ItemTitle>Ada Lovelace</ItemTitle>
-          <ItemDescription>Default media — bare children (e.g. an Avatar).</ItemDescription>
+          <ItemDescription>
+            Default media — bare children (e.g. an Avatar).
+          </ItemDescription>
         </ItemContent>
       </Item>
       <Item variant="outline" className="w-full">
@@ -86,7 +90,9 @@ export function itemDemoMedia(): ReactNode {
         </ItemMedia>
         <ItemContent>
           <ItemTitle>Two-factor authentication</ItemTitle>
-          <ItemDescription>Icon media — a bordered chip around a lucide icon.</ItemDescription>
+          <ItemDescription>
+            Icon media — a bordered chip around a lucide icon.
+          </ItemDescription>
         </ItemContent>
       </Item>
       <Item variant="outline" className="w-full">
@@ -95,7 +101,9 @@ export function itemDemoMedia(): ReactNode {
         </ItemMedia>
         <ItemContent>
           <ItemTitle>Q3 roadmap.pdf</ItemTitle>
-          <ItemDescription>Image media — a clipped square thumbnail tile.</ItemDescription>
+          <ItemDescription>
+            Image media — a clipped square thumbnail tile.
+          </ItemDescription>
         </ItemContent>
       </Item>
     </Wrapper>
@@ -136,12 +144,15 @@ export function itemDemoLink(): ReactNode {
         <ItemContent>
           <ItemTitle>Notification settings</ItemTitle>
           <ItemDescription>
-            The whole row is a link via <code>render</code> — keyboard-focusable, keeps the
-            native <code>link</code> role.
+            The whole row is a link via <code>render</code> —
+            keyboard-focusable, keeps the native <code>link</code> role.
           </ItemDescription>
         </ItemContent>
         <ItemActions>
-          <ChevronRight aria-hidden className="size-(--icon-default) text-muted-foreground" />
+          <ChevronRight
+            aria-hidden
+            className="size-(--icon-default) text-muted-foreground"
+          />
         </ItemActions>
       </Item>
     </Wrapper>

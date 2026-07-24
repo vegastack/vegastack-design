@@ -1,4 +1,4 @@
-// @vegastack field-inline@0.2.0 sha256-l6dMoXU3kHd6g4qrqPWipcSP19MMeZlbRddISYp9E5o=
+// @vegastack field-inline@0.2.0 sha256-ferRaqz3YEAws3dpGcJRHuBmHxd4iIHw9y3TZVlVPeA=
 
 "use client";
 
@@ -6,6 +6,7 @@ import * as React from "react";
 import { cn } from "@vegastack/design";
 import { Input } from "@/components/ui/input";
 
+/** Props accepted by `FieldInline`. */
 export interface FieldInlineProps {
   /** The current value, shown as text in display mode and seeded into the input on edit. */
   value: string;
@@ -19,6 +20,8 @@ export interface FieldInlineProps {
    * Placeholder shown in the input, and — when `value` is empty — as muted text
    * in display mode. Used as the input's accessible name only as a fallback when
    * neither `label` nor `aria-label`/`aria-labelledby` is supplied.
+
+   * @default undefined
    */
   placeholder?: string;
   /**
@@ -28,11 +31,17 @@ export interface FieldInlineProps {
    * input's accessible name: `aria-labelledby` → `aria-label` → `label` →
    * `placeholder` → a generic fallback. The edit-mode textbox is therefore never
    * unnamed.
+
+   * @default undefined
    */
   label?: string;
-  /** Optional `aria-label` passed straight to the edit-mode input (wins over `label`). */
+  /** Optional `aria-label` passed straight to the edit-mode input (wins over `label`).
+   * @default undefined
+   */
   "aria-label"?: string;
-  /** Optional `aria-labelledby` passed straight to the edit-mode input (wins over `aria-label`). */
+  /** Optional `aria-labelledby` passed straight to the edit-mode input (wins over `aria-label`).
+   * @default undefined
+   */
   "aria-labelledby"?: string;
   /**
    * Strip the input's border, background, and padding in edit mode for a
@@ -63,13 +72,19 @@ export interface FieldInlineProps {
    * text, and the error text itself renders below the control — same treatment as `field.tsx`'s
    * `FieldError` (`role="alert"`, `text-sm text-destructive-text`). Shown in both display and edit
    * mode whenever it's set.
+
+   * @default undefined
    */
   error?: string;
-  /** Extra classes merged onto the outer wrapper. */
+  /** Extra classes merged onto the outer wrapper.
+   * @default undefined
+   */
   className?: string;
   /**
    * Ref forwarded to the component's root host element — the display `<span>` when idle, the edit
    * `<input>` while editing (the root swaps with mode).
+
+   * @default undefined
    */
   ref?: React.Ref<HTMLElement>;
 }
@@ -199,7 +214,12 @@ export function FieldInline({
   // Same treatment as `field.tsx`'s `FieldError`: an alert role so it's announced, tinted
   // destructive text. Rendered in both display and edit mode whenever `error` is set.
   const errorText = error ? (
-    <span id={errorId} role="alert" data-slot="field-inline-error" className="mt-1 block text-sm leading-normal text-destructive-text">
+    <span
+      id={errorId}
+      role="alert"
+      data-slot="field-inline-error"
+      className="mt-1 block text-sm leading-normal text-destructive-text"
+    >
       {error}
     </span>
   ) : null;
@@ -235,7 +255,7 @@ export function FieldInline({
           }}
           className={cn(
             borderless &&
-              "h-auto rounded-none border-none bg-transparent px-0 py-0 dark:bg-transparent",
+              "h-auto rounded-none border-transparent bg-transparent px-0 py-0 dark:bg-transparent",
             className,
           )}
         />
@@ -266,17 +286,20 @@ export function FieldInline({
             : undefined
         }
         className={cn(
-          "inline-flex min-w-0 items-center rounded-md px-2 py-1 text-base transition-colors duration-fast ease-standard",
+          "inline-flex max-w-full min-w-0 items-center rounded-md px-2 py-1 text-base",
           !disabled && !readOnly && "cursor-text hover:bg-muted",
           "aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
           className,
         )}
       >
-        {hasDisplayValue ? (
-          value
-        ) : (
-          <span className="text-muted-foreground">{displayFallback}</span>
-        )}
+        <span
+          className={cn(
+            "min-w-0 truncate",
+            !hasDisplayValue && "text-muted-foreground",
+          )}
+        >
+          {hasDisplayValue ? value : displayFallback}
+        </span>
       </span>
       {errorText}
     </>

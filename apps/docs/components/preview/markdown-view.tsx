@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { Wrapper } from './wrapper';
+import type { ReactNode } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/markdown-view` (dogfoods the registry) → auto-scanned.
-import { MarkdownView } from '@/components/ui/markdown-view';
+import { MarkdownView } from "@/components/ui/markdown-view";
 
 // A rich sample exercising the full token-styled prose surface: heading, lead
 // paragraph with a link and inline code, a bullet list, a fenced code block,

@@ -1,6 +1,7 @@
 ---
 title: Resizable
 description: Draggable, keyboard-resizable split panes — horizontal or vertical, nestable, with an optional collapsible panel. Built on react-resizable-panels.
+audience: public
 preview: resizable
 ---
 
@@ -15,7 +16,11 @@ npx shadcn@latest add @vegastack/resizable
 ## Usage
 
 ```tsx
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
 
 <div className="h-64">
   <ResizablePanelGroup className="rounded-lg border">
@@ -54,7 +59,7 @@ one other sanctioned exception besides `MessageScroller`; Base UI has no split-p
   <ResizablePanel />
   <ResizableHandle withHandle />
   <ResizablePanel />
-</ResizablePanelGroup>;
+</ResizablePanelGroup>
 ```
 
 - `ResizablePanelGroup` — the flex container (`data-slot="resizable-panel-group"`). `orientation`
@@ -71,6 +76,7 @@ one other sanctioned exception besides `MessageScroller`; Base UI has no split-p
 ### Horizontal (default)
 
 Two panels side by side. Drag the divider, or focus it (<kbd>Tab</kbd>) and use <kbd>←</kbd> /
+
 <kbd>→</kbd>.
 
 <ComponentPreview name="resizable" file="components/preview/resizable.tsx" />
@@ -80,21 +86,30 @@ Two panels side by side. Drag the divider, or focus it (<kbd>Tab</kbd>) and use 
 Set `orientation="vertical"` to stack panels top-to-bottom; the handle bar renders horizontal and
 resizes with <kbd>↑</kbd> / <kbd>↓</kbd> instead.
 
-<ComponentPreview name="resizableVertical" file="components/preview/resizable.tsx" />
+<ComponentPreview
+  name="resizableVertical"
+  file="components/preview/resizable.tsx"
+/>
 
 ### Nested groups
 
 Nest a `ResizablePanelGroup` inside a `ResizablePanel` to combine axes — here the right column
 splits vertically, independent of the horizontal split against the sidebar.
 
-<ComponentPreview name="resizableNested" file="components/preview/resizable.tsx" />
+<ComponentPreview
+  name="resizableNested"
+  file="components/preview/resizable.tsx"
+/>
 
 ### With a grip handle
 
 `withHandle` renders a small `GripVertical` glyph centered on the bar — the bar itself is always
 the full drag/keyboard target either way, so this is a visual affordance only.
 
-<ComponentPreview name="resizableWithHandle" file="components/preview/resizable.tsx" />
+<ComponentPreview
+  name="resizableWithHandle"
+  file="components/preview/resizable.tsx"
+/>
 
 ### Collapsible panel
 
@@ -103,7 +118,10 @@ Pair with `panelRef` to drive `collapse()` / `expand()` imperatively — e.g. a 
 and `onResize` to keep other UI (the button label, the panel's own label) in sync with the collapsed
 state.
 
-<ComponentPreview name="resizableCollapsible" file="components/preview/resizable.tsx" />
+<ComponentPreview
+  name="resizableCollapsible"
+  file="components/preview/resizable.tsx"
+/>
 
 ## API Reference
 
@@ -119,7 +137,8 @@ state.
     orientation: {
       type: '"horizontal" | "vertical"',
       default: '"horizontal"',
-      description: "The split axis — panels side by side, or stacked top-to-bottom.",
+      description:
+        "The split axis — panels side by side, or stacked top-to-bottom.",
     },
     disabled: {
       type: "boolean",
@@ -259,13 +278,13 @@ suffixes are also accepted.
 - Give each `ResizableHandle` an `aria-label` (e.g. `"Resize sidebar and content"`) describing what
   it resizes — the default accessible name is not descriptive on its own.
 
-| Key                          | Action                                                    |
-| ----------------------------- | ---------------------------------------------------------- |
-| <kbd>Tab</kbd>                | Move focus to the handle.                                  |
-| <kbd>←</kbd> / <kbd>→</kbd>   | Resize a horizontal group's adjacent panels by a step.     |
-| <kbd>↑</kbd> / <kbd>↓</kbd>   | Resize a vertical group's adjacent panels by a step.       |
-| <kbd>Home</kbd>               | Jump the panel before the handle to its minimum size.      |
-| <kbd>End</kbd>                | Jump the panel before the handle to its maximum size.      |
+| Key                         | Action                                                 |
+| --------------------------- | ------------------------------------------------------ |
+| <kbd>Tab</kbd>              | Move focus to the handle.                              |
+| <kbd>←</kbd> / <kbd>→</kbd> | Resize a horizontal group's adjacent panels by a step. |
+| <kbd>↑</kbd> / <kbd>↓</kbd> | Resize a vertical group's adjacent panels by a step.   |
+| <kbd>Home</kbd>             | Jump the panel before the handle to its minimum size.  |
+| <kbd>End</kbd>              | Jump the panel before the handle to its maximum size.  |
 
 ## Do / Don't
 

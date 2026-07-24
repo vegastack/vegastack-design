@@ -1,6 +1,7 @@
 ---
 title: Markdown View
 description: Render a markdown string to safe, token-styled HTML — headings, lists, code, blockquotes, links, and GFM tables — XSS-safe with no raw HTML.
+audience: public
 preview: markdownView
 ---
 
@@ -15,7 +16,7 @@ npx shadcn@latest add @vegastack/markdown-view
 ## Usage
 
 ```tsx
-import { MarkdownView } from '@/components/ui/markdown-view';
+import { MarkdownView } from "@/components/ui/markdown-view";
 
 <MarkdownView>{`# Hello\n\nThis is **markdown**.`}</MarkdownView>;
 ```
@@ -24,7 +25,7 @@ Pass the markdown as `children` (a string) or via the `content` prop when the
 source comes from a data field:
 
 ```tsx
-<MarkdownView content={task.description} />;
+<MarkdownView content={task.description} />
 ```
 
 `MarkdownView` is built on [`react-markdown`](https://github.com/remarkjs/react-markdown)
@@ -33,6 +34,17 @@ React tree directly — never `dangerouslySetInnerHTML` — so any raw HTML in t
 source is escaped to inert text. It is server-safe (no `'use client'`) and
 renders nothing for empty/whitespace input.
 
+Relative image paths render normally. Absolute and protocol-relative remote
+images are blocked by default so untrusted Markdown cannot create tracking
+requests. When a trusted media host is required, allow its exact origin; allowed
+remote images send no referrer:
+
+```tsx
+<MarkdownView allowedImageOrigins={["https://media.example.com"]}>
+  {"![Product preview](https://media.example.com/preview.png)"}
+</MarkdownView>
+```
+
 ## Examples
 
 ### Default
@@ -40,21 +52,30 @@ renders nothing for empty/whitespace input.
 Headings, paragraphs, inline code, links, lists, and blockquotes — styled with
 semantic tokens (no `@tailwindcss/typography` dependency).
 
-<ComponentPreview name="markdownView" file="components/preview/markdown-view.tsx" />
+<ComponentPreview
+  name="markdownView"
+  file="components/preview/markdown-view.tsx"
+/>
 
 ### GitHub-flavored markdown
 
 `remark-gfm` adds tables, `~~strikethrough~~`, and `- [ ]` task lists. Task-list
 checkboxes are rendered read-only (display only).
 
-<ComponentPreview name="markdownViewGfm" file="components/preview/markdown-view.tsx" />
+<ComponentPreview
+  name="markdownViewGfm"
+  file="components/preview/markdown-view.tsx"
+/>
 
 ### Code blocks
 
 Inline code renders as a muted `font-mono` chip; fenced code blocks render inside
 a bordered, scrollable `<pre>`.
 
-<ComponentPreview name="markdownViewCode" file="components/preview/markdown-view.tsx" />
+<ComponentPreview
+  name="markdownViewCode"
+  file="components/preview/markdown-view.tsx"
+/>
 
 ### Links
 
@@ -63,7 +84,10 @@ External links (those starting with `http(s)://`) open in a new tab with
 in the same tab. The link color (`text-info-text`) and underline are identical in
 both cases.
 
-<ComponentPreview name="markdownViewLinks" file="components/preview/markdown-view.tsx" />
+<ComponentPreview
+  name="markdownViewLinks"
+  file="components/preview/markdown-view.tsx"
+/>
 
 ### Full element set
 
@@ -71,11 +95,17 @@ A consolidated sample exercising every styled element — all six heading levels
 ordered and unordered lists, a horizontal rule, an image, and inline emphasis —
 so the complete prose surface renders in one view.
 
-<ComponentPreview name="markdownViewKitchenSink" file="components/preview/markdown-view.tsx" />
+<ComponentPreview
+  name="markdownViewKitchenSink"
+  file="components/preview/markdown-view.tsx"
+/>
 
 ## API Reference
 
-<AutoTypeTable path="../../packages/ui/registry/ui/markdown-view.tsx" name="MarkdownViewProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/markdown-view.tsx"
+  name="MarkdownViewProps"
+/>
 
 ## Accessibility
 
@@ -88,13 +118,15 @@ so the complete prose surface renders in one view.
   executing. `rehype-raw` is intentionally **not** added.
 - Links open in a new tab with `rel="noreferrer noopener"` (no reverse
   tabnabbing); unsafe URL protocols (e.g. `javascript:`) are dropped.
+- Remote images are blocked unless their exact HTTP(S) origin appears in
+  `allowedImageOrigins`; allowed remote images use `referrerPolicy="no-referrer"`.
 - Body text inherits the page text color (`text-foreground`); links use
   `text-info-text` with an underline, keeping a visible, color-independent affordance.
 
-| Key | Action |
-| --- | --- |
-| <kbd>Tab</kbd> | Move focus through rendered links in document order. |
-| <kbd>Enter</kbd> | Follow the focused link. |
+| Key              | Action                                               |
+| ---------------- | ---------------------------------------------------- |
+| <kbd>Tab</kbd>   | Move focus through rendered links in document order. |
+| <kbd>Enter</kbd> | Follow the focused link.                             |
 
 ## Do / Don't
 

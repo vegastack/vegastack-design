@@ -12,6 +12,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogClose,
+  DialogTitleBar,
 } from "./dialog";
 
 function Example() {
@@ -152,4 +153,40 @@ test("popup keeps the centralized focus-visible outline (no outline-none — reg
   await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
   const popup = document.querySelector('[data-slot="dialog-content"]')!;
   expect(popup.className).not.toMatch(/\boutline-none\b/);
+});
+
+test('placement="top" anchors the viewport and marks data-placement', async () => {
+  const screen = await render(
+    <Dialog defaultOpen>
+      <DialogContent placement="top" aria-describedby={undefined}>
+        <DialogTitle>Create task</DialogTitle>
+      </DialogContent>
+    </Dialog>,
+  );
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const popup = document.querySelector(
+    '[data-slot="dialog-content"]',
+  ) as HTMLElement;
+  expect(popup.dataset.placement).toBe("top");
+  const viewport = document.querySelector(
+    '[data-slot="dialog-viewport"]',
+  ) as HTMLElement;
+  expect(viewport.className).toContain("items-start");
+});
+
+test("DialogTitleBar renders the window-chrome header row", async () => {
+  await render(
+    <Dialog defaultOpen>
+      <DialogContent showCloseButton={false} aria-describedby={undefined}>
+        <DialogTitleBar>
+          <DialogTitle className="text-sm">Untitled note</DialogTitle>
+        </DialogTitleBar>
+      </DialogContent>
+    </Dialog>,
+  );
+  const bar = document.querySelector(
+    '[data-slot="dialog-title-bar"]',
+  ) as HTMLElement;
+  expect(bar).not.toBeNull();
+  expect(bar.className).toContain("border-b");
 });

@@ -1,6 +1,7 @@
 ---
 title: Icons
 description: Three sanctioned sources — lucide (functional), thesvg (brand), lucide-animated (motion).
+audience: public
 ---
 
 Icons come from exactly **three sanctioned sources**, each with a wrapper convention in `@vegastack/design/icons`:
@@ -8,30 +9,34 @@ Icons come from exactly **three sanctioned sources**, each with a wrapper conven
 - **`Icon`** — functional UI icons from `lucide-react` (every icon). Size tokens `xs/sm/md/lg`
   (14/16/20/24px), fixed stroke width, `currentColor`, `aria-hidden` unless labeled.
 - **`BrandIcon`** — brand/logo icons from `thesvg` (every brand). `variant` = `color` (brand colors),
-  `mono` (inherits `currentColor`), or `light` / `dark` / `wordmark`.
+  `auto` (uses distinct light/dark artwork when available), `mono` (inherits `currentColor`), or
+  `light` / `dark` / `wordmark`.
 - **`AnimatedIcon`** — motion icons from `lucide-animated`, **mirrored into the VegaStack registry**
   (439 icons). Add any with `shadcn add @vegastack/icon-<name>`, then wrap with `AnimatedIcon` for the same
-  size tokens + a11y; the icon animates on hover, or via its `startAnimation()` / `stopAnimation()`
-  handle. `motion` is pulled in only when you add one — never in the base install.
+  runtime icon-role tokens + a11y; the generated mirror animates from pointer, touch, or keyboard
+  focus where its upstream interaction supports replay, or via its React 19
+  `startAnimation()` / `stopAnimation()` ref handle. `motion@^12.42.2` is pulled in only when you add
+  an icon — never in the base install.
 
 ```tsx
-import { Icon } from '@vegastack/design/icons';
-import { Check } from 'lucide-react';
+import { Icon } from "@vegastack/design/icons";
+import { Check } from "lucide-react";
 
 <Icon as={Check} size="sm" aria-label="Done" />;
 ```
 
 ```tsx
 // Animated — after `shadcn add @vegastack/icon-activity`
-'use client';
-import { AnimatedIcon } from '@vegastack/design/icons';
-import { ActivityIcon } from '@/components/ui/icons/activity';
+"use client";
+import { AnimatedIcon } from "@vegastack/design/icons";
+import { ActivityIcon } from "@/components/ui/icons/activity";
 
 <AnimatedIcon as={ActivityIcon} size="md" aria-label="Activity" />;
 ```
 
-For app-wide reduced-motion, wrap your tree once in Motion's
-`<MotionConfig reducedMotion="user">` — animations then honor `prefers-reduced-motion` automatically.
+Every generated mirror handles `prefers-reduced-motion` intrinsically: playback becomes a no-op and
+the icon returns immediately to its static resting state. A consumer-level `MotionConfig` may still
+coordinate other application motion, but it is not required for VegaStack icon safety.
 
 <IconGallery />
 

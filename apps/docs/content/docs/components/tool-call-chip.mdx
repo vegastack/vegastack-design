@@ -1,0 +1,73 @@
+---
+title: Tool Call Chip
+description: An agent-activity chip — tool action label plus muted result meta, optionally rendered as a button.
+audience: public
+preview: toolCallChip
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/tool-call-chip
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { ToolCallChip } from "@/components/ui/tool-call-chip";
+
+<ToolCallChip label="SQL query executed" meta="3 rows in 495ms">
+  <Database aria-hidden />
+</ToolCallChip>;
+```
+
+## Examples
+
+<ComponentPreview
+  name="toolCallChip"
+  file="components/preview/tool-call-chip.tsx"
+/>
+
+## States
+
+Compose the leading slot per state: a `Spinner` while the tool runs (label only, no meta yet),
+the tool's icon once finished (label + result meta). The chip itself never animates — arrival
+into a transcript can opt into `motion-enter-up` at the call site.
+
+## Interactive chips
+
+Pass `render={<button />}` when activating the chip reveals the call's detail (arguments,
+raw result). Give the button a complete `aria-label` — label and meta read as one phrase.
+
+## Chat family
+
+Sits alongside `Marker` (status lines), `Attachment` (files/artifacts), and `CodeBlock`
+(results) — the four pieces that turn a `Message` stream into an agent transcript. See the
+[agent transcript recipe](/docs/components/message#agent-transcripts).
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/tool-call-chip.tsx"
+  name="ToolCallChipProps"
+/>
+
+## Accessibility
+
+- The visible label names the tool action; `meta` supplements it with a result summary.
+- Leading glyphs stay decorative because the text carries state and meaning.
+- When composed as a button, supply an accessible name that describes the action revealed on activation.
+
+| Key                                 | Action                                                 |
+| ----------------------------------- | ------------------------------------------------------ |
+| <kbd>Tab</kbd>                      | Move to an interactive chip; static chips are skipped. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate a chip composed as a button.                  |
+
+## Do / Don't
+
+<DoDont
+  do="Use a short past- or present-tense action label and reserve meta for compact result context."
+  dont="Use the chip as an unlabeled icon button or stream rapidly changing progress into its meta text."
+/>

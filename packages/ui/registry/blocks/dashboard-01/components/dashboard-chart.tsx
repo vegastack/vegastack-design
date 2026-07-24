@@ -1,6 +1,6 @@
-// @vegastack dashboard-01@0.2.0 sha256-0n5FBIpJDwhYVC5aSLixZGo20UEXyAgyNmM4+AHClFc=
+// @vegastack dashboard-01@0.2.0 sha256-qm7+2LKVAhfwH5v5FXl7Weku+tAmcp/QpP0RBAnmHOM=
 
-'use client';
+"use client";
 
 /**
  * `dashboard-chart.tsx` — the dashboard-01 block's "Usage over time" card (audit §e item 3):
@@ -11,47 +11,85 @@
  * 'use client' — Recharts renders into the DOM (ResizeObserver-driven `ResponsiveContainer`).
  */
 
-import * as React from 'react';
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
-import { Skeleton } from '@/components/ui/skeleton';
+import * as React from "react";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export interface UsagePoint {
+  /** Display label for the x-axis point. */
   date: string;
+  /** Request volume at this point. */
   requests: number;
+  /** Error volume at this point. */
   errors: number;
 }
 
+/** Props accepted by `DashboardChart`. */
 export interface DashboardChartProps {
+  /** Deterministic usage series displayed by the chart. */
   data: UsagePoint[];
-  /** Shows a skeleton placeholder instead of the chart — the region's own loading state. */
+  /** Shows a skeleton placeholder instead of the chart — the region's own loading state. @default false */
   loading?: boolean;
 }
 
 const chartConfig = {
-  requests: { label: 'Requests', color: 'chart-1' },
-  errors: { label: 'Errors', color: 'chart-2' },
+  requests: { label: "Requests", color: "chart-1" },
+  errors: { label: "Errors", color: "chart-2" },
 } satisfies ChartConfig;
 
-/** `DashboardChart` — a `Card` wrapping the themed area chart, or its loading placeholder. */
+/** `DashboardChart` — a `Card` wrapping the themed area chart, or its loading placeholder. @example <DashboardChart data={usage} /> */
 export function DashboardChart({ data, loading = false }: DashboardChartProps) {
   return (
     <Card data-slot="dashboard-chart">
       <CardHeader>
         <CardTitle>Usage over time</CardTitle>
-        <CardDescription>Requests and errors for the last 7 days.</CardDescription>
+        <CardDescription>
+          Requests and errors for the last 7 days.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {loading ? (
           <Skeleton shape="rect" className="h-64 w-full" aria-hidden="true" />
         ) : (
-          <ChartContainer config={chartConfig} className="aspect-auto h-64 w-full">
-            <AreaChart accessibilityLayer data={data} margin={{ left: 0, right: 0 }}>
+          <ChartContainer
+            config={chartConfig}
+            className="aspect-auto h-64 w-full"
+          >
+            <AreaChart
+              accessibilityLayer
+              data={data}
+              margin={{ left: 0, right: 0 }}
+            >
               <CartesianGrid vertical={false} stroke="var(--border)" />
-              <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} />
-              <YAxis tickLine={false} axisLine={false} tickMargin={8} width={44} />
-              <ChartTooltip cursor={{ stroke: 'var(--border)' }} content={<ChartTooltipContent />} />
+              <XAxis
+                dataKey="date"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                width={44}
+              />
+              <ChartTooltip
+                cursor={{ stroke: "var(--border)" }}
+                content={<ChartTooltipContent />}
+              />
               <Area
                 dataKey="requests"
                 type="monotone"

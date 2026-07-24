@@ -1,23 +1,27 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { Wrapper } from './wrapper';
+import type { ReactNode } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/field` (dogfoods the registry) → auto-scanned.
-import { Field, FieldControl } from '@/components/ui/field';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Textarea } from '@/components/ui/textarea';
+import { Field, FieldControl } from "@/components/ui/field";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 
 export function field(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch">
-      <Field label="Email" description="We'll never share your email." className="max-w-sm">
+      <Field
+        label="Email"
+        description="We'll never share your email."
+        className="max-w-sm"
+      >
         <FieldControl type="email" placeholder="you@vegastack.com" />
       </Field>
     </Wrapper>
@@ -55,10 +59,19 @@ export function fieldStates(): ReactNode {
       >
         <FieldControl type="password" defaultValue="hunter2" />
       </Field>
-      <Field label="Username" success="That username is available." className="max-w-sm">
+      <Field
+        label="Username"
+        success="That username is available."
+        className="max-w-sm"
+      >
         <FieldControl defaultValue="vega-dev" />
       </Field>
-      <Field label="Slug" description="Lowercase, no spaces." borderless className="max-w-sm">
+      <Field
+        label="Slug"
+        description="Lowercase, no spaces."
+        borderless
+        className="max-w-sm"
+      >
         <FieldControl defaultValue="design-system" />
       </Field>
     </Wrapper>
@@ -126,10 +139,16 @@ export function fieldBorderless(): ReactNode {
         <FieldControl defaultValue="Q3 planning notes" />
       </Field>
       <Field label="Summary" borderless className="max-w-sm">
-        <Textarea defaultValue="A short description that reads like body text." rows={2} />
+        <Textarea
+          defaultValue="A short description that reads like body text."
+          rows={2}
+        />
       </Field>
       <Field label="Visibility" borderless className="max-w-sm">
-        <Select items={{ private: 'Private', team: 'Team', public: 'Public' }} defaultValue="team">
+        <Select
+          items={{ private: "Private", team: "Team", public: "Public" }}
+          defaultValue="team"
+        >
           <SelectTrigger aria-label="Visibility">
             <SelectValue />
           </SelectTrigger>

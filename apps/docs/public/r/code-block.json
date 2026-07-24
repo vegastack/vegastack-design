@@ -1,0 +1,31 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "code-block",
+  "title": "Code Block",
+  "description": "A code panel with a language header and copy affordance — the shared code surface for chat transcripts, docs, and examples.",
+  "dependencies": [
+    "@vegastack/design@^0.1.0",
+    "@vegastack/design-tokens@^0.1.0"
+  ],
+  "registryDependencies": [
+    "@vegastack/copy-button"
+  ],
+  "files": [
+    {
+      "path": "packages/ui/registry/ui/code-block.tsx",
+      "content": "// @vegastack code-block@0.2.0 sha256-9xV6Z2tXvDXgssMF12PAgwlguLBN8xC9Zs3ILIiqZEk=\n\nimport * as React from \"react\";\nimport { CopyButton } from \"@/components/ui/copy-button\";\nimport { cn } from \"@vegastack/design\";\n\n/* ------------------------------------------------------------------------------------------------\n * CodeBlock — a code panel with an optional header (Wave 3, from the AI-chat teardown): a\n * sunken mono surface topped by a hairline bar carrying the language label (mono-label voice)\n * and a copy affordance. Server-safe root — `CopyButton` is the one client leaf and only\n * mounts when `copyValue` is provided. `MarkdownView` delegates fenced code here, so chat\n * transcripts, docs prose, and hand-composed examples all share one code surface.\n * ----------------------------------------------------------------------------------------------*/\n\n/** Props accepted by `CodeBlock`. */\nexport interface CodeBlockProps extends React.ComponentPropsWithRef<\"figure\"> {\n  /**\n   * Language label shown in the header (mono uppercase voice). Omit both this\n   * and `copyValue` to render a bare, headerless block.\n   * @default undefined\n   */\n  language?: string;\n  /** When set, a `CopyButton` for this raw source appears in the header. @default undefined */\n  copyValue?: string;\n  /** Accessible label for the copy control. @default `Copy ${language ?? 'code'}` */\n  copyLabel?: string;\n}\n\n/**\n * `CodeBlock` — compose the code content as children (it lands inside the\n * block's own `<pre><code>`):\n *\n * @example\n * <CodeBlock language=\"sql\" copyValue={QUERY}>\n *   {QUERY}\n * </CodeBlock>\n */\nexport function CodeBlock({\n  className,\n  language,\n  copyValue,\n  copyLabel,\n  children,\n  ref,\n  ...props\n}: CodeBlockProps) {\n  const hasHeader = Boolean(language || copyValue);\n  return (\n    <figure\n      ref={ref}\n      data-slot=\"code-block\"\n      data-language={language || undefined}\n      className={cn(\n        \"w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-border bg-muted text-foreground\",\n        className,\n      )}\n      {...props}\n    >\n      {hasHeader ? (\n        <figcaption\n          data-slot=\"code-block-header\"\n          className=\"flex items-center justify-between gap-2 border-b border-border px-3 py-1.5\"\n        >\n          <span className=\"font-mono text-mono-label text-muted-foreground uppercase\">\n            {language ?? \"code\"}\n          </span>\n          {copyValue != null ? (\n            <CopyButton\n              value={copyValue}\n              size=\"icon-xs\"\n              variant=\"ghost\"\n              copyLabel={copyLabel ?? `Copy ${language ?? \"code\"}`}\n            />\n          ) : null}\n        </figcaption>\n      ) : null}\n      <pre data-slot=\"code-block-pre\" className=\"overflow-x-auto p-4 text-base\">\n        <code className=\"font-mono text-code\">{children}</code>\n      </pre>\n    </figure>\n  );\n}\n",
+      "type": "registry:ui",
+      "target": "@ui/code-block.tsx"
+    }
+  ],
+  "meta": {
+    "whenToUse": "Fenced/source code that deserves a labelled, copyable panel.",
+    "whenNotToUse": "Inline code (a mono chip) or terminal output theatre (Terminal).",
+    "version": "0.2.0",
+    "integrity": "sha256-9xV6Z2tXvDXgssMF12PAgwlguLBN8xC9Zs3ILIiqZEk="
+  },
+  "categories": [
+    "display"
+  ],
+  "type": "registry:ui"
+}

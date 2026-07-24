@@ -1,10 +1,11 @@
 ---
 title: Skeleton
 description: A token-driven loading placeholder — line, circle, rect, and card shapes, a configurable line count, and a reduced-motion-aware pulse.
+audience: public
 preview: skeleton
 ---
 
-import { story } from '@/components/stories/skeleton.story';
+import { story } from "@/components/stories/skeleton.story";
 
 ## Installation
 
@@ -30,29 +31,34 @@ Skeleton is purely presentational and server-safe. Mark the surrounding region
 `aria-busy="true"` while data loads so assistive tech announces the loading state —
 the skeletons themselves are decorative and hidden from the accessibility tree.
 
-## Playground
+## Examples
+
+### Playground
 
 Switch between the four shapes and stack multiple placeholders, then copy the generated JSX.
 
 <SkeletonPlayground />
 
-## Explorer
+### Explorer
 
 Every `Skeleton` prop, auto-generated from its TypeScript types — the exhaustive counterpart to the
 curated playground above.
 
 <story.WithControl />
 
-## Shapes
+### Shapes
 
 `line` (a single text line, the default), `circle` (an avatar/icon placeholder),
 `rect` (an image/thumbnail block), and `card` (a larger card surface). Every shape
 is built from semantic tokens (`bg-muted`, `rounded-*`) — never a hardcoded color
 or pixel value.
 
-<ComponentPreview name="skeletonShapes" file="components/preview/skeleton.tsx" />
+<ComponentPreview
+  name="skeletonShapes"
+  file="components/preview/skeleton.tsx"
+/>
 
-## Composing a loading card
+### Composing a loading card
 
 Combine shapes to mirror the real content's structure — an avatar, a couple of
 short lines, a thumbnail, and a paragraph. Matching the eventual layout prevents
@@ -60,7 +66,7 @@ content from shifting when it loads in.
 
 <ComponentPreview name="skeletonCard" file="components/preview/skeleton.tsx" />
 
-## Line count
+### Line count
 
 Pass `count` to render a stacked block of text lines. `count` is clamped to a
 minimum of 1 (non-integer values are floored), and the final line is shortened
@@ -72,21 +78,30 @@ to `w-4/5` to mimic the ragged end of a paragraph.
 
 <ComponentPreview name="skeletonCount" file="components/preview/skeleton.tsx" />
 
-## Count across shapes
+### Count across shapes
 
 `count` stacks any shape vertically, but the ragged-end shortening only applies to
 the `line` shape — `circle`, `rect`, and `card` repeat their full footprint so the
 placeholder still mirrors the real content geometry.
 
-<ComponentPreview name="skeletonShapeCount" file="components/preview/skeleton.tsx" />
+<ComponentPreview
+  name="skeletonShapeCount"
+  file="components/preview/skeleton.tsx"
+/>
 
-## Skeleton reveal
+### Skeleton reveal
 
 `Skeleton` itself stays a static placeholder — the reveal motion belongs to the content that
 **replaces** it. The smallest honest way to wire this is a keyed swap:
 
 ```tsx
-{loading ? <Skeleton count={3} /> : <div className="motion-enter-up">{content}</div>}
+{
+  loading ? (
+    <Skeleton count={3} />
+  ) : (
+    <div className="motion-enter-up">{content}</div>
+  );
+}
 ```
 
 `SkeletonReveal` is a thin convenience wrapper around exactly that pattern — it keys the
@@ -96,22 +111,31 @@ place. Reach for the inline version instead when you don't need the shared wrapp
 content root already needs its own distinct element/props per branch).
 
 ```tsx
-import { Skeleton, SkeletonReveal } from '@/components/ui/skeleton';
+import { Skeleton, SkeletonReveal } from "@/components/ui/skeleton";
 
 <SkeletonReveal loading={isLoading} skeleton={<Skeleton count={3} />}>
   <Article content={data} />
 </SkeletonReveal>;
 ```
 
-<ComponentPreview name="skeletonReveal" file="components/preview/skeleton.tsx" />
+<ComponentPreview
+  name="skeletonReveal"
+  file="components/preview/skeleton.tsx"
+/>
 
 ## API Reference
 
-<AutoTypeTable path="../../packages/ui/registry/ui/skeleton.tsx" name="SkeletonProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/skeleton.tsx"
+  name="SkeletonProps"
+/>
 
 ### SkeletonReveal
 
-<AutoTypeTable path="../../packages/ui/registry/ui/skeleton.tsx" name="SkeletonRevealProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/skeleton.tsx"
+  name="SkeletonRevealProps"
+/>
 
 ## Accessibility
 

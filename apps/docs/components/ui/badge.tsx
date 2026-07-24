@@ -1,4 +1,4 @@
-// @vegastack badge@0.2.0 sha256-vFkcmdwCOXYT2F8NllyHyy6FVXc+uylcGWLjjWfIMwQ=
+// @vegastack badge@0.2.0 sha256-nezKOsNweqrD3uxSog6JU4K320Z+H5TdNyC0uv8XGpo=
 
 "use client";
 
@@ -9,7 +9,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@vegastack/design";
 
 /**
- * Badge variants — `variant` (subtle / solid / minimal) × `intent` (semantic
+ * Badge variants — `variant` (subtle / solid / minimal / outline) × `intent` (semantic
  * family) × `size`. Per the v2 spec, badges are `rounded-full` pills: the
  * default `subtle` treatment uses a soft `{family}-subtle` tint + `{family}-text`,
  * `solid` uses the family fill + on-color foreground, and the neutral badge
@@ -20,13 +20,15 @@ import { cn } from "@vegastack/design";
 export const badgeVariants = cva(
   // text-ellipsis makes a consumer-supplied max-w-* cap elide instead of hard-clipping —
   // costless at the default w-fit (content never overflows itself).
-  "inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full border border-transparent font-medium text-ellipsis whitespace-nowrap transition-colors duration-fast ease-standard [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full border border-transparent text-ellipsis whitespace-nowrap  [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         subtle: "border-transparent",
         solid: "border-transparent",
         minimal: "border-transparent bg-transparent",
+        /** Neutral/hued tag chip: hairline border, no fill (Wave 2 — Attio tag formula). */
+        outline: "bg-transparent",
       },
       intent: {
         default: "",
@@ -35,11 +37,20 @@ export const badgeVariants = cva(
         destructive: "",
         info: "",
       },
+      /**
+       * Matching-hue border on the `subtle` tint (Wave 2 — the Attio chip
+       * formula: tint fill + same-hue border + family text). No-op on other
+       * variants; `outline` already carries its border.
+       */
+      bordered: {
+        true: "",
+        false: "",
+      },
       size: {
-        sm: "h-5 gap-1 px-1.5 py-0.5 text-sm [&_svg:not([class*='size-'])]:size-(--icon-compact)",
+        sm: "h-5 gap-1 px-1.5 py-0.5 text-label-sm [&_svg:not([class*='size-'])]:size-(--icon-compact)",
         default:
-          "h-5 gap-1 px-2 py-0.5 text-sm [&_svg:not([class*='size-'])]:size-(--icon-compact)",
-        lg: "h-6 gap-1 px-2.5 py-0.5 text-sm [&_svg:not([class*='size-'])]:size-(--icon-inline)",
+          "h-5 gap-1 px-2 py-0.5 text-label-sm [&_svg:not([class*='size-'])]:size-(--icon-compact)",
+        lg: "h-6 gap-1 px-2.5 py-0.5 text-label-sm [&_svg:not([class*='size-'])]:size-(--icon-inline)",
       },
     },
     compoundVariants: [
@@ -64,7 +75,11 @@ export const badgeVariants = cva(
         intent: "destructive",
         class: "bg-destructive-subtle text-destructive-text",
       },
-      { variant: "subtle", intent: "info", class: "bg-info-subtle text-info-text" },
+      {
+        variant: "subtle",
+        intent: "info",
+        class: "bg-info-subtle text-info-text",
+      },
 
       // ── solid: family fill + on-color foreground ──────────────────────────
       {
@@ -103,8 +118,73 @@ export const badgeVariants = cva(
         class: "text-destructive-text",
       },
       { variant: "minimal", intent: "info", class: "text-info-text" },
+
+      // ── outline: hairline chip, no fill (neutral tag / hued marker) ───────
+      {
+        variant: "outline",
+        intent: "default",
+        class: "border-border text-foreground",
+      },
+      {
+        variant: "outline",
+        intent: "success",
+        class: "border-success/(--alpha-outline-border) text-success-text",
+      },
+      {
+        variant: "outline",
+        intent: "warning",
+        class: "border-warning/(--alpha-outline-border) text-warning-text",
+      },
+      {
+        variant: "outline",
+        intent: "destructive",
+        class:
+          "border-destructive/(--alpha-outline-border) text-destructive-text",
+      },
+      {
+        variant: "outline",
+        intent: "info",
+        class: "border-info/(--alpha-outline-border) text-info-text",
+      },
+
+      // ── bordered subtle: tint fill + matching-hue border (Attio chip formula)
+      {
+        variant: "subtle",
+        bordered: true,
+        intent: "default",
+        class: "border-border",
+      },
+      {
+        variant: "subtle",
+        bordered: true,
+        intent: "success",
+        class: "border-success/(--alpha-outline-border)",
+      },
+      {
+        variant: "subtle",
+        bordered: true,
+        intent: "warning",
+        class: "border-warning/(--alpha-outline-border)",
+      },
+      {
+        variant: "subtle",
+        bordered: true,
+        intent: "destructive",
+        class: "border-destructive/(--alpha-outline-border)",
+      },
+      {
+        variant: "subtle",
+        bordered: true,
+        intent: "info",
+        class: "border-info/(--alpha-outline-border)",
+      },
     ],
-    defaultVariants: { variant: "subtle", intent: "default", size: "default" },
+    defaultVariants: {
+      variant: "subtle",
+      intent: "default",
+      size: "default",
+      bordered: false,
+    },
   },
 );
 
@@ -130,6 +210,7 @@ const dotColor: Record<
   info: "bg-info",
 };
 
+/** Props accepted by `Badge`. */
 export interface BadgeProps
   extends
     React.ComponentPropsWithRef<"span">,
@@ -139,9 +220,10 @@ export interface BadgeProps
    * - `subtle`: soft `{family}-subtle` tint + `{family}-text` (default).
    * - `solid`: family fill with on-color text.
    * - `minimal`: borderless, no background — colored text only.
+   * - `outline`: hairline chip, no fill — the neutral/hued tag treatment.
    * @default 'subtle'
    */
-  variant?: "subtle" | "solid" | "minimal";
+  variant?: "subtle" | "solid" | "minimal" | "outline";
   /**
    * Semantic intent family. Maps to design-system tokens only — never an
    * arbitrary hex or `color-mix` value. `default` is the neutral `muted` badge.
@@ -153,6 +235,12 @@ export interface BadgeProps
    * @default 'default'
    */
   size?: "sm" | "default" | "lg";
+  /**
+   * Draw the matching-hue hairline border on the `subtle` tint (the crisp
+   * "chip" read on white surfaces). No-op on other variants.
+   * @default false
+   */
+  bordered?: boolean;
   /**
    * Show a small leading dot indicator colored by `intent`. Ignored while
    * `loading`. Mutually exclusive with a leading icon.
@@ -179,23 +267,29 @@ export interface BadgeProps
   /**
    * Replace the rendered element via Base UI `render` composition. Pass a
    * `ReactElement` or a render function.
+
+   * @default undefined
    */
   render?: useRender.RenderProp;
 }
 
 /**
- * `Badge` — a compact `rounded-full` status / label chip. Three variants
- * (`subtle`, `solid`, `minimal`) × six semantic families × three sizes, with an
+ * `Badge` — a compact `rounded-full` status / label chip. Four variants
+ * (`subtle`, `solid`, `minimal`, `outline`) × five semantic intents × three sizes, with an
  * optional leading `dot`, a `loading` spinner, and leading icons composed as
  * `children`. Purely presentational; use Base UI `render` to compose with a link.
  * Pass `animateIn` to pop the badge in on mount — off by default so static lists
  * of badges stay still.
+ *
+ * @example
+ * <Badge intent="success" dot>Active</Badge>
  */
 export function Badge({
   className,
   variant = "subtle",
   intent = "default",
   size = "default",
+  bordered = false,
   dot = false,
   loading = false,
   animateIn = false,
@@ -217,17 +311,22 @@ export function Badge({
       "data-variant": variant,
       "data-intent": intent,
       "data-size": size,
+      "data-bordered": bordered ? "" : undefined,
       "data-loading": loading ? "" : undefined,
       "aria-busy": loading || undefined,
       className: cn(
-        badgeVariants({ variant, intent, size }),
+        badgeVariants({ variant, intent, size, bordered }),
         animateIn && "motion-pop-in",
         className,
       ),
       children: (
         <>
           {loading ? (
-            <Spinner size="inherit" label="" className="size-(--icon-compact)" />
+            <Spinner
+              size="inherit"
+              label=""
+              className="size-(--icon-compact)"
+            />
           ) : showDot ? (
             <span
               className={cn(

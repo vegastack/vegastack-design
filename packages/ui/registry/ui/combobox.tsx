@@ -1,4 +1,4 @@
-// @vegastack combobox@0.2.0 sha256-RyANqMgN99FIGiwwaZlOfDw8N3ZHeXga8s9K4FLUtkQ=
+// @vegastack combobox@0.2.0 sha256-vRwg815lvRr5uhi/6UlcCyJS426R0Yd4mg91zdXV5xw=
 
 "use client";
 
@@ -7,6 +7,18 @@ import { Combobox as BaseCombobox } from "@base-ui/react/combobox";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Check, ChevronsUpDown, Search, X } from "lucide-react";
 import { cn, FLOATING } from "@vegastack/design";
+import { useInternalThemeScope } from "@vegastack/design/theme-scope";
+
+function mergeStateClassName<State>(
+  className: string,
+  userClassName: string | ((state: State) => string | undefined) | undefined,
+) {
+  if (typeof userClassName === "function") {
+    return (state: State) => cn(className, userClassName(state));
+  }
+
+  return cn(className, userClassName);
+}
 
 /* ------------------------------------------------------------------------------------------------
  * Combobox — a filterable, keyboard-navigable listbox behind a text input. Built on
@@ -20,6 +32,7 @@ import { cn, FLOATING } from "@vegastack/design";
  * inside `ComboboxGroup`s (grouped) — see the examples below.
  * ----------------------------------------------------------------------------------------------*/
 
+/** Props accepted by `Combobox`. */
 export type ComboboxProps<
   Value,
   Multiple extends boolean | undefined = false,
@@ -91,7 +104,10 @@ export function Combobox<Value, Multiple extends boolean | undefined = false>(
   return <BaseCombobox.Root data-slot="combobox" {...props} />;
 }
 
-export type ComboboxValueProps = React.ComponentProps<typeof BaseCombobox.Value> & {
+/** Props accepted by `ComboboxValue`. */
+export type ComboboxValueProps = React.ComponentProps<
+  typeof BaseCombobox.Value
+> & {
   /** Additional class names for the wrapping `<span>` (Base UI's `Value` renders no element). */
   className?: string;
 };
@@ -100,12 +116,22 @@ export type ComboboxValueProps = React.ComponentProps<typeof BaseCombobox.Value>
  * `ComboboxValue` — renders the selected value's label (or the `placeholder`) as read-only text.
  * Mainly for a button-style `ComboboxTrigger` with no visible text input (mirrors `SelectValue`).
  * Renders a `<span>`.
+ *
+ * @example
+ * <ComboboxValue placeholder="Choose a country" />
  */
-export function ComboboxValue({ className, children, ...props }: ComboboxValueProps) {
+export function ComboboxValue({
+  className,
+  children,
+  ...props
+}: ComboboxValueProps) {
   return (
     <span
       data-slot="combobox-value"
-      className={cn("flex min-w-0 items-center gap-2 overflow-hidden text-left", className)}
+      className={cn(
+        "flex min-w-0 items-center gap-2 overflow-hidden text-start",
+        className,
+      )}
     >
       <BaseCombobox.Value {...props}>{children}</BaseCombobox.Value>
     </span>
@@ -122,12 +148,12 @@ export function ComboboxValue({ className, children, ...props }: ComboboxValuePr
 
 export const comboboxInputVariants = cva(
   [
-    "w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-base outline-none transition-colors duration-fast ease-standard",
+    "w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-base outline-none ",
     "focus:border-ring/(--alpha-tint-border)",
     "dark:bg-input/(--alpha-input)",
     "placeholder:text-muted-foreground-faint",
     "selection:bg-primary selection:text-primary-foreground",
-    "data-[invalid]:border-destructive/(--alpha-tint-border)",
+    "data-[invalid]:border-destructive-border/(--alpha-tint-border)",
     "data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-(--opacity-dim) data-[disabled]:bg-muted",
   ].join(" "),
   {
@@ -142,8 +168,10 @@ export const comboboxInputVariants = cva(
   },
 );
 
+/** Props accepted by `ComboboxInput`. */
 export interface ComboboxInputProps
-  extends Omit<React.ComponentProps<typeof BaseCombobox.Input>, "size">,
+  extends
+    Omit<React.ComponentProps<typeof BaseCombobox.Input>, "size">,
     VariantProps<typeof comboboxInputVariants> {}
 
 /**
@@ -151,8 +179,15 @@ export interface ComboboxInputProps
  * 28/32/40 control scale (`size`: `sm` / `default` / `lg`), matching `Input`/`Select`. Use standalone
  * for a bare search field, or nested in a {@link ComboboxInputGroup} alongside a
  * {@link ComboboxTrigger} / {@link ComboboxClear} / {@link ComboboxChips}. Renders an `<input>`.
+ *
+ * @example
+ * <ComboboxInput aria-label="Search projects" placeholder="Search…" />
  */
-export function ComboboxInput({ className, size = "default", ...props }: ComboboxInputProps) {
+export function ComboboxInput({
+  className,
+  size = "default",
+  ...props
+}: ComboboxInputProps) {
   return (
     <BaseCombobox.Input
       data-slot="combobox-input"
@@ -163,6 +198,7 @@ export function ComboboxInput({ className, size = "default", ...props }: Combobo
   );
 }
 
+/** Props accepted by `ComboboxPopupInput`. */
 export type ComboboxPopupInputProps = Omit<ComboboxInputProps, "size">;
 
 /**
@@ -173,8 +209,14 @@ export type ComboboxPopupInputProps = Omit<ComboboxInputProps, "size">;
  * full-bleed header row with a search icon and a bottom hairline (the same anatomy as
  * `CommandInput`), no own border or radius, sticky so it stays visible while the list scrolls
  * (the popup is the scroll container). Give the sibling `ComboboxList` its own `p-1`.
+ *
+ * @example
+ * <ComboboxPopupInput aria-label="Search countries" placeholder="Search…" />
  */
-export function ComboboxPopupInput({ className, ...props }: ComboboxPopupInputProps) {
+export function ComboboxPopupInput({
+  className,
+  ...props
+}: ComboboxPopupInputProps) {
   return (
     <div
       data-slot="combobox-popup-input-wrapper"
@@ -185,7 +227,10 @@ export function ComboboxPopupInput({ className, ...props }: ComboboxPopupInputPr
       // already communicate focus; the hairline stays a plain `border-border` separator.
       className="sticky top-0 z-(--z-raised) flex items-center gap-2 border-b border-border bg-popover px-3"
     >
-      <Search aria-hidden className="size-(--icon-default) shrink-0 text-muted-foreground" />
+      <Search
+        aria-hidden
+        className="size-(--icon-default) shrink-0 text-muted-foreground"
+      />
       <BaseCombobox.Input
         data-slot="combobox-popup-input"
         className={cn(
@@ -202,10 +247,10 @@ export function ComboboxPopupInput({ className, ...props }: ComboboxPopupInputPr
 
 export const comboboxInputGroupVariants = cva(
   [
-    "flex w-full min-w-0 flex-wrap items-center gap-1 rounded-md border border-input bg-transparent p-1 transition-colors duration-fast ease-standard",
+    "flex w-full min-w-0 flex-wrap items-center gap-1 rounded-md border border-input bg-transparent p-1 ",
     "dark:bg-input/(--alpha-input)",
     "data-[focused]:border-ring/(--alpha-tint-border)",
-    "data-[invalid]:border-destructive/(--alpha-tint-border)",
+    "data-[invalid]:border-destructive-border/(--alpha-tint-border)",
     "data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-(--opacity-dim) data-[disabled]:bg-muted",
     // Flatten the nested ComboboxInput into the group's own chrome (same technique as
     // field.tsx's CONTROL_SLOTS) — the group owns the border/ring, the input becomes borderless.
@@ -223,8 +268,10 @@ export const comboboxInputGroupVariants = cva(
   },
 );
 
+/** Props accepted by `ComboboxInputGroup`. */
 export interface ComboboxInputGroupProps
-  extends React.ComponentProps<typeof BaseCombobox.InputGroup>,
+  extends
+    React.ComponentProps<typeof BaseCombobox.InputGroup>,
     VariantProps<typeof comboboxInputGroupVariants> {}
 
 /**
@@ -265,7 +312,7 @@ export function ComboboxInputGroup({
 
 export const comboboxTriggerVariants = cva(
   [
-    "inline-flex shrink-0 items-center justify-center rounded-md text-muted-foreground transition-[color,background-color] duration-fast ease-standard select-none",
+    "inline-flex shrink-0 items-center justify-center rounded-md text-muted-foreground select-none",
     "hover:bg-muted hover:text-foreground dark:hover:bg-muted/(--alpha-wash)",
     "data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-(--opacity-dim)",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
@@ -282,8 +329,10 @@ export const comboboxTriggerVariants = cva(
   },
 );
 
+/** Props accepted by `ComboboxTrigger`. */
 export interface ComboboxTriggerProps
-  extends React.ComponentProps<typeof BaseCombobox.Trigger>,
+  extends
+    React.ComponentProps<typeof BaseCombobox.Trigger>,
     VariantProps<typeof comboboxTriggerVariants> {}
 
 /**
@@ -291,6 +340,9 @@ export interface ComboboxTriggerProps
  * input. Renders a `ChevronsUpDown` chevron by default (THE combobox chevron — unlike `Select`'s
  * `ChevronDown`, it doesn't need to rotate, since it already reads as bidirectional/open-or-closed).
  * Pass children to render a different icon. Renders a `<button>`.
+ *
+ * @example
+ * <ComboboxTrigger aria-label="Open options" />
  */
 export function ComboboxTrigger({
   className,
@@ -305,8 +357,13 @@ export function ComboboxTrigger({
       className={cn(comboboxTriggerVariants({ size }), className)}
       {...props}
     >
-      <BaseCombobox.Icon data-slot="combobox-icon" className="flex items-center justify-center">
-        {children ?? <ChevronsUpDown className="size-(--icon-default)" aria-hidden />}
+      <BaseCombobox.Icon
+        data-slot="combobox-icon"
+        className="flex items-center justify-center"
+      >
+        {children ?? (
+          <ChevronsUpDown className="size-(--icon-default)" aria-hidden />
+        )}
       </BaseCombobox.Icon>
     </BaseCombobox.Trigger>
   );
@@ -319,6 +376,7 @@ export function ComboboxTrigger({
  * `Combobox.Collection`.
  * ----------------------------------------------------------------------------------------------*/
 
+/** Props accepted by `ComboboxList`. */
 export type ComboboxListProps = React.ComponentProps<typeof BaseCombobox.List>;
 
 /**
@@ -326,6 +384,9 @@ export type ComboboxListProps = React.ComponentProps<typeof BaseCombobox.List>;
  * navigation. Most consumers let {@link ComboboxContent} render it automatically; export is
  * available for direct composition. Accepts a function child for flat, filtered rendering. Renders
  * a `<div>`.
+ *
+ * @example
+ * <ComboboxList>{(item) => <ComboboxItem value={item}>{item.name}</ComboboxItem>}</ComboboxList>
  */
 export function ComboboxList({ className, ...props }: ComboboxListProps) {
   return (
@@ -337,7 +398,10 @@ export function ComboboxList({ className, ...props }: ComboboxListProps) {
   );
 }
 
-export interface ComboboxContentProps extends React.ComponentProps<typeof BaseCombobox.Popup> {
+/** Props accepted by `ComboboxContent`. */
+export interface ComboboxContentProps extends React.ComponentProps<
+  typeof BaseCombobox.Popup
+> {
   /** Preferred side of the anchor to render against. @default 'bottom' */
   side?: React.ComponentProps<typeof BaseCombobox.Positioner>["side"];
   /** Alignment relative to the anchor. @default 'start' */
@@ -345,10 +409,16 @@ export interface ComboboxContentProps extends React.ComponentProps<typeof BaseCo
   /** Gap in px between the anchor and the popup. @default FLOATING.sideOffsetAttached (4) */
   sideOffset?: number;
   /** Padding (px) reserved around the popup during collision detection. @default FLOATING.collisionPadding (8) */
-  collisionPadding?: React.ComponentProps<typeof BaseCombobox.Positioner>["collisionPadding"];
-  /** Props forwarded to the Base UI `Combobox.Positioner`. */
+  collisionPadding?: React.ComponentProps<
+    typeof BaseCombobox.Positioner
+  >["collisionPadding"];
+  /** Props forwarded to the Base UI `Combobox.Positioner`.
+   * @default undefined
+   */
   positionerProps?: React.ComponentProps<typeof BaseCombobox.Positioner>;
-  /** Props forwarded to the Base UI `Combobox.Portal`. */
+  /** Props forwarded to the Base UI `Combobox.Portal`.
+   * @default undefined
+   */
   portalProps?: React.ComponentProps<typeof BaseCombobox.Portal>;
 }
 
@@ -380,20 +450,28 @@ export function ComboboxContent({
   portalProps,
   ...props
 }: ComboboxContentProps) {
+  const themeScope = useInternalThemeScope();
+  const { className: positionerClassName, ...positionerPropsRest } =
+    positionerProps ?? {};
+
   return (
     <BaseCombobox.Portal {...portalProps}>
       <BaseCombobox.Positioner
+        {...positionerPropsRest}
         data-slot="combobox-positioner"
         side={side}
         align={align}
         sideOffset={sideOffset}
         collisionPadding={collisionPadding}
-        className="z-(--z-overlay) outline-none"
-        {...positionerProps}
+        className={mergeStateClassName<BaseCombobox.Positioner.State>(
+          cn(themeScope, "z-(--z-overlay) outline-none"),
+          positionerClassName,
+        )}
       >
         <BaseCombobox.Popup
           data-slot="combobox-content"
           className={cn(
+            themeScope,
             "relative z-(--z-overlay) max-h-[var(--available-height)] min-w-[var(--anchor-width)] origin-[var(--transform-origin)] overflow-x-hidden overflow-y-auto overscroll-contain rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-overlay",
             // `scale` must be listed explicitly — Tailwind v4 `scale-*` sets the CSS `scale`
             // property, which `transform` does not cover (register P0-06; matches every sibling).
@@ -416,18 +494,26 @@ export function ComboboxContent({
  * `SelectItem`. `data-highlighted` (keyboard/hover) tints the accent; `data-disabled` dims.
  * ----------------------------------------------------------------------------------------------*/
 
+/** Props accepted by `ComboboxItem`. */
 export type ComboboxItemProps = React.ComponentProps<typeof BaseCombobox.Item>;
 
 /**
  * `ComboboxItem` — a single option. Shows a trailing check when selected; tints on
  * `data-highlighted` (keyboard nav / hover) and dims on `data-disabled`. Renders a `<div>`.
+ *
+ * @example
+ * <ComboboxItem value={project}>{project.name}</ComboboxItem>
  */
-export function ComboboxItem({ className, children, ...props }: ComboboxItemProps) {
+export function ComboboxItem({
+  className,
+  children,
+  ...props
+}: ComboboxItemProps) {
   return (
     <BaseCombobox.Item
       data-slot="combobox-item"
       className={cn(
-        "relative flex w-full items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-base outline-none select-none",
+        "relative flex w-full items-center gap-2 rounded-sm py-1.5 pe-8 ps-2 text-base outline-none select-none",
         "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim)",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
@@ -435,7 +521,7 @@ export function ComboboxItem({ className, children, ...props }: ComboboxItemProp
       )}
       {...props}
     >
-      <span className="absolute right-2 flex size-(--icon-default) items-center justify-center text-foreground">
+      <span className="absolute end-2 flex size-(--icon-default) items-center justify-center text-foreground">
         <BaseCombobox.ItemIndicator data-slot="combobox-item-indicator">
           <Check className="size-(--icon-default)" aria-hidden />
         </BaseCombobox.ItemIndicator>
@@ -451,10 +537,16 @@ export function ComboboxItem({ className, children, ...props }: ComboboxItemProp
  * `ComboboxGroup` per group with a `ComboboxCollection` function child for its items.
  * ----------------------------------------------------------------------------------------------*/
 
-export type ComboboxGroupProps = React.ComponentProps<typeof BaseCombobox.Group>;
+/** Props accepted by `ComboboxGroup`. */
+export type ComboboxGroupProps = React.ComponentProps<
+  typeof BaseCombobox.Group
+>;
 
 /**
  * `ComboboxGroup` — groups related items with a {@link ComboboxGroupLabel}. Renders a `<div>`.
+ *
+ * @example
+ * <ComboboxGroup><ComboboxGroupLabel>Recent</ComboboxGroupLabel>{items}</ComboboxGroup>
  */
 export function ComboboxGroup({ className, ...props }: ComboboxGroupProps) {
   return (
@@ -466,29 +558,47 @@ export function ComboboxGroup({ className, ...props }: ComboboxGroupProps) {
   );
 }
 
-export type ComboboxGroupLabelProps = React.ComponentProps<typeof BaseCombobox.GroupLabel>;
+/** Props accepted by `ComboboxGroupLabel`. */
+export type ComboboxGroupLabelProps = React.ComponentProps<
+  typeof BaseCombobox.GroupLabel
+>;
 
 /**
  * `ComboboxGroupLabel` — a heading for a {@link ComboboxGroup}, auto-associated with it. Muted,
  * small. Renders a `<div>`.
+ *
+ * @example
+ * <ComboboxGroupLabel>Recent</ComboboxGroupLabel>
  */
-export function ComboboxGroupLabel({ className, ...props }: ComboboxGroupLabelProps) {
+export function ComboboxGroupLabel({
+  className,
+  ...props
+}: ComboboxGroupLabelProps) {
   return (
     <BaseCombobox.GroupLabel
       data-slot="combobox-group-label"
-      className={cn("px-2 py-1.5 text-label-sm text-muted-foreground", className)}
+      className={cn(
+        "px-2 py-1.5 text-label-sm text-muted-foreground",
+        className,
+      )}
       {...props}
     />
   );
 }
 
-export type ComboboxCollectionProps = React.ComponentProps<typeof BaseCombobox.Collection>;
+/** Props accepted by `ComboboxCollection`. */
+export type ComboboxCollectionProps = React.ComponentProps<
+  typeof BaseCombobox.Collection
+>;
 
 /**
  * `ComboboxCollection` — renders filtered items via a function child (`{(item) => …}`). Required
  * inside a {@link ComboboxGroup} for grouped rendering; a flat list can pass the same function
  * directly as {@link ComboboxList}'s child instead (Base UI implicitly wraps it in a `Collection`).
  * Doesn't render its own element.
+ *
+ * @example
+ * <ComboboxCollection>{(item) => <ComboboxItem value={item}>{item.name}</ComboboxItem>}</ComboboxCollection>
  */
 export function ComboboxCollection(props: ComboboxCollectionProps) {
   return <BaseCombobox.Collection {...props} />;
@@ -525,24 +635,36 @@ export const useComboboxFilteredItems = BaseCombobox.useFilteredItems;
  * conditionally render the component itself.
  * ----------------------------------------------------------------------------------------------*/
 
-export type ComboboxEmptyProps = React.ComponentProps<typeof BaseCombobox.Empty>;
+/** Props accepted by `ComboboxEmpty`. */
+export type ComboboxEmptyProps = React.ComponentProps<
+  typeof BaseCombobox.Empty
+>;
 
 /**
  * `ComboboxEmpty` — shown when the current query matches no items (requires `items` on the root).
  * Politely announced to screen readers. Must stay mounted — never wrap it in a conditional; Base UI
  * shows/hides its children internally. Renders a `<div>`.
+ *
+ * @example
+ * <ComboboxEmpty>No project found.</ComboboxEmpty>
  */
 export function ComboboxEmpty({ className, ...props }: ComboboxEmptyProps) {
   return (
     <BaseCombobox.Empty
       data-slot="combobox-empty"
-      className={cn("py-6 text-center text-base text-muted-foreground empty:hidden", className)}
+      className={cn(
+        "py-6 text-center text-base text-muted-foreground empty:hidden",
+        className,
+      )}
       {...props}
     />
   );
 }
 
-export type ComboboxStatusProps = React.ComponentProps<typeof BaseCombobox.Status>;
+/** Props accepted by `ComboboxStatus`. */
+export type ComboboxStatusProps = React.ComponentProps<
+  typeof BaseCombobox.Status
+>;
 
 /**
  * `ComboboxStatus` — a politely-announced status row, for conveying the state of an asynchronously
@@ -577,20 +699,30 @@ export function ComboboxStatus({ className, ...props }: ComboboxStatusProps) {
  * nothing to clear (`data-visible`, default `keepMounted={false}`).
  * ----------------------------------------------------------------------------------------------*/
 
-export type ComboboxClearProps = React.ComponentProps<typeof BaseCombobox.Clear>;
+/** Props accepted by `ComboboxClear`. */
+export type ComboboxClearProps = React.ComponentProps<
+  typeof BaseCombobox.Clear
+>;
 
 /**
  * `ComboboxClear` — clears the input text (single mode) or every selected value (multiple mode) on
  * click. Renders nothing until there's something to clear, and fades out on removal
  * (`data-starting-style`/`data-ending-style`). Requires an `aria-label` (no visible text). Renders a
  * `<button>`.
+ *
+ * @example
+ * <ComboboxClear aria-label="Clear search" />
  */
-export function ComboboxClear({ className, children, ...props }: ComboboxClearProps) {
+export function ComboboxClear({
+  className,
+  children,
+  ...props
+}: ComboboxClearProps) {
   return (
     <BaseCombobox.Clear
       data-slot="combobox-clear"
       className={cn(
-        "inline-flex size-(--size-xs) shrink-0 items-center justify-center rounded-md text-muted-foreground transition-[color,opacity] duration-fast ease-standard",
+        "inline-flex size-(--size-xs) shrink-0 items-center justify-center rounded-md text-muted-foreground transition-opacity duration-fast ease-standard",
         "hover:text-foreground",
         "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
         "data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-(--opacity-dim)",
@@ -612,7 +744,10 @@ export function ComboboxClear({ className, children, ...props }: ComboboxClearPr
  * inline tags rather than standalone chips.
  * ----------------------------------------------------------------------------------------------*/
 
-export type ComboboxChipsProps = React.ComponentProps<typeof BaseCombobox.Chips>;
+/** Props accepted by `ComboboxChips`. */
+export type ComboboxChipsProps = React.ComponentProps<
+  typeof BaseCombobox.Chips
+>;
 
 /**
  * `ComboboxChips` — a flex-wrap container for {@link ComboboxChip}s and the `ComboboxInput` in
@@ -635,12 +770,16 @@ export function ComboboxChips({ className, ...props }: ComboboxChipsProps) {
   return (
     <BaseCombobox.Chips
       data-slot="combobox-chips"
-      className={cn("flex min-w-0 flex-1 flex-wrap items-center gap-1", className)}
+      className={cn(
+        "flex min-w-0 flex-1 flex-wrap items-center gap-1",
+        className,
+      )}
       {...props}
     />
   );
 }
 
+/** Props accepted by `ComboboxChip`. */
 export type ComboboxChipProps = React.ComponentProps<typeof BaseCombobox.Chip>;
 
 /**
@@ -649,13 +788,20 @@ export type ComboboxChipProps = React.ComponentProps<typeof BaseCombobox.Chip>;
  * Pass the label text followed by a {@link ComboboxChipRemove} as children — they render as
  * siblings (not wrapped together) so the remove control stays independently clickable/focusable.
  * Renders a `<div>`.
+ *
+ * @example
+ * <ComboboxChip>Design<ComboboxChipRemove aria-label="Remove Design" /></ComboboxChip>
  */
-export function ComboboxChip({ className, children, ...props }: ComboboxChipProps) {
+export function ComboboxChip({
+  className,
+  children,
+  ...props
+}: ComboboxChipProps) {
   return (
     <BaseCombobox.Chip
       data-slot="combobox-chip"
       className={cn(
-        "inline-flex h-(--size-xs) max-w-full shrink-0 items-center gap-1 rounded-md border border-border bg-accent pr-1 pl-2 text-sm text-foreground",
+        "inline-flex h-(--size-xs) max-w-full shrink-0 items-center gap-1 rounded-md border border-border bg-accent pe-1 ps-2 text-sm text-foreground",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim)",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-compact)",
         className,
@@ -667,18 +813,28 @@ export function ComboboxChip({ className, children, ...props }: ComboboxChipProp
   );
 }
 
-export type ComboboxChipRemoveProps = React.ComponentProps<typeof BaseCombobox.ChipRemove>;
+/** Props accepted by `ComboboxChipRemove`. */
+export type ComboboxChipRemoveProps = React.ComponentProps<
+  typeof BaseCombobox.ChipRemove
+>;
 
 /**
  * `ComboboxChipRemove` — the trailing `×` control on a {@link ComboboxChip} that removes it from the
  * selection. Requires an `aria-label` (no visible text). Renders a `<button>`.
+ *
+ * @example
+ * <ComboboxChipRemove aria-label="Remove Design" />
  */
-export function ComboboxChipRemove({ className, children, ...props }: ComboboxChipRemoveProps) {
+export function ComboboxChipRemove({
+  className,
+  children,
+  ...props
+}: ComboboxChipRemoveProps) {
   return (
     <BaseCombobox.ChipRemove
       data-slot="combobox-chip-remove"
       className={cn(
-        "-mr-0.5 ml-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-sm text-foreground",
+        "-me-0.5 ms-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-sm text-foreground",
         "hover:bg-foreground/(--alpha-ink-tint)",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim)",
         className,

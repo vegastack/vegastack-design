@@ -1,5 +1,5 @@
-import { defineStory } from '@/lib/story';
-import { Alert } from '@/components/ui/alert';
+import { defineStory } from "@/lib/story";
+import { Alert } from "@/components/ui/alert";
 
 /**
  * Story explorer for `Alert` — controls auto-generated from `AlertProps` by the Story
@@ -10,18 +10,18 @@ export const story = defineStory({
   Component: Alert,
   args: [
     {
-      variant: 'Default',
+      variant: "Default",
       initial: {
-        children: 'Your changes have been saved.',
+        children: "Your changes have been saved.",
       },
     },
     {
-      variant: 'Success intent',
+      variant: "Success intent",
       initial: {
-        children: 'Deployment finished without errors.',
+        children: "Deployment finished without errors.",
       },
       fixed: {
-        intent: 'success',
+        intent: "success",
       },
     },
   ],

@@ -8,16 +8,9 @@
   ],
   "commit": false,
   "fixed": [],
-  "linked": [
-    [
-      "@vegastack/design-tokens",
-      "@vegastack/design"
-    ]
-  ],
+  "linked": [["@vegastack/design-tokens", "@vegastack/design"]],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": [
-    "@vegastack/docs"
-  ]
+  "ignore": ["@vegastack/docs"]
 }

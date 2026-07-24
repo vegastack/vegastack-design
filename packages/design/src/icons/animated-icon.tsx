@@ -1,7 +1,12 @@
-import * as React from 'react';
+import * as React from "react";
 
-/** Functional icon size scale (px) — matches `Icon`/`BrandIcon`. */
-const SIZES = { xs: 14, sm: 16, md: 20, lg: 24 } as const;
+/** Runtime icon-role tokens — resolves in the consumer's active theme. */
+const SIZES = {
+  xs: "var(--icon-inline)",
+  sm: "var(--icon-default)",
+  md: "var(--icon-action)",
+  lg: "var(--icon-feature)",
+} as const;
 
 export type AnimatedIconSize = keyof typeof SIZES;
 
@@ -15,41 +20,49 @@ export interface AnimatedIconHandle {
 }
 
 /**
- * Shape of a mirrored `lucide-animated` icon component: a `forwardRef` that
- * accepts a numeric `size`, spreads `div` props, and exposes an
+ * Shape of a mirrored `lucide-animated` icon component: a React 19 function
+ * component that accepts a runtime CSS length, spreads `div` props, and exposes an
  * {@link AnimatedIconHandle}. This is what `shadcn add @vegastack/<icon>`
  * copies in (e.g. `ActivityIcon`).
  */
-export type AnimatedIconComponent = React.ForwardRefExoticComponent<
-  { size?: number } & Omit<React.HTMLAttributes<HTMLDivElement>, 'ref'> &
-    React.RefAttributes<AnimatedIconHandle>
+export type AnimatedIconComponent = React.ComponentType<
+  { size?: number | string; ref?: React.Ref<AnimatedIconHandle> } & Omit<
+    React.HTMLAttributes<HTMLDivElement>,
+    "ref"
+  >
 >;
 
-export interface AnimatedIconProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'ref'> {
+export interface AnimatedIconProps extends Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  "ref"
+> {
   /** A mirrored lucide-animated icon component, e.g. `import { ActivityIcon } from '@/components/ui/activity'`. */
   as: AnimatedIconComponent;
   /**
-   * Size token — maps to 14/16/20/24px (overrides the icon's default 28px).
+   * Size role — resolves through `--icon-inline/default/action/feature` at runtime.
    * @default 'md'
    */
   size?: AnimatedIconSize;
+  /** Imperative animation handle forwarded to the mirrored icon. */
+  ref?: React.Ref<AnimatedIconHandle>;
   /**
    * Accessible label. When provided the icon is exposed to assistive tech as an
    * image; otherwise it is `aria-hidden` (decorative).
    */
-  'aria-label'?: string;
+  "aria-label"?: string;
 }
 
 /**
  * `AnimatedIcon` — the one sanctioned wrapper for motion icons (`lucide-animated`,
  * mirrored into the VegaStack registry). It standardizes the size scale + a11y and
  * forwards the icon's {@link AnimatedIconHandle} ref, while the icon itself owns the
- * animation (animates on hover; or call `ref.current.startAnimation()`).
+ * animation (pointer/focus/touch auto-trigger where provided upstream; or call
+ * `ref.current.startAnimation()`).
  *
  * Deliberately imports no `motion` — the mirrored icon component carries that
- * dependency, so the base package stays lightweight. For app-wide
- * reduced-motion, wrap your tree once in Motion's
- * `<MotionConfig reducedMotion="user">`.
+ * dependency, so the base package stays lightweight. Every generated mirror reads
+ * Motion's `useReducedMotion()` preference intrinsically and settles immediately at
+ * its static resting state when the user requests reduced motion.
  *
  * @example
  * 'use client';
@@ -64,16 +77,21 @@ export interface AnimatedIconProps extends Omit<React.HTMLAttributes<HTMLDivElem
  * <AnimatedIcon as={ActivityIcon} ref={ref} />
  * <button onClick={() => ref.current?.startAnimation()}>Play</button>
  */
-export const AnimatedIcon = React.forwardRef<AnimatedIconHandle, AnimatedIconProps>(
-  ({ as: Cmp, size = 'md', 'aria-label': label, ...props }, ref) => (
+export function AnimatedIcon({
+  as: Cmp,
+  size = "md",
+  ref,
+  "aria-label": label,
+  ...props
+}: AnimatedIconProps) {
+  return (
     <Cmp
       ref={ref}
       size={SIZES[size]}
-      role={label ? 'img' : undefined}
+      role={label ? "img" : undefined}
       aria-hidden={label ? undefined : true}
       aria-label={label}
       {...props}
     />
-  ),
-);
-AnimatedIcon.displayName = 'AnimatedIcon';
+  );
+}

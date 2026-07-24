@@ -1,10 +1,11 @@
-// @vegastack hover-card@0.2.0 sha256-BQQVNv0M7Eop2fXtak5XU0VwnDA6YI0/sOt1qQO815M=
+// @vegastack hover-card@0.2.0 sha256-l6TKVxtwchHzmBkVGqHupzAMxY67SIBP5lAO5Pr6CEg=
 
 "use client";
 
 import * as React from "react";
 import { PreviewCard as BasePreviewCard } from "@base-ui/react/preview-card";
 import { cn, TIMINGS, FLOATING } from "@vegastack/design";
+import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 
 function mergeStateClassName<State>(
   className: string,
@@ -74,10 +75,17 @@ export interface HoverCardProps extends Omit<
    * @default 300
    */
   closeDelay?: number;
-  /** The trigger and content parts. */
+  /** The trigger and content parts.
+   * @default undefined
+   */
   children?: React.ReactNode;
 }
 
+/** `HoverCard` root with tokenized open/close delays shared by its trigger.
+ *
+ * @example
+ * <HoverCard />
+ */
 export function HoverCard({
   children,
   openDelay = TIMINGS.hoverOpenDelayMs,
@@ -95,6 +103,7 @@ export function HoverCard({
   );
 }
 
+/** Props accepted by `HoverCardTrigger`. */
 export interface HoverCardTriggerProps extends React.ComponentProps<
   typeof BasePreviewCard.Trigger
 > {}
@@ -104,6 +113,10 @@ export interface HoverCardTriggerProps extends React.ComponentProps<
  * typically anchor to a link, e.g. a `@username`); pass `render` to project the card onto your own
  * element. Inherits the root's `openDelay` / `closeDelay` unless overridden here. Wraps Base UI's
  * `PreviewCard.Trigger`.
+
+ *
+ * @example
+ * <HoverCardTrigger />
  */
 export function HoverCardTrigger({
   delay,
@@ -121,6 +134,7 @@ export function HoverCardTrigger({
   );
 }
 
+/** Props accepted by `HoverCardContent`. */
 export interface HoverCardContentProps extends React.ComponentProps<
   typeof BasePreviewCard.Popup
 > {
@@ -148,17 +162,23 @@ export interface HoverCardContentProps extends React.ComponentProps<
   collisionPadding?: React.ComponentProps<
     typeof BasePreviewCard.Positioner
   >["collisionPadding"];
-  /** Props forwarded to the underlying Base UI `PreviewCard.Portal`. */
+  /** Props forwarded to the underlying Base UI `PreviewCard.Portal`.
+   * @default undefined
+   */
   portalProps?: Omit<
     React.ComponentProps<typeof BasePreviewCard.Portal>,
     "children"
   >;
-  /** Props forwarded to the underlying Base UI `PreviewCard.Positioner`. */
+  /** Props forwarded to the underlying Base UI `PreviewCard.Positioner`.
+   * @default undefined
+   */
   positionerProps?: Omit<
     React.ComponentProps<typeof BasePreviewCard.Positioner>,
     "side" | "sideOffset" | "align" | "collisionPadding" | "children"
   >;
-  /** Props forwarded to an optional Base UI `PreviewCard.Viewport` that wraps popup children. */
+  /** Props forwarded to an optional Base UI `PreviewCard.Viewport` that wraps popup children.
+   * @default undefined
+   */
   viewportProps?: Omit<
     React.ComponentProps<typeof BasePreviewCard.Viewport>,
     "children"
@@ -179,6 +199,10 @@ export interface HoverCardContentProps extends React.ComponentProps<
  *
  * Place arbitrary, app-resolved content inside — an avatar + name + stats row, a team summary, an
  * agent card. Override `className` (e.g. `w-80`) when the preview needs more room.
+
+ *
+ * @example
+ * <HoverCardContent />
  */
 export function HoverCardContent({
   className,
@@ -193,8 +217,11 @@ export function HoverCardContent({
   arrow = false,
   ...props
 }: HoverCardContentProps) {
+  const themeScope = useInternalThemeScope();
   const { className: positionerClassName, ...positionerPropsRest } =
     positionerProps ?? {};
+  const { className: viewportClassName, ...viewportPropsRest } =
+    viewportProps ?? {};
 
   return (
     <BasePreviewCard.Portal {...portalProps}>
@@ -206,13 +233,14 @@ export function HoverCardContent({
         align={align}
         collisionPadding={collisionPadding}
         className={mergeStateClassName<BasePreviewCard.Positioner.State>(
-          "z-(--z-overlay)",
+          cn(themeScope, "z-(--z-overlay)"),
           positionerClassName,
         )}
       >
         <BasePreviewCard.Popup
           data-slot="hover-card-content"
           className={cn(
+            themeScope,
             // The native outline is deliberately NOT stripped: the centralized base.css
             // `:focus-visible` outline stays as the indicator if the popup ever receives
             // keyboard focus (register P0-02).
@@ -228,8 +256,12 @@ export function HoverCardContent({
           {arrow ? <HoverCardArrow /> : null}
           {viewportProps ? (
             <BasePreviewCard.Viewport
-              {...viewportProps}
+              {...viewportPropsRest}
               data-slot="hover-card-viewport"
+              className={mergeStateClassName<BasePreviewCard.Viewport.State>(
+                themeScope ?? "",
+                viewportClassName,
+              )}
             >
               {children}
             </BasePreviewCard.Viewport>
@@ -242,6 +274,7 @@ export function HoverCardContent({
   );
 }
 
+/** Props accepted by `HoverCardArrow`. */
 export type HoverCardArrowProps = React.ComponentProps<
   typeof BasePreviewCard.Arrow
 >;
@@ -249,6 +282,10 @@ export type HoverCardArrowProps = React.ComponentProps<
 /**
  * `HoverCardArrow` — a small triangle anchored to the trigger. Rendered automatically when
  * `HoverCardContent` receives `arrow`, or compose it directly. Wraps Base UI's `PreviewCard.Arrow`.
+
+ *
+ * @example
+ * <HoverCardArrow />
  */
 export function HoverCardArrow({ className, ...props }: HoverCardArrowProps) {
   return (

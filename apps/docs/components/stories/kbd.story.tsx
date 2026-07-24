@@ -1,5 +1,5 @@
-import { defineStory } from '@/lib/story';
-import { Kbd } from './kbd.client';
+import { defineStory } from "@/lib/story";
+import { Kbd } from "./kbd.client";
 
 /**
  * Story explorer for `Kbd` — controls auto-generated from `KbdProps` by the Story build
@@ -10,19 +10,19 @@ export const story = defineStory({
   Component: Kbd,
   args: [
     {
-      variant: 'Single key',
+      variant: "Single key",
       initial: {
-        children: '⌘',
-        os: 'mac',
+        children: "⌘",
+        os: "mac",
       },
     },
     {
-      variant: 'Combo',
+      variant: "Combo",
       initial: {
-        os: 'mac',
+        os: "mac",
       },
       fixed: {
-        keys: ['⌘', 'K'],
+        keys: ["⌘", "K"],
       },
     },
   ],

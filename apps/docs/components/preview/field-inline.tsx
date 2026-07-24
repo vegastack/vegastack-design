@@ -1,16 +1,18 @@
-'use client';
+"use client";
 
-import { type ReactNode, useState } from 'react';
-import { Wrapper } from './wrapper';
+import { type ReactNode, useState } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/field-inline` (dogfoods the registry) → auto-scanned.
-import { FieldInline } from '@/components/ui/field-inline';
+import { FieldInline } from "@/components/ui/field-inline";
 
 export function fieldInline(): ReactNode {
-  const [value, setValue] = useState('Untitled task');
+  const [value, setValue] = useState("Untitled task");
   return (
     <Wrapper className="block">
       <div className="mx-auto flex w-full max-w-sm flex-col gap-1.5">
-        <span className="text-base font-medium text-foreground">Task title</span>
+        <span className="text-base font-medium text-foreground">
+          Task title
+        </span>
         <FieldInline
           value={value}
           onCommit={setValue}
@@ -26,11 +28,13 @@ export function fieldInline(): ReactNode {
 }
 
 export function fieldInlineBorderless(): ReactNode {
-  const [value, setValue] = useState('Q3 planning doc');
+  const [value, setValue] = useState("Q3 planning doc");
   return (
     <Wrapper className="block">
       <div className="mx-auto flex w-full max-w-sm flex-col gap-1.5">
-        <span className="text-sm font-medium text-muted-foreground">Document name</span>
+        <span className="text-sm font-medium text-muted-foreground">
+          Document name
+        </span>
         <FieldInline
           value={value}
           onCommit={setValue}
@@ -48,8 +52,8 @@ export function fieldInlineBorderless(): ReactNode {
 // `placeholder` as muted text; when `placeholder` is also absent it falls back
 // to the generic `"Edit value"` label (which doubles as the accessible name).
 export function fieldInlineEmpty(): ReactNode {
-  const [withPlaceholder, setWithPlaceholder] = useState('');
-  const [bare, setBare] = useState('');
+  const [withPlaceholder, setWithPlaceholder] = useState("");
+  const [bare, setBare] = useState("");
   return (
     <Wrapper className="block">
       <div className="mx-auto flex w-full max-w-sm flex-col gap-4">
@@ -79,8 +83,8 @@ export function fieldInlineEmpty(): ReactNode {
 // readers without painting any visible text, whereas `placeholder` is the
 // visible empty hint (and the name only as a last resort).
 export function fieldInlineAccessibleName(): ReactNode {
-  const [labelled, setLabelled] = useState('Acme Corp');
-  const [placeheld, setPlaceheld] = useState('');
+  const [labelled, setLabelled] = useState("Acme Corp");
+  const [placeheld, setPlaceheld] = useState("");
   return (
     <Wrapper className="block">
       <div className="mx-auto flex w-full max-w-sm flex-col gap-4">
@@ -88,7 +92,11 @@ export function fieldInlineAccessibleName(): ReactNode {
           <span className="text-sm font-medium text-muted-foreground">
             Named by <code className="font-mono">label</code> (invisible)
           </span>
-          <FieldInline value={labelled} onCommit={setLabelled} label="Company name" />
+          <FieldInline
+            value={labelled}
+            onCommit={setLabelled}
+            label="Company name"
+          />
         </div>
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium text-muted-foreground">

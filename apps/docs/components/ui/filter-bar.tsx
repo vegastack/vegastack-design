@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.2.0 sha256-XK8357ZyT+5x+HmppAWIZHShysctBMm+dFkDqtOpXWI=
+// @vegastack filter-bar@0.2.0 sha256-A46u9K6ppGUzomErooU/OiXJK0o25nqvhgthzcLOVF0=
 
 "use client";
 
@@ -86,6 +86,7 @@ export interface FilterBarSearch {
   "aria-label"?: string;
 }
 
+/** Props accepted by `FilterBar`. */
 export interface FilterBarProps extends Omit<
   React.ComponentPropsWithRef<"div">,
   "onChange"
@@ -99,11 +100,15 @@ export interface FilterBarProps extends Omit<
    * Declarative "Add filter" menu options. The bar builds a {@link DropdownMenu}
    * from these and calls {@link FilterBarProps.onAddFilter} with the chosen
    * option's `id`. Ignored when `addFilterMenu` is provided.
+
+   * @default undefined
    */
   addFilters?: FilterBarAddOption[];
   /**
    * Invoked with the chosen option's `id` when an item from the declarative
    * `addFilters` menu is selected.
+
+   * @default undefined
    */
   onAddFilter?: (id: string) => void;
   /**
@@ -111,6 +116,8 @@ export interface FilterBarProps extends Omit<
    * submenus / checkbox items). Takes precedence over `addFilters` — supply the
    * whole {@link DropdownMenu} tree, including its trigger. When omitted and
    * `addFilters` is empty, no "Add filter" control is rendered.
+
+   * @default undefined
    */
   addFilterMenu?: React.ReactNode;
   /**
@@ -122,13 +129,19 @@ export interface FilterBarProps extends Omit<
   addFilterMenuAlign?: DropdownMenuContentProps["align"];
   /**
    * Controlled search/query input config. Omit to hide the search field.
+
+   * @default = null && "ml-auto")
    */
   search?: FilterBarSearch;
-  /** Props forwarded to the underlying search {@link Input}. */
+  /** Props forwarded to the underlying search {@link Input}.
+   * @default undefined
+   */
   searchInputProps?: Omit<InputProps, "value" | "onChange" | "placeholder">;
   /**
    * Content rendered at the trailing (right) end of the bar — e.g. a
    * "Save view" or "Clear all" {@link Button}.
+
+   * @default undefined
    */
   trailing?: React.ReactNode;
 }
@@ -137,21 +150,28 @@ export interface FilterBarProps extends Omit<
  * FilterChip — a removable Badge-like pill (label[: value] + × button)
  * ----------------------------------------------------------------------------------------------*/
 
+/** Props accepted by `FilterChip`. */
 export interface FilterChipProps extends Omit<
   React.ComponentPropsWithRef<"div">,
   "onRemove"
 > {
   /** The filter's name (muted leading text). */
   label: React.ReactNode;
-  /** Optional value summary, rendered after `label` separated by a colon. */
+  /** Optional value summary, rendered after `label` separated by a colon.
+   * @default undefined
+   */
   value?: React.ReactNode;
-  /** Optional leading icon. */
+  /** Optional leading icon.
+   * @default undefined
+   */
   icon?: React.ReactNode;
   /** Invoked when the remove (`×`) control is activated. */
   onRemove: () => void;
   /**
    * Accessible name for the remove control. Defaults to `Remove <label> filter`
    * when `label` is a string.
+
+   * @default undefined
    */
   removeLabel?: string;
   /**
@@ -170,6 +190,9 @@ export interface FilterChipProps extends Omit<
  * `active={false}` for a plain presence chip. Control-scale (`h-(--size-md) rounded-md`),
  * token-only styling. Purely presentational; the {@link FilterBar} renders one
  * per active filter.
+ *
+ * @example
+ * <FilterChip label="Status" value="Active" onRemove={clearStatus} />
  */
 export function FilterChip({
   className,

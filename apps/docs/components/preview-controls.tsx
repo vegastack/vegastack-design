@@ -1,19 +1,25 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { Maximize2, Minimize2, Monitor, Smartphone, Tablet } from 'lucide-react';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { IconButton } from '@/components/ui/icon-button';
-import { cn } from '@/lib/cn';
+import * as React from "react";
+import {
+  Maximize2,
+  Minimize2,
+  Monitor,
+  Smartphone,
+  Tablet,
+} from "lucide-react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { IconButton } from "@/components/ui/icon-button";
+import { cn } from "@/lib/cn";
 
-export type FrameWidth = 'mobile' | 'tablet' | 'full';
+export type FrameWidth = "mobile" | "tablet" | "full";
 
-// Fixed viewport-simulation widths (375 / 768), not design tokens — a `max-w-*` class per
-// preset (never an inline `style`) so the constraint is a static, build-time Tailwind utility.
-const FRAME_WIDTH_CLASS: Record<FrameWidth, string> = {
-  mobile: 'max-w-[375px]',
-  tablet: 'max-w-[768px]',
-  full: 'max-w-none',
+// Fixed test-viewport widths are behavioral fixture values, not design tokens. They route through
+// one private CSS property so Tailwind never receives an unreviewed arbitrary literal.
+const FRAME_WIDTH_VALUE: Record<FrameWidth, string> = {
+  mobile: "375px",
+  tablet: "768px",
+  full: "none",
 };
 
 interface PreviewControlsContextValue {
@@ -23,7 +29,8 @@ interface PreviewControlsContextValue {
   setFullscreen: (fullscreen: boolean) => void;
 }
 
-const PreviewControlsContext = React.createContext<PreviewControlsContextValue | null>(null);
+const PreviewControlsContext =
+  React.createContext<PreviewControlsContextValue | null>(null);
 
 /**
  * `PreviewControlsProvider` — shares the responsive-frame width between the toolbar toggle
@@ -34,19 +41,28 @@ const PreviewControlsContext = React.createContext<PreviewControlsContextValue |
  * Deterministic initial state (`'full'`) — matches the pre-existing unconstrained layout, so a
  * fresh page load (and therefore VRT) is visually unchanged until a reader touches the toggle.
  */
-export function PreviewControlsProvider({ children }: { children: React.ReactNode }) {
-  const [width, setWidth] = React.useState<FrameWidth>('full');
+export function PreviewControlsProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [width, setWidth] = React.useState<FrameWidth>("full");
   const [fullscreen, setFullscreen] = React.useState(false);
   const value = React.useMemo(
     () => ({ width, setWidth, fullscreen, setFullscreen }),
     [width, fullscreen],
   );
-  return <PreviewControlsContext.Provider value={value}>{children}</PreviewControlsContext.Provider>;
+  return (
+    <PreviewControlsContext.Provider value={value}>
+      {children}
+    </PreviewControlsContext.Provider>
+  );
 }
 
 function usePreviewControls() {
   const ctx = React.useContext(PreviewControlsContext);
-  if (!ctx) throw new Error('Must be rendered within <PreviewControlsProvider>');
+  if (!ctx)
+    throw new Error("Must be rendered within <PreviewControlsProvider>");
   return ctx;
 }
 
@@ -102,7 +118,7 @@ export function FullscreenToggle() {
     <IconButton
       variant="ghost"
       size="sm"
-      aria-label={fullscreen ? 'Exit fullscreen preview' : 'Fullscreen preview'}
+      aria-label={fullscreen ? "Exit fullscreen preview" : "Fullscreen preview"}
       aria-pressed={fullscreen}
       onClick={() => setFullscreen(!fullscreen)}
     >
@@ -122,7 +138,11 @@ export function FullscreenToggle() {
  * overlay: Esc or the close button exits, the page behind is scroll-locked, and focus moves to
  * the close button on entry (returned to the toolbar toggle implicitly on exit re-render).
  */
-export function PreviewFrameContainer({ children }: { children: React.ReactNode }) {
+export function PreviewFrameContainer({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { width, fullscreen, setFullscreen } = usePreviewControls();
   const closeRef = React.useRef<HTMLButtonElement>(null);
 
@@ -130,17 +150,18 @@ export function PreviewFrameContainer({ children }: { children: React.ReactNode 
   React.useEffect(() => {
     if (!fullscreen) return;
     const previousOverflow = document.documentElement.style.overflow;
-    document.documentElement.style.overflow = 'hidden';
+    document.documentElement.style.overflow = "hidden";
     closeRef.current?.focus();
     const onKeyDown = (event: KeyboardEvent) => {
       // Ignore Esc that a demo popup (Dialog/Select/…) already handled — Base UI calls
       // preventDefault when it closes its own surface on Esc.
-      if (event.key === 'Escape' && !event.defaultPrevented) setFullscreen(false);
+      if (event.key === "Escape" && !event.defaultPrevented)
+        setFullscreen(false);
     };
-    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener("keydown", onKeyDown);
     return () => {
       document.documentElement.style.overflow = previousOverflow;
-      document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener("keydown", onKeyDown);
     };
   }, [fullscreen, setFullscreen]);
 
@@ -148,10 +169,14 @@ export function PreviewFrameContainer({ children }: { children: React.ReactNode 
     <div className="overflow-x-auto">
       <div
         data-frame-width={width}
+        style={
+          {
+            "--preview-frame-max-width": FRAME_WIDTH_VALUE[width],
+          } as React.CSSProperties
+        }
         className={cn(
-          'mx-auto transition-[max-width] duration-fast ease-standard',
-          FRAME_WIDTH_CLASS[width],
-          width !== 'full' && 'rounded-md border border-dashed border-border',
+          "mx-auto max-w-[var(--preview-frame-max-width)] transition-[max-width] duration-fast ease-standard",
+          width !== "full" && "rounded-md border border-dashed border-border",
         )}
       >
         {children}

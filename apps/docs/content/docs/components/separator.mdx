@@ -1,10 +1,11 @@
 ---
 title: Separator
 description: A thin rule that visually or semantically divides content — horizontal or vertical, decorative by default.
+audience: public
 preview: separator
 ---
 
-import { story } from '@/components/stories/separator.story';
+import { story } from "@/components/stories/separator.story";
 
 ## Installation
 
@@ -17,25 +18,27 @@ npx shadcn@latest add @vegastack/separator
 ## Usage
 
 ```tsx
-import { Separator } from '@/components/ui/separator';
+import { Separator } from "@/components/ui/separator";
 
 <Separator />;
 ```
 
-## Playground
+## Examples
+
+### Playground
 
 Flip the orientation and the decorative flag, then copy the generated JSX.
 
 <SeparatorPlayground />
 
-## Explorer
+### Explorer
 
 Every `Separator` prop, auto-generated from its TypeScript types — the exhaustive counterpart to
 the curated playground above.
 
 <story.WithControl />
 
-## Examples
+### Rules in context
 
 A horizontal rule between blocks of content, plus inline vertical dividers between links. The
 top horizontal rule (`<Separator />`) is **decorative** — it's hidden from assistive tech because
@@ -45,16 +48,22 @@ a parent with height (e.g. a flex row).
 
 <ComponentPreview name="separator" file="components/preview/separator.tsx" />
 
-## Orientation
+### Orientation
 
 Pass `orientation="vertical"` to divide along the cross axis. The parent must provide height — place
 it inside a flex row.
 
-<ComponentPreview name="separatorVertical" file="components/preview/separator.tsx" />
+<ComponentPreview
+  name="separatorVertical"
+  file="components/preview/separator.tsx"
+/>
 
 ## API Reference
 
-<AutoTypeTable path="../../packages/ui/registry/ui/separator.tsx" name="SeparatorProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/separator.tsx"
+  name="SeparatorProps"
+/>
 
 ## Accessibility
 
@@ -65,11 +74,11 @@ it inside a flex row.
   toolbar — so screen readers announce it as a `separator` with the correct `aria-orientation`.
 - Built on Base UI's accessible `Separator`, which manages `role` and `aria-orientation`.
 
-| Attribute              | Value                                                |
-| ---------------------- | ---------------------------------------------------- |
-| `role`                 | `separator` (semantic) / `presentation` (decorative) |
-| `aria-orientation`     | `horizontal` \| `vertical` (semantic only)           |
-| `data-orientation`     | `horizontal` \| `vertical`                           |
+| Attribute          | Value                                                |
+| ------------------ | ---------------------------------------------------- |
+| `role`             | `separator` (semantic) / `presentation` (decorative) |
+| `aria-orientation` | `horizontal` \| `vertical` (semantic only)           |
+| `data-orientation` | `horizontal` \| `vertical`                           |
 
 ## Do / Don't
 

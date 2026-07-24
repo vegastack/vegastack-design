@@ -1,22 +1,20 @@
-// @vegastack section-header@0.2.0 sha256-NYJeGXnkUcskUSR2s5H7lY7ONFzIxtXTvBlCyAqwKB4=
+// @vegastack section-header@0.2.0 sha256-NO6cn0Fw5gdIYwIkGFmBVcCaXxef6jC2Rg4ck4vsFA8=
 
-// @vegastack section-header@0.1.0 — new component; run `pnpm run registry:build` to stamp
-// integrity + regenerate the copy-in/JSON.
-
-'use client';
-
-import * as React from 'react';
-import { cn } from '@vegastack/design';
+import * as React from "react";
+import { cn } from "@vegastack/design";
 
 const SECTION_HEADER_DISPLAY_SIZE = {
-  sm: 'text-display-sm',
-  md: 'text-display-md',
-  lg: 'text-display-lg',
-  xl: 'text-display-xl',
+  sm: "text-display-sm",
+  md: "text-display-md",
+  lg: "text-display-lg",
+  xl: "text-display-xl",
 } as const;
 
-export interface SectionHeaderProps
-  extends Omit<React.ComponentPropsWithRef<'div'>, 'title'> {
+/** Props accepted by `SectionHeader`. */
+export interface SectionHeaderProps extends Omit<
+  React.ComponentPropsWithRef<"div">,
+  "title"
+> {
   /**
    * Small mono uppercase label above the title (e.g. `"01 / Platform"`,
    * `"Now shipping"`). Rendered in the mono voice (`font-mono` +
@@ -25,6 +23,7 @@ export interface SectionHeaderProps
    * A single `--brand` dot precedes it — the sanctioned "eyebrow highlight"
    * marker role (audit 17-brand-direction §Color & surface); the text itself
    * stays neutral `muted-foreground` so the accent stays a marker, not a wash.
+   * @default undefined
    */
   eyebrow?: React.ReactNode;
   /**
@@ -38,7 +37,15 @@ export interface SectionHeaderProps
    * text) per audit 17.
    */
   title: React.ReactNode;
-  /** Optional supporting copy under the title. */
+  /**
+   * Two-tone continuation (Wave 4 — the teardown's signature headline move):
+   * rendered AFTER `title` at the same size/weight in `muted-foreground`, so
+   * hierarchy comes from color, not scale ("Live from day one." + "Connect
+   * your inbox and calendar.").
+   * @default undefined
+   */
+  titleMuted?: React.ReactNode;
+  /** Optional supporting copy under the title. @default undefined */
   description?: React.ReactNode;
   /**
    * Display scale — `sm`(32) / `md`(40) / `lg`(56) / `xl`(72), the tokenized
@@ -50,7 +57,7 @@ export interface SectionHeaderProps
    * Text + flex alignment.
    * @default 'start'
    */
-  align?: 'start' | 'center';
+  align?: "start" | "center";
 }
 
 /**
@@ -69,11 +76,12 @@ export interface SectionHeaderProps
  * />
  */
 export function SectionHeader({
+  titleMuted,
   eyebrow,
   title,
   description,
-  size = 'md',
-  align = 'start',
+  size = "md",
+  align = "start",
   className,
   ref,
   ...props
@@ -84,8 +92,10 @@ export function SectionHeader({
       data-slot="section-header"
       data-align={align}
       className={cn(
-        'flex flex-col gap-3',
-        align === 'center' ? 'items-center text-center' : 'items-start text-left',
+        "flex flex-col gap-3",
+        align === "center"
+          ? "items-center text-center"
+          : "items-start text-left",
         className,
       )}
       {...props}
@@ -105,16 +115,22 @@ export function SectionHeader({
       ) : null}
       <h2
         data-slot="section-header-title"
-        className={cn(SECTION_HEADER_DISPLAY_SIZE[size], 'text-balance text-foreground')}
+        className={cn(
+          SECTION_HEADER_DISPLAY_SIZE[size],
+          "text-balance text-foreground",
+        )}
       >
         {title}
+        {titleMuted != null ? (
+          <span className="text-muted-foreground"> {titleMuted}</span>
+        ) : null}
       </h2>
       {description ? (
         <p
           data-slot="section-header-description"
           className={cn(
-            'max-w-2xl text-lg text-foreground/(--opacity-hint)',
-            align === 'center' && 'mx-auto',
+            "max-w-2xl text-lg text-muted-foreground",
+            align === "center" && "mx-auto",
           )}
         >
           {description}

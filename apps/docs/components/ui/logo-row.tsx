@@ -1,21 +1,17 @@
-// @vegastack logo-row@0.2.0 sha256-pzilx7f9u0mN5Am4ZH7ikJuF3SSLfnm92CRGGNhDmv4=
+// @vegastack logo-row@0.2.0 sha256-YRoUs66VbQcbhCuNJCRw2NtwEPVhxZdpsBubuzSrP94=
 
-// @vegastack logo-row@0.1.0 — new component; run `pnpm run registry:build` to stamp integrity +
-// regenerate the copy-in/JSON.
-
-'use client';
-
-import * as React from 'react';
-import { cn } from '@vegastack/design';
+import * as React from "react";
+import { cn } from "@vegastack/design";
 
 export interface LogoRowItem {
   /** The wordmark text — always TEXT, never an image/svg logo (see component note). */
   name: string;
-  /** Optional link target; renders an `<a>` instead of a `<span>` when present. */
+  /** Optional link target; renders an `<a>` instead of a `<span>` when present. @default undefined */
   href?: string;
 }
 
-export interface LogoRowProps extends React.ComponentPropsWithRef<'div'> {
+/** Props accepted by `LogoRow`. */
+export interface LogoRowProps extends React.ComponentPropsWithRef<"div"> {
   /**
    * The wordmarks to render. Intentionally TEXT-only — no image/SVG logo
    * assets, and never real third-party brand names (they'd imply an
@@ -23,14 +19,24 @@ export interface LogoRowProps extends React.ComponentPropsWithRef<'div'> {
    * pages until real, cleared logos exist.
    */
   items: LogoRowItem[];
-  /** Small mono uppercase caption above the row (e.g. `"Trusted by"`). */
+  /** Small mono uppercase caption above the row (e.g. `"Trusted by"`). @default undefined */
   label?: React.ReactNode;
+  /**
+   * Layout. `row` is the inline wordmark strip; `wall` (Wave 4 — the teardown's
+   * logo-wall) is a hairline-CELL grid: the borders form the grid, no gaps.
+   * @default 'row'
+   */
+  variant?: "row" | "wall";
+  /**
+   * Columns for the `wall` variant.
+   * @default 3
+   */
+  wallColumns?: 2 | 3 | 4;
 }
 
 /**
- * `LogoRow` — a muted logo/wordmark strip: alpha-dimmed at rest
- * (`text-foreground/(--opacity-dim)`), restoring to `text-foreground/(--opacity-hint)`
- * on hover for linked items. Renders wordmarks as plain text, never
+ * `LogoRow` — a muted logo/wordmark strip using the contrast-safe muted text role at rest,
+ * restoring to `text-foreground` on hover for linked items. Renders wordmarks as plain text, never
  * image/SVG logos — see {@link LogoRowItem}.
  *
  * @example
@@ -39,9 +45,25 @@ export interface LogoRowProps extends React.ComponentPropsWithRef<'div'> {
  *   items={[{ name: 'ACME' }, { name: 'NIMBUS' }, { name: 'COREBASE' }]}
  * />
  */
-export function LogoRow({ items, label, className, ref, ...props }: LogoRowProps) {
+export function LogoRow({
+  items,
+  label,
+  variant = "row",
+  wallColumns = 3,
+  className,
+  ref,
+  ...props
+}: LogoRowProps) {
+  const wallCols = { 2: "grid-cols-2", 3: "grid-cols-3", 4: "grid-cols-4" }[
+    wallColumns
+  ];
   return (
-    <div ref={ref} data-slot="logo-row" className={cn('flex flex-col gap-4', className)} {...props}>
+    <div
+      ref={ref}
+      data-slot="logo-row"
+      className={cn("flex flex-col gap-4", className)}
+      {...props}
+    >
       {label ? (
         <p
           data-slot="logo-row-label"
@@ -50,18 +72,38 @@ export function LogoRow({ items, label, className, ref, ...props }: LogoRowProps
           {label}
         </p>
       ) : null}
-      <ul data-slot="logo-row-list" className="flex flex-wrap items-center gap-x-8 gap-y-4">
+      <ul
+        data-slot="logo-row-list"
+        data-variant={variant}
+        className={cn(
+          variant === "wall"
+            ? // The wall: cell hairlines FORM the grid — every cell draws its top+left
+              // edge, the container clips the outer ring to a rounded hairline frame.
+              cn(
+                "grid overflow-hidden rounded-lg border border-border",
+                wallCols,
+              )
+            : "flex flex-wrap items-center gap-x-8 gap-y-4",
+        )}
+      >
         {items.map((item) => (
-          <li key={item.name} data-slot="logo-row-item">
+          <li
+            key={item.name}
+            data-slot="logo-row-item"
+            className={cn(
+              variant === "wall" &&
+                "-mt-px -ml-px flex h-16 items-center justify-center border-t border-l border-border",
+            )}
+          >
             {item.href ? (
               <a
                 href={item.href}
-                className="text-lg font-medium tracking-tight text-foreground/(--opacity-dim) transition-colors duration-fast ease-standard hover:text-foreground/(--opacity-hint)"
+                className="text-lg font-medium text-muted-foreground underline underline-offset-4 hover:text-foreground"
               >
                 {item.name}
               </a>
             ) : (
-              <span className="text-lg font-medium tracking-tight text-foreground/(--opacity-dim)">
+              <span className="text-lg font-medium text-muted-foreground">
                 {item.name}
               </span>
             )}

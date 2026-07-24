@@ -1,5 +1,5 @@
-import { defineStory } from '@/lib/story';
-import { CheckboxStory } from '@/components/stories/story-shims';
+import { defineStory } from "@/lib/story";
+import { CheckboxStory } from "@/components/stories/story-shims";
 
 /**
  * Story explorer for `Checkbox` — controls are generated from the narrow-prop client shim
@@ -11,17 +11,17 @@ export const story = defineStory({
   Component: CheckboxStory,
   args: [
     {
-      variant: 'Default',
+      variant: "Default",
       initial: {
         defaultChecked: true,
-        'aria-label': 'Accept terms',
+        "aria-label": "Accept terms",
       },
     },
     {
-      variant: 'Indeterminate',
+      variant: "Indeterminate",
       initial: {
         indeterminate: true,
-        'aria-label': 'Select all rows',
+        "aria-label": "Select all rows",
       },
     },
   ],

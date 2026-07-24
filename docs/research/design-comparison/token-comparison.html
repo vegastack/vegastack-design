@@ -1,378 +1,1064 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>VegaStack — Token Comparison: Current vs Proposed (Aster)</title>
-<style>
-  :root{
-    --bg:#ffffff; --fg:#191919; --muted:#606060; --faint:#898989;
-    --line:rgba(0,0,0,.10); --line-soft:rgba(0,0,0,.06); --card:#fafafa;
-    --pass:#127a3e; --pass-bg:#eafaef; --fail:#c0341d; --fail-bg:#fdecea;
-    --warn:#9a6a00; --warn-bg:#fff6e0; --accent:#0b5bd3;
-    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
-    --sans:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",sans-serif;
-  }
-  html[data-view="dark"]{
-    --bg:#191919; --fg:#f4f4f4; --muted:#989898; --faint:#747474; --line:rgba(255,255,255,.14);
-    --line-soft:rgba(255,255,255,.08); --card:#232323; --pass-bg:#13301f; --fail-bg:#3a1714; --warn-bg:#332701;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:1180px;margin:0 auto;padding:40px 24px 120px}
-  h1{font-size:26px;font-weight:600;letter-spacing:-.4px;margin:0 0 6px}
-  h2{font-size:19px;font-weight:600;letter-spacing:-.2px;margin:52px 0 4px;padding-top:20px;border-top:1px solid var(--line)}
-  h3{font-size:15px;font-weight:600;margin:28px 0 10px}
-  p{margin:8px 0;color:var(--fg)}
-  .sub{color:var(--muted)}
-  .lede{color:var(--muted);font-size:15px;max-width:80ch}
-  code,.mono{font-family:var(--mono);font-size:12px}
-  a{color:var(--accent)}
-  .bar{position:sticky;top:0;z-index:5;display:flex;gap:10px;align-items:center;background:var(--bg);border-bottom:1px solid var(--line);margin:0 -24px 0;padding:12px 24px}
-  .toggle{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
-  .toggle button{font:inherit;font-size:12px;font-weight:500;border:0;background:transparent;color:var(--muted);padding:6px 14px;cursor:pointer}
-  .toggle button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
-  table{border-collapse:collapse;width:100%;margin:8px 0 4px;font-size:13px}
-  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line-soft);vertical-align:middle}
-  th{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--faint);font-weight:600;border-bottom:1px solid var(--line)}
-  tbody tr:hover{background:var(--card)}
-  .tok{font-family:var(--mono);font-size:12px;font-weight:600;white-space:nowrap}
-  .sw{width:46px;height:30px;border-radius:6px;border:1px solid var(--line);display:inline-block;vertical-align:middle}
-  .sw-row{display:flex;align-items:center;gap:8px}
-  .arrow{color:var(--faint);font-size:14px}
-  .val{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
-  .chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:2px 7px;border-radius:999px;white-space:nowrap}
-  .chip.pass{color:var(--pass);background:var(--pass-bg)}
-  .chip.fail{color:var(--fail);background:var(--fail-bg)}
-  .chip.warn{color:var(--warn);background:var(--warn-bg)}
-  .chip.same{color:var(--faint);background:transparent;border:1px solid var(--line)}
-  .note{color:var(--muted);font-size:12.5px}
-  .verdict{font-size:12.5px;color:var(--fg)}
-  .verdict b{color:var(--accent)}
-  .card{border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:14px 0;background:var(--card)}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .scorecard{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}
-  .stat{border:1px solid var(--line);border-radius:10px;padding:14px 16px}
-  .stat .n{font-size:24px;font-weight:600;font-family:var(--mono)}
-  .stat .l{font-size:12px;color:var(--muted)}
-  .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);margin:10px 0}
-  .legend span{display:inline-flex;align-items:center;gap:6px}
-  .typ-row{display:flex;align-items:baseline;gap:16px;padding:10px 0;border-bottom:1px solid var(--line-soft)}
-  .typ-meta{width:230px;flex-shrink:0;font-family:var(--mono);font-size:11px;color:var(--muted)}
-  .typ-sample{font-family:var(--sans)}
-  .radius-demo{display:flex;gap:18px;flex-wrap:wrap;margin:12px 0}
-  .radius-box{width:88px;height:64px;background:var(--fg);opacity:.9;display:flex;align-items:flex-end;justify-content:center;color:var(--bg);font-family:var(--mono);font-size:10px;padding-bottom:5px}
-  .shadow-demo{display:flex;gap:26px;flex-wrap:wrap;margin:18px 4px}
-  .shadow-box{width:150px;height:96px;border-radius:12px;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted)}
-  .comp-demo{display:flex;gap:28px;flex-wrap:wrap}
-  .panel{flex:1;min-width:280px;border:1px solid var(--line);border-radius:12px;padding:20px;background:var(--bg)}
-  .panel h4{margin:0 0 14px;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--faint)}
-  .small{font-size:12px;color:var(--muted)}
-  ul.tight{margin:8px 0;padding-left:20px}
-  ul.tight li{margin:4px 0}
-  .kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line);border-radius:4px;padding:1px 5px;background:var(--card)}
-  .flag{border-left:3px solid var(--accent);padding:6px 0 6px 14px;margin:12px 0;color:var(--fg)}
-  .flag.amber{border-color:#d99500}
-</style>
-</head>
-<body>
-<div class="wrap">
-
-  <div class="bar">
-    <strong style="font-size:13px">Theme:</strong>
-    <div class="toggle" role="group" aria-label="Theme preview">
-      <button id="t-light" aria-pressed="true" onclick="setView('light')">Light</button>
-      <button id="t-dark" aria-pressed="false" onclick="setView('dark')">Dark</button>
-    </div>
-    <span class="small" style="margin-left:auto">Swatches &amp; contrast recompute for the selected theme · numbers are live.</span>
-  </div>
-
-  <h1>Token Comparison — Current vs Proposed</h1>
-  <p class="lede">Every token in <code>@vegastack/tokens</code> today, beside the proposed "Aster" re-skin. Color swatches render
-  natively via CSS <code>oklch()</code>; <b>contrast ratios are computed in-page with the exact same OKLCH→linear-sRGB→relative-luminance→WCAG
-  math as our build gate <code>tooling/contrast-check.mjs</code></b>, so what you see here is what CI will enforce. Toggle Light/Dark above.</p>
-
-  <div class="legend">
-    <span><span class="chip pass">AA ✓</span> ≥ 4.5:1 (WCAG 2.1 AA, normal text)</span>
-    <span><span class="chip pass">AAA</span> ≥ 7:1</span>
-    <span><span class="chip fail">FAIL</span> &lt; 4.5:1</span>
-    <span><span class="chip same">=</span> unchanged</span>
-    <span>“Gated” = a pair our CI contrast check enforces.</span>
-  </div>
-
-  <div class="scorecard" id="scorecard"></div>
-
-  <h2>Palette foundation — the neutral ramp, alpha scale &amp; full token map</h2>
-  <div id="palette"></div>
-
-  <h2>1 · Color tokens</h2>
-  <p class="sub">Grouped by role. Left swatch = current, right = proposed. The <b>Contrast</b> column shows the gated
-  foreground/background pair (current → proposed) for pairs CI enforces; structural/alpha tokens show their composited look instead.</p>
-  <div id="color-groups"></div>
-
-  <h2>2 · Contrast matrix (the CI gate, made visible)</h2>
-  <p class="sub">The 14 canonical pairs <code>contrast-check.mjs</code> enforces, plus reference (non-gated) pairs. Proposed values were
-  pre-tuned so <b>every gated pair passes AA in both themes</b>. The faint-text token is intentionally sub-AA — see its note.</p>
-  <table id="contrast-matrix"><thead><tr>
-    <th>Pair (foreground on background)</th><th>Current</th><th>Proposed</th><th>Δ</th><th>Gated?</th><th>Verdict</th>
-  </tr></thead><tbody></tbody></table>
-
-  <h2>3 · Colour ramps — status, accent &amp; AI/agent</h2>
-  <p class="sub">One value per status can't do every job: a solid <b>Delete</b> button needs a bright fill, error <i>helper text</i>
-  on a white page needs a dark-enough readable version, and an <i>alert background</i> needs a soft tint. So a designer builds a
-  small functional ramp per status. <b>Two rules make it coherent:</b> (1) the solid fill is <b>theme-independent</b> — one brand
-  identity in both light &amp; dark, so they're never misaligned; (2) <b>every fill carries WHITE on-fill text</b> (uniform — red,
-  green, orange, blue, purple all match), so hover/active simply <i>darken</i> away from the white and contrast only ever rises.
-  Green &amp; orange are deepened to make white text clear AA (bright amber can't carry white — yellow is too luminous — so warning
-  is a deep orange). Only <code>subtle</code> (soft bg) and <code>text</code> (readable colour) adapt per theme. Every shade gate-verified.</p>
-  <h3 style="margin-top:24px">Status ramps (destructive · success · warning)</h3>
-  <div id="ramps"></div>
-
-  <h3 style="margin-top:30px">Action &amp; AI/agent ramps — VegaStack's chromatic identity (NEW)</h3>
-  <p class="sub">A grayscale-only system has no identity and no way to signal "this is the AI." An agentic-enterprise product needs
-  two accents beyond status: <code>action</code> (<b>blue</b>) for interactive surfaces — links, selection, active states, info
-  (focus is a <i>neutral</i> ring, NOT this blue) — and <code>agent</code> (<b>purple</b>) for <b>AI / agent moments</b>
-  (generative output, agent actions), so an agent surface is instantly distinct from an ordinary control. Gate-verified &amp; in-gamut.</p>
-  <div id="accent-ramps"></div>
-
-  <div class="flag" style="margin-top:8px"><b>Focus state (your directive): no rings.</b> The chunky Tailwind focus ring
-  (<code>ring-2</code>/<code>outline</code>) is removed everywhere, and <b>mouse clicks show nothing</b> (<code>:focus-visible</code> only).
-  Keyboard focus instead uses a <b>border/background colour shift</b> — ring-free, the same language you approved for hover, just a step
-  stronger so focus ≠ hover. This keeps us WCAG 2.4.7 / enterprise-VPAT compliant for keyboard users without a single halo. <i>(Going to
-  literally zero focus indicator would fail enterprise accessibility procurement — flagged.)</i></div>
-
-  <h2>4 · Typography</h2>
-  <p class="sub">Today there are <b>no</b> size/weight/line-height tokens — components use raw Tailwind (<code>text-sm</code>,
-  <code>font-semibold</code>). Proposed: a named, compact scale rendered live in Geist (our shipped font).</p>
-  <div id="type-scale"></div>
-
-  <h3>Base size: 14&nbsp;px (revised from 13px)</h3>
-  <p class="sub">Earlier we'd locked 13px (Aster purism); revised to <b>14px body</b> — more readable, the shadcn/Vercel default, and it
-  pairs cleanly with the new 12px small. Rendered against 13 and 16 so the choice is visible.</p>
-  <div class="card" id="base-showdown"></div>
-
-  <h2>5 · Radius</h2>
-  <p class="sub">Current = one base <code>0.625rem</code> + <code>calc()</code>. Proposed = an explicit <b>4-step</b> scale (last is <code>rounded-full</code>). Boxes render the real radius.</p>
-  <div id="radius"></div>
-
-  <h2>6 · Elevation</h2>
-  <p class="sub"><b>Flat by default.</b> Cards, inputs, panels, sidebar — hairline border, <b>no shadow</b>. Only true <b>overlays</b>
-  (dropdown, tooltip, popover, menu, select) get <b>one subtle soft shadow</b> so they read as floating. No multi-tier / heavy
-  shadows, no dramatic modal drop — the scrim does that work. One shadow token, used sparingly.</p>
-  <div class="shadow-demo" id="shadow"></div>
-
-  <h2>7 · Motion</h2>
-  <div id="motion"></div>
-
-  <h2>8 · Live skin preview — a card &amp; controls in both schemes</h2>
-  <p class="sub">The same mini-UI painted with current tokens vs proposed, in whichever theme is selected above.</p>
-  <div class="comp-demo" id="skin"></div>
-
-  <h2>9 · Designer's verdict — what I'd ship, and why</h2>
-  <p class="sub">Per category: my recommendation, confidence, and the standard it's grounded in. Where I override Aster, it's flagged.</p>
-  <div id="verdicts"></div>
-
-  <footer style="margin-top:60px;color:var(--faint);font-size:12px;border-top:1px solid var(--line);padding-top:16px">
-    Generated for <code>docs/research/design-comparison/</code>. Contrast math mirrors <code>tooling/contrast-check.mjs</code>.
-    Proposed values are the plan's locked, gate-verified palette (<code>docs/plans/design-token-overhaul.md</code>).
-  </footer>
-</div>
-
-<script>
-/* ---------- color math (oklch → hex for display, + WCAG contrast = gate math) ---------- */
-function oklabToLinear(L,a,b){
-  const l=(L+0.3963377774*a+0.2158037573*b)**3;
-  const m=(L-0.1055613458*a-0.0638541728*b)**3;
-  const s=(L-0.0894841775*a-1.2914855480*b)**3;
-  return [4.0767416621*l-3.3077115913*m+0.2309699292*s,
-         -1.2684380046*l+2.6097574011*m-0.3413193965*s,
-         -0.0041960863*l-0.7034186147*m+1.7076147010*s];
-}
-const clamp=x=>Math.max(0,Math.min(1,x));
-function oklchLinear(c){const h=c[2]*Math.PI/180;return oklabToLinear(c[0],c[1]*Math.cos(h),c[1]*Math.sin(h));}
-function relLum(c){const [r,g,b]=oklchLinear(c);return 0.2126*clamp(r)+0.7152*clamp(g)+0.0722*clamp(b);}
-function contrast(fg,bg){const a=relLum(fg)+0.05,b=relLum(bg)+0.05;return Math.max(a,b)/Math.min(a,b);}
-function oklchHex(c){
-  const lin=oklchLinear(c);
-  const g=x=>{x=clamp(x);return x<=0.0031308?12.92*x:1.055*Math.pow(x,1/2.4)-0.055;};
-  return '#'+lin.map(v=>Math.round(g(v)*255).toString(16).padStart(2,'0')).join('');
-}
-function css(c){ // c=[L,C,H] or [L,C,H,a]
-  return c.length===4?`oklch(${c[0]} ${c[1]} ${c[2]} / ${c[3]})`:`oklch(${c[0]} ${c[1]} ${c[2]})`;
-}
-const isAlpha=c=>c.length===4;
-function ratioChip(r){const cl=r>=7?'pass':r>=4.5?'pass':'fail';const lbl=r>=7?'AAA':r>=4.5?'AA':'FAIL';return `<span class="chip ${cl}">${lbl} ${r.toFixed(2)}</span>`;}
-
-/* ---------- DATA: current + proposed, [L,C,H] (+a). Light & Dark. ---------- */
-const T = {
-  background:{g:'Surfaces',cur:{l:[1,0,0],d:[0.175,0,0]},prop:{l:[1,0,0],d:[0.215,0,0]},note:'Dark canvas lifts to Aster #1a1a1a.'},
-  foreground:{g:'Surfaces',cur:{l:[0.145,0,0],d:[0.922,0,0]},prop:{l:[0.215,0,0],d:[0.966,0,0]},note:'Ink softens from near-black to Aster #1a1a1a.'},
-  card:{g:'Surfaces',cur:{l:[0.985,0,0],d:[0.205,0,0]},prop:{l:[1,0,0],d:[0.255,0,0]},pair:'card-foreground',note:'Pure white in light (was off-white); lifted in dark.'},
-  'card-foreground':{g:'Surfaces',cur:{l:[0.145,0,0],d:[0.922,0,0]},prop:{l:[0.215,0,0],d:[0.966,0,0]}},
-  popover:{g:'Surfaces',cur:{l:[1,0,0],d:[0.205,0,0]},prop:{l:[1,0,0],d:[0.255,0,0]},pair:'popover-foreground',note:'Floating tier — gets a shadow (§Elevation).'},
-  'popover-foreground':{g:'Surfaces',cur:{l:[0.145,0,0],d:[0.922,0,0]},prop:{l:[0.215,0,0],d:[0.966,0,0]}},
-  secondary:{g:'Surfaces',cur:{l:[0.97,0,0],d:[0.269,0,0]},prop:{l:[0.985,0,0],d:[0.255,0,0]},pair:'secondary-foreground',note:'Subtle inset fill (input bg). neutral-50 light / neutral-850 dark — the *subtlest* fill in both themes (quieter than muted).'},
-  'secondary-foreground':{g:'Surfaces',cur:{l:[0.205,0,0],d:[0.922,0,0]},prop:{l:[0.215,0,0],d:[0.966,0,0]}},
-  muted:{g:'Surfaces',cur:{l:[0.97,0,0],d:[0.269,0,0]},prop:{l:[0.966,0,0],d:[0.30,0,0]},pair:'muted-foreground',note:'Aster fill #f5f5f5.'},
-  accent:{g:'Surfaces',cur:{l:[0.97,0,0],d:[0.269,0,0]},prop:{l:[0.966,0,0],d:[0.30,0,0]},pair:'accent-foreground',note:'Active/hover pill = Aster fill-active.'},
-  'accent-foreground':{g:'Surfaces',cur:{l:[0.205,0,0],d:[0.966,0,0]},prop:{l:[0.215,0,0],d:[0.966,0,0]}},
-
-  'muted-foreground':{g:'Text ramp',cur:{l:[0.439,0,0],d:[0.66,0,0]},prop:{l:[0.49,0,0],d:[0.68,0,0]},note:'Maps to Aster text-secondary #555 — the gate-safe workhorse (NOT #8a).'},
-  'muted-foreground-faint':{g:'Text ramp',cur:null,prop:{l:[0.63,0,0],d:[0.56,0,0]},note:'NEW token. Aster #8a8a8a. Placeholders/disabled only — intentionally sub-AA (WCAG exempts non-essential text).'},
-
-  primary:{g:'Brand',cur:{l:[0.205,0,0],d:[0.922,0,0]},prop:{l:[0.353,0,0],d:[0.92,0,0]},pair:'primary-foreground',note:'Charcoal #333 — softer than ink (Aster fill-cta).'},
-  'primary-foreground':{g:'Brand',cur:{l:[0.985,0,0],d:[0.145,0,0]},prop:{l:[1,0,0],d:[0.215,0,0]}},
-
-  destructive:{g:'Status',cur:{l:[0.505,0.213,27.518],d:[0.505,0.213,27.518]},prop:{l:[0.57,0.21,25],d:[0.57,0.21,25]},pair:'destructive-foreground',note:'#d72630. ALIGNED light=dark (one identity), white text. Full ramp in §3.'},
-  'destructive-foreground':{g:'Status',cur:{l:[0.985,0,0],d:[0.985,0,0]},prop:{l:[1,0,0],d:[1,0,0]}},
-  success:{g:'Status',cur:{l:[0.527,0.154,150.069],d:[0.586,0.209,145.071]},prop:{l:[0.54,0.145,150],d:[0.54,0.145,150]},pair:'success-foreground',note:'#0c853d — deep green, WHITE text (uniform with red/blue/purple). Deepened so white passes AA; rich, not faded. §3.'},
-  'success-foreground':{g:'Status',cur:{l:[0.985,0,0],d:[0.145,0,0]},prop:{l:[1,0,0],d:[1,0,0]}},
-  warning:{g:'Status',cur:{l:[0.52,0.145,52],d:[0.666,0.179,58.318]},prop:{l:[0.58,0.172,42],d:[0.58,0.172,42]},pair:'warning-foreground',note:'#c94d08 — vivid orange, WHITE text. Brightest + most-saturated orange that still takes white at AA (bright amber can\'t — yellow physics). §3.'},
-  'warning-foreground':{g:'Status',cur:{l:[0.985,0,0],d:[0.145,0,0]},prop:{l:[1,0,0],d:[1,0,0]}},
-  action:{g:'Brand',cur:{l:[0.488,0.243,264.376],d:[0.546,0.245,262.881]},prop:{l:[0.54,0.185,256],d:[0.54,0.185,256]},pair:'action-foreground',note:'#006bd6 — the `action` blue (interactive: links/selection/active/info). Gamut-corrected from chroma 0.20 (Codex B2). White text. §3.'},
-  'action-foreground':{g:'Brand',cur:{l:[0.985,0,0],d:[0.985,0,0]},prop:{l:[1,0,0],d:[1,0,0]}},
-
-  border:{g:'Lines & focus',cur:{l:[0.922,0,0],d:[0.269,0,0]},prop:{l:[0,0,0,0.09],d:[1,0,0,0.10]},note:'Solid gray → true alpha hairline (~9%, vs Aster 7%). The signature change.'},
-  input:{g:'Lines & focus',cur:{l:[0.87,0,0],d:[0.269,0,0]},prop:{l:[0,0,0,0.12],d:[1,0,0,0.12]},note:'Slightly stronger than card border for field legibility.'},
-  ring:{g:'Lines & focus',cur:{l:[0.78,0,0],d:[0.439,0,0]},prop:{l:[0.63,0,0],d:[0.56,0,0]},note:'Neutral focus ring (Aster rule: no accent-blue ring); darker = more visible.'},
-  'overlay-border':{g:'Lines & focus',cur:null,prop:{l:[0,0,0,0.16],d:[1,0,0,0.18]},note:'NEW. Floating tier border — stronger so overlays read on a scrim.'},
-  overlay:{g:'Lines & focus',cur:{l:[0,0,0,0.5],d:[0,0,0,0.6]},prop:{l:[0,0,0,0.28],d:[0,0,0,0.55]},note:'Lighter scrim in light (Aster measured).'},
-
-  sidebar:{g:'Sidebar',cur:{l:[0.985,0,0],d:[0.145,0,0]},prop:{l:[1,0,0],d:[0.215,0,0]},pair:'sidebar-foreground',note:'Sidebar = canvas, hairline-separated.'},
-  'sidebar-foreground':{g:'Sidebar',cur:{l:[0.269,0,0],d:[0.87,0,0]},prop:{l:[0.30,0,0],d:[0.80,0,0]}},
-  'sidebar-primary':{g:'Sidebar',cur:{l:[0.145,0,0],d:[0.922,0,0]},prop:{l:[0.215,0,0],d:[0.92,0,0]},pair:'sidebar-primary-foreground'},
-  'sidebar-primary-foreground':{g:'Sidebar',cur:{l:[0.985,0,0],d:[0.145,0,0]},prop:{l:[1,0,0],d:[0.215,0,0]}},
-  'sidebar-accent':{g:'Sidebar',cur:{l:[0.955,0,0],d:[0.205,0,0]},prop:{l:[0.966,0,0],d:[0.30,0,0]},pair:'sidebar-accent-foreground'},
-  'sidebar-accent-foreground':{g:'Sidebar',cur:{l:[0.145,0,0],d:[0.922,0,0]},prop:{l:[0.215,0,0],d:[0.966,0,0]}},
-  'sidebar-border':{g:'Sidebar',cur:{l:[0.922,0,0],d:[0.205,0,0]},prop:{l:[0,0,0,0.05],d:[1,0,0,0.06]},note:'Softer hairline than card border.'},
-  'sidebar-ring':{g:'Sidebar',cur:{l:[0.5,0.134,242.749],d:[0.5,0.134,242.749]},prop:{l:[0.63,0,0],d:[0.56,0,0]},note:'Was sky-blue → now neutral (matches the no-accent-ring rule).'},
-};
-const KEPT = ['chart-1..8 — NEW in-gamut 8-hue categorical palette (replaces chart-*/showcase-*); see design.md §Charts'];
-
-const PAIRS=[['background','foreground'],['card','card-foreground'],['popover','popover-foreground'],
-['primary','primary-foreground'],['secondary','secondary-foreground'],['muted','muted-foreground'],
-['accent','accent-foreground'],['destructive','destructive-foreground'],['success','success-foreground'],
-['warning','warning-foreground'],['action','action-foreground'],['sidebar','sidebar-foreground'],
-['sidebar-primary','sidebar-primary-foreground'],['sidebar-accent','sidebar-accent-foreground']];
-const REF_PAIRS=[['background','muted-foreground'],['background','muted-foreground-faint']];
-
-let VIEW='light';
-function k(v){return v==='light'?'l':'d';}
-
-function swatch(c,theme){
-  if(!c) return '<span class="sw" style="background:repeating-linear-gradient(45deg,var(--line-soft) 0 5px,transparent 5px 10px)" title="not defined"></span>';
-  const col=c[k(theme)]||c; const val=col;
-  return `<span class="sw" style="background:${css(val)}"></span>`;
-}
-function valText(c,theme){if(!c)return '<span class="val">—</span>';const col=c[k(theme)];const hex=isAlpha(col)?`${css(col)}`:`${oklchHex(col)}`;return `<span class="val">${css(col)}<br>${isAlpha(col)?'alpha':hex}</span>`;}
-
-function pairContrast(fgTok,bgTok,which){
-  const fg=T[fgTok]?.[which]?.[k(VIEW)], bg=T[bgTok]?.[which]?.[k(VIEW)];
-  if(!fg||!bg||isAlpha(fg)||isAlpha(bg))return null;
-  return contrast(fg,bg);
-}
-
-function renderColorGroups(){
-  const groups=[...new Set(Object.values(T).map(t=>t.g))];
-  let html='';
-  for(const g of groups){
-    html+=`<h3>${g}</h3><table><thead><tr><th>Token</th><th>Current</th><th>Proposed</th><th>OKLCH (proposed)</th><th>Contrast (cur→prop)</th><th>Note</th></tr></thead><tbody>`;
-    for(const [name,t] of Object.entries(T)){
-      if(t.g!==g) continue;
-      let contrastCell='<span class="note">—</span>';
-      if(t.pair){
-        const cur=pairContrastRaw(t.pair,name,'cur'), prop=pairContrastRaw(t.pair,name,'prop');
-        if(cur&&prop) contrastCell=`${ratioChip(cur)} <span class="arrow">→</span> ${ratioChip(prop)}`;
-      } else if(isAlpha((t.prop?.[k(VIEW)])||[])){
-        contrastCell='<span class="note">structural / alpha</span>';
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>VegaStack — Token Comparison: Current vs Proposed (Aster)</title>
+    <style>
+      :root {
+        --bg: #ffffff;
+        --fg: #191919;
+        --muted: #606060;
+        --faint: #898989;
+        --line: rgba(0, 0, 0, 0.1);
+        --line-soft: rgba(0, 0, 0, 0.06);
+        --card: #fafafa;
+        --pass: #127a3e;
+        --pass-bg: #eafaef;
+        --fail: #c0341d;
+        --fail-bg: #fdecea;
+        --warn: #9a6a00;
+        --warn-bg: #fff6e0;
+        --accent: #0b5bd3;
+        --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        --sans:
+          -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
       }
-      html+=`<tr>
-        <td class="tok">${name}${t.cur?'':' <span class="chip warn">NEW</span>'}</td>
-        <td>${swatch(t.cur,VIEW)}</td>
-        <td>${swatch(t.prop,VIEW)}</td>
-        <td>${valText(t.prop,VIEW)}</td>
+      html[data-view="dark"] {
+        --bg: #191919;
+        --fg: #f4f4f4;
+        --muted: #989898;
+        --faint: #747474;
+        --line: rgba(255, 255, 255, 0.14);
+        --line-soft: rgba(255, 255, 255, 0.08);
+        --card: #232323;
+        --pass-bg: #13301f;
+        --fail-bg: #3a1714;
+        --warn-bg: #332701;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--sans);
+        font-size: 14px;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 40px 24px 120px;
+      }
+      h1 {
+        font-size: 26px;
+        font-weight: 600;
+        letter-spacing: -0.4px;
+        margin: 0 0 6px;
+      }
+      h2 {
+        font-size: 19px;
+        font-weight: 600;
+        letter-spacing: -0.2px;
+        margin: 52px 0 4px;
+        padding-top: 20px;
+        border-top: 1px solid var(--line);
+      }
+      h3 {
+        font-size: 15px;
+        font-weight: 600;
+        margin: 28px 0 10px;
+      }
+      p {
+        margin: 8px 0;
+        color: var(--fg);
+      }
+      .sub {
+        color: var(--muted);
+      }
+      .lede {
+        color: var(--muted);
+        font-size: 15px;
+        max-width: 80ch;
+      }
+      code,
+      .mono {
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+      a {
+        color: var(--accent);
+      }
+      .bar {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        background: var(--bg);
+        border-bottom: 1px solid var(--line);
+        margin: 0 -24px 0;
+        padding: 12px 24px;
+      }
+      .toggle {
+        display: inline-flex;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .toggle button {
+        font: inherit;
+        font-size: 12px;
+        font-weight: 500;
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        padding: 6px 14px;
+        cursor: pointer;
+      }
+      .toggle button[aria-pressed="true"] {
+        background: var(--fg);
+        color: var(--bg);
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 8px 0 4px;
+        font-size: 13px;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 9px 10px;
+        border-bottom: 1px solid var(--line-soft);
+        vertical-align: middle;
+      }
+      th {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--faint);
+        font-weight: 600;
+        border-bottom: 1px solid var(--line);
+      }
+      tbody tr:hover {
+        background: var(--card);
+      }
+      .tok {
+        font-family: var(--mono);
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .sw {
+        width: 46px;
+        height: 30px;
+        border-radius: 6px;
+        border: 1px solid var(--line);
+        display: inline-block;
+        vertical-align: middle;
+      }
+      .sw-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .arrow {
+        color: var(--faint);
+        font-size: 14px;
+      }
+      .val {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .chip {
+        display: inline-block;
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 600;
+        padding: 2px 7px;
+        border-radius: 999px;
+        white-space: nowrap;
+      }
+      .chip.pass {
+        color: var(--pass);
+        background: var(--pass-bg);
+      }
+      .chip.fail {
+        color: var(--fail);
+        background: var(--fail-bg);
+      }
+      .chip.warn {
+        color: var(--warn);
+        background: var(--warn-bg);
+      }
+      .chip.same {
+        color: var(--faint);
+        background: transparent;
+        border: 1px solid var(--line);
+      }
+      .note {
+        color: var(--muted);
+        font-size: 12.5px;
+      }
+      .verdict {
+        font-size: 12.5px;
+        color: var(--fg);
+      }
+      .verdict b {
+        color: var(--accent);
+      }
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 18px 20px;
+        margin: 14px 0;
+        background: var(--card);
+      }
+      .grid2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .scorecard {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin: 18px 0;
+      }
+      .stat {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 14px 16px;
+      }
+      .stat .n {
+        font-size: 24px;
+        font-weight: 600;
+        font-family: var(--mono);
+      }
+      .stat .l {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        font-size: 12px;
+        color: var(--muted);
+        margin: 10px 0;
+      }
+      .legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .typ-row {
+        display: flex;
+        align-items: baseline;
+        gap: 16px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--line-soft);
+      }
+      .typ-meta {
+        width: 230px;
+        flex-shrink: 0;
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .typ-sample {
+        font-family: var(--sans);
+      }
+      .radius-demo {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+        margin: 12px 0;
+      }
+      .radius-box {
+        width: 88px;
+        height: 64px;
+        background: var(--fg);
+        opacity: 0.9;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        color: var(--bg);
+        font-family: var(--mono);
+        font-size: 10px;
+        padding-bottom: 5px;
+      }
+      .shadow-demo {
+        display: flex;
+        gap: 26px;
+        flex-wrap: wrap;
+        margin: 18px 4px;
+      }
+      .shadow-box {
+        width: 150px;
+        height: 96px;
+        border-radius: 12px;
+        background: var(--bg);
+        border: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .comp-demo {
+        display: flex;
+        gap: 28px;
+        flex-wrap: wrap;
+      }
+      .panel {
+        flex: 1;
+        min-width: 280px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 20px;
+        background: var(--bg);
+      }
+      .panel h4 {
+        margin: 0 0 14px;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--faint);
+      }
+      .small {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      ul.tight {
+        margin: 8px 0;
+        padding-left: 20px;
+      }
+      ul.tight li {
+        margin: 4px 0;
+      }
+      .kbd {
+        font-family: var(--mono);
+        font-size: 11px;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        padding: 1px 5px;
+        background: var(--card);
+      }
+      .flag {
+        border-left: 3px solid var(--accent);
+        padding: 6px 0 6px 14px;
+        margin: 12px 0;
+        color: var(--fg);
+      }
+      .flag.amber {
+        border-color: #d99500;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="bar">
+        <strong style="font-size: 13px">Theme:</strong>
+        <div class="toggle" role="group" aria-label="Theme preview">
+          <button id="t-light" aria-pressed="true" onclick="setView('light')">
+            Light
+          </button>
+          <button id="t-dark" aria-pressed="false" onclick="setView('dark')">
+            Dark
+          </button>
+        </div>
+        <span class="small" style="margin-left: auto"
+          >Swatches &amp; contrast recompute for the selected theme · numbers
+          are live.</span
+        >
+      </div>
+
+      <h1>Token Comparison — Current vs Proposed</h1>
+      <p class="lede">
+        Every token in <code>@vegastack/tokens</code> today, beside the proposed
+        "Aster" re-skin. Color swatches render natively via CSS
+        <code>oklch()</code>;
+        <b
+          >contrast ratios are computed in-page with the exact same
+          OKLCH→linear-sRGB→relative-luminance→WCAG math as our build gate
+          <code>tooling/contrast-check.mjs</code></b
+        >, so what you see here is what CI will enforce. Toggle Light/Dark
+        above.
+      </p>
+
+      <div class="legend">
+        <span
+          ><span class="chip pass">AA ✓</span> ≥ 4.5:1 (WCAG 2.1 AA, normal
+          text)</span
+        >
+        <span><span class="chip pass">AAA</span> ≥ 7:1</span>
+        <span><span class="chip fail">FAIL</span> &lt; 4.5:1</span>
+        <span><span class="chip same">=</span> unchanged</span>
+        <span>“Gated” = a pair our CI contrast check enforces.</span>
+      </div>
+
+      <div class="scorecard" id="scorecard"></div>
+
+      <h2>
+        Palette foundation — the neutral ramp, alpha scale &amp; full token map
+      </h2>
+      <div id="palette"></div>
+
+      <h2>1 · Color tokens</h2>
+      <p class="sub">
+        Grouped by role. Left swatch = current, right = proposed. The
+        <b>Contrast</b> column shows the gated foreground/background pair
+        (current → proposed) for pairs CI enforces; structural/alpha tokens show
+        their composited look instead.
+      </p>
+      <div id="color-groups"></div>
+
+      <h2>2 · Contrast matrix (the CI gate, made visible)</h2>
+      <p class="sub">
+        The 14 canonical pairs <code>contrast-check.mjs</code> enforces, plus
+        reference (non-gated) pairs. Proposed values were pre-tuned so
+        <b>every gated pair passes AA in both themes</b>. The faint-text token
+        is intentionally sub-AA — see its note.
+      </p>
+      <table id="contrast-matrix">
+        <thead>
+          <tr>
+            <th>Pair (foreground on background)</th>
+            <th>Current</th>
+            <th>Proposed</th>
+            <th>Δ</th>
+            <th>Gated?</th>
+            <th>Verdict</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <h2>3 · Colour ramps — status, accent &amp; AI/agent</h2>
+      <p class="sub">
+        One value per status can't do every job: a solid <b>Delete</b> button
+        needs a bright fill, error <i>helper text</i> on a white page needs a
+        dark-enough readable version, and an <i>alert background</i> needs a
+        soft tint. So a designer builds a small functional ramp per status.
+        <b>Two rules make it coherent:</b> (1) the solid fill is
+        <b>theme-independent</b> — one brand identity in both light &amp; dark,
+        so they're never misaligned; (2)
+        <b>every fill carries WHITE on-fill text</b> (uniform — red, green,
+        orange, blue, purple all match), so hover/active simply
+        <i>darken</i> away from the white and contrast only ever rises. Green
+        &amp; orange are deepened to make white text clear AA (bright amber
+        can't carry white — yellow is too luminous — so warning is a deep
+        orange). Only <code>subtle</code> (soft bg) and
+        <code>text</code> (readable colour) adapt per theme. Every shade
+        gate-verified.
+      </p>
+      <h3 style="margin-top: 24px">
+        Status ramps (destructive · success · warning)
+      </h3>
+      <div id="ramps"></div>
+
+      <h3 style="margin-top: 30px">
+        Action &amp; AI/agent ramps — VegaStack's chromatic identity (NEW)
+      </h3>
+      <p class="sub">
+        A grayscale-only system has no identity and no way to signal "this is
+        the AI." An agentic-enterprise product needs two accents beyond status:
+        <code>action</code> (<b>blue</b>) for interactive surfaces — links,
+        selection, active states, info (focus is a <i>neutral</i> ring, NOT this
+        blue) — and <code>agent</code> (<b>purple</b>) for
+        <b>AI / agent moments</b> (generative output, agent actions), so an
+        agent surface is instantly distinct from an ordinary control.
+        Gate-verified &amp; in-gamut.
+      </p>
+      <div id="accent-ramps"></div>
+
+      <div class="flag" style="margin-top: 8px">
+        <b>Focus state (your directive): no rings.</b> The chunky Tailwind focus
+        ring (<code>ring-2</code>/<code>outline</code>) is removed everywhere,
+        and <b>mouse clicks show nothing</b> (<code>:focus-visible</code> only).
+        Keyboard focus instead uses a <b>border/background colour shift</b> —
+        ring-free, the same language you approved for hover, just a step
+        stronger so focus ≠ hover. This keeps us WCAG 2.4.7 / enterprise-VPAT
+        compliant for keyboard users without a single halo.
+        <i
+          >(Going to literally zero focus indicator would fail enterprise
+          accessibility procurement — flagged.)</i
+        >
+      </div>
+
+      <h2>4 · Typography</h2>
+      <p class="sub">
+        Today there are <b>no</b> size/weight/line-height tokens — components
+        use raw Tailwind (<code>text-sm</code>, <code>font-semibold</code>).
+        Proposed: a named, compact scale rendered live in Geist (our shipped
+        font).
+      </p>
+      <div id="type-scale"></div>
+
+      <h3>Base size: 14&nbsp;px (revised from 13px)</h3>
+      <p class="sub">
+        Earlier we'd locked 13px (Aster purism); revised to <b>14px body</b> —
+        more readable, the shadcn/Vercel default, and it pairs cleanly with the
+        new 12px small. Rendered against 13 and 16 so the choice is visible.
+      </p>
+      <div class="card" id="base-showdown"></div>
+
+      <h2>5 · Radius</h2>
+      <p class="sub">
+        Current = one base <code>0.625rem</code> + <code>calc()</code>. Proposed
+        = an explicit <b>4-step</b> scale (last is <code>rounded-full</code>).
+        Boxes render the real radius.
+      </p>
+      <div id="radius"></div>
+
+      <h2>6 · Elevation</h2>
+      <p class="sub">
+        <b>Flat by default.</b> Cards, inputs, panels, sidebar — hairline
+        border, <b>no shadow</b>. Only true <b>overlays</b> (dropdown, tooltip,
+        popover, menu, select) get <b>one subtle soft shadow</b> so they read as
+        floating. No multi-tier / heavy shadows, no dramatic modal drop — the
+        scrim does that work. One shadow token, used sparingly.
+      </p>
+      <div class="shadow-demo" id="shadow"></div>
+
+      <h2>7 · Motion</h2>
+      <div id="motion"></div>
+
+      <h2>8 · Live skin preview — a card &amp; controls in both schemes</h2>
+      <p class="sub">
+        The same mini-UI painted with current tokens vs proposed, in whichever
+        theme is selected above.
+      </p>
+      <div class="comp-demo" id="skin"></div>
+
+      <h2>9 · Designer's verdict — what I'd ship, and why</h2>
+      <p class="sub">
+        Per category: my recommendation, confidence, and the standard it's
+        grounded in. Where I override Aster, it's flagged.
+      </p>
+      <div id="verdicts"></div>
+
+      <footer
+        style="
+          margin-top: 60px;
+          color: var(--faint);
+          font-size: 12px;
+          border-top: 1px solid var(--line);
+          padding-top: 16px;
+        "
+      >
+        Generated for <code>docs/research/design-comparison/</code>. Contrast
+        math mirrors <code>tooling/contrast-check.mjs</code>. Proposed values
+        are the plan's locked, gate-verified palette
+        (<code>docs/plans/design-token-overhaul.md</code>).
+      </footer>
+    </div>
+
+    <script>
+      /* ---------- color math (oklch → hex for display, + WCAG contrast = gate math) ---------- */
+      function oklabToLinear(L, a, b) {
+        const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3;
+        const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3;
+        const s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3;
+        return [
+          4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+          -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+          -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s,
+        ];
+      }
+      const clamp = (x) => Math.max(0, Math.min(1, x));
+      function oklchLinear(c) {
+        const h = (c[2] * Math.PI) / 180;
+        return oklabToLinear(c[0], c[1] * Math.cos(h), c[1] * Math.sin(h));
+      }
+      function relLum(c) {
+        const [r, g, b] = oklchLinear(c);
+        return 0.2126 * clamp(r) + 0.7152 * clamp(g) + 0.0722 * clamp(b);
+      }
+      function contrast(fg, bg) {
+        const a = relLum(fg) + 0.05,
+          b = relLum(bg) + 0.05;
+        return Math.max(a, b) / Math.min(a, b);
+      }
+      function oklchHex(c) {
+        const lin = oklchLinear(c);
+        const g = (x) => {
+          x = clamp(x);
+          return x <= 0.0031308
+            ? 12.92 * x
+            : 1.055 * Math.pow(x, 1 / 2.4) - 0.055;
+        };
+        return (
+          "#" +
+          lin
+            .map((v) =>
+              Math.round(g(v) * 255)
+                .toString(16)
+                .padStart(2, "0"),
+            )
+            .join("")
+        );
+      }
+      function css(c) {
+        // c=[L,C,H] or [L,C,H,a]
+        return c.length === 4
+          ? `oklch(${c[0]} ${c[1]} ${c[2]} / ${c[3]})`
+          : `oklch(${c[0]} ${c[1]} ${c[2]})`;
+      }
+      const isAlpha = (c) => c.length === 4;
+      function ratioChip(r) {
+        const cl = r >= 7 ? "pass" : r >= 4.5 ? "pass" : "fail";
+        const lbl = r >= 7 ? "AAA" : r >= 4.5 ? "AA" : "FAIL";
+        return `<span class="chip ${cl}">${lbl} ${r.toFixed(2)}</span>`;
+      }
+
+      /* ---------- DATA: current + proposed, [L,C,H] (+a). Light & Dark. ---------- */
+      const T = {
+        background: {
+          g: "Surfaces",
+          cur: { l: [1, 0, 0], d: [0.175, 0, 0] },
+          prop: { l: [1, 0, 0], d: [0.215, 0, 0] },
+          note: "Dark canvas lifts to Aster #1a1a1a.",
+        },
+        foreground: {
+          g: "Surfaces",
+          cur: { l: [0.145, 0, 0], d: [0.922, 0, 0] },
+          prop: { l: [0.215, 0, 0], d: [0.966, 0, 0] },
+          note: "Ink softens from near-black to Aster #1a1a1a.",
+        },
+        card: {
+          g: "Surfaces",
+          cur: { l: [0.985, 0, 0], d: [0.205, 0, 0] },
+          prop: { l: [1, 0, 0], d: [0.255, 0, 0] },
+          pair: "card-foreground",
+          note: "Pure white in light (was off-white); lifted in dark.",
+        },
+        "card-foreground": {
+          g: "Surfaces",
+          cur: { l: [0.145, 0, 0], d: [0.922, 0, 0] },
+          prop: { l: [0.215, 0, 0], d: [0.966, 0, 0] },
+        },
+        popover: {
+          g: "Surfaces",
+          cur: { l: [1, 0, 0], d: [0.205, 0, 0] },
+          prop: { l: [1, 0, 0], d: [0.255, 0, 0] },
+          pair: "popover-foreground",
+          note: "Floating tier — gets a shadow (§Elevation).",
+        },
+        "popover-foreground": {
+          g: "Surfaces",
+          cur: { l: [0.145, 0, 0], d: [0.922, 0, 0] },
+          prop: { l: [0.215, 0, 0], d: [0.966, 0, 0] },
+        },
+        secondary: {
+          g: "Surfaces",
+          cur: { l: [0.97, 0, 0], d: [0.269, 0, 0] },
+          prop: { l: [0.985, 0, 0], d: [0.255, 0, 0] },
+          pair: "secondary-foreground",
+          note: "Subtle inset fill (input bg). neutral-50 light / neutral-850 dark — the *subtlest* fill in both themes (quieter than muted).",
+        },
+        "secondary-foreground": {
+          g: "Surfaces",
+          cur: { l: [0.205, 0, 0], d: [0.922, 0, 0] },
+          prop: { l: [0.215, 0, 0], d: [0.966, 0, 0] },
+        },
+        muted: {
+          g: "Surfaces",
+          cur: { l: [0.97, 0, 0], d: [0.269, 0, 0] },
+          prop: { l: [0.966, 0, 0], d: [0.3, 0, 0] },
+          pair: "muted-foreground",
+          note: "Aster fill #f5f5f5.",
+        },
+        accent: {
+          g: "Surfaces",
+          cur: { l: [0.97, 0, 0], d: [0.269, 0, 0] },
+          prop: { l: [0.966, 0, 0], d: [0.3, 0, 0] },
+          pair: "accent-foreground",
+          note: "Active/hover pill = Aster fill-active.",
+        },
+        "accent-foreground": {
+          g: "Surfaces",
+          cur: { l: [0.205, 0, 0], d: [0.966, 0, 0] },
+          prop: { l: [0.215, 0, 0], d: [0.966, 0, 0] },
+        },
+
+        "muted-foreground": {
+          g: "Text ramp",
+          cur: { l: [0.439, 0, 0], d: [0.66, 0, 0] },
+          prop: { l: [0.49, 0, 0], d: [0.68, 0, 0] },
+          note: "Maps to Aster text-secondary #555 — the gate-safe workhorse (NOT #8a).",
+        },
+        "muted-foreground-faint": {
+          g: "Text ramp",
+          cur: null,
+          prop: { l: [0.63, 0, 0], d: [0.56, 0, 0] },
+          note: "NEW token. Aster #8a8a8a. Placeholders/disabled only — intentionally sub-AA (WCAG exempts non-essential text).",
+        },
+
+        primary: {
+          g: "Brand",
+          cur: { l: [0.205, 0, 0], d: [0.922, 0, 0] },
+          prop: { l: [0.353, 0, 0], d: [0.92, 0, 0] },
+          pair: "primary-foreground",
+          note: "Charcoal #333 — softer than ink (Aster fill-cta).",
+        },
+        "primary-foreground": {
+          g: "Brand",
+          cur: { l: [0.985, 0, 0], d: [0.145, 0, 0] },
+          prop: { l: [1, 0, 0], d: [0.215, 0, 0] },
+        },
+
+        destructive: {
+          g: "Status",
+          cur: { l: [0.505, 0.213, 27.518], d: [0.505, 0.213, 27.518] },
+          prop: { l: [0.57, 0.21, 25], d: [0.57, 0.21, 25] },
+          pair: "destructive-foreground",
+          note: "#d72630. ALIGNED light=dark (one identity), white text. Full ramp in §3.",
+        },
+        "destructive-foreground": {
+          g: "Status",
+          cur: { l: [0.985, 0, 0], d: [0.985, 0, 0] },
+          prop: { l: [1, 0, 0], d: [1, 0, 0] },
+        },
+        success: {
+          g: "Status",
+          cur: { l: [0.527, 0.154, 150.069], d: [0.586, 0.209, 145.071] },
+          prop: { l: [0.54, 0.145, 150], d: [0.54, 0.145, 150] },
+          pair: "success-foreground",
+          note: "#0c853d — deep green, WHITE text (uniform with red/blue/purple). Deepened so white passes AA; rich, not faded. §3.",
+        },
+        "success-foreground": {
+          g: "Status",
+          cur: { l: [0.985, 0, 0], d: [0.145, 0, 0] },
+          prop: { l: [1, 0, 0], d: [1, 0, 0] },
+        },
+        warning: {
+          g: "Status",
+          cur: { l: [0.52, 0.145, 52], d: [0.666, 0.179, 58.318] },
+          prop: { l: [0.58, 0.172, 42], d: [0.58, 0.172, 42] },
+          pair: "warning-foreground",
+          note: "#c94d08 — vivid orange, WHITE text. Brightest + most-saturated orange that still takes white at AA (bright amber can't — yellow physics). §3.",
+        },
+        "warning-foreground": {
+          g: "Status",
+          cur: { l: [0.985, 0, 0], d: [0.145, 0, 0] },
+          prop: { l: [1, 0, 0], d: [1, 0, 0] },
+        },
+        action: {
+          g: "Brand",
+          cur: { l: [0.488, 0.243, 264.376], d: [0.546, 0.245, 262.881] },
+          prop: { l: [0.54, 0.185, 256], d: [0.54, 0.185, 256] },
+          pair: "action-foreground",
+          note: "#006bd6 — the `action` blue (interactive: links/selection/active/info). Gamut-corrected from chroma 0.20 (Codex B2). White text. §3.",
+        },
+        "action-foreground": {
+          g: "Brand",
+          cur: { l: [0.985, 0, 0], d: [0.985, 0, 0] },
+          prop: { l: [1, 0, 0], d: [1, 0, 0] },
+        },
+
+        border: {
+          g: "Lines & focus",
+          cur: { l: [0.922, 0, 0], d: [0.269, 0, 0] },
+          prop: { l: [0, 0, 0, 0.09], d: [1, 0, 0, 0.1] },
+          note: "Solid gray → true alpha hairline (~9%, vs Aster 7%). The signature change.",
+        },
+        input: {
+          g: "Lines & focus",
+          cur: { l: [0.87, 0, 0], d: [0.269, 0, 0] },
+          prop: { l: [0, 0, 0, 0.12], d: [1, 0, 0, 0.12] },
+          note: "Slightly stronger than card border for field legibility.",
+        },
+        ring: {
+          g: "Lines & focus",
+          cur: { l: [0.78, 0, 0], d: [0.439, 0, 0] },
+          prop: { l: [0.63, 0, 0], d: [0.56, 0, 0] },
+          note: "Neutral focus ring (Aster rule: no accent-blue ring); darker = more visible.",
+        },
+        "overlay-border": {
+          g: "Lines & focus",
+          cur: null,
+          prop: { l: [0, 0, 0, 0.16], d: [1, 0, 0, 0.18] },
+          note: "NEW. Floating tier border — stronger so overlays read on a scrim.",
+        },
+        overlay: {
+          g: "Lines & focus",
+          cur: { l: [0, 0, 0, 0.5], d: [0, 0, 0, 0.6] },
+          prop: { l: [0, 0, 0, 0.28], d: [0, 0, 0, 0.55] },
+          note: "Lighter scrim in light (Aster measured).",
+        },
+
+        sidebar: {
+          g: "Sidebar",
+          cur: { l: [0.985, 0, 0], d: [0.145, 0, 0] },
+          prop: { l: [1, 0, 0], d: [0.215, 0, 0] },
+          pair: "sidebar-foreground",
+          note: "Sidebar = canvas, hairline-separated.",
+        },
+        "sidebar-foreground": {
+          g: "Sidebar",
+          cur: { l: [0.269, 0, 0], d: [0.87, 0, 0] },
+          prop: { l: [0.3, 0, 0], d: [0.8, 0, 0] },
+        },
+        "sidebar-primary": {
+          g: "Sidebar",
+          cur: { l: [0.145, 0, 0], d: [0.922, 0, 0] },
+          prop: { l: [0.215, 0, 0], d: [0.92, 0, 0] },
+          pair: "sidebar-primary-foreground",
+        },
+        "sidebar-primary-foreground": {
+          g: "Sidebar",
+          cur: { l: [0.985, 0, 0], d: [0.145, 0, 0] },
+          prop: { l: [1, 0, 0], d: [0.215, 0, 0] },
+        },
+        "sidebar-accent": {
+          g: "Sidebar",
+          cur: { l: [0.955, 0, 0], d: [0.205, 0, 0] },
+          prop: { l: [0.966, 0, 0], d: [0.3, 0, 0] },
+          pair: "sidebar-accent-foreground",
+        },
+        "sidebar-accent-foreground": {
+          g: "Sidebar",
+          cur: { l: [0.145, 0, 0], d: [0.922, 0, 0] },
+          prop: { l: [0.215, 0, 0], d: [0.966, 0, 0] },
+        },
+        "sidebar-border": {
+          g: "Sidebar",
+          cur: { l: [0.922, 0, 0], d: [0.205, 0, 0] },
+          prop: { l: [0, 0, 0, 0.05], d: [1, 0, 0, 0.06] },
+          note: "Softer hairline than card border.",
+        },
+        "sidebar-ring": {
+          g: "Sidebar",
+          cur: { l: [0.5, 0.134, 242.749], d: [0.5, 0.134, 242.749] },
+          prop: { l: [0.63, 0, 0], d: [0.56, 0, 0] },
+          note: "Was sky-blue → now neutral (matches the no-accent-ring rule).",
+        },
+      };
+      const KEPT = [
+        "chart-1..8 — NEW in-gamut 8-hue categorical palette (replaces chart-*/showcase-*); see design.md §Charts",
+      ];
+
+      const PAIRS = [
+        ["background", "foreground"],
+        ["card", "card-foreground"],
+        ["popover", "popover-foreground"],
+        ["primary", "primary-foreground"],
+        ["secondary", "secondary-foreground"],
+        ["muted", "muted-foreground"],
+        ["accent", "accent-foreground"],
+        ["destructive", "destructive-foreground"],
+        ["success", "success-foreground"],
+        ["warning", "warning-foreground"],
+        ["action", "action-foreground"],
+        ["sidebar", "sidebar-foreground"],
+        ["sidebar-primary", "sidebar-primary-foreground"],
+        ["sidebar-accent", "sidebar-accent-foreground"],
+      ];
+      const REF_PAIRS = [
+        ["background", "muted-foreground"],
+        ["background", "muted-foreground-faint"],
+      ];
+
+      let VIEW = "light";
+      function k(v) {
+        return v === "light" ? "l" : "d";
+      }
+
+      function swatch(c, theme) {
+        if (!c)
+          return '<span class="sw" style="background:repeating-linear-gradient(45deg,var(--line-soft) 0 5px,transparent 5px 10px)" title="not defined"></span>';
+        const col = c[k(theme)] || c;
+        const val = col;
+        return `<span class="sw" style="background:${css(val)}"></span>`;
+      }
+      function valText(c, theme) {
+        if (!c) return '<span class="val">—</span>';
+        const col = c[k(theme)];
+        const hex = isAlpha(col) ? `${css(col)}` : `${oklchHex(col)}`;
+        return `<span class="val">${css(col)}<br>${isAlpha(col) ? "alpha" : hex}</span>`;
+      }
+
+      function pairContrast(fgTok, bgTok, which) {
+        const fg = T[fgTok]?.[which]?.[k(VIEW)],
+          bg = T[bgTok]?.[which]?.[k(VIEW)];
+        if (!fg || !bg || isAlpha(fg) || isAlpha(bg)) return null;
+        return contrast(fg, bg);
+      }
+
+      function renderColorGroups() {
+        const groups = [...new Set(Object.values(T).map((t) => t.g))];
+        let html = "";
+        for (const g of groups) {
+          html += `<h3>${g}</h3><table><thead><tr><th>Token</th><th>Current</th><th>Proposed</th><th>OKLCH (proposed)</th><th>Contrast (cur→prop)</th><th>Note</th></tr></thead><tbody>`;
+          for (const [name, t] of Object.entries(T)) {
+            if (t.g !== g) continue;
+            let contrastCell = '<span class="note">—</span>';
+            if (t.pair) {
+              const cur = pairContrastRaw(t.pair, name, "cur"),
+                prop = pairContrastRaw(t.pair, name, "prop");
+              if (cur && prop)
+                contrastCell = `${ratioChip(cur)} <span class="arrow">→</span> ${ratioChip(prop)}`;
+            } else if (isAlpha(t.prop?.[k(VIEW)] || [])) {
+              contrastCell = '<span class="note">structural / alpha</span>';
+            }
+            html += `<tr>
+        <td class="tok">${name}${t.cur ? "" : ' <span class="chip warn">NEW</span>'}</td>
+        <td>${swatch(t.cur, VIEW)}</td>
+        <td>${swatch(t.prop, VIEW)}</td>
+        <td>${valText(t.prop, VIEW)}</td>
         <td>${contrastCell}</td>
-        <td class="note">${t.note||''}</td>
+        <td class="note">${t.note || ""}</td>
       </tr>`;
-    }
-    html+='</tbody></table>';
-  }
-  html+=`<p class="small" style="margin-top:10px">Unchanged, retained for data-viz (out of the "quiet chrome" rule): <code>${KEPT.join('</code>, <code>')}</code>.</p>`;
-  document.getElementById('color-groups').innerHTML=html;
-}
-function pairContrastRaw(fgTok,bgTok,which){
-  const fg=T[fgTok]?.[which]?.[k(VIEW)], bg=T[bgTok]?.[which]?.[k(VIEW)];
-  if(!fg||!bg||isAlpha(fg)||isAlpha(bg))return null; return contrast(fg,bg);
-}
+          }
+          html += "</tbody></table>";
+        }
+        html += `<p class="small" style="margin-top:10px">Unchanged, retained for data-viz (out of the "quiet chrome" rule): <code>${KEPT.join("</code>, <code>")}</code>.</p>`;
+        document.getElementById("color-groups").innerHTML = html;
+      }
+      function pairContrastRaw(fgTok, bgTok, which) {
+        const fg = T[fgTok]?.[which]?.[k(VIEW)],
+          bg = T[bgTok]?.[which]?.[k(VIEW)];
+        if (!fg || !bg || isAlpha(fg) || isAlpha(bg)) return null;
+        return contrast(fg, bg);
+      }
 
-function renderMatrix(){
-  const tb=document.querySelector('#contrast-matrix tbody');let html='';
-  for(const [bg,fg] of PAIRS){
-    const cur=pairContrastRaw(fg,bg,'cur'),prop=pairContrastRaw(fg,bg,'prop');
-    const delta=(cur&&prop)?(prop-cur):null;
-    const dtxt=delta==null?'—':(delta>=0?'+':'')+delta.toFixed(2);
-    let verdict='Holds AA';
-    if(prop&&prop<4.5)verdict='<span style="color:var(--fail)">Below AA — must retune</span>';
-    else if(cur&&prop&&prop>cur+0.3)verdict='Improves';
-    else if(cur&&prop&&prop<cur-0.3)verdict='Quieter, still AA';
-    html+=`<tr><td class="tok">${fg} / ${bg}</td><td>${cur?ratioChip(cur):'—'}</td><td>${prop?ratioChip(prop):'—'}</td>
+      function renderMatrix() {
+        const tb = document.querySelector("#contrast-matrix tbody");
+        let html = "";
+        for (const [bg, fg] of PAIRS) {
+          const cur = pairContrastRaw(fg, bg, "cur"),
+            prop = pairContrastRaw(fg, bg, "prop");
+          const delta = cur && prop ? prop - cur : null;
+          const dtxt =
+            delta == null ? "—" : (delta >= 0 ? "+" : "") + delta.toFixed(2);
+          let verdict = "Holds AA";
+          if (prop && prop < 4.5)
+            verdict =
+              '<span style="color:var(--fail)">Below AA — must retune</span>';
+          else if (cur && prop && prop > cur + 0.3) verdict = "Improves";
+          else if (cur && prop && prop < cur - 0.3)
+            verdict = "Quieter, still AA";
+          html += `<tr><td class="tok">${fg} / ${bg}</td><td>${cur ? ratioChip(cur) : "—"}</td><td>${prop ? ratioChip(prop) : "—"}</td>
       <td class="val">${dtxt}</td><td><span class="chip pass">gated</span></td><td class="verdict">${verdict}</td></tr>`;
-  }
-  for(const [bg,fg] of REF_PAIRS){
-    const prop=pairContrastRaw(fg,bg,'prop');
-    const note = fg.includes('faint')
-      ? 'Intentionally sub-AA — non-essential text only (placeholders, disabled). WCAG exempts these.'
-      : 'Workhorse secondary text — comfortably above AA.';
-    html+=`<tr><td class="tok">${fg} / ${bg}</td><td class="val">n/a</td><td>${prop?ratioChip(prop):'—'}</td>
+        }
+        for (const [bg, fg] of REF_PAIRS) {
+          const prop = pairContrastRaw(fg, bg, "prop");
+          const note = fg.includes("faint")
+            ? "Intentionally sub-AA — non-essential text only (placeholders, disabled). WCAG exempts these."
+            : "Workhorse secondary text — comfortably above AA.";
+          html += `<tr><td class="tok">${fg} / ${bg}</td><td class="val">n/a</td><td>${prop ? ratioChip(prop) : "—"}</td>
       <td class="val">—</td><td><span class="chip same">reference</span></td><td class="verdict">${note}</td></tr>`;
-  }
-  tb.innerHTML=html;
-}
+        }
+        tb.innerHTML = html;
+      }
 
-/* ---------- Typography ---------- */
-const TYPE=[
-  ['text-h1','24px / 1.25 / 600 / -0.02em','Page titles','font-size:24px;line-height:1.25;font-weight:600;letter-spacing:-0.02em'],
-  ['text-h2','20px / 1.3 / 600 / -0.01em','Section headings','font-size:20px;line-height:1.3;font-weight:600;letter-spacing:-0.01em'],
-  ['text-h3','18px / 1.35 / 600','Subsection &amp; card titles','font-size:18px;line-height:1.35;font-weight:600'],
-  ['text-h4','16px / 1.45 / 600','Minor headings','font-size:16px;line-height:1.45;font-weight:600'],
-  ['text-body-lg','16px / 1.5 / 400','Lead paragraphs (16px @ 400 — same size as h4, lighter)','font-size:16px;line-height:1.5;font-weight:400'],
-  ['text-body','14px / 1.5 / 400','DEFAULT — body, controls, inputs','font-size:14px;line-height:1.5;font-weight:400'],
-  ['text-small','12px / 1.45 / 400–500','Captions (400) · section labels &amp; badges (500)','font-size:12px;line-height:1.45;font-weight:400'],
-];
-function renderType(){
-  let html='<table><thead><tr><th>Token</th><th>Spec</th><th>Use</th><th style="width:42%">Rendered (Geist)</th></tr></thead><tbody>';
-  for(const [name,spec,use,style] of TYPE){
-    html+=`<tr><td class="tok">${name}</td><td class="val">${spec}</td><td class="note">${use}</td>
+      /* ---------- Typography ---------- */
+      const TYPE = [
+        [
+          "text-h1",
+          "24px / 1.25 / 600 / -0.02em",
+          "Page titles",
+          "font-size:24px;line-height:1.25;font-weight:600;letter-spacing:-0.02em",
+        ],
+        [
+          "text-h2",
+          "20px / 1.3 / 600 / -0.01em",
+          "Section headings",
+          "font-size:20px;line-height:1.3;font-weight:600;letter-spacing:-0.01em",
+        ],
+        [
+          "text-h3",
+          "18px / 1.35 / 600",
+          "Subsection &amp; card titles",
+          "font-size:18px;line-height:1.35;font-weight:600",
+        ],
+        [
+          "text-h4",
+          "16px / 1.45 / 600",
+          "Minor headings",
+          "font-size:16px;line-height:1.45;font-weight:600",
+        ],
+        [
+          "text-body-lg",
+          "16px / 1.5 / 400",
+          "Lead paragraphs (16px @ 400 — same size as h4, lighter)",
+          "font-size:16px;line-height:1.5;font-weight:400",
+        ],
+        [
+          "text-body",
+          "14px / 1.5 / 400",
+          "DEFAULT — body, controls, inputs",
+          "font-size:14px;line-height:1.5;font-weight:400",
+        ],
+        [
+          "text-small",
+          "12px / 1.45 / 400–500",
+          "Captions (400) · section labels &amp; badges (500)",
+          "font-size:12px;line-height:1.45;font-weight:400",
+        ],
+      ];
+      function renderType() {
+        let html =
+          '<table><thead><tr><th>Token</th><th>Spec</th><th>Use</th><th style="width:42%">Rendered (Geist)</th></tr></thead><tbody>';
+        for (const [name, spec, use, style] of TYPE) {
+          html += `<tr><td class="tok">${name}</td><td class="val">${spec}</td><td class="note">${use}</td>
       <td><span class="typ-sample" style="${style}">The quick brown fox — 1,234</span></td></tr>`;
-  }
-  html+='</tbody></table>';
-  html+=`<p class="small">Simplified from 8 cryptic tokens (display/dialog/hero/lg/title/body/body-sm/badge, 1px gaps) to <b>6 role-named sizes</b> (24/20/18/16/14/12) that map to how people think. <b>Weight rule:</b> headings (h1–h4) = 600 · body = 400 · labels &amp; badges = 500. Nothing above 600.</p>`;
-  document.getElementById('type-scale').innerHTML=html;
-}
-function renderBaseShowdown(){
-  const samples=[
-    ['13px — earlier pick (Aster purism), now retired','13px','Settings saved. Your workspace will redeploy in a few seconds.'],
-    ['14px — CHOSEN · shadcn / Vercel copy-14 default','14px','Settings saved. Your workspace will redeploy in a few seconds.'],
-    ['16px — web default / most-accessible','16px','Settings saved. Your workspace will redeploy in a few seconds.'],
-  ];
-  let html='';
-  for(const [label,size,txt] of samples){
-    const chosen=label.includes('CHOSEN');
-    html+=`<div style="padding:10px 0;border-bottom:1px solid var(--line-soft);${chosen?'background:var(--pass-bg);margin:0 -10px;padding:10px;border-radius:8px':''}">
+        }
+        html += "</tbody></table>";
+        html += `<p class="small">Simplified from 8 cryptic tokens (display/dialog/hero/lg/title/body/body-sm/badge, 1px gaps) to <b>6 role-named sizes</b> (24/20/18/16/14/12) that map to how people think. <b>Weight rule:</b> headings (h1–h4) = 600 · body = 400 · labels &amp; badges = 500. Nothing above 600.</p>`;
+        document.getElementById("type-scale").innerHTML = html;
+      }
+      function renderBaseShowdown() {
+        const samples = [
+          [
+            "13px — earlier pick (Aster purism), now retired",
+            "13px",
+            "Settings saved. Your workspace will redeploy in a few seconds.",
+          ],
+          [
+            "14px — CHOSEN · shadcn / Vercel copy-14 default",
+            "14px",
+            "Settings saved. Your workspace will redeploy in a few seconds.",
+          ],
+          [
+            "16px — web default / most-accessible",
+            "16px",
+            "Settings saved. Your workspace will redeploy in a few seconds.",
+          ],
+        ];
+        let html = "";
+        for (const [label, size, txt] of samples) {
+          const chosen = label.includes("CHOSEN");
+          html += `<div style="padding:10px 0;border-bottom:1px solid var(--line-soft);${chosen ? "background:var(--pass-bg);margin:0 -10px;padding:10px;border-radius:8px" : ""}">
       <div class="val" style="margin-bottom:4px">${label}</div>
       <div style="font-size:${size};line-height:1.5">${txt}</div></div>`;
-  }
-  html+=`<p class="small" style="margin-top:12px"><b>Why 14px:</b> Vercel/Geist ships 14px (<code>copy-14</code>/<code>label-14</code>) as its "covers most text" default and shadcn defaults to 14px UI. 13px (Linear/Aster) reads dense-but-elite but is small for the reading-heavy surfaces of an enterprise/agent product (logs, descriptions, agent output). 14px keeps it crisp without straining. For dense tables you can still drop a specific surface to 13 — but the <i>default</i> is 14.</p>`;
-  document.getElementById('base-showdown').innerHTML=html;
-}
+        }
+        html += `<p class="small" style="margin-top:12px"><b>Why 14px:</b> Vercel/Geist ships 14px (<code>copy-14</code>/<code>label-14</code>) as its "covers most text" default and shadcn defaults to 14px UI. 13px (Linear/Aster) reads dense-but-elite but is small for the reading-heavy surfaces of an enterprise/agent product (logs, descriptions, agent output). 14px keeps it crisp without straining. For dense tables you can still drop a specific surface to 13 — but the <i>default</i> is 14.</p>`;
+        document.getElementById("base-showdown").innerHTML = html;
+      }
 
-/* ---------- Radius ---------- */
-function renderRadius(){
-  const prop=[['sm','6px'],['md','8px'],['lg','12px'],['full','9999px']];
-  const box=(n,v)=>`<div class="radius-box" style="border-radius:${v}">${n}<br>${v}</div>`;
-  let html=`<h3 style="margin-top:6px">Proposed — 4 steps (down from 7)</h3><div class="radius-demo">${prop.map(([n,v])=>box(n,v==='9999px'?'40px':v)).join('')}</div>`;
-  html+=`<p class="small">Dropped the rarely-used <code>xl/2xl/3xl</code> (app-shell scale). Four is enough for a component library: <code>sm</code> small inline · <code>md</code> the interactive default · <code>lg</code> containers · <code>full</code> round things.</p>`;
-  html+=`<h3 style="margin-top:18px">Where <code>rounded-full</code> is used — and where it is NOT</h3>
+      /* ---------- Radius ---------- */
+      function renderRadius() {
+        const prop = [
+          ["sm", "6px"],
+          ["md", "8px"],
+          ["lg", "12px"],
+          ["full", "9999px"],
+        ];
+        const box = (n, v) =>
+          `<div class="radius-box" style="border-radius:${v}">${n}<br>${v}</div>`;
+        let html = `<h3 style="margin-top:6px">Proposed — 4 steps (down from 7)</h3><div class="radius-demo">${prop.map(([n, v]) => box(n, v === "9999px" ? "40px" : v)).join("")}</div>`;
+        html += `<p class="small">Dropped the rarely-used <code>xl/2xl/3xl</code> (app-shell scale). Four is enough for a component library: <code>sm</code> small inline · <code>md</code> the interactive default · <code>lg</code> containers · <code>full</code> round things.</p>`;
+        html += `<h3 style="margin-top:18px">Where <code>rounded-full</code> is used — and where it is NOT</h3>
   <table><thead><tr><th>Use <code>rounded-full</code></th><th>Use <code>md</code> / <code>lg</code> (NOT full)</th></tr></thead><tbody>
     <tr><td>Avatars (circular)</td><td><b>Sidebar / nav row hover &amp; active bg</b> → <code>md</code> (a pill = lozenge, breaks list rhythm)</td></tr>
     <tr><td>Toggle / switch track &amp; thumb</td><td>Dropdown / menu item highlights → <code>sm</code>/<code>md</code></td></tr>
@@ -382,34 +1068,57 @@ function renderRadius(){
     <tr><td>Deliberate pill CTAs (e.g. "Upgrade") — a choice, not the default</td><td>Tables, list rows, tabs → <code>md</code> / none</td></tr>
   </tbody></table>
   <p class="small"><b>Principle:</b> <code>full</code> = inherently-round or tag-like objects (+ a few intentional pill CTAs). <b>Container highlights echo their container's geometry</b> (nav hover, menu item, card) with <code>sm</code>/<code>md</code>/<code>lg</code> — never a pill. That's exactly why a sidebar hover uses a soft rectangle, not a capsule.</p>`;
-  document.getElementById('radius').innerHTML=html;
-}
+        document.getElementById("radius").innerHTML = html;
+      }
 
-/* ---------- Elevation ---------- */
-function renderShadow(){
-  const items=[
-    ['Everything inline','card · input · panel · sidebar','FLAT — hairline border, no shadow','box-shadow:none;border:1px solid var(--line)'],
-    ['Overlays only','dropdown · tooltip · popover · menu · select','shadow-overlay — one subtle soft shadow','box-shadow:0 4px 14px -4px rgba(0,0,0,.10),0 2px 4px -2px rgba(0,0,0,.06);border:1px solid var(--line)'],
-  ];
-  document.getElementById('shadow').innerHTML=items.map(([title,scope,desc,css])=>`<div style="text-align:center;max-width:190px"><div class="shadow-box" style="${css}"></div><div style="margin-top:10px;font-weight:600;font-size:12.5px;color:var(--fg)">${title}</div><div class="val" style="margin-top:2px">${scope}</div><div class="small" style="margin-top:4px">${desc}</div></div>`).join('');
-}
+      /* ---------- Elevation ---------- */
+      function renderShadow() {
+        const items = [
+          [
+            "Everything inline",
+            "card · input · panel · sidebar",
+            "FLAT — hairline border, no shadow",
+            "box-shadow:none;border:1px solid var(--line)",
+          ],
+          [
+            "Overlays only",
+            "dropdown · tooltip · popover · menu · select",
+            "shadow-overlay — one subtle soft shadow",
+            "box-shadow:0 4px 14px -4px rgba(0,0,0,.10),0 2px 4px -2px rgba(0,0,0,.06);border:1px solid var(--line)",
+          ],
+        ];
+        document.getElementById("shadow").innerHTML = items
+          .map(
+            ([title, scope, desc, css]) =>
+              `<div style="text-align:center;max-width:190px"><div class="shadow-box" style="${css}"></div><div style="margin-top:10px;font-weight:600;font-size:12.5px;color:var(--fg)">${title}</div><div class="val" style="margin-top:2px">${scope}</div><div class="small" style="margin-top:4px">${desc}</div></div>`,
+          )
+          .join("");
+      }
 
-/* ---------- Motion ---------- */
-function renderMotion(){
-  document.getElementById('motion').innerHTML=`<table><thead><tr><th>Token</th><th>Current</th><th>Proposed</th><th>Note</th></tr></thead><tbody>
+      /* ---------- Motion ---------- */
+      function renderMotion() {
+        document.getElementById("motion").innerHTML =
+          `<table><thead><tr><th>Token</th><th>Current</th><th>Proposed</th><th>Note</th></tr></thead><tbody>
     <tr><td class="tok">duration-fast</td><td class="val">150ms</td><td class="val">150ms</td><td class="note">unchanged — matches Aster</td></tr>
     <tr><td class="tok">ease-standard</td><td class="val">cubic-bezier(.2,0,0,1)</td><td class="val">cubic-bezier(.4,0,.2,1)</td><td class="note">optional: align to Aster/Material standard ease</td></tr>
   </tbody></table>
   <p class="small">Vercel notes "0ms is often the snappiest choice" and uses a springy <code>cubic-bezier(0.175,0.885,0.32,1.1)</code>. <b>Verdict:</b> low stakes; align ease-standard for consistency, keep durations.</p>`;
-}
+      }
 
-/* ---------- Live skin preview ---------- */
-function paint(el,which){
-  const get=n=>{const t=T[n];const c=t?.[which]?.[k(VIEW)];return c?css(c):'transparent';};
-  el.style.cssText+=`;--bg:${get('background')};--fg:${get('foreground')};--card:${get('card')};--cardfg:${get('card-foreground')};--prim:${get('primary')};--primfg:${get('primary-foreground')};--muted:${get('muted')};--mutedfg:${get('muted-foreground')};--bd:${which==='prop'?css(T.border.prop[k(VIEW)]):css(T.border.cur[k(VIEW)])};--inf:${get('action')};`;
-}
-function renderSkin(){
-  const mk=(label,which)=>`<div class="panel" data-skin="${which}" style="background:var(--bg)">
+      /* ---------- Live skin preview ---------- */
+      function paint(el, which) {
+        const get = (n) => {
+          const t = T[n];
+          const c = t?.[which]?.[k(VIEW)];
+          return c ? css(c) : "transparent";
+        };
+        el.style.cssText += `;--bg:${get("background")};--fg:${get("foreground")};--card:${get("card")};--cardfg:${get("card-foreground")};--prim:${get("primary")};--primfg:${get("primary-foreground")};--muted:${get("muted")};--mutedfg:${get("muted-foreground")};--bd:${which === "prop" ? css(T.border.prop[k(VIEW)]) : css(T.border.cur[k(VIEW)])};--inf:${get("action")};`;
+      }
+      function renderSkin() {
+        const mk = (
+          label,
+          which,
+        ) => `<div class="panel" data-skin="${which}" style="background:var(--bg)">
     <h4>${label}</h4>
     <div style="background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px">
       <div style="color:var(--cardfg);font-weight:600;font-size:14px;margin-bottom:4px">Deployment ready</div>
@@ -421,138 +1130,383 @@ function renderSkin(){
       </div>
     </div>
   </div>`;
-  const host=document.getElementById('skin');
-  host.innerHTML=mk('Current tokens','cur')+mk('Proposed tokens','prop');
-  paint(host.querySelector('[data-skin="cur"]'),'cur');
-  paint(host.querySelector('[data-skin="prop"]'),'prop');
-}
+        const host = document.getElementById("skin");
+        host.innerHTML =
+          mk("Current tokens", "cur") + mk("Proposed tokens", "prop");
+        paint(host.querySelector('[data-skin="cur"]'), "cur");
+        paint(host.querySelector('[data-skin="prop"]'), "prop");
+      }
 
-/* ---------- Verdicts ---------- */
-const VERDICTS=[
-  ['Hairline borders','Adopt','High','The single best Aster idea and the current industry register (Linear, Vercel). Alpha border composites correctly over any surface. Calibrated to ~9% (not 7%) so tables/inputs stay legible. WCAG: borders aren\'t contrast-gated, but ≥3:1 for "UI components" is wise where a border is the only boundary — our inputs pair a border with a fill, so we\'re safe.'],
-  ['13px base','Adopt (your call) with guardrails','Medium','I recommended 14px (Vercel/shadcn default); you chose 13px. It works because we don\'t impose a global body size — consumers keep theirs. Guardrail: route long-form/markdown copy to 15px. Watch tap targets stay ≥24px rows, independent of text size.'],
-  ['Weight: cap 500, allow 600 for headings','Adopt (my override of Aster)','High','Aster says never-600; that\'s right for SF, wrong for Geist where 400/500 are lighter. Vercel uses 600 for every heading. Capping body/UI at 500 keeps the quiet feel; 600 on display/dialog gives headings a needed anchor. Max two weights per view (Vercel\'s rule).'],
-  ['Pure-white cards','Adopt, BUT keep an overlay shadow tier','High','card=background flat-on-white is the modern inline-card look. The correctness fix is elevation: 8 floating components MUST read as floating. A 7% border on a scrim is invisible — so popover/dialog/etc. get shadow-overlay + a stronger border. Vercel does exactly this (separate 3-tier shadow spec).'],
-  ['Charcoal primary (#333)','Adopt','High','Softer than ink, less harsh, 11:1 on white (well past AA). Matches Vercel\'s gray-1000 primary intent. Zero risk.'],
-  ['Status accents → full ramps','Adopt (expanded)','High','Each status is now a 6-token ramp (fill · hover · active · on-fill · subtle · text), not one value — the designer-correct shape (§3). Fills are theme-independent (one identity, fixes light/dark misalignment); hover/active move AWAY from the text colour so contrast only rises; subtle+text adapt per theme. Lightness clamped so all 28 shades pass AA — Aster\'s own .btn--info (3.3:1) would fail our gate. Never signal by colour alone (WCAG 1.4.1): pair an icon/label.'],
-  ['Faint text token','Adopt','High','Aster\'s #8a/#a9 as a real token, not opacity-on-unknown-bg. Intentionally below 4.5:1 — correct for placeholders/disabled, which WCAG 1.4.3 exempts as non-essential. Never use it for primary content.'],
-  ['Generate design.md from tokens','Recommend (next deliverable)','High','Vercel proves the self-contained DTCG design.md is the agent-readable contract; Resend proves the skill is the versioned source. We can do both from ONE source — our DTCG tokens. See the design.md comparison.'],
-];
-function renderVerdicts(){
-  document.getElementById('verdicts').innerHTML=VERDICTS.map(([t,rec,conf,why])=>`
+      /* ---------- Verdicts ---------- */
+      const VERDICTS = [
+        [
+          "Hairline borders",
+          "Adopt",
+          "High",
+          "The single best Aster idea and the current industry register (Linear, Vercel). Alpha border composites correctly over any surface. Calibrated to ~9% (not 7%) so tables/inputs stay legible. WCAG: borders aren't contrast-gated, but ≥3:1 for \"UI components\" is wise where a border is the only boundary — our inputs pair a border with a fill, so we're safe.",
+        ],
+        [
+          "13px base",
+          "Adopt (your call) with guardrails",
+          "Medium",
+          "I recommended 14px (Vercel/shadcn default); you chose 13px. It works because we don't impose a global body size — consumers keep theirs. Guardrail: route long-form/markdown copy to 15px. Watch tap targets stay ≥24px rows, independent of text size.",
+        ],
+        [
+          "Weight: cap 500, allow 600 for headings",
+          "Adopt (my override of Aster)",
+          "High",
+          "Aster says never-600; that's right for SF, wrong for Geist where 400/500 are lighter. Vercel uses 600 for every heading. Capping body/UI at 500 keeps the quiet feel; 600 on display/dialog gives headings a needed anchor. Max two weights per view (Vercel's rule).",
+        ],
+        [
+          "Pure-white cards",
+          "Adopt, BUT keep an overlay shadow tier",
+          "High",
+          "card=background flat-on-white is the modern inline-card look. The correctness fix is elevation: 8 floating components MUST read as floating. A 7% border on a scrim is invisible — so popover/dialog/etc. get shadow-overlay + a stronger border. Vercel does exactly this (separate 3-tier shadow spec).",
+        ],
+        [
+          "Charcoal primary (#333)",
+          "Adopt",
+          "High",
+          "Softer than ink, less harsh, 11:1 on white (well past AA). Matches Vercel's gray-1000 primary intent. Zero risk.",
+        ],
+        [
+          "Status accents → full ramps",
+          "Adopt (expanded)",
+          "High",
+          "Each status is now a 6-token ramp (fill · hover · active · on-fill · subtle · text), not one value — the designer-correct shape (§3). Fills are theme-independent (one identity, fixes light/dark misalignment); hover/active move AWAY from the text colour so contrast only rises; subtle+text adapt per theme. Lightness clamped so all 28 shades pass AA — Aster's own .btn--info (3.3:1) would fail our gate. Never signal by colour alone (WCAG 1.4.1): pair an icon/label.",
+        ],
+        [
+          "Faint text token",
+          "Adopt",
+          "High",
+          "Aster's #8a/#a9 as a real token, not opacity-on-unknown-bg. Intentionally below 4.5:1 — correct for placeholders/disabled, which WCAG 1.4.3 exempts as non-essential. Never use it for primary content.",
+        ],
+        [
+          "Generate design.md from tokens",
+          "Recommend (next deliverable)",
+          "High",
+          "Vercel proves the self-contained DTCG design.md is the agent-readable contract; Resend proves the skill is the versioned source. We can do both from ONE source — our DTCG tokens. See the design.md comparison.",
+        ],
+      ];
+      function renderVerdicts() {
+        document.getElementById("verdicts").innerHTML = VERDICTS.map(
+          ([t, rec, conf, why]) => `
     <div class="card"><div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
       <strong style="font-size:15px">${t}</strong>
       <span class="chip pass">${rec}</span>
       <span class="val">confidence: ${conf}</span></div>
-      <p class="verdict" style="margin:8px 0 0">${why}</p></div>`).join('');
-}
+      <p class="verdict" style="margin:8px 0 0">${why}</p></div>`,
+        ).join("");
+      }
 
-/* ---------- Scorecard ---------- */
-function renderScore(){
-  let changed=0,added=0;
-  for(const t of Object.values(T)){ if(!t.cur){added++;continue;} const c=JSON.stringify(t.cur),p=JSON.stringify(t.prop); if(c!==p)changed++; }
-  let gatedPass=0;for(const [bg,fg] of PAIRS){const r=pairContrastRaw(fg,bg,'prop');if(r&&r>=4.5)gatedPass++;}
-  const stats=[['~64','components inherit via tokens'],[changed,'color tokens re-skinned'],[added+' / '+8,'new color tokens / type tokens'],[gatedPass+' / '+PAIRS.length,'gated pairs pass AA ('+VIEW+')']];
-  document.getElementById('scorecard').innerHTML=stats.map(([n,l])=>`<div class="stat"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
-}
+      /* ---------- Scorecard ---------- */
+      function renderScore() {
+        let changed = 0,
+          added = 0;
+        for (const t of Object.values(T)) {
+          if (!t.cur) {
+            added++;
+            continue;
+          }
+          const c = JSON.stringify(t.cur),
+            p = JSON.stringify(t.prop);
+          if (c !== p) changed++;
+        }
+        let gatedPass = 0;
+        for (const [bg, fg] of PAIRS) {
+          const r = pairContrastRaw(fg, bg, "prop");
+          if (r && r >= 4.5) gatedPass++;
+        }
+        const stats = [
+          ["~64", "components inherit via tokens"],
+          [changed, "color tokens re-skinned"],
+          [added + " / " + 8, "new color tokens / type tokens"],
+          [
+            gatedPass + " / " + PAIRS.length,
+            "gated pairs pass AA (" + VIEW + ")",
+          ],
+        ];
+        document.getElementById("scorecard").innerHTML = stats
+          .map(
+            ([n, l]) =>
+              `<div class="stat"><div class="n">${n}</div><div class="l">${l}</div></div>`,
+          )
+          .join("");
+      }
 
-/* ---------- Status ramps ---------- */
-const RAMP={
-  destructive:{h:25,c:0.21,cAct:0.19,fg:[1,0,0],fgName:'white',fill:0.57,hov:0.52,act:0.47,sub:{l:[0.95,0.022,25],d:[0.275,0.07,25]},txt:{l:[0.52,0.20,25],d:[0.72,0.15,25]},label:'Delete'},
-  success:{h:150,c:0.145,cHov:0.135,cAct:0.125,fg:[1,0,0],fgName:'white',fill:0.54,hov:0.49,act:0.45,sub:{l:[0.95,0.05,150],d:[0.275,0.06,150]},txt:{l:[0.50,0.13,150],d:[0.75,0.15,150]},label:'Saved'},
-  warning:{h:42,c:0.172,cHov:0.16,cAct:0.146,fg:[1,0,0],fgName:'white',fill:0.58,hov:0.535,act:0.485,sub:{l:[0.96,0.02,42],d:[0.28,0.07,42]},txt:{l:[0.52,0.14,42],d:[0.78,0.13,55]},label:'Review'},
-};
-const ACCENT={
-  action:{role:'blue · links, selection, active, focus-basis, info',h:256,c:0.185,cHov:0.17,cAct:0.155,fg:[1,0,0],fgName:'white',fill:0.54,hov:0.49,act:0.45,sub:{l:[0.96,0.018,256],d:[0.275,0.06,256]},txt:{l:[0.52,0.18,256],d:[0.72,0.14,256]},label:'Open'},
-  agent:{role:'purple · AI / agent moments: generative output, agent actions',h:295,c:0.185,cHov:0.17,cAct:0.155,fg:[1,0,0],fgName:'white',fill:0.53,hov:0.48,act:0.44,sub:{l:[0.96,0.02,295],d:[0.28,0.06,295]},txt:{l:[0.52,0.19,295],d:[0.74,0.14,295]},label:'Ask AI'},
-};
-function renderRampSet(data,id){
-  const v=k(VIEW); let html='';
-  for(const [name,s] of Object.entries(data)){
-    const fill=[s.fill,s.c,s.h],hov=[s.hov,s.cHov??s.c,s.h],act=[s.act,s.cAct??s.c,s.h];
-    const sub=s.sub[v], txt=s.txt[v];
-    const cFill=contrast(s.fg,fill).toFixed(2), cText=contrast(txt,sub).toFixed(2);
-    const dir = s.fg[0]>0.5 ? 'darken' : 'lighten';
-    const sw=(c,lab)=>`<div style="text-align:center"><span class="sw" style="width:64px;height:38px;background:${css(c)}"></span><div class="val" style="margin-top:3px">${lab}<br>${c.length===4?'alpha':oklchHex(c)}</div></div>`;
-    const tBorder=css([txt[0],txt[1],txt[2],0.35]);
-    html+=`<div class="card">
+      /* ---------- Status ramps ---------- */
+      const RAMP = {
+        destructive: {
+          h: 25,
+          c: 0.21,
+          cAct: 0.19,
+          fg: [1, 0, 0],
+          fgName: "white",
+          fill: 0.57,
+          hov: 0.52,
+          act: 0.47,
+          sub: { l: [0.95, 0.022, 25], d: [0.275, 0.07, 25] },
+          txt: { l: [0.52, 0.2, 25], d: [0.72, 0.15, 25] },
+          label: "Delete",
+        },
+        success: {
+          h: 150,
+          c: 0.145,
+          cHov: 0.135,
+          cAct: 0.125,
+          fg: [1, 0, 0],
+          fgName: "white",
+          fill: 0.54,
+          hov: 0.49,
+          act: 0.45,
+          sub: { l: [0.95, 0.05, 150], d: [0.275, 0.06, 150] },
+          txt: { l: [0.5, 0.13, 150], d: [0.75, 0.15, 150] },
+          label: "Saved",
+        },
+        warning: {
+          h: 42,
+          c: 0.172,
+          cHov: 0.16,
+          cAct: 0.146,
+          fg: [1, 0, 0],
+          fgName: "white",
+          fill: 0.58,
+          hov: 0.535,
+          act: 0.485,
+          sub: { l: [0.96, 0.02, 42], d: [0.28, 0.07, 42] },
+          txt: { l: [0.52, 0.14, 42], d: [0.78, 0.13, 55] },
+          label: "Review",
+        },
+      };
+      const ACCENT = {
+        action: {
+          role: "blue · links, selection, active, focus-basis, info",
+          h: 256,
+          c: 0.185,
+          cHov: 0.17,
+          cAct: 0.155,
+          fg: [1, 0, 0],
+          fgName: "white",
+          fill: 0.54,
+          hov: 0.49,
+          act: 0.45,
+          sub: { l: [0.96, 0.018, 256], d: [0.275, 0.06, 256] },
+          txt: { l: [0.52, 0.18, 256], d: [0.72, 0.14, 256] },
+          label: "Open",
+        },
+        agent: {
+          role: "purple · AI / agent moments: generative output, agent actions",
+          h: 295,
+          c: 0.185,
+          cHov: 0.17,
+          cAct: 0.155,
+          fg: [1, 0, 0],
+          fgName: "white",
+          fill: 0.53,
+          hov: 0.48,
+          act: 0.44,
+          sub: { l: [0.96, 0.02, 295], d: [0.28, 0.06, 295] },
+          txt: { l: [0.52, 0.19, 295], d: [0.74, 0.14, 295] },
+          label: "Ask AI",
+        },
+      };
+      function renderRampSet(data, id) {
+        const v = k(VIEW);
+        let html = "";
+        for (const [name, s] of Object.entries(data)) {
+          const fill = [s.fill, s.c, s.h],
+            hov = [s.hov, s.cHov ?? s.c, s.h],
+            act = [s.act, s.cAct ?? s.c, s.h];
+          const sub = s.sub[v],
+            txt = s.txt[v];
+          const cFill = contrast(s.fg, fill).toFixed(2),
+            cText = contrast(txt, sub).toFixed(2);
+          const dir = s.fg[0] > 0.5 ? "darken" : "lighten";
+          const sw = (c, lab) =>
+            `<div style="text-align:center"><span class="sw" style="width:64px;height:38px;background:${css(c)}"></span><div class="val" style="margin-top:3px">${lab}<br>${c.length === 4 ? "alpha" : oklchHex(c)}</div></div>`;
+          const tBorder = css([txt[0], txt[1], txt[2], 0.35]);
+          html += `<div class="card">
       <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px;flex-wrap:wrap">
         <strong class="tok" style="font-size:14px">${name}</strong>
-        <span class="val">${s.role?s.role+' · ':'hue '+s.h+' · chroma '+s.c+' · '}${s.fgName} on-fill · hover/active ${dir} (away from text)</span></div>
+        <span class="val">${s.role ? s.role + " · " : "hue " + s.h + " · chroma " + s.c + " · "}${s.fgName} on-fill · hover/active ${dir} (away from text)</span></div>
       <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start">
-        ${sw(fill,'fill')}${sw(hov,'hover')}${sw(act,'active')}
+        ${sw(fill, "fill")}${sw(hov, "hover")}${sw(act, "active")}
         <div style="width:1px;align-self:stretch;background:var(--line);margin:0 2px"></div>
-        ${sw(sub,'subtle')}${sw(txt,'text')}${sw(s.fg,'on-fill')}
+        ${sw(sub, "subtle")}${sw(txt, "text")}${sw(s.fg, "on-fill")}
         <div style="margin-left:auto;display:flex;gap:12px;align-items:center">
           <button style="background:${css(fill)};color:${css(s.fg)};border:0;border-radius:8px;padding:8px 16px;font:inherit;font-size:13px;font-weight:500;cursor:pointer">${s.label}</button>
           <div style="background:${css(sub)};color:${css(txt)};border:1px solid ${tBorder};border-radius:8px;padding:8px 12px;font-size:12.5px">${name} message</div>
         </div>
       </div>
-      <div class="small" style="margin-top:11px">Solid button: ${s.fgName} on fill = <b>${cFill}:1</b> ${cFill>=4.5?'<span class="chip pass">AA</span>':'<span class="chip fail">!</span>'} · alert text on subtle = <b>${cText}:1</b> ${cText>=4.5?'<span class="chip pass">AA</span>':'<span class="chip fail">!</span>'}</div>
+      <div class="small" style="margin-top:11px">Solid button: ${s.fgName} on fill = <b>${cFill}:1</b> ${cFill >= 4.5 ? '<span class="chip pass">AA</span>' : '<span class="chip fail">!</span>'} · alert text on subtle = <b>${cText}:1</b> ${cText >= 4.5 ? '<span class="chip pass">AA</span>' : '<span class="chip fail">!</span>'}</div>
     </div>`;
-  }
-  document.getElementById(id).innerHTML=html;
-}
-function ramps(){ renderRampSet(RAMP,'ramps'); if(document.getElementById('accent-ramps')) renderRampSet(ACCENT,'accent-ramps'); }
+        }
+        document.getElementById(id).innerHTML = html;
+      }
+      function ramps() {
+        renderRampSet(RAMP, "ramps");
+        if (document.getElementById("accent-ramps"))
+          renderRampSet(ACCENT, "accent-ramps");
+      }
 
-/* ---------- Palette foundation ---------- */
-const NEUTRAL_RAMP=[
-  ['neutral-0',1.000],['neutral-50',0.985],['neutral-100',0.966],['neutral-200',0.920],
-  ['neutral-300',0.800],['neutral-400',0.680],['neutral-500',0.630],['neutral-550',0.560],
-  ['neutral-600',0.490],['neutral-700',0.353],['neutral-800',0.300],['neutral-850',0.255],
-  ['neutral-900',0.215],['neutral-1000',0.000],
-];
-const stepL=Object.fromEntries(NEUTRAL_RAMP);
-const ALPHA_SCALE=[['alpha-100',0.05],['alpha-200',0.09],['alpha-300',0.12],['alpha-400',0.16],['scrim',0.28]];
-const NEUTRAL_MAP=[ // token, lightStep, darkStep, usedFor
-  ['background','neutral-0','neutral-900','app / page surface'],
-  ['foreground','neutral-900','neutral-100','primary text (ink)'],
-  ['card · popover','neutral-0','neutral-850','card &amp; overlay surface'],
-  ['secondary','neutral-50','neutral-850','subtle inset fill (subtlest in both themes)'],
-  ['muted','neutral-100','neutral-800','muted fill'],
-  ['muted-foreground','neutral-600','neutral-400','secondary text — gated workhorse'],
-  ['muted-foreground-faint','neutral-500','neutral-550','placeholders / disabled (non-gated)'],
-  ['accent','neutral-100','neutral-800','hover / active fill'],
-  ['primary','neutral-700','neutral-200','primary button (charcoal)'],
-  ['primary-foreground','neutral-0','neutral-900','text on primary'],
-  ['ring','neutral-500','neutral-550','focus-colour basis (ring removed → colour shift)'],
-  ['sidebar-foreground','neutral-800','neutral-300','sidebar text'],
-];
-const ALPHA_MAP=[ // token, light, dark, usedFor
-  ['border','black / alpha-200 (9%)','white / alpha-200 (10%)','hairline border'],
-  ['input','black / alpha-300 (12%)','white / alpha-300 (12%)','field border'],
-  ['sidebar-border','black / alpha-100 (5%)','white / alpha-100 (6%)','soft divider'],
-  ['overlay-border','black / alpha-400 (16%)','white / alpha-400 (18%)','overlay edge'],
-  ['overlay (scrim)','black / scrim (28%)','black / 55%','modal backdrop'],
-];
-const CHROMA_MAP=[ // family, hue, fill hex, role
-  ['destructive','red · 25','#d72630','danger / errors'],
-  ['success','green · 150','#0c853d','success / positive'],
-  ['warning','orange · 42','#c94d08','warning / caution'],
-  ['action','blue · 256','#006bd6','links, selection, active, info'],
-  ['agent','purple · 295','#774cc9','AI / agent moments'],
-];
-function renderPalette(){
-  const txtOn=L=>L>0.6?'#191919':'#fff';
-  // neutral ramp strip
-  let ramp=NEUTRAL_RAMP.map(([n,L])=>`<div style="flex:1;min-width:64px"><div style="height:46px;background:oklch(${L} 0 0);border:1px solid var(--line);border-radius:6px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:3px;color:${txtOn(L)};font-family:var(--mono);font-size:9px">${L.toFixed(3)}</div><div class="val" style="text-align:center;margin-top:3px">${n.replace('neutral-','')}<br>${oklchHex([L,0,0])}</div></div>`).join('');
-  // alpha strip (black over white + white over dark)
-  let alpha=ALPHA_SCALE.map(([n,a])=>`<div style="flex:1;min-width:70px"><div style="height:46px;border-radius:6px;overflow:hidden;display:flex"><div style="flex:1;background:#fff;position:relative"><div style="position:absolute;inset:0;background:rgba(0,0,0,${a})"></div></div><div style="flex:1;background:#191919;position:relative"><div style="position:absolute;inset:0;background:rgba(255,255,255,${a})"></div></div></div><div class="val" style="text-align:center;margin-top:3px">${n}<br>${Math.round(a*100)}%</div></div>`).join('');
-  // chromatic families
-  let chroma=CHROMA_MAP.map(([f,h,hex,role])=>`<div style="flex:1;min-width:96px"><div style="height:40px;background:${hex};border-radius:6px"></div><div class="val" style="margin-top:3px"><b style="color:var(--fg)">${f}</b><br>${h}<br>${hex}</div></div>`).join('');
-  // neutral token table
-  const cRow=(fg,bg)=>{const r=contrast([stepL[fg],0,0],[stepL[bg],0,0]);return `${ratioChip(r)}`;};
-  let nrows=NEUTRAL_MAP.map(([t,ls,ds,use])=>{
-    let con='<span class="note">—</span>';
-    if(t==='foreground')con=cRow('neutral-900','neutral-0')+' / '+cRow('neutral-100','neutral-900');
-    if(t==='muted-foreground')con=cRow('neutral-600','neutral-100')+' / '+cRow('neutral-400','neutral-800');
-    if(t==='primary-foreground')con=cRow('neutral-0','neutral-700')+' / '+cRow('neutral-900','neutral-200');
-    if(t==='sidebar-foreground')con=cRow('neutral-800','neutral-0')+' / '+cRow('neutral-300','neutral-900');
-    return `<tr><td class="tok">${t}</td><td><span class="sw" style="width:24px;height:18px;background:oklch(${stepL[ls]} 0 0)"></span> <span class="val">${ls} · ${oklchHex([stepL[ls],0,0])}</span></td><td><span class="sw" style="width:24px;height:18px;background:oklch(${stepL[ds]} 0 0)"></span> <span class="val">${ds} · ${oklchHex([stepL[ds],0,0])}</span></td><td class="note">${use}</td><td>${con}</td></tr>`;
-  }).join('');
-  let arows=ALPHA_MAP.map(([t,l,d,use])=>`<tr><td class="tok">${t}</td><td class="val">${l}</td><td class="val">${d}</td><td class="note" colspan="2">${use}</td></tr>`).join('');
+      /* ---------- Palette foundation ---------- */
+      const NEUTRAL_RAMP = [
+        ["neutral-0", 1.0],
+        ["neutral-50", 0.985],
+        ["neutral-100", 0.966],
+        ["neutral-200", 0.92],
+        ["neutral-300", 0.8],
+        ["neutral-400", 0.68],
+        ["neutral-500", 0.63],
+        ["neutral-550", 0.56],
+        ["neutral-600", 0.49],
+        ["neutral-700", 0.353],
+        ["neutral-800", 0.3],
+        ["neutral-850", 0.255],
+        ["neutral-900", 0.215],
+        ["neutral-1000", 0.0],
+      ];
+      const stepL = Object.fromEntries(NEUTRAL_RAMP);
+      const ALPHA_SCALE = [
+        ["alpha-100", 0.05],
+        ["alpha-200", 0.09],
+        ["alpha-300", 0.12],
+        ["alpha-400", 0.16],
+        ["scrim", 0.28],
+      ];
+      const NEUTRAL_MAP = [
+        // token, lightStep, darkStep, usedFor
+        ["background", "neutral-0", "neutral-900", "app / page surface"],
+        ["foreground", "neutral-900", "neutral-100", "primary text (ink)"],
+        [
+          "card · popover",
+          "neutral-0",
+          "neutral-850",
+          "card &amp; overlay surface",
+        ],
+        [
+          "secondary",
+          "neutral-50",
+          "neutral-850",
+          "subtle inset fill (subtlest in both themes)",
+        ],
+        ["muted", "neutral-100", "neutral-800", "muted fill"],
+        [
+          "muted-foreground",
+          "neutral-600",
+          "neutral-400",
+          "secondary text — gated workhorse",
+        ],
+        [
+          "muted-foreground-faint",
+          "neutral-500",
+          "neutral-550",
+          "placeholders / disabled (non-gated)",
+        ],
+        ["accent", "neutral-100", "neutral-800", "hover / active fill"],
+        ["primary", "neutral-700", "neutral-200", "primary button (charcoal)"],
+        ["primary-foreground", "neutral-0", "neutral-900", "text on primary"],
+        [
+          "ring",
+          "neutral-500",
+          "neutral-550",
+          "focus-colour basis (ring removed → colour shift)",
+        ],
+        ["sidebar-foreground", "neutral-800", "neutral-300", "sidebar text"],
+      ];
+      const ALPHA_MAP = [
+        // token, light, dark, usedFor
+        [
+          "border",
+          "black / alpha-200 (9%)",
+          "white / alpha-200 (10%)",
+          "hairline border",
+        ],
+        [
+          "input",
+          "black / alpha-300 (12%)",
+          "white / alpha-300 (12%)",
+          "field border",
+        ],
+        [
+          "sidebar-border",
+          "black / alpha-100 (5%)",
+          "white / alpha-100 (6%)",
+          "soft divider",
+        ],
+        [
+          "overlay-border",
+          "black / alpha-400 (16%)",
+          "white / alpha-400 (18%)",
+          "overlay edge",
+        ],
+        [
+          "overlay (scrim)",
+          "black / scrim (28%)",
+          "black / 55%",
+          "modal backdrop",
+        ],
+      ];
+      const CHROMA_MAP = [
+        // family, hue, fill hex, role
+        ["destructive", "red · 25", "#d72630", "danger / errors"],
+        ["success", "green · 150", "#0c853d", "success / positive"],
+        ["warning", "orange · 42", "#c94d08", "warning / caution"],
+        ["action", "blue · 256", "#006bd6", "links, selection, active, info"],
+        ["agent", "purple · 295", "#774cc9", "AI / agent moments"],
+      ];
+      function renderPalette() {
+        const txtOn = (L) => (L > 0.6 ? "#191919" : "#fff");
+        // neutral ramp strip
+        let ramp = NEUTRAL_RAMP.map(
+          ([n, L]) =>
+            `<div style="flex:1;min-width:64px"><div style="height:46px;background:oklch(${L} 0 0);border:1px solid var(--line);border-radius:6px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:3px;color:${txtOn(L)};font-family:var(--mono);font-size:9px">${L.toFixed(3)}</div><div class="val" style="text-align:center;margin-top:3px">${n.replace("neutral-", "")}<br>${oklchHex([L, 0, 0])}</div></div>`,
+        ).join("");
+        // alpha strip (black over white + white over dark)
+        let alpha = ALPHA_SCALE.map(
+          ([n, a]) =>
+            `<div style="flex:1;min-width:70px"><div style="height:46px;border-radius:6px;overflow:hidden;display:flex"><div style="flex:1;background:#fff;position:relative"><div style="position:absolute;inset:0;background:rgba(0,0,0,${a})"></div></div><div style="flex:1;background:#191919;position:relative"><div style="position:absolute;inset:0;background:rgba(255,255,255,${a})"></div></div></div><div class="val" style="text-align:center;margin-top:3px">${n}<br>${Math.round(a * 100)}%</div></div>`,
+        ).join("");
+        // chromatic families
+        let chroma = CHROMA_MAP.map(
+          ([f, h, hex, role]) =>
+            `<div style="flex:1;min-width:96px"><div style="height:40px;background:${hex};border-radius:6px"></div><div class="val" style="margin-top:3px"><b style="color:var(--fg)">${f}</b><br>${h}<br>${hex}</div></div>`,
+        ).join("");
+        // neutral token table
+        const cRow = (fg, bg) => {
+          const r = contrast([stepL[fg], 0, 0], [stepL[bg], 0, 0]);
+          return `${ratioChip(r)}`;
+        };
+        let nrows = NEUTRAL_MAP.map(([t, ls, ds, use]) => {
+          let con = '<span class="note">—</span>';
+          if (t === "foreground")
+            con =
+              cRow("neutral-900", "neutral-0") +
+              " / " +
+              cRow("neutral-100", "neutral-900");
+          if (t === "muted-foreground")
+            con =
+              cRow("neutral-600", "neutral-100") +
+              " / " +
+              cRow("neutral-400", "neutral-800");
+          if (t === "primary-foreground")
+            con =
+              cRow("neutral-0", "neutral-700") +
+              " / " +
+              cRow("neutral-900", "neutral-200");
+          if (t === "sidebar-foreground")
+            con =
+              cRow("neutral-800", "neutral-0") +
+              " / " +
+              cRow("neutral-300", "neutral-900");
+          return `<tr><td class="tok">${t}</td><td><span class="sw" style="width:24px;height:18px;background:oklch(${stepL[ls]} 0 0)"></span> <span class="val">${ls} · ${oklchHex([stepL[ls], 0, 0])}</span></td><td><span class="sw" style="width:24px;height:18px;background:oklch(${stepL[ds]} 0 0)"></span> <span class="val">${ds} · ${oklchHex([stepL[ds], 0, 0])}</span></td><td class="note">${use}</td><td>${con}</td></tr>`;
+        }).join("");
+        let arows = ALPHA_MAP.map(
+          ([t, l, d, use]) =>
+            `<tr><td class="tok">${t}</td><td class="val">${l}</td><td class="val">${d}</td><td class="note" colspan="2">${use}</td></tr>`,
+        ).join("");
 
-  document.getElementById('palette').innerHTML=`
+        document.getElementById("palette").innerHTML = `
     <p class="sub"><b>Audit result:</b> every neutral (incl. all black/white) now resolves to <b>one 14-step ramp</b> (chroma 0) — no stray
     off-ramp grays. Translucent neutrals resolve to a <b>5-step alpha scale</b> (black in light / white in dark). Each chromatic accent is
     <b>one fixed hue, gate-tuned for lightness</b> (its own family) — not pulled from Tailwind or a generic palette. Charts use a new in-gamut 8-hue categorical palette (design.md §Charts).</p>
@@ -568,17 +1522,35 @@ function renderPalette(){
     <table><thead><tr><th>Token</th><th>Light</th><th>Dark</th><th>Used for</th></tr></thead><tbody>${arows}</tbody></table>
     <p class="small" style="margin-top:10px"><b>Note on this document's own chrome:</b> the page UI (its background, text, pass/fail chips) is the artifact's
     presentation layer, separately styled — its neutrals are aligned to this same ramp, but its green/red "AA/FAIL" chips are audit-feedback colours, not design tokens.</p>`;
-}
+      }
 
-/* ---------- view switch ---------- */
-function setView(v){
-  VIEW=v;document.documentElement.setAttribute('data-view',v);
-  document.getElementById('t-light').setAttribute('aria-pressed',v==='light');
-  document.getElementById('t-dark').setAttribute('aria-pressed',v==='dark');
-  renderAll();
-}
-function renderAll(){renderScore();renderPalette();renderColorGroups();renderMatrix();ramps();renderType();renderBaseShowdown();renderRadius();renderShadow();renderMotion();renderSkin();renderVerdicts();}
-renderAll();
-</script>
-</body>
+      /* ---------- view switch ---------- */
+      function setView(v) {
+        VIEW = v;
+        document.documentElement.setAttribute("data-view", v);
+        document
+          .getElementById("t-light")
+          .setAttribute("aria-pressed", v === "light");
+        document
+          .getElementById("t-dark")
+          .setAttribute("aria-pressed", v === "dark");
+        renderAll();
+      }
+      function renderAll() {
+        renderScore();
+        renderPalette();
+        renderColorGroups();
+        renderMatrix();
+        ramps();
+        renderType();
+        renderBaseShowdown();
+        renderRadius();
+        renderShadow();
+        renderMotion();
+        renderSkin();
+        renderVerdicts();
+      }
+      renderAll();
+    </script>
+  </body>
 </html>

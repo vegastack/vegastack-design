@@ -1,6 +1,7 @@
 ---
 title: Auto Save Input
 description: An input that debounces edits and persists them via an async onSave, with an inline idle/saving/saved/error status.
+audience: public
 preview: autoSaveInput
 ---
 
@@ -54,7 +55,7 @@ without ever calling `onSave`. Edit the field below and pause — it saves after
   file="components/preview/auto-save-input.tsx"
 />
 
-## States
+### States
 
 Status is owned by the component and only advances when the field is edited, so
 this is a **live** example — type into each field and pause for the debounce to
@@ -73,7 +74,7 @@ watch the trailing indicator move. Each field is wired to a different outcome:
   file="components/preview/auto-save-input.tsx"
 />
 
-## Controlled value
+### Controlled value
 
 Pass `value` + `onValueChange` to let the parent own the draft. External `value`
 changes — like switching records — are treated as a **new saved baseline**, so
@@ -120,7 +121,7 @@ saving).
   styling and announcing the failure to screen readers.
 - The spinner respects `prefers-reduced-motion` (`motion-reduce:animate-none`).
 - On focus the underlying [`Input`](/docs/components/input) recolors its border
-  with the `ring` token (`focus:border-ring/70`) instead of removing the outline —
+  with the `ring` token (`focus:border-ring/(--alpha-tint-border)`) instead of removing the outline —
   never `outline: none` with no replacement affordance. (Like the standalone
   field, this is a border recolor, not a 2px ring.)
 

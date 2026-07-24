@@ -13,9 +13,9 @@
 
 ## Findings
 
-| Priority | Evidence | Impact | Suggested fix |
-| --- | --- | --- | --- |
-| P2 | Range slider passes the same `aria-label` to every thumb at `slider.tsx:98` and `slider.tsx:130`; preview/test use one label for two thumbs. Docs correctly say a range needs a name per thumb at `slider.mdx:97`. | Screen-reader users cannot distinguish min/max thumbs. | Add `thumbAriaLabels` or `getThumbAriaLabel`; update preview/tests. |
+| Priority | Evidence                                                                                                                                                                                                           | Impact                                                 | Suggested fix                                                       |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------ | ------------------------------------------------------------------- |
+| P2       | Range slider passes the same `aria-label` to every thumb at `slider.tsx:98` and `slider.tsx:130`; preview/test use one label for two thumbs. Docs correctly say a range needs a name per thumb at `slider.mdx:97`. | Screen-reader users cannot distinguish min/max thumbs. | Add `thumbAriaLabels` or `getThumbAriaLabel`; update preview/tests. |
 
 ## Residual Risks
 
@@ -24,4 +24,3 @@ Base UI range thumb count and `index` handling are otherwise correct.
 ## Follow-Up Validation
 
 - `pnpm --filter @vegastack/ui test -- slider.test.tsx`
-

@@ -1,0 +1,78 @@
+---
+title: Comparison Matrix
+description: A plan-feature matrix with accessible availability cells and a highlighted plan column.
+audience: public
+preview: comparisonMatrix
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/comparison-matrix
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import {
+  ComparisonGroup,
+  ComparisonMatrix,
+  ComparisonRow,
+} from "@/components/ui/comparison-matrix";
+
+<ComparisonMatrix plans={["Free", "Pro"]} highlightedIndex={1}>
+  <ComparisonGroup>Enrichment</ComparisonGroup>
+  <ComparisonRow feature="Company data" availability={[true, true]} />
+  <ComparisonRow feature="Seats" availability={["3", "Unlimited"]} />
+</ComparisonMatrix>;
+```
+
+## Examples
+
+The highlighted plan uses a subtle column surface rather than elevation. Boolean availability
+pairs a visible glyph with screen-reader copy; literal limits render as authored.
+
+<ComponentPreview
+  name="comparisonMatrix"
+  file="components/preview/comparison-matrix.tsx"
+/>
+
+## API Reference
+
+### ComparisonMatrix
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/comparison-matrix.tsx"
+  name="ComparisonMatrixProps"
+/>
+
+### ComparisonGroup
+
+`ComparisonGroup` passes native `<tr>` props and a forwarded ref to its group row.
+
+### ComparisonRow
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/comparison-matrix.tsx"
+  name="ComparisonRowProps"
+/>
+
+## Accessibility
+
+Native table semantics: plans are `columnheader`s, features are `rowheader`s, groups span the
+table. Boolean availability renders ✓/− glyphs WITH `sr-only` text ("Included"/"Not
+included") — never bare dots. Literal values ("3 seats") render as-is.
+
+| Key                                 | Action                                                 |
+| ----------------------------------- | ------------------------------------------------------ |
+| <kbd>Tab</kbd>                      | Move through interactive plan actions in source order. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused plan action.                      |
+
+## Do / Don't
+
+<DoDont
+  do="Use row and column headers, pair boolean glyphs with text alternatives, and keep plan order consistent across breakpoints."
+  dont="Communicate availability by color alone or use a comparison table for unrelated marketing copy."
+/>

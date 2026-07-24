@@ -1,6 +1,7 @@
 ---
 title: Collapsible
 description: A single toggleable open/close region with an animated height, built on Base UI Collapsible.
+audience: public
 preview: collapsible
 ---
 
@@ -15,8 +16,12 @@ npx shadcn@latest add @vegastack/collapsible
 ## Usage
 
 ```tsx
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
-import { ChevronDown } from 'lucide-react';
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
 
 <Collapsible defaultOpen>
   <CollapsibleTrigger>
@@ -40,7 +45,7 @@ import { ChevronDown } from 'lucide-react';
     <ChevronDown />
   </CollapsibleTrigger>
   <CollapsibleContent>{/* revealed content */}</CollapsibleContent>
-</Collapsible>;
+</Collapsible>
 ```
 
 - `Collapsible` — the root (`data-slot="collapsible"`); owns the open/close state (`open` / `defaultOpen` / `onOpenChange`) and the `disabled` flag.
@@ -53,13 +58,19 @@ import { ChevronDown } from 'lucide-react';
 
 States — closed by default, open by default, and disabled.
 
-<ComponentPreview name="collapsibleStates" file="components/preview/collapsible.tsx" />
+<ComponentPreview
+  name="collapsibleStates"
+  file="components/preview/collapsible.tsx"
+/>
 
 ### Controlled
 
 Drive the open state yourself with `open` + `onOpenChange` (instead of the uncontrolled `defaultOpen`). Useful when another control toggles the region or when the open state lives in your own store.
 
-<ComponentPreview name="collapsibleControlled" file="components/preview/collapsible.tsx" />
+<ComponentPreview
+  name="collapsibleControlled"
+  file="components/preview/collapsible.tsx"
+/>
 
 ```tsx
 const [open, setOpen] = useState(false);
@@ -77,7 +88,10 @@ const [open, setOpen] = useState(false);
 
 By default the panel is unmounted while closed (`keepMounted={false}`). Pass `keepMounted` together with `hiddenUntilFound` on `CollapsibleContent` to keep the content in the DOM while collapsed — the browser&rsquo;s find-in-page and search crawlers can then reach it and auto-expand the region.
 
-<ComponentPreview name="collapsibleKeepMounted" file="components/preview/collapsible.tsx" />
+<ComponentPreview
+  name="collapsibleKeepMounted"
+  file="components/preview/collapsible.tsx"
+/>
 
 ## API Reference
 
@@ -95,9 +109,9 @@ Collapsible](https://base-ui.com/react/components/collapsible) part accepts
 - The trigger is a native `<button>`, so it keeps the browser&rsquo;s focus outline — it adds `hover:underline` as a pointer affordance and never sets `outline: none`.
 - `disabled` on the root removes interaction from the whole region.
 
-| Key | Action |
-| --- | --- |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Toggle the region open or closed when the trigger is focused. |
+| Key                                                | Action                                                                    |
+| -------------------------------------------------- | ------------------------------------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>                | Toggle the region open or closed when the trigger is focused.             |
 | <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Move focus to and from the trigger, then into the revealed panel content. |
 
 ## Do / Don't

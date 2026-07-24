@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from "react";
 import {
   Cloud,
   CreditCard,
@@ -13,9 +13,9 @@ import {
   Trash2,
   User,
   UserPlus,
-} from 'lucide-react';
-import { Wrapper } from './wrapper';
-import { Button } from '@/components/ui/button';
+} from "lucide-react";
+import { Wrapper } from "./wrapper";
+import { Button } from "@/components/ui/button";
 // Copied INTO apps/docs via `shadcn add @vegastack/dropdown-menu` (dogfoods the registry) → auto-scanned.
 import {
   DropdownMenu,
@@ -32,13 +32,15 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 
 export function dropdownMenu(): ReactNode {
   return (
     <Wrapper>
       <DropdownMenu>
-        <DropdownMenuTrigger render={<Button variant="outline">Open menu</Button>} />
+        <DropdownMenuTrigger
+          render={<Button variant="outline">Open menu</Button>}
+        />
         <DropdownMenuContent>
           <DropdownMenuItem>
             <User />
@@ -65,7 +67,9 @@ export function dropdownMenuInset(): ReactNode {
   return (
     <Wrapper>
       <DropdownMenu>
-        <DropdownMenuTrigger render={<Button variant="outline">View options</Button>} />
+        <DropdownMenuTrigger
+          render={<Button variant="outline">View options</Button>}
+        />
         <DropdownMenuContent className="min-w-52">
           <DropdownMenuLabel inset>Appearance</DropdownMenuLabel>
           <DropdownMenuItem>
@@ -83,12 +87,14 @@ export function dropdownMenuInset(): ReactNode {
 export function dropdownMenuRich(): ReactNode {
   const [showStatusBar, setShowStatusBar] = useState(true);
   const [showActivityBar, setShowActivityBar] = useState(false);
-  const [position, setPosition] = useState('bottom');
+  const [position, setPosition] = useState("bottom");
 
   return (
     <Wrapper>
       <DropdownMenu>
-        <DropdownMenuTrigger render={<Button variant="outline">My account</Button>} />
+        <DropdownMenuTrigger
+          render={<Button variant="outline">My account</Button>}
+        />
         <DropdownMenuContent className="min-w-56">
           <DropdownMenuGroup>
             <DropdownMenuLabel>My account</DropdownMenuLabel>

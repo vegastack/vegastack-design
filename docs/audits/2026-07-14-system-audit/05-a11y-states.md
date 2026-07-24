@@ -14,7 +14,7 @@ message-scroller motion claim against the bundled `@shadcn/react` dist.
    (mirrored at `apps/docs/app/global.css:50-52`): `:focus-visible { outline-2 outline-offset-1 outline-ring }`.
    The stated contract is "components carry NO focus ring of their own; this re-skins from `ring`."
    This already matches the owner's border/outline-over-halo preference. A component with **no** local
-   focus classes is *correct*, not deficient.
+   focus classes is _correct_, not deficient.
 2. **Tailwind v4 layer-order hazard.** Utilities layer beats the base layer for the same property. Any
    unconditional `outline-none` utility on a component **silently defeats** the base-layer
    `:focus-visible` rule for that element — unless the component supplies its own compensating
@@ -36,76 +36,76 @@ Legend: `✓` implemented · `✗` applicable but missing · `—` not applicabl
 untested. Columns: Dflt=default, Hov=hover, Foc=focus-visible, Act=active/pressed, Dis=disabled,
 Load=loading, Err=error/invalid, Succ=success, Emp=empty, RO=readonly.
 
-| Component | Dflt | Hov | Foc | Act | Dis | Load | Err | Succ | Emp | RO | Notes |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| accordion | ✓ | ✓ | ✓g | — | ✓ | — | — | — | — | — | accordion.tsx:93-94 |
-| alert | ✓ | ✓ | ✓g+dup | — | — | — | — | — | — | — | 5 status *variants*; dismiss btn alert.tsx:151-152 |
-| alert-dialog | ✓ | ✓ | ✓g | — | — | **✗** | — | — | — | — | no `loading` on Action for async confirms (alert-dialog.tsx:252-259) |
-| auto-save-input | ✓ | ✓ | ✓b | — | ✓ | ✓ | ✓ | ✓ | — | — | exemplary: role=status live region (auto-save-input.tsx:217-239) |
-| avatar | ✓ | — | — | — | — | ✓ | ✓ | — | — | — | fallback-on-error via Base UI; alt enforced by types (avatar.tsx:35-55) |
-| badge | ✓ | — | ✓g | — | — | ✓ | — | — | — | — | aria-busy while loading (badge.tsx:205) |
-| breadcrumb | ✓ | ✓ | ✓g | — | — | — | — | — | — | — | aria-current="page" (breadcrumb.tsx:118-126) |
-| bubble | ✓ | ✓ | ✓**r** | — | ✗ | — | — | — | — | — | ONLY ring-based focus in system (bubble.tsx:155); no disabled styling for interactive bubbles |
-| button | ✓ | ✓ | ✓g/b | ✓ | ✓ | ✓ | ✓ | — | — | — | loading keeps focusability via aria-disabled (button.tsx:104-121) |
-| card | — | — | — | — | — | — | — | — | — | — | pure container |
-| checkbox | ✓ | ✓ | ✓g | ✓ | ✓ | — | ✓ | — | — | — | indeterminate ✓ (checkbox.tsx:22-26) |
-| collapsible | ✓ | ✓ | ✓g | — | ✓ | — | — | — | — | — | |
-| color-picker | ✓ | ✓ | ✓g/b | ✓ | ✓ | — | — | — | — | — | aria-pressed swatches (color-picker.tsx:192-193); Tab-only grid |
-| command | ✓ | ✓ | ✓b/v | ✓ | ✓ | ✓ | — | — | ✓ | — | CommandLoading role=progressbar (command.tsx:239-250); CommandEmpty ✓ |
-| context-menu | ✓ | ✓ | ✓v | ✓ | ✓ | — | — | — | — | — | virtual highlight (context-menu.tsx:234-246) |
-| copy-button | ✓ | ✓ | ✓g | — | ✓(t) | — | — | ✓ | — | — | copied state = label swap only, no live region (copy-button.tsx:102) |
-| country-select | ✓ | ✓ | ✓g/b | — | ✓ | — | — | — | ✓ | — | static data → no loading needed |
-| data-list | ✓ | ✓ | ✓g | ✓ | ✓ | ✓ | — | — | ✓ | — | loading live region + aria-sort (data-list.tsx:377-433) |
-| date-picker | ✓ | ✓ | ✓g/b | ✓ | ✓ | — | — | — | ✓ | — | disabled dates aria-disabled + defense-in-depth preset gating (date-picker.tsx:540-558) |
-| dialog | ✓ | ✓ | ✓g | — | — | — | — | — | — | — | Popup outline-none (dialog.tsx:30) — see §(b) note |
-| dropdown-menu | ✓ | ✓ | ✓v | ✓ | ✓ | — | — | — | — | — | |
-| emoji-picker | ✓ | ✓ | ✓g+bg | — | — | — | — | — | ✓ | — | live region for result count (emoji-picker.tsx:580-587); Tab-only grid ✗ |
-| empty-state | ✓ | — | — | — | — | — | — | — | ✓ | — | is the empty state |
-| field | ✓ | — | (via ctrl) | — | ✓(t) | — | ✓ | ✓ | — | ✗ | FieldError role=alert (field.tsx:125-126); disabled untested; no readonly hook |
-| field-inline | ✓ | ✓ | ✓g | — | **✗** | — | **✗** | — | ✓ | **✗** | no disabled/readonly/error in API at all (field-inline.tsx:9-50) |
-| filter-bar | ✓ | ✓ | ✓g/b | ✓ | ✓(t) | — | — | — | ✓ | — | role=group + computed remove labels (filter-bar.tsx:184-186,289-291) |
-| hover-card | ✓ | ✓ | ✓g | — | — | — | — | — | — | — | opens on keyboard focus (tested) |
-| icon-button | ✓ | ✓ | ✓g/b | ✓ | ✓ | ✓ | — | — | — | — | aria-label required at type level (icon-button.tsx:38) |
-| image | ✓ | — | — | — | — | ✓ | ✓ | — | ✓ | — | error fallback drops `alt` (image.tsx:168-175) — §(b) |
-| input | ✓ | — | ✓b | — | ✓ | — | ✓ | — | — | ~ | outline-none + focus:border-ring/70 (input.tsx:39-40); readonly = native only |
-| kbd | — | — | — | — | — | — | — | — | — | — | pointer-events-none chip |
-| label | ✓ | — | — | — | ✓ | — | — | — | — | — | peer/group-disabled dimming (label.tsx:48-49) |
-| markdown-view | ✓ | ✓ | ✓g | — | — | — | — | — | ✓ | — | XSS-safe by construction (tested) |
-| marker | ✓ | ✓ | ✓g | — | — | — | — | — | — | — | |
-| message | ✓ | — | — | — | — | — | — | — | — | — | layout only |
-| message-scroller | ✓ | ✓ | ✓g | — | — | — | — | — | ~ | — | role=log live region from primitive; smooth-scroll motion gap — §(b) |
-| notification-bell | ✓ | ✓ | ✓g | — | ✓(t) | — | — | — | ✓ | — | count folded into accessible name (notification-bell.tsx:69) |
-| otp-input | ✓ | — | ✓b | — | ✓ | — | ✓(t) | ✓(t) | — | ✓ | invalid/complete in CSS/API, zero tests (otp-input.tsx:94) |
-| page-header | ✓ | ✓ | ✓g | ✓ | ✓(t) | — | — | — | — | — | favorite aria-pressed (page-header.tsx:121) |
-| pagination | ✓ | ✓ | ✓g | ✓ | ~ | — | — | — | — | — | aria-disabled hook doesn't block keyboard — §(b) |
-| password-input | ✓ | ✓ | ✓b+g | ✓ | ✓ | — | ✓(t) | ✓ | — | — | exemplary live-region requirements checklist (password-input.tsx:122-129) |
-| popover | ✓ | — | **✗** | — | — | — | — | — | — | — | Popup outline-none, no compensation — §(b) CRITICAL |
-| progress | ✓ | — | — | — | — | ✓ | — | — | — | — | indeterminate ✓ (data-indeterminate) |
-| progress-indicator | ✓ | — | — | — | — | ✓ | — | — | — | — | self-managed progressbar ARIA (progress-indicator.tsx:143-147) |
-| radio-group | ✓ | ✓ | ✓g | ✓ | ✓ | — | ✓(t) | — | — | — | invalid styling exists, untested (radio-group.tsx:165-172) |
-| relative-time | ✓ | — | ✓g | — | — | — | ✓ | — | — | — | tabIndex only when tooltip trigger — correct (relative-time.tsx:218) |
-| scroll-area | ✓ | ✓ | ✓g | — | — | — | — | — | — | — | viewport tabIndex=0 + labelable (scroll-area.tsx:96-110) |
-| select | ✓ | ✓ | ✓b/v | ✓ | ✓ | ✗ | ✓(t) | — | ✗ | — | no loading/empty-options affordance (consumer-owned) |
-| separator | ✓ | — | — | — | — | — | — | — | — | — | decorative/semantic swap done right (separator.tsx:43-45) |
-| settings-row | ✓ | — | — | — | — | — | — | — | — | — | real label htmlFor when controlId given |
-| sheet | ✓ | ✓ | **✗** | — | — | — | — | — | — | — | Popup outline-none in sheetVariants — §(b) CRITICAL |
-| sidebar | ✓ | ✓ | ✓g | ✓ | ✓(t) | — | — | — | — | — | collapsed = unlabeled icon buttons — §(b) HIGH |
-| skeleton | ✓ | — | — | — | — | ✓ | — | — | — | — | aria-hidden + motion-reduce (skeleton.tsx:14,96-97) |
-| slider | ✓ | ✓ | ✓g | ✓ | ✓ | — | — | — | — | — | dual-thumb distinct names ✓ (slider.tsx:33-43) |
-| sonner | ✓ | ✓ | (lib) | — | — | ✓ | ✓ | ✓ | — | — | live region is sonner-internal, preserved |
-| spinner | ✓ | — | — | — | — | ✓ | — | — | — | — | role=status + motion-reduce (spinner.tsx:16,76-79) |
-| split-button | ✓ | ✓ | ✓g/b | ✓ | ✓ | ~ | — | — | — | — | loading cue on primary half only (split-button.tsx:152-169) |
-| state-select | ✓ | ✓ | ✓g/b | — | ✓ | — | — | — | ✓ | — | fallback Input path ✓ (state-select.tsx:1502-1524) |
-| status-icon | ✓ | — | — | — | — | ✓ | ✓ | ✓ | — | — | shape+color per status → not color-alone (status-icon.tsx:34-39) |
-| switch | ✓ | ✓ | ✓g | ✓ | ✓ | — | ✓ | — | — | — | |
-| table | ✓ | ✓ | — | — | — | — | — | — | — | — | styling-only primitive; scope="col" not defaulted (table.tsx:144-159) |
-| tabs | ✓ | ✓ | ✓g+dup | ✓ | ✓ | — | — | — | — | — | TabsContent dup of global rule (tabs.tsx:204) |
-| text-edit | ✓ | ✓ | ✓b | ✓ | — | — | ✓ | — | ✓ | ✓ | focus-within:border-ring/70 (text-edit.tsx:498); editable=false is the readonly |
-| textarea | ✓ | — | ✓b | — | ✓ | — | ✓ | — | — | ~ | tested "no ring" assertion (textarea.test.tsx:42-47) |
-| toggle | ✓ | ✓ | ✓g | ✓ | ✓ | — | — | — | — | — | |
-| toggle-group | ✓ | ✓ | ✓g+z | ✓ | ✓ | — | — | — | — | — | focus z-10 protects outline from sibling overpaint (toggle-group.tsx:165) — verified sound |
-| tooltip | ✓ | ✓ | ✓g | — | — | — | — | — | — | — | opens on keyboard focus (tested) |
-| truncated-text | ✓ | ✓ | **✗** | — | — | — | — | — | — | — | tooltip trigger not focusable when truncated — §(b) HIGH |
+| Component          | Dflt | Hov | Foc        | Act | Dis   | Load  | Err   | Succ | Emp | RO    | Notes                                                                                         |
+| ------------------ | ---- | --- | ---------- | --- | ----- | ----- | ----- | ---- | --- | ----- | --------------------------------------------------------------------------------------------- |
+| accordion          | ✓    | ✓   | ✓g         | —   | ✓     | —     | —     | —    | —   | —     | accordion.tsx:93-94                                                                           |
+| alert              | ✓    | ✓   | ✓g+dup     | —   | —     | —     | —     | —    | —   | —     | 5 status _variants_; dismiss btn alert.tsx:151-152                                            |
+| alert-dialog       | ✓    | ✓   | ✓g         | —   | —     | **✗** | —     | —    | —   | —     | no `loading` on Action for async confirms (alert-dialog.tsx:252-259)                          |
+| auto-save-input    | ✓    | ✓   | ✓b         | —   | ✓     | ✓     | ✓     | ✓    | —   | —     | exemplary: role=status live region (auto-save-input.tsx:217-239)                              |
+| avatar             | ✓    | —   | —          | —   | —     | ✓     | ✓     | —    | —   | —     | fallback-on-error via Base UI; alt enforced by types (avatar.tsx:35-55)                       |
+| badge              | ✓    | —   | ✓g         | —   | —     | ✓     | —     | —    | —   | —     | aria-busy while loading (badge.tsx:205)                                                       |
+| breadcrumb         | ✓    | ✓   | ✓g         | —   | —     | —     | —     | —    | —   | —     | aria-current="page" (breadcrumb.tsx:118-126)                                                  |
+| bubble             | ✓    | ✓   | ✓**r**     | —   | ✗     | —     | —     | —    | —   | —     | ONLY ring-based focus in system (bubble.tsx:155); no disabled styling for interactive bubbles |
+| button             | ✓    | ✓   | ✓g/b       | ✓   | ✓     | ✓     | ✓     | —    | —   | —     | loading keeps focusability via aria-disabled (button.tsx:104-121)                             |
+| card               | —    | —   | —          | —   | —     | —     | —     | —    | —   | —     | pure container                                                                                |
+| checkbox           | ✓    | ✓   | ✓g         | ✓   | ✓     | —     | ✓     | —    | —   | —     | indeterminate ✓ (checkbox.tsx:22-26)                                                          |
+| collapsible        | ✓    | ✓   | ✓g         | —   | ✓     | —     | —     | —    | —   | —     |                                                                                               |
+| color-picker       | ✓    | ✓   | ✓g/b       | ✓   | ✓     | —     | —     | —    | —   | —     | aria-pressed swatches (color-picker.tsx:192-193); Tab-only grid                               |
+| command            | ✓    | ✓   | ✓b/v       | ✓   | ✓     | ✓     | —     | —    | ✓   | —     | CommandLoading role=progressbar (command.tsx:239-250); CommandEmpty ✓                         |
+| context-menu       | ✓    | ✓   | ✓v         | ✓   | ✓     | —     | —     | —    | —   | —     | virtual highlight (context-menu.tsx:234-246)                                                  |
+| copy-button        | ✓    | ✓   | ✓g         | —   | ✓(t)  | —     | —     | ✓    | —   | —     | copied state = label swap only, no live region (copy-button.tsx:102)                          |
+| country-select     | ✓    | ✓   | ✓g/b       | —   | ✓     | —     | —     | —    | ✓   | —     | static data → no loading needed                                                               |
+| data-list          | ✓    | ✓   | ✓g         | ✓   | ✓     | ✓     | —     | —    | ✓   | —     | loading live region + aria-sort (data-list.tsx:377-433)                                       |
+| date-picker        | ✓    | ✓   | ✓g/b       | ✓   | ✓     | —     | —     | —    | ✓   | —     | disabled dates aria-disabled + defense-in-depth preset gating (date-picker.tsx:540-558)       |
+| dialog             | ✓    | ✓   | ✓g         | —   | —     | —     | —     | —    | —   | —     | Popup outline-none (dialog.tsx:30) — see §(b) note                                            |
+| dropdown-menu      | ✓    | ✓   | ✓v         | ✓   | ✓     | —     | —     | —    | —   | —     |                                                                                               |
+| emoji-picker       | ✓    | ✓   | ✓g+bg      | —   | —     | —     | —     | —    | ✓   | —     | live region for result count (emoji-picker.tsx:580-587); Tab-only grid ✗                      |
+| empty-state        | ✓    | —   | —          | —   | —     | —     | —     | —    | ✓   | —     | is the empty state                                                                            |
+| field              | ✓    | —   | (via ctrl) | —   | ✓(t)  | —     | ✓     | ✓    | —   | ✗     | FieldError role=alert (field.tsx:125-126); disabled untested; no readonly hook                |
+| field-inline       | ✓    | ✓   | ✓g         | —   | **✗** | —     | **✗** | —    | ✓   | **✗** | no disabled/readonly/error in API at all (field-inline.tsx:9-50)                              |
+| filter-bar         | ✓    | ✓   | ✓g/b       | ✓   | ✓(t)  | —     | —     | —    | ✓   | —     | role=group + computed remove labels (filter-bar.tsx:184-186,289-291)                          |
+| hover-card         | ✓    | ✓   | ✓g         | —   | —     | —     | —     | —    | —   | —     | opens on keyboard focus (tested)                                                              |
+| icon-button        | ✓    | ✓   | ✓g/b       | ✓   | ✓     | ✓     | —     | —    | —   | —     | aria-label required at type level (icon-button.tsx:38)                                        |
+| image              | ✓    | —   | —          | —   | —     | ✓     | ✓     | —    | ✓   | —     | error fallback drops `alt` (image.tsx:168-175) — §(b)                                         |
+| input              | ✓    | —   | ✓b         | —   | ✓     | —     | ✓     | —    | —   | ~     | outline-none + focus:border-ring/70 (input.tsx:39-40); readonly = native only                 |
+| kbd                | —    | —   | —          | —   | —     | —     | —     | —    | —   | —     | pointer-events-none chip                                                                      |
+| label              | ✓    | —   | —          | —   | ✓     | —     | —     | —    | —   | —     | peer/group-disabled dimming (label.tsx:48-49)                                                 |
+| markdown-view      | ✓    | ✓   | ✓g         | —   | —     | —     | —     | —    | ✓   | —     | XSS-safe by construction (tested)                                                             |
+| marker             | ✓    | ✓   | ✓g         | —   | —     | —     | —     | —    | —   | —     |                                                                                               |
+| message            | ✓    | —   | —          | —   | —     | —     | —     | —    | —   | —     | layout only                                                                                   |
+| message-scroller   | ✓    | ✓   | ✓g         | —   | —     | —     | —     | —    | ~   | —     | role=log live region from primitive; smooth-scroll motion gap — §(b)                          |
+| notification-bell  | ✓    | ✓   | ✓g         | —   | ✓(t)  | —     | —     | —    | ✓   | —     | count folded into accessible name (notification-bell.tsx:69)                                  |
+| otp-input          | ✓    | —   | ✓b         | —   | ✓     | —     | ✓(t)  | ✓(t) | —   | ✓     | invalid/complete in CSS/API, zero tests (otp-input.tsx:94)                                    |
+| page-header        | ✓    | ✓   | ✓g         | ✓   | ✓(t)  | —     | —     | —    | —   | —     | favorite aria-pressed (page-header.tsx:121)                                                   |
+| pagination         | ✓    | ✓   | ✓g         | ✓   | ~     | —     | —     | —    | —   | —     | aria-disabled hook doesn't block keyboard — §(b)                                              |
+| password-input     | ✓    | ✓   | ✓b+g       | ✓   | ✓     | —     | ✓(t)  | ✓    | —   | —     | exemplary live-region requirements checklist (password-input.tsx:122-129)                     |
+| popover            | ✓    | —   | **✗**      | —   | —     | —     | —     | —    | —   | —     | Popup outline-none, no compensation — §(b) CRITICAL                                           |
+| progress           | ✓    | —   | —          | —   | —     | ✓     | —     | —    | —   | —     | indeterminate ✓ (data-indeterminate)                                                          |
+| progress-indicator | ✓    | —   | —          | —   | —     | ✓     | —     | —    | —   | —     | self-managed progressbar ARIA (progress-indicator.tsx:143-147)                                |
+| radio-group        | ✓    | ✓   | ✓g         | ✓   | ✓     | —     | ✓(t)  | —    | —   | —     | invalid styling exists, untested (radio-group.tsx:165-172)                                    |
+| relative-time      | ✓    | —   | ✓g         | —   | —     | —     | ✓     | —    | —   | —     | tabIndex only when tooltip trigger — correct (relative-time.tsx:218)                          |
+| scroll-area        | ✓    | ✓   | ✓g         | —   | —     | —     | —     | —    | —   | —     | viewport tabIndex=0 + labelable (scroll-area.tsx:96-110)                                      |
+| select             | ✓    | ✓   | ✓b/v       | ✓   | ✓     | ✗     | ✓(t)  | —    | ✗   | —     | no loading/empty-options affordance (consumer-owned)                                          |
+| separator          | ✓    | —   | —          | —   | —     | —     | —     | —    | —   | —     | decorative/semantic swap done right (separator.tsx:43-45)                                     |
+| settings-row       | ✓    | —   | —          | —   | —     | —     | —     | —    | —   | —     | real label htmlFor when controlId given                                                       |
+| sheet              | ✓    | ✓   | **✗**      | —   | —     | —     | —     | —    | —   | —     | Popup outline-none in sheetVariants — §(b) CRITICAL                                           |
+| sidebar            | ✓    | ✓   | ✓g         | ✓   | ✓(t)  | —     | —     | —    | —   | —     | collapsed = unlabeled icon buttons — §(b) HIGH                                                |
+| skeleton           | ✓    | —   | —          | —   | —     | ✓     | —     | —    | —   | —     | aria-hidden + motion-reduce (skeleton.tsx:14,96-97)                                           |
+| slider             | ✓    | ✓   | ✓g         | ✓   | ✓     | —     | —     | —    | —   | —     | dual-thumb distinct names ✓ (slider.tsx:33-43)                                                |
+| sonner             | ✓    | ✓   | (lib)      | —   | —     | ✓     | ✓     | ✓    | —   | —     | live region is sonner-internal, preserved                                                     |
+| spinner            | ✓    | —   | —          | —   | —     | ✓     | —     | —    | —   | —     | role=status + motion-reduce (spinner.tsx:16,76-79)                                            |
+| split-button       | ✓    | ✓   | ✓g/b       | ✓   | ✓     | ~     | —     | —    | —   | —     | loading cue on primary half only (split-button.tsx:152-169)                                   |
+| state-select       | ✓    | ✓   | ✓g/b       | —   | ✓     | —     | —     | —    | ✓   | —     | fallback Input path ✓ (state-select.tsx:1502-1524)                                            |
+| status-icon        | ✓    | —   | —          | —   | —     | ✓     | ✓     | ✓    | —   | —     | shape+color per status → not color-alone (status-icon.tsx:34-39)                              |
+| switch             | ✓    | ✓   | ✓g         | ✓   | ✓     | —     | ✓     | —    | —   | —     |                                                                                               |
+| table              | ✓    | ✓   | —          | —   | —     | —     | —     | —    | —   | —     | styling-only primitive; scope="col" not defaulted (table.tsx:144-159)                         |
+| tabs               | ✓    | ✓   | ✓g+dup     | ✓   | ✓     | —     | —     | —    | —   | —     | TabsContent dup of global rule (tabs.tsx:204)                                                 |
+| text-edit          | ✓    | ✓   | ✓b         | ✓   | —     | —     | ✓     | —    | ✓   | ✓     | focus-within:border-ring/70 (text-edit.tsx:498); editable=false is the readonly               |
+| textarea           | ✓    | —   | ✓b         | —   | ✓     | —     | ✓     | —    | —   | ~     | tested "no ring" assertion (textarea.test.tsx:42-47)                                          |
+| toggle             | ✓    | ✓   | ✓g         | ✓   | ✓     | —     | —     | —    | —   | —     |                                                                                               |
+| toggle-group       | ✓    | ✓   | ✓g+z       | ✓   | ✓     | —     | —     | —    | —   | —     | focus z-10 protects outline from sibling overpaint (toggle-group.tsx:165) — verified sound    |
+| tooltip            | ✓    | ✓   | ✓g         | —   | —     | —     | —     | —    | —   | —     | opens on keyboard focus (tested)                                                              |
+| truncated-text     | ✓    | ✓   | **✗**      | —   | —     | —     | —     | —    | —   | —     | tooltip trigger not focusable when truncated — §(b) HIGH                                      |
 
 Focus legend: `✓g` = global outline · `✓b` = border-based local (`focus:border-ring/70` family) ·
 `✓v` = virtual highlight (`data-[highlighted]:bg-accent`) · `✓r` = ring/box-shadow · `+dup` = redundant
@@ -135,7 +135,7 @@ global rule — architecture fact 2).
    `showCloseButton={false}` + non-interactive body (supported config, sheet.tsx:119/136), or
    touch-open. Also `sheet.tsx:152` Viewport `outline-none` (lower confidence, verify Dialog trap target).
 
-*Same class of code, lower severity:* **dialog.tsx:30** and **alert-dialog.tsx:127,135** carry the
+_Same class of code, lower severity:_ **dialog.tsx:30** and **alert-dialog.tsx:127,135** carry the
 identical `outline-none`-on-Popup pattern, but Dialog defaults `showCloseButton = true`
 (dialog.tsx:129) and AlertDialog always renders Action/Cancel buttons — a tabbable descendant exists,
 so keyboard-open lands on a control with a visible indicator. Rate **Low** today, but the fix for #1/#2
@@ -200,7 +200,7 @@ keyboard/no-tabbable path is.
 - **`:focus` instead of `:focus-visible`** for the border-tint compensation: input.tsx:40 (+ group
   :56 `focus-within`), textarea.tsx:26, otp-input.tsx:93, select.tsx:20, command.tsx:171
   (`focus-within`), text-edit.tsx:498 (`focus-within`). Indicator also appears on mouse-click focus —
-  consistent, deliberate-looking, and never a *missing*-indicator problem; `focus-within` variants
+  consistent, deliberate-looking, and never a _missing_-indicator problem; `focus-within` variants
   cannot be `:focus-visible`-scoped without `:has(:focus-visible)`, so treat as accepted pattern or
   migrate the two plain `focus:` cases (input, textarea, otp, select) to `focus-visible:`.
 - **JSDoc claims a "focus-visible ring" that doesn't exist** (behavior is the correct global outline):
@@ -208,7 +208,7 @@ keyboard/no-tabbable path is.
   (says border-only — accurate). Fix the comments, not the code.
 - **Redundant local duplicates of the global rule**: alert.tsx:152 (dismiss button), tabs.tsx:204
   (`TabsContent`). Harmless; delete or document as intentional pinning.
-- **bubble.tsx:155** — the *only* ring-based (box-shadow) focus indicator in the system
+- **bubble.tsx:155** — the _only_ ring-based (box-shadow) focus indicator in the system
   (`focus-visible:ring-3 ring-ring/30` on interactive bubbles). WCAG-fine; inconsistent with the
   border/outline direction — see §(d) for the drop-in border alternative.
 - **breadcrumb.tsx:118-126** — `role="link" aria-disabled="true"` on a non-focusable span
@@ -231,7 +231,7 @@ keyboard/no-tabbable path is.
 select.tsx:270, command.tsx:319) is the sanctioned Base UI pattern with AA-verified accent tokens;
 toggle-group's `focus:z-10` (toggle-group.tsx:165) is a sound outline-clipping fix, not a decoy;
 text-edit's contenteditable `outline-none` (text-edit.tsx:35) is compensated at text-edit.tsx:498;
-truncated-text is a *keyboard* problem only — screen readers get the full DOM text; skeleton/spinner/
+truncated-text is a _keyboard_ problem only — screen readers get the full DOM text; skeleton/spinner/
 status-icon all carry `motion-reduce:animate-none`; message-scroller's `role="log"` live region and
 inert-when-hidden scroll button come correct from the primitive.
 
@@ -250,39 +250,39 @@ none masks a real gap.**
 **The systemic gap: axe is almost always run against only the default/happy state.** The repo mandate
 is "every applicable UI state implemented" — but implemented ≠ audited:
 
-| Component | States implemented but never axe-audited (file) |
-|---|---|
-| auto-save-input | saving / saved / error — the component's entire purpose (auto-save-input.test.tsx:165) |
-| field | error (`role="alert"` + aria-invalid) and disabled (field.test.tsx:111-118) |
-| command | `CommandDialog` (the ⌘K overlay), loading, empty (command.test.tsx:178,128,68) |
-| checkbox | checked / indeterminate / disabled (checkbox.test.tsx:124) |
-| button | loading (aria-busy + aria-disabled) / disabled (button.test.tsx:56) |
-| accordion | expanded panel (accordion.test.tsx:96) |
-| filter-bar | add-filter menu OPEN (portaled DOM) (filter-bar.test.tsx:171-188) |
-| data-list | loading skeleton / empty state (data-list.test.tsx:262-297) |
-| date-picker | range / presets / disabled-dates (date-picker.test.tsx:308-316) |
-| context-menu, dropdown-menu | submenu open |
-| switch | checked / disabled (switch.test.tsx:69-72) |
-| tabs | pill variant / switched panel / vertical / disabled tab (tabs.test.tsx:126-129) |
-| toggle, toggle-group | pressed / multiple / disabled / vertical (toggle.test.tsx:74, toggle-group.test.tsx:185) |
-| radio-group | checked / disabled / invalid (radio-group.test.tsx:96-110) |
-| slider | range / disabled / boundary values — plus NO keyboard test at all (slider.test.tsx) |
-| select | invalid / disabled trigger; no arrow/Home/End/typeahead/Escape test (select.test.tsx) |
-| progress | indeterminate (progress.test.tsx) |
-| sidebar | collapsed — exactly where the High bug lives (sidebar.test.tsx:156-159) |
-| otp-input | invalid (`data-invalid`) / complete — zero tests, functional or axe (otp-input.test.tsx) |
-| password-input | revealed (`type="text"`) / aria-invalid (password-input.test.tsx:132-143) |
-| image | error / empty (image.test.tsx) |
-| input | aria-invalid / addon mode / disabled (input.test.tsx:86-94) |
-| notification-bell | dot mode / disabled (notification-bell.test.tsx:80-83) |
-| copy-button | copied state (copy-button.test.tsx:80-83) |
-| text-edit | toolbar-active / readonly / invalid / placeholder-visible / **no-aria-label** (text-edit.test.tsx:207-224) |
-| truncated-text | the actually-truncated + tooltip path — completely untested (truncated-text.test.tsx) |
-| emoji-picker | search-filtered / empty-results (emoji-picker.test.tsx:152-160) |
-| state-select | fallback free-text-input path (state-select.test.tsx:184-198) |
-| sonner | per-variant DOM (success/error/warning/info) beyond default (sonner.test.tsx) |
-| message-scroller | empty thread / new-message live announcement / keyboard scroll / reduced-motion (message-scroller.test.tsx) |
-| bubble, badge, avatar, alert | disabled-interactive / loading / fallback-only / non-info variants |
+| Component                    | States implemented but never axe-audited (file)                                                             |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| auto-save-input              | saving / saved / error — the component's entire purpose (auto-save-input.test.tsx:165)                      |
+| field                        | error (`role="alert"` + aria-invalid) and disabled (field.test.tsx:111-118)                                 |
+| command                      | `CommandDialog` (the ⌘K overlay), loading, empty (command.test.tsx:178,128,68)                              |
+| checkbox                     | checked / indeterminate / disabled (checkbox.test.tsx:124)                                                  |
+| button                       | loading (aria-busy + aria-disabled) / disabled (button.test.tsx:56)                                         |
+| accordion                    | expanded panel (accordion.test.tsx:96)                                                                      |
+| filter-bar                   | add-filter menu OPEN (portaled DOM) (filter-bar.test.tsx:171-188)                                           |
+| data-list                    | loading skeleton / empty state (data-list.test.tsx:262-297)                                                 |
+| date-picker                  | range / presets / disabled-dates (date-picker.test.tsx:308-316)                                             |
+| context-menu, dropdown-menu  | submenu open                                                                                                |
+| switch                       | checked / disabled (switch.test.tsx:69-72)                                                                  |
+| tabs                         | pill variant / switched panel / vertical / disabled tab (tabs.test.tsx:126-129)                             |
+| toggle, toggle-group         | pressed / multiple / disabled / vertical (toggle.test.tsx:74, toggle-group.test.tsx:185)                    |
+| radio-group                  | checked / disabled / invalid (radio-group.test.tsx:96-110)                                                  |
+| slider                       | range / disabled / boundary values — plus NO keyboard test at all (slider.test.tsx)                         |
+| select                       | invalid / disabled trigger; no arrow/Home/End/typeahead/Escape test (select.test.tsx)                       |
+| progress                     | indeterminate (progress.test.tsx)                                                                           |
+| sidebar                      | collapsed — exactly where the High bug lives (sidebar.test.tsx:156-159)                                     |
+| otp-input                    | invalid (`data-invalid`) / complete — zero tests, functional or axe (otp-input.test.tsx)                    |
+| password-input               | revealed (`type="text"`) / aria-invalid (password-input.test.tsx:132-143)                                   |
+| image                        | error / empty (image.test.tsx)                                                                              |
+| input                        | aria-invalid / addon mode / disabled (input.test.tsx:86-94)                                                 |
+| notification-bell            | dot mode / disabled (notification-bell.test.tsx:80-83)                                                      |
+| copy-button                  | copied state (copy-button.test.tsx:80-83)                                                                   |
+| text-edit                    | toolbar-active / readonly / invalid / placeholder-visible / **no-aria-label** (text-edit.test.tsx:207-224)  |
+| truncated-text               | the actually-truncated + tooltip path — completely untested (truncated-text.test.tsx)                       |
+| emoji-picker                 | search-filtered / empty-results (emoji-picker.test.tsx:152-160)                                             |
+| state-select                 | fallback free-text-input path (state-select.test.tsx:184-198)                                               |
+| sonner                       | per-variant DOM (success/error/warning/info) beyond default (sonner.test.tsx)                               |
+| message-scroller             | empty thread / new-message live announcement / keyboard scroll / reduced-motion (message-scroller.test.tsx) |
+| bubble, badge, avatar, alert | disabled-interactive / loading / fallback-only / non-info variants                                          |
 
 **Best-in-class today** (use as templates): color-picker, country-select, hover-card, state-select,
 tooltip (closed AND open axe'd), field-inline (3 states axe'd), alert-dialog/dialog/sheet/select
@@ -299,6 +299,7 @@ assertions — **no in-test screenshot assertion exists anywhere** (grep: zero
 components.
 
 **Contrast gates — what `tooling/contrast-check.mjs` verifies and misses:**
+
 - Verifies: 15 canonical bg/fg token pairs + `{purple,destructive,success,warning,info}-text` on
   background/card/`-subtle`, both themes, dark resolved via cascade, deterministic OKLCH→WCAG math,
   fail-closed (contrast-check.mjs:16-32,57,95-104). Complemented by the rendered axe gate
@@ -312,7 +313,7 @@ components.
   the `outline-ring` focus indicator vs adjacent surfaces, switch `bg-track` vs `bg-primary`,
   checkbox borders (axe's color-contrast rule doesn't check non-text either, so nothing does);
   (5) disabled-state text (opacity-dimmed) — deliberate exemption under WCAG, but the 3:1 non-text
-  expectation for disabled *borders* on thin controls (checkbox at `opacity-50`) is unexamined.
+  expectation for disabled _borders_ on thin controls (checkbox at `opacity-50`) is unexamined.
 
 ---
 
@@ -321,14 +322,14 @@ components.
 Owner preference: no ring halos; border/outline treatments preferred — the **global outline rule is
 already the preferred style**, so "outline (global)" rows need no change.
 
-| Style | Components | Evidence | Border-based alternative |
-|---|---|---|---|
-| **Outline (global rule)** — default, correct | accordion, alert*, avatar(N/A), badge, breadcrumb, button (non-outline variants), checkbox, collapsible, copy-button, data-list, empty-state, field-inline, hover-card, icon-button, label(N/A), marker, markdown-view links, message-scroller button, notification-bell, page-header, pagination, radio-group, relative-time, scroll-area viewport, settings-row(N/A), sidebar, slider thumbs, split-button, switch, table(N/A), tabs*, toggle, toggle-group (+`focus:z-10` guard), tooltip trigger, filter-bar, color-picker, date-picker day cells (via ghost Button) | base.css:16-18; per-file greps confirm no `outline-none` on these interactive elements | None needed — already the preferred treatment. (*alert.tsx:152 and tabs.tsx:204 carry redundant local copies — delete.) |
-| **Border-based local** (outline suppressed, border tint compensates) | input (input.tsx:39-40, group :56), textarea (textarea.tsx:25-26), otp-input (otp-input.tsx:90,93), select trigger (select.tsx:20), command input (command.tsx:171,178), text-edit surface (text-edit.tsx:35,498), button `outline` variant supplement (button.tsx:23) | `outline-none` + `focus:border-ring/70` / `focus-within:border-ring/70` | Already border-based — matches preference. Optional polish: switch plain `focus:` → `focus-visible:` on input/textarea/otp/select. |
-| **Virtual highlight** (listbox/menu roving) | context-menu items, dropdown-menu items, select items, command items | `outline-none` + `data-[highlighted]:bg-accent text-accent-foreground` (e.g. select.tsx:270-271) | Accepted Base UI pattern; accent pair AA-verified by contrast-check.mjs. No change. |
-| **Ring-based (box-shadow)** — sole outlier | bubble interactive content | bubble.tsx:155 `[button,a]:outline-none [button,a]:focus-visible:border-ring [button,a]:focus-visible:ring-3 [button,a]:focus-visible:ring-ring/30` | Yes, drop-in: it already sets `focus-visible:border-ring`; delete `ring-3 ring-ring/30` (bubble has a border to tint: `border border-transparent`), or drop the whole override and let the global outline apply. Meets 2.4.11 either way. |
-| **None (suppressed, uncompensated)** — violations | popover Popup (popover.tsx:163), sheet Popup (sheet.tsx:31/157) + Viewport (:152); latent same-pattern: dialog.tsx:30/146, alert-dialog.tsx:127/135 | §(b) #1-2 | Add a border/outline re-assert on the popup class, e.g. `focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring` (identical to global) or `focus-visible:border-ring/70` on the already-bordered popup — border-based, preference-compliant. |
-| **Not focusable but should be** | truncated-text / IconText tooltip triggers (truncated-text.tsx:99-119,176-201) | §(b) #4 | `tabIndex={0}` when truncated (pattern: relative-time.tsx:218); indicator then comes from the global outline for free. |
+| Style                                                                | Components                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Evidence                                                                                                                                            | Border-based alternative                                                                                                                                                                                                                                                |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Outline (global rule)** — default, correct                         | accordion, alert*, avatar(N/A), badge, breadcrumb, button (non-outline variants), checkbox, collapsible, copy-button, data-list, empty-state, field-inline, hover-card, icon-button, label(N/A), marker, markdown-view links, message-scroller button, notification-bell, page-header, pagination, radio-group, relative-time, scroll-area viewport, settings-row(N/A), sidebar, slider thumbs, split-button, switch, table(N/A), tabs*, toggle, toggle-group (+`focus:z-10` guard), tooltip trigger, filter-bar, color-picker, date-picker day cells (via ghost Button) | base.css:16-18; per-file greps confirm no `outline-none` on these interactive elements                                                              | None needed — already the preferred treatment. (*alert.tsx:152 and tabs.tsx:204 carry redundant local copies — delete.)                                                                                                                                                 |
+| **Border-based local** (outline suppressed, border tint compensates) | input (input.tsx:39-40, group :56), textarea (textarea.tsx:25-26), otp-input (otp-input.tsx:90,93), select trigger (select.tsx:20), command input (command.tsx:171,178), text-edit surface (text-edit.tsx:35,498), button `outline` variant supplement (button.tsx:23)                                                                                                                                                                                                                                                                                                   | `outline-none` + `focus:border-ring/70` / `focus-within:border-ring/70`                                                                             | Already border-based — matches preference. Optional polish: switch plain `focus:` → `focus-visible:` on input/textarea/otp/select.                                                                                                                                      |
+| **Virtual highlight** (listbox/menu roving)                          | context-menu items, dropdown-menu items, select items, command items                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | `outline-none` + `data-[highlighted]:bg-accent text-accent-foreground` (e.g. select.tsx:270-271)                                                    | Accepted Base UI pattern; accent pair AA-verified by contrast-check.mjs. No change.                                                                                                                                                                                     |
+| **Ring-based (box-shadow)** — sole outlier                           | bubble interactive content                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | bubble.tsx:155 `[button,a]:outline-none [button,a]:focus-visible:border-ring [button,a]:focus-visible:ring-3 [button,a]:focus-visible:ring-ring/30` | Yes, drop-in: it already sets `focus-visible:border-ring`; delete `ring-3 ring-ring/30` (bubble has a border to tint: `border border-transparent`), or drop the whole override and let the global outline apply. Meets 2.4.11 either way.                               |
+| **None (suppressed, uncompensated)** — violations                    | popover Popup (popover.tsx:163), sheet Popup (sheet.tsx:31/157) + Viewport (:152); latent same-pattern: dialog.tsx:30/146, alert-dialog.tsx:127/135                                                                                                                                                                                                                                                                                                                                                                                                                      | §(b) #1-2                                                                                                                                           | Add a border/outline re-assert on the popup class, e.g. `focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring` (identical to global) or `focus-visible:border-ring/70` on the already-bordered popup — border-based, preference-compliant. |
+| **Not focusable but should be**                                      | truncated-text / IconText tooltip triggers (truncated-text.tsx:99-119,176-201)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | §(b) #4                                                                                                                                             | `tabIndex={0}` when truncated (pattern: relative-time.tsx:218); indicator then comes from the global outline for free.                                                                                                                                                  |
 
 ---
 
@@ -370,7 +371,7 @@ already the preferred style**, so "outline (global)" rows need no change.
 
 ---
 
-*Method note: five parallel read-every-file audit passes (14+14+13+13+14 components) with a shared,
+_Method note: five parallel read-every-file audit passes (14+14+13+13+14 components) with a shared,
 pre-verified context (global focus rule, Tailwind v4 layer-order semantics, Base UI focus-management
 source, reduced-motion architecture), cross-checked against direct greps of all 68 sources and 69 test
-files. Claims about Base UI/primitive behavior were verified in `node_modules`, not assumed.*
+files. Claims about Base UI/primitive behavior were verified in `node_modules`, not assumed._

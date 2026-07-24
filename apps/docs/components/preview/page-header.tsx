@@ -1,20 +1,27 @@
-'use client';
+"use client";
 
-import { useState, type ReactNode } from 'react';
-import { MoreVertical } from 'lucide-react';
+import { useState, type ReactNode } from "react";
+import { MoreVertical } from "lucide-react";
 // Copied INTO apps/docs via `shadcn add @vegastack/page-header` (dogfoods the registry) → auto-scanned.
-import { PageHeader } from '@/components/ui/page-header';
-import { Button } from '@/components/ui/button';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
-import { IconButton } from '@/components/ui/icon-button';
+import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { IconButton } from "@/components/ui/icon-button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Wrapper } from './wrapper';
+} from "@/components/ui/dropdown-menu";
+import { Wrapper } from "./wrapper";
 
 export function pageHeader(): ReactNode {
   return (
@@ -140,7 +147,7 @@ export function pageHeaderFavoriteControlled(): ReactNode {
         {/* Controlled — the host owns the starred state */}
         <PageHeader
           title="Q3 Roadmap"
-          description={`Controlled star — currently ${starred ? 'starred' : 'not starred'}.`}
+          description={`Controlled star — currently ${starred ? "starred" : "not starred"}.`}
           favorite={{ active: starred, onToggle: setStarred }}
         />
         {/* Disabled — toggle removed from the tab order */}

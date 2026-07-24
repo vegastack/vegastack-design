@@ -1,6 +1,7 @@
 ---
 title: Data List
 description: A generic, typed data table — configurable columns, row selection, sortable headers, plus loading and empty states.
+audience: public
 preview: dataList
 ---
 
@@ -69,7 +70,9 @@ when there is no data.
   `loading`; the table gets `aria-busy` and a live status while placeholder rows stay `aria-hidden`.
 - **Empty** — a single full-width row (`data-slot="data-list-empty-row"`) hosting the `emptyState`.
 
-## Selection
+## Examples
+
+### Selection
 
 Pass `selectable` to add the checkbox column. Selection is **controllable** — lift it with
 `selectedIds` + `onSelectionChange`, or omit both for built-in uncontrolled state. The header checkbox is
@@ -80,7 +83,7 @@ indeterminate when only some rows are selected, checked when all are, and toggle
   file="components/preview/data-list.tsx"
 />
 
-## Sorting
+### Sorting
 
 Mark a column `sortable` to make its header interactive. Sorting is **controlled by intent**: `onSortChange`
 fires with the next `{ key, direction }` (or `null` when cleared) and **you** re-order `data` — the same API
@@ -99,7 +102,7 @@ const [sort, setSort] = React.useState<SortState | null>(null);
 />;
 ```
 
-## Row activation
+### Row activation
 
 Pass `onRowClick` to make rows activatable — for navigating to a detail page, opening a drawer, and
 so on. `DataList` stays presentational: it only _signals_ the activation; the host decides what it does.
@@ -147,7 +150,12 @@ const columns: DataListColumn<Person>[] = [
   // …
 ];
 
-<DataList columns={columns} data={rows} getRowId={(p) => p.id} onRowClick={open} />;
+<DataList
+  columns={columns}
+  data={rows}
+  getRowId={(p) => p.id}
+  onRowClick={open}
+/>;
 ```
 
 <ComponentPreview
@@ -155,7 +163,7 @@ const columns: DataListColumn<Person>[] = [
   file="components/preview/data-list.tsx"
 />
 
-## Loading & Empty states
+### Loading & Empty states
 
 `loading` swaps the body for `loadingRows` skeleton rows (default `5`). When `data` is empty and not loading,
 `DataList` renders a built-in `Empty` — override it with the `emptyState` prop.
@@ -178,7 +186,7 @@ icon and actions, for example:
   file="components/preview/data-list.tsx"
 />
 
-## Scope
+### Scope
 
 `DataList` is the **presentational data table** — columns, render functions, row selection,
 sortable-header signalling, loading, and empty state. It deliberately does **not** own

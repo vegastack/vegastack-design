@@ -1,246 +1,790 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>design.md — 3-way comparison (Vercel · Resend · VegaStack) + how we build ours</title>
-<style>
-  :root{
-    --bg:#ffffff; --fg:#191919; --muted:#606060; --faint:#898989;
-    --line:rgba(0,0,0,.10); --line-soft:rgba(0,0,0,.06); --card:#fafafa;
-    --pass:#127a3e; --pass-bg:#eafaef; --fail:#c0341d; --fail-bg:#fdecea;
-    --warn:#9a6a00; --warn-bg:#fff6e0; --accent:#0b5bd3; --reco-bg:#eef5ff;
-    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
-    --sans:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",sans-serif;
-  }
-  html[data-view="dark"]{
-    --bg:#191919; --fg:#f4f4f4; --muted:#989898; --faint:#747474; --line:rgba(255,255,255,.14);
-    --line-soft:rgba(255,255,255,.08); --card:#232323; --pass-bg:#13301f; --fail-bg:#3a1714; --warn-bg:#332701; --reco-bg:#14233d;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:1200px;margin:0 auto;padding:40px 24px 120px}
-  h1{font-size:26px;font-weight:600;letter-spacing:-.4px;margin:0 0 6px}
-  h2{font-size:19px;font-weight:600;letter-spacing:-.2px;margin:52px 0 6px;padding-top:20px;border-top:1px solid var(--line)}
-  h3{font-size:15px;font-weight:600;margin:26px 0 8px}
-  p{margin:8px 0}
-  .sub,.lede{color:var(--muted)} .lede{font-size:15px;max-width:82ch}
-  code,.mono{font-family:var(--mono);font-size:12px}
-  a{color:var(--accent)}
-  .bar{position:sticky;top:0;z-index:5;display:flex;gap:10px;align-items:center;background:var(--bg);border-bottom:1px solid var(--line);margin:0 -24px 0;padding:12px 24px}
-  .toggle{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
-  .toggle button{font:inherit;font-size:12px;font-weight:500;border:0;background:transparent;color:var(--muted);padding:6px 14px;cursor:pointer}
-  .toggle button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
-  table{border-collapse:collapse;width:100%;margin:10px 0;font-size:13px}
-  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line-soft);vertical-align:top}
-  th{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--faint);font-weight:600;border-bottom:1px solid var(--line)}
-  th.col{color:var(--fg);font-size:12px}
-  td.dim{font-weight:600;width:170px;color:var(--fg)}
-  .reco{background:var(--reco-bg)}
-  .chip{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:999px;white-space:nowrap}
-  .chip.pass{color:var(--pass);background:var(--pass-bg)} .chip.fail{color:var(--fail);background:var(--fail-bg)}
-  .chip.warn{color:var(--warn);background:var(--warn-bg)} .chip.acc{color:var(--accent);background:var(--reco-bg)}
-  .card{border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:14px 0;background:var(--card)}
-  .scale{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:10px 0}
-  .scale .step{flex:1;height:54px;position:relative}
-  .scale .step span{position:absolute;bottom:3px;left:0;right:0;text-align:center;font-family:var(--mono);font-size:9px;color:rgba(0,0,0,.5)}
-  .scale.onlight .step span{color:rgba(0,0,0,.55)} .scale.ondark .step span{color:rgba(255,255,255,.7)}
-  .intent{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin:6px 0 0;font-family:var(--mono);font-size:9.5px;color:var(--muted);text-align:center}
-  .small{font-size:12px;color:var(--muted)}
-  ul.tight{margin:8px 0;padding-left:20px} ul.tight li{margin:5px 0}
-  ol.tight{margin:8px 0;padding-left:22px} ol.tight li{margin:6px 0}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  .flag{border-left:3px solid var(--accent);padding:6px 0 6px 14px;margin:12px 0}
-  .flag.amber{border-color:#d99500}
-  .outline{font-family:var(--mono);font-size:12px;line-height:1.7;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;white-space:pre-wrap;overflow-x:auto}
-  .verdict b{color:var(--accent)}
-  .pill-row{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
-  blockquote{margin:10px 0;padding:10px 16px;border-left:3px solid var(--line);color:var(--muted);font-size:13px}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <div class="bar">
-    <strong style="font-size:13px">Theme:</strong>
-    <div class="toggle" role="group" aria-label="Theme">
-      <button id="t-light" aria-pressed="true" onclick="setView('light')">Light</button>
-      <button id="t-dark" aria-pressed="false" onclick="setView('dark')">Dark</button>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+      design.md — 3-way comparison (Vercel · Resend · VegaStack) + how we build
+      ours
+    </title>
+    <style>
+      :root {
+        --bg: #ffffff;
+        --fg: #191919;
+        --muted: #606060;
+        --faint: #898989;
+        --line: rgba(0, 0, 0, 0.1);
+        --line-soft: rgba(0, 0, 0, 0.06);
+        --card: #fafafa;
+        --pass: #127a3e;
+        --pass-bg: #eafaef;
+        --fail: #c0341d;
+        --fail-bg: #fdecea;
+        --warn: #9a6a00;
+        --warn-bg: #fff6e0;
+        --accent: #0b5bd3;
+        --reco-bg: #eef5ff;
+        --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        --sans:
+          -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+      }
+      html[data-view="dark"] {
+        --bg: #191919;
+        --fg: #f4f4f4;
+        --muted: #989898;
+        --faint: #747474;
+        --line: rgba(255, 255, 255, 0.14);
+        --line-soft: rgba(255, 255, 255, 0.08);
+        --card: #232323;
+        --pass-bg: #13301f;
+        --fail-bg: #3a1714;
+        --warn-bg: #332701;
+        --reco-bg: #14233d;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--sans);
+        font-size: 14px;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 24px 120px;
+      }
+      h1 {
+        font-size: 26px;
+        font-weight: 600;
+        letter-spacing: -0.4px;
+        margin: 0 0 6px;
+      }
+      h2 {
+        font-size: 19px;
+        font-weight: 600;
+        letter-spacing: -0.2px;
+        margin: 52px 0 6px;
+        padding-top: 20px;
+        border-top: 1px solid var(--line);
+      }
+      h3 {
+        font-size: 15px;
+        font-weight: 600;
+        margin: 26px 0 8px;
+      }
+      p {
+        margin: 8px 0;
+      }
+      .sub,
+      .lede {
+        color: var(--muted);
+      }
+      .lede {
+        font-size: 15px;
+        max-width: 82ch;
+      }
+      code,
+      .mono {
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+      a {
+        color: var(--accent);
+      }
+      .bar {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        background: var(--bg);
+        border-bottom: 1px solid var(--line);
+        margin: 0 -24px 0;
+        padding: 12px 24px;
+      }
+      .toggle {
+        display: inline-flex;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .toggle button {
+        font: inherit;
+        font-size: 12px;
+        font-weight: 500;
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        padding: 6px 14px;
+        cursor: pointer;
+      }
+      .toggle button[aria-pressed="true"] {
+        background: var(--fg);
+        color: var(--bg);
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 10px 0;
+        font-size: 13px;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--line-soft);
+        vertical-align: top;
+      }
+      th {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--faint);
+        font-weight: 600;
+        border-bottom: 1px solid var(--line);
+      }
+      th.col {
+        color: var(--fg);
+        font-size: 12px;
+      }
+      td.dim {
+        font-weight: 600;
+        width: 170px;
+        color: var(--fg);
+      }
+      .reco {
+        background: var(--reco-bg);
+      }
+      .chip {
+        display: inline-block;
+        font-family: var(--mono);
+        font-size: 10.5px;
+        font-weight: 600;
+        padding: 2px 7px;
+        border-radius: 999px;
+        white-space: nowrap;
+      }
+      .chip.pass {
+        color: var(--pass);
+        background: var(--pass-bg);
+      }
+      .chip.fail {
+        color: var(--fail);
+        background: var(--fail-bg);
+      }
+      .chip.warn {
+        color: var(--warn);
+        background: var(--warn-bg);
+      }
+      .chip.acc {
+        color: var(--accent);
+        background: var(--reco-bg);
+      }
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 18px 20px;
+        margin: 14px 0;
+        background: var(--card);
+      }
+      .scale {
+        display: flex;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+        margin: 10px 0;
+      }
+      .scale .step {
+        flex: 1;
+        height: 54px;
+        position: relative;
+      }
+      .scale .step span {
+        position: absolute;
+        bottom: 3px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-family: var(--mono);
+        font-size: 9px;
+        color: rgba(0, 0, 0, 0.5);
+      }
+      .scale.onlight .step span {
+        color: rgba(0, 0, 0, 0.55);
+      }
+      .scale.ondark .step span {
+        color: rgba(255, 255, 255, 0.7);
+      }
+      .intent {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        gap: 6px;
+        margin: 6px 0 0;
+        font-family: var(--mono);
+        font-size: 9.5px;
+        color: var(--muted);
+        text-align: center;
+      }
+      .small {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      ul.tight {
+        margin: 8px 0;
+        padding-left: 20px;
+      }
+      ul.tight li {
+        margin: 5px 0;
+      }
+      ol.tight {
+        margin: 8px 0;
+        padding-left: 22px;
+      }
+      ol.tight li {
+        margin: 6px 0;
+      }
+      .grid2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .flag {
+        border-left: 3px solid var(--accent);
+        padding: 6px 0 6px 14px;
+        margin: 12px 0;
+      }
+      .flag.amber {
+        border-color: #d99500;
+      }
+      .outline {
+        font-family: var(--mono);
+        font-size: 12px;
+        line-height: 1.7;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 18px 20px;
+        white-space: pre-wrap;
+        overflow-x: auto;
+      }
+      .verdict b {
+        color: var(--accent);
+      }
+      .pill-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin: 6px 0;
+      }
+      blockquote {
+        margin: 10px 0;
+        padding: 10px 16px;
+        border-left: 3px solid var(--line);
+        color: var(--muted);
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="bar">
+        <strong style="font-size: 13px">Theme:</strong>
+        <div class="toggle" role="group" aria-label="Theme">
+          <button id="t-light" aria-pressed="true" onclick="setView('light')">
+            Light
+          </button>
+          <button id="t-dark" aria-pressed="false" onclick="setView('dark')">
+            Dark
+          </button>
+        </div>
+        <span class="small" style="margin-left: auto"
+          >Sources: <code>references/vercel-design.md</code> ·
+          <code>references/resend-design.md</code> ·
+          <code>references/aster-design.md</code></span
+        >
+      </div>
+
+      <h1>design.md — three approaches, and how we build ours</h1>
+      <p class="lede">
+        A side-by-side of <b>Vercel (Geist)</b>, <b>Resend</b>, and our
+        <b>Aster</b> reference, pulled from their live
+        <code>design.md</code> files — to answer one question:
+        <b
+          >how should VegaStack publish its own design system as an
+          agent-readable contract?</b
+        >
+        The headline finding: the three aren't variations on one format —
+        they're <b>two different genres</b>, and the right move is to combine
+        them.
+      </p>
+
+      <h2>1 · The core insight — two genres, not three styles</h2>
+      <div class="grid2">
+        <div class="card">
+          <h3 style="margin-top: 0">Genre A — the self-contained spec</h3>
+          <p class="sub">
+            <b>Vercel</b> (17.8 KB) and our <b>Aster</b> reference (70 KB). One
+            file: DTCG-style frontmatter with the full token set, then prose
+            (Colors, Typography, Layout, Elevation, Motion, Shapes, Components,
+            Voice, Do/Don't). An agent can read it cold and build correctly. It
+            <i>is</i> the design system, serialized.
+          </p>
+        </div>
+        <div class="card">
+          <h3 style="margin-top: 0">Genre B — the pointer</h3>
+          <p class="sub">
+            <b>Resend</b> (1.1 KB). Not a spec at all — a thin redirect:
+            <code>npx skills add resend/design-skills</code> plus links to its
+            SKILL.md files. The canonical, <b>versioned</b> content lives in an
+            Agent Skill repo, not the markdown. The <code>.md</code> is a
+            discovery surface.
+          </p>
+        </div>
+      </div>
+      <div class="flag">
+        <b>Why this matters for us:</b> we already have <i>both</i> halves — a
+        DTCG token pipeline (can emit a Vercel-style spec) and a
+        <code>skills/</code> directory (can be the Resend-style versioned
+        source). We don't have to choose. We generate the spec <i>from</i> the
+        tokens and distribute it <i>through</i> the skill.
+      </div>
+
+      <h2>2 · Comparison matrix</h2>
+      <p class="sub">
+        Recommended-for-us cells are tinted. "Aster" is the raw reference you
+        supplied; "VegaStack (proposed)" is my synthesis.
+      </p>
+      <table id="matrix"></table>
+
+      <h2>3 · The idea worth stealing — Vercel's intent-encoded color scale</h2>
+      <p class="sub">
+        Vercel's most systematic move: every non-background scale runs 10 steps
+        where <b>the step number encodes intent</b>, not just lightness. Same
+        scale, predictable roles. Rendered from the real Geist tokens:
+      </p>
+
+      <h3>Gray (the chrome ramp)</h3>
+      <div class="scale onlight" id="gray-scale"></div>
+      <div class="intent" id="gray-hex"></div>
+      <div class="intent" id="intent-row"></div>
+
+      <h3 style="margin-top: 22px">
+        Blue (accent — links, focus, info; <code>blue-700 #006bff</code> is the
+        brand)
+      </h3>
+      <div class="scale onlight" id="blue-scale"></div>
+      <div class="intent" id="blue-hex"></div>
+
+      <div class="flag amber" style="margin-top: 18px">
+        <b
+          >⚠ The non-monotonic step you caught — it's real, and it's a
+          lesson.</b
+        >
+        In Vercel's actual data, <code>gray-400 #eaeaea</code> (lum 0.823) is
+        <i>lighter</i> than <code>gray-300 #e6e6e6</code> (lum 0.791), and
+        <code>blue-900</code> is lighter than <code>blue-800</code> — flagged
+        with <b style="color: var(--warn)">*</b> below.
+        <b>Not a rendering bug:</b> Vercel's scale
+        <b>encodes intent, not lightness</b> — <code>300</code> = "active
+        background", <code>400</code> = "default border", tuned independently
+        for their roles, so lightness isn't monotonic at that boundary.
+        <b>Lesson for our ramp:</b> if we ship a documented primitive ramp,
+        choose deliberately — <b>strict-monotonic lightness</b> (cleaner,
+        predictable; my recommendation) vs Vercel-style intent-encoding
+        (role-precise but visually non-monotonic). I'd keep intent in our
+        <i>semantic</i> layer and make the raw ramp strictly monotonic.
+      </div>
+
+      <div class="card" style="margin-top: 18px">
+        <b>My judgment — adopt the <i>clarity</i>, not the API.</b>
+        <p class="sub" style="margin-bottom: 6px">
+          Vercel's steps <i>are</i> its component API (<code>button</code> =
+          <code>gray-1000</code> fill, <code>gray-alpha-400</code> border). Ours
+          is semantic (<code>bg-primary</code>, <code>border-border</code>) and
+          64 components depend on it — switching the API is out of scope. But
+          the intent mapping is a brilliant <i>documentation</i> model. So:
+        </p>
+        <ul class="tight">
+          <li>
+            <b>Keep</b> semantic tokens as the component contract (locked).
+          </li>
+          <li>
+            <b>Add</b> a documented primitive ramp with intent labels (100 bg →
+            400 border → 700 fill → 1000 text) so consumers get Vercel's mental
+            model.
+          </li>
+          <li>
+            <b>Steal</b> the <code>gray-alpha-*</code> idea outright — it's
+            exactly our hairline-border decision (translucent, composites over
+            anything). We already chose this.
+          </li>
+          <li>
+            <b>Steal</b> the P3 wide-gamut <code>oklch()</code> variants —
+            trivial for us since <b>we're already OKLCH-native</b>; Vercel ships
+            hex+P3, we'd ship OKLCH (which IS P3-capable) with an sRGB-hex
+            fallback noted.
+          </li>
+        </ul>
+      </div>
+
+      <h2>4 · What each does best — and what we take</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>From</th>
+            <th class="col">Their strength</th>
+            <th class="col">What VegaStack takes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="dim">Vercel / Geist</td>
+            <td>
+              Self-contained, complete, agent-readable single file.
+              Intent-encoded scales. P3 variants. A full
+              <b>Voice &amp; Content</b> section (error copy, toasts, empty
+              states) most systems skip.
+            </td>
+            <td class="reco">
+              The single-file spec format · the Voice section · intent-labeled
+              ramp · P3 via OKLCH · "apply type tokens, never hand-set size"
+              rule.
+            </td>
+          </tr>
+          <tr>
+            <td class="dim">Resend</td>
+            <td>
+              Distribution discipline: the skill is the <b>versioned</b> source
+              of truth; the <code>.md</code> is a thin, stable pointer (<code
+                >npx skills add</code
+              >). Brand + product-UI + marketing split into separate skills.
+            </td>
+            <td class="reco">
+              The pointer-<code>design.md</code> + skill-as-canonical-source
+              model · the brand/product/marketing skill split.
+            </td>
+          </tr>
+          <tr>
+            <td class="dim">Aster (your ref)</td>
+            <td>
+              Obsessive measurement &amp; rationale ("measured #5d", per-engine
+              1px nudges). Strong product-app component spec. Scoped single-role
+              accents.
+            </td>
+            <td class="reco">
+              The measured rigor &amp; "why" annotations · the compact/quiet
+              aesthetic · the prose component descriptions (as a writing model).
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>5 · Recommended model for VegaStack</h2>
+      <p class="sub">
+        Synthesis: <b>one source of truth → two published artifacts.</b>
+      </p>
+      <div class="card">
+        <ol class="tight">
+          <li>
+            <b>Source of truth = <code>@vegastack/tokens</code> (DTCG).</b>
+            Already exists. Everything derives from here — nothing is
+            hand-maintained twice.
+          </li>
+          <li>
+            <b>Artifact 1 — <code>design.md</code> (Vercel/Aster genre):</b> a
+            <b>generated</b> self-contained spec. A small script reads the DTCG
+            tokens + a prose template and emits frontmatter (colors, type,
+            spacing, radius, shadows, components) + the narrative sections.
+            <b>Generated, so it can never drift from the real tokens</b> — an
+            edge over Vercel's apparently hand-maintained file.
+          </li>
+          <li>
+            <b>Artifact 2 — the Skill (Resend genre):</b>
+            <code>skills/design-system/</code> with the
+            <code>references/</code> depth layer (the part we found missing
+            earlier: tokens.md, heuristics/, patterns/, components catalog).
+            Distributed via the registry / <code>npx</code>. The
+            <code>.md</code> can carry a Resend-style pointer to it.
+          </li>
+          <li>
+            <b>Consistency gate:</b> CI re-generates <code>design.md</code> and
+            fails if it differs from the committed copy (same fail-closed
+            discipline as our contrast + registry-hash gates).
+          </li>
+        </ol>
+      </div>
+      <div class="flag amber">
+        <b>Reconnects the deferred work:</b> the Skill
+        <code>references/</code> we postponed and this
+        <code>design.md</code> share one source. When we pick the skills layer
+        back up, the generator feeds both — so it's not duplicate effort.
+      </div>
+
+      <h2>6 · Proposed outline for <code>vegastack/design.md</code></h2>
+      <p class="sub">
+        Concrete skeleton — Vercel's structure, Aster's rigor, our
+        OKLCH/semantic reality. The frontmatter is machine-generated from
+        tokens; the prose is templated.
+      </p>
+      <div class="outline" id="outline"></div>
+
+      <h2>7 · Build path (after you review)</h2>
+      <ol class="tight">
+        <li>
+          <b>Phase 1 of the token plan lands first</b> — the spec must describe
+          the <i>final</i> tokens, not today's.
+        </li>
+        <li>
+          Write <code>tooling/gen-design-md.mjs</code>: reads
+          <code>packages/tokens/dist/tokens.json</code> + a prose template →
+          emits <code>design.md</code> (+ <code>design.dark.md</code> like
+          Vercel, or one file with both themes).
+        </li>
+        <li>
+          Add a CI check: regenerate &amp;
+          <code>git diff --exit-code</code> (drift = fail).
+        </li>
+        <li>
+          Author the prose sections once (Overview, Voice, Do/Don't,
+          Accessibility) — the only hand-written part.
+        </li>
+        <li>
+          Publish: the static spec at a stable path; the richer guidance via the
+          Skill. (Publish step is operator-triggered, per house rule.)
+        </li>
+      </ol>
+
+      <h2>8 · Bottom line</h2>
+      <div class="card">
+        <p style="margin-top: 0" class="verdict">
+          <b
+            >Don't copy Vercel or Resend — combine them, and beat both on
+            freshness by generating from tokens.</b
+          >
+          Vercel gives us the format and completeness; Resend gives us versioned
+          distribution; Aster gives us the rigor and the aesthetic. Our
+          differentiator is the OKLCH-native, DTCG single-source pipeline that
+          lets the <code>design.md</code> and the Skill stay provably in sync
+          with the actual shipped tokens — something a hand-maintained file
+          can't guarantee.
+        </p>
+      </div>
+
+      <footer
+        style="
+          margin-top: 54px;
+          color: var(--faint);
+          font-size: 12px;
+          border-top: 1px solid var(--line);
+          padding-top: 16px;
+        "
+      >
+        Companion to <code>token-comparison.html</code>. Reference files copied
+        into <code>references/</code> for provenance.
+      </footer>
     </div>
-    <span class="small" style="margin-left:auto">Sources: <code>references/vercel-design.md</code> · <code>references/resend-design.md</code> · <code>references/aster-design.md</code></span>
-  </div>
 
-  <h1>design.md — three approaches, and how we build ours</h1>
-  <p class="lede">A side-by-side of <b>Vercel (Geist)</b>, <b>Resend</b>, and our <b>Aster</b> reference, pulled from their live
-  <code>design.md</code> files — to answer one question: <b>how should VegaStack publish its own design system as an agent-readable contract?</b>
-  The headline finding: the three aren't variations on one format — they're <b>two different genres</b>, and the right move is to combine them.</p>
+    <script>
+      /* gamma sRGB hex from sRGB hex is identity; we just render hex swatches directly here (sources are hex). */
+      const MATRIX = {
+        cols: [
+          "Dimension",
+          "Vercel / Geist",
+          "Resend",
+          "Aster (raw ref)",
+          "VegaStack (proposed)",
+        ],
+        rows: [
+          [
+            "Genre",
+            "Self-contained spec",
+            "Pointer → skill",
+            "Self-contained spec",
+            "<b>Both</b> — generated spec + skill",
+            4,
+          ],
+          ["File size", "17.8 KB", "1.1 KB", "70 KB", "~spec + skill refs", 4],
+          [
+            "Source of truth",
+            "The .md (hand-maintained)",
+            "The Skill repo",
+            "The .md",
+            "<b>DTCG tokens</b> (generated)",
+            4,
+          ],
+          [
+            "Distribution",
+            "Public URL snapshot",
+            "<code>npx skills add</code>",
+            "n/a (internal)",
+            "URL spec + <code>npx</code> skill",
+            4,
+          ],
+          [
+            "Color model",
+            "sRGB hex + P3 oklch",
+            "n/a",
+            "hex",
+            "<b>OKLCH-native</b> (P3-capable) + hex fallback",
+            4,
+          ],
+          [
+            "Color structure",
+            "10-step intent-encoded scales",
+            "n/a",
+            "semantic + scoped accents",
+            "semantic API + documented intent ramp",
+            4,
+          ],
+          [
+            "Typography",
+            "huge: heading-72→copy-13",
+            "n/a",
+            "compact: 11–21px",
+            "compact named scale (13px base)",
+            4,
+          ],
+          [
+            "Weight philosophy",
+            "600 headings, 2 weights/view",
+            "n/a",
+            "never 600",
+            "cap 500, 600 headings only",
+            4,
+          ],
+          [
+            "Voice &amp; Content",
+            '<span class="chip pass">yes — strong</span>',
+            "no",
+            "no",
+            '<span class="chip pass">adopt</span>',
+            1,
+          ],
+          [
+            "Do/Don't section",
+            '<span class="chip pass">yes</span>',
+            "no",
+            '<span class="chip pass">yes</span>',
+            '<span class="chip pass">yes</span>',
+            -1,
+          ],
+          [
+            "Dark theme",
+            "separate /design.dark.md",
+            "n/a",
+            "measured, inline",
+            "re-derived, inline or split",
+            4,
+          ],
+          [
+            "Agent-readable",
+            '<span class="chip pass">excellent</span>',
+            '<span class="chip warn">indirect</span>',
+            '<span class="chip pass">excellent</span>',
+            '<span class="chip pass">excellent + fresh</span>',
+            4,
+          ],
+          [
+            "Stays in sync w/ code",
+            '<span class="chip warn">manual</span>',
+            '<span class="chip pass">versioned skill</span>',
+            '<span class="chip warn">manual</span>',
+            '<span class="chip pass">generated + CI gate</span>',
+            4,
+          ],
+        ],
+      };
+      function renderMatrix() {
+        let h =
+          "<thead><tr>" +
+          MATRIX.cols
+            .map((c, i) => `<th class="${i ? "col" : ""}">${c}</th>`)
+            .join("") +
+          "</tr></thead><tbody>";
+        for (const r of MATRIX.rows) {
+          const reco = r[5]; // index of recommended col (1-based among value cols), 4=last, -1 means all, undefined none
+          h += "<tr>";
+          h += `<td class="dim">${r[0]}</td>`;
+          for (let i = 1; i <= 4; i++) {
+            const isReco = reco === -1 || reco === i;
+            h += `<td class="${isReco ? "reco" : ""}">${r[i]}</td>`;
+          }
+          h += "</tr>";
+        }
+        document.getElementById("matrix").innerHTML = h + "</tbody>";
+      }
 
-  <h2>1 · The core insight — two genres, not three styles</h2>
-  <div class="grid2">
-    <div class="card">
-      <h3 style="margin-top:0">Genre A — the self-contained spec</h3>
-      <p class="sub"><b>Vercel</b> (17.8 KB) and our <b>Aster</b> reference (70 KB). One file: DTCG-style frontmatter with the
-      full token set, then prose (Colors, Typography, Layout, Elevation, Motion, Shapes, Components, Voice, Do/Don't).
-      An agent can read it cold and build correctly. It <i>is</i> the design system, serialized.</p>
-    </div>
-    <div class="card">
-      <h3 style="margin-top:0">Genre B — the pointer</h3>
-      <p class="sub"><b>Resend</b> (1.1 KB). Not a spec at all — a thin redirect: <code>npx skills add resend/design-skills</code>
-      plus links to its SKILL.md files. The canonical, <b>versioned</b> content lives in an Agent Skill repo, not the markdown.
-      The <code>.md</code> is a discovery surface.</p>
-    </div>
-  </div>
-  <div class="flag"><b>Why this matters for us:</b> we already have <i>both</i> halves — a DTCG token pipeline (can emit a Vercel-style
-  spec) and a <code>skills/</code> directory (can be the Resend-style versioned source). We don't have to choose. We generate the
-  spec <i>from</i> the tokens and distribute it <i>through</i> the skill.</div>
+      /* Vercel real tokens */
+      const GRAY = [
+        "#f2f2f2",
+        "#ebebeb",
+        "#e6e6e6",
+        "#eaeaea",
+        "#c9c9c9",
+        "#a8a8a8",
+        "#8f8f8f",
+        "#7d7d7d",
+        "#4d4d4d",
+        "#171717",
+      ];
+      const BLUE = [
+        "#f0f7ff",
+        "#e9f4ff",
+        "#dfefff",
+        "#cae7ff",
+        "#94ccff",
+        "#48aeff",
+        "#006bff",
+        "#0059ec",
+        "#005ff2",
+        "#002359",
+      ];
+      const INTENT = [
+        "100<br>bg",
+        "200<br>bg hover",
+        "300<br>bg active",
+        "400<br>border",
+        "500<br>bd hover",
+        "600<br>bd active",
+        "700<br>fill",
+        "800<br>fill hover",
+        "900<br>2° text",
+        "1000<br>text",
+      ];
+      function scale(id, arr, dark) {
+        const steps = arr
+          .map(
+            (c, i) =>
+              `<div class="step" style="background:${c}"><span style="color:${i > 6 ? "#fff" : "rgba(0,0,0,.5)"}">${i + 1}00</span></div>`,
+          )
+          .join("");
+        document.getElementById(id).innerHTML = steps;
+      }
+      function hexRow(id, arr, flag) {
+        document.getElementById(id).innerHTML = arr
+          .map((c, i) => {
+            const w = flag && flag.includes(i);
+            return `<div style="${w ? "color:var(--warn);font-weight:600" : ""}">${c}${w ? " *" : ""}</div>`;
+          })
+          .join("");
+      }
+      function renderScales() {
+        scale("gray-scale", GRAY);
+        hexRow("gray-hex", GRAY, [3]); // gray-400 (#eaeaea) lighter than 300
+        scale("blue-scale", BLUE);
+        hexRow("blue-hex", BLUE, [8]); // blue-900 lighter than 800
+        document.getElementById("intent-row").innerHTML = INTENT.map(
+          (t) => `<div>${t}</div>`,
+        ).join("");
+      }
 
-  <h2>2 · Comparison matrix</h2>
-  <p class="sub">Recommended-for-us cells are tinted. "Aster" is the raw reference you supplied; "VegaStack (proposed)" is my synthesis.</p>
-  <table id="matrix"></table>
-
-  <h2>3 · The idea worth stealing — Vercel's intent-encoded color scale</h2>
-  <p class="sub">Vercel's most systematic move: every non-background scale runs 10 steps where <b>the step number encodes intent</b>,
-  not just lightness. Same scale, predictable roles. Rendered from the real Geist tokens:</p>
-
-  <h3>Gray (the chrome ramp)</h3>
-  <div class="scale onlight" id="gray-scale"></div>
-  <div class="intent" id="gray-hex"></div>
-  <div class="intent" id="intent-row"></div>
-
-  <h3 style="margin-top:22px">Blue (accent — links, focus, info; <code>blue-700 #006bff</code> is the brand)</h3>
-  <div class="scale onlight" id="blue-scale"></div>
-  <div class="intent" id="blue-hex"></div>
-
-  <div class="flag amber" style="margin-top:18px"><b>⚠ The non-monotonic step you caught — it's real, and it's a lesson.</b>
-  In Vercel's actual data, <code>gray-400 #eaeaea</code> (lum 0.823) is <i>lighter</i> than <code>gray-300 #e6e6e6</code> (lum 0.791),
-  and <code>blue-900</code> is lighter than <code>blue-800</code> — flagged with <b style="color:var(--warn)">*</b> below. <b>Not a rendering bug:</b>
-  Vercel's scale <b>encodes intent, not lightness</b> — <code>300</code> = "active background", <code>400</code> = "default border", tuned
-  independently for their roles, so lightness isn't monotonic at that boundary. <b>Lesson for our ramp:</b> if we ship a documented primitive
-  ramp, choose deliberately — <b>strict-monotonic lightness</b> (cleaner, predictable; my recommendation) vs Vercel-style intent-encoding
-  (role-precise but visually non-monotonic). I'd keep intent in our <i>semantic</i> layer and make the raw ramp strictly monotonic.</div>
-
-  <div class="card" style="margin-top:18px">
-    <b>My judgment — adopt the <i>clarity</i>, not the API.</b>
-    <p class="sub" style="margin-bottom:6px">Vercel's steps <i>are</i> its component API (<code>button</code> = <code>gray-1000</code> fill, <code>gray-alpha-400</code> border).
-    Ours is semantic (<code>bg-primary</code>, <code>border-border</code>) and 64 components depend on it — switching the API is out of scope.
-    But the intent mapping is a brilliant <i>documentation</i> model. So:</p>
-    <ul class="tight">
-      <li><b>Keep</b> semantic tokens as the component contract (locked).</li>
-      <li><b>Add</b> a documented primitive ramp with intent labels (100 bg → 400 border → 700 fill → 1000 text) so consumers get Vercel's mental model.</li>
-      <li><b>Steal</b> the <code>gray-alpha-*</code> idea outright — it's exactly our hairline-border decision (translucent, composites over anything). We already chose this.</li>
-      <li><b>Steal</b> the P3 wide-gamut <code>oklch()</code> variants — trivial for us since <b>we're already OKLCH-native</b>; Vercel ships hex+P3, we'd ship OKLCH (which IS P3-capable) with an sRGB-hex fallback noted.</li>
-    </ul>
-  </div>
-
-  <h2>4 · What each does best — and what we take</h2>
-  <table>
-    <thead><tr><th>From</th><th class="col">Their strength</th><th class="col">What VegaStack takes</th></tr></thead>
-    <tbody>
-      <tr><td class="dim">Vercel / Geist</td>
-        <td>Self-contained, complete, agent-readable single file. Intent-encoded scales. P3 variants. A full <b>Voice &amp; Content</b> section (error copy, toasts, empty states) most systems skip.</td>
-        <td class="reco">The single-file spec format · the Voice section · intent-labeled ramp · P3 via OKLCH · "apply type tokens, never hand-set size" rule.</td></tr>
-      <tr><td class="dim">Resend</td>
-        <td>Distribution discipline: the skill is the <b>versioned</b> source of truth; the <code>.md</code> is a thin, stable pointer (<code>npx skills add</code>). Brand + product-UI + marketing split into separate skills.</td>
-        <td class="reco">The pointer-<code>design.md</code> + skill-as-canonical-source model · the brand/product/marketing skill split.</td></tr>
-      <tr><td class="dim">Aster (your ref)</td>
-        <td>Obsessive measurement &amp; rationale ("measured #5d", per-engine 1px nudges). Strong product-app component spec. Scoped single-role accents.</td>
-        <td class="reco">The measured rigor &amp; "why" annotations · the compact/quiet aesthetic · the prose component descriptions (as a writing model).</td></tr>
-    </tbody>
-  </table>
-
-  <h2>5 · Recommended model for VegaStack</h2>
-  <p class="sub">Synthesis: <b>one source of truth → two published artifacts.</b></p>
-  <div class="card">
-    <ol class="tight">
-      <li><b>Source of truth = <code>@vegastack/tokens</code> (DTCG).</b> Already exists. Everything derives from here — nothing is hand-maintained twice.</li>
-      <li><b>Artifact 1 — <code>design.md</code> (Vercel/Aster genre):</b> a <b>generated</b> self-contained spec. A small script reads the DTCG tokens + a prose template and emits frontmatter (colors, type, spacing, radius, shadows, components) + the narrative sections. <b>Generated, so it can never drift from the real tokens</b> — an edge over Vercel's apparently hand-maintained file.</li>
-      <li><b>Artifact 2 — the Skill (Resend genre):</b> <code>skills/design-system/</code> with the <code>references/</code> depth layer (the part we found missing earlier: tokens.md, heuristics/, patterns/, components catalog). Distributed via the registry / <code>npx</code>. The <code>.md</code> can carry a Resend-style pointer to it.</li>
-      <li><b>Consistency gate:</b> CI re-generates <code>design.md</code> and fails if it differs from the committed copy (same fail-closed discipline as our contrast + registry-hash gates).</li>
-    </ol>
-  </div>
-  <div class="flag amber"><b>Reconnects the deferred work:</b> the Skill <code>references/</code> we postponed and this <code>design.md</code> share one source. When we pick the skills layer back up, the generator feeds both — so it's not duplicate effort.</div>
-
-  <h2>6 · Proposed outline for <code>vegastack/design.md</code></h2>
-  <p class="sub">Concrete skeleton — Vercel's structure, Aster's rigor, our OKLCH/semantic reality. The frontmatter is machine-generated from tokens; the prose is templated.</p>
-  <div class="outline" id="outline"></div>
-
-  <h2>7 · Build path (after you review)</h2>
-  <ol class="tight">
-    <li><b>Phase 1 of the token plan lands first</b> — the spec must describe the <i>final</i> tokens, not today's.</li>
-    <li>Write <code>tooling/gen-design-md.mjs</code>: reads <code>packages/tokens/dist/tokens.json</code> + a prose template → emits <code>design.md</code> (+ <code>design.dark.md</code> like Vercel, or one file with both themes).</li>
-    <li>Add a CI check: regenerate &amp; <code>git diff --exit-code</code> (drift = fail).</li>
-    <li>Author the prose sections once (Overview, Voice, Do/Don't, Accessibility) — the only hand-written part.</li>
-    <li>Publish: the static spec at a stable path; the richer guidance via the Skill. (Publish step is operator-triggered, per house rule.)</li>
-  </ol>
-
-  <h2>8 · Bottom line</h2>
-  <div class="card">
-    <p style="margin-top:0" class="verdict"><b>Don't copy Vercel or Resend — combine them, and beat both on freshness by generating from tokens.</b>
-    Vercel gives us the format and completeness; Resend gives us versioned distribution; Aster gives us the rigor and the aesthetic.
-    Our differentiator is the OKLCH-native, DTCG single-source pipeline that lets the <code>design.md</code> and the Skill stay
-    provably in sync with the actual shipped tokens — something a hand-maintained file can't guarantee.</p>
-  </div>
-
-  <footer style="margin-top:54px;color:var(--faint);font-size:12px;border-top:1px solid var(--line);padding-top:16px">
-    Companion to <code>token-comparison.html</code>. Reference files copied into <code>references/</code> for provenance.
-  </footer>
-</div>
-
-<script>
-/* gamma sRGB hex from sRGB hex is identity; we just render hex swatches directly here (sources are hex). */
-const MATRIX={
-  cols:['Dimension','Vercel / Geist','Resend','Aster (raw ref)','VegaStack (proposed)'],
-  rows:[
-    ['Genre','Self-contained spec','Pointer → skill','Self-contained spec','<b>Both</b> — generated spec + skill',4],
-    ['File size','17.8 KB','1.1 KB','70 KB','~spec + skill refs',4],
-    ['Source of truth','The .md (hand-maintained)','The Skill repo','The .md','<b>DTCG tokens</b> (generated)',4],
-    ['Distribution','Public URL snapshot','<code>npx skills add</code>','n/a (internal)','URL spec + <code>npx</code> skill',4],
-    ['Color model','sRGB hex + P3 oklch','n/a','hex','<b>OKLCH-native</b> (P3-capable) + hex fallback',4],
-    ['Color structure','10-step intent-encoded scales','n/a','semantic + scoped accents','semantic API + documented intent ramp',4],
-    ['Typography','huge: heading-72→copy-13','n/a','compact: 11–21px','compact named scale (13px base)',4],
-    ['Weight philosophy','600 headings, 2 weights/view','n/a','never 600','cap 500, 600 headings only',4],
-    ['Voice &amp; Content','<span class="chip pass">yes — strong</span>','no','no','<span class="chip pass">adopt</span>',1],
-    ['Do/Don\'t section','<span class="chip pass">yes</span>','no','<span class="chip pass">yes</span>','<span class="chip pass">yes</span>',-1],
-    ['Dark theme','separate /design.dark.md','n/a','measured, inline','re-derived, inline or split',4],
-    ['Agent-readable','<span class="chip pass">excellent</span>','<span class="chip warn">indirect</span>','<span class="chip pass">excellent</span>','<span class="chip pass">excellent + fresh</span>',4],
-    ['Stays in sync w/ code','<span class="chip warn">manual</span>','<span class="chip pass">versioned skill</span>','<span class="chip warn">manual</span>','<span class="chip pass">generated + CI gate</span>',4],
-  ]
-};
-function renderMatrix(){
-  let h='<thead><tr>'+MATRIX.cols.map((c,i)=>`<th class="${i?'col':''}">${c}</th>`).join('')+'</tr></thead><tbody>';
-  for(const r of MATRIX.rows){
-    const reco=r[5]; // index of recommended col (1-based among value cols), 4=last, -1 means all, undefined none
-    h+='<tr>';
-    h+=`<td class="dim">${r[0]}</td>`;
-    for(let i=1;i<=4;i++){
-      const isReco = reco===-1 || reco===i;
-      h+=`<td class="${isReco?'reco':''}">${r[i]}</td>`;
-    }
-    h+='</tr>';
-  }
-  document.getElementById('matrix').innerHTML=h+'</tbody>';
-}
-
-/* Vercel real tokens */
-const GRAY=['#f2f2f2','#ebebeb','#e6e6e6','#eaeaea','#c9c9c9','#a8a8a8','#8f8f8f','#7d7d7d','#4d4d4d','#171717'];
-const BLUE=['#f0f7ff','#e9f4ff','#dfefff','#cae7ff','#94ccff','#48aeff','#006bff','#0059ec','#005ff2','#002359'];
-const INTENT=['100<br>bg','200<br>bg hover','300<br>bg active','400<br>border','500<br>bd hover','600<br>bd active','700<br>fill','800<br>fill hover','900<br>2° text','1000<br>text'];
-function scale(id,arr,dark){
-  const steps=arr.map((c,i)=>`<div class="step" style="background:${c}"><span style="color:${i>6?'#fff':'rgba(0,0,0,.5)'}">${(i+1)}00</span></div>`).join('');
-  document.getElementById(id).innerHTML=steps;
-}
-function hexRow(id,arr,flag){
-  document.getElementById(id).innerHTML=arr.map((c,i)=>{
-    const w=flag&&flag.includes(i);
-    return `<div style="${w?'color:var(--warn);font-weight:600':''}">${c}${w?' *':''}</div>`;
-  }).join('');
-}
-function renderScales(){
-  scale('gray-scale',GRAY); hexRow('gray-hex',GRAY,[3]);   // gray-400 (#eaeaea) lighter than 300
-  scale('blue-scale',BLUE); hexRow('blue-hex',BLUE,[8]);   // blue-900 lighter than 800
-  document.getElementById('intent-row').innerHTML=INTENT.map(t=>`<div>${t}</div>`).join('');
-}
-
-const OUTLINE=`---
+      const OUTLINE = `---
 version: 1.0
 name: VegaStack
 description: VegaStack's design system — Base UI + Tailwind v4, OKLCH tokens.
@@ -273,14 +817,22 @@ components:   button · input · card · badge · dialog … (derived tokens)
 ## Voice & Content     — error/toast/empty-state copy rules        ← stolen from Vercel
 ## Do's and Don'ts     — the enforceable rules (lint + audit skill)
 ## Accessibility       — WCAG AA contract, focus-visible, never color-alone`;
-function renderOutline(){document.getElementById('outline').textContent=OUTLINE;}
+      function renderOutline() {
+        document.getElementById("outline").textContent = OUTLINE;
+      }
 
-function setView(v){
-  document.documentElement.setAttribute('data-view',v);
-  document.getElementById('t-light').setAttribute('aria-pressed',v==='light');
-  document.getElementById('t-dark').setAttribute('aria-pressed',v==='dark');
-}
-renderMatrix();renderScales();renderOutline();
-</script>
-</body>
+      function setView(v) {
+        document.documentElement.setAttribute("data-view", v);
+        document
+          .getElementById("t-light")
+          .setAttribute("aria-pressed", v === "light");
+        document
+          .getElementById("t-dark")
+          .setAttribute("aria-pressed", v === "dark");
+      }
+      renderMatrix();
+      renderScales();
+      renderOutline();
+    </script>
+  </body>
 </html>

@@ -1,6 +1,7 @@
 ---
 title: Shimmer
 description: An animated text-highlight sweep for streaming or loading copy — pure CSS, dark-mode aware, and reduced-motion safe.
+audience: public
 preview: shimmer
 ---
 
@@ -39,7 +40,10 @@ semantic token and the sweep follows.
 
 Use `shimmer` on `MarkerContent` for a streaming status row.
 
-<ComponentPreview name="shimmerWithMarker" file="components/preview/utilities.tsx" />
+<ComponentPreview
+  name="shimmerWithMarker"
+  file="components/preview/utilities.tsx"
+/>
 
 ### Color
 
@@ -52,13 +56,19 @@ optional `/opacity` modifier).
 
 `shimmer-duration-<ms>` controls the sweep speed (default `2000`).
 
-<ComponentPreview name="shimmerDuration" file="components/preview/utilities.tsx" />
+<ComponentPreview
+  name="shimmerDuration"
+  file="components/preview/utilities.tsx"
+/>
 
 ### Spread
 
 `shimmer-spread-<n>` widens or narrows the highlight band.
 
-<ComponentPreview name="shimmerSpread" file="components/preview/utilities.tsx" />
+<ComponentPreview
+  name="shimmerSpread"
+  file="components/preview/utilities.tsx"
+/>
 
 ### Angle
 
@@ -70,7 +80,10 @@ optional `/opacity` modifier).
 
 `shimmer-reverse` flips the sweep direction.
 
-<ComponentPreview name="shimmerReverse" file="components/preview/utilities.tsx" />
+<ComponentPreview
+  name="shimmerReverse"
+  file="components/preview/utilities.tsx"
+/>
 
 ### Play once
 
@@ -86,16 +99,16 @@ The sweep follows reading direction automatically in `dir="rtl"`.
 
 ## Classes
 
-| Class | Effect |
-| --- | --- |
-| `shimmer` | Animate the highlight sweep (loops by default). |
-| `shimmer-once` | Run the sweep a single time. |
-| `shimmer-reverse` | Reverse the sweep direction. |
-| `shimmer-none` | Disable the effect (e.g. `md:shimmer-none`). |
-| `shimmer-color-*` | Override the highlight colour from the theme (e.g. `shimmer-color-primary`, `shimmer-color-info/60`). |
-| `shimmer-duration-*` | Sweep duration in ms (default `2000`). |
-| `shimmer-spread-*` | Highlight band width (spacing scale). |
-| `shimmer-angle-*` | Highlight tilt in degrees (default `20`). |
+| Class                | Effect                                                                                                |
+| -------------------- | ----------------------------------------------------------------------------------------------------- |
+| `shimmer`            | Animate the highlight sweep (loops by default).                                                       |
+| `shimmer-once`       | Run the sweep a single time.                                                                          |
+| `shimmer-reverse`    | Reverse the sweep direction.                                                                          |
+| `shimmer-none`       | Disable the effect (e.g. `md:shimmer-none`).                                                          |
+| `shimmer-color-*`    | Override the highlight colour from the theme (e.g. `shimmer-color-primary`, `shimmer-color-info/60`). |
+| `shimmer-duration-*` | Sweep duration in ms (default `2000`).                                                                |
+| `shimmer-spread-*`   | Highlight band width (spacing scale).                                                                 |
+| `shimmer-angle-*`    | Highlight tilt in degrees (default `20`).                                                             |
 
 ## Accessibility
 

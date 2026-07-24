@@ -1,4 +1,4 @@
-// @vegastack data-list@0.2.0 sha256-l7RX0geRZ3k7YRyEle216UaPNmvfVX+a7NA5JgNnz3w=
+// @vegastack data-list@0.2.0 sha256-GQ6UTu5RHkhMQLXV0i7oikMK64VVXphiUVplA0UGSlg=
 
 "use client";
 
@@ -15,7 +15,13 @@ import {
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 /** Sort direction for a sortable column. */
 export type SortDirection = "asc" | "desc";
@@ -71,6 +77,7 @@ export interface DataListColumn<T> {
   interactive?: boolean;
 }
 
+/** Props accepted by `DataList`. */
 export interface DataListProps<T> extends Omit<
   React.ComponentPropsWithRef<"table">,
   "children"
@@ -95,21 +102,29 @@ export interface DataListProps<T> extends Omit<
   /**
    * Controlled set of selected row ids. Pair with `onSelectionChange`. Omit for
    * uncontrolled selection (the component tracks its own state).
+
+   * @default undefined
    */
   selectedIds?: Set<string>;
   /**
    * Called whenever the selection changes, with the next set of selected row ids.
+
+   * @default undefined
    */
   onSelectionChange?: (selectedIds: Set<string>) => void;
   /**
    * Controlled active sort. Pair with `onSortChange`. Omit for uncontrolled
    * sorting (the component tracks which header is active, but you must still
    * order `data` yourself in `onSortChange`).
+
+   * @default undefined
    */
   sort?: SortState | null;
   /**
    * Called when a sortable header is activated, with the next {@link SortState}
    * (or `null` when sorting is cleared). Cycles asc → desc → none per column.
+
+   * @default undefined
    */
   onSortChange?: (sort: SortState | null) => void;
   /**
@@ -125,6 +140,8 @@ export interface DataListProps<T> extends Omit<
   /**
    * Content shown when `data` is empty and not `loading`. Defaults to a built-in
    * {@link Empty}. Pass a node to fully customise it.
+
+   * @default undefined
    */
   emptyState?: React.ReactNode;
   /**
@@ -142,24 +159,34 @@ export interface DataListProps<T> extends Omit<
    * from a consumer-provided in-cell control. Purely *presentational*: the host
    * decides what activating a row does (navigate, open a drawer, …); `DataList`
    * still owns no data behaviour.
+
+   * @default undefined
    */
   onRowClick?: (row: T, index: number) => void;
   /**
    * Slot rendered above the table — where the host drops its own search input,
    * filter bar, or bulk actions. Renders nothing when omitted (per the G7 split,
    * the search/filter *logic* lives in the host; this is just the mount point).
+
+   * @default undefined
    */
   toolbar?: React.ReactNode;
   /**
    * Slot rendered below the table — where the host drops its own pagination,
    * load-more, or row-count footer. Renders nothing when omitted (the paging
    * *logic* lives in the host; this is just the mount point).
+
+   * @default undefined
    */
   footer?: React.ReactNode;
 }
 
 const alignClass = (align: DataListColumn<unknown>["align"]) =>
-  align === "end" ? "text-end" : align === "center" ? "text-center" : "text-start";
+  align === "end"
+    ? "text-end"
+    : align === "center"
+      ? "text-center"
+      : "text-start";
 
 /**
  * Interactive descendants that own their own click/keyboard activation. A click
@@ -442,7 +469,7 @@ export function DataList<T>({
                       // columns: any icon-first arrangement makes the icon span the flex
                       // container's baseline-defining first item — its baseline synthesizes
                       // from the svg's box bottom, lifting the label ~2px vs sibling headers.
-                      className="group/sort -mx-1.5 -my-1 inline-flex items-center gap-1 rounded-md px-1.5 py-1 font-medium text-muted-foreground transition-colors duration-fast ease-standard select-none hover:text-foreground"
+                      className="group/sort -mx-1.5 -my-1 inline-flex items-center gap-1 rounded-md px-1.5 py-1 font-medium text-muted-foreground  select-none hover:text-foreground"
                     >
                       {col.header}
                       <span

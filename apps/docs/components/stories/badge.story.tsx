@@ -1,5 +1,5 @@
-import { defineStory } from '@/lib/story';
-import { Badge } from '@/components/ui/badge';
+import { defineStory } from "@/lib/story";
+import { Badge } from "@/components/ui/badge";
 
 /**
  * Story explorer for `Badge` — controls auto-generated from `BadgeProps` by the Story
@@ -9,19 +9,19 @@ export const story = defineStory({
   Component: Badge,
   args: [
     {
-      variant: 'Default',
+      variant: "Default",
       initial: {
-        children: 'Active',
+        children: "Active",
       },
     },
     {
-      variant: 'Solid intent',
+      variant: "Solid intent",
       initial: {
-        children: 'Deployed',
+        children: "Deployed",
       },
       fixed: {
-        variant: 'solid',
-        intent: 'success',
+        variant: "solid",
+        intent: "success",
       },
     },
   ],

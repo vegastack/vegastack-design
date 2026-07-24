@@ -1,6 +1,7 @@
 ---
 title: Testimonial
 description: A pull-quote — a serif-italic quote over a mono uppercase attribution line.
+audience: public
 preview: testimonial
 ---
 
@@ -15,7 +16,7 @@ npx shadcn@latest add @vegastack/testimonial
 ## Usage
 
 ```tsx
-import { Testimonial } from '@/components/ui/testimonial';
+import { Testimonial } from "@/components/ui/testimonial";
 
 <Testimonial
   quote="VegaStack cut our design-to-ship time in half."
@@ -24,15 +25,23 @@ import { Testimonial } from '@/components/ui/testimonial';
 />;
 ```
 
-<ComponentPreview name="testimonial" file="components/preview/testimonial.tsx" />
+## Examples
 
-## Without a role
+<ComponentPreview
+  name="testimonial"
+  file="components/preview/testimonial.tsx"
+/>
+
+### Without a role
 
 `role` is optional — omit it for a bare name attribution.
 
-<ComponentPreview name="testimonialNoRole" file="components/preview/testimonial.tsx" />
+<ComponentPreview
+  name="testimonialNoRole"
+  file="components/preview/testimonial.tsx"
+/>
 
-## The serif accent
+### The serif accent
 
 The quote renders `font-serif italic` at `text-display-sm` — the Newsreader display-emphasis
 accent, reserved for display emphasis words and pull-quotes ONLY (audit 17-brand-direction
@@ -41,7 +50,10 @@ other is a single emphasis span inside [`SectionHeader`](/docs/components/sectio
 
 ## API Reference
 
-<AutoTypeTable path="../../packages/ui/registry/ui/testimonial.tsx" name="TestimonialProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/testimonial.tsx"
+  name="TestimonialProps"
+/>
 
 ## Accessibility
 

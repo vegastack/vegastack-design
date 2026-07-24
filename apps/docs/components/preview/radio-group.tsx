@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { type ReactNode, useState } from 'react';
-import { Wrapper } from './wrapper';
+import { type ReactNode, useState } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/radio-group` (dogfoods the registry) → auto-scanned.
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Field } from '@/components/ui/field';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Field } from "@/components/ui/field";
 
 export function radioGroup(): ReactNode {
   return (
@@ -41,10 +41,18 @@ export function radioGroupHorizontal(): ReactNode {
         <Field label="PayPal" orientation="horizontal" className="w-auto">
           <RadioGroupItem value="paypal" />
         </Field>
-        <Field label="Bank transfer" orientation="horizontal" className="w-auto">
+        <Field
+          label="Bank transfer"
+          orientation="horizontal"
+          className="w-auto"
+        >
           <RadioGroupItem value="bank" />
         </Field>
-        <Field label="Wire (unavailable)" orientation="horizontal" className="w-auto">
+        <Field
+          label="Wire (unavailable)"
+          orientation="horizontal"
+          className="w-auto"
+        >
           <RadioGroupItem value="wire" disabled />
         </Field>
       </RadioGroup>
@@ -73,12 +81,16 @@ export function radioGroupInvalid(): ReactNode {
 }
 
 export function radioGroupStates(): ReactNode {
-  const [value, setValue] = useState('standard');
+  const [value, setValue] = useState("standard");
 
   return (
     <Wrapper className="flex-col items-start gap-6">
       {/* A full, controlled group — the selected dot renders in neutral ink */}
-      <RadioGroup value={value} onValueChange={setValue} aria-label="Shipping speed">
+      <RadioGroup
+        value={value}
+        onValueChange={setValue}
+        aria-label="Shipping speed"
+      >
         <Field label="Standard — 5 business days" orientation="horizontal">
           <RadioGroupItem value="standard" />
         </Field>

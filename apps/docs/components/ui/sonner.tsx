@@ -1,4 +1,4 @@
-// @vegastack sonner@0.2.0 sha256-Znz3oHpLxZG0LCH3i30G8+alY2SDpoYh8ChnwMzlOkk=
+// @vegastack sonner@0.2.0 sha256-mnzdjwDyaMWFZmmyfDyvxdKnaMDWOqLQB5TORwuCC3U=
 
 "use client";
 
@@ -14,6 +14,7 @@ import {
 import { useTheme } from "next-themes";
 import { CircleCheck, Info, OctagonX, TriangleAlert } from "lucide-react";
 import { cn } from "@vegastack/design";
+import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 
 // Sonner (verified against the installed sonner@2.x source, `dist/index.mjs`'s
 // `assignOffset()`) writes `offset`/`mobileOffset` straight onto `--offset-{side}` /
@@ -39,6 +40,7 @@ const DEFAULT_MOBILE_OFFSET: NonNullable<SonnerToasterProps["mobileOffset"]> = {
   left: "calc(var(--spacing) * 4 + env(safe-area-inset-left))",
 };
 
+/** Props accepted by `Toaster`. */
 export interface ToasterProps extends SonnerToasterProps {
   /**
    * Toast stacking edge — `'top-left' | 'top-center' | 'top-right' |
@@ -104,6 +106,10 @@ export interface ToasterProps extends SonnerToasterProps {
  * Safe-area aware by default: {@link ToasterProps.offset} / {@link ToasterProps.mobileOffset}
  * default to Sonner's own spacing plus `env(safe-area-inset-*)`, so edge-pinned toasts clear
  * the iOS home indicator/notch — a no-op on non-notched devices.
+
+ *
+ * @example
+ * <Toaster />
  */
 export function Toaster({
   className,
@@ -115,6 +121,7 @@ export function Toaster({
   ...props
 }: ToasterProps) {
   const { theme = "system" } = useTheme();
+  const themeScope = useInternalThemeScope();
   return (
     <SonnerToaster
       // Sonner forwards `className` to its root <ol> but drops unknown props, so
@@ -127,7 +134,7 @@ export function Toaster({
       // with attribute-selector specificity a lone utility class can't beat, but a var
       // declared directly ON the toast element wins over any inherited value.
       closeButton={closeButton}
-      className={cn("toaster group", className)}
+      className={cn(themeScope, "toaster group", className)}
       offset={offset}
       mobileOffset={mobileOffset}
       // Wire Sonner's own CSS-var API to our semantic tokens so the default toast
@@ -145,14 +152,25 @@ export function Toaster({
       }
       icons={{
         success: (
-          <CircleCheck className="size-(--icon-default) text-success-text" aria-hidden />
+          <CircleCheck
+            className="size-(--icon-default) text-success-text"
+            aria-hidden
+          />
         ),
-        info: <Info className="size-(--icon-default) text-info-text" aria-hidden />,
+        info: (
+          <Info className="size-(--icon-default) text-info-text" aria-hidden />
+        ),
         warning: (
-          <TriangleAlert className="size-(--icon-default) text-warning-text" aria-hidden />
+          <TriangleAlert
+            className="size-(--icon-default) text-warning-text"
+            aria-hidden
+          />
         ),
         error: (
-          <OctagonX className="size-(--icon-default) text-destructive-text" aria-hidden />
+          <OctagonX
+            className="size-(--icon-default) text-destructive-text"
+            aria-hidden
+          />
         ),
       }}
       toastOptions={{

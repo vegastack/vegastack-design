@@ -1,5 +1,5 @@
-import { defineStory } from '@/lib/story';
-import { Skeleton } from './skeleton.client';
+import { defineStory } from "@/lib/story";
+import { Skeleton } from "./skeleton.client";
 
 /**
  * Story explorer for `Skeleton` — controls auto-generated from `SkeletonProps` by the
@@ -9,22 +9,22 @@ export const story = defineStory({
   Component: Skeleton,
   args: [
     {
-      variant: 'Default',
+      variant: "Default",
       initial: {
-        shape: 'line',
+        shape: "line",
       },
     },
     {
-      variant: 'Paragraph',
+      variant: "Paragraph",
       initial: {
-        shape: 'line',
+        shape: "line",
         count: 3,
       },
     },
     {
-      variant: 'Circle',
+      variant: "Circle",
       fixed: {
-        shape: 'circle',
+        shape: "circle",
       },
     },
   ],

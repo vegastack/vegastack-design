@@ -1,0 +1,29 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "stat",
+  "title": "Stat",
+  "description": "A labelled value block — muted label over a value, honest faint empty state, optional delta line. Two scales.",
+  "dependencies": [
+    "class-variance-authority@^0.7.1",
+    "@vegastack/design@^0.1.0",
+    "@vegastack/design-tokens@^0.1.0"
+  ],
+  "files": [
+    {
+      "path": "packages/ui/registry/ui/stat.tsx",
+      "content": "// @vegastack stat@0.2.0 sha256-duFYm5VKIJWjt7cyXu58Jdp/ZlFa65i3J5YHlMzH4qE=\n\n\"use client\";\n\nimport * as React from \"react\";\nimport { cva } from \"class-variance-authority\";\nimport { cn } from \"@vegastack/design\";\n\n/* ------------------------------------------------------------------------------------------------\n * Stat — a labelled value block (Wave 2c, from the app-teardown record-highlights pattern):\n * `text-label-sm` muted label over a foreground value, with an HONEST empty treatment (\"No\n * connection\" in the faint register) instead of a dash. Server-safe, purely presentational.\n * Two scales: `default` (record-page highlights, 14px value) and `lg` (dashboard stat tiles,\n * 24px value on the type-scale cap).\n * ----------------------------------------------------------------------------------------------*/\n\nexport const statValueVariants = cva(\"font-medium text-foreground\", {\n  variants: {\n    size: {\n      default: \"text-base\",\n      lg: \"text-3xl tabular-nums\",\n    },\n  },\n  defaultVariants: { size: \"default\" },\n});\n\nconst StatSizeContext = React.createContext<\"default\" | \"lg\">(\"default\");\n\n/** Props for a labelled statistic group. */\nexport interface StatProps extends React.ComponentPropsWithRef<\"div\"> {\n  /**\n   * Scale — `default` for facts/highlights rows, `lg` for dashboard tiles.\n   * @default 'default'\n   */\n  size?: \"default\" | \"lg\";\n}\n\n/**\n * `Stat` — compose `StatLabel` + `StatValue` (or `StatEmpty` when there is no\n * value) and optionally `StatDelta` for a change indicator.\n *\n * @example\n * <Stat>\n *   <StatLabel>Estimated ARR</StatLabel>\n *   <StatValue>$1M–$10M</StatValue>\n * </Stat>\n *\n * @example\n * <Stat size=\"lg\">\n *   <StatLabel>Active companies</StatLabel>\n *   <StatValue>1,284</StatValue>\n *   <StatDelta intent=\"up\">+12% this month</StatDelta>\n * </Stat>\n */\nexport function Stat({\n  className,\n  size = \"default\",\n  ref,\n  ...props\n}: StatProps) {\n  return (\n    <StatSizeContext.Provider value={size}>\n      <div\n        ref={ref}\n        data-slot=\"stat\"\n        data-size={size}\n        className={cn(\"flex min-w-0 flex-col gap-1\", className)}\n        {...props}\n      />\n    </StatSizeContext.Provider>\n  );\n}\n\n/** Native props for the statistic label. */\nexport type StatLabelProps = React.ComponentPropsWithRef<\"div\">;\n\n/** `StatLabel` — the muted label above the value. @example <StatLabel>Revenue</StatLabel> */\nexport function StatLabel({ className, ...props }: StatLabelProps) {\n  return (\n    <div\n      data-slot=\"stat-label\"\n      className={cn(\"text-label-sm text-muted-foreground\", className)}\n      {...props}\n    />\n  );\n}\n\n/** Native props for the statistic value. */\nexport type StatValueProps = React.ComponentPropsWithRef<\"div\">;\n\n/** `StatValue` — the value line. @example <StatValue>$1M</StatValue> */\nexport function StatValue({ className, ...props }: StatValueProps) {\n  const size = React.useContext(StatSizeContext);\n  return (\n    <div\n      data-slot=\"stat-value\"\n      className={cn(statValueVariants({ size }), className)}\n      {...props}\n    />\n  );\n}\n\n/** Native props for an honest empty statistic value. */\nexport type StatEmptyProps = React.ComponentPropsWithRef<\"div\">;\n\n/**\n * `StatEmpty` — the honest empty value (\"No connection\", \"No team\"): a muted,\n * contrast-safe phrase instead of a dash or a zero that would read as data.\n * @example <StatEmpty>No connection</StatEmpty>\n */\nexport function StatEmpty({ className, children, ...props }: StatEmptyProps) {\n  return (\n    <div\n      data-slot=\"stat-empty\"\n      className={cn(\"text-base text-muted-foreground\", className)}\n      {...props}\n    >\n      {children ?? \"No data\"}\n    </div>\n  );\n}\n\n/** Props for a directional change line beneath a statistic. */\nexport interface StatDeltaProps extends React.ComponentPropsWithRef<\"div\"> {\n  /**\n   * Direction of the change — `up` reads success, `down` reads destructive,\n   * `flat` stays muted. Pair the copy with a sign/arrow; color is never the\n   * only signal.\n   * @default 'flat'\n   */\n  intent?: \"up\" | \"down\" | \"flat\";\n}\n\nconst DELTA_CLASSES: Record<NonNullable<StatDeltaProps[\"intent\"]>, string> = {\n  up: \"text-success-text\",\n  down: \"text-destructive-text\",\n  flat: \"text-muted-foreground\",\n};\n\n/** `StatDelta` — a small change line. @example <StatDelta intent=\"up\">+12%</StatDelta> */\nexport function StatDelta({\n  className,\n  intent = \"flat\",\n  ...props\n}: StatDeltaProps) {\n  return (\n    <div\n      data-slot=\"stat-delta\"\n      data-intent={intent}\n      className={cn(\"text-sm font-medium\", DELTA_CLASSES[intent], className)}\n      {...props}\n    />\n  );\n}\n",
+      "type": "registry:ui",
+      "target": "@ui/stat.tsx"
+    }
+  ],
+  "meta": {
+    "whenToUse": "Record highlights and dashboard stat tiles where a value needs a quiet label.",
+    "whenNotToUse": "Tabular data (Table/DataList) or live-updating counters (AnimatedNumber inside StatValue is fine).",
+    "version": "0.2.0",
+    "integrity": "sha256-duFYm5VKIJWjt7cyXu58Jdp/ZlFa65i3J5YHlMzH4qE="
+  },
+  "categories": [
+    "display"
+  ],
+  "type": "registry:ui"
+}

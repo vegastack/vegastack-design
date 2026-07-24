@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { Wrapper } from './wrapper';
+import type { ReactNode } from "react";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/status-icon` (dogfoods the registry) → auto-scanned.
-import { StatusIcon } from '@/components/ui/status-icon';
+import { StatusIcon } from "@/components/ui/status-icon";
 
 export function statusIcon(): ReactNode {
   return (
@@ -59,8 +59,8 @@ export function statusIconWithLabel(): ReactNode {
 }
 
 export function statusIconStatusSizeMatrix(): ReactNode {
-  const statuses = ['todo', 'progress', 'blocked', 'done'] as const;
-  const sizes = ['xs', 'sm', 'default', 'lg'] as const;
+  const statuses = ["todo", "progress", "blocked", "done"] as const;
+  const sizes = ["xs", "sm", "default", "lg"] as const;
   return (
     <Wrapper>
       <div className="grid grid-cols-4 gap-6">

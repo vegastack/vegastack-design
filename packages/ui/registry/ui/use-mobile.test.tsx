@@ -1,7 +1,7 @@
-import * as React from 'react';
-import { render } from 'vitest-browser-react';
-import { expect, test, vi } from 'vitest';
-import { useIsMobile } from './use-mobile';
+import * as React from "react";
+import { render } from "vitest-browser-react";
+import { expect, test, vi } from "vitest";
+import { useIsMobile } from "./use-mobile";
 
 /**
  * Mock `window.matchMedia` so the given query matches — simulating a viewport at/under a
@@ -15,7 +15,7 @@ async function withMatchMedia(
 ) {
   const listeners = new Set<(event: MediaQueryListEvent) => void>();
   let currentMatches = true;
-  const matchMediaSpy = vi.spyOn(window, 'matchMedia').mockImplementation(
+  const matchMediaSpy = vi.spyOn(window, "matchMedia").mockImplementation(
     (query: string) =>
       ({
         get matches() {
@@ -23,10 +23,16 @@ async function withMatchMedia(
         },
         media: query,
         onchange: null,
-        addEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => {
+        addEventListener: (
+          _type: string,
+          listener: (event: MediaQueryListEvent) => void,
+        ) => {
           listeners.add(listener);
         },
-        removeEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => {
+        removeEventListener: (
+          _type: string,
+          listener: (event: MediaQueryListEvent) => void,
+        ) => {
           listeners.delete(listener);
         },
         addListener: () => {},
@@ -52,47 +58,61 @@ function Harness({ breakpoint }: { breakpoint?: number }) {
   return <span data-testid="result">{String(isMobile)}</span>;
 }
 
-test('reports false (desktop) when the media query does not match', async () => {
-  await withMatchMedia('(max-width: 9999px)', async () => {
+test("reports false (desktop) when the media query does not match", async () => {
+  await withMatchMedia("(max-width: 9999px)", async () => {
     const screen = await render(<Harness />);
-    await expect.element(screen.getByTestId('result')).toHaveTextContent('false');
+    await expect
+      .element(screen.getByTestId("result"))
+      .toHaveTextContent("false");
   });
 });
 
-test('reports true (mobile) when the default 767px query matches', async () => {
-  await withMatchMedia('(max-width: 767px)', async () => {
+test("reports true (mobile) when the default 767px query matches", async () => {
+  await withMatchMedia("(max-width: 767px)", async () => {
     const screen = await render(<Harness />);
-    await expect.element(screen.getByTestId('result')).toHaveTextContent('true');
+    await expect
+      .element(screen.getByTestId("result"))
+      .toHaveTextContent("true");
   });
 });
 
-test('honors a custom breakpoint', async () => {
-  await withMatchMedia('(max-width: 1023px)', async () => {
+test("honors a custom breakpoint", async () => {
+  await withMatchMedia("(max-width: 1023px)", async () => {
     const screen = await render(<Harness breakpoint={1024} />);
-    await expect.element(screen.getByTestId('result')).toHaveTextContent('true');
+    await expect
+      .element(screen.getByTestId("result"))
+      .toHaveTextContent("true");
   });
 });
 
-test('updates live when the media query change event fires', async () => {
-  await withMatchMedia('(max-width: 767px)', async (dispatchChange) => {
+test("updates live when the media query change event fires", async () => {
+  await withMatchMedia("(max-width: 767px)", async (dispatchChange) => {
     const screen = await render(<Harness />);
-    await expect.element(screen.getByTestId('result')).toHaveTextContent('true');
+    await expect
+      .element(screen.getByTestId("result"))
+      .toHaveTextContent("true");
 
     dispatchChange(false);
-    await expect.element(screen.getByTestId('result')).toHaveTextContent('false');
+    await expect
+      .element(screen.getByTestId("result"))
+      .toHaveTextContent("false");
 
     dispatchChange(true);
-    await expect.element(screen.getByTestId('result')).toHaveTextContent('true');
+    await expect
+      .element(screen.getByTestId("result"))
+      .toHaveTextContent("true");
   });
 });
 
-test('SSR-safe: does not throw when matchMedia is unavailable', async () => {
+test("SSR-safe: does not throw when matchMedia is unavailable", async () => {
   const original = window.matchMedia;
   // @ts-expect-error — simulate an environment with no matchMedia (mirrors getPrefersNoHover's guard).
   delete window.matchMedia;
   try {
     const screen = await render(<Harness />);
-    await expect.element(screen.getByTestId('result')).toHaveTextContent('false');
+    await expect
+      .element(screen.getByTestId("result"))
+      .toHaveTextContent("false");
   } finally {
     window.matchMedia = original;
   }

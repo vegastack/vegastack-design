@@ -1,49 +1,58 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 import {
   RadioGroup,
   RadioGroupItem,
   type RadioGroupProps,
   type RadioGroupItemProps,
-} from '@/components/ui/radio-group';
-import { Field } from '@/components/ui/field';
-import { PropsPlayground, type PlaygroundConfig } from '@/components/playground';
+} from "@/components/ui/radio-group";
+import { Field } from "@/components/ui/field";
+import {
+  PropsPlayground,
+  type PlaygroundConfig,
+} from "@/components/playground";
 
-type RadioGroupPlaygroundKey = 'orientation' | 'size' | 'disabled';
+type RadioGroupPlaygroundKey = "orientation" | "size" | "disabled";
 
 const ORIENTATION_OPTIONS = [
-  { value: 'vertical', label: 'Vertical' },
-  { value: 'horizontal', label: 'Horizontal' },
+  { value: "vertical", label: "Vertical" },
+  { value: "horizontal", label: "Horizontal" },
 ] as const;
 
 const SIZE_OPTIONS = [
-  { value: 'default', label: 'Default' },
-  { value: 'sm', label: 'Small' },
+  { value: "default", label: "Default" },
+  { value: "sm", label: "Small" },
 ] as const;
 
 const DENSITY_OPTIONS = [
-  { value: 'comfortable', label: 'Comfortable' },
-  { value: 'compact', label: 'Compact' },
-  { value: 'spacious', label: 'Spacious' },
+  { value: "comfortable", label: "Comfortable" },
+  { value: "compact", label: "Compact" },
+  { value: "spacious", label: "Spacious" },
 ] as const;
 
 const radioGroupPlaygroundConfig: PlaygroundConfig<RadioGroupPlaygroundKey> = {
   controls: [
     {
-      type: 'select',
-      key: 'orientation',
-      label: 'Orientation',
+      type: "select",
+      key: "orientation",
+      label: "Orientation",
       options: ORIENTATION_OPTIONS,
-      defaultValue: 'vertical',
+      defaultValue: "vertical",
     },
-    { type: 'select', key: 'size', label: 'Item size', options: SIZE_OPTIONS, defaultValue: 'default' },
-    { type: 'switch', key: 'disabled', label: 'Disabled', defaultValue: false },
+    {
+      type: "select",
+      key: "size",
+      label: "Item size",
+      options: SIZE_OPTIONS,
+      defaultValue: "default",
+    },
+    { type: "switch", key: "disabled", label: "Disabled", defaultValue: false },
   ],
   render: (state): ReactNode => (
     <RadioGroup
       defaultValue="comfortable"
-      orientation={state.orientation as RadioGroupProps['orientation']}
+      orientation={state.orientation as RadioGroupProps["orientation"]}
       disabled={Boolean(state.disabled)}
       aria-label="Density"
     >
@@ -51,7 +60,7 @@ const radioGroupPlaygroundConfig: PlaygroundConfig<RadioGroupPlaygroundKey> = {
         <Field key={option.value} label={option.label} orientation="horizontal">
           <RadioGroupItem
             value={option.value}
-            size={state.size as RadioGroupItemProps['size']}
+            size={state.size as RadioGroupItemProps["size"]}
           />
         </Field>
       ))}
@@ -59,17 +68,22 @@ const radioGroupPlaygroundConfig: PlaygroundConfig<RadioGroupPlaygroundKey> = {
   ),
   toCode: (state) => {
     const groupProps: string[] = ['defaultValue="comfortable"'];
-    if (state.orientation !== 'vertical') groupProps.push(`orientation="${state.orientation}"`);
-    if (state.disabled) groupProps.push('disabled');
-    const itemProps = state.size !== 'default' ? ` size="${state.size}"` : '';
+    if (state.orientation !== "vertical")
+      groupProps.push(`orientation="${state.orientation}"`);
+    if (state.disabled) groupProps.push("disabled");
+    const itemProps = state.size !== "default" ? ` size="${state.size}"` : "";
     const items = DENSITY_OPTIONS.map((option) =>
       [
         `  <Field label="${option.label}" orientation="horizontal">`,
         `    <RadioGroupItem value="${option.value}"${itemProps} />`,
-        '  </Field>',
-      ].join('\n'),
+        "  </Field>",
+      ].join("\n"),
     );
-    return [`<RadioGroup ${groupProps.join(' ')}>`, ...items, '</RadioGroup>'].join('\n');
+    return [
+      `<RadioGroup ${groupProps.join(" ")}>`,
+      ...items,
+      "</RadioGroup>",
+    ].join("\n");
   },
 };
 

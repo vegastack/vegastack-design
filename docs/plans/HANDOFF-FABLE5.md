@@ -1,5 +1,9 @@
 # HANDOFF — VegaStack Design System Overhaul v5 (Fable 5, GO-DARK AUTONOMOUS EXECUTION)
 
+> **Historical record — no current authority.** This overhaul is complete. The autonomy contract
+> below applied only to that finished local execution and never authorizes current commits, pushes,
+> releases, deployments, or product decisions. Follow `AGENTS.md` and the applicable repo skill.
+
 You are the EXECUTION agent for a fully-planned, adversarially-reviewed design-system overhaul at `/Users/kmanojkumar/code/org-design`. MK has authorized **fully autonomous, end-to-end execution**: do NOT pause for approval at phase gates, do NOT wait for check-ins, do NOT stop to confirm design micro-decisions. Go dark, execute the entire program meticulously, and surface a complete report at the end. Everything is decided and documented — your job is disciplined execution plus proactive improvement, not re-planning.
 
 ## Read in this exact order (all paths repo-relative)

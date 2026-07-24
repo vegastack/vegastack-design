@@ -1,27 +1,30 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { Field } from '@/components/ui/field';
-import { Switch } from '@/components/ui/switch';
-import { CopyButton } from '@/components/ui/copy-button';
+import * as React from "react";
+import { Field } from "@/components/ui/field";
+import { Switch } from "@/components/ui/switch";
+import { CopyButton } from "@/components/ui/copy-button";
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-} from '@/components/ui/select';
-import { cn } from '@/lib/cn';
+} from "@/components/ui/select";
+import { cn } from "@/lib/cn";
 
 /**
  * The playground's control state — every control's `key` maps to a `string` (select) or
  * `boolean` (switch) value. Generic over the component's own prop-name union so `render`/
  * `toCode` get typed keys instead of a bare `string`.
  */
-export type PlaygroundState<Keys extends string> = Record<Keys, string | boolean>;
+export type PlaygroundState<Keys extends string> = Record<
+  Keys,
+  string | boolean
+>;
 
 export interface PlaygroundSelectControl<Keys extends string> {
-  type: 'select';
+  type: "select";
   key: Keys;
   label: string;
   options: readonly { value: string; label: string }[];
@@ -29,15 +32,14 @@ export interface PlaygroundSelectControl<Keys extends string> {
 }
 
 export interface PlaygroundSwitchControl<Keys extends string> {
-  type: 'switch';
+  type: "switch";
   key: Keys;
   label: string;
   defaultValue: boolean;
 }
 
 export type PlaygroundControl<Keys extends string> =
-  | PlaygroundSelectControl<Keys>
-  | PlaygroundSwitchControl<Keys>;
+  PlaygroundSelectControl<Keys> | PlaygroundSwitchControl<Keys>;
 
 export interface PlaygroundConfig<Keys extends string> {
   /** Controls rendered below the live preview, each keyed to one entry of the state object. */
@@ -48,8 +50,12 @@ export interface PlaygroundConfig<Keys extends string> {
   toCode: (state: PlaygroundState<Keys>) => string;
 }
 
-function initialState<Keys extends string>(controls: readonly PlaygroundControl<Keys>[]) {
-  return Object.fromEntries(controls.map((c) => [c.key, c.defaultValue])) as PlaygroundState<Keys>;
+function initialState<Keys extends string>(
+  controls: readonly PlaygroundControl<Keys>[],
+) {
+  return Object.fromEntries(
+    controls.map((c) => [c.key, c.defaultValue]),
+  ) as PlaygroundState<Keys>;
 }
 
 /**
@@ -70,7 +76,9 @@ export function PropsPlayground<Keys extends string>({
   render,
   toCode,
 }: PlaygroundConfig<Keys>) {
-  const [state, setState] = React.useState<PlaygroundState<Keys>>(() => initialState(controls));
+  const [state, setState] = React.useState<PlaygroundState<Keys>>(() =>
+    initialState(controls),
+  );
 
   const setValue = React.useCallback((key: Keys, value: string | boolean) => {
     setState((prev) => ({ ...prev, [key]: value }));
@@ -79,7 +87,7 @@ export function PropsPlayground<Keys extends string>({
   const code = toCode(state);
 
   return (
-    <div className="not-prose my-4 overflow-hidden rounded-xl border border-fd-border bg-fd-secondary">
+    <div className="not-prose my-4 overflow-hidden rounded-lg border border-fd-border bg-fd-secondary">
       <div className="vs-type-product flex min-h-32 items-center justify-center border-b border-fd-border bg-fd-background p-6">
         {render(state)}
       </div>
@@ -116,7 +124,7 @@ function PlaygroundControlField<Keys extends string>({
   value: string | boolean;
   onChange: (value: string | boolean) => void;
 }) {
-  if (control.type === 'switch') {
+  if (control.type === "switch") {
     return (
       <Field label={control.label} orientation="horizontal">
         <Switch checked={Boolean(value)} onCheckedChange={onChange} />
@@ -124,12 +132,17 @@ function PlaygroundControlField<Keys extends string>({
     );
   }
 
-  const selected = typeof value === 'string' ? value : control.defaultValue;
-  const selectedOption = control.options.find((option) => option.value === selected);
+  const selected = typeof value === "string" ? value : control.defaultValue;
+  const selectedOption = control.options.find(
+    (option) => option.value === selected,
+  );
 
   return (
-    <Field label={control.label} className={cn('w-40')}>
-      <Select value={selected} onValueChange={(next) => onChange(next as string)}>
+    <Field label={control.label} className={cn("w-40")}>
+      <Select
+        value={selected}
+        onValueChange={(next) => onChange(next as string)}
+      >
         <SelectTrigger size="sm" aria-label={control.label}>
           <SelectValue>{selectedOption?.label ?? selected}</SelectValue>
         </SelectTrigger>

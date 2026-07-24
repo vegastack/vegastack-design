@@ -1,6 +1,7 @@
 ---
 title: Staggered Text Reveal
 description: Display text whose words rise in on mount, staggered one motion-enter-up step apart — CSS-only.
+audience: public
 preview: staggeredTextReveal
 ---
 
@@ -15,7 +16,7 @@ npx shadcn@latest add @vegastack/staggered-text-reveal
 ## Usage
 
 ```tsx
-import { StaggeredTextReveal } from '@/components/ui/staggered-text-reveal';
+import { StaggeredTextReveal } from "@/components/ui/staggered-text-reveal";
 
 <h1>
   <StaggeredTextReveal text="Ship agentic UI, fast." />
@@ -25,16 +26,24 @@ import { StaggeredTextReveal } from '@/components/ui/staggered-text-reveal';
 Compose it **inside** a heading — it renders a `<span>`, never a heading element itself, so it
 never changes your document's semantic structure.
 
-<ComponentPreview name="staggeredTextReveal" file="components/preview/staggered-text-reveal.tsx" />
+## Examples
 
-## Slower stagger
+<ComponentPreview
+  name="staggeredTextReveal"
+  file="components/preview/staggered-text-reveal.tsx"
+/>
+
+### Slower stagger
 
 `stepMultiplier` scales the per-word delay as a multiple of the `--duration-fast` motion token
 (never a raw millisecond value).
 
-<ComponentPreview name="staggeredTextRevealStep" file="components/preview/staggered-text-reveal.tsx" />
+<ComponentPreview
+  name="staggeredTextRevealStep"
+  file="components/preview/staggered-text-reveal.tsx"
+/>
 
-## How it works
+### How it works
 
 CSS-only — no JS animation driver. Each word is an `inline-block` span carrying the shared
 `motion-enter-up` utility with a per-word `animation-delay` derived from `--duration-fast` via
@@ -43,7 +52,7 @@ FROM state instead of flashing visible-then-hidden-then-in. The delay is purely
 `word index × stepMultiplier × --duration-fast` — no randomness, no measured layout — so the same
 `text` always produces the same timeline (deterministic, VRT-stable once animations settle).
 
-## Reduced motion
+### Reduced motion
 
 The global `prefers-reduced-motion: reduce` reset collapses `motion-enter-up`'s duration to ~0.
 This component additionally zeros the delay itself — without that, words would still visibly
@@ -56,6 +65,12 @@ reduced motion requires.
   path="../../packages/ui/registry/ui/staggered-text-reveal.tsx"
   name="StaggeredTextRevealProps"
 />
+
+## Accessibility
+
+- The component renders only nested `<span>` elements and preserves the semantics of its parent heading.
+- Reading order and accessible text remain the original sentence; visual word wrappers do not split the spoken phrase.
+- Reduced-motion mode removes both the entrance duration and its stagger delay, leaving the static final state.
 
 ## Do / Don't
 

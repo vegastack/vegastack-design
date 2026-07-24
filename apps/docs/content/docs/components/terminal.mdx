@@ -1,6 +1,7 @@
 ---
 title: Terminal
-description: A dark mono command block with a phosphor prompt glyph and a composed copy button.
+description: A dark mono command block with a phosphor prompt glyph and a fixed trailing copy action.
+audience: public
 preview: terminal
 ---
 
@@ -15,11 +16,14 @@ npx shadcn@latest add @vegastack/terminal
 ## Usage
 
 ```tsx
-import { Terminal } from '@/components/ui/terminal';
+import { Terminal } from "@/components/ui/terminal";
 
 <Terminal
   title="Install"
-  lines={['pnpm dlx shadcn@latest add @vegastack/button', { output: '✓ Installed 1 component' }]}
+  lines={[
+    "pnpm dlx shadcn@latest add @vegastack/button",
+    { output: "✓ Installed 1 component" },
+  ]}
 />;
 ```
 
@@ -27,30 +31,40 @@ import { Terminal } from '@/components/ui/terminal';
 embedded in a light-theme docs page (like this one), with no
 [`MarketingSurface`](/docs/components/marketing-surface) wrapper required.
 
+## Examples
+
 <ComponentPreview name="terminal" file="components/preview/terminal.tsx" />
 
-## Multi-line, custom prompt
+### Multi-line, custom prompt
 
 Each line is a plain string (a command) or `{ output: string }` (dimmed, no prompt glyph). The
 prompt glyph — the sanctioned "terminal prompt glyph" `--brand` marker role — defaults to `$` and
 is overridable.
 
-<ComponentPreview name="terminalMultiline" file="components/preview/terminal.tsx" />
+<ComponentPreview
+  name="terminalMultiline"
+  file="components/preview/terminal.tsx"
+/>
 
-## Copying
+### Copying
 
-The header composes a [`CopyButton`](/docs/components/copy-button) that copies every `command`
-line (not `output` lines), joined by newline, unless you pass an explicit `copyValue`.
+The command row composes the icon-only [`CopyButton`](/docs/components/copy-button) at its inline
+end. The command pane scrolls independently, so the action remains visible even when a command is
+long. It copies every `command` line (not `output` lines), joined by newline, unless you pass an
+explicit `copyValue`; successful writes swap the copy icon for the standard success check.
 
 ## API Reference
 
-<AutoTypeTable path="../../packages/ui/registry/ui/terminal.tsx" name="TerminalProps" />
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/terminal.tsx"
+  name="TerminalProps"
+/>
 
 ## Accessibility
 
 - The prompt glyph is decorative (`aria-hidden`) — command text itself is real, readable text.
 - The composed `CopyButton` carries its own accessible name (`"Copy command"` / `"Copied
-  command"`) and announces the copy via a visually-hidden live region.
+command"`) and announces the copy via a visually-hidden live region.
 - Content is fully caller-supplied — no timestamps, no randomness — so the block is deterministic
   and safe for visual regression testing.
 
