@@ -95,14 +95,24 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
   every component route, takes no screenshots, and needs no baselines. **Pixels** are a local review
   step: `node tooling/vrt-review.mjs` captures the base ref and the working tree on one machine and
   emits a before/after report a human reads during `/ship`. No screenshot is ever committed.
-- **CI runs on the self-hosted mac minis** — `runs-on: [self-hosted, vsk-runners-mac-mini]`. Three
-  classes stay on `ubuntu-latest`, and the split is an enforced allowlist in
-  `tooling/verify-workflow-security.mjs`, not a convention: `release.yml`'s `publish` (npm trusted
-  publishing does not support self-hosted runners and this repository holds no `NPM_TOKEN`);
-  `deploy.yml`'s `sign-curated` and `deploy-curated` (OIDC and Cloudflare credentials, no repository
-  code); and `deploy.yml`'s three boundary-probe jobs, which must originate OUTSIDE VegaStack's
-  network or Cloudflare device posture could authenticate a request they assert is anonymous. Job
-  containers are banned outright — they are Linux-only and cannot start on a macOS runner.
+- **Non-browser CI runs on the self-hosted mac minis** — `runs-on: [self-hosted,
+  vsk-runners-mac-mini]` for `release.yml`'s `changes` and `version-pr` and `deploy.yml`'s
+  `ref-guard` and `build-curated`. The split is an enforced allowlist in
+  `tooling/verify-workflow-security.mjs`, not a convention, and `ubuntu-latest` is required for four
+  reasons: **browsers** (`ci.yml` entirely, plus `contracts-gate` in both workflows and
+  `quality-gate`) — the minis cannot launch Chromium, see below; **npm OIDC** (`publish`) — trusted
+  publishing does not support self-hosted runners and this repository holds no `NPM_TOKEN`;
+  **credentials without repository code** (`sign-curated`, `deploy-curated`); and **network
+  position** — `deploy.yml`'s three boundary probes must originate OUTSIDE VegaStack's network or
+  Cloudflare device posture could authenticate a request they assert is anonymous.
+  Job containers are banned outright — Linux-only, and they cannot start on a macOS runner.
+- **The minis cannot run browsers today, and it is a host bug.** Their Actions runner has no
+  per-user Mach bootstrap namespace, so every Chromium launch dies with `bootstrap_look_up
+  org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` and SIGTRAP —
+  deterministic on both minis across all retries in run `30131471680`, while the identical suite
+  passes locally on the same OS and CPU. Fix is on the host: reinstall the runner as a **LaunchAgent
+  in a logged-in session** rather than a LaunchDaemon. After that, move the five browser jobs back by
+  editing `GITHUB_HOSTED_JOBS`; nothing else in the repository changes.
 - **Registry integrity** — whole-item SHA-256 in `meta.integrity`, a Sigstore-signed manifest
   (GitHub OIDC), and a fail-closed consume preflight.
 - **Auth topology (approved target)** — public human docs anonymous; `/internal/*` SSO;

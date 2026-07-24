@@ -217,3 +217,43 @@ cannot be diagnosed. Under this change it evaporates rather than gets answered.
   `ubuntu-latest` would reintroduce billed capacity with no signal, and a job drifting off
   `ubuntu-latest` would break publishing or void a boundary proof. Job containers are now banned
   outright — on macOS they are not a portability warning, the job cannot run at all.
+
+## 2026-07-25 — The mac minis cannot run browsers: a host bug found by the first real PR run
+
+**What happened.** PR #4 was the first workload to ask these self-hosted runners for a browser.
+Run `30131471680` failed both jobs identically:
+
+```
+<process did exit: exitCode=null, signal=SIGTRAP>
+bootstrap_look_up org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)
+No rendezvous client, terminating process (parent died?)
+```
+
+Chromium launches, cannot reach its parent's Mach port, and aborts. That is a missing per-user Mach
+bootstrap namespace — the signature of an Actions runner installed as a **LaunchDaemon** (system
+context, no user session) rather than a **LaunchAgent** inside a logged-in session.
+
+**Why it is the host and not the code.** Deterministic across two independent jobs, two different
+minis, and three Playwright retries each. The identical suite passes locally on the same macOS
+version, same CPU architecture, and the same Playwright browser binary — 768/768, twice. Every
+non-browser step on the minis succeeded: `setup-node`, pnpm, turbo, the token build, tsup, lint. And
+no browser workload had ever run on these runners before, so nothing regressed; this simply had never
+been exercised.
+
+**Resolution.** The five browser jobs — `ci.yml`'s `verify` and `contracts`, `contracts-gate` in both
+`release.yml` and `deploy.yml`, and `quality-gate` — are pinned to `ubuntu-latest` with
+`playwright install --with-deps` (required there; `ubuntu-latest` is not a Playwright image). The
+non-browser jobs stay on the minis: `changes`, `version-pr`, `ref-guard`, `build-curated`. The
+reason lives in `GITHUB_HOSTED_JOBS` in `tooling/verify-workflow-security.mjs`, which fails closed on
+any drift, so moving them back after the host is fixed is a one-line edit with a recorded rationale.
+
+**For MK.** The runner fix is host-side and needs admin on the minis: reinstall the Actions runner as
+a LaunchAgent in a logged-in session. Until then the migration is partial — the minis carry the docs
+build and the release plumbing, not the test suites. The change that actually unblocked the release
+was removing the 72-minute pixel gate, and that is unaffected.
+
+**What this validates.** The diagnostics added in this same change worked on their first real
+failure: the run uploaded a 29.6 MB `contracts-failure-<id>` artifact containing per-attempt
+`trace.zip`, failure screenshots, `error-context.md`, and a browsable HTML report. Before this change
+the same failure would have produced an exit code and nothing else — which is precisely how release
+run `30115971397` became undiagnosable.

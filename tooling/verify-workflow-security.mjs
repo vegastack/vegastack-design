@@ -29,16 +29,31 @@ const sources = Object.fromEntries(
 // this repository deliberately left, and a job moved OFF ubuntu-latest can break publishing or void
 // a boundary proof. Every entry below states why it is where it is.
 const SELF_HOSTED = "[self-hosted, vsk-runners-mac-mini]";
+//
+// BROWSER LANES ARE GITHUB-HOSTED, AND THAT IS A HOST BUG, NOT A PREFERENCE.
+// The mac minis cannot launch Chromium: their Actions runner has no per-user Mach bootstrap
+// namespace, so every launch dies with `bootstrap_look_up
+// org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` and SIGTRAP.
+// Reproduced deterministically on both minis across all retries in run 30131471680, while the same
+// suite passes locally on the same OS and CPU. The fix is on the host — reinstall the runner as a
+// LaunchAgent inside a logged-in session rather than a LaunchDaemon. When that lands, move
+// `verify`, `contracts`, `contracts-gate` (both workflows), and `quality-gate` back to SELF_HOSTED
+// and delete this paragraph. Nothing in the repository needs to change.
+//
 const GITHUB_HOSTED_JOBS = {
-  // npm trusted publishing does not support self-hosted runners, and this repository holds no
-  // NPM_TOKEN. Moving this job breaks publishing outright.
-  "release.yml": ["publish"],
-  // sign-curated: the only OIDC job; self-hosted Sigstore behaviour is unverified, ~30s, no
-  // repository code. deploy-curated: credential-only, third-party actions, nothing to gain.
-  // The three boundary jobs must originate OUTSIDE VegaStack's network — a runner inside it can be
-  // silently authenticated by Cloudflare device posture, which would void an anonymous-rejection
-  // proof rather than merely risk it.
+  // Both drive real browsers — Vitest browser mode plus the cross-engine smoke in `verify`, and
+  // Playwright in `contracts`.
+  "ci.yml": ["verify", "contracts"],
+  // publish: npm trusted publishing does not support self-hosted runners, and this repository holds
+  // no NPM_TOKEN — moving it breaks publishing outright. contracts-gate + quality-gate: browsers.
+  "release.yml": ["contracts-gate", "quality-gate", "publish"],
+  // contracts-gate: browsers. sign-curated: the only OIDC job; self-hosted Sigstore behaviour is
+  // unverified, ~30s, no repository code. deploy-curated: credential-only, third-party actions,
+  // nothing to gain. The three boundary jobs must originate OUTSIDE VegaStack's network — a runner
+  // inside it can be silently authenticated by Cloudflare device posture, which would void an
+  // anonymous-rejection proof rather than merely risk it.
   "deploy.yml": [
+    "contracts-gate",
     "sign-curated",
     "deploy-curated",
     "pre-cutover-purge",

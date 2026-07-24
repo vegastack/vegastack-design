@@ -29,7 +29,7 @@ tooling/           registry hashing/verification · design-lint · changelog + s
 skills/internal/   maintainer skills — component · review · ship
 skills/public/     consumer skills — shipped inside @vegastack/design (see skills/README.md)
 .github/workflows/ ci · release (path-routed gates, npm OIDC) · deploy
-                   self-hosted mac minis, except npm publish + the deploy boundary jobs
+                   non-browser jobs on the self-hosted mac minis; see AGENTS.md for the split
 ```
 
 Skills are symlinked into `.claude/skills/` and `.agents/skills/`, so both Claude Code and Codex

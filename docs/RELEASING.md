@@ -61,9 +61,18 @@ workflow changes out of a changeset-bearing push if package work unexpectedly be
 
 ## Where the jobs run
 
-Everything runs on the self-hosted mac minis (`runs-on: [self-hosted, vsk-runners-mac-mini]`) except
-three classes, enforced as an allowlist by `tooling/verify-workflow-security.mjs`:
+Non-browser jobs run on the self-hosted mac minis (`runs-on: [self-hosted, vsk-runners-mac-mini]`):
+`release.yml`'s `changes` and `version-pr`, and `deploy.yml`'s `ref-guard` and `build-curated`.
+Everything else is pinned to `ubuntu-latest` by an allowlist enforced in
+`tooling/verify-workflow-security.mjs`, for four distinct reasons:
 
+- **Browsers** — all of `ci.yml`, plus `contracts-gate` in `release.yml`/`deploy.yml` and
+  `quality-gate`. The minis cannot launch Chromium: their runner has no per-user Mach bootstrap
+  namespace, so launches die with `bootstrap_look_up
+  org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` and SIGTRAP.
+  Deterministic on both minis in run `30131471680`; the same suite passes locally on the same OS and
+  CPU. **The fix is on the host** — reinstall the Actions runner as a LaunchAgent inside a logged-in
+  session instead of a LaunchDaemon. Then move those five jobs back by editing `GITHUB_HOSTED_JOBS`.
 - **`release.yml` `publish`** — npm trusted publishing does not support self-hosted runners
   (<https://docs.npmjs.com/trusted-publishers/>) and this repository holds no `NPM_TOKEN`.
 - **`deploy.yml` `sign-curated` and `deploy-curated`** — the OIDC signing job and the credential-only

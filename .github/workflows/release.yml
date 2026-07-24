@@ -90,10 +90,11 @@ jobs:
   # forced-colors focus, effective 24px pointer targets) over every component route. No screenshots,
   # no baselines — nothing here can be cleared by regenerating its own evidence. Pixel review is a
   # human step run locally during `/ship` (tooling/vrt-review.mjs).
+  # GITHUB-HOSTED: drives Chromium, which the mac minis cannot launch — see ci.yml's `verify`.
   contracts-gate:
     needs: changes
     if: needs.changes.outputs.visual == 'true'
-    runs-on: [self-hosted, vsk-runners-mac-mini]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -104,7 +105,7 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @vegastack/docs exec playwright install chromium
+      - run: pnpm --filter @vegastack/docs exec playwright install --with-deps chromium
       - run: pnpm exec turbo run build --filter=@vegastack/docs^...
       # Persistent runner: bind a free port rather than a fixed one, and reap it below. A cancelled
       # job kills Playwright without running webServer teardown, and `reuseExistingServer: false`
@@ -155,7 +156,8 @@ jobs:
       always() && needs.changes.outputs.publish == 'true' &&
       (needs.contracts-gate.result == 'success' ||
        (needs.contracts-gate.result == 'skipped' && needs.changes.outputs.visual == 'false'))
-    runs-on: [self-hosted, vsk-runners-mac-mini]
+    # GITHUB-HOSTED: drives Chromium/Firefox/WebKit, which the mac minis cannot launch.
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -166,9 +168,7 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      # Vitest browser mode drives real Playwright browsers; there is no job container to supply
-      # them. No `--with-deps` — that flag is apt-based and Linux-only.
-      - run: pnpm --filter @vegastack/ui exec playwright install chromium firefox webkit
+      - run: pnpm --filter @vegastack/ui exec playwright install --with-deps chromium firefox webkit
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test
