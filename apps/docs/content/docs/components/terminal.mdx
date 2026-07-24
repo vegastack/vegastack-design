@@ -70,12 +70,18 @@ command"`) and announces the copy via a visually-hidden live region.
   at all here, because the block's root is `overflow-hidden` and `scroll-fade-x` masks the pane to
   its own border box. A border tint is not an option either — `forced-colors: active` replaces
   `border-color`, which would leave the pane with no indicator in the forced palette.
+- Because it is a focus stop, the pane is announced as a **named group**, labelled by the visible
+  `title` — so `title="Install"` reads as "Install, group". A bare focusable `div` would announce as
+  an unnamed stop: it maps to the `generic` role, which prohibits naming, so an `aria-label` on it is
+  not reliably exposed. `group` is deliberate rather than `region`, which is a landmark — several
+  install snippets on one page should not add several landmarks. Override the name with `aria-label`
+  or point `aria-labelledby` at your own element; both are applied to the pane, not the outer block.
 - Content is fully caller-supplied — no timestamps, no randomness — so the block is deterministic
   and safe for visual capture.
 
 | Key                                 | Action                                                            |
 | ----------------------------------- | ----------------------------------------------------------------- |
-| <kbd>Tab</kbd>                      | Move focus to the command pane, then on to the copy button.       |
+| <kbd>Tab</kbd>                      | Move focus to the command pane (announced by its name), then on to the copy button. |
 | <kbd>←</kbd> / <kbd>→</kbd>         | Scroll a clipped command horizontally while the pane has focus.   |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Copy the command, when the copy button has focus.                 |
 
