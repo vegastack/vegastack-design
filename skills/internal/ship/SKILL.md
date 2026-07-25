@@ -159,6 +159,17 @@ Commit changesets + CHANGELOG.md + the regenerated page together.
 
 ## 4. Version PR → publish
 
+**The Version PR carries its receipt forward automatically, and you should know why.** A receipt is
+bound to a tree hash, and `changeset version` + `version-sync` move that hash — versions, package
+CHANGELOGs, consumed changesets, and a re-stamped provenance header in 1082 files. Nothing a browser
+gate can observe changes, so `pnpm run version-packages` ends by running
+`tooling/gate-receipt-carry.mjs`, which rewrites only the receipt's `tree` and records
+`carriedFrom`. `receipt-guard` then re-derives the proof from git and rejects the carry if anything
+real changed. Without this the Version PR would fail the guard and no publish could ever happen.
+
+If `gate-receipt-carry` REFUSES, do not work around it: something other than a version bump is in
+that branch, and the browser gates have to run against it.
+
 Changes reach `main` through a **reviewed PR**, not a direct push (`docs/RELEASING.md` step 4 is
 canonical). MK approval is required before the change PR is merged. GitHub Team cannot provide
 required-reviewer environments for this private repository, so review and the explicit merge action

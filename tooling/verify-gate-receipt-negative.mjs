@@ -292,6 +292,56 @@ expectReject(
   "an acknowledgement for a DIFFERENT gate",
 );
 
+// ── the version-bump carry ────────────────────────────────────────────────────────────────────────
+//
+// A carried receipt attests browser results measured against a DIFFERENT tree. That is legitimate for
+// a version bump — `changeset version` moves the tree hash while changing no code a browser gate can
+// observe — and illegitimate for anything else. These assertions are what keep `carriedFrom` from
+// becoming a free-text field that excuses any tree.
+
+const CARRIED = {
+  carriedFrom: "tree-" + "e".repeat(40),
+  carryReason: "version-bump",
+};
+
+expectPass(
+  validReceipt(CARRIED),
+  { carryVerified: { ok: true, offenders: [], files: 1593 } },
+  "a carried receipt whose diff the caller PROVED is version churn",
+);
+expectReject(
+  validReceipt(CARRIED),
+  {},
+  /did not verify that claim against git/,
+  "a carried receipt the caller did not verify at all",
+);
+expectReject(
+  validReceipt(CARRIED),
+  {
+    carryVerified: {
+      ok: false,
+      offenders: [{ file: "packages/ui/registry/ui/button.tsx" }],
+    },
+  },
+  /NOT pure version churn/,
+  "a carry hiding a real component change — the fail-open this exists to stop",
+);
+expectReject(
+  validReceipt({
+    carriedFrom: "tree-" + "e".repeat(40),
+    carryReason: "felt like it",
+  }),
+  { carryVerified: { ok: true, offenders: [] } },
+  /only carry this system recognises/,
+  "a carry with an invented reason",
+);
+// An UNcarried receipt must not be affected by any of this.
+expectPass(
+  validReceipt(),
+  { carryVerified: null },
+  "an ordinary receipt, with no carry claim",
+);
+
 // ── every problem is reported, not just the first ─────────────────────────────────────────────────
 
 // A guard that stops at the first problem turns one fix-and-rerun cycle into five.

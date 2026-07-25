@@ -19,7 +19,11 @@
 import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 
-import { ROOT, workingTreeContentHash } from "./lib/change-set.mjs";
+import {
+  ROOT,
+  versionBumpOnly,
+  workingTreeContentHash,
+} from "./lib/change-set.mjs";
 import {
   CONDITIONAL_GATES,
   contractSha256,
@@ -114,12 +118,32 @@ if (unclassified.length > 0) {
 
 const { hash: treeHash, files } = workingTreeContentHash();
 const receipt = readReceipt();
+
+/**
+ * Re-derive the carry proof from git rather than trusting the receipt's word for it. Both tree
+ * objects are reachable in a full clone, so this is a local computation — and it is the difference
+ * between `carriedFrom` meaning something and being an excuse field.
+ */
+const carryVerified = (() => {
+  if (receipt?.carriedFrom === undefined) return null;
+  const bare = (value) => String(value).replace(/^tree-/, "");
+  try {
+    return versionBumpOnly(bare(receipt.carriedFrom), bare(treeHash));
+  } catch (error) {
+    return {
+      ok: false,
+      offenders: [{ file: `(git: ${error.message})`, line: "" }],
+    };
+  }
+})();
+
 const { problems } = verifyReceipt(receipt, {
   treeHash,
   required: options.required,
   pinned: pinnedToolchain(),
   contractSha: contractSha256(),
   allowedSkips: options.allowedSkips,
+  carryVerified,
 });
 
 console.log(`verify-gate-receipt: tree ${treeHash} (${files} files)`);

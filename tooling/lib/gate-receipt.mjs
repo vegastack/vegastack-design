@@ -117,6 +117,10 @@ export function verifyReceipt(
     pinned = pinnedToolchain(),
     contractSha = contractSha256(),
     allowedSkips = [],
+    // Set by the caller ONLY after re-deriving `versionBumpOnly()` from git between the receipt's
+    // `carriedFrom` tree and this one. A carry the caller has not verified is rejected below —
+    // otherwise `carriedFrom` would be a free-text field that excuses any tree.
+    carryVerified = null,
   },
 ) {
   const problems = [];
@@ -143,6 +147,29 @@ export function verifyReceipt(
       `gate receipt was produced against tree ${receipt.tree} but this tree is ${treeHash} — ` +
         "the gates ran against different content than is being pushed",
     );
+
+  // A carried receipt attests browser results measured against a DIFFERENT tree, so the claim that
+  // the difference was harmless has to be proven, not asserted. `tooling/gate-receipt-carry.mjs`
+  // proves it before writing; the guard proves it again before accepting.
+  if (receipt.carriedFrom !== undefined) {
+    if (receipt.carryReason !== "version-bump")
+      fail(
+        `gate receipt was carried with reason ${JSON.stringify(receipt.carryReason)}; the only ` +
+          "carry this system recognises is a version bump",
+      );
+    if (carryVerified === null)
+      fail(
+        "gate receipt claims to have been carried forward, but the caller did not verify that claim " +
+          "against git — a carried receipt is only acceptable when the diff is re-derived",
+      );
+    else if (carryVerified?.ok !== true)
+      fail(
+        `gate receipt was carried from ${receipt.carriedFrom}, but the difference between that tree ` +
+          `and this one is NOT pure version churn (${carryVerified?.offenders?.length ?? "?"} real ` +
+          `change(s), e.g. ${carryVerified?.offenders?.[0]?.file ?? "unknown"}) — the browser gates ` +
+          "must run against this tree",
+      );
+  }
 
   if (contractSha && receipt.contractSha256 !== contractSha)
     fail(

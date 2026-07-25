@@ -22,10 +22,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import {
+  git,
   isSubstantiveLine,
   resolveCommit,
   ROOT,
   splitDiffByFile,
+  versionBumpOnly,
 } from "./lib/change-set.mjs";
 
 let checks = 0;
@@ -206,6 +208,44 @@ assert.ok(
   `a real component change must retain its substantive files, got ${real.json.substantiveFiles}`,
 );
 checks += 2;
+
+// ── the version-bump predicate, against real history ─────────────────────────────────────────────
+//
+// This is what makes the receipt carry safe: `tooling/gate-receipt-carry.mjs` may only move a receipt
+// across a diff this predicate accepts, and `verify-gate-receipt.mjs` re-derives it independently. If
+// it ever accepted a real code change, a Version PR could publish unverified code.
+
+const treeOf = (ref) => git(["rev-parse", `${ref}^{tree}`]).trim();
+
+{
+  const bump = versionBumpOnly(
+    treeOf(`${VERSION_BUMP}~1`),
+    treeOf(VERSION_BUMP),
+  );
+  assert.equal(
+    bump.ok,
+    true,
+    `the real Version Packages commit must be recognised as pure version churn, but ${bump.offenders.length} ` +
+      `difference(s) were rejected, e.g. ${bump.offenders[0]?.file}: ${String(bump.offenders[0]?.line).slice(0, 120)}`,
+  );
+  assert.ok(
+    bump.files > 1_000,
+    `the fixture must actually exercise scale, got ${bump.files} files`,
+  );
+  checks += 2;
+}
+{
+  const real = versionBumpOnly(
+    treeOf(`${COMPONENT_CHANGE}~1`),
+    treeOf(COMPONENT_CHANGE),
+  );
+  assert.equal(
+    real.ok,
+    false,
+    "a real component change must NOT be accepted as version churn — this is the fail-open direction",
+  );
+  checks++;
+}
 
 // ── no output may ever be unset ──────────────────────────────────────────────────────────────────
 

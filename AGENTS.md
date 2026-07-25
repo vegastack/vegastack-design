@@ -105,7 +105,12 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
   those four lanes. Seven of eleven gate rows remain machine-verified for free; the split is stated
   row by row in § Verification ladder. When more than one person merges component changes
   independently, the answer is required status checks plus a second machine re-running the lanes, not
-  a cleverer receipt. `tooling/verify-hooks-installed.mjs` runs inside `pnpm lint` because a tree
+  a cleverer receipt. **One carry is legitimate and checkable:** `changeset version` moves the tree
+  hash while changing no code a browser gate can observe, so `tooling/gate-receipt-carry.mjs` carries
+  the receipt across a version bump and stamps `carriedFrom`. The guard re-derives that proof from git
+  (`versionBumpOnly`) and rejects any carry hiding a real change — without it every Version PR would
+  fail `receipt-guard` and no npm publish could ever happen.
+  `tooling/verify-hooks-installed.mjs` runs inside `pnpm lint` because a tree
   whose hooks are missing or unwired has no browser verification at all, and husky's dispatcher exits
   **zero** when a committed hook is absent.
 - **Pixels stay a local review step**, unchanged: `node tooling/vrt-review.mjs` captures the base ref

@@ -14,7 +14,7 @@
     "typecheck": "turbo run typecheck",
     "registry:build": "shadcn registry validate packages/ui/registry.json && shadcn build packages/ui/registry.json -o apps/docs/public/r && node tooling/registry-stamp.mjs && node tooling/registry-header.mjs && node tooling/verify-headers.mjs && node tooling/verify-registry-deps.mjs",
     "version-sync": "node tooling/version-sync.mjs",
-    "version-packages": "changeset version && node tooling/version-sync.mjs",
+    "version-packages": "changeset version && node tooling/version-sync.mjs && node tooling/gate-receipt-carry.mjs",
     "registry:verify-parity": "node tooling/verify-bin-parity.mjs",
     "registry:verify-headers": "node tooling/verify-headers.mjs",
     "registry:verify-consume": "node tooling/verify-shadcn-consume.mjs",

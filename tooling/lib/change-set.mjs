@@ -166,6 +166,93 @@ export function splitDiffByFile(diff) {
   return entries;
 }
 
+// ── the version-bump exemption ────────────────────────────────────────────────────────────────────
+//
+// WHY THIS EXISTS
+//   A gate receipt is bound to a tree hash. `changeset version` + `version-sync` move that hash —
+//   they rewrite package versions, package CHANGELOGs, delete the changesets, and re-stamp provenance
+//   headers into 1082 files — while changing no code a browser gate could observe. Measured on the
+//   real `Version Packages (#1)` commit: tree 77a346c0 → 1b5796df.
+//
+//   So a machine-generated Version PR would fail `receipt-guard`, blocking every npm publish, and
+//   nobody can fix it by re-running the gates: that branch is authored by a bot, and the browser
+//   lanes cannot run in CI at all. `tooling/gate-receipt-carry.mjs` therefore carries the receipt
+//   forward, and this predicate is what makes that carry CHECKABLE rather than a blanket exemption —
+//   the guard re-derives it from git and rejects the receipt if the diff contains anything real.
+//
+// WHAT COUNTS, LINE BY LINE — a path allowlist alone would let a dependency change ride along inside
+// package.json, so each allowed path also constrains the lines that may differ.
+
+/** `"version": "0.3.0"` and the workspace-sibling bumps changesets rewrites alongside it. */
+const VERSION_FIELD_LINE =
+  /^[+-]\s*"(?:version|@vegastack\/[a-z0-9-]+)":\s*"[~^]?[0-9]/;
+/**
+ * Built registry items are exempt WHOLESALE, and that is an argument rather than a shortcut.
+ *
+ * `apps/docs/public/r/*.json` embeds each component's entire source in a single `"content"` string,
+ * so re-stamping one provenance header rewrites the whole line — a line-level rule cannot read it.
+ * Policing it here would also duplicate a guarantee that already exists and is stronger: CI's
+ * `quality-gate` runs `pnpm registry:build` on this very commit and fails if the tree is not clean
+ * afterwards. So these files are re-derived and diffed by execution, not trusted from a diff.
+ */
+const GENERATED_REGISTRY_OUTPUT = /^apps\/docs\/public\/r\/.+\.json$/;
+
+const isBodyLine = (line) =>
+  /^[+-]/.test(line) && !line.startsWith("+++") && !line.startsWith("---");
+
+/**
+ * Is every difference between two trees pure version churn?
+ *
+ * Returns `{ ok, offenders, files }`. An offender names the file and the first line that disqualified
+ * it, so a rejection is diagnosable rather than a bare no.
+ */
+export function versionBumpOnly(beforeTree, afterTree) {
+  const files = changedFilesInRange(beforeTree, afterTree);
+  const offenders = [];
+  const BATCH = 200;
+  for (let index = 0; index < files.length; index += BATCH) {
+    const diff = git([
+      "diff",
+      "-U0",
+      "--no-renames",
+      beforeTree,
+      afterTree,
+      "--",
+      ...files.slice(index, index + BATCH),
+    ]);
+    for (const [file, body] of splitDiffByFile(diff)) {
+      const lines = body.filter(isBodyLine);
+      const offend = (line) => offenders.push({ file, line });
+
+      if (/^\.changeset\/.+\.md$/.test(file)) {
+        // Consumed changesets are DELETED. An addition here would be new release intent.
+        const added = lines.find((line) => line.startsWith("+"));
+        if (added) offend(added);
+      } else if (/(^|\/)CHANGELOG\.md$/.test(file)) {
+        // Entries are appended. A removal would be rewriting released history.
+        const removed = lines.find((line) => line.startsWith("-"));
+        if (removed) offend(removed);
+      } else if (
+        /(^|\/)package\.json$/.test(file) ||
+        // The registry manifest carries the stamped design-system version too, and version-sync
+        // rewrites it in the same step. Same rule: version fields only, nothing else.
+        /^packages\/ui\/registry\.json$/.test(file)
+      ) {
+        const other = lines.find((line) => !VERSION_FIELD_LINE.test(line));
+        if (other) offend(other);
+      } else if (GENERATED_REGISTRY_OUTPUT.test(file)) {
+        // Exempt by re-execution, not by trust — see GENERATED_REGISTRY_OUTPUT.
+      } else {
+        // Everything else — component sources, docs copy-ins — may differ ONLY by the provenance
+        // header registry:build re-stamps. `isSubstantiveLine` already encodes exactly that.
+        const real = lines.find((line) => isSubstantiveLine(line));
+        if (real) offend(real);
+      }
+    }
+  }
+  return { ok: offenders.length === 0, offenders, files: files.length };
+}
+
 /**
  * A canonical git tree hash of the WORKING TREE — tracked modifications and untracked-not-ignored
  * files included, `.gates/` excluded.
