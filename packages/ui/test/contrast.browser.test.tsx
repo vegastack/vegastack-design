@@ -274,13 +274,26 @@ afterEach(() => {
 
 type ToastVariant = "default" | "success" | "error" | "warning" | "info";
 
-/** Fire one toast of a given variant. */
+/**
+ * Fire one toast of a given variant.
+ *
+ * `duration: Infinity` is REQUIRED, not tidiness. Sonner's default lifetime is 4s
+ * (`TOAST_LIFETIME`), and this audit fires a toast, polls for its enter animation, then runs a full
+ * axe pass over `document.body`. On a slow CI runner that exceeds 4s, so Sonner began the EXIT
+ * animation while axe was measuring, and axe composited the near-black text against the toast's
+ * ~10%-opacity surface: `#e3e3e2` on `#fefdfc`, a 1.26:1 "failure" that no token could ever produce
+ * (release run 30143769219 — and on an even slower runner the enter poll itself timed out,
+ * run 30140043824). Passing `Infinity` makes Sonner skip the auto-dismiss timer entirely
+ * (`sonner/dist/index.mjs`: `if (… toast.duration === Infinity …) return`), so the audit owns the
+ * toast's lifetime instead of racing it. `auditToast` already dismisses explicitly.
+ */
 function fireToast(variant: ToastVariant, message: string) {
-  if (variant === "success") toast.success(message);
-  else if (variant === "error") toast.error(message);
-  else if (variant === "warning") toast.warning(message);
-  else if (variant === "info") toast.info(message);
-  else toast(message);
+  const options = { duration: Number.POSITIVE_INFINITY } as const;
+  if (variant === "success") toast.success(message, options);
+  else if (variant === "error") toast.error(message, options);
+  else if (variant === "warning") toast.warning(message, options);
+  else if (variant === "info") toast.info(message, options);
+  else toast(message, options);
 }
 
 /**
