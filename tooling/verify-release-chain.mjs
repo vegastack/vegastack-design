@@ -96,7 +96,6 @@ function bumpVersion(version, kind) {
     : `${major}.${minor + 1}.0`;
 }
 
-const baseCommit = git(["rev-parse", "HEAD"]).stdout.trim();
 console.log(
   `▸ simulating against ${baseCommit.slice(0, 8)} (restored on exit)`,
 );
