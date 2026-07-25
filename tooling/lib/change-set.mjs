@@ -183,9 +183,15 @@ export function splitDiffByFile(diff) {
 // WHAT COUNTS, LINE BY LINE — a path allowlist alone would let a dependency change ride along inside
 // package.json, so each allowed path also constrains the lines that may differ.
 
-/** `"version": "0.3.0"` and the workspace-sibling bumps changesets rewrites alongside it. */
+/**
+ * The three shapes a version actually takes in these files:
+ *   `"version": "0.3.0"`                    — a package manifest field
+ *   `"@vegastack/design": "^0.2.0"`         — a workspace-sibling dependency changesets rewrites
+ *   `"@vegastack/design@^0.2.0",`           — a registry item's npm dependency, an ARRAY ENTRY
+ * The third was missed at first, and it is the one `version-sync` rewrites 630 times.
+ */
 const VERSION_FIELD_LINE =
-  /^[+-]\s*"(?:version|@vegastack\/[a-z0-9-]+)":\s*"[~^]?[0-9]/;
+  /^[+-]\s*(?:"(?:version|@vegastack\/[a-z0-9-]+)":\s*"[~^]?[0-9]|"@vegastack\/[a-z0-9-]+@[~^]?[0-9][^"]*",?\s*$)/;
 /**
  * Built registry items are exempt WHOLESALE, and that is an argument rather than a shortcut.
  *
