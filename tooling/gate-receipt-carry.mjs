@@ -65,8 +65,17 @@ if (currentTree === previousTree) {
 }
 
 // The whole point: prove the move was version churn before rewriting anything.
-const gitTree = (value) => value.replace(/^tree-/, "");
-const proof = versionBumpOnly(gitTree(previousTree), gitTree(currentTree));
+//
+// Proven against the COMMIT this bump is based on, not against the receipt's tree hash. That hash
+// names a DANGLING tree — `workingTreeContentHash()` builds it through a throwaway index, so it is
+// never pushed and does not exist on any other machine. The guard on a runner died with
+// `fatal: bad object` when it tried (release run 30168750521). A commit is reachable everywhere.
+const baseCommit = resolveCommit("HEAD");
+if (!baseCommit)
+  fatal(
+    "HEAD does not resolve to a commit, so there is nothing to prove the carry against",
+  );
+const proof = versionBumpOnly(baseCommit, null);
 if (!proof.ok) {
   console.error(
     `gate-receipt-carry: REFUSING to carry the receipt.\n` +
@@ -93,6 +102,7 @@ writeFileSync(
       treeFiles: files,
       head: resolveCommit("HEAD"),
       carriedFrom: previousTree,
+      carriedFromCommit: baseCommit,
       carryReason: CARRY_REASON,
       carriedAt: new Date().toISOString(),
     },

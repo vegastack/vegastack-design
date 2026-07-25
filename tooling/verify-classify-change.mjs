@@ -22,7 +22,6 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import {
-  git,
   isSubstantiveLine,
   resolveCommit,
   ROOT,
@@ -215,13 +214,8 @@ checks += 2;
 // across a diff this predicate accepts, and `verify-gate-receipt.mjs` re-derives it independently. If
 // it ever accepted a real code change, a Version PR could publish unverified code.
 
-const treeOf = (ref) => git(["rev-parse", `${ref}^{tree}`]).trim();
-
 {
-  const bump = versionBumpOnly(
-    treeOf(`${VERSION_BUMP}~1`),
-    treeOf(VERSION_BUMP),
-  );
+  const bump = versionBumpOnly(`${VERSION_BUMP}~1`, VERSION_BUMP);
   assert.equal(
     bump.ok,
     true,
@@ -235,10 +229,7 @@ const treeOf = (ref) => git(["rev-parse", `${ref}^{tree}`]).trim();
   checks += 2;
 }
 {
-  const real = versionBumpOnly(
-    treeOf(`${COMPONENT_CHANGE}~1`),
-    treeOf(COMPONENT_CHANGE),
-  );
+  const real = versionBumpOnly(`${COMPONENT_CHANGE}~1`, COMPONENT_CHANGE);
   assert.equal(
     real.ok,
     false,

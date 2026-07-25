@@ -126,9 +126,18 @@ const receipt = readReceipt();
  */
 const carryVerified = (() => {
   if (receipt?.carriedFrom === undefined) return null;
-  const bare = (value) => String(value).replace(/^tree-/, "");
+  if (!receipt.carriedFromCommit)
+    return {
+      ok: false,
+      offenders: [
+        {
+          file: "(the receipt records no carriedFromCommit, so its carry cannot be re-derived)",
+          line: "",
+        },
+      ],
+    };
   try {
-    return versionBumpOnly(bare(receipt.carriedFrom), bare(treeHash));
+    return versionBumpOnly(receipt.carriedFromCommit, "HEAD");
   } catch (error) {
     return {
       ok: false,

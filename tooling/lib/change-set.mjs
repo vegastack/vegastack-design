@@ -201,25 +201,32 @@ const isBodyLine = (line) =>
   /^[+-]/.test(line) && !line.startsWith("+++") && !line.startsWith("---");
 
 /**
- * Is every difference between two trees pure version churn?
+ * Is every difference between two revisions pure version churn?
+ *
+ * `before` must be a COMMIT, not a tree hash. That is not a style preference — it is the fix for a
+ * real failure: `workingTreeContentHash()` builds its tree through a throwaway index, so the tree
+ * object it names is DANGLING. It exists only in the repository that computed it and is never pushed,
+ * because git only transfers objects reachable from a ref. A guard on a CI runner asked to diff such a
+ * tree dies with `fatal: bad object …` — which is exactly how release run 30168750521 failed. A commit
+ * is reachable, pushed, and present everywhere.
+ *
+ * `after` may be another commit, or null to compare against the WORKING TREE (what the carry tool
+ * needs, since the bumped tree is not committed yet at that point).
  *
  * Returns `{ ok, offenders, files }`. An offender names the file and the first line that disqualified
  * it, so a rejection is diagnosable rather than a bare no.
  */
-export function versionBumpOnly(beforeTree, afterTree) {
-  const files = changedFilesInRange(beforeTree, afterTree);
+export function versionBumpOnly(before, after = null) {
+  const files = after
+    ? changedFilesInRange(before, after)
+    : changedFilesInWorkingTree(before);
   const offenders = [];
   const BATCH = 200;
   for (let index = 0; index < files.length; index += BATCH) {
-    const diff = git([
-      "diff",
-      "-U0",
-      "--no-renames",
-      beforeTree,
-      afterTree,
-      "--",
-      ...files.slice(index, index + BATCH),
-    ]);
+    const args = ["diff", "-U0", "--no-renames", before];
+    if (after) args.push(after);
+    args.push("--", ...files.slice(index, index + BATCH));
+    const diff = git(args);
     for (const [file, body] of splitDiffByFile(diff)) {
       const lines = body.filter(isBodyLine);
       const offend = (line) => offenders.push({ file, line });

@@ -326,6 +326,24 @@ expectReject(
   /NOT pure version churn/,
   "a carry hiding a real component change — the fail-open this exists to stop",
 );
+// A carry whose origin cannot be re-derived is worthless: the tree hash in `carriedFrom` names a
+// DANGLING object that exists only on the machine that computed it, which is why the proof is anchored
+// to `carriedFromCommit`. Release run 30168750521 died on exactly this.
+expectReject(
+  validReceipt({
+    carriedFrom: "tree-" + "e".repeat(40),
+    carryReason: "version-bump",
+  }),
+  {
+    carryVerified: {
+      ok: false,
+      offenders: [{ file: "(the receipt records no carriedFromCommit…)" }],
+    },
+  },
+  /NOT pure version churn/,
+  "a carry with no re-derivable origin commit",
+);
+
 expectReject(
   validReceipt({
     carriedFrom: "tree-" + "e".repeat(40),
