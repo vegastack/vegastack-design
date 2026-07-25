@@ -4,14 +4,14 @@
   "title": "Testimonial",
   "description": "A pull-quote — a serif-italic quote over a mono uppercase attribution line.",
   "dependencies": [
-    "@vegastack/design@^0.1.0",
-    "@vegastack/design-tokens@^0.1.0"
+    "@vegastack/design@^0.2.0",
+    "@vegastack/design-tokens@^0.2.0"
   ],
   "registryDependencies": [],
   "files": [
     {
       "path": "packages/ui/registry/ui/testimonial.tsx",
-      "content": "// @vegastack testimonial@0.3.0 sha256-oGfB7Rhdqa5r6atGf1Sfm99xBOcfD/elQu+cNgBhINo=\n\nimport * as React from \"react\";\nimport { cn } from \"@vegastack/design\";\n\n/** Props accepted by `Testimonial`. */\nexport interface TestimonialProps extends Omit<\n  React.ComponentPropsWithRef<\"figure\">,\n  \"role\"\n> {\n  /**\n   * The quote text, WITHOUT its own quotation marks — the component wraps it\n   * in curly quotes. Rendered serif italic (`font-serif italic`, the\n   * Newsreader display-emphasis accent) at `text-display-sm` — the sanctioned\n   * pull-quote use of the serif accent (audit 17-brand-direction §Typography\n   * roles: display emphasis + pull-quotes ONLY, never running body text).\n   */\n  quote: React.ReactNode;\n  /** Attributed name. */\n  name: React.ReactNode;\n  /** Optional role/affiliation (e.g. `\"CTO, Acme\"`). @default undefined */\n  role?: React.ReactNode;\n}\n\n/**\n * `Testimonial` — a pull-quote: a serif-italic quote over a mono uppercase\n * attribution line (name · role). Purely presentational.\n *\n * @example\n * <Testimonial\n *   quote=\"VegaStack cut our design-to-ship time in half.\"\n *   name=\"A. Rivera\"\n *   role=\"CTO, Example Co.\"\n * />\n */\nexport function Testimonial({\n  quote,\n  name,\n  role,\n  className,\n  ref,\n  ...props\n}: TestimonialProps) {\n  return (\n    <figure\n      ref={ref}\n      data-slot=\"testimonial\"\n      className={cn(\"flex flex-col gap-4\", className)}\n      {...props}\n    >\n      <blockquote\n        data-slot=\"testimonial-quote\"\n        className=\"text-balance font-serif text-display-sm text-foreground italic\"\n      >\n        “{quote}”\n      </blockquote>\n      <figcaption\n        data-slot=\"testimonial-attribution\"\n        className=\"flex items-center gap-2 font-mono text-mono-label text-muted-foreground uppercase\"\n      >\n        <span data-slot=\"testimonial-name\" className=\"text-foreground\">\n          {name}\n        </span>\n        {role ? (\n          <>\n            <span aria-hidden=\"true\">·</span>\n            <span data-slot=\"testimonial-role\">{role}</span>\n          </>\n        ) : null}\n      </figcaption>\n    </figure>\n  );\n}\n",
+      "content": "// @vegastack testimonial@0.3.0 sha256-rYkOoW4/v3FtgwU8gWVSxcOm1Umanf174XIBlyTu6UE=\n\nimport * as React from \"react\";\nimport { cn } from \"@vegastack/design\";\n\n/** Props accepted by `Testimonial`. */\nexport interface TestimonialProps extends Omit<\n  React.ComponentPropsWithRef<\"figure\">,\n  \"role\"\n> {\n  /**\n   * The quote text, WITHOUT its own quotation marks — the component wraps it\n   * in curly quotes. Rendered serif italic (`font-serif italic`, the\n   * Newsreader display-emphasis accent) at `text-display-sm` — the sanctioned\n   * pull-quote use of the serif accent (audit 17-brand-direction §Typography\n   * roles: display emphasis + pull-quotes ONLY, never running body text).\n   */\n  quote: React.ReactNode;\n  /** Attributed name. */\n  name: React.ReactNode;\n  /** Optional role/affiliation (e.g. `\"CTO, Acme\"`). @default undefined */\n  role?: React.ReactNode;\n}\n\n/**\n * `Testimonial` — a pull-quote: a serif-italic quote over a mono uppercase\n * attribution line (name · role). Purely presentational.\n *\n * @example\n * <Testimonial\n *   quote=\"VegaStack cut our design-to-ship time in half.\"\n *   name=\"A. Rivera\"\n *   role=\"CTO, Example Co.\"\n * />\n */\nexport function Testimonial({\n  quote,\n  name,\n  role,\n  className,\n  ref,\n  ...props\n}: TestimonialProps) {\n  return (\n    <figure\n      ref={ref}\n      data-slot=\"testimonial\"\n      className={cn(\"flex flex-col gap-4\", className)}\n      {...props}\n    >\n      <blockquote\n        data-slot=\"testimonial-quote\"\n        className=\"text-balance font-serif text-display-sm text-foreground italic\"\n      >\n        “{quote}”\n      </blockquote>\n      <figcaption\n        data-slot=\"testimonial-attribution\"\n        className=\"flex items-center gap-2 font-mono text-mono-label text-muted-foreground uppercase\"\n      >\n        <span data-slot=\"testimonial-name\" className=\"text-foreground\">\n          {name}\n        </span>\n        {role ? (\n          <>\n            <span aria-hidden=\"true\">·</span>\n            <span data-slot=\"testimonial-role\">{role}</span>\n          </>\n        ) : null}\n      </figcaption>\n    </figure>\n  );\n}\n",
       "type": "registry:ui",
       "target": "@ui/testimonial.tsx"
     }
@@ -20,7 +20,7 @@
     "whenToUse": "A short customer/user pull-quote on a marketing surface.",
     "whenNotToUse": "Long-form endorsements — this is a display-scale pull-quote, not a case study.",
     "version": "0.3.0",
-    "integrity": "sha256-oGfB7Rhdqa5r6atGf1Sfm99xBOcfD/elQu+cNgBhINo="
+    "integrity": "sha256-rYkOoW4/v3FtgwU8gWVSxcOm1Umanf174XIBlyTu6UE="
   },
   "categories": [
     "marketing"

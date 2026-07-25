@@ -183,9 +183,15 @@ export function splitDiffByFile(diff) {
 // WHAT COUNTS, LINE BY LINE — a path allowlist alone would let a dependency change ride along inside
 // package.json, so each allowed path also constrains the lines that may differ.
 
-/** `"version": "0.3.0"` and the workspace-sibling bumps changesets rewrites alongside it. */
+/**
+ * The three shapes a version actually takes in these files:
+ *   `"version": "0.3.0"`                    — a package manifest field
+ *   `"@vegastack/design": "^0.2.0"`         — a workspace-sibling dependency changesets rewrites
+ *   `"@vegastack/design@^0.2.0",`           — a registry item's npm dependency, an ARRAY ENTRY
+ * The third was missed at first, and it is the one `version-sync` rewrites 630 times.
+ */
 const VERSION_FIELD_LINE =
-  /^[+-]\s*"(?:version|@vegastack\/[a-z0-9-]+)":\s*"[~^]?[0-9]/;
+  /^[+-]\s*(?:"(?:version|@vegastack\/[a-z0-9-]+)":\s*"[~^]?[0-9]|"@vegastack\/[a-z0-9-]+@[~^]?[0-9][^"]*",?\s*$)/;
 /**
  * Built registry items are exempt WHOLESALE, and that is an argument rather than a shortcut.
  *
@@ -196,6 +202,31 @@ const VERSION_FIELD_LINE =
  * afterwards. So these files are re-derived and diffed by execution, not trusted from a diff.
  */
 const GENERATED_REGISTRY_OUTPUT = /^apps\/docs\/public\/r\/.+\.json$/;
+
+/**
+ * `pnpm design:derived` output, exempt on the SAME argument as the registry output above: CI
+ * re-executes `design:derived:check` (inside `pnpm lint`) on this very commit and fails on any drift.
+ * Re-derivation is a stronger guarantee than reading a diff.
+ *
+ * They enter a version bump because version-sync rewrites the npm ranges in
+ * `component-contracts.json`, which moves its SHA-256, which is stamped into every surface below.
+ */
+const CONTRACT_DERIVED_OUTPUT = [
+  /^packages\/ui\/component-contracts\.json$/,
+  /^packages\/ui\/contract-smoke-tests\.generated\.json$/,
+  /^apps\/docs\/vrt\/contract-routes\.generated\.ts$/,
+  /^apps\/docs\/lib\/home-component-catalog\.generated\.ts$/,
+  /^apps\/docs\/components\/animated-icon-gallery\.generated\.tsx$/,
+  /^docs\/ledger\/component-matrix\.md$/,
+  /^docs\/research\/design-md-audit\//,
+];
+
+/**
+ * AGENTS.md and README.md carry only a GENERATED REGION, so they are not exempt wholesale — only the
+ * lines that region can move. Anything else in those files is prose a release must not touch.
+ */
+const CONTRACT_SHA_LINE =
+  /^[+-].*(Contract SHA-256: `[a-f0-9]{64}`|\*\*Registry items: \d+\*\*|\*\*\d+ components\*\*)/;
 
 const isBodyLine = (line) =>
   /^[+-]/.test(line) && !line.startsWith("+++") && !line.startsWith("---");
@@ -216,6 +247,68 @@ const isBodyLine = (line) =>
  * Returns `{ ok, offenders, files }`. An offender names the file and the first line that disqualified
  * it, so a rejection is diagnosable rather than a bare no.
  */
+/**
+ * Read a file at a revision, or from the working tree when `revision` is null.
+ */
+function readAtRevision(revision, path) {
+  if (revision === null) {
+    try {
+      return readFileSync(join(ROOT, path), "utf8");
+    } catch {
+      return null;
+    }
+  }
+  return git(["show", `${revision}:${path}`], { allowFailure: true });
+}
+
+/** Replace every version-bearing string and `version` field with a placeholder. */
+function normaliseVersions(value) {
+  if (Array.isArray(value)) return value.map(normaliseVersions);
+  if (value && typeof value === "object")
+    return Object.fromEntries(
+      Object.entries(value).map(([key, entry]) => [
+        key,
+        key === "version" && typeof entry === "string"
+          ? "<version>"
+          : normaliseVersions(entry),
+      ]),
+    );
+  if (typeof value === "string")
+    return value.replace(
+      /^(@vegastack\/[a-z0-9-]+)@[~^]?[0-9][^\s"]*$/,
+      "$1@<version>",
+    );
+  return value;
+}
+
+/**
+ * The two JSON authorities are compared STRUCTURALLY, not line by line.
+ *
+ * A line rule cannot keep up with them: prettier writes `"dependencies": ["@vegastack/x@^0.2.0"],` on
+ * one line for a single element and across several for many, and the range appears both as an array
+ * entry and as a key-value pair. Chasing those shapes one at a time is the same serial-discovery
+ * mistake this whole file exists to prevent. Parse, blank out every version, and compare.
+ */
+function structurallyVersionOnly(before, after, path) {
+  const source = readAtRevision(before, path);
+  const target = readAtRevision(after, path);
+  if (source === null || target === null) return false;
+  try {
+    return (
+      JSON.stringify(normaliseVersions(JSON.parse(source))) ===
+      JSON.stringify(normaliseVersions(JSON.parse(target)))
+    );
+  } catch {
+    return false;
+  }
+}
+
+const STRUCTURAL_VERSION_FILES = [
+  /^packages\/ui\/registry\.json$/,
+  /^packages\/ui\/component-contracts\.json$/,
+  /(^|\/)package\.json$/,
+];
+
 export function versionBumpOnly(before, after = null) {
   const files = after
     ? changedFilesInRange(before, after)
@@ -240,15 +333,22 @@ export function versionBumpOnly(before, after = null) {
         const removed = lines.find((line) => line.startsWith("-"));
         if (removed) offend(removed);
       } else if (
-        /(^|\/)package\.json$/.test(file) ||
-        // The registry manifest carries the stamped design-system version too, and version-sync
-        // rewrites it in the same step. Same rule: version fields only, nothing else.
-        /^packages\/ui\/registry\.json$/.test(file)
+        STRUCTURAL_VERSION_FILES.some((pattern) => pattern.test(file))
       ) {
-        const other = lines.find((line) => !VERSION_FIELD_LINE.test(line));
-        if (other) offend(other);
+        if (!structurallyVersionOnly(before, after, file))
+          offend(
+            lines.find((line) => !VERSION_FIELD_LINE.test(line)) ??
+              "(structural comparison found a non-version difference)",
+          );
       } else if (GENERATED_REGISTRY_OUTPUT.test(file)) {
         // Exempt by re-execution, not by trust — see GENERATED_REGISTRY_OUTPUT.
+      } else if (
+        CONTRACT_DERIVED_OUTPUT.some((pattern) => pattern.test(file))
+      ) {
+        // Likewise — `design:derived:check` re-derives these in CI.
+      } else if (/^(AGENTS|README)\.md$/.test(file)) {
+        const other = lines.find((line) => !CONTRACT_SHA_LINE.test(line));
+        if (other) offend(other);
       } else {
         // Everything else — component sources, docs copy-ins — may differ ONLY by the provenance
         // header registry:build re-stamps. `isSubstantiveLine` already encodes exactly that.
