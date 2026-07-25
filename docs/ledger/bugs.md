@@ -4,6 +4,44 @@ Every bug found + root cause + fix. Append-only.
 
 ---
 
+## 2026-07-25 — The forced-colors focus assertion cannot fail (pre-existing fail-open)
+
+- **Symptom:** `contracts.spec.ts`'s "retains focus visibility" assertion passes with the design
+  system's focus ring **deleted**. Removed `outline-2` → `outline-0` from `apps/docs/app/global.css`
+  (the rule the docs pages actually load) and from `packages/design-tokens/src/base.css`, rebuilt, and
+  ran `/docs/components/button`: **8 executed · 8 passed · 0 failed** both times.
+- **Not a regression.** Reproduced against the unmodified spec at HEAD as well as the rewritten one,
+  so the same-day `walkKeyboardFocus` rewrite neither caused nor masked it.
+- **Root cause:** the assertion runs under `page.emulateMedia({ forcedColors: "active" })`, and in
+  forced-colors mode Chromium paints its OWN focus ring. Measured on the real page with both author
+  rules removed: every one of 14 controls reported `outline: solid 3px` — 3px, not the system's 2px,
+  because it is the user agent's. So `hasOutline = outlineStyle !== "none" && outlineWidth >= 2` is
+  unconditionally true. The fallback branch is no better: forced-colors also repaints borders on
+  focus, so `hasTextEntryTint` was true for all 14 controls too. Branch tally with the ring removed:
+  **outline only 0 · tint only 0 · both 14 · neither 0**. Both halves of `hasOutline ||
+hasTextEntryTint` are satisfied by the emulation itself.
+- **Why it went unnoticed:** the assertion was never observed failing. It is the one contract check
+  with no negative fixture, and forced-colors is exactly the mode where a focus indicator is
+  guaranteed by the platform rather than by the author — so the check measures focus visibility in the
+  only environment that cannot lack it.
+- **Blast radius:** 192 of the 768 checks (96 routes × 2 lanes... the focus half of
+  "forced colors and target floor", across 4 projects). The 24px pointer-target half of the same test
+  is unaffected and demonstrably still fails on real defects. Narrow reflow, RTL containment, and the
+  target floor all remain real.
+- **Fix: NOT APPLIED — needs MK.** Making it real means asserting the focus indicator in NORMAL
+  colours (where the author ring is what shows) and keeping forced-colors for what it is actually
+  for: that the component survives the mode without disappearing. That changes what 192 checks
+  assert, which `docs/plans/2026-07-25-cicd-local-first-revamp.md` § Non-goals explicitly excludes
+  from this change. It also needs its own negative fixture, or the replacement inherits the same
+  defect. Scope it separately.
+- **Interim honesty requirement:** until it is fixed, "forced-colors focus visibility" must not be
+  cited as covered. Reproduction, for whoever picks this up:
+
+  ```bash
+  # in apps/docs/app/global.css change  outline-2  ->  outline-0  in the :focus-visible rule
+  node tooling/contracts-run.mjs --routes /docs/components/button   # passes — it should not
+  ```
+
 ## 2026-06-21 — RSC client-reference: compound sub-part access in server-rendered previews
 
 - **Symptom:** Alert page 500 — "Element type is invalid ... got undefined" on `<Alert.Title>`.
@@ -155,6 +193,6 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
 - **Symptom:** `test:all-browsers` failed one test of 3765 in `quality-gate` — `Toaster color-contrast passes WCAG AA — light theme`, WebKit: "insufficient color contrast of 1.26 (foreground `#e3e3e2`, background `#fefdfc`)". On a slower runner the same test instead failed the enter-animation poll with "Matcher did not succeed in time".
 - **Why it looked like a token bug and was not:** `#e3e3e2` is in no theme block. It is what axe computes when the near-black light-theme text (`#0b0a09`) is composited over white at roughly 10% opacity — and `--warning-subtle` (`#feeee8`) at that opacity rounds to `#fefdfc`, which is why the background read as plain `--popover` instead of the warning tint. Both numbers are one fact: the toast was measured mid-fade.
 - **Root cause:** `auditToast` fires a toast, polls for its enter animation, then runs a full axe pass over `document.body`. Sonner's default lifetime is 4s (`TOAST_LIFETIME`). When the axe pass pushes the total past 4s, Sonner starts the EXIT animation while axe is still measuring. The test was racing a timer it did not own.
-- **Proved by controlled experiment, not inference:** firing the same toast and reading it after a deliberate 5s wait — without `duration: Infinity` the toast is *gone*; with it, `stillPresent: true, opacity: "1", removed: "false"`.
+- **Proved by controlled experiment, not inference:** firing the same toast and reading it after a deliberate 5s wait — without `duration: Infinity` the toast is _gone_; with it, `stillPresent: true, opacity: "1", removed: "false"`.
 - **Systemic fix:** the audited toasts are fired with `duration: Number.POSITIVE_INFINITY`, which makes Sonner skip the auto-dismiss timer outright (`sonner/dist/index.mjs`: `if (… toast.duration === Infinity …) return`). `auditToast` already dismissed explicitly, so the test now owns the whole lifetime instead of half of it. No assertion was weakened and no token changed.
 - **Why it surfaced only now:** `quality-gate` had never completed. It failed on an unrelated WebKit animated-icon test on 2026-07-24, and on the next run `vrt-gate` failed first so `quality-gate` was skipped entirely. Removing the screenshot gate finally let the release path run far enough to reach this.

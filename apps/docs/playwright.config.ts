@@ -16,6 +16,16 @@ import { defineConfig, devices } from "@playwright/test";
 // irrelevant and the snapshot path deliberately omits Playwright's `{-snapshotSuffix}` (`-darwin`/
 // `-linux`) segment. Nothing produced here is ever committed.
 const reviewSnapshotDir = process.env.VRT_SNAPSHOT_DIR;
+// `tooling/contracts-run.mjs` builds through turbo (a measured 2.9s cache hit versus a ~1m40
+// rebuild) and serves `out` itself, so it sets this to take ownership of the server. Playwright must
+// then NOT start one: a second build would restore the exact cost that wrapper exists to remove,
+// and a second bind on the same port would fail outright.
+//
+// This does not weaken the freshness guarantee `reuseExistingServer: false` was protecting. That
+// flag prevented a capture against a leftover server from an earlier build; the wrapper prevents the
+// same thing with turbo's content hash over declared inputs, which also catches a stale `out/` that
+// a liveness check would happily serve.
+const externalServer = process.env.PW_EXTERNAL_SERVER === "1";
 // The review tool runs two servers back to back, and two developers (or two runners) may review at
 // once. A fixed 3000 collides; this keeps each capture on its own port.
 const port = Number(process.env.VRT_PORT ?? 3000);
@@ -112,16 +122,20 @@ export default defineConfig({
       },
     },
   ],
-  webServer: {
-    command: `pnpm build && pnpm exec serve out -l ${port}`,
-    url: baseURL,
-    // NEVER reuse a running server: a leftover dev/static server from an earlier build serves
-    // STALE pages, and a capture taken against it silently compares outdated content (bit twice:
-    // the X2 chart mid-animation capture and a Phase S sidebar capture taken pre-rewrite).
-    // The ~2min rebuild per run is the price of a trustworthy before/after.
-    reuseExistingServer: false,
-    // 10min: a COLD `next build` exceeds the old 180s (the 2026-07-18 capture run timed out at
-    // exactly config.webServer timeout while next build was still going).
-    timeout: 600_000,
-  },
+  ...(externalServer
+    ? {}
+    : {
+        webServer: {
+          command: `pnpm build && pnpm exec serve out -l ${port}`,
+          url: baseURL,
+          // NEVER reuse a running server: a leftover dev/static server from an earlier build serves
+          // STALE pages, and a capture taken against it silently compares outdated content (bit twice:
+          // the X2 chart mid-animation capture and a Phase S sidebar capture taken pre-rewrite).
+          // The ~2min rebuild per run is the price of a trustworthy before/after.
+          reuseExistingServer: false,
+          // 10min: a COLD `next build` exceeds the old 180s (the 2026-07-18 capture run timed out at
+          // exactly config.webServer timeout while next build was still going).
+          timeout: 600_000,
+        },
+      }),
 });

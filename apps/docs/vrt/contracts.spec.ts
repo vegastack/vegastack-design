@@ -116,17 +116,121 @@ async function effectiveTargetProbe(
   });
 }
 
-async function focusViaKeyboard(
+/** What one keyboard landing inside the fixture recorded. */
+type FocusLanding = {
+  probe: number;
+  outlineStyle: string;
+  outlineWidth: number;
+  borderColor: string;
+  boxShadow: string;
+};
+
+/**
+ * Walk the fixture's tab order ONCE and record, for every control the keyboard reaches, the focus
+ * indicator it showed at the moment it was focused.
+ *
+ * WHAT THIS REPLACED, AND WHY
+ *   The previous helper tabbed from wherever focus happened to be, once PER CONTROL, and sized its
+ *   loop with a page-wide `INTERACTIVE_SELECTOR` count — which on a docs page includes the entire
+ *   Fumadocs sidebar, search, and table of contents. Each iteration cost a `keyboard.press` plus an
+ *   `evaluate` round-trip, so the cost was O(controls × page-wide tabbables). On the four most
+ *   control-dense routes (message-scroller, hover-card, sidebar, data-list) that already ran close to
+ *   the 120s test timeout, and `docs/ledger/operator-review.md` named it the largest available
+ *   speedup while deliberately deferring it.
+ *
+ *   This walks once — O(fixture) — and starts at the fixture container rather than the top of the
+ *   document, so the docs chrome is not traversed at all. The chrome is not the component's contract.
+ *
+ * WHAT IT DELIBERATELY STILL PROVES
+ *   Both original facts, and by the same mechanism:
+ *
+ *     reachability     the control became `document.activeElement` as a RESULT of pressing Tab.
+ *                      Not `element.focus()` — a programmatic focus proves nothing about tab order,
+ *                      and its `:focus-visible` behaviour is a UA heuristic rather than a guarantee.
+ *     focus indicator  captured WHILE keyboard focus was on the element, so `:focus-visible` rules
+ *                      are in effect exactly as they were before.
+ *
+ *   The identity link is a stamped `data-contract-probe` index rather than a Locator comparison,
+ *   because a walk cannot hold a Locator per landing. No CSS in this system targets that attribute.
+ */
+async function walkKeyboardFocus(
   page: import("@playwright/test").Page,
-  control: import("@playwright/test").Locator,
+  fixture: import("@playwright/test").Locator,
 ) {
-  const maximumTabs = (await page.locator(INTERACTIVE_SELECTOR).count()) + 1;
-  for (let step = 0; step < maximumTabs; step++) {
-    if (await control.evaluate((element) => document.activeElement === element))
-      return true;
+  // Stamp every control the test will assert on, capture its UNFOCUSED indicator styles, and take
+  // ownership of the container so the walk can start at the fixture boundary.
+  const setup = await fixture.evaluate((root, selector) => {
+    const controls = [...root.querySelectorAll(selector)];
+    controls.forEach((element, index) =>
+      element.setAttribute("data-contract-probe", String(index)),
+    );
+    const indicatorOwner = (element: Element) =>
+      (element instanceof HTMLElement &&
+        element.isContentEditable &&
+        element.closest('[data-slot="text-edit"]')) ||
+      element;
+    const before = controls.map((element) => {
+      const style = getComputedStyle(indicatorOwner(element));
+      return { borderColor: style.borderColor, boxShadow: style.boxShadow };
+    });
+    // Focusing a container with tabindex=-1 puts the tab cursor immediately before its own subtree,
+    // so the first Tab lands on the fixture's first tabbable and the docs chrome is skipped.
+    const previousTabIndex = root.getAttribute("tabindex");
+    root.setAttribute("tabindex", "-1");
+    (root as HTMLElement).focus();
+    return {
+      count: controls.length,
+      before,
+      previousTabIndex,
+      // Elements the keyboard can land on inside the fixture, including any that the assertion
+      // selector does not cover. Sizes the loop without a page-wide count.
+      tabbable: [...root.querySelectorAll("*")].filter(
+        (element) => element instanceof HTMLElement && element.tabIndex >= 0,
+      ).length,
+    };
+  }, INTERACTIVE_SELECTOR);
+
+  const landings = new Map<number, FocusLanding>();
+  // Slack above the tabbable count absorbs composite widgets that move focus internally (a combobox
+  // popup, a roving-tabindex group) before releasing it forward.
+  const maximumSteps = setup.tabbable + setup.count + 8;
+  for (let step = 0; step < maximumSteps; step++) {
+    if (landings.size === setup.count) break;
     await page.keyboard.press("Tab");
+    const landing = await page.evaluate(() => {
+      const active = document.activeElement;
+      if (!active || active === document.body) return null;
+      const owner = active.closest("[data-contract-probe]");
+      if (!owner) return { probe: -1 };
+      const indicatorOwner =
+        (owner instanceof HTMLElement &&
+          owner.isContentEditable &&
+          owner.closest('[data-slot="text-edit"]')) ||
+        owner;
+      const style = getComputedStyle(indicatorOwner);
+      return {
+        probe: Number(owner.getAttribute("data-contract-probe")),
+        outlineStyle: style.outlineStyle,
+        outlineWidth: Number.parseFloat(style.outlineWidth),
+        borderColor: style.borderColor,
+        boxShadow: style.boxShadow,
+      };
+    });
+    // Focus left the document entirely: the tab order has run past the fixture and nothing further
+    // will be reached. Anything unseen is genuinely unreachable, which the assertions then report.
+    if (landing === null) break;
+    if (landing.probe >= 0 && !landings.has(landing.probe))
+      landings.set(landing.probe, landing as FocusLanding);
   }
-  return control.evaluate((element) => document.activeElement === element);
+
+  await fixture.evaluate((root, previous) => {
+    if (previous === null) root.removeAttribute("tabindex");
+    else root.setAttribute("tabindex", previous);
+    for (const element of root.querySelectorAll("[data-contract-probe]"))
+      element.removeAttribute("data-contract-probe");
+  }, setup.previousTabIndex);
+
+  return { landings, before: setup.before };
 }
 
 async function establishLane(
@@ -192,6 +296,26 @@ test.describe("component contract — narrow reflow and RTL", () => {
   }
 });
 
+/**
+ * KNOWN FAIL-OPEN IN THE FOCUS HALF OF THIS TEST — measured 2026-07-25, not yet fixed.
+ *
+ * The focus-indicator assertion below CANNOT FAIL. It runs under `forcedColors: "active"`, and in that
+ * mode Chromium paints its own focus ring: with the design system's `:focus-visible` rule deleted from
+ * `apps/docs/app/global.css`, every one of 14 controls on `/docs/components/button` still reported
+ * `outline: solid 3px` — 3px because it is the user agent's, not the system's 2px. The fallback branch
+ * is no better; forced-colors also repaints borders on focus, so `hasTextEntryTint` was true for all 14
+ * as well. Branch tally with the ring removed: outline only 0 · tint only 0 · both 14 · neither 0.
+ *
+ * Reproduced against the spec as it stood BEFORE the `walkKeyboardFocus` rewrite, so the rewrite
+ * neither caused nor masks it. The 24px pointer-target half of this test is unaffected and still
+ * catches real defects; narrow reflow and RTL containment are unaffected.
+ *
+ * Fixing it means asserting the indicator in NORMAL colours and keeping forced-colors for what it is
+ * actually for — that the component survives the mode. That changes what 192 checks assert and needs
+ * its own negative fixture, so it is scoped separately. Evidence and reproduction:
+ * `docs/ledger/bugs.md`, 2026-07-25. **Do not cite forced-colors focus visibility as covered until
+ * this is closed.**
+ */
 test.describe("component contract — forced colors and target floor", () => {
   for (const route of COMPONENT_ROUTES) {
     test(`${route} retains focus visibility and effective 24px pointer targets`, async ({
@@ -267,46 +391,40 @@ test.describe("component contract — forced colors and target floor", () => {
             `interactive control ${index} on ${route} must own a centred >=24px effective pointer target (visual ${probe.rect.width.toFixed(1)}×${probe.rect.height.toFixed(1)}px)`,
           ).toEqual([]);
         }
+      }
+
+      // ── keyboard pass ──────────────────────────────────────────────────────────────────────────
+      //
+      // One walk of the fixture's tab order, then a lookup per control. Splitting the passes is what
+      // makes that possible: the pointer pass above needs each control in turn, the keyboard pass
+      // needs the whole tab order at once.
+      const { landings, before } = await walkKeyboardFocus(page, fixture);
+
+      for (let index = 0; index < count; index++) {
+        const control = controls.nth(index);
+        if (!(await control.isVisible()) || (await control.isDisabled()))
+          continue;
+        if ((await control.getAttribute("aria-hidden")) === "true") continue;
+        if ((await control.getAttribute("aria-disabled")) === "true") continue;
 
         const keyboardFocusable = await control.evaluate(
           (element) => element instanceof HTMLElement && element.tabIndex >= 0,
         );
         if (!keyboardFocusable) continue;
-        const isTextEditSurface = await control.evaluate(
-          (element) =>
-            element instanceof HTMLElement &&
-            element.isContentEditable &&
-            Boolean(element.closest('[data-slot="text-edit"]')),
-        );
-        const indicatorOwner = isTextEditSurface
-          ? control.locator(
-              "xpath=ancestor-or-self::*[@data-slot='text-edit'][1]",
-            )
-          : control;
-        const before = await indicatorOwner.evaluate((element) => {
-          const style = getComputedStyle(element);
-          return { borderColor: style.borderColor, boxShadow: style.boxShadow };
-        });
+
+        const landing = landings.get(index);
         expect(
-          await focusViaKeyboard(page, control),
-          `interactive control ${index} on ${route} must be reachable through the keyboard path`,
+          landing !== undefined,
+          `interactive control ${index} on ${route} must be reachable through the keyboard path ` +
+            `(the fixture's tab order was walked from its container and never reached it)`,
         ).toBe(true);
-        await expect(control).toBeFocused();
-        const focusIndicator = await indicatorOwner.evaluate((element) => {
-          const style = getComputedStyle(element);
-          return {
-            outlineStyle: style.outlineStyle,
-            outlineWidth: Number.parseFloat(style.outlineWidth),
-            borderColor: style.borderColor,
-            boxShadow: style.boxShadow,
-          };
-        });
+        if (!landing) continue;
+
         const hasOutline =
-          focusIndicator.outlineStyle !== "none" &&
-          focusIndicator.outlineWidth >= 2;
+          landing.outlineStyle !== "none" && landing.outlineWidth >= 2;
         const hasTextEntryTint =
-          focusIndicator.borderColor !== before.borderColor ||
-          focusIndicator.boxShadow !== before.boxShadow;
+          landing.borderColor !== before[index].borderColor ||
+          landing.boxShadow !== before[index].boxShadow;
         expect(
           hasOutline || hasTextEntryTint,
           `interactive control ${index} on ${route} needs a visible focus outline or a changed text-entry border tint`,

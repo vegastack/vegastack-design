@@ -140,25 +140,25 @@ Every job except npm publishing and `deploy.yml`'s signing, deploy, and boundary
 
 **Evidence this was the right reversal, not a convenience.**
 
-- *VRT never caught a product bug here.* "VRT baselines absent" was raised as HIGH twelve times in
+- _VRT never caught a product bug here._ "VRT baselines absent" was raised as HIGH twelve times in
   `codex-rounds.md` and marked IRREDUCIBLE each time; baselines finally landed 2026-07-24. Every VRT
   entry in `bugs.md` is a defect in VRT's own machinery, not in a component.
-- *Its original justification had already moved.* VRT was specified as the contrast/a11y acceptance
+- _Its original justification had already moved._ VRT was specified as the contrast/a11y acceptance
   gate (`design.md` §7.7). The entry above this one records that job moving to
   `packages/ui/test/contrast.browser.test.tsx`, which found real sub-AA dark tokens and got them
   fixed. Behaviour coverage likewise belongs to `contracts.spec.ts`, which caught a real forced-colors
   focus defect in `terminal.tsx` the day this decision was taken, and takes no photographs.
-- *It was a review tool wearing a gate's clothes.* AGENTS.md § Verification ladder says "Every gate
+- _It was a review tool wearing a gate's clothes._ AGENTS.md § Verification ladder says "Every gate
   fails closed." Clearing a red pixel gate required regenerating the baselines — overwriting the
   evidence under review. It had a permanent escape hatch, so it never failed closed.
-- *Committed baselines were unworkable for this team.* Screenshots compare only across identical
+- _Committed baselines were unworkable for this team._ Screenshots compare only across identical
   platform AND CPU architecture, and 96 checks used `maxDiffPixels: 0`. Developers are on mixed macOS
   and Windows; CI is a third machine. No platform existed on which everyone could regenerate them, so
   every visual change required a CI round trip.
-- *It ran four times per release.* The old `release.yml` classifier treated `^packages/design/` as
+- _It ran four times per release._ The old `release.yml` classifier treated `^packages/design/` as
   visual, so a Version Packages PR — a pure version bump with no visual content — re-captured all 876
   screenshots. PR, main, version-PR merge, and deploy each paid ~72 minutes.
-- *The failure it produced was undiagnosable.* Neither `vrt-gate` uploaded artifacts. Run
+- _The failure it produced was undiagnosable._ Neither `vrt-gate` uploaded artifacts. Run
   `30115971397` failed after 1h12m and produced zero artifacts: no diff image, no trace, no report.
   That, not any runner choice, is what trapped the previous session in a loop.
 
@@ -189,22 +189,22 @@ cannot be diagnosed. Under this change it evaporates rather than gets answered.
 
 **Judgment calls made while implementing, deviating from `docs/plans/2026-07-25-cicd-self-hosted-and-local-vrt.md`.**
 
-- *The boundary-probe jobs stay on `ubuntu-latest`* (the plan listed them for migration). This is
+- _The boundary-probe jobs stay on `ubuntu-latest`_ (the plan listed them for migration). This is
   correctness, not caution: `probe-precutover-protection.mjs` and `probe-deployment.mjs` assert that
   ANONYMOUS requests are rejected. A runner inside VegaStack's network can be silently authenticated
   by Cloudflare device posture, which would void the proof rather than merely risk it. A boundary
   test has to originate outside the trusted network. `deploy-curated` stays for the same reason the
   plan keeps `sign-curated`: credential-only, third-party actions, no repository code, nothing gained.
-- *The terminal fix removes the transparent border as well as `outline-none`.* The plan expected a
+- _The terminal fix removes the transparent border as well as `outline-none`._ The plan expected a
   one-class removal. The shared outline is clipped both by the terminal root's `overflow-hidden` and
   by `scroll-fade-x`'s mask, so the fix is an INSET outline and the layout-reserving transparent
   border becomes dead weight. This makes the fix a 2px layout change, which is why it must land
   AFTER the migration PR rather than before it as the plan sequenced — under the old workflows its
   own pixel gate would have blocked it.
-- *The visual classifier had to become diff-body aware, not just filename-based.* The first
+- _The visual classifier had to become diff-body aware, not just filename-based._ The first
   implementation subtracted `package.json`/`CHANGELOG.md` and claimed a Version PR merge would skip
   the browser gate. **That claim was false and was caught by testing it.** `pnpm run
-  version-packages` runs version-sync → `registry:build` → `registry-header.mjs`, which re-stamps
+version-packages` runs version-sync → `registry:build` → `registry-header.mjs`, which re-stamps
   `// @vegastack <name>@<version> sha256-<sha>` into every component source AND docs copy-in — 1082
   files, all matching the visual path list. No filename filter can distinguish that one-line comment
   from a real component change. The classifier now reads the diff body and drops
@@ -212,7 +212,7 @@ cannot be diagnosed. Under this change it evaporates rather than gets answered.
   synthesised Version Packages commit (`visual=false`) and against a real component change, a
   token change, and a prose-only change (`true`, `true`, `false`). It keeps `pnpm-lock.yaml`
   visual — a Base UI or Tailwind bump genuinely can break a reflow contract.
-- *`tooling/verify-workflow-security.mjs` gained a `runs-on` allowlist.* The plan only required
+- _`tooling/verify-workflow-security.mjs` gained a `runs-on` allowlist._ The plan only required
   removing the `vrt.yml` assertions. Without a positive assertion, a job silently drifting back to
   `ubuntu-latest` would reintroduce billed capacity with no signal, and a job drifting off
   `ubuntu-latest` would break publishing or void a boundary proof. Job containers are now banned
@@ -262,10 +262,10 @@ run `30115971397` became undiagnosable.
 
 **Measured, in this order.**
 
-| Run | Config | Result |
-| --- | --- | --- |
+| Run           | Config                                               | Result               |
+| ------------- | ---------------------------------------------------- | -------------------- |
 | `30132112459` | `ubuntu-latest`, Playwright's CI default of 1 worker | 768 passed, **1.4h** |
-| `30136029776` | same runner, `workers: 4` | **752 passed**, 1.3h |
+| `30136029776` | same runner, `workers: 4`                            | **752 passed**, 1.3h |
 
 Raising workers bought nothing and cost reliability. The 16 failures were not random: the four most
 control-dense routes — `message-scroller`, `hover-card`, `sidebar`, `data-list` — hit the 120s test
@@ -305,7 +305,7 @@ suite used to run inside the digest-pinned Playwright image, and the migration h
 `safe.directory` trust for the host-mounted workspace, and `HOME=/root` for Firefox, which refuses a
 HOME it does not own.
 
-**Deliberately NOT restored elsewhere.** `ci.yml`'s Chromium lane, its WebKit/Firefox *smoke subset*,
+**Deliberately NOT restored elsewhere.** `ci.yml`'s Chromium lane, its WebKit/Firefox _smoke subset_,
 and all four contract shards pass on bare `ubuntu-latest`. Only the complete three-engine suite is
 this sensitive, so only it pays for the image.
 
@@ -356,3 +356,137 @@ current `main` tip; nothing needs to be re-pushed. `main` is release-ready and w
 no path filter, so a docs- or tooling-only PR still pays four sharded browser runs. `release.yml`
 already gates its equivalent on the visual classifier; `ci.yml` should too. That alone would have
 avoided most of this session's Linux minutes.
+
+## 2026-07-25 — CI/CD rebuilt local-first (Option A): CI verifies, it no longer executes
+
+**Decision:** move every browser gate onto developer machines, have CI independently re-execute the
+whole non-browser half on the free mac minis, and bind the browser half to a committed receipt.
+Plan and measurements: `docs/plans/2026-07-25-cicd-local-first-revamp.md`. MK chose **Option A** — no
+GitHub-hosted runner verifies a browser gate at all — over Option B, which would have kept a small
+path-filtered hosted contract job as an independent re-run.
+
+**What the measurements said, before any code changed.** GitHub API over 94 runs / 7.2 days:
+**1,892 billable minutes**, 17 self-hosted, ~264 hosted minutes per day, ~7,900 projected per month.
+`CI :: contracts` alone was 497 of those minutes at ~24.9m per shard × 4 shards, re-paid on every
+push. Against that, the same work on this Mac: `design-lint` 1.4s, cold `typecheck` 12s, cold
+`turbo run lint` 20s, the browser-unit suite 16s, the cross-engine smoke 15.8s, the complete
+three-engine suite **1m39s**, `registry:verify-consume` 3m45s.
+
+**Three findings changed the design rather than confirming it.**
+
+1. _The contract lane's floor was the docs build, not the tests._ `playwright.config.ts` ran
+   `pnpm build && serve out` per invocation with `reuseExistingServer: false`. A ONE-ROUTE run cost
+   1m54s of which ~1m40 was that rebuild. Meanwhile `turbo run build --filter=@vegastack/docs` is a
+   **2.9s** `>>> FULL TURBO` hit, because `turbo.json` already declares `out/**` as an output. So
+   `tooling/contracts-run.mjs` owns the server and builds through turbo: one route now costs **24s**
+   warm. Freshness did not weaken — it moved from "no server was reused" to a content hash over
+   declared inputs, which additionally catches a stale `out/` that a liveness check would serve.
+2. _`ci.yml`'s `verify` needed a hosted runner for exactly two steps._ Job `89606685733` had already
+   proved `design:verify`, `typecheck`, and `lint` pass on a mini and failed only at `pnpm test`. And
+   `pnpm test` is two packages: `@vegastack/design`'s three plain `node` test files (mini-safe, kept in
+   CI) and `@vegastack/ui`'s Vitest browser mode (16s locally). Splitting them freed the entire lane.
+3. _A recorded number was stale._ This ledger said "768/768 passed in 5.6 minutes" on macOS ARM64.
+   Measured the same day on macOS ARM64: **13m36s** (`real 815.43` / `user 3789.34`). 13.6 min is the
+   working figure; that is what kept the full sweep out of `pre-push` and put the deferred
+   `focusViaKeyboard` fix back on the table.
+
+**Result.** A pull request costs **zero** billable minutes. Seven hosted jobs remain, each for a hard
+reason, and the runner split stays an enforced allowlist —
+`tooling/verify-workflow-security-negative.mjs` now proves it rejects a move in either direction, plus
+eleven other mutations. Projected hosted usage: **~100-150 minutes per month**, from ~7,900.
+
+**The honest cost, stated where it cannot be missed.** Four gate rows — the browser-unit suite, the
+cross-engine smoke, the three-engine suite, and the 768 contracts — are now **attested rather than
+re-executed**. `.gates/receipt.json` binds them to a git tree hash (a real git tree, computed through a
+throwaway index, so symlinks and file modes are handled by git rather than by hand). `--no-verify`,
+`HUSKY=0`, or a hand-edited receipt defeats it. What it buys is that skipping a browser gate is a
+visible, auditable act instead of a silent one. Seven of eleven rows remain machine-verified for free.
+When more than one person merges component changes independently, the answer is required status checks
+plus a second machine, not a cleverer receipt. `tooling/verify-hooks-installed.mjs` is inside
+`pnpm lint` because husky's dispatcher exits **zero** when a committed hook is missing — a silently
+disabled gate would otherwise look completely normal.
+
+**Judgment calls made while implementing.**
+
+- _`package-build` stays GitHub-hosted, and MK approved it explicitly._ `publish` uploads exactly its
+  bytes and npm's OIDC provenance asserts this workflow built them; a persistent self-hosted runner
+  can carry state between runs, which would make that assertion less true. ~4 minutes. Noted
+  asymmetry: `deploy.yml`'s `build-curated` already builds the REGISTRY artifact on a mini, accepted
+  in the previous plan, so the two paths differ in provenance.
+- _`deploy.yml` requires ALL THREE browser lanes unconditionally_, unlike `ci.yml`/`release.yml` which
+  require what the change class needs. Only `pnpm gates:ship` — a full 96-route sweep — produces such
+  a receipt, so a production deploy still cannot happen without a complete contract run. Conditional
+  requirements there would have let a docs-only deploy through on a partial sweep, which is the hole
+  the deleted hosted gate existed to close.
+- _`packages/ui/registry.json` and `component-contracts.json` are NON-visual for the contract lane._
+  The conservative instinct was to call them global; that was wrong and measurably expensive, because
+  `registry.json` carries every item's `meta.version`, so a pure version bump would have demanded the
+  full 13.6-minute sweep — precisely the waste recorded as removed earlier the same day. The safety is
+  not lost: a route-set change necessarily rewrites `contract-routes.generated.ts`, which IS global,
+  and `design:derived:check` fails closed if the two drift.
+- _The container ban replaced two assertions that had gone dead._ A digest-pin check and a
+  `shell: bash` check both guarded a container that no longer exists. Dead assertions read as
+  coverage, so they were removed and a ban put in their place — negative-tested.
+- _`pnpm-lock.yaml` added to `.prettierignore`._ `pnpm add` writes a lockfile prettier rejects, which
+  made the new pre-commit format gate fail after every dependency change. The existing file already
+  exempts generated output whose own pipeline owns its serialization; a lockfile is exactly that.
+
+**Where my own verification was wrong twice, and how it was caught.** Both are recorded because the
+method matters more than the result:
+
+- The first `verify-route-scope.mjs` passed a **broken** mapping. Mutation testing showed that deleting
+  `contracts.spec.ts` from the contract lane's global list still produced a full sweep — via the
+  unrecognised-is-global fall-through — so an `expectGlobal` assertion could not tell "declared global"
+  from "global by accident". The genuinely dangerous case, the same path landing in the NON-visual list
+  by copy-paste, was untested. Fixed with structural list assertions; all nine mutations now rejected.
+- `dropProvenanceOnly` silently dropped **untracked** files (a brand-new component source has no diff
+  against the base, so the body filter saw nothing), and then dropped them a second time because the
+  final filter was applied to the wrong list. Both fixed; validated against the real
+  `Version Packages (#1)` commit, where 1058 of 1593 changed files are provenance-only and 0 of 1052
+  component-source paths survive as substantive.
+
+**One finding is deliberately NOT fixed here.** The forced-colors focus assertion cannot fail —
+Chromium supplies its own ≥2px focus ring in that mode, and forced-colors repaints borders so the
+fallback tint branch is also unconditionally true. Verified against the unmodified spec, so it predates
+this change. Fixing it changes what 192 checks assert, which this plan's non-goals exclude. Full
+evidence and reproduction: `docs/ledger/bugs.md`, same date. **Until it is fixed, "forced-colors focus
+visibility" must not be cited as covered.**
+
+**`focusViaKeyboard` replaced, as its own scoped change.** It was quadratic in round-trips — it sized
+its loop from a page-wide interactive count including the whole Fumadocs sidebar, search, and TOC, then
+tabbed through that chrome once per control. `walkKeyboardFocus` stamps a probe index on each control,
+walks the fixture's tab order ONCE from the container (skipping the chrome entirely), and records the
+focus indicator at each landing. Both original facts are still proven by the same mechanism: focus
+arrives via a real `Tab` press, and the indicator is measured while keyboard focus is on the element.
+Verification: **768/768 pass, identical test count, 13m36s → 11m19s**, and the four routes previously
+named as timing out (`message-scroller`, `hover-card`, `sidebar`, `data-list`) now run well clear.
+
+**Four defects in the new tooling, found by running it rather than reading it.** Recorded because
+each was invisible in review and each is the kind that would have degraded the tool quietly:
+
+- _A failing cheap gate bought a full contract sweep._ A single type error ran the whole 10-minute
+  96-route sweep whose result could not matter on a tree that does not compile. Fixed with a tier
+  barrier: the cheap tier runs to completion so its failures report together, then the browser lanes
+  are recorded as **not run** rather than started. 10 minutes became 10 seconds.
+- _The docs cache warm-up raced turbo against itself._ Started in parallel with `pnpm typecheck` and
+  `turbo run lint` — which are themselves turbo runs — it contended on the same task and died
+  (`gates: the parallel docs build failed`, on a run whose contract lane then rebuilt and passed).
+  Fixed by moving the warm-up after the turbo gates so it overlaps only the unit and smoke lanes, and
+  by demoting its failure to a quiet note: `contracts-run.mjs` re-runs the same command and is the
+  freshness authority, so a lost warm-up is never a gate failure.
+- _The server reaper killed the runner instead of the server — twice over._ First, `detached: false`
+  meant the reaper killed the `pnpm` wrapper while `pnpm exec serve` had already spawned `serve` as a
+  child, leaving three orphaned servers still listening after a session of runs — exactly the hazard
+  the deleted workflows warned about. Fixed with `detached: true` plus a process-GROUP kill. Then the
+  belt-and-braces port sweep made it worse: `lsof -ti tcp:<port>` matches a socket with that port on
+  EITHER end, so it returned this very process — which had just polled the server through `fetch` —
+  and SIGKILLed it. The symptom was `exit 137` immediately after a clean `768 passed`, with the report
+  already written as `"pass"`, so the failure appeared to come from nowhere. Fixed with
+  `-sTCP:LISTEN` and an explicit self-pid guard. **The deleted workflows used the same unfiltered
+  command**; it never bit there only because their shell held no connection to the port at reap time.
+  Worth knowing before anyone reintroduces that idiom.
+- _The pre-commit format gate would have blocked every new skill._ prettier ERRORS on an explicitly
+  specified symlink, and this repository's skill convention adds exactly two per skill
+  (`.claude/skills/<name>` and `.agents/skills/<name>`, both required by `skill-lint`). Found by
+  adding the `gates` skill itself. Fixed by filtering symlinks out of the staged set; their targets
+  are ordinary files and are still formatted on their own paths.

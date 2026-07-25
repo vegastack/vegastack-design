@@ -21,6 +21,12 @@
 //   the logic here would just create a second thing to keep in sync, and the bug would hide in the
 //   gap.
 //
+//   The classification itself now lives in `tooling/classify-change.mjs`, which that step calls, and
+//   `tooling/verify-classify-change.mjs` proves against real history. So this tool no longer carries
+//   the only executable check on the logic — but it remains the only check on the WIRING: that the
+//   step still exists, still runs, and still sets every output the receipt guard reads. An output the
+//   step forgets to set reads as `false` in an `if:`, which relaxes a gate rather than failing it.
+//
 // USAGE
 //   node tooling/release-classify.mjs                          # origin/main → HEAD (what a push does)
 //   node tooling/release-classify.mjs --before main --after changeset-release/main
@@ -61,7 +67,9 @@ const git = (args) => {
 
 const before =
   options.before ??
-  (git(["rev-parse", "--verify", "--quiet", "origin/main"]) ? "origin/main" : "main");
+  (git(["rev-parse", "--verify", "--quiet", "origin/main"])
+    ? "origin/main"
+    : "main");
 const beforeSha = git(["rev-parse", `${before}^{commit}`]);
 const afterSha = git(["rev-parse", `${options.after}^{commit}`]);
 if (!beforeSha) fail(`--before ref does not resolve: ${before}`);
@@ -70,7 +78,9 @@ if (!afterSha) fail(`--after ref does not resolve: ${options.after}`);
 // Pull the script out of the workflow rather than copying it. If the step is renamed or restructured
 // this fails loudly instead of silently classifying with stale logic.
 const workflow = parse(readFileSync(WORKFLOW, "utf8"));
-const step = (workflow.jobs?.changes?.steps ?? []).find((s) => s.id === "detect");
+const step = (workflow.jobs?.changes?.steps ?? []).find(
+  (s) => s.id === "detect",
+);
 if (!step?.run)
   fail(
     "release.yml no longer has a `changes` job with a step `id: detect` carrying a `run:` script — " +
@@ -94,12 +104,17 @@ const result = spawnSync("bash", [script], {
   },
 });
 
-console.log(`release-classify: ${before} (${beforeSha.slice(0, 8)}) → ${options.after} (${afterSha.slice(0, 8)})`);
+console.log(
+  `release-classify: ${before} (${beforeSha.slice(0, 8)}) → ${options.after} (${afterSha.slice(0, 8)})`,
+);
 if (result.stdout?.trim()) {
   const lines = result.stdout.trim().split("\n");
   console.log(
     lines.length > 30
-      ? `  …${lines.length} lines of step output, last 10:\n${lines.slice(-10).map((l) => `  ${l}`).join("\n")}`
+      ? `  …${lines.length} lines of step output, last 10:\n${lines
+          .slice(-10)
+          .map((l) => `  ${l}`)
+          .join("\n")}`
       : lines.map((l) => `  ${l}`).join("\n"),
   );
 }
@@ -119,28 +134,50 @@ const outputs = Object.fromEntries(
     .map((line) => line.split("=")),
 );
 
-// An output the job never set is the dangerous case: `needs.changes.outputs.visual == 'true'` is
-// false for an unset value, so a script that aborted early silently SKIPS the gate.
-const missing = ["visual", "publish", "has_changesets"].filter(
-  (key) => outputs[key] === undefined,
-);
+// An output the job never set is the dangerous case: `needs.changes.outputs.contracts == 'true'` is
+// false for an unset value, so a script that aborted early silently RELAXES the receipt requirement
+// instead of failing.
+const KEYS = [
+  "contracts",
+  "contracts_scope",
+  "unit",
+  "smoke",
+  "publish",
+  "has_changesets",
+];
+const missing = KEYS.filter((key) => outputs[key] === undefined);
 
 console.log("\noutputs");
-for (const key of ["visual", "publish", "has_changesets"])
-  console.log(`  ${key.padEnd(15)} ${outputs[key] ?? "(UNSET)"}`);
+for (const key of KEYS)
+  console.log(`  ${key.padEnd(16)} ${outputs[key] ?? "(UNSET)"}`);
+
+console.log("\nwhat the gate receipt must therefore contain");
+for (const [key, lane] of [
+  ["contracts", `behaviour contracts (${outputs.contracts_scope ?? "?"})`],
+  ["unit", "browser unit suite + axe"],
+  ["smoke", "cross-engine smoke (WebKit + Firefox)"],
+])
+  console.log(
+    `  ${key.padEnd(16)} ${outputs[key] === "true" ? `REQUIRED — ${lane}` : `not required for this change`}`,
+  );
+console.log(
+  "  typecheck/lint   always required (and independently re-executed on the mini)",
+);
 
 console.log("\nwhat that means on a push to main");
 console.log(
-  `  contracts-gate   ${outputs.visual === "true" ? "RUNS — 768 behaviour contracts" : "skipped (no rendered-surface change)"}`,
+  `  receipt-guard    RUNS — rejects the push unless .gates/receipt.json covers this tree`,
 );
 console.log(
-  `  quality-gate     ${outputs.publish === "true" ? "RUNS" : "skipped (nothing to publish)"}`,
+  `  quality-gate     ${outputs.publish === "true" ? "RUNS (free, self-hosted)" : "skipped (nothing to publish)"}`,
 );
 if (outputs.publish === "true")
   console.log(
     outputs.has_changesets === "true"
-      ? "  version-pr       RUNS — opens/updates the Version Packages PR. No npm OIDC."
-      : "  publish          RUNS — npm OIDC publish. This is the outward step.",
+      ? "  version-pr       RUNS — opens/updates the Version Packages PR. No npm OIDC. Free.\n" +
+          "  package-build    skipped for a Version PR run; it builds only on the publish path"
+      : "  package-build    RUNS — ~4 billed minutes, ephemeral runner, npm artifact provenance\n" +
+          "  publish          RUNS — npm OIDC publish. This is the outward step.",
   );
 
 if (missing.length > 0 || result.status !== 0) {
@@ -150,4 +187,6 @@ if (missing.length > 0 || result.status !== 0) {
   );
   process.exit(1);
 }
-console.log("\nrelease-classify: the detect step ran clean and set every output.");
+console.log(
+  "\nrelease-classify: the detect step ran clean and set every output.",
+);

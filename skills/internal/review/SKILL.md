@@ -39,10 +39,16 @@ worth a review slot, and a green claim that is actually red is the most valuable
 node tooling/design-lint.mjs packages/ui/registry                    # component source, all rules
 node tooling/design-lint.mjs --token-css packages/design-tokens/src  # token CSS (!important only)
 node tooling/design-lint.mjs --token-css apps/docs/app               # docs app CSS (!important only)
-pnpm lint && pnpm typecheck && pnpm test
+pnpm lint && pnpm typecheck
+pnpm gates:ship                                  # the full sweep, including all 96 contract routes
 pnpm registry:build && git status --porcelain    # must be idempotent — clean tree after
 pnpm design:derived && git status --porcelain    # contract-derived surfaces must be current
+pnpm classify                                    # which gates this change REQUIRES, and why
 ```
+
+`pnpm gates:ship` subsumes the browser lanes. Read `.gates/ship.json` and `.gates/contracts.json`
+rather than the exit code — a contracts entry with `status: "skipped"` or `executed: 0` after a
+`--all` run is a defect in the runner or the route set, and it looks exactly like a pass.
 
 Any error is a finding. **A gate that passes while its subject is broken is a `high` finding about
 the gate.**
@@ -148,9 +154,22 @@ severity. **If the task was an audit, stop here — report, never auto-fix.**
 
 ## 8. Visual review discipline
 
-Visual verification is split: **behaviour** is a CI gate (`apps/docs/vrt/contracts.spec.ts`, 768
-checks, no screenshots, no baselines); **pixels** are a local review step
-(`tooling/vrt-review.mjs`, before/after on one machine, nothing committed).
+Visual verification is split: **behaviour** is a gate (`apps/docs/vrt/contracts.spec.ts`, 768 checks,
+no screenshots, no baselines) that runs in `.husky/pre-push` and is attested to CI by
+`.gates/receipt.json`; **pixels** are a local review step (`tooling/vrt-review.mjs`, before/after on
+one machine, nothing committed).
+
+**Under this topology the receipt is a review target in its own right.** No CI runner executes a
+browser, so a review that accepts "CI was green" as evidence the contracts ran has accepted nothing.
+Check the receipt actually covers the tree and carries the lanes the change required:
+
+```bash
+pnpm gates:verify-receipt          # classifies the change itself, then verifies
+node -p "const r=require('./.gates/receipt.json'); [r.tree, r.mode, JSON.stringify(r.gates)].join('\\n')"
+```
+
+A receipt whose `skips[]` is non-empty is a finding regardless of how the run looks: it means
+`GATES_SKIP` was used and a browser lane did not run.
 
 Reviewing a before/after report:
 
@@ -163,9 +182,17 @@ Reviewing a before/after report:
   exists. An empty report presented as evidence is a high finding.
 - **A `note` field means the capture broke** (navigation error, timeout) — that entry has no visual
   verdict at all and must not be counted as unchanged.
-- **Fresh-build requirement.** `webServer.reuseExistingServer` must stay `false`. A reused server has
-  served pre-rewrite pages into a "passing" capture twice in this program's history. Flag any config
-  that reuses a server as a correctness risk, not a performance choice.
+- **Fresh-build requirement.** For the pixel lane `webServer.reuseExistingServer` must stay `false`. A
+  reused server has served pre-rewrite pages into a "passing" capture twice in this program's history.
+  Flag any config that reuses a server as a correctness risk, not a performance choice.
+
+  The contract lane satisfies the same requirement differently and deliberately:
+  `tooling/contracts-run.mjs` sets `PW_EXTERNAL_SERVER=1`, builds through
+  `turbo run build --filter=@vegastack/docs`, and serves `out` itself. Freshness therefore comes from
+  turbo's content hash over declared inputs rather than from "no server was reused" — which is
+  strictly stronger, because it also catches a stale `out/` that a liveness check would happily serve.
+  A change that makes the runner skip that build, or trust a running server, is a high finding.
+
 - **All four lanes.** Every route captures desktop light/dark and mobile light/dark. An entry present
   in only one lane means the scope filter dropped the others — investigate rather than assume.
 - **No committed screenshot, ever.** `.gitignore` excludes `apps/docs/vrt/*-snapshots/` and
@@ -178,13 +205,23 @@ Reviewing the contract gate:
 
 - It is the only blocking visual-surface gate. Weakening an assertion in `contracts.spec.ts` without
   a recorded reason removes coverage nothing else replaces.
-- A gate run that executed zero tests is not passing evidence — `release.yml` guards this explicitly.
-  Verify the guard still exists whenever the job is edited.
-- **Whether it RUNS at all is `release.yml`'s `changes` job, and that is shell you must execute, not
-  read.** `node tooling/release-classify.mjs [--before <ref>] [--after <ref>]` extracts the step
-  verbatim and reports what it decides. An output the step never set reads as false in an `if:`, so
-  the gate is silently skipped rather than failed — a green log with no coverage. This has happened;
-  the header of that script records how.
+- A gate run that executed zero tests is not passing evidence. Three separate guards enforce that and
+  all three must survive an edit: `contracts-run.mjs` fails on a non-empty scope executing nothing, it
+  cross-checks its `--grep` against `--list` before running, and `verify-gate-receipt.mjs` rejects a
+  receipt whose contracts entry reports pass over zero tests or zero routes.
+- **SCOPE is now the highest-risk part of this gate.** A scoped run that selects the wrong routes is
+  green and meaningless. The mapping lives in `tooling/lib/route-scope.mjs` and is proven by
+  `tooling/verify-route-scope.mjs` — including the one path the two lanes classify OPPOSITELY
+  (`contracts.spec.ts` cannot move a pixel, but it IS the contract assertions). Any new entry in
+  either lane's `nonVisual` list is a finding until a matching assertion exists: non-visual is tested
+  first, so a path in both lists is silently skipped.
+- **Whether a lane is REQUIRED at all is `tooling/classify-change.mjs`, and it is executable — run it,
+  do not read it.** `pnpm classify` for the working tree, or
+  `node tooling/release-classify.mjs [--before <ref>] [--after <ref>]` to extract and run the workflow
+  step verbatim. An output the step never set reads as false in an `if:`, which RELAXES a requirement
+  rather than failing it — a green log with no coverage. This has happened twice; the headers of both
+  scripts record how, and `tooling/verify-classify-change.mjs` now proves both directions against the
+  real commits involved.
 
 ## 9. Fix at the root
 

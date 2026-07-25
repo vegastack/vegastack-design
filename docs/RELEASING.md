@@ -61,18 +61,27 @@ workflow changes out of a changeset-bearing push if package work unexpectedly be
 
 ## Where the jobs run
 
-Non-browser jobs run on the self-hosted mac minis (`runs-on: [self-hosted, vsk-runners-mac-mini]`):
-`release.yml`'s `changes` and `version-pr`, and `deploy.yml`'s `ref-guard` and `build-curated`.
-Everything else is pinned to `ubuntu-latest` by an allowlist enforced in
-`tooling/verify-workflow-security.mjs`, for four distinct reasons:
+**No CI runner executes a browser.** The browser-unit suite, the cross-engine smoke, the three-engine
+suite, and the 768 behaviour contracts run on a developer machine — scoped in `.husky/pre-push`, in
+full under `pnpm gates:ship` — and each run writes `.gates/receipt.json`, bound to a git tree hash of
+the working tree with `.gates/` excluded. Every workflow has a `receipt-guard` job that rejects a push
+whose receipt does not cover the pushed tree. A receipt is **attestation, not proof**; see
+`tooling/lib/gate-receipt.mjs` and AGENTS.md § Locked decisions for exactly what that does and does
+not buy.
 
-- **Browsers** — all of `ci.yml`, plus `contracts-gate` in `release.yml`/`deploy.yml` and
-  `quality-gate`. The minis cannot launch Chromium: their runner has no per-user Mach bootstrap
-  namespace, so launches die with `bootstrap_look_up
-  org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` and SIGTRAP.
-  Deterministic on both minis in run `30131471680`; the same suite passes locally on the same OS and
-  CPU. **The fix is on the host** — reinstall the Actions runner as a LaunchAgent inside a logged-in
-  session instead of a LaunchDaemon. Then move those five jobs back by editing `GITHUB_HOSTED_JOBS`.
+Everything that executes repository code and needs no browser runs free on the self-hosted mac minis
+(`runs-on: [self-hosted, vsk-runners-mac-mini]`): all of `ci.yml`, `release.yml`'s `changes`,
+`receipt-guard`, `quality-gate` and `version-pr`, and `deploy.yml`'s `ref-guard`, `receipt-guard` and
+`build-curated`. **A pull request costs zero billable minutes.**
+
+Seven jobs stay on `ubuntu-latest`, pinned by an allowlist enforced in
+`tooling/verify-workflow-security.mjs` and negative-tested in
+`tooling/verify-workflow-security-negative.mjs`. Each has a hard reason:
+
+- **`release.yml` `package-build`** — npm artifact provenance. `publish` uploads exactly this job's
+  bytes and npm's OIDC provenance statement asserts that this workflow, in this repository, built
+  them. A persistent self-hosted runner can carry state between runs, which would make that assertion
+  less true. ~4 minutes, no browsers, no container.
 - **`release.yml` `publish`** — npm trusted publishing does not support self-hosted runners
   (<https://docs.npmjs.com/trusted-publishers/>) and this repository holds no `NPM_TOKEN`.
 - **`deploy.yml` `sign-curated` and `deploy-curated`** — the OIDC signing job and the credential-only
@@ -82,9 +91,16 @@ Everything else is pinned to `ubuntu-latest` by an allowlist enforced in
   network can be silently authenticated by Cloudflare device posture, which would void the proof. A
   boundary test has to originate outside the trusted network.
 
-Job containers are banned on the self-hosted jobs — Linux-only, they cannot start on macOS. A
-GitHub-hosted job may use one, digest-pinned to the Playwright image: `quality-gate` needs it because
-bare `ubuntu-latest` WebKit could not settle the compiled-CSS Toaster contrast check.
+Job containers are banned outright. They are Linux-only and cannot start on the minis, and the one job
+that legitimately needed one — the three-engine suite in the digest-pinned Playwright image, because
+bare `ubuntu-latest` WebKit could not settle the compiled-CSS Toaster contrast check — no longer runs
+in CI. That suite takes 1m39s locally.
+
+The minis still cannot launch Chromium (no per-user Mach bootstrap namespace; `bootstrap_look_up
+org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` and SIGTRAP,
+reconfirmed in run `30150905149`). Under this topology that blocks nothing. Fixing it — reinstall the
+Actions runner as a LaunchAgent inside a logged-in session — is optional, and worth doing only if you
+later want a second machine independently re-running the browser lanes.
 
 **Screenshots are not part of CI.** Pixel comparison is a local `/ship` step —
 `node tooling/vrt-review.mjs` — reviewed by a human. Rationale and evidence:

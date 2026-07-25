@@ -1,0 +1,733 @@
+#!/usr/bin/env node
+// The gate ladder. One entry point per tier, so a hook, a skill, and a human all run the same thing.
+//
+//   pnpm gates:commit              staged-file static gates. ~3-5s. Never a browser.
+//   pnpm gates:push                the pre-push ladder, then write the receipt.
+//   pnpm gates:component <name>    the inner loop while building one component.
+//   pnpm gates:ship                the full local sweep /ship requires.
+//
+// MEASURED BUDGETS — macOS ARM64, 10 cores, warm turbo cache. Re-measure rather than trusting these.
+//   commit                          ~4s      design-lint 1.7s · secret-scan 0.7s · the rest <0.2s
+//   component <name>                ~44s     design-lint 1.7s · that unit file 2.8s · its closure 40s
+//   push, nothing contract-relevant ~33s     typecheck 17s · lint 16s · all browser lanes SKIPPED
+//   push, one component touched     ~1m45s    + unit 16s · smoke 17s · a 3-route closure 40s
+//   push, a GLOBAL surface touched  ~9-11min  + the full 96-route sweep (768 checks)
+//   ship                            ~17-18min + all-browsers 1m39 · consume 3m42 · full contracts
+//
+//   A COLD docs export adds ~1m40 to any lane that needs `apps/docs/out`. Note `turbo.json` lists
+//   `tooling/**` in `globalDependencies`, so editing anything in this directory invalidates that
+//   build — which is why the component loop measured 2m44 while this file was being edited and 44s
+//   when it was not.
+//
+// TWO ORDERING RULES, BOTH LEARNED THE HARD WAY
+//   1. A TIER BARRIER. The cheap tier runs to completion, but the browser tier does not start behind
+//      a failing one. A single type error otherwise bought a full 10-minute contract sweep whose
+//      result could not matter.
+//   2. THE DOCS CACHE WARM-UP RUNS AFTER THE TURBO GATES, never alongside them. `pnpm typecheck` and
+//      `turbo run lint` are themselves turbo runs, and two turbo processes building the same task
+//      contend — observed as a failed warm-up on a run whose contract lane then rebuilt and passed
+//      anyway. It now overlaps only the unit and smoke lanes, which invoke package scripts directly.
+//      A failed warm-up is never a gate failure: `contracts-run.mjs` re-runs the same command and is
+//      the freshness authority.
+//
+// REPORTS, NOT JUST EXIT CODES
+//   Every gate writes `.gates/<gate>.json` and a failure writes `.gates/last-failure.json`. That is
+//   deliberate: an exit code tells a developer something broke, a report lets their agent say WHAT
+//   broke and why. Read them with the `gates` skill.
+
+import { spawn, spawnSync } from "node:child_process";
+import {
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { arch, platform } from "node:os";
+import { join } from "node:path";
+
+import {
+  changedFilesInWorkingTree,
+  defaultBaseRef,
+  dropProvenanceOnly,
+  mergeBase,
+  resolveCommit,
+  ROOT,
+  workingTreeContentHash,
+} from "./lib/change-set.mjs";
+import {
+  ALL_GATES,
+  contractSha256,
+  installedToolchain,
+  RECEIPT_PATH,
+  RECEIPT_REPO_PATH,
+  SCHEMA,
+} from "./lib/gate-receipt.mjs";
+import {
+  CONTRACT_SCOPE,
+  dependentsByRoute,
+  routeByName,
+  selectRoutes,
+} from "./lib/route-scope.mjs";
+
+const GATES_DIR = join(ROOT, ".gates");
+const LAST_FAILURE = join(GATES_DIR, "last-failure.json");
+
+const USAGE = `Usage: node tooling/gates.mjs <commit|push|component|ship> [options]
+
+  commit                  static gates over STAGED files only
+  push                    the pre-push ladder, then write ${RECEIPT_REPO_PATH}
+  component <name>        design-lint + that component's unit test + its contract-route closure
+  ship                    the full local sweep
+
+  --base <ref>            diff against this ref (default: origin/main, falling back to main)
+  --no-receipt            run the ladder but do not write a receipt
+  --verbose               stream every gate's output instead of only failures
+
+Exit codes: 0 all required gates passed · 1 a gate failed · 2 the ladder could not run.`;
+
+// ── plumbing ─────────────────────────────────────────────────────────────────────────────────────
+
+// Colour only when a TTY is attached. A hook's output is routinely captured to a file or read by
+// an agent, and escape bytes in that log are noise someone then has to strip before reading it.
+const tty = process.stdout.isTTY === true;
+const style = (code) => (tty ? `\u001b[${code}m` : "");
+const BOLD = style(1);
+const DIM = style(2);
+const RED = style(31);
+const GREEN = style(32);
+const YELLOW = style(33);
+const RESET = style(0);
+
+function fatal(message) {
+  console.error(`${RED}gates: ${message}${RESET}`);
+  process.exit(2);
+}
+
+const mode = process.argv[2];
+if (!mode || mode === "--help" || mode === "-h") {
+  console.log(USAGE);
+  process.exit(mode ? 0 : 2);
+}
+if (!["commit", "push", "component", "ship"].includes(mode))
+  fatal(`unknown mode ${mode}\n\n${USAGE}`);
+
+const options = { base: null, receipt: true, verbose: false, component: null };
+for (let index = 3; index < process.argv.length; index++) {
+  const flag = process.argv[index];
+  if (flag === "--base") options.base = process.argv[++index];
+  else if (flag === "--no-receipt") options.receipt = false;
+  else if (flag === "--verbose") options.verbose = true;
+  else if (!flag.startsWith("-") && options.component === null)
+    options.component = flag;
+  else fatal(`unknown option ${flag}\n\n${USAGE}`);
+}
+if (mode === "component" && !options.component)
+  fatal(
+    "`gates component` needs a component name, e.g. `pnpm gates:component button`",
+  );
+
+mkdirSync(GATES_DIR, { recursive: true });
+
+const results = [];
+
+/**
+ * Run one gate. Output is captured and printed only on failure unless --verbose, because a green
+ * ladder should be four lines rather than four thousand.
+ */
+function gate(
+  id,
+  label,
+  command,
+  args,
+  { cwd = ROOT, env = process.env, required = true } = {},
+) {
+  process.stdout.write(`${DIM}▸${RESET} ${label}… `);
+  const startedAt = Date.now();
+  const result = spawnSync(command, args, {
+    cwd,
+    env,
+    encoding: "utf8",
+    maxBuffer: 256 * 1024 * 1024,
+    stdio: options.verbose ? "inherit" : "pipe",
+  });
+  const durationMs = Date.now() - startedAt;
+  const seconds = `${(durationMs / 1000).toFixed(1)}s`;
+  const ok = result.status === 0;
+  console.log(
+    ok
+      ? `${GREEN}pass${RESET} ${DIM}${seconds}${RESET}`
+      : `${RED}FAIL${RESET} ${DIM}${seconds}${RESET}`,
+  );
+  const output = options.verbose
+    ? null
+    : `${result.stdout ?? ""}${result.stderr ?? ""}`.trim();
+  if (!ok && output) console.error(`\n${output}\n`);
+  results.push({
+    id,
+    label,
+    status: ok ? "pass" : "fail",
+    durationMs,
+    required,
+    command: [command, ...args].join(" "),
+    output: ok
+      ? null
+      : (output ?? "(streamed — rerun without --verbose to capture)"),
+  });
+  return ok;
+}
+
+function skip(id, label, reason) {
+  console.log(
+    `${DIM}▸${RESET} ${label}… ${YELLOW}skipped${RESET} ${DIM}${reason}${RESET}`,
+  );
+  results.push({
+    id,
+    label,
+    status: "skipped",
+    durationMs: 0,
+    required: false,
+    reason,
+  });
+}
+
+const node = (script, ...args) => ["node", [join(ROOT, script), ...args]];
+
+// ── change set ───────────────────────────────────────────────────────────────────────────────────
+
+const baseRef = options.base ?? defaultBaseRef();
+const baseSha = resolveCommit(baseRef);
+if (!baseSha) fatal(`base ref does not resolve to a commit: ${baseRef}`);
+const rangeStart = mergeBase(baseSha, "HEAD") ?? baseSha;
+
+const allChanged = changedFilesInWorkingTree(rangeStart);
+const changed = dropProvenanceOnly(allChanged, { before: rangeStart });
+const contractSelection = selectRoutes(changed, {}, CONTRACT_SCOPE);
+const contractsRelevant =
+  contractSelection.routes === null || contractSelection.routes.size > 0;
+
+const SMOKE_SELECTED = (() => {
+  const contracts = JSON.parse(
+    readFileSync(join(ROOT, "packages/ui/component-contracts.json"), "utf8"),
+  );
+  return new Set(
+    [...contracts.components, ...contracts.hooks, ...contracts.blocks]
+      .filter((record) => record.coverage?.crossBrowserSmoke === "selected")
+      .flatMap((record) => [
+        ...(record.sourceFiles ?? []),
+        ...(record.testFiles ?? []),
+      ]),
+  );
+})();
+const smokeRelevant =
+  contractSelection.routes === null ||
+  changed.some((file) => SMOKE_SELECTED.has(file));
+const unitRelevant = changed.some((file) =>
+  /^(packages\/(ui|design|design-tokens)|apps\/docs\/components)\//.test(file),
+);
+
+// ── the docs build, warmed alongside the non-turbo gates ─────────────────────────────────────────
+//
+// TIMING IS LOAD-BEARING HERE, and it was wrong once. This must NOT overlap `pnpm typecheck` or
+// `turbo run lint`: those are themselves turbo runs, and two turbo processes building the same task
+// contend — observed as `gates: the parallel docs build failed` on a run whose contract lane then
+// rebuilt and passed anyway. So it starts AFTER the turbo-based gates and overlaps only the unit and
+// smoke lanes, which invoke package scripts directly (~30s of cover).
+//
+// A failure here is not a gate failure. `contracts-run.mjs` re-runs the same turbo command and is the
+// freshness authority; this is purely a cache warm-up, so it stays quiet unless --verbose.
+
+let docsBuild = null;
+function startDocsBuild() {
+  docsBuild = spawn(
+    "pnpm",
+    ["exec", "turbo", "run", "build", "--filter=@vegastack/docs"],
+    {
+      cwd: ROOT,
+      env: { ...process.env, SITE_VISIBILITY: "public" },
+      stdio: "ignore",
+    },
+  );
+  docsBuild.promise = new Promise((done) =>
+    docsBuild.on("exit", (code) => done(code)),
+  );
+  console.log(
+    `${DIM}▸${RESET} warming the docs export ${DIM}(turbo — instant on a cache hit)${RESET}`,
+  );
+}
+
+async function awaitDocsBuild() {
+  if (!docsBuild) return true;
+  const code = await docsBuild.promise;
+  if (code !== 0 && options.verbose)
+    console.log(
+      `${DIM}gates: the cache warm-up did not complete; contracts-run will build it itself.${RESET}`,
+    );
+  return code === 0;
+}
+
+// ── modes ────────────────────────────────────────────────────────────────────────────────────────
+
+function stagedFiles() {
+  const result = spawnSync(
+    "git",
+    ["diff", "--cached", "--name-only", "--diff-filter=ACMR"],
+    {
+      cwd: ROOT,
+      encoding: "utf8",
+    },
+  );
+  return (result.stdout ?? "").split("\n").filter(Boolean);
+}
+
+/**
+ * Staged files prettier can actually be handed.
+ *
+ * SYMLINKS ARE EXCLUDED, and this is not a nicety: prettier ERRORS on an explicitly specified
+ * symlink ("Explicitly specified pattern … is a symbolic link"), and every new skill in this
+ * repository adds exactly two of them (`.claude/skills/<name>` and `.agents/skills/<name>`, both
+ * required by tooling/skill-lint.mjs). Without this filter the format gate would block every commit
+ * that adds a skill — found by adding the `gates` skill itself. The symlink TARGETS are ordinary
+ * staged files and are formatted on their own paths.
+ */
+function formattableStagedFiles(staged) {
+  return staged.filter((file) => {
+    try {
+      return !lstatSync(join(ROOT, file)).isSymbolicLink();
+    } catch {
+      return false; // Staged but gone from disk — nothing to format.
+    }
+  });
+}
+
+async function runCommit() {
+  const staged = stagedFiles();
+  if (staged.length === 0) {
+    console.log("gates: nothing staged.");
+    return true;
+  }
+  console.log(
+    `${BOLD}gates: pre-commit${RESET} ${DIM}${staged.length} staged file(s)${RESET}\n`,
+  );
+
+  const touches = (pattern) => staged.some((file) => pattern.test(file));
+
+  // Always: the two cheapest gates that catch the most, over the whole tree rather than the staged
+  // subset. design-lint is 1.4s for all 96 components and secret-scan is 0.6s for 2521 files, so
+  // narrowing them would add code and save nothing.
+  gate(
+    "design-lint",
+    "design-lint (registry)",
+    ...node("tooling/design-lint.mjs", "packages/ui/registry"),
+  );
+  gate("secret-scan", "secret-scan", ...node("tooling/secret-scan.mjs"));
+
+  if (touches(/^skills\//)) {
+    gate("skill-lint", "skill-lint", ...node("tooling/skill-lint.mjs"));
+    gate(
+      "skill-mirror",
+      "public skill mirror",
+      ...node("tooling/sync-package-skills.mjs", "--check"),
+    );
+  }
+  if (touches(/^packages\/ui\/component-contracts\.json$/)) {
+    gate(
+      "contracts-json",
+      "component contracts",
+      ...node("tooling/verify-component-contracts.mjs"),
+    );
+    gate("derived", "contract-derived surfaces", "pnpm", [
+      "design:derived:check",
+    ]);
+  }
+  if (touches(/^packages\/ui\/registry\//))
+    gate(
+      "registry-headers",
+      "registry provenance headers",
+      ...node("tooling/verify-headers.mjs"),
+    );
+  if (touches(/^CHANGELOG\.md$/)) {
+    gate(
+      "changelog",
+      "changelog vocabulary",
+      ...node("tooling/changelog-lint.mjs"),
+    );
+    gate(
+      "changelog-sync",
+      "changelog docs mirror",
+      ...node("tooling/sync-changelog.mjs", "--check"),
+    );
+  }
+  if (touches(/^\.github\/workflows\//))
+    gate(
+      "workflow-security",
+      "workflow security",
+      ...node("tooling/verify-workflow-security.mjs"),
+    );
+
+  // Formatting last: it is the least interesting failure, so it should not be the first thing read.
+  const formattable = formattableStagedFiles(staged);
+  if (formattable.length > 0)
+    gate("format", "prettier (staged)", "pnpm", [
+      "exec",
+      "prettier",
+      "--check",
+      "--ignore-unknown",
+      ...formattable,
+    ]);
+  else skip("format", "prettier (staged)", "nothing formattable staged");
+  return true;
+}
+
+async function runPush() {
+  console.log(
+    `${BOLD}gates: pre-push${RESET} ${DIM}${baseRef} (${rangeStart.slice(0, 8)}) → working tree · ` +
+      `${allChanged.length} changed, ${changed.length} substantive${RESET}\n`,
+  );
+
+  gate("typecheck", "typecheck (workspace)", "pnpm", ["typecheck"]);
+  gate("lint", "lint (workspace)", "pnpm", ["exec", "turbo", "run", "lint"]);
+
+  // TIER BARRIER. The cheap tier runs to completion so its failures are reported together, but the
+  // browser tier does NOT start behind a failing one. Measured while building this: a single type
+  // error otherwise cost a full 10-minute contract sweep whose result could not matter, because the
+  // tree does not compile. The browser lanes are recorded as not-run rather than skipped-as-fine, so
+  // the receipt cannot claim coverage the run never had.
+  const cheapFailures = results.filter((result) => result.status === "fail");
+  if (cheapFailures.length > 0) {
+    // The parallel docs build is deliberately NOT killed. Killing the `pnpm` wrapper can orphan
+    // turbo/next children anyway, and unlike the capture server a build holds no port — the worst
+    // case is that it finishes and populates the cache, which is useful next run. Just stop waiting.
+    for (const [id, label] of [
+      ["unit", "browser unit suite + axe"],
+      ["smoke", "cross-engine smoke (WebKit + Firefox)"],
+      ["contracts", "behaviour contracts"],
+    ])
+      skip(
+        id,
+        label,
+        `not run — ${cheapFailures.map((result) => result.id).join(" + ")} failed first`,
+      );
+    console.log(
+      `\n${YELLOW}gates: stopped before the browser lanes. Fix ${cheapFailures
+        .map((result) => result.id)
+        .join(" and ")} first — a ${
+        contractSelection.routes === null ? "full 96-route" : "scoped"
+      } contract sweep behind a failing ${cheapFailures[0].id} cannot tell you anything.${RESET}`,
+    );
+    return true;
+  }
+
+  // Safe to warm now: the turbo-based gates are done, and the lanes below invoke package scripts
+  // directly, so nothing contends for the same turbo task.
+  if (contractsRelevant) startDocsBuild();
+
+  if (unitRelevant)
+    gate("unit", "browser unit suite + axe", "pnpm", [
+      "--filter",
+      "@vegastack/ui",
+      "test",
+    ]);
+  else
+    skip(
+      "unit",
+      "browser unit suite + axe",
+      "no component or package source changed",
+    );
+
+  if (smokeRelevant)
+    gate("smoke", "cross-engine smoke (WebKit + Firefox)", "pnpm", [
+      "--filter",
+      "@vegastack/ui",
+      "test:smoke",
+    ]);
+  else
+    skip(
+      "smoke",
+      "cross-engine smoke (WebKit + Firefox)",
+      "no smoke-selected component changed",
+    );
+
+  if (contractsRelevant) {
+    await awaitDocsBuild();
+    gate(
+      "contracts",
+      `behaviour contracts (${
+        contractSelection.routes === null
+          ? "all 96 routes"
+          : `${contractSelection.routes.size} route(s)`
+      })`,
+      ...node("tooling/contracts-run.mjs", "--base", baseRef),
+    );
+  } else
+    skip(
+      "contracts",
+      "behaviour contracts",
+      `${contractSelection.reason} — no route in scope`,
+    );
+
+  return true;
+}
+
+async function runComponent() {
+  const name = options.component;
+  const source = join(ROOT, `packages/ui/registry/ui/${name}.tsx`);
+  const hookSource = join(ROOT, `packages/ui/registry/ui/${name}.ts`);
+  if (!existsSync(source) && !existsSync(hookSource))
+    fatal(`no registry source at packages/ui/registry/ui/${name}.{tsx,ts}`);
+  console.log(`${BOLD}gates: component ${name}${RESET}\n`);
+
+  // Safe to warm immediately: nothing in this lane is a turbo run — design-lint is a plain node
+  // script and the unit test goes straight to vitest.
+  startDocsBuild();
+  gate(
+    "design-lint",
+    "design-lint (registry)",
+    ...node("tooling/design-lint.mjs", "packages/ui/registry"),
+  );
+
+  const testFile = `registry/ui/${name}.test.tsx`;
+  if (existsSync(join(ROOT, "packages/ui", testFile)))
+    gate("unit", `unit suite — ${name}`, "pnpm", [
+      "--filter",
+      "@vegastack/ui",
+      "exec",
+      "vitest",
+      "run",
+      testFile,
+    ]);
+  else skip("unit", `unit suite — ${name}`, "no test file yet");
+
+  await awaitDocsBuild();
+
+  // EXPLICIT ROUTES, not the diff scope. This is the inner loop for ONE component, so it must check
+  // that component and everything composing it — nothing else, and nothing less. Deriving the routes
+  // from the working-tree diff instead (as this did first) meant that on a tree carrying any global
+  // surface change the "contracts — <name> and its dependents" gate silently became a 96-route sweep:
+  // the label promised an inner loop and the behaviour delivered a 9-minute one. The diff-scoped sweep
+  // is `gates push`'s job; this stays bounded and honest.
+  const route = routeByName.get(name);
+  if (!route)
+    fatal(
+      `${name} has no docs route in packages/ui/component-contracts.json, so its contract lane cannot be scoped`,
+    );
+  const closure = [...(dependentsByRoute.get(route) ?? [route])].filter(
+    (candidate) => CONTRACT_SCOPE.selectableRoutes.has(candidate),
+  );
+  gate(
+    "contracts",
+    `behaviour contracts — ${name} + ${closure.length - 1} dependent(s)`,
+    ...node("tooling/contracts-run.mjs", "--routes", closure.join(",")),
+  );
+  return true;
+}
+
+async function runShip() {
+  console.log(`${BOLD}gates: ship — the full local sweep${RESET}\n`);
+
+  gate("typecheck", "typecheck (workspace)", "pnpm", ["typecheck"]);
+  gate("lint", "lint (the full gate chain)", "pnpm", ["lint"]);
+
+  // Same tier barrier as `push`, and it matters more here: the sweep below is ~20 minutes, and none
+  // of it can mean anything on a tree that does not compile or does not lint.
+  if (results.some((result) => result.status === "fail")) {
+    console.log(
+      `\n${YELLOW}gates: stopped before the sweep. The ~20-minute browser and consume lanes cannot ` +
+        `produce a usable verdict behind a failing cheap gate.${RESET}`,
+    );
+    return true;
+  }
+
+  // Warm only now — see startDocsBuild: overlapping a turbo-based gate makes two turbo runs contend.
+  startDocsBuild();
+
+  gate("unit", "browser unit suite + axe", "pnpm", [
+    "--filter",
+    "@vegastack/ui",
+    "test",
+  ]);
+  gate("smoke", "cross-engine smoke (WebKit + Firefox)", "pnpm", [
+    "--filter",
+    "@vegastack/ui",
+    "test:smoke",
+  ]);
+  gate(
+    "all-browsers",
+    "three-engine suite (complete)",
+    "pnpm",
+    ["--filter", "@vegastack/ui", "test:all-browsers"],
+    { env: { ...process.env, HOME: process.env.HOME } },
+  );
+  gate("registry", "registry build (must be idempotent)", "pnpm", [
+    "registry:build",
+  ]);
+  gate("consume", "shadcn consume round-trip", "pnpm", [
+    "registry:verify-consume",
+  ]);
+
+  await awaitDocsBuild();
+  gate(
+    "contracts",
+    "behaviour contracts (ALL 96 routes)",
+    ...node("tooling/contracts-run.mjs", "--all"),
+  );
+  return true;
+}
+
+// ── receipt ──────────────────────────────────────────────────────────────────────────────────────
+
+/**
+ * `GATES_SKIP=<reason>` records a deliberate skip instead of silently bypassing with `--no-verify`.
+ * The receipt guard fails on any recorded skip until MK acknowledges it, so this is a loud door, not
+ * a back door.
+ */
+const declaredSkip = process.env.GATES_SKIP?.trim() || null;
+
+function writeReceipt() {
+  const { hash, files } = workingTreeContentHash();
+  const gates = {};
+  for (const result of results) {
+    if (!ALL_GATES.includes(result.id)) continue;
+    gates[result.id] = {
+      status: result.status,
+      durationMs: result.durationMs,
+      ...(result.reason ? { reason: result.reason } : {}),
+    };
+  }
+
+  // The contracts gate's own report carries the facts the guard needs to reject a green-but-empty
+  // run. Read it rather than re-deriving, so the receipt and the report cannot disagree.
+  const contractsReport = (() => {
+    try {
+      return JSON.parse(
+        readFileSync(join(GATES_DIR, "contracts.json"), "utf8"),
+      );
+    } catch {
+      return null;
+    }
+  })();
+  if (gates.contracts && contractsReport) {
+    gates.contracts.executed = contractsReport.executed ?? 0;
+    gates.contracts.full = contractsReport.scope?.full ?? false;
+    gates.contracts.scopeRoutes = contractsReport.scope?.routes?.length ?? 0;
+    if (contractsReport.status === "skipped")
+      gates.contracts.status = "skipped";
+  }
+
+  const receipt = {
+    schema: SCHEMA,
+    tree: hash,
+    treeFiles: files,
+    head: resolveCommit("HEAD"),
+    writtenAt: new Date().toISOString(),
+    mode,
+    base: { ref: baseRef, sha: rangeStart },
+    host: { platform: platform(), arch: arch(), node: process.version },
+    toolchain: installedToolchain(),
+    contractSha256: contractSha256(),
+    classified: {
+      contracts: contractsRelevant,
+      unit: unitRelevant,
+      smoke: smokeRelevant,
+      contractsReason: contractSelection.reason,
+    },
+    gates,
+    skips: declaredSkip
+      ? results
+          .filter(
+            (result) =>
+              result.status === "fail" && ALL_GATES.includes(result.id),
+          )
+          .map((result) => ({ gate: result.id, reason: declaredSkip }))
+      : [],
+  };
+  writeFileSync(RECEIPT_PATH, `${JSON.stringify(receipt, null, 2)}\n`);
+  return receipt;
+}
+
+// ── main ─────────────────────────────────────────────────────────────────────────────────────────
+
+const RUNNERS = {
+  commit: runCommit,
+  push: runPush,
+  component: runComponent,
+  ship: runShip,
+};
+await RUNNERS[mode]();
+
+const failed = results.filter((result) => result.status === "fail");
+const summary = {
+  mode,
+  completedAt: new Date().toISOString(),
+  base: { ref: baseRef, sha: rangeStart },
+  changed: { total: allChanged.length, substantive: changed.length },
+  classified: {
+    contracts: contractsRelevant,
+    unit: unitRelevant,
+    smoke: smokeRelevant,
+  },
+  gates: results,
+};
+writeFileSync(
+  join(GATES_DIR, `${mode}.json`),
+  `${JSON.stringify(summary, null, 2)}\n`,
+);
+
+console.log("");
+if (failed.length === 0) {
+  rmSync(LAST_FAILURE, { force: true });
+  const receipt =
+    mode === "push" || mode === "ship"
+      ? options.receipt
+        ? writeReceipt()
+        : null
+      : null;
+  console.log(
+    `${GREEN}gates: ${results.filter((r) => r.status === "pass").length} passed${RESET}` +
+      `${results.some((r) => r.status === "skipped") ? `, ${results.filter((r) => r.status === "skipped").length} skipped` : ""}`,
+  );
+  if (receipt)
+    console.log(
+      `${DIM}gates: receipt written for tree ${receipt.tree} — COMMIT ${RECEIPT_REPO_PATH} with this change.${RESET}`,
+    );
+  process.exit(0);
+}
+
+writeFileSync(
+  LAST_FAILURE,
+  `${JSON.stringify(
+    {
+      mode,
+      completedAt: new Date().toISOString(),
+      base: { ref: baseRef, sha: rangeStart },
+      failures: failed,
+      reports: ALL_GATES.map((id) => join(".gates", `${id}.json`)).filter(
+        (path) => existsSync(join(ROOT, path)),
+      ),
+    },
+    null,
+    2,
+  )}\n`,
+);
+console.error(
+  `${RED}gates: ${failed.length} gate(s) failed — ${failed.map((r) => r.id).join(", ")}${RESET}\n` +
+    `${DIM}gates: details in .gates/last-failure.json. Load the \`gates\` skill to classify each ` +
+    `failure at its root rather than reading raw output.${RESET}`,
+);
+
+// The loud door. `--no-verify` bypasses the hook and leaves NO trace; `GATES_SKIP=<reason>` lets the
+// same push happen while writing the failure into the receipt, where `receipt-guard` rejects it until
+// MK acknowledges. Exiting 0 here is the point: the local gate yields, CI does not.
+if (declaredSkip && (mode === "push" || mode === "ship")) {
+  const receipt = options.receipt ? writeReceipt() : null;
+  console.error(
+    `${YELLOW}gates: GATES_SKIP is set — "${declaredSkip}"${RESET}\n` +
+      `${YELLOW}gates: the push is allowed and the failure is RECORDED` +
+      `${receipt ? ` in ${RECEIPT_REPO_PATH} (${receipt.skips.length} skip(s))` : ""}.${RESET}\n` +
+      `${YELLOW}gates: CI will reject this receipt. That is not a bug — it is what makes skipping ` +
+      `visible instead of silent.${RESET}`,
+  );
+  process.exit(0);
+}
+process.exit(1);

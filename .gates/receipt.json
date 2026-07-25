@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "tree": "tree-227f12bbd423f1efbe9c92ddcecf3e1f3397b9d3",
+  "treeFiles": 2543,
+  "head": "36ede004c626a77b81a34c91bc58514938fa62bb",
+  "writtenAt": "2026-07-25T15:02:22.381Z",
+  "mode": "push",
+  "base": {
+    "ref": "origin/main",
+    "sha": "36ede004c626a77b81a34c91bc58514938fa62bb"
+  },
+  "host": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "node": "v24.18.0"
+  },
+  "toolchain": {
+    "@playwright/test": "1.61.0",
+    "playwright": "1.61.0"
+  },
+  "contractSha256": "ae248887a277e3e93c78e5d48a1c9e533003e0c9ee415fd50193e58137ed8493",
+  "classified": {
+    "contracts": true,
+    "unit": false,
+    "smoke": true,
+    "contractsReason": "global surface changed (.agents/skills/gates, .claude/settings.json, .claude/skills/gates, +3 more)"
+  },
+  "gates": {
+    "typecheck": {
+      "status": "pass",
+      "durationMs": 14117
+    },
+    "lint": {
+      "status": "pass",
+      "durationMs": 13982
+    },
+    "unit": {
+      "status": "skipped",
+      "durationMs": 0,
+      "reason": "no component or package source changed"
+    },
+    "smoke": {
+      "status": "pass",
+      "durationMs": 24569
+    },
+    "contracts": {
+      "status": "pass",
+      "durationMs": 405923,
+      "executed": 768,
+      "full": true,
+      "scopeRoutes": 96
+    }
+  },
+  "skips": []
+}

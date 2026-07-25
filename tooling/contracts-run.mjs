@@ -1,0 +1,560 @@
+#!/usr/bin/env node
+// The behaviour-contract lane: 320px reflow, RTL containment, forced-colors focus visibility, and
+// effective 24px pointer targets, over the component routes a diff can actually have moved.
+//
+// WHY THIS WRAPPER EXISTS AT ALL
+//   Two measured costs, both invisible from inside Playwright:
+//
+//   1. THE BUILD WAS THE FLOOR. `playwright.config.ts` ships a `webServer` that runs
+//      `pnpm build && serve out` on every invocation, with `reuseExistingServer: false`. Measured:
+//      a ONE-ROUTE run cost 1m54s, of which ~1m40 was that rebuild and ~12s was the eight tests.
+//      So scoping alone could never get below ~2 minutes. This tool owns the server instead and
+//      builds through `turbo run build --filter=@vegastack/docs`, which is a MEASURED 2.9s
+//      `>>> FULL TURBO` cache hit when nothing relevant changed (`turbo.json` already declares
+//      `out/**` as a build output, so the content hash already exists). A one-route run drops to
+//      ~15s. The freshness guarantee is not weakened: it moves from "no server was reused" to
+//      "turbo's content hash over declared inputs", which is strictly stronger — it survives a
+//      stale `out/` that a naive reuse check would happily serve.
+//
+//   2. THE FULL SWEEP IS 13m36s. Measured on macOS ARM64, 768/768 passing, 5 workers, 10 cores
+//      (`real 815.43` / `user 3789.34` — CPU-bound, as apps/docs/playwright.config.ts records).
+//      That is a `/ship` cost, not a pre-push cost. Scoping is what makes pre-push viable.
+//
+// WHAT IT REFUSES TO DO
+//   Report a pass it did not earn. Three separate guards: the grep is cross-checked against
+//   `--list` before anything runs, a selected scope that executes zero tests is a failure, and an
+//   empty scope is reported as SKIPPED rather than green.
+//
+// SCOPE AUTHORITY
+//   tooling/lib/route-scope.mjs, with CONTRACT_SCOPE. Anything unrecognised forces a full sweep.
+
+import { spawn, spawnSync } from "node:child_process";
+import { createServer } from "node:net";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import {
+  COMPONENT_ROUTES,
+  CONTRACT_SCOPE,
+  escapeRegExp,
+  selectRoutes,
+} from "./lib/route-scope.mjs";
+
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const DOCS = join(ROOT, "apps/docs");
+const GATES_DIR = join(ROOT, ".gates");
+const DEFAULT_REPORT = join(GATES_DIR, "contracts.json");
+
+// The two test titles `contracts.spec.ts` generates per route. They anchor the grep: without a
+// literal suffix, `/docs/components/button` would also select `/docs/components/button-group`.
+const TITLE_SUFFIXES = [
+  "contains its primary fixture at 320px",
+  "retains focus visibility and effective 24px pointer targets",
+];
+// Every Playwright project in apps/docs/playwright.config.ts. Used only to predict the expected
+// test count; a mismatch against `--list` fails rather than silently adjusting.
+const PROJECT_COUNT = 4;
+
+const USAGE = `Usage: node tooling/contracts-run.mjs [options]
+
+  --scope          check only the routes the diff can have moved (default)
+  --all            check every component route (${COMPONENT_ROUTES.length} routes, 768 tests, ~14min)
+  --routes a,b     check exactly these routes
+  --base <ref>     diff against this ref (default: origin/main, falling back to main)
+  --report <path>  where to write the JSON report (default: .gates/contracts.json)
+  --dry-run        print the computed scope and exit without building or testing
+  --port <n>       serve on this port instead of an OS-assigned free one
+
+Exit codes: 0 pass or SKIPPED · 1 a contract failed · 2 the run could not produce a verdict.`;
+
+// ── options ──────────────────────────────────────────────────────────────────────────────────────
+
+function fatal(message) {
+  console.error(`contracts-run: ${message}`);
+  process.exit(2);
+}
+
+function parseOptions(argv) {
+  const options = {
+    all: false,
+    routes: null,
+    base: null,
+    report: DEFAULT_REPORT,
+    dryRun: false,
+    port: null,
+  };
+  for (let index = 0; index < argv.length; index++) {
+    const flag = argv[index];
+    const value = () => {
+      const next = argv[++index];
+      if (next === undefined) fatal(`${flag} requires a value`);
+      return next;
+    };
+    if (flag === "--all") options.all = true;
+    else if (flag === "--scope") options.all = false;
+    else if (flag === "--routes")
+      options.routes = value()
+        .split(",")
+        .map((route) => route.trim())
+        .filter(Boolean);
+    else if (flag === "--base") options.base = value();
+    else if (flag === "--report") options.report = resolve(ROOT, value());
+    else if (flag === "--dry-run") options.dryRun = true;
+    else if (flag === "--port") options.port = Number(value());
+    else if (flag === "--help" || flag === "-h") {
+      console.log(USAGE);
+      process.exit(0);
+    } else fatal(`unknown option ${flag}\n\n${USAGE}`);
+  }
+  if (
+    options.port !== null &&
+    (!Number.isInteger(options.port) || options.port < 1024)
+  )
+    fatal("--port must be an integer >= 1024");
+  return options;
+}
+
+// ── shell ────────────────────────────────────────────────────────────────────────────────────────
+
+function git(args) {
+  const result = spawnSync("git", args, { cwd: ROOT, encoding: "utf8" });
+  if (result.status !== 0)
+    fatal(`git ${args.join(" ")} failed:\n${result.stderr?.trim()}`);
+  return result.stdout.trim();
+}
+
+function gitQuiet(args) {
+  const result = spawnSync("git", args, { cwd: ROOT, encoding: "utf8" });
+  return result.status === 0 ? result.stdout.trim() : null;
+}
+
+/** An OS-assigned free port. A fixed port collides with a parallel run or an orphaned server. */
+function reservePort() {
+  return new Promise((resolveWith, rejectWith) => {
+    const probe = createServer();
+    probe.unref();
+    probe.on("error", rejectWith);
+    probe.listen(0, "127.0.0.1", () => {
+      const { port } = probe.address();
+      probe.close(() => resolveWith(port));
+    });
+  });
+}
+
+const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
+
+// ── scope ────────────────────────────────────────────────────────────────────────────────────────
+
+const options = parseOptions(process.argv.slice(2));
+
+const baseRef =
+  options.base ??
+  (gitQuiet(["rev-parse", "--verify", "--quiet", "origin/main"])
+    ? "origin/main"
+    : "main");
+if (!gitQuiet(["rev-parse", "--verify", "--quiet", `${baseRef}^{commit}`]))
+  fatal(`base ref ${baseRef} does not resolve to a commit`);
+const mergeBase = git(["merge-base", baseRef, "HEAD"]);
+
+// Diff the merge-base against the WORKING TREE, not against HEAD. The question is "what do my
+// current edits do to the contract surface", and at pre-push time some of them may be unstaged.
+const changedFiles = [
+  ...git(["diff", "--name-only", mergeBase]).split("\n"),
+  ...git(["ls-files", "--others", "--exclude-standard"]).split("\n"),
+].filter(Boolean);
+
+const selection = (() => {
+  try {
+    return selectRoutes(changedFiles, options, CONTRACT_SCOPE);
+  } catch (error) {
+    return fatal(error.message);
+  }
+})();
+
+const mode = options.routes ? "routes" : options.all ? "all" : "scope";
+const selectedRoutes =
+  selection.routes === null
+    ? [...COMPONENT_ROUTES]
+    : [...selection.routes].sort();
+const isFullSweep = selection.routes === null;
+
+console.log(
+  `contracts-run: base ${baseRef} (${mergeBase.slice(0, 8)}) → working tree`,
+);
+console.log(
+  `contracts-run: ${changedFiles.length} changed file(s); scope: ${selection.reason}`,
+);
+console.log(
+  isFullSweep
+    ? `contracts-run: FULL sweep — ${selectedRoutes.length} routes`
+    : `contracts-run: ${selectedRoutes.length} route(s): ${selectedRoutes.join(", ") || "(none)"}`,
+);
+
+/** Write the report, then leave with `code`. Every exit after scoping goes through here. */
+function finish(code, payload) {
+  mkdirSync(GATES_DIR, { recursive: true });
+  writeFileSync(
+    options.report,
+    `${JSON.stringify(
+      {
+        gate: "contracts",
+        lane: "contract",
+        completedAt: new Date().toISOString(),
+        base: { ref: baseRef, sha: mergeBase },
+        scope: {
+          mode,
+          reason: selection.reason,
+          full: isFullSweep,
+          routes: selectedRoutes,
+          changedFiles: changedFiles.length,
+        },
+        ...payload,
+      },
+      null,
+      2,
+    )}\n`,
+  );
+  process.exit(code);
+}
+
+// An empty scope means no contract-relevant file changed. That is SKIPPED, not green — the
+// distinction is what `receipt-guard` cross-checks against release.yml's `visual` classifier.
+if (!isFullSweep && selectedRoutes.length === 0) {
+  console.log(
+    "contracts-run: no contract surface changed — nothing executed.\n" +
+      "               Report this as SKIPPED. It is not evidence that the contracts pass.",
+  );
+  finish(0, {
+    status: "skipped",
+    expected: 0,
+    executed: 0,
+    results: { passed: 0, failed: 0, flaky: 0, skipped: 0 },
+    failures: [],
+    durationMs: 0,
+  });
+}
+
+const grep = isFullSweep
+  ? null
+  : `(${selectedRoutes.map(escapeRegExp).join("|")}) (${TITLE_SUFFIXES.map(escapeRegExp).join("|")})`;
+const expected = isFullSweep
+  ? COMPONENT_ROUTES.length * TITLE_SUFFIXES.length * PROJECT_COUNT
+  : selectedRoutes.length * TITLE_SUFFIXES.length * PROJECT_COUNT;
+
+if (options.dryRun) {
+  console.log(`contracts-run: grep ${grep ?? "(none — full suite)"}`);
+  console.log(`contracts-run: expected ${expected} test(s)`);
+  finish(0, {
+    status: "dry-run",
+    expected,
+    executed: 0,
+    results: { passed: 0, failed: 0, flaky: 0, skipped: 0 },
+    failures: [],
+    durationMs: 0,
+  });
+}
+
+// ── build, serve, run ────────────────────────────────────────────────────────────────────────────
+
+/**
+ * `SITE_VISIBILITY` is part of turbo's global cache key and it changes what the export contains, so
+ * it is pinned rather than inherited. `public` is what production serves and what the workflows set
+ * for this lane; an inherited `private` would silently check a different site.
+ */
+const BUILD_ENV = { ...process.env, SITE_VISIBILITY: "public" };
+
+function playwrightVersion() {
+  try {
+    return JSON.parse(
+      readFileSync(
+        join(DOCS, "node_modules/@playwright/test/package.json"),
+        "utf8",
+      ),
+    ).version;
+  } catch {
+    return null;
+  }
+}
+
+async function waitForServer(port, timeoutMs = 60_000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    try {
+      const response = await fetch(`http://127.0.0.1:${port}/`, {
+        signal: AbortSignal.timeout(3_000),
+      });
+      if (response.ok || response.status === 404) return true;
+    } catch {
+      // Not listening yet.
+    }
+    await sleep(250);
+  }
+  return false;
+}
+
+const startedAt = Date.now();
+
+console.log("contracts-run: building the docs export (turbo-cached)…");
+const build = spawnSync(
+  "pnpm",
+  ["exec", "turbo", "run", "build", "--filter=@vegastack/docs"],
+  { cwd: ROOT, stdio: "inherit", env: BUILD_ENV },
+);
+if (build.status !== 0) fatal("the docs build failed — no verdict is possible");
+if (!existsSync(join(DOCS, "out/index.html")))
+  fatal("the docs build produced no apps/docs/out/index.html");
+
+const port = options.port ?? (await reservePort());
+console.log(`contracts-run: serving apps/docs/out on 127.0.0.1:${port}`);
+/**
+ * `detached: true` puts the server in its own PROCESS GROUP, which is what makes it reapable.
+ *
+ * This was wrong first: with `detached: false` the reaper killed the `pnpm` wrapper, and `pnpm exec
+ * serve` had already spawned `serve` as a CHILD — so the wrapper died and the real server survived.
+ * Three orphaned `serve out` processes were found still listening after a session of runs. That is
+ * the exact hazard the deleted workflows warned about ("orphaning `serve` on the port"), reproduced
+ * locally.
+ */
+const server = spawn("pnpm", ["exec", "serve", "out", "-l", String(port)], {
+  cwd: DOCS,
+  stdio: "ignore",
+  env: BUILD_ENV,
+  detached: true,
+});
+let serverClosed = false;
+server.on("exit", () => {
+  serverClosed = true;
+});
+
+function reapServer() {
+  // Negative pid = the whole group, so the `serve` child goes with its `pnpm` parent.
+  if (!serverClosed && server.pid) {
+    try {
+      process.kill(-server.pid, "SIGKILL");
+    } catch {
+      // Already gone, or the group was never created.
+    }
+  }
+  // Belt and braces, because a leaked port is what bricks the NEXT run: sweep anything still
+  // LISTENING on it. `lsof` is present on macOS and Linux; if it is absent this is simply a no-op.
+  //
+  // `-sTCP:LISTEN` is mandatory, not tidiness. `lsof -ti tcp:<port>` matches a socket with that port
+  // on EITHER end, so it also returns this very process — which has just been polling the server
+  // through `waitForServer`'s `fetch`. Without the filter the sweep SIGKILLed the runner itself:
+  // exit 137 after a clean `768 passed`, with the report already written as "pass" so the failure
+  // looked like it came from nowhere. The deleted workflows used the same unfiltered command; it
+  // never bit there only because their shell held no connection to the port at reap time.
+  // The explicit self-pid guard is a second line of defence for the same mistake.
+  try {
+    const listening = spawnSync(
+      "lsof",
+      ["-ti", `tcp:${port}`, "-sTCP:LISTEN"],
+      { encoding: "utf8" },
+    );
+    for (const pid of (listening.stdout ?? "").split("\n").filter(Boolean)) {
+      const target = Number(pid);
+      if (!Number.isInteger(target) || target === process.pid) continue;
+      try {
+        process.kill(target, "SIGKILL");
+      } catch {
+        // Not ours any more, or already exited.
+      }
+    }
+  } catch {
+    // lsof unavailable — the group kill above is the primary mechanism.
+  }
+}
+for (const signal of ["SIGINT", "SIGTERM"])
+  process.on(signal, () => {
+    reapServer();
+    process.exit(2);
+  });
+process.on("exit", reapServer);
+
+if (!(await waitForServer(port))) {
+  reapServer();
+  fatal(`the static server never answered on 127.0.0.1:${port}`);
+}
+
+/**
+ * `PW_EXTERNAL_SERVER` tells playwright.config.ts that this process owns the server, so it must not
+ * start its own. Without it Playwright would rebuild and rebind, which is exactly the cost this
+ * tool exists to remove.
+ */
+const TEST_ENV = {
+  ...BUILD_ENV,
+  PW_EXTERNAL_SERVER: "1",
+  VRT_PORT: String(port),
+  PLAYWRIGHT_JSON_OUTPUT_NAME: "contracts-report.json",
+};
+
+const jsonReport = join(DOCS, "contracts-report.json");
+rmSync(jsonReport, { force: true });
+
+// The grep is cross-checked BEFORE the run. An anchoring mistake (`button` matching `button-group`,
+// or a renamed title matching nothing) would otherwise surface as a wrong-but-green result.
+const listArgs = [
+  "exec",
+  "playwright",
+  "test",
+  "contracts.spec.ts",
+  "--list",
+  "--reporter=json",
+];
+if (grep) listArgs.push("--grep", grep);
+// `PLAYWRIGHT_JSON_OUTPUT_NAME` is deliberately ABSENT from this call's environment. With it set the
+// json reporter targets that file, and under `--list` Playwright then writes its list format to
+// stdout and no file at all — so parsing stdout as JSON fails on the literal text "Listing tests:".
+// Measured while building this tool; it is the reason the guard is a separate env rather than a
+// reuse of TEST_ENV.
+const { PLAYWRIGHT_JSON_OUTPUT_NAME: _unusedForList, ...LIST_ENV } = TEST_ENV;
+const listed = spawnSync("pnpm", listArgs, {
+  cwd: DOCS,
+  encoding: "utf8",
+  env: LIST_ENV,
+  maxBuffer: 64 * 1024 * 1024,
+});
+if (listed.status !== 0) {
+  reapServer();
+  fatal(`\`playwright test --list\` failed:\n${listed.stderr?.trim()}`);
+}
+const listedCount = (() => {
+  try {
+    const parsed = JSON.parse(listed.stdout);
+    return (parsed.suites ?? []).reduce(function count(total, suite) {
+      return (
+        total +
+        (suite.specs ?? []).reduce(
+          (n, spec) => n + (spec.tests?.length ?? 0),
+          0,
+        ) +
+        (suite.suites ?? []).reduce(count, 0)
+      );
+    }, 0);
+  } catch (error) {
+    reapServer();
+    return fatal(`could not parse \`--list\` output: ${error.message}`);
+  }
+})();
+if (listedCount !== expected) {
+  reapServer();
+  fatal(
+    `grep selected ${listedCount} test(s) but ${expected} were expected for ` +
+      `${selectedRoutes.length} route(s) × ${TITLE_SUFFIXES.length} assertion(s) × ${PROJECT_COUNT} project(s).\n` +
+      `             Either the grep anchoring is wrong or contracts.spec.ts changed shape. ` +
+      `Both are defects, not conditions to adjust to.`,
+  );
+}
+console.log(`contracts-run: grep verified — ${listedCount} test(s) selected`);
+
+const testArgs = [
+  "exec",
+  "playwright",
+  "test",
+  "contracts.spec.ts",
+  "--reporter=list,json",
+];
+if (grep) testArgs.push("--grep", grep);
+const run = spawnSync("pnpm", testArgs, {
+  cwd: DOCS,
+  stdio: "inherit",
+  env: TEST_ENV,
+});
+reapServer();
+
+const durationMs = Date.now() - startedAt;
+
+if (!existsSync(jsonReport))
+  fatal(
+    "Playwright wrote no JSON report — the run produced no reviewable evidence",
+  );
+
+const report = JSON.parse(readFileSync(jsonReport, "utf8"));
+const stats = report.stats ?? {};
+const executed =
+  (stats.expected ?? 0) + (stats.unexpected ?? 0) + (stats.flaky ?? 0);
+
+const failures = [];
+(function walk(suites) {
+  for (const suite of suites ?? []) {
+    for (const spec of suite.specs ?? [])
+      for (const test of spec.tests ?? [])
+        for (const result of test.results ?? []) {
+          if (result.status === "passed" || result.status === "skipped")
+            continue;
+          failures.push({
+            title: spec.title,
+            file: suite.file ?? spec.file ?? null,
+            project: test.projectName ?? null,
+            status: result.status,
+            error: (result.errors ?? [])
+              .map((error) => error.message ?? "")
+              .join("\n")
+              .slice(0, 4_000),
+          });
+        }
+    walk(suite.suites);
+  }
+})(report.suites);
+
+const results = {
+  passed: stats.expected ?? 0,
+  failed: stats.unexpected ?? 0,
+  flaky: stats.flaky ?? 0,
+  skipped: stats.skipped ?? 0,
+};
+
+console.log(
+  `contracts-run: ${executed} executed · ${results.passed} passed · ${results.failed} failed · ` +
+    `${results.flaky} flaky · ${(durationMs / 1000).toFixed(1)}s`,
+);
+
+// A suite that executed nothing is not passing evidence. `release.yml` has always guarded this in
+// CI; the local lane needs the same guard, because here it is the ONLY guard.
+if (executed === 0) {
+  console.error(
+    "contracts-run: 0 tests executed for a non-empty scope — not valid passing evidence.",
+  );
+  finish(2, {
+    status: "no-evidence",
+    expected,
+    executed,
+    results,
+    failures,
+    durationMs,
+    playwright: playwrightVersion(),
+  });
+}
+
+if (run.status !== 0 || results.failed > 0) {
+  console.error(
+    `contracts-run: FAILED — ${failures.length} failing result(s). Read .gates/contracts.json,\n` +
+      "               then load the `gates` skill to classify each one at its root.",
+  );
+  finish(1, {
+    status: "fail",
+    expected,
+    executed,
+    results,
+    failures,
+    durationMs,
+    playwright: playwrightVersion(),
+  });
+}
+
+finish(0, {
+  status: "pass",
+  expected,
+  executed,
+  results,
+  failures,
+  durationMs,
+  playwright: playwrightVersion(),
+});

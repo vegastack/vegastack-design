@@ -46,6 +46,20 @@ import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+// Change → route mapping is shared with the contract lane. This lane's configuration is
+// PIXEL_SCOPE; the contract lane's differs, and in one case in the opposite direction — see
+// tooling/lib/route-scope.mjs.
+import {
+  BLOCKS,
+  COMPONENTS,
+  escapeRegExp,
+  FIXTURE_ROUTES,
+  ICON_CHUNK_COUNT,
+  ICONS_ROUTE,
+  PIXEL_SCOPE,
+  selectRoutes,
+} from "./lib/route-scope.mjs";
+
 const USAGE = `Usage: node tooling/vrt-review.mjs [options]
 
   --base <ref>     compare against this ref (default: origin/main, falling back to main)
@@ -60,9 +74,6 @@ Exit codes: 0 for any pixel outcome, 2 when no report could be produced.`;
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const OUTPUT_DIR = join(ROOT, ".vrt-review");
-const CONTRACTS = JSON.parse(
-  readFileSync(join(ROOT, "packages/ui/component-contracts.json"), "utf8"),
-);
 
 // ── options ──────────────────────────────────────────────────────────────────────────────────────
 
@@ -127,200 +138,7 @@ function run(command, args, options) {
   return spawnSync(command, args, { stdio: "inherit", ...options }).status ?? 1;
 }
 
-// ── route inventory ──────────────────────────────────────────────────────────────────────────────
-
-const COMPONENTS = CONTRACTS.components;
-const BLOCKS = CONTRACTS.blocks;
-const ICONS_ROUTE = CONTRACTS.animatedIcons.sharedContract.docsSlug;
-const ICON_SOURCE_PREFIX = "packages/ui/registry/ui/icons/";
-const ICON_CHUNK_COUNT = Number(
-  /ANIMATED_ICON_CHUNK_COUNT = (\d+)/.exec(
-    readFileSync(join(ROOT, "apps/docs/vrt/icon-chunks.generated.ts"), "utf8"),
-  )?.[1] ?? 0,
-);
-
-/** Every route the fixture lane can capture (the "VRT state …" tests are component pages only). */
-const FIXTURE_ROUTES = new Set(
-  [...COMPONENTS, ...BLOCKS]
-    .map((record) => record.docsSlug)
-    .filter((route) => route.startsWith("/docs/components/")),
-);
-
-/** name → docsSlug, keyed by both the registry name and the docs preview module name. */
-const routeByName = new Map();
-for (const record of [...COMPONENTS, ...BLOCKS]) {
-  routeByName.set(record.name, record.docsSlug);
-  if (record.previewModule)
-    routeByName.set(record.previewModule, record.docsSlug);
-}
-
-/**
- * docsSlug → the routes that must be recaptured when it changes: itself plus every route whose
- * component composes it, transitively. `registryDependencies` is the right authority for this —
- * `tooling/verify-registry-deps.mjs` proves it matches the actual imports.
- */
-const dependentsByRoute = (() => {
-  const routeByItem = new Map(
-    [...COMPONENTS, ...BLOCKS].map((record) => [
-      `@vegastack/${record.name}`,
-      record.docsSlug,
-    ]),
-  );
-  const directDependents = new Map();
-  for (const record of [...COMPONENTS, ...BLOCKS])
-    for (const dependency of record.registryDependencies ?? []) {
-      const dependencyRoute = routeByItem.get(dependency);
-      if (!dependencyRoute) continue;
-      if (!directDependents.has(dependencyRoute))
-        directDependents.set(dependencyRoute, new Set());
-      directDependents.get(dependencyRoute).add(record.docsSlug);
-    }
-  const closure = new Map();
-  for (const route of routeByItem.values()) {
-    const reached = new Set([route]);
-    const queue = [route];
-    while (queue.length > 0)
-      for (const dependent of directDependents.get(queue.pop()) ?? []) {
-        if (reached.has(dependent)) continue;
-        reached.add(dependent);
-        queue.push(dependent);
-      }
-    closure.set(route, reached);
-  }
-  return closure;
-})();
-
-// ── change → route mapping ───────────────────────────────────────────────────────────────────────
-
-/**
- * Paths that cannot change a rendered pixel. Checked first.
- *
- * `package.json` is here because a dependency change always moves `pnpm-lock.yaml`, which is
- * global — so nothing is lost. The generated route files are here because they only SELECT routes;
- * a new one shows up as a `new` entry rather than needing a full recapture.
- */
-const NON_VISUAL = [
-  /\.test\.tsx?$/,
-  /^docs\//,
-  /^skills\//,
-  /^tooling\//,
-  /^\.github\//,
-  /^\.changeset\//,
-  /\.md$/,
-  /(^|\/)package\.json$/,
-  /(^|\/)tsconfig(\.\w+)?\.json$/,
-  /(^|\/)(\.gitignore|\.prettierrc|\.prettierignore|turbo\.json)$/,
-  /(^|\/)eslint\.config\.[cm]?js$/,
-  /(^|\/)vitest[.\w]*\.config\.ts$/,
-  /^apps\/docs\/public\/r\//,
-  /^apps\/docs\/vrt\/[^/]*-snapshots\//,
-  /^apps\/docs\/vrt\/(contract-routes\.generated|icon-chunks\.generated|page-routes|contracts\.spec)\.ts$/,
-  /^packages\/ui\/(component-contracts|registry)\.json$/,
-];
-
-/**
- * Paths that change how EVERY page renders — tokens, the shared runtime, the docs shell, the preview
- * infrastructure, the capture itself. Anything matching forces a full capture, because
- * per-component scoping cannot bound the blast radius of a token or layout change.
- */
-const GLOBAL_SURFACE = [
-  /^packages\/design-tokens\//,
-  /^packages\/design\//,
-  /^apps\/docs\/app\//,
-  /^apps\/docs\/components\/ui\/index\.ts$/,
-  /^apps\/docs\/components\/preview\/(index|utilities|wrapper)\.tsx$/,
-  /^apps\/docs\/playwright\.config\.ts$/,
-  /^apps\/docs\/vrt\/components\.spec\.ts$/,
-  /^apps\/docs\/(next\.config|postcss\.config|source\.config)/,
-  /^pnpm-lock\.yaml$/,
-];
-
-/**
- * Map changed files to the routes worth recapturing.
- * `routes === null` means "capture everything".
- */
-function selectRoutes(changedFiles, options) {
-  if (options.routes) {
-    const unknown = options.routes.filter((route) => !FIXTURE_ROUTES.has(route));
-    if (unknown.length > 0)
-      fail(`unknown fixture route(s): ${unknown.join(", ")}`);
-    return {
-      routes: new Set(options.routes),
-      fullPageRoutes: new Set(),
-      icons: false,
-      reason: "--routes",
-    };
-  }
-  if (options.all)
-    return { routes: null, fullPageRoutes: null, icons: true, reason: "--all" };
-
-  const routes = new Set();
-  const fullPageRoutes = new Set();
-  const globalTriggers = [];
-  let icons = false;
-
-  for (const file of changedFiles) {
-    if (NON_VISUAL.some((pattern) => pattern.test(file))) continue;
-    if (GLOBAL_SURFACE.some((pattern) => pattern.test(file))) {
-      globalTriggers.push(file);
-      continue;
-    }
-    if (file.startsWith(ICON_SOURCE_PREFIX)) {
-      icons = true;
-      fullPageRoutes.add(ICONS_ROUTE);
-      continue;
-    }
-    // A docs page changes only its own full-page capture — its fixture is unaffected.
-    const content = /^apps\/docs\/content\/(.+)\.mdx$/.exec(file);
-    if (content) {
-      fullPageRoutes.add(`/${content[1].replace(/\/index$/, "")}`);
-      continue;
-    }
-    // A preview file changes only the page it renders on.
-    const preview = /^apps\/docs\/components\/preview\/([^/]+)\.tsx$/.exec(file);
-    if (preview) {
-      const route = routeByName.get(preview[1]);
-      if (route) routes.add(route);
-      else globalTriggers.push(file);
-      continue;
-    }
-    // Component or block source, canonical or the generated docs copy-in.
-    const source =
-      /^(?:packages\/ui\/registry\/(?:ui|blocks)|apps\/docs\/components\/ui)\/([^/]+)/.exec(
-        file,
-      );
-    if (source) {
-      const route = routeByName.get(source[1].replace(/\.tsx?$/, ""));
-      if (route)
-        for (const dependent of dependentsByRoute.get(route) ?? [route])
-          // Blocks have no isolated fixture — only the full-page capture reaches them, so a block
-          // reached through the dependency closure has to be captured in that lane or not at all.
-          (FIXTURE_ROUTES.has(dependent) ? routes : fullPageRoutes).add(dependent);
-      else globalTriggers.push(file);
-      continue;
-    }
-    // Anything unrecognised is treated as global. Over-capturing costs minutes; under-capturing
-    // means shipping an unreviewed visual change.
-    globalTriggers.push(file);
-  }
-
-  if (globalTriggers.length > 0) {
-    const shown = globalTriggers.slice(0, 3).join(", ");
-    const rest =
-      globalTriggers.length > 3 ? `, +${globalTriggers.length - 3} more` : "";
-    return {
-      routes: null,
-      fullPageRoutes: null,
-      icons: true,
-      reason: `global surface changed (${shown}${rest})`,
-    };
-  }
-  return { routes, fullPageRoutes, icons, reason: "changed component sources" };
-}
-
 // ── Playwright invocation ────────────────────────────────────────────────────────────────────────
-
-const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /** The `--grep` regex selecting exactly the chosen tests, or null to run all of them. */
 function buildGrep(selection, options) {
@@ -426,8 +244,13 @@ const snapshotArg = (route, lane) =>
  * `tooling/verify-component-contracts.mjs`.
  */
 const routeByStem = (() => {
-  const source = readFileSync(join(ROOT, "apps/docs/vrt/page-routes.ts"), "utf8");
-  const literals = /VRT_PAGE_ROUTES\s*=\s*\[([\s\S]*?)\]\s+as\s+const;/.exec(source);
+  const source = readFileSync(
+    join(ROOT, "apps/docs/vrt/page-routes.ts"),
+    "utf8",
+  );
+  const literals = /VRT_PAGE_ROUTES\s*=\s*\[([\s\S]*?)\]\s+as\s+const;/.exec(
+    source,
+  );
   const supplemental = literals
     ? [...literals[1].matchAll(/['"]([^'"]+)['"]/g)].map((match) => match[1])
     : [];
@@ -496,7 +319,8 @@ function buildEntries(tests, baseSnapshots) {
       test.attachments.map((attachment) => [attachment.name, attachment.path]),
     );
     const pick = (suffix) =>
-      [...byName.entries()].find(([name]) => name.endsWith(suffix))?.[1] ?? null;
+      [...byName.entries()].find(([name]) => name.endsWith(suffix))?.[1] ??
+      null;
     const expected = pick("-expected.png");
     const actual = pick("-actual.png");
     const diff = pick("-diff.png");
@@ -506,7 +330,11 @@ function buildEntries(tests, baseSnapshots) {
     const isNew = MISSING_SNAPSHOT.test(test.error);
     const size = pngSize(actual) ?? pngSize(expected);
     const totalPixels = size ? size.width * size.height : null;
-    const changedPixels = isNew ? totalPixels : pixels ? Number(pixels[1]) : null;
+    const changedPixels = isNew
+      ? totalPixels
+      : pixels
+        ? Number(pixels[1])
+        : null;
 
     entries.push({
       route,
@@ -549,7 +377,8 @@ function buildEntries(tests, baseSnapshots) {
     const known = routeByStem.get(match[1]);
     entries.push({
       route: known?.route ?? match[1],
-      lane: known?.lane ?? (match[1].endsWith("-state") ? "fixture" : "full-page"),
+      lane:
+        known?.lane ?? (match[1].endsWith("-state") ? "fixture" : "full-page"),
       project: match[2],
       status: "removed",
       changedPixels: null,
@@ -614,7 +443,15 @@ const changedFiles = [
   ...git(["ls-files", "--others", "--exclude-standard"]).split("\n"),
 ].filter(Boolean);
 
-const selection = selectRoutes(changedFiles, options);
+// The shared module throws on an unknown `--routes` value; this tool's contract is exit 2 with a
+// `vrt-review:` prefix, so translate rather than letting a stack trace escape.
+const selection = (() => {
+  try {
+    return selectRoutes(changedFiles, options, PIXEL_SCOPE);
+  } catch (error) {
+    return fail(error.message);
+  }
+})();
 const grep = buildGrep(selection, options);
 
 console.log(
@@ -693,7 +530,13 @@ try {
     ) !== 0
   )
     throw new Error("workspace dependency build failed in the base worktree");
-  capture({ cwd: worktree, snapshotDir, port: options.port, grep, update: true });
+  capture({
+    cwd: worktree,
+    snapshotDir,
+    port: options.port,
+    grep,
+    update: true,
+  });
 
   const baseSnapshots = readdirSync(snapshotDir).filter((file) =>
     file.endsWith(".png"),
@@ -777,7 +620,9 @@ try {
   process.exitCode = 2;
 } finally {
   if (worktreeAdded && !options.keepWorktree)
-    spawnSync("git", ["worktree", "remove", "--force", worktree], { cwd: ROOT });
+    spawnSync("git", ["worktree", "remove", "--force", worktree], {
+      cwd: ROOT,
+    });
   if (options.keepWorktree)
     console.log(`vrt-review: base worktree kept at ${worktree}`);
   else rmSync(scratch, { recursive: true, force: true });
