@@ -145,17 +145,30 @@ jobs:
       # Nothing about them is OS-specific and all three pass on a developer Mac, so the expected
       # result is green. Run it anyway: this repository's rule is that a gate never observed passing
       # on the machine that will run it is an assumption, and converting this one into a fact is free.
+      # ORDER MATTERS: typecheck runs `prepare:content` for @vegastack/docs, and the docs lint chain
+      # needs the generated `.source`. `ci.yml` gets this right by accident of ordering; this lane
+      # proved it, failing here with `Cannot find package 'collections'` on the first dispatch. The
+      # docs `lint` script now generates `.source` itself, so order no longer matters — but running
+      # typecheck first still mirrors ci.yml, which is what this lane is meant to measure.
+      - name: NON-BROWSER — typecheck (also generates the docs .source)
+        id: typecheck
+        continue-on-error: true
+        run: pnpm typecheck
+
       - name: NON-BROWSER — the full static gate chain
+        id: lint
         continue-on-error: true
         run: pnpm lint
 
       - name: NON-BROWSER — both discovery matrices build
+        id: build_private
         continue-on-error: true
         env:
           SITE_VISIBILITY: private
         run: pnpm build
 
       - name: NON-BROWSER — the public docs export builds
+        id: build_public
         continue-on-error: true
         env:
           SITE_VISIBILITY: public
@@ -227,6 +240,10 @@ jobs:
           GUI: ${{ steps.session.outputs.gui_domain }}
           CORES: ${{ steps.hw.outputs.cores }}
           ENGINES: ${{ steps.launch.outputs.engines_ok }}
+          TYPECHECK: ${{ steps.typecheck.outcome }}
+          LINT: ${{ steps.lint.outcome }}
+          BUILD_PRIVATE: ${{ steps.build_private.outcome }}
+          BUILD_PUBLIC: ${{ steps.build_public.outcome }}
           REGISTRY: ${{ steps.registry.outcome }}
           CONSUME: ${{ steps.consume.outcome }}
         run: |
@@ -240,19 +257,28 @@ jobs:
             echo "| per-user Mach namespace | ${GUI:-?} |"
             echo "| logical cores | ${CORES:-?} |"
             echo "| engines that launched | ${ENGINES:-0}/3 |"
+            echo "| typecheck | ${TYPECHECK:-?} |"
+            echo "| static gate chain (pnpm lint) | ${LINT:-?} |"
+            echo "| build, private visibility | ${BUILD_PRIVATE:-?} |"
+            echo "| build, public docs export | ${BUILD_PUBLIC:-?} |"
             echo "| registry:build idempotent | ${REGISTRY:-?} |"
             echo "| consume round-trip | ${CONSUME:-?} |"
             echo
             echo "### The non-browser lane — what CI now depends on"
             echo
-            if [ "${REGISTRY:-}" = "success" ] && [ "${CONSUME:-}" = "success" ]; then
+            NONBROWSER_FAILED=""
+            for pair in "typecheck:${TYPECHECK:-}" "lint:${LINT:-}" "build-private:${BUILD_PRIVATE:-}" \
+                        "build-public:${BUILD_PUBLIC:-}" "registry:${REGISTRY:-}" "consume:${CONSUME:-}"; do
+              [ "${pair#*:}" = "success" ] || NONBROWSER_FAILED="$NONBROWSER_FAILED ${pair%%:*}"
+            done
+            if [ -z "$NONBROWSER_FAILED" ]; then
               echo "**Green.** Every job in \`ci.yml\`, plus \`release.yml\`'s validation and"
               echo "\`deploy.yml\`'s \`build-curated\`, can run here for free. This is the topology"
               echo "docs/plans/2026-07-25-cicd-local-first-revamp.md assumes."
             else
               echo "**Not green — this blocks the local-first topology**, because these jobs are"
-              echo "supposed to be the free half. Read the failing step above before re-pointing"
-              echo "any workflow; do not assume it is environmental."
+              echo "supposed to be the free half. Failed:\`$NONBROWSER_FAILED\`. Read that step's log"
+              echo "before re-pointing any workflow; do not assume it is environmental."
             fi
             echo
             if [ "${ENGINES:-0}" = "3" ]; then
