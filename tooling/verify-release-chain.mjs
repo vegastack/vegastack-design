@@ -28,7 +28,7 @@
 
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
+import { readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { ROOT, versionBumpOnly } from "./lib/change-set.mjs";
@@ -111,10 +111,17 @@ for (const directory of [...PUBLIC_PACKAGES, "ui"]) {
   bumped[directory] = manifest.version;
   writeFileSync(path, `${JSON.stringify(manifest, null, 2)}\n`);
 }
+// `changeset version` also CONSUMES the changesets. Without this the simulation leaves them in
+// place and `has_changesets` stays true, which is not what a real Version PR looks like.
+const consumed = readdirSync(join(ROOT, ".changeset")).filter(
+  (name) => name.endsWith(".md") && name !== "README.md",
+);
+for (const name of consumed) rmSync(join(ROOT, ".changeset", name));
+
 ok(
   Object.entries(bumped)
     .map(([name, version]) => `${name}@${version}`)
-    .join(" "),
+    .join(" ") + ` · ${consumed.length} changeset(s) consumed`,
 );
 
 // ── the chain ────────────────────────────────────────────────────────────────────────────────────
