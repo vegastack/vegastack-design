@@ -10,6 +10,30 @@ Nothing here is theoretical. Each has a run id.
 
 ---
 
+## 0a. The sequence that actually shipped 0.2.0
+
+Proven end to end on 2026-07-26. Follow it in this order.
+
+1. `pnpm release:preflight` — the whole chain against a simulated bump. Fix everything it reports
+   before touching a branch.
+2. `pnpm gates:ship` — **not `gates:push`**. `deploy.yml` demands all three browser lanes
+   unconditionally, and the receipt carry PRESERVES gate results across the version bump. A
+   full-sweep receipt committed once therefore survives to the deploy; a `gates:push` receipt does
+   not, and costs an extra ~25-minute cycle to redo.
+3. Commit code **and** `.gates/receipt.json` together, then push. (§12)
+4. Merge the change PR → `version-pr` opens the Version PR.
+5. Merge the Version PR → `package-build` + `publish` → npm.
+6. `node tooling/vrt-review.mjs`, then dispatch `deploy.yml`.
+
+**`package-build` and `publish` showing "Skipped" on step 4 is CORRECT** — that is the two-phase
+changesets model. They run only when `has_changesets == 'false'`, i.e. after the Version PR merges.
+Do not treat it as a fault.
+
+## 0b. `workflow_dispatch` can return HTTP 500 spuriously
+
+Observed once dispatching `deploy.yml` from a correctly-registered, active workflow. Retry; confirm by
+comparing the newest run id before and after rather than trusting the command's output.
+
 ## 0. The meta-rule
 
 **Never discover release blockers serially.** A release is a chain — bump → sync → build → consume →
@@ -166,6 +190,20 @@ Two false diagnoses in one session came from a stale `origin/main`. Any classifi
 `origin/*` starts with `git fetch origin --prune`.
 
 ---
+
+## What a completed release looks like — verified 2026-07-26
+
+- npm: `@vegastack/design@0.2.0`, `@vegastack/design-tokens@0.2.0` (from 0.1.1 / 0.1.0).
+- `deploy-curated`: `Verified OK` (cosign, before deploying) then `Uploaded 1477 of 1477 assets`.
+- `verify-protected-boundary` against `https://design.vegastack.com`: `/` and `/docs/*` return **302**
+  to Cloudflare Access, and every `/r/*` path rejects anonymous while accepting the service token.
+  **302 is the correct pre-cutover state, not a failure** — the public-docs cutover is separate.
+- Independently confirmed by hand: `/` → 302 to `peerxp.cloudflareaccess.com`, `/r/registry.json` → 403.
+- Billed minutes for the publish run: **0** hosted minutes on the mac minis; only `package-build`,
+  `publish`, `sign-curated`, `deploy-curated` and one boundary probe are hosted.
+
+After publishing, `classify-change --check-npm` reports nothing unpublished, so a later docs-only push
+correctly leaves `publish=false` and cannot re-publish by accident.
 
 ## The one thing still open
 
