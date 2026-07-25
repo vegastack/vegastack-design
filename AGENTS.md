@@ -105,7 +105,10 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
   **credentials without repository code** (`sign-curated`, `deploy-curated`); and **network
   position** — `deploy.yml`'s three boundary probes must originate OUTSIDE VegaStack's network or
   Cloudflare device posture could authenticate a request they assert is anonymous.
-  Job containers are banned outright — Linux-only, and they cannot start on a macOS runner.
+  Job containers are banned on the self-hosted jobs — Linux-only, they cannot start on macOS — but a
+  GitHub-hosted job may use one when render determinism needs it, digest-pinned: `quality-gate` runs
+  the three-engine suite in the pinned Playwright image because bare `ubuntu-latest` WebKit could not
+  settle the compiled-CSS Toaster contrast check.
 - **The minis cannot run browsers today, and it is a host bug.** Their Actions runner has no
   per-user Mach bootstrap namespace, so every Chromium launch dies with `bootstrap_look_up
   org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` and SIGTRAP —
