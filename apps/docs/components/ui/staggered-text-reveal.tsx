@@ -1,4 +1,4 @@
-// @vegastack staggered-text-reveal@0.2.0 sha256-xs+2o4pw+m999AKa0LvRLSa5Lg6a/cg9xFhRbaCe5DE=
+// @vegastack staggered-text-reveal@0.3.0 sha256-RbwU6XHIIn52Y+eHDqaGrALRjul/pFStMuIRtRhzNu4=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";

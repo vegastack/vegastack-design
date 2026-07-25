@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "tree": "tree-04183fb5c1664554dfb7cee99c0915006755bbce",
-  "treeFiles": 2544,
-  "head": "8a1940a30602a97920cb9bdca7a8c2ab300d491a",
+  "tree": "tree-b72238ea96ddb30496f7e4500b1abc1cb8848e43",
+  "treeFiles": 2536,
+  "head": "cb3883184da1568ff553ebb524df9a0d591748a5",
   "writtenAt": "2026-07-25T19:12:33.821Z",
   "mode": "push",
   "base": {
@@ -53,5 +53,9 @@
       "scopeRoutes": 96
     }
   },
-  "skips": []
+  "skips": [],
+  "carriedFrom": "tree-04183fb5c1664554dfb7cee99c0915006755bbce",
+  "carriedFromCommit": "cb3883184da1568ff553ebb524df9a0d591748a5",
+  "carryReason": "version-bump",
+  "carriedAt": "2026-07-25T19:48:58.306Z"
 }
