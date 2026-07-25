@@ -1,4 +1,4 @@
-// @vegastack textarea@0.3.0 sha256-wwRiWL6TSxJbRx3jY8kFr1C/Bj111GUhJ/E8fulAEjw=
+// @vegastack textarea@0.3.0 sha256-jM0MBpLlJSpKX4hgfnXRQOSenhGKu1u21bQOjw/db1c=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";

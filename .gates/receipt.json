@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "tree": "tree-b72238ea96ddb30496f7e4500b1abc1cb8848e43",
-  "treeFiles": 2536,
-  "head": "cb3883184da1568ff553ebb524df9a0d591748a5",
-  "writtenAt": "2026-07-25T19:12:33.821Z",
+  "tree": "tree-46e8d9dcbe432f6a503b3661e6415ca256576809",
+  "treeFiles": 2537,
+  "head": "288e901aa2c3555adc19b0eb43a8f761408443d1",
+  "writtenAt": "2026-07-25T21:13:59.470Z",
   "mode": "push",
   "base": {
     "ref": "origin/main",
-    "sha": "8a1940a30602a97920cb9bdca7a8c2ab300d491a"
+    "sha": "a096e0fb546abab17fba2b7eba1f01e6225a1cfd"
   },
   "host": {
     "platform": "darwin",
@@ -18,44 +18,37 @@
     "@playwright/test": "1.61.0",
     "playwright": "1.61.0"
   },
-  "contractSha256": "ae248887a277e3e93c78e5d48a1c9e533003e0c9ee415fd50193e58137ed8493",
+  "contractSha256": "b430e50e3ad47d1cf41336373b3e70faf68d51d02bbb804a02e98d8a9a0b65bb",
   "classified": {
-    "contracts": false,
-    "unit": false,
-    "smoke": false,
-    "contractsReason": "changed component sources"
+    "contracts": true,
+    "unit": true,
+    "smoke": true,
+    "contractsReason": "global surface changed (apps/docs/components/animated-icon-gallery.generated.tsx, apps/docs/lib/home-component-catalog.generated.ts, apps/docs/vrt/contract-routes.generated.ts)"
   },
   "gates": {
     "typecheck": {
       "status": "pass",
-      "durationMs": 9680
+      "durationMs": 839
     },
     "lint": {
       "status": "pass",
-      "durationMs": 793
+      "durationMs": 733
     },
     "unit": {
-      "status": "skipped",
-      "durationMs": 0,
-      "reason": "no component or package source changed"
+      "status": "pass",
+      "durationMs": 16284
     },
     "smoke": {
-      "status": "skipped",
-      "durationMs": 0,
-      "reason": "no smoke-selected component changed"
+      "status": "pass",
+      "durationMs": 13032
     },
     "contracts": {
-      "status": "skipped",
-      "durationMs": 0,
-      "reason": "changed component sources — no route in scope",
+      "status": "pass",
+      "durationMs": 508136,
       "executed": 768,
       "full": true,
       "scopeRoutes": 96
     }
   },
-  "skips": [],
-  "carriedFrom": "tree-04183fb5c1664554dfb7cee99c0915006755bbce",
-  "carriedFromCommit": "cb3883184da1568ff553ebb524df9a0d591748a5",
-  "carryReason": "version-bump",
-  "carriedAt": "2026-07-25T19:48:58.306Z"
+  "skips": []
 }

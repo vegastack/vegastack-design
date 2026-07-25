@@ -19,6 +19,8 @@ pnpm-lock.yaml
 *.generated.json
 docs/ledger/component-matrix.md
 packages/design-tokens/src/tokens.ts
+docs/research/design-md-audit/audit-register.json
+docs/research/design-md-audit/audits/coverage.json
 
 # Immutable third-party research snapshots are byte-for-byte evidence. Their manifests, not the
 # repository formatter, own their serialization.
