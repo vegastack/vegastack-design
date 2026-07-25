@@ -82,7 +82,9 @@ Everything else is pinned to `ubuntu-latest` by an allowlist enforced in
   network can be silently authenticated by Cloudflare device posture, which would void the proof. A
   boundary test has to originate outside the trusted network.
 
-Job containers are banned: they are Linux-only and cannot run on a macOS runner at all.
+Job containers are banned on the self-hosted jobs — Linux-only, they cannot start on macOS. A
+GitHub-hosted job may use one, digest-pinned to the Playwright image: `quality-gate` needs it because
+bare `ubuntu-latest` WebKit could not settle the compiled-CSS Toaster contrast check.
 
 **Screenshots are not part of CI.** Pixel comparison is a local `/ship` step —
 `node tooling/vrt-review.mjs` — reviewed by a human. Rationale and evidence:

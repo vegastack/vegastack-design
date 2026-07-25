@@ -23,6 +23,8 @@ const sources = Object.fromEntries(
     readFileSync(join(WORKFLOW_DIR, name), "utf8"),
   ]),
 );
+const PLAYWRIGHT_IMAGE =
+  "mcr.microsoft.com/playwright:v1.61.0-noble@sha256:57b65fdc9ceabe0ef613124c7bbe2babcf9362c4d85e382fe3b03604e84b428a";
 
 // The self-hosted runners are macOS. `runs-on` is an allowlist, not a free choice: a job moved onto
 // GitHub-hosted infrastructure without a recorded reason silently reintroduces the billed capacity
@@ -154,6 +156,29 @@ function stepBlocks(source) {
   return blocks;
 }
 
+/** Names of jobs that declare a `container:`, so the ban can be scoped to self-hosted jobs. */
+function containerJobs(source) {
+  const names = [];
+  const lines = source.split("\n");
+  let inJobs = false;
+  let current = null;
+  for (const line of lines) {
+    if (/^jobs:\s*$/.test(line)) {
+      inJobs = true;
+      continue;
+    }
+    if (/^\S/.test(line)) inJobs = false;
+    if (!inJobs) continue;
+    const job = /^ {2}([a-zA-Z0-9_-]+):\s*$/.exec(line);
+    if (job) {
+      current = job[1];
+      continue;
+    }
+    if (/^ {4}container:/.test(line) && current) names.push(current);
+  }
+  return names;
+}
+
 function containerImages(source) {
   const lines = source.split("\n");
   const images = [];
@@ -205,17 +230,28 @@ for (const [name, source] of Object.entries(sources)) {
       `${name}: checkout persists a token`,
     );
   }
-  // Actions job containers are Linux-only. On a macOS self-hosted runner a `container:` key is not
-  // a portability warning — the job cannot run at all. Colima/OrbStack does not change this.
-  assert.equal(
-    containerImages(source).length,
-    0,
-    `${name}: job containers are Linux-only and cannot run on the self-hosted macOS runners`,
-  );
+  // Job containers are Linux-only, so a `container:` on a self-hosted (macOS) job is not a
+  // portability warning — the job cannot start at all. On a GitHub-hosted Linux job a container is
+  // legitimate and sometimes REQUIRED for render determinism, but it must stay digest-pinned:
+  // `release.yml`'s `quality-gate` runs the three-engine suite in the pinned Playwright image
+  // because bare `ubuntu-latest` WebKit could not settle the Toaster contrast check.
+  for (const containerImage of containerImages(source)) {
+    assert.equal(
+      containerImage,
+      PLAYWRIGHT_IMAGE,
+      `${name}: container image is not the digest-pinned Playwright image`,
+    );
+  }
 
   const allowed = new Set(GITHUB_HOSTED_JOBS[name] ?? []);
   const runners = jobRunners(source);
   assert.ok(runners.size > 0, `${name}: no jobs found — the parser or the file changed shape`);
+  // A container on a self-hosted job cannot start. Check it job-by-job, not file-by-file.
+  for (const job of containerJobs(source))
+    assert.ok(
+      allowed.has(job),
+      `${name}: job ${job} is self-hosted and declares a container — job containers are Linux-only and cannot start on the macOS runners`,
+    );
   for (const [job, runner] of runners) {
     assert.ok(
       runner !== null,

@@ -287,3 +287,31 @@ entire Fumadocs sidebar, search, and TOC — and then Tabs through that chrome t
 control. Fixing it would speed the lane up far more than sharding does, but it means changing the
 mechanism of the one gate that currently protects the visual surface, and the plan lists changing
 `contracts.spec.ts` as a non-goal. Worth doing as its own scoped change with its own verification.
+
+## 2026-07-25 — The three-engine suite needs the pinned Playwright image; nothing else does
+
+Release run `30140043824` passed all four contract shards and then failed `quality-gate` on **1 test
+of 3765**: WebKit's compiled-CSS Toaster contrast check, `AssertionError: expected 1 to be +0` with
+`Caused by: Matcher did not succeed in time`. The toast never reached its settled colour inside the
+poll window on a two-core runner with no GPU, so axe sampled a mid-transition composite.
+
+Not a contrast regression: the same suite passes in all three engines locally, and nothing in this
+branch touched `sonner.tsx` or `contrast.browser.test.tsx`. What changed is the environment — that
+suite used to run inside the digest-pinned Playwright image, and the migration had moved it to bare
+`ubuntu-latest`.
+
+**Resolution: `quality-gate` goes back into the pinned image.** Its `--with-deps` install is dropped
+(the image ships the browsers), and the two container-specific workarounds come back with it — the
+`safe.directory` trust for the host-mounted workspace, and `HOME=/root` for Firefox, which refuses a
+HOME it does not own.
+
+**Deliberately NOT restored elsewhere.** `ci.yml`'s Chromium lane, its WebKit/Firefox *smoke subset*,
+and all four contract shards pass on bare `ubuntu-latest`. Only the complete three-engine suite is
+this sensitive, so only it pays for the image.
+
+**The container rule was wrong and is now correct.** This change had banned `container:` outright,
+reasoning that containers are Linux-only and the runners are macOS. True for the self-hosted jobs,
+false for the GitHub-hosted ones — and the blanket ban also discarded the digest-pinning assertion
+that had protected the image reference. `tooling/verify-workflow-security.mjs` now bans containers
+per-job on self-hosted runners and requires the pinned digest on GitHub-hosted ones. Both directions
+negative-tested.

@@ -166,6 +166,14 @@ jobs:
        (needs.contracts-gate.result == 'skipped' && needs.changes.outputs.visual == 'false'))
     # GITHUB-HOSTED: drives Chromium/Firefox/WebKit, which the mac minis cannot launch.
     runs-on: ubuntu-latest
+    # AND IN THE PINNED PLAYWRIGHT IMAGE, which is what `test:all-browsers` needs. On bare
+    # `ubuntu-latest` the full suite's WebKit lane failed the compiled-CSS Toaster contrast check with
+    # "Matcher did not succeed in time" (run 30140043824, 1 of 3765) - the toast never settled inside
+    # the poll window on a two-core runner with no GPU, so axe sampled a mid-transition colour. The
+    # same suite passes in all three engines locally and passed here inside this image before.
+    # `ci.yml` does NOT need the image: its Chromium lane and the WebKit/Firefox *smoke subset* both
+    # pass on bare ubuntu. Only the complete three-engine suite is this sensitive.
+    container: mcr.microsoft.com/playwright:v1.61.0-noble@sha256:57b65fdc9ceabe0ef613124c7bbe2babcf9362c4d85e382fe3b03604e84b428a
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -175,12 +183,21 @@ jobs:
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with: { node-version: 24, cache: pnpm }
+      # The workspace is host-mounted into the container with host ownership, so git refuses it as
+      # dubious until this exact ephemeral path is trusted. Safe here precisely because the container
+      # is thrown away; it is why the self-hosted jobs must NOT do this.
+      - name: Mark workspace safe for git (container ownership)
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @vegastack/ui exec playwright install --with-deps chromium firefox webkit
+      # No `playwright install` - the pinned image already ships the browsers this suite drives.
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test
       - run: pnpm --filter @vegastack/ui test:all-browsers
+        # The image runs as root while Actions otherwise points HOME at a pwuser-owned directory.
+        # Firefox refuses that ownership mismatch before a single test can execute.
+        env:
+          HOME: /root
       - run: pnpm build
       - run: pnpm registry:build
       - name: Require registry build idempotency
