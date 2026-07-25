@@ -189,6 +189,24 @@ assert.equal(
   false,
   "a pure version bump must NOT require the contract lane — nothing it touched can move an assertion",
 );
+// unit and smoke too. `packages/ui/package.json` matches UNIT_SURFACE, so without the version-bump
+// short-circuit a Version PR demanded the browser-unit lane against a receipt that legitimately
+// records it as skipped — a publish path that could never open. Measured on Version PR #11.
+assert.equal(
+  bump.json.unit,
+  false,
+  "a pure version bump must NOT require the browser-unit lane — a version field cannot break it",
+);
+assert.equal(
+  bump.json.smoke,
+  false,
+  "a pure version bump must NOT require the cross-engine smoke lane",
+);
+assert.equal(
+  bump.json.pureVersionBump,
+  true,
+  "a pure version bump must be RECOGNISED as one, not merely happen to require nothing",
+);
 assert.equal(
   bump.json.has_changesets !== undefined,
   true,
@@ -201,6 +219,11 @@ assert.equal(
   real.json.contracts,
   true,
   "a real component change MUST require the contract lane — this is the fail-open direction",
+);
+assert.equal(
+  real.json.pureVersionBump,
+  false,
+  "a real component change must never be classified as a pure version bump",
 );
 assert.ok(
   real.json.substantiveFiles > 100,

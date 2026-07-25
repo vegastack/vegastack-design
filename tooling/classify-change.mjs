@@ -32,9 +32,11 @@ import {
   changedFilesInWorkingTree,
   defaultBaseRef,
   dropProvenanceOnly,
+  git,
   mergeBase,
   ROOT,
   resolveCommit,
+  versionBumpOnly,
 } from "./lib/change-set.mjs";
 import { CONTRACT_SCOPE, selectRoutes } from "./lib/route-scope.mjs";
 
@@ -135,7 +137,32 @@ const changed = dropProvenanceOnly(allChanged, {
 });
 const provenanceOnly = allChanged.length - changed.length;
 
-const selection = selectRoutes(changed, {}, CONTRACT_SCOPE);
+/**
+ * A PURE VERSION BUMP REQUIRES NOTHING, and this has to be checked explicitly.
+ *
+ * Without it, `packages/ui/package.json` and `packages/design/package.json` match UNIT_SURFACE below,
+ * so a Version PR demanded the browser-unit lane — which the carried receipt legitimately records as
+ * skipped, because nothing observable changed. The result was a publish path that could never open:
+ * measured on Version PR #11, `unit=true` against a receipt saying `unit: skipped`.
+ *
+ * `versionBumpOnly` is the same predicate the receipt carry and its guard use, proven against real
+ * history in tooling/verify-classify-change.mjs. If every difference is version churn, no gate can
+ * have anything to say about it.
+ */
+const pureVersionBump = (() => {
+  if (allChanged.length === 0) return null;
+  try {
+    return versionBumpOnly(rangeStart, afterSha);
+  } catch {
+    return null;
+  }
+})();
+
+const selection = selectRoutes(
+  pureVersionBump?.ok ? [] : changed,
+  {},
+  CONTRACT_SCOPE,
+);
 const contractsRequired =
   selection.routes === null || selection.routes.size > 0;
 const contractsScope =
@@ -145,15 +172,31 @@ const contractsScope =
       ? `${selection.routes.size} route(s)`
       : "none";
 
-const unitRequired = changed.some((file) =>
-  UNIT_SURFACE.some((pattern) => pattern.test(file)),
-);
+const unitRequired =
+  !pureVersionBump?.ok &&
+  changed.some((file) => UNIT_SURFACE.some((pattern) => pattern.test(file)));
 // A global-surface change (tokens, the shared runtime) can move motion and focus behaviour in ways
 // only a second engine shows, so a full contract sweep implies the smoke lane too.
 const smokeRequired =
-  selection.routes === null || changed.some((file) => SMOKE_FILES.has(file));
+  !pureVersionBump?.ok &&
+  (selection.routes === null || changed.some((file) => SMOKE_FILES.has(file)));
 
+/**
+ * Read the changesets from the REF being classified. Reading the working tree was wrong whenever
+ * `--after` names something not checked out — exactly what the ship skill tells you to do before
+ * merging a Version PR (`--before main --after changeset-release/main`), where the whole question is
+ * whether that branch consumed them.
+ */
 const changesetFiles = (() => {
+  if (afterSha) {
+    const listed = git(["ls-tree", "--name-only", afterSha, ".changeset/"], {
+      allowFailure: true,
+    });
+    return (listed ?? "")
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.endsWith(".md") && !line.endsWith("README.md"));
+  }
   try {
     return readdirSync(join(ROOT, ".changeset")).filter(
       (name) => name.endsWith(".md") && name !== "README.md",
@@ -177,7 +220,10 @@ const classification = {
   provenanceOnlyFiles: provenanceOnly,
   contracts: contractsRequired,
   contracts_scope: contractsScope,
-  contracts_reason: selection.reason,
+  contracts_reason: pureVersionBump?.ok
+    ? "pure version bump — no observable change"
+    : selection.reason,
+  pureVersionBump: pureVersionBump?.ok === true,
   unit: unitRequired,
   smoke: smokeRequired,
   publish,
@@ -216,7 +262,7 @@ console.log(
 console.log("");
 console.log("required gates for this change");
 console.log(
-  `  contracts       ${contractsRequired} — ${contractsScope} (${selection.reason})`,
+  `  contracts       ${contractsRequired} — ${contractsScope} (${classification.contracts_reason})`,
 );
 console.log(`  unit            ${unitRequired}`);
 console.log(`  smoke           ${smokeRequired}`);
