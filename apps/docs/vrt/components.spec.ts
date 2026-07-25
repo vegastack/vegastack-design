@@ -1,31 +1,20 @@
 import { test, expect } from "@playwright/test";
-import { existsSync, readdirSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
 import { ANIMATED_ICON_CHUNK_COUNT } from "./icon-chunks.generated";
 import { VRT_PAGE_ROUTES } from "./page-routes";
 
-// Visual-regression baseline over every showcase page (real shipped source). Deterministic snapshots
-// require the digest-pinned Playwright Docker image (`mcr.microsoft.com/playwright:v1.61.0-noble`)
-// for font
-// determinism — mac-generated PNGs fail `ubuntu-latest` CI on rendering deltas. Baselines are produced
-// by the `update_baselines` run of .github/workflows/vrt.yml and committed once (an MK CI action).
+// Pixel capture over every showcase page (real shipped source). This suite is NOT a CI gate and has
+// no committed baselines — it is the capture half of `tooling/vrt-review.mjs`, which runs it twice
+// on ONE machine (once at the base ref with `--update-snapshots`, once at HEAD comparing against
+// that capture) and emits a before/after report for a human to review during `/ship`.
 //
-// This suite AUTO-ENABLES the moment those baselines are committed: `hasBaselines` checks the
-// Playwright snapshot dir, so there is no hard `describe.skip` to remember to flip. It ALSO runs in
-// BOOTSTRAP mode (`VRT_UPDATE=1`, set by vrt.yml's update_baselines step / a local `--update-snapshots`
-// run) so the very first baselines can actually be generated — otherwise a skip-when-no-baselines guard
-// would make the bootstrap a no-op (it could never write the first PNGs). Outside those two cases it
-// skips (a no-baseline validation run can only write-then-fail), and vrt.yml's zero-screenshot guard
-// prevents a fully-skipped run from being mistaken for passing evidence.
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const SNAPSHOT_DIR = join(__dirname, "components.spec.ts-snapshots");
-const hasBaselines =
-  existsSync(SNAPSHOT_DIR) &&
-  readdirSync(SNAPSHOT_DIR).some((f) => f.endsWith(".png"));
-const isBootstrap = process.env.VRT_UPDATE === "1";
-const describeVRT =
-  hasBaselines || isBootstrap ? test.describe : test.describe.skip;
+// `VRT_SNAPSHOT_DIR` is the single knob. The review tool sets it to the shared scratch directory the
+// two captures compare through; playwright.config.ts turns it into `snapshotPathTemplate`, and this
+// suite enables itself on the same signal. Without it there is nothing to compare against, so a run
+// could only write-then-pass — which is why the suite skips instead. `contracts.spec.ts` lives in
+// the same testDir, is never gated, and is what CI actually runs.
+const describeVRT = process.env.VRT_SNAPSHOT_DIR
+  ? test.describe
+  : test.describe.skip;
 
 describeVRT("VRT — showcase pages", () => {
   for (const path of VRT_PAGE_ROUTES) {

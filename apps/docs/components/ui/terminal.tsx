@@ -1,4 +1,4 @@
-// @vegastack terminal@0.2.0 sha256-OCpfI26HnghxQw+NFWxB+EjMRgHsoYzxacdsO+oS6EI=
+// @vegastack terminal@0.2.0 sha256-O2ToyJlsXVuxbGmO/DcEQ620ko9Umqv9uLTAeNVhaF0=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -39,6 +39,20 @@ export interface TerminalProps extends Omit<
    * @default derived from command lines
    */
   copyValue?: string;
+  /**
+   * Accessible name for the scrollable command pane, which is a keyboard
+   * focus stop. Overrides the default, which names the pane from the visible
+   * `title`. Mirrors `ScrollArea`: the label is intercepted here and applied to
+   * the focusable element, not to the outer block.
+   * @default derived from `title`
+   */
+  "aria-label"?: string;
+  /**
+   * Id of an element naming the scrollable command pane. Takes precedence over
+   * the visible `title`; ignored when `aria-label` is set.
+   * @default the visible title element
+   */
+  "aria-labelledby"?: string;
 }
 
 function normalizeLine(line: string | TerminalLine): TerminalLine {
@@ -49,7 +63,9 @@ function normalizeLine(line: string | TerminalLine): TerminalLine {
  * `Terminal` (a.k.a. CommandBlock) — a dark mono command block: a title bar
  * over command/output lines, each command prefixed with a `--brand` phosphor
  * prompt glyph, plus a composed trailing {@link CopyButton}. The command pane
- * scrolls independently, so the copy action remains visible at the inline end.
+ * scrolls independently, so the copy action remains visible at the inline end —
+ * which makes it a keyboard focus stop, named from the visible `title` and
+ * exposed as a `group` (override with `aria-label`/`aria-labelledby`).
  * Self-scopes to the
  * marketing dark ground (`.vs-marketing`) so it reads correctly even embedded
  * in a light-theme docs page (e.g. an install snippet) — no `MarketingSurface`
@@ -71,8 +87,14 @@ export function Terminal({
   copyValue,
   className,
   ref,
+  "aria-label": ariaLabel,
+  "aria-labelledby": ariaLabelledBy,
   ...props
 }: TerminalProps) {
+  // `useId` is one of the few React hooks that resolves under the `react-server`
+  // condition, so naming the pane costs this component nothing: it stays
+  // server-safe with no `'use client'` directive.
+  const titleId = React.useId();
   const normalized = lines.map(normalizeLine);
   const defaultCopyValue = normalized
     .filter((line) => line.command !== undefined)
@@ -93,7 +115,10 @@ export function Terminal({
         data-slot="terminal-header"
         className="flex items-center border-b border-border px-3 py-2"
       >
-        <span className="font-mono text-mono-label text-muted-foreground uppercase">
+        <span
+          id={titleId}
+          className="font-mono text-mono-label text-muted-foreground uppercase"
+        >
           {title}
         </span>
       </div>
@@ -104,11 +129,30 @@ export function Terminal({
         <div
           data-slot="terminal-body"
           tabIndex={0}
+          // The pane is a keyboard focus stop (a scrollable region must be reachable without a
+          // pointer), so it needs a name and a role that can carry one. A bare `<div tabindex="0">`
+          // maps to `generic`, which PROHIBITS naming — `aria-label` on it is not reliably exposed,
+          // and the pane announces as an unnamed stop. `group` is the right weight: it accepts a
+          // name and is not a landmark. `region` would be, and a docs page with five install
+          // snippets would put five landmarks in the rotor for no navigational value.
+          role="group"
+          // Free correct name from the visible title, overridable in the usual precedence order.
+          // Never emit both: `aria-labelledby` wins in the AT, so a caller passing `aria-label`
+          // would otherwise be silently ignored.
+          aria-label={ariaLabel}
+          aria-labelledby={ariaLabel ? undefined : (ariaLabelledBy ?? titleId)}
           // scroll-fade-x (the CSS-only edge-fade utility from @vegastack/design-tokens/utilities.css,
           // same family tabs' list uses) masks the clipped edge so a command cut mid-token on
           // narrow screens reads as "more this way" instead of a hard cut — the fade only
           // appears on the edge that actually has off-screen content (scroll-driven, zero JS).
-          className="flex min-w-0 flex-col gap-1.5 overflow-x-auto scroll-fade-x border border-transparent px-4 py-3 font-mono text-code text-foreground focus-visible:border-ring/(--alpha-tint-border) focus-visible:outline-none"
+          //
+          // The focus affordance is the shared `:focus-visible` outline, pulled INSIDE the box with
+          // a negative offset. Two things clip an outward outline here: the terminal root is
+          // `overflow-hidden`, and `scroll-fade-x` masks this element to its own border box — an
+          // outline drawn outside that box is not painted at all. A border tint is not an option
+          // either: `forced-colors: active` replaces border-color outright, which left this
+          // scrollable region with no focus indicator whatsoever in the forced palette.
+          className="flex min-w-0 flex-col gap-1.5 overflow-x-auto scroll-fade-x px-4 py-3 font-mono text-code text-foreground focus-visible:-outline-offset-2"
         >
           {normalized.map((line, index) => (
             <div

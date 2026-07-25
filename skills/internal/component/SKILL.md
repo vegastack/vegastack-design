@@ -53,7 +53,8 @@ additive-only, so a renamed or removed item's stale JSON would otherwise linger 
 source file with a dead identity.
 
 Changing an existing component follows the same path: edit canonical → `registry:build` (the
-re-stamped integrity IS the change signal downstream) → tests → VRT → changeset.
+re-stamped integrity IS the change signal downstream) → tests → contract suite → visual review →
+changeset.
 
 ## 1. Tokens
 
@@ -247,13 +248,14 @@ target: "@ui/<name>.tsx" }]` — the `@ui/` placeholder, never a hard-coded path
 7. **`apps/docs/components/preview/index.tsx`** barrel re-export + the nav entry in
    `apps/docs/content/docs/components/meta.json` (pick the right group heading; see the file for the
    convention).
-8. **VRT coverage + the contract record** — add (for a new component) or UPDATE (for a change to
-   variants, sizes, states, motion, engines, or test files) the component's record in
+8. **The contract record** — add (for a new component) or UPDATE (for a change to variants, sizes,
+   states, motion, engines, or test files) the component's record in
    [`packages/ui/component-contracts.json`](../../../packages/ui/component-contracts.json), then run
-   `pnpm design:derived`. It generates the route consumed by `apps/docs/vrt/components.spec.ts`;
-   never hand-edit the generated route file. The shared suite self-activates and covers all four
-   Playwright lanes from that one route — do not author a per-page `describe`, and never leave a
-   skipped visual test or a VRT-referencing TODO (both are rejected by `tooling/content-lint.mjs`).
+   `pnpm design:derived`. It generates `apps/docs/vrt/contract-routes.generated.ts`, the route list
+   consumed by BOTH the contract gate (`contracts.spec.ts`) and the local before/after capture
+   (`components.spec.ts`); never hand-edit the generated file. Both suites cover all four Playwright
+   lanes from that one route — do not author a per-page `describe`, and never leave a skipped visual
+   test (rejected by `tooling/content-lint.mjs`).
 
 ## 7. Verify
 
@@ -272,11 +274,19 @@ pnpm dlx shadcn@latest add @vegastack/<name> -y -o     # copy-in renders (serve 
 reconciliation, public API docs, theme parity, and the portal/mirror checks). Run it before calling
 a component done, or `pnpm lint`, which includes it.
 
-Then verify visually in the showcase and generate the VRT baseline:
+Then prove the behaviour contract and review the pixels. These are different things and neither
+substitutes for the other.
 
-1. Run the `update_baselines` job of `.github/workflows/vrt.yml` (pinned Playwright image,
-   `VRT_UPDATE=1`). Locally, **delete-then-regenerate** a suspect baseline rather than trusting
-   `--update-snapshots` to fix it — on a tall page `maxDiffPixelRatio: 0.01` can mask a large
-   absolute pixel count and perpetuate a bad baseline (Phase X2 captured one mid-animation).
-2. Commit `apps/docs/vrt/**/*-snapshots/*.png`.
-3. Confirm the normal (non-bootstrap) VRT run passes.
+```bash
+pnpm --filter @vegastack/docs test:contracts   # BLOCKING. 320px reflow · RTL · forced-colors focus · 24px targets
+node tooling/vrt-review.mjs                    # REVIEW. before/after on this machine; exits 0 either way
+```
+
+1. The contract suite is the gate. It runs in CI on every PR; a red result is a defect in the
+   component, not in the suite. Reproduce one route with
+   `cd apps/docs && pnpm exec playwright test contracts.spec.ts -g "<route>"`.
+2. The review tool captures the branch's merge-base and the working tree, then writes
+   `.vrt-review/report.json` plus before/after/diff PNGs. **Read the images** for every entry whose
+   `status` is not `unchanged`, classify each intended / unintended / uncertain, and present the
+   verdict. No screenshot is committed — `.gitignore` excludes both output directories.
+3. A run that captured nothing prints SKIPPED. That is not evidence of a clean diff.

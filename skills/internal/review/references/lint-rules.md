@@ -94,6 +94,14 @@ in both directions, so an added or removed rule fails the build until this file 
     purpose — flag it when the ENTIRE file has zero such affordance.
     `alert-dialog.tsx`/`dialog.tsx`/`sheet.tsx` carry a documented exemption for their non-focusable
     fixed viewport containers only. A new blanket exemption needs its own one-line rationale.
+    **Known blind spot — review element-level, not file-level.** Because the rule is file-scoped it
+    passes when the suppression and the affordance sit on the SAME element and cancel each other
+    out. That shipped once: `terminal.tsx` carried `focus-visible:outline-none` alongside a
+    `focus-visible:border-…` tint on one element, and under `forced-colors: active` the tint is
+    erased while `outline-none` (unlike `outline-hidden`) emits no forced-colors carve-out — so the
+    element had no indicator at all and no lint rule could see it (`docs/ledger/bugs.md`,
+    2026-07-25). The real gate is `contracts.spec.ts`'s forced-colors focus assertion; treat this
+    rule as a smell detector, not proof.
 27. **`inline-style`** (§7.1, multi-line-aware) — a `style={…}` attribute whose object literal sets any
     key that is not a `--*` custom property, unless it is the one documented exception (a dynamic
     `backgroundColor`/`background` on `color-picker.tsx`'s swatch fill — no Tailwind utility can

@@ -83,10 +83,16 @@ logical `-s`/`-e`).
   engines without support it falls back to a static bilateral fade.
 - It is the edge treatment used by the
   [Message Scroller](/docs/components/message-scroller) viewport.
+- **It clips the element's own focus outline.** `mask-image` limits everything the element paints to
+  its border box, so on a keyboard-focusable scroll container the shared `:focus-visible` outline —
+  drawn at a positive offset, outside that box — is not painted at all. Pull it inside with
+  `focus-visible:-outline-offset-2`. Do not substitute a border tint: `forced-colors: active`
+  replaces `border-color`, which would leave the container with no focus indicator whatsoever. See
+  [Focus ring](/docs/foundations/accessibility).
 
 ## Do / Don't
 
 <DoDont
-  do="Apply scroll-fade to a bounded, overflowing container to hint that more content is scrollable."
-  dont="Apply it to a container that does not scroll — there is nothing to fade toward."
+  do="Apply scroll-fade to a bounded, overflowing container to hint that more content is scrollable, and inset the focus outline if that container is focusable."
+  dont="Apply it to a container that does not scroll — there is nothing to fade toward — or pair it with outline-none on a focusable container."
 />

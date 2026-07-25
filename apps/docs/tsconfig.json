@@ -28,6 +28,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "comment:exclude": "playwright.config.ts + vrt/** are the deferred VRT scaffold (TODO(VRT)); their @playwright/test dep is installed only in the pinned Playwright Docker image, so they are excluded from the Next/local typecheck and run separately in CI.",
+  "comment:exclude": "playwright.config.ts + vrt/** are Playwright-owned: contracts.spec.ts (the CI behaviour gate) and components.spec.ts (the local before/after capture driven by tooling/vrt-review.mjs). They are typechecked by Playwright's own tsconfig at run time, not by the Next build, so excluding them keeps `next build` and the local typecheck free of @playwright/test types.",
   "exclude": ["node_modules", "playwright.config.ts", "vrt"]
 }

@@ -120,7 +120,7 @@ test("no a11y violations", async () => {
   // failure. The REAL contrast is now proven by the compiled-CSS gate test/contrast.browser.test.tsx,
   // which mounts this Toaster, fires every variant (default/success/error/warning/info), waits for
   // each toast to fully settle, and runs axe `color-contrast` against the real token colors in BOTH
-  // light and dark themes (+ the Playwright VRT visual layer, .github/workflows/vrt.yml).
+  // light and dark themes.
   await expectNoA11yViolations(document.body, ["color-contrast"]);
 });
 

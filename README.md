@@ -28,7 +28,8 @@ apps/docs/         Fumadocs showcase + guides + the registry host (public/r)
 tooling/           registry hashing/verification · design-lint · changelog + skill lints
 skills/internal/   maintainer skills — component · review · ship
 skills/public/     consumer skills — shipped inside @vegastack/design (see skills/README.md)
-.github/workflows/ ci · release (path-routed gates, npm OIDC) · deploy · vrt
+.github/workflows/ ci · release (path-routed gates, npm OIDC) · deploy
+                   non-browser jobs on the self-hosted mac minis; see AGENTS.md for the split
 ```
 
 Skills are symlinked into `.claude/skills/` and `.agents/skills/`, so both Claude Code and Codex
@@ -71,11 +72,16 @@ preflight → changesets → changelog entry → Version PR → **npm OIDC publi
 ## Verification culture
 
 Fail-closed gates end to end: design-lint (token-only styling) · browser-mode unit tests + axe ·
-real-CLI consume verification (contract-driven across every registry item and both layouts) · a
-pinned-Linux VRT pixel contract · registry integrity (SHA-256 + Sigstore) · changelog, skill, and
-link lints. The **reference consumer** (`vegastack-design-starter`, local repo) is the executable
-ground truth for every guide claim.
+768 component behaviour contracts (320px reflow, RTL, forced-colors focus, 24px targets) ·
+real-CLI consume verification (contract-driven across every registry item and both layouts) ·
+registry integrity (SHA-256 + Sigstore) · changelog, skill, and link lints. The **reference
+consumer** (`vegastack-design-starter`, local repo) is the executable ground truth for every guide
+claim.
 
-Counts are generated from `packages/ui/component-contracts.json` — see AGENTS.md § Numbers, and run
-`pnpm --filter @vegastack/docs verify:vrt-baselines` for the current VRT baseline status rather than
-trusting a number written down here.
+Pixel comparison is deliberately **not** a gate. `node tooling/vrt-review.mjs` captures the affected
+routes at the branch's merge-base and again at the working tree, on one machine, and emits a
+before/after report reviewed by a human during `/ship`. No screenshot is committed — see
+AGENTS.md § Verification ladder.
+
+Counts are generated from `packages/ui/component-contracts.json` — see AGENTS.md § Numbers rather
+than trusting a number written down here.

@@ -34,7 +34,8 @@ distribution channels, both already wired:
    component name(s) in the summary** — `@vegastack/ui`'s generated `CHANGELOG.md` is the
    consumer-facing "what changed per version".
 4. PR → review → merge to `main`. `release.yml` runs the full unprivileged gate (typecheck, lint,
-   test, all-browser smoke, build, `registry:build` idempotency, `registry:verify-consume`). A
+   test, all-browser smoke, build, `registry:build` idempotency, `registry:verify-consume`), plus
+   the 768-check component contract suite when the visual surface changed. A
    changeset-bearing run then uses its non-OIDC version job to update the **Version Packages** PR.
    Review its package versions, generated changelogs, registry item versions, and regenerated
    `/r/*`; merging that PR is the separate human action that authorizes the next main run's isolated
@@ -57,6 +58,35 @@ cutover phase remains a separate explicit MK decision under the `ship` skill.
 
 Docs/deployment-only changes do not require a package changeset, version bump, or npm publish. Keep
 workflow changes out of a changeset-bearing push if package work unexpectedly becomes necessary.
+
+## Where the jobs run
+
+Non-browser jobs run on the self-hosted mac minis (`runs-on: [self-hosted, vsk-runners-mac-mini]`):
+`release.yml`'s `changes` and `version-pr`, and `deploy.yml`'s `ref-guard` and `build-curated`.
+Everything else is pinned to `ubuntu-latest` by an allowlist enforced in
+`tooling/verify-workflow-security.mjs`, for four distinct reasons:
+
+- **Browsers** — all of `ci.yml`, plus `contracts-gate` in `release.yml`/`deploy.yml` and
+  `quality-gate`. The minis cannot launch Chromium: their runner has no per-user Mach bootstrap
+  namespace, so launches die with `bootstrap_look_up
+  org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` and SIGTRAP.
+  Deterministic on both minis in run `30131471680`; the same suite passes locally on the same OS and
+  CPU. **The fix is on the host** — reinstall the Actions runner as a LaunchAgent inside a logged-in
+  session instead of a LaunchDaemon. Then move those five jobs back by editing `GITHUB_HOSTED_JOBS`.
+- **`release.yml` `publish`** — npm trusted publishing does not support self-hosted runners
+  (<https://docs.npmjs.com/trusted-publishers/>) and this repository holds no `NPM_TOKEN`.
+- **`deploy.yml` `sign-curated` and `deploy-curated`** — the OIDC signing job and the credential-only
+  Cloudflare deploy. Neither executes repository code; both are ~1 minute.
+- **`deploy.yml`'s three boundary jobs** — `pre-cutover-purge`, `verify-protected-boundary`, and
+  `verify-public-boundary` assert that ANONYMOUS requests are rejected. A runner inside VegaStack's
+  network can be silently authenticated by Cloudflare device posture, which would void the proof. A
+  boundary test has to originate outside the trusted network.
+
+Job containers are banned: they are Linux-only and cannot run on a macOS runner at all.
+
+**Screenshots are not part of CI.** Pixel comparison is a local `/ship` step —
+`node tooling/vrt-review.mjs` — reviewed by a human. Rationale and evidence:
+`docs/ledger/operator-review.md`, 2026-07-25.
 
 ### Versioning model
 

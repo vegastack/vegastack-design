@@ -13,7 +13,7 @@ env:
 
 jobs:
   changes:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     outputs:
       visual: ${{ steps.detect.outputs.visual }}
       publish: ${{ steps.detect.outputs.publish }}
@@ -36,9 +36,42 @@ jobs:
           fi
           CHANGED=$(git diff --name-only "$BEFORE" "$CURRENT_SHA")
           printf 'changed files:\n%s\n' "$CHANGED"
-          if echo "$CHANGED" | grep -qE '^(packages/ui/registry/|packages/ui/src/|packages/design/|packages/design-tokens/|apps/docs/components/|apps/docs/app/|apps/docs/lib/|apps/docs/vrt/components\.spec\.ts|pnpm-lock\.yaml|apps/docs/package\.json)'; then
+          # Two subtractions, both aimed at the same thing: a pure version bump must not re-run the
+          # 768-check browser gate over pages whose rendered output cannot have moved.
+          #
+          #   1. package.json / CHANGELOG.md — what `changeset version` rewrites directly.
+          #   2. provenance-header-only diffs. `pnpm run version-packages` also runs version-sync,
+          #      which runs registry:build, which re-stamps
+          #      `// @vegastack <name>@<version> sha256-<sha>` into EVERY component source and docs
+          #      copy-in — 1082 files on a 538-item registry. Those paths are legitimately in the
+          #      visual list, so a filename-level filter CANNOT tell that one-line comment apart
+          #      from a real component change; it has to read the diff body. Verified against a
+          #      simulated Version Packages merge: filename-only filtering still reported visual.
+          CANDIDATES=$(printf '%s\n' "$CHANGED" \
+            | grep -vE '(^|/)(package\.json|CHANGELOG\.md)$' \
+            | grep -E '^(packages/ui/registry/|packages/ui/src/|packages/design/|packages/design-tokens/|apps/docs/components/|apps/docs/app/|apps/docs/lib/|apps/docs/vrt/contracts\.spec\.ts|pnpm-lock\.yaml)' || true)
+          VISUAL=""
+          if [ -n "$CANDIDATES" ]; then
+            # `--no-renames` matters: with rename detection a moved component emits `rename from/to`
+            # and NO +/- body lines, so the filter below would see nothing and wave it through.
+            # Forcing delete+add makes a rename look like what it is. Binary files never emit body
+            # lines either, so they are matched explicitly. (Mode-only changes are deliberately not
+            # visual — chmod cannot move a pixel.)
+            DIFF=$(printf '%s\n' "$CANDIDATES" | tr '\n' '\0' \
+              | xargs -0 git diff -U0 --no-renames "$BEFORE" "$CURRENT_SHA" --)
+            # `-U0` so only changed lines appear; drop the +++/--- file markers; then drop the
+            # provenance header. Anything left is a real change to a rendered surface.
+            VISUAL=$(printf '%s\n' "$DIFF" \
+              | grep -E '^([+-]|Binary files )' \
+              | grep -vE '^(\+\+\+|---)' \
+              | grep -vE '^[+-]// @vegastack [a-z0-9-]+@[0-9]' || true)
+          fi
+          if [ -n "$VISUAL" ]; then
+            printf 'visual-surface candidates:\n%s\n' "$CANDIDATES"
+            printf 'substantive changed lines (first 40):\n%s\n' "$(printf '%s\n' "$VISUAL" | head -40)"
             echo "visual=true" >> "$GITHUB_OUTPUT"
           else
+            echo "no rendered-surface change beyond provenance re-stamping"
             echo "visual=false" >> "$GITHUB_OUTPUT"
           fi
           if find .changeset -maxdepth 1 -type f -name '*.md' ! -name 'README.md' -print -quit | grep -q .; then
@@ -53,11 +86,21 @@ jobs:
             fi
           fi
 
-  vrt-gate:
+  # Release-blocking visual-surface gate: 768 behaviour contracts (320px reflow, RTL containment,
+  # forced-colors focus, effective 24px pointer targets) over every component route. No screenshots,
+  # no baselines — nothing here can be cleared by regenerating its own evidence. Pixel review is a
+  # human step run locally during `/ship` (tooling/vrt-review.mjs).
+  # GITHUB-HOSTED: drives Chromium, which the mac minis cannot launch — see ci.yml's `verify`.
+  contracts-gate:
     needs: changes
     if: needs.changes.outputs.visual == 'true'
     runs-on: ubuntu-latest
-    container: mcr.microsoft.com/playwright:v1.61.0-noble@sha256:57b65fdc9ceabe0ef613124c7bbe2babcf9362c4d85e382fe3b03604e84b428a
+    # Sharded for wall clock — the lane is CPU-bound; see apps/docs/playwright.config.ts. A matrix
+    # job's result is failure if ANY shard fails, so `needs: contracts-gate` below stays fail-closed.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -68,32 +111,61 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - name: Require complete Linux VRT baselines
-        run: pnpm --filter @vegastack/docs verify:vrt-baselines
-      - name: VRT pixel gate
+      - run: pnpm --filter @vegastack/docs exec playwright install --with-deps chromium
+      - run: pnpm exec turbo run build --filter=@vegastack/docs^...
+      # Persistent runner: bind a free port rather than a fixed one, and reap it below. A cancelled
+      # job kills Playwright without running webServer teardown, and `reuseExistingServer: false`
+      # makes the next run throw on a held port — a fixed port would brick that mini.
+      - name: Reserve a free capture port
+        run: |
+          set -euo pipefail
+          PORT=$(node -e 'const s=require("net").createServer();s.listen(0,"127.0.0.1",()=>{process.stdout.write(String(s.address().port));s.close()})')
+          echo "VRT_PORT=$PORT" >> "$GITHUB_ENV"
+      # The reporter set (list + html + json) comes from playwright.config.ts under CI, so no
+      # `--reporter` flag is needed — and none should be added: `--reporter` is also a pnpm flag and
+      # would be swallowed before Playwright saw it.
+      - name: Component contract gate
         working-directory: apps/docs
         env:
-          PLAYWRIGHT_JSON_OUTPUT_NAME: vrt-report.json
-        run: pnpm exec playwright test --reporter=list,json
-      - name: Guard — fail if zero screenshot tests executed
+          SHARD: ${{ matrix.shard }}
+          PLAYWRIGHT_JSON_OUTPUT_NAME: contracts-report.json
+        run: pnpm exec playwright test contracts.spec.ts --shard="$SHARD/4"
+      # A suite that executed ZERO tests (fully skipped, empty, or mis-filtered) must not be read as
+      # passing evidence for a release.
+      - name: Guard — fail if zero contract tests executed
         working-directory: apps/docs
         run: |
           node -e '
-            const r = require("./vrt-report.json");
+            const r = require("./contracts-report.json");
             const ran = (r.stats?.expected||0)+(r.stats?.unexpected||0)+(r.stats?.flaky||0);
-            if (ran === 0) { console.error("✗ VRT executed 0 screenshot tests — not valid passing evidence."); process.exit(1); }
+            if (ran === 0) { console.error("✗ Contract gate executed 0 tests — not valid passing evidence for a release."); process.exit(1); }
+            console.log(`✓ Contract gate executed ${ran} test(s).`);
           '
+      - name: Upload the failing run's report and traces
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: contracts-failure-${{ github.run_id }}-shard${{ matrix.shard }}
+          path: |
+            apps/docs/playwright-report
+            apps/docs/test-results
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Reap the capture server
+        if: ${{ always() }}
+        run: |
+          PIDS=$(lsof -ti "tcp:${VRT_PORT:-0}" 2>/dev/null || true)
+          if [ -n "$PIDS" ]; then echo "killing leftover server: $PIDS"; kill -9 $PIDS || true; fi
 
   # Repository code and dependencies are validated without write or OIDC authority.
   quality-gate:
-    needs: [changes, vrt-gate]
+    needs: [changes, contracts-gate]
     if: >-
       always() && needs.changes.outputs.publish == 'true' &&
-      (needs.vrt-gate.result == 'success' ||
-       (needs.vrt-gate.result == 'skipped' && needs.changes.outputs.visual == 'false'))
+      (needs.contracts-gate.result == 'success' ||
+       (needs.contracts-gate.result == 'skipped' && needs.changes.outputs.visual == 'false'))
+    # GITHUB-HOSTED: drives Chromium/Firefox/WebKit, which the mac minis cannot launch.
     runs-on: ubuntu-latest
-    container: mcr.microsoft.com/playwright:v1.61.0-noble@sha256:57b65fdc9ceabe0ef613124c7bbe2babcf9362c4d85e382fe3b03604e84b428a
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -103,16 +175,12 @@ jobs:
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with: { node-version: 24, cache: pnpm }
-      - name: Mark workspace safe for git (container ownership)
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @vegastack/ui exec playwright install --with-deps chromium firefox webkit
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test
       - run: pnpm --filter @vegastack/ui test:all-browsers
-        # Firefox requires HOME to be owned by the current container user (root).
-        env:
-          HOME: /root
       - run: pnpm build
       - run: pnpm registry:build
       - name: Require registry build idempotency
@@ -143,7 +211,7 @@ jobs:
     if: >-
       needs.changes.outputs.has_changesets == 'true' &&
       needs.quality-gate.result == 'success'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     permissions:
       contents: write
       pull-requests: write
@@ -167,6 +235,12 @@ jobs:
   # Publishing is isolated from validation and is the only release job with npm OIDC authority.
   # It is reachable only after a reviewed Version Packages PR has removed the pending changesets.
   # The trusted-publisher identity is repository + release.yml, matching the proven 0.1.1 path.
+  #
+  # GITHUB-HOSTED BY HARD REQUIREMENT: npm trusted publishing does not support self-hosted runners
+  # ("Self-hosted runners are not currently supported but are planned for future releases" —
+  # https://docs.npmjs.com/trusted-publishers/). This repository deliberately holds no NPM_TOKEN, so
+  # moving this job would break publishing outright. It runs ~2 minutes and executes no repository
+  # code — it only downloads the artifact quality-gate already validated.
   publish:
     needs: [changes, quality-gate]
     if: >-

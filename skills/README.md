@@ -14,7 +14,7 @@ skills/
 | Skill                                      | Use when                                                                                  |
 | ------------------------------------------ | ----------------------------------------------------------------------------------------- |
 | [`component`](internal/component/SKILL.md) | Adding a new component/hook/block, or changing an existing one                            |
-| [`review`](internal/review/SKILL.md)       | Reviewing or auditing this repo — gates, rule triage, adversarial hunting, VRT discipline |
+| [`review`](internal/review/SKILL.md)       | Reviewing or auditing this repo — gates, rule triage, adversarial hunting, visual review discipline |
 | [`ship`](internal/ship/SKILL.md)           | Preparing a release. **MK-gated at every outward step**                                   |
 
 ## Public — downstream consumers

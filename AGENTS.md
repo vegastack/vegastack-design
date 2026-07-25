@@ -88,8 +88,31 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
 - **Tokens** — DTCG → Style Dictionary (custom `color/oklch` transform, separate light/dark builds,
   `@theme inline` bridge). Runtime font/ease vars are `--font-family-*` / `--motion-ease-*`, never
   self-referential.
-- **Docs** — Fumadocs, static export to Cloudflare Workers Static Assets. VRT is day-one (Vitest
-  browser + vitest-axe + Playwright). Storybook is deferred.
+- **Docs** — Fumadocs, static export to Cloudflare Workers Static Assets. Storybook is deferred.
+- **Visual verification is split in two** (reversed 2026-07-25 from "VRT is day-one"; evidence in
+  `docs/ledger/operator-review.md`). **Behaviour** is a CI gate: `apps/docs/vrt/contracts.spec.ts`
+  proves 320px reflow, RTL containment, forced-colors focus, and effective 24px pointer targets on
+  every component route, takes no screenshots, and needs no baselines. **Pixels** are a local review
+  step: `node tooling/vrt-review.mjs` captures the base ref and the working tree on one machine and
+  emits a before/after report a human reads during `/ship`. No screenshot is ever committed.
+- **Non-browser CI runs on the self-hosted mac minis** — `runs-on: [self-hosted,
+  vsk-runners-mac-mini]` for `release.yml`'s `changes` and `version-pr` and `deploy.yml`'s
+  `ref-guard` and `build-curated`. The split is an enforced allowlist in
+  `tooling/verify-workflow-security.mjs`, not a convention, and `ubuntu-latest` is required for four
+  reasons: **browsers** (`ci.yml` entirely, plus `contracts-gate` in both workflows and
+  `quality-gate`) — the minis cannot launch Chromium, see below; **npm OIDC** (`publish`) — trusted
+  publishing does not support self-hosted runners and this repository holds no `NPM_TOKEN`;
+  **credentials without repository code** (`sign-curated`, `deploy-curated`); and **network
+  position** — `deploy.yml`'s three boundary probes must originate OUTSIDE VegaStack's network or
+  Cloudflare device posture could authenticate a request they assert is anonymous.
+  Job containers are banned outright — Linux-only, and they cannot start on a macOS runner.
+- **The minis cannot run browsers today, and it is a host bug.** Their Actions runner has no
+  per-user Mach bootstrap namespace, so every Chromium launch dies with `bootstrap_look_up
+  org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` and SIGTRAP —
+  deterministic on both minis across all retries in run `30131471680`, while the identical suite
+  passes locally on the same OS and CPU. Fix is on the host: reinstall the runner as a **LaunchAgent
+  in a logged-in session** rather than a LaunchDaemon. After that, move the five browser jobs back by
+  editing `GITHUB_HOSTED_JOBS`; nothing else in the repository changes.
 - **Registry integrity** — whole-item SHA-256 in `meta.integrity`, a Sigstore-signed manifest
   (GitHub OIDC), and a fail-closed consume preflight.
 - **Auth topology (approved target)** — public human docs anonymous; `/internal/*` SSO;
@@ -172,7 +195,7 @@ The same discipline governs every other generated surface:
 | Authority                              | Regenerate with                        | Generated output                                                                          |
 | -------------------------------------- | -------------------------------------- | ----------------------------------------------------------------------------------------- |
 | `packages/ui/registry/ui/*`            | `pnpm registry:build`                  | docs copy-in, `public/r/*.json`                                                           |
-| `packages/ui/component-contracts.json` | `pnpm design:derived`                  | component matrix, VRT routes, home catalog, the public skill roster, this file's §Numbers |
+| `packages/ui/component-contracts.json` | `pnpm design:derived`                  | component matrix, contract routes, home catalog, the public skill roster, this file's §Numbers |
 | `/CHANGELOG.md`                        | `node tooling/sync-changelog.mjs`      | the docs Changelog page                                                                   |
 | `skills/public/**`                     | `node tooling/sync-package-skills.mjs` | `packages/design/skills/**` (shipped in npm)                                              |
 | `design.md`                            | `pnpm design:sync`                     | its derived doc surfaces                                                                  |
@@ -194,9 +217,11 @@ node tooling/design-lint.mjs packages/ui/registry   # token + AST rules on compo
 pnpm typecheck                                       # workspace-wide
 pnpm test                                            # browser-mode unit + axe
 pnpm --filter @vegastack/ui test:smoke               # WebKit + Firefox, contract-selected subset
+pnpm --filter @vegastack/docs test:contracts         # 768 behaviour contracts — the CI visual gate
 pnpm lint                                            # the full gate chain — see package.json
 pnpm registry:build && git status --porcelain        # must be idempotent: clean tree after
 pnpm design:derived && git status --porcelain        # contract-derived surfaces must be current
+node tooling/vrt-review.mjs                          # before/after pixels — review, not a gate
 ```
 
 `pnpm lint` is the umbrella: shadcn base check, skill lint, the public-skill mirror, security
@@ -207,14 +232,27 @@ toaster mirror, structural design-lint, negative registry-integrity fixtures), t
 Every gate fails closed. A gate that has never been observed failing is an assumption — that is why
 `verify-design-lint-structural.mjs` and `verify-registry-integrity-negative.mjs` exist.
 
-**VRT** is a pinned-Linux pixel contract and is blocking for deploy and release. Baselines cannot be
-produced on darwin; generate them via the VRT workflow's `update_baselines` run and commit
-`apps/docs/vrt/**/*-snapshots/**`. For the current required-vs-committed count, run the check rather
-than quoting a number:
+**The component contract suite is the blocking visual-surface gate.**
+`apps/docs/vrt/contracts.spec.ts` runs 768 checks over every component route — 320px reflow, RTL
+containment, forced-colors focus visibility, effective 24px pointer targets — in `ci.yml` on every PR
+and in `release.yml` when the visual surface changed. It takes no screenshots and needs no baselines,
+so it runs on any OS and cannot be cleared by regenerating its own evidence.
 
 ```bash
-pnpm --filter @vegastack/docs verify:vrt-baselines
+cd apps/docs && pnpm exec playwright test contracts.spec.ts   # or: pnpm --filter @vegastack/docs test:contracts
 ```
+
+**Pixel comparison is a local `/ship` step, not a gate.** `node tooling/vrt-review.mjs` captures the
+affected routes at the branch's merge-base and again at the working tree, on one machine minutes
+apart, then writes `.vrt-review/report.json` plus before/after/diff PNGs. Only routes the change can
+reach are captured; a change touching no visual surface captures nothing and reports SKIPPED. It
+exits 0 for any pixel outcome and 2 only when it could not produce a report — a pixel difference is
+not a defect, and only a human can say whether it was intended. Procedure: the `ship` skill.
+
+Nothing enforces layout drift in CI. That is the accepted cost of removing a gate whose only escape
+hatch was overwriting the evidence under review, on a team with no shared platform to regenerate
+baselines on. Revisit if several people begin merging component changes independently — the
+before/after tool can be pointed at a PR's base ref with no redesign.
 
 Cross-browser policy: every PR runs the full Chromium suite plus the contract-selected WebKit/Firefox
 risk smoke; main and release additionally run the complete suite in all three engines. Add a smoke
@@ -225,10 +263,10 @@ file only for motion or another evidenced cross-engine risk.
 A component page is part of the component, not a follow-up. Section order is Installation → Usage →
 Examples → API Reference → Accessibility → Do/Don't, plus Anatomy for compound components. Register
 the page in `apps/docs/content/docs/components/meta.json`, re-export the preview from the barrel, and
-add the component's record to `component-contracts.json` so its VRT route is generated. No `{@link}`
-— MDX parses `{…}` as JS. `tooling/content-lint.mjs` rejects skipped visual tests and
-VRT-referencing TODOs. Guides pages live in `apps/docs/content/docs/guides/`; the SSO-gated internal
-guides live in `apps/docs/content/internal/`.
+add the component's record to `component-contracts.json` so its contract route is generated. No
+`{@link}` — MDX parses `{…}` as JS. `tooling/content-lint.mjs` rejects skipped visual tests. Guides
+pages live in `apps/docs/content/docs/guides/`; the SSO-gated internal guides live in
+`apps/docs/content/internal/`.
 
 ### Review and audit
 
@@ -271,7 +309,7 @@ tooling/           registry hashing/verification · design-lint · content, chan
 skills/internal/   maintainer skills (never published)
 skills/public/     consumer skills (mirrored into @vegastack/design)
 docs/              requirements · gap analysis · plans · ledgers · research
-.github/workflows/ ci · release · deploy · vrt
+.github/workflows/ ci · release · deploy
 ```
 
 `packages/ui/registry/ui/` holds components and hooks; `packages/ui/registry/blocks/` holds
@@ -293,11 +331,10 @@ below is generated — never hand-edit it, and never quote a count from memory.
 
 <!-- NUMBERS:START — generated by tooling/sync-component-derived.mjs from packages/ui/component-contracts.json. DO NOT EDIT. -->
 - **Registry items: 538** — 96 components · 439 animated icons · 2 hooks (`use-animation-replay`, `use-mobile`) · 1 block (`dashboard-01`)
-- Contract SHA-256: `e7214c6b14f08166fb80bad73adffe842a6d61356619f8977039d4b0fbff4b5e`
+- Contract SHA-256: `ae248887a277e3e93c78e5d48a1c9e533003e0c9ee415fd50193e58137ed8493`
 <!-- NUMBERS:END -->
 
-Everything else is volatile and has a command instead of a number: VRT baselines
-(`pnpm --filter @vegastack/docs verify:vrt-baselines`), docs pages
+Everything else is volatile and has a command instead of a number: docs pages
 (`find apps/docs/content -name '*.mdx' | wc -l`), registry items served
 (`ls apps/docs/public/r/*.json | wc -l`).
 
