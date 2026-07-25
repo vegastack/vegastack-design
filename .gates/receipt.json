@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "tree": "tree-a2283ea011c6a01fd434090b72bde5b6b13ed3fa",
+  "tree": "tree-10afb598ff7fed84ca007611b2de7755372bf802",
   "treeFiles": 2538,
-  "head": "b35fed186c5e80087bcb8bca4b32cf6da52c76ed",
-  "writtenAt": "2026-07-25T23:00:14.120Z",
-  "mode": "ship",
+  "head": "77da33c4f2aaa3341a2c8eb76b6ec66e78c585c6",
+  "writtenAt": "2026-07-25T23:25:11.371Z",
+  "mode": "push",
   "base": {
     "ref": "origin/main",
-    "sha": "b35fed186c5e80087bcb8bca4b32cf6da52c76ed"
+    "sha": "77da33c4f2aaa3341a2c8eb76b6ec66e78c585c6"
   },
   "host": {
     "platform": "darwin",
@@ -28,23 +28,26 @@
   "gates": {
     "typecheck": {
       "status": "pass",
-      "durationMs": 777
+      "durationMs": 860
     },
     "lint": {
       "status": "pass",
-      "durationMs": 19269
+      "durationMs": 725
     },
     "unit": {
-      "status": "pass",
-      "durationMs": 14856
+      "status": "skipped",
+      "durationMs": 0,
+      "reason": "no component or package source changed"
     },
     "smoke": {
-      "status": "pass",
-      "durationMs": 13145
+      "status": "skipped",
+      "durationMs": 0,
+      "reason": "no smoke-selected component changed"
     },
     "contracts": {
-      "status": "pass",
-      "durationMs": 422397,
+      "status": "skipped",
+      "durationMs": 0,
+      "reason": "changed component sources — no route in scope",
       "executed": 768,
       "full": true,
       "scopeRoutes": 96
