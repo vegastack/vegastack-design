@@ -26,6 +26,13 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
+  // Playwright defaults to ONE worker under CI. That made the 768-check contract gate take 1.4h on
+  // `ubuntu-latest` (run 30132112459) versus ~6min locally at 5 workers — the single largest cost in
+  // the pipeline, and entirely an unset default. These tests are wait-bound (navigate, networkidle,
+  // fonts, then a Tab-by-Tab keyboard walk), so they oversubscribe two cores well. `retries: 2`
+  // above absorbs transient contention; if this lane ever turns flaky rather than slow, lower this
+  // before touching a timeout.
+  workers: process.env.CI ? 4 : undefined,
   // Diagnosability is the whole reason the workflows upload an artifact on failure. Without a
   // reporter there is no `playwright-report/` to upload, and without a trace there is nothing in it
   // but an exit code — which is exactly what left release run 30115971397 undiagnosable for two
