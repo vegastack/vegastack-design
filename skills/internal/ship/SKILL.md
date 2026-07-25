@@ -13,6 +13,24 @@ auto-ship. Each gate is separate — approval to push is not approval to merge o
 Run from the repo root. Every step is required unless marked optional. Never publish
 manually with npm tokens — publishing is CI-only (OIDC trusted publishing).
 
+## 0. Release-chain preflight — run this FIRST
+
+```bash
+pnpm release:preflight        # ~5min, in place, restores the tree on exit
+```
+
+It simulates a version bump and runs the whole chain — version-sync, both authorities, the
+classifier, the receipt-carry proof, and a full `shadcn` consume round-trip. A release is a chain,
+and a defect anywhere fails all of it.
+
+**This exists because a release once took seven merge-and-watch cycles**, each one discovering the
+next broken link ~25 minutes later. Five of those seven would have surfaced in this single run. If it
+fails, read [references/release-gotchas.md](references/release-gotchas.md) — each entry has the
+symptom, the cause, and the run id that found it.
+
+Do not skip it because the change looks small. Most of those failures only appear on a MINOR bump;
+the previous patch release exercised none of them.
+
 ## 1. Preflight
 
 Refresh the contract-derived public inventory first. This regenerates the homepage component
