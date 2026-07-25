@@ -1,4 +1,4 @@
-// @vegastack dashboard-01@0.2.0 sha256-qm7+2LKVAhfwH5v5FXl7Weku+tAmcp/QpP0RBAnmHOM=
+// @vegastack dashboard-01@0.3.0 sha256-MED9572Kih5qNIf3zNiXih8hOjFrRZroFNy1QdCBRHM=
 
 "use client";
 

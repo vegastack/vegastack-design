@@ -1,4 +1,4 @@
-// @vegastack comparison-matrix@0.2.0 sha256-YerotCIZaHm8PQbT+LPeFg4VdW0e7Jb25FTgaOgCywg=
+// @vegastack comparison-matrix@0.3.0 sha256-CyYxVXTYRqaH7kc7qyx7too9HN06N++w6o5KL4SBzwo=
 
 "use client";
 

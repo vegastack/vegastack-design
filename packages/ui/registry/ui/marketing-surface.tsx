@@ -1,4 +1,4 @@
-// @vegastack marketing-surface@0.2.0 sha256-tg5D3sQNT4vdYMuv8yAiidRa6XElJbq6/xF138NzOZ8=
+// @vegastack marketing-surface@0.3.0 sha256-XUjg7dZCM1V4OkyP37q/fy3Wd/4J8G/PVOf8NO8zU04=
 
 "use client";
 

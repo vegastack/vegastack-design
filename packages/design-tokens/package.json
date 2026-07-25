@@ -1,6 +1,6 @@
 {
   "name": "@vegastack/design-tokens",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "VegaStack design tokens (DTCG → Tailwind v4 theme + TS)",
   "license": "MIT",
   "repository": {
