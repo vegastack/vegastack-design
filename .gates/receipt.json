@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "tree": "tree-c1c251186e3bcb01eab51ee0f3685999b16b8e95",
+  "tree": "tree-e116af46bd07555b604f3ad3c98f94acd4a6098c",
   "treeFiles": 2539,
-  "head": "be7f86293efa8b8f36016ab2cfefc1e8c60142af",
-  "writtenAt": "2026-07-25T21:23:09.460Z",
-  "mode": "push",
+  "head": "5dbc1018cce127efb5b163796f7b00b889c4b8aa",
+  "writtenAt": "2026-07-25T21:53:46.949Z",
+  "mode": "ship",
   "base": {
     "ref": "origin/main",
     "sha": "a096e0fb546abab17fba2b7eba1f01e6225a1cfd"
@@ -28,23 +28,23 @@
   "gates": {
     "typecheck": {
       "status": "pass",
-      "durationMs": 854
+      "durationMs": 19190
     },
     "lint": {
       "status": "pass",
-      "durationMs": 767
+      "durationMs": 36039
     },
     "unit": {
       "status": "pass",
-      "durationMs": 16657
+      "durationMs": 29084
     },
     "smoke": {
       "status": "pass",
-      "durationMs": 13855
+      "durationMs": 41282
     },
     "contracts": {
       "status": "pass",
-      "durationMs": 509791,
+      "durationMs": 548290,
       "executed": 768,
       "full": true,
       "scopeRoutes": 96
