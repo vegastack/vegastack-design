@@ -11,11 +11,12 @@ skills/
 
 ## Internal — maintainers of this repo
 
-| Skill                                      | Use when                                                                                  |
-| ------------------------------------------ | ----------------------------------------------------------------------------------------- |
-| [`component`](internal/component/SKILL.md) | Adding a new component/hook/block, or changing an existing one                            |
+| Skill                                      | Use when                                                                                            |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| [`component`](internal/component/SKILL.md) | Adding a new component/hook/block, or changing an existing one                                      |
 | [`review`](internal/review/SKILL.md)       | Reviewing or auditing this repo — gates, rule triage, adversarial hunting, visual review discipline |
-| [`ship`](internal/ship/SKILL.md)           | Preparing a release. **MK-gated at every outward step**                                   |
+| [`ship`](internal/ship/SKILL.md)           | Preparing a release. **MK-gated at every outward step**                                             |
+| [`gates`](internal/gates/SKILL.md)         | Reading a failed pre-commit/pre-push run, classifying it at its root, and what the receipt means    |
 
 ## Public — downstream consumers
 
@@ -49,7 +50,7 @@ dropped: removing `.agents/skills` makes every skill invisible to Codex, and rem
 `.claude/skills` makes them invisible to Claude Code.
 
 The invoked command name comes from the **directory name**, not the frontmatter — so `/component`,
-`/review`, `/ship`, `/vegastack-design-system`.
+`/review`, `/ship`, `/gates`, `/vegastack-design-system`.
 
 Windows checkouts with `core.symlinks=false` will not get working symlinks. Consumers are unaffected:
 the published path copies files rather than linking them.

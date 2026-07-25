@@ -2,6 +2,24 @@
 # Formatting these files creates drift that `pnpm registry:build` immediately reverses.
 apps/docs/public/r/
 
+# pnpm owns the lockfile's serialization, and it rewrites it on every install — so a formatted
+# lockfile is drift that the next `pnpm add` immediately reverses, exactly like the registry output
+# above. Without this, the pre-commit format gate fails after every dependency change.
+pnpm-lock.yaml
+
+# Same rule, applied to the surfaces `tooling/sync-component-derived.mjs` and the token build own
+# outright. Formatting them is drift that `pnpm design:derived` / the token build immediately
+# reverses, so prettier and `design:derived:check` would each undo the other with whichever ran last
+# "winning". These files all declare themselves generated in their first lines.
+#
+# NOT ignored, deliberately: `packages/ui/component-contracts.json` is a hand-maintained AUTHORITY
+# rather than an output, so it should be formatted like any other source file.
+*.generated.ts
+*.generated.tsx
+*.generated.json
+docs/ledger/component-matrix.md
+packages/design-tokens/src/tokens.ts
+
 # Immutable third-party research snapshots are byte-for-byte evidence. Their manifests, not the
 # repository formatter, own their serialization.
 docs/research/design-md-audit/sources/

@@ -11,11 +11,32 @@ permissions:
 env:
   SITE_VISIBILITY: public
 
+# COST SHAPE. Only two jobs are GitHub-hosted, for two unrelated hard reasons:
+#
+#   package-build   PROVENANCE. `publish` uploads the exact bytes this job produces, and npm's OIDC
+#                   provenance statement asserts they were built by this workflow in this repository.
+#                   Building them on a PERSISTENT self-hosted runner would make that assertion less
+#                   true — a persistent runner can carry state between runs. ~4 minutes for the two
+#                   public packages, no browsers, no container.
+#   publish         npm trusted publishing does not support self-hosted runners
+#                   (https://docs.npmjs.com/trusted-publishers/) and this repository deliberately
+#                   holds no NPM_TOKEN, so moving it would break publishing outright. ~2 minutes,
+#                   and it executes no repository code — it only downloads the validated artifact.
+#
+# Everything else runs free on the mac minis. The browser lanes are not here at all: they run in
+# `.husky/pre-push` and are attested by `.gates/receipt.json`, which `receipt-guard` verifies.
 jobs:
+  # What does this push require, and what will it DO? One authority, called rather than reimplemented
+  # in shell — tooling/classify-change.mjs. That logic lived here as bash and was wrong in both
+  # directions on 2026-07-25 (first demanding the 768-check gate for a pure version bump across 1082
+  # provenance-re-stamped files, then reporting no change for a real component edit while exiting 0).
+  # tooling/verify-classify-change.mjs now proves both directions against those actual commits.
   changes:
     runs-on: [self-hosted, vsk-runners-mac-mini]
     outputs:
-      visual: ${{ steps.detect.outputs.visual }}
+      contracts: ${{ steps.detect.outputs.contracts }}
+      unit: ${{ steps.detect.outputs.unit }}
+      smoke: ${{ steps.detect.outputs.smoke }}
       publish: ${{ steps.detect.outputs.publish }}
       has_changesets: ${{ steps.detect.outputs.has_changesets }}
     steps:
@@ -24,6 +45,8 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
           ref: ${{ github.sha }}
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with: { node-version: 24 }
       - id: detect
         env:
           BEFORE_SHA: ${{ github.event.before }}
@@ -34,146 +57,41 @@ jobs:
           if ! git rev-parse --verify -q "$BEFORE" >/dev/null 2>&1 || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
             BEFORE="${CURRENT_SHA}~1"
           fi
-          CHANGED=$(git diff --name-only "$BEFORE" "$CURRENT_SHA")
-          printf 'changed files:\n%s\n' "$CHANGED"
-          # Two subtractions, both aimed at the same thing: a pure version bump must not re-run the
-          # 768-check browser gate over pages whose rendered output cannot have moved.
-          #
-          #   1. package.json / CHANGELOG.md — what `changeset version` rewrites directly.
-          #   2. provenance-header-only diffs. `pnpm run version-packages` also runs version-sync,
-          #      which runs registry:build, which re-stamps
-          #      `// @vegastack <name>@<version> sha256-<sha>` into EVERY component source and docs
-          #      copy-in — 1082 files on a 538-item registry. Those paths are legitimately in the
-          #      visual list, so a filename-level filter CANNOT tell that one-line comment apart
-          #      from a real component change; it has to read the diff body. Verified against a
-          #      simulated Version Packages merge: filename-only filtering still reported visual.
-          CANDIDATES=$(printf '%s\n' "$CHANGED" \
-            | grep -vE '(^|/)(package\.json|CHANGELOG\.md)$' \
-            | grep -E '^(packages/ui/registry/|packages/ui/src/|packages/design/|packages/design-tokens/|apps/docs/components/|apps/docs/app/|apps/docs/lib/|apps/docs/vrt/contracts\.spec\.ts|pnpm-lock\.yaml)' || true)
-          VISUAL=""
-          if [ -n "$CANDIDATES" ]; then
-            # `--no-renames` matters: with rename detection a moved component emits `rename from/to`
-            # and NO +/- body lines, so the filter below would see nothing and wave it through.
-            # Forcing delete+add makes a rename look like what it is. Binary files never emit body
-            # lines either, so they are matched explicitly. (Mode-only changes are deliberately not
-            # visual — chmod cannot move a pixel.)
-            DIFF=$(printf '%s\n' "$CANDIDATES" | tr '\n' '\0' \
-              | xargs -0 git diff -U0 --no-renames "$BEFORE" "$CURRENT_SHA" --)
-            # `-U0` so only changed lines appear; drop the +++/--- file markers; then drop the
-            # provenance header. Anything left is a real change to a rendered surface.
-            VISUAL=$(printf '%s\n' "$DIFF" \
-              | grep -E '^([+-]|Binary files )' \
-              | grep -vE '^(\+\+\+|---)' \
-              | grep -vE '^[+-]// @vegastack [a-z0-9-]+@[0-9]' || true)
-          fi
-          if [ -n "$VISUAL" ]; then
-            printf 'visual-surface candidates:\n%s\n' "$CANDIDATES"
-            printf 'substantive changed lines (first 40):\n%s\n' "$(printf '%s\n' "$VISUAL" | head -40)"
-            echo "visual=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "no rendered-surface change beyond provenance re-stamping"
-            echo "visual=false" >> "$GITHUB_OUTPUT"
-          fi
-          if find .changeset -maxdepth 1 -type f -name '*.md' ! -name 'README.md' -print -quit | grep -q .; then
-            echo "has_changesets=true" >> "$GITHUB_OUTPUT"
-            echo "publish=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "has_changesets=false" >> "$GITHUB_OUTPUT"
-            if echo "$CHANGED" | grep -qE '^packages/'; then
-              echo "publish=true" >> "$GITHUB_OUTPUT"
-            else
-              echo "publish=false" >> "$GITHUB_OUTPUT"
-            fi
-          fi
+          node tooling/classify-change.mjs --before "$BEFORE" --after "$CURRENT_SHA"
 
-  # Release-blocking visual-surface gate: 768 behaviour contracts (320px reflow, RTL containment,
-  # forced-colors focus, effective 24px pointer targets) over every component route. No screenshots,
-  # no baselines — nothing here can be cleared by regenerating its own evidence. Pixel review is a
-  # human step run locally during `/ship` (tooling/vrt-review.mjs).
-  # GITHUB-HOSTED: drives Chromium, which the mac minis cannot launch — see ci.yml's `verify`.
-  contracts-gate:
+  # The browser half, attested rather than executed. See ci.yml's `receipt-guard` for what a receipt
+  # is and is not. The requirements come from `changes` above so this job and the local runner cannot
+  # disagree about what was needed.
+  receipt-guard:
     needs: changes
-    if: needs.changes.outputs.visual == 'true'
-    runs-on: ubuntu-latest
-    # Sharded for wall clock — the lane is CPU-bound; see apps/docs/playwright.config.ts. A matrix
-    # job's result is failure if ANY shard fails, so `needs: contracts-gate` below stays fail-closed.
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2, 3, 4]
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
           persist-credentials: false
           ref: ${{ github.sha }}
-      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with: { node-version: 24, cache: pnpm }
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @vegastack/docs exec playwright install --with-deps chromium
-      - run: pnpm exec turbo run build --filter=@vegastack/docs^...
-      # Persistent runner: bind a free port rather than a fixed one, and reap it below. A cancelled
-      # job kills Playwright without running webServer teardown, and `reuseExistingServer: false`
-      # makes the next run throw on a held port — a fixed port would brick that mini.
-      - name: Reserve a free capture port
+        with: { node-version: 24 }
+      - name: Verify the gate receipt covers this commit
+        env:
+          NEEDS_CONTRACTS: ${{ needs.changes.outputs.contracts }}
+          NEEDS_UNIT: ${{ needs.changes.outputs.unit }}
+          NEEDS_SMOKE: ${{ needs.changes.outputs.smoke }}
         run: |
           set -euo pipefail
-          PORT=$(node -e 'const s=require("net").createServer();s.listen(0,"127.0.0.1",()=>{process.stdout.write(String(s.address().port));s.close()})')
-          echo "VRT_PORT=$PORT" >> "$GITHUB_ENV"
-      # The reporter set (list + html + json) comes from playwright.config.ts under CI, so no
-      # `--reporter` flag is needed — and none should be added: `--reporter` is also a pnpm flag and
-      # would be swallowed before Playwright saw it.
-      - name: Component contract gate
-        working-directory: apps/docs
-        env:
-          SHARD: ${{ matrix.shard }}
-          PLAYWRIGHT_JSON_OUTPUT_NAME: contracts-report.json
-        run: pnpm exec playwright test contracts.spec.ts --shard="$SHARD/4"
-      # A suite that executed ZERO tests (fully skipped, empty, or mis-filtered) must not be read as
-      # passing evidence for a release.
-      - name: Guard — fail if zero contract tests executed
-        working-directory: apps/docs
-        run: |
-          node -e '
-            const r = require("./contracts-report.json");
-            const ran = (r.stats?.expected||0)+(r.stats?.unexpected||0)+(r.stats?.flaky||0);
-            if (ran === 0) { console.error("✗ Contract gate executed 0 tests — not valid passing evidence for a release."); process.exit(1); }
-            console.log(`✓ Contract gate executed ${ran} test(s).`);
-          '
-      - name: Upload the failing run's report and traces
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: contracts-failure-${{ github.run_id }}-shard${{ matrix.shard }}
-          path: |
-            apps/docs/playwright-report
-            apps/docs/test-results
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Reap the capture server
-        if: ${{ always() }}
-        run: |
-          PIDS=$(lsof -ti "tcp:${VRT_PORT:-0}" 2>/dev/null || true)
-          if [ -n "$PIDS" ]; then echo "killing leftover server: $PIDS"; kill -9 $PIDS || true; fi
+          node tooling/verify-gate-receipt.mjs \
+            --contracts "$NEEDS_CONTRACTS" \
+            --unit "$NEEDS_UNIT" \
+            --smoke "$NEEDS_SMOKE"
 
-  # Repository code and dependencies are validated without write or OIDC authority.
+  # Repository code and dependencies are validated without write or OIDC authority. Free, on a mini,
+  # and with no container: the container existed only for the three-engine browser suite, which now
+  # runs locally.
   quality-gate:
-    needs: [changes, contracts-gate]
-    if: >-
-      always() && needs.changes.outputs.publish == 'true' &&
-      (needs.contracts-gate.result == 'success' ||
-       (needs.contracts-gate.result == 'skipped' && needs.changes.outputs.visual == 'false'))
-    # GITHUB-HOSTED: drives Chromium/Firefox/WebKit, which the mac minis cannot launch.
-    runs-on: ubuntu-latest
-    # AND IN THE PINNED PLAYWRIGHT IMAGE, which is what `test:all-browsers` needs. On bare
-    # `ubuntu-latest` the full suite's WebKit lane failed the compiled-CSS Toaster contrast check with
-    # "Matcher did not succeed in time" (run 30140043824, 1 of 3765) - the toast never settled inside
-    # the poll window on a two-core runner with no GPU, so axe sampled a mid-transition colour. The
-    # same suite passes in all three engines locally and passed here inside this image before.
-    # `ci.yml` does NOT need the image: its Chromium lane and the WebKit/Firefox *smoke subset* both
-    # pass on bare ubuntu. Only the complete three-engine suite is this sensitive.
-    container: mcr.microsoft.com/playwright:v1.61.0-noble@sha256:57b65fdc9ceabe0ef613124c7bbe2babcf9362c4d85e382fe3b03604e84b428a
+    needs: [changes, receipt-guard]
+    if: needs.changes.outputs.publish == 'true'
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -183,30 +101,13 @@ jobs:
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with: { node-version: 24, cache: pnpm }
-      # The workspace is host-mounted into the container with host ownership, so git refuses it as
-      # dubious until this exact ephemeral path is trusted. Safe here precisely because the container
-      # is thrown away; it is why the self-hosted jobs must NOT do this.
-      - name: Mark workspace safe for git (container ownership)
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - run: pnpm install --frozen-lockfile
-      # No `playwright install` - the pinned image already ships the browsers this suite drives.
       - run: pnpm typecheck
       - run: pnpm lint
-      - run: pnpm test
-      - run: pnpm --filter @vegastack/ui test:all-browsers
-        # The image runs as root while Actions otherwise points HOME at a pwuser-owned directory.
-        # Firefox refuses that ownership mismatch before a single test can execute.
-        env:
-          HOME: /root
+      - run: pnpm exec turbo run test --filter=@vegastack/design
       - run: pnpm build
       - run: pnpm registry:build
-      # `shell: bash` is REQUIRED here, not stylistic: a container job's default shell is `sh`
-      # (dash), which has no `pipefail` — this step died with "Illegal option -o pipefail" and exit 2
-      # in run 30142154420, reading as registry drift when nothing had drifted. The image ships bash;
-      # ask for it. tooling/verify-workflow-security.mjs now fails closed on any container step that
-      # uses a bash-only construct without declaring this.
       - name: Require registry build idempotency
-        shell: bash
         run: |
           set -euo pipefail
           git status --porcelain > "$RUNNER_TEMP/git-status"
@@ -216,6 +117,35 @@ jobs:
             exit 1
           fi
       - run: pnpm registry:verify-consume
+
+  # The npm artifact, built on an EPHEMERAL runner so the bytes on public npm and the provenance
+  # statement about them agree. This is the one place this workflow deliberately spends money; see the
+  # header. It runs after validation and produces nothing but the two public dists.
+  # `has_changesets == 'false'` is what confines this to the PUBLISH path. A changeset-bearing run
+  # opens a Version PR and publishes nothing, so building the npm artifact there would burn ~4 billed
+  # minutes producing bytes no job consumes — and it is the only hosted job on that path, so the run
+  # would go from free to not-free for no reason.
+  package-build:
+    needs: [changes, quality-gate]
+    if: >-
+      needs.changes.outputs.publish == 'true' &&
+      needs.changes.outputs.has_changesets == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      # Only the two PUBLIC packages. `@vegastack/ui` is private by the locked distribution model and
+      # must never reach this artifact.
+      - run: pnpm --filter @vegastack/design-tokens build
+      - run: pnpm --filter @vegastack/design build
+      - run: node tooling/verify-package-exports.mjs
       - name: Upload validated public-package build outputs
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
@@ -227,8 +157,8 @@ jobs:
           retention-days: 1
 
   # A changeset-bearing, reviewed main commit creates or updates the Version Packages PR. This job
-  # has write authority for that PR but cannot mint npm OIDC. Merging the reviewed Version PR is
-  # the separate human action that authorizes publication on the next main run.
+  # has write authority for that PR but cannot mint npm OIDC. Merging the reviewed Version PR is the
+  # separate human action that authorizes publication on the next main run.
   version-pr:
     needs: [changes, quality-gate]
     if: >-
@@ -255,20 +185,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # Publishing is isolated from validation and is the only release job with npm OIDC authority.
-  # It is reachable only after a reviewed Version Packages PR has removed the pending changesets.
-  # The trusted-publisher identity is repository + release.yml, matching the proven 0.1.1 path.
+  # Publishing is isolated from validation and is the only release job with npm OIDC authority. It is
+  # reachable only after a reviewed Version Packages PR has removed the pending changesets. The
+  # trusted-publisher identity is repository + release.yml, matching the proven 0.1.1 path.
   #
   # GITHUB-HOSTED BY HARD REQUIREMENT: npm trusted publishing does not support self-hosted runners
   # ("Self-hosted runners are not currently supported but are planned for future releases" —
   # https://docs.npmjs.com/trusted-publishers/). This repository deliberately holds no NPM_TOKEN, so
-  # moving this job would break publishing outright. It runs ~2 minutes and executes no repository
-  # code — it only downloads the artifact quality-gate already validated.
+  # moving this job would break publishing outright.
   publish:
-    needs: [changes, quality-gate]
+    needs: [changes, quality-gate, package-build]
     if: >-
       needs.changes.outputs.has_changesets == 'false' &&
-      needs.quality-gate.result == 'success'
+      needs.quality-gate.result == 'success' &&
+      needs.package-build.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: write

@@ -38,6 +38,16 @@ concurrency:
 #                      inside VegaStack's network can be silently authenticated by Cloudflare device
 #                      posture, which would make "anonymous" mean something else and void the proof.
 #                      A boundary test has to originate outside the trusted network.
+#
+# THE CONTRACT GATE THAT USED TO LIVE HERE IS GONE, AND WAS REPLACED RATHER THAN DROPPED.
+# It ran the 768 behaviour contracts on four billed `ubuntu-latest` shards (~135 minutes per deploy)
+# and existed because `main` carries no branch protection, `ci.yml` fires only on `pull_request`, and
+# `release.yml`'s gate was conditional — so a direct push to `main` could reach a deploy having never
+# executed a single contract assertion. That reasoning still holds, so `receipt-guard` below now
+# closes the same hole for ~seconds: it demands a receipt covering the deployed tree with ALL THREE
+# browser lanes present and passing, which only `pnpm gates:ship` (a full 96-route sweep) produces.
+# A deploy therefore still cannot happen without a complete contract run — the run just happened on a
+# developer machine, and the receipt is how this workflow knows it did.
 
 jobs:
   ref-guard:
@@ -59,71 +69,35 @@ jobs:
             exit 1
           fi
 
-  # Release-blocking visual-surface gate. This deliberately does NOT trust the pull-request run:
-  # `main` carries no branch protection, `ci.yml` only fires on `pull_request`, and `release.yml`'s
-  # gate is conditional on a visual-surface change — so a direct push to `main` can reach a deploy
-  # having never executed a single contract assertion. This is the last place to catch that, and it
-  # is the only workflow that ships to production. ~6 minutes, no screenshots, no baselines.
-  # GITHUB-HOSTED: drives Chromium, which the mac minis cannot launch — see ci.yml's `verify`.
-  contracts-gate:
+  # The browser half, attested rather than executed. Unlike ci.yml and release.yml this job requires
+  # ALL THREE browser lanes unconditionally: a production deploy is the one step that must be preceded
+  # by a complete local sweep, and only `pnpm gates:ship` — which runs the full 96-route contract
+  # suite, the three-engine unit suite, and the cross-engine smoke — produces a receipt that satisfies
+  # it. Conditional requirements would let a docs-only deploy through on a partial sweep, which is
+  # exactly the hole the deleted hosted gate existed to close.
+  #
+  # A receipt is ATTESTATION, NOT PROOF (tooling/lib/gate-receipt.mjs). For an outward deploy that
+  # residual trust is bounded by the fact that dispatching this workflow is itself an explicit MK
+  # decision on a ref that ref-guard has already pinned to main.
+  receipt-guard:
     needs: ref-guard
-    runs-on: ubuntu-latest
-    # Sharded for wall clock — the lane is CPU-bound; see apps/docs/playwright.config.ts.
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2, 3, 4]
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
           persist-credentials: false
           ref: ${{ github.sha }}
-      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with: { node-version: 24, cache: pnpm }
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @vegastack/docs exec playwright install --with-deps chromium
-      - run: pnpm exec turbo run build --filter=@vegastack/docs^...
-      - name: Reserve a free capture port
+        with: { node-version: 24 }
+      - name: Require a full-sweep gate receipt for the deployed tree
         run: |
           set -euo pipefail
-          PORT=$(node -e 'const s=require("net").createServer();s.listen(0,"127.0.0.1",()=>{process.stdout.write(String(s.address().port));s.close()})')
-          echo "VRT_PORT=$PORT" >> "$GITHUB_ENV"
-      - name: Component contract gate
-        working-directory: apps/docs
-        env:
-          SHARD: ${{ matrix.shard }}
-          PLAYWRIGHT_JSON_OUTPUT_NAME: contracts-report.json
-        run: pnpm exec playwright test contracts.spec.ts --shard="$SHARD/4"
-      - name: Guard — fail if zero contract tests executed
-        working-directory: apps/docs
-        run: |
-          node -e '
-            const r = require("./contracts-report.json");
-            const ran = (r.stats?.expected||0)+(r.stats?.unexpected||0)+(r.stats?.flaky||0);
-            if (ran === 0) { console.error("✗ Contract gate executed 0 tests — not valid passing evidence for a deploy."); process.exit(1); }
-            console.log(`✓ Contract gate executed ${ran} test(s).`);
-          '
-      - name: Upload the failing run's report and traces
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: contracts-failure-${{ github.run_id }}-shard${{ matrix.shard }}
-          path: |
-            apps/docs/playwright-report
-            apps/docs/test-results
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Reap the capture server
-        if: ${{ always() }}
-        run: |
-          PIDS=$(lsof -ti "tcp:${VRT_PORT:-0}" 2>/dev/null || true)
-          if [ -n "$PIDS" ]; then echo "killing leftover server: $PIDS"; kill -9 $PIDS || true; fi
+          node tooling/verify-gate-receipt.mjs --contracts true --unit true --smoke true
 
   # Build and validate repository-controlled code without OIDC or Cloudflare credentials.
   build-curated:
-    needs: contracts-gate
+    needs: receipt-guard
     runs-on: [self-hosted, vsk-runners-mac-mini]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6

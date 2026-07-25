@@ -386,8 +386,18 @@ function injectRegion(file, startMarker, endMarker, body, label) {
     );
     process.exit(1);
   }
+  // BLANK LINES AROUND THE BODY are required, not cosmetic. prettier inserts a blank line between an
+  // HTML comment and an adjacent markdown list, so a region written without them is permanently
+  // prettier-unclean — and then `prettier --write` and `design:derived --check` each undo the other,
+  // with whichever ran last "winning". AGENTS.md sat in exactly that state, unnoticed, because
+  // nothing ran `prettier --check` over it: `pnpm lint` checks the derived surfaces, not formatting.
+  // The pre-commit format gate surfaced it. Emitting prettier's own shape makes both gates agree.
   const next =
-    src.slice(0, s + startMarker.length) + "\n" + body + "\n" + src.slice(e);
+    src.slice(0, s + startMarker.length) +
+    "\n\n" +
+    body +
+    "\n\n" +
+    src.slice(e);
   if (next === src) return;
   if (check) {
     console.error(

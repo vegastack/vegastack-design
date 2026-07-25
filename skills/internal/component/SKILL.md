@@ -259,12 +259,22 @@ target: "@ui/<name>.tsx" }]` — the `@ui/` placeholder, never a hard-coded path
 
 ## 7. Verify
 
+**The inner loop while you work** — design-lint, this component's unit test, and the contract routes
+its dependency closure reaches. Measured ~25s once the docs export is warm, so run it after every
+meaningful edit rather than saving verification for the end:
+
+```bash
+pnpm gates:component <name>
+```
+
+Then the full local gate before calling the component done:
+
 ```bash
 node tooling/design-lint.mjs packages/ui/registry     # token-only + a11y AST rules
 cd packages/ui && pnpm exec tsc --noEmit && pnpm exec vitest run && cd ../..
 pnpm registry:build                                    # validate → hash → stamp → verify-deps
 pnpm design:derived                                    # contract-derived surfaces stay current
-pnpm design:verify                                     # RSC safety, contract reconciliation, +11 more
+pnpm design:verify                                     # RSC safety, contract reconciliation, +14 more
 pnpm registry:verify-consume                           # real `shadcn add` round-trip
 pnpm dlx shadcn@latest add @vegastack/<name> -y -o     # copy-in renders (serve public/r locally)
 ```
@@ -278,13 +288,16 @@ Then prove the behaviour contract and review the pixels. These are different thi
 substitutes for the other.
 
 ```bash
-pnpm --filter @vegastack/docs test:contracts   # BLOCKING. 320px reflow · RTL · forced-colors focus · 24px targets
+pnpm contracts                                 # BLOCKING. 320px reflow · RTL · 24px targets (see below re: focus)
 node tooling/vrt-review.mjs                    # REVIEW. before/after on this machine; exits 0 either way
 ```
 
-1. The contract suite is the gate. It runs in CI on every PR; a red result is a defect in the
-   component, not in the suite. Reproduce one route with
-   `cd apps/docs && pnpm exec playwright test contracts.spec.ts -g "<route>"`.
+1. The contract suite is the gate, and it is now a LOCAL gate — no CI runner executes a browser, so
+   `.husky/pre-push` is where it blocks and `.gates/receipt.json` is how CI knows it ran. A red result
+   is a defect in the component, not in the suite. Reproduce one route with
+   `node tooling/contracts-run.mjs --routes /docs/components/<name>`; always go through that wrapper
+   rather than Playwright directly, because it owns the turbo-cached build, reserves a free port, and
+   cross-checks its own `--grep` so a scoped run cannot pass by matching nothing.
 2. The review tool captures the branch's merge-base and the working tree, then writes
    `.vrt-review/report.json` plus before/after/diff PNGs. **Read the images** for every entry whose
    `status` is not `unchanged`, classify each intended / unintended / uncertain, and present the

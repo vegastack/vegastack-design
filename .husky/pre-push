@@ -1,0 +1,8 @@
+# The real gate. Under the local-first topology no CI runner executes a browser lane, so this is
+# where the unit suite, the cross-engine smoke, and the scoped behaviour contracts run — and it
+# writes .gates/receipt.json, which CI verifies against the pushed tree.
+#
+# To push despite a failure, use `GATES_SKIP="<reason>" git push`. That records the skip in the
+# receipt and CI rejects it until MK acknowledges. `--no-verify` leaves no trace and is a policy
+# violation, not an option.
+node tooling/gates.mjs push

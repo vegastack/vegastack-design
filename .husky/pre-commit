@@ -1,0 +1,4 @@
+# Static gates over the STAGED set. Measured ~3-5s: design-lint 1.4s, secret-scan 0.6s, the
+# conditional checks under 0.3s each. Never a browser — a commit is not a publication boundary, and
+# WIP commits, `--amend`, and `rebase -i` all fire this.
+node tooling/gates.mjs commit

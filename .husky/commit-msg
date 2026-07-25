@@ -1,0 +1,2 @@
+# Conventional-commit prefix, matching CLAUDE.md § Commit Message Format.
+node tooling/verify-commit-message.mjs "$1"
