@@ -197,6 +197,31 @@ const VERSION_FIELD_LINE =
  */
 const GENERATED_REGISTRY_OUTPUT = /^apps\/docs\/public\/r\/.+\.json$/;
 
+/**
+ * `pnpm design:derived` output, exempt on the SAME argument as the registry output above: CI
+ * re-executes `design:derived:check` (inside `pnpm lint`) on this very commit and fails on any drift.
+ * Re-derivation is a stronger guarantee than reading a diff.
+ *
+ * They enter a version bump because version-sync rewrites the npm ranges in
+ * `component-contracts.json`, which moves its SHA-256, which is stamped into every surface below.
+ */
+const CONTRACT_DERIVED_OUTPUT = [
+  /^packages\/ui\/component-contracts\.json$/,
+  /^packages\/ui\/contract-smoke-tests\.generated\.json$/,
+  /^apps\/docs\/vrt\/contract-routes\.generated\.ts$/,
+  /^apps\/docs\/lib\/home-component-catalog\.generated\.ts$/,
+  /^apps\/docs\/components\/animated-icon-gallery\.generated\.tsx$/,
+  /^docs\/ledger\/component-matrix\.md$/,
+  /^docs\/research\/design-md-audit\//,
+];
+
+/**
+ * AGENTS.md and README.md carry only a GENERATED REGION, so they are not exempt wholesale — only the
+ * lines that region can move. Anything else in those files is prose a release must not touch.
+ */
+const CONTRACT_SHA_LINE =
+  /^[+-].*(Contract SHA-256: `[a-f0-9]{64}`|\*\*Registry items: \d+\*\*|\*\*\d+ components\*\*)/;
+
 const isBodyLine = (line) =>
   /^[+-]/.test(line) && !line.startsWith("+++") && !line.startsWith("---");
 
@@ -249,6 +274,13 @@ export function versionBumpOnly(before, after = null) {
         if (other) offend(other);
       } else if (GENERATED_REGISTRY_OUTPUT.test(file)) {
         // Exempt by re-execution, not by trust — see GENERATED_REGISTRY_OUTPUT.
+      } else if (
+        CONTRACT_DERIVED_OUTPUT.some((pattern) => pattern.test(file))
+      ) {
+        // Likewise — `design:derived:check` re-derives these in CI.
+      } else if (/^(AGENTS|README)\.md$/.test(file)) {
+        const other = lines.find((line) => !CONTRACT_SHA_LINE.test(line));
+        if (other) offend(other);
       } else {
         // Everything else — component sources, docs copy-ins — may differ ONLY by the provenance
         // header registry:build re-stamps. `isSubstantiveLine` already encodes exactly that.
