@@ -257,3 +257,33 @@ failure: the run uploaded a 29.6 MB `contracts-failure-<id>` artifact containing
 `trace.zip`, failure screenshots, `error-context.md`, and a browsable HTML report. Before this change
 the same failure would have produced an exit code and nothing else — which is precisely how release
 run `30115971397` became undiagnosable.
+
+## 2026-07-25 — The contract lane is CPU-bound; parallelism has to come from machines, not workers
+
+**Measured, in this order.**
+
+| Run | Config | Result |
+| --- | --- | --- |
+| `30132112459` | `ubuntu-latest`, Playwright's CI default of 1 worker | 768 passed, **1.4h** |
+| `30136029776` | same runner, `workers: 4` | **752 passed**, 1.3h |
+
+Raising workers bought nothing and cost reliability. The 16 failures were not random: the four most
+control-dense routes — `message-scroller`, `hover-card`, `sidebar`, `data-list` — hit the 120s test
+timeout in every project lane. `contracts.spec.ts`'s `focusViaKeyboard` walks the tab order one
+`keyboard.press` + `evaluate` round-trip at a time, and on those routes it already runs close to the
+timeout at one worker. Four workers on two cores removed the headroom without adding throughput,
+because there was no idle CPU to claim.
+
+**Resolution: shard across four runners** (`strategy.matrix.shard`, `--shard=$SHARD/4`), workers back
+to 1. The split is exactly even — 192 tests per shard, verified with `--list --shard=i/4`. Wall clock
+drops from ~1.4h to roughly a quarter of it; runner-minutes rise modestly because each shard repeats
+the docs build. `fail-fast: false` so one shard failing still lets the others report, and each shard
+uploads its own `contracts-failure-<run>-shard<n>` artifact. A matrix job's result is failure if any
+shard fails, so `needs: contracts-gate` stays fail-closed.
+
+**The real inefficiency is left standing, deliberately.** `focusViaKeyboard` is quadratic in
+round-trips: it recomputes `maximumTabs` from every interactive element on the page — including the
+entire Fumadocs sidebar, search, and TOC — and then Tabs through that chrome to reach each fixture
+control. Fixing it would speed the lane up far more than sharding does, but it means changing the
+mechanism of the one gate that currently protects the visual surface, and the plan lists changing
+`contracts.spec.ts` as a non-goal. Worth doing as its own scoped change with its own verification.

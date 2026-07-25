@@ -68,6 +68,11 @@ jobs:
   contracts-gate:
     needs: ref-guard
     runs-on: ubuntu-latest
+    # Sharded for wall clock — the lane is CPU-bound; see apps/docs/playwright.config.ts.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -86,9 +91,11 @@ jobs:
           PORT=$(node -e 'const s=require("net").createServer();s.listen(0,"127.0.0.1",()=>{process.stdout.write(String(s.address().port));s.close()})')
           echo "VRT_PORT=$PORT" >> "$GITHUB_ENV"
       - name: Component contract gate
+        working-directory: apps/docs
         env:
+          SHARD: ${{ matrix.shard }}
           PLAYWRIGHT_JSON_OUTPUT_NAME: contracts-report.json
-        run: pnpm --filter @vegastack/docs test:contracts
+        run: pnpm exec playwright test contracts.spec.ts --shard="$SHARD/4"
       - name: Guard — fail if zero contract tests executed
         working-directory: apps/docs
         run: |
@@ -102,7 +109,7 @@ jobs:
         if: ${{ failure() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: contracts-failure-${{ github.run_id }}
+          name: contracts-failure-${{ github.run_id }}-shard${{ matrix.shard }}
           path: |
             apps/docs/playwright-report
             apps/docs/test-results
