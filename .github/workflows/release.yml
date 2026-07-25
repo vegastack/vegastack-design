@@ -57,7 +57,9 @@ jobs:
           if ! git rev-parse --verify -q "$BEFORE" >/dev/null 2>&1 || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
             BEFORE="${CURRENT_SHA}~1"
           fi
-          node tooling/classify-change.mjs --before "$BEFORE" --after "$CURRENT_SHA"
+          # --check-npm so an INTERRUPTED release can resume. Versions can sit bumped-but-unpublished
+          # on main; without asking the registry, no later push would ever set publish=true again.
+          node tooling/classify-change.mjs --before "$BEFORE" --after "$CURRENT_SHA" --check-npm
 
   # The browser half, attested rather than executed. See ci.yml's `receipt-guard` for what a receipt
   # is and is not. The requirements come from `changes` above so this job and the local runner cannot
