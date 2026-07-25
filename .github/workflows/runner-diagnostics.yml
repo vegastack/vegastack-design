@@ -1,0 +1,200 @@
+name: Runner diagnostics (self-hosted mac mini)
+# Manual, self-hosted only, and therefore FREE — no GitHub-hosted minutes are consumed.
+#
+# WHY THIS EXISTS
+#   Two migrations onto the mac minis failed on assumptions instead of facts. This job establishes
+#   the facts, in one run, before any workflow is re-pointed:
+#
+#     1. Does the runner's macOS user have a GUI (Aqua) login session? That, not the user account,
+#        is what decides whether Chromium can start. A runner installed as a LaunchDaemon runs
+#        outside any session and has no per-user Mach bootstrap namespace, so every Chromium launch
+#        dies with `bootstrap_look_up … Unknown service name (1102)` and SIGTRAP.
+#     2. Can Playwright actually launch Chromium, Firefox, and WebKit here?
+#     3. How many cores? This decides shard-count vs worker-count: sharding across two machines only
+#        queues, whereas more workers genuinely parallelises on an 8+ core mini.
+#     4. Do the real suites pass, and how long do they take?
+#
+#   Every step is `continue-on-error` so one failure still yields the complete picture, and the final
+#   step writes a verdict to the run summary.
+on:
+  workflow_dispatch:
+    inputs:
+      deep:
+        description: "Also run the real suites (contract checks + three-engine unit suite). Slower, still free."
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: [self-hosted, vsk-runners-mac-mini]
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Session and identity — the decisive check
+        id: session
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -uo pipefail
+          echo "runner user      : $(whoami)  (uid $(id -u))"
+          echo "console owner    : $(stat -f%Su /dev/console 2>/dev/null || echo '?')   <- who is logged in at the GUI"
+          MANAGER="$(launchctl managername 2>/dev/null || echo 'unknown')"
+          echo "launchd manager  : $MANAGER   <- Aqua = GUI session, Background/System = no session"
+          if launchctl print "gui/$(id -u)" >/dev/null 2>&1; then
+            echo "gui domain       : PRESENT  <- per-user Mach bootstrap namespace exists"
+            echo "gui_domain=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "gui domain       : MISSING  <- Chromium cannot hand Mach ports to child processes"
+            echo "gui_domain=no" >> "$GITHUB_OUTPUT"
+          fi
+          echo "manager=$MANAGER" >> "$GITHUB_OUTPUT"
+          echo
+          echo "--- logged-in users ---"; who || true
+          echo "--- is the runner a LaunchAgent or LaunchDaemon? ---"
+          ls -1 "$HOME/Library/LaunchAgents"/*actions.runner* 2>/dev/null && echo "  ^ LaunchAgent (good)" || echo "  no LaunchAgent plist under \$HOME"
+          ls -1 /Library/LaunchDaemons/*actions.runner* 2>/dev/null && echo "  ^ LaunchDaemon (this is the problem case)" || echo "  no LaunchDaemon plist"
+
+      - name: Hardware and OS
+        id: hw
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -uo pipefail
+          CORES="$(sysctl -n hw.logicalcpu 2>/dev/null || echo 0)"
+          echo "cores (logical)  : $CORES"
+          echo "cores (physical) : $(sysctl -n hw.physicalcpu 2>/dev/null || echo '?')"
+          echo "memory           : $(( $(sysctl -n hw.memsize 2>/dev/null || echo 0) / 1073741824 )) GiB"
+          echo "arch             : $(uname -m)"
+          echo "macOS            : $(sw_vers -productVersion 2>/dev/null || echo '?')"
+          echo "cores=$CORES" >> "$GITHUB_OUTPUT"
+          echo
+          echo "--- leftover processes that could hold a port ---"
+          pgrep -fl "serve out|next-server|chrome-headless|playwright" || echo "  (none)"
+
+      - name: Toolchain
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -uo pipefail
+          echo "node   : $(node --version 2>/dev/null || echo MISSING)"
+          echo "pnpm   : $(pnpm --version 2>/dev/null || echo 'not on PATH yet (setup-node/pnpm add it per-job)')"
+          echo "git    : $(git --version 2>/dev/null || echo MISSING)"
+          echo "docker : $(docker --version 2>/dev/null || echo 'absent — irrelevant, Actions cannot use containers on macOS')"
+          echo "sudo   : $(sudo -n true 2>/dev/null && echo 'passwordless available' || echo 'NOT available (fine — macOS needs no apt for Playwright)')"
+
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with: { node-version: 24, cache: pnpm }
+      - name: Install workspace
+        continue-on-error: true
+        run: pnpm install --frozen-lockfile
+
+      - name: Install browsers (native macOS builds — no container, no apt)
+        continue-on-error: true
+        run: pnpm --filter @vegastack/ui exec playwright install chromium firefox webkit
+
+      - name: THE decisive test — can each engine actually launch?
+        id: launch
+        continue-on-error: true
+        shell: bash
+        # `node --input-type=module` on stdin, with the working directory inside packages/ui, so the
+        # bare `playwright` specifier resolves. A probe written to /tmp does NOT resolve — Node walks
+        # up from the script's own directory, not from the workspace. Verified locally: this exact
+        # form reports 3/3 on a machine with an Aqua session.
+        working-directory: packages/ui
+        run: |
+          set -uo pipefail
+          OUT="$(node --input-type=module <<'PROBE' 2>&1
+          import { chromium, firefox, webkit } from "playwright";
+          const results = [];
+          for (const [name, engine] of [["chromium", chromium], ["firefox", firefox], ["webkit", webkit]]) {
+            try {
+              const browser = await engine.launch();
+              const page = await browser.newPage();
+              await page.setContent("<h1 id=t>ok</h1>");
+              const text = await page.textContent("#t");
+              await browser.close();
+              results.push([name, text === "ok" ? "LAUNCHED" : "launched but wrong content"]);
+            } catch (error) {
+              results.push([name, `FAILED — ${String(error.message).split("\n")[0]}`]);
+            }
+          }
+          for (const [name, status] of results) console.log(`${name.padEnd(9)} ${status}`);
+          const ok = results.filter(([, s]) => s === "LAUNCHED").length;
+          console.log(`${ok}/3 engines launched`);
+          process.stdout.write(`__ENGINES_OK__=${ok}\n`);
+          PROBE
+          )" || true
+          echo "$OUT"
+          OK="$(printf '%s' "$OUT" | sed -n 's/^__ENGINES_OK__=//p' | tail -1)"
+          echo "engines_ok=${OK:-0}" >> "$GITHUB_OUTPUT"
+
+      - name: Vitest browser mode (a single real component test)
+        continue-on-error: true
+        run: pnpm --filter @vegastack/ui exec vitest run registry/ui/badge.test.tsx
+
+      - name: DEEP — full three-engine unit suite (the lane that needed the container)
+        if: ${{ inputs.deep }}
+        continue-on-error: true
+        run: pnpm --filter @vegastack/ui test:all-browsers
+
+      - name: DEEP — contract suite, timed, at native worker count
+        if: ${{ inputs.deep }}
+        continue-on-error: true
+        shell: bash
+        env:
+          SITE_VISIBILITY: public
+        run: |
+          set -uo pipefail
+          PORT="$(node -e 'const s=require("net").createServer();s.listen(0,"127.0.0.1",()=>{process.stdout.write(String(s.address().port));s.close()})')"
+          echo "capture port: $PORT"
+          pnpm exec turbo run build --filter=@vegastack/docs^...
+          START="$(date +%s)"
+          # CI is deliberately unset so playwright.config.ts uses the LOCAL worker default
+          # (cpus/2) instead of the 1-worker CI default — the whole point is to measure what this
+          # machine can do unsharded.
+          ( cd apps/docs && CI= VRT_PORT="$PORT" pnpm exec playwright test contracts.spec.ts --reporter=line ) || true
+          echo "contract suite wall clock: $(( ($(date +%s) - START) / 60 ))m$(( ($(date +%s) - START) % 60 ))s"
+          PIDS="$(lsof -ti "tcp:$PORT" 2>/dev/null || true)"
+          if [ -n "$PIDS" ]; then kill -9 $PIDS || true; fi
+
+      - name: Verdict
+        if: ${{ always() }}
+        shell: bash
+        env:
+          MANAGER: ${{ steps.session.outputs.manager }}
+          GUI: ${{ steps.session.outputs.gui_domain }}
+          CORES: ${{ steps.hw.outputs.cores }}
+          ENGINES: ${{ steps.launch.outputs.engines_ok }}
+        run: |
+          set -uo pipefail
+          {
+            echo "## Runner diagnostics"
+            echo
+            echo "| Fact | Value |"
+            echo "| --- | --- |"
+            echo "| launchd manager | \`${MANAGER:-?}\` (Aqua = GUI session) |"
+            echo "| per-user Mach namespace | ${GUI:-?} |"
+            echo "| logical cores | ${CORES:-?} |"
+            echo "| engines that launched | ${ENGINES:-0}/3 |"
+            echo
+            if [ "${ENGINES:-0}" = "3" ]; then
+              echo "**All three engines launch.** Every job except \`publish\` can move to the minis."
+              echo "With ${CORES:-?} cores, replace the 4-way shard matrix with a higher Playwright"
+              echo "worker count — sharding across two machines only queues."
+            elif [ "${ENGINES:-0}" = "0" ]; then
+              echo "**No engine launches.** If \`launchd manager\` is not \`Aqua\`, the runner has no GUI"
+              echo "session: reinstall it as a LaunchAgent under a logged-in user (or run \`./run.sh\`"
+              echo "interactively while logged in) and re-run this job. Browser jobs must stay"
+              echo "GitHub-hosted until this reads 3/3."
+            else
+              echo "**Partial: ${ENGINES}/3.** Move only the lanes whose engines work; see the launch step"
+              echo "for the per-engine error."
+            fi
+          } | tee -a "$GITHUB_STEP_SUMMARY"
