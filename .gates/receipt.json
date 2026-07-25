@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "tree": "tree-253d57e71aab7e43e67502374dec42686a680427",
+  "tree": "tree-e8a242b86e5014d89b19b89cc4525b0d679d24c1",
   "treeFiles": 2544,
-  "head": "a1b03b67c5f87fcec517590e109e5ca92f71217a",
-  "writtenAt": "2026-07-25T17:11:20.214Z",
+  "head": "21ef27c979804fbfa4b0bfdc3edd72a18fbae8fe",
+  "writtenAt": "2026-07-25T17:39:57.555Z",
   "mode": "push",
   "base": {
     "ref": "origin/main",
-    "sha": "36ede004c626a77b81a34c91bc58514938fa62bb"
+    "sha": "21ef27c979804fbfa4b0bfdc3edd72a18fbae8fe"
   },
   "host": {
     "platform": "darwin",
@@ -20,19 +20,19 @@
   },
   "contractSha256": "ae248887a277e3e93c78e5d48a1c9e533003e0c9ee415fd50193e58137ed8493",
   "classified": {
-    "contracts": true,
+    "contracts": false,
     "unit": false,
-    "smoke": true,
-    "contractsReason": "global surface changed (.agents/skills/gates, .claude/settings.json, .claude/skills/gates, +3 more)"
+    "smoke": false,
+    "contractsReason": "changed component sources"
   },
   "gates": {
     "typecheck": {
       "status": "pass",
-      "durationMs": 7682
+      "durationMs": 12920
     },
     "lint": {
       "status": "pass",
-      "durationMs": 716
+      "durationMs": 12782
     },
     "unit": {
       "status": "skipped",
@@ -40,12 +40,14 @@
       "reason": "no component or package source changed"
     },
     "smoke": {
-      "status": "pass",
-      "durationMs": 18597
+      "status": "skipped",
+      "durationMs": 0,
+      "reason": "no smoke-selected component changed"
     },
     "contracts": {
-      "status": "pass",
-      "durationMs": 373550,
+      "status": "skipped",
+      "durationMs": 0,
+      "reason": "changed component sources — no route in scope",
       "executed": 768,
       "full": true,
       "scopeRoutes": 96

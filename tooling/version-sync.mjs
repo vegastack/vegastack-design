@@ -40,8 +40,23 @@ for (const item of registry.items ?? []) {
   }
 }
 if (updated > 0) {
-  // match the file's existing 2-space formatting + trailing newline (keeps diffs clean)
   writeFileSync(registryPath, `${JSON.stringify(registry, null, 2)}\n`);
+  // Then hand it back to prettier, because `JSON.stringify(…, 2)` is NOT this file's formatting.
+  // prettier keeps a short array on one line (`"categories": ["communication"],`) while stringify
+  // expands every array across three — 408,865 bytes became 428,665 on a real bump, ~20KB of pure
+  // reformatting across 538 items, buried in the release diff. The old comment here claimed to match
+  // the existing formatting; that stopped being true once the file was prettier-formatted, and nothing
+  // noticed because the rewrite only happens when the version actually changes.
+  //
+  // The API, not `pnpm exec prettier`: this runs inside the changesets action, and spawning through
+  // pnpm failed outright in a detached worktree during testing. An import resolves from this file.
+  const prettier = await import("prettier");
+  const source = readFileSync(registryPath, "utf8");
+  const options = await prettier.resolveConfig(registryPath);
+  writeFileSync(
+    registryPath,
+    await prettier.format(source, { ...options, filepath: registryPath }),
+  );
 }
 console.log(
   `✓ version-sync: ${updated} item meta.version field(s) → ${version}`,
