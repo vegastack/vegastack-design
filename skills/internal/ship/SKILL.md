@@ -36,8 +36,11 @@ writes `.gates/receipt.json` binding those results to a tree hash.
 browser lanes present and passing, which only this command produces — so a deploy is impossible
 without it. That also means a partial sweep is not a shortcut here; it is a blocked deploy.
 
-**Commit `.gates/receipt.json` with the release.** A push without a covering receipt is rejected by
-every workflow.
+**Run this BEFORE committing, then commit `.gates/receipt.json` together with the release.**
+`.gates/` is excluded from the tree hash the receipt binds to, so including it in the commit cannot
+invalidate it — but committing FIRST leaves a receipt describing the previous tree, which every
+workflow's `receipt-guard` rejects. `gates push` checks this and refuses the push with the fix, so
+the mistake is cheap; do not rely on that.
 
 Then read the reports rather than trusting the exit code — the `gates` skill covers how to classify
 each failure at its root:

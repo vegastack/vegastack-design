@@ -687,10 +687,51 @@ if (failed.length === 0) {
     `${GREEN}gates: ${results.filter((r) => r.status === "pass").length} passed${RESET}` +
       `${results.some((r) => r.status === "skipped") ? `, ${results.filter((r) => r.status === "skipped").length} skipped` : ""}`,
   );
-  if (receipt)
+  if (receipt) {
     console.log(
-      `${DIM}gates: receipt written for tree ${receipt.tree} — COMMIT ${RECEIPT_REPO_PATH} with this change.${RESET}`,
+      `${DIM}gates: receipt written for tree ${receipt.tree}${RESET}`,
     );
+    // THE ORDERING TRAP, now enforced rather than documented.
+    //
+    // The hook runs AFTER the commit, so a receipt it writes here is not in that commit. The
+    // discipline is: run the gates on the dirty tree, then commit the code AND the receipt together —
+    // which works because `.gates/` is excluded from the tree hash, so adding the receipt to the
+    // commit cannot change the hash it attests to.
+    //
+    // Commit first and the receipt in HEAD describes the PREVIOUS tree. CI rejects it correctly, but
+    // eight minutes later and in someone else's terminal. This was walked into during development
+    // (commit 13a89dd carried a receipt for tree 227f… on a tree that hashed to c4b5…), so the
+    // invariant is checked here where it is cheap to fix.
+    const committed = (() => {
+      try {
+        return JSON.parse(
+          spawnSync("git", ["show", `HEAD:${RECEIPT_REPO_PATH}`], {
+            cwd: ROOT,
+            encoding: "utf8",
+          }).stdout,
+        );
+      } catch {
+        return null;
+      }
+    })();
+    if (committed?.tree !== receipt.tree) {
+      console.error(
+        `\n${RED}gates: the receipt in HEAD does not describe this tree.${RESET}\n` +
+          `${DIM}  in HEAD : ${committed?.tree ?? "(no receipt committed)"}\n` +
+          `  this tree: ${receipt.tree}${RESET}\n` +
+          `${YELLOW}gates: every workflow's receipt-guard would reject this push. The gates ran and ` +
+          `passed — only the record is missing from the commit. Fix it with:${RESET}\n\n` +
+          `    git add ${RECEIPT_REPO_PATH} && git commit --amend --no-edit && git push\n\n` +
+          `${DIM}gates: next time, run \`pnpm gates:push\` BEFORE committing and include ` +
+          `${RECEIPT_REPO_PATH} in the commit — \`.gates/\` is excluded from the tree hash, so doing ` +
+          `that cannot invalidate the receipt it writes.${RESET}`,
+      );
+      process.exit(1);
+    }
+    console.log(
+      `${DIM}gates: the receipt in HEAD covers this tree — CI will accept it.${RESET}`,
+    );
+  }
   process.exit(0);
 }
 

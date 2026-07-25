@@ -85,5 +85,19 @@ pnpm gates:ship                   # the full sweep — /ship requires it
 `--verbose` streams each gate instead of capturing it. Use it when a gate hangs; the captured form is
 better for everything else because it keeps a green ladder to four lines.
 
-After `gates:push` or `gates:ship` succeeds, **commit `.gates/receipt.json` with the change.** CI
-verifies it against the pushed tree, and a push without it is rejected.
+## 6. The ordering that matters
+
+**Run the gates BEFORE committing, then commit the code and `.gates/receipt.json` together.**
+
+That works because `.gates/` is excluded from the tree hash the receipt binds to — so adding the
+receipt to the commit cannot invalidate the receipt it wrote. Commit FIRST and the receipt in `HEAD`
+describes the _previous_ tree, and every workflow's `receipt-guard` rejects the push.
+
+`gates push` checks this itself and refuses the push with the exact fix, so the mistake costs
+seconds rather than a red CI run eight minutes later. If you see it:
+
+```bash
+git add .gates/receipt.json && git commit --amend --no-edit && git push
+```
+
+The gates already passed at that point — only the record was missing from the commit.
