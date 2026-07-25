@@ -252,6 +252,25 @@ for (const [name, source] of Object.entries(sources)) {
       allowed.has(job),
       `${name}: job ${job} is self-hosted and declares a container — job containers are Linux-only and cannot start on the macOS runners`,
     );
+
+  // A CONTAINER job's default shell is `sh` (dash), not bash. A bash-only construct there fails at
+  // parse time with a message that looks nothing like its cause: `set -euo pipefail` died with
+  // "Illegal option -o pipefail" and exit 2, which the surrounding step reported as registry drift
+  // (run 30142154420). Require the step to ask for bash explicitly.
+  for (const job of containerJobs(source)) {
+    const block = jobBlock(source, job);
+    for (const step of stepBlocks(block)) {
+      if (!/^\s*-?\s*run:/m.test(step)) continue;
+      const bashism = /set -[a-z]*o pipefail|\[\[|<<<|\$\(\(|\bmapfile\b|\bshopt\b/.exec(step);
+      if (!bashism) continue;
+      assert.match(
+        step,
+        /^\s+shell: bash$/m,
+        `${name}: job ${job} runs in a container and uses the bash-only construct \`${bashism[0]}\` ` +
+          `without \`shell: bash\` — the container default is sh (dash) and this fails at parse time`,
+      );
+    }
+  }
   for (const [job, runner] of runners) {
     assert.ok(
       runner !== null,

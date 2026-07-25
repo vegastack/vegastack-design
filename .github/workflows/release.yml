@@ -200,7 +200,13 @@ jobs:
           HOME: /root
       - run: pnpm build
       - run: pnpm registry:build
+      # `shell: bash` is REQUIRED here, not stylistic: a container job's default shell is `sh`
+      # (dash), which has no `pipefail` — this step died with "Illegal option -o pipefail" and exit 2
+      # in run 30142154420, reading as registry drift when nothing had drifted. The image ships bash;
+      # ask for it. tooling/verify-workflow-security.mjs now fails closed on any container step that
+      # uses a bash-only construct without declaring this.
       - name: Require registry build idempotency
+        shell: bash
         run: |
           set -euo pipefail
           git status --porcelain > "$RUNNER_TEMP/git-status"
