@@ -315,3 +315,44 @@ false for the GitHub-hosted ones — and the blanket ban also discarded the dige
 that had protected the image reference. `tooling/verify-workflow-security.mjs` now bans containers
 per-job on self-hosted runners and requires the pinned digest on GitHub-hosted ones. Both directions
 negative-tested.
+
+## 2026-07-25 — Release blocked by GitHub Actions billing, not by code
+
+**State.** `main` is at `85d9818` with all of PRs #4/#5/#6 merged and seven changesets pending. npm is
+still at `@vegastack/design@0.1.1` / `@vegastack/design-tokens@0.1.0`; there is no Version Packages PR
+(`origin/changeset-release/main` is stale from the already-merged PR #1); the site has not been
+redeployed.
+
+**Why it stopped.** Release run `30143501843`: `changes` succeeded on `vsk-runner-mac-mini-2`,
+`contracts-gate` was correctly skipped (`visual=false`), and `quality-gate` **never started** — no
+runner was ever assigned. Its check-run annotation:
+
+> The job was not started because recent account payments have failed or your spending limit needs to
+> be increased. Please check the 'Billing & plans' section in your settings
+
+Org usage this period: **20,412 Actions Linux minutes**, $24.15 billed past the included allowance.
+No GitHub-hosted job can start until MK raises the spending limit or fixes the payment method. This
+is an account action; an agent must not take it.
+
+**Why it cannot be worked around.** `publish` hard-requires a GitHub-hosted runner — npm trusted
+publishing does not support self-hosted ones and this repository holds no `NPM_TOKEN`. `quality-gate`
+needs browsers, which the minis cannot launch (see the Mach-bootstrap entry above). So the npm
+publish and the deploy chain are both gated on GitHub-hosted capacity.
+
+**This change contributed to the overrun, and that is worth owning.** Moving the browser lanes to
+`ubuntu-latest` shifted the most expensive jobs onto billed minutes, and getting there cost two full
+~1.4h runs plus four sharded runs while the configuration was being found. The intended end state is
+the opposite — with the minis fixed, the browser lanes move back and GitHub-hosted usage drops to
+`publish`, `sign-curated`, `deploy-curated`, and the boundary probes, all of which are ~1 minute.
+
+**Resume path, in order.** (1) MK raises the Actions spending limit. (2) Fix the mini runners —
+reinstall the Actions runner as a LaunchAgent in a logged-in session — then move the five browser jobs
+back by editing `GITHUB_HOSTED_JOBS`; that removes the recurring cost. (3) Re-run Release on the
+current `main` tip; nothing needs to be re-pushed. `main` is release-ready and was verified locally at
+`85d9818`: lint, typecheck, 1255 tests, `registry:build` and `design:derived` both idempotent, and
+`registry:verify-consume` at 538/538 items × 2 layouts.
+
+**Efficiency work left on the table** (do it when CI can validate it): `ci.yml`'s `contracts` job has
+no path filter, so a docs- or tooling-only PR still pays four sharded browser runs. `release.yml`
+already gates its equivalent on the visual classifier; `ci.yml` should too. That alone would have
+avoided most of this session's Linux minutes.
