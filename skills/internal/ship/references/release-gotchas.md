@@ -84,6 +84,20 @@ about the next minor.
   which is changesets' own sanctioned answer and has precedent here. It costs one extra Version-PR
   cycle — budget for it, or fold the fix in before the Version PR is opened.
 
+## 7b. An EMPTY changeset deadlocks a pending release
+
+- **Symptom:** `version-pr` succeeds with `All changesets are empty; not creating PR`, and `publish`
+  is skipped forever.
+- **Cause:** changesets will not open a Version PR when every pending changeset is empty — so
+  `has_changesets` stays **true** on main, and `publish` (gated on `has_changesets == 'false'`) can
+  never run. Meanwhile the bumped versions sit on main, unpublished.
+- **Rule:** an empty changeset is fine on a quiet main. **Never add one while a version bump is
+  awaiting publication** — fold the fix in before the Version PR is opened, or land it after the
+  publish. Verified live: it stranded 0.2.0 on main with 0.1.1 on npm.
+- **Recovery:** delete the empty changeset, and make sure `publish` can still become true —
+  `classify-change --check-npm` asks the registry what is actually published, so an interrupted
+  release resumes instead of needing a human to guess.
+
 ## 8. Generated surfaces vs prettier
 
 - **Symptom:** `prettier --check` and `design:derived --check` each undo the other.
@@ -113,6 +127,26 @@ appears to.
   just polled the server. Without `-sTCP:LISTEN` it SIGKILLs the runner: exit 137 after a clean
   `768 passed`, with the report already written as `"pass"`. **The deleted workflows used the
   unfiltered idiom.**
+
+## 11b. Canvas/rAF unit tests flake under load
+
+- **Symptom:** 4 failures in `particle-field.test.tsx`, all `expected false to be true`, all on
+  frame-painting assertions (`draws a static frame`, `sets data-drawn once the first frame has
+painted`). 1251/1255 passed.
+- **Classification, with evidence — never retry blind:**
+  1. the diff touched no component or runtime code, only tooling and docs;
+  2. the file passed **6/6 in isolation**;
+  3. the three-engine suite ran the same Chromium tests **in the same sweep** and passed.
+- **Cause:** `requestAnimationFrame` painting is starved when the machine is busy. This ran directly
+  after another full gate run.
+- **Rule:** re-run the single file before concluding anything, and state all three facts. A flake that
+  is really a race will come back on someone else's machine.
+
+## 11c. Never edit files while a gates run is in flight
+
+The receipt hashes the working tree when the run FINISHES. Edit anything mid-run and it attests a tree
+the gates never executed against — the exact fail-open the receipt exists to prevent. Write first,
+then gate.
 
 ## 12. Receipt ordering
 

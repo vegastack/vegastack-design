@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "tree": "tree-e116af46bd07555b604f3ad3c98f94acd4a6098c",
-  "treeFiles": 2539,
-  "head": "5dbc1018cce127efb5b163796f7b00b889c4b8aa",
-  "writtenAt": "2026-07-25T21:53:46.949Z",
+  "tree": "tree-a2283ea011c6a01fd434090b72bde5b6b13ed3fa",
+  "treeFiles": 2538,
+  "head": "b35fed186c5e80087bcb8bca4b32cf6da52c76ed",
+  "writtenAt": "2026-07-25T23:00:14.120Z",
   "mode": "ship",
   "base": {
     "ref": "origin/main",
-    "sha": "a096e0fb546abab17fba2b7eba1f01e6225a1cfd"
+    "sha": "b35fed186c5e80087bcb8bca4b32cf6da52c76ed"
   },
   "host": {
     "platform": "darwin",
@@ -20,31 +20,31 @@
   },
   "contractSha256": "b430e50e3ad47d1cf41336373b3e70faf68d51d02bbb804a02e98d8a9a0b65bb",
   "classified": {
-    "contracts": true,
-    "unit": true,
-    "smoke": true,
-    "contractsReason": "global surface changed (apps/docs/components/animated-icon-gallery.generated.tsx, apps/docs/lib/home-component-catalog.generated.ts, apps/docs/vrt/contract-routes.generated.ts)"
+    "contracts": false,
+    "unit": false,
+    "smoke": false,
+    "contractsReason": "changed component sources"
   },
   "gates": {
     "typecheck": {
       "status": "pass",
-      "durationMs": 19190
+      "durationMs": 777
     },
     "lint": {
       "status": "pass",
-      "durationMs": 36039
+      "durationMs": 19269
     },
     "unit": {
       "status": "pass",
-      "durationMs": 29084
+      "durationMs": 14856
     },
     "smoke": {
       "status": "pass",
-      "durationMs": 41282
+      "durationMs": 13145
     },
     "contracts": {
       "status": "pass",
-      "durationMs": 548290,
+      "durationMs": 422397,
       "executed": 768,
       "full": true,
       "scopeRoutes": 96

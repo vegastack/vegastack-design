@@ -24,6 +24,7 @@
 //   publish          the release path is reachable for this push
 //   has_changesets   pending changesets exist, so the run opens a Version PR rather than publishing
 
+import { spawnSync } from "node:child_process";
 import { readdirSync, readFileSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -89,6 +90,7 @@ const options = {
   after: null,
   json: false,
   githubOutput: process.env.GITHUB_OUTPUT ?? null,
+  checkNpm: false,
 };
 for (let index = 2; index < process.argv.length; index++) {
   const flag = process.argv[index];
@@ -101,6 +103,7 @@ for (let index = 2; index < process.argv.length; index++) {
   else if (flag === "--after") options.after = value();
   else if (flag === "--json") options.json = true;
   else if (flag === "--github-output") options.githubOutput = value();
+  else if (flag === "--check-npm") options.checkNpm = true;
   else if (flag === "--help" || flag === "-h") {
     console.log(USAGE);
     process.exit(0);
@@ -206,8 +209,40 @@ const changesetFiles = (() => {
   }
 })();
 const hasChangesets = changesetFiles.length > 0;
+/**
+ * Is the release path reachable?
+ *
+ * "Did `packages/` change in this push" alone is WRONG for an interrupted release. Versions can sit
+ * bumped-but-unpublished on `main` — as happened when an empty changeset deadlocked the Version PR
+ * ("All changesets are empty; not creating PR"), leaving 0.2.0 on main and 0.1.1 on npm with no future
+ * push able to set this true. A release that cannot resume is a release that needs a human to guess.
+ *
+ * So `--check-npm` additionally asks the registry what is actually published. It is opt-in because it
+ * needs network: the workflow's `changes` job passes it, and the offline verifiers do not.
+ */
+let unpublished = [];
+if (options.checkNpm) {
+  for (const directory of ["design", "design-tokens"]) {
+    const manifest = JSON.parse(
+      readFileSync(join(ROOT, `packages/${directory}/package.json`), "utf8"),
+    );
+    const latest = spawnSync("npm", ["view", manifest.name, "version"], {
+      encoding: "utf8",
+      timeout: 60_000,
+    });
+    const published = (latest.stdout ?? "").trim();
+    // A package with no releases at all, or one behind the workspace, is unpublished work.
+    if (latest.status !== 0 || published !== manifest.version)
+      unpublished.push(
+        `${manifest.name} ${published || "(none)"} → ${manifest.version}`,
+      );
+  }
+}
+
 const publish =
-  hasChangesets || changed.some((file) => file.startsWith("packages/"));
+  hasChangesets ||
+  changed.some((file) => file.startsWith("packages/")) ||
+  unpublished.length > 0;
 
 const classification = {
   before: { ref: beforeRef, sha: beforeSha },
@@ -228,6 +263,7 @@ const classification = {
   smoke: smokeRequired,
   publish,
   has_changesets: hasChangesets,
+  unpublished,
 };
 
 if (options.githubOutput) {
@@ -268,5 +304,7 @@ console.log(`  unit            ${unitRequired}`);
 console.log(`  smoke           ${smokeRequired}`);
 console.log("");
 console.log("release path");
-console.log(`  publish         ${publish}`);
+console.log(
+  `  publish         ${publish}${unpublished.length ? ` — unpublished: ${unpublished.join(", ")}` : ""}`,
+);
 console.log(`  has_changesets  ${hasChangesets}`);
