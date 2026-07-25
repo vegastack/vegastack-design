@@ -247,6 +247,68 @@ const isBodyLine = (line) =>
  * Returns `{ ok, offenders, files }`. An offender names the file and the first line that disqualified
  * it, so a rejection is diagnosable rather than a bare no.
  */
+/**
+ * Read a file at a revision, or from the working tree when `revision` is null.
+ */
+function readAtRevision(revision, path) {
+  if (revision === null) {
+    try {
+      return readFileSync(join(ROOT, path), "utf8");
+    } catch {
+      return null;
+    }
+  }
+  return git(["show", `${revision}:${path}`], { allowFailure: true });
+}
+
+/** Replace every version-bearing string and `version` field with a placeholder. */
+function normaliseVersions(value) {
+  if (Array.isArray(value)) return value.map(normaliseVersions);
+  if (value && typeof value === "object")
+    return Object.fromEntries(
+      Object.entries(value).map(([key, entry]) => [
+        key,
+        key === "version" && typeof entry === "string"
+          ? "<version>"
+          : normaliseVersions(entry),
+      ]),
+    );
+  if (typeof value === "string")
+    return value.replace(
+      /^(@vegastack\/[a-z0-9-]+)@[~^]?[0-9][^\s"]*$/,
+      "$1@<version>",
+    );
+  return value;
+}
+
+/**
+ * The two JSON authorities are compared STRUCTURALLY, not line by line.
+ *
+ * A line rule cannot keep up with them: prettier writes `"dependencies": ["@vegastack/x@^0.2.0"],` on
+ * one line for a single element and across several for many, and the range appears both as an array
+ * entry and as a key-value pair. Chasing those shapes one at a time is the same serial-discovery
+ * mistake this whole file exists to prevent. Parse, blank out every version, and compare.
+ */
+function structurallyVersionOnly(before, after, path) {
+  const source = readAtRevision(before, path);
+  const target = readAtRevision(after, path);
+  if (source === null || target === null) return false;
+  try {
+    return (
+      JSON.stringify(normaliseVersions(JSON.parse(source))) ===
+      JSON.stringify(normaliseVersions(JSON.parse(target)))
+    );
+  } catch {
+    return false;
+  }
+}
+
+const STRUCTURAL_VERSION_FILES = [
+  /^packages\/ui\/registry\.json$/,
+  /^packages\/ui\/component-contracts\.json$/,
+  /(^|\/)package\.json$/,
+];
+
 export function versionBumpOnly(before, after = null) {
   const files = after
     ? changedFilesInRange(before, after)
@@ -271,13 +333,13 @@ export function versionBumpOnly(before, after = null) {
         const removed = lines.find((line) => line.startsWith("-"));
         if (removed) offend(removed);
       } else if (
-        /(^|\/)package\.json$/.test(file) ||
-        // The registry manifest carries the stamped design-system version too, and version-sync
-        // rewrites it in the same step. Same rule: version fields only, nothing else.
-        /^packages\/ui\/registry\.json$/.test(file)
+        STRUCTURAL_VERSION_FILES.some((pattern) => pattern.test(file))
       ) {
-        const other = lines.find((line) => !VERSION_FIELD_LINE.test(line));
-        if (other) offend(other);
+        if (!structurallyVersionOnly(before, after, file))
+          offend(
+            lines.find((line) => !VERSION_FIELD_LINE.test(line)) ??
+              "(structural comparison found a non-version difference)",
+          );
       } else if (GENERATED_REGISTRY_OUTPUT.test(file)) {
         // Exempt by re-execution, not by trust — see GENERATED_REGISTRY_OUTPUT.
       } else if (
