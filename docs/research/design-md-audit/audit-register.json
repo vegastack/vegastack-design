@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "bb9d065b60890c571e1896a9c8b9ac9020dd5186391bdb49e468f636fc0a2cd5",
+  "contractSha256": "c973d17bd84a1ab7f9befa2424b7d0e7c60a6081b6e59b92d87e2de85197456c",
   "expectedCounts": {
-    "totalRegistryItems": 544,
-    "components": 100,
+    "totalRegistryItems": 545,
+    "components": 101,
     "animatedIcons": 439,
     "hooks": 4,
     "blocks": 1
@@ -680,6 +680,17 @@
         "packages/ui/registry/ui/action-bar.tsx"
       ],
       "docsSlug": "/docs/components/action-bar",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "stepper",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "navigation",
+      "sourceFiles": [
+        "packages/ui/registry/ui/stepper.tsx"
+      ],
+      "docsSlug": "/docs/components/stepper",
       "contractStatus": "reconciled"
     },
     {

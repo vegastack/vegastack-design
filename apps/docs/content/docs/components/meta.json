@@ -45,6 +45,7 @@
     "context-menu",
     "command",
     "---Navigation---",
+    "stepper",
     "breadcrumb",
     "navigation-menu",
     "pagination",

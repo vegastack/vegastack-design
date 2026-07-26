@@ -1,0 +1,110 @@
+---
+title: Stepper
+description: A bounded linear process as an ordered list — complete/current/upcoming/error states, aria-current="step", advance gating, and focus that follows the process.
+audience: public
+preview: stepper
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/stepper
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Stepper } from "@/components/ui/stepper";
+
+<Stepper
+  aria-label="Import"
+  steps={[
+    { id: "upload", label: "Upload file", state: "complete" },
+    { id: "map", label: "Map columns", state: "current" },
+    { id: "review", label: "Review", state: "upcoming" },
+  ]}
+/>;
+```
+
+**Not [`Tabs`](/docs/components/tabs).** `role="tab"` announces "tab 2 of 6"
+and implies free navigation between peers — actively misleading for a flow
+where step 4 is unreachable until step 3 validates. `Stepper` is an ordered
+list with `aria-current="step"`, which is what a wizard actually is. Where a
+full step list is too heavy, use
+[`ProgressIndicator`](/docs/components/progress-indicator)'s `segments`.
+
+## Scope
+
+| Behaviour                     | Where it lives                                                      |
+| ----------------------------- | ------------------------------------------------------------------- |
+| Back/Next controls            | Host `Button`s — gating is the host's logic                         |
+| Step bodies and validation    | Host forms (`Field` + validation); see the multi-step form guide    |
+| Deriving states from an index | Host — states are explicit so failed/skipped steps stay expressible |
+
+## Examples
+
+### Error state
+
+The state every hand-rolled stepper forgets: a step that failed after
+completion. `error` is first-class — icon, tone, and text.
+
+<ComponentPreview name="stepperError" file="components/preview/stepper.tsx" />
+
+### Advance gating
+
+`blockedReason` communicates why the process cannot advance: rendered against
+the current step, announced politely, and wireable to your Next button through
+`aria-describedby`.
+
+<ComponentPreview name="stepperBlocked" file="components/preview/stepper.tsx" />
+
+### Vertical and navigable
+
+Vertical keeps the identical DOM and reading order. In `navigable` mode,
+completed steps become real buttons for revisiting; current, upcoming, and
+disabled steps never do.
+
+<ComponentPreview
+  name="stepperVertical"
+  file="components/preview/stepper.tsx"
+/>
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/stepper.tsx"
+  name="StepperProps"
+/>
+
+### Step
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/stepper.tsx"
+  name="StepperStep"
+/>
+
+## Accessibility
+
+- An `<ol>` labelled by `aria-label`, with `aria-current="step"` on the current
+  item — never tab semantics.
+- Step state is carried by the icon shape **and** visually hidden text
+  ("Completed", "Current step", "Not started", "Needs attention"), never colour
+  alone.
+- When the current step changes, focus moves to the new step's label — not the
+  first form field, and never on initial mount.
+- The blocked reason is a polite live region; give your Next button
+  `aria-describedby={blockedReasonId}` so the reason reads with the control.
+
+| Key                                 | Action                                       |
+| ----------------------------------- | -------------------------------------------- |
+| <kbd>Tab</kbd>                      | Reach completed steps (navigable mode only). |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Revisit the focused completed step.          |
+
+## Do / Don't
+
+<DoDont
+  do="Model a failed step as state: 'error' with a description — the flow's record should say what needs attention."
+  dont="Reach for Tabs because the layout looks similar — tab semantics promise free navigation a wizard doesn't offer."
+/>

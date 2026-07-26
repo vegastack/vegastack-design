@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "bb9d065b60890c571e1896a9c8b9ac9020dd5186391bdb49e468f636fc0a2cd5",
+  "contractSha256": "c973d17bd84a1ab7f9befa2424b7d0e7c60a6081b6e59b92d87e2de85197456c",
   "inventory": {
-    "expected": 544,
-    "actual": 544,
-    "unique": 544
+    "expected": 545,
+    "actual": 545,
+    "unique": 545
   },
   "classes": {
-    "components": 100,
+    "components": 101,
     "animatedIcons": 439,
     "hooks": 4,
     "blocks": 1
@@ -69,8 +69,8 @@
       ]
     },
     "Navigation/layout": {
-      "expected": 12,
-      "actual": 12,
+      "expected": 13,
+      "actual": 13,
       "members": [
         "accordion",
         "app-shell",
@@ -83,6 +83,7 @@
         "scroll-area",
         "sidebar",
         "split-button",
+        "stepper",
         "tabs"
       ]
     },
@@ -619,7 +620,7 @@
       ]
     }
   },
-  "componentRoutes": 100,
+  "componentRoutes": 101,
   "blockRoutes": 1,
   "crossBrowserSmokeFiles": 10,
   "modeledExemptions": 4

@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 544,
-    "components": 100,
+    "totalRegistryItems": 545,
+    "components": 101,
     "animatedIcons": 439,
     "hooks": 4,
     "blocks": 1
@@ -21,7 +21,7 @@
   "expectedWaveCounts": {
     "Core controls": 23,
     "Forms/editing": 19,
-    "Navigation/layout": 12,
+    "Navigation/layout": 13,
     "Overlays": 12,
     "Data display": 8,
     "Content/marketing": 20,
@@ -89,7 +89,8 @@
       "app-shell",
       "resizable",
       "scroll-area",
-      "split-button"
+      "split-button",
+      "stepper"
     ],
     "Overlays": [
       "alert-dialog",
@@ -10540,6 +10541,125 @@
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
       "previewModule": "action-bar"
+    },
+    {
+      "name": "stepper",
+      "registryType": "registry:ui",
+      "title": "Stepper",
+      "summary": "A bounded linear process as an ordered list — complete/current/upcoming/error states on StatusIcon's vocabulary, aria-current=step, advance-gating message, focus follows the process.",
+      "family": "navigation",
+      "wave": "Navigation/layout",
+      "sourceFiles": ["packages/ui/registry/ui/stepper.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Stepper",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/stepper.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "ol",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "StepperProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/stepper.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "StepperStep",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/stepper.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "StepperStepState",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/stepper.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": ["orientation"],
+        "rationale": "horizontal | vertical — identical DOM and reading order, layout only."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "complete",
+            "current",
+            "upcoming",
+            "error",
+            "disabled",
+            "gated",
+            "navigable"
+          ],
+          "evidence": "Per-step state prop; blockedReason renders and announces the gate; navigable turns completed steps into Buttons; focus moves to the new current label on change (never mount)."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": [
+            "keyboard",
+            "labeled",
+            "status-announcement",
+            "semantic-html"
+          ],
+          "evidence": "Labelled ol/li with aria-current=step (never role=tab); state carried by icon shape + sr-only text; polite live region for the blocked reason wireable via blockedReasonId."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["complete", "current", "upcoming", "error", "disabled"],
+          "evidence": "StatusIcon tokens per state (current's glyph pinned to animate-none — position, not activity); ink vs muted labels; warning-text blocked reason; connector hairlines."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink", "grid-wrapping"],
+        "rationale": "Horizontal steps flex-1 with min-w-0 truncating labels; vertical keeps a fixed rail column."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed (the current glyph explicitly does not spin)."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/stepper",
+      "registryDependencies": ["@vegastack/button", "@vegastack/status-icon"],
+      "npmDependencies": [
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/stepper.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "previewModule": "stepper"
     },
     {
       "name": "field-inline",
