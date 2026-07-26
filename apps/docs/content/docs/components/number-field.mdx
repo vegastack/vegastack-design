@@ -1,0 +1,100 @@
+---
+title: Number Field
+description: Locale-aware numeric input on Base UI's NumberField in Input's field chrome — Intl formatting, min/max/step, keyboard stepping, wheel scrub.
+audience: public
+preview: numberField
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/number-field
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { NumberField } from "@/components/ui/number-field";
+
+<NumberField aria-label="Quantity" defaultValue={2} min={0} max={99} />;
+```
+
+`NumberField` wraps Base UI's NumberField: locale-aware parsing and formatting
+(`format: Intl.NumberFormatOptions` + `locale`), `min`/`max`/`step` with
+`snapOnStep`, keyboard stepping, and wheel scrubbing — rendered in
+[`Input`](/docs/components/input)'s exact addon-group chrome with full-height
+− / + steppers.
+
+Like `Input`, the `size` prop is the control-height variant on the shared
+28/32/40 scale and **replaces** the native numeric `size` attribute.
+
+## Examples
+
+### Money
+
+Money is a `format` prop, not a separate component:
+`format={{ style: "currency", currency: "USD" }}`. The currency-code
+[`Select`](/docs/components/select) drops into the `suffix` slot.
+
+<ComponentPreview
+  name="numberFieldMoney"
+  file="components/preview/number-field.tsx"
+/>
+
+One recipe belongs to your field layer, not this component: **minor units**.
+If your API stores integer cents, convert at the boundary — the component works
+in display units:
+
+```tsx
+<NumberField
+  aria-label="Amount"
+  value={amountInCents / 100}
+  onValueChange={(v) => setAmountInCents(Math.round((v ?? 0) * 100))}
+  format={{ style: "currency", currency: "USD" }}
+/>
+```
+
+### Sizes, units, and states
+
+<ComponentPreview
+  name="numberFieldVariants"
+  file="components/preview/number-field.tsx"
+/>
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/number-field.tsx"
+  name="NumberFieldProps"
+/>
+
+All Base UI `NumberField.Root` props pass through: `format`, `locale`, `min`,
+`max`, `allowOutOfRange`, `step` / `largeStep` / `smallStep`, `snapOnStep`,
+`allowWheelScrub`, `readOnly`, `required`, `onValueChange`, `onValueCommitted`,
+and native form integration via `name`.
+
+## Accessibility
+
+- The inner input must carry an accessible name — pass `aria-label` (or label
+  it through a wrapping `Field`).
+- The − / + steppers are full-height, ≥24px pointer targets with accessible
+  names ("Decrease" / "Increase"); keyboard users step with the arrow keys
+  instead, so the buttons add no tab stops beyond Base UI's defaults.
+- Focus uses the text-entry affordance: the group border tints on focus-within,
+  matching `Input`'s addon mode.
+
+| Key                                          | Action                          |
+| -------------------------------------------- | ------------------------------- |
+| <kbd>↑</kbd> / <kbd>↓</kbd>                  | Step by `step`.                 |
+| <kbd>Shift</kbd> + <kbd>↑</kbd>/<kbd>↓</kbd> | Step by `largeStep`.            |
+| <kbd>Alt</kbd> + <kbd>↑</kbd>/<kbd>↓</kbd>   | Step by `smallStep`.            |
+| <kbd>Home</kbd> / <kbd>End</kbd>             | Jump to `min` / `max` when set. |
+
+## Do / Don't
+
+<DoDont
+  do="Express money, percents, and units through the Intl format prop — one numeric input, locale-correct everywhere."
+  dont="Build a separate money-input or hand-parse currency strings out of a text Input — parsing is exactly what this component owns."
+/>

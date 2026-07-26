@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "afc1a734004c53b3166d671b1707f0423d284aeab743025b5436b6ebf2e92d5b",
+  "contractSha256": "2f0e89fa08805055c005990c87db5a524f098e687bee9f167418e0e218105446",
   "expectedCounts": {
-    "totalRegistryItems": 541,
-    "components": 97,
+    "totalRegistryItems": 542,
+    "components": 98,
     "animatedIcons": 439,
     "hooks": 4,
     "blocks": 1
@@ -647,6 +647,17 @@
         "packages/ui/registry/ui/editable-cell.tsx"
       ],
       "docsSlug": "/docs/components/editable-cell",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "number-field",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/number-field.tsx"
+      ],
+      "docsSlug": "/docs/components/number-field",
       "contractStatus": "reconciled"
     },
     {

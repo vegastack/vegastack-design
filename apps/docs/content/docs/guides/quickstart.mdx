@@ -51,8 +51,27 @@ Replace the entire contents of `app/globals.css`:
 @import "@vegastack/design/preset.css";
 ```
 
-**Proof:** `pnpm build` succeeds. If it fails with `Can't resolve 'tw-animate-css'`,
-your `@vegastack/design` is older than 0.1.1 — run `pnpm update @vegastack/design`.
+**Requires the Tailwind PostCSS plugin.** Step 1's `--tailwind` flag writes
+`postcss.config.mjs` for you. If you scaffolded by hand, are adding VegaStack to an
+existing app, or are in a monorepo, create it now — without it Tailwind's engine
+never runs:
+
+```js title="postcss.config.mjs"
+const config = { plugins: { "@tailwindcss/postcss": {} } };
+export default config;
+```
+
+**Proof:** `pnpm build` succeeds **and emits utility classes**, not just variables:
+
+```bash
+grep -o '\.[a-z][a-z0-9-]*{' .next/static/**/*.css | wc -l   # expect a real count, not 0
+```
+
+That second half matters. The token theme is literal CSS and lands either way, so a
+build with no PostCSS plugin can look almost right while every utility silently does
+nothing. If the count is `0`, or the build fails with `Can't resolve 'tw-animate-css'`
+on a current `@vegastack/design`, the plugin is missing — see
+[Troubleshooting](/docs/guides/troubleshooting).
 
 ## 4. Consumer config: `components.json`
 
@@ -247,6 +266,7 @@ surprise. Details in [Production checklist](/docs/guides/production-checklist).
 | File                  | Origin                                                                                                     | Yours to edit?                                       |
 | --------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
 | `app/globals.css`     | you (step 3)                                                                                               | yes                                                  |
+| `postcss.config.mjs`  | `create-next-app --tailwind` (step 1), or you                                                              | rarely — but required (step 3)                       |
 | `components.json`     | you (step 4)                                                                                               | yes                                                  |
 | `.env.local`          | you (step 5)                                                                                               | yes — never commit                                   |
 | `components/ui/*.tsx` | copied by `shadcn add`                                                                                     | yes — you own them; updates are pulled, never pushed |
@@ -254,3 +274,44 @@ surprise. Details in [Production checklist](/docs/guides/production-checklist).
 | `lib/utils.ts`        | optional — create it as `export { cn } from '@vegastack/design';` if any copied file imports `@/lib/utils` | yes                                                  |
 
 Anything unclear or broken on this path → [Troubleshooting](/docs/guides/troubleshooting).
+
+## In a monorepo
+
+Everything above assumes a single app. In a pnpm workspace — where components live
+in a shared package and the app consumes them — four things change. Each was hit by
+a real consumer on the first day.
+
+**1. `components.json` goes in the package too, not only at the root.** The shadcn
+CLI detects the workspace and refuses to run without one in the package it is
+writing to:
+
+```text
+Could not load the workspace config in packages/ui.
+Add components.json to this workspace and configure its path aliases.
+```
+
+Give that package its own `components.json` (same `registries` block) and a tsconfig
+mapping `"@/*": ["./src/*"]`, so `@/components/ui/*` and `@/lib/utils` resolve
+inside the package that owns the files.
+
+**2. Tell Tailwind where the components are.** Source detection is relative to the
+CSS file, so anything outside the app's own tree is invisible — copied components in
+a shared package compile to **nothing**, silently. Add explicit sources next to the
+preset import:
+
+```css title="apps/web/src/app/globals.css"
+@import "@vegastack/design/preset.css";
+
+@source "../../src";
+@source "../../../../packages/ui/src";
+```
+
+**3. Keep `tsconfig` at `strict`.** Registry components are authored against
+`strict` alone. Stricter flags will fail on code you are not allowed to edit —
+`exactOptionalPropertyTypes` breaks `sonner.tsx`'s `theme` prop, and a copied
+component must never be patched to satisfy a consumer's compiler settings (an edit
+reads as permanent drift against `check-updates`). Put the stricter flags on the
+packages you author instead.
+
+**4. Run `shadcn add` from the workspace root**, where `.env.local` lives — the CLI
+expands `${CF_ACCESS_CLIENT_ID}` from the directory it is invoked in.

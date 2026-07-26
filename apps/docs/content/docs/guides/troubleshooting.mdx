@@ -11,11 +11,54 @@ hit something not listed, that's a doc bug — report it with the exact output.
 
 ### `Can't resolve 'tw-animate-css' in '…/node_modules/@vegastack/design'`
 
-Turbopack/webpack error the moment `preset.css` is imported.
-**Cause:** `@vegastack/design` older than `0.1.1` marked tw-animate-css as an
-optional peer that pnpm never installs.
-**Fix:** `pnpm update @vegastack/design` (≥ 0.1.1). On 0.1.0 (or before 0.1.1 is
-published): `pnpm add tw-animate-css` — identical result.
+Build error the moment `preset.css` is imported. **Two different causes — check the
+second one first if you are on a current version.**
+
+**Cause 1 (most likely today): no Tailwind PostCSS plugin.** Without
+`@tailwindcss/postcss` configured, Tailwind's engine never runs, so the bundler's
+own CSS pipeline tries to resolve `preset.css`'s `@import "tw-animate-css"` and
+fails. The error names a dependency, but the dependency is fine — nothing is
+missing. Under Turbopack (the Next 16 default) this fails the build; under webpack
+the import resolves and you get the silent variant instead (next entry).
+**Fix:** add the plugin, then rebuild.
+
+```js title="postcss.config.mjs"
+const config = { plugins: { "@tailwindcss/postcss": {} } };
+export default config;
+```
+
+```bash
+pnpm add -D @tailwindcss/postcss
+```
+
+`pnpm create next-app --tailwind` writes this file for you, which is why the
+Quickstart never mentions it. Scaffolding by hand, adding VegaStack to an existing
+app, or building a monorepo app all skip that step.
+
+**Cause 2 (legacy): `@vegastack/design` older than `0.1.1`**, which marked
+tw-animate-css as an optional peer that pnpm never installs.
+**Fix:** `pnpm update @vegastack/design` (≥ 0.1.1). If you are already on a newer
+version, this is not your problem — see Cause 1.
+
+### Build succeeds, colours and fonts work, but no utility classes exist
+
+The worst failure mode in the consume path, because nothing errors. `p-4`,
+`flex`, `text-muted-foreground` and every other utility do nothing, while the
+theme looks broadly right.
+
+**Cause:** no `@tailwindcss/postcss` plugin (as above). The token theme is
+**literal CSS** inside `preset.css`, so `:root`/`.dark` custom properties land
+regardless — but every utility class has to be _generated_ by Tailwind, and
+without the plugin Tailwind never runs. The result reads as "the design system is
+broken" when the design system was never invoked.
+**Fix:** the `postcss.config.mjs` above.
+**Confirm it:** the emitted stylesheet should contain real utility selectors, not
+just variables.
+
+```bash
+# after a build — expect a non-trivial count, not 0
+grep -o '\.[a-z][a-z0-9-]*{' .next/static/**/*.css | wc -l
+```
 
 ### `Cannot find module '@vegastack/design/theme.css'` (or base/utilities)
 

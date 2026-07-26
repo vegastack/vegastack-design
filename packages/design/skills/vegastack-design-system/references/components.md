@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**97 components**, plus 439 animated-icon items, 4 hooks (`use-animation-replay`, `use-list-nav`, `use-mobile`, `use-platform`), and 1 starter block (`dashboard-01`) — 541 registry items in total.
+**98 components**, plus 439 animated-icon items, 4 hooks (`use-animation-replay`, `use-list-nav`, `use-mobile`, `use-platform`), and 1 starter block (`dashboard-01`) — 542 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so `icon-button` is the
@@ -33,6 +33,7 @@ component and never an icon.
 - **`field-inline`** — Click-to-edit text — displays a value, swaps to a focused input on click, commits on Enter or blur, cancels on Escape.
 - **`input`** — A styled Base UI input — all input types, Field state data attributes, error and disabled states, focus-visible ring, and optional prefix/suffix addons.
 - **`label`** — A styled native label for form controls — htmlFor association, disabled dimming, optional required indicator.
+- **`number-field`** — Locale-aware numeric input on Base UI's NumberField in Input's field chrome — Intl formatting (money is a format prop), min/max/step, keyboard stepping, wheel scrub, full-height steppers.
 - **`otp-input`** — A multi-slot one-time-passcode input — keyboard navigation, paste distribution, masking, disabled, built on Base UI OTP Field.
 - **`password-input`** — A password field with a show/hide eye toggle and an optional live requirements checklist.
 - **`radio-group`** — A set of mutually-exclusive options — single selection, arrow-key navigation, disabled, built on Base UI Radio Group.

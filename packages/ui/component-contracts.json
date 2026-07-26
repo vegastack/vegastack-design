@@ -12,15 +12,15 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 541,
-    "components": 97,
+    "totalRegistryItems": 542,
+    "components": 98,
     "animatedIcons": 439,
     "hooks": 4,
     "blocks": 1
   },
   "expectedWaveCounts": {
     "Core controls": 23,
-    "Forms/editing": 17,
+    "Forms/editing": 18,
     "Navigation/layout": 12,
     "Overlays": 11,
     "Data display": 8,
@@ -73,7 +73,8 @@
       "tag-group",
       "text-edit",
       "segmented",
-      "editable-cell"
+      "editable-cell",
+      "number-field"
     ],
     "Navigation/layout": [
       "accordion",
@@ -10234,6 +10235,103 @@
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
       "previewModule": "editable-cell"
+    },
+    {
+      "name": "number-field",
+      "registryType": "registry:ui",
+      "title": "Number Field",
+      "summary": "Locale-aware numeric input on Base UI's NumberField in Input's field chrome — Intl formatting (money is a format prop), min/max/step, keyboard stepping, wheel scrub, full-height steppers.",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/number-field.tsx"],
+      "publicSymbols": [
+        {
+          "name": "NumberField",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/number-field.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "BaseNumberField.Input",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "NumberFieldProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/number-field.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "observed",
+        "dimensions": ["sm", "default", "lg"],
+        "rationale": "Control height on the shared --size-sm/md/lg scale, matching Input/Button/Select."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "stepping",
+            "clamped",
+            "disabled",
+            "read-only",
+            "invalid"
+          ],
+          "evidence": "Base UI NumberField owns value/step/clamp semantics; disabled/readOnly/invalid flow through Root props and has-* group styling."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["keyboard", "labeled", "semantic-html"],
+          "evidence": "Named inner input (aria-label), named full-height stepper buttons, arrow/Home/End stepping from Base UI, focus-within border tint (text-entry affordance)."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "focus", "invalid", "disabled", "dark"],
+          "evidence": "Input's addon-group chrome verbatim: focus-within ring tint, has-aria-invalid destructive tint, has-disabled wash, dark input tint."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "min-w-0 flex group with a flex-1 input; addons are shrink-0 whitespace-nowrap."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["replay-api"],
+        "reducedMotion": {
+          "status": "observed",
+          "rationale": "useShakeOnInvalid replays motion-shake on the group border without remounting; the global reduced-motion reset collapses it."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/number-field",
+      "registryDependencies": ["@vegastack/use-animation-replay"],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/number-field.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "previewModule": "number-field"
     },
     {
       "name": "field-inline",

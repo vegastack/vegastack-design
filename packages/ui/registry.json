@@ -1483,6 +1483,32 @@
       }
     },
     {
+      "name": "number-field",
+      "type": "registry:ui",
+      "title": "Number Field",
+      "description": "Locale-aware numeric input on Base UI's NumberField in Input's field chrome — Intl formatting (money is a format prop), min/max/step, keyboard stepping, wheel scrub, full-height steppers.",
+      "categories": ["form"],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": ["@vegastack/use-animation-replay"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/number-field.tsx",
+          "type": "registry:ui",
+          "target": "@ui/number-field.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Any numeric value — quantities, limits, percentages, money (format={{ style: 'currency', currency }}) — where parsing, locale formatting, and stepping should be correct by construction.",
+        "whenNotToUse": "Free-text that merely contains digits (phone numbers, postal codes, ids) — formatting/stepping semantics would fight the value; use Input.",
+        "version": "0.1.0"
+      }
+    },
+    {
       "name": "field-inline",
       "type": "registry:ui",
       "title": "Field Inline",

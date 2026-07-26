@@ -14,6 +14,7 @@
     "textarea",
     "password-input",
     "otp-input",
+    "number-field",
     "auto-save-input",
     "text-edit",
     "field",
