@@ -1,0 +1,126 @@
+---
+title: Assembling a multi-step form
+description: Compose Stepper with Field, per-step validation, and async advance gating — the wizard recipe the components deliberately don't own.
+audience: public
+---
+
+[`Stepper`](/docs/components/stepper) communicates a bounded linear process; it
+deliberately owns no Back/Next buttons, no step bodies, and no validation.
+Assembling those into a working wizard is app orchestration, and this page is
+that recipe.
+
+## The shape
+
+```tsx
+import { Stepper, type StepperStep } from "@/components/ui/stepper";
+import { Button } from "@/components/ui/button";
+
+const STEP_IDS = ["details", "mapping", "review"] as const;
+type StepId = (typeof STEP_IDS)[number];
+
+function ImportWizard() {
+  const [current, setCurrent] = useState<StepId>("details");
+  const [failed, setFailed] = useState<Set<StepId>>(new Set());
+  const index = STEP_IDS.indexOf(current);
+
+  const steps: StepperStep[] = STEP_IDS.map((id, i) => ({
+    id,
+    label: STEP_LABELS[id],
+    state: failed.has(id)
+      ? "error"
+      : i < index
+        ? "complete"
+        : i === index
+          ? "current"
+          : "upcoming",
+  }));
+
+  return (
+    <div className="flex flex-col gap-6">
+      <Stepper
+        aria-label="Import"
+        steps={steps}
+        blockedReason={blockedReason}
+        blockedReasonId="wizard-block"
+      />
+      {/* One form region per step — only the current one renders. */}
+      <StepBody id={current} />
+      <div className="flex gap-2">
+        <Button variant="outline" disabled={index === 0} onClick={back}>
+          Back
+        </Button>
+        <Button
+          disabled={blockedReason != null}
+          aria-describedby={blockedReason ? "wizard-block" : undefined}
+          onClick={next}
+        >
+          Next
+        </Button>
+      </div>
+    </div>
+  );
+}
+```
+
+Three decisions carry the accessibility of the whole flow, and the components
+already make them for you:
+
+1. **States are explicit.** Deriving complete/upcoming from the index would
+   bake in "linear and always forward" — an import with a failed step is not.
+   Keep a `failed` set and mark those steps `state: "error"`.
+2. **Focus follows the process.** When `current` changes, `Stepper` moves focus
+   to the new step's label (never on mount). Don't also focus the first field —
+   one movement per transition.
+3. **The blocked reason is data.** Pass `blockedReason` and wire your Next
+   button's `aria-describedby` to `blockedReasonId` — the reason then reads with
+   the control that it blocks.
+
+## Per-step validation
+
+Each step body is an ordinary [`Field`](/docs/components/field) form. Validate
+on the Next click and translate the failure into the gate:
+
+```tsx
+const [blockedReason, setBlockedReason] = useState<string>();
+
+async function next() {
+  const result = await validateStep(current); // zod, server call, anything
+  if (!result.ok) {
+    setBlockedReason(result.message); // "Map every required column to continue"
+    return;
+  }
+  setBlockedReason(undefined);
+  setCurrent(STEP_IDS[index + 1]!);
+}
+```
+
+Async gates (a server-side check) work the same way — disable Next with a
+`loading` [`Button`](/docs/components/button) while the check is in flight, and
+never advance optimistically: a wizard that has to walk backwards after the
+fact loses the user's place _and_ their trust.
+
+## Revisiting completed steps
+
+For flows where earlier steps stay editable, add `navigable` — completed steps
+become real buttons and fire `onStepSelect`:
+
+```tsx
+<Stepper
+  aria-label="Import"
+  steps={steps}
+  navigable
+  onStepSelect={(id) => setCurrent(id as StepId)}
+/>
+```
+
+Keep `navigable` off for strictly linear flows (checkout payment steps):
+non-interactive steps are a promise that order matters.
+
+## Where the pieces live
+
+| Concern                         | Owner                                                                 |
+| ------------------------------- | --------------------------------------------------------------------- |
+| Progress display, states, focus | `Stepper`                                                             |
+| Step bodies, validation         | Your forms (`Field`, `Input`, zod)                                    |
+| Advance gating logic            | Your `next()` — `Stepper` only communicates the block                 |
+| Compact progress (no step list) | [`ProgressIndicator`](/docs/components/progress-indicator) `segments` |

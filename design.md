@@ -1732,6 +1732,15 @@ inputs, and selects (inputs/selects use sm–lg only) so they line up; padding-x
 - **AI / agent surfaces** — reasoning, tool calls, streaming, and the composer send read in the neutral `primary` / `accent` register (distinguished by layout + iconography, not a brand hue).
 - **Status indicators** — running dot `info`, succeeded `success`, failed `destructive`, queued/idle neutral; reasoning/streaming `primary`.
 
+- **Inline editing (EditableCell · FieldInline · AutoSaveInput)** — ONE async-write vocabulary, `idle | saving | saved | error` (`AutoSaveStatus`), shared by every field that persists: the indicator is inline (Spinner → success Check → destructive X, keyed remounts), a rejected commit **reverts the value and announces it politely**, and grid hosts consume the same cell with `focusMode="managed"` (no per-cell tab stop — the grid's roving model owns reachability).
+- **NumberField** — Base UI NumberField in Input's exact addon-group chrome. Money/percent/units are `Intl.NumberFormatOptions` via `format` — never a separate money component; minor-units conversion is the app's field layer. Steppers are full-height flanking buttons ([−] input [+]) so pointer targets meet the 24px floor without hit-area expansion.
+- **ChipInput** — free-token entry in the Combobox input-group chrome with real `Tag` chips. Validation is per-chip and non-destructive: invalid entries stay visible and flagged (`data-invalid` + destructive outline-border + text description) rather than silently dropped; duplicates are the only rejected class.
+- **ActionBar** — the floating contextual bar (bulk selection, unsaved changes, batch progress). `raised` band, FLAT surface (bg-background + the one border — a floating bar is not an overlay and gets no shadow); CSS-only enter/exit (`ease-emphasized` in, `ease-exit` out); it consumes a selection count and never owns selection.
+- **Stepper** — a bounded linear process is an ordered list with `aria-current="step"`, never tab semantics. Step states complete/current/upcoming/**error** map 1:1 onto StatusIcon's vocabulary, always icon + text; the current glyph is pinned `animate-none` — current is a position, not activity. Focus follows the process: the new current step's label is focused on change, never on mount.
+- **Timeline** — rail geometry only: an `aria-hidden` node + connector column beside rows that compose `Item` parts; group headers render through `Marker variant="separator"`. Long feeds use `content-visibility` render skipping, not a virtualizer.
+- **ShortcutOverlay** — the `?` dialog renders from a shortcut declaration registry (keys, label, category), never hand-listed; `Kbd` modifier glyphs follow the user's platform via `use-platform` (`Kbd` itself stays server-safe — detection is caller-side).
+- **FilterBuilder** — the stateful nested and/or builder. The grammar is host-injected (field vocabulary + per-type value editors); the tree is nested `fieldset`/`legend`, deliberately not `role="tree"`; caps disable their add affordances with readable reasons.
+
 ## Voice & content
 
 Copy is part of the design — precise, no filler.

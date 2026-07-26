@@ -9,6 +9,51 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.4.0] — July 27, 2026
+
+### 🧩 New components
+
+- **ActionBar**, **ChipInput**, **EditableCell**, **FilterBuilder** (`filter-bar-managed`),
+  **NumberField**, **ShortcutOverlay**, **Stepper**, and **Timeline** — eight additions from the
+  CRM commission (plan 2026-07-26), each with complete docs, state coverage, accessibility tests,
+  and registry integrity metadata.
+  [components](https://design.vegastack.com/docs/components/action-bar)
+- **useListNav** and **usePlatform** — two new registry hooks: roving-tabindex keyboard navigation
+  for lists and grids (RTL-aware arrows, `homeEndScope`, overlay suppression), and SSR-safe
+  platform detection (`{ os, isTouch }`) for `Kbd`'s modifier rewriting and touch gating.
+  [guide](https://design.vegastack.com/docs/guides/components)
+
+### 🔧 Changed components
+
+- **Table** — new `containerClassName` / `containerProps` forwarded to the
+  `data-slot="table-container"` scroll wrapper, the attachment point for sticky headers,
+  fixed-height viewports, and virtualizers.
+  [docs](https://design.vegastack.com/docs/components/table)
+- **DataList** — `DataListProps` now extends `TableProps` (the spreadsheet voice and container
+  hooks type-check), columns gain a per-cell `cellClassName` hook, and `render` receives an
+  optional third `DataListCellContext` argument. All additive.
+  [docs](https://design.vegastack.com/docs/components/data-list)
+- **FieldInline** — additive controlled edit mode (`editing` / `onEditingChange`) and a `tabIndex`
+  override for the display element, so `EditableCell` and grid hosts compose it instead of forking
+  it. No behaviour change for existing consumers.
+  [docs](https://design.vegastack.com/docs/components/field-inline)
+- **ColorPicker** and **EmojiPicker** — internal refactor onto the shared `useListNav` hook; no
+  visual or API change. EmojiPicker's horizontal arrow keys become RTL-aware, matching ColorPicker.
+  [docs](https://design.vegastack.com/docs/components/color-picker)
+
+### 🛠 CLI & tooling
+
+- `verify-registry-deps` gains a fail-closed npm-range check: a registry item pin the installed
+  version cannot satisfy now fails `registry:build` instead of passing silently.
+
+### 📚 Docs
+
+- Every registry item's npm dependency pin is reconciled to `packages/ui/package.json`
+  (`lucide-react` was declared at both `^1.20.0` and `^0.525.0` across a major boundary;
+  `@shadcn/react` at `^0.1.0` against an installed `^0.2.1`).
+- `table.mdx` no longer claims the Table parts add no props; `data-list.mdx` documents that a
+  column `render` is invoked as a plain function (hooks belong in a returned component element).
+
 ## [0.3.0] — July 24, 2026
 
 ### 🧩 New components
