@@ -1959,7 +1959,11 @@
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": ["@vegastack/popover", "@vegastack/button"],
+      "registryDependencies": [
+        "@vegastack/popover",
+        "@vegastack/button",
+        "@vegastack/use-list-nav"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/color-picker.tsx",
@@ -1987,7 +1991,8 @@
       "registryDependencies": [
         "@vegastack/popover",
         "@vegastack/button",
-        "@vegastack/input"
+        "@vegastack/input",
+        "@vegastack/use-list-nav"
       ],
       "files": [
         {
