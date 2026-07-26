@@ -1,4 +1,4 @@
-// @vegastack chip-input@0.3.0 sha256-2oH7osoKU85HJNY4s2COAjhZKAlYYYa5n74UL6GwLLo=
+// @vegastack chip-input@0.3.0 sha256-cYxQ2VHOSoEUu4yWnEzJZCKDAA1MVuHF1Pq0WoceQ9I=
 
 "use client";
 
@@ -52,12 +52,14 @@ export const chipInputVariants = cva(
     "focus-within:border-ring/(--alpha-tint-border)",
     "data-[invalid]:border-destructive-border/(--alpha-tint-border)",
     "data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-(--opacity-dim) data-[disabled]:bg-muted",
-    "[&_[data-slot=input]]:h-full [&_[data-slot=input]]:min-w-12 [&_[data-slot=input]]:flex-1 [&_[data-slot=input]]:border-none [&_[data-slot=input]]:bg-transparent [&_[data-slot=input]]:px-1.5 [&_[data-slot=input]]:py-0 [&_[data-slot=input]]:focus:border-transparent [&_[data-slot=input]]:dark:bg-transparent",
+    // The inner input keeps a 24px minimum box (h-6 tier) — a replaced element cannot host a ::before hit-area, so the box itself must meet the pointer-target floor.
+    "[&_[data-slot=input]]:min-h-6 [&_[data-slot=input]]:h-full [&_[data-slot=input]]:min-w-12 [&_[data-slot=input]]:flex-1 [&_[data-slot=input]]:border-none [&_[data-slot=input]]:bg-transparent [&_[data-slot=input]]:px-1.5 [&_[data-slot=input]]:py-0 [&_[data-slot=input]]:focus:border-transparent [&_[data-slot=input]]:dark:bg-transparent",
   ].join(" "),
   {
     variants: {
       size: {
-        sm: "min-h-(--size-sm)",
+        // sm tightens the padding so the 24px inner input still fits the 28px tier.
+        sm: "min-h-(--size-sm) p-0.5",
         default: "min-h-(--size-md)",
         lg: "min-h-(--size-lg)",
       },
