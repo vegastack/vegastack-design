@@ -238,6 +238,25 @@ follow-up, not this primitive.
 
 ### Column
 
+`column.render` is **invoked as a plain function inside `DataList`'s own
+render, not mounted as a component** — so hooks called directly in its body
+become `DataList`'s hooks and corrupt hook order the moment the loading or
+empty branch flips. When a cell needs hooks, return a component element and
+put the hooks in that component:
+
+```tsx
+// ✅ hooks live in RelativeCell, mounted as an element
+{ key: "updated", header: "Updated", render: (row) => <RelativeCell date={row.updatedAt} /> }
+
+// ❌ a hook called directly here corrupts DataList's hook order
+{ key: "updated", header: "Updated", render: (row) => useRelative(row.updatedAt) }
+```
+
+`render` also receives an optional third argument, `DataListCellContext` —
+`{ rowId, columnKey, selected }` — so a cell can react to its own row's
+selection without threading state through the row type. Existing two-argument
+render functions keep working unchanged.
+
 <AutoTypeTable
   path="../../packages/ui/registry/ui/data-list.tsx"
   name="DataListColumn"

@@ -892,7 +892,7 @@
       "docsSlug": "/docs/components/message-scroller",
       "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
-        "@shadcn/react@^0.1.0",
+        "@shadcn/react@^0.2.1",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1474,7 +1474,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1595,7 +1595,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1713,7 +1713,7 @@
       "docsSlug": "/docs/components/tag-group",
       "registryDependencies": [],
       "npmDependencies": [
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -2079,7 +2079,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -2760,7 +2760,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -3040,7 +3040,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -3523,7 +3523,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -4067,7 +4067,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -4808,7 +4808,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -5324,7 +5324,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -6517,7 +6517,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -7500,7 +7500,7 @@
       "registryDependencies": ["@vegastack/dropdown-menu"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -7732,7 +7732,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -7986,7 +7986,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -8501,7 +8501,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -8750,7 +8750,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -8997,7 +8997,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "react-resizable-panels@^4",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -9327,7 +9327,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -9772,7 +9772,7 @@
       "docsSlug": "/docs/components/copy-button",
       "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -9879,7 +9879,7 @@
       "docsSlug": "/docs/components/password-input",
       "registryDependencies": ["@vegastack/input"],
       "npmDependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -10080,7 +10080,7 @@
       "docsSlug": "/docs/components/split-button",
       "registryDependencies": ["@vegastack/button", "@vegastack/dropdown-menu"],
       "npmDependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -10616,7 +10616,7 @@
       "docsSlug": "/docs/components/notification-bell",
       "registryDependencies": ["@vegastack/badge", "@vegastack/icon-button"],
       "npmDependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -10733,7 +10733,7 @@
       "docsSlug": "/docs/components/onboarding-checklist",
       "registryDependencies": [],
       "npmDependencies": [
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -11042,7 +11042,7 @@
       "npmDependencies": [
         "sonner@^2.0.7",
         "next-themes@0.4.6",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -11446,7 +11446,7 @@
       "registryDependencies": ["@vegastack/dialog"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -11557,7 +11557,7 @@
         "@vegastack/truncated-text"
       ],
       "npmDependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -11997,7 +11997,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -12315,7 +12315,7 @@
         "@vegastack/input"
       ],
       "npmDependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -12431,7 +12431,7 @@
       "docsSlug": "/docs/components/auto-save-input",
       "registryDependencies": ["@vegastack/input", "@vegastack/spinner"],
       "npmDependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -12548,7 +12548,7 @@
       "registryDependencies": ["@vegastack/combobox", "@vegastack/button"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -12688,7 +12688,7 @@
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -12905,7 +12905,7 @@
       "registryDependencies": ["@vegastack/popover", "@vegastack/button"],
       "npmDependencies": [
         "react-day-picker@^10",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -13021,7 +13021,7 @@
       "docsSlug": "/docs/components/color-picker",
       "registryDependencies": ["@vegastack/popover", "@vegastack/button"],
       "npmDependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -13160,7 +13160,7 @@
         "@vegastack/input"
       ],
       "npmDependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -13192,6 +13192,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "No stable public ref target is forwarded by DataList in packages/ui/registry/ui/data-list.tsx; incidental internal nodes are not part of its API."
+          }
+        },
+        {
+          "name": "DataListCellContext",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -13311,7 +13320,7 @@
         "@vegastack/empty"
       ],
       "npmDependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -14192,7 +14201,7 @@
         "@tiptap/react@^3",
         "@tiptap/starter-kit@^3",
         "@tiptap/pm@^3",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -14574,7 +14583,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -14857,7 +14866,7 @@
       "docsSlug": "/docs/components/announcement-banner",
       "registryDependencies": [],
       "npmDependencies": [
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -15082,7 +15091,7 @@
       "docsSlug": "/docs/components/pricing-section",
       "registryDependencies": ["@vegastack/badge"],
       "npmDependencies": [
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -15209,7 +15218,7 @@
       "docsSlug": "/docs/components/comparison-matrix",
       "registryDependencies": [],
       "npmDependencies": [
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -18328,7 +18337,7 @@
         "@vegastack/truncated-text"
       ],
       "npmDependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "recharts@^3.8.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"

@@ -1,4 +1,4 @@
-// @vegastack dashboard-01@0.3.0 sha256-N+RD+nBj8OvIWuWw5duDUeFVfHIUkmsZfa4LxfjAQAA=
+// @vegastack dashboard-01@0.3.0 sha256-aespL7QQLu7axRCVs+Q/lNmK2Z9GM8ZB6YY1sdKebH8=
 
 /**
  * `loading.tsx` — registry:page, target `app/dashboard/loading.tsx`. Next.js App Router treats a

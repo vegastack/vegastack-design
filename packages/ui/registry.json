@@ -86,7 +86,7 @@
       "description": "A virtualised, auto-scrolling conversation viewport - pins to the latest message, preserves position on prepend, tracks the anchor, and a floating scroll-to-end button.",
       "categories": ["communication"],
       "dependencies": [
-        "@shadcn/react@^0.1.0",
+        "@shadcn/react@^0.2.1",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -163,7 +163,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -190,7 +190,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -215,7 +215,7 @@
       "description": "Hue-tinted label chips on the 10-hue tag palette, with +N overflow collapsing and removable tags.",
       "categories": ["display"],
       "dependencies": [
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -264,7 +264,7 @@
       "categories": ["feedback"],
       "dependencies": [
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -342,7 +342,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -369,7 +369,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -396,7 +396,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -448,7 +448,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -574,7 +574,7 @@
       "categories": ["feedback"],
       "dependencies": [
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -651,7 +651,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -905,7 +905,7 @@
       "categories": ["data-display"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1032,7 +1032,7 @@
       "categories": ["navigation"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1058,7 +1058,7 @@
       "categories": ["navigation"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1084,7 +1084,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1136,7 +1136,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1163,7 +1163,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1214,7 +1214,7 @@
       "categories": ["layout"],
       "dependencies": [
         "react-resizable-panels@^4",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1264,7 +1264,7 @@
       "categories": ["data-display"],
       "dependencies": [
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1359,7 +1359,7 @@
       "description": "Copy a value to the clipboard with transient check feedback — icon-only by default, with an optional visible status label.",
       "categories": ["actions"],
       "dependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1384,7 +1384,7 @@
       "description": "A password field with a show/hide eye toggle and an optional live requirements checklist.",
       "categories": ["form"],
       "dependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1434,7 +1434,7 @@
       "description": "A primary action joined to a dropdown of related secondary actions — one default click, plus a chevron menu.",
       "categories": ["actions"],
       "dependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1556,7 +1556,7 @@
       "description": "A bell icon button with an unread-count badge overlay. Presentational — the app supplies the count.",
       "categories": ["media"],
       "dependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1581,7 +1581,7 @@
       "description": "A getting-started card — segmented progress + step rows, collapsible to a progress pill.",
       "categories": ["display"],
       "dependencies": [
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1657,7 +1657,7 @@
       "dependencies": [
         "sonner@^2.0.7",
         "next-themes@0.4.6",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1704,7 +1704,7 @@
       "categories": ["navigation"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1729,7 +1729,7 @@
       "description": "The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star.",
       "categories": ["navigation"],
       "dependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1760,7 +1760,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1814,7 +1814,7 @@
       "description": "A row of removable filter chips, an \"Add filter\" dropdown, and an optional search input — for list and table filter toolbars.",
       "categories": ["data"],
       "dependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1843,7 +1843,7 @@
       "description": "An input that debounces edits and persists them via an async onSave, with an inline idle/saving/saved/error status.",
       "categories": ["form"],
       "dependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1869,7 +1869,7 @@
       "categories": ["form"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1895,7 +1895,7 @@
       "categories": ["form"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1930,7 +1930,7 @@
       "categories": ["form"],
       "dependencies": [
         "react-day-picker@^10",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1955,7 +1955,7 @@
       "description": "A swatch-triggered popover presenting a grid of preset colors — pick one, fire onValueChange, mark the selection.",
       "categories": ["form"],
       "dependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1980,7 +1980,7 @@
       "description": "A popover with a searchable, category-grouped grid of emoji that returns the selected character via onSelect (curated set, not full Unicode).",
       "categories": ["form"],
       "dependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -2009,7 +2009,7 @@
       "description": "A generic, typed data table — configurable columns, row selection, sortable headers, plus loading and empty states.",
       "categories": ["data"],
       "dependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -2182,7 +2182,7 @@
         "@tiptap/react@^3",
         "@tiptap/starter-kit@^3",
         "@tiptap/pm@^3",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -11865,7 +11865,7 @@
       "description": "An AI-platform dashboard starter page — sidebar nav, stat cards, a usage chart, and a recent-activity list, built entirely from existing VegaStack components.",
       "categories": ["dashboard"],
       "dependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "recharts@^3.8.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
@@ -12013,7 +12013,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -12086,7 +12086,7 @@
       "description": "A dismissible one-line announcement — full-width inverse band or inline hairline card.",
       "categories": ["marketing"],
       "dependencies": [
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -12133,7 +12133,7 @@
       "description": "Marketing plan cards — mono price display, check feature lists, highlighted-plan treatment.",
       "categories": ["marketing"],
       "dependencies": [
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -12158,7 +12158,7 @@
       "description": "A plan-feature matrix with accessible ✓/− availability cells and a highlighted plan column.",
       "categories": ["marketing"],
       "dependencies": [
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],

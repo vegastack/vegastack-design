@@ -194,3 +194,34 @@ test("grid + headerTone=ink + density=compact flow to head and cells via group d
   expect(cell.className).toContain("group-data-[density=compact]/table:py-1");
   expect(cell.className).toContain("group-data-[grid]/table:border-e");
 });
+
+test("containerClassName and containerProps reach the scroll container", async () => {
+  const containerRef = React.createRef<HTMLDivElement>();
+  await render(
+    <Table
+      containerClassName="test-viewport-cap"
+      containerProps={{
+        ref: containerRef,
+        className: "overscroll-contain",
+        id: "table-viewport",
+      }}
+    >
+      <TableBody>
+        <TableRow>
+          <TableCell>Value</TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>,
+  );
+  const container = document.querySelector(
+    '[data-slot="table-container"]',
+  ) as HTMLElement;
+  expect(container).not.toBeNull();
+  // Base classes survive, both class channels merge, and the ref is the
+  // container itself — the attachment point for sticky headers/virtualizers.
+  expect(container.className).toContain("overflow-x-auto");
+  expect(container.className).toContain("test-viewport-cap");
+  expect(container.className).toContain("overscroll-contain");
+  expect(container.id).toBe("table-viewport");
+  expect(containerRef.current).toBe(container);
+});

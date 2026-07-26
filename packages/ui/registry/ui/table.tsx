@@ -1,4 +1,4 @@
-// @vegastack table@0.3.0 sha256-HPdvP4N8z7Gfl4ZcdmXJ/H7Oxi+D1ilJC3fWzjvUFfI=
+// @vegastack table@0.3.0 sha256-SMp8tJtLwS02P0moTIxTS1AHSkFO8paJ4AVNbvFpkoI=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -25,6 +25,21 @@ export interface TableProps extends React.ComponentProps<"table"> {
    * @default 'default'
    */
   density?: "default" | "compact";
+  /**
+   * Extra class names for the scroll container that wraps the `<table>`
+   * (`data-slot="table-container"`, which owns `overflow-x-auto`). This is the
+   * attachment point for sticky headers, fixed-height viewports, and
+   * virtualization — the `<table>` itself cannot own a scroll viewport.
+   * @default undefined
+   */
+  containerClassName?: string;
+  /**
+   * Props (including `ref`) forwarded to the scroll container element. Its
+   * `className` merges after `containerClassName`. Use the `ref` to measure or
+   * drive the scroll viewport (e.g. a virtualizer's `getScrollElement`).
+   * @default undefined
+   */
+  containerProps?: React.ComponentProps<"div">;
 }
 
 /**
@@ -56,13 +71,22 @@ function Table({
   grid = false,
   headerTone = "muted",
   density = "default",
+  containerClassName,
+  containerProps,
   ref,
   ...props
 }: TableProps) {
+  const { className: containerPropsClassName, ...restContainerProps } =
+    containerProps ?? {};
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto"
+      {...restContainerProps}
+      className={cn(
+        "relative w-full overflow-x-auto",
+        containerClassName,
+        containerPropsClassName,
+      )}
     >
       <table
         ref={ref}

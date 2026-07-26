@@ -783,3 +783,76 @@ test("a point just outside the row checkbox's visual box, inside the expanded hi
     cleanup();
   }
 });
+
+test("cellClassName is called per body cell and merged after column className", async () => {
+  const cols: DataListColumn<Row>[] = [
+    {
+      key: "name",
+      header: "Name",
+      className: "col-static",
+      cellClassName: (row) => (row.id === "b" ? "cell-flagged" : undefined),
+    },
+    { key: "role", header: "Role" },
+  ];
+  await render(<DataList columns={cols} data={data} getRowId={(r) => r.id} />);
+  const cells = Array.from(
+    document.querySelectorAll('[data-slot="data-list-row"] td:first-child'),
+  ) as HTMLElement[];
+  expect(cells).toHaveLength(3);
+  for (const cell of cells) expect(cell.className).toContain("col-static");
+  expect(cells[0]!.className).not.toContain("cell-flagged");
+  expect(cells[1]!.className).toContain("cell-flagged");
+  expect(cells[2]!.className).not.toContain("cell-flagged");
+});
+
+test("render receives the per-cell context (rowId, columnKey, selected) as a third argument", async () => {
+  const seen: Array<{ rowId: string; columnKey: string; selected: boolean }> =
+    [];
+  const cols: DataListColumn<Row>[] = [
+    {
+      key: "name",
+      header: "Name",
+      render: (row, _index, cell) => {
+        seen.push(cell);
+        return row.name;
+      },
+    },
+  ];
+  await render(
+    <DataList
+      columns={cols}
+      data={data}
+      getRowId={(r) => r.id}
+      selectable
+      selectedIds={new Set(["b"])}
+    />,
+  );
+  expect(seen).toHaveLength(3);
+  expect(seen[0]).toEqual({ rowId: "a", columnKey: "name", selected: false });
+  expect(seen[1]).toEqual({ rowId: "b", columnKey: "name", selected: true });
+  expect(seen[2]).toEqual({ rowId: "c", columnKey: "name", selected: false });
+});
+
+test("Table spreadsheet-voice props (grid, density, headerTone) type-check and flow through", async () => {
+  await render(
+    <DataList
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      grid
+      headerTone="ink"
+      density="compact"
+      containerClassName="test-viewport-cap"
+    />,
+  );
+  const table = document.querySelector(
+    '[data-slot="data-list"]',
+  ) as HTMLElement;
+  expect(table.dataset.grid).toBe("");
+  expect(table.dataset.headerTone).toBe("ink");
+  expect(table.dataset.density).toBe("compact");
+  const container = document.querySelector(
+    '[data-slot="table-container"]',
+  ) as HTMLElement;
+  expect(container.className).toContain("test-viewport-cap");
+});

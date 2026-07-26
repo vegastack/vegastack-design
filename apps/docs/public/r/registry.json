@@ -97,7 +97,7 @@
         "communication"
       ],
       "dependencies": [
-        "@shadcn/react@^0.1.0",
+        "@shadcn/react@^0.2.1",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -115,7 +115,7 @@
         "whenToUse": "A live chat/AI thread that must auto-scroll, virtualise long histories, and offer a jump-to-latest control.",
         "whenNotToUse": "A short, static list that fits without scrolling - use Message inside a plain container or Scroll Area.",
         "version": "0.3.0",
-        "integrity": "sha256-jzIcEUg/CBncb1t2cGqvRXWWl7YcC/dKN47O1oodnHI="
+        "integrity": "sha256-lzWD6CG8Erd7v6UZqNYXmv82o3ax4eFiLy7+fYBUqOg="
       }
     },
     {
@@ -188,7 +188,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -206,7 +206,7 @@
         "whenToUse": "Any clickable action — submit, confirm, destructive, etc.",
         "whenNotToUse": "Navigation to a URL — use a link styled as a button (variant=link).",
         "version": "0.3.0",
-        "integrity": "sha256-BOZetUj5RAo9Hp5FUk6R2xuuTFHp82XtBFNUMRXn604="
+        "integrity": "sha256-7Umwnge6dCSpPgSDn6LAVclsRo/7do6Uyybraq5+9VE="
       }
     },
     {
@@ -220,7 +220,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -238,7 +238,7 @@
         "whenToUse": "Label or annotate status, counts, or categories — e.g. Active, Beta, 3 New.",
         "whenNotToUse": "Anything clickable — use a Button; a Badge is a non-interactive label.",
         "version": "0.3.0",
-        "integrity": "sha256-uW5HgACAltf7dBt7J0fybVXC/3dkS/e3d2Z6bZkpQk8="
+        "integrity": "sha256-8QHQT4Li3ANc1Xvaokq+U+E3mxH0ihOVxdsKyvT4i5s="
       }
     },
     {
@@ -250,7 +250,7 @@
         "display"
       ],
       "dependencies": [
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -265,7 +265,7 @@
         "whenToUse": "Decorative record labels/categories in rows that may overflow — the label voice.",
         "whenNotToUse": "Status signals (Badge) or interactive filters (Combobox chips).",
         "version": "0.3.0",
-        "integrity": "sha256-I4amA0iXnhbV0wwC4eLRc8Z9ZhTawF5aaPcOQbPFz30="
+        "integrity": "sha256-F6NAmPWcxk/q1fmoVqW/eVabti6gU4/59W3dbbuWyEA="
       }
     },
     {
@@ -305,7 +305,7 @@
       ],
       "dependencies": [
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -321,7 +321,7 @@
         "whenToUse": "Persistent, in-page status messages — info, success, warning, or error context tied to surrounding content.",
         "whenNotToUse": "Transient feedback after a user action — use a toast instead.",
         "version": "0.3.0",
-        "integrity": "sha256-vUJAThxhOUO+zCyTlh+n1Evn9Av/Pz6OYwUGFTvhUrQ="
+        "integrity": "sha256-nj/aeNBYApOA+hLc+bEiCcJQpwKypvASsiuj8WQDCkw="
       }
     },
     {
@@ -396,7 +396,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -412,7 +412,7 @@
         "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts.",
         "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or full-screen mobile scroll (Drawer/Sheet).",
         "version": "0.3.0",
-        "integrity": "sha256-z57YV9y+QqHSFzzZygvcDKEB1xY4ROlqBOXFVuBZIjk="
+        "integrity": "sha256-iOMScrCJxcM3bmiHnOW6XI5SS7hhgZ1ykDbn07zwGyY="
       }
     },
     {
@@ -426,7 +426,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -442,7 +442,7 @@
         "whenToUse": "Choosing a single value from a fixed, known set — fonts, timezones, statuses — especially long/grouped lists.",
         "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), multi-select, or free-text/async search (combobox).",
         "version": "0.3.0",
-        "integrity": "sha256-SO7fUOvLcHx/V0eCgoIELUAB8pBTFc1N7cZ7lBiSGac="
+        "integrity": "sha256-Py4mh1EbuYu5Tka9VTFhWRzMmiO6TgDKxYAvv8hrGDQ="
       }
     },
     {
@@ -456,7 +456,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -472,7 +472,7 @@
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.3.0",
-        "integrity": "sha256-gzPySwuSNEZPrfl6258n28sNdNnVt+k75Es451XlECg="
+        "integrity": "sha256-lioM/RAirPYJvtMsYOmt6IiekSG2l3Y9/nVj5Om9zoI="
       }
     },
     {
@@ -514,7 +514,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -530,7 +530,7 @@
         "whenToUse": "A button-triggered menu of actions — row actions (edit/duplicate/delete), account menus, view toggles.",
         "whenNotToUse": "Single-value form input (Select), page navigation (nav/menubar), or a persistent always-visible action list.",
         "version": "0.3.0",
-        "integrity": "sha256-mF/I0BGctFcJpZrDvwTO7N+E02Az+bJNIgNDgdxX+Tc="
+        "integrity": "sha256-jU21kJUt+/Z9fwIa7R+Y1K2onGgvdHuthJzr8uEhafg="
       }
     },
     {
@@ -655,7 +655,7 @@
       ],
       "dependencies": [
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -671,7 +671,7 @@
         "whenToUse": "Signal an indeterminate, in-progress load — inside a button or a loading region.",
         "whenNotToUse": "Showing measurable progress (progress bar) or a skeleton-able layout (skeleton).",
         "version": "0.3.0",
-        "integrity": "sha256-DYUjmQ9KWdCDv4ur7ntKZhQnOHV+mE6N3Cnx+M6iXmI="
+        "integrity": "sha256-Ozp3+FjkrmZcpmWKIfCun2Grp92nbAYJH/0SXsJlaoI="
       }
     },
     {
@@ -741,7 +741,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -759,7 +759,7 @@
         "whenToUse": "Toggle a single option on/off, accept terms, or drive a 'select all' parent with indeterminate.",
         "whenNotToUse": "Mutually-exclusive choices (RadioGroup); instant self-saving settings (Switch).",
         "version": "0.3.0",
-        "integrity": "sha256-EptHB47M5zLpQ/NSl+L7hlgs0X28LsCDl7BS34cY6Dc="
+        "integrity": "sha256-yEHl3fIQOtB6DRPUBKUTNPrsahG/snw13oWA3Jq6OaA="
       }
     },
     {
@@ -1031,7 +1031,7 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1047,7 +1047,7 @@
         "whenToUse": "Group related content into collapsible sections — FAQs, settings groups.",
         "whenNotToUse": "Hiding critical content, or sequential steps (stepper).",
         "version": "0.3.0",
-        "integrity": "sha256-r+qVdYnPcR3QIGLOpa6lwZadDXO4/1aCVCYO1H/49NQ="
+        "integrity": "sha256-TiPbthqvMpXRQUv3TOZSrsKnuSpwLZKhL/WivUUyAkE="
       }
     },
     {
@@ -1175,7 +1175,7 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1193,7 +1193,7 @@
         "whenToUse": "Show location in a hierarchy and navigate back up — nested pages, file trees.",
         "whenNotToUse": "Primary navigation or a menu — a breadcrumb reflects location only.",
         "version": "0.3.0",
-        "integrity": "sha256-xvmpJQDnMWiLmA9B/bM7rVYMeM+rf9+0d9/BCh1UzuQ="
+        "integrity": "sha256-loJ0OT87ZlRFr7sdJzIb79H5g2T0Xm/H4tMN/km0hv0="
       }
     },
     {
@@ -1206,7 +1206,7 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1221,7 +1221,7 @@
         "whenToUse": "Top-level site/product navigation with rich dropdown panels.",
         "whenNotToUse": "In-app action menus (DropdownMenu) or content tabs (Tabs).",
         "version": "0.3.0",
-        "integrity": "sha256-mNZCRZ8MTNKkuAouQqFbNATxRuM0C44g4slI5jIJvis="
+        "integrity": "sha256-kdDbwwe3SGzyaSG4WUFkBgPfiNLlBe1+Nc3lj+E2Lc0="
       }
     },
     {
@@ -1235,7 +1235,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1251,7 +1251,7 @@
         "whenToUse": "A panel anchored to a screen edge — filters, detail/inspector panels, slide-in nav.",
         "whenNotToUse": "A centered confirmation or short form (Dialog), or a long multi-step flow (a page).",
         "version": "0.3.0",
-        "integrity": "sha256-cCSOa6EJrR0q9mxnu8D3CMln2sA+4KenxUMaRbR3i3I="
+        "integrity": "sha256-Nx3ZH4W8U66h/FT7mPM/NQEFDQVss7efimHkOFoEj0s="
       }
     },
     {
@@ -1293,7 +1293,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1309,7 +1309,7 @@
         "whenToUse": "Actions on right-click of a specific target — a canvas item, file row, text selection.",
         "whenNotToUse": "Discoverable/touch-first surfaces (DropdownMenu with a button) or form value selection (Select).",
         "version": "0.3.0",
-        "integrity": "sha256-K5Qa3Qvh0ihhQQI9MZUa5r4WDfCUXt6TVJTtHUhA/5Q="
+        "integrity": "sha256-fl6b6igOJGhiI/UzLjqcle/mVzvFY092egFydw52yMM="
       }
     },
     {
@@ -1323,7 +1323,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1339,7 +1339,7 @@
         "whenToUse": "Navigate paged content — a long list/table split across numbered pages.",
         "whenNotToUse": "Infinite scroll / 'load more' feeds, or tab-style switching.",
         "version": "0.3.0",
-        "integrity": "sha256-LhB4+C0dMGc3zQqrzHKLBD09xSW+krK4nnh2uio5JBQ="
+        "integrity": "sha256-iJwN05W70Kg5GcDbY40gC5BR3H40CJDg4wVG5XiLbAk="
       }
     },
     {
@@ -1380,7 +1380,7 @@
       ],
       "dependencies": [
         "react-resizable-panels@^4",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1396,7 +1396,7 @@
         "whenToUse": "User-adjustable split layouts — code editor panes, sidebar + content, inspector panels.",
         "whenNotToUse": "Fixed layouts, or layouts that only need to collapse/expand (Collapsible) without a drag/resize affordance.",
         "version": "0.3.0",
-        "integrity": "sha256-XcaULf5anvlkuKpnxVoe/0iXrXshXOFS0iI1sXmwbCA="
+        "integrity": "sha256-Ir/oVu2PB9pYFDjDnog8OommnTaMTZ9mSxm/I40JrRQ="
       }
     },
     {
@@ -1423,7 +1423,7 @@
         "whenToUse": "Display tabular data with header/body/footer rows — lists, comparisons, summaries.",
         "whenNotToUse": "Page layout or non-tabular content — use a grid/flex layout.",
         "version": "0.3.0",
-        "integrity": "sha256-HPdvP4N8z7Gfl4ZcdmXJ/H7Oxi+D1ilJC3fWzjvUFfI="
+        "integrity": "sha256-SMp8tJtLwS02P0moTIxTS1AHSkFO8paJ4AVNbvFpkoI="
       }
     },
     {
@@ -1436,7 +1436,7 @@
       ],
       "dependencies": [
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1452,7 +1452,7 @@
         "whenToUse": "Indicate the state of a task or item — todo, in progress, blocked, or done — alongside a label.",
         "whenNotToUse": "Measurable progress (Progress) or generic loading (Spinner).",
         "version": "0.3.0",
-        "integrity": "sha256-ZGZpXZG7zWhTtSWwtLOrVdJWI06DYAWHetIK70/qWGU="
+        "integrity": "sha256-WwEfHaHdZJ7URZsS5FpIQPwhLgTZNKnj40dr/VNj4xk="
       }
     },
     {
@@ -1549,7 +1549,7 @@
         "actions"
       ],
       "dependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1567,7 +1567,7 @@
         "whenToUse": "Copy a short opaque value — API key, invite link, ID, snippet — with clear confirmation.",
         "whenNotToUse": "Long-form content to read/edit, or when there is no discrete value to copy.",
         "version": "0.3.0",
-        "integrity": "sha256-Ytynl295sZK6Wbyj8RPAQprhZisLUUO6lTMK+g9uP2Q="
+        "integrity": "sha256-oX66PZ82dlSujG7UWDc9Y96kHQTIH0huuindSYS3/88="
       }
     },
     {
@@ -1579,7 +1579,7 @@
         "form"
       ],
       "dependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1597,7 +1597,7 @@
         "whenToUse": "Any password entry — login, signup, reset, settings. Use requirements for enforced rules.",
         "whenNotToUse": "Non-secret text (Input) or one-time codes (OTP Input).",
         "version": "0.3.0",
-        "integrity": "sha256-Ljw20eN8+QCDxeEW2XJD7We6TZnLvCpgtUeEs5RBdtU="
+        "integrity": "sha256-kYNTCHVgUHHFbsXZQXCYhUU78qO3+C4ZC2OAPqygp18="
       }
     },
     {
@@ -1639,7 +1639,7 @@
         "actions"
       ],
       "dependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1658,7 +1658,7 @@
         "whenToUse": "One primary action plus closely related variants — Save / Save as draft, Publish / Schedule.",
         "whenNotToUse": "Unrelated actions (DropdownMenu), a single action (Button), or value selection (Select).",
         "version": "0.3.0",
-        "integrity": "sha256-+a5/HrpphMzG7spamkmOBJVYM9RykzspDqQCggyfK2E="
+        "integrity": "sha256-vyp1iriXt+J3k03OC0Kza5nbaPeBZpTDr4enEVwqEGI="
       }
     },
     {
@@ -1783,7 +1783,7 @@
         "media"
       ],
       "dependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1802,7 +1802,7 @@
         "whenToUse": "A bell trigger surfacing an unread count in app chrome — app owns the count and handler.",
         "whenNotToUse": "The notifications panel itself, or a generic count badge (Badge).",
         "version": "0.3.0",
-        "integrity": "sha256-acHiPpuX0epmHEBzGyKp4LyjlTilAJeyz1BPVKY1ZgU="
+        "integrity": "sha256-Xf+/XxC/PKcT1udQV4JCdVJWcBl1VyzQT0qLIA0PjNA="
       }
     },
     {
@@ -1814,7 +1814,7 @@
         "display"
       ],
       "dependencies": [
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1829,7 +1829,7 @@
         "whenToUse": "Product onboarding/setup checklists that live in the chrome.",
         "whenNotToUse": "Linear multi-step forms (compose Field/Progress) or task lists (app domain).",
         "version": "0.3.0",
-        "integrity": "sha256-xaKzEDAI/7Sk5I1bdlVndlpF9PVfYIexBw2M8DUAAug="
+        "integrity": "sha256-Tce+Wtnct5uq0OrWPnN2rmarYGpflk2VK9OgGW0tE20="
       }
     },
     {
@@ -1904,7 +1904,7 @@
       "dependencies": [
         "sonner@^2.0.7",
         "next-themes@0.4.6",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1920,7 +1920,7 @@
         "whenToUse": "Brief confirmations of an action — 'Saved', 'Copied', 'Invitation sent'.",
         "whenNotToUse": "Errors the user must resolve, destructive confirmations, or essential info — use inline or a Dialog.",
         "version": "0.3.0",
-        "integrity": "sha256-KgyYhDJ8ybbjZMudplapGaNtxYDuJGhMKRkLfr8/aHY="
+        "integrity": "sha256-rT8J9ikQF7L6sDx8leGVK45OsjRtmd0FxXaNem6GUA8="
       }
     },
     {
@@ -1962,7 +1962,7 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1980,7 +1980,7 @@
         "whenToUse": "A keyboard-first command palette or fuzzy-search picker — global ⌘K, action launchers, searchable lists.",
         "whenNotToUse": "A simple form select (Select), a small static action menu (DropdownMenu).",
         "version": "0.3.0",
-        "integrity": "sha256-OxBOONUVpgS2uYV0S1dORJ+IVeJRw13BpelIbYyTf4U="
+        "integrity": "sha256-cxCOYILmxnkW/1cNDRfV23tAJxrJhsCZ9+oD6RA9/h0="
       }
     },
     {
@@ -1992,7 +1992,7 @@
         "navigation"
       ],
       "dependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -2012,7 +2012,7 @@
         "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav, actions, favorite.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
         "version": "0.3.0",
-        "integrity": "sha256-0833lb0ieGxkiwTX42KP0x7sl+Ysav1QuPJRaMO6gtQ="
+        "integrity": "sha256-B6Uno+k6TYtaljDdoE9H27OocGlo/WPUA0EijJF6GOo="
       }
     },
     {
@@ -2026,7 +2026,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -2047,7 +2047,7 @@
         "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
         "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
         "version": "0.3.0",
-        "integrity": "sha256-apnaYtIl6IQ8TbCpU7j3spGEAA5JpN9OC4bW1KODPpA="
+        "integrity": "sha256-J9+jaLnrOcHS0O08kn6zf+g4tj/Q7bc8Glx50JLTHTQ="
       }
     },
     {
@@ -2089,7 +2089,7 @@
         "data"
       ],
       "dependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -2109,7 +2109,7 @@
         "whenToUse": "Filter toolbars for lists/tables — active filters as removable chips + an Add-filter menu + optional search.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.3.0",
-        "integrity": "sha256-kfxADW1ewkXF1WJL5LaqPIzNdkbDNy0kdhuw51YYPZM="
+        "integrity": "sha256-k6JJ5iXbUSV/IGIezFXinQGCwi6mzTZCIf3wvoT70gE="
       }
     },
     {
@@ -2121,7 +2121,7 @@
         "form"
       ],
       "dependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -2140,7 +2140,7 @@
         "whenToUse": "Settings-style fields that save on pause without a Save button — names, slugs, inline fields.",
         "whenNotToUse": "Form submission with a Save button, secrets, or one-time codes.",
         "version": "0.3.0",
-        "integrity": "sha256-aRn6Lx9cgEZisZydy8h4Mbkuu7omrpXxW+WToY9sZ0A="
+        "integrity": "sha256-DiF3jWZ1TEJB0AgMYYi9byG5fHLrxpDEI00oIVcXsn8="
       }
     },
     {
@@ -2153,7 +2153,7 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -2172,7 +2172,7 @@
         "whenToUse": "Collecting a country in an address/billing form — store the ISO code.",
         "whenNotToUse": "A small fixed option set (Select) or multi-select.",
         "version": "0.3.0",
-        "integrity": "sha256-0JlJmtXjYuXCK/b4WNIBZ5WCLIT1swrca1oQddyRL2o="
+        "integrity": "sha256-2YhnJl08RTuJ5aZyN9/Atw8p8pDSPz3LnKi6xPLQ20g="
       }
     },
     {
@@ -2185,7 +2185,7 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -2210,7 +2210,7 @@
         "whenToUse": "A state/province as part of an address form, dependent on the selected country.",
         "whenNotToUse": "A small country-independent option set (Select) or multi-select.",
         "version": "0.3.0",
-        "integrity": "sha256-wa4KvTSl+kd16vnHbORAJJYmMp51dkZmUjC6dHufFVA="
+        "integrity": "sha256-bFYobi62HB5ECpAsPBaMaLtAFM4RxH7uwv2OYNiTgtI="
       }
     },
     {
@@ -2223,7 +2223,7 @@
       ],
       "dependencies": [
         "react-day-picker@^10",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -2242,7 +2242,7 @@
         "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.3.0",
-        "integrity": "sha256-0B/FNiSyhCdTEjZ08T9pkSAdgo6qT7wShiq2Rlaarw8="
+        "integrity": "sha256-NckfrxhDHdacprbUrJ12aPRHkalSsqLBh3k2auc863w="
       }
     },
     {
@@ -2254,7 +2254,7 @@
         "form"
       ],
       "dependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -2273,7 +2273,7 @@
         "whenToUse": "Pick a single color from a small curated set — labels, tags, calendar categories.",
         "whenNotToUse": "Full-spectrum hue/saturation/alpha selection.",
         "version": "0.3.0",
-        "integrity": "sha256-jtpB7cR9Lm5S3VDi02FkkLSFZCOawsbGTlA/xzmObAA="
+        "integrity": "sha256-smZa/R6BfH4MHjKeo2/01TQwvetHfp/j09LOHfHfkr8="
       }
     },
     {
@@ -2285,7 +2285,7 @@
         "form"
       ],
       "dependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -2305,7 +2305,7 @@
         "whenToUse": "Lightweight emoji insertion — reactions, comments, status, icon selection.",
         "whenNotToUse": "A complete Unicode emoji browser — extend the embedded set or use a library.",
         "version": "0.3.0",
-        "integrity": "sha256-kO8fWSW64JIXMvyAGmUNe8Olkzizg8/bsUaPXKsBdic="
+        "integrity": "sha256-Xawr7LdPRnX6zNKzyYR4Coe+k9/SZNwhhofw8IgOQbE="
       }
     },
     {
@@ -2317,7 +2317,7 @@
         "data"
       ],
       "dependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -2338,7 +2338,7 @@
         "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, and loading/empty states.",
         "whenNotToUse": "A board/kanban view (deferred — needs dnd) or a simple static table (use Table).",
         "version": "0.3.0",
-        "integrity": "sha256-DiapLGBrv/WLctX47ifoLeHhkp46cROdkGI70ojosFw="
+        "integrity": "sha256-J8TlmbpTtLCcmfBDfvsxNztCXgODhp8wCp7YELdbaR0="
       }
     },
     {
@@ -2514,7 +2514,7 @@
         "@tiptap/react@^3",
         "@tiptap/starter-kit@^3",
         "@tiptap/pm@^3",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -2532,7 +2532,7 @@
         "whenToUse": "Short-to-medium rich text — comments, descriptions, release notes — via controlled HTML.",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.3.0",
-        "integrity": "sha256-ErwMOZfKQv5Ri50JyeNwLUlIdsuHU6s6fBfqoDlvot8="
+        "integrity": "sha256-y3genbR2BvE0wo8OPZ6PNKY/81VtarGQdh/GonhMLmA="
       }
     },
     {
@@ -14836,7 +14836,7 @@
         "dashboard"
       ],
       "dependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "recharts@^3.8.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
@@ -14900,7 +14900,7 @@
         "whenToUse": "Starting a new AI-platform-style dashboard route — pull once and own it (not hash-tracked/re-pulled like app-shell).",
         "whenNotToUse": "You just need the shared shell mechanics across many routes — install app-shell/sidebar directly instead.",
         "version": "0.3.0",
-        "integrity": "sha256-N+RD+nBj8OvIWuWw5duDUeFVfHIUkmsZfa4LxfjAQAA="
+        "integrity": "sha256-aespL7QQLu7axRCVs+Q/lNmK2Z9GM8ZB6YY1sdKebH8="
       }
     },
     {
@@ -14996,7 +14996,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -15014,7 +15014,7 @@
         "whenToUse": "Install snippets and short, copyable command sequences on a marketing surface.",
         "whenNotToUse": "Long-form code samples — use a standard code block.",
         "version": "0.3.0",
-        "integrity": "sha256-K2j1nzh1ADFvOWtS2mLRLGgoL8V/9fZalNi4R9pVITI="
+        "integrity": "sha256-K0T7dz41dl8tUcUZP9Whmz/s3/bGDts5ipDqbDrGIdA="
       }
     },
     {
@@ -15080,7 +15080,7 @@
         "marketing"
       ],
       "dependencies": [
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -15095,7 +15095,7 @@
         "whenToUse": "One temporary message with one action (releases, promos, sync prompts).",
         "whenNotToUse": "Status feedback (Alert/Toast) or permanent notices (Alert strip).",
         "version": "0.3.0",
-        "integrity": "sha256-q5edu4TulifldZKIkWuvHwmJRp1iAXLC3y/0CqvwvUM="
+        "integrity": "sha256-+lJ+Kd9PnLIqcw/kPLj5x/2vhMlJLHSKsXhBHaSt/ao="
       }
     },
     {
@@ -15133,7 +15133,7 @@
         "marketing"
       ],
       "dependencies": [
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -15151,7 +15151,7 @@
         "whenToUse": "Marketing pricing pages and plan pickers.",
         "whenNotToUse": "In-app plan state (Alert variant=strip) or feature comparison detail (ComparisonMatrix).",
         "version": "0.3.0",
-        "integrity": "sha256-+P2d0ypJMUXJJq4wtohzPW+h8h7jK4Q/u0EuM8F1s60="
+        "integrity": "sha256-NM6QpGC4mq+mbj+CPX3I5cs9WqbNbwgPg6cjddBXm9g="
       }
     },
     {
@@ -15163,7 +15163,7 @@
         "marketing"
       ],
       "dependencies": [
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -15178,7 +15178,7 @@
         "whenToUse": "Feature-by-plan comparison under a pricing section.",
         "whenNotToUse": "Data tables (Table) or spec sheets without plan columns.",
         "version": "0.3.0",
-        "integrity": "sha256-6ThNvBrs/T6KZJ+Tr1xcFg/BAuvTpH1h/JSKihcS7Xo="
+        "integrity": "sha256-PT7GVqo/fRSY0Ecf9y7nI/sVD8nCwb/MFtkhLiXaMFg="
       }
     },
     {

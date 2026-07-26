@@ -117,11 +117,22 @@ family stays server-safe.
 
 ## API Reference
 
-`Table`, `TableHeader`, `TableBody`, `TableFooter`, `TableRow`, `TableHead`,
+`Table` adds the three spreadsheet-voice props (`grid`, `headerTone`,
+`density`) plus two container hooks — `containerClassName` and
+`containerProps`, both forwarded to the `data-slot="table-container"` scroll
+wrapper that owns `overflow-x-auto`. Use them to attach sticky headers, a
+fixed-height viewport, or a virtualizer's scroll element; the `<table>` itself
+cannot own a scroll viewport.
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/table.tsx"
+  name="TableProps"
+/>
+
+`TableHeader`, `TableBody`, `TableFooter`, `TableRow`, `TableHead`,
 `TableCell`, and `TableCaption` add no props of their own — each accepts
-everything its underlying native element accepts (`<table>`, `<thead>`,
-`<tbody>`, `<tfoot>`, `<tr>`, `<th>`, `<td>`, `<caption>`), plus `className`
-and `ref`.
+everything its underlying native element accepts (`<thead>`, `<tbody>`,
+`<tfoot>`, `<tr>`, `<th>`, `<td>`, `<caption>`), plus `className` and `ref`.
 
 ## Accessibility
 
