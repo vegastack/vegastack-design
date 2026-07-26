@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**99 components**, plus 439 animated-icon items, 4 hooks (`use-animation-replay`, `use-list-nav`, `use-mobile`, `use-platform`), and 1 starter block (`dashboard-01`) — 543 registry items in total.
+**100 components**, plus 439 animated-icon items, 4 hooks (`use-animation-replay`, `use-list-nav`, `use-mobile`, `use-platform`), and 1 starter block (`dashboard-01`) — 544 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so `icon-button` is the
@@ -98,6 +98,7 @@ component and never an icon.
 
 ## Feedback
 
+- **`action-bar`** — Floating contextual bar — status region + action children, CSS-only enter/exit, raised band. Bulk selection, unsaved changes, and batch progress are recipes over it.
 - **`alert`** — A status banner — five semantic variants, an optional icon, and an optional dismiss button.
 - **`progress`** — A determinate horizontal progress bar for measurable, ongoing tasks — built on Base UI Progress.
 - **`progress-indicator`** — A compact circular pie-fill progress indicator (0–100%) — a server-safe SVG glyph in circle or squircle shapes.

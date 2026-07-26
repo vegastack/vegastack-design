@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 543,
-    "components": 99,
+    "totalRegistryItems": 544,
+    "components": 100,
     "animatedIcons": 439,
     "hooks": 4,
     "blocks": 1
@@ -22,7 +22,7 @@
     "Core controls": 23,
     "Forms/editing": 19,
     "Navigation/layout": 12,
-    "Overlays": 11,
+    "Overlays": 12,
     "Data display": 8,
     "Content/marketing": 20,
     "AI/chat": 6,
@@ -102,7 +102,8 @@
       "context-menu",
       "emoji-picker",
       "sonner",
-      "provider"
+      "provider",
+      "action-bar"
     ],
     "Data display": [
       "card",
@@ -10446,6 +10447,99 @@
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
       "previewModule": "chip-input"
+    },
+    {
+      "name": "action-bar",
+      "registryType": "registry:ui",
+      "title": "Action Bar",
+      "summary": "Floating contextual bar — status region + action children, CSS-only enter/exit, raised band. Bulk selection, unsaved changes, and batch progress are recipes over it.",
+      "family": "feedback",
+      "wave": "Overlays",
+      "sourceFiles": ["packages/ui/registry/ui/action-bar.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ActionBar",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/action-bar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "ActionBarProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/action-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["open", "hidden", "pending", "measured-centring"],
+          "evidence": "data-active drives the CSS-only enter/exit; pending inerts the actions (aria-busy); containerRef switches to ResizeObserver-measured centring via a unitless custom property."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": [
+            "labeled",
+            "status-announcement",
+            "keyboard",
+            "semantic-html"
+          ],
+          "evidence": "Labelled role=toolbar; polite live region announces status changes; hidden state is pointer-events-none so nothing invisible is interactive."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hidden", "pending", "dark"],
+          "evidence": "Flat raised-band surface (bg-background + border, no shadow); exit translate/scale/opacity with ease-exit, enter with ease-emphasized."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["viewport-pinning", "text-truncation-and-flex-shrink"],
+        "rationale": "Pinned to the bottom edge with the safe-area inset; max-w caps the bar inside the viewport; status is min-w-0 whitespace-nowrap."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["css-state-transition"],
+        "reducedMotion": {
+          "status": "observed",
+          "rationale": "Pure CSS transition on data-[active]; the global reduced-motion reset collapses transitions, leaving an instant show/hide."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/action-bar",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/action-bar.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "previewModule": "action-bar"
     },
     {
       "name": "field-inline",

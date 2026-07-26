@@ -1,0 +1,92 @@
+---
+title: Action Bar
+description: Floating contextual bar — a status region and actions, for bulk selection, unsaved changes, and batch progress.
+audience: public
+preview: actionBar
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/action-bar
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { ActionBar } from "@/components/ui/action-bar";
+
+<ActionBar open={count > 0} status={`${count} selected`}>
+  <Button variant="ghost" size="sm">
+    Tag
+  </Button>
+  <Separator orientation="vertical" />
+  <Button variant="destructive" size="sm">
+    Archive
+  </Button>
+</ActionBar>;
+```
+
+Bulk selection is the bar's most common recipe — never its identity. The same
+object serves an unsaved-changes bar and a batch-progress bar; only the words
+change.
+
+## Scope
+
+| Behaviour              | Where it lives                                                                                          |
+| ---------------------- | ------------------------------------------------------------------------------------------------------- |
+| Selection state        | The host's list — [`DataList`](/docs/components/data-list) owns `selectedIds`; the bar consumes a count |
+| The actions themselves | Host, as children (`Button`, `DropdownMenu` for overflow, `AlertDialog` for destructive confirms)       |
+| Outcome persistence    | The `status` slot — not a toast, which discards state the user still holds                              |
+
+## Examples
+
+### Unsaved changes
+
+<ComponentPreview
+  name="actionBarUnsaved"
+  file="components/preview/action-bar.tsx"
+/>
+
+### Batch progress (pending)
+
+While `pending`, the actions are inert and dimmed but the status stays
+readable — a bulk operation in flight should not be re-triggerable.
+
+<ComponentPreview
+  name="actionBarPending"
+  file="components/preview/action-bar.tsx"
+/>
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/action-bar.tsx"
+  name="ActionBarProps"
+/>
+
+## Accessibility
+
+- The bar is a labelled `role="toolbar"`; pass a specific `aria-label`
+  ("Bulk actions", "Import progress") rather than the generic default.
+- Status changes are announced through a polite live region — a plain-string
+  `status` announces itself; composite status markup needs an `announcement`.
+- Actions with visible text must not carry `aria-label` (WCAG 2.5.3) — the
+  visible text is the name.
+- The bar sits in the `raised` band, so a dialog opened from one of its actions
+  correctly covers it. It stays mounted while hidden and is inert
+  (`pointer-events-none`) so nothing invisible is clickable.
+
+| Key                                 | Action                          |
+| ----------------------------------- | ------------------------------- |
+| <kbd>Tab</kbd>                      | Move through the bar's actions. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused action.    |
+
+## Do / Don't
+
+<DoDont
+  do="Keep outcome summaries in the status slot ('5 dismissed · 1 failed') so retained selection and its explanation live together."
+  dont="Own selection state in the bar or announce outcomes only in a toast — the notification disappears while the user still holds the selection."
+/>
