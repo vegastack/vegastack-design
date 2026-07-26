@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "7fc84eeb2a4f020576b90f77ed23bc41adb0d827373e1fc21ad87b579c2d20cc",
+  "contractSha256": "afc1a734004c53b3166d671b1707f0423d284aeab743025b5436b6ebf2e92d5b",
   "expectedCounts": {
-    "totalRegistryItems": 540,
-    "components": 96,
+    "totalRegistryItems": 541,
+    "components": 97,
     "animatedIcons": 439,
     "hooks": 4,
     "blocks": 1
@@ -636,6 +636,17 @@
         "packages/ui/registry/ui/split-button.tsx"
       ],
       "docsSlug": "/docs/components/split-button",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "editable-cell",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/editable-cell.tsx"
+      ],
+      "docsSlug": "/docs/components/editable-cell",
       "contractStatus": "reconciled"
     },
     {

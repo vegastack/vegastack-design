@@ -75,6 +75,7 @@ export * from "./auto-save-input";
 export * from "./country-select";
 export * from "./region-select";
 export * from "./date-picker";
+export * from "./editable-cell";
 export * from "./color-picker";
 export * from "./emoji-picker";
 export * from "./data-list";

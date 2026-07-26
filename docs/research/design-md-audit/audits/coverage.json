@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "7fc84eeb2a4f020576b90f77ed23bc41adb0d827373e1fc21ad87b579c2d20cc",
+  "contractSha256": "afc1a734004c53b3166d671b1707f0423d284aeab743025b5436b6ebf2e92d5b",
   "inventory": {
-    "expected": 540,
-    "actual": 540,
-    "unique": 540
+    "expected": 541,
+    "actual": 541,
+    "unique": 541
   },
   "classes": {
-    "components": 96,
+    "components": 97,
     "animatedIcons": 439,
     "hooks": 4,
     "blocks": 1
@@ -44,14 +44,15 @@
       ]
     },
     "Forms/editing": {
-      "expected": 16,
-      "actual": 16,
+      "expected": 17,
+      "actual": 17,
       "members": [
         "auto-save-input",
         "color-picker",
         "combobox",
         "country-select",
         "date-picker",
+        "editable-cell",
         "field",
         "field-inline",
         "filter-bar",
@@ -615,7 +616,7 @@
       ]
     }
   },
-  "componentRoutes": 96,
+  "componentRoutes": 97,
   "blockRoutes": 1,
   "crossBrowserSmokeFiles": 10,
   "modeledExemptions": 4

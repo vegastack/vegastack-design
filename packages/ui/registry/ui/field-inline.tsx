@@ -1,4 +1,4 @@
-// @vegastack field-inline@0.3.0 sha256-J1qbeA9vBU+nbquEyxYRD/Dk0LkSouMDeNrjYwnVdXY=
+// @vegastack field-inline@0.3.0 sha256-JorgPiGP/5hnIxtNtR5zpECT6S5lCisxIa0BA9LGPTk=
 
 "use client";
 
@@ -76,6 +76,31 @@ export interface FieldInlineProps {
    * @default undefined
    */
   error?: string;
+  /**
+   * Controlled edit mode. Pair with `onEditingChange` to own when the field
+   * edits — e.g. a cell host whose grid keyboard model opens the editor with
+   * <kbd>Enter</kbd>/<kbd>F2</kbd>. Omit for the built-in uncontrolled
+   * behaviour (click / <kbd>Enter</kbd> / <kbd>Space</kbd> on the display).
+
+   * @default undefined
+   */
+  editing?: boolean;
+  /**
+   * Called when the field wants to enter (`true`) or leave (`false`) edit mode
+   * — on activation, commit, and cancel. With `editing` controlled, the parent
+   * decides whether the mode actually changes.
+
+   * @default undefined
+   */
+  onEditingChange?: (editing: boolean) => void;
+  /**
+   * Tab-stop override for the display element. Pass `-1` to remove it from the
+   * tab order when a host (a grid's roving focus model) owns reachability.
+   * Ignored when `readOnly` (no tab stop at all); `disabled` always renders
+   * `-1`.
+   * @default 0
+   */
+  tabIndex?: number;
   /** Extra classes merged onto the outer wrapper.
    * @default undefined
    */
@@ -137,10 +162,17 @@ export function FieldInline({
   disabled = false,
   readOnly = false,
   error,
+  editing,
+  onEditingChange,
+  tabIndex = 0,
   className,
   ref,
 }: FieldInlineProps) {
-  const [isEditing, setIsEditing] = React.useState(false);
+  // Edit mode — controlled when `editing` is provided, else internal (the
+  // house inline controlled/uncontrolled idiom).
+  const [internalEditing, setInternalEditing] = React.useState(false);
+  const isEditingControlled = editing !== undefined;
+  const isEditing = isEditingControlled ? editing : internalEditing;
   const [draft, setDraft] = React.useState(value);
   const inputRef = React.useRef<HTMLInputElement>(null);
   // Edit mode: feed both the internal inputRef (focus management) and the consumer ref.
@@ -158,33 +190,52 @@ export function FieldInline({
   // Associates the edit-mode input with the error text below it (see `error` prop doc).
   const errorId = React.useId();
 
+  const setEditingState = React.useCallback(
+    (next: boolean) => {
+      if (!isEditingControlled) setInternalEditing(next);
+      onEditingChange?.(next);
+    },
+    [isEditingControlled, onEditingChange],
+  );
+
   // Keep the draft in sync when the parent updates `value` from outside an edit.
   React.useEffect(() => {
     if (!isEditing) setDraft(value);
   }, [value, isEditing]);
+
+  // When a CONTROLLED host flips `editing` on, seed the draft and re-arm the
+  // commit guard the same way the uncontrolled `startEdit` path does.
+  const previousEditing = React.useRef(isEditing);
+  React.useEffect(() => {
+    if (isEditing && !previousEditing.current) {
+      committedRef.current = false;
+      setDraft(value);
+    }
+    previousEditing.current = isEditing;
+  }, [isEditing, value]);
 
   const startEdit = React.useCallback(() => {
     // `disabled`/`readOnly` block entering edit mode entirely.
     if (disabled || readOnly) return;
     committedRef.current = false;
     setDraft(value);
-    setIsEditing(true);
-  }, [value, disabled, readOnly]);
+    setEditingState(true);
+  }, [value, disabled, readOnly, setEditingState]);
 
   const commit = React.useCallback(() => {
     if (committedRef.current) return;
     committedRef.current = true;
     const next = draft.trim();
-    setIsEditing(false);
+    setEditingState(false);
     if (next !== value) onCommit(next);
     else setDraft(value);
-  }, [draft, value, onCommit]);
+  }, [draft, value, onCommit, setEditingState]);
 
   const cancel = React.useCallback(() => {
     committedRef.current = true;
     setDraft(value);
-    setIsEditing(false);
-  }, [value]);
+    setEditingState(false);
+  }, [value, setEditingState]);
 
   // If `disabled`/`readOnly` turn on mid-edit, cancel the in-flight edit the same way Escape does
   // (revert the draft, skip `onCommit`) rather than leaving an now-uneditable field stuck open.
@@ -270,7 +321,7 @@ export function FieldInline({
         ref={ref as React.Ref<HTMLSpanElement>}
         data-slot="field-inline"
         role={isButton ? "button" : undefined}
-        tabIndex={readOnly ? undefined : disabled ? -1 : 0}
+        tabIndex={readOnly ? undefined : disabled ? -1 : tabIndex}
         aria-disabled={disabled ? true : undefined}
         aria-label={displayAriaLabel}
         aria-labelledby={ariaLabelledBy}

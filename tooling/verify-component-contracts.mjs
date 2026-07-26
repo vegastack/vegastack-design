@@ -273,8 +273,8 @@ assert(
 );
 
 const expected = {
-  totalRegistryItems: 540,
-  components: 96,
+  totalRegistryItems: 541,
+  components: 97,
   animatedIcons: 439,
   hooks: 4,
   blocks: 1,
@@ -288,7 +288,7 @@ for (const [key, value] of Object.entries(expected)) {
 
 const expectedWaves = {
   "Core controls": 23,
-  "Forms/editing": 16,
+  "Forms/editing": 17,
   "Navigation/layout": 12,
   Overlays: 11,
   "Data display": 8,
@@ -338,6 +338,7 @@ const expectedComponentWaveMembers = {
     "tag-group",
     "text-edit",
     "segmented",
+    "editable-cell",
   ],
   "Navigation/layout": [
     "accordion",

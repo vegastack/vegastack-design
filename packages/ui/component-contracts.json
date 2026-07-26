@@ -12,15 +12,15 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 540,
-    "components": 96,
+    "totalRegistryItems": 541,
+    "components": 97,
     "animatedIcons": 439,
     "hooks": 4,
     "blocks": 1
   },
   "expectedWaveCounts": {
     "Core controls": 23,
-    "Forms/editing": 16,
+    "Forms/editing": 17,
     "Navigation/layout": 12,
     "Overlays": 11,
     "Data display": 8,
@@ -72,7 +72,8 @@
       "filter-bar",
       "tag-group",
       "text-edit",
-      "segmented"
+      "segmented",
+      "editable-cell"
     ],
     "Navigation/layout": [
       "accordion",
@@ -10100,6 +10101,139 @@
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
       "previewModule": "split-button"
+    },
+    {
+      "name": "editable-cell",
+      "registryType": "registry:ui",
+      "title": "Editable Cell",
+      "summary": "Inline-editable value with an async commit lifecycle — optimistic display, saving/saved/error status, revert on a rejected write, and a typed text/select/custom editor registry.",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/editable-cell.tsx"],
+      "publicSymbols": [
+        {
+          "name": "EditableCell",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/editable-cell.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "EditableCellEditor",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/editable-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EditableCellEditorProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/editable-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EditableCellProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/editable-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "display",
+            "editing",
+            "saving",
+            "saved",
+            "error",
+            "disabled",
+            "read-only",
+            "managed-focus"
+          ],
+          "evidence": "Observed from branches, the data-status/data-focus-mode attributes, the optimistic pendingValue swap, and the promise-driven revert path."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": [
+            "keyboard",
+            "labeled",
+            "status-announcement",
+            "semantic-html"
+          ],
+          "evidence": "FieldInline supplies the named role=button display and editor; the status slot is a polite aria-live region announcing saving/saved/revert; indicators differ by icon shape, never colour alone."
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "hover",
+            "saving",
+            "saved",
+            "error",
+            "disabled"
+          ],
+          "evidence": "Observed from token classes, keyed status indicators (Spinner, success Check, destructive X), and FieldInline's display affordance."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "min-w-0 inline-flex root; truncation is owned by the FieldInline leaf."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["keyed-presence"],
+        "reducedMotion": {
+          "status": "observed",
+          "rationale": "Status indicators replay motion-pop-in via keyed remounts; the global base.css reduced-motion reset collapses the keyframes to their end state."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/editable-cell",
+      "registryDependencies": [
+        "@vegastack/field-inline",
+        "@vegastack/spinner",
+        "@vegastack/auto-save-input",
+        "@vegastack/select"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/editable-cell.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "previewModule": "editable-cell"
     },
     {
       "name": "field-inline",

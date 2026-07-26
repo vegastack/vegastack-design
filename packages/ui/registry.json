@@ -1453,6 +1453,36 @@
       }
     },
     {
+      "name": "editable-cell",
+      "type": "registry:ui",
+      "title": "Editable Cell",
+      "description": "Inline-editable value with an async commit lifecycle — optimistic display, saving/saved/error status, revert on a rejected write, and a typed text/select/custom editor registry.",
+      "categories": ["form"],
+      "dependencies": [
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/field-inline",
+        "@vegastack/spinner",
+        "@vegastack/auto-save-input",
+        "@vegastack/select"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/editable-cell.tsx",
+          "type": "registry:ui",
+          "target": "@ui/editable-cell.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
+        "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), whole forms (Field), or plain click-to-edit with a synchronous commit and no status (FieldInline alone).",
+        "version": "0.1.0"
+      }
+    },
+    {
       "name": "field-inline",
       "type": "registry:ui",
       "title": "Field Inline",
