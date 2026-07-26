@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**101 components**, plus 439 animated-icon items, 4 hooks (`use-animation-replay`, `use-list-nav`, `use-mobile`, `use-platform`), and 1 starter block (`dashboard-01`) — 545 registry items in total.
+**102 components**, plus 439 animated-icon items, 4 hooks (`use-animation-replay`, `use-list-nav`, `use-mobile`, `use-platform`), and 1 starter block (`dashboard-01`) — 546 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so `icon-button` is the
@@ -67,6 +67,7 @@ component and never an icon.
 - **`relative-time`** — Render a date as a human-relative string ("2 hours ago", "yesterday") with native Intl.RelativeTimeFormat — self-updating, with an absolute-date tooltip.
 - **`status-icon`** — A small status indicator icon — todo, in progress, blocked, done — each mapping to a lucide icon and semantic color.
 - **`table`** — Styled semantic table primitives — a scrollable container plus header, body, footer, row, head, cell, caption.
+- **`timeline`** — Rail geometry for chronological records — a continuous connector with a node per entry. Rows compose Item parts; separators render through Marker; entries carry content-visibility render skipping.
 - **`truncated-text`** — Truncate text to one line or N lines with an ellipsis, revealing the full text in a tooltip only when it overflows.
 
 ## Data

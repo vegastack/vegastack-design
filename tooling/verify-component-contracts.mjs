@@ -273,8 +273,8 @@ assert(
 );
 
 const expected = {
-  totalRegistryItems: 545,
-  components: 101,
+  totalRegistryItems: 546,
+  components: 102,
   animatedIcons: 439,
   hooks: 4,
   blocks: 1,
@@ -291,7 +291,7 @@ const expectedWaves = {
   "Forms/editing": 19,
   "Navigation/layout": 13,
   Overlays: 12,
-  "Data display": 8,
+  "Data display": 9,
   "Content/marketing": 20,
   "AI/chat": 6,
 };
@@ -380,6 +380,7 @@ const expectedComponentWaveMembers = {
     "property-list",
     "stat",
     "progress-indicator",
+    "timeline",
   ],
   "Content/marketing": [
     "alert",

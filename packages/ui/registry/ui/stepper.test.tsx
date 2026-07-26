@@ -129,7 +129,7 @@ test("the current step's status glyph does not spin — current is a position, n
     '[data-slot="status-icon"]',
   ) as HTMLElement;
   expect(icon.getAttribute("data-status")).toBe("progress");
-  expect(icon.className.baseVal ?? icon.className).toContain("animate-none");
+  expect(icon.getAttribute("class") ?? "").toContain("animate-none");
 });
 
 test("ref forwards to the list root", async () => {

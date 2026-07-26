@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "c973d17bd84a1ab7f9befa2424b7d0e7c60a6081b6e59b92d87e2de85197456c",
+  "contractSha256": "56e97303d77721e37d935e10211201eb9f3a81e95c270cd7d34031af626708f0",
   "expectedCounts": {
-    "totalRegistryItems": 545,
-    "components": 101,
+    "totalRegistryItems": 546,
+    "components": 102,
     "animatedIcons": 439,
     "hooks": 4,
     "blocks": 1
@@ -691,6 +691,17 @@
         "packages/ui/registry/ui/stepper.tsx"
       ],
       "docsSlug": "/docs/components/stepper",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "timeline",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data-display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/timeline.tsx"
+      ],
+      "docsSlug": "/docs/components/timeline",
       "contractStatus": "reconciled"
     },
     {

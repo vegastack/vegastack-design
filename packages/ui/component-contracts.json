@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 545,
-    "components": 101,
+    "totalRegistryItems": 546,
+    "components": 102,
     "animatedIcons": 439,
     "hooks": 4,
     "blocks": 1
@@ -23,7 +23,7 @@
     "Forms/editing": 19,
     "Navigation/layout": 13,
     "Overlays": 12,
-    "Data display": 8,
+    "Data display": 9,
     "Content/marketing": 20,
     "AI/chat": 6,
     "Hooks": 4,
@@ -114,7 +114,8 @@
       "comparison-matrix",
       "property-list",
       "stat",
-      "progress-indicator"
+      "progress-indicator",
+      "timeline"
     ],
     "Content/marketing": [
       "alert",
@@ -10660,6 +10661,132 @@
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
       "previewModule": "stepper"
+    },
+    {
+      "name": "timeline",
+      "registryType": "registry:ui",
+      "title": "Timeline",
+      "summary": "Rail geometry for chronological records — a continuous connector with a node per entry. Rows compose Item parts; separators render through Marker; entries carry content-visibility render skipping.",
+      "family": "data-display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/timeline.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Timeline",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/timeline.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "ol",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "TimelineItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/timeline.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "li",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "TimelineItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/timeline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TimelineProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/timeline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TimelineSeparator",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/timeline.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "li",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "TimelineSeparatorProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/timeline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default"],
+          "evidence": "Purely structural: rail node + connector per entry, connector hidden on the last entry via group-last."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["semantic-html", "labeled"],
+          "evidence": "Labelled ol/li; the rail column is aria-hidden decorative geometry; separators are real list items rendered through Marker's separator variant."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default"],
+          "evidence": "border tokens for node dot and connector hairline; content gutter via spacing scale."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink", "overflow-and-scroll"],
+        "rationale": "min-w-0 rows with Item owning truncation; long lists skip offscreen rendering via content-visibility + contain-intrinsic-size."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/timeline",
+      "registryDependencies": ["@vegastack/marker"],
+      "npmDependencies": [
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/timeline.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "previewModule": "timeline"
     },
     {
       "name": "field-inline",

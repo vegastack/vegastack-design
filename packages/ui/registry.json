@@ -1586,6 +1586,30 @@
       }
     },
     {
+      "name": "timeline",
+      "type": "registry:ui",
+      "title": "Timeline",
+      "description": "Rail geometry for chronological records — a continuous connector with a node per entry. Rows compose Item parts; separators render through Marker; entries carry content-visibility render skipping.",
+      "categories": ["data-display"],
+      "dependencies": [
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": ["@vegastack/marker"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/timeline.tsx",
+          "type": "registry:ui",
+          "target": "@ui/timeline.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Chronological records — activity feeds, audit trails, delivery logs — where entries need a visible temporal thread (rail + node) and rows compose Item/RelativeTime/Avatar.",
+        "whenNotToUse": "Live bottom-pinned conversation feeds (MessageScroller), bounded processes with gating (Stepper), or plain lists with no temporal thread (ItemGroup).",
+        "version": "0.1.0"
+      }
+    },
+    {
       "name": "field-inline",
       "type": "registry:ui",
       "title": "Field Inline",
