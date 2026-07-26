@@ -1610,6 +1610,36 @@
       }
     },
     {
+      "name": "shortcut-overlay",
+      "type": "registry:ui",
+      "title": "Shortcut Overlay",
+      "description": "The ?-triggered dialog listing keyboard shortcuts, rendered from a declaration registry (keys, label, category, when) — grouped, filterable, platform-aware via use-platform + Kbd.",
+      "categories": ["overlay"],
+      "dependencies": [
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/dialog",
+        "@vegastack/input",
+        "@vegastack/kbd",
+        "@vegastack/scroll-area",
+        "@vegastack/use-platform"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/shortcut-overlay.tsx",
+          "type": "registry:ui",
+          "target": "@ui/shortcut-overlay.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Any app with keyboard shortcuts — declare each binding once (keys, label, category) and get the ?-dialog for free; the same data can feed tooltips and Command rows.",
+        "whenNotToUse": "Inline shortcut hints (TooltipKbd, CommandShortcut) or executing bindings — the app's key handler owns dispatch.",
+        "version": "0.1.0"
+      }
+    },
+    {
       "name": "field-inline",
       "type": "registry:ui",
       "title": "Field Inline",

@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 546,
-    "components": 102,
+    "totalRegistryItems": 547,
+    "components": 103,
     "animatedIcons": 439,
     "hooks": 4,
     "blocks": 1
@@ -22,7 +22,7 @@
     "Core controls": 23,
     "Forms/editing": 19,
     "Navigation/layout": 13,
-    "Overlays": 12,
+    "Overlays": 13,
     "Data display": 9,
     "Content/marketing": 20,
     "AI/chat": 6,
@@ -104,7 +104,8 @@
       "emoji-picker",
       "sonner",
       "provider",
-      "action-bar"
+      "action-bar",
+      "shortcut-overlay"
     ],
     "Data display": [
       "card",
@@ -10787,6 +10788,115 @@
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
       "previewModule": "timeline"
+    },
+    {
+      "name": "shortcut-overlay",
+      "registryType": "registry:ui",
+      "title": "Shortcut Overlay",
+      "summary": "The ?-triggered dialog listing keyboard shortcuts, rendered from a declaration registry (keys, label, category, when) — grouped, filterable, platform-aware via use-platform + Kbd.",
+      "family": "overlay",
+      "wave": "Overlays",
+      "sourceFiles": ["packages/ui/registry/ui/shortcut-overlay.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ShortcutDefinition",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shortcut-overlay.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ShortcutOverlay",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shortcut-overlay.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed Dialog; no stable public ref target is forwarded — the dialog content is portaled."
+          }
+        },
+        {
+          "name": "ShortcutOverlayProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shortcut-overlay.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "closed",
+            "open",
+            "filtered",
+            "empty-filter",
+            "gated-when",
+            "suppressed"
+          ],
+          "evidence": "Controlled-optional open; ? binding suppressed inside editable surfaces and by shouldHandle; when:false omits a binding; the filter narrows and shows an empty message."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["keyboard", "labeled", "semantic-html"],
+          "evidence": "Labelled Dialog; description-list pairs with real kbd elements; category headers are real headings; Escape closes via Dialog."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "empty", "dark"],
+          "evidence": "Dialog surface; label-sm category headers; border-separated rows; muted empty message."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["overflow-and-scroll", "text-truncation-and-flex-shrink"],
+        "rationale": "ScrollArea capped by a dvh calc; labels truncate; key clusters shrink-0."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "Enter/exit motion is owned by the composed Dialog."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/shortcut-overlay",
+      "registryDependencies": [
+        "@vegastack/dialog",
+        "@vegastack/input",
+        "@vegastack/kbd",
+        "@vegastack/scroll-area",
+        "@vegastack/use-platform"
+      ],
+      "npmDependencies": [
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/shortcut-overlay.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "previewModule": "shortcut-overlay"
     },
     {
       "name": "field-inline",

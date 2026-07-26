@@ -1,0 +1,97 @@
+---
+title: Shortcut Overlay
+description: The ?-triggered dialog listing keyboard shortcuts, rendered from a declaration registry — declare once with a category, never hand-list.
+audience: public
+preview: shortcutOverlay
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/shortcut-overlay
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import {
+  ShortcutOverlay,
+  type ShortcutDefinition,
+} from "@/components/ui/shortcut-overlay";
+
+const SHORTCUTS: ShortcutDefinition[] = [
+  { keys: ["⌘", "K"], label: "Open command menu", category: "Navigation" },
+  { keys: ["E"], label: "Edit selected record", category: "Editing" },
+];
+
+<ShortcutOverlay shortcuts={SHORTCUTS} />;
+```
+
+The value is the **registry model**, not the dialog: a hand-listed shortcuts
+dialog goes stale the day someone adds a binding. Declare each shortcut once —
+keys, label, category, an optional `when` — and the overlay renders from data.
+The same declarations can feed tooltip hints and
+[`Command`](/docs/components/command) rows.
+
+Keys are mac-first; [`Kbd`](/docs/components/kbd)'s modifier rewriting is driven
+by [`use-platform`](/docs/guides/components), so <kbd>⌘</kbd> renders as
+
+<kbd>Ctrl</kbd> for non-mac users automatically.
+
+## Scope
+
+| Behaviour                 | Where it lives                                         |
+| ------------------------- | ------------------------------------------------------ |
+| Executing the shortcuts   | The app's key handler or command layer                 |
+| Rebinding / customisation | App policy — deliberately no persistence here          |
+| Inline hints              | `TooltipKbd` / `CommandShortcut`, fed by the same data |
+
+## Examples
+
+### Large sets get a filter
+
+The filter appears automatically past ten shortcuts (or force it with
+`searchable`).
+
+<ComponentPreview
+  name="shortcutOverlaySearch"
+  file="components/preview/shortcut-overlay.tsx"
+/>
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/shortcut-overlay.tsx"
+  name="ShortcutOverlayProps"
+/>
+
+### Shortcut definition
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/shortcut-overlay.tsx"
+  name="ShortcutDefinition"
+/>
+
+## Accessibility
+
+- Shortcuts render as a description list, so each label/keys pair is announced
+  as a pair; the keys are real `<kbd>` elements.
+- The <kbd>?</kbd> binding never fires while focus is in an input, textarea,
+  select, or contenteditable surface, and defers to `shouldHandle` while
+  another overlay owns the keyboard.
+- The dialog is labelled and closes on <kbd>Escape</kbd>; category headers are
+  real headings.
+
+| Key               | Action                                  |
+| ----------------- | --------------------------------------- |
+| <kbd>?</kbd>      | Open the overlay (outside text fields). |
+| <kbd>Escape</kbd> | Close it.                               |
+
+## Do / Don't
+
+<DoDont
+  do="Keep one shortcut registry and feed the overlay, tooltips, and Command rows from it."
+  dont="Hand-list shortcuts in dialog markup — it goes stale the day someone adds a binding."
+/>

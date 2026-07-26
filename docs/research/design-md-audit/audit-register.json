@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "56e97303d77721e37d935e10211201eb9f3a81e95c270cd7d34031af626708f0",
+  "contractSha256": "31fe6fa017cfc54ef58973a8e61bf588b9c7cda6ed224e3acabd6d5146d80b01",
   "expectedCounts": {
-    "totalRegistryItems": 546,
-    "components": 102,
+    "totalRegistryItems": 547,
+    "components": 103,
     "animatedIcons": 439,
     "hooks": 4,
     "blocks": 1
@@ -702,6 +702,17 @@
         "packages/ui/registry/ui/timeline.tsx"
       ],
       "docsSlug": "/docs/components/timeline",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "shortcut-overlay",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/shortcut-overlay.tsx"
+      ],
+      "docsSlug": "/docs/components/shortcut-overlay",
       "contractStatus": "reconciled"
     },
     {

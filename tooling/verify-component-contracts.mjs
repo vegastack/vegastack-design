@@ -273,8 +273,8 @@ assert(
 );
 
 const expected = {
-  totalRegistryItems: 546,
-  components: 102,
+  totalRegistryItems: 547,
+  components: 103,
   animatedIcons: 439,
   hooks: 4,
   blocks: 1,
@@ -290,7 +290,7 @@ const expectedWaves = {
   "Core controls": 23,
   "Forms/editing": 19,
   "Navigation/layout": 13,
-  Overlays: 12,
+  Overlays: 13,
   "Data display": 9,
   "Content/marketing": 20,
   "AI/chat": 6,
@@ -370,6 +370,7 @@ const expectedComponentWaveMembers = {
     "sonner",
     "provider",
     "action-bar",
+    "shortcut-overlay",
   ],
   "Data display": [
     "card",

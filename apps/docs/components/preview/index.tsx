@@ -81,6 +81,7 @@ export * from "./chip-input";
 export * from "./action-bar";
 export * from "./stepper";
 export * from "./timeline";
+export * from "./shortcut-overlay";
 export * from "./color-picker";
 export * from "./emoji-picker";
 export * from "./data-list";

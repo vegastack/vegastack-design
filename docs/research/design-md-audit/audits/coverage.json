@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "56e97303d77721e37d935e10211201eb9f3a81e95c270cd7d34031af626708f0",
+  "contractSha256": "31fe6fa017cfc54ef58973a8e61bf588b9c7cda6ed224e3acabd6d5146d80b01",
   "inventory": {
-    "expected": 546,
-    "actual": 546,
-    "unique": 546
+    "expected": 547,
+    "actual": 547,
+    "unique": 547
   },
   "classes": {
-    "components": 102,
+    "components": 103,
     "animatedIcons": 439,
     "hooks": 4,
     "blocks": 1
@@ -88,8 +88,8 @@
       ]
     },
     "Overlays": {
-      "expected": 12,
-      "actual": 12,
+      "expected": 13,
+      "actual": 13,
       "members": [
         "action-bar",
         "alert-dialog",
@@ -101,6 +101,7 @@
         "popover",
         "provider",
         "sheet",
+        "shortcut-overlay",
         "sonner",
         "tooltip"
       ]
@@ -621,7 +622,7 @@
       ]
     }
   },
-  "componentRoutes": 102,
+  "componentRoutes": 103,
   "blockRoutes": 1,
   "crossBrowserSmokeFiles": 10,
   "modeledExemptions": 4
