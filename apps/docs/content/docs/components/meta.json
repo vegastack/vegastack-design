@@ -15,6 +15,7 @@
     "password-input",
     "otp-input",
     "number-field",
+    "chip-input",
     "auto-save-input",
     "text-edit",
     "field",

@@ -12,15 +12,15 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 542,
-    "components": 98,
+    "totalRegistryItems": 543,
+    "components": 99,
     "animatedIcons": 439,
     "hooks": 4,
     "blocks": 1
   },
   "expectedWaveCounts": {
     "Core controls": 23,
-    "Forms/editing": 18,
+    "Forms/editing": 19,
     "Navigation/layout": 12,
     "Overlays": 11,
     "Data display": 8,
@@ -74,7 +74,8 @@
       "text-edit",
       "segmented",
       "editable-cell",
-      "number-field"
+      "number-field",
+      "chip-input"
     ],
     "Navigation/layout": [
       "accordion",
@@ -10332,6 +10333,119 @@
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
       "previewModule": "number-field"
+    },
+    {
+      "name": "chip-input",
+      "registryType": "registry:ui",
+      "title": "Chip Input",
+      "summary": "Free-token entry field — Enter/comma/paste commits chips, Backspace removes, per-chip validation marks invalid entries instead of dropping them. Combobox field chrome + real Tag chips.",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/chip-input.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ChipInput",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chip-input.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "ChipInputProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chip-input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "chipInputVariants",
+          "kind": "variants",
+          "source": "packages/ui/registry/ui/chip-input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "observed",
+        "dimensions": ["sm", "default", "lg"],
+        "rationale": "min-height on the shared --size-sm/md/lg scale (comboboxInputGroupVariants' scale); the field grows when chips wrap."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "empty",
+            "chips",
+            "invalid-chip",
+            "duplicate-rejected",
+            "disabled"
+          ],
+          "evidence": "Commit on Enter/comma/blur/paste-split, Backspace-removes-last, per-chip validate marks data-invalid, duplicates rejected and announced."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": [
+            "keyboard",
+            "labeled",
+            "status-announcement",
+            "semantic-html"
+          ],
+          "evidence": "Named inner Input; named per-chip remove buttons with Tag's 24px hit area; polite live region announcing added/invalid/duplicate/removed; invalid carried by text description, not colour alone."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "focus", "invalid", "disabled", "dark"],
+          "evidence": "comboboxInputGroupVariants chrome: focus-within ring tint, data-invalid destructive tint, data-disabled wash, dark input tint; invalid chips get the destructive outline-border pair."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["grid-wrapping", "text-truncation-and-flex-shrink"],
+        "rationale": "flex-wrap chips with min-w-0; Tag truncates its label span; the inner input keeps min-w-12 flex-1."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["replay-api"],
+        "reducedMotion": {
+          "status": "observed",
+          "rationale": "useShakeOnInvalid replays motion-shake on the group when it turns invalid; the global reduced-motion reset collapses it."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/chip-input",
+      "registryDependencies": [
+        "@vegastack/input",
+        "@vegastack/tag-group",
+        "@vegastack/use-animation-replay"
+      ],
+      "npmDependencies": [
+        "class-variance-authority@^0.7.1",
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/chip-input.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "previewModule": "chip-input"
     },
     {
       "name": "field-inline",

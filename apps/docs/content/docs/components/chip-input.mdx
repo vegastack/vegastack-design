@@ -1,0 +1,91 @@
+---
+title: Chip Input
+description: Free-token entry — type, then Enter, comma, or paste to commit chips; per-chip validation keeps invalid entries visible instead of dropping them.
+audience: public
+preview: chipInput
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/chip-input
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { ChipInput } from "@/components/ui/chip-input";
+
+<ChipInput aria-label="Tags" value={tags} onValueChange={setTags} />;
+```
+
+`ChipInput` fills the gap neither existing component can:
+[`TagGroup`](/docs/components/tag-group) is a display list with no input, and
+[`Combobox`](/docs/components/combobox)'s value model is selection-from-items —
+it cannot commit an arbitrary token. The field chrome is the Combobox input
+group's, the chips are real `Tag`s (24px remove targets included), and the
+inner control is the real [`Input`](/docs/components/input).
+
+## Scope
+
+| Behaviour                  | Where it lives                                                   |
+| -------------------------- | ---------------------------------------------------------------- |
+| Suggestions / autocomplete | A `Combobox` composition — deliberately not built in             |
+| Persisting the list        | Host, via `onValueChange`                                        |
+| Chip colour semantics      | Not here — `Tag` hue is decorative; invalid is the only state    |
+| `+N` overflow collapse     | `TagGroup` — display-list semantics, wrong for an editable field |
+
+## Examples
+
+### Per-chip validation
+
+Entries are **added and marked**, not silently dropped: a pasted list of twenty
+addresses with two typos shows twenty chips with two flagged
+(`data-invalid`, destructive border) — and the field stays invalid until they
+are fixed or removed.
+
+<ComponentPreview
+  name="chipInputValidation"
+  file="components/preview/chip-input.tsx"
+/>
+
+### Sizes and states
+
+<ComponentPreview
+  name="chipInputStates"
+  file="components/preview/chip-input.tsx"
+/>
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/chip-input.tsx"
+  name="ChipInputProps"
+/>
+
+## Accessibility
+
+- The inner input must carry an accessible name (`aria-label`) — it is the
+  control assistive tech interacts with.
+- Accepted, invalid, duplicate, and removed outcomes are announced through a
+  polite live region; invalid chips also carry a text description, never colour
+  alone.
+- Every chip's remove button is named ("Remove {chip}") with a 24px hit area
+  (from `Tag`).
+- The field border reflects focus (`focus-within` tint) and validity
+  (`data-invalid` destructive tint), matching the Combobox input group.
+
+| Key                                | Action                                          |
+| ---------------------------------- | ----------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>,</kbd>    | Commit the draft as a chip.                     |
+| <kbd>Backspace</kbd> (empty input) | Remove the last chip.                           |
+| <kbd>Tab</kbd>                     | Move between the input and chip remove buttons. |
+
+## Do / Don't
+
+<DoDont
+  do="Validate per chip and let malformed entries stay visible and flagged — the user pasted them for a reason."
+  dont="Reject invalid entries silently on commit — a dropped address in a 20-recipient paste is data loss the user won't notice."
+/>

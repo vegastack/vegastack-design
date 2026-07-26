@@ -1726,6 +1726,38 @@
       }
     },
     {
+      "name": "chip-input",
+      "type": "registry:ui",
+      "title": "Chip Input",
+      "description": "Free-token entry field — Enter/comma/paste commits chips, Backspace removes, per-chip validation marks invalid entries instead of dropping them. Combobox field chrome + real Tag chips.",
+      "categories": [
+        "form"
+      ],
+      "dependencies": [
+        "class-variance-authority@^0.7.1",
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/input",
+        "@vegastack/tag-group",
+        "@vegastack/use-animation-replay"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/chip-input.tsx",
+          "type": "registry:ui",
+          "target": "@ui/chip-input.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Entering an open set of short tokens — tags, e-mail recipients, domains, webhook events — where values are typed or pasted, not picked from a finite list.",
+        "whenNotToUse": "Selection from a known item set (Combobox multiple), or a read-only label list (TagGroup).",
+        "version": "0.1.0",
+        "integrity": "sha256-2oH7osoKU85HJNY4s2COAjhZKAlYYYa5n74UL6GwLLo="
+      }
+    },
+    {
       "name": "field-inline",
       "type": "registry:ui",
       "title": "Field Inline",
