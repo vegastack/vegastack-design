@@ -1640,6 +1640,37 @@
       }
     },
     {
+      "name": "filter-bar-managed",
+      "type": "registry:ui",
+      "title": "Filter Builder",
+      "description": "The stateful nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.",
+      "categories": ["data"],
+      "dependencies": [
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/icon-button",
+        "@vegastack/input",
+        "@vegastack/filter-bar",
+        "@vegastack/select"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "type": "registry:ui",
+          "target": "@ui/filter-bar-managed.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Structured, saveable filters with nesting — build an and/or tree over a host-supplied field grammar with per-type value editors and caps.",
+        "whenNotToUse": "A presentational chip row over host-owned filter state (filter-bar), or free-text search (Input in a toolbar).",
+        "version": "0.1.0"
+      }
+    },
+    {
       "name": "field-inline",
       "type": "registry:ui",
       "title": "Field Inline",

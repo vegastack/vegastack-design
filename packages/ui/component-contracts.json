@@ -12,15 +12,15 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 547,
-    "components": 103,
+    "totalRegistryItems": 548,
+    "components": 104,
     "animatedIcons": 439,
     "hooks": 4,
     "blocks": 1
   },
   "expectedWaveCounts": {
     "Core controls": 23,
-    "Forms/editing": 19,
+    "Forms/editing": 20,
     "Navigation/layout": 13,
     "Overlays": 13,
     "Data display": 9,
@@ -75,7 +75,8 @@
       "segmented",
       "editable-cell",
       "number-field",
-      "chip-input"
+      "chip-input",
+      "filter-bar-managed"
     ],
     "Navigation/layout": [
       "accordion",
@@ -10897,6 +10898,146 @@
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
       "previewModule": "shortcut-overlay"
+    },
+    {
+      "name": "filter-bar-managed",
+      "registryType": "registry:ui",
+      "title": "Filter Builder",
+      "summary": "The stateful nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.",
+      "family": "data",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/filter-bar-managed.tsx"],
+      "publicSymbols": [
+        {
+          "name": "FilterBuilder",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "FilterBuilderProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FilterField",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FilterNode",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FilterOperator",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FilterValueEditorProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "empty",
+            "conditions",
+            "nested-groups",
+            "depth-cap",
+            "condition-cap",
+            "invalid-condition",
+            "disabled",
+            "read-only-summary"
+          ],
+          "evidence": "Controlled tree editing with immutable path updates; caps disable the add affordances with aria-describedby reasons; missing values flag data-invalid; readOnly collapses to removable FilterChips."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["keyboard", "labeled", "semantic-html"],
+          "evidence": "Nested fieldset/legend structure (deliberately not role=tree); every picker and button labelled; removal moves focus to the next sibling or the group's add button; cap reasons wired via aria-describedby; invalid carries visible text."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "invalid", "disabled", "dark"],
+          "evidence": "Bordered nested groups; destructive-text invalid message; FilterChip summary inherits filter-bar's chrome."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["grid-wrapping", "text-truncation-and-flex-shrink"],
+        "rationale": "Condition rows flex-wrap with min-w-0; the value editor flexes on a basis; summary chips wrap."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/filter-bar-managed",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/icon-button",
+        "@vegastack/input",
+        "@vegastack/filter-bar",
+        "@vegastack/select"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/filter-bar-managed.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "previewModule": "filter-bar-managed"
     },
     {
       "name": "field-inline",

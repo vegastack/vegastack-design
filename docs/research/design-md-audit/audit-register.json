@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "31fe6fa017cfc54ef58973a8e61bf588b9c7cda6ed224e3acabd6d5146d80b01",
+  "contractSha256": "321f31a8647d784b8039727c540a08c5f5398968fdc65720f1eb4b6d45f427e1",
   "expectedCounts": {
-    "totalRegistryItems": 547,
-    "components": 103,
+    "totalRegistryItems": 548,
+    "components": 104,
     "animatedIcons": 439,
     "hooks": 4,
     "blocks": 1
@@ -713,6 +713,17 @@
         "packages/ui/registry/ui/shortcut-overlay.tsx"
       ],
       "docsSlug": "/docs/components/shortcut-overlay",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "filter-bar-managed",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/filter-bar-managed.tsx"
+      ],
+      "docsSlug": "/docs/components/filter-bar-managed",
       "contractStatus": "reconciled"
     },
     {
