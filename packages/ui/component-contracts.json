@@ -12,10 +12,10 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 539,
+    "totalRegistryItems": 540,
     "components": 96,
     "animatedIcons": 439,
-    "hooks": 3,
+    "hooks": 4,
     "blocks": 1
   },
   "expectedWaveCounts": {
@@ -26,7 +26,7 @@
     "Data display": 8,
     "Content/marketing": 20,
     "AI/chat": 6,
-    "Hooks": 3,
+    "Hooks": 4,
     "Block": 1,
     "Animated icons": 439
   },
@@ -141,7 +141,12 @@
       "attachment",
       "tool-call-chip"
     ],
-    "Hooks": ["use-animation-replay", "use-list-nav", "use-mobile"],
+    "Hooks": [
+      "use-animation-replay",
+      "use-list-nav",
+      "use-mobile",
+      "use-platform"
+    ],
     "Block": ["dashboard-01"],
     "Animated icons": "packages/ui/animated-icon-sources.json"
   },
@@ -18115,6 +18120,116 @@
       "registryDependencies": [],
       "npmDependencies": [],
       "testFiles": ["packages/ui/registry/ui/use-list-nav.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      }
+    },
+    {
+      "name": "use-platform",
+      "registryType": "registry:hook",
+      "title": "usePlatform",
+      "summary": "SSR-safe platform detection — { os, isTouch } from navigator.userAgentData with a navigator.platform fallback, corrected after hydration with no mismatch warning.",
+      "family": "hook",
+      "wave": "Hooks",
+      "sourceFiles": ["packages/ui/registry/ui/use-platform.ts"],
+      "publicSymbols": [
+        {
+          "name": "detectPlatformOs",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/use-platform.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "PlatformInfo",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-platform.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PlatformOS",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/use-platform.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "usePlatform",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-platform.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "UsePlatformOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-platform.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["fallback", "detected"],
+          "evidence": "First render reports caller-supplied fallbacks (SSR agreement); the real platform lands in a client-only effect."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render an accessibility tree."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render visual states."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["SSR-hydration"],
+        "rationale": "Owns an SSR-safe initial value and a post-hydration correction; touch state read from the pointer media query."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/guides/components",
+      "registryDependencies": [],
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/ui/use-platform.test.tsx"],
       "coverage": {
         "source": "required",
         "test": "required",

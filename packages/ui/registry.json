@@ -2178,6 +2178,27 @@
       }
     },
     {
+      "name": "use-platform",
+      "type": "registry:hook",
+      "title": "usePlatform",
+      "description": "SSR-safe platform detection — { os, isTouch } from navigator.userAgentData with a navigator.platform fallback, corrected after hydration with no mismatch warning.",
+      "categories": ["hook"],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-platform.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-platform.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Any copy or control that branches on modifier-key conventions (Kbd's os prop, shortcut hints, Command footers) or on a coarse pointer.",
+        "whenNotToUse": "Viewport-width layout switching — that is useIsMobile; and never wire it inside Kbd itself, which must stay server-safe.",
+        "version": "0.1.0"
+      }
+    },
+    {
       "name": "use-mobile",
       "type": "registry:hook",
       "title": "useIsMobile",

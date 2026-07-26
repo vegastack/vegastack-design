@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**96 components**, plus 439 animated-icon items, 3 hooks (`use-animation-replay`, `use-list-nav`, `use-mobile`), and 1 starter block (`dashboard-01`) — 539 registry items in total.
+**96 components**, plus 439 animated-icon items, 4 hooks (`use-animation-replay`, `use-list-nav`, `use-mobile`, `use-platform`), and 1 starter block (`dashboard-01`) — 540 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so `icon-button` is the
