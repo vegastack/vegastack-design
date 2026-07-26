@@ -12,10 +12,10 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 538,
+    "totalRegistryItems": 539,
     "components": 96,
     "animatedIcons": 439,
-    "hooks": 2,
+    "hooks": 3,
     "blocks": 1
   },
   "expectedWaveCounts": {
@@ -26,7 +26,7 @@
     "Data display": 8,
     "Content/marketing": 20,
     "AI/chat": 6,
-    "Hooks": 2,
+    "Hooks": 3,
     "Block": 1,
     "Animated icons": 439
   },
@@ -141,7 +141,7 @@
       "attachment",
       "tool-call-chip"
     ],
-    "Hooks": ["use-animation-replay", "use-mobile"],
+    "Hooks": ["use-animation-replay", "use-list-nav", "use-mobile"],
     "Block": ["dashboard-01"],
     "Animated icons": "packages/ui/animated-icon-sources.json"
   },
@@ -18017,6 +18017,107 @@
         "preview": "exempt",
         "vrt": "exempt",
         "crossBrowserSmoke": "selected"
+      }
+    },
+    {
+      "name": "use-list-nav",
+      "registryType": "registry:hook",
+      "title": "useListNav",
+      "summary": "Roving-tabindex keyboard navigation for a list or grid of focusable items — one Tab stop per collection, RTL-aware arrows, Home/End jumps scoped to the collection or the row.",
+      "family": "hook",
+      "wave": "Hooks",
+      "sourceFiles": ["packages/ui/registry/ui/use-list-nav.ts"],
+      "publicSymbols": [
+        {
+          "name": "useListNav",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-list-nav.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "UseListNavItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-list-nav.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseListNavOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-list-nav.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseListNavReturn",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-list-nav.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "disabled"],
+          "evidence": "Observed in hook implementation and inline contract: disabled and shouldHandle both suppress key handling; the active index re-clamps on collection shrink."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["roving-tabindex"],
+          "evidence": "The hook's entire purpose: one tabIndex=0 item per collection, arrow-key focus movement with preventDefault, RTL-aware horizontal arrows."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render visual states."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/guides/components",
+      "registryDependencies": [],
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/ui/use-list-nav.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
       }
     },
     {

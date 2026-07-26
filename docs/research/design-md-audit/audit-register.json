@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "2ca2034c238581b1f9fd02b1935f783b900c4f0b9d8ca79a8906bb6933add254",
+  "contractSha256": "1f6f25fdf2c68c9cea47ccd251daeed3672f4a23c4f6732aaf1f1017deaa9b94",
   "expectedCounts": {
-    "totalRegistryItems": 538,
+    "totalRegistryItems": 539,
     "components": 96,
     "animatedIcons": 439,
-    "hooks": 2,
+    "hooks": 3,
     "blocks": 1
   },
   "records": [
@@ -5904,6 +5904,17 @@
       "family": "hook",
       "sourceFiles": [
         "packages/ui/registry/ui/use-animation-replay.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "use-list-nav",
+      "inventoryClass": "hook",
+      "wave": "Hooks",
+      "family": "hook",
+      "sourceFiles": [
+        "packages/ui/registry/ui/use-list-nav.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

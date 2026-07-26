@@ -2152,6 +2152,27 @@
       }
     },
     {
+      "name": "use-list-nav",
+      "type": "registry:hook",
+      "title": "useListNav",
+      "description": "Roving-tabindex keyboard navigation for a list or grid of focusable items — one Tab stop per collection, RTL-aware arrows, Home/End jumps scoped to the collection or the row.",
+      "categories": ["hook"],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-list-nav.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-list-nav.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Any hand-rolled collection of focusable items that should read as ONE Tab stop with arrow-key movement — swatch grids, emoji grids, card lists, custom pickers.",
+        "whenNotToUse": "Base UI-owned collections (Select, Combobox, Menu, Tabs) — their primitives already own roving focus; and single controls that need no internal navigation.",
+        "version": "0.1.0"
+      }
+    },
+    {
       "name": "use-mobile",
       "type": "registry:hook",
       "title": "useIsMobile",
