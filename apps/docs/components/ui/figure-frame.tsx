@@ -1,4 +1,4 @@
-// @vegastack figure-frame@0.4.0 sha256-jsKmYqoHqAfU30i94DoXxnB5unyNlfZBdvOpGcIgXlE=
+// @vegastack figure-frame@0.4.1 sha256-cq7rKtZl6IlWW3KMg3n1me8F/k+jmrfRFJ53hrkZ8Vc=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";

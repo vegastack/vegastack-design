@@ -1,4 +1,4 @@
-// @vegastack field-inline@0.4.0 sha256-FKamNKtuBvttAWfmK5SGzFyMw03+vu/AHLsPEKeezHI=
+// @vegastack field-inline@0.4.1 sha256-PkNPIzMttA9yxg/vBrzbopo43hSZnNjePFQVVKNKZkM=
 
 "use client";
 
