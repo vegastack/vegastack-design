@@ -1,4 +1,4 @@
-// @vegastack button@0.3.0 sha256-7Umwnge6dCSpPgSDn6LAVclsRo/7do6Uyybraq5+9VE=
+// @vegastack button@0.3.0 sha256-M+Xap3gGH1vHzzccDHepig0GhmCpZCFT97Gy546SxVQ=
 
 "use client";
 
@@ -18,7 +18,7 @@ export const buttonVariants = cva(
   // menu items sitting beside them. Size variants below layer `text-sm`, which overrides only
   // font-size + line-height; the weight and tracking from `text-label` persist, so the small
   // tiers land on the `text-label-sm` metrics (12/500, −1%) without restating them.
-  "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border border-transparent bg-clip-padding text-label whitespace-nowrap  select-none active:translate-y-px disabled:pointer-events-none disabled:opacity-(--opacity-dim) aria-invalid:border-destructive-border/(--alpha-tint-border) [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
+  "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border border-transparent bg-clip-padding text-label whitespace-nowrap select-none disabled:pointer-events-none disabled:opacity-(--opacity-dim) aria-invalid:border-destructive-border/(--alpha-tint-border) [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
   {
     variants: {
       variant: {

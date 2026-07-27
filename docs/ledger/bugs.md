@@ -4,6 +4,27 @@ Every bug found + root cause + fix. Append-only.
 
 ---
 
+## 2026-07-27 — Firefox neuters the DataTransfer of a synthetic ClipboardEvent (test-only)
+
+- **Symptom:** `chip-input.test.tsx` "paste splits on the delimiter set" failed only in Firefox
+  (full three-engine sweep — first time the test ran there; chip-input is not in the smoke set):
+  the component's `onPaste` read `getData("text") === ""` and committed no chips.
+- **Root cause:** Firefox places the `DataTransfer` attached to an **untrusted** `ClipboardEvent`
+  in protected mode — the handler sees `clipboardData` with `types: []` and empty `getData`,
+  while the same `DataTransfer` object still returns the text when read directly. Chromium and
+  WebKit deliver the payload. Proven with a throwaway probe test (since deleted).
+- **Fix:** the test dispatches a plain `paste` event with a stubbed `clipboardData`
+  (`Object.defineProperty`) — React reads `clipboardData` off the native event, so the identical
+  component path runs in all three engines. The component was never wrong for real user pastes.
+- **Rider findings, same sweep:** two Firefox-only 15s timeouts (the 439-icon sweep at 20s, the
+  animated-number retarget test) under a machine contended by a concurrently running dev server —
+  both passed unchanged on a quiet re-run, and now carry explicit per-test timeouts (60s/30s).
+  And the docs homepage + 404 page rendered `Button render={<Link/>}` without
+  `nativeButton={false}`, tripping Base UI's native-button warning ×6 — the pattern is now
+  documented in `button.mdx` and the design-system skill.
+
+---
+
 ## 2026-07-25 — The forced-colors focus assertion cannot fail (pre-existing fail-open)
 
 - **Symptom:** `contracts.spec.ts`'s "retains focus visibility" assertion passes with the design

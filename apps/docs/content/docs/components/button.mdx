@@ -23,6 +23,17 @@ import { Button } from "@/components/ui/button";
 <Button>Save changes</Button>;
 ```
 
+To render a Button as a link, compose the anchor through `render` and pass `nativeButton={false}`
+— Base UI expects a native `<button>` by default and warns when `render` swaps in anything else:
+
+```tsx
+import Link from "next/link";
+
+<Button nativeButton={false} render={<Link href="/docs" />}>
+  Explore the docs
+</Button>;
+```
+
 ## Examples
 
 ### Playground

@@ -49,15 +49,16 @@ test("paste splits on the delimiter set", async () => {
   const screen = await render(<ChipInput aria-label="Recipients" />);
   const input = screen.getByRole("textbox", { name: "Recipients" });
   (input.element() as HTMLInputElement).focus();
-  const dt = new DataTransfer();
-  dt.setData("text", "a@x.com, b@x.com\nc@x.com");
-  input.element().dispatchEvent(
-    new ClipboardEvent("paste", {
-      clipboardData: dt,
-      bubbles: true,
-      cancelable: true,
-    }),
-  );
+  // A plain event with a stubbed `clipboardData`, not a real ClipboardEvent +
+  // DataTransfer: Firefox puts the DataTransfer of an untrusted ClipboardEvent
+  // into protected mode, so the handler would read types: [] and getData("")
+  // there while Chromium/WebKit deliver the text. React reads `clipboardData`
+  // off the native event, so the stub exercises the identical component path.
+  const paste = new Event("paste", { bubbles: true, cancelable: true });
+  Object.defineProperty(paste, "clipboardData", {
+    value: { getData: () => "a@x.com, b@x.com\nc@x.com" },
+  });
+  input.element().dispatchEvent(paste);
   await expect
     .poll(() => chipTexts())
     .toEqual(["a@x.com", "b@x.com", "c@x.com"]);

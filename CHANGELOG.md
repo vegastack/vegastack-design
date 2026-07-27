@@ -55,6 +55,11 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   API and visuals are unchanged, with one behavioural correction riding along: EmojiPicker's
   horizontal arrow keys become RTL-aware, matching ColorPicker. Safe to take or skip.
   [docs](https://design.vegastack.com/docs/components/color-picker)
+- **Button** — the `active:translate-y-px` press nudge is removed from `buttonVariants`, so every
+  component composing Button (IconButton, SplitButton, toolbars, pickers) loses it in one place.
+  Pressed feedback is now colour-only via the existing `active:bg-*` states, and the motion
+  foundations doctrine records press-motion as a deliberate exclusion.
+  [docs](https://design.vegastack.com/docs/components/button)
 
 ### 🛠 CLI & tooling
 
@@ -68,6 +73,10 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   a major boundary (41 items), and `@shadcn/react` at `^0.1.0` against an installed `^0.2.1`.
 - `table.mdx` no longer claims the Table parts add no props; `data-list.mdx` documents that a
   column `render` is invoked as a plain function (hooks belong in a returned component element).
+- The docs homepage and 404 page now pass `nativeButton={false}` to every Button rendered as a
+  link, matching the Base UI contract for non-button `render` targets; `button.mdx` and the
+  bundled design-system skill document the pattern, and `motion.mdx` records the press-nudge
+  removal.
 
 ## [0.3.0] — July 24, 2026
 

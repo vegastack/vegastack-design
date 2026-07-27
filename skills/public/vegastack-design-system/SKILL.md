@@ -81,7 +81,9 @@ contract.
 - **Compound parts import flat** — `import { DialogTrigger, DialogContent }`. Sub-property access
   (`<Dialog.Trigger>`) only works inside a `'use client'` file, because across the RSC boundary the
   compound is a client-reference proxy and the sub-property is `undefined`.
-- **Polymorphism** uses Base UI's `render` prop, never Radix's `asChild`.
+- **Polymorphism** uses Base UI's `render` prop, never Radix's `asChild`. When `render` swaps a
+  button-like component's element for a non-button (e.g. `Button render={<Link/>}`), also pass
+  `nativeButton={false}` — Base UI warns otherwise.
 
 ## Do / Don't
 

@@ -18,10 +18,15 @@ export default function NotFound() {
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Button size="lg" render={<Link href="/docs" />}>
+          <Button size="lg" nativeButton={false} render={<Link href="/docs" />}>
             Browse documentation
           </Button>
-          <Button variant="outline" size="lg" render={<Link href="/" />}>
+          <Button
+            variant="outline"
+            size="lg"
+            nativeButton={false}
+            render={<Link href="/" />}
+          >
             Return home
           </Button>
         </div>
