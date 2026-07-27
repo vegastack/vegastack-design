@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.4.1
+
+### Patch Changes
+
+- [#19](https://github.com/vegastack/vegastack-design/pull/19) [`a3de5ed`](https://github.com/vegastack/vegastack-design/commit/a3de5eded041ad1fdbba537eda9d8510e8fc50ab) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - Prevent horizontal Stepper labels from overlapping at narrow container widths.
+
 ## 0.4.0
 
 ### Minor Changes

@@ -26,7 +26,7 @@
       "meta": {
         "whenToUse": "Annotate a thread inline - a merged/status line, a date divider, or a small action row.",
         "whenNotToUse": "A standalone status chip outside a conversation (use Badge) or a full banner (use Alert).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -50,7 +50,7 @@
       "meta": {
         "whenToUse": "Lay out a chat/AI conversation row - compose Avatar, Bubble, and Marker as children.",
         "whenNotToUse": "A non-conversational list row - use a plain layout or Data List / Settings Row.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -76,7 +76,7 @@
       "meta": {
         "whenToUse": "The speech surface inside a Message - sent/received styling, reactions, interactive bubbles.",
         "whenNotToUse": "Non-conversational callouts - use Alert or Card.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -101,7 +101,7 @@
       "meta": {
         "whenToUse": "A live chat/AI thread that must auto-scroll, virtualise long histories, and offer a jump-to-latest control.",
         "whenNotToUse": "A short, static list that fits without scrolling - use Message inside a plain container or Scroll Area.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -127,7 +127,7 @@
       "meta": {
         "whenToUse": "A file attached to a chat message or a message-compose input - a chip/thumbnail with name, size, upload progress, and a remove action.",
         "whenNotToUse": "A generic file upload/drop zone with no chat context - reach for Empty (bordered drop zone) or a form Field instead.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -151,7 +151,7 @@
       "meta": {
         "whenToUse": "Tool invocations in an agent/chat transcript (searched, executed, created).",
         "whenNotToUse": "Status badges (Badge) or long-running task rows (Marker + Spinner).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -178,7 +178,7 @@
       "meta": {
         "whenToUse": "Any clickable action — submit, confirm, destructive, etc.",
         "whenNotToUse": "Navigation to a URL — use a link styled as a button (variant=link).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -205,7 +205,7 @@
       "meta": {
         "whenToUse": "Label or annotate status, counts, or categories — e.g. Active, Beta, 3 New.",
         "whenNotToUse": "Anything clickable — use a Button; a Badge is a non-interactive label.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -229,7 +229,7 @@
       "meta": {
         "whenToUse": "Decorative record labels/categories in rows that may overflow — the label voice.",
         "whenNotToUse": "Status signals (Badge) or interactive filters (Combobox chips).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -253,7 +253,7 @@
       "meta": {
         "whenToUse": "Record highlights and dashboard stat tiles where a value needs a quiet label.",
         "whenNotToUse": "Tabular data (Table/DataList) or live-updating counters (AnimatedNumber inside StatValue is fine).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -279,7 +279,7 @@
       "meta": {
         "whenToUse": "Persistent, in-page status messages — info, success, warning, or error context tied to surrounding content.",
         "whenNotToUse": "Transient feedback after a user action — use a toast instead.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -304,7 +304,7 @@
       "meta": {
         "whenToUse": "Single-line text entry — email, password, search, URL/slug with a domain prefix, numbers, etc.",
         "whenNotToUse": "Multi-line text (use a textarea) or choosing from fixed options (use a select/radio).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -330,7 +330,7 @@
       "meta": {
         "whenToUse": "Wrap any form control to give it a label, description, and accessible error/success message with auto-wired ARIA.",
         "whenNotToUse": "A bare control with its own label already wired — Field is for the label+message+a11y scaffold.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -357,7 +357,7 @@
       "meta": {
         "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts.",
         "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or full-screen mobile scroll (Drawer/Sheet).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -384,7 +384,7 @@
       "meta": {
         "whenToUse": "Choosing a single value from a fixed, known set — fonts, timezones, statuses — especially long/grouped lists.",
         "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), multi-select, or free-text/async search (combobox).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -411,7 +411,7 @@
       "meta": {
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -436,7 +436,7 @@
       "meta": {
         "whenToUse": "Short supplementary labels on icon buttons, toolbar actions, and controls — optionally with a shortcut hint.",
         "whenNotToUse": "Interactive content (links/buttons) or essential information — a tooltip isn't reliably reachable; use a Popover.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -463,7 +463,7 @@
       "meta": {
         "whenToUse": "A button-triggered menu of actions — row actions (edit/duplicate/delete), account menus, view toggles.",
         "whenNotToUse": "Single-value form input (Select), page navigation (nav/menubar), or a persistent always-visible action list.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -489,7 +489,7 @@
       "meta": {
         "whenToUse": "Organize related content into peer sections the user switches between in place; count badges surface pending items.",
         "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), or sections that must be visible at once.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -513,7 +513,7 @@
       "meta": {
         "whenToUse": "Group related content into a bordered surface — summaries, plan tiles, settings sections.",
         "whenNotToUse": "Single standalone values or page layout regions; never nest cards or add shadows.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -538,7 +538,7 @@
       "meta": {
         "whenToUse": "Display a keyboard shortcut or key in menus, tooltips, command palettes, help text.",
         "whenNotToUse": "As an interactive control or to capture keystrokes — Kbd is presentational only.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -563,7 +563,7 @@
       "meta": {
         "whenToUse": "Reserve layout space while content loads to avoid layout shift.",
         "whenNotToUse": "Indeterminate progress with no known layout (Spinner) or determinate tasks (progress bar).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -589,7 +589,7 @@
       "meta": {
         "whenToUse": "Signal an indeterminate, in-progress load — inside a button or a loading region.",
         "whenNotToUse": "Showing measurable progress (progress bar) or a skeleton-able layout (skeleton).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -614,7 +614,7 @@
       "meta": {
         "whenToUse": "Divide distinct sections of content, menus, or toolbars.",
         "whenNotToUse": "Pure spacing between elements — use margin/gap.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -639,7 +639,7 @@
       "meta": {
         "whenToUse": "When a list, table, or panel has no content — communicate the zero state and offer the next action.",
         "whenNotToUse": "While loading (skeleton/spinner) or for transient post-action feedback (toast).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -666,7 +666,7 @@
       "meta": {
         "whenToUse": "Toggle a single option on/off, accept terms, or drive a 'select all' parent with indeterminate.",
         "whenNotToUse": "Mutually-exclusive choices (RadioGroup); instant self-saving settings (Switch).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -692,7 +692,7 @@
       "meta": {
         "whenToUse": "Settings that apply instantly — notifications, dark mode, feature flags.",
         "whenNotToUse": "Inside a form needing a Submit step — use a Checkbox.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -718,7 +718,7 @@
       "meta": {
         "whenToUse": "Represent a user/entity with a photo, falling back to initials — alone or stacked in a group.",
         "whenNotToUse": "When you must fetch/resolve the image source — presentational; resolve R2/CDN keys app-side.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -742,7 +742,7 @@
       "meta": {
         "whenToUse": "Label any form control — pair via htmlFor/id or by wrapping. Use required for mandatory fields.",
         "whenNotToUse": "As a heading, or when you need a full field layout — use Field.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -766,7 +766,7 @@
       "meta": {
         "whenToUse": "Multi-line free text — descriptions, comments, messages, notes.",
         "whenNotToUse": "Single-line entry (input), rich text (editor), or fixed options (select).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -792,7 +792,7 @@
       "meta": {
         "whenToUse": "2–5 mutually-exclusive choices all visible at once.",
         "whenNotToUse": "Many options (Select) or non-exclusive multi-select (Checkboxes).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -817,7 +817,7 @@
       "meta": {
         "whenToUse": "An imprecise value over a bounded range — volume, brightness, a price filter.",
         "whenNotToUse": "Exact values or large/open ranges (number input); on/off (Switch).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -843,7 +843,7 @@
       "meta": {
         "whenToUse": "A binary on/off control that persists — bold/italic, mute, pin.",
         "whenNotToUse": "One-shot action (Button) or mutually-exclusive options (ToggleGroup/RadioGroup).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -869,7 +869,7 @@
       "meta": {
         "whenToUse": "Related toggle buttons sharing one selection — alignment, or multi-select formatting.",
         "whenNotToUse": "Navigation between views (Tabs) or a single on/off control (Toggle/Switch).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -894,7 +894,7 @@
       "meta": {
         "whenToUse": "Peer view/mode switches where one option is always active — view modes, billing cycles, filter scopes.",
         "whenNotToUse": "Content panels swapping (Tabs), meaningful empty/multi selection (ToggleGroup), or on/off (Switch).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -920,7 +920,7 @@
       "meta": {
         "whenToUse": "Group related content into collapsible sections — FAQs, settings groups.",
         "whenNotToUse": "Hiding critical content, or sequential steps (stepper).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -945,7 +945,7 @@
       "meta": {
         "whenToUse": "A single show/hide region — extra detail, an optional form section, 'read more'.",
         "whenNotToUse": "Several coordinated sections where one opens at a time — use Accordion.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -970,7 +970,7 @@
       "meta": {
         "whenToUse": "Lightweight optional content tied to a trigger — a settings form, a picker, extra detail.",
         "whenNotToUse": "Content that must block the page (Dialog) or a tooltip's worth of text (Tooltip).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -995,7 +995,7 @@
       "meta": {
         "whenToUse": "Destructive/irreversible confirmations (delete, discard, reset) — backdrop non-dismissable.",
         "whenNotToUse": "Routine dismissable modal content — use Dialog.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1021,7 +1021,7 @@
       "meta": {
         "whenToUse": "Completion of a measurable task — uploads, multi-step forms, onboarding.",
         "whenNotToUse": "Indefinite waits (Spinner) or radial percentage display (out of scope).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1047,7 +1047,7 @@
       "meta": {
         "whenToUse": "Show location in a hierarchy and navigate back up — nested pages, file trees.",
         "whenNotToUse": "Primary navigation or a menu — a breadcrumb reflects location only.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1072,7 +1072,7 @@
       "meta": {
         "whenToUse": "Top-level site/product navigation with rich dropdown panels.",
         "whenNotToUse": "In-app action menus (DropdownMenu) or content tabs (Tabs).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1099,7 +1099,7 @@
       "meta": {
         "whenToUse": "A panel anchored to a screen edge — filters, detail/inspector panels, slide-in nav.",
         "whenNotToUse": "A centered confirmation or short form (Dialog), or a long multi-step flow (a page).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1124,7 +1124,7 @@
       "meta": {
         "whenToUse": "A rich optional preview of an entity — a user/agent/team card. Pass resolved content as children.",
         "whenNotToUse": "Plain-text labels (Tooltip), blocking content (Dialog), or anything essential (hover-only isn't reachable on touch).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1151,7 +1151,7 @@
       "meta": {
         "whenToUse": "Actions on right-click of a specific target — a canvas item, file row, text selection.",
         "whenNotToUse": "Discoverable/touch-first surfaces (DropdownMenu with a button) or form value selection (Select).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1178,7 +1178,7 @@
       "meta": {
         "whenToUse": "Navigate paged content — a long list/table split across numbered pages.",
         "whenNotToUse": "Infinite scroll / 'load more' feeds, or tab-style switching.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1203,7 +1203,7 @@
       "meta": {
         "whenToUse": "Bounded panels whose content overflows — sidebars, log viewers, modal bodies, chat histories.",
         "whenNotToUse": "Whole-page scrolling, or content that already fits.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1229,7 +1229,7 @@
       "meta": {
         "whenToUse": "User-adjustable split layouts — code editor panes, sidebar + content, inspector panels.",
         "whenNotToUse": "Fixed layouts, or layouts that only need to collapse/expand (Collapsible) without a drag/resize affordance.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1253,7 +1253,7 @@
       "meta": {
         "whenToUse": "Display tabular data with header/body/footer rows — lists, comparisons, summaries.",
         "whenNotToUse": "Page layout or non-tabular content — use a grid/flex layout.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1279,7 +1279,7 @@
       "meta": {
         "whenToUse": "Indicate the state of a task or item — todo, in progress, blocked, or done — alongside a label.",
         "whenNotToUse": "Measurable progress (Progress) or generic loading (Spinner).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1304,7 +1304,7 @@
       "meta": {
         "whenToUse": "A compact determinate percentage glyph — inline beside a label or metric.",
         "whenNotToUse": "Indefinite waits (Spinner) or wide tasks where a linear Progress bar reads better.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1328,7 +1328,7 @@
       "meta": {
         "whenToUse": "Long values in constrained layouts — table cells, nav labels, IDs/paths.",
         "whenNotToUse": "Essential action text or content that must be fully visible.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1349,7 +1349,7 @@
       "meta": {
         "whenToUse": "A compact icon-only action — toolbar buttons, row actions, close/dismiss.",
         "whenNotToUse": "Actions needing a visible text label (Button with icon) or URL navigation (link).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1374,7 +1374,7 @@
       "meta": {
         "whenToUse": "Copy a short opaque value — API key, invite link, ID, snippet — with clear confirmation.",
         "whenNotToUse": "Long-form content to read/edit, or when there is no discrete value to copy.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1399,7 +1399,7 @@
       "meta": {
         "whenToUse": "Any password entry — login, signup, reset, settings. Use requirements for enforced rules.",
         "whenNotToUse": "Non-secret text (Input) or one-time codes (OTP Input).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1424,7 +1424,7 @@
       "meta": {
         "whenToUse": "A short fixed-length verification code — 2FA/MFA, email/SMS OTP.",
         "whenNotToUse": "Free-form/variable-length text (Input) or a single masked secret (Password Input).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1449,7 +1449,7 @@
       "meta": {
         "whenToUse": "One primary action plus closely related variants — Save / Save as draft, Publish / Schedule.",
         "whenNotToUse": "Unrelated actions (DropdownMenu), a single action (Button), or value selection (Select).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1479,7 +1479,7 @@
       "meta": {
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), whole forms (Field), or plain click-to-edit with a synchronous commit and no status (FieldInline alone).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1505,7 +1505,7 @@
       "meta": {
         "whenToUse": "Any numeric value — quantities, limits, percentages, money (format={{ style: 'currency', currency }}) — where parsing, locale formatting, and stepping should be correct by construction.",
         "whenNotToUse": "Free-text that merely contains digits (phone numbers, postal codes, ids) — formatting/stepping semantics would fight the value; use Input.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1534,7 +1534,7 @@
       "meta": {
         "whenToUse": "Entering an open set of short tokens — tags, e-mail recipients, domains, webhook events — where values are typed or pasted, not picked from a finite list.",
         "whenNotToUse": "Selection from a known item set (Combobox multiple), or a read-only label list (TagGroup).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1558,7 +1558,7 @@
       "meta": {
         "whenToUse": "A floating bar of contextual actions tied to transient state — N selected, unsaved changes, a batch operation in flight. The host owns the state; the bar shows status and actions.",
         "whenNotToUse": "Transient outcome notifications (toast), page-level primary actions (PageHeader), or owning selection — the host's list keeps selectedIds.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1582,7 +1582,7 @@
       "meta": {
         "whenToUse": "Any bounded linear process — onboarding, wizards, checkout, import flows — where progress, a failed step, and the reason an advance is blocked must be communicated.",
         "whenNotToUse": "Free navigation between peer views (Tabs), compact progress where a step list is too heavy (ProgressIndicator segments), or unordered checklists (OnboardingChecklist).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1606,7 +1606,7 @@
       "meta": {
         "whenToUse": "Chronological records — activity feeds, audit trails, delivery logs — where entries need a visible temporal thread (rail + node) and rows compose Item/RelativeTime/Avatar.",
         "whenNotToUse": "Live bottom-pinned conversation feeds (MessageScroller), bounded processes with gating (Stepper), or plain lists with no temporal thread (ItemGroup).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1636,7 +1636,7 @@
       "meta": {
         "whenToUse": "Any app with keyboard shortcuts — declare each binding once (keys, label, category) and get the ?-dialog for free; the same data can feed tooltips and Command rows.",
         "whenNotToUse": "Inline shortcut hints (TooltipKbd, CommandShortcut) or executing bindings — the app's key handler owns dispatch.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1667,7 +1667,7 @@
       "meta": {
         "whenToUse": "Structured, saveable filters with nesting — build an and/or tree over a host-supplied field grammar with per-type value editors and caps.",
         "whenNotToUse": "A presentational chip row over host-owned filter state (filter-bar), or free-text search (Input in a toolbar).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1697,7 +1697,7 @@
       "meta": {
         "whenToUse": "User-orderable single lists — settings sections, pipeline stages, ordered taxonomies — where the host persists (and may refuse) the order.",
         "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1732,7 +1732,7 @@
       "meta": {
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1756,7 +1756,7 @@
       "meta": {
         "whenToUse": "A visible upload surface — drop files, click to browse, paste — that hands accepted File[]s to the host and typed rejections back.",
         "whenNotToUse": "Chrome-less acquisition inside another surface (compose use-file-drop directly) or rendering upload progress (Attachment).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1780,7 +1780,7 @@
       "meta": {
         "whenToUse": "Inline-edit a single text value in place — table cells, titles, detail rows.",
         "whenNotToUse": "Multi-line text, non-text inputs, or full forms with validation — use Field.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1804,7 +1804,7 @@
       "meta": {
         "whenToUse": "A timestamp relative to now — comment/activity times (ago) or calendar-day grouping (day).",
         "whenNotToUse": "A fixed absolute date that should never change — just format it once.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1828,7 +1828,7 @@
       "meta": {
         "whenToUse": "Settings/preferences screens — titled sections, bordered cards, label/description + control rows.",
         "whenNotToUse": "Free-form content surfaces (Card), data tables, or complex multi-field forms.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1853,7 +1853,7 @@
       "meta": {
         "whenToUse": "Display a resolved image URL with reserved aspect-ratio, a loading skeleton, and a graceful error fallback.",
         "whenNotToUse": "When you must fetch/resolve the source (R2/CDN keys) — presentational; resolve URLs app-side.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1878,7 +1878,7 @@
       "meta": {
         "whenToUse": "A bell trigger surfacing an unread count in app chrome — app owns the count and handler.",
         "whenNotToUse": "The notifications panel itself, or a generic count badge (Badge).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1902,7 +1902,7 @@
       "meta": {
         "whenToUse": "Product onboarding/setup checklists that live in the chrome.",
         "whenNotToUse": "Linear multi-step forms (compose Field/Progress) or task lists (app domain).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1928,7 +1928,7 @@
       "meta": {
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1952,7 +1952,7 @@
       "meta": {
         "whenToUse": "Fenced/source code that deserves a labelled, copyable panel.",
         "whenNotToUse": "Inline code (a mono chip) or terminal output theatre (Terminal).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -1979,7 +1979,7 @@
       "meta": {
         "whenToUse": "Brief confirmations of an action — 'Saved', 'Copied', 'Invitation sent'.",
         "whenNotToUse": "Errors the user must resolve, destructive confirmations, or essential info — use inline or a Dialog.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2000,7 +2000,7 @@
       "meta": {
         "whenToUse": "Once, around your app root (layout.tsx) — every VegaStack component below it gets dark mode, working toast() calls, shared tooltip delays, and direction context.",
         "whenNotToUse": "Anywhere below the root, or a second time — the bundled Toaster is a mount-once portal; pass toaster={false} if you must render your own.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2026,7 +2026,7 @@
       "meta": {
         "whenToUse": "A keyboard-first command palette or fuzzy-search picker — global ⌘K, action launchers, searchable lists.",
         "whenNotToUse": "A simple form select (Select), a small static action menu (DropdownMenu).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2055,7 +2055,7 @@
       "meta": {
         "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav, actions, favorite.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2087,7 +2087,7 @@
       "meta": {
         "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
         "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2111,7 +2111,7 @@
       "meta": {
         "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app.",
         "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2140,7 +2140,7 @@
       "meta": {
         "whenToUse": "Filter toolbars for lists/tables — active filters as removable chips + an Add-filter menu + optional search.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2165,7 +2165,7 @@
       "meta": {
         "whenToUse": "Settings-style fields that save on pause without a Save button — names, slugs, inline fields.",
         "whenNotToUse": "Form submission with a Save button, secrets, or one-time codes.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2191,7 +2191,7 @@
       "meta": {
         "whenToUse": "Collecting a country in an address/billing form — store the ISO code.",
         "whenNotToUse": "A small fixed option set (Select) or multi-select.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2226,7 +2226,7 @@
       "meta": {
         "whenToUse": "A state/province as part of an address form, dependent on the selected country.",
         "whenNotToUse": "A small country-independent option set (Select) or multi-select.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2252,7 +2252,7 @@
       "meta": {
         "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2281,7 +2281,7 @@
       "meta": {
         "whenToUse": "Pick a single color from a small curated set — labels, tags, calendar categories.",
         "whenNotToUse": "Full-spectrum hue/saturation/alpha selection.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2311,7 +2311,7 @@
       "meta": {
         "whenToUse": "Lightweight emoji insertion — reactions, comments, status, icon selection.",
         "whenNotToUse": "A complete Unicode emoji browser — extend the embedded set or use a library.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2347,7 +2347,7 @@
       "meta": {
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2377,7 +2377,7 @@
       "meta": {
         "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, and loading/empty states.",
         "whenNotToUse": "A board/kanban view (Board), full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2400,7 +2400,7 @@
       "meta": {
         "whenToUse": "Heterogeneous key→value panes (record details, metadata sidebars).",
         "whenNotToUse": "Homogeneous collections (DataList/Table) or form editing (Field).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2426,7 +2426,7 @@
       "meta": {
         "whenToUse": "A row of structured content in a feed, list, or panel — a person, file, notification, or settings link — with optional media and trailing actions.",
         "whenNotToUse": "Tabular/sortable data with columns (use Table or DataList) or a zero-data placeholder (use Empty).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2451,7 +2451,7 @@
       "meta": {
         "whenToUse": "Visualizing series data (trends, comparisons, breakdowns) with a Line/Bar/Area chart that needs to match the design system's theme automatically in light and dark.",
         "whenNotToUse": "Tabular/exact-value data a user needs to read precisely (Table), a single KPI number (a stat tile), or a progress/completion metric (Progress / ProgressIndicator).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2475,7 +2475,7 @@
       "meta": {
         "whenToUse": "A numeric stat/metric that updates over time and should visually count/tween to its new value — dashboard KPIs, live prices, counters.",
         "whenNotToUse": "A static number that never changes after render — just render it directly; the tween machinery adds nothing.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2496,7 +2496,7 @@
       "meta": {
         "whenToUse": "Replaying a motion-* utility on a user action (error shake, retry pop, etc.), especially on an element that might be focused (form controls) where a key-remount would steal focus.",
         "whenNotToUse": "One-shot mount animations that never need to replay — just apply the motion-* class directly.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2520,7 +2520,7 @@
       "meta": {
         "whenToUse": "Any reorder-by-drag surface — sortable lists, board cards, a future bespoke drag surface — where pointer, keyboard move mode, announcements, and server-refusable drops must all work from one API.",
         "whenNotToUse": "File drag-in (use-file-drop), resizing panes (Resizable), or single-axis value dragging (Slider).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2541,7 +2541,7 @@
       "meta": {
         "whenToUse": "Any surface that acquires files — a Dropzone, a rich-text composer accepting pasted screenshots, a bespoke drop target — where drag-depth handling, accept matching, and typed rejections should be correct by construction.",
         "whenNotToUse": "Rendering upload state (Attachment) or persisting uploads — acquisition ends at the File[] callback.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2562,7 +2562,7 @@
       "meta": {
         "whenToUse": "Any hand-rolled collection of focusable items that should read as ONE Tab stop with arrow-key movement — swatch grids, emoji grids, card lists, custom pickers.",
         "whenNotToUse": "Base UI-owned collections (Select, Combobox, Menu, Tabs) — their primitives already own roving focus; and single controls that need no internal navigation.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2583,7 +2583,7 @@
       "meta": {
         "whenToUse": "Any copy or control that branches on modifier-key conventions (Kbd's os prop, shortcut hints, Command footers) or on a coarse pointer.",
         "whenNotToUse": "Viewport-width layout switching — that is useIsMobile; and never wire it inside Kbd itself, which must stay server-safe.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2604,7 +2604,7 @@
       "meta": {
         "whenToUse": "Switching a layout between desktop and mobile treatments (e.g. Sidebar's rail vs. Sheet mode) based on real viewport width.",
         "whenNotToUse": "CSS-only responsive layout — reach for a Tailwind breakpoint utility instead when no JS branching is needed.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2632,7 +2632,7 @@
       "meta": {
         "whenToUse": "Short-to-medium rich text — comments, descriptions, release notes — via controlled HTML.",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -2651,7 +2651,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/a-arrow-down.json",
         "license": "MIT"
@@ -2673,7 +2673,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/a-arrow-up.json",
         "license": "MIT"
@@ -2695,7 +2695,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/accessibility.json",
         "license": "MIT"
@@ -2717,7 +2717,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/activity.json",
         "license": "MIT"
@@ -2739,7 +2739,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/air-vent.json",
         "license": "MIT"
@@ -2761,7 +2761,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/airplane.json",
         "license": "MIT"
@@ -2783,7 +2783,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/airplay.json",
         "license": "MIT"
@@ -2805,7 +2805,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/alarm-clock.json",
         "license": "MIT"
@@ -2827,7 +2827,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/alarm-clock-check.json",
         "license": "MIT"
@@ -2849,7 +2849,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/alarm-clock-minus.json",
         "license": "MIT"
@@ -2871,7 +2871,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/alarm-clock-plus.json",
         "license": "MIT"
@@ -2893,7 +2893,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/alarm-smoke.json",
         "license": "MIT"
@@ -2915,7 +2915,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/align-center.json",
         "license": "MIT"
@@ -2937,7 +2937,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/align-horizontal.json",
         "license": "MIT"
@@ -2959,7 +2959,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/align-left.json",
         "license": "MIT"
@@ -2981,7 +2981,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/align-right.json",
         "license": "MIT"
@@ -3003,7 +3003,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/align-vertical.json",
         "license": "MIT"
@@ -3025,7 +3025,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/ambulance.json",
         "license": "MIT"
@@ -3047,7 +3047,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/angry.json",
         "license": "MIT"
@@ -3069,7 +3069,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/annoyed.json",
         "license": "MIT"
@@ -3091,7 +3091,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/archive.json",
         "license": "MIT"
@@ -3113,7 +3113,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/arrow-big-down.json",
         "license": "MIT"
@@ -3135,7 +3135,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/arrow-big-down-dash.json",
         "license": "MIT"
@@ -3157,7 +3157,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/arrow-big-left.json",
         "license": "MIT"
@@ -3179,7 +3179,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/arrow-big-left-dash.json",
         "license": "MIT"
@@ -3201,7 +3201,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/arrow-big-right.json",
         "license": "MIT"
@@ -3223,7 +3223,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/arrow-big-right-dash.json",
         "license": "MIT"
@@ -3245,7 +3245,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/arrow-big-up.json",
         "license": "MIT"
@@ -3267,7 +3267,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/arrow-big-up-dash.json",
         "license": "MIT"
@@ -3289,7 +3289,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/arrow-down.json",
         "license": "MIT"
@@ -3311,7 +3311,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/arrow-down-0-1.json",
         "license": "MIT"
@@ -3333,7 +3333,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/arrow-down-1-0.json",
         "license": "MIT"
@@ -3355,7 +3355,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/arrow-down-a-z.json",
         "license": "MIT"
@@ -3377,7 +3377,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/arrow-down-left.json",
         "license": "MIT"
@@ -3399,7 +3399,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/arrow-down-right.json",
         "license": "MIT"
@@ -3421,7 +3421,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/arrow-down-z-a.json",
         "license": "MIT"
@@ -3443,7 +3443,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/arrow-left.json",
         "license": "MIT"
@@ -3465,7 +3465,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/arrow-right.json",
         "license": "MIT"
@@ -3487,7 +3487,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/arrow-up.json",
         "license": "MIT"
@@ -3509,7 +3509,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/arrow-up-left.json",
         "license": "MIT"
@@ -3531,7 +3531,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/arrow-up-right.json",
         "license": "MIT"
@@ -3553,7 +3553,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/at-sign.json",
         "license": "MIT"
@@ -3575,7 +3575,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/atom.json",
         "license": "MIT"
@@ -3597,7 +3597,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/attach-file.json",
         "license": "MIT"
@@ -3619,7 +3619,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/audio-lines.json",
         "license": "MIT"
@@ -3641,7 +3641,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/axe.json",
         "license": "MIT"
@@ -3663,7 +3663,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/badge-alert.json",
         "license": "MIT"
@@ -3685,7 +3685,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/badge-percent.json",
         "license": "MIT"
@@ -3707,7 +3707,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/ban.json",
         "license": "MIT"
@@ -3729,7 +3729,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/banana.json",
         "license": "MIT"
@@ -3751,7 +3751,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/battery.json",
         "license": "MIT"
@@ -3773,7 +3773,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/battery-charging.json",
         "license": "MIT"
@@ -3795,7 +3795,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/battery-full.json",
         "license": "MIT"
@@ -3817,7 +3817,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/battery-low.json",
         "license": "MIT"
@@ -3839,7 +3839,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/battery-medium.json",
         "license": "MIT"
@@ -3861,7 +3861,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/battery-plus.json",
         "license": "MIT"
@@ -3883,7 +3883,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/battery-warning.json",
         "license": "MIT"
@@ -3905,7 +3905,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/bell.json",
         "license": "MIT"
@@ -3927,7 +3927,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/bell-electric.json",
         "license": "MIT"
@@ -3949,7 +3949,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/biceps-flexed.json",
         "license": "MIT"
@@ -3971,7 +3971,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/blocks.json",
         "license": "MIT"
@@ -3993,7 +3993,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/bluetooth.json",
         "license": "MIT"
@@ -4015,7 +4015,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/bluetooth-connected.json",
         "license": "MIT"
@@ -4037,7 +4037,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/bluetooth-off.json",
         "license": "MIT"
@@ -4059,7 +4059,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/bluetooth-searching.json",
         "license": "MIT"
@@ -4081,7 +4081,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/bold.json",
         "license": "MIT"
@@ -4103,7 +4103,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/bone.json",
         "license": "MIT"
@@ -4125,7 +4125,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/book-text.json",
         "license": "MIT"
@@ -4147,7 +4147,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/bookmark.json",
         "license": "MIT"
@@ -4169,7 +4169,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/bookmark-check.json",
         "license": "MIT"
@@ -4191,7 +4191,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/bookmark-minus.json",
         "license": "MIT"
@@ -4213,7 +4213,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/bookmark-plus.json",
         "license": "MIT"
@@ -4235,7 +4235,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/bookmark-x.json",
         "license": "MIT"
@@ -4257,7 +4257,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/bot.json",
         "license": "MIT"
@@ -4279,7 +4279,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/bot-message-square.json",
         "license": "MIT"
@@ -4301,7 +4301,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/box.json",
         "license": "MIT"
@@ -4323,7 +4323,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/boxes.json",
         "license": "MIT"
@@ -4345,7 +4345,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/brain.json",
         "license": "MIT"
@@ -4367,7 +4367,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/briefcase-business.json",
         "license": "MIT"
@@ -4389,7 +4389,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/calendar-check.json",
         "license": "MIT"
@@ -4411,7 +4411,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/calendar-check-2.json",
         "license": "MIT"
@@ -4433,7 +4433,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/calendar-cog.json",
         "license": "MIT"
@@ -4455,7 +4455,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/calendar-days.json",
         "license": "MIT"
@@ -4477,7 +4477,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/cart.json",
         "license": "MIT"
@@ -4499,7 +4499,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/cast.json",
         "license": "MIT"
@@ -4521,7 +4521,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/cctv.json",
         "license": "MIT"
@@ -4543,7 +4543,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chart-bar-decreasing.json",
         "license": "MIT"
@@ -4565,7 +4565,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chart-bar-increasing.json",
         "license": "MIT"
@@ -4587,7 +4587,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chart-column-decreasing.json",
         "license": "MIT"
@@ -4609,7 +4609,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chart-column-increasing.json",
         "license": "MIT"
@@ -4631,7 +4631,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chart-line.json",
         "license": "MIT"
@@ -4653,7 +4653,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chart-no-axes-column-decreasing.json",
         "license": "MIT"
@@ -4675,7 +4675,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chart-no-axes-column-increasing.json",
         "license": "MIT"
@@ -4697,7 +4697,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chart-pie.json",
         "license": "MIT"
@@ -4719,7 +4719,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chart-scatter.json",
         "license": "MIT"
@@ -4741,7 +4741,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chart-spline.json",
         "license": "MIT"
@@ -4763,7 +4763,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/check.json",
         "license": "MIT"
@@ -4785,7 +4785,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/check-check.json",
         "license": "MIT"
@@ -4807,7 +4807,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chess-bishop.json",
         "license": "MIT"
@@ -4829,7 +4829,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chess-king.json",
         "license": "MIT"
@@ -4851,7 +4851,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chess-knight.json",
         "license": "MIT"
@@ -4873,7 +4873,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chess-pawn.json",
         "license": "MIT"
@@ -4895,7 +4895,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chevron-down.json",
         "license": "MIT"
@@ -4917,7 +4917,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chevron-first.json",
         "license": "MIT"
@@ -4939,7 +4939,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chevron-left.json",
         "license": "MIT"
@@ -4961,7 +4961,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chevron-right.json",
         "license": "MIT"
@@ -4983,7 +4983,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chevron-up.json",
         "license": "MIT"
@@ -5005,7 +5005,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chevrons-down-up.json",
         "license": "MIT"
@@ -5027,7 +5027,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chevrons-left-right.json",
         "license": "MIT"
@@ -5049,7 +5049,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chevrons-right-left.json",
         "license": "MIT"
@@ -5071,7 +5071,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chevrons-up-down.json",
         "license": "MIT"
@@ -5093,7 +5093,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/chrome.json",
         "license": "MIT"
@@ -5115,7 +5115,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/circle-check.json",
         "license": "MIT"
@@ -5137,7 +5137,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/circle-chevron-down.json",
         "license": "MIT"
@@ -5159,7 +5159,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/circle-chevron-left.json",
         "license": "MIT"
@@ -5181,7 +5181,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/circle-chevron-right.json",
         "license": "MIT"
@@ -5203,7 +5203,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/circle-chevron-up.json",
         "license": "MIT"
@@ -5225,7 +5225,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/circle-dashed.json",
         "license": "MIT"
@@ -5247,7 +5247,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/circle-dollar-sign.json",
         "license": "MIT"
@@ -5269,7 +5269,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/circle-help.json",
         "license": "MIT"
@@ -5291,7 +5291,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/clap.json",
         "license": "MIT"
@@ -5313,7 +5313,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/clipboard-check.json",
         "license": "MIT"
@@ -5335,7 +5335,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/clock.json",
         "license": "MIT"
@@ -5357,7 +5357,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/cloud-cog.json",
         "license": "MIT"
@@ -5379,7 +5379,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/cloud-download.json",
         "license": "MIT"
@@ -5401,7 +5401,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/cloud-lightning.json",
         "license": "MIT"
@@ -5423,7 +5423,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/cloud-rain.json",
         "license": "MIT"
@@ -5445,7 +5445,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/cloud-rain-wind.json",
         "license": "MIT"
@@ -5467,7 +5467,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/cloud-snow.json",
         "license": "MIT"
@@ -5489,7 +5489,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/cloud-sun.json",
         "license": "MIT"
@@ -5511,7 +5511,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/cloud-upload.json",
         "license": "MIT"
@@ -5533,7 +5533,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/coffee.json",
         "license": "MIT"
@@ -5555,7 +5555,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/cog.json",
         "license": "MIT"
@@ -5577,7 +5577,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/compass.json",
         "license": "MIT"
@@ -5599,7 +5599,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/concierge-bell.json",
         "license": "MIT"
@@ -5621,7 +5621,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/connect.json",
         "license": "MIT"
@@ -5643,7 +5643,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/construction.json",
         "license": "MIT"
@@ -5665,7 +5665,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/contrast.json",
         "license": "MIT"
@@ -5687,7 +5687,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/cooking-pot.json",
         "license": "MIT"
@@ -5709,7 +5709,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/copy.json",
         "license": "MIT"
@@ -5731,7 +5731,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/corner-down-left.json",
         "license": "MIT"
@@ -5753,7 +5753,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/corner-down-right.json",
         "license": "MIT"
@@ -5775,7 +5775,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/corner-left-down.json",
         "license": "MIT"
@@ -5797,7 +5797,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/corner-left-up.json",
         "license": "MIT"
@@ -5819,7 +5819,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/corner-right-down.json",
         "license": "MIT"
@@ -5841,7 +5841,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/corner-right-up.json",
         "license": "MIT"
@@ -5863,7 +5863,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/corner-up-left.json",
         "license": "MIT"
@@ -5885,7 +5885,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/corner-up-right.json",
         "license": "MIT"
@@ -5907,7 +5907,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/cpu.json",
         "license": "MIT"
@@ -5929,7 +5929,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/credit-card.json",
         "license": "MIT"
@@ -5951,7 +5951,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/cup-soda.json",
         "license": "MIT"
@@ -5973,7 +5973,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/cursor-click.json",
         "license": "MIT"
@@ -5995,7 +5995,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/database-backup.json",
         "license": "MIT"
@@ -6017,7 +6017,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/delete.json",
         "license": "MIT"
@@ -6039,7 +6039,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/disc-3.json",
         "license": "MIT"
@@ -6061,7 +6061,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/discord.json",
         "license": "MIT"
@@ -6083,7 +6083,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/dollar-sign.json",
         "license": "MIT"
@@ -6105,7 +6105,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/download.json",
         "license": "MIT"
@@ -6127,7 +6127,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/downvote.json",
         "license": "MIT"
@@ -6149,7 +6149,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/dribbble.json",
         "license": "MIT"
@@ -6171,7 +6171,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/droplet.json",
         "license": "MIT"
@@ -6193,7 +6193,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/drum.json",
         "license": "MIT"
@@ -6215,7 +6215,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/earth.json",
         "license": "MIT"
@@ -6237,7 +6237,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/euro.json",
         "license": "MIT"
@@ -6259,7 +6259,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/ev-charger.json",
         "license": "MIT"
@@ -6281,7 +6281,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/expand.json",
         "license": "MIT"
@@ -6303,7 +6303,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/eye.json",
         "license": "MIT"
@@ -6325,7 +6325,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/eye-off.json",
         "license": "MIT"
@@ -6347,7 +6347,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/facebook.json",
         "license": "MIT"
@@ -6369,7 +6369,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/fan.json",
         "license": "MIT"
@@ -6391,7 +6391,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/feather.json",
         "license": "MIT"
@@ -6413,7 +6413,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/figma.json",
         "license": "MIT"
@@ -6435,7 +6435,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/file-chart-line.json",
         "license": "MIT"
@@ -6457,7 +6457,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/file-check.json",
         "license": "MIT"
@@ -6479,7 +6479,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/file-check-2.json",
         "license": "MIT"
@@ -6501,7 +6501,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/file-cog.json",
         "license": "MIT"
@@ -6523,7 +6523,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/file-pen-line.json",
         "license": "MIT"
@@ -6545,7 +6545,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/file-stack.json",
         "license": "MIT"
@@ -6567,7 +6567,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/file-text.json",
         "license": "MIT"
@@ -6589,7 +6589,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/fingerprint.json",
         "license": "MIT"
@@ -6611,7 +6611,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/fish-symbol.json",
         "license": "MIT"
@@ -6633,7 +6633,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/flame.json",
         "license": "MIT"
@@ -6655,7 +6655,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/flask.json",
         "license": "MIT"
@@ -6677,7 +6677,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folder-archive.json",
         "license": "MIT"
@@ -6699,7 +6699,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folder-check.json",
         "license": "MIT"
@@ -6721,7 +6721,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folder-clock.json",
         "license": "MIT"
@@ -6743,7 +6743,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folder-code.json",
         "license": "MIT"
@@ -6765,7 +6765,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folder-cog.json",
         "license": "MIT"
@@ -6787,7 +6787,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folder-dot.json",
         "license": "MIT"
@@ -6809,7 +6809,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folder-down.json",
         "license": "MIT"
@@ -6831,7 +6831,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folder-git.json",
         "license": "MIT"
@@ -6853,7 +6853,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folder-git-2.json",
         "license": "MIT"
@@ -6875,7 +6875,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folder-heart.json",
         "license": "MIT"
@@ -6897,7 +6897,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folder-input.json",
         "license": "MIT"
@@ -6919,7 +6919,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folder-kanban.json",
         "license": "MIT"
@@ -6941,7 +6941,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folder-key.json",
         "license": "MIT"
@@ -6963,7 +6963,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folder-lock.json",
         "license": "MIT"
@@ -6985,7 +6985,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folder-minus.json",
         "license": "MIT"
@@ -7007,7 +7007,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folder-open.json",
         "license": "MIT"
@@ -7029,7 +7029,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folder-output.json",
         "license": "MIT"
@@ -7051,7 +7051,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folder-plus.json",
         "license": "MIT"
@@ -7073,7 +7073,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folder-root.json",
         "license": "MIT"
@@ -7095,7 +7095,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folder-sync.json",
         "license": "MIT"
@@ -7117,7 +7117,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folder-tree.json",
         "license": "MIT"
@@ -7139,7 +7139,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folder-up.json",
         "license": "MIT"
@@ -7161,7 +7161,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folder-x.json",
         "license": "MIT"
@@ -7183,7 +7183,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/folders.json",
         "license": "MIT"
@@ -7205,7 +7205,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/frame.json",
         "license": "MIT"
@@ -7227,7 +7227,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/frown.json",
         "license": "MIT"
@@ -7249,7 +7249,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/gallery-horizontal-end.json",
         "license": "MIT"
@@ -7271,7 +7271,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/gallery-thumbnails.json",
         "license": "MIT"
@@ -7293,7 +7293,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/gallery-vertical-end.json",
         "license": "MIT"
@@ -7315,7 +7315,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/gauge.json",
         "license": "MIT"
@@ -7337,7 +7337,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/gavel.json",
         "license": "MIT"
@@ -7359,7 +7359,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/georgian-lari.json",
         "license": "MIT"
@@ -7381,7 +7381,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/git-branch.json",
         "license": "MIT"
@@ -7403,7 +7403,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/git-commit-horizontal.json",
         "license": "MIT"
@@ -7425,7 +7425,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/git-commit-vertical.json",
         "license": "MIT"
@@ -7447,7 +7447,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/git-compare.json",
         "license": "MIT"
@@ -7469,7 +7469,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/git-compare-arrows.json",
         "license": "MIT"
@@ -7491,7 +7491,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/git-fork.json",
         "license": "MIT"
@@ -7513,7 +7513,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/git-graph.json",
         "license": "MIT"
@@ -7535,7 +7535,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/git-merge.json",
         "license": "MIT"
@@ -7557,7 +7557,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/git-pull-request.json",
         "license": "MIT"
@@ -7579,7 +7579,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/git-pull-request-closed.json",
         "license": "MIT"
@@ -7601,7 +7601,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/git-pull-request-create.json",
         "license": "MIT"
@@ -7623,7 +7623,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/github.json",
         "license": "MIT"
@@ -7645,7 +7645,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/gitlab.json",
         "license": "MIT"
@@ -7667,7 +7667,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/graduation-cap.json",
         "license": "MIT"
@@ -7689,7 +7689,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/grip.json",
         "license": "MIT"
@@ -7711,7 +7711,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/grip-horizontal.json",
         "license": "MIT"
@@ -7733,7 +7733,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/grip-vertical.json",
         "license": "MIT"
@@ -7755,7 +7755,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/hammer.json",
         "license": "MIT"
@@ -7777,7 +7777,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/hand.json",
         "license": "MIT"
@@ -7799,7 +7799,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/hand-coins.json",
         "license": "MIT"
@@ -7821,7 +7821,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/hand-fist.json",
         "license": "MIT"
@@ -7843,7 +7843,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/hand-grab.json",
         "license": "MIT"
@@ -7865,7 +7865,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/hand-heart.json",
         "license": "MIT"
@@ -7887,7 +7887,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/hand-helping.json",
         "license": "MIT"
@@ -7909,7 +7909,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/hand-metal.json",
         "license": "MIT"
@@ -7931,7 +7931,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/hard-drive-download.json",
         "license": "MIT"
@@ -7953,7 +7953,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/hard-drive-upload.json",
         "license": "MIT"
@@ -7975,7 +7975,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/heart.json",
         "license": "MIT"
@@ -7997,7 +7997,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/heart-handshake.json",
         "license": "MIT"
@@ -8019,7 +8019,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/heart-pulse.json",
         "license": "MIT"
@@ -8041,7 +8041,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/history.json",
         "license": "MIT"
@@ -8063,7 +8063,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/home.json",
         "license": "MIT"
@@ -8085,7 +8085,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/hourglass.json",
         "license": "MIT"
@@ -8107,7 +8107,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/id-card.json",
         "license": "MIT"
@@ -8129,7 +8129,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/indian-rupee.json",
         "license": "MIT"
@@ -8151,7 +8151,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/instagram.json",
         "license": "MIT"
@@ -8173,7 +8173,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/italic.json",
         "license": "MIT"
@@ -8195,7 +8195,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/japanese-yen.json",
         "license": "MIT"
@@ -8217,7 +8217,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/key.json",
         "license": "MIT"
@@ -8239,7 +8239,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/key-circle.json",
         "license": "MIT"
@@ -8261,7 +8261,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/key-square.json",
         "license": "MIT"
@@ -8283,7 +8283,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/keyboard.json",
         "license": "MIT"
@@ -8305,7 +8305,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/languages.json",
         "license": "MIT"
@@ -8327,7 +8327,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/laptop-minimal-check.json",
         "license": "MIT"
@@ -8349,7 +8349,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/laugh.json",
         "license": "MIT"
@@ -8371,7 +8371,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/layers.json",
         "license": "MIT"
@@ -8393,7 +8393,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/layout-grid.json",
         "license": "MIT"
@@ -8415,7 +8415,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/layout-panel-top.json",
         "license": "MIT"
@@ -8437,7 +8437,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/link.json",
         "license": "MIT"
@@ -8459,7 +8459,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/linkedin.json",
         "license": "MIT"
@@ -8481,7 +8481,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/loader.json",
         "license": "MIT"
@@ -8503,7 +8503,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/loader-circle.json",
         "license": "MIT"
@@ -8525,7 +8525,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/loader-pinwheel.json",
         "license": "MIT"
@@ -8547,7 +8547,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/lock.json",
         "license": "MIT"
@@ -8569,7 +8569,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/lock-keyhole.json",
         "license": "MIT"
@@ -8591,7 +8591,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/lock-keyhole-open.json",
         "license": "MIT"
@@ -8613,7 +8613,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/lock-open.json",
         "license": "MIT"
@@ -8635,7 +8635,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/login.json",
         "license": "MIT"
@@ -8657,7 +8657,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/logout.json",
         "license": "MIT"
@@ -8679,7 +8679,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/mail-check.json",
         "license": "MIT"
@@ -8701,7 +8701,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/mailbox.json",
         "license": "MIT"
@@ -8723,7 +8723,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/map-pin.json",
         "license": "MIT"
@@ -8745,7 +8745,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/map-pin-check.json",
         "license": "MIT"
@@ -8767,7 +8767,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/map-pin-check-inside.json",
         "license": "MIT"
@@ -8789,7 +8789,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/map-pin-house.json",
         "license": "MIT"
@@ -8811,7 +8811,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/map-pin-minus.json",
         "license": "MIT"
@@ -8833,7 +8833,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/map-pin-minus-inside.json",
         "license": "MIT"
@@ -8855,7 +8855,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/map-pin-off.json",
         "license": "MIT"
@@ -8877,7 +8877,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/map-pin-plus.json",
         "license": "MIT"
@@ -8899,7 +8899,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/map-pin-plus-inside.json",
         "license": "MIT"
@@ -8921,7 +8921,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/map-pin-x-inside.json",
         "license": "MIT"
@@ -8943,7 +8943,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/maximize.json",
         "license": "MIT"
@@ -8965,7 +8965,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/maximize-2.json",
         "license": "MIT"
@@ -8987,7 +8987,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/meh.json",
         "license": "MIT"
@@ -9009,7 +9009,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/menu.json",
         "license": "MIT"
@@ -9031,7 +9031,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/message-circle.json",
         "license": "MIT"
@@ -9053,7 +9053,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/message-circle-check.json",
         "license": "MIT"
@@ -9075,7 +9075,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/message-circle-dashed.json",
         "license": "MIT"
@@ -9097,7 +9097,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/message-circle-more.json",
         "license": "MIT"
@@ -9119,7 +9119,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/message-circle-plus.json",
         "license": "MIT"
@@ -9141,7 +9141,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/message-circle-x.json",
         "license": "MIT"
@@ -9163,7 +9163,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/message-square.json",
         "license": "MIT"
@@ -9185,7 +9185,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/message-square-check.json",
         "license": "MIT"
@@ -9207,7 +9207,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/message-square-dashed.json",
         "license": "MIT"
@@ -9229,7 +9229,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/message-square-more.json",
         "license": "MIT"
@@ -9251,7 +9251,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/message-square-plus.json",
         "license": "MIT"
@@ -9273,7 +9273,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/message-square-x.json",
         "license": "MIT"
@@ -9295,7 +9295,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/mic.json",
         "license": "MIT"
@@ -9317,7 +9317,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/mic-off.json",
         "license": "MIT"
@@ -9339,7 +9339,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/minimize.json",
         "license": "MIT"
@@ -9361,7 +9361,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/monitor-check.json",
         "license": "MIT"
@@ -9383,7 +9383,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/moon.json",
         "license": "MIT"
@@ -9405,7 +9405,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/nfc.json",
         "license": "MIT"
@@ -9427,7 +9427,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/panel-left-close.json",
         "license": "MIT"
@@ -9449,7 +9449,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/panel-left-open.json",
         "license": "MIT"
@@ -9471,7 +9471,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/panel-right-open.json",
         "license": "MIT"
@@ -9493,7 +9493,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/party-popper.json",
         "license": "MIT"
@@ -9515,7 +9515,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/pause.json",
         "license": "MIT"
@@ -9537,7 +9537,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/pen-tool.json",
         "license": "MIT"
@@ -9559,7 +9559,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/philippine-peso.json",
         "license": "MIT"
@@ -9581,7 +9581,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/phone.json",
         "license": "MIT"
@@ -9603,7 +9603,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/phone-call.json",
         "license": "MIT"
@@ -9625,7 +9625,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/phone-forwarded.json",
         "license": "MIT"
@@ -9647,7 +9647,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/phone-incoming.json",
         "license": "MIT"
@@ -9669,7 +9669,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/phone-missed.json",
         "license": "MIT"
@@ -9691,7 +9691,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/phone-off.json",
         "license": "MIT"
@@ -9713,7 +9713,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/pickaxe.json",
         "license": "MIT"
@@ -9735,7 +9735,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/play.json",
         "license": "MIT"
@@ -9757,7 +9757,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/plug-zap.json",
         "license": "MIT"
@@ -9779,7 +9779,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/plus.json",
         "license": "MIT"
@@ -9801,7 +9801,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/pound-sterling.json",
         "license": "MIT"
@@ -9823,7 +9823,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/projector.json",
         "license": "MIT"
@@ -9845,7 +9845,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/rabbit.json",
         "license": "MIT"
@@ -9867,7 +9867,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/radio.json",
         "license": "MIT"
@@ -9889,7 +9889,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/radio-tower.json",
         "license": "MIT"
@@ -9911,7 +9911,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/receipt.json",
         "license": "MIT"
@@ -9933,7 +9933,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/receipt-cent.json",
         "license": "MIT"
@@ -9955,7 +9955,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/receipt-euro.json",
         "license": "MIT"
@@ -9977,7 +9977,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/receipt-indian-rupee.json",
         "license": "MIT"
@@ -9999,7 +9999,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/receipt-japanese-yen.json",
         "license": "MIT"
@@ -10021,7 +10021,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/receipt-pound-sterling.json",
         "license": "MIT"
@@ -10043,7 +10043,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/receipt-russian-ruble.json",
         "license": "MIT"
@@ -10065,7 +10065,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/receipt-swiss-franc.json",
         "license": "MIT"
@@ -10087,7 +10087,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/receipt-text.json",
         "license": "MIT"
@@ -10109,7 +10109,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/receipt-turkish-lira.json",
         "license": "MIT"
@@ -10131,7 +10131,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/redo.json",
         "license": "MIT"
@@ -10153,7 +10153,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/redo-dot.json",
         "license": "MIT"
@@ -10175,7 +10175,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/refresh-ccw.json",
         "license": "MIT"
@@ -10197,7 +10197,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/refresh-ccw-dot.json",
         "license": "MIT"
@@ -10219,7 +10219,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/refresh-cw.json",
         "license": "MIT"
@@ -10241,7 +10241,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/refresh-cw-off.json",
         "license": "MIT"
@@ -10263,7 +10263,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/rocket.json",
         "license": "MIT"
@@ -10285,7 +10285,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/rocking-chair.json",
         "license": "MIT"
@@ -10307,7 +10307,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/roller-coaster.json",
         "license": "MIT"
@@ -10329,7 +10329,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/rotate-ccw.json",
         "license": "MIT"
@@ -10351,7 +10351,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/rotate-cw.json",
         "license": "MIT"
@@ -10373,7 +10373,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/route.json",
         "license": "MIT"
@@ -10395,7 +10395,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/router.json",
         "license": "MIT"
@@ -10417,7 +10417,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/russian-ruble.json",
         "license": "MIT"
@@ -10439,7 +10439,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/satellite-dish.json",
         "license": "MIT"
@@ -10461,7 +10461,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/saudi-riyal.json",
         "license": "MIT"
@@ -10483,7 +10483,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/scan-face.json",
         "license": "MIT"
@@ -10505,7 +10505,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/scan-text.json",
         "license": "MIT"
@@ -10527,7 +10527,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/search.json",
         "license": "MIT"
@@ -10549,7 +10549,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/send.json",
         "license": "MIT"
@@ -10571,7 +10571,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/settings.json",
         "license": "MIT"
@@ -10593,7 +10593,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/shield-check.json",
         "license": "MIT"
@@ -10615,7 +10615,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/ship.json",
         "license": "MIT"
@@ -10637,7 +10637,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/shower-head.json",
         "license": "MIT"
@@ -10659,7 +10659,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/shrink.json",
         "license": "MIT"
@@ -10681,7 +10681,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/sliders-horizontal.json",
         "license": "MIT"
@@ -10703,7 +10703,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/smartphone-charging.json",
         "license": "MIT"
@@ -10725,7 +10725,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/smartphone-nfc.json",
         "license": "MIT"
@@ -10747,7 +10747,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/smile.json",
         "license": "MIT"
@@ -10769,7 +10769,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/smile-plus.json",
         "license": "MIT"
@@ -10791,7 +10791,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/snowflake.json",
         "license": "MIT"
@@ -10813,7 +10813,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/sparkles.json",
         "license": "MIT"
@@ -10835,7 +10835,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/square-activity.json",
         "license": "MIT"
@@ -10857,7 +10857,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/square-arrow-down.json",
         "license": "MIT"
@@ -10879,7 +10879,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/square-arrow-left.json",
         "license": "MIT"
@@ -10901,7 +10901,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/square-arrow-right.json",
         "license": "MIT"
@@ -10923,7 +10923,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/square-arrow-up.json",
         "license": "MIT"
@@ -10945,7 +10945,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/square-chevron-down.json",
         "license": "MIT"
@@ -10967,7 +10967,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/square-chevron-left.json",
         "license": "MIT"
@@ -10989,7 +10989,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/square-chevron-right.json",
         "license": "MIT"
@@ -11011,7 +11011,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/square-chevron-up.json",
         "license": "MIT"
@@ -11033,7 +11033,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/square-pen.json",
         "license": "MIT"
@@ -11055,7 +11055,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/square-stack.json",
         "license": "MIT"
@@ -11077,7 +11077,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/stamp.json",
         "license": "MIT"
@@ -11099,7 +11099,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/stethoscope.json",
         "license": "MIT"
@@ -11121,7 +11121,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/sun.json",
         "license": "MIT"
@@ -11143,7 +11143,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/sun-dim.json",
         "license": "MIT"
@@ -11165,7 +11165,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/sun-medium.json",
         "license": "MIT"
@@ -11187,7 +11187,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/sun-moon.json",
         "license": "MIT"
@@ -11209,7 +11209,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/sunset.json",
         "license": "MIT"
@@ -11231,7 +11231,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/swiss-franc.json",
         "license": "MIT"
@@ -11253,7 +11253,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/switch-camera.json",
         "license": "MIT"
@@ -11275,7 +11275,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/syringe.json",
         "license": "MIT"
@@ -11297,7 +11297,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/telescope.json",
         "license": "MIT"
@@ -11319,7 +11319,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/terminal.json",
         "license": "MIT"
@@ -11341,7 +11341,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/thermometer.json",
         "license": "MIT"
@@ -11363,7 +11363,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/timer.json",
         "license": "MIT"
@@ -11385,7 +11385,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/tornado.json",
         "license": "MIT"
@@ -11407,7 +11407,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/train-track.json",
         "license": "MIT"
@@ -11429,7 +11429,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/trending-down.json",
         "license": "MIT"
@@ -11451,7 +11451,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/trending-up.json",
         "license": "MIT"
@@ -11473,7 +11473,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/trending-up-down.json",
         "license": "MIT"
@@ -11495,7 +11495,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/truck.json",
         "license": "MIT"
@@ -11517,7 +11517,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/turkish-lira.json",
         "license": "MIT"
@@ -11539,7 +11539,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/twitch.json",
         "license": "MIT"
@@ -11561,7 +11561,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/twitter.json",
         "license": "MIT"
@@ -11583,7 +11583,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/underline.json",
         "license": "MIT"
@@ -11605,7 +11605,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/undo.json",
         "license": "MIT"
@@ -11627,7 +11627,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/undo-dot.json",
         "license": "MIT"
@@ -11649,7 +11649,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/upload.json",
         "license": "MIT"
@@ -11671,7 +11671,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/upvote.json",
         "license": "MIT"
@@ -11693,7 +11693,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/user.json",
         "license": "MIT"
@@ -11715,7 +11715,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/user-check.json",
         "license": "MIT"
@@ -11737,7 +11737,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/user-round-check.json",
         "license": "MIT"
@@ -11759,7 +11759,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/user-round-cog.json",
         "license": "MIT"
@@ -11781,7 +11781,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/user-round-plus.json",
         "license": "MIT"
@@ -11803,7 +11803,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/users.json",
         "license": "MIT"
@@ -11825,7 +11825,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/users-round.json",
         "license": "MIT"
@@ -11847,7 +11847,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/vibrate.json",
         "license": "MIT"
@@ -11869,7 +11869,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/volume.json",
         "license": "MIT"
@@ -11891,7 +11891,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/wallet.json",
         "license": "MIT"
@@ -11913,7 +11913,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/washing-machine.json",
         "license": "MIT"
@@ -11935,7 +11935,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/waves.json",
         "license": "MIT"
@@ -11957,7 +11957,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/waves-ladder.json",
         "license": "MIT"
@@ -11979,7 +11979,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/waypoints.json",
         "license": "MIT"
@@ -12001,7 +12001,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/webhook.json",
         "license": "MIT"
@@ -12023,7 +12023,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/wifi.json",
         "license": "MIT"
@@ -12045,7 +12045,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/wifi-cog.json",
         "license": "MIT"
@@ -12067,7 +12067,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/wifi-low.json",
         "license": "MIT"
@@ -12089,7 +12089,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/wifi-pen.json",
         "license": "MIT"
@@ -12111,7 +12111,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/wifi-sync.json",
         "license": "MIT"
@@ -12133,7 +12133,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/wind.json",
         "license": "MIT"
@@ -12155,7 +12155,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/wind-arrow-down.json",
         "license": "MIT"
@@ -12177,7 +12177,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/workflow.json",
         "license": "MIT"
@@ -12199,7 +12199,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/wrench.json",
         "license": "MIT"
@@ -12221,7 +12221,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/x.json",
         "license": "MIT"
@@ -12243,7 +12243,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/youtube.json",
         "license": "MIT"
@@ -12265,7 +12265,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/zap.json",
         "license": "MIT"
@@ -12287,7 +12287,7 @@
         }
       ],
       "meta": {
-        "version": "0.4.0",
+        "version": "0.4.1",
         "source": "lucide-animated",
         "upstream": "https://lucide-animated.com/r/zap-off.json",
         "license": "MIT"
@@ -12363,7 +12363,7 @@
       "meta": {
         "whenToUse": "Starting a new AI-platform-style dashboard route — pull once and own it (not hash-tracked/re-pulled like app-shell).",
         "whenNotToUse": "You just need the shared shell mechanics across many routes — install app-shell/sidebar directly instead.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -12388,7 +12388,7 @@
       "meta": {
         "whenToUse": "Wrap a marketing hero or section band so it renders the dark brand ground even when the surrounding product page is light.",
         "whenNotToUse": "Anything that needs a Base UI portal (Select, Dialog, Popover, …) to inherit the dark ground — portals mount outside this subtree.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -12412,7 +12412,7 @@
       "meta": {
         "whenToUse": "Lead in a marketing section with an eyebrow + display title + optional description.",
         "whenNotToUse": "Product UI headings — use text-h1…h4 directly; SectionHeader is marketing-scale.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -12436,7 +12436,7 @@
       "meta": {
         "whenToUse": "Frame a single screenshot, video, or live demo on a marketing surface.",
         "whenNotToUse": "Product-surface media — product radii/framing stay unchanged (6/8/12 scale).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -12463,7 +12463,7 @@
       "meta": {
         "whenToUse": "Install snippets and short, copyable command sequences on a marketing surface.",
         "whenNotToUse": "Long-form code samples — use a standard code block.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -12487,7 +12487,7 @@
       "meta": {
         "whenToUse": "A trust bar of partner/integration wordmarks (text only — never real, uncleared logos).",
         "whenNotToUse": "A single featured partner/customer — use a dedicated callout instead.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -12511,7 +12511,7 @@
       "meta": {
         "whenToUse": "A short customer/user pull-quote on a marketing surface.",
         "whenNotToUse": "Long-form endorsements — this is a display-scale pull-quote, not a case study.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -12535,7 +12535,7 @@
       "meta": {
         "whenToUse": "One temporary message with one action (releases, promos, sync prompts).",
         "whenNotToUse": "Status feedback (Alert/Toast) or permanent notices (Alert strip).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -12558,7 +12558,7 @@
       "meta": {
         "whenToUse": "Editorial page bands: section meta, dates, counts, serial codes.",
         "whenNotToUse": "Page headers with actions (PageHeader) or table headers.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -12583,7 +12583,7 @@
       "meta": {
         "whenToUse": "Marketing pricing pages and plan pickers.",
         "whenNotToUse": "In-app plan state (Alert variant=strip) or feature comparison detail (ComparisonMatrix).",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -12607,7 +12607,7 @@
       "meta": {
         "whenToUse": "Feature-by-plan comparison under a pricing section.",
         "whenNotToUse": "Data tables (Table) or spec sheets without plan columns.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -12631,7 +12631,7 @@
       "meta": {
         "whenToUse": "A hero headline's entrance, composed inside a real heading element.",
         "whenNotToUse": "Body copy, or anywhere the entrance would replay on every re-render/scroll.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     },
     {
@@ -12655,7 +12655,7 @@
       "meta": {
         "whenToUse": "Subtle hero-background atmosphere over a dark marketing ground.",
         "whenNotToUse": "A focal element, or more than one instance in the same viewport.",
-        "version": "0.4.0"
+        "version": "0.4.1"
       }
     }
   ]
