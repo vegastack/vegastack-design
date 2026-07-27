@@ -32,7 +32,7 @@ const SELF_HOSTED = "[self-hosted, vsk-runners-mac-mini]";
 //
 // NO BROWSER RUNS IN CI AT ALL. That is the whole point of the local-first topology
 // (docs/plans/2026-07-25-cicd-local-first-revamp.md): the Vitest browser suite, the cross-engine
-// smoke, the three-engine suite, and the 768 behaviour contracts run in `.husky/pre-push` on a
+// smoke, the three-engine suite, and the 864 behaviour contracts run in `.husky/pre-push` on a
 // developer machine and are attested by `.gates/receipt.json`, which the `receipt-guard` job in each
 // workflow verifies against the pushed tree. So the mac minis' inability to launch Chromium — a host
 // bug, recorded in AGENTS.md § Locked decisions — no longer blocks anything, and every job that
@@ -53,16 +53,10 @@ const GITHUB_HOSTED_JOBS = {
   "release.yml": ["package-build", "publish"],
   // sign-curated: the only OIDC job; self-hosted Sigstore behaviour is unverified, ~30s, no
   //   repository code. deploy-curated: credential-only, third-party actions, nothing to gain. The
-  //   three boundary jobs must originate OUTSIDE VegaStack's network — a runner inside it can be
-  //   silently authenticated by Cloudflare device posture, which would void an anonymous-rejection
+  //   boundary job must originate OUTSIDE VegaStack's network — a runner inside it can be silently
+  //   authenticated by Cloudflare device posture, which would void the anonymous registry-denial
   //   proof rather than merely risk it.
-  "deploy.yml": [
-    "sign-curated",
-    "deploy-curated",
-    "pre-cutover-purge",
-    "verify-protected-boundary",
-    "verify-public-boundary",
-  ],
+  "deploy.yml": ["sign-curated", "deploy-curated", "verify-public-boundary"],
 };
 
 /**
@@ -338,16 +332,11 @@ assert.match(
   sources["deploy.yml"],
   /DISPATCH_REF[^\n]*\n[\s\S]*refs\/heads\/main/,
 );
-assert.match(
+assert.doesNotMatch(
   sources["deploy.yml"],
-  /CUTOVER_PHASE: \$\{\{ inputs\.cutover_phase \}\}/,
+  /cutover_phase|PUBLIC_DOCS_CUTOVER|probe-precutover-protection|pre-cutover-purge|verify-protected-boundary/,
+  "deploy.yml: the completed public-site rollout must not retain obsolete cutover branches",
 );
-assert.match(
-  sources["deploy.yml"],
-  /CUTOVER_STATE: \$\{\{ vars\.PUBLIC_DOCS_CUTOVER \}\}/,
-);
-assert.match(sources["deploy.yml"], /CUTOVER_PHASE" = "prepare"/);
-assert.match(sources["deploy.yml"], /CUTOVER_STATE" = "complete"/);
 const signingJob = jobBlock(sources["deploy.yml"], "sign-curated");
 const deploymentJob = jobBlock(sources["deploy.yml"], "deploy-curated");
 assert.match(signingJob, /^    needs: build-curated$/m);
@@ -377,46 +366,21 @@ assert.doesNotMatch(
   "deploy.yml: command-substitution clean check can pass when git itself fails",
 );
 
-const preCutoverJob = jobBlock(sources["deploy.yml"], "pre-cutover-purge");
-const protectedVerificationJob = jobBlock(
-  sources["deploy.yml"],
-  "verify-protected-boundary",
-);
 const publicVerificationJob = jobBlock(
   sources["deploy.yml"],
   "verify-public-boundary",
 );
-assert.match(preCutoverJob, /^    needs: deploy-curated$/m);
-assert.match(protectedVerificationJob, /^    needs: deploy-curated$/m);
 assert.match(publicVerificationJob, /^    needs: deploy-curated$/m);
-
-// The one-time purge asserts `/` is NOT 200; the public probe asserts it IS. They must be separate
-// dispatch phases so an operator can remove root SSO between them without a GitHub Environment.
 assert.match(
-  preCutoverJob,
-  /^    if: inputs\.cutover_phase == 'prepare' && vars\.PUBLIC_DOCS_CUTOVER != 'complete'$/m,
-  "deploy.yml: purge must require the prepare phase and an incomplete cutover",
-);
-assert.match(
-  sources["deploy.yml"],
-  /cutover_phase:\n\s{8}description:[\s\S]{0,400}?\n\s{8}type: choice\n\s{8}options:\n\s{10}- ordinary\n\s{10}- prepare\n\s{10}- verify\n\s{8}default: ordinary/,
-  "deploy.yml: cutover_phase must expose ordinary/prepare/verify and default to ordinary",
+  publicVerificationJob,
+  /probe-deployment\.mjs/,
+  "deploy.yml: the boundary job must execute the canonical production probe",
 );
 assert.doesNotMatch(
   publicVerificationJob,
-  /pre-cutover-purge/,
-  "deploy.yml: public verification must be a later dispatch, not chained to prepare",
+  /^    if:/m,
+  "deploy.yml: the production boundary probe must run after every deploy",
 );
-assert.match(protectedVerificationJob, /inputs\.cutover_phase == 'ordinary'/);
-assert.match(
-  protectedVerificationJob,
-  /vars\.PUBLIC_DOCS_CUTOVER != 'complete'/,
-);
-assert.match(protectedVerificationJob, /probe-precutover-protection\.mjs/);
-assert.match(publicVerificationJob, /inputs\.cutover_phase == 'verify'/);
-assert.match(publicVerificationJob, /inputs\.cutover_phase == 'ordinary'/);
-assert.match(publicVerificationJob, /vars\.PUBLIC_DOCS_CUTOVER == 'complete'/);
-assert.match(publicVerificationJob, /probe-deployment\.mjs/);
 
 assert.equal(
   [...sources["release.yml"].matchAll(/id-token:\s*write/g)].length,

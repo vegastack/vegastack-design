@@ -286,3 +286,42 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
 - **Systemic fix:** the dead attributes removed; the tests re-anchored on accessible names. The
   class: a selector-based negative assertion must first be proven able to match in the positive
   case, or it asserts nothing.
+
+## 2026-07-28 — Production uploaded successfully but a stale boundary contract failed the workflow
+
+- **Symptom:** deploy run `30309811715` signed, reverified, and uploaded the exact `main` artifact,
+  then finished red in `verify-protected-boundary`; package publication and the Cloudflare upload
+  were healthy, but the workflow could not be called complete.
+- **Root cause:** the operator had intentionally made every non-registry route public, including
+  `/internal/*`, while `deploy.yml` retained the abandoned phased-cutover model and still expected
+  those routes to require SSO. The repository and production control plane described different
+  policies.
+- **Systemic fix:** one unconditional post-deploy verifier now enforces the approved topology:
+  every non-registry route is anonymous, every internal derivative is noindex/no-store and absent
+  from discovery, and only `/r/*` is private. The authenticated half additionally pins Stepper's
+  live version to the deploying tree and verifies its integrity against the Sigstore-signed
+  manifest. Negative mutations prove that a cutover switch, conditional verifier, or missing
+  canonical probe is rejected.
+
+## 2026-07-28 — A public policy sentence made an unlisted route discoverable
+
+- **Symptom:** the first recovery ship run stopped before contracts because metadata verification
+  found an internal-route URL in `llms-full.txt`.
+- **Root cause:** the public registry-auth guide named the operations path while explaining that it
+  was anonymous. The corpus generator correctly copied the public guide into LLM output; the prose
+  itself had violated the no-discovery contract.
+- **Systemic fix:** public guidance describes unlisted operations pages without publishing their
+  route. The build continues to reject any internal-route literal in search, sitemap, and LLM
+  corpora. Do not add an allowlist for explanatory prose: a URL is discoverable wherever it appears.
+
+## 2026-07-28 — The ship gate's docs warm-up overlapped a lane it claimed not to overlap
+
+- **Symptom:** one SortableList WebKit test timed out at 15 seconds during the first full ship run,
+  while 4,407 sibling tests passed. The exact test then passed six consecutive targeted runs, and
+  the warmed complete suite passed all 4,408 runnable tests.
+- **Root cause:** `gates.mjs` said the cold Next export overlapped “only unit and smoke,” but never
+  awaited that build before starting the complete three-engine suite. The implementation allowed
+  resource pressure to spill into WebKit despite the documented ordering guarantee.
+- **Systemic fix:** the ship ladder now awaits the cache warm-up after smoke and before the complete
+  suite. A warm-up failure remains non-authoritative—the contract runner rebuilds and owns the
+  verdict—but a still-running cold export can no longer contend with the longest browser lane.

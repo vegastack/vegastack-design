@@ -7,10 +7,10 @@ agents (Claude Code, Codex).
 **This file is loaded into every session.** It holds the rules you can break before loading anything
 else, the map, and a router. Procedures live in skills, loaded on demand.
 
-**Status:** shipped and live on public npm via OIDC trusted publishing (tokenless). Production docs
-and registry at `design.vegastack.com` remain behind Cloudflare Access until the separately approved
-public-docs cutover. Operating mode: **build local; publishes and deploys go through the `ship`
-skill.** For actual versions, ask the registry and the workspace rather than any document:
+**Status:** shipped and live on public npm via OIDC trusted publishing (tokenless). The complete
+`design.vegastack.com` site is public; only its `/r/*` registry is behind Cloudflare Access Service
+Auth. Operating mode: **build local; publishes and deploys go through the `ship` skill.** For actual
+versions, ask the registry and the workspace rather than any document:
 
 ```bash
 npm view @vegastack/design version                              # what consumers have
@@ -116,16 +116,16 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
 - **Pixels stay a local review step**, unchanged: `node tooling/vrt-review.mjs` captures the base ref
   and the working tree on one machine and emits a before/after report a human reads during `/ship`.
   No screenshot is ever committed.
-- **Only seven CI jobs are GitHub-hosted, each for a hard reason.** The split is an enforced
+- **Only five CI jobs are GitHub-hosted, each for a hard reason.** The split is an enforced
   allowlist in `tooling/verify-workflow-security.mjs`, not a convention, and
   `tooling/verify-workflow-security-negative.mjs` proves it rejects a move in either direction.
   **npm artifact provenance** (`release.yml`'s `package-build`) — `publish` uploads exactly its bytes
   and npm's OIDC provenance asserts this workflow built them, which a persistent self-hosted runner
   would make less true; **npm OIDC** (`publish`) — trusted publishing does not support self-hosted
   runners and this repository holds no `NPM_TOKEN`; **credentials without repository code**
-  (`sign-curated`, `deploy-curated`); and **network position** — `deploy.yml`'s three boundary probes
-  must originate OUTSIDE VegaStack's network or Cloudflare device posture could authenticate a
-  request they assert is anonymous. `ci.yml` has no hosted job at all.
+  (`sign-curated`, `deploy-curated`); and **network position** — `deploy.yml`'s boundary probe must
+  originate OUTSIDE VegaStack's network or Cloudflare device posture could authenticate a request it
+  asserts is anonymous. `ci.yml` has no hosted job at all.
 - **Job containers are banned outright.** They are Linux-only and cannot start on the macOS minis,
   and the one job that legitimately needed one — the three-engine suite in the digest-pinned
   Playwright image, because bare `ubuntu-latest` WebKit could not settle the compiled-CSS Toaster
@@ -139,9 +139,10 @@ org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` a
   later want a second machine re-running the browser lanes — nothing in the topology waits on it.
 - **Registry integrity** — whole-item SHA-256 in `meta.integrity`, a Sigstore-signed manifest
   (GitHub OIDC), and a fail-closed consume preflight.
-- **Auth topology (approved target)** — public human docs anonymous; `/internal/*` SSO;
-  `/r/*` registry service-token only. `SITE_VISIBILITY` controls discovery metadata only, never
-  authorization.
+- **Auth topology (approved 2026-07-28)** — every non-registry route is anonymous, including
+  `/internal/*`; internal operations pages stay unlisted, `noindex`, and outside every public
+  discovery corpus. `/r/*` alone is service-token-only. `SITE_VISIBILITY` controls discovery
+  metadata only, never authorization.
 
 ### Sanctioned dependency exceptions
 
@@ -355,8 +356,8 @@ Examples → API Reference → Accessibility → Do/Don't, plus Anatomy for comp
 the page in `apps/docs/content/docs/components/meta.json`, re-export the preview from the barrel, and
 add the component's record to `component-contracts.json` so its contract route is generated. No
 `{@link}` — MDX parses `{…}` as JS. `tooling/content-lint.mjs` rejects skipped visual tests. Guides
-pages live in `apps/docs/content/docs/guides/`; the SSO-gated internal guides live in
-`apps/docs/content/internal/`.
+pages live in `apps/docs/content/docs/guides/`; unlisted/noindex operations guides live in
+`apps/docs/content/internal/` and are public by policy even though they are excluded from discovery.
 
 ### Review and audit
 
@@ -380,9 +381,10 @@ anything:
   own explicit MK decision under the `ship` skill.
 - **The changelog is a system.** `/CHANGELOG.md` is canonical, with a fixed section vocabulary
   (`🧩/🔧/🗑/🛠/📦/📚/🐛/⚠️`). Edit it, run the sync, never touch the generated docs page.
-- **The public-docs cutover is one-time and opt-in.** Ordinary deploys use `cutover_phase=ordinary`;
-  `prepare` and `verify` are separate dispatches with the Access change between them. Runbook:
-  `docs/plans/public-docs-cutover.md`.
+- **Production has one boundary contract.** Every deploy verifies that all non-registry routes are
+  public, `/internal/*` remains undiscoverable/noindex, and `/r/*` rejects anonymous requests while
+  accepting and cryptographically validating the service-token response. The retired cutover history
+  is in `docs/plans/public-docs-cutover.md`; never reintroduce its phase switch.
 - **Registry updates are pulled, never pushed.** Downstream: `check-updates` → `--diff` →
   `--overwrite`. Status is by integrity hash, so a component reads `up to date` when the global
   version bumped but its content did not change.
@@ -439,7 +441,7 @@ Everything else is volatile and has a command instead of a number: docs pages
 ## Escalation
 
 - **Needs MK, always** — any outward step (push a changeset-bearing commit, merge a Version PR,
-  dispatch a deploy, run the public-docs cutover, change Cloudflare Access), and any new sanctioned
+  dispatch a deploy, change Cloudflare Access), and any new sanctioned
   dependency exception.
 - **A rule here conflicts with a skill** — the skill is more specific and usually newer; follow it,
   and flag the conflict so one of them gets fixed. Never silently pick one.

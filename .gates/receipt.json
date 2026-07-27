@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "tree": "tree-d4fb5d80838f6ddb9d2c19a942b937b8a7274847",
-  "treeFiles": 2631,
-  "head": "00e742fb50491e5f969b31473ca2907be07cff26",
-  "writtenAt": "2026-07-27T21:12:16.915Z",
+  "tree": "tree-78c7b30b02416c51e4633b77b38faf1d0e058641",
+  "treeFiles": 2630,
+  "head": "57bcbacfac46f4c9511e2ff1716eb535ca5c5cc5",
+  "writtenAt": "2026-07-27T23:24:44.289Z",
   "mode": "ship",
   "base": {
     "ref": "origin/main",
-    "sha": "b8292896f2292d999bfcfe26533c8a7fdd9ca843"
+    "sha": "57bcbacfac46f4c9511e2ff1716eb535ca5c5cc5"
   },
   "host": {
     "platform": "darwin",
@@ -21,38 +21,34 @@
   "contractSha256": "d173053c33c968829e522d3c65b9c84fd84f0ff82172271602d3d9909efb8ca1",
   "classified": {
     "contracts": true,
-    "unit": true,
-    "smoke": false,
-    "contractsReason": "changed component sources"
+    "unit": false,
+    "smoke": true,
+    "contractsReason": "global surface changed (apps/docs/public/_headers, apps/docs/scripts/probe-deployment.mjs, apps/docs/scripts/probe-precutover-protection.mjs, +1 more)"
   },
   "gates": {
     "typecheck": {
       "status": "pass",
-      "durationMs": 43800
+      "durationMs": 16066
     },
     "lint": {
       "status": "pass",
-      "durationMs": 44968
+      "durationMs": 34466
     },
     "unit": {
       "status": "pass",
-      "durationMs": 127028
+      "durationMs": 39577
     },
     "smoke": {
       "status": "pass",
-      "durationMs": 57204
+      "durationMs": 56178
     },
     "contracts": {
       "status": "pass",
-      "durationMs": 1883825,
+      "durationMs": 645113,
       "executed": 864,
       "full": true,
       "scopeRoutes": 108
     }
   },
-  "skips": [],
-  "carriedFrom": "tree-ff34a2b6e76dc0d2d00d883ff175e408eb4fb35d",
-  "carriedFromCommit": "00e742fb50491e5f969b31473ca2907be07cff26",
-  "carryReason": "version-bump",
-  "carriedAt": "2026-07-27T21:53:28.580Z"
+  "skips": []
 }

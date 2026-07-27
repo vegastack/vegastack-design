@@ -149,6 +149,29 @@ const CASES = [
     replace: '          test -z "$(git status --porcelain)"',
     expect: /command-substitution clean check|git status --porcelain/,
   },
+  {
+    id: "an obsolete cutover phase reintroduced",
+    file: "deploy.yml",
+    find: "  workflow_dispatch:\n",
+    replace:
+      "  workflow_dispatch:\n    inputs:\n      cutover_phase:\n        required: true\n",
+    expect: /obsolete cutover branches/,
+  },
+  {
+    id: "the production boundary probe made conditional",
+    file: "deploy.yml",
+    find: "  verify-public-boundary:\n    needs: deploy-curated\n",
+    replace:
+      "  verify-public-boundary:\n    needs: deploy-curated\n    if: always()\n",
+    expect: /production boundary probe must run after every deploy/,
+  },
+  {
+    id: "the canonical production probe removed",
+    file: "deploy.yml",
+    find: "        run: node apps/docs/scripts/probe-deployment.mjs\n",
+    replace: "        run: echo boundary-check-skipped\n",
+    expect: /canonical production probe/,
+  },
 ];
 
 let failures = 0;
@@ -216,5 +239,6 @@ if (failures > 0) {
 console.log(
   `\n✓ workflow-security-negative: all ${CASES.length} mutations rejected — container ban, runner ` +
     `allowlist (both directions), receipt-guard presence and wiring, shell injection, credential ` +
-    `persistence, token scope, pull_request_target, stray OIDC, and the publish dependency chain`,
+    `persistence, token scope, pull_request_target, stray OIDC, publish dependencies, and the ` +
+    `unconditional production-boundary chain`,
 );

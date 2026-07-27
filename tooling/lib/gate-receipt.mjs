@@ -4,7 +4,7 @@
 //   Under the local-first topology (docs/plans/2026-07-25-cicd-local-first-revamp.md, Option A) no
 //   GitHub-hosted runner executes a browser gate. CI re-executes the entire non-browser half on the
 //   free mac minis and therefore needs no receipt for it. The four browser lanes — the unit suite,
-//   the cross-engine smoke, the three-engine suite, and the 768 behaviour contracts — run only on a
+//   the cross-engine smoke, the three-engine suite, and the 864 behaviour contracts — run only on a
 //   developer machine. This file is how a push carries evidence that they ran, and ran against the
 //   content being pushed.
 //

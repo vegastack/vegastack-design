@@ -67,7 +67,8 @@
   Cache-Control: public, max-age=300, must-revalidate
   X-Robots-Tag: noindex, nofollow
 
-# Defense in depth: Cloudflare Access is the actual authorization boundary for these routes.
+# Internal operations pages are public by product decision but intentionally undiscoverable.
+# These headers prevent indexing and shared-cache persistence; they are not authorization.
 /internal/*
   Cache-Control: private, no-store
   Cloudflare-CDN-Cache-Control: no-store

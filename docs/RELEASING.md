@@ -35,7 +35,7 @@ distribution channels, both already wired:
    consumer-facing "what changed per version".
 4. PR → review → merge to `main`. `release.yml` runs the full unprivileged gate (typecheck, lint,
    test, all-browser smoke, build, `registry:build` idempotency, `registry:verify-consume`), plus
-   the 768-check component contract suite when the visual surface changed. A
+   the 864-check component contract suite when the visual surface changed. A
    changeset-bearing run then uses its non-OIDC version job to update the **Version Packages** PR.
    Review its package versions, generated changelogs, registry item versions, and regenerated
    `/r/*`; merging that PR is the separate human action that authorizes the next main run's isolated
@@ -45,16 +45,17 @@ distribution channels, both already wired:
    builds/tests without credentials, uploads a validated artifact, signs it in the only OIDC-capable
    job, and reverifies it in the credential-only job before pinned Wrangler uses the existing
    repository Cloudflare secrets. The manual dispatch is the explicit outward-deploy approval.
-   Before the public-docs cutover the live probe requires broad root SSO plus service-token-only
-   `/r/*`; after cutover it requires anonymous public docs, SSO-only `/internal/*`, and
-   service-token-only `/r/*`. The new registry versions are then _available_—consumers still pull
-   them.
+   The live probe requires every non-registry route to be anonymously reachable, requires
+   `/internal/*` to remain unlisted with `noindex`/`no-store`, and requires `/r/*` to reject
+   anonymous requests while accepting the service token. It also proves the representative live
+   registry item's exact version, integrity hash, and signed-manifest membership. The new registry
+   versions are then _available_—consumers still pull them.
 
 This is the approved GitHub Team/private-repository operating model. Required-reviewer environment
 protection is unavailable on this plan, so releases do not depend on GitHub Environments or change
 the proven npm trusted-publisher identity. Independent review belongs at the change PR and Version
-Packages PR; MK may initiate a run, but every changeset push, Version PR merge, deploy dispatch, and
-cutover phase remains a separate explicit MK decision under the `ship` skill.
+Packages PR; MK may initiate a run, but every changeset push, Version PR merge, and deploy dispatch
+remains a separate explicit MK decision under the `ship` skill.
 
 Docs/deployment-only changes do not require a package changeset, version bump, or npm publish. Keep
 workflow changes out of a changeset-bearing push if package work unexpectedly becomes necessary.
@@ -62,7 +63,7 @@ workflow changes out of a changeset-bearing push if package work unexpectedly be
 ## Where the jobs run
 
 **No CI runner executes a browser.** The browser-unit suite, the cross-engine smoke, the three-engine
-suite, and the 768 behaviour contracts run on a developer machine — scoped in `.husky/pre-push`, in
+suite, and the 864 behaviour contracts run on a developer machine — scoped in `.husky/pre-push`, in
 full under `pnpm gates:ship` — and each run writes `.gates/receipt.json`, bound to a git tree hash of
 the working tree with `.gates/` excluded. Every workflow has a `receipt-guard` job that rejects a push
 whose receipt does not cover the pushed tree. A receipt is **attestation, not proof**; see
@@ -74,7 +75,7 @@ Everything that executes repository code and needs no browser runs free on the s
 `receipt-guard`, `quality-gate` and `version-pr`, and `deploy.yml`'s `ref-guard`, `receipt-guard` and
 `build-curated`. **A pull request costs zero billable minutes.**
 
-Seven jobs stay on `ubuntu-latest`, pinned by an allowlist enforced in
+Five jobs stay on `ubuntu-latest`, pinned by an allowlist enforced in
 `tooling/verify-workflow-security.mjs` and negative-tested in
 `tooling/verify-workflow-security-negative.mjs`. Each has a hard reason:
 
@@ -86,10 +87,10 @@ Seven jobs stay on `ubuntu-latest`, pinned by an allowlist enforced in
   (<https://docs.npmjs.com/trusted-publishers/>) and this repository holds no `NPM_TOKEN`.
 - **`deploy.yml` `sign-curated` and `deploy-curated`** — the OIDC signing job and the credential-only
   Cloudflare deploy. Neither executes repository code; both are ~1 minute.
-- **`deploy.yml`'s three boundary jobs** — `pre-cutover-purge`, `verify-protected-boundary`, and
-  `verify-public-boundary` assert that ANONYMOUS requests are rejected. A runner inside VegaStack's
-  network can be silently authenticated by Cloudflare device posture, which would void the proof. A
-  boundary test has to originate outside the trusted network.
+- **`deploy.yml` `verify-public-boundary`** — asserts that every non-registry route is anonymously
+  reachable and that anonymous `/r/*` requests are rejected. A runner inside VegaStack's network
+  can be silently authenticated by Cloudflare device posture, which would void the registry proof.
+  The boundary test has to originate outside the trusted network.
 
 Job containers are banned outright. They are Linux-only and cannot start on the minis, and the one job
 that legitimately needed one — the three-engine suite in the digest-pinned Playwright image, because
@@ -146,5 +147,5 @@ action's `changeset-release/main` branch push is rejected with
 whose base matches main has no workflow diff and the Version PR push succeeds. Avoid bundling
 workflow edits with changeset-bearing pushes.
 
-Downstream lifecycles (who gets updates and how, handover model): the public Guides plus the
-SSO-protected `/internal/*` operations pages.
+Downstream lifecycles (who gets updates and how, handover model): the public Guides plus the public,
+unlisted/noindex `/internal/*` operations pages.

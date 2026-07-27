@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { itemHash } from "../../../tooling/registry-hash.mjs";
@@ -17,6 +17,12 @@ const clientId = process.env.CF_ACCESS_CLIENT_ID;
 const clientSecret = process.env.CF_ACCESS_CLIENT_SECRET;
 const signerRepository = process.env.SIGNER_REPOSITORY;
 const signerRef = process.env.SIGNER_REF;
+const expectedRegistryVersion = JSON.parse(
+  readFileSync(
+    new URL("../../../packages/ui/package.json", import.meta.url),
+    "utf8",
+  ),
+).version;
 
 assert.ok(clientId, "CF_ACCESS_CLIENT_ID must be set");
 assert.ok(clientSecret, "CF_ACCESS_CLIENT_SECRET must be set");
@@ -273,6 +279,60 @@ async function expectProtected(pathname) {
   console.log(`✓ ${pathname} rejects anonymous requests (${response.status})`);
 }
 
+async function expectPublicNoindex(pathname) {
+  const response = await requestUntil(
+    pathname,
+    {},
+    {
+      accept: (candidate) =>
+        candidate.status === 200 ||
+        (candidate.status >= 300 &&
+          candidate.status < 400 &&
+          !isAccessChallenge(candidate)),
+      failFast: isAccessChallenge,
+    },
+  );
+  assert.equal(
+    isAccessChallenge(response),
+    false,
+    `${pathname}: public site route was intercepted by Cloudflare Access`,
+  );
+  assert.ok(
+    response.status === 200 ||
+      (response.status >= 300 && response.status < 400),
+    `${pathname}: expected anonymous public response, received ${response.status}`,
+  );
+  if (response.status >= 300) {
+    const location = response.headers.get("location");
+    assert.ok(location, `${pathname}: redirect is missing Location`);
+    const target = new URL(location, base);
+    assert.equal(
+      target.origin,
+      base,
+      `${pathname}: public derivative redirected outside the production origin`,
+    );
+  }
+  assertRobotsHeader(response, pathname);
+  assert.match(
+    response.headers.get("cache-control") ?? "",
+    /(?:^|,)\s*private(?:,|$)/,
+    `${pathname}: internal page must not enter a shared cache`,
+  );
+  assert.match(
+    response.headers.get("cache-control") ?? "",
+    /(?:^|,)\s*no-store(?:,|$)/,
+    `${pathname}: internal page must use no-store`,
+  );
+  assert.match(
+    response.headers.get("cloudflare-cdn-cache-control") ?? "",
+    /(?:^|,)\s*no-store(?:,|$)/,
+    `${pathname}: Cloudflare must not cache the internal page`,
+  );
+  console.log(
+    `✓ ${pathname} is anonymously readable and undiscoverable (${response.status})`,
+  );
+}
+
 async function expectRetired(pathname) {
   const response = await requestUntil(
     pathname,
@@ -422,7 +482,7 @@ for (const pathname of [
   ...internalArtifactPaths("/internal/internal-projects"),
   ...internalArtifactPaths("/internal/registry-operations"),
 ]) {
-  await expectProtected(pathname);
+  await expectPublicNoindex(pathname);
 }
 
 for (const pathname of retiredPageArtifactPaths()) {
@@ -433,7 +493,7 @@ const registryPaths = [
   "/r/registry.json",
   "/r/integrity-manifest.json",
   "/r/integrity-manifest.sigstore",
-  "/r/button.json",
+  "/r/stepper.json",
 ];
 for (const pathname of registryPaths) await expectProtected(pathname);
 
@@ -464,6 +524,10 @@ assert.equal(
   "string",
   "registry schema declaration is missing",
 );
+assert.ok(
+  registry.items.some((entry) => entry.name === "stepper"),
+  "deployed registry index is missing stepper",
+);
 console.log(
   `✓ /r/registry.json accepts the service token (${registry.items.length} items)`,
 );
@@ -491,7 +555,7 @@ const manifestText = await manifestResponse.text();
 const manifest = JSON.parse(manifestText);
 
 const itemResponse = await requestUntil(
-  "/r/button.json",
+  "/r/stepper.json",
   { headers: serviceHeaders },
   {
     accept: (candidate) => candidate.status === 200,
@@ -500,21 +564,26 @@ const itemResponse = await requestUntil(
 assert.equal(
   itemResponse.status,
   200,
-  "button item: service token was rejected",
+  "stepper item: service token was rejected",
 );
-assertContentType(itemResponse, "/r/button.json", "application/json");
+assertContentType(itemResponse, "/r/stepper.json", "application/json");
 const item = await itemResponse.json();
 const computedIntegrity = itemHash(item);
-assert.equal(item.name, "button");
+assert.equal(item.name, "stepper");
+assert.equal(
+  item.meta?.version,
+  expectedRegistryVersion,
+  `stepper version does not match deployed tree (${expectedRegistryVersion})`,
+);
 assert.equal(
   item.meta?.integrity,
   computedIntegrity,
-  "button item self-integrity mismatch",
+  "stepper item self-integrity mismatch",
 );
 assert.equal(
-  manifest.button,
+  manifest.stepper,
   computedIntegrity,
-  "button item does not match signed-manifest input",
+  "stepper item does not match signed-manifest input",
 );
 
 const signatureResponse = await requestUntil(
@@ -562,7 +631,7 @@ try {
   rmSync(signatureDir, { recursive: true, force: true });
 }
 console.log(
-  "✓ registry index, cryptographically verified manifest, and representative item validate",
+  `✓ registry ${expectedRegistryVersion} index, cryptographically verified manifest, and stepper item validate`,
 );
 
-console.log("✓ Public docs cutover probe passed");
+console.log("✓ Public-site/private-registry production boundary passed");

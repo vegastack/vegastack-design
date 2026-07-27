@@ -178,7 +178,7 @@ expectEmpty(
 // neither can change what a component page renders, a route-set change necessarily rewrites
 // `contract-routes.generated.ts` (which IS contract-global), and `pnpm design:derived:check` fails
 // closed if those two drift. Marking `registry.json` global instead would make every pure version
-// bump demand the full 96-route sweep, since it carries each item's `meta.version` — the exact waste
+// bump demand the full 108-route sweep, since it carries each item's `meta.version` — the exact waste
 // docs/ledger/operator-review.md records removing. The version-bump end of this is asserted for real
 // in tooling/verify-classify-change.mjs against a historical Version Packages commit.
 for (const [lane, config] of [

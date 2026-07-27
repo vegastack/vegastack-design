@@ -2,17 +2,6 @@ name: Deploy (docs + signed registry)
 # Manual by design: every outward deploy still requires a fresh MK decision.
 on:
   workflow_dispatch:
-    inputs:
-      cutover_phase:
-        description: >-
-          ordinary for routine deploys; prepare to verify root SSO and purge retired artifacts;
-          verify only after root SSO has been removed.
-        type: choice
-        options:
-          - ordinary
-          - prepare
-          - verify
-        default: ordinary
 
 permissions:
   contents: read
@@ -20,7 +9,7 @@ permissions:
 env:
   SITE_VISIBILITY: public
 
-# Serialize the complete build/sign/deploy/cutover chain so an older run cannot deploy after or
+# Serialize the complete build/sign/deploy/verify chain so an older run cannot deploy after or
 # attest a newer run. The manual dispatch from main is the explicit outward-deploy approval.
 concurrency:
   group: production-docs
@@ -33,19 +22,20 @@ concurrency:
 #                      that is unverified and a failure breaks the release. ~30s, no repository code.
 #   deploy-curated     credential-only. Third-party wrangler + cosign actions, ~1min, no repository
 #                      code. Nothing is gained by moving it and an outward deploy is what breaks.
-#   the boundary jobs  CORRECTNESS, not caution. pre-cutover-purge, verify-protected-boundary, and
-#                      verify-public-boundary assert that ANONYMOUS requests are rejected. A runner
-#                      inside VegaStack's network can be silently authenticated by Cloudflare device
-#                      posture, which would make "anonymous" mean something else and void the proof.
-#                      A boundary test has to originate outside the trusted network.
+#   verify-public-boundary  CORRECTNESS, not caution. It proves every non-registry route is public,
+#                      `/internal/*` remains undiscoverable, and anonymous registry requests are
+#                      rejected. A runner inside VegaStack's network can be silently authenticated by
+#                      Cloudflare device posture, which would make "anonymous" mean something else
+#                      and void the proof. A boundary test has to originate outside the trusted
+#                      network.
 #
 # THE CONTRACT GATE THAT USED TO LIVE HERE IS GONE, AND WAS REPLACED RATHER THAN DROPPED.
-# It ran the 768 behaviour contracts on four billed `ubuntu-latest` shards (~135 minutes per deploy)
+# It ran the 864 behaviour contracts on four billed `ubuntu-latest` shards (~135 minutes per deploy)
 # and existed because `main` carries no branch protection, `ci.yml` fires only on `pull_request`, and
 # `release.yml`'s gate was conditional — so a direct push to `main` could reach a deploy having never
 # executed a single contract assertion. That reasoning still holds, so `receipt-guard` below now
 # closes the same hole for ~seconds: it demands a receipt covering the deployed tree with ALL THREE
-# browser lanes present and passing, which only `pnpm gates:ship` (a full 96-route sweep) produces.
+# browser lanes present and passing, which only `pnpm gates:ship` (a full 108-route sweep) produces.
 # A deploy therefore still cannot happen without a complete contract run — the run just happened on a
 # developer machine, and the receipt is how this workflow knows it did.
 
@@ -56,22 +46,16 @@ jobs:
       - name: Require the protected production ref
         env:
           DISPATCH_REF: ${{ github.ref }}
-          CUTOVER_PHASE: ${{ inputs.cutover_phase }}
-          CUTOVER_STATE: ${{ vars.PUBLIC_DOCS_CUTOVER }}
         run: |
           set -euo pipefail
           test "$DISPATCH_REF" = "refs/heads/main" || {
             echo "::error title=Untrusted deployment ref::Production deploys must be dispatched from refs/heads/main, not $DISPATCH_REF."
             exit 1
           }
-          if [ "$CUTOVER_PHASE" = "prepare" ] && [ "$CUTOVER_STATE" = "complete" ]; then
-            echo "::error title=Cutover already complete::The one-time prepare phase is permanently retired. Use cutover_phase=ordinary."
-            exit 1
-          fi
 
   # The browser half, attested rather than executed. Unlike ci.yml and release.yml this job requires
   # ALL THREE browser lanes unconditionally: a production deploy is the one step that must be preceded
-  # by a complete local sweep, and only `pnpm gates:ship` — which runs the full 96-route contract
+  # by a complete local sweep, and only `pnpm gates:ship` — which runs the full 108-route contract
   # suite, the three-engine unit suite, and the cross-engine smoke — produces a receipt that satisfies
   # it. Conditional requirements would let a docs-only deploy through on a partial sweep, which is
   # exactly the hole the deleted hosted gate existed to close.
@@ -229,83 +213,12 @@ jobs:
           wranglerVersion: 4.113.0
           command: deploy
 
-  # Cutover phase 1 is its own explicit dispatch. While broad root SSO is still active, prove the
-  # protected boundary and purge every retired derivative that could carry the old internal page.
-  # The workflow then ENDS so the approved operator can remove root SSO out of band. A later `verify`
-  # dispatch is the separate decision that tests the resulting public boundary.
-  pre-cutover-purge:
-    needs: deploy-curated
-    if: inputs.cutover_phase == 'prepare' && vars.PUBLIC_DOCS_CUTOVER != 'complete'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-          ref: ${{ github.sha }}
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with: { node-version: 24 }
-      - name: Require recorded Access topology
-        env:
-          CF_ROOT_ACCESS_APPLICATION_ID: ${{ vars.CF_ROOT_ACCESS_APPLICATION_ID }}
-          CF_INTERNAL_ACCESS_APPLICATION_ID: ${{ vars.CF_INTERNAL_ACCESS_APPLICATION_ID }}
-          CF_REGISTRY_ACCESS_APPLICATION_ID: ${{ vars.CF_REGISTRY_ACCESS_APPLICATION_ID }}
-          CF_ACCESS_SERVICE_TOKEN_EXPIRES_AT: ${{ vars.CF_ACCESS_SERVICE_TOKEN_EXPIRES_AT }}
-        run: |
-          set -euo pipefail
-          test -n "${CF_ROOT_ACCESS_APPLICATION_ID:-}" || { echo "::error::Record CF_ROOT_ACCESS_APPLICATION_ID before cutover."; exit 1; }
-          test -n "${CF_INTERNAL_ACCESS_APPLICATION_ID:-}" || { echo "::error::Record CF_INTERNAL_ACCESS_APPLICATION_ID before cutover."; exit 1; }
-          test -n "${CF_REGISTRY_ACCESS_APPLICATION_ID:-}" || { echo "::error::Record CF_REGISTRY_ACCESS_APPLICATION_ID before cutover."; exit 1; }
-          test -n "${CF_ACCESS_SERVICE_TOKEN_EXPIRES_AT:-}" || { echo "::error::Record CF_ACCESS_SERVICE_TOKEN_EXPIRES_AT before cutover."; exit 1; }
-          node -e 'const expiry = Date.parse(process.env.CF_ACCESS_SERVICE_TOKEN_EXPIRES_AT); if (!Number.isFinite(expiry) || expiry <= Date.now()) throw new Error("Recorded service token expiry is invalid or elapsed")'
-      - name: Purge retired public/internal artifacts and aggregate corpora
-        env:
-          DOCS_URL: ${{ vars.DOCS_URL }}
-          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
-          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          CLOUDFLARE_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
-        run: |
-          node apps/docs/scripts/probe-precutover-protection.mjs
-          node apps/docs/scripts/purge-retired-public-route.mjs
-
-  # Before the one-time public cutover, ordinary deploys retain the proven production contract:
-  # broad root SSO rejects anonymous docs traffic and `/r/*` accepts only the service token.
-  verify-protected-boundary:
-    needs: deploy-curated
-    if: inputs.cutover_phase == 'ordinary' && vars.PUBLIC_DOCS_CUTOVER != 'complete'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-          ref: ${{ github.sha }}
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with: { node-version: 24 }
-      - name: Verify the protected docs and registry boundary (fail-closed)
-        env:
-          DOCS_URL: ${{ vars.DOCS_URL }}
-          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
-          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
-        run: node apps/docs/scripts/probe-precutover-protection.mjs
-
-  # Live route-boundary verification: anonymous public HTML/Markdown/LLM/search/OG must be 200,
-  # `/internal/*` must reject anonymous access, and `/r/*` must reject anonymous but accept the
-  # service token (plus a cosign-verified manifest). It performs no Access mutation.
-  #
-  # Cutover phase 2 is a separate `verify` dispatch after the operator removes root SSO. Once the
-  # cutover is recorded complete, the same public/internal/registry probe runs after every ordinary
-  # deploy. It is deliberately independent of phase 1 so there is a real human pause between them.
+  # Live route-boundary verification: every non-registry HTML/Markdown/LLM/search/OG/internal route
+  # must be anonymously reachable, internal operations pages must remain outside discovery and carry
+  # noindex/no-store headers, and `/r/*` must reject anonymous requests while accepting the service
+  # token. The signed manifest and the deployed tree's exact registry version are also verified.
   verify-public-boundary:
     needs: deploy-curated
-    if: >-
-      inputs.cutover_phase == 'verify'
-      || (inputs.cutover_phase == 'ordinary' && vars.PUBLIC_DOCS_CUTOVER == 'complete')
     runs-on: ubuntu-latest
     permissions:
       contents: read

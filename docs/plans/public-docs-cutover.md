@@ -1,8 +1,8 @@
 # Public docs cutover runbook
 
-Status: implementation prepared locally on 2026-07-22. No push, VRT workflow dispatch, deploy, cache
-purge, Access mutation, or public cutover is authorized by this document. Each outward action still
-requires a fresh MK approval through the `ship` workflow.
+Status: superseded on 2026-07-28 by
+`2026-07-28-public-site-private-registry-boundary.md`. This file is the historical record of the
+abandoned `/internal/*` SSO cutover design; do not execute its prepare/verify sequence.
 
 This runbook supersedes the broad human-docs SSO topology in `00-START-HERE.md` and
 `detail/04-registry-and-cloudflare.md`. The package/distribution decisions in those historical plans
