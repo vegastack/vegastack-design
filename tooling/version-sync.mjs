@@ -7,7 +7,8 @@
 //   1. read packages/ui/package.json version (post-`changeset version`)
 //   2. rewrite every item meta.version in packages/ui/registry.json to match
 //   3. re-run the full `registry:build` chain (shadcn build → stamp → header → verify)
-//   4. fail-closed verify: for every apps/docs/public/r/<item>.json,
+//   4. regenerate every contract-derived surface after dependency ranges move the contract SHA
+//   5. fail-closed verify: for every apps/docs/public/r/<item>.json,
 //      meta.version === package version (headers are already verified by verify-headers.mjs)
 //
 // Idempotent: running twice with no version change produces zero diff.
@@ -130,14 +131,20 @@ if (contractRanges > 0) {
     await prettier.format(source, { ...options, filepath: contractsPath }),
   );
   console.log(
-    `✓ version-sync: ${contractRanges} contract npmDependencies range(s) updated — run \`pnpm design:derived\``,
+    `✓ version-sync: ${contractRanges} contract npmDependencies range(s) updated`,
   );
 }
 
 // 3. rebuild all generated surfaces so public/r JSONs + headers pick the version up
 execSync("pnpm run registry:build", { cwd: repoRoot, stdio: "inherit" });
 
-// 4. fail-closed: every built item must now advertise exactly this version
+// 4. Contract dependency ranges are part of the authority hash. Regenerate every surface carrying
+// that hash here, inside the SAME command production executes, rather than relying on a caller to
+// remember a follow-up. The old release preflight ran this separately and therefore masked that the
+// real Version Packages command left AGENTS.md and six other generated surfaces stale.
+execSync("pnpm run design:derived", { cwd: repoRoot, stdio: "inherit" });
+
+// 5. fail-closed: every built item must now advertise exactly this version
 const outDir = join(repoRoot, "apps/docs/public/r");
 const SKIP = new Set(["integrity-manifest.json", "registry.json"]);
 const problems = [];

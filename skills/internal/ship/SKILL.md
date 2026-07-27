@@ -181,9 +181,10 @@ Commit changesets + CHANGELOG.md + the regenerated page together.
 bound to a tree hash, and `changeset version` + `version-sync` move that hash — versions, package
 CHANGELOGs, consumed changesets, and a re-stamped provenance header in 1082 files. Nothing a browser
 gate can observe changes, so `pnpm run version-packages` ends by running
-`tooling/gate-receipt-carry.mjs`, which rewrites only the receipt's `tree` and records
-`carriedFrom`. `receipt-guard` then re-derives the proof from git and rejects the carry if anything
-real changed. Without this the Version PR would fail the guard and no publish could ever happen.
+`tooling/gate-receipt-carry.mjs`, which rewrites only the receipt's tree-bound facts (`tree`,
+`treeFiles`, and the contract SHA) and records `carriedFrom`. `receipt-guard` then re-derives the
+proof from git and rejects the carry if anything real changed. Without this the Version PR would
+fail the guard and no publish could ever happen.
 
 If `gate-receipt-carry` REFUSES, do not work around it: something other than a version bump is in
 that branch, and the browser gates have to run against it.
