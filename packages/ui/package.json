@@ -1,6 +1,6 @@
 {
   "name": "@vegastack/ui",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "VegaStack UI — provider + locked components (registry is the default consumption path)",
   "license": "MIT",
   "//private": "PRIVATE by the locked distribution model (requirements §NG4 / AGENTS.md): the PUBLIC npm layer is ONLY tokens/tailwind-preset/utils/icons; component source + the provider ship via the private registry copy-in, not an open npm publish. Publishing this package (public OR restricted) is a distribution decision reserved for MK — do not flip without updating the locked requirements first.",
