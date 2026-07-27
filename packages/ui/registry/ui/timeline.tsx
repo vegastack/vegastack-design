@@ -1,4 +1,4 @@
-// @vegastack timeline@0.3.0 sha256-ty/D2RG+lsKYAoAT5nTI3lXQvlMjmtenne+9oUz8NRA=
+// @vegastack timeline@0.3.0 sha256-aNs4Hv2i4OTC7W1o3LodJekIHGrOsATr+SPJs+m54Fc=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -51,7 +51,7 @@ export interface TimelineProps extends React.ComponentPropsWithRef<"ol"> {
  *         <ItemTitle>Priya closed the deal</ItemTitle>
  *         <ItemDescription>Acme renewal · $12,400</ItemDescription>
  *       </ItemContent>
- *       <ItemContent>
+ *       <ItemContent className="text-sm text-muted-foreground">
  *         <RelativeTime date={closedAt} refresh={false} now={now} />
  *       </ItemContent>
  *     </Item>
@@ -110,9 +110,15 @@ export function TimelineItem({
       data-slot="timeline-item"
       className={cn(
         "group/timeline-item relative flex min-w-0 gap-3",
+        // The row is an Item COMPOSED INTO rail geometry: its standalone row
+        // padding would detach the text from the node (px) and stack onto the
+        // timeline's own rhythm (py), and its centered cross-axis would float
+        // trailing meta against a two-line stack — flatten both so the rail
+        // owns alignment and spacing.
+        "[&_[data-slot=timeline-content]>[data-slot=item]]:items-start [&_[data-slot=timeline-content]>[data-slot=item]]:p-0",
         // Browser-level render skipping for long feeds (MessageScrollerItem's
         // two-class recipe, verbatim).
-        "[contain-intrinsic-size:auto_calc(var(--spacing)*40)] [content-visibility:auto]",
+        "[contain-intrinsic-size:auto_calc(var(--spacing)*24)] [content-visibility:auto]",
         className,
       )}
       {...props}
@@ -121,11 +127,13 @@ export function TimelineItem({
       <span
         aria-hidden
         data-slot="timeline-rail"
-        className="flex w-(--icon-default) shrink-0 flex-col items-center gap-1 pt-1"
+        className="flex w-(--icon-default) shrink-0 flex-col items-center gap-1"
       >
+        {/* h-5 = the title's leading-snug first-line box: every node shape —
+            dot, status icon, avatar — centers on the row's first text line. */}
         <span
           data-slot="timeline-node"
-          className="flex shrink-0 items-center justify-center"
+          className="flex h-5 shrink-0 items-center justify-center"
         >
           {node ?? <span className="size-2 rounded-full bg-border" />}
         </span>
@@ -136,7 +144,7 @@ export function TimelineItem({
       </span>
       <div
         data-slot="timeline-content"
-        className="flex min-w-0 flex-1 flex-col pb-6 group-last/timeline-item:pb-0"
+        className="flex min-w-0 flex-1 flex-col pb-5 group-last/timeline-item:pb-0"
       >
         {children}
       </div>

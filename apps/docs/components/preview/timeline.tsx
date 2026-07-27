@@ -33,7 +33,7 @@ export function timeline(): ReactNode {
                 <ItemTitle>Deal moved to Won</ItemTitle>
                 <ItemDescription>Acme renewal · $12,400</ItemDescription>
               </ItemContent>
-              <ItemContent>
+              <ItemContent className="text-sm text-muted-foreground">
                 <RelativeTime
                   date={hoursAgo(2)}
                   now={NOW.getTime()}
@@ -50,7 +50,7 @@ export function timeline(): ReactNode {
                   Pricing review with procurement
                 </ItemDescription>
               </ItemContent>
-              <ItemContent>
+              <ItemContent className="text-sm text-muted-foreground">
                 <RelativeTime
                   date={hoursAgo(5)}
                   now={NOW.getTime()}
@@ -65,7 +65,7 @@ export function timeline(): ReactNode {
               <ItemContent>
                 <ItemTitle>Proposal sent</ItemTitle>
               </ItemContent>
-              <ItemContent>
+              <ItemContent className="text-sm text-muted-foreground">
                 <RelativeTime
                   date={hoursAgo(30)}
                   now={NOW.getTime()}

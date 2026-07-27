@@ -1840,7 +1840,7 @@
         "whenToUse": "Chronological records — activity feeds, audit trails, delivery logs — where entries need a visible temporal thread (rail + node) and rows compose Item/RelativeTime/Avatar.",
         "whenNotToUse": "Live bottom-pinned conversation feeds (MessageScroller), bounded processes with gating (Stepper), or plain lists with no temporal thread (ItemGroup).",
         "version": "0.1.0",
-        "integrity": "sha256-ty/D2RG+lsKYAoAT5nTI3lXQvlMjmtenne+9oUz8NRA="
+        "integrity": "sha256-aNs4Hv2i4OTC7W1o3LodJekIHGrOsATr+SPJs+m54Fc="
       }
     },
     {
