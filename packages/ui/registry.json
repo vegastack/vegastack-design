@@ -1671,6 +1671,36 @@
       }
     },
     {
+      "name": "sortable-list",
+      "type": "registry:ui",
+      "title": "Sortable List",
+      "description": "Reorderable rows on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, keyboard move mode, a lossless Move menu, and server-refusable moves. Controlled; the host owns the order.",
+      "categories": ["data"],
+      "dependencies": [
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/icon-button",
+        "@vegastack/item",
+        "@vegastack/dropdown-menu",
+        "@vegastack/use-drag-reorder"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/sortable-list.tsx",
+          "type": "registry:ui",
+          "target": "@ui/sortable-list.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "User-orderable single lists — settings sections, pipeline stages, ordered taxonomies — where the host persists (and may refuse) the order.",
+        "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
+        "version": "0.1.0"
+      }
+    },
+    {
       "name": "field-inline",
       "type": "registry:ui",
       "title": "Field Inline",

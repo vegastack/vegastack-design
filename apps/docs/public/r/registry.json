@@ -1911,6 +1911,39 @@
       }
     },
     {
+      "name": "sortable-list",
+      "type": "registry:ui",
+      "title": "Sortable List",
+      "description": "Reorderable rows on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, keyboard move mode, a lossless Move menu, and server-refusable moves. Controlled; the host owns the order.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/icon-button",
+        "@vegastack/item",
+        "@vegastack/dropdown-menu",
+        "@vegastack/use-drag-reorder"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/sortable-list.tsx",
+          "type": "registry:ui",
+          "target": "@ui/sortable-list.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "User-orderable single lists — settings sections, pipeline stages, ordered taxonomies — where the host persists (and may refuse) the order.",
+        "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
+        "version": "0.1.0",
+        "integrity": "sha256-jnWrNLf1wj+/BeFPbxfxPaR6LvdcaISKpGxejMrZQh0="
+      }
+    },
+    {
       "name": "field-inline",
       "type": "registry:ui",
       "title": "Field Inline",
@@ -2753,7 +2786,7 @@
         "whenToUse": "Any reorder-by-drag surface — sortable lists, board cards, grid column reorder — where pointer, touch, keyboard move mode, announcements, and server-refusable drops must all work from one API.",
         "whenNotToUse": "File drag-in (use-file-drop), resizing panes (Resizable), or single-axis value dragging (Slider).",
         "version": "0.1.0",
-        "integrity": "sha256-/D0cnoxfF3U4qF5eV2sQZxbSkjabASfoDjUREkjEE3I="
+        "integrity": "sha256-DmQP1vkNu55cKs4bc5sRZX64KF4wqbygu/sq4B3iFm4="
       }
     },
     {

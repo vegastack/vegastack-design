@@ -282,8 +282,8 @@ assert(
 );
 
 const expected = {
-  totalRegistryItems: 549,
-  components: 104,
+  totalRegistryItems: 550,
+  components: 105,
   animatedIcons: 439,
   hooks: 5,
   blocks: 1,
@@ -297,7 +297,7 @@ for (const [key, value] of Object.entries(expected)) {
 
 const expectedWaves = {
   "Core controls": 23,
-  "Forms/editing": 20,
+  "Forms/editing": 21,
   "Navigation/layout": 13,
   Overlays: 13,
   "Data display": 9,
@@ -351,6 +351,7 @@ const expectedComponentWaveMembers = {
     "number-field",
     "chip-input",
     "filter-bar-managed",
+    "sortable-list",
   ],
   "Navigation/layout": [
     "accordion",

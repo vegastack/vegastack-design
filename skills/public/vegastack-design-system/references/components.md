@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**104 components**, plus 439 animated-icon items, 5 hooks (`use-animation-replay`, `use-drag-reorder`, `use-list-nav`, `use-mobile`, `use-platform`), and 1 starter block (`dashboard-01`) — 549 registry items in total.
+**105 components**, plus 439 animated-icon items, 5 hooks (`use-animation-replay`, `use-drag-reorder`, `use-list-nav`, `use-mobile`, `use-platform`), and 1 starter block (`dashboard-01`) — 550 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so `icon-button` is the
@@ -76,6 +76,7 @@ component and never an icon.
 - **`filter-bar`** — A row of removable filter chips, an "Add filter" dropdown, and an optional search input — for list and table filter toolbars.
 - **`filter-bar-managed`** — The stateful nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.
 - **`property-list`** — Record-facts rows: an icon+label column beside a value column, as an accessible definition list.
+- **`sortable-list`** — Reorderable rows on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, keyboard move mode, a lossless Move menu, and server-refusable moves. Controlled; the host owns the order.
 
 ## Overlay
 

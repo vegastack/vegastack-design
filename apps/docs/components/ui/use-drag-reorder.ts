@@ -1,4 +1,4 @@
-// @vegastack use-drag-reorder@0.3.0 sha256-/D0cnoxfF3U4qF5eV2sQZxbSkjabASfoDjUREkjEE3I=
+// @vegastack use-drag-reorder@0.3.0 sha256-DmQP1vkNu55cKs4bc5sRZX64KF4wqbygu/sq4B3iFm4=
 
 "use client";
 
@@ -334,15 +334,24 @@ export function useDragReorder({
 
   const cleanups = React.useRef(new Map<string, () => void>());
   const handleElements = React.useRef(new Map<string, HTMLElement>());
+  // Ref-callback identity MUST be stable per (container, id): React re-runs a
+  // changed callback ref on every render (null → cleanup → re-attach), which
+  // would tear down the ACTIVE draggable mid-drag the moment drop-edge state
+  // re-renders the list. Cache one callback per key.
+  const refCache = React.useRef(
+    new Map<string, (element: HTMLElement | null) => void>(),
+  );
+  const axisRef = React.useRef(axis);
+  axisRef.current = axis;
 
-  const registerItem = React.useCallback(
+  const makeItemRef = React.useCallback(
     (container: string, id: string) => (element: HTMLElement | null) => {
       const key = `item:${container}:${id}`;
       cleanups.current.get(key)?.();
       cleanups.current.delete(key);
       if (!element) return;
       const allowedEdges: Edge[] =
-        axis === "vertical" ? ["top", "bottom"] : ["left", "right"];
+        axisRef.current === "vertical" ? ["top", "bottom"] : ["left", "right"];
       const cleanup = combine(
         draggable({
           element,
@@ -398,10 +407,22 @@ export function useDragReorder({
       );
       cleanups.current.set(key, cleanup);
     },
-    [axis, announce, isDisabled],
+    [announce, isDisabled],
+  );
+  const registerItem = React.useCallback(
+    (container: string, id: string) => {
+      const key = `item-ref:${container}:${id}`;
+      let cached = refCache.current.get(key);
+      if (!cached) {
+        cached = makeItemRef(container, id);
+        refCache.current.set(key, cached);
+      }
+      return cached;
+    },
+    [makeItemRef],
   );
 
-  const registerContainer = React.useCallback(
+  const makeContainerRef = React.useCallback(
     (container: string) => (element: HTMLElement | null) => {
       const key = `container:${container}`;
       cleanups.current.get(key)?.();
@@ -419,6 +440,18 @@ export function useDragReorder({
       cleanups.current.set(key, cleanup);
     },
     [],
+  );
+  const registerContainer = React.useCallback(
+    (container: string) => {
+      const key = `container-ref:${container}`;
+      let cached = refCache.current.get(key);
+      if (!cached) {
+        cached = makeContainerRef(container);
+        refCache.current.set(key, cached);
+      }
+      return cached;
+    },
+    [makeContainerRef],
   );
 
   React.useEffect(() => {
@@ -511,14 +544,19 @@ export function useDragReorder({
     [activeId, axis, announce, commitMove, endMoveMode, isDisabled],
   );
 
-  const registerHandle = React.useCallback(
-    (container: string, id: string) => (element: HTMLElement | null) => {
-      const key = `${container}:${id}`;
-      if (element) handleElements.current.set(key, element);
-      else handleElements.current.delete(key);
-    },
-    [],
-  );
+  const registerHandle = React.useCallback((container: string, id: string) => {
+    const key = `handle-ref:${container}:${id}`;
+    let cached = refCache.current.get(key);
+    if (!cached) {
+      cached = (element: HTMLElement | null) => {
+        const mapKey = `${container}:${id}`;
+        if (element) handleElements.current.set(mapKey, element);
+        else handleElements.current.delete(mapKey);
+      };
+      refCache.current.set(key, cached);
+    }
+    return cached;
+  }, []);
 
   return {
     getItemProps: (container, id) => ({

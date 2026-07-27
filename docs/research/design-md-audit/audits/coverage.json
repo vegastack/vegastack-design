@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "e2643212ec87d286e57b8d195662244960555819962b2233018cd9398dfcb164",
+  "contractSha256": "e00614a4d2cfcc23c1bbf8a1396313b411fe432ebc0cf07f88ae441a7e9d3ea4",
   "inventory": {
-    "expected": 549,
-    "actual": 549,
-    "unique": 549
+    "expected": 550,
+    "actual": 550,
+    "unique": 550
   },
   "classes": {
-    "components": 104,
+    "components": 105,
     "animatedIcons": 439,
     "hooks": 5,
     "blocks": 1
@@ -44,8 +44,8 @@
       ]
     },
     "Forms/editing": {
-      "expected": 20,
-      "actual": 20,
+      "expected": 21,
+      "actual": 21,
       "members": [
         "auto-save-input",
         "chip-input",
@@ -65,6 +65,7 @@
         "segmented",
         "select",
         "settings-row",
+        "sortable-list",
         "tag-group",
         "text-edit"
       ]
@@ -624,8 +625,8 @@
       ]
     }
   },
-  "componentRoutes": 104,
+  "componentRoutes": 105,
   "blockRoutes": 1,
-  "crossBrowserSmokeFiles": 11,
+  "crossBrowserSmokeFiles": 12,
   "modeledExemptions": 4
 }

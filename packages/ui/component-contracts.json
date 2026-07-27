@@ -12,15 +12,15 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 549,
-    "components": 104,
+    "totalRegistryItems": 550,
+    "components": 105,
     "animatedIcons": 439,
     "hooks": 5,
     "blocks": 1
   },
   "expectedWaveCounts": {
     "Core controls": 23,
-    "Forms/editing": 20,
+    "Forms/editing": 21,
     "Navigation/layout": 13,
     "Overlays": 13,
     "Data display": 9,
@@ -76,7 +76,8 @@
       "editable-cell",
       "number-field",
       "chip-input",
-      "filter-bar-managed"
+      "filter-bar-managed",
+      "sortable-list"
     ],
     "Navigation/layout": [
       "accordion",
@@ -11039,6 +11040,122 @@
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
       "previewModule": "filter-bar-managed"
+    },
+    {
+      "name": "sortable-list",
+      "registryType": "registry:ui",
+      "title": "Sortable List",
+      "summary": "Reorderable rows on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, keyboard move mode, a lossless Move menu, and server-refusable moves. Controlled; the host owns the order.",
+      "family": "data",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/sortable-list.tsx"],
+      "publicSymbols": [
+        {
+          "name": "SortableList",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sortable-list.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "SortableListItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/sortable-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SortableListProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/sortable-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "idle",
+            "dragging",
+            "move-mode",
+            "pending",
+            "rejected",
+            "disabled",
+            "item-disabled"
+          ],
+          "evidence": "use-drag-reorder drives pointer drags, keyboard move mode, and the async pending/rejected contract; disabled removes handles and menus; per-item disabled excludes single rows."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": [
+            "keyboard",
+            "labeled",
+            "status-announcement",
+            "semantic-html"
+          ],
+          "evidence": "ItemGroup list semantics; per-row named handles and Move menus (the lossless path); Space/arrows/Escape move mode; polite per-step announcements and rejection announcements."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "dragging", "drop-edge", "pending", "disabled"],
+          "evidence": "2px primary drop-indicator hairline on the closest edge; lifted rows dim (flat — no shadow, per doctrine); pending rows shimmer with the sanctioned loader animation, static under reduced motion."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Rows are Item parts with min-w-0 content; handles and menus are fixed-size controls."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["css-state-transition"],
+        "reducedMotion": {
+          "status": "observed",
+          "rationale": "The pending shimmer is animate-pulse (the sanctioned loader exception) explicitly disabled under reduced motion; drag previews are native."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/sortable-list",
+      "registryDependencies": [
+        "@vegastack/icon-button",
+        "@vegastack/item",
+        "@vegastack/dropdown-menu",
+        "@vegastack/use-drag-reorder"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/sortable-list.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "selected"
+      },
+      "previewModule": "sortable-list"
     },
     {
       "name": "field-inline",

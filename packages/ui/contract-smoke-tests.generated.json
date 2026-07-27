@@ -8,6 +8,7 @@
   "registry/ui/password-input.test.tsx",
   "registry/ui/progress-indicator.test.tsx",
   "registry/ui/skeleton.test.tsx",
+  "registry/ui/sortable-list.test.tsx",
   "registry/ui/use-animation-replay.test.tsx",
   "registry/ui/use-drag-reorder.test.tsx"
 ]
