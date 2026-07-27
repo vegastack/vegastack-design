@@ -147,8 +147,20 @@ org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` a
 
 Adding to either list needs MK sign-off, tracked the same way.
 
-- **Headless primitive** — `@shadcn/react/message-scroller` (MessageScroller) is the ONLY non-Base-UI
-  headless primitive. Nothing else.
+- **Headless primitives** — non-Base-UI packages that own interaction semantics but render nothing.
+  Exactly four, each isolated behind one registry item so an engine swap touches one file:
+  - `@shadcn/react/message-scroller` (MessageScroller) — the original exception.
+  - `@tanstack/react-table` v8 — `data-grid`'s row models (sorting, grouping, visibility). It never
+    touches DOM or focus; the APG grid keyboard layer is ours.
+  - `@atlaskit/pragmatic-drag-and-drop` (+ `-hitbox`) — the drag engine behind `use-drag-reorder`
+    (consumed by `board`, `sortable-list`, and grid column reorder). Pointer-first by design; the
+    keyboard layer, live-region announcements, and "Move to…" menu equivalents are ours.
+  - `react-dropzone` — the drop/paste acquisition engine behind `use-file-drop` (and `dropzone`'s
+    thin shell).
+    Approved by MK 2026-07-27 (plan `2026-07-26-crm-commissioned-components.md` §2.1, D1–D4).
+    Nothing else — a fifth entry is a new MK decision, not a pattern to follow.
+- **Measurement engine** — `@tanstack/react-virtual` (same D1/D2 sign-off): windowing maths for
+  `data-grid`'s `virtualize` flag. It measures; it owns no interaction.
 - **Renderer / behavior engines** — `react-resizable-panels`, `recharts`, `motion`, `tiptap`, and the
   pre-existing `sonner`. Each is named per-component in `packages/ui/registry.json`. These render or
   animate; they do not own interaction semantics, which is why they are a narrower class than the

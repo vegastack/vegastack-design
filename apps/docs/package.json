@@ -16,10 +16,14 @@
     "verify:metadata": "node scripts/verify-metadata.mjs"
   },
   "dependencies": {
+    "@atlaskit/pragmatic-drag-and-drop": "^2.0.1",
+    "@atlaskit/pragmatic-drag-and-drop-hitbox": "^2.0.0",
     "@base-ui/react": "1.6.0",
     "@fumadocs/story": "^1.2.0",
     "@orama/orama": "^3.1.18",
     "@shadcn/react": "^0.2.1",
+    "@tanstack/react-table": "^8.21.3",
+    "@tanstack/react-virtual": "^3.14.8",
     "@tiptap/pm": "^3.27.4",
     "@tiptap/react": "^3.27.4",
     "@tiptap/starter-kit": "^3.27.4",
@@ -40,6 +44,7 @@
     "react": "catalog:",
     "react-day-picker": "^10.0.1",
     "react-dom": "catalog:",
+    "react-dropzone": "^19.1.1",
     "react-markdown": "^10.1.0",
     "react-resizable-panels": "^4.12.2",
     "recharts": "^3.9.2",
