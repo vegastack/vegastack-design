@@ -1811,7 +1811,7 @@
         "whenToUse": "Any bounded linear process — onboarding, wizards, checkout, import flows — where progress, a failed step, and the reason an advance is blocked must be communicated.",
         "whenNotToUse": "Free navigation between peer views (Tabs), compact progress where a step list is too heavy (ProgressIndicator segments), or unordered checklists (OnboardingChecklist).",
         "version": "0.4.0",
-        "integrity": "sha256-cRhrputW2e18Dqojn+cVnX69DNUHEscweT1Cfo5puA0="
+        "integrity": "sha256-uttZLXdo7isCjk35KAO3GatcdrYQgbxQJ20brjCet0M="
       }
     },
     {

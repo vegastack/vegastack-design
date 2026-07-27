@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "tree": "tree-62b96747cbd254bf6a1680a718e4c3fb066fb8d6",
-  "treeFiles": 2631,
-  "head": "a830218782b4c6a594ae36da441819477acdb793",
-  "writtenAt": "2026-07-27T18:59:57.621Z",
+  "tree": "tree-ff34a2b6e76dc0d2d00d883ff175e408eb4fb35d",
+  "treeFiles": 2632,
+  "head": "b8292896f2292d999bfcfe26533c8a7fdd9ca843",
+  "writtenAt": "2026-07-27T21:12:16.915Z",
   "mode": "ship",
   "base": {
     "ref": "origin/main",
-    "sha": "cfa1d05e397018dac3110932c9c16848e45d7a88"
+    "sha": "b8292896f2292d999bfcfe26533c8a7fdd9ca843"
   },
   "host": {
     "platform": "darwin",
@@ -20,39 +20,35 @@
   },
   "contractSha256": "d173053c33c968829e522d3c65b9c84fd84f0ff82172271602d3d9909efb8ca1",
   "classified": {
-    "contracts": false,
-    "unit": false,
+    "contracts": true,
+    "unit": true,
     "smoke": false,
     "contractsReason": "changed component sources"
   },
   "gates": {
     "typecheck": {
       "status": "pass",
-      "durationMs": 680
+      "durationMs": 43800
     },
     "lint": {
       "status": "pass",
-      "durationMs": 21152
+      "durationMs": 44968
     },
     "unit": {
       "status": "pass",
-      "durationMs": 23366
+      "durationMs": 127028
     },
     "smoke": {
       "status": "pass",
-      "durationMs": 21475
+      "durationMs": 57204
     },
     "contracts": {
       "status": "pass",
-      "durationMs": 872007,
+      "durationMs": 1883825,
       "executed": 864,
       "full": true,
       "scopeRoutes": 108
     }
   },
-  "skips": [],
-  "carriedFrom": "tree-1563f780e42f6fb092bcb3f79a3e9872325c380f",
-  "carriedFromCommit": "a830218782b4c6a594ae36da441819477acdb793",
-  "carryReason": "version-bump",
-  "carriedAt": "2026-07-27T19:38:10.987Z"
+  "skips": []
 }

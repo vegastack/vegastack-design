@@ -123,6 +123,71 @@ test("orientation is reflected as data-orientation with identical DOM order", as
   expect(labels[2]).toContain("Review");
 });
 
+test("horizontal labels stay inside their tracks at the 320px contract width", async () => {
+  const narrowSteps: StepperStep[] = [
+    { id: "upload", label: "Upload financial records", state: "complete" },
+    { id: "map", label: "Map reconciliation columns", state: "current" },
+    { id: "review", label: "Review imported accounts", state: "upcoming" },
+    { id: "import", label: "Import", state: "upcoming" },
+  ];
+  const screen = await render(
+    <div data-test="narrow-stepper">
+      <style>{`
+        [data-test="narrow-stepper"] { width: 308px; }
+        [data-test="narrow-stepper"] [data-slot="stepper"] {
+          display: flex;
+          width: 100%;
+          margin: 0;
+          padding: 0;
+        }
+        [data-test="narrow-stepper"] [data-slot="stepper-step"] {
+          display: flex;
+          min-width: 0;
+          flex: 1 1 auto;
+          flex-direction: column;
+        }
+        [data-test="narrow-stepper"] [data-slot="stepper-step"]:last-child {
+          flex: none;
+        }
+        [data-test="narrow-stepper"] [data-slot="stepper-content"] {
+          box-sizing: border-box;
+          display: flex;
+          width: 100%;
+          min-width: 0;
+          flex-direction: column;
+          padding-inline-end: 16px;
+        }
+        [data-test="narrow-stepper"] [data-slot="stepper-label"] {
+          display: inline-flex;
+          width: 100%;
+          min-width: 0;
+        }
+        [data-test="narrow-stepper"] [data-slot="stepper-label"] > span:first-child {
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      `}</style>
+      <Stepper aria-label="Import" steps={narrowSteps} />
+    </div>,
+  );
+
+  const labels = Array.from(
+    screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot="stepper-label"]',
+    ),
+  );
+  expect(labels).toHaveLength(4);
+  const rects = labels.map((label) => label.getBoundingClientRect());
+  for (let index = 0; index < rects.length - 1; index += 1) {
+    expect(rects[index]!.right).toBeLessThanOrEqual(rects[index + 1]!.left);
+  }
+  const firstText = labels[0]!.querySelector("span") as HTMLElement;
+  expect(firstText.scrollWidth).toBeGreaterThan(firstText.clientWidth);
+  expect(getComputedStyle(firstText).textOverflow).toBe("ellipsis");
+});
+
 test("the current step's status glyph does not spin — current is a position, not activity", async () => {
   await render(<Stepper aria-label="Import" steps={STEPS} />);
   const icon = step("Map columns").querySelector(
