@@ -218,3 +218,19 @@ All fixes re-verified in this round: design-lint clean · typecheck clean · ful
 suite green (including the ~20 new regression tests added above) · registry:build idempotent ·
 design:derived/design:sync current · design:verify 18/18 · changelog-lint + content-lint clean ·
 contracts re-run green on all touched routes. Numbers are in the ship-prep report.
+
+## Ship-prep state (end of round)
+
+- `pnpm gates:push` on this host: typecheck ✓ · lint ✓ · browser unit + axe ✓ ·
+  behaviour contracts (all routes) ✓ 377s · **smoke ✗ — WebKit cannot launch over SSH**
+  (the 0a-note environment gap: `Background` launchd domain, no Aqua Mach bootstrap; Firefox
+  lanes pass 312/312). Because one gate failed, **no receipt was minted** — `.gates/receipt.json`
+  still carries the pre-branch tree.
+- **Before pushing, MK must run `pnpm gates:push` from a GUI session** (Screen Sharing /
+  auto-login, or `sudo launchctl asuser $(id -u mk) pnpm gates:push` per the documented remedy)
+  so the pre-push hook can pass and commit a receipt covering this tree. Everything else is green
+  and committed.
+- vrt-review read in full: 64 new entries (the eight new component pages, render-verified),
+  186 changed (sidebar-nav additions at 0.002–0.03% on untouched pages; intended content changes
+  on the edited pages and the generated home catalog), 658 unchanged. **Every non-unchanged entry
+  classified: intended. No unintended pixel change found.**
