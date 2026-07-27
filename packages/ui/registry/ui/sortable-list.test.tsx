@@ -101,9 +101,11 @@ test("the menu equivalent is lossless: Move up / down / to top / to bottom", asy
 test("edge menu items disable (no wrap): Move up on the first row", async () => {
   const screen = await render(<Controlled />);
   await screen.getByRole("button", { name: "Move Alpha" }).click();
-  const moveUp = screen
-    .getByRole("menuitem", { name: "Move up" })
-    .element() as HTMLElement;
+  // .element() does not retry — wait for the menu to actually open first
+  // (Firefox opens it a frame later than Chromium).
+  const locator = screen.getByRole("menuitem", { name: "Move up" });
+  await expect.element(locator).toBeInTheDocument();
+  const moveUp = locator.element() as HTMLElement;
   expect(
     moveUp.getAttribute("aria-disabled") === "true" ||
       moveUp.hasAttribute("data-disabled"),

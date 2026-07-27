@@ -9,6 +9,24 @@ function makeFile(name: string, type = "image/png", size = 1024): File {
   return new File([new Uint8Array(size)], name, { type });
 }
 
+/**
+ * Firefox's ClipboardEvent constructor strips synthetically attached files
+ * (clipboardData arrives with 0 items), so the paste scenario cannot be
+ * EXPRESSED there — a harness capability, not a product branch: the paste
+ * path itself is engine-independent React. Probe the capability, not the UA.
+ */
+function syntheticClipboardFilesSupported(): boolean {
+  const dt = new DataTransfer();
+  dt.items.add(
+    new File([new Uint8Array(1)], "probe.png", { type: "image/png" }),
+  );
+  return (
+    new ClipboardEvent("paste", { clipboardData: dt }).clipboardData?.files
+      .length === 1
+  );
+}
+const pasteTest = test.skipIf(!syntheticClipboardFilesSupported());
+
 function surface(): HTMLElement {
   return document.querySelector('[data-slot="dropzone"]') as HTMLElement;
 }
@@ -125,25 +143,28 @@ test("browsing via the input change path accepts files", async () => {
   expect(onFilesAccepted.mock.calls[0]![0][0].name).toBe("chosen.png");
 });
 
-test("pasting files inside the surface acquires them (the composer path)", async () => {
-  const onFilesAccepted = vi.fn();
-  await render(
-    <Dropzone onFilesAccepted={onFilesAccepted}>
-      <p>Drop here</p>
-    </Dropzone>,
-  );
-  const dt = new DataTransfer();
-  dt.items.add(makeFile("pasted.png"));
-  surface().dispatchEvent(
-    new ClipboardEvent("paste", {
-      clipboardData: dt,
-      bubbles: true,
-      cancelable: true,
-    }),
-  );
-  await expect.poll(() => onFilesAccepted.mock.calls.length).toBe(1);
-  expect(onFilesAccepted.mock.calls[0]![0][0].name).toBe("pasted.png");
-});
+pasteTest(
+  "pasting files inside the surface acquires them (the composer path)",
+  async () => {
+    const onFilesAccepted = vi.fn();
+    await render(
+      <Dropzone onFilesAccepted={onFilesAccepted}>
+        <p>Drop here</p>
+      </Dropzone>,
+    );
+    const dt = new DataTransfer();
+    dt.items.add(makeFile("pasted.png"));
+    surface().dispatchEvent(
+      new ClipboardEvent("paste", {
+        clipboardData: dt,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await expect.poll(() => onFilesAccepted.mock.calls.length).toBe(1);
+    expect(onFilesAccepted.mock.calls[0]![0][0].name).toBe("pasted.png");
+  },
+);
 
 test("data-dragging survives crossing a CHILD (drag-depth counting) and ends on a root leave", async () => {
   const screen = await render(
@@ -176,67 +197,73 @@ test("data-dragging survives crossing a CHILD (drag-depth counting) and ends on 
   await expect.poll(() => surface().hasAttribute("data-dragging")).toBe(false);
 });
 
-test("paste enforces accept: a PDF pasted into an image-only dropzone is refused with the reason", async () => {
-  const onFilesAccepted = vi.fn();
-  const onFilesRejected = vi.fn();
-  await render(
-    <Dropzone
-      accept={{ "image/*": [".png", ".jpg"] }}
-      onFilesAccepted={onFilesAccepted}
-      onFilesRejected={onFilesRejected}
-    >
-      <p>Drop here</p>
-    </Dropzone>,
-  );
-  const dt = new DataTransfer();
-  dt.items.add(makeFile("secret.pdf", "application/pdf"));
-  surface().dispatchEvent(
-    new ClipboardEvent("paste", {
-      clipboardData: dt,
-      bubbles: true,
-      cancelable: true,
-    }),
-  );
-  await expect.poll(() => onFilesRejected.mock.calls.length).toBe(1);
-  const rejections = onFilesRejected.mock.calls[0]![0] as FileDropRejection[];
-  expect(rejections[0]!.reasons).toContain("file-invalid-type");
-  expect(onFilesAccepted).not.toHaveBeenCalled();
-  const live = document.querySelector('[role="status"]')!;
-  await expect.poll(() => live.textContent).toContain("wrong type");
-});
+pasteTest(
+  "paste enforces accept: a PDF pasted into an image-only dropzone is refused with the reason",
+  async () => {
+    const onFilesAccepted = vi.fn();
+    const onFilesRejected = vi.fn();
+    await render(
+      <Dropzone
+        accept={{ "image/*": [".png", ".jpg"] }}
+        onFilesAccepted={onFilesAccepted}
+        onFilesRejected={onFilesRejected}
+      >
+        <p>Drop here</p>
+      </Dropzone>,
+    );
+    const dt = new DataTransfer();
+    dt.items.add(makeFile("secret.pdf", "application/pdf"));
+    surface().dispatchEvent(
+      new ClipboardEvent("paste", {
+        clipboardData: dt,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await expect.poll(() => onFilesRejected.mock.calls.length).toBe(1);
+    const rejections = onFilesRejected.mock.calls[0]![0] as FileDropRejection[];
+    expect(rejections[0]!.reasons).toContain("file-invalid-type");
+    expect(onFilesAccepted).not.toHaveBeenCalled();
+    const live = document.querySelector('[role="status"]')!;
+    await expect.poll(() => live.textContent).toContain("wrong type");
+  },
+);
 
-test("single-file paste refuses the surplus as too-many-files instead of dropping it silently", async () => {
-  const onFilesAccepted = vi.fn();
-  const onFilesRejected = vi.fn();
-  await render(
-    <Dropzone
-      multiple={false}
-      onFilesAccepted={onFilesAccepted}
-      onFilesRejected={onFilesRejected}
-    >
-      <p>Drop here</p>
-    </Dropzone>,
-  );
-  const dt = new DataTransfer();
-  dt.items.add(makeFile("a.png"));
-  dt.items.add(makeFile("b.png"));
-  dt.items.add(makeFile("c.png"));
-  surface().dispatchEvent(
-    new ClipboardEvent("paste", {
-      clipboardData: dt,
-      bubbles: true,
-      cancelable: true,
-    }),
-  );
-  await expect.poll(() => onFilesAccepted.mock.calls.length).toBe(1);
-  expect(onFilesAccepted.mock.calls[0]![0]).toHaveLength(1);
-  expect(onFilesRejected).toHaveBeenCalledTimes(1);
-  const rejections = onFilesRejected.mock.calls[0]![0] as FileDropRejection[];
-  expect(rejections).toHaveLength(2);
-  expect(rejections.every((r) => r.reasons.includes("too-many-files"))).toBe(
-    true,
-  );
-});
+pasteTest(
+  "single-file paste refuses the surplus as too-many-files instead of dropping it silently",
+  async () => {
+    const onFilesAccepted = vi.fn();
+    const onFilesRejected = vi.fn();
+    await render(
+      <Dropzone
+        multiple={false}
+        onFilesAccepted={onFilesAccepted}
+        onFilesRejected={onFilesRejected}
+      >
+        <p>Drop here</p>
+      </Dropzone>,
+    );
+    const dt = new DataTransfer();
+    dt.items.add(makeFile("a.png"));
+    dt.items.add(makeFile("b.png"));
+    dt.items.add(makeFile("c.png"));
+    surface().dispatchEvent(
+      new ClipboardEvent("paste", {
+        clipboardData: dt,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await expect.poll(() => onFilesAccepted.mock.calls.length).toBe(1);
+    expect(onFilesAccepted.mock.calls[0]![0]).toHaveLength(1);
+    expect(onFilesRejected).toHaveBeenCalledTimes(1);
+    const rejections = onFilesRejected.mock.calls[0]![0] as FileDropRejection[];
+    expect(rejections).toHaveLength(2);
+    expect(rejections.every((r) => r.reasons.includes("too-many-files"))).toBe(
+      true,
+    );
+  },
+);
 
 test("preventWindowDrop={false} actually opts out of the document-level cancellation", async () => {
   await render(
