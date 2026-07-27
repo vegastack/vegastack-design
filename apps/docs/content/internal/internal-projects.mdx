@@ -43,14 +43,14 @@ This channel carries component markup, behavior fixes, and API changes. A breaki
 change surfaces in the consuming application's typecheck after the pull. Blocks such
 as `dashboard-01` are copy-once and are not update-tracked.
 
-| Design-system change         | Delivery              | Review point                         |
-| ---------------------------- | --------------------- | ------------------------------------ |
+| Design-system change         | Delivery              | Review point                              |
+| ---------------------------- | --------------------- | ----------------------------------------- |
 | Tokens and base CSS          | npm update            | Design-system contrast and contract gates |
-| `cn()` merge configuration   | npm update            | Changelog                            |
-| Component markup or behavior | Registry pull         | `--diff` plus application tests      |
-| Breaking component API       | Registry pull         | Typecheck plus changelog warning     |
-| Removed or renamed item      | Existing copy remains | Changelog migration mapping          |
-| New component or block       | Explicit install      | Application review                   |
+| `cn()` merge configuration   | npm update            | Changelog                                 |
+| Component markup or behavior | Registry pull         | `--diff` plus application tests           |
+| Breaking component API       | Registry pull         | Typecheck plus changelog warning          |
+| Removed or renamed item      | Existing copy remains | Changelog migration mapping               |
+| New component or block       | Explicit install      | Application review                        |
 
 ### Cross-channel ordering
 

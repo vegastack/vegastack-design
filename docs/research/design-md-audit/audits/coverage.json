@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "65ceab04a063c88478fe943527856a203a3cf92d823d2b07027e7e41c1c8be6b",
+  "contractSha256": "dd586cff32d3a2f128cbd6edceff10d48bbd8471283fa03ebdcc5356af999ca1",
   "inventory": {
-    "expected": 553,
-    "actual": 553,
-    "unique": 553
+    "expected": 554,
+    "actual": 554,
+    "unique": 554
   },
   "classes": {
-    "components": 107,
+    "components": 108,
     "animatedIcons": 439,
     "hooks": 6,
     "blocks": 1
@@ -111,12 +111,13 @@
       ]
     },
     "Data display": {
-      "expected": 9,
-      "actual": 9,
+      "expected": 10,
+      "actual": 10,
       "members": [
         "card",
         "chart",
         "comparison-matrix",
+        "data-grid",
         "data-list",
         "progress-indicator",
         "property-list",
@@ -628,7 +629,7 @@
       ]
     }
   },
-  "componentRoutes": 107,
+  "componentRoutes": 108,
   "blockRoutes": 1,
   "crossBrowserSmokeFiles": 14,
   "modeledExemptions": 4

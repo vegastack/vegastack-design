@@ -2660,6 +2660,45 @@
       }
     },
     {
+      "name": "data-grid",
+      "type": "registry:ui",
+      "title": "Data Grid",
+      "description": "The full-parity grid — TanStack-sorted multi-key sort, column picker with responsive revelation, collapsible grouping, keyboard-continuous load-more, opt-in virtualization, and an APG grid keyboard layer with inline cell editing.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "@tanstack/react-table@^8.21.3",
+        "@tanstack/react-virtual@^3.14.8",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/auto-save-input",
+        "@vegastack/button",
+        "@vegastack/checkbox",
+        "@vegastack/dropdown-menu",
+        "@vegastack/editable-cell",
+        "@vegastack/empty",
+        "@vegastack/skeleton",
+        "@vegastack/table"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/data-grid.tsx",
+          "type": "registry:ui",
+          "target": "@ui/data-grid.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
+        "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
+        "version": "0.1.0",
+        "integrity": "sha256-fugGH0ToEhgoFAPP5Z4T9DUP47tQoh1eUqc3tRko6+Y="
+      }
+    },
+    {
       "name": "data-list",
       "type": "registry:ui",
       "title": "Data List",

@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 553,
-    "components": 107,
+    "totalRegistryItems": 554,
+    "components": 108,
     "animatedIcons": 439,
     "hooks": 6,
     "blocks": 1
@@ -23,7 +23,7 @@
     "Forms/editing": 22,
     "Navigation/layout": 14,
     "Overlays": 13,
-    "Data display": 9,
+    "Data display": 10,
     "Content/marketing": 20,
     "AI/chat": 6,
     "Hooks": 6,
@@ -115,6 +115,7 @@
       "card",
       "table",
       "data-list",
+      "data-grid",
       "chart",
       "comparison-matrix",
       "property-list",
@@ -14640,6 +14641,173 @@
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
       "previewModule": "data-list"
+    },
+    {
+      "name": "data-grid",
+      "registryType": "registry:ui",
+      "title": "Data Grid",
+      "summary": "The full-parity grid \u2014 TanStack-sorted multi-key sort, column picker with responsive revelation, collapsible grouping, keyboard-continuous load-more, opt-in virtualization, and an APG grid keyboard layer with inline cell editing.",
+      "family": "data",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/data-grid.tsx"],
+      "publicSymbols": [
+        {
+          "name": "DataGrid",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Generic function component; no stable public ref target is forwarded \u2014 the grid's focus model is the roving-cell API, not a root ref."
+          }
+        },
+        {
+          "name": "DataGridCellContext",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataGridColumn",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataGridLoadMore",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataGridProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataGridSort",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; behaviour flags (selectable, virtualize, group columns) define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; density follows Table's fixed scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "idle",
+            "sorted",
+            "multi-sorted",
+            "selecting",
+            "grouped",
+            "group-collapsed",
+            "editing",
+            "committing",
+            "loading",
+            "loading-more",
+            "empty",
+            "virtualized"
+          ],
+          "evidence": "Controlled DataGridSort[] with shift-click additive keys and ordinals; header + per-row checkboxes; per-value collapsible tbody sections; EditableCell managed editing with async commit; skeleton loading, Empty state, loadMore paging, and useVirtualizer windowing."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["keyboard", "labeled", "status-announcement", "aria-grid"],
+          "evidence": "role=grid over a native table with aria-rowcount/colcount and per-cell indices; one roving tab stop with RTL-aware arrow navigation, Home/End and Ctrl+Home/End; Enter/F2 suspends grid nav into EditableCell and Escape restores the cell; aria-sort with visible sort ordinals; polite live region for edit-mode entry and load-more."
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "selected-row",
+            "sorted-header",
+            "editing-cell",
+            "loading",
+            "empty"
+          ],
+          "evidence": "data-selected rows tint with accent; sorted headers show direction glyphs plus multi-key ordinals; the active editor renders EditableCell's managed field; skeleton rows and the Empty composition cover the async states."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "text-truncation-and-flex-shrink",
+          "horizontal-scroll-containment"
+        ],
+        "rationale": "ResizeObserver-driven column revelation hides/merges below per-column minWidth budgets instead of overflowing; merge columns stack into the primary cell so narrow viewports never silently lose data; the container scrolls, never the page."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["css-state-transition"],
+        "reducedMotion": {
+          "status": "observed",
+          "rationale": "Skeleton shimmer is animate-pulse (the sanctioned loader exception), static under reduced motion; row/cell state changes are immediate colour swaps per doctrine."
+        }
+      },
+      "engines": [
+        {
+          "package": "@tanstack/react-table",
+          "role": "sorted row-model engine"
+        },
+        {
+          "package": "@tanstack/react-virtual",
+          "role": "row windowing/measurement engine"
+        }
+      ],
+      "docsSlug": "/docs/components/data-grid",
+      "registryDependencies": [
+        "@vegastack/auto-save-input",
+        "@vegastack/button",
+        "@vegastack/checkbox",
+        "@vegastack/dropdown-menu",
+        "@vegastack/editable-cell",
+        "@vegastack/empty",
+        "@vegastack/skeleton",
+        "@vegastack/table"
+      ],
+      "npmDependencies": [
+        "@tanstack/react-table@^8.21.3",
+        "@tanstack/react-virtual@^3.14.8",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/data-grid.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected"
+      },
+      "previewModule": "data-grid"
     },
     {
       "name": "property-list",

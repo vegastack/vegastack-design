@@ -1,0 +1,141 @@
+---
+title: Data Grid
+description: The full-parity grid — multi-key sort, column picker, grouping, load-more, virtualization, and APG cell navigation with inline editing.
+audience: public
+preview: dataGrid
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/data-grid
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { DataGrid } from "@/components/ui/data-grid";
+
+<DataGrid
+  aria-label="Deals"
+  columns={[
+    { key: "name", header: "Name", sortable: true, mobile: "visible" },
+    {
+      key: "stage",
+      header: "Stage",
+      editable: { type: "select", options: stages },
+    },
+    { key: "amount", header: "Amount", align: "end", mobile: "merge" },
+  ]}
+  data={deals}
+  getRowId={(d) => d.id}
+  onCellCommit={(row, key, value) => api.patch(row.id, { [key]: value })}
+  selectable
+/>;
+```
+
+`DataGrid` is the commissioned full-parity sibling
+[`DataList`](/docs/components/data-list) always pointed to. The sorted row
+model comes from TanStack Table (the sanctioned engine); windowing from
+TanStack Virtual behind the `virtualize` flag; the APG grid keyboard layer —
+which no library ships — is the component's own.
+
+**Two deliberate differences from `DataList`, for migrators:**
+
+1. Cells render as component **elements**, so a `render` implementation may use
+   hooks (`DataList` invokes `render` as a plain function and cannot allow
+   that).
+2. The grid **sorts its own data** — that is what the row-model engine is for.
+   `sort`/`onSortChange` stay controllable for URL state.
+
+## Scope
+
+| Behaviour                           | Where it lives                                                                          |
+| ----------------------------------- | --------------------------------------------------------------------------------------- |
+| Data fetching, filters, saved views | Host (G7) — [`FilterBuilder`](/docs/components/filter-bar-managed) + the `toolbar` slot |
+| The cell write + conflict handling  | Host — `onCellCommit` is a request; `cellStatus` is your word                           |
+| Pagination UI                       | The `footer` slot; `loadMore` covers the continuous case                                |
+| Simple presentational tables        | [`DataList`](/docs/components/data-list) — still the right default                      |
+
+## Examples
+
+### Grouping
+
+One `group` column renders a collapsible `<tbody>` section per value — valid
+HTML where a div-based collapsible between `tbody` and `tr` is not. Grouping
+and `virtualize` are mutually exclusive.
+
+<ComponentPreview
+  name="dataGridGrouped"
+  file="components/preview/data-grid.tsx"
+/>
+
+### Inline editing
+
+Editable columns open [`EditableCell`](/docs/components/editable-cell) in
+`focusMode="managed"` — the grid owns reachability, the cell owns the editor
+and its async status. <kbd>Enter</kbd>/<kbd>F2</kbd> edits; <kbd>Escape</kbd>
+restores grid navigation; a rejected commit reverts and announces.
+
+<ComponentPreview
+  name="dataGridEditable"
+  file="components/preview/data-grid.tsx"
+/>
+
+### Keyboard-continuous load-more
+
+<kbd>↓</kbd> past the last row fetches the next page — paging never breaks the
+keyboard flow.
+
+<ComponentPreview
+  name="dataGridLoadMore"
+  file="components/preview/data-grid.tsx"
+/>
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/data-grid.tsx"
+  name="DataGridProps"
+/>
+
+### Column
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/data-grid.tsx"
+  name="DataGridColumn"
+/>
+
+## Accessibility
+
+- Real `role="grid"` semantics on a native table: `columnheader`/`gridcell`
+  with `aria-colcount`, `aria-rowcount` (−1 while more rows exist),
+  `aria-rowindex`/`aria-colindex`, and `aria-readonly` on non-editable cells.
+- One roving tab stop for the whole grid: arrows move the active cell
+  (RTL-aware), <kbd>Home</kbd>/<kbd>End</kbd> jump within the row,
+  <kbd>Ctrl</kbd>+<kbd>Home</kbd>/<kbd>End</kbd> to the grid's corners.
+- <kbd>Enter</kbd>/<kbd>F2</kbd> opens the cell editor and **suspends grid
+  navigation**; <kbd>Escape</kbd> closes it and restores focus to the cell;
+  edit-mode entry announces politely.
+- Multi-key sort headers carry `aria-sort` and a visible ordinal per key;
+  shift-click adds a secondary key.
+- Responsive revelation never hides data silently on `merge` columns — their
+  values stack into the primary cell.
+
+| Key                                              | Action                                     |
+| ------------------------------------------------ | ------------------------------------------ |
+| <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> | Move the active cell.                      |
+| <kbd>Home</kbd> / <kbd>End</kbd>                 | First / last cell in the row.              |
+| <kbd>Ctrl</kbd>+<kbd>Home</kbd>/<kbd>End</kbd>   | First / last cell of the grid.             |
+| <kbd>Enter</kbd> / <kbd>F2</kbd>                 | Edit the focused cell (suspends grid nav). |
+| <kbd>Escape</kbd>                                | Close the editor, restore grid focus.      |
+| <kbd>↓</kbd> on the last row                     | Load more (when `loadMore.hasMore`).       |
+
+## Do / Don't
+
+<DoDont
+  do="Reach for DataList first — DataGrid earns its weight only when you need grouping, inline editing, multi-key sort, or virtualization."
+  dont="Wire cell-level overflow-hidden for truncation — use min-w-0 + an inner truncate span; cell clipping breaks the checkbox hit-area invariant."
+/>

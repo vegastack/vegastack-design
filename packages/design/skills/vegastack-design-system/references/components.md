@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**107 components**, plus 439 animated-icon items, 6 hooks (`use-animation-replay`, `use-drag-reorder`, `use-file-drop`, `use-list-nav`, `use-mobile`, `use-platform`), and 1 starter block (`dashboard-01`) — 553 registry items in total.
+**108 components**, plus 439 animated-icon items, 6 hooks (`use-animation-replay`, `use-drag-reorder`, `use-file-drop`, `use-list-nav`, `use-mobile`, `use-platform`), and 1 starter block (`dashboard-01`) — 554 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so `icon-button` is the
@@ -73,6 +73,7 @@ component and never an icon.
 
 ## Data
 
+- **`data-grid`** — The full-parity grid — TanStack-sorted multi-key sort, column picker with responsive revelation, collapsible grouping, keyboard-continuous load-more, opt-in virtualization, and an APG grid keyboard layer with inline cell editing.
 - **`data-list`** — A generic, typed data table — configurable columns, row selection, sortable headers, plus loading and empty states.
 - **`filter-bar`** — A row of removable filter chips, an "Add filter" dropdown, and an optional search input — for list and table filter toolbars.
 - **`filter-bar-managed`** — The stateful nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.

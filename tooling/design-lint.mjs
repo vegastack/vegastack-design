@@ -217,6 +217,14 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     },
   ],
   [
+    "/data-grid.tsx",
+    {
+      counts: { button: 2 },
+      rationale:
+        "table sort-header and group-toggle controls preserve table semantics (same class as data-list's exemption)",
+    },
+  ],
+  [
     "/data-list.tsx",
     {
       counts: { button: 2 },

@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "65ceab04a063c88478fe943527856a203a3cf92d823d2b07027e7e41c1c8be6b",
+  "contractSha256": "dd586cff32d3a2f128cbd6edceff10d48bbd8471283fa03ebdcc5356af999ca1",
   "expectedCounts": {
-    "totalRegistryItems": 553,
-    "components": 107,
+    "totalRegistryItems": 554,
+    "components": 108,
     "animatedIcons": 439,
     "hooks": 6,
     "blocks": 1
@@ -1000,6 +1000,17 @@
         "packages/ui/registry/ui/data-list.tsx"
       ],
       "docsSlug": "/docs/components/data-list",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "data-grid",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/data-grid.tsx"
+      ],
+      "docsSlug": "/docs/components/data-grid",
       "contractStatus": "reconciled"
     },
     {

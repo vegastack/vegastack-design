@@ -18,9 +18,20 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   CRM commission (plan 2026-07-26), each with complete docs, state coverage, accessibility tests,
   and registry integrity metadata.
   [components](https://design.vegastack.com/docs/components/action-bar)
-- **useListNav** and **usePlatform** — two new registry hooks: roving-tabindex keyboard navigation
-  for lists and grids (RTL-aware arrows, `homeEndScope`, overlay suppression), and SSR-safe
-  platform detection (`{ os, isTouch }`) for `Kbd`'s modifier rewriting and touch gating.
+- **SortableList**, **Board**, **Dropzone**, and **DataGrid** — the four dependency-gated
+  commissions, unblocked by MK's 2026-07-27 sanction of four engines (Pragmatic drag and drop,
+  react-dropzone, TanStack Table, TanStack Virtual). Reorderable rows with a lossless keyboard
+  Move menu; a kanban board with cross-column card movement and per-move lock reasons; a
+  paste-capable file drop surface; and the full-parity grid — multi-key sort, column picker with
+  responsive revelation, collapsible grouping, keyboard-continuous load-more, opt-in
+  virtualization, and APG cell navigation with inline editing.
+  [components](https://design.vegastack.com/docs/components/data-grid)
+- **useListNav**, **usePlatform**, **useDragReorder**, and **useFileDrop** — four new registry
+  hooks: roving-tabindex keyboard navigation for lists and grids (RTL-aware arrows,
+  `homeEndScope`, overlay suppression); SSR-safe platform detection (`{ os, isTouch }`) for
+  `Kbd`'s modifier rewriting and touch gating; the reorder seam over Pragmatic drag and drop
+  (pointer drags, commit-per-step keyboard move mode, server-refusable moves); and the file-drop
+  seam over react-dropzone (drop + paste + browse, typed rejection reasons).
   [guide](https://design.vegastack.com/docs/guides/components)
 
 ### 🔧 Changed components

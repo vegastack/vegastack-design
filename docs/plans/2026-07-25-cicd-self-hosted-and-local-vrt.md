@@ -36,7 +36,7 @@ Run `30115971397` did not hang. It **failed** at 1h12m with two genuine regressi
   `forced-colors: active`. Deterministic across all four Chromium projects and all three retries.
   **Root-caused and reproduced locally on macOS** — see § Terminal fix below.
 - `components.spec.ts` — `/internal/internal-projects` in `chromium-dark` only. Unexplained; its
-  baseline commit is *newer* than the page's source commit, so it is not simple staleness.
+  baseline commit is _newer_ than the page's source commit, so it is not simple staleness.
 
 `quality-gate`, `version-pr`, and `publish` all skipped. **There is no Version Packages PR.** npm is
 still at `@vegastack/design@0.1.1`; five changesets are pending on `main`.
@@ -85,7 +85,7 @@ drift** remains — real, but narrow.
 ### VRT is a review tool, not a gate
 
 A gate answers yes/no with no human in the loop. VRT cannot: when forty photographs change, only a
-human knows whether that was the intent. Clearing it requires *overwriting the evidence* by
+human knows whether that was the intent. Clearing it requires _overwriting the evidence_ by
 regenerating baselines. AGENTS.md § Verification ladder says "Every gate fails closed" — VRT has an
 always-available escape hatch, so it never did.
 
@@ -130,7 +130,7 @@ LOCAL         /ship       before/after screenshot diff, artifacts reviewed by th
 no repository code.
 
 **`sign-curated` — by caution.** Sigstore has no documented runner restriction and the OIDC token is
-minted by GitHub regardless of runner, so it *should* work self-hosted. That is unverified, and a
+minted by GitHub regardless of runner, so it _should_ work self-hosted. That is unverified, and a
 failure means a broken release. The job downloads an artifact and signs it — no repository code, ~30
 seconds. Not worth the risk. Revisit only if there is a reason to.
 
@@ -161,15 +161,15 @@ plan does not use it — with screenshots local, nothing needs Linux.
 4. emit artifacts + a structured report
 ```
 
-| Property | Committed baselines (today) | Before/after (this plan) |
-|---|---|---|
-| macOS vs Windows vs Linux pixels | fatal | irrelevant — one machine |
-| Repo weight | 216 MB | zero |
-| Staleness | constant | impossible |
-| "Regenerate baselines" round-trip | the entire loop | does not exist |
-| Runnable by any developer | no | yes, any OS |
+| Property                          | Committed baselines (today) | Before/after (this plan) |
+| --------------------------------- | --------------------------- | ------------------------ |
+| macOS vs Windows vs Linux pixels  | fatal                       | irrelevant — one machine |
+| Repo weight                       | 216 MB                      | zero                     |
+| Staleness                         | constant                    | impossible               |
+| "Regenerate baselines" round-trip | the entire loop             | does not exist           |
+| Runnable by any developer         | no                          | yes, any OS              |
 
-It also answers a better question: not *"this differs from a photograph taken in July"* but
+It also answers a better question: not _"this differs from a photograph taken in July"_ but
 **"here is exactly what your change did to the UI."** It handles the scenario VRT is genuinely best
 at — bump Tailwind, see every component that moved.
 
@@ -202,14 +202,14 @@ makes the un-automatable judgment step agent-assisted, which is precisely what u
 
 **The division of labour must be explicit, because it is what keeps the tool honest:**
 
-| Stage | Who | Why |
-|---|---|---|
-| **Measurement** | Playwright's comparator | Deterministic. A 2px shift is a fact, and a vision model can miss it |
-| **Interpretation** | the developer's agent | Reads before/after/diff, judges intended vs unintended |
-| **Decision** | the developer | Authority never leaves the human |
+| Stage              | Who                     | Why                                                                  |
+| ------------------ | ----------------------- | -------------------------------------------------------------------- |
+| **Measurement**    | Playwright's comparator | Deterministic. A 2px shift is a fact, and a vision model can miss it |
+| **Interpretation** | the developer's agent   | Reads before/after/diff, judges intended vs unintended               |
+| **Decision**       | the developer           | Authority never leaves the human                                     |
 
-Never let the agent's reading of an image substitute for the pixel count. The numbers decide *what
-gets looked at*; the agent decides *what it means*; the human decides *what happens*.
+Never let the agent's reading of an image substitute for the pixel count. The numbers decide _what
+gets looked at_; the agent decides _what it means_; the human decides _what happens_.
 
 Emit to `.vrt-review/` (gitignored):
 
@@ -244,16 +244,16 @@ Write this so it is legible to both Claude Code and Codex — this file is mirro
 Mechanical, and `tooling/verify-workflow-security.mjs` **does not constrain `runs-on` at all**
 (verified — no `runs-on` assertion exists), so nothing blocks it.
 
-| Change | Where |
-|---|---|
-| `runs-on: ubuntu-latest` → `[self-hosted, vsk-runners-mac-mini]` | `ci.yml:10`; `release.yml:16,95,146`; `deploy.yml:31,85,223,263,293` — **not** `release.yml:175` (publish) or `deploy.yml:185` (sign) |
-| Remove `container:` | `ci.yml:12`; `release.yml:60,96`; `deploy.yml:53` — Actions job containers are Linux-only; Colima/OrbStack does not change that |
-| **Delete `env: HOME: /root`** | `ci.yml:37-41`; `release.yml:113-115` — a container-root Firefox workaround that **hard-breaks on macOS**; `/root` does not exist |
-| Add `pnpm exec playwright install chromium` | every job running Playwright or Vitest browser mode — the container used to supply browsers. **No `--with-deps`** (apt-based, Linux-only) |
-| Remove `git config --global --add safe.directory` | `ci.yml:18-20`; `vrt.yml:41`; `release.yml` — harmless in a throwaway container, but on a **persistent** runner it permanently mutates the runner user's global gitconfig |
-| Narrow the visual classifier | `release.yml:39` — drop `pnpm-lock\.yaml` and `apps/docs/package\.json`; a lockfile bump is not a visual change |
-| **Add `upload-artifact` on failure** | every job running Playwright. Do this **first, independently** — without it you are debugging blind |
-| Dynamic port | `playwright.config.ts:76` hardcodes port 3000 with `reuseExistingServer: false`. Two minis running two PRs will collide. Env-var the port or add a concurrency group |
+| Change                                                           | Where                                                                                                                                                                     |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `runs-on: ubuntu-latest` → `[self-hosted, vsk-runners-mac-mini]` | `ci.yml:10`; `release.yml:16,95,146`; `deploy.yml:31,85,223,263,293` — **not** `release.yml:175` (publish) or `deploy.yml:185` (sign)                                     |
+| Remove `container:`                                              | `ci.yml:12`; `release.yml:60,96`; `deploy.yml:53` — Actions job containers are Linux-only; Colima/OrbStack does not change that                                           |
+| **Delete `env: HOME: /root`**                                    | `ci.yml:37-41`; `release.yml:113-115` — a container-root Firefox workaround that **hard-breaks on macOS**; `/root` does not exist                                         |
+| Add `pnpm exec playwright install chromium`                      | every job running Playwright or Vitest browser mode — the container used to supply browsers. **No `--with-deps`** (apt-based, Linux-only)                                 |
+| Remove `git config --global --add safe.directory`                | `ci.yml:18-20`; `vrt.yml:41`; `release.yml` — harmless in a throwaway container, but on a **persistent** runner it permanently mutates the runner user's global gitconfig |
+| Narrow the visual classifier                                     | `release.yml:39` — drop `pnpm-lock\.yaml` and `apps/docs/package\.json`; a lockfile bump is not a visual change                                                           |
+| **Add `upload-artifact` on failure**                             | every job running Playwright. Do this **first, independently** — without it you are debugging blind                                                                       |
+| Dynamic port                                                     | `playwright.config.ts:76` hardcodes port 3000 with `reuseExistingServer: false`. Two minis running two PRs will collide. Env-var the port or add a concurrency group      |
 
 `turbo.json:4`'s `globalPassThroughEnv: ["PLAYWRIGHT_BROWSERS_PATH"]` is harmless to keep and stays
 correct if a shared browser cache is pinned on the runner (recommended — avoids re-downloading ~1 GB
@@ -263,17 +263,17 @@ per job).
 
 Three fail-closed blockers. Under this plan one is already neutralised (Part A).
 
-| Blocker | Action |
-|---|---|
-| `tooling/verify-workflow-security.mjs:13` — `REQUIRED_WORKFLOWS` includes `vrt.yml` | Remove the entry; delete `vrt.yml`. Also remove the now-dead `PLAYWRIGHT_IMAGE` constant (`:26-27`) and its `container:` digest assertion (`:142-148`), and the `update_baselines` input assertion (`:189-193`) |
-| `tooling/verify-component-contracts.mjs:869-913` | **No change** — `components.spec.ts` stays |
-| `release.yml:87-92` `quality-gate` `if:` evaluates `needs.vrt-gate.result`; `deploy.yml:83` `build-curated: needs: vrt-gate` | Delete both `vrt-gate` jobs; rewire `needs:` and simplify the conditional to `always() && needs.changes.outputs.publish == 'true'` |
+| Blocker                                                                                                                      | Action                                                                                                                                                                                                          |
+| ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tooling/verify-workflow-security.mjs:13` — `REQUIRED_WORKFLOWS` includes `vrt.yml`                                          | Remove the entry; delete `vrt.yml`. Also remove the now-dead `PLAYWRIGHT_IMAGE` constant (`:26-27`) and its `container:` digest assertion (`:142-148`), and the `update_baselines` input assertion (`:189-193`) |
+| `tooling/verify-component-contracts.mjs:869-913`                                                                             | **No change** — `components.spec.ts` stays                                                                                                                                                                      |
+| `release.yml:87-92` `quality-gate` `if:` evaluates `needs.vrt-gate.result`; `deploy.yml:83` `build-curated: needs: vrt-gate` | Delete both `vrt-gate` jobs; rewire `needs:` and simplify the conditional to `always() && needs.changes.outputs.publish == 'true'`                                                                              |
 
 Deletions and rewrites:
 
 - **Delete** 876 PNGs under `apps/docs/vrt/components.spec.ts-snapshots/` (216 MB)
 - **Delete** `apps/docs/scripts/verify-vrt-baselines.ts` and `apps/docs/package.json:15`
-- **`.gitignore:23-28`** — currently ignores `*-darwin.png` *specifically to prevent* committing local
+- **`.gitignore:23-28`** — currently ignores `*-darwin.png` _specifically to prevent_ committing local
   baselines. Replace with the whole snapshot directory plus `.vrt-review/`. (Its comment also
   claims `contracts.spec.ts` writes snapshots — false today; do not carry that forward.)
 - **Delete** `skills/internal/ship/references/vrt-baselines.md`
@@ -291,7 +291,7 @@ point-in-time record per AGENTS.md § Truth hierarchy and needs no edit.
 
 Two experiments. Both must pass before the migration is trusted.
 
-**D1 — `contracts.spec.ts` on macOS.** This is the lane that actually catches bugs, and it is *not*
+**D1 — `contracts.spec.ts` on macOS.** This is the lane that actually catches bugs, and it is _not_
 platform-neutral despite taking no photographs: `effectiveTargetProbe` asserts a ≥23.5px effective
 size using `elementFromPoint` hit-testing at a 0.5px inset, explicitly tuned around Blink-on-Linux
 pixel snapping, and `forcedColors` emulation plus font metrics differ by OS. One route reproduced
@@ -314,7 +314,7 @@ Real accessibility bug, root-caused and locally reproduced.
 Under `forced-colors: active` both affordances collapse:
 
 - **`outline-none` has no forced-colors carve-out** in Tailwind v4.3.2 — it compiles to bare
-  `outline-style: none`. `outline-hidden` *does* (it emits `outline: 2px solid transparent` inside
+  `outline-style: none`. `outline-hidden` _does_ (it emits `outline: 2px solid transparent` inside
   `@media (forced-colors: active)`). So the safety net at `packages/design-tokens/src/base.css:53-56`,
   which sets only `outline-color: Highlight`, has nothing to colour.
 - **Forced-colors overwrites `border-color` outright** — `border-transparent` and `border-ring/…`
