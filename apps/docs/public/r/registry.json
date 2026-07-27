@@ -1982,6 +1982,35 @@
       }
     },
     {
+      "name": "dropzone",
+      "type": "registry:ui",
+      "title": "Dropzone",
+      "description": "File acquisition surface — drop, click-to-browse, and paste — as a thin shell over use-file-drop; a real visually hidden file input is the accessible control; data-dragging/data-drag-invalid styling flags.",
+      "categories": [
+        "form"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/use-file-drop"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/dropzone.tsx",
+          "type": "registry:ui",
+          "target": "@ui/dropzone.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A visible upload surface — drop files, click to browse, paste — that hands accepted File[]s to the host and typed rejections back.",
+        "whenNotToUse": "Chrome-less acquisition inside another surface (compose use-file-drop directly) or rendering upload progress (Attachment).",
+        "version": "0.1.0",
+        "integrity": "sha256-3ZJPUxmBZxPPNt6okQUIDBURO9PRZxNboRM8LNNp6DY="
+      }
+    },
+    {
       "name": "field-inline",
       "type": "registry:ui",
       "title": "Field Inline",
@@ -2825,6 +2854,32 @@
         "whenNotToUse": "File drag-in (use-file-drop), resizing panes (Resizable), or single-axis value dragging (Slider).",
         "version": "0.1.0",
         "integrity": "sha256-1/Ne/sMMrVYgWvQZLZAEJpb7K07c3CDgmfySuTiZV0E="
+      }
+    },
+    {
+      "name": "use-file-drop",
+      "type": "registry:hook",
+      "title": "useFileDrop",
+      "description": "File acquisition (drop, browse, paste) over the sanctioned react-dropzone engine — typed rejection reasons aligned with AttachmentState, announcement payload, window-level missed-drop protection.",
+      "categories": [
+        "hook"
+      ],
+      "dependencies": [
+        "react-dropzone@^19.1.1"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-file-drop.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-file-drop.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Any surface that acquires files — a Dropzone, a rich-text composer accepting pasted screenshots, a bespoke drop target — where drag-depth handling, accept matching, and typed rejections should be correct by construction.",
+        "whenNotToUse": "Rendering upload state (Attachment) or persisting uploads — acquisition ends at the File[] callback.",
+        "version": "0.1.0",
+        "integrity": "sha256-Sl0w7Yy8y1iEKYX8Z7ywg6knBmT5gMe0Xj+B2qbtFrU="
       }
     },
     {

@@ -32,6 +32,7 @@
   "date-picker": "sha256-NckfrxhDHdacprbUrJ12aPRHkalSsqLBh3k2auc863w=",
   "dialog": "sha256-iOMScrCJxcM3bmiHnOW6XI5SS7hhgZ1ykDbn07zwGyY=",
   "dropdown-menu": "sha256-jU21kJUt+/Z9fwIa7R+Y1K2onGgvdHuthJzr8uEhafg=",
+  "dropzone": "sha256-3ZJPUxmBZxPPNt6okQUIDBURO9PRZxNboRM8LNNp6DY=",
   "editable-cell": "sha256-XwjDMJlgA9SXVUisOHmpk95Q1z40mLpa9mpx/turwMo=",
   "emoji-picker": "sha256-H/ogHzhyAyUjk40MzKuAfgmBeSls5LWHavyssLO3/aE=",
   "empty": "sha256-uVdwmcy8bfeEKa1pL9BBwI1AFG/uVToBoxo9kAx5oGY=",
@@ -547,6 +548,7 @@
   "truncated-text": "sha256-pGhgEFQL4u4BUTB5XdLq4NfH3M8V2EnTRz17jsWgFMU=",
   "use-animation-replay": "sha256-VWoD1Hj9H/lLmbC7G0ELvEGoYDpyIul1C7Y79MSbPUI=",
   "use-drag-reorder": "sha256-1/Ne/sMMrVYgWvQZLZAEJpb7K07c3CDgmfySuTiZV0E=",
+  "use-file-drop": "sha256-Sl0w7Yy8y1iEKYX8Z7ywg6knBmT5gMe0Xj+B2qbtFrU=",
   "use-list-nav": "sha256-CDlZqvgbwzEgH7l6tgXFCVl2HktWPrYBlbnk+KW7zVQ=",
   "use-mobile": "sha256-XCtpSfRXQ9Ame+isW4sjUUykWzaqxANLk1TzBVjnOos=",
   "use-platform": "sha256-3BDLnYCmJG4Ok5QbKbMlmbdJieE02ytZ1reuDTLLpDw="

@@ -12,21 +12,21 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 551,
-    "components": 106,
+    "totalRegistryItems": 553,
+    "components": 107,
     "animatedIcons": 439,
-    "hooks": 5,
+    "hooks": 6,
     "blocks": 1
   },
   "expectedWaveCounts": {
     "Core controls": 23,
-    "Forms/editing": 21,
+    "Forms/editing": 22,
     "Navigation/layout": 14,
     "Overlays": 13,
     "Data display": 9,
     "Content/marketing": 20,
     "AI/chat": 6,
-    "Hooks": 5,
+    "Hooks": 6,
     "Block": 1,
     "Animated icons": 439
   },
@@ -77,7 +77,8 @@
       "number-field",
       "chip-input",
       "filter-bar-managed",
-      "sortable-list"
+      "sortable-list",
+      "dropzone"
     ],
     "Navigation/layout": [
       "accordion",
@@ -154,6 +155,7 @@
     "Hooks": [
       "use-animation-replay",
       "use-drag-reorder",
+      "use-file-drop",
       "use-list-nav",
       "use-mobile",
       "use-platform"
@@ -11295,6 +11297,106 @@
       "previewModule": "board"
     },
     {
+      "name": "dropzone",
+      "registryType": "registry:ui",
+      "title": "Dropzone",
+      "summary": "File acquisition surface — drop, click-to-browse, and paste — as a thin shell over use-file-drop; a real visually hidden file input is the accessible control; data-dragging/data-drag-invalid styling flags.",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/dropzone.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Dropzone",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/dropzone.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "DropzoneProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/dropzone.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "idle",
+            "dragging",
+            "drag-invalid",
+            "accepted",
+            "rejected",
+            "disabled"
+          ],
+          "evidence": "use-file-drop owns the behaviour; the shell reflects it as data flags and dims + inerts pointer interaction when disabled."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": [
+            "keyboard",
+            "labeled",
+            "status-announcement",
+            "semantic-html"
+          ],
+          "evidence": "A real visually hidden named <input type=file> is the focusable, keyboard-operable control; batches announce politely; drag validity is never colour alone (typed rejections + announcements)."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "dragging", "drag-invalid", "disabled"],
+          "evidence": "Primary border tint while a valid payload hovers, destructive tint when refused, opacity dim when disabled; the dashed idle look is composed Empty bordered."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "w-full min-w-0 surface; children own their layout."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/dropzone",
+      "registryDependencies": ["@vegastack/use-file-drop"],
+      "npmDependencies": [
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/dropzone.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "selected"
+      },
+      "previewModule": "dropzone"
+    },
+    {
       "name": "field-inline",
       "registryType": "registry:ui",
       "title": "Field Inline",
@@ -19354,6 +19456,128 @@
         "preview": "exempt",
         "vrt": "exempt",
         "crossBrowserSmoke": "selected"
+      }
+    },
+    {
+      "name": "use-file-drop",
+      "registryType": "registry:hook",
+      "title": "useFileDrop",
+      "summary": "File acquisition (drop, browse, paste) over the sanctioned react-dropzone engine — typed rejection reasons aligned with AttachmentState, announcement payload, window-level missed-drop protection.",
+      "family": "hook",
+      "wave": "Hooks",
+      "sourceFiles": ["packages/ui/registry/ui/use-file-drop.ts"],
+      "publicSymbols": [
+        {
+          "name": "FileDropRejection",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-file-drop.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FileDropRejectionReason",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/use-file-drop.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "useFileDrop",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-file-drop.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "UseFileDropOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-file-drop.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseFileDropReturn",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-file-drop.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "idle",
+            "dragging",
+            "drag-invalid",
+            "accepted",
+            "rejected",
+            "disabled"
+          ],
+          "evidence": "react-dropzone owns drag lifecycle and accept matching; the hook adds the paste path, typed rejections, batch announcements, and the window missed-drop preventDefault."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["status-announcement"],
+          "evidence": "Sequence-keyed polite live region announcing added/refused batches; the accessible control itself is the consumer's hidden file input (inputProps)."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render visual states — consumers style off data-dragging/data-drag-invalid."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [
+        {
+          "package": "react-dropzone",
+          "role": "file drop/paste acquisition engine"
+        }
+      ],
+      "docsSlug": "/docs/guides/components",
+      "registryDependencies": [],
+      "npmDependencies": ["react-dropzone@^19.1.1"],
+      "testFiles": ["packages/ui/registry/ui/dropzone.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
       }
     },
     {

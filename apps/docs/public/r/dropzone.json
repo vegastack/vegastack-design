@@ -1,0 +1,31 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "dropzone",
+  "title": "Dropzone",
+  "description": "File acquisition surface — drop, click-to-browse, and paste — as a thin shell over use-file-drop; a real visually hidden file input is the accessible control; data-dragging/data-drag-invalid styling flags.",
+  "dependencies": [
+    "@vegastack/design@^0.2.0",
+    "@vegastack/design-tokens@^0.2.0"
+  ],
+  "registryDependencies": [
+    "@vegastack/use-file-drop"
+  ],
+  "files": [
+    {
+      "path": "packages/ui/registry/ui/dropzone.tsx",
+      "content": "// @vegastack dropzone@0.3.0 sha256-3ZJPUxmBZxPPNt6okQUIDBURO9PRZxNboRM8LNNp6DY=\n\n\"use client\";\n\nimport * as React from \"react\";\nimport { cn } from \"@vegastack/design\";\nimport {\n  useFileDrop,\n  type FileDropRejection,\n  type UseFileDropOptions,\n} from \"@/components/ui/use-file-drop\";\n\n/* ---\n`Dropzone` is deliberately THIN: acquisition only. Everything behavioural — drag-depth\nhandling, directory traversal, accept matching, the paste path, typed rejections, the\nannouncements, the window-level preventDefault — lives in `use-file-drop`, so a\nrich-text composer gets the behaviour with none of this surface. And everything after\nacquisition — per-file upload state, progress, retries — is `Attachment`'s territory\n(\"it owns no upload logic, only the visual state machine\"): the two meet at a plain\n`File[]` callback and share the rejection/state vocabulary.\n\nThe a11y story is SIMPLER with a real, visually hidden `<input type=\"file\">` than any\ndiv-based target: the input IS the control (named, focusable, keyboard-operable,\nform-participating); the drop surface is decoration around it. That input is this\nfile's one `RAW_INTERACTIVE_EXEMPTIONS` entry — the engine's prop-getter must attach\nto a native input, and no VegaStack control can substitute for the file-picker bridge.\n\nDeliberately NOT done here:\n- No `attachments` prop and no internal `Attachment` rendering — the host owns the\n  staged-file list and its lifecycle.\n- No dashed-border re-implementation. Consumers compose `Empty bordered` (its prop\n  doc literally reads \"the classic 'drop zone' look\") or any content as children.\n--- */\n\n/** Props accepted by `Dropzone`. */\nexport interface DropzoneProps extends Omit<\n  UseFileDropOptions,\n  \"onFilesAccepted\" | \"onFilesRejected\"\n> {\n  /** Receives the accepted files of each drop/paste/browse batch. */\n  onFilesAccepted: (files: File[]) => void;\n  /**\n   * Receives the refused files of a batch, with typed reasons.\n\n   * @default undefined\n   */\n  onFilesRejected?: (rejections: FileDropRejection[]) => void;\n  /**\n   * Accessible name for the file input.\n   * @default \"Upload files\"\n   */\n  \"aria-label\"?: string;\n  /** The idle affordance — typically `Empty bordered` content. */\n  children: React.ReactNode;\n  /** Extra classes for the drop surface.\n   * @default undefined\n   */\n  className?: string;\n  /**\n   * Ref forwarded to the drop surface (`data-slot=\"dropzone\"`).\n\n   * @default undefined\n   */\n  ref?: React.Ref<HTMLDivElement>;\n}\n\n/**\n * `Dropzone` — the visual shell over `use-file-drop`: a click-to-browse,\n * drop-and-paste surface with a real hidden `<input type=\"file\">` as the\n * accessible control. Styling hooks: `data-dragging` and `data-drag-invalid`\n * on the surface for the `group-data-[…]` idiom.\n *\n * @example\n * <Dropzone\n *   accept={{ \"image/*\": [\".png\", \".jpg\"] }}\n *   onFilesAccepted={(files) => stageUploads(files)}\n *   onFilesRejected={(rejections) => flagRejections(rejections)}\n * >\n *   <Empty size=\"sm\" bordered>\n *     <EmptyHeader>\n *       <EmptyTitle>Drop images here</EmptyTitle>\n *       <EmptyDescription>or click to browse — PNG or JPG</EmptyDescription>\n *     </EmptyHeader>\n *   </Empty>\n * </Dropzone>\n * <AttachmentGroup>…render the staged files with Attachment…</AttachmentGroup>\n */\nexport function Dropzone({\n  onFilesAccepted,\n  onFilesRejected,\n  \"aria-label\": ariaLabel = \"Upload files\",\n  children,\n  className,\n  ref,\n  ...options\n}: DropzoneProps) {\n  const drop = useFileDrop({ onFilesAccepted, onFilesRejected, ...options });\n  const { \"data-dragging\": dragging, \"data-drag-invalid\": dragInvalid } =\n    drop.dropProps;\n\n  return (\n    <>\n      <div\n        {...drop.dropProps}\n        ref={ref}\n        data-slot=\"dropzone\"\n        data-disabled={options.disabled ? \"\" : undefined}\n        className={cn(\n          \"group/dropzone relative w-full min-w-0 cursor-pointer rounded-lg\",\n          // The whole surface reflects the drag: primary tint while a valid\n          // payload hovers, destructive tint when it cannot be accepted.\n          \"data-dragging:[&_[data-slot=empty]]:border-primary/(--alpha-outline-border)\",\n          \"data-drag-invalid:[&_[data-slot=empty]]:border-destructive/(--alpha-outline-border)\",\n          options.disabled && \"pointer-events-none opacity-(--opacity-dim)\",\n          className,\n        )}\n        data-dragging={dragging}\n        data-drag-invalid={dragInvalid}\n      >\n        {/* The REAL control: named, focusable, keyboard-operable. */}\n        <input {...drop.inputProps} aria-label={ariaLabel} />\n        {children}\n      </div>\n      <span {...drop.getLiveRegionProps()} />\n    </>\n  );\n}\n",
+      "type": "registry:ui",
+      "target": "@ui/dropzone.tsx"
+    }
+  ],
+  "meta": {
+    "whenToUse": "A visible upload surface — drop files, click to browse, paste — that hands accepted File[]s to the host and typed rejections back.",
+    "whenNotToUse": "Chrome-less acquisition inside another surface (compose use-file-drop directly) or rendering upload progress (Attachment).",
+    "version": "0.1.0",
+    "integrity": "sha256-3ZJPUxmBZxPPNt6okQUIDBURO9PRZxNboRM8LNNp6DY="
+  },
+  "categories": [
+    "form"
+  ],
+  "type": "registry:ui"
+}

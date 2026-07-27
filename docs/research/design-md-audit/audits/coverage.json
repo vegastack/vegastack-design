@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "8c2959f6a5144d3d4a5310f7507e3db2beccd4b683da3b2500888bd287d29de7",
+  "contractSha256": "65ceab04a063c88478fe943527856a203a3cf92d823d2b07027e7e41c1c8be6b",
   "inventory": {
-    "expected": 551,
-    "actual": 551,
-    "unique": 551
+    "expected": 553,
+    "actual": 553,
+    "unique": 553
   },
   "classes": {
-    "components": 106,
+    "components": 107,
     "animatedIcons": 439,
-    "hooks": 5,
+    "hooks": 6,
     "blocks": 1
   },
   "waves": {
@@ -44,8 +44,8 @@
       ]
     },
     "Forms/editing": {
-      "expected": 21,
-      "actual": 21,
+      "expected": 22,
+      "actual": 22,
       "members": [
         "auto-save-input",
         "chip-input",
@@ -53,6 +53,7 @@
         "combobox",
         "country-select",
         "date-picker",
+        "dropzone",
         "editable-cell",
         "field",
         "field-inline",
@@ -163,11 +164,12 @@
       ]
     },
     "Hooks": {
-      "expected": 5,
-      "actual": 5,
+      "expected": 6,
+      "actual": 6,
       "members": [
         "use-animation-replay",
         "use-drag-reorder",
+        "use-file-drop",
         "use-list-nav",
         "use-mobile",
         "use-platform"
@@ -626,8 +628,8 @@
       ]
     }
   },
-  "componentRoutes": 106,
+  "componentRoutes": 107,
   "blockRoutes": 1,
-  "crossBrowserSmokeFiles": 13,
+  "crossBrowserSmokeFiles": 14,
   "modeledExemptions": 4
 }

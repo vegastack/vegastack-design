@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "8c2959f6a5144d3d4a5310f7507e3db2beccd4b683da3b2500888bd287d29de7",
+  "contractSha256": "65ceab04a063c88478fe943527856a203a3cf92d823d2b07027e7e41c1c8be6b",
   "expectedCounts": {
-    "totalRegistryItems": 551,
-    "components": 106,
+    "totalRegistryItems": 553,
+    "components": 107,
     "animatedIcons": 439,
-    "hooks": 5,
+    "hooks": 6,
     "blocks": 1
   },
   "records": [
@@ -746,6 +746,17 @@
         "packages/ui/registry/ui/board.tsx"
       ],
       "docsSlug": "/docs/components/board",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "dropzone",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/dropzone.tsx"
+      ],
+      "docsSlug": "/docs/components/dropzone",
       "contractStatus": "reconciled"
     },
     {
@@ -6025,6 +6036,17 @@
       "family": "hook",
       "sourceFiles": [
         "packages/ui/registry/ui/use-drag-reorder.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "use-file-drop",
+      "inventoryClass": "hook",
+      "wave": "Hooks",
+      "family": "hook",
+      "sourceFiles": [
+        "packages/ui/registry/ui/use-file-drop.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

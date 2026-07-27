@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**106 components**, plus 439 animated-icon items, 5 hooks (`use-animation-replay`, `use-drag-reorder`, `use-list-nav`, `use-mobile`, `use-platform`), and 1 starter block (`dashboard-01`) — 551 registry items in total.
+**107 components**, plus 439 animated-icon items, 6 hooks (`use-animation-replay`, `use-drag-reorder`, `use-file-drop`, `use-list-nav`, `use-mobile`, `use-platform`), and 1 starter block (`dashboard-01`) — 553 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so `icon-button` is the
@@ -28,6 +28,7 @@ component and never an icon.
 - **`combobox`** — A filterable, keyboard-navigable listbox behind a text input — type-to-filter, grouped items, async status, and a multi-select chip mode.
 - **`country-select`** — A searchable country combobox returning the ISO 3166-1 alpha-2 code, with flag + name. Built on Combobox.
 - **`date-picker`** — Pick a single date or a date range from a calendar popover — token-styled, keyboard-navigable, with optional quick presets.
+- **`dropzone`** — File acquisition surface — drop, click-to-browse, and paste — as a thin shell over use-file-drop; a real visually hidden file input is the accessible control; data-dragging/data-drag-invalid styling flags.
 - **`editable-cell`** — Inline-editable value with an async commit lifecycle — optimistic display, saving/saved/error status, revert on a rejected write, and a typed text/select/custom editor registry.
 - **`emoji-picker`** — A popover with a searchable, category-grouped grid of emoji that returns the selected character via onSelect (curated set, not full Unicode).
 - **`field`** — A form-field wrapper — label, inline label action, description, and error/success message, built on Base UI Field.
