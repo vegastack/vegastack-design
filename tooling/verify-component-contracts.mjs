@@ -62,6 +62,15 @@ function expectedEnginePackages(dependencies = []) {
       packages.add("react-day-picker");
     if (dependency.startsWith("react-markdown")) packages.add("react-markdown");
     if (dependency.startsWith("remark-gfm")) packages.add("remark-gfm");
+    // The D1-D4 sanctioned engines (MK, 2026-07-27). `-hitbox` folds into the
+    // pragmatic engine identity.
+    if (dependency.startsWith("@tanstack/react-table"))
+      packages.add("@tanstack/react-table");
+    if (dependency.startsWith("@tanstack/react-virtual"))
+      packages.add("@tanstack/react-virtual");
+    if (dependency.startsWith("@atlaskit/pragmatic-drag-and-drop"))
+      packages.add("@atlaskit/pragmatic-drag-and-drop");
+    if (dependency.startsWith("react-dropzone")) packages.add("react-dropzone");
   }
   return sorted(packages);
 }
@@ -273,10 +282,10 @@ assert(
 );
 
 const expected = {
-  totalRegistryItems: 538,
-  components: 96,
+  totalRegistryItems: 554,
+  components: 108,
   animatedIcons: 439,
-  hooks: 2,
+  hooks: 6,
   blocks: 1,
 };
 for (const [key, value] of Object.entries(expected)) {
@@ -288,10 +297,10 @@ for (const [key, value] of Object.entries(expected)) {
 
 const expectedWaves = {
   "Core controls": 23,
-  "Forms/editing": 16,
-  "Navigation/layout": 12,
-  Overlays: 11,
-  "Data display": 8,
+  "Forms/editing": 22,
+  "Navigation/layout": 14,
+  Overlays: 13,
+  "Data display": 10,
   "Content/marketing": 20,
   "AI/chat": 6,
 };
@@ -338,6 +347,12 @@ const expectedComponentWaveMembers = {
     "tag-group",
     "text-edit",
     "segmented",
+    "editable-cell",
+    "number-field",
+    "chip-input",
+    "filter-bar-managed",
+    "sortable-list",
+    "dropzone",
   ],
   "Navigation/layout": [
     "accordion",
@@ -352,6 +367,8 @@ const expectedComponentWaveMembers = {
     "resizable",
     "scroll-area",
     "split-button",
+    "stepper",
+    "board",
   ],
   Overlays: [
     "alert-dialog",
@@ -365,16 +382,20 @@ const expectedComponentWaveMembers = {
     "emoji-picker",
     "sonner",
     "provider",
+    "action-bar",
+    "shortcut-overlay",
   ],
   "Data display": [
     "card",
     "table",
     "data-list",
+    "data-grid",
     "chart",
     "comparison-matrix",
     "property-list",
     "stat",
     "progress-indicator",
+    "timeline",
   ],
   "Content/marketing": [
     "alert",
@@ -595,7 +616,14 @@ for (const [wave, count] of Object.entries(expectedWaves)) {
 }
 sameStrings(
   contracts.expectedWaveMembers?.Hooks ?? [],
-  ["use-animation-replay", "use-mobile"],
+  [
+    "use-animation-replay",
+    "use-drag-reorder",
+    "use-file-drop",
+    "use-list-nav",
+    "use-mobile",
+    "use-platform",
+  ],
   "Hooks membership",
 );
 sameStrings(
@@ -609,8 +637,8 @@ assert(
   "Animated icons membership must be sourced from packages/ui/animated-icon-sources.json",
 );
 assert(
-  contracts.expectedWaveCounts?.Hooks === 2,
-  "expectedWaveCounts.Hooks must be 2",
+  contracts.expectedWaveCounts?.Hooks === 6,
+  "expectedWaveCounts.Hooks must be 6",
 );
 assert(
   contracts.expectedWaveCounts?.Block === 1,

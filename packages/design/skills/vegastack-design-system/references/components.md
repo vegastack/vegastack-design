@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**96 components**, plus 439 animated-icon items, 2 hooks (`use-animation-replay`, `use-mobile`), and 1 starter block (`dashboard-01`) — 538 registry items in total.
+**108 components**, plus 439 animated-icon items, 6 hooks (`use-animation-replay`, `use-drag-reorder`, `use-file-drop`, `use-list-nav`, `use-mobile`, `use-platform`), and 1 starter block (`dashboard-01`) — 554 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so `icon-button` is the
@@ -23,15 +23,19 @@ component and never an icon.
 
 - **`auto-save-input`** — An input that debounces edits and persists them via an async onSave, with an inline idle/saving/saved/error status.
 - **`checkbox`** — A binary (or tri-state) toggle — checked, unchecked, indeterminate, disabled, built on Base UI Checkbox.
+- **`chip-input`** — Free-token entry field — Enter/comma/paste commits chips, Backspace removes, per-chip validation marks invalid entries instead of dropping them. Combobox field chrome + real Tag chips.
 - **`color-picker`** — A swatch-triggered popover presenting a grid of preset colors — pick one, fire onValueChange, mark the selection.
 - **`combobox`** — A filterable, keyboard-navigable listbox behind a text input — type-to-filter, grouped items, async status, and a multi-select chip mode.
 - **`country-select`** — A searchable country combobox returning the ISO 3166-1 alpha-2 code, with flag + name. Built on Combobox.
 - **`date-picker`** — Pick a single date or a date range from a calendar popover — token-styled, keyboard-navigable, with optional quick presets.
+- **`dropzone`** — File acquisition surface — drop, click-to-browse, and paste — as a thin shell over use-file-drop; the surface is the named focusable control over a hidden picker-bridge input; data-dragging/data-drag-invalid styling flags.
+- **`editable-cell`** — Inline-editable value with an async commit lifecycle — optimistic display, saving/saved/error status, revert on a rejected write, and a typed text/select/custom editor registry.
 - **`emoji-picker`** — A popover with a searchable, category-grouped grid of emoji that returns the selected character via onSelect (curated set, not full Unicode).
 - **`field`** — A form-field wrapper — label, inline label action, description, and error/success message, built on Base UI Field.
 - **`field-inline`** — Click-to-edit text — displays a value, swaps to a focused input on click, commits on Enter or blur, cancels on Escape.
 - **`input`** — A styled Base UI input — all input types, Field state data attributes, error and disabled states, focus-visible ring, and optional prefix/suffix addons.
 - **`label`** — A styled native label for form controls — htmlFor association, disabled dimming, optional required indicator.
+- **`number-field`** — Locale-aware numeric input on Base UI's NumberField in Input's field chrome — Intl formatting (money is a format prop), min/max/step, keyboard stepping, wheel scrub, full-height steppers.
 - **`otp-input`** — A multi-slot one-time-passcode input — keyboard navigation, paste distribution, masking, disabled, built on Base UI OTP Field.
 - **`password-input`** — A password field with a show/hide eye toggle and an optional live requirements checklist.
 - **`radio-group`** — A set of mutually-exclusive options — single selection, arrow-key navigation, disabled, built on Base UI Radio Group.
@@ -64,13 +68,17 @@ component and never an icon.
 - **`relative-time`** — Render a date as a human-relative string ("2 hours ago", "yesterday") with native Intl.RelativeTimeFormat — self-updating, with an absolute-date tooltip.
 - **`status-icon`** — A small status indicator icon — todo, in progress, blocked, done — each mapping to a lucide icon and semantic color.
 - **`table`** — Styled semantic table primitives — a scrollable container plus header, body, footer, row, head, cell, caption.
+- **`timeline`** — Rail geometry for chronological records — a continuous connector with a node per entry. Rows compose Item parts; separators render through Marker; entries carry content-visibility render skipping.
 - **`truncated-text`** — Truncate text to one line or N lines with an ellipsis, revealing the full text in a tooltip only when it overflows.
 
 ## Data
 
+- **`data-grid`** — The full-parity grid — TanStack-sorted multi-key sort, column picker with responsive revelation, collapsible grouping, keyboard-continuous load-more, opt-in virtualization, and an APG grid keyboard layer with inline cell editing.
 - **`data-list`** — A generic, typed data table — configurable columns, row selection, sortable headers, plus loading and empty states.
 - **`filter-bar`** — A row of removable filter chips, an "Add filter" dropdown, and an optional search input — for list and table filter toolbars.
+- **`filter-bar-managed`** — The stateful nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.
 - **`property-list`** — Record-facts rows: an icon+label column beside a value column, as an accessible definition list.
+- **`sortable-list`** — Reorderable rows on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, keyboard move mode, a lossless Move menu, and server-refusable moves. Controlled; the host owns the order.
 
 ## Overlay
 
@@ -81,6 +89,7 @@ component and never an icon.
 - **`hover-card`** — A rich preview panel that opens on hover or focus — interactive content, four directions, forgiving delays.
 - **`popover`** — A click-triggered floating panel for arbitrary content — positioning, an optional arrow, and built-in dismiss.
 - **`sheet`** — A dialog that slides in from a screen edge — four sides, header/footer layout, focus trapping, animated slide.
+- **`shortcut-overlay`** — The ?-triggered dialog listing keyboard shortcuts, rendered from a declaration registry (keys, label, category, when) — grouped, filterable, platform-aware via use-platform + Kbd.
 - **`tooltip`** — A floating label on hover or focus — smart shared delay, rich content, optional keyboard hints, collision-aware positioning.
 
 ## Navigation
@@ -91,10 +100,12 @@ component and never an icon.
 - **`page-header`** — The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star.
 - **`pagination`** — Page navigation — previous/next, numbered page links, an ellipsis for long ranges, and the active page.
 - **`sidebar`** — A collapsible app navigation rail — header/content/footer, labelled groups, menu items with active state, and an expand/collapse trigger.
+- **`stepper`** — A bounded linear process as an ordered list — complete/current/upcoming/error states on StatusIcon's vocabulary, aria-current=step, advance-gating message, focus follows the process.
 - **`tabs`** — Layered content sections — line or pill variants, optional icons and count badges, horizontal or vertical, full keyboard navigation.
 
 ## Feedback
 
+- **`action-bar`** — Floating contextual bar — status region + action children, CSS-only enter/exit, raised band. Bulk selection, unsaved changes, and batch progress are recipes over it.
 - **`alert`** — A status banner — five semantic variants, an optional icon, and an optional dismiss button.
 - **`progress`** — A determinate horizontal progress bar for measurable, ongoing tasks — built on Base UI Progress.
 - **`progress-indicator`** — A compact circular pie-fill progress indicator (0–100%) — a server-safe SVG glyph in circle or squircle shapes.
@@ -106,6 +117,7 @@ component and never an icon.
 ## Layout
 
 - **`app-shell`** — The shared dashboard layout — a skip-linked sidebar + header + scrollable main region, composing Sidebar/SidebarTrigger into one reusable, hash-tracked shell.
+- **`board`** — Kanban columns over use-drag-reorder — content/chrome split (host renders card content only), pointer drag, keyboard move mode + roving focus, lossless per-card Move menu with lock reasons, server-refusable moves, collapsed lanes, Empty-bordered drop targets.
 - **`resizable`** — Draggable, keyboard-resizable split panes — horizontal or vertical, nestable, with an optional collapsible panel. Built on react-resizable-panels.
 - **`scroll-area`** — A scroll container with custom, auto-hiding scrollbars — dual-axis, token-styled, built on Base UI ScrollArea.
 - **`separator`** — A thin rule dividing content — horizontal or vertical, decorative by default, built on Base UI.

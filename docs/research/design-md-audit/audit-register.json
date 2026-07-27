@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "b430e50e3ad47d1cf41336373b3e70faf68d51d02bbb804a02e98d8a9a0b65bb",
+  "contractSha256": "e9035bd97850b213755b93d6e42cd4bcb4f9cec45de9777f84b06bcfe881fe3b",
   "expectedCounts": {
-    "totalRegistryItems": 538,
-    "components": 96,
+    "totalRegistryItems": 554,
+    "components": 108,
     "animatedIcons": 439,
-    "hooks": 2,
+    "hooks": 6,
     "blocks": 1
   },
   "records": [
@@ -639,6 +639,127 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "editable-cell",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/editable-cell.tsx"
+      ],
+      "docsSlug": "/docs/components/editable-cell",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "number-field",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/number-field.tsx"
+      ],
+      "docsSlug": "/docs/components/number-field",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chip-input",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chip-input.tsx"
+      ],
+      "docsSlug": "/docs/components/chip-input",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "action-bar",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "feedback",
+      "sourceFiles": [
+        "packages/ui/registry/ui/action-bar.tsx"
+      ],
+      "docsSlug": "/docs/components/action-bar",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "stepper",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "navigation",
+      "sourceFiles": [
+        "packages/ui/registry/ui/stepper.tsx"
+      ],
+      "docsSlug": "/docs/components/stepper",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "timeline",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data-display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/timeline.tsx"
+      ],
+      "docsSlug": "/docs/components/timeline",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "shortcut-overlay",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/shortcut-overlay.tsx"
+      ],
+      "docsSlug": "/docs/components/shortcut-overlay",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "filter-bar-managed",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/filter-bar-managed.tsx"
+      ],
+      "docsSlug": "/docs/components/filter-bar-managed",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "sortable-list",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/sortable-list.tsx"
+      ],
+      "docsSlug": "/docs/components/sortable-list",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "board",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "layout",
+      "sourceFiles": [
+        "packages/ui/registry/ui/board.tsx"
+      ],
+      "docsSlug": "/docs/components/board",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "dropzone",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/dropzone.tsx"
+      ],
+      "docsSlug": "/docs/components/dropzone",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "field-inline",
       "inventoryClass": "component",
       "wave": "Forms/editing",
@@ -879,6 +1000,17 @@
         "packages/ui/registry/ui/data-list.tsx"
       ],
       "docsSlug": "/docs/components/data-list",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "data-grid",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/data-grid.tsx"
+      ],
+      "docsSlug": "/docs/components/data-grid",
       "contractStatus": "reconciled"
     },
     {
@@ -5904,6 +6036,50 @@
       "family": "hook",
       "sourceFiles": [
         "packages/ui/registry/ui/use-animation-replay.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "use-drag-reorder",
+      "inventoryClass": "hook",
+      "wave": "Hooks",
+      "family": "hook",
+      "sourceFiles": [
+        "packages/ui/registry/ui/use-drag-reorder.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "use-file-drop",
+      "inventoryClass": "hook",
+      "wave": "Hooks",
+      "family": "hook",
+      "sourceFiles": [
+        "packages/ui/registry/ui/use-file-drop.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "use-list-nav",
+      "inventoryClass": "hook",
+      "wave": "Hooks",
+      "family": "hook",
+      "sourceFiles": [
+        "packages/ui/registry/ui/use-list-nav.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "use-platform",
+      "inventoryClass": "hook",
+      "wave": "Hooks",
+      "family": "hook",
+      "sourceFiles": [
+        "packages/ui/registry/ui/use-platform.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

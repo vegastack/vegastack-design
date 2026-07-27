@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "tree": "tree-10afb598ff7fed84ca007611b2de7755372bf802",
-  "treeFiles": 2538,
-  "head": "77da33c4f2aaa3341a2c8eb76b6ec66e78c585c6",
-  "writtenAt": "2026-07-25T23:25:11.371Z",
-  "mode": "push",
+  "tree": "tree-e2585607ed98efae04eb5b190dce177ec0dc7e24",
+  "treeFiles": 2653,
+  "head": "f1b0be14d14263dcc60d109a6a6a4688368acdf5",
+  "writtenAt": "2026-07-27T15:15:45.648Z",
+  "mode": "ship",
   "base": {
     "ref": "origin/main",
-    "sha": "77da33c4f2aaa3341a2c8eb76b6ec66e78c585c6"
+    "sha": "d2bb248e78690364fe7762334782571ded5d5646"
   },
   "host": {
     "platform": "darwin",
@@ -18,39 +18,36 @@
     "@playwright/test": "1.61.0",
     "playwright": "1.61.0"
   },
-  "contractSha256": "b430e50e3ad47d1cf41336373b3e70faf68d51d02bbb804a02e98d8a9a0b65bb",
+  "contractSha256": "e9035bd97850b213755b93d6e42cd4bcb4f9cec45de9777f84b06bcfe881fe3b",
   "classified": {
-    "contracts": false,
-    "unit": false,
-    "smoke": false,
-    "contractsReason": "changed component sources"
+    "contracts": true,
+    "unit": true,
+    "smoke": true,
+    "contractsReason": "global surface changed (apps/docs/app/(home)/page.tsx, apps/docs/app/not-found.tsx, apps/docs/components/animated-icon-gallery.generated.tsx, +19 more)"
   },
   "gates": {
     "typecheck": {
       "status": "pass",
-      "durationMs": 860
+      "durationMs": 11233
     },
     "lint": {
       "status": "pass",
-      "durationMs": 725
+      "durationMs": 34119
     },
     "unit": {
-      "status": "skipped",
-      "durationMs": 0,
-      "reason": "no component or package source changed"
+      "status": "pass",
+      "durationMs": 62347
     },
     "smoke": {
-      "status": "skipped",
-      "durationMs": 0,
-      "reason": "no smoke-selected component changed"
+      "status": "pass",
+      "durationMs": 25775
     },
     "contracts": {
-      "status": "skipped",
-      "durationMs": 0,
-      "reason": "changed component sources — no route in scope",
-      "executed": 768,
+      "status": "pass",
+      "durationMs": 566369,
+      "executed": 864,
       "full": true,
-      "scopeRoutes": 96
+      "scopeRoutes": 108
     }
   },
   "skips": []

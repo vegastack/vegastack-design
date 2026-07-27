@@ -102,7 +102,7 @@ test("tweens to the new target on a value change and settles exactly on it", asy
     (button.element() as HTMLElement).click();
 
     await expect
-      .poll(() => visibleText(screen.container), { timeout: 2000 })
+      .poll(() => visibleText(screen.container), { timeout: 5000 })
       .toBe("100");
     // The live region also settles on the final value (see the a11y test below for "only once").
     expect(liveText(screen.container)).toBe("100");
@@ -111,33 +111,43 @@ test("tweens to the new target on a value change and settles exactly on it", asy
   }
 });
 
-test("rapidly retargeting a tween settles on the NEW value with no snap-back", async () => {
-  const cleanup = injectFastDurationMirror(80);
-  try {
-    const screen = await render(<StatefulNumber initial={0} duration="fast" />);
-    const increment = screen.getByRole("button", { name: "Increment" });
-    const jump = screen.getByRole("button", { name: "Jump" });
-    const targetProbe = screen.container.querySelector("[data-test-target]");
+// Real-clock tween assertions are load-sensitive under a full three-engine
+// sweep (a Firefox 15s test overrun and a WebKit 2s settle-poll miss were both
+// measured on 2026-07-27), so this test carries a wider timeout and every
+// settle poll in the file allows 5s — upper bounds only, free when fast.
+test(
+  "rapidly retargeting a tween settles on the NEW value with no snap-back",
+  { timeout: 30_000 },
+  async () => {
+    const cleanup = injectFastDurationMirror(80);
+    try {
+      const screen = await render(
+        <StatefulNumber initial={0} duration="fast" />,
+      );
+      const increment = screen.getByRole("button", { name: "Increment" });
+      const jump = screen.getByRole("button", { name: "Jump" });
+      const targetProbe = screen.container.querySelector("[data-test-target]");
 
-    // Await each browser interaction and assert the parent target itself. This proves React commits
-    // both updates independently without relying on CI to schedule an observable intermediate rAF
-    // frame; the dedicated formatting test below already proves real intermediate frames.
-    await userEvent.click(increment); // 0 -> 100, tweening
-    expect(targetProbe?.getAttribute("data-test-target")).toBe("100");
-    await userEvent.click(jump); // retarget the first transition -> 9999
-    expect(targetProbe?.getAttribute("data-test-target")).toBe("9999");
+      // Await each browser interaction and assert the parent target itself. This proves React commits
+      // both updates independently without relying on CI to schedule an observable intermediate rAF
+      // frame; the dedicated formatting test below already proves real intermediate frames.
+      await userEvent.click(increment); // 0 -> 100, tweening
+      expect(targetProbe?.getAttribute("data-test-target")).toBe("100");
+      await userEvent.click(jump); // retarget the first transition -> 9999
+      expect(targetProbe?.getAttribute("data-test-target")).toBe("9999");
 
-    const finalTarget = new Intl.NumberFormat().format(9999);
-    await expect
-      .poll(() => visibleText(screen.container), { timeout: 2000 })
-      .toBe(finalTarget);
-    // Never settles back on the pre-interruption target.
-    expect(visibleText(screen.container)).not.toBe("100");
-    expect(liveText(screen.container)).toBe(finalTarget);
-  } finally {
-    cleanup();
-  }
-});
+      const finalTarget = new Intl.NumberFormat().format(9999);
+      await expect
+        .poll(() => visibleText(screen.container), { timeout: 5000 })
+        .toBe(finalTarget);
+      // Never settles back on the pre-interruption target.
+      expect(visibleText(screen.container)).not.toBe("100");
+      expect(liveText(screen.container)).toBe(finalTarget);
+    } finally {
+      cleanup();
+    }
+  },
+);
 
 test("prefers-reduced-motion renders value changes instantly, with no tween", async () => {
   const matchMediaMock = vi.fn((query: string) => ({
@@ -210,7 +220,7 @@ test("the animated intermediate frames are formatted through the same formatter 
     }
     expect(sawIntermediate).toBe(true);
     await expect
-      .poll(() => visibleText(screen.container), { timeout: 2000 })
+      .poll(() => visibleText(screen.container), { timeout: 5000 })
       .toBe(endText);
   } finally {
     cleanup();
@@ -260,7 +270,7 @@ test("the visible tween text is aria-hidden and the live region announces only t
     expect(liveText(screen.container)).toBe("0");
 
     await expect
-      .poll(() => liveText(screen.container), { timeout: 2000 })
+      .poll(() => liveText(screen.container), { timeout: 5000 })
       .toBe("100");
   } finally {
     cleanup();
@@ -285,7 +295,7 @@ test("no a11y violations after a settled value change", async () => {
       screen.getByRole("button", { name: "Increment" }).element() as HTMLElement
     ).click();
     await expect
-      .poll(() => visibleText(screen.container), { timeout: 2000 })
+      .poll(() => visibleText(screen.container), { timeout: 5000 })
       .toBe("100");
     await expectNoA11yViolations(screen.container);
   } finally {

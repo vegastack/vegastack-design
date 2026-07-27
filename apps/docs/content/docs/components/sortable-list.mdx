@@ -1,0 +1,92 @@
+---
+title: Sortable List
+description: Reorderable rows with pointer drag, keyboard move mode, a lossless row menu, and server-refusable moves — controlled; the host owns the order.
+audience: public
+preview: sortableList
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/sortable-list
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { SortableList } from "@/components/ui/sortable-list";
+
+<SortableList
+  aria-label="Pipeline stages"
+  items={stages}
+  renderItem={(stage) => <span>{stage.label}</span>}
+  onReorder={({ id, to }) => moveStage(id, to.index)}
+/>;
+```
+
+`SortableList` is the single-list consumer of `use-drag-reorder` (the system's
+one drag-engine seam). It is controlled: `items` arrive in display order,
+`onReorder` requests a move, and the host applies — or refuses — it.
+
+## Scope
+
+| Behaviour             | Where it lives                                                                                                                                         |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| The persisted order   | Host — `onReorder` is a request; the app owns storage                                                                                                  |
+| Selection             | Not here, deliberately: reordering + multi-select on one surface makes drag intent ambiguous — [`DataList`](/docs/components/data-list) owns selection |
+| Cross-container moves | [`Board`](/docs/components/board)                                                                                                                      |
+| Virtualized ordering  | `data-grid` territory                                                                                                                                  |
+
+## Examples
+
+### Server-gated moves
+
+Return a promise from `onReorder`: the moved row shimmers while the write is in
+flight; a rejection announces the snap-back — the host never applied the move,
+so the order simply stays.
+
+<ComponentPreview
+  name="sortableListGated"
+  file="components/preview/sortable-list.tsx"
+/>
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/sortable-list.tsx"
+  name="SortableListProps"
+/>
+
+### Item
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/sortable-list.tsx"
+  name="SortableListItem"
+/>
+
+## Accessibility
+
+- Every reorder is reachable three ways: pointer drag on the handle, the
+  keyboard move mode (<kbd>Space</kbd> lifts, arrows commit one announced step
+  at a time, <kbd>Escape</kbd> ends), and the row's Move menu — the required
+  lossless path on touch and for AT.
+- Each step announces through a polite live region ("Moved to position 2 of
+  3"); a refused move announces "Move rejected — position restored".
+- Handles and menu triggers are named per row ("Reorder Alpha", "Move Alpha");
+  drop position shows as a 2px indicator line, and a lifted row dims — flat by
+  doctrine, never a shadow.
+
+| Key                                 | Action                                  |
+| ----------------------------------- | --------------------------------------- |
+| <kbd>Space</kbd> / <kbd>Enter</kbd> | Toggle move mode on the focused handle. |
+| <kbd>↑</kbd> / <kbd>↓</kbd>         | Commit a one-step move (in move mode).  |
+| <kbd>Escape</kbd>                   | End move mode.                          |
+
+## Do / Don't
+
+<DoDont
+  do="Keep the list controlled and refuse bad orders by rejecting the onReorder promise — the snap-back and announcement are built in."
+  dont="Add selection checkboxes to sortable rows — ambiguous drag intent; compose DataList when rows need selecting."
+/>

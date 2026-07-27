@@ -74,6 +74,15 @@ text-entry focus tint.
   file="components/preview/field-inline.tsx"
 />
 
+### Controlled edit mode
+
+`editing` / `onEditingChange` lift the edit state — for hosts (an
+[`EditableCell`](/docs/components/editable-cell) in a grid) whose own keyboard
+model decides when the editor opens. `tabIndex={-1}` removes the display
+element from the tab order when a roving focus model owns reachability. After
+a keyboard commit or cancel, focus returns to the display element (a
+blur-commit never steals focus back).
+
 ## API Reference
 
 <AutoTypeTable

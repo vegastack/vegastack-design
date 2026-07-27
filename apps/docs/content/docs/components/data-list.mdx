@@ -196,14 +196,14 @@ a `footer` slot (below it), and `onRowClick` (activatable, keyboard-accessible r
 its own search/filter and pagination controls into the slots and passes the already-filtered /
 already-paged rows:
 
-| Behaviour                                            | Where it lives                        | Mount point           |
-| ---------------------------------------------------- | ------------------------------------- | --------------------- |
-| Search / filtering                                   | Host owns the query + filtered `data` | `toolbar` slot        |
-| Pagination / page-size / load-more                   | Host owns paging + the current page   | `footer` slot         |
-| Row activation (navigate / open)                     | Host's handler                        | `onRowClick`          |
-| Drag-and-drop reordering                             | App-coupled (persisted order)         | future composed addon |
-| Board / Kanban layout, grouping & collapsible groups | Separate layout component             | future scope          |
-| View persistence (URL / saved views)                 | Host owns the persisted view state    | —                     |
+| Behaviour                                            | Where it lives                                                                                           | Mount point                  |
+| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| Search / filtering                                   | Host owns the query + filtered `data`                                                                    | `toolbar` slot               |
+| Pagination / page-size / load-more                   | Host owns paging + the current page                                                                      | `footer` slot                |
+| Row activation (navigate / open)                     | Host's handler                                                                                           | `onRowClick`                 |
+| Drag-and-drop reordering                             | The persisted order stays app-coupled; the mechanism is [`SortableList`](/docs/components/sortable-list) | compose it beside this table |
+| Board / Kanban layout, grouping & collapsible groups | [`Board`](/docs/components/board) for Kanban; [`DataGrid`](/docs/components/data-grid) for grouping      | shipped                      |
+| View persistence (URL / saved views)                 | Host owns the persisted view state                                                                       | —                            |
 
 ```tsx
 // Host composes search + paging around the primitive
@@ -225,9 +225,10 @@ data itself — `DataList` only renders the already-filtered, already-paged rows
 />
 
 This split mirrors the design system's [G7 presentational/app-coupled rule](/docs) — the primitive
-stays presentational and reusable; the app wires the data and view state. Full platform parity (a
-single component owning drag/Kanban/grouping/persistence) is a deliberately deferred **`data-grid`**
-follow-up, not this primitive.
+stays presentational and reusable; the app wires the data and view state. Full platform parity —
+grouping, inline editing, multi-key sort, column management, virtualization — is
+[`DataGrid`](/docs/components/data-grid), and the Kanban tier is
+[`Board`](/docs/components/board); this primitive stays the presentational default.
 
 ## API Reference
 
@@ -237,6 +238,25 @@ follow-up, not this primitive.
 />
 
 ### Column
+
+`column.render` is **invoked as a plain function inside `DataList`'s own
+render, not mounted as a component** — so hooks called directly in its body
+become `DataList`'s hooks and corrupt hook order the moment the loading or
+empty branch flips. When a cell needs hooks, return a component element and
+put the hooks in that component:
+
+```tsx
+// ✅ hooks live in RelativeCell, mounted as an element
+{ key: "updated", header: "Updated", render: (row) => <RelativeCell date={row.updatedAt} /> }
+
+// ❌ a hook called directly here corrupts DataList's hook order
+{ key: "updated", header: "Updated", render: (row) => useRelative(row.updatedAt) }
+```
+
+`render` also receives an optional third argument, `DataListCellContext` —
+`{ rowId, columnKey, selected }` — so a cell can react to its own row's
+selection without threading state through the row type. Existing two-argument
+render functions keep working unchanged.
 
 <AutoTypeTable
   path="../../packages/ui/registry/ui/data-list.tsx"

@@ -4,6 +4,27 @@ Every bug found + root cause + fix. Append-only.
 
 ---
 
+## 2026-07-27 — Firefox neuters the DataTransfer of a synthetic ClipboardEvent (test-only)
+
+- **Symptom:** `chip-input.test.tsx` "paste splits on the delimiter set" failed only in Firefox
+  (full three-engine sweep — first time the test ran there; chip-input is not in the smoke set):
+  the component's `onPaste` read `getData("text") === ""` and committed no chips.
+- **Root cause:** Firefox places the `DataTransfer` attached to an **untrusted** `ClipboardEvent`
+  in protected mode — the handler sees `clipboardData` with `types: []` and empty `getData`,
+  while the same `DataTransfer` object still returns the text when read directly. Chromium and
+  WebKit deliver the payload. Proven with a throwaway probe test (since deleted).
+- **Fix:** the test dispatches a plain `paste` event with a stubbed `clipboardData`
+  (`Object.defineProperty`) — React reads `clipboardData` off the native event, so the identical
+  component path runs in all three engines. The component was never wrong for real user pastes.
+- **Rider findings, same sweep:** two Firefox-only 15s timeouts (the 439-icon sweep at 20s, the
+  animated-number retarget test) under a machine contended by a concurrently running dev server —
+  both passed unchanged on a quiet re-run, and now carry explicit per-test timeouts (60s/30s).
+  And the docs homepage + 404 page rendered `Button render={<Link/>}` without
+  `nativeButton={false}`, tripping Base UI's native-button warning ×6 — the pattern is now
+  documented in `button.mdx` and the design-system skill.
+
+---
+
 ## 2026-07-25 — The forced-colors focus assertion cannot fail (pre-existing fail-open)
 
 - **Symptom:** `contracts.spec.ts`'s "retains focus visibility" assertion passes with the design
@@ -196,3 +217,72 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
 - **Proved by controlled experiment, not inference:** firing the same toast and reading it after a deliberate 5s wait — without `duration: Infinity` the toast is _gone_; with it, `stillPresent: true, opacity: "1", removed: "false"`.
 - **Systemic fix:** the audited toasts are fired with `duration: Number.POSITIVE_INFINITY`, which makes Sonner skip the auto-dismiss timer outright (`sonner/dist/index.mjs`: `if (… toast.duration === Infinity …) return`). `auditToast` already dismissed explicitly, so the test now owns the whole lifetime instead of half of it. No assertion was weakened and no token changed.
 - **Why it surfaced only now:** `quality-gate` had never completed. It failed on an unrelated WebKit animated-icon test on 2026-07-24, and on the next run `vrt-gate` failed first so `quality-gate` was skipped entirely. Removing the screenshot gate finally let the release path run far enough to reach this.
+
+## 2026-07-27 — A live region created together with its content announces nothing
+
+- **Symptom:** Stepper's `blockedReason` rendered and carried `role="status" aria-live="polite"`,
+  yet the idle→blocked transition was silent on real AT.
+- **Root cause:** the span mounted conditionally (`{blockedReason ? <span aria-live…> : null}`) — a
+  live region must exist in the accessibility tree BEFORE its content changes; mounting region and
+  content together is a no-op announcement. The unit test rendered with the reason already set, so
+  it asserted attributes, not the transition.
+- **Systemic fix:** the region is always mounted (visually hidden when empty) and only its text
+  changes; the test now exercises idle→blocked. The CLASS to recognise: any conditional-render of
+  an `aria-live` node, and any test that renders a live region in its announced state. The sibling
+  class fixed the same day: an IDENTICAL consecutive announcement is a React same-state bail-out
+  and never re-announces — chip-input and editable-cell now sequence-key their announcement text.
+
+## 2026-07-27 — `outline-none` + `focus-visible:-outline-offset-2` is a silent focus-ring deletion
+
+- **Symptom:** number-field's stepper buttons had no focus indicator in any theme.
+- **Root cause:** `outline-none` (utilities layer) beats the centralized `:focus-visible` outline
+  (base layer); `focus-visible:-outline-offset-2` only sets the offset and never restores
+  `outline-style`, so it reads like a focus treatment while guaranteeing none. Bug class P0-02;
+  the house idiom (`terminal.tsx`) uses the negative offset WITHOUT `outline-none`.
+- **Systemic fix:** removed; every new component test suite now carries a sweep asserting nothing
+  outside text-entry controls (whose border-tint substitute is sanctioned) strips the outline —
+  the check that catches this class regardless of which component it recurs in.
+
+## 2026-07-27 — "Hidden" floating UI must be inert, not just invisible
+
+- **Symptom:** a closed ActionBar (translate + opacity 0 + pointer-events-none) kept its actions
+  in the Tab order — an invisible, activatable Archive button; `pending` likewise only dimmed.
+- **Root cause:** CSS-only hide recipes remove pointer interaction but not keyboard/AT reachability;
+  a test named "inerts the actions" asserted `aria-busy` and a class, not inertness — a false
+  coverage claim.
+- **Systemic fix:** React 19 `inert` on the hidden bar and on the pending actions container;
+  tests assert the attribute. The class: any stay-mounted hide (the MessageScrollerButton recipe)
+  hosting interactive children needs `inert` — the scroll button itself is exempt only because its
+  single action is harmless and appears exactly when relevant.
+
+## 2026-07-27 — A spread `ref` silently kills a prop-getter engine
+
+- **Symptom:** Dropzone's keyboard path dead and drag-depth counting broken, with every test green.
+- **Root cause:** `{...getRootProps()} ref={ref}` — JSX places the later `ref` (even `undefined`)
+  over the engine's root ref, and react-dropzone gates BOTH its keydown handler and its dragleave
+  filtering on `rootRef.current`. No error, no warning; two behaviours just stop existing.
+- **Systemic fix:** merged refs, and the hook's docs now name `dropProps.ref` as load-bearing. The
+  class: any prop-getter library ref must be MERGED, never assigned over — and a test that only
+  exercises the geometry the broken path still handles (dragleave on the root itself) certifies
+  the state machine while being blind to its real failure mode; test the CHILD-crossing case.
+
+## 2026-07-27 — Cross-parent remounts fire no blur: sessions that end "on blur" never end
+
+- **Symptom:** a cross-column keyboard move left the board card in move mode forever with focus on
+  `<body>`; the same flow within one column worked perfectly.
+- **Root cause:** React unmount fires no blur event, so any interaction session whose exit path is
+  `onBlur` survives a cross-parent remount — while the focused node itself is destroyed.
+- **Systemic fix:** the hook restores focus to the moved item's registered handle after each render
+  while a keyboard move session is live (a counter pointer drags reset, so it cannot fire
+  mid-drag). The class: keyed remounts across parents need explicit focus continuity; blur is not
+  a lifecycle signal.
+
+## 2026-07-27 — A component that overwrites `data-slot` after its spread makes caller slots dead
+
+- **Symptom:** three tests asserting "no handle/menu renders when disabled" passed against fully
+  enabled components — their selectors could never match anything.
+- **Root cause:** `IconButton` places `data-slot="icon-button"` AFTER `{...props}`, so a caller's
+  `data-slot` is discarded silently; the callers kept passing one anyway.
+- **Systemic fix:** the dead attributes removed; the tests re-anchored on accessible names. The
+  class: a selector-based negative assertion must first be proven able to match in the positive
+  case, or it asserts nothing.

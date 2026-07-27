@@ -1,0 +1,105 @@
+---
+title: Dropzone
+description: File acquisition — drop, browse, or paste — as a thin shell over the use-file-drop hook; the drop surface is the named, focusable control.
+audience: public
+preview: dropzone
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/dropzone
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Dropzone } from "@/components/ui/dropzone";
+
+<Dropzone
+  accept={{ "image/*": [".png", ".jpg"] }}
+  onFilesAccepted={(files) => stageUploads(files)}
+>
+  <Empty size="sm" bordered>
+    <EmptyHeader>
+      <EmptyTitle>Drop images here</EmptyTitle>
+      <EmptyDescription>or click to browse</EmptyDescription>
+    </EmptyHeader>
+  </Empty>
+</Dropzone>;
+```
+
+`Dropzone` is **acquisition only** — everything behavioural lives in the
+`use-file-drop` hook (over the sanctioned `react-dropzone` engine), and
+everything after acquisition belongs to
+[`Attachment`](/docs/components/attachment), which "owns no upload logic, only
+the visual state machine". The two meet at a plain `File[]` callback.
+
+## Scope
+
+| Behaviour                   | Where it lives                                                                                                |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Upload lifecycle, progress  | Host + [`Attachment`](/docs/components/attachment)'s state machine                                            |
+| Drop/paste/browse behaviour | `use-file-drop` — compose it directly for chrome-less surfaces (a rich-text composer accepting pasted images) |
+| The dashed idle affordance  | Children — compose `Empty bordered`, "the classic drop-zone look"                                             |
+| Rendering staged files      | Host, never internal — no `attachments` prop by design                                                        |
+
+## Examples
+
+### Typed rejections
+
+Refusals arrive as `FileDropRejection` — the file plus every reason
+(`file-too-large`, `file-invalid-type`, `too-many-files`, …), aligned with the
+per-file state vocabulary `Attachment` renders.
+
+<ComponentPreview
+  name="dropzoneRejections"
+  file="components/preview/dropzone.tsx"
+/>
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/dropzone.tsx"
+  name="DropzoneProps"
+/>
+
+### Rejection shape
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/use-file-drop.ts"
+  name="FileDropRejection"
+/>
+
+## Accessibility
+
+- The accessible control is the **drop surface itself** — `role="button"`,
+  named via `aria-label`, `tabIndex=0`, with Enter/Space opening the picker
+  through the engine's keyboard handler. The real `<input type="file">` behind
+  it is the display:none form/picker bridge, deliberately not a tab stop (an
+  interactive control may not nest another).
+- Accepted and refused batches announce through a polite live region ("Added
+  shot.png", "2 files were refused — too large").
+- The surface reflects drag state as `data-dragging` / `data-drag-invalid`
+  (primary vs destructive border tint) — state is never colour alone: the
+  refusal is also announced and reported through `onFilesRejected`.
+- A missed drop never navigates the browser away — a document-level guard,
+  **scoped to file-bearing drags only** (text dragged into your other inputs
+  keeps working) and **shared page-wide with ref-counting**: it stays armed
+  while any mounted Dropzone wants it, and disarms when the last one
+  unmounts. Opt a surface out with `preventWindowDrop`.
+
+| Key                                 | Action                                |
+| ----------------------------------- | ------------------------------------- |
+| <kbd>Tab</kbd>                      | Focus the drop surface.               |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the file browser.                |
+| <kbd>⌘</kbd>+<kbd>V</kbd>           | Paste files while inside the surface. |
+
+## Do / Don't
+
+<DoDont
+  do="Meet Attachment at a plain File[] — stage files in your state and render their upload lifecycle with Attachment's state machine."
+  dont="Ask Dropzone to render attachments or own uploads — acquisition and upload state are separate jobs on purpose."
+/>

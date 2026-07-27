@@ -5,6 +5,7 @@
     "registry-auth",
     "agent-skills",
     "components",
+    "multi-step-form",
     "provider-setup",
     "theming",
     "external-projects",

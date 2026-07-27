@@ -1,0 +1,120 @@
+---
+title: Timeline
+description: Rail geometry for chronological records — a continuous connector with a node per entry; rows are Item parts, timestamps are RelativeTime.
+audience: public
+preview: timeline
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/timeline
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import {
+  Timeline,
+  TimelineItem,
+  TimelineSeparator,
+} from "@/components/ui/timeline";
+
+<Timeline aria-label="Activity">
+  <TimelineSeparator>Today</TimelineSeparator>
+  <TimelineItem node={<StatusIcon status="done" size="sm" label="" />}>
+    <Item size="sm" role="none">
+      <ItemContent>
+        <ItemTitle>Deal moved to Won</ItemTitle>
+      </ItemContent>
+      <ItemContent className="text-sm text-muted-foreground">
+        <RelativeTime date={when} now={now} refresh={false} />
+      </ItemContent>
+    </Item>
+  </TimelineItem>
+</Timeline>;
+```
+
+`Timeline` is **rail geometry only** — the continuous vertical connector with a
+node per entry. Everything a row needs already exists:
+[`Item`](/docs/components/item) parts for the event itself,
+[`RelativeTime`](/docs/components/relative-time) for timestamps,
+[`Avatar`](/docs/components/avatar) for actors, and
+[`Marker`](/docs/components/marker)'s `separator` variant renders the group
+headers. There is deliberately no `TimelineTitle`/`TimelineDescription` — that
+would fork `Item`'s vocabulary.
+
+## Scope
+
+| Behaviour                    | Where it lives                                                           |
+| ---------------------------- | ------------------------------------------------------------------------ |
+| Row anatomy (title, media…)  | `Item` parts — compose them as children                                  |
+| Day grouping + midnight roll | Host data work; `TimelineSeparator` renders the computed header          |
+| Live bottom-pinned feeds     | [`MessageScroller`](/docs/components/message-scroller) — a different job |
+| Virtualization               | Not needed: entries carry `content-visibility` render skipping built in  |
+
+## Examples
+
+### Anatomy
+
+```txt
+Timeline              <ol> — the record
+├─ TimelineSeparator  group header via Marker variant="separator"
+└─ TimelineItem       <li>: aria-hidden rail (node + connector) + content
+   └─ Item            the event row — Item owns the anatomy
+```
+
+### Status nodes and linked rows
+
+The rail node is decorative (`aria-hidden`) — meaning must live in the row
+content. A whole row becomes a link through `Item`'s own `render`, not through
+the timeline.
+
+<ComponentPreview
+  name="timelineLinked"
+  file="components/preview/timeline.tsx"
+/>
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/timeline.tsx"
+  name="TimelineProps"
+/>
+
+### Item
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/timeline.tsx"
+  name="TimelineItemProps"
+/>
+
+`TimelineSeparator` adds no props of its own — it accepts everything `<li>`
+accepts and renders its children through `Marker variant="separator"`. Place
+separators between items, never as the final child (the last item's connector
+hides via `:last-child`).
+
+## Accessibility
+
+- Compose non-interactive `Item` rows with `role="none"` — the `<li>` is
+  already the list item, and `Item`'s default `role="listitem"` would nest
+  invalidly. A `render`-composed interactive row needs nothing.
+- An `<ol>` of `<li>` entries, labelled via `aria-label`; group separators are
+  real list items (an `<ol>` may only contain list items) rendered through
+  `Marker`'s separator variant — wrap their children in a heading element when
+  the label should join the page outline.
+- The rail column (node + connector) is `aria-hidden` decorative geometry; an
+  entry's status must also appear as text in its content, never by node colour
+  alone. Superseded entries need a text signal, never strike-through alone.
+- Give each entry a `<time dateTime>` — `RelativeTime` renders one, with its
+  deliberate no-`aria-live` policy (a feed that re-announces every minute is
+  noise).
+
+## Do / Don't
+
+<DoDont
+  do="Compose Item parts inside TimelineItem and pass RelativeTime a fixed `now` for deterministic SSR."
+  dont="Reach for MessageScroller for a static chronological record — the live-feed primitive is dead weight without prepend-on-scroll behaviour."
+/>

@@ -1,0 +1,103 @@
+---
+title: Board
+description: Kanban columns over the drag-reorder seam — pointer drag, keyboard move mode, a lossless per-card Move menu, server-refusable moves, collapsed lanes.
+audience: public
+preview: board
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/board
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { Board } from "@/components/ui/board";
+
+<Board
+  aria-label="Deals"
+  columns={stages.map((s) => ({ id: s.id, title: s.label, items: s.deals }))}
+  getItemId={(deal) => deal.id}
+  renderCard={(deal) => (
+    <>
+      {deal.name} · {deal.amount}
+    </>
+  )}
+  onMove={({ id, to }) => api.moveDeal(id, to.container, to.index)}
+/>;
+```
+
+The split is content/chrome: **you render card content only**; the board owns
+the column shells, counts, empty drop targets, collapsed strips, drag and
+keyboard models, and the pending/rejected affordances. `onMove` is the single
+move command for every input path — drag, keyboard move mode, and the menu.
+
+## Scope
+
+| Behaviour              | Where it lives                                                    |
+| ---------------------- | ----------------------------------------------------------------- |
+| Ordering + persistence | Host — `onMove` is a request; reject its promise to refuse a move |
+| Card content           | Host, via `renderCard` — the board owns all chrome                |
+| Single-list reordering | [`SortableList`](/docs/components/sortable-list)                  |
+| Column model / stages  | Host data — columns are props, never fetched                      |
+| Virtualization         | Deliberately none — columns are bounded at this component's scale |
+
+## Examples
+
+### Server-gated moves
+
+Return a promise from `onMove`: the card shimmers in place while the write is
+in flight, and a rejection announces the snap-back — the host never applied
+the move, so the card simply stays.
+
+<ComponentPreview name="boardGated" file="components/preview/board.tsx" />
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/board.tsx"
+  name="BoardProps"
+/>
+
+### Column
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/board.tsx"
+  name="BoardColumn"
+/>
+
+## Accessibility
+
+- **The keyboard path is not a fallback** — below 768px pointer drag disables
+  outright, so the move mode and the per-card Move menu are the only paths and
+  are lossless by construction: every droppable column is a menu target, with
+  visible lock reasons on unavailable ones.
+- Cards form one roving tab stop per board: <kbd>↑</kbd>/<kbd>↓</kbd> move
+  within a column, <kbd>←</kbd>/<kbd>→</kbd> across columns at a clamped index
+  (RTL-aware), <kbd>Home</kbd>/<kbd>End</kbd> jump within the column.
+- <kbd>Space</kbd> lifts the focused card into move mode (arrows then commit one
+  announced step at a time; <kbd>Escape</kbd> ends); <kbd>Enter</kbd>
+  activates the card; <kbd>M</kbd> opens its Move menu.
+- A dragged card gains **no shadow** — flat by doctrine; lift reads as the
+  dimmed origin plus the drop-indicator line. Empty columns are real drop
+  targets using `Empty bordered` (the classic drop-zone look).
+- Every move and every rejection announces through a polite live region.
+
+| Key                                                 | Action                                |
+| --------------------------------------------------- | ------------------------------------- |
+| <kbd>↑</kbd>/<kbd>↓</kbd>/<kbd>←</kbd>/<kbd>→</kbd> | Browse cards (roving focus).          |
+| <kbd>Space</kbd>                                    | Toggle move mode on the focused card. |
+| <kbd>Enter</kbd>                                    | Activate the focused card.            |
+| <kbd>M</kbd>                                        | Open the focused card's Move menu.    |
+| <kbd>Escape</kbd>                                   | End move mode.                        |
+
+## Do / Don't
+
+<DoDont
+  do="Keep onMove the single move command and refuse bad moves by rejecting its promise — every input path gets the shimmer and announced snap-back."
+  dont="Give a dragged card a drop shadow to 'lift' it — only true overlays get shadow-overlay; separation is the surface ladder and the one border."
+/>

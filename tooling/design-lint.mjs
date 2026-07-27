@@ -209,6 +209,22 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     { counts: { button: 1 }, rationale: "useRender native-button fallback" },
   ],
   [
+    "/dropzone.tsx",
+    {
+      counts: { input: 1 },
+      rationale:
+        "the display:none form/picker bridge behind the role=button drop surface — react-dropzone's prop-getter must attach to a native <input type=file>; no VegaStack control substitutes for it",
+    },
+  ],
+  [
+    "/data-grid.tsx",
+    {
+      counts: { button: 2 },
+      rationale:
+        "table sort-header and group-toggle controls preserve table semantics (same class as data-list's exemption)",
+    },
+  ],
+  [
     "/data-list.tsx",
     {
       counts: { button: 2 },

@@ -79,58 +79,64 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-test("renders all 439 icons and exercises every reduced-motion imperative handle", async () => {
-  mockReducedMotion(true);
-  const entries = Object.entries(ICON_MODULES).sort(([a], [b]) =>
-    a.localeCompare(b),
-  );
-  expect(entries).toHaveLength(439);
-  const refs = new Map(
-    entries.map(([path]) => [path, React.createRef<AnimationHandle>()]),
-  );
-
-  const screen = await render(
-    <div>
-      {entries.map(([path, module]) => {
-        const Icon = exportedIcon(path, module);
-        return (
-          <Icon
-            key={path}
-            ref={refs.get(path)}
-            data-animated-icon-source={path}
-          />
-        );
-      })}
-    </div>,
-  );
-
-  await nextFrame();
-  const roots = screen.container.querySelectorAll<HTMLElement>(
-    "[data-animated-icon-source]",
-  );
-  expect(roots).toHaveLength(439);
-  for (const root of roots) {
-    const svg = root.querySelector("svg");
-    expect(svg).not.toBeNull();
-    expect(svg?.getAttribute("height")).toBe("var(--icon-default)");
-    expect(svg?.getAttribute("width")).toBe("var(--icon-default)");
-    expect(svg?.getAttribute("stroke") ?? svg?.getAttribute("fill")).toBe(
-      "currentColor",
+// A 439-icon render sweep legitimately outlives the 15s default in the slowest
+// engine (measured 20s in Firefox under load), so it carries its own timeout.
+test(
+  "renders all 439 icons and exercises every reduced-motion imperative handle",
+  { timeout: 60_000 },
+  async () => {
+    mockReducedMotion(true);
+    const entries = Object.entries(ICON_MODULES).sort(([a], [b]) =>
+      a.localeCompare(b),
     );
-    expect(svg?.viewBox.baseVal.width).toBeGreaterThan(0);
-    expect(svg?.viewBox.baseVal.height).toBeGreaterThan(0);
-  }
-  for (const [path] of entries) {
-    const handle = refs.get(path)?.current;
-    expect(handle, `${path} imperative handle`).toEqual({
-      startAnimation: expect.any(Function),
-      stopAnimation: expect.any(Function),
-    });
-    handle?.startAnimation();
-    handle?.stopAnimation();
-  }
-  await nextFrame();
-});
+    expect(entries).toHaveLength(439);
+    const refs = new Map(
+      entries.map(([path]) => [path, React.createRef<AnimationHandle>()]),
+    );
+
+    const screen = await render(
+      <div>
+        {entries.map(([path, module]) => {
+          const Icon = exportedIcon(path, module);
+          return (
+            <Icon
+              key={path}
+              ref={refs.get(path)}
+              data-animated-icon-source={path}
+            />
+          );
+        })}
+      </div>,
+    );
+
+    await nextFrame();
+    const roots = screen.container.querySelectorAll<HTMLElement>(
+      "[data-animated-icon-source]",
+    );
+    expect(roots).toHaveLength(439);
+    for (const root of roots) {
+      const svg = root.querySelector("svg");
+      expect(svg).not.toBeNull();
+      expect(svg?.getAttribute("height")).toBe("var(--icon-default)");
+      expect(svg?.getAttribute("width")).toBe("var(--icon-default)");
+      expect(svg?.getAttribute("stroke") ?? svg?.getAttribute("fill")).toBe(
+        "currentColor",
+      );
+      expect(svg?.viewBox.baseVal.width).toBeGreaterThan(0);
+      expect(svg?.viewBox.baseVal.height).toBeGreaterThan(0);
+    }
+    for (const [path] of entries) {
+      const handle = refs.get(path)?.current;
+      expect(handle, `${path} imperative handle`).toEqual({
+        startAnimation: expect.any(Function),
+        stopAnimation: expect.any(Function),
+      });
+      handle?.startAnimation();
+      handle?.stopAnimation();
+    }
+    await nextFrame();
+  },
+);
 
 test("exposes the imperative start/stop handle through a React 19 ref prop", async () => {
   mockReducedMotion(false);

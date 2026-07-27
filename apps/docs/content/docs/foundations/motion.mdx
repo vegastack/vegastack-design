@@ -74,8 +74,9 @@ string (`transition-pairing`).
 ## Exclusions (deliberate)
 
 Adapted-from-reference effects we chose **not** to ship, per the dense dev-tool aesthetic: avatar
-hover lift, card 3D tilt, FAB morph. No button hover animations anywhere — press feedback is the
-`active:translate-y-px` state change, which stays.
+hover lift, card 3D tilt, FAB morph. No button hover animations anywhere, and no press-motion
+either — the former `active:translate-y-px` nudge was removed; pressed feedback is colour-only
+(the `active:*` background states).
 
 ## Duration utility bridge
 

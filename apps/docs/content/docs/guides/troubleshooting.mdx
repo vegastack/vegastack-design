@@ -7,15 +7,65 @@ audience: public
 Errors below are **verbatim** from real runs. Find yours, apply the fix. If you
 hit something not listed, that's a doc bug — report it with the exact output.
 
+**Before reading further, run the setup check** — it catches the most common
+misconfigurations, including the two silent ones below:
+
+```bash
+pnpm exec vegastack-design doctor
+```
+
 ## Install & build
 
 ### `Can't resolve 'tw-animate-css' in '…/node_modules/@vegastack/design'`
 
-Turbopack/webpack error the moment `preset.css` is imported.
-**Cause:** `@vegastack/design` older than `0.1.1` marked tw-animate-css as an
-optional peer that pnpm never installs.
-**Fix:** `pnpm update @vegastack/design` (≥ 0.1.1). On 0.1.0 (or before 0.1.1 is
-published): `pnpm add tw-animate-css` — identical result.
+Build error the moment `preset.css` is imported. **Two different causes — check the
+second one first if you are on a current version.**
+
+**Cause 1 (most likely today): no Tailwind PostCSS plugin.** Without
+`@tailwindcss/postcss` configured, Tailwind's engine never runs, so the bundler's
+own CSS pipeline tries to resolve `preset.css`'s `@import "tw-animate-css"` and
+fails. The error names a dependency, but the dependency is fine — nothing is
+missing. Under Turbopack (the Next 16 default) this fails the build; under webpack
+the import resolves and you get the silent variant instead (next entry).
+**Fix:** add the plugin, then rebuild.
+
+```js title="postcss.config.mjs"
+const config = { plugins: { "@tailwindcss/postcss": {} } };
+export default config;
+```
+
+```bash
+pnpm add -D @tailwindcss/postcss
+```
+
+`pnpm create next-app --tailwind` writes this file for you, which is why the
+Quickstart never mentions it. Scaffolding by hand, adding VegaStack to an existing
+app, or building a monorepo app all skip that step.
+
+**Cause 2 (legacy): `@vegastack/design` older than `0.1.1`**, which marked
+tw-animate-css as an optional peer that pnpm never installs.
+**Fix:** `pnpm update @vegastack/design` (≥ 0.1.1). If you are already on a newer
+version, this is not your problem — see Cause 1.
+
+### Build succeeds, colours and fonts work, but no utility classes exist
+
+The worst failure mode in the consume path, because nothing errors. `p-4`,
+`flex`, `text-muted-foreground` and every other utility do nothing, while the
+theme looks broadly right.
+
+**Cause:** no `@tailwindcss/postcss` plugin (as above). The token theme is
+**literal CSS** inside `preset.css`, so `:root`/`.dark` custom properties land
+regardless — but every utility class has to be _generated_ by Tailwind, and
+without the plugin Tailwind never runs. The result reads as "the design system is
+broken" when the design system was never invoked.
+**Fix:** the `postcss.config.mjs` above.
+**Confirm it:** the emitted stylesheet should contain real utility selectors, not
+just variables.
+
+```bash
+# after a build — expect a non-trivial count, not 0
+grep -o '\.[a-z][a-z0-9-]*{' .next/static/**/*.css | wc -l
+```
 
 ### `Cannot find module '@vegastack/design/theme.css'` (or base/utilities)
 
@@ -114,9 +164,24 @@ as ship-blocking.
 
 ### `check-updates` says "No VegaStack components found" despite copied components
 
-**Cause:** `@vegastack/design` older than `0.1.1` — its `check-updates` only
-recognized files with provenance headers, which the current shadcn CLI strips on
-copy-in.
+**Cause 1 (layout): it is looking in the wrong directory.** It resolves
+`components.json`'s `aliases.ui` by stripping a leading `@/`, then tries that path
+and a `src/` variant. Any layout those two guesses miss — a monorepo package, or a
+`@/*` alias mapped somewhere else through tsconfig `paths` — scans nothing.
+**Fix:** point it at the real directory.
+
+```bash
+vegastack-design check-updates --dir packages/ui/src/components/ui
+```
+
+Make that the committed form of the script, not something you type once. **A drift
+gate scanning the wrong directory is worse than no gate** — which is why
+`--fail-on-update` now exits **1** when it finds zero components, instead of
+passing vacuously.
+
+**Cause 2 (legacy): `@vegastack/design` older than `0.1.1`**, whose `check-updates`
+only recognized files with provenance headers — which the current shadcn CLI strips
+on copy-in.
 **Fix:** `pnpm update @vegastack/design`. Current versions identify components by
 filename against the registry index and compare content — no header needed.
 

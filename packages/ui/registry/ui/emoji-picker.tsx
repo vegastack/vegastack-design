@@ -1,4 +1,4 @@
-// @vegastack emoji-picker@0.3.0 sha256-kO8fWSW64JIXMvyAGmUNe8Olkzizg8/bsUaPXKsBdic=
+// @vegastack emoji-picker@0.3.0 sha256-H/ogHzhyAyUjk40MzKuAfgmBeSls5LWHavyssLO3/aE=
 
 "use client";
 
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useListNav } from "@/components/ui/use-list-nav";
 
 /* ------------------------------------------------------------------------------------------------
  * EmojiPicker — a Popover-housed, searchable grid of emoji, grouped by category, that returns the
@@ -567,67 +568,23 @@ export function EmojiPicker({
   // treated as one continuous `GRID_COLUMNS`-wide grid — the category headings are visual grouping
   // only, not separate keyboard regions. Exactly one button is Tab-reachable (`tabIndex 0`) at a
   // time; the rest are `-1`. Flattening lets ArrowDown/ArrowUp move a full row even across a
-  // category boundary, matching how a single searchable list would behave.
+  // category boundary, matching how a single searchable list would behave. Home/End keep the
+  // shipped whole-grid jump (the hook's `homeEndScope` default) — with a scrollable
+  // multi-category grid, "jump to the very first/last result" reads as more useful than a
+  // row-local Home/End. The shared hook also makes the horizontal arrows RTL-aware (previously
+  // LTR-only here — a correction, matching color-picker).
   const flatEntries = React.useMemo(
     () => filtered.flatMap((group) => group.entries),
     [filtered],
   );
-  const [activeIndex, setActiveIndex] = React.useState(0);
-  const itemRefs = React.useRef<(HTMLElement | null)[]>([]);
-
-  // Re-clamp the active index whenever the visible set changes (search narrows/widens it, or the
-  // popover reopens) so it never points past the end of the list.
-  React.useEffect(() => {
-    setActiveIndex((i) => Math.min(i, Math.max(flatEntries.length - 1, 0)));
-  }, [flatEntries.length]);
-
-  const focusItem = React.useCallback(
-    (index: number) => {
-      const clamped = Math.max(0, Math.min(index, flatEntries.length - 1));
-      setActiveIndex(clamped);
-      itemRefs.current[clamped]?.focus();
-    },
-    [flatEntries.length],
-  );
-
-  // Home/End jump to the first/last emoji in the ENTIRE grid (all categories), not just the
-  // current row — with a scrollable multi-category grid, "jump to the very first/last result"
-  // reads as more useful than a row-local Home/End. Note this as the deliberate choice (a
-  // row-relative variant would need each row's start/end offset, which isn't needed here).
-  const handleGridKeyDown = React.useCallback(
-    (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (flatEntries.length === 0) return;
-      switch (event.key) {
-        case "ArrowRight":
-          event.preventDefault();
-          focusItem(activeIndex + 1);
-          break;
-        case "ArrowLeft":
-          event.preventDefault();
-          focusItem(activeIndex - 1);
-          break;
-        case "ArrowDown":
-          event.preventDefault();
-          focusItem(activeIndex + GRID_COLUMNS);
-          break;
-        case "ArrowUp":
-          event.preventDefault();
-          focusItem(activeIndex - GRID_COLUMNS);
-          break;
-        case "Home":
-          event.preventDefault();
-          focusItem(0);
-          break;
-        case "End":
-          event.preventDefault();
-          focusItem(flatEntries.length - 1);
-          break;
-        default:
-          break;
-      }
-    },
-    [activeIndex, flatEntries.length, focusItem],
-  );
+  const {
+    setActiveIndex,
+    handleKeyDown: handleGridKeyDown,
+    getItemProps,
+  } = useListNav({
+    count: flatEntries.length,
+    columns: GRID_COLUMNS,
+  });
 
   return (
     <Popover open={isOpen} onOpenChange={setOpen}>
@@ -705,26 +662,21 @@ export function EmojiPicker({
                       {entries.map((entry) => {
                         flatIndex += 1;
                         const index = flatIndex;
-                        const isActive = index === activeIndex;
                         return (
                           <Button
                             key={entry.char}
-                            ref={(node) => {
-                              itemRefs.current[index] = node;
-                            }}
                             type="button"
                             variant="ghost"
                             size="icon"
                             data-slot="emoji-picker-item"
                             aria-label={entry.name}
                             title={entry.name}
-                            // Roving tabindex: only the active emoji is Tab-reachable.
-                            tabIndex={isActive ? 0 : -1}
+                            // Roving tabindex, registration ref, and focus sync from the shared hook.
+                            {...getItemProps(index)}
                             onClick={() => {
                               setActiveIndex(index);
                               handleSelect(entry.char);
                             }}
-                            onFocus={() => setActiveIndex(index)}
                             className="text-xl leading-none"
                           >
                             <span aria-hidden>{entry.char}</span>

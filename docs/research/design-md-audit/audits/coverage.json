@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "b430e50e3ad47d1cf41336373b3e70faf68d51d02bbb804a02e98d8a9a0b65bb",
+  "contractSha256": "e9035bd97850b213755b93d6e42cd4bcb4f9cec45de9777f84b06bcfe881fe3b",
   "inventory": {
-    "expected": 538,
-    "actual": 538,
-    "unique": 538
+    "expected": 554,
+    "actual": 554,
+    "unique": 554
   },
   "classes": {
-    "components": 96,
+    "components": 108,
     "animatedIcons": 439,
-    "hooks": 2,
+    "hooks": 6,
     "blocks": 1
   },
   "waves": {
@@ -44,33 +44,40 @@
       ]
     },
     "Forms/editing": {
-      "expected": 16,
-      "actual": 16,
+      "expected": 22,
+      "actual": 22,
       "members": [
         "auto-save-input",
+        "chip-input",
         "color-picker",
         "combobox",
         "country-select",
         "date-picker",
+        "dropzone",
+        "editable-cell",
         "field",
         "field-inline",
         "filter-bar",
+        "filter-bar-managed",
+        "number-field",
         "otp-input",
         "password-input",
         "region-select",
         "segmented",
         "select",
         "settings-row",
+        "sortable-list",
         "tag-group",
         "text-edit"
       ]
     },
     "Navigation/layout": {
-      "expected": 12,
-      "actual": 12,
+      "expected": 14,
+      "actual": 14,
       "members": [
         "accordion",
         "app-shell",
+        "board",
         "breadcrumb",
         "collapsible",
         "command",
@@ -80,13 +87,15 @@
         "scroll-area",
         "sidebar",
         "split-button",
+        "stepper",
         "tabs"
       ]
     },
     "Overlays": {
-      "expected": 11,
-      "actual": 11,
+      "expected": 13,
+      "actual": 13,
       "members": [
+        "action-bar",
         "alert-dialog",
         "context-menu",
         "dialog",
@@ -96,22 +105,25 @@
         "popover",
         "provider",
         "sheet",
+        "shortcut-overlay",
         "sonner",
         "tooltip"
       ]
     },
     "Data display": {
-      "expected": 8,
-      "actual": 8,
+      "expected": 10,
+      "actual": 10,
       "members": [
         "card",
         "chart",
         "comparison-matrix",
+        "data-grid",
         "data-list",
         "progress-indicator",
         "property-list",
         "stat",
-        "table"
+        "table",
+        "timeline"
       ]
     },
     "Content/marketing": {
@@ -153,11 +165,15 @@
       ]
     },
     "Hooks": {
-      "expected": 2,
-      "actual": 2,
+      "expected": 6,
+      "actual": 6,
       "members": [
         "use-animation-replay",
-        "use-mobile"
+        "use-drag-reorder",
+        "use-file-drop",
+        "use-list-nav",
+        "use-mobile",
+        "use-platform"
       ]
     },
     "Block": {
@@ -613,8 +629,8 @@
       ]
     }
   },
-  "componentRoutes": 96,
+  "componentRoutes": 108,
   "blockRoutes": 1,
-  "crossBrowserSmokeFiles": 10,
+  "crossBrowserSmokeFiles": 14,
   "modeledExemptions": 4
 }

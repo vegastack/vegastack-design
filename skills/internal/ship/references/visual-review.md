@@ -7,14 +7,14 @@ change did.
 
 ## Division of labour
 
-| Stage          | Who                        | Why                                                          |
-| -------------- | -------------------------- | ------------------------------------------------------------ |
-| Measurement    | Playwright's comparator    | Deterministic. A 2px shift is a fact; a vision model can miss it |
-| Interpretation | the developer's agent      | Reads before/after/diff, judges intended vs unintended        |
-| Decision       | the developer              | Authority never leaves the human                              |
+| Stage          | Who                     | Why                                                              |
+| -------------- | ----------------------- | ---------------------------------------------------------------- |
+| Measurement    | Playwright's comparator | Deterministic. A 2px shift is a fact; a vision model can miss it |
+| Interpretation | the developer's agent   | Reads before/after/diff, judges intended vs unintended           |
+| Decision       | the developer           | Authority never leaves the human                                 |
 
-Never let a reading of an image substitute for the pixel count. The numbers decide *what gets looked
-at*; the agent decides *what it means*; the human decides *what happens*.
+Never let a reading of an image substitute for the pixel count. The numbers decide _what gets looked
+at_; the agent decides _what it means_; the human decides _what happens_.
 
 ## Run it
 
@@ -49,12 +49,12 @@ Each entry carries `route`, `lane`, `project`, `status`, `changedPixels`, `total
 `percentChanged`, and the image paths. Everything needing a decision sorts first, largest change
 first inside that — triage by magnitude rather than opening everything.
 
-| `status`    | Means                                                                      |
-| ----------- | -------------------------------------------------------------------------- |
-| `unchanged` | Captured and identical                                                      |
-| `changed`   | Captured and different — read the images and give a verdict                 |
-| `new`       | No base capture existed; the route is new                                   |
-| `removed`   | A base capture with no corresponding test at HEAD                           |
+| `status`    | Means                                                                                                                                     |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `unchanged` | Captured and identical                                                                                                                    |
+| `changed`   | Captured and different — read the images and give a verdict                                                                               |
+| `new`       | No base capture existed; the route is new                                                                                                 |
+| `removed`   | A base capture with no corresponding test at HEAD                                                                                         |
 | `broken`    | The test failed with no pixel evidence — navigation error, timeout, interrupted run. **Not a visual change and not a verdict.** Re-run it |
 
 `dimensions` appears when the capture changed size. `note` carries the failure message on a `broken`

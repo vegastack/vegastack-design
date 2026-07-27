@@ -1,12 +1,16 @@
 [
   "registry/ui/animated-number.test.tsx",
   "registry/ui/auto-save-input.test.tsx",
+  "registry/ui/board.test.tsx",
   "registry/ui/checkbox.test.tsx",
   "registry/ui/copy-button.test.tsx",
+  "registry/ui/dropzone.test.tsx",
   "registry/ui/input.test.tsx",
   "registry/ui/notification-bell.test.tsx",
   "registry/ui/password-input.test.tsx",
   "registry/ui/progress-indicator.test.tsx",
   "registry/ui/skeleton.test.tsx",
-  "registry/ui/use-animation-replay.test.tsx"
+  "registry/ui/sortable-list.test.tsx",
+  "registry/ui/use-animation-replay.test.tsx",
+  "registry/ui/use-drag-reorder.test.tsx"
 ]

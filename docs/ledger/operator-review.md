@@ -490,3 +490,43 @@ each was invisible in review and each is the kind that would have degraded the t
   (`.claude/skills/<name>` and `.agents/skills/<name>`, both required by `skill-lint`). Found by
   adding the `gates` skill itself. Fixed by filtering symlinks out of the staged set; their targets
   are ordinary files and are still formatted on their own paths.
+
+## 2026-07-27 — CRM commission round: judgment calls
+
+- **`canAdvance` shipped as `blockedReason` (stepper).** Options: (a) a host-callback contract the
+  component invokes, (b) a declarative reason string. Chose (b): gating is host logic by the plan's
+  own words; the component's job is communicating the block, and a callback would have made the
+  component the gate's owner. Plan §7.14 stays unamended (point-in-time record); recorded here.
+- **Filter builder edits inline, not in per-condition popovers (§7.2 sketch).** Inline rows are
+  keyboard-simpler (no portal focus management per condition) and the sketches were declared
+  directional. FilterChip is composed for the summary; FilterBar itself is not reused (its chip row
+  is host-state-driven; the builder's summary is tree-driven).
+- **`editable-cell` reuses `AutoSaveStatus` by importing the type**, accepting auto-save-input as a
+  registry dependency for one union — one system-wide vocabulary beats a types-only registry item.
+- **Summary chips in the filter builder stay removable in `readOnly`** (pruning the tree), because
+  FilterChip's remove affordance is type-required and a summary you cannot act on is a dead end;
+  `disabled` makes the summary inert. Documented on the page.
+- **ActionBar is `role="group"`, not `toolbar`** — the toolbar role promises APG arrow traversal;
+  we make no such promise rather than half-keeping one. `useListNav` can upgrade it later.
+- **Timeline separators are real `<li>`s** (an `<ol>` admits nothing else; axe enforces it) and
+  non-interactive Item rows take `role="none"` — the `<li>` is the list item.
+- **The §12 "do not fix §8.5" retraction was verified false against origin/main** (the sentence did
+  include `Table`; there was no AutoTypeTable), so the fix stood. Recorded because a plan
+  instruction was knowingly not followed after verification — the truth hierarchy's script-over-
+  prose rule applied to a plan's own self-correction.
+
+## 2026-07-27 — phase-3 judgment calls (round 20)
+
+- **Same-container container-drops are a no-op, not an append.** The container target is what a
+  gap/self drop falls through to; "4px twitch sends the row to the bottom" is worse than losing
+  "drop on own column body to append" (drop on the last row's bottom edge still does that).
+- **Dropzone adopts the ENGINE'S a11y model** (surface as `role="button"`, input as hidden bridge)
+  rather than fighting react-dropzone into the input-as-control story the docs originally told.
+  Doctrine follows implementation truth; every claim surface was rewritten in the same round.
+- **DataGrid column reorder ships as applied `columnOrder` only** — the `onColumnOrderChange` stub
+  that could never fire was removed rather than half-implemented. A reorder affordance (likely a
+  drag layer on headers) is a future commission with a real consumer.
+- **Board's Move menu appends-then-refines** (Move to column, then Move up/down/top/bottom) —
+  lossless in two steps without a position-picker submenu.
+- **The payload-blind document-level drop cancellation is accepted** as react-dropzone's default;
+  the opt-out (`preventWindowDrop={false}`) now actually reaches the engine.

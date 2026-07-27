@@ -92,7 +92,7 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
 - **Docs** — Fumadocs, static export to Cloudflare Workers Static Assets. Storybook is deferred.
 - **Verification is local-first; CI verifies that it happened.** Decided 2026-07-25 (Option A), plan
   in `docs/plans/2026-07-25-cicd-local-first-revamp.md`. **No CI runner executes a browser.** The
-  browser-unit suite, the cross-engine smoke, the three-engine suite, and the 768 behaviour contracts
+  browser-unit suite, the cross-engine smoke, the three-engine suite, and the 864 behaviour contracts
   all run in `.husky/pre-push` (scoped) and `pnpm gates:ship` (full) on a developer machine. Each run
   writes `.gates/receipt.json`, bound to a git tree hash of the working tree with `.gates/` excluded,
   and every workflow's `receipt-guard` job rejects a push whose receipt does not cover the pushed
@@ -147,8 +147,21 @@ org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` a
 
 Adding to either list needs MK sign-off, tracked the same way.
 
-- **Headless primitive** — `@shadcn/react/message-scroller` (MessageScroller) is the ONLY non-Base-UI
-  headless primitive. Nothing else.
+- **Headless primitives** — non-Base-UI packages that own a behavioural core (interaction
+  semantics or the state machine under them) but render nothing. Exactly four, each isolated
+  behind one registry item so an engine swap touches one file:
+  - `@shadcn/react/message-scroller` (MessageScroller) — the original exception.
+  - `@tanstack/react-table` v8 — `data-grid`'s row-model state machine (sorting, visibility,
+    order). It never touches DOM or focus; the APG grid keyboard layer is ours.
+  - `@atlaskit/pragmatic-drag-and-drop` (+ `-hitbox`) — the drag engine behind `use-drag-reorder`
+    (consumed by `board` and `sortable-list`). Pointer-first by design; the keyboard layer,
+    live-region announcements, and "Move to…" menu equivalents are ours.
+  - `react-dropzone` — the drop/paste acquisition engine behind `use-file-drop` (and `dropzone`'s
+    thin shell).
+    Approved by MK 2026-07-27 (plan `2026-07-26-crm-commissioned-components.md` §2.1, D1–D4).
+    Nothing else — a fifth entry is a new MK decision, not a pattern to follow.
+- **Measurement engine** — `@tanstack/react-virtual` (same D1/D2 sign-off): windowing maths for
+  `data-grid`'s `virtualize` flag. It measures; it owns no interaction.
 - **Renderer / behavior engines** — `react-resizable-panels`, `recharts`, `motion`, `tiptap`, and the
   pre-existing `sonner`. Each is named per-component in `packages/ui/registry.json`. These render or
   animate; they do not own interaction semantics, which is why they are a narrower class than the
@@ -253,7 +266,7 @@ pnpm --filter @vegastack/ui test                     # browser-mode unit + axe
 pnpm --filter @vegastack/ui test:smoke               # WebKit + Firefox, contract-selected subset
 pnpm --filter @vegastack/ui test:all-browsers        # the complete suite in three engines
 pnpm contracts                                       # behaviour contracts, SCOPED to the diff
-pnpm contracts:all                                   # all 96 routes / 768 checks
+pnpm contracts:all                                   # all 108 routes / 864 checks
 pnpm classify                                        # which gates this change requires, and why
 pnpm lint                                            # the full gate chain — see package.json
 pnpm registry:build && git status --porcelain        # must be idempotent: clean tree after
@@ -267,7 +280,7 @@ else is independently re-run for free on the minis. Do not blur this line in rev
 | gate                                                                                                                                                                                               | runs where               | CI                                     |
 | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | -------------------------------------- |
 | static gates, `design:verify`, `typecheck`, `lint`, `registry:build` idempotency, `design:derived:check`, `registry:verify-consume`, both `SITE_VISIBILITY` builds, `@vegastack/design` node tests | hook **and** mini        | **re-executed**                        |
-| `@vegastack/ui` browser unit + axe · cross-engine smoke · three-engine suite · 768 behaviour contracts                                                                                             | hook / `gates:ship` only | **attested** via `.gates/receipt.json` |
+| `@vegastack/ui` browser unit + axe · cross-engine smoke · three-engine suite · 864 behaviour contracts                                                                                             | hook / `gates:ship` only | **attested** via `.gates/receipt.json` |
 | `vrt-review` pixels                                                                                                                                                                                | `/ship` only             | review step, never a gate              |
 
 Scope is decided by `tooling/lib/route-scope.mjs`, shared by the contract lane and the pixel lane with
@@ -285,13 +298,13 @@ Every gate fails closed. A gate that has never been observed failing is an assum
 `verify-design-lint-structural.mjs` and `verify-registry-integrity-negative.mjs` exist.
 
 **The component contract suite is the blocking visual-surface gate — it now blocks locally.**
-`apps/docs/vrt/contracts.spec.ts` runs 768 checks over every component route — 320px reflow, RTL
+`apps/docs/vrt/contracts.spec.ts` runs 864 checks over every component route — 320px reflow, RTL
 containment, effective 24px pointer targets, and a focus-indicator check. It takes no screenshots and
 needs no baselines, so it cannot be cleared by regenerating its own evidence.
 
 **The focus-indicator check currently cannot fail, and must not be cited as coverage.** Measured
 2026-07-25: it runs under `forcedColors: "active"`, where Chromium paints its own ≥2px focus ring, so
-deleting the design system's `:focus-visible` rule leaves all 768 checks green. Its fallback branch is
+deleting the design system's `:focus-visible` rule leaves all 864 checks green. Its fallback branch is
 also unconditionally true, because forced-colors repaints borders on focus. Pre-existing — reproduced
 against the spec before that day's rewrite. Reflow, RTL, and the 24px target floor are unaffected and
 demonstrably still fail on real defects. Evidence, reproduction, and why the fix is scoped separately:
@@ -301,7 +314,7 @@ executes it, and `receipt-guard` rejects a push whose receipt lacks it when the 
 
 ```bash
 pnpm contracts                                  # scoped to the diff — measured 24s for one route
-pnpm contracts:all                              # all 96 routes / 768 checks — measured 13m36s
+pnpm contracts:all                              # all 108 routes / 864 checks — measured ~14m
 node tooling/contracts-run.mjs --routes /docs/components/button
 ```
 
@@ -414,8 +427,8 @@ below is generated — never hand-edit it, and never quote a count from memory.
 
 <!-- NUMBERS:START — generated by tooling/sync-component-derived.mjs from packages/ui/component-contracts.json. DO NOT EDIT. -->
 
-- **Registry items: 538** — 96 components · 439 animated icons · 2 hooks (`use-animation-replay`, `use-mobile`) · 1 block (`dashboard-01`)
-- Contract SHA-256: `b430e50e3ad47d1cf41336373b3e70faf68d51d02bbb804a02e98d8a9a0b65bb`
+- **Registry items: 554** — 108 components · 439 animated icons · 6 hooks (`use-animation-replay`, `use-drag-reorder`, `use-file-drop`, `use-list-nav`, `use-mobile`, `use-platform`) · 1 block (`dashboard-01`)
+- Contract SHA-256: `e9035bd97850b213755b93d6e42cd4bcb4f9cec45de9777f84b06bcfe881fe3b`
 
 <!-- NUMBERS:END -->
 

@@ -1,4 +1,4 @@
-// @vegastack color-picker@0.3.0 sha256-jtpB7cR9Lm5S3VDi02FkkLSFZCOawsbGTlA/xzmObAA=
+// @vegastack color-picker@0.3.0 sha256-yvn/fYYDBErmmf3T3j1+O0z8ysYVIlLvX9/F7uMuqm4=
 
 "use client";
 
@@ -11,6 +11,7 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { useListNav } from "@/components/ui/use-list-nav";
 
 /* ------------------------------------------------------------------------------------------------
  * ColorPicker — a swatch-triggered popover that presents a grid of preset colors. The trigger shows
@@ -163,73 +164,28 @@ export function ColorPicker({
     ? Math.max(1, Math.floor(columns))
     : 1;
 
-  // Roving tabindex: exactly one swatch is in the tab order (`tabIndex 0`) at a time — the rest are
-  // `-1` — so Tab only stops once on the swatch group. Arrow keys move
-  // the "active" index (and DOM focus) around the grid; click selection is unchanged. The active
-  // index tracks the palette's currently-selected color when it's present (so re-opening the popover
-  // lands keyboard focus on the current value), falling back to the first swatch otherwise.
+  // Roving tabindex via the shared `useListNav` hook: exactly one swatch is in the tab order
+  // (`tabIndex 0`) at a time — the rest are `-1` — so Tab only stops once on the swatch group.
+  // Arrow keys move the "active" index (and DOM focus) around the grid, RTL-aware; click
+  // selection is unchanged. The active index STARTS on the color selected at mount (falling back
+  // to the first swatch); it does not re-track later `value` changes — focusing a swatch or
+  // arrowing moves it from there. Home/End keep the shipped whole-grid jump — the hook's
+  // `homeEndScope` default — with only ~13 single-row-wrapped swatches by default; pass
+  // `homeEndScope: "row"` instead if a future palette renders many rows.
   const selectedIndex = Math.max(
     0,
     colors.findIndex((c) => c.name === value),
   );
-  const [activeIndex, setActiveIndex] = React.useState(selectedIndex);
-  // `HTMLElement`, not `HTMLButtonElement` — `Button`'s underlying Base UI ref type is
-  // `React.RefAttributes<HTMLElement>` (it supports `render` composition onto any element).
-  const swatchRefs = React.useRef<(HTMLElement | null)[]>([]);
-
-  // Keep the active index in range if `colors` shrinks (e.g. a dynamic palette prop).
-  React.useEffect(() => {
-    setActiveIndex((i) => Math.min(i, Math.max(colors.length - 1, 0)));
-  }, [colors.length]);
-
-  const focusSwatch = React.useCallback(
-    (index: number) => {
-      const clamped = Math.max(0, Math.min(index, colors.length - 1));
-      setActiveIndex(clamped);
-      swatchRefs.current[clamped]?.focus();
-    },
-    [colors.length],
-  );
-
-  // Moves the roving-tabindex focus. Home/End jump to the first/last swatch in the ENTIRE grid
-  // (not just the current row) — with only ~13 single-row-wrapped swatches by default, a
-  // whole-grid Home/End reads as more useful than a row-local one; call out to a row-relative
-  // implementation instead if a future consumer renders many rows.
-  const handleGridKeyDown = React.useCallback(
-    (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (disabled || colors.length === 0) return;
-      const isRtl = getComputedStyle(event.currentTarget).direction === "rtl";
-      switch (event.key) {
-        case "ArrowRight":
-          event.preventDefault();
-          focusSwatch(activeIndex + (isRtl ? -1 : 1));
-          break;
-        case "ArrowLeft":
-          event.preventDefault();
-          focusSwatch(activeIndex + (isRtl ? 1 : -1));
-          break;
-        case "ArrowDown":
-          event.preventDefault();
-          focusSwatch(activeIndex + columnCount);
-          break;
-        case "ArrowUp":
-          event.preventDefault();
-          focusSwatch(activeIndex - columnCount);
-          break;
-        case "Home":
-          event.preventDefault();
-          focusSwatch(0);
-          break;
-        case "End":
-          event.preventDefault();
-          focusSwatch(colors.length - 1);
-          break;
-        default:
-          break;
-      }
-    },
-    [activeIndex, colors.length, columnCount, disabled, focusSwatch],
-  );
+  const {
+    setActiveIndex,
+    handleKeyDown: handleGridKeyDown,
+    getItemProps,
+  } = useListNav({
+    count: colors.length,
+    columns: columnCount,
+    defaultActiveIndex: selectedIndex,
+    disabled,
+  });
 
   return (
     <Popover>
@@ -274,13 +230,9 @@ export function ColorPicker({
         >
           {colors.map((color, index) => {
             const isSelected = color.name === value;
-            const isActive = index === activeIndex;
             return (
               <Button
                 key={color.name}
-                ref={(node) => {
-                  swatchRefs.current[index] = node;
-                }}
                 type="button"
                 variant="ghost"
                 size="icon-sm"
@@ -288,13 +240,12 @@ export function ColorPicker({
                 aria-label={color.label}
                 aria-pressed={isSelected}
                 title={color.label}
-                // Roving tabindex: only the active swatch is Tab-reachable; arrows move it.
-                tabIndex={isActive ? 0 : -1}
+                // Roving tabindex, registration ref, and focus sync from the shared hook.
+                {...getItemProps(index)}
                 onClick={() => {
                   setActiveIndex(index);
                   onValueChange?.(color.name);
                 }}
-                onFocus={() => setActiveIndex(index)}
                 className="size-(--size-sm) rounded-full p-0 hover:bg-transparent"
               >
                 <span

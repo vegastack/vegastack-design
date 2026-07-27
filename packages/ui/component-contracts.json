@@ -12,21 +12,21 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 538,
-    "components": 96,
+    "totalRegistryItems": 554,
+    "components": 108,
     "animatedIcons": 439,
-    "hooks": 2,
+    "hooks": 6,
     "blocks": 1
   },
   "expectedWaveCounts": {
     "Core controls": 23,
-    "Forms/editing": 16,
-    "Navigation/layout": 12,
-    "Overlays": 11,
-    "Data display": 8,
+    "Forms/editing": 22,
+    "Navigation/layout": 14,
+    "Overlays": 13,
+    "Data display": 10,
     "Content/marketing": 20,
     "AI/chat": 6,
-    "Hooks": 2,
+    "Hooks": 6,
     "Block": 1,
     "Animated icons": 439
   },
@@ -72,7 +72,13 @@
       "filter-bar",
       "tag-group",
       "text-edit",
-      "segmented"
+      "segmented",
+      "editable-cell",
+      "number-field",
+      "chip-input",
+      "filter-bar-managed",
+      "sortable-list",
+      "dropzone"
     ],
     "Navigation/layout": [
       "accordion",
@@ -86,7 +92,9 @@
       "app-shell",
       "resizable",
       "scroll-area",
-      "split-button"
+      "split-button",
+      "stepper",
+      "board"
     ],
     "Overlays": [
       "alert-dialog",
@@ -99,17 +107,21 @@
       "context-menu",
       "emoji-picker",
       "sonner",
-      "provider"
+      "provider",
+      "action-bar",
+      "shortcut-overlay"
     ],
     "Data display": [
       "card",
       "table",
       "data-list",
+      "data-grid",
       "chart",
       "comparison-matrix",
       "property-list",
       "stat",
-      "progress-indicator"
+      "progress-indicator",
+      "timeline"
     ],
     "Content/marketing": [
       "alert",
@@ -141,7 +153,14 @@
       "attachment",
       "tool-call-chip"
     ],
-    "Hooks": ["use-animation-replay", "use-mobile"],
+    "Hooks": [
+      "use-animation-replay",
+      "use-drag-reorder",
+      "use-file-drop",
+      "use-list-nav",
+      "use-mobile",
+      "use-platform"
+    ],
     "Block": ["dashboard-01"],
     "Animated icons": "packages/ui/animated-icon-sources.json"
   },
@@ -892,7 +911,7 @@
       "docsSlug": "/docs/components/message-scroller",
       "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
-        "@shadcn/react@^0.1.0",
+        "@shadcn/react@^0.2.1",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1474,7 +1493,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1595,7 +1614,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -1713,7 +1732,7 @@
       "docsSlug": "/docs/components/tag-group",
       "registryDependencies": [],
       "npmDependencies": [
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -2079,7 +2098,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -2760,7 +2779,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -3040,7 +3059,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -3523,7 +3542,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -4067,7 +4086,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -4808,7 +4827,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -5324,7 +5343,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -6517,7 +6536,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -7500,7 +7519,7 @@
       "registryDependencies": ["@vegastack/dropdown-menu"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -7732,7 +7751,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -7986,7 +8005,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -8501,7 +8520,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -8750,7 +8769,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -8997,7 +9016,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "react-resizable-panels@^4",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -9327,7 +9346,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -9772,7 +9791,7 @@
       "docsSlug": "/docs/components/copy-button",
       "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -9879,7 +9898,7 @@
       "docsSlug": "/docs/components/password-input",
       "registryDependencies": ["@vegastack/input"],
       "npmDependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -10080,7 +10099,7 @@
       "docsSlug": "/docs/components/split-button",
       "registryDependencies": ["@vegastack/button", "@vegastack/dropdown-menu"],
       "npmDependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -10095,6 +10114,1288 @@
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
       "previewModule": "split-button"
+    },
+    {
+      "name": "editable-cell",
+      "registryType": "registry:ui",
+      "title": "Editable Cell",
+      "summary": "Inline-editable value with an async commit lifecycle — optimistic display, saving/saved/error status, revert on a rejected write, and a typed text/select/custom editor registry.",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/editable-cell.tsx"],
+      "publicSymbols": [
+        {
+          "name": "EditableCell",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/editable-cell.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "EditableCellEditor",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/editable-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EditableCellEditorProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/editable-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EditableCellProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/editable-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "display",
+            "editing",
+            "saving",
+            "saved",
+            "error",
+            "disabled",
+            "read-only",
+            "managed-focus"
+          ],
+          "evidence": "Observed from branches, the data-status/data-focus-mode attributes, the optimistic pendingValue swap, and the promise-driven revert path."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": [
+            "keyboard",
+            "labeled",
+            "status-announcement",
+            "semantic-html"
+          ],
+          "evidence": "FieldInline supplies the named role=button display and editor; the status slot is a polite aria-live region announcing saving/saved/revert; indicators differ by icon shape, never colour alone."
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "hover",
+            "saving",
+            "saved",
+            "error",
+            "disabled"
+          ],
+          "evidence": "Observed from token classes, keyed status indicators (Spinner, success Check, destructive X), and FieldInline's display affordance."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "min-w-0 inline-flex root; truncation is owned by the FieldInline leaf."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["keyed-presence"],
+        "reducedMotion": {
+          "status": "observed",
+          "rationale": "Status indicators replay motion-pop-in via keyed remounts; the global base.css reduced-motion reset collapses the keyframes to their end state."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/editable-cell",
+      "registryDependencies": [
+        "@vegastack/field-inline",
+        "@vegastack/spinner",
+        "@vegastack/auto-save-input",
+        "@vegastack/select"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/editable-cell.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "previewModule": "editable-cell"
+    },
+    {
+      "name": "number-field",
+      "registryType": "registry:ui",
+      "title": "Number Field",
+      "summary": "Locale-aware numeric input on Base UI's NumberField in Input's field chrome — Intl formatting (money is a format prop), min/max/step, keyboard stepping, wheel scrub, full-height steppers.",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/number-field.tsx"],
+      "publicSymbols": [
+        {
+          "name": "NumberField",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/number-field.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "BaseNumberField.Input",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "NumberFieldProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/number-field.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "observed",
+        "dimensions": ["sm", "default", "lg"],
+        "rationale": "Control height on the shared --size-sm/md/lg scale, matching Input/Button/Select."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "stepping",
+            "clamped",
+            "disabled",
+            "read-only",
+            "invalid"
+          ],
+          "evidence": "Base UI NumberField owns value/step/clamp semantics; disabled/readOnly/invalid flow through Root props and has-* group styling."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["keyboard", "labeled", "semantic-html"],
+          "evidence": "Named inner input (aria-label), named full-height stepper buttons, arrow/Home/End stepping from Base UI, focus-within border tint (text-entry affordance)."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "focus", "invalid", "disabled", "dark"],
+          "evidence": "Input's addon-group chrome verbatim: focus-within ring tint, has-aria-invalid destructive tint, has-disabled wash, dark input tint."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "min-w-0 flex group with a flex-1 input; addons are shrink-0 whitespace-nowrap."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["replay-api"],
+        "reducedMotion": {
+          "status": "observed",
+          "rationale": "useShakeOnInvalid replays motion-shake on the group border without remounting; the global reduced-motion reset collapses it."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/number-field",
+      "registryDependencies": ["@vegastack/use-animation-replay"],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/number-field.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "previewModule": "number-field"
+    },
+    {
+      "name": "chip-input",
+      "registryType": "registry:ui",
+      "title": "Chip Input",
+      "summary": "Free-token entry field — Enter/comma/paste commits chips, Backspace removes, per-chip validation marks invalid entries instead of dropping them. Combobox field chrome + real Tag chips.",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/chip-input.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ChipInput",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chip-input.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "ChipInputProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chip-input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "chipInputVariants",
+          "kind": "variants",
+          "source": "packages/ui/registry/ui/chip-input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "observed",
+        "dimensions": ["sm", "default", "lg"],
+        "rationale": "min-height on the shared --size-sm/md/lg scale (comboboxInputGroupVariants' scale); the field grows when chips wrap."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "empty",
+            "chips",
+            "invalid-chip",
+            "duplicate-rejected",
+            "disabled"
+          ],
+          "evidence": "Commit on Enter/comma/blur/paste-split, Backspace-removes-last, per-chip validate marks data-invalid, duplicates rejected and announced."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": [
+            "keyboard",
+            "labeled",
+            "status-announcement",
+            "semantic-html"
+          ],
+          "evidence": "Named inner Input; named per-chip remove buttons with Tag's 24px hit area; polite live region announcing added/invalid/duplicate/removed; invalid carried by text description, not colour alone."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "focus", "invalid", "disabled", "dark"],
+          "evidence": "comboboxInputGroupVariants chrome: focus-within ring tint, data-invalid destructive tint, data-disabled wash, dark input tint; invalid chips get the destructive outline-border pair."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["grid-wrapping", "text-truncation-and-flex-shrink"],
+        "rationale": "flex-wrap chips with min-w-0; Tag truncates its label span; the inner input keeps min-w-12 flex-1."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["replay-api"],
+        "reducedMotion": {
+          "status": "observed",
+          "rationale": "useShakeOnInvalid replays motion-shake on the group when it turns invalid; the global reduced-motion reset collapses it."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/chip-input",
+      "registryDependencies": [
+        "@vegastack/input",
+        "@vegastack/tag-group",
+        "@vegastack/use-animation-replay"
+      ],
+      "npmDependencies": [
+        "class-variance-authority@^0.7.1",
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/chip-input.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "previewModule": "chip-input"
+    },
+    {
+      "name": "action-bar",
+      "registryType": "registry:ui",
+      "title": "Action Bar",
+      "summary": "Floating contextual bar — status region + action children, CSS-only enter/exit, raised band. Bulk selection, unsaved changes, and batch progress are recipes over it.",
+      "family": "feedback",
+      "wave": "Overlays",
+      "sourceFiles": ["packages/ui/registry/ui/action-bar.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ActionBar",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/action-bar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "ActionBarProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/action-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["open", "hidden", "pending", "measured-centring"],
+          "evidence": "data-active drives the CSS-only enter/exit; pending inerts the actions (aria-busy); containerRef switches to ResizeObserver-measured centring via a unitless custom property."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": [
+            "labeled",
+            "status-announcement",
+            "keyboard",
+            "semantic-html"
+          ],
+          "evidence": "Labelled role=toolbar; polite live region announces status changes; hidden state is pointer-events-none so nothing invisible is interactive."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hidden", "pending", "dark"],
+          "evidence": "Flat raised-band surface (bg-background + border, no shadow); exit translate/scale/opacity with ease-exit, enter with ease-emphasized."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["viewport-pinning", "text-truncation-and-flex-shrink"],
+        "rationale": "Pinned to the bottom edge with the safe-area inset; max-w caps the bar inside the viewport; status is min-w-0 whitespace-nowrap."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["css-state-transition"],
+        "reducedMotion": {
+          "status": "observed",
+          "rationale": "Pure CSS transition on data-[active]; the global reduced-motion reset collapses transitions, leaving an instant show/hide."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/action-bar",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/action-bar.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "previewModule": "action-bar"
+    },
+    {
+      "name": "stepper",
+      "registryType": "registry:ui",
+      "title": "Stepper",
+      "summary": "A bounded linear process as an ordered list — complete/current/upcoming/error states on StatusIcon's vocabulary, aria-current=step, advance-gating message, focus follows the process.",
+      "family": "navigation",
+      "wave": "Navigation/layout",
+      "sourceFiles": ["packages/ui/registry/ui/stepper.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Stepper",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/stepper.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "ol",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "StepperProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/stepper.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "StepperStep",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/stepper.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "StepperStepState",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/stepper.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": ["orientation"],
+        "rationale": "horizontal | vertical — identical DOM and reading order, layout only."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "complete",
+            "current",
+            "upcoming",
+            "error",
+            "disabled",
+            "gated",
+            "navigable"
+          ],
+          "evidence": "Per-step state prop; blockedReason renders and announces the gate; navigable turns completed steps into Buttons; focus moves to the new current label on change (never mount)."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": [
+            "keyboard",
+            "labeled",
+            "status-announcement",
+            "semantic-html"
+          ],
+          "evidence": "Labelled ol/li with aria-current=step (never role=tab); state carried by icon shape + sr-only text; polite live region for the blocked reason wireable via blockedReasonId."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["complete", "current", "upcoming", "error", "disabled"],
+          "evidence": "StatusIcon tokens per state (current's glyph pinned to animate-none — position, not activity); ink vs muted labels; warning-text blocked reason; connector hairlines."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink", "grid-wrapping"],
+        "rationale": "Horizontal steps flex-1 with min-w-0 truncating labels; vertical keeps a fixed rail column."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed (the current glyph explicitly does not spin)."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/stepper",
+      "registryDependencies": ["@vegastack/button", "@vegastack/status-icon"],
+      "npmDependencies": [
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/stepper.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "previewModule": "stepper"
+    },
+    {
+      "name": "timeline",
+      "registryType": "registry:ui",
+      "title": "Timeline",
+      "summary": "Rail geometry for chronological records — a continuous connector with a node per entry. Rows compose Item parts; separators render through Marker; entries carry content-visibility render skipping.",
+      "family": "data-display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/timeline.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Timeline",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/timeline.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "ol",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "TimelineItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/timeline.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "li",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "TimelineItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/timeline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TimelineProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/timeline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TimelineSeparator",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/timeline.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "li",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "TimelineSeparatorProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/timeline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default"],
+          "evidence": "Purely structural: rail node + connector per entry, connector hidden on the last entry via group-last."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["semantic-html", "labeled"],
+          "evidence": "Labelled ol/li; the rail column is aria-hidden decorative geometry; separators are real list items rendered through Marker's separator variant."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default"],
+          "evidence": "border tokens for node dot and connector hairline; content gutter via spacing scale."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink", "overflow-and-scroll"],
+        "rationale": "min-w-0 rows with Item owning truncation; long lists skip offscreen rendering via content-visibility + contain-intrinsic-size."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/timeline",
+      "registryDependencies": ["@vegastack/marker"],
+      "npmDependencies": [
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/timeline.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "previewModule": "timeline"
+    },
+    {
+      "name": "shortcut-overlay",
+      "registryType": "registry:ui",
+      "title": "Shortcut Overlay",
+      "summary": "The ?-triggered dialog listing keyboard shortcuts, rendered from a declaration registry (keys, label, category, when) — grouped, filterable, platform-aware via use-platform + Kbd.",
+      "family": "overlay",
+      "wave": "Overlays",
+      "sourceFiles": ["packages/ui/registry/ui/shortcut-overlay.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ShortcutDefinition",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shortcut-overlay.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ShortcutOverlay",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shortcut-overlay.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed Dialog; no stable public ref target is forwarded — the dialog content is portaled."
+          }
+        },
+        {
+          "name": "ShortcutOverlayProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shortcut-overlay.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "closed",
+            "open",
+            "filtered",
+            "empty-filter",
+            "gated-when",
+            "suppressed"
+          ],
+          "evidence": "Controlled-optional open; ? binding suppressed inside editable surfaces and by shouldHandle; when:false omits a binding; the filter narrows and shows an empty message."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["keyboard", "labeled", "semantic-html"],
+          "evidence": "Labelled Dialog; description-list pairs with real kbd elements; category headers are real headings; Escape closes via Dialog."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "empty", "dark"],
+          "evidence": "Dialog surface; label-sm category headers; border-separated rows; muted empty message."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["overflow-and-scroll", "text-truncation-and-flex-shrink"],
+        "rationale": "ScrollArea capped by a dvh calc; labels truncate; key clusters shrink-0."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "Enter/exit motion is owned by the composed Dialog."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/shortcut-overlay",
+      "registryDependencies": [
+        "@vegastack/dialog",
+        "@vegastack/input",
+        "@vegastack/kbd",
+        "@vegastack/scroll-area",
+        "@vegastack/use-platform"
+      ],
+      "npmDependencies": [
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/shortcut-overlay.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "previewModule": "shortcut-overlay"
+    },
+    {
+      "name": "filter-bar-managed",
+      "registryType": "registry:ui",
+      "title": "Filter Builder",
+      "summary": "The stateful nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.",
+      "family": "data",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/filter-bar-managed.tsx"],
+      "publicSymbols": [
+        {
+          "name": "FilterBuilder",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "FilterBuilderProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FilterField",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FilterNode",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FilterOperator",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FilterValueEditorProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "empty",
+            "conditions",
+            "nested-groups",
+            "depth-cap",
+            "condition-cap",
+            "invalid-condition",
+            "disabled",
+            "read-only-summary"
+          ],
+          "evidence": "Controlled tree editing with immutable path updates; caps disable the add affordances with aria-describedby reasons; missing values flag data-invalid; readOnly collapses to removable FilterChips."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["keyboard", "labeled", "semantic-html"],
+          "evidence": "Nested fieldset/legend structure (deliberately not role=tree); every picker and button labelled; removal moves focus to the next sibling or the group's add button; cap reasons wired via aria-describedby; invalid carries visible text."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "invalid", "disabled", "dark"],
+          "evidence": "Bordered nested groups; destructive-text invalid message; FilterChip summary inherits filter-bar's chrome."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["grid-wrapping", "text-truncation-and-flex-shrink"],
+        "rationale": "Condition rows flex-wrap with min-w-0; the value editor flexes on a basis; summary chips wrap."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/filter-bar-managed",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/icon-button",
+        "@vegastack/input",
+        "@vegastack/filter-bar",
+        "@vegastack/select"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/filter-bar-managed.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "previewModule": "filter-bar-managed"
+    },
+    {
+      "name": "sortable-list",
+      "registryType": "registry:ui",
+      "title": "Sortable List",
+      "summary": "Reorderable rows on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, keyboard move mode, a lossless Move menu, and server-refusable moves. Controlled; the host owns the order.",
+      "family": "data",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/sortable-list.tsx"],
+      "publicSymbols": [
+        {
+          "name": "SortableList",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sortable-list.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "SortableListItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/sortable-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SortableListProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/sortable-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "idle",
+            "dragging",
+            "move-mode",
+            "pending",
+            "rejected",
+            "disabled",
+            "item-disabled"
+          ],
+          "evidence": "use-drag-reorder drives pointer drags, keyboard move mode, and the async pending/rejected contract; disabled removes handles and menus; per-item disabled excludes single rows."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": [
+            "keyboard",
+            "labeled",
+            "status-announcement",
+            "semantic-html"
+          ],
+          "evidence": "ItemGroup list semantics; per-row named handles and Move menus (the lossless path); Space/arrows/Escape move mode; polite per-step announcements and rejection announcements."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "dragging", "drop-edge", "pending", "disabled"],
+          "evidence": "2px primary drop-indicator hairline on the closest edge; lifted rows dim (flat — no shadow, per doctrine); pending rows shimmer with the sanctioned loader animation, static under reduced motion."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Rows are Item parts with min-w-0 content; handles and menus are fixed-size controls."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["css-state-transition"],
+        "reducedMotion": {
+          "status": "observed",
+          "rationale": "The pending shimmer is animate-pulse (the sanctioned loader exception) explicitly disabled under reduced motion; drag previews are native."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/sortable-list",
+      "registryDependencies": [
+        "@vegastack/icon-button",
+        "@vegastack/item",
+        "@vegastack/dropdown-menu",
+        "@vegastack/use-drag-reorder"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/sortable-list.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "selected"
+      },
+      "previewModule": "sortable-list"
+    },
+    {
+      "name": "board",
+      "registryType": "registry:ui",
+      "title": "Board",
+      "summary": "Kanban columns over use-drag-reorder — content/chrome split (host renders card content only), pointer drag, keyboard move mode + roving focus, lossless per-card Move menu with lock reasons, server-refusable moves, collapsed lanes, Empty-bordered drop targets.",
+      "family": "layout",
+      "wave": "Navigation/layout",
+      "sourceFiles": ["packages/ui/registry/ui/board.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Board",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/board.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "BoardColumn",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/board.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BoardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/board.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Column width flows through the --board-column-width custom property; card chrome is fixed."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "idle",
+            "dragging",
+            "move-mode",
+            "pending",
+            "rejected",
+            "locked-target",
+            "collapsed",
+            "read-only",
+            "empty-column",
+            "drag-disabled-mobile"
+          ],
+          "evidence": "use-drag-reorder drives drags/move mode/async contract; droppable:false lanes carry lock reasons into the menu; collapsed strips expand read-only; pointer drags disable below 768px while keyboard and menu survive."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": [
+            "keyboard",
+            "labeled",
+            "status-announcement",
+            "semantic-html"
+          ],
+          "evidence": "Roving focus across the ragged card grid (RTL-aware ←/→ for browsing AND move mode); Space move mode with focus restored across cross-column remounts, Enter activate, M opens the named Move menu — within-column up/down/top/bottom plus cross-column targets with visible lock reasons; a populated column wraps its cards in role=list (an empty column renders the Empty affordance instead); polite move/rejection announcements."
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "dragging",
+            "drop-edge",
+            "drop-over",
+            "pending",
+            "collapsed",
+            "empty"
+          ],
+          "evidence": "Flat dragged cards (dim, never a shadow — doctrine); 2px primary drop-indicator; column border tint while a drag is over; pending shimmer (sanctioned loader animation, reduced-motion aware); Empty bordered drop-zone look."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "overflow-and-scroll",
+          "text-truncation-and-flex-shrink",
+          "viewport-breakpoint"
+        ],
+        "rationale": "Horizontal overflow-x board; per-column ScrollArea capped by a dvh calc; min-w-0 truncating card content; drag disabled below 768px via useIsMobile."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["css-state-transition"],
+        "reducedMotion": {
+          "status": "observed",
+          "rationale": "The pending shimmer is animate-pulse (the sanctioned loader exception) disabled under reduced motion; drag previews are native."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/board",
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/card",
+        "@vegastack/dropdown-menu",
+        "@vegastack/empty",
+        "@vegastack/icon-button",
+        "@vegastack/scroll-area",
+        "@vegastack/use-mobile",
+        "@vegastack/use-drag-reorder"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/board.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "selected"
+      },
+      "previewModule": "board"
+    },
+    {
+      "name": "dropzone",
+      "registryType": "registry:ui",
+      "title": "Dropzone",
+      "summary": "File acquisition surface — drop, click-to-browse, and paste — as a thin shell over use-file-drop; the surface is the named focusable control over a hidden picker-bridge input; data-dragging/data-drag-invalid styling flags.",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/dropzone.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Dropzone",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/dropzone.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "DropzoneProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/dropzone.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "idle",
+            "dragging",
+            "drag-invalid",
+            "accepted",
+            "rejected",
+            "disabled"
+          ],
+          "evidence": "use-file-drop owns the behaviour; the shell reflects it as data flags and dims + inerts pointer interaction when disabled."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": [
+            "keyboard",
+            "labeled",
+            "status-announcement",
+            "semantic-html"
+          ],
+          "evidence": "The drop surface is the named focusable control (role=button, Enter/Space opens the picker); the real <input type=file> is a display:none sibling picker bridge, never a tab stop; batches announce politely WITH refusal reasons; drag validity is never colour alone (typed rejections + announcements)."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "dragging", "drag-invalid", "disabled"],
+          "evidence": "Primary border tint while a valid payload hovers, destructive tint when refused, opacity dim when disabled; the dashed idle look is composed Empty bordered."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "w-full min-w-0 surface; children own their layout."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/dropzone",
+      "registryDependencies": ["@vegastack/use-file-drop"],
+      "npmDependencies": [
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/dropzone.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "selected"
+      },
+      "previewModule": "dropzone"
     },
     {
       "name": "field-inline",
@@ -10616,7 +11917,7 @@
       "docsSlug": "/docs/components/notification-bell",
       "registryDependencies": ["@vegastack/badge", "@vegastack/icon-button"],
       "npmDependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -10733,7 +12034,7 @@
       "docsSlug": "/docs/components/onboarding-checklist",
       "registryDependencies": [],
       "npmDependencies": [
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -11042,7 +12343,7 @@
       "npmDependencies": [
         "sonner@^2.0.7",
         "next-themes@0.4.6",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -11446,7 +12747,7 @@
       "registryDependencies": ["@vegastack/dialog"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -11557,7 +12858,7 @@
         "@vegastack/truncated-text"
       ],
       "npmDependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -11997,7 +13298,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -12315,7 +13616,7 @@
         "@vegastack/input"
       ],
       "npmDependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -12431,7 +13732,7 @@
       "docsSlug": "/docs/components/auto-save-input",
       "registryDependencies": ["@vegastack/input", "@vegastack/spinner"],
       "npmDependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -12548,7 +13849,7 @@
       "registryDependencies": ["@vegastack/combobox", "@vegastack/button"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -12688,7 +13989,7 @@
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -12905,7 +14206,7 @@
       "registryDependencies": ["@vegastack/popover", "@vegastack/button"],
       "npmDependencies": [
         "react-day-picker@^10",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -13019,9 +14320,13 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/color-picker",
-      "registryDependencies": ["@vegastack/popover", "@vegastack/button"],
+      "registryDependencies": [
+        "@vegastack/popover",
+        "@vegastack/button",
+        "@vegastack/use-list-nav"
+      ],
       "npmDependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -13157,10 +14462,11 @@
       "registryDependencies": [
         "@vegastack/popover",
         "@vegastack/button",
-        "@vegastack/input"
+        "@vegastack/input",
+        "@vegastack/use-list-nav"
       ],
       "npmDependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -13192,6 +14498,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "No stable public ref target is forwarded by DataList in packages/ui/registry/ui/data-list.tsx; incidental internal nodes are not part of its API."
+          }
+        },
+        {
+          "name": "DataListCellContext",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -13311,7 +14626,7 @@
         "@vegastack/empty"
       ],
       "npmDependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -13326,6 +14641,173 @@
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
       "previewModule": "data-list"
+    },
+    {
+      "name": "data-grid",
+      "registryType": "registry:ui",
+      "title": "Data Grid",
+      "summary": "The full-parity grid \u2014 TanStack-sorted multi-key sort, column picker with responsive revelation, collapsible grouping, keyboard-continuous load-more, opt-in virtualization, and an APG grid keyboard layer with inline cell editing.",
+      "family": "data",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/data-grid.tsx"],
+      "publicSymbols": [
+        {
+          "name": "DataGrid",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Generic function component; no stable public ref target is forwarded \u2014 the grid's focus model is the roving-cell API, not a root ref."
+          }
+        },
+        {
+          "name": "DataGridCellContext",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataGridColumn",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataGridLoadMore",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataGridProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataGridSort",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; behaviour flags (selectable, virtualize, group columns) define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; density follows Table's fixed scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "idle",
+            "sorted",
+            "multi-sorted",
+            "selecting",
+            "grouped",
+            "group-collapsed",
+            "editing",
+            "committing",
+            "loading",
+            "loading-more",
+            "empty",
+            "virtualized"
+          ],
+          "evidence": "Controlled DataGridSort[] with shift-click additive keys and ordinals; header + per-row checkboxes; per-value collapsible tbody sections; EditableCell managed editing with async commit; skeleton loading, Empty state, loadMore paging, and useVirtualizer windowing."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["keyboard", "labeled", "status-announcement", "aria-grid"],
+          "evidence": "role=grid over a native table with aria-rowcount/colcount and per-cell indices; one roving tab stop with RTL-aware arrow navigation, Home/End and Ctrl+Home/End; Enter/F2 suspends grid nav into EditableCell and Escape restores the cell; aria-sort with visible sort ordinals; polite live region for edit-mode entry and load-more."
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "selected-row",
+            "sorted-header",
+            "editing-cell",
+            "loading",
+            "empty"
+          ],
+          "evidence": "data-selected rows tint with accent; sorted headers show direction glyphs plus multi-key ordinals; the active editor renders EditableCell's managed field; skeleton rows and the Empty composition cover the async states."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "text-truncation-and-flex-shrink",
+          "horizontal-scroll-containment"
+        ],
+        "rationale": "ResizeObserver-driven column revelation hides/merges below per-column minWidth budgets instead of overflowing; merge columns stack into the primary cell so narrow viewports never silently lose data; the container scrolls, never the page."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["css-state-transition"],
+        "reducedMotion": {
+          "status": "observed",
+          "rationale": "Skeleton shimmer is animate-pulse (the sanctioned loader exception), static under reduced motion; row/cell state changes are immediate colour swaps per doctrine."
+        }
+      },
+      "engines": [
+        {
+          "package": "@tanstack/react-table",
+          "role": "sorted row-model engine"
+        },
+        {
+          "package": "@tanstack/react-virtual",
+          "role": "row windowing/measurement engine"
+        }
+      ],
+      "docsSlug": "/docs/components/data-grid",
+      "registryDependencies": [
+        "@vegastack/auto-save-input",
+        "@vegastack/button",
+        "@vegastack/checkbox",
+        "@vegastack/dropdown-menu",
+        "@vegastack/editable-cell",
+        "@vegastack/empty",
+        "@vegastack/skeleton",
+        "@vegastack/table"
+      ],
+      "npmDependencies": [
+        "@tanstack/react-table@^8.21.3",
+        "@tanstack/react-virtual@^3.14.8",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/data-grid.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected"
+      },
+      "previewModule": "data-grid"
     },
     {
       "name": "property-list",
@@ -14192,7 +15674,7 @@
         "@tiptap/react@^3",
         "@tiptap/starter-kit@^3",
         "@tiptap/pm@^3",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -14574,7 +16056,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -14857,7 +16339,7 @@
       "docsSlug": "/docs/components/announcement-banner",
       "registryDependencies": [],
       "npmDependencies": [
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -15082,7 +16564,7 @@
       "docsSlug": "/docs/components/pricing-section",
       "registryDependencies": ["@vegastack/badge"],
       "npmDependencies": [
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -15209,7 +16691,7 @@
       "docsSlug": "/docs/components/comparison-matrix",
       "registryDependencies": [],
       "npmDependencies": [
-        "lucide-react@^0.525.0",
+        "lucide-react@^1.24.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -18011,6 +19493,473 @@
       }
     },
     {
+      "name": "use-drag-reorder",
+      "registryType": "registry:hook",
+      "title": "useDragReorder",
+      "summary": "The system's one drag engine seam — Pragmatic drag-and-drop pointer/touch mechanics plus the house keyboard move mode, live-region vocabulary, and async pending/rejected drop contract. One API for single lists and cross-container boards.",
+      "family": "hook",
+      "wave": "Hooks",
+      "sourceFiles": ["packages/ui/registry/ui/use-drag-reorder.ts"],
+      "publicSymbols": [
+        {
+          "name": "DragReorderAnnouncements",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-drag-reorder.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DragReorderMove",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-drag-reorder.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DragReorderPosition",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-drag-reorder.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "useDragReorder",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-drag-reorder.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "UseDragReorderOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-drag-reorder.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseDragReorderReturn",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-drag-reorder.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "idle",
+            "dragging",
+            "move-mode",
+            "pending",
+            "rejected",
+            "disabled"
+          ],
+          "evidence": "Pointer drags via Pragmatic (activeId, closest-edge state); keyboard move mode commits one step per arrow; a promise-returning onReorder is pending until settle and announces + clears on rejection; disabled is static or per-item."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["keyboard", "status-announcement"],
+          "evidence": "Space/Enter toggles move mode, arrows commit steps, Escape/blur end it; sequence-keyed polite live region with overridable lifted/moved/ended/rejected builders; requestMove powers the mandatory menu equivalents."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render visual states — consumers style off data-dragging/data-drop-edge/data-drag-pending."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed; drag previews are native."
+        }
+      },
+      "engines": [
+        {
+          "package": "@atlaskit/pragmatic-drag-and-drop",
+          "role": "drag-and-drop engine"
+        }
+      ],
+      "docsSlug": "/docs/guides/components",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "@atlaskit/pragmatic-drag-and-drop@^2.0.1",
+        "@atlaskit/pragmatic-drag-and-drop-hitbox@^2.0.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/use-drag-reorder.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt",
+        "crossBrowserSmoke": "selected"
+      }
+    },
+    {
+      "name": "use-file-drop",
+      "registryType": "registry:hook",
+      "title": "useFileDrop",
+      "summary": "File acquisition (drop, browse, paste) over the sanctioned react-dropzone engine — typed rejection reasons aligned with AttachmentState, announcement payload, window-level missed-drop protection.",
+      "family": "hook",
+      "wave": "Hooks",
+      "sourceFiles": ["packages/ui/registry/ui/use-file-drop.ts"],
+      "publicSymbols": [
+        {
+          "name": "FileDropRejection",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-file-drop.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FileDropRejectionReason",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/use-file-drop.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "useFileDrop",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-file-drop.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "UseFileDropOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-file-drop.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseFileDropReturn",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-file-drop.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "idle",
+            "dragging",
+            "drag-invalid",
+            "accepted",
+            "rejected",
+            "disabled"
+          ],
+          "evidence": "react-dropzone owns drag lifecycle and accept matching; the hook adds the paste path, typed rejections, batch announcements, and the window missed-drop preventDefault."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["status-announcement"],
+          "evidence": "Sequence-keyed polite live region announcing added/refused batches; the accessible control itself is the consumer's hidden file input (inputProps)."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render visual states — consumers style off data-dragging/data-drag-invalid."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [
+        {
+          "package": "react-dropzone",
+          "role": "file drop/paste acquisition engine"
+        }
+      ],
+      "docsSlug": "/docs/guides/components",
+      "registryDependencies": [],
+      "npmDependencies": ["react-dropzone@^19.1.1"],
+      "testFiles": ["packages/ui/registry/ui/dropzone.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      }
+    },
+    {
+      "name": "use-list-nav",
+      "registryType": "registry:hook",
+      "title": "useListNav",
+      "summary": "Roving-tabindex keyboard navigation for a list or grid of focusable items — one Tab stop per collection, RTL-aware arrows, Home/End jumps scoped to the collection or the row.",
+      "family": "hook",
+      "wave": "Hooks",
+      "sourceFiles": ["packages/ui/registry/ui/use-list-nav.ts"],
+      "publicSymbols": [
+        {
+          "name": "useListNav",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-list-nav.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "UseListNavItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-list-nav.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseListNavOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-list-nav.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseListNavReturn",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-list-nav.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "disabled"],
+          "evidence": "Observed in hook implementation and inline contract: disabled and shouldHandle both suppress key handling; the active index re-clamps on collection shrink."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["roving-tabindex"],
+          "evidence": "The hook's entire purpose: one tabIndex=0 item per collection, arrow-key focus movement with preventDefault, RTL-aware horizontal arrows."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render visual states."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/guides/components",
+      "registryDependencies": [],
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/ui/use-list-nav.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      }
+    },
+    {
+      "name": "use-platform",
+      "registryType": "registry:hook",
+      "title": "usePlatform",
+      "summary": "SSR-safe platform detection — { os, isTouch } from navigator.userAgentData with a navigator.platform fallback, corrected after hydration with no mismatch warning.",
+      "family": "hook",
+      "wave": "Hooks",
+      "sourceFiles": ["packages/ui/registry/ui/use-platform.ts"],
+      "publicSymbols": [
+        {
+          "name": "detectPlatformOs",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/use-platform.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "PlatformInfo",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-platform.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PlatformOS",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/use-platform.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "usePlatform",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-platform.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "UsePlatformOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-platform.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["fallback", "detected"],
+          "evidence": "First render reports caller-supplied fallbacks (SSR agreement); the real platform lands in a client-only effect."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render an accessibility tree."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render visual states."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["SSR-hydration"],
+        "rationale": "Owns an SSR-safe initial value and a post-hydration correction; touch state read from the pointer media query."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/guides/components",
+      "registryDependencies": [],
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/ui/use-platform.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      }
+    },
+    {
       "name": "use-mobile",
       "registryType": "registry:hook",
       "title": "useIsMobile",
@@ -18328,7 +20277,7 @@
         "@vegastack/truncated-text"
       ],
       "npmDependencies": [
-        "lucide-react@^1.20.0",
+        "lucide-react@^1.24.0",
         "recharts@^3.8.0",
         "@vegastack/design@^0.2.0",
         "@vegastack/design-tokens@^0.2.0"

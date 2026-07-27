@@ -9,6 +9,75 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.4.0] — July 27, 2026
+
+### 🧩 New components
+
+- **ActionBar**, **ChipInput**, **EditableCell**, **FilterBuilder** (`filter-bar-managed`),
+  **NumberField**, **ShortcutOverlay**, **Stepper**, and **Timeline** — eight additions from the
+  CRM commission (plan 2026-07-26), each with complete docs, state coverage, accessibility tests,
+  and registry integrity metadata.
+  [components](https://design.vegastack.com/docs/components/action-bar)
+- **SortableList**, **Board**, **Dropzone**, and **DataGrid** — the four dependency-gated
+  commissions, unblocked by MK's 2026-07-27 sanction of four engines (Pragmatic drag and drop,
+  react-dropzone, TanStack Table, TanStack Virtual). Reorderable rows with a lossless keyboard
+  Move menu; a kanban board with cross-column card movement and per-move lock reasons; a
+  paste-capable file drop surface; and the full-parity grid — multi-key sort, column picker with
+  responsive revelation, collapsible grouping, keyboard-continuous load-more, opt-in
+  virtualization, and APG cell navigation with inline editing.
+  [components](https://design.vegastack.com/docs/components/data-grid)
+- **useListNav**, **usePlatform**, **useDragReorder**, and **useFileDrop** — four new registry
+  hooks: roving-tabindex keyboard navigation for lists and grids (RTL-aware arrows,
+  `homeEndScope`, overlay suppression); SSR-safe platform detection (`{ os, isTouch }`) for
+  `Kbd`'s modifier rewriting and touch gating; the reorder seam over Pragmatic drag and drop
+  (pointer drags, commit-per-step keyboard move mode, server-refusable moves); and the file-drop
+  seam over react-dropzone (drop + paste + browse, typed rejection reasons).
+  [guide](https://design.vegastack.com/docs/guides/components)
+
+### 🔧 Changed components
+
+- **Kbd** — mac modifier glyphs now pair the visual glyph with visually hidden spoken names
+  ("Command", "Option", …), so screen readers no longer hear "place of interest sign" or nothing.
+  [docs](https://design.vegastack.com/docs/components/kbd)
+- **Table** — new `containerClassName` / `containerProps` forwarded to the
+  `data-slot="table-container"` scroll wrapper, the attachment point for sticky headers,
+  fixed-height viewports, and virtualizers.
+  [docs](https://design.vegastack.com/docs/components/table)
+- **DataList** — `DataListProps` now extends `TableProps` (the spreadsheet voice and container
+  hooks type-check), columns gain a per-cell `cellClassName` hook, and `render` receives an
+  optional third `DataListCellContext` argument. All additive.
+  [docs](https://design.vegastack.com/docs/components/data-list)
+- **FieldInline** — additive controlled edit mode (`editing` / `onEditingChange`) and a `tabIndex`
+  override for the display element, so `EditableCell` and grid hosts compose it instead of forking
+  it. No behaviour change for existing consumers.
+  [docs](https://design.vegastack.com/docs/components/field-inline)
+- **ColorPicker** and **EmojiPicker** — internal refactor onto the shared `useListNav` hook; the
+  API and visuals are unchanged, with one behavioural correction riding along: EmojiPicker's
+  horizontal arrow keys become RTL-aware, matching ColorPicker. Safe to take or skip.
+  [docs](https://design.vegastack.com/docs/components/color-picker)
+- **Button** — the `active:translate-y-px` press nudge is removed from `buttonVariants`, so every
+  component composing Button (IconButton, SplitButton, toolbars, pickers) loses it in one place.
+  Pressed feedback is now colour-only via the existing `active:bg-*` states, and the motion
+  foundations doctrine records press-motion as a deliberate exclusion.
+  [docs](https://design.vegastack.com/docs/components/button)
+
+### 🛠 CLI & tooling
+
+- `verify-registry-deps` gains a fail-closed npm-range check: a registry item pin the installed
+  version cannot satisfy now fails `registry:build` instead of passing silently.
+
+### 📚 Docs
+
+- The npm dependency pins the installed versions could not satisfy are reconciled to
+  `packages/ui/package.json`: `lucide-react` was declared at both `^1.20.0` and `^0.525.0` across
+  a major boundary (41 items), and `@shadcn/react` at `^0.1.0` against an installed `^0.2.1`.
+- `table.mdx` no longer claims the Table parts add no props; `data-list.mdx` documents that a
+  column `render` is invoked as a plain function (hooks belong in a returned component element).
+- The docs homepage and 404 page now pass `nativeButton={false}` to every Button rendered as a
+  link, matching the Base UI contract for non-button `render` targets; `button.mdx` and the
+  bundled design-system skill document the pattern, and `motion.mdx` records the press-nudge
+  removal.
+
 ## [0.3.0] — July 24, 2026
 
 ### 🧩 New components

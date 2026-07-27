@@ -48,7 +48,9 @@ test("body scrolls horizontally with a scroll-fade edge affordance (clipped comm
 });
 
 test("the focusable command pane is a named group, labelled by the visible title", async () => {
-  const screen = await render(<Terminal title="Install" lines={["pnpm install"]} />);
+  const screen = await render(
+    <Terminal title="Install" lines={["pnpm install"]} />,
+  );
   // Queried BY ROLE AND NAME on purpose: that is the pair a screen reader announces, and it is what
   // a plain `<div tabindex="0">` cannot provide — it maps to `generic`, which prohibits naming, so
   // an `aria-label` there is not reliably exposed and the pane reads as an unnamed focus stop.

@@ -271,3 +271,39 @@ test("forwards ref to the display root (span)", async () => {
   expect(ref.current).toBeInstanceOf(HTMLSpanElement);
   expect(ref.current?.dataset.slot).toBe("field-inline");
 });
+
+test("a keyboard commit returns focus to the display element; a blur-commit does not steal it", async () => {
+  const { userEvent } = await import("vitest/browser");
+  const { vi: vitestVi } = await import("vitest");
+  void vitestVi;
+  const screen = await render(
+    <div>
+      <FieldInline value="Alpha" label="Name" onCommit={() => {}} />
+      <button type="button">Elsewhere</button>
+    </div>,
+  );
+  // Keyboard path: Enter to open, type, Enter to commit → display refocused.
+  const display = () =>
+    document.querySelector('[data-slot="field-inline"]') as HTMLElement;
+  display().focus();
+  await userEvent.keyboard("{Enter}");
+  await userEvent.keyboard("Beta{Enter}");
+  await expect
+    .poll(() => (document.activeElement as HTMLElement)?.dataset.slot)
+    .toBe("field-inline");
+  // Escape path refocuses too.
+  await userEvent.keyboard("{Enter}");
+  await userEvent.keyboard("{Escape}");
+  await expect
+    .poll(() => (document.activeElement as HTMLElement)?.dataset.slot)
+    .toBe("field-inline");
+  // Blur path: clicking elsewhere commits WITHOUT stealing focus back.
+  await userEvent.keyboard("{Enter}");
+  const elsewhere = screen
+    .getByRole("button", { name: "Elsewhere" })
+    .element() as HTMLElement;
+  elsewhere.focus();
+  await expect
+    .poll(() => (document.activeElement as HTMLElement)?.textContent)
+    .toBe("Elsewhere");
+});

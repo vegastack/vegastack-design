@@ -194,3 +194,77 @@ test("grid + headerTone=ink + density=compact flow to head and cells via group d
   expect(cell.className).toContain("group-data-[density=compact]/table:py-1");
   expect(cell.className).toContain("group-data-[grid]/table:border-e");
 });
+
+test("containerClassName and containerProps reach the scroll container", async () => {
+  const containerRef = React.createRef<HTMLDivElement>();
+  await render(
+    <Table
+      containerClassName="test-viewport-cap"
+      containerProps={{
+        ref: containerRef,
+        className: "overscroll-contain",
+        id: "table-viewport",
+      }}
+    >
+      <TableBody>
+        <TableRow>
+          <TableCell>Value</TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>,
+  );
+  const container = document.querySelector(
+    '[data-slot="table-container"]',
+  ) as HTMLElement;
+  expect(container).not.toBeNull();
+  // Base classes survive, both class channels merge, and the ref is the
+  // container itself — the attachment point for sticky headers/virtualizers.
+  expect(container.className).toContain("overflow-x-auto");
+  expect(container.className).toContain("test-viewport-cap");
+  expect(container.className).toContain("overscroll-contain");
+  expect(container.id).toBe("table-viewport");
+  expect(containerRef.current).toBe(container);
+});
+
+/* ---------------------------------------------------------------------------------------------
+ * Cells must never clip their overflow.
+ *
+ * `data-list.test.tsx` proves the sm checkbox keeps an effective >=24x24 hit area (WCAG 2.5.8)
+ * inside a real TableHead/TableCell. That fix depends on the checkbox's `before:-inset-1.5`
+ * pseudo-element being able to paint OUTSIDE the cell's border box — which holds only because
+ * these cells set no `overflow-hidden`.
+ *
+ * That dependency was documented in prose and completely unguarded: the style mirror over there
+ * sets no `overflow`, and its `elementFromPoint` probe samples inside the cell's own padding, so
+ * adding `overflow-hidden` here — the obvious move for truncating long CRM text — would silently
+ * break a WCAG fix with every existing test still green.
+ *
+ * This is the guard. Truncate with `min-w-0` on the cell and `truncate` on an inner span instead.
+ * ------------------------------------------------------------------------------------------- */
+test("head and body cells never clip overflow — the checkbox hit-area expansion depends on it", async () => {
+  const screen = await render(
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Name</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        <TableRow>
+          <TableCell>Ada</TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>,
+  );
+
+  for (const slot of ["table-head", "table-cell"]) {
+    const el = document.querySelector(`[data-slot="${slot}"]`) as HTMLElement;
+    expect(el).not.toBeNull();
+    // Class-level assertion: this harness compiles no Tailwind, so the utility name is the
+    // only honest signal. Catches `overflow-hidden`, `overflow-clip`, and the axis variants.
+    expect(el.className).not.toMatch(
+      /(^|\s)overflow-(hidden|clip|x-hidden|y-hidden)(\s|$)/,
+    );
+  }
+  expect(screen).toBeDefined();
+});

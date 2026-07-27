@@ -212,6 +212,7 @@ export default function HomePage() {
               <Button
                 size="lg"
                 className="w-full sm:w-auto"
+                nativeButton={false}
                 render={<Link href="/docs" />}
               >
                 Explore the system
@@ -221,6 +222,7 @@ export default function HomePage() {
                 variant="outline"
                 size="lg"
                 className="w-full sm:w-auto"
+                nativeButton={false}
                 render={<Link href="#system-trace" />}
               >
                 See how it works
@@ -341,6 +343,7 @@ export default function HomePage() {
               </p>
               <Button
                 variant="outline"
+                nativeButton={false}
                 render={<Link href="/docs/foundations/design-principles" />}
               >
                 Read the principles
@@ -516,13 +519,18 @@ export default function HomePage() {
           </div>
 
           <div className="flex flex-col items-stretch justify-center gap-3 sm:flex-row">
-            <Button size="lg" render={<Link href="/docs/guides/quickstart" />}>
+            <Button
+              size="lg"
+              nativeButton={false}
+              render={<Link href="/docs/guides/quickstart" />}
+            >
               Open the quickstart
               <Icon as={ArrowRight} size="sm" />
             </Button>
             <Button
               variant="outline"
               size="lg"
+              nativeButton={false}
               render={<Link href="/docs/guides/registry-auth" />}
             >
               Configure registry access
@@ -633,6 +641,7 @@ export default function HomePage() {
             <Button
               size="lg"
               className="w-full sm:w-auto"
+              nativeButton={false}
               render={<Link href="/docs/guides/quickstart" />}
             >
               Read the quickstart

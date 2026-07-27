@@ -653,19 +653,38 @@ export async function main(argv) {
     installed = installed.filter((c) => res.some((re) => re.test(c.name)));
   }
   if (installed.length === 0) {
+    // `--fail-on-update` is the CI drift gate. Exiting 0 here would make it FAIL OPEN: a project
+    // whose components live outside the default path (any monorepo, any package-based layout, or a
+    // wrong `--dir`) would get a permanently green gate that checked nothing at all. Zero components
+    // under an explicit gate is a misconfiguration, not a clean bill of health — say so and fail.
+    // Without the gate flag this stays informational and exits 0, since "no components yet" is a
+    // legitimate state for a project mid-setup.
+    const gateOnEmpty = opts.failOnUpdate === true;
     if (opts.json)
       console.log(
         JSON.stringify(
-          { registry: idxUrl, checked: 0, updates: 0, items: [] },
+          {
+            registry: idxUrl,
+            checked: 0,
+            updates: 0,
+            items: [],
+            ...(gateOnEmpty ? { error: "no-components-found" } : {}),
+          },
           null,
           2,
         ),
+      );
+    else if (gateOnEmpty)
+      console.error(
+        `✗ no VegaStack components found in ${terminalText(dir)}, but --fail-on-update was set.\n` +
+          `  A drift gate that scans nothing passes vacuously, so this is an error, not a pass.\n` +
+          `  Point it at the right directory (\`--dir <path>\`) or drop --fail-on-update.`,
       );
     else
       console.log(
         `No VegaStack components found in ${terminalText(dir)}. (Add some with \`shadcn add @vegastack/<name>\`.)`,
       );
-    return 0;
+    return gateOnEmpty ? 1 : 0;
   }
 
   const aliases = componentsJson?.aliases ?? {};

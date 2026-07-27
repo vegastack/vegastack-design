@@ -1,0 +1,129 @@
+---
+title: Filter Builder
+description: The stateful nested and/or filter builder — host-injected field grammar, per-type value editors, depth and condition caps, FilterChip summary.
+audience: public
+preview: filterBarManaged
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/filter-bar-managed
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import {
+  FilterBuilder,
+  type FilterField,
+  type FilterNode,
+} from "@/components/ui/filter-bar-managed";
+
+const VOCABULARY: FilterField<string>[] = [
+  {
+    key: "stage",
+    label: "Stage",
+    type: "text",
+    operators: [{ value: "is", label: "is" }],
+  },
+];
+
+const [tree, setTree] = useState<
+  Extract<FilterNode<string>, { type: "group" }>
+>({
+  type: "group",
+  op: "and",
+  children: [],
+});
+
+<FilterBuilder vocabulary={VOCABULARY} value={tree} onValueChange={setTree} />;
+```
+
+This is the stateful sibling [`FilterBar`](/docs/components/filter-bar)'s docs
+promised. **The grammar is host-injected**: the component owns the tree shape
+(`FilterNode` — nested and/or groups and condition rows) and its editing
+surface; your app supplies the `vocabulary` (which fields exist, which
+operators each accepts, which editor type renders the value) and the `editors`
+registry. The component never validates a field's semantics and never
+serialises — the moment it did either, it would have adopted one app's AST.
+
+## Scope
+
+| Behaviour                 | Where it lives                                                          |
+| ------------------------- | ----------------------------------------------------------------------- |
+| The field grammar         | Host, via `vocabulary` — never baked in                                 |
+| Value editors beyond text | Host, via `editors` (date pickers, actor pickers, …)                    |
+| Serialisation / URL state | Host — the tree is plain data                                           |
+| Running the filter        | Host — the output describes conditions; it never executes them          |
+| AI-suggested filters      | Host — app-coupled per the [G7 split](/docs/components/data-list#scope) |
+
+## Examples
+
+### Chip summary
+
+`readOnly` collapses the builder to a flat [`FilterChip`](/docs/components/filter-bar)
+row (the and/or grouping is not visualised in the summary — reopen the builder
+to see structure). Chips stay removable — removing one prunes that condition
+from the tree — unless the builder is also `disabled`, which makes the summary
+inert.
+
+<ComponentPreview
+  name="filterBarManagedSummary"
+  file="components/preview/filter-bar-managed.tsx"
+/>
+
+### Depth and condition caps
+
+<ComponentPreview
+  name="filterBarManagedCaps"
+  file="components/preview/filter-bar-managed.tsx"
+/>
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/filter-bar-managed.tsx"
+  name="FilterBuilderProps"
+/>
+
+### Field definition
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/filter-bar-managed.tsx"
+  name="FilterField"
+/>
+
+### Value editor contract
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/filter-bar-managed.tsx"
+  name="FilterValueEditorProps"
+/>
+
+## Accessibility
+
+- The tree is nested `<fieldset>`/`<legend>` structure — deliberately not
+  `role="tree"`, where editing controls inside tree items are a known
+  screen-reader trap. Every control stays an ordinary labelled form control.
+- Removing a condition moves focus to the next condition in the same group, or
+  to the group's add-condition button when it was the last — never back to the
+  top of the page.
+- A value-requiring condition without a value is flagged with visible text
+  ("Value required") and `data-invalid`, never colour alone.
+- At the depth or condition cap the add affordances disable and the reason
+  renders as visible text beside them.
+
+| Key                                 | Action                                        |
+| ----------------------------------- | --------------------------------------------- |
+| <kbd>Tab</kbd>                      | Move through field, operator, value, remove.  |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the focused picker or activate a button. |
+
+## Do / Don't
+
+<DoDont
+  do="Inject the grammar: keep field keys, operators, and value editors in your app and pass them as vocabulary."
+  dont="Ask the component to validate field semantics or serialise the tree — that adopts one app's AST into the design system."
+/>

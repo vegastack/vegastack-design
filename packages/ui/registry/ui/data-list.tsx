@@ -1,4 +1,4 @@
-// @vegastack data-list@0.3.0 sha256-DiapLGBrv/WLctX47ifoLeHhkp46cROdkGI70ojosFw=
+// @vegastack data-list@0.3.0 sha256-aFm0eSiFlpk1hwFRZG8/5mgvS9bTIohHyHUrUat7wko=
 
 "use client";
 
@@ -12,6 +12,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  type TableProps,
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -35,6 +36,19 @@ export interface SortState {
 }
 
 /**
+ * Per-cell context passed as the optional third argument to a column `render`.
+ * Existing two-argument render functions remain assignable unchanged.
+ */
+export interface DataListCellContext {
+  /** Stable row id, as produced by `getRowId`. */
+  rowId: string;
+  /** The `key` of the column this cell belongs to. */
+  columnKey: string;
+  /** Whether the cell's row is currently selected. */
+  selected: boolean;
+}
+
+/**
  * A single column definition for {@link DataList}. Generic over the row type `T`
  * so `render` receives a fully-typed row.
  */
@@ -46,9 +60,19 @@ export interface DataListColumn<T> {
   /**
    * Cell renderer. When omitted, the value at `row[key]` is rendered directly
    * (the column `key` is read as a property of the row). Provide `render` for
-   * formatted, composed, or computed cells.
+   * formatted, composed, or computed cells. Receives an optional third
+   * {@link DataListCellContext} argument (row id, column key, selection state).
+   *
+   * Invoked as a **plain function inside `DataList`'s own render**, not mounted
+   * as a component — hooks called directly in its body would become `DataList`'s
+   * hooks and corrupt hook order when the loading/empty branch flips. Return a
+   * component element (`<MyCell row={row} />`) when a cell needs hooks.
    */
-  render?: (row: T, index: number) => React.ReactNode;
+  render?: (
+    row: T,
+    index: number,
+    cell: DataListCellContext,
+  ) => React.ReactNode;
   /**
    * Allow the user to sort by this column by clicking its header. Sorting is
    * controlled — the parent receives the next {@link SortState} via
@@ -63,6 +87,13 @@ export interface DataListColumn<T> {
   align?: "start" | "center" | "end";
   /** Extra className applied to every body cell in this column. */
   className?: string;
+  /**
+   * Per-cell class hook, called for every body cell in this column and merged
+   * after `className`. Use for value-dependent cell styling (a negative-amount
+   * tint, a stale-row wash) without a custom `render`.
+   * @default undefined
+   */
+  cellClassName?: (row: T, index: number) => string | undefined;
   /** Extra className applied to the header cell. */
   headerClassName?: string;
   /**
@@ -77,11 +108,13 @@ export interface DataListColumn<T> {
   interactive?: boolean;
 }
 
-/** Props accepted by `DataList`. */
-export interface DataListProps<T> extends Omit<
-  React.ComponentPropsWithRef<"table">,
-  "children"
-> {
+/**
+ * Props accepted by `DataList`. Extends {@link TableProps} (minus `children`),
+ * so the Table spreadsheet voice — `grid`, `headerTone`, `density` — and the
+ * container hooks (`containerClassName`, `containerProps`) type-check here and
+ * flow straight through to the underlying `Table`.
+ */
+export interface DataListProps<T> extends Omit<TableProps, "children"> {
   /** Column definitions, left to right. */
   columns: DataListColumn<T>[];
   /** Row data, in display order. Sorting is the parent's responsibility (see `sort`). */
@@ -245,12 +278,12 @@ function nextSort(
  * data table: columns, render functions, row selection, sortable-header signalling,
  * skeleton loading, the empty state, activatable rows (`onRowClick`), and the
  * `toolbar`/`footer` composition slots. It deliberately does **not** own data-fetching
- * or app-coupled data-management behaviour. The platform's richer data surface —
- * search/filtering, pagination / page-size / load-more, drag-and-drop reordering,
- * board/Kanban layout, grouping & collapsible groups, view persistence, and
- * layout-switching — is **composed by the host app** around this primitive (it owns the
- * query, the URL/persisted view state, and the filtered/paged `data` it passes in), or
- * is tracked as future scope. Drop the host's own search/filter controls into `toolbar`
+ * or app-coupled data-management behaviour. The platform's richer data surface is
+ * either **composed by the host app** around this primitive (search/filtering,
+ * pagination, view persistence — it owns the query, the URL/persisted view state, and
+ * the filtered/paged `data` it passes in) or **shipped as sibling components**:
+ * `SortableList` (reordering), `Board` (Kanban), and `DataGrid` (grouping, inline
+ * editing, multi-key sort, virtualization). Drop the host's own search/filter controls into `toolbar`
  * and its pagination into `footer`; pass `DataList` the already-filtered, already-paged rows.
  *
  * @example
@@ -592,7 +625,11 @@ export function DataList<T>({
                   )}
                   {columns.map((col, colIdx) => {
                     const content = col.render
-                      ? col.render(row, index)
+                      ? col.render(row, index, {
+                          rowId: id,
+                          columnKey: col.key,
+                          selected: isSelected,
+                        })
                       : ((row as Record<string, React.ReactNode>)[col.key] ??
                         null);
                     // First cell + activatable + not an interactive column → wrap
@@ -606,7 +643,11 @@ export function DataList<T>({
                     return (
                       <TableCell
                         key={col.key}
-                        className={cn(alignClass(col.align), col.className)}
+                        className={cn(
+                          alignClass(col.align),
+                          col.className,
+                          col.cellClassName?.(row, index),
+                        )}
                       >
                         {isActionCell ? (
                           <button

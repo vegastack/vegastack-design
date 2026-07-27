@@ -204,3 +204,31 @@ test("forwards ref to the trigger button", async () => {
   await render(<EmojiPicker ref={ref} onValueChange={() => {}} />);
   expect(ref.current).toBeInstanceOf(HTMLButtonElement);
 });
+
+test("RTL flips the horizontal arrow keys across the emoji grid (useListNav correction)", async () => {
+  const { userEvent } = await import("vitest/browser");
+  document.documentElement.dir = "rtl";
+  try {
+    const screen = await render(<EmojiPicker onValueChange={() => {}} open />);
+    await expect
+      .poll(
+        () =>
+          document.querySelectorAll('[data-slot="emoji-picker-item"]').length,
+      )
+      .toBeGreaterThan(1);
+    const first = document.querySelector(
+      '[data-slot="emoji-picker-item"]',
+    ) as HTMLElement;
+    first.focus();
+    await userEvent.keyboard("{ArrowLeft}");
+    const items = Array.from(
+      document.querySelectorAll('[data-slot="emoji-picker-item"]'),
+    );
+    // In RTL, ArrowLeft advances (visual leftwards = logical next).
+    expect(document.activeElement).toBe(items[1]);
+    await userEvent.keyboard("{ArrowRight}");
+    expect(document.activeElement).toBe(items[0]);
+  } finally {
+    document.documentElement.dir = "ltr";
+  }
+});

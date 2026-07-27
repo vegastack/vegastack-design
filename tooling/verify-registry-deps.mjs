@@ -15,6 +15,54 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const registry = JSON.parse(
   readFileSync(join(root, "packages/ui/registry.json"), "utf8"),
 );
+const uiPkg = JSON.parse(
+  readFileSync(join(root, "packages/ui/package.json"), "utf8"),
+);
+// The version actually installed and tested wins: an item's declared npm range
+// must be satisfiable by packages/ui/package.json's own range for the same
+// package. Catches the ^0.525.0-vs-^1.24.0 class of drift (a copied pin from a
+// neighbouring item, across a major boundary) that the dep-name check cannot.
+const installedRanges = {
+  ...uiPkg.peerDependencies,
+  ...uiPkg.devDependencies,
+  ...uiPkg.dependencies,
+};
+
+function parseVersion(v) {
+  const m = /^(\d+)(?:\.(\d+))?(?:\.(\d+))?/.exec(v);
+  if (!m) return null;
+  return [Number(m[1]), Number(m[2] ?? 0), Number(m[3] ?? 0)];
+}
+
+function compareVersions(a, b) {
+  for (let i = 0; i < 3; i++) if (a[i] !== b[i]) return a[i] - b[i];
+  return 0;
+}
+
+// Minimal semver-satisfies for the range shapes registry items actually use:
+// exact `x.y.z`, caret `^x[.y[.z]]`, tilde `~x.y[.z]`. Anything else (ranges,
+// tags, workspace protocols) returns null — "cannot judge", not a failure.
+function rangeSatisfies(version, range) {
+  const v = parseVersion(version);
+  if (!v) return null;
+  const m = /^([\^~]?)(\d+(?:\.\d+){0,2})$/.exec(range.trim());
+  if (!m) return null;
+  const base = parseVersion(m[2]);
+  if (compareVersions(v, base) < 0) return false;
+  if (m[1] === "^") {
+    if (base[0] > 0) return v[0] === base[0];
+    return v[0] === 0 && v[1] === base[1];
+  }
+  if (m[1] === "~") return v[0] === base[0] && v[1] === base[1];
+  return compareVersions(v, base) === 0;
+}
+
+// The minimum version an installed range admits — what `pnpm install` is at
+// least running. `^1.24.0` → `1.24.0`; `workspace:*` and friends → null.
+function minimumOfRange(range) {
+  const m = /^[\^~]?(\d+(?:\.\d+){0,2})/.exec(String(range).trim());
+  return m ? m[1] : null;
+}
 
 function registrySpecifier(specifier) {
   return /^@\/components\/ui\/([a-z0-9-]+)(?:\/|$)/.exec(specifier)?.[1];
@@ -96,6 +144,26 @@ for (const item of registry.items) {
     if (!declared.has(dep)) {
       console.log(
         `${item.name}: missing registryDependency "@vegastack/${dep}" — imported via @/components/ui/${dep} but not declared`,
+      );
+      violations++;
+    }
+  }
+
+  // npm dependency ranges: the declared pin must admit the version this
+  // workspace actually installs. @vegastack/* are workspace packages whose
+  // published ranges legitimately differ from `workspace:*` — skip them.
+  for (const spec of item.dependencies ?? []) {
+    const m = /^(@?[^@]+(?:\/[^@]+)?)@(.+)$/.exec(spec);
+    if (!m) continue;
+    const [, name, declaredRange] = m;
+    if (name.startsWith("@vegastack/")) continue;
+    const installed = installedRanges[name];
+    if (!installed) continue;
+    const min = minimumOfRange(installed);
+    if (!min) continue;
+    if (rangeSatisfies(min, declaredRange) === false) {
+      console.log(
+        `${item.name}: npm dependency pin "${spec}" is not satisfied by the installed "${name}@${installed}" (packages/ui/package.json) — take the pin from package.json, never from a neighbouring item`,
       );
       violations++;
     }

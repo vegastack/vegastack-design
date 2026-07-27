@@ -1,0 +1,137 @@
+---
+title: Editable Cell
+description: Inline-editable value with an async commit lifecycle — optimistic display, saving/saved/error status, and revert on a rejected write.
+audience: public
+preview: editableCell
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/editable-cell
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { EditableCell } from "@/components/ui/editable-cell";
+
+<EditableCell
+  value={deal.name}
+  label="Deal name"
+  onCommit={(name) => api.updateDeal({ name })}
+/>;
+```
+
+`EditableCell` composes [`FieldInline`](/docs/components/field-inline) as its
+text leaf and layers on what every optimistic inline edit needs beyond the edit
+interaction itself: an `idle → saving → saved | error` status indicator (the
+same `AutoSaveStatus` vocabulary [`AutoSaveInput`](/docs/components/auto-save-input)
+uses), conflict revert, and a typed per-type editor.
+
+When `onCommit` returns a promise, the cell shows the committed value
+optimistically with a saving indicator. On resolve it flips to saved; on reject
+it **reverts the display to `value`** and politely announces the revert — the
+`version_conflict` path every optimistic CRM edit needs.
+
+## Scope
+
+What this component deliberately does not own, in the style of
+[`DataList`](/docs/components/data-list)'s scope table:
+
+| Behaviour                            | Where it lives                                                       |
+| ------------------------------------ | -------------------------------------------------------------------- |
+| Persistence, retries, conflict check | Host — `onCommit` fires once per commit; a rejected promise = revert |
+| Debounced auto-save while typing     | [`AutoSaveInput`](/docs/components/auto-save-input)                  |
+| The grid's roving focus model        | The grid host — `focusMode="managed"` only removes this tab stop     |
+| Date / actor / currency editors      | Apps, via the open `custom` editor contract                          |
+
+## Examples
+
+### Conflict revert
+
+<ComponentPreview
+  name="editableCellConflict"
+  file="components/preview/editable-cell.tsx"
+/>
+
+### Select editor
+
+Real inline editors are per-type: a stage field edits with a popover list, not
+a text box. The `select` editor renders a [`Select`](/docs/components/select)
+whose popover is the editor; commit fires on selection.
+
+<ComponentPreview
+  name="editableCellSelect"
+  file="components/preview/editable-cell.tsx"
+/>
+
+### States
+
+<ComponentPreview
+  name="editableCellStates"
+  file="components/preview/editable-cell.tsx"
+/>
+
+### Managed focus (grid hosts)
+
+Inside a grid, one tab stop per editable cell per row is an ergonomics
+regression — the grid's roving focus model owns reachability. `focusMode="managed"`
+removes the cell's own tab stop, and the host opens the editor from its keyboard
+model through the controlled `editing` / `onEditingChange` pair:
+
+```tsx
+<EditableCell
+  value={cell.value}
+  label={column.header}
+  focusMode="managed"
+  editing={isEditingThisCell}
+  onEditingChange={(editing) => grid.setEditingCell(editing ? cellId : null)}
+  status={grid.cellStatus(rowId, column.key)}
+  onCommit={(next) => grid.commitCell(rowId, column.key, next)}
+/>
+```
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/editable-cell.tsx"
+  name="EditableCellProps"
+/>
+
+### Editor contract
+
+The `custom` editor receives `EditableCellEditorProps`:
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/editable-cell.tsx"
+  name="EditableCellEditorProps"
+/>
+
+## Accessibility
+
+- The display element is a `role="button"` (via `FieldInline`) — <kbd>Enter</kbd>
+  or <kbd>Space</kbd> opens the editor, mirroring a mouse click; the editor is
+  never unnamed (`label` → `placeholder` → generic fallback).
+- Status changes are announced through a visually hidden polite live region —
+  "Saving…", "Saved", "Save failed — value reverted". The indicator icons differ
+  by shape, never by colour alone.
+- <kbd>Escape</kbd> cancels, restores the prior value, and returns to the
+  display element; a rejected commit reverts the value _and_ announces it.
+- In `focusMode="managed"` the cell has no tab stop of its own — the host grid
+  must own reachability and open the editor from its keyboard model.
+
+| Key                                 | Action                                            |
+| ----------------------------------- | ------------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the editor from the focused display element. |
+| <kbd>Enter</kbd>                    | Commit the draft (text editor).                   |
+| <kbd>Escape</kbd>                   | Cancel and restore the prior value.               |
+
+## Do / Don't
+
+<DoDont
+  do="Return a promise from onCommit so the cell can run the saving/saved/error lifecycle and revert on rejection."
+  dont="Toast the failure and leave the stale optimistic value on screen — the inline status and the revert are the feedback."
+/>

@@ -223,3 +223,91 @@ Pinned-Linux VRT closeout and adversarial verification of the release blocker:
 
 - **[HIGH] VRT completeness verification silently omitted every fixed route — FIXED at the authority boundary.** The verifier scraped `components.spec.ts` with a single-quote-only regular expression while the spec used double-quoted paths. It therefore treated all 17 fixed showcase routes × four projects as 68 orphans and understated the contract as 808 images. Capture and verification now import one typed `VRT_PAGE_ROUTES` authority, eliminating source-text parsing and making route drift structural rather than lexical.
 - **[HIGH] Linux VRT baseline inventory — RESOLVED.** The pinned Playwright workflow successfully captured and uploaded the complete artifact. The corrected verifier proves 114 full pages + 96 isolated component fixtures across four projects + 36 animated-icon chunks = 876 exact Linux PNGs, with no missing, orphaned, non-Linux, corrupt, or wrong-width images. The artifact tree byte-matches the committed copy; representative desktop/mobile, light/dark, full-page, component-state, chart, AppShell, control, and icon-chunk captures were visually reviewed.
+
+## Round 19 — 2026-07-27 — verdict: needs-attention → resolved same round (2 critical-class · 4 high · ~20 medium)
+
+Scope: the full `feat/crm-commissioned-components` branch (CRM commission plan, unblocked set: 8 new
+components · 2 new hooks · Table/DataList/FieldInline improvements · pin reconciliation · the
+pickers' use-list-nav adoption). Three independent opus reviewers (sources, docs/metadata,
+plan-compliance/tests); every finding verified against source before acceptance. Full findings +
+per-finding resolutions: `docs/audits/2026-07-27-crm-commission-adversarial-review.md`.
+
+- **[CRITICAL] The documented Timeline composition failed axe `aria-required-parent`** — `Item`'s
+  default `role="listitem"` inside `TimelineItem`'s `<li>`. FIXED at every surface (`role="none"`
+  prescribed and applied), plus a real-composition axe test that fails without it.
+- **[HIGH] number-field's stepper buttons had no focus indicator** (`outline-none` defeating the
+  centralized `:focus-visible` — bug class P0-02, in the one place the per-component focus tests
+  didn't look). FIXED; every new component suite gained a focus sweep that catches exactly this.
+- **[HIGH] A hidden or pending ActionBar kept focusable, activatable controls** (an invisible
+  Archive button in the tab order; a "pending inerts" test that asserted no such thing). FIXED with
+  real `inert`; role corrected `toolbar`→`group` (no APG promise the bar doesn't keep).
+- **[HIGH] Stepper's blocked-reason live region mounted with its content** (idle→blocked announced
+  nothing). FIXED — always-mounted region; transition-tested.
+- **[HIGH] EditableCell could wedge on a stale spinner** when the user committed back to the
+  persisted value during a slow save. FIXED — commits compare against the displayed optimistic
+  value; superseding commits invalidate stale promises; regression-tested with two racing saves.
+- ~20 medium/low findings (chip-input IME/paste/announcement/live-region splits, filter-builder
+  cap-reason reachability + editor aria wiring + focus-arm expiry, use-platform Android-on-Firefox
+  classification, Kbd mac glyphs gaining spoken names at the root, select-editor managed contract,
+  and a docs/metadata sweep) — all fixed or explicitly accepted with rationale in the audit file.
+- Prior-round findings re-checked: the round-16/17/18 fixes (registry integrity exact-sets,
+  check-updates body verification, workflow security allowlist, contract-route authority) remain in
+  place and untouched by this branch.
+
+Post-fix gates: design-lint clean · typecheck 7/7 · full browser unit suite green (1367→1389 tests
+after the regression additions) · contracts:all 832/832 over 104 routes · design:verify 18/18 ·
+`pnpm lint` clean · consume round-trip clean · smoke Firefox 312/312 (WebKit blocked by the
+documented 0a-note host gap — no Aqua session over SSH; ship requires a GUI-session run).
+
+## Round 20 — 2026-07-27 · phase-3 adversarial review (D1–D4 engines: drag, drop, grid)
+
+Scope: the dependency-gated wave — `use-drag-reorder`, `sortable-list`, `board`, `use-file-drop`,
+`dropzone`, `data-grid`, the D1–D4 sanction, and every consistency surface it touched. Four
+independent opus reviewers (drag stack · file drop · data-grid · cross-cutting); every finding
+verified by execution; every accepted finding fixed in-round. Full findings and resolutions:
+`docs/audits/2026-07-27-phase3-dnd-grid-adversarial-review.md`.
+
+- **[CRITICAL] Gap/self pointer drops appended the dragged row to the end of its list** (container
+  fallthrough). FIXED — same-container container-drops are a no-op; drag-tested for real (the test
+  helper now drives Pragmatic's actual gates: dragstart on the registered element at the handle's
+  coordinates).
+- **[CRITICAL] Cross-column keyboard moves stranded focus on `<body>` with move mode stuck on** —
+  the remount fires no blur. FIXED in the hook: session-scoped focus restoration to the moved
+  item's handle; pointer drags can never trigger it.
+- **[CRITICAL] Dropzone's `ref={ref}` clobbered the engine's root ref**, killing keyboard
+  activation and drag-depth counting; and the "hidden input is the accessible control" story was
+  false (engine: root tabIndex=0 role=presentation, input tabIndex=-1). FIXED — merged ref;
+  surface-as-`role="button"` model made honest across every claim surface; input is a
+  `display:none` sibling bridge (axe nested-interactive).
+- **[CRITICAL] Paste bypassed `accept`** — unvalidated type ingestion on the documented usage.
+  FIXED — paste enforces the same accept/size/count set as drop, surplus-only rejections.
+- **[CRITICAL] DataGrid's roving tab stop could vanish** (hide active column / shrink data) and
+  header Enter leaked into the cell editor layer. FIXED — clamped roving coordinate; keydown gated
+  to body gridcells; `advanceEdit` dead code and its false Tab-advance claims removed.
+- ~20 medium/low: preventWindowDrop no-op, disabled `open()` TypeError, reasonless refusal
+  announcements, swallowed superseded-move rejections, RTL move-mode arrows, locked-lane card
+  drops, board menu within-column ordering, `input: "menu"` vocabulary, grouped-grid aria
+  geometry, spacer-row virtualization with measurement, sorted-model memoization, revelation
+  holes, the Columns-menu focus-steal race, load-more refire, `onColumnOrderChange` stub removal,
+  three vacuous tests (IconButton data-slot clobber), stale "deferred" claims, AGENTS.md
+  864-checks numbers, the missing `@vegastack/design` changeset — all fixed; four judgment calls
+  explicitly accepted with rationale in the audit file.
+
+Post-fix gates: design-lint clean · `pnpm lint` 7/7 · typecheck clean · browser unit suite
+1464/1464 (+21 regression tests, including the six MK-requested targeted tests for the
+medium/low fixes) · contracts full sweep 864/864 pre-fix, touched routes 40/40 post-fix ·
+Firefox smoke 207/207 (+5 capability-skipped paste tests) · registry:build idempotent · derived
+surfaces current. WebKit smoke still requires MK's GUI session (0a-note) before `/ship`.
+
+### Round 20b — 2026-07-27 · the acceptances themselves re-attacked (MK-requested)
+
+Two fresh opus reviewers executed against the four "explicitly accepted" rationales. Three fell:
+the payload-blind document drop guard (also per-instance — one default Dropzone re-armed the
+page against another's opt-out) → replaced with a ref-counted, Files-scoped module guard; the
+board's append-then-refine flow was not keyboard-lossless cross-column (the menu-path twin of
+ship-blocker #2) → `requestMove` now arms a one-shot focus restore, and the per-card "Move card"
+triggers rove instead of stacking 2N tab stops; the `refCache` bounded-cache claim was half-false
+(handles/containers never pruned) → all three registries prune on detach. `columnOrder` proved
+behaviourally sound but untested → pinned by a regression test. Sound and kept: the Firefox paste
+capability-skip, the disabled-Dropzone model, Escape/menu/move-mode ordering. Suites after:
+board 15, data-grid 22, dropzone 20, hook 15, sortable-list 10 — all green.

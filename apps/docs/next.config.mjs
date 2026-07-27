@@ -10,7 +10,11 @@ const withStory = createNextStory();
 const config = {
   output: "export",
   reactStrictMode: true,
-  allowedDevOrigins: ["127.0.0.1"],
+  // Any *.vegastack.dev tunnel host may serve a dev preview (Cloudflare
+  // tunnel → the mini's dev server); without it Next dev blocks /_next/*
+  // cross-origin and nothing hydrates. Dev-only setting — ignored by
+  // production builds.
+  allowedDevOrigins: ["127.0.0.1", "*.vegastack.dev"],
   // Next 16.3 enables these for production builds by default. Both are already available in the
   // stable 16.2 line, so opt in now without taking the 16.3 prerelease onto the public site.
   enablePrerenderSourceMaps: true,
