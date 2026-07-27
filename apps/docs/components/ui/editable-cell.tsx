@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.3.0 sha256-LYJNST0maqJMRAmZiQ1hm5OooQmhoGF6sSJXVlT8Knw=
+// @vegastack editable-cell@0.3.0 sha256-XwjDMJlgA9SXVUisOHmpk95Q1z40mLpa9mpx/turwMo=
 
 "use client";
 
@@ -213,19 +213,51 @@ export function EditableCell({
   // resolve (the host has updated `value`) and on reject (the display snaps
   // back to `value` — the revert).
   const [pendingValue, setPendingValue] = React.useState<string | null>(null);
-  const [announcement, setAnnouncement] = React.useState("");
+  const [announcement, setAnnouncementState] = React.useState({
+    text: "",
+    seq: 0,
+  });
+  // Sequence-keyed so an IDENTICAL consecutive announcement still mutates the
+  // DOM (a same-string setState is a React bail-out and never re-announces).
+  const setAnnouncement = React.useCallback(
+    (text: string) =>
+      setAnnouncementState((prev) => ({ text, seq: prev.seq + 1 })),
+    [],
+  );
   // Guards a stale promise settling after a newer commit started.
   const commitSeq = React.useRef(0);
 
   const displayValue = pendingValue ?? value;
 
+  // A CONTROLLED status must announce like the internal machine does — the
+  // documented grid recipe drives `status` from the host, and the indicator
+  // must never change silently. Announces live transitions only, not mount.
+  const previousStatusProp = React.useRef(statusProp);
+  React.useEffect(() => {
+    if (statusProp !== undefined && previousStatusProp.current !== statusProp) {
+      if (statusProp === "saving") setAnnouncement("Saving…");
+      else if (statusProp === "saved") setAnnouncement("Saved");
+      else if (statusProp === "error") setAnnouncement("Save failed");
+    }
+    previousStatusProp.current = statusProp;
+  }, [statusProp, setAnnouncement]);
+
   const handleCommit = React.useCallback(
     (next: string) => {
       setEditingState(false);
-      if (next === value) return;
-      const result = onCommit(next);
-      if (result == null || typeof result.then !== "function") return;
+      // Compare against what the user SEES (the optimistic value while a
+      // commit is in flight), not the persisted prop — committing back to the
+      // persisted value during a slow save is a real edit that must supersede
+      // the in-flight one, or the cell wedges on a stale spinner. Confirming
+      // the visible value is a no-op that leaves any in-flight save alone.
+      if (next === displayValue) return;
       const seq = ++commitSeq.current;
+      const result = onCommit(next);
+      if (result == null || typeof result.then !== "function") {
+        setPendingValue(null);
+        setInternalStatus("idle");
+        return;
+      }
       setPendingValue(next);
       setInternalStatus("saving");
       setAnnouncement("Saving…");
@@ -244,7 +276,7 @@ export function EditableCell({
         },
       );
     },
-    [onCommit, value, setEditingState],
+    [onCommit, displayValue, setEditingState],
   );
 
   const cancelEdit = React.useCallback(
@@ -255,17 +287,21 @@ export function EditableCell({
   const managed = focusMode === "managed";
 
   let editorSurface: React.ReactNode;
-  if (editor.type === "select") {
+  if (editor.type === "select" && !readOnly) {
     // The Select popover IS the editor — matching how real inline cell editors
-    // are popover-based per type. Commit fires on selection.
+    // are popover-based per type. Commit fires on selection; the popover's
+    // open state reports through `onEditingChange`, and a controlled `editing`
+    // opens it — so managed grid hosts drive this editor exactly like `text`.
     editorSurface = (
       <Select
         items={editor.options}
         value={displayValue}
+        open={isEditingControlled ? isEditing : undefined}
+        onOpenChange={(nextOpen) => setEditingState(nextOpen)}
         onValueChange={(next) => {
           if (typeof next === "string") handleCommit(next);
         }}
-        disabled={disabled || readOnly}
+        disabled={disabled}
       >
         <SelectTrigger
           size="sm"
@@ -348,7 +384,9 @@ export function EditableCell({
             aria-hidden
           />
         ) : null}
-        <span className="sr-only">{announcement}</span>
+        <span key={announcement.seq} className="sr-only">
+          {announcement.text}
+        </span>
       </span>
     </span>
   );

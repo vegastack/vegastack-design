@@ -8,15 +8,15 @@ function bar(): HTMLElement {
   return document.querySelector('[data-slot="action-bar"]') as HTMLElement;
 }
 
-test("renders a labelled toolbar with status and actions", async () => {
+test("renders a labelled group with status and actions", async () => {
   const screen = await render(
     <ActionBar status="5 selected" aria-label="Bulk actions">
       <button type="button">Tag</button>
       <button type="button">Archive</button>
     </ActionBar>,
   );
-  const toolbar = screen.getByRole("toolbar", { name: "Bulk actions" });
-  await expect.element(toolbar).toBeInTheDocument();
+  const group = screen.getByRole("group", { name: "Bulk actions" });
+  await expect.element(group).toBeInTheDocument();
   // Visible status (the sr-only live region duplicates the text).
   expect(
     document.querySelector('[data-slot="action-bar-status"]')?.textContent,
@@ -33,6 +33,8 @@ test("open drives data-active; the bar stays mounted while hidden", async () => 
     </ActionBar>,
   );
   expect(bar().dataset.active).toBe("false");
+  // Hidden = inert: nothing invisible may stay focusable or activatable.
+  expect(bar().hasAttribute("inert")).toBe(true);
   expect(bar().className).toContain("data-[active=false]:pointer-events-none");
   await screen.rerender(
     <ActionBar open status="1 selected">
@@ -40,6 +42,7 @@ test("open drives data-active; the bar stays mounted while hidden", async () => 
     </ActionBar>,
   );
   expect(bar().dataset.active).toBe("true");
+  expect(bar().hasAttribute("inert")).toBe(false);
 });
 
 test("the enter/exit recipe carries paired duration + ease in the same literal (transition-pairing)", async () => {
@@ -91,7 +94,8 @@ test("pending inerts the actions but keeps the status readable", async () => {
     '[data-slot="action-bar-actions"]',
   ) as HTMLElement;
   expect(actions.getAttribute("aria-busy")).toBe("true");
-  expect(actions.className).toContain("pointer-events-none");
+  // Truly inert — a bulk operation in flight is not keyboard-retriggerable.
+  expect(actions.hasAttribute("inert")).toBe(true);
   expect(bar().hasAttribute("data-pending")).toBe(true);
 });
 

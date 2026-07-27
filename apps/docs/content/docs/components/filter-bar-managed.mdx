@@ -52,21 +52,23 @@ serialises — the moment it did either, it would have adopted one app's AST.
 
 ## Scope
 
-| Behaviour                 | Where it lives                                                 |
-| ------------------------- | -------------------------------------------------------------- |
-| The field grammar         | Host, via `vocabulary` — never baked in                        |
-| Value editors beyond text | Host, via `editors` (date pickers, actor pickers, …)           |
-| Serialisation / URL state | Host — the tree is plain data                                  |
-| Running the filter        | Host — the output describes conditions; it never executes them |
-| AI-suggested filters      | Host (G7), as the `filter-bar` page already records            |
+| Behaviour                 | Where it lives                                                          |
+| ------------------------- | ----------------------------------------------------------------------- |
+| The field grammar         | Host, via `vocabulary` — never baked in                                 |
+| Value editors beyond text | Host, via `editors` (date pickers, actor pickers, …)                    |
+| Serialisation / URL state | Host — the tree is plain data                                           |
+| Running the filter        | Host — the output describes conditions; it never executes them          |
+| AI-suggested filters      | Host — app-coupled per the [G7 split](/docs/components/data-list#scope) |
 
 ## Examples
 
 ### Chip summary
 
-`readOnly` collapses the builder to a [`FilterChip`](/docs/components/filter-bar)
-row. Chips stay removable — removing one prunes that condition from the tree —
-unless the builder is also `disabled`.
+`readOnly` collapses the builder to a flat [`FilterChip`](/docs/components/filter-bar)
+row (the and/or grouping is not visualised in the summary — reopen the builder
+to see structure). Chips stay removable — removing one prunes that condition
+from the tree — unless the builder is also `disabled`, which makes the summary
+inert.
 
 <ComponentPreview
   name="filterBarManagedSummary"
@@ -111,8 +113,8 @@ unless the builder is also `disabled`.
   top of the page.
 - A value-requiring condition without a value is flagged with visible text
   ("Value required") and `data-invalid`, never colour alone.
-- Disabled add affordances at the depth or condition cap carry the reason via
-  `aria-describedby`.
+- At the depth or condition cap the add affordances disable and the reason
+  renders as visible text beside them.
 
 | Key                                 | Action                                        |
 | ----------------------------------- | --------------------------------------------- |

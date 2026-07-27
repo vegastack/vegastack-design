@@ -6,8 +6,13 @@ import { expectNoA11yViolations } from "../../test/a11y";
 import { ChipInput } from "./chip-input";
 
 function chipTexts(): string[] {
-  return Array.from(document.querySelectorAll('[data-slot="tag"]')).map(
-    (el) => el.querySelector("span")?.textContent ?? "",
+  // Visible chip text only — invalid chips carry an sr-only ", invalid entry"
+  // suffix inside the label span.
+  return Array.from(document.querySelectorAll('[data-slot="tag"]')).map((el) =>
+    Array.from(el.querySelector("span")?.childNodes ?? [])
+      .filter((n) => n.nodeType === Node.TEXT_NODE)
+      .map((n) => n.textContent)
+      .join(""),
   );
 }
 
@@ -188,4 +193,36 @@ test("no a11y violations — empty, chips, invalid chip, disabled", async () => 
     </div>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+test("keyboard-only: removing a chip via its button returns focus to the field's input", async () => {
+  const screen = await render(
+    <ChipInput aria-label="Tags" defaultValue={["one", "two"]} />,
+  );
+  const remove = screen
+    .getByRole("button", { name: "Remove one" })
+    .element() as HTMLElement;
+  remove.focus();
+  await userEvent.keyboard("{Enter}");
+  expect(chipTexts()).toEqual(["two"]);
+  // Focus must not fall to <body> when the focused button unmounts.
+  await expect
+    .poll(() => (document.activeElement as HTMLElement)?.dataset.slot)
+    .toBe("input");
+});
+
+test("a second identical duplicate rejection still announces (sequence-keyed live region)", async () => {
+  const screen = await render(
+    <ChipInput aria-label="Tags" defaultValue={["alpha"]} />,
+  );
+  const input = screen.getByRole("textbox", { name: "Tags" });
+  await input.fill("alpha");
+  await userEvent.keyboard("{Enter}");
+  const region = document.querySelector('[role="status"]')!;
+  const first = region.querySelector("span");
+  await input.fill("alpha");
+  await userEvent.keyboard("{Enter}");
+  // The keyed span remounted — the DOM mutated, so AT re-announces.
+  await expect.poll(() => region.querySelector("span") !== first).toBe(true);
+  expect(region.textContent).toContain("duplicate");
 });

@@ -1,4 +1,4 @@
-// @vegastack field-inline@0.3.0 sha256-JorgPiGP/5hnIxtNtR5zpECT6S5lCisxIa0BA9LGPTk=
+// @vegastack field-inline@0.3.0 sha256-Uc1QFNm8qK2yqOmuZX56eO0I3pXt6FZ5+eTgyx4Tl/A=
 
 "use client";
 
@@ -187,6 +187,11 @@ export function FieldInline({
   // Guard against a double-commit: Enter sets isEditing=false → the input
   // unmounts → the browser fires blur → commit would run a second time.
   const committedRef = React.useRef(false);
+  // Set when the edit is closed by KEYBOARD (Enter/Escape): focus then returns
+  // to the display element. A blur-commit must NOT steal focus back — the user
+  // has already moved on.
+  const restoreFocusRef = React.useRef(false);
+  const displayRef = React.useRef<HTMLSpanElement | null>(null);
   // Associates the edit-mode input with the error text below it (see `error` prop doc).
   const errorId = React.useId();
 
@@ -243,11 +248,15 @@ export function FieldInline({
     if ((disabled || readOnly) && isEditing) cancel();
   }, [disabled, readOnly, isEditing, cancel]);
 
-  // Focus + select the whole value when entering edit mode.
+  // Focus + select the whole value when entering edit mode; return focus to
+  // the display element when a keyboard commit/cancel closed the edit.
   React.useEffect(() => {
     if (isEditing && inputRef.current) {
       inputRef.current.focus();
       inputRef.current.select();
+    } else if (!isEditing && restoreFocusRef.current) {
+      restoreFocusRef.current = false;
+      displayRef.current?.focus();
     }
   }, [isEditing]);
 
@@ -298,9 +307,11 @@ export function FieldInline({
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
+              restoreFocusRef.current = true;
               commit();
             } else if (e.key === "Escape") {
               e.preventDefault();
+              restoreFocusRef.current = true;
               cancel();
             }
           }}
@@ -318,7 +329,12 @@ export function FieldInline({
   return (
     <>
       <span
-        ref={ref as React.Ref<HTMLSpanElement>}
+        ref={(node: HTMLSpanElement | null) => {
+          displayRef.current = node;
+          if (typeof ref === "function") ref(node);
+          else if (ref)
+            (ref as React.RefObject<HTMLElement | null>).current = node;
+        }}
         data-slot="field-inline"
         role={isButton ? "button" : undefined}
         tabIndex={readOnly ? undefined : disabled ? -1 : tabIndex}

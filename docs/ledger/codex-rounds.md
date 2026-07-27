@@ -223,3 +223,38 @@ Pinned-Linux VRT closeout and adversarial verification of the release blocker:
 
 - **[HIGH] VRT completeness verification silently omitted every fixed route — FIXED at the authority boundary.** The verifier scraped `components.spec.ts` with a single-quote-only regular expression while the spec used double-quoted paths. It therefore treated all 17 fixed showcase routes × four projects as 68 orphans and understated the contract as 808 images. Capture and verification now import one typed `VRT_PAGE_ROUTES` authority, eliminating source-text parsing and making route drift structural rather than lexical.
 - **[HIGH] Linux VRT baseline inventory — RESOLVED.** The pinned Playwright workflow successfully captured and uploaded the complete artifact. The corrected verifier proves 114 full pages + 96 isolated component fixtures across four projects + 36 animated-icon chunks = 876 exact Linux PNGs, with no missing, orphaned, non-Linux, corrupt, or wrong-width images. The artifact tree byte-matches the committed copy; representative desktop/mobile, light/dark, full-page, component-state, chart, AppShell, control, and icon-chunk captures were visually reviewed.
+
+## Round 19 — 2026-07-27 — verdict: needs-attention → resolved same round (2 critical-class · 4 high · ~20 medium)
+
+Scope: the full `feat/crm-commissioned-components` branch (CRM commission plan, unblocked set: 8 new
+components · 2 new hooks · Table/DataList/FieldInline improvements · pin reconciliation · the
+pickers' use-list-nav adoption). Three independent opus reviewers (sources, docs/metadata,
+plan-compliance/tests); every finding verified against source before acceptance. Full findings +
+per-finding resolutions: `docs/audits/2026-07-27-crm-commission-adversarial-review.md`.
+
+- **[CRITICAL] The documented Timeline composition failed axe `aria-required-parent`** — `Item`'s
+  default `role="listitem"` inside `TimelineItem`'s `<li>`. FIXED at every surface (`role="none"`
+  prescribed and applied), plus a real-composition axe test that fails without it.
+- **[HIGH] number-field's stepper buttons had no focus indicator** (`outline-none` defeating the
+  centralized `:focus-visible` — bug class P0-02, in the one place the per-component focus tests
+  didn't look). FIXED; every new component suite gained a focus sweep that catches exactly this.
+- **[HIGH] A hidden or pending ActionBar kept focusable, activatable controls** (an invisible
+  Archive button in the tab order; a "pending inerts" test that asserted no such thing). FIXED with
+  real `inert`; role corrected `toolbar`→`group` (no APG promise the bar doesn't keep).
+- **[HIGH] Stepper's blocked-reason live region mounted with its content** (idle→blocked announced
+  nothing). FIXED — always-mounted region; transition-tested.
+- **[HIGH] EditableCell could wedge on a stale spinner** when the user committed back to the
+  persisted value during a slow save. FIXED — commits compare against the displayed optimistic
+  value; superseding commits invalidate stale promises; regression-tested with two racing saves.
+- ~20 medium/low findings (chip-input IME/paste/announcement/live-region splits, filter-builder
+  cap-reason reachability + editor aria wiring + focus-arm expiry, use-platform Android-on-Firefox
+  classification, Kbd mac glyphs gaining spoken names at the root, select-editor managed contract,
+  and a docs/metadata sweep) — all fixed or explicitly accepted with rationale in the audit file.
+- Prior-round findings re-checked: the round-16/17/18 fixes (registry integrity exact-sets,
+  check-updates body verification, workflow security allowlist, contract-route authority) remain in
+  place and untouched by this branch.
+
+Post-fix gates: design-lint clean · typecheck 7/7 · full browser unit suite green (1367→1389 tests
+after the regression additions) · contracts:all 832/832 over 104 routes · design:verify 18/18 ·
+`pnpm lint` clean · consume round-trip clean · smoke Firefox 312/312 (WebKit blocked by the
+documented 0a-note host gap — no Aqua session over SSH; ship requires a GUI-session run).

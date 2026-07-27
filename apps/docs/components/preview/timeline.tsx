@@ -28,7 +28,7 @@ export function timeline(): ReactNode {
         <Timeline aria-label="Deal activity">
           <TimelineSeparator>Today</TimelineSeparator>
           <TimelineItem node={<StatusIcon status="done" size="sm" label="" />}>
-            <Item size="sm">
+            <Item size="sm" role="none">
               <ItemContent>
                 <ItemTitle>Deal moved to Won</ItemTitle>
                 <ItemDescription>Acme renewal · $12,400</ItemDescription>
@@ -43,7 +43,7 @@ export function timeline(): ReactNode {
             </Item>
           </TimelineItem>
           <TimelineItem node={<Avatar size="xs" fallback="PS" />}>
-            <Item size="sm">
+            <Item size="sm" role="none">
               <ItemContent>
                 <ItemTitle>Priya logged a call</ItemTitle>
                 <ItemDescription>
@@ -61,7 +61,7 @@ export function timeline(): ReactNode {
           </TimelineItem>
           <TimelineSeparator>Yesterday</TimelineSeparator>
           <TimelineItem>
-            <Item size="sm">
+            <Item size="sm" role="none">
               <ItemContent>
                 <ItemTitle>Proposal sent</ItemTitle>
               </ItemContent>
@@ -97,7 +97,7 @@ export function timelineLinked(): ReactNode {
           <TimelineItem
             node={<StatusIcon status="progress" size="sm" label="" />}
           >
-            <Item size="sm">
+            <Item size="sm" role="none">
               <ItemContent>
                 <ItemTitle>Sending…</ItemTitle>
               </ItemContent>
@@ -106,7 +106,7 @@ export function timelineLinked(): ReactNode {
           <TimelineItem
             node={<StatusIcon status="blocked" size="sm" label="" />}
           >
-            <Item size="sm">
+            <Item size="sm" role="none">
               <ItemContent>
                 <ItemTitle>4 bounced</ItemTitle>
                 <ItemDescription>Marked as failed, not hidden</ItemDescription>

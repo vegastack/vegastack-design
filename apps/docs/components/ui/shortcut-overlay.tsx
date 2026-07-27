@@ -1,4 +1,4 @@
-// @vegastack shortcut-overlay@0.3.0 sha256-d/85t8ve38BPCtvrUgOrbSYZquORFNViVBrmMkcWcNU=
+// @vegastack shortcut-overlay@0.3.0 sha256-MgpOlhhYZBA93PKyXtbEd6J/f3fC+tlEN8iXfueSHsI=
 
 "use client";
 
@@ -49,8 +49,8 @@ export interface ShortcutDefinition {
   /** Section the shortcut is grouped under ("Navigation", "Editing"). */
   category: string;
   /**
-   * Include this shortcut only when true — for bindings gated by permission or
-   * context. Evaluated at render.
+   * Exclude this shortcut when `false` — for bindings gated by permission or
+   * context. Omitted (`undefined`) includes it.
 
    * @default undefined
    */

@@ -614,7 +614,7 @@
         "whenToUse": "Display a keyboard shortcut or key in menus, tooltips, command palettes, help text.",
         "whenNotToUse": "As an interactive control or to capture keystrokes — Kbd is presentational only.",
         "version": "0.3.0",
-        "integrity": "sha256-hraRs2hRCmGG/EPGgse8zr6FqnRmWqJ8Dm2APOGN9jw="
+        "integrity": "sha256-cUvx9Au1EMeZOK7TmVbWH4Liz5vAzsSXqQot1UThBhg="
       }
     },
     {
@@ -1423,7 +1423,7 @@
         "whenToUse": "Display tabular data with header/body/footer rows — lists, comparisons, summaries.",
         "whenNotToUse": "Page layout or non-tabular content — use a grid/flex layout.",
         "version": "0.3.0",
-        "integrity": "sha256-SMp8tJtLwS02P0moTIxTS1AHSkFO8paJ4AVNbvFpkoI="
+        "integrity": "sha256-UuilYsX0j8tHEf35eDAjimcXdueeUjXnRlwbk8vRPaU="
       }
     },
     {
@@ -1691,7 +1691,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), whole forms (Field), or plain click-to-edit with a synchronous commit and no status (FieldInline alone).",
         "version": "0.1.0",
-        "integrity": "sha256-LYJNST0maqJMRAmZiQ1hm5OooQmhoGF6sSJXVlT8Knw="
+        "integrity": "sha256-XwjDMJlgA9SXVUisOHmpk95Q1z40mLpa9mpx/turwMo="
       }
     },
     {
@@ -1722,7 +1722,7 @@
         "whenToUse": "Any numeric value — quantities, limits, percentages, money (format={{ style: 'currency', currency }}) — where parsing, locale formatting, and stepping should be correct by construction.",
         "whenNotToUse": "Free-text that merely contains digits (phone numbers, postal codes, ids) — formatting/stepping semantics would fight the value; use Input.",
         "version": "0.1.0",
-        "integrity": "sha256-oUGxhitX91urymN7cGMPaOqBX1207/VYzNbSK/PFZ5Q="
+        "integrity": "sha256-VZwCxTYwzYxhQXPMi8z4NBCaDw0y+z7PDE3kw5jG9Ew="
       }
     },
     {
@@ -1754,7 +1754,7 @@
         "whenToUse": "Entering an open set of short tokens — tags, e-mail recipients, domains, webhook events — where values are typed or pasted, not picked from a finite list.",
         "whenNotToUse": "Selection from a known item set (Combobox multiple), or a read-only label list (TagGroup).",
         "version": "0.1.0",
-        "integrity": "sha256-cYxQ2VHOSoEUu4yWnEzJZCKDAA1MVuHF1Pq0WoceQ9I="
+        "integrity": "sha256-O2Dl2+ATI+IKTQIEtwgg4p8LjmtHNPTBybazlDvsegs="
       }
     },
     {
@@ -1781,7 +1781,7 @@
         "whenToUse": "A floating bar of contextual actions tied to transient state — N selected, unsaved changes, a batch operation in flight. The host owns the state; the bar shows status and actions.",
         "whenNotToUse": "Transient outcome notifications (toast), page-level primary actions (PageHeader), or owning selection — the host's list keeps selectedIds.",
         "version": "0.1.0",
-        "integrity": "sha256-73mOmxzFSYMGCCgJi/1nNuL24YWqp5GArY0qcctnkFU="
+        "integrity": "sha256-4ci2G2bDO9PNMyRsgFlLWaaallh9XqiZHLYVGTG0ibY="
       }
     },
     {
@@ -1811,7 +1811,7 @@
         "whenToUse": "Any bounded linear process — onboarding, wizards, checkout, import flows — where progress, a failed step, and the reason an advance is blocked must be communicated.",
         "whenNotToUse": "Free navigation between peer views (Tabs), compact progress where a step list is too heavy (ProgressIndicator segments), or unordered checklists (OnboardingChecklist).",
         "version": "0.1.0",
-        "integrity": "sha256-lBoQp9biuq1DcHLiji9CpEXYEOz0mFys6BNUzt4sQOw="
+        "integrity": "sha256-/c5cS+VudjpU0HsXzW/92yjgRz4hhxND3Ey0bXT/1Wc="
       }
     },
     {
@@ -1840,7 +1840,7 @@
         "whenToUse": "Chronological records — activity feeds, audit trails, delivery logs — where entries need a visible temporal thread (rail + node) and rows compose Item/RelativeTime/Avatar.",
         "whenNotToUse": "Live bottom-pinned conversation feeds (MessageScroller), bounded processes with gating (Stepper), or plain lists with no temporal thread (ItemGroup).",
         "version": "0.1.0",
-        "integrity": "sha256-zlCQiok5/Vcb/4KijD9oJdKIIDxE+jdTosnQ1TYyGKY="
+        "integrity": "sha256-ty/D2RG+lsKYAoAT5nTI3lXQvlMjmtenne+9oUz8NRA="
       }
     },
     {
@@ -1873,7 +1873,7 @@
         "whenToUse": "Any app with keyboard shortcuts — declare each binding once (keys, label, category) and get the ?-dialog for free; the same data can feed tooltips and Command rows.",
         "whenNotToUse": "Inline shortcut hints (TooltipKbd, CommandShortcut) or executing bindings — the app's key handler owns dispatch.",
         "version": "0.1.0",
-        "integrity": "sha256-d/85t8ve38BPCtvrUgOrbSYZquORFNViVBrmMkcWcNU="
+        "integrity": "sha256-MgpOlhhYZBA93PKyXtbEd6J/f3fC+tlEN8iXfueSHsI="
       }
     },
     {
@@ -1907,7 +1907,7 @@
         "whenToUse": "Structured, saveable filters with nesting — build an and/or tree over a host-supplied field grammar with per-type value editors and caps.",
         "whenNotToUse": "A presentational chip row over host-owned filter state (filter-bar), or free-text search (Input in a toolbar).",
         "version": "0.1.0",
-        "integrity": "sha256-1SH3DNLEnWjsN7prBrYR0L97x+21saUaGF8pN8syhyo="
+        "integrity": "sha256-dZIlqFuieSPWAvaOhGlUprV97GgAmn8AEmbvIuvfg1A="
       }
     },
     {
@@ -1936,7 +1936,7 @@
         "whenToUse": "Inline-edit a single text value in place — table cells, titles, detail rows.",
         "whenNotToUse": "Multi-line text, non-text inputs, or full forms with validation — use Field.",
         "version": "0.3.0",
-        "integrity": "sha256-JorgPiGP/5hnIxtNtR5zpECT6S5lCisxIa0BA9LGPTk="
+        "integrity": "sha256-Uc1QFNm8qK2yqOmuZX56eO0I3pXt6FZ5+eTgyx4Tl/A="
       }
     },
     {
@@ -2523,7 +2523,7 @@
         "whenToUse": "Pick a single color from a small curated set — labels, tags, calendar categories.",
         "whenNotToUse": "Full-spectrum hue/saturation/alpha selection.",
         "version": "0.3.0",
-        "integrity": "sha256-VbgOpY4murORZG4FtP/g4Yza157GhEDF1Zhr34MlsEg="
+        "integrity": "sha256-yvn/fYYDBErmmf3T3j1+O0z8ysYVIlLvX9/F7uMuqm4="
       }
     },
     {
@@ -2750,7 +2750,7 @@
         "whenToUse": "Any hand-rolled collection of focusable items that should read as ONE Tab stop with arrow-key movement — swatch grids, emoji grids, card lists, custom pickers.",
         "whenNotToUse": "Base UI-owned collections (Select, Combobox, Menu, Tabs) — their primitives already own roving focus; and single controls that need no internal navigation.",
         "version": "0.1.0",
-        "integrity": "sha256-eY3NW2t96PfM+1IVwbi+6C6n/Fl+Sqj+HY6nCI454MM="
+        "integrity": "sha256-CDlZqvgbwzEgH7l6tgXFCVl2HktWPrYBlbnk+KW7zVQ="
       }
     },
     {
@@ -2774,7 +2774,7 @@
         "whenToUse": "Any copy or control that branches on modifier-key conventions (Kbd's os prop, shortcut hints, Command footers) or on a coarse pointer.",
         "whenNotToUse": "Viewport-width layout switching — that is useIsMobile; and never wire it inside Kbd itself, which must stay server-safe.",
         "version": "0.1.0",
-        "integrity": "sha256-cviZa81U3/97VJwOtceEtmn8aCrqfaIrqtCACo9Aa+c="
+        "integrity": "sha256-3BDLnYCmJG4Ok5QbKbMlmbdJieE02ytZ1reuDTLLpDw="
       }
     },
     {

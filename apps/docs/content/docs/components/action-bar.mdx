@@ -69,15 +69,17 @@ readable — a bulk operation in flight should not be re-triggerable.
 
 ## Accessibility
 
-- The bar is a labelled `role="toolbar"`; pass a specific `aria-label`
+- The bar is a labelled `role="group"` (not `toolbar` — that role promises
+  arrow-key traversal); pass a specific `aria-label`
   ("Bulk actions", "Import progress") rather than the generic default.
 - Status changes are announced through a polite live region — a plain-string
   `status` announces itself; composite status markup needs an `announcement`.
 - Actions with visible text must not carry `aria-label` (WCAG 2.5.3) — the
   visible text is the name.
 - The bar sits in the `raised` band, so a dialog opened from one of its actions
-  correctly covers it. It stays mounted while hidden and is inert
-  (`pointer-events-none`) so nothing invisible is clickable.
+  correctly covers it. While hidden (and while `pending`, for the actions) the
+  subtree is `inert` — nothing invisible or in-flight stays focusable or
+  activatable.
 
 | Key                                 | Action                          |
 | ----------------------------------- | ------------------------------- |

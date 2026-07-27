@@ -1,4 +1,4 @@
-// @vegastack chip-input@0.3.0 sha256-cYxQ2VHOSoEUu4yWnEzJZCKDAA1MVuHF1Pq0WoceQ9I=
+// @vegastack chip-input@0.3.0 sha256-O2Dl2+ATI+IKTQIEtwgg4p8LjmtHNPTBybazlDvsegs=
 
 "use client";
 
@@ -192,7 +192,17 @@ export function ChipInput({
   const isControlled = controlledValue !== undefined;
   const chips = isControlled ? controlledValue : internalValue;
   const [draft, setDraft] = React.useState("");
-  const [announcement, setAnnouncement] = React.useState("");
+  const [announcement, setAnnouncementState] = React.useState({
+    text: "",
+    seq: 0,
+  });
+  // Sequence-keyed so an IDENTICAL consecutive announcement (a second rejected
+  // duplicate) still mutates the DOM and re-announces.
+  const setAnnouncement = React.useCallback(
+    (text: string) =>
+      setAnnouncementState((prev) => ({ text, seq: prev.seq + 1 })),
+    [],
+  );
   const describeId = React.useId();
 
   const commitValue = React.useCallback(
@@ -219,6 +229,13 @@ export function ChipInput({
   const rootRef = React.useMemo(
     () => mergeRefs(ref, shakeInvalidRef),
     [ref, shakeInvalidRef],
+  );
+  // Removing a chip via its own button unmounts the focused element — return
+  // focus to the field's input instead of letting it fall to <body>.
+  const internalInputRef = React.useRef<HTMLInputElement | null>(null);
+  const mergedInputRef = React.useMemo(
+    () => mergeRefs(inputRef, internalInputRef),
+    [inputRef],
   );
 
   /** Commit one or more raw entries (typed or pasted). */
@@ -263,7 +280,14 @@ export function ChipInput({
       if (parts.length > 0) setAnnouncement(parts.join(" · "));
       return added > 0 || duplicates > 0;
     },
-    [chips, normalize, allowDuplicates, isInvalidChip, commitValue],
+    [
+      chips,
+      normalize,
+      allowDuplicates,
+      isInvalidChip,
+      commitValue,
+      setAnnouncement,
+    ],
   );
 
   const removeChip = React.useCallback(
@@ -272,8 +296,9 @@ export function ChipInput({
       const next = chips.filter((_, i) => i !== index);
       commitValue(next);
       if (removed != null) setAnnouncement(`Removed ${removed}`);
+      internalInputRef.current?.focus();
     },
-    [chips, commitValue],
+    [chips, commitValue, setAnnouncement],
   );
 
   const commitDraft = React.useCallback(() => {
@@ -299,7 +324,6 @@ export function ChipInput({
             // position then, identity otherwise.
             key={allowDuplicates ? `${chip}-${index}` : chip}
             data-invalid={invalid ? "" : undefined}
-            aria-description={invalid ? "Invalid entry" : undefined}
             className={cn(
               invalid &&
                 "border-destructive/(--alpha-outline-border) text-destructive-text",
@@ -308,11 +332,16 @@ export function ChipInput({
             removeLabel={`Remove ${chip}`}
           >
             {chip}
+            {invalid ? (
+              // Real text in the accessible name — aria-description is an
+              // ARIA 1.3 draft with no shipped AT support.
+              <span className="sr-only">, invalid entry</span>
+            ) : null}
           </Tag>
         );
       })}
       <Input
-        ref={inputRef}
+        ref={mergedInputRef}
         aria-label={ariaLabel}
         aria-describedby={hasInvalidChip ? describeId : undefined}
         aria-invalid={hasInvalidChip || undefined}
@@ -321,6 +350,9 @@ export function ChipInput({
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
         onKeyDown={(event) => {
+          // Never commit mid-IME-composition — Enter there accepts the
+          // candidate, not the chip.
+          if (event.nativeEvent.isComposing) return;
           if (event.key === "Enter" || event.key === ",") {
             event.preventDefault();
             commitDraft();
@@ -336,20 +368,26 @@ export function ChipInput({
         onBlur={commitDraft}
         onPaste={(event) => {
           const text = event.clipboardData.getData("text");
-          if (!splitOn.test(text)) return;
+          // `split`, never `.test()` — a caller-supplied /g regex would make
+          // `test` stateful and silently drop alternate pastes.
+          const parts = text.split(splitOn);
+          if (parts.length < 2) return;
           event.preventDefault();
-          addEntries(text.split(splitOn));
+          addEntries(parts);
         }}
       />
+      {/* Static description target — separate from the live region so the
+          field's description never carries stale transient announcements. */}
+      <span id={describeId} className="sr-only">
+        Some entries are invalid
+      </span>
       <span
-        id={describeId}
         role="status"
         aria-live="polite"
         aria-atomic="true"
         className="sr-only"
       >
-        {hasInvalidChip ? "Some entries are invalid. " : ""}
-        {announcement}
+        <span key={announcement.seq}>{announcement.text}</span>
       </span>
     </div>
   );

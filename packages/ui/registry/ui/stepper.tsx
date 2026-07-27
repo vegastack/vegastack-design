@@ -1,4 +1,4 @@
-// @vegastack stepper@0.3.0 sha256-lBoQp9biuq1DcHLiji9CpEXYEOz0mFys6BNUzt4sQOw=
+// @vegastack stepper@0.3.0 sha256-/c5cS+VudjpU0HsXzW/92yjgRz4hhxND3Ey0bXT/1Wc=
 
 "use client";
 
@@ -197,8 +197,12 @@ export function Stepper({
       {steps.map((step, index) => {
         const isCurrent = step.state === "current";
         const isLast = index === steps.length - 1;
+        // Completed AND error steps are revisitable in navigable mode — a
+        // failed step is exactly the one the user needs to get back to.
         const selectable =
-          navigable && step.state === "complete" && !step.disabled;
+          navigable &&
+          (step.state === "complete" || step.state === "error") &&
+          !step.disabled;
 
         const labelContent = (
           <>
@@ -305,13 +309,19 @@ export function Stepper({
                   {step.description}
                 </span>
               ) : null}
-              {isCurrent && blockedReason ? (
+              {isCurrent ? (
+                // Always mounted while the step is current: a live region must
+                // exist in the a11y tree BEFORE its content changes, or the
+                // idle → blocked transition announces nothing.
                 <span
                   id={reasonId}
                   data-slot="stepper-blocked-reason"
                   role="status"
                   aria-live="polite"
-                  className="mt-0.5 text-sm text-warning-text"
+                  className={cn(
+                    "mt-0.5 text-sm text-warning-text",
+                    !blockedReason && "sr-only",
+                  )}
                 >
                   {blockedReason}
                 </span>

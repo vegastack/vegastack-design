@@ -1,4 +1,4 @@
-// @vegastack filter-bar-managed@0.3.0 sha256-1SH3DNLEnWjsN7prBrYR0L97x+21saUaGF8pN8syhyo=
+// @vegastack filter-bar-managed@0.3.0 sha256-dZIlqFuieSPWAvaOhGlUprV97GgAmn8AEmbvIuvfg1A=
 
 "use client";
 
@@ -110,6 +110,18 @@ export interface FilterValueEditorProps<V = unknown> {
    * @default false
    */
   disabled?: boolean;
+  /** Stable id for the editor control (used by the condition's error wiring).
+   * @default undefined
+   */
+  id?: string;
+  /** Set when the condition is missing a required value.
+   * @default undefined
+   */
+  "aria-invalid"?: boolean;
+  /** Points at the condition's "Value required" message when invalid.
+   * @default undefined
+   */
+  "aria-describedby"?: string;
 }
 
 /** Props accepted by `FilterBuilder`. */
@@ -118,8 +130,9 @@ export interface FilterBuilderProps<V = unknown> {
   vocabulary: readonly FilterField<V>[];
   /**
    * Per-type value editors, keyed by `FilterField.type`. Types without an
-   * entry fall back to a text `Input`. Editors are host code — a date field
-   * should render the host's date picker, not a text box.
+   * entry fall back to a STRING-VALUED text `Input` — when `V` is not
+   * `string`, every field type needs an entry here. Editors are host code — a
+   * date field should render the host's date picker, not a text box.
 
    * @default undefined
    */
@@ -130,7 +143,8 @@ export interface FilterBuilderProps<V = unknown> {
   onValueChange: (value: Extract<FilterNode<V>, { type: "group" }>) => void;
   /**
    * Maximum group nesting depth (the root group is depth 1). The add-group
-   * affordance disables at the cap, with the reason readable from the control.
+   * affordance disables at the cap and the reason renders as visible text
+   * beside it.
    * @default 3
    */
   maxDepth?: number;
@@ -204,19 +218,29 @@ function collectConditions<V>(
   );
 }
 
-/** The built-in fallback value editor: a text `Input`. */
+/**
+ * The built-in fallback value editor: a text `Input`. STRING-VALUED — when `V`
+ * is not `string`, register a typed editor for that field `type`; the fallback
+ * would otherwise write strings into the tree.
+ */
 function TextValueEditor<V>({
   field,
   value,
   onValueChange,
   "aria-label": ariaLabel,
   disabled,
+  id,
+  "aria-invalid": ariaInvalid,
+  "aria-describedby": ariaDescribedBy,
 }: FilterValueEditorProps<V>) {
   void field;
   return (
     <Input
       size="sm"
+      id={id}
       aria-label={ariaLabel}
+      aria-invalid={ariaInvalid || undefined}
+      aria-describedby={ariaDescribedBy}
       disabled={disabled}
       value={typeof value === "string" ? value : ""}
       onChange={(event) =>
@@ -268,11 +292,24 @@ export function FilterBuilder<V = unknown>({
 }: FilterBuilderProps<V>) {
   const idBase = React.useId();
   // After a removal, focus the element with this id once the tree re-renders.
+  // Armed for exactly one commit: if the controlled host rejects the change
+  // (no re-render follows), the id expires instead of yanking focus on some
+  // unrelated later render.
   const pendingFocusId = React.useRef<string | null>(null);
+  const armFocus = React.useCallback((id: string) => {
+    pendingFocusId.current = id;
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        pendingFocusId.current = null;
+      }),
+    );
+  }, []);
   React.useEffect(() => {
     if (pendingFocusId.current) {
-      document.getElementById(pendingFocusId.current)?.focus();
+      const target = document.getElementById(pendingFocusId.current);
       pendingFocusId.current = null;
+      // A disabled/absent target would silently drop focus to <body>.
+      if (target && !target.matches(":disabled")) target.focus();
     }
   });
 
@@ -296,9 +333,12 @@ export function FilterBuilder<V = unknown>({
         data-disabled={disabled ? "" : undefined}
         role="group"
         aria-label={ariaLabel}
+        // `inert` (not just pointer-events) — a frozen summary must not be
+        // keyboard-editable either.
+        inert={disabled || undefined}
         className={cn(
           "flex flex-wrap items-center gap-1.5",
-          disabled && "pointer-events-none opacity-(--opacity-dim)",
+          disabled && "opacity-(--opacity-dim)",
           className,
         )}
       >
@@ -359,11 +399,12 @@ export function FilterBuilder<V = unknown>({
       const next =
         siblings.find((i) => i > index) ??
         siblings.filter((i) => i < index).pop();
-      pendingFocusId.current =
+      armFocus(
         next !== undefined
           ? // Indexes shift down after removal for rows past the removed one.
             rowId([...path, next > index ? next - 1 : next])
-          : addId(path);
+          : addId(path),
+      );
       onValueChange(
         updateGroup(value, path, (g) => ({
           ...g,
@@ -416,7 +457,7 @@ export function FilterBuilder<V = unknown>({
               onClick={() => {
                 const parentPath = path.slice(0, -1);
                 const index = path[path.length - 1]!;
-                pendingFocusId.current = addId(parentPath);
+                armFocus(addId(parentPath));
                 onValueChange(
                   updateGroup(value, parentPath, (g) => ({
                     ...g,
@@ -444,6 +485,8 @@ export function FilterBuilder<V = unknown>({
             needsValue &&
             (child.value === undefined || child.value === ("" as unknown));
           const Editor = editors?.[field.type] ?? TextValueEditor<V>;
+          const editorId = `${rowId(childPath)}-value`;
+          const errorId = `${rowId(childPath)}-error`;
 
           const patchCondition = (
             patch: Partial<Extract<FilterNode<V>, { type: "condition" }>>,
@@ -503,9 +546,20 @@ export function FilterBuilder<V = unknown>({
                   field.operators.map((op) => [op.value, op.label]),
                 )}
                 value={child.operator}
-                onValueChange={(next) =>
-                  patchCondition({ operator: String(next) })
-                }
+                onValueChange={(next) => {
+                  const nextOperator = field.operators.find(
+                    (op) => op.value === String(next),
+                  );
+                  patchCondition({
+                    operator: String(next),
+                    // An operator that takes no value must not leave a stale
+                    // one in the tree for the host to serialise.
+                    value:
+                      nextOperator?.requiresValue === false
+                        ? undefined
+                        : child.value,
+                  });
+                }}
                 disabled={disabled}
               >
                 <SelectTrigger
@@ -532,11 +586,15 @@ export function FilterBuilder<V = unknown>({
                     onValueChange={(next) => patchCondition({ value: next })}
                     aria-label={`${field.label} value`}
                     disabled={disabled}
+                    id={editorId}
+                    aria-invalid={missingValue || undefined}
+                    aria-describedby={missingValue ? errorId : undefined}
                   />
                 </span>
               ) : null}
               {missingValue ? (
                 <span
+                  id={errorId}
                   data-slot="filter-builder-condition-error"
                   className="text-sm text-destructive-text"
                 >
@@ -556,15 +614,12 @@ export function FilterBuilder<V = unknown>({
           );
         })}
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             id={addId(path)}
             variant="ghost"
             size="sm"
             disabled={disabled || atConditionCap || vocabulary.length === 0}
-            aria-describedby={
-              atConditionCap ? `${idBase}-condition-cap` : undefined
-            }
             onClick={() => {
               const first = vocabulary[0]!;
               onValueChange(
@@ -587,8 +642,7 @@ export function FilterBuilder<V = unknown>({
           <Button
             variant="ghost"
             size="sm"
-            disabled={disabled || atDepthCap || atConditionCap}
-            aria-describedby={atDepthCap ? `${idBase}-depth-cap` : undefined}
+            disabled={disabled || atDepthCap}
             onClick={() =>
               onValueChange(
                 updateGroup(value, path, (g) => ({
@@ -603,6 +657,23 @@ export function FilterBuilder<V = unknown>({
           >
             <Plus /> Add group
           </Button>
+          {/* Cap reasons render as VISIBLE text — a natively-disabled button
+              leaves the tab order, so aria-describedby on it is unreachable. */}
+          {atConditionCap ? (
+            <span
+              data-slot="filter-builder-cap-reason"
+              className="text-sm text-muted-foreground"
+            >
+              A filter can hold {maxConditions} conditions at most
+            </span>
+          ) : atDepthCap && depth >= maxDepth ? (
+            <span
+              data-slot="filter-builder-cap-reason"
+              className="text-sm text-muted-foreground"
+            >
+              Groups can nest {maxDepth} levels deep at most
+            </span>
+          ) : null}
         </div>
       </fieldset>
     );
@@ -615,13 +686,6 @@ export function FilterBuilder<V = unknown>({
       className={cn("flex min-w-0 flex-col gap-2", className)}
     >
       {renderGroup(value, [])}
-      {/* Cap reasons — referenced by the disabled add buttons. */}
-      <span id={`${idBase}-depth-cap`} className="sr-only">
-        Groups can nest {maxDepth} levels deep at most
-      </span>
-      <span id={`${idBase}-condition-cap`} className="sr-only">
-        A filter can hold {maxConditions} conditions at most
-      </span>
     </div>
   );
 }

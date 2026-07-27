@@ -1,4 +1,4 @@
-// @vegastack use-list-nav@0.3.0 sha256-eY3NW2t96PfM+1IVwbi+6C6n/Fl+Sqj+HY6nCI454MM=
+// @vegastack use-list-nav@0.3.0 sha256-CDlZqvgbwzEgH7l6tgXFCVl2HktWPrYBlbnk+KW7zVQ=
 
 "use client";
 
@@ -129,6 +129,7 @@ export function useListNav({
 
   const focusIndex = React.useCallback(
     (index: number) => {
+      if (count === 0) return;
       const clamped = Math.max(0, Math.min(index, count - 1));
       setActiveIndex(clamped);
       itemRefs.current[clamped]?.focus();

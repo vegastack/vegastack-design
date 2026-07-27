@@ -153,3 +153,54 @@ test("no a11y violations — linear, navigable, blocked, vertical", async () => 
   );
   await expectNoA11yViolations(screen.container);
 });
+
+test("the blocked-reason live region exists BEFORE the reason arrives (idle → blocked announces)", async () => {
+  const screen = await render(
+    <Stepper aria-label="Import" steps={STEPS} blockedReasonId="gate" />,
+  );
+  // Mounted (and visually hidden) while idle — a live region created together
+  // with its content announces nothing.
+  const region = document.getElementById("gate")!;
+  expect(region.getAttribute("aria-live")).toBe("polite");
+  expect(region.textContent).toBe("");
+  await screen.rerender(
+    <Stepper
+      aria-label="Import"
+      steps={STEPS}
+      blockedReasonId="gate"
+      blockedReason="Map every required column to continue"
+    />,
+  );
+  expect(document.getElementById("gate")!.textContent).toBe(
+    "Map every required column to continue",
+  );
+});
+
+test("error steps are revisitable in navigable mode", async () => {
+  const onStepSelect = vi.fn();
+  const steps: StepperStep[] = [
+    { id: "a", label: "First", state: "complete" },
+    { id: "b", label: "Broken", state: "error" },
+    { id: "c", label: "Third", state: "current" },
+  ];
+  const screen = await render(
+    <Stepper
+      aria-label="Flow"
+      steps={steps}
+      navigable
+      onStepSelect={onStepSelect}
+    />,
+  );
+  await screen.getByRole("button", { name: /Broken/ }).click();
+  expect(onStepSelect).toHaveBeenCalledWith("b");
+});
+
+test("focus indicator: nothing in the stepper strips the outline", async () => {
+  await render(<Stepper aria-label="Import" steps={STEPS} navigable />);
+  const offenders = Array.from(document.querySelectorAll("*")).filter(
+    (el) =>
+      (el.getAttribute("class") ?? "").includes("outline-none") &&
+      !["INPUT", "TEXTAREA"].includes(el.tagName),
+  );
+  expect(offenders).toEqual([]);
+});

@@ -1,4 +1,4 @@
-// @vegastack table@0.3.0 sha256-SMp8tJtLwS02P0moTIxTS1AHSkFO8paJ4AVNbvFpkoI=
+// @vegastack table@0.3.0 sha256-UuilYsX0j8tHEf35eDAjimcXdueeUjXnRlwbk8vRPaU=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -80,8 +80,10 @@ function Table({
     containerProps ?? {};
   return (
     <div
-      data-slot="table-container"
       {...restContainerProps}
+      // Identity AFTER the spread — consumer containerProps must not be able
+      // to overwrite the slot every selector and generated surface keys on.
+      data-slot="table-container"
       className={cn(
         "relative w-full overflow-x-auto",
         containerClassName,

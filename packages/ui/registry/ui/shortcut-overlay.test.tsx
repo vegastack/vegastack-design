@@ -132,3 +132,23 @@ test("no a11y violations — open overlay with search", async () => {
   // The dialog portals to body.
   await expectNoA11yViolations(document.body);
 });
+
+test("focus indicator: nothing in the open overlay strips the outline (text entry excepted)", async () => {
+  const many: ShortcutDefinition[] = Array.from({ length: 12 }, (_, i) => ({
+    keys: [String(i)],
+    label: `Shortcut ${i}`,
+    category: "All",
+  }));
+  await render(<ShortcutOverlay shortcuts={many} open />);
+  const offenders = Array.from(document.body.querySelectorAll("*")).filter(
+    (el) =>
+      (el.getAttribute("class") ?? "").includes("outline-none") &&
+      !["INPUT", "TEXTAREA"].includes(el.tagName),
+  );
+  // Base UI's dialog positioner legitimately carries outline-none (it is not
+  // focusable); everything focusable must keep the centralized outline.
+  const focusableOffenders = offenders.filter((el) =>
+    el.matches("button, a, [tabindex]"),
+  );
+  expect(focusableOffenders).toEqual([]);
+});

@@ -22,7 +22,7 @@ export function actionBar(): ReactNode {
   };
   return (
     <Wrapper className="block">
-      <div className="mx-auto flex w-full max-w-sm flex-col gap-2 pb-16">
+      <div className="relative mx-auto flex w-full max-w-sm flex-col gap-2 pb-16">
         {ROWS.map((row) => (
           <label key={row} className="flex items-center gap-2 text-base">
             <Checkbox

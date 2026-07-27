@@ -196,3 +196,40 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
 - **Proved by controlled experiment, not inference:** firing the same toast and reading it after a deliberate 5s wait — without `duration: Infinity` the toast is _gone_; with it, `stillPresent: true, opacity: "1", removed: "false"`.
 - **Systemic fix:** the audited toasts are fired with `duration: Number.POSITIVE_INFINITY`, which makes Sonner skip the auto-dismiss timer outright (`sonner/dist/index.mjs`: `if (… toast.duration === Infinity …) return`). `auditToast` already dismissed explicitly, so the test now owns the whole lifetime instead of half of it. No assertion was weakened and no token changed.
 - **Why it surfaced only now:** `quality-gate` had never completed. It failed on an unrelated WebKit animated-icon test on 2026-07-24, and on the next run `vrt-gate` failed first so `quality-gate` was skipped entirely. Removing the screenshot gate finally let the release path run far enough to reach this.
+
+## 2026-07-27 — A live region created together with its content announces nothing
+
+- **Symptom:** Stepper's `blockedReason` rendered and carried `role="status" aria-live="polite"`,
+  yet the idle→blocked transition was silent on real AT.
+- **Root cause:** the span mounted conditionally (`{blockedReason ? <span aria-live…> : null}`) — a
+  live region must exist in the accessibility tree BEFORE its content changes; mounting region and
+  content together is a no-op announcement. The unit test rendered with the reason already set, so
+  it asserted attributes, not the transition.
+- **Systemic fix:** the region is always mounted (visually hidden when empty) and only its text
+  changes; the test now exercises idle→blocked. The CLASS to recognise: any conditional-render of
+  an `aria-live` node, and any test that renders a live region in its announced state. The sibling
+  class fixed the same day: an IDENTICAL consecutive announcement is a React same-state bail-out
+  and never re-announces — chip-input and editable-cell now sequence-key their announcement text.
+
+## 2026-07-27 — `outline-none` + `focus-visible:-outline-offset-2` is a silent focus-ring deletion
+
+- **Symptom:** number-field's stepper buttons had no focus indicator in any theme.
+- **Root cause:** `outline-none` (utilities layer) beats the centralized `:focus-visible` outline
+  (base layer); `focus-visible:-outline-offset-2` only sets the offset and never restores
+  `outline-style`, so it reads like a focus treatment while guaranteeing none. Bug class P0-02;
+  the house idiom (`terminal.tsx`) uses the negative offset WITHOUT `outline-none`.
+- **Systemic fix:** removed; every new component test suite now carries a sweep asserting nothing
+  outside text-entry controls (whose border-tint substitute is sanctioned) strips the outline —
+  the check that catches this class regardless of which component it recurs in.
+
+## 2026-07-27 — "Hidden" floating UI must be inert, not just invisible
+
+- **Symptom:** a closed ActionBar (translate + opacity 0 + pointer-events-none) kept its actions
+  in the Tab order — an invisible, activatable Archive button; `pending` likewise only dimmed.
+- **Root cause:** CSS-only hide recipes remove pointer interaction but not keyboard/AT reachability;
+  a test named "inerts the actions" asserted `aria-busy` and a class, not inertness — a false
+  coverage claim.
+- **Systemic fix:** React 19 `inert` on the hidden bar and on the pending actions container;
+  tests assert the attribute. The class: any stay-mounted hide (the MessageScrollerButton recipe)
+  hosting interactive children needs `inert` — the scroll button itself is exempt only because its
+  single action is harmless and appears exactly when relevant.

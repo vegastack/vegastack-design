@@ -1,4 +1,4 @@
-// @vegastack timeline@0.3.0 sha256-zlCQiok5/Vcb/4KijD9oJdKIIDxE+jdTosnQ1TYyGKY=
+// @vegastack timeline@0.3.0 sha256-ty/D2RG+lsKYAoAT5nTI3lXQvlMjmtenne+9oUz8NRA=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -46,7 +46,7 @@ export interface TimelineProps extends React.ComponentPropsWithRef<"ol"> {
  * <Timeline aria-label="Activity">
  *   <TimelineSeparator>Today</TimelineSeparator>
  *   <TimelineItem node={<StatusIcon status="done" size="sm" label="" />}>
- *     <Item size="sm">
+ *     <Item size="sm" role="none">
  *       <ItemContent>
  *         <ItemTitle>Priya closed the deal</ItemTitle>
  *         <ItemDescription>Acme renewal · $12,400</ItemDescription>
@@ -83,14 +83,18 @@ export interface TimelineItemProps extends React.ComponentPropsWithRef<"li"> {
 
 /**
  * `TimelineItem` — one entry: the rail node + connector on the start side, the
- * row content (compose `Item` parts) beside it. The connector is drawn from
+ * row content (compose `Item` parts) beside it. **Pass `role="none"` to a
+ * non-interactive `Item` used as the row** — the `<li>` is already the list
+ * item, and `Item`'s default `role="listitem"` would nest listitem-in-listitem
+ * (an axe `aria-required-parent` critical). `Item render={<a/>}` needs nothing:
+ * `render` already drops the role. The connector is drawn from
  * this node down to the next entry and hidden on the last one, giving the
  * first/last half-rails for free. Long lists skip offscreen rendering via
  * `content-visibility` (the `MessageScrollerItem` recipe — no dependency).
  *
  * @example
  * <TimelineItem node={<Avatar size="xs" src={actor.avatar} alt="" />}>
- *   <Item size="sm">…</Item>
+ *   <Item size="sm" role="none">…</Item>
  * </TimelineItem>
  */
 export function TimelineItem({

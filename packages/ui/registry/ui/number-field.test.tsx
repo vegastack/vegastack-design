@@ -153,3 +153,18 @@ test("no a11y violations — default, addons, disabled", async () => {
   );
   await expectNoA11yViolations(screen.container);
 });
+
+test("focus indicator: only text-entry controls strip the outline (steppers keep :focus-visible)", async () => {
+  await render(<NumberField aria-label="Quantity" defaultValue={2} />);
+  const offenders = Array.from(document.querySelectorAll("*")).filter(
+    (el) =>
+      (el.getAttribute("class") ?? "").includes("outline-none") &&
+      !["INPUT", "TEXTAREA"].includes(el.tagName),
+  );
+  expect(offenders).toEqual([]);
+  const inc = document.querySelector(
+    '[data-slot="number-field-increment"]',
+  ) as HTMLButtonElement;
+  expect(inc.className).not.toContain("outline-none");
+  expect(inc.className).toContain("focus-visible:-outline-offset-2");
+});

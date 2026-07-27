@@ -1,4 +1,4 @@
-// @vegastack number-field@0.3.0 sha256-oUGxhitX91urymN7cGMPaOqBX1207/VYzNbSK/PFZ5Q=
+// @vegastack number-field@0.3.0 sha256-VZwCxTYwzYxhQXPMi8z4NBCaDw0y+z7PDE3kw5jG9Ew=
 
 "use client";
 
@@ -135,10 +135,12 @@ const addonClasses =
  * Full-height stepper buttons flanking the field ([−] input [+]): each is the
  * control's full height and ≥ 24px wide, so the pointer targets meet WCAG 2.5.8
  * without a hit-area expansion — unlike the traditional half-height stacked
- * spinners, which cannot.
+ * spinners, which cannot. They keep the centralized `:focus-visible` outline
+ * (never `outline-none` — P0-02) with the sanctioned negative offset so the
+ * root's `overflow-hidden` cannot clip it.
  */
 const stepperClasses =
-  "flex h-full w-(--size-sm) shrink-0 items-center justify-center text-muted-foreground outline-none " +
+  "flex h-full w-(--size-sm) shrink-0 items-center justify-center text-muted-foreground " +
   "hover:text-foreground hover:bg-muted " +
   "focus-visible:-outline-offset-2 " +
   "disabled:pointer-events-none disabled:opacity-(--opacity-dim) " +

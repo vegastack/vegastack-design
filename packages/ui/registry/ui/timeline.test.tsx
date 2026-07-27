@@ -130,3 +130,45 @@ test("no a11y violations — entries, separators, time elements", async () => {
   );
   await expectNoA11yViolations(screen.container);
 });
+
+test("no a11y violations — the DOCUMENTED composition (Item rows with role=none)", async () => {
+  // Item's default role="listitem" inside a <li> nests listitem-in-listitem
+  // (axe aria-required-parent, critical) — the docs prescribe role="none".
+  const { Item, ItemContent, ItemTitle } = await import("./item");
+  const screen = await render(
+    <Timeline aria-label="Activity">
+      <TimelineSeparator>Today</TimelineSeparator>
+      <TimelineItem>
+        <Item size="sm" role="none">
+          <ItemContent>
+            <ItemTitle>Deal moved to Won</ItemTitle>
+          </ItemContent>
+        </Item>
+      </TimelineItem>
+      <TimelineItem>
+        <Item size="sm" render={<a href="#x" />}>
+          <ItemContent>
+            <ItemTitle>Linked row</ItemTitle>
+          </ItemContent>
+        </Item>
+      </TimelineItem>
+    </Timeline>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("focus indicator: nothing in the timeline strips the outline", async () => {
+  await render(
+    <Timeline aria-label="Activity">
+      <TimelineItem>
+        <a href="#x">Row link</a>
+      </TimelineItem>
+    </Timeline>,
+  );
+  const offenders = Array.from(document.querySelectorAll("*")).filter(
+    (el) =>
+      (el.getAttribute("class") ?? "").includes("outline-none") &&
+      !["INPUT", "TEXTAREA"].includes(el.tagName),
+  );
+  expect(offenders).toEqual([]);
+});

@@ -1,4 +1,4 @@
-// @vegastack kbd@0.3.0 sha256-hraRs2hRCmGG/EPGgse8zr6FqnRmWqJ8Dm2APOGN9jw=
+// @vegastack kbd@0.3.0 sha256-cUvx9Au1EMeZOK7TmVbWH4Liz5vAzsSXqQot1UThBhg=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -40,10 +40,43 @@ const MODIFIER_MAP: Record<string, string> = {
   "⌫": "Bksp",
 };
 
+/**
+ * Spoken names for the mac glyphs. Screen readers announce `⌘` as "place of
+ * interest sign" (or skip it) — so on mac the glyph stays visual-only and this
+ * word joins the accessible name via sr-only text.
+ */
+const GLYPH_SPOKEN_NAME: Record<string, string> = {
+  "⌘": "Command",
+  "⇧": "Shift",
+  "⌥": "Option",
+  "⌃": "Control",
+  "⏎": "Return",
+  "↵": "Return",
+  "⌫": "Delete",
+};
+
 /** Map a single key token to its OS-appropriate label. */
 function resolveKey(key: string, isMac: boolean): string {
   if (isMac) return key;
   return MODIFIER_MAP[key] ?? key;
+}
+
+/**
+ * Render one key token: on mac, a modifier glyph is paired with sr-only spoken
+ * text (the glyph itself goes `aria-hidden`); on other platforms the resolved
+ * word is already readable text.
+ */
+function KeyContent({ token, isMac }: { token: string; isMac: boolean }) {
+  const spoken = GLYPH_SPOKEN_NAME[token];
+  if (isMac && spoken) {
+    return (
+      <>
+        <span aria-hidden>{token}</span>
+        <span className="sr-only">{spoken}</span>
+      </>
+    );
+  }
+  return <>{resolveKey(token, isMac)}</>;
 }
 
 /** Props accepted by `Kbd`. */
@@ -119,7 +152,7 @@ export function Kbd({
             data-size={size}
             className={cn(kbdVariants({ size }))}
           >
-            {resolveKey(key, isMac)}
+            <KeyContent token={key} isMac={isMac} />
           </kbd>
         ))}
       </KbdGroup>
@@ -127,9 +160,13 @@ export function Kbd({
   }
 
   // Single-key form. If the lone child is a known modifier glyph string, it is
-  // rewritten for the resolved OS too.
+  // rewritten for the resolved OS (and, on mac, paired with sr-only spoken text).
   const content =
-    typeof children === "string" ? resolveKey(children, isMac) : children;
+    typeof children === "string" ? (
+      <KeyContent token={children} isMac={isMac} />
+    ) : (
+      children
+    );
 
   return (
     <kbd

@@ -1,4 +1,4 @@
-// @vegastack action-bar@0.3.0 sha256-73mOmxzFSYMGCCgJi/1nNuL24YWqp5GArY0qcctnkFU=
+// @vegastack action-bar@0.3.0 sha256-4ci2G2bDO9PNMyRsgFlLWaaallh9XqiZHLYVGTG0ibY=
 
 "use client";
 
@@ -61,8 +61,10 @@ export interface ActionBarProps extends React.ComponentPropsWithRef<"div"> {
   pending?: boolean;
   /**
    * Centre the bar over this element instead of the viewport — measured via
-   * `getBoundingClientRect` + ResizeObserver, so a content area beside a
-   * sidebar gets a truly centred bar.
+   * `getBoundingClientRect`, kept live through ResizeObserver plus window
+   * resize/scroll, so a content area beside a sidebar gets a truly centred
+   * bar. (A container that moves without any resize or scroll event — a
+   * transition-driven layout shift — re-measures on the next of either.)
 
    * @default undefined
    */
@@ -107,26 +109,38 @@ export function ActionBar({
 }: ActionBarProps) {
   // Measured horizontal centre of the container (viewport px, unitless).
   const [centerX, setCenterX] = React.useState<number | null>(null);
+  // Refs are not reactive — resolve the current element on every render (a
+  // same-value setState is a no-op) so a container that mounts AFTER the bar
+  // still gets measured.
+  const [containerEl, setContainerEl] = React.useState<HTMLElement | null>(
+    null,
+  );
+  React.useEffect(() => {
+    setContainerEl(containerRef?.current ?? null);
+  });
 
   React.useEffect(() => {
-    const el = containerRef?.current;
-    if (!el) {
+    if (!containerEl) {
       setCenterX(null);
       return;
     }
     const update = () => {
-      const rect = el.getBoundingClientRect();
+      const rect = containerEl.getBoundingClientRect();
       setCenterX(rect.left + rect.width / 2);
     };
     update();
     const observer = new ResizeObserver(update);
-    observer.observe(el);
+    observer.observe(containerEl);
     window.addEventListener("resize", update);
+    // The rect is viewport-relative while the bar is fixed — horizontal page
+    // scroll shifts the container without a resize.
+    window.addEventListener("scroll", update, true);
     return () => {
       observer.disconnect();
       window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update, true);
     };
-  }, [containerRef]);
+  }, [containerEl]);
 
   const measured = centerX != null;
   const resolvedAnnouncement =
@@ -138,7 +152,13 @@ export function ActionBar({
       data-slot="action-bar"
       data-active={open ? "true" : "false"}
       data-pending={pending ? "" : undefined}
-      role="toolbar"
+      // A hidden bar must not keep focusable, activatable controls — `inert`
+      // removes the subtree from the tab order and the a11y tree while the
+      // element stays mounted for the CSS exit transition.
+      inert={!open || undefined}
+      // `group`, not `toolbar`: toolbar promises APG arrow-key traversal this
+      // bar does not implement — actions are ordinary Tab stops.
+      role="group"
       aria-label={ariaLabel}
       // Unitless measured centre; the class consumes it as calc(var(--action-bar-x) * 1px).
       style={
@@ -174,9 +194,12 @@ export function ActionBar({
       <div
         data-slot="action-bar-actions"
         aria-busy={pending || undefined}
+        // `inert`, not just pointer-events: a bulk operation in flight must not
+        // be re-triggerable from the keyboard either.
+        inert={pending || undefined}
         className={cn(
           "flex items-center gap-1",
-          pending && "pointer-events-none opacity-(--opacity-dim) select-none",
+          pending && "opacity-(--opacity-dim) select-none",
         )}
       >
         {children}

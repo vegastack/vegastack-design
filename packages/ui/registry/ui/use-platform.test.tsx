@@ -66,3 +66,9 @@ test("defaults are os:other, isTouch:false before correction", async () => {
   await render(<Harness onRender={(i) => seen.push(i)} />);
   expect(seen[0]).toEqual({ os: "other", isTouch: false });
 });
+
+test("no a11y violations — hook harness", async () => {
+  const { expectNoA11yViolations } = await import("../../test/a11y");
+  const screen = await render(<Harness onRender={() => {}} />);
+  await expectNoA11yViolations(screen.container);
+});

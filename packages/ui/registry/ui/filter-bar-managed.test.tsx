@@ -210,14 +210,15 @@ test("the depth cap disables add-group with a readable reason", async () => {
   const root = addGroupButtons.nth(1).element() as HTMLButtonElement;
   expect(root.disabled).toBe(false);
   expect(nested.disabled).toBe(true);
-  const describedBy = nested.getAttribute("aria-describedby");
-  expect(describedBy).toBeTruthy();
-  expect(document.getElementById(describedBy!)?.textContent).toContain(
-    "levels deep",
+  // The reason is VISIBLE text beside the affordance — a natively-disabled
+  // button leaves the tab order, so aria-describedby on it is unreachable.
+  const reason = document.querySelector(
+    '[data-slot="filter-builder-cap-reason"]',
   );
+  expect(reason?.textContent).toContain("levels deep");
 });
 
-test("the condition cap disables both add affordances", async () => {
+test("the condition cap disables add-condition but never add-group (restructuring stays possible)", async () => {
   const screen = await render(
     <Controlled
       initial={{
@@ -238,7 +239,9 @@ test("the condition cap disables both add affordances", async () => {
   const addGroup = screen
     .getByRole("button", { name: "Add group" })
     .element() as HTMLButtonElement;
-  expect(addGroup.disabled).toBe(true);
+  // An empty group adds zero conditions — at the cap the user may still
+  // restructure the filter.
+  expect(addGroup.disabled).toBe(false);
 });
 
 test("removing a condition moves focus to the NEXT sibling; removing the last focuses add-condition", async () => {
@@ -371,4 +374,143 @@ test("no a11y violations — builder with nesting, invalid row, and summary", as
     </div>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+test("keyboard-only: build and remove a nested condition without a pointer", async () => {
+  const { userEvent } = await import("vitest/browser");
+  const screen = await render(<Controlled initial={EMPTY} />);
+  // Add a group by keyboard.
+  (
+    screen.getByRole("button", { name: "Add group" }).element() as HTMLElement
+  ).focus();
+  await userEvent.keyboard("{Enter}");
+  expect(
+    document.querySelectorAll('[data-slot="filter-builder-group"]'),
+  ).toHaveLength(2);
+  // Add a condition INSIDE the nested group by keyboard (its add button
+  // renders before the root's).
+  (
+    screen
+      .getByRole("button", { name: "Add condition" })
+      .nth(0)
+      .element() as HTMLElement
+  ).focus();
+  await userEvent.keyboard("{Enter}");
+  expect(conditionRows()).toHaveLength(1);
+  // Remove it by keyboard; focus policy lands on the group's add button.
+  (
+    screen
+      .getByRole("button", { name: "Remove Stage condition" })
+      .element() as HTMLElement
+  ).focus();
+  await userEvent.keyboard("{Enter}");
+  expect(conditionRows()).toHaveLength(0);
+  await expect
+    .poll(() => (document.activeElement as HTMLElement)?.textContent)
+    .toContain("Add condition");
+});
+
+test("switching to a no-value operator clears the stale value from the tree", async () => {
+  const onChange = vi.fn();
+  const screen = await render(
+    <Controlled
+      initial={{
+        type: "group",
+        op: "and",
+        children: [
+          { type: "condition", field: "owner", operator: "is", value: "priya" },
+        ],
+      }}
+      onChange={onChange}
+    />,
+  );
+  await screen.getByRole("combobox", { name: "Operator" }).click();
+  await screen.getByRole("option", { name: "is empty" }).click();
+  const next = onChange.mock.calls.at(-1)![0] as Group;
+  expect(next.children[0]).toEqual({
+    type: "condition",
+    field: "owner",
+    operator: "is-empty",
+    value: undefined,
+  });
+});
+
+test("cap reasons render as VISIBLE text (a disabled button leaves the tab order)", async () => {
+  await render(
+    <Controlled
+      initial={{
+        type: "group",
+        op: "and",
+        children: [
+          { type: "condition", field: "stage", operator: "is", value: "a" },
+        ],
+      }}
+      maxConditions={1}
+    />,
+  );
+  const reason = document.querySelector(
+    '[data-slot="filter-builder-cap-reason"]',
+  );
+  expect(reason?.textContent).toContain("1 conditions at most");
+});
+
+test("the missing-value error is wired to the editor via aria", async () => {
+  await render(
+    <Controlled
+      initial={{
+        type: "group",
+        op: "and",
+        children: [{ type: "condition", field: "stage", operator: "is" }],
+      }}
+    />,
+  );
+  const editor = document.querySelector(
+    '[aria-label="Stage value"]',
+  ) as HTMLElement;
+  expect(editor.getAttribute("aria-invalid")).toBe("true");
+  const describedBy = editor.getAttribute("aria-describedby")!;
+  expect(document.getElementById(describedBy)?.textContent).toBe(
+    "Value required",
+  );
+});
+
+test("readOnly + disabled makes the summary inert (not keyboard-removable)", async () => {
+  await render(
+    <Controlled
+      initial={{
+        type: "group",
+        op: "and",
+        children: [
+          { type: "condition", field: "stage", operator: "is", value: "won" },
+        ],
+      }}
+      readOnly
+      disabled
+    />,
+  );
+  const root = document.querySelector('[data-slot="filter-builder"]')!;
+  expect(root.hasAttribute("inert")).toBe(true);
+});
+
+test("focus indicator: nothing in the builder strips the outline (text entry excepted)", async () => {
+  await render(
+    <Controlled
+      initial={{
+        type: "group",
+        op: "and",
+        children: [
+          { type: "condition", field: "stage", operator: "is", value: "won" },
+        ],
+      }}
+    />,
+  );
+  const offenders = Array.from(document.querySelectorAll("*")).filter(
+    (el) =>
+      (el.getAttribute("class") ?? "").includes("outline-none") &&
+      !["INPUT", "TEXTAREA"].includes(el.tagName),
+  );
+  const focusableOffenders = offenders.filter((el) =>
+    el.matches("button, a, [tabindex]"),
+  );
+  expect(focusableOffenders).toEqual([]);
 });

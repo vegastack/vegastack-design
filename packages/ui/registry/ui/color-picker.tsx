@@ -1,4 +1,4 @@
-// @vegastack color-picker@0.3.0 sha256-VbgOpY4murORZG4FtP/g4Yza157GhEDF1Zhr34MlsEg=
+// @vegastack color-picker@0.3.0 sha256-yvn/fYYDBErmmf3T3j1+O0z8ysYVIlLvX9/F7uMuqm4=
 
 "use client";
 
@@ -167,9 +167,9 @@ export function ColorPicker({
   // Roving tabindex via the shared `useListNav` hook: exactly one swatch is in the tab order
   // (`tabIndex 0`) at a time — the rest are `-1` — so Tab only stops once on the swatch group.
   // Arrow keys move the "active" index (and DOM focus) around the grid, RTL-aware; click
-  // selection is unchanged. The active index starts on the palette's currently-selected color
-  // when present (so re-opening the popover lands keyboard focus on the current value), falling
-  // back to the first swatch otherwise. Home/End keep the shipped whole-grid jump — the hook's
+  // selection is unchanged. The active index STARTS on the color selected at mount (falling back
+  // to the first swatch); it does not re-track later `value` changes — focusing a swatch or
+  // arrowing moves it from there. Home/End keep the shipped whole-grid jump — the hook's
   // `homeEndScope` default — with only ~13 single-row-wrapped swatches by default; pass
   // `homeEndScope: "row"` instead if a future palette renders many rows.
   const selectedIndex = Math.max(

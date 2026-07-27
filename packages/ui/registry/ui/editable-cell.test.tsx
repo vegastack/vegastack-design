@@ -310,3 +310,79 @@ test("no a11y violations — display, edit, saving, error states", async () => {
   );
   await expectNoA11yViolations(screen.container);
 });
+
+test("a CONTROLLED status change announces through the live region (the grid recipe)", async () => {
+  const screen = await render(
+    <EditableCell value="Acme" label="Account name" onCommit={() => {}} />,
+  );
+  const region = () =>
+    document.querySelector(
+      '[data-slot="editable-cell-status"] .sr-only',
+    ) as HTMLElement;
+  expect(region().textContent).toBe("");
+  await screen.rerender(
+    <EditableCell
+      value="Acme"
+      label="Account name"
+      status="saving"
+      onCommit={() => {}}
+    />,
+  );
+  expect(region().textContent).toBe("Saving…");
+  await screen.rerender(
+    <EditableCell
+      value="Acme"
+      label="Account name"
+      status="error"
+      onCommit={() => {}}
+    />,
+  );
+  expect(region().textContent).toBe("Save failed");
+});
+
+test("committing back to the persisted value DURING a slow save supersedes it (no wedge)", async () => {
+  const d1 = deferred();
+  const d2 = deferred();
+  const promises = [d1.promise, d2.promise];
+  let call = 0;
+  const screen = await render(
+    <EditableCell
+      value="Acme"
+      label="Account name"
+      onCommit={() => promises[call++]}
+    />,
+  );
+  const openAndType = async (text: string, selectionEnd: number) => {
+    await screen.getByRole("button", { name: "Account name" }).click();
+    await expect
+      .poll(
+        () =>
+          (
+            document.querySelector(
+              '[data-slot="editable-cell"] input',
+            ) as HTMLInputElement
+          )?.selectionEnd,
+      )
+      .toBe(selectionEnd);
+    await userEvent.keyboard(`${text}{Enter}`);
+  };
+  await openAndType("Globex", 4);
+  const root = document.querySelector('[data-slot="editable-cell"]')!;
+  expect(root.getAttribute("data-status")).toBe("saving");
+  // While saving, edit again and type the ORIGINAL persisted value back —
+  // a real edit (it differs from the optimistic display) that must supersede.
+  await openAndType("Acme", 6);
+  await expect
+    .element(screen.getByRole("button", { name: "Account name" }))
+    .toHaveTextContent("Acme");
+  // The FIRST promise settling is stale and must be ignored.
+  d1.resolve();
+  await new Promise((r) => setTimeout(r, 10));
+  expect(root.getAttribute("data-status")).toBe("saving");
+  await expect
+    .element(screen.getByRole("button", { name: "Account name" }))
+    .toHaveTextContent("Acme");
+  // The second (current) commit resolves → saved, showing the reverted value.
+  d2.resolve();
+  await expect.poll(() => root.getAttribute("data-status")).toBe("saved");
+});

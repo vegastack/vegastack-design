@@ -25,6 +25,9 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
 ### 🔧 Changed components
 
+- **Kbd** — mac modifier glyphs now pair the visual glyph with visually hidden spoken names
+  ("Command", "Option", …), so screen readers no longer hear "place of interest sign" or nothing.
+  [docs](https://design.vegastack.com/docs/components/kbd)
 - **Table** — new `containerClassName` / `containerProps` forwarded to the
   `data-slot="table-container"` scroll wrapper, the attachment point for sticky headers,
   fixed-height viewports, and virtualizers.
@@ -37,8 +40,9 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   override for the display element, so `EditableCell` and grid hosts compose it instead of forking
   it. No behaviour change for existing consumers.
   [docs](https://design.vegastack.com/docs/components/field-inline)
-- **ColorPicker** and **EmojiPicker** — internal refactor onto the shared `useListNav` hook; no
-  visual or API change. EmojiPicker's horizontal arrow keys become RTL-aware, matching ColorPicker.
+- **ColorPicker** and **EmojiPicker** — internal refactor onto the shared `useListNav` hook; the
+  API and visuals are unchanged, with one behavioural correction riding along: EmojiPicker's
+  horizontal arrow keys become RTL-aware, matching ColorPicker. Safe to take or skip.
   [docs](https://design.vegastack.com/docs/components/color-picker)
 
 ### 🛠 CLI & tooling
@@ -48,9 +52,9 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
 ### 📚 Docs
 
-- Every registry item's npm dependency pin is reconciled to `packages/ui/package.json`
-  (`lucide-react` was declared at both `^1.20.0` and `^0.525.0` across a major boundary;
-  `@shadcn/react` at `^0.1.0` against an installed `^0.2.1`).
+- The npm dependency pins the installed versions could not satisfy are reconciled to
+  `packages/ui/package.json`: `lucide-react` was declared at both `^1.20.0` and `^0.525.0` across
+  a major boundary (41 items), and `@shadcn/react` at `^0.1.0` against an installed `^0.2.1`.
 - `table.mdx` no longer claims the Table parts add no props; `data-list.mdx` documents that a
   column `render` is invoked as a plain function (hooks belong in a returned component element).
 

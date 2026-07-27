@@ -1,4 +1,4 @@
-// @vegastack use-platform@0.3.0 sha256-cviZa81U3/97VJwOtceEtmn8aCrqfaIrqtCACo9Aa+c=
+// @vegastack use-platform@0.3.0 sha256-3BDLnYCmJG4Ok5QbKbMlmbdJieE02ytZ1reuDTLLpDw=
 
 "use client";
 
@@ -57,6 +57,8 @@ export interface UsePlatformOptions {
  * Apple mobile platforms map to `"mac"` deliberately: an iPad with a hardware
  * keyboard uses ⌘, and that rendering is what consumers branch on. Android maps
  * to `"other"` — it is Linux-derived but shares no desktop-Linux shortcut copy.
+ * (The hook cross-checks `navigator.userAgent` for Android, because
+ * `navigator.platform` reports "Linux armv8l" there.)
  */
 export function detectPlatformOs(raw: string): PlatformOS {
   const platform = raw.toLowerCase();
@@ -102,7 +104,11 @@ export function usePlatform({
       userAgentData?: { platform?: string };
     };
     const raw = nav.userAgentData?.platform ?? nav.platform ?? "";
-    const os = detectPlatformOs(raw);
+    let os = detectPlatformOs(raw);
+    // Engines without userAgentData (Firefox, Safari) report
+    // navigator.platform "Linux armv8l" on Android — the string never says
+    // "android". The user agent does, everywhere.
+    if (os === "linux" && /android/i.test(nav.userAgent ?? "")) os = "other";
     const isTouch =
       typeof window !== "undefined" &&
       typeof window.matchMedia === "function" &&

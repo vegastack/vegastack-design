@@ -30,6 +30,15 @@ import { NumberField } from "@/components/ui/number-field";
 Like `Input`, the `size` prop is the control-height variant on the shared
 28/32/40 scale and **replaces** the native numeric `size` attribute.
 
+## Scope
+
+| Behaviour                     | Where it lives                                                            |
+| ----------------------------- | ------------------------------------------------------------------------- |
+| Minor-units (cents) handling  | Your field layer — the component works in display units                   |
+| Pointer scrubbing (ScrubArea) | Compose `BaseNumberField.ScrubArea` yourself — no keyboard/touch parity   |
+| Labels, descriptions, errors  | [`Field`](/docs/components/field) around the control                      |
+| Free-text digits (phone, ids) | [`Input`](/docs/components/input) — formatting semantics would fight them |
+
 ## Examples
 
 ### Money
