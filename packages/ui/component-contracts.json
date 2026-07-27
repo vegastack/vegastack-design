@@ -302,7 +302,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/marker.test.tsx"],
@@ -494,7 +494,7 @@
       "docsSlug": "/docs/components/message",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/message.test.tsx"],
@@ -696,7 +696,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/bubble.test.tsx"],
@@ -912,7 +912,7 @@
       "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
         "@shadcn/react@^0.2.1",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/message-scroller.test.tsx"],
@@ -1246,7 +1246,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/attachment.test.tsx"],
@@ -1335,7 +1335,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/tool-call-chip.test.tsx"],
@@ -1494,7 +1494,7 @@
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/button.test.tsx"],
@@ -1615,7 +1615,7 @@
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/badge.test.tsx"],
@@ -1733,7 +1733,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/tag-group.test.tsx"],
@@ -1923,7 +1923,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/stat.test.tsx"],
@@ -2099,7 +2099,7 @@
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/alert.test.tsx"],
@@ -2200,7 +2200,7 @@
       "registryDependencies": ["@vegastack/use-animation-replay"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/input.test.tsx"],
@@ -2505,7 +2505,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/field.test.tsx"],
@@ -2780,7 +2780,7 @@
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/dialog.test.tsx"],
@@ -3060,7 +3060,7 @@
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/select.test.tsx"],
@@ -3543,7 +3543,7 @@
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/combobox.test.tsx"],
@@ -3722,7 +3722,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/tooltip.test.tsx"],
@@ -4087,7 +4087,7 @@
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/dropdown-menu.test.tsx"],
@@ -4254,7 +4254,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/tabs.test.tsx"],
@@ -4464,7 +4464,7 @@
       "docsSlug": "/docs/components/card",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/card.test.tsx"],
@@ -4589,7 +4589,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/kbd.test.tsx"],
@@ -4724,7 +4724,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/skeleton.test.tsx"],
@@ -4828,7 +4828,7 @@
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/spinner.test.tsx"],
@@ -4925,7 +4925,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/separator.test.tsx"],
@@ -5216,7 +5216,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/empty.test.tsx"],
@@ -5344,7 +5344,7 @@
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/checkbox.test.tsx"],
@@ -5466,7 +5466,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/switch.test.tsx"],
@@ -5606,7 +5606,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/avatar.test.tsx"],
@@ -5694,7 +5694,7 @@
       "docsSlug": "/docs/components/label",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/label.test.tsx"],
@@ -5794,7 +5794,7 @@
       "docsSlug": "/docs/components/textarea",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/textarea.test.tsx"],
@@ -5934,7 +5934,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/radio-group.test.tsx"],
@@ -6023,7 +6023,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/slider.test.tsx"],
@@ -6127,7 +6127,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/toggle.test.tsx"],
@@ -6241,7 +6241,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/toggle-group.test.tsx"],
@@ -6383,7 +6383,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/segmented.test.tsx"],
@@ -6537,7 +6537,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/accordion.test.tsx"],
@@ -6668,7 +6668,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/collapsible.test.tsx"],
@@ -6875,7 +6875,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/popover.test.tsx"],
@@ -7150,7 +7150,7 @@
       "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/alert-dialog.test.tsx"],
@@ -7263,7 +7263,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/progress.test.tsx"],
@@ -7520,7 +7520,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/breadcrumb.test.tsx"],
@@ -7752,7 +7752,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/navigation-menu.test.tsx"],
@@ -8006,7 +8006,7 @@
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/sheet.test.tsx"],
@@ -8156,7 +8156,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/hover-card.test.tsx"],
@@ -8521,7 +8521,7 @@
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/context-menu.test.tsx"],
@@ -8770,7 +8770,7 @@
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/pagination.test.tsx"],
@@ -8884,7 +8884,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/scroll-area.test.tsx"],
@@ -9017,7 +9017,7 @@
       "npmDependencies": [
         "react-resizable-panels@^4",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/resizable.test.tsx"],
@@ -9238,7 +9238,7 @@
       "docsSlug": "/docs/components/table",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/table.test.tsx"],
@@ -9347,7 +9347,7 @@
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/status-icon.test.tsx"],
@@ -9473,7 +9473,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/progress-indicator.test.tsx"],
@@ -9603,7 +9603,7 @@
       "docsSlug": "/docs/components/truncated-text",
       "registryDependencies": ["@vegastack/tooltip"],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/truncated-text.test.tsx"],
@@ -9792,7 +9792,7 @@
       "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/copy-button.test.tsx"],
@@ -9899,7 +9899,7 @@
       "registryDependencies": ["@vegastack/input"],
       "npmDependencies": [
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/password-input.test.tsx"],
@@ -10003,7 +10003,7 @@
       "registryDependencies": ["@vegastack/use-animation-replay"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/otp-input.test.tsx"],
@@ -10100,7 +10100,7 @@
       "registryDependencies": ["@vegastack/button", "@vegastack/dropdown-menu"],
       "npmDependencies": [
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/split-button.test.tsx"],
@@ -10233,7 +10233,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/editable-cell.test.tsx"],
@@ -10330,7 +10330,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/number-field.test.tsx"],
@@ -10443,7 +10443,7 @@
       ],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/chip-input.test.tsx"],
@@ -10536,7 +10536,7 @@
       "docsSlug": "/docs/components/action-bar",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/action-bar.test.tsx"],
@@ -10655,7 +10655,7 @@
       "docsSlug": "/docs/components/stepper",
       "registryDependencies": ["@vegastack/button", "@vegastack/status-icon"],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/stepper.test.tsx"],
@@ -10781,7 +10781,7 @@
       "docsSlug": "/docs/components/timeline",
       "registryDependencies": ["@vegastack/marker"],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/timeline.test.tsx"],
@@ -10890,7 +10890,7 @@
         "@vegastack/use-platform"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/shortcut-overlay.test.tsx"],
@@ -11030,7 +11030,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/filter-bar-managed.test.tsx"],
@@ -11146,7 +11146,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/sortable-list.test.tsx"],
@@ -11282,7 +11282,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/board.test.tsx"],
@@ -11382,7 +11382,7 @@
       "docsSlug": "/docs/components/dropzone",
       "registryDependencies": ["@vegastack/use-file-drop"],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/dropzone.test.tsx"],
@@ -11494,7 +11494,7 @@
       "docsSlug": "/docs/components/field-inline",
       "registryDependencies": ["@vegastack/input"],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/field-inline.test.tsx"],
@@ -11587,7 +11587,7 @@
       "docsSlug": "/docs/components/relative-time",
       "registryDependencies": ["@vegastack/tooltip"],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/relative-time.test.tsx"],
@@ -11717,7 +11717,7 @@
       "docsSlug": "/docs/components/settings-row",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/settings-row.test.tsx"],
@@ -11829,7 +11829,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/image.test.tsx"],
@@ -11918,7 +11918,7 @@
       "registryDependencies": ["@vegastack/badge", "@vegastack/icon-button"],
       "npmDependencies": [
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/notification-bell.test.tsx"],
@@ -12035,7 +12035,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/onboarding-checklist.test.tsx"],
@@ -12141,7 +12141,7 @@
       "npmDependencies": [
         "react-markdown@^10.1.0",
         "remark-gfm@^4.0.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/markdown-view.test.tsx"],
@@ -12232,7 +12232,7 @@
       "docsSlug": "/docs/components/code-block",
       "registryDependencies": ["@vegastack/copy-button"],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/code-block.test.tsx"],
@@ -12344,7 +12344,7 @@
         "sonner@^2.0.7",
         "next-themes@0.4.6",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/sonner.test.tsx"],
@@ -12748,7 +12748,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/command.test.tsx"],
@@ -12859,7 +12859,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/page-header.test.tsx"],
@@ -13299,7 +13299,7 @@
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/sidebar.test.tsx"],
@@ -13475,7 +13475,7 @@
       "docsSlug": "/docs/components/app-shell",
       "registryDependencies": ["@vegastack/sidebar", "@vegastack/skeleton"],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/app-shell.test.tsx"],
@@ -13617,7 +13617,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/filter-bar.test.tsx"],
@@ -13733,7 +13733,7 @@
       "registryDependencies": ["@vegastack/input", "@vegastack/spinner"],
       "npmDependencies": [
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/auto-save-input.test.tsx"],
@@ -13850,7 +13850,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/country-select.test.tsx"],
@@ -13990,7 +13990,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/region-select.test.tsx"],
@@ -14207,7 +14207,7 @@
       "npmDependencies": [
         "react-day-picker@^10",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/date-picker.test.tsx"],
@@ -14327,7 +14327,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/color-picker.test.tsx"],
@@ -14467,7 +14467,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/emoji-picker.test.tsx"],
@@ -14627,7 +14627,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/data-list.test.tsx"],
@@ -14646,7 +14646,7 @@
       "name": "data-grid",
       "registryType": "registry:ui",
       "title": "Data Grid",
-      "summary": "The full-parity grid \u2014 TanStack-sorted multi-key sort, column picker with responsive revelation, collapsible grouping, keyboard-continuous load-more, opt-in virtualization, and an APG grid keyboard layer with inline cell editing.",
+      "summary": "The full-parity grid — TanStack-sorted multi-key sort, column picker with responsive revelation, collapsible grouping, keyboard-continuous load-more, opt-in virtualization, and an APG grid keyboard layer with inline cell editing.",
       "family": "data",
       "wave": "Data display",
       "sourceFiles": ["packages/ui/registry/ui/data-grid.tsx"],
@@ -14657,7 +14657,7 @@
           "source": "packages/ui/registry/ui/data-grid.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Generic function component; no stable public ref target is forwarded \u2014 the grid's focus model is the roving-cell API, not a root ref."
+            "rationale": "Generic function component; no stable public ref target is forwarded — the grid's focus model is the roving-cell API, not a root ref."
           }
         },
         {
@@ -14794,7 +14794,7 @@
         "@tanstack/react-table@^8.21.3",
         "@tanstack/react-virtual@^3.14.8",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/data-grid.test.tsx"],
@@ -14943,7 +14943,7 @@
       "docsSlug": "/docs/components/property-list",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/property-list.test.tsx"],
@@ -15263,7 +15263,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/item.test.tsx"],
@@ -15464,7 +15464,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "recharts@^3.8.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/chart.test.tsx"],
@@ -15558,7 +15558,7 @@
       "docsSlug": "/docs/components/animated-number",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/animated-number.test.tsx"],
@@ -15675,7 +15675,7 @@
         "@tiptap/starter-kit@^3",
         "@tiptap/pm@^3",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/text-edit.test.tsx"],
@@ -15764,7 +15764,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/marketing-surface.test.tsx"],
@@ -15860,7 +15860,7 @@
       "docsSlug": "/docs/components/section-header",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/section-header.test.tsx"],
@@ -15951,7 +15951,7 @@
       "docsSlug": "/docs/components/figure-frame",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/figure-frame.test.tsx"],
@@ -16057,7 +16057,7 @@
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/terminal.test.tsx"],
@@ -16159,7 +16159,7 @@
       "docsSlug": "/docs/components/logo-row",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/logo-row.test.tsx"],
@@ -16250,7 +16250,7 @@
       "docsSlug": "/docs/components/testimonial",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/testimonial.test.tsx"],
@@ -16340,7 +16340,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/announcement-banner.test.tsx"],
@@ -16450,7 +16450,7 @@
       "docsSlug": "/docs/components/ruled-band",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/ruled-band.test.tsx"],
@@ -16565,7 +16565,7 @@
       "registryDependencies": ["@vegastack/badge"],
       "npmDependencies": [
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/pricing-section.test.tsx"],
@@ -16692,7 +16692,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "lucide-react@^1.24.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/comparison-matrix.test.tsx"],
@@ -16786,7 +16786,7 @@
       "docsSlug": "/docs/components/staggered-text-reveal",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/staggered-text-reveal.test.tsx"],
@@ -16886,7 +16886,7 @@
       "docsSlug": "/docs/components/particle-field",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/particle-field.test.tsx"],
@@ -20279,7 +20279,7 @@
       "npmDependencies": [
         "lucide-react@^1.24.0",
         "recharts@^3.8.0",
-        "@vegastack/design@^0.2.0",
+        "@vegastack/design@^0.3.0",
         "@vegastack/design-tokens@^0.2.0"
       ],
       "testFiles": [

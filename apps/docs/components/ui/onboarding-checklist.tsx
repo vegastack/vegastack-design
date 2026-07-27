@@ -1,4 +1,4 @@
-// @vegastack onboarding-checklist@0.3.0 sha256-Tce+Wtnct5uq0OrWPnN2rmarYGpflk2VK9OgGW0tE20=
+// @vegastack onboarding-checklist@0.4.0 sha256-sMUNu3I4RZR00lfiQeHyJ1K2m0+4GyfriTace6SA7Qs=
 
 "use client";
 

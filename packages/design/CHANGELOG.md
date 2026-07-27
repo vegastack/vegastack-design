@@ -1,5 +1,40 @@
 # @vegastack/design
 
+## 0.3.0
+
+### Minor Changes
+
+- [#16](https://github.com/vegastack/vegastack-design/pull/16) [`9d0a2ef`](https://github.com/vegastack/vegastack-design/commit/9d0a2efae46de237bf1a9f54a99bdebc4badc840) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - Add `vegastack-design doctor`, and stop the drift gate failing open.
+
+  **`doctor`** — a read-only setup check for consuming projects. It verifies the package is
+  installed, `preset.css` is imported, the Tailwind PostCSS plugin is configured, Tailwind is not
+  imported twice, the `@vegastack` registry is declared, and (in a workspace) that `@source`
+  directives are present. Understands monorepo layouts: it looks for the PostCSS config in the
+  package that owns the preset-importing stylesheet, and walks up for `components.json`.
+
+  Motivated by a real consumer failure. A missing `@tailwindcss/postcss` plugin has two misleading
+  symptoms and no obvious cause: under Turbopack the build dies with `Can't resolve 'tw-animate-css'`,
+  naming a dependency that is installed and fine; under webpack the build **succeeds** with the token
+  theme applied and **zero utility classes generated**, which reads as "the design system is broken".
+
+  **`check-updates --fail-on-update` now exits 1 when it finds zero components.** It previously exited
+  0, so any project whose components sit outside the default path — every monorepo — got a
+  permanently green CI drift gate that scanned nothing. Zero components under an explicit gate is a
+  misconfiguration, not a clean bill of health. Without the flag the behaviour is unchanged, since
+  "no components yet" is legitimate mid-setup.
+
+- [#16](https://github.com/vegastack/vegastack-design/pull/16) [`630ca84`](https://github.com/vegastack/vegastack-design/commit/630ca84084199e75c5a0a80184aa726552070994) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - Refresh the shipped `vegastack-design-system` skill for the 0.4.0 component wave: the roster now
+  covers 108 components, 6 hooks, and 554 registry items — including the new ActionBar, ChipInput,
+  EditableCell, FilterBuilder, NumberField, ShortcutOverlay, Stepper, Timeline, SortableList, Board,
+  Dropzone, and DataGrid, plus the useListNav, usePlatform, useDragReorder, and useFileDrop hooks.
+  Without a `@vegastack/design` release the npm-shipped skill would keep describing the 0.2.0-era
+  roster (104 components / 548 items) while the registry serves the new one.
+
+### Patch Changes
+
+- [#16](https://github.com/vegastack/vegastack-design/pull/16) [`6633fc8`](https://github.com/vegastack/vegastack-design/commit/6633fc866bf50eb6b0501ab46503437e3ee2864e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - The bundled design-system skill now documents the Button-as-link pattern: compose the anchor via
+  `render` and pass `nativeButton={false}`, matching Base UI's native-button contract.
+
 ## 0.2.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@vegastack/design",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "VegaStack design system — cn utility, icon runtime, Tailwind v4 preset, and the vegastack-design CLI (tokens ship separately as @vegastack/design-tokens)",
   "license": "MIT",
   "repository": {
