@@ -1,4 +1,4 @@
-// @vegastack stepper@0.4.0 sha256-cRhrputW2e18Dqojn+cVnX69DNUHEscweT1Cfo5puA0=
+// @vegastack stepper@0.4.0 sha256-uttZLXdo7isCjk35KAO3GatcdrYQgbxQJ20brjCet0M=
 
 "use client";
 
@@ -260,9 +260,10 @@ export function Stepper({
             </span>
 
             <span
+              data-slot="stepper-content"
               className={cn(
                 "flex min-w-0 flex-col",
-                orientation === "horizontal" && "pe-4",
+                orientation === "horizontal" && "w-full pe-4",
               )}
             >
               {selectable ? (
@@ -277,7 +278,10 @@ export function Stepper({
                   onClick={() => onStepSelect?.(step.id)}
                   // Inline-text posture: strip the control height/padding so the
                   // navigable label sits exactly where the static one does.
-                  className="-mx-1 h-auto min-w-0 justify-start gap-1 px-1 py-0 text-base font-medium text-foreground hover:text-primary"
+                  className={cn(
+                    "-mx-1 h-auto min-w-0 justify-start gap-1 px-1 py-0 text-base font-medium text-foreground hover:text-primary",
+                    orientation === "horizontal" && "w-full",
+                  )}
                 >
                   {labelContent}
                 </Button>
@@ -292,6 +296,7 @@ export function Stepper({
                   tabIndex={isCurrent ? -1 : undefined}
                   className={cn(
                     "inline-flex min-w-0 items-center gap-1 rounded-sm text-base",
+                    orientation === "horizontal" && "w-full",
                     isCurrent || step.state === "error"
                       ? "font-medium text-foreground"
                       : "text-muted-foreground",

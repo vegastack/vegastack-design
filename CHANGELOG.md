@@ -9,6 +9,14 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.4.1] — July 28, 2026
+
+### 🐛 Fixed
+
+- **Stepper** — horizontal step content is now width-constrained so long labels truncate instead
+  of overlapping adjacent steps at the 320px responsive contract width.
+  [docs](https://design.vegastack.com/docs/components/stepper)
+
 ## [0.4.0] — July 27, 2026
 
 ### 🧩 New components
