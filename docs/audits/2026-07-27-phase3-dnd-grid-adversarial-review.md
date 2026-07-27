@@ -103,11 +103,23 @@ before acceptance, and every accepted finding fixed in this round — nothing de
 - **`refCache` prunes on detach** — identity stays stable across a mounted lifetime, which is the
   invariant the active-drag teardown bug requires.
 
+## Targeted regression tests (MK-requested follow-up, same day)
+
+Every medium/low fix that previously rode on indirect coverage gained its own test, each written
+to fail against the pre-fix behaviour: paste `minSize` (`file-too-small` + reasonful
+announcement), `maxFiles={0}` = unlimited on paste, grouped-grid aria geometry (rowcount equals
+the DOM row total with continuous per-row indices, group rows included), revelation hiding
+right-to-left with no holes, the keyboard load-more once-per-page guard (and its reset when rows
+arrive), and the Columns-click-while-editing rAF race (menu opens on the first click, survives
+two frames, editor closed). The two new paste tests share the Firefox capability gate.
+
 ## Post-fix verification
 
-design-lint clean · `pnpm lint` 7/7 · typecheck clean · full browser unit suite **1458/1458**
-(120 files; +15 regression tests this round) · behaviour contracts: full sweep 864/864 over 108
-routes (pre-fix state), then the five touched routes re-run post-fix 40/40 · `registry:build`
-idempotent · `design:sync:check` + `design:derived` current · skill mirror synced. WebKit smoke
-remains blocked on this SSH host (no Aqua bootstrap — the documented 0a-note); Firefox smoke and
-the receipt-minting `gates:push` must run from MK's GUI session before `/ship`.
+design-lint clean · `pnpm lint` 7/7 · typecheck clean · full browser unit suite **1464/1464**
+(120 files; +21 regression tests this round) · behaviour contracts: full sweep 864/864 over 108
+routes (pre-fix state), then the five touched routes re-run post-fix 40/40 · Firefox smoke
+207/207 (+5 capability-skipped paste tests — Firefox's ClipboardEvent constructor strips
+synthetic files) · `registry:build` idempotent · `design:sync:check` + `design:derived` current ·
+skill mirror synced. WebKit smoke remains blocked on this SSH host (no Aqua bootstrap — the
+documented 0a-note); the receipt-minting `gates:push` must run from MK's GUI session before
+`/ship`.

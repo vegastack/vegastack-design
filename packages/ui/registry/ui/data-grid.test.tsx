@@ -563,3 +563,145 @@ test("header keystrokes stay in the header: Enter on a sort button sorts without
   expect(document.querySelector("td input")).toBeNull();
   expect(document.activeElement).toBe(sortButton);
 });
+
+test("grouped grids count EVERY DOM row in aria geometry (group rows included)", async () => {
+  await render(
+    <DataGrid
+      aria-label="Grouped"
+      columns={[
+        { key: "name", header: "Name", minWidth: 10 },
+        { key: "stage", header: "Stage", minWidth: 10, group: true },
+      ]}
+      data={DEALS}
+      getRowId={(d) => d.id}
+    />,
+  );
+  const grid = document.querySelector('[role="grid"]')!;
+  const domRows = Array.from(grid.querySelectorAll("tr"));
+  // aria-rowcount must equal the real DOM row total (header + group rows +
+  // data rows), and every row must carry a continuous aria-rowindex.
+  expect(grid.getAttribute("aria-rowcount")).toBe(String(domRows.length));
+  const indices = domRows.map((row) => row.getAttribute("aria-rowindex"));
+  expect(indices).not.toContain(null);
+  expect(indices.map(Number)).toEqual(
+    Array.from({ length: domRows.length }, (_, i) => i + 1),
+  );
+  const groupRows = Array.from(
+    grid.querySelectorAll('[data-slot="data-grid-group-row"]'),
+  );
+  expect(groupRows.length).toBeGreaterThan(0);
+  for (const row of groupRows) {
+    expect(row.getAttribute("aria-rowindex")).not.toBeNull();
+  }
+});
+
+test("responsive revelation hides right-to-left with no holes", async () => {
+  // Constrain the measuring container — no compiled Tailwind here.
+  const style = document.createElement("style");
+  style.textContent =
+    '[data-slot="table-container"] { width: 300px; display: block; overflow-x: hidden; }';
+  document.head.appendChild(style);
+  await render(
+    <DataGrid
+      aria-label="Narrow"
+      columns={[
+        { key: "name", header: "Name", minWidth: 10 },
+        { key: "wide", header: "Wide", minWidth: 10000 },
+        { key: "narrow", header: "Narrow", minWidth: 10 },
+      ]}
+      data={DEALS.map((d) => ({ ...d }))}
+      getRowId={(d) => d.id}
+    />,
+  );
+  // "Wide" cannot fit — and once one hideable column hides, every hideable
+  // column after it must hide too, even though "Narrow" alone would fit.
+  await expect
+    .poll(() =>
+      Array.from(document.querySelectorAll('[role="columnheader"]')).map(
+        (th) => th.textContent,
+      ),
+    )
+    .toEqual(["Name"]);
+  document.head.removeChild(style);
+});
+
+test("keyboard load-more fires once per page even when the host omits `loading`", async () => {
+  const onLoadMore = vi.fn();
+  function Host() {
+    const [rows, setRows] = React.useState(DEALS.slice(0, 2));
+    return (
+      <div>
+        <button type="button" onClick={() => setRows(DEALS)}>
+          arrive
+        </button>
+        <DataGrid
+          aria-label="Paged"
+          columns={columns()}
+          data={rows}
+          getRowId={(d) => d.id}
+          loadMore={{ hasMore: true, onLoadMore }}
+        />
+      </div>
+    );
+  }
+  const screen = await render(<Host />);
+  const cells = Array.from(
+    document.querySelectorAll('[data-slot="data-grid-cell"]'),
+  ) as HTMLElement[];
+  // Focus a cell in the LAST row, then walk past it repeatedly.
+  cells[cells.length - 1]!.focus();
+  await userEvent.keyboard("{ArrowDown}");
+  await userEvent.keyboard("{ArrowDown}");
+  await userEvent.keyboard("{ArrowDown}");
+  expect(onLoadMore).toHaveBeenCalledTimes(1);
+  // New rows arriving reset the guard — the NEXT page is reachable.
+  await screen.getByRole("button", { name: "arrive" }).click();
+  const grown = Array.from(
+    document.querySelectorAll('[data-slot="data-grid-cell"]'),
+  ) as HTMLElement[];
+  grown[grown.length - 1]!.focus();
+  await userEvent.keyboard("{ArrowDown}");
+  expect(onLoadMore).toHaveBeenCalledTimes(2);
+});
+
+test("clicking Columns while a cell editor is open opens the menu on the FIRST click", async () => {
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={[
+        {
+          key: "name",
+          header: "Name",
+          minWidth: 10,
+          editable: { type: "text" },
+        },
+        { key: "stage", header: "Stage", minWidth: 10 },
+      ]}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      onCellCommit={() => {}}
+    />,
+  );
+  const cell = document.querySelector(
+    '[data-slot="data-grid-cell"]',
+  ) as HTMLElement;
+  cell.focus();
+  await userEvent.keyboard("{F2}");
+  await vi.waitFor(() => {
+    if (!document.querySelector("td input")) throw new Error("editor not open");
+  });
+  // The editor's blur-close schedules a rAF focus restore — it must NOT
+  // steal focus back from the control the user just clicked.
+  await screen.getByRole("button", { name: "Columns" }).click();
+  await expect
+    .poll(() => document.querySelectorAll('[role="menuitemcheckbox"]').length)
+    .toBeGreaterThan(0);
+  // Survive a couple of frames: the stale rAF firing late is the bug.
+  await new Promise((r) =>
+    requestAnimationFrame(() => requestAnimationFrame(r)),
+  );
+  expect(
+    document.querySelectorAll('[role="menuitemcheckbox"]').length,
+  ).toBeGreaterThan(0);
+  expect(document.querySelector("td input")).toBeNull();
+});

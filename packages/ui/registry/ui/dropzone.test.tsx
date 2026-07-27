@@ -366,3 +366,66 @@ test("no a11y violations — idle and disabled", async () => {
   );
   await expectNoA11yViolations(screen.container);
 });
+
+pasteTest(
+  "paste enforces minSize: an undersized file is refused as file-too-small",
+  async () => {
+    const onFilesAccepted = vi.fn();
+    const onFilesRejected = vi.fn();
+    await render(
+      <Dropzone
+        minSize={512}
+        onFilesAccepted={onFilesAccepted}
+        onFilesRejected={onFilesRejected}
+      >
+        <p>Drop here</p>
+      </Dropzone>,
+    );
+    const dt = new DataTransfer();
+    dt.items.add(makeFile("tiny.png", "image/png", 16));
+    surface().dispatchEvent(
+      new ClipboardEvent("paste", {
+        clipboardData: dt,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await expect.poll(() => onFilesRejected.mock.calls.length).toBe(1);
+    const rejections = onFilesRejected.mock.calls[0]![0] as FileDropRejection[];
+    expect(rejections[0]!.reasons).toContain("file-too-small");
+    expect(onFilesAccepted).not.toHaveBeenCalled();
+    const live = document.querySelector('[role="status"]')!;
+    await expect.poll(() => live.textContent).toContain("too small");
+  },
+);
+
+pasteTest(
+  "maxFiles={0} means unlimited on paste, matching the drop path",
+  async () => {
+    const onFilesAccepted = vi.fn();
+    const onFilesRejected = vi.fn();
+    await render(
+      <Dropzone
+        maxFiles={0}
+        onFilesAccepted={onFilesAccepted}
+        onFilesRejected={onFilesRejected}
+      >
+        <p>Drop here</p>
+      </Dropzone>,
+    );
+    const dt = new DataTransfer();
+    dt.items.add(makeFile("a.png"));
+    dt.items.add(makeFile("b.png"));
+    dt.items.add(makeFile("c.png"));
+    surface().dispatchEvent(
+      new ClipboardEvent("paste", {
+        clipboardData: dt,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await expect.poll(() => onFilesAccepted.mock.calls.length).toBe(1);
+    expect(onFilesAccepted.mock.calls[0]![0]).toHaveLength(3);
+    expect(onFilesRejected).not.toHaveBeenCalled();
+  },
+);

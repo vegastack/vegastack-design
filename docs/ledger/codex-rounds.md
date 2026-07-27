@@ -294,6 +294,7 @@ verified by execution; every accepted finding fixed in-round. Full findings and 
   explicitly accepted with rationale in the audit file.
 
 Post-fix gates: design-lint clean · `pnpm lint` 7/7 · typecheck clean · browser unit suite
-1458/1458 (+15 regression tests) · contracts full sweep 864/864 pre-fix, touched routes 40/40
-post-fix · registry:build idempotent · derived surfaces current. WebKit smoke still requires MK's
-GUI session (0a-note) before `/ship`.
+1464/1464 (+21 regression tests, including the six MK-requested targeted tests for the
+medium/low fixes) · contracts full sweep 864/864 pre-fix, touched routes 40/40 post-fix ·
+Firefox smoke 207/207 (+5 capability-skipped paste tests) · registry:build idempotent · derived
+surfaces current. WebKit smoke still requires MK's GUI session (0a-note) before `/ship`.
