@@ -1,4 +1,4 @@
-// @vegastack use-drag-reorder@0.3.0 sha256-DmQP1vkNu55cKs4bc5sRZX64KF4wqbygu/sq4B3iFm4=
+// @vegastack use-drag-reorder@0.3.0 sha256-1/Ne/sMMrVYgWvQZLZAEJpb7K07c3CDgmfySuTiZV0E=
 
 "use client";
 
@@ -120,6 +120,13 @@ export interface UseDragReorderOptions {
    */
   disabled?: boolean | ((id: string) => boolean);
   /**
+   * Disable the POINTER drag path only — the keyboard move mode and
+   * `requestMove` keep working. This is the mobile posture: below the touch
+   * breakpoint drags fight scrolling, but the lossless paths must survive.
+   * @default false
+   */
+  pointerDisabled?: boolean;
+  /**
    * Override the live-region announcement builders.
 
    * @default undefined
@@ -218,6 +225,7 @@ export function useDragReorder({
   onReorder,
   axis = "vertical",
   disabled = false,
+  pointerDisabled = false,
   announcements,
 }: UseDragReorderOptions): UseDragReorderReturn {
   const [activeId, setActiveId] = React.useState<string | null>(null);
@@ -239,6 +247,8 @@ export function useDragReorder({
   onReorderRef.current = onReorder;
   const disabledRef = React.useRef(disabled);
   disabledRef.current = disabled;
+  const pointerDisabledRef = React.useRef(pointerDisabled);
+  pointerDisabledRef.current = pointerDisabled;
   const pendingSeq = React.useRef(0);
 
   const announce = React.useCallback((text: string) => {
@@ -356,7 +366,7 @@ export function useDragReorder({
         draggable({
           element,
           dragHandle: handleElements.current.get(`${container}:${id}`),
-          canDrag: () => !isDisabled(id),
+          canDrag: () => !pointerDisabledRef.current && !isDisabled(id),
           getInitialData: () => ({
             instance: instanceToken.current,
             id,

@@ -84,6 +84,7 @@ export * from "./timeline";
 export * from "./shortcut-overlay";
 export * from "./filter-bar-managed";
 export * from "./sortable-list";
+export * from "./board";
 export * from "./color-picker";
 export * from "./emoji-picker";
 export * from "./data-list";

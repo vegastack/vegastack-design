@@ -1,6 +1,7 @@
 [
   "registry/ui/animated-number.test.tsx",
   "registry/ui/auto-save-input.test.tsx",
+  "registry/ui/board.test.tsx",
   "registry/ui/checkbox.test.tsx",
   "registry/ui/copy-button.test.tsx",
   "registry/ui/input.test.tsx",

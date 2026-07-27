@@ -1944,6 +1944,44 @@
       }
     },
     {
+      "name": "board",
+      "type": "registry:ui",
+      "title": "Board",
+      "description": "Kanban columns over use-drag-reorder — content/chrome split (host renders card content only), pointer drag, keyboard move mode + roving focus, lossless per-card Move menu with lock reasons, server-refusable moves, collapsed lanes, Empty-bordered drop targets.",
+      "categories": [
+        "layout"
+      ],
+      "dependencies": [
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.2.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/card",
+        "@vegastack/dropdown-menu",
+        "@vegastack/empty",
+        "@vegastack/icon-button",
+        "@vegastack/scroll-area",
+        "@vegastack/use-mobile",
+        "@vegastack/use-drag-reorder"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/board.tsx",
+          "type": "registry:ui",
+          "target": "@ui/board.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate.",
+        "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
+        "version": "0.1.0",
+        "integrity": "sha256-yLnx/tx+n8ZVQPfZtLPndHDmcMTPo4O+tDCqJVOda/k="
+      }
+    },
+    {
       "name": "field-inline",
       "type": "registry:ui",
       "title": "Field Inline",
@@ -2786,7 +2824,7 @@
         "whenToUse": "Any reorder-by-drag surface — sortable lists, board cards, grid column reorder — where pointer, touch, keyboard move mode, announcements, and server-refusable drops must all work from one API.",
         "whenNotToUse": "File drag-in (use-file-drop), resizing panes (Resizable), or single-axis value dragging (Slider).",
         "version": "0.1.0",
-        "integrity": "sha256-DmQP1vkNu55cKs4bc5sRZX64KF4wqbygu/sq4B3iFm4="
+        "integrity": "sha256-1/Ne/sMMrVYgWvQZLZAEJpb7K07c3CDgmfySuTiZV0E="
       }
     },
     {
