@@ -1,4 +1,4 @@
-// @vegastack use-file-drop@0.3.0 sha256-Sl0w7Yy8y1iEKYX8Z7ywg6knBmT5gMe0Xj+B2qbtFrU=
+// @vegastack use-file-drop@0.3.0 sha256-vfop5K3G51BIupyB4RlXrRgE3MnwwfCpdM1qpI9QPRQ=
 
 "use client";
 
@@ -17,7 +17,12 @@ sanctioned D4) — `dropzone` is a thin visual shell over it, and a rich-text ed
 accepting a pasted image gets the acquisition logic with none of the surface. The
 engine solves what hand-rolls reliably get wrong: the child-element `dragleave`
 flapping (drag-depth counting), directory traversal via the FileSystem entries API,
-`accept` matching, and a keyboard-operable hidden `<input type=file>`.
+`accept` matching, and keyboard activation of the drop surface. The engine's model
+makes the ROOT the focusable control (`tabIndex=0`, Enter/Space opens the picker via
+its own keydown handler) with the real `<input type=file>` as a hidden form bridge —
+so `dropProps` carries the engine's root ref: a consumer needing its own ref must
+MERGE it (see `dropzone.tsx`), never overwrite it, or the keyboard path and the
+drag-depth counting both die silently.
 
 What the engine does not own, and this hook adds in the system's vocabulary:
 - the PASTE path (`onPaste` → `clipboardData.files`), which no drop library treats as
@@ -79,6 +84,10 @@ export interface UseFileDropOptions {
    * @default undefined
    */
   maxSize?: number;
+  /** Per-file minimum size in bytes.
+   * @default undefined
+   */
+  minSize?: number;
   /** Maximum files per batch.
    * @default undefined
    */
@@ -120,7 +129,7 @@ export interface UseFileDropReturn {
   isDragging: boolean;
   /** The dragged payload cannot be accepted. */
   isDragInvalid: boolean;
-  /** Open the file browser programmatically (the click-to-browse bridge). */
+  /** Open the file browser programmatically. A no-op while `disabled`. */
   open: () => void;
   /** Props for the consumer-rendered polite live region. */
   getLiveRegionProps: () => {
@@ -145,6 +154,44 @@ function toReason(code: string): FileDropRejectionReason {
   }
 }
 
+/** Spoken form of each reason — announcements must say WHY (WCAG 3.3.1). */
+const REASON_TEXT: Record<FileDropRejectionReason, string> = {
+  "file-invalid-type": "wrong type",
+  "file-too-large": "too large",
+  "file-too-small": "too small",
+  "too-many-files": "too many files",
+  "validation-failed": "not accepted",
+};
+
+function refusalText(rejections: readonly FileDropRejection[]): string {
+  const reasons = [...new Set(rejections.flatMap((r) => r.reasons))]
+    .map((reason) => REASON_TEXT[reason])
+    .join(", ");
+  return rejections.length === 1
+    ? `${rejections[0]!.file.name} was refused — ${reasons}`
+    : `${rejections.length} files were refused — ${reasons}`;
+}
+
+/**
+ * Paste-path `accept` matching, mirroring the file-picker's attribute
+ * semantics: a file passes if EITHER its MIME type matches a key (including
+ * `type/*` wildcards) or its extension matches a listed extension.
+ */
+function pasteAccepted(file: File, accept: Accept | undefined): boolean {
+  if (!accept) return true;
+  const type = file.type.toLowerCase();
+  const name = file.name.toLowerCase();
+  const mimeOk = Object.keys(accept).some((pattern) => {
+    const wanted = pattern.trim().toLowerCase();
+    if (wanted.endsWith("/*")) return type.startsWith(wanted.slice(0, -1));
+    return type === wanted;
+  });
+  const extOk = Object.values(accept)
+    .flat()
+    .some((extension) => name.endsWith(extension.toLowerCase()));
+  return mimeOk || extOk;
+}
+
 /**
  * `useFileDrop` — file acquisition (drop, browse, paste) over the sanctioned
  * `react-dropzone` engine, returning `{ dropProps, inputProps, isDragging,
@@ -166,6 +213,7 @@ export function useFileDrop({
   accept,
   multiple = true,
   maxSize,
+  minSize,
   maxFiles,
   disabled = false,
   paste = true,
@@ -200,12 +248,7 @@ export function useFileDrop({
             ? `Added ${accepted[0]!.name}`
             : `Added ${accepted.length} files`,
         );
-      if (typed.length > 0)
-        parts.push(
-          typed.length === 1
-            ? `${typed[0]!.file.name} was refused`
-            : `${typed.length} files were refused`,
-        );
+      if (typed.length > 0) parts.push(refusalText(typed));
       if (parts.length > 0) announce(parts.join(" · "));
     },
     [announce],
@@ -215,24 +258,14 @@ export function useFileDrop({
     accept,
     multiple,
     maxSize,
+    minSize,
     maxFiles,
     disabled,
+    // The engine owns the document-level dragover/drop preventDefault so a
+    // missed drop never navigates away; `preventWindowDrop` is its real switch.
+    preventDropOnDocument: preventWindowDrop,
     onDrop: (accepted, rejections) => handleBatch(accepted, rejections),
   });
-
-  // A missed drop must never navigate the browser away from the app.
-  React.useEffect(() => {
-    if (!preventWindowDrop) return;
-    const prevent = (event: DragEvent) => {
-      event.preventDefault();
-    };
-    window.addEventListener("dragover", prevent);
-    window.addEventListener("drop", prevent);
-    return () => {
-      window.removeEventListener("dragover", prevent);
-      window.removeEventListener("drop", prevent);
-    };
-  }, [preventWindowDrop]);
 
   const handlePaste = React.useCallback(
     (event: React.ClipboardEvent) => {
@@ -240,18 +273,27 @@ export function useFileDrop({
       const files = Array.from(event.clipboardData?.files ?? []);
       if (files.length === 0) return;
       event.preventDefault();
-      // The engine only sees drops — pasted files reuse the same batch path
-      // (size/count limits enforced here; `accept` matching is drop/browse
-      // territory where the picker already filters).
-      const limited = maxFiles !== undefined ? files.slice(0, maxFiles) : files;
+      // The engine only sees drops — pasted files reuse the same constraint
+      // set: accept, per-file size bounds, and the batch cap all apply, with
+      // the surplus (not the whole batch) refused as too-many-files, matching
+      // the engine's drop semantics. `maxFiles: 0` means unlimited, as on drop.
+      const limit =
+        maxFiles !== undefined && maxFiles >= 1 ? maxFiles : Infinity;
+      const cap = multiple ? limit : Math.min(limit, 1);
+      const within = cap === Infinity ? files : files.slice(0, cap);
       const accepted: File[] = [];
       const rejections: FileDropRejection[] = [];
-      for (const file of multiple ? limited : limited.slice(0, 1)) {
+      for (const file of within) {
+        const reasons: FileDropRejectionReason[] = [];
+        if (!pasteAccepted(file, accept)) reasons.push("file-invalid-type");
         if (maxSize !== undefined && file.size > maxSize)
-          rejections.push({ file, reasons: ["file-too-large"] });
+          reasons.push("file-too-large");
+        if (minSize !== undefined && file.size < minSize)
+          reasons.push("file-too-small");
+        if (reasons.length > 0) rejections.push({ file, reasons });
         else accepted.push(file);
       }
-      for (const file of files.slice(limited.length))
+      for (const file of files.slice(within.length))
         rejections.push({ file, reasons: ["too-many-files"] });
       if (accepted.length > 0) acceptedRef.current(accepted);
       if (rejections.length > 0) rejectedRef.current?.(rejections);
@@ -263,15 +305,13 @@ export function useFileDrop({
                 ? `Added ${accepted[0]!.name}`
                 : `Added ${accepted.length} files`
               : null,
-            rejections.length > 0
-              ? `${rejections.length} pasted ${rejections.length === 1 ? "file was" : "files were"} refused`
-              : null,
+            rejections.length > 0 ? refusalText(rejections) : null,
           ]
             .filter(Boolean)
             .join(" · "),
         );
     },
-    [paste, disabled, maxFiles, maxSize, multiple, announce],
+    [paste, disabled, accept, maxFiles, maxSize, minSize, multiple, announce],
   );
 
   return {
@@ -284,7 +324,10 @@ export function useFileDrop({
     inputProps: dropzone.getInputProps(),
     isDragging: dropzone.isDragActive,
     isDragInvalid: dropzone.isDragReject,
-    open: dropzone.open,
+    // The engine nulls `open` while disabled; keep the declared type honest.
+    open: () => {
+      dropzone.open?.();
+    },
     getLiveRegionProps: () => ({
       role: "status",
       "aria-live": "polite",

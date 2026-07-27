@@ -202,7 +202,7 @@ already-paged rows:
 | Pagination / page-size / load-more                   | Host owns paging + the current page                                                                      | `footer` slot                |
 | Row activation (navigate / open)                     | Host's handler                                                                                           | `onRowClick`                 |
 | Drag-and-drop reordering                             | The persisted order stays app-coupled; the mechanism is [`SortableList`](/docs/components/sortable-list) | compose it beside this table |
-| Board / Kanban layout, grouping & collapsible groups | Separate layout component                                                                                | future scope                 |
+| Board / Kanban layout, grouping & collapsible groups | [`Board`](/docs/components/board) for Kanban; [`DataGrid`](/docs/components/data-grid) for grouping      | shipped                      |
 | View persistence (URL / saved views)                 | Host owns the persisted view state                                                                       | —                            |
 
 ```tsx
@@ -225,9 +225,10 @@ data itself — `DataList` only renders the already-filtered, already-paged rows
 />
 
 This split mirrors the design system's [G7 presentational/app-coupled rule](/docs) — the primitive
-stays presentational and reusable; the app wires the data and view state. Full platform parity (a
-single component owning drag/Kanban/grouping/persistence) is a deliberately deferred **`data-grid`**
-follow-up, not this primitive.
+stays presentational and reusable; the app wires the data and view state. Full platform parity —
+grouping, inline editing, multi-key sort, column management, virtualization — is
+[`DataGrid`](/docs/components/data-grid), and the Kanban tier is
+[`Board`](/docs/components/board); this primitive stays the presentational default.
 
 ## API Reference
 

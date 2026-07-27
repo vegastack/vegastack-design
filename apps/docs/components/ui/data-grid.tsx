@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.3.0 sha256-fugGH0ToEhgoFAPP5Z4T9DUP47tQoh1eUqc3tRko6+Y=
+// @vegastack data-grid@0.3.0 sha256-67kJssaVVLDvO5mS+MLSWcQBVem4ZM/PgqVPpxZHPr0=
 
 "use client";
 
@@ -65,8 +65,8 @@ Engine split (the D1/D2 sanction): TanStack Table computes the SORTED ROW MODEL
 (multi-key, typed comparators) and carries visibility/order state; TanStack Virtual
 measures the windowed rows behind the `virtualize` flag. Neither touches DOM or
 focus — the APG keyboard layer (roving gridcell tabindex, Enter/F2 edit mode with
-grid-nav suspension, Escape restore, Tab advance across editable cells) is this
-file's own, because no library ships it. Grouping is computed here over the sorted
+grid-nav suspension, Escape restore) is this file's own, because no library ships
+it. Grouping is computed here over the sorted
 leaves (a section per group value, collapsible, its own <tbody> — valid HTML where a
 Collapsible div between tbody and tr is not).
 
@@ -79,7 +79,8 @@ Two behaviours are deliberately DIFFERENT from DataList, documented for migrator
 Deliberately NOT done here:
 - No filter UI (FilterBuilder + the host), no pagination UI (the `footer` slot), no
   saved views/URL state (host, G7), no CSV export, no aggregation footers.
-- No column resize — revisit with a real consumer; reorder + visibility ship now.
+- No column resize, and no built-in reorder affordance — `columnOrder` APPLIES a
+  host-owned order (a settings surface); visibility ships with its picker.
 - Virtualization and grouping are mutually exclusive (documented): windowing grouped
   section rows adds complexity no current consumer needs.
 --- */
@@ -109,6 +110,7 @@ export interface DataGridColumn<T> {
   /**
    * Cell content. Rendered as a component ELEMENT (hooks are safe here —
    * unlike `DataList.render`, which is invoked as a plain function).
+   * Ignored when the column is `editable` — the editor owns that cell.
 
    * @default undefined
    */
@@ -211,17 +213,13 @@ export interface DataGridProps<T> {
    */
   onColumnVisibilityChange?: (visibility: Record<string, boolean>) => void;
   /**
-   * Controlled column order (array of keys). Omit for uncontrolled.
+   * Column order (array of keys), applied left to right. Controlled-only:
+   * the grid ships no reorder affordance — the host owns it (a settings
+   * surface). Omit to use the declared column order.
 
    * @default undefined
    */
   columnOrder?: string[];
-  /**
-   * Fired when column order changes.
-
-   * @default undefined
-   */
-  onColumnOrderChange?: (order: string[]) => void;
   /**
    * Controlled collapsed state per group value. Omit for uncontrolled.
 
@@ -342,14 +340,13 @@ function Cell<T>({
 
 /**
  * `DataGrid<T>` — the full-parity data grid: multi-key sort (shift-click),
- * column visibility picker + drag/menu-free reorder via `columnOrder`,
+ * column visibility picker + host-applied `columnOrder`,
  * responsive column revelation (`minWidth` + per-column `mobile` posture,
  * `merge` stacking into the primary cell), collapsible row grouping (one
  * `<tbody>` per section), keyboard-continuous load-more, opt-in row
  * virtualization, row selection, and the APG grid keyboard layer: roving
  * `gridcell` focus, <kbd>Enter</kbd>/<kbd>F2</kbd> opening the cell editor
- * (suspending grid navigation), <kbd>Escape</kbd> restoring it, and
- * <kbd>Tab</kbd> advancing across editable cells while editing.
+ * (suspending grid navigation) and <kbd>Escape</kbd> restoring it.
  *
  * @example
  * <DataGrid
@@ -376,7 +373,6 @@ export function DataGrid<T>({
   columnVisibility,
   onColumnVisibilityChange,
   columnOrder,
-  onColumnOrderChange,
   groupState,
   onGroupStateChange,
   onCellCommit,
@@ -416,13 +412,10 @@ export function DataGrid<T>({
     onColumnVisibilityChange?.(next);
   };
 
-  const [internalOrder, setInternalOrder] = React.useState<string[] | null>(
-    null,
-  );
-  const isOrderControlled = columnOrder !== undefined;
-  const order = isOrderControlled ? columnOrder : internalOrder;
-  void onColumnOrderChange;
-  void setInternalOrder;
+  // Column order is CONTROLLED-ONLY: the grid applies it, the host owns the
+  // reorder affordance (a settings surface). No internal order state exists,
+  // so there is deliberately no onColumnOrderChange.
+  const order = columnOrder ?? null;
 
   const [internalGroups, setInternalGroups] = React.useState<
     Record<string, "expanded" | "collapsed">
@@ -491,17 +484,21 @@ export function DataGrid<T>({
     let used = selectionWidth;
     const shown: DataGridColumn<T>[] = [];
     const overflow: DataGridColumn<T>[] = [];
+    // Hiding is right-to-left as documented: once one hideable column no
+    // longer fits, every hideable column after it hides too — a narrow late
+    // column must not survive a wide earlier one (no holes).
+    let exhausted = false;
     for (const [index, column] of pickerVisible.entries()) {
       const need = column.minWidth ?? 120;
       const isPrimary = index === 0;
-      if (
-        isPrimary ||
-        column.mobile === "visible" ||
-        used + need <= containerWidth
-      ) {
+      if (isPrimary || column.mobile === "visible") {
+        used += need;
+        shown.push(column);
+      } else if (!exhausted && used + need <= containerWidth) {
         used += need;
         shown.push(column);
       } else {
+        exhausted = true;
         overflow.push(column);
       }
     }
@@ -526,10 +523,17 @@ export function DataGrid<T>({
       ),
     [columns, columnHelper],
   );
-  const sortingState: SortingState = activeSort.map((entry) => ({
-    id: entry.key,
-    desc: entry.direction === "desc",
-  }));
+  // Referential stability matters: the engine memoizes the sorted row model
+  // on [sorting, preSortedRows] by identity — a fresh array per render would
+  // re-sort every render and invalidate every downstream memo.
+  const sortingState: SortingState = React.useMemo(
+    () =>
+      activeSort.map((entry) => ({
+        id: entry.key,
+        desc: entry.direction === "desc",
+      })),
+    [activeSort],
+  );
   const table = useReactTable({
     data,
     columns: tanColumns,
@@ -580,12 +584,53 @@ export function DataGrid<T>({
     [sections, groups],
   );
 
+  // ---- ARIA geometry -------------------------------------------------------
+  // aria-rowindex must count EVERY DOM row (header, group rows, data rows) or
+  // AT announces "row 3 of 4" over a 6-row grid; aria-colcount conveys the
+  // FULL declared column set with per-cell indices in that set, so hidden
+  // columns read as gaps rather than being erased.
+  const { ariaRowIndexById, ariaGroupRowIndex, ariaRowTotal } =
+    React.useMemo(() => {
+      const byId = new Map<string, number>();
+      const byGroup = new Map<string, number>();
+      let running = 1; // the header row
+      for (const section of sections) {
+        if (section.id !== null) {
+          running += 1;
+          byGroup.set(section.id, running);
+        }
+        const collapsed =
+          section.id !== null && groups[section.id] === "collapsed";
+        if (collapsed) continue;
+        for (const row of section.rows) {
+          running += 1;
+          byId.set(row.id, running);
+        }
+      }
+      return {
+        ariaRowIndexById: byId,
+        ariaGroupRowIndex: byGroup,
+        ariaRowTotal: running,
+      };
+    }, [sections, groups]);
+  const ariaColIndexByKey = React.useMemo(() => {
+    const map = new Map<string, number>();
+    ordered.forEach((column, index) => {
+      map.set(column.key, index + (selectable ? 1 : 0) + 1);
+    });
+    return map;
+  }, [ordered, selectable]);
+  const ariaColTotal = ordered.length + (selectable ? 1 : 0);
+
   // ---- virtualization (flag; exclusive with grouping) ----------------------
   const canVirtualize = virtualize && !groupColumn;
   const rowVirtualizer = useVirtualizer({
     count: canVirtualize ? flatVisibleRows.length : 0,
     getScrollElement: () => containerRef.current,
     estimateSize: () => 40,
+    // Real heights via measureElement — a merged mobile stack or an open
+    // editor is taller than the estimate, and windowed offsets must follow.
+    getItemKey: (index) => flatVisibleRows[index]?.id ?? index,
     overscan: 8,
   });
 
@@ -596,6 +641,13 @@ export function DataGrid<T>({
     row: number;
     col: number;
   }>({ row: 0, col: 0 });
+  // The roving coordinate is CLAMPED against what is actually rendered: if
+  // the active column is hidden or the data shrinks, the tab stop must land
+  // on a real cell — otherwise the grid body becomes keyboard-unreachable.
+  const clampedActive = {
+    row: Math.max(0, Math.min(activeCell.row, flatVisibleRows.length - 1)),
+    col: Math.max(0, Math.min(activeCell.col, colCount - 1)),
+  };
   const [editingCell, setEditingCell] = React.useState<{
     rowId: string;
     key: string;
@@ -609,6 +661,11 @@ export function DataGrid<T>({
   }, []);
   const cellRefs = React.useRef(new Map<string, HTMLElement>());
   const cellKey = (row: number, col: number) => `${row}:${col}`;
+  const loadMoreFired = React.useRef(false);
+  const dataLength = data.length;
+  React.useEffect(() => {
+    loadMoreFired.current = false;
+  }, [dataLength, loadMore?.loading]);
 
   const focusCell = React.useCallback(
     (row: number, col: number) => {
@@ -628,7 +685,12 @@ export function DataGrid<T>({
     // Edit mode suspends grid navigation entirely (Escape is handled by the
     // editor, which reports back through onEditingChange).
     if (editingCell) return;
-    const { row, col } = activeCell;
+    // The handler is bound to the whole table — only keystrokes that
+    // originate in a BODY gridcell belong to the cell layer. A sort header's
+    // Enter must sort, not open the active cell's editor.
+    const origin = event.target as HTMLElement;
+    if (!origin.closest('[role="gridcell"]')) return;
+    const { row, col } = clampedActive;
     const isRtl = getComputedStyle(event.currentTarget).direction === "rtl";
     switch (event.key) {
       case "ArrowDown": {
@@ -636,9 +698,13 @@ export function DataGrid<T>({
         if (
           row === flatVisibleRows.length - 1 &&
           loadMore?.hasMore &&
-          !loadMore.loading
+          !loadMore.loading &&
+          !loadMoreFired.current
         ) {
-          // Keyboard-continuous load-more: walking past the last row fetches.
+          // Keyboard-continuous load-more: walking past the last row fetches
+          // ONCE per page — the guard resets when rows arrive, so a host
+          // that omits `loading` cannot be hammered by repeated presses.
+          loadMoreFired.current = true;
           loadMore.onLoadMore();
           announce("Loading more rows…");
           return;
@@ -687,27 +753,6 @@ export function DataGrid<T>({
     }
   };
 
-  /** Tab while editing advances to the next editable cell in the row. */
-  const advanceEdit = React.useCallback(
-    (fromRowId: string, fromKey: string, backwards: boolean) => {
-      const rowIndex = flatVisibleRows.findIndex((r) => r.id === fromRowId);
-      if (rowIndex === -1) return false;
-      const editableKeys = visibleColumns
-        .filter((column) => column.editable)
-        .map((column) => column.key);
-      const at = editableKeys.indexOf(fromKey);
-      const nextKey = editableKeys[at + (backwards ? -1 : 1)];
-      if (!nextKey) return false;
-      setEditingCell({ rowId: fromRowId, key: nextKey });
-      const colIndex =
-        visibleColumns.findIndex((column) => column.key === nextKey) +
-        (selectable ? 1 : 0);
-      setActiveCell({ row: rowIndex, col: colIndex });
-      return true;
-    },
-    [flatVisibleRows, visibleColumns, selectable],
-  );
-
   const closeEditor = React.useCallback(
     (rowId: string, key: string) => {
       setEditingCell((current) =>
@@ -721,9 +766,22 @@ export function DataGrid<T>({
         visibleColumns.findIndex((column) => column.key === key) +
         (selectable ? 1 : 0);
       if (rowIndex !== -1)
-        requestAnimationFrame(() =>
-          cellRefs.current.get(cellKey(rowIndex, colIndex))?.focus(),
-        );
+        requestAnimationFrame(() => {
+          // Restore when focus fell to <body> (editor unmount) or is still
+          // inside the cell (EditableCell's own display return). If the close
+          // came from clicking ANOTHER control — the Columns trigger —
+          // stealing focus back would close what the user just opened.
+          const cell = cellRefs.current.get(cellKey(rowIndex, colIndex));
+          if (!cell) return;
+          const focused = document.activeElement;
+          if (
+            focused instanceof HTMLElement &&
+            focused !== document.body &&
+            !cell.contains(focused)
+          )
+            return;
+          cell.focus();
+        });
     },
     [flatVisibleRows, visibleColumns, selectable],
   );
@@ -767,7 +825,10 @@ export function DataGrid<T>({
   const renderRow = (
     tanRow: (typeof sortedRows)[number],
     rowIndex: number,
-    style?: React.CSSProperties,
+    virtualProps?: {
+      ref: (node: Element | null) => void;
+      "data-index": number;
+    },
   ) => {
     const row = tanRow.original;
     const id = tanRow.id;
@@ -777,9 +838,9 @@ export function DataGrid<T>({
         key={id}
         data-slot="data-grid-row"
         data-selected={isSelected ? "" : undefined}
-        aria-rowindex={rowIndex + 2}
+        aria-rowindex={ariaRowIndexById.get(id) ?? rowIndex + 2}
         aria-selected={selectable ? isSelected : undefined}
-        style={style}
+        {...virtualProps}
         className={cn(
           isSelected && "bg-accent hover:bg-accent data-selected:bg-accent",
         )}
@@ -789,7 +850,7 @@ export function DataGrid<T>({
             role="gridcell"
             aria-colindex={1}
             tabIndex={
-              activeCell.row === rowIndex && activeCell.col === 0 ? 0 : -1
+              clampedActive.row === rowIndex && clampedActive.col === 0 ? 0 : -1
             }
             ref={(node: HTMLElement | null) => {
               if (node) cellRefs.current.set(cellKey(rowIndex, 0), node);
@@ -809,7 +870,7 @@ export function DataGrid<T>({
         {visibleColumns.map((column, columnIndex) => {
           const col = columnIndex + (selectable ? 1 : 0);
           const isActive =
-            activeCell.row === rowIndex && activeCell.col === col;
+            clampedActive.row === rowIndex && clampedActive.col === col;
           const isEditing =
             editingCell?.rowId === id && editingCell.key === column.key;
           const isPrimary = columnIndex === 0;
@@ -817,7 +878,7 @@ export function DataGrid<T>({
             <TableCell
               key={column.key}
               role="gridcell"
-              aria-colindex={col + 1}
+              aria-colindex={ariaColIndexByKey.get(column.key)}
               aria-readonly={column.editable ? undefined : true}
               data-slot="data-grid-cell"
               tabIndex={isActive ? 0 : -1}
@@ -906,7 +967,7 @@ export function DataGrid<T>({
           <TableHead
             key={column.key}
             role="columnheader"
-            aria-colindex={columnIndex + (selectable ? 1 : 0) + 1}
+            aria-colindex={ariaColIndexByKey.get(column.key)}
             data-slot="data-grid-head"
             data-sorted={entry?.direction}
             aria-sort={
@@ -1008,8 +1069,8 @@ export function DataGrid<T>({
       <Table
         role="grid"
         aria-label={ariaLabel}
-        aria-rowcount={loadMore?.hasMore ? -1 : flatVisibleRows.length + 1}
-        aria-colcount={colCount}
+        aria-rowcount={loadMore?.hasMore ? -1 : ariaRowTotal}
+        aria-colcount={ariaColTotal}
         aria-busy={loading || undefined}
         data-grid-id={gridId}
         onKeyDown={handleGridKeyDown}
@@ -1070,22 +1131,43 @@ export function DataGrid<T>({
             </TableRow>
           </TableBody>
         ) : canVirtualize ? (
-          <TableBody
-            style={
-              {
-                ["--data-grid-virtual-height"]: String(totalSize),
-              } as React.CSSProperties
-            }
-            className="relative block h-[calc(var(--data-grid-virtual-height)*1px)]"
-          >
-            {virtualItems.map((virtualRow) => {
-              const tanRow = flatVisibleRows[virtualRow.index]!;
-              return (
-                <VirtualRowShell key={tanRow.id} start={virtualRow.start}>
-                  {renderRow(tanRow, virtualRow.index)}
-                </VirtualRowShell>
-              );
-            })}
+          // Spacer-row windowing: rows stay REAL table rows, so cell widths
+          // keep tracking the header's column grid and measured heights can
+          // vary — an absolutely-positioned flex <tr> would do neither.
+          <TableBody>
+            {virtualItems.length > 0 && virtualItems[0]!.start > 0 ? (
+              <tr
+                aria-hidden="true"
+                data-slot="data-grid-virtual-pad"
+                style={
+                  {
+                    ["--data-grid-virtual-pad"]: String(virtualItems[0]!.start),
+                  } as React.CSSProperties
+                }
+                className="h-[calc(var(--data-grid-virtual-pad)*1px)]"
+              />
+            ) : null}
+            {virtualItems.map((virtualRow) =>
+              renderRow(flatVisibleRows[virtualRow.index]!, virtualRow.index, {
+                ref: rowVirtualizer.measureElement,
+                "data-index": virtualRow.index,
+              }),
+            )}
+            {virtualItems.length > 0 &&
+            totalSize > virtualItems[virtualItems.length - 1]!.end ? (
+              <tr
+                aria-hidden="true"
+                data-slot="data-grid-virtual-pad"
+                style={
+                  {
+                    ["--data-grid-virtual-pad"]: String(
+                      totalSize - virtualItems[virtualItems.length - 1]!.end,
+                    ),
+                  } as React.CSSProperties
+                }
+                className="h-[calc(var(--data-grid-virtual-pad)*1px)]"
+              />
+            ) : null}
           </TableBody>
         ) : (
           sections.map((section) => {
@@ -1105,6 +1187,7 @@ export function DataGrid<T>({
                 {section.id !== null ? (
                   <TableRow
                     data-slot="data-grid-group-row"
+                    aria-rowindex={ariaGroupRowIndex.get(section.id)}
                     className="bg-muted/(--alpha-wash) hover:bg-muted/(--alpha-wash)"
                   >
                     <TableCell colSpan={colSpan} className="py-1">
@@ -1175,37 +1258,5 @@ export function DataGrid<T>({
         <span key={announcement.seq}>{announcement.text}</span>
       </span>
     </div>
-  );
-}
-
-/**
- * Absolute-positioned shell for a virtualized row — offset flows through a
- * unitless custom property so inline style stays custom-properties-only.
- */
-function VirtualRowShell({
-  start,
-  children,
-}: {
-  start: number;
-  children: React.ReactNode;
-}) {
-  return (
-    <React.Fragment>
-      {React.isValidElement(children)
-        ? React.cloneElement(
-            children as React.ReactElement<{
-              style?: React.CSSProperties;
-              className?: string;
-            }>,
-            {
-              style: {
-                ["--data-grid-row-start"]: String(start),
-              } as React.CSSProperties,
-              className:
-                "absolute inset-x-0 top-0 flex w-full translate-y-[calc(var(--data-grid-row-start)*1px)] items-center",
-            },
-          )
-        : children}
-    </React.Fragment>
   );
 }

@@ -1,4 +1,4 @@
-// @vegastack board@0.3.0 sha256-yLnx/tx+n8ZVQPfZtLPndHDmcMTPo4O+tDCqJVOda/k=
+// @vegastack board@0.3.0 sha256-d+4GDHG2Hrl9Dd+tuaVKl+xwMewv2u2WYQhqc+2Z1o0=
 
 "use client";
 
@@ -193,9 +193,8 @@ export function Board<T>({
 
   const isCollapsed = (column: BoardColumn<T>) =>
     (column.collapsed ?? false) && !expandedOverrides.has(column.id);
-  /** Expanded-from-collapsed columns are read-only: no drags, no drops. */
-  const isReadOnly = (column: BoardColumn<T>) =>
-    (column.collapsed ?? false) || isCollapsed(column);
+  /** Columns declared collapsed stay read-only even while expanded to view. */
+  const isReadOnly = (column: BoardColumn<T>) => column.collapsed ?? false;
 
   const lists = React.useMemo(() => {
     const record: Record<string, string[]> = {};
@@ -223,6 +222,12 @@ export function Board<T>({
       const owner = itemsById.get(id)?.column;
       return owner ? isReadOnly(owner) : true;
     },
+    // Locked lanes must refuse POINTER drops on their cards too — the
+    // container ref gating alone leaves every card a valid target.
+    canDropInContainer: (containerId) => {
+      const column = columns.find((c) => c.id === containerId);
+      return column ? column.droppable !== false && !isReadOnly(column) : false;
+    },
   });
 
   // ---- roving focus across the ragged card grid ----------------------------
@@ -232,7 +237,16 @@ export function Board<T>({
   const firstCardId = visibleColumns.flatMap((column) =>
     column.items.map(getItemId),
   )[0];
-  const rovingTarget = activeCard ?? firstCardId ?? null;
+  // Reconcile the roving target against the CURRENT card set: if the active
+  // card was removed (poll, filter) or its column collapsed, fall back to the
+  // first card — otherwise the board loses its only tab stop permanently.
+  const activeCardStillVisible =
+    activeCard !== null &&
+    visibleColumns.some((column) =>
+      column.items.some((item) => getItemId(item) === activeCard),
+    );
+  const rovingTarget =
+    (activeCardStillVisible ? activeCard : null) ?? firstCardId ?? null;
 
   const focusCard = React.useCallback((id: string | undefined) => {
     if (!id) return;
@@ -493,7 +507,6 @@ export function Board<T>({
                                         variant="ghost"
                                         size="xs"
                                         aria-label="Move card"
-                                        data-slot="board-card-menu"
                                         className="absolute end-1 top-1"
                                       >
                                         <EllipsisVertical />
@@ -501,6 +514,53 @@ export function Board<T>({
                                     }
                                   />
                                   <DropdownMenuContent align="end">
+                                    {/* Within-column ordering — on touch the
+                                        menu is the ONLY ordering path, so it
+                                        must be lossless on its own. */}
+                                    {[
+                                      {
+                                        label: "Move up",
+                                        index: index - 1,
+                                        enabled: index > 0,
+                                      },
+                                      {
+                                        label: "Move down",
+                                        index: index + 1,
+                                        enabled:
+                                          index < column.items.length - 1,
+                                      },
+                                      {
+                                        label: "Move to top",
+                                        index: 0,
+                                        enabled: index > 0,
+                                      },
+                                      {
+                                        label: "Move to bottom",
+                                        index: column.items.length - 1,
+                                        enabled:
+                                          index < column.items.length - 1,
+                                      },
+                                    ].map((step) => (
+                                      <DropdownMenuItem
+                                        key={step.label}
+                                        disabled={!step.enabled}
+                                        onClick={() =>
+                                          reorder.requestMove({
+                                            id,
+                                            from: {
+                                              container: column.id,
+                                              index,
+                                            },
+                                            to: {
+                                              container: column.id,
+                                              index: step.index,
+                                            },
+                                          })
+                                        }
+                                      >
+                                        {step.label}
+                                      </DropdownMenuItem>
+                                    ))}
                                     {moveTargetsFor(id, column).map(
                                       ({ column: target, locked }) => (
                                         <DropdownMenuItem

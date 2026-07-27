@@ -213,7 +213,7 @@ test("collapsed columns render as an expandable strip; expanded-from-collapsed i
   expect(expanded.hasAttribute("data-read-only")).toBe(true);
   // Read-only cards lose the move menu (drags are gated at dragstart by the
   // hook's canDrag — the native attribute remains, the behaviour does not).
-  expect(expanded.querySelector('[data-slot="board-card-menu"]')).toBeNull();
+  expect(expanded.querySelector('[aria-label="Move card"]')).toBeNull();
 });
 
 test("the drag posture is flat: no shadow utility anywhere on cards", async () => {
@@ -248,4 +248,98 @@ test("no a11y violations — board with cards, empty locked lane, move mode", as
   surfaces[0]!.focus();
   await userEvent.keyboard(" ");
   await expectNoA11yViolations(screen.container);
+});
+
+test("a cross-column keyboard move keeps move mode and focus follows the card", async () => {
+  await render(<Controlled />);
+  const surfaces = Array.from(
+    document.querySelectorAll('[data-slot="board-card-surface"]'),
+  ) as HTMLElement[];
+  surfaces[0]!.focus();
+  await userEvent.keyboard(" ");
+  await userEvent.keyboard("{ArrowRight}");
+  await expect.poll(() => columnCards("won")).toEqual(["Acme", "Initech"]);
+  // The card REMOUNTED under the Won column — focus must follow it and move
+  // mode must survive, or the session strands on <body>.
+  await expect
+    .poll(() => (document.activeElement as HTMLElement)?.textContent ?? "")
+    .toContain("Acme");
+  const moved = document.querySelector('[data-drag-item="d1"]')!;
+  expect(moved.closest('[data-column="won"]')).not.toBeNull();
+  expect(moved.hasAttribute("data-dragging")).toBe(true);
+  // A second step in the same session still works.
+  await userEvent.keyboard("{ArrowDown}");
+  await expect.poll(() => columnCards("won")).toEqual(["Initech", "Acme"]);
+  await userEvent.keyboard("{Escape}");
+  expect(document.querySelector('[role="status"]')!.textContent).toContain(
+    "Move mode off",
+  );
+});
+
+test("the roving tab stop falls back when the active card disappears", async () => {
+  function Shrinking() {
+    const [columns, setColumns] = React.useState(makeColumns());
+    return (
+      <div>
+        <button
+          type="button"
+          onClick={() =>
+            setColumns((prev) =>
+              prev.map((c) => ({
+                ...c,
+                items: c.items.filter((d) => d.id !== "d2"),
+              })),
+            )
+          }
+        >
+          remove
+        </button>
+        <Board<Deal>
+          aria-label="Deals"
+          columns={columns}
+          getItemId={(deal) => deal.id}
+          renderCard={(deal) => <span>{deal.name}</span>}
+          onMove={() => {}}
+        />
+      </div>
+    );
+  }
+  const screen = await render(<Shrinking />);
+  const surfaces = Array.from(
+    document.querySelectorAll('[data-slot="board-card-surface"]'),
+  ) as HTMLElement[];
+  // Focus the second card, then let the host remove it.
+  surfaces[1]!.focus();
+  await screen.getByRole("button", { name: "remove" }).click();
+  const remaining = Array.from(
+    document.querySelectorAll('[data-slot="board-card-surface"]'),
+  ) as HTMLElement[];
+  // The board must keep exactly one tab stop.
+  expect(remaining.map((s) => s.tabIndex)).toContain(0);
+});
+
+test("the card menu offers lossless within-column ordering", async () => {
+  const onMove = vi.fn();
+  await render(<Controlled onMove={onMove} />);
+  const surfaces = Array.from(
+    document.querySelectorAll('[data-slot="board-card-surface"]'),
+  ) as HTMLElement[];
+  surfaces[0]!.focus();
+  await userEvent.keyboard("m");
+  const menu = await vi.waitFor(() => {
+    const el = document.querySelector('[role="menu"]');
+    if (!el) throw new Error("menu not open");
+    return el;
+  });
+  const labels = Array.from(menu.querySelectorAll('[role="menuitem"]')).map(
+    (item) => item.textContent ?? "",
+  );
+  expect(labels.some((l) => l.startsWith("Move down"))).toBe(true);
+  expect(labels.some((l) => l.startsWith("Move to bottom"))).toBe(true);
+  const down = Array.from(menu.querySelectorAll('[role="menuitem"]')).find(
+    (item) => item.textContent === "Move down",
+  ) as HTMLElement;
+  down.click();
+  await expect.poll(() => onMove).toHaveBeenCalledWith("d1", "lead", 1);
+  await expect.poll(() => columnCards("lead")).toEqual(["Globex", "Acme"]);
 });

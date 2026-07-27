@@ -11234,7 +11234,7 @@
             "status-announcement",
             "semantic-html"
           ],
-          "evidence": "Roving focus across the ragged card grid (RTL-aware ←/→); Space move mode, Enter activate, M opens the named Move menu with visible lock reasons; per-column role=list wrapping cards with Empty as a sibling; polite move/rejection announcements."
+          "evidence": "Roving focus across the ragged card grid (RTL-aware ←/→ for browsing AND move mode); Space move mode with focus restored across cross-column remounts, Enter activate, M opens the named Move menu — within-column up/down/top/bottom plus cross-column targets with visible lock reasons; a populated column wraps its cards in role=list (an empty column renders the Empty affordance instead); polite move/rejection announcements."
         },
         "visual": {
           "status": "observed",
@@ -11301,7 +11301,7 @@
       "name": "dropzone",
       "registryType": "registry:ui",
       "title": "Dropzone",
-      "summary": "File acquisition surface — drop, click-to-browse, and paste — as a thin shell over use-file-drop; a real visually hidden file input is the accessible control; data-dragging/data-drag-invalid styling flags.",
+      "summary": "File acquisition surface — drop, click-to-browse, and paste — as a thin shell over use-file-drop; the surface is the named focusable control over a hidden picker-bridge input; data-dragging/data-drag-invalid styling flags.",
       "family": "form",
       "wave": "Forms/editing",
       "sourceFiles": ["packages/ui/registry/ui/dropzone.tsx"],
@@ -11357,7 +11357,7 @@
             "status-announcement",
             "semantic-html"
           ],
-          "evidence": "A real visually hidden named <input type=file> is the focusable, keyboard-operable control; batches announce politely; drag validity is never colour alone (typed rejections + announcements)."
+          "evidence": "The drop surface is the named focusable control (role=button, Enter/Space opens the picker); the real <input type=file> is a display:none sibling picker bridge, never a tab stop; batches announce politely WITH refusal reasons; drag validity is never colour alone (typed rejections + announcements)."
         },
         "visual": {
           "status": "observed",

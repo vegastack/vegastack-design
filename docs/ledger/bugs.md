@@ -233,3 +233,35 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   tests assert the attribute. The class: any stay-mounted hide (the MessageScrollerButton recipe)
   hosting interactive children needs `inert` — the scroll button itself is exempt only because its
   single action is harmless and appears exactly when relevant.
+
+## 2026-07-27 — A spread `ref` silently kills a prop-getter engine
+
+- **Symptom:** Dropzone's keyboard path dead and drag-depth counting broken, with every test green.
+- **Root cause:** `{...getRootProps()} ref={ref}` — JSX places the later `ref` (even `undefined`)
+  over the engine's root ref, and react-dropzone gates BOTH its keydown handler and its dragleave
+  filtering on `rootRef.current`. No error, no warning; two behaviours just stop existing.
+- **Systemic fix:** merged refs, and the hook's docs now name `dropProps.ref` as load-bearing. The
+  class: any prop-getter library ref must be MERGED, never assigned over — and a test that only
+  exercises the geometry the broken path still handles (dragleave on the root itself) certifies
+  the state machine while being blind to its real failure mode; test the CHILD-crossing case.
+
+## 2026-07-27 — Cross-parent remounts fire no blur: sessions that end "on blur" never end
+
+- **Symptom:** a cross-column keyboard move left the board card in move mode forever with focus on
+  `<body>`; the same flow within one column worked perfectly.
+- **Root cause:** React unmount fires no blur event, so any interaction session whose exit path is
+  `onBlur` survives a cross-parent remount — while the focused node itself is destroyed.
+- **Systemic fix:** the hook restores focus to the moved item's registered handle after each render
+  while a keyboard move session is live (a counter pointer drags reset, so it cannot fire
+  mid-drag). The class: keyed remounts across parents need explicit focus continuity; blur is not
+  a lifecycle signal.
+
+## 2026-07-27 — A component that overwrites `data-slot` after its spread makes caller slots dead
+
+- **Symptom:** three tests asserting "no handle/menu renders when disabled" passed against fully
+  enabled components — their selectors could never match anything.
+- **Root cause:** `IconButton` places `data-slot="icon-button"` AFTER `{...props}`, so a caller's
+  `data-slot` is discarded silently; the callers kept passing one anyway.
+- **Systemic fix:** the dead attributes removed; the tests re-anchored on accessible names. The
+  class: a selector-based negative assertion must first be proven able to match in the positive
+  case, or it asserts nothing.

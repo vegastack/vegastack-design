@@ -1,4 +1,4 @@
-// @vegastack dropzone@0.3.0 sha256-3ZJPUxmBZxPPNt6okQUIDBURO9PRZxNboRM8LNNp6DY=
+// @vegastack dropzone@0.3.0 sha256-/igR2pNoBcKzOSj91mW0rAlL5H1jqr52Lxs6pooWHIk=
 
 "use client";
 
@@ -19,9 +19,12 @@ acquisition — per-file upload state, progress, retries — is `Attachment`'s t
 ("it owns no upload logic, only the visual state machine"): the two meet at a plain
 `File[]` callback and share the rejection/state vocabulary.
 
-The a11y story is SIMPLER with a real, visually hidden `<input type="file">` than any
-div-based target: the input IS the control (named, focusable, keyboard-operable,
-form-participating); the drop surface is decoration around it. That input is this
+The a11y model is the ENGINE'S, made honest: the drop surface is the focusable
+control (`role="button"`, named via `aria-label`, `tabIndex=0`, Enter/Space opens the
+picker through the engine's keydown), and the real `<input type="file">` behind it is
+the display:none form/picker bridge — not a tab stop. The engine's root ref is
+load-bearing (keyboard activation AND drag-depth counting both check it), so the
+consumer ref is MERGED with it below, never assigned over it. That input is this
 file's one `RAW_INTERACTIVE_EXEMPTIONS` entry — the engine's prop-getter must attach
 to a native input, and no VegaStack control can substitute for the file-picker bridge.
 
@@ -46,7 +49,7 @@ export interface DropzoneProps extends Omit<
    */
   onFilesRejected?: (rejections: FileDropRejection[]) => void;
   /**
-   * Accessible name for the file input.
+   * Accessible name for the drop surface (the focusable control).
    * @default "Upload files"
    */
   "aria-label"?: string;
@@ -95,14 +98,33 @@ export function Dropzone({
   ...options
 }: DropzoneProps) {
   const drop = useFileDrop({ onFilesAccepted, onFilesRejected, ...options });
-  const { "data-dragging": dragging, "data-drag-invalid": dragInvalid } =
-    drop.dropProps;
+  const {
+    "data-dragging": dragging,
+    "data-drag-invalid": dragInvalid,
+    ref: engineRef,
+    ...surfaceProps
+  } = drop.dropProps as typeof drop.dropProps & {
+    ref: React.RefObject<HTMLDivElement | null>;
+  };
+  // Both refs are load-bearing: the engine's gates its keyboard + drag-depth
+  // paths on rootRef; the consumer's is the public contract. Merge, never pick.
+  const mergedRef = React.useCallback(
+    (node: HTMLDivElement | null) => {
+      engineRef.current = node;
+      if (typeof ref === "function") ref(node);
+      else if (ref) ref.current = node;
+    },
+    [engineRef, ref],
+  );
 
   return (
     <>
       <div
-        {...drop.dropProps}
-        ref={ref}
+        {...surfaceProps}
+        ref={mergedRef}
+        role="button"
+        aria-label={ariaLabel}
+        aria-disabled={options.disabled ? true : undefined}
         data-slot="dropzone"
         data-disabled={options.disabled ? "" : undefined}
         className={cn(
@@ -117,10 +139,12 @@ export function Dropzone({
         data-dragging={dragging}
         data-drag-invalid={dragInvalid}
       >
-        {/* The REAL control: named, focusable, keyboard-operable. */}
-        <input {...drop.inputProps} aria-label={ariaLabel} />
         {children}
       </div>
+      {/* The form/picker bridge — display:none, never a tab stop, and a
+          SIBLING of the surface: an interactive control may not contain
+          another (axe nested-interactive). The engine reaches it by ref. */}
+      <input {...drop.inputProps} />
       <span {...drop.getLiveRegionProps()} />
     </>
   );

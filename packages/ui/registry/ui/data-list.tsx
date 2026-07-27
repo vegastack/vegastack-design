@@ -1,4 +1,4 @@
-// @vegastack data-list@0.3.0 sha256-J8TlmbpTtLCcmfBDfvsxNztCXgODhp8wCp7YELdbaR0=
+// @vegastack data-list@0.3.0 sha256-aFm0eSiFlpk1hwFRZG8/5mgvS9bTIohHyHUrUat7wko=
 
 "use client";
 
@@ -278,12 +278,12 @@ function nextSort(
  * data table: columns, render functions, row selection, sortable-header signalling,
  * skeleton loading, the empty state, activatable rows (`onRowClick`), and the
  * `toolbar`/`footer` composition slots. It deliberately does **not** own data-fetching
- * or app-coupled data-management behaviour. The platform's richer data surface —
- * search/filtering, pagination / page-size / load-more, drag-and-drop reordering,
- * board/Kanban layout, grouping & collapsible groups, view persistence, and
- * layout-switching — is **composed by the host app** around this primitive (it owns the
- * query, the URL/persisted view state, and the filtered/paged `data` it passes in), or
- * is tracked as future scope. Drop the host's own search/filter controls into `toolbar`
+ * or app-coupled data-management behaviour. The platform's richer data surface is
+ * either **composed by the host app** around this primitive (search/filtering,
+ * pagination, view persistence — it owns the query, the URL/persisted view state, and
+ * the filtered/paged `data` it passes in) or **shipped as sibling components**:
+ * `SortableList` (reordering), `Board` (Kanban), and `DataGrid` (grouping, inline
+ * editing, multi-key sort, virtualization). Drop the host's own search/filter controls into `toolbar`
  * and its pagination into `footer`; pass `DataList` the already-filtered, already-paged rows.
  *
  * @example

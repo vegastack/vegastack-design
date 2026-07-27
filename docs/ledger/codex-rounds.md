@@ -258,3 +258,42 @@ Post-fix gates: design-lint clean · typecheck 7/7 · full browser unit suite gr
 after the regression additions) · contracts:all 832/832 over 104 routes · design:verify 18/18 ·
 `pnpm lint` clean · consume round-trip clean · smoke Firefox 312/312 (WebKit blocked by the
 documented 0a-note host gap — no Aqua session over SSH; ship requires a GUI-session run).
+
+## Round 20 — 2026-07-27 · phase-3 adversarial review (D1–D4 engines: drag, drop, grid)
+
+Scope: the dependency-gated wave — `use-drag-reorder`, `sortable-list`, `board`, `use-file-drop`,
+`dropzone`, `data-grid`, the D1–D4 sanction, and every consistency surface it touched. Four
+independent opus reviewers (drag stack · file drop · data-grid · cross-cutting); every finding
+verified by execution; every accepted finding fixed in-round. Full findings and resolutions:
+`docs/audits/2026-07-27-phase3-dnd-grid-adversarial-review.md`.
+
+- **[CRITICAL] Gap/self pointer drops appended the dragged row to the end of its list** (container
+  fallthrough). FIXED — same-container container-drops are a no-op; drag-tested for real (the test
+  helper now drives Pragmatic's actual gates: dragstart on the registered element at the handle's
+  coordinates).
+- **[CRITICAL] Cross-column keyboard moves stranded focus on `<body>` with move mode stuck on** —
+  the remount fires no blur. FIXED in the hook: session-scoped focus restoration to the moved
+  item's handle; pointer drags can never trigger it.
+- **[CRITICAL] Dropzone's `ref={ref}` clobbered the engine's root ref**, killing keyboard
+  activation and drag-depth counting; and the "hidden input is the accessible control" story was
+  false (engine: root tabIndex=0 role=presentation, input tabIndex=-1). FIXED — merged ref;
+  surface-as-`role="button"` model made honest across every claim surface; input is a
+  `display:none` sibling bridge (axe nested-interactive).
+- **[CRITICAL] Paste bypassed `accept`** — unvalidated type ingestion on the documented usage.
+  FIXED — paste enforces the same accept/size/count set as drop, surplus-only rejections.
+- **[CRITICAL] DataGrid's roving tab stop could vanish** (hide active column / shrink data) and
+  header Enter leaked into the cell editor layer. FIXED — clamped roving coordinate; keydown gated
+  to body gridcells; `advanceEdit` dead code and its false Tab-advance claims removed.
+- ~20 medium/low: preventWindowDrop no-op, disabled `open()` TypeError, reasonless refusal
+  announcements, swallowed superseded-move rejections, RTL move-mode arrows, locked-lane card
+  drops, board menu within-column ordering, `input: "menu"` vocabulary, grouped-grid aria
+  geometry, spacer-row virtualization with measurement, sorted-model memoization, revelation
+  holes, the Columns-menu focus-steal race, load-more refire, `onColumnOrderChange` stub removal,
+  three vacuous tests (IconButton data-slot clobber), stale "deferred" claims, AGENTS.md
+  864-checks numbers, the missing `@vegastack/design` changeset — all fixed; four judgment calls
+  explicitly accepted with rationale in the audit file.
+
+Post-fix gates: design-lint clean · `pnpm lint` 7/7 · typecheck clean · browser unit suite
+1458/1458 (+15 regression tests) · contracts full sweep 864/864 pre-fix, touched routes 40/40
+post-fix · registry:build idempotent · derived surfaces current. WebKit smoke still requires MK's
+GUI session (0a-note) before `/ship`.

@@ -143,12 +143,8 @@ test("a rejected move shows pending then announces the snap-back", async () => {
 test("disabled renders rows without handles or menus", async () => {
   const screen = await render(<Controlled disabled />);
   expect(rowLabels()).toEqual(["Alpha", "Beta", "Gamma"]);
-  expect(
-    document.querySelector('[data-slot="sortable-list-handle"]'),
-  ).toBeNull();
-  expect(
-    document.querySelector('[data-slot="sortable-list-menu-trigger"]'),
-  ).toBeNull();
+  expect(document.querySelector('[aria-label^="Reorder"]')).toBeNull();
+  expect(document.querySelector('[aria-label^="Move "]')).toBeNull();
   await expectNoA11yViolations(screen.container);
 });
 

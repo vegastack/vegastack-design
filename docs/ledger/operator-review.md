@@ -514,3 +514,19 @@ each was invisible in review and each is the kind that would have degraded the t
   include `Table`; there was no AutoTypeTable), so the fix stood. Recorded because a plan
   instruction was knowingly not followed after verification — the truth hierarchy's script-over-
   prose rule applied to a plan's own self-correction.
+
+## 2026-07-27 — phase-3 judgment calls (round 20)
+
+- **Same-container container-drops are a no-op, not an append.** The container target is what a
+  gap/self drop falls through to; "4px twitch sends the row to the bottom" is worse than losing
+  "drop on own column body to append" (drop on the last row's bottom edge still does that).
+- **Dropzone adopts the ENGINE'S a11y model** (surface as `role="button"`, input as hidden bridge)
+  rather than fighting react-dropzone into the input-as-control story the docs originally told.
+  Doctrine follows implementation truth; every claim surface was rewritten in the same round.
+- **DataGrid column reorder ships as applied `columnOrder` only** — the `onColumnOrderChange` stub
+  that could never fire was removed rather than half-implemented. A reorder affordance (likely a
+  drag layer on headers) is a future commission with a real consumer.
+- **Board's Move menu appends-then-refines** (Move to column, then Move up/down/top/bottom) —
+  lossless in two steps without a position-picker submenu.
+- **The payload-blind document-level drop cancellation is accepted** as react-dropzone's default;
+  the opt-out (`preventWindowDrop={false}`) now actually reaches the engine.

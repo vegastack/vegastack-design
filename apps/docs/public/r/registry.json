@@ -1940,7 +1940,7 @@
         "whenToUse": "User-orderable single lists — settings sections, pipeline stages, ordered taxonomies — where the host persists (and may refuse) the order.",
         "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
         "version": "0.1.0",
-        "integrity": "sha256-jnWrNLf1wj+/BeFPbxfxPaR6LvdcaISKpGxejMrZQh0="
+        "integrity": "sha256-bHA9rxw9HmJYLJq1Sj2yqDuIJA2JteoVY9xgoSbXRKA="
       }
     },
     {
@@ -1978,14 +1978,14 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.1.0",
-        "integrity": "sha256-yLnx/tx+n8ZVQPfZtLPndHDmcMTPo4O+tDCqJVOda/k="
+        "integrity": "sha256-d+4GDHG2Hrl9Dd+tuaVKl+xwMewv2u2WYQhqc+2Z1o0="
       }
     },
     {
       "name": "dropzone",
       "type": "registry:ui",
       "title": "Dropzone",
-      "description": "File acquisition surface — drop, click-to-browse, and paste — as a thin shell over use-file-drop; a real visually hidden file input is the accessible control; data-dragging/data-drag-invalid styling flags.",
+      "description": "File acquisition surface — drop, click-to-browse, and paste — as a thin shell over use-file-drop; the surface is the named focusable control over a hidden picker-bridge input; data-dragging/data-drag-invalid styling flags.",
       "categories": [
         "form"
       ],
@@ -2007,7 +2007,7 @@
         "whenToUse": "A visible upload surface — drop files, click to browse, paste — that hands accepted File[]s to the host and typed rejections back.",
         "whenNotToUse": "Chrome-less acquisition inside another surface (compose use-file-drop directly) or rendering upload progress (Attachment).",
         "version": "0.1.0",
-        "integrity": "sha256-3ZJPUxmBZxPPNt6okQUIDBURO9PRZxNboRM8LNNp6DY="
+        "integrity": "sha256-/igR2pNoBcKzOSj91mW0rAlL5H1jqr52Lxs6pooWHIk="
       }
     },
     {
@@ -2695,7 +2695,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.1.0",
-        "integrity": "sha256-fugGH0ToEhgoFAPP5Z4T9DUP47tQoh1eUqc3tRko6+Y="
+        "integrity": "sha256-67kJssaVVLDvO5mS+MLSWcQBVem4ZM/PgqVPpxZHPr0="
       }
     },
     {
@@ -2726,9 +2726,9 @@
       ],
       "meta": {
         "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, and loading/empty states.",
-        "whenNotToUse": "A board/kanban view (deferred — needs dnd) or a simple static table (use Table).",
+        "whenNotToUse": "A board/kanban view (Board), full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.3.0",
-        "integrity": "sha256-J8TlmbpTtLCcmfBDfvsxNztCXgODhp8wCp7YELdbaR0="
+        "integrity": "sha256-aFm0eSiFlpk1hwFRZG8/5mgvS9bTIohHyHUrUat7wko="
       }
     },
     {
@@ -2889,10 +2889,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Any reorder-by-drag surface — sortable lists, board cards, grid column reorder — where pointer, touch, keyboard move mode, announcements, and server-refusable drops must all work from one API.",
+        "whenToUse": "Any reorder-by-drag surface — sortable lists, board cards, a future bespoke drag surface — where pointer, keyboard move mode, announcements, and server-refusable drops must all work from one API.",
         "whenNotToUse": "File drag-in (use-file-drop), resizing panes (Resizable), or single-axis value dragging (Slider).",
         "version": "0.1.0",
-        "integrity": "sha256-1/Ne/sMMrVYgWvQZLZAEJpb7K07c3CDgmfySuTiZV0E="
+        "integrity": "sha256-OMSwEEPTNH7DBW7citqE/SxT3WcvWmnC/jOGz+50gCY="
       }
     },
     {
@@ -2918,7 +2918,7 @@
         "whenToUse": "Any surface that acquires files — a Dropzone, a rich-text composer accepting pasted screenshots, a bespoke drop target — where drag-depth handling, accept matching, and typed rejections should be correct by construction.",
         "whenNotToUse": "Rendering upload state (Attachment) or persisting uploads — acquisition ends at the File[] callback.",
         "version": "0.1.0",
-        "integrity": "sha256-Sl0w7Yy8y1iEKYX8Z7ywg6knBmT5gMe0Xj+B2qbtFrU="
+        "integrity": "sha256-vfop5K3G51BIupyB4RlXrRgE3MnwwfCpdM1qpI9QPRQ="
       }
     },
     {

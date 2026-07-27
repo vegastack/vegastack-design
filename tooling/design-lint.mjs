@@ -213,7 +213,7 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     {
       counts: { input: 1 },
       rationale:
-        "the visually hidden file input IS the accessible control — react-dropzone's prop-getter must attach to a native <input type=file>; no VegaStack control substitutes for the file-picker bridge",
+        "the display:none form/picker bridge behind the role=button drop surface — react-dropzone's prop-getter must attach to a native <input type=file>; no VegaStack control substitutes for it",
     },
   ],
   [

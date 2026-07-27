@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.3.0 sha256-jnWrNLf1wj+/BeFPbxfxPaR6LvdcaISKpGxejMrZQh0=
+// @vegastack sortable-list@0.3.0 sha256-bHA9rxw9HmJYLJq1Sj2yqDuIJA2JteoVY9xgoSbXRKA=
 
 "use client";
 
@@ -196,7 +196,6 @@ export function SortableList({
                   onKeyDown={handleProps.onKeyDown}
                   onBlur={handleProps.onBlur}
                   aria-pressed={handleProps["aria-pressed"]}
-                  data-slot="sortable-list-handle"
                   className="cursor-grab touch-none"
                 >
                   <GripVertical />
@@ -211,7 +210,6 @@ export function SortableList({
                         variant="ghost"
                         size="sm"
                         aria-label={`Move ${label}`}
-                        data-slot="sortable-list-menu-trigger"
                       >
                         <EllipsisVertical />
                       </IconButton>

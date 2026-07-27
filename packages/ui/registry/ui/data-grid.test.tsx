@@ -22,7 +22,7 @@ function columns(
   overrides: Partial<DataGridColumn<Deal>> = {},
 ): DataGridColumn<Deal>[] {
   return [
-    { key: "name", header: "Name", sortable: true, minWidth: 10, ...{} },
+    { key: "name", header: "Name", sortable: true, minWidth: 10 },
     { key: "stage", header: "Stage", sortable: true, minWidth: 10 },
     {
       key: "amount",
@@ -236,11 +236,6 @@ test("APG navigation: roving gridcell tabindex, arrows, Home/End, Ctrl+Home", as
   expect(firstCell.tabIndex).toBe(0);
   firstCell.focus();
   await userEvent.keyboard("{ArrowRight}");
-  expect((document.activeElement as HTMLElement).textContent).toBe(
-    "Acme".includes("x")
-      ? "x"
-      : (document.activeElement as HTMLElement).textContent,
-  );
   // Position assertions via aria-colindex.
   expect(
     (document.activeElement as HTMLElement).getAttribute("aria-colindex"),
@@ -377,6 +372,12 @@ test("virtualize windows the rows inside the fixed-height viewport", async () =>
     stage: "Open",
     amount: i,
   }));
+  // No compiled Tailwind here — mirror the viewport-height classes so the
+  // scroll container actually constrains (the style-mirror technique).
+  const style = document.createElement("style");
+  style.textContent =
+    '[data-slot="table-container"] { max-height: 240px; overflow-y: auto; display: block; }';
+  document.head.appendChild(style);
   await render(
     <DataGrid
       aria-label="Many"
@@ -390,6 +391,14 @@ test("virtualize windows the rows inside the fixed-height viewport", async () =>
   const rendered = document.querySelectorAll('[data-slot="data-grid-row"]');
   expect(rendered.length).toBeGreaterThan(0);
   expect(rendered.length).toBeLessThan(60);
+  // Windowed rows stay REAL table rows inside the one table grid — the
+  // spacer-row technique, so cells keep tracking the header's columns.
+  const firstRendered = rendered[0] as HTMLElement;
+  expect(firstRendered.closest("table")).not.toBeNull();
+  expect(
+    document.querySelectorAll('[data-slot="data-grid-virtual-pad"]').length,
+  ).toBeGreaterThan(0);
+  document.head.removeChild(style);
 });
 
 test("loading renders skeletons; empty renders the Empty state", async () => {
@@ -459,4 +468,98 @@ test("no a11y violations — grid, selectable, grouped, editable", async () => {
     </div>,
   );
   await expectNoA11yViolations(screen.container);
+  // The EDITABLE composition (EditableCell inside gridcell), scanned while
+  // an editor is OPEN — the title's third state must actually be covered.
+  const editableScreen = await render(
+    <DataGrid
+      aria-label="Editable"
+      columns={[
+        {
+          key: "name",
+          header: "Name",
+          minWidth: 10,
+          editable: { type: "text" },
+        },
+        { key: "stage", header: "Stage", minWidth: 10 },
+      ]}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      onCellCommit={() => {}}
+    />,
+  );
+  const cell = document.querySelector(
+    '[aria-label="Editable"] [data-slot="data-grid-cell"], [role="grid"][aria-label="Editable"] [data-slot="data-grid-cell"]',
+  ) as HTMLElement;
+  cell.focus();
+  await userEvent.keyboard("{F2}");
+  await vi.waitFor(() => {
+    if (!document.querySelector("input")) throw new Error("editor not open");
+  });
+  await expectNoA11yViolations(editableScreen.container);
+});
+
+test("keyboard reachability survives hiding the active column and shrinking data", async () => {
+  function Host() {
+    const [data, setData] = React.useState(DEALS);
+    return (
+      <div>
+        <button type="button" onClick={() => setData(DEALS.slice(0, 1))}>
+          shrink
+        </button>
+        <DataGrid
+          aria-label="Deals"
+          columns={columns()}
+          data={data}
+          getRowId={(d) => d.id}
+        />
+      </div>
+    );
+  }
+  const screen = await render(<Host />);
+  // Put the roving cell on the LAST row, then shrink the data under it.
+  const cells = Array.from(
+    document.querySelectorAll('[data-slot="data-grid-cell"]'),
+  ) as HTMLElement[];
+  cells[cells.length - 1]!.focus();
+  await screen.getByRole("button", { name: "shrink" }).click();
+  // Exactly one body cell must still hold the tab stop.
+  const stops = Array.from(
+    document.querySelectorAll('[data-slot="data-grid-cell"]'),
+  ).filter((el) => (el as HTMLElement).tabIndex === 0);
+  expect(stops.length).toBe(1);
+});
+
+test("header keystrokes stay in the header: Enter on a sort button sorts without opening an editor", async () => {
+  await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={[
+        {
+          key: "name",
+          header: "Name",
+          sortable: true,
+          minWidth: 10,
+          editable: { type: "text" },
+        },
+        { key: "stage", header: "Stage", minWidth: 10 },
+      ]}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      onCellCommit={() => {}}
+    />,
+  );
+  const sortButton = document.querySelector(
+    "th [data-slot] button, th button",
+  ) as HTMLElement;
+  sortButton.focus();
+  await userEvent.keyboard("{Enter}");
+  // Sorting happened…
+  await vi.waitFor(() => {
+    const th = sortButton.closest("th")!;
+    if (th.getAttribute("aria-sort") === "none")
+      throw new Error("did not sort");
+  });
+  // …and no cell editor opened, and focus stayed on the header button.
+  expect(document.querySelector("td input")).toBeNull();
+  expect(document.activeElement).toBe(sortButton);
 });

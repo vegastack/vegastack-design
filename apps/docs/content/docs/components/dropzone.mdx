@@ -1,6 +1,6 @@
 ---
 title: Dropzone
-description: File acquisition — drop, browse, or paste — as a thin shell over the use-file-drop hook; a real hidden file input is the accessible control.
+description: File acquisition — drop, browse, or paste — as a thin shell over the use-file-drop hook; the drop surface is the named, focusable control.
 audience: public
 preview: dropzone
 ---
@@ -75,21 +75,22 @@ per-file state vocabulary `Attachment` renders.
 
 ## Accessibility
 
-- The accessible control is a **real, visually hidden `<input type="file">`** —
-  named (`aria-label`), focusable, keyboard-operable, form-participating. The
-  drop surface is decoration around it; this is simpler and more robust than
-  any div-based target.
+- The accessible control is the **drop surface itself** — `role="button"`,
+  named via `aria-label`, `tabIndex=0`, with Enter/Space opening the picker
+  through the engine's keyboard handler. The real `<input type="file">` behind
+  it is the display:none form/picker bridge, deliberately not a tab stop (an
+  interactive control may not nest another).
 - Accepted and refused batches announce through a polite live region ("Added
-  shot.png", "2 files were refused").
+  shot.png", "2 files were refused — too large").
 - The surface reflects drag state as `data-dragging` / `data-drag-invalid`
   (primary vs destructive border tint) — state is never colour alone: the
   refusal is also announced and reported through `onFilesRejected`.
 - A missed drop never navigates the browser away — the hook prevents the
-  window-level default (opt-out via `preventWindowDrop`).
+  document-level default (opt-out via `preventWindowDrop`).
 
 | Key                                 | Action                                |
 | ----------------------------------- | ------------------------------------- |
-| <kbd>Tab</kbd>                      | Focus the file input.                 |
+| <kbd>Tab</kbd>                      | Focus the drop surface.               |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the file browser.                |
 | <kbd>⌘</kbd>+<kbd>V</kbd>           | Paste files while inside the surface. |
 

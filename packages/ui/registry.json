@@ -1739,7 +1739,7 @@
       "name": "dropzone",
       "type": "registry:ui",
       "title": "Dropzone",
-      "description": "File acquisition surface — drop, click-to-browse, and paste — as a thin shell over use-file-drop; a real visually hidden file input is the accessible control; data-dragging/data-drag-invalid styling flags.",
+      "description": "File acquisition surface — drop, click-to-browse, and paste — as a thin shell over use-file-drop; the surface is the named focusable control over a hidden picker-bridge input; data-dragging/data-drag-invalid styling flags.",
       "categories": ["form"],
       "dependencies": [
         "@vegastack/design@^0.2.0",
@@ -2376,7 +2376,7 @@
       ],
       "meta": {
         "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, and loading/empty states.",
-        "whenNotToUse": "A board/kanban view (deferred — needs dnd) or a simple static table (use Table).",
+        "whenNotToUse": "A board/kanban view (Board), full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.3.0"
       }
     },
@@ -2518,7 +2518,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Any reorder-by-drag surface — sortable lists, board cards, grid column reorder — where pointer, touch, keyboard move mode, announcements, and server-refusable drops must all work from one API.",
+        "whenToUse": "Any reorder-by-drag surface — sortable lists, board cards, a future bespoke drag surface — where pointer, keyboard move mode, announcements, and server-refusable drops must all work from one API.",
         "whenNotToUse": "File drag-in (use-file-drop), resizing panes (Resizable), or single-axis value dragging (Slider).",
         "version": "0.1.0"
       }

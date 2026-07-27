@@ -21,7 +21,13 @@ function Harness({
   return (
     <div>
       {Object.entries(lists).map(([container, ids]) => (
-        <ul key={container} {...reorder.getContainerProps(container)}>
+        <ul
+          key={container}
+          // Real geometry: Pragmatic resolves drop targets from coordinates,
+          // so an empty zero-height container would never be hit.
+          style={{ minHeight: 40, minWidth: 120 }}
+          {...reorder.getContainerProps(container)}
+        >
           {ids.map((id) => (
             <li key={id} {...reorder.getItemProps(container, id)}>
               {id}
@@ -225,7 +231,7 @@ test("requestMove is the menu-equivalent entry point", async () => {
   const screen = await render(<Menu />);
   await screen.getByRole("button", { name: "Move up" }).click();
   expect(onMove).toHaveBeenCalledWith(
-    expect.objectContaining({ id: "b", input: "keyboard" }),
+    expect.objectContaining({ id: "b", input: "menu" }),
   );
   expect(liveText()).toContain("Moved to position 1 of 2");
 });
@@ -284,4 +290,143 @@ test("announcement builders are overridable", async () => {
 test("no a11y violations — list with handles and live region", async () => {
   const screen = await render(<ControlledList />);
   await expectNoA11yViolations(screen.container);
+});
+
+/**
+ * Drive a Pragmatic drag. Two engine constraints shape this: dragstart must
+ * be dispatched ON the registered draggable (the engine maps `event.target`
+ * to its registry by identity — real browsers retarget to the closest
+ * draggable ancestor, synthetic dispatch does not) with coordinates over the
+ * HANDLE (the drag-handle gate resolves elementFromPoint at the dragstart
+ * point); and drop targets resolve from real geometry, so targets need size.
+ */
+async function dragBetween(handle: HTMLElement, target: HTMLElement) {
+  const dt = new DataTransfer();
+  const item = (handle.closest("[data-drag-item]") ?? handle) as HTMLElement;
+  const handleRect = handle.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+  const at = {
+    bubbles: true,
+    cancelable: true,
+    dataTransfer: dt,
+    clientX: targetRect.left + Math.max(1, targetRect.width / 2),
+    clientY: targetRect.top + Math.max(1, targetRect.height / 2),
+  };
+  item.dispatchEvent(
+    new DragEvent("dragstart", {
+      ...at,
+      clientX: handleRect.left + Math.max(1, handleRect.width / 2),
+      clientY: handleRect.top + Math.max(1, handleRect.height / 2),
+    }),
+  );
+  await new Promise((r) => setTimeout(r, 60));
+  for (const type of ["dragenter", "dragover"] as const) {
+    target.dispatchEvent(new DragEvent(type, at));
+    await new Promise((r) => setTimeout(r, 60));
+  }
+  target.dispatchEvent(new DragEvent("drop", at));
+  item.dispatchEvent(new DragEvent("dragend", at));
+  await new Promise((r) => setTimeout(r, 60));
+}
+
+test("a container-level drop within the item's OWN container is a no-op, not an append", async () => {
+  const onMove = vi.fn();
+  await render(<ControlledList onMove={onMove} />);
+  const handle = document.querySelector('[aria-label="Move a"]') as HTMLElement;
+  const container = document.querySelector(
+    '[data-drop-container="list"]',
+  ) as HTMLElement;
+  // A drop that resolves to the container (a gap between rows, or the dragged
+  // row itself) must not mean "send to the end".
+  await dragBetween(handle, container);
+  expect(onMove).not.toHaveBeenCalled();
+  // Dropping into ANOTHER container's body still appends.
+});
+
+test("a cross-container container drop still appends", async () => {
+  const onMove = vi.fn();
+  await render(
+    <Harness lists={{ first: ["a", "b"], second: ["c"] }} onReorder={onMove} />,
+  );
+  const handle = document.querySelector('[aria-label="Move a"]') as HTMLElement;
+  const container = document.querySelector(
+    '[data-drop-container="second"]',
+  ) as HTMLElement;
+  await dragBetween(handle, container);
+  expect(onMove).toHaveBeenCalledWith(
+    expect.objectContaining({
+      id: "a",
+      to: { container: "second", index: 1 },
+      input: "pointer",
+    }),
+  );
+});
+
+test("canDropInContainer refuses pointer drops on a locked container AND its items", async () => {
+  const onMove = vi.fn();
+  await render(
+    <Harness
+      lists={{ open: ["a"], locked: ["b"] }}
+      onReorder={onMove}
+      canDropInContainer={(c) => c !== "locked"}
+    />,
+  );
+  const handle = document.querySelector('[aria-label="Move a"]') as HTMLElement;
+  await dragBetween(
+    handle,
+    document.querySelector('[data-drag-item="b"]') as HTMLElement,
+  );
+  await dragBetween(
+    handle,
+    document.querySelector('[data-drop-container="locked"]') as HTMLElement,
+  );
+  expect(onMove).not.toHaveBeenCalled();
+});
+
+test("a superseded move's rejection is still announced", async () => {
+  const rejecters: Array<() => void> = [];
+  const screen = await render(
+    <Harness
+      lists={{ list: ["a", "b", "c"] }}
+      onReorder={() =>
+        new Promise<void>((_resolve, reject) => {
+          rejecters.push(() => reject(new Error("refused")));
+        })
+      }
+    />,
+  );
+  const handle = screen
+    .getByRole("button", { name: "Move a" })
+    .element() as HTMLElement;
+  handle.focus();
+  await userEvent.keyboard(" ");
+  await userEvent.keyboard("{ArrowDown}");
+  await userEvent.keyboard("{ArrowDown}");
+  expect(rejecters).toHaveLength(2);
+  // The FIRST (superseded) move is refused — the user must still hear it.
+  rejecters[0]!();
+  await expect.poll(() => liveText()).toContain("Move rejected");
+});
+
+test("move-mode horizontal arrows follow document direction (RTL)", async () => {
+  const onMove = vi.fn();
+  const screen = await render(
+    <div dir="rtl">
+      <Harness lists={{ first: ["a"], second: [] }} onReorder={onMove} />
+    </div>,
+  );
+  const handle = screen
+    .getByRole("button", { name: "Move a" })
+    .element() as HTMLElement;
+  handle.focus();
+  await userEvent.keyboard(" ");
+  // In RTL, "toward the next container" is visually LEFT.
+  await userEvent.keyboard("{ArrowLeft}");
+  expect(onMove).toHaveBeenCalledWith(
+    expect.objectContaining({
+      id: "a",
+      to: { container: "second", index: 0 },
+      input: "keyboard",
+    }),
+  );
 });

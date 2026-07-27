@@ -1,6 +1,7 @@
 # Plan — Commissioned components: `data-grid`, `filter-bar-managed`, `board` + 13 supporting items
 
-> **Status:** DRAFT — awaiting MK approval. No code written.
+> **Status:** APPROVED — MK approved the full commission on 2026-07-26 and the D1–D4 dependency
+> sign-offs (§2.1) on 2026-07-27. Implemented in the 0.4.0 wave.
 > **Authored:** 2026-07-26.
 > **Operating mode:** build LOCAL, stop at publish/deploy. This plan never runs `npm publish`,
 > the Deploy workflow, a shipping `changeset version`, or any push beyond a working branch.

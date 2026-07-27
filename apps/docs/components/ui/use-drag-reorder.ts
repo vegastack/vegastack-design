@@ -1,4 +1,4 @@
-// @vegastack use-drag-reorder@0.3.0 sha256-1/Ne/sMMrVYgWvQZLZAEJpb7K07c3CDgmfySuTiZV0E=
+// @vegastack use-drag-reorder@0.3.0 sha256-OMSwEEPTNH7DBW7citqE/SxT3WcvWmnC/jOGz+50gCY=
 
 "use client";
 
@@ -17,9 +17,8 @@ import {
 
 /* ---
 `use-drag-reorder` is the ONE file that imports the drag engine
-(`@atlaskit/pragmatic-drag-and-drop`, sanctioned D3) — `board`, `sortable-list`, and
-grid column reorder all consume this hook, so an engine swap touches one module and
-its tests. Pragmatic owns the pointer/touch drag lifecycle and hit-testing
+(`@atlaskit/pragmatic-drag-and-drop`, sanctioned D3) — `board` and `sortable-list`
+consume this hook, so an engine swap touches one module and its tests. Pragmatic owns the pointer/touch drag lifecycle and hit-testing
 (per-element drop targets + closest-edge, which cannot mis-target narrow columns the
 way whole-surface collision detection can); everything the engine deliberately does
 not own is implemented here, because it must match this system's interaction voice:
@@ -64,7 +63,7 @@ export interface DragReorderMove {
   /** Where the item should land. */
   to: DragReorderPosition;
   /** What initiated the move. */
-  input: "pointer" | "keyboard";
+  input: "pointer" | "keyboard" | "menu";
 }
 
 /** Overridable announcement builders for the live region. */
@@ -127,6 +126,13 @@ export interface UseDragReorderOptions {
    */
   pointerDisabled?: boolean;
   /**
+   * Whether a container may receive drops (pointer path). Move-menu and
+   * keyboard eligibility stay the CONSUMER'S concern — this only closes the
+   * pointer hole where a locked container's items would still accept a drop.
+   * @default undefined
+   */
+  canDropInContainer?: (container: string) => boolean;
+  /**
    * Override the live-region announcement builders.
 
    * @default undefined
@@ -186,7 +192,10 @@ export interface UseDragReorderReturn {
   activeId: string | null;
   /** The move currently awaiting its `onReorder` promise. */
   pending: DragReorderMove | null;
-  /** Programmatically request a move — the menu equivalent's entry point. */
+  /**
+   * Programmatically request a move — the menu equivalent's entry point
+   * (moves land with `input: "menu"`).
+   */
   requestMove: (move: Omit<DragReorderMove, "input">) => void;
 }
 
@@ -226,6 +235,7 @@ export function useDragReorder({
   axis = "vertical",
   disabled = false,
   pointerDisabled = false,
+  canDropInContainer,
   announcements,
 }: UseDragReorderOptions): UseDragReorderReturn {
   const [activeId, setActiveId] = React.useState<string | null>(null);
@@ -249,6 +259,8 @@ export function useDragReorder({
   disabledRef.current = disabled;
   const pointerDisabledRef = React.useRef(pointerDisabled);
   pointerDisabledRef.current = pointerDisabled;
+  const canDropInContainerRef = React.useRef(canDropInContainer);
+  canDropInContainerRef.current = canDropInContainer;
   const pendingSeq = React.useRef(0);
 
   const announce = React.useCallback((text: string) => {
@@ -274,9 +286,11 @@ export function useDragReorder({
           if (seq === pendingSeq.current) setPending(null);
         },
         () => {
-          if (seq !== pendingSeq.current) return;
-          setPending(null);
+          // A rejection is ALWAYS announced, even when a newer move has
+          // superseded this one — the user must hear that the earlier move
+          // did not land. Only the pending marker is seq-guarded.
           announce(announceRef.current.rejected(move));
+          if (seq === pendingSeq.current) setPending(null);
         },
       );
     },
@@ -285,7 +299,7 @@ export function useDragReorder({
 
   const requestMove = React.useCallback(
     (move: Omit<DragReorderMove, "input">) => {
-      commitMove({ ...move, input: "keyboard" });
+      commitMove({ ...move, input: "menu" });
     },
     [commitMove],
   );
@@ -312,8 +326,13 @@ export function useDragReorder({
         if (!from) return;
         let to: DragReorderPosition;
         if (target.data.kind === "container") {
-          // Dropped on an (empty area of a) container — append.
           const container = String(target.data.container);
+          // A container-level drop WITHIN the source's own container is a
+          // no-op, not an append: it is what a drop on the dragged row
+          // itself, or in the gap between rows, falls through to — treating
+          // it as "send to the end" turns a 4px twitch into a reorder.
+          // Dropping on ANOTHER container's empty area still appends.
+          if (container === from.container) return;
           to = {
             container,
             index: listsRef.current[container]?.length ?? 0,
@@ -373,6 +392,7 @@ export function useDragReorder({
             container,
           }),
           onDragStart: () => {
+            keyboardMoveSeq.current = 0;
             setActiveId(id);
             const position = positionOf(listsRef.current, id);
             if (position)
@@ -391,7 +411,8 @@ export function useDragReorder({
           element,
           canDrop: ({ source }) =>
             source.data.instance === instanceToken.current &&
-            source.data.id !== id,
+            source.data.id !== id &&
+            (canDropInContainerRef.current?.(container) ?? true),
           getData: ({ input, element: el }) => {
             const index = listsRef.current[container]?.indexOf(id) ?? -1;
             return attachClosestEdge(
@@ -424,7 +445,14 @@ export function useDragReorder({
       const key = `item-ref:${container}:${id}`;
       let cached = refCache.current.get(key);
       if (!cached) {
-        cached = makeItemRef(container, id);
+        const inner = makeItemRef(container, id);
+        cached = (element: HTMLElement | null) => {
+          inner(element);
+          // React calls a ref with null only on detach — prune so a
+          // long-lived board with card churn does not grow the cache
+          // without bound. Identity stays stable across a mounted lifetime.
+          if (element === null) refCache.current.delete(key);
+        };
         refCache.current.set(key, cached);
       }
       return cached;
@@ -440,7 +468,9 @@ export function useDragReorder({
       if (!element) return;
       const cleanup = dropTargetForElements({
         element,
-        canDrop: ({ source }) => source.data.instance === instanceToken.current,
+        canDrop: ({ source }) =>
+          source.data.instance === instanceToken.current &&
+          (canDropInContainerRef.current?.(container) ?? true),
         getData: () => ({ kind: "container", container }),
         onDragEnter: () => setOverContainer(container),
         onDragLeave: () =>
@@ -474,8 +504,13 @@ export function useDragReorder({
 
   // ---- keyboard move mode (ours) -------------------------------------------
 
+  // Counts keyboard steps in the CURRENT move session; zero outside one, so
+  // the focus-restore effect below can never fire during a pointer drag.
+  const keyboardMoveSeq = React.useRef(0);
+
   const endMoveMode = React.useCallback(
     (id: string) => {
+      keyboardMoveSeq.current = 0;
       setActiveId((prev) => {
         if (prev !== id) return prev;
         announce(announceRef.current.ended({ id }));
@@ -516,10 +551,21 @@ export function useDragReorder({
       }
       const from = positionOf(listsRef.current, id);
       if (!from) return;
-      const withinPrev = axis === "vertical" ? "ArrowUp" : "ArrowLeft";
-      const withinNext = axis === "vertical" ? "ArrowDown" : "ArrowRight";
-      const acrossPrev = axis === "vertical" ? "ArrowLeft" : "ArrowUp";
-      const acrossNext = axis === "vertical" ? "ArrowRight" : "ArrowDown";
+      // Horizontal arrows must follow the document direction — browsing
+      // focus already does, and move mode may not disagree with it.
+      const rtl =
+        getComputedStyle(event.currentTarget as HTMLElement).direction ===
+        "rtl";
+      const flip = (key: string) =>
+        rtl && (key === "ArrowLeft" || key === "ArrowRight")
+          ? key === "ArrowLeft"
+            ? "ArrowRight"
+            : "ArrowLeft"
+          : key;
+      const withinPrev = flip(axis === "vertical" ? "ArrowUp" : "ArrowLeft");
+      const withinNext = flip(axis === "vertical" ? "ArrowDown" : "ArrowRight");
+      const acrossPrev = flip(axis === "vertical" ? "ArrowLeft" : "ArrowUp");
+      const acrossNext = flip(axis === "vertical" ? "ArrowRight" : "ArrowDown");
       const containers = Object.keys(listsRef.current);
       if (event.key === withinPrev || event.key === withinNext) {
         event.preventDefault();
@@ -527,6 +573,7 @@ export function useDragReorder({
         const count = listsRef.current[from.container]?.length ?? 0;
         const index = Math.max(0, Math.min(from.index + delta, count - 1));
         if (index === from.index) return;
+        keyboardMoveSeq.current += 1;
         commitMove({
           id,
           from,
@@ -543,6 +590,7 @@ export function useDragReorder({
         const next = containers[containerIndex + delta];
         if (next === undefined) return;
         const count = listsRef.current[next]?.length ?? 0;
+        keyboardMoveSeq.current += 1;
         commitMove({
           id,
           from,
@@ -553,6 +601,26 @@ export function useDragReorder({
     },
     [activeId, axis, announce, commitMove, endMoveMode, isDisabled],
   );
+
+  // A cross-container keyboard move REMOUNTS the item under its new parent;
+  // React fires no blur for an unmounted node, so move mode survives — but
+  // focus lands on <body> and the session dies. After every render while a
+  // keyboard move session is live, put focus back on the item's handle if it
+  // fell off. Same-parent moves keep their node and are unaffected.
+  React.useEffect(() => {
+    if (activeId === null || keyboardMoveSeq.current === 0) return;
+    const focused = document.activeElement;
+    let handle: HTMLElement | null = null;
+    for (const [key, element] of handleElements.current) {
+      if (key.endsWith(`:${activeId}`) && element.isConnected) {
+        handle = element;
+        break;
+      }
+    }
+    if (!handle || focused === handle) return;
+    if (focused instanceof HTMLElement && focused !== document.body) return;
+    handle.focus();
+  });
 
   const registerHandle = React.useCallback((container: string, id: string) => {
     const key = `handle-ref:${container}:${id}`;
