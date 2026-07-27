@@ -1,4 +1,4 @@
-// @vegastack use-file-drop@0.3.0 sha256-vfop5K3G51BIupyB4RlXrRgE3MnwwfCpdM1qpI9QPRQ=
+// @vegastack use-file-drop@0.3.0 sha256-/TbsLth6tYxsuEXxwfOyz9S5/2Wy6KWdBTrpzReogxw=
 
 "use client";
 
@@ -104,8 +104,11 @@ export interface UseFileDropOptions {
    */
   paste?: boolean;
   /**
-   * Prevent the window-level default for stray `dragover`/`drop` so a missed
-   * drop never navigates the browser away from the app.
+   * Keep a document-level guard armed so a missed FILE drop never navigates
+   * the browser away. The guard is shared and ref-counted across every
+   * mounted hook on the page (it stays armed while ANY instance wants it),
+   * and it is payload-scoped: only drags carrying files are cancelled — text
+   * dragged into an unrelated input keeps working.
    * @default true
    */
   preventWindowDrop?: boolean;
@@ -193,6 +196,37 @@ function pasteAccepted(file: File, accept: Accept | undefined): boolean {
 }
 
 /**
+ * The shared document-level missed-drop guard. Module-scoped and
+ * ref-counted: one listener pair serves every mounted hook, armed while ANY
+ * instance wants protection — so one instance's opt-out cannot be silently
+ * re-armed page-wide by another, and unmounting the last instance disarms
+ * it. Payload-scoped on purpose: only drags carrying files are cancelled,
+ * so text dragged into an unrelated textarea keeps working.
+ */
+let windowGuardCount = 0;
+function guardWindowDrag(event: DragEvent) {
+  if (
+    event.dataTransfer &&
+    Array.from(event.dataTransfer.types).includes("Files")
+  )
+    event.preventDefault();
+}
+function armWindowFileDropGuard(): () => void {
+  windowGuardCount += 1;
+  if (windowGuardCount === 1) {
+    window.addEventListener("dragover", guardWindowDrag);
+    window.addEventListener("drop", guardWindowDrag);
+  }
+  return () => {
+    windowGuardCount -= 1;
+    if (windowGuardCount === 0) {
+      window.removeEventListener("dragover", guardWindowDrag);
+      window.removeEventListener("drop", guardWindowDrag);
+    }
+  };
+}
+
+/**
  * `useFileDrop` — file acquisition (drop, browse, paste) over the sanctioned
  * `react-dropzone` engine, returning `{ dropProps, inputProps, isDragging,
  * isDragInvalid }` plus the announcement live region. The `dropzone` component
@@ -261,11 +295,20 @@ export function useFileDrop({
     minSize,
     maxFiles,
     disabled,
-    // The engine owns the document-level dragover/drop preventDefault so a
-    // missed drop never navigates away; `preventWindowDrop` is its real switch.
-    preventDropOnDocument: preventWindowDrop,
+    // The engine's own document-level cancellation is payload-BLIND (it
+    // kills text drags into unrelated inputs) and per-instance (one default
+    // instance re-arms it for the whole page, defeating another instance's
+    // opt-out). Always off — the ref-counted, Files-scoped guard below owns
+    // this concern.
+    preventDropOnDocument: false,
     onDrop: (accepted, rejections) => handleBatch(accepted, rejections),
   });
+
+  // A missed FILE drop must never navigate the browser away.
+  React.useEffect(() => {
+    if (!preventWindowDrop) return;
+    return armWindowFileDropGuard();
+  }, [preventWindowDrop]);
 
   const handlePaste = React.useCallback(
     (event: React.ClipboardEvent) => {

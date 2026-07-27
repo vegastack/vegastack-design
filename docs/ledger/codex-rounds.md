@@ -298,3 +298,16 @@ Post-fix gates: design-lint clean · `pnpm lint` 7/7 · typecheck clean · brows
 medium/low fixes) · contracts full sweep 864/864 pre-fix, touched routes 40/40 post-fix ·
 Firefox smoke 207/207 (+5 capability-skipped paste tests) · registry:build idempotent · derived
 surfaces current. WebKit smoke still requires MK's GUI session (0a-note) before `/ship`.
+
+### Round 20b — 2026-07-27 · the acceptances themselves re-attacked (MK-requested)
+
+Two fresh opus reviewers executed against the four "explicitly accepted" rationales. Three fell:
+the payload-blind document drop guard (also per-instance — one default Dropzone re-armed the
+page against another's opt-out) → replaced with a ref-counted, Files-scoped module guard; the
+board's append-then-refine flow was not keyboard-lossless cross-column (the menu-path twin of
+ship-blocker #2) → `requestMove` now arms a one-shot focus restore, and the per-card "Move card"
+triggers rove instead of stacking 2N tab stops; the `refCache` bounded-cache claim was half-false
+(handles/containers never pruned) → all three registries prune on detach. `columnOrder` proved
+behaviourally sound but untested → pinned by a regression test. Sound and kept: the Firefox paste
+capability-skip, the disabled-Dropzone model, Escape/menu/move-mode ordering. Suites after:
+board 15, data-grid 22, dropzone 20, hook 15, sortable-list 10 — all green.

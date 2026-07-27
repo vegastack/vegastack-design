@@ -90,18 +90,43 @@ before acceptance, and every accepted finding fixed in this round — nothing de
   line records MK's approval; guides hook roster completed; a `@vegastack/design` changeset added
   so the npm-shipped skill roster actually releases.
 
-## Explicitly accepted (with rationale)
+## Explicitly accepted (with rationale) — and the round-20b re-check
 
-- **The engine's document-level drop cancellation is payload-blind** — while a Dropzone is mounted
-  with `preventWindowDrop` (default), text drags to unrelated inputs on the page are also
-  cancelled. Inherited react-dropzone behaviour; the opt-out now genuinely works, and a
-  drop-target-dense page can set `preventWindowDrop={false}`.
-- **Board's Move menu appends to the target column** (then Move up/down refines) rather than
-  offering a position picker — lossless in two steps, and the menu stays scannable.
-- **DataGrid ships no column-reorder affordance** — `columnOrder` applies a host-owned order. A
-  drag-reorder header layer is a future commission, not a silent stub.
-- **`refCache` prunes on detach** — identity stays stable across a mounted lifetime, which is the
-  invariant the active-drag teardown bug requires.
+MK asked for the accepted decisions themselves to be adversarially re-verified. Two fresh opus
+reviewers attacked the four rationales by execution. **Three of four were found unsound as
+originally stated and were FIXED rather than re-accepted:**
+
+- **Document-level drop cancellation** — UNSOUND twice over: the engine's guard is payload-blind
+  (text drags into unrelated inputs died page-wide) AND per-instance (one default Dropzone
+  silently re-armed the whole document, defeating another instance's opt-out — the acceptance's
+  own remedy failed on exactly the drop-target-dense page it named). FIXED at the root: the
+  engine's `preventDropOnDocument` is now always off, replaced by a module-scoped, ref-counted
+  guard that cancels FILE-bearing drags only. Verified: text drags into a textarea keep working
+  with a default Dropzone mounted; the guard stays armed while any instance wants it and disarms
+  when the last unmounts. Docs/changeset/design.md updated to the honest semantics.
+- **Board's append-then-refine Move menu** — index semantics proved sound (no off-by-one against
+  remove-then-splice hosts), but the two-step flow was NOT keyboard-lossless: the cross-column
+  menu move remounted the card, focus died on `<body>`, and <kbd>M</kbd> could not reach step 2 —
+  the same class as ship-blocker #2, unfixed on the menu path. FIXED: `requestMove` arms a
+  one-shot focus restore keyed on the host applying the move (within-column moves, where the
+  trigger survives, are untouched; a rejected move disarms it). Also fixed while here: every
+  card's identically-named "Move card" trigger was a tab stop (2N stops, contradicting the
+  one-tab-stop roving claim) — triggers now rove with the active card. Both behaviours tested.
+- **`refCache` prunes on detach** — the drag-safety half held (identity stable within a mounted
+  lifetime; sibling refs never re-invoked during another item's drag), but the bounded-cache half
+  was false: handle and container entries never pruned, so the cache still grew with cards-ever-
+  seen. FIXED — all three registries prune on detach.
+- **DataGrid ships no column-reorder affordance** — SOUND behaviourally (headers, cells, picker,
+  aria-colindex, and revelation's primary/merge target all follow `columnOrder` coherently;
+  unknown keys drop, unlisted columns append), but the prop had zero test coverage — the
+  mitigation the acceptance leaned on was unverified. A regression test now pins all of it.
+
+Verified SOUND and still accepted: the Firefox paste capability-skip (probe is deterministic,
+loud on failure, 18/0 Chromium vs 13/5 Firefox); the disabled-Dropzone model (the engine removes
+the tab stop and nulls every handler — no ghost focus, no click-through); Escape ordering between
+the card menu and move mode (the two states are mutually exclusive by construction); and the
+menu-vs-lift interplay (<kbd>M</kbd> is inert while lifted; blur into the trigger cleanly ends
+move mode first).
 
 ## Targeted regression tests (MK-requested follow-up, same day)
 

@@ -343,3 +343,52 @@ test("the card menu offers lossless within-column ordering", async () => {
   await expect.poll(() => onMove).toHaveBeenCalledWith("d1", "lead", 1);
   await expect.poll(() => columnCards("lead")).toEqual(["Globex", "Acme"]);
 });
+
+test("the two-step menu flow is keyboard-lossless: cross-column move restores focus, M reopens, refine works", async () => {
+  const onMove = vi.fn();
+  await render(<Controlled onMove={onMove} />);
+  const surfaces = Array.from(
+    document.querySelectorAll('[data-slot="board-card-surface"]'),
+  ) as HTMLElement[];
+  surfaces[0]!.focus();
+  await userEvent.keyboard("m");
+  const won = await vi.waitFor(() => {
+    const item = Array.from(
+      document.querySelectorAll('[role="menuitem"]'),
+    ).find((el) => el.textContent?.startsWith("Move to Won"));
+    if (!item) throw new Error("menu not open");
+    return item as HTMLElement;
+  });
+  won.click();
+  await expect.poll(() => columnCards("won")).toEqual(["Initech", "Acme"]);
+  // Step 1 remounted the card under Won — focus must land back on it, or
+  // the documented refine step is unreachable without a pointer.
+  await expect
+    .poll(() => (document.activeElement as HTMLElement)?.textContent ?? "")
+    .toContain("Acme");
+  // Step 2: M reopens the menu on the moved card; Move up refines.
+  await userEvent.keyboard("m");
+  const moveUp = await vi.waitFor(() => {
+    const item = Array.from(
+      document.querySelectorAll('[role="menuitem"]'),
+    ).find((el) => el.textContent === "Move up");
+    if (!item) throw new Error("menu not reopened");
+    return item as HTMLElement;
+  });
+  moveUp.click();
+  await expect.poll(() => columnCards("won")).toEqual(["Acme", "Initech"]);
+});
+
+test("the card layer keeps ONE tab stop for surfaces and ONE for menu triggers", async () => {
+  await render(<Controlled />);
+  const surfaceStops = Array.from(
+    document.querySelectorAll('[data-slot="board-card-surface"]'),
+  ).filter((el) => (el as HTMLElement).tabIndex === 0);
+  const triggerStops = Array.from(
+    document.querySelectorAll('[aria-label="Move card"]'),
+  ).filter((el) => (el as HTMLElement).tabIndex === 0);
+  expect(surfaceStops.length).toBe(1);
+  expect(triggerStops.length).toBe(1);
+  // And they belong to the SAME (roving) card.
+  expect(surfaceStops[0]!.parentElement!.contains(triggerStops[0]!)).toBe(true);
+});

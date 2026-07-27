@@ -429,3 +429,70 @@ pasteTest(
     expect(onFilesRejected).not.toHaveBeenCalled();
   },
 );
+
+test("the missed-drop guard is payload-scoped: text drags into unrelated inputs keep working", async () => {
+  await render(
+    <div>
+      <Dropzone onFilesAccepted={() => {}}>
+        <p>Drop here</p>
+      </Dropzone>
+      <textarea aria-label="Notes" />
+    </div>,
+  );
+  await new Promise((r) => setTimeout(r, 20));
+  const textarea = document.querySelector("textarea")!;
+  const textDt = new DataTransfer();
+  textDt.setData("text/plain", "hello");
+  const textDrop = new DragEvent("dragover", {
+    bubbles: true,
+    cancelable: true,
+    dataTransfer: textDt,
+  });
+  textarea.dispatchEvent(textDrop);
+  expect(textDrop.defaultPrevented).toBe(false);
+  // …while a FILE drag missing every target is still cancelled page-wide.
+  const fileDt = new DataTransfer();
+  fileDt.items.add(makeFile("x.png"));
+  const fileDrag = new DragEvent("dragover", {
+    bubbles: true,
+    cancelable: true,
+    dataTransfer: fileDt,
+  });
+  document.body.dispatchEvent(fileDrag);
+  expect(fileDrag.defaultPrevented).toBe(true);
+});
+
+test("the guard is ref-counted page-wide: a default instance cannot silently re-arm another's opt-out semantics", async () => {
+  // Two instances: one default (wants protection), one opted out. Protection
+  // stays armed — that is the CORRECT page-level semantic (the default
+  // instance still wants it) — and it stays Files-scoped.
+  const screen = await render(
+    <div>
+      <Dropzone onFilesAccepted={() => {}}>
+        <p>a</p>
+      </Dropzone>
+      <Dropzone preventWindowDrop={false} onFilesAccepted={() => {}}>
+        <p>b</p>
+      </Dropzone>
+    </div>,
+  );
+  await new Promise((r) => setTimeout(r, 20));
+  const fileDt = new DataTransfer();
+  fileDt.items.add(makeFile("x.png"));
+  const whileMounted = new DragEvent("dragover", {
+    bubbles: true,
+    cancelable: true,
+    dataTransfer: fileDt,
+  });
+  document.body.dispatchEvent(whileMounted);
+  expect(whileMounted.defaultPrevented).toBe(true);
+  // Unmounting the LAST protecting instance disarms the guard entirely.
+  screen.unmount();
+  const afterUnmount = new DragEvent("dragover", {
+    bubbles: true,
+    cancelable: true,
+    dataTransfer: fileDt,
+  });
+  document.body.dispatchEvent(afterUnmount);
+  expect(afterUnmount.defaultPrevented).toBe(false);
+});

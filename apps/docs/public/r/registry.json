@@ -1978,7 +1978,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.1.0",
-        "integrity": "sha256-d+4GDHG2Hrl9Dd+tuaVKl+xwMewv2u2WYQhqc+2Z1o0="
+        "integrity": "sha256-E0RNUlqlNYy/FqJ73iq7dEClcfx9vcuM8cSEEeAUGxY="
       }
     },
     {
@@ -2892,7 +2892,7 @@
         "whenToUse": "Any reorder-by-drag surface — sortable lists, board cards, a future bespoke drag surface — where pointer, keyboard move mode, announcements, and server-refusable drops must all work from one API.",
         "whenNotToUse": "File drag-in (use-file-drop), resizing panes (Resizable), or single-axis value dragging (Slider).",
         "version": "0.1.0",
-        "integrity": "sha256-OMSwEEPTNH7DBW7citqE/SxT3WcvWmnC/jOGz+50gCY="
+        "integrity": "sha256-K/CHIoWXOtGOtK3dKrvX5YEtH8797pzmWwl8G6S2RLE="
       }
     },
     {
@@ -2918,7 +2918,7 @@
         "whenToUse": "Any surface that acquires files — a Dropzone, a rich-text composer accepting pasted screenshots, a bespoke drop target — where drag-depth handling, accept matching, and typed rejections should be correct by construction.",
         "whenNotToUse": "Rendering upload state (Attachment) or persisting uploads — acquisition ends at the File[] callback.",
         "version": "0.1.0",
-        "integrity": "sha256-vfop5K3G51BIupyB4RlXrRgE3MnwwfCpdM1qpI9QPRQ="
+        "integrity": "sha256-/TbsLth6tYxsuEXxwfOyz9S5/2Wy6KWdBTrpzReogxw="
       }
     },
     {

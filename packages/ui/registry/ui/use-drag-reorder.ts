@@ -1,4 +1,4 @@
-// @vegastack use-drag-reorder@0.3.0 sha256-OMSwEEPTNH7DBW7citqE/SxT3WcvWmnC/jOGz+50gCY=
+// @vegastack use-drag-reorder@0.3.0 sha256-K/CHIoWXOtGOtK3dKrvX5YEtH8797pzmWwl8G6S2RLE=
 
 "use client";
 
@@ -290,6 +290,8 @@ export function useDragReorder({
           // superseded this one — the user must hear that the earlier move
           // did not land. Only the pending marker is seq-guarded.
           announce(announceRef.current.rejected(move));
+          if (menuMoveFocusId.current === move.id)
+            menuMoveFocusId.current = null;
           if (seq === pendingSeq.current) setPending(null);
         },
       );
@@ -299,10 +301,38 @@ export function useDragReorder({
 
   const requestMove = React.useCallback(
     (move: Omit<DragReorderMove, "input">) => {
+      // A cross-container menu move remounts the item and unmounts the very
+      // trigger the menu would restore focus to — arm a one-shot restore
+      // that fires when the host applies the move (see the lists effect).
+      menuMoveFocusId.current = move.id;
       commitMove({ ...move, input: "menu" });
     },
     [commitMove],
   );
+
+  // One-shot focus restore for MENU moves, keyed on the host actually
+  // applying the move (lists identity change). If focus survived (a
+  // within-container move keeps the trigger mounted), do nothing; if it
+  // fell to <body> (cross-container remount), put it on the moved item's
+  // handle so the documented refine step stays keyboard-reachable.
+  const menuMoveFocusId = React.useRef<string | null>(null);
+  React.useEffect(() => {
+    const id = menuMoveFocusId.current;
+    if (id === null) return;
+    menuMoveFocusId.current = null;
+    const focused = document.activeElement;
+    const fell =
+      !(focused instanceof HTMLElement) ||
+      focused === document.body ||
+      !focused.isConnected;
+    if (!fell) return;
+    for (const [key, element] of handleElements.current) {
+      if (key.endsWith(`:${id}`) && element.isConnected) {
+        element.focus();
+        break;
+      }
+    }
+  }, [lists]);
 
   // ---- pointer path (Pragmatic) --------------------------------------------
 
@@ -486,7 +516,11 @@ export function useDragReorder({
       const key = `container-ref:${container}`;
       let cached = refCache.current.get(key);
       if (!cached) {
-        cached = makeContainerRef(container);
+        const inner = makeContainerRef(container);
+        cached = (element: HTMLElement | null) => {
+          inner(element);
+          if (element === null) refCache.current.delete(key);
+        };
         refCache.current.set(key, cached);
       }
       return cached;
@@ -628,8 +662,14 @@ export function useDragReorder({
     if (!cached) {
       cached = (element: HTMLElement | null) => {
         const mapKey = `${container}:${id}`;
-        if (element) handleElements.current.set(mapKey, element);
-        else handleElements.current.delete(mapKey);
+        if (element) {
+          handleElements.current.set(mapKey, element);
+        } else {
+          handleElements.current.delete(mapKey);
+          // Same bounded-cache rule as items: prune on detach so container
+          // and card churn cannot grow the cache without bound.
+          refCache.current.delete(key);
+        }
       };
       refCache.current.set(key, cached);
     }

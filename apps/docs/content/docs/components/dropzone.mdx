@@ -85,8 +85,11 @@ per-file state vocabulary `Attachment` renders.
 - The surface reflects drag state as `data-dragging` / `data-drag-invalid`
   (primary vs destructive border tint) — state is never colour alone: the
   refusal is also announced and reported through `onFilesRejected`.
-- A missed drop never navigates the browser away — the hook prevents the
-  document-level default (opt-out via `preventWindowDrop`).
+- A missed drop never navigates the browser away — a document-level guard,
+  **scoped to file-bearing drags only** (text dragged into your other inputs
+  keeps working) and **shared page-wide with ref-counting**: it stays armed
+  while any mounted Dropzone wants it, and disarms when the last one
+  unmounts. Opt a surface out with `preventWindowDrop`.
 
 | Key                                 | Action                                |
 | ----------------------------------- | ------------------------------------- |

@@ -7,8 +7,8 @@ sanctioned `react-dropzone` engine — drag-depth handling, directory traversal,
 keyboard activation of the drop surface — and adds the system's vocabulary on top: the paste
 path (`clipboardData.files`, the composer case) under the same accept/size/count constraints as
 drop, typed `FileDropRejection` reasons aligned with `AttachmentState`, a polite announcement
-payload that states WHY a file was refused, and the document-level missed-drop `preventDefault`
-(`preventWindowDrop`). `Dropzone` is a deliberately thin shell over it: the surface is the named
+payload that states WHY a file was refused, and a ref-counted document-level missed-drop guard
+scoped to file-bearing drags (`preventWindowDrop`). `Dropzone` is a deliberately thin shell over it: the surface is the named
 focusable control (`role="button"`), the real `<input type="file">` behind it is the picker
 bridge (the one reviewed raw-interactive exemption),
 `data-dragging`/`data-drag-invalid` styling flags, and children compose `Empty bordered` for the

@@ -1,4 +1,4 @@
-// @vegastack board@0.3.0 sha256-d+4GDHG2Hrl9Dd+tuaVKl+xwMewv2u2WYQhqc+2Z1o0=
+// @vegastack board@0.3.0 sha256-E0RNUlqlNYy/FqJ73iq7dEClcfx9vcuM8cSEEeAUGxY=
 
 "use client";
 
@@ -507,6 +507,13 @@ export function Board<T>({
                                         variant="ghost"
                                         size="xs"
                                         aria-label="Move card"
+                                        // The roving model's promise is ONE
+                                        // card-layer tab stop per board — a
+                                        // tabbable identically-named trigger
+                                        // per card breaks it and scales with
+                                        // board size. M (or Tab from the
+                                        // active card) reaches the menu.
+                                        tabIndex={rovingTarget === id ? 0 : -1}
                                         className="absolute end-1 top-1"
                                       >
                                         <EllipsisVertical />

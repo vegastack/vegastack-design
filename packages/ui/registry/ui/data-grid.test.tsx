@@ -705,3 +705,42 @@ test("clicking Columns while a cell editor is open opens the menu on the FIRST c
   ).toBeGreaterThan(0);
   expect(document.querySelector("td input")).toBeNull();
 });
+
+test("columnOrder applies a host-owned order coherently: headers, cells, picker; unknown keys drop, missing keys append", async () => {
+  await render(
+    <DataGrid
+      aria-label="Ordered"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      columnOrder={["nope", "amount", "ghost"]}
+    />,
+  );
+  // Unknown keys are ignored; declared-but-unlisted columns append in
+  // declaration order after the listed ones.
+  const headers = () =>
+    Array.from(document.querySelectorAll('[role="columnheader"]')).map(
+      (th) => th.textContent,
+    );
+  expect(headers()).toEqual(["Amount", "Name", "Stage"]);
+  const firstRowCells = Array.from(
+    document.querySelectorAll('[data-slot="data-grid-row"]'),
+  )[0]!.querySelectorAll('[data-slot="data-grid-cell"]');
+  // Amount leads the row too, not just the header.
+  expect(firstRowCells[0]!.textContent).toBe(
+    String((DEALS[0] as { amount: number }).amount),
+  );
+  // The picker lists the REORDERED set.
+  await userEvent.click(
+    document.querySelector(
+      '[data-slot="data-grid-toolbar"] button',
+    ) as HTMLElement,
+  );
+  await expect
+    .poll(() =>
+      Array.from(document.querySelectorAll('[role="menuitemcheckbox"]')).map(
+        (item) => item.textContent,
+      ),
+    )
+    .toEqual(["Amount", "Name", "Stage"]);
+});
