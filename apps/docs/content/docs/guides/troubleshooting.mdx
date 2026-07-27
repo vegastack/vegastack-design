@@ -7,6 +7,13 @@ audience: public
 Errors below are **verbatim** from real runs. Find yours, apply the fix. If you
 hit something not listed, that's a doc bug — report it with the exact output.
 
+**Before reading further, run the setup check** — it catches the most common
+misconfigurations, including the two silent ones below:
+
+```bash
+pnpm exec vegastack-design doctor
+```
+
 ## Install & build
 
 ### `Can't resolve 'tw-animate-css' in '…/node_modules/@vegastack/design'`
@@ -157,9 +164,24 @@ as ship-blocking.
 
 ### `check-updates` says "No VegaStack components found" despite copied components
 
-**Cause:** `@vegastack/design` older than `0.1.1` — its `check-updates` only
-recognized files with provenance headers, which the current shadcn CLI strips on
-copy-in.
+**Cause 1 (layout): it is looking in the wrong directory.** It resolves
+`components.json`'s `aliases.ui` by stripping a leading `@/`, then tries that path
+and a `src/` variant. Any layout those two guesses miss — a monorepo package, or a
+`@/*` alias mapped somewhere else through tsconfig `paths` — scans nothing.
+**Fix:** point it at the real directory.
+
+```bash
+vegastack-design check-updates --dir packages/ui/src/components/ui
+```
+
+Make that the committed form of the script, not something you type once. **A drift
+gate scanning the wrong directory is worse than no gate** — which is why
+`--fail-on-update` now exits **1** when it finds zero components, instead of
+passing vacuously.
+
+**Cause 2 (legacy): `@vegastack/design` older than `0.1.1`**, whose `check-updates`
+only recognized files with provenance headers — which the current shadcn CLI strips
+on copy-in.
 **Fix:** `pnpm update @vegastack/design`. Current versions identify components by
 filename against the registry index and compare content — no header needed.
 

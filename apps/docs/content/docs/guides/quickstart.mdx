@@ -259,7 +259,20 @@ For the verify-before-copy flow and the update loop
 
 `vegastack-design` is the CLI bin shipped inside `@vegastack/design` — zero extra
 installs. `--fail-on-update` turns component drift into a red build instead of a
-surprise. Details in [Production checklist](/docs/guides/production-checklist).
+surprise.
+
+**In a monorepo, pass `--dir`.** The default resolution tries `aliases.ui` with a
+leading `@/` stripped, plus a `src/` variant — neither finds components living in a
+workspace package, and a gate that scans nothing passes forever. `--fail-on-update`
+exits 1 rather than 0 when it finds zero components, so this misconfiguration is
+loud, but the fix belongs in the script:
+
+````json title="package.json (monorepo)"
+{
+  "check-updates": "vegastack-design check-updates --dir packages/ui/src/components/ui",
+  "doctor": "vegastack-design doctor"
+}
+``` Details in [Production checklist](/docs/guides/production-checklist).
 
 ## Complete file inventory after this guide
 
@@ -288,7 +301,7 @@ writing to:
 ```text
 Could not load the workspace config in packages/ui.
 Add components.json to this workspace and configure its path aliases.
-```
+````
 
 Give that package its own `components.json` (same `registries` block) and a tsconfig
 mapping `"@/*": ["./src/*"]`, so `@/components/ui/*` and `@/lib/utils` resolve
@@ -315,3 +328,10 @@ packages you author instead.
 
 **4. Run `shadcn add` from the workspace root**, where `.env.local` lives — the CLI
 expands `${CF_ACCESS_CLIENT_ID}` from the directory it is invoked in.
+
+Then confirm the whole setup in one command — it understands workspace layouts and
+reports each check with its fix:
+
+```bash
+pnpm exec vegastack-design doctor
+```
