@@ -2730,6 +2730,33 @@
       }
     },
     {
+      "name": "use-drag-reorder",
+      "type": "registry:hook",
+      "title": "useDragReorder",
+      "description": "The system's one drag engine seam — Pragmatic drag-and-drop pointer/touch mechanics plus the house keyboard move mode, live-region vocabulary, and async pending/rejected drop contract. One API for single lists and cross-container boards.",
+      "categories": [
+        "hook"
+      ],
+      "dependencies": [
+        "@atlaskit/pragmatic-drag-and-drop@^2.0.1",
+        "@atlaskit/pragmatic-drag-and-drop-hitbox@^2.0.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-drag-reorder.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-drag-reorder.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Any reorder-by-drag surface — sortable lists, board cards, grid column reorder — where pointer, touch, keyboard move mode, announcements, and server-refusable drops must all work from one API.",
+        "whenNotToUse": "File drag-in (use-file-drop), resizing panes (Resizable), or single-axis value dragging (Slider).",
+        "version": "0.1.0",
+        "integrity": "sha256-/D0cnoxfF3U4qF5eV2sQZxbSkjabASfoDjUREkjEE3I="
+      }
+    },
+    {
       "name": "use-list-nav",
       "type": "registry:hook",
       "title": "useListNav",

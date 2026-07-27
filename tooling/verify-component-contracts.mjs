@@ -62,6 +62,15 @@ function expectedEnginePackages(dependencies = []) {
       packages.add("react-day-picker");
     if (dependency.startsWith("react-markdown")) packages.add("react-markdown");
     if (dependency.startsWith("remark-gfm")) packages.add("remark-gfm");
+    // The D1-D4 sanctioned engines (MK, 2026-07-27). `-hitbox` folds into the
+    // pragmatic engine identity.
+    if (dependency.startsWith("@tanstack/react-table"))
+      packages.add("@tanstack/react-table");
+    if (dependency.startsWith("@tanstack/react-virtual"))
+      packages.add("@tanstack/react-virtual");
+    if (dependency.startsWith("@atlaskit/pragmatic-drag-and-drop"))
+      packages.add("@atlaskit/pragmatic-drag-and-drop");
+    if (dependency.startsWith("react-dropzone")) packages.add("react-dropzone");
   }
   return sorted(packages);
 }
@@ -273,10 +282,10 @@ assert(
 );
 
 const expected = {
-  totalRegistryItems: 548,
+  totalRegistryItems: 549,
   components: 104,
   animatedIcons: 439,
-  hooks: 4,
+  hooks: 5,
   blocks: 1,
 };
 for (const [key, value] of Object.entries(expected)) {
@@ -603,7 +612,13 @@ for (const [wave, count] of Object.entries(expectedWaves)) {
 }
 sameStrings(
   contracts.expectedWaveMembers?.Hooks ?? [],
-  ["use-animation-replay", "use-list-nav", "use-mobile", "use-platform"],
+  [
+    "use-animation-replay",
+    "use-drag-reorder",
+    "use-list-nav",
+    "use-mobile",
+    "use-platform",
+  ],
   "Hooks membership",
 );
 sameStrings(
@@ -617,8 +632,8 @@ assert(
   "Animated icons membership must be sourced from packages/ui/animated-icon-sources.json",
 );
 assert(
-  contracts.expectedWaveCounts?.Hooks === 4,
-  "expectedWaveCounts.Hooks must be 4",
+  contracts.expectedWaveCounts?.Hooks === 5,
+  "expectedWaveCounts.Hooks must be 5",
 );
 assert(
   contracts.expectedWaveCounts?.Block === 1,

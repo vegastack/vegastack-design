@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "321f31a8647d784b8039727c540a08c5f5398968fdc65720f1eb4b6d45f427e1",
+  "contractSha256": "e2643212ec87d286e57b8d195662244960555819962b2233018cd9398dfcb164",
   "expectedCounts": {
-    "totalRegistryItems": 548,
+    "totalRegistryItems": 549,
     "components": 104,
     "animatedIcons": 439,
-    "hooks": 4,
+    "hooks": 5,
     "blocks": 1
   },
   "records": [
@@ -5992,6 +5992,17 @@
       "family": "hook",
       "sourceFiles": [
         "packages/ui/registry/ui/use-animation-replay.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "use-drag-reorder",
+      "inventoryClass": "hook",
+      "wave": "Hooks",
+      "family": "hook",
+      "sourceFiles": [
+        "packages/ui/registry/ui/use-drag-reorder.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"
