@@ -11,7 +11,7 @@
 //   component <name>                ~44s     design-lint 1.7s · that unit file 2.8s · its closure 40s
 //   push, nothing contract-relevant ~33s     typecheck 17s · lint 16s · all browser lanes SKIPPED
 //   push, one component touched     ~1m45s    + unit 16s · smoke 17s · a 3-route closure 40s
-//   push, a GLOBAL surface touched  ~9-11min  + the full 96-route sweep (768 checks)
+//   push, a GLOBAL surface touched  ~9-11min  + the full 108-route sweep (864 checks)
 //   ship                            ~17-18min + all-browsers 1m39 · consume 3m42 · full contracts
 //
 //   A COLD docs export adds ~1m40 to any lane that needs `apps/docs/out`. Note `turbo.json` lists
@@ -66,6 +66,7 @@ import {
 } from "./lib/gate-receipt.mjs";
 import {
   CONTRACT_SCOPE,
+  COMPONENT_ROUTES,
   dependentsByRoute,
   routeByName,
   selectRoutes,
@@ -314,7 +315,7 @@ async function runCommit() {
   const touches = (pattern) => staged.some((file) => pattern.test(file));
 
   // Always: the two cheapest gates that catch the most, over the whole tree rather than the staged
-  // subset. design-lint is 1.4s for all 96 components and secret-scan is 0.6s for 2521 files, so
+  // subset. design-lint is 1.4s for all 108 components and secret-scan is 0.6s for 2521 files, so
   // narrowing them would add code and save nothing.
   gate(
     "design-lint",
@@ -413,7 +414,9 @@ async function runPush() {
       `\n${YELLOW}gates: stopped before the browser lanes. Fix ${cheapFailures
         .map((result) => result.id)
         .join(" and ")} first — a ${
-        contractSelection.routes === null ? "full 96-route" : "scoped"
+        contractSelection.routes === null
+          ? `full ${COMPONENT_ROUTES.length}-route`
+          : "scoped"
       } contract sweep behind a failing ${cheapFailures[0].id} cannot tell you anything.${RESET}`,
     );
     return true;
@@ -455,7 +458,7 @@ async function runPush() {
       "contracts",
       `behaviour contracts (${
         contractSelection.routes === null
-          ? "all 96 routes"
+          ? `all ${COMPONENT_ROUTES.length} routes`
           : `${contractSelection.routes.size} route(s)`
       })`,
       ...node("tooling/contracts-run.mjs", "--base", baseRef),
@@ -504,7 +507,7 @@ async function runComponent() {
   // EXPLICIT ROUTES, not the diff scope. This is the inner loop for ONE component, so it must check
   // that component and everything composing it — nothing else, and nothing less. Deriving the routes
   // from the working-tree diff instead (as this did first) meant that on a tree carrying any global
-  // surface change the "contracts — <name> and its dependents" gate silently became a 96-route sweep:
+  // surface change the "contracts — <name> and its dependents" gate silently became a full sweep:
   // the label promised an inner loop and the behaviour delivered a 9-minute one. The diff-scoped sweep
   // is `gates push`'s job; this stays bounded and honest.
   const route = routeByName.get(name);
@@ -552,6 +555,11 @@ async function runShip() {
     "@vegastack/ui",
     "test:smoke",
   ]);
+  // Keep the complete three-engine suite out of a cold Next export's CPU/memory pressure. The
+  // warm-up is intentionally overlapped only with unit + smoke (as documented above); allowing it
+  // to spill into this lane produced a lone 15s WebKit timeout while the exact test passed 6/6 in
+  // isolation and the warmed complete suite passed 4,408/4,408.
+  await awaitDocsBuild();
   gate(
     "all-browsers",
     "three-engine suite (complete)",
@@ -565,11 +573,9 @@ async function runShip() {
   gate("consume", "shadcn consume round-trip", "pnpm", [
     "registry:verify-consume",
   ]);
-
-  await awaitDocsBuild();
   gate(
     "contracts",
-    "behaviour contracts (ALL 96 routes)",
+    `behaviour contracts (ALL ${COMPONENT_ROUTES.length} routes)`,
     ...node("tooling/contracts-run.mjs", "--all"),
   );
   return true;

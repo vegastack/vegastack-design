@@ -230,33 +230,16 @@ npm view @vegastack/design version
 ## 5. Deploy the registry + docs
 
 ```bash
-# ORDINARY deploy — the cutover jobs are skipped by design.
-gh workflow run deploy.yml -R VegaStack/vegastack-design -f cutover_phase=ordinary
+gh workflow run deploy.yml -R VegaStack/vegastack-design
 ```
 
 The manual dispatch from `main` is the outward-deploy approval. The workflow builds without
 credentials, signs in the only OIDC-capable job, reverifies the immutable artifact in the
-credential-only deploy job, and then probes the live boundary. Before cutover, ordinary deploys
-require broad root SSO and service-token-only `/r/*`; after cutover, they require public docs,
-SSO-only `/internal/*`, and service-token-only `/r/*`.
-
-**The one-time public cutover is two separate dispatches.** Never chain them: the workflow must end
-after `prepare` so an approved operator can remove broad root SSO before `verify` begins.
-
-```bash
-gh workflow run deploy.yml -R VegaStack/vegastack-design -f cutover_phase=prepare
-# wait for success; then, under the separately approved Cloudflare change, remove broad root SSO
-gh workflow run deploy.yml -R VegaStack/vegastack-design -f cutover_phase=verify
-```
-
-Each dispatch needs its own MK approval. `prepare` verifies broad root SSO and registry Service Auth,
-checks the recorded Access IDs/token expiry, and purges retired derivatives. `verify` runs only after
-the Access mutation and proves the public/internal/registry boundary. After it passes, record
-`PUBLIC_DOCS_CUTOVER=complete`; future ordinary deploys run the public probe automatically. The
-inventory/rollback record in `docs/plans/public-docs-cutover.md` and the specific `/internal/*` SSO +
-`/r/*` Service Auth topology must be complete. Confirm the public probe covers public pages,
-every exported internal derivative, the retired route derivatives, and all registry trust files,
-including:
+credential-only deploy job, and then probes the one production boundary. Every non-registry route is
+public. `/internal/*` remains intentionally absent from discovery and carries `noindex`/`no-store`,
+but it is not an authorization boundary. Only `/r/*` requires Cloudflare Access Service Auth.
+Confirm the public probe covers public pages, every exported internal derivative, the retired route
+derivatives, and all registry trust files, including:
 
 ```
 ✓ / → 200
@@ -268,16 +251,16 @@ including:
 ✓ /llms.txt → 200
 ✓ /llms-full.txt → 200
 ✓ /api/search → 200
-✓ /internal/internal-projects rejects anonymous requests
-✓ /internal/internal-projects.html rejects anonymous requests
-✓ /internal/internal-projects.md rejects anonymous requests
-✓ /internal/internal-projects/__next._full.txt rejects anonymous requests
+✓ /internal/internal-projects → anonymously readable + noindex/no-store
+✓ /internal/internal-projects.html → same-origin redirect + noindex/no-store
+✓ /internal/internal-projects.md → anonymously readable + noindex/no-store
+✓ /internal/internal-projects/__next._full.txt → anonymously readable + noindex/no-store
 ✓ /r/registry.json rejects anonymous requests
 ✓ /r/integrity-manifest.json rejects anonymous requests
 ✓ /r/integrity-manifest.sigstore rejects anonymous requests
-✓ /r/button.json rejects anonymous requests
+✓ /r/stepper.json rejects anonymous requests
 ✓ /r/registry.json accepts the service token
-✓ registry index, manifest, signature bundle, and representative item validate
+✓ registry index, manifest, signature bundle, and representative item version validate
 ```
 
 ## 6. Post-release verification

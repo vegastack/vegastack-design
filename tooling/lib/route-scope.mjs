@@ -170,7 +170,7 @@ export const PIXEL_SCOPE = {
  *     `component-contracts.json` and `registry.json`. Neither can change what a component page
  *     RENDERS — the markup comes from the component sources and previews. `registry.json` in
  *     particular carries every item's `meta.version`, so treating it as global would make a pure
- *     version bump demand the full 96-route sweep, which is precisely the waste
+ *     version bump demand the full 108-route sweep, which is precisely the waste
  *     `docs/ledger/operator-review.md` records removing. And a route-set change cannot hide here:
  *     it necessarily rewrites `contract-routes.generated.ts`, which IS global below, and
  *     `pnpm design:derived:check` fails closed if the two ever drift apart. So the conservative

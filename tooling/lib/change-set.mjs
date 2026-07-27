@@ -9,7 +9,7 @@
 //      component source and docs copy-in: 1082 files on a 538-item registry. Those paths are
 //      legitimately component sources, so a filename-level filter CANNOT tell that one-line comment
 //      apart from a real edit — it has to read the diff body. Without this, every version bump would
-//      trigger a full 96-route sweep that cannot possibly have moved anything.
+//      trigger a full 108-route sweep that cannot possibly have moved anything.
 //   3. WHAT THE CONTENT HASH OF THE TREE UNDER TEST IS — the anchor the gate receipt binds to.
 //
 // The provenance subtraction was written twice before as workflow shell and was wrong in both

@@ -530,3 +530,22 @@ each was invisible in review and each is the kind that would have degraded the t
   lossless in two steps without a position-picker submenu.
 - **The payload-blind document-level drop cancellation is accepted** as react-dropzone's default;
   the opt-out (`preventWindowDrop={false}`) now actually reaches the engine.
+
+## 2026-07-28 — Public-site/private-registry production boundary
+
+- **The operator's live policy is authoritative for the recovery:** all non-registry routes are
+  public; “internal” is a discovery classification, not an authentication boundary. No Cloudflare
+  Access rollback was made after this was clarified.
+- **Upload success is necessary but not deployment completion.** The recovery keeps the final live
+  probe blocking and makes it unconditional; completion requires the workflow as a whole to pass.
+- **A 200 alone is insufficient production evidence.** The probe enumerates both internal pages and
+  every generated derivative, rejects Access/external redirects, requires noindex plus browser and
+  edge no-store, proves retired content is gone, and verifies the exact Stepper registry version,
+  item hash, signed manifest, and signer identity through the service-token path.
+- **The historical cutover record stays historical.** Current runbooks and the ship skill point to
+  the new decision; the old phase scripts and workflow jobs were deleted instead of left as dormant
+  recovery paths.
+- **Counts are evidence, not decoration.** The first run's label said 96 routes while the contract
+  runner selected 108. Runtime gate labels now derive from `COMPONENT_ROUTES`, the expected contract
+  count derives from routes × assertions × projects, and the public introduction's count is a
+  generated region checked by `design:derived:check`.

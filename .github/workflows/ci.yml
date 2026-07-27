@@ -12,7 +12,7 @@ concurrency:
 
 # THIS WORKFLOW COSTS NOTHING. Every job runs on the self-hosted mac minis, because after the
 # local-first migration nothing here drives a browser: the Vitest browser suite, the cross-engine
-# smoke, and the 768 behaviour contracts all run in `.husky/pre-push` on a developer machine and are
+# smoke, and the 864 behaviour contracts all run in `.husky/pre-push` on a developer machine and are
 # attested by `.gates/receipt.json`, which `receipt-guard` below verifies against the pushed tree.
 #
 # Before the migration this workflow was ~110 billable minutes per push (a ~10-17min `verify` plus

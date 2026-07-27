@@ -193,7 +193,11 @@ Two false diagnoses in one session came from a stale `origin/main`. Any classifi
 
 ---
 
-## What a completed release looks like — verified 2026-07-26
+## Historical completed release evidence — verified 2026-07-26
+
+> Superseded boundary evidence: this records the former broad-root Access topology. As of
+> 2026-07-28 every non-registry route is public and only `/r/*` is private. Do not use the old 302
+> result or a cutover phase as a current deploy expectation.
 
 - npm: `@vegastack/design@0.2.0`, `@vegastack/design-tokens@0.2.0` (from 0.1.1 / 0.1.0).
 - `deploy-curated`: `Verified OK` (cosign, before deploying) then `Uploaded 1477 of 1477 assets`.
@@ -203,6 +207,27 @@ Two false diagnoses in one session came from a stale `origin/main`. Any classifi
 - Independently confirmed by hand: `/` → 302 to `peerxp.cloudflareaccess.com`, `/r/registry.json` → 403.
 - Billed minutes for the publish run: **0** hosted minutes on the mac minis; only `package-build`,
   `publish`, `sign-curated`, `deploy-curated` and one boundary probe are hosted.
+
+## 15. A successful upload can still end in a failed deployment workflow
+
+Run `30309811715` uploaded the signed production artifact successfully, then failed only in the
+final boundary probe because the repository still expected `/internal/*` to be SSO-only after the
+operator had intentionally made the whole non-registry site public. The recovery is to align the
+verifier with the approved boundary, not to roll Cloudflare back: remove the obsolete cutover phase,
+assert public/noindex/no-store on every exported internal derivative, keep anonymous `/r/*`
+fail-closed, and validate a representative registry item's exact workspace version, hash, and signed
+manifest entry. Treat `deploy-curated` success and final workflow success as separate evidence.
+
+Two recovery-specific follow-ons:
+
+- An unlisted route named in an otherwise public guide is still discoverable: it is copied into
+  search/LLM corpora by design. Keep public policy prose path-agnostic and let the existing metadata
+  gate reject route literals; never add a prose allowlist that weakens the exclusion.
+- A lone browser timeout in a cold full sweep is neither a reason to waive the lane nor proof of a
+  component defect. Re-run that exact engine/test repeatedly, then the complete suite on the warm
+  tree. In this incident the test passed 6/6 targeted attempts and all 4,408 runnable tests passed in
+  the complete rerun, so no assertion or timeout budget was weakened. The ship ladder now also
+  awaits its cold docs warm-up before the complete browser lane, matching its stated ordering.
 
 After publishing, `classify-change --check-npm` reports nothing unpublished, so a later docs-only push
 correctly leaves `publish=false` and cannot re-publish by accident.

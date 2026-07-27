@@ -311,3 +311,26 @@ triggers rove instead of stacking 2N tab stops; the `refCache` bounded-cache cla
 behaviourally sound but untested → pinned by a regression test. Sound and kept: the Firefox paste
 capability-skip, the disabled-Dropzone model, Escape/menu/move-mode ordering. Suites after:
 board 15, data-grid 22, dropzone 20, hook 15, sortable-list 10 — all green.
+
+## Round 21 — 2026-07-28 · production boundary recovery
+
+The failed main deploy was decomposed job-by-job. Signing, pre-deploy verification, and Cloudflare
+upload had succeeded; only the stale broad-root/SSO expectation failed. Anonymous production probes
+then confirmed all 22 `/internal/*` artifacts are public with noindex and two no-store layers, the
+retired public guide is gone, and `/r/*` still rejects anonymous traffic. The obsolete phased
+cutover was removed from the workflow, scripts, current release docs, and ship procedure. The live
+probe now binds the deployment to the tree's registry version and Stepper's signed integrity entry.
+
+Pre-ship verification: deployment-boundary unit test clean · workflow-security clean · all 16
+negative mutations rejected · `pnpm lint` 7/7 · `pnpm typecheck` 7/7. Final full-sweep receipt,
+GitHub checks, and production-deploy evidence are recorded by the merge/deploy runs themselves.
+
+The first full sweep rejected two independent assumptions rather than being waived: public policy
+prose leaked the unlisted route into `llms-full.txt`, and one SortableList WebKit test timed out under
+the cold run. The prose was corrected at its source; public/private metadata builds pass. The exact
+WebKit test then passed 6/6 reruns (roughly 0.45s test time) and the complete warmed suite passed
+4,408/4,408 runnable tests across 360 files (5 capability skips). The same run exposed stale
+96-route/768-check labels; all operational labels now derive from the 108-route authority, and the
+public component count is generated instead of hand-maintained. The ship ladder now awaits its docs
+warm-up before the complete three-engine lane, matching the ordering its own comments promised and
+removing the observed source of cold-build contention.

@@ -3,7 +3,7 @@
 //
 // WHY THIS IS LOAD-BEARING
 //   Under the local-first topology no CI runner executes a browser gate. The unit suite, the
-//   cross-engine smoke, and the 768 behaviour contracts run in `.husky/pre-push` and nowhere else.
+//   cross-engine smoke, and the 864 behaviour contracts run in `.husky/pre-push` and nowhere else.
 //   A tree where `core.hooksPath` is unset, or where a hook lost its executable bit, or where a hook
 //   was quietly emptied, is a tree with NO browser verification at all — and it would look completely
 //   normal. So "the hooks are installed" has to be a checked fact, not an assumption.

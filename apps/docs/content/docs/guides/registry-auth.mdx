@@ -8,15 +8,14 @@ Components are distributed from **`https://design.vegastack.com/r/*`**, a privat
 shadcn registry protected by Cloudflare Access. Registry JSON is always
 machine-authenticated — that never changes, whoever you are and however you reach the site.
 
-| Surface           | Access                                                                                                                             |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `/` and `/docs/*` | Human documentation — anonymous once the public cutover completes; until then the whole site sits behind the same organisation SSO |
-| `/r/*`            | Cloudflare Access **service token** (never an identity login)                                                                      |
+| Surface                       | Access                                                                                      |
+| ----------------------------- | ------------------------------------------------------------------------------------------- |
+| Every non-registry site route | Anonymous. Operations pages are intentionally unlisted and `noindex`, not access-controlled |
+| `/r/*`                        | Cloudflare Access **service token** (never an identity login)                               |
 
-The registry's service-token requirement is independent of the documentation's visibility:
-making the docs anonymous does **not** open `/r/*`. If you are reading this behind an SSO
-prompt, the cutover has not happened yet and your browser session is why you can see the page —
-it is not credentials for the registry.
+The registry's service-token requirement is independent of the rest of the site's public
+visibility: making every documentation and operations route anonymous does **not** open `/r/*`.
+A browser session is never registry authorization.
 
 Registry administrators provide a Client ID and Client Secret. Treat both values as
 credentials: keep them out of source control, browser bundles, logs, screenshots, and

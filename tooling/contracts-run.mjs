@@ -16,7 +16,8 @@
 //      "turbo's content hash over declared inputs", which is strictly stronger — it survives a
 //      stale `out/` that a naive reuse check would happily serve.
 //
-//   2. THE FULL SWEEP IS 13m36s. Measured on macOS ARM64, 768/768 passing, 5 workers, 10 cores
+//   2. THE FULL SWEEP WAS 13m36s at 96 routes. That historical macOS ARM64 measurement was
+//      768/768 passing, 5 workers, 10 cores
 //      (`real 815.43` / `user 3789.34` — CPU-bound, as apps/docs/playwright.config.ts records).
 //      That is a `/ship` cost, not a pre-push cost. Scoping is what makes pre-push viable.
 //
@@ -61,11 +62,13 @@ const TITLE_SUFFIXES = [
 // Every Playwright project in apps/docs/playwright.config.ts. Used only to predict the expected
 // test count; a mismatch against `--list` fails rather than silently adjusting.
 const PROJECT_COUNT = 4;
+const FULL_TEST_COUNT =
+  COMPONENT_ROUTES.length * TITLE_SUFFIXES.length * PROJECT_COUNT;
 
 const USAGE = `Usage: node tooling/contracts-run.mjs [options]
 
   --scope          check only the routes the diff can have moved (default)
-  --all            check every component route (${COMPONENT_ROUTES.length} routes, 768 tests, ~14min)
+  --all            check every component route (${COMPONENT_ROUTES.length} routes, ${FULL_TEST_COUNT} tests)
   --routes a,b     check exactly these routes
   --base <ref>     diff against this ref (default: origin/main, falling back to main)
   --report <path>  where to write the JSON report (default: .gates/contracts.json)

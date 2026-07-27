@@ -9,8 +9,8 @@ VegaStack's design-system records, release runbooks, research, and ledgers.
 - [`../design.md`](../design.md) — current design doctrine, kept synchronized by a build gate.
 - [`RELEASING.md`](RELEASING.md) — current release and deployment reference.
 - [`../skills/README.md`](../skills/README.md) — current maintainer and consumer skill map.
-- [`plans/public-docs-cutover.md`](plans/public-docs-cutover.md) — current, separately approval-gated
-  public-docs cutover and rollback runbook.
+- [`plans/2026-07-28-public-site-private-registry-boundary.md`](plans/2026-07-28-public-site-private-registry-boundary.md)
+  — current production boundary: every non-registry route is public and only `/r/*` is private.
 
 For current package versions and registry inventory, query npm/the workspace and the machine
 authorities named in `AGENTS.md`; do not copy a number from prose.
@@ -26,6 +26,8 @@ could otherwise be mistaken for live authority.
 - [`requirements.md`](requirements.md) — original requirements and locked-decision rationale.
 - [`gap-analysis.md`](gap-analysis.md) — original adversarial gap analysis and resolution record.
 - [`plans/`](plans/) — approved plans and execution history; read banners before using any command.
+- [`plans/public-docs-cutover.md`](plans/public-docs-cutover.md) — superseded one-time cutover
+  record; its phased deploy commands are no longer operational.
 - [`audits/`](audits/) — dated audit evidence.
 - [`research/`](research/README.md) — durable source research; confirm version-sensitive claims
   against the installed dependency and its official documentation.
@@ -33,6 +35,6 @@ could otherwise be mistaken for live authority.
 
 ## Current status
 
-The public npm packages and private registry are shipped. Production docs and registry deployment
-continue through the `ship` skill. The public-docs cutover remains a separate, opt-in approval flow;
-ordinary deploys do not perform it.
+The public npm packages and private registry are shipped. `design.vegastack.com` is public on every
+non-registry route, including the unlisted/noindex `/internal/*` operations pages; only `/r/*`
+requires a Cloudflare Access service token. Every production dispatch proves this one boundary.

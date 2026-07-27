@@ -4,7 +4,7 @@
 // WHY THIS IS NOT OPTIONAL
 //   Under the local-first topology no GitHub-hosted runner executes a browser gate, so
 //   `verify-gate-receipt.mjs` is the entire mechanism by which a push carries evidence that the unit
-//   suite, the cross-engine smoke, and the 768 behaviour contracts ran. A guard with a hole in it is
+//   suite, the cross-engine smoke, and the 864 behaviour contracts ran. A guard with a hole in it is
 //   worse than no guard: it produces a green check that means nothing.
 //
 //   This repository already keeps `verify-design-lint-structural.mjs` and
