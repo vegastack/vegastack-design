@@ -13,11 +13,12 @@
 //   cannot launch a browser.
 //
 // WHY IT IS NOT A LOOPHOLE
-//   It rewrites only the receipt's `tree`, records `carriedFrom` and `carryReason`, and refuses
-//   outright unless `versionBumpOnly()` proves every difference between the two trees is version
-//   churn. The guard then RE-DERIVES that same proof from git before accepting the carry — so this
-//   tool cannot grant anything the guard will not independently confirm. A carried receipt still
-//   attests browser results measured against real code; only version strings moved underneath it.
+//   It rewrites only the receipt's tree-bound facts (`tree`, `treeFiles`, and `contractSha256`),
+//   records `carriedFrom` and `carryReason`, and refuses outright unless `versionBumpOnly()` proves
+//   every difference between the two trees is version churn. The guard then RE-DERIVES that same
+//   proof from git before accepting the carry — so this tool cannot grant anything the guard will
+//   not independently confirm. A carried receipt still attests browser results measured against
+//   real code; only version strings and their derived hashes moved underneath it.
 //
 // WHERE IT RUNS
 //   Inside `pnpm run version-packages`, after `changeset version` and `version-sync`, and therefore
@@ -32,6 +33,7 @@ import {
   workingTreeContentHash,
 } from "./lib/change-set.mjs";
 import {
+  contractSha256,
   readReceipt,
   RECEIPT_PATH,
   RECEIPT_REPO_PATH,
@@ -105,6 +107,11 @@ writeFileSync(
       carriedFromCommit: baseCommit,
       carryReason: CARRY_REASON,
       carriedAt: new Date().toISOString(),
+      // version-sync rewrites dependency ranges in component-contracts.json. That moves the
+      // authority hash without changing inventory or browser-observable code, and design:derived
+      // stamps the new hash into its generated surfaces. Carry the current authority fact only
+      // AFTER the version-only proof above succeeds; a real code change never reaches this write.
+      contractSha256: contractSha256(),
     },
     null,
     2,

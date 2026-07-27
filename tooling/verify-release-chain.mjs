@@ -14,7 +14,7 @@
 //     · registry npm ranges not following the packages           (§1 of release-gotchas.md)
 //     · the contract authority drifting from the manifest        (§2)
 //     · a pure version bump demanding a browser lane             (§3)
-//     · the receipt carry refusing, or being unverifiable        (§4, §5)
+//     · the working-tree carry or committed guard refusing       (§4, §5)
 //     · version-sync reformatting what it rewrites               (§6)
 //
 // WHAT IT DOES NOT DO
@@ -184,12 +184,15 @@ step("registry ranges follow the published packages (§1)");
 ok();
 
 // §2 — and the machine authority must agree, or verify-component-contracts fails with 96 problems.
-step("the contract authority agrees with the manifest (§2)");
-const derived = run("pnpm", ["design:derived"]);
+// Check rather than generate here: version-sync is the production command and must have regenerated
+// these surfaces itself. Generating them in preflight used to mask a broken Version Packages tree.
+step("version-sync refreshed the contract-derived surfaces (§2)");
+const derived = run("pnpm", ["design:derived:check"]);
 assert.equal(
   derived.status,
   0,
-  `design:derived failed:\n${derived.stdout}${derived.stderr}`,
+  "version-sync left stale contract-derived surfaces — the real Version Packages commit will fail " +
+    `design:derived:check:\n${derived.stdout}${derived.stderr}`,
 );
 const contracts = run("node", [
   join(ROOT, "tooling/verify-component-contracts.mjs"),
@@ -203,8 +206,21 @@ assert.equal(
 );
 ok();
 
+// §4 — production carries BEFORE changesets/action commits. This exact working-tree call is where a
+// missing readFileSync import failed while the old commit-to-commit preflight stayed green.
+step("the real uncommitted receipt carry succeeds (§4)");
+const carry = run("node", [join(ROOT, "tooling/gate-receipt-carry.mjs")]);
+assert.equal(
+  carry.status,
+  0,
+  "gate-receipt-carry rejects the exact uncommitted Version Packages tree:\n" +
+    `${carry.stdout}${carry.stderr}`,
+);
+ok();
+
 // §3 — a pure version bump must require no browser lane.
 step("a pure version bump requires no gate (§3)");
+let simulatedHead;
 {
   run("git", ["add", "-A"]);
   const commit = run("git", [
@@ -223,6 +239,7 @@ step("a pure version bump requires no gate (§3)");
     `could not commit the simulated bump:\n${commit.stderr}`,
   );
   const head = run("git", ["rev-parse", "HEAD"]).stdout.trim();
+  simulatedHead = head;
 
   const proof = versionBumpOnly(baseCommit, head);
   assert.equal(
@@ -263,6 +280,30 @@ step("a pure version bump requires no gate (§3)");
 }
 ok();
 
+// §5 — CI verifies the committed carry independently. This catches a carried tree paired with a
+// stale contract SHA, which the old predicate-only preflight never inspected.
+step("the committed receipt guard re-derives the carry (§5)");
+const guard = run("node", [
+  join(ROOT, "tooling/verify-gate-receipt.mjs"),
+  "--contracts",
+  "false",
+  "--unit",
+  "false",
+  "--smoke",
+  "false",
+  "--before",
+  baseCommit,
+  "--after",
+  simulatedHead,
+]);
+assert.equal(
+  guard.status,
+  0,
+  "the independent receipt guard rejects the committed simulated Version Packages tree:\n" +
+    `${guard.stdout}${guard.stderr}`,
+);
+ok();
+
 // §4/§5 — the consume round-trip is the gate that catches a broken release for real consumers.
 step(
   "shadcn consume round-trip against the bumped registry (§1, the real proof)",
@@ -280,6 +321,6 @@ ok(/(\d+)\/\1 graphs/.exec(consume.stdout)?.[0] ?? "");
 cleanup();
 console.log(
   `\n✓ release-chain: a simulated ${bumpKind} bump survives version-sync, both authorities, the ` +
-    `classifier, the carry proof, and a full consume round-trip.\n` +
+    `working-tree carry, committed guard, classifier, and a full consume round-trip.\n` +
     `  Gotchas and their run ids: skills/internal/ship/references/release-gotchas.md`,
 );

@@ -66,8 +66,10 @@ about the next minor.
 - **Symptom:** `verify-component-contracts: 96 problem(s) … expected ^0.2.0, received ^0.1.0`.
 - **Cause:** `packages/ui/component-contracts.json` records the same ranges as
   `packages/ui/registry.json`, and that gate compares them. Fixing one alone fails the other.
-- **Knock-on:** changing the contract JSON moves its SHA-256, so **`pnpm design:derived` must run**
-  and its output is part of the same commit.
+- **Knock-on:** changing the contract JSON moves its SHA-256, so `version-sync` runs
+  **`pnpm design:derived` inside the production command** and its output is part of the same commit.
+  The carry updates the receipt's contract SHA only after the version-only proof succeeds; otherwise
+  the independent guard rejects the Version PR even when its tree hash was carried correctly.
 
 ## 3. A pure version bump must require no gate
 
