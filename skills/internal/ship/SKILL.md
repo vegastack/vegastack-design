@@ -187,7 +187,10 @@ proof from git and rejects the carry if anything real changed. Without this the 
 fail the guard and no publish could ever happen.
 
 If `gate-receipt-carry` REFUSES, do not work around it: something other than a version bump is in
-that branch, and the browser gates have to run against it.
+that branch, and the browser gates have to run against it. The proof rejects untracked paths before
+reading content because `git diff` has no record for them; it also rejects binary records,
+file-mode-only changes, renames, deletions, and any inventory path missing from the parsed diff.
+Generated output is exempt only when it is tracked and independently re-derived by the quality gate.
 
 Changes reach `main` through a **reviewed PR**, not a direct push (`docs/RELEASING.md` step 4 is
 canonical). MK approval is required before the change PR is merged. GitHub Team cannot provide

@@ -109,7 +109,9 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
   hash while changing no code a browser gate can observe, so `tooling/gate-receipt-carry.mjs` carries
   the receipt across a version bump and stamps `carriedFrom`. The guard re-derives that proof from git
   (`versionBumpOnly`) and rejects any carry hiding a real change — without it every Version PR would
-  fail `receipt-guard` and no npm publish could ever happen.
+  fail `receipt-guard` and no npm publish could ever happen. Untracked files, missing diff records,
+  binary changes, file-mode changes, renames, and deletions can never ride that exemption; unknown
+  paths widen coverage.
   `tooling/verify-hooks-installed.mjs` runs inside `pnpm lint` because a tree
   whose hooks are missing or unwired has no browser verification at all, and husky's dispatcher exits
   **zero** when a committed hook is absent.

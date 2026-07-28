@@ -338,3 +338,18 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   requires a prominent historical supersession marker on `docs/requirements.md`. Three mutation
   fixtures prove that SSO, Cloudflare Access, and missing-supersession claims fail for the intended
   reason. Historical decision text remains unchanged below the marker.
+
+## 2026-07-28 — An untracked path made a working tree look like a pure version bump
+
+- **Symptom:** with one untracked plan in the tree, `classify-change --json` reported one substantive
+  changed file but `pureVersionBump: true`, then disabled contracts, unit, and smoke. The same hole
+  was reachable by the receipt-carry predicate.
+- **Root cause:** the changed-file inventory correctly appended `git ls-files --others`, but the
+  version predicate inspected only `git diff`. Git emits no diff record for an untracked path; the
+  empty record set was mistaken for “no offender.” Mode-only and binary records had analogous
+  non-body shapes.
+- **Systemic fix:** untracked paths now reject before batching, every remaining inventory path must
+  have a parsed diff record, and mode/binary metadata rejects explicitly. Isolated repositories
+  exercise source, test, binary, symlink, generated, unknown, mixed version+untracked, deletion,
+  rename, mode, and binary mutations; two real Version Packages generations and allowed package/header
+  version churn remain positive controls.

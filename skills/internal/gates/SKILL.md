@@ -72,6 +72,7 @@ Common CI rejections and what each actually means:
 | ran against @playwright/test A but this tree pins B             | gates ran on a stale install                                | `pnpm install`, re-run                                            |
 | reports pass but executed 0 tests                               | an empty scope reported as green                            | investigate the scope; do not re-run hoping it changes            |
 | was deliberately skipped … needs MK acknowledgement             | `GATES_SKIP` was used                                       | MK's call, not yours. Present the reason recorded in the receipt. |
+| carry refuses an untracked or metadata-only path                | the version exemption cannot independently inspect it       | remove unintended work or run the gates on the complete tree      |
 
 ## 5. Running the ladder
 

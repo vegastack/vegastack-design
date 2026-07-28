@@ -85,7 +85,10 @@ about the next minor.
   consumed changesets, and a re-stamped provenance header in 1082 files. Measured: 77a346c0 → 1b5796df.
 - **Unfixable by re-running gates:** that branch is bot-authored and browsers cannot run in CI.
 - **Now:** `gate-receipt-carry` carries it, the guard re-derives the proof. If the carry **refuses**,
-  do not work around it — something other than a version bump is in that branch.
+  do not work around it — something other than a version bump is in that branch. Untracked paths
+  have no diff record and therefore always refuse; mode, binary, rename, deletion, and missing-record
+  mutations are likewise fail-closed. Tracked generated outputs are accepted only because the
+  quality gate re-derives them.
 
 ## 5. Never anchor a cross-machine proof to a tree hash
 

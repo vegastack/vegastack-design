@@ -559,3 +559,12 @@ each was invisible in review and each is the kind that would have degraded the t
   it from being mistaken for an instruction.
 - **The consistency verifier uses semantic negative fixtures.** It does not scan historical ledgers
   for forbidden words; it rejects stale instructions on the surfaces agents and operators execute.
+
+## 2026-07-28 — CI/CD efficiency implementation, decision B
+
+- **A changed-file inventory and a diff body must reconcile exactly.** A missing diff record is not
+  “no substantive line”; it is uninspectable evidence and therefore rejects the version exemption.
+- **File identity is part of the change.** Binary markers and `old mode`/`new mode` records reject
+  even when no textual hunk exists. Symlink targets are assessed through git's blob diff.
+- **Generated output is not trusted by name.** An untracked generated path rejects. A tracked output
+  remains eligible only where the current quality gate independently regenerates and checks it.

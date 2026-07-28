@@ -78,6 +78,9 @@ const USAGE = `Usage: node tooling/classify-change.mjs [options]
   --json            print the classification as JSON instead of a table
   --github-output   write key=value pairs here (default: $GITHUB_OUTPUT when set)
 
+Working-tree classification includes untracked paths. A changed path with no independently
+inspectable git diff record is never treated as version-only; unknown dependencies widen coverage.
+
 Exit codes: 0 classified · 2 the range could not be resolved.`;
 
 function fatal(message) {

@@ -98,10 +98,12 @@ export function untrackedFiles() {
  */
 export function changedFilesInWorkingTree(base) {
   return [
-    ...splitLines(git(["diff", "--name-only", base])).filter(
-      (path) => !HASH_EXCLUDED.test(path),
-    ),
-    ...untrackedFiles(),
+    ...new Set([
+      ...splitLines(git(["diff", "--name-only", base])).filter(
+        (path) => !HASH_EXCLUDED.test(path),
+      ),
+      ...untrackedFiles(),
+    ]),
   ];
 }
 
@@ -314,15 +316,50 @@ export function versionBumpOnly(before, after = null) {
     ? changedFilesInRange(before, after)
     : changedFilesInWorkingTree(before);
   const offenders = [];
+  const untracked = after === null ? new Set(untrackedFiles()) : new Set();
+  for (const file of files)
+    if (untracked.has(file))
+      offenders.push({
+        file,
+        line: "(untracked path has no git diff record; version carry requires a tracked, independently inspectable difference)",
+      });
+
   const BATCH = 200;
   for (let index = 0; index < files.length; index += BATCH) {
+    const batch = files
+      .slice(index, index + BATCH)
+      .filter((file) => !untracked.has(file));
+    if (batch.length === 0) continue;
     const args = ["diff", "-U0", "--no-renames", before];
     if (after) args.push(after);
-    args.push("--", ...files.slice(index, index + BATCH));
+    args.push("--", ...batch);
     const diff = git(args);
-    for (const [file, body] of splitDiffByFile(diff)) {
+    const records = splitDiffByFile(diff);
+    const represented = new Set(records.map(([file]) => file));
+    for (const file of batch)
+      if (!represented.has(file))
+        offenders.push({
+          file,
+          line: "(changed-file inventory has no matching git diff record; refusing an unverifiable carry)",
+        });
+
+    for (const [file, body] of records) {
       const lines = body.filter(isBodyLine);
       const offend = (line) => offenders.push({ file, line });
+
+      const modeChange = body.find((line) => /^(?:old|new) mode /.test(line));
+      if (modeChange) {
+        offend(modeChange);
+        continue;
+      }
+      const binaryChange = body.find(
+        (line) =>
+          line.startsWith("Binary files ") || line === "GIT binary patch",
+      );
+      if (binaryChange) {
+        offend(binaryChange);
+        continue;
+      }
 
       if (/^\.changeset\/.+\.md$/.test(file)) {
         // Consumed changesets are DELETED. An addition here would be new release intent.

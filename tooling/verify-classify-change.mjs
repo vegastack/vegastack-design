@@ -17,7 +17,18 @@
 
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  chmodSync,
+  cpSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  renameSync,
+  rmSync,
+  symlinkSync,
+  unlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -167,11 +178,15 @@ function classify(before, after) {
 // contract assertion, and demanding the 13.6-minute sweep for it is the waste this repo already
 // paid four times per release once.
 const VERSION_BUMP = "bcd59ada8f4d793f54cdb422c34537926e80275d";
+// The current public-boundary release's Version Packages commit. Keeping a second generation catches
+// newly-added generated surfaces that the older fixture could not contain.
+const CURRENT_VERSION_BUMP = "9553498";
 // A real component change: 629 registry files reconciled.
 const COMPONENT_CHANGE = "6c60d532745e411ca9c50d7039e50da5f368139a";
 
 for (const [sha, label] of [
   [VERSION_BUMP, "the Version Packages commit"],
+  [CURRENT_VERSION_BUMP, "the current Version Packages commit"],
   [COMPONENT_CHANGE, "the full-system reconcile commit"],
 ])
   assert.ok(
@@ -252,6 +267,19 @@ checks += 2;
   checks += 2;
 }
 {
+  const bump = versionBumpOnly(
+    `${CURRENT_VERSION_BUMP}~1`,
+    CURRENT_VERSION_BUMP,
+  );
+  assert.equal(
+    bump.ok,
+    true,
+    `the current Version Packages commit must remain valid version churn; first offender: ${bump.offenders[0]?.file} ${bump.offenders[0]?.line}`,
+  );
+  assert.ok(bump.files > 1_000, "the current fixture must exercise scale");
+  checks += 2;
+}
+{
   const real = versionBumpOnly(`${COMPONENT_CHANGE}~1`, COMPONENT_CHANGE);
   assert.equal(
     real.ok,
@@ -259,6 +287,193 @@ checks += 2;
     "a real component change must NOT be accepted as version churn — this is the fail-open direction",
   );
   checks++;
+}
+
+// ── working-tree mutation matrix ─────────────────────────────────────────────────────────────────
+//
+// Version PR carry is also produced before the bumped tree is committed. That path includes
+// untracked files in its changed-file inventory, while `git diff` has no record for them. Exercise
+// the real predicate in isolated repositories so a fixture can never alter this worktree.
+
+function gitIn(root, args) {
+  return execFileSync("git", args, { cwd: root, encoding: "utf8" });
+}
+
+function mutationRepository() {
+  const root = mkdtempSync(join(tmpdir(), "version-bump-mutation-"));
+  mkdirSync(join(root, "tooling/lib"), { recursive: true });
+  mkdirSync(join(root, "packages/design"), { recursive: true });
+  mkdirSync(join(root, "packages/ui/registry/ui"), { recursive: true });
+  mkdirSync(join(root, "fixtures"), { recursive: true });
+  cpSync(
+    join(ROOT, "tooling/lib/change-set.mjs"),
+    join(root, "tooling/lib/change-set.mjs"),
+  );
+  writeFileSync(
+    join(root, "packages/design/package.json"),
+    JSON.stringify({ name: "@vegastack/design", version: "1.0.0" }, null, 2) +
+      "\n",
+  );
+  writeFileSync(
+    join(root, "packages/ui/registry/ui/button.tsx"),
+    "// @vegastack button@1.0.0 sha256-before\nexport const Button = true;\n",
+  );
+  writeFileSync(join(root, "fixtures/text.txt"), "before\n");
+  writeFileSync(join(root, "fixtures/binary.bin"), Buffer.from([0, 1, 2, 3]));
+  writeFileSync(join(root, "fixtures/executable.sh"), "#!/bin/sh\nexit 0\n");
+  chmodSync(join(root, "fixtures/executable.sh"), 0o644);
+  symlinkSync("text.txt", join(root, "fixtures/link"));
+  gitIn(root, ["init", "--quiet"]);
+  gitIn(root, ["config", "user.name", "classifier fixture"]);
+  gitIn(root, ["config", "user.email", "classifier@example.invalid"]);
+  gitIn(root, ["add", "-A"]);
+  gitIn(root, ["commit", "--quiet", "-m", "fixture base"]);
+  return root;
+}
+
+function workingTreeVersionResult(mutate) {
+  const root = mutationRepository();
+  try {
+    mutate(root);
+    const module = new URL(`file://${join(root, "tooling/lib/change-set.mjs")}`)
+      .href;
+    const stdout = execFileSync(
+      "node",
+      [
+        "--input-type=module",
+        "--eval",
+        `import { versionBumpOnly } from ${JSON.stringify(module)}; console.log(JSON.stringify(versionBumpOnly("HEAD")));`,
+      ],
+      { cwd: root, encoding: "utf8" },
+    );
+    return JSON.parse(stdout);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+for (const [label, mutate] of [
+  [
+    "an untracked component source",
+    (root) =>
+      writeFileSync(
+        join(root, "packages/ui/registry/ui/new-component.tsx"),
+        "export const NewComponent = true;\n",
+      ),
+  ],
+  [
+    "an untracked test",
+    (root) =>
+      writeFileSync(
+        join(root, "packages/ui/registry/ui/button.test.tsx"),
+        "throw new Error('untracked test');\n",
+      ),
+  ],
+  [
+    "an untracked binary",
+    (root) =>
+      writeFileSync(
+        join(root, "fixtures/untracked.bin"),
+        Buffer.from([0, 255]),
+      ),
+  ],
+  [
+    "an untracked symlink",
+    (root) => symlinkSync("text.txt", join(root, "fixtures/untracked-link")),
+  ],
+  [
+    "an untracked generated registry output",
+    (root) => {
+      mkdirSync(join(root, "apps/docs/public/r"), { recursive: true });
+      writeFileSync(join(root, "apps/docs/public/r/untracked.json"), "{}\n");
+    },
+  ],
+  [
+    "an untracked unknown path",
+    (root) => writeFileSync(join(root, "unknown.txt"), "unknown\n"),
+  ],
+  ["a deletion", (root) => unlinkSync(join(root, "fixtures/text.txt"))],
+  [
+    "a rename",
+    (root) =>
+      renameSync(
+        join(root, "fixtures/text.txt"),
+        join(root, "fixtures/renamed.txt"),
+      ),
+  ],
+  [
+    "a file-mode change",
+    (root) => chmodSync(join(root, "fixtures/executable.sh"), 0o755),
+  ],
+  [
+    "a binary content change",
+    (root) =>
+      writeFileSync(
+        join(root, "fixtures/binary.bin"),
+        Buffer.from([0, 1, 9, 3]),
+      ),
+  ],
+  [
+    "a symlink-target change",
+    (root) => {
+      unlinkSync(join(root, "fixtures/link"));
+      symlinkSync("binary.bin", join(root, "fixtures/link"));
+    },
+  ],
+  [
+    "a version change mixed with an untracked file",
+    (root) => {
+      writeFileSync(
+        join(root, "packages/design/package.json"),
+        JSON.stringify(
+          { name: "@vegastack/design", version: "1.0.1" },
+          null,
+          2,
+        ) + "\n",
+      );
+      writeFileSync(join(root, "unknown.txt"), "must not ride along\n");
+    },
+  ],
+]) {
+  const result = workingTreeVersionResult(mutate);
+  assert.equal(
+    result.ok,
+    false,
+    `${label} must NOT be accepted as pure version churn`,
+  );
+  assert.ok(
+    result.offenders.length > 0,
+    `${label} must name a diagnostic offender`,
+  );
+  checks += 2;
+}
+
+for (const [label, mutate] of [
+  [
+    "a package version field only",
+    (root) =>
+      writeFileSync(
+        join(root, "packages/design/package.json"),
+        JSON.stringify(
+          { name: "@vegastack/design", version: "1.0.1" },
+          null,
+          2,
+        ) + "\n",
+      ),
+  ],
+  [
+    "a provenance header only",
+    (root) =>
+      writeFileSync(
+        join(root, "packages/ui/registry/ui/button.tsx"),
+        "// @vegastack button@1.0.1 sha256-after\nexport const Button = true;\n",
+      ),
+  ],
+]) {
+  const result = workingTreeVersionResult(mutate);
+  assert.equal(result.ok, true, `${label} must remain valid version churn`);
+  assert.deepEqual(result.offenders, [], `${label} must have no offender`);
+  checks += 2;
 }
 
 // ── no output may ever be unset ──────────────────────────────────────────────────────────────────

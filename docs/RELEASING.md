@@ -60,6 +60,13 @@ remains a separate explicit MK decision under the `ship` skill.
 Docs/deployment-only changes do not require a package changeset, version bump, or npm publish. Keep
 workflow changes out of a changeset-bearing push if package work unexpectedly becomes necessary.
 
+The Version Packages receipt carry is intentionally narrower than a filename allowlist. It rejects
+untracked paths (which have no `git diff` record), binary or file-mode changes, renames, deletions,
+and any changed inventory path missing from the parsed diff. A generated output is eligible only
+when it is tracked and the quality gate independently re-derives it. Never remove an offender merely
+to make the carry pass; either correct unintended work or run browser gates against the complete
+tree.
+
 ## Where the jobs run
 
 **No CI runner executes a browser.** The browser-unit suite, the cross-engine smoke, the three-engine
