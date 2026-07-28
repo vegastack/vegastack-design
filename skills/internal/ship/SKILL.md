@@ -121,6 +121,11 @@ branch before merging it (`--before main --after changeset-release/main`).
 The gate classifier is not the npm authority and no longer accepts `--check-npm`; release state lives
 only in `tooling/release-state.mjs`.
 
+A carried `production-full` receipt is allowed to satisfy Release's weaker `change` guard because
+the guard independently reconstructs and verifies the complete stronger leaf universe. Dominance is
+one-way: a scoped change receipt never satisfies deploy. This does not enable exact-tree reuse, and a
+carried receipt remains reuse-ineligible.
+
 ## 1a. What the gates cannot see
 
 `pnpm lint` is thorough and will still pass while the release is wrong in two specific ways. Both

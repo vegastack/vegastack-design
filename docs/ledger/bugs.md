@@ -533,3 +533,14 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   reconstructs on the exact release tree. Carry now also requires an actual `package.json` version
   field change, so an arbitrary generated-file edit or provenance restamp cannot qualify alone.
   Mutations prove both rejection directions and the combined version-plus-derived case.
+
+## 2026-07-28 — Strong production receipt was rejected by the weaker Release guard
+
+- **Symptom:** after the derived smoke fix, release preflight carried a valid `production-full`
+  receipt, but the default `change` guard rejected its profile and all 871 canonical leaves as extra.
+- **Root cause:** schema-2 verification required profile equality instead of modeling one-way
+  strength, then reconstructed the expected evidence universe from the weaker requested profile.
+- **Systemic fix:** `production-full` may satisfy `change`, and verification reconstructs the full
+  receipt profile. The reverse remains rejected; deploy still explicitly requires production-full,
+  and carried receipts remain excluded from exact-tree reuse. Positive/negative fixtures pin both
+  directions.

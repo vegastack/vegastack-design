@@ -204,8 +204,14 @@ const { problems } = verifyReceipt(receipt, {
 });
 
 console.log(`verify-gate-receipt: tree ${treeHash} (${files} files)`);
+const acceptedStrongerProfile =
+  options.profile === CHANGE_PROFILE && receipt.profile === PRODUCTION_PROFILE;
 console.log(
-  `verify-gate-receipt: required profile ${options.profile} · ${contractRoutes.length} reconstructed contract route(s)`,
+  `verify-gate-receipt: required profile ${options.profile}` +
+    (acceptedStrongerProfile
+      ? " · accepted stronger production-full receipt"
+      : "") +
+    ` · ${acceptedStrongerProfile ? COMPONENT_ROUTES.length : contractRoutes.length} authoritative contract route(s) reconstructed`,
 );
 if (!receipt.__unreadable) {
   console.log(

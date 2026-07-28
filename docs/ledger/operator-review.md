@@ -726,3 +726,7 @@ each was invisible in review and each is the kind that would have degraded the t
   smoke shadow digest. The carry inventory now includes that independently reconstructed output and
   additionally requires a real package version-field change, preventing a generated/provenance-only
   diff from being mislabeled as a version bump.
+- **Profile strength is explicit.** The second preflight rejected a carried full receipt against a
+  weaker change guard. Verification now accepts production-full→change only and reconstructs the
+  stronger universe; change→production-full remains impossible and carried evidence still cannot
+  authorize reuse.

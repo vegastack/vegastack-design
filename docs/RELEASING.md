@@ -120,6 +120,11 @@ change-profile receipt cannot downgrade stronger exact-tree production evidence;
 retained and makes that evidence ineligible. Carried Version PR receipts never qualify. Enablement
 requires 20 following observations with zero escapes and separate MK approval.
 
+Receipt profile strength is one-way: a valid `production-full` receipt may satisfy a workflow's
+weaker `change` guard, including after the independently rederived Version Packages carry. A scoped
+`change` receipt can never satisfy deploy's `production-full` guard. This is validation dominance,
+not evidence reuse; carried receipts remain ineligible for exact-tree skip/reuse.
+
 `pnpm gates:retry` reruns exact structured failure selectors for diagnosis only. It refuses an empty
 selector, a stale tree, a renamed test, an unknown engine/project/route, or zero executed tests. Its
 report cannot enter `.gates/evidence/` or `.gates/receipt.json`, and the original failure remains

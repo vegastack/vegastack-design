@@ -172,6 +172,11 @@ expectPass(
   { profile: PRODUCTION_PROFILE, contractRoutes: COMPONENT_ROUTES },
   "a complete schema-v2 production-full receipt",
 );
+expectPass(
+  validProductionReceipt(),
+  { profile: CHANGE_PROFILE, contractRoutes: SCOPED_ROUTES },
+  "a production-full receipt satisfying the weaker change-profile guard",
+);
 
 // Production used to pass the same expectations as a scoped push. `mode: ship` was merely a word,
 // all-browsers could not be represented at all, and 2 routes/16 checks satisfied deploy. This

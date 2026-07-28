@@ -181,10 +181,22 @@ export function verifyReceipt(
     fail(
       `gate receipt records unknown profile ${JSON.stringify(receipt.profile)}; expected ${profile}`,
     );
-  else if (receipt.profile !== profile)
+  else if (
+    receipt.profile !== profile &&
+    !(profile === CHANGE_PROFILE && receipt.profile === PRODUCTION_PROFILE)
+  )
     fail(
       `gate receipt profile is ${receipt.profile}, but this command requires ${profile}`,
     );
+
+  // Profile dominance is one-way. A production-full receipt contains the complete change universe
+  // plus all-browser/full-contract leaves, so it may satisfy a change guard. The reverse is never
+  // true. Reconstruct against the receipt's stronger profile so its canonical leaves are neither
+  // ignored nor mislabeled as extras.
+  const effectiveProfile =
+    profile === CHANGE_PROFILE && receipt.profile === PRODUCTION_PROFILE
+      ? PRODUCTION_PROFILE
+      : profile;
 
   if (typeof receipt.tree !== "string" || receipt.tree.length === 0)
     fail("gate receipt records no tree hash, so it describes nothing");
@@ -269,7 +281,7 @@ export function verifyReceipt(
 
   let profiled = {};
   try {
-    profiled = profileRequirements(profile, required);
+    profiled = profileRequirements(effectiveProfile, required);
   } catch (error) {
     fail(error.message);
   }
@@ -335,7 +347,7 @@ export function verifyReceipt(
         "the contracts gate reports pass over 0 routes while this change requires contract coverage",
       );
     const expectedRoutes =
-      profile === PRODUCTION_PROFILE
+      effectiveProfile === PRODUCTION_PROFILE
         ? [...COMPONENT_ROUTES]
         : [...new Set(contractRoutes)];
     const expectedTests =
@@ -354,7 +366,7 @@ export function verifyReceipt(
       fail(
         `the contracts gate expected-count is ${contracts?.expected ?? 0}; independently reconstructed value is ${expectedTests}`,
       );
-    if (profile === PRODUCTION_PROFILE) {
+    if (effectiveProfile === PRODUCTION_PROFILE) {
       if (contracts?.full !== true)
         fail(
           "production-full requires a full contracts report, not scoped evidence",
@@ -375,7 +387,7 @@ export function verifyReceipt(
   let expectedEvidence = null;
   try {
     expectedEvidence = buildEvidenceManifest({
-      profile,
+      profile: effectiveProfile,
       required,
       contractRoutes,
       tree: treeHash,
