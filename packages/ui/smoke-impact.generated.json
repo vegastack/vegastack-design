@@ -1,0 +1,404 @@
+{
+  "generatedBy": "tooling/sync-smoke-impact.mjs",
+  "contractSha256": "d173053c33c968829e522d3c65b9c84fd84f0ff82172271602d3d9909efb8ca1",
+  "entries": {
+    "packages/ui/registry/ui/animated-number.test.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/animated-number.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/animated-number.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/animated-number.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/animated-number.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/animated-number.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/auto-save-input.test.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/auto-save-input.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/auto-save-input.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/auto-save-input.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/auto-save-input.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/auto-save-input.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/badge.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/board.test.tsx",
+        "packages/ui/registry/ui/notification-bell.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/board.test.tsx",
+        "packages/ui/registry/ui/notification-bell.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/board.test.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/board.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/board.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/board.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/board.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/board.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/button.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/board.test.tsx",
+        "packages/ui/registry/ui/copy-button.test.tsx",
+        "packages/ui/registry/ui/notification-bell.test.tsx",
+        "packages/ui/registry/ui/sortable-list.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/board.test.tsx",
+        "packages/ui/registry/ui/copy-button.test.tsx",
+        "packages/ui/registry/ui/notification-bell.test.tsx",
+        "packages/ui/registry/ui/sortable-list.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/card.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/board.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/board.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/checkbox.test.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/checkbox.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/checkbox.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/checkbox.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/checkbox.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/checkbox.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/copy-button.test.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/copy-button.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/copy-button.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/copy-button.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/copy-button.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/copy-button.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/dropdown-menu.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/board.test.tsx",
+        "packages/ui/registry/ui/sortable-list.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/board.test.tsx",
+        "packages/ui/registry/ui/sortable-list.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/dropzone.test.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/dropzone.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/dropzone.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/dropzone.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/dropzone.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/dropzone.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/empty.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/board.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/board.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/icon-button.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/board.test.tsx",
+        "packages/ui/registry/ui/notification-bell.test.tsx",
+        "packages/ui/registry/ui/sortable-list.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/board.test.tsx",
+        "packages/ui/registry/ui/notification-bell.test.tsx",
+        "packages/ui/registry/ui/sortable-list.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/input.test.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/input.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/input.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/input.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/auto-save-input.test.tsx",
+        "packages/ui/registry/ui/input.test.tsx",
+        "packages/ui/registry/ui/password-input.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/auto-save-input.test.tsx",
+        "packages/ui/registry/ui/input.test.tsx",
+        "packages/ui/registry/ui/password-input.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/item.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/sortable-list.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/sortable-list.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/notification-bell.test.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/notification-bell.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/notification-bell.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/notification-bell.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/notification-bell.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/notification-bell.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/password-input.test.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/password-input.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/password-input.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/password-input.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/password-input.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/password-input.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/progress-indicator.test.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/progress-indicator.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/progress-indicator.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/progress-indicator.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/progress-indicator.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/progress-indicator.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/scroll-area.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/board.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/board.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/separator.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/sortable-list.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/sortable-list.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/skeleton.test.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/skeleton.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/skeleton.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/skeleton.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/skeleton.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/skeleton.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/sortable-list.test.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/sortable-list.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/sortable-list.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/sortable-list.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/sortable-list.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/sortable-list.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/spinner.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/auto-save-input.test.tsx",
+        "packages/ui/registry/ui/board.test.tsx",
+        "packages/ui/registry/ui/copy-button.test.tsx",
+        "packages/ui/registry/ui/notification-bell.test.tsx",
+        "packages/ui/registry/ui/sortable-list.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/auto-save-input.test.tsx",
+        "packages/ui/registry/ui/board.test.tsx",
+        "packages/ui/registry/ui/copy-button.test.tsx",
+        "packages/ui/registry/ui/notification-bell.test.tsx",
+        "packages/ui/registry/ui/sortable-list.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/use-animation-replay.test.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/use-animation-replay.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/use-animation-replay.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/use-animation-replay.ts": {
+      "registryTests": [
+        "packages/ui/registry/ui/auto-save-input.test.tsx",
+        "packages/ui/registry/ui/checkbox.test.tsx",
+        "packages/ui/registry/ui/input.test.tsx",
+        "packages/ui/registry/ui/password-input.test.tsx",
+        "packages/ui/registry/ui/use-animation-replay.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/auto-save-input.test.tsx",
+        "packages/ui/registry/ui/checkbox.test.tsx",
+        "packages/ui/registry/ui/input.test.tsx",
+        "packages/ui/registry/ui/password-input.test.tsx",
+        "packages/ui/registry/ui/use-animation-replay.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/use-drag-reorder.test.tsx": {
+      "registryTests": [
+        "packages/ui/registry/ui/use-drag-reorder.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/use-drag-reorder.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/use-drag-reorder.ts": {
+      "registryTests": [
+        "packages/ui/registry/ui/board.test.tsx",
+        "packages/ui/registry/ui/sortable-list.test.tsx",
+        "packages/ui/registry/ui/use-drag-reorder.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/board.test.tsx",
+        "packages/ui/registry/ui/sortable-list.test.tsx",
+        "packages/ui/registry/ui/use-drag-reorder.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/use-file-drop.ts": {
+      "registryTests": [
+        "packages/ui/registry/ui/dropzone.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/dropzone.test.tsx"
+      ],
+      "disagreement": false
+    },
+    "packages/ui/registry/ui/use-mobile.ts": {
+      "registryTests": [
+        "packages/ui/registry/ui/board.test.tsx"
+      ],
+      "vitestTests": [
+        "packages/ui/registry/ui/board.test.tsx"
+      ],
+      "disagreement": false
+    }
+  }
+}

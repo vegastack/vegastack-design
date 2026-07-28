@@ -40,28 +40,7 @@ import {
   versionBumpOnly,
 } from "./lib/change-set.mjs";
 import { CONTRACT_SCOPE, selectRoutes } from "./lib/route-scope.mjs";
-
-const CONTRACTS_JSON = JSON.parse(
-  readFileSync(join(ROOT, "packages/ui/component-contracts.json"), "utf8"),
-);
-
-/**
- * Files whose change requires the cross-engine smoke lane: the sources and tests of every component
- * marked `coverage.crossBrowserSmoke: "selected"`. Derived from the machine authority rather than
- * listed here, so adding a component to the smoke set updates this automatically.
- */
-const SMOKE_FILES = new Set(
-  [
-    ...CONTRACTS_JSON.components,
-    ...CONTRACTS_JSON.hooks,
-    ...CONTRACTS_JSON.blocks,
-  ]
-    .filter((record) => record.coverage?.crossBrowserSmoke === "selected")
-    .flatMap((record) => [
-      ...(record.sourceFiles ?? []),
-      ...(record.testFiles ?? []),
-    ]),
-);
+import { smokeImpact } from "./lib/smoke-scope.mjs";
 
 /** Paths whose change can break the browser-unit suite. */
 const UNIT_SURFACE = [
@@ -181,11 +160,12 @@ const contractsScope =
 const unitRequired =
   !pureVersionBump?.ok &&
   changed.some((file) => UNIT_SURFACE.some((pattern) => pattern.test(file)));
+const smokeSelection = smokeImpact(changed);
 // A global-surface change (tokens, the shared runtime) can move motion and focus behaviour in ways
 // only a second engine shows, so a full contract sweep implies the smoke lane too.
 const smokeRequired =
   !pureVersionBump?.ok &&
-  (selection.routes === null || changed.some((file) => SMOKE_FILES.has(file)));
+  (selection.routes === null || smokeSelection.required);
 
 /**
  * Read the changesets from the REF being classified. Reading the working tree was wrong whenever
@@ -264,6 +244,12 @@ const classification = {
   pureVersionBump: pureVersionBump?.ok === true,
   unit: unitRequired,
   smoke: smokeRequired,
+  smoke_scope: smokeSelection.full
+    ? "all"
+    : `${smokeSelection.tests.length} test file(s)`,
+  smoke_reason: pureVersionBump?.ok
+    ? "pure version bump — no observable change"
+    : smokeSelection.reasons.join("; ") || "registry/Vitest dependency closure",
   publish,
   has_changesets: hasChangesets,
   unpublished,
@@ -304,7 +290,9 @@ console.log(
   `  contracts       ${contractsRequired} — ${contractsScope} (${classification.contracts_reason})`,
 );
 console.log(`  unit            ${unitRequired}`);
-console.log(`  smoke           ${smokeRequired}`);
+console.log(
+  `  smoke           ${smokeRequired} — ${classification.smoke_scope} (${classification.smoke_reason})`,
+);
 console.log("");
 console.log("release path");
 console.log(

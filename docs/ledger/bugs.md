@@ -408,3 +408,16 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
 - **Systemic fix:** component, push, and ship now await the docs warm-up before their first browser
   gate. The schedule verifier rejects removing any of the three barriers. The mandatory build cost
   is reported honestly rather than hidden under an unstable lane; no test budget was weakened.
+
+## 2026-07-28 — Smoke ignored dependencies of selected components
+
+- **Symptom:** changing Button did not require pre-push smoke even though Button reaches selected
+  CopyButton, SortableList, Board, and NotificationBell tests. Twelve dependency source files were
+  absent from the old exact-file trigger.
+- **Root cause:** classifier and gate runner only collected source/test files on records directly
+  marked `crossBrowserSmoke: selected`; neither traversed `registryDependencies`.
+- **Systemic fix:** one shared selector follows the verified transitive registry/import closure. A
+  generated manifest compares 40 modeled paths with Vitest 4.1.9's related graph, deduplicated across
+  engines; the current graph has zero disagreements. All 12 audited dependency sources and
+  direct/transitive/hook/global/unknown/stale/disagreement mutations fail closed. Disagreement
+  widens to full smoke and cannot subtract registry coverage.

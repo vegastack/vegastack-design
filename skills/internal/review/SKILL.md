@@ -164,6 +164,10 @@ one machine, nothing committed).
 browser, so a review that accepts "CI was green" as evidence the contracts ran has accepted nothing.
 Check the receipt actually covers the tree and carries the lanes the change required:
 
+For smoke-trigger changes, mutate a dependency of a selected component (Button is the canonical
+specimen) and require smoke. Check the generated Vitest-related comparison; disagreement must widen,
+never subtract a registry-reachable test.
+
 ```bash
 pnpm gates:verify-receipt          # classifies the change itself, then verifies
 node -p "const r=require('./.gates/receipt.json'); [r.tree, r.mode, JSON.stringify(r.gates)].join('\\n')"

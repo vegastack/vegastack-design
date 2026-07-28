@@ -68,6 +68,10 @@ Schema 2 receipts have an explicit `change` or `production-full` profile plus a 
 root summarizes the leaves and never replaces them. Deploy requires production-full unit/axe,
 three-engine smoke, complete all-browsers, and exactly 108 routes / 864 contracts.
 
+Smoke impact is dependency-aware. `tooling/lib/smoke-scope.mjs` follows the verified registry import
+closure, while `packages/ui/smoke-impact.generated.json` records Vitest's related-test comparison.
+Any stale/missing/unknown/disagreeing selector state widens; never restore exact-file-only triggering.
+
 Common CI rejections and what each actually means:
 
 | `verify-gate-receipt` says                                      | Cause                                                       | Fix                                                               |

@@ -83,6 +83,10 @@ Chromium/Firefox/WebKit, and 108 routes × four projects × two assertions = 864
 a scoped report, wrong route/test count, missing engine, stale fingerprint/tree/toolchain/authority,
 duplicate/unknown/missing leaf, or an opaque coverage root. `mode: ship` is not authorization.
 
+Pre-push smoke triggering includes transitive registry dependencies of every selected smoke root.
+The checked Vitest-related manifest is a shadow comparator; missing or disagreeing results widen to
+the complete selected smoke lane.
+
 Everything that executes repository code and needs no browser runs free on the self-hosted mac minis
 (`runs-on: [self-hosted, vsk-runners-mac-mini]`): all of `ci.yml`, `release.yml`'s `changes`,
 `receipt-guard`, `quality-gate` and `version-pr`, and `deploy.yml`'s `ref-guard`, `receipt-guard` and

@@ -597,3 +597,15 @@ each was invisible in review and each is the kind that would have degraded the t
   while Chromium overlapped the export, then passed isolated smoke. The implementation no longer
   claims any browser/build overlap is safe; component, push, and ship serialize the warm-up ahead of
   their first browser lane.
+
+## 2026-07-28 — CI/CD efficiency implementation, decision D
+
+- **Registry closure is the scheduling authority.** It is already checked against real static,
+  dynamic-literal, and require imports by `verify-registry-deps`; Button now reaches four selected
+  smoke tests and all 12 audited dependency sources schedule smoke.
+- **Vitest related is a shadow comparator.** Its static graph is generated through the installed
+  4.1.9 Node API without executing tests and deduplicated across browser projects. Missing, stale,
+  unknown, or disagreeing output widens. Dynamic-path imports are never assumed covered.
+- **This stage corrects coverage before saving time.** The gate still runs the complete selected
+  smoke suite; per-file execution is deferred until affected-planner evidence satisfies its later
+  checkpoint.

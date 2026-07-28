@@ -78,6 +78,7 @@ import {
   routeByName,
   selectRoutes,
 } from "./lib/route-scope.mjs";
+import { smokeImpact } from "./lib/smoke-scope.mjs";
 
 const GATES_DIR = join(ROOT, ".gates");
 const LAST_FAILURE = join(GATES_DIR, "last-failure.json");
@@ -215,22 +216,9 @@ const contractSelection = selectRoutes(changed, {}, CONTRACT_SCOPE);
 const contractsRelevant =
   contractSelection.routes === null || contractSelection.routes.size > 0;
 
-const SMOKE_SELECTED = (() => {
-  const contracts = JSON.parse(
-    readFileSync(join(ROOT, "packages/ui/component-contracts.json"), "utf8"),
-  );
-  return new Set(
-    [...contracts.components, ...contracts.hooks, ...contracts.blocks]
-      .filter((record) => record.coverage?.crossBrowserSmoke === "selected")
-      .flatMap((record) => [
-        ...(record.sourceFiles ?? []),
-        ...(record.testFiles ?? []),
-      ]),
-  );
-})();
+const smokeSelection = smokeImpact(changed);
 const smokeRelevant =
-  contractSelection.routes === null ||
-  changed.some((file) => SMOKE_SELECTED.has(file));
+  contractSelection.routes === null || smokeSelection.required;
 const unitRelevant = changed.some((file) =>
   /^(packages\/(ui|design|design-tokens)|apps\/docs\/components)\//.test(file),
 );

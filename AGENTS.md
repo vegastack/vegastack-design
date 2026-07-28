@@ -356,6 +356,11 @@ three engines (measured 1m39s). The smoke selection is generated from
 to it only for motion or another evidenced cross-engine risk, never by editing the generated
 `contract-smoke-tests.generated.json`.
 
+Smoke triggering follows the transitive `registryDependencies` closure, not only a selected
+component's own files. `packages/ui/smoke-impact.generated.json` shadow-compares that authority with
+Vitest's real related-test graph. Missing, stale, unknown, or disagreeing data widens to the full
+smoke lane; the comparison is an optimization check, never the trust root.
+
 The docs export cache warm-up must finish before every browser lane. `verify-gate-schedule.mjs`
 rejects overlap in component, push, and ship; do not trade browser stability for apparent wall-time
 savings.
