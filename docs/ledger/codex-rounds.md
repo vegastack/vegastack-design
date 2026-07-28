@@ -376,3 +376,28 @@ One real unchanged push oracle passed typecheck (16.836s), Turbo lint (15.625s),
 escape was observed. Because it predated the final scenario/full-oracle sample rule and did not run
 all-browser/consume, it is retained as a legacy observation and honestly counts 0/30. Reuse and
 task-specific Turbo inputs remain disabled; production-full remains unchanged.
+
+## Round 24 — 2026-07-28 · resumable release state and publication split
+
+Deterministic and adversarial Stage K review ended with 0 high and 0 medium findings after three
+fail-closed corrections found by the full local oracles. `release-state` now separates gate
+classification from exact npm/Changesets truth: only exact E404 selects `versioned-unpublished`;
+timeout, 5xx, malformed/wrong data, unavailable/ambiguous Version PR lookup, all-empty/invalid
+changesets, and workflow/changeset conflicts block. Registry-only `published` runs self-hosted
+quality and zero hosted npm jobs; one-published/one-missing resumes hosted build/OIDC; post-publish
+exact-version readback is mandatory. No NPM token, runner, provenance, or approval boundary changed.
+
+The first full `pnpm lint` execution exposed a tsup/ESLint discovery race and remained a failed
+execution. A semantic invalid-syntax fixture now proves the transient bundled config is ignored; a
+fresh full lint passed all seven tasks, followed by typecheck 7/7. Release preflight then found two
+integration defects in sequence rather than being waived: Stage D's smoke manifest was absent from
+the independently rederived version outputs, and a carried production-full receipt was rejected by
+the weaker change guard. Carry now requires a real package version-field change and permits the
+tracked smoke manifest only because exact-tree quality reconstructs it. Receipt profile dominance is
+one-way production-full→change; change→production-full remains rejected and carried evidence remains
+reuse-ineligible.
+
+The final clean preflight simulated design 0.4.0, tokens 0.3.0, and UI 0.5.0; version-sync rewrote 654
+ranges, carry and independent guard passed, exact npm lookups proved both public versions absent, and
+the complete consume round-trip passed 554/554 graphs. The script restored the clean commit and the
+pre-existing receipt SHA-256 `073a97f8584c60d346d412e40342530577f51415cc7dc8f50796f5ff8046f1ee`.
