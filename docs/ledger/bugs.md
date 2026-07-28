@@ -521,3 +521,15 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
 - **Systemic fix:** the package flat config ignores `tsup.config.bundled_*.mjs`. A semantic negative
   fixture places invalid JavaScript at that exact pattern and requires ESLint to ignore it; removing
   the ignore makes the fixture fail. No Turbo concurrency, coverage, or gate was weakened.
+
+## 2026-07-28 — Smoke shadow digest broke the Version Packages carry
+
+- **Symptom:** the clean release preflight failed because a simulated pure version bump changed
+  `packages/ui/smoke-impact.generated.json`'s full contract digest, and receipt carry correctly
+  classified that line as substantive.
+- **Root cause:** Stage D added a contract-derived generated surface after the carry's independently
+  rederived output inventory was last reconciled.
+- **Systemic fix:** the tracked manifest joins the generated surfaces that `design:derived:check`
+  reconstructs on the exact release tree. Carry now also requires an actual `package.json` version
+  field change, so an arbitrary generated-file edit or provenance restamp cannot qualify alone.
+  Mutations prove both rejection directions and the combined version-plus-derived case.

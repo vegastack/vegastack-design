@@ -722,3 +722,7 @@ each was invisible in review and each is the kind that would have degraded the t
   bundled-config pathname after the concurrent build deleted it. The transient producer filename is
   now ignored and mutation-tested; the original failure remains recorded and is not replaced by a
   retry claim.
+- **Preflight found a new generated surface.** The first clean simulated bump rejected Stage D's
+  smoke shadow digest. The carry inventory now includes that independently reconstructed output and
+  additionally requires a real package version-field change, preventing a generated/provenance-only
+  diff from being mislabeled as a version bump.

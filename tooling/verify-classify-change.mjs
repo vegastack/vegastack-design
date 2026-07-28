@@ -303,6 +303,7 @@ function mutationRepository() {
   const root = mkdtempSync(join(tmpdir(), "version-bump-mutation-"));
   mkdirSync(join(root, "tooling/lib"), { recursive: true });
   mkdirSync(join(root, "packages/design"), { recursive: true });
+  mkdirSync(join(root, "packages/ui"), { recursive: true });
   mkdirSync(join(root, "packages/ui/registry/ui"), { recursive: true });
   mkdirSync(join(root, "fixtures"), { recursive: true });
   cpSync(
@@ -317,6 +318,10 @@ function mutationRepository() {
   writeFileSync(
     join(root, "packages/ui/registry/ui/button.tsx"),
     "// @vegastack button@1.0.0 sha256-before\nexport const Button = true;\n",
+  );
+  writeFileSync(
+    join(root, "packages/ui/smoke-impact.generated.json"),
+    '{"contractSha256":"before"}\n',
   );
   writeFileSync(join(root, "fixtures/text.txt"), "before\n");
   writeFileSync(join(root, "fixtures/binary.bin"), Buffer.from([0, 1, 2, 3]));
@@ -434,6 +439,22 @@ for (const [label, mutate] of [
       writeFileSync(join(root, "unknown.txt"), "must not ride along\n");
     },
   ],
+  [
+    "a generated smoke manifest change without a package version bump",
+    (root) =>
+      writeFileSync(
+        join(root, "packages/ui/smoke-impact.generated.json"),
+        '{"contractSha256":"after"}\n',
+      ),
+  ],
+  [
+    "a provenance restamp without a package version bump",
+    (root) =>
+      writeFileSync(
+        join(root, "packages/ui/registry/ui/button.tsx"),
+        "// @vegastack button@1.0.1 sha256-after\nexport const Button = true;\n",
+      ),
+  ],
 ]) {
   const result = workingTreeVersionResult(mutate);
   assert.equal(
@@ -462,12 +483,21 @@ for (const [label, mutate] of [
       ),
   ],
   [
-    "a provenance header only",
-    (root) =>
+    "a package version plus independently generated smoke manifest",
+    (root) => {
       writeFileSync(
-        join(root, "packages/ui/registry/ui/button.tsx"),
-        "// @vegastack button@1.0.1 sha256-after\nexport const Button = true;\n",
-      ),
+        join(root, "packages/design/package.json"),
+        JSON.stringify(
+          { name: "@vegastack/design", version: "1.0.1" },
+          null,
+          2,
+        ) + "\n",
+      );
+      writeFileSync(
+        join(root, "packages/ui/smoke-impact.generated.json"),
+        '{"contractSha256":"after"}\n',
+      );
+    },
   ],
 ]) {
   const result = workingTreeVersionResult(mutate);

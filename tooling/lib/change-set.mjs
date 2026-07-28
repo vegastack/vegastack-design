@@ -216,6 +216,7 @@ const GENERATED_REGISTRY_OUTPUT = /^apps\/docs\/public\/r\/.+\.json$/;
 const CONTRACT_DERIVED_OUTPUT = [
   /^packages\/ui\/component-contracts\.json$/,
   /^packages\/ui\/contract-smoke-tests\.generated\.json$/,
+  /^packages\/ui\/smoke-impact\.generated\.json$/,
   /^apps\/docs\/vrt\/contract-routes\.generated\.ts$/,
   /^apps\/docs\/lib\/home-component-catalog\.generated\.ts$/,
   /^apps\/docs\/components\/animated-icon-gallery\.generated\.tsx$/,
@@ -316,6 +317,7 @@ export function versionBumpOnly(before, after = null) {
     ? changedFilesInRange(before, after)
     : changedFilesInWorkingTree(before);
   const offenders = [];
+  let sawPackageVersionChange = false;
   const untracked = after === null ? new Set(untrackedFiles()) : new Set();
   for (const file of files)
     if (untracked.has(file))
@@ -377,6 +379,11 @@ export function versionBumpOnly(before, after = null) {
             lines.find((line) => !VERSION_FIELD_LINE.test(line)) ??
               "(structural comparison found a non-version difference)",
           );
+        else if (
+          /(^|\/)package\.json$/.test(file) &&
+          lines.some((line) => /^[+-]\s*"version":/.test(line))
+        )
+          sawPackageVersionChange = true;
       } else if (GENERATED_REGISTRY_OUTPUT.test(file)) {
         // Exempt by re-execution, not by trust — see GENERATED_REGISTRY_OUTPUT.
       } else if (
@@ -394,6 +401,11 @@ export function versionBumpOnly(before, after = null) {
       }
     }
   }
+  if (files.length > 0 && !sawPackageVersionChange)
+    offenders.push({
+      file: "(version-bump proof)",
+      line: "no package.json version field changed; generated/provenance churn cannot be carried by itself",
+    });
   return { ok: offenders.length === 0, offenders, files: files.length };
 }
 

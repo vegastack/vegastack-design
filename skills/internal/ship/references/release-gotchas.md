@@ -42,7 +42,7 @@ classify → carry → guard → publish. A defect anywhere fails the whole thin
 a full cycle. Run the whole chain locally first:
 
 ```bash
-node tooling/verify-release-chain.mjs     # ~5min, no network, no side effects
+node tooling/verify-release-chain.mjs     # ~5min, read-only exact npm lookup, restores the tree
 ```
 
 Second rule: **most of these only appear on a MINOR bump.** The 0.1.0 → 0.1.1 release exercised none
@@ -69,6 +69,8 @@ about the next minor.
   `packages/ui/registry.json`, and that gate compares them. Fixing one alone fails the other.
 - **Knock-on:** changing the contract JSON moves its SHA-256, so `version-sync` runs
   **`pnpm design:derived` inside the production command** and its output is part of the same commit.
+  This includes `smoke-impact.generated.json`; its full contract digest moves on a version-only
+  authority rewrite even though smoke topology does not.
   The carry updates the receipt's contract SHA only after the version-only proof succeeds; otherwise
   the independent guard rejects the Version PR even when its tree hash was carried correctly.
 
@@ -88,8 +90,9 @@ about the next minor.
 - **Now:** `gate-receipt-carry` carries it, the guard re-derives the proof. If the carry **refuses**,
   do not work around it — something other than a version bump is in that branch. Untracked paths
   have no diff record and therefore always refuse; mode, binary, rename, deletion, and missing-record
-  mutations are likewise fail-closed. Tracked generated outputs are accepted only because the
-  quality gate re-derives them.
+  changes also refuse. A tracked derived output is eligible only because exact-tree quality
+  independently reconstructs it, and never by itself: at least one real package version field must
+  change.
 
 ## 5. Never anchor a cross-machine proof to a tree hash
 
