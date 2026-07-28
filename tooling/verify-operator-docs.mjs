@@ -87,6 +87,25 @@ export function operatorDocProblems(sources) {
         `${file}: [affected-shadow] current instructions promote the shadow affected plan into reuse or production evidence`,
       );
     if (
+      /(?:affected|diagnostic)[^\n]{0,60}consume[^\n]{0,160}(?:replaces?|skips?|satisf(?:y|ies))[^\n]{0,80}(?:CI|full|oracle)/i.test(
+        source,
+      ) ||
+      /consume[^\n]{0,120}(?:reuseEnabled:\s*true|evidenceReusable:\s*true|writes? (?:a )?receipt)/i.test(
+        source,
+      )
+    )
+      problems.push(
+        `${file}: [consume-shadow] current instructions promote selected consume diagnostics into reusable/full evidence`,
+      );
+    if (
+      /consume[^\n]{0,120}(?:all roots share|shared across roots|accumulat(?:e|es|ing) roots)/i.test(
+        source,
+      )
+    )
+      problems.push(
+        `${file}: [consume-isolation] current instructions allow one consumer to accumulate independent roots`,
+      );
+    if (
       /registry-only[^\n]{0,100}(?:always|must)[^\n]{0,80}(?:publish|hosted npm)/i.test(
         source,
       )
@@ -138,6 +157,14 @@ export function operatorDocProblems(sources) {
     problems.push(
       "AGENTS.md: [release-state] must state exact-version fail-closed lookup and registry-only hosted-job skip",
     );
+  if (
+    !/consume[\s\S]{0,500}(?:fresh|clean|reset-isolated)[^\n]{0,100}(?:root|consumer)[\s\S]{0,500}(?:D1|full oracle)[\s\S]{0,180}(?:required|mandatory)/i.test(
+      agents,
+    )
+  )
+    problems.push(
+      "AGENTS.md: [consume-isolation] must require isolated consume roots and retain the full oracle under D1",
+    );
 
   const ship = sources["skills/internal/ship/SKILL.md"] ?? "";
   if (
@@ -176,6 +203,14 @@ export function operatorDocProblems(sources) {
   )
     problems.push(
       "skills/internal/gates/SKILL.md: [affected-shadow] must state shadow-only/no-reuse, 30 representative samples, and MK approval",
+    );
+  if (
+    !/verify-shadcn-consume[\s\S]{0,500}(?:fresh|clean|reset-isolated)[^\n]{0,100}(?:root|consumer)[\s\S]{0,500}D1[\s\S]{0,180}(?:full|oracle)/i.test(
+      gates,
+    )
+  )
+    problems.push(
+      "skills/internal/gates/SKILL.md: [consume-isolation] must explain isolated modes and D1 full-oracle retention",
     );
 
   const releasing = sources["docs/RELEASING.md"] ?? "";
@@ -226,7 +261,7 @@ function readCurrentSources() {
 // virtual strings so historical ledgers and superseded plans can remain byte-stable records.
 const validFixture = {
   "AGENTS.md":
-    "Every non-registry route is anonymous, including /internal/*; /r/* alone is service-token-only. A canonical evidence-leaf manifest is required. CI is receipt-first. Exact-tree receipt reuse is **shadow-only**. Release state is explicit and fail-closed. Only npm E404 is missing; registry-only published means zero hosted npm jobs.",
+    "Every non-registry route is anonymous, including /internal/*; /r/* alone is service-token-only. A canonical evidence-leaf manifest is required. CI is receipt-first. Exact-tree receipt reuse is **shadow-only**. Release state is explicit and fail-closed. Only npm E404 is missing; registry-only published means zero hosted npm jobs. Consume uses a fresh consumer per root; D1 keeps the full oracle mandatory.",
   "docs/RELEASING.md":
     "Every non-registry route is anonymously reachable; /internal/* remains unlisted with noindex/no-store; /r/* must reject anonymous requests. Release uses an explicit resumable state machine: registry-unknown blocks. For registry-only published work it never runs hosted npm.",
   "docs/requirements.md":
@@ -234,7 +269,7 @@ const validFixture = {
   "skills/internal/ship/SKILL.md":
     "Schema 2 production-full evidence includes all-browsers. Upload is not completion; require deployment-complete. versioned-unpublished alone runs hosted build; registry-unknown never grants publish permission.",
   "skills/internal/gates/SKILL.md":
-    "gates:retry writes diagnosticOnly: true and evidenceWritten: false. gates:affected writes shadowOnly: true and reuseEnabled: false. Require 30 representative samples and MK approval.",
+    "gates:retry writes diagnosticOnly: true and evidenceWritten: false. gates:affected writes shadowOnly: true and reuseEnabled: false. Require 30 representative samples and MK approval. verify-shadcn-consume uses a fresh consumer per root; D1 retains the full oracle.",
 };
 assert.deepEqual(operatorDocProblems(validFixture), []);
 for (const [label, file, text, expected] of [
@@ -305,6 +340,24 @@ for (const [label, file, text, expected] of [
     /affected-shadow/,
   ],
   [
+    "affected consume replaces full",
+    "skills/internal/gates/SKILL.md",
+    "Affected consume replaces the full CI oracle.",
+    /consume-shadow/,
+  ],
+  [
+    "consume writes receipt evidence",
+    "skills/internal/gates/SKILL.md",
+    "Consume evidenceReusable: true and writes a receipt.",
+    /consume-shadow/,
+  ],
+  [
+    "consume accumulates roots",
+    "skills/internal/gates/SKILL.md",
+    "Consume uses one shared consumer across roots.",
+    /consume-isolation/,
+  ],
+  [
     "registry-only always publishes",
     "docs/RELEASING.md",
     "Registry-only changes must always publish npm.",
@@ -337,5 +390,5 @@ if (problems.length > 0) {
   process.exit(1);
 }
 console.log(
-  `✓ operator docs: ${CURRENT_SURFACES.length} current surfaces agree on topology, browser location, counts, receipt/reuse/retry/affected/release-state ordering, terminal deployment, and schema-2 production evidence; 14 semantic stale-instruction fixtures rejected`,
+  `✓ operator docs: ${CURRENT_SURFACES.length} current surfaces agree on topology, browser location, counts, receipt/reuse/retry/affected/consume/release-state ordering, terminal deployment, and schema-2 production evidence; 17 semantic stale-instruction fixtures rejected`,
 );

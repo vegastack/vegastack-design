@@ -544,3 +544,20 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   receipt profile. The reverse remains rejected; deploy still explicitly requires production-full,
   and carried receipts remain excluded from exact-tree reuse. Positive/negative fixtures pin both
   directions.
+
+## 2026-07-28 — Accumulating consume roots masked an over-broad dependency assertion
+
+- **Symptom:** the first isolated full consume run failed only `icon-a-arrow-down` in both layouts:
+  the real CLI installed its declared `@vegastack/design` dependency, but the runner demanded the
+  unrelated `@vegastack/design-tokens` package. The old consolidated real consumer had installed
+  tokens for an earlier root, so the same false assertion always appeared green.
+- **Root cause:** real roots shared one package/install directory and the verifier checked the global
+  union of public VegaStack packages rather than the exact dependencies of each resolved root graph.
+  Simulated consumers deliberately link the workspace dependency set, so they could not expose this
+  real-install defect.
+- **Systemic fix:** every real and simulated root/layout now uses a unique consumer. Required public
+  packages are parsed from that root's complete resolved graph and checked exactly. Mutations pin
+  scoped version parsing, unrelated-package exclusion, transitive union, unique consumer identity,
+  nonempty output manifests, collision detection, post-write/typecheck presence, full layout/count
+  completeness, and duplicate immutable report-key rejection. The corrected full oracle passed all
+  26 real and 26 simulated leaves plus both 554-root consolidated layouts.

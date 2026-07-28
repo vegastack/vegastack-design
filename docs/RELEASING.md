@@ -138,6 +138,13 @@ Affected reuse stays off until at least 30 representative production-full zero-e
 does not self-enable. No affected or cross-tree composition can replace the complete exact-tree
 production-full ship proof under current policy.
 
+Consume has isolated diagnostic/affected reports for root-cause work. Every selected real and
+simulated root uses a fresh consumer and independently proves target digests, post-write integrity,
+and typecheck. Full mode separately retains all registry roots in both consolidated layouts for
+collision ownership and whole-layout compilation. All consume reports are non-reusable and write no
+receipt. D1 is still a policy checkpoint, so full consume remains part of PR CI, Release quality,
+and the production-full local ship proof regardless of an affected pass.
+
 PR CI is receipt-first: `verify` has `needs: receipt-guard`, so invalid receipt evidence stops before
 the long free-mini reexecution. The self-hosted pnpm-cache removal experiment is committed disabled;
 only `SELF_HOSTED_PNPM_CACHE_CANARY=enabled` plus an exact

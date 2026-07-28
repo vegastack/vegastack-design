@@ -352,6 +352,13 @@ requires at least 30 valid representative production-full zero-escape samples an
 scenario classes, but even a ready summary only asks MK for the checkpoint—it never enables reuse.
 Production continues to require one complete exact-tree `gates:ship` proof.
 
+Consume planning has `diagnostic`, `affected`, and `full` modes. Every selected real-CLI and
+simulated root runs from a fresh consumer and carries its own post-write and typecheck result; full
+mode additionally retains the consolidated two-layout collision, post-write, and whole-layout
+typecheck oracle over the complete registry. Selected reports are shadow-only, non-reusable, and
+write no receipt. D1 is unresolved, so the full consume oracle remains mandatory in CI, Release, and
+`gates:ship`; the command printed by `gates:affected` is diagnostic evidence only.
+
 **The component contract suite is the blocking visual-surface gate — it now blocks locally.**
 `apps/docs/vrt/contracts.spec.ts` runs 864 checks over every component route — 320px reflow, RTL
 containment, effective 24px pointer targets, and a focus-indicator check. It takes no screenshots and

@@ -104,7 +104,7 @@ assert.equal(
     failures: [{ id: "consume", status: "fail" }],
   }).length,
   1,
-  "selected consume cannot claim an escape verdict before granular Stage L reports",
+  "a selected consume plan cannot claim an escape verdict without a validated attached consume report",
 );
 assert.equal(
   affectedOracleEscapes(planAffectedImpact(["new/unknown/file.ts"]), {
@@ -126,13 +126,24 @@ assert.equal(registry.lanes.consume.mode, "selected-shadow");
 assert.ok(registry.lanes.consume.items.includes("copy-button"));
 assert.equal(
   registry.lanes.consume.execution,
-  "deferred-to-production-full-oracle",
+  "shadow-command-available-full-oracle-still-required",
 );
+assert.equal(registry.consumePlan.shadowOnly, true);
+assert.equal(registry.consumePlan.evidenceReusable, false);
+assert.equal(registry.consumePlan.fullOracleStillRequired, true);
 
 const generated = planAffectedImpact(["apps/docs/public/r/button.json"]);
 assert.equal(generated.lanes.unit.mode, "none");
 assert.equal(generated.lanes.contracts.mode, "none");
-assert.equal(generated.lanes.consume.mode, "full");
+assert.equal(generated.lanes.consume.mode, "selected-shadow");
+assert.ok(generated.lanes.consume.items.includes("copy-button"));
+assert.equal(generated.consumePlan.fullOracleStillRequired, true);
+const animatedIcon = planAffectedImpact([
+  "packages/ui/registry/ui/icons/a-arrow-down.tsx",
+]);
+assert.equal(animatedIcon.lanes.consume.mode, "selected-shadow");
+assert.deepEqual(animatedIcon.lanes.consume.items, ["icon-a-arrow-down"]);
+assert.equal(animatedIcon.consumePlan.roots.length, 1);
 for (const authority of [
   "packages/ui/registry.json",
   "packages/ui/component-contracts.json",

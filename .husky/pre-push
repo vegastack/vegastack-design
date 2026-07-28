@@ -8,6 +8,8 @@
 # never clears this hook or writes receipt evidence, so the blocking push ladder must still pass.
 # After a fix, `pnpm gates:affected` may record a shadow impact plan, but reuse remains disabled and
 # this current push oracle still executes. Only a later MK checkpoint can change local scheduling.
+# Its printed consume command uses fresh root consumers for diagnosis only; D1 keeps full consume in
+# CI, Release, and `gates:ship`. Selected reports retain `receiptWritten: false`.
 #
 # To push despite a failure, use `GATES_SKIP="<reason>" git push`. That records the skip in the
 # receipt and CI rejects it until MK acknowledges. `--no-verify` leaves no trace and is a policy

@@ -155,7 +155,10 @@ jobs:
             cat "$RUNNER_TEMP/git-status"
             exit 1
           fi
-      - run: pnpm registry:verify-consume
+      # D1 remains open: release quality keeps the full fresh-root plus consolidated two-layout
+      # consume oracle. A local affected report is diagnostic-only and cannot skip this step.
+      - name: Full isolated and consolidated registry consume proof
+        run: pnpm registry:verify-consume
 
   # The npm artifact, built on an EPHEMERAL runner so the bytes on public npm and the provenance
   # statement about them agree. This is the one place this workflow deliberately spends money; see the

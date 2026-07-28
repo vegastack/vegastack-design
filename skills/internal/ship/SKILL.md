@@ -88,6 +88,12 @@ production-full zero-escape samples and separate MK approval.
 Even after any local checkpoint, production still requires the complete exact-tree `gates:ship`
 profile unless MK separately changes the cross-tree compositional-evidence policy.
 
+Consume diagnostics are independently isolated: each selected real-CLI and simulated root starts
+from a fresh consumer and must pass post-write verification and typecheck. The full profile retains
+the exhaustive two-layout consolidated collision/typecheck proof. These reports are never receipt
+leaves and never authorize reuse. D1 has not been approved, so CI, Release quality, and
+`gates:ship` continue to run full consume even when an affected command is available.
+
 **If `git status` is not empty:** that is the signal, not an obstacle. Either the regenerated
 surfaces above changed (commit them with the work that caused them) or there is unrelated
 uncommitted work in the tree (finish or stash it). Never ship from a dirty tree — the version job

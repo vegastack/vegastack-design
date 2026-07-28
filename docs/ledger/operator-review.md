@@ -730,3 +730,34 @@ each was invisible in review and each is the kind that would have degraded the t
   weaker change guard. Verification now accepts production-full→change only and reconstructs the
   stronger universe; change→production-full remains impossible and carried evidence still cannot
   authorize reuse.
+
+## 2026-07-28 — CI/CD efficiency implementation, decision L (consume isolation; D1 retained)
+
+- **Root evidence is actually independent.** Every selected real `shadcn add` and simulated root now
+  starts from a fresh consumer and carries a target/digest manifest, post-write result, and typecheck
+  result. Full mode separately retains both consolidated 554-root layouts for collision ownership,
+  post-write verification, and whole-layout typecheck.
+- **Selected modes are diagnostics, not evidence.** `diagnostic` and `affected` reports are
+  immutable, receipt-free, non-reusable, and self-identify that CI's full oracle remains required.
+  The affected planner derives reverse consumers from registry authority and prints an exact command;
+  deletion, metadata, source/manifest/dependency/verifier/alias/lock/global, and unknown inputs widen.
+- **D1 was not crossed.** CI, Release quality, and `gates:ship` still execute full consume. No
+  workflow, receipt, evidence store, or production policy accepts a selected result as a skip.
+- **The clean-root cost is real.** Old accumulating baseline: 237.33s (`n=1`, measured). First
+  isolated full run: 375.24s and failed on an over-broad package assertion. Corrected full run:
+  395.14s (`n=1`, measured), 624,869,376-byte maximum resident set size from macOS
+  `/usr/bin/time -l`, 26/26 real leaves, 26/26 simulated leaves, and 554/554 in each consolidated
+  layout. Delta is +157.81s (+66.5%); the full-lane savings hypothesis is **not met**. The bottleneck
+  is mandatory per-root install/typecheck. No concurrency, timeout, worker, or coverage was tuned.
+- **Primary-source check, accessed 2026-07-28:** Node
+  [v24.18.0 filesystem documentation](https://nodejs.org/docs/latest-v24.x/api/fs.html) matches the
+  installed runtime and confirms synchronous link/rename and `lstat` metadata primitives; this led
+  report publication to use complete-temp-file hard-link creation so a duplicate key fails with
+  `EEXIST` instead of overwriting. shadcn's official
+  [registry guide](https://ui.shadcn.com/docs/registry/getting-started) and
+  [4.x registry API reference](https://ui.shadcn.com/docs/registry/api-reference) match installed
+  shadcn 4.13.0 and confirm recursive `registryDependencies` resolution into merged install trees;
+  this reinforces independent roots plus global collision proof. pnpm's official
+  [11.x install reference](https://pnpm.io/cli/install) matches installed pnpm 11.7.0 and confirms
+  offline-store and frozen-lockfile semantics. These sources changed implementation mechanics only;
+  none changed the locked plan or D1 checkpoint.

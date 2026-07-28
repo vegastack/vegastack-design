@@ -103,6 +103,14 @@ production-full zero-escape samples cover every required scenario, and a ready r
 MK approval. Never use affected evidence for deploy: production requires a complete exact-tree ship
 proof.
 
+`verify-shadcn-consume.mjs` supports `diagnostic`, `affected`, and `full`. Each selected real and
+simulated root gets a fresh consumer, an independently checked output manifest, post-write
+verification, and typecheck. Full mode also runs the consolidated complete-registry oracle in both
+layouts so target collisions and whole-layout compilation remain visible. Selected mode reports say
+`evidenceReusable: false`, `receiptWritten: false`, and `ciFullOracleRequired: true`. D1 remains open,
+so CI, Release, and `gates:ship` still execute the full oracle; use the affected command only to
+localize a failure.
+
 Common CI rejections and what each actually means:
 
 | `verify-gate-receipt` says                                      | Cause                                                       | Fix                                                               |

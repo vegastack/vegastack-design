@@ -727,9 +727,12 @@ async function runShip() {
   gate("registry", "registry build (must be idempotent)", "pnpm", [
     "registry:build",
   ]);
-  gate("consume", "shadcn consume round-trip", "pnpm", [
-    "registry:verify-consume",
-  ]);
+  gate(
+    "consume",
+    "shadcn consume (isolated roots + consolidated full)",
+    "pnpm",
+    ["registry:verify-consume"],
+  );
   gate(
     "contracts",
     `behaviour contracts (ALL ${COMPONENT_ROUTES.length} routes)`,

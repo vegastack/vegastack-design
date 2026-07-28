@@ -207,6 +207,13 @@ not a checkpoint sample; only a complete `--oracle ship` result may count. Any s
 representative production-full zero-escape samples plus MK approval is high. Any claim that affected or cross-tree
 evidence satisfies production-full is high under current policy.
 
+For consume-runner changes, inspect the structured report rather than its exit code. Every selected
+root/layout needs a unique fresh consumer, a nonempty target/digest manifest, post-write pass, and
+typecheck pass. Conflicting target bytes across isolated roots are high. Full mode must separately
+show both consolidated layouts, the complete authority count, collision pass, post-write pass, and
+whole-layout typecheck. `evidenceReusable` or `receiptWritten` must be false. D1 remains open, so any
+CI/Release/full-ship consume skip is high even when the affected report passes.
+
 Reviewing a before/after report:
 
 - **Individually review every entry.** N non-unchanged entries is N decisions. Read the before,

@@ -267,6 +267,10 @@ console.log(
     `all-browsers=${plan.lanes["all-browsers"].mode} contracts=${plan.lanes.contracts.mode} ` +
     `consume=${plan.lanes.consume.mode}`,
 );
+if (plan.consumePlan.runner)
+  console.log(
+    `gates:affected: consume shadow command: ${[plan.consumePlan.runner.command, ...plan.consumePlan.runner.args].join(" ")}`,
+  );
 console.log(
   `gates:affected: Turbo partition activation ${turbo.proposed.activationEligible ? "eligible" : "BLOCKED"} — ` +
     turbo.proposed.activationBlocker,

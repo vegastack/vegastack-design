@@ -37,6 +37,7 @@
 // Run:  export PATH="/opt/homebrew/opt/node@24/bin:$PATH"; node tooling/verify-shadcn-consume.mjs
 // Exit: 0 only when the real-shadcn-add representative set AND the all-items×2-layout sim pass.
 
+import { createHash } from "node:crypto";
 import { spawnSync, spawn } from "node:child_process";
 import {
   mkdtempSync,
@@ -50,7 +51,14 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
+
+import {
+  declaredVegastackPackages,
+  validateConsumeReport,
+  writeImmutableJson,
+} from "./lib/consume-isolation.mjs";
+import { reverseConsumeClosure } from "./lib/consume-plan.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(here, "..");
@@ -62,6 +70,63 @@ const shippedVerifier = join(
 const docsNodeModules = join(repoRoot, "apps/docs/node_modules");
 const tscBin = join(repoRoot, "node_modules/.bin/tsc");
 const shadcnBin = join(docsNodeModules, ".bin/shadcn");
+
+const USAGE = `Usage: node tooling/verify-shadcn-consume.mjs [options]
+
+  --mode <full|affected|diagnostic>  full is the unchanged CI/ship oracle (default)
+  --root <item>                      exact item root; repeatable for affected mode
+  --layout <default|src>             layout selector; diagnostic requires exactly one
+  --report <path>                    structured report (default: .gates/consume-<run>.json)
+
+Full mode always runs real CLI isolated roots, isolated simulated parity roots, and the exhaustive
+consolidated two-layout oracle. Affected/diagnostic modes are local shadow evidence only: they cannot
+write a receipt, enable reuse, or replace CI's full consume reexecution while D1 is unapproved.
+
+Exit codes: 0 selected proof passed · 1 proof failed · 2 invalid selector/prerequisite.`;
+
+const options = { mode: "full", roots: [], layouts: [], report: null };
+function optionFatal(message) {
+  console.error(`verify-shadcn-consume: ${message}\n\n${USAGE}`);
+  process.exit(2);
+}
+for (let index = 2; index < process.argv.length; index++) {
+  const flag = process.argv[index];
+  const value = () => {
+    const next = process.argv[++index];
+    if (next === undefined) optionFatal(`${flag} requires a value`);
+    return next;
+  };
+  if (flag === "--mode") options.mode = value();
+  else if (flag === "--root") options.roots.push(value());
+  else if (flag === "--layout") options.layouts.push(value());
+  else if (flag === "--report") options.report = resolve(value());
+  else if (flag === "--help" || flag === "-h") {
+    console.log(USAGE);
+    process.exit(0);
+  } else optionFatal(`unknown option ${flag}`);
+}
+if (!["full", "affected", "diagnostic"].includes(options.mode))
+  optionFatal(`--mode must be full, affected, or diagnostic`);
+if (options.mode === "full" && options.roots.length > 0)
+  optionFatal("full mode derives every root; --root is not accepted");
+if (options.mode === "full" && options.layouts.length > 0)
+  optionFatal("full mode always proves both layouts; --layout is not accepted");
+if (options.mode !== "full" && options.roots.length === 0)
+  optionFatal(`${options.mode} mode requires a nonempty --root selector`);
+if (
+  options.mode === "diagnostic" &&
+  (options.roots.length !== 1 || options.layouts.length !== 1)
+)
+  optionFatal("diagnostic mode requires exactly one --root and one --layout");
+for (const layout of options.layouts)
+  if (!["default", "src"].includes(layout))
+    optionFatal(
+      `unknown layout ${JSON.stringify(layout)}; expected default or src`,
+    );
+if (new Set(options.roots).size !== options.roots.length)
+  optionFatal("duplicate --root selectors are forbidden");
+if (new Set(options.layouts).size !== options.layouts.length)
+  optionFatal("duplicate --layout selectors are forbidden");
 
 // Import the SHIPPED verifier's canonical logic directly — the SAME functions the bin uses, so
 // the simulated path verifies "the same way" the shipped verifier does, in-process.
@@ -78,8 +143,9 @@ const {
 const SUBPROCESS_TIMEOUT_MS = 60_000;
 const KILL = "SIGKILL";
 
-// Declared @vegastack/* deps across registry items — these must be installable locally for the
-// REAL `shadcn add` (verified: items declare exactly @vegastack/design + @vegastack/design-tokens).
+// Public @vegastack/* packages are packed into the sidecar. Each isolated real root must install
+// exactly the subset declared by its resolved graph; requiring the global union would recreate the
+// accumulated-consumer bug this runner is intended to expose.
 const VEGASTACK_DEP_PKGS = [
   { name: "@vegastack/design", dir: join(repoRoot, "packages/design") },
   {
@@ -138,6 +204,7 @@ const REQUIRED_EXTERNAL_FAMILIES = {
 // ── the two consumer layouts the SIMULATED path proves (Codex R12: non-default required) ──
 const LAYOUTS = [
   {
+    id: "default",
     name: "default (components/ui)",
     sourceRoot: "",
     aliases: {
@@ -156,6 +223,7 @@ const LAYOUTS = [
     ],
   },
   {
+    id: "src",
     name: "standard Next src layout (@/* → src/*)",
     sourceRoot: "src",
     aliases: {
@@ -206,6 +274,10 @@ function resolveGraph(rootName) {
   };
   visit(rootName);
   return order;
+}
+
+function sha256(value) {
+  return createHash("sha256").update(value).digest("hex");
 }
 
 function externalFamilySetCover(itemNames) {
@@ -467,11 +539,12 @@ function proveRealShadcnAdd(
   scratchRoot,
   componentPort,
   npmPort,
+  scopeId = "consolidated",
 ) {
   const problems = [];
   const consumerRoot = join(
     scratchRoot,
-    "__real-shadcn-" + layout.name.replace(/[^a-z0-9]+/gi, "-"),
+    "__real-shadcn-" + layout.id + "-" + scopeId.replace(/[^a-z0-9]+/gi, "-"),
   );
   const relativeAlias = (alias) =>
     alias.replace(/^@\//, "").replace(/^\.\//, "");
@@ -582,7 +655,13 @@ function proveRealShadcnAdd(
   });
   if (!inst.ok) {
     problems.push(`real-shadcn: pre-install of @types failed\n${inst.out}`);
-    return { installed: [], problems };
+    return {
+      consumerRoot,
+      installed: [],
+      postWriteOk: false,
+      tscOk: false,
+      problems,
+    };
   }
 
   const installedGraphs = [];
@@ -627,8 +706,12 @@ function proveRealShadcnAdd(
       continue;
     }
     // Assert the declared @vegastack/* deps were installed from the LOCAL npm registry.
-    const depsMissing = VEGASTACK_DEP_PKGS.map((p) => p.name).filter(
-      (n) => !existsSync(join(consumerRoot, "node_modules", n, "package.json")),
+    const requiredPackages = declaredVegastackPackages(
+      expected.map((graphName) => readItem(graphName)),
+    );
+    const depsMissing = requiredPackages.filter(
+      (name) =>
+        !existsSync(join(consumerRoot, "node_modules", name, "package.json")),
     );
     if (depsMissing.length) {
       problems.push(
@@ -668,11 +751,26 @@ function proveRealShadcnAdd(
       join(consumerRoot, sourceRoot, relativeAlias(layout.aliases.ui)),
     );
     const newFiles = after.filter((f) => !before.has(f));
-    installedGraphs.push({ name, graph: expected, newFiles });
+    const outputs = expected.flatMap((graphName) =>
+      (readItem(graphName).files ?? []).map((file) => {
+        const target = resolveTargetPath(
+          file,
+          consumerRoot,
+          consumerAliases,
+          consumerConfiguration.paths,
+        );
+        return {
+          target: relative(consumerRoot, target),
+          sha256: sha256(readFileSync(target)),
+        };
+      }),
+    );
+    installedGraphs.push({ name, graph: expected, newFiles, outputs });
   }
 
   // One consolidated tsc over ALL real-consumed files (uses the consumer's OWN installed tsc +
   // @types + the @vegastack/design it installed from the local registry).
+  let tscOk = false;
   if (installedGraphs.length === representative.length) {
     const consumerTsc = join(consumerRoot, "node_modules/.bin/tsc");
     const tscPath = existsSync(consumerTsc) ? consumerTsc : tscBin;
@@ -685,9 +783,18 @@ function proveRealShadcnAdd(
       problems.push(
         `real-shadcn[${layout.name}]: consolidated tsc --noEmit of consumed files FAILED\n${tsc.out}`,
       );
+    tscOk = tsc.ok;
   }
 
-  return { installed: installedGraphs, problems };
+  return {
+    consumerRoot,
+    installed: installedGraphs,
+    postWriteOk:
+      installedGraphs.length === representative.length &&
+      !problems.some((problem) => problem.includes("POST-WRITE")),
+    tscOk,
+    problems,
+  };
 }
 
 function safeReaddir(dir) {
@@ -701,10 +808,17 @@ function safeReaddir(dir) {
 // ════════════════════════════════════════════════════════════════════════════════════════
 // B) COMPREHENSIVE COVERAGE — SIMULATED consume, all items × one layout
 // ════════════════════════════════════════════════════════════════════════════════════════
-async function proveLayout(layout, base, manifest, itemNames, scratchRoot) {
+async function proveLayout(
+  layout,
+  base,
+  manifest,
+  itemNames,
+  scratchRoot,
+  scopeId = "consolidated",
+) {
   const consumerRoot = join(
     scratchRoot,
-    "sim-" + layout.name.replace(/[^a-z0-9]+/gi, "-"),
+    "sim-" + layout.id + "-" + scopeId.replace(/[^a-z0-9]+/gi, "-"),
   );
   mkdirSync(consumerRoot, { recursive: true });
   writeFileSync(
@@ -745,6 +859,7 @@ async function proveLayout(layout, base, manifest, itemNames, scratchRoot) {
   mkdirSync(savedDir, { recursive: true });
 
   const problems = [];
+  const ownership = new Map();
   let provenItems = 0;
   let rewrites = 0;
   const savedForPostWrite = [];
@@ -789,9 +904,21 @@ async function proveLayout(layout, base, manifest, itemNames, scratchRoot) {
           consumerAliases,
           consumerConfiguration.paths,
         );
+        const target = relative(consumerRoot, dest);
+        const digest = sha256(out);
+        const prior = ownership.get(target);
+        if (prior && prior.sha256 !== digest) {
+          problems.push(
+            `[${layout.name}] target collision at ${target}: ${prior.item} (${prior.sha256}) versus ${name} (${digest})`,
+          );
+          itemFailed = true;
+          break;
+        }
+        ownership.set(target, { item: name, sha256: digest });
         mkdirSync(dirname(dest), { recursive: true });
         writeFileSync(dest, out);
       }
+      if (itemFailed) break;
       if (!savedForPostWrite.some((s) => s.name === name)) {
         savedForPostWrite.push({
           name,
@@ -828,16 +955,50 @@ async function proveLayout(layout, base, manifest, itemNames, scratchRoot) {
     );
 
   return {
+    consumerRoot,
     provenItems,
     totalItems: itemNames.length,
     rewrites,
     tscOk: tsc.ok,
     installed: savedForPostWrite.length,
+    ownedTargets: ownership.size,
+    targets: [...ownership.entries()]
+      .map(([target, value]) => ({ target, ...value }))
+      .sort((left, right) => left.target.localeCompare(right.target)),
+    collisionsOk: !problems.some((problem) =>
+      problem.includes("target collision"),
+    ),
+    postWriteOk: !problems.some((problem) => problem.includes("POST-WRITE")),
     problems,
   };
 }
 
+function collisionProblems(label, results, extract) {
+  const owners = new Map();
+  const problems = [];
+  for (const result of results)
+    for (const output of extract(result)) {
+      const prior = owners.get(output.target);
+      if (prior && prior.sha256 !== output.sha256)
+        problems.push(
+          `${label}: isolated-root collision at ${output.target}: ${prior.root} (${prior.sha256}) versus ${result.root} (${output.sha256})`,
+        );
+      else
+        owners.set(output.target, { root: result.root, sha256: output.sha256 });
+    }
+  return { problems, targets: owners.size };
+}
+
+function writeConsumeReport(report) {
+  const runId = report.startedAt.replace(/[:.]/g, "-");
+  const path =
+    options.report ?? join(repoRoot, ".gates", `consume-${runId}.json`);
+  return writeImmutableJson(path, report);
+}
+
 async function main() {
+  const startedAt = new Date().toISOString();
+  const startedNs = process.hrtime.bigint();
   log("verify-shadcn-consume — local end-to-end consumability proof\n");
   log(`registry source : ${registryDir}`);
   log(`shipped verifier: ${shippedVerifier}`);
@@ -858,11 +1019,39 @@ async function main() {
   }
 
   const itemNames = allItemNames();
+  const itemNameSet = new Set(itemNames);
+  const unknownRoots = options.roots.filter((root) => !itemNameSet.has(root));
+  if (unknownRoots.length > 0) {
+    fail(`unknown or stale root selector(s): ${unknownRoots.join(", ")}`);
+    return 2;
+  }
+  const setCover = externalFamilySetCover(itemNames);
+  const representative = [
+    ...new Set([
+      ...REAL_CRITICAL_GRAPHS,
+      ...setCover.map((entry) => entry.name),
+    ]),
+  ];
+  const selectedRoots =
+    options.mode === "full"
+      ? representative
+      : options.mode === "affected"
+        ? reverseConsumeClosure(
+            options.roots,
+            itemNames.map((name) => readItem(name)),
+          )
+        : [...new Set(options.roots)].sort();
+  const selectedLayouts =
+    options.mode === "full" || options.layouts.length === 0
+      ? LAYOUTS
+      : LAYOUTS.filter((layout) => options.layouts.includes(layout.id));
   const scratchRoot = mkdtempSync(join(tmpdir(), "vega-consume-"));
   let sidecar;
   const allProblems = [];
   const realResults = [];
-  const simSummaries = [];
+  const isolatedSimulated = [];
+  const consolidated = [];
+  const globalCollisionProblems = [];
 
   try {
     // ── pack @vegastack/* deps + start the SIDECAR registry process ──
@@ -885,46 +1074,56 @@ async function main() {
     log(
       "── REAL `shadcn add` (load-bearing gate — Codex R13) " + "─".repeat(12),
     );
-    const setCover = externalFamilySetCover(itemNames);
-    const representative = [
-      ...new Set([
-        ...REAL_CRITICAL_GRAPHS,
-        ...setCover.map((entry) => entry.name),
-      ]),
-    ];
     info(
       `external dependency set cover: ${setCover.map((entry) => `${entry.name} → ${entry.families.join("+")}`).join("; ")}`,
     );
-    info(`real CLI roots: ${representative.join(", ")}`);
-    for (const layout of LAYOUTS) {
-      const realResult = proveRealShadcnAdd(
-        layout,
-        representative,
-        scratchRoot,
-        componentPort,
-        npmPort,
+    info(
+      `${options.mode} isolated real CLI roots: ${selectedRoots.join(", ")}`,
+    );
+    for (const layout of selectedLayouts) {
+      for (const root of selectedRoots) {
+        const result = proveRealShadcnAdd(
+          layout,
+          [root],
+          scratchRoot,
+          componentPort,
+          npmPort,
+          root,
+        );
+        const graph = result.installed[0];
+        const leaf = {
+          root,
+          layout: layout.id,
+          consumer: result.consumerRoot,
+          postWriteOk: result.postWriteOk,
+          tscOk: result.tscOk,
+          outputs: graph?.outputs ?? [],
+          graph: graph?.graph ?? [],
+          problems: result.problems,
+        };
+        realResults.push(leaf);
+        if (result.problems.length === 0)
+          ok(
+            `[${layout.name}] isolated shadcn add @vegastack/${root}: post-write + tsc ✓`,
+          );
+        else
+          fail(
+            `[${layout.name}] isolated shadcn add @vegastack/${root} FAILED`,
+          );
+        allProblems.push(...result.problems);
+      }
+      const collision = collisionProblems(
+        `real/${layout.id}`,
+        realResults.filter((result) => result.layout === layout.id),
+        (result) => result.outputs,
       );
-      realResults.push({ layout: layout.name, representative, ...realResult });
-      for (const g of realResult.installed) {
-        ok(
-          `[${layout.name}] shadcn add @vegastack/${g.name} → CLI exit 0 · wrote [${g.newFiles.join(", ")}] · local @vegastack/* deps`,
-        );
-      }
-      if (realResult.problems.length === 0) {
-        ok(
-          `[${layout.name}] real shadcn add: ${realResult.installed.length}/${representative.length} item graphs + consumed files tsc ✓`,
-        );
-      } else {
-        fail(
-          `[${layout.name}] real shadcn add FAILED (${realResult.installed.length}/${representative.length} graphs ok)`,
-        );
-      }
-      allProblems.push(...realResult.problems);
+      globalCollisionProblems.push(...collision.problems);
+      allProblems.push(...collision.problems);
     }
     log("");
 
-    // ── B) SIMULATED comprehensive coverage (all items × both layouts) ──
-    log("── SIMULATED coverage (all items × both layouts) " + "─".repeat(15));
+    // ── B) SIMULATED isolated parity plus the unchanged full consolidated oracle ──
+    log("── SIMULATED isolated roots " + "─".repeat(36));
     const manifest = await fetch(`${base}/integrity-manifest.json`).then(
       (r) => {
         if (!r.ok)
@@ -932,25 +1131,79 @@ async function main() {
         return r.json();
       },
     );
-    for (const layout of LAYOUTS) {
-      const res = await proveLayout(
-        layout,
-        base,
-        manifest,
-        itemNames,
-        scratchRoot,
+    for (const layout of selectedLayouts) {
+      for (const root of selectedRoots) {
+        const result = await proveLayout(
+          layout,
+          base,
+          manifest,
+          [root],
+          scratchRoot,
+          `isolated-${root}`,
+        );
+        const leaf = {
+          root,
+          layout: layout.id,
+          consumer: result.consumerRoot,
+          postWriteOk: result.postWriteOk,
+          tscOk: result.tscOk,
+          outputs: result.targets.map(({ target, sha256 }) => ({
+            target,
+            sha256,
+          })),
+          graphItems: result.installed,
+          problems: result.problems,
+        };
+        isolatedSimulated.push(leaf);
+        const logFn = result.problems.length === 0 ? ok : fail;
+        logFn(
+          `[${layout.name}] isolated simulated @vegastack/${root}: ${result.provenItems}/1 root · ${result.installed} graph files · post-write ${result.postWriteOk ? "✓" : "✗"} · tsc ${result.tscOk ? "✓" : "✗"}`,
+        );
+        allProblems.push(...result.problems);
+      }
+      const collision = collisionProblems(
+        `simulated/${layout.id}`,
+        isolatedSimulated.filter((result) => result.layout === layout.id),
+        (result) => result.outputs,
       );
-      simSummaries.push({ layout: layout.name, ...res });
-      const status =
-        res.provenItems === res.totalItems && res.tscOk && !res.problems.length
-          ? "✓"
-          : "✗";
-      const logFn = status === "✓" ? ok : fail;
-      logFn(
-        `${layout.name}: ${res.provenItems}/${res.totalItems} graphs · ${res.installed} files · ` +
-          `${res.rewrites} alias rewrites · post-write ${res.problems.some((p) => p.includes("POST-WRITE")) ? "✗" : "✓"} · tsc ${res.tscOk ? "✓" : "✗"}`,
+      globalCollisionProblems.push(...collision.problems);
+      allProblems.push(...collision.problems);
+    }
+
+    if (options.mode === "full") {
+      log("");
+      log(
+        "── SIMULATED consolidated full oracle (all items × both layouts) " +
+          "─".repeat(5),
       );
-      allProblems.push(...res.problems);
+      for (const layout of LAYOUTS) {
+        const result = await proveLayout(
+          layout,
+          base,
+          manifest,
+          itemNames,
+          scratchRoot,
+          "consolidated",
+        );
+        const summary = {
+          layout: layout.id,
+          consumer: result.consumerRoot,
+          provenItems: result.provenItems,
+          totalItems: result.totalItems,
+          installed: result.installed,
+          rewrites: result.rewrites,
+          postWriteOk: result.postWriteOk,
+          tscOk: result.tscOk,
+          collisionsOk: result.collisionsOk,
+          problems: result.problems,
+        };
+        consolidated.push(summary);
+        const logFn = result.problems.length === 0 ? ok : fail;
+        logFn(
+          `${layout.name}: ${result.provenItems}/${result.totalItems} roots · ${result.installed} graph files · post-write ${result.postWriteOk ? "✓" : "✗"} · collisions ${result.collisionsOk ? "✓" : "✗"} · tsc ${result.tscOk ? "✓" : "✗"}`,
+        );
+        allProblems.push(...result.problems);
+      }
     }
     log("");
   } catch (err) {
@@ -968,36 +1221,71 @@ async function main() {
     }
   }
 
+  const elapsedMs = Number(process.hrtime.bigint() - startedNs) / 1e6;
+  const head = spawnSync("git", ["rev-parse", "HEAD"], {
+    cwd: repoRoot,
+    encoding: "utf8",
+  }).stdout.trim();
+  const report = {
+    schema: "vegastack-consume-report/v1",
+    mode: options.mode,
+    startedAt,
+    durationMs: Math.round(elapsedMs),
+    head,
+    status: allProblems.length === 0 ? "pass" : "fail",
+    selectedRoots,
+    selectedLayouts: selectedLayouts.map((layout) => layout.id),
+    exhaustiveRootCount: itemNames.length,
+    isolatedReal: realResults,
+    isolatedSimulated,
+    consolidated,
+    collisionProblems: globalCollisionProblems,
+    fullOracleExecuted: options.mode === "full",
+    shadowOnly: options.mode !== "full",
+    reuseEnabled: false,
+    evidenceReusable: false,
+    receiptWritten: false,
+    ciFullOracleRequired: true,
+    problems: [...new Set(allProblems)],
+  };
+  const reportProblems = validateConsumeReport(report, {
+    expectedRootCount: itemNames.length,
+  });
+  allProblems.push(...reportProblems);
+  report.problems = [...new Set(allProblems)];
+  report.status = report.problems.length === 0 ? "pass" : "fail";
+  let reportPath;
+  try {
+    reportPath = writeConsumeReport(report);
+  } catch (error) {
+    fail(`structured report write failed: ${error.message}`);
+    return 2;
+  }
+
   // ── verdict ─────────────────────────────────────────────────────────────────────────
   log("═".repeat(68));
   if (allProblems.length) {
     fail(`verify-shadcn-consume FAILED — ${allProblems.length} problem(s):`);
     for (const p of allProblems) console.error(`\n${p}`);
+    log(`structured report: ${reportPath}`);
     return 1;
   }
-  const totalItems = simSummaries[0]?.totalItems ?? 0;
-  log("✓ verify-shadcn-consume PASSED — registry is consumable end-to-end:");
-  const realInstalled = realResults.reduce(
-    (sum, result) => sum + result.installed.length,
-    0,
-  );
-  const realExpected = realResults.reduce(
-    (sum, result) => sum + result.representative.length,
-    0,
+  log(
+    `✓ verify-shadcn-consume PASSED — ${options.mode} proof is isolated end-to-end:`,
   );
   log(
-    `    · real shadcn add   : ${realInstalled}/${realExpected} item graphs across ${realResults.length} layouts via the actual CLI ✓`,
+    `    · real shadcn add   : ${realResults.length}/${selectedRoots.length * selectedLayouts.length} isolated root/layout consumers via the actual CLI ✓`,
   );
-  for (const result of realResults)
+  log(
+    `    · simulated parity  : ${isolatedSimulated.length}/${selectedRoots.length * selectedLayouts.length} isolated root/layout consumers ✓`,
+  );
+  if (options.mode === "full")
     log(
-      `                          - ${result.layout}: ${result.representative.join(", ")}`,
+      `    · consolidated full: ${consolidated.map((entry) => `${entry.layout} ${entry.provenItems}/${entry.totalItems}`).join(" · ")} ✓`,
     );
-  log(
-    `    · simulated coverage: ${totalItems}/${totalItems} items × ${LAYOUTS.length} layouts ✓`,
-  );
-  for (const s of simSummaries)
+  else
     log(
-      `                          - ${s.layout}: ${s.provenItems}/${s.totalItems} · ${s.installed} files · tsc ✓`,
+      "    · rollout           : shadow-only diagnostic; no receipt/reuse; CI full oracle remains mandatory (D1)",
     );
   log(
     "  Real CLI proves: registry fetch · registryDependencies install · @ui/… target resolution ·",
@@ -1005,9 +1293,15 @@ async function main() {
   log(
     "  @vegastack/* dep install (local npm registry, pack-based — no publish) · files written · tsc.",
   );
-  log(
-    "  Simulation proves the SAME across ALL items × both layouts via the shipped verifier + post-write.",
-  );
+  if (options.mode === "full")
+    log(
+      "  Simulation proves the SAME across ALL items × both layouts via the shipped verifier + post-write.",
+    );
+  else
+    log(
+      "  Simulation proves only the selected isolated roots/layouts; the consolidated full oracle was not executed.",
+    );
+  log(`  Structured report: ${reportPath}`);
   return 0;
 }
 

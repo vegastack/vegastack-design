@@ -401,3 +401,31 @@ The final clean preflight simulated design 0.4.0, tokens 0.3.0, and UI 0.5.0; ve
 ranges, carry and independent guard passed, exact npm lookups proved both public versions absent, and
 the complete consume round-trip passed 554/554 graphs. The script restored the clean commit and the
 pre-existing receipt SHA-256 `073a97f8584c60d346d412e40342530577f51415cc7dc8f50796f5ff8046f1ee`.
+
+## Round 25 — 2026-07-28 · isolated consume reports and D1-safe scheduling
+
+The negative-first Stage L review ended with 0 high and 0 medium findings after correcting three
+fail-closed defects found by execution and adversarial inspection. First, a clean real consumer
+exposed the old runner's global-package assertion: `icon-a-arrow-down` correctly installed only its
+declared VegaStack package, while the accumulated predecessor had silently supplied tokens. Package
+requirements now come from each root's exact resolved graph. Second, the affected planner initially
+used the 115 component/hook/block contract records and omitted 439 animated icons; it now derives all
+554 items from `packages/ui/registry.json`, with an exact icon mutation. Third, unknown dependency
+edges, duplicate item/file ownership, cross-phase consumer reuse, unknown layouts, failure status,
+and self-consistent-but-incomplete consolidated counts now reject rather than disappear into a plan
+or report.
+
+The complete corrected oracle passed 26/26 fresh real root/layout leaves, 26/26 fresh simulated
+leaves, and both consolidated layouts at 554/554 with collision, post-write, and typecheck proofs.
+The retained report passes the strengthened validator against an independently supplied live count
+of 554. Its measured wall time was 395.14s (`n=1`, warm local) versus the 237.33s accumulating
+baseline, a +157.81s (+66.5%) regression; 624,869,376 bytes was the macOS `time -l` maximum resident
+set size. This misses the speed hypothesis because clean per-root install/typecheck is mandatory.
+No concurrency, timeout, worker, or coverage was changed.
+
+The actual affected integration widens this tooling diff to `consume=full`, reports exactly 554
+authority roots and both layouts, prints the full runner command, and leaves the receipt SHA-256
+byte-identical. `pnpm lint` and `pnpm typecheck` passed 7/7, registry build was idempotent, all 30
+workflow-security mutations rejected, and 17 stale operator-instruction fixtures rejected. Selected
+consume remains receipt-free/non-reusable; D1 is still open and CI, Release, and `gates:ship` retain
+the full oracle.

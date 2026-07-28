@@ -3,11 +3,15 @@ import { existsSync, lstatSync, readFileSync, readlinkSync } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
 
 import { ROOT } from "./change-set.mjs";
+import { buildConsumePlan } from "./consume-plan.mjs";
 import { smokeImpact } from "./smoke-scope.mjs";
 
 const AUTHORITY = JSON.parse(
   readFileSync(join(ROOT, "packages/ui/component-contracts.json"), "utf8"),
 );
+const REGISTRY_AUTHORITY = JSON.parse(
+  readFileSync(join(ROOT, "packages/ui/registry.json"), "utf8"),
+).items;
 const RECORDS = [
   ...AUTHORITY.components,
   ...AUTHORITY.hooks,
@@ -318,8 +322,29 @@ export function planAffectedImpact(
   }
 
   if (plan.changedFiles.length === 0) plan.reasons.push("no changed files");
+  const consumePlan = buildConsumePlan({
+    changedFiles: plan.changedFiles,
+    items: REGISTRY_AUTHORITY,
+    metadata: { changed: metadataChanged.size > 0 },
+  });
+  plan.lanes.consume =
+    consumePlan.mode === "full"
+      ? lane("full", {
+          layouts: consumePlan.layouts,
+          execution: "current-full-oracle-required",
+        })
+      : consumePlan.mode === "affected-shadow"
+        ? lane("selected-shadow", {
+            items: consumePlan.roots,
+            layouts: consumePlan.layouts,
+            execution: "shadow-command-available-full-oracle-still-required",
+          })
+        : lane("none", {
+            execution: "current-full-oracle-still-required-by-D1",
+          });
   return {
     ...plan,
+    consumePlan,
     staticChecks: [...plan.staticChecks].sort(),
     boundaryChecks: [...plan.boundaryChecks].sort(),
     turboTasks: [...plan.turboTasks].sort(),

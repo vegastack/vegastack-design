@@ -1367,3 +1367,11 @@ and task-specific Turbo inputs remain activation-ineligible until root data/conf
 complete mutation proof. Safe next action: keep both flags off, collect real `gates:affected --oracle
 ship --scenario <class>` observations after this machinery reaches an authorized branch, then ask MK
 to review the retained cohort. This checkpoint does not change D1, D2, D3, D4, D6, or D7.
+
+Stages K and L were subsequently implemented locally without crossing an outward boundary. K adds
+the fail-closed resumable release state and skips hosted npm work only when exact public versions
+already exist. L emits independently isolated real/simulated consume reports and retains the
+consolidated two-layout full oracle. D1 remains unresolved, so CI, Release, and `gates:ship` still run
+full consume; selected reports cannot write a receipt, become reusable evidence, or authorize a
+skip. The corrected full local run passed but measured 395.14s (`n=1`) versus the 237.33s accumulating
+baseline, so the Stage-L speed hypothesis is not met and no concurrency/coverage adjustment was made.

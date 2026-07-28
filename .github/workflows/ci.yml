@@ -104,10 +104,12 @@ jobs:
           fi
       # Prove the built registry is actually CONSUMABLE end-to-end (not just hash-green): registry
       # fetch + transitive registryDependencies + shipped-verifier integrity preflight + alias
-      # rewrite + post-write verify + tsc of the consumed output. Entirely offline — every server it
-      # needs is a 127.0.0.1 sidecar — so it is safe on a self-hosted runner. Measured at 3m45s and
-      # single-threaded, which makes it the longest lane here.
-      - run: pnpm registry:verify-consume
+      # rewrite + post-write verify + tsc of the consumed output. Real and simulated representative
+      # roots are fresh-consumer isolated; the complete two-layout consolidated oracle still proves
+      # collision ownership and whole-layout tsc. Entirely offline — every server it needs is a
+      # 127.0.0.1 sidecar. D1 remains open, so affected reports do not skip this full execution.
+      - name: Full isolated and consolidated registry consume proof
+        run: pnpm registry:verify-consume
       - run: pnpm exec changeset status --since=origin/main
 
   # The browser half. Nothing here executes a browser — it verifies that something did, on a
