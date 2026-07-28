@@ -458,3 +458,15 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
 - **Systemic fix:** Wrangler writes NDJSON and exactly one successful deploy/version record is required.
   A self-hosted `deployment-complete` summary depends on sign, upload/reverify, and the external live
   probe without `always()` or `continue-on-error`. Eight new workflow mutations cover this surface.
+
+## 2026-07-28 — Later pre-push could erase stronger exact-tree ship evidence
+
+- **Symptom:** an unchanged `gates:push` after a production-full `gates:ship` wrote a new
+  change-profile receipt. The same browser/contract facts had been executed more completely, but the
+  mutable receipt retained only the weaker profile.
+- **Root cause:** receipt writing had no dominance rule and used a direct truncate/write operation.
+- **Systemic fix:** receipt replacement now compares independently verified exact-tree evidence.
+  Stronger production-full evidence dominates a later successful weaker run; a later failure is
+  annotated and invalidates reuse rather than being erased. Receipt writes use flushed same-directory
+  temporary files and atomic rename. Reuse remains shadow-only, and malformed, carried, stale,
+  wrong-toolchain, wrong-authority, partial, and failing mutations all force execution.

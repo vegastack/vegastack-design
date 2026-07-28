@@ -77,6 +77,12 @@ Smoke impact is dependency-aware. `tooling/lib/smoke-scope.mjs` follows the veri
 closure, while `packages/ui/smoke-impact.generated.json` records Vitest's related-test comparison.
 Any stale/missing/unknown/disagreeing selector state widens; never restore exact-file-only triggering.
 
+`gates:push` also writes `.gates/reuse-plan.json`. Exact-tree production-full reuse is currently
+**shadow-only**: `decision: would-reuse` is an observation, not permission to skip. The full push
+oracle still runs. A later weaker successful receipt cannot overwrite stronger exact-tree evidence;
+a later failure is annotated onto it so stale success cannot erase the failure. Carried, stale,
+wrong-toolchain, wrong-authority, malformed, or partial receipts always execute.
+
 Common CI rejections and what each actually means:
 
 | `verify-gate-receipt` says                                      | Cause                                                       | Fix                                                               |

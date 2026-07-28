@@ -62,6 +62,14 @@ export function operatorDocProblems(sources) {
       problems.push(
         `${file}: [receipt-first] current instructions claim expensive verification runs in parallel with receipt-guard`,
       );
+    if (
+      /exact-tree[^\n]{0,80}reuse[^\n]{0,80}(?:is enabled|skips? (?:the )?(?:browser|contract|planned))/i.test(
+        source,
+      )
+    )
+      problems.push(
+        `${file}: [reuse-shadow] current instructions claim exact-tree reuse is enabled or skips a planned lane`,
+      );
   }
 
   const agents = sources["AGENTS.md"] ?? "";
@@ -81,6 +89,10 @@ export function operatorDocProblems(sources) {
   if (!/CI is receipt-first/i.test(agents))
     problems.push(
       "AGENTS.md: [receipt-first] must state that CI verification is receipt-first",
+    );
+  if (!/exact-tree[\s\S]{0,100}reuse is \*\*shadow-only\*\*/i.test(agents))
+    problems.push(
+      "AGENTS.md: [reuse-shadow] must state that exact-tree reuse is shadow-only",
     );
 
   const ship = sources["skills/internal/ship/SKILL.md"] ?? "";
@@ -137,7 +149,7 @@ function readCurrentSources() {
 // virtual strings so historical ledgers and superseded plans can remain byte-stable records.
 const validFixture = {
   "AGENTS.md":
-    "Every non-registry route is anonymous, including /internal/*; /r/* alone is service-token-only. A canonical evidence-leaf manifest is required. CI is receipt-first.",
+    "Every non-registry route is anonymous, including /internal/*; /r/* alone is service-token-only. A canonical evidence-leaf manifest is required. CI is receipt-first. Exact-tree receipt reuse is **shadow-only**.",
   "docs/RELEASING.md":
     "Every non-registry route is anonymously reachable; /internal/* remains unlisted with noindex/no-store; /r/* must reject anonymous requests.",
   "docs/requirements.md":
@@ -195,6 +207,12 @@ for (const [label, file, text, expected] of [
     "receipt-guard runs in parallel alongside verify.",
     /receipt-first/,
   ],
+  [
+    "enabled exact-tree reuse",
+    "skills/internal/gates/SKILL.md",
+    "Exact-tree receipt reuse is enabled and skips browser lanes.",
+    /reuse-shadow/,
+  ],
 ]) {
   const mutated = { ...validFixture, [file]: text };
   const problems = operatorDocProblems(mutated);
@@ -210,5 +228,5 @@ if (problems.length > 0) {
   process.exit(1);
 }
 console.log(
-  `✓ operator docs: ${CURRENT_SURFACES.length} current surfaces agree on topology, browser location, counts, receipt-first ordering, terminal deployment, and schema-2 production evidence; 8 semantic stale-instruction fixtures rejected`,
+  `✓ operator docs: ${CURRENT_SURFACES.length} current surfaces agree on topology, browser location, counts, receipt/reuse ordering, terminal deployment, and schema-2 production evidence; 9 semantic stale-instruction fixtures rejected`,
 );

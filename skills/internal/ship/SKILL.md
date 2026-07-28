@@ -71,6 +71,11 @@ node -p "const r=require('./.gates/contracts.json'); r.status+' · '+r.executed+
 A contracts entry reporting `status: "skipped"` or `executed: 0` after `gates:ship` is a defect, not a
 pass: `ship` runs `--all`, so an empty scope means the runner or the route set is wrong.
 
+An unchanged pre-push after this full ship currently records an exact-tree reuse observation but
+still executes its planned browser/contract lanes. Reuse is shadow-only until the recorded 20-run
+zero-escape checkpoint and separate MK approval. Do not interpret `would-reuse` as a skip, and do
+not replace the production-full receipt with a weaker change receipt.
+
 **If `git status` is not empty:** that is the signal, not an obstacle. Either the regenerated
 surfaces above changed (commit them with the work that caused them) or there is unrelated
 uncommitted work in the tree (finish or stash it). Never ship from a dirty tree — the version job

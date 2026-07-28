@@ -27,6 +27,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { ROOT } from "./change-set.mjs";
+import { atomicWriteJson } from "./measurement-report.mjs";
 import {
   BROWSER_ENGINES,
   buildEvidenceManifest,
@@ -129,6 +130,11 @@ export function readReceipt(path = RECEIPT_PATH) {
       __unreadable: error.code === "ENOENT" ? "missing" : error.message,
     };
   }
+}
+
+/** All receipt writers use one flushed same-filesystem temporary + atomic rename. */
+export function writeReceiptFile(receipt, path = RECEIPT_PATH) {
+  atomicWriteJson(path, receipt);
 }
 
 /**

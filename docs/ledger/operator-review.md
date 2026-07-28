@@ -636,3 +636,14 @@ each was invisible in review and each is the kind that would have degraded the t
 - **Deployment has one terminal state.** A structured Cloudflare version is a live candidate, not a
   success verdict. Only the dependency-closed `deployment-complete` job after external probes may say
   production completed.
+
+## 2026-07-28 — CI/CD efficiency implementation, decision G (shadow only)
+
+- **Exact-tree reuse is not enabled.** The planner records `would-reuse`, but every planned push lane
+  continues to execute until 20 following observations have zero escapes and MK separately approves
+  the checkpoint.
+- **Evidence strength is monotonic.** A valid same-tree production-full receipt dominates a later
+  successful change receipt. Any later failure is retained and makes the receipt ineligible; a retry
+  or weaker run cannot silently restore success.
+- **Version carry is excluded.** Independently rederived version-bump carry remains the only allowed
+  cross-tree carry, but carried evidence is never treated as exact-tree reusable evidence.

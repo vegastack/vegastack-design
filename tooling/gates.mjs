@@ -44,7 +44,6 @@ import {
   mkdirSync,
   readFileSync,
   rmSync,
-  writeFileSync,
 } from "node:fs";
 import { arch, platform } from "node:os";
 import { join } from "node:path";
@@ -62,9 +61,11 @@ import {
   ALL_GATES,
   contractSha256,
   installedToolchain,
-  RECEIPT_PATH,
+  pinnedToolchain,
+  readReceipt,
   RECEIPT_REPO_PATH,
   SCHEMA,
+  writeReceiptFile,
 } from "./lib/gate-receipt.mjs";
 import {
   BROWSER_ENGINES,
@@ -72,6 +73,10 @@ import {
   CHANGE_PROFILE,
   PRODUCTION_PROFILE,
 } from "./lib/gate-profile.mjs";
+import {
+  chooseMonotonicReceipt,
+  exactTreeReusePlan,
+} from "./lib/gate-reuse.mjs";
 import {
   atomicWriteJson,
   gateGeneration,
@@ -96,6 +101,7 @@ const USAGE = `Usage: node tooling/gates.mjs <commit|push|component|ship> [optio
 
   commit                  static gates over STAGED files only
   push                    the pre-push ladder, then write ${RECEIPT_REPO_PATH}
+                          (exact-tree reuse is shadow-only; all planned lanes still execute)
   component <name>        design-lint + that component's unit test + its contract-route closure
   ship                    the full local sweep
 
@@ -315,6 +321,32 @@ const smokeRelevant =
 const unitRelevant = changed.some((file) =>
   /^(packages\/(ui|design|design-tokens)|apps\/docs\/components)\//.test(file),
 );
+const reusePlan = (() => {
+  if (mode !== "push") return null;
+  const plannedGates = [
+    ...(unitRelevant ? ["unit"] : []),
+    ...(smokeRelevant ? ["smoke"] : []),
+    ...(contractsRelevant ? ["contracts"] : []),
+  ];
+  const { hash: treeHash } = workingTreeContentHash();
+  const plan = exactTreeReusePlan(
+    readReceipt(),
+    {
+      treeHash,
+      pinned: pinnedToolchain(),
+      contractSha: contractSha256(),
+    },
+    { plannedGates },
+  );
+  const retained = {
+    ...plan,
+    runId,
+    tree: treeHash,
+    recordedAt: new Date().toISOString(),
+  };
+  atomicWriteJson(join(GATES_DIR, "reuse-plan.json"), retained);
+  return retained;
+})();
 
 // ── the docs build, overlapped only with plain-node work and measured separately ─────────────────
 //
@@ -498,6 +530,12 @@ async function runPush() {
     `${BOLD}gates: pre-push${RESET} ${DIM}${baseRef} (${rangeStart.slice(0, 8)}) → working tree · ` +
       `${allChanged.length} changed, ${changed.length} substantive${RESET}\n`,
   );
+  if (reusePlan)
+    console.log(
+      `${DIM}gates: exact-tree reuse shadow: ${reusePlan.decision}; ` +
+        `${reusePlan.wouldReuse.length > 0 ? `would reuse ${reusePlan.wouldReuse.join(", ")}, ` : ""}` +
+        `executing ${reusePlan.execute.join(", ") || "no browser lane"}. ${reusePlan.checkpoint}${RESET}\n`,
+    );
 
   gate("typecheck", "typecheck (workspace)", "pnpm", ["typecheck"]);
   gate("lint", "lint (workspace)", "pnpm", ["exec", "turbo", "run", "lint"]);
@@ -758,7 +796,7 @@ function writeReceipt() {
       .map(([name]) => name),
   });
 
-  const receipt = {
+  const candidate = {
     schema: SCHEMA,
     profile,
     tree: hash,
@@ -787,8 +825,23 @@ function writeReceipt() {
           .map((result) => ({ gate: result.id, reason: declaredSkip }))
       : [],
   };
-  writeFileSync(RECEIPT_PATH, `${JSON.stringify(receipt, null, 2)}\n`);
-  return receipt;
+  if (mode === "push") {
+    const selected = chooseMonotonicReceipt({
+      existing: readReceipt(),
+      candidate,
+      context: {
+        treeHash: hash,
+        pinned: pinnedToolchain(),
+        contractSha: contractSha256(),
+      },
+    });
+    receiptDisposition = selected.disposition;
+    writeReceiptFile(selected.receipt);
+    return selected.receipt;
+  }
+  receiptDisposition = "wrote-production-full";
+  writeReceiptFile(candidate);
+  return candidate;
 }
 
 // ── main ─────────────────────────────────────────────────────────────────────────────────────────
@@ -799,6 +852,7 @@ const RUNNERS = {
   component: runComponent,
   ship: runShip,
 };
+let receiptDisposition = null;
 await RUNNERS[mode]();
 
 const failed = results.filter(
@@ -831,6 +885,7 @@ const totalMeasurement = {
   environment,
   cache: { state: cacheState },
   coldWarm,
+  ...(reusePlan ? { exactTreeReuse: reusePlan } : {}),
   retryCount: 0,
   resources: {
     summedCpuMs: { measurementClass: "unknown", value: null },
@@ -877,7 +932,7 @@ if (failed.length === 0) {
   );
   if (receipt) {
     console.log(
-      `${DIM}gates: receipt written for tree ${receipt.tree}${RESET}`,
+      `${DIM}gates: receipt ${receiptDisposition ?? "written"} for tree ${receipt.tree}${RESET}`,
     );
     // THE ORDERING TRAP, now enforced rather than documented.
     //
@@ -923,28 +978,28 @@ if (failed.length === 0) {
   process.exit(0);
 }
 
-writeFileSync(
-  LAST_FAILURE,
-  `${JSON.stringify(
-    {
-      mode,
-      runId,
-      completedAt: new Date().toISOString(),
-      base: { ref: baseRef, sha: rangeStart },
-      failures: failed,
-      reports: [
-        ...results.map((result) =>
-          join(".gates", "runs", runId, `${result.id}.json`),
-        ),
-        ...(existsSync(join(GATES_DIR, "contracts.json"))
-          ? [join(".gates", "contracts.json")]
-          : []),
-      ],
-    },
-    null,
-    2,
-  )}\n`,
-);
+const { hash: failedTree } = workingTreeContentHash();
+atomicWriteJson(LAST_FAILURE, {
+  mode,
+  runId,
+  tree: failedTree,
+  completedAt: new Date().toISOString(),
+  base: { ref: baseRef, sha: rangeStart },
+  failures: failed,
+  reports: [
+    ...results.map((result) =>
+      join(".gates", "runs", runId, `${result.id}.json`),
+    ),
+    ...(existsSync(join(GATES_DIR, "contracts.json"))
+      ? [join(".gates", "contracts.json")]
+      : []),
+  ],
+});
+// A failed exact-tree push is newer evidence than an earlier success. Preserve the production
+// manifest for diagnosis, but annotate its failed lanes so neither reuse nor CI can treat it as a
+// pass. This happens even without GATES_SKIP; a later retry must not erase the original failure.
+const failedPushReceipt =
+  mode === "push" && options.receipt ? writeReceipt() : null;
 console.error(
   `${RED}gates: ${failed.length} gate(s) failed — ${failed.map((r) => r.id).join(", ")}${RESET}\n` +
     `${DIM}gates: details in .gates/last-failure.json. Load the \`gates\` skill to classify each ` +
@@ -955,7 +1010,12 @@ console.error(
 // same push happen while writing the failure into the receipt, where `receipt-guard` rejects it until
 // MK acknowledges. Exiting 0 here is the point: the local gate yields, CI does not.
 if (declaredSkip && (mode === "push" || mode === "ship")) {
-  const receipt = options.receipt ? writeReceipt() : null;
+  const receipt =
+    mode === "push"
+      ? failedPushReceipt
+      : options.receipt
+        ? writeReceipt()
+        : null;
   console.error(
     `${YELLOW}gates: GATES_SKIP is set — "${declaredSkip}"${RESET}\n` +
       `${YELLOW}gates: the push is allowed and the failure is RECORDED` +

@@ -95,6 +95,12 @@ summarizes p50/p95 without combining different gate generations, environments, c
 engines, or route/check counts. A report states whether a value is measured, API-reported, modeled,
 estimated, or unknown. It is diagnostic only: it cannot satisfy a receipt or authorize reuse.
 
+Exact-tree production-full receipt reuse is shadow-only. `gates:push` records whether an unchanged
+tree would have reused evidence, but it still executes the full planned oracle. A later successful
+change-profile receipt cannot downgrade stronger exact-tree production evidence; a later failure is
+retained and makes that evidence ineligible. Carried Version PR receipts never qualify. Enablement
+requires 20 following observations with zero escapes and separate MK approval.
+
 PR CI is receipt-first: `verify` has `needs: receipt-guard`, so invalid receipt evidence stops before
 the long free-mini reexecution. The self-hosted pnpm-cache removal experiment is committed disabled;
 only `SELF_HOSTED_PNPM_CACHE_CANARY=enabled` plus an exact

@@ -25,8 +25,6 @@
 //   before `changesets/action` commits the branch — which is the only point at which the post-bump
 //   tree exists and is not yet committed.
 
-import { writeFileSync } from "node:fs";
-
 import {
   resolveCommit,
   versionBumpOnly,
@@ -35,9 +33,9 @@ import {
 import {
   contractSha256,
   readReceipt,
-  RECEIPT_PATH,
   RECEIPT_REPO_PATH,
   SCHEMA,
+  writeReceiptFile,
 } from "./lib/gate-receipt.mjs";
 import { buildEvidenceManifest } from "./lib/gate-profile.mjs";
 
@@ -123,29 +121,22 @@ const evidence = buildEvidenceManifest({
     .map(([name]) => name),
 });
 
-writeFileSync(
-  RECEIPT_PATH,
-  `${JSON.stringify(
-    {
-      ...receipt,
-      tree: currentTree,
-      treeFiles: files,
-      head: resolveCommit("HEAD"),
-      carriedFrom: previousTree,
-      carriedFromCommit: baseCommit,
-      carryReason: CARRY_REASON,
-      carriedAt: new Date().toISOString(),
-      evidence,
-      // version-sync rewrites dependency ranges in component-contracts.json. That moves the
-      // authority hash without changing inventory or browser-observable code, and design:derived
-      // stamps the new hash into its generated surfaces. Carry the current authority fact only
-      // AFTER the version-only proof above succeeds; a real code change never reaches this write.
-      contractSha256: currentContractSha,
-    },
-    null,
-    2,
-  )}\n`,
-);
+writeReceiptFile({
+  ...receipt,
+  tree: currentTree,
+  treeFiles: files,
+  head: resolveCommit("HEAD"),
+  carriedFrom: previousTree,
+  carriedFromCommit: baseCommit,
+  carryReason: CARRY_REASON,
+  carriedAt: new Date().toISOString(),
+  evidence,
+  // version-sync rewrites dependency ranges in component-contracts.json. That moves the authority
+  // hash without changing inventory or browser-observable code, and design:derived stamps the new
+  // hash into its generated surfaces. Carry the current authority fact only AFTER the version-only
+  // proof above succeeds; a real code change never reaches this write.
+  contractSha256: currentContractSha,
+});
 
 console.log(
   `gate-receipt-carry: carried the receipt across a version bump\n` +

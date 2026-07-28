@@ -183,6 +183,12 @@ node -p "const r=require('./.gates/receipt.json'); [r.tree, r.mode, JSON.stringi
 A receipt whose `skips[]` is non-empty is a finding regardless of how the run looks: it means
 `GATES_SKIP` was used and a browser lane did not run.
 
+For an unchanged ship→commit→push sequence, inspect `.gates/reuse-plan.json` and the final receipt.
+Reuse remains shadow-only, so the push report must still show the complete planned oracle. The
+production-full receipt may dominate a later successful weaker change receipt only on the same exact
+tree/toolchain/authority; a carried or stale receipt is ineligible. A later failure must remain
+visible and must make the retained receipt ineligible for reuse.
+
 Reviewing a before/after report:
 
 - **Individually review every entry.** N non-unchanged entries is N decisions. Read the before,

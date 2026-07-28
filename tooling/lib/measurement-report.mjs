@@ -34,6 +34,7 @@ const GENERATION_INPUTS = [
   "tooling/lib/change-set.mjs",
   "tooling/lib/gate-profile.mjs",
   "tooling/lib/gate-receipt.mjs",
+  "tooling/lib/gate-reuse.mjs",
   "tooling/lib/measurement-report.mjs",
   "tooling/lib/route-scope.mjs",
   "tooling/lib/smoke-scope.mjs",
@@ -198,6 +199,16 @@ export function atomicWriteJson(path, value, { immutable = false } = {}) {
     closeSync(descriptor);
     descriptor = undefined;
     renameSync(temporary, path);
+    // Persist the directory entry as well as the file contents. If the process or host stops after
+    // rename, recovery sees either the old complete JSON or the new complete JSON, never a pass from
+    // a partially durable write.
+    let directoryDescriptor;
+    try {
+      directoryDescriptor = openSync(dirname(path), "r");
+      fsyncSync(directoryDescriptor);
+    } finally {
+      if (directoryDescriptor !== undefined) closeSync(directoryDescriptor);
+    }
   } finally {
     if (descriptor !== undefined) closeSync(descriptor);
     if (existsSync(temporary)) unlinkSync(temporary);

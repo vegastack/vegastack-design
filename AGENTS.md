@@ -117,6 +117,11 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
   864-contract leaves from the checked-out tree; a `mode: ship` label or coverage root without leaves
   is rejected. Except for the independently re-derived version-bump carry, production leaves must
   name the exact receipt tree as `executedOnTree`.
+  A later `gates:push` must never replace stronger exact-tree production-full evidence with a weaker
+  change receipt. Exact-tree browser/contract reuse is **shadow-only**: the planner records
+  `.gates/reuse-plan.json`, but every planned lane still executes until 20 following observations
+  have zero escapes and MK separately approves enablement. A carried Version PR receipt is never
+  eligible for exact-tree reuse.
   `tooling/verify-hooks-installed.mjs` runs inside `pnpm lint` because a tree
   whose hooks are missing or unwired has no browser verification at all, and husky's dispatcher exits
   **zero** when a committed hook is absent.
