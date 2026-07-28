@@ -32,9 +32,10 @@
 //      the freshness authority.
 //
 // REPORTS, NOT JUST EXIT CODES
-//   Every gate writes `.gates/<gate>.json` and a failure writes `.gates/last-failure.json`. That is
-//   deliberate: an exit code tells a developer something broke, a report lets their agent say WHAT
-//   broke and why. Read them with the `gates` skill.
+//   Every segment writes an immutable `.gates/runs/<run-id>/<segment>.json`; the mode's latest
+//   summary remains `.gates/<mode>.json`, and a failure writes `.gates/last-failure.json`. Reports
+//   carry implementation generation, environment/cache classification, total/warm-up/lane duration,
+//   scope, and explicit unknown resource facts. Read them with the `gates` skill.
 
 import { spawn, spawnSync } from "node:child_process";
 import {
@@ -71,6 +72,14 @@ import {
   CHANGE_PROFILE,
   PRODUCTION_PROFILE,
 } from "./lib/gate-profile.mjs";
+import {
+  atomicWriteJson,
+  gateGeneration,
+  localEnvironment,
+  MEASUREMENT_SCHEMA,
+  newRunId,
+  writeRunMeasurement,
+} from "./lib/measurement-report.mjs";
 import {
   CONTRACT_SCOPE,
   COMPONENT_ROUTES,
@@ -140,6 +149,79 @@ if (mode === "component" && !options.component)
 mkdirSync(GATES_DIR, { recursive: true });
 
 const results = [];
+const runStartedAt = new Date();
+const runStartedMs = Date.now();
+const runId = newRunId(mode);
+const generation = gateGeneration();
+const environment = localEnvironment();
+const coldWarm = process.env.GATES_COLD_WARM?.trim() || "unknown";
+const cacheState = process.env.GATES_CACHE_STATE?.trim() || "unknown";
+
+function scopeFor(id, result, startedAt) {
+  if (id === "contracts") {
+    if (result.status === "skipped")
+      return { routeCount: 0, checkCount: 0, reportState: "not-executed" };
+    try {
+      const report = JSON.parse(
+        readFileSync(join(GATES_DIR, "contracts.json"), "utf8"),
+      );
+      if (Date.parse(report.completedAt) < startedAt.getTime())
+        throw new Error("contracts report predates this segment");
+      return {
+        routeCount: report.scope?.routes?.length ?? null,
+        checkCount: report.executed ?? report.expected ?? null,
+        reportState: "current",
+      };
+    } catch {
+      return {
+        routeCount:
+          contractSelection.routes === null
+            ? COMPONENT_ROUTES.length
+            : contractSelection.routes.size,
+        checkCount: null,
+        reportState: "missing-or-stale",
+      };
+    }
+  }
+  if (id === "smoke")
+    return {
+      testFileCount: smokeSelection.full ? null : smokeSelection.tests.length,
+      engineCount: BROWSER_ENGINES.length,
+    };
+  if (id === "all-browsers") return { engineCount: BROWSER_ENGINES.length };
+  if (id === "docs-warmup") return { routeCount: COMPONENT_ROUTES.length };
+  return {};
+}
+
+function retainMeasurement(result, startedAt, completedAt) {
+  const measurement = {
+    schema: MEASUREMENT_SCHEMA,
+    generation,
+    runId,
+    kind: "local-gate",
+    mode,
+    segment: result.id,
+    status: result.status,
+    startedAt: startedAt.toISOString(),
+    completedAt: completedAt.toISOString(),
+    durationMs: result.durationMs,
+    measurementClass: "measured",
+    scope: scopeFor(result.id, result, startedAt),
+    environment,
+    cache: { state: cacheState },
+    coldWarm,
+    retryCount: 0,
+    resources: {
+      summedCpuMs: { measurementClass: "unknown", value: null },
+      peakRssBytes: { measurementClass: "unknown", value: null },
+    },
+    required: result.required,
+    ...(result.command ? { command: result.command } : {}),
+    ...(result.reason ? { reason: result.reason } : {}),
+  };
+  writeRunMeasurement(measurement);
+  return measurement;
+}
 
 /**
  * Run one gate. Output is captured and printed only on failure unless --verbose, because a green
@@ -153,7 +235,8 @@ function gate(
   { cwd = ROOT, env = process.env, required = true } = {},
 ) {
   process.stdout.write(`${DIM}▸${RESET} ${label}… `);
-  const startedAt = Date.now();
+  const startedAt = new Date();
+  const startedMs = Date.now();
   const result = spawnSync(command, args, {
     cwd,
     env,
@@ -161,7 +244,8 @@ function gate(
     maxBuffer: 256 * 1024 * 1024,
     stdio: options.verbose ? "inherit" : "pipe",
   });
-  const durationMs = Date.now() - startedAt;
+  const completedAt = new Date();
+  const durationMs = Date.now() - startedMs;
   const seconds = `${(durationMs / 1000).toFixed(1)}s`;
   const ok = result.status === 0;
   console.log(
@@ -173,7 +257,7 @@ function gate(
     ? null
     : `${result.stdout ?? ""}${result.stderr ?? ""}`.trim();
   if (!ok && output) console.error(`\n${output}\n`);
-  results.push({
+  const gateResult = {
     id,
     label,
     status: ok ? "pass" : "fail",
@@ -183,7 +267,13 @@ function gate(
     output: ok
       ? null
       : (output ?? "(streamed — rerun without --verbose to capture)"),
-  });
+  };
+  gateResult.measurement = retainMeasurement(
+    gateResult,
+    startedAt,
+    completedAt,
+  );
+  results.push(gateResult);
   return ok;
 }
 
@@ -191,14 +281,17 @@ function skip(id, label, reason) {
   console.log(
     `${DIM}▸${RESET} ${label}… ${YELLOW}skipped${RESET} ${DIM}${reason}${RESET}`,
   );
-  results.push({
+  const now = new Date();
+  const gateResult = {
     id,
     label,
     status: "skipped",
     durationMs: 0,
     required: false,
     reason,
-  });
+  };
+  gateResult.measurement = retainMeasurement(gateResult, now, now);
+  results.push(gateResult);
 }
 
 const node = (script, ...args) => ["node", [join(ROOT, script), ...args]];
@@ -223,7 +316,7 @@ const unitRelevant = changed.some((file) =>
   /^(packages\/(ui|design|design-tokens)|apps\/docs\/components)\//.test(file),
 );
 
-// ── the docs build, warmed alongside the non-turbo gates ─────────────────────────────────────────
+// ── the docs build, overlapped only with plain-node work and measured separately ─────────────────
 //
 // TIMING IS LOAD-BEARING HERE, and it was wrong once. This must NOT overlap `pnpm typecheck` or
 // `turbo run lint`: those are themselves turbo runs, and two turbo processes building the same task
@@ -237,6 +330,7 @@ const unitRelevant = changed.some((file) =>
 
 let docsBuild = null;
 function startDocsBuild() {
+  const startedAt = new Date();
   docsBuild = spawn(
     "pnpm",
     ["exec", "turbo", "run", "build", "--filter=@vegastack/docs"],
@@ -246,6 +340,8 @@ function startDocsBuild() {
       stdio: "ignore",
     },
   );
+  docsBuild.startedAt = startedAt;
+  docsBuild.startedMs = Date.now();
   docsBuild.promise = new Promise((done) =>
     docsBuild.on("exit", (code) => done(code)),
   );
@@ -257,6 +353,26 @@ function startDocsBuild() {
 async function awaitDocsBuild() {
   if (!docsBuild) return true;
   const code = await docsBuild.promise;
+  const completedAt = new Date();
+  const warmup = {
+    id: "docs-warmup",
+    label: "docs export cache warm-up",
+    status: code === 0 ? "pass" : "fail",
+    durationMs: Date.now() - docsBuild.startedMs,
+    required: false,
+    command:
+      "SITE_VISIBILITY=public pnpm exec turbo run build --filter=@vegastack/docs",
+    reason:
+      code === 0
+        ? "diagnostic warm-up completed"
+        : "diagnostic warm-up failed; contracts-run remains freshness authority",
+  };
+  warmup.measurement = retainMeasurement(
+    warmup,
+    docsBuild.startedAt,
+    completedAt,
+  );
+  results.push(warmup);
   if (code !== 0 && options.verbose)
     console.log(
       `${DIM}gates: the cache warm-up did not complete; contracts-run will build it itself.${RESET}`,
@@ -685,10 +801,55 @@ const RUNNERS = {
 };
 await RUNNERS[mode]();
 
-const failed = results.filter((result) => result.status === "fail");
-const summary = {
+const failed = results.filter(
+  (result) => result.status === "fail" && result.required !== false,
+);
+const completedAt = new Date();
+const totalDurationMs = Date.now() - runStartedMs;
+const totalMeasurement = {
+  schema: MEASUREMENT_SCHEMA,
+  generation,
+  runId,
+  kind: "local-run",
   mode,
-  completedAt: new Date().toISOString(),
+  segment: "total",
+  status: failed.length === 0 ? "pass" : "fail",
+  startedAt: runStartedAt.toISOString(),
+  completedAt: completedAt.toISOString(),
+  durationMs: totalDurationMs,
+  measurementClass: "measured",
+  scope: {
+    changedFiles: allChanged.length,
+    substantiveFiles: changed.length,
+    routeCount:
+      results.find((result) => result.id === "contracts")?.measurement?.scope
+        ?.routeCount ?? null,
+    checkCount:
+      results.find((result) => result.id === "contracts")?.measurement?.scope
+        ?.checkCount ?? null,
+  },
+  environment,
+  cache: { state: cacheState },
+  coldWarm,
+  retryCount: 0,
+  resources: {
+    summedCpuMs: { measurementClass: "unknown", value: null },
+    peakRssBytes: { measurementClass: "unknown", value: null },
+  },
+};
+writeRunMeasurement(totalMeasurement);
+const summary = {
+  schema: MEASUREMENT_SCHEMA,
+  generation,
+  runId,
+  mode,
+  startedAt: runStartedAt.toISOString(),
+  completedAt: completedAt.toISOString(),
+  totalDurationMs,
+  measurementClass: "measured",
+  environment,
+  cache: { state: cacheState },
+  coldWarm,
   base: { ref: baseRef, sha: rangeStart },
   changed: { total: allChanged.length, substantive: changed.length },
   classified: {
@@ -698,10 +859,7 @@ const summary = {
   },
   gates: results,
 };
-writeFileSync(
-  join(GATES_DIR, `${mode}.json`),
-  `${JSON.stringify(summary, null, 2)}\n`,
-);
+atomicWriteJson(join(GATES_DIR, `${mode}.json`), summary);
 
 console.log("");
 if (failed.length === 0) {
@@ -713,8 +871,9 @@ if (failed.length === 0) {
         : null
       : null;
   console.log(
-    `${GREEN}gates: ${results.filter((r) => r.status === "pass").length} passed${RESET}` +
-      `${results.some((r) => r.status === "skipped") ? `, ${results.filter((r) => r.status === "skipped").length} skipped` : ""}`,
+    `${GREEN}gates: ${results.filter((r) => r.status === "pass" && r.required !== false).length} passed${RESET}` +
+      `${results.some((r) => r.status === "skipped") ? `, ${results.filter((r) => r.status === "skipped").length} skipped` : ""}` +
+      `${results.some((r) => r.required === false && r.id === "docs-warmup") ? ", 1 docs-warmup diagnostic" : ""}`,
   );
   if (receipt) {
     console.log(
@@ -769,12 +928,18 @@ writeFileSync(
   `${JSON.stringify(
     {
       mode,
+      runId,
       completedAt: new Date().toISOString(),
       base: { ref: baseRef, sha: rangeStart },
       failures: failed,
-      reports: ALL_GATES.map((id) => join(".gates", `${id}.json`)).filter(
-        (path) => existsSync(join(ROOT, path)),
-      ),
+      reports: [
+        ...results.map((result) =>
+          join(".gates", "runs", runId, `${result.id}.json`),
+        ),
+        ...(existsSync(join(GATES_DIR, "contracts.json"))
+          ? [join(".gates", "contracts.json")]
+          : []),
+      ],
     },
     null,
     2,

@@ -87,6 +87,11 @@ Pre-push smoke triggering includes transitive registry dependencies of every sel
 The checked Vitest-related manifest is a shadow comparator; missing or disagreeing results widen to
 the complete selected smoke lane.
 
+Local gate timing reports are retained under `.gates/runs/<run-id>/`; `pnpm gates:benchmarks`
+summarizes p50/p95 without combining different gate generations, environments, cache/cold states,
+engines, or route/check counts. A report states whether a value is measured, API-reported, modeled,
+estimated, or unknown. It is diagnostic only: it cannot satisfy a receipt or authorize reuse.
+
 Everything that executes repository code and needs no browser runs free on the self-hosted mac minis
 (`runs-on: [self-hosted, vsk-runners-mac-mini]`): all of `ci.yml`, `release.yml`'s `changes`,
 `receipt-guard`, `quality-gate` and `version-pr`, and `deploy.yml`'s `ref-guard`, `receipt-guard` and

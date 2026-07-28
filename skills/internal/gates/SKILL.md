@@ -16,11 +16,16 @@ environmental, say so with the evidence and let MK decide — the same disciplin
 
 ```bash
 cat .gates/last-failure.json      # the failing gate, its assertion, file:line, raw output slice
-ls .gates/                        # commit.json · push.json · ship.json · contracts.json · receipt.json
+ls .gates/                        # latest mode/contract reports · runs/ · receipt.json
+pnpm gates:benchmarks             # p50/p95, separated by compatible measurement cohort
 ```
 
 `.gates/last-failure.json` exists only while a run is failing; a passing run deletes it. Its
 `reports` array lists the per-gate JSON worth opening next. Read the report, not just the exit code.
+Every run also has immutable segment reports under `.gates/runs/<run-id>/`, including `total` and
+`docs-warmup`. Treat `measurementClass`, cache/cold state, scope, sample size, and environment as part
+of the result. `unknown` is honest; never relabel it measured or combine differing generations or
+route/check counts to improve a percentile. Measurement reports are diagnostics, never receipts.
 
 ## 2. Classify every failure before fixing anything
 

@@ -115,6 +115,9 @@ Work these in order; each is a distinct failure class, not a checklist to skim.
    note the mismatch.
 9. **Regression pressure.** For each fix landed this round, ask what it could plausibly have broken,
    and check that specifically.
+10. **Measurement provenance.** Compare timing/cost claims only inside matching implementation,
+    environment, cache/cold, engine, and route/check cohorts. Require sample size and one of measured,
+    API-reported, modeled, estimate, or unknown. A mixed cohort or relabeled unknown is a finding.
 
 ## 6. Registry integrity drift
 

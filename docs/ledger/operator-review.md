@@ -609,3 +609,14 @@ each was invisible in review and each is the kind that would have degraded the t
 - **This stage corrects coverage before saving time.** The gate still runs the complete selected
   smoke suite; per-file execution is deferred until affected-planner evidence satisfies its later
   checkpoint.
+
+## 2026-07-28 — CI/CD efficiency implementation, decision E
+
+- **Timing claims are cohort-bound.** Implementation generation, environment, cache/cold state,
+  engine, and route/check scope are dimensions, not annotations. p50/p95 never cross those boundaries.
+- **Unknown stays unknown.** Local child-process CPU and peak RSS are not currently available from the
+  runner without changing execution mechanics, so reports preserve explicit unknown facts rather
+  than inventing measurements. Wall durations are measured; future workflow values must retain their
+  API-reported/modeled/estimate classification.
+- **Observability is not evidence reuse.** Immutable `.gates/runs` entries can diagnose and benchmark,
+  but schema-2 receipt leaves remain the only local production attestation and no lane is skipped.

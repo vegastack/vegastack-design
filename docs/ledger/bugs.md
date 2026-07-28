@@ -421,3 +421,17 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   engines; the current graph has zero disagreements. All 12 audited dependency sources and
   direct/transitive/hook/global/unknown/stale/disagreement mutations fail closed. Disagreement
   widens to full smoke and cannot subtract registry coverage.
+
+## 2026-07-28 — Full-ship reports omitted total and warm-up cost
+
+- **Symptom:** the retained ship JSON had eight gate durations but no total, no docs-export warm-up,
+  no environment/cache classification, and no per-run history. A later run overwrote the prior mode
+  report, so p50/p95 and exact-tree sequence claims could not be reconstructed locally.
+- **Root cause:** the ladder collected only blocking `gate()` calls in one latest-mode object. The
+  nonblocking warm-up lived outside that collector, and no measurement schema distinguished measured,
+  API-reported, modeled, estimated, or unknown values.
+- **Systemic fix:** every segment and total now writes an immutable gitignored schema-v1 measurement
+  keyed by run ID. Reports bind the gate implementation generation, environment, cache/cold state,
+  scope, and retry count; unavailable CPU/RSS remain explicitly unknown. The read-only summarizer
+  separates generations and route/check cohorts. Schema, negative duration/class/retry, and mixed
+  cohort mutations fail for their intended reason.

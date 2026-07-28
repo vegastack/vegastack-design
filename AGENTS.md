@@ -276,6 +276,7 @@ pnpm --filter @vegastack/ui test:all-browsers        # the complete suite in thr
 pnpm contracts                                       # behaviour contracts, SCOPED to the diff
 pnpm contracts:all                                   # all 108 routes / 864 checks
 pnpm classify                                        # which gates this change requires, and why
+pnpm gates:benchmarks                                # read-only p50/p95 over compatible retained cohorts
 pnpm lint                                            # the full gate chain — see package.json
 pnpm registry:build && git status --porcelain        # must be idempotent: clean tree after
 pnpm design:derived && git status --porcelain        # contract-derived surfaces must be current
@@ -304,6 +305,12 @@ toaster mirror, structural design-lint, negative registry-integrity fixtures), t
 
 Every gate fails closed. A gate that has never been observed failing is an assumption — that is why
 `verify-design-lint-structural.mjs` and `verify-registry-integrity-negative.mjs` exist.
+
+Each local ladder retains immutable, gitignored measurements under `.gates/runs/<run-id>/`: total,
+docs warm-up, and every executed or skipped segment, with implementation generation, environment,
+cache/cold classification, scope, retry count, and explicit unknown resource facts. The benchmark
+summarizer never combines different generations, environments, cache states, engines, or route/check
+counts. These reports are diagnostics, not receipt evidence and never authorize a skip.
 
 **The component contract suite is the blocking visual-surface gate — it now blocks locally.**
 `apps/docs/vrt/contracts.spec.ts` runs 864 checks over every component route — 320px reflow, RTL
