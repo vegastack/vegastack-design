@@ -549,3 +549,13 @@ each was invisible in review and each is the kind that would have degraded the t
   runner selected 108. Runtime gate labels now derive from `COMPONENT_ROUTES`, the expected contract
   count derives from routes × assertions × projects, and the public introduction's count is a
   generated region checked by `design:derived:check`.
+
+## 2026-07-28 — CI/CD efficiency implementation, decision A
+
+- **Discovery classification is not authorization.** `/internal/*` remains anonymous even though it
+  is unlisted, noindex, and no-store; only `/r/*` is allowed to challenge an anonymous request.
+- **Historical text stays historical, but must identify its successor.** The old D11 SSO wording was
+  not rewritten. A prominent supersession marker and an executable current-surface verifier prevent
+  it from being mistaken for an instruction.
+- **The consistency verifier uses semantic negative fixtures.** It does not scan historical ledgers
+  for forbidden words; it rejects stale instructions on the surfaces agents and operators execute.

@@ -1,5 +1,11 @@
 # VegaStack Design System — Requirement Document
 
+> **Point-in-time historical record (2026-06-21).** The D11 `/internal/*` SSO topology below was
+> **superseded** on 2026-07-28. Current policy makes `/internal/*` anonymous but unlisted with
+> `noindex`/`no-store`; `/r/*` alone remains service-token-only. See AGENTS.md and
+> `docs/plans/2026-07-28-public-site-private-registry-boundary.md` for current instructions. The
+> historical decision text is intentionally preserved rather than rewritten.
+
 |                        |                                                                                                                                                                                                                  |
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Project**            | `vegastack-design` (internal design system + design skills)                                                                                                                                                      |

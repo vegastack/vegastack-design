@@ -39,6 +39,7 @@ worth a review slot, and a green claim that is actually red is the most valuable
 node tooling/design-lint.mjs packages/ui/registry                    # component source, all rules
 node tooling/design-lint.mjs --token-css packages/design-tokens/src  # token CSS (!important only)
 node tooling/design-lint.mjs --token-css apps/docs/app               # docs app CSS (!important only)
+node tooling/verify-operator-docs.mjs                                # current topology claims + negative fixtures
 pnpm lint && pnpm typecheck
 pnpm gates:ship                                  # the full sweep, including all 96 contract routes
 pnpm registry:build && git status --porcelain    # must be idempotent — clean tree after

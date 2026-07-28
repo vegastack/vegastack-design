@@ -325,3 +325,16 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
 - **Systemic fix:** the ship ladder now awaits the cache warm-up after smoke and before the complete
   suite. A warm-up failure remains non-authoritative—the contract runner rebuilds and owns the
   verdict—but a still-running cold export can no longer contend with the longest browser lane.
+
+## 2026-07-28 — A historical SSO requirement remained visually current after the boundary changed
+
+- **Symptom:** current operator surfaces correctly said `/internal/*` was anonymous, while the old
+  requirement document still presented its D11 SSO topology without an explicit supersession at the
+  reading point. An agent landing on that document could reintroduce the failed production policy.
+- **Root cause:** the boundary recovery updated executable probes and active runbooks, but no
+  semantic gate required a historical authority to identify the newer decision before preserving its
+  old text.
+- **Systemic fix:** `tooling/verify-operator-docs.mjs` now checks every current operator surface and
+  requires a prominent historical supersession marker on `docs/requirements.md`. Three mutation
+  fixtures prove that SSO, Cloudflare Access, and missing-supersession claims fail for the intended
+  reason. Historical decision text remains unchanged below the marker.

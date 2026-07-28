@@ -290,8 +290,8 @@ under-capturing ships an unverified change. `tooling/verify-route-scope.mjs` pro
 including the one path the two lanes classify OPPOSITELY (`contracts.spec.ts` cannot move a pixel, but
 it IS the contract assertions).
 
-`pnpm lint` is the umbrella: shadcn base check, skill lint, the public-skill mirror, security
-boundaries, workflow security, secret scan, `design:verify` (token build, design.md sync, contract
+`pnpm lint` is the umbrella: shadcn base check, skill lint, the public-skill mirror, operator-doc
+boundary consistency, security boundaries, workflow security, secret scan, `design:verify` (token build, design.md sync, contract
 reconciliation, public API docs, animated icons, theme parity, portal theme scope, **RSC safety**,
 toaster mirror, structural design-lint, negative registry-integrity fixtures), then per-package lint.
 
