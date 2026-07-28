@@ -122,6 +122,10 @@ Work these in order; each is a distinct failure class, not a checklist to skim.
     needs receipt-guard, the no-cache experiment is explicitly enabled and runner-pinned, and
     `deployment-complete` depends on the unskipped external probe with no `always()` or
     `continue-on-error` escape.
+12. **Release-state closure.** Force npm timeout/5xx/malformed/wrong-version and all-empty Changesets
+    inputs. They must block, while only exact E404 may select `versioned-unpublished`. Confirm
+    registry-only `published` skips hosted npm jobs, one-published/one-missing resumes them, retrying
+    cannot infer a publish, and the post-publish exact-version readback remains mandatory.
 
 ## 6. Registry integrity drift
 

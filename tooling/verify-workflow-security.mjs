@@ -470,7 +470,64 @@ assert.equal(
 );
 const versionJob = jobBlock(sources["release.yml"], "version-pr");
 const publishJob = jobBlock(sources["release.yml"], "publish");
+const releaseChangesJob = jobBlock(sources["release.yml"], "changes");
+const releaseQualityJob = jobBlock(sources["release.yml"], "quality-gate");
+const packageBuildJob = jobBlock(sources["release.yml"], "package-build");
 assert.match(versionJob, /^    needs: \[changes, quality-gate\]$/m);
+assert.match(
+  releaseChangesJob,
+  /node tooling\/release-state\.mjs[\s\S]*--require-github/,
+  "release.yml: changes must resolve authenticated resumable release state",
+);
+for (const output of [
+  "release_state",
+  "release_required",
+  "version_pr",
+  "npm_publish",
+])
+  assert.match(
+    releaseChangesJob,
+    new RegExp(
+      `^      ${output}: \\\${\\{ steps\\.state\\.outputs\\.${output} \\}\\}$`,
+      "m",
+    ),
+    `release.yml: changes must expose ${output} from the fail-closed state step`,
+  );
+assert.doesNotMatch(
+  releaseChangesJob,
+  /steps\.detect\.outputs\.(?:publish|has_changesets)/,
+  "release.yml: gate-classifier booleans must not select release mutations",
+);
+assert.doesNotMatch(
+  sources["release.yml"],
+  /--check-npm/,
+  "release.yml: the gate classifier must not own npm state; unknown lookup used to look unpublished",
+);
+assert.match(
+  releaseQualityJob,
+  /needs\.changes\.outputs\.release_required == 'true'/,
+  "release.yml: quality must follow the explicit release-required decision",
+);
+assert.match(
+  packageBuildJob,
+  /needs\.changes\.outputs\.npm_publish == 'true'/,
+  "release.yml: the hosted package build must run only for a proven missing exact public version",
+);
+assert.match(
+  versionJob,
+  /needs\.changes\.outputs\.version_pr == 'true'/,
+  "release.yml: Version PR mutation must follow the explicit state decision",
+);
+assert.match(
+  publishJob,
+  /needs\.changes\.outputs\.npm_publish == 'true'/,
+  "release.yml: npm OIDC must be unreachable unless the exact-version state requires publication",
+);
+assert.match(
+  publishJob,
+  /Verify exact public versions after publish[\s\S]*release-state\.mjs/,
+  "release.yml: publication must finish with an exact-version registry readback",
+);
 // `publish` additionally needs `package-build`, because it publishes exactly that job's artifact.
 // Pinning the list verbatim is the point: a `needs` quietly narrowed to `[changes]` would let npm
 // OIDC run without validation ever having happened.
@@ -488,7 +545,7 @@ assert.match(
 // The quality gate itself must be gated on the receipt: validating the non-browser half while the
 // browser half was never attested is the exact fail-open this topology has to avoid.
 assert.match(
-  jobBlock(sources["release.yml"], "quality-gate"),
+  releaseQualityJob,
   /^    needs: \[changes, receipt-guard\]$/m,
   "release.yml: quality-gate must depend on receipt-guard",
 );

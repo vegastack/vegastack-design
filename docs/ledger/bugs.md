@@ -496,3 +496,28 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   dynamic/unparsed references. The report is deliberately activation-ineligible until root
   data/config reads have the same complete inventory and mutation proof; the blanket dependency is
   unchanged.
+
+## 2026-07-28 — Release network failures were interpreted as unpublished versions
+
+- **Symptom:** `classify-change --check-npm` added a package to `unpublished` for every nonzero npm
+  lookup, so timeout, 5xx, malformed output, and a genuine 404 all selected the same hosted publish
+  path. The `has_changesets` boolean also allowed an all-empty set to produce a green Version job
+  that could never advance.
+- **Root cause:** gate scheduling, npm registry truth, Changesets state, and outward job selection
+  were compressed into two booleans. Neither carried an unknown state or an explicit recovery action.
+- **Systemic fix:** `release-state.mjs` queries exact public `name@version` values and emits a
+  resumable state, reason, next action, and approval boundary. Only E404 is missing. Network/data/PR
+  uncertainty, all-empty/invalid changesets, and workflow/changeset conflicts block. Only
+  `versioned-unpublished` selects hosted build/OIDC; registry-only `published` selects zero hosted npm
+  jobs, and publication ends with an exact-version readback. Mutation tests pin every branch.
+
+## 2026-07-28 — Concurrent tsup config deletion raced ESLint discovery
+
+- **Symptom:** the Stage K full lint oracle failed with ENOENT for
+  `packages/design/tsup.config.bundled_<random>.mjs` while Turbo ran that package's build and lint
+  tasks concurrently.
+- **Root cause:** tsup creates, imports, and deletes a temporary bundled config in the package root.
+  `eslint .` could discover that transient file before deletion and try to read it afterward.
+- **Systemic fix:** the package flat config ignores `tsup.config.bundled_*.mjs`. A semantic negative
+  fixture places invalid JavaScript at that exact pattern and requires ESLint to ignore it; removing
+  the ignore makes the fixture fail. No Turbo concurrency, coverage, or gate was weakened.

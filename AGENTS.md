@@ -144,6 +144,11 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
   (`sign-curated`, `deploy-curated`); and **network position** — `deploy.yml`'s boundary probe must
   originate OUTSIDE VegaStack's network or Cloudflare device posture could authenticate a request it
   asserts is anonymous. `ci.yml` has no hosted job at all.
+- **Release state is explicit and fail-closed.** `tooling/release-state.mjs` queries exact public
+  `name@workspace-version` values. Only npm E404 is missing; timeout, 5xx, malformed/wrong data,
+  ambiguous Version PR state, all-empty/invalid changesets, or a release-workflow/changeset conflict blocks.
+  Only `versioned-unpublished` reaches hosted `package-build`/`publish`; registry-only `published`
+  runs self-hosted quality and zero hosted npm jobs. A post-publish exact-version readback is required.
 - **Job containers are banned outright.** They are Linux-only and cannot start on the macOS minis,
   and the one job that legitimately needed one — the three-engine suite in the digest-pinned
   Playwright image, because bare `ubuntu-latest` WebKit could not settle the compiled-CSS Toaster
@@ -292,6 +297,7 @@ pnpm --filter @vegastack/ui test:all-browsers        # the complete suite in thr
 pnpm contracts                                       # behaviour contracts, SCOPED to the diff
 pnpm contracts:all                                   # all 108 routes / 864 checks
 pnpm classify                                        # which gates this change requires, and why
+pnpm release:state                                   # exact npm/Version PR state; unknown blocks
 pnpm gates:benchmarks                                # read-only p50/p95 over compatible retained cohorts
 pnpm gates:affected:status                           # shadow samples/checkpoint; never enables reuse
 pnpm lint                                            # the full gate chain — see package.json

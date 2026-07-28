@@ -144,6 +144,37 @@ const CASES = [
     expect: /package-build to have SUCCEEDED/,
   },
   {
+    id: "registry state returned to the fail-open classifier lookup",
+    file: "release.yml",
+    find: 'node tooling/classify-change.mjs --before "$BEFORE" --after "$CURRENT_SHA"',
+    replace:
+      'node tooling/classify-change.mjs --before "$BEFORE" --after "$CURRENT_SHA" --check-npm',
+    expect: /classifier must not own npm state/,
+  },
+  {
+    id: "hosted npm build made unconditional for registry-only releases",
+    file: "release.yml",
+    find: "needs.changes.outputs.npm_publish == 'true' &&\n      needs.quality-gate.result == 'success'",
+    replace:
+      "needs.changes.outputs.release_required == 'true' &&\n      needs.quality-gate.result == 'success'",
+    expect: /hosted package build must run only/,
+  },
+  {
+    id: "npm publish detached from exact-version state",
+    file: "release.yml",
+    find: "needs.changes.outputs.npm_publish == 'true' &&\n      needs.quality-gate.result == 'success' &&\n      needs.package-build.result == 'success'",
+    replace:
+      "needs.changes.outputs.release_required == 'true' &&\n      needs.quality-gate.result == 'success' &&\n      needs.package-build.result == 'success'",
+    expect: /npm OIDC must be unreachable/,
+  },
+  {
+    id: "post-publish exact-version readback removed",
+    file: "release.yml",
+    find: "      - name: Verify exact public versions after publish",
+    replace: "      - name: Skip exact public version verification",
+    expect: /publication must finish with an exact-version registry readback/,
+  },
+  {
     id: "quality-gate no longer depends on the receipt guard",
     file: "release.yml",
     find: "    needs: [changes, receipt-guard]",

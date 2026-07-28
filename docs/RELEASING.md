@@ -63,6 +63,25 @@ remains a separate explicit MK decision under the `ship` skill.
 Docs/deployment-only changes do not require a package changeset, version bump, or npm publish. Keep
 workflow changes out of a changeset-bearing push if package work unexpectedly becomes necessary.
 
+Release uses an explicit resumable state machine. `pnpm release:state` queries each exact public
+`name@workspace-version`; it never substitutes the latest dist-tag. Only npm `E404` means missing.
+A timeout, 5xx, malformed/wrong response, ambiguous Version Packages PR, all-empty changeset set, or
+release-workflow/changeset conflict blocks the run. Read `.gates/release-state.json` for the state,
+reason, next action, and approval boundary:
+
+| State                                                                                      | Safe workflow action                                                                   |
+| ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| `clean-noop`                                                                               | no release jobs                                                                        |
+| `changesets-nonempty` / `version-pr-open`                                                  | self-hosted quality plus create/update Version PR; no hosted npm job                   |
+| `versioned-unpublished`                                                                    | self-hosted quality, hosted artifact build, then npm OIDC publish                      |
+| `published`                                                                                | self-hosted quality only; exact public versions already exist, so hosted npm jobs skip |
+| `changesets-all-empty`, `changesets-invalid`, `workflow-diff-conflict`, `registry-unknown` | fail closed and follow the report's recovery action                                    |
+
+This makes interrupted publication resumable when one public package exists and the other does not,
+without treating network uncertainty as permission to publish. A registry-only release never runs
+`package-build` or `publish` when both exact public versions already exist. After a real publication,
+the workflow repeats the exact-version lookup before reporting success.
+
 The Version Packages receipt carry is intentionally narrower than a filename allowlist. It rejects
 untracked paths (which have no `git diff` record), binary or file-mode changes, renames, deletions,
 and any changed inventory path missing from the parsed diff. A generated output is eligible only
@@ -137,6 +156,11 @@ Five jobs stay on `ubuntu-latest`, pinned by an allowlist enforced in
   less true. ~4 minutes, no browsers, no container.
 - **`release.yml` `publish`** — npm trusted publishing does not support self-hosted runners
   (<https://docs.npmjs.com/trusted-publishers/>) and this repository holds no `NPM_TOKEN`.
+
+Those two hosted release jobs are eligible only in `versioned-unpublished`. They are skipped for a
+Version PR run and for a registry-only `published` state; moving work into them merely to make a
+later deploy look faster is not allowed.
+
 - **`deploy.yml` `sign-curated` and `deploy-curated`** — the OIDC signing job and the credential-only
   Cloudflare candidate upload. Neither executes repository code; both are ~1 minute. The latter's
   success is not terminal until `verify-public-boundary` and `deployment-complete` pass.

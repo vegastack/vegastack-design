@@ -480,14 +480,7 @@ for (const [label, mutate] of [
 
 // An output the workflow never set reads as false in an `if:`, so the gate it guards is SKIPPED
 // rather than failed. That is the precise shape of the 2026-07-25 fail-open.
-const REQUIRED_OUTPUTS = [
-  "contracts",
-  "contracts_scope",
-  "unit",
-  "smoke",
-  "publish",
-  "has_changesets",
-];
+const REQUIRED_OUTPUTS = ["contracts", "contracts_scope", "unit", "smoke"];
 for (const [result, label] of [
   [bump, "the version bump"],
   [real, "the component change"],

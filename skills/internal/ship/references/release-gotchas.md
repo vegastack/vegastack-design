@@ -25,8 +25,9 @@ Proven end to end on 2026-07-26. Follow it in this order.
 5. Merge the Version PR → `package-build` + `publish` → npm.
 6. `node tooling/vrt-review.mjs`, then dispatch `deploy.yml`.
 
-**`package-build` and `publish` showing "Skipped" on step 4 is CORRECT** — that is the two-phase
-changesets model. They run only when `has_changesets == 'false'`, i.e. after the Version PR merges.
+**`package-build` and `publish` showing "Skipped" on step 4 is CORRECT** — the explicit state is
+`changesets-nonempty` or `version-pr-open`. They run only for `versioned-unpublished`, after the
+reviewed Version PR merge has put an exact public workspace version on `main` that npm lacks.
 Do not treat it as a fault.
 
 ## 0b. `workflow_dispatch` can return HTTP 500 spuriously
@@ -109,23 +110,22 @@ about the next minor.
 ## 7. `changeset status` gates any `packages/**` change
 
 - **Symptom:** `Some packages have been changed but no changesets were found`.
-- **Rule:** a fix that corrects an **unpublished** release takes an **empty changeset** (`---\n---`),
-  which is changesets' own sanctioned answer and has precedent here. It costs one extra Version-PR
-  cycle — budget for it, or fold the fix in before the Version PR is opened.
+- **Rule:** do not use an all-empty changeset as release state. `release-state.mjs` reports
+  `changesets-all-empty` and blocks. Fold the fix in before the Version PR, or remove the empty file
+  and resume from the exact npm version state.
 
 ## 7b. An EMPTY changeset deadlocks a pending release
 
 - **Symptom:** `version-pr` succeeds with `All changesets are empty; not creating PR`, and `publish`
   is skipped forever.
-- **Cause:** changesets will not open a Version PR when every pending changeset is empty — so
-  `has_changesets` stays **true** on main, and `publish` (gated on `has_changesets == 'false'`) can
-  never run. Meanwhile the bumped versions sit on main, unpublished.
-- **Rule:** an empty changeset is fine on a quiet main. **Never add one while a version bump is
-  awaiting publication** — fold the fix in before the Version PR is opened, or land it after the
-  publish. Verified live: it stranded 0.2.0 on main with 0.1.1 on npm.
-- **Recovery:** delete the empty changeset, and make sure `publish` can still become true —
-  `classify-change --check-npm` asks the registry what is actually published, so an interrupted
-  release resumes instead of needing a human to guess.
+- **Cause:** changesets will not open a Version PR when every pending changeset is empty. The old
+  boolean topology nevertheless treated the file as pending and stranded bumped versions on main.
+- **Rule:** all-empty is now a blocking `changesets-all-empty` state, even on a quiet main. Fold the
+  fix in before the Version PR or land it after publication. Verified live: the old behavior stranded
+  0.2.0 on main with 0.1.1 on npm.
+- **Recovery:** delete or repair the empty changeset, then run `pnpm release:state`. Exact E404 may
+  yield `versioned-unpublished`; timeout, 5xx, malformed output, or wrong version yields blocking
+  `registry-unknown`, never publication permission.
 
 ## 8. Generated surfaces vs prettier
 
@@ -233,8 +233,8 @@ Two recovery-specific follow-ons:
   warm-up finishes before every browser lane. `verify-gate-schedule.mjs` enforces that barrier in
   component, push, and ship.
 
-After publishing, `classify-change --check-npm` reports nothing unpublished, so a later docs-only push
-correctly leaves `publish=false` and cannot re-publish by accident.
+After publishing, `pnpm release:state` verifies both exact public versions. A later docs-only push is
+`clean-noop`; a registry-only release is `published`. Both keep hosted npm jobs skipped.
 
 ## The one thing still open
 

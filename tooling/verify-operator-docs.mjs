@@ -86,6 +86,26 @@ export function operatorDocProblems(sources) {
       problems.push(
         `${file}: [affected-shadow] current instructions promote the shadow affected plan into reuse or production evidence`,
       );
+    if (
+      /registry-only[^\n]{0,100}(?:always|must)[^\n]{0,80}(?:publish|hosted npm)/i.test(
+        source,
+      )
+    )
+      problems.push(
+        `${file}: [release-state] current instructions claim registry-only work always publishes npm`,
+      );
+    if (
+      /(?:timeout|5xx|registry unknown)[^\n]{0,100}(?:means|is treated as)[^\n]{0,60}(?:unpublished|publish)/i.test(
+        source,
+      )
+    )
+      problems.push(
+        `${file}: [release-state] current instructions convert npm uncertainty into publication permission`,
+      );
+    if (/classify-change[^\n]{0,40}--check-npm/i.test(source))
+      problems.push(
+        `${file}: [release-state] current instructions use the removed fail-open npm classifier path`,
+      );
   }
 
   const agents = sources["AGENTS.md"] ?? "";
@@ -110,6 +130,14 @@ export function operatorDocProblems(sources) {
     problems.push(
       "AGENTS.md: [reuse-shadow] must state that exact-tree reuse is shadow-only",
     );
+  if (
+    !/Release state is explicit and fail-closed[\s\S]{0,300}Only npm E404[\s\S]{0,300}zero hosted npm jobs/i.test(
+      agents,
+    )
+  )
+    problems.push(
+      "AGENTS.md: [release-state] must state exact-version fail-closed lookup and registry-only hosted-job skip",
+    );
 
   const ship = sources["skills/internal/ship/SKILL.md"] ?? "";
   if (
@@ -123,6 +151,13 @@ export function operatorDocProblems(sources) {
   if (!/upload is not completion[\s\S]{0,180}deployment-complete/i.test(ship))
     problems.push(
       "skills/internal/ship/SKILL.md: [deployment-terminal] must distinguish upload from the deployment-complete terminal job",
+    );
+  if (
+    !/versioned-unpublished[\s\S]{0,160}hosted/i.test(ship) ||
+    !/registry-unknown[^\n]{0,120}publish permission/i.test(ship)
+  )
+    problems.push(
+      "skills/internal/ship/SKILL.md: [release-state] must limit hosted npm work and block registry uncertainty",
     );
 
   const gates = sources["skills/internal/gates/SKILL.md"] ?? "";
@@ -156,6 +191,14 @@ export function operatorDocProblems(sources) {
     problems.push(
       "docs/RELEASING.md: [internal-boundary] must describe the anonymous /internal/* and service-token-only /r/* production probes",
     );
+  if (
+    !/Release uses an explicit resumable state machine/i.test(releasing) ||
+    !/registry-unknown[^\n]{0,120}(?:blocks|fail closed)/i.test(releasing) ||
+    !/registry-only[^\n]{0,120}never runs/i.test(releasing)
+  )
+    problems.push(
+      "docs/RELEASING.md: [release-state] must explain states, unknown blocking, and registry-only npm skips",
+    );
 
   const requirements = sources["docs/requirements.md"] ?? "";
   if (
@@ -183,13 +226,13 @@ function readCurrentSources() {
 // virtual strings so historical ledgers and superseded plans can remain byte-stable records.
 const validFixture = {
   "AGENTS.md":
-    "Every non-registry route is anonymous, including /internal/*; /r/* alone is service-token-only. A canonical evidence-leaf manifest is required. CI is receipt-first. Exact-tree receipt reuse is **shadow-only**.",
+    "Every non-registry route is anonymous, including /internal/*; /r/* alone is service-token-only. A canonical evidence-leaf manifest is required. CI is receipt-first. Exact-tree receipt reuse is **shadow-only**. Release state is explicit and fail-closed. Only npm E404 is missing; registry-only published means zero hosted npm jobs.",
   "docs/RELEASING.md":
-    "Every non-registry route is anonymously reachable; /internal/* remains unlisted with noindex/no-store; /r/* must reject anonymous requests.",
+    "Every non-registry route is anonymously reachable; /internal/* remains unlisted with noindex/no-store; /r/* must reject anonymous requests. Release uses an explicit resumable state machine: registry-unknown blocks. For registry-only published work it never runs hosted npm.",
   "docs/requirements.md":
     "Point-in-time historical record. D11 is superseded: /internal/* is anonymous under the current boundary.",
   "skills/internal/ship/SKILL.md":
-    "Schema 2 production-full evidence includes all-browsers. Upload is not completion; require deployment-complete.",
+    "Schema 2 production-full evidence includes all-browsers. Upload is not completion; require deployment-complete. versioned-unpublished alone runs hosted build; registry-unknown never grants publish permission.",
   "skills/internal/gates/SKILL.md":
     "gates:retry writes diagnosticOnly: true and evidenceWritten: false. gates:affected writes shadowOnly: true and reuseEnabled: false. Require 30 representative samples and MK approval.",
 };
@@ -261,6 +304,24 @@ for (const [label, file, text, expected] of [
     "gates:affected satisfies production and reuse is enabled.",
     /affected-shadow/,
   ],
+  [
+    "registry-only always publishes",
+    "docs/RELEASING.md",
+    "Registry-only changes must always publish npm.",
+    /release-state/,
+  ],
+  [
+    "npm timeout grants publish",
+    "skills/internal/ship/SKILL.md",
+    "An npm timeout means unpublished, so publish.",
+    /release-state/,
+  ],
+  [
+    "removed classifier lookup",
+    "skills/internal/ship/references/release-gotchas.md",
+    "Run classify-change --check-npm to decide publication.",
+    /release-state/,
+  ],
 ]) {
   const mutated = { ...validFixture, [file]: text };
   const problems = operatorDocProblems(mutated);
@@ -276,5 +337,5 @@ if (problems.length > 0) {
   process.exit(1);
 }
 console.log(
-  `✓ operator docs: ${CURRENT_SURFACES.length} current surfaces agree on topology, browser location, counts, receipt/reuse/retry/affected ordering, terminal deployment, and schema-2 production evidence; 11 semantic stale-instruction fixtures rejected`,
+  `✓ operator docs: ${CURRENT_SURFACES.length} current surfaces agree on topology, browser location, counts, receipt/reuse/retry/affected/release-state ordering, terminal deployment, and schema-2 production evidence; 14 semantic stale-instruction fixtures rejected`,
 );

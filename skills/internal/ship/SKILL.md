@@ -97,19 +97,29 @@ Then find out what the push will actually DO, before pushing:
 
 ```bash
 node tooling/release-classify.mjs        # origin/main → HEAD
+pnpm release:state                       # exact npm + Version PR state; writes .gates/release-state.json
 ```
 
-It extracts `release.yml`'s `detect` step verbatim and runs it, printing which gates the receipt must
-carry, whether the quality gate runs, and whether the run opens a Version PR or publishes. Reconcile
-that against what you expect. **A surprise here is the finding** — most often a gate you assumed was
-required is not. Exit 1 means the step left an output unset, which in an `if:` reads as false, so the
-requirement it drives is silently RELAXED rather than failed.
+It extracts `release.yml`'s `detect` and `state` steps verbatim and runs them, printing which gates the
+receipt must carry and the explicit release state. Reconcile `release_required`, `version_pr`, and
+`npm_publish` against what you expect. **A surprise here is the finding.** The structured state report
+names the reason, next action, and approval boundary. Only npm E404 proves an exact public version is
+missing; timeout, 5xx, malformed/wrong registry data, an ambiguous Version PR, all-empty or invalid changesets, or a
+release-workflow/changeset conflict blocks. Never turn `registry-unknown` into publish permission.
+
+`changesets-nonempty` and `version-pr-open` run no hosted npm work. `versioned-unpublished` alone may
+run the hosted provenance build and npm OIDC job. `published` means a release surface changed but both
+exact public versions already exist, so quality runs on the mini while hosted npm jobs skip. A
+one-published/one-missing result resumes the interrupted publish path. The post-publish exact-version
+readback must pass before publication is complete.
 
 The classification itself lives in `tooling/classify-change.mjs` (`pnpm classify`), which that step
 calls; `tooling/verify-classify-change.mjs` proves it against real history, including that a genuine
 Version Packages commit — 1058 files whose only diff is a re-stamped provenance header — requires no
 contract lane at all. Run it again on the Version PR
 branch before merging it (`--before main --after changeset-release/main`).
+The gate classifier is not the npm authority and no longer accepts `--check-npm`; release state lives
+only in `tooling/release-state.mjs`.
 
 ## 1a. What the gates cannot see
 

@@ -4,4 +4,12 @@
 import { react } from "@vegastack/eslint-config/react";
 
 /** @type {import('eslint').Linter.Config[]} */
-export default [{ ignores: ["dist/**", "node_modules/**"] }, ...react];
+export default [
+  {
+    // tsup bundles tsup.config.ts into this transient root file, imports it, then deletes it. Turbo
+    // may run build and lint concurrently; ESLint must never enqueue a file whose producer can
+    // legitimately remove it between discovery and read.
+    ignores: ["dist/**", "node_modules/**", "tsup.config.bundled_*.mjs"],
+  },
+  ...react,
+];

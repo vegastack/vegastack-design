@@ -703,3 +703,22 @@ each was invisible in review and each is the kind that would have degraded the t
 - **Safe next action:** collect explicit `--oracle ship --scenario <class>` samples on authorized
   following trees, require zero escapes and every scenario, then present the cohort to MK. No code or
   flag automatically enables from the count.
+
+## 2026-07-28 — CI/CD efficiency implementation, decision K (resumable release split)
+
+- **Classifier and trust state are separate.** `classify-change` remains an offline gate-scheduling
+  helper and rejects its removed `--check-npm` path. Exact registry state belongs to one structured
+  release authority.
+- **Unknown cannot publish.** Only exact npm E404 is interpreted as missing. Timeout, 5xx, malformed
+  JSON, a wrong returned version, unavailable/ambiguous Version PR lookup, all-empty/invalid changesets, and a
+  workflow/changeset conflict are blocking states with an explicit next action.
+- **Hosted work follows actual public need.** `versioned-unpublished` alone selects hosted
+  `package-build` and npm OIDC. `changesets-nonempty`/`version-pr-open` select Version PR work only;
+  registry-only `published` runs self-hosted quality and no hosted npm job.
+- **Recovery is explicit.** One exact public version present and one missing resumes publication;
+  exact post-publish readback is required. No NPM token, runner, provenance, receipt, or MK boundary
+  changed.
+- **Full-oracle race fixed at the root.** The first `pnpm lint` run exposed ESLint reading a tsup
+  bundled-config pathname after the concurrent build deleted it. The transient producer filename is
+  now ignored and mutation-tested; the original failure remains recorded and is not replaced by a
+  retry claim.

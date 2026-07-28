@@ -33,12 +33,17 @@ jobs:
   # tooling/verify-classify-change.mjs now proves both directions against those actual commits.
   changes:
     runs-on: [self-hosted, vsk-runners-mac-mini]
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
       contracts: ${{ steps.detect.outputs.contracts }}
       unit: ${{ steps.detect.outputs.unit }}
       smoke: ${{ steps.detect.outputs.smoke }}
-      publish: ${{ steps.detect.outputs.publish }}
-      has_changesets: ${{ steps.detect.outputs.has_changesets }}
+      release_state: ${{ steps.state.outputs.release_state }}
+      release_required: ${{ steps.state.outputs.release_required }}
+      version_pr: ${{ steps.state.outputs.version_pr }}
+      npm_publish: ${{ steps.state.outputs.npm_publish }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -57,9 +62,41 @@ jobs:
           if ! git rev-parse --verify -q "$BEFORE" >/dev/null 2>&1 || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
             BEFORE="${CURRENT_SHA}~1"
           fi
-          # --check-npm so an INTERRUPTED release can resume. Versions can sit bumped-but-unpublished
-          # on main; without asking the registry, no later push would ever set publish=true again.
-          node tooling/classify-change.mjs --before "$BEFORE" --after "$CURRENT_SHA" --check-npm
+          node tooling/classify-change.mjs --before "$BEFORE" --after "$CURRENT_SHA"
+      - id: state
+        name: Resolve resumable release state
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          CURRENT_SHA: ${{ github.sha }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          BEFORE="$BEFORE_SHA"
+          if ! git rev-parse --verify -q "$BEFORE" >/dev/null 2>&1 || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            BEFORE="${CURRENT_SHA}~1"
+          fi
+          node tooling/release-state.mjs \
+            --before "$BEFORE" \
+            --after "$CURRENT_SHA" \
+            --require-github \
+            --report .gates/release-state.json
+      - name: Summarize release decision
+        if: always()
+        env:
+          STATE: ${{ steps.state.outputs.release_state }}
+          QUALITY: ${{ steps.state.outputs.release_required }}
+          VERSION_PR: ${{ steps.state.outputs.version_pr }}
+          NPM_PUBLISH: ${{ steps.state.outputs.npm_publish }}
+        run: |
+          {
+            echo "## Release state"
+            echo
+            echo "| State | Quality | Version PR | Hosted npm build/publish |"
+            echo "| --- | --- | --- | --- |"
+            echo "| ${STATE:-unknown} | ${QUALITY:-unknown} | ${VERSION_PR:-unknown} | ${NPM_PUBLISH:-unknown} |"
+            echo
+            echo "A Version PR merge and any production deploy remain separate MK approval boundaries."
+          } >> "$GITHUB_STEP_SUMMARY"
 
   # The browser half, attested rather than executed. See ci.yml's `receipt-guard` for what a receipt
   # is and is not. The requirements come from `changes` above so this job and the local runner cannot
@@ -92,7 +129,7 @@ jobs:
   # runs locally.
   quality-gate:
     needs: [changes, receipt-guard]
-    if: needs.changes.outputs.publish == 'true'
+    if: needs.changes.outputs.release_required == 'true'
     runs-on: [self-hosted, vsk-runners-mac-mini]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -123,15 +160,14 @@ jobs:
   # The npm artifact, built on an EPHEMERAL runner so the bytes on public npm and the provenance
   # statement about them agree. This is the one place this workflow deliberately spends money; see the
   # header. It runs after validation and produces nothing but the two public dists.
-  # `has_changesets == 'false'` is what confines this to the PUBLISH path. A changeset-bearing run
-  # opens a Version PR and publishes nothing, so building the npm artifact there would burn ~4 billed
-  # minutes producing bytes no job consumes — and it is the only hosted job on that path, so the run
-  # would go from free to not-free for no reason.
+  # `npm_publish == 'true'` is based on exact name@version lookups. A registry-only run whose public
+  # versions already exist, or a changeset-bearing run that only opens a Version PR, never reaches
+  # this hosted job. Unknown registry state blocks in `changes`; it cannot be mistaken for missing.
   package-build:
     needs: [changes, quality-gate]
     if: >-
-      needs.changes.outputs.publish == 'true' &&
-      needs.changes.outputs.has_changesets == 'false'
+      needs.changes.outputs.npm_publish == 'true' &&
+      needs.quality-gate.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -164,7 +200,7 @@ jobs:
   version-pr:
     needs: [changes, quality-gate]
     if: >-
-      needs.changes.outputs.has_changesets == 'true' &&
+      needs.changes.outputs.version_pr == 'true' &&
       needs.quality-gate.result == 'success'
     runs-on: [self-hosted, vsk-runners-mac-mini]
     permissions:
@@ -198,7 +234,7 @@ jobs:
   publish:
     needs: [changes, quality-gate, package-build]
     if: >-
-      needs.changes.outputs.has_changesets == 'false' &&
+      needs.changes.outputs.npm_publish == 'true' &&
       needs.quality-gate.result == 'success' &&
       needs.package-build.result == 'success'
     runs-on: ubuntu-latest
@@ -243,3 +279,17 @@ jobs:
           commitMode: github-api
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify exact public versions after publish
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          CURRENT_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          BEFORE="$BEFORE_SHA"
+          if ! git rev-parse --verify -q "$BEFORE" >/dev/null 2>&1 || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            BEFORE="${CURRENT_SHA}~1"
+          fi
+          node tooling/release-state.mjs \
+            --before "$BEFORE" \
+            --after "$CURRENT_SHA" \
+            --report "$RUNNER_TEMP/post-publish-release-state.json"

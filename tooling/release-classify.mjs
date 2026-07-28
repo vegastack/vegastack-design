@@ -2,9 +2,8 @@
 // Answer "what will Release actually DO with this push?" before pushing it.
 //
 // WHY THIS EXISTS
-//   `release.yml`'s `changes` job decides three things — whether the browser contract gate runs,
-//   whether the quality gate runs, and whether the run opens a Version PR or publishes to npm. That
-//   logic is shell inside a workflow, so it normally cannot be exercised until it has already run on
+//   `release.yml`'s `changes` job decides the receipt requirements, then resolves an explicit,
+//   resumable release state. The workflow scripts normally do not execute until a push reaches
 //   `main`, where being wrong is expensive.
 //
 //   It has been wrong. On 2026-07-25 the visual classifier was changed to stop re-running the gate on
@@ -16,7 +15,7 @@
 //   did not catch either. Executing it did.
 //
 // WHAT IT DOES
-//   Extracts the `detect` step's script verbatim from `.github/workflows/release.yml` and runs it
+//   Extracts the `detect` and `state` step scripts verbatim from `.github/workflows/release.yml` and runs them
 //   against two refs with the same environment Actions gives it. No reimplementation — reimplementing
 //   the logic here would just create a second thing to keep in sync, and the bug would hide in the
 //   gap.
@@ -78,48 +77,56 @@ if (!afterSha) fail(`--after ref does not resolve: ${options.after}`);
 // Pull the script out of the workflow rather than copying it. If the step is renamed or restructured
 // this fails loudly instead of silently classifying with stale logic.
 const workflow = parse(readFileSync(WORKFLOW, "utf8"));
-const step = (workflow.jobs?.changes?.steps ?? []).find(
-  (s) => s.id === "detect",
+const steps = ["detect", "state"].map((id) =>
+  (workflow.jobs?.changes?.steps ?? []).find((step) => step.id === id),
 );
-if (!step?.run)
+if (steps.some((step) => !step?.run))
   fail(
-    "release.yml no longer has a `changes` job with a step `id: detect` carrying a `run:` script — " +
-      "this tool extracts that script verbatim and cannot guess a replacement",
+    "release.yml must have `changes` steps with ids `detect` and `state`, each carrying a run script — " +
+      "this tool extracts those scripts verbatim and cannot guess a replacement",
   );
 
 const scratch = mkdtempSync(join(tmpdir(), "release-classify-"));
-const script = join(scratch, "detect.sh");
 const output = join(scratch, "github-output");
-writeFileSync(script, step.run);
 writeFileSync(output, "");
-
-const result = spawnSync("bash", [script], {
-  cwd: ROOT,
-  encoding: "utf8",
-  env: {
-    ...process.env,
-    BEFORE_SHA: beforeSha,
-    CURRENT_SHA: afterSha,
-    GITHUB_OUTPUT: output,
-  },
+const results = steps.map((step, index) => {
+  const script = join(scratch, `${index === 0 ? "detect" : "state"}.sh`);
+  writeFileSync(script, step.run);
+  return spawnSync("bash", [script], {
+    cwd: ROOT,
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      BEFORE_SHA: beforeSha,
+      CURRENT_SHA: afterSha,
+      GITHUB_OUTPUT: output,
+    },
+  });
 });
 
 console.log(
   `release-classify: ${before} (${beforeSha.slice(0, 8)}) → ${options.after} (${afterSha.slice(0, 8)})`,
 );
-if (result.stdout?.trim()) {
-  const lines = result.stdout.trim().split("\n");
-  console.log(
-    lines.length > 30
-      ? `  …${lines.length} lines of step output, last 10:\n${lines
-          .slice(-10)
-          .map((l) => `  ${l}`)
-          .join("\n")}`
-      : lines.map((l) => `  ${l}`).join("\n"),
-  );
+for (const [index, result] of results.entries()) {
+  if (result.stdout?.trim()) {
+    const lines = result.stdout.trim().split("\n");
+    console.log(`  ${index === 0 ? "detect" : "state"}:`);
+    console.log(
+      lines.length > 30
+        ? `  …${lines.length} lines of step output, last 10:\n${lines
+            .slice(-10)
+            .map((l) => `  ${l}`)
+            .join("\n")}`
+        : lines.map((l) => `  ${l}`).join("\n"),
+    );
+  }
 }
-if (result.status !== 0) {
-  console.error(`\nrelease-classify: the detect step EXITED ${result.status}`);
+const failed = results.findIndex((result) => result.status !== 0);
+if (failed !== -1) {
+  const result = results[failed];
+  console.error(
+    `\nrelease-classify: the ${failed === 0 ? "detect" : "state"} step EXITED ${result.status}`,
+  );
   if (result.stderr?.trim()) console.error(result.stderr.trim());
   console.error(
     "A non-zero exit here means the job would fail on `main` — fix the script, do not interpret the outputs below.",
@@ -142,8 +149,10 @@ const KEYS = [
   "contracts_scope",
   "unit",
   "smoke",
-  "publish",
-  "has_changesets",
+  "release_state",
+  "release_required",
+  "version_pr",
+  "npm_publish",
 ];
 const missing = KEYS.filter((key) => outputs[key] === undefined);
 
@@ -168,19 +177,21 @@ console.log("\nwhat that means on a push to main");
 console.log(
   `  receipt-guard    RUNS — rejects the push unless .gates/receipt.json covers this tree`,
 );
+console.log(`  release-state    ${outputs.release_state ?? "unknown"}`);
 console.log(
-  `  quality-gate     ${outputs.publish === "true" ? "RUNS (free, self-hosted)" : "skipped (nothing to publish)"}`,
+  `  quality-gate     ${outputs.release_required === "true" ? "RUNS (free, self-hosted)" : "skipped (clean no-op)"}`,
 );
-if (outputs.publish === "true")
-  console.log(
-    outputs.has_changesets === "true"
-      ? "  version-pr       RUNS — opens/updates the Version Packages PR. No npm OIDC. Free.\n" +
-          "  package-build    skipped for a Version PR run; it builds only on the publish path"
-      : "  package-build    RUNS — ~4 billed minutes, ephemeral runner, npm artifact provenance\n" +
-          "  publish          RUNS — npm OIDC publish. This is the outward step.",
-  );
+console.log(
+  `  version-pr       ${outputs.version_pr === "true" ? "RUNS — create/update only; MK merge approval remains separate" : "skipped"}`,
+);
+console.log(
+  `  package-build    ${outputs.npm_publish === "true" ? "RUNS — hosted provenance build" : "skipped"}`,
+);
+console.log(
+  `  publish          ${outputs.npm_publish === "true" ? "RUNS — hosted npm OIDC, no NPM_TOKEN" : "skipped"}`,
+);
 
-if (missing.length > 0 || result.status !== 0) {
+if (missing.length > 0 || failed !== -1) {
   console.error(
     `\nrelease-classify: FAIL — ${missing.length > 0 ? `unset output(s): ${missing.join(", ")}. ` : ""}` +
       "An unset output reads as false in an `if:`, so the gate it guards would be SKIPPED, not failed.",
