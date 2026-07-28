@@ -688,3 +688,18 @@ each was invisible in review and each is the kind that would have degraded the t
   skips in 23.308s, and all 864 contracts in 851.976s. The end-to-end oracle was about 18m49s. It
   had zero observed escapes and left the receipt SHA unchanged, but is retained as a legacy push
   observation and counts **0/30** because push is not a production-full checkpoint oracle.
+
+## 2026-07-28 — CI/CD efficiency implementation, decision J (checkpoint not crossed)
+
+- **Affected reuse remains disabled:** 0/30 valid production-full samples, nine required scenario
+  classes missing, and no MK checkpoint approval. The real push observation is retained separately
+  and cannot be relabeled into the cohort.
+- **Task-specific Turbo inputs remain disabled:** the external-tool shadow is mutation-tested, but
+  static/dynamic root data and configuration reads do not yet have a complete independent inventory.
+  The live `globalDependencies: ["tooling/**"]` stays unchanged.
+- **Production composition remains disabled:** local affected planning cannot satisfy
+  production-full, and D7 remains an independent MK policy decision even after any future local
+  checkpoint.
+- **Safe next action:** collect explicit `--oracle ship --scenario <class>` samples on authorized
+  following trees, require zero escapes and every scenario, then present the cohort to MK. No code or
+  flag automatically enables from the count.

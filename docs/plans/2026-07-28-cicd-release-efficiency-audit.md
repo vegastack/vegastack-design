@@ -1356,3 +1356,14 @@ release docs.”
 
 No executable change, external mutation, push, merge, publish, deploy, or repository-setting change was
 performed by this audit.
+
+## 15. Implementation checkpoint log — appended 2026-07-28
+
+The audit above remains the pre-implementation record. Local stages A–I were implemented on the
+`codex/cicd-release-efficiency` worktree without push, merge, publication, deployment, repository
+settings, or production mutation. Stage J is deliberately **not enabled**: the affected checkpoint is
+0/30 valid production-full samples with nine required scenario classes missing, no MK approval exists,
+and task-specific Turbo inputs remain activation-ineligible until root data/config reads have a
+complete mutation proof. Safe next action: keep both flags off, collect real `gates:affected --oracle
+ship --scenario <class>` observations after this machinery reaches an authorized branch, then ask MK
+to review the retained cohort. This checkpoint does not change D1, D2, D3, D4, D6, or D7.
