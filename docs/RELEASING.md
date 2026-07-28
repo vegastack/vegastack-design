@@ -106,6 +106,14 @@ selector, a stale tree, a renamed test, an unknown engine/project/route, or zero
 report cannot enter `.gates/evidence/` or `.gates/receipt.json`, and the original failure remains
 byte-identical even when the diagnostic passes. The applicable blocking ladder must run again.
 
+`pnpm gates:affected` is the post-fix shadow planner, not release evidence. It computes dependency
+closures and task-specific Turbo input fingerprints, then runs the unchanged push oracle with no
+receipt write. Push observations never count toward the checkpoint; only explicit `--oracle ship`
+production-full runs can create samples. The blanket `tooling/**` Turbo dependency remains active.
+Affected reuse stays off until at least 30 representative production-full zero-escape samples and a separate MK checkpoint; a ready summary
+does not self-enable. No affected or cross-tree composition can replace the complete exact-tree
+production-full ship proof under current policy.
+
 PR CI is receipt-first: `verify` has `needs: receipt-guard`, so invalid receipt evidence stops before
 the long free-mini reexecution. The self-hosted pnpm-cache removal experiment is committed disabled;
 only `SELF_HOSTED_PNPM_CACHE_CANARY=enabled` plus an exact

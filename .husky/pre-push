@@ -6,6 +6,8 @@
 # browser/contract lane. A later weaker receipt cannot overwrite valid production-full evidence.
 # On failure, structured exact selectors may be diagnosed with `pnpm gates:retry`; that command
 # never clears this hook or writes receipt evidence, so the blocking push ladder must still pass.
+# After a fix, `pnpm gates:affected` may record a shadow impact plan, but reuse remains disabled and
+# this current push oracle still executes. Only a later MK checkpoint can change local scheduling.
 #
 # To push despite a failure, use `GATES_SKIP="<reason>" git push`. That records the skip in the
 # receipt and CI rejects it until MK acknowledges. `--no-verify` leaves no trace and is a policy

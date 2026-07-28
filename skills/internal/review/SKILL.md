@@ -194,6 +194,15 @@ selectors. A valid retry report must be nonempty, `diagnosticOnly: true`, and
 `evidenceWritten: false`; hash the original failure and receipt before/after. A retry pass that
 removes the original failure, writes evidence, or becomes receipt input is a high finding.
 
+For affected-planner changes, mutation-test prose, workflow, exact unit test, smoke dependency,
+single route, foundational reverse closure, `_headers`, one registry graph, global inputs, unknown
+paths, deletion, mode, symlink, and every referenced Turbo external tool. The planner is shadow-only:
+the current oracle must still run, `.gates/receipt.json` and `.gates/evidence/` must remain unchanged,
+and corrupt/partial/conflicting samples must block checkpoint readiness. A push-only observation is
+not a checkpoint sample; only a complete `--oracle ship` result may count. Any skip before 30
+representative production-full zero-escape samples plus MK approval is high. Any claim that affected or cross-tree
+evidence satisfies production-full is high under current policy.
+
 Reviewing a before/after report:
 
 - **Individually review every entry.** N non-unchanged entries is N decisions. Read the before,

@@ -663,3 +663,28 @@ each was invisible in review and each is the kind that would have degraded the t
   hypothesis and is evidence for Stage I's Turbo-input shadow work, not a reason to hide build cost.
   The wrapped full oracles remained complete: 1,471/1,471 unit tests in 24.57s and 643 passed + 5
   skipped of 648 smoke tests in 19.14s.
+
+## 2026-07-28 — CI/CD efficiency implementation, decision I (affected/Turbo shadow)
+
+- **No scheduling skip is enabled.** `gates:affected` writes `shadowOnly: true` and
+  `reuseEnabled: false`, then runs the unchanged push oracle with `--no-receipt`. Receipt and local
+  evidence bytes are checked before/after; production-full remains one complete exact-tree ship.
+- **Impact is authority-derived and conservative.** Component sources invalidate reverse-dependent
+  unit tests, smoke files, contract routes, and registry items. Prose, workflows, headers, generated
+  registry output, gate definitions, authorities, configs, toolchain, metadata, untracked, and
+  unknown paths have explicit outcomes; unknown or unmodeled inputs widen all coverage.
+- **Checkpoint evidence cannot self-authorize.** Valid samples are immutable per-run files. Partial,
+  corrupt, unexecuted, duplicate-conflicting, or escaped samples block readiness. At least 30 valid
+  production-full `--oracle ship` samples must cover prose, workflow, unit/smoke failure, one-route,
+  foundation, header, registry, and global scenarios; push observations cannot count. Even then the
+  only safe next action is to ask MK.
+- **Turbo partitioning is observation-only.** Official 2.10.5 dry-run hashes retain the current
+  blanket `tooling/**` behavior. Proposed fingerprints cover direct package-script tools and their
+  transitive relative imports, but are marked activation-ineligible until static/dynamic root data
+  and configuration reads have a complete inventory and mutation proof. No `turbo.json` input was
+  narrowed in this stage.
+- **Measured push observation (`n=1`, pre-final sample schema):** typecheck 16.836s, Turbo lint
+  15.625s, cold docs export 196.198s, unit 1,471/1,471 in 24.157s, smoke 643 pass + 5 capability
+  skips in 23.308s, and all 864 contracts in 851.976s. The end-to-end oracle was about 18m49s. It
+  had zero observed escapes and left the receipt SHA unchanged, but is retained as a legacy push
+  observation and counts **0/30** because push is not a production-full checkpoint oracle.

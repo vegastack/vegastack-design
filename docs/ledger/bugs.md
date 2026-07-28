@@ -482,3 +482,17 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   cross-check exact project/title selectors. `gates:retry` rejects empty, renamed, stale-tree, and
   unknown targets, verifies nonzero execution, and hashes the receipt, evidence store, and original
   failure before/after. Its result is explicitly diagnostic and cannot clear or write evidence.
+
+## 2026-07-28 — Blanket Turbo tooling input hid unrelated gate costs
+
+- **Symptom:** an exact one-contract retry after a release/gate helper edit took 130.4s because the
+  docs export missed cache even though the helper could not affect its bytes. The live Turbo dry-run
+  placed 81 `tooling/**` files in every task's global hash.
+- **Root cause:** `turbo.json` uses one global tooling glob instead of the external scripts and data
+  each package task actually invokes. That is safe but erases task ownership and invalidation reason.
+- **Systemic fix (shadow only):** `gates:affected` reports current Turbo hashes beside proposed
+  task-specific external-tool fingerprints, including content, type, mode, symlink target, and
+  transitive relative imports. Mutation tests cover every currently referenced script and reject
+  dynamic/unparsed references. The report is deliberately activation-ineligible until root
+  data/config reads have the same complete inventory and mutation proof; the blanket dependency is
+  unchanged.

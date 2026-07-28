@@ -78,6 +78,14 @@ export function operatorDocProblems(sources) {
       problems.push(
         `${file}: [retry-diagnostic] current instructions promote a retry pass into blocking evidence`,
       );
+    if (
+      /gates:affected[^\n]{0,160}(?:satisf(?:y|ies) (?:deploy|production)|reuse (?:is )?enabled|skips? (?:the )?(?:current )?oracle)/i.test(
+        source,
+      )
+    )
+      problems.push(
+        `${file}: [affected-shadow] current instructions promote the shadow affected plan into reuse or production evidence`,
+      );
   }
 
   const agents = sources["AGENTS.md"] ?? "";
@@ -125,6 +133,14 @@ export function operatorDocProblems(sources) {
   )
     problems.push(
       "skills/internal/gates/SKILL.md: [retry-diagnostic] must state that retry is diagnostic-only and writes no evidence",
+    );
+  if (
+    !/gates:affected[\s\S]{0,600}shadowOnly: true[\s\S]{0,160}reuseEnabled: false[\s\S]{0,700}30 representative[\s\S]{0,180}MK approval/i.test(
+      gates,
+    )
+  )
+    problems.push(
+      "skills/internal/gates/SKILL.md: [affected-shadow] must state shadow-only/no-reuse, 30 representative samples, and MK approval",
     );
 
   const releasing = sources["docs/RELEASING.md"] ?? "";
@@ -175,7 +191,7 @@ const validFixture = {
   "skills/internal/ship/SKILL.md":
     "Schema 2 production-full evidence includes all-browsers. Upload is not completion; require deployment-complete.",
   "skills/internal/gates/SKILL.md":
-    "gates:retry writes diagnosticOnly: true and evidenceWritten: false.",
+    "gates:retry writes diagnosticOnly: true and evidenceWritten: false. gates:affected writes shadowOnly: true and reuseEnabled: false. Require 30 representative samples and MK approval.",
 };
 assert.deepEqual(operatorDocProblems(validFixture), []);
 for (const [label, file, text, expected] of [
@@ -239,6 +255,12 @@ for (const [label, file, text, expected] of [
     "A retry pass clears the original failure and writes receipt evidence.",
     /retry-diagnostic/,
   ],
+  [
+    "affected promoted to production",
+    "skills/internal/gates/SKILL.md",
+    "gates:affected satisfies production and reuse is enabled.",
+    /affected-shadow/,
+  ],
 ]) {
   const mutated = { ...validFixture, [file]: text };
   const problems = operatorDocProblems(mutated);
@@ -254,5 +276,5 @@ if (problems.length > 0) {
   process.exit(1);
 }
 console.log(
-  `✓ operator docs: ${CURRENT_SURFACES.length} current surfaces agree on topology, browser location, counts, receipt/reuse/retry ordering, terminal deployment, and schema-2 production evidence; 10 semantic stale-instruction fixtures rejected`,
+  `✓ operator docs: ${CURRENT_SURFACES.length} current surfaces agree on topology, browser location, counts, receipt/reuse/retry/affected ordering, terminal deployment, and schema-2 production evidence; 11 semantic stale-instruction fixtures rejected`,
 );

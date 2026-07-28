@@ -352,3 +352,27 @@ suite (643 passing plus 5 capability skips), followed by `pnpm lint` and `pnpm t
 The exact contract retry took 130.4s because the existing blanket `tooling/**` Turbo input invalidated
 the docs export; that misses the diagnostic latency hypothesis and is carried honestly into the
 stage-I shadow input analysis rather than being hidden or weakened.
+
+## Round 23 — 2026-07-28 · affected/Turbo shadow planner
+
+Deterministic and adversarial implementation review of efficiency stage I ended with 0 high and 0
+medium findings after three fail-closed corrections: contract/component authorities now widen all
+lanes rather than only consume; complete-browser impact is modeled separately; and push-only
+observations cannot enter the 30-sample checkpoint. Selected consume failures also remain
+unclassifiable until Stage L emits isolated item/layout/root reports, so they block rather than being
+misread as inside a granular cone.
+
+The negative matrix covers prose, workflow, ordinary docs, exact unit tests, smoke dependencies,
+one-route and foundational reverse closures, `_headers`, registry graphs, generated registry output,
+authority/config/toolchain changes, deletion/mode/symlink/untracked/unknown widening, every directly
+referenced Turbo external tool, unparsed dynamic tool references, mismatched scenario labels,
+partial/conflicting samples, and 29-versus-30 threshold behavior. Official Turbo 2.10.5 dry-run data
+shows 82 current blanket tooling inputs after the new scripts; proposed tool fingerprints are marked
+activation-ineligible until root data/config reads have a complete mutation-proven inventory.
+
+One real unchanged push oracle passed typecheck (16.836s), Turbo lint (15.625s), cold docs export
+(196.198s), 1,471/1,471 unit tests (24.157s), smoke (643 pass + 5 capability skips, 23.308s), and
+864/864 contracts (851.976s), about 18m49 end to end. The receipt SHA remained byte-identical and no
+escape was observed. Because it predated the final scenario/full-oracle sample rule and did not run
+all-browser/consume, it is retained as a legacy observation and honestly counts 0/30. Reuse and
+task-specific Turbo inputs remain disabled; production-full remains unchanged.

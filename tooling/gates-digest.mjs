@@ -66,6 +66,10 @@ function main() {
     );
   lines.push(
     "",
+    "After the root fix, `pnpm gates:affected` records the invalidated cone and runs the current push oracle. It is shadow-only and writes no reusable evidence or receipt.",
+  );
+  lines.push(
+    "",
     `Full report: \`.gates/last-failure.json\`${
       failure.reports?.length
         ? ` · per-gate: ${failure.reports.join(" · ")}`

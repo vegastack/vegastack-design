@@ -90,6 +90,18 @@ written to `.gates/retry-report.json` with `diagnosticOnly: true` and `evidenceW
 Even a pass must leave the original failure, receipt, and `.gates/evidence/` byte-identical. It tells
 you whether the specimen still reproduces; it never clears the gate or advances shipping evidence.
 
+After fixing the root cause, `pnpm gates:affected` computes the full invalidated impact cone and
+retains `.gates/affected-shadow.json`, then executes the unchanged push oracle without writing a
+receipt. This default is an observation only. A checkpoint sample requires `--oracle ship`, which
+executes the complete production-full unit/smoke/all-browser/registry/consume/contract oracle. Its
+report must say `shadowOnly: true`, `reuseEnabled: false`, and preserve receipt/evidence
+bytes. Unknown, unmodeled, metadata, stale graph, and gate-definition inputs widen. The proposed
+Turbo external-input fingerprints are observations beside the current blanket `tooling/**` hashes;
+they are not cache keys. `pnpm gates:affected:status` remains disabled until 30 representative
+production-full zero-escape samples cover every required scenario, and a ready result still requires
+MK approval. Never use affected evidence for deploy: production requires a complete exact-tree ship
+proof.
+
 Common CI rejections and what each actually means:
 
 | `verify-gate-receipt` says                                      | Cause                                                       | Fix                                                               |
@@ -107,6 +119,8 @@ Common CI rejections and what each actually means:
 pnpm gates:commit                 # ~3s   static gates, staged files
 pnpm gates:push                   # ~35-80s  + unit · smoke · scoped contracts, writes the receipt
 pnpm gates:retry                  # exact failing selectors; diagnostic only, writes no evidence
+pnpm gates:affected               # post-fix shadow cone + current push oracle; no reuse/evidence
+pnpm gates:affected:status        # checkpoint report; never enables reuse
 pnpm gates:component <name>       # the inner loop while building one component
 pnpm gates:ship                   # the full sweep — /ship requires it
 ```

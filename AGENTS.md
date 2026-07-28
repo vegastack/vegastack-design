@@ -277,6 +277,7 @@ pnpm gates:commit                 # ~3s      static gates over the STAGED set. N
 pnpm gates:component <name>       # ~25s     design-lint · that component's unit test · its routes
 pnpm gates:push                   # ~35-80s  typecheck · lint · unit · smoke · SCOPED contracts
 pnpm gates:retry                  # diagnostic-only exact selectors from the retained failure
+pnpm gates:affected               # shadow impact plan, then current push oracle; no reuse/evidence
 pnpm gates:ship                   # ~20min   the full sweep, then vrt-review. /ship requires it.
 ```
 
@@ -292,6 +293,7 @@ pnpm contracts                                       # behaviour contracts, SCOP
 pnpm contracts:all                                   # all 108 routes / 864 checks
 pnpm classify                                        # which gates this change requires, and why
 pnpm gates:benchmarks                                # read-only p50/p95 over compatible retained cohorts
+pnpm gates:affected:status                           # shadow samples/checkpoint; never enables reuse
 pnpm lint                                            # the full gate chain — see package.json
 pnpm registry:build && git status --porcelain        # must be idempotent: clean tree after
 pnpm design:derived && git status --porcelain        # contract-derived surfaces must be current
@@ -331,6 +333,18 @@ counts. These reports are diagnostics, not receipt evidence and never authorize 
 file/engine/test-name or route/project/title selectors. Empty, renamed, stale-tree, or unknown
 selectors fail before execution. A retry pass leaves `.gates/last-failure.json`, the receipt, and
 `.gates/evidence/` byte-unchanged; it is diagnosis, never release evidence.
+
+`pnpm gates:affected` is the post-fix **shadow planner**. It derives unit-test, smoke-test,
+complete-browser, contract-route, registry-item, boundary, and Turbo-task impact cones, then runs the
+unchanged `gates:push --no-receipt` oracle. That default observation does not count toward the
+checkpoint; only `--oracle ship` executes the production-full unit/smoke/all-browser/consume/contract
+oracle and can create a checkpoint sample. Neither mode writes a receipt or reusable evidence.
+Unknown paths, unmodeled dependencies, file-type/mode/symlink changes, stale selectors, or changed
+gate definitions widen coverage. The current `tooling/**` Turbo global dependency remains in force;
+task-specific external-input hashes are reported side by side only. `pnpm gates:affected:status`
+requires at least 30 valid representative production-full zero-escape samples and all recorded
+scenario classes, but even a ready summary only asks MK for the checkpoint—it never enables reuse.
+Production continues to require one complete exact-tree `gates:ship` proof.
 
 **The component contract suite is the blocking visual-surface gate — it now blocks locally.**
 `apps/docs/vrt/contracts.spec.ts` runs 864 checks over every component route — 320px reflow, RTL

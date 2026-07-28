@@ -80,6 +80,14 @@ not replace the production-full receipt with a weaker change receipt.
 this checklist, clear `.gates/last-failure.json`, or contribute a receipt leaf. Run the applicable
 blocking ladder again after the root fix.
 
+`pnpm gates:affected` is also not a release step. It is a shadow post-fix planner whose current push
+oracle writes no receipt; its local report and proposed Turbo hashes cannot satisfy this checklist.
+Only an explicit `--oracle ship` result can count as a production-full shadow checkpoint sample, and
+even that is not release evidence. Affected reuse is disabled pending 30 representative
+production-full zero-escape samples and separate MK approval.
+Even after any local checkpoint, production still requires the complete exact-tree `gates:ship`
+profile unless MK separately changes the cross-tree compositional-evidence policy.
+
 **If `git status` is not empty:** that is the signal, not an obstacle. Either the regenerated
 surfaces above changed (commit them with the work that caused them) or there is unrelated
 uncommitted work in the tree (finish or stash it). Never ship from a dirty tree — the version job
