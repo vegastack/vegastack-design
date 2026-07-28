@@ -761,3 +761,29 @@ each was invisible in review and each is the kind that would have degraded the t
   [11.x install reference](https://pnpm.io/cli/install) matches installed pnpm 11.7.0 and confirms
   offline-store and frozen-lockfile semantics. These sources changed implementation mechanics only;
   none changed the locked plan or D1 checkpoint.
+
+## 2026-07-28 — CI/CD efficiency implementation, decision M (candidate shadow; D4 retained)
+
+- **No reuse is enabled.** Release uploads a candidate only after an already-required successful
+  exact-main quality build. Deploy always performs the current exact-tree rebuild; only its rebuilt
+  unsigned artifact reaches signing and Cloudflare. Enabling reuse requires MK's D4 approval and a
+  code change, not a repository variable.
+- **Selection and content fail closed.** The eligible producer is a successful `release.yml` push for
+  the exact repository/main SHA. One immutable artifact ID, nonexpired state, API archive digest,
+  producer run/attempt, normalized regular-file leaf manifest, toolchain/config context, and parity
+  with the rebuild are required. Unknown/partial API state and live malformed/ambiguous/tampered
+  evidence block before credentials; missing/expired evidence is a safe miss.
+- **The pinned-version documentation changed the mechanics.** `download-artifact@v6` supports
+  cross-run immutable-ID extraction but not `digest-mismatch: error`; built-in mismatch behavior is
+  insufficient for this program. The workflow independently downloads and hashes the exact REST
+  archive before extraction. GitHub zip normalization is represented as regular 0644 artifact files;
+  symlinks reject. This changes no locked production policy.
+- **Local measurement (`n=1`, after the current public build):** create 2.14s wall /
+  193,331,200-byte maximum RSS; verify 1.19s / 185,991,168 bytes; 2,167 files, 388,243-byte
+  manifest. Real upload/download,
+  hit rate, parity cohort, candidate-hit deploy latency, producer cost, and unused-candidate work are
+  unknown because no workflow was pushed or dispatched. The ≤4m/≤6m candidate-hit hypothesis is
+  blocked, not claimed.
+- **Safe next action:** after separate push approval, observe real Release/Deploy runs read-only and
+  retain exact-SHA parity and total-compute evidence. Present it to MK; do not enable without a
+  separate D4 decision.

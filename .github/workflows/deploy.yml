@@ -84,6 +84,9 @@ jobs:
   build-curated:
     needs: receipt-guard
     runs-on: [self-hosted, vsk-runners-mac-mini]
+    permissions:
+      actions: read
+      contents: read
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -93,7 +96,59 @@ jobs:
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with: { node-version: 24, cache: pnpm }
+      - id: candidate
+        name: Discover one eligible exact-main Release candidate (shadow only)
+        env:
+          CANDIDATE_REPOSITORY: ${{ github.repository }}
+          CANDIDATE_SHA: ${{ github.sha }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          node tooling/deploy-candidate.mjs discover \
+            --repository "$CANDIDATE_REPOSITORY" \
+            --sha "$CANDIDATE_SHA" \
+            --github-output "$GITHUB_OUTPUT"
+      - name: Download the selected immutable candidate by artifact ID
+        if: steps.candidate.outputs.state == 'hit'
+        env:
+          CANDIDATE_REPOSITORY: ${{ github.repository }}
+          CANDIDATE_ARTIFACT_ID: ${{ steps.candidate.outputs.artifact_id }}
+          CANDIDATE_ARTIFACT_DIGEST: ${{ steps.candidate.outputs.artifact_digest }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          node tooling/deploy-candidate.mjs download \
+            --repository "$CANDIDATE_REPOSITORY" \
+            --artifact-id "$CANDIDATE_ARTIFACT_ID" \
+            --expected-digest "$CANDIDATE_ARTIFACT_DIGEST" \
+            --output "$RUNNER_TEMP/deploy-candidate.zip"
+      - name: Extract the already hard-verified candidate archive by artifact ID
+        if: steps.candidate.outputs.state == 'hit'
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
+        with:
+          artifact-ids: ${{ steps.candidate.outputs.artifact_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ steps.candidate.outputs.run_id }}
+          path: ${{ runner.temp }}/deploy-candidate/apps/docs
       - run: pnpm install --frozen-lockfile
+      - name: Verify candidate producer, exact tree, API/archive digest, manifest, and context
+        if: steps.candidate.outputs.state == 'hit'
+        env:
+          CANDIDATE_REPOSITORY: ${{ github.repository }}
+          CANDIDATE_SHA: ${{ github.sha }}
+          CANDIDATE_RUN_ID: ${{ steps.candidate.outputs.run_id }}
+          CANDIDATE_RUN_ATTEMPT: ${{ steps.candidate.outputs.run_attempt }}
+        run: |
+          set -euo pipefail
+          node tooling/deploy-candidate.mjs verify \
+            --root "$RUNNER_TEMP/deploy-candidate" \
+            --context-root . \
+            --manifest "$RUNNER_TEMP/deploy-candidate/apps/docs/deploy-candidate-manifest.json" \
+            --repository "$CANDIDATE_REPOSITORY" \
+            --run-id "$CANDIDATE_RUN_ID" \
+            --run-attempt "$CANDIDATE_RUN_ATTEMPT" \
+            --sha "$CANDIDATE_SHA"
       - run: pnpm registry:build
       - name: Require registry build idempotency
         run: |
@@ -117,6 +172,42 @@ jobs:
             echo "$BIG" | while read -r file; do ls -lh "$file" | awk '{print "  "$5" "$9}'; done
             exit 1
           fi
+      - name: Compare shadow candidate with the mandatory exact-tree rebuild
+        if: steps.candidate.outputs.state == 'hit'
+        env:
+          CANDIDATE_REPOSITORY: ${{ github.repository }}
+          CANDIDATE_SHA: ${{ github.sha }}
+          CANDIDATE_RUN_ID: ${{ steps.candidate.outputs.run_id }}
+          CANDIDATE_RUN_ATTEMPT: ${{ steps.candidate.outputs.run_attempt }}
+        run: |
+          set -euo pipefail
+          node tooling/deploy-candidate.mjs create \
+            --root . \
+            --output "$RUNNER_TEMP/deploy-rebuilt-manifest.json" \
+            --repository "$CANDIDATE_REPOSITORY" \
+            --run-id "$CANDIDATE_RUN_ID" \
+            --run-attempt "$CANDIDATE_RUN_ATTEMPT" \
+            --sha "$CANDIDATE_SHA"
+          node tooling/deploy-candidate.mjs compare \
+            --candidate "$RUNNER_TEMP/deploy-candidate/apps/docs/deploy-candidate-manifest.json" \
+            --rebuilt "$RUNNER_TEMP/deploy-rebuilt-manifest.json"
+      - name: Summarize candidate observation and authoritative source
+        if: always()
+        env:
+          CANDIDATE_STATE: ${{ steps.candidate.outputs.state }}
+          CANDIDATE_REASON: ${{ steps.candidate.outputs.reason }}
+          CANDIDATE_RUN_ID: ${{ steps.candidate.outputs.run_id }}
+        run: |
+          {
+            echo "## Deploy candidate shadow observation"
+            echo
+            echo "- State: ${CANDIDATE_STATE:-unknown}"
+            echo "- Reason: ${CANDIDATE_REASON:-unknown}"
+            echo "- Producer run: ${CANDIDATE_RUN_ID:-not-applicable}"
+            echo "- Reuse: disabled (D4 requires MK approval and a code change)"
+            echo "- Production source: mandatory exact-tree build-curated rebuild"
+            echo "- Cost accounting: producer and rebuild timings remain separate; a hit is unused candidate work in shadow."
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Upload the validated unsigned artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

@@ -429,3 +429,29 @@ byte-identical. `pnpm lint` and `pnpm typecheck` passed 7/7, registry build was 
 workflow-security mutations rejected, and 17 stale operator-instruction fixtures rejected. Selected
 consume remains receipt-free/non-reusable; D1 is still open and CI, Release, and `gates:ship` retain
 the full oracle.
+
+## Round 26 — 2026-07-28 · exact-main deploy candidate shadow and D4 containment
+
+Deterministic and adversarial Stage M review ended with 0 high and 0 medium findings after two
+fail-closed corrections. Primary-source review found that pinned `download-artifact@v6` lacks the
+draft's `digest-mismatch: error` input and GitHub documents built-in mismatch as a warning. The
+workflow now independently downloads the exact REST archive and hard-compares its API SHA-256 before
+the pinned action extracts the same immutable artifact ID. Rerun analysis then found that a SHA-only
+artifact name would collide across attempts of one workflow run. Names now bind SHA, run ID, and run
+attempt; selection ignores prior attempts and rejects multiple live eligible producers.
+
+The candidate is produced only after Release's already-required exact-main quality build. Deploy
+validates producer/repository/workflow/run/attempt/SHA, immutable artifact ID, expiration, archive
+digest, canonical 2,167-file content root, toolchain/config context, normalized modes/symlink policy,
+and parity with its own rebuild. The rebuild remains unconditional and is the sole source for signing
+and production. Missing/expired is a safe miss; partial/unknown API state and any live invalid claim
+block before credentials. No variable can enable reuse; D4 remains an MK code-review checkpoint.
+
+Positive/negative candidate fixtures, 36 workflow-security mutations, and 19 semantic operator-doc
+fixtures pass. `pnpm lint` and `pnpm typecheck` passed 7/7, `SITE_VISIBILITY=public pnpm build` passed
+4/4 in 5m8.525s, and registry regeneration was byte-idempotent. Post-build manifest create measured
+2.14s/193,331,200-byte max RSS and verify 1.19s/185,991,168 bytes (`n=1`); real workflow observations
+remain `n=0` and no saving is claimed. The user-owned receipt remains SHA-256
+`073a97f8584c60d346d412e40342530577f51415cc7dc8f50796f5ff8046f1ee`. The exact committed-tree full
+ship is intentionally performed afterward in an isolated worktree so this entry does not overwrite
+or relabel that receipt; this round does not claim that future result.

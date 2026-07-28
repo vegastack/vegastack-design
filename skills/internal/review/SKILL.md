@@ -126,6 +126,12 @@ Work these in order; each is a distinct failure class, not a checklist to skim.
     inputs. They must block, while only exact E404 may select `versioned-unpublished`. Confirm
     registry-only `published` skips hosted npm jobs, one-published/one-missing resumes them, retrying
     cannot infer a publish, and the post-publish exact-version readback remains mandatory.
+13. **Deploy-candidate containment.** Confirm Release creates a candidate only after its
+    already-required exact-main quality build, and Deploy still runs an unconditional exact-tree
+    rebuild. Force missing, expired, wrong producer/SHA, malformed digest/manifest, tamper, duplicate
+    live artifact, and parity mismatch. Missing/expired must fall back; every live invalid claim must
+    fail before signing/credentials. Candidate bytes must be absent from `sign-curated` and
+    `deploy-curated`. Reuse remains shadow-only until D4 has explicit MK approval and a code change.
 
 ## 6. Registry integrity drift
 

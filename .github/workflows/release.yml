@@ -159,6 +159,35 @@ jobs:
       # consume oracle. A local affected report is diagnostic-only and cannot skip this step.
       - name: Full isolated and consolidated registry consume proof
         run: pnpm registry:verify-consume
+      # D4 is not approved. This artifact is produced only because the exact-main, no-credential
+      # quality job already had to build these bytes. Deploy records parity against its own rebuild;
+      # it never signs or uploads this shadow candidate.
+      - name: Create exact-main deploy candidate manifest (shadow only)
+        env:
+          CANDIDATE_REPOSITORY: ${{ github.repository }}
+          CANDIDATE_RUN_ID: ${{ github.run_id }}
+          CANDIDATE_RUN_ATTEMPT: ${{ github.run_attempt }}
+          CANDIDATE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          node tooling/deploy-candidate.mjs create \
+            --root . \
+            --output apps/docs/deploy-candidate-manifest.json \
+            --repository "$CANDIDATE_REPOSITORY" \
+            --run-id "$CANDIDATE_RUN_ID" \
+            --run-attempt "$CANDIDATE_RUN_ATTEMPT" \
+            --sha "$CANDIDATE_SHA"
+      - name: Upload exact-main deploy candidate (shadow only; never production input)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: docs-candidate-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            apps/docs/out
+            apps/docs/wrangler.jsonc
+            apps/docs/deploy-candidate-manifest.json
+          if-no-files-found: error
+          retention-days: 1
+          overwrite: false
 
   # The npm artifact, built on an EPHEMERAL runner so the bytes on public npm and the provenance
   # statement about them agree. This is the one place this workflow deliberately spends money; see the

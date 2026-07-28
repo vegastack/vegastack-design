@@ -279,6 +279,52 @@ const CASES = [
     replace: "          WRANGLER_LOG: plain-text-only\n",
     expect: /structured deployment output/,
   },
+  {
+    id: "deploy candidate silently replaces the mandatory rebuild",
+    file: "deploy.yml",
+    find: "      - run: pnpm build\n",
+    replace:
+      "      - if: steps.candidate.outputs.state != 'hit'\n        run: pnpm build\n",
+    expect: /exact-tree build fallback must remain unconditional/,
+  },
+  {
+    id: "deploy candidate hard archive digest verification removed",
+    file: "deploy.yml",
+    find: "          node tooling/deploy-candidate.mjs download \\\n",
+    replace: "          echo archive-digest-warning-only \\\n",
+    expect: /immutable ID and verified after archive digest validation/,
+  },
+  {
+    id: "candidate reuse made variable-switchable without D4 code review",
+    file: "deploy.yml",
+    find: '            echo "- Reuse: disabled (D4 requires MK approval and a code change)"\n',
+    replace:
+      '            echo "- Reuse: ${DEPLOY_CANDIDATE_REUSE:-disabled}"\n',
+    expect: /candidate reuse must remain hard-disabled/,
+  },
+  {
+    id: "credential-bearing signer downloads the shadow candidate",
+    file: "deploy.yml",
+    find: "      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6\n        with:\n          name: docs-unsigned-${{ github.sha }}\n",
+    replace:
+      "      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6\n        with:\n          name: docs-candidate-${{ github.sha }}\n",
+    expect: /credential-bearing jobs must consume only/,
+  },
+  {
+    id: "release adds a second candidate-only build",
+    file: "release.yml",
+    find: "      - name: Create exact-main deploy candidate manifest (shadow only)\n",
+    replace:
+      "      - run: pnpm build\n      - name: Create exact-main deploy candidate manifest (shadow only)\n",
+    expect: /one already-required quality build/,
+  },
+  {
+    id: "release candidate allowed to overwrite an existing artifact name",
+    file: "release.yml",
+    find: "          overwrite: false\n",
+    replace: "          overwrite: true\n",
+    expect: /must not hide corruption or overwrite/,
+  },
 ];
 
 let failures = 0;

@@ -54,6 +54,15 @@ distribution channels, both already wired:
    Upload progress is not completion: only the terminal `deployment-complete` job, after the external
    live probe, reports success and names Wrangler's structured Cloudflare version ID.
 
+Release's already-required exact-main quality build also uploads a deploy candidate in shadow-only
+mode. Deploy selects at most one live artifact from a successful `release.yml` push run for the exact
+SHA, validates the API/archive digest and canonical content/context manifest, then compares it with
+the mandatory exact-tree rebuild. The rebuild remains the only input to signing and production. D4
+is unresolved: candidate reuse needs MK approval and a reviewed code change, not a repository-variable
+flip. Missing or expired candidates safely use the rebuild; a live malformed, tampered, wrong-SHA,
+or ambiguous candidate fails before any OIDC or Cloudflare credential is reachable. Until real runs
+exist, candidate-hit timing, parity rate, producer cost, and unused-candidate cost remain unknown.
+
 This is the approved GitHub Team/private-repository operating model. Required-reviewer environment
 protection is unavailable on this plan, so releases do not depend on GitHub Environments or change
 the proven npm trusted-publisher identity. Independent review belongs at the change PR and Version

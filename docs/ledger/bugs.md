@@ -561,3 +561,17 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   nonempty output manifests, collision detection, post-write/typecheck presence, full layout/count
   completeness, and duplicate immutable report-key rejection. The corrected full oracle passed all
   26 real and 26 simulated leaves plus both 554-root consolidated layouts.
+
+## 2026-07-28 — Pinned artifact download could not hard-fail a digest mismatch by configuration
+
+- **Symptom:** the first Stage M workflow draft set `digest-mismatch: error` on the pinned
+  `actions/download-artifact@v6`, assuming the newer upstream input existed. The pinned v6 action
+  does not define it, while GitHub's general artifact documentation describes a digest mismatch as a
+  warning. The workflow would therefore have looked fail-closed without owning that guarantee.
+- **Root cause:** current-main action documentation was applied to the repository's pinned major
+  without checking that version's input contract.
+- **Systemic fix:** candidate discovery retains the API's immutable artifact ID and `sha256:` digest.
+  Before extraction, `deploy-candidate.mjs download` fetches that exact REST archive and independently
+  compares SHA-256, failing on mismatch. Only then does the pinned action extract the same immutable
+  ID. Workflow mutations reject removal of the hard check, and the unit mutation corrupts archive
+  bytes. Candidate reuse remains disabled; the mandatory rebuild is still the sole production input.

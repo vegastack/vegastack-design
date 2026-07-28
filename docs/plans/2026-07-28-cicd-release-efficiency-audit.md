@@ -1375,3 +1375,93 @@ consolidated two-layout full oracle. D1 remains unresolved, so CI, Release, and 
 full consume; selected reports cannot write a receipt, become reusable evidence, or authorize a
 skip. The corrected full local run passed but measured 395.14s (`n=1`) versus the 237.33s accumulating
 baseline, so the Stage-L speed hypothesis is not met and no concurrency/coverage adjustment was made.
+
+Stage M is implemented locally as **shadow-only**; D4 was not crossed. The only producer is
+`release.yml`'s already-required, successful exact-main `quality-gate`, after its no-credential build
+and full quality/consume oracle. A no-op Release run creates no speculative candidate. The artifact
+contains the exported docs, Wrangler configuration, and a canonical manifest bound to repository,
+workflow, run/attempt, exact SHA, main/push/public profile, normalized artifact file type/mode,
+content/size/SHA-256 leaves, Node/pnpm identity, lockfile, build configurations, and candidate-gate
+implementation. The manifest roots are independently reconstructable and duplicate report paths
+cannot overwrite an existing file.
+
+Deploy has only `actions: read` plus `contents: read` while it queries successful `release.yml` push
+runs for the exact main SHA. Missing or expired artifacts are safe shadow misses. More than one live
+exact-name artifact, a partial API result, wrong producer/tree, missing or malformed API digest,
+archive-digest mismatch, malformed/incomplete/duplicate leaf context, symlink, file tamper, or parity
+mismatch fails before OIDC or Cloudflare credentials. The pinned v6 download action does not expose
+the newer `digest-mismatch: error` input; the implementation therefore downloads the immutable
+artifact archive through the REST API and independently compares its SHA-256 before the action
+extracts the same artifact ID. This correction was made from primary-source review before the
+workflow was accepted.
+
+The current `pnpm build` in `build-curated` remains unconditional. Candidate bytes never reach
+`sign-curated` or `deploy-curated`; the rebuilt `docs-unsigned-<sha>` remains the sole signing and
+production source. Workflow assertions and six new workflow mutations reject conditional rebuild,
+warning-only digest handling, variable-switchable reuse, candidate input to credential jobs, a
+second Release build, or artifact-name overwrite. Candidate reuse is deliberately not controlled by
+a repository variable: enabling it requires MK's D4 approval and a reviewed code change.
+
+### Stage M file-level change ledger
+
+| surface                                                            | invariant and executable test                                                                                                                           | rollout / rollback                                                           | approval state                                        |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `tooling/lib/deploy-candidate.mjs`, `tooling/deploy-candidate.mjs` | exact producer/SHA plus canonical content/context roots; API archive digest hard-fails; immutable report publication                                    | shadow CLI can be removed without touching current rebuild/sign/deploy chain | local shadow authorized; D4 not approved              |
+| `tooling/verify-deploy-candidate.mjs`                              | positive reconstruction plus archive tamper, producer/tree, missing/expired, ambiguity, leaf/context, mode/symlink, parity, and duplicate-key mutations | test-only; no runtime relaxation                                             | complete locally                                      |
+| `.github/workflows/release.yml`                                    | candidate reuses the one already-required exact-main quality build; no second producer build                                                            | remove final manifest/upload steps                                           | local workflow edit only; not pushed                  |
+| `.github/workflows/deploy.yml`                                     | candidate discovery/verification runs without OIDC/Cloudflare credentials; exact-tree rebuild and unsigned artifact remain unconditional                | remove shadow discovery/download/verify/compare steps                        | reuse disabled; dispatch still separately requires MK |
+| workflow/operator verifiers, AGENTS, RELEASING, ship/review skills | stale reuse/fallback/authority claims and workflow relaxations reject semantically                                                                      | revert together with shadow machinery                                        | current local instructions only                       |
+| ledgers and this checkpoint                                        | measured/unknown labels, failure recovery, research, D4 next action                                                                                     | append-only historical evidence                                              | complete locally                                      |
+
+### Stage M before/after and benefits ledger
+
+| path / hypothesis               | baseline                              | target                                                         | observed result                                                                | class / sample                                   | verdict                                        |
+| ------------------------------- | ------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------ | ---------------------------------------------- |
+| Release candidate producer      | none; no candidate artifact           | no speculative build; use an already-required exact-main build | one manifest/upload after required quality only; no-op Release produces none   | static workflow proof; real run `n=0`            | implementation met; runtime blocked until push |
+| Deploy build source             | unconditional `build-curated` rebuild | preserve fallback until D4/parity                              | still unconditional and sole sign/deploy input                                 | mutation-proven local                            | met                                            |
+| Local manifest creation         | none                                  | bounded relative to build                                      | 2.14s wall, 193,331,200-byte max RSS, 2,167 files, 388,243-byte manifest       | measured after current public build, local `n=1` | measured, no target assigned                   |
+| Local manifest verification     | none                                  | fail before credentials                                        | 1.19s wall, 185,991,168-byte max RSS; exact content/context root reconstructed | measured after current public build, local `n=1` | met locally                                    |
+| Candidate-hit deploy            | 5m37s measured fallback               | p50 ≤4m / p95 ≤6m                                              | reuse disabled; dispatch latency and hit rate unknown                          | real workflow `n=0`                              | blocked by D4 and observation window           |
+| Fallback deploy                 | 5m37s measured                        | remain about 5m37s                                             | build path unchanged; new shadow API/download overhead unknown                 | modeled structure; real workflow `n=0`           | runtime unproven                               |
+| Total producer + deploy compute | no producer candidate work            | savings must exceed unused candidate work                      | manifest cost measured above; upload/download/API and unused-hit rate unknown  | mixed measured/unknown                           | blocked; no savings claimed                    |
+| Candidate parity                | none                                  | zero mismatches before reuse                                   | local same-tree reconstruction passes; real Release→Deploy artifacts `n=0`     | local `n=1`, real `n=0`                          | blocked; no parity approval                    |
+
+### Stage M failures, recovery, and guarantees
+
+- The first structural design incorrectly used `digest-mismatch: error`, an input absent from the
+  pinned `actions/download-artifact@v6`. Primary-source review rejected it. The root fix is an
+  independent REST archive SHA-256 check before extraction; no warning is accepted as evidence.
+- Missing or expired evidence returns `miss` and retains the mandatory rebuild. A live claimed
+  artifact that is ambiguous, malformed, wrong-tree, digest-mismatched, tampered, incomplete, or
+  parity-mismatched blocks before signing/credentials. API uncertainty is not treated as a miss.
+- Artifact selection uses immutable ID, successful Release push run, exact main SHA, repository,
+  workflow path, nonexpired status, and a nonempty `sha256:` API digest. Pagination that would make
+  selection partial blocks.
+- GitHub's zip normalization is explicit: artifact files are fingerprinted as regular `0644` leaves;
+  symlinks and unsupported entries reject. Original modes remain bound for the independently checked
+  toolchain/config context.
+- No new GitHub-hosted job, OIDC permission, Cloudflare credential path, browser lane, job container,
+  speculative build, npm token, receipt carry, or production evidence composition was introduced.
+- Public docs/internal/registry boundaries, Sigstore identity pinning, immediate signed-artifact
+  reverification, external probes, terminal completion, and the complete production-full receipt are
+  unchanged.
+
+### Stage M primary-source check (accessed 2026-07-28)
+
+| source                                                                                                               | installed relevance                                                                                   | conclusion                                                                                                                                            | plan effect                                                                                       |
+| -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| [GitHub workflow-run REST API](https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28)          | repository workflow uses the GitHub REST API with Actions-read permission                             | exact `branch`, `event`, `status`, and `head_sha` filters exist; read access is sufficient                                                            | narrowed eligible producer query; no policy change                                                |
+| [GitHub artifact REST API](https://docs.github.com/en/rest/actions/artifacts)                                        | upload is pinned to v4.6.2; API exposes artifact ID, `expired`, `digest`, and workflow-run `head_sha` | immutable ID plus API digest/tree can be independently selected; download needs Actions read                                                          | added exact ID/digest/SHA validation and expired miss                                             |
+| [download-artifact v6 upstream README](https://github.com/actions/download-artifact/blob/v6/README.md)               | workflow is pinned to v6 commit `018cc2…`                                                             | cross-run download needs token/run ID; ID download extracts directly; zip files normalize to 0644 and dirs to 0755; v6 lacks `digest-mismatch: error` | replaced unsupported input with hard REST archive hashing; normalized artifact modes explicitly   |
+| [GitHub artifact validation](https://docs.github.com/en/actions/tutorials/store-and-share-data#validating-artifacts) | applies to upload v4/download v6 artifact backend                                                     | built-in download calculates the digest but mismatch is documented as a warning                                                                       | independent hard digest check is mandatory; no warning-based pass                                 |
+| [Cloudflare Workers Static Assets](https://developers.cloudflare.com/workers/static-assets/)                         | workspace pins Wrangler `^4.113.0`; lockfile remains authoritative                                    | Wrangler uploads the configured assets directory as the Worker/static-assets unit                                                                     | manifest includes both exact assets and Wrangler config; deploy source unchanged                  |
+| [Cloudflare versions and deployments](https://developers.cloudflare.com/workers/versions-and-deployments/)           | current deploy captures pinned Wrangler's version ID                                                  | a version captures code/assets/bindings/config, while deployment controls traffic; default deploy couples creation and 100% rollout                   | candidate parity is pre-deploy evidence only; live probes and terminal completion remain required |
+
+### Stage M open checkpoint
+
+| decision                              | current evidence                                                                                                                                                                | exact safe next action                                                                                                                                                                                                                                                                                                     |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D4: permit exact-main candidate reuse | local mutation/reconstruction proof passes, but real candidate uploads/hits/parity/timing have sample size 0; producer/upload/download and unused-candidate compute are unknown | after MK separately approves pushing these commits, observe authenticated read-only Release and Deploy runs without changing dispatch policy; collect exact-SHA parity, hit/miss, producer and deploy compute. Present the cohort to MK. Enabling reuse requires a separate reviewed code change and explicit D4 approval. |
+
+No push, merge, publication, deploy dispatch, repository-setting change, Cloudflare change, or
+production mutation occurred in Stage M.

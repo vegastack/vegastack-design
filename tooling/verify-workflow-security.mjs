@@ -345,6 +345,7 @@ assert.doesNotMatch(
 );
 const signingJob = jobBlock(sources["deploy.yml"], "sign-curated");
 const deploymentJob = jobBlock(sources["deploy.yml"], "deploy-curated");
+const buildCuratedJob = jobBlock(sources["deploy.yml"], "build-curated");
 assert.match(signingJob, /^    needs: build-curated$/m);
 assert.match(deploymentJob, /^    needs: sign-curated$/m);
 assert.doesNotMatch(sources["deploy.yml"], /^  environment-guard:$/m);
@@ -353,6 +354,41 @@ assert.doesNotMatch(
   sources["deploy.yml"],
   /docs-production|public-docs-cutover/,
   "deploy.yml: Team-private releases must not depend on unavailable reviewer environments",
+);
+assert.match(
+  buildCuratedJob,
+  /^    permissions:\n      actions: read\n      contents: read$/m,
+  "deploy.yml: candidate discovery must have only Actions-read and contents-read authority",
+);
+assert.match(
+  buildCuratedJob,
+  /deploy-candidate\.mjs discover[\s\S]*deploy-candidate\.mjs download[\s\S]*--expected-digest[\s\S]*artifact-ids:[\s\S]*deploy-candidate\.mjs verify/,
+  "deploy.yml: a candidate hit must be selected by immutable ID and verified after archive digest validation",
+);
+assert.match(
+  buildCuratedJob,
+  /^      - run: pnpm build$/m,
+  "deploy.yml: D4 is unapproved, so the exact-tree build fallback must remain unconditional",
+);
+assert.match(
+  buildCuratedJob,
+  /deploy-candidate\.mjs compare/,
+  "deploy.yml: candidate shadow mode must compare the candidate with the mandatory rebuild",
+);
+assert.match(
+  buildCuratedJob,
+  /Reuse: disabled \(D4 requires MK approval and a code change\)/,
+  "deploy.yml: candidate reuse must remain hard-disabled, not variable-enabled",
+);
+assert.doesNotMatch(
+  buildCuratedJob,
+  /continue-on-error:\s*true/,
+  "deploy.yml: candidate corruption or ambiguity must not be converted into a pass",
+);
+assert.doesNotMatch(
+  signingJob + deploymentJob,
+  /docs-candidate-|deploy-candidate/,
+  "deploy.yml: credential-bearing jobs must consume only the independently rebuilt/signed chain",
 );
 assert.match(
   sources["deploy.yml"],
@@ -507,6 +543,26 @@ assert.match(
   releaseQualityJob,
   /needs\.changes\.outputs\.release_required == 'true'/,
   "release.yml: quality must follow the explicit release-required decision",
+);
+assert.equal(
+  [...sources["release.yml"].matchAll(/^\s*- run: pnpm build$/gm)].length,
+  1,
+  "release.yml: the candidate must reuse the one already-required quality build; do not add an unconditional producer build",
+);
+assert.match(
+  releaseQualityJob,
+  /Full isolated and consolidated registry consume proof[\s\S]*deploy-candidate\.mjs create[\s\S]*name: docs-candidate-\$\{\{ github\.sha \}\}-\$\{\{ github\.run_id \}\}-\$\{\{ github\.run_attempt \}\}/,
+  "release.yml: only the successful exact-main quality job may publish a shadow candidate",
+);
+assert.match(
+  releaseQualityJob,
+  /shadow only; never production input/,
+  "release.yml: the candidate artifact must be labelled non-authoritative while D4 is open",
+);
+assert.doesNotMatch(
+  releaseQualityJob,
+  /continue-on-error:\s*true|overwrite:\s*true/,
+  "release.yml: candidate creation must not hide corruption or overwrite an immutable name",
 );
 assert.match(
   packageBuildJob,

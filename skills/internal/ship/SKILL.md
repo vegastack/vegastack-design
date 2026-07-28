@@ -290,6 +290,15 @@ one production boundary. **Upload is not completion:** require the final `deploy
 be green and read its summary; it cannot run after a failed/skipped probe. Every non-registry route is
 public. `/internal/*` remains intentionally absent from discovery and carries `noindex`/`no-store`,
 but it is not an authorization boundary. Only `/r/*` requires Cloudflare Access Service Auth.
+
+The exact-main deploy candidate is **shadow-only**. It may come only from the already-required,
+successful `release.yml` quality build for this exact main SHA. `build-curated` validates the selected
+immutable artifact ID, API/archive digest, producer workflow/run/SHA, canonical sorted leaf manifest,
+toolchain/config context, and byte parity against its own mandatory rebuild. The candidate never
+reaches signing or deployment. D4 requires a separate MK approval and code change before reuse.
+A missing or expired candidate is a safe miss and uses the rebuild. A live malformed, tampered,
+wrong-tree, or ambiguous claim must fail before OIDC or Cloudflare credentials; do not delete or
+ignore the claim to make the deploy proceed.
 Confirm the public probe covers public pages, every exported internal derivative, the retired route
 derivatives, and all registry trust files, including:
 

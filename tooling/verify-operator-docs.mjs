@@ -106,6 +106,22 @@ export function operatorDocProblems(sources) {
         `${file}: [consume-isolation] current instructions allow one consumer to accumulate independent roots`,
       );
     if (
+      /deploy candidate[^\n]{0,180}(?:reuse (?:is )?enabled|skips? (?:the )?(?:build|rebuild)|is (?:the )?production (?:input|source))/i.test(
+        source,
+      )
+    )
+      problems.push(
+        `${file}: [candidate-shadow] current instructions promote the exact-main candidate into production reuse`,
+      );
+    if (
+      /(?:missing|expired)[^\n]{0,80}deploy candidate[^\n]{0,100}(?:blocks?|fails? (?:the )?deploy)/i.test(
+        source,
+      )
+    )
+      problems.push(
+        `${file}: [candidate-fallback] current instructions make an absent shadow candidate block the mandatory rebuild fallback`,
+      );
+    if (
       /registry-only[^\n]{0,100}(?:always|must)[^\n]{0,80}(?:publish|hosted npm)/i.test(
         source,
       )
@@ -165,6 +181,14 @@ export function operatorDocProblems(sources) {
     problems.push(
       "AGENTS.md: [consume-isolation] must require isolated consume roots and retain the full oracle under D1",
     );
+  if (
+    !/deploy candidate[^\n]{0,100}shadow-only/i.test(agents) ||
+    !/D4 remains open/i.test(agents) ||
+    !/mandatory\s+exact-tree rebuild/i.test(agents)
+  )
+    problems.push(
+      "AGENTS.md: [candidate-shadow] must state shadow-only/D4 and retain the mandatory exact-tree rebuild",
+    );
 
   const ship = sources["skills/internal/ship/SKILL.md"] ?? "";
   if (
@@ -185,6 +209,16 @@ export function operatorDocProblems(sources) {
   )
     problems.push(
       "skills/internal/ship/SKILL.md: [release-state] must limit hosted npm work and block registry uncertainty",
+    );
+  if (
+    !/deploy candidate[^\n]{0,100}shadow-only/i.test(ship) ||
+    !/missing or expired candidate[^\n]{0,120}(?:safe miss|rebuild)/i.test(
+      ship,
+    ) ||
+    !/(?:malformed|ambiguous)[\s\S]{0,180}(?:fail|block)/i.test(ship)
+  )
+    problems.push(
+      "skills/internal/ship/SKILL.md: [candidate-shadow] must explain shadow, safe miss fallback, and malformed/ambiguous failure",
     );
 
   const gates = sources["skills/internal/gates/SKILL.md"] ?? "";
@@ -234,6 +268,14 @@ export function operatorDocProblems(sources) {
     problems.push(
       "docs/RELEASING.md: [release-state] must explain states, unknown blocking, and registry-only npm skips",
     );
+  if (
+    !/deploy candidate[\s\S]{0,300}shadow-only[\s\S]{0,220}mandatory exact-tree rebuild[\s\S]{0,300}D4/i.test(
+      releasing,
+    )
+  )
+    problems.push(
+      "docs/RELEASING.md: [candidate-shadow] must keep candidate reuse disabled and the exact-tree rebuild authoritative under D4",
+    );
 
   const requirements = sources["docs/requirements.md"] ?? "";
   if (
@@ -261,13 +303,13 @@ function readCurrentSources() {
 // virtual strings so historical ledgers and superseded plans can remain byte-stable records.
 const validFixture = {
   "AGENTS.md":
-    "Every non-registry route is anonymous, including /internal/*; /r/* alone is service-token-only. A canonical evidence-leaf manifest is required. CI is receipt-first. Exact-tree receipt reuse is **shadow-only**. Release state is explicit and fail-closed. Only npm E404 is missing; registry-only published means zero hosted npm jobs. Consume uses a fresh consumer per root; D1 keeps the full oracle mandatory.",
+    "Every non-registry route is anonymous, including /internal/*; /r/* alone is service-token-only. A canonical evidence-leaf manifest is required. CI is receipt-first. Exact-tree receipt reuse is **shadow-only**. Release state is explicit and fail-closed. Only npm E404 is missing; registry-only published means zero hosted npm jobs. Consume uses a fresh consumer per root; D1 keeps the full oracle mandatory. The deploy candidate is shadow-only. D4 remains open; the mandatory exact-tree rebuild remains.",
   "docs/RELEASING.md":
-    "Every non-registry route is anonymously reachable; /internal/* remains unlisted with noindex/no-store; /r/* must reject anonymous requests. Release uses an explicit resumable state machine: registry-unknown blocks. For registry-only published work it never runs hosted npm.",
+    "Every non-registry route is anonymously reachable; /internal/* remains unlisted with noindex/no-store; /r/* must reject anonymous requests. Release uses an explicit resumable state machine: registry-unknown blocks. For registry-only published work it never runs hosted npm. The deploy candidate is shadow-only; a mandatory exact-tree rebuild remains under D4.",
   "docs/requirements.md":
     "Point-in-time historical record. D11 is superseded: /internal/* is anonymous under the current boundary.",
   "skills/internal/ship/SKILL.md":
-    "Schema 2 production-full evidence includes all-browsers. Upload is not completion; require deployment-complete. versioned-unpublished alone runs hosted build; registry-unknown never grants publish permission.",
+    "Schema 2 production-full evidence includes all-browsers. Upload is not completion; require deployment-complete. versioned-unpublished alone runs hosted build; registry-unknown never grants publish permission. The deploy candidate is shadow-only. A missing or expired candidate is a safe miss and uses the rebuild; malformed or ambiguous evidence must fail.",
   "skills/internal/gates/SKILL.md":
     "gates:retry writes diagnosticOnly: true and evidenceWritten: false. gates:affected writes shadowOnly: true and reuseEnabled: false. Require 30 representative samples and MK approval. verify-shadcn-consume uses a fresh consumer per root; D1 retains the full oracle.",
 };
@@ -375,6 +417,18 @@ for (const [label, file, text, expected] of [
     "Run classify-change --check-npm to decide publication.",
     /release-state/,
   ],
+  [
+    "candidate promoted to production",
+    "docs/RELEASING.md",
+    "Deploy candidate reuse is enabled and skips the rebuild.",
+    /candidate-shadow/,
+  ],
+  [
+    "expired candidate blocks fallback",
+    "skills/internal/ship/SKILL.md",
+    "An expired deploy candidate fails the deploy instead of rebuilding.",
+    /candidate-fallback/,
+  ],
 ]) {
   const mutated = { ...validFixture, [file]: text };
   const problems = operatorDocProblems(mutated);
@@ -390,5 +444,5 @@ if (problems.length > 0) {
   process.exit(1);
 }
 console.log(
-  `✓ operator docs: ${CURRENT_SURFACES.length} current surfaces agree on topology, browser location, counts, receipt/reuse/retry/affected/consume/release-state ordering, terminal deployment, and schema-2 production evidence; 17 semantic stale-instruction fixtures rejected`,
+  `✓ operator docs: ${CURRENT_SURFACES.length} current surfaces agree on topology, browser location, counts, receipt/reuse/retry/affected/consume/release-state/candidate ordering, terminal deployment, and schema-2 production evidence; 19 semantic stale-instruction fixtures rejected`,
 );

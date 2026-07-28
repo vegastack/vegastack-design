@@ -169,6 +169,12 @@ org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` a
 - **Upload is not deployment completion.** Pinned Wrangler emits a structured Cloudflare version ID,
   but only the terminal `deployment-complete` job—after signing, immediate artifact reverification,
   upload, and the external live boundary probe—means production succeeded.
+- **The exact-main deploy candidate is shadow-only.** Release may upload the docs output that its
+  already-required no-credential quality build produced. Deploy verifies its workflow/run/SHA, API
+  archive digest, canonical leaf manifest, toolchain/config context, and parity with the mandatory
+  exact-tree rebuild. It never signs or deploys the candidate. D4 remains open; enabling reuse
+  requires MK approval and a code change. Missing/expired evidence falls back to the rebuild, while a
+  live malformed, tampered, wrong-tree, or ambiguous claim fails before OIDC or Cloudflare secrets.
 
 ### Sanctioned dependency exceptions
 
