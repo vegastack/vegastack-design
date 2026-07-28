@@ -182,8 +182,11 @@ jobs:
   # The credential-only deploy job reverifies the signed artifact and uses the existing repository
   # Cloudflare secrets. It cannot mint OIDC and executes no repository-controlled package scripts.
   deploy-curated:
+    name: Upload production candidate (completion pending live probes)
     needs: sign-curated
     runs-on: ubuntu-latest
+    outputs:
+      version_id: ${{ steps.capture-deployment.outputs.version_id }}
     permissions:
       contents: read
     steps:
@@ -205,14 +208,44 @@ jobs:
             --certificate-github-workflow-repository "$SIGNER_REPOSITORY" \
             --certificate-github-workflow-ref "$SIGNER_REF" \
             apps/docs/out/r/integrity-manifest.json
-      - name: Deploy to Cloudflare Workers Static Assets
+      - name: Upload production candidate to Cloudflare Workers Static Assets
+        id: upload-candidate
         uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3
+        env:
+          WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler-output.ndjson
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           workingDirectory: apps/docs
           wranglerVersion: 4.113.0
           command: deploy
+      # Console wording is not an API. Wrangler's official structured-output contract emits exactly
+      # one successful `deploy` entry with the immutable Worker version ID and deployment targets.
+      - name: Capture the structured Cloudflare version ID
+        id: capture-deployment
+        env:
+          WRANGLER_OUTPUT_FILE: ${{ runner.temp }}/wrangler-output.ndjson
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { appendFileSync, readFileSync } from 'node:fs';
+          const entries = readFileSync(process.env.WRANGLER_OUTPUT_FILE, 'utf8')
+            .split('\n')
+            .filter(Boolean)
+            .map((line) => JSON.parse(line));
+          const deployments = entries.filter((entry) => entry.type === 'deploy');
+          if (deployments.length !== 1) {
+            throw new Error(`expected exactly one structured deploy record, found ${deployments.length}`);
+          }
+          const [deployment] = deployments;
+          if (typeof deployment.version_id !== 'string' || deployment.version_id.length === 0) {
+            throw new Error('structured deploy record has no nonempty version_id');
+          }
+          if (!Array.isArray(deployment.targets) || deployment.targets.length === 0) {
+            throw new Error('structured deploy record has no deployment target');
+          }
+          appendFileSync(process.env.GITHUB_OUTPUT, `version_id=${deployment.version_id}\n`);
+          NODE
 
   # Live route-boundary verification: every non-registry HTML/Markdown/LLM/search/OG/internal route
   # must be anonymously reachable, internal operations pages must remain outside discovery and carry
@@ -240,3 +273,27 @@ jobs:
           SIGNER_REPOSITORY: ${{ github.repository }}
           SIGNER_REF: refs/heads/main
         run: node apps/docs/scripts/probe-deployment.mjs
+
+  # This is the only terminal success state. Uploading a live candidate is not completion: signing,
+  # immediate artifact reverification, Cloudflare's structured version capture, and every anonymous/
+  # internal/service-token production probe must all have succeeded before this job can start.
+  deployment-complete:
+    name: Deployment complete (all live probes passed)
+    needs: [sign-curated, deploy-curated, verify-public-boundary]
+    runs-on: [self-hosted, vsk-runners-mac-mini]
+    steps:
+      - name: Publish the terminal deployment summary
+        env:
+          DEPLOYED_SHA: ${{ github.sha }}
+          VERSION_ID: ${{ needs.deploy-curated.outputs.version_id }}
+        run: |
+          set -euo pipefail
+          test -n "$VERSION_ID"
+          {
+            echo "## Deployment complete"
+            echo
+            echo "- Commit: \`$DEPLOYED_SHA\`"
+            echo "- Cloudflare version: \`$VERSION_ID\`"
+            echo "- Executed: sign, immediate reverify, candidate upload, structured version capture, and live boundary probes"
+            echo "- Result: production completion (not merely upload success)"
+          } >> "$GITHUB_STEP_SUMMARY"

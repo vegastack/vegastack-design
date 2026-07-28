@@ -33,9 +33,10 @@ distribution channels, both already wired:
 3. `pnpm changeset` — bump `@vegastack/ui` (and any other changed package). **List the affected
    component name(s) in the summary** — `@vegastack/ui`'s generated `CHANGELOG.md` is the
    consumer-facing "what changed per version".
-4. PR → review → merge to `main`. `release.yml` runs the full unprivileged gate (typecheck, lint,
-   test, all-browser smoke, build, `registry:build` idempotency, `registry:verify-consume`), plus
-   the 864-check component contract suite when the visual surface changed. A
+4. PR → review → merge to `main`. PR CI verifies the browser/contract receipt first; only a valid
+   receipt unlocks the free-mini job that independently reexecutes the complete non-browser half.
+   That job invokes `pnpm lint` once (and therefore `design:verify` once), plus typecheck, node-only
+   package tests, both discovery builds, registry idempotency, and full consume. A
    changeset-bearing run then uses its non-OIDC version job to update the **Version Packages** PR.
    Review its package versions, generated changelogs, registry item versions, and regenerated
    `/r/*`; merging that PR is the separate human action that authorizes the next main run's isolated
@@ -50,6 +51,8 @@ distribution channels, both already wired:
    anonymous requests while accepting the service token. It also proves the representative live
    registry item's exact version, integrity hash, and signed-manifest membership. The new registry
    versions are then _available_—consumers still pull them.
+   Upload progress is not completion: only the terminal `deployment-complete` job, after the external
+   live probe, reports success and names Wrangler's structured Cloudflare version ID.
 
 This is the approved GitHub Team/private-repository operating model. Required-reviewer environment
 protection is unavailable on this plan, so releases do not depend on GitHub Environments or change
@@ -92,10 +95,18 @@ summarizes p50/p95 without combining different gate generations, environments, c
 engines, or route/check counts. A report states whether a value is measured, API-reported, modeled,
 estimated, or unknown. It is diagnostic only: it cannot satisfy a receipt or authorize reuse.
 
+PR CI is receipt-first: `verify` has `needs: receipt-guard`, so invalid receipt evidence stops before
+the long free-mini reexecution. The self-hosted pnpm-cache removal experiment is committed disabled;
+only `SELF_HOSTED_PNPM_CACHE_CANARY=enabled` plus an exact
+`SELF_HOSTED_PNPM_CACHE_CANARY_RUNNER` selects the no-Actions-cache path. Missing variables retain the
+cached control. Do not enable it without the separate repository-setting approval and alternating
+10-run-per-mini baseline; the job summary retains cohort/setup/install/store measurements.
+
 Everything that executes repository code and needs no browser runs free on the self-hosted mac minis
 (`runs-on: [self-hosted, vsk-runners-mac-mini]`): all of `ci.yml`, `release.yml`'s `changes`,
 `receipt-guard`, `quality-gate` and `version-pr`, and `deploy.yml`'s `ref-guard`, `receipt-guard` and
-`build-curated`. **A pull request costs zero billable minutes.**
+`build-curated` plus the terminal `deployment-complete` summary. **A pull request costs zero billable
+minutes.**
 
 Five jobs stay on `ubuntu-latest`, pinned by an allowlist enforced in
 `tooling/verify-workflow-security.mjs` and negative-tested in
@@ -108,7 +119,8 @@ Five jobs stay on `ubuntu-latest`, pinned by an allowlist enforced in
 - **`release.yml` `publish`** — npm trusted publishing does not support self-hosted runners
   (<https://docs.npmjs.com/trusted-publishers/>) and this repository holds no `NPM_TOKEN`.
 - **`deploy.yml` `sign-curated` and `deploy-curated`** — the OIDC signing job and the credential-only
-  Cloudflare deploy. Neither executes repository code; both are ~1 minute.
+  Cloudflare candidate upload. Neither executes repository code; both are ~1 minute. The latter's
+  success is not terminal until `verify-public-boundary` and `deployment-complete` pass.
 - **`deploy.yml` `verify-public-boundary`** — asserts that every non-registry route is anonymously
   reachable and that anonymous `/r/*` requests are rejected. A runner inside VegaStack's network
   can be silently authenticated by Cloudflare device posture, which would void the registry proof.

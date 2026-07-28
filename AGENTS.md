@@ -120,6 +120,12 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
   `tooling/verify-hooks-installed.mjs` runs inside `pnpm lint` because a tree
   whose hooks are missing or unwired has no browser verification at all, and husky's dispatcher exits
   **zero** when a committed hook is absent.
+- **CI is receipt-first.** The expensive self-hosted non-browser verification job depends on the
+  independent receipt guard, so a missing/stale/malformed browser attestation stops before consuming
+  another mini. `pnpm lint` owns `design:verify`; CI invokes that chain once, not once explicitly and
+  again through lint. Removing setup-node's pnpm cache is a disabled, runner-pinned canary until one
+  week / 10 alternating samples per mini satisfy the recorded checkpoint; absent repository variables
+  always select the cached control path.
 - **Pixels stay a local review step**, unchanged: `node tooling/vrt-review.mjs` captures the base ref
   and the working tree on one machine and emits a before/after report a human reads during `/ship`.
   No screenshot is ever committed.
@@ -150,6 +156,9 @@ org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` a
   `/internal/*`; internal operations pages stay unlisted, `noindex`, and outside every public
   discovery corpus. `/r/*` alone is service-token-only. `SITE_VISIBILITY` controls discovery
   metadata only, never authorization.
+- **Upload is not deployment completion.** Pinned Wrangler emits a structured Cloudflare version ID,
+  but only the terminal `deployment-complete` job—after signing, immediate artifact reverification,
+  upload, and the external live boundary probe—means production succeeded.
 
 ### Sanctioned dependency exceptions
 

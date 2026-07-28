@@ -387,6 +387,81 @@ assert.doesNotMatch(
   /^    if:/m,
   "deploy.yml: the production boundary probe must run after every deploy",
 );
+assert.doesNotMatch(
+  publicVerificationJob,
+  /continue-on-error:\s*true/,
+  "deploy.yml: production boundary probe must not continue on error",
+);
+
+const completionJob = jobBlock(sources["deploy.yml"], "deployment-complete");
+assert.match(
+  completionJob,
+  /^    needs: \[sign-curated, deploy-curated, verify-public-boundary\]$/m,
+  "deploy.yml: deployment-complete must wait for signing, upload/reverification, and the live boundary probe",
+);
+assert.doesNotMatch(
+  completionJob,
+  /^    if:/m,
+  "deploy.yml: deployment-complete must not use always() or run after a failed/skipped predecessor",
+);
+assert.doesNotMatch(
+  completionJob,
+  /continue-on-error:\s*true/,
+  "deploy.yml: deployment-complete must not continue after a summary failure",
+);
+assert.match(
+  completionJob,
+  /GITHUB_STEP_SUMMARY/,
+  "deploy.yml: deployment-complete must publish the terminal operator summary",
+);
+assert.match(
+  completionJob,
+  /needs\.deploy-curated\.outputs\.version_id/,
+  "deploy.yml: deployment-complete must name the structured Cloudflare version ID",
+);
+const deployCandidateJob = jobBlock(sources["deploy.yml"], "deploy-curated");
+assert.match(
+  deployCandidateJob,
+  /WRANGLER_OUTPUT_FILE_PATH/,
+  "deploy.yml: deploy-curated must request Wrangler's structured deployment output",
+);
+assert.match(
+  deployCandidateJob,
+  /version_id/,
+  "deploy.yml: deploy-curated must fail closed while extracting a nonempty Cloudflare version ID",
+);
+
+const ciVerifyJob = jobBlock(sources["ci.yml"], "verify");
+assert.match(
+  ciVerifyJob,
+  /^    needs: receipt-guard$/m,
+  "ci.yml: verify must depend on receipt-guard so invalid attestation stops expensive reexecution",
+);
+assert.doesNotMatch(
+  ciVerifyJob,
+  /^\s*- run: pnpm design:verify$/m,
+  "ci.yml: design:verify must not run explicitly and again through pnpm lint",
+);
+assert.match(
+  ciVerifyJob,
+  /name: Lint and design verification \(single invocation\)[\s\S]*run: pnpm lint/,
+  "ci.yml: the single pnpm lint invocation must remain visibly responsible for design:verify",
+);
+assert.match(
+  ciVerifyJob,
+  /name: ["']?Setup Node \(cache canary: no Actions cache\)["']?\n\s+if: vars\.SELF_HOSTED_PNPM_CACHE_CANARY == 'enabled' && runner\.name == vars\.SELF_HOSTED_PNPM_CACHE_CANARY_RUNNER\n\s+uses:/,
+  "ci.yml: self-hosted cache removal must remain an explicitly enabled, runner-pinned canary with cached control as the default",
+);
+assert.match(
+  ciVerifyJob,
+  /name: ["']?Setup Node \(cached control\/default\)["']?\n\s+if: vars\.SELF_HOSTED_PNPM_CACHE_CANARY != 'enabled' \|\| runner\.name != vars\.SELF_HOSTED_PNPM_CACHE_CANARY_RUNNER\n\s+uses:[\s\S]{0,180}cache: pnpm/,
+  "ci.yml: missing canary variables must retain setup-node's pnpm cache as the control/default",
+);
+assert.match(
+  ciVerifyJob,
+  /report-workflow-setup\.mjs/,
+  "ci.yml: cache canary/control runs must retain structured setup and frozen-install measurements",
+);
 
 assert.equal(
   [...sources["release.yml"].matchAll(/id-token:\s*write/g)].length,

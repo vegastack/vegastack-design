@@ -620,3 +620,19 @@ each was invisible in review and each is the kind that would have degraded the t
   API-reported/modeled/estimate classification.
 - **Observability is not evidence reuse.** Immutable `.gates/runs` entries can diagnose and benchmark,
   but schema-2 receipt leaves remain the only local production attestation and no lane is skipped.
+- **First structured pre-commit sample misses the hypothesis.** The staged Stage E run measured
+  3.839s (`n=1`) against a ≤3s target. This is a measured miss with low confidence, not a reason to
+  relabel or weaken a gate; the required multi-run baseline remains open.
+
+## 2026-07-28 — CI/CD efficiency implementation, decision F (local machinery)
+
+- **Receipt failure dominates PR work.** GitHub's ordinary `needs` semantics prevents the long
+  verification job from starting after an invalid receipt. No browser or non-browser gate was removed.
+- **Cache removal is not enabled.** Two repository variables and one exact runner name are required;
+  absent variables select setup-node's pnpm cache. One week and alternating per-mini samples remain a
+  checkpoint, and this task does not mutate repository settings.
+- **One command owns design verification.** CI's named `pnpm lint` step includes `design:verify` once;
+  a mutation restoring the explicit duplicate fails.
+- **Deployment has one terminal state.** A structured Cloudflare version is a live candidate, not a
+  success verdict. Only the dependency-closed `deployment-complete` job after external probes may say
+  production completed.

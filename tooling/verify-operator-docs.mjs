@@ -46,6 +46,22 @@ export function operatorDocProblems(sources) {
       problems.push(
         `${file}: [browser-location] current instructions claim a browser lane runs in CI`,
       );
+    if (
+      /upload(?:ing)?(?: success)?\s+(?:is|means|equals)\s+(?:deployment\s+)?complet(?:e|ion)/i.test(
+        source,
+      )
+    )
+      problems.push(
+        `${file}: [deployment-terminal] current instructions equate artifact upload with deployment completion`,
+      );
+    if (
+      /receipt[- ]guard[^\n]{0,80}(?:parallel|alongside)[^\n]{0,80}verify/i.test(
+        source,
+      )
+    )
+      problems.push(
+        `${file}: [receipt-first] current instructions claim expensive verification runs in parallel with receipt-guard`,
+      );
   }
 
   const agents = sources["AGENTS.md"] ?? "";
@@ -62,6 +78,10 @@ export function operatorDocProblems(sources) {
     problems.push(
       "AGENTS.md: [receipt-profile] must state that a canonical evidence-leaf manifest is required",
     );
+  if (!/CI is receipt-first/i.test(agents))
+    problems.push(
+      "AGENTS.md: [receipt-first] must state that CI verification is receipt-first",
+    );
 
   const ship = sources["skills/internal/ship/SKILL.md"] ?? "";
   if (
@@ -71,6 +91,10 @@ export function operatorDocProblems(sources) {
   )
     problems.push(
       "skills/internal/ship/SKILL.md: [receipt-profile] must name schema 2, production-full, and all-browsers",
+    );
+  if (!/upload is not completion[\s\S]{0,180}deployment-complete/i.test(ship))
+    problems.push(
+      "skills/internal/ship/SKILL.md: [deployment-terminal] must distinguish upload from the deployment-complete terminal job",
     );
 
   const releasing = sources["docs/RELEASING.md"] ?? "";
@@ -113,13 +137,13 @@ function readCurrentSources() {
 // virtual strings so historical ledgers and superseded plans can remain byte-stable records.
 const validFixture = {
   "AGENTS.md":
-    "Every non-registry route is anonymous, including /internal/*; /r/* alone is service-token-only. A canonical evidence-leaf manifest is required.",
+    "Every non-registry route is anonymous, including /internal/*; /r/* alone is service-token-only. A canonical evidence-leaf manifest is required. CI is receipt-first.",
   "docs/RELEASING.md":
     "Every non-registry route is anonymously reachable; /internal/* remains unlisted with noindex/no-store; /r/* must reject anonymous requests.",
   "docs/requirements.md":
     "Point-in-time historical record. D11 is superseded: /internal/* is anonymous under the current boundary.",
   "skills/internal/ship/SKILL.md":
-    "Schema 2 production-full evidence includes all-browsers.",
+    "Schema 2 production-full evidence includes all-browsers. Upload is not completion; require deployment-complete.",
 };
 assert.deepEqual(operatorDocProblems(validFixture), []);
 for (const [label, file, text, expected] of [
@@ -159,6 +183,18 @@ for (const [label, file, text, expected] of [
     "A scoped receipt is accepted for deploy.",
     /receipt-profile/,
   ],
+  [
+    "upload equals completion",
+    "docs/RELEASING.md",
+    "Upload success means deployment completion.",
+    /deployment-terminal/,
+  ],
+  [
+    "receipt and verify parallel",
+    "AGENTS.md",
+    "receipt-guard runs in parallel alongside verify.",
+    /receipt-first/,
+  ],
 ]) {
   const mutated = { ...validFixture, [file]: text };
   const problems = operatorDocProblems(mutated);
@@ -174,5 +210,5 @@ if (problems.length > 0) {
   process.exit(1);
 }
 console.log(
-  `✓ operator docs: ${CURRENT_SURFACES.length} current surfaces agree on topology, browser location, counts, and schema-2 production evidence; 6 semantic stale-instruction fixtures rejected`,
+  `✓ operator docs: ${CURRENT_SURFACES.length} current surfaces agree on topology, browser location, counts, receipt-first ordering, terminal deployment, and schema-2 production evidence; 8 semantic stale-instruction fixtures rejected`,
 );

@@ -52,16 +52,17 @@ const CASES = [
   {
     id: "container on a self-hosted job",
     file: "ci.yml",
-    find: "  verify:\n    runs-on: [self-hosted, vsk-runners-mac-mini]\n",
+    find: "  verify:\n    needs: receipt-guard\n    runs-on: [self-hosted, vsk-runners-mac-mini]\n",
     replace:
-      "  verify:\n    runs-on: [self-hosted, vsk-runners-mac-mini]\n    container: node:24\n",
+      "  verify:\n    needs: receipt-guard\n    runs-on: [self-hosted, vsk-runners-mac-mini]\n    container: node:24\n",
     expect: /declares a job container/,
   },
   {
     id: "a free mini job moved onto billed capacity",
     file: "ci.yml",
-    find: "  verify:\n    runs-on: [self-hosted, vsk-runners-mac-mini]\n",
-    replace: "  verify:\n    runs-on: ubuntu-latest\n",
+    find: "  verify:\n    needs: receipt-guard\n    runs-on: [self-hosted, vsk-runners-mac-mini]\n",
+    replace:
+      "  verify:\n    needs: receipt-guard\n    runs-on: ubuntu-latest\n",
     expect: /must run on \[self-hosted, vsk-runners-mac-mini\]/,
   },
   {
@@ -101,9 +102,9 @@ const CASES = [
   {
     id: "shell injection through a run: body",
     file: "ci.yml",
-    find: "      - run: pnpm design:verify",
+    find: "      - name: Lint and design verification (single invocation)\n        run: pnpm lint",
     replace:
-      "      - run: echo ${{ github.event.pull_request.title }}\n      - run: pnpm design:verify",
+      "      - run: echo ${{ github.event.pull_request.title }}\n      - name: Lint and design verification (single invocation)\n        run: pnpm lint",
     expect: /interpolated directly into a run: script/,
   },
   {
@@ -178,6 +179,74 @@ const CASES = [
     find: "        run: node apps/docs/scripts/probe-deployment.mjs\n",
     replace: "        run: echo boundary-check-skipped\n",
     expect: /canonical production probe/,
+  },
+  {
+    id: "CI verify no longer waits for receipt-guard",
+    file: "ci.yml",
+    find: "  verify:\n    needs: receipt-guard\n",
+    replace: "  verify:\n",
+    expect: /verify must depend on receipt-guard/,
+  },
+  {
+    id: "the self-hosted no-cache canary made unconditional",
+    file: "ci.yml",
+    find: "        if: vars.SELF_HOSTED_PNPM_CACHE_CANARY == 'enabled' && runner.name == vars.SELF_HOSTED_PNPM_CACHE_CANARY_RUNNER\n",
+    replace: "        if: always()\n",
+    expect: /explicitly enabled, runner-pinned canary/,
+  },
+  {
+    id: "the cached control default removed",
+    file: "ci.yml",
+    find: "      - name: \"Setup Node (cached control/default)\"\n        if: vars.SELF_HOSTED_PNPM_CACHE_CANARY != 'enabled' || runner.name != vars.SELF_HOSTED_PNPM_CACHE_CANARY_RUNNER\n        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6\n        with: { node-version: 24, cache: pnpm }\n",
+    replace:
+      "      - name: \"Setup Node (cached control/default)\"\n        if: vars.SELF_HOSTED_PNPM_CACHE_CANARY != 'enabled' || runner.name != vars.SELF_HOSTED_PNPM_CACHE_CANARY_RUNNER\n        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6\n        with: { node-version: 24 }\n",
+    expect: /control\/default/,
+  },
+  {
+    id: "cache canary measurement removed",
+    file: "ci.yml",
+    find: "          node tooling/report-workflow-setup.mjs\n",
+    replace: "          echo measurement-skipped\n",
+    expect: /retain structured setup and frozen-install measurements/,
+  },
+  {
+    id: "the duplicate explicit design verification restored",
+    file: "ci.yml",
+    find: "      - name: Lint and design verification (single invocation)\n        run: pnpm lint\n",
+    replace:
+      "      - run: pnpm design:verify\n      - name: Lint and design verification (single invocation)\n        run: pnpm lint\n",
+    expect: /must not run explicitly and again/,
+  },
+  {
+    id: "deployment completion detached from the live probe",
+    file: "deploy.yml",
+    find: "    needs: [sign-curated, deploy-curated, verify-public-boundary]\n",
+    replace: "    needs: [sign-curated, deploy-curated]\n",
+    expect:
+      /must wait for signing, upload\/reverification, and the live boundary probe/,
+  },
+  {
+    id: "deployment completion allowed after predecessor failure",
+    file: "deploy.yml",
+    find: "    needs: [sign-curated, deploy-curated, verify-public-boundary]\n    runs-on: [self-hosted, vsk-runners-mac-mini]\n",
+    replace:
+      "    needs: [sign-curated, deploy-curated, verify-public-boundary]\n    if: always()\n    runs-on: [self-hosted, vsk-runners-mac-mini]\n",
+    expect: /must not use always\(\)/,
+  },
+  {
+    id: "the live production probe made continue-on-error",
+    file: "deploy.yml",
+    find: "      - name: Verify the public/internal/registry boundary (fail-closed)\n",
+    replace:
+      "      - name: Verify the public/internal/registry boundary (fail-closed)\n        continue-on-error: true\n",
+    expect: /production boundary probe must not continue on error/,
+  },
+  {
+    id: "structured Cloudflare version capture removed",
+    file: "deploy.yml",
+    find: "          WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler-output.ndjson\n",
+    replace: "          WRANGLER_LOG: plain-text-only\n",
+    expect: /structured deployment output/,
   },
 ];
 

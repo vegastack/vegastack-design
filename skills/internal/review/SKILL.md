@@ -118,6 +118,10 @@ Work these in order; each is a distinct failure class, not a checklist to skim.
 10. **Measurement provenance.** Compare timing/cost claims only inside matching implementation,
     environment, cache/cold, engine, and route/check cohorts. Require sample size and one of measured,
     API-reported, modeled, estimate, or unknown. A mixed cohort or relabeled unknown is a finding.
+11. **Workflow terminal states.** An upload/version ID is not a deployment pass. Confirm CI verify
+    needs receipt-guard, the no-cache experiment is explicitly enabled and runner-pinned, and
+    `deployment-complete` depends on the unskipped external probe with no `always()` or
+    `continue-on-error` escape.
 
 ## 6. Registry integrity drift
 

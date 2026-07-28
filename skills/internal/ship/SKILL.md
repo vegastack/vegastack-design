@@ -247,7 +247,9 @@ gh workflow run deploy.yml -R VegaStack/vegastack-design
 
 The manual dispatch from `main` is the outward-deploy approval. The workflow builds without
 credentials, signs in the only OIDC-capable job, reverifies the immutable artifact in the
-credential-only deploy job, and then probes the one production boundary. Every non-registry route is
+credential-only deploy job, captures Wrangler's structured Cloudflare version ID, and then probes the
+one production boundary. **Upload is not completion:** require the final `deployment-complete` job to
+be green and read its summary; it cannot run after a failed/skipped probe. Every non-registry route is
 public. `/internal/*` remains intentionally absent from discovery and carries `noindex`/`no-store`,
 but it is not an authorization boundary. Only `/r/*` requires Cloudflare Access Service Auth.
 Confirm the public probe covers public pages, every exported internal derivative, the retired route
@@ -292,20 +294,13 @@ correct). If the release changed the starter's own components, pull them
   tip. Once the workflow commits are ancestors of the remote `main`, the version branch carries no
   workflow diff and the push succeeds. This is the recovery referenced in §2 — it is one action, and
   it is why splitting a PR to avoid the edge is usually not worth it.
-- Contract gate red → download the artifact and READ it before re-running. Re-running a browser gate
-  to see the failure again is how a release loses a day:
-
-  ```bash
-  gh run download <id> -R VegaStack/vegastack-design -n contracts-failure-<id> -D /tmp/cf
-  open /tmp/cf/playwright-report/index.html          # or: pnpm exec playwright show-trace /tmp/cf/test-results/**/trace.zip
-  ```
-
-  Then reproduce locally — the same failure is deterministic:
-  `cd apps/docs && pnpm exec playwright test contracts.spec.ts -g "<route>"`.
-  **If the artifact is empty, that is its own bug** — the reporter or trace setting in
-  `apps/docs/playwright.config.ts` regressed, and the gate has gone back to being undiagnosable.
+- Local contract gate red → read `.gates/last-failure.json` and `.gates/contracts.json`, then rerun
+  the exact route through `node tooling/contracts-run.mjs --routes <route>`. Never call Playwright
+  directly or imply a CI browser artifact exists; no CI runner executes this lane.
 
 - Deploy "Asset too large" → a page exceeds Cloudflare's 25 MiB limit; the deploy log names
   it. Usually Story-controls type explosion — see `apps/docs/components/stories/story-shims.tsx`.
 - A self-hosted job is queued with no runner → both `vsk-runners-mac-mini` minis are busy or offline.
   Nothing to fix in the repository; check the runners.
+- `deploy-curated` green but `deployment-complete` absent/skipped → production is not verified. Read
+  the external boundary-probe failure; do not describe the Cloudflare upload/version as completion.

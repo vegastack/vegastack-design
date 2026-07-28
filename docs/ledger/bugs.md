@@ -435,3 +435,26 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   scope, and retry count; unavailable CPU/RSS remain explicitly unknown. The read-only summarizer
   separates generations and route/check cohorts. Schema, negative duration/class/retry, and mixed
   cohort mutations fail for their intended reason.
+
+## 2026-07-28 — Invalid receipts did not stop expensive PR verification
+
+- **Symptom:** run `30262728421` spent roughly 14m41 in the free-mini verification job after the
+  independent receipt guard had already made the PR terminally red. The same job invoked
+  `design:verify` explicitly and then invoked it again through root `pnpm lint`.
+- **Root cause:** CI jobs were parallel and the duplicated command ownership was only documented in
+  comments, not structurally asserted.
+- **Systemic fix:** `verify` now needs `receipt-guard`; `pnpm lint` is the single named owner of
+  design verification. The no-cache alternative is present only as a disabled, exact-runner canary
+  with cached default and structured setup/install cohort reporting. Workflow mutations reject every
+  removed dependency, restored duplicate, unconditional canary, or missing cached control.
+
+## 2026-07-28 — Cloudflare upload had no unambiguous terminal state
+
+- **Symptom:** a deploy could upload successfully and create a version while later production probes
+  failed. Operators saw the upload as near-completion, and no structured version ID connected the
+  candidate to the final result.
+- **Root cause:** `deploy-curated` was the last mutation job, while the live probe had no downstream
+  all-success summary. Wrangler console output was not captured through its machine interface.
+- **Systemic fix:** Wrangler writes NDJSON and exactly one successful deploy/version record is required.
+  A self-hosted `deployment-complete` summary depends on sign, upload/reverify, and the external live
+  probe without `always()` or `continue-on-error`. Eight new workflow mutations cover this surface.

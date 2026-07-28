@@ -28,6 +28,7 @@ jobs:
   # rather than trusted from the receipt — that split is the whole reliability argument, and it is
   # written out in AGENTS.md § Verification ladder.
   verify:
+    needs: receipt-guard
     runs-on: [self-hosted, vsk-runners-mac-mini]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -35,14 +36,39 @@ jobs:
           fetch-depth: 0 # needed for `changeset status --since=origin/main`
           persist-credentials: false
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+      - name: Start dependency setup measurement
+        run: date +%s > "$RUNNER_TEMP/dependency-setup-start-seconds"
+      # Disabled unless BOTH repository variables opt in and pin one named mini. A missing variable
+      # takes the cached control path, so this commit cannot silently start the one-week experiment.
+      - name: "Setup Node (cache canary: no Actions cache)"
+        if: vars.SELF_HOSTED_PNPM_CACHE_CANARY == 'enabled' && runner.name == vars.SELF_HOSTED_PNPM_CACHE_CANARY_RUNNER
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with: { node-version: 24 }
+      - name: "Setup Node (cached control/default)"
+        if: vars.SELF_HOSTED_PNPM_CACHE_CANARY != 'enabled' || runner.name != vars.SELF_HOSTED_PNPM_CACHE_CANARY_RUNNER
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with: { node-version: 24, cache: pnpm }
-      - run: pnpm install --frozen-lockfile
-      # Self-contained on a clean checkout: design:verify builds the gitignored token dist before
-      # checking generated design.md, the 538-item contracts, contrast, dark/marketing parity, RSC
-      # safety, and the five negative fixtures — including the route-scope, classifier, and
-      # gate-receipt ones this topology depends on.
-      - run: pnpm design:verify
+      - name: Mark dependency setup/cache completion
+        if: always()
+        run: date +%s > "$RUNNER_TEMP/dependency-setup-end-seconds"
+      - name: Frozen dependency install
+        id: frozen-install
+        run: pnpm install --frozen-lockfile
+      - name: Retain dependency setup/install cohort measurement
+        if: always()
+        env:
+          DEPENDENCY_CACHE_COHORT: ${{ vars.SELF_HOSTED_PNPM_CACHE_CANARY == 'enabled' && runner.name == vars.SELF_HOSTED_PNPM_CACHE_CANARY_RUNNER && 'canary-runner-local-store' || 'control-actions-pnpm-cache' }}
+          DEPENDENCY_INSTALL_OUTCOME: ${{ steps.frozen-install.outcome }}
+          DEPENDENCY_RUNNER_ID: ${{ runner.name }}
+        run: |
+          set -euo pipefail
+          date +%s > "$RUNNER_TEMP/dependency-install-end-seconds"
+          PNPM_STORE_BYTES=""
+          if STORE_PATH=$(pnpm store path --silent 2>/dev/null) && [ -d "$STORE_PATH" ]; then
+            PNPM_STORE_BYTES=$(du -sk "$STORE_PATH" | awk '{print $1 * 1024}')
+          fi
+          export PNPM_STORE_BYTES
+          node tooling/report-workflow-setup.mjs
       # Workspace gates (Turborepo, package-scoped). Root-level `pnpm exec tsc/vitest` do NOT
       # resolve the per-package tsconfig path aliases / vitest configs and fail before validating
       # anything — always go through the package scripts.
@@ -50,7 +76,10 @@ jobs:
       # `pnpm lint` includes verify-hooks-installed.mjs, so a tree whose hooks are missing, emptied,
       # or unwired fails HERE. That matters more than it looks: those hooks are the only place the
       # browser lanes run, and husky's dispatcher exits 0 silently when a committed hook is absent.
-      - run: pnpm lint
+      # It also executes design:verify exactly once, including the 554-item reconciliation and every
+      # classifier, receipt, workflow, operator-doc, and generated-surface negative fixture.
+      - name: Lint and design verification (single invocation)
+        run: pnpm lint
       # `@vegastack/design`'s tests are three plain `node test/*.mjs` files and run here.
       # `@vegastack/ui`'s are Vitest browser mode and run in the pre-push hook — hence the filter
       # rather than a bare `pnpm test`.
