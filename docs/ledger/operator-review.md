@@ -647,3 +647,19 @@ each was invisible in review and each is the kind that would have degraded the t
   or weaker run cannot silently restore success.
 - **Version carry is excluded.** Independently rederived version-bump carry remains the only allowed
   cross-tree carry, but carried evidence is never treated as exact-tree reusable evidence.
+
+## 2026-07-28 — CI/CD efficiency implementation, decision H (diagnostic only)
+
+- **Retry is not evidence.** It executes exact structured selectors and writes a diagnostic report;
+  the original failure, receipt, and evidence directory must remain byte-identical even on pass.
+- **Selection is fail-closed.** File + engine + full Vitest name and route + project + full contract
+  title are the minimum units. Empty, renamed, stale-tree, unknown, duplicate, and zero-executed
+  targets reject rather than widening or reporting green.
+- **A clean blocking run remains mandatory.** Retry answers whether a specimen reproduces after a
+  fix. It does not erase the failed run or satisfy pre-push/ship.
+- **Measured locally (`n=1`, warm browser):** exact Chromium unit 1.38s and exact WebKit smoke 3.32s.
+  Exact Chromium contract executed one test but took 130.4s because the Stage H tooling edit
+  invalidated the docs build through blanket `tooling/**`; this misses the 3–60s diagnostic
+  hypothesis and is evidence for Stage I's Turbo-input shadow work, not a reason to hide build cost.
+  The wrapped full oracles remained complete: 1,471/1,471 unit tests in 24.57s and 643 passed + 5
+  skipped of 648 smoke tests in 19.14s.

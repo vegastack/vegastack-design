@@ -470,3 +470,15 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   annotated and invalidates reuse rather than being erased. Receipt writes use flushed same-directory
   temporary files and atomic rename. Reuse remains shadow-only, and malformed, carried, stale,
   wrong-toolchain, wrong-authority, partial, and failing mutations all force execution.
+
+## 2026-07-28 — Gate retries had no exact diagnostic boundary
+
+- **Symptom:** after one browser or contract assertion failed, the only supported recovery was to
+  rerun its whole lane. A passing rerun had no machine distinction from blocking evidence, and the
+  original failure target was retained only in terminal text.
+- **Root cause:** Vitest used terminal-only reporting and the failure summary named a gate command,
+  not exact file/engine/test or route/project/title selectors.
+- **Systemic fix:** normal browser lanes now retain structured Vitest failures; contracts accept and
+  cross-check exact project/title selectors. `gates:retry` rejects empty, renamed, stale-tree, and
+  unknown targets, verifies nonzero execution, and hashes the receipt, evidence store, and original
+  failure before/after. Its result is explicitly diagnostic and cannot clear or write evidence.

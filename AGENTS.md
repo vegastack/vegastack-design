@@ -276,6 +276,7 @@ and 2 automatically; `pnpm gates:*` is the same ladder invoked by hand.
 pnpm gates:commit                 # ~3s      static gates over the STAGED set. Never a browser.
 pnpm gates:component <name>       # ~25s     design-lint · that component's unit test · its routes
 pnpm gates:push                   # ~35-80s  typecheck · lint · unit · smoke · SCOPED contracts
+pnpm gates:retry                  # diagnostic-only exact selectors from the retained failure
 pnpm gates:ship                   # ~20min   the full sweep, then vrt-review. /ship requires it.
 ```
 
@@ -325,6 +326,11 @@ docs warm-up, and every executed or skipped segment, with implementation generat
 cache/cold classification, scope, retry count, and explicit unknown resource facts. The benchmark
 summarizer never combines different generations, environments, cache states, engines, or route/check
 counts. These reports are diagnostics, not receipt evidence and never authorize a skip.
+
+`pnpm gates:retry` is narrower still: it reruns only structured exact failing
+file/engine/test-name or route/project/title selectors. Empty, renamed, stale-tree, or unknown
+selectors fail before execution. A retry pass leaves `.gates/last-failure.json`, the receipt, and
+`.gates/evidence/` byte-unchanged; it is diagnosis, never release evidence.
 
 **The component contract suite is the blocking visual-surface gate — it now blocks locally.**
 `apps/docs/vrt/contracts.spec.ts` runs 864 checks over every component route — 320px reflow, RTL

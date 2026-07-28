@@ -20,7 +20,9 @@ function verify(source) {
     const lane = body(source, name, endMarker);
     const start = lane.indexOf("startDocsBuild()");
     const barrier = lane.indexOf("await awaitDocsBuild()");
-    const unit = lane.indexOf('gate("unit"');
+    // Browser execution is owned by the structured Vitest wrapper; formatting a multiline gate()
+    // call must not make this ordering assertion disappear.
+    const unit = lane.indexOf('"tooling/vitest-run.mjs"');
     if (!(start >= 0 && barrier > start && unit > barrier))
       problems.push(
         `${name} must finish the docs warm-up before every browser lane`,

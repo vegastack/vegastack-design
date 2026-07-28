@@ -334,3 +334,21 @@ WebKit test then passed 6/6 reruns (roughly 0.45s test time) and the complete wa
 public component count is generated instead of hand-maintained. The ship ladder now awaits its docs
 warm-up before the complete three-engine lane, matching the ordering its own comments promised and
 removing the observed source of cold-build contention.
+
+## Round 22 — 2026-07-28 · diagnostic-only exact gate retry
+
+Deterministic implementation review of efficiency stage H found 0 high and 0 medium issues after
+the negative-first corrections. `gates:retry` accepts only structured, non-empty targets tied to the
+current failed tree and current machine authorities. Empty, stale-tree, renamed, traversal, unknown
+engine/project/route, and unanchored-title mutations all fail closed. A forced disposable Vitest
+failure proved the reporter emits an exact file/engine/full-test-name target; the specimen was then
+removed.
+
+Exact Chromium unit, WebKit smoke, and one Chromium contract assertion were executed successfully.
+The retry report retained both the original failure and receipt hashes and declared
+`diagnosticOnly: true` / `evidenceWritten: false`; a zero-test selector and an unknown contract
+project both failed. The normal wrappers then ran the complete unit suite (1,471/1,471) and smoke
+suite (643 passing plus 5 capability skips), followed by `pnpm lint` and `pnpm typecheck` (7/7 each).
+The exact contract retry took 130.4s because the existing blanket `tooling/**` Turbo input invalidated
+the docs export; that misses the diagnostic latency hypothesis and is carried honestly into the
+stage-I shadow input analysis rather than being hidden or weakened.

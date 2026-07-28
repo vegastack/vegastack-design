@@ -71,6 +71,7 @@ import {
   BROWSER_ENGINES,
   buildEvidenceManifest,
   CHANGE_PROFILE,
+  CONTRACT_ASSERTIONS,
   PRODUCTION_PROFILE,
 } from "./lib/gate-profile.mjs";
 import {
@@ -578,11 +579,11 @@ async function runPush() {
   if (contractsRelevant) await awaitDocsBuild();
 
   if (unitRelevant)
-    gate("unit", "browser unit suite + axe", "pnpm", [
-      "--filter",
-      "@vegastack/ui",
-      "test",
-    ]);
+    gate(
+      "unit",
+      "browser unit suite + axe",
+      ...node("tooling/vitest-run.mjs", "--lane", "unit", "--run-id", runId),
+    );
   else
     skip(
       "unit",
@@ -591,11 +592,11 @@ async function runPush() {
     );
 
   if (smokeRelevant)
-    gate("smoke", "cross-engine smoke (WebKit + Firefox)", "pnpm", [
-      "--filter",
-      "@vegastack/ui",
-      "test:smoke",
-    ]);
+    gate(
+      "smoke",
+      "cross-engine smoke (WebKit + Firefox)",
+      ...node("tooling/vitest-run.mjs", "--lane", "smoke", "--run-id", runId),
+    );
   else
     skip(
       "smoke",
@@ -643,14 +644,19 @@ async function runComponent() {
 
   const testFile = `registry/ui/${name}.test.tsx`;
   if (existsSync(join(ROOT, "packages/ui", testFile)))
-    gate("unit", `unit suite — ${name}`, "pnpm", [
-      "--filter",
-      "@vegastack/ui",
-      "exec",
-      "vitest",
-      "run",
-      testFile,
-    ]);
+    gate(
+      "unit",
+      `unit suite — ${name}`,
+      ...node(
+        "tooling/vitest-run.mjs",
+        "--lane",
+        "unit",
+        "--file",
+        `packages/ui/${testFile}`,
+        "--run-id",
+        runId,
+      ),
+    );
   else skip("unit", `unit suite — ${name}`, "no test file yet");
 
   // EXPLICIT ROUTES, not the diff scope. This is the inner loop for ONE component, so it must check
@@ -695,22 +701,27 @@ async function runShip() {
   startDocsBuild();
   await awaitDocsBuild();
 
-  gate("unit", "browser unit suite + axe", "pnpm", [
-    "--filter",
-    "@vegastack/ui",
-    "test",
-  ]);
-  gate("smoke", "cross-engine smoke (WebKit + Firefox)", "pnpm", [
-    "--filter",
-    "@vegastack/ui",
-    "test:smoke",
-  ]);
+  gate(
+    "unit",
+    "browser unit suite + axe",
+    ...node("tooling/vitest-run.mjs", "--lane", "unit", "--run-id", runId),
+  );
+  gate(
+    "smoke",
+    "cross-engine smoke (WebKit + Firefox)",
+    ...node("tooling/vitest-run.mjs", "--lane", "smoke", "--run-id", runId),
+  );
   // The barrier above keeps every browser lane out of cold-export pressure.
   gate(
     "all-browsers",
     "three-engine suite (complete)",
-    "pnpm",
-    ["--filter", "@vegastack/ui", "test:all-browsers"],
+    ...node(
+      "tooling/vitest-run.mjs",
+      "--lane",
+      "all-browsers",
+      "--run-id",
+      runId,
+    ),
     { env: { ...process.env, HOME: process.env.HOME } },
   );
   gate("registry", "registry build (must be idempotent)", "pnpm", [
@@ -979,6 +990,52 @@ if (failed.length === 0) {
 }
 
 const { hash: failedTree } = workingTreeContentHash();
+const retryTargets = failed.flatMap((failure) => {
+  if (["unit", "smoke", "all-browsers"].includes(failure.id)) {
+    try {
+      const report = JSON.parse(
+        readFileSync(join(GATES_DIR, `vitest-${failure.id}.json`), "utf8"),
+      );
+      if (report.runId !== runId || report.diagnosticOnly === true) return [];
+      return (report.failures ?? []).map(
+        ({ kind, lane, file, engine, testName }) => ({
+          kind,
+          lane,
+          file,
+          engine,
+          testName,
+        }),
+      );
+    } catch {
+      return [];
+    }
+  }
+  if (failure.id === "contracts") {
+    try {
+      const report = JSON.parse(
+        readFileSync(join(GATES_DIR, "contracts.json"), "utf8"),
+      );
+      if (
+        report.diagnosticOnly === true ||
+        Date.parse(report.completedAt) < runStartedAt.getTime()
+      )
+        return [];
+      return (report.failures ?? []).flatMap(({ title, project }) => {
+        const route = COMPONENT_ROUTES.find((candidate) =>
+          CONTRACT_ASSERTIONS.some(
+            ({ title: suffix }) => title === `${candidate} ${suffix}`,
+          ),
+        );
+        return route && project
+          ? [{ kind: "contract", route, project, title }]
+          : [];
+      });
+    } catch {
+      return [];
+    }
+  }
+  return [];
+});
 atomicWriteJson(LAST_FAILURE, {
   mode,
   runId,
@@ -986,6 +1043,7 @@ atomicWriteJson(LAST_FAILURE, {
   completedAt: new Date().toISOString(),
   base: { ref: baseRef, sha: rangeStart },
   failures: failed,
+  retryTargets,
   reports: [
     ...results.map((result) =>
       join(".gates", "runs", runId, `${result.id}.json`),

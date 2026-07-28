@@ -101,6 +101,11 @@ change-profile receipt cannot downgrade stronger exact-tree production evidence;
 retained and makes that evidence ineligible. Carried Version PR receipts never qualify. Enablement
 requires 20 following observations with zero escapes and separate MK approval.
 
+`pnpm gates:retry` reruns exact structured failure selectors for diagnosis only. It refuses an empty
+selector, a stale tree, a renamed test, an unknown engine/project/route, or zero executed tests. Its
+report cannot enter `.gates/evidence/` or `.gates/receipt.json`, and the original failure remains
+byte-identical even when the diagnostic passes. The applicable blocking ladder must run again.
+
 PR CI is receipt-first: `verify` has `needs: receipt-guard`, so invalid receipt evidence stops before
 the long free-mini reexecution. The self-hosted pnpm-cache removal experiment is committed disabled;
 only `SELF_HOSTED_PNPM_CACHE_CANARY=enabled` plus an exact

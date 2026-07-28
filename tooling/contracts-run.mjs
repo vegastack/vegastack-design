@@ -31,13 +31,7 @@
 
 import { spawn, spawnSync } from "node:child_process";
 import { createServer } from "node:net";
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -52,6 +46,7 @@ import {
   CONTRACT_PROJECTS,
   FULL_CONTRACT_TESTS,
 } from "./lib/gate-profile.mjs";
+import { atomicWriteJson } from "./lib/measurement-report.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const DOCS = join(ROOT, "apps/docs");
@@ -71,6 +66,8 @@ const USAGE = `Usage: node tooling/contracts-run.mjs [options]
   --scope          check only the routes the diff can have moved (default)
   --all            check every component route (${COMPONENT_ROUTES.length} routes, ${FULL_TEST_COUNT} tests)
   --routes a,b     check exactly these routes
+  --project <name> check exactly one Playwright project (diagnostic use)
+  --title <title>  check exactly one complete contract title (diagnostic use)
   --base <ref>     diff against this ref (default: origin/main, falling back to main)
   --report <path>  where to write the JSON report (default: .gates/contracts.json)
   --dry-run        print the computed scope and exit without building or testing
@@ -93,6 +90,8 @@ function parseOptions(argv) {
     report: DEFAULT_REPORT,
     dryRun: false,
     port: null,
+    project: null,
+    title: null,
   };
   for (let index = 0; index < argv.length; index++) {
     const flag = argv[index];
@@ -110,6 +109,8 @@ function parseOptions(argv) {
         .filter(Boolean);
     else if (flag === "--base") options.base = value();
     else if (flag === "--report") options.report = resolve(ROOT, value());
+    else if (flag === "--project") options.project = value();
+    else if (flag === "--title") options.title = value();
     else if (flag === "--dry-run") options.dryRun = true;
     else if (flag === "--port") options.port = Number(value());
     else if (flag === "--help" || flag === "-h") {
@@ -188,6 +189,19 @@ const selectedRoutes =
     ? [...COMPONENT_ROUTES]
     : [...selection.routes].sort();
 const isFullSweep = selection.routes === null;
+if (options.project && !CONTRACT_PROJECTS.includes(options.project))
+  fatal(`unknown --project ${options.project}`);
+if (options.title) {
+  if (selectedRoutes.length !== 1)
+    fatal("--title requires exactly one route through --routes");
+  const allowed = TITLE_SUFFIXES.map(
+    (suffix) => `${selectedRoutes[0]} ${suffix}`,
+  );
+  if (!allowed.includes(options.title))
+    fatal(
+      `--title is stale or not an exact contract assertion for ${selectedRoutes[0]}`,
+    );
+}
 
 console.log(
   `contracts-run: base ${baseRef} (${mergeBase.slice(0, 8)}) → working tree`,
@@ -204,27 +218,23 @@ console.log(
 /** Write the report, then leave with `code`. Every exit after scoping goes through here. */
 function finish(code, payload) {
   mkdirSync(GATES_DIR, { recursive: true });
-  writeFileSync(
-    options.report,
-    `${JSON.stringify(
-      {
-        gate: "contracts",
-        lane: "contract",
-        completedAt: new Date().toISOString(),
-        base: { ref: baseRef, sha: mergeBase },
-        scope: {
-          mode,
-          reason: selection.reason,
-          full: isFullSweep,
-          routes: selectedRoutes,
-          changedFiles: changedFiles.length,
-        },
-        ...payload,
-      },
-      null,
-      2,
-    )}\n`,
-  );
+  atomicWriteJson(options.report, {
+    gate: "contracts",
+    lane: "contract",
+    diagnosticOnly: Boolean(options.project || options.title),
+    completedAt: new Date().toISOString(),
+    base: { ref: baseRef, sha: mergeBase },
+    scope: {
+      mode,
+      reason: selection.reason,
+      full: isFullSweep,
+      routes: selectedRoutes,
+      project: options.project,
+      title: options.title,
+      changedFiles: changedFiles.length,
+    },
+    ...payload,
+  });
   process.exit(code);
 }
 
@@ -245,12 +255,17 @@ if (!isFullSweep && selectedRoutes.length === 0) {
   });
 }
 
-const grep = isFullSweep
-  ? null
-  : `(${selectedRoutes.map(escapeRegExp).join("|")}) (${TITLE_SUFFIXES.map(escapeRegExp).join("|")})`;
-const expected = isFullSweep
-  ? COMPONENT_ROUTES.length * TITLE_SUFFIXES.length * PROJECT_COUNT
-  : selectedRoutes.length * TITLE_SUFFIXES.length * PROJECT_COUNT;
+const grep = options.title
+  ? `${escapeRegExp(options.title)}$`
+  : isFullSweep
+    ? null
+    : `(${selectedRoutes.map(escapeRegExp).join("|")}) (${TITLE_SUFFIXES.map(escapeRegExp).join("|")})`;
+const selectedProjectCount = options.project ? 1 : PROJECT_COUNT;
+const selectedTitleCount = options.title ? 1 : TITLE_SUFFIXES.length;
+const expected =
+  (isFullSweep ? COMPONENT_ROUTES.length : selectedRoutes.length) *
+  selectedTitleCount *
+  selectedProjectCount;
 
 if (options.dryRun) {
   console.log(`contracts-run: grep ${grep ?? "(none — full suite)"}`);
@@ -413,6 +428,7 @@ const listArgs = [
   "--reporter=json",
 ];
 if (grep) listArgs.push("--grep", grep);
+if (options.project) listArgs.push("--project", options.project);
 // `PLAYWRIGHT_JSON_OUTPUT_NAME` is deliberately ABSENT from this call's environment. With it set the
 // json reporter targets that file, and under `--list` Playwright then writes its list format to
 // stdout and no file at all — so parsing stdout as JSON fails on the literal text "Listing tests:".
@@ -451,7 +467,7 @@ if (listedCount !== expected) {
   reapServer();
   fatal(
     `grep selected ${listedCount} test(s) but ${expected} were expected for ` +
-      `${selectedRoutes.length} route(s) × ${TITLE_SUFFIXES.length} assertion(s) × ${PROJECT_COUNT} project(s).\n` +
+      `${selectedRoutes.length} route(s) × ${selectedTitleCount} assertion(s) × ${selectedProjectCount} project(s).\n` +
       `             Either the grep anchoring is wrong or contracts.spec.ts changed shape. ` +
       `Both are defects, not conditions to adjust to.`,
   );
@@ -466,6 +482,7 @@ const testArgs = [
   "--reporter=list,json",
 ];
 if (grep) testArgs.push("--grep", grep);
+if (options.project) testArgs.push("--project", options.project);
 const run = spawnSync("pnpm", testArgs, {
   cwd: DOCS,
   stdio: "inherit",

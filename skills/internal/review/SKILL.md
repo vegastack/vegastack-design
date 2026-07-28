@@ -189,6 +189,11 @@ production-full receipt may dominate a later successful weaker change receipt on
 tree/toolchain/authority; a carried or stale receipt is ineligible. A later failure must remain
 visible and must make the retained receipt ineligible for reuse.
 
+For retry changes, force empty, renamed, stale-tree, unknown engine/project/route, and zero-executed
+selectors. A valid retry report must be nonempty, `diagnosticOnly: true`, and
+`evidenceWritten: false`; hash the original failure and receipt before/after. A retry pass that
+removes the original failure, writes evidence, or becomes receipt input is a high finding.
+
 Reviewing a before/after report:
 
 - **Individually review every entry.** N non-unchanged entries is N decisions. Read the before,

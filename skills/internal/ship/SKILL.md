@@ -76,6 +76,10 @@ still executes its planned browser/contract lanes. Reuse is shadow-only until th
 zero-escape checkpoint and separate MK approval. Do not interpret `would-reuse` as a skip, and do
 not replace the production-full receipt with a weaker change receipt.
 
+`pnpm gates:retry` is a diagnostic aid after failure, never a release step. Its pass cannot satisfy
+this checklist, clear `.gates/last-failure.json`, or contribute a receipt leaf. Run the applicable
+blocking ladder again after the root fix.
+
 **If `git status` is not empty:** that is the signal, not an obstacle. Either the regenerated
 surfaces above changed (commit them with the work that caused them) or there is unrelated
 uncommitted work in the tree (finish or stash it). Never ship from a dirty tree — the version job

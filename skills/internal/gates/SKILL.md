@@ -83,6 +83,13 @@ oracle still runs. A later weaker successful receipt cannot overwrite stronger e
 a later failure is annotated onto it so stale success cannot erase the failure. Carried, stale,
 wrong-toolchain, wrong-authority, malformed, or partial receipts always execute.
 
+When `retryTargets` is nonempty in `.gates/last-failure.json`, `pnpm gates:retry` reruns each exact
+file/engine/full-test-name or route/project/full-title selector. It rejects stale trees, missing or
+renamed files, empty selectors, and unknown engines/projects/routes before execution. The result is
+written to `.gates/retry-report.json` with `diagnosticOnly: true` and `evidenceWritten: false`.
+Even a pass must leave the original failure, receipt, and `.gates/evidence/` byte-identical. It tells
+you whether the specimen still reproduces; it never clears the gate or advances shipping evidence.
+
 Common CI rejections and what each actually means:
 
 | `verify-gate-receipt` says                                      | Cause                                                       | Fix                                                               |
@@ -99,6 +106,7 @@ Common CI rejections and what each actually means:
 ```bash
 pnpm gates:commit                 # ~3s   static gates, staged files
 pnpm gates:push                   # ~35-80s  + unit · smoke · scoped contracts, writes the receipt
+pnpm gates:retry                  # exact failing selectors; diagnostic only, writes no evidence
 pnpm gates:component <name>       # the inner loop while building one component
 pnpm gates:ship                   # the full sweep — /ship requires it
 ```

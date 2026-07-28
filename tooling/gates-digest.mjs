@@ -59,6 +59,11 @@ function main() {
     if (excerpt)
       lines.push("  ```", ...excerpt.split("\n").map((l) => `  ${l}`), "  ```");
   }
+  if ((failure.retryTargets?.length ?? 0) > 0)
+    lines.push(
+      "",
+      `Exact diagnostic selectors retained: ${failure.retryTargets.length}. Run \`pnpm gates:retry\`; a pass diagnoses only and does not clear this failure or write receipt evidence.`,
+    );
   lines.push(
     "",
     `Full report: \`.gates/last-failure.json\`${

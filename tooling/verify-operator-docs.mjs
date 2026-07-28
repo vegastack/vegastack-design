@@ -70,6 +70,14 @@ export function operatorDocProblems(sources) {
       problems.push(
         `${file}: [reuse-shadow] current instructions claim exact-tree reuse is enabled or skips a planned lane`,
       );
+    if (
+      /retry pass[^\n]{0,100}(?:clears? (?:the )?(?:original )?failure|writes? (?:receipt )?evidence|satisf(?:y|ies) (?:the )?(?:gate|receipt))/i.test(
+        source,
+      )
+    )
+      problems.push(
+        `${file}: [retry-diagnostic] current instructions promote a retry pass into blocking evidence`,
+      );
   }
 
   const agents = sources["AGENTS.md"] ?? "";
@@ -107,6 +115,16 @@ export function operatorDocProblems(sources) {
   if (!/upload is not completion[\s\S]{0,180}deployment-complete/i.test(ship))
     problems.push(
       "skills/internal/ship/SKILL.md: [deployment-terminal] must distinguish upload from the deployment-complete terminal job",
+    );
+
+  const gates = sources["skills/internal/gates/SKILL.md"] ?? "";
+  if (
+    !/gates:retry[\s\S]{0,300}diagnosticOnly[\s\S]{0,120}evidenceWritten: false/i.test(
+      gates,
+    )
+  )
+    problems.push(
+      "skills/internal/gates/SKILL.md: [retry-diagnostic] must state that retry is diagnostic-only and writes no evidence",
     );
 
   const releasing = sources["docs/RELEASING.md"] ?? "";
@@ -156,6 +174,8 @@ const validFixture = {
     "Point-in-time historical record. D11 is superseded: /internal/* is anonymous under the current boundary.",
   "skills/internal/ship/SKILL.md":
     "Schema 2 production-full evidence includes all-browsers. Upload is not completion; require deployment-complete.",
+  "skills/internal/gates/SKILL.md":
+    "gates:retry writes diagnosticOnly: true and evidenceWritten: false.",
 };
 assert.deepEqual(operatorDocProblems(validFixture), []);
 for (const [label, file, text, expected] of [
@@ -213,6 +233,12 @@ for (const [label, file, text, expected] of [
     "Exact-tree receipt reuse is enabled and skips browser lanes.",
     /reuse-shadow/,
   ],
+  [
+    "retry promoted to evidence",
+    "skills/internal/gates/SKILL.md",
+    "A retry pass clears the original failure and writes receipt evidence.",
+    /retry-diagnostic/,
+  ],
 ]) {
   const mutated = { ...validFixture, [file]: text };
   const problems = operatorDocProblems(mutated);
@@ -228,5 +254,5 @@ if (problems.length > 0) {
   process.exit(1);
 }
 console.log(
-  `✓ operator docs: ${CURRENT_SURFACES.length} current surfaces agree on topology, browser location, counts, receipt/reuse ordering, terminal deployment, and schema-2 production evidence; 9 semantic stale-instruction fixtures rejected`,
+  `✓ operator docs: ${CURRENT_SURFACES.length} current surfaces agree on topology, browser location, counts, receipt/reuse/retry ordering, terminal deployment, and schema-2 production evidence; 10 semantic stale-instruction fixtures rejected`,
 );
