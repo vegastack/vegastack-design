@@ -47,6 +47,11 @@ import {
   escapeRegExp,
   selectRoutes,
 } from "./lib/route-scope.mjs";
+import {
+  CONTRACT_ASSERTIONS,
+  CONTRACT_PROJECTS,
+  FULL_CONTRACT_TESTS,
+} from "./lib/gate-profile.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const DOCS = join(ROOT, "apps/docs");
@@ -55,15 +60,11 @@ const DEFAULT_REPORT = join(GATES_DIR, "contracts.json");
 
 // The two test titles `contracts.spec.ts` generates per route. They anchor the grep: without a
 // literal suffix, `/docs/components/button` would also select `/docs/components/button-group`.
-const TITLE_SUFFIXES = [
-  "contains its primary fixture at 320px",
-  "retains focus visibility and effective 24px pointer targets",
-];
+const TITLE_SUFFIXES = CONTRACT_ASSERTIONS.map(({ title }) => title);
 // Every Playwright project in apps/docs/playwright.config.ts. Used only to predict the expected
 // test count; a mismatch against `--list` fails rather than silently adjusting.
-const PROJECT_COUNT = 4;
-const FULL_TEST_COUNT =
-  COMPONENT_ROUTES.length * TITLE_SUFFIXES.length * PROJECT_COUNT;
+const PROJECT_COUNT = CONTRACT_PROJECTS.length;
+const FULL_TEST_COUNT = FULL_CONTRACT_TESTS;
 
 const USAGE = `Usage: node tooling/contracts-run.mjs [options]
 

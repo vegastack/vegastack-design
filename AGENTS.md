@@ -112,6 +112,11 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
   fail `receipt-guard` and no npm publish could ever happen. Untracked files, missing diff records,
   binary changes, file-mode changes, renames, and deletions can never ride that exemption; unknown
   paths widen coverage.
+  Receipt schema 2 also carries a canonical sorted evidence-leaf manifest. For production, the guard
+  independently reconstructs unit/axe, smoke, complete Chromium/Firefox/WebKit, and all 108-route /
+  864-contract leaves from the checked-out tree; a `mode: ship` label or coverage root without leaves
+  is rejected. Except for the independently re-derived version-bump carry, production leaves must
+  name the exact receipt tree as `executedOnTree`.
   `tooling/verify-hooks-installed.mjs` runs inside `pnpm lint` because a tree
   whose hooks are missing or unwired has no browser verification at all, and husky's dispatcher exits
   **zero** when a committed hook is absent.
@@ -350,6 +355,10 @@ three engines (measured 1m39s). The smoke selection is generated from
 `coverage.crossBrowserSmoke: "selected"` in `packages/ui/component-contracts.json` — add a component
 to it only for motion or another evidenced cross-engine risk, never by editing the generated
 `contract-smoke-tests.generated.json`.
+
+The docs export cache warm-up must finish before every browser lane. `verify-gate-schedule.mjs`
+rejects overlap in component, push, and ship; do not trade browser stability for apparent wall-time
+savings.
 
 ### Docs authoring
 

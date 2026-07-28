@@ -20,15 +20,43 @@ import {
   SCHEMA,
   verifyReceipt,
 } from "./lib/gate-receipt.mjs";
+import {
+  BROWSER_ENGINES,
+  buildEvidenceManifest,
+  CHANGE_PROFILE,
+  FULL_CONTRACT_TESTS,
+  PRODUCTION_PROFILE,
+} from "./lib/gate-profile.mjs";
+import { COMPONENT_ROUTES } from "./lib/route-scope.mjs";
 
 const TREE = "tree-1111111111111111111111111111111111111111";
 const CONTRACT_SHA = "a".repeat(64);
 const PINNED = { "@playwright/test": "1.61.0", playwright: "1.61.0" };
+const SCOPED_ROUTES = COMPONENT_ROUTES.slice(0, 2);
+
+function evidence({
+  profile = CHANGE_PROFILE,
+  required = { contracts: true, unit: true, smoke: true },
+  routes = SCOPED_ROUTES,
+  tree = TREE,
+  executedOnTree = tree,
+} = {}) {
+  return buildEvidenceManifest({
+    profile,
+    required,
+    contractRoutes: routes,
+    tree,
+    executedOnTree,
+    toolchain: PINNED,
+    contractSha256: CONTRACT_SHA,
+  });
+}
 
 /** A receipt that must pass, so every negative below differs by exactly one fact. */
 function validReceipt(overrides = {}) {
   return {
     schema: SCHEMA,
+    profile: CHANGE_PROFILE,
     tree: TREE,
     head: "b".repeat(40),
     writtenAt: "2026-07-25T00:00:00.000Z",
@@ -39,16 +67,27 @@ function validReceipt(overrides = {}) {
     gates: {
       typecheck: { status: "pass", durationMs: 12_000 },
       lint: { status: "pass", durationMs: 20_000 },
-      unit: { status: "pass", durationMs: 16_000 },
-      smoke: { status: "pass", durationMs: 16_000 },
+      unit: {
+        status: "pass",
+        durationMs: 16_000,
+        engines: ["chromium"],
+      },
+      smoke: {
+        status: "pass",
+        durationMs: 16_000,
+        engines: [...BROWSER_ENGINES],
+      },
       contracts: {
         status: "pass",
         durationMs: 24_000,
         executed: 16,
         full: false,
         scopeRoutes: 2,
+        routes: SCOPED_ROUTES,
+        expected: 16,
       },
     },
+    evidence: evidence(),
     skips: [],
     ...overrides,
   };
@@ -60,7 +99,39 @@ const BASE_EXPECTATIONS = {
   pinned: PINNED,
   contractSha: CONTRACT_SHA,
   allowedSkips: [],
+  profile: CHANGE_PROFILE,
+  contractRoutes: SCOPED_ROUTES,
 };
+
+function validProductionReceipt(overrides = {}) {
+  return validReceipt({
+    mode: "ship",
+    profile: PRODUCTION_PROFILE,
+    gates: {
+      typecheck: { status: "pass", durationMs: 12_000 },
+      lint: { status: "pass", durationMs: 20_000 },
+      unit: { status: "pass", engines: ["chromium"] },
+      smoke: { status: "pass", engines: [...BROWSER_ENGINES] },
+      "all-browsers": {
+        status: "pass",
+        engines: [...BROWSER_ENGINES],
+      },
+      contracts: {
+        status: "pass",
+        full: true,
+        scopeRoutes: COMPONENT_ROUTES.length,
+        routes: [...COMPONENT_ROUTES],
+        expected: FULL_CONTRACT_TESTS,
+        executed: FULL_CONTRACT_TESTS,
+      },
+    },
+    evidence: evidence({
+      profile: PRODUCTION_PROFILE,
+      routes: COMPONENT_ROUTES,
+    }),
+    ...overrides,
+  });
+}
 
 let checks = 0;
 
@@ -96,6 +167,21 @@ function expectReject(receipt, expectations, pattern, label) {
 // ── the positive control ─────────────────────────────────────────────────────────────────────────
 
 expectPass(validReceipt(), {}, "a complete, current receipt");
+expectPass(
+  validProductionReceipt(),
+  { profile: PRODUCTION_PROFILE, contractRoutes: COMPONENT_ROUTES },
+  "a complete schema-v2 production-full receipt",
+);
+
+// Production used to pass the same expectations as a scoped push. `mode: ship` was merely a word,
+// all-browsers could not be represented at all, and 2 routes/16 checks satisfied deploy. This
+// mutation must become a rejection before any evidence reuse work is allowed.
+expectReject(
+  validReceipt({ mode: "ship" }),
+  { profile: "production-full" },
+  /production-full|all-browsers|complete three-engine|108 routes|864/,
+  "a scoped ship receipt with no complete three-engine evidence",
+);
 
 // A change requiring nothing conditional still requires the always-on pair.
 expectPass(
@@ -110,8 +196,15 @@ expectPass(
         reason: "no smoke-selected component changed",
       },
     },
+    evidence: evidence({
+      required: { contracts: false, unit: false, smoke: false },
+      routes: [],
+    }),
   }),
-  { required: { contracts: false, unit: false, smoke: false } },
+  {
+    required: { contracts: false, unit: false, smoke: false },
+    contractRoutes: [],
+  },
   "legitimately skipped conditional gates when the change does not require them",
 );
 
@@ -146,6 +239,12 @@ expectReject(
   {},
   /schema/,
   "a receipt from a future schema",
+);
+expectReject(
+  validReceipt({ schema: SCHEMA - 1 }),
+  {},
+  /schema/,
+  "an old schema-1 receipt",
 );
 expectReject(
   validReceipt({ contractSha256: "f".repeat(64) }),
@@ -269,6 +368,145 @@ expectReject(
   "a contracts gate that does not record how many tests it executed",
 );
 
+// ── production-full completeness ─────────────────────────────────────────────────────────────────
+
+{
+  const receipt = validProductionReceipt();
+  delete receipt.gates["all-browsers"];
+  expectReject(
+    receipt,
+    { profile: PRODUCTION_PROFILE, contractRoutes: COMPONENT_ROUTES },
+    /all-browsers/,
+    "production evidence missing the complete three-engine gate",
+  );
+}
+expectReject(
+  validProductionReceipt({
+    gates: {
+      ...validProductionReceipt().gates,
+      "all-browsers": { status: "pass", engines: ["chromium", "firefox"] },
+    },
+  }),
+  { profile: PRODUCTION_PROFILE, contractRoutes: COMPONENT_ROUTES },
+  /complete three-engine/,
+  "complete-browser evidence missing WebKit",
+);
+expectReject(
+  validProductionReceipt({
+    gates: {
+      ...validProductionReceipt().gates,
+      contracts: {
+        ...validProductionReceipt().gates.contracts,
+        full: false,
+      },
+    },
+  }),
+  { profile: PRODUCTION_PROFILE, contractRoutes: COMPONENT_ROUTES },
+  /full contracts report|scoped evidence/,
+  "a scoped contracts report presented as production-full",
+);
+expectReject(
+  validProductionReceipt({
+    gates: {
+      ...validProductionReceipt().gates,
+      contracts: {
+        ...validProductionReceipt().gates.contracts,
+        routes: COMPONENT_ROUTES.slice(1),
+        scopeRoutes: COMPONENT_ROUTES.length - 1,
+      },
+    },
+  }),
+  { profile: PRODUCTION_PROFILE, contractRoutes: COMPONENT_ROUTES },
+  /route manifest is incomplete/,
+  "production contracts missing one authoritative route",
+);
+for (const [field, value] of [
+  ["executed", FULL_CONTRACT_TESTS - 1],
+  ["expected", FULL_CONTRACT_TESTS - 1],
+])
+  expectReject(
+    validProductionReceipt({
+      gates: {
+        ...validProductionReceipt().gates,
+        contracts: {
+          ...validProductionReceipt().gates.contracts,
+          [field]: value,
+        },
+      },
+    }),
+    { profile: PRODUCTION_PROFILE, contractRoutes: COMPONENT_ROUTES },
+    new RegExp(field === "executed" ? "expected exactly" : "expected-count"),
+    `production contracts with wrong ${field} count`,
+  );
+
+// ── canonical leaf-manifest integrity ────────────────────────────────────────────────────────────
+
+function mutateEvidence(mutator) {
+  const receipt = validProductionReceipt();
+  receipt.evidence = structuredClone(receipt.evidence);
+  mutator(receipt.evidence);
+  return receipt;
+}
+
+expectReject(
+  validProductionReceipt({
+    evidence: { coverageRoot: "f".repeat(64) },
+  }),
+  { profile: PRODUCTION_PROFILE, contractRoutes: COMPONENT_ROUTES },
+  /no canonical evidence-leaf manifest|digest alone/,
+  "an opaque coverage root with no leaves",
+);
+expectReject(
+  mutateEvidence((evidence) => evidence.leaves.pop()),
+  { profile: PRODUCTION_PROFILE, contractRoutes: COMPONENT_ROUTES },
+  /missing 1 required leaf/,
+  "a manifest missing one required leaf",
+);
+expectReject(
+  mutateEvidence((evidence) => evidence.leaves.push(evidence.leaves[0])),
+  { profile: PRODUCTION_PROFILE, contractRoutes: COMPONENT_ROUTES },
+  /duplicate or missing unit IDs/,
+  "a manifest with a duplicate leaf key",
+);
+expectReject(
+  mutateEvidence((evidence) => evidence.leaves.reverse()),
+  { profile: PRODUCTION_PROFILE, contractRoutes: COMPONENT_ROUTES },
+  /canonical sorted/,
+  "an unsorted leaf manifest",
+);
+expectReject(
+  mutateEvidence((evidence) => {
+    evidence.leaves[0].fingerprints.subject = "0".repeat(64);
+  }),
+  { profile: PRODUCTION_PROFILE, contractRoutes: COMPONENT_ROUTES },
+  /wrong profile, result, executed tree, or content\/toolchain\/authority fingerprint/,
+  "a leaf with a forged subject fingerprint",
+);
+expectReject(
+  mutateEvidence((evidence) => {
+    evidence.leaves[0].executedOnTree = "tree-" + "9".repeat(40);
+  }),
+  { profile: PRODUCTION_PROFILE, contractRoutes: COMPONENT_ROUTES },
+  /wrong profile, result, executed tree/,
+  "a production leaf executed on a different tree",
+);
+expectReject(
+  mutateEvidence((evidence) => {
+    evidence.requiredUniverse.total--;
+  }),
+  { profile: PRODUCTION_PROFILE, contractRoutes: COMPONENT_ROUTES },
+  /required-universe/,
+  "a forged required-universe count",
+);
+expectReject(
+  mutateEvidence((evidence) => {
+    evidence.coverageRoot = "0".repeat(64);
+  }),
+  { profile: PRODUCTION_PROFILE, contractRoutes: COMPONENT_ROUTES },
+  /coverage root does not match/,
+  "a coverage root that does not match its leaves",
+);
+
 // ── the loud door ────────────────────────────────────────────────────────────────────────────────
 
 expectReject(
@@ -303,20 +541,26 @@ const CARRIED = {
   carriedFrom: "tree-" + "e".repeat(40),
   carryReason: "version-bump",
 };
+const carriedReceipt = (overrides = {}) =>
+  validReceipt({
+    ...CARRIED,
+    evidence: evidence({ executedOnTree: CARRIED.carriedFrom }),
+    ...overrides,
+  });
 
 expectPass(
-  validReceipt(CARRIED),
+  carriedReceipt(),
   { carryVerified: { ok: true, offenders: [], files: 1593 } },
   "a carried receipt whose diff the caller PROVED is version churn",
 );
 expectReject(
-  validReceipt(CARRIED),
+  carriedReceipt(),
   {},
   /did not verify that claim against git/,
   "a carried receipt the caller did not verify at all",
 );
 expectReject(
-  validReceipt(CARRIED),
+  carriedReceipt(),
   {
     carryVerified: {
       ok: false,

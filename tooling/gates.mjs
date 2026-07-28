@@ -26,7 +26,8 @@
 //   2. THE DOCS CACHE WARM-UP RUNS AFTER THE TURBO GATES, never alongside them. `pnpm typecheck` and
 //      `turbo run lint` are themselves turbo runs, and two turbo processes building the same task
 //      contend — observed as a failed warm-up on a run whose contract lane then rebuilt and passed
-//      anyway. It now overlaps only the unit and smoke lanes, which invoke package scripts directly.
+//      anyway. Browser timing also proved unstable under a concurrent export, so every browser lane
+//      now starts only after this warm-up has finished.
 //      A failed warm-up is never a gate failure: `contracts-run.mjs` re-runs the same command and is
 //      the freshness authority.
 //
@@ -64,6 +65,12 @@ import {
   RECEIPT_REPO_PATH,
   SCHEMA,
 } from "./lib/gate-receipt.mjs";
+import {
+  BROWSER_ENGINES,
+  buildEvidenceManifest,
+  CHANGE_PROFILE,
+  PRODUCTION_PROFILE,
+} from "./lib/gate-profile.mjs";
 import {
   CONTRACT_SCOPE,
   COMPONENT_ROUTES,
@@ -233,8 +240,9 @@ const unitRelevant = changed.some((file) =>
 // TIMING IS LOAD-BEARING HERE, and it was wrong once. This must NOT overlap `pnpm typecheck` or
 // `turbo run lint`: those are themselves turbo runs, and two turbo processes building the same task
 // contend — observed as `gates: the parallel docs build failed` on a run whose contract lane then
-// rebuilt and passed anyway. So it starts AFTER the turbo-based gates and overlaps only the unit and
-// smoke lanes, which invoke package scripts directly (~30s of cover).
+// rebuilt and passed anyway. So it starts AFTER the turbo-based gates and must finish before every
+// browser lane. Chromium canvas timing and WebKit/Firefox interaction timing have each produced
+// isolated failures under concurrent cold-export CPU/memory pressure.
 //
 // A failure here is not a gate failure. `contracts-run.mjs` re-runs the same turbo command and is the
 // freshness authority; this is purely a cache warm-up, so it stays quiet unless --verbose.
@@ -425,6 +433,7 @@ async function runPush() {
   // Safe to warm now: the turbo-based gates are done, and the lanes below invoke package scripts
   // directly, so nothing contends for the same turbo task.
   if (contractsRelevant) startDocsBuild();
+  if (contractsRelevant) await awaitDocsBuild();
 
   if (unitRelevant)
     gate("unit", "browser unit suite + axe", "pnpm", [
@@ -453,7 +462,6 @@ async function runPush() {
     );
 
   if (contractsRelevant) {
-    await awaitDocsBuild();
     gate(
       "contracts",
       `behaviour contracts (${
@@ -489,6 +497,7 @@ async function runComponent() {
     "design-lint (registry)",
     ...node("tooling/design-lint.mjs", "packages/ui/registry"),
   );
+  await awaitDocsBuild();
 
   const testFile = `registry/ui/${name}.test.tsx`;
   if (existsSync(join(ROOT, "packages/ui", testFile)))
@@ -501,8 +510,6 @@ async function runComponent() {
       testFile,
     ]);
   else skip("unit", `unit suite — ${name}`, "no test file yet");
-
-  await awaitDocsBuild();
 
   // EXPLICIT ROUTES, not the diff scope. This is the inner loop for ONE component, so it must check
   // that component and everything composing it — nothing else, and nothing less. Deriving the routes
@@ -544,6 +551,7 @@ async function runShip() {
 
   // Warm only now — see startDocsBuild: overlapping a turbo-based gate makes two turbo runs contend.
   startDocsBuild();
+  await awaitDocsBuild();
 
   gate("unit", "browser unit suite + axe", "pnpm", [
     "--filter",
@@ -555,11 +563,7 @@ async function runShip() {
     "@vegastack/ui",
     "test:smoke",
   ]);
-  // Keep the complete three-engine suite out of a cold Next export's CPU/memory pressure. The
-  // warm-up is intentionally overlapped only with unit + smoke (as documented above); allowing it
-  // to spill into this lane produced a lone 15s WebKit timeout while the exact test passed 6/6 in
-  // isolation and the warmed complete suite passed 4,408/4,408.
-  await awaitDocsBuild();
+  // The barrier above keeps every browser lane out of cold-export pressure.
   gate(
     "all-browsers",
     "three-engine suite (complete)",
@@ -592,6 +596,7 @@ const declaredSkip = process.env.GATES_SKIP?.trim() || null;
 
 function writeReceipt() {
   const { hash, files } = workingTreeContentHash();
+  const profile = mode === "ship" ? PRODUCTION_PROFILE : CHANGE_PROFILE;
   const gates = {};
   for (const result of results) {
     if (!ALL_GATES.includes(result.id)) continue;
@@ -600,6 +605,9 @@ function writeReceipt() {
       durationMs: result.durationMs,
       ...(result.reason ? { reason: result.reason } : {}),
     };
+    if (result.id === "unit") gates[result.id].engines = ["chromium"];
+    if (result.id === "smoke" || result.id === "all-browsers")
+      gates[result.id].engines = [...BROWSER_ENGINES];
   }
 
   // The contracts gate's own report carries the facts the guard needs to reject a green-but-empty
@@ -615,14 +623,40 @@ function writeReceipt() {
   })();
   if (gates.contracts && contractsReport) {
     gates.contracts.executed = contractsReport.executed ?? 0;
+    gates.contracts.expected = contractsReport.expected ?? 0;
     gates.contracts.full = contractsReport.scope?.full ?? false;
     gates.contracts.scopeRoutes = contractsReport.scope?.routes?.length ?? 0;
+    gates.contracts.routes = contractsReport.scope?.routes ?? [];
     if (contractsReport.status === "skipped")
       gates.contracts.status = "skipped";
   }
+  if (gates.contracts?.status === "pass" && !contractsReport)
+    fatal(
+      "contracts passed but .gates/contracts.json is missing or unreadable; refusing to write unverifiable receipt evidence",
+    );
+
+  const evidence = buildEvidenceManifest({
+    profile,
+    required: {
+      contracts: contractsRelevant,
+      unit: unitRelevant,
+      smoke: smokeRelevant,
+    },
+    contractRoutes:
+      profile === PRODUCTION_PROFILE
+        ? COMPONENT_ROUTES
+        : (contractsReport?.scope?.routes ?? []),
+    tree: hash,
+    toolchain: installedToolchain(),
+    contractSha256: contractSha256(),
+    passedGates: Object.entries(gates)
+      .filter(([, entry]) => entry.status === "pass")
+      .map(([name]) => name),
+  });
 
   const receipt = {
     schema: SCHEMA,
+    profile,
     tree: hash,
     treeFiles: files,
     head: resolveCommit("HEAD"),
@@ -632,6 +666,7 @@ function writeReceipt() {
     host: { platform: platform(), arch: arch(), node: process.version },
     toolchain: installedToolchain(),
     contractSha256: contractSha256(),
+    evidence,
     classified: {
       contracts: contractsRelevant,
       unit: unitRelevant,

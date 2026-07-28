@@ -229,8 +229,9 @@ Two recovery-specific follow-ons:
 - A lone browser timeout in a cold full sweep is neither a reason to waive the lane nor proof of a
   component defect. Re-run that exact engine/test repeatedly, then the complete suite on the warm
   tree. In this incident the test passed 6/6 targeted attempts and all 4,408 runnable tests passed in
-  the complete rerun, so no assertion or timeout budget was weakened. The ship ladder now also
-  awaits its cold docs warm-up before the complete browser lane, matching its stated ordering.
+  the complete rerun, so no assertion or timeout budget was weakened. The ship ladder's docs
+  warm-up finishes before every browser lane. `verify-gate-schedule.mjs` enforces that barrier in
+  component, push, and ship.
 
 After publishing, `classify-change --check-npm` reports nothing unpublished, so a later docs-only push
 correctly leaves `publish=false` and cannot re-publish by accident.
@@ -239,6 +240,6 @@ correctly leaves `publish=false` and cannot re-publish by accident.
 
 **The forced-colors focus assertion cannot fail.** Chromium paints its own ≥2px ring in that mode and
 forced-colors repaints borders, so both branches of `hasOutline || hasTextEntryTint` are always true —
-deleting the design system's focus ring leaves all 768 checks green. Pre-existing, reproduced against
+deleting the design system's focus ring leaves all 864 checks green. Pre-existing, reproduced against
 the spec before the 2026-07-25 rewrite. Fixing it changes what 192 checks assert, so it is scoped
 separately. **Until then it is not coverage.** Evidence: `docs/ledger/bugs.md`, 2026-07-25.

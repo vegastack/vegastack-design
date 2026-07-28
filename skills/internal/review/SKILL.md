@@ -41,7 +41,7 @@ node tooling/design-lint.mjs --token-css packages/design-tokens/src  # token CSS
 node tooling/design-lint.mjs --token-css apps/docs/app               # docs app CSS (!important only)
 node tooling/verify-operator-docs.mjs                                # current topology claims + negative fixtures
 pnpm lint && pnpm typecheck
-pnpm gates:ship                                  # the full sweep, including all 96 contract routes
+pnpm gates:ship                                  # the full sweep, including all 108 contract routes
 pnpm registry:build && git status --porcelain    # must be idempotent — clean tree after
 pnpm design:derived && git status --porcelain    # contract-derived surfaces must be current
 pnpm classify                                    # which gates this change REQUIRES, and why
@@ -155,7 +155,7 @@ severity. **If the task was an audit, stop here — report, never auto-fix.**
 
 ## 8. Visual review discipline
 
-Visual verification is split: **behaviour** is a gate (`apps/docs/vrt/contracts.spec.ts`, 768 checks,
+Visual verification is split: **behaviour** is a gate (`apps/docs/vrt/contracts.spec.ts`, 864 checks,
 no screenshots, no baselines) that runs in `.husky/pre-push` and is attested to CI by
 `.gates/receipt.json`; **pixels** are a local review step (`tooling/vrt-review.mjs`, before/after on
 one machine, nothing committed).

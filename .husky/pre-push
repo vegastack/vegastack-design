@@ -1,6 +1,7 @@
 # The real gate. Under the local-first topology no CI runner executes a browser lane, so this is
 # where the unit suite, the cross-engine smoke, and the scoped behaviour contracts run — and it
-# writes .gates/receipt.json, which CI verifies against the pushed tree.
+# writes a schema-2 `change` receipt, which CI reconstructs against the pushed tree. This hook cannot
+# produce the `production-full` profile deploy requires; only `pnpm gates:ship` can do that.
 #
 # To push despite a failure, use `GATES_SKIP="<reason>" git push`. That records the skip in the
 # receipt and CI rejects it until MK acknowledges. `--no-verify` leaves no trace and is a policy

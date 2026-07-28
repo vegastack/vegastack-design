@@ -568,3 +568,32 @@ each was invisible in review and each is the kind that would have degraded the t
   even when no textual hunk exists. Symlink targets are assessed through git's blob diff.
 - **Generated output is not trusted by name.** An untracked generated path rejects. A tracked output
   remains eligible only where the current quality gate independently regenerates and checks it.
+
+## 2026-07-28 — CI/CD efficiency implementation, decision C
+
+- **Production eligibility is a profile, not a mode string.** Deploy passes
+  `--profile production-full`; a `change` receipt or a forged `mode: ship` label rejects.
+- **The coverage root never substitutes for evidence leaves.** Schema 2 commits the sorted leaves,
+  their required-universe counts/digest, execution tree, and subject/implementation/toolchain/
+  authority fingerprints. The guard reconstructs all of them from the checkout.
+- **Whole-tree fingerprints are intentionally conservative.** The git tree binds bytes, file modes,
+  and symlink blobs and is a correctness-preserving superset of narrower per-unit inputs. Narrowing
+  remains shadow-only until its separate checkpoint.
+- **Artifact attestations do not replace this receipt.** GitHub's official prerequisites exclude
+  private Team repositories, and an attestation would establish provenance rather than test safety
+  in any case. Registry Sigstore and npm OIDC identities remain unchanged.
+- **A failed ship run stays failed.** The first schema-2 sweep recorded unit and smoke failures even
+  though the complete-browser lane and all 864 contracts passed. Its successful later lanes are
+  diagnostic/baseline data only and cannot be composed into a production receipt.
+- **Cold optimizer stability is configuration, not a retry.** Vite now crawls the actual browser
+  test entrypoints and pre-bundles linked workspace exports before mounting tests. The cold
+  1,471-test recovery run is a new execution after the root fix; the failed original is retained in
+  `.gates/last-failure.json` until the next full attempt replaces that diagnostic report.
+- **Cross-engine lanes get an actual resource barrier.** “Await before complete browsers” was too
+  weak: two smoke runs failed different WebKit/Firefox cases while the isolated complete lane passed
+  them. Push and ship now finish the docs export before smoke as well; a mutation test guards both
+  orderings, and no timeout or concurrency was raised.
+- **The barrier covers Chromium too.** A later attempt failed three canvas first-frame assertions
+  while Chromium overlapped the export, then passed isolated smoke. The implementation no longer
+  claims any browser/build overlap is safe; component, push, and ship serialize the warm-up ahead of
+  their first browser lane.

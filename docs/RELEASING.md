@@ -77,6 +77,12 @@ whose receipt does not cover the pushed tree. A receipt is **attestation, not pr
 `tooling/lib/gate-receipt.mjs` and AGENTS.md § Locked decisions for exactly what that does and does
 not buy.
 
+Deploy additionally requires schema-2 `production-full` evidence. The guard reconstructs the
+canonical leaf universe from the checked-out tree: Chromium unit/axe, three-engine smoke, complete
+Chromium/Firefox/WebKit, and 108 routes × four projects × two assertions = 864 contracts. It rejects
+a scoped report, wrong route/test count, missing engine, stale fingerprint/tree/toolchain/authority,
+duplicate/unknown/missing leaf, or an opaque coverage root. `mode: ship` is not authorization.
+
 Everything that executes repository code and needs no browser runs free on the self-hosted mac minis
 (`runs-on: [self-hosted, vsk-runners-mac-mini]`): all of `ci.yml`, `release.yml`'s `changes`,
 `receipt-guard`, `quality-gate` and `version-pr`, and `deploy.yml`'s `ref-guard`, `receipt-guard` and

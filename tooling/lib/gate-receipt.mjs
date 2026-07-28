@@ -27,8 +27,23 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { ROOT } from "./change-set.mjs";
+import {
+  BROWSER_ENGINES,
+  buildEvidenceManifest,
+  canonicalJson,
+  CHANGE_PROFILE,
+  CONTRACT_ASSERTIONS,
+  CONTRACT_PROJECTS,
+  FULL_CONTRACT_TESTS,
+  PRODUCTION_ENVIRONMENT,
+  PRODUCTION_PROFILE,
+  profileRequirements,
+  sha256,
+  VALID_PROFILES,
+} from "./gate-profile.mjs";
+import { COMPONENT_ROUTES } from "./route-scope.mjs";
 
-export const SCHEMA = 1;
+export const SCHEMA = 2;
 export const RECEIPT_PATH = join(ROOT, ".gates/receipt.json");
 export const RECEIPT_REPO_PATH = ".gates/receipt.json";
 
@@ -40,8 +55,13 @@ export const ALWAYS_REQUIRED = ["typecheck", "lint"];
 
 /** Gates required only when the change class calls for them. Every one is a BROWSER lane. */
 export const CONDITIONAL_GATES = ["unit", "smoke", "contracts"];
+export const PRODUCTION_ONLY_GATES = ["all-browsers"];
 
-export const ALL_GATES = [...ALWAYS_REQUIRED, ...CONDITIONAL_GATES];
+export const ALL_GATES = [
+  ...ALWAYS_REQUIRED,
+  ...CONDITIONAL_GATES,
+  ...PRODUCTION_ONLY_GATES,
+];
 
 export const VALID_STATUSES = new Set(["pass", "fail", "skipped"]);
 
@@ -63,6 +83,11 @@ export function pinnedToolchain() {
       null,
     playwright:
       ui.devDependencies?.playwright ?? ui.dependencies?.playwright ?? null,
+    vitest: ui.devDependencies?.vitest ?? ui.dependencies?.vitest ?? null,
+    "@vitest/browser-playwright":
+      ui.devDependencies?.["@vitest/browser-playwright"] ??
+      ui.dependencies?.["@vitest/browser-playwright"] ??
+      null,
   };
 }
 
@@ -80,6 +105,10 @@ export function installedToolchain() {
       "apps/docs/node_modules/@playwright/test/package.json",
     ),
     playwright: version("packages/ui/node_modules/playwright/package.json"),
+    vitest: version("packages/ui/node_modules/vitest/package.json"),
+    "@vitest/browser-playwright": version(
+      "packages/ui/node_modules/@vitest/browser-playwright/package.json",
+    ),
   };
 }
 
@@ -121,6 +150,8 @@ export function verifyReceipt(
     // `carriedFrom` tree and this one. A carry the caller has not verified is rejected below —
     // otherwise `carriedFrom` would be a free-text field that excuses any tree.
     carryVerified = null,
+    profile = CHANGE_PROFILE,
+    contractRoutes = [],
   },
 ) {
   const problems = [];
@@ -138,6 +169,15 @@ export function verifyReceipt(
   if (receipt.schema !== SCHEMA)
     fail(
       `gate receipt schema is ${receipt.schema}, expected ${SCHEMA} — regenerate it with \`pnpm gates:push\``,
+    );
+
+  if (!VALID_PROFILES.has(receipt.profile))
+    fail(
+      `gate receipt records unknown profile ${JSON.stringify(receipt.profile)}; expected ${profile}`,
+    );
+  else if (receipt.profile !== profile)
+    fail(
+      `gate receipt profile is ${receipt.profile}, but this command requires ${profile}`,
     );
 
   if (typeof receipt.tree !== "string" || receipt.tree.length === 0)
@@ -177,6 +217,24 @@ export function verifyReceipt(
         `${contractSha} — the receipt describes a different component inventory`,
     );
 
+  if (
+    receipt.host?.platform !== PRODUCTION_ENVIRONMENT.platform ||
+    receipt.host?.arch !== PRODUCTION_ENVIRONMENT.arch
+  )
+    fail(
+      `gate receipt host is ${receipt.host?.platform ?? "unknown"}/${receipt.host?.arch ?? "unknown"}; ` +
+        `browser evidence requires ${PRODUCTION_ENVIRONMENT.platform}/${PRODUCTION_ENVIRONMENT.arch}`,
+    );
+  const nodeVersion = /^v(\d+)\.(\d+)\.(\d+)$/.exec(receipt.host?.node ?? "");
+  if (
+    !nodeVersion ||
+    Number(nodeVersion[1]) !== PRODUCTION_ENVIRONMENT.nodeMajor ||
+    Number(nodeVersion[2]) < 14
+  )
+    fail(
+      `gate receipt Node is ${receipt.host?.node ?? "unknown"}; expected Node 24.14 or newer within the locked major`,
+    );
+
   for (const [name, expected] of Object.entries(pinned)) {
     if (expected === null) continue;
     const actual = receipt.toolchain?.[name] ?? null;
@@ -203,16 +261,24 @@ export function verifyReceipt(
       fail(`gate \`${name}\` FAILED and was pushed anyway`);
   }
 
+  let profiled = {};
+  try {
+    profiled = profileRequirements(profile, required);
+  } catch (error) {
+    fail(error.message);
+  }
   const requiredGates = [
     ...ALWAYS_REQUIRED,
-    ...CONDITIONAL_GATES.filter((name) => required[name] === true),
+    ...Object.entries(profiled)
+      .filter(([, value]) => value === true)
+      .map(([name]) => name),
   ];
   for (const name of requiredGates) {
     const entry = gates[name];
     if (!entry) {
       fail(
         `this change requires the \`${name}\` gate and the receipt does not carry it` +
-          (CONDITIONAL_GATES.includes(name)
+          ([...CONDITIONAL_GATES, ...PRODUCTION_ONLY_GATES].includes(name)
             ? " — tooling/classify-change.mjs classified the change as needing it"
             : ""),
       );
@@ -226,9 +292,29 @@ export function verifyReceipt(
       );
   }
 
+  const sameStrings = (actual, expected) =>
+    Array.isArray(actual) &&
+    canonicalJson([...actual].sort()) === canonicalJson([...expected].sort());
+  if (profiled.unit && gates.unit?.status === "pass") {
+    if (!sameStrings(gates.unit.engines, ["chromium"]))
+      fail("the unit/axe gate must record exactly the Chromium engine");
+  }
+  if (profiled.smoke && gates.smoke?.status === "pass") {
+    if (!sameStrings(gates.smoke.engines, BROWSER_ENGINES))
+      fail(
+        "the smoke gate must represent Chromium, Firefox, and WebKit independently",
+      );
+  }
+  if (profiled["all-browsers"] && gates["all-browsers"]?.status === "pass") {
+    if (!sameStrings(gates["all-browsers"].engines, BROWSER_ENGINES))
+      fail(
+        "the complete three-engine gate must represent Chromium, Firefox, and WebKit independently",
+      );
+  }
+
   // A contracts entry that passed while executing nothing is the specific fail-open this whole
   // design has to survive: an empty scope reads exactly like a green run.
-  if (required.contracts === true) {
+  if (profiled.contracts === true) {
     const contracts = gates.contracts;
     if (contracts?.status === "pass" && !(contracts.executed > 0))
       fail(
@@ -241,6 +327,123 @@ export function verifyReceipt(
     )
       fail(
         "the contracts gate reports pass over 0 routes while this change requires contract coverage",
+      );
+    const expectedRoutes =
+      profile === PRODUCTION_PROFILE
+        ? [...COMPONENT_ROUTES]
+        : [...new Set(contractRoutes)];
+    const expectedTests =
+      expectedRoutes.length *
+      CONTRACT_PROJECTS.length *
+      CONTRACT_ASSERTIONS.length;
+    if (!sameStrings(contracts?.routes, expectedRoutes))
+      fail(
+        `the contracts gate route manifest is incomplete or stale; expected ${expectedRoutes.length} authoritative route(s)`,
+      );
+    if (contracts?.executed !== expectedTests)
+      fail(
+        `the contracts gate executed ${contracts?.executed ?? 0} tests; expected exactly ${expectedTests}`,
+      );
+    if (contracts?.expected !== expectedTests)
+      fail(
+        `the contracts gate expected-count is ${contracts?.expected ?? 0}; independently reconstructed value is ${expectedTests}`,
+      );
+    if (profile === PRODUCTION_PROFILE) {
+      if (contracts?.full !== true)
+        fail(
+          "production-full requires a full contracts report, not scoped evidence",
+        );
+      if (expectedRoutes.length !== COMPONENT_ROUTES.length)
+        fail(
+          `production-full route authority is inconsistent: ${expectedRoutes.length} versus ${COMPONENT_ROUTES.length}`,
+        );
+      if (expectedTests !== FULL_CONTRACT_TESTS)
+        fail(
+          `production-full contract authority is inconsistent: ${expectedTests} versus ${FULL_CONTRACT_TESTS}`,
+        );
+    }
+  }
+
+  // The manifest is the enforcement surface. Its required universe and every fingerprint are
+  // rebuilt from this checkout; the coverage root is only a deterministic summary of those leaves.
+  let expectedEvidence = null;
+  try {
+    expectedEvidence = buildEvidenceManifest({
+      profile,
+      required,
+      contractRoutes,
+      tree: treeHash,
+      executedOnTree:
+        receipt.carriedFrom !== undefined ? receipt.carriedFrom : treeHash,
+      toolchain: pinned,
+      contractSha256: contractSha,
+    });
+  } catch (error) {
+    fail(
+      `could not reconstruct the required evidence universe: ${error.message}`,
+    );
+  }
+  const evidence = receipt.evidence;
+  if (!evidence || !Array.isArray(evidence.leaves))
+    fail(
+      "gate receipt carries no canonical evidence-leaf manifest; a coverage-root digest alone is not accepted",
+    );
+  else if (expectedEvidence) {
+    const ids = evidence.leaves.map((leaf) => leaf?.id);
+    const duplicateIds = ids.filter(
+      (id, index) => id === undefined || ids.indexOf(id) !== index,
+    );
+    if (duplicateIds.length > 0)
+      fail(
+        `evidence manifest has duplicate or missing unit IDs: ${[...new Set(duplicateIds)].join(", ")}`,
+      );
+    const sorted = [...ids].sort();
+    if (canonicalJson(ids) !== canonicalJson(sorted))
+      fail("evidence leaves are not in canonical sorted unit-ID order");
+
+    const expectedById = new Map(
+      expectedEvidence.leaves.map((leaf) => [leaf.id, leaf]),
+    );
+    const actualById = new Map(evidence.leaves.map((leaf) => [leaf?.id, leaf]));
+    const missing = [...expectedById.keys()].filter(
+      (id) => !actualById.has(id),
+    );
+    const extra = [...actualById.keys()].filter((id) => !expectedById.has(id));
+    if (missing.length > 0)
+      fail(
+        `evidence manifest is missing ${missing.length} required leaf/leaves, e.g. ${missing[0]}`,
+      );
+    if (extra.length > 0)
+      fail(
+        `evidence manifest has ${extra.length} unknown/extra leaf/leaves, e.g. ${extra[0]}`,
+      );
+    for (const [id, expected] of expectedById) {
+      const actual = actualById.get(id);
+      if (actual && canonicalJson(actual) !== canonicalJson(expected))
+        fail(
+          `evidence leaf ${id} has a wrong profile, result, executed tree, or content/toolchain/authority fingerprint`,
+        );
+    }
+    if (
+      canonicalJson(evidence.requiredUniverse) !==
+      canonicalJson(expectedEvidence.requiredUniverse)
+    )
+      fail(
+        "evidence required-universe counts/digest do not match the independently reconstructed universe",
+      );
+    if (
+      canonicalJson(evidence.environment) !==
+      canonicalJson(expectedEvidence.environment)
+    )
+      fail(
+        "evidence environment profile does not match the locked browser profile",
+      );
+    const actualRoot = sha256(canonicalJson(evidence.leaves));
+    if (evidence.coverageRoot !== actualRoot)
+      fail("evidence coverage root does not match its canonical leaf manifest");
+    if (evidence.coverageRoot !== expectedEvidence.coverageRoot)
+      fail(
+        "evidence coverage root does not match the independently reconstructed required manifest",
       );
   }
 

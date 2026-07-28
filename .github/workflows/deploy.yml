@@ -77,7 +77,8 @@ jobs:
       - name: Require a full-sweep gate receipt for the deployed tree
         run: |
           set -euo pipefail
-          node tooling/verify-gate-receipt.mjs --contracts true --unit true --smoke true
+          node tooling/verify-gate-receipt.mjs --profile production-full \
+            --contracts true --unit true --smoke true
 
   # Build and validate repository-controlled code without OIDC or Cloudflare credentials.
   build-curated:

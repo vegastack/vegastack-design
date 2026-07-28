@@ -92,6 +92,13 @@ const CASES = [
     expect: /receipt-guard does not run tooling\/verify-gate-receipt\.mjs/,
   },
   {
+    id: "deploy accepts a change/scoped receipt",
+    file: "deploy.yml",
+    find: "--profile production-full",
+    replace: "--profile change",
+    expect: /production-full evidence explicitly/,
+  },
+  {
     id: "shell injection through a run: body",
     file: "ci.yml",
     find: "      - run: pnpm design:verify",

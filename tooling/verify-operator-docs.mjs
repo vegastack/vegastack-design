@@ -12,6 +12,8 @@ const CURRENT_SURFACES = [
   "skills/internal/review/SKILL.md",
   ".husky/pre-commit",
   ".husky/pre-push",
+  "apps/docs/playwright.config.ts",
+  "skills/internal/ship/references/release-gotchas.md",
 ];
 
 const PRIVATE_INTERNAL = [
@@ -23,13 +25,27 @@ export function operatorDocProblems(sources) {
   const problems = [];
   for (const [file, source] of Object.entries(sources)) {
     if (file === "docs/requirements.md") continue;
-    for (const pattern of PRIVATE_INTERNAL) {
+    for (const pattern of file.endsWith("references/release-gotchas.md")
+      ? []
+      : PRIVATE_INTERNAL) {
       const match = pattern.exec(source);
       if (match)
         problems.push(
           `${file}: [internal-boundary] current instructions claim /internal/* is private: ${match[0]}`,
         );
     }
+    if (/\b(?:96 contract routes|768 checks)\b/i.test(source))
+      problems.push(
+        `${file}: [contract-count] current instructions contain an obsolete route/check count`,
+      );
+    if (
+      /runs on every PR in CI|CI runs (?:the )?(?:browser|Playwright)/i.test(
+        source,
+      )
+    )
+      problems.push(
+        `${file}: [browser-location] current instructions claim a browser lane runs in CI`,
+      );
   }
 
   const agents = sources["AGENTS.md"] ?? "";
@@ -40,6 +56,21 @@ export function operatorDocProblems(sources) {
   )
     problems.push(
       "AGENTS.md: [internal-boundary] must state that every non-registry route, including /internal/*, is anonymous and /r/* alone is service-token-only",
+    );
+
+  if (!/canonical[^\n]{0,80}(?:evidence-)?leaf manifest/i.test(agents))
+    problems.push(
+      "AGENTS.md: [receipt-profile] must state that a canonical evidence-leaf manifest is required",
+    );
+
+  const ship = sources["skills/internal/ship/SKILL.md"] ?? "";
+  if (
+    !/schema[- ]?2[\s\S]{0,160}production-full[\s\S]{0,220}all-browsers/i.test(
+      ship,
+    )
+  )
+    problems.push(
+      "skills/internal/ship/SKILL.md: [receipt-profile] must name schema 2, production-full, and all-browsers",
     );
 
   const releasing = sources["docs/RELEASING.md"] ?? "";
@@ -82,11 +113,13 @@ function readCurrentSources() {
 // virtual strings so historical ledgers and superseded plans can remain byte-stable records.
 const validFixture = {
   "AGENTS.md":
-    "Every non-registry route is anonymous, including /internal/*; /r/* alone is service-token-only.",
+    "Every non-registry route is anonymous, including /internal/*; /r/* alone is service-token-only. A canonical evidence-leaf manifest is required.",
   "docs/RELEASING.md":
     "Every non-registry route is anonymously reachable; /internal/* remains unlisted with noindex/no-store; /r/* must reject anonymous requests.",
   "docs/requirements.md":
     "Point-in-time historical record. D11 is superseded: /internal/* is anonymous under the current boundary.",
+  "skills/internal/ship/SKILL.md":
+    "Schema 2 production-full evidence includes all-browsers.",
 };
 assert.deepEqual(operatorDocProblems(validFixture), []);
 for (const [label, file, text, expected] of [
@@ -108,6 +141,24 @@ for (const [label, file, text, expected] of [
     "D11 requires /internal/* SSO.",
     /historical-supersession/,
   ],
+  [
+    "obsolete contract count",
+    "skills/internal/review/SKILL.md",
+    "Run all 96 contract routes and 768 checks.",
+    /contract-count/,
+  ],
+  [
+    "browser in CI",
+    "apps/docs/playwright.config.ts",
+    "The browser gate runs on every PR in CI.",
+    /browser-location/,
+  ],
+  [
+    "weak deploy receipt",
+    "skills/internal/ship/SKILL.md",
+    "A scoped receipt is accepted for deploy.",
+    /receipt-profile/,
+  ],
 ]) {
   const mutated = { ...validFixture, [file]: text };
   const problems = operatorDocProblems(mutated);
@@ -123,5 +174,5 @@ if (problems.length > 0) {
   process.exit(1);
 }
 console.log(
-  `✓ operator docs: ${CURRENT_SURFACES.length} current surfaces agree that /internal/* is anonymous and unlisted while /r/* alone is service-token-only; 3 stale-boundary fixtures rejected`,
+  `✓ operator docs: ${CURRENT_SURFACES.length} current surfaces agree on topology, browser location, counts, and schema-2 production evidence; 6 semantic stale-instruction fixtures rejected`,
 );

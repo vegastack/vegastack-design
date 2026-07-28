@@ -247,6 +247,12 @@ for (const [name, source] of Object.entries(sources)) {
       /verify-gate-receipt\.mjs/,
       `${name}: receipt-guard does not run tooling/verify-gate-receipt.mjs`,
     );
+    if (name === "deploy.yml")
+      assert.match(
+        guard,
+        /--profile production-full/,
+        "deploy.yml: receipt-guard must require schema-v2 production-full evidence explicitly",
+      );
   }
 
   for (const [job, runner] of runners) {

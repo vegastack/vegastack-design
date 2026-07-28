@@ -353,3 +353,58 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   exercise source, test, binary, symlink, generated, unknown, mixed version+untracked, deletion,
   rename, mode, and binary mutations; two real Version Packages generations and allowed package/header
   version churn remain positive controls.
+
+## 2026-07-28 — Deploy accepted a scoped receipt that could not represent the complete browser lane
+
+- **Symptom:** a synthetic `mode: ship` receipt with two routes / 16 contracts and no
+  `all-browsers` field passed the same guard expectations deploy used. The production instruction
+  claimed a complete three-engine/full-contract requirement the schema could not express.
+- **Root cause:** schema 1 stored one status per gate, omitted `all-browsers` from its gate universe,
+  and treated any positive contract count as sufficient. `mode` was descriptive text, not a profile.
+- **Systemic fix:** schema 2 introduces an explicit `production-full` profile and a canonical sorted
+  manifest reconstructed from machine authority: one Chromium unit leaf, three smoke leaves, three
+  complete-browser leaves, and 108 routes × four projects × two assertions = 864 contract leaves.
+  Deploy names that profile explicitly. Negative mutations reject old schema, scoped/missing-route/
+  wrong-count evidence, missing engines, absent/duplicate/extra/unsorted/stale leaves, wrong
+  fingerprint/tree/toolchain/authority, and a root without leaves.
+
+## 2026-07-28 — A cold browser-unit run reloaded after discovering its test dependencies
+
+- **Symptom:** the first schema-2 full-ship attempt failed Chromium unit/axe after Vite discovered
+  dependencies twice during the active run. Eight files were disrupted, 23 tests failed, and only
+  1,375 tests executed. The same sweep's complete three-engine lane later passed.
+- **Root cause:** Vite's default optimizer crawl ignores test files, but the browser suite's entry
+  graph begins in `*.test.tsx`. Bare imports were therefore discovered after the browser mounted.
+  The resulting reload split React identity; the log showed unresolved linked
+  `@vegastack/design` entrypoints followed by invalid-hook errors and unrelated timeouts.
+- **Systemic fix:** the shared Vitest config declares both browser-test trees as optimizer entries
+  and explicitly pre-bundles the linked design package root and theme-scope entrypoint. A semantic
+  verifier rejects removal of either entry graph or linked entrypoint. After the supported cache
+  clear, the cold suite passed all 1,471 tests with one bundle in 21.8s; smoke then passed 643 with
+  five intentional skips in 21.5s. No timeout, retry, worker, or coverage setting changed.
+
+## 2026-07-28 — The docs warm-up still overlapped WebKit/Firefox smoke
+
+- **Symptom:** after the optimizer fix, a full ship attempt passed all 1,471 Chromium tests but its
+  smoke lane timed out waiting for WebKit `CopyButton` to enter the copied state. The immediately
+  following complete three-engine suite passed the same case. The preceding failed sweep had shown
+  the same shape on a different Firefox animation-replay case.
+- **Root cause:** the earlier scheduling repair waited for the docs export only before the complete
+  lane. `runPush` and `runShip` still ran WebKit/Firefox smoke concurrently with the export, despite
+  the no-cross-engine-overlap policy. Two different isolated timeouts under that schedule proved it
+  was not safe cover.
+- **Systemic fix:** both ladders may overlap the docs warm-up only with Chromium unit/axe and await it
+  before smoke. `verify-gate-schedule.mjs` rejects an overlap mutation in either ladder. No retry,
+  timeout, worker, selector, or assertion was relaxed; the failed sweeps remain non-evidence.
+
+## 2026-07-28 — The docs warm-up also destabilized Chromium canvas timing
+
+- **Symptom:** after moving the warm-up barrier ahead of smoke, the next full attempt failed three
+  `ParticleField` first-frame assertions during Chromium unit/axe while the export was still active.
+  Isolated smoke then passed after waiting at the barrier.
+- **Root cause:** “Chromium is safe overlap” was an unmeasured optimization assumption. The canvas
+  draw depended on browser scheduling and was starved under the same export pressure that had
+  already destabilized WebKit/Firefox interactions.
+- **Systemic fix:** component, push, and ship now await the docs warm-up before their first browser
+  gate. The schedule verifier rejects removing any of the three barriers. The mandatory build cost
+  is reported honestly rather than hidden under an unstable lane; no test budget was weakened.

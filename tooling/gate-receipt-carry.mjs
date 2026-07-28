@@ -37,7 +37,9 @@ import {
   readReceipt,
   RECEIPT_PATH,
   RECEIPT_REPO_PATH,
+  SCHEMA,
 } from "./lib/gate-receipt.mjs";
+import { buildEvidenceManifest } from "./lib/gate-profile.mjs";
 
 const CARRY_REASON = "version-bump";
 
@@ -51,6 +53,10 @@ if (receipt.__unreadable)
   fatal(
     `no usable receipt at ${RECEIPT_REPO_PATH} (${receipt.__unreadable}). The commit this Version PR ` +
       "is based on must carry one — that is what is being carried forward.",
+  );
+if (receipt.schema !== SCHEMA)
+  fatal(
+    `receipt schema ${receipt.schema ?? "(none)"} cannot be carried by schema ${SCHEMA}; run a fresh full gate before versioning`,
   );
 
 const previousTree = receipt.tree;
@@ -95,6 +101,28 @@ if (!proof.ok) {
   process.exit(1);
 }
 
+const currentContractSha = contractSha256();
+const priorExecutedTrees = new Set(
+  (receipt.evidence?.leaves ?? []).map((leaf) => leaf.executedOnTree),
+);
+if (priorExecutedTrees.size > 1)
+  fatal(
+    "the receipt evidence does not name one unambiguous executed tree; refusing to carry it",
+  );
+const executedOnTree = [...priorExecutedTrees][0] ?? previousTree;
+const evidence = buildEvidenceManifest({
+  profile: receipt.profile,
+  required: receipt.classified ?? {},
+  contractRoutes: receipt.gates?.contracts?.routes ?? [],
+  tree: currentTree,
+  executedOnTree,
+  toolchain: receipt.toolchain,
+  contractSha256: currentContractSha,
+  passedGates: Object.entries(receipt.gates ?? {})
+    .filter(([, entry]) => entry.status === "pass")
+    .map(([name]) => name),
+});
+
 writeFileSync(
   RECEIPT_PATH,
   `${JSON.stringify(
@@ -107,11 +135,12 @@ writeFileSync(
       carriedFromCommit: baseCommit,
       carryReason: CARRY_REASON,
       carriedAt: new Date().toISOString(),
+      evidence,
       // version-sync rewrites dependency ranges in component-contracts.json. That moves the
       // authority hash without changing inventory or browser-observable code, and design:derived
       // stamps the new hash into its generated surfaces. Carry the current authority fact only
       // AFTER the version-only proof above succeeds; a real code change never reaches this write.
-      contractSha256: contractSha256(),
+      contractSha256: currentContractSha,
     },
     null,
     2,

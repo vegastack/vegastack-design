@@ -63,6 +63,11 @@ node tooling/contracts-run.mjs --routes /docs/components/<name>
 gate becomes visible and auditable instead of silent. Say that plainly; a receipt read as proof is
 worse than no receipt.
 
+Schema 2 receipts have an explicit `change` or `production-full` profile plus a canonical
+`evidence.leaves[]` manifest. Inspect `requiredUniverse`, `executedOnTree`, and `coverageRoot`; the
+root summarizes the leaves and never replaces them. Deploy requires production-full unit/axe,
+three-engine smoke, complete all-browsers, and exactly 108 routes / 864 contracts.
+
 Common CI rejections and what each actually means:
 
 | `verify-gate-receipt` says                                      | Cause                                                       | Fix                                                               |

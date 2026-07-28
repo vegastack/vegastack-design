@@ -47,7 +47,7 @@ SITE_VISIBILITY=private pnpm --filter @vegastack/docs build
 
 `pnpm gates:ship` is not a convenience wrapper — it is the release's evidence. It runs the full lint
 chain, `typecheck`, the browser-unit suite, the cross-engine smoke, the complete three-engine suite,
-`registry:build` idempotency, the `shadcn` consume round-trip, and **all 96 contract routes**, then
+`registry:build` idempotency, the `shadcn` consume round-trip, and **all 108 contract routes**, then
 writes `.gates/receipt.json` binding those results to a tree hash.
 
 **No CI runner executes a browser.** `deploy.yml`'s `receipt-guard` demands a receipt with all three
@@ -191,6 +191,15 @@ that branch, and the browser gates have to run against it. The proof rejects unt
 reading content because `git diff` has no record for them; it also rejects binary records,
 file-mode-only changes, renames, deletions, and any inventory path missing from the parsed diff.
 Generated output is exempt only when it is tracked and independently re-derived by the quality gate.
+
+Deploy accepts only receipt **schema 2** with the explicit **`production-full`** profile. That
+profile independently represents unit/axe, every smoke engine, the complete **`all-browsers`**
+Chromium/Firefox/WebKit lane, and all 108 routes / 864 contract leaves. Its canonical sorted leaf
+manifest is reconstructed by the guard from the checked-out tree; `mode: ship` and a coverage-root
+digest without leaves are never sufficient.
+
+The docs export warm-up must finish before every browser lane. Do not move that barrier to chase
+wall time; Chromium canvas timing and cross-engine interaction timing both failed under overlap.
 
 Changes reach `main` through a **reviewed PR**, not a direct push (`docs/RELEASING.md` step 4 is
 canonical). MK approval is required before the change PR is merged. GitHub Team cannot provide
