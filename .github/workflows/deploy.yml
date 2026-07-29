@@ -378,8 +378,35 @@ jobs:
         run: |
           set -euo pipefail
           node --input-type=module <<'NODE'
-          import { appendFileSync, readFileSync } from 'node:fs';
-          const report = JSON.parse(readFileSync(process.env.PROBE_REPORT, 'utf8'));
+          import { appendFileSync, existsSync, readFileSync } from 'node:fs';
+          const summarizeUnknown = (reason) => appendFileSync(process.env.GITHUB_STEP_SUMMARY, [
+            '## Live deployment probes',
+            '',
+            `- Step outcome: ${process.env.PROBE_OUTCOME ?? 'unknown'}`,
+            '- Structured state: unknown',
+            '- Attempted: unknown',
+            '- Exact registry version: unknown',
+            `- Failure: ${reason}`,
+          ].join('\n') + '\n');
+          if (!existsSync(process.env.PROBE_REPORT)) {
+            summarizeUnknown('structured report missing');
+            throw new Error('live-probe structured report is missing');
+          }
+          let report;
+          try {
+            report = JSON.parse(readFileSync(process.env.PROBE_REPORT, 'utf8'));
+          } catch (error) {
+            summarizeUnknown('structured report corrupt');
+            throw new Error('live-probe structured report is corrupt', { cause: error });
+          }
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY, [
+            '## Live deployment probes',
+            '',
+            `- Step outcome: ${process.env.PROBE_OUTCOME ?? 'unknown'}`,
+            `- Structured state: ${['pass', 'fail'].includes(report.state) ? report.state : 'unknown'}`,
+            `- Attempted: ${Number.isInteger(report.probeCount) ? report.probeCount : 'unknown'} (${Number.isInteger(report.passed) ? report.passed : 'unknown'} pass, ${Number.isInteger(report.failed) ? report.failed : 'unknown'} fail)`,
+            `- Exact registry version: ${typeof report.expectedRegistryVersion === 'string' && report.expectedRegistryVersion.length > 0 ? `\`${report.expectedRegistryVersion}\`` : 'unknown'}`,
+          ].join('\n') + '\n');
           if (report.schema !== 1 || report.kind !== 'vegastack-deployment-probe') {
             throw new Error('live-probe report has an unsupported schema/kind');
           }
@@ -399,14 +426,6 @@ jobs:
             `state=${report.state}`,
             `count=${report.probeCount}`,
             `registry_version=${report.expectedRegistryVersion}`,
-          ].join('\n') + '\n');
-          appendFileSync(process.env.GITHUB_STEP_SUMMARY, [
-            '## Live deployment probes',
-            '',
-            `- Step outcome: ${process.env.PROBE_OUTCOME ?? 'unknown'}`,
-            `- Structured state: ${report.state}`,
-            `- Attempted: ${report.probeCount} (${report.passed} pass, ${report.failed} fail)`,
-            `- Exact registry version: \`${report.expectedRegistryVersion}\``,
           ].join('\n') + '\n');
           if (process.env.PROBE_OUTCOME !== 'success' || report.state !== 'pass' || report.failed !== 0) {
             throw new Error('live deployment probes did not reach executed/pass');

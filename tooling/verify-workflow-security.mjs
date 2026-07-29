@@ -491,8 +491,15 @@ assert.match(
 );
 assert.match(
   publicVerificationJob,
-  /id: probe-report[\s\S]*if: \$\{\{ always\(\) \}\}[\s\S]*JSON\.parse\(readFileSync[\s\S]*GITHUB_OUTPUT[\s\S]*GITHUB_STEP_SUMMARY/,
+  /id: probe-report[\s\S]*if: \$\{\{ always\(\) \}\}[\s\S]*JSON\.parse\(readFileSync/,
   "deploy.yml: the boundary job must summarize its structured report even after a failed probe",
+);
+assert.match(publicVerificationJob, /GITHUB_OUTPUT/);
+assert.match(publicVerificationJob, /GITHUB_STEP_SUMMARY/);
+assert.match(
+  publicVerificationJob,
+  /summarizeUnknown[\s\S]*Structured state: unknown[\s\S]*structured report missing[\s\S]*structured report corrupt/,
+  "deploy.yml: missing/corrupt live-probe evidence must be summarized explicitly as unknown before failing",
 );
 assert.match(
   publicVerificationJob,

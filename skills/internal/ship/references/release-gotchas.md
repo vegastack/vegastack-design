@@ -157,8 +157,9 @@ about the next minor.
 ## 10. `pnpm lint` ≠ `turbo run lint`
 
 The umbrella adds `design:verify`, the security gates, secret-scan, and every negative fixture.
-`gates push` runs the umbrella for exactly this reason — a green `turbo run lint` proves less than it
-appears to.
+`gates:push` runs `pnpm exec turbo run lint`; `gates:ship`, CI, and Release quality run the root
+umbrella where their profiles require it. A green pre-push Turbo lint therefore proves less than a
+green root `pnpm lint`; do not describe them as equivalent.
 
 ## 11. Reaping a server: kill the group, and filter the port
 

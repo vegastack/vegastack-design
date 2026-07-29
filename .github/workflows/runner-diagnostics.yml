@@ -362,8 +362,8 @@ jobs:
             elif [ "${ENGINES:-0}" = "0" ]; then
               echo "**No engine launches.** If \`launchd manager\` is not \`Aqua\`, the runner has no GUI"
               echo "session: reinstall it as a LaunchAgent under a logged-in user (or run \`./run.sh\`"
-              echo "interactively while logged in) and re-run this job. Browser jobs must stay"
-              echo "GitHub-hosted until this reads 3/3."
+              echo "interactively while logged in) and re-run this job. Browser lanes remain on"
+              echo "developer machines under current policy; do not add them to this runner."
             else
               echo "**Partial: ${ENGINES}/3.** Keep browser lanes local; see the launch step for the"
               echo "per-engine error."

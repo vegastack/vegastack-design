@@ -168,7 +168,8 @@ export function operatorDocProblems(sources) {
     if (
       /runs on every PR in CI|CI runs (?:the )?(?:browser|Playwright)/i.test(
         source,
-      )
+      ) ||
+      /browser jobs? must stay GitHub-hosted/i.test(source)
     )
       problems.push(
         `${file}: [browser-location] current instructions claim a browser lane runs in CI`,
@@ -267,6 +268,10 @@ export function operatorDocProblems(sources) {
     if (/classify-change[^\n]{0,40}--check-npm/i.test(source))
       problems.push(
         `${file}: [release-state] current instructions use the removed fail-open npm classifier path`,
+      );
+    if (/gates:?push[^\n]{0,100}runs (?:the )?umbrella/i.test(source))
+      problems.push(
+        `${file}: [gate-lint] gates:push runs Turbo lint, not the root pnpm lint umbrella`,
       );
     if (/hosted provenance build/i.test(currentSource))
       problems.push(
@@ -667,6 +672,18 @@ const semanticFixtures = [
     "apps/docs/playwright.config.ts",
     "The browser gate runs on every PR in CI.",
     /browser-location/,
+  ],
+  [
+    "browser diagnostics point to hosted CI",
+    ".github/workflows/runner-diagnostics.yml",
+    "Browser jobs must stay GitHub-hosted until this reads 3/3.",
+    /browser-location/,
+  ],
+  [
+    "push called the lint umbrella",
+    "skills/internal/ship/references/release-gotchas.md",
+    "gates:push runs the umbrella for exactly this reason.",
+    /gate-lint/,
   ],
   [
     "weak deploy receipt",

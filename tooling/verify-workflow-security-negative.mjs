@@ -301,6 +301,13 @@ const CASES = [
       /empty, inconsistent, or failed live-probe reports must fail closed/,
   },
   {
+    id: "missing live-probe evidence has no explicit unknown summary",
+    file: "deploy.yml",
+    find: "            '- Structured state: unknown',\n",
+    replace: "",
+    expect: /summarized explicitly as unknown/,
+  },
+  {
     id: "deployment-complete stopped consuming live-probe state",
     file: "deploy.yml",
     find: "          PROBE_STATE: ${{ needs.verify-public-boundary.outputs.probe_state }}\n",

@@ -11,7 +11,6 @@
     "lint": "pnpm prepare:content && eslint . && node scripts/deployment-boundaries.test.mjs && node ../../tooling/design-lint.mjs --token-css app && node ../../tooling/design-lint.mjs components/ui && node ../../tooling/design-lint.mjs components/preview && node ../../tooling/design-lint.mjs --docs-shell && node ../../tooling/content-lint.mjs && node ../../tooling/verify-provider-dogfood.mjs && tsx scripts/lint-links.ts && node ../../tooling/changelog-lint.mjs && node ../../tooling/sync-changelog.mjs --check",
     "typecheck": "pnpm prepare:content && next typegen && tsc --noEmit && tsc --noEmit -p tsconfig.vrt.json",
     "registry:serve": "serve public/r -l 4000 --cors",
-    "test:contracts": "node ../../tooling/contracts-run.mjs --all",
     "lint:links": "tsx scripts/lint-links.ts",
     "verify:metadata": "node scripts/verify-metadata.mjs"
   },
