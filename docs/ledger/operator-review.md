@@ -840,3 +840,13 @@ each was invisible in review and each is the kind that would have degraded the t
   and **Difference** paths taken from the structured VRT report.
 - **Authority:** MK still decides every visual outcome. The added presentation requirements make the
   decision understandable; they do not let an agent self-clear a diff.
+
+## 2026-07-29 — Receipt formatting has one machine authority
+
+- **Decision:** `.gates/receipt.json` is excluded from Prettier because `gates:ship` already writes it
+  atomically and deterministically; competing formatters made valid fresh evidence uncommittable.
+- **Guarantee retained:** the exclusion changes presentation only. Schema 2, exact tree,
+  production-full profile, canonical leaves, fingerprints, coverage root, and pinned toolchain are
+  still independently verified before commit and by every workflow guard.
+- **Operator rule:** never run a formatter or hand editor over a receipt after ship. Regenerate it
+  through the gate ladder whenever its tree or semantics are stale.

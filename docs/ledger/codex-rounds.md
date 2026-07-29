@@ -497,3 +497,17 @@ visual-review reference require short plain-language bullets plus absolute click
 and Difference links from each report entry. The focused operator verifier passes 33 current
 surfaces, 41 semantic fixtures, machine-derived 108/864/5 counts, and nine executable help surfaces.
 No pixel was self-cleared, and MK's visual approval does not authorize push, merge, or deploy.
+
+## Round 29 — 2026-07-29 · final receipt commitability
+
+The first terminal full sweep passed all eight substantive lanes and wrote a valid 871-leaf
+production-full receipt, but the receipt-only commit was blocked because Prettier reformatted three
+short engine arrays differently from the atomic JSON generator. This was not bypassed or repaired by
+hand. A negative assertion first reproduced the missing ownership rule; `.prettierignore` now gives
+the machine-owned receipt one formatting authority, while the schema/tree/profile/leaf verifier
+continues to own semantic correctness. The focused hook verifier passes 25 assertions and an
+explicit staged Prettier check now accepts an untouched generated receipt.
+
+Because that fix changed the tracked tree after the successful sweep, its receipt is deliberately
+stale and cannot be final evidence. The complete production-full sweep must run again on the new
+frozen tree before the receipt-only commit. No prior pass is carried or composed across the change.

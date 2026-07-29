@@ -671,3 +671,13 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
 - **Systemic fix:** the canonical ship skill and visual-review reference now require both. The
   operator-doc verifier inventories the reference and a semantic mutation rejects a pixel-only
   handoff.
+
+## 2026-07-29 — A fresh production-full receipt failed the staged format gate
+
+- **Symptom:** all eight terminal ship lanes passed and generated a valid receipt, but committing
+  only `.gates/receipt.json` failed because Prettier collapsed its three engine arrays.
+- **Root cause:** both the atomic gate writer and Prettier claimed serialization authority over the
+  committed machine-owned evidence.
+- **Systemic fix:** `.gates/receipt.json` is explicitly excluded from Prettier, and the hook verifier
+  fails if that exclusion disappears. Receipt schema/content verification remains the correctness
+  authority; no generated receipt is hand-formatted after a gate run.
