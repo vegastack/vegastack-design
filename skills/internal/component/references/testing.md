@@ -87,7 +87,7 @@ pnpm test                                                            # full suit
 
 ```bash
 pnpm --filter @vegastack/ui test:smoke        # WebKit + Firefox, contract-selected subset
-pnpm --filter @vegastack/ui test:all-browsers # complete suite in all three engines (main/release)
+pnpm --filter @vegastack/ui test:all-browsers # complete suite in all three engines (local /ship or diagnostics)
 ```
 
 `test:smoke` is a deliberate SUBSET run against real WebKit and Firefox via `vitest.smoke.config.ts`.

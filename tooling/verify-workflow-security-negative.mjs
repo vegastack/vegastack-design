@@ -137,6 +137,20 @@ const CASES = [
     expect: /contracts must run through tooling\/contracts-run\.mjs/,
   },
   {
+    id: "runner diagnostics bypasses the standard all-browser command",
+    file: "runner-diagnostics.yml",
+    find: "pnpm --filter @vegastack/ui test:all-browsers \\\n",
+    replace: "node tooling/vitest-run.mjs --lane all-browsers \\\n",
+    expect: /complete browsers must use the standard package command/,
+  },
+  {
+    id: "runner diagnostics omits the all-browser report path",
+    file: "runner-diagnostics.yml",
+    find: '            --report "$RUNNER_TEMP/all-browsers.json"\n',
+    replace: "",
+    expect: /pass it structured report arguments/,
+  },
+  {
     id: "runner diagnostics reintroduces broad socket killing",
     file: "runner-diagnostics.yml",
     find: 'echo "contract suite wall clock:',

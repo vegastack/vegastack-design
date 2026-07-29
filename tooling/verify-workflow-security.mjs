@@ -339,6 +339,16 @@ assert.doesNotMatch(
   /playwright test[^\n]*contracts\.spec\.ts/,
   "runner-diagnostics.yml: contracts must run through tooling/contracts-run.mjs so scope, zero-test, server ownership, and structured reporting stay fail-closed",
 );
+assert.match(
+  runnerDiagnostics,
+  /pnpm --filter @vegastack\/ui test:all-browsers[\s\\]*\n[\s\S]{0,160}--run-id[\s\S]{0,160}--report "\$RUNNER_TEMP\/all-browsers\.json"/,
+  "runner-diagnostics.yml: complete browsers must use the standard package command and pass it structured report arguments",
+);
+assert.doesNotMatch(
+  runnerDiagnostics,
+  /node tooling\/vitest-run\.mjs[\s\\]*\n[\s\S]{0,160}--lane all-browsers/,
+  "runner-diagnostics.yml: do not bypass the standard test:all-browsers package command",
+);
 assert.doesNotMatch(
   runnerDiagnostics,
   /lsof -ti[^\n]*tcp:/,
@@ -358,11 +368,6 @@ assert.match(
   runnerDiagnostics,
   /echo "engines_ok=\$\{OK:-0\}" >> "\$GITHUB_OUTPUT"\s+test "\$\{OK:-0\}" = "3"/,
   "runner-diagnostics.yml: browser launch must fail its diagnostic step unless all three engines launch",
-);
-assert.match(
-  runnerDiagnostics,
-  /node tooling\/vitest-run\.mjs[\s\S]{0,240}--lane all-browsers[\s\S]{0,240}--report/,
-  "runner-diagnostics.yml: complete browsers must retain a structured report through the supported wrapper",
 );
 assert.match(
   runnerDiagnostics,

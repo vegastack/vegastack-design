@@ -31,7 +31,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:smoke": "vitest run --config vitest.smoke.config.ts",
-    "test:all-browsers": "vitest run --config vitest.all-browsers.config.ts"
+    "test:all-browsers": "node ../../tooling/vitest-run.mjs --lane all-browsers"
   },
   "dependencies": {
     "@atlaskit/pragmatic-drag-and-drop": "^2.0.1",

@@ -231,8 +231,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          node tooling/vitest-run.mjs \
-            --lane all-browsers \
+          pnpm --filter @vegastack/ui test:all-browsers \
             --run-id "runner-diagnostics-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" \
             --report "$RUNNER_TEMP/all-browsers.json"
 

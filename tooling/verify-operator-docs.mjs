@@ -16,6 +16,7 @@ const CURRENT_SURFACES = [
   "skills/internal/ship/SKILL.md",
   "skills/internal/gates/SKILL.md",
   "skills/internal/review/SKILL.md",
+  "skills/internal/component/references/testing.md",
   ".github/workflows/ci.yml",
   ".github/workflows/release.yml",
   ".github/workflows/deploy.yml",
@@ -37,6 +38,7 @@ const CURRENT_SURFACES = [
   "tooling/verify-gate-receipt.mjs",
   "apps/docs/scripts/probe-deployment.mjs",
   "apps/docs/package.json",
+  "packages/ui/package.json",
 ];
 
 const WORKFLOW_FILES = readdirSync(".github/workflows")
@@ -178,6 +180,10 @@ export function operatorDocProblems(sources) {
       problems.push(
         `${file}: [diagnostic-verdict] diagnostic probes may continue for collection, but structured reconciliation and the terminal verdict must fail closed`,
       );
+    if (/test:all-browsers[^\n]{0,100}\(main\/release\)/i.test(source))
+      problems.push(
+        `${file}: [browser-location] the complete browser suite is local /ship or diagnostic evidence, never a main/Release CI lane`,
+      );
     if (
       /gates:ship[^\n]{0,100}~20min|suite takes 1m39s locally|three engines \(measured 1m39s\)/i.test(
         source,
@@ -304,6 +310,15 @@ export function operatorDocProblems(sources) {
     )
       problems.push(
         `${file}: [diagnostic-wrapper] contract aliases must use tooling/contracts-run.mjs, never direct Playwright`,
+      );
+    if (
+      file === "packages/ui/package.json" &&
+      !/"test:all-browsers"\s*:\s*"node \.\.\/\.\.\/tooling\/vitest-run\.mjs --lane all-browsers"/.test(
+        currentSource,
+      )
+    )
+      problems.push(
+        `${file}: [browser-wrapper] the standard complete-browser command must own structured nonempty reporting through tooling/vitest-run.mjs`,
       );
   }
 
@@ -692,6 +707,12 @@ const semanticFixtures = [
     /browser-location/,
   ],
   [
+    "complete browser command called a main/release lane",
+    "skills/internal/component/references/testing.md",
+    "pnpm --filter @vegastack/ui test:all-browsers # complete suite in all three engines (main/release)",
+    /browser-location/,
+  ],
+  [
     "diagnostic workflow calls every step fail-open",
     ".github/workflows/runner-diagnostics.yml",
     "Every step is `continue-on-error` so one failure still yields the complete picture.",
@@ -816,6 +837,12 @@ const semanticFixtures = [
     "apps/docs/package.json",
     '{"scripts":{"test:contracts":"playwright test contracts.spec.ts"}}',
     /diagnostic-wrapper/,
+  ],
+  [
+    "complete-browser package command bypasses structured wrapper",
+    "packages/ui/package.json",
+    '{"scripts":{"test:all-browsers":"vitest run --config vitest.all-browsers.config.ts"}}',
+    /browser-wrapper/,
   ],
   [
     "deployment probe missing report",
