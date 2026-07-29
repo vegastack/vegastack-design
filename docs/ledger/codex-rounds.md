@@ -481,3 +481,19 @@ Contract-derived generation was idempotent after the corrected browser-location 
 round does not claim a final receipt, real CI/Release/npm/deploy execution, percentile timing, or
 human pixel acceptance; those remain the terminal local gate and explicitly recorded external/MK
 checkpoints.
+
+## Round 28 — 2026-07-29 · understandable visual handoff
+
+MK accepted the final 47 visual differences after the agent translated the lone 147-pixel Button
+fixture delta into its visible meaning: only the antialiased edges of the word “Glass” differed;
+button size, position, border, background, colour, spacing, state, and behavior did not. The other
+46 entries were confined to the intended deterministic syntax-token colours. The capture traversed
+940 cases and recorded 893 unchanged, 47 changed, and zero new, removed, or broken entries.
+
+The review also exposed an operator-interface defect: current `/ship` instructions requested a
+pixel table but did not require an understandable explanation or direct screenshot paths. A new
+negative-first `[visual-handoff]` fixture now rejects that omission. The canonical ship skill and
+visual-review reference require short plain-language bullets plus absolute clickable Before, After,
+and Difference links from each report entry. The focused operator verifier passes 33 current
+surfaces, 41 semantic fixtures, machine-derived 108/864/5 counts, and nine executable help surfaces.
+No pixel was self-cleared, and MK's visual approval does not authorize push, merge, or deploy.

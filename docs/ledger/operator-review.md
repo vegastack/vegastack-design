@@ -830,3 +830,13 @@ each was invisible in review and each is the kind that would have degraded the t
 - **Diagnostic continuation ends at reconciliation.** Individual probes may continue to collect the
   whole picture. Structured readers and terminal verdicts cannot continue, skip unknown evidence, or
   present a step outcome as proof.
+
+## 2026-07-29 — Visual-review handoffs must explain the visible effect
+
+- **Decision:** a pixel count is measurement context, not an operator explanation. Future `/ship`
+  handoffs start with short bullets covering the visible change, unchanged properties, likely cause,
+  and user impact.
+- **Manual evidence:** every non-unchanged entry must expose absolute clickable **Before**, **After**,
+  and **Difference** paths taken from the structured VRT report.
+- **Authority:** MK still decides every visual outcome. The added presentation requirements make the
+  decision understandable; they do not let an agent self-clear a diff.

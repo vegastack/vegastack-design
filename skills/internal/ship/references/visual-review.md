@@ -72,7 +72,15 @@ page's height from scaling the tolerance. A full-page change under 100 pixels th
 2. Read `.vrt-review/report.json`.
 3. For every entry with `status !== "unchanged"`, **read the before, after, and diff images**.
 4. Classify each: **intended** (consistent with the changeset), **unintended**, or **uncertain**.
-5. Present a table — route, project, pixels changed, verdict, one-line reasoning.
+5. Explain the result before presenting the audit table:
+   - Use short plain-language bullet points stating what visibly changed, what stayed the same, the
+     likely cause, and whether a user would notice. A phrase such as “147 pixels changed” is
+     measurement context, not an understandable explanation.
+   - Then present the table — route, project, pixels changed, verdict, and one-line reasoning.
+   - For each non-unchanged entry, take `images.before`, `images.after`, and `images.diff` from the
+     report, resolve them against the repository root, and provide all three as absolute clickable
+     Markdown file links. Label them **Before**, **After**, and **Difference** so manual inspection
+     does not require navigating the report or guessing which screenshot is which.
 6. **Stop. The developer decides.** Never self-clear a diff.
 
 Report a SKIPPED run as skipped. It is not evidence of a clean diff.

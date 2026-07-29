@@ -14,6 +14,7 @@ const CURRENT_SURFACES = [
   "docs/RELEASING.md",
   "docs/plans/2026-07-28-public-site-private-registry-boundary.md",
   "skills/internal/ship/SKILL.md",
+  "skills/internal/ship/references/visual-review.md",
   "skills/internal/gates/SKILL.md",
   "skills/internal/review/SKILL.md",
   "skills/internal/component/references/testing.md",
@@ -427,6 +428,29 @@ export function operatorDocProblems(sources) {
     problems.push(
       "skills/internal/ship/SKILL.md: [candidate-shadow] must explain shadow, safe miss fallback, and malformed/ambiguous failure",
     );
+  if (
+    !/plain-language bullet/i.test(ship) ||
+    !/images\.before/i.test(ship) ||
+    !/images\.after/i.test(ship) ||
+    !/images\.diff/i.test(ship) ||
+    !/absolute[\s\S]{0,160}clickable image paths/i.test(ship)
+  )
+    problems.push(
+      "skills/internal/ship/SKILL.md: [visual-handoff] must require plain-language bullets and clickable before/after/diff image paths",
+    );
+
+  const visualReview =
+    sources["skills/internal/ship/references/visual-review.md"] ?? "";
+  if (
+    !/plain-language bullet/i.test(visualReview) ||
+    !/images\.before/i.test(visualReview) ||
+    !/images\.after/i.test(visualReview) ||
+    !/images\.diff/i.test(visualReview) ||
+    !/absolute[\s\S]{0,160}clickable[\s\S]{0,80}Markdown/i.test(visualReview)
+  )
+    problems.push(
+      "skills/internal/ship/references/visual-review.md: [visual-handoff] must explain the change plainly and expose absolute clickable before/after/diff screenshots",
+    );
 
   const gates = sources["skills/internal/gates/SKILL.md"] ?? "";
   if (
@@ -619,7 +643,9 @@ const validFixture = {
   "docs/requirements.md":
     "Point-in-time historical record. D11 is superseded: /internal/* is anonymous under the current boundary.",
   "skills/internal/ship/SKILL.md":
-    "Run git fetch --prune origin before classification. Schema 2 production-full evidence includes all-browsers. Upload is not completion; require deployment-complete with structured probe count and exact registry version. versioned-unpublished alone runs hosted build; registry-unknown never grants publish permission. The deploy candidate is shadow-only. A missing or expired candidate is a safe miss and uses the rebuild; malformed or ambiguous evidence must fail.",
+    "Run git fetch --prune origin before classification. Schema 2 production-full evidence includes all-browsers. Upload is not completion; require deployment-complete with structured probe count and exact registry version. versioned-unpublished alone runs hosted build; registry-unknown never grants publish permission. The deploy candidate is shadow-only. A missing or expired candidate is a safe miss and uses the rebuild; malformed or ambiguous evidence must fail. Present plain-language bullet points and images.before, images.after, images.diff as absolute clickable image paths.",
+  "skills/internal/ship/references/visual-review.md":
+    "Present plain-language bullet points. Read images.before, then images.after, then images.diff. Resolve them to absolute clickable Markdown file links.",
   "skills/internal/gates/SKILL.md":
     "gates:retry writes diagnosticOnly: true and evidenceWritten: false. gates:affected writes shadowOnly: true and reuseEnabled: false. Require 30 representative samples and MK approval. verify-shadcn-consume uses a fresh consumer per root; D1 retains the full oracle.",
   "docs/plans/2026-07-28-public-site-private-registry-boundary.md":
@@ -868,6 +894,12 @@ const semanticFixtures = [
     ".github/workflows/deploy.yml",
     "run: node apps/docs/scripts/probe-deployment.mjs\n  deployment-complete:\n    needs: verify-public-boundary",
     /probe-report/,
+  ],
+  [
+    "visual handoff omits understandable explanation and screenshots",
+    "skills/internal/ship/references/visual-review.md",
+    "Present only route, project, and changedPixels.",
+    /visual-handoff/,
   ],
 ];
 for (const [label, file, text, expected] of semanticFixtures) {

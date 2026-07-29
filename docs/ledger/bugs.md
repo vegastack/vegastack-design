@@ -661,3 +661,13 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
 - **Systemic fix:** the authority now names local pre-push and `gates:ship`, explicitly stating that
   CI and Release only attest browser lanes. The operator verifier inventories the authority and a
   semantic mutation rejects the old claim; every digest-derived surface was regenerated.
+
+## 2026-07-29 — Visual review reported numbers without explaining the visible change
+
+- **Symptom:** the final handoff described a Button fixture as a “147-pixel delta,” which did not tell
+  MK that only the antialiased letter edges of “Glass” differed or provide direct screenshot links.
+- **Root cause:** the ship protocol required a route/project/pixel/verdict table but omitted a
+  plain-language summary and explicit paths to the before, after, and difference images.
+- **Systemic fix:** the canonical ship skill and visual-review reference now require both. The
+  operator-doc verifier inventories the reference and a semantic mutation rejects a pixel-only
+  handoff.

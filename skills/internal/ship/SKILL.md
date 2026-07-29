@@ -170,7 +170,12 @@ Then follow [references/visual-review.md](references/visual-review.md) exactly:
 1. Read `.vrt-review/report.json`.
 2. For every entry with `status !== "unchanged"`, **read the before, after, and diff images**.
 3. Classify each **intended** / **unintended** / **uncertain**.
-4. Present a table — route, project, pixels changed, verdict, one-line reasoning.
+4. Present a human-readable handoff:
+   - Start with short plain-language bullet points: what visibly changed, what did not change, the
+     likely cause, and whether a user would notice it. Never make a pixel count the explanation.
+   - Include the audit table — route, project, pixels changed, verdict, and one-line reasoning.
+   - For every non-unchanged entry, expose its `images.before`, `images.after`, and `images.diff` as
+     absolute, clickable image paths so MK can manually inspect the exact screenshots.
 5. **Stop. MK decides.** Never self-clear a diff.
 
 A run that captured nothing prints SKIPPED. Report it as skipped; it is not evidence of a clean diff.
