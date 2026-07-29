@@ -52,6 +52,22 @@ assert.deepEqual(
   [],
   "a complete packed export surface must pass",
 );
+assert.match(
+  validatePackedPackageFiles(
+    { ...packageFixture, exports: { ".": "dist/index.js" } },
+    [{ path: "dist/index.js" }],
+  ).join("\n"),
+  /declares an invalid packed export\/bin target dist\/index\.js/,
+  "a non-relative export target must fail rather than disappear from validation",
+);
+assert.match(
+  validatePackedPackageFiles(
+    { ...packageFixture, bin: { example: "./bin/../../escape.mjs" } },
+    [{ path: "../escape.mjs" }],
+  ).join("\n"),
+  /declares an invalid packed export\/bin target \.\/bin\/\.\.\/\.\.\/escape\.mjs/,
+  "an escaping bin target must fail rather than normalize outside the package",
+);
 
 assert.equal(
   packageNameFromSpec("@vegastack/design@^0.3.0"),
@@ -246,6 +262,19 @@ rejected(
     report.packageArtifacts.push(structuredClone(report.packageArtifacts[0]));
   },
   /duplicate public package artifact @vegastack\/design/,
+);
+rejected(
+  "unexpected public package artifact",
+  (report) => {
+    report.packageArtifacts.push({
+      name: "@vegastack/unmodeled",
+      version: "1.0.0",
+      buildStatus: "pass",
+      exportsValidated: true,
+      packedFileCount: 1,
+    });
+  },
+  /unexpected public package artifact @vegastack\/unmodeled/,
 );
 rejected(
   "unknown layout",

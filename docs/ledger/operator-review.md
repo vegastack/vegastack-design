@@ -873,3 +873,22 @@ each was invisible in review and each is the kind that would have degraded the t
   reconstructable for the earlier runs, so no percentile or causal cache claim is made.
 - **Verdict:** the ≤19m/≤22m hypothesis remains unmet/unproven. The faster later samples do not
   authorize weaker coverage, more workers, or overlapping the cold docs build with browser lanes.
+
+## 2026-07-29 — Exact artifact membership includes the negative space
+
+- **Decision:** the consume report's package-artifact set is exactly the two modeled public packages;
+  missing, duplicate, or unexpected names all fail independently.
+- **Target safety:** export targets must be package-relative and bin targets must not be absolute or
+  escape with `..`. Invalid paths are errors, not ignored values.
+- **Review consequence:** finding this after a green full sweep invalidated that receipt. Correctness
+  evidence is regenerated rather than preserving a convenient final SHA.
+
+## 2026-07-29 — Final unchanged-scope review result
+
+- **Result:** 0 high, 0 medium after the target-canonicalization fix; no prior finding recurred.
+- **Deterministic evidence:** root lint/design, typecheck, operator-doc 33/42/9, workflow-security
+  positive/52-negative, consume-isolation, receipt/profile, route/smoke, release-state, candidate,
+  registry-integrity, VRT-determinism, and generated-authority checks passed.
+- **Adversarial evidence:** current prose and executable entry points were searched for stale topology,
+  counts, provenance, preflight location, upload-as-complete wording, direct Playwright contracts,
+  broad socket killing, swallowed failures, and unmodeled package paths. None remained.

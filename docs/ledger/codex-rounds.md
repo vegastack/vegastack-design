@@ -541,3 +541,26 @@ and 108-route/864-contract universe, but their cache/cold/thermal and CPU/RSS st
 Current instructions now report the honest 30m15s–48m25s range (`n=3`), while the benefits ledger
 records the 37m57s sample median and explicitly refuses a p50/p95 claim from three observations. No
 coverage, worker count, schedule, or target was changed to improve the report.
+
+## Round 32 — 2026-07-29 · adversarial packed-artifact universe closure
+
+The first unchanged-scope adversarial pass found one medium completeness gap in the new artifact
+verifier: exact public-package validation had missing and duplicate mutations but no mutation for an
+unexpected package, and a future non-relative export target would be ignored by the target collector.
+Neither affected the two current valid manifests, but both violated the program's negative-proof and
+unknown-input rules. Dedicated fixtures now reject unexpected package artifacts and invalid export/
+bin targets for their exact reasons. The prior final receipt was deliberately invalidated; no finding
+was waived or downgraded to retain it. A new unchanged-scope review, full exact-tree ship, receipt,
+and clean bumped preflight are required before this round may report zero medium findings.
+
+## Round 33 — 2026-07-29 · unchanged-scope adversarial closure
+
+The repeated deterministic and adversarial pass found no further issue after canonical target
+normalization and the unexpected/traversal mutations were added: **0 high and 0 medium findings**.
+Root lint/design and typecheck passed; consume isolation rejects missing, duplicate, unexpected,
+unbuilt, unvalidated, malformed-target, traversal, collision, empty-selector, partial-report, and
+reusable-shadow mutations. Operator docs still pass 33 current surfaces, 42 semantic fixtures, and
+nine executable help surfaces; workflow security still rejects all 52 mutations. Manual current-
+surface searches found no obsolete boundary/count/provenance/preflight/upload claims or direct/fail-
+open browser/contract commands. The terminal exact-tree ship and clean preflight must still be rerun
+after committing this closure; this review result is not a substitute for either execution.

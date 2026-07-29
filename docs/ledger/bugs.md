@@ -693,3 +693,13 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   and bin target against `pnpm pack --json`, and writes those artifact facts into the structured
   report. Missing output now fails once at the artifact boundary instead of surfacing as many
   downstream TypeScript errors. No publication lifecycle hook or token was added.
+
+## 2026-07-29 — Packed-artifact exact-universe branches lacked complete mutations
+
+- **Symptom:** missing/duplicate public artifact fixtures passed, but there was no forced unexpected
+  package mutation; non-relative export strings were skipped rather than classified invalid.
+- **Root cause:** the first archive closure focused on current missing `dist` files and did not
+  adversarially enumerate every branch of the newly added exact-universe collector.
+- **Systemic fix:** exact artifacts now reject missing, duplicate, and unexpected package names;
+  invalid/escaping export or bin targets fail instead of disappearing. Each branch has an exact
+  intended-reason fixture, and the production-full receipt must be regenerated after the fix.
