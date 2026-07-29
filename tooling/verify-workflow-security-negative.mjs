@@ -145,26 +145,48 @@ const CASES = [
     expect: /broad lsof port reaping/,
   },
   {
+    id: "runner diagnostics swallows the browser launch command",
+    file: "runner-diagnostics.yml",
+    find: '          )"\n          echo "$OUT"\n',
+    replace: '          )" || true\n          echo "$OUT"\n',
+    expect: /browser-launch failures must not be swallowed/,
+  },
+  {
+    id: "runner diagnostics omits the structured launch report",
+    file: "runner-diagnostics.yml",
+    find: '            kind: "vegastack-browser-launch-diagnostic",\n',
+    replace: '            kind: "unstructured-launch-log",\n',
+    expect: /browser launch must write a structured three-engine result/,
+  },
+  {
     id: "runner diagnostics omits the complete-browser outcome",
     file: "runner-diagnostics.yml",
-    find: "          ALL_BROWSERS: ${{ steps.all_browsers.outcome }}\n",
+    find: "          ALL_BROWSERS_OUTCOME: ${{ steps.all_browsers.outcome }}\n",
     replace: "",
     expect: /terminal verdict omits steps\.all_browsers\.outcome/,
   },
   {
     id: "runner diagnostics omits the contract outcome",
     file: "runner-diagnostics.yml",
-    find: "          CONTRACTS: ${{ steps.contracts.outcome }}\n",
+    find: "          CONTRACTS_OUTCOME: ${{ steps.contracts.outcome }}\n",
     replace: "",
     expect: /terminal verdict omits steps\.contracts\.outcome/,
   },
   {
     id: "runner diagnostics swallows deep failures in its verdict",
     file: "runner-diagnostics.yml",
-    find: '            [ "$ALL_BROWSERS" = "success" ] || FAILED=1\n            [ "$CONTRACTS" = "success" ] || FAILED=1\n',
+    find: '            [ "$ALL_BROWSERS_STATE" = "executed/pass" ] || FAILED=1\n            [ "$CONTRACTS_STATE" = "executed/pass" ] || FAILED=1\n',
     replace: '            echo "deep failures are informational"\n',
     expect:
       /continued deep failures must reach a nonzero terminal diagnostic verdict/,
+  },
+  {
+    id: "runner diagnostics accepts empty structured deep reports",
+    file: "runner-diagnostics.yml",
+    find: "Number.isInteger(report.executed) && report.executed > 0",
+    replace: "true",
+    expect:
+      /terminal states must be reconstructed from nonempty structured reports/,
   },
   {
     id: "stray OIDC in ci.yml",
@@ -245,9 +267,45 @@ const CASES = [
   {
     id: "the canonical production probe removed",
     file: "deploy.yml",
-    find: "        run: node apps/docs/scripts/probe-deployment.mjs\n",
+    find: '        run: node apps/docs/scripts/probe-deployment.mjs --report "$RUNNER_TEMP/deployment-probe.json"\n',
     replace: "        run: echo boundary-check-skipped\n",
     expect: /canonical production probe/,
+  },
+  {
+    id: "the production probe stopped writing a structured report",
+    file: "deploy.yml",
+    find: ' --report "$RUNNER_TEMP/deployment-probe.json"',
+    replace: "",
+    expect: /canonical production probe/,
+  },
+  {
+    id: "the boundary job omitted its structured state output",
+    file: "deploy.yml",
+    find: "      probe_state: ${{ steps.probe-report.outputs.state }}\n",
+    replace: "",
+    expect: /expose structured probe state, count, and exact registry version/,
+  },
+  {
+    id: "the probe summary no longer runs after probe failure",
+    file: "deploy.yml",
+    find: "        if: ${{ always() }}\n",
+    replace: "        if: ${{ success() }}\n",
+    expect: /summarize its structured report even after a failed probe/,
+  },
+  {
+    id: "an empty live-probe report is accepted",
+    file: "deploy.yml",
+    find: "report.probeCount < 1",
+    replace: "report.probeCount < 0",
+    expect:
+      /empty, inconsistent, or failed live-probe reports must fail closed/,
+  },
+  {
+    id: "deployment-complete stopped consuming live-probe state",
+    file: "deploy.yml",
+    find: "          PROBE_STATE: ${{ needs.verify-public-boundary.outputs.probe_state }}\n",
+    replace: "",
+    expect: /must consume the structured probe summary/,
   },
   {
     id: "CI verify no longer waits for receipt-guard",

@@ -103,6 +103,8 @@ jobs:
         id: launch
         continue-on-error: true
         shell: bash
+        env:
+          LAUNCH_REPORT: ${{ runner.temp }}/browser-launch.json
         # `node --input-type=module` on stdin, with the working directory inside packages/ui, so the
         # bare `playwright` specifier resolves. A probe written to /tmp does NOT resolve — Node walks
         # up from the script's own directory, not from the workspace. Verified locally: this exact
@@ -111,6 +113,7 @@ jobs:
         run: |
           set -uo pipefail
           OUT="$(node --input-type=module <<'PROBE' 2>&1
+          import { writeFileSync } from "node:fs";
           import { chromium, firefox, webkit } from "playwright";
           const results = [];
           for (const [name, engine] of [["chromium", chromium], ["firefox", firefox], ["webkit", webkit]]) {
@@ -127,13 +130,26 @@ jobs:
           }
           for (const [name, status] of results) console.log(`${name.padEnd(9)} ${status}`);
           const ok = results.filter(([, s]) => s === "LAUNCHED").length;
+          writeFileSync(process.env.LAUNCH_REPORT, JSON.stringify({
+            schema: 1,
+            kind: "vegastack-browser-launch-diagnostic",
+            state: ok === 3 ? "pass" : "fail",
+            attempted: results.length,
+            passed: ok,
+            observations: results.map(([engine, status]) => ({
+              engine,
+              state: status === "LAUNCHED" ? "pass" : "fail",
+              detail: status,
+            })),
+          }, null, 2) + "\n", { flag: "wx", mode: 0o600 });
           console.log(`${ok}/3 engines launched`);
           process.stdout.write(`__ENGINES_OK__=${ok}\n`);
           PROBE
-          )" || true
+          )"
           echo "$OUT"
           OK="$(printf '%s' "$OUT" | sed -n 's/^__ENGINES_OK__=//p' | tail -1)"
           echo "engines_ok=${OK:-0}" >> "$GITHUB_OUTPUT"
+          test "${OK:-0}" = "3"
 
       # ── the NON-BROWSER lane the local-first topology actually depends on ────────────────────────
       #
@@ -230,6 +246,49 @@ jobs:
           node tooling/contracts-run.mjs --all --report "$RUNNER_TEMP/contracts.json"
           echo "contract suite wall clock: $(( ($(date +%s) - START) / 60 ))m$(( ($(date +%s) - START) % 60 ))s"
 
+      - name: Read structured browser and contract reports
+        id: structured-reports
+        if: ${{ always() }}
+        env:
+          DEEP: ${{ inputs.deep }}
+          LAUNCH_OUTCOME: ${{ steps.launch.outcome }}
+          ALL_BROWSERS_OUTCOME: ${{ steps.all_browsers.outcome }}
+          CONTRACTS_OUTCOME: ${{ steps.contracts.outcome }}
+          LAUNCH_REPORT: ${{ runner.temp }}/browser-launch.json
+          ALL_BROWSERS_REPORT: ${{ runner.temp }}/all-browsers.json
+          CONTRACTS_REPORT: ${{ runner.temp }}/contracts.json
+        run: |
+          node --input-type=module <<'NODE'
+          import { appendFileSync, existsSync, readFileSync } from 'node:fs';
+          const read = (path) => {
+            if (!existsSync(path)) return null;
+            try { return JSON.parse(readFileSync(path, 'utf8')); } catch { return { corrupt: true }; }
+          };
+          const launch = read(process.env.LAUNCH_REPORT);
+          const launchState =
+            process.env.LAUNCH_OUTCOME === 'cancelled' ? 'not reached' :
+            !launch || launch.corrupt ? 'unknown' :
+            process.env.LAUNCH_OUTCOME === 'success' && launch.kind === 'vegastack-browser-launch-diagnostic' &&
+              launch.state === 'pass' && launch.attempted === 3 && launch.passed === 3
+              ? 'executed/pass' : 'executed/fail';
+          const deepState = (path, outcome) => {
+            if (process.env.DEEP !== 'true') return 'skipped';
+            if (outcome === 'cancelled') return 'not reached';
+            const report = read(path);
+            if (!report || report.corrupt) return 'unknown';
+            return outcome === 'success' && report.status === 'pass' &&
+              Number.isInteger(report.executed) && report.executed > 0
+              ? 'executed/pass' : 'executed/fail';
+          };
+          const allBrowsersState = deepState(process.env.ALL_BROWSERS_REPORT, process.env.ALL_BROWSERS_OUTCOME);
+          const contractsState = deepState(process.env.CONTRACTS_REPORT, process.env.CONTRACTS_OUTCOME);
+          appendFileSync(process.env.GITHUB_OUTPUT, [
+            `launch_state=${launchState}`,
+            `all_browsers_state=${allBrowsersState}`,
+            `contracts_state=${contractsState}`,
+          ].join('\n') + '\n');
+          NODE
+
       - name: Verdict
         if: ${{ always() }}
         shell: bash
@@ -245,8 +304,9 @@ jobs:
           REGISTRY: ${{ steps.registry.outcome }}
           CONSUME: ${{ steps.consume.outcome }}
           BROWSER_UNIT: ${{ steps.browser_unit.outcome }}
-          ALL_BROWSERS: ${{ steps.all_browsers.outcome }}
-          CONTRACTS: ${{ steps.contracts.outcome }}
+          LAUNCH_STATE: ${{ steps.structured-reports.outputs.launch_state }}
+          ALL_BROWSERS_STATE: ${{ steps.structured-reports.outputs.all_browsers_state }}
+          CONTRACTS_STATE: ${{ steps.structured-reports.outputs.contracts_state }}
           DEEP: ${{ inputs.deep }}
         run: |
           set -uo pipefail
@@ -274,10 +334,10 @@ jobs:
             echo "| build, public docs export | ${BUILD_PUBLIC:-?} |"
             echo "| registry:build idempotent | ${REGISTRY:-?} |"
             echo "| consume round-trip | ${CONSUME:-?} |"
-            echo "| browser launch probe | $([ "${ENGINES:-0}" = "3" ] && echo executed/pass || echo executed/fail) |"
+            echo "| browser launch probe | ${LAUNCH_STATE:-unknown} |"
             echo "| selected browser unit specimen | $(state "$BROWSER_UNIT") |"
-            echo "| complete three-engine suite | $(state "$ALL_BROWSERS") |"
-            echo "| complete contract suite | $(state "$CONTRACTS") |"
+            echo "| complete three-engine suite | ${ALL_BROWSERS_STATE:-unknown} |"
+            echo "| complete contract suite | ${CONTRACTS_STATE:-unknown} |"
             echo
             echo "### The non-browser lane — what CI now depends on"
             echo
@@ -311,12 +371,15 @@ jobs:
           } | tee -a "$GITHUB_STEP_SUMMARY"
 
           FAILED=0
-          [ "${ENGINES:-0}" = "3" ] || FAILED=1
+          [ "$LAUNCH_STATE" = "executed/pass" ] || FAILED=1
           for outcome in "$TYPECHECK" "$LINT" "$BUILD_PRIVATE" "$BUILD_PUBLIC" "$REGISTRY" "$CONSUME" "$BROWSER_UNIT"; do
             [ "$outcome" = "success" ] || FAILED=1
           done
           if [ "$DEEP" = "true" ]; then
-            [ "$ALL_BROWSERS" = "success" ] || FAILED=1
-            [ "$CONTRACTS" = "success" ] || FAILED=1
+            [ "$ALL_BROWSERS_STATE" = "executed/pass" ] || FAILED=1
+            [ "$CONTRACTS_STATE" = "executed/pass" ] || FAILED=1
+          else
+            [ "$ALL_BROWSERS_STATE" = "skipped" ] || FAILED=1
+            [ "$CONTRACTS_STATE" = "skipped" ] || FAILED=1
           fi
           exit "$FAILED"

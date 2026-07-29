@@ -344,6 +344,21 @@ assert.doesNotMatch(
   /lsof -ti[^\n]*tcp:/,
   "runner-diagnostics.yml: broad lsof port reaping can kill the runner through a client socket",
 );
+assert.doesNotMatch(
+  runnerDiagnostics,
+  /\)"\s*\|\| true/,
+  "runner-diagnostics.yml: browser-launch failures must not be swallowed before the terminal verdict",
+);
+assert.match(
+  runnerDiagnostics,
+  /kind: "vegastack-browser-launch-diagnostic"[\s\S]{0,400}attempted: results\.length/,
+  "runner-diagnostics.yml: browser launch must write a structured three-engine result and expose failure",
+);
+assert.match(
+  runnerDiagnostics,
+  /echo "engines_ok=\$\{OK:-0\}" >> "\$GITHUB_OUTPUT"\s+test "\$\{OK:-0\}" = "3"/,
+  "runner-diagnostics.yml: browser launch must fail its diagnostic step unless all three engines launch",
+);
 assert.match(
   runnerDiagnostics,
   /node tooling\/vitest-run\.mjs[\s\S]{0,240}--lane all-browsers[\s\S]{0,240}--report/,
@@ -371,7 +386,12 @@ assert.match(
 );
 assert.match(
   runnerDiagnostics,
-  /if \[ "\$DEEP" = "true" \][\s\S]{0,240}\[ "\$ALL_BROWSERS" = "success" \][\s\S]{0,120}\[ "\$CONTRACTS" = "success" \][\s\S]{0,120}exit "\$FAILED"/,
+  /id: structured-reports[\s\S]*JSON\.parse\(readFileSync[\s\S]*report\.executed > 0[\s\S]*all_browsers_state[\s\S]*contracts_state/,
+  "runner-diagnostics.yml: terminal states must be reconstructed from nonempty structured reports",
+);
+assert.match(
+  runnerDiagnostics,
+  /if \[ "\$DEEP" = "true" \][\s\S]{0,240}\[ "\$ALL_BROWSERS_STATE" = "executed\/pass" \][\s\S]{0,160}\[ "\$CONTRACTS_STATE" = "executed\/pass" \][\s\S]{0,300}exit "\$FAILED"/,
   "runner-diagnostics.yml: continued deep failures must reach a nonzero terminal diagnostic verdict",
 );
 
@@ -461,8 +481,23 @@ const publicVerificationJob = jobBlock(
 assert.match(publicVerificationJob, /^    needs: deploy-curated$/m);
 assert.match(
   publicVerificationJob,
-  /probe-deployment\.mjs/,
+  /probe-deployment\.mjs --report "\$RUNNER_TEMP\/deployment-probe\.json"/,
   "deploy.yml: the boundary job must execute the canonical production probe",
+);
+assert.match(
+  publicVerificationJob,
+  /probe_state:\s*\$\{\{ steps\.probe-report\.outputs\.state \}\}[\s\S]*probe_count:\s*\$\{\{ steps\.probe-report\.outputs\.count \}\}[\s\S]*registry_version:/,
+  "deploy.yml: the boundary job must expose structured probe state, count, and exact registry version",
+);
+assert.match(
+  publicVerificationJob,
+  /id: probe-report[\s\S]*if: \$\{\{ always\(\) \}\}[\s\S]*JSON\.parse\(readFileSync[\s\S]*GITHUB_OUTPUT[\s\S]*GITHUB_STEP_SUMMARY/,
+  "deploy.yml: the boundary job must summarize its structured report even after a failed probe",
+);
+assert.match(
+  publicVerificationJob,
+  /report\.probeCount < 1[\s\S]*report\.passed \+ report\.failed !== report\.probeCount[\s\S]*report\.state !== 'pass'/,
+  "deploy.yml: empty, inconsistent, or failed live-probe reports must fail closed",
 );
 assert.doesNotMatch(
   publicVerificationJob,
@@ -500,6 +535,16 @@ assert.match(
   completionJob,
   /needs\.deploy-curated\.outputs\.version_id/,
   "deploy.yml: deployment-complete must name the structured Cloudflare version ID",
+);
+assert.match(
+  completionJob,
+  /PROBE_STATE: \$\{\{ needs\.verify-public-boundary\.outputs\.probe_state \}\}[\s\S]*PROBE_COUNT: \$\{\{ needs\.verify-public-boundary\.outputs\.probe_count \}\}[\s\S]*REGISTRY_VERSION:/,
+  "deploy.yml: deployment-complete must consume the structured probe summary",
+);
+assert.match(
+  completionJob,
+  /test "\$PROBE_STATE" = "pass"[\s\S]*test "\$\{PROBE_COUNT:-0\}" -gt 0[\s\S]*test -n "\$REGISTRY_VERSION"/,
+  "deploy.yml: deployment-complete must reject unknown, empty, or failed probe outcomes",
 );
 const deployCandidateJob = jobBlock(sources["deploy.yml"], "deploy-curated");
 assert.match(

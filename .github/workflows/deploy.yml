@@ -345,6 +345,10 @@ jobs:
   verify-public-boundary:
     needs: deploy-curated
     runs-on: ubuntu-latest
+    outputs:
+      probe_state: ${{ steps.probe-report.outputs.state }}
+      probe_count: ${{ steps.probe-report.outputs.count }}
+      registry_version: ${{ steps.probe-report.outputs.registry_version }}
     permissions:
       contents: read
     steps:
@@ -357,13 +361,57 @@ jobs:
         with: { node-version: 24 }
       - uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
       - name: Verify the public/internal/registry boundary (fail-closed)
+        id: boundary-probe
         env:
           DOCS_URL: ${{ vars.DOCS_URL }}
           CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
           CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
           SIGNER_REPOSITORY: ${{ github.repository }}
           SIGNER_REF: refs/heads/main
-        run: node apps/docs/scripts/probe-deployment.mjs
+        run: node apps/docs/scripts/probe-deployment.mjs --report "$RUNNER_TEMP/deployment-probe.json"
+      - name: Publish the structured live-probe outcome
+        id: probe-report
+        if: ${{ always() }}
+        env:
+          PROBE_OUTCOME: ${{ steps.boundary-probe.outcome }}
+          PROBE_REPORT: ${{ runner.temp }}/deployment-probe.json
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { appendFileSync, readFileSync } from 'node:fs';
+          const report = JSON.parse(readFileSync(process.env.PROBE_REPORT, 'utf8'));
+          if (report.schema !== 1 || report.kind !== 'vegastack-deployment-probe') {
+            throw new Error('live-probe report has an unsupported schema/kind');
+          }
+          if (!['pass', 'fail'].includes(report.state)) {
+            throw new Error(`live-probe report has an invalid terminal state: ${report.state}`);
+          }
+          if (!Number.isInteger(report.probeCount) || report.probeCount < 1) {
+            throw new Error(`live-probe report has no attempted probes: ${report.probeCount}`);
+          }
+          if (report.passed + report.failed !== report.probeCount) {
+            throw new Error('live-probe report counts do not reconcile');
+          }
+          if (typeof report.expectedRegistryVersion !== 'string' || report.expectedRegistryVersion.length === 0) {
+            throw new Error('live-probe report omitted the expected registry version');
+          }
+          appendFileSync(process.env.GITHUB_OUTPUT, [
+            `state=${report.state}`,
+            `count=${report.probeCount}`,
+            `registry_version=${report.expectedRegistryVersion}`,
+          ].join('\n') + '\n');
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY, [
+            '## Live deployment probes',
+            '',
+            `- Step outcome: ${process.env.PROBE_OUTCOME ?? 'unknown'}`,
+            `- Structured state: ${report.state}`,
+            `- Attempted: ${report.probeCount} (${report.passed} pass, ${report.failed} fail)`,
+            `- Exact registry version: \`${report.expectedRegistryVersion}\``,
+          ].join('\n') + '\n');
+          if (process.env.PROBE_OUTCOME !== 'success' || report.state !== 'pass' || report.failed !== 0) {
+            throw new Error('live deployment probes did not reach executed/pass');
+          }
+          NODE
 
   # This is the only terminal success state. Uploading a live candidate is not completion: signing,
   # immediate artifact reverification, Cloudflare's structured version capture, and every anonymous/
@@ -377,14 +425,22 @@ jobs:
         env:
           DEPLOYED_SHA: ${{ github.sha }}
           VERSION_ID: ${{ needs.deploy-curated.outputs.version_id }}
+          PROBE_STATE: ${{ needs.verify-public-boundary.outputs.probe_state }}
+          PROBE_COUNT: ${{ needs.verify-public-boundary.outputs.probe_count }}
+          REGISTRY_VERSION: ${{ needs.verify-public-boundary.outputs.registry_version }}
         run: |
           set -euo pipefail
           test -n "$VERSION_ID"
+          test "$PROBE_STATE" = "pass"
+          test "${PROBE_COUNT:-0}" -gt 0
+          test -n "$REGISTRY_VERSION"
           {
             echo "## Deployment complete"
             echo
             echo "- Commit: \`$DEPLOYED_SHA\`"
             echo "- Cloudflare version: \`$VERSION_ID\`"
+            echo "- Live probes: $PROBE_COUNT executed/pass"
+            echo "- Exact registry version: \`$REGISTRY_VERSION\`"
             echo "- Executed: sign, immediate reverify, candidate upload, structured version capture, and live boundary probes"
             echo "- Result: production completion (not merely upload success)"
           } >> "$GITHUB_STEP_SUMMARY"
