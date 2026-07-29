@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { ANIMATED_ICON_CHUNK_COUNT } from "./icon-chunks.generated";
 import { VRT_PAGE_ROUTES } from "./page-routes";
 
@@ -15,6 +15,47 @@ import { VRT_PAGE_ROUTES } from "./page-routes";
 const describeVRT = process.env.VRT_SNAPSHOT_DIR
   ? test.describe
   : test.describe.skip;
+
+async function stabilizeDocumentationChrome(page: Page) {
+  // A full-page Chromium screenshot scrolls while stitching. Fumadocs' IntersectionObserver then
+  // races the capture, moving its active TOC link and clipped thumb track between headings even
+  // when the HTML is byte-identical. Keep the complete inactive TOC visible, but remove only this
+  // scroll-position-dependent state from the full-page comparison. Component fixtures are
+  // unaffected, and the docs runtime is never modified outside this local review harness.
+  await page.evaluate(() => {
+    const normalize = () => {
+      const links = document.querySelectorAll<HTMLAnchorElement>(
+        'a[data-active][href^="#"]',
+      );
+      const roots = new Set<HTMLElement>();
+      for (const link of links) {
+        if (link.dataset.active !== "false") link.dataset.active = "false";
+        if (link.parentElement) roots.add(link.parentElement);
+      }
+      for (const root of roots) {
+        for (const child of root.children) {
+          if (
+            child instanceof HTMLElement &&
+            child.tagName === "DIV" &&
+            child.querySelector(":scope > svg") &&
+            getComputedStyle(child).position === "absolute"
+          ) {
+            child.dataset.vrtTocTrack = "true";
+          }
+        }
+      }
+    };
+    normalize();
+    new MutationObserver(normalize).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-active"],
+      subtree: true,
+    });
+  });
+  await page.addStyleTag({
+    content: '[data-vrt-toc-track="true"] { visibility: hidden !important; }',
+  });
+}
 
 describeVRT("VRT — showcase pages", () => {
   for (const path of VRT_PAGE_ROUTES) {
@@ -48,6 +89,7 @@ describeVRT("VRT — showcase pages", () => {
         content:
           '[data-slot="message-scroller-item"] { content-visibility: visible !important; }',
       });
+      await stabilizeDocumentationChrome(page);
       await expect(page).toHaveScreenshot(`${path.replaceAll("/", "_")}.png`, {
         fullPage: true,
       });

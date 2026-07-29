@@ -57,6 +57,12 @@ export default defineConfig({
   mdxOptions: {
     remarkPlugins: [[remarkAutoTypeTable, { generator }]],
     rehypeCodeOptions: {
+      // Fumadocs v16 defaults to Shiki's JavaScript RegExp engine for runtime portability. This
+      // project highlights at build time on Node, where Shiki recommends Oniguruma for maximum
+      // TextMate-grammar compatibility. More importantly, the JS engine emitted different TSX token
+      // scopes across two identical-tree parallel Next builds (VRT review 2026-07-29). Pinning the
+      // engine makes the exported HTML, and therefore visual evidence, reproducible.
+      engine: "oniguruma",
       themes: { light: "github-light", dark: "github-dark" },
       langs: ["js", "jsx", "ts", "tsx", "css", "bash"],
       transformers: [
