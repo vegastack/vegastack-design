@@ -13,11 +13,10 @@ env:
 
 # COST SHAPE. Only two jobs are GitHub-hosted, for two unrelated hard reasons:
 #
-#   package-build   PROVENANCE. `publish` uploads the exact bytes this job produces, and npm's OIDC
-#                   provenance statement asserts they were built by this workflow in this repository.
-#                   Building them on a PERSISTENT self-hosted runner would make that assertion less
-#                   true — a persistent runner can carry state between runs. ~4 minutes for the two
-#                   public packages, no browsers, no container.
+#   package-build   EPHEMERAL EXACT-BYTE PRODUCER. `publish` uploads the immutable artifact this job
+#                   creates, keeping persistent self-hosted runner state outside the public package
+#                   build. This private source repository cannot receive npm provenance attestations.
+#                   ~4 minutes for the two public packages, no browsers, no container.
 #   publish         npm trusted publishing does not support self-hosted runners
 #                   (https://docs.npmjs.com/trusted-publishers/) and this repository deliberately
 #                   holds no NPM_TOKEN, so moving it would break publishing outright. ~2 minutes,
@@ -189,9 +188,10 @@ jobs:
           retention-days: 1
           overwrite: false
 
-  # The npm artifact, built on an EPHEMERAL runner so the bytes on public npm and the provenance
-  # statement about them agree. This is the one place this workflow deliberately spends money; see the
-  # header. It runs after validation and produces nothing but the two public dists.
+  # The npm artifact is built on an EPHEMERAL runner and handed to publish as one immutable artifact,
+  # keeping persistent runner state outside the public-package build. The private source repository
+  # cannot receive npm provenance attestations. This deliberate hosted cost is defense in depth; see
+  # the header. The job runs after validation and produces nothing but the two public dists.
   # `npm_publish == 'true'` is based on exact name@version lookups. A registry-only run whose public
   # versions already exist, or a changeset-bearing run that only opens a Version PR, never reaches
   # this hosted job. Unknown registry state blocks in `changes`; it cannot be mistaken for missing.

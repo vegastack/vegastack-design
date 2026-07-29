@@ -137,10 +137,11 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
 - **Only five CI jobs are GitHub-hosted, each for a hard reason.** The split is an enforced
   allowlist in `tooling/verify-workflow-security.mjs`, not a convention, and
   `tooling/verify-workflow-security-negative.mjs` proves it rejects a move in either direction.
-  **npm artifact provenance** (`release.yml`'s `package-build`) — `publish` uploads exactly its bytes
-  and npm's OIDC provenance asserts this workflow built them, which a persistent self-hosted runner
-  would make less true; **npm OIDC** (`publish`) — trusted publishing does not support self-hosted
-  runners and this repository holds no `NPM_TOKEN`; **credentials without repository code**
+  **Ephemeral exact-byte package production** (`release.yml`'s `package-build`) — `publish` uploads
+  exactly its immutable artifact, keeping persistent runner state outside the public package build;
+  the private source repository does not receive npm provenance attestations. **npm OIDC**
+  (`publish`) — trusted publishing does not support self-hosted runners and this repository holds no
+  `NPM_TOKEN`; **credentials without repository code**
   (`sign-curated`, `deploy-curated`); and **network position** — `deploy.yml`'s boundary probe must
   originate OUTSIDE VegaStack's network or Cloudflare device posture could authenticate a request it
   asserts is anonymous. `ci.yml` has no hosted job at all.

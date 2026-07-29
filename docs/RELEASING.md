@@ -171,10 +171,10 @@ Five jobs stay on `ubuntu-latest`, pinned by an allowlist enforced in
 `tooling/verify-workflow-security.mjs` and negative-tested in
 `tooling/verify-workflow-security-negative.mjs`. Each has a hard reason:
 
-- **`release.yml` `package-build`** — npm artifact provenance. `publish` uploads exactly this job's
-  bytes and npm's OIDC provenance statement asserts that this workflow, in this repository, built
-  them. A persistent self-hosted runner can carry state between runs, which would make that assertion
-  less true. ~4 minutes, no browsers, no container.
+- **`release.yml` `package-build`** — ephemeral exact-byte package production. `publish` uploads
+  exactly this job's immutable artifact, keeping persistent runner state outside the public package
+  build. The private source repository cannot receive npm provenance attestations. ~4 minutes, no
+  browsers, no container.
 - **`release.yml` `publish`** — npm trusted publishing does not support self-hosted runners
   (<https://docs.npmjs.com/trusted-publishers/>) and this repository holds no `NPM_TOKEN`.
 
