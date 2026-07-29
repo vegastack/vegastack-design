@@ -532,3 +532,12 @@ fixtures, and nine CLI help surfaces. The widened full oracle then passed 26/26 
 26/26 isolated simulated consumers, and 554/554 consolidated items in both layouts in 335.051s,
 with zero report problems. This round invalidates the earlier receipt by changing tracked tooling; a
 new full exact-tree sweep and clean release preflight are mandatory before completion.
+
+## Round 31 — 2026-07-29 · retained full-ship timing reconciliation
+
+Current operator timing had retained only the first 48m25s completion sweep after two later
+full-coverage sweeps measured 37m57s and 30m15s. The three runs each preserved the complete browser
+and 108-route/864-contract universe, but their cache/cold/thermal and CPU/RSS states remain unknown.
+Current instructions now report the honest 30m15s–48m25s range (`n=3`), while the benefits ledger
+records the 37m57s sample median and explicitly refuses a p50/p95 claim from three observations. No
+coverage, worker count, schedule, or target was changed to improve the report.

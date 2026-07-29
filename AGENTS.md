@@ -292,7 +292,7 @@ pnpm gates:component <name>       # scoped   design-lint · that component's uni
 pnpm gates:push                   # scoped   typecheck · Turbo lint · unit · smoke · contracts
 pnpm gates:retry                  # diagnostic-only exact selectors from the retained failure
 pnpm gates:affected               # shadow impact plan, then current push oracle; no reuse/evidence
-pnpm gates:ship                   # full     latest retained sample 48m25s; /ship requires it
+pnpm gates:ship                   # full     retained samples 30m15s–48m25s (n=3); /ship requires it
 ```
 
 Individual gates, when you want one directly:

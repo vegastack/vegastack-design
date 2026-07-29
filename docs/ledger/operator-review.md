@@ -864,3 +864,12 @@ each was invisible in review and each is the kind that would have degraded the t
   isolated real-CLI and simulated Button consumers. A mutation containing only package manifests
   fails on the first omitted declared export. The full widened report passed 26/26 real CLI roots,
   26/26 isolated simulated roots, and 554/554 consolidated items in each layout in 335.051s.
+
+## 2026-07-29 — Full-ship timing is a range, not one selected run
+
+- **Decision:** current instructions report all three retained full-coverage samples: 30m15s,
+  37m57s, and 48m25s. The sample median is 37m57s; it is not called a population p50.
+- **Unknowns retained:** cold/warm classification, thermal state, summed CPU, and peak RSS are not
+  reconstructable for the earlier runs, so no percentile or causal cache claim is made.
+- **Verdict:** the ≤19m/≤22m hypothesis remains unmet/unproven. The faster later samples do not
+  authorize weaker coverage, more workers, or overlapping the cold docs build with browser lanes.

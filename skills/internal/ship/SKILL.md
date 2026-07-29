@@ -42,7 +42,7 @@ include those outputs with the component change before rerunning preflight; neve
 ```bash
 pnpm design:derived
 git status --porcelain          # must be empty except .gates/ — see below if it is not
-pnpm gates:ship                 # THE full local sweep. Latest retained sample: 48m25s; writes receipt.
+pnpm gates:ship                 # THE full local sweep. Retained samples: 30m15s–48m25s (n=3); writes receipt.
 node tooling/changelog-lint.mjs
 SITE_VISIBILITY=private pnpm --filter @vegastack/docs build
 ```

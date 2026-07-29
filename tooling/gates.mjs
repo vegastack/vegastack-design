@@ -14,8 +14,8 @@
 //   push, a GLOBAL surface touched  ~9-11min  + the full 108-route sweep (864 checks)
 //   ship                            ~17-18min + all-browsers 1m39 · consume 3m42 · full contracts
 //
-// RETAINED COMPLETION SAMPLE — 2026-07-29, n=1, thermal/cold state unknown. The target was not met.
-//   ship                            48m25s    all-browsers 7m12 · consume 6m36 · contracts 28m19
+// RETAINED COMPLETION SAMPLES — 2026-07-29, n=3, thermal/cold state unknown. Target not met.
+//   ship                            30m15–48m25; sample median 37m57; no p50/p95 claim
 // Read `.gates/ship.json` and its lane reports; never tune or relabel an observation to this comment.
 //
 //   A COLD docs export adds ~1m40 to any lane that needs `apps/docs/out`. Note `turbo.json` lists
