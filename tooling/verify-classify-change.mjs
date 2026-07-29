@@ -21,6 +21,7 @@ import { execFileSync } from "node:child_process";
 import {
   chmodSync,
   cpSync,
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -31,7 +32,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, extname, join, relative, resolve } from "node:path";
 
 import {
   isSubstantiveLine,
@@ -300,6 +301,45 @@ function gitIn(root, args) {
   return execFileSync("git", args, { cwd: root, encoding: "utf8" });
 }
 
+function copyCurrentModuleClosure(root, entryPaths) {
+  const queue = [...entryPaths];
+  const copied = new Set();
+  while (queue.length > 0) {
+    const repoPath = queue.shift();
+    if (copied.has(repoPath)) continue;
+    const sourcePath = join(ROOT, repoPath);
+    assert.equal(
+      existsSync(sourcePath),
+      true,
+      `classifier fixture dependency is missing from the source tree: ${repoPath}`,
+    );
+    const targetPath = join(root, repoPath);
+    mkdirSync(dirname(targetPath), { recursive: true });
+    cpSync(sourcePath, targetPath);
+    copied.add(repoPath);
+    const source = readFileSync(sourcePath, "utf8");
+    for (const match of source.matchAll(
+      /(?:from\s+|import\s*\()\s*["'](\.[^"']+)["']/g,
+    )) {
+      let dependency = resolve(dirname(sourcePath), match[1]);
+      if (!extname(dependency) && existsSync(`${dependency}.mjs`))
+        dependency = `${dependency}.mjs`;
+      const dependencyPath = relative(ROOT, dependency).replaceAll("\\", "/");
+      if (dependencyPath.startsWith("tooling/") && existsSync(dependency))
+        queue.push(dependencyPath);
+    }
+  }
+  // A future relative import cannot silently use the clone's older module: every source-relative
+  // tooling edge discovered above must resolve to the copied current bytes.
+  for (const repoPath of copied)
+    assert.deepEqual(
+      readFileSync(join(root, repoPath)),
+      readFileSync(join(ROOT, repoPath)),
+      `classifier fixture dependency drifted: ${repoPath}`,
+    );
+  return [...copied].sort();
+}
+
 function mutationRepository() {
   const root = mkdtempSync(join(tmpdir(), "version-bump-mutation-"));
   mkdirSync(join(root, "tooling/lib"), { recursive: true });
@@ -356,6 +396,69 @@ function workingTreeVersionResult(mutate) {
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+}
+
+function classifyModeMutation({ committed }) {
+  const scratch = mkdtempSync(join(tmpdir(), "classifier-mode-mutation-"));
+  const root = join(scratch, "repo");
+  try {
+    execFileSync("git", ["clone", "--quiet", "--no-hardlinks", ROOT, root], {
+      encoding: "utf8",
+    });
+    const copied = copyCurrentModuleClosure(root, [
+      "tooling/classify-change.mjs",
+    ]);
+    if (!existsSync(join(root, "node_modules")))
+      symlinkSync(join(ROOT, "node_modules"), join(root, "node_modules"));
+    gitIn(root, ["config", "user.name", "classifier fixture"]);
+    gitIn(root, ["config", "user.email", "classifier@example.invalid"]);
+    gitIn(root, ["add", ...copied]);
+    gitIn(root, ["commit", "--quiet", "-m", "current classifier harness"]);
+    chmodSync(join(root, "packages/ui/registry/ui/button.tsx"), 0o755);
+    const args = ["tooling/classify-change.mjs", "--before", "HEAD"];
+    if (committed) {
+      gitIn(root, ["add", "packages/ui/registry/ui/button.tsx"]);
+      gitIn(root, ["commit", "--quiet", "-m", "mode mutation"]);
+      args.splice(2, 1, "HEAD~1");
+      args.push("--after", "HEAD");
+    }
+    args.push("--json");
+    return JSON.parse(
+      execFileSync("node", args, { cwd: root, encoding: "utf8" }),
+    );
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+}
+
+for (const committed of [false, true]) {
+  const result = classifyModeMutation({ committed });
+  assert.equal(
+    result.contracts,
+    true,
+    `${committed ? "commit-range" : "working-tree"} mode-only component change must require contracts`,
+  );
+  assert.equal(
+    result.unit,
+    true,
+    "mode-only component change must require unit",
+  );
+  assert.equal(
+    result.smoke,
+    true,
+    "mode-only component change must require smoke",
+  );
+  assert.equal(
+    result.contracts_scope,
+    "all",
+    "mode-only component change must widen to the complete contract universe",
+  );
+  assert.equal(
+    result.provenanceOnlyFiles,
+    0,
+    "mode-only component change must not be reported as provenance-only",
+  );
+  checks += 5;
 }
 
 for (const [label, mutate] of [

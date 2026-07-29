@@ -1,13 +1,22 @@
 #!/usr/bin/env node
 
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdtempSync,
+  mkdirSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import {
   buildRetryPlan,
+  fingerprintRetryEvidence,
   retryCommand,
+  retryInvocation,
+  validateRetryDiagnosticReport,
   validateRetryTarget,
 } from "./lib/retry-plan.mjs";
 
@@ -61,6 +70,157 @@ try {
     /--project chromium/,
   );
   assert.match(retryCommand(plan.targets[1]).args.join(" "), /--title/);
+  assert.match(retryCommand(plan.targets[1]).args.join(" "), /--diagnostic/);
+  for (const target of plan.targets) {
+    const args = retryInvocation(target, {
+      report: ".gates/diagnostics/retry.json",
+      retryId: "retry-1",
+    }).args.join(" ");
+    assert.match(args, /--run-id retry-1/);
+    assert.match(args, /--report \.gates\/diagnostics\/retry\.json/);
+  }
+
+  const context = {
+    retryId: "retry-1",
+    tree: TREE,
+    generation: "generation-1",
+    environmentProfile: "environment-1",
+  };
+  const boundary = {
+    runId: context.retryId,
+    generation: context.generation,
+    environmentProfile: context.environmentProfile,
+    treeBinding: { started: TREE, completed: TREE, unchanged: true },
+    diagnosticOnly: true,
+    evidenceWritten: false,
+    receiptWritten: false,
+    evidenceEligibility: "diagnostic-only",
+    state: "executed/pass",
+    executed: 1,
+    results: { passed: 1, failed: 0, skipped: 0 },
+  };
+  const unitReport = {
+    ...boundary,
+    gate: "unit",
+    selectedShadow: false,
+    executedLeaves: [
+      {
+        file: unitTarget.file,
+        engine: unitTarget.engine,
+        testName: unitTarget.testName,
+        status: "passed",
+      },
+    ],
+    selection: {
+      status: "pass",
+      plannedFiles: [unitTarget.file],
+      listedLeaves: 1,
+      executedLeaves: 1,
+    },
+  };
+  const contractReport = {
+    ...boundary,
+    gate: "contracts",
+    selectedShadow: true,
+    scope: {
+      full: false,
+      routes: [contractTarget.route],
+      project: contractTarget.project,
+      title: contractTarget.title,
+    },
+    leafEvidence: {
+      executed: {
+        executed: 1,
+        leaves: [
+          {
+            route: contractTarget.route,
+            project: contractTarget.project,
+            title: contractTarget.title,
+            outcome: "passed",
+          },
+        ],
+      },
+    },
+  };
+  assert.deepEqual(
+    validateRetryDiagnosticReport(unitReport, unitTarget, context),
+    { valid: true, outcome: "pass", problems: [] },
+  );
+  assert.deepEqual(
+    validateRetryDiagnosticReport(contractReport, contractTarget, context),
+    { valid: true, outcome: "pass", problems: [] },
+  );
+  for (const [name, mutation, expected] of [
+    ["stale run", { runId: "old" }, /runId/],
+    [
+      "wrong tree",
+      { treeBinding: { started: TREE, completed: "other", unchanged: true } },
+      /tree/,
+    ],
+    ["wrong generation", { generation: "old" }, /generation/],
+    ["wrong environment", { environmentProfile: "old" }, /environment/],
+    ["evidence write", { evidenceWritten: true }, /evidence boundary/],
+    ["skipped", { results: { passed: 0, failed: 0, skipped: 1 } }, /skipped/],
+    [
+      "same-count wrong test",
+      {
+        executedLeaves: [
+          { ...unitReport.executedLeaves[0], testName: "other" },
+        ],
+      },
+      /exact/,
+    ],
+    [
+      "failed leaf claimed pass",
+      {
+        executedLeaves: [{ ...unitReport.executedLeaves[0], status: "failed" }],
+      },
+      /outcome/,
+    ],
+    [
+      "failed count claimed pass",
+      { results: { passed: 0, failed: 1, skipped: 0 } },
+      /counts/,
+    ],
+  ]) {
+    const checked = validateRetryDiagnosticReport(
+      { ...unitReport, ...mutation },
+      unitTarget,
+      context,
+    );
+    assert.equal(checked.valid, false, name);
+    assert.match(checked.problems.join("; "), expected, name);
+  }
+  const contractContradiction = validateRetryDiagnosticReport(
+    {
+      ...contractReport,
+      leafEvidence: {
+        executed: {
+          executed: 1,
+          leaves: [
+            {
+              ...contractReport.leafEvidence.executed.leaves[0],
+              outcome: "failed",
+            },
+          ],
+        },
+      },
+    },
+    contractTarget,
+    context,
+  );
+  assert.equal(contractContradiction.valid, false);
+  assert.match(contractContradiction.problems.join("; "), /outcome/);
+
+  const evidence = join(root, "evidence");
+  mkdirSync(evidence);
+  writeFileSync(join(evidence, "leaf.json"), "evidence");
+  assert.match(fingerprintRetryEvidence(evidence), /^[a-f0-9]{64}$/);
+  symlinkSync(join(evidence, "leaf.json"), join(evidence, "alias.json"));
+  assert.throws(
+    () => fingerprintRetryEvidence(evidence),
+    /symlink|unsupported/,
+  );
 
   for (const [name, mutation, expected] of [
     ["empty", { ...failure, retryTargets: [] }, /nonempty|no exact/i],
@@ -127,5 +287,5 @@ try {
 }
 
 console.log(
-  "✓ gate retry: exact file/engine/test and route/project/title selectors; empty/stale/renamed/unknown mutations reject; diagnostic result cannot become evidence",
+  "✓ gate retry: exact bound file/engine/test and route/project/title reports; stale, skipped, renamed, symlink-evidence, and evidence-boundary mutations reject",
 );

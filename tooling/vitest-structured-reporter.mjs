@@ -2,6 +2,7 @@ import { relative, resolve } from "node:path";
 
 import { ROOT } from "./lib/change-set.mjs";
 import { atomicWriteJson } from "./lib/measurement-report.mjs";
+import { vitestEvidenceBoundary } from "./lib/vitest-selection.mjs";
 
 /**
  * Vitest 4 reporter for exact diagnostic selectors. The terminal reporter remains enabled; this
@@ -9,6 +10,7 @@ import { atomicWriteJson } from "./lib/measurement-report.mjs";
  */
 export default class VegaStackStructuredReporter {
   constructor() {
+    this.startedAtMs = Date.now();
     this.startedAt = new Date().toISOString();
     this.results = [];
   }
@@ -48,19 +50,37 @@ export default class VegaStackStructuredReporter {
         testName,
         error: errors,
       }));
+    const evidenceBoundary = vitestEvidenceBoundary({
+      diagnostic: process.env.VSK_RETRY_DIAGNOSTIC === "1",
+      selectedShadow: process.env.VSK_SELECTED_SHADOW === "1",
+    });
     atomicWriteJson(output, {
       schema: 1,
       gate: process.env.VSK_VITEST_LANE,
       runId: process.env.VSK_GATE_RUN_ID ?? null,
-      diagnosticOnly: process.env.VSK_RETRY_DIAGNOSTIC === "1",
+      ...evidenceBoundary,
       startedAt: this.startedAt,
       completedAt: new Date().toISOString(),
+      durationMs: Date.now() - this.startedAtMs,
       status:
         reason === "passed" &&
         failures.length === 0 &&
         unhandledErrors.length === 0
           ? "pass"
           : "fail",
+      state:
+        reason === "passed" &&
+        failures.length === 0 &&
+        unhandledErrors.length === 0
+          ? "executed/pass"
+          : "executed/fail",
+      treeBinding: {
+        started: process.env.VSK_TREE_START || null,
+        completed: null,
+        unchanged: null,
+      },
+      generation: process.env.VSK_GATE_GENERATION || null,
+      environmentProfile: process.env.VSK_ENV_PROFILE || null,
       reason,
       executed: this.results.filter((result) => result.status !== "skipped")
         .length,
@@ -72,6 +92,18 @@ export default class VegaStackStructuredReporter {
           .length,
       },
       failures,
+      ...(process.env.VSK_RETAIN_EXECUTED_LEAVES === "1"
+        ? {
+            executedLeaves: this.results.map(
+              ({ file, engine, testName, status }) => ({
+                file,
+                engine,
+                testName,
+                status,
+              }),
+            ),
+          }
+        : {}),
       unhandledErrors: unhandledErrors.map((error) =>
         String(error?.message ?? error).slice(0, 4_000),
       ),

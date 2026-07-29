@@ -100,9 +100,9 @@ export default defineConfig({
   test: {
     setupFiles: ["./vitest.setup.ts"],
     // Keep browser-file concurrency bounded. On high-core hosts Vitest otherwise
-    // launches most of the 100+ files together; trusted click/focus operations
+    // launches most of the machine-derived test inventory together; trusted click/focus operations
     // then queue behind one Chromium process and produce false 15s timeouts.
-    // Four workers keeps the full and three-engine release lanes deterministic.
+    // Four workers keeps the local Chromium and complete three-engine lanes deterministic.
     maxWorkers: 4,
     browser: {
       enabled: true,

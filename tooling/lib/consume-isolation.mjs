@@ -258,3 +258,58 @@ export function validateConsumeReport(report, { expectedRootCount } = {}) {
   }
   return [...new Set(problems)];
 }
+
+/**
+ * Validate an affected diagnostic as a complete, isolated attempt rather than reusable passing
+ * evidence. A selected failure may truthfully retain post-write/typecheck/collision failures, but
+ * it still needs the exact root×layout universe, unique consumers, nonempty content manifests,
+ * immutable package artifacts, and the diagnostic-only boundary. Missing/partial output remains
+ * unknown, never an observed failure.
+ */
+export function validateAffectedConsumeReport(
+  report,
+  { expectedRootCount } = {},
+) {
+  const all = validateConsumeReport(report, { expectedRootCount });
+  if (!report || report.mode !== "affected")
+    return [
+      ...new Set([...all, "selected consume report is not affected mode"]),
+    ];
+  if (!new Set(["pass", "fail"]).has(report.status))
+    return [
+      ...new Set([
+        ...all,
+        `affected consume terminal status is invalid: ${report.status}`,
+      ]),
+    ];
+  const allowedFailureFact = (problem) =>
+    report.status === "fail" &&
+    (/^consume report status is not pass: fail$/.test(problem) ||
+      /: post-write proof missing$/.test(problem) ||
+      /: typecheck proof missing$/.test(problem) ||
+      /^collision: /.test(problem));
+  const problems = all.filter((problem) => !allowedFailureFact(problem));
+  if (report.status === "fail") {
+    if (!Array.isArray(report.problems) || report.problems.length === 0)
+      problems.push("failed affected consume report has no structured problem");
+    const observedFailure = [
+      ...(report.problems ?? []),
+      ...(report.collisionProblems ?? []),
+      ...(report.isolatedReal ?? []).flatMap((leaf) =>
+        leaf.postWriteOk !== true || leaf.tscOk !== true
+          ? [`${leaf.layout}/${leaf.root}`]
+          : [],
+      ),
+      ...(report.isolatedSimulated ?? []).flatMap((leaf) =>
+        leaf.postWriteOk !== true || leaf.tscOk !== true
+          ? [`${leaf.layout}/${leaf.root}`]
+          : [],
+      ),
+    ];
+    if (observedFailure.length === 0)
+      problems.push(
+        "failed affected consume report contains no observable failed leaf",
+      );
+  }
+  return [...new Set(problems)];
+}

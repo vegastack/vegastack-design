@@ -25,55 +25,34 @@ import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import {
+  assertAuthorityFingerprint,
+  authorityFingerprint,
+} from "./authority-fingerprint.mjs";
+
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
-const CONTRACTS = JSON.parse(
-  readFileSync(join(ROOT, "packages/ui/component-contracts.json"), "utf8"),
-);
-
-export const COMPONENTS = CONTRACTS.components;
-export const BLOCKS = CONTRACTS.blocks;
-
-export const ICONS_ROUTE = CONTRACTS.animatedIcons.sharedContract.docsSlug;
 export const ICON_SOURCE_PREFIX = "packages/ui/registry/ui/icons/";
-export const ICON_CHUNK_COUNT = Number(
-  /ANIMATED_ICON_CHUNK_COUNT = (\d+)/.exec(
-    readFileSync(join(ROOT, "apps/docs/vrt/icon-chunks.generated.ts"), "utf8"),
-  )?.[1] ?? 0,
-);
-
-/** Every component page. This is exactly the set `contracts.spec.ts` iterates. */
-export const COMPONENT_ROUTES = COMPONENTS.map((record) => record.docsSlug);
-
-/** Component pages only — the pixel lane's fixture tests do not reach block pages. */
-export const FIXTURE_ROUTES = new Set(
-  [...COMPONENTS, ...BLOCKS]
-    .map((record) => record.docsSlug)
-    .filter((route) => route.startsWith("/docs/components/")),
-);
-
-/** name → docsSlug, keyed by both the registry name and the docs preview module name. */
-export const routeByName = new Map();
-for (const record of [...COMPONENTS, ...BLOCKS]) {
-  routeByName.set(record.name, record.docsSlug);
-  if (record.previewModule)
-    routeByName.set(record.previewModule, record.docsSlug);
-}
+export const ROUTE_SCOPE_AUTHORITY_PATHS = [
+  "packages/ui/component-contracts.json",
+  "apps/docs/vrt/icon-chunks.generated.ts",
+  "apps/docs/vrt/page-routes.generated.ts",
+];
 
 /**
  * docsSlug → the routes that must be rechecked when it changes: itself plus every route whose
  * component composes it, transitively. `registryDependencies` is the right authority —
  * `tooling/verify-registry-deps.mjs` proves it matches the actual imports.
  */
-export const dependentsByRoute = (() => {
+function buildDependentsByRoute(components, blocks) {
   const routeByItem = new Map(
-    [...COMPONENTS, ...BLOCKS].map((record) => [
+    [...components, ...blocks].map((record) => [
       `@vegastack/${record.name}`,
       record.docsSlug,
     ]),
   );
   const directDependents = new Map();
-  for (const record of [...COMPONENTS, ...BLOCKS])
+  for (const record of [...components, ...blocks])
     for (const dependency of record.registryDependencies ?? []) {
       const dependencyRoute = routeByItem.get(dependency);
       if (!dependencyRoute) continue;
@@ -94,7 +73,7 @@ export const dependentsByRoute = (() => {
     closure.set(route, reached);
   }
   return closure;
-})();
+}
 
 // ── the pixel lane's configuration ───────────────────────────────────────────────────────────────
 
@@ -120,10 +99,12 @@ export const PIXEL_NON_VISUAL = [
   /(^|\/)(\.gitignore|\.prettierrc|\.prettierignore|turbo\.json)$/,
   /(^|\/)eslint\.config\.[cm]?js$/,
   /(^|\/)vitest[.\w]*\.config\.ts$/,
+  /^apps\/docs\/public\/_headers$/,
   /^apps\/docs\/public\/r\//,
   /^apps\/docs\/vrt\/[^/]*-snapshots\//,
   /^apps\/docs\/vrt\/(contract-routes\.generated|icon-chunks\.generated|page-routes|contracts\.spec)\.ts$/,
   /^packages\/ui\/(component-contracts|registry)\.json$/,
+  /^packages\/ui\/smoke-impact\.generated\.json$/,
 ];
 
 /**
@@ -142,16 +123,6 @@ export const PIXEL_GLOBAL_SURFACE = [
   /^apps\/docs\/(next\.config|postcss\.config|source\.config)/,
   /^pnpm-lock\.yaml$/,
 ];
-
-export const PIXEL_SCOPE = {
-  lane: "pixel",
-  nonVisual: PIXEL_NON_VISUAL,
-  globalSurface: PIXEL_GLOBAL_SURFACE,
-  selectableRoutes: FIXTURE_ROUTES,
-  // A docs page changes only its own full-page capture — its fixture is unaffected.
-  contentPageLane: "full-page",
-  iconsSupported: true,
-};
 
 // ── the contract lane's configuration ────────────────────────────────────────────────────────────
 
@@ -194,10 +165,12 @@ export const CONTRACT_NON_VISUAL = [
   /(^|\/)(\.gitignore|\.prettierrc|\.prettierignore|turbo\.json)$/,
   /(^|\/)eslint\.config\.[cm]?js$/,
   /(^|\/)vitest[.\w]*\.config\.ts$/,
+  /^apps\/docs\/public\/_headers$/,
   /^apps\/docs\/public\/r\//,
   /^apps\/docs\/vrt\/[^/]*-snapshots\//,
   /^apps\/docs\/vrt\/(icon-chunks\.generated|page-routes|components\.spec)\.ts$/,
   /^packages\/ui\/(component-contracts|registry)\.json$/,
+  /^packages\/ui\/smoke-impact\.generated\.json$/,
   new RegExp(`^${ICON_SOURCE_PREFIX.replace(/\//g, "\\/")}`),
 ];
 
@@ -224,17 +197,100 @@ export const CONTRACT_GLOBAL_SURFACE = [
   /^pnpm-lock\.yaml$/,
 ];
 
-export const CONTRACT_SCOPE = {
-  lane: "contract",
-  nonVisual: CONTRACT_NON_VISUAL,
-  globalSurface: CONTRACT_GLOBAL_SURFACE,
-  selectableRoutes: new Set(COMPONENT_ROUTES),
-  // A component's MDX page HOSTS the fixture the contract lane probes (`[data-vrt-preview]`), so an
-  // edit there can break the contract for that route. It is a fixture concern here, not a
-  // full-page one — and a docs page that is not a component route is simply out of scope.
-  contentPageLane: "fixture-if-selectable",
-  iconsSupported: false,
-};
+export function createRouteScopeModel({ root = ROOT } = {}) {
+  const authorityFingerprintAtConstruction = authorityFingerprint(
+    ROUTE_SCOPE_AUTHORITY_PATHS,
+    { root },
+  );
+  const contracts = JSON.parse(
+    readFileSync(join(root, "packages/ui/component-contracts.json"), "utf8"),
+  );
+  const components = contracts.components;
+  const blocks = contracts.blocks;
+  const iconsRoute = contracts.animatedIcons.sharedContract.docsSlug;
+  const iconChunkCount = Number(
+    /ANIMATED_ICON_CHUNK_COUNT = (\d+)/.exec(
+      readFileSync(
+        join(root, "apps/docs/vrt/icon-chunks.generated.ts"),
+        "utf8",
+      ),
+    )?.[1] ?? 0,
+  );
+  const componentRoutes = components.map((record) => record.docsSlug);
+  const fixtureRoutes = new Set(
+    [...components, ...blocks]
+      .map((record) => record.docsSlug)
+      .filter((route) => route.startsWith("/docs/components/")),
+  );
+  const routesByName = new Map();
+  for (const record of [...components, ...blocks]) {
+    routesByName.set(record.name, record.docsSlug);
+    if (record.previewModule)
+      routesByName.set(record.previewModule, record.docsSlug);
+  }
+  const routeDependents = buildDependentsByRoute(components, blocks);
+  const shared = {
+    authorityFingerprint: authorityFingerprintAtConstruction,
+    routeByName: routesByName,
+    dependentsByRoute: routeDependents,
+    iconsRoute,
+  };
+  return {
+    authorityFingerprint: authorityFingerprintAtConstruction,
+    assertCurrent() {
+      return assertAuthorityFingerprint(
+        ROUTE_SCOPE_AUTHORITY_PATHS,
+        authorityFingerprintAtConstruction,
+        "route-scope authority",
+        { root },
+      );
+    },
+    components,
+    blocks,
+    componentRoutes,
+    fixtureRoutes,
+    routeByName: routesByName,
+    dependentsByRoute: routeDependents,
+    iconsRoute,
+    iconChunkCount,
+    pixelScope: {
+      ...shared,
+      lane: "pixel",
+      nonVisual: PIXEL_NON_VISUAL,
+      globalSurface: PIXEL_GLOBAL_SURFACE,
+      selectableRoutes: fixtureRoutes,
+      // A docs page changes only its own full-page capture — its fixture is unaffected.
+      contentPageLane: "full-page",
+      iconsSupported: true,
+    },
+    contractScope: {
+      ...shared,
+      lane: "contract",
+      nonVisual: CONTRACT_NON_VISUAL,
+      globalSurface: CONTRACT_GLOBAL_SURFACE,
+      selectableRoutes: new Set(componentRoutes),
+      // A component MDX page hosts the fixture probed by the contract lane.
+      contentPageLane: "fixture-if-selectable",
+      iconsSupported: false,
+    },
+  };
+}
+
+const DEFAULT_MODEL = createRouteScopeModel();
+export const COMPONENTS = DEFAULT_MODEL.components;
+export const BLOCKS = DEFAULT_MODEL.blocks;
+export const COMPONENT_ROUTES = DEFAULT_MODEL.componentRoutes;
+export const FIXTURE_ROUTES = DEFAULT_MODEL.fixtureRoutes;
+export const routeByName = DEFAULT_MODEL.routeByName;
+export const dependentsByRoute = DEFAULT_MODEL.dependentsByRoute;
+export const ICONS_ROUTE = DEFAULT_MODEL.iconsRoute;
+export const ICON_CHUNK_COUNT = DEFAULT_MODEL.iconChunkCount;
+export const PIXEL_SCOPE = DEFAULT_MODEL.pixelScope;
+export const CONTRACT_SCOPE = DEFAULT_MODEL.contractScope;
+
+export function assertDefaultRouteScopeCurrent() {
+  return DEFAULT_MODEL.assertCurrent();
+}
 
 // ── selection ────────────────────────────────────────────────────────────────────────────────────
 
@@ -251,6 +307,9 @@ export function selectRoutes(changedFiles, options = {}, config = PIXEL_SCOPE) {
     selectableRoutes,
     contentPageLane,
     iconsSupported,
+    routeByName: routesByName = routeByName,
+    dependentsByRoute: routeDependents = dependentsByRoute,
+    iconsRoute = ICONS_ROUTE,
   } = config;
 
   if (options.routes) {
@@ -287,7 +346,7 @@ export function selectRoutes(changedFiles, options = {}, config = PIXEL_SCOPE) {
     }
     if (iconsSupported && file.startsWith(ICON_SOURCE_PREFIX)) {
       icons = true;
-      fullPageRoutes.add(ICONS_ROUTE);
+      fullPageRoutes.add(iconsRoute);
       continue;
     }
     const content = /^apps\/docs\/content\/(.+)\.mdx$/.exec(file);
@@ -304,7 +363,7 @@ export function selectRoutes(changedFiles, options = {}, config = PIXEL_SCOPE) {
       file,
     );
     if (preview) {
-      const route = routeByName.get(preview[1]);
+      const route = routesByName.get(preview[1]);
       if (route) addRoute(route);
       else globalTriggers.push(file);
       continue;
@@ -315,9 +374,9 @@ export function selectRoutes(changedFiles, options = {}, config = PIXEL_SCOPE) {
         file,
       );
     if (source) {
-      const route = routeByName.get(source[1].replace(/\.tsx?$/, ""));
+      const route = routesByName.get(source[1].replace(/\.tsx?$/, ""));
       if (route)
-        for (const dependent of dependentsByRoute.get(route) ?? [route])
+        for (const dependent of routeDependents.get(route) ?? [route])
           addRoute(dependent);
       else globalTriggers.push(file);
       continue;

@@ -61,6 +61,9 @@ import {
 } from "./lib/consume-isolation.mjs";
 import { reverseConsumeClosure } from "./lib/consume-plan.mjs";
 import { validatePackedPackageFiles } from "./lib/package-artifact.mjs";
+import { workingTreeContentHash } from "./lib/change-set.mjs";
+import { gateGeneration, localEnvironment } from "./lib/measurement-report.mjs";
+import { validateDiagnosticReportPath } from "./lib/report-path.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(here, "..");
@@ -79,6 +82,7 @@ const USAGE = `Usage: node tooling/verify-shadcn-consume.mjs [options]
   --root <item>                      exact item root; repeatable for affected mode
   --layout <default|src>             layout selector; diagnostic requires exactly one
   --report <path>                    structured report (default: .gates/consume-<run>.json)
+  --run-id <id>                      bind an affected report to its originating shadow sample
 
 Full mode always runs real CLI isolated roots, isolated simulated parity roots, and the exhaustive
 consolidated two-layout oracle. Affected/diagnostic modes are local shadow evidence only: they cannot
@@ -88,7 +92,13 @@ export or bin target before starting a consumer.
 
 Exit codes: 0 selected proof passed · 1 proof failed · 2 invalid selector/prerequisite.`;
 
-const options = { mode: "full", roots: [], layouts: [], report: null };
+const options = {
+  mode: "full",
+  roots: [],
+  layouts: [],
+  report: null,
+  runId: null,
+};
 function optionFatal(message) {
   console.error(`verify-shadcn-consume: ${message}\n\n${USAGE}`);
   process.exit(2);
@@ -104,6 +114,7 @@ for (let index = 2; index < process.argv.length; index++) {
   else if (flag === "--root") options.roots.push(value());
   else if (flag === "--layout") options.layouts.push(value());
   else if (flag === "--report") options.report = resolve(value());
+  else if (flag === "--run-id") options.runId = value();
   else if (flag === "--help" || flag === "-h") {
     console.log(USAGE);
     process.exit(0);
@@ -131,6 +142,17 @@ if (new Set(options.roots).size !== options.roots.length)
   optionFatal("duplicate --root selectors are forbidden");
 if (new Set(options.layouts).size !== options.layouts.length)
   optionFatal("duplicate --layout selectors are forbidden");
+if (options.mode !== "full" && !options.runId)
+  optionFatal(`${options.mode} mode requires a nonempty --run-id`);
+if (options.mode !== "full" && options.report)
+  try {
+    options.report = validateDiagnosticReportPath(
+      options.report,
+      "affected consume report",
+    );
+  } catch (error) {
+    optionFatal(error.message);
+  }
 
 // Import the SHIPPED verifier's canonical logic directly — the SAME functions the bin uses, so
 // the simulated path verifies "the same way" the shipped verifier does, in-process.
@@ -1046,6 +1068,9 @@ function writeConsumeReport(report) {
 
 async function main() {
   const startedAt = new Date().toISOString();
+  const startTree = workingTreeContentHash().hash;
+  const generation = gateGeneration();
+  const environmentProfile = localEnvironment().profile;
   const startedNs = process.hrtime.bigint();
   log("verify-shadcn-consume — local end-to-end consumability proof\n");
   log(`registry source : ${registryDir}`);
@@ -1278,10 +1303,24 @@ async function main() {
     cwd: repoRoot,
     encoding: "utf8",
   }).stdout.trim();
+  const completedAt = new Date().toISOString();
+  const completedTree = workingTreeContentHash().hash;
+  if (completedTree !== startTree)
+    allProblems.push("working-tree content changed during consume execution");
   const report = {
     schema: "vegastack-consume-report/v1",
     mode: options.mode,
+    runId: options.runId,
     startedAt,
+    completedAt,
+    generation,
+    environmentProfile,
+    treeBinding: {
+      started: startTree,
+      completed: completedTree,
+      unchanged: completedTree === startTree,
+    },
+    diagnosticOnly: options.mode !== "full",
     durationMs: Math.round(elapsedMs),
     head,
     status: allProblems.length === 0 ? "pass" : "fail",

@@ -17,10 +17,20 @@
 //   for the other is a silent fail-open, and these are the assertions that stop it.
 
 import assert from "node:assert/strict";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 import {
   COMPONENT_ROUTES,
   CONTRACT_SCOPE,
+  createRouteScopeModel,
   dependentsByRoute,
   FIXTURE_ROUTES,
   ICONS_ROUTE,
@@ -197,6 +207,12 @@ for (const [lane, config] of [
     ["packages/ui/registry.json"],
     "the registry JSON (carries meta.version for every item)",
   );
+  expectEmpty(
+    lane,
+    config,
+    ["packages/ui/smoke-impact.generated.json"],
+    "the derived smoke selector (freshness is enforced independently)",
+  );
 }
 
 // ── global surfaces ──────────────────────────────────────────────────────────────────────────────
@@ -252,6 +268,7 @@ for (const [lane, config] of [
     "apps/docs/eslint.config.mjs",
     "packages/ui/vitest.smoke.config.ts",
     "apps/docs/public/r/button.json",
+    "apps/docs/public/_headers",
   ])
     expectEmpty(lane, config, [file], `non-visual ${file}`);
 }
@@ -469,6 +486,35 @@ assert.ok(
   "every generated component route must be selectable by the contract lane",
 );
 checks += 2;
+
+const authorityFixture = mkdtempSync(join(tmpdir(), "vsk-route-authority-"));
+try {
+  mkdirSync(join(authorityFixture, "packages/ui"), { recursive: true });
+  mkdirSync(join(authorityFixture, "apps/docs/vrt"), { recursive: true });
+  writeFileSync(
+    join(authorityFixture, "packages/ui/component-contracts.json"),
+    readFileSync("packages/ui/component-contracts.json"),
+  );
+  const chunkPath = join(
+    authorityFixture,
+    "apps/docs/vrt/icon-chunks.generated.ts",
+  );
+  writeFileSync(
+    chunkPath,
+    readFileSync("apps/docs/vrt/icon-chunks.generated.ts"),
+  );
+  const model = createRouteScopeModel({ root: authorityFixture });
+  model.assertCurrent();
+  writeFileSync(chunkPath, "export const ANIMATED_ICON_CHUNK_COUNT = 999;\n");
+  assert.throws(
+    () => model.assertCurrent(),
+    /changed while its dependency model was in memory/,
+    "authority mutation after model construction must invalidate the model",
+  );
+  checks += 2;
+} finally {
+  rmSync(authorityFixture, { recursive: true, force: true });
+}
 
 console.log(
   `✓ route-scope: ${checks} scope assertions — the contracts.spec.ts inversion proven in BOTH ` +

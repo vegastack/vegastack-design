@@ -7,7 +7,7 @@
  * derives the authoritative item classes from registry type + source path so `icon-button` can
  * never be mistaken for one of the generated `icon-*` mirrors.
  */
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, lstatSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -902,6 +902,10 @@ const vrtPageRoutesSource = readFileSync(
   join(root, "apps/docs/vrt/page-routes.ts"),
   "utf8",
 );
+const generatedVrtPageRoutesSource = readFileSync(
+  join(root, "apps/docs/vrt/page-routes.generated.ts"),
+  "utf8",
+);
 const generatedRouteSource = readFileSync(
   join(root, "apps/docs/vrt/contract-routes.generated.ts"),
   "utf8",
@@ -930,31 +934,60 @@ assert(
   "VRT capture spec must consume the shared page-route authority",
 );
 assert(
-  vrtPageRoutesSource.includes("...COMPONENT_ROUTES") &&
-    vrtPageRoutesSource.includes("...BLOCK_ROUTES"),
-  "shared VRT page routes must consume both generated contract route lists",
+  /export\s*\{\s*VRT_PAGE_ROUTES\s*\}\s*from\s*["']\.\/page-routes\.generated["']/.test(
+    vrtPageRoutesSource,
+  ),
+  "shared VRT page routes must re-export the generated all-MDX authority",
 );
 assert(
   vrtSource.includes("VRT — component fixtures") &&
     /maxDiffPixels:\s*0/.test(vrtSource),
   "VRT must include element-scoped component fixtures at maxDiffPixels: 0",
 );
-const pagesMatch = vrtPageRoutesSource.match(
+const pagesMatch = generatedVrtPageRoutesSource.match(
   /export\s+const\s+VRT_PAGE_ROUTES\s*=\s*\[([\s\S]*?)\]\s+as\s+const;/,
 );
-assert(Boolean(pagesMatch), "could not parse shared VRT page routes");
-const supplementalVrtPages = pagesMatch
+assert(Boolean(pagesMatch), "could not parse generated VRT page routes");
+const vrtPages = pagesMatch
   ? [...pagesMatch[1].matchAll(/['"]([^'"]+)['"]/g)].map((match) => match[1])
   : [];
-const vrtPages = [
-  ...supplementalVrtPages,
-  ...generatedComponentRoutes,
-  ...generatedBlockRoutes,
-];
 assert(
   new Set(vrtPages).size === vrtPages.length,
-  "shared VRT page routes contain duplicates",
+  "generated VRT page routes contain duplicates",
 );
+const expectedMdxRoutes = ["/"];
+const contentRoot = join(root, "apps/docs/content");
+const collectMdx = (directory) => {
+  const directoryStat = lstatSync(directory);
+  assert(
+    !directoryStat.isSymbolicLink() && directoryStat.isDirectory(),
+    `VRT content authority is not a regular directory: ${directory}`,
+  );
+  for (const name of readdirSync(directory).sort()) {
+    const path = join(directory, name);
+    const stat = lstatSync(path);
+    assert(
+      !stat.isSymbolicLink(),
+      `VRT content authority rejects symlink: ${path}`,
+    );
+    if (stat.isDirectory()) collectMdx(path);
+    else if (stat.isFile() && name.endsWith(".mdx")) {
+      const relativePath = path
+        .slice(contentRoot.length + 1)
+        .replaceAll("\\", "/");
+      assert(
+        /^(?:docs|internal)\/.+\.mdx$/.test(relativePath) &&
+          !/[\[\]]/.test(relativePath),
+        `unroutable/dynamic MDX requires an explicit VRT model: ${relativePath}`,
+      );
+      expectedMdxRoutes.push(
+        `/${relativePath.replace(/\.mdx$/, "").replace(/\/index$/, "")}`,
+      );
+    }
+  }
+};
+collectMdx(contentRoot);
+sameStrings(vrtPages, expectedMdxRoutes, "all routable MDX VRT pages");
 for (const record of [...components, ...blocks]) {
   assert(
     vrtPages.includes(record.docsSlug),

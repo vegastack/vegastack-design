@@ -8,6 +8,7 @@ import { join } from "node:path";
 import {
   declaredVegastackPackages,
   packageNameFromSpec,
+  validateAffectedConsumeReport,
   validateConsumeReport,
   writeImmutableJson,
 } from "./lib/consume-isolation.mjs";
@@ -152,6 +153,32 @@ const validAffected = {
   receiptWritten: false,
   ciFullOracleRequired: true,
 };
+assert.deepEqual(
+  validateAffectedConsumeReport(validAffected, { expectedRootCount: 554 }),
+  [],
+  "a complete affected pass must be accepted only as diagnostic execution",
+);
+const failedAffected = {
+  ...validAffected,
+  status: "fail",
+  problems: ["default/a: typecheck failed"],
+  isolatedReal: validAffected.isolatedReal.map((entry, index) =>
+    index === 0 ? { ...entry, tscOk: false } : entry,
+  ),
+};
+assert.deepEqual(
+  validateAffectedConsumeReport(failedAffected, { expectedRootCount: 554 }),
+  [],
+  "an exact affected failed leaf is an observed diagnostic failure, not unknown",
+);
+assert.match(
+  validateAffectedConsumeReport(
+    { ...failedAffected, isolatedReal: failedAffected.isolatedReal.slice(1) },
+    { expectedRootCount: 554 },
+  ).join("\n"),
+  /missing isolated root\/layout leaf/,
+  "a partial failed diagnostic must remain unknown",
+);
 
 assert.deepEqual(validateConsumeReport(validAffected), []);
 

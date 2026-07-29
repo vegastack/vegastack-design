@@ -18,6 +18,7 @@ const CURRENT_SURFACES = [
   "skills/internal/gates/SKILL.md",
   "skills/internal/review/SKILL.md",
   "skills/internal/component/references/testing.md",
+  "skills/internal/component/SKILL.md",
   ".github/workflows/ci.yml",
   ".github/workflows/release.yml",
   ".github/workflows/deploy.yml",
@@ -25,6 +26,15 @@ const CURRENT_SURFACES = [
   ".husky/pre-commit",
   ".husky/pre-push",
   "apps/docs/playwright.config.ts",
+  "apps/docs/vrt/components.spec.ts",
+  "apps/docs/vrt/page-routes.ts",
+  "apps/docs/vrt/page-routes.generated.ts",
+  "package.json",
+  "turbo.json",
+  "packages/ui/vitest.config.ts",
+  "packages/ui/vitest.smoke.config.ts",
+  "packages/ui/vitest.all-browsers.config.ts",
+  "packages/ui/vitest.setup.ts",
   "skills/internal/ship/references/release-gotchas.md",
   "tooling/verify-release-chain.mjs",
   "tooling/gate-receipt-carry.mjs",
@@ -36,6 +46,21 @@ const CURRENT_SURFACES = [
   "tooling/gates.mjs",
   "tooling/gates-retry.mjs",
   "tooling/gates-affected.mjs",
+  "tooling/impact-plan.mjs",
+  "tooling/vitest-run.mjs",
+  "tooling/vrt-review.mjs",
+  "tooling/sync-vrt-page-routes.mjs",
+  "tooling/verify-component-contracts.mjs",
+  "tooling/lib/import-closure.mjs",
+  "tooling/lib/authority-fingerprint.mjs",
+  "tooling/lib/gate-impact.mjs",
+  "tooling/lib/contract-selection.mjs",
+  "tooling/lib/gate-report-validation.mjs",
+  "tooling/lib/affected-paths.mjs",
+  "tooling/lib/consume-plan.mjs",
+  "tooling/lib/consume-isolation.mjs",
+  "tooling/lib/vitest-selection.mjs",
+  "tooling/lib/vrt-selection.mjs",
   "tooling/verify-gate-receipt.mjs",
   "apps/docs/scripts/probe-deployment.mjs",
   "apps/docs/package.json",
@@ -192,6 +217,39 @@ export function operatorDocProblems(sources) {
       problems.push(
         `${file}: [browser-location] machine authority must not claim main/Release CI executes the complete browser suite`,
       );
+    for (const match of source.matchAll(
+      /WebKit \+ Firefox|real WebKit and Firefox|WebKit\/Firefox risk smoke/gi,
+    )) {
+      const lineStart = source.lastIndexOf("\n", match.index) + 1;
+      const lineEnd = source.indexOf("\n", match.index);
+      const line = source.slice(
+        lineStart,
+        lineEnd < 0 ? source.length : lineEnd,
+      );
+      if (!/Chromium/i.test(line))
+        problems.push(
+          `${file}: [smoke-engines] current smoke runs Chromium, WebKit, and Firefox; a two-engine label understates executed coverage`,
+        );
+    }
+    if (
+      /Every browser lane[^\n]{0,100}(?:git hooks|through (?:the )?hooks)/i.test(
+        currentSource,
+      ) ||
+      /(?:three-engine|all-browsers|complete browser)[^\n]{0,100}(?:runs? (?:in|through)|in)[^\n]{0,50}(?:\.husky\/pre-push|pre-push)/i.test(
+        currentSource,
+      )
+    )
+      problems.push(
+        `${file}: [browser-location] complete all-browser execution is ship-only, not a pre-push hook lane`,
+      );
+    if (
+      /(?:full|complete)[^\n]{0,80}(?:100\+|900\+)[^\n]{0,40}(?:file|suite|test)/i.test(
+        currentSource,
+      )
+    )
+      problems.push(
+        `${file}: [generic-test-count] current instructions/config comments must derive test inventory rather than quote a generic count`,
+      );
     if (
       /gates:ship[^\n]{0,100}~20min|suite takes 1m39s locally|three engines \(measured 1m39s\)/i.test(
         source,
@@ -241,10 +299,95 @@ export function operatorDocProblems(sources) {
         `${file}: [affected-shadow] current instructions promote the shadow affected plan into reuse or production evidence`,
       );
     if (
+      /(?:documentation|docs|markdown)[^\n]{0,100}(?:always|automatically)[^\n]{0,60}skip[^\n]{0,100}(?:browser|contract|vrt)/i.test(
+        source,
+      )
+    )
+      problems.push(
+        `${file}: [dynamic-rendered-docs] a docs label cannot skip product lanes; rendered MDX, previews, styles, and shared docs runtime remain product inputs`,
+      );
+    if (
+      /component change[^\n]{0,100}(?:only (?:the )?changed component|ignore dependents)/i.test(
+        source,
+      )
+    )
+      problems.push(
+        `${file}: [dynamic-dependent-closure] component verification must include every reachable dependent component, test, route, preview, and consumer`,
+      );
+    if (
+      /gates:component[^\n]{0,100}(?:that|the) component(?:'s)? (?:own )?unit test/i.test(
+        currentSource,
+      )
+    )
+      problems.push(
+        `${file}: [dynamic-dependent-closure] component guidance must say reachable dependent test/route closure, not one own test`,
+      );
+    if (
+      /unknown path[^\n]{0,100}(?:safely )?skip[^\n]{0,80}(?:browser|contract|product)/i.test(
+        source,
+      )
+    )
+      problems.push(
+        `${file}: [dynamic-unknown] unknown or unmodeled paths widen coverage; they never authorize a skip`,
+      );
+    if (
+      /(?:registry|import)[^\n]{0,80}(?:vitest|selector)[^\n]{0,80}disagree[^\n]{0,100}(?:use|choose|prefer|take)(?: the)? (?:smaller|narrower)/i.test(
+        source,
+      )
+    )
+      problems.push(
+        `${file}: [dynamic-disagreement] independent selector disagreement must widen to full coverage, never the smaller set`,
+      );
+    for (const line of currentSource.split("\n"))
+      if (
+        /disagree/i.test(line) &&
+        /bounded|union/i.test(line) &&
+        !/full/i.test(line)
+      )
+        problems.push(
+          `${file}: [dynamic-disagreement] bounded-union disagreement is not approved; disagreement must widen full`,
+        );
+    if (
+      /every (?:non-unchanged|changed) entry[^\n]{0,160}(?:before[^\n]{0,40}after[^\n]{0,40}diff|all three)/i.test(
+        currentSource,
+      )
+    )
+      problems.push(
+        `${file}: [visual-handoff] status-specific artifacts are required; new/removed/broken entries cannot promise all three images`,
+      );
+    if (/\.gates\/affected-shadow\.json/i.test(currentSource))
+      problems.push(
+        `${file}: [affected-schema] current affected reports live under .gates/diagnostics/affected`,
+      );
+    if (
+      /gates:affected[\s\S]{0,500}shadowOnly:\s*true[\s\S]{0,200}reuseEnabled:\s*false/i.test(
+        currentSource,
+      )
+    )
+      problems.push(
+        `${file}: [affected-schema] current summary uses rollout.enabled/checkpointEligible/cohort; obsolete top-level shadow fields must not be instructed`,
+      );
+    if (
+      /(?:unit|smoke|browser|contract|vrt|consume) lane was safely[- ]skipped\.?$/im.test(
+        source,
+      )
+    )
+      problems.push(
+        `${file}: [dynamic-skip-reason] safely-skipped requires a machine reason and selector/input digest`,
+      );
+    if (
+      /public skills?[^\n]{0,100}(?:operational[- ]only|operational prose)[^\n]{0,120}(?:skip|omit)[^\n]{0,100}(?:package mirror|package build|skill mirror)/i.test(
+        source,
+      )
+    )
+      problems.push(
+        `${file}: [dynamic-public-skill] public skills are non-rendered package inputs, so rendered lanes may skip but mirror/export/package-build checks remain required`,
+      );
+    if (
       /(?:affected|diagnostic)[^\n]{0,60}consume[^\n]{0,160}(?:replaces?|skips?|satisf(?:y|ies))[^\n]{0,80}(?:CI|full|oracle)/i.test(
         source,
       ) ||
-      /consume[^\n]{0,120}(?:reuseEnabled:\s*true|evidenceReusable:\s*true|writes? (?:a )?receipt)/i.test(
+      /consume[^\n]{0,120}(?:reuseEnabled:\s*true|evidenceReusable:\s*true|(?:does|will|may) write (?:a )?receipt)/i.test(
         source,
       )
     )
@@ -390,6 +533,24 @@ export function operatorDocProblems(sources) {
     problems.push(
       "AGENTS.md: [deployment-terminal] must require structured live-probe count/state and exact registry version",
     );
+  if (
+    !/gates:plan/i.test(agents) ||
+    !/operational\s+prose/i.test(agents) ||
+    !/rendered MDX/i.test(agents) ||
+    !/selector digest/i.test(agents) ||
+    !/Production continues to require one complete exact-tree/i.test(agents) ||
+    !/gates:ship`? proof/i.test(agents)
+  )
+    problems.push(
+      "AGENTS.md: [dynamic-impact] must distinguish operational prose from rendered docs, require machine skip reasons/digests, and retain complete production ship",
+    );
+  if (
+    !/Public skills[\s\S]{0,160}shipped package inputs/i.test(agents) ||
+    !/skill-mirror[\s\S]{0,100}package-build checks/i.test(agents)
+  )
+    problems.push(
+      "AGENTS.md: [dynamic-public-skill] must retain mirror/export/package-build checks for non-rendered public skills",
+    );
 
   const ship = sources["skills/internal/ship/SKILL.md"] ?? "";
   if (!/git fetch (?:--prune origin|origin --prune)/i.test(ship))
@@ -430,26 +591,55 @@ export function operatorDocProblems(sources) {
     );
   if (
     !/plain-language bullet/i.test(ship) ||
-    !/images\.before/i.test(ship) ||
-    !/images\.after/i.test(ship) ||
-    !/images\.diff/i.test(ship) ||
-    !/absolute[\s\S]{0,160}clickable image paths/i.test(ship)
+    !/changed\s*=\s*Before\/After\/Difference/i.test(ship) ||
+    !/new\s*=\s*After/i.test(ship) ||
+    !/removed\s*=\s*Before/i.test(ship) ||
+    !/broken[\s\S]{0,160}no visual verdict/i.test(ship) ||
+    !/absolute[\s\S]{0,160}clickable path/i.test(ship)
   )
     problems.push(
-      "skills/internal/ship/SKILL.md: [visual-handoff] must require plain-language bullets and clickable before/after/diff image paths",
+      "skills/internal/ship/SKILL.md: [visual-handoff] must require plain-language bullets and status-appropriate absolute screenshot/report paths",
+    );
+  if (
+    !/gates:plan/i.test(ship) ||
+    !/Operational plans/i.test(ship) ||
+    !/rendered MDX/i.test(ship) ||
+    !/reachable dependent/i.test(ship) ||
+    !/terminal `pnpm gates:ship` remains the complete exact-final-tree/i.test(
+      ship,
+    )
+  )
+    problems.push(
+      "skills/internal/ship/SKILL.md: [dynamic-impact] must use machine impact reasons while retaining complete final-tree ship",
+    );
+  if (
+    !/Public skills[\s\S]{0,180}ship inside `@vegastack\/design`/i.test(ship) ||
+    !/skill-mirror[\s\S]{0,100}package-build checks/i.test(ship)
+  )
+    problems.push(
+      "skills/internal/ship/SKILL.md: [dynamic-public-skill] must retain mirror/export/package-build checks for public skills",
     );
 
   const visualReview =
     sources["skills/internal/ship/references/visual-review.md"] ?? "";
   if (
     !/plain-language bullet/i.test(visualReview) ||
-    !/images\.before/i.test(visualReview) ||
-    !/images\.after/i.test(visualReview) ||
-    !/images\.diff/i.test(visualReview) ||
-    !/absolute[\s\S]{0,160}clickable[\s\S]{0,80}Markdown/i.test(visualReview)
+    !/changed`?\s*=\s*Before\/After\/Difference/i.test(visualReview) ||
+    !/new`?\s*=\s*After/i.test(visualReview) ||
+    !/removed`?\s*=\s*Before/i.test(visualReview) ||
+    !/broken[\s\S]{0,180}not a visual verdict/i.test(visualReview) ||
+    !/absolute[\s\S]{0,180}clickable Markdown/i.test(visualReview)
   )
     problems.push(
-      "skills/internal/ship/references/visual-review.md: [visual-handoff] must explain the change plainly and expose absolute clickable before/after/diff screenshots",
+      "skills/internal/ship/references/visual-review.md: [visual-handoff] must explain the change plainly and expose every status-appropriate absolute screenshot/report path",
+    );
+  if (
+    !/gates:plan/i.test(visualReview) ||
+    !/rendered MDX/i.test(visualReview) ||
+    !/selector digest/i.test(visualReview)
+  )
+    problems.push(
+      "skills/internal/ship/references/visual-review.md: [dynamic-rendered-docs] must distinguish operational prose from rendered MDX and require a reasoned VRT skip",
     );
 
   const releaseGotchas =
@@ -465,6 +655,25 @@ export function operatorDocProblems(sources) {
 
   const gates = sources["skills/internal/gates/SKILL.md"] ?? "";
   if (
+    !/gates:plan/i.test(gates) ||
+    !/rendered MDX/i.test(gates) ||
+    !/reachable dependent/i.test(gates) ||
+    !/planned, listed, and executed/i.test(gates) ||
+    !/Dynamic pre-push execution is still disabled/i.test(gates)
+  )
+    problems.push(
+      "skills/internal/gates/SKILL.md: [dynamic-impact] must require dependent closure, exact nonempty reconciliation, and disabled activation",
+    );
+  if (
+    !/skills\/public\/\*\*[\s\S]{0,160}non-rendered package inputs/i.test(
+      gates,
+    ) ||
+    !/skill-mirror[\s\S]{0,100}`@vegastack\/design` build checks/i.test(gates)
+  )
+    problems.push(
+      "skills/internal/gates/SKILL.md: [dynamic-public-skill] must retain mirror/export/package-build checks for public skills",
+    );
+  if (
     !/gates:retry[\s\S]{0,300}diagnosticOnly[\s\S]{0,120}evidenceWritten: false/i.test(
       gates,
     )
@@ -473,12 +682,14 @@ export function operatorDocProblems(sources) {
       "skills/internal/gates/SKILL.md: [retry-diagnostic] must state that retry is diagnostic-only and writes no evidence",
     );
   if (
-    !/gates:affected[\s\S]{0,600}shadowOnly: true[\s\S]{0,160}reuseEnabled: false[\s\S]{0,700}30 representative[\s\S]{0,180}MK approval/i.test(
+    !/gates:affected[\s\S]{0,900}rollout\.enabled: false[\s\S]{0,250}reuseEnabled: false[\s\S]{0,900}30 representative[\s\S]{0,240}MK approval/i.test(
       gates,
-    )
+    ) ||
+    !/gates:affected:checkpoint -- --scenario <name>/i.test(gates) ||
+    !/no agreeing greater-than-six-route foundation fixture/i.test(gates)
   )
     problems.push(
-      "skills/internal/gates/SKILL.md: [affected-shadow] must state shadow-only/no-reuse, 30 representative samples, and MK approval",
+      "skills/internal/gates/SKILL.md: [affected-shadow] must state rollout disabled/no-reuse, 30 representative samples, and MK approval",
     );
   if (
     !/verify-shadcn-consume[\s\S]{0,500}(?:fresh|clean|reset-isolated)[^\n]{0,100}(?:root|consumer)[\s\S]{0,500}D1[\s\S]{0,180}(?:full|oracle)/i.test(
@@ -527,6 +738,28 @@ export function operatorDocProblems(sources) {
       "docs/RELEASING.md: [candidate-shadow] must keep candidate reuse disabled and the exact-tree rebuild authoritative under D4",
     );
 
+  for (const [file, current] of [
+    ["AGENTS.md", sources["AGENTS.md"] ?? ""],
+    ["docs/RELEASING.md", releasing],
+    ["skills/internal/ship/SKILL.md", ship],
+    [
+      "skills/internal/review/SKILL.md",
+      sources["skills/internal/review/SKILL.md"] ?? "",
+    ],
+  ])
+    if (
+      !/no agreeing greater-than-six-route foundation fixture/i.test(current) ||
+      !/do not collect (?:a )?qualifying (?:cohort|checkpoint samples)/i.test(
+        current,
+      ) ||
+      !/(?:authority|policy) blocker[\s\S]{0,160}MK|MK[\s\S]{0,160}(?:authority|policy) blocker/i.test(
+        current,
+      )
+    )
+      problems.push(
+        `${file}: [affected-checkpoint-blocker] must say the 0/30 foundation checkpoint is machine-blocked and forbid qualifying collection before MK resolves the authority/policy blocker`,
+      );
+
   const boundary =
     sources["docs/plans/2026-07-28-public-site-private-registry-boundary.md"] ??
     "";
@@ -562,6 +795,15 @@ export function operatorDocProblems(sources) {
   )
     problems.push(
       ".github/workflows/runner-diagnostics.yml: [diagnostic-verdict] the summary must report both deep-suite outcomes explicitly",
+    );
+  const componentContracts =
+    sources["packages/ui/component-contracts.json"] ?? "";
+  if (
+    componentContracts &&
+    !/three-engine contract-risk-selected smoke/i.test(componentContracts)
+  )
+    problems.push(
+      "packages/ui/component-contracts.json: [smoke-engines] current machine rationale must describe the selected smoke as three-engine",
     );
 
   const deploymentProbe =
@@ -623,6 +865,11 @@ const HELP_COMMANDS = [
   ["tooling/gate-receipt-carry.mjs", /Usage:/i],
   ["tooling/verify-gate-receipt.mjs", /Usage:/i],
   ["tooling/contracts-run.mjs", /Usage:/i],
+  ["tooling/gates-retry.mjs", /diagnostic/i],
+  ["tooling/gates-affected.mjs", /SHADOW|shadow/i],
+  ["tooling/impact-plan.mjs", /diagnostic\/shadow-only/i],
+  ["tooling/vitest-run.mjs", /selected-shadow/i],
+  ["tooling/vrt-review.mjs", /report\.json/i],
   ["tooling/deploy-candidate.mjs", /create[\s\S]*verify[\s\S]*discover/i],
   ["apps/docs/scripts/probe-deployment.mjs", /--report\s+<path>/i],
 ];
@@ -648,19 +895,21 @@ function cliHelpProblems() {
 // virtual strings so historical ledgers and superseded plans can remain byte-stable records.
 const validFixture = {
   "AGENTS.md":
-    "Every non-registry route is anonymous, including /internal/*; /r/* alone is service-token-only. /internal/* remains unlisted with noindex and no-store. A canonical evidence-leaf manifest is required. CI is receipt-first. Exact-tree receipt reuse is **shadow-only**. Release state is explicit and fail-closed. Only npm E404 is missing; registry-only published means zero hosted npm jobs. Consume uses a fresh consumer per root; D1 keeps the full oracle mandatory. The deploy candidate is shadow-only. D4 remains open; the mandatory exact-tree rebuild remains. Require structured probe count/state and exact registry version.",
+    "Every non-registry route is anonymous, including /internal/*; /r/* alone is service-token-only. /internal/* remains unlisted with noindex and no-store. A canonical evidence-leaf manifest is required. CI is receipt-first. Exact-tree receipt reuse is **shadow-only**. Release state is explicit and fail-closed. Only npm E404 is missing; registry-only published means zero hosted npm jobs. Consume uses a fresh consumer per root; D1 keeps the full oracle mandatory. The deploy candidate is shadow-only. D4 remains open; the mandatory exact-tree rebuild remains. Require structured probe count/state and exact registry version. Run gates:plan: operational prose can be non-product, but rendered MDX remains product input. Every safely skipped lane carries a reason and selector digest. Production continues to require one complete exact-tree gates:ship proof. Public skills are shipped package inputs; retain skill-mirror, export, and package-build checks. There is no agreeing greater-than-six-route foundation fixture. Do not collect a qualifying cohort yet; MK must resolve the authority blocker.",
   "docs/RELEASING.md":
-    "Every non-registry route is anonymously reachable; /internal/* remains unlisted with noindex/no-store; /r/* must reject anonymous requests. Release uses an explicit resumable state machine: registry-unknown blocks. For registry-only published work it never runs hosted npm. The deploy candidate is shadow-only; a mandatory exact-tree rebuild remains under D4. Require structured probe state/count and exact registry version.",
+    "Every non-registry route is anonymously reachable; /internal/* remains unlisted with noindex/no-store; /r/* must reject anonymous requests. Release uses an explicit resumable state machine: registry-unknown blocks. For registry-only published work it never runs hosted npm. The deploy candidate is shadow-only; a mandatory exact-tree rebuild remains under D4. Require structured probe state/count and exact registry version. There is no agreeing greater-than-six-route foundation fixture. Do not collect a qualifying cohort yet; MK must resolve the policy blocker.",
   "docs/requirements.md":
     "Point-in-time historical record. D11 is superseded: /internal/* is anonymous under the current boundary.",
   "skills/internal/ship/SKILL.md":
-    "Run git fetch --prune origin before classification. Schema 2 production-full evidence includes all-browsers. Upload is not completion; require deployment-complete with structured probe count and exact registry version. versioned-unpublished alone runs hosted build; registry-unknown never grants publish permission. The deploy candidate is shadow-only. A missing or expired candidate is a safe miss and uses the rebuild; malformed or ambiguous evidence must fail. Present plain-language bullet points and images.before, images.after, images.diff as absolute clickable image paths.",
+    "Run git fetch --prune origin before classification. Schema 2 production-full evidence includes all-browsers. Upload is not completion; require deployment-complete with structured probe count and exact registry version. versioned-unpublished alone runs hosted build; registry-unknown never grants publish permission. The deploy candidate is shadow-only. A missing or expired candidate is a safe miss and uses the rebuild; malformed or ambiguous evidence must fail. Present plain-language bullet points and absolute clickable paths. changed = Before/After/Difference; new = After; removed = Before; broken has no visual verdict until rerun. Run gates:plan. Operational plans can skip rendered checks, but rendered MDX cannot. Include every reachable dependent. The terminal `pnpm gates:ship` remains the complete exact-final-tree proof. Public skills ship inside `@vegastack/design`; retain skill-mirror, export, and package-build checks. There is no agreeing greater-than-six-route foundation fixture. Do not collect qualifying checkpoint samples; MK must resolve the authority blocker.",
   "skills/internal/ship/references/visual-review.md":
-    "Present plain-language bullet points. Read images.before, then images.after, then images.diff. Resolve them to absolute clickable Markdown file links.",
+    "Run gates:plan before visual review. Rendered MDX remains visual input. Every safe skip includes its selector digest. Present plain-language bullet points. changed = Before/After/Difference; new = After; removed = Before; broken is not a visual verdict and must rerun. Resolve every available artifact to an absolute clickable Markdown link.",
   "skills/internal/ship/references/release-gotchas.md":
     "verify-shadcn-consume builds public packages, then runs pnpm pack --json and validates every declared export before clean consumers.",
   "skills/internal/gates/SKILL.md":
-    "gates:retry writes diagnosticOnly: true and evidenceWritten: false. gates:affected writes shadowOnly: true and reuseEnabled: false. Require 30 representative samples and MK approval. verify-shadcn-consume uses a fresh consumer per root; D1 retains the full oracle.",
+    "gates:plan distinguishes operational prose from rendered MDX and includes every reachable dependent. Selected runners reconcile planned, listed, and executed leaves. Dynamic pre-push execution is still disabled. `skills/public/**` are non-rendered package inputs; retain skill-mirror, export, and `@vegastack/design` build checks. gates:retry writes diagnosticOnly: true and evidenceWritten: false. gates:affected retains rollout.enabled: false and its status retains reuseEnabled: false. Use gates:affected:checkpoint -- --scenario <name>. Require 30 representative samples and MK approval. There is no agreeing greater-than-six-route foundation fixture. verify-shadcn-consume uses a fresh consumer per root; D1 retains the full oracle.",
+  "skills/internal/review/SKILL.md":
+    "There is no agreeing greater-than-six-route foundation fixture. Do not collect qualifying checkpoint samples; MK must resolve the policy blocker.",
   "docs/plans/2026-07-28-public-site-private-registry-boundary.md":
     "Require deployment-complete and the structured Cloudflare version ID, passing probe count, and exact registry version.",
   ".github/workflows/runner-diagnostics.yml":
@@ -763,6 +1012,18 @@ const semanticFixtures = [
     "skills/internal/component/references/testing.md",
     "pnpm --filter @vegastack/ui test:all-browsers # complete suite in all three engines (main/release)",
     /browser-location/,
+  ],
+  [
+    "complete browser suite called pre-push",
+    "AGENTS.md",
+    "The complete three-engine suite runs in .husky/pre-push.",
+    /browser-location/,
+  ],
+  [
+    "generic suite count",
+    "packages/ui/vitest.smoke.config.ts",
+    "The full 900+ test suite runs here.",
+    /generic-test-count/,
   ],
   [
     "machine authority calls complete browsers a main/release lane",
@@ -919,6 +1180,90 @@ const semanticFixtures = [
     "skills/internal/ship/references/visual-review.md",
     "Present only route, project, and changedPixels.",
     /visual-handoff/,
+  ],
+  [
+    "visual handoff demands impossible all-three artifacts",
+    "skills/internal/ship/references/visual-review.md",
+    "For every non-unchanged entry provide Before, After, and Diff—all three.",
+    /visual-handoff/,
+  ],
+  [
+    "blanket docs visual skip",
+    "skills/internal/ship/SKILL.md",
+    "Documentation and Markdown changes always skip browser, contract, and VRT checks.",
+    /dynamic-rendered-docs/,
+  ],
+  [
+    "component checks itself only",
+    "skills/internal/gates/SKILL.md",
+    "For a component change, verify only the changed component and ignore dependents.",
+    /dynamic-dependent-closure/,
+  ],
+  [
+    "component command claims one own test",
+    "README.md",
+    "gates:component runs that component's own unit test.",
+    /dynamic-dependent-closure/,
+  ],
+  [
+    "unknown path skips product lanes",
+    "AGENTS.md",
+    "An unknown path safely skips browser and contract lanes.",
+    /dynamic-unknown/,
+  ],
+  [
+    "selector disagreement narrows",
+    "skills/internal/review/SKILL.md",
+    "When registry and Vitest selectors disagree, use the smaller set to save time.",
+    /dynamic-disagreement/,
+  ],
+  [
+    "selector disagreement uses bounded union",
+    "skills/internal/review/SKILL.md",
+    "When registry and import authorities disagree, use the bounded union.",
+    /dynamic-disagreement/,
+  ],
+  [
+    "obsolete affected report path",
+    "skills/internal/gates/SKILL.md",
+    "Read .gates/affected-shadow.json after gates:affected.",
+    /affected-schema/,
+  ],
+  [
+    "obsolete affected top-level fields",
+    "skills/internal/gates/SKILL.md",
+    "gates:affected writes shadowOnly: true and reuseEnabled: false.",
+    /affected-schema/,
+  ],
+  [
+    "affected checkpoint omits current authority blocker",
+    "docs/RELEASING.md",
+    "Affected reuse stays off until 30 representative samples and MK approval.",
+    /affected-checkpoint-blocker/,
+  ],
+  [
+    "unexplained safe skip",
+    "skills/internal/gates/SKILL.md",
+    "The unit lane was safely skipped.",
+    /dynamic-skip-reason/,
+  ],
+  [
+    "two-engine smoke claim",
+    "AGENTS.md",
+    "test:smoke runs WebKit + Firefox.",
+    /smoke-engines/,
+  ],
+  [
+    "machine authority reverts to two-engine smoke",
+    "packages/ui/component-contracts.json",
+    '{"rationale":"selected WebKit/Firefox smoke"}',
+    /smoke-engines/,
+  ],
+  [
+    "public skill skips package proof",
+    "skills/internal/gates/SKILL.md",
+    "Public skills are operational-only and skip the package mirror and package build.",
+    /dynamic-public-skill/,
   ],
 ];
 for (const [label, file, text, expected] of semanticFixtures) {

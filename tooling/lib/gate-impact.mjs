@@ -1,52 +1,153 @@
 import { createHash } from "node:crypto";
+import { createRequire } from "node:module";
 import { existsSync, lstatSync, readFileSync, readlinkSync } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
 
-import { ROOT } from "./change-set.mjs";
+import { ROOT, workingTreeContentHash } from "./change-set.mjs";
+import {
+  assertAuthorityFingerprint,
+  authorityFingerprint,
+} from "./authority-fingerprint.mjs";
 import { buildConsumePlan } from "./consume-plan.mjs";
-import { smokeImpact } from "./smoke-scope.mjs";
+import {
+  importDependencies,
+  importImpact,
+  repositoryImportGraph,
+} from "./import-closure.mjs";
+import {
+  createRouteScopeModel,
+  ROUTE_SCOPE_AUTHORITY_PATHS,
+  selectRoutes,
+} from "./route-scope.mjs";
+import { gateGeneration, localEnvironment } from "./measurement-report.mjs";
+import {
+  createVitestImpactContext,
+  smokeImpact,
+  vitestImpact,
+} from "./smoke-scope.mjs";
 
-const AUTHORITY = JSON.parse(
-  readFileSync(join(ROOT, "packages/ui/component-contracts.json"), "utf8"),
-);
-const REGISTRY_AUTHORITY = JSON.parse(
-  readFileSync(join(ROOT, "packages/ui/registry.json"), "utf8"),
-).items;
-const RECORDS = [
-  ...AUTHORITY.components,
-  ...AUTHORITY.hooks,
-  ...AUTHORITY.blocks,
+export const GATE_IMPACT_AUTHORITY_PATHS = [
+  "packages/ui/component-contracts.json",
+  "packages/ui/registry.json",
 ];
-const BY_NAME = new Map(RECORDS.map((record) => [record.name, record]));
-const BY_FILE = new Map();
-for (const record of RECORDS)
-  for (const path of [
-    ...(record.sourceFiles ?? []),
-    ...(record.testFiles ?? []),
-  ]) {
-    BY_FILE.set(path, record);
-    const mirror = /^packages\/ui\/registry\/(?:ui|blocks)\/(.+)$/.exec(path);
-    if (mirror) BY_FILE.set(`apps/docs/components/ui/${mirror[1]}`, record);
-  }
 
-const DIRECT_DEPENDENTS = new Map();
-for (const record of RECORDS)
-  for (const dependency of record.registryDependencies ?? []) {
-    const name = dependency.replace(/^@vegastack\//, "");
-    if (!DIRECT_DEPENDENTS.has(name)) DIRECT_DEPENDENTS.set(name, new Set());
-    DIRECT_DEPENDENTS.get(name).add(record.name);
-  }
+export function affectedCohortIdentity({
+  turboVersion: overrideTurboVersion,
+} = {}) {
+  const importGraph = repositoryImportGraph({ fresh: true });
+  const vitestContext = createVitestImpactContext({ fresh: true });
+  const environment = localEnvironment();
+  let turboVersion = overrideTurboVersion ?? null;
+  if (overrideTurboVersion === undefined)
+    try {
+      const require = createRequire(join(ROOT, "package.json"));
+      turboVersion = JSON.parse(
+        readFileSync(require.resolve("turbo/package.json"), "utf8"),
+      ).version;
+    } catch {}
+  const identity = {
+    schema: 1,
+    plannerGeneration: "dynamic-impact-shadow-v2",
+    gateGeneration: gateGeneration(),
+    environmentProfile: environment.profile,
+    environment: {
+      runnerType: environment.runnerType,
+      platform: environment.platform,
+      arch: environment.arch,
+      node: environment.node,
+      cpu: environment.cpu,
+      logicalCpuCount: environment.logicalCpuCount,
+    },
+    toolchain: vitestContext.toolchain,
+    toolchainDigest: vitestContext.toolchainDigest,
+    turboVersion,
+    authorities: {
+      gateImpact: authorityFingerprint(GATE_IMPACT_AUTHORITY_PATHS),
+      routeScope: authorityFingerprint(ROUTE_SCOPE_AUTHORITY_PATHS),
+      vitestImpact: vitestContext.authorityFingerprint,
+      vitestImpactInput: vitestContext.inputDigest,
+      importGraphGeneration: importGraph.generation,
+      importGraphDigest: importGraph.digest,
+    },
+  };
+  return {
+    ...identity,
+    digest: createHash("sha256").update(JSON.stringify(identity)).digest("hex"),
+  };
+}
 
-function dependentNames(name) {
+function createGateImpactAuthority() {
+  const fingerprint = authorityFingerprint(GATE_IMPACT_AUTHORITY_PATHS);
+  const contract = JSON.parse(
+    readFileSync(join(ROOT, "packages/ui/component-contracts.json"), "utf8"),
+  );
+  const registryItems = JSON.parse(
+    readFileSync(join(ROOT, "packages/ui/registry.json"), "utf8"),
+  ).items;
+  const records = [
+    ...contract.components,
+    ...contract.hooks,
+    ...contract.blocks,
+  ];
+  const byName = new Map(records.map((record) => [record.name, record]));
+  const byFile = new Map();
+  for (const record of records)
+    for (const path of [
+      ...(record.sourceFiles ?? []),
+      ...(record.testFiles ?? []),
+    ]) {
+      byFile.set(path, record);
+      const mirror = /^packages\/ui\/registry\/(?:ui|blocks)\/(.+)$/.exec(path);
+      if (mirror) byFile.set(`apps/docs/components/ui/${mirror[1]}`, record);
+    }
+  const directDependents = new Map();
+  for (const record of records)
+    for (const dependency of record.registryDependencies ?? []) {
+      const name = dependency.replace(/^@vegastack\//, "");
+      if (!directDependents.has(name)) directDependents.set(name, new Set());
+      directDependents.get(name).add(record.name);
+    }
+  return {
+    fingerprint,
+    contract,
+    registryItems,
+    records,
+    byName,
+    byFile,
+    directDependents,
+    assertCurrent() {
+      return assertAuthorityFingerprint(
+        GATE_IMPACT_AUTHORITY_PATHS,
+        fingerprint,
+        "gate-impact authority",
+      );
+    },
+  };
+}
+
+function dependentNames(name, directDependents) {
   const reached = new Set([name]);
   const queue = [name];
   while (queue.length > 0)
-    for (const dependent of DIRECT_DEPENDENTS.get(queue.pop()) ?? []) {
+    for (const dependent of directDependents.get(queue.pop()) ?? []) {
       if (reached.has(dependent)) continue;
       reached.add(dependent);
       queue.push(dependent);
     }
   return [...reached].sort();
+}
+
+function importedFullPageRoute(path) {
+  const content = /^apps\/docs\/content\/(.+)\.mdx$/.exec(path);
+  if (content) return `/${content[1].replace(/\/index$/, "")}`;
+  const page = /^apps\/docs\/app\/(.+\/)?page\.[cm]?[jt]sx?$/.exec(path);
+  if (!page) return undefined;
+  const segments = (page[1] ?? "")
+    .split("/")
+    .filter(Boolean)
+    .filter((segment) => !/^\(.+\)$/.test(segment));
+  if (segments.some((segment) => /[\[\]]/.test(segment))) return null;
+  return segments.length === 0 ? "/" : `/${segments.join("/")}`;
 }
 
 function lane(mode = "none", extra = {}) {
@@ -66,21 +167,36 @@ function addSelected(target, key, values, mode = "selected") {
 function makeFull(
   plan,
   reason,
-  lanes = ["unit", "smoke", "all-browsers", "contracts", "consume"],
+  lanes = ["unit", "smoke", "all-browsers", "contracts", "vrt", "consume"],
 ) {
   for (const name of lanes) plan.lanes[name] = lane("full");
   plan.reasons.push(reason);
 }
 
+// These are semantic authorities, not filename heuristics. New locations and executable-looking
+// neighbors must fall through to the unknown-path full oracle until they are explicitly modeled.
 const KNOWN_PROSE = [
-  /^docs\//,
-  /^skills\//,
-  /^\.agents\/skills\//,
-  /^\.claude\/skills\//,
-  /(^|\/)(AGENTS|CLAUDE|README)\.md$/,
-  /^CHANGELOG\.md$/,
+  /^docs\/(?:plans|ledger|research|audits)\/.*\.md$/,
+  /^docs\/(?:README|RELEASING|requirements|gap-analysis)\.md$/,
+  /^skills\/internal\/.*\.md$/,
+  /^skills\/README\.md$/,
+  /^\.agents\/skills\/internal\/.*\.md$/,
+  /^\.claude\/skills\/internal\/.*\.md$/,
+  /^(?:AGENTS|CLAUDE|README)\.md$/,
 ];
-const KNOWN_WORKFLOW = [/^\.github\//, /^\.husky\//, /^\.changeset\//];
+const KNOWN_WORKFLOW = [
+  /^\.github\/workflows\/[^/]+\.ya?ml$/,
+  /^\.github\/(?:CODEOWNERS|dependabot\.yml)$/,
+  /^\.changeset\/(?:config\.json|README\.md|[^/]+\.md)$/,
+];
+const OPERATIONAL_PROSE = [
+  /^docs\/(?:plans|ledger|research)\/.*\.md$/,
+  /^skills\/internal\/.*\.md$/,
+  /^\.agents\/skills\/internal\/.*\.md$/,
+  /^\.claude\/skills\/internal\/.*\.md$/,
+  /^(?:AGENTS|CLAUDE|README)\.md$/,
+];
+const PUBLIC_SKILL_INPUT = [/^skills\/public\//, /^packages\/design\/skills\//];
 const GLOBAL_PRODUCT = [
   /^pnpm-lock\.yaml$/,
   /^package\.json$/,
@@ -99,25 +215,77 @@ const BROWSER_GATE_TOOLING = [
   /^tooling\/gates\.mjs$/,
   /^tooling\/lib\/gate-impact\.mjs$/,
   /^tooling\/lib\/gate-profile\.mjs$/,
+  /^tooling\/lib\/(?:authority-fingerprint|gate-report-validation|gate-tree|import-closure)\.mjs$/,
 ];
 const VITEST_TOOLING = [
   /^tooling\/vitest-(run|structured-reporter)\.mjs$/,
-  /^tooling\/lib\/smoke-scope\.mjs$/,
+  /^tooling\/lib\/(?:smoke-scope|vitest-selection)\.mjs$/,
   /^tooling\/sync-smoke-impact\.mjs$/,
 ];
 const CONTRACT_TOOLING = [
   /^tooling\/contracts-run\.mjs$/,
-  /^tooling\/lib\/route-scope\.mjs$/,
+  /^tooling\/lib\/contract-selection\.mjs$/,
 ];
-const CONSUME_TOOLING = [
-  /^tooling\/verify-shadcn-consume\.mjs$/,
-  /^tooling\/(registry-|verify-registry|verify-item|safe-path)/,
-];
-const KNOWN_NON_PRODUCT_TOOLING = [
-  /^tooling\/(?:release-|verify-release|classify-change|gate-receipt|verify-gate-receipt)/,
-  /^tooling\/(?:gate-reuse|verify-gate-reuse|gates-retry|verify-gate-retry)/,
-  /^tooling\/lib\/(?:change-set|gate-receipt|gate-reuse|retry-plan|workflow-measurement|measurement-report)\.mjs$/,
-  /^tooling\/(?:report-workflow|verify-workflow|summarize-benchmarks|verify-measurement|verify-operator-docs)/,
+const ROUTE_SCOPE_TOOLING = [/^tooling\/lib\/route-scope\.mjs$/];
+const VRT_TOOLING = new Set([
+  "tooling/vrt-review.mjs",
+  "tooling/lib/vrt-selection.mjs",
+  "tooling/sync-vrt-page-routes.mjs",
+]);
+const CONSUME_TOOLING = new Set([
+  "tooling/registry-hash.mjs",
+  "tooling/registry-header.mjs",
+  "tooling/registry-request.mjs",
+  "tooling/registry-stamp.mjs",
+  "tooling/safe-path.mjs",
+  "tooling/verify-item.mjs",
+  "tooling/verify-registry-deps.mjs",
+  "tooling/verify-registry-integrity-negative.mjs",
+  "tooling/verify-shadcn-consume.mjs",
+  "tooling/lib/consume-isolation.mjs",
+  "tooling/lib/consume-plan.mjs",
+]);
+const KNOWN_NON_PRODUCT_TOOLING = new Set([
+  "tooling/classify-change.mjs",
+  "tooling/gate-receipt-carry.mjs",
+  "tooling/gates-affected.mjs",
+  "tooling/gates-digest.mjs",
+  "tooling/gates-retry.mjs",
+  "tooling/impact-plan.mjs",
+  "tooling/release-classify.mjs",
+  "tooling/release-state.mjs",
+  "tooling/report-workflow-setup.mjs",
+  "tooling/summarize-affected-shadow.mjs",
+  "tooling/summarize-benchmarks.mjs",
+  "tooling/verify-affected-oracle.mjs",
+  "tooling/verify-change-inventory.mjs",
+  "tooling/verify-classify-change.mjs",
+  "tooling/verify-gate-impact.mjs",
+  "tooling/verify-gate-receipt-negative.mjs",
+  "tooling/verify-gate-receipt.mjs",
+  "tooling/verify-gate-retry.mjs",
+  "tooling/verify-impact-plan.mjs",
+  "tooling/verify-measurement-report.mjs",
+  "tooling/verify-operator-docs.mjs",
+  "tooling/verify-release-chain.mjs",
+  "tooling/verify-release-state.mjs",
+  "tooling/verify-workflow-measurement.mjs",
+  "tooling/verify-workflow-security-negative.mjs",
+  "tooling/verify-workflow-security.mjs",
+  "tooling/lib/affected-oracle.mjs",
+  "tooling/lib/affected-paths.mjs",
+  "tooling/lib/change-set.mjs",
+  "tooling/lib/gate-receipt.mjs",
+  "tooling/lib/gate-reuse.mjs",
+  "tooling/lib/measurement-report.mjs",
+  "tooling/lib/report-path.mjs",
+  "tooling/lib/retry-plan.mjs",
+  "tooling/lib/workflow-measurement.mjs",
+]);
+const GENERATED_NONRENDERED_AUTHORITY = [
+  /^docs\/ledger\/component-matrix\.md$/,
+  /^docs\/research\/design-md-audit\/(?:audit-register\.json|audits\/coverage\.json)$/,
+  /^skills\/public\/vegastack-design-system\/references\/components\.md$/,
 ];
 
 function staticAdd(plan, ...checks) {
@@ -126,15 +294,50 @@ function staticAdd(plan, ...checks) {
 
 export function planAffectedImpact(
   changedFiles,
-  { metadataChanged = new Set() } = {},
+  { metadataChanged = new Set(), binaryChanged = new Set() } = {},
 ) {
+  // Fresh on every plan: callers place this derivation inside an exact-tree envelope. Module-load
+  // authority caches could otherwise bind a later tree to models read before the start snapshot.
+  const authority = createGateImpactAuthority();
+  const routeModel = createRouteScopeModel();
+  const importGraph = repositoryImportGraph({ fresh: true });
+  const vitestContext = createVitestImpactContext({ fresh: true });
+  authority.assertCurrent();
+  routeModel.assertCurrent();
+  vitestContext.assertCurrent();
+  const { contract: AUTHORITY, registryItems: REGISTRY_AUTHORITY } = authority;
+  const { byName: BY_NAME, byFile: BY_FILE } = authority;
+  const metadataPaths = new Set(metadataChanged);
   const plan = {
     schema: 1,
+    generation: "dynamic-impact-shadow-v2",
     shadowOnly: true,
     reuseEnabled: false,
+    executionEnabled: false,
+    productionEligible: false,
     changedFiles: [...new Set(changedFiles)].sort(),
+    fileFacts: [],
     unknownPaths: [],
     reasons: [],
+    oracles: {
+      importGraph: {
+        generation: importGraph.generation,
+        digest: importGraph.digest,
+        sourceCount: importGraph.sources.length,
+        edgeCount: importGraph.edges.length,
+        issueCount: importGraph.issues.length,
+        comparisons: [],
+      },
+      authorities: {
+        gateImpact: authority.fingerprint,
+        routeScope: routeModel.authorityFingerprint,
+        vitestImpact: vitestContext.authorityFingerprint,
+        vitestImpactInput: vitestContext.inputDigest,
+        vitestToolchain: vitestContext.toolchainDigest,
+      },
+      routeScope: {},
+      vitestRelated: { comparisons: [] },
+    },
     staticChecks: new Set(),
     boundaryChecks: new Set(),
     turboTasks: new Set(),
@@ -143,12 +346,52 @@ export function planAffectedImpact(
       smoke: lane(),
       "all-browsers": lane(),
       contracts: lane(),
+      vrt: lane(),
       consume: lane(),
     },
   };
 
   for (const path of plan.changedFiles) {
-    if (metadataChanged.has(path)) {
+    const absolute = join(ROOT, path);
+    if (!existsSync(absolute)) {
+      metadataPaths.add(path);
+      plan.fileFacts.push({ path, type: "missing", metadataChanged: true });
+      continue;
+    }
+    const stat = lstatSync(absolute);
+    const type = stat.isSymbolicLink()
+      ? "symlink"
+      : stat.isFile()
+        ? "file"
+        : stat.isDirectory()
+          ? "directory"
+          : "other";
+    if (type !== "file") metadataPaths.add(path);
+    const hash = createHash("sha256");
+    hash.update(
+      type === "symlink"
+        ? readlinkSync(absolute)
+        : type === "file"
+          ? readFileSync(absolute)
+          : type,
+    );
+    plan.fileFacts.push({
+      path,
+      type,
+      mode: stat.mode & 0o777,
+      sha256: hash.digest("hex"),
+      metadataChanged: metadataPaths.has(path),
+      binaryChanged: binaryChanged.has(path),
+    });
+  }
+
+  for (const path of plan.changedFiles) {
+    if (binaryChanged.has(path)) {
+      plan.unknownPaths.push(path);
+      makeFull(plan, `${path}: binary content cannot be dependency-modeled`);
+      continue;
+    }
+    if (metadataPaths.has(path)) {
       plan.unknownPaths.push(path);
       makeFull(plan, `${path}: file type/mode/symlink metadata changed`);
       continue;
@@ -159,6 +402,48 @@ export function planAffectedImpact(
       plan.turboTasks.add("@vegastack/docs#build");
       staticAdd(plan, "headers", "prettier");
       plan.reasons.push(`${path}: exact HTTP boundary authority (shadow)`);
+      continue;
+    }
+    if (path === "design.md") {
+      staticAdd(plan, "design-sync", "prettier");
+      plan.turboTasks.add("@vegastack/docs#build");
+      addSelected(plan.lanes.vrt, "fullPageRoutes", [
+        "/docs/foundations/colors",
+        "/docs/foundations/elevation",
+        "/docs/foundations/radius",
+        "/docs/foundations/typography",
+      ]);
+      plan.reasons.push(`${path}: canonical generated docs authority`);
+      continue;
+    }
+    if (path === "CHANGELOG.md") {
+      staticAdd(plan, "changelog-lint", "changelog-sync", "prettier");
+      plan.turboTasks.add("@vegastack/docs#build");
+      addSelected(plan.lanes.vrt, "fullPageRoutes", ["/docs/changelog"]);
+      plan.reasons.push(`${path}: canonical rendered changelog authority`);
+      continue;
+    }
+    if (GENERATED_NONRENDERED_AUTHORITY.some((pattern) => pattern.test(path))) {
+      staticAdd(plan, "derived-check", "prettier");
+      if (path.startsWith("skills/public/")) {
+        staticAdd(plan, "package-exports", "skill-lint", "skill-mirror");
+        plan.turboTasks.add("@vegastack/design#build");
+      }
+      plan.reasons.push(`${path}: machine-owned component-derived output`);
+      continue;
+    }
+    if (PUBLIC_SKILL_INPUT.some((pattern) => pattern.test(path))) {
+      staticAdd(
+        plan,
+        "package-exports",
+        "prettier",
+        "skill-lint",
+        "skill-mirror",
+      );
+      plan.turboTasks.add("@vegastack/design#build");
+      plan.reasons.push(
+        `${path}: public package skill input; shipped but non-rendered`,
+      );
       continue;
     }
     if (GLOBAL_PRODUCT.some((pattern) => pattern.test(path))) {
@@ -189,14 +474,29 @@ export function planAffectedImpact(
       staticAdd(plan, "gate-negative", "prettier");
       continue;
     }
-    if (CONSUME_TOOLING.some((pattern) => pattern.test(path))) {
+    if (ROUTE_SCOPE_TOOLING.some((pattern) => pattern.test(path))) {
+      makeFull(plan, `${path}: contract/VRT route authority changed`, [
+        "contracts",
+        "vrt",
+      ]);
+      staticAdd(plan, "gate-negative", "prettier");
+      continue;
+    }
+    if (VRT_TOOLING.has(path)) {
+      makeFull(plan, `${path}: VRT selector/capture authority changed`, [
+        "vrt",
+      ]);
+      staticAdd(plan, "derived-check", "gate-negative", "prettier");
+      continue;
+    }
+    if (CONSUME_TOOLING.has(path)) {
       makeFull(plan, `${path}: consume/registry gate definition changed`, [
         "consume",
       ]);
       staticAdd(plan, "registry-negative", "prettier");
       continue;
     }
-    if (KNOWN_NON_PRODUCT_TOOLING.some((pattern) => pattern.test(path))) {
+    if (KNOWN_NON_PRODUCT_TOOLING.has(path)) {
       staticAdd(plan, "gate-negative", "prettier");
       plan.reasons.push(`${path}: declared non-product gate tooling`);
       continue;
@@ -206,23 +506,26 @@ export function planAffectedImpact(
       makeFull(plan, `${path}: unmodeled tooling dependency`);
       continue;
     }
+    if (/^\.husky\//.test(path)) {
+      staticAdd(plan, "hooks-installed", "prettier", "workflow-security");
+      plan.reasons.push(`${path}: committed hook authority`);
+      continue;
+    }
     if (KNOWN_WORKFLOW.some((pattern) => pattern.test(path))) {
       staticAdd(plan, "prettier", "workflow-security");
       plan.reasons.push(`${path}: workflow/hook/release metadata`);
       continue;
     }
-    if (
-      KNOWN_PROSE.some((pattern) => pattern.test(path)) ||
-      path.endsWith(".md")
-    ) {
+    if (KNOWN_PROSE.some((pattern) => pattern.test(path))) {
       staticAdd(plan, "operator-docs", "prettier", "skill-lint");
       plan.reasons.push(`${path}: prose/operator surface`);
       continue;
     }
     if (/^apps\/docs\/public\/r\/.+\.json$/.test(path)) {
-      plan.lanes.consume = lane("full");
       staticAdd(plan, "registry-idempotency", "registry-integrity");
-      plan.reasons.push(`${path}: generated registry output`);
+      plan.reasons.push(
+        `${path}: generated registry output; affected consume remains shadow-only`,
+      );
       continue;
     }
     if (
@@ -234,19 +537,82 @@ export function planAffectedImpact(
       continue;
     }
     if (path === "packages/ui/smoke-impact.generated.json") {
-      plan.lanes.smoke = lane("full");
       staticAdd(plan, "derived-check", "smoke-scope-negative");
-      plan.reasons.push(`${path}: Vitest-related smoke authority changed`);
+      plan.reasons.push(
+        `${path}: generated Vitest-related authority; freshness must pass before selected execution`,
+      );
+      continue;
+    }
+    if (path === "apps/docs/vrt/page-routes.generated.ts") {
+      makeFull(plan, `${path}: complete rendered-page VRT authority changed`, [
+        "vrt",
+      ]);
+      staticAdd(plan, "derived-check", "prettier");
+      continue;
+    }
+    if (/^packages\/ui\/registry\/ui\/icons\/.+\.tsx$/.test(path)) {
+      addSelected(plan.lanes.unit, "files", [
+        "packages/ui/registry/ui/animated-icons.test.tsx",
+      ]);
+      addSelected(plan.lanes["all-browsers"], "files", [
+        "packages/ui/registry/ui/animated-icons.test.tsx",
+      ]);
+      plan.lanes.vrt.icons = true;
+      if (plan.lanes.vrt.mode === "none") plan.lanes.vrt.mode = "selected";
+      staticAdd(
+        plan,
+        "animated-icons",
+        "registry-idempotency",
+        "registry-integrity",
+      );
+      plan.reasons.push(`${path}: modeled animated-icon member`);
       continue;
     }
     const record = BY_FILE.get(path);
     if (record) {
+      if (path.startsWith("apps/docs/components/ui/"))
+        staticAdd(plan, "registry-idempotency", "registry-integrity");
       const isTest = (record.testFiles ?? []).includes(path);
+      const registryNames = isTest
+        ? [record.name]
+        : dependentNames(record.name, authority.directDependents);
+      const imported = importImpact([path], importGraph);
+      const selectedNames = [
+        ...new Set([...registryNames, ...imported.owners]),
+      ].sort();
+      const oracleDisagreement =
+        JSON.stringify([...registryNames].sort()) !==
+        JSON.stringify(imported.owners);
+      plan.oracles.importGraph.comparisons.push({
+        path,
+        registryOwners: registryNames,
+        importOwners: imported.owners,
+        selectedOwners: selectedNames,
+        disagreement:
+          JSON.stringify([...registryNames].sort()) !==
+          JSON.stringify(imported.owners),
+        widenedToFull: imported.full || (!isTest && oracleDisagreement),
+        reasons: imported.reasons,
+      });
+      if (imported.full) {
+        makeFull(
+          plan,
+          `${path}: import graph is incomplete (${imported.reasons.join("; ")})`,
+        );
+        staticAdd(plan, "import-closure-negative");
+        continue;
+      }
+      if (!isTest && oracleDisagreement) {
+        makeFull(
+          plan,
+          `${path}: registry/import dependency authorities disagree; current policy widens every product lane to full`,
+        );
+        staticAdd(plan, "import-closure-negative");
+        continue;
+      }
       if (isTest) addSelected(plan.lanes.unit, "files", [path]);
       else {
-        const reached = dependentNames(record.name).map((name) =>
-          BY_NAME.get(name),
-        );
+        const reached = selectedNames.map((name) => BY_NAME.get(name));
         addSelected(
           plan.lanes.unit,
           "files",
@@ -257,6 +623,32 @@ export function planAffectedImpact(
           "routes",
           reached.map((entry) => entry?.docsSlug).filter(Boolean),
         );
+        addSelected(
+          plan.lanes.vrt,
+          "routes",
+          reached.map((entry) => entry?.docsSlug).filter(Boolean),
+        );
+        const importedPageRoutes = imported.files.map(importedFullPageRoute);
+        const exactImportedPageRoutes = importedPageRoutes.filter(
+          (route) => typeof route === "string",
+        );
+        // The docs catch-all module loads exact MDX pages. It is not itself an instruction to
+        // capture every route when the same complete graph identifies the concrete MDX consumers.
+        if (
+          importedPageRoutes.includes(null) &&
+          exactImportedPageRoutes.length === 0
+        )
+          makeFull(
+            plan,
+            `${path}: import closure reaches an unbounded docs app route`,
+            ["vrt"],
+          );
+        else
+          addSelected(
+            plan.lanes.vrt,
+            "fullPageRoutes",
+            exactImportedPageRoutes,
+          );
         addSelected(
           plan.lanes.consume,
           "items",
@@ -270,16 +662,46 @@ export function planAffectedImpact(
         "files",
         isTest ? [path] : (plan.lanes.unit.files ?? []),
       );
-      const smoke = smokeImpact([path]);
+      const vitest = vitestImpact([path], { context: vitestContext });
+      plan.oracles.vitestRelated.comparisons.push({
+        path,
+        registryTests: isTest ? [path] : (plan.lanes.unit.files ?? []),
+        selectedTests: vitest.tests,
+        current: vitest.shadowCurrent,
+        disagreement: vitest.disagreement,
+        widenedToFull: vitest.full,
+        reasons: vitest.reasons,
+      });
+      if (vitest.full) {
+        plan.lanes.unit = lane("full");
+        plan.lanes["all-browsers"] = lane("full");
+        plan.reasons.push(
+          `${path}: registry/import and Vitest-related unit authorities are stale or disagree`,
+        );
+      } else if (vitest.required) {
+        addSelected(plan.lanes.unit, "files", vitest.tests);
+        addSelected(plan.lanes["all-browsers"], "files", vitest.tests);
+      }
+      if (vitest.disagreement)
+        plan.reasons.push(
+          `${path}: registry/import and Vitest-related unit authorities disagree; unit and all-browser lanes widened to full`,
+        );
+      const smoke = smokeImpact([path], { context: vitestContext });
       if (smoke.full) plan.lanes.smoke = lane("full");
       else if (smoke.required)
         addSelected(plan.lanes.smoke, "files", smoke.tests);
+      if (smoke.disagreement)
+        plan.reasons.push(
+          `${path}: registry and Vitest-related smoke authorities disagree; smoke widened to full`,
+        );
       plan.turboTasks.add("@vegastack/ui#lint");
       plan.turboTasks.add("@vegastack/ui#typecheck");
-      plan.reasons.push(`${path}: ${record.name} reverse-dependency closure`);
+      plan.reasons.push(
+        `${path}: ${record.name} registry/import reverse-dependency union`,
+      );
       continue;
     }
-    const content = /^apps\/docs\/content\/(.+)\.mdx$/.exec(path);
+    const content = /^apps\/docs\/content\/(.+)\.mdx?$/.exec(path);
     const preview = /^apps\/docs\/components\/preview\/([^/]+)\.tsx$/.exec(
       path,
     );
@@ -293,8 +715,30 @@ export function planAffectedImpact(
       )
         addSelected(plan.lanes.contracts, "routes", [candidate]);
       else if (content) {
+        const dependencies = importDependencies([path], importGraph);
+        if (dependencies.full) {
+          plan.unknownPaths.push(path);
+          makeFull(
+            plan,
+            `${path}: rendered MDX dependency graph is incomplete (${dependencies.reasons.join("; ")})`,
+          );
+          continue;
+        }
         staticAdd(plan, "content-lint", "links", "prettier");
-        plan.reasons.push(`${path}: non-component docs content`);
+        if (candidate)
+          addSelected(plan.lanes.vrt, "fullPageRoutes", [candidate]);
+        plan.oracles.importGraph.comparisons.push({
+          path,
+          direction: "forward-render-dependencies",
+          importOwners: dependencies.owners,
+          selectedOwners: dependencies.owners,
+          disagreement: false,
+          widenedToFull: false,
+          reasons: [],
+        });
+        plan.reasons.push(
+          `${path}: rendered docs content with ${dependencies.owners.length} modeled component dependency/dependencies`,
+        );
       } else {
         plan.unknownPaths.push(path);
         makeFull(plan, `${path}: unmodeled docs fixture`);
@@ -321,14 +765,65 @@ export function planAffectedImpact(
     makeFull(plan, `${path}: unknown path widens all coverage`);
   }
 
+  authority.assertCurrent();
+  routeModel.assertCurrent();
+  vitestContext.assertCurrent();
+  const contractSelection = selectRoutes(
+    plan.changedFiles,
+    {},
+    routeModel.contractScope,
+  );
+  plan.oracles.routeScope.contracts = {
+    reason: contractSelection.reason,
+    mode: contractSelection.routes === null ? "full" : "selected",
+    routes:
+      contractSelection.routes === null
+        ? null
+        : [...contractSelection.routes].sort(),
+  };
+  if (contractSelection.routes === null) plan.lanes.contracts = lane("full");
+  else if (contractSelection.routes.size > 0)
+    addSelected(plan.lanes.contracts, "routes", contractSelection.routes);
+
+  const pixelSelection = selectRoutes(
+    plan.changedFiles,
+    {},
+    routeModel.pixelScope,
+  );
+  plan.oracles.routeScope.vrt = {
+    reason: pixelSelection.reason,
+    mode: pixelSelection.routes === null ? "full" : "selected",
+    routes:
+      pixelSelection.routes === null ? null : [...pixelSelection.routes].sort(),
+    fullPageRoutes:
+      pixelSelection.fullPageRoutes === null
+        ? null
+        : [...pixelSelection.fullPageRoutes].sort(),
+    icons: pixelSelection.icons,
+  };
+  if (pixelSelection.routes === null) plan.lanes.vrt = lane("full");
+  else {
+    if (pixelSelection.routes.size > 0)
+      addSelected(plan.lanes.vrt, "routes", pixelSelection.routes);
+    if (pixelSelection.fullPageRoutes.size > 0)
+      addSelected(
+        plan.lanes.vrt,
+        "fullPageRoutes",
+        pixelSelection.fullPageRoutes,
+      );
+    if (pixelSelection.icons) plan.lanes.vrt.icons = true;
+  }
+
   if (plan.changedFiles.length === 0) plan.reasons.push("no changed files");
   const consumePlan = buildConsumePlan({
     changedFiles: plan.changedFiles,
     items: REGISTRY_AUTHORITY,
-    metadata: { changed: metadataChanged.size > 0 },
+    metadata: {
+      changed: metadataPaths.size > 0 || binaryChanged.size > 0,
+    },
   });
   plan.lanes.consume =
-    consumePlan.mode === "full"
+    plan.lanes.consume.mode === "full" || consumePlan.mode === "full"
       ? lane("full", {
           layouts: consumePlan.layouts,
           execution: "current-full-oracle-required",
@@ -342,8 +837,33 @@ export function planAffectedImpact(
         : lane("none", {
             execution: "current-full-oracle-still-required-by-D1",
           });
+  for (const [name, selected] of Object.entries(plan.lanes)) {
+    selected.state =
+      selected.mode === "none" ? "safely-skipped" : "not-reached";
+    selected.reasonCode =
+      selected.mode === "none"
+        ? `no-${name}-impact`
+        : selected.mode === "full"
+          ? `${name}-full-impact`
+          : `${name}-selected-impact`;
+  }
+  plan.selectorDigest = createHash("sha256")
+    .update(
+      JSON.stringify({
+        generation: plan.generation,
+        changedFiles: plan.changedFiles,
+        fileFacts: plan.fileFacts,
+        oracles: plan.oracles,
+        lanes: plan.lanes,
+      }),
+    )
+    .digest("hex");
+  authority.assertCurrent();
+  routeModel.assertCurrent();
+  vitestContext.assertCurrent();
   return {
     ...plan,
+    evidenceEligibility: "diagnostic-shadow-only",
     consumePlan,
     staticChecks: [...plan.staticChecks].sort(),
     boundaryChecks: [...plan.boundaryChecks].sort(),
@@ -534,29 +1054,102 @@ export const REQUIRED_AFFECTED_SCENARIOS = [
   "global",
 ];
 
+export function affectedScenarioAttainability({
+  externalTreeEnvelope = false,
+} = {}) {
+  // The standalone/status caller owns its own exact-tree envelope. Planner commands may reuse the
+  // stronger start/final reconciliation that surrounds all their subphases, avoiding duplicate git
+  // tree construction without weakening the boundary.
+  const startTree = externalTreeEnvelope ? null : workingTreeContentHash().hash;
+  const authority = createGateImpactAuthority();
+  const graph = repositoryImportGraph({ fresh: true });
+  const foundationFixtures = [];
+  for (const record of authority.records) {
+    const source = (record.sourceFiles ?? []).find((path) =>
+      /^packages\/ui\/registry\/(?:ui|blocks)\/.+\.[cm]?[jt]sx?$/.test(path),
+    );
+    if (!source) continue;
+    const registryOwners = dependentNames(
+      record.name,
+      authority.directDependents,
+    );
+    const imported = importImpact([source], graph);
+    if (
+      !imported.full &&
+      JSON.stringify([...registryOwners].sort()) ===
+        JSON.stringify(imported.owners)
+    ) {
+      const routes = registryOwners
+        .map((name) => authority.byName.get(name)?.docsSlug)
+        .filter(Boolean);
+      if (routes.length > 6)
+        foundationFixtures.push({ source, routes: routes.length });
+    }
+  }
+  authority.assertCurrent();
+  if (!externalTreeEnvelope && workingTreeContentHash().hash !== startTree)
+    throw new Error(
+      "working tree changed during affected scenario attainability analysis",
+    );
+  return {
+    foundation: {
+      attainable: foundationFixtures.length > 0,
+      fixtures: foundationFixtures,
+      blocker:
+        foundationFixtures.length > 0
+          ? null
+          : "no current >6-route component has agreeing registry/import authorities; current policy widens those diffs to full",
+    },
+  };
+}
+
 export function affectedScenarioCandidates(
   changedFiles,
   plan,
   priorFailure = null,
 ) {
   const candidates = new Set();
+  const allNone = Object.values(plan.lanes).every(
+    (entry) => entry.mode === "none",
+  );
+  const allFull = [
+    "unit",
+    "smoke",
+    "all-browsers",
+    "contracts",
+    "vrt",
+    "consume",
+  ].every((lane) => plan.lanes[lane]?.mode === "full");
+  const hasSelectedExecutable =
+    ["unit", "smoke", "all-browsers"].some(
+      (lane) =>
+        plan.lanes[lane]?.mode === "selected" &&
+        (plan.lanes[lane]?.files?.length ?? 0) > 0,
+    ) ||
+    (plan.lanes.contracts?.mode === "selected" &&
+      (plan.lanes.contracts?.routes?.length ?? 0) > 0) ||
+    (plan.lanes.consume?.mode === "selected-shadow" &&
+      (plan.lanes.consume?.items?.length ?? 0) > 0);
   if (
     changedFiles.length > 0 &&
-    changedFiles.every(
-      (path) =>
-        KNOWN_PROSE.some((pattern) => pattern.test(path)) ||
-        /^apps\/docs\/content\/.+\.mdx$/.test(path) ||
-        path.endsWith(".md"),
-    )
+    changedFiles.every((path) =>
+      OPERATIONAL_PROSE.some((pattern) => pattern.test(path)),
+    ) &&
+    allNone
   )
     candidates.add("prose");
   if (
+    !hasSelectedExecutable &&
     changedFiles.some((path) =>
       KNOWN_WORKFLOW.some((pattern) => pattern.test(path)),
     )
   )
     candidates.add("workflow");
-  if (changedFiles.includes("apps/docs/public/_headers"))
+  if (
+    !hasSelectedExecutable &&
+    changedFiles.includes("apps/docs/public/_headers") &&
+    plan.boundaryChecks?.includes("deployment-boundaries")
+  )
     candidates.add("header");
   if (plan.lanes.contracts.mode === "selected") {
     if (plan.lanes.contracts.routes?.length === 1) candidates.add("one-route");
@@ -565,8 +1158,7 @@ export function affectedScenarioCandidates(
   }
   if (plan.lanes.consume.mode === "selected-shadow")
     candidates.add("registry-graph");
-  if (Object.values(plan.lanes).some((entry) => entry.mode === "full"))
-    candidates.add("global");
+  if (allFull) candidates.add("global");
   const failed = new Set(
     (priorFailure?.failures ?? [])
       .filter((entry) => entry.status === "fail")
@@ -626,10 +1218,157 @@ export function affectedOracleEscapes(plan, failure) {
   return escapes;
 }
 
-export function summarizeAffectedSamples(samples) {
+export function affectedScenarioProofProblems(sample) {
+  const problems = [];
+  const scenario = sample?.scenario;
+  const plan = sample?.plan;
+  const selected = sample?.selectedExecution;
+  const result = (lane) => selected?.results?.[lane];
+  const noSelectedExecution =
+    selected?.state === "safely-skipped" &&
+    Object.keys(selected?.results ?? {}).length === 0;
+  if (!plan || typeof plan !== "object" || !plan.lanes) {
+    return ["affected checkpoint sample has no structured impact plan"];
+  }
+  const allNone = Object.values(plan.lanes).every(
+    ({ mode }) => mode === "none",
+  );
+  const allFull = [
+    "unit",
+    "smoke",
+    "all-browsers",
+    "contracts",
+    "vrt",
+    "consume",
+  ].every((lane) => plan.lanes[lane]?.mode === "full");
+  if (scenario === "prose") {
+    if (!allNone || !noSelectedExecution)
+      problems.push(
+        "prose scenario must prove all product lanes safely skipped",
+      );
+  } else if (scenario === "workflow") {
+    if (
+      !Array.isArray(plan.changedFiles) ||
+      !plan.changedFiles.some((path) =>
+        KNOWN_WORKFLOW.some((pattern) => pattern.test(path)),
+      ) ||
+      !noSelectedExecution
+    )
+      problems.push(
+        "workflow scenario must be a workflow diff with no selected product execution",
+      );
+  } else if (scenario === "header") {
+    if (
+      !Array.isArray(plan.changedFiles) ||
+      !plan.changedFiles.includes("apps/docs/public/_headers") ||
+      !plan.boundaryChecks?.includes("deployment-boundaries") ||
+      !noSelectedExecution
+    )
+      problems.push(
+        "header scenario must prove boundary checks without selected browser lanes",
+      );
+  } else if (scenario === "global") {
+    if (!allFull || !noSelectedExecution)
+      problems.push(
+        "global scenario must widen every product lane and run no selected substitute",
+      );
+  } else if (scenario === "one-route") {
+    if (
+      plan.lanes.contracts?.mode !== "selected" ||
+      plan.lanes.contracts.routes?.length !== 1 ||
+      !result("contracts") ||
+      result("contracts").executed <= 0
+    )
+      problems.push(
+        "one-route scenario must execute the exact selected contract route",
+      );
+  } else if (scenario === "foundation") {
+    const routes = plan.lanes.contracts?.routes ?? [];
+    if (
+      plan.lanes.contracts?.mode !== "selected" ||
+      routes.length <= 6 ||
+      !result("contracts") ||
+      result("contracts").executed <= 0
+    )
+      problems.push(
+        "foundation scenario must execute a bounded multi-route selected closure",
+      );
+  } else if (scenario === "registry-graph") {
+    if (
+      plan.lanes.consume?.mode !== "selected-shadow" ||
+      !result("consume") ||
+      result("consume").executed <= 0 ||
+      result("consume").expected !== result("consume").executed
+    )
+      problems.push(
+        "registry-graph scenario must execute the exact affected consume proof",
+      );
+  } else if (scenario === "unit-failure" || scenario === "smoke-failure") {
+    const lane = scenario.replace("-failure", "");
+    if (
+      plan.lanes[lane]?.mode !== "selected" ||
+      result(lane)?.state !== "executed/fail" ||
+      !sample.oracle?.failedGateIds?.includes(lane)
+    )
+      problems.push(
+        `${scenario} must execute and match the selected ${lane} failure`,
+      );
+  } else problems.push(`unknown affected checkpoint scenario ${scenario}`);
+  return problems;
+}
+
+export function summarizeAffectedSamples(
+  samples,
+  { currentCohort = affectedCohortIdentity() } = {},
+) {
   const byId = new Map();
   const invalid = [];
   for (const [index, sample] of samples.entries()) {
+    const selected = sample?.selectedExecution;
+    const selectedResults = Object.values(selected?.results ?? {});
+    const selectedFailureCount = selectedResults.filter(
+      ({ state }) => state === "executed/fail",
+    ).length;
+    const expectedSelectedState =
+      selectedResults.length === 0
+        ? "safely-skipped"
+        : selectedResults.some(({ state }) => state === "unknown")
+          ? "unknown"
+          : selectedFailureCount > 0
+            ? "executed/fail"
+            : "executed/pass";
+    const selectedValid =
+      selected &&
+      (selected.state === "safely-skipped"
+        ? selectedResults.length === 0 && typeof selected.reason === "string"
+        : ["executed/pass", "executed/fail"].includes(selected.state) &&
+          selected.state === expectedSelectedState &&
+          selectedResults.length > 0 &&
+          selectedResults.every(
+            (result) =>
+              ["executed/pass", "executed/fail"].includes(result.state) &&
+              Number.isFinite(result.durationMs) &&
+              result.durationMs >= 0 &&
+              Number.isInteger(result.executed) &&
+              result.executed > 0 &&
+              /^[a-f0-9]{64}$/.test(result.selectorDigest ?? "") &&
+              Array.isArray(result.problems) &&
+              result.problems.length === 0,
+          ));
+    const failedGateIds = new Set(sample?.oracle?.failedGateIds ?? []);
+    const selectedOracleConsistent = Object.entries(
+      selected?.results ?? {},
+    ).every(
+      ([lane, result]) =>
+        (result.state === "executed/fail") === failedGateIds.has(lane),
+    );
+    const cohortValid =
+      sample?.cohort?.schema === 1 &&
+      /^[a-f0-9]{64}$/.test(sample.cohort.digest ?? "") &&
+      JSON.stringify(sample.cohort) === JSON.stringify(currentCohort);
+    const scenarioProofProblems = sample
+      ? affectedScenarioProofProblems(sample)
+      : ["missing sample"];
     if (
       !sample ||
       sample.schema !== 1 ||
@@ -637,16 +1376,34 @@ export function summarizeAffectedSamples(samples) {
       typeof sample.sampleId !== "string" ||
       !sample.sampleId ||
       !sample.oracle ||
+      typeof sample.tree !== "string" ||
+      !sample.tree ||
+      !cohortValid ||
+      !/^[a-f0-9]{64}$/.test(sample.classification?.inventoryDigest ?? "") ||
+      !/^[a-f0-9]{64}$/.test(sample.plan?.selectorDigest ?? "") ||
       sample.checkpointEligible !== true ||
       sample.oracle.profile !== "production-full" ||
       sample.oracle.receiptUnchanged !== true ||
       sample.oracle.evidenceUnchanged !== true ||
       sample.oracle.treeUnchanged !== true ||
       !["pass", "fail"].includes(sample.oracle.status) ||
+      !Array.isArray(sample.oracle.failedGateIds) ||
+      (sample.oracle.status === "pass" &&
+        sample.oracle.failedGateIds.length !== 0) ||
       sample.oracle.valid !== true ||
+      sample.oracle.structuredSummaryVerified !== true ||
+      typeof sample.oracle.structuredRunId !== "string" ||
+      !sample.oracle.structuredRunId ||
+      !Number.isFinite(sample.oracle.durationMs) ||
+      sample.oracle.durationMs < 0 ||
       !Array.isArray(sample.oracle.escapes) ||
       !Array.isArray(sample.scenarioCandidates) ||
-      !sample.scenarioCandidates.includes(sample.scenario)
+      !sample.scenarioCandidates.includes(sample.scenario) ||
+      !selectedValid ||
+      !selectedOracleConsistent ||
+      !Number.isFinite(sample.measurements?.selectorDurationMs) ||
+      !Number.isFinite(sample.measurements?.turboDryRunDurationMs) ||
+      scenarioProofProblems.length > 0
     ) {
       invalid.push(`sample ${index}: malformed, partial, or not executed`);
       continue;
@@ -661,7 +1418,20 @@ export function summarizeAffectedSamples(samples) {
     }
     byId.set(sample.sampleId, { sample, encoded });
   }
-  const valid = [...byId.values()].map(({ sample }) => sample);
+  const candidates = [...byId.values()].map(({ sample }) => sample);
+  const cohorts = new Map();
+  const valid = [];
+  for (const sample of candidates) {
+    const cohort = `${sample.tree}\0${sample.plan.selectorDigest}`;
+    if (cohorts.has(cohort)) {
+      invalid.push(
+        `sample ${sample.sampleId}: repeats tree/selector cohort ${cohorts.get(cohort)}`,
+      );
+      continue;
+    }
+    cohorts.set(cohort, sample.sampleId);
+    valid.push(sample);
+  }
   const escapes = valid.flatMap((sample) =>
     sample.oracle.escapes.map((escape) => ({
       sampleId: sample.sampleId,
@@ -676,25 +1446,47 @@ export function summarizeAffectedSamples(samples) {
   const missingScenarios = REQUIRED_AFFECTED_SCENARIOS.filter(
     (scenario) => !scenarios.has(scenario),
   );
+  const scenarioAttainability = affectedScenarioAttainability();
+  const authorityBlockers = Object.entries(scenarioAttainability)
+    .filter(([, status]) => status.attainable !== true)
+    .map(([scenario, status]) => ({ scenario, blocker: status.blocker }));
   const checkpointReady =
     invalid.length === 0 &&
     valid.length >= 30 &&
     escapes.length === 0 &&
-    missingScenarios.length === 0;
+    missingScenarios.length === 0 &&
+    authorityBlockers.length === 0;
   return {
     schema: 1,
     samples: valid.length,
     pass: valid.filter((sample) => sample.oracle.status === "pass").length,
     predictedFailure: valid.filter((sample) => sample.oracle.status === "fail")
       .length,
+    selectedDurationMs: valid.reduce(
+      (total, sample) =>
+        total +
+        Object.values(sample.selectedExecution.results).reduce(
+          (sum, result) => sum + result.durationMs,
+          0,
+        ),
+      0,
+    ),
+    oracleDurationMs: valid.reduce(
+      (total, sample) => total + sample.oracle.durationMs,
+      0,
+    ),
     invalid,
     escapes,
     scenarios: [...scenarios].sort(),
     missingScenarios,
+    scenarioAttainability,
+    authorityBlockers,
     checkpointReady,
     reuseEnabled: false,
     nextAction: checkpointReady
       ? "Ask MK to review the shadow evidence; do not enable reuse automatically."
-      : "Keep reuse disabled and collect valid representative full-oracle samples.",
+      : authorityBlockers.length > 0
+        ? "Keep reuse disabled; resolve the recorded authority/scenario blocker with MK before collecting a qualifying cohort."
+        : "Keep reuse disabled and collect valid representative full-oracle samples.",
   };
 }

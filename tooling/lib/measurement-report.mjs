@@ -3,17 +3,19 @@ import {
   closeSync,
   existsSync,
   fsyncSync,
+  linkSync,
   lstatSync,
   mkdirSync,
   openSync,
   readFileSync,
   readlinkSync,
+  readdirSync,
   renameSync,
   unlinkSync,
   writeFileSync,
 } from "node:fs";
-import { arch, cpus, hostname, platform } from "node:os";
-import { dirname, join } from "node:path";
+import { arch, cpus, hostname, platform, release } from "node:os";
+import { dirname, join, relative, resolve, sep } from "node:path";
 
 import { ROOT } from "./change-set.mjs";
 
@@ -47,10 +49,40 @@ const GENERATION_INPUTS = [
   "packages/ui/component-contracts.json",
   "packages/ui/vitest.config.ts",
   "packages/ui/vitest.smoke.config.ts",
+  "packages/ui/vitest.all-browsers.config.ts",
+  "packages/ui/smoke-impact.generated.json",
+  "packages/ui/contract-smoke-tests.generated.json",
+  "packages/ui/registry.json",
+  "turbo.json",
   "apps/docs/playwright.config.ts",
 ];
 
-function fingerprintPath(relativePath) {
+function toolingGenerationInputs(directory = join(ROOT, "tooling")) {
+  const found = [];
+  const walk = (current) => {
+    for (const name of readdirSync(current).sort()) {
+      const absolute = join(current, name);
+      const stat = lstatSync(absolute);
+      if (stat.isDirectory()) walk(absolute);
+      else if (stat.isFile() && name.endsWith(".mjs"))
+        found.push(absolute.slice(ROOT.length + 1));
+    }
+  };
+  walk(directory);
+  return found;
+}
+
+export function generationInputPaths() {
+  return [
+    ...new Set([...GENERATION_INPUTS, ...toolingGenerationInputs()]),
+  ].sort();
+}
+
+function fingerprintPath(relativePath, contentOverride) {
+  if (contentOverride?.has(relativePath))
+    return Buffer.from(
+      `${relativePath}\0override\0${0}\0${contentOverride.get(relativePath)}\n`,
+    );
   const path = join(ROOT, relativePath);
   if (!existsSync(path)) return `${relativePath}\0missing\n`;
   const stat = lstatSync(path);
@@ -71,21 +103,28 @@ function fingerprintPath(relativePath) {
   ]);
 }
 
-export function gateGeneration() {
+export function gateGeneration({ contentOverride } = {}) {
   const digest = createHash("sha256");
-  for (const path of [...GENERATION_INPUTS].sort())
-    digest.update(fingerprintPath(path));
+  for (const path of generationInputPaths())
+    digest.update(fingerprintPath(path, contentOverride));
   return `gate-v1-${digest.digest("hex")}`;
 }
 
-export function localEnvironment() {
+export function localEnvironment({ osRelease = release() } = {}) {
   const runnerType = process.env.GITHUB_ACTIONS
     ? process.env.RUNNER_ENVIRONMENT === "github-hosted"
       ? "github-hosted"
       : "self-hosted"
     : "local";
   const cpu = cpus()[0]?.model ?? "unknown";
-  const profile = [platform(), arch(), process.versions.node, runnerType, cpu]
+  const profile = [
+    platform(),
+    osRelease,
+    arch(),
+    process.versions.node,
+    runnerType,
+    cpu,
+  ]
     .join("|")
     .replace(/\s+/g, "-");
   return {
@@ -93,6 +132,7 @@ export function localEnvironment() {
     runnerType,
     runnerId: process.env.RUNNER_NAME ?? hostname(),
     platform: platform(),
+    osRelease,
     arch: arch(),
     node: process.version,
     cpu,
@@ -191,8 +231,37 @@ export function summarizeMeasurements(reports) {
 
 export function atomicWriteJson(path, value, { immutable = false } = {}) {
   const body = `${JSON.stringify(value, null, 2)}\n`;
-  mkdirSync(dirname(path), { recursive: true });
+  const absolute = resolve(path);
+  const gatesRoot = join(ROOT, ".gates");
+  const withinGates = (() => {
+    const rel = relative(gatesRoot, absolute);
+    return rel !== ".." && !rel.startsWith(`..${sep}`);
+  })();
+  const assertParents = () => {
+    if (!withinGates) return;
+    const parts = relative(gatesRoot, dirname(absolute))
+      .split(sep)
+      .filter(Boolean);
+    let cursor = gatesRoot;
+    for (const part of ["", ...parts]) {
+      if (part) cursor = join(cursor, part);
+      if (!existsSync(cursor)) continue;
+      const stat = lstatSync(cursor);
+      if (stat.isSymbolicLink() || !stat.isDirectory())
+        throw new Error(
+          `measurement report parent is not a regular directory: ${cursor}`,
+        );
+    }
+  };
+  assertParents();
+  mkdirSync(dirname(absolute), { recursive: true });
+  assertParents();
   if (immutable && existsSync(path)) {
+    const stat = lstatSync(path);
+    if (stat.isSymbolicLink() || !stat.isFile())
+      throw new Error(
+        `immutable measurement key is not a regular file: ${path}`,
+      );
     if (readFileSync(path, "utf8") === body) return;
     throw new Error(`conflicting immutable measurement key: ${path}`);
   }
@@ -204,7 +273,21 @@ export function atomicWriteJson(path, value, { immutable = false } = {}) {
     fsyncSync(descriptor);
     closeSync(descriptor);
     descriptor = undefined;
-    renameSync(temporary, path);
+    if (immutable) {
+      try {
+        linkSync(temporary, path);
+      } catch (error) {
+        if (error.code !== "EEXIST") throw error;
+        const stat = lstatSync(path);
+        if (
+          stat.isSymbolicLink() ||
+          !stat.isFile() ||
+          readFileSync(path, "utf8") !== body
+        )
+          throw new Error(`conflicting immutable measurement key: ${path}`);
+      }
+      unlinkSync(temporary);
+    } else renameSync(temporary, path);
     // Persist the directory entry as well as the file contents. If the process or host stops after
     // rename, recovery sees either the old complete JSON or the new complete JSON, never a pass from
     // a partially durable write.

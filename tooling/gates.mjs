@@ -12,7 +12,7 @@
 //   push, nothing contract-relevant ~33s     typecheck 17s · lint 16s · all browser lanes SKIPPED
 //   push, one component touched     ~1m45s    + unit 16s · smoke 17s · a 3-route closure 40s
 //   push, a GLOBAL surface touched  ~9-11min  + the full 108-route sweep (864 checks)
-//   ship                            ~17-18min + all-browsers 1m39 · consume 3m42 · full contracts
+//   ship                            historical pre-program sample; superseded by retained reports
 //
 // PRE-FREEZE COMPLETION SAMPLES — 2026-07-29, n=4, thermal/cold state unknown. Target not met.
 //   ship                            30m15–48m25; sample median 34m21; no p50/p95 claim
@@ -53,12 +53,11 @@ import { arch, platform } from "node:os";
 import { join } from "node:path";
 
 import {
-  changedFilesInWorkingTree,
   defaultBaseRef,
-  dropProvenanceOnly,
   mergeBase,
   resolveCommit,
   ROOT,
+  workingTreeChangeInventory,
   workingTreeContentHash,
 } from "./lib/change-set.mjs";
 import {
@@ -91,13 +90,21 @@ import {
   writeRunMeasurement,
 } from "./lib/measurement-report.mjs";
 import {
-  CONTRACT_SCOPE,
-  COMPONENT_ROUTES,
-  dependentsByRoute,
-  routeByName,
+  assertDefaultRouteScopeCurrent,
+  createRouteScopeModel,
   selectRoutes,
 } from "./lib/route-scope.mjs";
-import { smokeImpact } from "./lib/smoke-scope.mjs";
+import {
+  createVitestImpactContext,
+  smokeImpact,
+  vitestFullTestInventory,
+} from "./lib/smoke-scope.mjs";
+import { planAffectedImpact } from "./lib/gate-impact.mjs";
+import { reconcileGateTree } from "./lib/gate-tree.mjs";
+import {
+  validateContractGateReport,
+  validateVitestGateReport,
+} from "./lib/gate-report-validation.mjs";
 
 const GATES_DIR = join(ROOT, ".gates");
 const LAST_FAILURE = join(GATES_DIR, "last-failure.json");
@@ -165,6 +172,14 @@ const runStartedMs = Date.now();
 const runId = newRunId(mode);
 const generation = gateGeneration();
 const environment = localEnvironment();
+const gateStartTree = workingTreeContentHash();
+const gateRouteModel = createRouteScopeModel();
+const gateVitestContext = createVitestImpactContext({ fresh: true });
+gateRouteModel.assertCurrent();
+assertDefaultRouteScopeCurrent();
+gateVitestContext.assertCurrent();
+const COMPONENT_ROUTES = gateRouteModel.componentRoutes;
+const CONTRACT_SCOPE = gateRouteModel.contractScope;
 const coldWarm = process.env.GATES_COLD_WARM?.trim() || "unknown";
 const cacheState = process.env.GATES_CACHE_STATE?.trim() || "unknown";
 
@@ -174,7 +189,10 @@ function scopeFor(id, result, startedAt) {
       return { routeCount: 0, checkCount: 0, reportState: "not-executed" };
     try {
       const report = JSON.parse(
-        readFileSync(join(GATES_DIR, "contracts.json"), "utf8"),
+        readFileSync(
+          result.reportPath ?? join(GATES_DIR, "contracts.json"),
+          "utf8",
+        ),
       );
       if (Date.parse(report.completedAt) < startedAt.getTime())
         throw new Error("contracts report predates this segment");
@@ -195,13 +213,39 @@ function scopeFor(id, result, startedAt) {
     }
   }
   if (id === "smoke")
-    return {
+    return browserScope(id, result, startedAt, {
       testFileCount: smokeSelection.full ? null : smokeSelection.tests.length,
       engineCount: BROWSER_ENGINES.length,
-    };
-  if (id === "all-browsers") return { engineCount: BROWSER_ENGINES.length };
+    });
+  if (id === "unit" || id === "all-browsers")
+    return browserScope(id, result, startedAt, {
+      engineCount: id === "unit" ? 1 : BROWSER_ENGINES.length,
+    });
   if (id === "docs-warmup") return { routeCount: COMPONENT_ROUTES.length };
   return {};
+}
+
+function browserScope(id, result, startedAt, fallback) {
+  try {
+    const path = result.reportPath ?? join(GATES_DIR, `vitest-${id}.json`);
+    const report = JSON.parse(readFileSync(path, "utf8"));
+    if (Date.parse(report.completedAt) < startedAt.getTime())
+      throw new Error("browser report predates this segment");
+    if (report.runId !== runId)
+      throw new Error("browser report runId mismatch");
+    if (!new Set(["executed/pass", "executed/fail"]).has(report.state))
+      throw new Error("browser report state is not terminal");
+    return {
+      ...fallback,
+      listedLeaves: report.selection?.listedLeaves ?? null,
+      executedLeaves: report.executed ?? null,
+      skippedLeaves: report.results?.skipped ?? null,
+      reportState: "current",
+      report: path,
+    };
+  } catch {
+    return { ...fallback, reportState: "missing-stale-or-malformed" };
+  }
 }
 
 function retainMeasurement(result, startedAt, completedAt) {
@@ -243,7 +287,7 @@ function gate(
   label,
   command,
   args,
-  { cwd = ROOT, env = process.env, required = true } = {},
+  { cwd = ROOT, env = process.env, required = true, reportPath = null } = {},
 ) {
   process.stdout.write(`${DIM}▸${RESET} ${label}… `);
   const startedAt = new Date();
@@ -278,6 +322,7 @@ function gate(
     output: ok
       ? null
       : (output ?? "(streamed — rerun without --verbose to capture)"),
+    ...(reportPath ? { reportPath } : {}),
   };
   gateResult.measurement = retainMeasurement(
     gateResult,
@@ -314,18 +359,33 @@ const baseSha = resolveCommit(baseRef);
 if (!baseSha) fatal(`base ref does not resolve to a commit: ${baseRef}`);
 const rangeStart = mergeBase(baseSha, "HEAD") ?? baseSha;
 
-const allChanged = changedFilesInWorkingTree(rangeStart);
-const changed = dropProvenanceOnly(allChanged, { before: rangeStart });
-const contractSelection = selectRoutes(changed, {}, CONTRACT_SCOPE);
+const changeInventory = workingTreeChangeInventory(rangeStart);
+const allChanged = changeInventory.allChanged;
+const changed = changeInventory.changedFiles;
+const unmodelledFileFacts =
+  changeInventory.metadataChanged.size > 0 ||
+  changeInventory.binaryChanged.size > 0;
+const contractSelection = unmodelledFileFacts
+  ? {
+      routes: null,
+      reason: "file metadata/binary change widens every product lane",
+    }
+  : selectRoutes(changed, {}, CONTRACT_SCOPE);
 const contractsRelevant =
   contractSelection.routes === null || contractSelection.routes.size > 0;
 
-const smokeSelection = smokeImpact(changed);
+const smokeSelection = smokeImpact(changed, { context: gateVitestContext });
 const smokeRelevant =
-  contractSelection.routes === null || smokeSelection.required;
-const unitRelevant = changed.some((file) =>
-  /^(packages\/(ui|design|design-tokens)|apps\/docs\/components)\//.test(file),
-);
+  unmodelledFileFacts ||
+  contractSelection.routes === null ||
+  smokeSelection.required;
+const unitRelevant =
+  unmodelledFileFacts ||
+  changed.some((file) =>
+    /^(packages\/(ui|design|design-tokens)|apps\/docs\/components)\//.test(
+      file,
+    ),
+  );
 const reusePlan = (() => {
   if (mode !== "push") return null;
   const plannedGates = [
@@ -557,7 +617,7 @@ async function runPush() {
     // case is that it finishes and populates the cache, which is useful next run. Just stop waiting.
     for (const [id, label] of [
       ["unit", "browser unit suite + axe"],
-      ["smoke", "cross-engine smoke (WebKit + Firefox)"],
+      ["smoke", "selected three-engine smoke (Chromium + WebKit + Firefox)"],
       ["contracts", "behaviour contracts"],
     ])
       skip(
@@ -587,6 +647,7 @@ async function runPush() {
       "unit",
       "browser unit suite + axe",
       ...node("tooling/vitest-run.mjs", "--lane", "unit", "--run-id", runId),
+      { reportPath: join(GATES_DIR, "vitest-unit.json") },
     );
   else
     skip(
@@ -598,13 +659,14 @@ async function runPush() {
   if (smokeRelevant)
     gate(
       "smoke",
-      "cross-engine smoke (WebKit + Firefox)",
+      "selected three-engine smoke (Chromium + WebKit + Firefox)",
       ...node("tooling/vitest-run.mjs", "--lane", "smoke", "--run-id", runId),
+      { reportPath: join(GATES_DIR, "vitest-smoke.json") },
     );
   else
     skip(
       "smoke",
-      "cross-engine smoke (WebKit + Firefox)",
+      "selected three-engine smoke (Chromium + WebKit + Firefox)",
       "no smoke-selected component changed",
     );
 
@@ -616,7 +678,14 @@ async function runPush() {
           ? `all ${COMPONENT_ROUTES.length} routes`
           : `${contractSelection.routes.size} route(s)`
       })`,
-      ...node("tooling/contracts-run.mjs", "--base", baseRef),
+      ...node(
+        "tooling/contracts-run.mjs",
+        "--base",
+        baseRef,
+        "--run-id",
+        runId,
+      ),
+      { reportPath: join(GATES_DIR, "contracts.json") },
     );
   } else
     skip(
@@ -636,32 +705,65 @@ async function runComponent() {
     fatal(`no registry source at packages/ui/registry/ui/${name}.{tsx,ts}`);
   console.log(`${BOLD}gates: component ${name}${RESET}\n`);
 
-  // Safe to warm immediately: nothing in this lane is a turbo run — design-lint is a plain node
-  // script and the unit test goes straight to vitest.
-  startDocsBuild();
+  const sourcePath = existsSync(source)
+    ? `packages/ui/registry/ui/${name}.tsx`
+    : `packages/ui/registry/ui/${name}.ts`;
+  const impact = planAffectedImpact([sourcePath]);
+  console.log(
+    `${DIM}gates: common impact ${impact.selectorDigest.slice(0, 12)} — ` +
+      `unit=${impact.lanes.unit.mode}, contracts=${impact.lanes.contracts.mode}, ` +
+      `VRT=${impact.lanes.vrt.mode} (VRT remains a /ship human-review step)${RESET}\n`,
+  );
+
+  const unitFiles =
+    impact.lanes.unit.mode === "full"
+      ? vitestFullTestInventory()
+      : (impact.lanes.unit.files ?? []);
+  const closure =
+    impact.lanes.contracts.mode === "full"
+      ? [...COMPONENT_ROUTES]
+      : (impact.lanes.contracts.routes ?? []);
+
+  // A hook or non-rendered source with no reachable contract route must not pay for a docs export.
+  // When routes exist, overlap the warm-up only with plain-node design lint. Every browser lane
+  // starts after the export settles; cold docs builds and browser work must not contend.
+  if (closure.length > 0) startDocsBuild();
   gate(
     "design-lint",
     "design-lint (registry)",
     ...node("tooling/design-lint.mjs", "packages/ui/registry"),
   );
-  await awaitDocsBuild();
-
-  const testFile = `registry/ui/${name}.test.tsx`;
-  if (existsSync(join(ROOT, "packages/ui", testFile)))
+  if (closure.length > 0) await awaitDocsBuild();
+  const unitReport = join(
+    GATES_DIR,
+    "diagnostics",
+    "component",
+    name,
+    "vitest-unit.json",
+  );
+  if (unitFiles.length > 0)
     gate(
       "unit",
-      `unit suite — ${name}`,
+      `unit suite — ${name} dependency closure (${unitFiles.length} file(s))`,
       ...node(
         "tooling/vitest-run.mjs",
         "--lane",
         "unit",
-        "--file",
-        `packages/ui/${testFile}`,
+        "--selected-shadow",
+        ...unitFiles.flatMap((file) => ["--file", file]),
         "--run-id",
         runId,
+        "--report",
+        unitReport,
       ),
+      { reportPath: unitReport },
     );
-  else skip("unit", `unit suite — ${name}`, "no test file yet");
+  else
+    skip(
+      "unit",
+      `unit suite — ${name}`,
+      "planner proved no unit file in scope",
+    );
 
   // EXPLICIT ROUTES, not the diff scope. This is the inner loop for ONE component, so it must check
   // that component and everything composing it — nothing else, and nothing less. Deriving the routes
@@ -669,19 +771,35 @@ async function runComponent() {
   // surface change the "contracts — <name> and its dependents" gate silently became a full sweep:
   // the label promised an inner loop and the behaviour delivered a 9-minute one. The diff-scoped sweep
   // is `gates push`'s job; this stays bounded and honest.
-  const route = routeByName.get(name);
-  if (!route)
-    fatal(
-      `${name} has no docs route in packages/ui/component-contracts.json, so its contract lane cannot be scoped`,
+  const contractReport = join(
+    GATES_DIR,
+    "diagnostics",
+    "component",
+    name,
+    "contracts.json",
+  );
+  if (closure.length > 0) {
+    gate(
+      "contracts",
+      `behaviour contracts — ${name} dependency closure (${closure.length} route(s))`,
+      ...node(
+        "tooling/contracts-run.mjs",
+        "--routes",
+        closure.join(","),
+        "--diagnostic",
+        "--run-id",
+        runId,
+        "--report",
+        contractReport,
+      ),
+      { reportPath: contractReport },
     );
-  const closure = [...(dependentsByRoute.get(route) ?? [route])].filter(
-    (candidate) => CONTRACT_SCOPE.selectableRoutes.has(candidate),
-  );
-  gate(
-    "contracts",
-    `behaviour contracts — ${name} + ${closure.length - 1} dependent(s)`,
-    ...node("tooling/contracts-run.mjs", "--routes", closure.join(",")),
-  );
+  } else
+    skip(
+      "contracts",
+      `behaviour contracts — ${name}`,
+      "planner proved no contract route in scope",
+    );
   return true;
 }
 
@@ -691,11 +809,21 @@ async function runShip() {
   gate("typecheck", "typecheck (workspace)", "pnpm", ["typecheck"]);
   gate("lint", "lint (the full gate chain)", "pnpm", ["lint"]);
 
-  // Same tier barrier as `push`, and it matters more here: the sweep below is ~20 minutes, and none
+  // Same tier barrier as `push`, and it matters more here: the complete sweep is expensive, and none
   // of it can mean anything on a tree that does not compile or does not lint.
   if (results.some((result) => result.status === "fail")) {
+    for (const [id, label] of [
+      ["docs-warmup", "docs build cache warm-up"],
+      ["unit", "browser unit suite + axe"],
+      ["smoke", "selected three-engine smoke"],
+      ["all-browsers", "three-engine suite (complete)"],
+      ["registry", "registry build"],
+      ["consume", "shadcn consume"],
+      ["contracts", "behaviour contracts"],
+    ])
+      skip(id, label, "not reached — typecheck or lint failed first");
     console.log(
-      `\n${YELLOW}gates: stopped before the sweep. The ~20-minute browser and consume lanes cannot ` +
+      `\n${YELLOW}gates: stopped before the sweep. The complete browser and consume lanes cannot ` +
         `produce a usable verdict behind a failing cheap gate.${RESET}`,
     );
     return true;
@@ -709,11 +837,13 @@ async function runShip() {
     "unit",
     "browser unit suite + axe",
     ...node("tooling/vitest-run.mjs", "--lane", "unit", "--run-id", runId),
+    { reportPath: join(GATES_DIR, "vitest-unit.json") },
   );
   gate(
     "smoke",
-    "cross-engine smoke (WebKit + Firefox)",
+    "selected three-engine smoke (Chromium + WebKit + Firefox)",
     ...node("tooling/vitest-run.mjs", "--lane", "smoke", "--run-id", runId),
+    { reportPath: join(GATES_DIR, "vitest-smoke.json") },
   );
   // The barrier above keeps every browser lane out of cold-export pressure.
   gate(
@@ -726,7 +856,10 @@ async function runShip() {
       "--run-id",
       runId,
     ),
-    { env: { ...process.env, HOME: process.env.HOME } },
+    {
+      env: { ...process.env, HOME: process.env.HOME },
+      reportPath: join(GATES_DIR, "vitest-all-browsers.json"),
+    },
   );
   gate("registry", "registry build (must be idempotent)", "pnpm", [
     "registry:build",
@@ -740,7 +873,8 @@ async function runShip() {
   gate(
     "contracts",
     `behaviour contracts (ALL ${COMPONENT_ROUTES.length} routes)`,
-    ...node("tooling/contracts-run.mjs", "--all"),
+    ...node("tooling/contracts-run.mjs", "--all", "--run-id", runId),
+    { reportPath: join(GATES_DIR, "contracts.json") },
   );
   return true;
 }
@@ -754,9 +888,89 @@ async function runShip() {
  */
 const declaredSkip = process.env.GATES_SKIP?.trim() || null;
 
+function readStructuredReport(path) {
+  try {
+    return JSON.parse(readFileSync(path, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Freeze every passing browser/contract report into validated in-memory facts immediately before
+ * receipt synthesis. Child exit codes are insufficient: deletion, partial writes, stale reports,
+ * diagnostic substitutions, skipped leaves, and same-count replacements must all hard-fail here.
+ */
+function freezeReceiptReports(profile, tree) {
+  const frozen = {};
+  const completeUnitFiles = vitestFullTestInventory();
+  const smokeFiles = [...gateVitestContext.smokeModel.selectedTests].sort();
+  const passById = new Map(
+    results
+      .filter(({ status }) => status === "pass")
+      .map((result) => [result.id, result]),
+  );
+  for (const [gate, expectedEngines, expectedFiles] of [
+    ["unit", ["chromium"], completeUnitFiles],
+    ["smoke", BROWSER_ENGINES, smokeFiles],
+    ["all-browsers", BROWSER_ENGINES, completeUnitFiles],
+  ]) {
+    const result = passById.get(gate);
+    if (!result) continue;
+    const path = result.reportPath ?? join(GATES_DIR, `vitest-${gate}.json`);
+    const validated = validateVitestGateReport(readStructuredReport(path), {
+      gate,
+      runId,
+      tree,
+      generation,
+      environmentProfile: environment.profile,
+      runStartedAt: runStartedAt.toISOString(),
+      expectedEngines,
+      expectedFiles,
+    });
+    if (validated.problems.length > 0)
+      throw new Error(
+        `refusing receipt: ${validated.problems.join("; ")}. Rerun the gate; report corruption or replacement never becomes evidence`,
+      );
+    frozen[gate] = validated;
+  }
+  const contractResult = passById.get("contracts");
+  if (contractResult) {
+    const expectedRoutes =
+      profile === PRODUCTION_PROFILE || contractSelection.routes === null
+        ? [...COMPONENT_ROUTES]
+        : [...contractSelection.routes].sort();
+    const path = contractResult.reportPath ?? join(GATES_DIR, "contracts.json");
+    const validated = validateContractGateReport(readStructuredReport(path), {
+      gate: "contracts",
+      runId,
+      tree,
+      generation,
+      environmentProfile: environment.profile,
+      runStartedAt: runStartedAt.toISOString(),
+      expectedRoutes,
+      requireFull:
+        profile === PRODUCTION_PROFILE || contractSelection.routes === null,
+    });
+    if (validated.problems.length > 0)
+      throw new Error(
+        `refusing receipt: ${validated.problems.join("; ")}. Rerun contracts; missing/partial/replaced reports never become evidence`,
+      );
+    frozen.contracts = validated;
+  }
+  return frozen;
+}
+
 function writeReceipt() {
-  const { hash, files } = workingTreeContentHash();
+  if (!gateTree?.unchanged)
+    fatal("exact-tree binding is unavailable; refusing to write a receipt");
+  const { hash, files } = gateTree;
   const profile = mode === "ship" ? PRODUCTION_PROFILE : CHANGE_PROFILE;
+  const frozenReports = frozenGateReports;
+  if (!frozenReports)
+    fatal(
+      "validated gate-report freeze is unavailable; refusing to write a receipt",
+    );
   const gates = {};
   for (const result of results) {
     if (!ALL_GATES.includes(result.id)) continue;
@@ -765,22 +979,13 @@ function writeReceipt() {
       durationMs: result.durationMs,
       ...(result.reason ? { reason: result.reason } : {}),
     };
-    if (result.id === "unit") gates[result.id].engines = ["chromium"];
-    if (result.id === "smoke" || result.id === "all-browsers")
-      gates[result.id].engines = [...BROWSER_ENGINES];
+    if (["unit", "smoke", "all-browsers"].includes(result.id))
+      gates[result.id].engines = frozenReports[result.id]?.engines ?? [];
   }
 
   // The contracts gate's own report carries the facts the guard needs to reject a green-but-empty
   // run. Read it rather than re-deriving, so the receipt and the report cannot disagree.
-  const contractsReport = (() => {
-    try {
-      return JSON.parse(
-        readFileSync(join(GATES_DIR, "contracts.json"), "utf8"),
-      );
-    } catch {
-      return null;
-    }
-  })();
+  const contractsReport = frozenReports.contracts?.report ?? null;
   if (gates.contracts && contractsReport) {
     gates.contracts.executed = contractsReport.executed ?? 0;
     gates.contracts.expected = contractsReport.expected ?? 0;
@@ -873,6 +1078,49 @@ const RUNNERS = {
 let receiptDisposition = null;
 await RUNNERS[mode]();
 
+let gateTree;
+let treeIntegrityError = null;
+try {
+  gateTree = reconcileGateTree(gateStartTree, workingTreeContentHash());
+} catch (error) {
+  treeIntegrityError = error.message;
+  const now = new Date();
+  const treeFailure = {
+    id: "tree-integrity",
+    label: "exact-tree execution binding",
+    status: "fail",
+    durationMs: 0,
+    required: true,
+    reason: error.message,
+  };
+  treeFailure.measurement = retainMeasurement(treeFailure, now, now);
+  results.push(treeFailure);
+}
+
+let frozenGateReports = null;
+let reportIntegrityError = null;
+if (!treeIntegrityError && (mode === "push" || mode === "ship")) {
+  try {
+    frozenGateReports = freezeReceiptReports(
+      mode === "ship" ? PRODUCTION_PROFILE : CHANGE_PROFILE,
+      gateTree.hash,
+    );
+  } catch (error) {
+    reportIntegrityError = error.message;
+    const now = new Date();
+    const reportFailure = {
+      id: "evidence-integrity",
+      label: "structured browser/contract evidence freeze",
+      status: "fail",
+      durationMs: 0,
+      required: true,
+      reason: error.message,
+    };
+    reportFailure.measurement = retainMeasurement(reportFailure, now, now);
+    results.push(reportFailure);
+  }
+}
+
 const failed = results.filter(
   (result) => result.status === "fail" && result.required !== false,
 );
@@ -916,6 +1164,16 @@ const summary = {
   generation,
   runId,
   mode,
+  profile:
+    mode === "ship"
+      ? PRODUCTION_PROFILE
+      : mode === "push"
+        ? CHANGE_PROFILE
+        : null,
+  tree: gateTree?.hash ?? workingTreeContentHash().hash,
+  treeBinding: treeIntegrityError
+    ? { state: "unknown", error: treeIntegrityError }
+    : { state: "executed/pass", started: gateStartTree.hash, unchanged: true },
   startedAt: runStartedAt.toISOString(),
   completedAt: completedAt.toISOString(),
   totalDurationMs,
@@ -939,7 +1197,7 @@ if (failed.length === 0) {
   rmSync(LAST_FAILURE, { force: true });
   const receipt =
     mode === "push" || mode === "ship"
-      ? options.receipt
+      ? options.receipt && !treeIntegrityError && !reportIntegrityError
         ? writeReceipt()
         : null
       : null;
@@ -996,12 +1254,18 @@ if (failed.length === 0) {
   process.exit(0);
 }
 
-const { hash: failedTree } = workingTreeContentHash();
+const failedTree = gateTree?.hash ?? workingTreeContentHash().hash;
 const retryTargets = failed.flatMap((failure) => {
   if (["unit", "smoke", "all-browsers"].includes(failure.id)) {
     try {
+      const reportPath = results.find(
+        ({ id }) => id === failure.id,
+      )?.reportPath;
       const report = JSON.parse(
-        readFileSync(join(GATES_DIR, `vitest-${failure.id}.json`), "utf8"),
+        readFileSync(
+          reportPath ?? join(GATES_DIR, `vitest-${failure.id}.json`),
+          "utf8",
+        ),
       );
       if (report.runId !== runId || report.diagnosticOnly === true) return [];
       return (report.failures ?? []).map(
@@ -1019,8 +1283,11 @@ const retryTargets = failed.flatMap((failure) => {
   }
   if (failure.id === "contracts") {
     try {
+      const reportPath = results.find(
+        ({ id }) => id === "contracts",
+      )?.reportPath;
       const report = JSON.parse(
-        readFileSync(join(GATES_DIR, "contracts.json"), "utf8"),
+        readFileSync(reportPath ?? join(GATES_DIR, "contracts.json"), "utf8"),
       );
       if (
         report.diagnosticOnly === true ||
@@ -1064,7 +1331,12 @@ atomicWriteJson(LAST_FAILURE, {
 // manifest for diagnosis, but annotate its failed lanes so neither reuse nor CI can treat it as a
 // pass. This happens even without GATES_SKIP; a later retry must not erase the original failure.
 const failedPushReceipt =
-  mode === "push" && options.receipt ? writeReceipt() : null;
+  mode === "push" &&
+  options.receipt &&
+  !treeIntegrityError &&
+  !reportIntegrityError
+    ? writeReceipt()
+    : null;
 console.error(
   `${RED}gates: ${failed.length} gate(s) failed — ${failed.map((r) => r.id).join(", ")}${RESET}\n` +
     `${DIM}gates: details in .gates/last-failure.json. Load the \`gates\` skill to classify each ` +
@@ -1079,7 +1351,9 @@ if (declaredSkip && (mode === "push" || mode === "ship")) {
     mode === "push"
       ? failedPushReceipt
       : options.receipt
-        ? writeReceipt()
+        ? treeIntegrityError || reportIntegrityError
+          ? null
+          : writeReceipt()
         : null;
   console.error(
     `${YELLOW}gates: GATES_SKIP is set — "${declaredSkip}"${RESET}\n` +

@@ -5,6 +5,8 @@ const NO_CONSUMER_EFFECT = [
   /^\.github\//,
   /^\.husky\//,
   /^skills\/internal\//,
+  /^skills\/public\//,
+  /^packages\/design\/skills\//,
   /^(?:AGENTS|README|CHANGELOG)\.md$/,
   /^apps\/docs\/content\//,
   /^apps\/docs\/(?:app|vrt)\//,
@@ -14,11 +16,11 @@ const NO_CONSUMER_EFFECT = [
 
 const FULL_SURFACE = [
   /^(?:package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|turbo\.json)$/,
-  /^packages\/(?:design|design-tokens)\//,
+  /^packages\/design-tokens\//,
+  /^packages\/design\/(?!skills\/)/,
   /^packages\/ui\/(?:package\.json|registry\.json|component-contracts\.json)$/,
   /^apps\/docs\/package\.json$/,
   /^apps\/docs\/public\/r\/(?:registry|integrity-manifest|signed-integrity-manifest)\.(?:json|sig)$/,
-  /^skills\/public\//,
   /^tooling\/(?:verify-shadcn-consume|verify-consume-(?:plan|isolation))\.mjs$/,
   /^tooling\/lib\/consume-(?:plan|isolation)\.mjs$/,
   /^packages\/design\/bin\/verify-registry-item\.mjs$/,

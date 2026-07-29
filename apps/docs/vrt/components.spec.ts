@@ -10,8 +10,8 @@ import { VRT_PAGE_ROUTES } from "./page-routes";
 // `VRT_SNAPSHOT_DIR` is the single knob. The review tool sets it to the shared scratch directory the
 // two captures compare through; playwright.config.ts turns it into `snapshotPathTemplate`, and this
 // suite enables itself on the same signal. Without it there is nothing to compare against, so a run
-// could only write-then-pass — which is why the suite skips instead. `contracts.spec.ts` lives in
-// the same testDir, is never gated, and is what CI actually runs.
+// could only write-then-pass — which is why the suite skips instead. No CI runner executes either
+// this browser review or the behavior-contract browser suite; local gate receipts attest them.
 const describeVRT = process.env.VRT_SNAPSHOT_DIR
   ? test.describe
   : test.describe.skip;
@@ -141,28 +141,26 @@ describeVRT("VRT — component fixtures", () => {
 });
 
 describeVRT("VRT — all animated-icon chunks", () => {
-  test("renders every generated icon in deterministic chunks", async ({
-    page,
-  }, testInfo) => {
-    const darkLane = testInfo.project.name.endsWith("-dark");
-    await page.emulateMedia({
-      colorScheme: darkLane ? "dark" : "light",
-      reducedMotion: "reduce",
-    });
-    await page.goto("/docs/foundations/icons");
-    await page.waitForLoadState("networkidle");
-    await page.evaluate(() => document.fonts.ready);
-    await expect
-      .poll(() =>
-        page
-          .locator("html")
-          .evaluate((element) => element.classList.contains("dark")),
-      )
-      .toBe(darkLane);
+  for (let index = 0; index < ANIMATED_ICON_CHUNK_COUNT; index++) {
+    test(`VRT icon chunk ${index + 1}`, async ({ page }, testInfo) => {
+      const darkLane = testInfo.project.name.endsWith("-dark");
+      await page.emulateMedia({
+        colorScheme: darkLane ? "dark" : "light",
+        reducedMotion: "reduce",
+      });
+      await page.goto("/docs/foundations/icons");
+      await page.waitForLoadState("networkidle");
+      await page.evaluate(() => document.fonts.ready);
+      await expect
+        .poll(() =>
+          page
+            .locator("html")
+            .evaluate((element) => element.classList.contains("dark")),
+        )
+        .toBe(darkLane);
 
-    const chunks = page.locator("[data-vrt-icon-chunk]");
-    await expect(chunks).toHaveCount(ANIMATED_ICON_CHUNK_COUNT);
-    for (let index = 0; index < ANIMATED_ICON_CHUNK_COUNT; index++) {
+      const chunks = page.locator("[data-vrt-icon-chunk]");
+      await expect(chunks).toHaveCount(ANIMATED_ICON_CHUNK_COUNT);
       const chunk = chunks.nth(index);
       await expect(chunk).toHaveScreenshot(
         `_docs_foundations_icons-icon-chunk-${index + 1}.png`,
@@ -174,6 +172,6 @@ describeVRT("VRT — all animated-icon chunks", () => {
           threshold: 0,
         },
       );
-    }
-  });
+    });
+  }
 });

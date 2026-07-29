@@ -36,8 +36,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
-  COMPONENT_ROUTES,
-  CONTRACT_SCOPE,
+  createRouteScopeModel,
   escapeRegExp,
   selectRoutes,
 } from "./lib/route-scope.mjs";
@@ -46,7 +45,21 @@ import {
   CONTRACT_PROJECTS,
   FULL_CONTRACT_TESTS,
 } from "./lib/gate-profile.mjs";
-import { atomicWriteJson } from "./lib/measurement-report.mjs";
+import {
+  atomicWriteJson,
+  gateGeneration,
+  localEnvironment,
+} from "./lib/measurement-report.mjs";
+import {
+  workingTreeChangeInventory,
+  workingTreeContentHash,
+} from "./lib/change-set.mjs";
+import {
+  contractLeavesFromPlaywright,
+  expectedContractLeaves,
+  reconcileContractLeaves,
+} from "./lib/contract-selection.mjs";
+import { validateDiagnosticReportPath } from "./lib/report-path.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const DOCS = join(ROOT, "apps/docs");
@@ -64,12 +77,15 @@ const FULL_TEST_COUNT = FULL_CONTRACT_TESTS;
 const USAGE = `Usage: node tooling/contracts-run.mjs [options]
 
   --scope          check only the routes the diff can have moved (default)
-  --all            check every component route (${COMPONENT_ROUTES.length} routes, ${FULL_TEST_COUNT} tests)
+  --all            check every machine-authority component route (${FULL_TEST_COUNT} tests currently)
   --routes a,b     check exactly these routes
   --project <name> check exactly one Playwright project (diagnostic use)
   --title <title>  check exactly one complete contract title (diagnostic use)
+  --diagnostic     mark an exact selected route run diagnostic-only; never receipt evidence
+  --observation    run --all diagnostically; never receipt evidence or an exact retry
   --base <ref>     diff against this ref (default: origin/main, falling back to main)
-  --report <path>  where to write the JSON report (default: .gates/contracts.json)
+  --report <path>  JSON report (diagnostics default to .gates/contracts-diagnostic.json)
+  --run-id <id>    bind the structured report to an originating gate/sample run
   --dry-run        print the computed scope and exit without building or testing
   --port <n>       serve on this port instead of an OS-assigned free one
 
@@ -88,10 +104,14 @@ function parseOptions(argv) {
     routes: null,
     base: null,
     report: DEFAULT_REPORT,
+    reportExplicit: false,
     dryRun: false,
     port: null,
     project: null,
     title: null,
+    diagnostic: false,
+    observation: false,
+    runId: null,
   };
   for (let index = 0; index < argv.length; index++) {
     const flag = argv[index];
@@ -108,9 +128,14 @@ function parseOptions(argv) {
         .map((route) => route.trim())
         .filter(Boolean);
     else if (flag === "--base") options.base = value();
-    else if (flag === "--report") options.report = resolve(ROOT, value());
-    else if (flag === "--project") options.project = value();
+    else if (flag === "--report") {
+      options.report = resolve(ROOT, value());
+      options.reportExplicit = true;
+    } else if (flag === "--project") options.project = value();
     else if (flag === "--title") options.title = value();
+    else if (flag === "--diagnostic") options.diagnostic = true;
+    else if (flag === "--observation") options.observation = true;
+    else if (flag === "--run-id") options.runId = value();
     else if (flag === "--dry-run") options.dryRun = true;
     else if (flag === "--port") options.port = Number(value());
     else if (flag === "--help" || flag === "-h") {
@@ -123,6 +148,58 @@ function parseOptions(argv) {
     (!Number.isInteger(options.port) || options.port < 1024)
   )
     fatal("--port must be an integer >= 1024");
+  if (options.diagnostic && (!options.routes || options.routes.length === 0))
+    fatal("--diagnostic requires a nonempty exact --routes selector");
+  if (
+    options.observation &&
+    (!options.all ||
+      options.diagnostic ||
+      options.routes ||
+      options.project ||
+      options.title)
+  )
+    fatal(
+      "--observation requires --all and forbids exact diagnostic selectors",
+    );
+  if (options.observation && !options.runId)
+    fatal("--observation requires a nonempty --run-id");
+  if (options.diagnostic && !options.reportExplicit)
+    options.report = join(
+      GATES_DIR,
+      "diagnostics",
+      "contracts-diagnostic.json",
+    );
+  else if (options.observation && !options.reportExplicit)
+    options.report = join(
+      GATES_DIR,
+      "diagnostics",
+      "contracts-observation.json",
+    );
+  else if (options.routes && !options.reportExplicit)
+    options.report = join(
+      GATES_DIR,
+      "diagnostics",
+      "contracts-exact-gate.json",
+    );
+  else if (options.dryRun && !options.reportExplicit)
+    options.report = join(GATES_DIR, "diagnostics", "contracts-dry-run.json");
+  if (
+    options.dryRun ||
+    options.diagnostic ||
+    options.observation ||
+    options.routes ||
+    (options.reportExplicit &&
+      resolve(options.report) !== resolve(DEFAULT_REPORT))
+  ) {
+    try {
+      validateDiagnosticReportPath(
+        options.report,
+        "contract diagnostic report",
+      );
+    } catch (error) {
+      fatal(error.message);
+    }
+  }
   return options;
 }
 
@@ -158,6 +235,12 @@ const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
 // ── scope ────────────────────────────────────────────────────────────────────────────────────────
 
 const options = parseOptions(process.argv.slice(2));
+const startTree = workingTreeContentHash().hash;
+const routeModel = createRouteScopeModel();
+routeModel.assertCurrent();
+const COMPONENT_ROUTES = routeModel.componentRoutes;
+const generation = gateGeneration();
+const environmentProfile = localEnvironment().profile;
 
 const baseRef =
   options.base ??
@@ -170,14 +253,22 @@ const mergeBase = git(["merge-base", baseRef, "HEAD"]);
 
 // Diff the merge-base against the WORKING TREE, not against HEAD. The question is "what do my
 // current edits do to the contract surface", and at pre-push time some of them may be unstaged.
-const changedFiles = [
-  ...git(["diff", "--name-only", mergeBase]).split("\n"),
-  ...git(["ls-files", "--others", "--exclude-standard"]).split("\n"),
-].filter(Boolean);
+const changeInventory = workingTreeChangeInventory(mergeBase);
+const changedFiles = changeInventory.changedFiles;
 
 const selection = (() => {
   try {
-    return selectRoutes(changedFiles, options, CONTRACT_SCOPE);
+    if (
+      !options.routes &&
+      !options.all &&
+      (changeInventory.metadataChanged.size > 0 ||
+        changeInventory.binaryChanged.size > 0)
+    )
+      return {
+        routes: null,
+        reason: "file metadata/binary change widens every contract route",
+      };
+    return selectRoutes(changedFiles, options, routeModel.contractScope);
   } catch (error) {
     return fatal(error.message);
   }
@@ -189,6 +280,11 @@ const selectedRoutes =
     ? [...COMPONENT_ROUTES]
     : [...selection.routes].sort();
 const isFullSweep = selection.routes === null;
+routeModel.assertCurrent();
+if (workingTreeContentHash().hash !== startTree)
+  fatal(
+    "working-tree content changed during contract authority/selector planning",
+  );
 if (options.project && !CONTRACT_PROJECTS.includes(options.project))
   fatal(`unknown --project ${options.project}`);
 if (options.title) {
@@ -217,12 +313,34 @@ console.log(
 
 /** Write the report, then leave with `code`. Every exit after scoping goes through here. */
 function finish(code, payload) {
+  const diagnosticOnly = Boolean(
+    options.diagnostic ||
+    options.observation ||
+    options.project ||
+    options.title ||
+    options.dryRun,
+  );
   mkdirSync(GATES_DIR, { recursive: true });
+  const completedTree = workingTreeContentHash().hash;
+  const treeChanged = completedTree !== startTree;
   atomicWriteJson(options.report, {
+    schema: 1,
     gate: "contracts",
+    runId: options.runId,
     lane: "contract",
-    diagnosticOnly: Boolean(options.project || options.title),
+    diagnosticOnly,
+    selectedShadow: options.diagnostic,
+    evidenceWritten: !diagnosticOnly && payload.state === "executed/pass",
+    receiptWritten: false,
+    evidenceEligibility: diagnosticOnly ? "diagnostic-only" : "gate-candidate",
     completedAt: new Date().toISOString(),
+    generation,
+    environmentProfile,
+    treeBinding: {
+      started: startTree,
+      completed: completedTree,
+      unchanged: !treeChanged,
+    },
     base: { ref: baseRef, sha: mergeBase },
     scope: {
       mode,
@@ -234,18 +352,28 @@ function finish(code, payload) {
       changedFiles: changedFiles.length,
     },
     ...payload,
+    ...(treeChanged
+      ? {
+          state: "unknown",
+          status: "fail",
+          evidenceWritten: false,
+          error: "working-tree content changed during contract execution",
+        }
+      : {}),
   });
-  process.exit(code);
+  process.exit(treeChanged ? 2 : code);
 }
 
 // An empty scope means no contract-relevant file changed. That is SKIPPED, not green — the
-// distinction is what `receipt-guard` cross-checks against release.yml's `visual` classifier.
+// distinction is what receipt verification cross-checks against the release classifier.
 if (!isFullSweep && selectedRoutes.length === 0) {
   console.log(
     "contracts-run: no contract surface changed — nothing executed.\n" +
       "               Report this as SKIPPED. It is not evidence that the contracts pass.",
   );
   finish(0, {
+    state: "safely-skipped",
+    skipReason: selection.reason,
     status: "skipped",
     expected: 0,
     executed: 0,
@@ -266,11 +394,21 @@ const expected =
   (isFullSweep ? COMPONENT_ROUTES.length : selectedRoutes.length) *
   selectedTitleCount *
   selectedProjectCount;
+const expectedLeaves = expectedContractLeaves({
+  routes: selectedRoutes,
+  project: options.project,
+  title: options.title,
+});
+if (expectedLeaves.length !== expected)
+  fatal(
+    "independently reconstructed contract leaf universe disagrees with count",
+  );
 
 if (options.dryRun) {
   console.log(`contracts-run: grep ${grep ?? "(none — full suite)"}`);
   console.log(`contracts-run: expected ${expected} test(s)`);
   finish(0, {
+    state: "not-reached",
     status: "dry-run",
     expected,
     executed: 0,
@@ -445,34 +583,33 @@ if (listed.status !== 0) {
   reapServer();
   fatal(`\`playwright test --list\` failed:\n${listed.stderr?.trim()}`);
 }
-const listedCount = (() => {
+const listedReport = (() => {
   try {
-    const parsed = JSON.parse(listed.stdout);
-    return (parsed.suites ?? []).reduce(function count(total, suite) {
-      return (
-        total +
-        (suite.specs ?? []).reduce(
-          (n, spec) => n + (spec.tests?.length ?? 0),
-          0,
-        ) +
-        (suite.suites ?? []).reduce(count, 0)
-      );
-    }, 0);
+    return JSON.parse(listed.stdout);
   } catch (error) {
     reapServer();
     return fatal(`could not parse \`--list\` output: ${error.message}`);
   }
 })();
-if (listedCount !== expected) {
+const listedLeaves = contractLeavesFromPlaywright(listedReport);
+let listedExecution;
+try {
+  listedExecution = reconcileContractLeaves(
+    expectedLeaves,
+    listedLeaves,
+    "playwright --list",
+  );
+} catch (error) {
   reapServer();
   fatal(
-    `grep selected ${listedCount} test(s) but ${expected} were expected for ` +
-      `${selectedRoutes.length} route(s) × ${selectedTitleCount} assertion(s) × ${selectedProjectCount} project(s).\n` +
-      `             Either the grep anchoring is wrong or contracts.spec.ts changed shape. ` +
-      `Both are defects, not conditions to adjust to.`,
+    `${error.message}. Expected ${selectedRoutes.length} route(s) × ` +
+      `${selectedTitleCount} assertion(s) × ${selectedProjectCount} project(s). ` +
+      "A same-count replacement is a defect, not a condition to adjust to.",
   );
 }
-console.log(`contracts-run: grep verified — ${listedCount} test(s) selected`);
+console.log(
+  `contracts-run: grep verified — ${listedExecution.executed} exact test leaf/leaves selected`,
+);
 
 const testArgs = [
   "exec",
@@ -480,6 +617,7 @@ const testArgs = [
   "test",
   "contracts.spec.ts",
   "--reporter=list,json",
+  "--retries=0",
 ];
 if (grep) testArgs.push("--grep", grep);
 if (options.project) testArgs.push("--project", options.project);
@@ -498,6 +636,29 @@ if (!existsSync(jsonReport))
   );
 
 const report = JSON.parse(readFileSync(jsonReport, "utf8"));
+const executedLeaves = contractLeavesFromPlaywright(report);
+let executedExecution;
+try {
+  executedExecution = reconcileContractLeaves(
+    expectedLeaves,
+    executedLeaves,
+    "playwright run",
+    { requirePassed: false },
+  );
+} catch (error) {
+  console.error(`contracts-run: ${error.message}`);
+  finish(2, {
+    state: "unknown",
+    status: "no-evidence",
+    expected,
+    executed: executedLeaves.length,
+    leafEvidence: { expected: expectedLeaves, listed: listedExecution },
+    results: { passed: 0, failed: 0, flaky: 0, skipped: 0 },
+    failures: [],
+    durationMs,
+    playwright: playwrightVersion(),
+  });
+}
 const stats = report.stats ?? {};
 const executed =
   (stats.expected ?? 0) + (stats.unexpected ?? 0) + (stats.flaky ?? 0);
@@ -537,13 +698,19 @@ console.log(
     `${results.flaky} flaky · ${(durationMs / 1000).toFixed(1)}s`,
 );
 
-// A suite that executed nothing is not passing evidence. `release.yml` has always guarded this in
-// CI; the local lane needs the same guard, because here it is the ONLY guard.
-if (executed === 0) {
+// A suite that executed nothing is not passing evidence. This local wrapper is the browser-lane
+// authority; CI verifies its receipt and does not execute Playwright itself.
+if (
+  executed === 0 ||
+  executed !== expected ||
+  results.skipped > 0 ||
+  results.flaky > 0
+) {
   console.error(
-    "contracts-run: 0 tests executed for a non-empty scope — not valid passing evidence.",
+    `contracts-run: required execution mismatch (${executed}/${expected}, skipped=${results.skipped}) — not valid passing evidence.`,
   );
   finish(2, {
+    state: "unknown",
     status: "no-evidence",
     expected,
     executed,
@@ -551,6 +718,11 @@ if (executed === 0) {
     failures,
     durationMs,
     playwright: playwrightVersion(),
+    leafEvidence: {
+      expected: expectedLeaves,
+      listed: listedExecution,
+      executed: executedExecution,
+    },
   });
 }
 
@@ -560,6 +732,7 @@ if (run.status !== 0 || results.failed > 0) {
       "               then load the `gates` skill to classify each one at its root.",
   );
   finish(1, {
+    state: "executed/fail",
     status: "fail",
     expected,
     executed,
@@ -567,10 +740,16 @@ if (run.status !== 0 || results.failed > 0) {
     failures,
     durationMs,
     playwright: playwrightVersion(),
+    leafEvidence: {
+      expected: expectedLeaves,
+      listed: listedExecution,
+      executed: executedExecution,
+    },
   });
 }
 
 finish(0, {
+  state: "executed/pass",
   status: "pass",
   expected,
   executed,
@@ -578,4 +757,9 @@ finish(0, {
   failures,
   durationMs,
   playwright: playwrightVersion(),
+  leafEvidence: {
+    expected: expectedLeaves,
+    listed: listedExecution,
+    executed: executedExecution,
+  },
 });

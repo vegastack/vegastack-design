@@ -20,14 +20,13 @@ import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 
 import {
-  changedFilesInRange,
-  changedFilesInWorkingTree,
+  commitRangeChangeInventory,
   defaultBaseRef,
-  dropProvenanceOnly,
   mergeBase,
   resolveCommit,
   ROOT,
   versionBumpOnly,
+  workingTreeChangeInventory,
   workingTreeContentHash,
 } from "./lib/change-set.mjs";
 import {
@@ -152,14 +151,13 @@ const contractRoutes = (() => {
   if (options.after && !after)
     fatal(`--after ref does not resolve to a commit: ${options.after}`);
   const rangeStart = after ? before : (mergeBase(before, "HEAD") ?? before);
-  const allChanged = after
-    ? changedFilesInRange(rangeStart, after)
-    : changedFilesInWorkingTree(rangeStart);
-  const changed = dropProvenanceOnly(allChanged, {
-    before: rangeStart,
-    after,
-  });
-  const selection = selectRoutes(changed, {}, CONTRACT_SCOPE);
+  const inventory = after
+    ? commitRangeChangeInventory(rangeStart, after)
+    : workingTreeChangeInventory(rangeStart);
+  const selection =
+    inventory.metadataChanged.size > 0 || inventory.binaryChanged.size > 0
+      ? { routes: null }
+      : selectRoutes(inventory.changedFiles, {}, CONTRACT_SCOPE);
   return selection.routes === null
     ? [...COMPONENT_ROUTES]
     : [...selection.routes].sort();

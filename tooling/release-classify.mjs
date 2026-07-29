@@ -164,7 +164,7 @@ console.log("\nwhat the gate receipt must therefore contain");
 for (const [key, lane] of [
   ["contracts", `behaviour contracts (${outputs.contracts_scope ?? "?"})`],
   ["unit", "browser unit suite + axe"],
-  ["smoke", "cross-engine smoke (WebKit + Firefox)"],
+  ["smoke", "cross-engine smoke (Chromium + WebKit + Firefox)"],
 ])
   console.log(
     `  ${key.padEnd(16)} ${outputs[key] === "true" ? `REQUIRED — ${lane}` : `not required for this change`}`,

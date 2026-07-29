@@ -19,7 +19,13 @@
 // here, in one place, with tooling/verify-classify-change.mjs proving both directions.
 
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import {
+  existsSync,
+  lstatSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -80,9 +86,9 @@ const splitLines = (output) => (output ?? "").split("\n").filter(Boolean);
 
 /** Files changed between two commits. */
 export function changedFilesInRange(before, after) {
-  return splitLines(git(["diff", "--name-only", before, after])).filter(
-    (path) => !HASH_EXCLUDED.test(path),
-  );
+  return splitLines(
+    git(["diff", "--name-only", "--no-renames", before, after]),
+  ).filter((path) => !HASH_EXCLUDED.test(path));
 }
 
 /** Untracked-but-not-ignored paths. `git diff` cannot see these, which matters below. */
@@ -100,7 +106,7 @@ export function untrackedFiles() {
 export function changedFilesInWorkingTree(base) {
   return [
     ...new Set([
-      ...splitLines(git(["diff", "--name-only", base])).filter(
+      ...splitLines(git(["diff", "--name-only", "--no-renames", base])).filter(
         (path) => !HASH_EXCLUDED.test(path),
       ),
       ...untrackedFiles(),
@@ -109,12 +115,160 @@ export function changedFilesInWorkingTree(base) {
 }
 
 /**
+ * Provenance subtraction is content-only. Reconcile its output with git metadata so an empty-file
+ * add/delete, mode-only change, type change, rename half, or untracked path cannot disappear before
+ * the scheduler sees it.
+ */
+export function retainInventoryPaths({
+  allChanged,
+  substantive,
+  rawByPath,
+  untracked,
+}) {
+  const keep = new Set(substantive);
+  for (const path of allChanged) {
+    const raw = rawByPath.get(path);
+    if (
+      untracked.has(path) ||
+      raw?.status === "A" ||
+      raw?.status === "D" ||
+      raw?.status === "T" ||
+      (raw && raw.oldMode !== raw.newMode)
+    )
+      keep.add(path);
+  }
+  return [...new Set(allChanged)].filter((path) => keep.has(path));
+}
+
+/**
+ * Canonical fail-closed working-tree inventory for schedulers. The content hash remains the trust
+ * anchor; this inventory only explains why a lane is selected or widened.
+ */
+function changeInventory(before, after) {
+  const allChanged =
+    after === null
+      ? changedFilesInWorkingTree(before)
+      : changedFilesInRange(before, after);
+  const untracked = after === null ? new Set(untrackedFiles()) : new Set();
+  const rawByPath = new Map();
+  const rawArgs = ["diff", "--raw", "--no-renames", before];
+  if (after !== null) rawArgs.push(after);
+  rawArgs.push("--");
+  for (const line of git(rawArgs).split("\n")) {
+    const match = /^:(\d{6}) (\d{6}) [a-f0-9]+ [a-f0-9]+ ([A-Z])\t(.+)$/.exec(
+      line,
+    );
+    if (!match) continue;
+    rawByPath.set(match[4], {
+      oldMode: match[1],
+      newMode: match[2],
+      status: match[3],
+    });
+  }
+  const binaryChanged = new Set();
+  const numstatArgs = ["diff", "--numstat", "--no-renames", before];
+  if (after !== null) numstatArgs.push(after);
+  numstatArgs.push("--");
+  for (const line of git(numstatArgs).split("\n")) {
+    const match = /^-\t-\t(.+)$/.exec(line);
+    if (match) binaryChanged.add(match[1]);
+  }
+  for (const path of untracked) {
+    const absolute = join(ROOT, path);
+    if (!existsSync(absolute) || !lstatSync(absolute).isFile()) continue;
+    if (readFileSync(absolute).includes(0)) binaryChanged.add(path);
+  }
+  const changedFiles = retainInventoryPaths({
+    allChanged,
+    substantive: dropProvenanceOnly(allChanged, { before, after }),
+    rawByPath,
+    untracked,
+  });
+  const metadataChanged = new Set();
+  const entries = changedFiles.map((path) => {
+    const raw = rawByPath.get(path);
+    const absolute = join(ROOT, path);
+    const exists =
+      after === null
+        ? existsSync(absolute)
+        : raw?.newMode !== undefined && raw.newMode !== "000000";
+    const stat = after === null && exists ? lstatSync(absolute) : null;
+    const type = !exists
+      ? "missing"
+      : after !== null
+        ? raw?.newMode === "120000"
+          ? "symlink"
+          : raw?.newMode === "160000"
+            ? "gitlink"
+            : "file"
+        : stat.isSymbolicLink()
+          ? "symlink"
+          : stat.isFile()
+            ? "file"
+            : stat.isDirectory()
+              ? "directory"
+              : "other";
+    const metadata =
+      !raw ||
+      untracked.has(path) ||
+      !exists ||
+      type !== "file" ||
+      raw.status === "A" ||
+      raw.status === "D" ||
+      raw.status === "T" ||
+      raw.oldMode !== raw.newMode;
+    if (metadata) metadataChanged.add(path);
+    return {
+      path,
+      changeKind: untracked.has(path)
+        ? "untracked"
+        : raw?.status === "A"
+          ? "added"
+          : raw?.status === "D"
+            ? "deleted"
+            : raw?.status === "T"
+              ? "type-changed"
+              : raw?.status === "M"
+                ? metadata
+                  ? "content-and-metadata"
+                  : "modified"
+                : "modified-unknown",
+      oldMode: raw?.oldMode ?? null,
+      newMode: raw?.newMode ?? null,
+      type,
+      metadataChanged: metadata,
+      binaryChanged: binaryChanged.has(path),
+    };
+  });
+  return {
+    base: before,
+    after,
+    allChanged,
+    changedFiles,
+    entries,
+    metadataChanged,
+    binaryChanged,
+  };
+}
+
+/** Canonical fail-closed inventory from a commit to the current working tree. */
+export function workingTreeChangeInventory(base) {
+  return changeInventory(base, null);
+}
+
+/** Canonical fail-closed inventory for a commit range, including mode/type/rename halves. */
+export function commitRangeChangeInventory(before, after) {
+  return changeInventory(before, after);
+}
+
+/**
  * Drop files whose entire diff is provenance re-stamping.
  *
  * `--no-renames` matters: with rename detection a moved component emits `rename from/to` and NO +/-
  * body lines, so a body-only filter would see nothing and wave it through. Forcing delete+add makes
  * a rename look like what it is. Binary files never emit body lines either, so they are matched
- * explicitly. Mode-only changes are deliberately NOT substantive — chmod cannot move a pixel.
+ * explicitly. This function classifies content only; the canonical scheduler inventory separately
+ * retains mode/type/add/delete/untracked metadata before planning.
  *
  * `after === null` diffs against the working tree.
  */

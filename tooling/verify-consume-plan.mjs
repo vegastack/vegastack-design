@@ -52,7 +52,6 @@ for (const path of [
   "pnpm-lock.yaml",
   "packages/design/src/index.ts",
   "packages/design-tokens/src/tokens.ts",
-  "skills/public/vegastack-consume/SKILL.md",
 ]) {
   const result = plan([path]);
   assert.equal(result.mode, "full", `${path} must select exhaustive consume`);
@@ -64,6 +63,8 @@ for (const path of [
   "docs/plans/a-plan.md",
   ".github/workflows/ci.yml",
   "skills/internal/review/SKILL.md",
+  "skills/public/vegastack-consume/SKILL.md",
+  "packages/design/skills/vegastack-consume/SKILL.md",
   ".husky/pre-push",
 ]) {
   const result = plan([path]);

@@ -1,5 +1,6 @@
-import { existsSync, lstatSync } from "node:fs";
-import { relative, resolve, sep } from "node:path";
+import { createHash } from "node:crypto";
+import { existsSync, lstatSync, readFileSync, readdirSync } from "node:fs";
+import { join, relative, resolve, sep } from "node:path";
 
 import { ROOT } from "./change-set.mjs";
 import {
@@ -18,6 +19,32 @@ const CONTRACT_TITLES = new Set(
 
 function reject(message) {
   throw new Error(`gate retry: ${message}`);
+}
+
+export function fingerprintRetryEvidence(path) {
+  if (!existsSync(path)) return "missing";
+  const rootStat = lstatSync(path);
+  if (!rootStat.isDirectory() || rootStat.isSymbolicLink())
+    reject("evidence root must be a regular directory, never a symlink");
+  const digest = createHash("sha256");
+  const walk = (directory) => {
+    for (const name of readdirSync(directory).sort()) {
+      const entry = join(directory, name);
+      const stat = lstatSync(entry);
+      const key = relative(path, entry);
+      const type = stat.isDirectory()
+        ? "directory"
+        : stat.isFile() && !stat.isSymbolicLink()
+          ? "file"
+          : "unsupported";
+      digest.update(`${key}\0${type}\0${stat.mode.toString(8)}\0`);
+      if (type === "directory") walk(entry);
+      else if (type === "file") digest.update(readFileSync(entry));
+      else reject(`evidence contains an unsupported or symlink entry: ${key}`);
+    }
+  };
+  walk(path);
+  return digest.digest("hex");
 }
 
 function exactString(value, label) {
@@ -132,6 +159,122 @@ export function retryCommand(target) {
       target.project,
       "--title",
       target.title,
+      "--diagnostic",
     ],
   };
+}
+
+export function retryInvocation(target, { report, retryId }) {
+  exactString(report, "retry report path");
+  exactString(retryId, "retry run ID");
+  const invocation = retryCommand(target);
+  return {
+    ...invocation,
+    args: [...invocation.args, "--report", report, "--run-id", retryId],
+  };
+}
+
+export function validateRetryDiagnosticReport(
+  report,
+  target,
+  { retryId, tree, generation, environmentProfile },
+) {
+  const problems = [];
+  const fail = (message) => problems.push(message);
+  if (!report || typeof report !== "object")
+    return {
+      valid: false,
+      outcome: "unknown",
+      problems: ["report missing/corrupt"],
+    };
+  const gate = target.kind === "contract" ? "contracts" : target.lane;
+  if (report.gate !== gate) fail(`wrong gate ${report.gate ?? "missing"}`);
+  if (report.runId !== retryId) fail("stale retry runId");
+  if (report.generation !== generation) fail("stale retry generation");
+  if (report.environmentProfile !== environmentProfile)
+    fail("stale retry environment profile");
+  if (
+    report.treeBinding?.started !== tree ||
+    report.treeBinding?.completed !== tree ||
+    report.treeBinding?.unchanged !== true
+  )
+    fail("retry report is not bound to the unchanged tree");
+  if (
+    report.diagnosticOnly !== true ||
+    report.evidenceWritten !== false ||
+    report.receiptWritten !== false ||
+    report.evidenceEligibility !== "diagnostic-only"
+  )
+    fail("retry report crossed its diagnostic evidence boundary");
+  if (!new Set(["executed/pass", "executed/fail"]).has(report.state))
+    fail(`retry terminal state is invalid: ${report.state}`);
+  if (!Number.isInteger(report.executed) || report.executed !== 1)
+    fail(`retry must execute exactly one leaf, got ${report.executed}`);
+  if ((report.results?.skipped ?? 0) !== 0)
+    fail("retry report contains a skipped leaf");
+  const expectedPassed = report.state === "executed/pass" ? 1 : 0;
+  const expectedFailed = report.state === "executed/fail" ? 1 : 0;
+  if (
+    report.results?.passed !== expectedPassed ||
+    report.results?.failed !== expectedFailed
+  )
+    fail("retry pass/fail counts disagree with the terminal state");
+
+  if (target.kind === "vitest") {
+    if (report.selectedShadow !== false)
+      fail("exact retry is not affected shadow execution");
+    const leaves = report.executedLeaves ?? [];
+    if (
+      leaves.length !== 1 ||
+      leaves[0]?.file !== target.file ||
+      leaves[0]?.engine !== target.engine ||
+      leaves[0]?.testName !== target.testName ||
+      !new Set(["passed", "failed"]).has(leaves[0]?.status)
+    )
+      fail(
+        "Vitest retry report does not contain the exact file/engine/test leaf",
+      );
+    else if (
+      (leaves[0].status === "passed") !==
+      (report.state === "executed/pass")
+    )
+      fail("Vitest retry leaf outcome disagrees with the terminal state");
+    if (
+      report.selection?.status !== "pass" ||
+      report.selection?.plannedFiles?.length !== 1 ||
+      report.selection.plannedFiles[0] !== target.file ||
+      report.selection?.listedLeaves !== 1 ||
+      report.selection?.executedLeaves !== 1
+    )
+      fail("Vitest retry selection reconciliation is missing or stale");
+  } else {
+    if (report.selectedShadow !== true)
+      fail("contract retry must be selected diagnostic-only");
+    if (
+      report.scope?.routes?.length !== 1 ||
+      report.scope.routes[0] !== target.route ||
+      report.scope?.project !== target.project ||
+      report.scope?.title !== target.title ||
+      report.scope?.full !== false
+    )
+      fail("contract retry scope does not match route/project/title target");
+    const leaf = report.leafEvidence?.executed?.leaves?.[0];
+    if (
+      report.leafEvidence?.executed?.executed !== 1 ||
+      leaf?.route !== target.route ||
+      leaf?.project !== target.project ||
+      leaf?.title !== target.title ||
+      !new Set(["passed", "failed"]).has(leaf?.outcome)
+    )
+      fail("contract retry report does not contain the exact runtime leaf");
+    else if ((leaf.outcome === "passed") !== (report.state === "executed/pass"))
+      fail("contract retry leaf outcome disagrees with the terminal state");
+  }
+  const outcome =
+    problems.length > 0
+      ? "unknown"
+      : report.state === "executed/pass"
+        ? "pass"
+        : "fail";
+  return { valid: problems.length === 0, outcome, problems };
 }

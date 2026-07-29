@@ -1,14 +1,23 @@
 #!/usr/bin/env node
 
-import { createHash, randomUUID } from "node:crypto";
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { randomUUID } from "node:crypto";
+import { existsSync, lstatSync, readFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 
 import { ROOT, workingTreeContentHash } from "./lib/change-set.mjs";
 import { RECEIPT_PATH } from "./lib/gate-receipt.mjs";
-import { atomicWriteJson } from "./lib/measurement-report.mjs";
-import { buildRetryPlan, retryCommand } from "./lib/retry-plan.mjs";
+import {
+  atomicWriteJson,
+  gateGeneration,
+  localEnvironment,
+} from "./lib/measurement-report.mjs";
+import {
+  buildRetryPlan,
+  fingerprintRetryEvidence,
+  retryInvocation,
+  validateRetryDiagnosticReport,
+} from "./lib/retry-plan.mjs";
 
 const GATES = join(ROOT, ".gates");
 const DEFAULT_FAILURE = join(GATES, "last-failure.json");
@@ -48,24 +57,21 @@ function parse(argv) {
 }
 
 function bytes(path) {
-  return existsSync(path) ? readFileSync(path) : null;
+  if (!existsSync(path)) return null;
+  const stat = lstatSync(path);
+  if (!stat.isFile() || stat.isSymbolicLink())
+    fatal(
+      `protected file must be a regular non-symlink: ${relative(ROOT, path)}`,
+    );
+  return readFileSync(path);
 }
 
 function evidenceSnapshot() {
-  if (!existsSync(EVIDENCE)) return "missing";
-  const digest = createHash("sha256");
-  const walk = (directory) => {
-    for (const name of readdirSync(directory).sort()) {
-      const path = join(directory, name);
-      const stat = statSync(path);
-      const key = relative(EVIDENCE, path);
-      digest.update(`${key}\0${stat.mode.toString(8)}\0`);
-      if (stat.isDirectory()) walk(path);
-      else digest.update(readFileSync(path));
-    }
-  };
-  walk(EVIDENCE);
-  return digest.digest("hex");
+  try {
+    return fingerprintRetryEvidence(EVIDENCE);
+  } catch (error) {
+    fatal(error.message);
+  }
 }
 
 const options = parse(process.argv.slice(2));
@@ -78,6 +84,8 @@ try {
   fatal(`failure report is corrupt: ${error.message}`);
 }
 const { hash: startingTree } = workingTreeContentHash();
+const generation = gateGeneration();
+const environmentProfile = localEnvironment().profile;
 let plan;
 try {
   plan = buildRetryPlan(failure, { treeHash: startingTree });
@@ -95,18 +103,19 @@ const retainedPlan = {
 atomicWriteJson(join(GATES, "retry-plan.json"), retainedPlan);
 
 const commands = plan.targets.map((target, index) => {
-  const invocation = retryCommand(target);
-  const report = join(GATES, "retry-runs", retryId, `${index}.json`);
+  const report = join(
+    GATES,
+    "diagnostics",
+    "retry-runs",
+    retryId,
+    `${index}.json`,
+  );
+  const invocation = retryInvocation(target, { report, retryId });
   return {
     target,
     report,
     command: invocation.command,
-    args: [
-      ...invocation.args,
-      "--report",
-      report,
-      ...(target.kind === "vitest" ? ["--run-id", retryId] : []),
-    ],
+    args: invocation.args,
   };
 });
 console.log(
@@ -133,18 +142,33 @@ const outcomes = commands.map((entry) => {
   } catch {
     // Missing/corrupt output is not a passing diagnostic.
   }
-  const valid =
-    report?.diagnosticOnly === true &&
-    Number.isInteger(report.executed) &&
-    report.executed > 0;
+  const validation = validateRetryDiagnosticReport(report, entry.target, {
+    retryId,
+    tree: startingTree,
+    generation,
+    environmentProfile,
+  });
+  const exitMatches =
+    (validation.outcome === "pass" && result.status === 0) ||
+    (validation.outcome === "fail" && result.status === 1);
+  const valid = validation.valid && exitMatches && !result.signal;
   return {
     target: entry.target,
     startedAt: startedAt.toISOString(),
     completedAt: new Date().toISOString(),
-    status: valid && result.status === 0 ? "pass" : "fail",
+    status: valid ? validation.outcome : "unknown",
     exitCode: result.status,
     report: relative(ROOT, entry.report),
     validDiagnosticReport: valid,
+    problems: [
+      ...validation.problems,
+      ...(!exitMatches
+        ? [
+            `process exit ${result.status ?? "unknown"} disagrees with structured outcome ${validation.outcome}`,
+          ]
+        : []),
+      ...(result.signal ? [`process terminated by ${result.signal}`] : []),
+    ],
   };
 });
 
@@ -166,15 +190,19 @@ if (completedTree !== startingTree)
     "working-tree content changed during diagnostic retry; selectors are stale",
   );
 
-const status = outcomes.every((outcome) => outcome.status === "pass")
-  ? "pass"
-  : "fail";
+const status = outcomes.some((outcome) => outcome.status === "unknown")
+  ? "unknown"
+  : outcomes.every((outcome) => outcome.status === "pass")
+    ? "pass"
+    : "fail";
 atomicWriteJson(join(GATES, "retry-report.json"), {
   schema: 1,
   diagnosticOnly: true,
   retryId,
   sourceRunId: plan.sourceRunId,
   tree: startingTree,
+  generation,
+  environmentProfile,
   completedAt: new Date().toISOString(),
   status,
   evidenceWritten: false,
@@ -184,4 +212,4 @@ atomicWriteJson(join(GATES, "retry-report.json"), {
 console.log(
   `gates:retry: diagnostic ${status.toUpperCase()} — original failure retained; receipt/evidence unchanged`,
 );
-process.exit(status === "pass" ? 0 : 1);
+process.exit(status === "pass" ? 0 : status === "fail" ? 1 : 2);

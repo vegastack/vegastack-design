@@ -27,17 +27,16 @@ import { readdirSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
 
 import {
-  changedFilesInRange,
-  changedFilesInWorkingTree,
+  commitRangeChangeInventory,
   defaultBaseRef,
-  dropProvenanceOnly,
   git,
   mergeBase,
   ROOT,
   resolveCommit,
   versionBumpOnly,
+  workingTreeChangeInventory,
 } from "./lib/change-set.mjs";
-import { CONTRACT_SCOPE, selectRoutes } from "./lib/route-scope.mjs";
+import { createRouteScopeModel, selectRoutes } from "./lib/route-scope.mjs";
 import { smokeImpact } from "./lib/smoke-scope.mjs";
 
 /** Paths whose change can break the browser-unit suite. */
@@ -112,14 +111,13 @@ const rangeStart = afterSha
   ? beforeSha
   : (mergeBase(beforeSha, "HEAD") ?? beforeSha);
 
-const allChanged = afterSha
-  ? changedFilesInRange(rangeStart, afterSha)
-  : changedFilesInWorkingTree(rangeStart);
-
-const changed = dropProvenanceOnly(allChanged, {
-  before: rangeStart,
-  after: afterSha,
-});
+const inventory = afterSha
+  ? commitRangeChangeInventory(rangeStart, afterSha)
+  : workingTreeChangeInventory(rangeStart);
+const allChanged = inventory.allChanged;
+const changed = inventory.changedFiles;
+const unmodelledFileFacts =
+  inventory.metadataChanged.size > 0 || inventory.binaryChanged.size > 0;
 const provenanceOnly = allChanged.length - changed.length;
 
 /**
@@ -143,11 +141,19 @@ const pureVersionBump = (() => {
   }
 })();
 
-const selection = selectRoutes(
-  pureVersionBump?.ok ? [] : changed,
-  {},
-  CONTRACT_SCOPE,
-);
+const routeModel = createRouteScopeModel();
+routeModel.assertCurrent();
+const selection =
+  !pureVersionBump?.ok && unmodelledFileFacts
+    ? {
+        routes: null,
+        reason: "file metadata/binary change widens every product lane",
+      }
+    : selectRoutes(
+        pureVersionBump?.ok ? [] : changed,
+        {},
+        routeModel.contractScope,
+      );
 const contractsRequired =
   selection.routes === null || selection.routes.size > 0;
 const contractsScope =
@@ -159,13 +165,14 @@ const contractsScope =
 
 const unitRequired =
   !pureVersionBump?.ok &&
-  changed.some((file) => UNIT_SURFACE.some((pattern) => pattern.test(file)));
+  (unmodelledFileFacts ||
+    changed.some((file) => UNIT_SURFACE.some((pattern) => pattern.test(file))));
 const smokeSelection = smokeImpact(changed);
 // A global-surface change (tokens, the shared runtime) can move motion and focus behaviour in ways
 // only a second engine shows, so a full contract sweep implies the smoke lane too.
 const smokeRequired =
   !pureVersionBump?.ok &&
-  (selection.routes === null || smokeSelection.required);
+  (unmodelledFileFacts || selection.routes === null || smokeSelection.required);
 
 /**
  * Read the changesets from the REF being classified. Reading the working tree was wrong whenever
