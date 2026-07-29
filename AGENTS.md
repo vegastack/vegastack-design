@@ -163,8 +163,8 @@ org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` a
 - **Registry integrity** — whole-item SHA-256 in `meta.integrity`, a Sigstore-signed manifest
   (GitHub OIDC), and a fail-closed consume preflight.
 - **Auth topology (approved 2026-07-28)** — every non-registry route is anonymous, including
-  `/internal/*`; internal operations pages stay unlisted, `noindex`, and outside every public
-  discovery corpus. `/r/*` alone is service-token-only. `SITE_VISIBILITY` controls discovery
+  `/internal/*`; internal operations pages stay unlisted, `noindex`, `no-store`, and outside every
+  public discovery corpus. `/r/*` alone is service-token-only. `SITE_VISIBILITY` controls discovery
   metadata only, never authorization.
 - **Upload is not deployment completion.** Pinned Wrangler emits a structured Cloudflare version ID,
   but only the terminal `deployment-complete` job—after signing, immediate artifact reverification,

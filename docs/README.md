@@ -36,5 +36,5 @@ could otherwise be mistaken for live authority.
 ## Current status
 
 The public npm packages and private registry are shipped. `design.vegastack.com` is public on every
-non-registry route, including the unlisted/noindex `/internal/*` operations pages; only `/r/*`
+non-registry route, including the unlisted/`noindex`/`no-store` `/internal/*` operations pages; only `/r/*`
 requires a Cloudflare Access service token. Every production dispatch proves this one boundary.

@@ -11,7 +11,7 @@ distributed **hybrid**: two public npm packages + a private, Sigstore-signed sha
 
 | Surface                 | Where                                                                                                                                                         |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Docs, showcase & guides | **https://design.vegastack.com** (target: public; broad SSO remains until approved cutover)                                                                   |
+| Docs, showcase & guides | **https://design.vegastack.com** (anonymous; `/internal/*` is unlisted with `noindex`/`no-store`)                                                             |
 | Component registry      | `https://design.vegastack.com/r/*` (Cloudflare Access service token)                                                                                          |
 | npm                     | [`@vegastack/design`](https://www.npmjs.com/package/@vegastack/design) · [`@vegastack/design-tokens`](https://www.npmjs.com/package/@vegastack/design-tokens) |
 | Release history         | [CHANGELOG.md](CHANGELOG.md) (canonical → generates the docs Changelog page)                                                                                  |
@@ -33,8 +33,8 @@ tooling/           the gate ladder · registry hashing/verification · design-li
 skills/internal/   maintainer skills — component · review · ship · gates
 skills/public/     consumer skills — shipped inside @vegastack/design (see skills/README.md)
 .github/workflows/ ci · release (npm OIDC) · deploy · runner-diagnostics
-                   everything that runs repository code is on the free mac minis; seven
-                   hosted jobs remain, each for a hard reason — see AGENTS.md for the split
+                   everything that can safely run repository code is on the free mac minis; five
+                   workflow jobs stay hosted for OIDC, credential isolation, or external probing
 ```
 
 Skills are symlinked into `.claude/skills/` and `.agents/skills/`, so both Claude Code and Codex
@@ -73,8 +73,9 @@ clone that skips it has no browser verification at all, which is why `pnpm lint`
 ## Releasing
 
 Use the **ship skill** (`skills/internal/ship/SKILL.md` — auto-discovered by Claude Code and Codex):
-preflight → changesets → changelog entry → Version PR → **npm OIDC publish** (tokenless,
-2FA intact) → registry deploy → Access verification.
+preflight → full local proof and visual review when applicable → changesets/changelog → reviewed
+Version PR → **npm OIDC publish** (tokenless, 2FA intact) → registry deploy → external boundary
+probe → terminal `deployment-complete` summary.
 
 **Shipping is always MK's decision** — agents prepare and stop for an explicit
 "yes proceed" per outward step. Full reference: [docs/RELEASING.md](docs/RELEASING.md).
@@ -82,7 +83,7 @@ preflight → changesets → changelog entry → Version PR → **npm OIDC publi
 ## Verification culture
 
 Fail-closed gates end to end: design-lint (token-only styling) · browser-mode unit tests + axe ·
-768 component behaviour contracts (320px reflow, RTL, 24px pointer targets — the focus-indicator
+108 routes / 864 component behaviour contracts (320px reflow, RTL, 24px pointer targets — the focus-indicator
 check is a known no-op under forced-colors, see docs/ledger/bugs.md 2026-07-25) ·
 real-CLI consume verification (contract-driven across every registry item and both layouts) ·
 registry integrity (SHA-256 + Sigstore) · changelog, skill, and link lints. The **reference

@@ -3,7 +3,8 @@
 Every entry here cost a full merge-and-watch cycle on 2026-07-25/26. Seven cycles, because each
 blocker was found _serially_ — fix, push, merge, watch, discover the next one. **The lesson above all
 others: exercise the whole chain in one pass before starting.** `node tooling/verify-release-chain.mjs`
-does that; it simulates a version bump in a throwaway worktree and asserts every link. It would have
+does that; it simulates a version bump in place, restores the original tree on exit, and asserts
+every link. It would have
 found five of these at once.
 
 Nothing here is theoretical. Each has a run id.
@@ -20,10 +21,13 @@ Proven end to end on 2026-07-26. Follow it in this order.
    unconditionally, and the receipt carry PRESERVES gate results across the version bump. A
    full-sweep receipt committed once therefore survives to the deploy; a `gates:push` receipt does
    not, and costs an extra ~25-minute cycle to redo.
-3. Commit code **and** `.gates/receipt.json` together, then push. (§12)
-4. Merge the change PR → `version-pr` opens the Version PR.
-5. Merge the Version PR → `package-build` + `publish` → npm.
-6. `node tooling/vrt-review.mjs`, then dispatch `deploy.yml`.
+3. Run `node tooling/vrt-review.mjs` when the tree affects a visual route; inspect every non-unchanged
+   image and stop for MK on any uncertain or unintended result.
+4. Commit code **and** `.gates/receipt.json` together, then stop for the separate push approval. (§12)
+5. Merge the change PR only with its separate approval → `version-pr` opens the Version PR.
+6. Merge the reviewed Version PR only with its separate approval → `package-build` + `publish` → npm.
+7. Dispatch `deploy.yml` only with its separate production approval; require the external probe and
+   terminal `deployment-complete` summary.
 
 **`package-build` and `publish` showing "Skipped" on step 4 is CORRECT** — the explicit state is
 `changesets-nonempty` or `version-pr-open`. They run only for `versioned-unpublished`, after the
@@ -32,8 +36,10 @@ Do not treat it as a fault.
 
 ## 0b. `workflow_dispatch` can return HTTP 500 spuriously
 
-Observed once dispatching `deploy.yml` from a correctly-registered, active workflow. Retry; confirm by
-comparing the newest run id before and after rather than trusting the command's output.
+Observed once dispatching `deploy.yml` from a correctly-registered, active workflow. Record the
+newest run ID before dispatch, then query the newest run after any HTTP 500. If a new run exists,
+observe that run and do not retry. Retry only when the read-only query proves that no run was
+created, and treat the retry as a new production-dispatch approval boundary.
 
 ## 0. The meta-rule
 
@@ -85,7 +91,9 @@ about the next minor.
 
 - **Symptom:** `receipt-guard` rejects the Version PR; no publish is reachable.
 - **Cause:** `changeset version` + `version-sync` move the tree hash — versions, package CHANGELOGs,
-  consumed changesets, and a re-stamped provenance header in 1082 files. Measured: 77a346c0 → 1b5796df.
+  consumed changesets, and re-stamped provenance headers throughout that release's generated
+  registry inventory. The dated 2026-07-26 specimen changed 1,082 files (77a346c0 → 1b5796df);
+  current procedures derive the inventory instead of assuming that historical count.
 - **Unfixable by re-running gates:** that branch is bot-authored and browsers cannot run in CI.
 - **Now:** `gate-receipt-carry` carries it, the guard re-derives the proof. If the carry **refuses**,
   do not work around it — something other than a version bump is in that branch. Untracked paths

@@ -102,6 +102,7 @@ snapshots the pushed commit.
 Then find out what the push will actually DO, before pushing:
 
 ```bash
+git fetch --prune origin                     # comparisons below require fresh remote truth
 node tooling/release-classify.mjs        # origin/main → HEAD
 pnpm release:state                       # exact npm + Version PR state; writes .gates/release-state.json
 ```
@@ -217,8 +218,9 @@ Commit changesets + CHANGELOG.md + the regenerated page together.
 
 **The Version PR carries its receipt forward automatically, and you should know why.** A receipt is
 bound to a tree hash, and `changeset version` + `version-sync` move that hash — versions, package
-CHANGELOGs, consumed changesets, and a re-stamped provenance header in 1082 files. Nothing a browser
-gate can observe changes, so `pnpm run version-packages` ends by running
+CHANGELOGs, consumed changesets, and re-stamped provenance headers on the generated registry
+inventory. The exact inventory size is derived from the current authorities; it is not a release
+constant. Nothing a browser gate can observe changes, so `pnpm run version-packages` ends by running
 `tooling/gate-receipt-carry.mjs`, which rewrites only the receipt's tree-bound facts (`tree`,
 `treeFiles`, and the contract SHA) and records `carriedFrom`. `receipt-guard` then re-derives the
 proof from git and rejects the carry if anything real changed. Without this the Version PR would
