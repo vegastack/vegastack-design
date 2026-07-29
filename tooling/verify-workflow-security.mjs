@@ -44,9 +44,9 @@ const SELF_HOSTED = "[self-hosted, vsk-runners-mac-mini]";
 const GITHUB_HOSTED_JOBS = {
   // Nothing. Pull requests cost zero billable minutes.
   "ci.yml": [],
-  // package-build: PROVENANCE. `publish` uploads exactly these bytes and npm's OIDC provenance
-  //   statement asserts they were built by this workflow in this repository; a persistent
-  //   self-hosted runner can carry state between runs, which would make that assertion less true.
+  // package-build: EPHEMERAL EXACT-BYTE PRODUCER. `publish` uploads its immutable artifact, keeping
+  //   persistent self-hosted runner state outside the public package build. This private source
+  //   repository cannot receive npm provenance attestations.
   // publish: npm trusted publishing does not support self-hosted runners
   //   (https://docs.npmjs.com/trusted-publishers/) and this repository holds no NPM_TOKEN, so moving
   //   it breaks publishing outright.
@@ -328,6 +328,52 @@ for (const [name, source] of Object.entries(sources)) {
     `${name}: unexpected OIDC permission count`,
   );
 }
+
+const runnerDiagnostics = sources["runner-diagnostics.yml"];
+assert.ok(
+  runnerDiagnostics,
+  "runner-diagnostics.yml: manual runner evidence workflow is missing",
+);
+assert.doesNotMatch(
+  runnerDiagnostics,
+  /playwright test[^\n]*contracts\.spec\.ts/,
+  "runner-diagnostics.yml: contracts must run through tooling/contracts-run.mjs so scope, zero-test, server ownership, and structured reporting stay fail-closed",
+);
+assert.doesNotMatch(
+  runnerDiagnostics,
+  /lsof -ti[^\n]*tcp:/,
+  "runner-diagnostics.yml: broad lsof port reaping can kill the runner through a client socket",
+);
+assert.match(
+  runnerDiagnostics,
+  /node tooling\/vitest-run\.mjs[\s\S]{0,240}--lane all-browsers[\s\S]{0,240}--report/,
+  "runner-diagnostics.yml: complete browsers must retain a structured report through the supported wrapper",
+);
+assert.match(
+  runnerDiagnostics,
+  /node tooling\/contracts-run\.mjs --all --report/,
+  "runner-diagnostics.yml: complete contracts must use the supported all-routes wrapper and structured report",
+);
+for (const outcome of [
+  "steps.browser_unit.outcome",
+  "steps.all_browsers.outcome",
+  "steps.contracts.outcome",
+])
+  assert.match(
+    runnerDiagnostics,
+    new RegExp(outcome.replaceAll(".", "\\.")),
+    `runner-diagnostics.yml: terminal verdict omits ${outcome}`,
+  );
+assert.match(
+  runnerDiagnostics,
+  /complete three-engine suite[\s\S]{0,240}complete contract suite/,
+  "runner-diagnostics.yml: summary must name both complete deep-suite outcomes",
+);
+assert.match(
+  runnerDiagnostics,
+  /if \[ "\$DEEP" = "true" \][\s\S]{0,240}\[ "\$ALL_BROWSERS" = "success" \][\s\S]{0,120}\[ "\$CONTRACTS" = "success" \][\s\S]{0,120}exit "\$FAILED"/,
+  "runner-diagnostics.yml: continued deep failures must reach a nonzero terminal diagnostic verdict",
+);
 
 assert.equal(
   [...sources["deploy.yml"].matchAll(/id-token:\s*write/g)].length,

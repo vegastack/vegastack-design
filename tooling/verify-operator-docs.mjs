@@ -6,10 +6,16 @@ import { readFileSync } from "node:fs";
 const CURRENT_SURFACES = [
   "AGENTS.md",
   "README.md",
+  "docs/README.md",
   "docs/RELEASING.md",
+  "docs/plans/2026-07-28-public-site-private-registry-boundary.md",
   "skills/internal/ship/SKILL.md",
   "skills/internal/gates/SKILL.md",
   "skills/internal/review/SKILL.md",
+  ".github/workflows/ci.yml",
+  ".github/workflows/release.yml",
+  ".github/workflows/deploy.yml",
+  ".github/workflows/runner-diagnostics.yml",
   ".husky/pre-commit",
   ".husky/pre-push",
   "apps/docs/playwright.config.ts",
@@ -25,18 +31,57 @@ export function operatorDocProblems(sources) {
   const problems = [];
   for (const [file, source] of Object.entries(sources)) {
     if (file === "docs/requirements.md") continue;
-    for (const pattern of file.endsWith("references/release-gotchas.md")
-      ? []
-      : PRIVATE_INTERNAL) {
-      const match = pattern.exec(source);
+    // release-gotchas deliberately preserves a clearly labelled superseded boundary transcript.
+    // Exclude only that block from current-boundary checks, not the rest of the file.
+    const currentSource = file.endsWith("references/release-gotchas.md")
+      ? source.split("## Historical completed release evidence")[0]
+      : source;
+    for (const pattern of PRIVATE_INTERNAL) {
+      const match = pattern.exec(currentSource);
       if (match)
         problems.push(
           `${file}: [internal-boundary] current instructions claim /internal/* is private: ${match[0]}`,
         );
     }
-    if (/\b(?:96 contract routes|768 checks)\b/i.test(source))
+    if (
+      !file.endsWith("references/release-gotchas.md") &&
+      /\b(?:96 contract routes|768 (?:component behaviour contracts|checks))\b/i.test(
+        currentSource,
+      )
+    )
       problems.push(
         `${file}: [contract-count] current instructions contain an obsolete route/check count`,
+      );
+    if (/\b(?:seven|7) (?:CI |GitHub-)?hosted jobs\b/i.test(currentSource))
+      problems.push(
+        `${file}: [hosted-job-count] current instructions contain the obsolete hosted-job count`,
+      );
+    if (/\bbroad SSO\b|\bAccess verification\b/i.test(currentSource))
+      problems.push(
+        `${file}: [internal-boundary] current instructions retain the obsolete broad-Access topology`,
+      );
+    if (
+      /\bnpm artifact provenance\b/i.test(currentSource) ||
+      /npm(?:'s)? OIDC provenance(?: statement)? asserts/i.test(currentSource)
+    )
+      problems.push(
+        `${file}: [npm-provenance] a private source repository must not claim npm provenance`,
+      );
+    if (/release:preflight[^\n]{0,160}throwaway worktree/i.test(currentSource))
+      problems.push(
+        `${file}: [preflight-location] release preflight is in-place and restores the tree; it is not a throwaway-worktree run`,
+      );
+    if (
+      /workflow_dispatch[\s\S]{0,180}(?:HTTP )?500[\s\S]{0,180}retry[\s\S]{0,180}(?:newest|latest) run id/i.test(
+        currentSource,
+      )
+    )
+      problems.push(
+        `${file}: [dispatch-recovery] current instructions retry before proving that no workflow run was created`,
+      );
+    if (/\b(?:across|in) 1082 files\b/i.test(currentSource))
+      problems.push(
+        `${file}: [historical-count] current instructions use a dated file count as a generic release invariant`,
       );
     if (
       /runs on every PR in CI|CI runs (?:the )?(?:browser|Playwright)/i.test(
@@ -152,6 +197,14 @@ export function operatorDocProblems(sources) {
     problems.push(
       "AGENTS.md: [internal-boundary] must state that every non-registry route, including /internal/*, is anonymous and /r/* alone is service-token-only",
     );
+  if (
+    !/\/internal\/\*[\s\S]{0,180}unlisted[\s\S]{0,100}noindex[\s\S]{0,100}no-store/i.test(
+      agents,
+    )
+  )
+    problems.push(
+      "AGENTS.md: [internal-discovery] must require /internal/* to remain unlisted with noindex and no-store",
+    );
 
   if (!/canonical[^\n]{0,80}(?:evidence-)?leaf manifest/i.test(agents))
     problems.push(
@@ -191,6 +244,10 @@ export function operatorDocProblems(sources) {
     );
 
   const ship = sources["skills/internal/ship/SKILL.md"] ?? "";
+  if (!/git fetch (?:--prune origin|origin --prune)/i.test(ship))
+    problems.push(
+      "skills/internal/ship/SKILL.md: [fresh-origin] must fetch/prune origin before release classification and origin/main inspection",
+    );
   if (
     !/schema[- ]?2[\s\S]{0,160}production-full[\s\S]{0,220}all-browsers/i.test(
       ship,
@@ -277,6 +334,38 @@ export function operatorDocProblems(sources) {
       "docs/RELEASING.md: [candidate-shadow] must keep candidate reuse disabled and the exact-tree rebuild authoritative under D4",
     );
 
+  const boundary =
+    sources["docs/plans/2026-07-28-public-site-private-registry-boundary.md"] ??
+    "";
+  if (
+    boundary &&
+    (!/deployment-complete/i.test(boundary) ||
+      !/structured Cloudflare version ID/i.test(boundary))
+  )
+    problems.push(
+      "docs/plans/2026-07-28-public-site-private-registry-boundary.md: [deployment-terminal] current boundary runbook must require deployment-complete and the structured Cloudflare version ID",
+    );
+
+  const diagnostics = sources[".github/workflows/runner-diagnostics.yml"] ?? "";
+  if (
+    /playwright test[^\n]*contracts\.spec\.ts/i.test(diagnostics) ||
+    /lsof -ti[^\n]*tcp:/i.test(diagnostics) ||
+    /playwright test[^\n]*contracts\.spec\.ts[^\n]*\|\| true/i.test(diagnostics)
+  )
+    problems.push(
+      ".github/workflows/runner-diagnostics.yml: [diagnostic-wrapper] contract diagnostics must use contracts-run.mjs and its owned server cleanup",
+    );
+  if (
+    diagnostics &&
+    (!/steps\.all_browsers\.outcome/.test(diagnostics) ||
+      !/steps\.contracts\.outcome/.test(diagnostics) ||
+      !/complete three-engine suite/i.test(diagnostics) ||
+      !/complete contract suite/i.test(diagnostics))
+  )
+    problems.push(
+      ".github/workflows/runner-diagnostics.yml: [diagnostic-verdict] the summary must report both deep-suite outcomes explicitly",
+    );
+
   const requirements = sources["docs/requirements.md"] ?? "";
   if (
     !/point-in-time historical record[\s\S]{0,500}D11[\s\S]{0,300}superseded[\s\S]{0,300}\/internal\/\*[\s\S]{0,200}anonymous/i.test(
@@ -303,18 +392,22 @@ function readCurrentSources() {
 // virtual strings so historical ledgers and superseded plans can remain byte-stable records.
 const validFixture = {
   "AGENTS.md":
-    "Every non-registry route is anonymous, including /internal/*; /r/* alone is service-token-only. A canonical evidence-leaf manifest is required. CI is receipt-first. Exact-tree receipt reuse is **shadow-only**. Release state is explicit and fail-closed. Only npm E404 is missing; registry-only published means zero hosted npm jobs. Consume uses a fresh consumer per root; D1 keeps the full oracle mandatory. The deploy candidate is shadow-only. D4 remains open; the mandatory exact-tree rebuild remains.",
+    "Every non-registry route is anonymous, including /internal/*; /r/* alone is service-token-only. /internal/* remains unlisted with noindex and no-store. A canonical evidence-leaf manifest is required. CI is receipt-first. Exact-tree receipt reuse is **shadow-only**. Release state is explicit and fail-closed. Only npm E404 is missing; registry-only published means zero hosted npm jobs. Consume uses a fresh consumer per root; D1 keeps the full oracle mandatory. The deploy candidate is shadow-only. D4 remains open; the mandatory exact-tree rebuild remains.",
   "docs/RELEASING.md":
     "Every non-registry route is anonymously reachable; /internal/* remains unlisted with noindex/no-store; /r/* must reject anonymous requests. Release uses an explicit resumable state machine: registry-unknown blocks. For registry-only published work it never runs hosted npm. The deploy candidate is shadow-only; a mandatory exact-tree rebuild remains under D4.",
   "docs/requirements.md":
     "Point-in-time historical record. D11 is superseded: /internal/* is anonymous under the current boundary.",
   "skills/internal/ship/SKILL.md":
-    "Schema 2 production-full evidence includes all-browsers. Upload is not completion; require deployment-complete. versioned-unpublished alone runs hosted build; registry-unknown never grants publish permission. The deploy candidate is shadow-only. A missing or expired candidate is a safe miss and uses the rebuild; malformed or ambiguous evidence must fail.",
+    "Run git fetch --prune origin before classification. Schema 2 production-full evidence includes all-browsers. Upload is not completion; require deployment-complete. versioned-unpublished alone runs hosted build; registry-unknown never grants publish permission. The deploy candidate is shadow-only. A missing or expired candidate is a safe miss and uses the rebuild; malformed or ambiguous evidence must fail.",
   "skills/internal/gates/SKILL.md":
     "gates:retry writes diagnosticOnly: true and evidenceWritten: false. gates:affected writes shadowOnly: true and reuseEnabled: false. Require 30 representative samples and MK approval. verify-shadcn-consume uses a fresh consumer per root; D1 retains the full oracle.",
+  "docs/plans/2026-07-28-public-site-private-registry-boundary.md":
+    "Require deployment-complete and the structured Cloudflare version ID.",
+  ".github/workflows/runner-diagnostics.yml":
+    "${{ steps.all_browsers.outcome }} ${{ steps.contracts.outcome }} complete three-engine suite complete contract suite",
 };
 assert.deepEqual(operatorDocProblems(validFixture), []);
-for (const [label, file, text, expected] of [
+const semanticFixtures = [
   [
     "internal SSO",
     "skills/internal/ship/SKILL.md",
@@ -338,6 +431,48 @@ for (const [label, file, text, expected] of [
     "skills/internal/review/SKILL.md",
     "Run all 96 contract routes and 768 checks.",
     /contract-count/,
+  ],
+  [
+    "obsolete hosted-job count",
+    "README.md",
+    "Seven hosted jobs remain.",
+    /hosted-job-count/,
+  ],
+  [
+    "broad access topology",
+    "README.md",
+    "Broad SSO remains until cutover and requires Access verification.",
+    /internal-boundary/,
+  ],
+  [
+    "private-repository npm provenance",
+    ".github/workflows/release.yml",
+    "npm artifact provenance: npm's OIDC provenance statement asserts these bytes were built here.",
+    /npm-provenance/,
+  ],
+  [
+    "throwaway preflight",
+    "skills/internal/ship/references/release-gotchas.md",
+    "release:preflight simulates the bump in a throwaway worktree.",
+    /preflight-location/,
+  ],
+  [
+    "unsafe dispatch retry ordering",
+    "skills/internal/ship/references/release-gotchas.md",
+    "workflow_dispatch HTTP 500: retry, then compare the newest run id.",
+    /dispatch-recovery/,
+  ],
+  [
+    "generic historical file count",
+    "skills/internal/ship/SKILL.md",
+    "Version carry restamps provenance across 1082 files.",
+    /historical-count/,
+  ],
+  [
+    "direct diagnostic contract bypass",
+    ".github/workflows/runner-diagnostics.yml",
+    "pnpm exec playwright test contracts.spec.ts --reporter=line || true\nlsof -ti tcp:$PORT",
+    /diagnostic-wrapper/,
   ],
   [
     "browser in CI",
@@ -429,7 +564,8 @@ for (const [label, file, text, expected] of [
     "An expired deploy candidate fails the deploy instead of rebuilding.",
     /candidate-fallback/,
   ],
-]) {
+];
+for (const [label, file, text, expected] of semanticFixtures) {
   const mutated = { ...validFixture, [file]: text };
   const problems = operatorDocProblems(mutated);
   assert.ok(
@@ -444,5 +580,5 @@ if (problems.length > 0) {
   process.exit(1);
 }
 console.log(
-  `✓ operator docs: ${CURRENT_SURFACES.length} current surfaces agree on topology, browser location, counts, receipt/reuse/retry/affected/consume/release-state/candidate ordering, terminal deployment, and schema-2 production evidence; 19 semantic stale-instruction fixtures rejected`,
+  `✓ operator docs: ${CURRENT_SURFACES.length} current surfaces agree on topology, browser location, counts, receipt/reuse/retry/affected/consume/release-state/candidate ordering, terminal deployment, and schema-2 production evidence; ${semanticFixtures.length} semantic stale-instruction fixtures rejected`,
 );

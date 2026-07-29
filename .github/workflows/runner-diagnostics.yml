@@ -137,10 +137,9 @@ jobs:
 
       # ── the NON-BROWSER lane the local-first topology actually depends on ────────────────────────
       #
-      # These three steps are the ones no mini has ever executed. `pnpm design:verify`,
-      # `pnpm typecheck`, and `pnpm lint` are already mini-proven (job 89606685733 passed all three
-      # and failed only on `pnpm test`), and `deploy.yml`'s `build-curated` has never once run — so
-      # the docs build, the registry build, and the consume round-trip are assumptions.
+      # These diagnostics retain the current topology's non-browser oracle on the actual runner.
+      # Earlier runs proved individual paths, but a manual diagnostic is a new dated observation,
+      # never permission to infer that a later CI, Release, or Deploy run executed.
       #
       # Nothing about them is OS-specific and all three pass on a developer Mac, so the expected
       # result is green. Run it anyway: this repository's rule is that a gate never observed passing
@@ -204,33 +203,32 @@ jobs:
           exit $STATUS
 
       - name: Vitest browser mode (a single real component test)
+        id: browser_unit
         continue-on-error: true
         run: pnpm --filter @vegastack/ui exec vitest run registry/ui/badge.test.tsx
 
       - name: DEEP — full three-engine unit suite (the lane that needed the container)
-        if: ${{ inputs.deep }}
-        continue-on-error: true
-        run: pnpm --filter @vegastack/ui test:all-browsers
-
-      - name: DEEP — contract suite, timed, at native worker count
+        id: all_browsers
         if: ${{ inputs.deep }}
         continue-on-error: true
         shell: bash
-        env:
-          SITE_VISIBILITY: public
         run: |
-          set -uo pipefail
-          PORT="$(node -e 'const s=require("net").createServer();s.listen(0,"127.0.0.1",()=>{process.stdout.write(String(s.address().port));s.close()})')"
-          echo "capture port: $PORT"
-          pnpm exec turbo run build --filter=@vegastack/docs^...
+          set -euo pipefail
+          node tooling/vitest-run.mjs \
+            --lane all-browsers \
+            --run-id "runner-diagnostics-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" \
+            --report "$RUNNER_TEMP/all-browsers.json"
+
+      - name: DEEP — contract suite, timed, at native worker count
+        id: contracts
+        if: ${{ inputs.deep }}
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
           START="$(date +%s)"
-          # CI is deliberately unset so playwright.config.ts uses the LOCAL worker default
-          # (cpus/2) instead of the 1-worker CI default — the whole point is to measure what this
-          # machine can do unsharded.
-          ( cd apps/docs && CI= VRT_PORT="$PORT" pnpm exec playwright test contracts.spec.ts --reporter=line ) || true
+          node tooling/contracts-run.mjs --all --report "$RUNNER_TEMP/contracts.json"
           echo "contract suite wall clock: $(( ($(date +%s) - START) / 60 ))m$(( ($(date +%s) - START) % 60 ))s"
-          PIDS="$(lsof -ti "tcp:$PORT" 2>/dev/null || true)"
-          if [ -n "$PIDS" ]; then kill -9 $PIDS || true; fi
 
       - name: Verdict
         if: ${{ always() }}
@@ -246,8 +244,21 @@ jobs:
           BUILD_PUBLIC: ${{ steps.build_public.outcome }}
           REGISTRY: ${{ steps.registry.outcome }}
           CONSUME: ${{ steps.consume.outcome }}
+          BROWSER_UNIT: ${{ steps.browser_unit.outcome }}
+          ALL_BROWSERS: ${{ steps.all_browsers.outcome }}
+          CONTRACTS: ${{ steps.contracts.outcome }}
+          DEEP: ${{ inputs.deep }}
         run: |
           set -uo pipefail
+          state() {
+            case "${1:-}" in
+              success) echo "executed/pass" ;;
+              failure) echo "executed/fail" ;;
+              skipped) echo "skipped" ;;
+              cancelled) echo "not reached" ;;
+              *) echo "unknown" ;;
+            esac
+          }
           {
             echo "## Runner diagnostics"
             echo
@@ -263,6 +274,10 @@ jobs:
             echo "| build, public docs export | ${BUILD_PUBLIC:-?} |"
             echo "| registry:build idempotent | ${REGISTRY:-?} |"
             echo "| consume round-trip | ${CONSUME:-?} |"
+            echo "| browser launch probe | $([ "${ENGINES:-0}" = "3" ] && echo executed/pass || echo executed/fail) |"
+            echo "| selected browser unit specimen | $(state "$BROWSER_UNIT") |"
+            echo "| complete three-engine suite | $(state "$ALL_BROWSERS") |"
+            echo "| complete contract suite | $(state "$CONTRACTS") |"
             echo
             echo "### The non-browser lane — what CI now depends on"
             echo
@@ -282,16 +297,26 @@ jobs:
             fi
             echo
             if [ "${ENGINES:-0}" = "3" ]; then
-              echo "**All three engines launch.** Every job except \`publish\` can move to the minis."
-              echo "With ${CORES:-?} cores, replace the 4-way shard matrix with a higher Playwright"
-              echo "worker count — sharding across two machines only queues."
+              echo "**All three engines launch in this diagnostic.** This does not change the"
+              echo "local-first policy or authorize moving browser lanes without a separate decision."
             elif [ "${ENGINES:-0}" = "0" ]; then
               echo "**No engine launches.** If \`launchd manager\` is not \`Aqua\`, the runner has no GUI"
               echo "session: reinstall it as a LaunchAgent under a logged-in user (or run \`./run.sh\`"
               echo "interactively while logged in) and re-run this job. Browser jobs must stay"
               echo "GitHub-hosted until this reads 3/3."
             else
-              echo "**Partial: ${ENGINES}/3.** Move only the lanes whose engines work; see the launch step"
-              echo "for the per-engine error."
+              echo "**Partial: ${ENGINES}/3.** Keep browser lanes local; see the launch step for the"
+              echo "per-engine error."
             fi
           } | tee -a "$GITHUB_STEP_SUMMARY"
+
+          FAILED=0
+          [ "${ENGINES:-0}" = "3" ] || FAILED=1
+          for outcome in "$TYPECHECK" "$LINT" "$BUILD_PRIVATE" "$BUILD_PUBLIC" "$REGISTRY" "$CONSUME" "$BROWSER_UNIT"; do
+            [ "$outcome" = "success" ] || FAILED=1
+          done
+          if [ "$DEEP" = "true" ]; then
+            [ "$ALL_BROWSERS" = "success" ] || FAILED=1
+            [ "$CONTRACTS" = "success" ] || FAILED=1
+          fi
+          exit "$FAILED"

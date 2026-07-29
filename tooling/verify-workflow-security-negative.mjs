@@ -129,6 +129,44 @@ const CASES = [
     expect: /pull_request_target/,
   },
   {
+    id: "runner diagnostics bypasses the contract wrapper",
+    file: "runner-diagnostics.yml",
+    find: 'node tooling/contracts-run.mjs --all --report "$RUNNER_TEMP/contracts.json"',
+    replace:
+      "( cd apps/docs && pnpm exec playwright test contracts.spec.ts --reporter=line ) || true",
+    expect: /contracts must run through tooling\/contracts-run\.mjs/,
+  },
+  {
+    id: "runner diagnostics reintroduces broad socket killing",
+    file: "runner-diagnostics.yml",
+    find: 'echo "contract suite wall clock:',
+    replace:
+      'lsof -ti "tcp:$PORT" | xargs kill -9\n          echo "contract suite wall clock:',
+    expect: /broad lsof port reaping/,
+  },
+  {
+    id: "runner diagnostics omits the complete-browser outcome",
+    file: "runner-diagnostics.yml",
+    find: "          ALL_BROWSERS: ${{ steps.all_browsers.outcome }}\n",
+    replace: "",
+    expect: /terminal verdict omits steps\.all_browsers\.outcome/,
+  },
+  {
+    id: "runner diagnostics omits the contract outcome",
+    file: "runner-diagnostics.yml",
+    find: "          CONTRACTS: ${{ steps.contracts.outcome }}\n",
+    replace: "",
+    expect: /terminal verdict omits steps\.contracts\.outcome/,
+  },
+  {
+    id: "runner diagnostics swallows deep failures in its verdict",
+    file: "runner-diagnostics.yml",
+    find: '            [ "$ALL_BROWSERS" = "success" ] || FAILED=1\n            [ "$CONTRACTS" = "success" ] || FAILED=1\n',
+    replace: '            echo "deep failures are informational"\n',
+    expect:
+      /continued deep failures must reach a nonzero terminal diagnostic verdict/,
+  },
+  {
     id: "stray OIDC in ci.yml",
     file: "ci.yml",
     find: "    runs-on: [self-hosted, vsk-runners-mac-mini]\n    steps:\n      - uses: actions/checkout",
