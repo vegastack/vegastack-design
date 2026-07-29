@@ -452,6 +452,17 @@ export function operatorDocProblems(sources) {
       "skills/internal/ship/references/visual-review.md: [visual-handoff] must explain the change plainly and expose absolute clickable before/after/diff screenshots",
     );
 
+  const releaseGotchas =
+    sources["skills/internal/ship/references/release-gotchas.md"] ?? "";
+  if (
+    !/verify-shadcn-consume[\s\S]{0,500}(?:builds|build)[\s\S]{0,200}pnpm pack --json[\s\S]{0,300}(?:declared export|exported)/i.test(
+      releaseGotchas,
+    )
+  )
+    problems.push(
+      "skills/internal/ship/references/release-gotchas.md: [consume-artifact] must require a self-owned public-package build and packed-export validation",
+    );
+
   const gates = sources["skills/internal/gates/SKILL.md"] ?? "";
   if (
     !/gates:retry[\s\S]{0,300}diagnosticOnly[\s\S]{0,120}evidenceWritten: false/i.test(
@@ -646,6 +657,8 @@ const validFixture = {
     "Run git fetch --prune origin before classification. Schema 2 production-full evidence includes all-browsers. Upload is not completion; require deployment-complete with structured probe count and exact registry version. versioned-unpublished alone runs hosted build; registry-unknown never grants publish permission. The deploy candidate is shadow-only. A missing or expired candidate is a safe miss and uses the rebuild; malformed or ambiguous evidence must fail. Present plain-language bullet points and images.before, images.after, images.diff as absolute clickable image paths.",
   "skills/internal/ship/references/visual-review.md":
     "Present plain-language bullet points. Read images.before, then images.after, then images.diff. Resolve them to absolute clickable Markdown file links.",
+  "skills/internal/ship/references/release-gotchas.md":
+    "verify-shadcn-consume builds public packages, then runs pnpm pack --json and validates every declared export before clean consumers.",
   "skills/internal/gates/SKILL.md":
     "gates:retry writes diagnosticOnly: true and evidenceWritten: false. gates:affected writes shadowOnly: true and reuseEnabled: false. Require 30 representative samples and MK approval. verify-shadcn-consume uses a fresh consumer per root; D1 retains the full oracle.",
   "docs/plans/2026-07-28-public-site-private-registry-boundary.md":
@@ -702,6 +715,12 @@ const semanticFixtures = [
     "skills/internal/ship/references/release-gotchas.md",
     "release:preflight simulates the bump in a throwaway worktree.",
     /preflight-location/,
+  ],
+  [
+    "consume omits artifact build and export validation",
+    "skills/internal/ship/references/release-gotchas.md",
+    "verify-shadcn-consume runs pnpm pack and then starts consumers.",
+    /consume-artifact/,
   ],
   [
     "unsafe dispatch retry ordering",

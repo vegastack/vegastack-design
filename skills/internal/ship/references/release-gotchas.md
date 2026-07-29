@@ -207,6 +207,20 @@ first version of the mini diagnostic reported "Green" while `pnpm lint` had fail
 Two false diagnoses in one session came from a stale `origin/main`. Any classification against
 `origin/*` starts with `git fetch origin --prune`.
 
+## 15. Consume must build and inspect the packages it packs
+
+- **Symptom:** clean `release:preflight` produced many `TS2307 Cannot find module
+'@vegastack/design'` errors, while `gates:ship` consume had passed.
+- **Cause:** `@vegastack/design` and `@vegastack/design-tokens` export ignored `dist/*` files.
+  `gates:ship` had already run the lint/build chain, but clean preflight had not; `pnpm pack` therefore
+  made installable-looking tarballs whose exported JS and type files were absent.
+- **Now:** `verify-shadcn-consume` owns the prerequisite. It builds tokens then design, runs
+  `pnpm pack --json`, and rejects any archive missing a declared export or bin target before starting
+  a consumer. The structured report records both package builds and validated archive file counts.
+- **Rule:** never add a publish lifecycle build to hide this. Release must continue publishing the
+  exact artifact built and validated by the hosted producer; local consume performs its own explicit
+  diagnostic build.
+
 ---
 
 ## Historical completed release evidence — verified 2026-07-26
@@ -224,7 +238,7 @@ Two false diagnoses in one session came from a stale `origin/main`. Any classifi
 - Billed minutes for the publish run: **0** hosted minutes on the mac minis; only `package-build`,
   `publish`, `sign-curated`, `deploy-curated` and one boundary probe are hosted.
 
-## 15. A successful upload can still end in a failed deployment workflow
+## 16. A successful upload can still end in a failed deployment workflow
 
 Run `30309811715` uploaded the signed production artifact successfully, then failed only in the
 final boundary probe because the repository still expected `/internal/*` to be SSO-only after the

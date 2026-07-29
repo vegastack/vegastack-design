@@ -681,3 +681,15 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
 - **Systemic fix:** `.gates/receipt.json` is explicitly excluded from Prettier, and the hook verifier
   fails if that exclusion disappears. Receipt schema/content verification remains the correctness
   authority; no generated receipt is hand-formatted after a gate run.
+
+## 2026-07-29 — Clean release preflight packed public packages without their exports
+
+- **Symptom:** the clean detached release simulation installed local tarballs but every real consumer
+  typecheck failed to resolve `@vegastack/design` or its `theme-scope` export.
+- **Root cause:** the public manifests include only ignored `dist/*` build products for their JS/type
+  exports. Consume packed the current directory without owning a build prerequisite, so its outcome
+  depended on whether an earlier command had populated `dist`.
+- **Systemic fix:** consume builds both public packages in dependency order, validates every export
+  and bin target against `pnpm pack --json`, and writes those artifact facts into the structured
+  report. Missing output now fails once at the artifact boundary instead of surfacing as many
+  downstream TypeScript errors. No publication lifecycle hook or token was added.

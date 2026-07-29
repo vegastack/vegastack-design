@@ -850,3 +850,17 @@ each was invisible in review and each is the kind that would have degraded the t
   still independently verified before commit and by every workflow guard.
 - **Operator rule:** never run a formatter or hand editor over a receipt after ship. Regenerate it
   through the gate ladder whenever its tree or semantics are stale.
+
+## 2026-07-29 — Consume owns clean public-package artifacts
+
+- **Decision:** `registry:verify-consume` explicitly builds tokens then design and validates the
+  actual packed file manifest before starting any consumer. It cannot borrow ignored output from a
+  preceding lint, ship, CI, or Release step.
+- **Rejected shortcut:** adding `prepack`/`prepare` would make publication mutate bytes implicitly and
+  blur the hosted exact-byte producer boundary. The local verifier uses explicit ordinary build
+  commands; hosted publication topology remains unchanged.
+- **Evidence:** with both public `dist` directories absent, the diagnostic rebuilt and validated
+  `@vegastack/design-tokens` (9 packed files) and `@vegastack/design` (33 packed files), then passed
+  isolated real-CLI and simulated Button consumers. A mutation containing only package manifests
+  fails on the first omitted declared export. The full widened report passed 26/26 real CLI roots,
+  26/26 isolated simulated roots, and 554/554 consolidated items in each layout in 335.051s.

@@ -100,6 +100,13 @@ when it is tracked and the quality gate independently re-derives it. Never remov
 to make the carry pass; either correct unintended work or run browser gates against the complete
 tree.
 
+`pnpm release:preflight` is self-contained with respect to public package artifacts. Its consume
+phase explicitly builds tokens and design in dependency order, packs both packages, and validates
+every declared export and bin target from the archive manifest before any clean consumer is allowed
+to typecheck. A tarball with a package manifest but missing ignored `dist/*` output fails at the
+artifact boundary; output left by an earlier lint/build command never counts as release evidence.
+This is an explicit verification build, not a `prepack`/`prepare` publication lifecycle hook.
+
 ## Where the jobs run
 
 **No CI runner executes a browser.** The browser-unit suite, the cross-engine smoke, the three-engine

@@ -11,6 +11,47 @@ import {
   validateConsumeReport,
   writeImmutableJson,
 } from "./lib/consume-isolation.mjs";
+import {
+  requiredPackedPaths,
+  validatePackedPackageFiles,
+} from "./lib/package-artifact.mjs";
+
+const packageFixture = {
+  name: "@vegastack/example",
+  version: "1.2.3",
+  exports: {
+    ".": {
+      types: "./dist/index.d.ts",
+      import: "./dist/index.js",
+    },
+    "./theme.css": "./dist/theme.css",
+    "./package.json": "./package.json",
+  },
+  bin: { example: "./bin/example.mjs" },
+};
+assert.deepEqual(requiredPackedPaths(packageFixture), [
+  "bin/example.mjs",
+  "dist/index.d.ts",
+  "dist/index.js",
+  "dist/theme.css",
+  "package.json",
+]);
+assert.match(
+  validatePackedPackageFiles(packageFixture, [
+    { path: "package.json" },
+    { path: "bin/example.mjs" },
+  ]).join("\n"),
+  /packed artifact omits exported file dist\/index\.d\.ts/,
+  "a clean pack missing generated exports must fail before consumer typecheck",
+);
+assert.deepEqual(
+  validatePackedPackageFiles(
+    packageFixture,
+    requiredPackedPaths(packageFixture).map((path) => ({ path })),
+  ),
+  [],
+  "a complete packed export surface must pass",
+);
 
 assert.equal(
   packageNameFromSpec("@vegastack/design@^0.3.0"),
@@ -66,6 +107,22 @@ const validAffected = {
   mode: "affected",
   status: "pass",
   exhaustiveRootCount: 554,
+  packageArtifacts: [
+    {
+      name: "@vegastack/design",
+      version: "0.3.0",
+      buildStatus: "pass",
+      exportsValidated: true,
+      packedFileCount: 24,
+    },
+    {
+      name: "@vegastack/design-tokens",
+      version: "0.2.0",
+      buildStatus: "pass",
+      exportsValidated: true,
+      packedFileCount: 8,
+    },
+  ],
   selectedRoots: ["a", "b"],
   selectedLayouts: ["default"],
   isolatedReal: [leaf("a", "/tmp/a"), leaf("b", "/tmp/b")],
@@ -159,6 +216,36 @@ rejected(
     report.status = "fail";
   },
   /status is not pass/,
+);
+rejected(
+  "missing public package artifact proof",
+  (report) => {
+    report.packageArtifacts = [];
+  },
+  /public package artifact proof is missing/,
+);
+rejected(
+  "unvalidated packed exports",
+  (report) => {
+    report.packageArtifacts[0].exportsValidated = false;
+  },
+  /packed exports were not validated/,
+);
+rejected(
+  "missing required public package",
+  (report) => {
+    report.packageArtifacts = report.packageArtifacts.filter(
+      (artifact) => artifact.name !== "@vegastack/design-tokens",
+    );
+  },
+  /required public package artifact @vegastack\/design-tokens is missing/,
+);
+rejected(
+  "duplicate public package artifact",
+  (report) => {
+    report.packageArtifacts.push(structuredClone(report.packageArtifacts[0]));
+  },
+  /duplicate public package artifact @vegastack\/design/,
 );
 rejected(
   "unknown layout",
@@ -259,5 +346,5 @@ rejected(
 );
 
 console.log(
-  "✓ consume isolation: accumulated roots, missing post-write/typecheck, target conflicts, incomplete full layouts/counts, empty selectors, receipt writes, and reusable shadow evidence fail closed",
+  "✓ consume isolation: public artifact/export omissions, accumulated roots, missing post-write/typecheck, target conflicts, incomplete full layouts/counts, empty selectors, receipt writes, and reusable shadow evidence fail closed",
 );

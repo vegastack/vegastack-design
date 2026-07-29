@@ -55,10 +55,12 @@ import { dirname, join, relative, resolve } from "node:path";
 
 import {
   declaredVegastackPackages,
+  REQUIRED_PUBLIC_PACKAGE_ARTIFACTS,
   validateConsumeReport,
   writeImmutableJson,
 } from "./lib/consume-isolation.mjs";
 import { reverseConsumeClosure } from "./lib/consume-plan.mjs";
+import { validatePackedPackageFiles } from "./lib/package-artifact.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(here, "..");
@@ -81,6 +83,8 @@ const USAGE = `Usage: node tooling/verify-shadcn-consume.mjs [options]
 Full mode always runs real CLI isolated roots, isolated simulated parity roots, and the exhaustive
 consolidated two-layout oracle. Affected/diagnostic modes are local shadow evidence only: they cannot
 write a receipt, enable reuse, or replace CI's full consume reexecution while D1 is unapproved.
+Every mode explicitly rebuilds both public packages and rejects packed archives missing a declared
+export or bin target before starting a consumer.
 
 Exit codes: 0 selected proof passed · 1 proof failed · 2 invalid selector/prerequisite.`;
 
@@ -146,13 +150,10 @@ const KILL = "SIGKILL";
 // Public @vegastack/* packages are packed into the sidecar. Each isolated real root must install
 // exactly the subset declared by its resolved graph; requiring the global union would recreate the
 // accumulated-consumer bug this runner is intended to expose.
-const VEGASTACK_DEP_PKGS = [
-  { name: "@vegastack/design", dir: join(repoRoot, "packages/design") },
-  {
-    name: "@vegastack/design-tokens",
-    dir: join(repoRoot, "packages/design-tokens"),
-  },
-];
+const VEGASTACK_DEP_PKGS = REQUIRED_PUBLIC_PACKAGE_ARTIFACTS.map((name) => ({
+  name,
+  dir: join(repoRoot, "packages", name.slice("@vegastack/".length)),
+}));
 
 // Baseline dependency-graph set for the REAL `shadcn add` gate.
 //   button         — leaf (no registryDependencies).
@@ -469,17 +470,42 @@ function startSidecar(scratchRoot, tarballDir) {
   });
 }
 
+// Build the public packages in dependency order. Consume owns this prerequisite: callers must not
+// need a preceding lint/build lane to leave ignored dist output behind. This is deliberately an
+// explicit build rather than a prepack lifecycle script; Release publishes already-validated exact
+// bytes and must never gain an implicit publication-time build.
+function buildVegastackDeps() {
+  const built = [];
+  for (const { name } of VEGASTACK_DEP_PKGS) {
+    const result = runCapped("pnpm", ["--filter", name, "build"], {
+      cwd: repoRoot,
+      timeout: 120_000,
+    });
+    if (!result.ok)
+      throw new Error(`public package build ${name} failed:\n${result.out}`);
+    built.push({ name, buildStatus: "pass" });
+  }
+  return built;
+}
+
 // `pnpm pack` each declared @vegastack/* dep into <scratch>/.tarballs (the sidecar npm registry
-// serves these). Returns { tarballDir, packed: [{name, version}] }.
+// serves these). Every package export and bin target must be present in the archive manifest; a
+// clean checkout with missing ignored build output therefore fails here, before hundreds of
+// downstream TypeScript errors obscure the actual artifact defect.
+// Returns { tarballDir, packed: [{name, version}] }.
 function packVegastackDeps(scratchRoot) {
   const tarballDir = join(scratchRoot, ".tarballs");
   mkdirSync(tarballDir, { recursive: true });
   const packed = [];
   for (const { name, dir } of VEGASTACK_DEP_PKGS) {
-    const r = runCapped("pnpm", ["pack", "--pack-destination", tarballDir], {
-      cwd: dir,
-      timeout: 30_000,
-    });
+    const r = runCapped(
+      "pnpm",
+      ["pack", "--json", "--pack-destination", tarballDir],
+      {
+        cwd: dir,
+        timeout: 30_000,
+      },
+    );
     if (!r.ok) throw new Error(`pnpm pack ${name} failed:\n${r.out}`);
     const manifest = JSON.parse(
       readFileSync(join(dir, "package.json"), "utf8"),
@@ -490,7 +516,29 @@ function packVegastackDeps(scratchRoot) {
     );
     if (!existsSync(file))
       throw new Error(`expected packed tarball missing: ${file}`);
-    packed.push({ name, version: manifest.version });
+    let packManifest;
+    try {
+      packManifest = JSON.parse(r.out);
+    } catch {
+      throw new Error(`pnpm pack ${name} returned malformed JSON:\n${r.out}`);
+    }
+    const packedFiles = Array.isArray(packManifest.files)
+      ? packManifest.files
+      : [];
+    const artifactProblems = validatePackedPackageFiles(manifest, packedFiles);
+    if (artifactProblems.length > 0)
+      throw new Error(
+        `pnpm pack ${name} produced an incomplete consumer artifact:\n` +
+          artifactProblems.map((problem) => `  - ${problem}`).join("\n") +
+          "\nBuild the public packages before packing; ignored dist output is not optional.",
+      );
+    packed.push({
+      name,
+      version: manifest.version,
+      buildStatus: "pass",
+      exportsValidated: true,
+      packedFileCount: packedFiles.length,
+    });
   }
   return { tarballDir, packed };
 }
@@ -1052,11 +1100,15 @@ async function main() {
   const isolatedSimulated = [];
   const consolidated = [];
   const globalCollisionProblems = [];
+  let packageArtifacts = [];
 
   try {
     // ── pack @vegastack/* deps + start the SIDECAR registry process ──
     log("── preparing local install path (no publish) " + "─".repeat(20));
+    const built = buildVegastackDeps();
+    ok(`public package build → ${built.map((entry) => entry.name).join(", ")}`);
     const { tarballDir, packed } = packVegastackDeps(scratchRoot);
+    packageArtifacts = packed;
     ok(
       `pnpm pack → ${packed.map((p) => `${p.name}@${p.version}`).join(", ")} (local tarballs)`,
     );
@@ -1236,6 +1288,7 @@ async function main() {
     selectedRoots,
     selectedLayouts: selectedLayouts.map((layout) => layout.id),
     exhaustiveRootCount: itemNames.length,
+    packageArtifacts,
     isolatedReal: realResults,
     isolatedSimulated,
     consolidated,

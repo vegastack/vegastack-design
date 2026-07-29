@@ -4,6 +4,10 @@ import { dirname } from "node:path";
 
 const MODES = new Set(["full", "affected", "diagnostic"]);
 const REQUIRED_LAYOUTS = ["default", "src"];
+export const REQUIRED_PUBLIC_PACKAGE_ARTIFACTS = [
+  "@vegastack/design-tokens",
+  "@vegastack/design",
+];
 
 export function packageNameFromSpec(specifier) {
   if (typeof specifier !== "string" || specifier.length === 0) return null;
@@ -127,6 +131,39 @@ export function validateConsumeReport(report, { expectedRootCount } = {}) {
     report.exhaustiveRootCount <= 0
   )
     problems.push("consume report exhaustive root count is missing");
+  if (
+    !Array.isArray(report.packageArtifacts) ||
+    report.packageArtifacts.length === 0
+  )
+    problems.push("public package artifact proof is missing");
+  const artifactNames = (report.packageArtifacts ?? []).map(
+    (artifact) => artifact.name,
+  );
+  for (const duplicate of duplicateValues(artifactNames))
+    problems.push(`duplicate public package artifact ${duplicate}`);
+  for (const name of REQUIRED_PUBLIC_PACKAGE_ARTIFACTS)
+    if (!artifactNames.includes(name))
+      problems.push(`required public package artifact ${name} is missing`);
+  for (const name of artifactNames)
+    if (!REQUIRED_PUBLIC_PACKAGE_ARTIFACTS.includes(name))
+      problems.push(`unexpected public package artifact ${name}`);
+  for (const artifact of report.packageArtifacts ?? []) {
+    if (typeof artifact.name !== "string" || artifact.name.length === 0)
+      problems.push("public package artifact name is missing");
+    if (artifact.buildStatus !== "pass")
+      problems.push(`${artifact.name ?? "unknown package"} build did not pass`);
+    if (artifact.exportsValidated !== true)
+      problems.push(
+        `${artifact.name ?? "unknown package"} packed exports were not validated`,
+      );
+    if (
+      !Number.isInteger(artifact.packedFileCount) ||
+      artifact.packedFileCount <= 0
+    )
+      problems.push(
+        `${artifact.name ?? "unknown package"} packed file manifest is empty`,
+      );
+  }
   if (
     expectedRootCount !== undefined &&
     report.exhaustiveRootCount !== expectedRootCount

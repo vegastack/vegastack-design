@@ -511,3 +511,24 @@ explicit staged Prettier check now accepts an untouched generated receipt.
 Because that fix changed the tracked tree after the successful sweep, its receipt is deliberately
 stale and cannot be final evidence. The complete production-full sweep must run again on the new
 frozen tree before the receipt-only commit. No prior pass is carried or composed across the change.
+
+## Round 30 — 2026-07-29 · clean release artifact closure
+
+The receipt-bound tree passed the complete ship sweep, but the required clean detached
+`release:preflight` then failed all 26 isolated real consumer roots and both consolidated layouts
+with `TS2307` for `@vegastack/design` and `@vegastack/design/theme-scope`. The structured report,
+not the exit code alone, showed the common cause: clean `pnpm pack` archives contained package
+manifests but omitted the ignored `dist/*` files named by public exports. The ship path had passed
+only because its earlier lint/design build left those outputs available; preflight correctly began
+without them.
+
+Negative-first artifact fixtures now reconstruct every relative export and bin target and reject a
+pack manifest missing one. `verify-shadcn-consume` explicitly builds tokens then design, packs both
+with `pnpm pack --json`, validates the archive file lists, and records build/export/file-count facts
+in its immutable structured report before any clean consumer runs. A diagnostic begun with both
+`dist` directories absent passed one real and one simulated isolated Button consumer, with 9 token
+and 33 design archive files validated. Operator docs pass 33 current surfaces, **42** semantic
+fixtures, and nine CLI help surfaces. The widened full oracle then passed 26/26 real CLI consumers,
+26/26 isolated simulated consumers, and 554/554 consolidated items in both layouts in 335.051s,
+with zero report problems. This round invalidates the earlier receipt by changing tracked tooling; a
+new full exact-tree sweep and clean release preflight are mandatory before completion.

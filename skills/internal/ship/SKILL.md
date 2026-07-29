@@ -16,12 +16,14 @@ manually with npm tokens — publishing is CI-only (OIDC trusted publishing).
 ## 0. Release-chain preflight — run this FIRST
 
 ```bash
-pnpm release:preflight        # ~5min, in place, restores the tree on exit
+pnpm release:preflight        # in place; restores the tree on exit
 ```
 
 It simulates a version bump and runs the whole chain — version-sync, both authorities, the
-classifier, the receipt-carry proof, and a full `shadcn` consume round-trip. A release is a chain,
-and a defect anywhere fails all of it.
+classifier, the receipt-carry proof, and a full `shadcn` consume round-trip. Consume explicitly
+rebuilds both public packages, packs them, and verifies that every declared export is present before
+installing them into clean consumers; ignored `dist` output left by an earlier command is never
+evidence. A release is a chain, and a defect anywhere fails all of it.
 
 **This exists because a release once took seven merge-and-watch cycles**, each one discovering the
 next broken link ~25 minutes later. Five of those seven would have surfaced in this single run. If it
