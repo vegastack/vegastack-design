@@ -575,3 +575,89 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   compares SHA-256, failing on mismatch. Only then does the pinned action extract the same immutable
   ID. Workflow mutations reject removal of the hard check, and the unit mutation corrupts archive
   bytes. Candidate reuse remains disabled; the mandatory rebuild is still the sole production input.
+
+## 2026-07-29 — Visual review changed on identical trees
+
+- **Symptom:** the first completion VRT reported 57 changed screenshots despite no component visual
+  edit: 56 showed only syntax-token colour changes and one showed a different Fumadocs TOC marker.
+- **Root cause:** Fumadocs 16 defaults build-time highlighting to Shiki's JavaScript RegExp engine;
+  consecutive parallel builds emitted different TSX token scopes. Chromium full-page stitching also
+  scrolled through headings while Fumadocs updated its IntersectionObserver-driven TOC marker.
+- **Systemic fix:** build-time MDX pins Shiki Oniguruma, which upstream recommends for Node/build-time
+  maximum grammar compatibility. The VRT harness normalizes only scroll-driven TOC active/track state
+  immediately before capture. A verifier rejects removal/reordering. Across consecutive builds,
+  77,338 extracted Shiki blocks were byte-identical; raw full HTML was explicitly rejected as an
+  oracle because Next build-specific asset identifiers changed. Human review remains required for
+  the intentional syntax-colour difference.
+
+## 2026-07-29 — Operator-doc verifier recognized only yesterday's wrong counts
+
+- **Symptom:** semantic fixtures rejected 7 hosted jobs and 96/768 contracts, but a future wrong
+  value such as 6 or 109/872 would pass. Current CLI source comments/help and a direct package-level
+  Playwright contract alias were outside its inventory.
+- **Root cause:** independent stale constants and a 16-file prose-only inventory were treated as
+  semantic verification.
+- **Systemic fix:** hosted jobs are derived from every workflow YAML and route/check counts from the
+  contract authority; 29 current surfaces and nine executable `--help` paths are checked. New
+  mutations cover future wrong values, provenance/preflight/history wording, direct wrappers,
+  missing structured diagnostics, and terminal probe evidence. Historical incidents remain labelled
+  by date instead of being rewritten.
+
+## 2026-07-29 — Diagnostic and deployment summaries trusted step outcomes without their reports
+
+- **Symptom:** runner diagnostics wrote complete-browser/contract JSON but summarized only Actions
+  step outcomes; the engine-launch probe had no JSON. The production probe emitted only logs/exit
+  status, so `deployment-complete` could not name the attempted probe count or exact registry version.
+- **Root cause:** `continue-on-error` was used to collect diagnostics without a second structured
+  reconciliation step, and deployment terminal state depended on job ordering rather than carrying
+  the probe facts.
+- **Systemic fix:** launch, complete-browser and contract reports are parsed into explicit
+  executed/pass, executed/fail, skipped, not-reached or unknown states; empty/corrupt reports fail the
+  terminal verdict. The external probe atomically writes structured pass/fail observations, and the
+  terminal deploy job requires Cloudflare version ID, nonzero passing probe count and exact registry
+  version. Workflow-security now rejects 50 mutations including swallowed/missing/empty outcomes.
+
+## 2026-07-29 — Final review found two current instructions contradicting their executables
+
+- **Symptom:** release gotchas said `gates:push` ran the root lint umbrella even though the gate
+  executes Turbo lint, and runner diagnostics said browser jobs had to remain GitHub-hosted even
+  though current policy keeps every browser lane on developer machines.
+- **Root cause:** both lines survived broad terminology corrections because neither exact semantic
+  contradiction had a mutation fixture.
+- **Systemic fix:** current prose now names the actual gate command and local browser policy. Two
+  dedicated operator-doc fixtures reject either regression; the final unchanged-scope review must
+  rerun all current semantic fixtures before it may report zero medium findings.
+
+## 2026-07-29 — Historical gate timings were still presented as current budgets
+
+- **Symptom:** active agent, release, ship, and gate-runner surfaces still said full ship took about
+  20 minutes and complete browsers took 1m39s after the retained completion run measured 48m25s and
+  7m12s respectively.
+- **Root cause:** timing prose had no generation label and was outside the operator semantic
+  mutations, so the benefits ledger could reject the target while day-to-day instructions kept
+  advertising it.
+- **Systemic fix:** historical estimates are explicitly labelled; current surfaces name the retained
+  `n=1` sample and its unknown thermal/cold state, and direct command summaries avoid unsupported
+  latency promises. A timing-generation fixture rejects reintroducing the stale current wording.
+
+## 2026-07-29 — Runner diagnostics bypassed the standard complete-browser package authority
+
+- **Symptom:** the diagnostic workflow invoked `vitest-run.mjs` directly while the documented
+  `test:all-browsers` package command still called Vitest without the structured nonempty reporter.
+  A component-testing reference also mislabeled that command as a main/Release lane.
+- **Root cause:** the workflow and package script had parallel entry points, so either could drift
+  while both appeared to run the same configuration.
+- **Systemic fix:** `test:all-browsers` now owns the structured wrapper and diagnostics call that
+  package command with exact run/report arguments. A dry-run proved argument forwarding. Operator
+  and workflow mutations reject a direct Vitest package script, direct wrapper bypass, missing
+  report path, or a renewed main/Release browser claim.
+
+## 2026-07-29 — Component-contract authority still assigned browsers to main/Release
+
+- **Symptom:** `verify-component-contracts` printed a current machine-authority rationale saying
+  main/Release ran the complete three-engine suite, contradicting the locked local-first topology.
+- **Root cause:** the earlier prose sweep did not inventory the contract authority's operational
+  rationale, and its digest-derived copies faithfully propagated the stale sentence.
+- **Systemic fix:** the authority now names local pre-push and `gates:ship`, explicitly stating that
+  CI and Release only attest browser lanes. The operator verifier inventories the authority and a
+  semantic mutation rejects the old claim; every digest-derived surface was regenerated.

@@ -455,3 +455,29 @@ remain `n=0` and no saving is claimed. The user-owned receipt remains SHA-256
 `073a97f8584c60d346d412e40342530577f51415cc7dc8f50796f5ff8046f1ee`. The exact committed-tree full
 ship is intentionally performed afterward in an isolated worktree so this entry does not overwrite
 or relabel that receipt; this round does not claim that future result.
+
+## Round 27 — 2026-07-29 · release-efficiency completion and adversarial remediation
+
+The completion review used repeated deterministic and adversarial passes rather than accepting the
+first green suite. The earlier passes found and fixed stale boundary/count/provenance/preflight/retry
+instructions, unstructured diagnostic/deploy outcomes, nondeterministic Shiki/TOC VRT evidence, an
+incorrect `gates:push` lint claim, historical timings presented as current, a nonstandard
+complete-browser diagnostic entry point, and a machine-authority rationale that still assigned
+browsers to main/Release. Each correction gained a semantic or workflow mutation before the next
+pass. No finding was waived or reclassified to make the round green.
+
+The final unchanged-scope pass reports **0 high and 0 medium findings**. The executable operator
+verifier covers 32 current surfaces, 40 semantic stale-instruction mutations, machine-derived
+108-route/864-check and five-hosted-job counts, and nine real CLI `--help` surfaces. Workflow security
+passes 52 named mutations and every workflow parses with unique YAML keys. The canonical ship/gates/
+review skills and their Claude/Codex discovery paths resolve to the same sources; direct contract and
+complete-browser bypasses are absent; historical cutover/incident text is explicitly superseded or
+dated rather than treated as current authority.
+
+The full root lint/design oracle and final typecheck passed 7/7 after the package-command correction;
+component-contract, smoke-scope, gate-profile, registry-integrity, receipt, retry, affected, consume,
+candidate, release, workflow, boundary, VRT-determinism and classifier mutations all passed.
+Contract-derived generation was idempotent after the corrected browser-location rationale. This
+round does not claim a final receipt, real CI/Release/npm/deploy execution, percentile timing, or
+human pixel acceptance; those remain the terminal local gate and explicitly recorded external/MK
+checkpoints.

@@ -787,3 +787,46 @@ each was invisible in review and each is the kind that would have degraded the t
 - **Safe next action:** after separate push approval, observe real Release/Deploy runs read-only and
   retain exact-SHA parity and total-compute evidence. Present it to MK; do not enable without a
   separate D4 decision.
+
+## 2026-07-29 — Completion review decisions and rejected shortcuts
+
+- **Full-ship target is not met.** The retained preliminary full sweep passed every substantive lane
+  but took 2,905.154s (48m25s, local measured `n=1`) versus p50≤19m/p95≤22m. Contracts consumed
+  1,698.612s, complete browsers 432.478s, isolated consume 395.819s and docs warm-up 247.753s. I did
+  not raise workers, overlap the cold build with browsers, weaken assertions, or relabel the sample.
+  Cache/cold/thermal and CPU/RSS are unknown, so this is a bottleneck observation, not an SLO sample.
+- **The VRT false-diff root cause is in scope because untrustworthy review evidence blocks ship.** I
+  chose a build-time Oniguruma pin (officially supported and recommended for Node/build compatibility)
+  rather than ignoring syntax changes. Scroll-dependent TOC chrome is stabilized only in the local
+  capture harness, never in product runtime. The resulting intentional syntax colours still require
+  MK's human visual acceptance.
+- **Raw Next HTML is not used as determinism evidence.** A same-tree 141-file digest comparison
+  failed because build-specific asset identifiers changed everywhere. The accepted narrow proof is
+  77,338 byte-identical Shiki blocks across consecutive builds, plus the executable VRT mutations.
+- **Structured reports outrank step outcomes.** Diagnostic `continue-on-error` remains only to gather
+  all probes; a final fail-closed reconciliation reads the reports and rejects unknown/empty results.
+  Production probing writes one atomic structured report and `deployment-complete` consumes its
+  state/count/version. Upload and Wrangler version creation remain nonterminal.
+- **No availability checkpoint was inferred.** Exact-tree reuse is 0/20, affected is 0/30, cache
+  canary has no week/alternating sample, candidate parity is real `n=0`, and D1–D7 remain as recorded.
+  The implementation stays disabled/shadow-only and all claimed external timing/billing benefits
+  remain unknown.
+- **No outward authority was inferred from local completion.** Push, Version Packages merge and
+  production Deploy are still separate MK approvals. No workflow dispatch, npm publication,
+  repository setting, runner host, Cloudflare or production mutation occurred.
+
+## 2026-07-29 — Completion adversarial-remediation decisions
+
+- **Executable/package authority outranks equivalent commands.** Runner diagnostics now invokes the
+  standard `@vegastack/ui test:all-browsers` command; that command owns the structured Vitest wrapper.
+  I rejected retaining two equivalent entry points because only one was mutation-covered and capable
+  of proving nonempty execution.
+- **Machine rationale is current operator text.** The stale main/Release browser claim in
+  `component-contracts.json` was corrected at that authority and its digest-derived outputs were
+  regenerated; editing only the human reference would have left the executable audit output wrong.
+- **Old timing numbers are history, not budgets.** The 20-minute ship and 1m39s browser observations
+  remain labelled historical. Current instructions carry the retained 48m25s/7m12s `n=1` sample and
+  unknown environment state; they do not imply a percentile or a recovered target.
+- **Diagnostic continuation ends at reconciliation.** Individual probes may continue to collect the
+  whole picture. Structured readers and terminal verdicts cannot continue, skip unknown evidence, or
+  present a step outcome as proof.
