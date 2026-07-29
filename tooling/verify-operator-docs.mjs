@@ -39,6 +39,7 @@ const CURRENT_SURFACES = [
   "apps/docs/scripts/probe-deployment.mjs",
   "apps/docs/package.json",
   "packages/ui/package.json",
+  "packages/ui/component-contracts.json",
 ];
 
 const WORKFLOW_FILES = readdirSync(".github/workflows")
@@ -183,6 +184,12 @@ export function operatorDocProblems(sources) {
     if (/test:all-browsers[^\n]{0,100}\(main\/release\)/i.test(source))
       problems.push(
         `${file}: [browser-location] the complete browser suite is local /ship or diagnostic evidence, never a main/Release CI lane`,
+      );
+    if (
+      /main\/release runs the complete suite in all three engines/i.test(source)
+    )
+      problems.push(
+        `${file}: [browser-location] machine authority must not claim main/Release CI executes the complete browser suite`,
       );
     if (
       /gates:ship[^\n]{0,100}~20min|suite takes 1m39s locally|three engines \(measured 1m39s\)/i.test(
@@ -710,6 +717,12 @@ const semanticFixtures = [
     "complete browser command called a main/release lane",
     "skills/internal/component/references/testing.md",
     "pnpm --filter @vegastack/ui test:all-browsers # complete suite in all three engines (main/release)",
+    /browser-location/,
+  ],
+  [
+    "machine authority calls complete browsers a main/release lane",
+    "packages/ui/component-contracts.json",
+    '{"exemptions":[{"rationale":"main/release runs the complete suite in all three engines."}]}',
     /browser-location/,
   ],
   [

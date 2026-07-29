@@ -20326,7 +20326,7 @@
       "id": "cross-browser-smoke-is-risk-selected",
       "appliesTo": ["components[*]", "hooks[*]", "blocks[*]"],
       "exemptFrom": ["universal-cross-browser-selection"],
-      "rationale": "Pull requests run the complete browser-unit suite in Chromium plus contract-risk-selected WebKit/Firefox smoke; main/release runs the complete suite in all three engines."
+      "rationale": "Local pre-push runs the complete browser-unit suite in Chromium plus contract-risk-selected WebKit/Firefox smoke; local gates:ship runs the complete suite in all three engines. CI and Release attest these browser lanes and do not execute them."
     },
     {
       "id": "sonner-human-facing-alias",
