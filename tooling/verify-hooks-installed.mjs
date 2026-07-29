@@ -148,6 +148,25 @@ assert.ok(
 );
 checks++;
 
+// The committed receipt is machine-owned evidence. `gates:ship` serializes it atomically with
+// deterministic JSON.stringify formatting; Prettier makes a different, equally valid choice for
+// short engine arrays. If the staged format gate tries to rewrite that output, every successful
+// ship is uncommittable (or requires hand-editing evidence after the gate). Keep the generator as
+// the sole formatting authority and let receipt verification own semantic correctness.
+const prettierIgnored = new Set(
+  readFileSync(join(ROOT, ".prettierignore"), "utf8")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line !== "" && !line.startsWith("#")),
+);
+assert.ok(
+  prettierIgnored.has(".gates/receipt.json"),
+  ".gates/receipt.json must be excluded from Prettier: gates writes this committed evidence " +
+    "atomically with deterministic machine formatting, and the staged formatter must not make a " +
+    "successful production-full receipt uncommittable",
+);
+checks++;
+
 // ── the ladder the hooks call must exist and answer ──────────────────────────────────────────────
 
 for (const script of [
