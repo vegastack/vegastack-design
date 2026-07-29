@@ -14,8 +14,9 @@ name: Runner diagnostics (self-hosted mac mini)
 #        queues, whereas more workers genuinely parallelises on an 8+ core mini.
 #     4. Do the real suites pass, and how long do they take?
 #
-#   Every step is `continue-on-error` so one failure still yields the complete picture, and the final
-#   step writes a verdict to the run summary.
+#   Every diagnostic probe is `continue-on-error` so one failure still yields the complete picture.
+#   The structured-report reader and final verdict are strict and fail the job on any attempted
+#   failure, missing evidence, or unknown state.
 on:
   workflow_dispatch:
     inputs:

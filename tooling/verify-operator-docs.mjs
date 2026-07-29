@@ -174,6 +174,10 @@ export function operatorDocProblems(sources) {
       problems.push(
         `${file}: [browser-location] current instructions claim a browser lane runs in CI`,
       );
+    if (/every step is `continue-on-error`/i.test(source))
+      problems.push(
+        `${file}: [diagnostic-verdict] diagnostic probes may continue for collection, but structured reconciliation and the terminal verdict must fail closed`,
+      );
     if (
       /upload(?:ing)?(?: success)?\s+(?:is|means|equals)\s+(?:deployment\s+)?complet(?:e|ion)/i.test(
         source,
@@ -678,6 +682,12 @@ const semanticFixtures = [
     ".github/workflows/runner-diagnostics.yml",
     "Browser jobs must stay GitHub-hosted until this reads 3/3.",
     /browser-location/,
+  ],
+  [
+    "diagnostic workflow calls every step fail-open",
+    ".github/workflows/runner-diagnostics.yml",
+    "Every step is `continue-on-error` so one failure still yields the complete picture.",
+    /diagnostic-verdict/,
   ],
   [
     "push called the lint umbrella",
