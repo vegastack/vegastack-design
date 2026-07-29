@@ -8,7 +8,7 @@
 //
 //   It has been wrong. On 2026-07-25 the visual classifier was changed to stop re-running the gate on
 //   a pure version bump, and the change was WRONG in both directions at different points: first it
-//   still reported `visual=true` (version-sync re-stamps a provenance header into 1082 component
+//   still reported `visual=true` (in the dated 2026-07-25 incident, version-sync re-stamped a provenance header into 1082 component
 //   files, which a filename filter cannot distinguish from a real edit), and an intermediate revision
 //   referenced an unbound variable inside `$( … || true )` so it reported `visual=false` for a real
 //   component change AND exited 0 — a completely fail-open gate with a green log. Reading the shell
@@ -185,7 +185,7 @@ console.log(
   `  version-pr       ${outputs.version_pr === "true" ? "RUNS — create/update only; MK merge approval remains separate" : "skipped"}`,
 );
 console.log(
-  `  package-build    ${outputs.npm_publish === "true" ? "RUNS — hosted provenance build" : "skipped"}`,
+  `  package-build    ${outputs.npm_publish === "true" ? "RUNS — hosted isolated exact-byte producer" : "skipped"}`,
 );
 console.log(
   `  publish          ${outputs.npm_publish === "true" ? "RUNS — hosted npm OIDC, no NPM_TOKEN" : "skipped"}`,

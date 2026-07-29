@@ -8,7 +8,7 @@
 //
 //   A release is a chain: bump → version-sync → registry:build → verify-consume → classify → carry →
 //   guard → release-state → publish. A defect anywhere fails all of it. This runs the whole chain against a simulated
-//   bump in a THROWAWAY WORKTREE, so the discoveries happen together and locally.
+//   in-place bump with a clean-tree precondition and guaranteed restore, so the discoveries happen together and locally.
 //
 //   Of the seven blockers, five would have surfaced in this single run:
 //     · registry npm ranges not following the packages           (§1 of release-gotchas.md)
@@ -33,7 +33,26 @@ import { join } from "node:path";
 
 import { ROOT, versionBumpOnly } from "./lib/change-set.mjs";
 
-const bumpKind = process.argv.includes("--patch") ? "patch" : "minor";
+const usage = `Usage: node tooling/verify-release-chain.mjs [--patch]
+
+Simulate the complete release chain in place, starting only from a clean tree. Every exit path
+restores the original HEAD and removes files created by the simulation. It never pushes or publishes.
+
+  --patch   simulate a patch bump (default: minor)
+  --help    show this help without inspecting or mutating the tree`;
+const argv = process.argv.slice(2);
+if (argv.includes("--help") || argv.includes("-h")) {
+  console.log(usage);
+  process.exit(0);
+}
+const unknown = argv.filter((argument) => argument !== "--patch");
+if (unknown.length > 0) {
+  console.error(
+    `verify-release-chain: unknown option ${unknown[0]}\n\n${usage}`,
+  );
+  process.exit(2);
+}
+const bumpKind = argv.includes("--patch") ? "patch" : "minor";
 const PUBLIC_PACKAGES = ["design", "design-tokens"];
 
 /**

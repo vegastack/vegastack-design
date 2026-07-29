@@ -6,8 +6,9 @@
 //   shell, and both times in a way reading could not catch (docs/ledger/operator-review.md,
 //   2026-07-25):
 //
-//     - reporting a rendered-surface change for a pure version bump, so the 768-check gate re-ran
-//       over 1082 files whose only diff was a re-stamped provenance comment;
+//     - in the dated 2026-07-25 incident, reporting a rendered-surface change for a pure version
+//       bump, so the then-768-check gate re-ran over 1082 files whose only diff was a re-stamped
+//       provenance comment;
 //     - then, after the fix, referencing an unbound variable inside `$( … || true )` so it reported
 //       NO change for a real component edit and exited 0 — a fail-open with a green log.
 //

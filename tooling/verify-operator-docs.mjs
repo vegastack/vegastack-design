@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { readFileSync, readdirSync } from "node:fs";
+import { parse } from "yaml";
+import { FULL_CONTRACT_TESTS } from "./lib/gate-profile.mjs";
+import { COMPONENT_ROUTES } from "./lib/route-scope.mjs";
 
 const CURRENT_SURFACES = [
   "AGENTS.md",
@@ -20,7 +24,53 @@ const CURRENT_SURFACES = [
   ".husky/pre-push",
   "apps/docs/playwright.config.ts",
   "skills/internal/ship/references/release-gotchas.md",
+  "tooling/verify-release-chain.mjs",
+  "tooling/gate-receipt-carry.mjs",
+  "tooling/release-classify.mjs",
+  "tooling/verify-classify-change.mjs",
+  "tooling/lib/change-set.mjs",
+  "tooling/deploy-candidate.mjs",
+  "tooling/contracts-run.mjs",
+  "tooling/gates.mjs",
+  "tooling/gates-retry.mjs",
+  "tooling/gates-affected.mjs",
+  "tooling/verify-gate-receipt.mjs",
+  "apps/docs/scripts/probe-deployment.mjs",
+  "apps/docs/package.json",
 ];
+
+const WORKFLOW_FILES = readdirSync(".github/workflows")
+  .filter((file) => /\.ya?ml$/.test(file))
+  .sort();
+const WORKFLOW_SOURCES = Object.fromEntries(
+  WORKFLOW_FILES.map((file) => [
+    `.github/workflows/${file}`,
+    readFileSync(`.github/workflows/${file}`, "utf8"),
+  ]),
+);
+const HOSTED_JOB_COUNT = Object.values(WORKFLOW_SOURCES).reduce(
+  (count, source) =>
+    count +
+    Object.values(parse(source).jobs ?? {}).filter(
+      (job) => job?.["runs-on"] === "ubuntu-latest",
+    ).length,
+  0,
+);
+const NUMBER_WORDS = new Map([
+  ["zero", 0],
+  ["one", 1],
+  ["two", 2],
+  ["three", 3],
+  ["four", 4],
+  ["five", 5],
+  ["six", 6],
+  ["seven", 7],
+  ["eight", 8],
+  ["nine", 9],
+  ["ten", 10],
+]);
+const numberValue = (token) =>
+  /^\d+$/.test(token) ? Number(token) : NUMBER_WORDS.get(token.toLowerCase());
 
 const PRIVATE_INTERNAL = [
   /\/internal\/\*[^\n.]{0,120}\b(?:SSO|Access|protected|private)\b/i,
@@ -43,19 +93,41 @@ export function operatorDocProblems(sources) {
           `${file}: [internal-boundary] current instructions claim /internal/* is private: ${match[0]}`,
         );
     }
-    if (
-      !file.endsWith("references/release-gotchas.md") &&
-      /\b(?:96 contract routes|768 (?:component behaviour contracts|checks))\b/i.test(
-        currentSource,
-      )
-    )
-      problems.push(
-        `${file}: [contract-count] current instructions contain an obsolete route/check count`,
-      );
-    if (/\b(?:seven|7) (?:CI |GitHub-)?hosted jobs\b/i.test(currentSource))
-      problems.push(
-        `${file}: [hosted-job-count] current instructions contain the obsolete hosted-job count`,
-      );
+    if (!file.endsWith("references/release-gotchas.md")) {
+      for (const match of currentSource.matchAll(
+        /\b(\d+)\s+(?:contract\s+routes|routes\s*\/\s*\d+\s+(?:component\s+)?behaviou?r\s+contracts?)\b/gi,
+      )) {
+        const actual = Number(match[1]);
+        if (actual !== COMPONENT_ROUTES.length)
+          problems.push(
+            `${file}: [contract-count] claims ${actual} contract routes; machine authority requires ${COMPONENT_ROUTES.length}`,
+          );
+      }
+      for (const match of currentSource.matchAll(
+        /\b(\d+)\s+(?:(?:component\s+)?behaviou?r\s+contracts?|contract\s+checks|checks)\b/gi,
+      )) {
+        const actual = Number(match[1]);
+        if (actual !== FULL_CONTRACT_TESTS)
+          problems.push(
+            `${file}: [contract-count] claims ${actual} complete contract checks; machine authority requires ${FULL_CONTRACT_TESTS}`,
+          );
+      }
+    }
+    const hostedClaims = [
+      ...currentSource.matchAll(
+        /\b(\d+|zero|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:(?:CI|GitHub|workflow)[- ]?)?hosted\s+(?:workflow\s+)?jobs\b/gi,
+      ),
+      ...currentSource.matchAll(
+        /\b(\d+|zero|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:CI|workflow)\s+jobs?\s+(?:are|stay|remain)?\s*(?:GitHub-)?hosted\b/gi,
+      ),
+    ];
+    for (const match of hostedClaims) {
+      const actual = numberValue(match[1]);
+      if (actual !== HOSTED_JOB_COUNT)
+        problems.push(
+          `${file}: [hosted-job-count] claims ${actual} hosted workflow jobs; workflow definitions require ${HOSTED_JOB_COUNT}`,
+        );
+    }
     if (/\bbroad SSO\b|\bAccess verification\b/i.test(currentSource))
       problems.push(
         `${file}: [internal-boundary] current instructions retain the obsolete broad-Access topology`,
@@ -79,10 +151,20 @@ export function operatorDocProblems(sources) {
       problems.push(
         `${file}: [dispatch-recovery] current instructions retry before proving that no workflow run was created`,
       );
-    if (/\b(?:across|in) 1082 files\b/i.test(currentSource))
-      problems.push(
-        `${file}: [historical-count] current instructions use a dated file count as a generic release invariant`,
+    for (const match of currentSource.matchAll(/\b(?:1058|1082)\b/g)) {
+      const window = currentSource.slice(
+        Math.max(0, match.index - 220),
+        match.index + 220,
       );
+      if (
+        !/(?:dated|measured|2026-07-25|Version Packages \(#1\)|historical incident)/i.test(
+          window,
+        )
+      )
+        problems.push(
+          `${file}: [historical-count] current instructions use a dated file count without labelling its incident/date`,
+        );
+    }
     if (
       /runs on every PR in CI|CI runs (?:the )?(?:browser|Playwright)/i.test(
         source,
@@ -186,6 +268,26 @@ export function operatorDocProblems(sources) {
       problems.push(
         `${file}: [release-state] current instructions use the removed fail-open npm classifier path`,
       );
+    if (/hosted provenance build/i.test(currentSource))
+      problems.push(
+        `${file}: [npm-provenance] the hosted package producer is an isolation/exact-byte boundary, not a provenance build`,
+      );
+    if (
+      file === "tooling/verify-release-chain.mjs" &&
+      /simulated[\s\S]{0,160}THROWAWAY WORKTREE/i.test(currentSource)
+    )
+      problems.push(
+        `${file}: [preflight-location] source help contradicts the executable in-place restore behavior`,
+      );
+    if (
+      file === "apps/docs/package.json" &&
+      /"test:contracts"\s*:\s*"(?!node \.\.\/\.\.\/tooling\/contracts-run\.mjs --all)[^"]*playwright test/i.test(
+        currentSource,
+      )
+    )
+      problems.push(
+        `${file}: [diagnostic-wrapper] contract aliases must use tooling/contracts-run.mjs, never direct Playwright`,
+      );
   }
 
   const agents = sources["AGENTS.md"] ?? "";
@@ -242,6 +344,12 @@ export function operatorDocProblems(sources) {
     problems.push(
       "AGENTS.md: [candidate-shadow] must state shadow-only/D4 and retain the mandatory exact-tree rebuild",
     );
+  if (
+    !/structured probe count[\s\S]{0,120}exact registry version/i.test(agents)
+  )
+    problems.push(
+      "AGENTS.md: [deployment-terminal] must require structured live-probe count/state and exact registry version",
+    );
 
   const ship = sources["skills/internal/ship/SKILL.md"] ?? "";
   if (!/git fetch (?:--prune origin|origin --prune)/i.test(ship))
@@ -256,7 +364,10 @@ export function operatorDocProblems(sources) {
     problems.push(
       "skills/internal/ship/SKILL.md: [receipt-profile] must name schema 2, production-full, and all-browsers",
     );
-  if (!/upload is not completion[\s\S]{0,180}deployment-complete/i.test(ship))
+  if (
+    !/upload is not completion[\s\S]{0,180}deployment-complete/i.test(ship) ||
+    !/structured probe count[\s\S]{0,160}exact registry version/i.test(ship)
+  )
     problems.push(
       "skills/internal/ship/SKILL.md: [deployment-terminal] must distinguish upload from the deployment-complete terminal job",
     );
@@ -318,6 +429,14 @@ export function operatorDocProblems(sources) {
       "docs/RELEASING.md: [internal-boundary] must describe the anonymous /internal/* and service-token-only /r/* production probes",
     );
   if (
+    !/structured probe state\/count[\s\S]{0,100}exact registry version/i.test(
+      releasing,
+    )
+  )
+    problems.push(
+      "docs/RELEASING.md: [deployment-terminal] must require the structured probe state/count and exact registry version",
+    );
+  if (
     !/Release uses an explicit resumable state machine/i.test(releasing) ||
     !/registry-unknown[^\n]{0,120}(?:blocks|fail closed)/i.test(releasing) ||
     !/registry-only[^\n]{0,120}never runs/i.test(releasing)
@@ -340,7 +459,10 @@ export function operatorDocProblems(sources) {
   if (
     boundary &&
     (!/deployment-complete/i.test(boundary) ||
-      !/structured Cloudflare version ID/i.test(boundary))
+      !/structured Cloudflare version ID/i.test(boundary) ||
+      !/passing probe count[\s\S]{0,80}exact\s+registry version/i.test(
+        boundary,
+      ))
   )
     problems.push(
       "docs/plans/2026-07-28-public-site-private-registry-boundary.md: [deployment-terminal] current boundary runbook must require deployment-complete and the structured Cloudflare version ID",
@@ -360,10 +482,41 @@ export function operatorDocProblems(sources) {
     (!/steps\.all_browsers\.outcome/.test(diagnostics) ||
       !/steps\.contracts\.outcome/.test(diagnostics) ||
       !/complete three-engine suite/i.test(diagnostics) ||
-      !/complete contract suite/i.test(diagnostics))
+      !/complete contract suite/i.test(diagnostics) ||
+      !/vegastack-browser-launch-diagnostic/i.test(diagnostics) ||
+      !/id: structured-reports[\s\S]*report\.executed > 0/i.test(diagnostics))
   )
     problems.push(
       ".github/workflows/runner-diagnostics.yml: [diagnostic-verdict] the summary must report both deep-suite outcomes explicitly",
+    );
+
+  const deploymentProbe =
+    sources["apps/docs/scripts/probe-deployment.mjs"] ?? "";
+  if (
+    deploymentProbe &&
+    (!/--report\s+<path>/i.test(deploymentProbe) ||
+      !/kind:\s*["']vegastack-deployment-probe["']/i.test(deploymentProbe) ||
+      !/state:\s*(?:terminalState|["'](?:pass|fail)["'])/i.test(
+        deploymentProbe,
+      ))
+  )
+    problems.push(
+      "apps/docs/scripts/probe-deployment.mjs: [probe-report] the live probe must offer --help/--report and emit a terminal structured state",
+    );
+
+  const deployWorkflow = sources[".github/workflows/deploy.yml"] ?? "";
+  if (
+    deployWorkflow &&
+    (!/probe-deployment\.mjs\s+--report\s+/i.test(deployWorkflow) ||
+      !/probe_state:\s*\$\{\{\s*steps\.[\w-]+\.outputs\.state\s*\}\}/i.test(
+        deployWorkflow,
+      ) ||
+      !/PROBE_STATE:\s*\$\{\{\s*needs\.verify-public-boundary\.outputs\.probe_state\s*\}\}/i.test(
+        deployWorkflow,
+      ))
+  )
+    problems.push(
+      ".github/workflows/deploy.yml: [probe-report] deploy must carry the structured live-probe state into deployment-complete",
     );
 
   const requirements = sources["docs/requirements.md"] ?? "";
@@ -388,23 +541,52 @@ function readCurrentSources() {
   );
 }
 
+const HELP_COMMANDS = [
+  ["tooling/classify-change.mjs", /Usage:/i],
+  ["tooling/release-classify.mjs", /Usage:/i],
+  ["tooling/release-state.mjs", /Usage:/i],
+  ["tooling/verify-release-chain.mjs", /in place|restore/i],
+  ["tooling/gate-receipt-carry.mjs", /Usage:/i],
+  ["tooling/verify-gate-receipt.mjs", /Usage:/i],
+  ["tooling/contracts-run.mjs", /Usage:/i],
+  ["tooling/deploy-candidate.mjs", /create[\s\S]*verify[\s\S]*discover/i],
+  ["apps/docs/scripts/probe-deployment.mjs", /--report\s+<path>/i],
+];
+
+function cliHelpProblems() {
+  const problems = [];
+  for (const [file, expected] of HELP_COMMANDS) {
+    const result = spawnSync(process.execPath, [file, "--help"], {
+      encoding: "utf8",
+      env: { ...process.env, NO_COLOR: "1" },
+      timeout: 10_000,
+    });
+    const output = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
+    if (result.status !== 0 || !expected.test(output))
+      problems.push(
+        `${file}: [cli-help] --help must exit 0 without credentials or mutations and describe its supported interface`,
+      );
+  }
+  return problems;
+}
+
 // Semantic negative fixtures: each stale instruction must fail for its intended reason. These are
 // virtual strings so historical ledgers and superseded plans can remain byte-stable records.
 const validFixture = {
   "AGENTS.md":
-    "Every non-registry route is anonymous, including /internal/*; /r/* alone is service-token-only. /internal/* remains unlisted with noindex and no-store. A canonical evidence-leaf manifest is required. CI is receipt-first. Exact-tree receipt reuse is **shadow-only**. Release state is explicit and fail-closed. Only npm E404 is missing; registry-only published means zero hosted npm jobs. Consume uses a fresh consumer per root; D1 keeps the full oracle mandatory. The deploy candidate is shadow-only. D4 remains open; the mandatory exact-tree rebuild remains.",
+    "Every non-registry route is anonymous, including /internal/*; /r/* alone is service-token-only. /internal/* remains unlisted with noindex and no-store. A canonical evidence-leaf manifest is required. CI is receipt-first. Exact-tree receipt reuse is **shadow-only**. Release state is explicit and fail-closed. Only npm E404 is missing; registry-only published means zero hosted npm jobs. Consume uses a fresh consumer per root; D1 keeps the full oracle mandatory. The deploy candidate is shadow-only. D4 remains open; the mandatory exact-tree rebuild remains. Require structured probe count/state and exact registry version.",
   "docs/RELEASING.md":
-    "Every non-registry route is anonymously reachable; /internal/* remains unlisted with noindex/no-store; /r/* must reject anonymous requests. Release uses an explicit resumable state machine: registry-unknown blocks. For registry-only published work it never runs hosted npm. The deploy candidate is shadow-only; a mandatory exact-tree rebuild remains under D4.",
+    "Every non-registry route is anonymously reachable; /internal/* remains unlisted with noindex/no-store; /r/* must reject anonymous requests. Release uses an explicit resumable state machine: registry-unknown blocks. For registry-only published work it never runs hosted npm. The deploy candidate is shadow-only; a mandatory exact-tree rebuild remains under D4. Require structured probe state/count and exact registry version.",
   "docs/requirements.md":
     "Point-in-time historical record. D11 is superseded: /internal/* is anonymous under the current boundary.",
   "skills/internal/ship/SKILL.md":
-    "Run git fetch --prune origin before classification. Schema 2 production-full evidence includes all-browsers. Upload is not completion; require deployment-complete. versioned-unpublished alone runs hosted build; registry-unknown never grants publish permission. The deploy candidate is shadow-only. A missing or expired candidate is a safe miss and uses the rebuild; malformed or ambiguous evidence must fail.",
+    "Run git fetch --prune origin before classification. Schema 2 production-full evidence includes all-browsers. Upload is not completion; require deployment-complete with structured probe count and exact registry version. versioned-unpublished alone runs hosted build; registry-unknown never grants publish permission. The deploy candidate is shadow-only. A missing or expired candidate is a safe miss and uses the rebuild; malformed or ambiguous evidence must fail.",
   "skills/internal/gates/SKILL.md":
     "gates:retry writes diagnosticOnly: true and evidenceWritten: false. gates:affected writes shadowOnly: true and reuseEnabled: false. Require 30 representative samples and MK approval. verify-shadcn-consume uses a fresh consumer per root; D1 retains the full oracle.",
   "docs/plans/2026-07-28-public-site-private-registry-boundary.md":
-    "Require deployment-complete and the structured Cloudflare version ID.",
+    "Require deployment-complete and the structured Cloudflare version ID, passing probe count, and exact registry version.",
   ".github/workflows/runner-diagnostics.yml":
-    "${{ steps.all_browsers.outcome }} ${{ steps.contracts.outcome }} complete three-engine suite complete contract suite",
+    "${{ steps.all_browsers.outcome }} ${{ steps.contracts.outcome }} complete three-engine suite complete contract suite vegastack-browser-launch-diagnostic id: structured-reports report.executed > 0",
 };
 assert.deepEqual(operatorDocProblems(validFixture), []);
 const semanticFixtures = [
@@ -473,6 +655,12 @@ const semanticFixtures = [
     ".github/workflows/runner-diagnostics.yml",
     "pnpm exec playwright test contracts.spec.ts --reporter=line || true\nlsof -ti tcp:$PORT",
     /diagnostic-wrapper/,
+  ],
+  [
+    "diagnostics omit structured outcomes",
+    ".github/workflows/runner-diagnostics.yml",
+    "${{ steps.all_browsers.outcome }} ${{ steps.contracts.outcome }} complete three-engine suite complete contract suite",
+    /diagnostic-verdict/,
   ],
   [
     "browser in CI",
@@ -564,6 +752,42 @@ const semanticFixtures = [
     "An expired deploy candidate fails the deploy instead of rebuilding.",
     /candidate-fallback/,
   ],
+  [
+    "future wrong hosted-job count",
+    "README.md",
+    "Six hosted workflow jobs remain.",
+    /hosted-job-count/,
+  ],
+  [
+    "future wrong contract counts",
+    "skills/internal/review/SKILL.md",
+    "Run all 109 contract routes and 872 contract checks.",
+    /contract-count/,
+  ],
+  [
+    "hosted producer called provenance",
+    "tooling/release-classify.mjs",
+    "package-build RUNS — hosted provenance build",
+    /npm-provenance/,
+  ],
+  [
+    "direct package contract alias",
+    "apps/docs/package.json",
+    '{"scripts":{"test:contracts":"playwright test contracts.spec.ts"}}',
+    /diagnostic-wrapper/,
+  ],
+  [
+    "deployment probe missing report",
+    "apps/docs/scripts/probe-deployment.mjs",
+    'console.log("boundary passed")',
+    /probe-report/,
+  ],
+  [
+    "terminal deployment missing probe state",
+    ".github/workflows/deploy.yml",
+    "run: node apps/docs/scripts/probe-deployment.mjs\n  deployment-complete:\n    needs: verify-public-boundary",
+    /probe-report/,
+  ],
 ];
 for (const [label, file, text, expected] of semanticFixtures) {
   const mutated = { ...validFixture, [file]: text };
@@ -574,11 +798,14 @@ for (const [label, file, text, expected] of semanticFixtures) {
   );
 }
 
-const problems = operatorDocProblems(readCurrentSources());
+const problems = [
+  ...operatorDocProblems(readCurrentSources()),
+  ...cliHelpProblems(),
+];
 if (problems.length > 0) {
   console.error(problems.map((problem) => `✗ ${problem}`).join("\n"));
   process.exit(1);
 }
 console.log(
-  `✓ operator docs: ${CURRENT_SURFACES.length} current surfaces agree on topology, browser location, counts, receipt/reuse/retry/affected/consume/release-state/candidate ordering, terminal deployment, and schema-2 production evidence; ${semanticFixtures.length} semantic stale-instruction fixtures rejected`,
+  `✓ operator docs: ${CURRENT_SURFACES.length} current surfaces agree on topology, browser location, machine-derived ${COMPONENT_ROUTES.length}-route/${FULL_CONTRACT_TESTS}-check and ${HOSTED_JOB_COUNT}-hosted-job counts, receipt/reuse/retry/affected/consume/release-state/candidate ordering, terminal deployment, and schema-2 production evidence; ${semanticFixtures.length} semantic stale-instruction fixtures and ${HELP_COMMANDS.length} CLI help surfaces verified`,
 );

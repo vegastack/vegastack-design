@@ -75,7 +75,8 @@ clone that skips it has no browser verification at all, which is why `pnpm lint`
 Use the **ship skill** (`skills/internal/ship/SKILL.md` — auto-discovered by Claude Code and Codex):
 preflight → full local proof and visual review when applicable → changesets/changelog → reviewed
 Version PR → **npm OIDC publish** (tokenless, 2FA intact) → registry deploy → external boundary
-probe → terminal `deployment-complete` summary.
+probe → terminal `deployment-complete` summary with the Cloudflare version, structured probe count,
+and exact registry version.
 
 **Shipping is always MK's decision** — agents prepare and stop for an explicit
 "yes proceed" per outward step. Full reference: [docs/RELEASING.md](docs/RELEASING.md).

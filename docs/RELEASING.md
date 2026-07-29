@@ -52,7 +52,9 @@ distribution channels, both already wired:
    registry item's exact version, integrity hash, and signed-manifest membership. The new registry
    versions are then _available_—consumers still pull them.
    Upload progress is not completion: only the terminal `deployment-complete` job, after the external
-   live probe, reports success and names Wrangler's structured Cloudflare version ID.
+   live probe, reports success. Its summary must name Wrangler's structured Cloudflare version ID,
+   the structured probe state/count, and the exact registry version; missing, empty, unknown, or
+   failed probe evidence blocks that terminal job.
 
 Release's already-required exact-main quality build also uploads a deploy candidate in shadow-only
 mode. Deploy selects at most one live artifact from a successful `release.yml` push run for the exact

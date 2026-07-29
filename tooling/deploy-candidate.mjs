@@ -13,6 +13,29 @@ import {
 } from "./lib/deploy-candidate.mjs";
 
 const [command, ...args] = process.argv.slice(2);
+const usage = `Usage: node tooling/deploy-candidate.mjs <command> [options]
+
+Shadow-only exact-main deployment-candidate tooling. Candidate reuse remains disabled under D4;
+missing or expired candidates are safe misses and the deploy performs its mandatory rebuild.
+
+Commands:
+  create    --root <dir> --output <json> --repository <owner/repo> --run-id <id>
+            --run-attempt <n> --sha <commit>
+            Build a canonical manifest for an already-required exact-main docs artifact.
+  verify    --root <dir> --manifest <json> [--context-root <dir>] plus producer options
+            Verify producer identity, exact SHA, toolchain, context, leaves, and content root.
+  compare   --candidate <json> --rebuilt <json>
+            Require candidate and mandatory-rebuild manifests to be byte-equivalent.
+  discover  --repository <owner/repo> --sha <commit> --github-output <path> [--token <token>]
+            Select one unambiguous live immutable artifact or emit a safe miss.
+  download  --repository <owner/repo> --artifact-id <id> --expected-digest <sha256:...>
+            --output <zip>
+            Download by artifact ID and verify the API archive digest before writing.
+  --help    Show this help without network access or filesystem mutation.`;
+if (command === "--help" || command === "-h") {
+  console.log(usage);
+  process.exit(0);
+}
 const value = (name, fallback) => {
   const index = args.indexOf(name);
   return index === -1 ? fallback : args[index + 1];
@@ -159,8 +182,6 @@ if (command === "create") {
   writeFileSync(output, bytes, { flag: "wx", mode: 0o600 });
   console.log(`deploy-candidate: ARCHIVE VERIFIED ${artifactId} ${expected}`);
 } else {
-  console.error(
-    "Usage: deploy-candidate.mjs <create|verify|compare|discover|download> [options]",
-  );
+  console.error(usage);
   process.exit(2);
 }

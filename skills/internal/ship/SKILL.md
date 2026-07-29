@@ -115,14 +115,14 @@ missing; timeout, 5xx, malformed/wrong registry data, an ambiguous Version PR, a
 release-workflow/changeset conflict blocks. Never turn `registry-unknown` into publish permission.
 
 `changesets-nonempty` and `version-pr-open` run no hosted npm work. `versioned-unpublished` alone may
-run the hosted provenance build and npm OIDC job. `published` means a release surface changed but both
+run the hosted isolated exact-byte package build and npm OIDC job. `published` means a release surface changed but both
 exact public versions already exist, so quality runs on the mini while hosted npm jobs skip. A
 one-published/one-missing result resumes the interrupted publish path. The post-publish exact-version
 readback must pass before publication is complete.
 
 The classification itself lives in `tooling/classify-change.mjs` (`pnpm classify`), which that step
-calls; `tooling/verify-classify-change.mjs` proves it against real history, including that a genuine
-Version Packages commit — 1058 files whose only diff is a re-stamped provenance header — requires no
+calls; `tooling/verify-classify-change.mjs` proves it against real history, including the dated
+2026-07-25 Version Packages incident — 1058 files whose only diff is a re-stamped provenance header — requires no
 contract lane at all. Run it again on the Version PR
 branch before merging it (`--before main --after changeset-release/main`).
 The gate classifier is not the npm authority and no longer accepts `--check-npm`; release state lives
@@ -289,7 +289,9 @@ The manual dispatch from `main` is the outward-deploy approval. The workflow bui
 credentials, signs in the only OIDC-capable job, reverifies the immutable artifact in the
 credential-only deploy job, captures Wrangler's structured Cloudflare version ID, and then probes the
 one production boundary. **Upload is not completion:** require the final `deployment-complete` job to
-be green and read its summary; it cannot run after a failed/skipped probe. Every non-registry route is
+be green and read its summary; it must contain the Cloudflare version ID, an `executed/pass`
+structured probe count, and the exact registry version, and cannot run after a failed/skipped/empty
+probe. Every non-registry route is
 public. `/internal/*` remains intentionally absent from discovery and carries `noindex`/`no-store`,
 but it is not an authorization boundary. Only `/r/*` requires Cloudflare Access Service Auth.
 

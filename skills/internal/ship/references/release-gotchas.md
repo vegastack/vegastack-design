@@ -27,7 +27,8 @@ Proven end to end on 2026-07-26. Follow it in this order.
 5. Merge the change PR only with its separate approval → `version-pr` opens the Version PR.
 6. Merge the reviewed Version PR only with its separate approval → `package-build` + `publish` → npm.
 7. Dispatch `deploy.yml` only with its separate production approval; require the external probe and
-   terminal `deployment-complete` summary.
+   terminal `deployment-complete` summary, including Cloudflare version ID, nonzero structured probe
+   count/state, and exact registry version.
 
 **`package-build` and `publish` showing "Skipped" on step 4 is CORRECT** — the explicit state is
 `changesets-nonempty` or `version-pr-open`. They run only for `versioned-unpublished`, after the
@@ -230,7 +231,8 @@ operator had intentionally made the whole non-registry site public. The recovery
 verifier with the approved boundary, not to roll Cloudflare back: remove the obsolete cutover phase,
 assert public/noindex/no-store on every exported internal derivative, keep anonymous `/r/*`
 fail-closed, and validate a representative registry item's exact workspace version, hash, and signed
-manifest entry. Treat `deploy-curated` success and final workflow success as separate evidence.
+manifest entry. Treat `deploy-curated` success and final workflow success as separate evidence; the
+terminal summary must carry the structured probe state/count and exact registry version.
 
 Two recovery-specific follow-ons:
 

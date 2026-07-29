@@ -134,7 +134,7 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
 - **Pixels stay a local review step**, unchanged: `node tooling/vrt-review.mjs` captures the base ref
   and the working tree on one machine and emits a before/after report a human reads during `/ship`.
   No screenshot is ever committed.
-- **Only five CI jobs are GitHub-hosted, each for a hard reason.** The split is an enforced
+- **Only five workflow jobs are GitHub-hosted, each for a hard reason.** The split is an enforced
   allowlist in `tooling/verify-workflow-security.mjs`, not a convention, and
   `tooling/verify-workflow-security-negative.mjs` proves it rejects a move in either direction.
   **Ephemeral exact-byte package production** (`release.yml`'s `package-build`) — `publish` uploads
@@ -169,7 +169,8 @@ org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` a
   metadata only, never authorization.
 - **Upload is not deployment completion.** Pinned Wrangler emits a structured Cloudflare version ID,
   but only the terminal `deployment-complete` job—after signing, immediate artifact reverification,
-  upload, and the external live boundary probe—means production succeeded.
+  upload, and the external live boundary probe—means production succeeded. Its summary must include
+  that version ID, a nonzero structured probe count in `pass`, and the exact registry version.
 - **The exact-main deploy candidate is shadow-only.** Release may upload the docs output that its
   already-required no-credential quality build produced. Deploy verifies its workflow/run/SHA, API
   archive digest, canonical leaf manifest, toolchain/config context, and parity with the mandatory

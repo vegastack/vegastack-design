@@ -4,7 +4,7 @@
 // THE PROBLEM THIS SOLVES
 //   A receipt is bound to a tree hash. `changeset version` + `version-sync` move that hash — package
 //   versions, package CHANGELOGs, consumed changesets, and a re-stamped provenance header in 1082
-//   files — while changing no code any browser gate could observe. Measured on the real
+//   files — while changing no code any browser gate could observe. Dated measurement on the real
 //   `Version Packages (#1)` commit: tree 77a346c0 → 1b5796df.
 //
 //   Without this, every Version PR would fail `receipt-guard`, `quality-gate` would never run, and no
@@ -40,6 +40,21 @@ import {
 import { buildEvidenceManifest } from "./lib/gate-profile.mjs";
 
 const CARRY_REASON = "version-bump";
+
+const usage = `Usage: node tooling/gate-receipt-carry.mjs
+
+Carry the current gate receipt across an independently rederived pure version bump. The command
+refuses any substantive, untracked, malformed, ambiguous, or schema-mismatched change. It is only
+valid inside version-packages after changeset version and version-sync.`;
+const argv = process.argv.slice(2);
+if (argv.includes("--help") || argv.includes("-h")) {
+  console.log(usage);
+  process.exit(0);
+}
+if (argv.length > 0) {
+  console.error(`gate-receipt-carry: unknown option ${argv[0]}\n\n${usage}`);
+  process.exit(2);
+}
 
 function fatal(message) {
   console.error(`gate-receipt-carry: ${message}`);

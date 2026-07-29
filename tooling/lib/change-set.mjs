@@ -6,7 +6,8 @@
 //      work (the local gates).
 //   2. WHICH OF THOSE ARE SUBSTANTIVE — `pnpm run version-packages` runs version-sync, which runs
 //      registry:build, which re-stamps `// @vegastack <name>@<version> sha256-<sha>` into EVERY
-//      component source and docs copy-in: 1082 files on a 538-item registry. Those paths are
+//      component source and docs copy-in: 1082 files on a 538-item registry in the dated 2026-07-25
+//      Version Packages incident. Those historical counts are evidence, not a current invariant; the paths are
 //      legitimately component sources, so a filename-level filter CANNOT tell that one-line comment
 //      apart from a real edit — it has to read the diff body. Without this, every version bump would
 //      trigger a full 108-route sweep that cannot possibly have moved anything.
@@ -128,7 +129,8 @@ export function dropProvenanceOnly(files, { before, after = null }) {
   const kept = new Set(files.filter((file) => untracked.has(file)));
   const diffable = files.filter((file) => !untracked.has(file));
 
-  // One git process per batch rather than per file: 1082 spawns on a version bump is minutes.
+  // One git process per batch rather than per file: large generated version bumps otherwise take
+  // one subprocess per changed file and can cost minutes.
   const BATCH = 200;
   for (let index = 0; index < diffable.length; index += BATCH) {
     const args = ["diff", "-U0", "--no-renames", before];
