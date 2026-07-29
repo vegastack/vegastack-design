@@ -195,7 +195,8 @@ later deploy look faster is not allowed.
 Job containers are banned outright. They are Linux-only and cannot start on the minis, and the one job
 that legitimately needed one — the three-engine suite in the digest-pinned Playwright image, because
 bare `ubuntu-latest` WebKit could not settle the compiled-CSS Toaster contrast check — no longer runs
-in CI. That suite takes 1m39s locally.
+in CI. Its 1m39s local figure is historical; the retained completion sample took 7m12s (`n=1`,
+thermal/cold state unknown).
 
 The minis still cannot launch Chromium (no per-user Mach bootstrap namespace; `bootstrap_look_up
 org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` and SIGTRAP,

@@ -179,6 +179,14 @@ export function operatorDocProblems(sources) {
         `${file}: [diagnostic-verdict] diagnostic probes may continue for collection, but structured reconciliation and the terminal verdict must fail closed`,
       );
     if (
+      /gates:ship[^\n]{0,100}~20min|suite takes 1m39s locally|three engines \(measured 1m39s\)/i.test(
+        source,
+      )
+    )
+      problems.push(
+        `${file}: [timing-generation] historical ship/browser timings must not be presented as current after the retained 48m25s/7m12s completion sample`,
+      );
+    if (
       /upload(?:ing)?(?: success)?\s+(?:is|means|equals)\s+(?:deployment\s+)?complet(?:e|ion)/i.test(
         source,
       )
@@ -688,6 +696,12 @@ const semanticFixtures = [
     ".github/workflows/runner-diagnostics.yml",
     "Every step is `continue-on-error` so one failure still yields the complete picture.",
     /diagnostic-verdict/,
+  ],
+  [
+    "historical ship timing presented as current",
+    "skills/internal/ship/SKILL.md",
+    "pnpm gates:ship # THE full local sweep. ~20min. Writes .gates/receipt.json. The complete suite takes 1m39s locally.",
+    /timing-generation/,
   ],
   [
     "push called the lint umbrella",

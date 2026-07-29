@@ -6,13 +6,17 @@
 //   pnpm gates:component <name>    the inner loop while building one component.
 //   pnpm gates:ship                the full local sweep /ship requires.
 //
-// MEASURED BUDGETS — macOS ARM64, 10 cores, warm turbo cache. Re-measure rather than trusting these.
+// HISTORICAL BASELINE — macOS ARM64, 10 cores, warm turbo cache. Do not treat as a current budget.
 //   commit                          ~4s      design-lint 1.7s · secret-scan 0.7s · the rest <0.2s
 //   component <name>                ~44s     design-lint 1.7s · that unit file 2.8s · its closure 40s
 //   push, nothing contract-relevant ~33s     typecheck 17s · lint 16s · all browser lanes SKIPPED
 //   push, one component touched     ~1m45s    + unit 16s · smoke 17s · a 3-route closure 40s
 //   push, a GLOBAL surface touched  ~9-11min  + the full 108-route sweep (864 checks)
 //   ship                            ~17-18min + all-browsers 1m39 · consume 3m42 · full contracts
+//
+// RETAINED COMPLETION SAMPLE — 2026-07-29, n=1, thermal/cold state unknown. The target was not met.
+//   ship                            48m25s    all-browsers 7m12 · consume 6m36 · contracts 28m19
+// Read `.gates/ship.json` and its lane reports; never tune or relabel an observation to this comment.
 //
 //   A COLD docs export adds ~1m40 to any lane that needs `apps/docs/out`. Note `turbo.json` lists
 //   `tooling/**` in `globalDependencies`, so editing anything in this directory invalidates that

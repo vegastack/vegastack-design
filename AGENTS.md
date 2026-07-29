@@ -153,7 +153,8 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
 - **Job containers are banned outright.** They are Linux-only and cannot start on the macOS minis,
   and the one job that legitimately needed one — the three-engine suite in the digest-pinned
   Playwright image, because bare `ubuntu-latest` WebKit could not settle the compiled-CSS Toaster
-  contrast check — no longer runs in CI at all. That suite takes 1m39s locally.
+  contrast check — no longer runs in CI at all. The 1m39s figure is historical; the retained
+  completion sample took 7m12s (`n=1`, thermal/cold state unknown).
 - **The minis still cannot launch browsers, and it no longer blocks anything.** Their Actions runner
   has no per-user Mach bootstrap namespace, so every Chromium launch dies with `bootstrap_look_up
 org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` and SIGTRAP —
@@ -286,12 +287,12 @@ Four tiers. Run the cheapest one that can disprove your change, then widen. The 
 and 2 automatically; `pnpm gates:*` is the same ladder invoked by hand.
 
 ```bash
-pnpm gates:commit                 # ~3s      static gates over the STAGED set. Never a browser.
-pnpm gates:component <name>       # ~25s     design-lint · that component's unit test · its routes
-pnpm gates:push                   # ~35-80s  typecheck · lint · unit · smoke · SCOPED contracts
+pnpm gates:commit                 # ~3-5s    static gates over the STAGED set. Never a browser.
+pnpm gates:component <name>       # scoped   design-lint · that component's unit test · its routes
+pnpm gates:push                   # scoped   typecheck · Turbo lint · unit · smoke · contracts
 pnpm gates:retry                  # diagnostic-only exact selectors from the retained failure
 pnpm gates:affected               # shadow impact plan, then current push oracle; no reuse/evidence
-pnpm gates:ship                   # ~20min   the full sweep, then vrt-review. /ship requires it.
+pnpm gates:ship                   # full     latest retained sample 48m25s; /ship requires it
 ```
 
 Individual gates, when you want one directly:
@@ -412,8 +413,9 @@ base ref with no redesign, and required status checks would convert the attested
 enforced ones.
 
 Cross-browser policy: `pre-push` runs the Chromium unit suite plus the contract-selected
-WebKit/Firefox risk smoke (measured 16s each); `/ship` additionally runs the complete suite in all
-three engines (measured 1m39s). The smoke selection is generated from
+WebKit/Firefox risk smoke (historically measured 16s each); `/ship` additionally runs the complete
+suite in all three engines. Its historical 1m39s measurement regressed to 7m12s in the retained
+completion sample (`n=1`, thermal/cold state unknown). The smoke selection is generated from
 `coverage.crossBrowserSmoke: "selected"` in `packages/ui/component-contracts.json` — add a component
 to it only for motion or another evidenced cross-engine risk, never by editing the generated
 `contract-smoke-tests.generated.json`.
