@@ -1666,3 +1666,15 @@ the test, not prose-only documentation.
   invalidated by the final artifact-negative fix. The terminal post-freeze sweep is reported from
   `.gates/ship.json` and the committed receipt rather than editing this plan afterward and thereby
   invalidating that exact-tree evidence.
+
+### 16.10 Dynamic-verification addendum — 2026-07-30
+
+The approved follow-on plan is
+`docs/plans/2026-07-29-dynamic-dependency-aware-verification.md`. It implements a common
+dependency-aware impact explanation, exact diagnostic runners, VRT reconciliation, and affected
+observability in shadow. It does **not** change this audit's locked checkpoints: dynamic pre-push is
+still 0/30 and disabled; exact-tree reuse, selected consume, task-specific Turbo inputs, candidate
+reuse, cache canary, and D1–D7 production composition remain disabled or blocked. Production still
+requires the complete exact-final-tree `production-full` receipt. The follow-on plan's implementation
+record supersedes the 33/42/9 operator-verifier counts above for current tooling coverage; the dated
+numbers remain the evidence for the earlier round.

@@ -109,9 +109,9 @@ This is an explicit verification build, not a `prepack`/`prepare` publication li
 
 ## Where the jobs run
 
-**No CI runner executes a browser.** The browser-unit suite, the cross-engine smoke, the three-engine
-suite, and the 864 behaviour contracts run on a developer machine — scoped in `.husky/pre-push`, in
-full under `pnpm gates:ship` — and each run writes `.gates/receipt.json`, bound to a git tree hash of
+**No CI runner executes a browser.** Browser unit, cross-engine smoke, and scoped behaviour
+contracts run in `.husky/pre-push`; the complete three-engine suite and complete behaviour contracts
+run under `pnpm gates:ship`. Evidence-producing local runs write `.gates/receipt.json`, bound to a git tree hash of
 the working tree with `.gates/` excluded. Every workflow has a `receipt-guard` job that rejects a push
 whose receipt does not cover the pushed tree. A receipt is **attestation, not proof**; see
 `tooling/lib/gate-receipt.mjs` and AGENTS.md § Locked decisions for exactly what that does and does
@@ -155,6 +155,24 @@ production-full runs can create samples. The blanket `tooling/**` Turbo dependen
 Affected reuse stays off until at least 30 representative production-full zero-escape samples and a separate MK checkpoint; a ready summary
 does not self-enable. No affected or cross-tree composition can replace the complete exact-tree
 production-full ship proof under current policy.
+The current authority has no agreeing greater-than-six-route foundation fixture, so the qualifying
+cohort is machine-blocked at 0/30. Do not collect a qualifying cohort yet. The safe next action is to
+present that authority/policy blocker to MK and obtain a separately approved fixture or checkpoint
+change; synthetic or substitute samples never count.
+
+Use `pnpm gates:plan` before iterative diagnostics and VRT. It is read-only unless an explicit
+diagnostic report path is requested and says `productionEligible: false`. Operational prose may
+safely select no product lane only when the machine graph proves no rendered/executable edge.
+Rendered MDX, previews, generated authorities, tokens/styles/fonts, shared runtime/shell,
+dependencies, config/toolchain, metadata, and unknown paths select their reachable surface or widen.
+Component changes include every reachable dependent from the union of registry, actual imports,
+Vitest-related selection, and route authority; disagreement never chooses the smaller set. Exact
+selected runners are diagnostic-only and reconcile planned/listed/executed nonempty leaves.
+
+This does not make production ship compositional. A docs-only final tree is still a different exact
+tree, so the complete `production-full` gate remains mandatory until D7 has separate evidence and MK
+approval. VRT may be `safely-skipped` when no rendered route is selected, but that means “no capture
+was applicable,” not “pixels passed.”
 
 Consume has isolated diagnostic/affected reports for root-cause work. Every selected real and
 simulated root uses a fresh consumer and independently proves target digests, post-write integrity,

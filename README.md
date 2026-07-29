@@ -61,6 +61,7 @@ is generated (CI fails on drift).
 pnpm install                   # also wires the git hooks (husky, via `prepare`)
 pnpm dev                       # docs showcase on :3000
 pnpm gates:component <name>    # the inner loop: design-lint · that unit test · its contract routes
+pnpm gates:plan                # explain affected lanes and dependents; diagnostic/shadow only
 pnpm gates:push                # what pre-push runs: typecheck · lint · unit · smoke · scoped contracts
 pnpm gates:ship                # the full sweep — required before any release
 pnpm registry:build            # after any canonical component edit
@@ -69,6 +70,12 @@ pnpm registry:build            # after any canonical component edit
 The git hooks run the first two tiers automatically. **`pnpm install` is what installs them** — a
 clone that skips it has no browser verification at all, which is why `pnpm lint` includes
 `tooling/verify-hooks-installed.mjs`.
+
+The impact plan is dependency-aware, not extension-aware. Operational prose can avoid product lanes;
+rendered MDX still selects its page, and component code selects the component plus every reachable
+dependent test and route. Shared styling/runtime, toolchain/config, metadata, disagreement, and
+unknown inputs widen. The plan does not yet narrow pre-push or final ship, and cannot satisfy a
+production receipt.
 
 ## Releasing
 
@@ -91,8 +98,9 @@ registry integrity (SHA-256 + Sigstore) · changelog, skill, and link lints. The
 consumer** (`vegastack-design-starter`, local repo) is the executable ground truth for every guide
 claim.
 
-**Verification is local-first, and the split is deliberate.** Every browser lane runs on a developer
-machine through the git hooks; CI independently **re-executes** the entire non-browser half on the
+**Verification is local-first, and the split is deliberate.** Browser unit, smoke, and scoped
+contracts run through pre-push on a developer machine; the complete three-engine and contract lanes
+run only in the full local ship ladder. CI independently **re-executes** the non-browser half on the
 free mac minis and **verifies** the browser half through `.gates/receipt.json`, a receipt bound to a
 git tree hash. That receipt is attestation, not proof — `--no-verify` plus a hand-edited JSON defeats
 it. What it buys is that skipping a browser gate is visible instead of silent. AGENTS.md

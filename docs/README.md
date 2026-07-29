@@ -15,6 +15,10 @@ VegaStack's design-system records, release runbooks, research, and ledgers.
 For current package versions and registry inventory, query npm/the workspace and the machine
 authorities named in `AGENTS.md`; do not copy a number from prose.
 
+For local verification scope, `pnpm gates:plan` explains the dependency-aware shadow decision. Plans
+and ledgers can be operational-only; MDX under `apps/docs/content` is rendered product input and is
+handled separately. Unknown or disagreeing inputs widen, and final production ship remains full.
+
 ## Historical records
 
 `requirements.md`, `gap-analysis.md`, `plans/`, `audits/`, and most `research/` documents are

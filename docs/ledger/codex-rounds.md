@@ -564,3 +564,63 @@ nine executable help surfaces; workflow security still rejects all 52 mutations.
 surface searches found no obsolete boundary/count/provenance/preflight/upload claims or direct/fail-
 open browser/contract commands. The terminal exact-tree ship and clean preflight must still be rerun
 after committing this closure; this review result is not a substitute for either execution.
+
+## Round 34 — 2026-07-30 · dynamic-verification adversarial remediation
+
+The first dynamic-verification review did not accept green focused selectors as completion. It found
+that broad Markdown and tooling prefixes could authorize a future unmodeled safe skip, ordinary push
+contracts and the shadow impact planner were described too much like one active selector, planner
+reports hid checkpoint/process-start cost, a classifier mutation clone omitted the current imported
+module closure, and retained-evidence helpers lacked direct symlink mutation coverage. Each finding
+was treated as blocking and fixed at its authority rather than explained away.
+
+The remediated planner uses explicit prose/tooling membership and real existing lookalike fixtures;
+unknown paths widen. It reports concise machine reasons, exact selected leaf counts, disagreements,
+the machine-derived foundation blocker, and total process-relative planning wall. Ordinary
+`gates:push` remains the legacy route-scope oracle until separate activation. Immutable affected and
+retry evidence now rejects symlink roots/leaves and contradictory structured outcomes. Visual
+handoff is status-specific, so new/removed/broken cases never fabricate Before/After/Difference
+paths. The current graph observation is 1,647 sources and 3,518 edges with zero retained issues.
+
+Focused impact, report, retry, measurement, route, smoke, import, exact Vitest/contract/VRT,
+inventory, consume, workflow-security, operator-doc, and 70-assertion classifier suites passed after
+these fixes. This round intentionally does **not** claim final zero-high/zero-medium review, a final
+receipt, or ship completion; the broad deterministic gates, unchanged-scope adversarial rerun,
+release preflight, VRT applicability review, and terminal exact-tree full ship still follow.
+
+The next adversarial pass found three additional medium-or-higher holes, so the round remained open:
+the VRT authority silently dropped rendered MDX outside a hand-maintained subset; runner diagnostics
+called the exact contract-leaf constructor without routes; and affected scenario labels could burn a
+full oracle before their shape was rejected. The fixes add an exact generated 139-page VRT authority
+with stale/dynamic/duplicate/symlink/add/remove mutations, an independently reconstructed
+108-route/864-contract diagnostic universe, and candidate predicates that reject invalid labels
+before oracle spawn. No earlier green output was retained as completion evidence.
+
+The final frozen unchanged-scope adversarial rerun reported **0 high and 0 medium findings**, with no
+prior finding recurring. Its aggregate passed diff and changed-script syntax checks; change
+inventory; the 1,647-source/3,518-edge zero-issue import graph; impact planning and both raw/selected
+checkpoint pre-spawn stops; exact Vitest, contract, report, and VRT selection; 139-page VRT
+freshness; 130 route assertions; smoke, tree/report path, retry, affected-oracle, consume, measurement,
+108/554 contract-reconciliation, 70 classifier, workflow-security positive/59-negative, and
+operator-doc 58-surface/58-semantic-fixture/14-help suites. Manual stale, dead-entrypoint, and
+symlink-mirror review found no remaining high/medium issue. This closure is code-review evidence
+only; it is not terminal `gates:ship`, receipt verification, release preflight, VRT human review, or
+outward approval.
+
+The subsequent broad deterministic lint invalidated that closure as the final verdict by finding a
+schedule regression the focused/adversarial aggregate had missed: component mode ran selected
+browser unit work before its cold docs warm-up settled. The root fix moves the barrier ahead of every
+browser lane while preserving the route-less no-build optimization; all three component/push/ship
+barriers and every Vitest/contract-wrapper invocation are now checked. Moving any browser invocation,
+removing any barrier, or removing either component route guard makes one of 14 mutations fail. The
+earlier zero-finding result remains a truthful dated review observation, but is superseded as final
+acceptance pending a focused unchanged-scope rerun of this last fix.
+
+The focused schedule rerun then reported **0 high and 0 medium findings**. It confirmed the current
+runtime order and all 14 schedule mutations: nine individual Vitest/contract-wrapper pre-barrier
+moves, three mode barrier removals, and two component route-guard removals. Syntax, diff, operator
+docs 58/58/14, and the supersession record passed. A route-less hook runtime spot-check was not used
+as evidence because current conservative authority safely widens every hook to full contracts; the
+review stopped before browser/contracts and found no orphan build. The two explicit guard mutations
+remain the future-route-less proof. This is the final high/medium review closure for the implementation
+tree before commits; full ship, receipt, preflight, VRT, and outward approval remain separate.

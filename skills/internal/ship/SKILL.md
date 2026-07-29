@@ -87,8 +87,30 @@ oracle writes no receipt; its local report and proposed Turbo hashes cannot sati
 Only an explicit `--oracle ship` result can count as a production-full shadow checkpoint sample, and
 even that is not release evidence. Affected reuse is disabled pending 30 representative
 production-full zero-escape samples and separate MK approval.
+The current authority has no agreeing greater-than-six-route foundation fixture, so the qualifying
+cohort is machine-blocked at 0/30. Do not collect qualifying checkpoint samples until MK separately
+resolves that authority/policy blocker; synthetic or substitute samples never count.
 Even after any local checkpoint, production still requires the complete exact-tree `gates:ship`
 profile unless MK separately changes the cross-tree compositional-evidence policy.
+
+Before deciding which iterative diagnostics or pixel review apply, run `pnpm gates:plan`. Read its
+machine reasons rather than inferring from a file extension. Operational plans, ledgers, root
+instructions, and internal skills can have no product impact; rendered MDX, previews, generated
+copy-ins, tokens, global CSS/fonts, provider/theme, docs shell, dependencies, configs, toolchain,
+metadata, and unknown paths cannot inherit that exemption. A component change selects it plus every
+reachable dependent from the union of registry, import, Vitest-related, and route authorities.
+Missing or disagreeing authorities widen. `safely-skipped` must carry a reason and selector digest;
+`unknown` stops. Exact selected commands remain diagnostic/shadow-only and do not satisfy this ship
+checklist.
+Internal skills are operational prose. Public skills and their generated `packages/design/skills/**`
+mirrors ship inside `@vegastack/design`: they can avoid rendered component lanes only when the plan
+retains the skill-mirror, package-export, and package-build checks.
+
+This makes `/ship` dynamic in explanation and pixel applicability, not in production evidence. If
+the VRT lane is safely skipped, say that no rendered route was selected—never call it a clean pixel
+diff. If routes are selected, follow the plain-language/image-link protocol below. In both cases the
+terminal `pnpm gates:ship` remains the complete exact-final-tree production proof until D7 and a
+separate MK approval change that policy.
 
 Consume diagnostics are independently isolated: each selected real-CLI and simulated root starts
 from a fresh consumer and must pass post-write verification and typecheck. The full profile retains
@@ -170,14 +192,16 @@ node tooling/vrt-review.mjs
 Then follow [references/visual-review.md](references/visual-review.md) exactly:
 
 1. Read `.vrt-review/report.json`.
-2. For every entry with `status !== "unchanged"`, **read the before, after, and diff images**.
+2. Read every artifact the status can produce: changed = Before/After/Difference; new = After (and
+   Difference only if emitted); removed = Before; broken = the report error plus any available image.
 3. Classify each **intended** / **unintended** / **uncertain**.
 4. Present a human-readable handoff:
    - Start with short plain-language bullet points: what visibly changed, what did not change, the
      likely cause, and whether a user would notice it. Never make a pixel count the explanation.
    - Include the audit table — route, project, pixels changed, verdict, and one-line reasoning.
-   - For every non-unchanged entry, expose its `images.before`, `images.after`, and `images.diff` as
-     absolute, clickable image paths so MK can manually inspect the exact screenshots.
+   - Expose every available status-appropriate image as an absolute, clickable path, plus the
+     absolute report path. Never invent a missing Before/After/Difference path.
+   - A broken entry has no visual verdict: explain the error, link what exists, rerun, and stop.
 5. **Stop. MK decides.** Never self-clear a diff.
 
 A run that captured nothing prints SKIPPED. Report it as skipped; it is not evidence of a clean diff.

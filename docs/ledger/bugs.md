@@ -703,3 +703,115 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
 - **Systemic fix:** exact artifacts now reject missing, duplicate, and unexpected package names;
   invalid/escaping export or bin targets fail instead of disappearing. Each branch has an exact
   intended-reason fixture, and the production-full receipt must be regenerated after the fix.
+
+## 2026-07-30 — Provenance subtraction hid a mode-only scheduler input
+
+- **Symptom:** the new working-tree planner called the content-level provenance filter before
+  classifying metadata. A mode-only change has no substantive `+`/`-` body, so it disappeared before
+  the planner could widen it.
+- **Root cause:** a content-only helper was reused as the complete scheduling inventory even though
+  its own historical purpose was only to remove generated provenance lines.
+- **Systemic fix:** the canonical inventory now disables rename detection and reconciles substantive
+  content with raw add/delete/type/mode records plus untracked paths. A pure mutation proves
+  provenance-only content drops while mode, empty add/delete, both rename halves, type changes, and
+  untracked binaries remain. Binary content is independently detected and widens every product lane.
+
+## 2026-07-30 — Import closure initially widened on dotted basenames and shared ownership
+
+- **Symptom:** the first real dependency graph retained 43 false unresolved imports and treated
+  legitimate shared tests/docs routes as duplicate ownership, forcing a full plan for Button.
+- **Root cause:** any dot in a basename was mistaken for a complete source extension, and the first
+  owner map assumed every file belonged exclusively to one registry record.
+- **Systemic fix:** candidate resolution recognizes only modeled source extensions; ownership is a
+  set for shared tests/routes while exclusive duplicate authority still rejects. The real graph now
+  has 1,640 sources, 1,733 internal edges, zero retained issues, and a mutation-proven Button →
+  CopyButton reverse edge. Over-capture remains acceptable; under-capture widens.
+
+## 2026-07-30 — Common VRT plan and route selector could describe different work
+
+- **Symptom:** changing `tooling/lib/route-scope.mjs` made the common planner require full VRT while
+  the older pixel selector classified all `tooling/**` as nonvisual. `--full-pages` also expanded the
+  grep without including those extra pages in the selector digest/report.
+- **Root cause:** the visual runner consumed only the route selector and its structured report did
+  not bind the common impact decision or the full-page expansion.
+- **Systemic fix:** VRT now reconciles both independent oracles: either may add routes and either
+  full result wins. Explicit diagnostic routes stay exact. Full-page expansion occurs before hashing;
+  atomic reports retain reason, digest, disagreement, executed/safely-skipped state, and the
+  human-review-only/no-receipt boundary. Five report mutations reject regression.
+
+## 2026-07-30 — Friendly-looking future files could inherit an unreviewed safe skip
+
+- **Symptom:** `gate-impact` treated every Markdown file below `docs/` or `skills/`, and broad
+  `release-*`/`registry-*` tooling prefixes, as known. A future tracked executable input with a
+  familiar name could therefore skip product lanes without an explicit authority decision.
+- **Root cause:** directory and filename labels were being used as proof of semantics. Missing-file
+  mutations widened, but did not reproduce an existing regular future file that matched the broad
+  allowlist.
+- **Systemic fix:** operational Markdown is limited to explicit current authorities/directories;
+  consume and non-product tools use exact reviewed membership. Existing regular lookalike Markdown,
+  release tooling, and registry tooling mutations now widen every product lane. Unknown remains the
+  fallback, and ordinary push/ship remain the independent oracle.
+
+## 2026-07-30 — Planner timing hid checkpoint and process-start cost
+
+- **Symptom:** the first report called a roughly one-second impact subphase “selector overhead” while
+  checkpoint attainability, module startup, inventory, cohort construction, Turbo parsing, and final
+  tree reconciliation happened outside that number.
+- **Root cause:** measurement began immediately around `planAffectedImpact` instead of at process
+  time origin, and attainability was constructed after the terminal tree check.
+- **Systemic fix:** `impact-plan` and `gates:affected` report total process-relative planning wall plus
+  named impact, Turbo, cohort, and checkpoint subphases. Attainability now runs inside the caller's
+  start/final exact-tree envelope. A controlled prose sample measured 2,805.537ms internally and
+  2.85s externally (`n=1`); no percentile or hidden execution saving is claimed.
+
+## 2026-07-30 — Selected rendered MDX could disappear from VRT authority
+
+- **Symptom:** route scope selected a changed page such as `/docs/foundations/elevation`, but the VRT
+  capture authority listed only a hand-maintained subset. The later authority filter silently
+  removed the route, allowing zero expected leaves and a false not-applicable result.
+- **Root cause:** the planner modeled all routable MDX while the Playwright test generator and VRT
+  reader had a smaller independent list; filtering did not distinguish a legitimate one-tree
+  addition/removal from a route absent on both trees.
+- **Systemic fix:** `design:derived` now generates an exact 139-route root/MDX authority. Generation
+  rejects dynamic, duplicate, symlinked, or unroutable content and is freshness-checked inside the
+  VRT consumer. Selected routes absent on both trees fail; additions/removals retain exact leaves on
+  the tree where they exist. A formerly omitted real page now produces four project leaves.
+
+## 2026-07-30 — Runner diagnostic contract verdict constructed no expected universe
+
+- **Symptom:** the deep diagnostic reader called `expectedContractLeaves()` with no route argument;
+  every genuinely passing full contract report threw during reconciliation and became
+  `executed/fail`.
+- **Root cause:** structured output was added without executing the embedded reader against the
+  required function signature, and workflow security checked only for the function name.
+- **Systemic fix:** the workflow independently reconstructs all component routes from route scope,
+  generates the exact 864 leaves, and matches both report scope and executed leaves. Mutations reject
+  zero-argument, report-owned, or omitted-scope universes.
+
+## 2026-07-30 — A checkpoint label could start a full oracle before shape rejection
+
+- **Symptom:** `global` was offered when only one lane was full, while the retained proof required all
+  six lanes full. Mixed workflow/header plus component diffs could similarly pass the label check and
+  be rejected only after an expensive full ship.
+- **Root cause:** scenario candidates and post-oracle proof used different predicates.
+- **Systemic fix:** candidates now mirror pre-execution proof: global requires all lanes full;
+  workflow/header require no selected executable. Partial-full and mixed-product mutations reject
+  before the `gates.mjs ship` spawn site. A second fail-closed guard now rejects every affected
+  `--oracle ship` path while the required foundation scenario is machine-unattainable, before report
+  creation, selected execution, the full oracle, or retained sample writes. Fresh-directory
+  integration mutations cover both raw and selected checkpoint commands, so the documented 0/30
+  stop cannot silently burn a full ship run.
+
+## 2026-07-30 — Component diagnostics overlapped a cold docs build with browser unit work
+
+- **Symptom:** the broad root lint failed `verify-gate-schedule.mjs`: `gates:component` started its
+  selected Vitest browser lane while the docs export warm-up was still running. This could recreate
+  the historical CPU/thermal contention that made browser timing unstable and docs warm-ups fail.
+- **Root cause:** dependency-aware component mode correctly avoided the export for a route-less hook,
+  but its routed branch awaited the warm-up only immediately before contracts, after the selected
+  unit browser lane had already executed.
+- **Systemic fix:** a routed component may overlap docs warm-up only with plain-Node design lint, then
+  must cross the same barrier as push/ship before any browser lane. The schedule verifier enumerates
+  every Vitest and contract-wrapper invocation, moves each one ahead of the barrier independently,
+  removes each mode's barrier, and removes either component route guard: all 14 mutations reject.
+  Route-less sources still avoid the export entirely.

@@ -892,3 +892,91 @@ each was invisible in review and each is the kind that would have degraded the t
 - **Adversarial evidence:** current prose and executable entry points were searched for stale topology,
   counts, provenance, preflight location, upload-as-complete wording, direct Playwright contracts,
   broad socket killing, swallowed failures, and unmodeled package paths. None remained.
+
+## 2026-07-30 — Dynamic verification remains a scheduler, not a trust root
+
+- **Decision:** operational prose may receive a machine-proven `safely-skipped` product plan, but
+  “docs” is never itself proof. Rendered MDX, previews, generated copies, tokens, CSS/fonts,
+  providers, app shell, dependencies, configs, toolchain, metadata, binary content, and unknown paths
+  select their closure or widen to full.
+- **Independent closure:** canonical registry dependents, installed-TypeScript imports/re-exports/
+  literal dynamic imports, Vitest listing/related behavior, and contract/VRT route authority form a
+  union. Computed/unresolved imports and disagreement widen; the smaller set is never selected.
+- **Evidence boundary:** selected Vitest/contracts and consume results are diagnostic-only and cannot
+  overwrite or satisfy a receipt. Dynamic pre-push remains disabled at 0/30, and production still
+  requires complete exact-final-tree browser/contract evidence under D7.
+- **Operator outcome:** `pnpm gates:plan` explains lane, state, reason, selector digest, closure size,
+  and widening. `/ship` uses it to decide whether pixel capture applies, but still ends with the full
+  `pnpm gates:ship`. Any visual difference is explained in plain language with absolute Before,
+  After, Difference, and report links.
+
+## 2026-07-30 — Dynamic-verification adversarial remediation and supersession
+
+- **Visual evidence supersession:** the preceding blanket image sentence applies only to a `changed`
+  VRT entry. Current status-specific handoff is: `changed` links Before/After/Difference; `new` links
+  After and any emitted Difference; `removed` links Before; `broken` names the error and available
+  artifacts but carries no verdict until rerun. Every available path and the report are absolute and
+  clickable; unavailable images are never invented.
+- **Current graph:** the final modeled graph generation supersedes the earlier dated 1,640/1,733
+  observation: 1,647 sources, 3,518 internal edges, zero retained issues (`n=1`, measured). Registry,
+  import, Vitest-related, smoke, route, or VRT disagreement widens full; bounded union is not an
+  approved fallback.
+- **Live versus shadow contract selection:** ordinary `gates:push` still uses `route-scope`. The
+  common impact schema drives component/selected diagnostics, VRT planning, and affected comparison
+  only until dynamic pre-push is separately approved. Calling these one currently active selector
+  would be false.
+- **Checkpoint blocker:** the current authorities contain no agreeing greater-than-six-route
+  component fixture. The required foundation scenario is therefore unattainable, the cohort remains
+  0/30, and synthetic evidence cannot make it ready. This is an explicit MK/authority checkpoint,
+  not a test to waive.
+- **Storage and observability:** retry/affected evidence rejects symlink roots/leaves, nonregular
+  entries, duplicate keys, partial/corrupt bytes, conflicting immutable writes, stale cohorts, and
+  structured-report contradictions. Planner totals include process startup, graph/checkpoint work,
+  Turbo/cohort work where applicable, and terminal exact-tree reconciliation; subphase timings are
+  not presented as the whole cost.
+- **Rendered docs authority:** all 138 routable MDX files plus `/` are now generated into the VRT
+  page authority. A selected page cannot be filtered away: it must exist on HEAD, the comparison
+  base, or both. Added/removed pages remain `new`/`removed`; absence on both is an error.
+- **Runner diagnostics:** the complete-contract verdict independently derives the 108-route/864-leaf
+  universe and matches the report's full route scope. Report-owned or zero-argument universes are
+  rejected, so diagnostic continuation cannot turn a real pass into unknown/fail or accept less work.
+
+## 2026-07-30 — Dynamic verification final unchanged-scope closure
+
+- **Independent adversarial verdict:** 0 high and 0 medium findings on the frozen unchanged scope;
+  no prior finding recurred. The aggregate covered diff/script syntax, inventory/import/impact,
+  raw and selected affected-checkpoint pre-spawn stops, exact Vitest/contract/report/VRT selection,
+  generated 139-page VRT freshness, route/smoke/tree/retry/oracle/consume/measurement authorities,
+  contract reconciliation, classifier mutations, workflow security, and operator-document semantics.
+- **Checkpoint behavior matches current instructions:** while the required greater-than-six-route
+  foundation fixture is machine-unattainable, every affected `--oracle ship` path exits before
+  report creation, selected execution, the full oracle, or retained sample writes. Ordinary full
+  `pnpm gates:ship` remains available and unchanged; affected reuse remains disabled at 0/30.
+- **Scope of this verdict:** review evidence only. It does not stand in for release preflight,
+  applicable VRT human review, terminal exact-tree `production-full` execution/receipt verification,
+  or MK's separate approval for an outward push.
+
+## 2026-07-30 — Dynamic component schedule closure reopened by broad lint
+
+- **Deterministic finding after the first zero-finding review:** component diagnostics overlapped a
+  routed docs warm-up with selected browser unit execution. That violated the existing no-contention
+  schedule even though selection itself was exact.
+- **Decision:** keep the route-less build skip, but for routed closures overlap only plain-Node
+  design lint. Await the warm-up before unit/browser execution and reuse the settled export for
+  contracts. The schedule verifier enumerates all Vitest and contract-wrapper invocations and rejects
+  each pre-barrier move, each component/push/ship barrier removal, and either component route-guard
+  removal (14 mutations total).
+- **Review state:** the preceding zero-high/zero-medium result is retained as a dated observation,
+  not final acceptance. A focused unchanged-scope adversarial rerun is required after this fix.
+
+## 2026-07-30 — Dynamic component schedule final focused closure
+
+- **Independent focused verdict:** 0 high and 0 medium findings after strengthening. Runtime order,
+  all nine Vitest/contract browser call sites, three barriers, and two component route guards are now
+  covered by 14 mutations; syntax, diff, operator-doc 58/58/14, and ledger supersession passed.
+- **Route-less evidence boundary:** current conservative import/route authority widens all six hooks
+  to full contracts, so no current route-less runtime fixture was substituted or fabricated. The
+  reviewer stopped before browser/contracts, confirmed no orphan build, and accepted only the two
+  explicit guard mutations as proof of that future branch.
+- **Remaining independent proofs:** release preflight, applicable VRT human review, terminal exact-
+  tree full ship and receipt verification, and outward approval are still required separately.

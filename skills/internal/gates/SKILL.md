@@ -78,6 +78,21 @@ Smoke impact is dependency-aware. `tooling/lib/smoke-scope.mjs` follows the veri
 closure, while `packages/ui/smoke-impact.generated.json` records Vitest's related-test comparison.
 Any stale/missing/unknown/disagreeing selector state widens; never restore exact-file-only triggering.
 
+`pnpm gates:plan` is the read-only explanation surface for the dynamic planner. It reports each lane
+as `not-reached` or `safely-skipped` with a machine reason and selector digest; `unknown` cannot pass.
+Operational prose may have no product impact, but a docs/path label is never sufficient evidence:
+rendered MDX, previews, generated authorities, tokens, CSS/fonts, provider/theme, app shell,
+dependencies, toolchain/config, metadata, and unknown inputs select work or widen to full. For a
+canonical component, union verified registry dependencies with the actual import/re-export/literal
+dynamic-import graph and include every reachable dependent component, test, route, preview, and
+consumer. Computed/unresolved imports and registry/import/Vitest/route disagreement widen; never use
+the smaller set. Exact selected Vitest and contract commands are diagnostic-only and reconcile
+planned, listed, and executed nonempty leaves. They write no receipt evidence.
+`skills/internal/**` is operational prose. `skills/public/**` and its generated
+`packages/design/skills/**` mirror are shipped but non-rendered package inputs: the planner may skip
+component/browser/contract/VRT lanes, but it must retain skill-mirror, package-export, and
+`@vegastack/design` build checks.
+
 `gates:push` also writes `.gates/reuse-plan.json`. Exact-tree production-full reuse is currently
 **shadow-only**: `decision: would-reuse` is an observation, not permission to skip. The full push
 oracle still runs. A later weaker successful receipt cannot overwrite stronger exact-tree evidence;
@@ -92,16 +107,31 @@ Even a pass must leave the original failure, receipt, and `.gates/evidence/` byt
 you whether the specimen still reproduces; it never clears the gate or advances shipping evidence.
 
 After fixing the root cause, `pnpm gates:affected` computes the full invalidated impact cone and
-retains `.gates/affected-shadow.json`, then executes the unchanged push oracle without writing a
-receipt. This default is an observation only. A checkpoint sample requires `--oracle ship`, which
-executes the complete production-full unit/smoke/all-browser/registry/consume/contract oracle. Its
-report must say `shadowOnly: true`, `reuseEnabled: false`, and preserve receipt/evidence
-bytes. Unknown, unmodeled, metadata, stale graph, and gate-definition inputs widen. The proposed
+retains `.gates/diagnostics/affected/summary.json`, then executes the unchanged push oracle without
+writing a receipt. This default is an observation only. The only sample-producing form is
+`pnpm gates:affected:checkpoint -- --scenario <name>`; the explicit controlled scenario is required
+before the complete ship oracle starts. Its report must retain `rollout.enabled: false`,
+`checkpointEligible`, an exact `cohort`, structured `selectedExecution`, and the unchanged full
+`oracle`, while receipt/evidence bytes stay identical. The status summary retains
+`reuseEnabled: false`. Unknown, unmodeled, metadata, stale graph, authority disagreement, and
+gate-definition inputs widen full. The proposed
 Turbo external-input fingerprints are observations beside the current blanket `tooling/**` hashes;
 they are not cache keys. `pnpm gates:affected:status` remains disabled until 30 representative
 production-full zero-escape samples cover every required scenario, and a ready result still requires
-MK approval. Never use affected evidence for deploy: production requires a complete exact-tree ship
-proof.
+MK approval. The current authority set has no agreeing greater-than-six-route foundation fixture, so
+the checkpoint is machine-blocked until that authority gap or policy is separately resolved; never
+substitute synthetic samples. Never use affected evidence for deploy: production requires a complete
+exact-tree ship proof.
+
+Dynamic pre-push execution is still disabled. A shadow-selected pass does not let `gates:push` omit
+its current oracle, and a `safely-skipped` plan does not satisfy `production-full`. Activation still
+requires the recorded 30 representative complete-oracle samples and separate MK approval; final
+ship composition remains the independent D7 decision.
+
+The ordinary `gates:push` contract lane still uses the established `route-scope` selection. The
+common impact planner currently controls diagnostic/component/VRT selection and affected comparison,
+not production or pre-push omission. If its registry/import oracle disagrees with route scope, the
+shadow plan widens full and records the mismatch; it does not silently replace the live push oracle.
 
 `verify-shadcn-consume.mjs` supports `diagnostic`, `affected`, and `full`. Each selected real and
 simulated root gets a fresh consumer, an independently checked output manifest, post-write
@@ -128,6 +158,7 @@ Common CI rejections and what each actually means:
 pnpm gates:commit                 # ~3s   static gates, staged files
 pnpm gates:push                   # ~35-80s  + unit · smoke · scoped contracts, writes the receipt
 pnpm gates:retry                  # exact failing selectors; diagnostic only, writes no evidence
+pnpm gates:plan                   # read-only lane/dependency explanation; shadow only
 pnpm gates:affected               # post-fix shadow cone + current push oracle; no reuse/evidence
 pnpm gates:affected:status        # checkpoint report; never enables reuse
 pnpm gates:component <name>       # the inner loop while building one component

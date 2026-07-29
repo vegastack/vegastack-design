@@ -259,9 +259,9 @@ target: "@ui/<name>.tsx" }]` — the `@ui/` placeholder, never a hard-coded path
 
 ## 7. Verify
 
-**The inner loop while you work** — design-lint, this component's unit test, and the contract routes
-its dependency closure reaches. Measured ~25s once the docs export is warm, so run it after every
-meaningful edit rather than saving verification for the end:
+**The inner loop while you work** — design-lint plus every unit test and contract route reached by
+the common dependency planner. Run it after every meaningful edit rather than saving verification
+for the end:
 
 ```bash
 pnpm gates:component <name>
@@ -271,7 +271,8 @@ Then the full local gate before calling the component done:
 
 ```bash
 node tooling/design-lint.mjs packages/ui/registry     # token-only + a11y AST rules
-cd packages/ui && pnpm exec tsc --noEmit && pnpm exec vitest run && cd ../..
+pnpm typecheck                                        # workspace-wide supported typecheck
+pnpm gates:push                                       # supported unit/smoke/scoped-contract wrappers
 pnpm registry:build                                    # validate → hash → stamp → verify-deps
 pnpm design:derived                                    # contract-derived surfaces stay current
 pnpm design:verify                                     # RSC safety, contract reconciliation, +14 more

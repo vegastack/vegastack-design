@@ -212,6 +212,18 @@ and corrupt/partial/conflicting samples must block checkpoint readiness. A push-
 not a checkpoint sample; only a complete `--oracle ship` result may count. Any skip before 30
 representative production-full zero-escape samples plus MK approval is high. Any claim that affected or cross-tree
 evidence satisfies production-full is high under current policy.
+The current authority has no agreeing greater-than-six-route foundation fixture, so the cohort is
+machine-blocked at 0/30. Do not collect qualifying checkpoint samples before MK resolves that
+authority/policy blocker; treat collection instructions or synthetic substitutes as a high finding.
+
+Also force the dynamic taxonomy in both directions. Operational prose may safely select no product
+lane, but rendered MDX must retain its docs build and page VRT; a canonical component must include
+every reachable dependent from registry and actual imports; shared runtime/style/toolchain inputs and
+unknown or metadata changes must widen. Exercise relative utilities, aliases, barrels/re-exports,
+literal and computed dynamic imports, deletion, rename, symlink, mode, binary, untracked, generated,
+and mixed changes. Registry/import/Vitest/route disagreement choosing the smaller set is high. A
+selected lane that lists or executes zero leaves, a safe skip without a machine reason/digest, or any
+selected result presented as production-full is high.
 
 For consume-runner changes, inspect the structured report rather than its exit code. Every selected
 root/layout needs a unique fresh consumer, a nonempty target/digest manifest, post-write pass, and
