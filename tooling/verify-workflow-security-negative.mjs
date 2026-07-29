@@ -131,9 +131,9 @@ const CASES = [
   {
     id: "runner diagnostics bypasses the contract wrapper",
     file: "runner-diagnostics.yml",
-    find: 'node tooling/contracts-run.mjs --all --report "$RUNNER_TEMP/contracts.json"',
+    find: "node tooling/contracts-run.mjs --all --observation \\\n",
     replace:
-      "( cd apps/docs && pnpm exec playwright test contracts.spec.ts --reporter=line ) || true",
+      "( cd apps/docs && pnpm exec playwright test contracts.spec.ts --reporter=line ) || true\n",
     expect: /contracts must run through tooling\/contracts-run\.mjs/,
   },
   {
@@ -141,14 +141,29 @@ const CASES = [
     file: "runner-diagnostics.yml",
     find: "pnpm --filter @vegastack/ui test:all-browsers \\\n",
     replace: "node tooling/vitest-run.mjs --lane all-browsers \\\n",
-    expect: /complete browsers must use the standard package command/,
+    expect: /complete browsers must use the standard observation command/,
   },
   {
     id: "runner diagnostics omits the all-browser report path",
     file: "runner-diagnostics.yml",
-    find: '            --report "$RUNNER_TEMP/all-browsers.json"\n',
+    find: '            --report ".gates/diagnostics/runner/$DIAGNOSTIC_RUN_ID/all-browsers.json"\n',
     replace: "",
-    expect: /pass it structured report arguments/,
+    expect: /standard observation command/,
+  },
+  {
+    id: "runner diagnostics omits all-browser observation boundary",
+    file: "runner-diagnostics.yml",
+    find: "            --observation \\\n",
+    replace: "",
+    expect: /standard observation command/,
+  },
+  {
+    id: "runner diagnostics omits contract run ID",
+    file: "runner-diagnostics.yml",
+    find: '            --run-id "$DIAGNOSTIC_RUN_ID" \\\n            --report ".gates/diagnostics/runner/$DIAGNOSTIC_RUN_ID/contracts.json"',
+    replace:
+      '            --report ".gates/diagnostics/runner/$DIAGNOSTIC_RUN_ID/contracts.json"',
+    expect: /all-routes observation wrapper with run ID/,
   },
   {
     id: "runner diagnostics reintroduces broad socket killing",
@@ -200,7 +215,42 @@ const CASES = [
     find: "Number.isInteger(report.executed) && report.executed > 0",
     replace: "true",
     expect:
-      /terminal states must be reconstructed from nonempty structured reports/,
+      /independently complete, exact-tree, current-cohort diagnostic reports/,
+  },
+  {
+    id: "runner diagnostics accepts diagnostic evidence boundary crossing",
+    file: "runner-diagnostics.yml",
+    find: "report.receiptWritten === false && report.evidenceEligibility === 'diagnostic-only' &&",
+    replace: "report.receiptWritten === false &&",
+    expect: /current-cohort diagnostic reports/,
+  },
+  {
+    id: "runner diagnostics omits independent browser file universe",
+    file: "runner-diagnostics.yml",
+    find: "const fullFiles = gate === 'all-browsers' ? vitestFullTestInventory() : [];",
+    replace: "const fullFiles = [];",
+    expect: /current-cohort diagnostic reports/,
+  },
+  {
+    id: "runner diagnostics derives contracts from no independent route universe",
+    file: "runner-diagnostics.yml",
+    find: "expectedContractLeaves({ routes: fullContractRoutes })",
+    replace: "expectedContractLeaves()",
+    expect: /current-cohort diagnostic reports/,
+  },
+  {
+    id: "runner diagnostics trusts report-owned contract routes",
+    file: "runner-diagnostics.yml",
+    find: "expectedContractLeaves({ routes: fullContractRoutes })",
+    replace: "expectedContractLeaves({ routes: report.scope.routes })",
+    expect: /current-cohort diagnostic reports/,
+  },
+  {
+    id: "runner diagnostics omits exact contract scope comparison",
+    file: "runner-diagnostics.yml",
+    find: "                  JSON.stringify(report.scope?.routes) === JSON.stringify(fullContractRoutes) &&\n",
+    replace: "",
+    expect: /current-cohort diagnostic reports/,
   },
   {
     id: "stray OIDC in ci.yml",

@@ -31,6 +31,8 @@ permissions:
 jobs:
   diagnose:
     runs-on: [self-hosted, vsk-runners-mac-mini]
+    env:
+      DIAGNOSTIC_RUN_ID: runner-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -232,8 +234,9 @@ jobs:
         run: |
           set -euo pipefail
           pnpm --filter @vegastack/ui test:all-browsers \
-            --run-id "runner-diagnostics-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" \
-            --report "$RUNNER_TEMP/all-browsers.json"
+            --observation \
+            --run-id "$DIAGNOSTIC_RUN_ID" \
+            --report ".gates/diagnostics/runner/$DIAGNOSTIC_RUN_ID/all-browsers.json"
 
       - name: DEEP — contract suite, timed, at native worker count
         id: contracts
@@ -243,7 +246,9 @@ jobs:
         run: |
           set -euo pipefail
           START="$(date +%s)"
-          node tooling/contracts-run.mjs --all --report "$RUNNER_TEMP/contracts.json"
+          node tooling/contracts-run.mjs --all --observation \
+            --run-id "$DIAGNOSTIC_RUN_ID" \
+            --report ".gates/diagnostics/runner/$DIAGNOSTIC_RUN_ID/contracts.json"
           echo "contract suite wall clock: $(( ($(date +%s) - START) / 60 ))m$(( ($(date +%s) - START) % 60 ))s"
 
       - name: Read structured browser and contract reports
@@ -255,11 +260,24 @@ jobs:
           ALL_BROWSERS_OUTCOME: ${{ steps.all_browsers.outcome }}
           CONTRACTS_OUTCOME: ${{ steps.contracts.outcome }}
           LAUNCH_REPORT: ${{ runner.temp }}/browser-launch.json
-          ALL_BROWSERS_REPORT: ${{ runner.temp }}/all-browsers.json
-          CONTRACTS_REPORT: ${{ runner.temp }}/contracts.json
+          ALL_BROWSERS_REPORT: .gates/diagnostics/runner/${{ env.DIAGNOSTIC_RUN_ID }}/all-browsers.json
+          CONTRACTS_REPORT: .gates/diagnostics/runner/${{ env.DIAGNOSTIC_RUN_ID }}/contracts.json
+          DIAGNOSTIC_RUN_ID: ${{ env.DIAGNOSTIC_RUN_ID }}
         run: |
           node --input-type=module <<'NODE'
           import { appendFileSync, existsSync, readFileSync } from 'node:fs';
+          import { BROWSER_ENGINES, FULL_CONTRACT_TESTS } from './tooling/lib/gate-profile.mjs';
+          import { expectedContractLeaves, reconcileContractLeaves } from './tooling/lib/contract-selection.mjs';
+          import { workingTreeContentHash } from './tooling/lib/change-set.mjs';
+          import { gateGeneration, localEnvironment } from './tooling/lib/measurement-report.mjs';
+          import { createRouteScopeModel } from './tooling/lib/route-scope.mjs';
+          import { vitestFullTestInventory } from './tooling/lib/smoke-scope.mjs';
+          const currentTree = workingTreeContentHash().hash;
+          const currentGeneration = gateGeneration();
+          const currentEnvironment = localEnvironment().profile;
+          const contractModel = createRouteScopeModel();
+          contractModel.assertCurrent();
+          const fullContractRoutes = [...contractModel.componentRoutes].sort();
           const read = (path) => {
             if (!existsSync(path)) return null;
             try { return JSON.parse(readFileSync(path, 'utf8')); } catch { return { corrupt: true }; }
@@ -271,17 +289,52 @@ jobs:
             process.env.LAUNCH_OUTCOME === 'success' && launch.kind === 'vegastack-browser-launch-diagnostic' &&
               launch.state === 'pass' && launch.attempted === 3 && launch.passed === 3
               ? 'executed/pass' : 'executed/fail';
-          const deepState = (path, outcome) => {
+          const deepState = (path, outcome, gate) => {
             if (process.env.DEEP !== 'true') return 'skipped';
             if (outcome === 'cancelled') return 'not reached';
             const report = read(path);
             if (!report || report.corrupt) return 'unknown';
-            return outcome === 'success' && report.status === 'pass' &&
-              Number.isInteger(report.executed) && report.executed > 0
+            const leaves = report.executedLeaves ?? [];
+            const engines = new Set(leaves.map((leaf) => leaf.engine));
+            const fullFiles = gate === 'all-browsers' ? vitestFullTestInventory() : [];
+            const actualFiles = [...new Set(leaves.map((leaf) => leaf.file))].sort();
+            const fullBrowser = gate !== 'all-browsers' ||
+              (JSON.stringify(actualFiles) === JSON.stringify(fullFiles) &&
+                BROWSER_ENGINES.every((engine) => engines.has(engine) &&
+                  fullFiles.every((file) => leaves.some((leaf) =>
+                    leaf.file === file && leaf.engine === engine && leaf.status === 'passed'))));
+            let fullContracts = gate !== 'contracts';
+            if (gate === 'contracts') {
+              try {
+                const expected = expectedContractLeaves({ routes: fullContractRoutes });
+                const executed = reconcileContractLeaves(
+                  expected,
+                  report.leafEvidence?.executed?.leaves,
+                  'runner diagnostic',
+                  { requirePassed: true },
+                );
+                fullContracts = report.scope?.full === true &&
+                  JSON.stringify(report.scope?.routes) === JSON.stringify(fullContractRoutes) &&
+                  report.scope?.project === null && report.scope?.title === null &&
+                  report.expected === FULL_CONTRACT_TESTS && report.executed === FULL_CONTRACT_TESTS &&
+                  executed.expected === FULL_CONTRACT_TESTS && executed.executed === FULL_CONTRACT_TESTS;
+              } catch { fullContracts = false; }
+            }
+            return outcome === 'success' && report.gate === gate &&
+              report.runId === process.env.DIAGNOSTIC_RUN_ID &&
+              report.status === 'pass' && report.state === 'executed/pass' &&
+              report.diagnosticOnly === true && report.evidenceWritten === false &&
+              report.receiptWritten === false && report.evidenceEligibility === 'diagnostic-only' &&
+              report.treeBinding?.started === currentTree &&
+              report.treeBinding?.completed === currentTree && report.treeBinding?.unchanged === true &&
+              report.generation === currentGeneration &&
+              report.environmentProfile === currentEnvironment &&
+              Number.isInteger(report.executed) && report.executed > 0 &&
+              fullBrowser && fullContracts
               ? 'executed/pass' : 'executed/fail';
           };
-          const allBrowsersState = deepState(process.env.ALL_BROWSERS_REPORT, process.env.ALL_BROWSERS_OUTCOME);
-          const contractsState = deepState(process.env.CONTRACTS_REPORT, process.env.CONTRACTS_OUTCOME);
+          const allBrowsersState = deepState(process.env.ALL_BROWSERS_REPORT, process.env.ALL_BROWSERS_OUTCOME, 'all-browsers');
+          const contractsState = deepState(process.env.CONTRACTS_REPORT, process.env.CONTRACTS_OUTCOME, 'contracts');
           appendFileSync(process.env.GITHUB_OUTPUT, [
             `launch_state=${launchState}`,
             `all_browsers_state=${allBrowsersState}`,

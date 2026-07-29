@@ -32,7 +32,8 @@ const SELF_HOSTED = "[self-hosted, vsk-runners-mac-mini]";
 //
 // NO BROWSER RUNS IN CI AT ALL. That is the whole point of the local-first topology
 // (docs/plans/2026-07-25-cicd-local-first-revamp.md): the Vitest browser suite, the cross-engine
-// smoke, the three-engine suite, and the 864 behaviour contracts run in `.husky/pre-push` on a
+// unit, smoke, and scoped contracts run in `.husky/pre-push`; the complete three-engine suite and
+// complete contracts run in the local ship ladder. No browser lane runs in CI.
 // developer machine and are attested by `.gates/receipt.json`, which the `receipt-guard` job in each
 // workflow verifies against the pushed tree. So the mac minis' inability to launch Chromium — a host
 // bug, recorded in AGENTS.md § Locked decisions — no longer blocks anything, and every job that
@@ -341,8 +342,8 @@ assert.doesNotMatch(
 );
 assert.match(
   runnerDiagnostics,
-  /pnpm --filter @vegastack\/ui test:all-browsers[\s\\]*\n[\s\S]{0,160}--run-id[\s\S]{0,160}--report "\$RUNNER_TEMP\/all-browsers\.json"/,
-  "runner-diagnostics.yml: complete browsers must use the standard package command and pass it structured report arguments",
+  /pnpm --filter @vegastack\/ui test:all-browsers[\s\\]*\n[\s\S]{0,260}--observation[\s\\]*\n[\s\S]{0,160}--run-id "\$DIAGNOSTIC_RUN_ID"[\s\\]*\n[\s\S]{0,200}--report "\.gates\/diagnostics\/runner\/\$DIAGNOSTIC_RUN_ID\/all-browsers\.json"/,
+  "runner-diagnostics.yml: complete browsers must use the standard observation command with run ID and protected structured report path",
 );
 assert.doesNotMatch(
   runnerDiagnostics,
@@ -371,8 +372,8 @@ assert.match(
 );
 assert.match(
   runnerDiagnostics,
-  /node tooling\/contracts-run\.mjs --all --report/,
-  "runner-diagnostics.yml: complete contracts must use the supported all-routes wrapper and structured report",
+  /node tooling\/contracts-run\.mjs --all --observation[\s\\]*\n[\s\S]{0,160}--run-id "\$DIAGNOSTIC_RUN_ID"[\s\\]*\n[\s\S]{0,200}--report "\.gates\/diagnostics\/runner\/\$DIAGNOSTIC_RUN_ID\/contracts\.json"/,
+  "runner-diagnostics.yml: complete contracts must use the supported all-routes observation wrapper with run ID and protected structured report path",
 );
 for (const outcome of [
   "steps.browser_unit.outcome",
@@ -389,11 +390,24 @@ assert.match(
   /complete three-engine suite[\s\S]{0,240}complete contract suite/,
   "runner-diagnostics.yml: summary must name both complete deep-suite outcomes",
 );
-assert.match(
-  runnerDiagnostics,
-  /id: structured-reports[\s\S]*JSON\.parse\(readFileSync[\s\S]*report\.executed > 0[\s\S]*all_browsers_state[\s\S]*contracts_state/,
-  "runner-diagnostics.yml: terminal states must be reconstructed from nonempty structured reports",
-);
+for (const required of [
+  /id: structured-reports[\s\S]*JSON\.parse\(readFileSync/,
+  /const fullFiles = gate === 'all-browsers' \? vitestFullTestInventory\(\) : \[\];/,
+  /createRouteScopeModel[\s\S]*contractModel\.assertCurrent\(\)[\s\S]*fullContractRoutes/,
+  /expectedContractLeaves\(\{ routes: fullContractRoutes \}\)/,
+  /JSON\.stringify\(report\.scope\?\.routes\) === JSON\.stringify\(fullContractRoutes\)/,
+  /evidenceEligibility === 'diagnostic-only'/,
+  /treeBinding\?\.started === currentTree/,
+  /generation === currentGeneration/,
+  /environmentProfile === currentEnvironment/,
+  /report\.executed > 0/,
+  /all_browsers_state[\s\S]*contracts_state/,
+])
+  assert.match(
+    runnerDiagnostics,
+    required,
+    "runner-diagnostics.yml: terminal states must be reconstructed from independently complete, exact-tree, current-cohort diagnostic reports",
+  );
 assert.match(
   runnerDiagnostics,
   /if \[ "\$DEEP" = "true" \][\s\S]{0,240}\[ "\$ALL_BROWSERS_STATE" = "executed\/pass" \][\s\S]{0,160}\[ "\$CONTRACTS_STATE" = "executed\/pass" \][\s\S]{0,300}exit "\$FAILED"/,
