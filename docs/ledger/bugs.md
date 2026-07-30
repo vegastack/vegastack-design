@@ -1033,7 +1033,8 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
 - **Closure:** exact clean commit `bd1d443f2008826c8ece01ecf8487609ef7f4dcb` received an independent
   unchanged-scope verdict of 0 high / 0 medium / 0 low. The inverse pure-version case, missing and
   duplicate generated leaves, dangling links, malformed/conflicting evidence, and forced assertion
-  failure all failed or widened for their intended reasons.
+  failure each resolved as intended: the pure-version case safely skipped smoke, while invalid or
+  uncertain evidence failed or widened.
 - **Cleanup proof:** the retained negative harness completed both its pass and forced-failure paths
   without changing the count of `classifier-smoke-negative-*` scratch directories. The six leaked
   superseded directories had already been inspected and removed; no review evidence depended on
