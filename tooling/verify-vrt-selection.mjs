@@ -711,7 +711,8 @@ export function vrtHarnessProblems(source) {
     if (
       !statement ||
       !ts.isExpressionStatement(statement) ||
-      !ts.isAwaitExpression(statement.expression)
+      !ts.isAwaitExpression(statement.expression) ||
+      !ts.isCallExpression(statement.expression.expression)
     )
       return false;
     const text = textOf(statement);
@@ -978,6 +979,28 @@ export function vrtHarnessProblems(source) {
 
 const harnessSource = readFileSync("apps/docs/vrt/components.spec.ts", "utf8");
 assert.deepEqual(vrtHarnessProblems(harnessSource), []);
+const shortCircuitAwaitContaining = (source, needle) => {
+  const sourceFile = ts.createSourceFile(
+    "components.spec.ts",
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  let target;
+  const visit = (node) => {
+    if (
+      !target &&
+      ts.isAwaitExpression(node) &&
+      node.expression.getText(sourceFile).includes(needle)
+    )
+      target = node.expression;
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  assert.ok(target, `await mutation target must exist: ${needle}`);
+  return `${source.slice(0, target.getStart(sourceFile))}(false && ${target.getText(sourceFile)})${source.slice(target.end)}`;
+};
 for (const [label, source, expected] of [
   [
     "wrong readiness route",
@@ -1139,6 +1162,26 @@ for (const [label, source, expected] of [
     /fixture-containment-execution/,
   ],
   [
+    "hydrated-count await short-circuited",
+    shortCircuitAwaitContaining(harnessSource, "toHaveCount(5)"),
+    /fixture-count-execution/,
+  ],
+  [
+    "layout await short-circuited",
+    shortCircuitAwaitContaining(harnessSource, "toBe(5)"),
+    /fixture-layout-execution/,
+  ],
+  [
+    "scroll reset await short-circuited",
+    shortCircuitAwaitContaining(harnessSource, "fixture.evaluate"),
+    /fixture-scroll-reset-execution/,
+  ],
+  [
+    "containment await short-circuited",
+    shortCircuitAwaitContaining(harnessSource, "toBe(true)"),
+    /fixture-containment-execution/,
+  ],
+  [
     "viewport no longer derived from page",
     harnessSource.replace(
       "const viewport = page.viewportSize();",
@@ -1199,5 +1242,5 @@ for (const [label, source, expected] of [
   assert.match(vrtHarnessProblems(source).join("\n"), expected, label);
 
 console.log(
-  "✓ VRT selection: exact diagnostics, 7 report mutations, and 36 structural fixture/clip mutations verified",
+  "✓ VRT selection: exact diagnostics, 7 report mutations, and 40 structural fixture/clip mutations verified",
 );
