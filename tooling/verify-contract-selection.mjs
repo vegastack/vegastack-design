@@ -187,6 +187,18 @@ try {
   assert.equal(gateReport.receiptWritten, false);
   assert.equal(gateReport.evidenceEligibility, "diagnostic-only");
 
+  const fullReportPath = join(directory, "full-report.json");
+  const full = run(["--all", "--dry-run", "--report", fullReportPath]);
+  assert.equal(full.status, 0, `${full.stdout}\n${full.stderr}`);
+  const fullReport = JSON.parse(readFileSync(fullReportPath, "utf8"));
+  assert.deepEqual(
+    fullReport.scope.routes,
+    [...fullReport.scope.routes].sort(),
+    "the full contract producer must serialize the canonical sorted route universe required by receipt freeze",
+  );
+  assert.equal(fullReport.scope.routes.length, 108);
+  assert.equal(fullReport.expected, 864);
+
   const protectedDryRun = run([
     "--all",
     "--dry-run",

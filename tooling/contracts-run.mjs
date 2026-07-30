@@ -275,10 +275,9 @@ const selection = (() => {
 })();
 
 const mode = options.routes ? "routes" : options.all ? "all" : "scope";
-const selectedRoutes =
-  selection.routes === null
-    ? [...COMPONENT_ROUTES]
-    : [...selection.routes].sort();
+const selectedRoutes = [
+  ...(selection.routes === null ? COMPONENT_ROUTES : selection.routes),
+].sort();
 const isFullSweep = selection.routes === null;
 routeModel.assertCurrent();
 if (workingTreeContentHash().hash !== startTree)
