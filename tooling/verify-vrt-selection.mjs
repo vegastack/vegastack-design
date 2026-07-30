@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import {
   mkdirSync,
   mkdtempSync,
@@ -13,6 +14,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import {
+  addExplicitVrtFullPageRoutes,
   assertVrtSelectionAvailableOnEitherTree,
   expectedVrtLeaves,
   filterVrtSelectionForAuthority,
@@ -93,6 +95,34 @@ const explicitCannotNarrowFull = reconcileVrtSelection({
 assert.equal(explicitCannotNarrowFull.mode, "full");
 assert.equal(explicitCannotNarrowFull.routes, null);
 
+const unknownExplicitPage = addExplicitVrtFullPageRoutes(route(), [
+  "/docs/not-a-real-page",
+]);
+const unknownExplicitWithMode = {
+  ...unknownExplicitPage,
+  mode: "selected",
+};
+const authorityWithoutExplicitPage = {
+  fixtureRoutes: ["/docs/components/button"],
+  fullPageRoutes: ["/docs/components/button"],
+  iconChunkCount: 1,
+};
+const filteredUnknownExplicit = filterVrtSelectionForAuthority(
+  unknownExplicitWithMode,
+  authorityWithoutExplicitPage,
+  { allowUnavailable: true },
+);
+assert.throws(
+  () =>
+    assertVrtSelectionAvailableOnEitherTree(
+      unknownExplicitWithMode,
+      filteredUnknownExplicit,
+      filteredUnknownExplicit,
+    ),
+  /unavailable on both trees.*not-a-real-page/,
+  "a full impact result must not erase validation of an unknown explicit page",
+);
+
 const fullPages = reconcileVrtSelection({
   routeSelection: route(["/docs/components/button"]),
   impactLane: {
@@ -104,6 +134,84 @@ const fullPages = reconcileVrtSelection({
 });
 assert.deepEqual([...fullPages.fullPageRoutes], ["/docs/components/button"]);
 assert.notEqual(fullPages.selectorDigest, explicit.selectorDigest);
+
+const exactRenderedPages = addExplicitVrtFullPageRoutes(
+  route(
+    ["/docs/components/automatic-fixture"],
+    ["/docs/guides/automatic-page"],
+    true,
+  ),
+  ["/docs/foundations/elevation", "/internal/internal-projects"],
+);
+assert.deepEqual([...exactRenderedPages.routes], []);
+assert.deepEqual(
+  [...exactRenderedPages.fullPageRoutes],
+  ["/docs/foundations/elevation", "/internal/internal-projects"],
+);
+assert.equal(exactRenderedPages.icons, false);
+assert.equal(exactRenderedPages.reason, "--page-routes");
+const exactFixturesAndPages = addExplicitVrtFullPageRoutes(
+  route(["/docs/components/button"], ["/docs/guides/automatic-page"], true),
+  ["/docs/guides/quickstart"],
+  { retainExplicitFixtures: true },
+);
+assert.deepEqual(
+  [...exactFixturesAndPages.routes],
+  ["/docs/components/button"],
+);
+assert.deepEqual(
+  [...exactFixturesAndPages.fullPageRoutes],
+  ["/docs/guides/quickstart"],
+);
+assert.equal(exactFixturesAndPages.icons, false);
+assert.equal(
+  exactFixturesAndPages.reason,
+  "independent route authority; --page-routes",
+);
+for (const [label, args, expected] of [
+  [
+    "ambiguous all plus exact page",
+    ["--all", "--page-routes", "/docs/guides/quickstart", "--dry-run"],
+    /--all cannot be combined/,
+  ],
+  [
+    "trailing whitespace",
+    ["--page-routes", "/docs/guides/quickstart ", "--dry-run"],
+    /page-routes rejects empty, whitespace, or malformed routes/,
+  ],
+  [
+    "empty fixture selector",
+    ["--routes", ",", "--dry-run"],
+    /--routes rejects empty, whitespace, or malformed routes/,
+  ],
+  [
+    "duplicate fixture selector",
+    [
+      "--routes",
+      "/docs/components/button,/docs/components/button",
+      "--dry-run",
+    ],
+    /--routes rejects duplicate routes/,
+  ],
+]) {
+  const result = spawnSync(
+    process.execPath,
+    ["tooling/vrt-review.mjs", ...args],
+    { cwd: process.cwd(), encoding: "utf8", timeout: 30_000 },
+  );
+  assert.equal(result.status, 2, `${label} must fail before capture`);
+  assert.match(`${result.stdout}\n${result.stderr}`, expected);
+}
+for (const invalid of [
+  [],
+  ["/docs/foundations/elevation", "/docs/foundations/elevation"],
+  ["docs/foundations/elevation"],
+  ["/docs/foundations/elevation "],
+])
+  assert.throws(
+    () => addExplicitVrtFullPageRoutes(route([], []), invalid),
+    /page-routes/,
+  );
 
 const expectedLeaves = expectedVrtLeaves({
   selection: union,
@@ -445,6 +553,18 @@ export function vrtReportProblems(source) {
     problems.push(
       "[selector-digest] VRT reports must retain the reconciled selector digest",
     );
+  if (!/explicitSelectors/.test(source))
+    problems.push(
+      "[explicit-selectors] VRT reports must retain exact requested selectors even when impact widens",
+    );
+  if (
+    !/assertVrtSelectionAvailableOnEitherTree\(\s*explicitRouteSelectionWithMode/.test(
+      source,
+    )
+  )
+    problems.push(
+      "[explicit-validation] exact requested selectors must be validated independently from widened execution",
+    );
   if (
     !/receiptWritten: false/.test(source) ||
     !/evidenceEligibility: "human-review-only"/.test(source)
@@ -465,6 +585,8 @@ outcome: result?.status ?? "not-run";
 throw new Error("has no readable baseline snapshot");
 state: "unknown";
 selectorDigest: selection.selectorDigest;
+explicitSelectors;
+assertVrtSelectionAvailableOnEitherTree(explicitRouteSelectionWithMode);
 receiptWritten: false;
 evidenceEligibility: "human-review-only";
 `;
@@ -523,6 +645,19 @@ for (const [label, source, expected] of [
     /selector-digest/,
   ],
   [
+    "missing explicit selector report",
+    validSource.replace("explicitSelectors;", ""),
+    /explicit-selectors/,
+  ],
+  [
+    "missing independent explicit validation",
+    validSource.replace(
+      "assertVrtSelectionAvailableOnEitherTree(explicitRouteSelectionWithMode);",
+      "",
+    ),
+    /explicit-validation/,
+  ],
+  [
     "receipt promotion",
     validSource.replace("receiptWritten: false;", "receiptWritten: true;"),
     /evidence-boundary/,
@@ -536,5 +671,5 @@ assert.deepEqual(
 );
 
 console.log(
-  "✓ VRT selection: route/common-plan disagreement widens; exact diagnostics and 5 structured-report mutations verified",
+  "✓ VRT selection: route/common-plan disagreement widens; exact diagnostics and 7 structured-report mutations verified",
 );

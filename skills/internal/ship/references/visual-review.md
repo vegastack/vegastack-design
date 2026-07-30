@@ -25,10 +25,20 @@ node tooling/vrt-review.mjs --full-pages    # add the full-page lane (includes d
 node tooling/vrt-review.mjs --all           # every route, skip change detection
 node tooling/vrt-review.mjs --base <ref>    # compare against a different ref
 node tooling/vrt-review.mjs --routes /docs/components/button,/docs/components/card
+node tooling/vrt-review.mjs --page-routes /docs/guides/quickstart,/docs/foundations/theming
 ```
 
 It clones the merge-base into a temporary git worktree, installs and builds there, captures, then
-captures the working tree against that. Expect ~6-10 minutes: two full docs builds dominate.
+captures the working tree against that. A complete 1,024-leaf-per-tree review measured 20.0 minutes
+for the base and 14.2 minutes for the working tree, plus setup (`n=1`, local measurement on
+2026-07-30); a selected review is smaller, but no percentile is claimed.
+
+`--routes` is an exact component-fixture diagnostic. `--page-routes` is an exact rendered-page
+diagnostic. Supplying both captures exactly the named fixtures and pages; inferred fixtures, pages,
+and icon chunks do not leak in. The independently computed impact oracle still wins when it requires
+a full capture. After committing a harness-only fix, `--base HEAD` with exact selectors can diagnose
+same-tree capture stability; it is retry evidence only and never replaces the original comparison
+or the final production-full ship proof. Do not combine `--all` with either exact selector.
 
 **Scope.** Only routes the change can reach are captured. A component's own route plus every route
 whose component composes it (via `registryDependencies`); a preview file maps to its one page; a

@@ -815,3 +815,15 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   every Vitest and contract-wrapper invocation, moves each one ahead of the barrier independently,
   removes each mode's barrier, and removes either component route guard: all 14 mutations reject.
   Route-less sources still avoid the export entirely.
+
+## 2026-07-30 — Exact VRT rerun could not name rendered docs pages
+
+- **Symptom:** `--routes` accepted only component fixture authority, so a focused stability rerun
+  could not name guide/foundation pages. The first `--page-routes` implementation then unioned
+  inferred work while its help promised an exact diagnostic.
+- **Root cause:** fixture and rendered-page authorities are intentionally different, but the CLI had
+  only one selector and the added page selector reused additive change-derived semantics.
+- **Systemic fix:** `--page-routes` now replaces inferred pages and clears inferred fixtures/icons;
+  combining it with `--routes` retains exactly both explicit sets. Full common impact still wins.
+  Mutations cover leaked inferred pages/fixtures/icons, empty/duplicate/malformed/whitespace routes,
+  and the ambiguous `--all` combination. Same-tree use remains diagnostic-only.

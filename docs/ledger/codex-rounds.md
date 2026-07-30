@@ -624,3 +624,13 @@ as evidence because current conservative authority safely widens every hook to f
 review stopped before browser/contracts and found no orphan build. The two explicit guard mutations
 remain the future-route-less proof. This is the final high/medium review closure for the implementation
 tree before commits; full ship, receipt, preflight, VRT, and outward approval remain separate.
+
+The later full VRT review reopened that closure for a narrow tracked change: exact diagnostics could
+name component fixtures but not rendered guide/foundation pages. The first repair was additive and
+could also let full impact erase validation of a mistyped requested page. That scope is now
+superseded by an exact selector boundary: page-only clears inferred fixture/page/icon work; combined
+fixture+page retains only both named sets; empty, duplicate, whitespace, malformed, unknown, and
+ambiguous `--all` selectors fail; full common impact still widens but cannot erase independent
+two-tree validation or the requested-selector report. The focused executable and operator review
+reported **0 high and 0 medium findings** on that corrected scope. This remains diagnostic/human
+review machinery, never receipt evidence; same-tree reruns cannot replace the original comparison.

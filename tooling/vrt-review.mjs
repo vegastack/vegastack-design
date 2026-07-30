@@ -61,6 +61,7 @@ import { planAffectedImpact } from "./lib/gate-impact.mjs";
 import { atomicWriteJson } from "./lib/measurement-report.mjs";
 import { CONTRACT_PROJECTS } from "./lib/gate-profile.mjs";
 import {
+  addExplicitVrtFullPageRoutes,
   assertVrtSelectionAvailableOnEitherTree,
   expectedVrtLeaves,
   filterVrtSelectionForAuthority,
@@ -75,7 +76,9 @@ const USAGE = `Usage: node tooling/vrt-review.mjs [options]
   --base <ref>     compare against this ref (default: origin/main, falling back to main)
   --all            capture every route, skipping change detection
   --full-pages     also capture the full-page lane (includes docs prose — noisy by default)
-  --routes a,b     capture exactly these routes
+  --routes a,b     capture exactly these component fixture routes
+  --page-routes a,b
+                   capture exactly these rendered full-page routes
   --keep-worktree  leave the base worktree in place for inspection
   --port <n>       base port for the two capture servers (default 3210)
   --dry-run        print the computed scope and exit without capturing
@@ -93,12 +96,25 @@ function fail(message) {
   process.exit(2);
 }
 
+function parseExactRoutes(raw, flag) {
+  const routes = raw.split(",");
+  if (
+    routes.length === 0 ||
+    routes.some((route) => !/^\/(?:[^/\s]+(?:\/[^/\s]+)*)?$/.test(route))
+  )
+    fail(`${flag} rejects empty, whitespace, or malformed routes`);
+  if (new Set(routes).size !== routes.length)
+    fail(`${flag} rejects duplicate routes`);
+  return routes;
+}
+
 function parseOptions(argv) {
   const options = {
     base: null,
     all: false,
     fullPages: false,
     routes: null,
+    pageRoutes: null,
     keepWorktree: false,
     port: 3210,
     dryRun: false,
@@ -114,10 +130,9 @@ function parseOptions(argv) {
     else if (flag === "--all") options.all = true;
     else if (flag === "--full-pages") options.fullPages = true;
     else if (flag === "--routes")
-      options.routes = value()
-        .split(",")
-        .map((route) => route.trim())
-        .filter(Boolean);
+      options.routes = parseExactRoutes(value(), flag);
+    else if (flag === "--page-routes")
+      options.pageRoutes = parseExactRoutes(value(), flag);
     else if (flag === "--keep-worktree") options.keepWorktree = true;
     else if (flag === "--dry-run") options.dryRun = true;
     else if (flag === "--port") options.port = Number(value());
@@ -128,6 +143,8 @@ function parseOptions(argv) {
   }
   if (!Number.isInteger(options.port) || options.port < 1024)
     fail("--port must be an integer >= 1024");
+  if (options.all && (options.routes !== null || options.pageRoutes !== null))
+    fail("--all cannot be combined with --routes or --page-routes");
   return options;
 }
 
@@ -497,16 +514,48 @@ headAuthority.assertCurrent();
 // `vrt-review:` prefix, so translate rather than letting a stack trace escape.
 const routeSelection = (() => {
   try {
-    return selectRoutes(changedFiles, options, routeModel.pixelScope);
+    return addExplicitVrtFullPageRoutes(
+      selectRoutes(changedFiles, options, routeModel.pixelScope),
+      options.pageRoutes,
+      { retainExplicitFixtures: options.routes !== null },
+    );
   } catch (error) {
     return fail(error.message);
   }
 })();
+// Keep the exact CLI selection independently from the reconciled result. A full common impact must
+// widen execution, but it must not erase validation or reporting of an explicitly requested page.
+const explicitRouteSelection =
+  options.routes !== null || options.pageRoutes !== null
+    ? routeSelection
+    : null;
+const explicitRouteSelectionWithMode =
+  explicitRouteSelection === null
+    ? null
+    : {
+        ...explicitRouteSelection,
+        mode:
+          explicitRouteSelection.routes === null
+            ? "full"
+            : explicitRouteSelection.routes.size > 0 ||
+                explicitRouteSelection.fullPageRoutes.size > 0 ||
+                explicitRouteSelection.icons
+              ? "selected"
+              : "none",
+      };
+const explicitSelectors =
+  explicitRouteSelection === null
+    ? null
+    : {
+        fixtureRoutes: [...explicitRouteSelection.routes].sort(),
+        fullPageRoutes: [...explicitRouteSelection.fullPageRoutes].sort(),
+      };
 const selection = reconcileVrtSelection({
   routeSelection,
   impactLane: impactPlan.lanes.vrt,
   impactDigest: impactPlan.selectorDigest,
-  explicitOverride: options.all || options.routes !== null,
+  explicitOverride:
+    options.all || options.routes !== null || options.pageRoutes !== null,
   includeSelectedFullPages: options.fullPages,
 });
 if (workingTreeContentHash().hash !== startTree)
@@ -516,6 +565,14 @@ const grep = buildGrep(selection, options);
 const headSelection = filterVrtSelectionForAuthority(selection, headAuthority, {
   allowUnavailable: true,
 });
+const headExplicitSelection =
+  explicitRouteSelection === null
+    ? null
+    : filterVrtSelectionForAuthority(
+        explicitRouteSelectionWithMode,
+        headAuthority,
+        { allowUnavailable: true },
+      );
 const headExpectedLeaves = expectedVrtLeaves({
   selection: headSelection,
   allFullPageRoutes: headAuthority.fullPageRoutes,
@@ -553,6 +610,7 @@ if (selection.routes !== null && grep === null) {
       selectorDigest: selection.selectorDigest,
       commonPlanDigest: impactPlan.selectorDigest,
       disagreement: selection.disagreement,
+      explicitSelectors,
       captured: false,
       routes: [],
       fullPageRoutes: [],
@@ -627,6 +685,18 @@ try {
       allowUnavailable: true,
     },
   );
+  if (explicitRouteSelection !== null) {
+    const baseExplicitSelection = filterVrtSelectionForAuthority(
+      explicitRouteSelectionWithMode,
+      baseAuthority,
+      { allowUnavailable: true },
+    );
+    assertVrtSelectionAvailableOnEitherTree(
+      explicitRouteSelectionWithMode,
+      baseExplicitSelection,
+      headExplicitSelection,
+    );
+  }
   assertVrtSelectionAvailableOnEitherTree(
     selection,
     baseSelection,
@@ -782,6 +852,7 @@ try {
       selectorDigest: selection.selectorDigest,
       commonPlanDigest: impactPlan.selectorDigest,
       disagreement: selection.disagreement,
+      explicitSelectors,
       captured: true,
       routes: selection.routes === null ? null : [...selection.routes].sort(),
       fullPageRoutes:
@@ -847,6 +918,7 @@ try {
       reason: selection.reason,
       reasonCode: selection.reasonCode,
       selectorDigest: selection.selectorDigest,
+      explicitSelectors,
       captured: false,
     },
     error: error.message,

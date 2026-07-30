@@ -980,3 +980,16 @@ each was invisible in review and each is the kind that would have degraded the t
   explicit guard mutations as proof of that future branch.
 - **Remaining independent proofs:** release preflight, applicable VRT human review, terminal exact-
   tree full ship and receipt verification, and outward approval are still required separately.
+
+## 2026-07-30 — Exact rendered-page VRT diagnostic boundary
+
+- **Decision:** `--routes` names component fixtures; `--page-routes` names rendered pages. Either is
+  exact and both may be combined. Automatic fixtures/pages/icons cannot leak into the diagnostic,
+  while an independently computed full impact still wins.
+- **Fail-closed invariant:** every explicit selector is nonempty, unique, well-formed, preserved in
+  the structured report, and independently validated against the base and working-tree authorities.
+  A missing-on-both route fails before install/build/capture and writes no evidence or receipt.
+- **Evidence boundary:** a focused or same-tree rerun diagnoses capture stability only. It never
+  clears the original human review, becomes receipt evidence, or replaces production-full ship.
+- **Review state:** focused executable and current-operator checks report 0 high and 0 medium. Final
+  applicable VRT interpretation and terminal exact-tree ship/receipt remain separate proofs.

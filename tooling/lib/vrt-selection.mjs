@@ -197,6 +197,37 @@ export function reconcileVrtSelection({
   };
 }
 
+/**
+ * Replace automatic VRT work with an exact rendered-page diagnostic selector. Explicit fixture
+ * routes may be retained when the caller also supplied `--routes`; inferred fixtures and icon work
+ * must never leak into a focused page rerun. The independent impact oracle is reconciled later and
+ * still widens this selection to full when required.
+ */
+export function addExplicitVrtFullPageRoutes(
+  routeSelection,
+  pageRoutes,
+  { retainExplicitFixtures = false } = {},
+) {
+  if (pageRoutes === null) return routeSelection;
+  if (!Array.isArray(pageRoutes) || pageRoutes.length === 0)
+    throw new Error("VRT --page-routes requires a nonempty exact route list");
+  if (new Set(pageRoutes).size !== pageRoutes.length)
+    throw new Error("VRT --page-routes rejects duplicate routes");
+  for (const route of pageRoutes)
+    if (
+      typeof route !== "string" ||
+      !/^\/(?:[^/\s]+(?:\/[^/\s]+)*)?$/.test(route)
+    )
+      throw new Error(`VRT --page-routes rejects malformed route: ${route}`);
+  return {
+    ...routeSelection,
+    routes: retainExplicitFixtures ? routeSelection.routes : new Set(),
+    fullPageRoutes: new Set(pageRoutes),
+    icons: false,
+    reason: `${retainExplicitFixtures ? `${routeSelection.reason}; ` : ""}--page-routes`,
+  };
+}
+
 const leafKey = (leaf) => `${leaf.title}\0${leaf.project}`;
 
 export function expectedVrtLeaves({

@@ -636,7 +636,19 @@ export function operatorDocProblems(sources) {
   if (
     !/gates:plan/i.test(visualReview) ||
     !/rendered MDX/i.test(visualReview) ||
-    !/selector digest/i.test(visualReview)
+    !/selector digest/i.test(visualReview) ||
+    !/--routes[\s\S]*component-fixture diagnostic/i.test(visualReview) ||
+    !/--page-routes[\s\S]*rendered-page\s+diagnostic/i.test(visualReview) ||
+    !/Supplying both[\s\S]{0,160}exactly the named fixtures and pages/i.test(
+      visualReview,
+    ) ||
+    !/inferred fixtures, pages,[\s\S]{0,80}icon chunks do not leak/i.test(
+      visualReview,
+    ) ||
+    !/independently computed impact oracle[\s\S]{0,160}full capture/i.test(
+      visualReview,
+    ) ||
+    !/Do not combine `--all`[\s\S]{0,100}exact selector/i.test(visualReview)
   )
     problems.push(
       "skills/internal/ship/references/visual-review.md: [dynamic-rendered-docs] must distinguish operational prose from rendered MDX and require a reasoned VRT skip",
@@ -869,7 +881,7 @@ const HELP_COMMANDS = [
   ["tooling/gates-affected.mjs", /SHADOW|shadow/i],
   ["tooling/impact-plan.mjs", /diagnostic\/shadow-only/i],
   ["tooling/vitest-run.mjs", /selected-shadow/i],
-  ["tooling/vrt-review.mjs", /report\.json/i],
+  ["tooling/vrt-review.mjs", /--page-routes[\s\S]*report\.json/i],
   ["tooling/deploy-candidate.mjs", /create[\s\S]*verify[\s\S]*discover/i],
   ["apps/docs/scripts/probe-deployment.mjs", /--report\s+<path>/i],
 ];
@@ -903,7 +915,7 @@ const validFixture = {
   "skills/internal/ship/SKILL.md":
     "Run git fetch --prune origin before classification. Schema 2 production-full evidence includes all-browsers. Upload is not completion; require deployment-complete with structured probe count and exact registry version. versioned-unpublished alone runs hosted build; registry-unknown never grants publish permission. The deploy candidate is shadow-only. A missing or expired candidate is a safe miss and uses the rebuild; malformed or ambiguous evidence must fail. Present plain-language bullet points and absolute clickable paths. changed = Before/After/Difference; new = After; removed = Before; broken has no visual verdict until rerun. Run gates:plan. Operational plans can skip rendered checks, but rendered MDX cannot. Include every reachable dependent. The terminal `pnpm gates:ship` remains the complete exact-final-tree proof. Public skills ship inside `@vegastack/design`; retain skill-mirror, export, and package-build checks. There is no agreeing greater-than-six-route foundation fixture. Do not collect qualifying checkpoint samples; MK must resolve the authority blocker.",
   "skills/internal/ship/references/visual-review.md":
-    "Run gates:plan before visual review. Rendered MDX remains visual input. Every safe skip includes its selector digest. Present plain-language bullet points. changed = Before/After/Difference; new = After; removed = Before; broken is not a visual verdict and must rerun. Resolve every available artifact to an absolute clickable Markdown link.",
+    "Run gates:plan before visual review. Rendered MDX remains visual input. Every safe skip includes its selector digest. --routes is an exact component-fixture diagnostic. --page-routes is an exact rendered-page diagnostic. Supplying both captures exactly the named fixtures and pages; inferred fixtures, pages, and icon chunks do not leak. The independently computed impact oracle still wins when it requires a full capture. Do not combine `--all` with either exact selector. Present plain-language bullet points. changed = Before/After/Difference; new = After; removed = Before; broken is not a visual verdict and must rerun. Resolve every available artifact to an absolute clickable Markdown link.",
   "skills/internal/ship/references/release-gotchas.md":
     "verify-shadcn-consume builds public packages, then runs pnpm pack --json and validates every declared export before clean consumers.",
   "skills/internal/gates/SKILL.md":
@@ -1186,6 +1198,12 @@ const semanticFixtures = [
     "skills/internal/ship/references/visual-review.md",
     "For every non-unchanged entry provide Before, After, and Diff—all three.",
     /visual-handoff/,
+  ],
+  [
+    "visual exact selectors lose widening and no-leak rules",
+    "skills/internal/ship/references/visual-review.md",
+    "Run gates:plan before visual review. Rendered MDX remains visual input. Every safe skip includes its selector digest. --routes is an exact component-fixture diagnostic. --page-routes is an exact rendered-page diagnostic. Present plain-language bullet points. changed = Before/After/Difference; new = After; removed = Before; broken is not a visual verdict and must rerun. Resolve every available artifact to an absolute clickable Markdown link.",
+    /dynamic-rendered-docs/,
   ],
   [
     "blanket docs visual skip",
