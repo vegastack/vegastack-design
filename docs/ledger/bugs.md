@@ -936,3 +936,15 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   todo, renamed, removed, extra, and cross-file disabling. Runtime reconciliation and receipt freeze
   independently reject every unapproved, duplicate, stale, wrong-lane/file/engine, or pre-listed
   skipped leaf. The failed full-ship run remains diagnostic only; no evidence was recovered.
+
+## 2026-07-30 — New Vitest authority widened the independent consume planner
+
+- **Symptom:** the clean deterministic sweep reached the new gate-impact assertion and found the
+  Vitest-only authority correctly selected full browser lanes but also selected full registry consume.
+- **Root cause:** the common planner modeled the new paths, while the independent consume planner
+  still treated them as unknown. Its safe default widened rather than skipping, so guarantees were
+  preserved but the promised dependency-aware explanation and efficiency were inconsistent.
+- **Systemic fix:** classify only the exact runtime-exclusion authority and its mutation verifier as
+  having no consumer-byte effect. Direct consume-plan and common-impact assertions require browser
+  invalidation, zero invented contract/VRT/consume impact, and continued full widening for unknown
+  paths. No production-full or D1 consume requirement changed.

@@ -1094,3 +1094,13 @@ each was invisible in review and each is the kind that would have degraded the t
 - **Boundary:** these definitions never become passing leaves or receipt evidence. The remediation
   changes report interpretation only; full exact-tree production proof and every approval boundary
   remain unchanged.
+
+## 2026-07-30 — Vitest exclusion tooling has no registry-consumer byte edge
+
+- **Decision:** the exact runtime-exclusion authority and its mutation verifier invalidate the full
+  unit/smoke/all-browser lanes, but select no contract, VRT, or registry-consume diagnostic lane.
+- **Why:** neither file is imported by registry artifacts or public packages, and both independent
+  planners now state the same edge. Leaving consume at its unknown-path fallback was safe but hid
+  avoidable work and produced contradictory machine reasons.
+- **Guardrail:** only those two exact paths receive the exemption. Unknown tooling still widens;
+  `gates:ship`, CI, and Release retain full consume under D1 regardless of the diagnostic plan.

@@ -714,3 +714,10 @@ source-bound identities, an independently persisted/reconstructed `runtimeExclus
 static/runtime mutations for alternate disabling APIs, arbitrary names, stale source, wrong scope,
 duplicates, and pre-listed skips. Focused deterministic checks pass; final closure remains open until
 the unchanged committed tree receives a fresh independent 0-high/0-medium review and full ship.
+
+The first clean serial rerun then found a consistency blocker before completion: the common impact
+planner classified the new authority as Vitest-only, but its independent consume subplanner widened
+the same path to full because it was still unknown there. This was fail-safe, not a coverage escape,
+but it contradicted the claimed efficient taxonomy. Exact no-consumer entries and direct mutations
+now cover both new paths; every other unknown path still widens. The interrupted serial run is not
+completion evidence. A new committed-tree serial run is required from the beginning.
