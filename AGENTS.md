@@ -349,6 +349,13 @@ cache/cold classification, scope, retry count, and explicit unknown resource fac
 summarizer never combines different generations, environments, cache states, engines, or route/check
 counts. These reports are diagnostics, not receipt evidence and never authorize a skip.
 
+Vitest's runtime report may retain exactly five Firefox Dropzone paste definitions that its pre-run
+list excludes because synthetic clipboard files cannot be expressed there. They are not generic
+skip permission: `.runtimeExclusions` must name those exact source-bound leaves and capability. Any
+other `test.skip`/`skipIf`, renamed/file/engine mismatch, stale manifest, or required listed leaf that
+skips fails before receipt creation. The source authority and its mutations are
+`tooling/lib/vitest-runtime-exclusions.mjs` and `tooling/verify-vitest-runtime-exclusions.mjs`.
+
 `pnpm gates:retry` is narrower still: it reruns only structured exact failing
 file/engine/test-name or route/project/title selectors. Empty, renamed, stale-tree, or unknown
 selectors fail before execution. A retry pass leaves `.gates/last-failure.json`, the receipt, and

@@ -70,6 +70,13 @@ cat .gates/ship.json                                    # per-gate status and du
 node -p "const r=require('./.gates/contracts.json'); r.status+' · '+r.executed+' executed · '+r.scope.reason"
 ```
 
+The smoke and all-browser reports may show five reporter-visible Firefox Dropzone paste exclusions.
+Read `runtimeExclusions`: only the five exact `synthetic-clipboard-files` leaves bound by
+`tooling/lib/vitest-runtime-exclusions.mjs` are allowed. This is not permission for an arbitrary
+`test.skip`/`skipIf`; a new, renamed, wrong-file/engine, stale-manifest, or pre-listed skipped leaf
+must fail the run. Each report's executed count must exactly match its independently listed required
+leaf manifest; excluded definitions never become receipt evidence.
+
 A contracts entry reporting `status: "skipped"` or `executed: 0` after `gates:ship` is a defect, not a
 pass: `ship` runs `--all`, so an empty scope means the runner or the route set is wrong.
 

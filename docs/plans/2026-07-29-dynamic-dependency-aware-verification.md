@@ -622,12 +622,13 @@ exclusions), all-browser 281.082s (4,408/4,408 required plus the same five exclu
 
 Evidence integrity then failed because the final validator required zero reporter skips even though
 the canonical pre-run list had already omitted the five `test.skipIf` definitions and exact
-listed/executed reconciliation passed. The remediation retains those definitions in an explicit
-excluded manifest, keeps only pre-listed executed leaves in required evidence, and rejects count
-drift, duplicates, malformed or foreign exclusions, any excluded leaf smuggled into the required
-selector, and any pre-listed required leaf that skips at runtime. Selected diagnostics remain
-stricter and reject every skip. This does not lower coverage or change the receipt universe; it
-aligns final freezing with the independently reconciled universe.
+listed/executed reconciliation passed. The first repair—accepting reporter-only skips within the
+expected file/engine universe—was rejected by adversarial review as high severity because an
+arbitrarily disabled regression could inherit that broad exception. The replacement allowlists five
+exact Firefox Dropzone test identities, binds the capability probe/declaration by content hash,
+persists and independently reconstructs the exclusion manifest, statically rejects alternate
+disabling APIs, and rejects every arbitrary, renamed, removed, extra, stale, duplicate, wrong-lane,
+wrong-file/engine, or pre-listed skip. This does not lower coverage or change the receipt universe.
 
 **Benefit verdict:** this measured run is faster than the prior retained 30m15s–48m25s range but is
 still above the <=19m p50 / <=22m p95 target, and one failed-evidence sample cannot establish a new

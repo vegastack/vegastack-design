@@ -193,6 +193,13 @@ node -p "const r=require('./.gates/receipt.json'); [r.tree, r.mode, JSON.stringi
 A receipt whose `skips[]` is non-empty is a finding regardless of how the run looks: it means
 `GATES_SKIP` was used and a browser lane did not run.
 
+Do not confuse receipt `skips[]` with a Vitest report's `runtimeExclusions`. The latter may contain
+only the five exact source-bound Firefox Dropzone paste leaves for the
+`synthetic-clipboard-files` capability. Force an arbitrary `test.skip`, `skipIf(true)`, partial-file
+skip, wrong file/engine/name, stale authority/source binding, and a required listed leaf that skips;
+each must fail. The canonical required selector/digest excludes only the exact allowlisted leaves,
+and the report must persist the independently reconstructable exclusion manifest.
+
 For an unchanged ship→commit→push sequence, inspect `.gates/reuse-plan.json` and the final receipt.
 Reuse remains shadow-only, so the push report must still show the complete planned oracle. The
 production-full receipt may dominate a later successful weaker change receipt only on the same exact

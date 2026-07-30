@@ -27,6 +27,13 @@ Every run also has immutable segment reports under `.gates/runs/<run-id>/`, incl
 of the result. `unknown` is honest; never relabel it measured or combine differing generations or
 route/check counts to improve a percentile. Measurement reports are diagnostics, never receipts.
 
+For `vitest-smoke.json` and `vitest-all-browsers.json`, inspect `runtimeExclusions` as well as
+`results`. The only approved runtime exclusions are five exact Firefox Dropzone paste leaves under
+the source-bound `synthetic-clipboard-files` capability. They may be absent if the engine gains the
+capability; they may never be replaced or expanded. Any other reporter-only skip, `test.skip` /
+`skipIf`, wrong file/engine/name, stale manifest, or pre-listed required leaf that skips is a gate
+failure—not a smaller required universe.
+
 ## 2. Classify every failure before fixing anything
 
 Four categories, and they need different responses. Getting the category wrong wastes the fix.

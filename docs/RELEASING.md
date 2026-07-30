@@ -123,6 +123,12 @@ Chromium/Firefox/WebKit, and 108 routes × four projects × two assertions = 864
 a scoped report, wrong route/test count, missing engine, stale fingerprint/tree/toolchain/authority,
 duplicate/unknown/missing leaf, or an opaque coverage root. `mode: ship` is not authorization.
 
+Vitest reports retain a separate `runtimeExclusions` manifest. Only five exact Firefox Dropzone paste
+leaves, source-bound to the `synthetic-clipboard-files` capability, are approved; they are absent
+from the independently listed required universe and never become receipt leaves. Any arbitrary
+`test.skip`/`skipIf`, renamed or wrong-file/engine leaf, stale manifest/source binding, or pre-listed
+required leaf that skips blocks receipt creation. Do not reinterpret a reporter skip count by itself.
+
 Pre-push smoke triggering includes transitive registry dependencies of every selected smoke root.
 The checked Vitest-related manifest is a shadow comparator; missing or disagreeing results widen to
 the complete selected smoke lane.

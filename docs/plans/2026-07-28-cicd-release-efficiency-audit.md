@@ -1684,8 +1684,10 @@ numbers remain the evidence for the earlier round.
 The first follow-on terminal ship executed all substantive lanes and 108/864 contracts in
 1,761.383s, then correctly wrote no receipt because evidence integrity rejected five reporter-visible
 Firefox `test.skipIf` exclusions that Vitest's canonical pre-run list had omitted. The run is retained
-as measured diagnostic timing (`n=1`), not completion or receipt evidence. Required leaves now come
-only from the independently planned/pre-listed manifest; reporter-only exclusions remain visible but
-cannot enter evidence. Mutations reject listed-leaf skips, smuggled exclusions, duplicate/count/status
-drift, and foreign file/engine entries. A fresh exact-tree full ship and renewed zero-high/zero-medium
-review are mandatory; no A–M rollout, D1–D7 checkpoint, production policy, or outward approval changed.
+as measured diagnostic timing (`n=1`), not completion or receipt evidence. A first broad file/engine
+exclusion repair was adversarially rejected at high severity. The replacement allowlists five exact
+Firefox Dropzone identities, source-binds the capability probe/declaration, persists and reconstructs
+the exact manifest, and mutation-rejects alternate disabling APIs, arbitrary/renamed/removed/extra/
+stale exclusions, pre-listed skips, duplicates, and wrong lane/file/engine. A fresh exact-tree full
+ship and renewed zero-high/zero-medium review remain mandatory; no A–M rollout, D1–D7 checkpoint,
+production policy, or outward approval changed.

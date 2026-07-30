@@ -264,6 +264,21 @@ Two recovery-specific follow-ons:
 After publishing, `pnpm release:state` verifies both exact public versions. A later docs-only push is
 `clean-noop`; a registry-only release is `published`. Both keep hosted npm jobs skipped.
 
+## 17. Reporter-visible Vitest skips are not automatically acceptable
+
+- **Symptom:** every browser test command and all 108/864 contracts passed, but final evidence
+  integrity refused the receipt because Firefox reported five skipped Dropzone paste definitions.
+- **Cause:** Vitest's pre-run list omitted those environment-specific `test.skipIf` definitions while
+  its reporter kept them visible. The first repair incorrectly treated any reporter-only skip inside
+  an expected file/engine as an exclusion, which could hide an arbitrarily disabled regression test.
+- **Now:** exactly five file/engine/test identities are approved for the
+  `synthetic-clipboard-files` capability. Their capability probe and `pasteTest` declaration are
+  source-bound; the runtime report persists the exact exclusion manifest; receipt freeze rebuilds it
+  independently. Arbitrary, renamed, removed, extra, stale, partial-file, and cross-file skips fail.
+- **Rule:** inspect `runtimeExclusions`, not only `results.skipped`. Never add a broad pattern or
+  relabel a new skip as environmental to get a receipt; review and mutation-test a new exact
+  capability authority first.
+
 ## The one thing still open
 
 **The forced-colors focus assertion cannot fail.** Chromium paints its own ≥2px ring in that mode and

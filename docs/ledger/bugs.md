@@ -921,3 +921,18 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   still fails. Count mismatch, duplicate/malformed exclusions, foreign file/engine, and smuggling an
   exclusion into the required selector all fail by mutation. The failed run remains diagnostic
   evidence only; no receipt, retry evidence, or ship-completion claim was recovered from it.
+
+## 2026-07-30 — Broad reporter-exclusion repair could hide an arbitrary skipped regression
+
+- **High finding:** the first receipt-freeze repair accepted any reporter-only skipped definition
+  inside an expected file/engine. Replacing one of the five names with an arbitrary disabled test
+  still validated, so reporter visibility had accidentally become approval.
+- **Root cause:** file/engine membership was treated as capability authority. The validator did not
+  bind the excluded identity to reviewed source or require an independently reconstructable exact
+  exclusion manifest.
+- **Systemic fix:** one authority now names the five exact Firefox Dropzone paste leaves and the
+  `synthetic-clipboard-files` capability, with a SHA-256 binding over the capability probe and
+  `pasteTest` declaration. Static AST mutations reject direct, aliased, computed, conditional,
+  todo, renamed, removed, extra, and cross-file disabling. Runtime reconciliation and receipt freeze
+  independently reject every unapproved, duplicate, stale, wrong-lane/file/engine, or pre-listed
+  skipped leaf. The failed full-ship run remains diagnostic only; no evidence was recovered.

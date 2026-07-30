@@ -1078,3 +1078,19 @@ each was invisible in review and each is the kind that would have degraded the t
   mutations and the retained failed-run reports prove the mechanism; fresh deterministic and
   adversarial review plus a new full ship must close the tree. No production or outward checkpoint
   changed.
+
+## 2026-07-30 — Exact source-bound Vitest runtime-exclusion authority
+
+- **Rejected option:** accept any reporter-only skip that is absent from the canonical pre-run list
+  but remains inside an expected file/engine. An adversarial name mutation proved this can hide an
+  unrelated disabled regression, so the option is fail-open.
+- **Decision:** permit only five exact Firefox Dropzone paste identities for the
+  `synthetic-clipboard-files` capability. Bind their capability/declaration source, persist the exact
+  `runtimeExclusions` manifest, and reconstruct it again while freezing receipt evidence.
+- **Failure policy:** an arbitrary, aliased, computed, conditional, todo, renamed, removed, extra,
+  partial-file, cross-file, wrong-engine/lane, stale, duplicate, or pre-listed skipped leaf blocks.
+  If Firefox later supports the capability, zero exclusions is valid; replacing or expanding the
+  authority is not automatic and requires review plus mutation evidence.
+- **Boundary:** these definitions never become passing leaves or receipt evidence. The remediation
+  changes report interpretation only; full exact-tree production proof and every approval boundary
+  remain unchanged.

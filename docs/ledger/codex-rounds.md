@@ -705,3 +705,12 @@ still visible as runtime skips. This is a new report-validation finding, not per
 the failed run as a pass. Required and reporter-excluded leaves are now separated with fail-closed
 mutations; a fresh unchanged-scope adversarial review and an entirely new exact-tree full ship are
 required before final acceptance.
+
+The first focused remediation review at `2a0ed75d` reported **1 high and 0 medium findings**. Its
+adversarial mutation changed a reporter-only test name inside the same expected file/engine and the
+validator still passed, proving that the broad exclusion mechanism could hide an arbitrary disabled
+regression. That repair is superseded, not accepted. The replacement introduces five exact
+source-bound identities, an independently persisted/reconstructed `runtimeExclusions` manifest, and
+static/runtime mutations for alternate disabling APIs, arbitrary names, stale source, wrong scope,
+duplicates, and pre-listed skips. Focused deterministic checks pass; final closure remains open until
+the unchanged committed tree receives a fresh independent 0-high/0-medium review and full ship.
