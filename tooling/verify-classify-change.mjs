@@ -301,6 +301,17 @@ function gitIn(root, args) {
   return execFileSync("git", args, { cwd: root, encoding: "utf8" });
 }
 
+function commitStagedFixtureDelta(root, message) {
+  try {
+    gitIn(root, ["diff", "--cached", "--quiet", "--exit-code"]);
+    return false;
+  } catch (error) {
+    if (error?.status !== 1) throw error;
+  }
+  gitIn(root, ["commit", "--quiet", "-m", message]);
+  return true;
+}
+
 function copyCurrentModuleClosure(root, entryPaths) {
   const queue = [...entryPaths];
   const copied = new Set();
@@ -413,7 +424,7 @@ function classifyModeMutation({ committed }) {
     gitIn(root, ["config", "user.name", "classifier fixture"]);
     gitIn(root, ["config", "user.email", "classifier@example.invalid"]);
     gitIn(root, ["add", ...copied]);
-    gitIn(root, ["commit", "--quiet", "-m", "current classifier harness"]);
+    commitStagedFixtureDelta(root, "current classifier harness");
     chmodSync(join(root, "packages/ui/registry/ui/button.tsx"), 0o755);
     const args = ["tooling/classify-change.mjs", "--before", "HEAD"];
     if (committed) {
@@ -428,6 +439,39 @@ function classifyModeMutation({ committed }) {
     );
   } finally {
     rmSync(scratch, { recursive: true, force: true });
+  }
+}
+
+{
+  const root = mutationRepository();
+  try {
+    const unchangedHead = gitIn(root, ["rev-parse", "HEAD"]).trim();
+    gitIn(root, ["add", "tooling/lib/change-set.mjs"]);
+    assert.equal(
+      commitStagedFixtureDelta(root, "must not be created"),
+      false,
+      "an already-current classifier harness must not require an empty commit",
+    );
+    assert.equal(
+      gitIn(root, ["rev-parse", "HEAD"]).trim(),
+      unchangedHead,
+      "the no-delta fixture path must preserve HEAD",
+    );
+    writeFileSync(join(root, "fixtures/text.txt"), "after\n");
+    gitIn(root, ["add", "fixtures/text.txt"]);
+    assert.equal(
+      commitStagedFixtureDelta(root, "real fixture delta"),
+      true,
+      "a real staged classifier fixture delta must be committed",
+    );
+    assert.notEqual(
+      gitIn(root, ["rev-parse", "HEAD"]).trim(),
+      unchangedHead,
+      "the real-delta fixture path must advance HEAD",
+    );
+    checks += 4;
+  } finally {
+    rmSync(root, { recursive: true, force: true });
   }
 }
 
