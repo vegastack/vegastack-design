@@ -66,6 +66,8 @@ for (const path of [
   "skills/public/vegastack-consume/SKILL.md",
   "packages/design/skills/vegastack-consume/SKILL.md",
   ".husky/pre-push",
+  "tooling/lib/vitest-runtime-exclusions.mjs",
+  "tooling/verify-vitest-runtime-exclusions.mjs",
 ]) {
   const result = plan([path]);
   assert.equal(result.mode, "none", `${path} has no consumer-byte effect`);

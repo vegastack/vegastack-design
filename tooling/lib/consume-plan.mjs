@@ -12,6 +12,8 @@ const NO_CONSUMER_EFFECT = [
   /^apps\/docs\/(?:app|vrt)\//,
   /^apps\/docs\/components\/preview\//,
   /^design\.md$/,
+  /^tooling\/lib\/vitest-runtime-exclusions\.mjs$/,
+  /^tooling\/verify-vitest-runtime-exclusions\.mjs$/,
 ];
 
 const FULL_SURFACE = [
