@@ -19,21 +19,37 @@ at_; the agent decides _what it means_; the human decides _what happens_.
 ## Run it
 
 ```bash
+pnpm gates:plan                           # machine reason for selected/full/safely-skipped VRT
 node tooling/vrt-review.mjs                 # affected routes, fixture lane, vs origin/main
 node tooling/vrt-review.mjs --full-pages    # add the full-page lane (includes docs prose)
 node tooling/vrt-review.mjs --all           # every route, skip change detection
 node tooling/vrt-review.mjs --base <ref>    # compare against a different ref
 node tooling/vrt-review.mjs --routes /docs/components/button,/docs/components/card
+node tooling/vrt-review.mjs --page-routes /docs/guides/quickstart,/docs/foundations/theming
 ```
 
 It clones the merge-base into a temporary git worktree, installs and builds there, captures, then
-captures the working tree against that. Expect ~6-10 minutes: two full docs builds dominate.
+captures the working tree against that. A complete 1,024-leaf-per-tree review measured 20.0 minutes
+for the base and 14.2 minutes for the working tree, plus setup (`n=1`, local measurement on
+2026-07-30); a selected review is smaller, but no percentile is claimed.
+
+`--routes` is an exact component-fixture diagnostic. `--page-routes` is an exact rendered-page
+diagnostic. Supplying both captures exactly the named fixtures and pages; inferred fixtures, pages,
+and icon chunks do not leak in. The independently computed impact oracle still wins when it requires
+a full capture. After committing a harness-only fix, `--base HEAD` with exact selectors can diagnose
+same-tree capture stability; it is retry evidence only and never replaces the original comparison
+or the final production-full ship proof. Do not combine `--all` with either exact selector.
 
 **Scope.** Only routes the change can reach are captured. A component's own route plus every route
 whose component composes it (via `registryDependencies`); a preview file maps to its one page; a
 `.mdx` edit maps to that page's full-page capture only. Anything touching tokens, the shared runtime,
 the docs shell, the preview infrastructure, or the lockfile forces a full capture. A change touching
 no visual surface captures nothing and prints SKIPPED.
+
+Do not infer scope from “docs” or “non-component.” Operational prose can select no pixel surface,
+but rendered MDX selects its own full page, and shared docs/runtime/style/config inputs widen. Compare
+the plan's VRT lane with the VRT report; disagreement is an error to investigate, not permission to
+use the smaller scope. A `safely-skipped` plan must include its machine reason and selector digest.
 
 **Exit codes.** 0 for any pixel outcome — a difference is not a defect. 2 only when no report could
 be produced (a failed build, a dead server). A 2 is an infrastructure failure, never evidence.
@@ -70,9 +86,20 @@ page's height from scaling the tolerance. A full-page change under 100 pixels th
 
 1. Run the tool.
 2. Read `.vrt-review/report.json`.
-3. For every entry with `status !== "unchanged"`, **read the before, after, and diff images**.
+3. Read every artifact available for its status: `changed` = Before/After/Difference; `new` = After
+   (plus Difference only when emitted); `removed` = Before; `broken` = report error plus any image
+   that exists.
 4. Classify each: **intended** (consistent with the changeset), **unintended**, or **uncertain**.
-5. Present a table — route, project, pixels changed, verdict, one-line reasoning.
+5. Explain the result before presenting the audit table:
+   - Use short plain-language bullet points stating what visibly changed, what stayed the same, the
+     likely cause, and whether a user would notice. A phrase such as “147 pixels changed” is
+     measurement context, not an understandable explanation.
+   - Then present the table — route, project, pixels changed, verdict, and one-line reasoning.
+   - Resolve every available status-appropriate image against the repository root and provide it as
+     an absolute clickable Markdown link, with the absolute report link. Label available artifacts
+     **Before**, **After**, and **Difference**; never invent an artifact the status cannot produce.
+   - `broken` is not a visual verdict. Explain the error, link any available artifact and the report,
+     rerun the capture, and stop until a reviewable result exists.
 6. **Stop. The developer decides.** Never self-clear a diff.
 
 Report a SKIPPED run as skipped. It is not evidence of a clean diff.

@@ -21,47 +21,23 @@
 //   contracts_scope  all | <n> route(s) | none
 //   unit             the receipt must carry a passing browser-unit lane
 //   smoke            the receipt must carry a passing cross-engine smoke lane
-//   publish          the release path is reachable for this push
-//   has_changesets   pending changesets exist, so the run opens a Version PR rather than publishing
+// Release state is deliberately absent. tooling/release-state.mjs is its sole authority.
 
-import { spawnSync } from "node:child_process";
-import { readdirSync, readFileSync, appendFileSync } from "node:fs";
+import { readdirSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
 
 import {
-  changedFilesInRange,
-  changedFilesInWorkingTree,
+  commitRangeChangeInventory,
   defaultBaseRef,
-  dropProvenanceOnly,
   git,
   mergeBase,
   ROOT,
   resolveCommit,
   versionBumpOnly,
+  workingTreeChangeInventory,
 } from "./lib/change-set.mjs";
-import { CONTRACT_SCOPE, selectRoutes } from "./lib/route-scope.mjs";
-
-const CONTRACTS_JSON = JSON.parse(
-  readFileSync(join(ROOT, "packages/ui/component-contracts.json"), "utf8"),
-);
-
-/**
- * Files whose change requires the cross-engine smoke lane: the sources and tests of every component
- * marked `coverage.crossBrowserSmoke: "selected"`. Derived from the machine authority rather than
- * listed here, so adding a component to the smoke set updates this automatically.
- */
-const SMOKE_FILES = new Set(
-  [
-    ...CONTRACTS_JSON.components,
-    ...CONTRACTS_JSON.hooks,
-    ...CONTRACTS_JSON.blocks,
-  ]
-    .filter((record) => record.coverage?.crossBrowserSmoke === "selected")
-    .flatMap((record) => [
-      ...(record.sourceFiles ?? []),
-      ...(record.testFiles ?? []),
-    ]),
-);
+import { createRouteScopeModel, selectRoutes } from "./lib/route-scope.mjs";
+import { classifierSmokeImpact } from "./lib/classifier-smoke.mjs";
 
 /** Paths whose change can break the browser-unit suite. */
 const UNIT_SURFACE = [
@@ -78,6 +54,9 @@ const USAGE = `Usage: node tooling/classify-change.mjs [options]
   --json            print the classification as JSON instead of a table
   --github-output   write key=value pairs here (default: $GITHUB_OUTPUT when set)
 
+Working-tree classification includes untracked paths. A changed path with no independently
+inspectable git diff record is never treated as version-only; unknown dependencies widen coverage.
+
 Exit codes: 0 classified · 2 the range could not be resolved.`;
 
 function fatal(message) {
@@ -90,7 +69,6 @@ const options = {
   after: null,
   json: false,
   githubOutput: process.env.GITHUB_OUTPUT ?? null,
-  checkNpm: false,
 };
 for (let index = 2; index < process.argv.length; index++) {
   const flag = process.argv[index];
@@ -103,7 +81,10 @@ for (let index = 2; index < process.argv.length; index++) {
   else if (flag === "--after") options.after = value();
   else if (flag === "--json") options.json = true;
   else if (flag === "--github-output") options.githubOutput = value();
-  else if (flag === "--check-npm") options.checkNpm = true;
+  else if (flag === "--check-npm")
+    fatal(
+      "--check-npm was removed because npm uncertainty must block, not look unpublished; use tooling/release-state.mjs",
+    );
   else if (flag === "--help" || flag === "-h") {
     console.log(USAGE);
     process.exit(0);
@@ -130,14 +111,13 @@ const rangeStart = afterSha
   ? beforeSha
   : (mergeBase(beforeSha, "HEAD") ?? beforeSha);
 
-const allChanged = afterSha
-  ? changedFilesInRange(rangeStart, afterSha)
-  : changedFilesInWorkingTree(rangeStart);
-
-const changed = dropProvenanceOnly(allChanged, {
-  before: rangeStart,
-  after: afterSha,
-});
+const inventory = afterSha
+  ? commitRangeChangeInventory(rangeStart, afterSha)
+  : workingTreeChangeInventory(rangeStart);
+const allChanged = inventory.allChanged;
+const changed = inventory.changedFiles;
+const unmodelledFileFacts =
+  inventory.metadataChanged.size > 0 || inventory.binaryChanged.size > 0;
 const provenanceOnly = allChanged.length - changed.length;
 
 /**
@@ -161,11 +141,19 @@ const pureVersionBump = (() => {
   }
 })();
 
-const selection = selectRoutes(
-  pureVersionBump?.ok ? [] : changed,
-  {},
-  CONTRACT_SCOPE,
-);
+const routeModel = createRouteScopeModel();
+routeModel.assertCurrent();
+const selection =
+  !pureVersionBump?.ok && unmodelledFileFacts
+    ? {
+        routes: null,
+        reason: "file metadata/binary change widens every product lane",
+      }
+    : selectRoutes(
+        pureVersionBump?.ok ? [] : changed,
+        {},
+        routeModel.contractScope,
+      );
 const contractsRequired =
   selection.routes === null || selection.routes.size > 0;
 const contractsScope =
@@ -177,12 +165,17 @@ const contractsScope =
 
 const unitRequired =
   !pureVersionBump?.ok &&
-  changed.some((file) => UNIT_SURFACE.some((pattern) => pattern.test(file)));
+  (unmodelledFileFacts ||
+    changed.some((file) => UNIT_SURFACE.some((pattern) => pattern.test(file))));
+const smokeSelection = classifierSmokeImpact(changed);
 // A global-surface change (tokens, the shared runtime) can move motion and focus behaviour in ways
 // only a second engine shows, so a full contract sweep implies the smoke lane too.
+const smokeWidenedByMetadata = unmodelledFileFacts;
+const smokeWidenedByRoutes = selection.routes === null;
+const effectiveSmokeFull =
+  smokeWidenedByMetadata || smokeWidenedByRoutes || smokeSelection.full;
 const smokeRequired =
-  !pureVersionBump?.ok &&
-  (selection.routes === null || changed.some((file) => SMOKE_FILES.has(file)));
+  !pureVersionBump?.ok && (effectiveSmokeFull || smokeSelection.required);
 
 /**
  * Read the changesets from the REF being classified. Reading the working tree was wrong whenever
@@ -209,41 +202,6 @@ const changesetFiles = (() => {
   }
 })();
 const hasChangesets = changesetFiles.length > 0;
-/**
- * Is the release path reachable?
- *
- * "Did `packages/` change in this push" alone is WRONG for an interrupted release. Versions can sit
- * bumped-but-unpublished on `main` — as happened when an empty changeset deadlocked the Version PR
- * ("All changesets are empty; not creating PR"), leaving 0.2.0 on main and 0.1.1 on npm with no future
- * push able to set this true. A release that cannot resume is a release that needs a human to guess.
- *
- * So `--check-npm` additionally asks the registry what is actually published. It is opt-in because it
- * needs network: the workflow's `changes` job passes it, and the offline verifiers do not.
- */
-let unpublished = [];
-if (options.checkNpm) {
-  for (const directory of ["design", "design-tokens"]) {
-    const manifest = JSON.parse(
-      readFileSync(join(ROOT, `packages/${directory}/package.json`), "utf8"),
-    );
-    const latest = spawnSync("npm", ["view", manifest.name, "version"], {
-      encoding: "utf8",
-      timeout: 60_000,
-    });
-    const published = (latest.stdout ?? "").trim();
-    // A package with no releases at all, or one behind the workspace, is unpublished work.
-    if (latest.status !== 0 || published !== manifest.version)
-      unpublished.push(
-        `${manifest.name} ${published || "(none)"} → ${manifest.version}`,
-      );
-  }
-}
-
-const publish =
-  hasChangesets ||
-  changed.some((file) => file.startsWith("packages/")) ||
-  unpublished.length > 0;
-
 const classification = {
   before: { ref: beforeRef, sha: beforeSha },
   after: afterSha
@@ -261,9 +219,21 @@ const classification = {
   pureVersionBump: pureVersionBump?.ok === true,
   unit: unitRequired,
   smoke: smokeRequired,
-  publish,
+  smoke_scope: !smokeRequired
+    ? "none"
+    : effectiveSmokeFull
+      ? "all"
+      : `${smokeSelection.tests.length} test file(s)`,
+  smoke_reason: pureVersionBump?.ok
+    ? "pure version bump — no observable change"
+    : smokeWidenedByMetadata
+      ? "file metadata/binary change widens smoke to all"
+      : smokeWidenedByRoutes
+        ? `contract/route scope widens smoke to all (${selection.reason})`
+        : smokeSelection.reasons.join("; ") ||
+          "registry/Vitest dependency closure",
+  release_surface: changed.some((file) => file.startsWith("packages/")),
   has_changesets: hasChangesets,
-  unpublished,
 };
 
 if (options.githubOutput) {
@@ -274,8 +244,6 @@ if (options.githubOutput) {
       contracts_scope: contractsScope,
       unit: unitRequired,
       smoke: smokeRequired,
-      publish,
-      has_changesets: hasChangesets,
     })
       .map(([key, value]) => `${key}=${value}`)
       .join("\n") + "\n",
@@ -301,10 +269,11 @@ console.log(
   `  contracts       ${contractsRequired} — ${contractsScope} (${classification.contracts_reason})`,
 );
 console.log(`  unit            ${unitRequired}`);
-console.log(`  smoke           ${smokeRequired}`);
-console.log("");
-console.log("release path");
 console.log(
-  `  publish         ${publish}${unpublished.length ? ` — unpublished: ${unpublished.join(", ")}` : ""}`,
+  `  smoke           ${smokeRequired} — ${classification.smoke_scope} (${classification.smoke_reason})`,
 );
-console.log(`  has_changesets  ${hasChangesets}`);
+console.log("");
+console.log("release state");
+console.log(
+  "  not classified here — run pnpm release:state (npm/Changesets uncertainty is fail-closed)",
+);

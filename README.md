@@ -11,7 +11,7 @@ distributed **hybrid**: two public npm packages + a private, Sigstore-signed sha
 
 | Surface                 | Where                                                                                                                                                         |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Docs, showcase & guides | **https://design.vegastack.com** (target: public; broad SSO remains until approved cutover)                                                                   |
+| Docs, showcase & guides | **https://design.vegastack.com** (anonymous; `/internal/*` is unlisted with `noindex`/`no-store`)                                                             |
 | Component registry      | `https://design.vegastack.com/r/*` (Cloudflare Access service token)                                                                                          |
 | npm                     | [`@vegastack/design`](https://www.npmjs.com/package/@vegastack/design) · [`@vegastack/design-tokens`](https://www.npmjs.com/package/@vegastack/design-tokens) |
 | Release history         | [CHANGELOG.md](CHANGELOG.md) (canonical → generates the docs Changelog page)                                                                                  |
@@ -33,8 +33,8 @@ tooling/           the gate ladder · registry hashing/verification · design-li
 skills/internal/   maintainer skills — component · review · ship · gates
 skills/public/     consumer skills — shipped inside @vegastack/design (see skills/README.md)
 .github/workflows/ ci · release (npm OIDC) · deploy · runner-diagnostics
-                   everything that runs repository code is on the free mac minis; seven
-                   hosted jobs remain, each for a hard reason — see AGENTS.md for the split
+                   everything that can safely run repository code is on the free mac minis; five
+                   workflow jobs stay hosted for OIDC, credential isolation, or external probing
 ```
 
 Skills are symlinked into `.claude/skills/` and `.agents/skills/`, so both Claude Code and Codex
@@ -61,6 +61,7 @@ is generated (CI fails on drift).
 pnpm install                   # also wires the git hooks (husky, via `prepare`)
 pnpm dev                       # docs showcase on :3000
 pnpm gates:component <name>    # the inner loop: design-lint · that unit test · its contract routes
+pnpm gates:plan                # explain affected lanes and dependents; diagnostic/shadow only
 pnpm gates:push                # what pre-push runs: typecheck · lint · unit · smoke · scoped contracts
 pnpm gates:ship                # the full sweep — required before any release
 pnpm registry:build            # after any canonical component edit
@@ -70,11 +71,19 @@ The git hooks run the first two tiers automatically. **`pnpm install` is what in
 clone that skips it has no browser verification at all, which is why `pnpm lint` includes
 `tooling/verify-hooks-installed.mjs`.
 
+The impact plan is dependency-aware, not extension-aware. Operational prose can avoid product lanes;
+rendered MDX still selects its page, and component code selects the component plus every reachable
+dependent test and route. Shared styling/runtime, toolchain/config, metadata, disagreement, and
+unknown inputs widen. The plan does not yet narrow pre-push or final ship, and cannot satisfy a
+production receipt.
+
 ## Releasing
 
 Use the **ship skill** (`skills/internal/ship/SKILL.md` — auto-discovered by Claude Code and Codex):
-preflight → changesets → changelog entry → Version PR → **npm OIDC publish** (tokenless,
-2FA intact) → registry deploy → Access verification.
+preflight → full local proof and visual review when applicable → changesets/changelog → reviewed
+Version PR → **npm OIDC publish** (tokenless, 2FA intact) → registry deploy → external boundary
+probe → terminal `deployment-complete` summary with the Cloudflare version, structured probe count,
+and exact registry version.
 
 **Shipping is always MK's decision** — agents prepare and stop for an explicit
 "yes proceed" per outward step. Full reference: [docs/RELEASING.md](docs/RELEASING.md).
@@ -82,15 +91,16 @@ preflight → changesets → changelog entry → Version PR → **npm OIDC publi
 ## Verification culture
 
 Fail-closed gates end to end: design-lint (token-only styling) · browser-mode unit tests + axe ·
-768 component behaviour contracts (320px reflow, RTL, 24px pointer targets — the focus-indicator
+108 routes / 864 component behaviour contracts (320px reflow, RTL, 24px pointer targets — the focus-indicator
 check is a known no-op under forced-colors, see docs/ledger/bugs.md 2026-07-25) ·
 real-CLI consume verification (contract-driven across every registry item and both layouts) ·
 registry integrity (SHA-256 + Sigstore) · changelog, skill, and link lints. The **reference
 consumer** (`vegastack-design-starter`, local repo) is the executable ground truth for every guide
 claim.
 
-**Verification is local-first, and the split is deliberate.** Every browser lane runs on a developer
-machine through the git hooks; CI independently **re-executes** the entire non-browser half on the
+**Verification is local-first, and the split is deliberate.** Browser unit, smoke, and scoped
+contracts run through pre-push on a developer machine; the complete three-engine and contract lanes
+run only in the full local ship ladder. CI independently **re-executes** the non-browser half on the
 free mac minis and **verifies** the browser half through `.gates/receipt.json`, a receipt bound to a
 git tree hash. That receipt is attestation, not proof — `--no-verify` plus a hand-edited JSON defeats
 it. What it buys is that skipping a browser gate is visible instead of silent. AGENTS.md

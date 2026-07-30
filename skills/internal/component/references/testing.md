@@ -79,18 +79,20 @@ call site. The compiled-CSS contrast gate covers real contrast separately.
 ## Running tests
 
 ```bash
-cd packages/ui && pnpm exec vitest run registry/ui/<name>.test.tsx   # scoped, while iterating
-pnpm test                                                            # full suite, before the gate
+pnpm gates:component <name> # common planner: changed item plus reachable dependent tests/routes
+pnpm gates:push               # current pre-push oracle after the component is ready
 ```
 
 ## Cross-browser smoke lane
 
 ```bash
-pnpm --filter @vegastack/ui test:smoke        # WebKit + Firefox, contract-selected subset
-pnpm --filter @vegastack/ui test:all-browsers # complete suite in all three engines (main/release)
+pnpm --filter @vegastack/ui test:smoke        # Chromium + WebKit + Firefox, selected subset
+pnpm --filter @vegastack/ui test:all-browsers # complete suite in all three engines (local /ship or diagnostics)
 ```
 
-`test:smoke` is a deliberate SUBSET run against real WebKit and Firefox via `vitest.smoke.config.ts`.
+`test:smoke` is a deliberate SUBSET run against real Chromium, WebKit, and Firefox via
+`vitest.smoke.config.ts`.
 Add a file to its `include` list ONLY if it exercises a motion mechanism (replay APIs, keyed
 presence, `AnimatedNumber`) or another evidenced cross-engine risk. Not every new component needs
-this — the full unit suite already runs on every PR in Chromium.
+this — the current local push/ship ladders provide the broader Chromium coverage when required. CI
+does not execute a browser.

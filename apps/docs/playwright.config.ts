@@ -4,7 +4,8 @@ import { defineConfig, devices } from "@playwright/test";
 //
 //   contracts.spec.ts   — behaviour contracts (320px reflow, RTL containment, forced-colors focus,
 //                         effective 24px pointer targets). Takes NO screenshots, needs no baselines,
-//                         runs on every PR in CI. This is the blocking visual-surface gate.
+//                         runs locally in pre-push/ship. CI verifies its schema-2 receipt leaves;
+//                         no CI runner launches a browser. This is the blocking visual-surface gate.
 //   components.spec.ts  — pixel capture. It is NOT a CI gate and has no committed baselines. It runs
 //                         only under `tooling/vrt-review.mjs`, which captures the SAME routes twice
 //                         on ONE machine (base ref, then HEAD) and emits a before/after report for a

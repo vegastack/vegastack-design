@@ -23,9 +23,18 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
+    // Vite's default dependency crawl ignores tests. These are the browser suite's actual entry
+    // points, so enumerate them before the server starts; discovering their bare imports during an
+    // active run forces a page reload and can split React identity across optimized generations.
+    entries: ["registry/**/*.test.tsx", "test/**/*.test.tsx"],
     // Pre-bundle the Base UI subpaths we consume so they share one React copy
     // (otherwise a subpath's optimized chunk can resolve a second React and crash on useId).
     include: [
+      // Linked workspace packages are source by default in Vite. Force their public entrypoints
+      // into the same deterministic pre-bundle as the test graph so a cold scan never races the
+      // package export or reloads after the browser has mounted React.
+      "@vegastack/design",
+      "@vegastack/design/theme-scope",
       "@base-ui/react/use-render",
       // The headless message-scroller primitive (the one non-Base-UI primitive) — pre-bundle so it
       // shares the single deduped React copy (otherwise its chunk resolves a 2nd React → useId crash).
@@ -91,9 +100,9 @@ export default defineConfig({
   test: {
     setupFiles: ["./vitest.setup.ts"],
     // Keep browser-file concurrency bounded. On high-core hosts Vitest otherwise
-    // launches most of the 100+ files together; trusted click/focus operations
+    // launches most of the machine-derived test inventory together; trusted click/focus operations
     // then queue behind one Chromium process and produce false 15s timeouts.
-    // Four workers keeps the full and three-engine release lanes deterministic.
+    // Four workers keeps the local Chromium and complete three-engine lanes deterministic.
     maxWorkers: 4,
     browser: {
       enabled: true,

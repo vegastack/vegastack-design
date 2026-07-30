@@ -3,7 +3,8 @@
 Every entry here cost a full merge-and-watch cycle on 2026-07-25/26. Seven cycles, because each
 blocker was found _serially_ — fix, push, merge, watch, discover the next one. **The lesson above all
 others: exercise the whole chain in one pass before starting.** `node tooling/verify-release-chain.mjs`
-does that; it simulates a version bump in a throwaway worktree and asserts every link. It would have
+does that; it simulates a version bump in place, restores the original tree on exit, and asserts
+every link. It would have
 found five of these at once.
 
 Nothing here is theoretical. Each has a run id.
@@ -20,19 +21,26 @@ Proven end to end on 2026-07-26. Follow it in this order.
    unconditionally, and the receipt carry PRESERVES gate results across the version bump. A
    full-sweep receipt committed once therefore survives to the deploy; a `gates:push` receipt does
    not, and costs an extra ~25-minute cycle to redo.
-3. Commit code **and** `.gates/receipt.json` together, then push. (§12)
-4. Merge the change PR → `version-pr` opens the Version PR.
-5. Merge the Version PR → `package-build` + `publish` → npm.
-6. `node tooling/vrt-review.mjs`, then dispatch `deploy.yml`.
+3. Run `node tooling/vrt-review.mjs` when the tree affects a visual route; inspect every non-unchanged
+   image and stop for MK on any uncertain or unintended result.
+4. Commit code **and** `.gates/receipt.json` together, then stop for the separate push approval. (§12)
+5. Merge the change PR only with its separate approval → `version-pr` opens the Version PR.
+6. Merge the reviewed Version PR only with its separate approval → `package-build` + `publish` → npm.
+7. Dispatch `deploy.yml` only with its separate production approval; require the external probe and
+   terminal `deployment-complete` summary, including Cloudflare version ID, nonzero structured probe
+   count/state, and exact registry version.
 
-**`package-build` and `publish` showing "Skipped" on step 4 is CORRECT** — that is the two-phase
-changesets model. They run only when `has_changesets == 'false'`, i.e. after the Version PR merges.
+**`package-build` and `publish` showing "Skipped" on step 4 is CORRECT** — the explicit state is
+`changesets-nonempty` or `version-pr-open`. They run only for `versioned-unpublished`, after the
+reviewed Version PR merge has put an exact public workspace version on `main` that npm lacks.
 Do not treat it as a fault.
 
 ## 0b. `workflow_dispatch` can return HTTP 500 spuriously
 
-Observed once dispatching `deploy.yml` from a correctly-registered, active workflow. Retry; confirm by
-comparing the newest run id before and after rather than trusting the command's output.
+Observed once dispatching `deploy.yml` from a correctly-registered, active workflow. Record the
+newest run ID before dispatch, then query the newest run after any HTTP 500. If a new run exists,
+observe that run and do not retry. Retry only when the read-only query proves that no run was
+created, and treat the retry as a new production-dispatch approval boundary.
 
 ## 0. The meta-rule
 
@@ -41,7 +49,7 @@ classify → carry → guard → publish. A defect anywhere fails the whole thin
 a full cycle. Run the whole chain locally first:
 
 ```bash
-node tooling/verify-release-chain.mjs     # ~5min, no network, no side effects
+node tooling/verify-release-chain.mjs     # ~5min, read-only exact npm lookup, restores the tree
 ```
 
 Second rule: **most of these only appear on a MINOR bump.** The 0.1.0 → 0.1.1 release exercised none
@@ -68,6 +76,8 @@ about the next minor.
   `packages/ui/registry.json`, and that gate compares them. Fixing one alone fails the other.
 - **Knock-on:** changing the contract JSON moves its SHA-256, so `version-sync` runs
   **`pnpm design:derived` inside the production command** and its output is part of the same commit.
+  This includes `smoke-impact.generated.json`; its full contract digest moves on a version-only
+  authority rewrite even though smoke topology does not.
   The carry updates the receipt's contract SHA only after the version-only proof succeeds; otherwise
   the independent guard rejects the Version PR even when its tree hash was carried correctly.
 
@@ -82,10 +92,16 @@ about the next minor.
 
 - **Symptom:** `receipt-guard` rejects the Version PR; no publish is reachable.
 - **Cause:** `changeset version` + `version-sync` move the tree hash — versions, package CHANGELOGs,
-  consumed changesets, and a re-stamped provenance header in 1082 files. Measured: 77a346c0 → 1b5796df.
+  consumed changesets, and re-stamped provenance headers throughout that release's generated
+  registry inventory. The dated 2026-07-26 specimen changed 1,082 files (77a346c0 → 1b5796df);
+  current procedures derive the inventory instead of assuming that historical count.
 - **Unfixable by re-running gates:** that branch is bot-authored and browsers cannot run in CI.
 - **Now:** `gate-receipt-carry` carries it, the guard re-derives the proof. If the carry **refuses**,
-  do not work around it — something other than a version bump is in that branch.
+  do not work around it — something other than a version bump is in that branch. Untracked paths
+  have no diff record and therefore always refuse; mode, binary, rename, deletion, and missing-record
+  changes also refuse. A tracked derived output is eligible only because exact-tree quality
+  independently reconstructs it, and never by itself: at least one real package version field must
+  change.
 
 ## 5. Never anchor a cross-machine proof to a tree hash
 
@@ -106,23 +122,22 @@ about the next minor.
 ## 7. `changeset status` gates any `packages/**` change
 
 - **Symptom:** `Some packages have been changed but no changesets were found`.
-- **Rule:** a fix that corrects an **unpublished** release takes an **empty changeset** (`---\n---`),
-  which is changesets' own sanctioned answer and has precedent here. It costs one extra Version-PR
-  cycle — budget for it, or fold the fix in before the Version PR is opened.
+- **Rule:** do not use an all-empty changeset as release state. `release-state.mjs` reports
+  `changesets-all-empty` and blocks. Fold the fix in before the Version PR, or remove the empty file
+  and resume from the exact npm version state.
 
 ## 7b. An EMPTY changeset deadlocks a pending release
 
 - **Symptom:** `version-pr` succeeds with `All changesets are empty; not creating PR`, and `publish`
   is skipped forever.
-- **Cause:** changesets will not open a Version PR when every pending changeset is empty — so
-  `has_changesets` stays **true** on main, and `publish` (gated on `has_changesets == 'false'`) can
-  never run. Meanwhile the bumped versions sit on main, unpublished.
-- **Rule:** an empty changeset is fine on a quiet main. **Never add one while a version bump is
-  awaiting publication** — fold the fix in before the Version PR is opened, or land it after the
-  publish. Verified live: it stranded 0.2.0 on main with 0.1.1 on npm.
-- **Recovery:** delete the empty changeset, and make sure `publish` can still become true —
-  `classify-change --check-npm` asks the registry what is actually published, so an interrupted
-  release resumes instead of needing a human to guess.
+- **Cause:** changesets will not open a Version PR when every pending changeset is empty. The old
+  boolean topology nevertheless treated the file as pending and stranded bumped versions on main.
+- **Rule:** all-empty is now a blocking `changesets-all-empty` state, even on a quiet main. Fold the
+  fix in before the Version PR or land it after publication. Verified live: the old behavior stranded
+  0.2.0 on main with 0.1.1 on npm.
+- **Recovery:** delete or repair the empty changeset, then run `pnpm release:state`. Exact E404 may
+  yield `versioned-unpublished`; timeout, 5xx, malformed output, or wrong version yields blocking
+  `registry-unknown`, never publication permission.
 
 ## 8. Generated surfaces vs prettier
 
@@ -142,8 +157,9 @@ about the next minor.
 ## 10. `pnpm lint` ≠ `turbo run lint`
 
 The umbrella adds `design:verify`, the security gates, secret-scan, and every negative fixture.
-`gates push` runs the umbrella for exactly this reason — a green `turbo run lint` proves less than it
-appears to.
+`gates:push` runs `pnpm exec turbo run lint`; `gates:ship`, CI, and Release quality run the root
+umbrella where their profiles require it. A green pre-push Turbo lint therefore proves less than a
+green root `pnpm lint`; do not describe them as equivalent.
 
 ## 11. Reaping a server: kill the group, and filter the port
 
@@ -191,6 +207,20 @@ first version of the mini diagnostic reported "Green" while `pnpm lint` had fail
 Two false diagnoses in one session came from a stale `origin/main`. Any classification against
 `origin/*` starts with `git fetch origin --prune`.
 
+## 15. Consume must build and inspect the packages it packs
+
+- **Symptom:** clean `release:preflight` produced many `TS2307 Cannot find module
+'@vegastack/design'` errors, while `gates:ship` consume had passed.
+- **Cause:** `@vegastack/design` and `@vegastack/design-tokens` export ignored `dist/*` files.
+  `gates:ship` had already run the lint/build chain, but clean preflight had not; `pnpm pack` therefore
+  made installable-looking tarballs whose exported JS and type files were absent.
+- **Now:** `verify-shadcn-consume` owns the prerequisite. It builds tokens then design, runs
+  `pnpm pack --json`, and rejects any archive missing a declared export or bin target before starting
+  a consumer. The structured report records both package builds and validated archive file counts.
+- **Rule:** never add a publish lifecycle build to hide this. Release must continue publishing the
+  exact artifact built and validated by the hosted producer; local consume performs its own explicit
+  diagnostic build.
+
 ---
 
 ## Historical completed release evidence — verified 2026-07-26
@@ -208,7 +238,7 @@ Two false diagnoses in one session came from a stale `origin/main`. Any classifi
 - Billed minutes for the publish run: **0** hosted minutes on the mac minis; only `package-build`,
   `publish`, `sign-curated`, `deploy-curated` and one boundary probe are hosted.
 
-## 15. A successful upload can still end in a failed deployment workflow
+## 16. A successful upload can still end in a failed deployment workflow
 
 Run `30309811715` uploaded the signed production artifact successfully, then failed only in the
 final boundary probe because the repository still expected `/internal/*` to be SSO-only after the
@@ -216,7 +246,8 @@ operator had intentionally made the whole non-registry site public. The recovery
 verifier with the approved boundary, not to roll Cloudflare back: remove the obsolete cutover phase,
 assert public/noindex/no-store on every exported internal derivative, keep anonymous `/r/*`
 fail-closed, and validate a representative registry item's exact workspace version, hash, and signed
-manifest entry. Treat `deploy-curated` success and final workflow success as separate evidence.
+manifest entry. Treat `deploy-curated` success and final workflow success as separate evidence; the
+terminal summary must carry the structured probe state/count and exact registry version.
 
 Two recovery-specific follow-ons:
 
@@ -226,16 +257,53 @@ Two recovery-specific follow-ons:
 - A lone browser timeout in a cold full sweep is neither a reason to waive the lane nor proof of a
   component defect. Re-run that exact engine/test repeatedly, then the complete suite on the warm
   tree. In this incident the test passed 6/6 targeted attempts and all 4,408 runnable tests passed in
-  the complete rerun, so no assertion or timeout budget was weakened. The ship ladder now also
-  awaits its cold docs warm-up before the complete browser lane, matching its stated ordering.
+  the complete rerun, so no assertion or timeout budget was weakened. The ship ladder's docs
+  warm-up finishes before every browser lane. `verify-gate-schedule.mjs` enforces that barrier in
+  component, push, and ship.
 
-After publishing, `classify-change --check-npm` reports nothing unpublished, so a later docs-only push
-correctly leaves `publish=false` and cannot re-publish by accident.
+After publishing, `pnpm release:state` verifies both exact public versions. A later docs-only push is
+`clean-noop`; a registry-only release is `published`. Both keep hosted npm jobs skipped.
+
+## 17. Reporter-visible Vitest skips are not automatically acceptable
+
+- **Symptom:** every browser test command and all 108/864 contracts passed, but final evidence
+  integrity refused the receipt because Firefox reported five skipped Dropzone paste definitions.
+- **Cause:** Vitest's pre-run list omitted those environment-specific `test.skipIf` definitions while
+  its reporter kept them visible. The first repair incorrectly treated any reporter-only skip inside
+  an expected file/engine as an exclusion, which could hide an arbitrarily disabled regression test.
+- **Now:** exactly five file/engine/test identities are approved for the
+  `synthetic-clipboard-files` capability. Their capability probe and `pasteTest` declaration are
+  source-bound, their direct top-level registrations are verified, the runtime report persists the
+  exact exclusion manifest, and receipt freeze rebuilds it independently. Every applicable identity
+  must occur exactly once as reporter-excluded or independently listed and passed. Missing one or all
+  identities fails; zero exclusions alone does not prove capability recovery. Arbitrary, renamed,
+  removed, extra, stale, partial-file, and cross-file skips fail.
+- **Rule:** inspect `runtimeExclusions`, not only `results.skipped`. Never add a broad pattern or
+  relabel a new skip as environmental to get a receipt; review and mutation-test a new exact
+  capability authority first.
+
+## 18. Receipt-first means the classifier must load before install
+
+- **Symptom:** PR run `30535403126` failed in `receipt-guard` with
+  `ERR_MODULE_NOT_FOUND: Cannot find package 'typescript'`; `verify` correctly never started.
+- **Cause:** dependency-aware smoke selection was imported from the parser-backed local gate module,
+  but the seconds-long guard deliberately performs no `pnpm install`.
+- **Now:** the guard uses a dependency-free classifier authority. The generated Vitest oracle is
+  independently bound to complete source bytes plus file type/mode/symlink metadata, contract
+  authority, and pinned toolchain; stale, malformed, or conflicting evidence widens. The installed
+  local gate retains its parser-backed comparison as the independent oracle.
+- **Rule:** do not add dependency setup to make this pass. Run `node tooling/verify-classify-change.mjs`;
+  its clean-clone fixture has no `node_modules` and exercises both empty and stale registry ranges.
+  Run `node tooling/verify-classifier-smoke.mjs` for malformed/conflicting shadow mutations. If
+  `smoke=true`, its structured scope and reason must describe the effective widening—never “0 test
+  files” after route, metadata, binary, or global logic widened the lane to all. If `smoke=false`,
+  scope must be `none`. The verifier must clean its full scratch clone even when an assertion throws;
+  persistent minis cannot absorb hundreds of megabytes per lint run.
 
 ## The one thing still open
 
 **The forced-colors focus assertion cannot fail.** Chromium paints its own ≥2px ring in that mode and
 forced-colors repaints borders, so both branches of `hasOutline || hasTextEntryTint` are always true —
-deleting the design system's focus ring leaves all 768 checks green. Pre-existing, reproduced against
+deleting the design system's focus ring leaves all 864 checks green. Pre-existing, reproduced against
 the spec before the 2026-07-25 rewrite. Fixing it changes what 192 checks assert, so it is scoped
 separately. **Until then it is not coverage.** Evidence: `docs/ledger/bugs.md`, 2026-07-25.

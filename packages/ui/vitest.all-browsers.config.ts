@@ -1,16 +1,16 @@
 import { defineConfig, mergeConfig } from "vitest/config";
 import baseConfig from "./vitest.config";
 
-// Main/release confidence lane: the complete browser-unit suite in Chromium,
-// WebKit, and Firefox. Pull requests keep the faster Chromium + contract-risk
-// smoke split; publishing cannot rely on that subset.
+// Complete local-ship confidence lane in Chromium, WebKit, and Firefox. The exact test-file
+// universe is reconstructed from the current config/filesystem and retained in structured evidence;
+// no CI runner executes browsers under current policy.
 export default mergeConfig(
   baseConfig,
   defineConfig({
     test: {
       // One file at a time, with all three engines still running concurrently.
       // Inheriting the Chromium lane's four file workers multiplies into twelve
-      // simultaneous browser pages; under the complete 100+ file suite that
+      // simultaneous browser pages; under the complete machine-derived suite that
       // starves trusted click/focus and editor/portal tasks until their 15s
       // actionability timeout. Focused reproductions remain green, confirming
       // resource contention rather than component defects.

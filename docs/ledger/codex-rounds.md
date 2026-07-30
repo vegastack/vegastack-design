@@ -334,3 +334,473 @@ WebKit test then passed 6/6 reruns (roughly 0.45s test time) and the complete wa
 public component count is generated instead of hand-maintained. The ship ladder now awaits its docs
 warm-up before the complete three-engine lane, matching the ordering its own comments promised and
 removing the observed source of cold-build contention.
+
+## Round 22 — 2026-07-28 · diagnostic-only exact gate retry
+
+Deterministic implementation review of efficiency stage H found 0 high and 0 medium issues after
+the negative-first corrections. `gates:retry` accepts only structured, non-empty targets tied to the
+current failed tree and current machine authorities. Empty, stale-tree, renamed, traversal, unknown
+engine/project/route, and unanchored-title mutations all fail closed. A forced disposable Vitest
+failure proved the reporter emits an exact file/engine/full-test-name target; the specimen was then
+removed.
+
+Exact Chromium unit, WebKit smoke, and one Chromium contract assertion were executed successfully.
+The retry report retained both the original failure and receipt hashes and declared
+`diagnosticOnly: true` / `evidenceWritten: false`; a zero-test selector and an unknown contract
+project both failed. The normal wrappers then ran the complete unit suite (1,471/1,471) and smoke
+suite (643 passing plus 5 capability skips), followed by `pnpm lint` and `pnpm typecheck` (7/7 each).
+The exact contract retry took 130.4s because the existing blanket `tooling/**` Turbo input invalidated
+the docs export; that misses the diagnostic latency hypothesis and is carried honestly into the
+stage-I shadow input analysis rather than being hidden or weakened.
+
+## Round 23 — 2026-07-28 · affected/Turbo shadow planner
+
+Deterministic and adversarial implementation review of efficiency stage I ended with 0 high and 0
+medium findings after three fail-closed corrections: contract/component authorities now widen all
+lanes rather than only consume; complete-browser impact is modeled separately; and push-only
+observations cannot enter the 30-sample checkpoint. Selected consume failures also remain
+unclassifiable until Stage L emits isolated item/layout/root reports, so they block rather than being
+misread as inside a granular cone.
+
+The negative matrix covers prose, workflow, ordinary docs, exact unit tests, smoke dependencies,
+one-route and foundational reverse closures, `_headers`, registry graphs, generated registry output,
+authority/config/toolchain changes, deletion/mode/symlink/untracked/unknown widening, every directly
+referenced Turbo external tool, unparsed dynamic tool references, mismatched scenario labels,
+partial/conflicting samples, and 29-versus-30 threshold behavior. Official Turbo 2.10.5 dry-run data
+shows 82 current blanket tooling inputs after the new scripts; proposed tool fingerprints are marked
+activation-ineligible until root data/config reads have a complete mutation-proven inventory.
+
+One real unchanged push oracle passed typecheck (16.836s), Turbo lint (15.625s), cold docs export
+(196.198s), 1,471/1,471 unit tests (24.157s), smoke (643 pass + 5 capability skips, 23.308s), and
+864/864 contracts (851.976s), about 18m49 end to end. The receipt SHA remained byte-identical and no
+escape was observed. Because it predated the final scenario/full-oracle sample rule and did not run
+all-browser/consume, it is retained as a legacy observation and honestly counts 0/30. Reuse and
+task-specific Turbo inputs remain disabled; production-full remains unchanged.
+
+## Round 24 — 2026-07-28 · resumable release state and publication split
+
+Deterministic and adversarial Stage K review ended with 0 high and 0 medium findings after three
+fail-closed corrections found by the full local oracles. `release-state` now separates gate
+classification from exact npm/Changesets truth: only exact E404 selects `versioned-unpublished`;
+timeout, 5xx, malformed/wrong data, unavailable/ambiguous Version PR lookup, all-empty/invalid
+changesets, and workflow/changeset conflicts block. Registry-only `published` runs self-hosted
+quality and zero hosted npm jobs; one-published/one-missing resumes hosted build/OIDC; post-publish
+exact-version readback is mandatory. No NPM token, runner, provenance, or approval boundary changed.
+
+The first full `pnpm lint` execution exposed a tsup/ESLint discovery race and remained a failed
+execution. A semantic invalid-syntax fixture now proves the transient bundled config is ignored; a
+fresh full lint passed all seven tasks, followed by typecheck 7/7. Release preflight then found two
+integration defects in sequence rather than being waived: Stage D's smoke manifest was absent from
+the independently rederived version outputs, and a carried production-full receipt was rejected by
+the weaker change guard. Carry now requires a real package version-field change and permits the
+tracked smoke manifest only because exact-tree quality reconstructs it. Receipt profile dominance is
+one-way production-full→change; change→production-full remains rejected and carried evidence remains
+reuse-ineligible.
+
+The final clean preflight simulated design 0.4.0, tokens 0.3.0, and UI 0.5.0; version-sync rewrote 654
+ranges, carry and independent guard passed, exact npm lookups proved both public versions absent, and
+the complete consume round-trip passed 554/554 graphs. The script restored the clean commit and the
+pre-existing receipt SHA-256 `073a97f8584c60d346d412e40342530577f51415cc7dc8f50796f5ff8046f1ee`.
+
+## Round 25 — 2026-07-28 · isolated consume reports and D1-safe scheduling
+
+The negative-first Stage L review ended with 0 high and 0 medium findings after correcting three
+fail-closed defects found by execution and adversarial inspection. First, a clean real consumer
+exposed the old runner's global-package assertion: `icon-a-arrow-down` correctly installed only its
+declared VegaStack package, while the accumulated predecessor had silently supplied tokens. Package
+requirements now come from each root's exact resolved graph. Second, the affected planner initially
+used the 115 component/hook/block contract records and omitted 439 animated icons; it now derives all
+554 items from `packages/ui/registry.json`, with an exact icon mutation. Third, unknown dependency
+edges, duplicate item/file ownership, cross-phase consumer reuse, unknown layouts, failure status,
+and self-consistent-but-incomplete consolidated counts now reject rather than disappear into a plan
+or report.
+
+The complete corrected oracle passed 26/26 fresh real root/layout leaves, 26/26 fresh simulated
+leaves, and both consolidated layouts at 554/554 with collision, post-write, and typecheck proofs.
+The retained report passes the strengthened validator against an independently supplied live count
+of 554. Its measured wall time was 395.14s (`n=1`, warm local) versus the 237.33s accumulating
+baseline, a +157.81s (+66.5%) regression; 624,869,376 bytes was the macOS `time -l` maximum resident
+set size. This misses the speed hypothesis because clean per-root install/typecheck is mandatory.
+No concurrency, timeout, worker, or coverage was changed.
+
+The actual affected integration widens this tooling diff to `consume=full`, reports exactly 554
+authority roots and both layouts, prints the full runner command, and leaves the receipt SHA-256
+byte-identical. `pnpm lint` and `pnpm typecheck` passed 7/7, registry build was idempotent, all 30
+workflow-security mutations rejected, and 17 stale operator-instruction fixtures rejected. Selected
+consume remains receipt-free/non-reusable; D1 is still open and CI, Release, and `gates:ship` retain
+the full oracle.
+
+## Round 26 — 2026-07-28 · exact-main deploy candidate shadow and D4 containment
+
+Deterministic and adversarial Stage M review ended with 0 high and 0 medium findings after two
+fail-closed corrections. Primary-source review found that pinned `download-artifact@v6` lacks the
+draft's `digest-mismatch: error` input and GitHub documents built-in mismatch as a warning. The
+workflow now independently downloads the exact REST archive and hard-compares its API SHA-256 before
+the pinned action extracts the same immutable artifact ID. Rerun analysis then found that a SHA-only
+artifact name would collide across attempts of one workflow run. Names now bind SHA, run ID, and run
+attempt; selection ignores prior attempts and rejects multiple live eligible producers.
+
+The candidate is produced only after Release's already-required exact-main quality build. Deploy
+validates producer/repository/workflow/run/attempt/SHA, immutable artifact ID, expiration, archive
+digest, canonical 2,167-file content root, toolchain/config context, normalized modes/symlink policy,
+and parity with its own rebuild. The rebuild remains unconditional and is the sole source for signing
+and production. Missing/expired is a safe miss; partial/unknown API state and any live invalid claim
+block before credentials. No variable can enable reuse; D4 remains an MK code-review checkpoint.
+
+Positive/negative candidate fixtures, 36 workflow-security mutations, and 19 semantic operator-doc
+fixtures pass. `pnpm lint` and `pnpm typecheck` passed 7/7, `SITE_VISIBILITY=public pnpm build` passed
+4/4 in 5m8.525s, and registry regeneration was byte-idempotent. Post-build manifest create measured
+2.14s/193,331,200-byte max RSS and verify 1.19s/185,991,168 bytes (`n=1`); real workflow observations
+remain `n=0` and no saving is claimed. The user-owned receipt remains SHA-256
+`073a97f8584c60d346d412e40342530577f51415cc7dc8f50796f5ff8046f1ee`. The exact committed-tree full
+ship is intentionally performed afterward in an isolated worktree so this entry does not overwrite
+or relabel that receipt; this round does not claim that future result.
+
+## Round 27 — 2026-07-29 · release-efficiency completion and adversarial remediation
+
+The completion review used repeated deterministic and adversarial passes rather than accepting the
+first green suite. The earlier passes found and fixed stale boundary/count/provenance/preflight/retry
+instructions, unstructured diagnostic/deploy outcomes, nondeterministic Shiki/TOC VRT evidence, an
+incorrect `gates:push` lint claim, historical timings presented as current, a nonstandard
+complete-browser diagnostic entry point, and a machine-authority rationale that still assigned
+browsers to main/Release. Each correction gained a semantic or workflow mutation before the next
+pass. No finding was waived or reclassified to make the round green.
+
+The final unchanged-scope pass reports **0 high and 0 medium findings**. The executable operator
+verifier covers 32 current surfaces, 40 semantic stale-instruction mutations, machine-derived
+108-route/864-check and five-hosted-job counts, and nine real CLI `--help` surfaces. Workflow security
+passes 52 named mutations and every workflow parses with unique YAML keys. The canonical ship/gates/
+review skills and their Claude/Codex discovery paths resolve to the same sources; direct contract and
+complete-browser bypasses are absent; historical cutover/incident text is explicitly superseded or
+dated rather than treated as current authority.
+
+The full root lint/design oracle and final typecheck passed 7/7 after the package-command correction;
+component-contract, smoke-scope, gate-profile, registry-integrity, receipt, retry, affected, consume,
+candidate, release, workflow, boundary, VRT-determinism and classifier mutations all passed.
+Contract-derived generation was idempotent after the corrected browser-location rationale. This
+round does not claim a final receipt, real CI/Release/npm/deploy execution, percentile timing, or
+human pixel acceptance; those remain the terminal local gate and explicitly recorded external/MK
+checkpoints.
+
+## Round 28 — 2026-07-29 · understandable visual handoff
+
+MK accepted the final 47 visual differences after the agent translated the lone 147-pixel Button
+fixture delta into its visible meaning: only the antialiased edges of the word “Glass” differed;
+button size, position, border, background, colour, spacing, state, and behavior did not. The other
+46 entries were confined to the intended deterministic syntax-token colours. The capture traversed
+940 cases and recorded 893 unchanged, 47 changed, and zero new, removed, or broken entries.
+
+The review also exposed an operator-interface defect: current `/ship` instructions requested a
+pixel table but did not require an understandable explanation or direct screenshot paths. A new
+negative-first `[visual-handoff]` fixture now rejects that omission. The canonical ship skill and
+visual-review reference require short plain-language bullets plus absolute clickable Before, After,
+and Difference links from each report entry. The focused operator verifier passes 33 current
+surfaces, 41 semantic fixtures, machine-derived 108/864/5 counts, and nine executable help surfaces.
+No pixel was self-cleared, and MK's visual approval does not authorize push, merge, or deploy.
+
+## Round 29 — 2026-07-29 · final receipt commitability
+
+The first terminal full sweep passed all eight substantive lanes and wrote a valid 871-leaf
+production-full receipt, but the receipt-only commit was blocked because Prettier reformatted three
+short engine arrays differently from the atomic JSON generator. This was not bypassed or repaired by
+hand. A negative assertion first reproduced the missing ownership rule; `.prettierignore` now gives
+the machine-owned receipt one formatting authority, while the schema/tree/profile/leaf verifier
+continues to own semantic correctness. The focused hook verifier passes 25 assertions and an
+explicit staged Prettier check now accepts an untouched generated receipt.
+
+Because that fix changed the tracked tree after the successful sweep, its receipt is deliberately
+stale and cannot be final evidence. The complete production-full sweep must run again on the new
+frozen tree before the receipt-only commit. No prior pass is carried or composed across the change.
+
+## Round 30 — 2026-07-29 · clean release artifact closure
+
+The receipt-bound tree passed the complete ship sweep, but the required clean detached
+`release:preflight` then failed all 26 isolated real consumer roots and both consolidated layouts
+with `TS2307` for `@vegastack/design` and `@vegastack/design/theme-scope`. The structured report,
+not the exit code alone, showed the common cause: clean `pnpm pack` archives contained package
+manifests but omitted the ignored `dist/*` files named by public exports. The ship path had passed
+only because its earlier lint/design build left those outputs available; preflight correctly began
+without them.
+
+Negative-first artifact fixtures now reconstruct every relative export and bin target and reject a
+pack manifest missing one. `verify-shadcn-consume` explicitly builds tokens then design, packs both
+with `pnpm pack --json`, validates the archive file lists, and records build/export/file-count facts
+in its immutable structured report before any clean consumer runs. A diagnostic begun with both
+`dist` directories absent passed one real and one simulated isolated Button consumer, with 9 token
+and 33 design archive files validated. Operator docs pass 33 current surfaces, **42** semantic
+fixtures, and nine CLI help surfaces. The widened full oracle then passed 26/26 real CLI consumers,
+26/26 isolated simulated consumers, and 554/554 consolidated items in both layouts in 335.051s,
+with zero report problems. This round invalidates the earlier receipt by changing tracked tooling; a
+new full exact-tree sweep and clean release preflight are mandatory before completion.
+
+## Round 31 — 2026-07-29 · retained full-ship timing reconciliation
+
+Current operator timing had retained only the first 48m25s completion sweep after two later
+full-coverage sweeps measured 37m57s and 30m15s. The three runs each preserved the complete browser
+and 108-route/864-contract universe, but their cache/cold/thermal and CPU/RSS states remain unknown.
+Current instructions now report the honest 30m15s–48m25s range (`n=3`), while the benefits ledger
+records the 37m57s sample median and explicitly refuses a p50/p95 claim from three observations. No
+coverage, worker count, schedule, or target was changed to improve the report.
+
+## Round 32 — 2026-07-29 · adversarial packed-artifact universe closure
+
+The first unchanged-scope adversarial pass found one medium completeness gap in the new artifact
+verifier: exact public-package validation had missing and duplicate mutations but no mutation for an
+unexpected package, and a future non-relative export target would be ignored by the target collector.
+Neither affected the two current valid manifests, but both violated the program's negative-proof and
+unknown-input rules. Dedicated fixtures now reject unexpected package artifacts and invalid export/
+bin targets for their exact reasons. The prior final receipt was deliberately invalidated; no finding
+was waived or downgraded to retain it. A new unchanged-scope review, full exact-tree ship, receipt,
+and clean bumped preflight are required before this round may report zero medium findings.
+
+## Round 33 — 2026-07-29 · unchanged-scope adversarial closure
+
+The repeated deterministic and adversarial pass found no further issue after canonical target
+normalization and the unexpected/traversal mutations were added: **0 high and 0 medium findings**.
+Root lint/design and typecheck passed; consume isolation rejects missing, duplicate, unexpected,
+unbuilt, unvalidated, malformed-target, traversal, collision, empty-selector, partial-report, and
+reusable-shadow mutations. Operator docs still pass 33 current surfaces, 42 semantic fixtures, and
+nine executable help surfaces; workflow security still rejects all 52 mutations. Manual current-
+surface searches found no obsolete boundary/count/provenance/preflight/upload claims or direct/fail-
+open browser/contract commands. The terminal exact-tree ship and clean preflight must still be rerun
+after committing this closure; this review result is not a substitute for either execution.
+
+## Round 34 — 2026-07-30 · dynamic-verification adversarial remediation
+
+The first dynamic-verification review did not accept green focused selectors as completion. It found
+that broad Markdown and tooling prefixes could authorize a future unmodeled safe skip, ordinary push
+contracts and the shadow impact planner were described too much like one active selector, planner
+reports hid checkpoint/process-start cost, a classifier mutation clone omitted the current imported
+module closure, and retained-evidence helpers lacked direct symlink mutation coverage. Each finding
+was treated as blocking and fixed at its authority rather than explained away.
+
+The remediated planner uses explicit prose/tooling membership and real existing lookalike fixtures;
+unknown paths widen. It reports concise machine reasons, exact selected leaf counts, disagreements,
+the machine-derived foundation blocker, and total process-relative planning wall. Ordinary
+`gates:push` remains the legacy route-scope oracle until separate activation. Immutable affected and
+retry evidence now rejects symlink roots/leaves and contradictory structured outcomes. Visual
+handoff is status-specific, so new/removed/broken cases never fabricate Before/After/Difference
+paths. The current graph observation is 1,647 sources and 3,518 edges with zero retained issues.
+
+Focused impact, report, retry, measurement, route, smoke, import, exact Vitest/contract/VRT,
+inventory, consume, workflow-security, operator-doc, and 70-assertion classifier suites passed after
+these fixes. This round intentionally does **not** claim final zero-high/zero-medium review, a final
+receipt, or ship completion; the broad deterministic gates, unchanged-scope adversarial rerun,
+release preflight, VRT applicability review, and terminal exact-tree full ship still follow.
+
+The next adversarial pass found three additional medium-or-higher holes, so the round remained open:
+the VRT authority silently dropped rendered MDX outside a hand-maintained subset; runner diagnostics
+called the exact contract-leaf constructor without routes; and affected scenario labels could burn a
+full oracle before their shape was rejected. The fixes add an exact generated 139-page VRT authority
+with stale/dynamic/duplicate/symlink/add/remove mutations, an independently reconstructed
+108-route/864-contract diagnostic universe, and candidate predicates that reject invalid labels
+before oracle spawn. No earlier green output was retained as completion evidence.
+
+The final frozen unchanged-scope adversarial rerun reported **0 high and 0 medium findings**, with no
+prior finding recurring. Its aggregate passed diff and changed-script syntax checks; change
+inventory; the 1,647-source/3,518-edge zero-issue import graph; impact planning and both raw/selected
+checkpoint pre-spawn stops; exact Vitest, contract, report, and VRT selection; 139-page VRT
+freshness; 130 route assertions; smoke, tree/report path, retry, affected-oracle, consume, measurement,
+108/554 contract-reconciliation, 70 classifier, workflow-security positive/59-negative, and
+operator-doc 58-surface/58-semantic-fixture/14-help suites. Manual stale, dead-entrypoint, and
+symlink-mirror review found no remaining high/medium issue. This closure is code-review evidence
+only; it is not terminal `gates:ship`, receipt verification, release preflight, VRT human review, or
+outward approval.
+
+The subsequent broad deterministic lint invalidated that closure as the final verdict by finding a
+schedule regression the focused/adversarial aggregate had missed: component mode ran selected
+browser unit work before its cold docs warm-up settled. The root fix moves the barrier ahead of every
+browser lane while preserving the route-less no-build optimization; all three component/push/ship
+barriers and every Vitest/contract-wrapper invocation are now checked. Moving any browser invocation,
+removing any barrier, or removing either component route guard makes one of 14 mutations fail. The
+earlier zero-finding result remains a truthful dated review observation, but is superseded as final
+acceptance pending a focused unchanged-scope rerun of this last fix.
+
+The focused schedule rerun then reported **0 high and 0 medium findings**. It confirmed the current
+runtime order and all 14 schedule mutations: nine individual Vitest/contract-wrapper pre-barrier
+moves, three mode barrier removals, and two component route-guard removals. Syntax, diff, operator
+docs 58/58/14, and the supersession record passed. A route-less hook runtime spot-check was not used
+as evidence because current conservative authority safely widens every hook to full contracts; the
+review stopped before browser/contracts and found no orphan build. The two explicit guard mutations
+remain the future-route-less proof. This is the final high/medium review closure for the implementation
+tree before commits; full ship, receipt, preflight, VRT, and outward approval remain separate.
+
+The later full VRT review reopened that closure for a narrow tracked change: exact diagnostics could
+name component fixtures but not rendered guide/foundation pages. The first repair was additive and
+could also let full impact erase validation of a mistyped requested page. That scope is now
+superseded by an exact selector boundary: page-only clears inferred fixture/page/icon work; combined
+fixture+page retains only both named sets; empty, duplicate, whitespace, malformed, unknown, and
+ambiguous `--all` selectors fail; full common impact still widens but cannot erase independent
+two-tree validation or the requested-selector report. The focused executable and operator review
+reported **0 high and 0 medium findings** on that corrected scope. This remains diagnostic/human
+review machinery, never receipt evidence; same-tree reruns cannot replace the original comparison.
+
+Image inspection then reopened that focused closure once more. The origin/main OTP image contained
+only three of five state rows despite unchanged component/preview source; the exact same-tree rerun
+did not reproduce the missing rows and showed only a visually identical 17-pixel glyph-edge delta.
+The capture harness had proved only that the outer server shell was visible, not that the client
+state matrix was complete. Both capture sides now require five visible, nonzero OTP roots, and a
+mutation rejects removal of that readiness call. The previous exact-CLI verdict remains true for its
+scope but is not final acceptance of this added harness change; a focused adversarial rerun follows.
+
+The focused OTP capture-readiness rerun then reported **0 high and 0 medium findings**. It verified
+the exact route guard, five hydrated and five laid-out roots, positive width/height, visible
+display/visibility, and readiness-before-screenshot ordering through nine independent mutations.
+The seven structured-report mutations, docs TypeScript, operator-doc 58/59/14, syntax, and diff
+checks also passed. Same-tree Before/After inspection found no visible content or layout change; the
+remaining 17 pixels sit only on glyph anti-aliasing edges. This is the new focused review closure;
+human visual acceptance and terminal full ship/receipt remain separate proofs.
+
+Runtime evidence immediately superseded that closure as final acceptance: the first
+readiness-hardened OTP rerun reproduced the 4,037-pixel mobile delta. The full failure screenshot
+contained all five rows while the locator image clipped the first two, disproving hydration as the
+remaining cause. The scope is reopened for nested-scroll reset, first-row anchoring, and exact
+top/bottom containment mutations before another focused review and same-tree run.
+
+The subsequent retained containment run reproduced the same 4,037-pixel delta after its pre-capture
+containment poll passed. That runtime evidence superseded the static containment closure: a locator
+screenshot performs another internal scroll after VegaStack's proof. The exact OTP branch now uses a
+page screenshot clipped to the verified non-null fixture rectangle; ordinary components retain
+locator screenshots. Nineteen mutations cover the complete readiness/containment/clip path. An exact
+same-tree rerun at `0202fb160ff2ede9c1003f6caef55f3af88aa808` executed four leaves and reported
+0 changed / 4 unchanged / 0 new / 0 removed / 0 broken; all retained snapshots visibly show all five
+OTP state rows. This closes the runtime capture defect, subject to a fresh focused adversarial review
+and the still-separate terminal full-ship/receipt proof.
+
+Fresh adversarial review reopened that closure with two medium classes. Source-fragment checks did
+not prove execution: unreachable/early-return/overwritten/ignored/short-circuited paths and awaited
+`.catch(() => {})` could retain expected words while voiding assertions. Also, non-null locator
+geometry could be negative or extend beyond a non-full-page viewport and therefore be truncated.
+The verifier now uses installed TypeScript 6.0.3 to require exact ordered control flow, terminal call
+methods, throw-guard expressions, and the seven-term viewport OR-chain. Forty-four independent
+mutations include every reproduced escape. Same-tree commit
+`8a5cd944079ee85ec43285bdb5bc23bb5105c7ac` again executed all four leaves and reported 0 changed /
+4 unchanged / 0 new / 0 removed / 0 broken. This round remains open until the independent reviewer
+attacks the new HEAD and reports 0 high / 0 medium; terminal ship and receipt remain separate.
+
+The next full lint review found one additional medium completion blocker: the classifier mutation
+harness unconditionally committed its copied closure. On frozen HEAD those bytes were already
+identical, so fixture setup failed with Git's `nothing added to commit` before testing the classifier.
+The root fix distinguishes a clean staged diff from a real staged delta, preserves HEAD for the
+former, commits only the latter, and propagates every unexpected Git status. Both paths have direct
+fixture assertions; clean committed `9d6ff0df` passes all 74 classifier assertions. The unchanged-
+scope review remains open until the full serial chain is rerun; this focused pass is not final ship
+or receipt evidence.
+
+The independent frozen-tree rerun at `fdefaf1721c8f8c5aff1194d10a13294140675d0` closed with
+**0 high and 0 medium findings**, and no earlier finding recurred. Its single serial command passed
+root lint, workspace typecheck, diff check, and a clean-tree assertion. The evidence includes 58
+current operator surfaces / 59 semantic fixtures / 14 CLI help surfaces; 59 workflow-security
+mutations; 74 classifier assertions; 130 route assertions; the 1,647-source / 3,518-edge / zero-issue
+import graph; exact VRT diagnostics plus 7 report and 44 structural capture mutations; 52 receipt
+mutations; and all selection, reuse, retry, affected, consume, candidate, schedule, and determinism
+suites. Manual stale-current-prose and skill-symlink review found only intentional negative fixtures
+and explicitly superseded history. This is the final review closure, not terminal ship, receipt,
+release preflight, or outward approval evidence.
+
+The subsequent terminal full ship reopened that closure. Every executable lane passed, including
+the complete three-engine suites and 108 routes / 864 contracts, but the evidence freeze rejected
+five Firefox Dropzone paste definitions that were absent from Vitest's canonical pre-run list and
+still visible as runtime skips. This is a new report-validation finding, not permission to reinterpret
+the failed run as a pass. Required and reporter-excluded leaves are now separated with fail-closed
+mutations; a fresh unchanged-scope adversarial review and an entirely new exact-tree full ship are
+required before final acceptance.
+
+The first focused remediation review at `2a0ed75d` reported **1 high and 0 medium findings**. Its
+adversarial mutation changed a reporter-only test name inside the same expected file/engine and the
+validator still passed, proving that the broad exclusion mechanism could hide an arbitrary disabled
+regression. That repair is superseded, not accepted. The replacement introduces five exact
+source-bound identities, an independently persisted/reconstructed `runtimeExclusions` manifest, and
+static/runtime mutations for alternate disabling APIs, arbitrary names, stale source, wrong scope,
+duplicates, and pre-listed skips. Focused deterministic checks pass; final closure remains open until
+the unchanged committed tree receives a fresh independent 0-high/0-medium review and full ship.
+
+The first clean serial rerun then found a consistency blocker before completion: the common impact
+planner classified the new authority as Vitest-only, but its independent consume subplanner widened
+the same path to full because it was still unknown there. This was fail-safe, not a coverage escape,
+but it contradicted the claimed efficient taxonomy. Exact no-consumer entries and direct mutations
+now cover both new paths; every other unknown path still widens. The interrupted serial run is not
+completion evidence. A new committed-tree serial run is required from the beginning.
+
+## 2026-07-30 — Runtime-exclusion completeness adversarial round
+
+The independent clean-tree review at `baf200e0` returned **1 high / 0 medium**. Exact names and a
+source hash still allowed all/partial registrations behind dead or deferred control flow, computed
+mutation of the Vitest API, and an approved identity absent from both the required and excluded
+terminal universes. The result supersedes the prior review closure; no receipt or full-ship success
+is inferred from earlier runs.
+
+The repair proves the registration and outcome separately. TypeScript AST checks require the exact
+import, capability declaration, and five direct top-level calls; runtime and final evidence checks
+require every applicable identity exactly once as excluded or independently listed and passed. New
+mutations cover every reproduced source escape, missing one/all identities, partial accounting, false
+zero-exclusion recovery, and valid all-five recovery. Focused suites and 60-current-surface /
+61-semantic-fixture operator checks pass. A fresh committed-tree deterministic sweep, independent
+unchanged-scope adversarial review, and full ship are still required; this round is not final closure.
+
+The fresh independent rerun on exact clean HEAD
+`e899690f5b11e337a0bb33ca097a001e5da95c72` closed with **0 high / 0 medium / 0 recurring findings**.
+It independently forced a dead direct registration and a terminal leaf absent from both universes;
+both failed for the intended exact-registration/exactly-once reasons. Focused receipt, selector,
+retry/affected, consume, operator-document, current-policy, diff, and clean-tree checks passed. The
+root deterministic chain had already passed workflow security's 59 mutations, lint, typecheck,
+registry/design idempotency, and the full release preflight on this HEAD. Recording this verdict is a
+documentation-only follow-up; it must be checked on its own resulting tree before the terminal
+production-full ship. No prior receipt or diagnostic report is reused as final evidence.
+
+The terminal ship on `1e092833` then passed all substantive lanes but failed final evidence freeze:
+the full contract report carried the correct 108-route set in registry order while the independent
+validator required canonical sorted order. The run measured 1,880.073s (`n=1`, local macOS arm64 /
+Node 24.18.0; CPU/RSS/cache/thermal unknown): typecheck 0.745s, lint 164.105s, docs warm-up 165.799s,
+unit 33.091s (1,471), smoke 30.874s (643 plus five exact exclusions), all-browser 297.698s (4,408
+plus the same five), registry 3.714s, consume 344.514s, and contracts 837.884s (108/864). This is
+diagnostic timing only; no receipt was written and no lane is reused.
+
+A full dry-run fixture now reproduces the ordering mismatch and requires sorted 108-route / 864-leaf
+output. The producer uses one canonical sort for full and scoped modes; the strict receipt validator
+is unchanged. Focused selection/report/operator checks pass. Fresh deterministic/adversarial review
+and an entirely new terminal ship remain required.
+
+## 2026-07-30 — First real PR workflow reopened release closure
+
+PR run `30535403126` failed closed in `receipt-guard`; its classifier imported TypeScript before the
+intentionally absent dependency install, and `verify` remained skipped. The new negative fixture
+first reproduced that exact `ERR_MODULE_NOT_FOUND` in a clean clone with no `node_modules`. The root
+repair separates a dependency-free scheduling authority from the installed parser-backed oracle and
+adds a generated full-content/file-metadata binding. Focused classifier, smoke, workflow-security,
+and 59 workflow mutation suites pass. This is remediation evidence only: prior adversarial closure
+and production-full receipt are superseded until the changed tree is committed, independently
+reviewed, fully shipped, and observed in a new PR run.
+
+The first exact-commit adversarial pass on `480611a6` returned **0 high / 2 medium / 1 low**. It
+reproduced a required full smoke lane reported as “0 test files,” identified that the new pre-install
+authority had no retained malformed/conflicting mutation suite, and showed two dangling symlink
+targets colliding in the content digest. The fixes share the effective widening decision with
+structured output, add 27 direct no-dependency mutations, and use `lstatSync` before classifying true
+`ENOENT`. The overlapped dual release-preflight sample was discarded; a serial rerun passed the full
+minor-bump/carry/npm-state/consume chain. This round remains open until the remediation is committed
+and a fresh unchanged-scope review reports zero high and zero medium.
+
+The next exact-commit pass on `0d50bfe7` again returned **0 high / 2 medium / 0 low**. The inverse
+scope case remained contradictory (`smoke=false`, scope `all`), and the newly retained mutation
+suite leaked one measured 398 MB clone on every root lint. Six runs had accumulated ~2.4 GB. The
+repair derives scope after the final required decision, adds missing-file and duplicate-leaf attacks,
+and guarantees scratch removal in `finally`; a before/after invocation leaves the directory count
+unchanged. The six exact leaked scratch paths were inspected and deleted. This remains remediation,
+not closure, until committed and independently re-reviewed unchanged.
+
+## 2026-07-30 — Dependency-free classifier remediation closure
+
+The fresh independent unchanged-scope review on exact clean commit
+`bd1d443f2008826c8ece01ecf8487609ef7f4dcb` returned **0 high / 0 medium / 0 low**, with no prior
+finding recurring. Historical Version Packages fixtures classified smoke as false with scope `none`;
+direct non-smoke changes did the same; a Button change selected four exact files; global, metadata,
+binary, malformed, stale, missing, duplicate, and unknown inputs widened. The dependency-free suite
+passed 32 retained assertions, the installed classifier passed 86 assertions, and forced-success and
+forced-failure cleanup probes both left the classifier scratch-directory count unchanged.
+
+The same review read structured evidence from 60 current operator surfaces, 61 semantic negative
+fixtures, 14 CLI-help surfaces, and 52 receipt mutations. It also confirmed the prior receipt rejects
+this newer tree rather than being reused. This closes the classifier remediation review only; the
+documentation follow-up below changes the tree and therefore still requires focused verification,
+an entirely fresh terminal `production-full` ship, a new exact-tree receipt, and real PR observation.

@@ -6,7 +6,8 @@
 //      work (the local gates).
 //   2. WHICH OF THOSE ARE SUBSTANTIVE — `pnpm run version-packages` runs version-sync, which runs
 //      registry:build, which re-stamps `// @vegastack <name>@<version> sha256-<sha>` into EVERY
-//      component source and docs copy-in: 1082 files on a 538-item registry. Those paths are
+//      component source and docs copy-in: 1082 files on a 538-item registry in the dated 2026-07-25
+//      Version Packages incident. Those historical counts are evidence, not a current invariant; the paths are
 //      legitimately component sources, so a filename-level filter CANNOT tell that one-line comment
 //      apart from a real edit — it has to read the diff body. Without this, every version bump would
 //      trigger a full 108-route sweep that cannot possibly have moved anything.
@@ -18,7 +19,13 @@
 // here, in one place, with tooling/verify-classify-change.mjs proving both directions.
 
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import {
+  existsSync,
+  lstatSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -79,9 +86,9 @@ const splitLines = (output) => (output ?? "").split("\n").filter(Boolean);
 
 /** Files changed between two commits. */
 export function changedFilesInRange(before, after) {
-  return splitLines(git(["diff", "--name-only", before, after])).filter(
-    (path) => !HASH_EXCLUDED.test(path),
-  );
+  return splitLines(
+    git(["diff", "--name-only", "--no-renames", before, after]),
+  ).filter((path) => !HASH_EXCLUDED.test(path));
 }
 
 /** Untracked-but-not-ignored paths. `git diff` cannot see these, which matters below. */
@@ -98,11 +105,160 @@ export function untrackedFiles() {
  */
 export function changedFilesInWorkingTree(base) {
   return [
-    ...splitLines(git(["diff", "--name-only", base])).filter(
-      (path) => !HASH_EXCLUDED.test(path),
-    ),
-    ...untrackedFiles(),
+    ...new Set([
+      ...splitLines(git(["diff", "--name-only", "--no-renames", base])).filter(
+        (path) => !HASH_EXCLUDED.test(path),
+      ),
+      ...untrackedFiles(),
+    ]),
   ];
+}
+
+/**
+ * Provenance subtraction is content-only. Reconcile its output with git metadata so an empty-file
+ * add/delete, mode-only change, type change, rename half, or untracked path cannot disappear before
+ * the scheduler sees it.
+ */
+export function retainInventoryPaths({
+  allChanged,
+  substantive,
+  rawByPath,
+  untracked,
+}) {
+  const keep = new Set(substantive);
+  for (const path of allChanged) {
+    const raw = rawByPath.get(path);
+    if (
+      untracked.has(path) ||
+      raw?.status === "A" ||
+      raw?.status === "D" ||
+      raw?.status === "T" ||
+      (raw && raw.oldMode !== raw.newMode)
+    )
+      keep.add(path);
+  }
+  return [...new Set(allChanged)].filter((path) => keep.has(path));
+}
+
+/**
+ * Canonical fail-closed working-tree inventory for schedulers. The content hash remains the trust
+ * anchor; this inventory only explains why a lane is selected or widened.
+ */
+function changeInventory(before, after) {
+  const allChanged =
+    after === null
+      ? changedFilesInWorkingTree(before)
+      : changedFilesInRange(before, after);
+  const untracked = after === null ? new Set(untrackedFiles()) : new Set();
+  const rawByPath = new Map();
+  const rawArgs = ["diff", "--raw", "--no-renames", before];
+  if (after !== null) rawArgs.push(after);
+  rawArgs.push("--");
+  for (const line of git(rawArgs).split("\n")) {
+    const match = /^:(\d{6}) (\d{6}) [a-f0-9]+ [a-f0-9]+ ([A-Z])\t(.+)$/.exec(
+      line,
+    );
+    if (!match) continue;
+    rawByPath.set(match[4], {
+      oldMode: match[1],
+      newMode: match[2],
+      status: match[3],
+    });
+  }
+  const binaryChanged = new Set();
+  const numstatArgs = ["diff", "--numstat", "--no-renames", before];
+  if (after !== null) numstatArgs.push(after);
+  numstatArgs.push("--");
+  for (const line of git(numstatArgs).split("\n")) {
+    const match = /^-\t-\t(.+)$/.exec(line);
+    if (match) binaryChanged.add(match[1]);
+  }
+  for (const path of untracked) {
+    const absolute = join(ROOT, path);
+    if (!existsSync(absolute) || !lstatSync(absolute).isFile()) continue;
+    if (readFileSync(absolute).includes(0)) binaryChanged.add(path);
+  }
+  const changedFiles = retainInventoryPaths({
+    allChanged,
+    substantive: dropProvenanceOnly(allChanged, { before, after }),
+    rawByPath,
+    untracked,
+  });
+  const metadataChanged = new Set();
+  const entries = changedFiles.map((path) => {
+    const raw = rawByPath.get(path);
+    const absolute = join(ROOT, path);
+    const exists =
+      after === null
+        ? existsSync(absolute)
+        : raw?.newMode !== undefined && raw.newMode !== "000000";
+    const stat = after === null && exists ? lstatSync(absolute) : null;
+    const type = !exists
+      ? "missing"
+      : after !== null
+        ? raw?.newMode === "120000"
+          ? "symlink"
+          : raw?.newMode === "160000"
+            ? "gitlink"
+            : "file"
+        : stat.isSymbolicLink()
+          ? "symlink"
+          : stat.isFile()
+            ? "file"
+            : stat.isDirectory()
+              ? "directory"
+              : "other";
+    const metadata =
+      !raw ||
+      untracked.has(path) ||
+      !exists ||
+      type !== "file" ||
+      raw.status === "A" ||
+      raw.status === "D" ||
+      raw.status === "T" ||
+      raw.oldMode !== raw.newMode;
+    if (metadata) metadataChanged.add(path);
+    return {
+      path,
+      changeKind: untracked.has(path)
+        ? "untracked"
+        : raw?.status === "A"
+          ? "added"
+          : raw?.status === "D"
+            ? "deleted"
+            : raw?.status === "T"
+              ? "type-changed"
+              : raw?.status === "M"
+                ? metadata
+                  ? "content-and-metadata"
+                  : "modified"
+                : "modified-unknown",
+      oldMode: raw?.oldMode ?? null,
+      newMode: raw?.newMode ?? null,
+      type,
+      metadataChanged: metadata,
+      binaryChanged: binaryChanged.has(path),
+    };
+  });
+  return {
+    base: before,
+    after,
+    allChanged,
+    changedFiles,
+    entries,
+    metadataChanged,
+    binaryChanged,
+  };
+}
+
+/** Canonical fail-closed inventory from a commit to the current working tree. */
+export function workingTreeChangeInventory(base) {
+  return changeInventory(base, null);
+}
+
+/** Canonical fail-closed inventory for a commit range, including mode/type/rename halves. */
+export function commitRangeChangeInventory(before, after) {
+  return changeInventory(before, after);
 }
 
 /**
@@ -111,7 +267,8 @@ export function changedFilesInWorkingTree(base) {
  * `--no-renames` matters: with rename detection a moved component emits `rename from/to` and NO +/-
  * body lines, so a body-only filter would see nothing and wave it through. Forcing delete+add makes
  * a rename look like what it is. Binary files never emit body lines either, so they are matched
- * explicitly. Mode-only changes are deliberately NOT substantive — chmod cannot move a pixel.
+ * explicitly. This function classifies content only; the canonical scheduler inventory separately
+ * retains mode/type/add/delete/untracked metadata before planning.
  *
  * `after === null` diffs against the working tree.
  */
@@ -126,7 +283,8 @@ export function dropProvenanceOnly(files, { before, after = null }) {
   const kept = new Set(files.filter((file) => untracked.has(file)));
   const diffable = files.filter((file) => !untracked.has(file));
 
-  // One git process per batch rather than per file: 1082 spawns on a version bump is minutes.
+  // One git process per batch rather than per file: large generated version bumps otherwise take
+  // one subprocess per changed file and can cost minutes.
   const BATCH = 200;
   for (let index = 0; index < diffable.length; index += BATCH) {
     const args = ["diff", "-U0", "--no-renames", before];
@@ -214,6 +372,7 @@ const GENERATED_REGISTRY_OUTPUT = /^apps\/docs\/public\/r\/.+\.json$/;
 const CONTRACT_DERIVED_OUTPUT = [
   /^packages\/ui\/component-contracts\.json$/,
   /^packages\/ui\/contract-smoke-tests\.generated\.json$/,
+  /^packages\/ui\/smoke-impact\.generated\.json$/,
   /^apps\/docs\/vrt\/contract-routes\.generated\.ts$/,
   /^apps\/docs\/lib\/home-component-catalog\.generated\.ts$/,
   /^apps\/docs\/components\/animated-icon-gallery\.generated\.tsx$/,
@@ -314,15 +473,51 @@ export function versionBumpOnly(before, after = null) {
     ? changedFilesInRange(before, after)
     : changedFilesInWorkingTree(before);
   const offenders = [];
+  let sawPackageVersionChange = false;
+  const untracked = after === null ? new Set(untrackedFiles()) : new Set();
+  for (const file of files)
+    if (untracked.has(file))
+      offenders.push({
+        file,
+        line: "(untracked path has no git diff record; version carry requires a tracked, independently inspectable difference)",
+      });
+
   const BATCH = 200;
   for (let index = 0; index < files.length; index += BATCH) {
+    const batch = files
+      .slice(index, index + BATCH)
+      .filter((file) => !untracked.has(file));
+    if (batch.length === 0) continue;
     const args = ["diff", "-U0", "--no-renames", before];
     if (after) args.push(after);
-    args.push("--", ...files.slice(index, index + BATCH));
+    args.push("--", ...batch);
     const diff = git(args);
-    for (const [file, body] of splitDiffByFile(diff)) {
+    const records = splitDiffByFile(diff);
+    const represented = new Set(records.map(([file]) => file));
+    for (const file of batch)
+      if (!represented.has(file))
+        offenders.push({
+          file,
+          line: "(changed-file inventory has no matching git diff record; refusing an unverifiable carry)",
+        });
+
+    for (const [file, body] of records) {
       const lines = body.filter(isBodyLine);
       const offend = (line) => offenders.push({ file, line });
+
+      const modeChange = body.find((line) => /^(?:old|new) mode /.test(line));
+      if (modeChange) {
+        offend(modeChange);
+        continue;
+      }
+      const binaryChange = body.find(
+        (line) =>
+          line.startsWith("Binary files ") || line === "GIT binary patch",
+      );
+      if (binaryChange) {
+        offend(binaryChange);
+        continue;
+      }
 
       if (/^\.changeset\/.+\.md$/.test(file)) {
         // Consumed changesets are DELETED. An addition here would be new release intent.
@@ -340,6 +535,11 @@ export function versionBumpOnly(before, after = null) {
             lines.find((line) => !VERSION_FIELD_LINE.test(line)) ??
               "(structural comparison found a non-version difference)",
           );
+        else if (
+          /(^|\/)package\.json$/.test(file) &&
+          lines.some((line) => /^[+-]\s*"version":/.test(line))
+        )
+          sawPackageVersionChange = true;
       } else if (GENERATED_REGISTRY_OUTPUT.test(file)) {
         // Exempt by re-execution, not by trust — see GENERATED_REGISTRY_OUTPUT.
       } else if (
@@ -357,6 +557,11 @@ export function versionBumpOnly(before, after = null) {
       }
     }
   }
+  if (files.length > 0 && !sawPackageVersionChange)
+    offenders.push({
+      file: "(version-bump proof)",
+      line: "no package.json version field changed; generated/provenance churn cannot be carried by itself",
+    });
   return { ok: offenders.length === 0, offenders, files: files.length };
 }
 

@@ -7,8 +7,8 @@
 //   push, merge, watch, discover the next link. Every cycle cost ~25 minutes.
 //
 //   A release is a chain: bump → version-sync → registry:build → verify-consume → classify → carry →
-//   guard → publish. A defect anywhere fails all of it. This runs the whole chain against a simulated
-//   bump in a THROWAWAY WORKTREE, so the discoveries happen together and locally.
+//   guard → release-state → publish. A defect anywhere fails all of it. This runs the whole chain against a simulated
+//   in-place bump with a clean-tree precondition and guaranteed restore, so the discoveries happen together and locally.
 //
 //   Of the seven blockers, five would have surfaced in this single run:
 //     · registry npm ranges not following the packages           (§1 of release-gotchas.md)
@@ -19,8 +19,8 @@
 //
 // WHAT IT DOES NOT DO
 //   Publish or push anything. It simulates the bump IN PLACE and restores the tree on every exit
-//   path, refusing to start unless the tree is clean. `registry:verify-consume` is entirely offline —
-//   every server it needs is a 127.0.0.1 sidecar.
+//   path, refusing to start unless the tree is clean. `registry:verify-consume` is entirely offline;
+//   release-state performs read-only exact-version npm lookups and blocks on uncertainty.
 //
 // USAGE
 //   node tooling/verify-release-chain.mjs            # simulate a minor bump
@@ -33,7 +33,26 @@ import { join } from "node:path";
 
 import { ROOT, versionBumpOnly } from "./lib/change-set.mjs";
 
-const bumpKind = process.argv.includes("--patch") ? "patch" : "minor";
+const usage = `Usage: node tooling/verify-release-chain.mjs [--patch]
+
+Simulate the complete release chain in place, starting only from a clean tree. Every exit path
+restores the original HEAD and removes files created by the simulation. It never pushes or publishes.
+
+  --patch   simulate a patch bump (default: minor)
+  --help    show this help without inspecting or mutating the tree`;
+const argv = process.argv.slice(2);
+if (argv.includes("--help") || argv.includes("-h")) {
+  console.log(usage);
+  process.exit(0);
+}
+const unknown = argv.filter((argument) => argument !== "--patch");
+if (unknown.length > 0) {
+  console.error(
+    `verify-release-chain: unknown option ${unknown[0]}\n\n${usage}`,
+  );
+  process.exit(2);
+}
+const bumpKind = argv.includes("--patch") ? "patch" : "minor";
 const PUBLIC_PACKAGES = ["design", "design-tokens"];
 
 /**
@@ -280,6 +299,44 @@ let simulatedHead;
 }
 ok();
 
+// Stage K — the merged Version Packages tree must resolve to an exact, resumable publication state.
+// This is deliberately a real npm lookup: only E404 may authorize the hosted build/OIDC path.
+step("exact npm state selects resumable publication");
+const releaseStatePath = join(ROOT, ".gates/release-preflight-state.json");
+const releaseState = run("node", [
+  join(ROOT, "tooling/release-state.mjs"),
+  "--before",
+  baseCommit,
+  "--after",
+  simulatedHead,
+  "--report",
+  releaseStatePath,
+]);
+assert.equal(
+  releaseState.status,
+  0,
+  "release-state could not authoritatively classify the simulated Version Packages tree; " +
+    `unknown npm state must block:\n${releaseState.stdout}${releaseState.stderr}`,
+);
+const releaseDecision = JSON.parse(readFileSync(releaseStatePath, "utf8"));
+assert.equal(
+  releaseDecision.decision.state,
+  "versioned-unpublished",
+  `the bumped public versions must be exact-E404 unpublished, got ${releaseDecision.decision.state}`,
+);
+assert.equal(releaseDecision.decision.npm_publish, true);
+assert.ok(
+  releaseDecision.publicPackages.every(
+    (entry) => entry.registry.status === "missing",
+  ),
+  "every simulated public version must be proven absent by exact npm E404",
+);
+ok(
+  releaseDecision.publicPackages
+    .map((entry) => `${entry.name}@${entry.version}`)
+    .join(" "),
+);
+
 // §5 — CI verifies the committed carry independently. This catches a carried tree paired with a
 // stale contract SHA, which the old predicate-only preflight never inspected.
 step("the committed receipt guard re-derives the carry (§5)");
@@ -321,6 +378,6 @@ ok(/(\d+)\/\1 graphs/.exec(consume.stdout)?.[0] ?? "");
 cleanup();
 console.log(
   `\n✓ release-chain: a simulated ${bumpKind} bump survives version-sync, both authorities, the ` +
-    `working-tree carry, committed guard, classifier, and a full consume round-trip.\n` +
+    `working-tree carry, committed guard, classifier, exact release state, and a full consume round-trip.\n` +
     `  Gotchas and their run ids: skills/internal/ship/references/release-gotchas.md`,
 );

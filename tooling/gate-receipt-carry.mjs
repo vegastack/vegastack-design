@@ -4,7 +4,7 @@
 // THE PROBLEM THIS SOLVES
 //   A receipt is bound to a tree hash. `changeset version` + `version-sync` move that hash — package
 //   versions, package CHANGELOGs, consumed changesets, and a re-stamped provenance header in 1082
-//   files — while changing no code any browser gate could observe. Measured on the real
+//   files — while changing no code any browser gate could observe. Dated measurement on the real
 //   `Version Packages (#1)` commit: tree 77a346c0 → 1b5796df.
 //
 //   Without this, every Version PR would fail `receipt-guard`, `quality-gate` would never run, and no
@@ -25,8 +25,6 @@
 //   before `changesets/action` commits the branch — which is the only point at which the post-bump
 //   tree exists and is not yet committed.
 
-import { writeFileSync } from "node:fs";
-
 import {
   resolveCommit,
   versionBumpOnly,
@@ -35,11 +33,28 @@ import {
 import {
   contractSha256,
   readReceipt,
-  RECEIPT_PATH,
   RECEIPT_REPO_PATH,
+  SCHEMA,
+  writeReceiptFile,
 } from "./lib/gate-receipt.mjs";
+import { buildEvidenceManifest } from "./lib/gate-profile.mjs";
 
 const CARRY_REASON = "version-bump";
+
+const usage = `Usage: node tooling/gate-receipt-carry.mjs
+
+Carry the current gate receipt across an independently rederived pure version bump. The command
+refuses any substantive, untracked, malformed, ambiguous, or schema-mismatched change. It is only
+valid inside version-packages after changeset version and version-sync.`;
+const argv = process.argv.slice(2);
+if (argv.includes("--help") || argv.includes("-h")) {
+  console.log(usage);
+  process.exit(0);
+}
+if (argv.length > 0) {
+  console.error(`gate-receipt-carry: unknown option ${argv[0]}\n\n${usage}`);
+  process.exit(2);
+}
 
 function fatal(message) {
   console.error(`gate-receipt-carry: ${message}`);
@@ -51,6 +66,10 @@ if (receipt.__unreadable)
   fatal(
     `no usable receipt at ${RECEIPT_REPO_PATH} (${receipt.__unreadable}). The commit this Version PR ` +
       "is based on must carry one — that is what is being carried forward.",
+  );
+if (receipt.schema !== SCHEMA)
+  fatal(
+    `receipt schema ${receipt.schema ?? "(none)"} cannot be carried by schema ${SCHEMA}; run a fresh full gate before versioning`,
   );
 
 const previousTree = receipt.tree;
@@ -95,28 +114,44 @@ if (!proof.ok) {
   process.exit(1);
 }
 
-writeFileSync(
-  RECEIPT_PATH,
-  `${JSON.stringify(
-    {
-      ...receipt,
-      tree: currentTree,
-      treeFiles: files,
-      head: resolveCommit("HEAD"),
-      carriedFrom: previousTree,
-      carriedFromCommit: baseCommit,
-      carryReason: CARRY_REASON,
-      carriedAt: new Date().toISOString(),
-      // version-sync rewrites dependency ranges in component-contracts.json. That moves the
-      // authority hash without changing inventory or browser-observable code, and design:derived
-      // stamps the new hash into its generated surfaces. Carry the current authority fact only
-      // AFTER the version-only proof above succeeds; a real code change never reaches this write.
-      contractSha256: contractSha256(),
-    },
-    null,
-    2,
-  )}\n`,
+const currentContractSha = contractSha256();
+const priorExecutedTrees = new Set(
+  (receipt.evidence?.leaves ?? []).map((leaf) => leaf.executedOnTree),
 );
+if (priorExecutedTrees.size > 1)
+  fatal(
+    "the receipt evidence does not name one unambiguous executed tree; refusing to carry it",
+  );
+const executedOnTree = [...priorExecutedTrees][0] ?? previousTree;
+const evidence = buildEvidenceManifest({
+  profile: receipt.profile,
+  required: receipt.classified ?? {},
+  contractRoutes: receipt.gates?.contracts?.routes ?? [],
+  tree: currentTree,
+  executedOnTree,
+  toolchain: receipt.toolchain,
+  contractSha256: currentContractSha,
+  passedGates: Object.entries(receipt.gates ?? {})
+    .filter(([, entry]) => entry.status === "pass")
+    .map(([name]) => name),
+});
+
+writeReceiptFile({
+  ...receipt,
+  tree: currentTree,
+  treeFiles: files,
+  head: resolveCommit("HEAD"),
+  carriedFrom: previousTree,
+  carriedFromCommit: baseCommit,
+  carryReason: CARRY_REASON,
+  carriedAt: new Date().toISOString(),
+  evidence,
+  // version-sync rewrites dependency ranges in component-contracts.json. That moves the authority
+  // hash without changing inventory or browser-observable code, and design:derived stamps the new
+  // hash into its generated surfaces. Carry the current authority fact only AFTER the version-only
+  // proof above succeeds; a real code change never reaches this write.
+  contractSha256: currentContractSha,
+});
 
 console.log(
   `gate-receipt-carry: carried the receipt across a version bump\n` +

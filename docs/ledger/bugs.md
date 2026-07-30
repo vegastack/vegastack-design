@@ -325,3 +325,720 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
 - **Systemic fix:** the ship ladder now awaits the cache warm-up after smoke and before the complete
   suite. A warm-up failure remains non-authoritative—the contract runner rebuilds and owns the
   verdict—but a still-running cold export can no longer contend with the longest browser lane.
+
+## 2026-07-28 — A historical SSO requirement remained visually current after the boundary changed
+
+- **Symptom:** current operator surfaces correctly said `/internal/*` was anonymous, while the old
+  requirement document still presented its D11 SSO topology without an explicit supersession at the
+  reading point. An agent landing on that document could reintroduce the failed production policy.
+- **Root cause:** the boundary recovery updated executable probes and active runbooks, but no
+  semantic gate required a historical authority to identify the newer decision before preserving its
+  old text.
+- **Systemic fix:** `tooling/verify-operator-docs.mjs` now checks every current operator surface and
+  requires a prominent historical supersession marker on `docs/requirements.md`. Three mutation
+  fixtures prove that SSO, Cloudflare Access, and missing-supersession claims fail for the intended
+  reason. Historical decision text remains unchanged below the marker.
+
+## 2026-07-28 — An untracked path made a working tree look like a pure version bump
+
+- **Symptom:** with one untracked plan in the tree, `classify-change --json` reported one substantive
+  changed file but `pureVersionBump: true`, then disabled contracts, unit, and smoke. The same hole
+  was reachable by the receipt-carry predicate.
+- **Root cause:** the changed-file inventory correctly appended `git ls-files --others`, but the
+  version predicate inspected only `git diff`. Git emits no diff record for an untracked path; the
+  empty record set was mistaken for “no offender.” Mode-only and binary records had analogous
+  non-body shapes.
+- **Systemic fix:** untracked paths now reject before batching, every remaining inventory path must
+  have a parsed diff record, and mode/binary metadata rejects explicitly. Isolated repositories
+  exercise source, test, binary, symlink, generated, unknown, mixed version+untracked, deletion,
+  rename, mode, and binary mutations; two real Version Packages generations and allowed package/header
+  version churn remain positive controls.
+
+## 2026-07-28 — Deploy accepted a scoped receipt that could not represent the complete browser lane
+
+- **Symptom:** a synthetic `mode: ship` receipt with two routes / 16 contracts and no
+  `all-browsers` field passed the same guard expectations deploy used. The production instruction
+  claimed a complete three-engine/full-contract requirement the schema could not express.
+- **Root cause:** schema 1 stored one status per gate, omitted `all-browsers` from its gate universe,
+  and treated any positive contract count as sufficient. `mode` was descriptive text, not a profile.
+- **Systemic fix:** schema 2 introduces an explicit `production-full` profile and a canonical sorted
+  manifest reconstructed from machine authority: one Chromium unit leaf, three smoke leaves, three
+  complete-browser leaves, and 108 routes × four projects × two assertions = 864 contract leaves.
+  Deploy names that profile explicitly. Negative mutations reject old schema, scoped/missing-route/
+  wrong-count evidence, missing engines, absent/duplicate/extra/unsorted/stale leaves, wrong
+  fingerprint/tree/toolchain/authority, and a root without leaves.
+
+## 2026-07-28 — A cold browser-unit run reloaded after discovering its test dependencies
+
+- **Symptom:** the first schema-2 full-ship attempt failed Chromium unit/axe after Vite discovered
+  dependencies twice during the active run. Eight files were disrupted, 23 tests failed, and only
+  1,375 tests executed. The same sweep's complete three-engine lane later passed.
+- **Root cause:** Vite's default optimizer crawl ignores test files, but the browser suite's entry
+  graph begins in `*.test.tsx`. Bare imports were therefore discovered after the browser mounted.
+  The resulting reload split React identity; the log showed unresolved linked
+  `@vegastack/design` entrypoints followed by invalid-hook errors and unrelated timeouts.
+- **Systemic fix:** the shared Vitest config declares both browser-test trees as optimizer entries
+  and explicitly pre-bundles the linked design package root and theme-scope entrypoint. A semantic
+  verifier rejects removal of either entry graph or linked entrypoint. After the supported cache
+  clear, the cold suite passed all 1,471 tests with one bundle in 21.8s; smoke then passed 643 with
+  five intentional skips in 21.5s. No timeout, retry, worker, or coverage setting changed.
+
+## 2026-07-28 — The docs warm-up still overlapped WebKit/Firefox smoke
+
+- **Symptom:** after the optimizer fix, a full ship attempt passed all 1,471 Chromium tests but its
+  smoke lane timed out waiting for WebKit `CopyButton` to enter the copied state. The immediately
+  following complete three-engine suite passed the same case. The preceding failed sweep had shown
+  the same shape on a different Firefox animation-replay case.
+- **Root cause:** the earlier scheduling repair waited for the docs export only before the complete
+  lane. `runPush` and `runShip` still ran WebKit/Firefox smoke concurrently with the export, despite
+  the no-cross-engine-overlap policy. Two different isolated timeouts under that schedule proved it
+  was not safe cover.
+- **Systemic fix:** both ladders may overlap the docs warm-up only with Chromium unit/axe and await it
+  before smoke. `verify-gate-schedule.mjs` rejects an overlap mutation in either ladder. No retry,
+  timeout, worker, selector, or assertion was relaxed; the failed sweeps remain non-evidence.
+
+## 2026-07-28 — The docs warm-up also destabilized Chromium canvas timing
+
+- **Symptom:** after moving the warm-up barrier ahead of smoke, the next full attempt failed three
+  `ParticleField` first-frame assertions during Chromium unit/axe while the export was still active.
+  Isolated smoke then passed after waiting at the barrier.
+- **Root cause:** “Chromium is safe overlap” was an unmeasured optimization assumption. The canvas
+  draw depended on browser scheduling and was starved under the same export pressure that had
+  already destabilized WebKit/Firefox interactions.
+- **Systemic fix:** component, push, and ship now await the docs warm-up before their first browser
+  gate. The schedule verifier rejects removing any of the three barriers. The mandatory build cost
+  is reported honestly rather than hidden under an unstable lane; no test budget was weakened.
+
+## 2026-07-28 — Smoke ignored dependencies of selected components
+
+- **Symptom:** changing Button did not require pre-push smoke even though Button reaches selected
+  CopyButton, SortableList, Board, and NotificationBell tests. Twelve dependency source files were
+  absent from the old exact-file trigger.
+- **Root cause:** classifier and gate runner only collected source/test files on records directly
+  marked `crossBrowserSmoke: selected`; neither traversed `registryDependencies`.
+- **Systemic fix:** one shared selector follows the verified transitive registry/import closure. A
+  generated manifest compares 40 modeled paths with Vitest 4.1.9's related graph, deduplicated across
+  engines; the current graph has zero disagreements. All 12 audited dependency sources and
+  direct/transitive/hook/global/unknown/stale/disagreement mutations fail closed. Disagreement
+  widens to full smoke and cannot subtract registry coverage.
+
+## 2026-07-28 — Full-ship reports omitted total and warm-up cost
+
+- **Symptom:** the retained ship JSON had eight gate durations but no total, no docs-export warm-up,
+  no environment/cache classification, and no per-run history. A later run overwrote the prior mode
+  report, so p50/p95 and exact-tree sequence claims could not be reconstructed locally.
+- **Root cause:** the ladder collected only blocking `gate()` calls in one latest-mode object. The
+  nonblocking warm-up lived outside that collector, and no measurement schema distinguished measured,
+  API-reported, modeled, estimated, or unknown values.
+- **Systemic fix:** every segment and total now writes an immutable gitignored schema-v1 measurement
+  keyed by run ID. Reports bind the gate implementation generation, environment, cache/cold state,
+  scope, and retry count; unavailable CPU/RSS remain explicitly unknown. The read-only summarizer
+  separates generations and route/check cohorts. Schema, negative duration/class/retry, and mixed
+  cohort mutations fail for their intended reason.
+
+## 2026-07-28 — Invalid receipts did not stop expensive PR verification
+
+- **Symptom:** run `30262728421` spent roughly 14m41 in the free-mini verification job after the
+  independent receipt guard had already made the PR terminally red. The same job invoked
+  `design:verify` explicitly and then invoked it again through root `pnpm lint`.
+- **Root cause:** CI jobs were parallel and the duplicated command ownership was only documented in
+  comments, not structurally asserted.
+- **Systemic fix:** `verify` now needs `receipt-guard`; `pnpm lint` is the single named owner of
+  design verification. The no-cache alternative is present only as a disabled, exact-runner canary
+  with cached default and structured setup/install cohort reporting. Workflow mutations reject every
+  removed dependency, restored duplicate, unconditional canary, or missing cached control.
+
+## 2026-07-28 — Cloudflare upload had no unambiguous terminal state
+
+- **Symptom:** a deploy could upload successfully and create a version while later production probes
+  failed. Operators saw the upload as near-completion, and no structured version ID connected the
+  candidate to the final result.
+- **Root cause:** `deploy-curated` was the last mutation job, while the live probe had no downstream
+  all-success summary. Wrangler console output was not captured through its machine interface.
+- **Systemic fix:** Wrangler writes NDJSON and exactly one successful deploy/version record is required.
+  A self-hosted `deployment-complete` summary depends on sign, upload/reverify, and the external live
+  probe without `always()` or `continue-on-error`. Eight new workflow mutations cover this surface.
+
+## 2026-07-28 — Later pre-push could erase stronger exact-tree ship evidence
+
+- **Symptom:** an unchanged `gates:push` after a production-full `gates:ship` wrote a new
+  change-profile receipt. The same browser/contract facts had been executed more completely, but the
+  mutable receipt retained only the weaker profile.
+- **Root cause:** receipt writing had no dominance rule and used a direct truncate/write operation.
+- **Systemic fix:** receipt replacement now compares independently verified exact-tree evidence.
+  Stronger production-full evidence dominates a later successful weaker run; a later failure is
+  annotated and invalidates reuse rather than being erased. Receipt writes use flushed same-directory
+  temporary files and atomic rename. Reuse remains shadow-only, and malformed, carried, stale,
+  wrong-toolchain, wrong-authority, partial, and failing mutations all force execution.
+
+## 2026-07-28 — Gate retries had no exact diagnostic boundary
+
+- **Symptom:** after one browser or contract assertion failed, the only supported recovery was to
+  rerun its whole lane. A passing rerun had no machine distinction from blocking evidence, and the
+  original failure target was retained only in terminal text.
+- **Root cause:** Vitest used terminal-only reporting and the failure summary named a gate command,
+  not exact file/engine/test or route/project/title selectors.
+- **Systemic fix:** normal browser lanes now retain structured Vitest failures; contracts accept and
+  cross-check exact project/title selectors. `gates:retry` rejects empty, renamed, stale-tree, and
+  unknown targets, verifies nonzero execution, and hashes the receipt, evidence store, and original
+  failure before/after. Its result is explicitly diagnostic and cannot clear or write evidence.
+
+## 2026-07-28 — Blanket Turbo tooling input hid unrelated gate costs
+
+- **Symptom:** an exact one-contract retry after a release/gate helper edit took 130.4s because the
+  docs export missed cache even though the helper could not affect its bytes. The live Turbo dry-run
+  placed 81 `tooling/**` files in every task's global hash.
+- **Root cause:** `turbo.json` uses one global tooling glob instead of the external scripts and data
+  each package task actually invokes. That is safe but erases task ownership and invalidation reason.
+- **Systemic fix (shadow only):** `gates:affected` reports current Turbo hashes beside proposed
+  task-specific external-tool fingerprints, including content, type, mode, symlink target, and
+  transitive relative imports. Mutation tests cover every currently referenced script and reject
+  dynamic/unparsed references. The report is deliberately activation-ineligible until root
+  data/config reads have the same complete inventory and mutation proof; the blanket dependency is
+  unchanged.
+
+## 2026-07-28 — Release network failures were interpreted as unpublished versions
+
+- **Symptom:** `classify-change --check-npm` added a package to `unpublished` for every nonzero npm
+  lookup, so timeout, 5xx, malformed output, and a genuine 404 all selected the same hosted publish
+  path. The `has_changesets` boolean also allowed an all-empty set to produce a green Version job
+  that could never advance.
+- **Root cause:** gate scheduling, npm registry truth, Changesets state, and outward job selection
+  were compressed into two booleans. Neither carried an unknown state or an explicit recovery action.
+- **Systemic fix:** `release-state.mjs` queries exact public `name@version` values and emits a
+  resumable state, reason, next action, and approval boundary. Only E404 is missing. Network/data/PR
+  uncertainty, all-empty/invalid changesets, and workflow/changeset conflicts block. Only
+  `versioned-unpublished` selects hosted build/OIDC; registry-only `published` selects zero hosted npm
+  jobs, and publication ends with an exact-version readback. Mutation tests pin every branch.
+
+## 2026-07-28 — Concurrent tsup config deletion raced ESLint discovery
+
+- **Symptom:** the Stage K full lint oracle failed with ENOENT for
+  `packages/design/tsup.config.bundled_<random>.mjs` while Turbo ran that package's build and lint
+  tasks concurrently.
+- **Root cause:** tsup creates, imports, and deletes a temporary bundled config in the package root.
+  `eslint .` could discover that transient file before deletion and try to read it afterward.
+- **Systemic fix:** the package flat config ignores `tsup.config.bundled_*.mjs`. A semantic negative
+  fixture places invalid JavaScript at that exact pattern and requires ESLint to ignore it; removing
+  the ignore makes the fixture fail. No Turbo concurrency, coverage, or gate was weakened.
+
+## 2026-07-28 — Smoke shadow digest broke the Version Packages carry
+
+- **Symptom:** the clean release preflight failed because a simulated pure version bump changed
+  `packages/ui/smoke-impact.generated.json`'s full contract digest, and receipt carry correctly
+  classified that line as substantive.
+- **Root cause:** Stage D added a contract-derived generated surface after the carry's independently
+  rederived output inventory was last reconciled.
+- **Systemic fix:** the tracked manifest joins the generated surfaces that `design:derived:check`
+  reconstructs on the exact release tree. Carry now also requires an actual `package.json` version
+  field change, so an arbitrary generated-file edit or provenance restamp cannot qualify alone.
+  Mutations prove both rejection directions and the combined version-plus-derived case.
+
+## 2026-07-28 — Strong production receipt was rejected by the weaker Release guard
+
+- **Symptom:** after the derived smoke fix, release preflight carried a valid `production-full`
+  receipt, but the default `change` guard rejected its profile and all 871 canonical leaves as extra.
+- **Root cause:** schema-2 verification required profile equality instead of modeling one-way
+  strength, then reconstructed the expected evidence universe from the weaker requested profile.
+- **Systemic fix:** `production-full` may satisfy `change`, and verification reconstructs the full
+  receipt profile. The reverse remains rejected; deploy still explicitly requires production-full,
+  and carried receipts remain excluded from exact-tree reuse. Positive/negative fixtures pin both
+  directions.
+
+## 2026-07-28 — Accumulating consume roots masked an over-broad dependency assertion
+
+- **Symptom:** the first isolated full consume run failed only `icon-a-arrow-down` in both layouts:
+  the real CLI installed its declared `@vegastack/design` dependency, but the runner demanded the
+  unrelated `@vegastack/design-tokens` package. The old consolidated real consumer had installed
+  tokens for an earlier root, so the same false assertion always appeared green.
+- **Root cause:** real roots shared one package/install directory and the verifier checked the global
+  union of public VegaStack packages rather than the exact dependencies of each resolved root graph.
+  Simulated consumers deliberately link the workspace dependency set, so they could not expose this
+  real-install defect.
+- **Systemic fix:** every real and simulated root/layout now uses a unique consumer. Required public
+  packages are parsed from that root's complete resolved graph and checked exactly. Mutations pin
+  scoped version parsing, unrelated-package exclusion, transitive union, unique consumer identity,
+  nonempty output manifests, collision detection, post-write/typecheck presence, full layout/count
+  completeness, and duplicate immutable report-key rejection. The corrected full oracle passed all
+  26 real and 26 simulated leaves plus both 554-root consolidated layouts.
+
+## 2026-07-28 — Pinned artifact download could not hard-fail a digest mismatch by configuration
+
+- **Symptom:** the first Stage M workflow draft set `digest-mismatch: error` on the pinned
+  `actions/download-artifact@v6`, assuming the newer upstream input existed. The pinned v6 action
+  does not define it, while GitHub's general artifact documentation describes a digest mismatch as a
+  warning. The workflow would therefore have looked fail-closed without owning that guarantee.
+- **Root cause:** current-main action documentation was applied to the repository's pinned major
+  without checking that version's input contract.
+- **Systemic fix:** candidate discovery retains the API's immutable artifact ID and `sha256:` digest.
+  Before extraction, `deploy-candidate.mjs download` fetches that exact REST archive and independently
+  compares SHA-256, failing on mismatch. Only then does the pinned action extract the same immutable
+  ID. Workflow mutations reject removal of the hard check, and the unit mutation corrupts archive
+  bytes. Candidate reuse remains disabled; the mandatory rebuild is still the sole production input.
+
+## 2026-07-29 — Visual review changed on identical trees
+
+- **Symptom:** the first completion VRT reported 57 changed screenshots despite no component visual
+  edit: 56 showed only syntax-token colour changes and one showed a different Fumadocs TOC marker.
+- **Root cause:** Fumadocs 16 defaults build-time highlighting to Shiki's JavaScript RegExp engine;
+  consecutive parallel builds emitted different TSX token scopes. Chromium full-page stitching also
+  scrolled through headings while Fumadocs updated its IntersectionObserver-driven TOC marker.
+- **Systemic fix:** build-time MDX pins Shiki Oniguruma, which upstream recommends for Node/build-time
+  maximum grammar compatibility. The VRT harness normalizes only scroll-driven TOC active/track state
+  immediately before capture. A verifier rejects removal/reordering. Across consecutive builds,
+  77,338 extracted Shiki blocks were byte-identical; raw full HTML was explicitly rejected as an
+  oracle because Next build-specific asset identifiers changed. Human review remains required for
+  the intentional syntax-colour difference.
+
+## 2026-07-29 — Operator-doc verifier recognized only yesterday's wrong counts
+
+- **Symptom:** semantic fixtures rejected 7 hosted jobs and 96/768 contracts, but a future wrong
+  value such as 6 or 109/872 would pass. Current CLI source comments/help and a direct package-level
+  Playwright contract alias were outside its inventory.
+- **Root cause:** independent stale constants and a 16-file prose-only inventory were treated as
+  semantic verification.
+- **Systemic fix:** hosted jobs are derived from every workflow YAML and route/check counts from the
+  contract authority; 29 current surfaces and nine executable `--help` paths are checked. New
+  mutations cover future wrong values, provenance/preflight/history wording, direct wrappers,
+  missing structured diagnostics, and terminal probe evidence. Historical incidents remain labelled
+  by date instead of being rewritten.
+
+## 2026-07-29 — Diagnostic and deployment summaries trusted step outcomes without their reports
+
+- **Symptom:** runner diagnostics wrote complete-browser/contract JSON but summarized only Actions
+  step outcomes; the engine-launch probe had no JSON. The production probe emitted only logs/exit
+  status, so `deployment-complete` could not name the attempted probe count or exact registry version.
+- **Root cause:** `continue-on-error` was used to collect diagnostics without a second structured
+  reconciliation step, and deployment terminal state depended on job ordering rather than carrying
+  the probe facts.
+- **Systemic fix:** launch, complete-browser and contract reports are parsed into explicit
+  executed/pass, executed/fail, skipped, not-reached or unknown states; empty/corrupt reports fail the
+  terminal verdict. The external probe atomically writes structured pass/fail observations, and the
+  terminal deploy job requires Cloudflare version ID, nonzero passing probe count and exact registry
+  version. Workflow-security now rejects 50 mutations including swallowed/missing/empty outcomes.
+
+## 2026-07-29 — Final review found two current instructions contradicting their executables
+
+- **Symptom:** release gotchas said `gates:push` ran the root lint umbrella even though the gate
+  executes Turbo lint, and runner diagnostics said browser jobs had to remain GitHub-hosted even
+  though current policy keeps every browser lane on developer machines.
+- **Root cause:** both lines survived broad terminology corrections because neither exact semantic
+  contradiction had a mutation fixture.
+- **Systemic fix:** current prose now names the actual gate command and local browser policy. Two
+  dedicated operator-doc fixtures reject either regression; the final unchanged-scope review must
+  rerun all current semantic fixtures before it may report zero medium findings.
+
+## 2026-07-29 — Historical gate timings were still presented as current budgets
+
+- **Symptom:** active agent, release, ship, and gate-runner surfaces still said full ship took about
+  20 minutes and complete browsers took 1m39s after the retained completion run measured 48m25s and
+  7m12s respectively.
+- **Root cause:** timing prose had no generation label and was outside the operator semantic
+  mutations, so the benefits ledger could reject the target while day-to-day instructions kept
+  advertising it.
+- **Systemic fix:** historical estimates are explicitly labelled; current surfaces name the retained
+  `n=1` sample and its unknown thermal/cold state, and direct command summaries avoid unsupported
+  latency promises. A timing-generation fixture rejects reintroducing the stale current wording.
+
+## 2026-07-29 — Runner diagnostics bypassed the standard complete-browser package authority
+
+- **Symptom:** the diagnostic workflow invoked `vitest-run.mjs` directly while the documented
+  `test:all-browsers` package command still called Vitest without the structured nonempty reporter.
+  A component-testing reference also mislabeled that command as a main/Release lane.
+- **Root cause:** the workflow and package script had parallel entry points, so either could drift
+  while both appeared to run the same configuration.
+- **Systemic fix:** `test:all-browsers` now owns the structured wrapper and diagnostics call that
+  package command with exact run/report arguments. A dry-run proved argument forwarding. Operator
+  and workflow mutations reject a direct Vitest package script, direct wrapper bypass, missing
+  report path, or a renewed main/Release browser claim.
+
+## 2026-07-29 — Component-contract authority still assigned browsers to main/Release
+
+- **Symptom:** `verify-component-contracts` printed a current machine-authority rationale saying
+  main/Release ran the complete three-engine suite, contradicting the locked local-first topology.
+- **Root cause:** the earlier prose sweep did not inventory the contract authority's operational
+  rationale, and its digest-derived copies faithfully propagated the stale sentence.
+- **Systemic fix:** the authority now names local pre-push and `gates:ship`, explicitly stating that
+  CI and Release only attest browser lanes. The operator verifier inventories the authority and a
+  semantic mutation rejects the old claim; every digest-derived surface was regenerated.
+
+## 2026-07-29 — Visual review reported numbers without explaining the visible change
+
+- **Symptom:** the final handoff described a Button fixture as a “147-pixel delta,” which did not tell
+  MK that only the antialiased letter edges of “Glass” differed or provide direct screenshot links.
+- **Root cause:** the ship protocol required a route/project/pixel/verdict table but omitted a
+  plain-language summary and explicit paths to the before, after, and difference images.
+- **Systemic fix:** the canonical ship skill and visual-review reference now require both. The
+  operator-doc verifier inventories the reference and a semantic mutation rejects a pixel-only
+  handoff.
+
+## 2026-07-29 — A fresh production-full receipt failed the staged format gate
+
+- **Symptom:** all eight terminal ship lanes passed and generated a valid receipt, but committing
+  only `.gates/receipt.json` failed because Prettier collapsed its three engine arrays.
+- **Root cause:** both the atomic gate writer and Prettier claimed serialization authority over the
+  committed machine-owned evidence.
+- **Systemic fix:** `.gates/receipt.json` is explicitly excluded from Prettier, and the hook verifier
+  fails if that exclusion disappears. Receipt schema/content verification remains the correctness
+  authority; no generated receipt is hand-formatted after a gate run.
+
+## 2026-07-29 — Clean release preflight packed public packages without their exports
+
+- **Symptom:** the clean detached release simulation installed local tarballs but every real consumer
+  typecheck failed to resolve `@vegastack/design` or its `theme-scope` export.
+- **Root cause:** the public manifests include only ignored `dist/*` build products for their JS/type
+  exports. Consume packed the current directory without owning a build prerequisite, so its outcome
+  depended on whether an earlier command had populated `dist`.
+- **Systemic fix:** consume builds both public packages in dependency order, validates every export
+  and bin target against `pnpm pack --json`, and writes those artifact facts into the structured
+  report. Missing output now fails once at the artifact boundary instead of surfacing as many
+  downstream TypeScript errors. No publication lifecycle hook or token was added.
+
+## 2026-07-29 — Packed-artifact exact-universe branches lacked complete mutations
+
+- **Symptom:** missing/duplicate public artifact fixtures passed, but there was no forced unexpected
+  package mutation; non-relative export strings were skipped rather than classified invalid.
+- **Root cause:** the first archive closure focused on current missing `dist` files and did not
+  adversarially enumerate every branch of the newly added exact-universe collector.
+- **Systemic fix:** exact artifacts now reject missing, duplicate, and unexpected package names;
+  invalid/escaping export or bin targets fail instead of disappearing. Each branch has an exact
+  intended-reason fixture, and the production-full receipt must be regenerated after the fix.
+
+## 2026-07-30 — Provenance subtraction hid a mode-only scheduler input
+
+- **Symptom:** the new working-tree planner called the content-level provenance filter before
+  classifying metadata. A mode-only change has no substantive `+`/`-` body, so it disappeared before
+  the planner could widen it.
+- **Root cause:** a content-only helper was reused as the complete scheduling inventory even though
+  its own historical purpose was only to remove generated provenance lines.
+- **Systemic fix:** the canonical inventory now disables rename detection and reconciles substantive
+  content with raw add/delete/type/mode records plus untracked paths. A pure mutation proves
+  provenance-only content drops while mode, empty add/delete, both rename halves, type changes, and
+  untracked binaries remain. Binary content is independently detected and widens every product lane.
+
+## 2026-07-30 — Import closure initially widened on dotted basenames and shared ownership
+
+- **Symptom:** the first real dependency graph retained 43 false unresolved imports and treated
+  legitimate shared tests/docs routes as duplicate ownership, forcing a full plan for Button.
+- **Root cause:** any dot in a basename was mistaken for a complete source extension, and the first
+  owner map assumed every file belonged exclusively to one registry record.
+- **Systemic fix:** candidate resolution recognizes only modeled source extensions; ownership is a
+  set for shared tests/routes while exclusive duplicate authority still rejects. The real graph now
+  has 1,640 sources, 1,733 internal edges, zero retained issues, and a mutation-proven Button →
+  CopyButton reverse edge. Over-capture remains acceptable; under-capture widens.
+
+## 2026-07-30 — Common VRT plan and route selector could describe different work
+
+- **Symptom:** changing `tooling/lib/route-scope.mjs` made the common planner require full VRT while
+  the older pixel selector classified all `tooling/**` as nonvisual. `--full-pages` also expanded the
+  grep without including those extra pages in the selector digest/report.
+- **Root cause:** the visual runner consumed only the route selector and its structured report did
+  not bind the common impact decision or the full-page expansion.
+- **Systemic fix:** VRT now reconciles both independent oracles: either may add routes and either
+  full result wins. Explicit diagnostic routes stay exact. Full-page expansion occurs before hashing;
+  atomic reports retain reason, digest, disagreement, executed/safely-skipped state, and the
+  human-review-only/no-receipt boundary. Five report mutations reject regression.
+
+## 2026-07-30 — Friendly-looking future files could inherit an unreviewed safe skip
+
+- **Symptom:** `gate-impact` treated every Markdown file below `docs/` or `skills/`, and broad
+  `release-*`/`registry-*` tooling prefixes, as known. A future tracked executable input with a
+  familiar name could therefore skip product lanes without an explicit authority decision.
+- **Root cause:** directory and filename labels were being used as proof of semantics. Missing-file
+  mutations widened, but did not reproduce an existing regular future file that matched the broad
+  allowlist.
+- **Systemic fix:** operational Markdown is limited to explicit current authorities/directories;
+  consume and non-product tools use exact reviewed membership. Existing regular lookalike Markdown,
+  release tooling, and registry tooling mutations now widen every product lane. Unknown remains the
+  fallback, and ordinary push/ship remain the independent oracle.
+
+## 2026-07-30 — Planner timing hid checkpoint and process-start cost
+
+- **Symptom:** the first report called a roughly one-second impact subphase “selector overhead” while
+  checkpoint attainability, module startup, inventory, cohort construction, Turbo parsing, and final
+  tree reconciliation happened outside that number.
+- **Root cause:** measurement began immediately around `planAffectedImpact` instead of at process
+  time origin, and attainability was constructed after the terminal tree check.
+- **Systemic fix:** `impact-plan` and `gates:affected` report total process-relative planning wall plus
+  named impact, Turbo, cohort, and checkpoint subphases. Attainability now runs inside the caller's
+  start/final exact-tree envelope. A controlled prose sample measured 2,805.537ms internally and
+  2.85s externally (`n=1`); no percentile or hidden execution saving is claimed.
+
+## 2026-07-30 — Selected rendered MDX could disappear from VRT authority
+
+- **Symptom:** route scope selected a changed page such as `/docs/foundations/elevation`, but the VRT
+  capture authority listed only a hand-maintained subset. The later authority filter silently
+  removed the route, allowing zero expected leaves and a false not-applicable result.
+- **Root cause:** the planner modeled all routable MDX while the Playwright test generator and VRT
+  reader had a smaller independent list; filtering did not distinguish a legitimate one-tree
+  addition/removal from a route absent on both trees.
+- **Systemic fix:** `design:derived` now generates an exact 139-route root/MDX authority. Generation
+  rejects dynamic, duplicate, symlinked, or unroutable content and is freshness-checked inside the
+  VRT consumer. Selected routes absent on both trees fail; additions/removals retain exact leaves on
+  the tree where they exist. A formerly omitted real page now produces four project leaves.
+
+## 2026-07-30 — Runner diagnostic contract verdict constructed no expected universe
+
+- **Symptom:** the deep diagnostic reader called `expectedContractLeaves()` with no route argument;
+  every genuinely passing full contract report threw during reconciliation and became
+  `executed/fail`.
+- **Root cause:** structured output was added without executing the embedded reader against the
+  required function signature, and workflow security checked only for the function name.
+- **Systemic fix:** the workflow independently reconstructs all component routes from route scope,
+  generates the exact 864 leaves, and matches both report scope and executed leaves. Mutations reject
+  zero-argument, report-owned, or omitted-scope universes.
+
+## 2026-07-30 — A checkpoint label could start a full oracle before shape rejection
+
+- **Symptom:** `global` was offered when only one lane was full, while the retained proof required all
+  six lanes full. Mixed workflow/header plus component diffs could similarly pass the label check and
+  be rejected only after an expensive full ship.
+- **Root cause:** scenario candidates and post-oracle proof used different predicates.
+- **Systemic fix:** candidates now mirror pre-execution proof: global requires all lanes full;
+  workflow/header require no selected executable. Partial-full and mixed-product mutations reject
+  before the `gates.mjs ship` spawn site. A second fail-closed guard now rejects every affected
+  `--oracle ship` path while the required foundation scenario is machine-unattainable, before report
+  creation, selected execution, the full oracle, or retained sample writes. Fresh-directory
+  integration mutations cover both raw and selected checkpoint commands, so the documented 0/30
+  stop cannot silently burn a full ship run.
+
+## 2026-07-30 — Component diagnostics overlapped a cold docs build with browser unit work
+
+- **Symptom:** the broad root lint failed `verify-gate-schedule.mjs`: `gates:component` started its
+  selected Vitest browser lane while the docs export warm-up was still running. This could recreate
+  the historical CPU/thermal contention that made browser timing unstable and docs warm-ups fail.
+- **Root cause:** dependency-aware component mode correctly avoided the export for a route-less hook,
+  but its routed branch awaited the warm-up only immediately before contracts, after the selected
+  unit browser lane had already executed.
+- **Systemic fix:** a routed component may overlap docs warm-up only with plain-Node design lint, then
+  must cross the same barrier as push/ship before any browser lane. The schedule verifier enumerates
+  every Vitest and contract-wrapper invocation, moves each one ahead of the barrier independently,
+  removes each mode's barrier, and removes either component route guard: all 14 mutations reject.
+  Route-less sources still avoid the export entirely.
+
+## 2026-07-30 — Exact VRT rerun could not name rendered docs pages
+
+- **Symptom:** `--routes` accepted only component fixture authority, so a focused stability rerun
+  could not name guide/foundation pages. The first `--page-routes` implementation then unioned
+  inferred work while its help promised an exact diagnostic.
+- **Root cause:** fixture and rendered-page authorities are intentionally different, but the CLI had
+  only one selector and the added page selector reused additive change-derived semantics.
+- **Systemic fix:** `--page-routes` now replaces inferred pages and clears inferred fixtures/icons;
+  combining it with `--routes` retains exactly both explicit sets. Full common impact still wins.
+  Mutations cover leaked inferred pages/fixtures/icons, empty/duplicate/malformed/whitespace routes,
+  and the ambiguous `--all` combination. Same-tree use remains diagnostic-only.
+
+## 2026-07-30 — OTP VRT captured an incomplete hydrated state matrix
+
+- **Symptom:** an origin/main comparison showed only the final three of OTP's five fixture rows in
+  one working-tree capture (4,037 mobile pixels / 4.26%), although component and preview source were
+  identical. A same-tree rerun did not reproduce the missing rows.
+- **Root cause:** the harness waited for the outer server-rendered preview shell, but did not require
+  the client OTP state matrix to contain and lay out all five roots before screenshotting.
+- **Systemic fix:** both sides now require exactly five nonzero, visible OTP roots before capture.
+  Removing that readiness call is a failing harness mutation. The remaining same-tree 17-pixel dark
+  glyph delta is visually identical rasterization and remains human-review evidence, not a retry
+  pass or receipt.
+
+## 2026-07-30 — OTP readiness did not prevent locator screenshot clipping
+
+- **Supersedes the diagnosis above:** the first readiness-hardened same-tree rerun reproduced the
+  exact 4,037-pixel mobile image. Its full failure screenshot showed all five rows; only the locator
+  screenshot omitted the first two. The roots were hydrated and visible, so hydration was not the
+  remaining cause.
+- **Root cause:** nested boxes with `overflow-x-auto` compute the other overflow axis to `auto`.
+  Locator screenshot scrolling could leave valid row boxes outside the screenshot target; the first
+  fix checked box size/style but not geometric containment.
+- **Systemic fix:** reset nested vertical scroll, anchor the first OTP row, and require every row's
+  top/bottom to remain within the capture target before screenshotting. Four additional mutations
+  reject removal of reset, anchor, top containment, or bottom containment.
+
+## 2026-07-30 — Locator screenshot re-scrolled after OTP containment proof
+
+- **Supersedes the containment fix as sufficient:** a retained same-tree run at `11f06af2` again
+  produced the 4,037-pixel mobile delta after all five rows passed the pre-capture containment poll.
+  The full failure image contained every row, while the locator snapshot clipped the first two.
+- **Root cause:** Playwright performs its own scroll-to-element step inside a locator screenshot.
+  The pre-capture scroll reset and containment proof cannot constrain that later internal action.
+- **Systemic fix:** retain the five-row visibility/layout, scroll-reset, anchor, and containment proof;
+  then, for the exact OTP fixture only, derive its non-null bounding box and use a page screenshot
+  clipped to that rectangle. Every other fixture retains locator screenshots. Nineteen harness
+  mutations reject route widening, missing readiness/containment, invented or missing rectangles,
+  omitted clipping, locator fallback for OTP, and removal of the ordinary fixture path.
+- **Runtime proof:** exact same-tree commit `0202fb160ff2ede9c1003f6caef55f3af88aa808`
+  executed all four desktop/mobile light/dark leaves and reported 0 changed / 4 unchanged / 0 new /
+  0 removed / 0 broken. Retained snapshots visibly contain empty, filled, masked, error, and disabled
+  rows. This is capture-mechanism evidence only; it does not write receipt evidence or relax the
+  human VRT decision.
+
+## 2026-07-30 — OTP verifier accepted unreachable, swallowed, and truncated proof paths
+
+- **Adversarial finding:** the first page-clip verifier accepted unreachable screenshots, early
+  returns, a post-derivation 1×1 overwrite, ignored or short-circuited readiness, short-circuited
+  throw guards, and `.catch(() => {})` failure swallowing. It also required a non-null bounding box
+  without proving that the full rectangle was inside the current viewport; Playwright permits
+  negative viewport-relative coordinates.
+- **Root cause:** source-fragment presence and weak AST shape checks were mistaken for executed
+  control-flow proof. Page clip validity was inferred from visibility instead of checked against the
+  capture API's viewport geometry.
+- **Systemic fix:** parse the TSX with installed TypeScript 6.0.3. Require one exact ordered OTP
+  readiness function, directly awaited calls with exact terminal methods, an exact OTP/ordinary
+  sibling branch, no extra OTP statements, exact null guards, and an exact seven-term
+  finite/positive/in-viewport OR-chain immediately before capture. Forty-four mutations reject
+  unreachable, early-return, overwritten, ignored, short-circuited, swallowed, negative, zero-size,
+  overflow, widened-route, and removed-default variants.
+- **Runtime evidence:** same-tree commit `8a5cd944079ee85ec43285bdb5bc23bb5105c7ac`
+  executed four viewport-bounded leaves and reported 0 changed / 4 unchanged / 0 new / 0 removed /
+  0 broken (cold base 7.0m, warm head 3.2m; CPU/RSS/thermal unknown). The terminal-method verifier
+  commits change no rendered source. Final review closure remains separate.
+
+## 2026-07-30 — Classifier mutation harness failed on a frozen clean HEAD
+
+- **Symptom:** full `pnpm lint` reached `verify-classify-change.mjs`, copied the current classifier
+  closure into a clone of the same committed HEAD, then unconditionally ran `git commit`. With no
+  staged delta, Git correctly exited 1 (`nothing added to commit`), so the positive verifier failed.
+- **Root cause:** fixture setup assumed current source bytes were necessarily newer than cloned HEAD.
+  That was true during dirty implementation but false at the exact final state the verifier exists
+  to validate.
+- **Systemic fix:** inspect the staged diff first. Status 0 means the harness is already current and
+  HEAD is preserved; status 1 commits the real closure delta; any other Git failure propagates. A
+  self-contained fixture proves both paths and clean committed HEAD `9d6ff0df` passes all 74
+  classifier assertions. No `--allow-empty` bypass is used.
+
+## 2026-07-30 — Vitest reporter exclusions blocked a truthful full-ship receipt
+
+- **Symptom:** terminal `pnpm gates:ship` run
+  `2026-07-30T02-40-56.470Z-ship-91b880d2-faf1-4d96-8c10-16f7df3b5e65` executed every lane,
+  including 108 routes / 864 contract checks, but evidence freeze correctly refused to write a
+  receipt. Smoke reported 643 passed plus five skipped definitions; all-browser reported 4,408
+  passed plus the same five skipped definitions.
+- **Root cause:** Firefox cannot express synthetic clipboard files for five Dropzone paste cases.
+  Vitest's pre-run list omitted those `test.skipIf` definitions, while its runtime reporter retained
+  them as skipped. Selection reconciliation already treated the pre-run list as the required
+  universe, but the final validator separately required the reporter skip count to be zero.
+- **Systemic fix:** freeze the independently planned/pre-listed leaves as required evidence and keep
+  reporter-only skips in a separate visible exclusion manifest. A listed required leaf that skips
+  still fails. Count mismatch, duplicate/malformed exclusions, foreign file/engine, and smuggling an
+  exclusion into the required selector all fail by mutation. The failed run remains diagnostic
+  evidence only; no receipt, retry evidence, or ship-completion claim was recovered from it.
+
+## 2026-07-30 — Broad reporter-exclusion repair could hide an arbitrary skipped regression
+
+- **High finding:** the first receipt-freeze repair accepted any reporter-only skipped definition
+  inside an expected file/engine. Replacing one of the five names with an arbitrary disabled test
+  still validated, so reporter visibility had accidentally become approval.
+- **Root cause:** file/engine membership was treated as capability authority. The validator did not
+  bind the excluded identity to reviewed source or require an independently reconstructable exact
+  exclusion manifest.
+- **Systemic fix:** one authority now names the five exact Firefox Dropzone paste leaves and the
+  `synthetic-clipboard-files` capability, with a SHA-256 binding over the capability probe and
+  `pasteTest` declaration. Static AST mutations reject direct, aliased, computed, conditional,
+  todo, renamed, removed, extra, and cross-file disabling. Runtime reconciliation and receipt freeze
+  independently reject every unapproved, duplicate, stale, wrong-lane/file/engine, or pre-listed
+  skipped leaf. The failed full-ship run remains diagnostic only; no evidence was recovered.
+
+## 2026-07-30 — New Vitest authority widened the independent consume planner
+
+- **Symptom:** the clean deterministic sweep reached the new gate-impact assertion and found the
+  Vitest-only authority correctly selected full browser lanes but also selected full registry consume.
+- **Root cause:** the common planner modeled the new paths, while the independent consume planner
+  still treated them as unknown. Its safe default widened rather than skipping, so guarantees were
+  preserved but the promised dependency-aware explanation and efficiency were inconsistent.
+- **Systemic fix:** classify only the exact runtime-exclusion authority and its mutation verifier as
+  having no consumer-byte effect. Direct consume-plan and common-impact assertions require browser
+  invalidation, zero invented contract/VRT/consume impact, and continued full widening for unknown
+  paths. No production-full or D1 consume requirement changed.
+
+## 2026-07-30 — Exact Vitest identities could disappear without terminal accounting
+
+- **High finding:** source verification counted `pasteTest(...)` descendants even when one or all
+  registrations were unreachable, conditional, deferred, or shadowed. Receipt freeze also accepted
+  an approved identity absent from both the excluded and required-passed universes. Consequently an
+  empty exclusion manifest could falsely resemble Firefox capability recovery.
+- **Root cause:** exact identity allowlisting proved which skips may be accepted, but did not prove
+  that each reviewed test was actually registered and terminally accounted for.
+- **Systemic fix:** bind one direct imported Vitest `test`, one exact `test.skipIf` declaration, and
+  five exact direct top-level registrations. Independently require every applicable identity exactly
+  once as reporter-excluded or independently listed and passed. Dead/conditional/deferred/shadowed/
+  aliased/computed/reflective registration, partial or total disappearance, duplicate accounting,
+  and false zero-exclusion recovery fail by mutation. A genuine recovery passes only when all five
+  exact leaves are listed and execute successfully.
+- **Evidence boundary:** focused source, runtime, receipt-freeze, and 61-fixture operator-document
+  suites pass. The previous adversarial closure and failed full-ship sample remain superseded until a
+  fresh unchanged-scope review and exact-tree full ship complete.
+
+## 2026-07-30 — Full contracts passed but serialized a noncanonical route order
+
+- **Symptom:** terminal ship run
+  `2026-07-30T04-44-21.761Z-ship-f662f64a-d828-4b51-a6fb-ecdce4acd6e5` passed every substantive
+  lane and all 108 routes / 864 contract leaves, then correctly failed evidence freeze with
+  `scope routes disagree with the independently planned route universe`.
+- **Root cause:** full mode copied registry-order `COMPONENT_ROUTES`; scoped mode sorted its set and
+  receipt validation canonicalized its independent universe. The route sets were equal but the full
+  report was not byte-canonical. The previous one-route producer fixture could not expose ordering.
+- **Systemic fix:** the runner now sorts both full and scoped route authorities before count, leaf,
+  execution, and report construction. A full `--all --dry-run` fixture requires 108 canonically
+  sorted routes and 864 expected leaves; the pre-fix producer fails that assertion.
+- **Evidence boundary:** the failed 31m20s run is retained measured diagnostic evidence only. Its
+  substantive passes cannot be recovered into a receipt; a fresh exact-tree full ship is required.
+
+## 2026-07-30 — PR receipt guard imported an uninstalled parser
+
+- **Symptom:** the first real PR run, `30535403126`, failed before receipt verification because
+  `classify-change.mjs` reached `smoke-scope.mjs`'s top-level `typescript` import. The receipt-first
+  job intentionally has no dependency installation; downstream `verify` was correctly skipped.
+- **Root cause:** local parser-backed selection and pre-install scheduling classification shared one
+  module boundary. Local tests inherited workspace `node_modules`, so none reproduced the runner.
+- **Systemic fix:** a dependency-free classifier rederives registry smoke closure and consumes the
+  generated Vitest comparison only when its contract, pinned toolchain, complete byte content, file
+  type/mode, and symlink digest are current. Missing, stale, malformed, unmodelled, or disagreeing
+  evidence widens. A clean clone with no `node_modules` now tests both an empty range and a changed
+  registry source whose stale shadow must select full smoke.
+- **Evidence boundary:** run `30535403126` remains failed evidence. No rerun can repair it, and the
+  previous production-full receipt cannot cover this tracked fix; a fresh exact-tree ship is required.
+
+## 2026-07-30 — Dependency-free classifier reported a narrower scope than it scheduled
+
+- **Medium finding:** exact range `8e4c2897..480611a6` scheduled smoke because contract/route scope
+  widened to all, but serialized `smoke_scope: "0 test file(s)"` and the narrower registry/Vitest
+  reason. Coverage still ran; the machine/operator explanation was false.
+- **Second medium:** malformed/conflicting mutations covered the installed parser-backed selector,
+  not the newly separated pre-install authority. Scratch attacks widened safely but were not retained
+  as executable regression evidence.
+- **Low hardening:** `existsSync` followed dangling symlinks before `lstatSync`, collapsing different
+  missing targets to one `missing` digest.
+- **Systemic fix:** scope/reason now derive from the effective metadata → route → dependency widening
+  chain. A no-dependency 27-assertion suite covers clean, stale, malformed, conflicting, invalid,
+  global, and unknown cases. Digest construction uses `lstatSync` with explicit `ENOENT`, preserving
+  dangling link type and target. The 0-high/2-medium/1-low review is superseded, not closure evidence.
+
+## 2026-07-30 — Classifier inverse scope contradiction and scratch-clone leak
+
+- **Medium finding:** after the first scope fix, historical Version Packages commit `9553498`
+  correctly returned `smoke=false` but still serialized `smoke_scope: "all"`. Scope was derived before
+  the final pure-version short circuit instead of from the final scheduling decision.
+- **Medium finding:** `verify-classifier-smoke.mjs` created a full scratch clone without cleanup. Six
+  observed runs retained 398 MB each (~2.4 GB total), a persistent-mini disk exhaustion path. The
+  suite also lacked explicit missing-shadow-file and duplicate-leaf mutations.
+- **Systemic fix:** a non-required lane now always reports scope `none`; required route/metadata/global
+  widening reports `all`, and direct selection reports its exact file count. The verifier removes its
+  scratch tree in `finally`, including assertion failures, and covers missing files plus duplicate
+  leaves. A before/after probe stayed at six directories during the fixed run; the six confirmed
+  leaked directories were then deleted, recovering about 2.4 GB.
+- **Evidence boundary:** the `0d50bfe7` review verdict was 0 high / 2 medium / 0 low and is superseded.
+  Fresh committed-tree review remains required; no previous receipt applies.
+
+## 2026-07-30 — Classifier remediation independently closed
+
+- **Closure:** exact clean commit `bd1d443f2008826c8ece01ecf8487609ef7f4dcb` received an independent
+  unchanged-scope verdict of 0 high / 0 medium / 0 low. The inverse pure-version case, missing and
+  duplicate generated leaves, dangling links, malformed/conflicting evidence, and forced assertion
+  failure each resolved as intended: the pure-version case safely skipped smoke, while invalid or
+  uncertain evidence failed or widened.
+- **Cleanup proof:** the retained negative harness completed both its pass and forced-failure paths
+  without changing the count of `classifier-smoke-negative-*` scratch directories. The six leaked
+  superseded directories had already been inspected and removed; no review evidence depended on
+  them.
+- **Boundary:** this is closure of the known classifier defects, not terminal ship, receipt, CI,
+  release, or deployment evidence. The ledger commit itself changes the exact tree, so the final
+  production-full proof must be generated afterward.

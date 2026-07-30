@@ -1,7 +1,7 @@
 # Public site, private registry boundary
 
 Status: approved by MK on 2026-07-28 during production deployment recovery. This decision
-supersedes the uncompleted `/internal/*` SSO phase in `public-docs-cutover.md`.
+supersedes the uncompleted cutover phase recorded in `public-docs-cutover.md`.
 
 ## Decision
 
@@ -42,7 +42,9 @@ supersedes the uncompleted `/internal/*` SSO phase in `public-docs-cutover.md`.
 3. Run `pnpm gates:ship` so the new deploy commit carries a full-sweep receipt.
 4. Push a focused PR, require `receipt-guard` and `verify` to pass, and merge it.
 5. Dispatch `deploy.yml` from `main`; require build, Sigstore signing/reverification, Cloudflare
-   upload, and the single external boundary job to pass.
+   upload, the single external boundary job, and terminal `deployment-complete` to pass. Read its
+   summary and retain the structured Cloudflare version ID, nonzero passing probe count, and exact
+   registry version; upload alone is not completion.
 6. Independently confirm public docs and canonical `/internal/*` routes return `200`, derivatives
    remain anonymous or redirect only to the same origin, retired routes remain `404`, anonymous
    `/r/*` remains denied, and the authenticated workflow validates registry version, integrity,
@@ -56,5 +58,6 @@ supersedes the uncompleted `/internal/*` SSO phase in `public-docs-cutover.md`.
   reject `/internal/*`; internal routes must carry `noindex, nofollow`.
 - **Workflow drift reintroducing cutover branches:** `verify-workflow-security.mjs` requires exactly
   one hosted boundary job, an unconditional dependency on `deploy-curated`, and the canonical probe.
-- **Calling an upload success a deployment success:** completion requires the external boundary job
-  and independent live probes, not only Wrangler output.
+- **Calling an upload success a deployment success:** completion requires the external boundary job,
+  independent live probes, terminal `deployment-complete`, and its structured Cloudflare version ID,
+  not only Wrangler output.

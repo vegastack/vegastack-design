@@ -7,6 +7,11 @@ apps/docs/public/r/
 # above. Without this, the pre-commit format gate fails after every dependency change.
 pnpm-lock.yaml
 
+# The gate ladder owns the committed receipt's deterministic, atomic JSON serialization. Prettier
+# formats its short engine arrays differently, which would otherwise make every freshly generated
+# production-full receipt fail the staged format gate and invite hand-editing evidence after ship.
+.gates/receipt.json
+
 # Same rule, applied to the surfaces `tooling/sync-component-derived.mjs` and the token build own
 # outright. Formatting them is drift that `pnpm design:derived` / the token build immediately
 # reverses, so prettier and `design:derived:check` would each undo the other with whichever ran last

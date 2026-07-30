@@ -1,6 +1,18 @@
 # The real gate. Under the local-first topology no CI runner executes a browser lane, so this is
 # where the unit suite, the cross-engine smoke, and the scoped behaviour contracts run — and it
-# writes .gates/receipt.json, which CI verifies against the pushed tree.
+# writes a schema-2 `change` receipt, which CI reconstructs against the pushed tree. This hook cannot
+# produce the `production-full` profile deploy requires; only `pnpm gates:ship` can do that.
+# Exact-tree reuse is shadow-only: the ladder records its plan but still executes every planned
+# browser/contract lane. A later weaker receipt cannot overwrite valid production-full evidence.
+# On failure, structured exact selectors may be diagnosed with `pnpm gates:retry`; that command
+# never clears this hook or writes receipt evidence, so the blocking push ladder must still pass.
+# `pnpm gates:plan` explains the exact dependency cone and why a lane is safely skipped, selected, or
+# full. After a fix, `pnpm gates:affected` may retain that plan and exact diagnostic commands, but
+# reuse and dynamic scheduling remain disabled and this current push oracle still executes. Rendered
+# MDX is not operational prose; component changes include every reachable dependent; disagreement,
+# metadata, and unknown paths widen. Only a later MK checkpoint can change local scheduling.
+# Its printed consume command uses fresh root consumers for diagnosis only; D1 keeps full consume in
+# CI, Release, and `gates:ship`. Selected reports retain `receiptWritten: false`.
 #
 # To push despite a failure, use `GATES_SKIP="<reason>" git push`. That records the skip in the
 # receipt and CI rejects it until MK acknowledges. `--no-verify` leaves no trace and is a policy

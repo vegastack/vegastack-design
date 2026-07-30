@@ -92,8 +92,9 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
 - **Docs** — Fumadocs, static export to Cloudflare Workers Static Assets. Storybook is deferred.
 - **Verification is local-first; CI verifies that it happened.** Decided 2026-07-25 (Option A), plan
   in `docs/plans/2026-07-25-cicd-local-first-revamp.md`. **No CI runner executes a browser.** The
-  browser-unit suite, the cross-engine smoke, the three-engine suite, and the 864 behaviour contracts
-  all run in `.husky/pre-push` (scoped) and `pnpm gates:ship` (full) on a developer machine. Each run
+  browser-unit suite, cross-engine smoke, and scoped behaviour contracts run in `.husky/pre-push`;
+  `pnpm gates:ship` runs those plus the complete three-engine suite and complete behaviour contracts
+  on a developer machine. Each evidence-producing run
   writes `.gates/receipt.json`, bound to a git tree hash of the working tree with `.gates/` excluded,
   and every workflow's `receipt-guard` job rejects a push whose receipt does not cover the pushed
   tree. The free mac minis independently **re-execute** the entire non-browser half.
@@ -102,34 +103,59 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
 - **A receipt is attestation, not proof, and that is written down on purpose.** `--no-verify`,
   `HUSKY=0`, or a hand-edited JSON defeats it. What it buys is that skipping a browser gate becomes a
   visible, auditable act instead of a silent one — and under Option A that is the entire guarantee on
-  those four lanes. Seven of eleven gate rows remain machine-verified for free; the split is stated
-  row by row in § Verification ladder. When more than one person merges component changes
+  browser and contract lanes. The re-executed/attested split is stated row by row in § Verification
+  ladder rather than frozen as a prose count. When more than one person merges component changes
   independently, the answer is required status checks plus a second machine re-running the lanes, not
   a cleverer receipt. **One carry is legitimate and checkable:** `changeset version` moves the tree
   hash while changing no code a browser gate can observe, so `tooling/gate-receipt-carry.mjs` carries
   the receipt across a version bump and stamps `carriedFrom`. The guard re-derives that proof from git
   (`versionBumpOnly`) and rejects any carry hiding a real change — without it every Version PR would
-  fail `receipt-guard` and no npm publish could ever happen.
+  fail `receipt-guard` and no npm publish could ever happen. Untracked files, missing diff records,
+  binary changes, file-mode changes, renames, and deletions can never ride that exemption; unknown
+  paths widen coverage.
+  Receipt schema 2 also carries a canonical sorted evidence-leaf manifest. For production, the guard
+  independently reconstructs unit/axe, smoke, complete Chromium/Firefox/WebKit, and all 108-route /
+  864-contract leaves from the checked-out tree; a `mode: ship` label or coverage root without leaves
+  is rejected. Except for the independently re-derived version-bump carry, production leaves must
+  name the exact receipt tree as `executedOnTree`.
+  A later `gates:push` must never replace stronger exact-tree production-full evidence with a weaker
+  change receipt. Exact-tree browser/contract reuse is **shadow-only**: the planner records
+  `.gates/reuse-plan.json`, but every planned lane still executes until 20 following observations
+  have zero escapes and MK separately approves enablement. A carried Version PR receipt is never
+  eligible for exact-tree reuse.
   `tooling/verify-hooks-installed.mjs` runs inside `pnpm lint` because a tree
   whose hooks are missing or unwired has no browser verification at all, and husky's dispatcher exits
   **zero** when a committed hook is absent.
+- **CI is receipt-first.** The expensive self-hosted non-browser verification job depends on the
+  independent receipt guard, so a missing/stale/malformed browser attestation stops before consuming
+  another mini. `pnpm lint` owns `design:verify`; CI invokes that chain once, not once explicitly and
+  again through lint. Removing setup-node's pnpm cache is a disabled, runner-pinned canary until one
+  week / 10 alternating samples per mini satisfy the recorded checkpoint; absent repository variables
+  always select the cached control path.
 - **Pixels stay a local review step**, unchanged: `node tooling/vrt-review.mjs` captures the base ref
   and the working tree on one machine and emits a before/after report a human reads during `/ship`.
   No screenshot is ever committed.
-- **Only five CI jobs are GitHub-hosted, each for a hard reason.** The split is an enforced
+- **Only five workflow jobs are GitHub-hosted, each for a hard reason.** The split is an enforced
   allowlist in `tooling/verify-workflow-security.mjs`, not a convention, and
   `tooling/verify-workflow-security-negative.mjs` proves it rejects a move in either direction.
-  **npm artifact provenance** (`release.yml`'s `package-build`) — `publish` uploads exactly its bytes
-  and npm's OIDC provenance asserts this workflow built them, which a persistent self-hosted runner
-  would make less true; **npm OIDC** (`publish`) — trusted publishing does not support self-hosted
-  runners and this repository holds no `NPM_TOKEN`; **credentials without repository code**
+  **Ephemeral exact-byte package production** (`release.yml`'s `package-build`) — `publish` uploads
+  exactly its immutable artifact, keeping persistent runner state outside the public package build;
+  the private source repository does not receive npm provenance attestations. **npm OIDC**
+  (`publish`) — trusted publishing does not support self-hosted runners and this repository holds no
+  `NPM_TOKEN`; **credentials without repository code**
   (`sign-curated`, `deploy-curated`); and **network position** — `deploy.yml`'s boundary probe must
   originate OUTSIDE VegaStack's network or Cloudflare device posture could authenticate a request it
   asserts is anonymous. `ci.yml` has no hosted job at all.
+- **Release state is explicit and fail-closed.** `tooling/release-state.mjs` queries exact public
+  `name@workspace-version` values. Only npm E404 is missing; timeout, 5xx, malformed/wrong data,
+  ambiguous Version PR state, all-empty/invalid changesets, or a release-workflow/changeset conflict blocks.
+  Only `versioned-unpublished` reaches hosted `package-build`/`publish`; registry-only `published`
+  runs self-hosted quality and zero hosted npm jobs. A post-publish exact-version readback is required.
 - **Job containers are banned outright.** They are Linux-only and cannot start on the macOS minis,
   and the one job that legitimately needed one — the three-engine suite in the digest-pinned
   Playwright image, because bare `ubuntu-latest` WebKit could not settle the compiled-CSS Toaster
-  contrast check — no longer runs in CI at all. That suite takes 1m39s locally.
+  contrast check — no longer runs in CI at all. The 1m39s figure is historical; the retained
+  completion sample took 7m12s (`n=1`, thermal/cold state unknown).
 - **The minis still cannot launch browsers, and it no longer blocks anything.** Their Actions runner
   has no per-user Mach bootstrap namespace, so every Chromium launch dies with `bootstrap_look_up
 org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` and SIGTRAP —
@@ -140,9 +166,19 @@ org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` a
 - **Registry integrity** — whole-item SHA-256 in `meta.integrity`, a Sigstore-signed manifest
   (GitHub OIDC), and a fail-closed consume preflight.
 - **Auth topology (approved 2026-07-28)** — every non-registry route is anonymous, including
-  `/internal/*`; internal operations pages stay unlisted, `noindex`, and outside every public
-  discovery corpus. `/r/*` alone is service-token-only. `SITE_VISIBILITY` controls discovery
+  `/internal/*`; internal operations pages stay unlisted, `noindex`, `no-store`, and outside every
+  public discovery corpus. `/r/*` alone is service-token-only. `SITE_VISIBILITY` controls discovery
   metadata only, never authorization.
+- **Upload is not deployment completion.** Pinned Wrangler emits a structured Cloudflare version ID,
+  but only the terminal `deployment-complete` job—after signing, immediate artifact reverification,
+  upload, and the external live boundary probe—means production succeeded. Its summary must include
+  that version ID, a nonzero structured probe count in `pass`, and the exact registry version.
+- **The exact-main deploy candidate is shadow-only.** Release may upload the docs output that its
+  already-required no-credential quality build produced. Deploy verifies its workflow/run/SHA, API
+  archive digest, canonical leaf manifest, toolchain/config context, and parity with the mandatory
+  exact-tree rebuild. It never signs or deploys the candidate. D4 remains open; enabling reuse
+  requires MK approval and a code change. Missing/expired evidence falls back to the rebuild, while a
+  live malformed, tampered, wrong-tree, or ambiguous claim fails before OIDC or Cloudflare secrets.
 
 ### Sanctioned dependency exceptions
 
@@ -234,6 +270,7 @@ The same discipline governs every other generated surface:
 | -------------------------------------- | -------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | `packages/ui/registry/ui/*`            | `pnpm registry:build`                  | docs copy-in, `public/r/*.json`                                                                |
 | `packages/ui/component-contracts.json` | `pnpm design:derived`                  | component matrix, contract routes, home catalog, the public skill roster, this file's §Numbers |
+| `apps/docs/content/**/*.mdx`           | `pnpm design:derived`                  | exact all-routable-page VRT authority (`page-routes.generated.ts`)                             |
 | `/CHANGELOG.md`                        | `node tooling/sync-changelog.mjs`      | the docs Changelog page                                                                        |
 | `skills/public/**`                     | `node tooling/sync-package-skills.mjs` | `packages/design/skills/**` (shipped in npm)                                                   |
 | `design.md`                            | `pnpm design:sync`                     | its derived doc surfaces                                                                       |
@@ -252,10 +289,13 @@ Four tiers. Run the cheapest one that can disprove your change, then widen. The 
 and 2 automatically; `pnpm gates:*` is the same ladder invoked by hand.
 
 ```bash
-pnpm gates:commit                 # ~3s      static gates over the STAGED set. Never a browser.
-pnpm gates:component <name>       # ~25s     design-lint · that component's unit test · its routes
-pnpm gates:push                   # ~35-80s  typecheck · lint · unit · smoke · SCOPED contracts
-pnpm gates:ship                   # ~20min   the full sweep, then vrt-review. /ship requires it.
+pnpm gates:commit                 # ~3-5s    static gates over the STAGED set. Never a browser.
+pnpm gates:component <name>       # scoped   design-lint · reachable dependent tests · routes
+pnpm gates:push                   # scoped   typecheck · Turbo lint · unit · smoke · contracts
+pnpm gates:retry                  # diagnostic-only exact selectors from the retained failure
+pnpm gates:plan                   # read-only dynamic impact explanation; no execution/evidence
+pnpm gates:affected               # shadow impact plan, then current push oracle; no reuse/evidence
+pnpm gates:ship                   # full     prior retained range 30m15s–48m25s; inspect .gates/ship.json
 ```
 
 Individual gates, when you want one directly:
@@ -264,11 +304,15 @@ Individual gates, when you want one directly:
 node tooling/design-lint.mjs packages/ui/registry   # token + AST rules on component source
 pnpm typecheck                                       # workspace-wide
 pnpm --filter @vegastack/ui test                     # browser-mode unit + axe
-pnpm --filter @vegastack/ui test:smoke               # WebKit + Firefox, contract-selected subset
+pnpm --filter @vegastack/ui test:smoke               # Chromium + WebKit + Firefox, selected subset
 pnpm --filter @vegastack/ui test:all-browsers        # the complete suite in three engines
 pnpm contracts                                       # behaviour contracts, SCOPED to the diff
 pnpm contracts:all                                   # all 108 routes / 864 checks
 pnpm classify                                        # which gates this change requires, and why
+pnpm release:state                                   # exact npm/Version PR state; unknown blocks
+pnpm gates:benchmarks                                # read-only p50/p95 over compatible retained cohorts
+pnpm gates:plan                                      # lane states/reasons for this exact working tree
+pnpm gates:affected:status                           # shadow samples/checkpoint; never enables reuse
 pnpm lint                                            # the full gate chain — see package.json
 pnpm registry:build && git status --porcelain        # must be idempotent: clean tree after
 pnpm design:derived && git status --porcelain        # contract-derived surfaces must be current
@@ -278,11 +322,12 @@ node tooling/vrt-review.mjs                          # before/after pixels — r
 **What CI re-executes versus what it takes on trust.** Every browser lane is attested; everything
 else is independently re-run for free on the minis. Do not blur this line in review.
 
-| gate                                                                                                                                                                                               | runs where               | CI                                     |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | -------------------------------------- |
-| static gates, `design:verify`, `typecheck`, `lint`, `registry:build` idempotency, `design:derived:check`, `registry:verify-consume`, both `SITE_VISIBILITY` builds, `@vegastack/design` node tests | hook **and** mini        | **re-executed**                        |
-| `@vegastack/ui` browser unit + axe · cross-engine smoke · three-engine suite · 864 behaviour contracts                                                                                             | hook / `gates:ship` only | **attested** via `.gates/receipt.json` |
-| `vrt-review` pixels                                                                                                                                                                                | `/ship` only             | review step, never a gate              |
+| gate                                                                                                                                                                                               | runs where                           | CI                                     |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ | -------------------------------------- |
+| static gates, `design:verify`, `typecheck`, `lint`, `registry:build` idempotency, `design:derived:check`, `registry:verify-consume`, both `SITE_VISIBILITY` builds, `@vegastack/design` node tests | local ladder and mini                | **re-executed**                        |
+| `@vegastack/ui` browser unit + axe · cross-engine smoke · scoped behaviour contracts                                                                                                               | pre-push and full `gates:ship`       | **attested** via `.gates/receipt.json` |
+| complete three-engine suite · complete behaviour contracts                                                                                                                                         | full `gates:ship` only               | **attested** via `.gates/receipt.json` |
+| `vrt-review` pixels                                                                                                                                                                                | `/ship` when the pixel plan requires | review step, never a gate              |
 
 Scope is decided by `tooling/lib/route-scope.mjs`, shared by the contract lane and the pixel lane with
 per-lane overrides. Anything unrecognised forces a full sweep — over-capturing costs minutes,
@@ -290,13 +335,76 @@ under-capturing ships an unverified change. `tooling/verify-route-scope.mjs` pro
 including the one path the two lanes classify OPPOSITELY (`contracts.spec.ts` cannot move a pixel, but
 it IS the contract assertions).
 
-`pnpm lint` is the umbrella: shadcn base check, skill lint, the public-skill mirror, security
-boundaries, workflow security, secret scan, `design:verify` (token build, design.md sync, contract
+`pnpm lint` is the umbrella: shadcn base check, skill lint, the public-skill mirror, operator-doc
+boundary consistency, security boundaries, workflow security, secret scan, `design:verify` (token build, design.md sync, contract
 reconciliation, public API docs, animated icons, theme parity, portal theme scope, **RSC safety**,
 toaster mirror, structural design-lint, negative registry-integrity fixtures), then per-package lint.
 
 Every gate fails closed. A gate that has never been observed failing is an assumption — that is why
 `verify-design-lint-structural.mjs` and `verify-registry-integrity-negative.mjs` exist.
+
+Each local ladder retains immutable, gitignored measurements under `.gates/runs/<run-id>/`: total,
+docs warm-up, and every executed or skipped segment, with implementation generation, environment,
+cache/cold classification, scope, retry count, and explicit unknown resource facts. The benchmark
+summarizer never combines different generations, environments, cache states, engines, or route/check
+counts. These reports are diagnostics, not receipt evidence and never authorize a skip.
+
+Vitest's runtime report may retain exactly five Firefox Dropzone paste definitions that its pre-run
+list excludes because synthetic clipboard files cannot be expressed there. They are not generic
+skip permission: `.runtimeExclusions` must name those exact source-bound leaves and capability. Any
+other `test.skip`/`skipIf`, renamed/file/engine mismatch, stale manifest, or required listed leaf that
+skips fails before receipt creation. Each of the five direct top-level registrations must appear
+exactly once in the final evidence accounting: either reporter-excluded, or independently listed and
+passed. A leaf absent from both blocks receipt creation; zero exclusions alone never prove capability
+recovery. The source authority and its mutations are
+`tooling/lib/vitest-runtime-exclusions.mjs` and `tooling/verify-vitest-runtime-exclusions.mjs`.
+
+`pnpm gates:retry` is narrower still: it reruns only structured exact failing
+file/engine/test-name or route/project/title selectors. Empty, renamed, stale-tree, or unknown
+selectors fail before execution. A retry pass leaves `.gates/last-failure.json`, the receipt, and
+`.gates/evidence/` byte-unchanged; it is diagnosis, never release evidence.
+
+`pnpm gates:affected` is the post-fix **shadow planner**. It derives unit-test, smoke-test,
+complete-browser, contract-route, VRT-route, registry-item, boundary, and Turbo-task impact cones,
+then runs the
+unchanged `gates:push --no-receipt` oracle. That default observation does not count toward the
+checkpoint; only `--oracle ship` executes the production-full unit/smoke/all-browser/consume/contract
+oracle and can create a checkpoint sample. Neither mode writes a receipt or reusable evidence.
+Unknown paths, unmodeled dependencies, file-type/mode/symlink changes, stale selectors, or changed
+gate definitions widen coverage. The current `tooling/**` Turbo global dependency remains in force;
+task-specific external-input hashes are reported side by side only. `pnpm gates:affected:status`
+requires at least 30 valid representative production-full zero-escape samples and all recorded
+scenario classes, but even a ready summary only asks MK for the checkpoint—it never enables reuse.
+The current authority has no agreeing greater-than-six-route foundation fixture, so this checkpoint
+is machine-blocked at 0/30. Do not collect a qualifying cohort yet: first present that authority/
+policy blocker to MK and obtain a separately approved fixture or checkpoint change; synthetic or
+substitute samples never count.
+Production continues to require one complete exact-tree `gates:ship` proof.
+
+`pnpm gates:plan` exposes the same decision without running a lane or writing evidence. Operational
+prose (`docs/plans`, ledgers, root instructions, internal skills) can be reported `safely-skipped`
+for product lanes only when the machine plan proves no rendered or executable edge. “Docs” is never
+the proof: rendered MDX, previews, generated copy-ins, tokens, global CSS/fonts, providers, app shell,
+dependencies, configs, toolchain, metadata, and unknown paths select their reachable surface or
+widen to full. Canonical component changes use the union of verified registry dependencies, actual
+TypeScript imports/re-exports/literal dynamic imports, Vitest-related results, and route authority;
+the selected cone includes every reachable dependent. A missing, stale, computed, unresolved, or
+disagreeing oracle widens rather than choosing a smaller set. Every skip names a machine reason and
+selector digest. Selected execution is diagnostic/shadow-only; pre-push scheduling is not enabled.
+Ordinary `gates:push` contracts therefore continue to use the established `route-scope` oracle; the
+common impact schema drives diagnostics/component/VRT planning and affected comparison until the
+separate pre-push checkpoint is approved. A shadow disagreement widens and is recorded—it never
+silently narrows or replaces the live push oracle.
+Public skills and their `packages/design/skills/**` mirrors are shipped package inputs, not operational
+prose: they may skip rendered-product lanes only while retaining skill-mirror, export, and
+`@vegastack/design` package-build checks.
+
+Consume planning has `diagnostic`, `affected`, and `full` modes. Every selected real-CLI and
+simulated root runs from a fresh consumer and carries its own post-write and typecheck result; full
+mode additionally retains the consolidated two-layout collision, post-write, and whole-layout
+typecheck oracle over the complete registry. Selected reports are shadow-only, non-reusable, and
+write no receipt. D1 is unresolved, so the full consume oracle remains mandatory in CI, Release, and
+`gates:ship`; the command printed by `gates:affected` is diagnostic evidence only.
 
 **The component contract suite is the blocking visual-surface gate — it now blocks locally.**
 `apps/docs/vrt/contracts.spec.ts` runs 864 checks over every component route — 320px reflow, RTL
@@ -342,12 +450,23 @@ people begin merging component changes independently — the before/after tool c
 base ref with no redesign, and required status checks would convert the attested rows back into
 enforced ones.
 
-Cross-browser policy: `pre-push` runs the Chromium unit suite plus the contract-selected
-WebKit/Firefox risk smoke (measured 16s each); `/ship` additionally runs the complete suite in all
-three engines (measured 1m39s). The smoke selection is generated from
+Cross-browser policy: `pre-push` runs the Chromium unit suite plus the selected
+Chromium/WebKit/Firefox risk smoke (historically measured 16s per non-Chromium engine); `/ship`
+additionally runs the complete
+suite in all three engines. Its historical 1m39s measurement regressed to 7m12s in the retained
+completion sample (`n=1`, thermal/cold state unknown). The smoke selection is generated from
 `coverage.crossBrowserSmoke: "selected"` in `packages/ui/component-contracts.json` — add a component
 to it only for motion or another evidenced cross-engine risk, never by editing the generated
 `contract-smoke-tests.generated.json`.
+
+Smoke triggering follows the transitive `registryDependencies` closure, not only a selected
+component's own files. `packages/ui/smoke-impact.generated.json` shadow-compares that authority with
+Vitest's real related-test graph. Missing, stale, unknown, or disagreeing data widens to the full
+smoke lane; the comparison is an optimization check, never the trust root.
+
+The docs export cache warm-up must finish before every browser lane. `verify-gate-schedule.mjs`
+rejects overlap in component, push, and ship; do not trade browser stability for apparent wall-time
+savings.
 
 ### Docs authoring
 
@@ -430,7 +549,7 @@ below is generated — never hand-edit it, and never quote a count from memory.
 <!-- NUMBERS:START — generated by tooling/sync-component-derived.mjs from packages/ui/component-contracts.json. DO NOT EDIT. -->
 
 - **Registry items: 554** — 108 components · 439 animated icons · 6 hooks (`use-animation-replay`, `use-drag-reorder`, `use-file-drop`, `use-list-nav`, `use-mobile`, `use-platform`) · 1 block (`dashboard-01`)
-- Contract SHA-256: `d173053c33c968829e522d3c65b9c84fd84f0ff82172271602d3d9909efb8ca1`
+- Contract SHA-256: `54682d5ee3792f8d7de5a4261ee704702288bba5ee580006c0fb1276b7a3d110`
 
 <!-- NUMBERS:END -->
 

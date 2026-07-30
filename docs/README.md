@@ -15,6 +15,10 @@ VegaStack's design-system records, release runbooks, research, and ledgers.
 For current package versions and registry inventory, query npm/the workspace and the machine
 authorities named in `AGENTS.md`; do not copy a number from prose.
 
+For local verification scope, `pnpm gates:plan` explains the dependency-aware shadow decision. Plans
+and ledgers can be operational-only; MDX under `apps/docs/content` is rendered product input and is
+handled separately. Unknown or disagreeing inputs widen, and final production ship remains full.
+
 ## Historical records
 
 `requirements.md`, `gap-analysis.md`, `plans/`, `audits/`, and most `research/` documents are
@@ -36,5 +40,5 @@ could otherwise be mistaken for live authority.
 ## Current status
 
 The public npm packages and private registry are shipped. `design.vegastack.com` is public on every
-non-registry route, including the unlisted/noindex `/internal/*` operations pages; only `/r/*`
+non-registry route, including the unlisted/`noindex`/`no-store` `/internal/*` operations pages; only `/r/*`
 requires a Cloudflare Access service token. Every production dispatch proves this one boundary.

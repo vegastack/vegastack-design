@@ -40,7 +40,6 @@ import {
   readdirSync,
   readFileSync,
   rmSync,
-  writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
@@ -50,26 +49,41 @@ import { fileURLToPath } from "node:url";
 // PIXEL_SCOPE; the contract lane's differs, and in one case in the opposite direction — see
 // tooling/lib/route-scope.mjs.
 import {
-  BLOCKS,
-  COMPONENTS,
+  createRouteScopeModel,
   escapeRegExp,
-  FIXTURE_ROUTES,
-  ICON_CHUNK_COUNT,
-  ICONS_ROUTE,
-  PIXEL_SCOPE,
   selectRoutes,
 } from "./lib/route-scope.mjs";
+import {
+  workingTreeChangeInventory,
+  workingTreeContentHash,
+} from "./lib/change-set.mjs";
+import { planAffectedImpact } from "./lib/gate-impact.mjs";
+import { atomicWriteJson } from "./lib/measurement-report.mjs";
+import { CONTRACT_PROJECTS } from "./lib/gate-profile.mjs";
+import {
+  addExplicitVrtFullPageRoutes,
+  assertVrtSelectionAvailableOnEitherTree,
+  expectedVrtLeaves,
+  filterVrtSelectionForAuthority,
+  readVrtAuthority,
+  reconcileVrtLeaves,
+  reconcileVrtSelection,
+} from "./lib/vrt-selection.mjs";
+import { assertVrtPageRoutesCurrent } from "./sync-vrt-page-routes.mjs";
 
 const USAGE = `Usage: node tooling/vrt-review.mjs [options]
 
   --base <ref>     compare against this ref (default: origin/main, falling back to main)
   --all            capture every route, skipping change detection
   --full-pages     also capture the full-page lane (includes docs prose — noisy by default)
-  --routes a,b     capture exactly these routes
+  --routes a,b     capture exactly these component fixture routes
+  --page-routes a,b
+                   capture exactly these rendered full-page routes
   --keep-worktree  leave the base worktree in place for inspection
   --port <n>       base port for the two capture servers (default 3210)
   --dry-run        print the computed scope and exit without capturing
 
+Output: .vrt-review/report.json plus per-entry before/after/diff images when captured.
 Exit codes: 0 for any pixel outcome, 2 when no report could be produced.`;
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -82,12 +96,25 @@ function fail(message) {
   process.exit(2);
 }
 
+function parseExactRoutes(raw, flag) {
+  const routes = raw.split(",");
+  if (
+    routes.length === 0 ||
+    routes.some((route) => !/^\/(?:[^/\s]+(?:\/[^/\s]+)*)?$/.test(route))
+  )
+    fail(`${flag} rejects empty, whitespace, or malformed routes`);
+  if (new Set(routes).size !== routes.length)
+    fail(`${flag} rejects duplicate routes`);
+  return routes;
+}
+
 function parseOptions(argv) {
   const options = {
     base: null,
     all: false,
     fullPages: false,
     routes: null,
+    pageRoutes: null,
     keepWorktree: false,
     port: 3210,
     dryRun: false,
@@ -103,10 +130,9 @@ function parseOptions(argv) {
     else if (flag === "--all") options.all = true;
     else if (flag === "--full-pages") options.fullPages = true;
     else if (flag === "--routes")
-      options.routes = value()
-        .split(",")
-        .map((route) => route.trim())
-        .filter(Boolean);
+      options.routes = parseExactRoutes(value(), flag);
+    else if (flag === "--page-routes")
+      options.pageRoutes = parseExactRoutes(value(), flag);
     else if (flag === "--keep-worktree") options.keepWorktree = true;
     else if (flag === "--dry-run") options.dryRun = true;
     else if (flag === "--port") options.port = Number(value());
@@ -117,6 +143,8 @@ function parseOptions(argv) {
   }
   if (!Number.isInteger(options.port) || options.port < 1024)
     fail("--port must be an integer >= 1024");
+  if (options.all && (options.routes !== null || options.pageRoutes !== null))
+    fail("--all cannot be combined with --routes or --page-routes");
   return options;
 }
 
@@ -153,7 +181,7 @@ function buildGrep(selection, options) {
     : selection.fullPageRoutes;
   if (fullPage.size > 0)
     alternatives.push(`VRT (${[...fullPage].map(escapeRegExp).join("|")})$`);
-  if (selection.icons) alternatives.push("renders every generated icon");
+  if (selection.icons) alternatives.push("VRT icon chunk ");
   return alternatives.length > 0 ? alternatives.join("|") : null;
 }
 
@@ -176,6 +204,38 @@ function capture({ cwd, snapshotDir, port, grep, update, jsonOutput }) {
   });
 }
 
+function listCapture({ cwd, snapshotDir, port, grep }) {
+  const args = [
+    "exec",
+    "playwright",
+    "test",
+    "components.spec.ts",
+    "--list",
+    "--reporter=json",
+  ];
+  if (grep) args.push("--grep", grep);
+  const result = spawnSync("pnpm", args, {
+    cwd: join(cwd, "apps/docs"),
+    encoding: "utf8",
+    maxBuffer: 64 * 1024 * 1024,
+    env: {
+      ...process.env,
+      VRT_SNAPSHOT_DIR: snapshotDir,
+      VRT_PORT: String(port),
+      CI: "",
+    },
+  });
+  if (result.status !== 0)
+    throw new Error(
+      `Playwright VRT --list failed: ${(result.stderr || result.stdout).trim()}`,
+    );
+  try {
+    return flattenReport(JSON.parse(result.stdout));
+  } catch (error) {
+    throw new Error(`Playwright VRT --list JSON is corrupt: ${error.message}`);
+  }
+}
+
 // ── report assembly ──────────────────────────────────────────────────────────────────────────────
 
 /** PNG dimensions straight from the IHDR header — no image library needed. */
@@ -192,7 +252,7 @@ const SIZE_MISMATCH =
   /Expected an image (\d+)px by (\d+)px, received (\d+)px by (\d+)px/;
 const MISSING_SNAPSHOT = /A snapshot doesn't exist at/;
 
-/** Flatten the Playwright JSON report into {title, project, ok, error, attachments}. */
+/** Flatten the Playwright JSON report without erasing skipped/interrupted runtime outcomes. */
 function flattenReport(report) {
   const out = [];
   const visit = (suite) => {
@@ -202,7 +262,8 @@ function flattenReport(report) {
         out.push({
           title: spec.title,
           project: test.projectName ?? "unknown",
-          ok: spec.ok === true,
+          outcome: result?.status ?? "not-run",
+          ok: result?.status === "passed",
           error: [
             result?.error?.message,
             ...(result?.errors ?? []).map((entry) => entry.message),
@@ -236,72 +297,65 @@ const snapshotArg = (route, lane) =>
     `${route.replaceAll("/", "_")}${lane === "fixture" ? "-state" : ""}`,
   );
 
-/**
- * Sanitised snapshot stem → {route, lane}, for turning an orphaned base filename back into a route.
- * Reversing the sanitisation directly is ambiguous (component names contain `-`), so build the
- * mapping forwards from the route authority instead. `page-routes.ts` is parsed rather than
- * imported because this is a `.mjs` script; the same regex approach as
- * `tooling/verify-component-contracts.mjs`.
- */
-const routeByStem = (() => {
-  const source = readFileSync(
-    join(ROOT, "apps/docs/vrt/page-routes.ts"),
-    "utf8",
-  );
-  const literals = /VRT_PAGE_ROUTES\s*=\s*\[([\s\S]*?)\]\s+as\s+const;/.exec(
-    source,
-  );
-  const supplemental = literals
-    ? [...literals[1].matchAll(/['"]([^'"]+)['"]/g)].map((match) => match[1])
-    : [];
-  const fullPage = [
-    ...supplemental,
-    ...COMPONENTS.map((record) => record.docsSlug),
-    ...BLOCKS.map((record) => record.docsSlug),
-  ];
+/** Snapshot stems are mapped forward from the exact per-tree generated route authority. */
+
+function routeByStemFor(authorities) {
   const stems = new Map();
-  for (const route of fullPage) {
-    stems.set(snapshotArg(route, "full-page"), { route, lane: "full-page" });
-    if (FIXTURE_ROUTES.has(route))
-      stems.set(snapshotArg(route, "fixture"), { route, lane: "fixture" });
+  for (const authority of authorities) {
+    for (const route of authority.fullPageRoutes) {
+      stems.set(snapshotArg(route, "full-page"), { route, lane: "full-page" });
+      if (authority.fixtureRoutes.includes(route))
+        stems.set(snapshotArg(route, "fixture"), { route, lane: "fixture" });
+    }
+    for (let index = 1; index <= authority.iconChunkCount; index++)
+      stems.set(
+        sanitizeForFilePath(
+          `${authority.iconsRoute.replaceAll("/", "_")}-icon-chunk-${index}`,
+        ),
+        { route: authority.iconsRoute, lane: "full-page", chunk: index },
+      );
   }
-  for (let index = 1; index <= ICON_CHUNK_COUNT; index++)
-    stems.set(
-      sanitizeForFilePath(
-        `${ICONS_ROUTE.replaceAll("/", "_")}-icon-chunk-${index}`,
-      ),
-      { route: ICONS_ROUTE, lane: "full-page" },
-    );
   return stems;
-})();
+}
 
 /** The base-capture filenames a given test is responsible for, so "removed" can be detected. */
-function snapshotNamesFor(test) {
-  if (test.title.includes("generated icon"))
-    return Array.from(
-      { length: ICON_CHUNK_COUNT },
-      (_, index) =>
-        `${sanitizeForFilePath(`${ICONS_ROUTE.replaceAll("/", "_")}-icon-chunk-${index + 1}`)}-${test.project}.png`,
-    );
+function snapshotNamesFor(test, authority) {
+  const iconChunk = /^VRT icon chunk (\d+)$/.exec(test.title)?.[1];
+  if (iconChunk)
+    return [
+      `${sanitizeForFilePath(`${authority.iconsRoute.replaceAll("/", "_")}-icon-chunk-${iconChunk}`)}-${test.project}.png`,
+    ];
   const route = /VRT (?:state )?(\/\S*)/.exec(test.title)?.[1];
   if (!route) return [];
   const lane = test.title.startsWith("VRT state ") ? "fixture" : "full-page";
   return [`${snapshotArg(route, lane)}-${test.project}.png`];
 }
 
-function buildEntries(tests, baseSnapshots) {
+function buildEntries(tests, baseSnapshots, head, routeByStem) {
   const entries = [];
   const covered = new Set();
 
   for (const test of tests) {
-    for (const name of snapshotNamesFor(test)) covered.add(name);
+    for (const name of snapshotNamesFor(test, head)) covered.add(name);
 
     const route =
       /VRT (?:state )?(\/\S*)/.exec(test.title)?.[1] ??
-      (test.title.includes("generated icon") ? ICONS_ROUTE : test.title);
+      (test.title.startsWith("VRT icon chunk ") ? head.iconsRoute : test.title);
     const lane = test.title.startsWith("VRT state ") ? "fixture" : "full-page";
+    const chunk =
+      Number(/^VRT icon chunk (\d+)$/.exec(test.title)?.[1] ?? 0) || null;
 
     if (test.ok) {
+      const expectedNames = snapshotNamesFor(test, head);
+      if (expectedNames.length !== 1)
+        throw new Error(
+          `unchanged VRT leaf ${test.title}[${test.project}] has no canonical snapshot name`,
+        );
+      const expected = join(snapshotDir, expectedNames[0]);
+      if (!existsSync(expected))
+        throw new Error(
+          `unchanged VRT leaf ${test.title}[${test.project}] has no readable baseline snapshot`,
+        );
       entries.push({
         route,
         lane,
@@ -311,6 +365,7 @@ function buildEntries(tests, baseSnapshots) {
         totalPixels: null,
         percentChanged: 0,
         images: {},
+        ...(chunk ? { chunk } : {}),
       });
       continue;
     }
@@ -366,6 +421,7 @@ function buildEntries(tests, baseSnapshots) {
               "the test produced no result — the capture is broken, not the component",
           }),
       images: { expected, actual, diff },
+      ...(chunk ? { chunk } : {}),
     });
   }
 
@@ -384,7 +440,12 @@ function buildEntries(tests, baseSnapshots) {
       changedPixels: null,
       totalPixels: null,
       percentChanged: null,
-      images: {},
+      images: {
+        expected: join(snapshotDir, file),
+        actual: null,
+        diff: null,
+      },
+      ...(known?.chunk ? { chunk: known.chunk } : {}),
     });
   }
 
@@ -398,6 +459,7 @@ function materialise(entries) {
     const directory = join(
       OUTPUT_DIR,
       `${slug(entry.route)}${entry.lane === "full-page" ? "--full-page" : ""}--${entry.project}`,
+      ...(entry.chunk ? [`chunk-${entry.chunk}`] : []),
     );
     const images = {};
     for (const [role, source] of [
@@ -417,10 +479,7 @@ function materialise(entries) {
 
 function writeReport(payload) {
   mkdirSync(OUTPUT_DIR, { recursive: true });
-  writeFileSync(
-    join(OUTPUT_DIR, "report.json"),
-    `${JSON.stringify(payload, null, 2)}\n`,
-  );
+  atomicWriteJson(join(OUTPUT_DIR, "report.json"), payload);
 }
 
 // ── main ─────────────────────────────────────────────────────────────────────────────────────────
@@ -435,24 +494,92 @@ const baseRef =
 if (!gitQuiet(["rev-parse", "--verify", "--quiet", `${baseRef}^{commit}`]))
   fail(`base ref ${baseRef} does not resolve to a commit`);
 const mergeBase = git(["merge-base", baseRef, "HEAD"]);
+const startTree = workingTreeContentHash().hash;
+const routeModel = createRouteScopeModel();
+routeModel.assertCurrent();
 
 // Diff the merge-base against the WORKING TREE, not against HEAD: the question is "what does my
 // change do to the UI", and during /ship that change is often still uncommitted.
-const changedFiles = [
-  ...git(["diff", "--name-only", mergeBase]).split("\n"),
-  ...git(["ls-files", "--others", "--exclude-standard"]).split("\n"),
-].filter(Boolean);
+const inventory = workingTreeChangeInventory(mergeBase);
+const changedFiles = inventory.changedFiles;
+const impactPlan = planAffectedImpact(changedFiles, {
+  metadataChanged: inventory.metadataChanged,
+  binaryChanged: inventory.binaryChanged,
+});
+assertVrtPageRoutesCurrent({ root: ROOT });
+const headAuthority = readVrtAuthority({ root: ROOT });
+headAuthority.assertCurrent();
 
 // The shared module throws on an unknown `--routes` value; this tool's contract is exit 2 with a
 // `vrt-review:` prefix, so translate rather than letting a stack trace escape.
-const selection = (() => {
+const routeSelection = (() => {
   try {
-    return selectRoutes(changedFiles, options, PIXEL_SCOPE);
+    return addExplicitVrtFullPageRoutes(
+      selectRoutes(changedFiles, options, routeModel.pixelScope),
+      options.pageRoutes,
+      { retainExplicitFixtures: options.routes !== null },
+    );
   } catch (error) {
     return fail(error.message);
   }
 })();
+// Keep the exact CLI selection independently from the reconciled result. A full common impact must
+// widen execution, but it must not erase validation or reporting of an explicitly requested page.
+const explicitRouteSelection =
+  options.routes !== null || options.pageRoutes !== null
+    ? routeSelection
+    : null;
+const explicitRouteSelectionWithMode =
+  explicitRouteSelection === null
+    ? null
+    : {
+        ...explicitRouteSelection,
+        mode:
+          explicitRouteSelection.routes === null
+            ? "full"
+            : explicitRouteSelection.routes.size > 0 ||
+                explicitRouteSelection.fullPageRoutes.size > 0 ||
+                explicitRouteSelection.icons
+              ? "selected"
+              : "none",
+      };
+const explicitSelectors =
+  explicitRouteSelection === null
+    ? null
+    : {
+        fixtureRoutes: [...explicitRouteSelection.routes].sort(),
+        fullPageRoutes: [...explicitRouteSelection.fullPageRoutes].sort(),
+      };
+const selection = reconcileVrtSelection({
+  routeSelection,
+  impactLane: impactPlan.lanes.vrt,
+  impactDigest: impactPlan.selectorDigest,
+  explicitOverride:
+    options.all || options.routes !== null || options.pageRoutes !== null,
+  includeSelectedFullPages: options.fullPages,
+});
+if (workingTreeContentHash().hash !== startTree)
+  fail("working-tree content changed during VRT authority/selector planning");
+routeModel.assertCurrent();
 const grep = buildGrep(selection, options);
+const headSelection = filterVrtSelectionForAuthority(selection, headAuthority, {
+  allowUnavailable: true,
+});
+const headExplicitSelection =
+  explicitRouteSelection === null
+    ? null
+    : filterVrtSelectionForAuthority(
+        explicitRouteSelectionWithMode,
+        headAuthority,
+        { allowUnavailable: true },
+      );
+const headExpectedLeaves = expectedVrtLeaves({
+  selection: headSelection,
+  allFullPageRoutes: headAuthority.fullPageRoutes,
+  allFixtureRoutes: headAuthority.fixtureRoutes,
+  projects: CONTRACT_PROJECTS,
+  iconChunkCount: headAuthority.iconChunkCount,
+});
 
 console.log(
   `vrt-review: base ${baseRef} (${mergeBase.slice(0, 8)}) → working tree`,
@@ -468,9 +595,29 @@ if (selection.routes !== null && grep === null) {
   );
   rmSync(OUTPUT_DIR, { recursive: true, force: true });
   writeReport({
+    schema: 1,
+    generation: "dynamic-vrt-review-v1",
+    state: "safely-skipped",
+    evidenceWritten: false,
+    receiptWritten: false,
+    evidenceEligibility: "human-review-only",
     base: { ref: baseRef, sha: mergeBase },
-    scope: { reason: "no visual surface changed", captured: false },
+    tree: { started: startTree, completed: startTree, unchanged: true },
+    scope: {
+      mode: selection.mode,
+      reason: selection.reason,
+      reasonCode: selection.reasonCode,
+      selectorDigest: selection.selectorDigest,
+      commonPlanDigest: impactPlan.selectorDigest,
+      disagreement: selection.disagreement,
+      explicitSelectors,
+      captured: false,
+      routes: [],
+      fullPageRoutes: [],
+      icons: false,
+    },
     summary: { changed: 0, unchanged: 0, new: 0, removed: 0, broken: 0 },
+    reviewState: "not-required",
     entries: [],
   });
   process.exit(0);
@@ -517,8 +664,52 @@ try {
   for (const harness of [
     "apps/docs/playwright.config.ts",
     "apps/docs/vrt/components.spec.ts",
+    "apps/docs/vrt/page-routes.ts",
   ])
     copyFileSync(join(ROOT, harness), join(worktree, harness));
+  copyFileSync(
+    join(ROOT, "tooling/sync-vrt-page-routes.mjs"),
+    join(worktree, "tooling/sync-vrt-page-routes.mjs"),
+  );
+  if (
+    run("node", ["tooling/sync-vrt-page-routes.mjs"], { cwd: worktree }) !== 0
+  )
+    throw new Error("base VRT page-route generation failed");
+  assertVrtPageRoutesCurrent({ root: worktree });
+  const baseAuthority = readVrtAuthority({ root: worktree });
+  baseAuthority.assertCurrent();
+  const baseSelection = filterVrtSelectionForAuthority(
+    selection,
+    baseAuthority,
+    {
+      allowUnavailable: true,
+    },
+  );
+  if (explicitRouteSelection !== null) {
+    const baseExplicitSelection = filterVrtSelectionForAuthority(
+      explicitRouteSelectionWithMode,
+      baseAuthority,
+      { allowUnavailable: true },
+    );
+    assertVrtSelectionAvailableOnEitherTree(
+      explicitRouteSelectionWithMode,
+      baseExplicitSelection,
+      headExplicitSelection,
+    );
+  }
+  assertVrtSelectionAvailableOnEitherTree(
+    selection,
+    baseSelection,
+    headSelection,
+  );
+  const baseExpectedLeaves = expectedVrtLeaves({
+    selection: baseSelection,
+    allFullPageRoutes: baseAuthority.fullPageRoutes,
+    allFixtureRoutes: baseAuthority.fixtureRoutes,
+    projects: CONTRACT_PROJECTS,
+    iconChunkCount: baseAuthority.iconChunkCount,
+  });
+  const routeByStem = routeByStemFor([baseAuthority, headAuthority]);
   if (run("pnpm", ["install", "--frozen-lockfile"], { cwd: worktree }) !== 0)
     throw new Error("pnpm install failed in the base worktree");
   // Build only the docs' workspace dependencies; the docs build itself is Playwright's webServer.
@@ -530,20 +721,50 @@ try {
     ) !== 0
   )
     throw new Error("workspace dependency build failed in the base worktree");
-  capture({
-    cwd: worktree,
-    snapshotDir,
-    port: options.port,
-    grep,
-    update: true,
-  });
+  const baseJsonReport = join(scratch, "base-report.json");
+  let baseTests = [];
+  let baseExecution =
+    baseExpectedLeaves.length === 0 ? reconcileVrtLeaves([], []) : null;
+  if (baseExpectedLeaves.length > 0) {
+    const baseListed = listCapture({
+      cwd: worktree,
+      snapshotDir,
+      port: options.port,
+      grep,
+    });
+    reconcileVrtLeaves(baseExpectedLeaves, baseListed);
+    const baseStatus = capture({
+      cwd: worktree,
+      snapshotDir,
+      port: options.port,
+      grep,
+      update: true,
+      jsonOutput: baseJsonReport,
+    });
+    if (baseStatus !== 0)
+      throw new Error(`the base capture exited ${baseStatus}; expected 0`);
+    if (!existsSync(baseJsonReport))
+      throw new Error("the base capture produced no structured report");
+    baseTests = flattenReport(JSON.parse(readFileSync(baseJsonReport, "utf8")));
+    baseExecution = reconcileVrtLeaves(baseExpectedLeaves, baseTests, {
+      execution: true,
+      requirePassed: true,
+    });
+  }
 
   const baseSnapshots = readdirSync(snapshotDir).filter((file) =>
     file.endsWith(".png"),
   );
-  if (baseSnapshots.length === 0)
+  const expectedSnapshotNames = baseExpectedLeaves
+    .flatMap((leaf) => snapshotNamesFor(leaf, baseAuthority))
+    .sort();
+  const actualSnapshotNames = [...baseSnapshots].sort();
+  if (
+    JSON.stringify(expectedSnapshotNames) !==
+    JSON.stringify(actualSnapshotNames)
+  )
     throw new Error(
-      "the base capture produced no images — the base build or server failed above",
+      `base snapshot universe mismatch: expected ${expectedSnapshotNames.length}, got ${actualSnapshotNames.length}`,
     );
   console.log(
     `vrt-review: base capture complete (${baseSnapshots.length} images)`,
@@ -551,22 +772,47 @@ try {
 
   console.log("\nvrt-review: [2/2] capturing the working tree…");
   const jsonReport = join(scratch, "head-report.json");
-  capture({
-    cwd: ROOT,
-    snapshotDir,
-    port: options.port + 1,
-    grep,
-    update: false,
-    jsonOutput: jsonReport,
-  });
-  if (!existsSync(jsonReport))
-    throw new Error(
-      "the working-tree capture produced no report — the build or server failed above",
-    );
-
+  let headTests = [];
+  let headExecution =
+    headExpectedLeaves.length === 0 ? reconcileVrtLeaves([], []) : null;
+  if (headExpectedLeaves.length > 0) {
+    const headListed = listCapture({
+      cwd: ROOT,
+      snapshotDir,
+      port: options.port + 1,
+      grep,
+    });
+    reconcileVrtLeaves(headExpectedLeaves, headListed);
+    const headStatus = capture({
+      cwd: ROOT,
+      snapshotDir,
+      port: options.port + 1,
+      grep,
+      update: false,
+      jsonOutput: jsonReport,
+    });
+    if (![0, 1].includes(headStatus))
+      throw new Error(
+        `the working-tree capture exited ${headStatus}; expected 0 or visual-difference exit 1`,
+      );
+    if (!existsSync(jsonReport))
+      throw new Error(
+        "the working-tree capture produced no report — the build or server failed above",
+      );
+    headTests = flattenReport(JSON.parse(readFileSync(jsonReport, "utf8")));
+    headExecution = reconcileVrtLeaves(headExpectedLeaves, headTests, {
+      execution: true,
+      requirePassed: false,
+    });
+  }
+  const completedTree = workingTreeContentHash().hash;
+  if (completedTree !== startTree)
+    throw new Error("working-tree content changed during VRT capture");
   const entries = buildEntries(
-    flattenReport(JSON.parse(readFileSync(jsonReport, "utf8"))),
+    headTests,
     baseSnapshots,
+    headAuthority,
+    routeByStem,
   );
   materialise(entries);
   // Everything needing a decision first, largest change first inside that — so a reviewer triages by
@@ -591,9 +837,44 @@ try {
     broken: count("broken"),
   };
   writeReport({
+    schema: 1,
+    generation: "dynamic-vrt-review-v1",
+    state: summary.broken > 0 ? "executed/fail" : "executed/pass",
+    evidenceWritten: true,
+    receiptWritten: false,
+    evidenceEligibility: "human-review-only",
     base: { ref: baseRef, sha: mergeBase },
-    scope: { reason: selection.reason, captured: true, grep },
+    tree: { started: startTree, completed: completedTree, unchanged: true },
+    scope: {
+      mode: selection.mode,
+      reason: selection.reason,
+      reasonCode: selection.reasonCode,
+      selectorDigest: selection.selectorDigest,
+      commonPlanDigest: impactPlan.selectorDigest,
+      disagreement: selection.disagreement,
+      explicitSelectors,
+      captured: true,
+      routes: selection.routes === null ? null : [...selection.routes].sort(),
+      fullPageRoutes:
+        selection.fullPageRoutes === null
+          ? null
+          : [...selection.fullPageRoutes].sort(),
+      icons: selection.icons,
+      grep,
+      execution: {
+        expectedLeaves: {
+          base: baseExpectedLeaves.length,
+          workingTree: headExpectedLeaves.length,
+        },
+        base: baseExecution,
+        workingTree: headExecution,
+      },
+    },
     summary,
+    reviewState:
+      summary.changed + summary.new + summary.removed + summary.broken > 0
+        ? "required"
+        : "not-required",
     entries,
   });
 
@@ -612,11 +893,39 @@ try {
   );
   if (notable.length > 0)
     console.log(
-      "vrt-review: READ the before/after/diff images for every non-unchanged entry, classify each\n" +
-        "            intended / unintended / uncertain, present the table, and STOP. Never self-clear.",
+      "vrt-review: READ every status-appropriate artifact: changed=Before/After/Difference,\n" +
+        "            new=After, removed=Before, broken=error + available artifacts then rerun.\n" +
+        "            Explain visible changes plainly, link absolute paths, and STOP. Never self-clear.",
     );
 } catch (error) {
   console.error(`vrt-review: ${error.message}`);
+  const failedTree = workingTreeContentHash().hash;
+  writeReport({
+    schema: 1,
+    generation: "dynamic-vrt-review-v1",
+    state: "unknown",
+    evidenceWritten: false,
+    receiptWritten: false,
+    evidenceEligibility: "human-review-only",
+    base: { ref: baseRef, sha: mergeBase },
+    tree: {
+      started: startTree,
+      completed: failedTree,
+      unchanged: failedTree === startTree,
+    },
+    scope: {
+      mode: selection.mode,
+      reason: selection.reason,
+      reasonCode: selection.reasonCode,
+      selectorDigest: selection.selectorDigest,
+      explicitSelectors,
+      captured: false,
+    },
+    error: error.message,
+    summary: { changed: 0, unchanged: 0, new: 0, removed: 0, broken: 0 },
+    reviewState: "unknown",
+    entries: [],
+  });
   process.exitCode = 2;
 } finally {
   if (worktreeAdded && !options.keepWorktree)

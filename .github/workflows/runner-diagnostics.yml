@@ -14,8 +14,9 @@ name: Runner diagnostics (self-hosted mac mini)
 #        queues, whereas more workers genuinely parallelises on an 8+ core mini.
 #     4. Do the real suites pass, and how long do they take?
 #
-#   Every step is `continue-on-error` so one failure still yields the complete picture, and the final
-#   step writes a verdict to the run summary.
+#   Every diagnostic probe is `continue-on-error` so one failure still yields the complete picture.
+#   The structured-report reader and final verdict are strict and fail the job on any attempted
+#   failure, missing evidence, or unknown state.
 on:
   workflow_dispatch:
     inputs:
@@ -30,6 +31,8 @@ permissions:
 jobs:
   diagnose:
     runs-on: [self-hosted, vsk-runners-mac-mini]
+    env:
+      DIAGNOSTIC_RUN_ID: runner-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -103,6 +106,8 @@ jobs:
         id: launch
         continue-on-error: true
         shell: bash
+        env:
+          LAUNCH_REPORT: ${{ runner.temp }}/browser-launch.json
         # `node --input-type=module` on stdin, with the working directory inside packages/ui, so the
         # bare `playwright` specifier resolves. A probe written to /tmp does NOT resolve — Node walks
         # up from the script's own directory, not from the workspace. Verified locally: this exact
@@ -111,6 +116,7 @@ jobs:
         run: |
           set -uo pipefail
           OUT="$(node --input-type=module <<'PROBE' 2>&1
+          import { writeFileSync } from "node:fs";
           import { chromium, firefox, webkit } from "playwright";
           const results = [];
           for (const [name, engine] of [["chromium", chromium], ["firefox", firefox], ["webkit", webkit]]) {
@@ -127,20 +133,32 @@ jobs:
           }
           for (const [name, status] of results) console.log(`${name.padEnd(9)} ${status}`);
           const ok = results.filter(([, s]) => s === "LAUNCHED").length;
+          writeFileSync(process.env.LAUNCH_REPORT, JSON.stringify({
+            schema: 1,
+            kind: "vegastack-browser-launch-diagnostic",
+            state: ok === 3 ? "pass" : "fail",
+            attempted: results.length,
+            passed: ok,
+            observations: results.map(([engine, status]) => ({
+              engine,
+              state: status === "LAUNCHED" ? "pass" : "fail",
+              detail: status,
+            })),
+          }, null, 2) + "\n", { flag: "wx", mode: 0o600 });
           console.log(`${ok}/3 engines launched`);
           process.stdout.write(`__ENGINES_OK__=${ok}\n`);
           PROBE
-          )" || true
+          )"
           echo "$OUT"
           OK="$(printf '%s' "$OUT" | sed -n 's/^__ENGINES_OK__=//p' | tail -1)"
           echo "engines_ok=${OK:-0}" >> "$GITHUB_OUTPUT"
+          test "${OK:-0}" = "3"
 
       # ── the NON-BROWSER lane the local-first topology actually depends on ────────────────────────
       #
-      # These three steps are the ones no mini has ever executed. `pnpm design:verify`,
-      # `pnpm typecheck`, and `pnpm lint` are already mini-proven (job 89606685733 passed all three
-      # and failed only on `pnpm test`), and `deploy.yml`'s `build-curated` has never once run — so
-      # the docs build, the registry build, and the consume round-trip are assumptions.
+      # These diagnostics retain the current topology's non-browser oracle on the actual runner.
+      # Earlier runs proved individual paths, but a manual diagnostic is a new dated observation,
+      # never permission to infer that a later CI, Release, or Deploy run executed.
       #
       # Nothing about them is OS-specific and all three pass on a developer Mac, so the expected
       # result is green. Run it anyway: this repository's rule is that a gate never observed passing
@@ -204,33 +222,125 @@ jobs:
           exit $STATUS
 
       - name: Vitest browser mode (a single real component test)
+        id: browser_unit
         continue-on-error: true
         run: pnpm --filter @vegastack/ui exec vitest run registry/ui/badge.test.tsx
 
       - name: DEEP — full three-engine unit suite (the lane that needed the container)
-        if: ${{ inputs.deep }}
-        continue-on-error: true
-        run: pnpm --filter @vegastack/ui test:all-browsers
-
-      - name: DEEP — contract suite, timed, at native worker count
+        id: all_browsers
         if: ${{ inputs.deep }}
         continue-on-error: true
         shell: bash
-        env:
-          SITE_VISIBILITY: public
         run: |
-          set -uo pipefail
-          PORT="$(node -e 'const s=require("net").createServer();s.listen(0,"127.0.0.1",()=>{process.stdout.write(String(s.address().port));s.close()})')"
-          echo "capture port: $PORT"
-          pnpm exec turbo run build --filter=@vegastack/docs^...
+          set -euo pipefail
+          pnpm --filter @vegastack/ui test:all-browsers \
+            --observation \
+            --run-id "$DIAGNOSTIC_RUN_ID" \
+            --report ".gates/diagnostics/runner/$DIAGNOSTIC_RUN_ID/all-browsers.json"
+
+      - name: DEEP — contract suite, timed, at native worker count
+        id: contracts
+        if: ${{ inputs.deep }}
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
           START="$(date +%s)"
-          # CI is deliberately unset so playwright.config.ts uses the LOCAL worker default
-          # (cpus/2) instead of the 1-worker CI default — the whole point is to measure what this
-          # machine can do unsharded.
-          ( cd apps/docs && CI= VRT_PORT="$PORT" pnpm exec playwright test contracts.spec.ts --reporter=line ) || true
+          node tooling/contracts-run.mjs --all --observation \
+            --run-id "$DIAGNOSTIC_RUN_ID" \
+            --report ".gates/diagnostics/runner/$DIAGNOSTIC_RUN_ID/contracts.json"
           echo "contract suite wall clock: $(( ($(date +%s) - START) / 60 ))m$(( ($(date +%s) - START) % 60 ))s"
-          PIDS="$(lsof -ti "tcp:$PORT" 2>/dev/null || true)"
-          if [ -n "$PIDS" ]; then kill -9 $PIDS || true; fi
+
+      - name: Read structured browser and contract reports
+        id: structured-reports
+        if: ${{ always() }}
+        env:
+          DEEP: ${{ inputs.deep }}
+          LAUNCH_OUTCOME: ${{ steps.launch.outcome }}
+          ALL_BROWSERS_OUTCOME: ${{ steps.all_browsers.outcome }}
+          CONTRACTS_OUTCOME: ${{ steps.contracts.outcome }}
+          LAUNCH_REPORT: ${{ runner.temp }}/browser-launch.json
+          ALL_BROWSERS_REPORT: .gates/diagnostics/runner/${{ env.DIAGNOSTIC_RUN_ID }}/all-browsers.json
+          CONTRACTS_REPORT: .gates/diagnostics/runner/${{ env.DIAGNOSTIC_RUN_ID }}/contracts.json
+          DIAGNOSTIC_RUN_ID: ${{ env.DIAGNOSTIC_RUN_ID }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { appendFileSync, existsSync, readFileSync } from 'node:fs';
+          import { BROWSER_ENGINES, FULL_CONTRACT_TESTS } from './tooling/lib/gate-profile.mjs';
+          import { expectedContractLeaves, reconcileContractLeaves } from './tooling/lib/contract-selection.mjs';
+          import { workingTreeContentHash } from './tooling/lib/change-set.mjs';
+          import { gateGeneration, localEnvironment } from './tooling/lib/measurement-report.mjs';
+          import { createRouteScopeModel } from './tooling/lib/route-scope.mjs';
+          import { vitestFullTestInventory } from './tooling/lib/smoke-scope.mjs';
+          const currentTree = workingTreeContentHash().hash;
+          const currentGeneration = gateGeneration();
+          const currentEnvironment = localEnvironment().profile;
+          const contractModel = createRouteScopeModel();
+          contractModel.assertCurrent();
+          const fullContractRoutes = [...contractModel.componentRoutes].sort();
+          const read = (path) => {
+            if (!existsSync(path)) return null;
+            try { return JSON.parse(readFileSync(path, 'utf8')); } catch { return { corrupt: true }; }
+          };
+          const launch = read(process.env.LAUNCH_REPORT);
+          const launchState =
+            process.env.LAUNCH_OUTCOME === 'cancelled' ? 'not reached' :
+            !launch || launch.corrupt ? 'unknown' :
+            process.env.LAUNCH_OUTCOME === 'success' && launch.kind === 'vegastack-browser-launch-diagnostic' &&
+              launch.state === 'pass' && launch.attempted === 3 && launch.passed === 3
+              ? 'executed/pass' : 'executed/fail';
+          const deepState = (path, outcome, gate) => {
+            if (process.env.DEEP !== 'true') return 'skipped';
+            if (outcome === 'cancelled') return 'not reached';
+            const report = read(path);
+            if (!report || report.corrupt) return 'unknown';
+            const leaves = report.executedLeaves ?? [];
+            const engines = new Set(leaves.map((leaf) => leaf.engine));
+            const fullFiles = gate === 'all-browsers' ? vitestFullTestInventory() : [];
+            const actualFiles = [...new Set(leaves.map((leaf) => leaf.file))].sort();
+            const fullBrowser = gate !== 'all-browsers' ||
+              (JSON.stringify(actualFiles) === JSON.stringify(fullFiles) &&
+                BROWSER_ENGINES.every((engine) => engines.has(engine) &&
+                  fullFiles.every((file) => leaves.some((leaf) =>
+                    leaf.file === file && leaf.engine === engine && leaf.status === 'passed'))));
+            let fullContracts = gate !== 'contracts';
+            if (gate === 'contracts') {
+              try {
+                const expected = expectedContractLeaves({ routes: fullContractRoutes });
+                const executed = reconcileContractLeaves(
+                  expected,
+                  report.leafEvidence?.executed?.leaves,
+                  'runner diagnostic',
+                  { requirePassed: true },
+                );
+                fullContracts = report.scope?.full === true &&
+                  JSON.stringify(report.scope?.routes) === JSON.stringify(fullContractRoutes) &&
+                  report.scope?.project === null && report.scope?.title === null &&
+                  report.expected === FULL_CONTRACT_TESTS && report.executed === FULL_CONTRACT_TESTS &&
+                  executed.expected === FULL_CONTRACT_TESTS && executed.executed === FULL_CONTRACT_TESTS;
+              } catch { fullContracts = false; }
+            }
+            return outcome === 'success' && report.gate === gate &&
+              report.runId === process.env.DIAGNOSTIC_RUN_ID &&
+              report.status === 'pass' && report.state === 'executed/pass' &&
+              report.diagnosticOnly === true && report.evidenceWritten === false &&
+              report.receiptWritten === false && report.evidenceEligibility === 'diagnostic-only' &&
+              report.treeBinding?.started === currentTree &&
+              report.treeBinding?.completed === currentTree && report.treeBinding?.unchanged === true &&
+              report.generation === currentGeneration &&
+              report.environmentProfile === currentEnvironment &&
+              Number.isInteger(report.executed) && report.executed > 0 &&
+              fullBrowser && fullContracts
+              ? 'executed/pass' : 'executed/fail';
+          };
+          const allBrowsersState = deepState(process.env.ALL_BROWSERS_REPORT, process.env.ALL_BROWSERS_OUTCOME, 'all-browsers');
+          const contractsState = deepState(process.env.CONTRACTS_REPORT, process.env.CONTRACTS_OUTCOME, 'contracts');
+          appendFileSync(process.env.GITHUB_OUTPUT, [
+            `launch_state=${launchState}`,
+            `all_browsers_state=${allBrowsersState}`,
+            `contracts_state=${contractsState}`,
+          ].join('\n') + '\n');
+          NODE
 
       - name: Verdict
         if: ${{ always() }}
@@ -246,8 +356,22 @@ jobs:
           BUILD_PUBLIC: ${{ steps.build_public.outcome }}
           REGISTRY: ${{ steps.registry.outcome }}
           CONSUME: ${{ steps.consume.outcome }}
+          BROWSER_UNIT: ${{ steps.browser_unit.outcome }}
+          LAUNCH_STATE: ${{ steps.structured-reports.outputs.launch_state }}
+          ALL_BROWSERS_STATE: ${{ steps.structured-reports.outputs.all_browsers_state }}
+          CONTRACTS_STATE: ${{ steps.structured-reports.outputs.contracts_state }}
+          DEEP: ${{ inputs.deep }}
         run: |
           set -uo pipefail
+          state() {
+            case "${1:-}" in
+              success) echo "executed/pass" ;;
+              failure) echo "executed/fail" ;;
+              skipped) echo "skipped" ;;
+              cancelled) echo "not reached" ;;
+              *) echo "unknown" ;;
+            esac
+          }
           {
             echo "## Runner diagnostics"
             echo
@@ -263,6 +387,10 @@ jobs:
             echo "| build, public docs export | ${BUILD_PUBLIC:-?} |"
             echo "| registry:build idempotent | ${REGISTRY:-?} |"
             echo "| consume round-trip | ${CONSUME:-?} |"
+            echo "| browser launch probe | ${LAUNCH_STATE:-unknown} |"
+            echo "| selected browser unit specimen | $(state "$BROWSER_UNIT") |"
+            echo "| complete three-engine suite | ${ALL_BROWSERS_STATE:-unknown} |"
+            echo "| complete contract suite | ${CONTRACTS_STATE:-unknown} |"
             echo
             echo "### The non-browser lane — what CI now depends on"
             echo
@@ -282,16 +410,29 @@ jobs:
             fi
             echo
             if [ "${ENGINES:-0}" = "3" ]; then
-              echo "**All three engines launch.** Every job except \`publish\` can move to the minis."
-              echo "With ${CORES:-?} cores, replace the 4-way shard matrix with a higher Playwright"
-              echo "worker count — sharding across two machines only queues."
+              echo "**All three engines launch in this diagnostic.** This does not change the"
+              echo "local-first policy or authorize moving browser lanes without a separate decision."
             elif [ "${ENGINES:-0}" = "0" ]; then
               echo "**No engine launches.** If \`launchd manager\` is not \`Aqua\`, the runner has no GUI"
               echo "session: reinstall it as a LaunchAgent under a logged-in user (or run \`./run.sh\`"
-              echo "interactively while logged in) and re-run this job. Browser jobs must stay"
-              echo "GitHub-hosted until this reads 3/3."
+              echo "interactively while logged in) and re-run this job. Browser lanes remain on"
+              echo "developer machines under current policy; do not add them to this runner."
             else
-              echo "**Partial: ${ENGINES}/3.** Move only the lanes whose engines work; see the launch step"
-              echo "for the per-engine error."
+              echo "**Partial: ${ENGINES}/3.** Keep browser lanes local; see the launch step for the"
+              echo "per-engine error."
             fi
           } | tee -a "$GITHUB_STEP_SUMMARY"
+
+          FAILED=0
+          [ "$LAUNCH_STATE" = "executed/pass" ] || FAILED=1
+          for outcome in "$TYPECHECK" "$LINT" "$BUILD_PRIVATE" "$BUILD_PUBLIC" "$REGISTRY" "$CONSUME" "$BROWSER_UNIT"; do
+            [ "$outcome" = "success" ] || FAILED=1
+          done
+          if [ "$DEEP" = "true" ]; then
+            [ "$ALL_BROWSERS_STATE" = "executed/pass" ] || FAILED=1
+            [ "$CONTRACTS_STATE" = "executed/pass" ] || FAILED=1
+          else
+            [ "$ALL_BROWSERS_STATE" = "skipped" ] || FAILED=1
+            [ "$CONTRACTS_STATE" = "skipped" ] || FAILED=1
+          fi
+          exit "$FAILED"

@@ -20,8 +20,13 @@ import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 
 import {
+  commitRangeChangeInventory,
+  defaultBaseRef,
+  mergeBase,
+  resolveCommit,
   ROOT,
   versionBumpOnly,
+  workingTreeChangeInventory,
   workingTreeContentHash,
 } from "./lib/change-set.mjs";
 import {
@@ -32,6 +37,16 @@ import {
   RECEIPT_REPO_PATH,
   verifyReceipt,
 } from "./lib/gate-receipt.mjs";
+import {
+  CHANGE_PROFILE,
+  PRODUCTION_PROFILE,
+  VALID_PROFILES,
+} from "./lib/gate-profile.mjs";
+import {
+  COMPONENT_ROUTES,
+  CONTRACT_SCOPE,
+  selectRoutes,
+} from "./lib/route-scope.mjs";
 
 const USAGE = `Usage: node tooling/verify-gate-receipt.mjs [options]
 
@@ -41,6 +56,7 @@ const USAGE = `Usage: node tooling/verify-gate-receipt.mjs [options]
   --before <ref>       classification range start, when classifying here
   --after <ref>        classification range end
   --allow-skip <gate>  accept a recorded skip for this gate (MK acknowledgement; repeatable)
+  --profile <name>     change (default) or production-full; deploy must use production-full
 
 Exit codes: 0 the receipt covers this tree · 1 it does not · 2 the guard could not run.`;
 
@@ -54,6 +70,7 @@ const options = {
   before: null,
   after: null,
   allowedSkips: [],
+  profile: CHANGE_PROFILE,
 };
 const bool = (flag, raw) => {
   if (raw === "true") return true;
@@ -73,7 +90,11 @@ for (let index = 2; index < process.argv.length; index++) {
   else if (flag === "--before") options.before = value();
   else if (flag === "--after") options.after = value();
   else if (flag === "--allow-skip") options.allowedSkips.push(value());
-  else if (flag === "--help" || flag === "-h") {
+  else if (flag === "--profile") {
+    options.profile = value();
+    if (!VALID_PROFILES.has(options.profile))
+      fatal(`${flag} must be ${CHANGE_PROFILE} or ${PRODUCTION_PROFILE}`);
+  } else if (flag === "--help" || flag === "-h") {
     console.log(USAGE);
     process.exit(0);
   } else fatal(`unknown option ${flag}\n\n${USAGE}`);
@@ -119,6 +140,29 @@ if (unclassified.length > 0) {
 const { hash: treeHash, files } = workingTreeContentHash();
 const receipt = readReceipt();
 
+// Reconstruct the scoped route universe directly from this checkout. The classifier decides which
+// lanes to schedule; it is never the trust root for which contract leaves a receipt must contain.
+const contractRoutes = (() => {
+  if (options.profile === PRODUCTION_PROFILE) return [...COMPONENT_ROUTES];
+  const beforeRef = options.before ?? defaultBaseRef();
+  const before = resolveCommit(beforeRef);
+  if (!before) fatal(`--before ref does not resolve to a commit: ${beforeRef}`);
+  const after = options.after ? resolveCommit(options.after) : null;
+  if (options.after && !after)
+    fatal(`--after ref does not resolve to a commit: ${options.after}`);
+  const rangeStart = after ? before : (mergeBase(before, "HEAD") ?? before);
+  const inventory = after
+    ? commitRangeChangeInventory(rangeStart, after)
+    : workingTreeChangeInventory(rangeStart);
+  const selection =
+    inventory.metadataChanged.size > 0 || inventory.binaryChanged.size > 0
+      ? { routes: null }
+      : selectRoutes(inventory.changedFiles, {}, CONTRACT_SCOPE);
+  return selection.routes === null
+    ? [...COMPONENT_ROUTES]
+    : [...selection.routes].sort();
+})();
+
 /**
  * Re-derive the carry proof from git rather than trusting the receipt's word for it. Both tree
  * objects are reachable in a full clone, so this is a local computation — and it is the difference
@@ -153,9 +197,20 @@ const { problems } = verifyReceipt(receipt, {
   contractSha: contractSha256(),
   allowedSkips: options.allowedSkips,
   carryVerified,
+  profile: options.profile,
+  contractRoutes,
 });
 
 console.log(`verify-gate-receipt: tree ${treeHash} (${files} files)`);
+const acceptedStrongerProfile =
+  options.profile === CHANGE_PROFILE && receipt.profile === PRODUCTION_PROFILE;
+console.log(
+  `verify-gate-receipt: required profile ${options.profile}` +
+    (acceptedStrongerProfile
+      ? " · accepted stronger production-full receipt"
+      : "") +
+    ` · ${acceptedStrongerProfile ? COMPONENT_ROUTES.length : contractRoutes.length} authoritative contract route(s) reconstructed`,
+);
 if (!receipt.__unreadable) {
   console.log(
     `verify-gate-receipt: receipt written ${receipt.writtenAt} on ${receipt.host?.platform}/${receipt.host?.arch} ` +

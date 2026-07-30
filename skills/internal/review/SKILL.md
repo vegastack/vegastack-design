@@ -39,8 +39,9 @@ worth a review slot, and a green claim that is actually red is the most valuable
 node tooling/design-lint.mjs packages/ui/registry                    # component source, all rules
 node tooling/design-lint.mjs --token-css packages/design-tokens/src  # token CSS (!important only)
 node tooling/design-lint.mjs --token-css apps/docs/app               # docs app CSS (!important only)
+node tooling/verify-operator-docs.mjs                                # current topology claims + negative fixtures
 pnpm lint && pnpm typecheck
-pnpm gates:ship                                  # the full sweep, including all 96 contract routes
+pnpm gates:ship                                  # the full sweep, including all 108 contract routes
 pnpm registry:build && git status --porcelain    # must be idempotent — clean tree after
 pnpm design:derived && git status --porcelain    # contract-derived surfaces must be current
 pnpm classify                                    # which gates this change REQUIRES, and why
@@ -114,6 +115,23 @@ Work these in order; each is a distinct failure class, not a checklist to skim.
    note the mismatch.
 9. **Regression pressure.** For each fix landed this round, ask what it could plausibly have broken,
    and check that specifically.
+10. **Measurement provenance.** Compare timing/cost claims only inside matching implementation,
+    environment, cache/cold, engine, and route/check cohorts. Require sample size and one of measured,
+    API-reported, modeled, estimate, or unknown. A mixed cohort or relabeled unknown is a finding.
+11. **Workflow terminal states.** An upload/version ID is not a deployment pass. Confirm CI verify
+    needs receipt-guard, the no-cache experiment is explicitly enabled and runner-pinned, and
+    `deployment-complete` depends on the unskipped external probe with no `always()` or
+    `continue-on-error` escape.
+12. **Release-state closure.** Force npm timeout/5xx/malformed/wrong-version and all-empty Changesets
+    inputs. They must block, while only exact E404 may select `versioned-unpublished`. Confirm
+    registry-only `published` skips hosted npm jobs, one-published/one-missing resumes them, retrying
+    cannot infer a publish, and the post-publish exact-version readback remains mandatory.
+13. **Deploy-candidate containment.** Confirm Release creates a candidate only after its
+    already-required exact-main quality build, and Deploy still runs an unconditional exact-tree
+    rebuild. Force missing, expired, wrong producer/SHA, malformed digest/manifest, tamper, duplicate
+    live artifact, and parity mismatch. Missing/expired must fall back; every live invalid claim must
+    fail before signing/credentials. Candidate bytes must be absent from `sign-curated` and
+    `deploy-curated`. Reuse remains shadow-only until D4 has explicit MK approval and a code change.
 
 ## 6. Registry integrity drift
 
@@ -154,7 +172,7 @@ severity. **If the task was an audit, stop here — report, never auto-fix.**
 
 ## 8. Visual review discipline
 
-Visual verification is split: **behaviour** is a gate (`apps/docs/vrt/contracts.spec.ts`, 768 checks,
+Visual verification is split: **behaviour** is a gate (`apps/docs/vrt/contracts.spec.ts`, 864 checks,
 no screenshots, no baselines) that runs in `.husky/pre-push` and is attested to CI by
 `.gates/receipt.json`; **pixels** are a local review step (`tooling/vrt-review.mjs`, before/after on
 one machine, nothing committed).
@@ -163,6 +181,10 @@ one machine, nothing committed).
 browser, so a review that accepts "CI was green" as evidence the contracts ran has accepted nothing.
 Check the receipt actually covers the tree and carries the lanes the change required:
 
+For smoke-trigger changes, mutate a dependency of a selected component (Button is the canonical
+specimen) and require smoke. Check the generated Vitest-related comparison; disagreement must widen,
+never subtract a registry-reachable test.
+
 ```bash
 pnpm gates:verify-receipt          # classifies the change itself, then verifies
 node -p "const r=require('./.gates/receipt.json'); [r.tree, r.mode, JSON.stringify(r.gates)].join('\\n')"
@@ -170,6 +192,55 @@ node -p "const r=require('./.gates/receipt.json'); [r.tree, r.mode, JSON.stringi
 
 A receipt whose `skips[]` is non-empty is a finding regardless of how the run looks: it means
 `GATES_SKIP` was used and a browser lane did not run.
+
+Do not confuse receipt `skips[]` with a Vitest report's `runtimeExclusions`. The latter may contain
+only the five exact source-bound Firefox Dropzone paste leaves for the
+`synthetic-clipboard-files` capability. Force an arbitrary `test.skip`, `skipIf(true)`, partial-file
+skip, wrong file/engine/name, stale authority/source binding, dead/deferred/aliased registration, and
+a required listed leaf that skips; each must fail. Also remove one or all five approved leaves from
+both universes: absence must fail. Every direct top-level registration must occur exactly once as
+reporter-excluded or independently listed and passed; an empty exclusion manifest proves recovery
+only in the latter case. The canonical required selector/digest excludes only the exact allowlisted
+leaves, and the report must persist the independently reconstructable exclusion manifest.
+
+For an unchanged ship→commit→push sequence, inspect `.gates/reuse-plan.json` and the final receipt.
+Reuse remains shadow-only, so the push report must still show the complete planned oracle. The
+production-full receipt may dominate a later successful weaker change receipt only on the same exact
+tree/toolchain/authority; a carried or stale receipt is ineligible. A later failure must remain
+visible and must make the retained receipt ineligible for reuse.
+
+For retry changes, force empty, renamed, stale-tree, unknown engine/project/route, and zero-executed
+selectors. A valid retry report must be nonempty, `diagnosticOnly: true`, and
+`evidenceWritten: false`; hash the original failure and receipt before/after. A retry pass that
+removes the original failure, writes evidence, or becomes receipt input is a high finding.
+
+For affected-planner changes, mutation-test prose, workflow, exact unit test, smoke dependency,
+single route, foundational reverse closure, `_headers`, one registry graph, global inputs, unknown
+paths, deletion, mode, symlink, and every referenced Turbo external tool. The planner is shadow-only:
+the current oracle must still run, `.gates/receipt.json` and `.gates/evidence/` must remain unchanged,
+and corrupt/partial/conflicting samples must block checkpoint readiness. A push-only observation is
+not a checkpoint sample; only a complete `--oracle ship` result may count. Any skip before 30
+representative production-full zero-escape samples plus MK approval is high. Any claim that affected or cross-tree
+evidence satisfies production-full is high under current policy.
+The current authority has no agreeing greater-than-six-route foundation fixture, so the cohort is
+machine-blocked at 0/30. Do not collect qualifying checkpoint samples before MK resolves that
+authority/policy blocker; treat collection instructions or synthetic substitutes as a high finding.
+
+Also force the dynamic taxonomy in both directions. Operational prose may safely select no product
+lane, but rendered MDX must retain its docs build and page VRT; a canonical component must include
+every reachable dependent from registry and actual imports; shared runtime/style/toolchain inputs and
+unknown or metadata changes must widen. Exercise relative utilities, aliases, barrels/re-exports,
+literal and computed dynamic imports, deletion, rename, symlink, mode, binary, untracked, generated,
+and mixed changes. Registry/import/Vitest/route disagreement choosing the smaller set is high. A
+selected lane that lists or executes zero leaves, a safe skip without a machine reason/digest, or any
+selected result presented as production-full is high.
+
+For consume-runner changes, inspect the structured report rather than its exit code. Every selected
+root/layout needs a unique fresh consumer, a nonempty target/digest manifest, post-write pass, and
+typecheck pass. Conflicting target bytes across isolated roots are high. Full mode must separately
+show both consolidated layouts, the complete authority count, collision pass, post-write pass, and
+whole-layout typecheck. `evidenceReusable` or `receiptWritten` must be false. D1 remains open, so any
+CI/Release/full-ship consume skip is high even when the affected report passes.
 
 Reviewing a before/after report:
 
