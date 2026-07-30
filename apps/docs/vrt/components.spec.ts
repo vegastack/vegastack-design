@@ -205,6 +205,19 @@ describeVRT("VRT — component fixtures", () => {
         const clip = await fixture.boundingBox();
         if (clip === null)
           throw new Error("OTP VRT fixture has no screenshot rectangle");
+        const viewport = page.viewportSize();
+        if (viewport === null)
+          throw new Error("OTP VRT fixture has no viewport");
+        if (
+          ![clip.x, clip.y, clip.width, clip.height].every(Number.isFinite) ||
+          clip.x < 0 ||
+          clip.y < 0 ||
+          clip.width <= 0 ||
+          clip.height <= 0 ||
+          clip.x + clip.width > viewport.width ||
+          clip.y + clip.height > viewport.height
+        )
+          throw new Error("OTP VRT fixture rectangle is outside the viewport");
         await expect(page).toHaveScreenshot(snapshotName, {
           animations: "disabled",
           caret: "hide",
@@ -213,7 +226,7 @@ describeVRT("VRT — component fixtures", () => {
           scale: "css",
           threshold: 0,
         });
-      } else
+      } else {
         await expect(fixture).toHaveScreenshot(snapshotName, {
           animations: "disabled",
           caret: "hide",
@@ -221,6 +234,7 @@ describeVRT("VRT — component fixtures", () => {
           scale: "css",
           threshold: 0,
         });
+      }
     });
   }
 });

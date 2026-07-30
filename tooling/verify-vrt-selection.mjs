@@ -12,6 +12,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import ts from "typescript";
 
 import {
   addExplicitVrtFullPageRoutes,
@@ -672,6 +673,226 @@ assert.deepEqual(
 
 export function vrtHarnessProblems(source) {
   const problems = [];
+  const sourceFile = ts.createSourceFile(
+    "components.spec.ts",
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  if (sourceFile.parseDiagnostics.length > 0) {
+    problems.push("[fixture-structure] VRT harness must parse as TSX");
+    return problems;
+  }
+
+  let stabilizeFunction;
+  let fixtureCallback;
+  const visit = (node) => {
+    if (
+      ts.isFunctionDeclaration(node) &&
+      node.name?.text === "stabilizeComponentFixture"
+    )
+      stabilizeFunction = node;
+    if (
+      ts.isCallExpression(node) &&
+      ts.isIdentifier(node.expression) &&
+      node.expression.text === "test" &&
+      ts.isTemplateExpression(node.arguments[0]) &&
+      node.arguments[0].head.text === "VRT state " &&
+      ts.isArrowFunction(node.arguments[1])
+    )
+      fixtureCallback = node.arguments[1];
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+
+  const textOf = (node) => node?.getText(sourceFile) ?? "";
+  const isAwaitStatement = (statement, fragments) => {
+    if (
+      !statement ||
+      !ts.isExpressionStatement(statement) ||
+      !ts.isAwaitExpression(statement.expression)
+    )
+      return false;
+    const text = textOf(statement);
+    return fragments.every((fragment) => text.includes(fragment));
+  };
+  const isExactThrowGuard = (statement, condition, message) =>
+    Boolean(statement) &&
+    ts.isIfStatement(statement) &&
+    textOf(statement.expression) === condition &&
+    (ts.isThrowStatement(statement.thenStatement) ||
+      (ts.isBlock(statement.thenStatement) &&
+        statement.thenStatement.statements.some(ts.isThrowStatement))) &&
+    textOf(statement.thenStatement).includes(message);
+  const flattenOrOperands = (expression) => {
+    if (
+      ts.isBinaryExpression(expression) &&
+      expression.operatorToken.kind === ts.SyntaxKind.BarBarToken
+    )
+      return [
+        ...flattenOrOperands(expression.left),
+        ...flattenOrOperands(expression.right),
+      ];
+    return [textOf(expression)];
+  };
+  const exactTexts = (actual, expected) =>
+    actual.length === expected.length &&
+    actual.every((value, index) => value === expected[index]);
+
+  if (!stabilizeFunction?.body) {
+    problems.push(
+      "[fixture-structure] OTP readiness must remain a named executable function",
+    );
+  } else {
+    const statements = [...stabilizeFunction.body.statements];
+    const guard = statements[0];
+    if (
+      statements.length !== 7 ||
+      !ts.isIfStatement(guard) ||
+      textOf(guard.expression) !== 'path !== "/docs/components/otp-input"' ||
+      !ts.isReturnStatement(guard.thenStatement)
+    )
+      problems.push(
+        "[fixture-control-flow] OTP readiness must have one exact guard followed by the complete ordered proof with no early exit",
+      );
+    if (
+      !ts.isVariableStatement(statements[1]) ||
+      !textOf(statements[1]).includes(
+        `fixture.locator('[data-slot="otp-input"]')`,
+      )
+    )
+      problems.push(
+        "[fixture-control-flow] OTP state authority must be established on the executable proof path",
+      );
+    for (const [index, label, fragments] of [
+      [2, "count", ["expect(", "states", ".toHaveCount(5)"]],
+      [3, "layout", ["expect", ".poll(", ".toBe(5)"]],
+      [4, "scroll-reset", ["fixture.evaluate", "element.scrollTop = 0"]],
+      [5, "scroll-anchor", ["states.first().scrollIntoViewIfNeeded()"]],
+      [
+        6,
+        "containment",
+        [
+          "expect",
+          ".poll(",
+          "box.top >= fixtureBox.y",
+          "box.bottom <= fixtureBox.y + fixtureBox.height",
+          ".toBe(true)",
+        ],
+      ],
+    ])
+      if (!isAwaitStatement(statements[index], fragments))
+        problems.push(
+          `[fixture-${label}-execution] OTP ${label} proof must be a directly awaited ordered statement`,
+        );
+  }
+
+  if (!fixtureCallback || !ts.isBlock(fixtureCallback.body)) {
+    problems.push(
+      "[fixture-structure] component fixture capture must remain an executable test callback",
+    );
+  } else {
+    const statements = [...fixtureCallback.body.statements];
+    const readinessIndex = statements.findIndex((statement) =>
+      isAwaitStatement(statement, ["stabilizeComponentFixture(path, fixture)"]),
+    );
+    const branchIndex = statements.findIndex(
+      (statement) =>
+        ts.isIfStatement(statement) &&
+        textOf(statement.expression) ===
+          'path === "/docs/components/otp-input"',
+    );
+    if (readinessIndex < 0 || branchIndex < 0 || readinessIndex > branchIndex)
+      problems.push(
+        "[fixture-order] directly awaited readiness must precede the exact executable OTP capture branch",
+      );
+
+    const branch = branchIndex >= 0 ? statements[branchIndex] : undefined;
+    if (
+      !branch ||
+      !ts.isIfStatement(branch) ||
+      !ts.isBlock(branch.thenStatement) ||
+      !branch.elseStatement ||
+      !ts.isBlock(branch.elseStatement)
+    ) {
+      problems.push(
+        "[fixture-capture-structure] OTP and ordinary captures must be explicit executable sibling blocks",
+      );
+    } else {
+      const otp = [...branch.thenStatement.statements];
+      if (otp.length !== 6)
+        problems.push(
+          "[fixture-capture-control-flow] OTP capture must contain exactly derive, null-check, viewport, viewport-check, geometry-check, and capture",
+        );
+      if (
+        !ts.isVariableStatement(otp[0]) ||
+        textOf(otp[0]) !== "const clip = await fixture.boundingBox();"
+      )
+        problems.push(
+          "[fixture-page-clip-box] OTP clip must be directly derived once from the verified fixture",
+        );
+      if (
+        !isExactThrowGuard(otp[1], "clip === null", "no screenshot rectangle")
+      )
+        problems.push(
+          "[fixture-page-clip-null] a missing OTP fixture rectangle must fail closed on the executed branch",
+        );
+      if (
+        !ts.isVariableStatement(otp[2]) ||
+        textOf(otp[2]) !== "const viewport = page.viewportSize();"
+      )
+        problems.push(
+          "[fixture-page-clip-viewport] OTP capture must derive the current page viewport",
+        );
+      if (!isExactThrowGuard(otp[3], "viewport === null", "no viewport"))
+        problems.push(
+          "[fixture-page-clip-viewport] a missing OTP viewport must fail closed",
+        );
+      if (
+        !otp[4] ||
+        !ts.isIfStatement(otp[4]) ||
+        !(
+          ts.isThrowStatement(otp[4].thenStatement) ||
+          (ts.isBlock(otp[4].thenStatement) &&
+            otp[4].thenStatement.statements.some(ts.isThrowStatement))
+        ) ||
+        !textOf(otp[4].thenStatement).includes("outside the viewport") ||
+        !exactTexts(flattenOrOperands(otp[4].expression), [
+          "![clip.x, clip.y, clip.width, clip.height].every(Number.isFinite)",
+          "clip.x < 0",
+          "clip.y < 0",
+          "clip.width <= 0",
+          "clip.height <= 0",
+          "clip.x + clip.width > viewport.width",
+          "clip.y + clip.height > viewport.height",
+        ])
+      )
+        problems.push(
+          "[fixture-page-clip-geometry] OTP clip must be finite, positive, and wholly inside the viewport immediately before capture",
+        );
+      if (
+        !isAwaitStatement(otp[5], [
+          "expect(page).toHaveScreenshot(snapshotName",
+          "clip,",
+        ])
+      )
+        problems.push(
+          "[fixture-page-clip-capture] OTP page clipping must be a directly awaited terminal statement",
+        );
+
+      const ordinary = [...branch.elseStatement.statements];
+      if (
+        ordinary.length !== 1 ||
+        !isAwaitStatement(ordinary[0], [
+          "expect(fixture).toHaveScreenshot(snapshotName",
+        ])
+      )
+        problems.push(
+          "[fixture-locator-default] non-OTP fixtures must retain one directly awaited locator screenshot",
+        );
+    }
+  }
   if (!/if \(path !== "\/docs\/components\/otp-input"\) return;/.test(source))
     problems.push(
       "[fixture-route] OTP readiness must apply to the exact OTP fixture route",
@@ -729,7 +950,7 @@ export function vrtHarnessProblems(source) {
     problems.push(
       "[fixture-page-clip-capture] OTP must use a page screenshot clipped to the verified fixture rectangle",
     );
-  if (!/else\s+await expect\(fixture\)\.toHaveScreenshot\(/.test(source))
+  if (!/else\s+\{\s+await expect\(fixture\)\.toHaveScreenshot\(/.test(source))
     problems.push(
       "[fixture-locator-default] non-OTP fixtures must retain locator screenshot coverage",
     );
@@ -872,14 +1093,111 @@ for (const [label, source, expected] of [
   [
     "non-OTP locator capture removed",
     harnessSource.replace(
-      "else\n        await expect(fixture).toHaveScreenshot(",
-      "if (false)\n        await expect(fixture).toHaveScreenshot(",
+      "} else {\n        await expect(fixture).toHaveScreenshot(",
+      "} else {\n        if (false) await expect(fixture).toHaveScreenshot(",
     ),
     /fixture-locator-default/,
   ],
+  [
+    "OTP page screenshot made unreachable",
+    harnessSource.replace(
+      "await expect(page).toHaveScreenshot(snapshotName,",
+      "if (false) await expect(page).toHaveScreenshot(snapshotName,",
+    ),
+    /fixture-page-clip-capture|fixture-capture-control-flow/,
+  ],
+  [
+    "OTP clip overwritten after derivation",
+    harnessSource.replace(
+      'if (clip === null)\n          throw new Error("OTP VRT fixture has no screenshot rectangle");',
+      'if (clip === null)\n          throw new Error("OTP VRT fixture has no screenshot rectangle");\n        Object.assign(clip, { x: 0, y: 0, width: 1, height: 1 });',
+    ),
+    /fixture-capture-control-flow/,
+  ],
+  [
+    "OTP branch exits before capture",
+    harnessSource.replace(
+      'if (path === "/docs/components/otp-input") {',
+      'if (path === "/docs/components/otp-input") {\n        return;',
+    ),
+    /fixture-capture-control-flow|fixture-page-clip-box/,
+  ],
+  [
+    "readiness made unreachable",
+    harnessSource.replace(
+      "await stabilizeComponentFixture(path, fixture);",
+      "if (false) await stabilizeComponentFixture(path, fixture);",
+    ),
+    /fixture-order/,
+  ],
+  [
+    "containment promise ignored",
+    harnessSource.replace(
+      "  await expect\n    .poll(\n      async () => {\n        const fixtureBox",
+      "  void expect\n    .poll(\n      async () => {\n        const fixtureBox",
+    ),
+    /fixture-containment-execution/,
+  ],
+  [
+    "viewport no longer derived from page",
+    harnessSource.replace(
+      "const viewport = page.viewportSize();",
+      "const viewport = { width: 1, height: 1 };",
+    ),
+    /fixture-page-clip-viewport/,
+  ],
+  [
+    "missing viewport accepted",
+    harnessSource.replace(
+      'if (viewport === null)\n          throw new Error("OTP VRT fixture has no viewport");',
+      "void viewport;",
+    ),
+    /fixture-page-clip-viewport|fixture-capture-control-flow/,
+  ],
+  [
+    "clip null guard short-circuited",
+    harnessSource.replace("if (clip === null)", "if (false && clip === null)"),
+    /fixture-page-clip-null/,
+  ],
+  [
+    "viewport null guard short-circuited",
+    harnessSource.replace(
+      "if (viewport === null)",
+      "if (false && viewport === null)",
+    ),
+    /fixture-page-clip-viewport/,
+  ],
+  [
+    "geometry guard short-circuited",
+    harnessSource.replace(
+      "![clip.x, clip.y, clip.width, clip.height].every(Number.isFinite) ||",
+      "false && ![clip.x, clip.y, clip.width, clip.height].every(Number.isFinite) ||",
+    ),
+    /fixture-page-clip-geometry/,
+  ],
+  [
+    "non-finite clip accepted",
+    harnessSource.replace(
+      "![clip.x, clip.y, clip.width, clip.height].every(Number.isFinite) ||",
+      "false ||",
+    ),
+    /fixture-page-clip-geometry/,
+  ],
+  ...[
+    ["negative x accepted", "clip.x < 0 ||"],
+    ["negative y accepted", "clip.y < 0 ||"],
+    ["zero width accepted by clip", "clip.width <= 0 ||"],
+    ["zero height accepted by clip", "clip.height <= 0 ||"],
+    ["right overflow accepted", "clip.x + clip.width > viewport.width ||"],
+    ["bottom overflow accepted", "clip.y + clip.height > viewport.height"],
+  ].map(([label, check]) => [
+    label,
+    harnessSource.replace(check, check.endsWith("||") ? "false ||" : "false"),
+    /fixture-page-clip-geometry/,
+  ]),
 ])
   assert.match(vrtHarnessProblems(source).join("\n"), expected, label);
 
 console.log(
-  "✓ VRT selection: exact diagnostics, 7 report mutations, and 19 fixture-readiness/clip mutations verified",
+  "✓ VRT selection: exact diagnostics, 7 report mutations, and 36 structural fixture/clip mutations verified",
 );
