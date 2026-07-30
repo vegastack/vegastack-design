@@ -677,3 +677,12 @@ mutations include every reproduced escape. Same-tree commit
 `8a5cd944079ee85ec43285bdb5bc23bb5105c7ac` again executed all four leaves and reported 0 changed /
 4 unchanged / 0 new / 0 removed / 0 broken. This round remains open until the independent reviewer
 attacks the new HEAD and reports 0 high / 0 medium; terminal ship and receipt remain separate.
+
+The next full lint review found one additional medium completion blocker: the classifier mutation
+harness unconditionally committed its copied closure. On frozen HEAD those bytes were already
+identical, so fixture setup failed with Git's `nothing added to commit` before testing the classifier.
+The root fix distinguishes a clean staged diff from a real staged delta, preserves HEAD for the
+former, commits only the latter, and propagates every unexpected Git status. Both paths have direct
+fixture assertions; clean committed `9d6ff0df` passes all 74 classifier assertions. The unchanged-
+scope review remains open until the full serial chain is rerun; this focused pass is not final ship
+or receipt evidence.

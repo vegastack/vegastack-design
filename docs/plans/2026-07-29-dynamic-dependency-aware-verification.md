@@ -593,3 +593,10 @@ negative, zero-size, and overflow cases plus the original route/readiness/defaul
 second exact same-tree run at `8a5cd944079ee85ec43285bdb5bc23bb5105c7ac` reported 0 changed /
 4 unchanged / 0 new / 0 removed / 0 broken (`n=4`; cold base 7.0m, warm head 3.2m; CPU/RSS/thermal
 unknown). This additional proof remains VRT diagnostic evidence only.
+
+The final frozen-head review also exposed a verifier-only assumption: the classifier mutation clone
+unconditionally committed the copied current module closure. Once that closure was already committed,
+Git returned `nothing added to commit` and root lint stopped before classifier assertions. Fixture
+setup now preserves HEAD when the staged closure is identical, commits only a real staged delta, and
+propagates unexpected Git failures. Direct fixtures cover both branches; clean commit `9d6ff0df`
+passes 74 classifier assertions. No classifier selection or rollout behavior changed.

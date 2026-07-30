@@ -1040,3 +1040,13 @@ each was invisible in review and each is the kind that would have degraded the t
 - **Evidence:** 44 structural mutations pass, docs TS passes, and a fresh exact same-tree four-project
   run on `8a5cd944079ee85ec43285bdb5bc23bb5105c7ac` is 0 changed / 4 unchanged. Review remains open
   pending the independent unchanged-scope rerun; no receipt or production authority is inferred.
+
+## 2026-07-30 — Frozen classifier-fixture closure
+
+- **Medium completion blocker:** classifier negatives passed while sources were dirty but the same
+  verifier failed after commit because it tried to create an empty harness commit.
+- **Decision:** never use `--allow-empty`. Query the staged diff: preserve HEAD when copied bytes are
+  identical, commit only a real staged closure delta, and fail on any unexpected Git status.
+- **Evidence:** direct fixtures prove unchanged and changed staging paths, and a clean committed-HEAD
+  run reports all 74 assertions passing. This repairs verification setup only; classifier behavior,
+  scheduling, receipts, and rollout flags are unchanged. Full review closure still follows.

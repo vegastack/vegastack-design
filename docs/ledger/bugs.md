@@ -891,3 +891,16 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   executed four viewport-bounded leaves and reported 0 changed / 4 unchanged / 0 new / 0 removed /
   0 broken (cold base 7.0m, warm head 3.2m; CPU/RSS/thermal unknown). The terminal-method verifier
   commits change no rendered source. Final review closure remains separate.
+
+## 2026-07-30 — Classifier mutation harness failed on a frozen clean HEAD
+
+- **Symptom:** full `pnpm lint` reached `verify-classify-change.mjs`, copied the current classifier
+  closure into a clone of the same committed HEAD, then unconditionally ran `git commit`. With no
+  staged delta, Git correctly exited 1 (`nothing added to commit`), so the positive verifier failed.
+- **Root cause:** fixture setup assumed current source bytes were necessarily newer than cloned HEAD.
+  That was true during dirty implementation but false at the exact final state the verifier exists
+  to validate.
+- **Systemic fix:** inspect the staged diff first. Status 0 means the harness is already current and
+  HEAD is preserved; status 1 commits the real closure delta; any other Git failure propagates. A
+  self-contained fixture proves both paths and clean committed HEAD `9d6ff0df` passes all 74
+  classifier assertions. No `--allow-empty` bypass is used.
