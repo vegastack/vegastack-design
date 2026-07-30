@@ -899,7 +899,9 @@ function readStructuredReport(path) {
 /**
  * Freeze every passing browser/contract report into validated in-memory facts immediately before
  * receipt synthesis. Child exit codes are insufficient: deletion, partial writes, stale reports,
- * diagnostic substitutions, skipped leaves, and same-count replacements must all hard-fail here.
+ * diagnostic substitutions, pre-listed required leaves that skip, and same-count replacements must
+ * all hard-fail here. Reporter-visible environment exclusions outside the canonical pre-run list
+ * remain diagnostic facts and never enter the required receipt universe.
  */
 function freezeReceiptReports(profile, tree) {
   const frozen = {};

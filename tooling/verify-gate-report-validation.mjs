@@ -70,6 +70,99 @@ const vitestContext = {
   expectedFiles: ["packages/ui/a.test.tsx"],
 };
 assert.deepEqual(validateVitestGateReport(vitest, vitestContext).problems, []);
+const vitestWithReportedExclusion = structuredClone(vitest);
+vitestWithReportedExclusion.results.skipped = 1;
+vitestWithReportedExclusion.executedLeaves.push({
+  file: "packages/ui/a.test.tsx",
+  engine: "firefox",
+  testName: "environment-inexpressible case",
+  status: "skipped",
+});
+const exclusionValidation = validateVitestGateReport(
+  vitestWithReportedExclusion,
+  vitestContext,
+);
+assert.deepEqual(
+  exclusionValidation.problems,
+  [],
+  "a runtime-reported skip omitted from the pre-run canonical list remains visible but is not a required evidence leaf",
+);
+assert.equal(
+  exclusionValidation.leafManifest.length,
+  3,
+  "only pre-listed required leaves may enter passing evidence",
+);
+assert.equal(
+  exclusionValidation.excludedLeafManifest.length,
+  1,
+  "runtime-reported exclusions remain visible for diagnosis",
+);
+for (const [label, mutate, expected] of [
+  [
+    "excluded count mismatch",
+    (value) => (value.results.skipped = 2),
+    /skip counts disagree/,
+  ],
+  [
+    "missing visible excluded leaf",
+    (value) => value.executedLeaves.pop(),
+    /skip counts disagree/,
+  ],
+  [
+    "duplicate excluded leaf",
+    (value) => {
+      value.executedLeaves.push(structuredClone(value.executedLeaves.at(-1)));
+      value.results.skipped = 2;
+    },
+    /duplicates/,
+  ],
+  [
+    "excluded leaf outside file authority",
+    (value) =>
+      (value.executedLeaves.at(-1).file = "packages/ui/foreign.test.tsx"),
+    /outside the independent lane universe/,
+  ],
+  [
+    "excluded leaf outside engine authority",
+    (value) => (value.executedLeaves.at(-1).engine = "unknown-engine"),
+    /outside the independent lane universe/,
+  ],
+  [
+    "unknown runtime status",
+    (value) => (value.executedLeaves.at(-1).status = "unknown"),
+    /skip counts disagree|required Vitest leaf/,
+  ],
+  [
+    "excluded leaf smuggled into required selection",
+    (value) => {
+      const leaf = value.executedLeaves.at(-1);
+      value.selection.leafManifest.push(
+        `${leaf.file}\0${leaf.engine}\0${leaf.testName}`,
+      );
+    },
+    /pre-listed required Vitest leaf was skipped/,
+  ],
+]) {
+  const value = structuredClone(vitestWithReportedExclusion);
+  mutate(value);
+  assert.match(
+    validateVitestGateReport(value, vitestContext).problems.join("\n"),
+    expected,
+    label,
+  );
+}
+
+const prelistedRuntimeSkip = structuredClone(vitest);
+prelistedRuntimeSkip.executed = 2;
+prelistedRuntimeSkip.results = { passed: 2, failed: 0, skipped: 1 };
+prelistedRuntimeSkip.executedLeaves[0].status = "skipped";
+assert.match(
+  validateVitestGateReport(prelistedRuntimeSkip, vitestContext).problems.join(
+    "\n",
+  ),
+  /pre-listed required Vitest leaf was skipped/,
+  "a required leaf that dynamically skips after pre-listing cannot become passing evidence",
+);
 assert.match(
   validateVitestGateReport(vitest, {
     ...vitestContext,
@@ -342,5 +435,5 @@ assert.throws(
 );
 
 console.log(
-  "✓ gate report validation: deletion/corruption/stale tree/run/toolchain, zero/skipped/engine/leaf/diagnostic/flaky mutations fail closed",
+  "✓ gate report validation: deletion/corruption/stale tree/run/toolchain, required-skip/exclusion/engine/leaf/diagnostic/flaky mutations fail closed",
 );

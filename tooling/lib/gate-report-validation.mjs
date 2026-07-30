@@ -111,10 +111,9 @@ export function validateVitestGateReport(report, context) {
     fail("executed count must be a positive integer");
   if (
     report.results?.passed !== report.executed ||
-    report.results?.failed !== 0 ||
-    report.results?.skipped !== 0
+    report.results?.failed !== 0
   )
-    fail("pass/fail/skip counts do not prove every required test passed");
+    fail("pass/fail counts do not prove every required test passed");
   if (
     (report.failures?.length ?? -1) !== 0 ||
     (report.unhandledErrors?.length ?? -1) !== 0
@@ -132,28 +131,58 @@ export function validateVitestGateReport(report, context) {
   const validLeaves = leaves.filter(Boolean);
   if (new Set(validLeaves).size !== validLeaves.length)
     fail("executed leaf manifest contains duplicates");
-  if (validLeaves.length !== report.executed)
+  // Vitest can omit an environment-specific `test.skipIf` definition from `vitest list` while its
+  // runtime reporter still retains that definition as skipped. The independently reconciled pre-run
+  // list is the required universe. Reporter-only exclusions stay visible here, but cannot enter the
+  // required manifest or selector digest; a pre-listed leaf that skips remains a hard failure below.
+  const requiredEntries = report.executedLeaves.filter(
+    ({ status }) => status !== "skipped",
+  );
+  const excludedEntries = report.executedLeaves.filter(
+    ({ status }) => status === "skipped",
+  );
+  const requiredLeaves = requiredEntries.map(vitestLeaf).filter(Boolean);
+  const excludedLeaves = excludedEntries.map(vitestLeaf).filter(Boolean);
+  if (
+    !Number.isInteger(report.results?.skipped) ||
+    report.results.skipped !== excludedEntries.length
+  )
+    fail("reported skip counts disagree with the visible excluded leaves");
+  if (requiredLeaves.length !== report.executed)
     fail("executed count disagrees with the leaf manifest");
-  if (report.executedLeaves.some(({ status }) => status !== "passed"))
+  if (requiredEntries.some(({ status }) => status !== "passed"))
     fail("a required Vitest leaf was skipped, failed, or unknown");
-  const engines = sorted(report.executedLeaves.map(({ engine }) => engine));
+  const selection = report.selection;
+  const selectedLeaves = new Set(
+    Array.isArray(selection?.leafManifest) ? selection.leafManifest : [],
+  );
+  if (excludedLeaves.some((leaf) => selectedLeaves.has(leaf)))
+    fail("a pre-listed required Vitest leaf was skipped at runtime");
+  const engines = sorted(requiredEntries.map(({ engine }) => engine));
   if (!sameJson(engines, [...context.expectedEngines].sort()))
     fail(`engine universe mismatch: ${engines.join(",") || "none"}`);
-  const executedFiles = sorted(report.executedLeaves.map(({ file }) => file));
+  const executedFiles = sorted(requiredEntries.map(({ file }) => file));
   const expectedFiles = [...context.expectedFiles].sort();
+  const expectedEngineSet = new Set(context.expectedEngines);
   if (!sameJson(executedFiles, expectedFiles))
     fail("executed file universe disagrees with independent lane authority");
+  if (
+    report.executedLeaves.some(
+      ({ file, engine }) =>
+        !expectedFiles.includes(file) || !expectedEngineSet.has(engine),
+    )
+  )
+    fail("reported excluded leaf is outside the independent lane universe");
   for (const file of expectedFiles)
     for (const engine of context.expectedEngines)
       if (
-        !report.executedLeaves.some(
+        !requiredEntries.some(
           (leaf) => leaf.file === file && leaf.engine === engine,
         )
       )
         fail(`${file} has no executed leaf for required engine ${engine}`);
 
-  const manifest = [...validLeaves].sort();
-  const selection = report.selection;
+  const manifest = [...requiredLeaves].sort();
   if (!selection || selection.status !== "pass")
     fail("listed/executed selection reconciliation is missing");
   else {
@@ -183,7 +212,13 @@ export function validateVitestGateReport(report, context) {
         "selector digest does not reconstruct from the canonical leaf manifest",
       );
   }
-  return { problems, report, engines, leafManifest: manifest };
+  return {
+    problems,
+    report,
+    engines,
+    leafManifest: manifest,
+    excludedLeafManifest: [...excludedLeaves].sort(),
+  };
 }
 
 export function validateSelectedVitestDiagnosticReport(report, context) {
