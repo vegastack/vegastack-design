@@ -904,3 +904,20 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   HEAD is preserved; status 1 commits the real closure delta; any other Git failure propagates. A
   self-contained fixture proves both paths and clean committed HEAD `9d6ff0df` passes all 74
   classifier assertions. No `--allow-empty` bypass is used.
+
+## 2026-07-30 — Vitest reporter exclusions blocked a truthful full-ship receipt
+
+- **Symptom:** terminal `pnpm gates:ship` run
+  `2026-07-30T02-40-56.470Z-ship-91b880d2-faf1-4d96-8c10-16f7df3b5e65` executed every lane,
+  including 108 routes / 864 contract checks, but evidence freeze correctly refused to write a
+  receipt. Smoke reported 643 passed plus five skipped definitions; all-browser reported 4,408
+  passed plus the same five skipped definitions.
+- **Root cause:** Firefox cannot express synthetic clipboard files for five Dropzone paste cases.
+  Vitest's pre-run list omitted those `test.skipIf` definitions, while its runtime reporter retained
+  them as skipped. Selection reconciliation already treated the pre-run list as the required
+  universe, but the final validator separately required the reporter skip count to be zero.
+- **Systemic fix:** freeze the independently planned/pre-listed leaves as required evidence and keep
+  reporter-only skips in a separate visible exclusion manifest. A listed required leaf that skips
+  still fails. Count mismatch, duplicate/malformed exclusions, foreign file/engine, and smuggling an
+  exclusion into the required selector all fail by mutation. The failed run remains diagnostic
+  evidence only; no receipt, retry evidence, or ship-completion claim was recovered from it.

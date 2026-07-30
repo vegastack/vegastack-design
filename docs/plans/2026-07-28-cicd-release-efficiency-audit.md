@@ -1678,3 +1678,14 @@ reuse, cache canary, and D1–D7 production composition remain disabled or block
 requires the complete exact-final-tree `production-full` receipt. The follow-on plan's implementation
 record supersedes the 33/42/9 operator-verifier counts above for current tooling coverage; the dated
 numbers remain the evidence for the earlier round.
+
+### 16.11 Terminal report-freeze supersession — 2026-07-30
+
+The first follow-on terminal ship executed all substantive lanes and 108/864 contracts in
+1,761.383s, then correctly wrote no receipt because evidence integrity rejected five reporter-visible
+Firefox `test.skipIf` exclusions that Vitest's canonical pre-run list had omitted. The run is retained
+as measured diagnostic timing (`n=1`), not completion or receipt evidence. Required leaves now come
+only from the independently planned/pre-listed manifest; reporter-only exclusions remain visible but
+cannot enter evidence. Mutations reject listed-leaf skips, smuggled exclusions, duplicate/count/status
+drift, and foreign file/engine entries. A fresh exact-tree full ship and renewed zero-high/zero-medium
+review are mandatory; no A–M rollout, D1–D7 checkpoint, production policy, or outward approval changed.

@@ -1063,3 +1063,18 @@ each was invisible in review and each is the kind that would have degraded the t
 - **Boundary:** affected reuse and dynamic pre-push remain disabled/shadow-only; selected diagnostics
   remain non-receipted; exact-final-tree `production-full` ship remains mandatory. Terminal ship,
   receipt verification, release preflight, and MK's outward approvals are independent next proofs.
+
+## 2026-07-30 — Required Vitest leaves versus visible environment exclusions
+
+- **Observed conflict:** `vitest list --json` omitted five Firefox Dropzone paste definitions selected
+  with `test.skipIf`, while the runtime reporter retained the same definitions as skipped. Treating
+  the reporter's total definition count as the required universe contradicted the already exact
+  planned/listed/executed reconciliation.
+- **Decision:** the independently planned and pre-listed manifest is canonical required evidence.
+  Runtime reporter entries absent from that list remain visible as environment exclusions but cannot
+  enter the passing manifest, selector digest, or receipt. A pre-listed leaf that skips remains a hard
+  failure; selected diagnostic runs continue to reject every skip.
+- **Review state:** the earlier 0-high/0-medium verdict is superseded as final acceptance. Focused
+  mutations and the retained failed-run reports prove the mechanism; fresh deterministic and
+  adversarial review plus a new full ship must close the tree. No production or outward checkpoint
+  changed.

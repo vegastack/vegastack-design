@@ -697,3 +697,11 @@ mutations; and all selection, reuse, retry, affected, consume, candidate, schedu
 suites. Manual stale-current-prose and skill-symlink review found only intentional negative fixtures
 and explicitly superseded history. This is the final review closure, not terminal ship, receipt,
 release preflight, or outward approval evidence.
+
+The subsequent terminal full ship reopened that closure. Every executable lane passed, including
+the complete three-engine suites and 108 routes / 864 contracts, but the evidence freeze rejected
+five Firefox Dropzone paste definitions that were absent from Vitest's canonical pre-run list and
+still visible as runtime skips. This is a new report-validation finding, not permission to reinterpret
+the failed run as a pass. Required and reporter-excluded leaves are now separated with fail-closed
+mutations; a fresh unchanged-scope adversarial review and an entirely new exact-tree full ship are
+required before final acceptance.

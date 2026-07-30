@@ -609,3 +609,27 @@ check, and clean-tree assertion passed. Current-instruction and skill-symlink re
 all dynamic paths remain diagnostic/shadow/disabled at their recorded checkpoints and production
 still requires exact-final-tree `production-full` proof. This verdict is review evidence only;
 terminal ship, receipt verification, release preflight, and outward approvals remain separate.
+
+### Terminal-ship evidence-freeze finding — 2026-07-30
+
+The first frozen terminal run did **not** complete ship and wrote no receipt. Run
+`2026-07-30T02-40-56.470Z-ship-91b880d2-faf1-4d96-8c10-16f7df3b5e65` measured 1,761.383s
+(29m21s; `n=1`, local macOS arm64 / Node 24.18.0; cache/thermal, summed CPU and peak RSS unknown).
+Its lanes measured: typecheck 1.407s, lint 156.133s, docs warm-up 163.517s, unit 26.785s
+(1,471/1,471 required), smoke 29.765s (643/643 required plus five visible Firefox environment
+exclusions), all-browser 281.082s (4,408/4,408 required plus the same five exclusions), registry
+3.684s, consume 336.653s, and contracts 760.898s (108 routes / 864 checks, zero failure/skip/flake).
+
+Evidence integrity then failed because the final validator required zero reporter skips even though
+the canonical pre-run list had already omitted the five `test.skipIf` definitions and exact
+listed/executed reconciliation passed. The remediation retains those definitions in an explicit
+excluded manifest, keeps only pre-listed executed leaves in required evidence, and rejects count
+drift, duplicates, malformed or foreign exclusions, any excluded leaf smuggled into the required
+selector, and any pre-listed required leaf that skips at runtime. Selected diagnostics remain
+stricter and reject every skip. This does not lower coverage or change the receipt universe; it
+aligns final freezing with the independently reconciled universe.
+
+**Benefit verdict:** this measured run is faster than the prior retained 30m15s–48m25s range but is
+still above the <=19m p50 / <=22m p95 target, and one failed-evidence sample cannot establish a new
+percentile. Its lane results are diagnostic only. A fresh full run on the remediated final tree must
+execute every lane again; no cross-tree reuse, retry pass, or recovered receipt is permitted.
