@@ -75,7 +75,10 @@ Read `runtimeExclusions`: only the five exact `synthetic-clipboard-files` leaves
 `tooling/lib/vitest-runtime-exclusions.mjs` are allowed. This is not permission for an arbitrary
 `test.skip`/`skipIf`; a new, renamed, wrong-file/engine, stale-manifest, or pre-listed skipped leaf
 must fail the run. Each report's executed count must exactly match its independently listed required
-leaf manifest; excluded definitions never become receipt evidence.
+leaf manifest; excluded definitions never become receipt evidence. Account for every one of the five
+direct top-level registrations exactly once: reporter-excluded, or independently listed and passed.
+If a leaf is absent from both, stop—the capability did not prove recovery, even when
+`runtimeExclusions` is empty.
 
 A contracts entry reporting `status: "skipped"` or `executed: 0` after `gates:ship` is a defect, not a
 pass: `ship` runs `--all`, so an empty scope means the runner or the route set is wrong.

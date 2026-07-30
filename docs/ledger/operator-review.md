@@ -1104,3 +1104,18 @@ each was invisible in review and each is the kind that would have degraded the t
   avoidable work and produced contradictory machine reasons.
 - **Guardrail:** only those two exact paths receive the exemption. Unknown tooling still widens;
   `gates:ship`, CI, and Release retain full consume under D1 regardless of the diagnostic plan.
+
+## 2026-07-30 — Runtime-exclusion registration and terminal-accounting authority
+
+- **Superseded decision:** “zero exclusions is valid if Firefox later supports the capability” was
+  underspecified. Zero is valid only when all five exact identities are independently listed and
+  passed; disappearance from both universes is a hard failure.
+- **Decision:** the source verifier proves five direct top-level registrations bound to the reviewed
+  capability declaration. Runtime reconciliation and receipt freeze then prove a disjoint, complete
+  union: each applicable identity occurs exactly once as reporter-excluded or required-and-passed.
+- **Adversarial evidence:** all/partial dead registration, `if (false)`, ternary, deferred function,
+  shadowing, computed reassignment, reflective mutation, missing one/all terminal leaves, partial
+  exclusion, pre-listed skip, and valid five-leaf recovery fixtures execute in the focused suites.
+- **Boundary:** this closes evidence disappearance; it neither permits a new skip nor reduces any
+  lane. Production remains exact-tree `production-full`; rollout and outward approvals are unchanged.
+  Fresh zero-high/zero-medium review and full ship remain separate acceptance steps.

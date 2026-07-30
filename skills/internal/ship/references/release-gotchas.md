@@ -273,8 +273,11 @@ After publishing, `pnpm release:state` verifies both exact public versions. A la
   an expected file/engine as an exclusion, which could hide an arbitrarily disabled regression test.
 - **Now:** exactly five file/engine/test identities are approved for the
   `synthetic-clipboard-files` capability. Their capability probe and `pasteTest` declaration are
-  source-bound; the runtime report persists the exact exclusion manifest; receipt freeze rebuilds it
-  independently. Arbitrary, renamed, removed, extra, stale, partial-file, and cross-file skips fail.
+  source-bound, their direct top-level registrations are verified, the runtime report persists the
+  exact exclusion manifest, and receipt freeze rebuilds it independently. Every applicable identity
+  must occur exactly once as reporter-excluded or independently listed and passed. Missing one or all
+  identities fails; zero exclusions alone does not prove capability recovery. Arbitrary, renamed,
+  removed, extra, stale, partial-file, and cross-file skips fail.
 - **Rule:** inspect `runtimeExclusions`, not only `results.skipped`. Never add a broad pattern or
   relabel a new skip as environmental to get a receipt; review and mutation-test a new exact
   capability authority first.

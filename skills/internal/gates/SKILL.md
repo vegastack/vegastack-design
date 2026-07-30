@@ -29,10 +29,12 @@ route/check counts to improve a percentile. Measurement reports are diagnostics,
 
 For `vitest-smoke.json` and `vitest-all-browsers.json`, inspect `runtimeExclusions` as well as
 `results`. The only approved runtime exclusions are five exact Firefox Dropzone paste leaves under
-the source-bound `synthetic-clipboard-files` capability. They may be absent if the engine gains the
-capability; they may never be replaced or expanded. Any other reporter-only skip, `test.skip` /
-`skipIf`, wrong file/engine/name, stale manifest, or pre-listed required leaf that skips is a gate
-failure—not a smaller required universe.
+the source-bound `synthetic-clipboard-files` capability. Each direct top-level registration must be
+accounted for exactly once: reporter-excluded, or independently listed and passed when the engine
+gains the capability. Absence from both is a gate failure, so an empty `runtimeExclusions` manifest
+alone is never proof of recovery. The set may never be replaced or expanded. Any other reporter-only
+skip, `test.skip` / `skipIf`, wrong file/engine/name, stale manifest, or pre-listed required leaf that
+skips is a gate failure—not a smaller required universe.
 
 ## 2. Classify every failure before fixing anything
 

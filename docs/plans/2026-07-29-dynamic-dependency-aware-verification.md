@@ -634,3 +634,22 @@ wrong-file/engine, or pre-listed skip. This does not lower coverage or change th
 still above the <=19m p50 / <=22m p95 target, and one failed-evidence sample cannot establish a new
 percentile. Its lane results are diagnostic only. A fresh full run on the remediated final tree must
 execute every lane again; no cross-tree reuse, retry pass, or recovered receipt is permitted.
+
+### Runtime-exclusion completeness supersession — 2026-07-30
+
+The exact-name repair above remained incomplete. Independent adversarial review reproduced a high
+severity disappearance path: all or some approved `pasteTest(...)` calls could be moved behind dead
+or deferred control flow, and an empty reporter-exclusion manifest could pass without proving that
+the five identities had instead been listed and executed. Therefore the earlier exact-name result is
+superseded and cannot support receipt creation.
+
+The root repair has two independent halves. Source verification now requires one direct imported
+Vitest `test`, one exact source-bound `test.skipIf` declaration, and five exact direct top-level
+registrations; dead, conditional, deferred, shadowed, aliased, assigned, computed, or reflective
+mutation fails. Runtime reconciliation and final receipt freeze independently require every
+applicable approved identity exactly once as either reporter-excluded or independently listed and
+passed. Missing one, missing all, partial accounting, or treating an empty exclusion list as recovery
+fails. A real capability recovery remains representable only when all five exact leaves are listed
+and pass. Focused positive and mutation suites pass; the prior 0-high/0-medium review and full-ship
+sample are superseded. A fresh unchanged-scope adversarial review and fresh exact-tree full ship are
+still required before final acceptance.

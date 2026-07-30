@@ -353,7 +353,10 @@ Vitest's runtime report may retain exactly five Firefox Dropzone paste definitio
 list excludes because synthetic clipboard files cannot be expressed there. They are not generic
 skip permission: `.runtimeExclusions` must name those exact source-bound leaves and capability. Any
 other `test.skip`/`skipIf`, renamed/file/engine mismatch, stale manifest, or required listed leaf that
-skips fails before receipt creation. The source authority and its mutations are
+skips fails before receipt creation. Each of the five direct top-level registrations must appear
+exactly once in the final evidence accounting: either reporter-excluded, or independently listed and
+passed. A leaf absent from both blocks receipt creation; zero exclusions alone never prove capability
+recovery. The source authority and its mutations are
 `tooling/lib/vitest-runtime-exclusions.mjs` and `tooling/verify-vitest-runtime-exclusions.mjs`.
 
 `pnpm gates:retry` is narrower still: it reruns only structured exact failing

@@ -721,3 +721,19 @@ the same path to full because it was still unknown there. This was fail-safe, no
 but it contradicted the claimed efficient taxonomy. Exact no-consumer entries and direct mutations
 now cover both new paths; every other unknown path still widens. The interrupted serial run is not
 completion evidence. A new committed-tree serial run is required from the beginning.
+
+## 2026-07-30 — Runtime-exclusion completeness adversarial round
+
+The independent clean-tree review at `baf200e0` returned **1 high / 0 medium**. Exact names and a
+source hash still allowed all/partial registrations behind dead or deferred control flow, computed
+mutation of the Vitest API, and an approved identity absent from both the required and excluded
+terminal universes. The result supersedes the prior review closure; no receipt or full-ship success
+is inferred from earlier runs.
+
+The repair proves the registration and outcome separately. TypeScript AST checks require the exact
+import, capability declaration, and five direct top-level calls; runtime and final evidence checks
+require every applicable identity exactly once as excluded or independently listed and passed. New
+mutations cover every reproduced source escape, missing one/all identities, partial accounting, false
+zero-exclusion recovery, and valid all-five recovery. Focused suites and 60-current-surface /
+61-semantic-fixture operator checks pass. A fresh committed-tree deterministic sweep, independent
+unchanged-scope adversarial review, and full ship are still required; this round is not final closure.

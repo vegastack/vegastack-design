@@ -1691,3 +1691,15 @@ the exact manifest, and mutation-rejects alternate disabling APIs, arbitrary/ren
 stale exclusions, pre-listed skips, duplicates, and wrong lane/file/engine. A fresh exact-tree full
 ship and renewed zero-high/zero-medium review remain mandatory; no A–M rollout, D1–D7 checkpoint,
 production policy, or outward approval changed.
+
+### 16.12 Runtime-exclusion completeness supersession — 2026-07-30
+
+Independent review found that exact allowlisted names were insufficient unless their registration
+and terminal accounting were also proven. Dead/deferred/aliased registration and a leaf absent from
+both the required and excluded universes could otherwise make zero exclusions look like capability
+recovery. The repaired authority now proves five direct top-level registrations and requires each
+applicable leaf exactly once as reporter-excluded or independently listed and passed. Source,
+runtime, receipt-freeze, and operator-document mutation suites cover partial/all disappearance and
+valid recovery. This is a fail-closed correctness repair only: production-full coverage, exact-tree
+binding, all A–M rollout flags, D1–D7 checkpoints, and outward approval boundaries remain unchanged.
+The earlier review verdict is superseded pending a fresh unchanged-scope review and terminal ship.

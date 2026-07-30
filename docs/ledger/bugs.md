@@ -948,3 +948,21 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   having no consumer-byte effect. Direct consume-plan and common-impact assertions require browser
   invalidation, zero invented contract/VRT/consume impact, and continued full widening for unknown
   paths. No production-full or D1 consume requirement changed.
+
+## 2026-07-30 — Exact Vitest identities could disappear without terminal accounting
+
+- **High finding:** source verification counted `pasteTest(...)` descendants even when one or all
+  registrations were unreachable, conditional, deferred, or shadowed. Receipt freeze also accepted
+  an approved identity absent from both the excluded and required-passed universes. Consequently an
+  empty exclusion manifest could falsely resemble Firefox capability recovery.
+- **Root cause:** exact identity allowlisting proved which skips may be accepted, but did not prove
+  that each reviewed test was actually registered and terminally accounted for.
+- **Systemic fix:** bind one direct imported Vitest `test`, one exact `test.skipIf` declaration, and
+  five exact direct top-level registrations. Independently require every applicable identity exactly
+  once as reporter-excluded or independently listed and passed. Dead/conditional/deferred/shadowed/
+  aliased/computed/reflective registration, partial or total disappearance, duplicate accounting,
+  and false zero-exclusion recovery fail by mutation. A genuine recovery passes only when all five
+  exact leaves are listed and execute successfully.
+- **Evidence boundary:** focused source, runtime, receipt-freeze, and 61-fixture operator-document
+  suites pass. The previous adversarial closure and failed full-ship sample remain superseded until a
+  fresh unchanged-scope review and exact-tree full ship complete.

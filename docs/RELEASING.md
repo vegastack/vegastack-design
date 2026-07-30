@@ -127,7 +127,10 @@ Vitest reports retain a separate `runtimeExclusions` manifest. Only five exact F
 leaves, source-bound to the `synthetic-clipboard-files` capability, are approved; they are absent
 from the independently listed required universe and never become receipt leaves. Any arbitrary
 `test.skip`/`skipIf`, renamed or wrong-file/engine leaf, stale manifest/source binding, or pre-listed
-required leaf that skips blocks receipt creation. Do not reinterpret a reporter skip count by itself.
+required leaf that skips blocks receipt creation. The five direct top-level registrations must each
+appear exactly once as reporter-excluded or independently listed and passed. Absence from both blocks;
+an empty exclusion manifest is not capability-recovery evidence by itself. Do not reinterpret a
+reporter skip count by itself.
 
 Pre-push smoke triggering includes transitive registry dependencies of every selected smoke root.
 The checked Vitest-related manifest is a shadow comparator; missing or disagreeing results widen to
