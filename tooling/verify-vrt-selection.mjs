@@ -709,11 +709,46 @@ export function vrtHarnessProblems(source) {
     problems.push(
       "[fixture-containment] every OTP row must remain inside the screenshot target",
     );
+  if (!/if \(path === "\/docs\/components\/otp-input"\)/.test(source))
+    problems.push(
+      "[fixture-page-clip-route] page clipping must apply only to the exact OTP fixture route",
+    );
+  if (!/const clip = await fixture\.boundingBox\(\);/.test(source))
+    problems.push(
+      "[fixture-page-clip-box] OTP page clipping must derive its rectangle from the verified fixture",
+    );
+  if (!/if \(clip === null\)\s+throw new Error\(/.test(source))
+    problems.push(
+      "[fixture-page-clip-null] a missing OTP fixture rectangle must fail closed",
+    );
+  if (
+    !/await expect\(page\)\.toHaveScreenshot\(snapshotName, \{[\s\S]*?clip,[\s\S]*?\}\);/.test(
+      source,
+    )
+  )
+    problems.push(
+      "[fixture-page-clip-capture] OTP must use a page screenshot clipped to the verified fixture rectangle",
+    );
+  if (!/else\s+await expect\(fixture\)\.toHaveScreenshot\(/.test(source))
+    problems.push(
+      "[fixture-locator-default] non-OTP fixtures must retain locator screenshot coverage",
+    );
   const readiness = source.indexOf(
     "await stabilizeComponentFixture(path, fixture);",
   );
-  const screenshot = source.indexOf("await expect(fixture).toHaveScreenshot(");
-  if (readiness < 0 || screenshot < 0 || readiness > screenshot)
+  const pageScreenshot = source.indexOf(
+    "await expect(page).toHaveScreenshot(snapshotName,",
+  );
+  const fixtureScreenshot = source.indexOf(
+    "await expect(fixture).toHaveScreenshot(",
+  );
+  if (
+    readiness < 0 ||
+    pageScreenshot < 0 ||
+    fixtureScreenshot < 0 ||
+    readiness > pageScreenshot ||
+    readiness > fixtureScreenshot
+  )
     problems.push(
       "[fixture-order] complete fixture readiness must run before the screenshot",
     );
@@ -797,9 +832,54 @@ for (const [label, source, expected] of [
     ),
     /fixture-containment/,
   ],
+  [
+    "page clip widened to every fixture",
+    harnessSource.replace(
+      'if (path === "/docs/components/otp-input")',
+      'if (path !== "/docs/components/otp-input")',
+    ),
+    /fixture-page-clip-route/,
+  ],
+  [
+    "page clip no longer derives from fixture",
+    harnessSource.replace(
+      "const clip = await fixture.boundingBox();",
+      "const clip = { x: 0, y: 0, width: 1, height: 1 };",
+    ),
+    /fixture-page-clip-box/,
+  ],
+  [
+    "missing fixture rectangle accepted",
+    harnessSource.replace(
+      'if (clip === null)\n          throw new Error("OTP VRT fixture has no screenshot rectangle");',
+      "void clip;",
+    ),
+    /fixture-page-clip-null/,
+  ],
+  [
+    "OTP reverted to locator screenshot",
+    harnessSource.replace(
+      "await expect(page).toHaveScreenshot(snapshotName,",
+      "await expect(fixture).toHaveScreenshot(snapshotName,",
+    ),
+    /fixture-page-clip-capture/,
+  ],
+  [
+    "OTP clip omitted",
+    harnessSource.replace("          clip,", ""),
+    /fixture-page-clip-capture/,
+  ],
+  [
+    "non-OTP locator capture removed",
+    harnessSource.replace(
+      "else\n        await expect(fixture).toHaveScreenshot(",
+      "if (false)\n        await expect(fixture).toHaveScreenshot(",
+    ),
+    /fixture-locator-default/,
+  ],
 ])
   assert.match(vrtHarnessProblems(source).join("\n"), expected, label);
 
 console.log(
-  "✓ VRT selection: exact diagnostics, 7 report mutations, and 13 fixture-readiness/containment mutations verified",
+  "✓ VRT selection: exact diagnostics, 7 report mutations, and 19 fixture-readiness/clip mutations verified",
 );

@@ -195,16 +195,32 @@ describeVRT("VRT — component fixtures", () => {
       const fixture = page.locator("[data-vrt-preview]").first();
       await expect(fixture).toBeVisible();
       await stabilizeComponentFixture(path, fixture);
-      await expect(fixture).toHaveScreenshot(
-        `${path.replaceAll("/", "_")}-state.png`,
-        {
+      const snapshotName = `${path.replaceAll("/", "_")}-state.png`;
+      if (path === "/docs/components/otp-input") {
+        // Playwright locator screenshots scroll their target into view. In OTP's nested overflow
+        // preview that internal scroll intermittently clipped two already-rendered state rows from
+        // the image. The readiness proof above establishes the complete target first; a page-level
+        // screenshot with its exact rectangle then captures that verified viewport without a
+        // second locator-owned scroll. No other component changes capture mechanism.
+        const clip = await fixture.boundingBox();
+        if (clip === null)
+          throw new Error("OTP VRT fixture has no screenshot rectangle");
+        await expect(page).toHaveScreenshot(snapshotName, {
+          animations: "disabled",
+          caret: "hide",
+          clip,
+          maxDiffPixels: 0,
+          scale: "css",
+          threshold: 0,
+        });
+      } else
+        await expect(fixture).toHaveScreenshot(snapshotName, {
           animations: "disabled",
           caret: "hide",
           maxDiffPixels: 0,
           scale: "css",
           threshold: 0,
-        },
-      );
+        });
     });
   }
 });
