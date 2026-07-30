@@ -1027,3 +1027,17 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   leaked directories were then deleted, recovering about 2.4 GB.
 - **Evidence boundary:** the `0d50bfe7` review verdict was 0 high / 2 medium / 0 low and is superseded.
   Fresh committed-tree review remains required; no previous receipt applies.
+
+## 2026-07-30 — Classifier remediation independently closed
+
+- **Closure:** exact clean commit `bd1d443f2008826c8ece01ecf8487609ef7f4dcb` received an independent
+  unchanged-scope verdict of 0 high / 0 medium / 0 low. The inverse pure-version case, missing and
+  duplicate generated leaves, dangling links, malformed/conflicting evidence, and forced assertion
+  failure all failed or widened for their intended reasons.
+- **Cleanup proof:** the retained negative harness completed both its pass and forced-failure paths
+  without changing the count of `classifier-smoke-negative-*` scratch directories. The six leaked
+  superseded directories had already been inspected and removed; no review evidence depended on
+  them.
+- **Boundary:** this is closure of the known classifier defects, not terminal ship, receipt, CI,
+  release, or deployment evidence. The ledger commit itself changes the exact tree, so the final
+  production-full proof must be generated afterward.

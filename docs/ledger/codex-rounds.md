@@ -788,3 +788,19 @@ repair derives scope after the final required decision, adds missing-file and du
 and guarantees scratch removal in `finally`; a before/after invocation leaves the directory count
 unchanged. The six exact leaked scratch paths were inspected and deleted. This remains remediation,
 not closure, until committed and independently re-reviewed unchanged.
+
+## 2026-07-30 — Dependency-free classifier remediation closure
+
+The fresh independent unchanged-scope review on exact clean commit
+`bd1d443f2008826c8ece01ecf8487609ef7f4dcb` returned **0 high / 0 medium / 0 low**, with no prior
+finding recurring. Historical Version Packages fixtures classified smoke as false with scope `none`;
+direct non-smoke changes did the same; a Button change selected four exact files; global, metadata,
+binary, malformed, stale, missing, duplicate, and unknown inputs widened. The dependency-free suite
+passed 32 retained assertions, the installed classifier passed 86 assertions, and forced-success and
+forced-failure cleanup probes both left the classifier scratch-directory count unchanged.
+
+The same review read structured evidence from 60 current operator surfaces, 61 semantic negative
+fixtures, 14 CLI-help surfaces, and 52 receipt mutations. It also confirmed the prior receipt rejects
+this newer tree rather than being reused. This closes the classifier remediation review only; the
+documentation follow-up below changes the tree and therefore still requires focused verification,
+an entirely fresh terminal `production-full` ship, a new exact-tree receipt, and real PR observation.

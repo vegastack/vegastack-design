@@ -1183,3 +1183,33 @@ each was invisible in review and each is the kind that would have degraded the t
   were removed after path/prefix inspection (~2.4 GB); they were diagnostics only and are not
   recoverable evidence.
 - **Boundary:** another exact-commit unchanged-scope 0-high/0-medium review is mandatory.
+
+## 2026-07-30 — Pre-install classifier final adversarial closure
+
+- **Exact reviewed tree:** `bd1d443f2008826c8ece01ecf8487609ef7f4dcb`.
+- **Verdict:** 0 high / 0 medium / 0 low; neither the false scope report, missing mutation coverage,
+  dangling-symlink collision, inverse pure-version scope, nor scratch leak recurred.
+- **Executable evidence:** 32 dependency-free classifier assertions; 86 installed-classifier
+  assertions; historical Version Packages, direct non-smoke, four-file Button closure, and full
+  global/metadata/binary widening fixtures; pass/failure scratch cleanup; 60 current instruction
+  surfaces, 61 semantic documentation fixtures, 14 CLI-help surfaces, and 52 receipt mutations.
+- **Receipt boundary:** the prior exact-tree receipt correctly rejected this newer commit. No stale
+  receipt or retry output was promoted to evidence.
+
+## 2026-07-30 — Full visual-review decision before outward preparation
+
+- **Structured result:** 1,024 comparisons executed; 30 changed, 994 unchanged, 0 new, 0 removed,
+  and 0 broken. The review widened to the complete route/project matrix because global documentation
+  and VRT authorities changed.
+- **Human-readable result:** 28 differences across ten documentation pages are the intended Shiki
+  Oniguruma syntax-token colours. The OTP component is byte-identical to `main`; its raster edges
+  differ because the harness now uses a verified page clip instead of a locator capture that could
+  omit hydrated rows. The Button component is byte-identical to `main`; its 147 changed pixels are
+  confined to the anti-aliased edge of the word “Warning,” with no geometry or style change.
+- **Artifact index:** `.vrt-review/visual-handoff.md` links every Before, After, and Difference image;
+  `.vrt-review/report.json` is the structured authority. Both are local review evidence and remain
+  uncommitted.
+- **Decision:** MK explicitly accepted all 30 visual differences on 2026-07-30 and approved
+  continuing ship preparation.
+- **Boundary:** this approval does not substitute for terminal production-full gates, an exact-tree
+  receipt, real PR CI, or the separately sequenced merge and deploy checkpoints.
