@@ -707,12 +707,22 @@ export function vrtHarnessProblems(source) {
   visit(sourceFile);
 
   const textOf = (node) => node?.getText(sourceFile) ?? "";
-  const isAwaitStatement = (statement, fragments) => {
+  const terminalCallName = (call) => {
+    if (ts.isIdentifier(call.expression)) return call.expression.text;
+    if (ts.isPropertyAccessExpression(call.expression))
+      return call.expression.name.text;
+    return null;
+  };
+  const isAwaitStatement = (statement, fragments, expectedTerminalCall) => {
     if (
       !statement ||
       !ts.isExpressionStatement(statement) ||
       !ts.isAwaitExpression(statement.expression) ||
       !ts.isCallExpression(statement.expression.expression)
+    )
+      return false;
+    if (
+      terminalCallName(statement.expression.expression) !== expectedTerminalCall
     )
       return false;
     const text = textOf(statement);
@@ -766,11 +776,21 @@ export function vrtHarnessProblems(source) {
       problems.push(
         "[fixture-control-flow] OTP state authority must be established on the executable proof path",
       );
-    for (const [index, label, fragments] of [
-      [2, "count", ["expect(", "states", ".toHaveCount(5)"]],
-      [3, "layout", ["expect", ".poll(", ".toBe(5)"]],
-      [4, "scroll-reset", ["fixture.evaluate", "element.scrollTop = 0"]],
-      [5, "scroll-anchor", ["states.first().scrollIntoViewIfNeeded()"]],
+    for (const [index, label, fragments, terminalCall] of [
+      [2, "count", ["expect(", "states", ".toHaveCount(5)"], "toHaveCount"],
+      [3, "layout", ["expect", ".poll(", ".toBe(5)"], "toBe"],
+      [
+        4,
+        "scroll-reset",
+        ["fixture.evaluate", "element.scrollTop = 0"],
+        "evaluate",
+      ],
+      [
+        5,
+        "scroll-anchor",
+        ["states.first().scrollIntoViewIfNeeded()"],
+        "scrollIntoViewIfNeeded",
+      ],
       [
         6,
         "containment",
@@ -781,9 +801,10 @@ export function vrtHarnessProblems(source) {
           "box.bottom <= fixtureBox.y + fixtureBox.height",
           ".toBe(true)",
         ],
+        "toBe",
       ],
     ])
-      if (!isAwaitStatement(statements[index], fragments))
+      if (!isAwaitStatement(statements[index], fragments, terminalCall))
         problems.push(
           `[fixture-${label}-execution] OTP ${label} proof must be a directly awaited ordered statement`,
         );
@@ -796,7 +817,11 @@ export function vrtHarnessProblems(source) {
   } else {
     const statements = [...fixtureCallback.body.statements];
     const readinessIndex = statements.findIndex((statement) =>
-      isAwaitStatement(statement, ["stabilizeComponentFixture(path, fixture)"]),
+      isAwaitStatement(
+        statement,
+        ["stabilizeComponentFixture(path, fixture)"],
+        "stabilizeComponentFixture",
+      ),
     );
     const branchIndex = statements.findIndex(
       (statement) =>
@@ -873,10 +898,11 @@ export function vrtHarnessProblems(source) {
           "[fixture-page-clip-geometry] OTP clip must be finite, positive, and wholly inside the viewport immediately before capture",
         );
       if (
-        !isAwaitStatement(otp[5], [
-          "expect(page).toHaveScreenshot(snapshotName",
-          "clip,",
-        ])
+        !isAwaitStatement(
+          otp[5],
+          ["expect(page).toHaveScreenshot(snapshotName", "clip,"],
+          "toHaveScreenshot",
+        )
       )
         problems.push(
           "[fixture-page-clip-capture] OTP page clipping must be a directly awaited terminal statement",
@@ -885,9 +911,11 @@ export function vrtHarnessProblems(source) {
       const ordinary = [...branch.elseStatement.statements];
       if (
         ordinary.length !== 1 ||
-        !isAwaitStatement(ordinary[0], [
-          "expect(fixture).toHaveScreenshot(snapshotName",
-        ])
+        !isAwaitStatement(
+          ordinary[0],
+          ["expect(fixture).toHaveScreenshot(snapshotName"],
+          "toHaveScreenshot",
+        )
       )
         problems.push(
           "[fixture-locator-default] non-OTP fixtures must retain one directly awaited locator screenshot",
@@ -1000,6 +1028,28 @@ const shortCircuitAwaitContaining = (source, needle) => {
   visit(sourceFile);
   assert.ok(target, `await mutation target must exist: ${needle}`);
   return `${source.slice(0, target.getStart(sourceFile))}(false && ${target.getText(sourceFile)})${source.slice(target.end)}`;
+};
+const swallowAwaitContaining = (source, needle) => {
+  const sourceFile = ts.createSourceFile(
+    "components.spec.ts",
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  let target;
+  const visit = (node) => {
+    if (
+      !target &&
+      ts.isAwaitExpression(node) &&
+      node.expression.getText(sourceFile).includes(needle)
+    )
+      target = node.expression;
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  assert.ok(target, `await swallow target must exist: ${needle}`);
+  return `${source.slice(0, target.getStart(sourceFile))}${target.getText(sourceFile)}.catch(() => {})${source.slice(target.end)}`;
 };
 for (const [label, source, expected] of [
   [
@@ -1182,6 +1232,32 @@ for (const [label, source, expected] of [
     /fixture-containment-execution/,
   ],
   [
+    "hydrated-count failure swallowed",
+    swallowAwaitContaining(harnessSource, "toHaveCount(5)"),
+    /fixture-count-execution/,
+  ],
+  [
+    "layout-poll failure swallowed",
+    swallowAwaitContaining(harnessSource, "toBe(5)"),
+    /fixture-layout-execution/,
+  ],
+  [
+    "OTP page screenshot failure swallowed",
+    swallowAwaitContaining(
+      harnessSource,
+      "expect(page).toHaveScreenshot(snapshotName",
+    ),
+    /fixture-page-clip-capture/,
+  ],
+  [
+    "ordinary locator screenshot failure swallowed",
+    swallowAwaitContaining(
+      harnessSource,
+      "expect(fixture).toHaveScreenshot(snapshotName",
+    ),
+    /fixture-locator-default/,
+  ],
+  [
     "viewport no longer derived from page",
     harnessSource.replace(
       "const viewport = page.viewportSize();",
@@ -1242,5 +1318,5 @@ for (const [label, source, expected] of [
   assert.match(vrtHarnessProblems(source).join("\n"), expected, label);
 
 console.log(
-  "✓ VRT selection: exact diagnostics, 7 report mutations, and 40 structural fixture/clip mutations verified",
+  "✓ VRT selection: exact diagnostics, 7 report mutations, and 44 structural fixture/clip mutations verified",
 );
