@@ -1050,3 +1050,16 @@ each was invisible in review and each is the kind that would have degraded the t
 - **Evidence:** direct fixtures prove unchanged and changed staging paths, and a clean committed-HEAD
   run reports all 74 assertions passing. This repairs verification setup only; classifier behavior,
   scheduling, receipts, and rollout flags are unchanged. Full review closure still follows.
+
+## 2026-07-30 — Dynamic verification final adversarial closure
+
+- **Exact reviewed tree:** `fdefaf1721c8f8c5aff1194d10a13294140675d0`.
+- **Verdict:** 0 high / 0 medium, with no earlier VRT control-flow, viewport, swallowed-failure, or
+  frozen-classifier-fixture finding recurring.
+- **Deterministic evidence:** serial `pnpm lint`, `pnpm typecheck`, `git diff --check`, and clean-tree
+  assertion passed. Current docs, CLI help, workflow security, classifier, route/import closure,
+  VRT, receipt, selector, reuse/retry/affected, consume/candidate, schedule, determinism, and package
+  typecheck suites were included; current prose and discovery symlinks were manually checked.
+- **Boundary:** affected reuse and dynamic pre-push remain disabled/shadow-only; selected diagnostics
+  remain non-receipted; exact-final-tree `production-full` ship remains mandatory. Terminal ship,
+  receipt verification, release preflight, and MK's outward approvals are independent next proofs.
