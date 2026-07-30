@@ -660,3 +660,12 @@ reviewer independently reproduced dead registration and missing-terminal-leaf at
 for the intended reasons. This verdict does not recover the earlier failed ship or authorize reuse.
 The terminal full ship and production-full receipt remain mandatory on the final documentation-
 closure tree.
+
+### Canonical full-contract report supersession — 2026-07-30
+
+The next terminal ship executed all required coverage, including 108/864 contracts, but wrote no
+receipt: the full contract producer serialized route scope in registry order while independent
+receipt freeze requires canonical sorted order. Equal set membership is intentionally insufficient
+for canonical evidence. The runner now sorts both full and scoped authorities, and a full dry-run
+fixture requires sorted 108-route / 864-leaf output. The failed 1,880.073s run is diagnostic timing
+only; no pass is recovered or reused. Fresh review and a complete exact-tree ship remain mandatory.

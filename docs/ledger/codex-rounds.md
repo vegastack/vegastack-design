@@ -747,3 +747,16 @@ root deterministic chain had already passed workflow security's 59 mutations, li
 registry/design idempotency, and the full release preflight on this HEAD. Recording this verdict is a
 documentation-only follow-up; it must be checked on its own resulting tree before the terminal
 production-full ship. No prior receipt or diagnostic report is reused as final evidence.
+
+The terminal ship on `1e092833` then passed all substantive lanes but failed final evidence freeze:
+the full contract report carried the correct 108-route set in registry order while the independent
+validator required canonical sorted order. The run measured 1,880.073s (`n=1`, local macOS arm64 /
+Node 24.18.0; CPU/RSS/cache/thermal unknown): typecheck 0.745s, lint 164.105s, docs warm-up 165.799s,
+unit 33.091s (1,471), smoke 30.874s (643 plus five exact exclusions), all-browser 297.698s (4,408
+plus the same five), registry 3.714s, consume 344.514s, and contracts 837.884s (108/864). This is
+diagnostic timing only; no receipt was written and no lane is reused.
+
+A full dry-run fixture now reproduces the ordering mismatch and requires sorted 108-route / 864-leaf
+output. The producer uses one canonical sort for full and scoped modes; the strict receipt validator
+is unchanged. Focused selection/report/operator checks pass. Fresh deterministic/adversarial review
+and an entirely new terminal ship remain required.

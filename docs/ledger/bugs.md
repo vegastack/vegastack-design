@@ -966,3 +966,18 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
 - **Evidence boundary:** focused source, runtime, receipt-freeze, and 61-fixture operator-document
   suites pass. The previous adversarial closure and failed full-ship sample remain superseded until a
   fresh unchanged-scope review and exact-tree full ship complete.
+
+## 2026-07-30 — Full contracts passed but serialized a noncanonical route order
+
+- **Symptom:** terminal ship run
+  `2026-07-30T04-44-21.761Z-ship-f662f64a-d828-4b51-a6fb-ecdce4acd6e5` passed every substantive
+  lane and all 108 routes / 864 contract leaves, then correctly failed evidence freeze with
+  `scope routes disagree with the independently planned route universe`.
+- **Root cause:** full mode copied registry-order `COMPONENT_ROUTES`; scoped mode sorted its set and
+  receipt validation canonicalized its independent universe. The route sets were equal but the full
+  report was not byte-canonical. The previous one-route producer fixture could not expose ordering.
+- **Systemic fix:** the runner now sorts both full and scoped route authorities before count, leaf,
+  execution, and report construction. A full `--all --dry-run` fixture requires 108 canonically
+  sorted routes and 864 expected leaves; the pre-fix producer fails that assertion.
+- **Evidence boundary:** the failed 31m20s run is retained measured diagnostic evidence only. Its
+  substantive passes cannot be recovered into a receipt; a fresh exact-tree full ship is required.

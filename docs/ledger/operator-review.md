@@ -1132,3 +1132,16 @@ each was invisible in review and each is the kind that would have degraded the t
   and 14 CLI-help surfaces; workflow security retains 59 mutations.
 - **Boundary:** this is final review evidence for the executable remediation, not terminal ship or
   receipt evidence. Production-full policy and every D1–D7/outward checkpoint remain unchanged.
+
+## 2026-07-30 — Canonical full-contract route evidence
+
+- **Finding:** evidence freeze rejected an otherwise complete full ship because contract scope routes
+  used registry order instead of the validator's canonical sorted order. Equal membership is not
+  canonical evidence, so rejection was correct.
+- **Decision:** canonicalize at the producer for full and scoped execution; retain strict byte-order
+  validation at receipt freeze. Do not weaken the validator to set comparison.
+- **Negative proof:** the real failed report contains 108/108 equal set members in different order;
+  the new full dry-run fixture fails before the producer fix and passes only with sorted 108-route /
+  864-leaf output.
+- **Boundary:** no route or contract check is removed. Prior review closure is superseded for final
+  acceptance until the isolated change receives review and a new full ship succeeds.
