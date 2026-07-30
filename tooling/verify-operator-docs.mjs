@@ -60,7 +60,9 @@ const CURRENT_SURFACES = [
   "tooling/lib/consume-plan.mjs",
   "tooling/lib/consume-isolation.mjs",
   "tooling/lib/vitest-selection.mjs",
+  "tooling/lib/vitest-runtime-exclusions.mjs",
   "tooling/lib/vrt-selection.mjs",
+  "tooling/verify-vitest-runtime-exclusions.mjs",
   "tooling/verify-gate-receipt.mjs",
   "apps/docs/scripts/probe-deployment.mjs",
   "apps/docs/package.json",
@@ -447,6 +449,14 @@ export function operatorDocProblems(sources) {
         `${file}: [npm-provenance] the hosted package producer is an isolation/exact-byte boundary, not a provenance build`,
       );
     if (
+      /(?:any|every|arbitrary)[^\n]{0,100}reporter(?:-visible|-only)?[^\n]{0,100}skip[^\n]{0,100}(?:approved|acceptable|environment exclusion)/i.test(
+        currentSource,
+      )
+    )
+      problems.push(
+        `${file}: [vitest-runtime-exclusion] reporter visibility is not approval; only the exact source-bound exclusion authority may be accepted`,
+      );
+    if (
       file === "tooling/verify-release-chain.mjs" &&
       /simulated[\s\S]{0,160}THROWAWAY WORKTREE/i.test(currentSource)
     )
@@ -551,6 +561,33 @@ export function operatorDocProblems(sources) {
     problems.push(
       "AGENTS.md: [dynamic-public-skill] must retain mirror/export/package-build checks for non-rendered public skills",
     );
+
+  const runtimeExclusionSurfaces = [
+    ["AGENTS.md", agents],
+    ["docs/RELEASING.md", sources["docs/RELEASING.md"] ?? ""],
+    [
+      "skills/internal/ship/SKILL.md",
+      sources["skills/internal/ship/SKILL.md"] ?? "",
+    ],
+    [
+      "skills/internal/gates/SKILL.md",
+      sources["skills/internal/gates/SKILL.md"] ?? "",
+    ],
+    [
+      "skills/internal/review/SKILL.md",
+      sources["skills/internal/review/SKILL.md"] ?? "",
+    ],
+  ];
+  for (const [file, current] of runtimeExclusionSurfaces)
+    if (
+      !/runtimeExclusions/i.test(current) ||
+      !/(?:five exact|exactly five)/i.test(current) ||
+      !/(?:source-bound|source binding|bound by)/i.test(current) ||
+      !/(?:arbitrary|any\s+other)[\s\S]{0,320}(?:fail|block)/i.test(current)
+    )
+      problems.push(
+        `${file}: [vitest-runtime-exclusion] must limit runtimeExclusions to five exact source-bound leaves and say any arbitrary/other skip fails`,
+      );
 
   const ship = sources["skills/internal/ship/SKILL.md"] ?? "";
   if (!/git fetch (?:--prune origin|origin --prune)/i.test(ship))
@@ -907,21 +944,21 @@ function cliHelpProblems() {
 // virtual strings so historical ledgers and superseded plans can remain byte-stable records.
 const validFixture = {
   "AGENTS.md":
-    "Every non-registry route is anonymous, including /internal/*; /r/* alone is service-token-only. /internal/* remains unlisted with noindex and no-store. A canonical evidence-leaf manifest is required. CI is receipt-first. Exact-tree receipt reuse is **shadow-only**. Release state is explicit and fail-closed. Only npm E404 is missing; registry-only published means zero hosted npm jobs. Consume uses a fresh consumer per root; D1 keeps the full oracle mandatory. The deploy candidate is shadow-only. D4 remains open; the mandatory exact-tree rebuild remains. Require structured probe count/state and exact registry version. Run gates:plan: operational prose can be non-product, but rendered MDX remains product input. Every safely skipped lane carries a reason and selector digest. Production continues to require one complete exact-tree gates:ship proof. Public skills are shipped package inputs; retain skill-mirror, export, and package-build checks. There is no agreeing greater-than-six-route foundation fixture. Do not collect a qualifying cohort yet; MK must resolve the authority blocker.",
+    "Every non-registry route is anonymous, including /internal/*; /r/* alone is service-token-only. /internal/* remains unlisted with noindex and no-store. A canonical evidence-leaf manifest is required. CI is receipt-first. Exact-tree receipt reuse is **shadow-only**. Release state is explicit and fail-closed. Only npm E404 is missing; registry-only published means zero hosted npm jobs. Consume uses a fresh consumer per root; D1 keeps the full oracle mandatory. The deploy candidate is shadow-only. D4 remains open; the mandatory exact-tree rebuild remains. Require structured probe count/state and exact registry version. Run gates:plan: operational prose can be non-product, but rendered MDX remains product input. Every safely skipped lane carries a reason and selector digest. Production continues to require one complete exact-tree gates:ship proof. Public skills are shipped package inputs; retain skill-mirror, export, and package-build checks. There is no agreeing greater-than-six-route foundation fixture. Do not collect a qualifying cohort yet; MK must resolve the authority blocker. runtimeExclusions permits exactly five source-bound leaves; any other arbitrary skip must fail.",
   "docs/RELEASING.md":
-    "Every non-registry route is anonymously reachable; /internal/* remains unlisted with noindex/no-store; /r/* must reject anonymous requests. Release uses an explicit resumable state machine: registry-unknown blocks. For registry-only published work it never runs hosted npm. The deploy candidate is shadow-only; a mandatory exact-tree rebuild remains under D4. Require structured probe state/count and exact registry version. There is no agreeing greater-than-six-route foundation fixture. Do not collect a qualifying cohort yet; MK must resolve the policy blocker.",
+    "Every non-registry route is anonymously reachable; /internal/* remains unlisted with noindex/no-store; /r/* must reject anonymous requests. Release uses an explicit resumable state machine: registry-unknown blocks. For registry-only published work it never runs hosted npm. The deploy candidate is shadow-only; a mandatory exact-tree rebuild remains under D4. Require structured probe state/count and exact registry version. There is no agreeing greater-than-six-route foundation fixture. Do not collect a qualifying cohort yet; MK must resolve the policy blocker. runtimeExclusions permits exactly five source-bound leaves; any other arbitrary skip must block.",
   "docs/requirements.md":
     "Point-in-time historical record. D11 is superseded: /internal/* is anonymous under the current boundary.",
   "skills/internal/ship/SKILL.md":
-    "Run git fetch --prune origin before classification. Schema 2 production-full evidence includes all-browsers. Upload is not completion; require deployment-complete with structured probe count and exact registry version. versioned-unpublished alone runs hosted build; registry-unknown never grants publish permission. The deploy candidate is shadow-only. A missing or expired candidate is a safe miss and uses the rebuild; malformed or ambiguous evidence must fail. Present plain-language bullet points and absolute clickable paths. changed = Before/After/Difference; new = After; removed = Before; broken has no visual verdict until rerun. Run gates:plan. Operational plans can skip rendered checks, but rendered MDX cannot. Include every reachable dependent. The terminal `pnpm gates:ship` remains the complete exact-final-tree proof. Public skills ship inside `@vegastack/design`; retain skill-mirror, export, and package-build checks. There is no agreeing greater-than-six-route foundation fixture. Do not collect qualifying checkpoint samples; MK must resolve the authority blocker.",
+    "Run git fetch --prune origin before classification. Schema 2 production-full evidence includes all-browsers. Upload is not completion; require deployment-complete with structured probe count and exact registry version. versioned-unpublished alone runs hosted build; registry-unknown never grants publish permission. The deploy candidate is shadow-only. A missing or expired candidate is a safe miss and uses the rebuild; malformed or ambiguous evidence must fail. Present plain-language bullet points and absolute clickable paths. changed = Before/After/Difference; new = After; removed = Before; broken has no visual verdict until rerun. Run gates:plan. Operational plans can skip rendered checks, but rendered MDX cannot. Include every reachable dependent. The terminal `pnpm gates:ship` remains the complete exact-final-tree proof. Public skills ship inside `@vegastack/design`; retain skill-mirror, export, and package-build checks. There is no agreeing greater-than-six-route foundation fixture. Do not collect qualifying checkpoint samples; MK must resolve the authority blocker. runtimeExclusions permits exactly five source-bound leaves; any other arbitrary skip must fail.",
   "skills/internal/ship/references/visual-review.md":
     "Run gates:plan before visual review. Rendered MDX remains visual input. Every safe skip includes its selector digest. --routes is an exact component-fixture diagnostic. --page-routes is an exact rendered-page diagnostic. Supplying both captures exactly the named fixtures and pages; inferred fixtures, pages, and icon chunks do not leak. The independently computed impact oracle still wins when it requires a full capture. Do not combine `--all` with either exact selector. Present plain-language bullet points. changed = Before/After/Difference; new = After; removed = Before; broken is not a visual verdict and must rerun. Resolve every available artifact to an absolute clickable Markdown link.",
   "skills/internal/ship/references/release-gotchas.md":
     "verify-shadcn-consume builds public packages, then runs pnpm pack --json and validates every declared export before clean consumers.",
   "skills/internal/gates/SKILL.md":
-    "gates:plan distinguishes operational prose from rendered MDX and includes every reachable dependent. Selected runners reconcile planned, listed, and executed leaves. Dynamic pre-push execution is still disabled. `skills/public/**` are non-rendered package inputs; retain skill-mirror, export, and `@vegastack/design` build checks. gates:retry writes diagnosticOnly: true and evidenceWritten: false. gates:affected retains rollout.enabled: false and its status retains reuseEnabled: false. Use gates:affected:checkpoint -- --scenario <name>. Require 30 representative samples and MK approval. There is no agreeing greater-than-six-route foundation fixture. verify-shadcn-consume uses a fresh consumer per root; D1 retains the full oracle.",
+    "gates:plan distinguishes operational prose from rendered MDX and includes every reachable dependent. Selected runners reconcile planned, listed, and executed leaves. Dynamic pre-push execution is still disabled. `skills/public/**` are non-rendered package inputs; retain skill-mirror, export, and `@vegastack/design` build checks. gates:retry writes diagnosticOnly: true and evidenceWritten: false. gates:affected retains rollout.enabled: false and its status retains reuseEnabled: false. Use gates:affected:checkpoint -- --scenario <name>. Require 30 representative samples and MK approval. There is no agreeing greater-than-six-route foundation fixture. verify-shadcn-consume uses a fresh consumer per root; D1 retains the full oracle. runtimeExclusions permits exactly five source-bound leaves; any other arbitrary skip must fail.",
   "skills/internal/review/SKILL.md":
-    "There is no agreeing greater-than-six-route foundation fixture. Do not collect qualifying checkpoint samples; MK must resolve the policy blocker.",
+    "There is no agreeing greater-than-six-route foundation fixture. Do not collect qualifying checkpoint samples; MK must resolve the policy blocker. runtimeExclusions permits exactly five source-bound leaves; any other arbitrary skip must fail.",
   "docs/plans/2026-07-28-public-site-private-registry-boundary.md":
     "Require deployment-complete and the structured Cloudflare version ID, passing probe count, and exact registry version.",
   ".github/workflows/runner-diagnostics.yml":
@@ -1282,6 +1319,12 @@ const semanticFixtures = [
     "skills/internal/gates/SKILL.md",
     "Public skills are operational-only and skip the package mirror and package build.",
     /dynamic-public-skill/,
+  ],
+  [
+    "generic reporter skip permission",
+    "skills/internal/gates/SKILL.md",
+    "Any reporter-only skip in an expected file is an approved environment exclusion.",
+    /vitest-runtime-exclusion/,
   ],
 ];
 for (const [label, file, text, expected] of semanticFixtures) {

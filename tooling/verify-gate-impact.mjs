@@ -131,6 +131,31 @@ assert.ok(
 const hook = planAffectedImpact([".husky/pre-push"]);
 assert.equal(hook.lanes.unit.mode, "none");
 assert.ok(hook.staticChecks.includes("hooks-installed"));
+const runtimeExclusionAuthority = planAffectedImpact([
+  "tooling/lib/vitest-runtime-exclusions.mjs",
+]);
+for (const lane of ["unit", "smoke", "all-browsers"])
+  assert.equal(
+    runtimeExclusionAuthority.lanes[lane].mode,
+    "full",
+    `${lane}: changing exact Vitest exclusion authority invalidates the complete lane`,
+  );
+for (const lane of ["contracts", "vrt", "consume"])
+  assert.equal(
+    runtimeExclusionAuthority.lanes[lane].mode,
+    "none",
+    `${lane}: a Vitest-only authority does not invent product or consume impact`,
+  );
+const runtimeExclusionVerifier = planAffectedImpact([
+  "tooling/verify-vitest-runtime-exclusions.mjs",
+]);
+for (const lane of Object.values(runtimeExclusionVerifier.lanes))
+  assert.equal(
+    lane.mode,
+    "none",
+    "the mutation verifier is non-product tooling",
+  );
+assert.ok(runtimeExclusionVerifier.staticChecks.includes("gate-negative"));
 const designDoctrine = planAffectedImpact(["design.md"]);
 assert.ok(designDoctrine.staticChecks.includes("design-sync"));
 assert.equal(designDoctrine.lanes.vrt.mode, "selected");

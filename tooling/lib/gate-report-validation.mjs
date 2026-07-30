@@ -4,6 +4,7 @@ import {
   expectedContractLeaves,
   reconcileContractLeaves,
 } from "./contract-selection.mjs";
+import { vitestRuntimeExclusionLeaf } from "./vitest-runtime-exclusions.mjs";
 
 const sorted = (values) => [...new Set(values)].sort();
 const sameJson = (left, right) =>
@@ -158,6 +159,58 @@ export function validateVitestGateReport(report, context) {
   );
   if (excludedLeaves.some((leaf) => selectedLeaves.has(leaf)))
     fail("a pre-listed required Vitest leaf was skipped at runtime");
+  const allowedExclusions = Array.isArray(context.allowedExclusions)
+    ? context.allowedExclusions
+    : [];
+  if (
+    allowedExclusions.some((entry) => {
+      const { file, engine, testName, capability } = entry ?? {};
+      return (
+        typeof file !== "string" ||
+        typeof engine !== "string" ||
+        typeof testName !== "string" ||
+        typeof capability !== "string" ||
+        !file ||
+        !engine ||
+        !testName ||
+        !capability
+      );
+    })
+  )
+    fail("approved runtime exclusion authority is malformed");
+  const validAllowedExclusions = allowedExclusions.filter(
+    (entry) => entry && typeof entry === "object",
+  );
+  const allowedExcludedLeaves = validAllowedExclusions.map(
+    vitestRuntimeExclusionLeaf,
+  );
+  if (new Set(allowedExcludedLeaves).size !== allowedExcludedLeaves.length)
+    fail("approved runtime exclusion authority contains duplicates");
+  if (
+    validAllowedExclusions.some(
+      ({ file, engine }) =>
+        !context.expectedFiles.includes(file) ||
+        !context.expectedEngines.includes(engine),
+    )
+  )
+    fail("approved runtime exclusion authority is outside this lane universe");
+  const authority = new Map(
+    validAllowedExclusions.map((entry) => [
+      vitestRuntimeExclusionLeaf(entry),
+      entry,
+    ]),
+  );
+  if (excludedLeaves.some((leaf) => !authority.has(leaf)))
+    fail("report contains an unapproved runtime-excluded Vitest leaf");
+  const reconstructedExclusions = {
+    status: "pass",
+    count: excludedLeaves.length,
+    leaves: [...excludedLeaves]
+      .sort()
+      .map((leaf) => ({ leaf, capability: authority.get(leaf)?.capability })),
+  };
+  if (!sameJson(report.runtimeExclusions, reconstructedExclusions))
+    fail("runtime exclusion manifest is missing, stale, or noncanonical");
   const engines = sorted(requiredEntries.map(({ engine }) => engine));
   if (!sameJson(engines, [...context.expectedEngines].sort()))
     fail(`engine universe mismatch: ${engines.join(",") || "none"}`);

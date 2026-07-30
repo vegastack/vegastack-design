@@ -1,7 +1,7 @@
 {
   "generatedBy": "tooling/sync-smoke-impact.mjs",
   "contractSha256": "54682d5ee3792f8d7de5a4261ee704702288bba5ee580006c0fb1276b7a3d110",
-  "inputDigest": "3d5af41132f7bd72dfb7cfca8393fab30c7a70c0ebc07d3f05a54235645b1a00",
+  "inputDigest": "9b0b21208255c830d5014bf813996cdc15a14b9a06220c1cb691a6bac4d0c7b4",
   "toolchain": {
     "pinned": {
       "@playwright/test": "1.61.0",

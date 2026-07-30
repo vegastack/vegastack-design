@@ -105,6 +105,7 @@ import {
   validateContractGateReport,
   validateVitestGateReport,
 } from "./lib/gate-report-validation.mjs";
+import { vitestRuntimeExclusionsForGate } from "./lib/vitest-runtime-exclusions.mjs";
 
 const GATES_DIR = join(ROOT, ".gates");
 const LAST_FAILURE = join(GATES_DIR, "last-failure.json");
@@ -929,6 +930,10 @@ function freezeReceiptReports(profile, tree) {
       runStartedAt: runStartedAt.toISOString(),
       expectedEngines,
       expectedFiles,
+      allowedExclusions: vitestRuntimeExclusionsForGate(gate, {
+        files: expectedFiles,
+        engines: expectedEngines,
+      }),
     });
     if (validated.problems.length > 0)
       throw new Error(

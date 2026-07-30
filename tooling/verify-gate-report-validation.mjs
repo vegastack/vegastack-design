@@ -62,6 +62,7 @@ const vitest = {
   unhandledErrors: [],
   executedLeaves,
   selection,
+  runtimeExclusions: { status: "pass", count: 0, leaves: [] },
 };
 const vitestContext = {
   gate: "smoke",
@@ -72,15 +73,32 @@ const vitestContext = {
 assert.deepEqual(validateVitestGateReport(vitest, vitestContext).problems, []);
 const vitestWithReportedExclusion = structuredClone(vitest);
 vitestWithReportedExclusion.results.skipped = 1;
-vitestWithReportedExclusion.executedLeaves.push({
+const reportedExclusion = {
   file: "packages/ui/a.test.tsx",
   engine: "firefox",
   testName: "environment-inexpressible case",
   status: "skipped",
-});
+};
+vitestWithReportedExclusion.executedLeaves.push(reportedExclusion);
+vitestWithReportedExclusion.runtimeExclusions = {
+  status: "pass",
+  count: 1,
+  leaves: [
+    {
+      leaf: `${reportedExclusion.file}\0${reportedExclusion.engine}\0${reportedExclusion.testName}`,
+      capability: "fixture-capability",
+    },
+  ],
+};
+const vitestContextWithExclusion = {
+  ...vitestContext,
+  allowedExclusions: [
+    { ...reportedExclusion, capability: "fixture-capability" },
+  ],
+};
 const exclusionValidation = validateVitestGateReport(
   vitestWithReportedExclusion,
-  vitestContext,
+  vitestContextWithExclusion,
 );
 assert.deepEqual(
   exclusionValidation.problems,
@@ -96,6 +114,27 @@ assert.equal(
   exclusionValidation.excludedLeafManifest.length,
   1,
   "runtime-reported exclusions remain visible for diagnosis",
+);
+assert.match(
+  validateVitestGateReport(
+    vitestWithReportedExclusion,
+    vitestContext,
+  ).problems.join("\n"),
+  /unapproved runtime-excluded Vitest leaf/,
+  "a reporter-only skip cannot become an exclusion without exact independent authority",
+);
+const arbitraryReporterSkip = structuredClone(vitestWithReportedExclusion);
+arbitraryReporterSkip.executedLeaves.at(-1).testName =
+  "arbitrarily disabled regression test";
+arbitraryReporterSkip.runtimeExclusions.leaves[0].leaf =
+  "packages/ui/a.test.tsx\0firefox\0arbitrarily disabled regression test";
+assert.match(
+  validateVitestGateReport(
+    arbitraryReporterSkip,
+    vitestContextWithExclusion,
+  ).problems.join("\n"),
+  /unapproved runtime-excluded Vitest leaf/,
+  "an arbitrary skip in an otherwise expected file/engine cannot inherit a capability exception",
 );
 for (const [label, mutate, expected] of [
   [
@@ -142,11 +181,65 @@ for (const [label, mutate, expected] of [
     },
     /pre-listed required Vitest leaf was skipped/,
   ],
+  [
+    "missing persisted exclusion manifest",
+    (value) => delete value.runtimeExclusions,
+    /exclusion manifest is missing/,
+  ],
+  [
+    "wrong persisted exclusion capability",
+    (value) =>
+      (value.runtimeExclusions.leaves[0].capability = "wrong-capability"),
+    /exclusion manifest is missing, stale, or noncanonical/,
+  ],
 ]) {
   const value = structuredClone(vitestWithReportedExclusion);
   mutate(value);
   assert.match(
-    validateVitestGateReport(value, vitestContext).problems.join("\n"),
+    validateVitestGateReport(value, vitestContextWithExclusion).problems.join(
+      "\n",
+    ),
+    expected,
+    label,
+  );
+}
+
+for (const [label, allowedExclusions, expected] of [
+  ["malformed authority", [null], /authority is malformed/],
+  [
+    "duplicate authority",
+    [
+      ...vitestContextWithExclusion.allowedExclusions,
+      ...vitestContextWithExclusion.allowedExclusions,
+    ],
+    /authority contains duplicates/,
+  ],
+  [
+    "foreign-file authority",
+    [
+      {
+        ...vitestContextWithExclusion.allowedExclusions[0],
+        file: "packages/ui/foreign.test.tsx",
+      },
+    ],
+    /authority is outside this lane universe/,
+  ],
+  [
+    "foreign-engine authority",
+    [
+      {
+        ...vitestContextWithExclusion.allowedExclusions[0],
+        engine: "unknown-engine",
+      },
+    ],
+    /authority is outside this lane universe/,
+  ],
+]) {
+  assert.match(
+    validateVitestGateReport(vitestWithReportedExclusion, {
+      ...vitestContext,
+      allowedExclusions,
+    }).problems.join("\n"),
     expected,
     label,
   );
@@ -156,10 +249,26 @@ const prelistedRuntimeSkip = structuredClone(vitest);
 prelistedRuntimeSkip.executed = 2;
 prelistedRuntimeSkip.results = { passed: 2, failed: 0, skipped: 1 };
 prelistedRuntimeSkip.executedLeaves[0].status = "skipped";
+prelistedRuntimeSkip.runtimeExclusions = {
+  status: "pass",
+  count: 1,
+  leaves: [
+    {
+      leaf: `${prelistedRuntimeSkip.executedLeaves[0].file}\0${prelistedRuntimeSkip.executedLeaves[0].engine}\0${prelistedRuntimeSkip.executedLeaves[0].testName}`,
+      capability: "fixture-capability",
+    },
+  ],
+};
 assert.match(
-  validateVitestGateReport(prelistedRuntimeSkip, vitestContext).problems.join(
-    "\n",
-  ),
+  validateVitestGateReport(prelistedRuntimeSkip, {
+    ...vitestContext,
+    allowedExclusions: [
+      {
+        ...prelistedRuntimeSkip.executedLeaves[0],
+        capability: "fixture-capability",
+      },
+    ],
+  }).problems.join("\n"),
   /pre-listed required Vitest leaf was skipped/,
   "a required leaf that dynamically skips after pre-listing cannot become passing evidence",
 );

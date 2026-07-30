@@ -219,7 +219,7 @@ const BROWSER_GATE_TOOLING = [
 ];
 const VITEST_TOOLING = [
   /^tooling\/vitest-(run|structured-reporter)\.mjs$/,
-  /^tooling\/lib\/(?:smoke-scope|vitest-selection)\.mjs$/,
+  /^tooling\/lib\/(?:smoke-scope|vitest-runtime-exclusions|vitest-selection)\.mjs$/,
   /^tooling\/sync-smoke-impact\.mjs$/,
 ];
 const CONTRACT_TOOLING = [
@@ -267,6 +267,7 @@ const KNOWN_NON_PRODUCT_TOOLING = new Set([
   "tooling/verify-impact-plan.mjs",
   "tooling/verify-measurement-report.mjs",
   "tooling/verify-operator-docs.mjs",
+  "tooling/verify-vitest-runtime-exclusions.mjs",
   "tooling/verify-release-chain.mjs",
   "tooling/verify-release-state.mjs",
   "tooling/verify-workflow-measurement.mjs",

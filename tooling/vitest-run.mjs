@@ -18,6 +18,7 @@ import {
   reconcileVitestSelection,
   vitestEvidenceBoundary,
 } from "./lib/vitest-selection.mjs";
+import { reconcileVitestRuntimeExclusions } from "./lib/vitest-runtime-exclusions.mjs";
 
 const UI = join(ROOT, "packages/ui");
 const GATES = join(ROOT, ".gates");
@@ -335,6 +336,11 @@ if (!Number.isInteger(structured.executed) || structured.executed <= 0)
       executed: structured.executedLeaves,
       engine: options.engine,
     });
+    const runtimeExclusions = reconcileVitestRuntimeExclusions({
+      gate: options.lane,
+      executedLeaves: structured.executedLeaves,
+      selectedLeaves: selection.leafManifest,
+    });
     structured = {
       ...structured,
       ...vitestEvidenceBoundary({
@@ -342,6 +348,7 @@ if (!Number.isInteger(structured.executed) || structured.executed <= 0)
         selectedShadow: options.selectedShadow,
       }),
       selection,
+      runtimeExclusions,
     };
     atomicWriteJson(report, structured);
   } catch (error) {
@@ -354,6 +361,7 @@ if (!Number.isInteger(structured.executed) || structured.executed <= 0)
         selectedShadow: options.selectedShadow,
       }),
       selection: { status: "unknown", error: error.message },
+      runtimeExclusions: { status: "unknown", error: error.message },
     });
     fatal(error.message);
   }
