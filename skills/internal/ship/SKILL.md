@@ -161,7 +161,9 @@ contract lane at all. Run it again on the Version PR
 branch before merging it (`--before main --after changeset-release/main`).
 PR `receipt-guard` runs this classifier before dependency installation. Its dependency-free smoke
 authority must remain loadable in a clean clone with no `node_modules`; the executable classifier
-fixture proves both an empty range and a stale-shadow registry mutation. A missing package here is a
+fixture proves both an empty range and a stale-shadow registry mutation, while the dedicated
+dependency-free suite rejects malformed JSON, missing/conflicting entries, invalid leaves, stale
+contract/toolchain/content bindings, unknown source, and global inputs. A missing package here is a
 release blocker, never a reason to install dependencies in the guard or bypass the receipt.
 The gate classifier is not the npm authority and no longer accepts `--check-npm`; release state lives
 only in `tooling/release-state.mjs`.

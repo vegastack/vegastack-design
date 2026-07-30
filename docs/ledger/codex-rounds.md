@@ -771,3 +771,12 @@ adds a generated full-content/file-metadata binding. Focused classifier, smoke, 
 and 59 workflow mutation suites pass. This is remediation evidence only: prior adversarial closure
 and production-full receipt are superseded until the changed tree is committed, independently
 reviewed, fully shipped, and observed in a new PR run.
+
+The first exact-commit adversarial pass on `480611a6` returned **0 high / 2 medium / 1 low**. It
+reproduced a required full smoke lane reported as “0 test files,” identified that the new pre-install
+authority had no retained malformed/conflicting mutation suite, and showed two dangling symlink
+targets colliding in the content digest. The fixes share the effective widening decision with
+structured output, add 27 direct no-dependency mutations, and use `lstatSync` before classifying true
+`ENOENT`. The overlapped dual release-preflight sample was discarded; a serial rerun passed the full
+minor-bump/carry/npm-state/consume chain. This round remains open until the remediation is committed
+and a fresh unchanged-scope review reports zero high and zero medium.

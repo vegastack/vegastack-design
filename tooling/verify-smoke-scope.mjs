@@ -92,6 +92,13 @@ try {
     modeChanged,
     "file-to-symlink replacement must move the digest",
   );
+  unlinkSync(path);
+  symlinkSync("different-missing-target.tsx", path);
+  assert.notEqual(
+    vitestImpactContentDigest({ root: contentFixture }),
+    symlinkChanged,
+    "two dangling symlink targets must not collapse to the same missing-file digest",
+  );
 } finally {
   rmSync(contentFixture, { recursive: true, force: true });
 }

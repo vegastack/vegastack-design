@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, lstatSync, readFileSync, readlinkSync } from "node:fs";
+import { lstatSync, readFileSync, readlinkSync } from "node:fs";
 import { join } from "node:path";
 
 import { ROOT } from "./change-set.mjs";
@@ -100,11 +100,18 @@ export function vitestImpactContentDigest({ root = ROOT } = {}) {
   const hash = createHash("sha256");
   for (const path of inputs) {
     const absolute = join(root, path);
-    if (!existsSync(absolute)) {
-      hash.update(`${path}\0missing\n`);
-      continue;
+    let stat;
+    try {
+      // lstat, rather than existsSync, preserves a dangling symlink as evidence. existsSync follows
+      // its target and would collapse every missing target to the same "missing" leaf.
+      stat = lstatSync(absolute);
+    } catch (error) {
+      if (error?.code === "ENOENT") {
+        hash.update(`${path}\0missing\n`);
+        continue;
+      }
+      throw error;
     }
-    const stat = lstatSync(absolute);
     const type = stat.isSymbolicLink()
       ? "symlink"
       : stat.isFile()

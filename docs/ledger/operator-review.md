@@ -1157,3 +1157,15 @@ each was invisible in review and each is the kind that would have degraded the t
   mutates a registry source without regenerating the shadow and requires `smoke=true`, scope `all`.
 - **Boundary:** the failed workflow is not retried into evidence. The fix requires new deterministic,
   adversarial, production-full, receipt, push, and PR-workflow evidence in that order.
+
+## 2026-07-30 — Pre-install classifier first adversarial round
+
+- **Verdict on `480611a6`:** 0 high / 2 medium / 1 low; not accepted.
+- **Findings:** effective route widening contradicted serialized smoke scope/reason; the new
+  dependency-free trust path lacked its own malformed/conflicting mutation suite; different dangling
+  symlink targets shared a missing-file digest.
+- **Remediation:** effective scheduling and reporting now share one widening decision; 27 direct
+  clean/stale/malformed/conflicting/global/unknown assertions run from a clone with no `node_modules`;
+  `lstatSync` retains dangling link targets while only true `ENOENT` records missing.
+- **Boundary:** focused passes do not close the round. A new exact committed tree must receive a fresh
+  zero-high/zero-medium review before full ship and receipt regeneration.

@@ -195,7 +195,9 @@ the long free-mini reexecution.
 `receipt-guard` intentionally performs no dependency install. `classify-change.mjs` therefore uses a
 dependency-free smoke authority whose generated Vitest comparison is bound to complete input bytes,
 file modes, symlinks, contract authority, and pinned toolchain. A clean-clone mutation test enforces
-that boundary; do not add an install to mask a classifier import regression.
+that boundary; direct dependency-free mutations reject malformed/conflicting shadow evidence and
+effective scope/reason must describe every widening authority. Do not add an install to mask a
+classifier import regression.
 The self-hosted pnpm-cache removal experiment is committed disabled;
 only `SELF_HOSTED_PNPM_CACHE_CANARY=enabled` plus an exact
 `SELF_HOSTED_PNPM_CACHE_CANARY_RUNNER` selects the no-Actions-cache path. Missing variables retain the

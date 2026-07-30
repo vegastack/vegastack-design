@@ -996,3 +996,18 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   registry source whose stale shadow must select full smoke.
 - **Evidence boundary:** run `30535403126` remains failed evidence. No rerun can repair it, and the
   previous production-full receipt cannot cover this tracked fix; a fresh exact-tree ship is required.
+
+## 2026-07-30 — Dependency-free classifier reported a narrower scope than it scheduled
+
+- **Medium finding:** exact range `8e4c2897..480611a6` scheduled smoke because contract/route scope
+  widened to all, but serialized `smoke_scope: "0 test file(s)"` and the narrower registry/Vitest
+  reason. Coverage still ran; the machine/operator explanation was false.
+- **Second medium:** malformed/conflicting mutations covered the installed parser-backed selector,
+  not the newly separated pre-install authority. Scratch attacks widened safely but were not retained
+  as executable regression evidence.
+- **Low hardening:** `existsSync` followed dangling symlinks before `lstatSync`, collapsing different
+  missing targets to one `missing` digest.
+- **Systemic fix:** scope/reason now derive from the effective metadata → route → dependency widening
+  chain. A no-dependency 27-assertion suite covers clean, stale, malformed, conflicting, invalid,
+  global, and unknown cases. Digest construction uses `lstatSync` with explicit `ENOENT`, preserving
+  dangling link type and target. The 0-high/2-medium/1-low review is superseded, not closure evidence.

@@ -248,6 +248,23 @@ assert.ok(
 );
 checks += 2;
 
+// Effective widening must be reflected in every machine-facing field, not only the scheduling
+// boolean. This repository-wide tooling change makes route scope full even when the direct smoke
+// selector has no files; reporting "0 test files" would contradict the lane that actually runs.
+const effectiveWidening = classify("8e4c2897", "HEAD");
+assert.equal(effectiveWidening.json.smoke, true);
+assert.equal(
+  effectiveWidening.json.smoke_scope,
+  "all",
+  "route/global widening must report the effective full smoke scope",
+);
+assert.match(
+  effectiveWidening.json.smoke_reason,
+  /route|contract|metadata|binary/i,
+  "the smoke reason must name the effective widening authority",
+);
+checks += 3;
+
 // ── the version-bump predicate, against real history ─────────────────────────────────────────────
 //
 // This is what makes the receipt carry safe: `tooling/gate-receipt-carry.mjs` may only move a receipt

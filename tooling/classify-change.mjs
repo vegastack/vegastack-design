@@ -170,9 +170,12 @@ const unitRequired =
 const smokeSelection = classifierSmokeImpact(changed);
 // A global-surface change (tokens, the shared runtime) can move motion and focus behaviour in ways
 // only a second engine shows, so a full contract sweep implies the smoke lane too.
+const smokeWidenedByMetadata = unmodelledFileFacts;
+const smokeWidenedByRoutes = selection.routes === null;
+const effectiveSmokeFull =
+  smokeWidenedByMetadata || smokeWidenedByRoutes || smokeSelection.full;
 const smokeRequired =
-  !pureVersionBump?.ok &&
-  (unmodelledFileFacts || selection.routes === null || smokeSelection.required);
+  !pureVersionBump?.ok && (effectiveSmokeFull || smokeSelection.required);
 
 /**
  * Read the changesets from the REF being classified. Reading the working tree was wrong whenever
@@ -216,12 +219,17 @@ const classification = {
   pureVersionBump: pureVersionBump?.ok === true,
   unit: unitRequired,
   smoke: smokeRequired,
-  smoke_scope: smokeSelection.full
+  smoke_scope: effectiveSmokeFull
     ? "all"
     : `${smokeSelection.tests.length} test file(s)`,
   smoke_reason: pureVersionBump?.ok
     ? "pure version bump — no observable change"
-    : smokeSelection.reasons.join("; ") || "registry/Vitest dependency closure",
+    : smokeWidenedByMetadata
+      ? "file metadata/binary change widens smoke to all"
+      : smokeWidenedByRoutes
+        ? `contract/route scope widens smoke to all (${selection.reason})`
+        : smokeSelection.reasons.join("; ") ||
+          "registry/Vitest dependency closure",
   release_surface: changed.some((file) => file.startsWith("packages/")),
   has_changesets: hasChangesets,
 };

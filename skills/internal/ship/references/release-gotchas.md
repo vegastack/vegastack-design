@@ -294,6 +294,9 @@ After publishing, `pnpm release:state` verifies both exact public versions. A la
   local gate retains its parser-backed comparison as the independent oracle.
 - **Rule:** do not add dependency setup to make this pass. Run `node tooling/verify-classify-change.mjs`;
   its clean-clone fixture has no `node_modules` and exercises both empty and stale registry ranges.
+  Run `node tooling/verify-classifier-smoke.mjs` for malformed/conflicting shadow mutations. If
+  `smoke=true`, its structured scope and reason must describe the effective widening—never “0 test
+  files” after route, metadata, binary, or global logic widened the lane to all.
 
 ## The one thing still open
 
