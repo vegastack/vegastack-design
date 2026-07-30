@@ -1119,3 +1119,16 @@ each was invisible in review and each is the kind that would have degraded the t
 - **Boundary:** this closes evidence disappearance; it neither permits a new skip nor reduces any
   lane. Production remains exact-tree `production-full`; rollout and outward approvals are unchanged.
   Fresh zero-high/zero-medium review and full ship remain separate acceptance steps.
+
+## 2026-07-30 — Runtime-exclusion remediation adversarial closure
+
+- **Exact reviewed tree:** `e899690f5b11e337a0bb33ca097a001e5da95c72`.
+- **Verdict:** 0 high / 0 medium / 0 recurring findings. An independent `false && pasteTest(...)`
+  mutation failed the direct-registration proof, and an approved leaf removed from both selection and
+  exclusions failed the terminal exactly-once proof.
+- **Scope:** source/runtime exclusion authority, Vitest selection and report validation, receipt
+  profile/reuse/tree/path negatives, retry, impact/affected, consume, operator docs, ship/release
+  policy, and clean-tree/diff checks. Current docs cover 60 surfaces, 61 semantic negative fixtures,
+  and 14 CLI-help surfaces; workflow security retains 59 mutations.
+- **Boundary:** this is final review evidence for the executable remediation, not terminal ship or
+  receipt evidence. Production-full policy and every D1–D7/outward checkpoint remain unchanged.

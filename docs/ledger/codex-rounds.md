@@ -737,3 +737,13 @@ mutations cover every reproduced source escape, missing one/all identities, part
 zero-exclusion recovery, and valid all-five recovery. Focused suites and 60-current-surface /
 61-semantic-fixture operator checks pass. A fresh committed-tree deterministic sweep, independent
 unchanged-scope adversarial review, and full ship are still required; this round is not final closure.
+
+The fresh independent rerun on exact clean HEAD
+`e899690f5b11e337a0bb33ca097a001e5da95c72` closed with **0 high / 0 medium / 0 recurring findings**.
+It independently forced a dead direct registration and a terminal leaf absent from both universes;
+both failed for the intended exact-registration/exactly-once reasons. Focused receipt, selector,
+retry/affected, consume, operator-document, current-policy, diff, and clean-tree checks passed. The
+root deterministic chain had already passed workflow security's 59 mutations, lint, typecheck,
+registry/design idempotency, and the full release preflight on this HEAD. Recording this verdict is a
+documentation-only follow-up; it must be checked on its own resulting tree before the terminal
+production-full ship. No prior receipt or diagnostic report is reused as final evidence.

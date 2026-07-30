@@ -653,3 +653,10 @@ fails. A real capability recovery remains representable only when all five exact
 and pass. Focused positive and mutation suites pass; the prior 0-high/0-medium review and full-ship
 sample are superseded. A fresh unchanged-scope adversarial review and fresh exact-tree full ship are
 still required before final acceptance.
+
+Independent unchanged-scope review then closed exact executable/docs tree
+`e899690f5b11e337a0bb33ca097a001e5da95c72` with 0 high / 0 medium / 0 recurring findings. The
+reviewer independently reproduced dead registration and missing-terminal-leaf attacks; both failed
+for the intended reasons. This verdict does not recover the earlier failed ship or authorize reuse.
+The terminal full ship and production-full receipt remain mandatory on the final documentation-
+closure tree.
