@@ -1169,3 +1169,17 @@ each was invisible in review and each is the kind that would have degraded the t
   `lstatSync` retains dangling link targets while only true `ENOENT` records missing.
 - **Boundary:** focused passes do not close the round. A new exact committed tree must receive a fresh
   zero-high/zero-medium review before full ship and receipt regeneration.
+
+## 2026-07-30 — Pre-install classifier second adversarial round
+
+- **Verdict on `0d50bfe7`:** 0 high / 2 medium / 0 low; not accepted.
+- **Findings:** pure-version `smoke=false` retained scope `all`, and the direct mutation verifier
+  leaked a measured 398 MB clone per execution on persistent runners. Missing-shadow-file and
+  duplicate-leaf cases were not retained even though scratch attacks failed closed.
+- **Remediation:** scope now follows the final required boolean before distinguishing full versus
+  selected. The suite adds both mutations and wraps its complete body in unconditional recursive
+  scratch cleanup. A fixed invocation leaves the temp-directory count unchanged.
+- **Cleanup:** six exact `classifier-smoke-negative-*` directories created by the superseded harness
+  were removed after path/prefix inspection (~2.4 GB); they were diagnostics only and are not
+  recoverable evidence.
+- **Boundary:** another exact-commit unchanged-scope 0-high/0-medium review is mandatory.

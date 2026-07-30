@@ -219,9 +219,11 @@ const classification = {
   pureVersionBump: pureVersionBump?.ok === true,
   unit: unitRequired,
   smoke: smokeRequired,
-  smoke_scope: effectiveSmokeFull
-    ? "all"
-    : `${smokeSelection.tests.length} test file(s)`,
+  smoke_scope: !smokeRequired
+    ? "none"
+    : effectiveSmokeFull
+      ? "all"
+      : `${smokeSelection.tests.length} test file(s)`,
   smoke_reason: pureVersionBump?.ok
     ? "pure version bump — no observable change"
     : smokeWidenedByMetadata

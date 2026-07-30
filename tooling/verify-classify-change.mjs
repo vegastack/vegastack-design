@@ -220,6 +220,11 @@ assert.equal(
   "a pure version bump must NOT require the cross-engine smoke lane",
 );
 assert.equal(
+  bump.json.smoke_scope,
+  "none",
+  "a non-required smoke lane must report none, never a widened scope",
+);
+assert.equal(
   bump.json.pureVersionBump,
   true,
   "a pure version bump must be RECOGNISED as one, not merely happen to require nothing",
@@ -229,7 +234,7 @@ assert.equal(
   true,
   "has_changesets must always be set",
 );
-checks += 3;
+checks += 4;
 
 const real = classify(`${COMPONENT_CHANGE}~1`, COMPONENT_CHANGE);
 assert.equal(
@@ -564,6 +569,8 @@ for (const committed of [false, true]) {
     true,
     "mode-only component change must require smoke",
   );
+  assert.equal(result.smoke_scope, "all");
+  assert.match(result.smoke_reason, /metadata|binary/);
   assert.equal(
     result.contracts_scope,
     "all",
@@ -574,7 +581,7 @@ for (const committed of [false, true]) {
     0,
     "mode-only component change must not be reported as provenance-only",
   );
-  checks += 5;
+  checks += 7;
 }
 
 for (const [label, mutate] of [

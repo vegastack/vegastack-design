@@ -1011,3 +1011,19 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   chain. A no-dependency 27-assertion suite covers clean, stale, malformed, conflicting, invalid,
   global, and unknown cases. Digest construction uses `lstatSync` with explicit `ENOENT`, preserving
   dangling link type and target. The 0-high/2-medium/1-low review is superseded, not closure evidence.
+
+## 2026-07-30 — Classifier inverse scope contradiction and scratch-clone leak
+
+- **Medium finding:** after the first scope fix, historical Version Packages commit `9553498`
+  correctly returned `smoke=false` but still serialized `smoke_scope: "all"`. Scope was derived before
+  the final pure-version short circuit instead of from the final scheduling decision.
+- **Medium finding:** `verify-classifier-smoke.mjs` created a full scratch clone without cleanup. Six
+  observed runs retained 398 MB each (~2.4 GB total), a persistent-mini disk exhaustion path. The
+  suite also lacked explicit missing-shadow-file and duplicate-leaf mutations.
+- **Systemic fix:** a non-required lane now always reports scope `none`; required route/metadata/global
+  widening reports `all`, and direct selection reports its exact file count. The verifier removes its
+  scratch tree in `finally`, including assertion failures, and covers missing files plus duplicate
+  leaves. A before/after probe stayed at six directories during the fixed run; the six confirmed
+  leaked directories were then deleted, recovering about 2.4 GB.
+- **Evidence boundary:** the `0d50bfe7` review verdict was 0 high / 2 medium / 0 low and is superseded.
+  Fresh committed-tree review remains required; no previous receipt applies.

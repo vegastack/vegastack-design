@@ -780,3 +780,11 @@ structured output, add 27 direct no-dependency mutations, and use `lstatSync` be
 `ENOENT`. The overlapped dual release-preflight sample was discarded; a serial rerun passed the full
 minor-bump/carry/npm-state/consume chain. This round remains open until the remediation is committed
 and a fresh unchanged-scope review reports zero high and zero medium.
+
+The next exact-commit pass on `0d50bfe7` again returned **0 high / 2 medium / 0 low**. The inverse
+scope case remained contradictory (`smoke=false`, scope `all`), and the newly retained mutation
+suite leaked one measured 398 MB clone on every root lint. Six runs had accumulated ~2.4 GB. The
+repair derives scope after the final required decision, adds missing-file and duplicate-leaf attacks,
+and guarantees scratch removal in `finally`; a before/after invocation leaves the directory count
+unchanged. The six exact leaked scratch paths were inspected and deleted. This remains remediation,
+not closure, until committed and independently re-reviewed unchanged.

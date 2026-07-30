@@ -296,7 +296,9 @@ After publishing, `pnpm release:state` verifies both exact public versions. A la
   its clean-clone fixture has no `node_modules` and exercises both empty and stale registry ranges.
   Run `node tooling/verify-classifier-smoke.mjs` for malformed/conflicting shadow mutations. If
   `smoke=true`, its structured scope and reason must describe the effective widening—never “0 test
-  files” after route, metadata, binary, or global logic widened the lane to all.
+  files” after route, metadata, binary, or global logic widened the lane to all. If `smoke=false`,
+  scope must be `none`. The verifier must clean its full scratch clone even when an assertion throws;
+  persistent minis cannot absorb hundreds of megabytes per lint run.
 
 ## The one thing still open
 
