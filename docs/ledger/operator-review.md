@@ -1004,3 +1004,12 @@ each was invisible in review and each is the kind that would have degraded the t
   glyph-edge delta is retained as human-review-only rasterization evidence and cannot write a receipt.
 - **Focused adversarial verdict:** 0 high and 0 medium after nine mutations proved the route, both
   five-root counts, four visibility/layout predicates, and pre-screenshot ordering.
+
+## 2026-07-30 — OTP locator screenshot containment supersession
+
+- **New evidence:** the readiness-hardened rerun still produced the 4,037-pixel mobile delta, while
+  its full failure screenshot visibly contained all five rows. The prior hydration explanation was
+  incomplete; the focused review verdict remains true only for the checked readiness scope.
+- **Revised invariant:** reset nested vertical scroll, anchor row one, then prove all five row boxes
+  are geometrically contained by the screenshot target before capture. A box may be CSS-visible and
+  nonzero while still clipped outside that target.

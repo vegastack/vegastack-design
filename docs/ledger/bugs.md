@@ -839,3 +839,16 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   Removing that readiness call is a failing harness mutation. The remaining same-tree 17-pixel dark
   glyph delta is visually identical rasterization and remains human-review evidence, not a retry
   pass or receipt.
+
+## 2026-07-30 — OTP readiness did not prevent locator screenshot clipping
+
+- **Supersedes the diagnosis above:** the first readiness-hardened same-tree rerun reproduced the
+  exact 4,037-pixel mobile image. Its full failure screenshot showed all five rows; only the locator
+  screenshot omitted the first two. The roots were hydrated and visible, so hydration was not the
+  remaining cause.
+- **Root cause:** nested boxes with `overflow-x-auto` compute the other overflow axis to `auto`.
+  Locator screenshot scrolling could leave valid row boxes outside the screenshot target; the first
+  fix checked box size/style but not geometric containment.
+- **Systemic fix:** reset nested vertical scroll, anchor the first OTP row, and require every row's
+  top/bottom to remain within the capture target before screenshotting. Four additional mutations
+  reject removal of reset, anchor, top containment, or bottom containment.

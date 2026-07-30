@@ -650,3 +650,9 @@ The seven structured-report mutations, docs TypeScript, operator-doc 58/59/14, s
 checks also passed. Same-tree Before/After inspection found no visible content or layout change; the
 remaining 17 pixels sit only on glyph anti-aliasing edges. This is the new focused review closure;
 human visual acceptance and terminal full ship/receipt remain separate proofs.
+
+Runtime evidence immediately superseded that closure as final acceptance: the first
+readiness-hardened OTP rerun reproduced the 4,037-pixel mobile delta. The full failure screenshot
+contained all five rows while the locator image clipped the first two, disproving hydration as the
+remaining cause. The scope is reopened for nested-scroll reset, first-row anchoring, and exact
+top/bottom containment mutations before another focused review and same-tree run.

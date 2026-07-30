@@ -88,6 +88,41 @@ async function stabilizeComponentFixture(path: string, fixture: Locator) {
       { message: "OTP VRT fixture must lay out all five state rows" },
     )
     .toBe(5);
+
+  // Locator screenshots can scroll nested `overflow-x-auto` boxes vertically (CSS computes the
+  // other axis to `auto`) while bringing the target into view. That left all five OTP roots in the
+  // DOM with valid boxes but clipped the first two rows from one mobile capture. Reset nested
+  // vertical scroll, anchor the first state row, then prove every row remains inside the target.
+  await fixture.evaluate((root) => {
+    for (const element of [root, ...root.querySelectorAll<HTMLElement>("*")])
+      element.scrollTop = 0;
+  });
+  await states.first().scrollIntoViewIfNeeded();
+  await expect
+    .poll(
+      async () => {
+        const fixtureBox = await fixture.boundingBox();
+        const stateBoxes = await states.evaluateAll((roots) =>
+          roots.map((root) => {
+            const box = root.getBoundingClientRect();
+            return { top: box.top, bottom: box.bottom };
+          }),
+        );
+        return (
+          fixtureBox !== null &&
+          stateBoxes.every(
+            (box) =>
+              box.top >= fixtureBox.y &&
+              box.bottom <= fixtureBox.y + fixtureBox.height,
+          )
+        );
+      },
+      {
+        message:
+          "OTP VRT state rows must be contained by the screenshot target",
+      },
+    )
+    .toBe(true);
 }
 
 describeVRT("VRT — showcase pages", () => {

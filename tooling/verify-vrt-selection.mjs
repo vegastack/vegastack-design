@@ -694,6 +694,21 @@ export function vrtHarnessProblems(source) {
       problems.push(
         `[fixture-${label}] OTP readiness must reject hidden or zero-layout roots`,
       );
+  if (!/element\.scrollTop = 0/.test(source))
+    problems.push(
+      "[fixture-scroll-reset] OTP capture must reset nested vertical scroll",
+    );
+  if (!/await states\.first\(\)\.scrollIntoViewIfNeeded\(\)/.test(source))
+    problems.push(
+      "[fixture-scroll-anchor] OTP capture must anchor its first state row",
+    );
+  if (
+    !/box\.top >= fixtureBox\.y/.test(source) ||
+    !/box\.bottom <= fixtureBox\.y \+ fixtureBox\.height/.test(source)
+  )
+    problems.push(
+      "[fixture-containment] every OTP row must remain inside the screenshot target",
+    );
   const readiness = source.indexOf(
     "await stabilizeComponentFixture(path, fixture);",
   );
@@ -759,9 +774,32 @@ for (const [label, source, expected] of [
     `${harnessSource.replace("await stabilizeComponentFixture(path, fixture);", "")}\nawait stabilizeComponentFixture(path, fixture);`,
     /fixture-order/,
   ],
+  [
+    "nested vertical scroll retained",
+    harnessSource.replace("element.scrollTop = 0;", "void element.scrollTop;"),
+    /fixture-scroll-reset/,
+  ],
+  [
+    "first row not anchored",
+    harnessSource.replace("await states.first().scrollIntoViewIfNeeded();", ""),
+    /fixture-scroll-anchor/,
+  ],
+  [
+    "top containment removed",
+    harnessSource.replace("box.top >= fixtureBox.y &&", "true &&"),
+    /fixture-containment/,
+  ],
+  [
+    "bottom containment removed",
+    harnessSource.replace(
+      "box.bottom <= fixtureBox.y + fixtureBox.height,",
+      "true,",
+    ),
+    /fixture-containment/,
+  ],
 ])
   assert.match(vrtHarnessProblems(source).join("\n"), expected, label);
 
 console.log(
-  "✓ VRT selection: exact diagnostics, 7 report mutations, and 9 fixture-readiness mutations verified",
+  "✓ VRT selection: exact diagnostics, 7 report mutations, and 13 fixture-readiness/containment mutations verified",
 );
