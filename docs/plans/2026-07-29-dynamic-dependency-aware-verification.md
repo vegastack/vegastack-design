@@ -582,3 +582,14 @@ mutations reject every relaxation. Exact same-tree commit
 4 unchanged / 0 new / 0 removed / 0 broken; all four retained images visibly show all five OTP
 states. This is measured capture evidence (`n=4`, cold base 5.8m, warm head 3.5m; CPU/RSS and thermal
 state unknown), not receipt evidence and not a production-policy change.
+
+Adversarial review superseded the initial 19-mutation verifier scope. Presence checks could not prove
+that assertions were reachable or unswallowed, and non-null geometry did not prove that a
+non-full-page clip remained inside the viewport. The current verifier parses TSX with installed
+TypeScript 6.0.3 and enforces exact ordered readiness/capture control flow, terminal call methods,
+null guards, and a finite positive viewport-contained rectangle. Forty-four mutations cover the
+reproduced unreachable, early-return, overwrite, ignored-promise, short-circuit, swallowed-failure,
+negative, zero-size, and overflow cases plus the original route/readiness/default-path cases. A
+second exact same-tree run at `8a5cd944079ee85ec43285bdb5bc23bb5105c7ac` reported 0 changed /
+4 unchanged / 0 new / 0 removed / 0 broken (`n=4`; cold base 7.0m, warm head 3.2m; CPU/RSS/thermal
+unknown). This additional proof remains VRT diagnostic evidence only.

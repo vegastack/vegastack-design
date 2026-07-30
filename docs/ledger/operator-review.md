@@ -1027,3 +1027,16 @@ each was invisible in review and each is the kind that would have degraded the t
   project leaves, 0 changed and 4 unchanged. Human inspection confirms five visible states in each
   desktop/mobile light/dark image. A focused independent adversarial verdict still follows before
   this becomes the final zero-high/zero-medium review closure.
+
+## 2026-07-30 — OTP executable-proof and viewport supersession
+
+- **Medium findings:** required words could survive on unreachable, short-circuited, or swallowed
+  branches, and a non-null rectangle could still be clipped by the visible viewport. The earlier
+  19-mutation verdict remains historical scope evidence, not final acceptance.
+- **Revised invariant:** each readiness/action/assertion is a directly awaited call whose terminal
+  method is exact; the OTP branch has an exact six-statement derive/check/capture sequence; null
+  guards are exact; and finite positive geometry is wholly inside the current viewport. The ordinary
+  locator branch remains mandatory and cannot swallow failure.
+- **Evidence:** 44 structural mutations pass, docs TS passes, and a fresh exact same-tree four-project
+  run on `8a5cd944079ee85ec43285bdb5bc23bb5105c7ac` is 0 changed / 4 unchanged. Review remains open
+  pending the independent unchanged-scope rerun; no receipt or production authority is inferred.

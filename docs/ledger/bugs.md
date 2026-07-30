@@ -870,3 +870,24 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   0 removed / 0 broken. Retained snapshots visibly contain empty, filled, masked, error, and disabled
   rows. This is capture-mechanism evidence only; it does not write receipt evidence or relax the
   human VRT decision.
+
+## 2026-07-30 — OTP verifier accepted unreachable, swallowed, and truncated proof paths
+
+- **Adversarial finding:** the first page-clip verifier accepted unreachable screenshots, early
+  returns, a post-derivation 1×1 overwrite, ignored or short-circuited readiness, short-circuited
+  throw guards, and `.catch(() => {})` failure swallowing. It also required a non-null bounding box
+  without proving that the full rectangle was inside the current viewport; Playwright permits
+  negative viewport-relative coordinates.
+- **Root cause:** source-fragment presence and weak AST shape checks were mistaken for executed
+  control-flow proof. Page clip validity was inferred from visibility instead of checked against the
+  capture API's viewport geometry.
+- **Systemic fix:** parse the TSX with installed TypeScript 6.0.3. Require one exact ordered OTP
+  readiness function, directly awaited calls with exact terminal methods, an exact OTP/ordinary
+  sibling branch, no extra OTP statements, exact null guards, and an exact seven-term
+  finite/positive/in-viewport OR-chain immediately before capture. Forty-four mutations reject
+  unreachable, early-return, overwritten, ignored, short-circuited, swallowed, negative, zero-size,
+  overflow, widened-route, and removed-default variants.
+- **Runtime evidence:** same-tree commit `8a5cd944079ee85ec43285bdb5bc23bb5105c7ac`
+  executed four viewport-bounded leaves and reported 0 changed / 4 unchanged / 0 new / 0 removed /
+  0 broken (cold base 7.0m, warm head 3.2m; CPU/RSS/thermal unknown). The terminal-method verifier
+  commits change no rendered source. Final review closure remains separate.

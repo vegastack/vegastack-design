@@ -666,3 +666,14 @@ same-tree rerun at `0202fb160ff2ede9c1003f6caef55f3af88aa808` executed four leav
 0 changed / 4 unchanged / 0 new / 0 removed / 0 broken; all retained snapshots visibly show all five
 OTP state rows. This closes the runtime capture defect, subject to a fresh focused adversarial review
 and the still-separate terminal full-ship/receipt proof.
+
+Fresh adversarial review reopened that closure with two medium classes. Source-fragment checks did
+not prove execution: unreachable/early-return/overwritten/ignored/short-circuited paths and awaited
+`.catch(() => {})` could retain expected words while voiding assertions. Also, non-null locator
+geometry could be negative or extend beyond a non-full-page viewport and therefore be truncated.
+The verifier now uses installed TypeScript 6.0.3 to require exact ordered control flow, terminal call
+methods, throw-guard expressions, and the seven-term viewport OR-chain. Forty-four independent
+mutations include every reproduced escape. Same-tree commit
+`8a5cd944079ee85ec43285bdb5bc23bb5105c7ac` again executed all four leaves and reported 0 changed /
+4 unchanged / 0 new / 0 removed / 0 broken. This round remains open until the independent reviewer
+attacks the new HEAD and reports 0 high / 0 medium; terminal ship and receipt remain separate.
