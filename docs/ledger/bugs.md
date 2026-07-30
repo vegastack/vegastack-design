@@ -852,3 +852,21 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
 - **Systemic fix:** reset nested vertical scroll, anchor the first OTP row, and require every row's
   top/bottom to remain within the capture target before screenshotting. Four additional mutations
   reject removal of reset, anchor, top containment, or bottom containment.
+
+## 2026-07-30 — Locator screenshot re-scrolled after OTP containment proof
+
+- **Supersedes the containment fix as sufficient:** a retained same-tree run at `11f06af2` again
+  produced the 4,037-pixel mobile delta after all five rows passed the pre-capture containment poll.
+  The full failure image contained every row, while the locator snapshot clipped the first two.
+- **Root cause:** Playwright performs its own scroll-to-element step inside a locator screenshot.
+  The pre-capture scroll reset and containment proof cannot constrain that later internal action.
+- **Systemic fix:** retain the five-row visibility/layout, scroll-reset, anchor, and containment proof;
+  then, for the exact OTP fixture only, derive its non-null bounding box and use a page screenshot
+  clipped to that rectangle. Every other fixture retains locator screenshots. Nineteen harness
+  mutations reject route widening, missing readiness/containment, invented or missing rectangles,
+  omitted clipping, locator fallback for OTP, and removal of the ordinary fixture path.
+- **Runtime proof:** exact same-tree commit `0202fb160ff2ede9c1003f6caef55f3af88aa808`
+  executed all four desktop/mobile light/dark leaves and reported 0 changed / 4 unchanged / 0 new /
+  0 removed / 0 broken. Retained snapshots visibly contain empty, filled, masked, error, and disabled
+  rows. This is capture-mechanism evidence only; it does not write receipt evidence or relax the
+  human VRT decision.

@@ -656,3 +656,13 @@ readiness-hardened OTP rerun reproduced the 4,037-pixel mobile delta. The full f
 contained all five rows while the locator image clipped the first two, disproving hydration as the
 remaining cause. The scope is reopened for nested-scroll reset, first-row anchoring, and exact
 top/bottom containment mutations before another focused review and same-tree run.
+
+The subsequent retained containment run reproduced the same 4,037-pixel delta after its pre-capture
+containment poll passed. That runtime evidence superseded the static containment closure: a locator
+screenshot performs another internal scroll after VegaStack's proof. The exact OTP branch now uses a
+page screenshot clipped to the verified non-null fixture rectangle; ordinary components retain
+locator screenshots. Nineteen mutations cover the complete readiness/containment/clip path. An exact
+same-tree rerun at `0202fb160ff2ede9c1003f6caef55f3af88aa808` executed four leaves and reported
+0 changed / 4 unchanged / 0 new / 0 removed / 0 broken; all retained snapshots visibly show all five
+OTP state rows. This closes the runtime capture defect, subject to a fresh focused adversarial review
+and the still-separate terminal full-ship/receipt proof.

@@ -1013,3 +1013,17 @@ each was invisible in review and each is the kind that would have degraded the t
 - **Revised invariant:** reset nested vertical scroll, anchor row one, then prove all five row boxes
   are geometrically contained by the screenshot target before capture. A box may be CSS-visible and
   nonzero while still clipped outside that target.
+
+## 2026-07-30 — OTP verified page-clip boundary
+
+- **New runtime evidence:** the containment-hardened locator path reproduced the same clipped image
+  even after the pre-capture geometric proof passed. Playwright's later locator-owned scroll was
+  outside that proof's control.
+- **Decision:** use a page screenshot clipped to the verified fixture rectangle only for the exact
+  OTP route. Preserve all readiness and containment checks, fail when the rectangle is absent, and
+  retain locator screenshots everywhere else. The clip changes capture mechanics, not output,
+  selection, thresholds, receipt authority, or production policy.
+- **Measured result:** same-tree commit `0202fb160ff2ede9c1003f6caef55f3af88aa808`, `n=4` exact
+  project leaves, 0 changed and 4 unchanged. Human inspection confirms five visible states in each
+  desktop/mobile light/dark image. A focused independent adversarial verdict still follows before
+  this becomes the final zero-high/zero-medium review closure.

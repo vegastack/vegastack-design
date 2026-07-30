@@ -564,3 +564,21 @@ sample.
 | Turbo inputs/cache                    | Complete external/root/dynamic input inventory and mutations, then MK.                                                                                                                  | Compare shadow hashes only.                                                                               | `globalDependencies: ["tooling/**"]` stays.               |
 | Production composition/docs-only ship | D7, new evidence profile/design, canary, and MK.                                                                                                                                        | No local activation action exists.                                                                        | Exact-final-tree production-full receipt.                 |
 | Push / Version PR / Deploy            | Three separate MK approvals and real upstream state at each boundary.                                                                                                                   | Stop after local final evidence and ask only for push approval.                                           | No remote or production action under this implementation. |
+
+### Post-implementation VRT capture remediation — 2026-07-30
+
+The origin/main review exposed a false OTP delta: two of five state rows were intermittently absent
+from a locator snapshot although the full failure screenshot contained the complete component. Two
+incremental safeguards—hydration readiness and geometric containment—were each mutation-tested but
+then honestly superseded when runtime same-tree evidence reproduced the delta. Official Playwright
+behavior explains the remaining gap: locator screenshots scroll their element into view after the
+pre-capture proof.
+
+The final mechanism keeps all five-row readiness, scroll reset, anchoring, and containment checks,
+then uses `expect(page).toHaveScreenshot` with the verified non-null fixture bounding box as `clip`
+for the exact OTP route. Ordinary fixtures still use locator screenshots. Nineteen semantic harness
+mutations reject every relaxation. Exact same-tree commit
+`0202fb160ff2ede9c1003f6caef55f3af88aa808` executed four project leaves and reported 0 changed /
+4 unchanged / 0 new / 0 removed / 0 broken; all four retained images visibly show all five OTP
+states. This is measured capture evidence (`n=4`, cold base 5.8m, warm head 3.5m; CPU/RSS and thermal
+state unknown), not receipt evidence and not a production-policy change.
