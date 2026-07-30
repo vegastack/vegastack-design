@@ -37,7 +37,7 @@ import {
   workingTreeChangeInventory,
 } from "./lib/change-set.mjs";
 import { createRouteScopeModel, selectRoutes } from "./lib/route-scope.mjs";
-import { smokeImpact } from "./lib/smoke-scope.mjs";
+import { classifierSmokeImpact } from "./lib/classifier-smoke.mjs";
 
 /** Paths whose change can break the browser-unit suite. */
 const UNIT_SURFACE = [
@@ -167,7 +167,7 @@ const unitRequired =
   !pureVersionBump?.ok &&
   (unmodelledFileFacts ||
     changed.some((file) => UNIT_SURFACE.some((pattern) => pattern.test(file))));
-const smokeSelection = smokeImpact(changed);
+const smokeSelection = classifierSmokeImpact(changed);
 // A global-surface change (tokens, the shared runtime) can move motion and focus behaviour in ways
 // only a second engine shows, so a full contract sweep implies the smoke lane too.
 const smokeRequired =

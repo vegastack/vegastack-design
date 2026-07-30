@@ -388,6 +388,61 @@ function mutationRepository() {
   return root;
 }
 
+// `ci.yml` deliberately runs receipt-guard before `pnpm install`. Keep this executable instead of
+// trusting the workflow comment: every module reachable from classify-change must load in a clean
+// clone with no node_modules, even for an empty range. A top-level parser import otherwise turns the
+// fail-closed receipt check into an infrastructure failure before it can inspect the receipt.
+{
+  const scratch = mkdtempSync(join(tmpdir(), "classifier-preinstall-"));
+  const root = join(scratch, "repo");
+  try {
+    execFileSync("git", ["clone", "--quiet", "--no-hardlinks", ROOT, root], {
+      encoding: "utf8",
+    });
+    copyCurrentModuleClosure(root, ["tooling/classify-change.mjs"]);
+    assert.equal(
+      existsSync(join(root, "node_modules")),
+      false,
+      "the pre-install classifier fixture must not inherit node_modules",
+    );
+    const result = JSON.parse(
+      execFileSync(
+        "node",
+        [
+          "tooling/classify-change.mjs",
+          "--before",
+          "HEAD",
+          "--after",
+          "HEAD",
+          "--json",
+        ],
+        { cwd: root, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 },
+      ),
+    );
+    assert.equal(result.changedFiles, 0);
+    writeFileSync(
+      join(root, "packages/ui/registry/ui/button.tsx"),
+      `${readFileSync(join(root, "packages/ui/registry/ui/button.tsx"), "utf8")}\n// pre-install mutation\n`,
+    );
+    const changed = JSON.parse(
+      execFileSync(
+        "node",
+        ["tooling/classify-change.mjs", "--before", "HEAD", "--json"],
+        { cwd: root, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 },
+      ),
+    );
+    assert.equal(
+      changed.smoke,
+      true,
+      "a pre-install registry mutation with a stale dependency shadow must widen smoke coverage",
+    );
+    assert.equal(changed.smoke_scope, "all");
+    checks += 4;
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+}
+
 function workingTreeVersionResult(mutate) {
   const root = mutationRepository();
   try {

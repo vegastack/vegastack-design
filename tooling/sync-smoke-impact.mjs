@@ -7,6 +7,7 @@ import { join, relative, resolve } from "node:path";
 
 import { ROOT } from "./lib/change-set.mjs";
 import { contractSha256 } from "./lib/gate-receipt.mjs";
+import { vitestImpactContentDigest } from "./lib/classifier-smoke.mjs";
 import {
   SMOKE_MODEL,
   SMOKE_RELATED_MODEL,
@@ -71,6 +72,7 @@ const output = `${JSON.stringify(
   {
     generatedBy: "tooling/sync-smoke-impact.mjs",
     contractSha256: contractSha256(),
+    contentDigest: vitestImpactContentDigest(),
     inputDigest: vitestImpactInputDigest(),
     toolchain,
     toolchainDigest: vitestImpactToolchainDigest(toolchain),

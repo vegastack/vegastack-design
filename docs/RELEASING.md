@@ -191,7 +191,12 @@ receipt. D1 is still a policy checkpoint, so full consume remains part of PR CI,
 and the production-full local ship proof regardless of an affected pass.
 
 PR CI is receipt-first: `verify` has `needs: receipt-guard`, so invalid receipt evidence stops before
-the long free-mini reexecution. The self-hosted pnpm-cache removal experiment is committed disabled;
+the long free-mini reexecution.
+`receipt-guard` intentionally performs no dependency install. `classify-change.mjs` therefore uses a
+dependency-free smoke authority whose generated Vitest comparison is bound to complete input bytes,
+file modes, symlinks, contract authority, and pinned toolchain. A clean-clone mutation test enforces
+that boundary; do not add an install to mask a classifier import regression.
+The self-hosted pnpm-cache removal experiment is committed disabled;
 only `SELF_HOSTED_PNPM_CACHE_CANARY=enabled` plus an exact
 `SELF_HOSTED_PNPM_CACHE_CANARY_RUNNER` selects the no-Actions-cache path. Missing variables retain the
 cached control. Do not enable it without the separate repository-setting approval and alternating

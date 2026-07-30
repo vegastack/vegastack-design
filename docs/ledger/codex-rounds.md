@@ -760,3 +760,14 @@ A full dry-run fixture now reproduces the ordering mismatch and requires sorted 
 output. The producer uses one canonical sort for full and scoped modes; the strict receipt validator
 is unchanged. Focused selection/report/operator checks pass. Fresh deterministic/adversarial review
 and an entirely new terminal ship remain required.
+
+## 2026-07-30 — First real PR workflow reopened release closure
+
+PR run `30535403126` failed closed in `receipt-guard`; its classifier imported TypeScript before the
+intentionally absent dependency install, and `verify` remained skipped. The new negative fixture
+first reproduced that exact `ERR_MODULE_NOT_FOUND` in a clean clone with no `node_modules`. The root
+repair separates a dependency-free scheduling authority from the installed parser-backed oracle and
+adds a generated full-content/file-metadata binding. Focused classifier, smoke, workflow-security,
+and 59 workflow mutation suites pass. This is remediation evidence only: prior adversarial closure
+and production-full receipt are superseded until the changed tree is committed, independently
+reviewed, fully shipped, and observed in a new PR run.

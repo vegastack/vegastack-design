@@ -981,3 +981,18 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   sorted routes and 864 expected leaves; the pre-fix producer fails that assertion.
 - **Evidence boundary:** the failed 31m20s run is retained measured diagnostic evidence only. Its
   substantive passes cannot be recovered into a receipt; a fresh exact-tree full ship is required.
+
+## 2026-07-30 — PR receipt guard imported an uninstalled parser
+
+- **Symptom:** the first real PR run, `30535403126`, failed before receipt verification because
+  `classify-change.mjs` reached `smoke-scope.mjs`'s top-level `typescript` import. The receipt-first
+  job intentionally has no dependency installation; downstream `verify` was correctly skipped.
+- **Root cause:** local parser-backed selection and pre-install scheduling classification shared one
+  module boundary. Local tests inherited workspace `node_modules`, so none reproduced the runner.
+- **Systemic fix:** a dependency-free classifier rederives registry smoke closure and consumes the
+  generated Vitest comparison only when its contract, pinned toolchain, complete byte content, file
+  type/mode, and symlink digest are current. Missing, stale, malformed, unmodelled, or disagreeing
+  evidence widens. A clean clone with no `node_modules` now tests both an empty range and a changed
+  registry source whose stale shadow must select full smoke.
+- **Evidence boundary:** run `30535403126` remains failed evidence. No rerun can repair it, and the
+  previous production-full receipt cannot cover this tracked fix; a fresh exact-tree ship is required.

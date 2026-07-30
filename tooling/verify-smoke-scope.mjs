@@ -2,10 +2,12 @@
 
 import assert from "node:assert/strict";
 import {
+  chmodSync,
   mkdtempSync,
   mkdirSync,
   rmSync,
   symlinkSync,
+  unlinkSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -20,6 +22,7 @@ import {
   vitestImpactInputDigest,
   vitestFullTestInventory,
 } from "./lib/smoke-scope.mjs";
+import { vitestImpactContentDigest } from "./lib/classifier-smoke.mjs";
 
 const fullInventory = vitestFullTestInventory();
 for (const path of [
@@ -57,6 +60,40 @@ try {
   );
 } finally {
   rmSync(inventoryFixture, { recursive: true, force: true });
+}
+
+const contentFixture = mkdtempSync(join(tmpdir(), "vsk-impact-content-"));
+try {
+  const path = join(contentFixture, "packages/ui/registry/ui/button.tsx");
+  mkdirSync(join(contentFixture, "packages/ui/registry/ui"), {
+    recursive: true,
+  });
+  writeFileSync(path, "export const Button = true;\n");
+  const original = vitestImpactContentDigest({ root: contentFixture });
+  writeFileSync(path, "export const Button = false;\n");
+  const contentChanged = vitestImpactContentDigest({ root: contentFixture });
+  assert.notEqual(
+    contentChanged,
+    original,
+    "source bytes must move the digest",
+  );
+  chmodSync(path, 0o755);
+  const modeChanged = vitestImpactContentDigest({ root: contentFixture });
+  assert.notEqual(
+    modeChanged,
+    contentChanged,
+    "file mode must move the digest",
+  );
+  unlinkSync(path);
+  symlinkSync("button-target.tsx", path);
+  const symlinkChanged = vitestImpactContentDigest({ root: contentFixture });
+  assert.notEqual(
+    symlinkChanged,
+    modeChanged,
+    "file-to-symlink replacement must move the digest",
+  );
+} finally {
+  rmSync(contentFixture, { recursive: true, force: true });
 }
 
 assert.equal(

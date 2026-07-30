@@ -19,11 +19,13 @@ import {
   installedToolchain,
   pinnedToolchain,
 } from "./gate-receipt.mjs";
+import { vitestImpactContentDigest } from "./classifier-smoke.mjs";
 
 export const VITEST_IMPACT_AUTHORITY_PATHS = [
   "packages/ui/component-contracts.json",
   "packages/ui/registry.json",
   "packages/ui/smoke-impact.generated.json",
+  "tooling/lib/classifier-smoke.mjs",
 ];
 
 function readRecords() {
@@ -292,10 +294,12 @@ export function createVitestImpactContext() {
   const toolchain = vitestImpactToolchain();
   const toolchainDigest = vitestImpactToolchainDigest(toolchain);
   const inputDigest = vitestImpactInputDigest({ records });
+  const contentDigest = vitestImpactContentDigest();
   const shadow = readShadow();
   const shadowCurrent =
     !shadow.unreadable &&
     shadow.contractSha256 === contractSha256() &&
+    shadow.contentDigest === contentDigest &&
     shadow.inputDigest === inputDigest &&
     shadow.toolchainDigest === toolchainDigest &&
     JSON.stringify(shadow.toolchain) === JSON.stringify(toolchain);
@@ -307,6 +311,7 @@ export function createVitestImpactContext() {
     shadow,
     shadowCurrent,
     inputDigest,
+    contentDigest,
     toolchain,
     toolchainDigest,
     authorityFingerprint: authorityFingerprintAtConstruction,
@@ -359,6 +364,7 @@ export function smokeImpact(
       ? context.shadowCurrent
       : !shadow.unreadable &&
         shadow.contractSha256 === contractSha256() &&
+        shadow.contentDigest === context.contentDigest &&
         shadow.inputDigest === context.inputDigest &&
         shadow.toolchainDigest === context.toolchainDigest &&
         JSON.stringify(shadow.toolchain) === JSON.stringify(context.toolchain);
@@ -424,6 +430,7 @@ export function vitestImpact(
       ? context.shadowCurrent
       : !shadow.unreadable &&
         shadow.contractSha256 === contractSha256() &&
+        shadow.contentDigest === context.contentDigest &&
         shadow.inputDigest === context.inputDigest &&
         shadow.toolchainDigest === context.toolchainDigest &&
         JSON.stringify(shadow.toolchain) === JSON.stringify(context.toolchain);

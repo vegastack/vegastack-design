@@ -282,6 +282,19 @@ After publishing, `pnpm release:state` verifies both exact public versions. A la
   relabel a new skip as environmental to get a receipt; review and mutation-test a new exact
   capability authority first.
 
+## 18. Receipt-first means the classifier must load before install
+
+- **Symptom:** PR run `30535403126` failed in `receipt-guard` with
+  `ERR_MODULE_NOT_FOUND: Cannot find package 'typescript'`; `verify` correctly never started.
+- **Cause:** dependency-aware smoke selection was imported from the parser-backed local gate module,
+  but the seconds-long guard deliberately performs no `pnpm install`.
+- **Now:** the guard uses a dependency-free classifier authority. The generated Vitest oracle is
+  independently bound to complete source bytes plus file type/mode/symlink metadata, contract
+  authority, and pinned toolchain; stale, malformed, or conflicting evidence widens. The installed
+  local gate retains its parser-backed comparison as the independent oracle.
+- **Rule:** do not add dependency setup to make this pass. Run `node tooling/verify-classify-change.mjs`;
+  its clean-clone fixture has no `node_modules` and exercises both empty and stale registry ranges.
+
 ## The one thing still open
 
 **The forced-colors focus assertion cannot fail.** Chromium paints its own ≥2px ring in that mode and

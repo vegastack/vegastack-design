@@ -1145,3 +1145,15 @@ each was invisible in review and each is the kind that would have degraded the t
   864-leaf output.
 - **Boundary:** no route or contract check is removed. Prior review closure is superseded for final
   acceptance until the isolated change receives review and a new full ship succeeds.
+
+## 2026-07-30 — Pre-install classifier dependency boundary
+
+- **Finding:** real PR run `30535403126` proved the receipt-first classifier was not dependency-free;
+  its static TypeScript import failed before the committed receipt could be inspected.
+- **Decision:** preserve the no-install guard. Split scheduling classification from parser-backed
+  local selection, and bind their generated handoff to full content and filesystem metadata in
+  addition to contract/toolchain authorities. Stale or conflicting handoff data widens, never skips.
+- **Negative proof:** a clean-clone fixture asserts `node_modules` is absent, runs an empty range, then
+  mutates a registry source without regenerating the shadow and requires `smoke=true`, scope `all`.
+- **Boundary:** the failed workflow is not retried into evidence. The fix requires new deterministic,
+  adversarial, production-full, receipt, push, and PR-workflow evidence in that order.
