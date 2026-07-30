@@ -66,35 +66,108 @@ function disablingApi(node) {
 
 function inspectBoundSource(source) {
   const parsed = sourceFile(source, VITEST_RUNTIME_EXCLUSION_SOURCE);
-  const capabilityNodes = [];
+  const capabilityFunctions = [];
+  const pasteDeclarations = [];
+  const vitestTestImports = [];
+  const directPasteCalls = [];
   const pasteNames = [];
   const disablingApis = [];
+  const invalidBindings = [];
 
   for (const statement of parsed.statements) {
     if (
       ts.isFunctionDeclaration(statement) &&
       statement.name?.text === "syntheticClipboardFilesSupported"
     )
-      capabilityNodes.push(statement);
+      capabilityFunctions.push(statement);
     if (
       ts.isVariableStatement(statement) &&
-      statement.declarationList.declarations.some(
-        (declaration) =>
-          ts.isIdentifier(declaration.name) &&
-          declaration.name.text === "pasteTest",
-      )
+      statement.declarationList.declarations.length === 1 &&
+      ts.isIdentifier(statement.declarationList.declarations[0].name) &&
+      statement.declarationList.declarations[0].name.text === "pasteTest"
+    ) {
+      pasteDeclarations.push({
+        statement,
+        declaration: statement.declarationList.declarations[0],
+      });
+    }
+    if (
+      ts.isImportDeclaration(statement) &&
+      ts.isStringLiteral(statement.moduleSpecifier) &&
+      statement.moduleSpecifier.text === "vitest" &&
+      statement.importClause?.namedBindings &&
+      ts.isNamedImports(statement.importClause.namedBindings)
     )
-      capabilityNodes.push(statement);
+      for (const specifier of statement.importClause.namedBindings.elements)
+        if (
+          specifier.name.text === "test" &&
+          (specifier.propertyName?.text ?? "test") === "test"
+        )
+          vitestTestImports.push(specifier);
+    if (
+      ts.isExpressionStatement(statement) &&
+      ts.isCallExpression(statement.expression) &&
+      ts.isIdentifier(statement.expression.expression) &&
+      statement.expression.expression.text === "pasteTest"
+    )
+      directPasteCalls.push(statement.expression);
   }
+
+  if (
+    capabilityFunctions.length !== 1 ||
+    pasteDeclarations.length !== 1 ||
+    vitestTestImports.length !== 1
+  )
+    throw new Error(
+      `${VITEST_RUNTIME_EXCLUSION_SOURCE}: capability probe, top-level pasteTest declaration, and direct Vitest test import must each exist exactly once`,
+    );
+  const capabilityFunction = capabilityFunctions[0];
+  const { statement: pasteStatement, declaration: pasteDeclaration } =
+    pasteDeclarations[0];
+  const pasteInitializer = pasteDeclaration.initializer;
+  const pasteTestApiIdentifier =
+    pasteInitializer &&
+    ts.isCallExpression(pasteInitializer) &&
+    ts.isPropertyAccessExpression(pasteInitializer.expression) &&
+    pasteInitializer.expression.name.text === "skipIf" &&
+    ts.isIdentifier(pasteInitializer.expression.expression) &&
+    pasteInitializer.expression.expression.text === "test"
+      ? pasteInitializer.expression.expression
+      : null;
+  if (!pasteTestApiIdentifier)
+    throw new Error(
+      `${VITEST_RUNTIME_EXCLUSION_SOURCE}: pasteTest must bind directly to imported test.skipIf`,
+    );
+  const directPasteCallSet = new Set(directPasteCalls);
 
   function visit(node) {
     const disabledBy = disablingApi(node);
     if (disabledBy) disablingApis.push({ node, disabledBy });
-    if (
-      ts.isCallExpression(node) &&
-      ts.isIdentifier(node.expression) &&
-      node.expression.text === "pasteTest"
-    ) {
+    if (ts.isIdentifier(node) && node.text === "pasteTest") {
+      const isDeclaration = node === pasteDeclaration.name;
+      const isDirectCall =
+        ts.isCallExpression(node.parent) &&
+        node.parent.expression === node &&
+        directPasteCallSet.has(node.parent);
+      if (!isDeclaration && !isDirectCall)
+        invalidBindings.push(
+          "pasteTest must not be shadowed, aliased, assigned, or deferred",
+        );
+    }
+    if (ts.isIdentifier(node) && node.text === "test") {
+      const isImport = vitestTestImports.some(
+        (specifier) =>
+          node === specifier.name || node === specifier.propertyName,
+      );
+      const isDirectTestCall =
+        ts.isCallExpression(node.parent) && node.parent.expression === node;
+      const isBoundSkipIf = node === pasteTestApiIdentifier;
+      if (!isImport && !isDirectTestCall && !isBoundSkipIf)
+        invalidBindings.push(
+          "imported test must not be shadowed, aliased, assigned, or mutated",
+        );
+    }
+    if (directPasteCallSet.has(node)) {
       const [name, implementation] = node.arguments;
       if (
         !name ||
@@ -112,9 +185,9 @@ function inspectBoundSource(source) {
   }
   visit(parsed);
 
-  if (capabilityNodes.length !== 2)
+  if (invalidBindings.length > 0)
     throw new Error(
-      `${VITEST_RUNTIME_EXCLUSION_SOURCE}: capability probe and pasteTest declaration must each exist exactly once`,
+      `${VITEST_RUNTIME_EXCLUSION_SOURCE}: registration binding is not exact (${[...new Set(invalidBindings)].join("; ")})`,
     );
   if (
     disablingApis.length !== 1 ||
@@ -126,13 +199,15 @@ function inspectBoundSource(source) {
     throw new Error(
       `${VITEST_RUNTIME_EXCLUSION_SOURCE}: only the exact test.skipIf capability declaration is allowed`,
     );
-  const normalized = capabilityNodes
-    .map((node) => printer.printNode(ts.EmitHint.Unspecified, node, parsed))
-    .join("\n");
+  const normalized = [
+    "vitest:test<-test",
+    printer.printNode(ts.EmitHint.Unspecified, capabilityFunction, parsed),
+    printer.printNode(ts.EmitHint.Unspecified, pasteStatement, parsed),
+  ].join("\n");
   const binding = createHash("sha256").update(normalized).digest("hex");
   if (binding !== VITEST_RUNTIME_EXCLUSION_SOURCE_BINDING)
     throw new Error(
-      `${VITEST_RUNTIME_EXCLUSION_SOURCE}: capability/source binding changed; review the probe before updating its authority`,
+      `${VITEST_RUNTIME_EXCLUSION_SOURCE}: capability/source binding changed; review the probe before updating its authority (actual ${binding})`,
     );
   const expectedNames = VITEST_RUNTIME_EXCLUSIONS.map(
     ({ testName }) => testName,
@@ -140,7 +215,7 @@ function inspectBoundSource(source) {
   assert.deepEqual(
     [...pasteNames].sort(),
     expectedNames,
-    `${VITEST_RUNTIME_EXCLUSION_SOURCE}: pasteTest calls must exactly match the reviewed exclusion authority`,
+    `${VITEST_RUNTIME_EXCLUSION_SOURCE}: direct top-level pasteTest registrations must exactly match the reviewed exclusion authority`,
   );
   return { binding, pasteNames: [...pasteNames].sort() };
 }
@@ -178,16 +253,34 @@ const realSource = readFileSync(
   "utf8",
 );
 const firstName = VITEST_RUNTIME_EXCLUSIONS[0].testName;
+
+function rewriteFirstPasteRegistration(source, rewrite) {
+  const parsed = sourceFile(source, VITEST_RUNTIME_EXCLUSION_SOURCE);
+  const statement = parsed.statements.find(
+    (entry) =>
+      ts.isExpressionStatement(entry) &&
+      ts.isCallExpression(entry.expression) &&
+      ts.isIdentifier(entry.expression.expression) &&
+      entry.expression.expression.text === "pasteTest",
+  );
+  assert.ok(
+    statement,
+    "fixture source must contain a direct pasteTest registration",
+  );
+  const start = statement.getStart(parsed);
+  return `${source.slice(0, start)}${rewrite(source.slice(start, statement.end))}${source.slice(statement.end)}`;
+}
+
 for (const [label, source, expected] of [
   [
     "arbitrary test.skip",
     `${realSource}\ntest.skip("disabled regression", () => {});\n`,
-    /only the exact test\.skipIf capability declaration/,
+    /registration binding is not exact|only the exact test\.skipIf/,
   ],
   [
     "arbitrary test.skipIf(true)",
     `${realSource}\ntest.skipIf(true)("disabled regression", () => {});\n`,
-    /only the exact test\.skipIf capability declaration/,
+    /registration binding is not exact|only the exact test\.skipIf/,
   ],
   [
     "capability replaced by unconditional true",
@@ -200,7 +293,7 @@ for (const [label, source, expected] of [
   [
     "reviewed test renamed",
     realSource.replace(firstName, `${firstName} renamed`),
-    /pasteTest calls must exactly match/,
+    /direct top-level pasteTest registrations must exactly match/,
   ],
   [
     "reviewed test removed",
@@ -210,12 +303,75 @@ for (const [label, source, expected] of [
       ),
       "",
     ),
-    /pasteTest calls must exactly match/,
+    /direct top-level pasteTest registrations must exactly match/,
   ],
   [
     "extra paste exclusion",
     `${realSource}\npasteTest("extra disabled regression", async () => {});\n`,
-    /pasteTest calls must exactly match/,
+    /direct top-level pasteTest registrations must exactly match/,
+  ],
+  [
+    "all reviewed registrations short-circuited",
+    realSource.replaceAll("\npasteTest(", "\nfalse && pasteTest("),
+    /registration binding is not exact|direct top-level pasteTest registrations/,
+  ],
+  [
+    "one reviewed registration short-circuited",
+    rewriteFirstPasteRegistration(
+      realSource,
+      (registration) => `false && ${registration}`,
+    ),
+    /registration binding is not exact|direct top-level pasteTest registrations/,
+  ],
+  [
+    "reviewed registration behind if false",
+    rewriteFirstPasteRegistration(
+      realSource,
+      (registration) => `if (false) {\n${registration}\n}`,
+    ),
+    /registration binding is not exact|direct top-level pasteTest registrations/,
+  ],
+  [
+    "reviewed registration behind a ternary",
+    rewriteFirstPasteRegistration(
+      realSource,
+      (registration) => `true ? undefined : ${registration.replace(/;$/, "")};`,
+    ),
+    /registration binding is not exact|direct top-level pasteTest registrations/,
+  ],
+  [
+    "reviewed registration deferred in a function",
+    rewriteFirstPasteRegistration(
+      realSource,
+      (registration) =>
+        `function deferredPasteRegistration() {\n${registration}\n}`,
+    ),
+    /registration binding is not exact|direct top-level pasteTest registrations/,
+  ],
+  [
+    "shadowed pasteTest registration",
+    rewriteFirstPasteRegistration(
+      realSource,
+      (registration) =>
+        `function deferredPasteRegistration(pasteTest: typeof test) {\n${registration}\n}`,
+    ),
+    /registration binding is not exact|direct top-level pasteTest registrations/,
+  ],
+  [
+    "computed test API reassignment",
+    realSource.replace(
+      "const pasteTest =",
+      '(test as any)["skip" + "If"] = () => () => {};\nconst pasteTest =',
+    ),
+    /registration binding is not exact/,
+  ],
+  [
+    "defineProperty test API mutation",
+    realSource.replace(
+      "const pasteTest =",
+      'Object.defineProperty(test, "skipIf", { value: () => () => {} });\nconst pasteTest =',
+    ),
+    /registration binding is not exact/,
   ],
 ]) {
   assert.throws(() => inspectBoundSource(source), expected, label);
@@ -321,7 +477,52 @@ assert.throws(
   /pre-listed required Vitest leaf was skipped/,
   "an allowlisted identity still fails when the independent pre-run list requires it",
 );
+const unrelatedDropzoneFirefoxLeaf = {
+  file: VITEST_RUNTIME_EXCLUSION_SOURCE,
+  engine: "firefox",
+  testName: "unrelated Dropzone regression",
+  status: "passed",
+};
+assert.throws(
+  () =>
+    reconcileVitestRuntimeExclusions({
+      gate: "all-browsers",
+      executedLeaves: [
+        unrelatedDropzoneFirefoxLeaf,
+        ...exactRuntimeLeaves.slice(1),
+      ],
+    }),
+  /absent from the required-or-excluded universe/,
+  "a partial runtime-exclusion cohort cannot silently omit one approved leaf",
+);
+assert.throws(
+  () =>
+    reconcileVitestRuntimeExclusions({
+      gate: "all-browsers",
+      executedLeaves: [unrelatedDropzoneFirefoxLeaf],
+    }),
+  /absent from the required-or-excluded universe/,
+  "zero exclusions cannot masquerade as capability recovery when all approved leaves disappeared",
+);
+const recoveredCapabilityLeaves = exactRuntimeLeaves.map((entry) => ({
+  ...entry,
+  status: "passed",
+}));
+assert.deepEqual(
+  reconcileVitestRuntimeExclusions({
+    gate: "all-browsers",
+    executedLeaves: [
+      unrelatedDropzoneFirefoxLeaf,
+      ...recoveredCapabilityLeaves,
+    ],
+    selectedLeaves: recoveredCapabilityLeaves.map(
+      ({ file, engine, testName }) => `${file}\0${engine}\0${testName}`,
+    ),
+  }),
+  { status: "pass", count: 0, leaves: [] },
+  "a real capability recovery is accepted only when all five exact leaves were listed and passed",
+);
 
 console.log(
-  `✓ Vitest runtime exclusions: ${VITEST_RUNTIME_EXCLUSIONS.length} exact Firefox capability leaves are source-bound; arbitrary, aliased, computed, conditional, stale, renamed, removed, and cross-file disabling rejects`,
+  `✓ Vitest runtime exclusions: ${VITEST_RUNTIME_EXCLUSIONS.length} exact source-bound direct registrations must each be excluded or listed-and-passed; missing, arbitrary, aliased, computed, conditional, stale, renamed, removed, and cross-file disabling rejects`,
 );

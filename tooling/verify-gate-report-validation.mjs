@@ -115,6 +115,68 @@ assert.equal(
   1,
   "runtime-reported exclusions remain visible for diagnosis",
 );
+const absentApprovedLeaf = {
+  file: "packages/ui/a.test.tsx",
+  engine: "firefox",
+  testName: "approved leaf that disappeared",
+  status: "skipped",
+  capability: "fixture-capability",
+};
+assert.match(
+  validateVitestGateReport(vitestWithReportedExclusion, {
+    ...vitestContextWithExclusion,
+    allowedExclusions: [
+      ...vitestContextWithExclusion.allowedExclusions,
+      absentApprovedLeaf,
+    ],
+  }).problems.join("\n"),
+  /must appear exactly once as excluded or required-and-passed/,
+  "a partial approved cohort cannot omit one leaf from both the required and excluded universes",
+);
+assert.match(
+  validateVitestGateReport(vitest, {
+    ...vitestContext,
+    allowedExclusions: [absentApprovedLeaf],
+  }).problems.join("\n"),
+  /must appear exactly once as excluded or required-and-passed/,
+  "zero exclusions cannot imply capability recovery when the approved leaf is absent",
+);
+const recoveredListed = [
+  ...listed,
+  {
+    file: absentApprovedLeaf.file,
+    projectName: absentApprovedLeaf.engine,
+    name: absentApprovedLeaf.testName,
+  },
+];
+const recoveredExecutedLeaves = [
+  ...executedLeaves,
+  {
+    file: absentApprovedLeaf.file,
+    engine: absentApprovedLeaf.engine,
+    testName: absentApprovedLeaf.testName,
+    status: "passed",
+  },
+];
+const recoveredVitest = {
+  ...structuredClone(vitest),
+  executed: recoveredExecutedLeaves.length,
+  results: { passed: recoveredExecutedLeaves.length, failed: 0, skipped: 0 },
+  executedLeaves: recoveredExecutedLeaves,
+  selection: reconcileVitestSelection({
+    plannedFiles: ["packages/ui/a.test.tsx"],
+    listed: recoveredListed,
+    executed: recoveredExecutedLeaves,
+  }),
+};
+assert.deepEqual(
+  validateVitestGateReport(recoveredVitest, {
+    ...vitestContext,
+    allowedExclusions: [absentApprovedLeaf],
+  }).problems,
+  [],
+  "capability recovery is valid only when the exact approved leaf was independently listed and passed",
+);
 assert.match(
   validateVitestGateReport(
     vitestWithReportedExclusion,

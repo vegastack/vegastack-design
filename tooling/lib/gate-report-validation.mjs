@@ -202,6 +202,17 @@ export function validateVitestGateReport(report, context) {
   );
   if (excludedLeaves.some((leaf) => !authority.has(leaf)))
     fail("report contains an unapproved runtime-excluded Vitest leaf");
+  const requiredLeafSet = new Set(requiredLeaves);
+  const excludedLeafSet = new Set(excludedLeaves);
+  for (const leaf of authority.keys()) {
+    const excluded = excludedLeafSet.has(leaf);
+    const requiredAndSelected =
+      requiredLeafSet.has(leaf) && selectedLeaves.has(leaf);
+    if (Number(excluded) + Number(requiredAndSelected) !== 1)
+      fail(
+        `approved runtime exclusion leaf must appear exactly once as excluded or required-and-passed: ${leaf}`,
+      );
+  }
   const reconstructedExclusions = {
     status: "pass",
     count: excludedLeaves.length,
