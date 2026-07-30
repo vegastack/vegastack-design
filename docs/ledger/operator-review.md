@@ -993,3 +993,14 @@ each was invisible in review and each is the kind that would have degraded the t
   clears the original human review, becomes receipt evidence, or replaces production-full ship.
 - **Review state:** focused executable and current-operator checks report 0 high and 0 medium. Final
   applicable VRT interpretation and terminal exact-tree ship/receipt remain separate proofs.
+
+## 2026-07-30 — OTP capture-readiness invariant
+
+- **Observed failure:** one unchanged-source capture rendered only three of five OTP state rows;
+  this was capture incompleteness, not a component change.
+- **Decision:** the capture harness must prove all five OTP roots exist and have visible nonzero
+  layout boxes before either screenshot. The outer preview being visible is not sufficient.
+- **Evidence boundary:** the earlier incomplete image is invalid measurement. The same-tree 17-pixel
+  glyph-edge delta is retained as human-review-only rasterization evidence and cannot write a receipt.
+- **Focused adversarial verdict:** 0 high and 0 medium after nine mutations proved the route, both
+  five-root counts, four visibility/layout predicates, and pre-screenshot ordering.

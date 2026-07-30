@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Locator, type Page } from "@playwright/test";
 import { ANIMATED_ICON_CHUNK_COUNT } from "./icon-chunks.generated";
 import { VRT_PAGE_ROUTES } from "./page-routes";
 
@@ -55,6 +55,39 @@ async function stabilizeDocumentationChrome(page: Page) {
   await page.addStyleTag({
     content: '[data-vrt-toc-track="true"] { visibility: hidden !important; }',
   });
+}
+
+async function stabilizeComponentFixture(path: string, fixture: Locator) {
+  if (path !== "/docs/components/otp-input") return;
+
+  // OTP's first fixture is a five-row state matrix. Under a saturated parallel docs build, one
+  // capture observed only the final three hydrated roots and produced a false 4.26% visual delta.
+  // Waiting for the outer preview is insufficient because its server shell is visible earlier.
+  // Require the exact matrix and nonzero layout boxes before taking either side's screenshot.
+  const states = fixture.locator('[data-slot="otp-input"]');
+  await expect(
+    states,
+    "OTP VRT fixture must hydrate all five state rows",
+  ).toHaveCount(5);
+  await expect
+    .poll(
+      () =>
+        states.evaluateAll(
+          (roots) =>
+            roots.filter((root) => {
+              const box = root.getBoundingClientRect();
+              const style = getComputedStyle(root);
+              return (
+                box.width > 0 &&
+                box.height > 0 &&
+                style.display !== "none" &&
+                style.visibility !== "hidden"
+              );
+            }).length,
+        ),
+      { message: "OTP VRT fixture must lay out all five state rows" },
+    )
+    .toBe(5);
 }
 
 describeVRT("VRT — showcase pages", () => {
@@ -126,6 +159,7 @@ describeVRT("VRT — component fixtures", () => {
 
       const fixture = page.locator("[data-vrt-preview]").first();
       await expect(fixture).toBeVisible();
+      await stabilizeComponentFixture(path, fixture);
       await expect(fixture).toHaveScreenshot(
         `${path.replaceAll("/", "_")}-state.png`,
         {

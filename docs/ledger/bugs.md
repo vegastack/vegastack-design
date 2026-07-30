@@ -827,3 +827,15 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   combining it with `--routes` retains exactly both explicit sets. Full common impact still wins.
   Mutations cover leaked inferred pages/fixtures/icons, empty/duplicate/malformed/whitespace routes,
   and the ambiguous `--all` combination. Same-tree use remains diagnostic-only.
+
+## 2026-07-30 — OTP VRT captured an incomplete hydrated state matrix
+
+- **Symptom:** an origin/main comparison showed only the final three of OTP's five fixture rows in
+  one working-tree capture (4,037 mobile pixels / 4.26%), although component and preview source were
+  identical. A same-tree rerun did not reproduce the missing rows.
+- **Root cause:** the harness waited for the outer server-rendered preview shell, but did not require
+  the client OTP state matrix to contain and lay out all five roots before screenshotting.
+- **Systemic fix:** both sides now require exactly five nonzero, visible OTP roots before capture.
+  Removing that readiness call is a failing harness mutation. The remaining same-tree 17-pixel dark
+  glyph delta is visually identical rasterization and remains human-review evidence, not a retry
+  pass or receipt.

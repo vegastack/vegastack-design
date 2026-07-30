@@ -634,3 +634,19 @@ ambiguous `--all` selectors fail; full common impact still widens but cannot era
 two-tree validation or the requested-selector report. The focused executable and operator review
 reported **0 high and 0 medium findings** on that corrected scope. This remains diagnostic/human
 review machinery, never receipt evidence; same-tree reruns cannot replace the original comparison.
+
+Image inspection then reopened that focused closure once more. The origin/main OTP image contained
+only three of five state rows despite unchanged component/preview source; the exact same-tree rerun
+did not reproduce the missing rows and showed only a visually identical 17-pixel glyph-edge delta.
+The capture harness had proved only that the outer server shell was visible, not that the client
+state matrix was complete. Both capture sides now require five visible, nonzero OTP roots, and a
+mutation rejects removal of that readiness call. The previous exact-CLI verdict remains true for its
+scope but is not final acceptance of this added harness change; a focused adversarial rerun follows.
+
+The focused OTP capture-readiness rerun then reported **0 high and 0 medium findings**. It verified
+the exact route guard, five hydrated and five laid-out roots, positive width/height, visible
+display/visibility, and readiness-before-screenshot ordering through nine independent mutations.
+The seven structured-report mutations, docs TypeScript, operator-doc 58/59/14, syntax, and diff
+checks also passed. Same-tree Before/After inspection found no visible content or layout change; the
+remaining 17 pixels sit only on glyph anti-aliasing edges. This is the new focused review closure;
+human visual acceptance and terminal full ship/receipt remain separate proofs.

@@ -670,6 +670,98 @@ assert.deepEqual(
   [],
 );
 
+export function vrtHarnessProblems(source) {
+  const problems = [];
+  if (!/if \(path !== "\/docs\/components\/otp-input"\) return;/.test(source))
+    problems.push(
+      "[fixture-route] OTP readiness must apply to the exact OTP fixture route",
+    );
+  if (!/\.toHaveCount\(5\)/.test(source))
+    problems.push(
+      "[fixture-count] OTP readiness must require exactly five hydrated roots",
+    );
+  if (!/\.toBe\(5\)/.test(source))
+    problems.push(
+      "[fixture-layout-count] OTP readiness must require five laid-out roots",
+    );
+  for (const [label, expected] of [
+    ["width", /box\.width > 0/],
+    ["height", /box\.height > 0/],
+    ["display", /style\.display !== "none"/],
+    ["visibility", /style\.visibility !== "hidden"/],
+  ])
+    if (!expected.test(source))
+      problems.push(
+        `[fixture-${label}] OTP readiness must reject hidden or zero-layout roots`,
+      );
+  const readiness = source.indexOf(
+    "await stabilizeComponentFixture(path, fixture);",
+  );
+  const screenshot = source.indexOf("await expect(fixture).toHaveScreenshot(");
+  if (readiness < 0 || screenshot < 0 || readiness > screenshot)
+    problems.push(
+      "[fixture-order] complete fixture readiness must run before the screenshot",
+    );
+  return problems;
+}
+
+const harnessSource = readFileSync("apps/docs/vrt/components.spec.ts", "utf8");
+assert.deepEqual(vrtHarnessProblems(harnessSource), []);
+for (const [label, source, expected] of [
+  [
+    "wrong readiness route",
+    harnessSource.replace(
+      'path !== "/docs/components/otp-input"',
+      'path !== "/docs/components/button"',
+    ),
+    /fixture-route/,
+  ],
+  [
+    "OTP readiness returns on OTP",
+    harnessSource.replace(
+      'path !== "/docs/components/otp-input"',
+      'path === "/docs/components/otp-input"',
+    ),
+    /fixture-route/,
+  ],
+  [
+    "three hydrated roots accepted",
+    harnessSource.replace(".toHaveCount(5)", ".toHaveCount(3)"),
+    /fixture-count/,
+  ],
+  [
+    "three laid-out roots accepted",
+    harnessSource.replace(".toBe(5);", ".toBe(3);"),
+    /fixture-layout-count/,
+  ],
+  [
+    "zero width accepted",
+    harnessSource.replace("box.width > 0 &&", "true &&"),
+    /fixture-width/,
+  ],
+  [
+    "zero height accepted",
+    harnessSource.replace("box.height > 0 &&", "true &&"),
+    /fixture-height/,
+  ],
+  [
+    "display none accepted",
+    harnessSource.replace('style.display !== "none" &&', "true &&"),
+    /fixture-display/,
+  ],
+  [
+    "visibility hidden accepted",
+    harnessSource.replace('style.visibility !== "hidden"', "true"),
+    /fixture-visibility/,
+  ],
+  [
+    "readiness moved after screenshot",
+    `${harnessSource.replace("await stabilizeComponentFixture(path, fixture);", "")}\nawait stabilizeComponentFixture(path, fixture);`,
+    /fixture-order/,
+  ],
+])
+  assert.match(vrtHarnessProblems(source).join("\n"), expected, label);
+
 console.log(
-  "✓ VRT selection: route/common-plan disagreement widens; exact diagnostics and 7 structured-report mutations verified",
+  "✓ VRT selection: exact diagnostics, 7 report mutations, and 9 fixture-readiness mutations verified",
 );
