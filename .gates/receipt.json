@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "tree": "tree-0b4f946f9a8c1483a1ab2549980823fa0c17dbab",
+  "tree": "tree-de286e577138163e8cd98fca5718d3d76b8a7801",
   "treeFiles": 2653,
-  "head": "c991b00e88b5a92d112cb2466992c2290c62c813",
-  "writtenAt": "2026-08-28T11:04:44.475Z",
-  "mode": "ship",
+  "head": "a4296825c29cb73429c8b421c2e510449c9b5fc1",
+  "writtenAt": "2026-08-28T13:26:25.957Z",
+  "mode": "push",
   "base": {
     "ref": "origin/main",
-    "sha": "487a85b710493dad5bb6081776658a37d17f5d26"
+    "sha": "f07a88f8cd9ec673015dfbf6514ecd2d6b88b6f4"
   },
   "host": {
     "platform": "darwin",
@@ -23,36 +23,32 @@
     "contracts": true,
     "unit": true,
     "smoke": true,
-    "contractsReason": "global surface changed (apps/docs/components/animated-icon-gallery.generated.tsx, apps/docs/components/preview-controls.tsx, apps/docs/components/preview/index.tsx, +12 more)"
+    "contractsReason": "global surface changed (apps/docs/components/stories/audio-player.story.tsx, apps/docs/components/stories/story-shims.tsx, apps/docs/components/stories/video-player.story.tsx)"
   },
   "gates": {
     "typecheck": {
       "status": "pass",
-      "durationMs": 250
+      "durationMs": 341
     },
     "lint": {
       "status": "pass",
-      "durationMs": 10573
+      "durationMs": 331
     },
     "unit": {
       "status": "pass",
-      "durationMs": 17458
+      "durationMs": 16295
     },
     "smoke": {
       "status": "pass",
-      "durationMs": 54854
+      "durationMs": 54425
     },
     "contracts": {
       "status": "pass",
-      "durationMs": 297749,
+      "durationMs": 310876,
       "executed": 880,
       "full": true,
       "scopeRoutes": 110
     }
   },
-  "skips": [],
-  "carriedFrom": "tree-1a8d6d1c7c30c1a184edc180513598a155411de6",
-  "carriedFromCommit": "c991b00e88b5a92d112cb2466992c2290c62c813",
-  "carryReason": "version-bump",
-  "carriedAt": "2026-08-28T12:34:47.476Z"
+  "skips": []
 }

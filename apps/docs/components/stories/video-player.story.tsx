@@ -1,5 +1,5 @@
 import { defineStory } from "@/lib/story";
-import { VideoPlayer } from "@/components/ui/video-player";
+import { VideoPlayerStory } from "@/components/stories/story-shims";
 
 const SAMPLE_VIDEO = "/preview/media-player-demo.mp4";
 
@@ -8,7 +8,7 @@ const SAMPLE_VIDEO = "/preview/media-player-demo.mp4";
  * by the Story build plugin. The local poster fixture keeps the preview deterministic.
  */
 export const story = defineStory({
-  Component: VideoPlayer,
+  Component: VideoPlayerStory,
   args: [
     {
       variant: "Default",
