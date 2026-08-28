@@ -282,8 +282,8 @@ assert(
 );
 
 const expected = {
-  totalRegistryItems: 554,
-  components: 108,
+  totalRegistryItems: 556,
+  components: 110,
   animatedIcons: 439,
   hooks: 6,
   blocks: 1,
@@ -301,7 +301,7 @@ const expectedWaves = {
   "Navigation/layout": 14,
   Overlays: 13,
   "Data display": 10,
-  "Content/marketing": 20,
+  "Content/marketing": 22,
   "AI/chat": 6,
 };
 const expectedComponentWaveMembers = {
@@ -402,6 +402,8 @@ const expectedComponentWaveMembers = {
     "empty",
     "truncated-text",
     "image",
+    "audio-player",
+    "video-player",
     "onboarding-checklist",
     "markdown-view",
     "code-block",

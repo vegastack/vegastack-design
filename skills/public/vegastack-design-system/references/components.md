@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**108 components**, plus 439 animated-icon items, 6 hooks (`use-animation-replay`, `use-drag-reorder`, `use-file-drop`, `use-list-nav`, `use-mobile`, `use-platform`), and 1 starter block (`dashboard-01`) — 554 registry items in total.
+**110 components**, plus 439 animated-icon items, 6 hooks (`use-animation-replay`, `use-drag-reorder`, `use-file-drop`, `use-list-nav`, `use-mobile`, `use-platform`), and 1 starter block (`dashboard-01`) — 556 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so `icon-button` is the
@@ -108,7 +108,7 @@ component and never an icon.
 - **`action-bar`** — Floating contextual bar — status region + action children, CSS-only enter/exit, raised band. Bulk selection, unsaved changes, and batch progress are recipes over it.
 - **`alert`** — A status banner — five semantic variants, an optional icon, and an optional dismiss button.
 - **`progress`** — A determinate horizontal progress bar for measurable, ongoing tasks — built on Base UI Progress.
-- **`progress-indicator`** — A compact circular pie-fill progress indicator (0–100%) — a server-safe SVG glyph in circle or squircle shapes.
+- **`progress-indicator`** — A compact circular pie-fill progress indicator (0–100%) with optional visible percentage variants.
 - **`provider`** — The single app-root wrapper — theme (next-themes), Sonner toasts, tooltip coordination, and text direction in one mount-once component.
 - **`skeleton`** — A token-driven loading placeholder — line, circle, rect, card shapes, configurable count, reduced-motion-aware pulse.
 - **`sonner`** — Brief, non-blocking notifications — a token-styled Sonner toaster with success/error/warning/info variants that follows the theme.
@@ -125,8 +125,10 @@ component and never an icon.
 
 ## Media
 
+- **`audio-player`** — A compact custom audio transport with standard media controls, seek, mute, settings, and keyboard shortcuts.
 - **`image`** — A presentational framed image with aspect-ratio, rounding, a loading skeleton, and an error fallback.
 - **`notification-bell`** — A bell icon button with an unread-count badge overlay. Presentational — the app supplies the count.
+- **`video-player`** — A framed video player with the same grouped custom transport controls as Audio Player.
 
 ## Rich text
 

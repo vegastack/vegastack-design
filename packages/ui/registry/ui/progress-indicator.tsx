@@ -1,4 +1,4 @@
-// @vegastack progress-indicator@0.4.1 sha256-F2i0O7K5oOFZV1fu8fZP6HYprNOFthne9UAAtHOylHo=
+// @vegastack progress-indicator@0.4.1 sha256-LeGRI60ngvg271rN0uAfc3FUJiwAcfNGxYCBET33uBA=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -17,14 +17,61 @@ export const progressIndicatorVariants = cva(
   "inline-flex shrink-0 text-primary",
   {
     variants: {
+      variant: {
+        default: "",
+        "inline-value": "items-center gap-2",
+        "contained-value": "relative items-center justify-center",
+      },
       size: {
-        xs: "size-3.5",
-        sm: "size-4",
-        default: "size-5",
-        lg: "size-6",
+        xs: "",
+        sm: "",
+        default: "",
+        lg: "",
       },
     },
-    defaultVariants: { size: "default" },
+    compoundVariants: [
+      {
+        variant: "default",
+        size: "xs",
+        className: "size-3.5",
+      },
+      {
+        variant: "default",
+        size: "sm",
+        className: "size-4",
+      },
+      {
+        variant: "default",
+        size: "default",
+        className: "size-5",
+      },
+      {
+        variant: "default",
+        size: "lg",
+        className: "size-6",
+      },
+      {
+        variant: "contained-value",
+        size: "xs",
+        className: "size-12",
+      },
+      {
+        variant: "contained-value",
+        size: "sm",
+        className: "size-14",
+      },
+      {
+        variant: "contained-value",
+        size: "default",
+        className: "size-16",
+      },
+      {
+        variant: "contained-value",
+        size: "lg",
+        className: "size-20",
+      },
+    ],
+    defaultVariants: { size: "default", variant: "default" },
   },
 );
 
@@ -32,6 +79,10 @@ export const progressIndicatorVariants = cva(
 export type ProgressIndicatorSize = NonNullable<
   VariantProps<typeof progressIndicatorVariants>["size"]
 >;
+
+/** Display variant for the visible percentage affordance. */
+export type ProgressIndicatorVariant =
+  "default" | "inline-value" | "contained-value";
 
 /** Shape of the indicator outline — a true circle or a rounded-square "squircle". */
 export type ProgressIndicatorShape = "circle" | "squircle";
@@ -53,6 +104,14 @@ export interface ProgressIndicatorProps
    * @default 100
    */
   max?: number;
+  /**
+   * Display style. `default` renders only the compact pie-fill glyph,
+   * `inline-value` adds the percentage beside the glyph, and
+   * `contained-value` renders a larger bordered circle with the percentage
+   * centered inside and progress drawn on the ring only.
+   * @default 'default'
+   */
+  variant?: ProgressIndicatorVariant;
   /**
    * Outline shape: a circular ring (`circle`) or a rounded square (`squircle`).
    * @default 'circle'
@@ -124,6 +183,7 @@ export interface ProgressIndicatorProps
 export function ProgressIndicator({
   className,
   size = "default",
+  variant = "default",
   shape = "circle",
   segments,
   value = 0,
@@ -145,12 +205,38 @@ export function ProgressIndicator({
   // Inset by 1 unit so the outline ring (strokeWidth 2) is never clipped.
   const outlineInset = 1;
   const pieRadius = center / 2; // stroke of width = radius => fully filled disc
-  const circumference = 2 * Math.PI * pieRadius;
-  const dash = (percent / 100) * circumference;
 
   const isCircle = shape === "circle";
+  const isContainedValue = variant === "contained-value";
   // Squircle corner radius (in viewBox units) — rounded square, not a circle.
   const squircleRadius = 6;
+  const progressRadius = isContainedValue ? center - outlineInset : pieRadius;
+  const progressStrokeWidth = isContainedValue ? 2 : pieRadius * 2;
+  const progressCircumference = 2 * Math.PI * progressRadius;
+  const progressDash = (percent / 100) * progressCircumference;
+  const valueLabel = `${percent}%`;
+  const glyphSizeClassName = {
+    xs: "size-3.5",
+    sm: "size-4",
+    default: "size-5",
+    lg: "size-6",
+  }[size ?? "default"];
+  const valueLabelClassName = {
+    xs: "text-sm",
+    sm: "text-base",
+    default: "text-xl",
+    lg: "text-2xl",
+  }[size ?? "default"];
+  const containedValueLabelClassName = {
+    xs: "text-xs",
+    sm: "text-sm",
+    default: "text-base",
+    lg: "text-xl",
+  }[size ?? "default"];
+  const rootClassName = progressIndicatorVariants({
+    size,
+    variant,
+  });
 
   // Dash-segment mode: a row of bars, filled count derived from the same
   // clamped percentage. Server-safe like the radial glyph (pure markup).
@@ -167,6 +253,7 @@ export function ProgressIndicator({
       <span
         ref={ref}
         data-slot="progress-indicator"
+        data-variant={variant}
         data-size={size}
         data-shape="segments"
         data-value={percent}
@@ -177,6 +264,7 @@ export function ProgressIndicator({
         aria-label={ariaLabel ?? `${percent}% complete`}
         className={cn(
           "inline-flex shrink-0 items-center gap-1 text-primary",
+          variant === "inline-value" && "gap-2",
           className,
         )}
         {...props}
@@ -192,6 +280,17 @@ export function ProgressIndicator({
             )}
           />
         ))}
+        {variant === "inline-value" && (
+          <span
+            aria-hidden="true"
+            className={cn(
+              "shrink-0 font-medium tabular-nums text-foreground",
+              valueLabelClassName,
+            )}
+          >
+            {valueLabel}
+          </span>
+        )}
       </span>
     );
   }
@@ -200,6 +299,7 @@ export function ProgressIndicator({
     <span
       ref={ref}
       data-slot="progress-indicator"
+      data-variant={variant}
       data-size={size}
       data-shape={shape}
       data-value={percent}
@@ -208,7 +308,7 @@ export function ProgressIndicator({
       aria-valuemin={0}
       aria-valuemax={100}
       aria-label={ariaLabel ?? `${percent}% complete`}
-      className={cn(progressIndicatorVariants({ size }), className)}
+      className={cn(rootClassName, className)}
       {...props}
     >
       <svg
@@ -216,7 +316,10 @@ export function ProgressIndicator({
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
-        className="size-full"
+        className={cn(
+          "size-full",
+          variant === "inline-value" && glyphSizeClassName,
+        )}
       >
         {/* Track outline — current color at reduced opacity. */}
         {isCircle ? (
@@ -244,10 +347,13 @@ export function ProgressIndicator({
 
         {/* Pie fill — a thick stroke (width = radius) dashed to `value`, so
               the disc fills from the center outward. Rotated -90° so it grows
-              clockwise from 12 o'clock. The fill disc sits inside the outline
-              (circle or squircle), so the outline shape reads as the indicator
-              shape while the fill stays a clean pie wedge. `circumference` is
-              constant per size, so transitioning stroke-dasharray on
+              clockwise from 12 o'clock. The default fill disc sits inside the
+              outline (circle or squircle), so the outline shape reads as the
+              indicator shape while the fill stays a clean pie wedge. The
+              contained-value variant keeps the center clear by using the same
+              outer radius as the track with a thin progress stroke. The chosen
+              circumference is constant per render mode, so transitioning
+              stroke-dasharray on
               duration-base/ease-standard sweeps the wedge to the new `value`
               instead of jumping — the same value-sweep the linear `Progress`
               bar gets from its own width transition. */}
@@ -255,15 +361,38 @@ export function ProgressIndicator({
           <circle
             cx={center}
             cy={center}
-            r={pieRadius}
+            r={progressRadius}
             stroke="currentColor"
-            strokeWidth={pieRadius * 2}
-            strokeDasharray={`${dash} ${circumference}`}
+            strokeWidth={progressStrokeWidth}
+            strokeDasharray={`${progressDash} ${progressCircumference}`}
+            strokeLinecap={isContainedValue ? "round" : undefined}
             transform={`rotate(-90 ${center} ${center})`}
             className="transition-[stroke-dasharray] duration-base ease-standard motion-reduce:transition-none"
           />
         )}
       </svg>
+      {variant === "inline-value" && (
+        <span
+          aria-hidden="true"
+          className={cn(
+            "shrink-0 font-medium tabular-nums text-foreground",
+            valueLabelClassName,
+          )}
+        >
+          {valueLabel}
+        </span>
+      )}
+      {variant === "contained-value" && (
+        <span
+          aria-hidden="true"
+          className={cn(
+            "absolute inset-0 flex items-center justify-center font-medium tabular-nums text-foreground",
+            containedValueLabelClassName,
+          )}
+        >
+          {valueLabel}
+        </span>
+      )}
     </span>
   );
 }

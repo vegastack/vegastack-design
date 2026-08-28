@@ -20,11 +20,30 @@
 import type { ReactNode } from "react";
 import { DashboardPage } from "../../../../packages/ui/registry/blocks/dashboard-01/page";
 import { Wrapper } from "./wrapper";
+import { usePreviewFrameWidth } from "../preview-controls";
 
 export function dashboard01Demo(): ReactNode {
   return (
     <Wrapper className="block h-136 overflow-hidden p-0">
       <DashboardPage />
+    </Wrapper>
+  );
+}
+
+/**
+ * Frame-responsive navigation. The docs width control constrains a container, not `matchMedia`, so
+ * this demo reads the selected frame preset and forces the block's AppShell rail into its modal
+ * Sheet at the mobile preset. Toggle the toolbar's phone icon to watch the rail collapse; wider
+ * presets keep the default viewport behaviour.
+ */
+export function dashboard01MobileDemo(): ReactNode {
+  const frameWidth = usePreviewFrameWidth();
+  return (
+    <Wrapper className="block h-136 overflow-hidden p-0">
+      <DashboardPage
+        mobileBreakpoint={frameWidth === "mobile" ? 10000 : undefined}
+        className="h-full min-h-0"
+      />
     </Wrapper>
   );
 }

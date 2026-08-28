@@ -67,6 +67,20 @@ function usePreviewControls() {
 }
 
 /**
+ * `usePreviewFrameWidth` — read the toolbar's currently-selected frame preset from inside a live
+ * demo. Non-throwing (returns `'full'` outside a provider) so a demo rendered without the preview
+ * chrome degrades to its unconstrained layout.
+ *
+ * Because the frame toggle constrains a CONTAINER, not the viewport, a viewport-driven component
+ * (e.g. `Sidebar`'s `useIsMobile` media query) can't see it. A demo that WANTS to follow the frame
+ * — the app-shell/dashboard mobile-Sheet switch — reads this and forces the branch itself: pick
+ * the `'mobile'` preset and the demo drives its `mobileBreakpoint` so the rail becomes the Sheet.
+ */
+export function usePreviewFrameWidth(): FrameWidth {
+  return React.useContext(PreviewControlsContext)?.width ?? "full";
+}
+
+/**
  * `FrameWidthToggle` — viewport-width presets (mobile 375 / tablet 768 / desktop full) that
  * constrain the `PreviewFrameContainer`'s max-width.
  *

@@ -117,12 +117,14 @@ lines up with the indented rows instead of jumping back to the edge.
 />
 
 ```tsx
-<DropdownMenuLabel inset>Appearance</DropdownMenuLabel>
-<DropdownMenuItem>
-  <User />
-  Profile
-</DropdownMenuItem>
-<DropdownMenuItem inset>Compact mode</DropdownMenuItem>
+<DropdownMenuGroup>
+  <DropdownMenuLabel inset>Appearance</DropdownMenuLabel>
+  <DropdownMenuItem>
+    <User />
+    Profile
+  </DropdownMenuItem>
+  <DropdownMenuItem inset>Compact mode</DropdownMenuItem>
+</DropdownMenuGroup>
 ```
 
 ## Checkbox & radio items

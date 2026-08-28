@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "d173053c33c968829e522d3c65b9c84fd84f0ff82172271602d3d9909efb8ca1",
+  "contractSha256": "9c6a6c275489f78cf915d3428e4ad4b2d3ee744cb124a97c108bdd9dde48ba87",
   "inventory": {
-    "expected": 554,
-    "actual": 554,
-    "unique": 554
+    "expected": 556,
+    "actual": 556,
+    "unique": 556
   },
   "classes": {
-    "components": 108,
+    "components": 110,
     "animatedIcons": 439,
     "hooks": 6,
     "blocks": 1
@@ -127,11 +127,12 @@
       ]
     },
     "Content/marketing": {
-      "expected": 20,
-      "actual": 20,
+      "expected": 22,
+      "actual": 22,
       "members": [
         "alert",
         "announcement-banner",
+        "audio-player",
         "code-block",
         "empty",
         "figure-frame",
@@ -149,7 +150,8 @@
         "staggered-text-reveal",
         "terminal",
         "testimonial",
-        "truncated-text"
+        "truncated-text",
+        "video-player"
       ]
     },
     "AI/chat": {
@@ -629,7 +631,7 @@
       ]
     }
   },
-  "componentRoutes": 108,
+  "componentRoutes": 110,
   "blockRoutes": 1,
   "crossBrowserSmokeFiles": 14,
   "modeledExemptions": 4

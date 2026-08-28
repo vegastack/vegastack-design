@@ -55,6 +55,27 @@ function ControlledPicker({
   );
 }
 
+function ControlledRangePicker({
+  onPick,
+}: {
+  onPick: (range: DateRange | undefined) => void;
+}) {
+  const [range, setRange] = React.useState<DateRange | undefined>({
+    from: new Date(2026, 5, 10),
+    to: new Date(2026, 5, 20),
+  });
+  return (
+    <DateRangePicker
+      value={range}
+      numberOfMonths={1}
+      onValueChange={(next) => {
+        onPick(next);
+        setRange(next);
+      }}
+    />
+  );
+}
+
 test("Calendar renders the given month inline", async () => {
   const screen = await render(
     <Calendar mode="single" defaultMonth={JUNE_ANCHOR} />,
@@ -304,6 +325,33 @@ test("DateRangePicker formats a complete range", async () => {
   await expect
     .element(screen.getByRole("button", { name: /Jun 10, 2026.*Jun 20, 2026/ }))
     .toBeInTheDocument();
+});
+
+test("DateRangePicker keeps open for a new start and closes after the new end", async () => {
+  const onPick = vi.fn();
+  const screen = await render(<ControlledRangePicker onPick={onPick} />);
+  await screen
+    .getByRole("button", { name: /Jun 10, 2026.*Jun 20, 2026/ })
+    .click();
+  await expect
+    .poll(() => document.querySelector('[data-slot="calendar"]'))
+    .not.toBeNull();
+
+  dayButton(5).click();
+  await expect.poll(() => onPick.mock.calls.length).toBe(1);
+  const openRange = onPick.mock.calls[0]![0] as DateRange;
+  expect(openRange.from?.getDate()).toBe(5);
+  expect(openRange.to).toBeUndefined();
+  expect(
+    document.querySelector('[data-slot="date-range-picker-content"]'),
+  ).not.toBeNull();
+
+  dayButton(15).click();
+  await expect.poll(() => onPick.mock.calls.length).toBe(2);
+  const completedRange = onPick.mock.calls[1]![0] as DateRange;
+  expect(completedRange.from?.getDate()).toBe(5);
+  expect(completedRange.to?.getDate()).toBe(15);
+  await waitForClosed();
 });
 
 test("DateRangePicker forwards calendarProps and lets top-level numberOfMonths win", async () => {

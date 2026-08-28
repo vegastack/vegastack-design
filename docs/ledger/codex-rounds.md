@@ -334,3 +334,36 @@ WebKit test then passed 6/6 reruns (roughly 0.45s test time) and the complete wa
 public component count is generated instead of hand-maintained. The ship ladder now awaits its docs
 warm-up before the complete three-engine lane, matching the ordering its own comments promised and
 removing the observed source of cold-build contention.
+
+## Round 22 — 2026-08-27 · manual component QA remediation
+
+Scope: the fourteen dispositions expanded from MK's manual component report: Dropzone, Field Inline,
+Switch, Date Picker, Dropdown Menu, Context Menu, Tabs, Sidebar badge and mobile behavior, App Shell
+mobile behavior, Chart examples, Pricing Section responsiveness, Comparison Matrix overflow, and
+the dashboard-01 mobile block. The approved implementation record is
+`docs/plans/2026-08-27-manual-component-qa-remediation.md`.
+
+- Functional fixes cover range-selection state, menu composition/URL stability, keyboard-reachable
+  file removal, tab overflow, and mobile sidebar/shell flows.
+- Visual fixes cover Field Inline's edit/display geometry, Switch's compact invalid indicator,
+  collapsed Sidebar badge status, intrinsic Pricing Section reflow, and Comparison Matrix's named,
+  keyboard-focusable horizontal scroll region with sticky row labels.
+- Documentation now demonstrates Dropzone result states, forced-mobile Sidebar/App Shell/dashboard
+  compositions, pie and donut charts with usage guidance, and the corrected menu grouping.
+- **[HIGH, found and fixed in-round] Comparison Matrix's sticky blank header corner could cover the
+  first plan CTA after horizontal scrolling.** The corner no longer sticks; only body row headers do.
+  A targeted route run then passed 8/8 checks, and the full behavior sweep passed 880/880.
+- Pixel review classified all 44 changed captures as intended across light/dark and desktop/mobile;
+  52 captures were unchanged, with zero new, removed, or broken entries. The changes correspond to
+  the documented examples, responsive layouts, Field Inline geometry, Switch invalid state, and
+  Comparison Matrix overflow treatment.
+
+Post-fix verification: canonical design-lint clean · workspace typecheck and lint clean · browser
+unit/axe clean · focused component suites clean · registry build idempotent (556 items, zero files
+updated on the confirming run) · derived surfaces current · full contracts 880/880 · live static
+replays clean for file acceptance/rejection/removal, menu URL stability, mobile overlays, narrow
+pricing/matrix layout, and chart rendering. The required cross-engine smoke remains **not green**:
+Firefox and 431 runnable smoke assertions passed (5 capability skips), but this host's WebKit process
+never established its inspector connection and reproduced the same NSXPC listener interruption in a
+minimal launch. No receipt was cleared or claimed; rerun `pnpm gates:push` from a working GUI WebKit
+session before shipping.

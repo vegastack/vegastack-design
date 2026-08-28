@@ -299,6 +299,10 @@ test("below the mobile breakpoint, the trigger opens the sidebar inside a Sheet"
     await expect
       .element(screen.getByRole("button", { name: "Home" }))
       .toBeInTheDocument();
+    expect(
+      screen.getByRole("navigation", { name: "Main navigation" }).element()
+        .className,
+    ).not.toContain("sticky");
   });
 });
 
@@ -380,6 +384,163 @@ test('collapsible="none": always renders expanded, and toggling leaves it expand
   await screen.getByRole("button", { name: "Toggle sidebar" }).click();
   await expect.element(nav).toHaveAttribute("data-state", "expanded");
   await expect.element(nav).toHaveAttribute("data-collapsible", "none");
+});
+
+/* ---------------------------------------------------------------------------------------------
+ * Phase S — desktop viewport anchoring and the header/content/footer scroll contract.
+ * ------------------------------------------------------------------------------------------- */
+
+function injectSidebarScrollMirror(): () => void {
+  const style = document.createElement("style");
+  style.textContent = `
+    [data-testid="sidebar-scroll-host"] { height: 320px; overflow-y: auto; position: relative; }
+    [data-slot="sidebar-wrapper"] { display: flex; min-height: 960px; width: 100%; }
+    [data-slot="sidebar"] { display: flex; flex-direction: column; width: 220px; }
+    [data-slot="sidebar"].h-svh { height: 320px; }
+    [data-slot="sidebar"].sticky { position: sticky; }
+    [data-slot="sidebar"].top-0 { top: 0; }
+    [data-slot="sidebar"].self-start { align-self: flex-start; }
+    [data-slot="sidebar-header"] { height: 48px; }
+    [data-slot="sidebar-header"].shrink-0 { flex-shrink: 0; }
+    [data-slot="sidebar-content"] { display: flex; flex: 1 1 0%; min-height: 0; overflow: auto; }
+    [data-slot="sidebar-footer"] { height: 48px; }
+    [data-slot="sidebar-footer"].shrink-0 { flex-shrink: 0; }
+    [data-testid="sidebar-nav-fill"] { flex: none; height: 900px; }
+    [data-testid="sidebar-main-fill"] { flex: 1; height: 960px; }
+  `;
+  document.head.appendChild(style);
+  return () => document.head.removeChild(style);
+}
+
+function SidebarScrollDemo({ collapsible }: { collapsible?: "icon" | "none" }) {
+  return (
+    <div data-testid="sidebar-scroll-host">
+      <SidebarProvider>
+        <Sidebar aria-label="Pinned navigation" collapsible={collapsible}>
+          <SidebarHeader data-testid="pinned-header">Workspace</SidebarHeader>
+          <SidebarContent data-testid="pinned-content">
+            <div data-testid="sidebar-nav-fill" aria-hidden="true" />
+          </SidebarContent>
+          <SidebarFooter data-testid="pinned-footer">Account</SidebarFooter>
+        </Sidebar>
+        <main data-testid="sidebar-main-fill">Long page content</main>
+      </SidebarProvider>
+    </div>
+  );
+}
+
+async function afterScrollLayout() {
+  await new Promise<void>((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+  });
+}
+
+test.each([
+  ["collapsible", undefined],
+  ['collapsible="none"', "none" as const],
+])(
+  "desktop %s rail and footer stay pinned while page and navigation content scroll",
+  async (_label, collapsible) => {
+    const cleanup = injectSidebarScrollMirror();
+    try {
+      const screen = await render(
+        <SidebarScrollDemo collapsible={collapsible} />,
+      );
+      const host = screen.getByTestId("sidebar-scroll-host").element();
+      const sidebar = screen
+        .getByRole("navigation", { name: "Pinned navigation" })
+        .element();
+      const content = screen.getByTestId("pinned-content").element();
+      const footer = screen.getByTestId("pinned-footer").element();
+
+      expect(sidebar.classList.contains("sticky")).toBe(true);
+      expect(sidebar.classList.contains("top-0")).toBe(true);
+      expect(sidebar.classList.contains("self-start")).toBe(true);
+      expect(
+        screen
+          .getByTestId("pinned-header")
+          .element()
+          .classList.contains("shrink-0"),
+      ).toBe(true);
+      expect(footer.classList.contains("shrink-0")).toBe(true);
+      expect(footer.classList.contains("mt-auto")).toBe(true);
+
+      const initialHost = host.getBoundingClientRect();
+      expect(sidebar.getBoundingClientRect().top).toBeCloseTo(
+        initialHost.top,
+        0,
+      );
+      expect(footer.getBoundingClientRect().bottom).toBeCloseTo(
+        initialHost.bottom,
+        0,
+      );
+
+      host.scrollTop = 180;
+      host.dispatchEvent(new Event("scroll"));
+      await afterScrollLayout();
+
+      const scrolledHost = host.getBoundingClientRect();
+      expect(sidebar.getBoundingClientRect().top).toBeCloseTo(
+        scrolledHost.top,
+        0,
+      );
+      expect(footer.getBoundingClientRect().bottom).toBeCloseTo(
+        scrolledHost.bottom,
+        0,
+      );
+
+      expect(content.scrollHeight).toBeGreaterThan(content.clientHeight);
+      const footerBeforeContentScroll = footer.getBoundingClientRect();
+      content.scrollTop = 200;
+      content.dispatchEvent(new Event("scroll"));
+      await afterScrollLayout();
+      expect(content.scrollTop).toBe(200);
+      expect(footer.getBoundingClientRect().top).toBeCloseTo(
+        footerBeforeContentScroll.top,
+        0,
+      );
+    } finally {
+      cleanup();
+    }
+  },
+);
+
+test("desktop viewport anchoring preserves collapsed off-canvas and right-side floating treatments", async () => {
+  const screen = await render(
+    <div>
+      <SidebarProvider defaultOpen={false}>
+        <Sidebar aria-label="Off-canvas navigation" collapsible="offcanvas" />
+      </SidebarProvider>
+      <SidebarProvider defaultOpen={false}>
+        <Sidebar
+          aria-label="Floating navigation"
+          side="right"
+          variant="floating"
+        />
+      </SidebarProvider>
+    </div>,
+  );
+
+  const offcanvas = screen
+    .getByRole("navigation", { name: "Off-canvas navigation" })
+    .element();
+  expect(offcanvas.classList.contains("sticky")).toBe(true);
+  expect(offcanvas.classList.contains("top-0")).toBe(true);
+  expect(offcanvas.classList.contains("self-start")).toBe(true);
+  await expect.element(offcanvas).toHaveAttribute("data-state", "collapsed");
+  await expect
+    .element(offcanvas)
+    .toHaveAttribute("data-collapsible", "offcanvas");
+
+  const floating = screen
+    .getByRole("navigation", { name: "Floating navigation" })
+    .element();
+  expect(floating.classList.contains("sticky")).toBe(true);
+  expect(floating.classList.contains("top-2")).toBe(true);
+  expect(floating.classList.contains("m-2")).toBe(true);
+  expect(floating.classList.contains("self-start")).toBe(true);
+  await expect.element(floating).toHaveAttribute("data-side", "right");
+  await expect.element(floating).toHaveAttribute("data-variant", "floating");
 });
 
 /* ---------------------------------------------------------------------------------------------
@@ -576,6 +737,24 @@ test("SidebarMenuBadge is vertically centered on its row (top-1/2 -translate-y-1
   expect(badge.classList.contains("absolute")).toBe(true);
   expect(badge.classList.contains("top-1/2")).toBe(true);
   expect(badge.classList.contains("-translate-y-1/2")).toBe(true);
+  expect(
+    badge.classList.contains(
+      "group-data-[state=collapsed]/sidebar:rounded-full",
+    ),
+  ).toBe(true);
+  expect(
+    badge.classList.contains(
+      "group-data-[state=collapsed]/sidebar:bg-sidebar-primary",
+    ),
+  ).toBe(true);
+  expect(
+    badge.classList.contains(
+      "group-data-[state=collapsed]/sidebar:text-transparent",
+    ),
+  ).toBe(true);
+  expect(
+    badge.classList.contains("group-data-[state=collapsed]/sidebar:hidden"),
+  ).toBe(false);
 });
 
 test("a point beyond the expanded hit area does not resolve to the trigger", async () => {

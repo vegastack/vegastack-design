@@ -1286,7 +1286,7 @@
       "name": "progress-indicator",
       "type": "registry:ui",
       "title": "Progress Indicator",
-      "description": "A compact circular pie-fill progress indicator (0–100%) — a server-safe SVG glyph in circle or squircle shapes.",
+      "description": "A compact circular pie-fill progress indicator (0–100%) with optional visible percentage variants.",
       "categories": ["feedback"],
       "dependencies": [
         "class-variance-authority@^0.7.1",
@@ -1302,7 +1302,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "A compact determinate percentage glyph — inline beside a label or metric.",
+        "whenToUse": "A compact determinate percentage glyph — inline beside a label or metric, or with a visible percentage value.",
         "whenNotToUse": "Indefinite waits (Spinner) or wide tasks where a linear Progress bar reads better.",
         "version": "0.4.1"
       }
@@ -1853,6 +1853,61 @@
       "meta": {
         "whenToUse": "Display a resolved image URL with reserved aspect-ratio, a loading skeleton, and a graceful error fallback.",
         "whenNotToUse": "When you must fetch/resolve the source (R2/CDN keys) — presentational; resolve URLs app-side.",
+        "version": "0.4.1"
+      }
+    },
+    {
+      "name": "audio-player",
+      "type": "registry:ui",
+      "title": "Audio Player",
+      "description": "A compact custom audio transport with standard media controls, seek, mute, settings, and keyboard shortcuts.",
+      "categories": ["media"],
+      "dependencies": [
+        "lucide-react@^1.24.0",
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design@^0.3.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/dropdown-menu",
+        "@vegastack/icon-button",
+        "@vegastack/slider",
+        "@vegastack/tooltip"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/audio-player.tsx",
+          "type": "registry:ui",
+          "target": "@ui/audio-player.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A single audio asset that needs a compact, branded transport with grouped skip controls, mute, settings, and keyboard shortcuts.",
+        "whenNotToUse": "Playlists, queue management, waveform editing, transcript navigation, or audio recording.",
+        "version": "0.4.1"
+      }
+    },
+    {
+      "name": "video-player",
+      "type": "registry:ui",
+      "title": "Video Player",
+      "description": "A framed video player with the same grouped custom transport controls as Audio Player.",
+      "categories": ["media"],
+      "dependencies": [
+        "@vegastack/design@^0.3.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": ["@vegastack/audio-player"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/video-player.tsx",
+          "type": "registry:ui",
+          "target": "@ui/video-player.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A single video asset that needs a branded frame plus grouped skip controls, mute, and keyboard shortcuts.",
+        "whenNotToUse": "Playlists, caption editing, fullscreen-first viewing, or adaptive streaming control surfaces.",
         "version": "0.4.1"
       }
     },

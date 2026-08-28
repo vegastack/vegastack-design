@@ -1,4 +1,4 @@
-// @vegastack dashboard-01@0.4.1 sha256-UHaczpKR2ckJkq+gYZtKjZYrYvw5q1xcfnE9OBxZM/Q=
+// @vegastack dashboard-01@0.4.1 sha256-HDxeGh+W354AKTUggsKyJY3cxK36xhQW3b2LlZLTRyQ=
 
 /**
  * `page.tsx` — registry:page, target `app/dashboard/page.tsx`. The dashboard-01 block's sample
@@ -53,6 +53,10 @@ const DEFAULT_DATA = sampleData as {
 
 /** Props accepted by `DashboardPage`. */
 export interface DashboardPageProps {
+  /** Class name forwarded to the root `AppShell` (useful when embedding the block in a bounded preview). @default undefined */
+  className?: string;
+  /** Viewport width below which navigation uses AppShell's modal Sheet. @default 768 */
+  mobileBreakpoint?: number;
   /** Stat-card row data. @default bundled sample `data.json` */
   stats?: StatCardDatum[];
   /** "Usage over time" chart series. @default bundled sample `data.json` */
@@ -100,6 +104,8 @@ function RegionError({
  * <DashboardPage loading={{ activity: true }} />
  */
 export function DashboardPage({
+  className,
+  mobileBreakpoint,
   stats = DEFAULT_DATA.stats,
   usage = DEFAULT_DATA.usage,
   activity = DEFAULT_DATA.activity,
@@ -108,7 +114,11 @@ export function DashboardPage({
   isEmpty = false,
 }: DashboardPageProps) {
   return (
-    <AppShell defaultOpen>
+    <AppShell
+      defaultOpen
+      className={className}
+      mobileBreakpoint={mobileBreakpoint}
+    >
       <AppSidebar activeKey="dashboard" />
       <div className="flex h-svh min-w-0 flex-1 flex-col">
         <AppShellHeader

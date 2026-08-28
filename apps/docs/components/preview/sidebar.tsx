@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { Wrapper } from "./wrapper";
+import { usePreviewFrameWidth } from "../preview-controls";
 import {
   Home,
   Inbox,
@@ -34,7 +35,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 
-// Every demo passes `mobileBreakpoint={1}` — below the provider's breakpoint (default 768px)
+// Desktop-specific demos pass `mobileBreakpoint={1}` — below the provider's breakpoint (default 768px)
 // the sidebar renders inside a CLOSED Sheet, so a 375px docs preview would be an empty box.
 // `1` becomes a `(max-width: 0px)` media query that never matches, keeping the desktop rail
 // visible at every preview width.
@@ -68,16 +69,13 @@ const GROUPS = [
 export function sidebar(): ReactNode {
   const [active, setActive] = useState<string>("inbox");
   return (
-    <Wrapper className="block overflow-hidden p-0">
-      <SidebarProvider mobileBreakpoint={DEMO_MOBILE_BREAKPOINT}>
+    <Wrapper className="block h-104 overflow-hidden p-0">
+      <SidebarProvider className="h-full min-h-0">
         <Sidebar aria-label="Demo navigation">
           <SidebarHeader>
-            <div className="flex items-center justify-between px-1">
-              <span className="text-label font-medium group-data-[state=collapsed]/sidebar:hidden">
-                VegaStack
-              </span>
-              <SidebarTrigger />
-            </div>
+            <span className="px-1 text-label font-medium group-data-[state=collapsed]/sidebar:hidden">
+              VegaStack
+            </span>
           </SidebarHeader>
           <SidebarContent>
             {GROUPS.map((group) => (
@@ -114,6 +112,70 @@ export function sidebar(): ReactNode {
             </SidebarMenu>
           </SidebarFooter>
         </Sidebar>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-4">
+            <SidebarTrigger />
+            <span className="min-w-0 truncate text-label font-medium text-foreground">
+              Workspace
+            </span>
+          </header>
+          <main className="flex min-h-0 flex-1 items-center justify-center p-4 text-base text-muted-foreground">
+            Select a navigation item
+          </main>
+        </div>
+      </SidebarProvider>
+    </Wrapper>
+  );
+}
+
+/**
+ * Frame-responsive navigation. The docs width toggle constrains a container, not `matchMedia`, so
+ * this demo reads the selected frame preset and forces the rail into its modal Sheet at the mobile
+ * preset. Toggle the toolbar's phone icon to watch the rail collapse into a Sheet you open from the
+ * header trigger; wider presets keep the default viewport behaviour.
+ */
+export function sidebarMobile(): ReactNode {
+  const frameWidth = usePreviewFrameWidth();
+  return (
+    <Wrapper className="block h-80 overflow-hidden p-0">
+      <SidebarProvider
+        mobileBreakpoint={frameWidth === "mobile" ? 10000 : undefined}
+        className="h-full min-h-0"
+      >
+        <Sidebar aria-label="Mobile demo navigation">
+          <SidebarHeader>
+            <span className="px-1 text-label font-medium">VegaStack</span>
+          </SidebarHeader>
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+              <SidebarMenu>
+                {GROUPS[0].items.slice(0, 3).map((item) => (
+                  <SidebarMenuItem key={item.key}>
+                    <SidebarMenuButton>
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                    {item.badge ? (
+                      <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>
+                    ) : null}
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroup>
+          </SidebarContent>
+        </Sidebar>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-4">
+            <SidebarTrigger />
+            <span className="truncate text-label font-medium text-foreground">
+              Mobile workspace
+            </span>
+          </header>
+          <main className="p-4 text-base text-muted-foreground">
+            Navigation opens over this content.
+          </main>
+        </div>
       </SidebarProvider>
     </Wrapper>
   );

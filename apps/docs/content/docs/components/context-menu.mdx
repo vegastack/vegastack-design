@@ -116,8 +116,10 @@ padding so icon-less rows line up with the indicator column of checkbox / radio 
 />
 
 ```tsx
-<ContextMenuLabel inset>Layout</ContextMenuLabel>
-<ContextMenuItem inset>Back</ContextMenuItem>
+<ContextMenuGroup>
+  <ContextMenuLabel inset>Layout</ContextMenuLabel>
+  <ContextMenuItem inset>Back</ContextMenuItem>
+</ContextMenuGroup>
 <ContextMenuSubTrigger inset>More tools</ContextMenuSubTrigger>
 ```
 

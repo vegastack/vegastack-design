@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 554,
-    "components": 108,
+    "totalRegistryItems": 556,
+    "components": 110,
     "animatedIcons": 439,
     "hooks": 6,
     "blocks": 1
@@ -24,7 +24,7 @@
     "Navigation/layout": 14,
     "Overlays": 13,
     "Data display": 10,
-    "Content/marketing": 20,
+    "Content/marketing": 22,
     "AI/chat": 6,
     "Hooks": 6,
     "Block": 1,
@@ -128,6 +128,8 @@
       "empty",
       "truncated-text",
       "image",
+      "audio-player",
+      "video-player",
       "onboarding-checklist",
       "markdown-view",
       "code-block",
@@ -9366,7 +9368,7 @@
       "name": "progress-indicator",
       "registryType": "registry:ui",
       "title": "Progress Indicator",
-      "summary": "A compact circular pie-fill progress indicator (0–100%) — a server-safe SVG glyph in circle or squircle shapes.",
+      "summary": "A compact circular pie-fill progress indicator (0–100%) with optional visible percentage variants.",
       "family": "feedback",
       "wave": "Data display",
       "sourceFiles": ["packages/ui/registry/ui/progress-indicator.tsx"],
@@ -9384,6 +9386,15 @@
         {
           "name": "ProgressIndicatorProps",
           "kind": "interface",
+          "source": "packages/ui/registry/ui/progress-indicator.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ProgressIndicatorVariant",
+          "kind": "type",
           "source": "packages/ui/registry/ui/progress-indicator.tsx",
           "ref": {
             "status": "not-applicable",
@@ -9424,6 +9435,11 @@
           {
             "name": "shape",
             "values": ["circle", "squircle"],
+            "evidence": "packages/ui/registry/ui/progress-indicator.tsx: prop union"
+          },
+          {
+            "name": "variant",
+            "values": ["contained-value", "default", "inline-value"],
             "evidence": "packages/ui/registry/ui/progress-indicator.tsx: prop union"
           }
         ]
@@ -11843,6 +11859,264 @@
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
       "previewModule": "image"
+    },
+    {
+      "name": "audio-player",
+      "registryType": "registry:ui",
+      "title": "Audio Player",
+      "summary": "A compact custom audio transport with standard media controls, seek, mute, settings, and keyboard shortcuts.",
+      "family": "media",
+      "wave": "Content/marketing",
+      "sourceFiles": ["packages/ui/registry/ui/audio-player.tsx"],
+      "publicSymbols": [
+        {
+          "name": "AudioPlayer",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/audio-player.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to the outer player root."
+          }
+        },
+        {
+          "name": "AudioPlayerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/audio-player.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MediaPlayerControls",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/audio-player.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to the shared controls root."
+          }
+        },
+        {
+          "name": "MediaPlayerControlsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/audio-player.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["default", "waveform"],
+            "evidence": "packages/ui/registry/ui/audio-player.tsx: AudioPlayerProps variant union (default | waveform)"
+          }
+        ]
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "playing",
+            "paused",
+            "muted",
+            "seeking",
+            "keyboard-shortcuts",
+            "playback-rate"
+          ],
+          "evidence": "Observed from media event handlers, grouped skip controls, keyboard handlers, control callbacks, and state attributes."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": [
+            "focus-visible",
+            "keyboard-operable",
+            "labeled",
+            "semantic-html"
+          ],
+          "evidence": "Observed from named controls, the composed Slider, and semantic media element."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "with-copy", "waveform"],
+          "evidence": "Observed from token classes, optional header branches, and preview states."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "overflow-and-scroll",
+          "responsive-or-container-layout",
+          "mobile-or-touch-mode"
+        ],
+        "rationale": "Source uses container queries, truncation, flexible seek controls, and touch-oriented transport buttons."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": ["tokenized CSS transition"],
+        "reducedMotion": {
+          "status": "observed-or-documented",
+          "rationale": "Composed controls use tokenized transitions and inherited reduced-motion handling."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/audio-player",
+      "registryDependencies": [
+        "@vegastack/dropdown-menu",
+        "@vegastack/icon-button",
+        "@vegastack/slider",
+        "@vegastack/tooltip"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.24.0",
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design@^0.3.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/audio-player.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "previewModule": "audio-player"
+    },
+    {
+      "name": "video-player",
+      "registryType": "registry:ui",
+      "title": "Video Player",
+      "summary": "A framed video player with the same grouped custom transport controls as Audio Player.",
+      "family": "media",
+      "wave": "Content/marketing",
+      "sourceFiles": ["packages/ui/registry/ui/video-player.tsx"],
+      "publicSymbols": [
+        {
+          "name": "VideoPlayer",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/video-player.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to the outer player root."
+          }
+        },
+        {
+          "name": "VideoPlayerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/video-player.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "aspectRatio",
+            "values": ["auto", "square", "video"],
+            "evidence": "packages/ui/registry/ui/video-player.tsx: prop branch"
+          }
+        ]
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "playing",
+            "paused",
+            "muted",
+            "seeking",
+            "keyboard-shortcuts",
+            "playback-rate",
+            "quality",
+            "volume",
+            "fullscreen",
+            "fullscreen-exit",
+            "hover-fade-controls"
+          ],
+          "evidence": "Observed from shared media controls, settings submenus, fullscreen handling, frame-level keyboard handlers, and media event handling."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": [
+            "focus-visible",
+            "keyboard-operable",
+            "labeled",
+            "semantic-html"
+          ],
+          "evidence": "Observed from named controls, the composed Slider, frame-level keyboard transport, and semantic video element."
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "with-copy",
+            "aspect-ratio",
+            "progress-rest",
+            "progress-hover",
+            "volume-open"
+          ],
+          "evidence": "Observed from token classes, named progress rest/hover treatment, contained volume surface, fullscreen state, optional header branches, and preview states."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "overflow-and-scroll",
+          "responsive-or-container-layout",
+          "mobile-or-touch-mode"
+        ],
+        "rationale": "Source uses aspect-ratio framing, flexible controls, container queries, touch-oriented transport buttons, and an overlay gradient that does not resize the frame."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": ["tokenized CSS transition"],
+        "reducedMotion": {
+          "status": "observed-or-documented",
+          "rationale": "Composed controls use tokenized transitions and inherited reduced-motion handling."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/video-player",
+      "registryDependencies": ["@vegastack/audio-player"],
+      "npmDependencies": [
+        "@vegastack/design@^0.3.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/video-player.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "previewModule": "video-player"
     },
     {
       "name": "notification-bell",

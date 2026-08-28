@@ -105,6 +105,29 @@ test("renders label, separator and a shortcut hint", async () => {
   await expect.element(page.getByRole("separator")).toBeInTheDocument();
 });
 
+test("inset group items activate without navigating", async () => {
+  const onSelect = vi.fn();
+  const startUrl = window.location.href;
+  const screen = await render(
+    <DropdownMenu>
+      <DropdownMenuTrigger>View options</DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel inset>Appearance</DropdownMenuLabel>
+          <DropdownMenuItem inset onClick={onSelect}>
+            Compact mode
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>,
+  );
+
+  await screen.getByRole("button", { name: "View options" }).click();
+  await page.getByRole("menuitem", { name: "Compact mode" }).click();
+  expect(onSelect).toHaveBeenCalledTimes(1);
+  expect(window.location.href).toBe(startUrl);
+});
+
 test("checkbox item toggles via onCheckedChange", async () => {
   const onCheckedChange = vi.fn();
   const screen = await render(

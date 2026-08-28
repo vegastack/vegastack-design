@@ -72,8 +72,9 @@ export function switchStates(): ReactNode {
 }
 
 export function switchInvalid(): ReactNode {
-  // The `aria-invalid` destructive-border tint — set directly when standalone,
-  // or wired automatically when a `<Field error=…>` marks the control invalid.
+  // `aria-invalid` adds no visual treatment to the switch itself — set directly when standalone,
+  // or wired automatically when a `<Field error=…>` marks the control invalid; the Field's error
+  // copy is the only invalid affordance.
   return (
     <Wrapper className="flex-col items-start gap-4">
       <div className="flex flex-wrap items-center gap-6">

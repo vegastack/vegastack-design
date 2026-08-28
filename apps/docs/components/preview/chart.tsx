@@ -10,6 +10,8 @@ import {
   CartesianGrid,
   Line,
   LineChart,
+  Pie,
+  PieChart,
   XAxis,
   YAxis,
 } from "recharts";
@@ -43,6 +45,18 @@ const chartConfig = {
 const chartConfigWithIcons = {
   desktop: { label: "Desktop", color: "chart-1", icon: Monitor },
   mobile: { label: "Mobile", color: "chart-2", icon: Smartphone },
+} satisfies ChartConfig;
+
+const channelData = [
+  { channel: "organic", visitors: 4820, fill: "var(--color-organic)" },
+  { channel: "paid", visitors: 2740, fill: "var(--color-paid)" },
+  { channel: "referral", visitors: 1640, fill: "var(--color-referral)" },
+];
+
+const channelConfig = {
+  organic: { label: "Organic", color: "chart-1" },
+  paid: { label: "Paid", color: "chart-2" },
+  referral: { label: "Referral", color: "chart-3" },
 } satisfies ChartConfig;
 
 export function chartDemoArea(): ReactNode {
@@ -140,6 +154,55 @@ export function chartDemoLine(): ReactNode {
             dot={{ fill: "var(--color-mobile)", r: 3 }}
           />
         </LineChart>
+      </ChartContainer>
+    </Wrapper>
+  );
+}
+
+export function chartDemoPie(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <p className="sr-only">
+        Traffic sources: Organic 4,820 visitors, Paid 2,740, Referral 1,640.
+      </p>
+      <ChartContainer config={channelConfig} className="h-64 w-full">
+        <PieChart accessibilityLayer>
+          <ChartTooltip content={<ChartTooltipContent nameKey="channel" />} />
+          <Pie
+            data={channelData}
+            dataKey="visitors"
+            nameKey="channel"
+            stroke="var(--background)"
+            strokeWidth={2}
+          />
+          <ChartLegend content={<ChartLegendContent nameKey="channel" />} />
+        </PieChart>
+      </ChartContainer>
+    </Wrapper>
+  );
+}
+
+export function chartDemoDonut(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <p className="sr-only">
+        Traffic sources: Organic 4,820 visitors, Paid 2,740, Referral 1,640.
+      </p>
+      <ChartContainer config={channelConfig} className="h-64 w-full">
+        <PieChart accessibilityLayer>
+          <ChartTooltip content={<ChartTooltipContent nameKey="channel" />} />
+          <Pie
+            data={channelData}
+            dataKey="visitors"
+            nameKey="channel"
+            innerRadius="48%"
+            outerRadius="76%"
+            paddingAngle={2}
+            stroke="var(--background)"
+            strokeWidth={2}
+          />
+          <ChartLegend content={<ChartLegendContent nameKey="channel" />} />
+        </PieChart>
       </ChartContainer>
     </Wrapper>
   );

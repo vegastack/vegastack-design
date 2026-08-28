@@ -32,9 +32,7 @@ import {
 
 <SidebarProvider>
   <Sidebar aria-label="Main navigation">
-    <SidebarHeader>
-      <SidebarTrigger />
-    </SidebarHeader>
+    <SidebarHeader>…logo / workspace switcher…</SidebarHeader>
     <SidebarContent>
       <SidebarGroup>
         <SidebarGroupLabel>Workspace</SidebarGroupLabel>
@@ -61,7 +59,13 @@ import {
       </SidebarMenuButton>
     </SidebarFooter>
   </Sidebar>
-  {/* …your page content sits next to the rail… */}
+  <div className="flex min-w-0 flex-1 flex-col">
+    <header>
+      {/* Always mounted: collapses the desktop rail and opens the mobile Sheet. */}
+      <SidebarTrigger />
+    </header>
+    {/* …your page content… */}
+  </div>
 </SidebarProvider>;
 ```
 
@@ -100,15 +104,19 @@ rail out next to your page content; everything else composes inside the `<nav>` 
   cookie on every desktop toggle (see "SSR persistence" below).
 - `Sidebar` — the `<nav>` rail (`data-slot="sidebar"`). Carries `data-state="expanded|collapsed"`,
   `data-collapsible`, and `data-variant` for descendant styling, and animates its width between
-  states. Below the mobile breakpoint (768px by default) it renders its children inside a `Sheet`
-  instead — see "Mobile" below.
-- `SidebarHeader` / `SidebarFooter` — the top and bottom regions (logo / app switcher, user menu).
-- `SidebarContent` — the scrollable middle region that holds the groups.
+  states. On desktop it stays anchored to the viewport while the adjacent document scrolls. Below
+  the mobile breakpoint (768px by default) it renders its children inside a `Sheet` instead — see
+  "Mobile" below.
+- `SidebarHeader` / `SidebarFooter` — the non-shrinking top and bottom regions (logo / app switcher,
+  user menu). The footer remains at the viewport bottom on desktop.
+- `SidebarContent` — the flexible, scrollable middle region that holds the groups. When navigation
+  is taller than the viewport, scroll this region rather than the header/footer or entire rail.
 - `SidebarGroup` + `SidebarGroupLabel` — a labelled section; the label fades out when collapsed.
 - `SidebarMenu` / `SidebarMenuItem` — the `<ul>` / `<li>` list structure for nav entries.
 - `SidebarMenuButton` — the interactive row. Renders a `<button>` by default; pass `render={<a />}`
   for a nav link. `isActive` applies the accent background, leading rail, and `aria-current="page"`.
-- `SidebarMenuBadge` — an optional count/status pill on a menu item (hidden when collapsed).
+- `SidebarMenuBadge` — an optional count/status pill on a menu item; it becomes a compact status dot
+  in the collapsed icon rail while retaining its text for assistive technology.
 - `SidebarMenuSkeleton` — a loading placeholder shaped like a `SidebarMenuButton` row.
 - `SidebarSeparator` — a thin inset rule between sections.
 - `SidebarTrigger` — a `PanelLeft` icon button that toggles the rail (or, on mobile, the Sheet);
@@ -215,6 +223,13 @@ work at every width composes it like this:
   <SidebarInset>…page content…</SidebarInset>
 </SidebarProvider>
 ```
+
+Switch the preview's width toggle (the toolbar's phone icon) to mobile to watch the rail collapse
+into a Sheet you open from the header trigger. This is viewport-driven in a real app; the toggle only
+constrains a container, so this demo forces the branch to make it visible without resizing your
+window.
+
+<ComponentPreview name="sidebarMobile" file="components/preview/sidebar.tsx" />
 
 ## SSR persistence
 

@@ -1,4 +1,4 @@
-// @vegastack pricing-section@0.4.1 sha256-9rS4nZdVgfo8Nlx1OgA8VlW+gteEws6yszN2PVam9xI=
+// @vegastack pricing-section@0.4.1 sha256-xnOmgbZ+bVkRip7VRq7PQdGGKj8Wyi/TyRvrLTm4tLk=
 
 import * as React from "react";
 import { Check } from "lucide-react";
@@ -18,12 +18,20 @@ import { Badge } from "@/components/ui/badge";
 /** Props accepted by `PricingSection`. */
 export type PricingSectionProps = React.ComponentPropsWithRef<"div">;
 
-/** `PricingSection` — the responsive card row (1-col → 2 → 4). @example <PricingSection><PlanCard name="Free" price="$0" /></PricingSection> */
+/**
+ * `PricingSection` — a responsive card row that fits as many 16rem-minimum cards as its own
+ * available width allows. This follows the section's rendered width rather than the viewport, so
+ * it also reflows correctly inside sidebars, split panes, and docs preview frames.
+ * @example <PricingSection><PlanCard name="Free" price="$0" /></PricingSection>
+ */
 export function PricingSection({ className, ...props }: PricingSectionProps) {
   return (
     <div
       data-slot="pricing-section"
-      className={cn("grid gap-4 sm:grid-cols-2 lg:grid-cols-4", className)}
+      className={cn(
+        "grid grid-cols-[repeat(auto-fit,minmax(min(100%,var(--container-3xs)),1fr))] gap-4",
+        className,
+      )}
       {...props}
     />
   );

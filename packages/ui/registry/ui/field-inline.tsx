@@ -1,4 +1,4 @@
-// @vegastack field-inline@0.4.1 sha256-PkNPIzMttA9yxg/vBrzbopo43hSZnNjePFQVVKNKZkM=
+// @vegastack field-inline@0.4.1 sha256-IaJWPbBheDYyjId9pKmXJSWZdmmm9PmWDd++HAccMTg=
 
 "use client";
 
@@ -353,7 +353,10 @@ export function FieldInline({
             : undefined
         }
         className={cn(
-          "inline-flex max-w-full min-w-0 items-center rounded-md px-2 py-1 text-base",
+          // Mirror Input's default 32px box, 1px border reservation, and horizontal padding so
+          // swapping display text for the focused editor never moves adjacent layout or text.
+          "inline-flex h-(--size-md) max-w-full min-w-0 items-center rounded-md border border-transparent px-3 py-1 text-base",
+          borderless && "h-auto rounded-none px-0 py-0",
           !disabled && !readOnly && "cursor-text hover:bg-muted",
           "aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
           className,

@@ -9,6 +9,61 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.5.0] — August 28, 2026
+
+### 🧩 New components
+
+- **AudioPlayer**, **VideoPlayer** — media players sharing one custom transport: grouped
+  play / seek / mute / settings controls, a 128-bar waveform seek on audio, a smoothly expanding
+  video progress rail, a contained volume rocker, larger overlay actions, state-aware fullscreen,
+  and keyboard shortcuts.
+  [docs](https://design.vegastack.com/docs/components/audio-player) ·
+  [`334cb4c`](https://github.com/VegaStack/vegastack-design/commit/334cb4c)
+
+### 🔧 Changed components
+
+- **ProgressIndicator** — new value-display variants render the percentage inline or contained
+  within the glyph.
+  [docs](https://design.vegastack.com/docs/components/progress-indicator) ·
+  [`334cb4c`](https://github.com/VegaStack/vegastack-design/commit/334cb4c)
+- **Sidebar** — the desktop sidebar and its footer now stay pinned to the viewport while page and
+  navigation content scrolls.
+  [docs](https://design.vegastack.com/docs/components/sidebar) ·
+  [`334cb4c`](https://github.com/VegaStack/vegastack-design/commit/334cb4c)
+- **Switch** — the invalid state no longer applies a destructive track border; `aria-invalid`
+  remains the semantic cue and the wrapping Field owns the error message. Consumer-visible restyle.
+  [docs](https://design.vegastack.com/docs/components/switch) ·
+  [`334cb4c`](https://github.com/VegaStack/vegastack-design/commit/334cb4c)
+
+### 🐛 Fixed
+
+- **DatePicker**, **ComparisonMatrix**, **PricingSection**, **Tabs**, **FieldInline** — manual-QA
+  remediation across range selection, compact navigation, overflow handling, and responsive pricing
+  and comparison layouts.
+  [docs](https://design.vegastack.com/docs/components/date-picker) ·
+  [`334cb4c`](https://github.com/VegaStack/vegastack-design/commit/334cb4c)
+
+### 🛠 CLI & tooling
+
+- Cross-engine smoke and the full three-engine suite now treat **WebKit as host-conditional** — it
+  runs where it can launch and is skipped with an auditable banner where it cannot (macOS 26.6.2
+  cannot launch Playwright's WebKit). Chromium + Firefox coverage is never blocked, and a Mac on
+  macOS 26.2–26.5 still enforces WebKit. Control with `WEBKIT_LANE=auto|off|require`.
+  [`b6b1bd0`](https://github.com/VegaStack/vegastack-design/commit/b6b1bd0)
+
+### 📚 Docs
+
+- Improved the published examples for dropzones, menus, charts, mobile shells, and the dashboard
+  starter.
+  [`334cb4c`](https://github.com/VegaStack/vegastack-design/commit/334cb4c)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.3.1`** — ships the regenerated component-roster skill reference
+  (the two new players, the ProgressIndicator variant note, updated counts). No runtime code changed.
+- **`@vegastack/design-tokens`** is unchanged. The design-system registry (`@vegastack/ui`) bumps
+  0.4.1 → 0.5.0.
+
 ## [0.4.1] — July 28, 2026
 
 ### 🐛 Fixed

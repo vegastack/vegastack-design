@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.4.1 sha256-VzNsnVK/mRsnHkOqQcxu+sWA5wH4S3SR2d7UU/LDQTc=
+// @vegastack date-picker@0.4.1 sha256-qkRVDGhh9J7g+fcYmJ7lEBOM4QBPWmLmr0HgIf4QPic=
 
 "use client";
 
@@ -715,6 +715,10 @@ export function DateRangePicker({
   "aria-label": ariaLabel,
 }: DateRangePickerProps) {
   const [open, setOpen] = React.useState(false);
+  // react-day-picker may emit a same-day COMPLETE range on the first click. Closing from that
+  // shape makes a two-endpoint gesture impossible, especially when replacing an existing range.
+  // Track the current popover session explicitly and normalize its first day to an open range.
+  const rangeSelectionStartedRef = React.useRef(false);
   const {
     defaultMonth,
     numberOfMonths: calendarNumberOfMonths,
@@ -722,9 +726,20 @@ export function DateRangePicker({
     ...calendarRestProps
   } = calendarProps ?? {};
 
-  const handleSelect = (range: DateRange | undefined) => {
+  const handleOpenChange = (nextOpen: boolean) => {
+    rangeSelectionStartedRef.current = false;
+    setOpen(nextOpen);
+  };
+
+  const handleSelect = (range: DateRange | undefined, triggerDate: Date) => {
+    if (!rangeSelectionStartedRef.current) {
+      rangeSelectionStartedRef.current = true;
+      onValueChange?.({ from: triggerDate, to: undefined });
+      return;
+    }
+
     onValueChange?.(range);
-    // Close once a complete range (both ends) is chosen.
+    // Close only after the SECOND endpoint gesture produces a complete range.
     if (range?.from && range.to) setOpen(false);
   };
 
@@ -733,7 +748,7 @@ export function DateRangePicker({
     : placeholder;
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger
         render={
           <Button

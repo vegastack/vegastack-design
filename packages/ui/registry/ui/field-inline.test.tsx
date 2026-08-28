@@ -65,6 +65,45 @@ test("clicking the value enters edit mode (input appears, focused)", async () =>
   await expect.element(input).toHaveFocus();
 });
 
+test("display and edit modes reserve the same control geometry", async () => {
+  const screen = await render(
+    <FieldInline value="Ada" onCommit={() => {}} placeholder="Name" />,
+  );
+  const display = screen.getByRole("button", { name: "Ada" });
+  const displayElement = display.element();
+  expect(displayElement.classList.contains("h-(--size-md)")).toBe(true);
+  expect(displayElement.classList.contains("border")).toBe(true);
+  expect(displayElement.classList.contains("border-transparent")).toBe(true);
+  expect(displayElement.classList.contains("px-3")).toBe(true);
+
+  await display.click();
+  const textbox = screen.getByRole("textbox");
+  await expect.element(textbox).toBeInTheDocument();
+  const input = textbox.element();
+  expect(input.classList.contains("h-(--size-md)")).toBe(true);
+  expect(input.classList.contains("border")).toBe(true);
+  expect(input.classList.contains("px-3")).toBe(true);
+});
+
+test("borderless display and edit modes both remove control height and padding", async () => {
+  const screen = await render(
+    <FieldInline value="Ada" onCommit={() => {}} borderless />,
+  );
+  const display = screen.getByRole("button", { name: "Ada" });
+  const displayElement = display.element();
+  expect(displayElement.classList.contains("h-auto")).toBe(true);
+  expect(displayElement.classList.contains("px-0")).toBe(true);
+  expect(displayElement.classList.contains("py-0")).toBe(true);
+
+  await display.click();
+  const textbox = screen.getByRole("textbox");
+  await expect.element(textbox).toBeInTheDocument();
+  const input = textbox.element();
+  expect(input.classList.contains("h-auto")).toBe(true);
+  expect(input.classList.contains("px-0")).toBe(true);
+  expect(input.classList.contains("py-0")).toBe(true);
+});
+
 test("Enter on the focused display control enters edit mode", async () => {
   const screen = await render(
     <FieldInline value="Ada" onCommit={() => {}} placeholder="Name" />,

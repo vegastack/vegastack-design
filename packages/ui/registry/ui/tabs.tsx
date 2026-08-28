@@ -1,4 +1,4 @@
-// @vegastack tabs@0.4.1 sha256-PsFTt5Wx2ZRlzOnYI2f13XKRRChjpBXPv8OyXP1feEo=
+// @vegastack tabs@0.4.1 sha256-wFcwsqTBADPJkwj8Iaeo6mpIB8lFUM56B1JmzZz7MPo=
 
 "use client";
 
@@ -70,7 +70,7 @@ export const tabsListVariants = cva(
   // so a partially-hidden last tab reads as "more tabs this way" instead of a hard cut — the
   // fade only appears on the edge that actually has off-screen content (scroll-driven
   // animation, zero JS).
-  "group/tabs-list relative inline-flex items-center group-data-[orientation=horizontal]/tabs:max-w-full group-data-[orientation=horizontal]/tabs:overflow-x-auto group-data-[orientation=horizontal]/tabs:scroll-fade-x group-data-[orientation=vertical]/tabs:flex-col group-data-[orientation=vertical]/tabs:items-stretch",
+  "group/tabs-list relative inline-flex items-center group-data-[orientation=horizontal]/tabs:max-w-full group-data-[orientation=horizontal]/tabs:overflow-x-auto group-data-[orientation=horizontal]/tabs:scroll-fade-x group-data-[orientation=horizontal]/tabs:scrollbar-none group-data-[orientation=vertical]/tabs:flex-col group-data-[orientation=vertical]/tabs:items-stretch",
   {
     variants: {
       variant: {
@@ -141,12 +141,18 @@ export function TabsList({
           className={cn(
             // The active-tab underline is `primary` (the selected-state ink).
             "absolute bg-primary transition-[inset-inline-start,top,width,height] duration-fast ease-standard",
-            // Sits on the list rule (-bottom-px / -start-px overlaps the 1px border).
+            // Sits flush on the list rule. Horizontal uses `bottom-0` (NOT a negative `-bottom-px`)
+            // on purpose: the list is a horizontal scroll container (`overflow-x-auto`), and per the
+            // CSS overflow spec an `auto` x-axis promotes the `visible` y-axis to `auto` too — so a
+            // 1px negative offset would spill 1px below the box and leave the strip scrollable
+            // vertically by that sliver even when every tab fits (the scrollbar is hidden by
+            // `scrollbar-none`, so it reads as a phantom "still scrolls a bit"). `bottom-0` keeps the
+            // 2px underline fully inside the box, so a fitting tab row has no scrollable overflow at all.
             // `--active-tab-left`/`--active-tab-right` are PHYSICAL distances (from the container's
             // left / right edge), but `start-*` is LOGICAL. In LTR start==left so the left var is
             // correct; in RTL start==right, where the left distance puts the underline under the
             // wrong tab — so RTL is fed Base UI's matching `--active-tab-right`.
-            "group-data-[orientation=horizontal]/tabs:-bottom-px group-data-[orientation=horizontal]/tabs:start-[var(--active-tab-left)] rtl:group-data-[orientation=horizontal]/tabs:start-[var(--active-tab-right)] group-data-[orientation=horizontal]/tabs:h-0.5 group-data-[orientation=horizontal]/tabs:w-[var(--active-tab-width)]",
+            "group-data-[orientation=horizontal]/tabs:bottom-0 group-data-[orientation=horizontal]/tabs:start-[var(--active-tab-left)] rtl:group-data-[orientation=horizontal]/tabs:start-[var(--active-tab-right)] group-data-[orientation=horizontal]/tabs:h-0.5 group-data-[orientation=horizontal]/tabs:w-[var(--active-tab-width)]",
             "group-data-[orientation=vertical]/tabs:-start-px group-data-[orientation=vertical]/tabs:top-[var(--active-tab-top)] group-data-[orientation=vertical]/tabs:h-[var(--active-tab-height)] group-data-[orientation=vertical]/tabs:w-0.5",
           )}
         />
@@ -197,7 +203,7 @@ export function TabsTrigger({
       data-slot="tabs-trigger"
       className={cn(
         // Shared chrome.
-        "relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap text-label text-muted-foreground  select-none",
+        "relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap text-label text-muted-foreground focus-visible:-outline-offset-2 select-none",
         "hover:text-foreground data-[active]:text-foreground",
         // Base UI's Tabs.Tab is `focusableWhenDisabled` (no native `disabled` attribute —
         // disabled state is surfaced as `data-disabled`/`aria-disabled`), so style `data-disabled`;

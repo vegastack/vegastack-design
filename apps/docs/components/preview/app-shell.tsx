@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { Home, Inbox, Settings, BarChart3, Bot } from "lucide-react";
 import { Wrapper } from "./wrapper";
+import { usePreviewFrameWidth } from "../preview-controls";
 // Copied INTO apps/docs via `shadcn add @vegastack/app-shell` (dogfoods the registry) → auto-scanned.
 import {
   AppShell,
@@ -203,6 +204,63 @@ export function appShellFloating(): ReactNode {
               <code>floating</code> styles the rail itself — the content region
               needs no matching
               <code> variant</code>.
+            </p>
+          </AppShellContent>
+        </div>
+      </AppShell>
+    </Wrapper>
+  );
+}
+
+/**
+ * Frame-responsive navigation. The docs width toggle constrains a container (not the browser
+ * viewport), which a viewport media query can't see — so this demo reads the selected frame preset
+ * and, at the mobile preset, forces the rail into its modal Sheet (a huge `mobileBreakpoint` makes
+ * `useIsMobile` true regardless of the real viewport). Toggle the toolbar's phone icon to watch the
+ * desktop rail collapse into a Sheet you open from the header trigger; every wider preset keeps the
+ * default viewport behaviour, so a real narrow viewport still switches on its own.
+ */
+export function appShellMobile(): ReactNode {
+  const [active, setActive] = useState<string>("home");
+  const frameWidth = usePreviewFrameWidth();
+  return (
+    <Wrapper className="block h-104 overflow-hidden p-0">
+      <AppShell
+        mobileBreakpoint={frameWidth === "mobile" ? 10000 : undefined}
+        className="h-full min-h-0"
+      >
+        <AppShellSidebar>
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+              <SidebarMenu>
+                {NAV_ITEMS.slice(0, 3).map((item) => (
+                  <SidebarMenuItem key={item.key}>
+                    <SidebarMenuButton
+                      isActive={active === item.key}
+                      onClick={() => setActive(item.key)}
+                    >
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                    {item.badge ? (
+                      <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>
+                    ) : null}
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroup>
+          </SidebarContent>
+        </AppShellSidebar>
+        <div className="flex h-full min-w-0 flex-1 flex-col">
+          <AppShellHeader>
+            <span className="truncate text-label font-medium text-foreground">
+              Mobile dashboard
+            </span>
+          </AppShellHeader>
+          <AppShellContent>
+            <p className="p-4 text-base text-muted-foreground">
+              Use the menu trigger to open navigation over this content.
             </p>
           </AppShellContent>
         </div>
