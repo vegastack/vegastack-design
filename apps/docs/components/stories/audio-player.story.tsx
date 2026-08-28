@@ -1,5 +1,5 @@
 import { defineStory } from "@/lib/story";
-import { AudioPlayer } from "@/components/ui/audio-player";
+import { AudioPlayerStory } from "@/components/stories/story-shims";
 
 const SAMPLE_AUDIO = "/preview/media-player-demo.wav";
 const SAMPLE_WAVEFORM_AUDIO = "/preview/waveform-demo.wav";
@@ -10,7 +10,7 @@ const SAMPLE_WAVEFORM_AUDIO = "/preview/waveform-demo.wav";
  * no network dependency.
  */
 export const story = defineStory({
-  Component: AudioPlayer,
+  Component: AudioPlayerStory,
   args: [
     {
       variant: "Default",
