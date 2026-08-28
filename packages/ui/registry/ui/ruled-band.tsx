@@ -1,4 +1,4 @@
-// @vegastack ruled-band@0.4.1 sha256-TU6pCMpHzMKjPsjtan/tez4Y+joCiU+hlLpNBZUs1Hs=
+// @vegastack ruled-band@0.5.0 sha256-adid6A92tSTXM/hHRr1eYJz3MRm4OMcXkRFD11p2h90=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";

@@ -1,4 +1,4 @@
-// @vegastack icon-button@0.4.1 sha256-RI8DGr463PVYZSV0unbjre1QYv48U2wzYrhHEWCM67E=
+// @vegastack icon-button@0.5.0 sha256-CSBbk9RdHjW+vkiwQUp4vQZZ3bATxnXrNhp/Agncbrw=
 
 import * as React from "react";
 import { Button, type ButtonProps } from "@/components/ui/button";
