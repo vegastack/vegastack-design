@@ -559,3 +559,32 @@ each was invisible in review and each is the kind that would have degraded the t
   wrapper solely to host a named container would have changed that composition contract without a
   consumer need. Narrow static replay confirms one column at 375px; wider surfaces continue to fit
   multiple cards whenever their real width permits it.
+
+## 2026-08-28 — macOS 26.6.2 degraded the local browser test environment; 0.5.0 shipped with all-browsers deferred
+
+- **The macOS 26.6.2 upgrade broke both non-Chromium engines on the dev machine, and it is
+  environmental, not a code regression.** WebKit's Playwright render child links the system
+  `WebKit.framework` by absolute path and needs `_WKBrowserContext`, which 26.6.2 dropped — so WebKit
+  cannot launch at all (made host-conditional in `webkit-lane.ts`). Firefox launches but its
+  click/pointer actionability into popovers/portals times out: `locator.click: Timeout ~14900ms` on
+  the DatePicker calendar and the Sidebar collapsible rail.
+- **Proven environmental and pre-existing, so it did not block the release on merit.** `main`'s
+  DatePicker fails in Firefox **identically** on the same machine (6 failures, same 15s click
+  timeout), Chromium passes everything (3,008 unit tests + all 864 contracts), and VideoPlayer passes
+  32/32 in isolation — its lone `all-browsers` failure was contamination from the timed-out DatePicker
+  run, not a real defect. The failures are `locator.click` actionability timeouts, not assertions.
+- **Ship decision (MK, 2026-08-28): release 0.5.0 with the deploy-required evidence and defer the full
+  three-engine suite.** `deploy.yml`'s receipt-guard requires `contracts + unit + smoke`, all of which
+  pass here (Chromium contracts/unit; smoke runs Chromium+Firefox with WebKit host-skipped). The
+  `all-browsers` full three-engine suite is **not** in `ALL_GATES`, so it is invisible to the receipt
+  and to the guard — its Firefox failures neither block nor appear in `.gates/receipt.json`.
+  `GATES_SKIP` was used only to let `gates:ship` write the receipt past the (non-required)
+  `all-browsers` failure; because that gate is untracked, the written receipt is clean.
+- **This entry is the audit record the receipt cannot carry.** Since `all-browsers` is not a tracked
+  gate, its deferral leaves no trace in the receipt; the deviation is recorded here instead. The cost
+  accepted: 0.5.0 has genuine Chromium + smoke-level Firefox evidence but no full-suite WebKit/Firefox
+  confidence.
+- **Follow-up to restore coverage.** Fix the environment — run the browser lanes in a logged-in
+  desktop session (the LaunchAgent path already noted for the minis), or on a machine in WebKit's
+  macOS 26.2–26.5 window — then re-enable enforced WebKit (`WEBKIT_LANE=require`) and confirm
+  `all-browsers` Firefox passes.
