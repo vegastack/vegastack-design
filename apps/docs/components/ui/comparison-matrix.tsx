@@ -1,4 +1,4 @@
-// @vegastack comparison-matrix@0.4.1 sha256-Ls0lnowAgNkH9xY5nDU2UPAOEjXGiovkSLIGoTism48=
+// @vegastack comparison-matrix@0.4.1 sha256-qScRbvaf9xSguqcChzQCzhhwhheAFq4xo1+ONRtCTeM=
 
 "use client";
 
@@ -23,6 +23,8 @@ export interface ComparisonMatrixProps extends React.ComponentPropsWithRef<"tabl
   highlightedIndex?: number;
   /** Optional per-plan header extras (CTAs), aligned under the names. @default undefined */
   planActions?: React.ReactNode[];
+  /** Accessible label for the horizontally scrollable region. @default 'Plan comparison table' */
+  scrollLabel?: string;
 }
 
 /** Marks a cell the author never supplied (availability shorter than plans). */
@@ -60,6 +62,7 @@ export function ComparisonMatrix({
   plans,
   highlightedIndex,
   planActions,
+  scrollLabel = "Plan comparison table",
   children,
   ref,
   ...props
@@ -71,24 +74,27 @@ export function ComparisonMatrix({
   return (
     <div
       data-slot="comparison-matrix-container"
-      className="relative w-full overflow-x-auto"
+      role="region"
+      aria-label={scrollLabel}
+      tabIndex={0}
+      className="relative w-full overflow-x-auto overscroll-x-contain scroll-fade-x scrollbar-none focus-visible:-outline-offset-2"
     >
       <table
         ref={ref}
         data-slot="comparison-matrix"
-        className={cn("w-full caption-bottom text-base", className)}
+        className={cn("w-full min-w-max caption-bottom text-base", className)}
         {...props}
       >
         <thead>
           <tr className="border-b border-border">
-            <td aria-hidden className="w-1/3 px-3" />
+            <td aria-hidden className="min-w-40 px-3" />
             {plans.map((plan, i) => (
               <th
                 key={i}
                 scope="col"
                 data-highlighted={i === highlightedIndex ? "" : undefined}
                 className={cn(
-                  "px-3 py-3 text-start align-top text-label",
+                  "px-3 py-3 text-start align-top text-label whitespace-nowrap",
                   i === highlightedIndex && "bg-info/(--alpha-surface-faint)",
                 )}
               >
@@ -189,7 +195,7 @@ export function ComparisonRow({
     >
       <th
         scope="row"
-        className="px-3 text-start text-sm font-medium text-muted-foreground"
+        className="sticky start-0 z-(--z-raised) min-w-40 bg-background px-3 text-start text-sm font-medium text-muted-foreground whitespace-nowrap"
       >
         {feature}
       </th>
@@ -197,7 +203,7 @@ export function ComparisonRow({
         <td
           key={i}
           className={cn(
-            "px-3",
+            "px-3 whitespace-nowrap",
             i === highlightedIndex && "bg-info/(--alpha-surface-faint)",
           )}
         >

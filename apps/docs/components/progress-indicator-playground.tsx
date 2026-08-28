@@ -10,7 +10,7 @@ import {
   type PlaygroundConfig,
 } from "@/components/playground";
 
-type ProgressIndicatorPlaygroundKey = "value" | "size" | "shape";
+type ProgressIndicatorPlaygroundKey = "value" | "variant" | "size" | "shape";
 
 const VALUE_OPTIONS = [
   { value: "25", label: "25%" },
@@ -24,6 +24,12 @@ const SIZE_OPTIONS = [
   { value: "sm", label: "Small" },
   { value: "default", label: "Default" },
   { value: "lg", label: "Large" },
+] as const;
+
+const VARIANT_OPTIONS = [
+  { value: "default", label: "Default" },
+  { value: "inline-value", label: "Inline value" },
+  { value: "contained-value", label: "Contained value" },
 ] as const;
 
 const SHAPE_OPTIONS = [
@@ -52,6 +58,13 @@ const progressIndicatorPlaygroundConfig: PlaygroundConfig<ProgressIndicatorPlayg
       },
       {
         type: "select",
+        key: "variant",
+        label: "Variant",
+        options: VARIANT_OPTIONS,
+        defaultValue: "default",
+      },
+      {
+        type: "select",
         key: "shape",
         label: "Shape",
         options: SHAPE_OPTIONS,
@@ -61,12 +74,14 @@ const progressIndicatorPlaygroundConfig: PlaygroundConfig<ProgressIndicatorPlayg
     render: (state): ReactNode => (
       <ProgressIndicator
         value={Number(state.value)}
+        variant={state.variant as ProgressIndicatorProps["variant"]}
         size={state.size as ProgressIndicatorProps["size"]}
         shape={state.shape as ProgressIndicatorProps["shape"]}
       />
     ),
     toCode: (state) => {
       const props: string[] = [`value={${state.value}}`];
+      if (state.variant !== "default") props.push(`variant="${state.variant}"`);
       if (state.size !== "default") props.push(`size="${state.size}"`);
       if (state.shape !== "circle") props.push(`shape="${state.shape}"`);
       return `<ProgressIndicator ${props.join(" ")} />`;
@@ -75,9 +90,9 @@ const progressIndicatorPlaygroundConfig: PlaygroundConfig<ProgressIndicatorPlayg
 
 /**
  * `ProgressIndicatorPlayground` — interactive props playground for `ProgressIndicator`
- * (value / size / shape), backed by the generic {@link PropsPlayground}. Changing the value sweeps
- * the pie wedge via the component's own token-driven stroke transition. Registered in `mdx.tsx`,
- * adopted in `content/docs/components/progress-indicator.mdx`.
+ * (value / variant / size / shape), backed by the generic PropsPlayground. Changing the value
+ * sweeps the pie wedge via the component's own token-driven stroke transition. Registered in
+ * `mdx.tsx`, adopted in `content/docs/components/progress-indicator.mdx`.
  */
 export function ProgressIndicatorPlayground() {
   return <PropsPlayground {...progressIndicatorPlaygroundConfig} />;

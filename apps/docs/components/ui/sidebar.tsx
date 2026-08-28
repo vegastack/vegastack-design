@@ -1,4 +1,4 @@
-// @vegastack sidebar@0.4.1 sha256-4aylzSNg6AbF0mGHqSY0irRtUUXgqTU5CtMhVRrhBxc=
+// @vegastack sidebar@0.4.1 sha256-/AFK1y0lQmyfLeombTjfhpFj/Y/3tO7mBkaN8p4lXFI=
 
 "use client";
 
@@ -236,7 +236,9 @@ export interface SidebarProps extends React.ComponentProps<"nav"> {
  * `data-state`/`data-collapsible`/`data-variant`/`data-side` for descendant styling — so a
  * `ref` on `Sidebar` always resolves to that `<nav>`, regardless of mode. Compose
  * `SidebarHeader` / `SidebarContent` / `SidebarFooter` inside it. Pass an `aria-label` to
- * name the landmark.
+ * name the landmark. On desktop the rail is sticky at the viewport's block start: document
+ * scrolling moves the adjacent page while the rail remains visible, and overflowing navigation
+ * scrolls inside `SidebarContent` so the header/footer stay pinned.
 
  *
  * @example
@@ -263,7 +265,7 @@ export function Sidebar({
         data-variant={variant}
         data-side={side}
         className={cn(
-          "group/sidebar relative flex h-svh w-(--sidebar-width) flex-col border-border bg-sidebar text-sidebar-foreground",
+          "group/sidebar sticky top-0 flex h-svh w-(--sidebar-width) self-start flex-col border-border bg-sidebar text-sidebar-foreground",
           "data-[side=left]:border-r data-[side=right]:order-last data-[side=right]:border-l",
           className,
         )}
@@ -321,15 +323,15 @@ export function Sidebar({
       data-variant={variant}
       data-side={side}
       className={cn(
-        "peer group/sidebar relative flex h-svh flex-col text-sidebar-foreground transition-[width,transform] duration-base ease-standard",
+        "peer group/sidebar sticky flex h-svh self-start flex-col text-sidebar-foreground transition-[width,transform] duration-base ease-standard",
         "w-(--sidebar-width)",
         collapsible === "icon" &&
           "data-[state=collapsed]:w-(--sidebar-width-icon)",
         collapsible === "offcanvas" &&
           "data-[state=collapsed]:w-0 data-[state=collapsed]:overflow-hidden data-[state=collapsed]:data-[side=left]:-translate-x-full data-[state=collapsed]:data-[side=right]:translate-x-full",
         variant === "floating"
-          ? "m-2 h-[calc(100svh-var(--spacing)*4)] rounded-lg border border-border bg-sidebar shadow-overlay"
-          : "border-border bg-sidebar data-[side=left]:border-r data-[side=right]:order-last data-[side=right]:border-l",
+          ? "top-2 m-2 h-[calc(100svh-var(--spacing)*4)] rounded-lg border border-border bg-sidebar shadow-overlay"
+          : "top-0 border-border bg-sidebar data-[side=left]:border-r data-[side=right]:order-last data-[side=right]:border-l",
         className,
       )}
       {...props}
@@ -354,7 +356,10 @@ export function SidebarHeader({ className, ...props }: SidebarHeaderProps) {
   return (
     <div
       data-slot="sidebar-header"
-      className={cn("flex flex-col gap-2 p-2", className)}
+      className={cn(
+        "flex shrink-0 flex-col gap-2 p-2 pt-[calc(var(--spacing)*2+env(safe-area-inset-top))]",
+        className,
+      )}
       {...props}
     />
   );
@@ -399,7 +404,10 @@ export function SidebarFooter({ className, ...props }: SidebarFooterProps) {
   return (
     <div
       data-slot="sidebar-footer"
-      className={cn("flex flex-col gap-2 p-2", className)}
+      className={cn(
+        "mt-auto flex shrink-0 flex-col gap-2 p-2 pb-[calc(var(--spacing)*2+env(safe-area-inset-bottom))]",
+        className,
+      )}
       {...props}
     />
   );
@@ -594,8 +602,9 @@ export function SidebarMenuButton({
 }
 
 /**
- * `SidebarMenuBadge` — a small count/status pill anchored to the right of a
- * menu button. Hidden when the rail is collapsed.
+ * `SidebarMenuBadge` — a small count/status pill anchored to the inline end of a
+ * menu button. In the icon-collapsed rail it becomes a compact status dot while
+ * its text stays in the accessibility tree.
  */
 export interface SidebarMenuBadgeProps extends React.ComponentProps<"span"> {}
 
@@ -617,7 +626,7 @@ export function SidebarMenuBadge({
         // rendered below the row).
         "pointer-events-none absolute top-1/2 end-1 flex h-5 min-w-5 -translate-y-1/2 items-center justify-center rounded-md px-1 text-sm font-medium tabular-nums text-sidebar-foreground select-none",
         "peer-data-[active=true]/menu-button:text-sidebar-accent-foreground",
-        "group-data-[state=collapsed]/sidebar:hidden",
+        "group-data-[state=collapsed]/sidebar:top-0.5 group-data-[state=collapsed]/sidebar:end-0.5 group-data-[state=collapsed]/sidebar:size-2 group-data-[state=collapsed]/sidebar:min-w-0 group-data-[state=collapsed]/sidebar:translate-y-0 group-data-[state=collapsed]/sidebar:overflow-hidden group-data-[state=collapsed]/sidebar:rounded-full group-data-[state=collapsed]/sidebar:bg-sidebar-primary group-data-[state=collapsed]/sidebar:p-0 group-data-[state=collapsed]/sidebar:text-transparent",
         className,
       )}
       {...props}

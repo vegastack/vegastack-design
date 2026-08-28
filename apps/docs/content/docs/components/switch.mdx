@@ -102,9 +102,10 @@ const [enabled, setEnabled] = useState(true);
 
 ### Invalid
 
-The switch picks up a destructive border tint when `aria-invalid` is set — either directly
-on a standalone `Switch`, or automatically when a wrapping `<Field error=…>` marks the
-control invalid.
+The switch itself shows no visual invalid treatment — no destructive border and no status dot. It
+keeps its normal appearance while `aria-invalid` is set (either directly on a standalone `Switch`, or
+automatically when a wrapping `<Field error=…>` marks the control invalid), and the Field's error
+copy is the affordance that explains what must be corrected.
 
 <ComponentPreview name="switchInvalid" file="components/preview/switch.tsx" />
 

@@ -325,3 +325,17 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
 - **Systemic fix:** the ship ladder now awaits the cache warm-up after smoke and before the complete
   suite. A warm-up failure remains non-authoritative—the contract runner rebuilds and owns the
   verdict—but a still-running cold export can no longer contend with the longest browser lane.
+
+## 2026-08-27 — A sticky table corner covered a plan action after horizontal scrolling
+
+- **Symptom:** Comparison Matrix passed its component tests, but the narrow contract route failed
+  pointer-target checks after the runner scrolled a plan CTA into view. The button existed and was
+  visible, yet the blank top-left table corner intercepted its hit point.
+- **Root cause:** the empty corner cell and the body row headers shared the same sticky-start
+  treatment. Once the table scrolled horizontally, the decorative corner became a raised overlay
+  across the action row even though it had no content or interactive purpose.
+- **Systemic fix:** the corner retains its column width but is no longer sticky; sticky positioning
+  is limited to the feature row headers that need reading context while the matrix scrolls. The
+  component test pins the scroll-region contract, the targeted route passes 8/8 checks, and the full
+  behavior suite passes 880/880. The class to recognise is a sticky decorative table corner sharing
+  the z-layer of interactive column headers without an explicit overlap probe.

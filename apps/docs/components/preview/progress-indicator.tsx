@@ -54,6 +54,25 @@ export function progressIndicatorSizes(): ReactNode {
   );
 }
 
+export function progressIndicatorVariants(): ReactNode {
+  return (
+    <Wrapper className="items-center gap-8">
+      <ProgressIndicator value={60} aria-label="Default progress indicator" />
+      <ProgressIndicator
+        value={88}
+        variant="inline-value"
+        aria-label="Inline value progress"
+      />
+      <ProgressIndicator
+        value={44}
+        variant="contained-value"
+        className="text-success-text"
+        aria-label="Contained value progress"
+      />
+    </Wrapper>
+  );
+}
+
 export function progressIndicatorColors(): ReactNode {
   return (
     <Wrapper className="gap-6">

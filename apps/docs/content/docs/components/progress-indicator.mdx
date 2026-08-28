@@ -74,6 +74,17 @@ the curated playground above.
   file="components/preview/progress-indicator.tsx"
 />
 
+### Variants
+
+Use `variant="inline-value"` when the percentage should be readable beside a compact indicator, or
+`variant="contained-value"` for a larger circular indicator with the percentage centered inside and
+progress drawn on the border ring only.
+
+<ComponentPreview
+  name="progressIndicatorVariants"
+  file="components/preview/progress-indicator.tsx"
+/>
+
 ### Colors
 
 The SVG inherits `currentColor`, so the track and fill follow the root's text color (`text-primary` by default). Recolor it with any semantic `text-*` token via `className` — never a hardcoded hex.

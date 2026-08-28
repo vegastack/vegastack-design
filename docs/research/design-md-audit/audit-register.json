@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "d173053c33c968829e522d3c65b9c84fd84f0ff82172271602d3d9909efb8ca1",
+  "contractSha256": "9c6a6c275489f78cf915d3428e4ad4b2d3ee744cb124a97c108bdd9dde48ba87",
   "expectedCounts": {
-    "totalRegistryItems": 554,
-    "components": 108,
+    "totalRegistryItems": 556,
+    "components": 110,
     "animatedIcons": 439,
     "hooks": 6,
     "blocks": 1
@@ -801,6 +801,28 @@
         "packages/ui/registry/ui/image.tsx"
       ],
       "docsSlug": "/docs/components/image",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "audio-player",
+      "inventoryClass": "component",
+      "wave": "Content/marketing",
+      "family": "media",
+      "sourceFiles": [
+        "packages/ui/registry/ui/audio-player.tsx"
+      ],
+      "docsSlug": "/docs/components/audio-player",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "video-player",
+      "inventoryClass": "component",
+      "wave": "Content/marketing",
+      "family": "media",
+      "sourceFiles": [
+        "packages/ui/registry/ui/video-player.tsx"
+      ],
+      "docsSlug": "/docs/components/video-player",
       "contractStatus": "reconciled"
     },
     {

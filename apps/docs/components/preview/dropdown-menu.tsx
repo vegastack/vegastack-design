@@ -71,13 +71,15 @@ export function dropdownMenuInset(): ReactNode {
           render={<Button variant="outline">View options</Button>}
         />
         <DropdownMenuContent className="min-w-52">
-          <DropdownMenuLabel inset>Appearance</DropdownMenuLabel>
-          <DropdownMenuItem>
-            <User />
-            Profile
-          </DropdownMenuItem>
-          <DropdownMenuItem inset>Compact mode</DropdownMenuItem>
-          <DropdownMenuItem inset>Full width</DropdownMenuItem>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel inset>Appearance</DropdownMenuLabel>
+            <DropdownMenuItem>
+              <User />
+              Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem inset>Compact mode</DropdownMenuItem>
+            <DropdownMenuItem inset>Full width</DropdownMenuItem>
+          </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
     </Wrapper>

@@ -24,5 +24,23 @@ export const story = defineStory({
         shape: "squircle",
       },
     },
+    {
+      variant: "Inline value",
+      initial: {
+        value: 88,
+      },
+      fixed: {
+        variant: "inline-value",
+      },
+    },
+    {
+      variant: "Contained value",
+      initial: {
+        value: 44,
+      },
+      fixed: {
+        variant: "contained-value",
+      },
+    },
   ],
 });

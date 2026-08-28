@@ -15,12 +15,16 @@ import { DashboardPage } from "./page";
  * This suite's real Playwright viewport is mobile-sized by default (no explicit
  * `browser.viewport` config) — `useIsMobile`'s 768px breakpoint would otherwise mount
  * `AppShellSidebar`'s `Sidebar` in mobile-Sheet mode (CLOSED by default, no `<nav>` in the DOM)
- * for every test. Mock `window.matchMedia` to report "desktop" — same pattern as
- * `sidebar.test.tsx`'s own suite-wide setup.
+ * for every test. Mock `window.matchMedia` to report "desktop" by default; a shared override lets
+ * the mobile regression test exercise the real Sheet branch.
  */
+let mobileMediaQueryOverride: string | null = null;
+
 beforeEach(() => {
+  mobileMediaQueryOverride = null;
   vi.spyOn(window, "matchMedia").mockImplementation((query: string) => ({
-    matches: false,
+    matches:
+      mobileMediaQueryOverride !== null && query === mobileMediaQueryOverride,
     media: query,
     onchange: null,
     addEventListener: () => {},
@@ -30,6 +34,15 @@ beforeEach(() => {
     dispatchEvent: () => false,
   }));
 });
+
+async function withMobileViewport(run: () => Promise<void>) {
+  mobileMediaQueryOverride = "(max-width: 767px)";
+  try {
+    await run();
+  } finally {
+    mobileMediaQueryOverride = null;
+  }
+}
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -42,6 +55,22 @@ test("renders the app-shell landmarks", async () => {
     .element(screen.getByRole("navigation", { name: "Main navigation" }))
     .toBeInTheDocument();
   await expect.element(screen.getByRole("main")).toBeInTheDocument();
+});
+
+test("mobile navigation opens as an overlay from the persistent header trigger", async () => {
+  await withMobileViewport(async () => {
+    const screen = await render(<DashboardPage />);
+    await expect
+      .element(screen.getByRole("navigation", { name: "Main navigation" }))
+      .not.toBeInTheDocument();
+    await screen.getByRole("button", { name: "Toggle sidebar" }).click();
+    await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+    await expect
+      .element(screen.getByRole("navigation", { name: "Main navigation" }))
+      .toBeInTheDocument();
+    await expect.element(screen.getByRole("main")).toBeInTheDocument();
+    await expectNoA11yViolations(document.body);
+  });
 });
 
 test("renders the stat-card row with formatted values", async () => {

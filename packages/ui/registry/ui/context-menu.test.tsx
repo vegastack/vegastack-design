@@ -133,6 +133,33 @@ test("renders label, separator and a shortcut hint", async () => {
   await expect.element(page.getByRole("separator")).toBeInTheDocument();
 });
 
+test("inset group items activate without navigating", async () => {
+  const onSelect = vi.fn();
+  const startUrl = window.location.href;
+  const screen = await render(
+    <ContextMenu>
+      <ContextMenuTrigger>Right-click here</ContextMenuTrigger>
+      <ContextMenuContent>
+        <ContextMenuGroup>
+          <ContextMenuLabel inset>Layout</ContextMenuLabel>
+          <ContextMenuItem inset onClick={onSelect}>
+            Back
+          </ContextMenuItem>
+        </ContextMenuGroup>
+      </ContextMenuContent>
+    </ContextMenu>,
+  );
+
+  rightClick(
+    screen.container.querySelector(
+      '[data-slot="context-menu-trigger"]',
+    ) as Element,
+  );
+  await page.getByRole("menuitem", { name: "Back" }).click();
+  expect(onSelect).toHaveBeenCalledTimes(1);
+  expect(window.location.href).toBe(startUrl);
+});
+
 test("checkbox item toggles via onCheckedChange", async () => {
   const onCheckedChange = vi.fn();
   const screen = await render(

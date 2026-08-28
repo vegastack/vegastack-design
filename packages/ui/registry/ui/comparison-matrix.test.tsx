@@ -50,6 +50,21 @@ test("has no accessibility violations", async () => {
   await expectNoA11yViolations(screen.container);
 });
 
+test("exposes a labelled keyboard-focusable scroll region and sticky row headers", async () => {
+  const screen = await render(<Example />);
+  const region = screen.getByRole("region", { name: "Plan comparison table" });
+  await expect.element(region).toHaveAttribute("tabindex", "0");
+  expect((region.element() as HTMLElement).className).toContain(
+    "overflow-x-auto",
+  );
+  expect((region.element() as HTMLElement).className).toContain(
+    "scroll-fade-x",
+  );
+  const rowHeader = screen.getByRole("rowheader", { name: "Seats" });
+  expect((rowHeader.element() as HTMLElement).className).toContain("sticky");
+  expect((rowHeader.element() as HTMLElement).className).toContain("min-w-40");
+});
+
 test("keeps columns aligned when availability is shorter or longer than plans", async () => {
   const screen = await render(
     <ComparisonMatrix plans={["Free", "Plus", "Pro"]}>

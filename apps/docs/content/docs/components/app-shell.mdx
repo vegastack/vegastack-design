@@ -137,6 +137,16 @@ not nested inside the rail), so the one control that opens the mobile sheet is a
 with zero extra composition on your part. The header's middle slot truncates (`min-w-0 flex-1`)
 instead of wrapping — pair it with `BreadcrumbTrail`'s `maxItems` for long trails on narrow screens.
 
+Switch the preview's width toggle (the toolbar's phone icon) to mobile to watch the rail collapse
+into the Sheet — open it from the header trigger. This is viewport-driven, so a real narrow browser
+does the same on its own; the toggle only constrains a container, so this demo forces the branch to
+make it visible without resizing your window.
+
+<ComponentPreview
+  name="appShellMobile"
+  file="components/preview/app-shell.tsx"
+/>
+
 ### Route-change focus
 
 `AppShell` is deliberately router-agnostic — it has no dependency on Next.js/React Router and

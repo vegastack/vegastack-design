@@ -559,7 +559,7 @@
         "whenToUse": "Organize related content into peer sections the user switches between in place; count badges surface pending items.",
         "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), or sections that must be visible at once.",
         "version": "0.4.1",
-        "integrity": "sha256-PsFTt5Wx2ZRlzOnYI2f13XKRRChjpBXPv8OyXP1feEo="
+        "integrity": "sha256-wFcwsqTBADPJkwj8Iaeo6mpIB8lFUM56B1JmzZz7MPo="
       }
     },
     {
@@ -788,7 +788,7 @@
         "whenToUse": "Settings that apply instantly — notifications, dark mode, feature flags.",
         "whenNotToUse": "Inside a form needing a Submit step — use a Checkbox.",
         "version": "0.4.1",
-        "integrity": "sha256-4SiYGvaFn/60dKhlvF1Qp5uVeKbEBX0k/qSvT8z3FWw="
+        "integrity": "sha256-p/hYLczCPaeBou5IyG5pDzXGQoOTJzQxJehwagTMJsM="
       }
     },
     {
@@ -1459,7 +1459,7 @@
       "name": "progress-indicator",
       "type": "registry:ui",
       "title": "Progress Indicator",
-      "description": "A compact circular pie-fill progress indicator (0–100%) — a server-safe SVG glyph in circle or squircle shapes.",
+      "description": "A compact circular pie-fill progress indicator (0–100%) with optional visible percentage variants.",
       "categories": [
         "feedback"
       ],
@@ -1477,10 +1477,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "A compact determinate percentage glyph — inline beside a label or metric.",
+        "whenToUse": "A compact determinate percentage glyph — inline beside a label or metric, or with a visible percentage value.",
         "whenNotToUse": "Indefinite waits (Spinner) or wide tasks where a linear Progress bar reads better.",
         "version": "0.4.1",
-        "integrity": "sha256-F2i0O7K5oOFZV1fu8fZP6HYprNOFthne9UAAtHOylHo="
+        "integrity": "sha256-LeGRI60ngvg271rN0uAfc3FUJiwAcfNGxYCBET33uBA="
       }
     },
     {
@@ -2036,7 +2036,7 @@
         "whenToUse": "Inline-edit a single text value in place — table cells, titles, detail rows.",
         "whenNotToUse": "Multi-line text, non-text inputs, or full forms with validation — use Field.",
         "version": "0.4.1",
-        "integrity": "sha256-PkNPIzMttA9yxg/vBrzbopo43hSZnNjePFQVVKNKZkM="
+        "integrity": "sha256-IaJWPbBheDYyjId9pKmXJSWZdmmm9PmWDd++HAccMTg="
       }
     },
     {
@@ -2121,6 +2121,69 @@
         "whenNotToUse": "When you must fetch/resolve the source (R2/CDN keys) — presentational; resolve URLs app-side.",
         "version": "0.4.1",
         "integrity": "sha256-gmcVpbPQ+YOxkKdOFIBXVdKM7GymyXWWRMI41wKD9kA="
+      }
+    },
+    {
+      "name": "audio-player",
+      "type": "registry:ui",
+      "title": "Audio Player",
+      "description": "A compact custom audio transport with standard media controls, seek, mute, settings, and keyboard shortcuts.",
+      "categories": [
+        "media"
+      ],
+      "dependencies": [
+        "lucide-react@^1.24.0",
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design@^0.3.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/dropdown-menu",
+        "@vegastack/icon-button",
+        "@vegastack/slider",
+        "@vegastack/tooltip"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/audio-player.tsx",
+          "type": "registry:ui",
+          "target": "@ui/audio-player.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A single audio asset that needs a compact, branded transport with grouped skip controls, mute, settings, and keyboard shortcuts.",
+        "whenNotToUse": "Playlists, queue management, waveform editing, transcript navigation, or audio recording.",
+        "version": "0.4.1",
+        "integrity": "sha256-LQvGFfSnPQ2XQBD/knQXoJdf3uQ8j7vnS9GBNJFxm54="
+      }
+    },
+    {
+      "name": "video-player",
+      "type": "registry:ui",
+      "title": "Video Player",
+      "description": "A framed video player with the same grouped custom transport controls as Audio Player.",
+      "categories": [
+        "media"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.3.0",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/audio-player"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/video-player.tsx",
+          "type": "registry:ui",
+          "target": "@ui/video-player.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A single video asset that needs a branded frame plus grouped skip controls, mute, and keyboard shortcuts.",
+        "whenNotToUse": "Playlists, caption editing, fullscreen-first viewing, or adaptive streaming control surfaces.",
+        "version": "0.4.1",
+        "integrity": "sha256-oT3LSzifqBiieGh0WYY992eNSYsURSeQ0VaK+tFXKUE="
       }
     },
     {
@@ -2396,7 +2459,7 @@
         "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
         "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
         "version": "0.4.1",
-        "integrity": "sha256-4aylzSNg6AbF0mGHqSY0irRtUUXgqTU5CtMhVRrhBxc="
+        "integrity": "sha256-/AFK1y0lQmyfLeombTjfhpFj/Y/3tO7mBkaN8p4lXFI="
       }
     },
     {
@@ -2591,7 +2654,7 @@
         "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.4.1",
-        "integrity": "sha256-VzNsnVK/mRsnHkOqQcxu+sWA5wH4S3SR2d7UU/LDQTc="
+        "integrity": "sha256-qkRVDGhh9J7g+fcYmJ7lEBOM4QBPWmLmr0HgIf4QPic="
       }
     },
     {
@@ -15391,7 +15454,7 @@
         "whenToUse": "Starting a new AI-platform-style dashboard route — pull once and own it (not hash-tracked/re-pulled like app-shell).",
         "whenNotToUse": "You just need the shared shell mechanics across many routes — install app-shell/sidebar directly instead.",
         "version": "0.4.1",
-        "integrity": "sha256-UHaczpKR2ckJkq+gYZtKjZYrYvw5q1xcfnE9OBxZM/Q="
+        "integrity": "sha256-HDxeGh+W354AKTUggsKyJY3cxK36xhQW3b2LlZLTRyQ="
       }
     },
     {
@@ -15642,7 +15705,7 @@
         "whenToUse": "Marketing pricing pages and plan pickers.",
         "whenNotToUse": "In-app plan state (Alert variant=strip) or feature comparison detail (ComparisonMatrix).",
         "version": "0.4.1",
-        "integrity": "sha256-9rS4nZdVgfo8Nlx1OgA8VlW+gteEws6yszN2PVam9xI="
+        "integrity": "sha256-xnOmgbZ+bVkRip7VRq7PQdGGKj8Wyi/TyRvrLTm4tLk="
       }
     },
     {
@@ -15669,7 +15732,7 @@
         "whenToUse": "Feature-by-plan comparison under a pricing section.",
         "whenNotToUse": "Data tables (Table) or spec sheets without plan columns.",
         "version": "0.4.1",
-        "integrity": "sha256-Ls0lnowAgNkH9xY5nDU2UPAOEjXGiovkSLIGoTism48="
+        "integrity": "sha256-qScRbvaf9xSguqcChzQCzhhwhheAFq4xo1+ONRtCTeM="
       }
     },
     {

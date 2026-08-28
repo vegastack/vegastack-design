@@ -63,6 +63,8 @@ export * from "./field-inline";
 export * from "./relative-time";
 export * from "./settings-row";
 export * from "./image";
+export * from "./audio-player";
+export * from "./video-player";
 export * from "./notification-bell";
 export * from "./markdown-view";
 export * from "./provider";

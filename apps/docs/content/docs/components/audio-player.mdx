@@ -1,0 +1,116 @@
+---
+title: Audio Player
+description: A compact custom audio transport with standard media controls, seek, mute, settings, and keyboard shortcuts.
+audience: public
+preview: audioPlayer
+---
+
+import { story } from "@/components/stories/audio-player.story";
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/audio-player
+```
+
+<RegistryInstallCallout />
+
+## Usage
+
+```tsx
+import { AudioPlayer } from "@/components/ui/audio-player";
+
+<AudioPlayer src="/media/demo.mp3" label="Product demo audio" />;
+```
+
+## Examples
+
+### Explorer
+
+Every `AudioPlayer` prop, auto-generated from its TypeScript types.
+
+<story.WithControl />
+
+### Basic
+
+The player mirrors the video-player control surface, rendered statically on a card: a
+full-width seek bar, then a primary-colored play/pause control with a combined
+`elapsed / duration` readout, mute, and a settings menu. The docs preview uses a 90-second
+local audio fixture, so it can play without network access.
+
+<ComponentPreview
+  name="audioPlayer"
+  file="components/preview/audio-player.tsx"
+/>
+
+### Waveform
+
+Set `variant="waveform"` to render the decoded audio as the seek bar. The waveform is sampled
+from the real audio via the Web Audio API — played bars fill as playback advances, and the bars
+seek by click, drag, or keyboard just like the slider. Until decoding finishes (or if it fails),
+flat placeholder bars render and the seek stays operable.
+
+<ComponentPreview
+  name="audioPlayerWaveform"
+  file="components/preview/audio-player.tsx"
+/>
+
+### With copy
+
+Use `title` and `description` when the player needs a visible track name or short context.
+
+<ComponentPreview
+  name="audioPlayerWithCopy"
+  file="components/preview/audio-player.tsx"
+/>
+
+### Playback rates
+
+Pass `playbackRates` and `defaultPlaybackRate` to control the playback-speed options in
+the settings submenu.
+
+<ComponentPreview
+  name="audioPlayerPlaybackRates"
+  file="components/preview/audio-player.tsx"
+/>
+
+## API Reference
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/audio-player.tsx"
+  name="AudioPlayerProps"
+/>
+
+## Accessibility
+
+| Key                                 | Action                                                               |
+| ----------------------------------- | -------------------------------------------------------------------- |
+| <kbd>Tab</kbd>                      | Move through play/pause, seek, mute, and settings controls           |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused button                                          |
+| <kbd>Space</kbd>                    | Play or pause when the media controls group is focused               |
+| <kbd>K</kbd>                        | Play or pause                                                        |
+| <kbd>←</kbd>                        | Rewind 15 seconds when the media controls group is focused           |
+| <kbd>→</kbd>                        | Forward 15 seconds when the media controls group is focused          |
+| <kbd>J</kbd>                        | Rewind 15 seconds                                                    |
+| <kbd>L</kbd>                        | Forward 15 seconds                                                   |
+| <kbd>M</kbd>                        | Toggle mute                                                          |
+| <kbd>←</kbd> / <kbd>↓</kbd>         | Decrease the seek position by one second while the slider is focused |
+| <kbd>→</kbd> / <kbd>↑</kbd>         | Increase the seek position by one second while the slider is focused |
+| <kbd>Home</kbd>                     | Seek to the beginning                                                |
+| <kbd>End</kbd>                      | Seek to the end                                                      |
+
+- Pass a descriptive `label`; it names the media element and prefixes every custom control.
+- The seek rail composes `Slider`, so keyboard and screen-reader slider semantics stay intact.
+- Icon-only transport buttons are composed with `IconButton`, which requires accessible names.
+- Tooltips expose the primary keyboard shortcuts for pointer and keyboard users.
+- Playback speed lives in the settings submenu as a radio group.
+- Rewind and forward are keyboard shortcuts rather than visible buttons.
+- The native `<audio>` element is used as the media engine and does not expose browser-native
+  controls; VegaStack renders the consistent control surface.
+
+## Do / Don't
+
+<DoDont
+  do="Use AudioPlayer for a single audio asset that needs a compact, branded transport."
+  dont="Use AudioPlayer for playlists, queue management, waveform editing, or transcript navigation."
+/>

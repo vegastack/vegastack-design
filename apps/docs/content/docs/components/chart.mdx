@@ -143,6 +143,22 @@ while building this component).
 
 <ComponentPreview name="chartDemoLine" file="components/preview/chart.tsx" />
 
+### Pie chart
+
+Use one config entry per slice and set each datum's `fill` to its scoped `--color-<key>` variable.
+The adjacent text summary gives screen-reader users the same values without depending on SVG
+support. Use pie/donut for a single part-to-whole snapshot, keep it to about five slices, and group
+the remainder into “Other”; use a bar chart when close values need precise comparison.
+
+<ComponentPreview name="chartDemoPie" file="components/preview/chart.tsx" />
+
+### Donut chart
+
+The same data and semantic chart tokens can be presented as a donut by setting `innerRadius` and
+`outerRadius` on Recharts' `Pie` primitive.
+
+<ComponentPreview name="chartDemoDonut" file="components/preview/chart.tsx" />
+
 ### Tooltip indicator variants
 
 `ChartTooltipContent` takes an `indicator`: `'dot'` (default), `'line'`, or `'dashed'`. This demo pins

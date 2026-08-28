@@ -50,3 +50,19 @@ test("has no accessibility violations", async () => {
   );
   await expectNoA11yViolations(screen.container);
 });
+
+test("fits cards to the section width without viewport breakpoints", async () => {
+  const screen = await render(
+    <PricingSection>
+      <PlanCard name="Free" price="$0" />
+    </PricingSection>,
+  );
+  const section = screen.container.querySelector(
+    '[data-slot="pricing-section"]',
+  ) as HTMLElement;
+  expect(section.className).toContain(
+    "grid-cols-[repeat(auto-fit,minmax(min(100%,var(--container-3xs)),1fr))]",
+  );
+  expect(section.className).not.toContain("sm:grid-cols");
+  expect(section.className).not.toContain("lg:grid-cols");
+});

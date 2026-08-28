@@ -34,6 +34,10 @@ import {
 The highlighted plan uses a subtle column surface rather than elevation. Boolean availability
 pairs a visible glyph with screen-reader copy; literal limits render as authored.
 
+At narrow widths the matrix keeps readable columns and scrolls horizontally. The feature column is
+sticky, the scroll region is keyboard-focusable and labelled, and edge fades indicate that more
+plans are available off-screen.
+
 <ComponentPreview
   name="comparisonMatrix"
   file="components/preview/comparison-matrix.tsx"
@@ -63,11 +67,13 @@ pairs a visible glyph with screen-reader copy; literal limits render as authored
 
 Native table semantics: plans are `columnheader`s, features are `rowheader`s, groups span the
 table. Boolean availability renders ✓/− glyphs WITH `sr-only` text ("Included"/"Not
-included") — never bare dots. Literal values ("3 seats") render as-is.
+included") — never bare dots. Literal values ("3 seats") render as-is. The enclosing region uses
+`scrollLabel` ("Plan comparison table" by default) as its accessible name.
 
 | Key                                 | Action                                                 |
 | ----------------------------------- | ------------------------------------------------------ |
 | <kbd>Tab</kbd>                      | Move through interactive plan actions in source order. |
+| <kbd>Shift</kbd> + mouse wheel      | Scroll horizontally where the platform supports it.    |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused plan action.                      |
 
 ## Do / Don't

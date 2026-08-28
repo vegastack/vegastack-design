@@ -81,6 +81,25 @@ test("no a11y violations — disabled", async () => {
   await expectNoA11yViolations(screen.container);
 });
 
+test("invalid carries no visual treatment on the control — only aria-invalid", async () => {
+  const screen = await render(<Switch aria-label="Terms" aria-invalid />);
+  const sw = screen.getByRole("switch", { name: "Terms" });
+  await expect.element(sw).toHaveAttribute("aria-invalid", "true");
+  const root = sw.element();
+  // No destructive track border …
+  expect(
+    root.classList.contains(
+      "aria-invalid:border-destructive-border/(--alpha-tint-border)",
+    ),
+  ).toBe(false);
+  // … and no status-dot pseudo-element either. The Field's error copy is the only invalid cue.
+  const hasInvalidDot = Array.from(root.classList).some((c) =>
+    c.startsWith("aria-invalid:after:"),
+  );
+  expect(hasInvalidDot).toBe(false);
+  await expectNoA11yViolations(screen.container);
+});
+
 test("render composes a custom root element while keeping slot + classes", async () => {
   // Base UI's `render` replaces the root host element
   // but merges our wrapper's data-slot, className, and role onto it.

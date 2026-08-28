@@ -171,13 +171,15 @@ export function contextMenuInset(): ReactNode {
           Right-click here
         </ContextMenuTrigger>
         <ContextMenuContent className="min-w-52">
-          <ContextMenuLabel inset>Layout</ContextMenuLabel>
-          {/* `inset` items align with the indicator column of checkbox / radio rows */}
-          <ContextMenuItem inset>Back</ContextMenuItem>
-          <ContextMenuItem inset disabled>
-            Forward
-          </ContextMenuItem>
-          <ContextMenuItem inset>Reload</ContextMenuItem>
+          <ContextMenuGroup>
+            <ContextMenuLabel inset>Layout</ContextMenuLabel>
+            {/* `inset` items align with the indicator column of checkbox / radio rows */}
+            <ContextMenuItem inset>Back</ContextMenuItem>
+            <ContextMenuItem inset disabled>
+              Forward
+            </ContextMenuItem>
+            <ContextMenuItem inset>Reload</ContextMenuItem>
+          </ContextMenuGroup>
           <ContextMenuSeparator />
           <ContextMenuSub>
             <ContextMenuSubTrigger inset>More tools</ContextMenuSubTrigger>

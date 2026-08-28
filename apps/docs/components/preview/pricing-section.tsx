@@ -9,7 +9,11 @@ import { Button } from "@/components/ui/button";
 export function pricingSection(): ReactNode {
   return (
     <Wrapper className="items-stretch">
-      <PricingSection className="w-full lg:grid-cols-3">
+      {/* No viewport grid override (`lg:grid-cols-*`): that would force a fixed column count from
+          the browser viewport and stay 3-up inside a narrow preview frame. PricingSection's own
+          `auto-fit` track follows the section's ACTUAL width, so it collapses to one column on a
+          small screen and fans back out when there's room. */}
+      <PricingSection className="w-full">
         <PlanCard
           name="Free"
           price="$0"

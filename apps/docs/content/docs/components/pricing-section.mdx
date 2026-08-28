@@ -43,6 +43,9 @@ npx shadcn@latest add @vegastack/pricing-section
 
 - Prices render in mono with tabular numerals — the system's numbers rule (a deliberate
   improvement over the reference).
+- The grid uses `auto-fit` with the semantic `--container-3xs` width, so cards reflow from the
+  section's actual available width rather than a viewport breakpoint. Narrow preview frames,
+  sidebars, and split panes therefore get the same one-column layout as a small screen.
 - `highlighted` promotes a plan with the info-family border + a bordered `Popular` badge.
 - Billing-cycle toggles compose from [`Segmented`](/docs/components/segmented) above the grid.
 - Pair with [`ComparisonMatrix`](/docs/components/comparison-matrix) for the feature detail.
@@ -51,7 +54,7 @@ npx shadcn@latest add @vegastack/pricing-section
 
 ### PricingSection
 
-`PricingSection` accepts the native props, `className`, and `ref` of its grid `<div>`.
+`PricingSection` accepts the native props, `className`, and `ref` of its responsive grid `<div>`.
 
 ### PlanCard
 

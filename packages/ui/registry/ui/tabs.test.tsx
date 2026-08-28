@@ -167,6 +167,15 @@ test("horizontal list scrolls with a scroll-fade edge affordance (clipped tabs r
       "group-data-[orientation=horizontal]/tabs:scroll-fade-x",
     ),
   ).toBe(true);
+  expect(
+    list.classList.contains(
+      "group-data-[orientation=horizontal]/tabs:scrollbar-none",
+    ),
+  ).toBe(true);
+  const trigger = screen.getByRole("tab", { name: "A" }).element();
+  expect(trigger.classList.contains("focus-visible:-outline-offset-2")).toBe(
+    true,
+  );
 });
 
 test("forwards ref to the underlying tabs root element", async () => {

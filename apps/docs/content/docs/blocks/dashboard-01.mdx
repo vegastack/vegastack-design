@@ -64,6 +64,16 @@ real data fetching once the block is installed:
   file="../../packages/ui/registry/blocks/dashboard-01/page.tsx"
 />
 
+### Mobile navigation
+
+Switch the preview's width toggle (the toolbar's phone icon) to mobile to send the block through the
+same AppShell breakpoint branch a narrow viewport triggers. The rail collapses; the persistent header
+trigger opens navigation as a focus-trapped Sheet over the page while the dashboard content stays
+mounted underneath. It's viewport-driven in a real app — the toggle constrains a container, so this
+demo forces the branch to make it visible without resizing your window.
+
+<ComponentPreview name="dashboard01MobileDemo" />
+
 ### Full-page empty state
 
 Rendered when the workspace genuinely has no agents/tasks yet (`isEmpty` prop) — a standard SaaS

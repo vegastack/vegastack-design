@@ -9,6 +9,7 @@ test("renders a progressbar with the slot + default attributes", async () => {
   const bar = screen.getByRole("progressbar");
   await expect.element(bar).toBeInTheDocument();
   await expect.element(bar).toHaveAttribute("data-slot", "progress-indicator");
+  await expect.element(bar).toHaveAttribute("data-variant", "default");
   await expect.element(bar).toHaveAttribute("data-size", "default");
   await expect.element(bar).toHaveAttribute("data-shape", "circle");
 });
@@ -64,6 +65,41 @@ test("reflects the size + shape variants on data attributes", async () => {
   const bar = screen.getByRole("progressbar");
   await expect.element(bar).toHaveAttribute("data-size", "lg");
   await expect.element(bar).toHaveAttribute("data-shape", "squircle");
+});
+
+test("inline-value variant renders the visible percentage beside the glyph", async () => {
+  const screen = await render(
+    <ProgressIndicator value={88} variant="inline-value" data-testid="pi" />,
+  );
+  const bar = screen.getByRole("progressbar");
+  await expect.element(bar).toHaveAttribute("data-variant", "inline-value");
+  await expect.element(bar).toHaveAttribute("aria-label", "88% complete");
+
+  const root = screen.getByTestId("pi").element() as HTMLElement;
+  const label = root.querySelector("span[aria-hidden='true']");
+  expect(label?.textContent).toBe("88%");
+  expect(label?.className).toContain("tabular-nums");
+  expect(root.querySelector("svg")?.className.baseVal).toContain("size-5");
+});
+
+test("contained-value variant renders a large bordered circle with the percentage centered inside", async () => {
+  const screen = await render(
+    <ProgressIndicator value={44} variant="contained-value" data-testid="pi" />,
+  );
+  const bar = screen.getByRole("progressbar");
+  await expect.element(bar).toHaveAttribute("data-variant", "contained-value");
+
+  const root = screen.getByTestId("pi").element() as HTMLElement;
+  expect(root.className).toContain("relative");
+  expect(root.className).toContain("size-16");
+  const progress = root.querySelector("circle[stroke-dasharray]");
+  expect(progress?.getAttribute("r")).toBe("11");
+  expect(progress?.getAttribute("stroke-width")).toBe("2");
+  expect(progress?.getAttribute("stroke-linecap")).toBe("round");
+  const label = root.querySelector("span[aria-hidden='true']");
+  expect(label?.textContent).toBe("44%");
+  expect(label?.className).toContain("absolute");
+  expect(label?.className).toContain("inset-0");
 });
 
 test("no a11y violations", async () => {

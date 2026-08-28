@@ -1,4 +1,4 @@
-// @vegastack switch@0.4.1 sha256-4SiYGvaFn/60dKhlvF1Qp5uVeKbEBX0k/qSvT8z3FWw=
+// @vegastack switch@0.4.1 sha256-p/hYLczCPaeBou5IyG5pDzXGQoOTJzQxJehwagTMJsM=
 
 "use client";
 
@@ -14,10 +14,12 @@ import { cn } from "@vegastack/design";
  * neutral `bg-primary` ink when on, with a `:focus-visible` ring.
  */
 export const switchVariants = cva(
+  // Invalid carries NO visual treatment on the control itself — no destructive track border and no
+  // status dot. `aria-invalid` stays on the DOM as the semantic cue, and the wrapping `Field`
+  // supplies the associated error copy, which is the only invalid affordance the switch needs.
   "group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent bg-clip-padding p-0.5  " +
     "bg-track data-checked:bg-primary " +
-    "disabled:cursor-not-allowed disabled:opacity-(--opacity-dim) " +
-    "aria-invalid:border-destructive-border/(--alpha-tint-border)",
+    "disabled:cursor-not-allowed disabled:opacity-(--opacity-dim)",
   {
     variants: {
       size: {

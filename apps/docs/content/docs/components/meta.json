@@ -75,6 +75,8 @@
     "filter-bar-managed",
     "avatar",
     "image",
+    "audio-player",
+    "video-player",
     "badge",
     "tag-group",
     "stat",

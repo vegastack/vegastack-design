@@ -549,3 +549,13 @@ each was invisible in review and each is the kind that would have degraded the t
   runner selected 108. Runtime gate labels now derive from `COMPONENT_ROUTES`, the expected contract
   count derives from routes × assertions × projects, and the public introduction's count is a
   generated region checked by `design:derived:check`.
+
+## 2026-08-27 — Manual QA responsive-layout judgment
+
+- **Pricing Section uses intrinsic auto-fit rather than a named container query.** The reported bug
+  was caused by viewport breakpoints inside constrained preview and split-pane widths. An intrinsic
+  `auto-fit` grid with the semantic `--container-3xs` card floor responds to the component's actual
+  available width while preserving PricingSection's single-root `className` and `ref` contract. A
+  wrapper solely to host a named container would have changed that composition contract without a
+  consumer need. Narrow static replay confirms one column at 375px; wider surfaces continue to fit
+  multiple cards whenever their real width permits it.
