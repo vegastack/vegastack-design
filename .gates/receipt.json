@@ -1,53 +1,53 @@
 {
   "schema": 1,
-  "tree": "tree-78c7b30b02416c51e4633b77b38faf1d0e058641",
-  "treeFiles": 2630,
-  "head": "57bcbacfac46f4c9511e2ff1716eb535ca5c5cc5",
-  "writtenAt": "2026-07-27T23:24:44.289Z",
+  "tree": "tree-1a8d6d1c7c30c1a184edc180513598a155411de6",
+  "treeFiles": 2658,
+  "head": "0bb0c68be3016ee33ee3a371299cf4575eb22144",
+  "writtenAt": "2026-08-28T11:04:44.475Z",
   "mode": "ship",
   "base": {
     "ref": "origin/main",
-    "sha": "57bcbacfac46f4c9511e2ff1716eb535ca5c5cc5"
+    "sha": "487a85b710493dad5bb6081776658a37d17f5d26"
   },
   "host": {
     "platform": "darwin",
     "arch": "arm64",
-    "node": "v24.18.0"
+    "node": "v24.15.0"
   },
   "toolchain": {
     "@playwright/test": "1.61.0",
     "playwright": "1.61.0"
   },
-  "contractSha256": "d173053c33c968829e522d3c65b9c84fd84f0ff82172271602d3d9909efb8ca1",
+  "contractSha256": "9c6a6c275489f78cf915d3428e4ad4b2d3ee744cb124a97c108bdd9dde48ba87",
   "classified": {
     "contracts": true,
-    "unit": false,
+    "unit": true,
     "smoke": true,
-    "contractsReason": "global surface changed (apps/docs/public/_headers, apps/docs/scripts/probe-deployment.mjs, apps/docs/scripts/probe-precutover-protection.mjs, +1 more)"
+    "contractsReason": "global surface changed (apps/docs/components/animated-icon-gallery.generated.tsx, apps/docs/components/preview-controls.tsx, apps/docs/components/preview/index.tsx, +12 more)"
   },
   "gates": {
     "typecheck": {
       "status": "pass",
-      "durationMs": 16066
+      "durationMs": 250
     },
     "lint": {
       "status": "pass",
-      "durationMs": 34466
+      "durationMs": 10573
     },
     "unit": {
       "status": "pass",
-      "durationMs": 39577
+      "durationMs": 17458
     },
     "smoke": {
       "status": "pass",
-      "durationMs": 56178
+      "durationMs": 54854
     },
     "contracts": {
       "status": "pass",
-      "durationMs": 645113,
-      "executed": 864,
+      "durationMs": 297749,
+      "executed": 880,
       "full": true,
-      "scopeRoutes": 108
+      "scopeRoutes": 110
     }
   },
   "skips": []
