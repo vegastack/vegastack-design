@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.3.1
+
+### Patch Changes
+
+- [#23](https://github.com/vegastack/vegastack-design/pull/23) [`334cb4c`](https://github.com/vegastack/vegastack-design/commit/334cb4cac069d7998762feae29e9ea61638c237c) Thanks [@dev-mahesh-peerxp](https://github.com/dev-mahesh-peerxp)! - Sync the shipped component-roster skill reference with the two new registry components (AudioPlayer, VideoPlayer), the ProgressIndicator value-variant description, and the updated registry counts.
+
 ## 0.3.0
 
 ### Minor Changes

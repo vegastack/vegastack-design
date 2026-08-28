@@ -1,5 +1,27 @@
 # @vegastack/ui
 
+## 0.5.0
+
+### Minor Changes
+
+- [#23](https://github.com/vegastack/vegastack-design/pull/23) [`334cb4c`](https://github.com/vegastack/vegastack-design/commit/334cb4cac069d7998762feae29e9ea61638c237c) Thanks [@dev-mahesh-peerxp](https://github.com/dev-mahesh-peerxp)! - Fix component behavior and responsive presentation found during manual QA, including range selection, compact navigation, overflow handling, and responsive pricing and comparison layouts. Improve the published examples for dropzones, menus, charts, mobile shells, and the dashboard starter.
+
+- [#23](https://github.com/vegastack/vegastack-design/pull/23) [`334cb4c`](https://github.com/vegastack/vegastack-design/commit/334cb4cac069d7998762feae29e9ea61638c237c) Thanks [@dev-mahesh-peerxp](https://github.com/dev-mahesh-peerxp)! - Add AudioPlayer and VideoPlayer registry components with shared custom transport controls, including
+  a smoothly expanding video progress rail, contained volume rocker, larger overlay actions, and
+  state-aware fullscreen controls. The AudioPlayer mirrors the video control surface statically — a
+  full-width solid scrubber, a background-free primary play control with a combined `elapsed / duration`
+  readout, and matching settings submenus — and gains a `variant="waveform"` that renders the decoded
+  audio as an interactive, seekable waveform.
+
+- [#23](https://github.com/vegastack/vegastack-design/pull/23) [`334cb4c`](https://github.com/vegastack/vegastack-design/commit/334cb4cac069d7998762feae29e9ea61638c237c) Thanks [@dev-mahesh-peerxp](https://github.com/dev-mahesh-peerxp)! - Add ProgressIndicator value display variants for inline and contained percentage labels.
+
+- [#23](https://github.com/vegastack/vegastack-design/pull/23) [`334cb4c`](https://github.com/vegastack/vegastack-design/commit/334cb4cac069d7998762feae29e9ea61638c237c) Thanks [@dev-mahesh-peerxp](https://github.com/dev-mahesh-peerxp)! - Keep the desktop Sidebar and its footer pinned to the viewport while page or navigation content scrolls.
+
+### Patch Changes
+
+- Updated dependencies [[`334cb4c`](https://github.com/vegastack/vegastack-design/commit/334cb4cac069d7998762feae29e9ea61638c237c)]:
+  - @vegastack/design@0.3.1
+
 ## 0.4.1
 
 ### Patch Changes
