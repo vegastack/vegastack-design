@@ -10,6 +10,31 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.6.0] — August 31, 2026
+
+### 🔧 Changed components
+
+- **AudioPlayer** — rebuilt transport with a responsive, two-line mobile layout. On a wide player
+  it is a single line: play/pause, rewind and forward (±15s), an `elapsed / duration` readout, a
+  flexible seek, and a fixed-width tappable speed control that cycles the playback rates
+  (1x → 1.25x → 1.5x → 2x → 0.5x). Audio carries no volume control — mute stays on the M key. On a
+  narrow (mobile-width) player it reflows to two lines: the seek bar with `elapsed` and `duration`
+  pinned to either edge in a smaller font on top, and a centred play/pause flanked by rewind and
+  forward on the bottom, with an optional transcript control (new `onTranscriptClick`, lucide
+  `audio-lines`) on the leading edge and the speed control on the trailing edge. The chrome and
+  progress fill move from the brand-bold primary to a subdued secondary emphasis, and the waveform
+  seek now fills continuously instead of one bar at a time. VideoPlayer's overlay controls are
+  unchanged.
+  [docs](/docs/components/audio-player) ·
+  [`22741a6`](https://github.com/VegaStack/vegastack-design/commit/22741a6)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.3.2`** — refreshes the shipped Audio Player skill reference for the
+  reworked transport and its two-line mobile layout. No runtime code changed.
+- **`@vegastack/design-tokens`** is unchanged. The design-system registry (`@vegastack/ui`) bumps
+  0.5.0 → 0.6.0.
+
 ## [0.5.0] — August 28, 2026
 
 ### 🧩 New components

@@ -1,13 +1,16 @@
-// @vegastack audio-player@0.5.0 sha256-mDt5QFItICSFdnui7sbMM5SH1vt9NpLcvMMRD3LigLY=
+// @vegastack audio-player@0.5.0 sha256-hrtagNE6dLSWCL69Hy8biHsV711kEBzrzO59wkRp2DM=
 
 "use client";
 
 import * as React from "react";
 import {
+  AudioLines,
   Maximize,
   Minimize,
   Pause,
   Play,
+  RotateCcw,
+  RotateCw,
   Settings,
   Volume2,
   VolumeX,
@@ -24,6 +27,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Slider } from "@/components/ui/slider";
 import {
@@ -33,13 +37,26 @@ import {
 } from "@/components/ui/tooltip";
 
 const DEFAULT_PLAYBACK_RATES = [0.75, 1, 1.25, 1.5, 2] as const;
+// Audio's tappable speed control cycles these in order, starting at 1x:
+// 1 → 1.25 → 1.5 → 2 → 0.5 → back to 1. Deliberately not sorted — the cycle
+// follows array order, and 0.5 sits last so a tap from 1x speeds up first.
+const DEFAULT_AUDIO_PLAYBACK_RATES = [1, 1.25, 1.5, 2, 0.5] as const;
 const DEFAULT_SKIP_SECONDS = 15;
 const MEDIA_ACTION_ICON_CLASS =
   "[&_svg:not([class*='size-'])]:size-(--icon-action)";
-const MEDIA_PRIMARY_ICON_CLASS =
+// One icon step up (`--icon-action` 20px → `--icon-feature` 24px) for the
+// play/pause glyph on the narrow, two-line audio layout only, so the primary
+// control reads larger than the flanking skip buttons on a phone.
+const MEDIA_PLAY_ICON_LG_CLASS =
   "[&_svg:not([class*='size-'])]:size-(--icon-feature)";
 const MEDIA_OVERLAY_ICON_BUTTON_CLASS =
   "text-primary-foreground hover:bg-primary-foreground/(--alpha-ink-tint-strong) hover:text-primary-foreground";
+// Audio (solid `default` variant) chrome reads one emphasis step below the
+// brand-bold `primary` the video overlay uses: subdued `muted-foreground` at
+// rest, brightening to `foreground` on hover via the ghost variant's own
+// `hover:text-foreground`. Applied to every audio transport control so the
+// whole surface reads secondary, not loud.
+const MEDIA_AUDIO_ICON_BUTTON_CLASS = "text-muted-foreground";
 // Media settings submenu: left-align the option label and move the selected dot
 // to the trailing edge (default radio items lead with the dot). Shared by the
 // audio card and the video overlay so both settings menus read identically.
@@ -230,9 +247,14 @@ function MediaProgressSlider({
       data-variant={variant}
       className={cn(
         "group/media-progress w-full min-w-0 [&_[data-slot=slider-control]]:cursor-pointer",
-        // Solid track + solid, borderless thumb revealed on hover/focus/drag.
+        // Subdued (`muted-foreground`) filled indicator + solid, borderless thumb
+        // revealed on hover/focus/drag — one emphasis step below the brand-bold
+        // primary so the audio surface reads secondary at rest. When engaged
+        // (hover/focus/drag) the indicator and thumb brighten to `foreground`,
+        // exactly matching how the ghost transport controls brighten on hover;
+        // the colour change is immediate (colour transitions are banned).
         variant === "default" &&
-          "[&_[data-slot=slider-thumb]]:border-0 [&_[data-slot=slider-thumb]]:bg-primary [&_[data-slot=slider-thumb]]:opacity-0 [&_[data-slot=slider-thumb]]:transition-opacity [&_[data-slot=slider-thumb]]:duration-fast [&_[data-slot=slider-thumb]]:ease-standard hover:[&_[data-slot=slider-thumb]]:opacity-100 focus-within:[&_[data-slot=slider-thumb]]:opacity-100 [&_[data-slot=slider-thumb][data-dragging]]:opacity-100 motion-reduce:[&_[data-slot=slider-thumb]]:transition-none",
+          "[&_[data-slot=slider-indicator]]:bg-muted-foreground [&_[data-slot=slider-thumb]]:border-0 [&_[data-slot=slider-thumb]]:bg-muted-foreground [&_[data-slot=slider-thumb]]:opacity-0 [&_[data-slot=slider-thumb]]:transition-opacity [&_[data-slot=slider-thumb]]:duration-fast [&_[data-slot=slider-thumb]]:ease-standard hover:[&_[data-slot=slider-thumb]]:opacity-100 focus-within:[&_[data-slot=slider-thumb]]:opacity-100 [&_[data-slot=slider-thumb][data-dragging]]:opacity-100 motion-reduce:[&_[data-slot=slider-thumb]]:transition-none hover:[&_[data-slot=slider-indicator]]:bg-foreground focus-within:[&_[data-slot=slider-indicator]]:bg-foreground has-[[data-slot=slider-thumb][data-dragging]]:[&_[data-slot=slider-indicator]]:bg-foreground hover:[&_[data-slot=slider-thumb]]:bg-foreground focus-within:[&_[data-slot=slider-thumb]]:bg-foreground [&_[data-slot=slider-thumb][data-dragging]]:bg-foreground",
         variant === "overlay" &&
           "[&_[data-slot=slider-track]]:h-1 [&_[data-slot=slider-track]]:bg-primary-foreground/(--alpha-wash-strong) [&_[data-slot=slider-track]]:transition-[height] [&_[data-slot=slider-track]]:duration-fast [&_[data-slot=slider-track]]:ease-standard hover:[&_[data-slot=slider-track]]:h-1.5 focus-within:[&_[data-slot=slider-track]]:h-1.5 motion-reduce:[&_[data-slot=slider-track]]:transition-none [&_[data-slot=slider-indicator]]:bg-primary-foreground [&_[data-slot=slider-thumb]]:size-4 [&_[data-slot=slider-thumb]]:border-primary-foreground [&_[data-slot=slider-thumb]]:bg-primary-foreground [&_[data-slot=slider-thumb]]:opacity-0 [&_[data-slot=slider-thumb]]:transition-opacity [&_[data-slot=slider-thumb]]:duration-fast [&_[data-slot=slider-thumb]]:ease-standard hover:[&_[data-slot=slider-thumb]]:opacity-100 focus-within:[&_[data-slot=slider-thumb]]:opacity-100 [&_[data-slot=slider-thumb][data-dragging]]:opacity-100 motion-reduce:[&_[data-slot=slider-thumb]]:transition-none",
       )}
@@ -267,40 +289,55 @@ function MediaWaveformSeek({
 }) {
   const ratio = max > 0 ? Math.min(Math.max(value / max, 0), 1) : 0;
   const bars = peaks.length > 0 ? peaks : WAVEFORM_FLAT_BARS;
+  // Both layers render the identical bar set so they overlay pixel-for-pixel; the
+  // colour class is all that differs. `data-slot` is carried by the base layer
+  // only so it stays the single queryable bars node.
+  const renderBars = (colorClass: string, slot?: string) => (
+    <div
+      aria-hidden="true"
+      data-slot={slot}
+      className="absolute inset-0 flex items-center gap-px"
+    >
+      {bars.map((peak, index) => (
+        <span
+          key={index}
+          className={cn(
+            "h-[var(--wave-peak)] min-w-0 flex-1 rounded-full",
+            colorClass,
+          )}
+          style={
+            {
+              "--wave-peak": `${Math.round(Math.max(peak, 0.06) * 100)}%`,
+            } as React.CSSProperties
+          }
+        />
+      ))}
+    </div>
+  );
   return (
     <div
       data-slot="media-player-waveform"
-      className="group/media-progress relative w-full min-w-0"
+      className="group/media-progress relative h-12 w-full min-w-0 hover:[&_[data-slot=media-player-waveform-played]_span]:bg-foreground focus-within:[&_[data-slot=media-player-waveform-played]_span]:bg-foreground has-[[data-slot=slider-thumb][data-dragging]]:[&_[data-slot=media-player-waveform-played]_span]:bg-foreground"
     >
       {/*
         Bars are decoration only (`aria-hidden`); the transparent Slider on top
         owns all keyboard/pointer/seek semantics and the hidden range input. No
-        visible scrubber — the primary bar fill IS the position cue; the seek
-        thumb stays invisible (opacity-0) but keyboard-focusable so arrow/Home/End
-        seeking still works.
+        visible scrubber — the fill IS the position cue; the seek thumb stays
+        invisible (opacity-0) but keyboard-focusable so arrow/Home/End seeking
+        still works.
+
+        Two aligned layers make the progress edge smooth: a muted base under a
+        `muted-foreground` played copy clipped to the exact played ratio. The clip
+        boundary moves continuously (sub-bar), so the fill glides instead of
+        flipping a whole bar at a time.
       */}
+      {renderBars("bg-muted", "media-player-waveform-bars")}
       <div
-        aria-hidden="true"
-        data-slot="media-player-waveform-bars"
-        className="flex h-12 w-full items-center gap-px"
+        data-slot="media-player-waveform-played"
+        className="absolute inset-0 [clip-path:inset(0_calc(100%_-_var(--played))_0_0)]"
+        style={{ "--played": `${ratio * 100}%` } as React.CSSProperties}
       >
-        {bars.map((peak, index) => {
-          const played = (index + 0.5) / bars.length <= ratio;
-          return (
-            <span
-              key={index}
-              className={cn(
-                "h-[var(--wave-peak)] min-w-0 flex-1 rounded-full",
-                played ? "bg-primary" : "bg-muted",
-              )}
-              style={
-                {
-                  "--wave-peak": `${Math.round(Math.max(peak, 0.06) * 100)}%`,
-                } as React.CSSProperties
-              }
-            />
-          );
-        })}
+        {renderBars("bg-muted-foreground")}
       </div>
       <Slider
         value={value}
@@ -381,6 +418,13 @@ export interface MediaPlayerControlsProps extends Omit<
    */
   onQualityChange?: (quality: string) => void;
   /**
+   * Called when the narrow-layout transcript control is pressed. When omitted,
+   * the transcript control is not rendered. Audio (`default` variant) only; the
+   * button appears only on a narrow, mobile-width player.
+   * @default undefined
+   */
+  onTranscriptClick?: () => void;
+  /**
    * Whether the associated media frame currently owns document fullscreen.
    * Updates the fullscreen control's icon and accessible name.
    * @default false
@@ -416,7 +460,9 @@ export interface MediaPlayerControlsProps extends Omit<
 /**
  * `MediaPlayerControls` — shared VegaStack transport controls for audio and
  * video media: play/pause, seek, elapsed/duration labels, mute, keyboard
- * shortcuts for skip, and playback-rate cycling.
+ * shortcuts for skip, and playback-rate cycling. Audio (`default` variant) is a
+ * single line on a wide player and reflows to two lines on a narrow,
+ * mobile-width player.
  *
  * @example
  * <MediaPlayerControls mediaRef={mediaRef} label="Demo audio" />
@@ -435,6 +481,7 @@ export function MediaPlayerControls({
   onTimeChange,
   onPlaybackRateChange,
   onQualityChange,
+  onTranscriptClick,
   isFullscreen = false,
   onFullscreenToggle,
   variant = "default",
@@ -571,6 +618,23 @@ export function MediaPlayerControls({
     },
     [mediaRef, onPlaybackRateChange],
   );
+
+  // Tappable speed control (audio): advance to the next rate in `playbackRates`
+  // order, wrapping past the end. If the current rate is not in the list (idx
+  // -1), start at the first entry.
+  const cyclePlaybackRate = React.useCallback(() => {
+    const media = mediaRef.current;
+    if (!media) return;
+    const list =
+      playbackRates.length > 0 ? playbackRates : DEFAULT_PLAYBACK_RATES;
+    const idx = list.findIndex(
+      (rate) => Math.abs(rate - media.playbackRate) < 1e-6,
+    );
+    const nextRate = list[(idx + 1) % list.length] ?? list[0] ?? 1;
+    media.playbackRate = nextRate;
+    setPlaybackRate(nextRate);
+    onPlaybackRateChange?.(nextRate);
+  }, [mediaRef, playbackRates, onPlaybackRateChange]);
 
   const setQualityValue = React.useCallback(
     (value: string) => {
@@ -804,33 +868,33 @@ export function MediaPlayerControls({
     <span
       data-slot="media-player-time"
       className={cn(
-        "shrink-0 text-lg tabular-nums",
-        variant === "default" && "text-muted-foreground",
-        variant === "overlay" && "text-primary-foreground",
+        "shrink-0 tabular-nums",
+        variant === "default" && "text-sm text-muted-foreground",
+        variant === "overlay" && "text-lg text-primary-foreground",
       )}
     >
       {formatTime(currentTime)} / {formatTime(displayedDuration)}
     </span>
   );
 
-  const playButton = (
+  // `iconClass` overrides the glyph size — the narrow audio layout passes the
+  // larger step; the shared wide/overlay play button keeps the standard action size.
+  const renderPlayButton = (iconClass: string = MEDIA_ACTION_ICON_CLASS) => (
     <MediaControlTooltip
       content={playing ? "Pause (Space or K)" : "Play (Space or K)"}
     >
       <IconButton
         aria-label={playing ? `Pause ${label}` : `Play ${label}`}
         aria-pressed={playing}
-        size={variant === "overlay" ? "default" : "lg"}
+        size="default"
         variant="ghost"
         onClick={togglePlayback}
         className={cn(
           "rounded-full",
-          variant === "overlay"
-            ? MEDIA_ACTION_ICON_CLASS
-            : MEDIA_PRIMARY_ICON_CLASS,
+          iconClass,
           variant === "overlay"
             ? MEDIA_OVERLAY_ICON_BUTTON_CLASS
-            : "text-primary hover:text-primary",
+            : MEDIA_AUDIO_ICON_BUTTON_CLASS,
         )}
       >
         {playing ? (
@@ -841,6 +905,95 @@ export function MediaPlayerControls({
       </IconButton>
     </MediaControlTooltip>
   );
+  const playButton = renderPlayButton();
+  const playButtonCompact = renderPlayButton(MEDIA_PLAY_ICON_LG_CLASS);
+
+  // Visible rewind/forward transport — audio (default variant) only. Video keeps
+  // skip on the keyboard (J/L/←/→); its overlay chrome stays uncluttered. On a
+  // wide player they sit inline after play; on a narrow player they flank the
+  // centred play/pause on the second line. Skip stays on the keyboard either way.
+  const rewindButton = (
+    <MediaControlTooltip content={`Rewind ${skipSeconds}s (J)`}>
+      <IconButton
+        aria-label={`Rewind ${skipSeconds} seconds`}
+        size="default"
+        variant="ghost"
+        onClick={() => skipBy(-skipSeconds)}
+        className={cn(
+          "rounded-full",
+          MEDIA_ACTION_ICON_CLASS,
+          MEDIA_AUDIO_ICON_BUTTON_CLASS,
+        )}
+      >
+        <RotateCcw />
+      </IconButton>
+    </MediaControlTooltip>
+  );
+
+  const forwardButton = (
+    <MediaControlTooltip content={`Forward ${skipSeconds}s (L)`}>
+      <IconButton
+        aria-label={`Forward ${skipSeconds} seconds`}
+        size="default"
+        variant="ghost"
+        onClick={() => skipBy(skipSeconds)}
+        className={cn(
+          "rounded-full",
+          MEDIA_ACTION_ICON_CLASS,
+          MEDIA_AUDIO_ICON_BUTTON_CLASS,
+        )}
+      >
+        <RotateCw />
+      </IconButton>
+    </MediaControlTooltip>
+  );
+
+  // Transcript — audio (default variant), narrow layout only. Opens whatever the
+  // consumer wires to `onTranscriptClick`; rendered only when that handler is
+  // supplied, mirroring the fullscreen control's conditional-on-handler pattern.
+  const transcriptButton = onTranscriptClick ? (
+    <MediaControlTooltip content="Transcript">
+      <IconButton
+        aria-label={`${label} transcript`}
+        size="default"
+        variant="ghost"
+        onClick={onTranscriptClick}
+        className={cn(
+          "rounded-full",
+          MEDIA_ACTION_ICON_CLASS,
+          MEDIA_AUDIO_ICON_BUTTON_CLASS,
+        )}
+      >
+        <AudioLines />
+      </IconButton>
+    </MediaControlTooltip>
+  ) : null;
+
+  // Tappable playback-speed control — audio (default variant) only. One setting,
+  // so no menu: each tap advances to the next rate. Video keeps the settings
+  // dropdown because it also owns quality. `sizeClass` is where the single-line
+  // wide layout pins a fixed width (so the row never shifts as the label changes
+  // between `1x` → `1.25x` → `1.5x`); the two-line narrow layout drops it and
+  // lets the pill size to its label in its own grid cell.
+  const renderSpeedButton = (sizeClass: string) => (
+    <MediaControlTooltip content="Playback speed">
+      <Button
+        variant="ghost"
+        size="sm"
+        aria-label={`Change playback speed (currently ${formatPlaybackRate(playbackRate)})`}
+        onClick={cyclePlaybackRate}
+        className={cn(
+          "shrink-0 justify-center rounded-full font-mono text-code-sm tabular-nums",
+          sizeClass,
+          MEDIA_AUDIO_ICON_BUTTON_CLASS,
+        )}
+      >
+        {formatPlaybackRate(playbackRate)}
+      </Button>
+    </MediaControlTooltip>
+  );
+  const speedButton = renderSpeedButton("w-14 px-0");
+  const speedButtonCompact = renderSpeedButton("");
 
   const volumeControl = (
     <div
@@ -865,7 +1018,9 @@ export function MediaPlayerControls({
           className={cn(
             "rounded-full",
             MEDIA_ACTION_ICON_CLASS,
-            variant === "overlay" && MEDIA_OVERLAY_ICON_BUTTON_CLASS,
+            variant === "overlay"
+              ? MEDIA_OVERLAY_ICON_BUTTON_CLASS
+              : MEDIA_AUDIO_ICON_BUTTON_CLASS,
           )}
         >
           {muted ? <VolumeX /> : <Volume2 />}
@@ -880,10 +1035,10 @@ export function MediaPlayerControls({
             data-slot="media-player-volume-surface"
             data-variant={variant}
             className={cn(
-              "flex items-center rounded-full bg-primary/(--alpha-backdrop-soft)",
+              "flex items-center rounded-full",
               variant === "overlay"
-                ? "h-20 px-1 py-1 text-primary-foreground"
-                : "h-28 px-2 py-3",
+                ? "h-20 bg-primary/(--alpha-backdrop-soft) px-1 py-1 text-primary-foreground"
+                : "h-28 border border-border bg-popover px-2 py-3 text-popover-foreground",
             )}
           >
             <Slider
@@ -896,10 +1051,10 @@ export function MediaPlayerControls({
               aria-label={`${label} volume`}
               onValueChange={setVolumeValue}
               className={cn(
-                "[&_[data-slot=slider-control]]:w-6 [&_[data-slot=slider-control]]:flex-col [&_[data-slot=slider-control]]:justify-center [&_[data-slot=slider-track]]:h-full [&_[data-slot=slider-track]]:w-1.5 [&_[data-slot=slider-track]]:bg-primary-foreground/(--alpha-wash-strong) [&_[data-slot=slider-indicator]]:bg-primary-foreground [&_[data-slot=slider-thumb]]:size-3 [&_[data-slot=slider-thumb]]:border-primary-foreground [&_[data-slot=slider-thumb]]:bg-primary-foreground",
+                "[&_[data-slot=slider-control]]:w-6 [&_[data-slot=slider-control]]:flex-col [&_[data-slot=slider-control]]:justify-center [&_[data-slot=slider-track]]:h-full [&_[data-slot=slider-track]]:w-1.5",
                 variant === "overlay"
-                  ? "[&_[data-slot=slider-control]]:h-[calc(var(--size-lg)+var(--spacing)*4)]"
-                  : "[&_[data-slot=slider-control]]:h-20",
+                  ? "[&_[data-slot=slider-control]]:h-[calc(var(--size-lg)+var(--spacing)*4)] [&_[data-slot=slider-track]]:bg-primary-foreground/(--alpha-wash-strong) [&_[data-slot=slider-indicator]]:bg-primary-foreground [&_[data-slot=slider-thumb]]:size-3 [&_[data-slot=slider-thumb]]:border-primary-foreground [&_[data-slot=slider-thumb]]:bg-primary-foreground"
+                  : "[&_[data-slot=slider-control]]:h-20 [&_[data-slot=slider-track]]:bg-muted [&_[data-slot=slider-indicator]]:bg-muted-foreground [&_[data-slot=slider-thumb]]:size-3 [&_[data-slot=slider-thumb]]:border-muted-foreground [&_[data-slot=slider-thumb]]:bg-muted-foreground",
               )}
             />
           </div>
@@ -996,30 +1151,84 @@ export function MediaPlayerControls({
       )}
       {...props}
     >
+      {/*
+        Audio transport has two layouts, switched by the `@sm` container width.
+        Both are always in the DOM; the container query shows exactly one, so a
+        screen reader (and the tab order) only ever sees the visible layout.
+
+        WIDE (`@sm` and up) — a single line, unchanged. Sequence, left to right:
+        play/pause → rewind/forward → elapsed·duration → seek (the only flex-1
+        child, so the bar absorbs the slack) → tappable speed. Audio carries no
+        volume control (mute stays on the M key). `px-2` + the row `gap-2` keep
+        ≥16px between the seek track's ends and the flanking controls, so the
+        seek thumb's 24px hit area at either extreme never falls under the speed
+        button — the 320px effective-target contract probes exactly this.
+      */}
       <div
-        data-slot="media-player-controls-layout"
-        className="flex min-w-0 flex-col gap-2"
+        data-slot="media-player-actions"
+        className="hidden w-full min-w-0 items-center gap-2 @sm/media-controls:flex"
       >
-        <div data-slot="media-player-seek" className="min-w-0 px-2">
+        {playButton}
+        <div
+          data-slot="media-player-skip-controls"
+          className="flex shrink-0 items-center"
+        >
+          {rewindButton}
+          {forwardButton}
+        </div>
+        {timeReadout}
+        <div data-slot="media-player-seek" className="min-w-0 flex-1 px-2">
           {seekControl}
         </div>
+        {speedButton}
+      </div>
 
+      {/*
+        NARROW (below `@sm`) — two lines, for a mobile-width player. Top line:
+        elapsed · seek · duration, the seek flexing between the two edge-pinned
+        readouts in a smaller font (`formatTime` still promotes to h:mm:ss past
+        an hour). Bottom line: a symmetric `1fr auto 1fr` grid so play/pause sits
+        dead-centre with rewind/forward flanking it, the transcript control
+        pinned to the leading edge, and the tappable speed to the trailing edge.
+      */}
+      <div
+        data-slot="media-player-actions-compact"
+        className="flex w-full min-w-0 flex-col gap-1.5 @sm/media-controls:hidden"
+      >
         <div
-          data-slot="media-player-actions"
-          className="grid w-full grid-cols-[auto_1fr_auto] items-center gap-2"
+          data-slot="media-player-seek"
+          className="flex min-w-0 items-center gap-2"
         >
-          <div className="flex min-w-0 items-center gap-2">
-            {playButton}
-            {timeReadout}
+          <span
+            data-slot="media-player-time-elapsed"
+            className="shrink-0 text-xs text-muted-foreground tabular-nums"
+          >
+            {formatTime(currentTime)}
+          </span>
+          {/*
+            `px-1` insets the seek track from the flanking timers so the seek
+            thumb at either extreme (it overhangs the track end by half its
+            width) does not crowd the elapsed/duration labels.
+          */}
+          <div className="min-w-0 flex-1 px-1">{seekControl}</div>
+          <span
+            data-slot="media-player-time-duration"
+            className="shrink-0 text-xs text-muted-foreground tabular-nums"
+          >
+            {formatTime(displayedDuration)}
+          </span>
+        </div>
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+          <div className="flex justify-self-start">{transcriptButton}</div>
+          <div
+            data-slot="media-player-transport"
+            className="flex items-center gap-1 justify-self-center"
+          >
+            {rewindButton}
+            {playButtonCompact}
+            {forwardButton}
           </div>
-
-          <div aria-hidden="true" />
-
-          <div className="flex justify-self-end">
-            {volumeControl}
-            {settingsMenu}
-            {fullscreenControl}
-          </div>
+          <div className="flex justify-self-end">{speedButtonCompact}</div>
         </div>
       </div>
     </div>
@@ -1074,13 +1283,14 @@ export interface AudioPlayerProps extends Omit<
    */
   ref?: React.Ref<HTMLDivElement>;
   /**
-   * Seconds moved by the rewind and forward actions.
+   * Seconds moved by the visible rewind/forward buttons and the keyboard skip.
    * @default 15
    */
   skipSeconds?: number;
   /**
-   * Playback rates cycled by the rate control.
-   * @default [0.75, 1, 1.25, 1.5, 2]
+   * Playback rates cycled by the tappable speed control, in tap order. Each tap
+   * advances to the next entry and wraps past the end.
+   * @default [1, 1.25, 1.5, 2, 0.5]
    */
   playbackRates?: readonly number[];
   /**
@@ -1109,6 +1319,13 @@ export interface AudioPlayerProps extends Omit<
    */
   onPlaybackRateChange?: (playbackRate: number) => void;
   /**
+   * Called when the transcript control is pressed on a narrow, mobile-width
+   * player — wire it to open the consumer app's transcript. When omitted, the
+   * transcript control is not rendered.
+   * @default undefined
+   */
+  onTranscriptClick?: () => void;
+  /**
    * Seek presentation. `waveform` renders a decoded-audio waveform in place of
    * the seek slider; the slider's keyboard and pointer semantics are preserved
    * beneath the bars.
@@ -1119,9 +1336,11 @@ export interface AudioPlayerProps extends Omit<
 
 /**
  * `AudioPlayer` — a compact, tokenized audio transport with play/pause,
- * seek, elapsed/duration labels, mute, playback speed, and keyboard skip
- * shortcuts. The native `<audio>` element supplies the media engine; VegaStack
- * renders the controls so audio and video players share the same surface.
+ * seek, elapsed/duration labels, playback speed, and keyboard skip/mute
+ * shortcuts. A single line on a wide player; on a narrow, mobile-width player it
+ * reflows to two lines (seek and timers on top; centred transport with an
+ * optional transcript control below). The native `<audio>` element supplies the
+ * media engine; VegaStack renders the controls so audio and video share a surface.
  *
  * @example
  * <AudioPlayer src="/media/demo.mp3" label="Product demo audio" />
@@ -1134,12 +1353,13 @@ export function AudioPlayer({
   description,
   mediaRef,
   skipSeconds,
-  playbackRates,
+  playbackRates = DEFAULT_AUDIO_PLAYBACK_RATES,
   defaultPlaybackRate,
   formatTime,
   onPlayStateChange,
   onTimeChange,
   onPlaybackRateChange,
+  onTranscriptClick,
   variant = "default",
   preload = "metadata",
   ref,
@@ -1202,6 +1422,7 @@ export function AudioPlayer({
         onPlayStateChange={onPlayStateChange}
         onTimeChange={onTimeChange}
         onPlaybackRateChange={onPlaybackRateChange}
+        onTranscriptClick={onTranscriptClick}
         seekVariant={isWaveform ? "waveform" : "slider"}
         waveformPeaks={waveformPeaks}
       />

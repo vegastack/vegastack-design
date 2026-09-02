@@ -125,7 +125,7 @@ component and never an icon.
 
 ## Media
 
-- **`audio-player`** — A compact custom audio transport with standard media controls, seek, mute, settings, and keyboard shortcuts.
+- **`audio-player`** — A custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts (mute on the M key); a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player.
 - **`image`** — A presentational framed image with aspect-ratio, rounding, a loading skeleton, and an error fallback.
 - **`notification-bell`** — A bell icon button with an unread-count badge overlay. Presentational — the app supplies the count.
 - **`video-player`** — A framed video player with the same grouped custom transport controls as Audio Player.

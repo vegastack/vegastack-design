@@ -11864,7 +11864,7 @@
       "name": "audio-player",
       "registryType": "registry:ui",
       "title": "Audio Player",
-      "summary": "A compact custom audio transport with standard media controls, seek, mute, settings, and keyboard shortcuts.",
+      "summary": "A custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts (mute on the M key); a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player.",
       "family": "media",
       "wave": "Content/marketing",
       "sourceFiles": ["packages/ui/registry/ui/audio-player.tsx"],
@@ -11933,9 +11933,10 @@
             "muted",
             "seeking",
             "keyboard-shortcuts",
-            "playback-rate"
+            "playback-rate",
+            "transcript"
           ],
-          "evidence": "Observed from media event handlers, grouped skip controls, keyboard handlers, control callbacks, and state attributes."
+          "evidence": "Observed from media event handlers, rewind/forward transport, keyboard handlers, control callbacks (including the optional onTranscriptClick), the two-line narrow layout, and state attributes."
         },
         "accessibility": {
           "status": "observed",
@@ -11973,6 +11974,7 @@
       "engines": [],
       "docsSlug": "/docs/components/audio-player",
       "registryDependencies": [
+        "@vegastack/button",
         "@vegastack/dropdown-menu",
         "@vegastack/icon-button",
         "@vegastack/slider",

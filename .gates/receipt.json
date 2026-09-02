@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "tree": "tree-de286e577138163e8cd98fca5718d3d76b8a7801",
-  "treeFiles": 2653,
-  "head": "a4296825c29cb73429c8b421c2e510449c9b5fc1",
-  "writtenAt": "2026-08-28T13:26:25.957Z",
-  "mode": "push",
+  "tree": "tree-a2c7729dc3ba5a3019d274bc10f0afeb11eff351",
+  "treeFiles": 2655,
+  "head": "43eb359a9157bce16a361ba929a8bf68e05d44e7",
+  "writtenAt": "2026-09-02T11:06:43.938Z",
+  "mode": "ship",
   "base": {
     "ref": "origin/main",
-    "sha": "f07a88f8cd9ec673015dfbf6514ecd2d6b88b6f4"
+    "sha": "6db0bb74cac9ce9426f96cb1e9da8556dce731be"
   },
   "host": {
     "platform": "darwin",
@@ -18,33 +18,33 @@
     "@playwright/test": "1.61.0",
     "playwright": "1.61.0"
   },
-  "contractSha256": "ebed3921e242f8d73df35eab717cfa9df2cfbdbf5890966c540b58a36c5c0695",
+  "contractSha256": "c1283dc161f4d054b729c90a8dce31ac1cfc887aa5b0c7851c7ca7e36d96cbfa",
   "classified": {
     "contracts": true,
     "unit": true,
     "smoke": true,
-    "contractsReason": "global surface changed (apps/docs/components/stories/audio-player.story.tsx, apps/docs/components/stories/story-shims.tsx, apps/docs/components/stories/video-player.story.tsx)"
+    "contractsReason": "global surface changed (apps/docs/components/animated-icon-gallery.generated.tsx, apps/docs/lib/home-component-catalog.generated.ts, apps/docs/vrt/contract-routes.generated.ts)"
   },
   "gates": {
     "typecheck": {
       "status": "pass",
-      "durationMs": 341
+      "durationMs": 8210
     },
     "lint": {
       "status": "pass",
-      "durationMs": 331
+      "durationMs": 18964
     },
     "unit": {
       "status": "pass",
-      "durationMs": 16295
+      "durationMs": 22877
     },
     "smoke": {
       "status": "pass",
-      "durationMs": 54425
+      "durationMs": 55070
     },
     "contracts": {
       "status": "pass",
-      "durationMs": 310876,
+      "durationMs": 313592,
       "executed": 880,
       "full": true,
       "scopeRoutes": 110

@@ -402,7 +402,7 @@ function injectSidebarScrollMirror(): () => void {
     [data-slot="sidebar"].self-start { align-self: flex-start; }
     [data-slot="sidebar-header"] { height: 48px; }
     [data-slot="sidebar-header"].shrink-0 { flex-shrink: 0; }
-    [data-slot="sidebar-content"] { display: flex; flex: 1 1 0%; min-height: 0; overflow: auto; }
+    [data-slot="sidebar-content"] { display: flex; flex-direction: column; flex: 1 1 0%; min-height: 0; overflow: auto; }
     [data-slot="sidebar-footer"] { height: 48px; }
     [data-slot="sidebar-footer"].shrink-0 { flex-shrink: 0; }
     [data-testid="sidebar-nav-fill"] { flex: none; height: 900px; }
@@ -494,7 +494,9 @@ test.each([
       content.scrollTop = 200;
       content.dispatchEvent(new Event("scroll"));
       await afterScrollLayout();
-      expect(content.scrollTop).toBe(200);
+      // Firefox reports fractional (subpixel) scroll offsets — 200 reads back as ~200.35 —
+      // where Chromium rounds to an integer. Assert to the nearest pixel, not exact equality.
+      expect(content.scrollTop).toBeCloseTo(200, 0);
       expect(footer.getBoundingClientRect().top).toBeCloseTo(
         footerBeforeContentScroll.top,
         0,
