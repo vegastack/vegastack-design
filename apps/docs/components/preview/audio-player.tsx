@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/audio-player` (dogfoods the registry) → auto-scanned.
 import { AudioPlayer } from "@/components/ui/audio-player";
@@ -46,6 +46,37 @@ export function audioPlayerPlaybackRates(): ReactNode {
           defaultPlaybackRate={1.25}
         />
       </div>
+    </Wrapper>
+  );
+}
+
+// Constrained to a phone-ish width so the `@sm` container query trips into the
+// two-line narrow layout, showing the mobile transport and the transcript
+// control (wired to reveal a short transcript). `onTranscriptClick` is where a
+// consumer app opens its own transcript surface.
+function AudioPlayerMobileDemo(): ReactNode {
+  const [showTranscript, setShowTranscript] = useState(false);
+  return (
+    <div className="flex w-full max-w-xs flex-col gap-2">
+      <AudioPlayer
+        src={SAMPLE_AUDIO}
+        label="Interview audio"
+        onTranscriptClick={() => setShowTranscript((open) => !open)}
+      />
+      {showTranscript ? (
+        <div className="rounded-lg border border-border bg-muted p-3 text-sm text-muted-foreground">
+          “Thanks for joining. Today we are walking through the new release and
+          what changed for teams shipping on the platform…”
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+export function audioPlayerMobile(): ReactNode {
+  return (
+    <Wrapper>
+      <AudioPlayerMobileDemo />
     </Wrapper>
   );
 }

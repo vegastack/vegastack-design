@@ -1,6 +1,6 @@
 ---
 title: Audio Player
-description: A compact custom audio transport with standard media controls, seek, mute, settings, and keyboard shortcuts.
+description: A custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts — single-line on a wide player, two lines on mobile.
 audience: public
 preview: audioPlayer
 ---
@@ -33,13 +33,27 @@ Every `AudioPlayer` prop, auto-generated from its TypeScript types.
 
 ### Basic
 
-The player mirrors the video-player control surface, rendered statically on a card: a
-full-width seek bar, then a primary-colored play/pause control with a combined
-`elapsed / duration` readout, mute, and a settings menu. The docs preview uses a 90-second
-local audio fixture, so it can play without network access.
+A single-line transport rendered statically on a card. Left to right: play/pause, rewind and
+forward (±15s), the combined `elapsed / duration` readout, a flexible seek bar, and a tappable
+speed control. The chrome uses the subdued secondary emphasis rather than the loud brand accent.
+The docs preview uses a 90-second local audio fixture, so it can play without network access.
 
 <ComponentPreview
   name="audioPlayer"
+  file="components/preview/audio-player.tsx"
+/>
+
+### Mobile layout
+
+Below the `@sm` container width the transport reflows to two lines while staying compact. The top
+line carries the seek bar with `elapsed` and `duration` pinned to either edge in a smaller font;
+the bottom line centres play/pause with rewind and forward flanking it, a transcript control on the
+leading edge, and the tappable speed on the trailing edge. The transcript control renders only when
+`onTranscriptClick` is supplied — wire it to open your app's transcript. The example is width-limited
+so the mobile layout is visible on a desktop screen.
+
+<ComponentPreview
+  name="audioPlayerMobile"
   file="components/preview/audio-player.tsx"
 />
 
@@ -66,8 +80,8 @@ Use `title` and `description` when the player needs a visible track name or shor
 
 ### Playback rates
 
-Pass `playbackRates` and `defaultPlaybackRate` to control the playback-speed options in
-the settings submenu.
+Pass `playbackRates` and `defaultPlaybackRate` to control the options the tappable speed
+control cycles through. Each tap advances to the next rate in order and wraps past the end.
 
 <ComponentPreview
   name="audioPlayerPlaybackRates"
@@ -85,7 +99,7 @@ the settings submenu.
 
 | Key                                 | Action                                                               |
 | ----------------------------------- | -------------------------------------------------------------------- |
-| <kbd>Tab</kbd>                      | Move through play/pause, seek, mute, and settings controls           |
+| <kbd>Tab</kbd>                      | Move through play/pause, rewind, forward, seek, and speed            |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused button                                          |
 | <kbd>Space</kbd>                    | Play or pause when the media controls group is focused               |
 | <kbd>K</kbd>                        | Play or pause                                                        |
@@ -103,8 +117,14 @@ the settings submenu.
 - The seek rail composes `Slider`, so keyboard and screen-reader slider semantics stay intact.
 - Icon-only transport buttons are composed with `IconButton`, which requires accessible names.
 - Tooltips expose the primary keyboard shortcuts for pointer and keyboard users.
-- Playback speed lives in the settings submenu as a radio group.
-- Rewind and forward are keyboard shortcuts rather than visible buttons.
+- Playback speed is a single tappable button that cycles the rates; its accessible name always
+  announces the current speed.
+- Rewind and forward are visible buttons on both layouts (inline on a wide player; flanking
+  play/pause on the second line of a narrow, mobile-width player) and keyboard shortcuts everywhere
+  (J / L and ← / →).
+- The transcript control appears only on the narrow layout and only when `onTranscriptClick` is
+  supplied; it carries an accessible name derived from `label` and opens whatever the consumer wires.
+- Audio has no visible volume control; mute stays available on the M key.
 - The native `<audio>` element is used as the media engine and does not expose browser-native
   controls; VegaStack renders the consistent control surface.
 

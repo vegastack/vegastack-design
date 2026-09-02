@@ -2127,7 +2127,7 @@
       "name": "audio-player",
       "type": "registry:ui",
       "title": "Audio Player",
-      "description": "A compact custom audio transport with standard media controls, seek, mute, settings, and keyboard shortcuts.",
+      "description": "A compact custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts — a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player.",
       "categories": [
         "media"
       ],
@@ -2138,6 +2138,7 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
+        "@vegastack/button",
         "@vegastack/dropdown-menu",
         "@vegastack/icon-button",
         "@vegastack/slider",
@@ -2151,10 +2152,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "A single audio asset that needs a compact, branded transport with grouped skip controls, mute, settings, and keyboard shortcuts.",
+        "whenToUse": "A single audio asset that needs a compact, branded transport with rewind/forward, a tappable speed control, keyboard shortcuts, and a two-line mobile layout with an optional transcript control.",
         "whenNotToUse": "Playlists, queue management, waveform editing, transcript navigation, or audio recording.",
         "version": "0.5.0",
-        "integrity": "sha256-mDt5QFItICSFdnui7sbMM5SH1vt9NpLcvMMRD3LigLY="
+        "integrity": "sha256-hrtagNE6dLSWCL69Hy8biHsV711kEBzrzO59wkRp2DM="
       }
     },
     {
