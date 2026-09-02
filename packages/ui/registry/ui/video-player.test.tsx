@@ -1,12 +1,28 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { expect, test, vi } from "vitest";
+import { beforeEach, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { TIMINGS } from "@vegastack/design";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { VideoPlayer } from "./video-player";
 
 const SOURCE = "data:video/mp4;base64,";
+
+// Park the harness pointer in a far corner before every test. The player renders at the top-left
+// origin, and Firefox dispatches a pointerenter when the frame appears under the resting pointer
+// (Chromium does not) — which auto-shows the overlay and makes "controls hidden at rest" assertions
+// flake by engine and test order. Parking the pointer away makes the at-rest state deterministic.
+beforeEach(async () => {
+  const corner = document.createElement("div");
+  corner.style.cssText =
+    "position:fixed;right:0;bottom:0;width:8px;height:8px;z-index:2147483647;";
+  document.body.append(corner);
+  try {
+    await userEvent.hover(corner);
+  } finally {
+    corner.remove();
+  }
+});
 
 function setMediaState(
   media: HTMLMediaElement,

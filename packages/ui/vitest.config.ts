@@ -97,7 +97,12 @@ export default defineConfig({
     maxWorkers: 4,
     browser: {
       enabled: true,
-      provider: playwright(),
+      // Pin the browser context locale so date/number formatting is identical on every
+      // developer machine. Playwright's Chromium defaults to en-US regardless of the host,
+      // but Firefox (and WebKit) inherit the OS locale — on a non-US host (e.g. en-IN/en-GB)
+      // Intl.DateTimeFormat then renders "1 Jun 2026" instead of "Jun 1, 2026", and every
+      // test that asserts a US-formatted date times out on the cross-engine lane only.
+      provider: playwright({ contextOptions: { locale: "en-US" } }),
       headless: true,
       instances: [{ browser: "chromium" }],
     },
