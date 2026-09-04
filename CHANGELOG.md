@@ -25,7 +25,7 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   seek now fills continuously instead of one bar at a time. VideoPlayer's overlay controls are
   unchanged.
   [docs](https://design.vegastack.com/docs/components/audio-player) ·
-  [`22741a6`](https://github.com/VegaStack/vegastack-design/commit/22741a6)
+  [`43eb359`](https://github.com/VegaStack/vegastack-design/commit/43eb359)
 
 ### 📦 npm
 
