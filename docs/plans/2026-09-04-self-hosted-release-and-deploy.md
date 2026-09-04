@@ -18,7 +18,7 @@ hosted dependency, changing nothing else.
 
 ## Decision (MK, 2026-09-04)
 
-Every job in every workflow runs on `[self-hosted, vsk-runners-mac-mini]`. Reuse the existing pool; no
+Every job in every workflow runs on `[self-hosted, vsk-runners-mac]`. Reuse the existing pool; no
 new runner label. The boundary probe runs on the same pool.
 
 This mirrors sibling repo **`vegastack/vegafactory`**, which publishes to npm this exact way —

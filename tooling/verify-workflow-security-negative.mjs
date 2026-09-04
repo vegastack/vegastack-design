@@ -52,27 +52,27 @@ const CASES = [
   {
     id: "container on a self-hosted job",
     file: "ci.yml",
-    find: "  verify:\n    runs-on: [self-hosted, vsk-runners-mac-mini]\n",
+    find: "  verify:\n    runs-on: [self-hosted, vsk-runners-mac]\n",
     replace:
-      "  verify:\n    runs-on: [self-hosted, vsk-runners-mac-mini]\n    container: node:24\n",
+      "  verify:\n    runs-on: [self-hosted, vsk-runners-mac]\n    container: node:24\n",
     expect: /declares a job container/,
   },
   {
     id: "a free mini job moved onto billed capacity",
     file: "ci.yml",
-    find: "  verify:\n    runs-on: [self-hosted, vsk-runners-mac-mini]\n",
+    find: "  verify:\n    runs-on: [self-hosted, vsk-runners-mac]\n",
     replace: "  verify:\n    runs-on: ubuntu-latest\n",
-    expect: /must run on \[self-hosted, vsk-runners-mac-mini\]/,
+    expect: /must run on \[self-hosted, vsk-runners-mac\]/,
   },
   {
     id: "publish moved ONTO ubuntu (billed capacity reintroduced)",
     file: "release.yml",
     mutateAfter: (source) =>
       source.replace(
-        /(  publish:\n(?:.*\n)*?)    runs-on: \[self-hosted, vsk-runners-mac-mini\]/,
+        /(  publish:\n(?:.*\n)*?)    runs-on: \[self-hosted, vsk-runners-mac\]/,
         "$1    runs-on: ubuntu-latest",
       ),
-    expect: /must run on \[self-hosted, vsk-runners-mac-mini\]/,
+    expect: /must run on \[self-hosted, vsk-runners-mac\]/,
   },
   {
     id: "provenance re-enabled on the self-hosted publish (would fail the release)",
@@ -134,9 +134,9 @@ const CASES = [
   {
     id: "stray OIDC in ci.yml",
     file: "ci.yml",
-    find: "    runs-on: [self-hosted, vsk-runners-mac-mini]\n    steps:\n      - uses: actions/checkout",
+    find: "    runs-on: [self-hosted, vsk-runners-mac]\n    steps:\n      - uses: actions/checkout",
     replace:
-      "    runs-on: [self-hosted, vsk-runners-mac-mini]\n    permissions:\n      id-token: write\n    steps:\n      - uses: actions/checkout",
+      "    runs-on: [self-hosted, vsk-runners-mac]\n    permissions:\n      id-token: write\n    steps:\n      - uses: actions/checkout",
     expect: /OIDC/,
   },
   {

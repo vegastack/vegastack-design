@@ -74,7 +74,7 @@ whose receipt does not cover the pushed tree. A receipt is **attestation, not pr
 `tooling/lib/gate-receipt.mjs` and AGENTS.md § Locked decisions for exactly what that does and does
 not buy.
 
-**Every job runs on the self-hosted mac minis** (`runs-on: [self-hosted, vsk-runners-mac-mini]`) —
+**Every job runs on the self-hosted mac minis** (`runs-on: [self-hosted, vsk-runners-mac]`) —
 `ci.yml`, `release.yml`, and `deploy.yml` in full. **A pull request, a release, and a deploy each cost
 zero billable minutes.** No job is GitHub-hosted; the empty allowlist is enforced in
 `tooling/verify-workflow-security.mjs` and negative-tested in

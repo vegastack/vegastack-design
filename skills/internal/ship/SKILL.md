@@ -301,5 +301,5 @@ correct). If the release changed the starter's own components, pull them
 
 - Deploy "Asset too large" → a page exceeds Cloudflare's 25 MiB limit; the deploy log names
   it. Usually Story-controls type explosion — see `apps/docs/components/stories/story-shims.tsx`.
-- A self-hosted job is queued with no runner → both `vsk-runners-mac-mini` minis are busy or offline.
+- A self-hosted job is queued with no runner → both `vsk-runners-mac` minis are busy or offline.
   Nothing to fix in the repository; check the runners.

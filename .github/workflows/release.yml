@@ -35,7 +35,7 @@ jobs:
   # provenance-re-stamped files, then reporting no change for a real component edit while exiting 0).
   # tooling/verify-classify-change.mjs now proves both directions against those actual commits.
   changes:
-    runs-on: [self-hosted, vsk-runners-mac-mini]
+    runs-on: [self-hosted, vsk-runners-mac]
     outputs:
       contracts: ${{ steps.detect.outputs.contracts }}
       unit: ${{ steps.detect.outputs.unit }}
@@ -69,7 +69,7 @@ jobs:
   # disagree about what was needed.
   receipt-guard:
     needs: changes
-    runs-on: [self-hosted, vsk-runners-mac-mini]
+    runs-on: [self-hosted, vsk-runners-mac]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -96,7 +96,7 @@ jobs:
   quality-gate:
     needs: [changes, receipt-guard]
     if: needs.changes.outputs.publish == 'true'
-    runs-on: [self-hosted, vsk-runners-mac-mini]
+    runs-on: [self-hosted, vsk-runners-mac]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -133,7 +133,7 @@ jobs:
     if: >-
       needs.changes.outputs.publish == 'true' &&
       needs.changes.outputs.has_changesets == 'false'
-    runs-on: [self-hosted, vsk-runners-mac-mini]
+    runs-on: [self-hosted, vsk-runners-mac]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -167,7 +167,7 @@ jobs:
     if: >-
       needs.changes.outputs.has_changesets == 'true' &&
       needs.quality-gate.result == 'success'
-    runs-on: [self-hosted, vsk-runners-mac-mini]
+    runs-on: [self-hosted, vsk-runners-mac]
     permissions:
       contents: write
       pull-requests: write
@@ -203,7 +203,7 @@ jobs:
       needs.changes.outputs.has_changesets == 'false' &&
       needs.quality-gate.result == 'success' &&
       needs.package-build.result == 'success'
-    runs-on: [self-hosted, vsk-runners-mac-mini]
+    runs-on: [self-hosted, vsk-runners-mac]
     permissions:
       contents: write
       pull-requests: write
