@@ -127,9 +127,12 @@ jobs:
           retention-days: 1
 
   # This is the only job allowed to mint GitHub OIDC. It executes no repository code.
+  # Runs on the minis: GitHub OIDC is minted by the Actions control plane and works on self-hosted
+  # runners, and the Sigstore signer identity is the workflow ref (deploy.yml@refs/heads/main), not the
+  # runner — so the certificate identity that probe-deployment.mjs pins is unchanged.
   sign-curated:
     needs: build-curated
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     permissions:
       contents: read
       id-token: write
@@ -182,7 +185,7 @@ jobs:
   # Cloudflare secrets. It cannot mint OIDC and executes no repository-controlled package scripts.
   deploy-curated:
     needs: sign-curated
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     permissions:
       contents: read
     steps:
@@ -217,9 +220,13 @@ jobs:
   # must be anonymously reachable, internal operations pages must remain outside discovery and carry
   # noindex/no-store headers, and `/r/*` must reject anonymous requests while accepting the service
   # token. The signed manifest and the deployed tree's exact registry version are also verified.
+  # Runs on the minis. The proof depends on the request originating OUTSIDE the trusted network: the
+  # minis must NOT be enrolled in Cloudflare Access device posture / WARP. This is fail-safe if they
+  # were — an authenticated "anonymous" /r/* request would return 200 and expectProtected() would fail
+  # the deploy loudly (probe-deployment.mjs), rather than passing falsely.
   verify-public-boundary:
     needs: deploy-curated
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     permissions:
       contents: read
     steps:

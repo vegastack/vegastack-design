@@ -1,6 +1,6 @@
 ---
 name: ship
-description: Release VegaStack Design end to end — changesets, root CHANGELOG.md entry, version PR, npm OIDC publish, registry deploy, and verification. Use when asked to ship, release, publish, cut a version, or update the changelog for vegastack-design.
+description: Release VegaStack Design end to end — changesets, root CHANGELOG.md entry, version PR, npm OIDC publish (self-hosted), registry deploy, and verification. Use when asked to ship, release, publish, cut a version, or update the changelog for vegastack-design.
 ---
 
 # Ship a VegaStack Design release
@@ -11,7 +11,8 @@ BEFORE: pushing changesets, merging the Version PR, or dispatching deploy.yml. N
 auto-ship. Each gate is separate — approval to push is not approval to merge or deploy.
 
 Run from the repo root. Every step is required unless marked optional. Never publish
-manually with npm tokens — publishing is CI-only (OIDC trusted publishing).
+manually — publishing is CI-only, token-free via OIDC trusted publishing, from the
+self-hosted runners (provenance disabled; no `NPM_TOKEN`).
 
 ## 0. Release-chain preflight — run this FIRST
 
@@ -216,11 +217,14 @@ gh run view <id> -R VegaStack/vegastack-design --json jobs \
 ```
 
 The unprivileged Release quality gate runs first. A changeset-bearing run opens or updates the
-**Version Packages** PR through a job that has no OIDC permission. Review its package versions,
-`version-sync` stamped item versions, generated changelogs, and regenerated `public/r`. STOP for the
-separate MK approval, then merge it. The merge run validates again and only the isolated publish job
-receives npm OIDC. The trusted publisher is pinned to repository + `release.yml`, matching the proven
-0.1.1 release; no npm token or GitHub environment is involved.
+**Version Packages** PR. Review its package versions, `version-sync` stamped item versions, generated
+changelogs, and regenerated `public/r`. STOP for the separate MK approval, then merge it. The merge
+run validates again and only the isolated publish job holds OIDC. Publishing runs on the self-hosted
+minis, token-free via OIDC trusted publishing, with `NPM_CONFIG_PROVENANCE=false` (npm accepts a
+provenance bundle only from a GitHub-hosted runner; a private source repo emits none regardless). No
+`NPM_TOKEN`, no GitHub environment. If `publish` fails with a provenance error, confirm
+`NPM_CONFIG_PROVENANCE=false` is still set; if it fails auth, the package's trusted-publisher entry
+(repo + `release.yml`) is missing — see `docs/RELEASING.md`.
 Verify:
 
 ```bash
@@ -234,8 +238,10 @@ gh workflow run deploy.yml -R VegaStack/vegastack-design
 ```
 
 The manual dispatch from `main` is the outward-deploy approval. The workflow builds without
-credentials, signs in the only OIDC-capable job, reverifies the immutable artifact in the
-credential-only deploy job, and then probes the one production boundary. Every non-registry route is
+credentials, signs in the only OIDC job (Sigstore keyless via GitHub OIDC, which works on the
+self-hosted minis — the signer identity is the workflow ref, not the runner), reverifies the immutable
+artifact in the credential-only deploy job, and then probes the one production boundary. Every
+non-registry route is
 public. `/internal/*` remains intentionally absent from discovery and carries `noindex`/`no-store`,
 but it is not an authorization boundary. Only `/r/*` requires Cloudflare Access Service Auth.
 Confirm the public probe covers public pages, every exported internal derivative, the retired route

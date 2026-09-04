@@ -4,17 +4,19 @@ How VegaStack ships updates from this **private** GitHub repo, and how downstrea
 distribution channels, both already wired:
 
 - **npm packages** (`@vegastack/design` + `@vegastack/design-tokens`) → prepared by `release.yml`
-  (changesets) on push to `main`, then published after the reviewed **Version Packages** PR is
-  merged, via **npm OIDC trusted publishing** (same pattern as vegastack-cli): no `NPM_TOKEN`
-  secret exists and the account keeps 2FA. npm does not emit
-  provenance attestations from a private source repository, so these releases deliberately do not
-  claim one; OIDC authentication remains short-lived and workflow-bound. One-time setup: each package
-  on npmjs.com has a Trusted Publisher entry
-  → GitHub Actions → `vegastack/vegastack-design` → `release.yml`. (The very first 0.1.0 publish
-  was done locally with `pnpm -r publish` + OTP, since a trusted-publisher entry can only be added
-  to an existing package.) The trusted-publisher identity is repository + `release.yml`, with no
-  GitHub environment name—the exact identity proven by the 0.1.1 publish. Consumers get these via
-  `npm update` (semver).
+  (changesets) on push to `main`, then published after the reviewed **Version Packages** PR is merged,
+  via **npm OIDC trusted publishing** — token-free, and running on the **self-hosted mac minis**. npm
+  trusted publishing works on self-hosted runners; only the provenance _bundle_ requires a
+  GitHub-hosted runner, so `publish` sets `NPM_CONFIG_PROVENANCE=false`. No attestation is lost anyway:
+  npm emits no provenance from a private source repository (published dists have never carried one).
+  **No `NPM_TOKEN` exists** and the account keeps 2FA. One-time setup (already done): each package on
+  npmjs.com has a Trusted Publisher entry → GitHub Actions → `vegastack/vegastack-design` →
+  `release.yml`; identity is repository + `release.yml`, no GitHub environment. (The very first 0.1.0
+  publish was done locally with `pnpm -r publish` + OTP, since a trusted-publisher entry can only be
+  added to an existing package.) npm's public docs claim self-hosted is unsupported for trusted
+  publishing, but that is stale: sibling repo `vegastack/vegafactory` publishes as `@vegastack/skills`,
+  whose 0.16.1–0.17.0 landed on npm from self-hosted runs (2026-09-01), token-free OIDC, no
+  attestations — the empirical proof it works. Consumers get these via `npm update` (semver).
 - **Component registry** (`/r/*.json`) → built, **Sigstore-signed**, and deployed to Cloudflare by
   `deploy.yml` (manual `workflow_dispatch`). Consumers **pull** updates with `shadcn add` — copy-in,
   so there is **no auto-push** (that's the shadcn model; whole-item integrity/content is the update
@@ -36,11 +38,12 @@ distribution channels, both already wired:
 4. PR → review → merge to `main`. `release.yml` runs the full unprivileged gate (typecheck, lint,
    test, all-browser smoke, build, `registry:build` idempotency, `registry:verify-consume`), plus
    the 864-check component contract suite when the visual surface changed. A
-   changeset-bearing run then uses its non-OIDC version job to update the **Version Packages** PR.
+   changeset-bearing run then uses its version job to update the **Version Packages** PR.
    Review its package versions, generated changelogs, registry item versions, and regenerated
    `/r/*`; merging that PR is the separate human action that authorizes the next main run's isolated
-   npm OIDC publish job. The private source repository means npm provenance attestations are
-   unavailable even though trusted publishing itself is supported.
+   npm OIDC publish job, which runs on a mini token-free via trusted publishing (provenance disabled).
+   The private source repository means npm provenance attestations are unavailable regardless, so none
+   is claimed.
 5. **Publish the registry**: run the **Deploy** workflow (`deploy.yml`, manual, from `main`). It
    builds/tests without credentials, uploads a validated artifact, signs it in the only OIDC-capable
    job, and reverifies it in the credential-only job before pinned Wrangler uses the existing
@@ -52,10 +55,11 @@ distribution channels, both already wired:
    versions are then _available_—consumers still pull them.
 
 This is the approved GitHub Team/private-repository operating model. Required-reviewer environment
-protection is unavailable on this plan, so releases do not depend on GitHub Environments or change
-the proven npm trusted-publisher identity. Independent review belongs at the change PR and Version
-Packages PR; MK may initiate a run, but every changeset push, Version PR merge, and deploy dispatch
-remains a separate explicit MK decision under the `ship` skill.
+protection is unavailable on this plan, so releases do not depend on GitHub Environments or change the
+proven repository + `release.yml` trusted-publisher identity; publishing is gated by the reviewed
+Version PR merge. Independent review belongs at the change PR and Version Packages PR; MK may initiate a
+run, but every changeset push, Version PR merge, and deploy dispatch remains a separate explicit MK
+decision under the `ship` skill.
 
 Docs/deployment-only changes do not require a package changeset, version bump, or npm publish. Keep
 workflow changes out of a changeset-bearing push if package work unexpectedly becomes necessary.
@@ -70,27 +74,32 @@ whose receipt does not cover the pushed tree. A receipt is **attestation, not pr
 `tooling/lib/gate-receipt.mjs` and AGENTS.md § Locked decisions for exactly what that does and does
 not buy.
 
-Everything that executes repository code and needs no browser runs free on the self-hosted mac minis
-(`runs-on: [self-hosted, vsk-runners-mac-mini]`): all of `ci.yml`, `release.yml`'s `changes`,
-`receipt-guard`, `quality-gate` and `version-pr`, and `deploy.yml`'s `ref-guard`, `receipt-guard` and
-`build-curated`. **A pull request costs zero billable minutes.**
-
-Five jobs stay on `ubuntu-latest`, pinned by an allowlist enforced in
+**Every job runs on the self-hosted mac minis** (`runs-on: [self-hosted, vsk-runners-mac-mini]`) —
+`ci.yml`, `release.yml`, and `deploy.yml` in full. **A pull request, a release, and a deploy each cost
+zero billable minutes.** No job is GitHub-hosted; the empty allowlist is enforced in
 `tooling/verify-workflow-security.mjs` and negative-tested in
-`tooling/verify-workflow-security-negative.mjs`. Each has a hard reason:
+`tooling/verify-workflow-security-negative.mjs`, which rejects a move back onto `ubuntu-latest` in
+either direction. Five jobs used to be hosted; each moved without losing a property that existed:
 
-- **`release.yml` `package-build`** — npm artifact provenance. `publish` uploads exactly this job's
-  bytes and npm's OIDC provenance statement asserts that this workflow, in this repository, built
-  them. A persistent self-hosted runner can carry state between runs, which would make that assertion
-  less true. ~4 minutes, no browsers, no container.
-- **`release.yml` `publish`** — npm trusted publishing does not support self-hosted runners
-  (<https://docs.npmjs.com/trusted-publishers/>) and this repository holds no `NPM_TOKEN`.
-- **`deploy.yml` `sign-curated` and `deploy-curated`** — the OIDC signing job and the credential-only
-  Cloudflare deploy. Neither executes repository code; both are ~1 minute.
-- **`deploy.yml` `verify-public-boundary`** — asserts that every non-registry route is anonymously
-  reachable and that anonymous `/r/*` requests are rejected. A runner inside VegaStack's network
-  can be silently authenticated by Cloudflare device posture, which would void the registry proof.
-  The boundary test has to originate outside the trusted network.
+- **`release.yml` `package-build`** — its own job that builds the two public dists into a validated
+  artifact so `publish` consumes bytes and runs no repository build code itself. ~4 minutes, no
+  browsers, no container.
+- **`release.yml` `publish`** — token-free npm OIDC **trusted publishing**, which works on self-hosted
+  runners. Only the provenance _bundle_ requires a GitHub-hosted runner, so it sets
+  `NPM_CONFIG_PROVENANCE=false` (no attestation is lost — a private source repo emits none anyway). It
+  runs no repository code — it only downloads the validated artifact and runs `changeset publish`. No
+  `NPM_TOKEN` is involved.
+- **`deploy.yml` `sign-curated`** — keeps GitHub OIDC (Sigstore keyless signing). GitHub OIDC is
+  minted by the Actions control plane and works on self-hosted runners, and the signer certificate
+  identity is the workflow ref (`deploy.yml@refs/heads/main`), not the runner, so `cosign verify-blob`
+  is unaffected.
+- **`deploy.yml` `deploy-curated`** — credential-only Cloudflare deploy; nothing is runner-specific.
+- **`deploy.yml` `verify-public-boundary`** — asserts every non-registry route is anonymously
+  reachable and anonymous `/r/*` requests are rejected. Its proof depends on originating **outside**
+  the trusted network, so the minis must **not** be enrolled in Cloudflare Access device posture /
+  WARP. This is fail-safe if they were: an authenticated "anonymous" `/r/*` request would return 200
+  and the probe (`apps/docs/scripts/probe-deployment.mjs`, `expectProtected`) would fail the deploy
+  loudly, not pass falsely.
 
 Job containers are banned outright. They are Linux-only and cannot start on the minis, and the one job
 that legitimately needed one — the three-engine suite in the digest-pinned Playwright image, because

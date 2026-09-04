@@ -11,20 +11,23 @@ permissions:
 env:
   SITE_VISIBILITY: public
 
-# COST SHAPE. Only two jobs are GitHub-hosted, for two unrelated hard reasons:
+# COST SHAPE. Nothing here is GitHub-hosted. Every job runs on the self-hosted mac minis, so a
+# release costs zero billable minutes — required after an account-level billing lock suspended all
+# GitHub-hosted runners (hosted jobs start with zero steps executed). Two jobs used to be on
+# ubuntu-latest; both moved to the minis, and publishing still works exactly as before:
 #
-#   package-build   PROVENANCE. `publish` uploads the exact bytes this job produces, and npm's OIDC
-#                   provenance statement asserts they were built by this workflow in this repository.
-#                   Building them on a PERSISTENT self-hosted runner would make that assertion less
-#                   true — a persistent runner can carry state between runs. ~4 minutes for the two
-#                   public packages, no browsers, no container.
-#   publish         npm trusted publishing does not support self-hosted runners
-#                   (https://docs.npmjs.com/trusted-publishers/) and this repository deliberately
-#                   holds no NPM_TOKEN, so moving it would break publishing outright. ~2 minutes,
-#                   and it executes no repository code — it only downloads the validated artifact.
+#   package-build   Builds the two public dists into a validated artifact that `publish` consumes.
+#                   ~4 minutes, no browsers, no container.
+#   publish         Publishes token-free over npm OIDC TRUSTED PUBLISHING — which works on self-hosted
+#                   runners; only the provenance BUNDLE requires a GitHub-hosted runner, so publishing
+#                   sets provenance=false. (No attestation is lost: the source repo is private, so npm
+#                   emitted none even from ubuntu-latest.) Auth is unchanged from the proven flow —
+#                   still the repository + release.yml trusted-publisher identity, no NPM_TOKEN.
 #
-# Everything else runs free on the mac minis. The browser lanes are not here at all: they run in
-# `.husky/pre-push` and are attested by `.gates/receipt.json`, which `receipt-guard` verifies.
+# The move to self-hosted mirrors sibling repo vegastack/vegafactory, which publishes the same way.
+#
+# The browser lanes are not here at all: they run in `.husky/pre-push` and are attested by
+# `.gates/receipt.json`, which `receipt-guard` verifies.
 jobs:
   # What does this push require, and what will it DO? One authority, called rather than reimplemented
   # in shell — tooling/classify-change.mjs. That logic lived here as bash and was wrong in both
@@ -120,19 +123,17 @@ jobs:
           fi
       - run: pnpm registry:verify-consume
 
-  # The npm artifact, built on an EPHEMERAL runner so the bytes on public npm and the provenance
-  # statement about them agree. This is the one place this workflow deliberately spends money; see the
-  # header. It runs after validation and produces nothing but the two public dists.
+  # The npm artifact, built in a job of its own so `publish` consumes validated bytes and runs no
+  # repository build code itself. It runs after validation and produces nothing but the two public dists.
   # `has_changesets == 'false'` is what confines this to the PUBLISH path. A changeset-bearing run
-  # opens a Version PR and publishes nothing, so building the npm artifact there would burn ~4 billed
-  # minutes producing bytes no job consumes — and it is the only hosted job on that path, so the run
-  # would go from free to not-free for no reason.
+  # opens a Version PR and publishes nothing, so building the npm artifact there would produce bytes no
+  # job consumes.
   package-build:
     needs: [changes, quality-gate]
     if: >-
       needs.changes.outputs.publish == 'true' &&
       needs.changes.outputs.has_changesets == 'false'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -189,19 +190,20 @@ jobs:
 
   # Publishing is isolated from validation and is the only release job with npm OIDC authority. It is
   # reachable only after a reviewed Version Packages PR has removed the pending changesets. The
-  # trusted-publisher identity is repository + release.yml, matching the proven 0.1.1 path.
+  # trusted-publisher identity is repository + release.yml, matching the proven publish path.
   #
-  # GITHUB-HOSTED BY HARD REQUIREMENT: npm trusted publishing does not support self-hosted runners
-  # ("Self-hosted runners are not currently supported but are planned for future releases" —
-  # https://docs.npmjs.com/trusted-publishers/). This repository deliberately holds no NPM_TOKEN, so
-  # moving this job would break publishing outright.
+  # AUTH: npm OIDC TRUSTED PUBLISHING, token-free — and it works on self-hosted runners (sibling repo
+  # vegastack/vegafactory publishes the same way). Only the provenance BUNDLE requires a GitHub-hosted
+  # runner, so this job sets provenance=false (NPM_CONFIG_PROVENANCE). No attestation is lost: the
+  # source repo is private, so npm emitted none even from ubuntu-latest. This job runs no repository
+  # build code; it only downloads the validated artifact and publishes it.
   publish:
     needs: [changes, quality-gate, package-build]
     if: >-
       needs.changes.outputs.has_changesets == 'false' &&
       needs.quality-gate.result == 'success' &&
       needs.package-build.result == 'success'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     permissions:
       contents: write
       pull-requests: write
@@ -219,6 +221,7 @@ jobs:
           cache: pnpm
           registry-url: https://registry.npmjs.org
       - name: Pin npm to the reviewed OIDC-capable release
+        # npm >= 11.5.1 speaks OIDC trusted publishing; this is the reviewed pin.
         run: npm install -g npm@11.16.0
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
@@ -243,3 +246,7 @@ jobs:
           commitMode: github-api
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Trusted publishing auto-enables provenance, whose bundle npm accepts only from a
+          # GitHub-hosted runner; on the minis that generation fails. Disable it — the source repo is
+          # private, so no attestation was ever produced anyway. Auth stays token-free OIDC.
+          NPM_CONFIG_PROVENANCE: "false"

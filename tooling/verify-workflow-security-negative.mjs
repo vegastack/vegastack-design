@@ -65,17 +65,28 @@ const CASES = [
     expect: /must run on \[self-hosted, vsk-runners-mac-mini\]/,
   },
   {
-    id: "publish moved OFF ubuntu (npm OIDC would break)",
+    id: "publish moved ONTO ubuntu (billed capacity reintroduced)",
     file: "release.yml",
-    find: "  publish:\n    needs: [changes, quality-gate, package-build]",
-    replace:
-      "  publish:\n    needs: [changes, quality-gate, package-build]\n    # moved\n",
     mutateAfter: (source) =>
       source.replace(
-        /(  publish:\n(?:.*\n)*?)    runs-on: ubuntu-latest/,
-        "$1    runs-on: [self-hosted, vsk-runners-mac-mini]",
+        /(  publish:\n(?:.*\n)*?)    runs-on: \[self-hosted, vsk-runners-mac-mini\]/,
+        "$1    runs-on: ubuntu-latest",
       ),
-    expect: /recorded as GitHub-hosted but runs on/,
+    expect: /must run on \[self-hosted, vsk-runners-mac-mini\]/,
+  },
+  {
+    id: "provenance re-enabled on the self-hosted publish (would fail the release)",
+    file: "release.yml",
+    find: 'NPM_CONFIG_PROVENANCE: "false"',
+    replace: 'NPM_CONFIG_PROVENANCE: "true"',
+    expect: /NPM_CONFIG_PROVENANCE=false/,
+  },
+  {
+    id: "a long-lived npm token reintroduced into release.yml",
+    file: "release.yml",
+    find: 'NPM_CONFIG_PROVENANCE: "false"',
+    replace: "NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}",
+    expect: /token-free OIDC trusted publishing/,
   },
   {
     id: "the receipt guard deleted from ci.yml",
