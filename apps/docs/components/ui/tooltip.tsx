@@ -1,4 +1,4 @@
-// @vegastack tooltip@0.5.0 sha256-/O4qq8Vz8y+Ujfj1HPgXGHKaDHkhus0tFIF3PbPoYyc=
+// @vegastack tooltip@0.6.0 sha256-oYL7KSMBLkQphLb6YSchEeevTKESnIFF/KqvcsRJ+6I=
 
 "use client";
 

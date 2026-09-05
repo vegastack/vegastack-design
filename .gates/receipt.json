@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "tree": "tree-f58bf1646f8b51fe0ef51abad06a7f94db8720eb",
-  "treeFiles": 2656,
-  "head": "75fcc86b7f88422a81d2f6d35dba69264b92054c",
+  "tree": "tree-e0bdb0ba4e5ba10540b3abfcb78a3d704381bfba",
+  "treeFiles": 2654,
+  "head": "65a85e7b0cb8f208893a03a46480f7f38be51dc8",
   "writtenAt": "2026-09-05T12:39:12.465Z",
   "mode": "push",
   "base": {
@@ -18,7 +18,7 @@
     "@playwright/test": "1.61.0",
     "playwright": "1.61.0"
   },
-  "contractSha256": "c1283dc161f4d054b729c90a8dce31ac1cfc887aa5b0c7851c7ca7e36d96cbfa",
+  "contractSha256": "d52ae5de2cc64ee94742138760fa40eec7ed67fa62f718cc7ad2e77c4ff638a7",
   "classified": {
     "contracts": false,
     "unit": false,
@@ -53,5 +53,9 @@
       "scopeRoutes": 1
     }
   },
-  "skips": []
+  "skips": [],
+  "carriedFrom": "tree-f58bf1646f8b51fe0ef51abad06a7f94db8720eb",
+  "carriedFromCommit": "65a85e7b0cb8f208893a03a46480f7f38be51dc8",
+  "carryReason": "version-bump",
+  "carriedAt": "2026-09-05T12:58:03.690Z"
 }
