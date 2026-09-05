@@ -28,7 +28,7 @@ const sources = Object.fromEntries(
 // GitHub-hosted infrastructure without a recorded reason silently reintroduces the billed capacity
 // this repository deliberately left, and a job moved OFF ubuntu-latest can break publishing or void
 // a boundary proof. Every entry below states why it is where it is.
-const SELF_HOSTED = "[self-hosted, vsk-runners-mac]";
+const SELF_HOSTED = "[self-hosted, vsk-runners-mac-mini]";
 //
 // NO BROWSER RUNS IN CI AT ALL. That is the whole point of the local-first topology
 // (docs/plans/2026-07-25-cicd-local-first-revamp.md): the Vitest browser suite, the cross-engine

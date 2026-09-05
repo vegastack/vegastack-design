@@ -15,7 +15,7 @@ concurrency:
   group: production-docs
   cancel-in-progress: false
 
-# RUNNER TOPOLOGY. Every job runs on the self-hosted runners (`[self-hosted, vsk-runners-mac]`) — no
+# RUNNER TOPOLOGY. Every job runs on the self-hosted runners (`[self-hosted, vsk-runners-mac-mini]`) — no
 # GitHub-hosted job, because an account-level billing lock suspended hosted runners. Notes per job:
 #
 #   sign-curated       the only OIDC job. GitHub OIDC is minted by the Actions control plane and works
@@ -41,7 +41,7 @@ concurrency:
 
 jobs:
   ref-guard:
-    runs-on: [self-hosted, vsk-runners-mac]
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     steps:
       - name: Require the protected production ref
         env:
@@ -65,7 +65,7 @@ jobs:
   # decision on a ref that ref-guard has already pinned to main.
   receipt-guard:
     needs: ref-guard
-    runs-on: [self-hosted, vsk-runners-mac]
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -82,7 +82,7 @@ jobs:
   # Build and validate repository-controlled code without OIDC or Cloudflare credentials.
   build-curated:
     needs: receipt-guard
-    runs-on: [self-hosted, vsk-runners-mac]
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -132,7 +132,7 @@ jobs:
   # runner — so the certificate identity that probe-deployment.mjs pins is unchanged.
   sign-curated:
     needs: build-curated
-    runs-on: [self-hosted, vsk-runners-mac]
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     permissions:
       contents: read
       id-token: write
@@ -185,7 +185,7 @@ jobs:
   # Cloudflare secrets. It cannot mint OIDC and executes no repository-controlled package scripts.
   deploy-curated:
     needs: sign-curated
-    runs-on: [self-hosted, vsk-runners-mac]
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     permissions:
       contents: read
     steps:
@@ -226,7 +226,7 @@ jobs:
   # the deploy loudly (probe-deployment.mjs), rather than passing falsely.
   verify-public-boundary:
     needs: deploy-curated
-    runs-on: [self-hosted, vsk-runners-mac]
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     permissions:
       contents: read
     steps:

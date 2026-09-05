@@ -28,7 +28,7 @@ jobs:
   # rather than trusted from the receipt — that split is the whole reliability argument, and it is
   # written out in AGENTS.md § Verification ladder.
   verify:
-    runs-on: [self-hosted, vsk-runners-mac]
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -88,7 +88,7 @@ jobs:
   # it. What it buys is that skipping a browser gate becomes visible and auditable instead of silent.
   # tooling/lib/gate-receipt.mjs states this in full; do not let it be read as more than it is.
   receipt-guard:
-    runs-on: [self-hosted, vsk-runners-mac]
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     steps:
       # Check out the BRANCH TIP, not the PR merge commit. The receipt is bound to the tree the
       # developer actually tested and pushed; the merge commit's tree also contains whatever landed
