@@ -174,9 +174,9 @@ const CASES = [
   {
     id: "the production boundary probe made conditional",
     file: "deploy.yml",
-    find: "  verify-public-boundary:\n    needs: deploy-curated\n",
+    find: "  verify-public-boundary:\n    needs: build-sign-deploy\n",
     replace:
-      "  verify-public-boundary:\n    needs: deploy-curated\n    if: always()\n",
+      "  verify-public-boundary:\n    needs: build-sign-deploy\n    if: always()\n",
     expect: /production boundary probe must run after every deploy/,
   },
   {

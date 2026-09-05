@@ -16,12 +16,14 @@ concurrency:
   cancel-in-progress: false
 
 # RUNNER TOPOLOGY. Every job runs on the self-hosted runners (`[self-hosted, vsk-runners-mac-mini]`) — no
-# GitHub-hosted job, because an account-level billing lock suspended hosted runners. Notes per job:
+# GitHub-hosted job, because an account-level billing lock suspended hosted runners. That lock also
+# exhausts Actions artifact storage, so build → sign → deploy can no longer hand the built docs between
+# jobs as artifacts; they are merged into one `build-sign-deploy` job (see its header for the tradeoff).
+# Notes per job:
 #
-#   sign-curated       the only OIDC job. GitHub OIDC is minted by the Actions control plane and works
-#                      on self-hosted runners; the Sigstore signer identity is the workflow ref, not the
-#                      runner, so cosign verification is unchanged. ~30s, no repository code.
-#   deploy-curated     credential-only. Third-party wrangler + cosign actions, ~1min, no repository code.
+#   build-sign-deploy  builds the docs + registry, Sigstore-signs the integrity manifest (the only OIDC
+#                      use; identity is the workflow ref, not the runner, so cosign verification is
+#                      unchanged), and deploys to Cloudflare with the existing repository secrets.
 #   verify-public-boundary  CORRECTNESS, not caution. It proves every non-registry route is public,
 #                      `/internal/*` remains undiscoverable, and anonymous registry requests are
 #                      rejected. Its proof needs an OUTSIDE-the-network origin, so the runner must NOT be
@@ -79,10 +81,23 @@ jobs:
           set -euo pipefail
           node tooling/verify-gate-receipt.mjs --contracts true --unit true --smoke true
 
-  # Build and validate repository-controlled code without OIDC or Cloudflare credentials.
-  build-curated:
+  # Build, sign, and deploy in ONE job. These were three isolated jobs (build-curated → sign-curated →
+  # deploy-curated) that passed the built docs between them as artifacts. Actions artifact storage is
+  # unavailable under the billing lock (upload fails with a quota/ETIMEDOUT error), so the hand-off is
+  # impossible — the steps run in a single job instead, in the same build → sign → reverify → deploy
+  # order. TRADEOFF: repository build code now shares a job with the OIDC signing token and the
+  # Cloudflare deploy credential, which the three-job split deliberately kept apart. It is bounded by
+  # ref-guard (main only), receipt-guard (a full local sweep), and the fact that dispatching this
+  # workflow is an explicit MK action. Restore the isolated split once artifact storage is available.
+  # GitHub OIDC is minted by the Actions control plane and works on self-hosted runners; the Sigstore
+  # signer identity is the workflow ref (deploy.yml@refs/heads/main), not the runner, so the certificate
+  # identity probe-deployment.mjs pins is unchanged.
+  build-sign-deploy:
     needs: receipt-guard
     runs-on: [self-hosted, vsk-runners-mac-mini]
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -105,7 +120,7 @@ jobs:
           fi
       - run: node tooling/verify-registry-integrity-negative.mjs
       - run: pnpm build
-      - name: Assert the unsigned artifact is complete
+      - name: Assert the unsigned build is complete
         run: |
           set -euo pipefail
           test -f apps/docs/out/r/integrity-manifest.json
@@ -116,31 +131,6 @@ jobs:
             echo "$BIG" | while read -r file; do ls -lh "$file" | awk '{print "  "$5" "$9}'; done
             exit 1
           fi
-      - name: Upload the validated unsigned artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: docs-unsigned-${{ github.sha }}
-          path: |
-            apps/docs/out
-            apps/docs/wrangler.jsonc
-          if-no-files-found: error
-          retention-days: 1
-
-  # This is the only job allowed to mint GitHub OIDC. It executes no repository code.
-  # Runs on the minis: GitHub OIDC is minted by the Actions control plane and works on self-hosted
-  # runners, and the Sigstore signer identity is the workflow ref (deploy.yml@refs/heads/main), not the
-  # runner — so the certificate identity that probe-deployment.mjs pins is unchanged.
-  sign-curated:
-    needs: build-curated
-    runs-on: [self-hosted, vsk-runners-mac-mini]
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
-        with:
-          name: docs-unsigned-${{ github.sha }}
-          path: apps/docs
       - uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
       - name: Sign and verify the exported integrity manifest
         env:
@@ -171,29 +161,6 @@ jobs:
             echo "::error::Wrong signer identity unexpectedly verified"
             exit 1
           fi
-      - name: Upload the immutable signed artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: docs-signed-${{ github.sha }}
-          path: |
-            apps/docs/out
-            apps/docs/wrangler.jsonc
-          if-no-files-found: error
-          retention-days: 1
-
-  # The credential-only deploy job reverifies the signed artifact and uses the existing repository
-  # Cloudflare secrets. It cannot mint OIDC and executes no repository-controlled package scripts.
-  deploy-curated:
-    needs: sign-curated
-    runs-on: [self-hosted, vsk-runners-mac-mini]
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
-        with:
-          name: docs-signed-${{ github.sha }}
-          path: apps/docs
-      - uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
       - name: Reverify the exact artifact immediately before deployment
         env:
           SIGNER_REPOSITORY: ${{ github.repository }}
@@ -225,7 +192,7 @@ jobs:
   # were — an authenticated "anonymous" /r/* request would return 200 and expectProtected() would fail
   # the deploy loudly (probe-deployment.mjs), rather than passing falsely.
   verify-public-boundary:
-    needs: deploy-curated
+    needs: build-sign-deploy
     runs-on: [self-hosted, vsk-runners-mac-mini]
     permissions:
       contents: read
