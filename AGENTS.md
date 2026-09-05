@@ -7,7 +7,9 @@ agents (Claude Code, Codex).
 **This file is loaded into every session.** It holds the rules you can break before loading anything
 else, the map, and a router. Procedures live in skills, loaded on demand.
 
-**Status:** shipped and live on public npm via OIDC trusted publishing (tokenless). The complete
+**Status:** shipped and live on public npm, published token-free via OIDC trusted publishing from the
+self-hosted runners (no GitHub-hosted runners; provenance disabled — the bundle needs a hosted runner,
+and a private source repo emits none regardless). The complete
 `design.vegastack.com` site is public; only its `/r/*` registry is behind Cloudflare Access Service
 Auth. Operating mode: **build local; publishes and deploys go through the `ship` skill.** For actual
 versions, ask the registry and the workspace rather than any document:
@@ -116,16 +118,32 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
 - **Pixels stay a local review step**, unchanged: `node tooling/vrt-review.mjs` captures the base ref
   and the working tree on one machine and emits a before/after report a human reads during `/ship`.
   No screenshot is ever committed.
-- **Only five CI jobs are GitHub-hosted, each for a hard reason.** The split is an enforced
-  allowlist in `tooling/verify-workflow-security.mjs`, not a convention, and
-  `tooling/verify-workflow-security-negative.mjs` proves it rejects a move in either direction.
-  **npm artifact provenance** (`release.yml`'s `package-build`) — `publish` uploads exactly its bytes
-  and npm's OIDC provenance asserts this workflow built them, which a persistent self-hosted runner
-  would make less true; **npm OIDC** (`publish`) — trusted publishing does not support self-hosted
-  runners and this repository holds no `NPM_TOKEN`; **credentials without repository code**
-  (`sign-curated`, `deploy-curated`); and **network position** — `deploy.yml`'s boundary probe must
-  originate OUTSIDE VegaStack's network or Cloudflare device posture could authenticate a request it
-  asserts is anonymous. `ci.yml` has no hosted job at all.
+- **No CI job is GitHub-hosted — every job runs on the self-hosted mac minis.** A pull request, a
+  release, and a deploy each cost zero billable minutes. The empty allowlist is enforced in
+  `tooling/verify-workflow-security.mjs`, not a convention, and
+  `tooling/verify-workflow-security-negative.mjs` proves a move back onto `ubuntu-latest` is rejected
+  in either direction. Two release jobs and three deploy jobs used to be hosted; all five moved, and
+  none of the moves lost a property that actually existed:
+  - **npm publish** (`release.yml`'s `publish`) stays **token-free OIDC trusted publishing** — which
+    **works on self-hosted runners**; only the provenance _bundle_ requires a GitHub-hosted runner.
+    So `publish` sets `NPM_CONFIG_PROVENANCE=false`. No attestation is lost: the source repo is
+    private, so npm emitted none even from `ubuntu-latest` (the published dists have never carried
+    attestations). Auth is the unchanged repository + `release.yml` trusted-publisher identity, and
+    the workflow holds **no `NPM_TOKEN`** — a guard in the security gate forbids one. npm's public docs
+    claim self-hosted is unsupported for trusted publishing; that is stale. The proof is sibling repo
+    `vegastack/vegafactory`, which publishes as `@vegastack/skills`: versions 0.16.1–0.17.0 landed on
+    npm from self-hosted runs on 2026-09-01, token-free OIDC, no attestations. Empirical reality
+    outranks the docs.
+  - **Sigstore signing** (`deploy.yml`'s `sign-curated`) keeps GitHub OIDC — it is minted by the
+    Actions control plane and works on self-hosted runners, and the signer certificate identity is the
+    workflow ref (`deploy.yml@refs/heads/main`), not the runner, so cosign verification is unchanged.
+  - **`deploy-curated`** is credential-only Wrangler; nothing is runner-specific.
+  - **`verify-public-boundary`** runs on the minis, which for the proof to hold must **not** be
+    enrolled in Cloudflare Access device posture / WARP. This is fail-safe if they were: an
+    authenticated "anonymous" `/r/*` request would return 200 and the probe would fail the deploy
+    loudly, rather than passing falsely.
+  - Nothing is downgraded: publishing keeps the same short-lived, workflow-bound OIDC auth it always
+    had; the only change is where the job runs and that provenance (never actually emitted) is off.
 - **Job containers are banned outright.** They are Linux-only and cannot start on the macOS minis,
   and the one job that legitimately needed one — the three-engine suite in the digest-pinned
   Playwright image, because bare `ubuntu-latest` WebKit could not settle the compiled-CSS Toaster

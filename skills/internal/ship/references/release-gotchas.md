@@ -205,8 +205,9 @@ Two false diagnoses in one session came from a stale `origin/main`. Any classifi
   to Cloudflare Access, and every `/r/*` path rejects anonymous while accepting the service token.
   **302 is the correct pre-cutover state, not a failure** — the public-docs cutover is separate.
 - Independently confirmed by hand: `/` → 302 to `peerxp.cloudflareaccess.com`, `/r/registry.json` → 403.
-- Billed minutes for the publish run: **0** hosted minutes on the mac minis; only `package-build`,
-  `publish`, `sign-curated`, `deploy-curated` and one boundary probe are hosted.
+- Billed minutes for the publish run: **0** — every job runs on the self-hosted mac minis, including
+  `package-build`, `publish`, `sign-curated`, `deploy-curated` and the boundary probe. No job is
+  GitHub-hosted.
 
 ## 15. A successful upload can still end in a failed deployment workflow
 

@@ -38,25 +38,31 @@ const SELF_HOSTED = "[self-hosted, vsk-runners-mac-mini]";
 // bug, recorded in AGENTS.md § Locked decisions — no longer blocks anything, and every job that
 // executes repository code is free.
 //
-// Each entry below is a HARD requirement, not a preference. Removing one costs money; adding one
-// without a reason here fails this gate.
+// NO JOB IS GITHUB-HOSTED. Every job in every workflow runs on the mac minis, so a pull request, a
+// release, and a deploy each cost zero billable minutes — the topology after GitHub-hosted capacity
+// became unavailable. Two release jobs and three deploy jobs used to be on ubuntu-latest; all moved,
+// and none of the moves lost a property that actually existed:
 //
+//   release.yml package-build — builds the two public dists into the artifact `publish` consumes.
+//   release.yml publish — publishes token-free over npm OIDC TRUSTED PUBLISHING, which works on
+//     self-hosted runners (sibling repo vegastack/vegafactory publishes the same way). Only the
+//     provenance BUNDLE requires a GitHub-hosted runner, so publish sets provenance=false; no
+//     attestation is lost because npm emits none for a PRIVATE source repo. Auth is unchanged: the
+//     repository + release.yml trusted-publisher identity, and NO NPM_TOKEN (the rule below forbids one).
+//   deploy.yml sign-curated — keeps GitHub OIDC (the only Sigstore signing job). GitHub OIDC is minted by the
+//     Actions control plane and works on self-hosted runners; the Sigstore signer identity is the
+//     workflow ref, not the runner, so cosign verification is unaffected.
+//   deploy.yml deploy-curated — credential-only Wrangler; nothing runner-specific.
+//   deploy.yml verify-public-boundary — the proof needs an OUTSIDE-the-network origin, so the minis
+//     must not be enrolled in Cloudflare Access device posture / WARP. Fail-safe if they were: an
+//     authenticated "anonymous" /r/* request returns 200 and the probe fails the deploy loudly.
+//
+// A job moved back onto ubuntu-latest silently reintroduces billed capacity; the empty allowlists
+// below reject that in both directions (see verify-workflow-security-negative.mjs).
 const GITHUB_HOSTED_JOBS = {
-  // Nothing. Pull requests cost zero billable minutes.
   "ci.yml": [],
-  // package-build: PROVENANCE. `publish` uploads exactly these bytes and npm's OIDC provenance
-  //   statement asserts they were built by this workflow in this repository; a persistent
-  //   self-hosted runner can carry state between runs, which would make that assertion less true.
-  // publish: npm trusted publishing does not support self-hosted runners
-  //   (https://docs.npmjs.com/trusted-publishers/) and this repository holds no NPM_TOKEN, so moving
-  //   it breaks publishing outright.
-  "release.yml": ["package-build", "publish"],
-  // sign-curated: the only OIDC job; self-hosted Sigstore behaviour is unverified, ~30s, no
-  //   repository code. deploy-curated: credential-only, third-party actions, nothing to gain. The
-  //   boundary job must originate OUTSIDE VegaStack's network — a runner inside it can be silently
-  //   authenticated by Cloudflare device posture, which would void the anonymous registry-denial
-  //   proof rather than merely risk it.
-  "deploy.yml": ["sign-curated", "deploy-curated", "verify-public-boundary"],
+  "release.yml": [],
+  "deploy.yml": [],
 };
 
 /**
@@ -315,6 +321,8 @@ for (const [name, source] of Object.entries(sources)) {
 }
 
 for (const [name, source] of Object.entries(sources)) {
+  // deploy.yml mints OIDC for Sigstore (sign-curated); release.yml mints OIDC for npm trusted
+  // publishing (publish). Both work on self-hosted runners. ci.yml must mint none.
   const expectedOidc = name === "deploy.yml" || name === "release.yml" ? 1 : 0;
   assert.equal(
     [...source.matchAll(/id-token:\s*write/g)].length,
@@ -382,6 +390,7 @@ assert.doesNotMatch(
   "deploy.yml: the production boundary probe must run after every deploy",
 );
 
+// release.yml mints exactly one OIDC token, for npm trusted publishing in `publish`.
 assert.equal(
   [...sources["release.yml"].matchAll(/id-token:\s*write/g)].length,
   1,
@@ -390,9 +399,24 @@ assert.equal(
 const versionJob = jobBlock(sources["release.yml"], "version-pr");
 const publishJob = jobBlock(sources["release.yml"], "publish");
 assert.match(versionJob, /^    needs: \[changes, quality-gate\]$/m);
+// Publishing is token-free trusted publishing. An NPM_TOKEN reintroduces a long-lived credential the
+// proven OIDC flow does not need — forbid it anywhere in the workflow.
+assert.doesNotMatch(
+  sources["release.yml"],
+  /secrets\.NPM_TOKEN|NODE_AUTH_TOKEN/,
+  "release.yml: publishing is token-free OIDC trusted publishing — no NPM_TOKEN/NODE_AUTH_TOKEN",
+);
+// Provenance MUST be disabled: trusted publishing auto-enables it, but npm accepts a provenance
+// bundle only from a GitHub-hosted runner, so on the self-hosted minis its generation fails the
+// publish. (The source repo is private, so no attestation was ever produced anyway.)
+assert.match(
+  publishJob,
+  /NPM_CONFIG_PROVENANCE:\s*["']?false["']?/,
+  "release.yml: publish must set NPM_CONFIG_PROVENANCE=false — self-hosted runners cannot generate a provenance bundle",
+);
 // `publish` additionally needs `package-build`, because it publishes exactly that job's artifact.
-// Pinning the list verbatim is the point: a `needs` quietly narrowed to `[changes]` would let npm
-// OIDC run without validation ever having happened.
+// Pinning the list verbatim is the point: a `needs` quietly narrowed to `[changes]` would let the
+// publish run without validation ever having happened.
 assert.match(
   publishJob,
   /^    needs: \[changes, quality-gate, package-build\]$/m,
@@ -416,7 +440,7 @@ assert.doesNotMatch(sources["release.yml"], /^    environment:/m);
 assert.doesNotMatch(
   sources["release.yml"],
   /npm-production/,
-  "release.yml: trusted publishing must retain the proven repository + workflow identity",
+  "release.yml: publishing must not depend on a reviewer-gated GitHub environment (unavailable on this plan)",
 );
 assert.match(
   sources["release.yml"],

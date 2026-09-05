@@ -1,18 +1,18 @@
 {
   "schema": 1,
-  "tree": "tree-a2c7729dc3ba5a3019d274bc10f0afeb11eff351",
-  "treeFiles": 2655,
-  "head": "43eb359a9157bce16a361ba929a8bf68e05d44e7",
-  "writtenAt": "2026-09-02T11:06:43.938Z",
-  "mode": "ship",
+  "tree": "tree-f58bf1646f8b51fe0ef51abad06a7f94db8720eb",
+  "treeFiles": 2656,
+  "head": "75fcc86b7f88422a81d2f6d35dba69264b92054c",
+  "writtenAt": "2026-09-05T12:39:12.465Z",
+  "mode": "push",
   "base": {
     "ref": "origin/main",
-    "sha": "6db0bb74cac9ce9426f96cb1e9da8556dce731be"
+    "sha": "179c76a8b2642e445ac3d2816414aa0c2fd247a3"
   },
   "host": {
     "platform": "darwin",
     "arch": "arm64",
-    "node": "v24.15.0"
+    "node": "v25.9.0"
   },
   "toolchain": {
     "@playwright/test": "1.61.0",
@@ -20,34 +20,37 @@
   },
   "contractSha256": "c1283dc161f4d054b729c90a8dce31ac1cfc887aa5b0c7851c7ca7e36d96cbfa",
   "classified": {
-    "contracts": true,
-    "unit": true,
-    "smoke": true,
-    "contractsReason": "global surface changed (apps/docs/components/animated-icon-gallery.generated.tsx, apps/docs/lib/home-component-catalog.generated.ts, apps/docs/vrt/contract-routes.generated.ts)"
+    "contracts": false,
+    "unit": false,
+    "smoke": false,
+    "contractsReason": "changed component sources"
   },
   "gates": {
     "typecheck": {
       "status": "pass",
-      "durationMs": 8210
+      "durationMs": 431
     },
     "lint": {
       "status": "pass",
-      "durationMs": 18964
+      "durationMs": 298
     },
     "unit": {
-      "status": "pass",
-      "durationMs": 22877
+      "status": "skipped",
+      "durationMs": 0,
+      "reason": "no component or package source changed"
     },
     "smoke": {
-      "status": "pass",
-      "durationMs": 55070
+      "status": "skipped",
+      "durationMs": 0,
+      "reason": "no smoke-selected component changed"
     },
     "contracts": {
-      "status": "pass",
-      "durationMs": 313592,
-      "executed": 880,
-      "full": true,
-      "scopeRoutes": 110
+      "status": "skipped",
+      "durationMs": 0,
+      "reason": "changed component sources — no route in scope",
+      "executed": 8,
+      "full": false,
+      "scopeRoutes": 1
     }
   },
   "skips": []

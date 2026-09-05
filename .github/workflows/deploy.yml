@@ -15,19 +15,19 @@ concurrency:
   group: production-docs
   cancel-in-progress: false
 
-# RUNNER SPLIT. Jobs that execute repository code run on the self-hosted mac minis. Three classes
-# deliberately stay on GitHub-hosted runners:
+# RUNNER TOPOLOGY. Every job runs on the self-hosted runners (`[self-hosted, vsk-runners-mac-mini]`) — no
+# GitHub-hosted job, because an account-level billing lock suspended hosted runners. Notes per job:
 #
-#   sign-curated       the only OIDC job. Sigstore has no documented self-hosted restriction, but
-#                      that is unverified and a failure breaks the release. ~30s, no repository code.
-#   deploy-curated     credential-only. Third-party wrangler + cosign actions, ~1min, no repository
-#                      code. Nothing is gained by moving it and an outward deploy is what breaks.
+#   sign-curated       the only OIDC job. GitHub OIDC is minted by the Actions control plane and works
+#                      on self-hosted runners; the Sigstore signer identity is the workflow ref, not the
+#                      runner, so cosign verification is unchanged. ~30s, no repository code.
+#   deploy-curated     credential-only. Third-party wrangler + cosign actions, ~1min, no repository code.
 #   verify-public-boundary  CORRECTNESS, not caution. It proves every non-registry route is public,
 #                      `/internal/*` remains undiscoverable, and anonymous registry requests are
-#                      rejected. A runner inside VegaStack's network can be silently authenticated by
-#                      Cloudflare device posture, which would make "anonymous" mean something else
-#                      and void the proof. A boundary test has to originate outside the trusted
-#                      network.
+#                      rejected. Its proof needs an OUTSIDE-the-network origin, so the runner must NOT be
+#                      enrolled in Cloudflare Access device posture / WARP — otherwise device posture
+#                      could silently authenticate an "anonymous" request. Fail-safe if it were: such a
+#                      request returns 200 and expectProtected() fails the deploy loudly.
 #
 # THE CONTRACT GATE THAT USED TO LIVE HERE IS GONE, AND WAS REPLACED RATHER THAN DROPPED.
 # It ran the 864 behaviour contracts on four billed `ubuntu-latest` shards (~135 minutes per deploy)
@@ -127,9 +127,12 @@ jobs:
           retention-days: 1
 
   # This is the only job allowed to mint GitHub OIDC. It executes no repository code.
+  # Runs on the minis: GitHub OIDC is minted by the Actions control plane and works on self-hosted
+  # runners, and the Sigstore signer identity is the workflow ref (deploy.yml@refs/heads/main), not the
+  # runner — so the certificate identity that probe-deployment.mjs pins is unchanged.
   sign-curated:
     needs: build-curated
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     permissions:
       contents: read
       id-token: write
@@ -182,7 +185,7 @@ jobs:
   # Cloudflare secrets. It cannot mint OIDC and executes no repository-controlled package scripts.
   deploy-curated:
     needs: sign-curated
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     permissions:
       contents: read
     steps:
@@ -217,9 +220,13 @@ jobs:
   # must be anonymously reachable, internal operations pages must remain outside discovery and carry
   # noindex/no-store headers, and `/r/*` must reject anonymous requests while accepting the service
   # token. The signed manifest and the deployed tree's exact registry version are also verified.
+  # Runs on the minis. The proof depends on the request originating OUTSIDE the trusted network: the
+  # minis must NOT be enrolled in Cloudflare Access device posture / WARP. This is fail-safe if they
+  # were — an authenticated "anonymous" /r/* request would return 200 and expectProtected() would fail
+  # the deploy loudly (probe-deployment.mjs), rather than passing falsely.
   verify-public-boundary:
     needs: deploy-curated
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, vsk-runners-mac-mini]
     permissions:
       contents: read
     steps:
