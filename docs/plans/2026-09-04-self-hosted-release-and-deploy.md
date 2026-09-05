@@ -50,11 +50,14 @@ no new secret, no package-setting change, no security downgrade — and simply d
 
 ### Why each move is safe
 
-- **npm publish → keep OIDC trusted publishing, disable provenance.** `publish` keeps `id-token:
-write` and the repository + `release.yml` trusted-publisher identity. It sets
-  `NPM_CONFIG_PROVENANCE=false` because trusted publishing auto-enables provenance and its bundle
-  can't be built on a mini. No attestation is lost: `@vegastack/design@0.3.1` (published from
-  `ubuntu-latest`) already carries none, because the source repo is private. No `NPM_TOKEN` exists.
+- **npm publish → keep OIDC trusted publishing, disable provenance with the `--no-provenance` flag.**
+  `publish` keeps the `id-token` permission and the repository + `release.yml` trusted-publisher
+  identity. Provenance must be off because trusted publishing auto-enables it and npm rejects a
+  provenance bundle built on a self-hosted runner (**E422**). Because the repo is now public, npm DOES
+  attempt provenance (unlike when it was private) — and `NPM_CONFIG_PROVENANCE=false` is NOT honoured by
+  the changesets action's OIDC path, so the publish step calls `npm publish --no-provenance` directly,
+  as vegafactory does. Releases ship without an attestation while hosted runners are billing-locked.
+  No `NPM_TOKEN` exists.
 - **Sigstore signing keeps GitHub OIDC.** GitHub OIDC (unlike a hosted-only provenance bundle) is
   minted by the Actions control plane and works on self-hosted runners. The signer certificate
   identity is the workflow ref (`deploy.yml@refs/heads/main`), independent of runner, so the `cosign
@@ -67,19 +70,23 @@ verify-blob` identity pinned in `apps/docs/scripts/probe-deployment.mjs` and re-
 
 ## Changes
 
-- `.github/workflows/release.yml` — all jobs → self-hosted; `publish` keeps `id-token: write`, holds
-  no token, and sets `NPM_CONFIG_PROVENANCE: "false"` on the changesets publish step. The separate
+- `.github/workflows/release.yml` — all jobs → self-hosted; `publish` keeps the `id-token` permission,
+  holds no token, and publishes each public package with `npm publish --no-provenance`. The separate
   `package-build` job was **removed** and its build folded into `publish`: the billing lock also
   exhausts Actions artifact storage, so the cross-job `upload-artifact`/`download-artifact` hand-off
   failed (quota, then ETIMEDOUT). With token-free OIDC there is no credential to isolate from the
-  build, so building in the publish job is safe.
-- `.github/workflows/deploy.yml` — `sign-curated` (keeps `id-token: write`), `deploy-curated`,
-  `verify-public-boundary` → self-hosted.
-- `tooling/verify-workflow-security.mjs` — `GITHUB_HOSTED_JOBS` all empty; release.yml OIDC count
-  stays 1 (publish); new rules: no `NPM_TOKEN`/`NODE_AUTH_TOKEN` anywhere, and `publish` must set
-  `NPM_CONFIG_PROVENANCE=false`.
-- `tooling/verify-workflow-security-negative.mjs` — publish-onto-ubuntu, provenance-re-enabled, and
-  npm-token-reintroduced mutations (18 cases total).
+  build, so building in the publish job is safe. The changesets action publish was replaced with a
+  direct per-package `npm publish` loop so the `--no-provenance` flag can be passed (changeset publish
+  cannot forward it); this trades away automatic git-tag/GitHub-release creation.
+- `.github/workflows/deploy.yml` — all jobs → self-hosted. `build-curated` + `sign-curated` +
+  `deploy-curated` were **merged into one `build-sign-deploy` job** for the same artifact-storage
+  reason (they passed the built docs between jobs as artifacts). `verify-public-boundary` re-fetches
+  from prod and stays separate.
+- `tooling/verify-workflow-security.mjs` — `GITHUB_HOSTED_JOBS` all empty; deploy.yml OIDC in the one
+  `build-sign-deploy` job; new rules: no `NPM_TOKEN`/`NODE_AUTH_TOKEN` anywhere, and `publish` must
+  call `npm publish --no-provenance`.
+- `tooling/verify-workflow-security-negative.mjs` — publish-onto-ubuntu, provenance-re-enabled,
+  npm-token-reintroduced, and the boundary-probe cases (18 total).
 - Docs — AGENTS.md § Status + § Locked decisions; `docs/RELEASING.md`; `skills/internal/ship`.
 
 ## Prerequisites
@@ -99,16 +106,21 @@ a mini, token-free OIDC, provenance off; confirm `npm view` bump and no attestat
 `deploy.yml` (sign + deploy + boundary all on minis) → downstream `vegastack-design check-updates` /
 `npm update` in `~/code/vegastack-design-starter`.
 
-## Residual risk (low) to confirm on the first release
+## What actually broke, and the fixes (in order)
 
-Two small differences from vegafactory, both low-risk:
+The first publish attempts surfaced two blockers not visible until CI ran on the minis:
 
-1. **Design is a PRIVATE source repo** (vegafactory/`@vegastack/skills` is public). npm does not
-   generate provenance for a private-repo package at all — `@vegastack/design@0.3.1`, published from
-   `ubuntu-latest` trusted publishing, already carries no attestations. So provenance is very likely
-   never even attempted here, and `NPM_CONFIG_PROVENANCE=false` is a belt-and-suspenders no-op rather
-   than load-bearing. Either way the publish should succeed.
-2. **Design uses `pnpm changeset publish`, not raw `npm publish --no-provenance`.** The env var
-   `NPM_CONFIG_PROVENANCE=false` maps to the same npm config the flag sets. If — against expectation —
-   the first `publish` fails with a provenance error, the explicit fallback is `provenance = false` in
-   the publish `.npmrc` or `publishConfig.provenance: false` in both public package.json files.
+1. **Actions artifact storage is exhausted** under the billing lock. `package-build`'s
+   `upload-artifact` failed (`quota`, then `ETIMEDOUT`), so `publish` never got the dist. Fix: remove
+   the cross-job artifact — build in the `publish` job. Same fix applied to `deploy.yml` (merged into
+   `build-sign-deploy`).
+2. **Provenance E422 on the now-public repo.** Making the repo public re-enabled npm provenance
+   generation (it was skipped while private). Under trusted publishing npm attached a provenance
+   bundle and the registry rejected it: `E422 ... Unsupported GitHub Actions runner environment:
+"self-hosted"`. Crucially, **`NPM_CONFIG_PROVENANCE=false` did NOT suppress it** through the
+   changesets action's OIDC path. Fix: replace `changeset publish` with a direct per-package
+   `npm publish --access public --no-provenance` loop (the explicit flag vegafactory uses), which npm
+   does honour. Trade-off: no automatic git tags / GitHub releases from changesets.
+
+Provenance is therefore intentionally off until hosted runners return; a public repo could otherwise
+carry it.

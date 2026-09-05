@@ -126,9 +126,11 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
   none of the moves lost a property that actually existed:
   - **npm publish** (`release.yml`'s `publish`) stays **token-free OIDC trusted publishing** — which
     **works on self-hosted runners**; only the provenance _bundle_ requires a GitHub-hosted runner.
-    So `publish` sets `NPM_CONFIG_PROVENANCE=false`. No attestation is lost: the source repo is
-    private, so npm emitted none even from `ubuntu-latest` (the published dists have never carried
-    attestations). Auth is the unchanged repository + `release.yml` trusted-publisher identity, and
+    So `publish` calls `npm publish --no-provenance` directly (npm rejects a self-hosted provenance
+    bundle with **E422**, and the `NPM_CONFIG_PROVENANCE` env is not honoured by the changesets
+    action's OIDC path). The repo is public, so a hosted runner could attach provenance, but hosted
+    runners are billing-locked, so releases ship without an attestation for now. Auth is the unchanged
+    repository + `release.yml` trusted-publisher identity, and
     the workflow holds **no `NPM_TOKEN`** — a guard in the security gate forbids one. npm's public docs
     claim self-hosted is unsupported for trusted publishing; that is stale. The proof is sibling repo
     `vegastack/vegafactory`, which publishes as `@vegastack/skills`: versions 0.16.1–0.17.0 landed on

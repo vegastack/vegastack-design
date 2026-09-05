@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "tree": "tree-a64a4c4ab461a9f981f8decb11e67cdfcb9a5005",
+  "tree": "tree-7901cd6b42200d78f2eae2f89cbd52de42eae856",
   "treeFiles": 2654,
-  "head": "9aab8963e669a4981c7e8ed817d3a45378a27f85",
-  "writtenAt": "2026-09-05T14:32:50.473Z",
+  "head": "7138e25ca270a3090cabf3748340100030c67b45",
+  "writtenAt": "2026-09-05T15:15:32.198Z",
   "mode": "push",
   "base": {
     "ref": "origin/main",
-    "sha": "efa593df9d6864063a8e71a4bcafdd37c12ee92e"
+    "sha": "148a700e3478415b8a3ace58807512ca869a7f93"
   },
   "host": {
     "platform": "darwin",
@@ -28,11 +28,11 @@
   "gates": {
     "typecheck": {
       "status": "pass",
-      "durationMs": 21418
+      "durationMs": 8279
     },
     "lint": {
       "status": "pass",
-      "durationMs": 9643
+      "durationMs": 8641
     },
     "unit": {
       "status": "skipped",

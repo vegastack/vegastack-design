@@ -46,13 +46,13 @@ const SELF_HOSTED = "[self-hosted, vsk-runners-mac-mini]";
 //   release.yml package-build — builds the two public dists into the artifact `publish` consumes.
 //   release.yml publish — publishes token-free over npm OIDC TRUSTED PUBLISHING, which works on
 //     self-hosted runners (sibling repo vegastack/vegafactory publishes the same way). Only the
-//     provenance BUNDLE requires a GitHub-hosted runner, so publish sets provenance=false; no
-//     attestation is lost because npm emits none for a PRIVATE source repo. Auth is unchanged: the
+//     provenance BUNDLE requires a GitHub-hosted runner (npm rejects a self-hosted one with E422), so
+//     publish calls `npm publish --no-provenance`. Auth is unchanged: the
 //     repository + release.yml trusted-publisher identity, and NO NPM_TOKEN (the rule below forbids one).
-//   deploy.yml sign-curated — keeps GitHub OIDC (the only Sigstore signing job). GitHub OIDC is minted by the
-//     Actions control plane and works on self-hosted runners; the Sigstore signer identity is the
-//     workflow ref, not the runner, so cosign verification is unaffected.
-//   deploy.yml deploy-curated — credential-only Wrangler; nothing runner-specific.
+//   deploy.yml build-sign-deploy — builds the docs, Sigstore-signs the manifest (the only OIDC use;
+//     signer identity is the workflow ref, not the runner, so cosign verification is unaffected), and
+//     deploys to Cloudflare. Build+sign+deploy were three isolated jobs handing docs over as artifacts;
+//     Actions artifact storage is unavailable under the billing lock, so they are merged into one job.
 //   deploy.yml verify-public-boundary — the proof needs an OUTSIDE-the-network origin, so the minis
 //     must not be enrolled in Cloudflare Access device posture / WARP. Fail-safe if they were: an
 //     authenticated "anonymous" /r/* request returns 200 and the probe fails the deploy loudly.
@@ -334,7 +334,7 @@ for (const [name, source] of Object.entries(sources)) {
 assert.equal(
   [...sources["deploy.yml"].matchAll(/id-token:\s*write/g)].length,
   1,
-  "deploy.yml: OIDC must be scoped to the signing job only",
+  "deploy.yml: OIDC must be scoped to the single build-sign-deploy job only",
 );
 assert.match(
   sources["deploy.yml"],
@@ -345,10 +345,21 @@ assert.doesNotMatch(
   /cutover_phase|PUBLIC_DOCS_CUTOVER|probe-precutover-protection|pre-cutover-purge|verify-protected-boundary/,
   "deploy.yml: the completed public-site rollout must not retain obsolete cutover branches",
 );
-const signingJob = jobBlock(sources["deploy.yml"], "sign-curated");
-const deploymentJob = jobBlock(sources["deploy.yml"], "deploy-curated");
-assert.match(signingJob, /^    needs: build-curated$/m);
-assert.match(deploymentJob, /^    needs: sign-curated$/m);
+// build → sign → deploy are one job (`build-sign-deploy`): Actions artifact storage is unavailable
+// under the billing lock, so the built docs cannot be handed between separate jobs. It carries the
+// single OIDC token and runs after the receipt guard.
+const buildSignDeployJob = jobBlock(sources["deploy.yml"], "build-sign-deploy");
+assert.match(buildSignDeployJob, /^    needs: receipt-guard$/m);
+assert.match(
+  buildSignDeployJob,
+  /id-token: write/,
+  "deploy.yml: build-sign-deploy must carry the OIDC token for Sigstore signing",
+);
+assert.match(
+  buildSignDeployJob,
+  /command: deploy/,
+  "deploy.yml: build-sign-deploy must run the Cloudflare deploy",
+);
 assert.doesNotMatch(sources["deploy.yml"], /^  environment-guard:$/m);
 assert.doesNotMatch(sources["deploy.yml"], /^    environment:/m);
 assert.doesNotMatch(
@@ -378,7 +389,7 @@ const publicVerificationJob = jobBlock(
   sources["deploy.yml"],
   "verify-public-boundary",
 );
-assert.match(publicVerificationJob, /^    needs: deploy-curated$/m);
+assert.match(publicVerificationJob, /^    needs: build-sign-deploy$/m);
 assert.match(
   publicVerificationJob,
   /probe-deployment\.mjs/,
@@ -406,13 +417,14 @@ assert.doesNotMatch(
   /secrets\.NPM_TOKEN|NODE_AUTH_TOKEN/,
   "release.yml: publishing is token-free OIDC trusted publishing — no NPM_TOKEN/NODE_AUTH_TOKEN",
 );
-// Provenance MUST be disabled: trusted publishing auto-enables it, but npm accepts a provenance
-// bundle only from a GitHub-hosted runner, so on the self-hosted minis its generation fails the
-// publish. (The source repo is private, so no attestation was ever produced anyway.)
+// Provenance MUST be disabled with the explicit --no-provenance FLAG. npm can only verify a provenance
+// bundle from a GitHub-hosted runner and rejects a self-hosted one (E422), and the NPM_CONFIG_PROVENANCE
+// env is not honoured by the changesets action's OIDC path — so publishing calls npm publish directly
+// with the flag (as vegastack/vegafactory does).
 assert.match(
   publishJob,
-  /NPM_CONFIG_PROVENANCE:\s*["']?false["']?/,
-  "release.yml: publish must set NPM_CONFIG_PROVENANCE=false — self-hosted runners cannot generate a provenance bundle",
+  /npm publish[^\n]*--no-provenance/,
+  "release.yml: publish must call `npm publish --no-provenance` — self-hosted runners cannot generate a provenance bundle",
 );
 // `publish` must depend on the quality gate. Pinning the list verbatim is the point: a `needs`
 // quietly narrowed to `[changes]` would let the publish run without validation ever having happened.

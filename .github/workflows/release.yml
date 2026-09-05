@@ -16,10 +16,11 @@ env:
 # GitHub-hosted runners (hosted jobs start with zero steps executed). That same lock exhausts Actions
 # artifact storage, so this workflow uses NO cross-job artifacts: the single `publish` job builds the
 # two public packages and publishes them in place, token-free over npm OIDC TRUSTED PUBLISHING — which
-# works on self-hosted runners; only the provenance BUNDLE requires a GitHub-hosted runner, so publish
-# sets provenance=false. (No attestation is lost: the source repo is private, so npm emitted none even
-# from ubuntu-latest.) Auth is unchanged from the proven flow — the repository + release.yml
-# trusted-publisher identity, no NPM_TOKEN.
+# works on self-hosted runners; only the provenance BUNDLE requires a GitHub-hosted runner (npm rejects
+# a self-hosted one with E422), so publish uses `npm publish --no-provenance`. The repo is public, so a
+# hosted runner COULD attach provenance — but hosted runners are billing-locked, so releases ship
+# without an attestation until that is resolved. Auth is unchanged from the proven flow — the
+# repository + release.yml trusted-publisher identity, no NPM_TOKEN.
 #
 # The move to self-hosted mirrors sibling repo vegastack/vegafactory, which publishes the same way.
 #
@@ -155,8 +156,9 @@ jobs:
   #
   # AUTH: npm OIDC TRUSTED PUBLISHING, token-free — and it works on self-hosted runners (sibling repo
   # vegastack/vegafactory publishes the same way). Only the provenance BUNDLE requires a GitHub-hosted
-  # runner, so this job sets provenance=false (NPM_CONFIG_PROVENANCE). No attestation is lost: the
-  # source repo is private, so npm emitted none even from ubuntu-latest.
+  # runner — npm rejects a self-hosted one with E422 — so the publish step passes the explicit
+  # `--no-provenance` flag (the NPM_CONFIG_PROVENANCE env is not honoured by the changesets action's
+  # OIDC path). Releases ship without an attestation while hosted runners are billing-locked.
   #
   # It builds the two PUBLIC packages in-job and publishes them directly. A separate build job handing
   # the dist over as an artifact was removed: with token-free OIDC there is no long-lived credential to
@@ -207,13 +209,25 @@ jobs:
             }
           }
           NODE
-      - uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
-        with:
-          publish: pnpm changeset publish
-          commitMode: github-api
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Trusted publishing auto-enables provenance, whose bundle npm accepts only from a
-          # GitHub-hosted runner; on the minis that generation fails. Disable it — the source repo is
-          # private, so no attestation was ever produced anyway. Auth stays token-free OIDC.
-          NPM_CONFIG_PROVENANCE: "false"
+      # Publish token-free via npm OIDC trusted publishing, with the explicit --no-provenance FLAG.
+      # npm auto-detects OIDC (the id-token permission is granted, npm >= 11.5.1) and authenticates against the
+      # package's trusted-publisher entry. Provenance MUST be off: npm can only verify a provenance
+      # bundle from a GitHub-hosted runner and rejects a self-hosted one (E422). The NPM_CONFIG_PROVENANCE
+      # env is NOT honoured by the changesets action's OIDC path, so we publish each package directly with
+      # the flag — exactly as sibling repo vegastack/vegafactory does. Idempotent: a re-run over an
+      # already-published version is a no-op, so a partial failure can be retried safely. design-tokens is
+      # published before design (design may resolve it at install time).
+      - name: Publish public packages to npm (trusted publishing, --no-provenance)
+        run: |
+          set -euo pipefail
+          for dir in design-tokens design; do
+            cd "$GITHUB_WORKSPACE/packages/$dir"
+            NAME=$(node -p "require('./package.json').name")
+            VERSION=$(node -p "require('./package.json').version")
+            if npm view "$NAME@$VERSION" version >/dev/null 2>&1; then
+              echo "$NAME@$VERSION is already on the registry; skipping."
+            else
+              echo "Publishing $NAME@$VERSION"
+              npm publish --access public --no-provenance
+            fi
+          done

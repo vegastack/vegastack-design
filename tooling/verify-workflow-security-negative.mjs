@@ -77,15 +77,16 @@ const CASES = [
   {
     id: "provenance re-enabled on the self-hosted publish (would fail the release)",
     file: "release.yml",
-    find: 'NPM_CONFIG_PROVENANCE: "false"',
-    replace: 'NPM_CONFIG_PROVENANCE: "true"',
-    expect: /NPM_CONFIG_PROVENANCE=false/,
+    find: "npm publish --access public --no-provenance",
+    replace: "npm publish --access public --provenance",
+    expect: /npm publish --no-provenance/,
   },
   {
     id: "a long-lived npm token reintroduced into release.yml",
     file: "release.yml",
-    find: 'NPM_CONFIG_PROVENANCE: "false"',
-    replace: "NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}",
+    find: "env:\n  SITE_VISIBILITY: public",
+    replace:
+      "env:\n  SITE_VISIBILITY: public\n  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}",
     expect: /token-free OIDC trusted publishing/,
   },
   {
@@ -174,9 +175,9 @@ const CASES = [
   {
     id: "the production boundary probe made conditional",
     file: "deploy.yml",
-    find: "  verify-public-boundary:\n    needs: deploy-curated\n",
+    find: "  verify-public-boundary:\n    needs: build-sign-deploy\n",
     replace:
-      "  verify-public-boundary:\n    needs: deploy-curated\n    if: always()\n",
+      "  verify-public-boundary:\n    needs: build-sign-deploy\n    if: always()\n",
     expect: /production boundary probe must run after every deploy/,
   },
   {
