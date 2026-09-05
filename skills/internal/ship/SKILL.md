@@ -220,11 +220,12 @@ The unprivileged Release quality gate runs first. A changeset-bearing run opens 
 **Version Packages** PR. Review its package versions, `version-sync` stamped item versions, generated
 changelogs, and regenerated `public/r`. STOP for the separate MK approval, then merge it. The merge
 run validates again and only the isolated publish job holds OIDC. Publishing runs on the self-hosted
-minis, token-free via OIDC trusted publishing, with `NPM_CONFIG_PROVENANCE=false` (npm accepts a
-provenance bundle only from a GitHub-hosted runner; a private source repo emits none regardless). No
-`NPM_TOKEN`, no GitHub environment. If `publish` fails with a provenance error, confirm
-`NPM_CONFIG_PROVENANCE=false` is still set; if it fails auth, the package's trusted-publisher entry
-(repo + `release.yml`) is missing — see `docs/RELEASING.md`.
+minis, token-free via OIDC trusted publishing, calling `npm publish --no-provenance` directly (npm
+accepts a provenance bundle only from a GitHub-hosted runner and rejects a self-hosted one with E422;
+the `NPM_CONFIG_PROVENANCE` env is not honoured by the changesets action's OIDC path, so the flag is
+used instead). No `NPM_TOKEN`, no GitHub environment. If `publish` fails with an E422 provenance error,
+confirm the `--no-provenance` flag is still on the `npm publish` command; if it fails auth, the
+package's trusted-publisher entry (repo + `release.yml`) is missing — see `docs/RELEASING.md`.
 Verify:
 
 ```bash

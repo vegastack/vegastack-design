@@ -7,8 +7,10 @@ distribution channels, both already wired:
   (changesets) on push to `main`, then published after the reviewed **Version Packages** PR is merged,
   via **npm OIDC trusted publishing** — token-free, and running on the **self-hosted mac minis**. npm
   trusted publishing works on self-hosted runners; only the provenance _bundle_ requires a
-  GitHub-hosted runner, so `publish` sets `NPM_CONFIG_PROVENANCE=false`. No attestation is lost anyway:
-  npm emits no provenance from a private source repository (published dists have never carried one).
+  GitHub-hosted runner (npm rejects a self-hosted one with **E422**), so `publish` calls
+  `npm publish --no-provenance` directly — the `NPM_CONFIG_PROVENANCE` env is not honoured by the
+  changesets action's OIDC path. The repo is public, so a hosted runner could attach provenance, but
+  hosted runners are billing-locked, so releases currently ship without an attestation.
   **No `NPM_TOKEN` exists** and the account keeps 2FA. One-time setup (already done): each package on
   npmjs.com has a Trusted Publisher entry → GitHub Actions → `vegastack/vegastack-design` →
   `release.yml`; identity is repository + `release.yml`, no GitHub environment. (The very first 0.1.0
@@ -83,8 +85,9 @@ either direction. Five jobs used to be hosted; each moved without losing a prope
 
 - **`release.yml` `publish`** — token-free npm OIDC **trusted publishing**, which works on self-hosted
   runners. Only the provenance _bundle_ requires a GitHub-hosted runner, so it sets
-  `NPM_CONFIG_PROVENANCE=false` (no attestation is lost — a private source repo emits none anyway). It
-  builds the two public packages in-job and runs `changeset publish`. No `NPM_TOKEN` is involved. (A
+  `npm publish --no-provenance` (npm rejects a self-hosted provenance bundle with E422; hosted runners
+  that could attach one are billing-locked). It builds the two public packages in-job and publishes
+  them directly. No `NPM_TOKEN` is involved. (A
   separate `package-build` job that handed the dist over as an artifact was removed: with token-free
   OIDC there is no credential to isolate from the build, and Actions artifact storage is unavailable
   under the billing lock, so cross-job artifacts fail.)

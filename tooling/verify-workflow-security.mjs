@@ -46,8 +46,8 @@ const SELF_HOSTED = "[self-hosted, vsk-runners-mac-mini]";
 //   release.yml package-build — builds the two public dists into the artifact `publish` consumes.
 //   release.yml publish — publishes token-free over npm OIDC TRUSTED PUBLISHING, which works on
 //     self-hosted runners (sibling repo vegastack/vegafactory publishes the same way). Only the
-//     provenance BUNDLE requires a GitHub-hosted runner, so publish sets provenance=false; no
-//     attestation is lost because npm emits none for a PRIVATE source repo. Auth is unchanged: the
+//     provenance BUNDLE requires a GitHub-hosted runner (npm rejects a self-hosted one with E422), so
+//     publish calls `npm publish --no-provenance`. Auth is unchanged: the
 //     repository + release.yml trusted-publisher identity, and NO NPM_TOKEN (the rule below forbids one).
 //   deploy.yml build-sign-deploy — builds the docs, Sigstore-signs the manifest (the only OIDC use;
 //     signer identity is the workflow ref, not the runner, so cosign verification is unaffected), and
@@ -417,13 +417,14 @@ assert.doesNotMatch(
   /secrets\.NPM_TOKEN|NODE_AUTH_TOKEN/,
   "release.yml: publishing is token-free OIDC trusted publishing — no NPM_TOKEN/NODE_AUTH_TOKEN",
 );
-// Provenance MUST be disabled: trusted publishing auto-enables it, but npm accepts a provenance
-// bundle only from a GitHub-hosted runner, so on the self-hosted minis its generation fails the
-// publish. (The source repo is private, so no attestation was ever produced anyway.)
+// Provenance MUST be disabled with the explicit --no-provenance FLAG. npm can only verify a provenance
+// bundle from a GitHub-hosted runner and rejects a self-hosted one (E422), and the NPM_CONFIG_PROVENANCE
+// env is not honoured by the changesets action's OIDC path — so publishing calls npm publish directly
+// with the flag (as vegastack/vegafactory does).
 assert.match(
   publishJob,
-  /NPM_CONFIG_PROVENANCE:\s*["']?false["']?/,
-  "release.yml: publish must set NPM_CONFIG_PROVENANCE=false — self-hosted runners cannot generate a provenance bundle",
+  /npm publish[^\n]*--no-provenance/,
+  "release.yml: publish must call `npm publish --no-provenance` — self-hosted runners cannot generate a provenance bundle",
 );
 // `publish` must depend on the quality gate. Pinning the list verbatim is the point: a `needs`
 // quietly narrowed to `[changes]` would let the publish run without validation ever having happened.

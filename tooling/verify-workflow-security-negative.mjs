@@ -77,15 +77,16 @@ const CASES = [
   {
     id: "provenance re-enabled on the self-hosted publish (would fail the release)",
     file: "release.yml",
-    find: 'NPM_CONFIG_PROVENANCE: "false"',
-    replace: 'NPM_CONFIG_PROVENANCE: "true"',
-    expect: /NPM_CONFIG_PROVENANCE=false/,
+    find: "npm publish --access public --no-provenance",
+    replace: "npm publish --access public --provenance",
+    expect: /npm publish --no-provenance/,
   },
   {
     id: "a long-lived npm token reintroduced into release.yml",
     file: "release.yml",
-    find: 'NPM_CONFIG_PROVENANCE: "false"',
-    replace: "NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}",
+    find: "env:\n  SITE_VISIBILITY: public",
+    replace:
+      "env:\n  SITE_VISIBILITY: public\n  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}",
     expect: /token-free OIDC trusted publishing/,
   },
   {
