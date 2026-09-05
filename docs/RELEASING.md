@@ -81,14 +81,13 @@ zero billable minutes.** No job is GitHub-hosted; the empty allowlist is enforce
 `tooling/verify-workflow-security-negative.mjs`, which rejects a move back onto `ubuntu-latest` in
 either direction. Five jobs used to be hosted; each moved without losing a property that existed:
 
-- **`release.yml` `package-build`** — its own job that builds the two public dists into a validated
-  artifact so `publish` consumes bytes and runs no repository build code itself. ~4 minutes, no
-  browsers, no container.
 - **`release.yml` `publish`** — token-free npm OIDC **trusted publishing**, which works on self-hosted
   runners. Only the provenance _bundle_ requires a GitHub-hosted runner, so it sets
   `NPM_CONFIG_PROVENANCE=false` (no attestation is lost — a private source repo emits none anyway). It
-  runs no repository code — it only downloads the validated artifact and runs `changeset publish`. No
-  `NPM_TOKEN` is involved.
+  builds the two public packages in-job and runs `changeset publish`. No `NPM_TOKEN` is involved. (A
+  separate `package-build` job that handed the dist over as an artifact was removed: with token-free
+  OIDC there is no credential to isolate from the build, and Actions artifact storage is unavailable
+  under the billing lock, so cross-job artifacts fail.)
 - **`deploy.yml` `sign-curated`** — keeps GitHub OIDC (Sigstore keyless signing). GitHub OIDC is
   minted by the Actions control plane and works on self-hosted runners, and the signer certificate
   identity is the workflow ref (`deploy.yml@refs/heads/main`), not the runner, so `cosign verify-blob`

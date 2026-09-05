@@ -142,9 +142,12 @@ const CASES = [
   {
     id: "publish no longer requires the quality gate to have succeeded",
     file: "release.yml",
-    find: "      needs.package-build.result == 'success'",
-    replace: "      true",
-    expect: /package-build to have SUCCEEDED/,
+    // Scoped to the publish job's `if` — the has_changesets=='false' line precedes it there, whereas
+    // version-pr's identical quality-gate check is preceded by has_changesets=='true'.
+    find: "      needs.changes.outputs.has_changesets == 'false' &&\n      needs.quality-gate.result == 'success'",
+    replace:
+      "      needs.changes.outputs.has_changesets == 'false' &&\n      true",
+    expect: /quality-gate to have SUCCEEDED/,
   },
   {
     id: "quality-gate no longer depends on the receipt guard",

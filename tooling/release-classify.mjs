@@ -175,9 +175,9 @@ if (outputs.publish === "true")
   console.log(
     outputs.has_changesets === "true"
       ? "  version-pr       RUNS — opens/updates the Version Packages PR. No npm OIDC. Free, self-hosted.\n" +
-          "  package-build    skipped for a Version PR run; it builds only on the publish path"
-      : "  package-build    RUNS — ~4 min, free, self-hosted; builds the artifact publish consumes\n" +
-          "  publish          RUNS — token-free npm OIDC trusted publishing (provenance off). The outward step.",
+          "  publish          skipped for a Version PR run; it publishes only after changesets are consumed"
+      : "  publish          RUNS — builds the two public packages in-job, then token-free npm OIDC\n" +
+          "                   trusted publishing (provenance off). The outward step.",
   );
 
 if (missing.length > 0 || result.status !== 0) {

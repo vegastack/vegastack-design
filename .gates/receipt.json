@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "tree": "tree-e0bdb0ba4e5ba10540b3abfcb78a3d704381bfba",
+  "tree": "tree-a64a4c4ab461a9f981f8decb11e67cdfcb9a5005",
   "treeFiles": 2654,
-  "head": "65a85e7b0cb8f208893a03a46480f7f38be51dc8",
-  "writtenAt": "2026-09-05T12:39:12.465Z",
+  "head": "9aab8963e669a4981c7e8ed817d3a45378a27f85",
+  "writtenAt": "2026-09-05T14:32:50.473Z",
   "mode": "push",
   "base": {
     "ref": "origin/main",
-    "sha": "179c76a8b2642e445ac3d2816414aa0c2fd247a3"
+    "sha": "efa593df9d6864063a8e71a4bcafdd37c12ee92e"
   },
   "host": {
     "platform": "darwin",
@@ -28,11 +28,11 @@
   "gates": {
     "typecheck": {
       "status": "pass",
-      "durationMs": 431
+      "durationMs": 21418
     },
     "lint": {
       "status": "pass",
-      "durationMs": 298
+      "durationMs": 9643
     },
     "unit": {
       "status": "skipped",
@@ -53,9 +53,5 @@
       "scopeRoutes": 1
     }
   },
-  "skips": [],
-  "carriedFrom": "tree-f58bf1646f8b51fe0ef51abad06a7f94db8720eb",
-  "carriedFromCommit": "65a85e7b0cb8f208893a03a46480f7f38be51dc8",
-  "carryReason": "version-bump",
-  "carriedAt": "2026-09-05T12:58:03.690Z"
+  "skips": []
 }

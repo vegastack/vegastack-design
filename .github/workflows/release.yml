@@ -13,16 +13,13 @@ env:
 
 # COST SHAPE. Nothing here is GitHub-hosted. Every job runs on the self-hosted mac minis, so a
 # release costs zero billable minutes — required after an account-level billing lock suspended all
-# GitHub-hosted runners (hosted jobs start with zero steps executed). Two jobs used to be on
-# ubuntu-latest; both moved to the minis, and publishing still works exactly as before:
-#
-#   package-build   Builds the two public dists into a validated artifact that `publish` consumes.
-#                   ~4 minutes, no browsers, no container.
-#   publish         Publishes token-free over npm OIDC TRUSTED PUBLISHING — which works on self-hosted
-#                   runners; only the provenance BUNDLE requires a GitHub-hosted runner, so publishing
-#                   sets provenance=false. (No attestation is lost: the source repo is private, so npm
-#                   emitted none even from ubuntu-latest.) Auth is unchanged from the proven flow —
-#                   still the repository + release.yml trusted-publisher identity, no NPM_TOKEN.
+# GitHub-hosted runners (hosted jobs start with zero steps executed). That same lock exhausts Actions
+# artifact storage, so this workflow uses NO cross-job artifacts: the single `publish` job builds the
+# two public packages and publishes them in place, token-free over npm OIDC TRUSTED PUBLISHING — which
+# works on self-hosted runners; only the provenance BUNDLE requires a GitHub-hosted runner, so publish
+# sets provenance=false. (No attestation is lost: the source repo is private, so npm emitted none even
+# from ubuntu-latest.) Auth is unchanged from the proven flow — the repository + release.yml
+# trusted-publisher identity, no NPM_TOKEN.
 #
 # The move to self-hosted mirrors sibling repo vegastack/vegafactory, which publishes the same way.
 #
@@ -123,42 +120,6 @@ jobs:
           fi
       - run: pnpm registry:verify-consume
 
-  # The npm artifact, built in a job of its own so `publish` consumes validated bytes and runs no
-  # repository build code itself. It runs after validation and produces nothing but the two public dists.
-  # `has_changesets == 'false'` is what confines this to the PUBLISH path. A changeset-bearing run
-  # opens a Version PR and publishes nothing, so building the npm artifact there would produce bytes no
-  # job consumes.
-  package-build:
-    needs: [changes, quality-gate]
-    if: >-
-      needs.changes.outputs.publish == 'true' &&
-      needs.changes.outputs.has_changesets == 'false'
-    runs-on: [self-hosted, vsk-runners-mac-mini]
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-          ref: ${{ github.sha }}
-      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with: { node-version: 24, cache: pnpm }
-      - run: pnpm install --frozen-lockfile
-      # Only the two PUBLIC packages. `@vegastack/ui` is private by the locked distribution model and
-      # must never reach this artifact.
-      - run: pnpm --filter @vegastack/design-tokens build
-      - run: pnpm --filter @vegastack/design build
-      - run: node tooling/verify-package-exports.mjs
-      - name: Upload validated public-package build outputs
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: npm-package-dist-${{ github.sha }}
-          path: |
-            packages/design/dist
-            packages/design-tokens/dist
-          if-no-files-found: error
-          retention-days: 1
-
   # A changeset-bearing, reviewed main commit creates or updates the Version Packages PR. This job
   # has write authority for that PR but cannot mint npm OIDC. Merging the reviewed Version PR is the
   # separate human action that authorizes publication on the next main run.
@@ -188,21 +149,26 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # Publishing is isolated from validation and is the only release job with npm OIDC authority. It is
-  # reachable only after a reviewed Version Packages PR has removed the pending changesets. The
-  # trusted-publisher identity is repository + release.yml, matching the proven publish path.
+  # Publishing is the only release job with npm OIDC authority. It is reachable only after a reviewed
+  # Version Packages PR has removed the pending changesets. The trusted-publisher identity is
+  # repository + release.yml, matching the proven publish path.
   #
   # AUTH: npm OIDC TRUSTED PUBLISHING, token-free — and it works on self-hosted runners (sibling repo
   # vegastack/vegafactory publishes the same way). Only the provenance BUNDLE requires a GitHub-hosted
   # runner, so this job sets provenance=false (NPM_CONFIG_PROVENANCE). No attestation is lost: the
-  # source repo is private, so npm emitted none even from ubuntu-latest. This job runs no repository
-  # build code; it only downloads the validated artifact and publishes it.
+  # source repo is private, so npm emitted none even from ubuntu-latest.
+  #
+  # It builds the two PUBLIC packages in-job and publishes them directly. A separate build job handing
+  # the dist over as an artifact was removed: with token-free OIDC there is no long-lived credential to
+  # isolate from the build, and Actions artifact storage is unavailable under the billing lock, so the
+  # cross-job upload/download failed. The `Reject publish-time lifecycle code` guard below still ensures
+  # no package lifecycle script runs during `changeset publish`.
   publish:
-    needs: [changes, quality-gate, package-build]
+    needs: [changes, quality-gate]
     if: >-
+      needs.changes.outputs.publish == 'true' &&
       needs.changes.outputs.has_changesets == 'false' &&
-      needs.quality-gate.result == 'success' &&
-      needs.package-build.result == 'success'
+      needs.quality-gate.result == 'success'
     runs-on: [self-hosted, vsk-runners-mac-mini]
     permissions:
       contents: write
@@ -223,11 +189,12 @@ jobs:
       - name: Pin npm to the reviewed OIDC-capable release
         # npm >= 11.5.1 speaks OIDC trusted publishing; this is the reviewed pin.
         run: npm install -g npm@11.16.0
-      - run: pnpm install --frozen-lockfile --ignore-scripts
-      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
-        with:
-          name: npm-package-dist-${{ github.sha }}
-          path: packages
+      - run: pnpm install --frozen-lockfile
+      # Build ONLY the two PUBLIC packages. `@vegastack/ui` is private by the locked distribution model
+      # and must never be published.
+      - run: pnpm --filter @vegastack/design-tokens build
+      - run: pnpm --filter @vegastack/design build
+      - run: node tooling/verify-package-exports.mjs
       - name: Reject publish-time lifecycle code
         run: |
           node --input-type=module <<'NODE'

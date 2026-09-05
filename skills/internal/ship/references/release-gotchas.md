@@ -22,12 +22,12 @@ Proven end to end on 2026-07-26. Follow it in this order.
    not, and costs an extra ~25-minute cycle to redo.
 3. Commit code **and** `.gates/receipt.json` together, then push. (§12)
 4. Merge the change PR → `version-pr` opens the Version PR.
-5. Merge the Version PR → `package-build` + `publish` → npm.
+5. Merge the Version PR → `publish` → npm.
 6. `node tooling/vrt-review.mjs`, then dispatch `deploy.yml`.
 
-**`package-build` and `publish` showing "Skipped" on step 4 is CORRECT** — that is the two-phase
-changesets model. They run only when `has_changesets == 'false'`, i.e. after the Version PR merges.
-Do not treat it as a fault.
+**`publish` showing "Skipped" on step 4 is CORRECT** — that is the two-phase changesets model. It
+runs only when `has_changesets == 'false'`, i.e. after the Version PR merges. Do not treat it as a
+fault.
 
 ## 0b. `workflow_dispatch` can return HTTP 500 spuriously
 
@@ -206,8 +206,7 @@ Two false diagnoses in one session came from a stale `origin/main`. Any classifi
   **302 is the correct pre-cutover state, not a failure** — the public-docs cutover is separate.
 - Independently confirmed by hand: `/` → 302 to `peerxp.cloudflareaccess.com`, `/r/registry.json` → 403.
 - Billed minutes for the publish run: **0** — every job runs on the self-hosted mac minis, including
-  `package-build`, `publish`, `sign-curated`, `deploy-curated` and the boundary probe. No job is
-  GitHub-hosted.
+  `publish`, `sign-curated`, `deploy-curated` and the boundary probe. No job is GitHub-hosted.
 
 ## 15. A successful upload can still end in a failed deployment workflow
 

@@ -67,9 +67,12 @@ verify-blob` identity pinned in `apps/docs/scripts/probe-deployment.mjs` and re-
 
 ## Changes
 
-- `.github/workflows/release.yml` — `package-build` + `publish` → self-hosted; `publish` keeps
-  `id-token: write`, holds no token, and sets `NPM_CONFIG_PROVENANCE: "false"` on the changesets
-  publish step.
+- `.github/workflows/release.yml` — all jobs → self-hosted; `publish` keeps `id-token: write`, holds
+  no token, and sets `NPM_CONFIG_PROVENANCE: "false"` on the changesets publish step. The separate
+  `package-build` job was **removed** and its build folded into `publish`: the billing lock also
+  exhausts Actions artifact storage, so the cross-job `upload-artifact`/`download-artifact` hand-off
+  failed (quota, then ETIMEDOUT). With token-free OIDC there is no credential to isolate from the
+  build, so building in the publish job is safe.
 - `.github/workflows/deploy.yml` — `sign-curated` (keeps `id-token: write`), `deploy-curated`,
   `verify-public-boundary` → self-hosted.
 - `tooling/verify-workflow-security.mjs` — `GITHUB_HOSTED_JOBS` all empty; release.yml OIDC count
