@@ -414,18 +414,20 @@ assert.match(
   /NPM_CONFIG_PROVENANCE:\s*["']?false["']?/,
   "release.yml: publish must set NPM_CONFIG_PROVENANCE=false — self-hosted runners cannot generate a provenance bundle",
 );
-// `publish` additionally needs `package-build`, because it publishes exactly that job's artifact.
-// Pinning the list verbatim is the point: a `needs` quietly narrowed to `[changes]` would let the
-// publish run without validation ever having happened.
+// `publish` must depend on the quality gate. Pinning the list verbatim is the point: a `needs`
+// quietly narrowed to `[changes]` would let the publish run without validation ever having happened.
+// (There is no separate build job: Actions artifact storage is unavailable under the billing lock, so
+// `publish` builds the two public packages in-job; the token-free OIDC flow needs no artifact
+// isolation.)
 assert.match(
   publishJob,
-  /^    needs: \[changes, quality-gate, package-build\]$/m,
-  "release.yml: publish must depend on the quality gate AND the artifact it publishes",
+  /^    needs: \[changes, quality-gate\]$/m,
+  "release.yml: publish must depend on [changes, quality-gate]",
 );
 assert.match(
   publishJob,
-  /needs\.package-build\.result == 'success'/,
-  "release.yml: publish must require package-build to have SUCCEEDED, not merely completed — a " +
+  /needs\.quality-gate\.result == 'success'/,
+  "release.yml: publish must require quality-gate to have SUCCEEDED, not merely completed — a " +
     "skipped or failed dependency reads as neither in an `if:` without this",
 );
 // The quality gate itself must be gated on the receipt: validating the non-browser half while the
