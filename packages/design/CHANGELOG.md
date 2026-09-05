@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.3.2
+
+### Patch Changes
+
+- [#26](https://github.com/vegastack/vegastack-design/pull/26) [`43eb359`](https://github.com/vegastack/vegastack-design/commit/43eb359a9157bce16a361ba929a8bf68e05d44e7) Thanks [@dev-mahesh-peerxp](https://github.com/dev-mahesh-peerxp)! - Update the shipped Audio Player skill reference to describe the new single-line transport with skip controls and a tappable speed control.
+
 ## 0.3.1
 
 ### Patch Changes
