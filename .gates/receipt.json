@@ -2,12 +2,12 @@
   "schema": 1,
   "tree": "tree-7901cd6b42200d78f2eae2f89cbd52de42eae856",
   "treeFiles": 2654,
-  "head": "7138e25ca270a3090cabf3748340100030c67b45",
-  "writtenAt": "2026-09-05T15:15:32.198Z",
-  "mode": "push",
+  "head": "b2a5322c3b15adc376f3e6194de0b893407ba061",
+  "writtenAt": "2026-09-05T16:36:38.444Z",
+  "mode": "ship",
   "base": {
     "ref": "origin/main",
-    "sha": "148a700e3478415b8a3ace58807512ca869a7f93"
+    "sha": "b2a5322c3b15adc376f3e6194de0b893407ba061"
   },
   "host": {
     "platform": "darwin",
@@ -28,29 +28,26 @@
   "gates": {
     "typecheck": {
       "status": "pass",
-      "durationMs": 8279
+      "durationMs": 385
     },
     "lint": {
       "status": "pass",
-      "durationMs": 8641
+      "durationMs": 12734
     },
     "unit": {
-      "status": "skipped",
-      "durationMs": 0,
-      "reason": "no component or package source changed"
+      "status": "pass",
+      "durationMs": 24797
     },
     "smoke": {
-      "status": "skipped",
-      "durationMs": 0,
-      "reason": "no smoke-selected component changed"
+      "status": "pass",
+      "durationMs": 56248
     },
     "contracts": {
-      "status": "skipped",
-      "durationMs": 0,
-      "reason": "changed component sources — no route in scope",
-      "executed": 8,
-      "full": false,
-      "scopeRoutes": 1
+      "status": "pass",
+      "durationMs": 316812,
+      "executed": 880,
+      "full": true,
+      "scopeRoutes": 110
     }
   },
   "skips": []
