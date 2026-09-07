@@ -10,7 +10,7 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint:repo lint:secrets lint:hooks design:verify lint",
-    "lint:repo": "node tooling/verify-shadcn-base.mjs && node tooling/skill-lint.mjs && node tooling/sync-package-skills.mjs --check && node tooling/security-boundaries.test.mjs && node tooling/verify-workflow-security.mjs && node tooling/verify-workflow-security-negative.mjs && node tooling/verify-turbo-inputs.mjs && node tooling/verify-turbo-inputs.mjs --self-test",
+    "lint:repo": "node tooling/verify-shadcn-base.mjs && node tooling/skill-lint.mjs && node tooling/sync-package-skills.mjs --check && node tooling/security-boundaries.test.mjs && node tooling/verify-workflow-security.mjs && node tooling/verify-workflow-security-negative.mjs && node tooling/verify-turbo-inputs.mjs && node tooling/verify-turbo-inputs.mjs --self-test && node tooling/verify-tooling-imports.mjs && node tooling/verify-tooling-imports.mjs --self-test",
     "lint:secrets": "node tooling/secret-scan.mjs",
     "lint:hooks": "node tooling/verify-hooks-installed.mjs",
     "test": "turbo run test",
