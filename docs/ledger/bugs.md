@@ -4,6 +4,38 @@ Every bug found + root cause + fix. Append-only.
 
 ---
 
+## 2026-09-07 — `design:sync:check` cannot see prose that names a deleted token
+
+- **Symptom.** F1 deleted `track`, `--alpha-surface-subtle`, `--alpha-fill-hover` and
+  `--alpha-input-hover`, and every gate stayed green while six documents kept teaching them:
+  `design.md` named `track` as the switch off-track, `theming.mdx:63` and `colors.mdx:171` both
+  taught `bg-primary/(--alpha-surface-subtle)` as the canonical override example, and the internal
+  token skill described `surface-1` as covering "every well/track". A reader following the guides
+  would have written a class that compiles to nothing — Tailwind emits
+  `color-mix(… var(--alpha-surface-subtle) …)` for an undefined variable and the wash silently
+  vanishes. Found by a post-merge Codex review, not by any gate.
+- **Root cause: `tooling/sync-design-md.mjs` verifies the GENERATED regions and nothing else.** It
+  reconciles the resolved-token tables, the recipe references and the foundation tables — surfaces it
+  writes itself — so a token that disappears from `dist/theme.css` disappears from those tables too
+  and the check stays green. The **hand-authored prose** around them, in `design.md`, the foundations
+  MDX and the skills, is never cross-referenced against the built token set. Deleting a token is
+  therefore the one token change with no failing gate anywhere: adding or retuning one moves a
+  generated table, but removing one only invalidates prose.
+- **Same class as the `class-histogram` blind spot**: a gate that regenerates its own evidence, or
+  only checks what it generates, cannot catch a claim it never reads.
+- **Fix applied here is manual** — every occurrence corrected by grep across `design.md`, the
+  foundations MDX, the component MDX and both skill trees.
+- **Recommended structural fix (for G1-b): a token-reference lint.** Walk `design.md`,
+  `apps/docs/content/docs/foundations/*.mdx`, `apps/docs/content/docs/components/*.mdx` and
+  `skills/{internal,public}/**`; extract every `--*` custom property and every backticked semantic
+  token name; fail on any that is absent from `packages/design-tokens/dist/theme.css`. It must run
+  inside `pnpm design:verify` so it is one of the rows CI **re-executes** for free rather than an
+  attested one. Two carve-outs are needed and should be explicit, not inferred: an allowlist for
+  historical records that name a token precisely _because_ it was deleted (`/CHANGELOG.md`, the
+  generated `changelog.mdx`, `docs/plans/**`, `docs/audits/**`, `design-v1.md`), and for consumer-side
+  examples that define their own variables. Like every other gate here it needs a negative fixture —
+  a file naming a nonexistent token, proving the lint fails — or it is an assumption.
+
 ## 2026-09-07 — Two defects the audit did not name, found while building the surface ladder
 
 - **A light-only alias leaks the light value into `.dark`.** `chart-single` was authored once, in

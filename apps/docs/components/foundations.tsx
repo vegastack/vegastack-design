@@ -211,6 +211,94 @@ function LadderColumn({ forceDark }: { forceDark: boolean }) {
 }
 
 /**
+ * The three backdrops the alpha twins are actually painted over. The alpha form exists precisely
+ * because a control's host is often NOT a ladder rung — a chip on a well, a kbd inside a hovered
+ * row — so a one-host specimen cannot demonstrate the claim.
+ */
+const ALPHA_HOSTS: { token: string; label: string }[] = [
+  { token: "background", label: "on --background (page)" },
+  { token: "card", label: "on --card (surface)" },
+  { token: "surface-1", label: "on --surface-1 (well)" },
+];
+
+/**
+ * The alpha twins, painted as the REAL composites the recipes emit.
+ *
+ * `bg-foreground/(--alpha-hover)` compiles to a `color-mix` of the ink into transparency, which is
+ * then composited by the browser over whatever host it lands on — so this specimen mixes the same
+ * way rather than substituting the opaque rung. Substituting the rung is what this panel used to
+ * do, and it made the twins unfalsifiable: the swatch could not drift from its label.
+ */
+const alphaWash = (alphaToken: string) =>
+  `color-mix(in oklab, var(--foreground) var(${alphaToken}), transparent)`;
+
+const ALPHA_STEPS: {
+  label: string;
+  wash: string | undefined;
+  rung?: string;
+}[] = [
+  { label: "rest", wash: undefined },
+  {
+    label: "hover · foreground/(--alpha-hover)",
+    wash: alphaWash("--alpha-hover"),
+    rung: "surface-2",
+  },
+  {
+    label: "pressed · foreground/(--alpha-pressed)",
+    wash: alphaWash("--alpha-pressed"),
+    rung: "surface-3",
+  },
+];
+
+/** One host backdrop with the two alpha washes painted over it, each beside its opaque rung. */
+function AlphaHostBlock({ token, label }: { token: string; label: string }) {
+  return (
+    <div
+      style={{
+        background: `var(--${token})`,
+        border: "1px solid var(--border)",
+        borderRadius: "var(--radius-md)",
+      }}
+    >
+      <div className="space-y-1 p-3">
+        <p
+          className="text-mono-label"
+          style={{ color: "var(--muted-foreground)" }}
+        >
+          {label}
+        </p>
+        {ALPHA_STEPS.map(({ label: stepLabel, wash, rung }) => (
+          <div key={stepLabel} className="flex items-stretch gap-1">
+            <div
+              className="flex-1 px-3 py-2 text-sm"
+              style={{
+                background: wash,
+                borderRadius: "var(--radius-sm)",
+                color: "var(--foreground)",
+              }}
+            >
+              {stepLabel}
+            </div>
+            {rung ? (
+              <div
+                className="flex w-32 shrink-0 items-center px-2 text-code-sm"
+                style={{
+                  background: `var(--${rung})`,
+                  borderRadius: "var(--radius-sm)",
+                  color: "var(--muted-foreground)",
+                }}
+              >
+                --{rung}
+              </div>
+            ) : null}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
  * The surface ladder in both themes at once, plus the alpha twins.
  *
  * Rendered as two forced islands (`.dark` is a plain class selector on the token sheet), so a
@@ -230,35 +318,31 @@ export function SurfaceLadder() {
             key={String(forceDark)}
             className={forceDark ? "dark" : undefined}
             style={{
-              background: "var(--card)",
+              background: "var(--background)",
               border: "1px solid var(--border)",
               borderRadius: "var(--radius-lg)",
             }}
           >
-            <div className="space-y-2 p-4">
+            <div className="space-y-3 p-4">
               <p
                 className="text-mono-label"
                 style={{ color: "var(--muted-foreground)" }}
               >
-                ALPHA TWINS ON {forceDark ? "DARK" : "LIGHT"} CARD
+                ALPHA TWINS — {forceDark ? "DARK" : "LIGHT"}
               </p>
-              {[
-                ["rest", "transparent"],
-                ["hover — --alpha-hover", "var(--surface-2)"],
-                ["pressed — --alpha-pressed", "var(--surface-3)"],
-              ].map(([label, bg]) => (
-                <div
-                  key={label}
-                  className="px-3 py-2 text-sm"
-                  style={{
-                    background: bg,
-                    borderRadius: "var(--radius-md)",
-                    color: "var(--foreground)",
-                  }}
-                >
-                  {label}
-                </div>
+              {ALPHA_HOSTS.map((host) => (
+                <AlphaHostBlock key={host.token} {...host} />
               ))}
+              <p
+                className="text-sm"
+                style={{ color: "var(--muted-foreground)" }}
+              >
+                Each wash is the real <code>foreground</code> composite the
+                recipes emit, painted over the host beside its opaque rung. On
+                the page they land within 0.003 L of the rung; over the well and
+                the dark card they keep stepping, which the opaque rung cannot
+                do.
+              </p>
             </div>
           </div>
         ))}

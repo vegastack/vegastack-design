@@ -195,7 +195,7 @@
       "components": [0.13, 0.002, 75],
       "alpha": 0.6
     },
-    "$description": "THEME-INVARIANT media chrome scrim (B4-01): the gradient/backdrop behind controls laid over video or imagery. Always a warm-black alpha, never a theme token, so the chrome reads dark-scrim + light-ink in both themes (`primary` flips with the theme and inverted the chrome in dark). media-foreground clears 5.2:1 on it over a white worst-case backdrop."
+    "$description": "THEME-INVARIANT media chrome scrim (B4-01): the gradient/backdrop behind controls laid over video or imagery. Always a warm-black alpha, never a theme token, so the chrome reads dark-scrim + light-ink in both themes (`primary` flips with the theme and inverted the chrome in dark). TEXT IS PERMITTED on this scrim: media-foreground clears 5.2:1 on it over a white worst-case backdrop, and tooling/contrast-check.mjs gates the pair at the AA TEXT floor (4.5:1), not the 3:1 non-text floor — so a retune that thins this scrim under AA fails the build rather than silently demoting its labels."
   },
   "media-scrim-strong": {
     "$type": "color",
@@ -204,12 +204,12 @@
       "components": [0.13, 0.002, 75],
       "alpha": 0.8
     },
-    "$description": "Theme-invariant strong scrim for opaque media pills (volume popover, time badge) \u2014 11:1 for media-foreground over a white worst case."
+    "$description": "Theme-invariant strong scrim for opaque media pills (volume popover, time badge) \u2014 11:1 for media-foreground over a white worst case. Use it for any block of media text that needs headroom beyond the soft scrim's ~5.2:1, and for text over unusually bright or busy frames."
   },
   "media-foreground": {
     "$type": "color",
     "$value": "{color.neutral.50}",
-    "$description": "Theme-invariant media chrome ink: the warm off-white used for every icon, label and track drawn over media-scrim. Not overridden in dark on purpose."
+    "$description": "Theme-invariant media chrome ink: the warm off-white used for every icon, label and track drawn over media-scrim or media-scrim-strong. Labels are allowed on EITHER scrim — both are gated at the AA text floor (4.5:1) against this ink over the white worst case. Not overridden in dark on purpose."
   },
   "input": {
     "$type": "color",

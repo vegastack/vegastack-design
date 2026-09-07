@@ -54,12 +54,19 @@ const LADDER_INKS = ["foreground", "muted-foreground"];
 
 // Theme-invariant media chrome (B4-01): the off-white ink over the two scrims, measured against
 // the WORST backdrop a scrim can sit on (the light page — a scrim over a bright frame is the
-// weakest case; over dark video it only improves). Text on the strong pill needs AA (4.5:1); the
-// icons and track on the soft gradient scrim are non-text parts (1.4.11, 3:1). Floors are
-// literal here because `AA_NONTEXT` is declared further down.
+// weakest case; over dark video it only improves).
+//
+// BOTH scrims are gated at AA TEXT (4.5:1), not just the strong one (F1 follow-up, 2026-09-07).
+// `media-foreground` is documented as the ink for "every icon, LABEL and track" over the soft
+// scrim, so the soft scrim carries text in practice (the timestamp and title over a video's
+// gradient); gating it at the 1.4.11 non-text floor (3:1) let the token contract permit text the
+// gate never checked. It already measures ~5.2:1 over the white worst case, so the stricter floor
+// is free today and simply stops a future retune from thinning the scrim under AA. A scrim that
+// can no longer clear 4.5:1 must move its text to `media-scrim-strong` rather than relax this.
+// Floors are literal here because `AA_NONTEXT` is declared further down.
 const MEDIA_CASES = [
   ["media-scrim-strong", 4.5, "pill text"],
-  ["media-scrim", 3, "overlay icons"],
+  ["media-scrim", 4.5, "overlay icons AND labels"],
 ];
 
 // muted-foreground-faint is DELIBERATELY sub-AA (placeholders/disabled only — design.md), but it
