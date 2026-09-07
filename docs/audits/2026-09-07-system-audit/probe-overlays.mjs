@@ -29,7 +29,10 @@ const browser = await chromium.launch();
 const cases = [
   ["dropdown-menu", "dropdownMenuRich", "click"],
   ["context-menu", "contextMenuRich", "rightclick"],
-  ["select", "selectStates", "click:last"],
+  // `selectSizes`, not `selectStates`: States leads with a DISABLED select, and Base UI marks it
+  // with `data-disabled`/`aria-disabled` rather than the native attribute, so no `:not(:disabled)`
+  // filter can skip it. Sizes has three enabled triggers and measures the same popup.
+  ["select", "selectSizes", "click"],
   ["combobox", "comboboxGroups", "focus"],
   ["command", "commandDialog", "click"],
   ["dialog", "dialogSizes", "click:2"],
