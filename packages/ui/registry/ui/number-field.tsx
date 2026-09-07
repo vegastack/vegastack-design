@@ -5,12 +5,7 @@
 import * as React from "react";
 import { Minus, Plus } from "lucide-react";
 import { NumberField as BaseNumberField } from "@base-ui/react/number-field";
-import { cn } from "@vegastack/design";
-import {
-  mergeRefs,
-  useShakeOnInvalid,
-  type ShakeSignal,
-} from "@/components/ui/use-animation-replay";
+import { cn, fieldControlGroup } from "@vegastack/design";
 
 /* ---
 `NumberField` exists because the roster had no numeric input at all: quantities, limits,
@@ -95,13 +90,6 @@ export interface NumberFieldProps extends Omit<
    */
   inputClassName?: string;
   /**
-   * Bump to re-shake the field while it is ALREADY invalid — it auto-shakes
-   * once when it first becomes invalid. See `useShakeOnInvalid`.
-
-   * @default undefined
-   */
-  shakeSignal?: ShakeSignal;
-  /**
    * Ref forwarded to the inner `<input>` element.
 
    * @default undefined
@@ -110,16 +98,14 @@ export interface NumberFieldProps extends Omit<
 }
 
 /**
- * Group chrome — mirrors `Input`'s addon-mode wrapper exactly: the border,
- * focus tint, invalid tint, disabled wash and dark input tint all live on the
- * root, driven by the inner input's state via `has-*`/`focus-within`.
+ * Group layout only. The border, focus tint, invalid tint, disabled wash and dark input tint
+ * are `fieldControlGroup` — the one wrapper recipe `Input`'s addon mode, ChipInput and the
+ * Combobox input-group also wear (audit B1-11), so the four can no longer drift apart.
+ * `data-field-group` on the root is what lets `base.css` paint the forced-colours focus outline
+ * on the GROUP instead of on the inner input, whose own outline this `overflow-hidden` clips.
  */
 const groupClasses =
-  "flex w-full min-w-0 items-center overflow-hidden rounded-md border border-input bg-transparent text-base " +
-  "dark:bg-input/(--alpha-input) " +
-  "focus-within:border-ring/(--alpha-tint-border) " +
-  "has-aria-invalid:border-destructive-border/(--alpha-tint-border) " +
-  "has-disabled:pointer-events-none has-disabled:cursor-not-allowed has-disabled:opacity-(--opacity-dim) has-disabled:bg-muted";
+  "flex w-full min-w-0 items-center overflow-hidden text-base";
 
 const sizeClasses = {
   sm: "h-(--size-sm) text-sm",
@@ -140,11 +126,25 @@ const addonClasses =
  * root's `overflow-hidden` cannot clip it.
  */
 const stepperClasses =
-  "flex h-full w-(--size-sm) shrink-0 items-center justify-center text-muted-foreground " +
-  "hover:text-foreground hover:bg-surface-2 active:bg-surface-3 " +
+  "group/stepper flex h-full w-(--size-sm) shrink-0 items-center justify-center p-1 text-muted-foreground " +
+  "hover:text-foreground " +
   "focus-visible:-outline-offset-2 " +
-  "disabled:pointer-events-none disabled:opacity-(--opacity-dim) " +
-  "data-disabled:pointer-events-none data-disabled:opacity-(--opacity-dim)";
+  "disabled:opacity-(--opacity-dim) " +
+  "data-disabled:opacity-(--opacity-dim)";
+
+/**
+ * The stepper's wash is an INSET CHIP inside the button, never the button's own background
+ * (audit SP-02). Full-bleed `hover:bg-surface-2` ran the fill flush into the field's hairline on
+ * three sides and met the rounded outer corner with a square one; `design.md`'s hover-geometry
+ * rule ("a wash is inset ≥4px from a container hairline and inherits its inner radius") exists
+ * because of exactly this defect. `p-1` on the button insets the chip by 4px and `rounded-sm`
+ * gives it a corner of its own, so a 28×32 stepper hovers as a 20×24 chip. The button keeps the
+ * full pointer target and the ink step; only the paint moved inward.
+ */
+const stepperFillClasses =
+  "flex size-full items-center justify-center rounded-sm " +
+  "group-hover/stepper:bg-surface-2 group-active/stepper:bg-surface-3 " +
+  "group-disabled/stepper:bg-transparent group-data-disabled/stepper:bg-transparent";
 
 /**
  * `NumberField` — a locale-aware numeric input on Base UI's NumberField, in
@@ -178,28 +178,20 @@ export function NumberField({
   hideControls = false,
   className,
   inputClassName,
-  shakeSignal,
   inputRef,
   ...rootProps
 }: NumberFieldProps) {
-  // The shake plays on the root group — that is where the visible border lives
-  // (Input's addon-mode precedent) — and watches the inner input's invalid flag.
-  const {
-    invalidRef: shakeInvalidRef,
-    className: shakeClassName,
-    onAnimationEnd: shakeAnimationEnd,
-  } = useShakeOnInvalid({ shakeSignal });
-  const mergedInputRef = React.useMemo(
-    () => mergeRefs(inputRef, shakeInvalidRef),
-    [inputRef, shakeInvalidRef],
-  );
-
   return (
     <BaseNumberField.Root
       data-slot="number-field"
       data-size={size}
-      className={cn(groupClasses, sizeClasses[size], shakeClassName, className)}
-      onAnimationEnd={shakeAnimationEnd}
+      data-field-group=""
+      className={cn(
+        fieldControlGroup,
+        groupClasses,
+        sizeClasses[size],
+        className,
+      )}
       {...rootProps}
     >
       {hideControls ? null : (
@@ -208,7 +200,9 @@ export function NumberField({
           aria-label="Decrease"
           className={cn(stepperClasses, "border-e border-input")}
         >
-          <Minus className="size-(--icon-compact)" aria-hidden />
+          <span className={stepperFillClasses}>
+            <Minus className="size-(--icon-compact)" aria-hidden />
+          </span>
         </BaseNumberField.Decrement>
       )}
       {prefix != null ? (
@@ -220,14 +214,13 @@ export function NumberField({
         </span>
       ) : null}
       <BaseNumberField.Input
-        ref={mergedInputRef}
+        ref={inputRef}
         data-slot="number-field-input"
         aria-label={ariaLabel}
         placeholder={placeholder}
         className={cn(
-          "h-full w-full min-w-0 flex-1 bg-transparent py-1 text-inherit outline-none",
+          "h-full w-full min-w-0 flex-1 bg-transparent py-1 text-inherit outline-hidden",
           "placeholder:text-muted-foreground-faint",
-          "selection:bg-primary selection:text-primary-foreground",
           "disabled:cursor-not-allowed",
           prefix != null ? "ps-1.5" : "ps-3",
           suffix != null ? "pe-1.5" : "pe-3",
@@ -248,7 +241,9 @@ export function NumberField({
           aria-label="Increase"
           className={cn(stepperClasses, "border-s border-input")}
         >
-          <Plus className="size-(--icon-compact)" aria-hidden />
+          <span className={stepperFillClasses}>
+            <Plus className="size-(--icon-compact)" aria-hidden />
+          </span>
         </BaseNumberField.Increment>
       )}
     </BaseNumberField.Root>

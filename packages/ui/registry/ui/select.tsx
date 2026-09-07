@@ -6,7 +6,12 @@ import * as React from "react";
 import { Select as BaseSelect } from "@base-ui/react/select";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
-import { cn, FLOATING, surfaceInteractive } from "@vegastack/design";
+import {
+  cn,
+  fieldControl,
+  FLOATING,
+  surfaceInteractive,
+} from "@vegastack/design";
 import {
   FloatingSurface,
   menuItemVariants,
@@ -22,16 +27,17 @@ import {
  */
 export const selectTriggerVariants = cva(
   [
-    "group/select-trigger flex w-full items-center justify-between gap-2 rounded-md border border-input bg-transparent text-base whitespace-nowrap select-none",
-    "focus:border-ring/(--alpha-tint-border)",
-    // The trigger is a transparent control, so it climbs the surface ladder like every other one
-    // (SP-04: it used to hover ONLY in dark, via `dark:hover:bg-input/…` — one theme hovered and
-    // the other did not). The dark resting fill stays: it is the field's inset, not a hover step.
-    "dark:bg-input/(--alpha-input)",
+    // The trigger is a FIELD, so it wears the same chrome as Input/Textarea/OTP — one border
+    // grammar across every control a form row can contain (audit B1-11): rest hairline, neutral
+    // hover tint, `ring` focus tint, destructive invalid, dimmed disabled, dark inset fill.
+    fieldControl,
+    "group/select-trigger flex w-full items-center justify-between gap-2 text-base whitespace-nowrap select-none",
+    // …and it is also a BUTTON, which a text field is not: it is pressable, so it takes the
+    // surface ladder's wash and pressed rung on top of the field chrome. That is the whole
+    // distinction — `fieldControl` says what it IS, `surfaceInteractive` says it can be pushed.
+    // (SP-04: it used to hover ONLY in dark, via `dark:hover:bg-input/…`.)
     surfaceInteractive,
     "data-[placeholder]:text-muted-foreground",
-    "aria-invalid:border-destructive-border/(--alpha-tint-border) data-invalid:border-destructive-border/(--alpha-tint-border)",
-    "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-(--opacity-dim)",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
   ].join(" "),
   {

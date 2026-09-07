@@ -6,7 +6,13 @@ import * as React from "react";
 import { Combobox as BaseCombobox } from "@base-ui/react/combobox";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Check, ChevronsUpDown, X } from "lucide-react";
-import { cn, FLOATING, surfaceInteractive } from "@vegastack/design";
+import {
+  cn,
+  fieldControl,
+  fieldControlGroup,
+  FLOATING,
+  surfaceInteractive,
+} from "@vegastack/design";
 import { Chip, ChipRemove } from "@/components/ui/chip";
 import {
   FloatingSurface,
@@ -144,13 +150,12 @@ export function ComboboxValue({
 
 export const comboboxInputVariants = cva(
   [
-    "w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-base outline-none ",
-    "focus:border-ring/(--alpha-tint-border)",
-    "dark:bg-input/(--alpha-input)",
-    "placeholder:text-muted-foreground-faint",
-    "selection:bg-primary selection:text-primary-foreground",
-    "data-[invalid]:border-destructive-border/(--alpha-tint-border)",
-    "data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-(--opacity-dim) data-[disabled]:bg-muted",
+    // The one field chrome (audit B1-11) — border, hover tint, focus tint, invalid, disabled,
+    // dark inset fill — shared with Input, Textarea, NumberField, OTP and the Select trigger.
+    // `outline-hidden` (not `outline-none`) leaves a transparent outline for `forced-colors:
+    // active` to repaint, since the forced palette erases the border tint entirely (B1-01).
+    fieldControl,
+    "w-full min-w-0 px-3 py-1 text-base outline-hidden",
   ].join(" "),
   {
     variants: {
@@ -234,14 +239,14 @@ export function ComboboxPopupInput({
 
 export const comboboxInputGroupVariants = cva(
   [
-    "flex w-full min-w-0 flex-wrap items-center gap-1 rounded-md border border-input bg-transparent p-1 ",
-    "dark:bg-input/(--alpha-input)",
-    "data-[focused]:border-ring/(--alpha-tint-border)",
-    "data-[invalid]:border-destructive-border/(--alpha-tint-border)",
-    "data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-(--opacity-dim) data-[disabled]:bg-muted",
+    // The wrapper twin of the field chrome — same border grammar, read through Base UI's
+    // `data-focused`/`data-invalid`/`data-disabled` instead of the input's own pseudo-classes.
+    // Pair it with `data-field-group` on the element (see `ComboboxInputGroup`).
+    fieldControlGroup,
+    "flex w-full min-w-0 flex-wrap items-center gap-1 p-1",
     // Flatten the nested ComboboxInput into the group's own chrome (same technique as
     // field.tsx's CONTROL_SLOTS) — the group owns the border/ring, the input becomes borderless.
-    "[&_[data-slot=combobox-input]]:h-full [&_[data-slot=combobox-input]]:min-w-12 [&_[data-slot=combobox-input]]:flex-1 [&_[data-slot=combobox-input]]:border-none [&_[data-slot=combobox-input]]:bg-transparent [&_[data-slot=combobox-input]]:px-1.5 [&_[data-slot=combobox-input]]:py-0 [&_[data-slot=combobox-input]]:focus:border-transparent [&_[data-slot=combobox-input]]:dark:bg-transparent",
+    "[&_[data-slot=combobox-input]]:h-full [&_[data-slot=combobox-input]]:min-w-12 [&_[data-slot=combobox-input]]:flex-1 [&_[data-slot=combobox-input]]:border-none [&_[data-slot=combobox-input]]:bg-transparent [&_[data-slot=combobox-input]]:px-1.5 [&_[data-slot=combobox-input]]:py-0 [&_[data-slot=combobox-input]]:focus:border-transparent [&_[data-slot=combobox-input]]:hover:border-transparent [&_[data-slot=combobox-input]]:dark:bg-transparent",
   ].join(" "),
   {
     variants: {
@@ -284,6 +289,7 @@ export function ComboboxInputGroup({
     <BaseCombobox.InputGroup
       data-slot="combobox-input-group"
       data-size={size}
+      data-field-group=""
       className={cn(comboboxInputGroupVariants({ size }), className)}
       {...props}
     />
