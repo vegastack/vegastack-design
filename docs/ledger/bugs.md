@@ -4,6 +4,28 @@ Every bug found + root cause + fix. Append-only.
 
 ---
 
+## 2026-09-07 — Two defects the audit did not name, found while building the surface ladder
+
+- **A light-only alias leaks the light value into `.dark`.** `chart-single` was authored once, in
+  `semantic.tokens.json`, as `{foreground}`. Style Dictionary resolves an alias **per run**, and the
+  dark run only emits the variables its own source file declares — so `.dark` inherited the LIGHT
+  `--chart-single` (near-black ink) through the cascade and a single-series chart in dark mode drew
+  a black line on a dark card. Caught by the token contrast gate, not by eye. **Fix:** any semantic
+  token whose alias target is itself theme-split must be declared in BOTH source files; `chart-single`
+  now is, with a comment saying why. Anything added later that aliases `foreground`, `primary` or
+  `card` needs the same treatment — the gate is the safety net.
+
+- **The toaster mirror is not covered by `registry:build`.** `packages/ui/src/provider/toaster.tsx`
+  must byte-match `packages/ui/registry/ui/sonner.tsx` (minus the provenance header), but nothing in
+  `pnpm registry:build` writes it — only `tooling/sync-toaster-mirror.mjs` does, and only
+  `pnpm design:verify` checks it. So a component change to `sonner.tsx` leaves a clean
+  `registry:build && git status` **and** a green pre-commit, and fails later in `design:verify`.
+  Hit exactly that in this batch. Not fixed here (the gate scripts are G1-a's file boundary), but it
+  is a real fail-late: the mirror sync belongs inside `registry:build` alongside the copy-in
+  generation, or the check belongs in the pre-commit gate.
+
+---
+
 ## 2026-07-27 — Firefox neuters the DataTransfer of a synthetic ClipboardEvent (test-only)
 
 - **Symptom:** `chip-input.test.tsx` "paste splits on the delimiter set" failed only in Firefox
