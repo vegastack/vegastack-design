@@ -4,6 +4,38 @@ Every bug found + root cause + fix. Append-only.
 
 ---
 
+## 2026-09-08 — The `relative-time` 320px contract fails nondeterministically under the full sweep
+
+- **Symptom.** `/docs/components/relative-time contains its primary fixture at 320px` fails with
+  `locator.scrollIntoViewIfNeeded: Element is not attached to the DOM` — but only in the FULL
+  110-route sweep, and in a **different subset of Chromium projects each run**. It blocks
+  `pnpm gates:push` for any change whose scope is global, so no such change can produce a receipt.
+- **Proven pre-existing, not caused by any branch.** Four runs on the Ryzen `gates2` box:
+  - `origin/main` @ `9c33dfaf`, unmodified — that one route in isolation: **8/8 pass**.
+  - `origin/main` @ `9c33dfaf`, unmodified — `pnpm contracts:all` (880 checks): **1 failed**,
+    `chromium-dark`.
+  - `audit/f1-docfix` (docs/doctrine only) — `gates:push` full sweep: 3 failed — `chromium`,
+    `chromium-dark`, `mobile-chromium`.
+  - `audit/f1-docfix` — the same sweep rerun: 2 failed — `chromium-dark`, `mobile-chromium`.
+
+  The unmodified base fails the identical check, and the failing project set varies run to run: this
+  is a race, and it is on `main`.
+
+- **Root cause: the probe races the component's own clock.** `relative-time.tsx` runs a
+  self-rescheduling `setTimeout` that calls `setClock`, so the fixture re-renders on a timer.
+  `contracts.spec.ts:269-271` resolves `page.locator("[data-vrt-preview]").first()`, asserts it
+  visible, then calls `scrollIntoViewIfNeeded()`, which waits for the element to be _stable_. Under
+  the loaded parallel sweep a tick lands inside that window and the handle goes stale. Isolated, the
+  machine is fast enough that the window closes before a tick arrives — which is exactly why an
+  isolated rerun "proves" nothing here and the sweep is the only place it shows.
+- **Not fixed here.** The `[data-vrt-preview].first()` probe is already routed to **G1-b (#49)**, and
+  the component's tick to D1 — this entry is the reproduction and the evidence, so whoever takes it
+  does not have to rediscover that the base branch fails too.
+- **Whatever the fix, it must not be "retry until green".** Re-running until the race misses is
+  regenerating the evidence under review, the same failure mode the VRT baselines were deleted for.
+  The fix is to make the fixture stable for the assertion (freeze the clock on the contract route, or
+  re-resolve the locator inside the action), not to widen a timeout.
+
 ## 2026-09-07 — `design:sync:check` cannot see prose that names a deleted token
 
 - **Symptom.** F1 deleted `track`, `--alpha-surface-subtle`, `--alpha-fill-hover` and
