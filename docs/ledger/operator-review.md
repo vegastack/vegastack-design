@@ -379,6 +379,44 @@ idempotency check would fail after anyone ran the formatter.
 
 ---
 
+## 2026-09-07 — Fo1 forms: five calls the issue did not settle
+
+- **`fieldControl` is a class STRING in `@vegastack/design`, not a `cva` exported from `input.tsx`.**
+  B1-11's fix note suggested the latter. Two reasons against it: `input.tsx` is a registry item, so
+  every consumer of the recipe would have taken a `registryDependency` on Input purely to import a
+  string (the Select trigger does not otherwise depend on Input), and the recipe is chrome with no
+  variant axis of its own — each control still adds its own size and layout classes, which is what a
+  `cva` would have implied it owned. It lives beside `surfaceInteractive` and `fillInteractive`,
+  which are the same shape and the same idea.
+
+- **A second recipe, `fieldControlGroup`, rather than one recipe with `has-*` selectors.** The
+  wrapper reads its state through `focus-within` / `has-aria-invalid` / Base UI's `data-focused`; the
+  control reads its own pseudo-classes. Folding both into one string would have every field carrying
+  the selectors it cannot use, and `twMerge` cannot collapse them because they are different
+  variants. Two strings, one comment each explaining which is which.
+
+- **`Spinner` keeps accepting `label=""`.** B8-09 asked for a `decorative` prop "instead of an empty
+  string", which reads as a removal. It was not removed: an empty accessible name is how the whole
+  system says "this has no name" (`StatusIcon` does the same), so removing it here would make Spinner
+  the exception rather than the model, and the remaining `label=""` call sites are in `command.tsx`,
+  which is O1's file boundary. `decorative` is now the sanctioned spelling and the docs say so.
+  **For MK:** if the intent was a hard removal, it is a one-line change plus four call sites, and it
+  should be done in one pass across `Spinner` and `StatusIcon` together rather than half of it here.
+
+- **`FieldInline`'s `readOnly` folds into the hook's `disabled`.** The hook has one blocking flag, not
+  two. To its state machine `readOnly` and `disabled` mean the identical thing — an edit may not be
+  entered, and one in flight reverts — and they differ only in chrome, which stays in the component
+  (`readOnly` drops button semantics entirely; `disabled` keeps the role and dims). A second flag
+  would have been a distinction the machine never uses.
+
+- **`CheckboxGroup` has no `orientation` and no `CheckboxGroupItem`.** A checkbox list reads
+  vertically; a horizontal row of independent tick boxes is a toolbar or a ToggleGroup. And a child is
+  a plain `Checkbox` with a `value`, exactly as Base UI composes it — a wrapper whose only job is to
+  forward every prop adds a component and hides where `value` goes. Both are reversible if a consumer
+  needs them; neither is worth shipping speculatively.
+
+##
+
 ## 2026-09-07 — F1 surface ladder: eye-tuned rung values and the `bg-muted` mapping
 
 **Decision:** ship the ladder at values that differ from `03-proposals.md` §P1's start values wherever the contrast gate said P1's number could not hold, and keep `bg-muted` on the sites where it already means "rung 1".

@@ -420,6 +420,34 @@ re-diagnose it, and because a race that flakes under load is a real race.
   subscribes to. Same visible behaviour, one `<span>` re-rendered instead of a grid.
 
 ---
+## 2026-09-07 — Two defects the audit did not name, found while unifying the field chrome (Fo1)
+
+- **The forced-colours focus outline was being clipped on every field with addons.** F1 fixed B1-01
+  by painting `outline: 2px solid Highlight` on focused `input`/`textarea` under
+  `forced-colors: active`, with `outline-offset: 1px`. That works for a bare field. It does **not**
+  work inside a bordered GROUP — Input's prefix/suffix wrapper, NumberField's stepper group,
+  ChipInput, the Combobox input-group — because the group clips with `overflow-hidden` so its addons
+  follow the rounded corner, and a positive outline-offset draws the ring _outside_ the input and
+  _inside_ that clip. It was painted and then cut, so a High Contrast user still had no focus
+  indicator on exactly the fields most likely to matter (a slug field, a quantity stepper, a
+  recipient list). **Fix:** the group carries the outline via a bare `data-field-group` attribute
+  written by every consumer of `fieldControlGroup`, and `[data-field-group] input:focus` sets
+  `outline: none` so the two never double-ring. The attribute IS the contract; a group wearing the
+  wrapper recipe without it is a silent regression.
+
+- **`design-lint`'s `outline-none` rule does not cover `outline-hidden`, and it matches PROSE.** The
+  rule is a whole-file `/\boutline-none\b/` test paired with a whole-file focus-affordance test.
+  Two consequences met in this batch. First, moving the focus tint out of each component and into
+  `fieldControl` removed the in-file `focus:border-` affordance, so files that merely _mentioned_ the
+  banned utility in a doc comment failed the rule while the code was correct — the comments had to be
+  reworded to say "the outline-removing utility" instead. Second, and more seriously, the rule cannot
+  see `outline-hidden` at all, so nothing stops a future component from hiding its outline with no
+  focus affordance anywhere. Not fixed here (design-lint rules are G1-b's file boundary, and B1-01's
+  own fix note asks for a text-entry-scoped rule): the rule should test the compiled utility rather
+  than the source string, and should recognise `fieldControl` as an imported focus affordance.
+
+---
+
 
 ## 2026-09-07 — Two defects the audit did not name, found while building the surface ladder
 

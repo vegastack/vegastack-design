@@ -116,7 +116,17 @@ contract.
 ## Composition patterns
 
 - **Forms** — Base UI `Field` + react-hook-form `Controller` + Zod 4 (`z.email()`). `Field.Control`
-  emits `onValueChange`, not a DOM `onChange` event.
+  emits `onValueChange`, not a DOM `onChange` event. **`Field` owns the feedback layer**: helper text
+  renders below the control, the error below that as a polite `role="status"`, and the invalid shake
+  belongs to the field — wrap a control in a `Field` to get it, and pass `shakeSignal` (a
+  submit-attempt counter) there to re-shake a field that never stopped being invalid. A bare
+  `<Input aria-invalid>` outside a `Field` tints its border and does not move.
+- **A set of related checkboxes is a `CheckboxGroup`** — pass `allValues` and mark one child
+  `parent` to get select-all with the mixed state, rather than computing checked/indeterminate in
+  your own state. Name the group with a `FieldSet`/`FieldLegend` or `aria-labelledby`.
+- **Click-to-edit is `useInlineEdit`** — draft, commit, cancel, focus restoration and the
+  double-commit guard, with no opinion about the editor or the display. `FieldInline` and
+  `EditableCell` are built on it.
 - **Overlays** — enter/exit is driven by `data-starting-style`/`data-ending-style` on the popup root,
   inside a portal + positioner. Theme, toast, tooltip, and direction providers all come from
   `<VegaStackProvider>`; your app root needs `isolation: isolate` or portaled popups can render under

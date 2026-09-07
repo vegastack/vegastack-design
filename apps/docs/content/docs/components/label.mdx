@@ -50,6 +50,23 @@ surface it with an inline `FieldError` on submit, not with a decorative mark.
 
 <ComponentPreview name="labelRequired" file="components/preview/label.tsx" />
 
+### Layout
+
+`Label` is `inline-flex` by default, so it composes into running text and sits beside a control
+without breaking the line around itself. Pass `layout="block"` for the stacked form row, where the
+label should own its own full-width line above the input.
+
+```tsx
+// Inline, in a sentence
+<p>
+  Type the word <Label>delete</Label> to confirm.
+</p>
+
+// Stacked above a control
+<Label layout="block" htmlFor="name">Full name</Label>
+<Input id="name" />
+```
+
 ### States
 
 The label dims to 50% opacity (the `--opacity-dim` token) when the control it
@@ -68,6 +85,10 @@ automatically — no extra prop needed. Both dimming paths are shown below.
 />
 
 ## Accessibility
+
+- Form labels render at 12px (`text-label-sm`): a label is dense metadata ABOUT the control
+  beneath it, not a peer of the 14px value typed into it. `text-label` (14px) stays for UI labels
+  and navigation.
 
 - Renders a native `<label>` — associate it with exactly one control via
   `htmlFor`/`id` or by wrapping the control, so clicking the label focuses (or

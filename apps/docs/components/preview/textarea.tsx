@@ -46,6 +46,20 @@ export function textareaStates(): ReactNode {
   );
 }
 
+export function textareaSizes(): ReactNode {
+  return (
+    <Wrapper className="block">
+      {/* Multiline fields size by MINIMUM height and padding rather than the fixed
+          control heights a single-line Input uses; sm steps the type down a tier. */}
+      <div className="mx-auto flex w-full max-w-sm flex-col gap-3">
+        <Textarea size="sm" aria-label="Small" placeholder="sm — compact" />
+        <Textarea size="md" aria-label="Default" placeholder="md — default" />
+        <Textarea size="lg" aria-label="Large" placeholder="lg — roomy" />
+      </div>
+    </Wrapper>
+  );
+}
+
 export function textareaAutoGrow(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch">

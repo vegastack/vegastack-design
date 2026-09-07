@@ -28,7 +28,7 @@ import { NumberField } from "@/components/ui/number-field";
 Like `Input`, the `size` prop is the control-height variant on the shared
 28/32/40 scale and **replaces** the native numeric `size` attribute.
 
-## Scope
+What lives elsewhere, and why:
 
 | Behaviour                     | Where it lives                                                            |
 | ----------------------------- | ------------------------------------------------------------------------- |
@@ -64,6 +64,10 @@ in display units:
 ```
 
 ### Sizes, units, and states
+
+Every size on the shared 28/32/40 scale, with the unit suffix, `hideControls`, `disabled`, and the
+invalid border tint. Wrap the field in a [`Field`](/docs/components/field) to pair the tint with a
+message and the invalid shake.
 
 <ComponentPreview
   name="numberFieldVariants"

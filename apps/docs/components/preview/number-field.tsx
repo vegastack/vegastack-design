@@ -98,6 +98,9 @@ export function numberFieldVariants(): ReactNode {
           hideControls
         />
         <NumberField aria-label="Locked" defaultValue={5} disabled />
+        {/* Invalid — the destructive border tint, with no motion of its own. Wrap the
+            field in a Field to get the shake and the message alongside it. */}
+        <NumberField aria-label="Over limit" defaultValue={999} aria-invalid />
       </div>
     </Wrapper>
   );

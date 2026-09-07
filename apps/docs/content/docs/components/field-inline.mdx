@@ -101,10 +101,12 @@ blur-commit never steals focus back).
   `"Edit value"`. When `value` and `placeholder` are both empty, the display mode
   visibly renders `"Edit value"` as the fallback.
 - Focus treatment differs by mode: the display affordance is a
-  `role="button"` `<span>` with `hover:bg-muted` and the default browser focus
-  outline (no custom ring class). The edit-mode [`Input`](/docs/components/input)
-  sets `outline-none` and re-colors its border on focus via `focus:border-ring/(--alpha-tint-border)`
-  — a border recolor, not a 2px ring.
+  `role="button"` `<span>` on the shared interactive-surface recipe (so its hover wash is
+  visible on every surface, not just the page ground) and the default browser focus outline
+  (no custom ring class). The edit-mode [`Input`](/docs/components/input) hides its outline
+  and re-colors its border on focus via `focus:border-ring/(--alpha-tint-border)` — a border
+  recolor, not a 2px ring. The error message announces as a polite `role="status"`, matching
+  [`Field`](/docs/components/field).
 
 ## Do / Don't
 
