@@ -1546,7 +1546,7 @@
         "whenToUse": "A compact icon-only action — toolbar buttons, row actions, close/dismiss.",
         "whenNotToUse": "Actions needing a visible text label (Button with icon) or URL navigation (link).",
         "version": "0.6.0",
-        "integrity": "sha256-1XMy3kfYyvGeZfJlSTQRaSMpNRkXVErTtecUMvhGGq4="
+        "integrity": "sha256-J6c2mCpAfahPI61vp3prZvtF2NJwN3PCLrAyZ8r2vaQ="
       }
     },
     {
@@ -2425,6 +2425,7 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
+        "@vegastack/button",
         "@vegastack/icon-button",
         "@vegastack/truncated-text"
       ],
@@ -2439,7 +2440,7 @@
         "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav, actions, favorite.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
         "version": "0.6.0",
-        "integrity": "sha256-B1npAZHI3KXMWRFp31B2VMkSUtr8BUSF43oBR0EJqjI="
+        "integrity": "sha256-Cp0KOoeLD/zGoivbg/nK/kA/ODtZsThpu8roBfLJOIc="
       }
     },
     {

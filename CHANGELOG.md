@@ -83,8 +83,10 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
 - **IconButton everywhere.** The dismiss, pager and toggle controls that were hand-rolled
   `<button>` elements in Alert, AnnouncementBanner, Dialog, Sheet, Pagination, OnboardingChecklist
   and FilterBar are now `IconButton`, and CopyButton, MessageScrollerButton, ColorPicker,
-  EmojiPicker, PageHeader and SplitButton's chevron half compose it too — so they all inherit the
-  matrix, the focus ring, the loading contract and the required accessible name.
+  EmojiPicker and SplitButton's chevron half compose it too — so they all inherit the matrix, the
+  focus ring, the loading contract and the required accessible name. New
+  `iconButtonGeometry(size, shape)` styles an icon-only **link**: navigation stays a real `<a>`
+  (PageHeader's back affordance) instead of acquiring `role="button"`.
   [docs](https://design.vegastack.com/docs/components/icon-button)
 - **A loading Button no longer changes width.** The spinner is taken out of flow and stacked over the
   label, which keeps its box behind `visibility: hidden`; previously a "Save changes" button jumped

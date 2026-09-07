@@ -1,11 +1,12 @@
-// @vegastack page-header@0.6.0 sha256-B1npAZHI3KXMWRFp31B2VMkSUtr8BUSF43oBR0EJqjI=
+// @vegastack page-header@0.6.0 sha256-Cp0KOoeLD/zGoivbg/nK/kA/ODtZsThpu8roBfLJOIc=
 
 "use client";
 
 import * as React from "react";
 import { ChevronLeft, Star } from "lucide-react";
 import { cn } from "@vegastack/design";
-import { IconButton } from "@/components/ui/icon-button";
+import { buttonVariants } from "@/components/ui/button";
+import { IconButton, iconButtonGeometry } from "@/components/ui/icon-button";
 import { TruncatedText } from "@/components/ui/truncated-text";
 
 /**
@@ -232,16 +233,22 @@ export function PageHeader({
               </IconButton>
             ) : null}
             {hasBack && !onBack && backHref ? (
-              <IconButton
-                variant="ghost"
-                size="sm"
+              // The href form is NAVIGATION, so it stays a real `<a>` wearing the button's
+              // classes — routing an anchor through `IconButton` would put `role="button"` on a
+              // link. `iconButtonGeometry` is the same square the wrapper applies, so the two
+              // back affordances are pixel-identical.
+              <a
+                href={backHref}
                 aria-label={backLabel}
                 data-slot="page-header-back"
-                className="-ms-2 shrink-0"
-                render={<a href={backHref} />}
+                className={cn(
+                  buttonVariants({ variant: "ghost", size: "sm" }),
+                  iconButtonGeometry("sm"),
+                  "-ms-2 shrink-0",
+                )}
               >
                 <ChevronLeft aria-hidden />
-              </IconButton>
+              </a>
             ) : null}
             {/* min-w-0 lets the h1 shrink below its content width inside the flex row above —
                 without it, the flex item's default `min-width: auto` would stop TruncatedText's

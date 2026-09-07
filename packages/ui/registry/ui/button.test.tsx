@@ -63,7 +63,7 @@ test("tone defaults to neutral and emits its custom-property class", async () =>
   // The solid recipe reads `--btn-fill`; the neutral tone must actually declare it. That the
   // property RESOLVES is measured under compiled CSS in test/button-matrix.browser.test.tsx.
   expect((btn.element() as HTMLElement).className).toContain(
-    "[--btn-fill:var(--color-primary)]",
+    "[--btn-fill:var(--primary)]",
   );
 });
 

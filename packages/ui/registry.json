@@ -2106,6 +2106,7 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
+        "@vegastack/button",
         "@vegastack/icon-button",
         "@vegastack/truncated-text"
       ],

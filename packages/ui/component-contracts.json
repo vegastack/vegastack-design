@@ -12149,6 +12149,15 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "iconButtonGeometry",
+          "kind": "variant-builder",
+          "source": "packages/ui/registry/ui/icon-button.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
         }
       ],
       "variants": {
@@ -16367,7 +16376,8 @@
       "docsSlug": "/docs/components/page-header",
       "registryDependencies": [
         "@vegastack/icon-button",
-        "@vegastack/truncated-text"
+        "@vegastack/truncated-text",
+        "@vegastack/button"
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",

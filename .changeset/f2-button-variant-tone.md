@@ -10,5 +10,6 @@ scale everywhere — `xs · sm · md · lg`, no tier named `default`, and Button
 Icon-only controls are `IconButton`, which gains `shape="square" | "round"` and replaces the
 hand-rolled `<button>` dismiss/pager/toggle controls across Alert, AnnouncementBanner, Dialog,
 Sheet, Pagination, OnboardingChecklist, FilterBar, ColorPicker, EmojiPicker, PageHeader, CopyButton,
-MessageScroller and SplitButton. A loading button no longer changes width, and `disabled` is
+MessageScroller and SplitButton, with a new `iconButtonGeometry(size, shape)` helper for icon-only
+LINKS (navigation stays a real `<a>`). A loading button no longer changes width, and `disabled` is
 `aria-disabled` so a Tooltip can explain why an action is unavailable.

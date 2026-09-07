@@ -1,4 +1,4 @@
-// @vegastack icon-button@0.6.0 sha256-1XMy3kfYyvGeZfJlSTQRaSMpNRkXVErTtecUMvhGGq4=
+// @vegastack icon-button@0.6.0 sha256-J6c2mCpAfahPI61vp3prZvtF2NJwN3PCLrAyZ8r2vaQ=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -27,6 +27,26 @@ const squareBySize: Record<IconButtonSize, string> = {
   md: "w-(--size-md) px-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
   lg: "w-(--size-lg) px-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
 };
+
+/**
+ * `iconButtonGeometry` — the square (or round) icon-only geometry as a class string, to pair with
+ * `buttonVariants()` on an **anchor**. `Button` and `IconButton` are for actions; navigation is a
+ * real `<a>`, styled to match (`design.md` §Components · Button). Rendering an anchor through
+ * `IconButton` would force `role="button"` onto a link, which is why this is a helper and not a
+ * `render` prop.
+ *
+ * @example
+ * <a href={backHref} aria-label="Go back"
+ *    className={cn(buttonVariants({ variant: "ghost", size: "sm" }), iconButtonGeometry("sm"))}>
+ *   <ChevronLeft aria-hidden />
+ * </a>
+ */
+export function iconButtonGeometry(
+  size: IconButtonSize = "md",
+  shape: IconButtonShape = "square",
+): string {
+  return cn(squareBySize[size], shape === "round" && "rounded-full");
+}
 
 /**
  * Props for `IconButton`. Inherits every `Button` prop except `size` (remapped to the square
@@ -90,7 +110,7 @@ export function IconButton({
   "data-slot": dataSlot,
   ...props
 }: IconButtonProps) {
-  const geometry = cn(squareBySize[size], shape === "round" && "rounded-full");
+  const geometry = iconButtonGeometry(size, shape);
   const resolvedClassName: ButtonProps["className"] =
     typeof className === "function"
       ? (state) => cn(geometry, className(state))

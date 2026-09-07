@@ -98,6 +98,29 @@ unavailable; `loading` stacks a spinner over the icon, sets `aria-busy`, and hol
 `variant` and `tone` come from [`Button`](/docs/components/button#api-reference) and are typed as a
 pair, so the forbidden `solid` + `destructive` cell is a compile error here too.
 
+### Icon-only links
+
+`IconButton` is an action. Navigation stays a real `<a>` — routing an anchor through it would put
+`role="button"` on a link. Style the anchor instead, exactly as you would a text link that should
+look like a button:
+
+```tsx
+import { cn } from "@vegastack/design";
+import { buttonVariants } from "@/components/ui/button";
+import { iconButtonGeometry } from "@/components/ui/icon-button";
+
+<a
+  href="/settings"
+  aria-label="Go back"
+  className={cn(
+    buttonVariants({ variant: "ghost", size: "sm" }),
+    iconButtonGeometry("sm"),
+  )}
+>
+  <ChevronLeft aria-hidden />
+</a>;
+```
+
 ## Accessibility
 
 - An accessible name is **mandatory** — pass `aria-label`. The build fails to type-check without one,
