@@ -1,6 +1,7 @@
 import { docs, internalDocs } from "collections/server";
 import { loader } from "fumadocs-core/source";
 import { docsRoute, internalRoute } from "./shared";
+import { renderAgentMarkdown } from "./markdown-export";
 
 export const source = loader({
   baseUrl: docsRoute,
@@ -36,7 +37,30 @@ export function getPageImage(page: PublicPage) {
   return { segments, url: `/og/docs/${segments.join("/")}` };
 }
 
+/**
+ * The agent-facing markdown for one page (DS-01): title, the frontmatter facts a reader sees in
+ * the page header (description, status, since, a11y pattern, install target), then the processed
+ * body with every MDX component rendered to markdown — fixture source, flat API tables, install
+ * steps — by `lib/markdown-export.ts`. Serves the `.md` sibling route, the dev-only
+ * `/llms.mdx/**` staging route, and `llms-full.txt`.
+ */
 export async function getLLMText(page: MarkdownPage) {
+  const { title, description, status, since, a11y, registry } = page.data;
+  const facts = [
+    status ? `Status: ${status}` : undefined,
+    since ? `Since: ${since}` : undefined,
+    a11y ? `Accessibility pattern: ${a11y}` : undefined,
+    registry
+      ? `Install: \`pnpm dlx shadcn@latest add @vegastack/${registry}\``
+      : undefined,
+  ].filter(Boolean);
+  const header = [
+    `# ${title} (${page.url})`,
+    description ? `> ${description}` : undefined,
+    facts.length > 0 ? facts.map((fact) => `- ${fact}`).join("\n") : undefined,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
   const processed = await page.data.getText("processed");
-  return `# ${page.data.title} (${page.url})\n\n${processed}`;
+  return `${header}\n\n${await renderAgentMarkdown(processed)}`;
 }
