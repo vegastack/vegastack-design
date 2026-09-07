@@ -2,16 +2,16 @@
 title: Data Grid
 description: The full-parity grid — multi-key sort, column picker, grouping, load-more, virtualization, and APG cell navigation with inline editing.
 audience: public
+registry: data-grid
+status: stable
+since: 0.4.0
+a11y: APG grid
 preview: dataGrid
 ---
 
 ## Installation
 
-```npm
-npx shadcn@latest add @vegastack/data-grid
-```
-
-<RegistryInstallCallout />
+<InstallSteps name="data-grid" />
 
 ## Usage
 
@@ -96,14 +96,14 @@ keyboard flow.
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/data-grid.tsx"
   name="DataGridProps"
 />
 
 ### Column
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/data-grid.tsx"
   name="DataGridColumn"
 />
@@ -133,9 +133,17 @@ keyboard flow.
 | <kbd>Escape</kbd>                                | Close the editor, restore grid focus.      |
 | <kbd>↓</kbd> on the last row                     | Load more (when `loadMore.hasMore`).       |
 
+The states the verification lanes exercise for this item (generated from `component-contracts.json`):
+
+<StatesTested name="data-grid" />
+
 ## Do / Don't
 
 <DoDont
   do="Reach for DataList first — DataGrid earns its weight only when you need grouping, inline editing, multi-key sort, or virtualization."
   dont="Wire cell-level overflow-hidden for truncation — use min-w-0 + an inner truncate span; cell clipping breaks the checkbox hit-area invariant."
 />
+
+## Changelog
+
+<ComponentChangelog name="data-grid" />
