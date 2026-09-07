@@ -1373,7 +1373,7 @@
     {
       "license": "MIT",
       "name": "graduation-cap",
-      "sha256": "213077b0da5eb5676080c8819cdf983d1a7a26ebb2ef032810fb29dde26a4d70",
+      "sha256": "9b42578b1d73185f67fa2f0ceed373db3cfd2f574a04d19eef5424ce9253d418",
       "url": "https://lucide-animated.com/r/graduation-cap.json"
     },
     {
@@ -1739,7 +1739,7 @@
     {
       "license": "MIT",
       "name": "menu",
-      "sha256": "31476b02ecdc83fbf6e5680308253e6ea3261d95f570618f11ed449323673c11",
+      "sha256": "fbcb1463bb1637a8e735833e7eabbecc34644c6cceb1bded34945e24e61809a5",
       "url": "https://lucide-animated.com/r/menu.json"
     },
     {
@@ -2309,7 +2309,7 @@
     {
       "license": "MIT",
       "name": "stethoscope",
-      "sha256": "8b08a0659253f90e4e67c603f5f75b5b403d10184629e35ac00d5caf0f3b3753",
+      "sha256": "6b6fdd39570783862ee679b21f90523db0446ad60703111fecca965a630ec33b",
       "url": "https://lucide-animated.com/r/stethoscope.json"
     },
     {
@@ -2489,7 +2489,7 @@
     {
       "license": "MIT",
       "name": "user-round-cog",
-      "sha256": "8652e36bc8c00eec44740bbe5304c90d9dac74880abc27249574f390af50c5de",
+      "sha256": "fab57b76fb4a11ebcf03e1539977328eef5d8ea1d298b1064f4244413fef8aad",
       "url": "https://lucide-animated.com/r/user-round-cog.json"
     },
     {
