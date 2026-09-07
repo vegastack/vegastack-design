@@ -23,7 +23,7 @@ type DialogPlaygroundKey = "size" | "showCloseButton";
 const SIZE_OPTIONS = [
   { value: "xs", label: "Extra small" },
   { value: "sm", label: "Small" },
-  { value: "default", label: "Default" },
+  { value: "md", label: "Medium" },
   { value: "lg", label: "Large" },
   { value: "full", label: "Full" },
 ] as const;
@@ -35,7 +35,7 @@ const dialogPlaygroundConfig: PlaygroundConfig<DialogPlaygroundKey> = {
       key: "size",
       label: "Size",
       options: SIZE_OPTIONS,
-      defaultValue: "default",
+      defaultValue: "md",
     },
     {
       type: "switch",
@@ -58,14 +58,14 @@ const dialogPlaygroundConfig: PlaygroundConfig<DialogPlaygroundKey> = {
         </DialogHeader>
         <DialogFooter>
           <DialogClose render={<Button variant="outline">Cancel</Button>} />
-          <Button variant="destructive">Delete</Button>
+          <Button variant="soft" tone="destructive">Delete</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   ),
   toCode: (state) => {
     const props: string[] = [];
-    if (state.size !== "default") props.push(`size="${state.size}"`);
+    if (state.size !== "md") props.push(`size="${state.size}"`);
     if (!state.showCloseButton) props.push("showCloseButton={false}");
     const propsString = props.length > 0 ? ` ${props.join(" ")}` : "";
     return [
@@ -78,7 +78,7 @@ const dialogPlaygroundConfig: PlaygroundConfig<DialogPlaygroundKey> = {
       "    </DialogHeader>",
       "    <DialogFooter>",
       '      <DialogClose render={<Button variant="outline">Cancel</Button>} />',
-      '      <Button variant="destructive">Delete</Button>',
+      '      <Button variant="soft" tone="destructive">Delete</Button>',
       "    </DialogFooter>",
       "  </DialogContent>",
       "</Dialog>",

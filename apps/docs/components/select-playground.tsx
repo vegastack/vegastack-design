@@ -18,7 +18,7 @@ type SelectPlaygroundKey = "size" | "disabled";
 
 const SIZE_OPTIONS = [
   { value: "sm", label: "Small" },
-  { value: "default", label: "Default" },
+  { value: "md", label: "Medium" },
   { value: "lg", label: "Large" },
 ] as const;
 
@@ -31,7 +31,7 @@ const selectPlaygroundConfig: PlaygroundConfig<SelectPlaygroundKey> = {
       key: "size",
       label: "Size",
       options: SIZE_OPTIONS,
-      defaultValue: "default",
+      defaultValue: "md",
     },
     { type: "switch", key: "disabled", label: "Disabled", defaultValue: false },
   ],
@@ -61,7 +61,7 @@ const selectPlaygroundConfig: PlaygroundConfig<SelectPlaygroundKey> = {
   toCode: (state) => {
     const rootProps = state.disabled ? " disabled" : "";
     const triggerProps =
-      state.size !== "default" ? ` size="${state.size}"` : "";
+      state.size !== "md" ? ` size="${state.size}"` : "";
     return [
       'const fonts = { sans: "Sans-serif", serif: "Serif", mono: "Monospace" };',
       "",

@@ -34,7 +34,7 @@ export function card(): ReactNode {
 export function cardSizes(): ReactNode {
   return (
     <Wrapper className="items-start">
-      <Card size="default" className="w-full max-w-64">
+      <Card size="md" className="w-full max-w-64">
         <CardHeader>
           <CardTitle>Default density</CardTitle>
           <CardDescription>size=&quot;default&quot;</CardDescription>

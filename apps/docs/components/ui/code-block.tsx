@@ -1,4 +1,4 @@
-// @vegastack code-block@0.6.0 sha256-ft0Ye/YC0S1tUHs3QWkJznSrGvSzFRFtKTRFW/sl6tE=
+// @vegastack code-block@0.6.0 sha256-UeSfBI90Wa0X5AgQ7vLq+XBdZuY0MaJDjTinq+nOdEc=
 
 import * as React from "react";
 import { CopyButton } from "@/components/ui/copy-button";
@@ -67,7 +67,7 @@ export function CodeBlock({
           {copyValue != null ? (
             <CopyButton
               value={copyValue}
-              size="icon-xs"
+              size="xs"
               variant="ghost"
               copyLabel={copyLabel ?? `Copy ${language ?? "code"}`}
             />

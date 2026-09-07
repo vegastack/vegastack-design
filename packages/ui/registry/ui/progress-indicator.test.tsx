@@ -10,7 +10,7 @@ test("renders a progressbar with the slot + default attributes", async () => {
   await expect.element(bar).toBeInTheDocument();
   await expect.element(bar).toHaveAttribute("data-slot", "progress-indicator");
   await expect.element(bar).toHaveAttribute("data-variant", "default");
-  await expect.element(bar).toHaveAttribute("data-size", "default");
+  await expect.element(bar).toHaveAttribute("data-size", "md");
   await expect.element(bar).toHaveAttribute("data-shape", "circle");
 });
 

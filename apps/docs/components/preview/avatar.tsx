@@ -28,7 +28,7 @@ export function avatarSizes(): ReactNode {
     <Wrapper>
       <Avatar size="xs" src={ADA} alt="Ada Lovelace" fallback="AL" />
       <Avatar size="sm" src={ADA} alt="Ada Lovelace" fallback="AL" />
-      <Avatar size="default" src={ADA} alt="Ada Lovelace" fallback="AL" />
+      <Avatar size="md" src={ADA} alt="Ada Lovelace" fallback="AL" />
       <Avatar size="lg" src={ADA} alt="Ada Lovelace" fallback="AL" />
       <Avatar size="xl" src={ADA} alt="Ada Lovelace" fallback="AL" />
     </Wrapper>

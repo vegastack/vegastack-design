@@ -1,4 +1,4 @@
-// @vegastack dialog@0.6.0 sha256-aKi75MOR+JFGn7STA5ORjzGMOt+7pp2Yq0DYV+X1FPU=
+// @vegastack dialog@0.6.0 sha256-+mZGrlZiFc0OUSdsy2bpzhIyD79Nj8kEmjTR9OJTe9k=
 
 "use client";
 
@@ -6,8 +6,9 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
-import { cn, surfaceInteractive } from "@vegastack/design";
+import { cn } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
+import { IconButton } from "@/components/ui/icon-button";
 
 /* ------------------------------------------------------------------------------------------------
  * Dialog — a modal overlay built on Base UI's Dialog. Exported FLAT (shadcn-style):
@@ -22,7 +23,7 @@ import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 
 /**
  * Dialog content size — controls the centered popup's max-width.
- * Mirrors the shared size scale (`xs`/`sm`/`default`/`lg`) plus a near-full-viewport `full`.
+ * Mirrors the shared size scale (`xs`/`sm`/`md`/`lg`) plus a near-full-viewport `full`.
  * Every value is a semantic scale token (no hardcoded widths).
  */
 export const dialogContentVariants = cva(
@@ -41,12 +42,12 @@ export const dialogContentVariants = cva(
       size: {
         xs: "sm:max-w-xs",
         sm: "sm:max-w-sm",
-        default: "sm:max-w-md",
+        md: "sm:max-w-md",
         lg: "sm:max-w-lg",
         full: "sm:max-w-4xl",
       },
     },
-    defaultVariants: { size: "default" },
+    defaultVariants: { size: "md" },
   },
 );
 
@@ -63,14 +64,14 @@ export type DialogContentSize = NonNullable<
  * @example
  * <Dialog>
  *   <DialogTrigger render={<Button>Open</Button>} />
- *   <DialogContent size="default">
+ *   <DialogContent size="md">
  *     <DialogHeader>
  *       <DialogTitle>Delete project</DialogTitle>
  *       <DialogDescription>This action cannot be undone.</DialogDescription>
  *     </DialogHeader>
  *     <DialogFooter>
  *       <DialogClose render={<Button variant="outline">Cancel</Button>} />
- *       <Button variant="destructive">Delete</Button>
+ *       <Button variant="soft" tone="destructive">Delete</Button>
  *     </DialogFooter>
  *   </DialogContent>
  * </Dialog>
@@ -116,7 +117,7 @@ export interface DialogContentProps
     VariantProps<typeof dialogContentVariants> {
   /**
    * Max-width size of the centered popup.
-   * @default "default"
+   * @default "md"
    */
   size?: DialogContentSize;
   /**
@@ -151,7 +152,7 @@ export interface DialogContentProps
 export function DialogContent({
   className,
   children,
-  size = "default",
+  size = "md",
   placement = "center",
   showCloseButton = true,
   closeLabel = "Close",
@@ -189,14 +190,15 @@ export function DialogContent({
           {children}
           {showCloseButton ? (
             <BaseDialog.Close
-              data-slot="dialog-close"
-              aria-label={closeLabel}
-              className={cn(
-                "absolute top-3 end-3 inline-flex size-(--size-md) shrink-0 items-center justify-center",
-                "rounded-md text-muted-foreground select-none hover:text-foreground",
-                surfaceInteractive,
-                "[&_svg:not([class*='size-'])]:size-(--icon-default) [&_svg]:pointer-events-none [&_svg]:shrink-0",
-              )}
+              render={
+                <IconButton
+                  variant="ghost"
+                  size="md"
+                  data-slot="dialog-close"
+                  aria-label={closeLabel}
+                  className="absolute top-3 end-3 text-muted-foreground"
+                />
+              }
             >
               <X aria-hidden />
             </BaseDialog.Close>

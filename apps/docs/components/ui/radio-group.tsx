@@ -1,4 +1,4 @@
-// @vegastack radio-group@0.6.0 sha256-4SEcvWHnFXk7WjJlM7ozrtOtMA59BEnhcsC95ZtkyG8=
+// @vegastack radio-group@0.6.0 sha256-lnAsTjpC/8dZGnRTKmg1aKFmtjugmzFd2wW7Ox0RJzM=
 
 "use client";
 
@@ -126,7 +126,7 @@ export function RadioGroup({
 }
 
 /**
- * Control-dot scale (register P1-04) — mirrors Checkbox: `sm` 14px, `default` 16px.
+ * Control-dot scale (register P1-04) — mirrors Checkbox: `sm` 14px, `md` 16px.
  * Both are below the WCAG 2.5.8 24×24 CSS px minimum target size, so each adds an
  * invisible `::before` hit-area expansion (the root already carries `relative`
  * below) sized to reach ≥24×24 without changing the visible dot. The 1px border
@@ -135,7 +135,7 @@ export function RadioGroup({
  */
 const itemSizeClasses = {
   sm: "size-3.5 before:absolute before:-inset-1.5",
-  default: "size-4 before:absolute before:-inset-1.5",
+  md: "size-4 before:absolute before:-inset-1.5",
 } as const;
 
 /** Props accepted by `RadioGroupItem`. */
@@ -143,8 +143,8 @@ export interface RadioGroupItemProps extends React.ComponentProps<
   typeof Radio.Root
 > {
   /**
-   * Dot size — `sm` 14px / `default` 16px, mirroring Checkbox (register P1-04).
-   * @default 'default'
+   * Dot size — `sm` 14px / `md` 16px, mirroring Checkbox (register P1-04).
+   * @default 'md'
    */
   size?: keyof typeof itemSizeClasses;
   /**
@@ -194,7 +194,7 @@ export interface RadioGroupItemProps extends React.ComponentProps<
  */
 export function RadioGroupItem({
   className,
-  size = "default",
+  size = "md",
   shakeSignal,
   onAnimationEnd,
   ref,

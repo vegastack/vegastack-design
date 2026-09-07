@@ -106,7 +106,7 @@ export function badgeSizes(): ReactNode {
       <Badge size="sm" intent="info">
         Small
       </Badge>
-      <Badge size="default" intent="info">
+      <Badge size="md" intent="info">
         Default
       </Badge>
       <Badge size="lg" intent="info">

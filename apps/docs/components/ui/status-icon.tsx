@@ -1,4 +1,4 @@
-// @vegastack status-icon@0.6.0 sha256-CQ2yv0b3eIdhMiBsoSdc7NMetInTuy/wQGoBqwps9hY=
+// @vegastack status-icon@0.6.0 sha256-I3duWL1W4My4oftBHF0ctoK4oA1wf4Ztqq9wsC0GdFI=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -23,11 +23,11 @@ export const statusIconVariants = cva("inline-block shrink-0", {
     size: {
       xs: "size-3.5",
       sm: "size-4",
-      default: "size-5",
+      md: "size-5",
       lg: "size-6",
     },
   },
-  defaultVariants: { status: "todo", size: "default" },
+  defaultVariants: { status: "todo", size: "md" },
 });
 
 /** The lucide icon rendered for each status. */
@@ -66,9 +66,9 @@ export interface StatusIconProps
   /**
    * Size variant — mirrors the rest of the scale and maps to the `size-*`
    * tokens.
-   * @default 'default'
+   * @default 'md'
    */
-  size?: "xs" | "sm" | "default" | "lg";
+  size?: "xs" | "sm" | "md" | "lg";
   /**
    * Accessible label announced by assistive tech. Defaults to a human-readable
    * name derived from `status` (e.g. `"In progress"`). Pass an empty string to
@@ -101,7 +101,7 @@ export interface StatusIconProps
 export function StatusIcon({
   className,
   status = "todo",
-  size = "default",
+  size = "md",
   label,
   ref,
   ...props

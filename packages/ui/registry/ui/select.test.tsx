@@ -58,7 +58,7 @@ test("default size attribute is reflected on the trigger", async () => {
   const screen = await render(<Fixture />);
   await expect
     .element(screen.getByRole("combobox", { name: "Font" }))
-    .toHaveAttribute("data-size", "default");
+    .toHaveAttribute("data-size", "md");
 });
 
 test("opens the popup on trigger click and lists the options", async () => {

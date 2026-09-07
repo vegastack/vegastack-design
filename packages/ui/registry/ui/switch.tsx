@@ -1,4 +1,4 @@
-// @vegastack switch@0.6.0 sha256-zjB0AYySGUZwmxJWyZ2Mh4WKkXvKnXqVaeY4d+fU5rE=
+// @vegastack switch@0.6.0 sha256-gWLbXzsLeL6JbuL98FvxH0vnIpwxZD0mNxrgjq7YxHI=
 
 "use client";
 
@@ -38,11 +38,11 @@ export const switchVariants = cva(
         // top/bottom grow. `lg` (24×44) already meets the minimum, so it's left
         // unchanged.
         sm: "h-4 w-7 before:absolute before:inset-x-0 before:-inset-y-1.5",
-        default: "h-5 w-9 before:absolute before:inset-x-0 before:-inset-y-1",
+        md: "h-5 w-9 before:absolute before:inset-x-0 before:-inset-y-1",
         lg: "h-6 w-11",
       },
     },
-    defaultVariants: { size: "default" },
+    defaultVariants: { size: "md" },
   },
 );
 
@@ -60,12 +60,12 @@ export const switchThumbVariants = cva(
     variants: {
       size: {
         sm: "size-2.5 data-checked:translate-x-3 rtl:data-checked:-translate-x-3",
-        default:
+        md:
           "size-3.5 data-checked:translate-x-4 rtl:data-checked:-translate-x-4",
         lg: "size-4.5 data-checked:translate-x-5 rtl:data-checked:-translate-x-5",
       },
     },
-    defaultVariants: { size: "default" },
+    defaultVariants: { size: "md" },
   },
 );
 
@@ -76,9 +76,9 @@ export interface SwitchProps
     VariantProps<typeof switchVariants> {
   /**
    * Track + thumb scale. `sm` (16px), `default` (20px), `lg` (24px).
-   * @default 'default'
+   * @default 'md'
    */
-  size?: "sm" | "default" | "lg";
+  size?: "sm" | "md" | "lg";
   /**
    * Replace the rendered track element via Base UI `render` composition. Pass a
    * `ReactElement` or a render function — Base UI merges this
@@ -115,7 +115,7 @@ export interface SwitchProps
  */
 export function Switch({
   className,
-  size = "default",
+  size = "md",
   ref,
   ...props
 }: SwitchProps) {

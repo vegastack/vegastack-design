@@ -102,7 +102,8 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/button"
+        "@vegastack/button",
+        "@vegastack/icon-button"
       ],
       "files": [
         {
@@ -115,7 +116,7 @@
         "whenToUse": "A live chat/AI thread that must auto-scroll, virtualise long histories, and offer a jump-to-latest control.",
         "whenNotToUse": "A short, static list that fits without scrolling - use Message inside a plain container or Scroll Area.",
         "version": "0.6.0",
-        "integrity": "sha256-MZbaayDOhXKTcGTXDSZ9OQn6naE/rf3VTC5ig4W0thQ="
+        "integrity": "sha256-ORl2Dxvlc5f5gQrALylEltoTuA5UhpZwBAfOuROjLTs="
       }
     },
     {
@@ -147,7 +148,7 @@
         "whenToUse": "A file attached to a chat message or a message-compose input - a chip/thumbnail with name, size, upload progress, and a remove action.",
         "whenNotToUse": "A generic file upload/drop zone with no chat context - reach for Empty (bordered drop zone) or a form Field instead.",
         "version": "0.6.0",
-        "integrity": "sha256-mPvmdJSWT3tK5djLmLc37eKn9Y/QbrXKPITKnuqAyxE="
+        "integrity": "sha256-RNOm2aliRmH8cDdASR9DMDZEY+t37XteIp6EQ1aPWKU="
       }
     },
     {
@@ -206,7 +207,7 @@
         "whenToUse": "Any clickable action — submit, confirm, destructive, etc.",
         "whenNotToUse": "Navigation to a URL — use a link styled as a button (variant=link).",
         "version": "0.6.0",
-        "integrity": "sha256-/AfLWngwzI63V7W1U/fBlgpVuOBtvQnNfY9cZiyZy6k="
+        "integrity": "sha256-wkbsc5IPBjYR4obOfjuxnMDYR51rP1A7mQiGCX4a7Nc="
       }
     },
     {
@@ -238,7 +239,7 @@
         "whenToUse": "Label or annotate status, counts, or categories — e.g. Active, Beta, 3 New.",
         "whenNotToUse": "Anything clickable — use a Button; a Badge is a non-interactive label.",
         "version": "0.6.0",
-        "integrity": "sha256-oG+nww82h6+pgyWImCngnvpPhoPTRDkImwXPY5hDT3A="
+        "integrity": "sha256-jSw6SS3x7TBTDOOaCDmbIf+7KyIf86mHKcSRL42VaH8="
       }
     },
     {
@@ -292,7 +293,7 @@
         "whenToUse": "Record highlights and dashboard stat tiles where a value needs a quiet label.",
         "whenNotToUse": "Tabular data (Table/DataList) or live-updating counters (AnimatedNumber inside StatValue is fine).",
         "version": "0.6.0",
-        "integrity": "sha256-OUbSP5T6Jxbm193SZtfwJrJhvo4nP1yaROQGaqvGUfA="
+        "integrity": "sha256-AtNs95bbUmEZe7gbG32yOyymdti5POvza5H6udP92eE="
       }
     },
     {
@@ -309,7 +310,9 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/icon-button"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/alert.tsx",
@@ -321,7 +324,7 @@
         "whenToUse": "Persistent, in-page status messages — info, success, warning, or error context tied to surrounding content.",
         "whenNotToUse": "Transient feedback after a user action — use a toast instead.",
         "version": "0.6.0",
-        "integrity": "sha256-WDTgjh0aX5oQhhdM+X7xITEIhV411NQLYXHPSKo6K+c="
+        "integrity": "sha256-+ZCqAY4vQ3DAk9Q9nebrdUWqxR6J6RCOWTt56c/V2eM="
       }
     },
     {
@@ -351,7 +354,7 @@
         "whenToUse": "Single-line text entry — email, password, search, URL/slug with a domain prefix, numbers, etc.",
         "whenNotToUse": "Multi-line text (use a textarea) or choosing from fixed options (use a select/radio).",
         "version": "0.6.0",
-        "integrity": "sha256-G1q7GtjdhD3SIENdtdTep+/13tUaW1gkjW+P8+jcEDM="
+        "integrity": "sha256-hK3+zeOKbVd3i0zdmOuK175iVSH30/L/QLo4SmhSQzw="
       }
     },
     {
@@ -400,7 +403,9 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/icon-button"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/dialog.tsx",
@@ -412,7 +417,7 @@
         "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts.",
         "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or full-screen mobile scroll (Drawer/Sheet).",
         "version": "0.6.0",
-        "integrity": "sha256-aKi75MOR+JFGn7STA5ORjzGMOt+7pp2Yq0DYV+X1FPU="
+        "integrity": "sha256-+mZGrlZiFc0OUSdsy2bpzhIyD79Nj8kEmjTR9OJTe9k="
       }
     },
     {
@@ -442,7 +447,7 @@
         "whenToUse": "Choosing a single value from a fixed, known set — fonts, timezones, statuses — especially long/grouped lists.",
         "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), multi-select, or free-text/async search (combobox).",
         "version": "0.6.0",
-        "integrity": "sha256-CDLcBdNMMxTQ3DA/Jm3rxStDr8FMbVo/+VFUkQGy1ks="
+        "integrity": "sha256-Y00sqlpOxvXMUJ+q6y+j4DMTmmLnSY8qZCszbfs52lU="
       }
     },
     {
@@ -472,7 +477,7 @@
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.6.0",
-        "integrity": "sha256-KoxnR6PAwyohtcv3y9AjvsLJnGfnYkKPVg9vlmXV8So="
+        "integrity": "sha256-6BMVwBjqMGHB7a/yqgC/Cx9bTLftqB+lfUDxeQy9Oi0="
       }
     },
     {
@@ -586,7 +591,7 @@
         "whenToUse": "Group related content into a bordered surface — summaries, plan tiles, settings sections.",
         "whenNotToUse": "Single standalone values or page layout regions; never nest cards or add shadows.",
         "version": "0.6.0",
-        "integrity": "sha256-q8iQhYDB7whKYhhIr59YnxKDtNADgOMWvOEjh0VpXjI="
+        "integrity": "sha256-nOjLv7pj9xYl4LMSw9sZkFPZ9nD35J0K2KYG9T5BpQ8="
       }
     },
     {
@@ -614,7 +619,7 @@
         "whenToUse": "Display a keyboard shortcut or key in menus, tooltips, command palettes, help text.",
         "whenNotToUse": "As an interactive control or to capture keystrokes — Kbd is presentational only.",
         "version": "0.6.0",
-        "integrity": "sha256-dIg9TKDHncGdhlbtTg6dUWo7vR02KnjekM8N4f4AovE="
+        "integrity": "sha256-YedoElnc3s4DwQKc+SO/7Gjj59kxCUjeqYw6mfNHdIo="
       }
     },
     {
@@ -671,7 +676,7 @@
         "whenToUse": "Signal an indeterminate, in-progress load — inside a button or a loading region.",
         "whenNotToUse": "Showing measurable progress (progress bar) or a skeleton-able layout (skeleton).",
         "version": "0.6.0",
-        "integrity": "sha256-e9JjL8PgH4hyZ2rhvQ/O3NuHSKdX2wpvNfeU2uDOE3o="
+        "integrity": "sha256-G8dPzySfa5Vo7FcAjibzDF2UsoAAuFVMLvDtWklRh/8="
       }
     },
     {
@@ -727,7 +732,7 @@
         "whenToUse": "When a list, table, or panel has no content — communicate the zero state and offer the next action.",
         "whenNotToUse": "While loading (skeleton/spinner) or for transient post-action feedback (toast).",
         "version": "0.6.0",
-        "integrity": "sha256-eVY+rBS9iT1kfLwI8QdkVpXFWoLR+nGAX7iN4Sf3Ldk="
+        "integrity": "sha256-tYUBzfQLn5CqmL5SnPH/JXxBeyad8WKRK7JN2O3zkAc="
       }
     },
     {
@@ -759,7 +764,7 @@
         "whenToUse": "Toggle a single option on/off, accept terms, or drive a 'select all' parent with indeterminate.",
         "whenNotToUse": "Mutually-exclusive choices (RadioGroup); instant self-saving settings (Switch).",
         "version": "0.6.0",
-        "integrity": "sha256-/hWvTGVBTNGZcM8l0khkeRIiuz8Ksu7fmS8mORHF8c4="
+        "integrity": "sha256-eEuJGESqRl+YvYF6sIV4cnHzek7kGVVISxrt97WOH9M="
       }
     },
     {
@@ -788,7 +793,7 @@
         "whenToUse": "Settings that apply instantly — notifications, dark mode, feature flags.",
         "whenNotToUse": "Inside a form needing a Submit step — use a Checkbox.",
         "version": "0.6.0",
-        "integrity": "sha256-zjB0AYySGUZwmxJWyZ2Mh4WKkXvKnXqVaeY4d+fU5rE="
+        "integrity": "sha256-gWLbXzsLeL6JbuL98FvxH0vnIpwxZD0mNxrgjq7YxHI="
       }
     },
     {
@@ -817,7 +822,7 @@
         "whenToUse": "Represent a user/entity with a photo, falling back to initials — alone or stacked in a group.",
         "whenNotToUse": "When you must fetch/resolve the image source — presentational; resolve R2/CDN keys app-side.",
         "version": "0.6.0",
-        "integrity": "sha256-i2uEi3KoM39Xa1gZ/N2cM3P3ZUKdLKrvOzmUBqzOEqY="
+        "integrity": "sha256-lTUCcIlVSEoStQWAtnJwxim13LVb1VVjNsZc7CryArM="
       }
     },
     {
@@ -871,7 +876,7 @@
         "whenToUse": "Multi-line free text — descriptions, comments, messages, notes.",
         "whenNotToUse": "Single-line entry (input), rich text (editor), or fixed options (select).",
         "version": "0.6.0",
-        "integrity": "sha256-MBmMK2vnOdKYCW6+o8SXGGTQFeZ36xROjawm8lgwkr4="
+        "integrity": "sha256-qkBzcntDnHXUos8V7JwDz4PA3EyGlV3bKiahnjjISnM="
       }
     },
     {
@@ -902,7 +907,7 @@
         "whenToUse": "2–5 mutually-exclusive choices all visible at once.",
         "whenNotToUse": "Many options (Select) or non-exclusive multi-select (Checkboxes).",
         "version": "0.6.0",
-        "integrity": "sha256-4SEcvWHnFXk7WjJlM7ozrtOtMA59BEnhcsC95ZtkyG8="
+        "integrity": "sha256-lnAsTjpC/8dZGnRTKmg1aKFmtjugmzFd2wW7Ox0RJzM="
       }
     },
     {
@@ -959,7 +964,7 @@
         "whenToUse": "A binary on/off control that persists — bold/italic, mute, pin.",
         "whenNotToUse": "One-shot action (Button) or mutually-exclusive options (ToggleGroup/RadioGroup).",
         "version": "0.6.0",
-        "integrity": "sha256-5rO58nI+amrJi3j0aHxd7IHh8+LU0bkBvTeCdn80VEg="
+        "integrity": "sha256-R0mjy0uPMMi4iTiU50Peo+5fjIUELjbP3Y7Pai1wtoc="
       }
     },
     {
@@ -990,7 +995,7 @@
         "whenToUse": "Related toggle buttons sharing one selection — alignment, or multi-select formatting.",
         "whenNotToUse": "Navigation between views (Tabs) or a single on/off control (Toggle/Switch).",
         "version": "0.6.0",
-        "integrity": "sha256-nPv+a/tkXrTHvIUynw0k7cXootyfjLj0rOOwMmBmIYc="
+        "integrity": "sha256-tMcSEwLoJFLwQxiuCIXy35p6AuhLelqaeSMlBeTvoto="
       }
     },
     {
@@ -1018,7 +1023,7 @@
         "whenToUse": "Peer view/mode switches where one option is always active — view modes, billing cycles, filter scopes.",
         "whenNotToUse": "Content panels swapping (Tabs), meaningful empty/multi selection (ToggleGroup), or on/off (Switch).",
         "version": "0.6.0",
-        "integrity": "sha256-IGAs0pfTgAilzP7q+fNXuw4q9axexH1nOVSGwnJYDV4="
+        "integrity": "sha256-ei4jWxyv+hl/2yXvpbdRqNfCUEXYoKfV5ruRdtaNOWc="
       }
     },
     {
@@ -1133,7 +1138,7 @@
         "whenToUse": "Destructive/irreversible confirmations (delete, discard, reset) — backdrop non-dismissable.",
         "whenNotToUse": "Routine dismissable modal content — use Dialog.",
         "version": "0.6.0",
-        "integrity": "sha256-qBAiPYdkOF0cbZ7iJGj7CsXNaEzFKoLKx+Vnq2KGW7E="
+        "integrity": "sha256-1FNA1pMFwXtpSk6otU3WJdgAx0A9NbR00VMCTDVW8Vs="
       }
     },
     {
@@ -1162,7 +1167,7 @@
         "whenToUse": "Completion of a measurable task — uploads, multi-step forms, onboarding.",
         "whenNotToUse": "Indefinite waits (Spinner) or radial percentage display (out of scope).",
         "version": "0.6.0",
-        "integrity": "sha256-bBS9Dcpu8bSoMC+ZtYws6rZ5z/uFI9jY23gYdiSlcTE="
+        "integrity": "sha256-f6htnXhnbxgp5zY6WXuAWA68ZZolX1dacSdg+4WvajY="
       }
     },
     {
@@ -1239,7 +1244,9 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/icon-button"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/sheet.tsx",
@@ -1251,7 +1258,7 @@
         "whenToUse": "A panel anchored to a screen edge — filters, detail/inspector panels, slide-in nav.",
         "whenNotToUse": "A centered confirmation or short form (Dialog), or a long multi-step flow (a page).",
         "version": "0.6.0",
-        "integrity": "sha256-ZdXU2/LnCyroHhhgn0RYnRpATEyrNejksacqfiTp4MY="
+        "integrity": "sha256-Aobf9gfWAMzW/G7fpqLxoTJZZWys/pKx6OeA17aHwnc="
       }
     },
     {
@@ -1327,7 +1334,9 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/icon-button"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/pagination.tsx",
@@ -1339,7 +1348,7 @@
         "whenToUse": "Navigate paged content — a long list/table split across numbered pages.",
         "whenNotToUse": "Infinite scroll / 'load more' feeds, or tab-style switching.",
         "version": "0.6.0",
-        "integrity": "sha256-o4/5dSdkwgTFzK+/V3qVY1NnofwIBHZosdFQwuFsjYI="
+        "integrity": "sha256-8fgEfWZPTJhgqGFUztZA1tFjVJt88Vyb+/aNzvjZ9D8="
       }
     },
     {
@@ -1452,7 +1461,7 @@
         "whenToUse": "Indicate the state of a task or item — todo, in progress, blocked, or done — alongside a label.",
         "whenNotToUse": "Measurable progress (Progress) or generic loading (Spinner).",
         "version": "0.6.0",
-        "integrity": "sha256-CQ2yv0b3eIdhMiBsoSdc7NMetInTuy/wQGoBqwps9hY="
+        "integrity": "sha256-I3duWL1W4My4oftBHF0ctoK4oA1wf4Ztqq9wsC0GdFI="
       }
     },
     {
@@ -1480,7 +1489,7 @@
         "whenToUse": "A compact determinate percentage glyph — inline beside a label or metric, or with a visible percentage value.",
         "whenNotToUse": "Indefinite waits (Spinner) or wide tasks where a linear Progress bar reads better.",
         "version": "0.6.0",
-        "integrity": "sha256-jQpRBCXJTIcBdtzhBJm0kJohm0fbCF5anBhXpvO4ZAA="
+        "integrity": "sha256-GQ0NMS2/geUquX/Paa357J20X/LtPuaIui6zeb1DxZc="
       }
     },
     {
@@ -1537,7 +1546,7 @@
         "whenToUse": "A compact icon-only action — toolbar buttons, row actions, close/dismiss.",
         "whenNotToUse": "Actions needing a visible text label (Button with icon) or URL navigation (link).",
         "version": "0.6.0",
-        "integrity": "sha256-KEsb31wCoGaHJQ3jgqIozQzlnqxZlZngzl4QKmLaUdw="
+        "integrity": "sha256-7RHKwXg727F+QLED+rDIVyPnencE4vJBZnyXJV/A3wU="
       }
     },
     {
@@ -1554,7 +1563,8 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/button"
+        "@vegastack/button",
+        "@vegastack/icon-button"
       ],
       "files": [
         {
@@ -1567,7 +1577,7 @@
         "whenToUse": "Copy a short opaque value — API key, invite link, ID, snippet — with clear confirmation.",
         "whenNotToUse": "Long-form content to read/edit, or when there is no discrete value to copy.",
         "version": "0.6.0",
-        "integrity": "sha256-feOtnhopNLhBPDb2MW3mtu+24Vp7ESMrJ+kYr6hP6Cg="
+        "integrity": "sha256-XvRZDw6l5GPxka51kntjL5Wn/5g/kzLvQjtRVL5OD0U="
       }
     },
     {
@@ -1627,7 +1637,7 @@
         "whenToUse": "A short fixed-length verification code — 2FA/MFA, email/SMS OTP.",
         "whenNotToUse": "Free-form/variable-length text (Input) or a single masked secret (Password Input).",
         "version": "0.6.0",
-        "integrity": "sha256-wo4tH2FJCxqF1ZpHhGsgM9ze0yEs4wOYsYhPBM5Gz90="
+        "integrity": "sha256-M8pY6fyRIzeVSXp8UsF2tXMZcfHQWAtqGlNk9mjkpDE="
       }
     },
     {
@@ -1645,7 +1655,8 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/dropdown-menu"
+        "@vegastack/dropdown-menu",
+        "@vegastack/icon-button"
       ],
       "files": [
         {
@@ -1658,7 +1669,7 @@
         "whenToUse": "One primary action plus closely related variants — Save / Save as draft, Publish / Schedule.",
         "whenNotToUse": "Unrelated actions (DropdownMenu), a single action (Button), or value selection (Select).",
         "version": "0.6.0",
-        "integrity": "sha256-U6yf1/1X5E8RqtLXDYrcWlPv3pWBZH768lGvk756hGs="
+        "integrity": "sha256-5OEEZIBDDR6wUv8wQR/yw6GsuV8tuUrsIwa0Gbo31H4="
       }
     },
     {
@@ -1722,7 +1733,7 @@
         "whenToUse": "Any numeric value — quantities, limits, percentages, money (format={{ style: 'currency', currency }}) — where parsing, locale formatting, and stepping should be correct by construction.",
         "whenNotToUse": "Free-text that merely contains digits (phone numbers, postal codes, ids) — formatting/stepping semantics would fight the value; use Input.",
         "version": "0.6.0",
-        "integrity": "sha256-Gh5RXYyRD2vdUaHWrGOp46d3MNZxOTWYcJSL80Ov2d8="
+        "integrity": "sha256-dfP86KhJstxMThGdgCASSXclxZRf1lF0jUFLfOllgs4="
       }
     },
     {
@@ -1754,7 +1765,7 @@
         "whenToUse": "Entering an open set of short tokens — tags, e-mail recipients, domains, webhook events — where values are typed or pasted, not picked from a finite list.",
         "whenNotToUse": "Selection from a known item set (Combobox multiple), or a read-only label list (TagGroup).",
         "version": "0.6.0",
-        "integrity": "sha256-Uqd3VIdyWxYvsViMQK9P2fJeyoHhujROnd7S+0AUz7U="
+        "integrity": "sha256-XH8zY3j0UE6HssTFSF3Azie6X6idg2gstdWjAzwG/yE="
       }
     },
     {
@@ -1781,7 +1792,7 @@
         "whenToUse": "A floating bar of contextual actions tied to transient state — N selected, unsaved changes, a batch operation in flight. The host owns the state; the bar shows status and actions.",
         "whenNotToUse": "Transient outcome notifications (toast), page-level primary actions (PageHeader), or owning selection — the host's list keeps selectedIds.",
         "version": "0.6.0",
-        "integrity": "sha256-+DXvhkiqBy+ZMx59M8LKv29FWo7/wCTjiuc4Cb+k4xw="
+        "integrity": "sha256-S9cm6eIryuY7CB9hzh+awgmJDdTjDcovD9GqryZnck4="
       }
     },
     {
@@ -2155,7 +2166,7 @@
         "whenToUse": "A single audio asset that needs a compact, branded transport with rewind/forward, a tappable speed control, keyboard shortcuts, and a two-line mobile layout with an optional transcript control.",
         "whenNotToUse": "Playlists, queue management, waveform editing, transcript navigation, or audio recording.",
         "version": "0.6.0",
-        "integrity": "sha256-S/wIJy1d1WgT90zXo3iA7mmSg+zF3y6Xys6YLejmyQE="
+        "integrity": "sha256-cpw/oxtA0ZqEYNYr96trwgwAEObkXKLVMrlvLXEpWMU="
       }
     },
     {
@@ -2202,6 +2213,7 @@
       ],
       "registryDependencies": [
         "@vegastack/badge",
+        "@vegastack/button",
         "@vegastack/icon-button"
       ],
       "files": [
@@ -2215,7 +2227,7 @@
         "whenToUse": "A bell trigger surfacing an unread count in app chrome — app owns the count and handler.",
         "whenNotToUse": "The notifications panel itself, or a generic count badge (Badge).",
         "version": "0.6.0",
-        "integrity": "sha256-/ljB38F/NJMjn34XRVyfeDsVROkAC1SujMOYYVzH3zk="
+        "integrity": "sha256-jp5vDQlC9kXFl5ARiOdMP4TQGCQcExOGztGgGygLYKs="
       }
     },
     {
@@ -2231,6 +2243,9 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
+      "registryDependencies": [
+        "@vegastack/icon-button"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/onboarding-checklist.tsx",
@@ -2242,7 +2257,7 @@
         "whenToUse": "Product onboarding/setup checklists that live in the chrome.",
         "whenNotToUse": "Linear multi-step forms (compose Field/Progress) or task lists (app domain).",
         "version": "0.6.0",
-        "integrity": "sha256-BkrSiNQNxNpBxvhfGD2nG/oUTIBUgmwaj3StsBekr0A="
+        "integrity": "sha256-WAJMEZn4k98on5l/u/u7x4ifv5euvEbPKIpsQzaCiuE="
       }
     },
     {
@@ -2303,7 +2318,7 @@
         "whenToUse": "Fenced/source code that deserves a labelled, copyable panel.",
         "whenNotToUse": "Inline code (a mono chip) or terminal output theatre (Terminal).",
         "version": "0.6.0",
-        "integrity": "sha256-ft0Ye/YC0S1tUHs3QWkJznSrGvSzFRFtKTRFW/sl6tE="
+        "integrity": "sha256-UeSfBI90Wa0X5AgQ7vLq+XBdZuY0MaJDjTinq+nOdEc="
       }
     },
     {
@@ -2410,7 +2425,6 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/button",
         "@vegastack/icon-button",
         "@vegastack/truncated-text"
       ],
@@ -2425,7 +2439,7 @@
         "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav, actions, favorite.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
         "version": "0.6.0",
-        "integrity": "sha256-UDyD3WTBDn+xR2SSmZRU9HCYCYr3Hq0iqet1cQnMem0="
+        "integrity": "sha256-B1npAZHI3KXMWRFp31B2VMkSUtr8BUSF43oBR0EJqjI="
       }
     },
     {
@@ -2460,7 +2474,7 @@
         "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
         "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
         "version": "0.6.0",
-        "integrity": "sha256-XIXPaSErisqOEgMKcki/6/L9LTHH9uIJhGYKezQxUUQ="
+        "integrity": "sha256-y5Rzlivrcz3NLJOnN6/x+o2JJTcY5k/qsoKwBZSJPgU="
       }
     },
     {
@@ -2509,6 +2523,7 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/dropdown-menu",
+        "@vegastack/icon-button",
         "@vegastack/input"
       ],
       "files": [
@@ -2522,7 +2537,7 @@
         "whenToUse": "Filter toolbars for lists/tables — active filters as removable chips + an Add-filter menu + optional search.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.6.0",
-        "integrity": "sha256-F445iXV1YjPkj0X2QMhJMJi7nwCzUOCKSPf2APv5jqM="
+        "integrity": "sha256-CAHOLV1Orxu5rRE4MOzSkPKhvjk63MAruEsjs9VqvCw="
       }
     },
     {
@@ -2655,7 +2670,7 @@
         "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.6.0",
-        "integrity": "sha256-SDUY+KfNkevxDB0Lu0QbvsynvZosNKbZa7nMOK3sNxo="
+        "integrity": "sha256-NQw+ikgY+dU5agB6GRNCM5CBsKplOC/En28bCfScOaE="
       }
     },
     {
@@ -2672,8 +2687,8 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
+        "@vegastack/icon-button",
         "@vegastack/popover",
-        "@vegastack/button",
         "@vegastack/use-list-nav"
       ],
       "files": [
@@ -2687,7 +2702,7 @@
         "whenToUse": "Pick a single color from a small curated set — labels, tags, calendar categories.",
         "whenNotToUse": "Full-spectrum hue/saturation/alpha selection.",
         "version": "0.6.0",
-        "integrity": "sha256-0KWr1+rI0OZAdSYzvdr7ZkRVWjdZL9V2IlcxBOsVKGo="
+        "integrity": "sha256-tAEOrHsa4KKp0i4kh8T8DbD2+713CRpJqR7LaJQAg+Y="
       }
     },
     {
@@ -2704,9 +2719,9 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/popover",
-        "@vegastack/button",
+        "@vegastack/icon-button",
         "@vegastack/input",
+        "@vegastack/popover",
         "@vegastack/use-list-nav"
       ],
       "files": [
@@ -2720,7 +2735,7 @@
         "whenToUse": "Lightweight emoji insertion — reactions, comments, status, icon selection.",
         "whenNotToUse": "A complete Unicode emoji browser — extend the embedded set or use a library.",
         "version": "0.6.0",
-        "integrity": "sha256-628hFHHLtOfp5evvSwiog9iRrqRgq4QTXFDSEgfR3NY="
+        "integrity": "sha256-RN9jDzif2ghDTWGIeQ/41kK58TnPPvLCF2tDryyryA8="
       }
     },
     {
@@ -2849,7 +2864,7 @@
         "whenToUse": "A row of structured content in a feed, list, or panel — a person, file, notification, or settings link — with optional media and trailing actions.",
         "whenNotToUse": "Tabular/sortable data with columns (use Table or DataList) or a zero-data placeholder (use Empty).",
         "version": "0.6.0",
-        "integrity": "sha256-eCKgD/+wKayWRw5jjxmNX5F9ugttHMFJnjZu+SJ3TqE="
+        "integrity": "sha256-AcmMAypqLNYuNVtu9OCVDa36iVt/X+UwQss6D2qUurw="
       }
     },
     {
@@ -15639,6 +15654,9 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
+      "registryDependencies": [
+        "@vegastack/icon-button"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/announcement-banner.tsx",
@@ -15650,7 +15668,7 @@
         "whenToUse": "One temporary message with one action (releases, promos, sync prompts).",
         "whenNotToUse": "Status feedback (Alert/Toast) or permanent notices (Alert strip).",
         "version": "0.6.0",
-        "integrity": "sha256-HOGUYhiB7eJs2GpF8DkRRZMjCzlnWA4tYppnPnvDa9o="
+        "integrity": "sha256-eTKTqIIaSDa4ZRbFZuw3sXGacHVxZZUr8D7k80GJAeM="
       }
     },
     {

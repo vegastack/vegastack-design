@@ -26,7 +26,7 @@ const INTENT_OPTIONS = [
 
 const SIZE_OPTIONS = [
   { value: "sm", label: "Small" },
-  { value: "default", label: "Default" },
+  { value: "md", label: "Medium" },
   { value: "lg", label: "Large" },
 ] as const;
 
@@ -51,7 +51,7 @@ const badgePlaygroundConfig: PlaygroundConfig<BadgePlaygroundKey> = {
       key: "size",
       label: "Size",
       options: SIZE_OPTIONS,
-      defaultValue: "default",
+      defaultValue: "md",
     },
     { type: "switch", key: "dot", label: "Dot", defaultValue: false },
     { type: "switch", key: "loading", label: "Loading", defaultValue: false },
@@ -83,7 +83,7 @@ const badgePlaygroundConfig: PlaygroundConfig<BadgePlaygroundKey> = {
     const props: string[] = [];
     if (state.variant !== "subtle") props.push(`variant="${state.variant}"`);
     if (state.intent !== "default") props.push(`intent="${state.intent}"`);
-    if (state.size !== "default") props.push(`size="${state.size}"`);
+    if (state.size !== "md") props.push(`size="${state.size}"`);
     if (state.dot) props.push("dot");
     if (state.loading) props.push("loading");
     if (state.animateIn) props.push("animateIn");

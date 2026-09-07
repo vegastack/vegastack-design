@@ -1,49 +1,57 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { PlusIcon } from "lucide-react";
-import { Button, type ButtonProps } from "@/components/ui/button";
+import { Button, type ButtonAppearance } from "@/components/ui/button";
 import {
   PropsPlayground,
   type PlaygroundConfig,
 } from "@/components/playground";
 
-type ButtonPlaygroundKey = "variant" | "size" | "disabled" | "loading";
+type ButtonPlaygroundKey =
+  | "variant"
+  | "tone"
+  | "size"
+  | "disabled"
+  | "loading";
 
-/** All 15 canonical CVA variants — neutral, semantic-filled, semantic-outline, glass, and cta. */
+/** The six shapes. `cta` is brand-locked and ignores `tone`. */
 const VARIANT_OPTIONS = [
-  { value: "default", label: "Default" },
-  { value: "secondary", label: "Secondary" },
+  { value: "solid", label: "Solid" },
+  { value: "soft", label: "Soft" },
   { value: "outline", label: "Outline" },
   { value: "ghost", label: "Ghost" },
   { value: "link", label: "Link" },
+  { value: "cta", label: "CTA" },
+] as const;
+
+/** The five hues every non-`cta` variant can carry. */
+const TONE_OPTIONS = [
+  { value: "neutral", label: "Neutral" },
   { value: "destructive", label: "Destructive" },
   { value: "success", label: "Success" },
   { value: "warning", label: "Warning" },
   { value: "info", label: "Info" },
-  { value: "glass", label: "Glass" },
-  { value: "destructive-outline", label: "Destructive outline" },
-  { value: "success-outline", label: "Success outline" },
-  { value: "warning-outline", label: "Warning outline" },
-  { value: "info-outline", label: "Info outline" },
-  { value: "cta", label: "CTA" },
 ] as const;
 
-/** All 8 canonical sizes — the text scale plus the square `icon-*` scale. */
+/** The one size vocabulary — the same names the `--size-*` tokens carry. */
 const SIZE_OPTIONS = [
   { value: "xs", label: "Extra small" },
   { value: "sm", label: "Small" },
-  { value: "default", label: "Default" },
+  { value: "md", label: "Medium" },
   { value: "lg", label: "Large" },
-  { value: "icon-xs", label: "Icon extra small" },
-  { value: "icon-sm", label: "Icon small" },
-  { value: "icon", label: "Icon" },
-  { value: "icon-lg", label: "Icon large" },
 ] as const;
 
-/** The square `icon-*` sizes swap the text child for an icon and require an `aria-label`. */
-function isIconSize(size: string | boolean): boolean {
-  return String(size).startsWith("icon");
+/**
+ * The doctrine's one forbidden cell: a destructive action is never a solid red button. The type
+ * makes it unreachable in source; the playground resolves the pair to `soft` so the control set
+ * stays fully explorable instead of silently doing nothing.
+ */
+function resolveAppearance(variant: string, tone: string): ButtonAppearance {
+  if (variant === "cta") return { variant: "cta" };
+  if (variant === "solid" && tone === "destructive") {
+    return { variant: "soft", tone: "destructive" };
+  }
+  return { variant, tone } as ButtonAppearance;
 }
 
 const buttonPlaygroundConfig: PlaygroundConfig<ButtonPlaygroundKey> = {
@@ -53,51 +61,59 @@ const buttonPlaygroundConfig: PlaygroundConfig<ButtonPlaygroundKey> = {
       key: "variant",
       label: "Variant",
       options: VARIANT_OPTIONS,
-      defaultValue: "default",
+      defaultValue: "solid",
+    },
+    {
+      type: "select",
+      key: "tone",
+      label: "Tone",
+      options: TONE_OPTIONS,
+      defaultValue: "neutral",
     },
     {
       type: "select",
       key: "size",
       label: "Size",
       options: SIZE_OPTIONS,
-      defaultValue: "default",
+      defaultValue: "md",
     },
     { type: "switch", key: "disabled", label: "Disabled", defaultValue: false },
     { type: "switch", key: "loading", label: "Loading", defaultValue: false },
   ],
-  render: (state): ReactNode => {
-    const iconOnly = isIconSize(state.size);
-    return (
-      <Button
-        variant={state.variant as ButtonProps["variant"]}
-        size={state.size as ButtonProps["size"]}
-        disabled={Boolean(state.disabled)}
-        loading={Boolean(state.loading)}
-        aria-label={iconOnly ? "Add item" : undefined}
-      >
-        {iconOnly ? <PlusIcon /> : "Save changes"}
-      </Button>
-    );
-  },
+  render: (state): ReactNode => (
+    <Button
+      {...resolveAppearance(String(state.variant), String(state.tone))}
+      size={state.size as "xs" | "sm" | "md" | "lg"}
+      disabled={Boolean(state.disabled)}
+      loading={Boolean(state.loading)}
+    >
+      Save changes
+    </Button>
+  ),
   toCode: (state) => {
-    const iconOnly = isIconSize(state.size);
+    const appearance = resolveAppearance(
+      String(state.variant),
+      String(state.tone),
+    ) as { variant: string; tone?: string };
     const props: string[] = [];
-    if (state.variant !== "default") props.push(`variant="${state.variant}"`);
-    if (state.size !== "default") props.push(`size="${state.size}"`);
-    if (iconOnly) props.push('aria-label="Add item"');
+    if (appearance.variant !== "solid") {
+      props.push(`variant="${appearance.variant}"`);
+    }
+    if (appearance.tone != null && appearance.tone !== "neutral") {
+      props.push(`tone="${appearance.tone}"`);
+    }
+    if (state.size !== "md") props.push(`size="${state.size}"`);
     if (state.disabled) props.push("disabled");
     if (state.loading) props.push("loading");
     const propsString = props.length > 0 ? ` ${props.join(" ")}` : "";
-    return iconOnly
-      ? `<Button${propsString}>\n  <PlusIcon />\n</Button>`
-      : `<Button${propsString}>Save changes</Button>`;
+    return `<Button${propsString}>Save changes</Button>`;
   },
 };
 
 /**
- * `ButtonPlayground` — interactive props playground for `Button` covering all 15 variants and
- * all 8 sizes (icon sizes switch to an icon child + `aria-label`), plus `disabled` / `loading`.
- * Backed by the generic {@link PropsPlayground}. Registered in `mdx.tsx`, adopted in
+ * `ButtonPlayground` — interactive props playground for `Button` covering the full
+ * `variant × tone` matrix and all four sizes, plus `disabled` / `loading`. Backed by the generic
+ * {@link PropsPlayground}. Registered in `mdx.tsx`, adopted in
  * `content/docs/components/button.mdx`.
  */
 export function ButtonPlayground() {

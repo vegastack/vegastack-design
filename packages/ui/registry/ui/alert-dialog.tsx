@@ -1,4 +1,4 @@
-// @vegastack alert-dialog@0.6.0 sha256-qBAiPYdkOF0cbZ7iJGj7CsXNaEzFKoLKx+Vnq2KGW7E=
+// @vegastack alert-dialog@0.6.0 sha256-1FNA1pMFwXtpSk6otU3WJdgAx0A9NbR00VMCTDVW8Vs=
 
 "use client";
 
@@ -6,7 +6,7 @@ import * as React from "react";
 import { AlertDialog as BaseAlertDialog } from "@base-ui/react/alert-dialog";
 import { cn } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonAppearance } from "@/components/ui/button";
 
 /* ------------------------------------------------------------------------------------------------
  * AlertDialog — a modal confirmation dialog built on Base UI's AlertDialog. Exported FLAT
@@ -31,7 +31,7 @@ import { Button } from "@/components/ui/button";
  *
  * @example
  * <AlertDialog>
- *   <AlertDialogTrigger render={<Button variant="destructive-outline">Delete</Button>} />
+ *   <AlertDialogTrigger render={<Button variant="outline" tone="destructive">Delete</Button>} />
  *   <AlertDialogContent intent="destructive">
  *     <AlertDialogHeader>
  *       <AlertDialogTitle>Delete project</AlertDialogTitle>
@@ -276,17 +276,15 @@ export function AlertDialogDescription({
 }
 
 /**
- * Maps the confirm-button `intent` to a semantic {@link Button} variant, so `AlertDialogAction`
- * stays in lockstep with the shared button styling (focus, sizing, hover) instead of duplicating it.
+ * Maps the confirm-button `intent` onto the shared Button matrix, so `AlertDialogAction` stays in
+ * lockstep with the button styling (focus, sizing, hover) instead of duplicating it. A destructive
+ * confirm is an OUTLINE, never a solid red button — the doctrine's one forbidden cell.
  */
-const ACTION_INTENT_VARIANT: Record<
-  AlertDialogIntent,
-  React.ComponentProps<typeof Button>["variant"]
-> = {
-  default: "default",
-  destructive: "destructive-outline",
-  success: "success-outline",
-  warning: "warning-outline",
+const ACTION_INTENT_APPEARANCE: Record<AlertDialogIntent, ButtonAppearance> = {
+  default: { variant: "solid" },
+  destructive: { variant: "outline", tone: "destructive" },
+  success: { variant: "outline", tone: "success" },
+  warning: { variant: "outline", tone: "warning" },
 };
 
 /** Props accepted by `AlertDialogAction`. */
@@ -331,7 +329,7 @@ export function AlertDialogAction({
       className={className}
       render={
         <Button
-          variant={ACTION_INTENT_VARIANT[intent]}
+          {...ACTION_INTENT_APPEARANCE[intent]}
           data-slot="alert-dialog-action"
           data-intent={intent}
           loading={loading}

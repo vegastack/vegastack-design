@@ -267,7 +267,7 @@ export function bubblePopover(): ReactNode {
                 render={
                   <Button
                     variant="ghost"
-                    size="icon-xs"
+                    size="xs"
                     aria-label="Why did this fail?"
                   >
                     <Info />
@@ -301,7 +301,7 @@ export function bubbleTooltip(): ReactNode {
                 render={
                   <Button
                     variant="ghost"
-                    size="icon-xs"
+                    size="xs"
                     aria-label="Read receipt"
                   >
                     <Check />

@@ -129,7 +129,7 @@ test("defaults to variant=default and size=default", async () => {
   );
   const item = screen.container.querySelector('[data-slot="item"]');
   expect(item).toHaveAttribute("data-variant", "default");
-  expect(item).toHaveAttribute("data-size", "default");
+  expect(item).toHaveAttribute("data-size", "md");
 });
 
 test.each(["default", "icon", "image"] as const)(

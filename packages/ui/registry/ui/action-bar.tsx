@@ -1,4 +1,4 @@
-// @vegastack action-bar@0.6.0 sha256-+DXvhkiqBy+ZMx59M8LKv29FWo7/wCTjiuc4Cb+k4xw=
+// @vegastack action-bar@0.6.0 sha256-S9cm6eIryuY7CB9hzh+awgmJDdTjDcovD9GqryZnck4=
 
 "use client";
 
@@ -91,7 +91,7 @@ export interface ActionBarProps extends React.ComponentPropsWithRef<"div"> {
  * <ActionBar open={count > 0} status={`${count} selected`}>
  *   <Button variant="ghost" size="sm">Tag</Button>
  *   <Separator orientation="vertical" />
- *   <Button variant="destructive" size="sm">Archive</Button>
+ *   <Button variant="soft" tone="destructive" size="sm">Archive</Button>
  * </ActionBar>
  */
 export function ActionBar({

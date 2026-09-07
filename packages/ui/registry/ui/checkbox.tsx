@@ -1,4 +1,4 @@
-// @vegastack checkbox@0.6.0 sha256-/hWvTGVBTNGZcM8l0khkeRIiuz8Ksu7fmS8mORHF8c4=
+// @vegastack checkbox@0.6.0 sha256-eEuJGESqRl+YvYF6sIV4cnHzek7kGVVISxrt97WOH9M=
 
 "use client";
 
@@ -15,7 +15,7 @@ import {
 
 /**
  * Checkbox variants. `size` mirrors the form-control scale so checkboxes line up
- * with sibling inputs and switches: `default` (size-4) and `sm` (size-3.5).
+ * with sibling inputs and switches: `md` (size-4) and `sm` (size-3.5).
  * The checked/indeterminate state fills with neutral `primary` ink;
  * every value is a semantic token (no hardcoded colors or sizes).
  *
@@ -40,11 +40,11 @@ export const checkboxVariants = cva(
   {
     variants: {
       size: {
-        default: "size-4 before:absolute before:-inset-1.5",
+        md: "size-4 before:absolute before:-inset-1.5",
         sm: "size-3.5 before:absolute before:-inset-1.5",
       },
     },
-    defaultVariants: { size: "default" },
+    defaultVariants: { size: "md" },
   },
 );
 
@@ -134,7 +134,7 @@ export interface CheckboxProps
  */
 export function Checkbox({
   className,
-  size = "default",
+  size = "md",
   shakeSignal,
   onAnimationEnd,
   ref,

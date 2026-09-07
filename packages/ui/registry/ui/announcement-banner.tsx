@@ -1,10 +1,11 @@
-// @vegastack announcement-banner@0.6.0 sha256-HOGUYhiB7eJs2GpF8DkRRZMjCzlnWA4tYppnPnvDa9o=
+// @vegastack announcement-banner@0.6.0 sha256-eTKTqIIaSDa4ZRbFZuw3sXGacHVxZZUr8D7k80GJAeM=
 
 "use client";
 
 import * as React from "react";
 import { X } from "lucide-react";
 import { cn } from "@vegastack/design";
+import { IconButton } from "@/components/ui/icon-button";
 
 /* ------------------------------------------------------------------------------------------------
  * AnnouncementBanner — the full-width inverse strip across the top of a page (Wave 4, from the
@@ -84,16 +85,16 @@ export function AnnouncementBanner({
         </span>
       ) : null}
       {dismissable ? (
-        <button
-          type="button"
+        <IconButton
+          variant="ghost"
+          size="xs"
           aria-label={dismissLabel}
           onClick={handleDismiss}
-          className={cn(
-            "relative inline-flex shrink-0 items-center justify-center rounded-md opacity-(--opacity-hint) transition-opacity duration-fast ease-standard before:absolute before:-inset-2 hover:opacity-100",
-          )}
+          data-slot="announcement-banner-dismiss"
+          className="text-current"
         >
           <X aria-hidden />
-        </button>
+        </IconButton>
       ) : null}
     </div>
   );

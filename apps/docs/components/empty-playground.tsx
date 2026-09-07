@@ -21,7 +21,7 @@ type EmptyPlaygroundKey =
 
 const SIZE_OPTIONS = [
   { value: "sm", label: "Small" },
-  { value: "default", label: "Default" },
+  { value: "md", label: "Medium" },
   { value: "lg", label: "Large" },
 ] as const;
 
@@ -48,7 +48,7 @@ const emptyPlaygroundConfig: PlaygroundConfig<EmptyPlaygroundKey> = {
       key: "size",
       label: "Size",
       options: SIZE_OPTIONS,
-      defaultValue: "default",
+      defaultValue: "md",
     },
     {
       type: "select",
@@ -97,7 +97,7 @@ const emptyPlaygroundConfig: PlaygroundConfig<EmptyPlaygroundKey> = {
   ),
   toCode: (state) => {
     const rootProps: string[] = [];
-    if (state.size !== "default") rootProps.push(`size="${state.size}"`);
+    if (state.size !== "md") rootProps.push(`size="${state.size}"`);
     if (state.surface !== "transparent")
       rootProps.push(`surface="${state.surface}"`);
     if (state.bordered) rootProps.push("bordered");

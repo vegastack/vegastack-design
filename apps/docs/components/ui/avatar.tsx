@@ -1,4 +1,4 @@
-// @vegastack avatar@0.6.0 sha256-i2uEi3KoM39Xa1gZ/N2cM3P3ZUKdLKrvOzmUBqzOEqY=
+// @vegastack avatar@0.6.0 sha256-lTUCcIlVSEoStQWAtnJwxim13LVb1VVjNsZc7CryArM=
 
 "use client";
 
@@ -23,12 +23,12 @@ export const avatarVariants = cva(
       size: {
         xs: "size-6 text-sm",
         sm: "size-(--size-sm) text-base",
-        default: "size-(--size-md) text-base",
+        md: "size-(--size-md) text-base",
         lg: "size-(--size-lg) text-lg",
         xl: "size-12 text-xl",
       },
     },
-    defaultVariants: { size: "default" },
+    defaultVariants: { size: "md" },
   },
 );
 
@@ -74,9 +74,9 @@ export type AvatarProps = Omit<
     fallbackDelay?: number;
     /**
      * Diameter of the avatar — also scales the fallback text.
-     * @default 'default'
+     * @default 'md'
      */
-    size?: "xs" | "sm" | "default" | "lg" | "xl";
+    size?: "xs" | "sm" | "md" | "lg" | "xl";
   };
 
 /**
@@ -97,7 +97,7 @@ export type AvatarProps = Omit<
  */
 export function Avatar({
   className,
-  size = "default",
+  size = "md",
   src,
   alt,
   fallback,

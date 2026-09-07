@@ -1,4 +1,4 @@
-// @vegastack pagination@0.6.0 sha256-o4/5dSdkwgTFzK+/V3qVY1NnofwIBHZosdFQwuFsjYI=
+// @vegastack pagination@0.6.0 sha256-8fgEfWZPTJhgqGFUztZA1tFjVJt88Vyb+/aNzvjZ9D8=
 
 "use client";
 
@@ -13,6 +13,7 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 import { cn } from "@vegastack/design";
+import { IconButton } from "@/components/ui/icon-button";
 
 /** Props accepted by `Pagination`. */
 export type PaginationProps = React.ComponentPropsWithRef<"nav">;
@@ -107,7 +108,7 @@ export const paginationLinkVariants = cva(
         false: "",
       },
       size: {
-        default: "h-(--size-md) min-w-(--size-md) gap-1.5 px-2.5",
+        md: "h-(--size-md) min-w-(--size-md) gap-1.5 px-2.5",
         sm: "h-(--size-sm) min-w-(--size-sm) gap-1 px-2.5 text-sm [&_svg:not([class*='size-'])]:size-(--icon-inline)",
         lg: "h-(--size-lg) min-w-(--size-lg) gap-1.5 px-3",
         icon: "size-(--size-md)",
@@ -210,7 +211,7 @@ function PaginationPrevious({
   return (
     <PaginationLink
       aria-label="Go to previous page"
-      size="default"
+      size="md"
       className={cn("gap-1 px-2.5", className)}
       {...props}
     >
@@ -241,7 +242,7 @@ function PaginationNext({
   return (
     <PaginationLink
       aria-label="Go to next page"
-      size="default"
+      size="md"
       className={cn("gap-1 px-2.5", className)}
       {...props}
     >
@@ -338,30 +339,26 @@ function PaginationPager({
       className={cn("flex w-fit items-center gap-1", className)}
       {...props}
     >
-      <button
-        type="button"
+      <IconButton
+        variant="ghost"
+        size="sm"
         aria-label={previousLabel}
         disabled={clamped <= 1}
         onClick={() => onIndexChange?.(clamped - 1)}
-        className={cn(
-          paginationLinkVariants({ isActive: false }),
-          "size-(--size-sm) disabled:pointer-events-none disabled:opacity-(--opacity-dim)",
-        )}
+        data-slot="pagination-pager-previous"
       >
         <ChevronUp aria-hidden />
-      </button>
-      <button
-        type="button"
+      </IconButton>
+      <IconButton
+        variant="ghost"
+        size="sm"
         aria-label={nextLabel}
         disabled={clamped >= clampedTotal}
         onClick={() => onIndexChange?.(clamped + 1)}
-        className={cn(
-          paginationLinkVariants({ isActive: false }),
-          "size-(--size-sm) disabled:pointer-events-none disabled:opacity-(--opacity-dim)",
-        )}
+        data-slot="pagination-pager-next"
       >
         <ChevronDown aria-hidden />
-      </button>
+      </IconButton>
       <span
         role="status"
         className="text-sm whitespace-nowrap text-muted-foreground"

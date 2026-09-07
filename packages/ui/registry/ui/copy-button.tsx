@@ -1,4 +1,4 @@
-// @vegastack copy-button@0.6.0 sha256-feOtnhopNLhBPDb2MW3mtu+24Vp7ESMrJ+kYr6hP6Cg=
+// @vegastack copy-button@0.6.0 sha256-XvRZDw6l5GPxka51kntjL5Wn/5g/kzLvQjtRVL5OD0U=
 
 "use client";
 
@@ -7,13 +7,24 @@ import { Check, Copy } from "lucide-react";
 import { cn, TIMINGS } from "@vegastack/design";
 // `Button` is owned by the sibling Button component; shadcn rewrites this alias on
 // `add`, and vitest/tsconfig map `@/components/ui/*` → `registry/ui/*`.
-import { Button, type ButtonProps } from "@/components/ui/button";
+import {
+  Button,
+  type ButtonAppearance,
+  type ButtonOwnProps,
+} from "@/components/ui/button";
+import {
+  IconButton,
+  type IconButtonProps,
+} from "@/components/ui/icon-button";
 
 /** Props accepted by `CopyButton`. */
-export interface CopyButtonProps extends Omit<
-  ButtonProps,
-  "aria-label" | "children" | "onClick" | "type" | "value"
-> {
+export type CopyButtonProps =
+  & Omit<
+    ButtonOwnProps,
+    "aria-label" | "children" | "onClick" | "type" | "value"
+  >
+  & ButtonAppearance
+  & {
   /**
    * The text written to the clipboard when the button is pressed.
    */
@@ -42,8 +53,8 @@ export interface CopyButtonProps extends Omit<
    */
   copiedLabel?: string;
   /**
-   * Show the current copy status as visible text beside the icon. When enabled,
-   * the default control size becomes `sm`; an explicit `size` still wins.
+   * Show the current copy status as visible text beside the icon. With a label the control is a
+   * text `Button`; without one it is an `IconButton`. An explicit `size` still wins.
    * @default false
    */
   showLabel?: boolean;
@@ -54,12 +65,13 @@ export interface CopyButtonProps extends Omit<
    * @default undefined
    */
   onPress?: (event: React.MouseEvent<HTMLElement>) => void;
-}
+};
 
 /**
  * `CopyButton` — copy a string to the clipboard with transient check feedback.
  *
- * Wraps {@link Button} (default `ghost` / `icon-sm`) and swaps the `lucide-react`
+ * Wraps `IconButton` (default `ghost` / `sm`), or `Button` when `showLabel` is set, and swaps the
+ * `lucide-react`
  * `Copy` icon for a `Check` for ~1.5s after a successful copy, tinting it
  * `text-primary` for that window. Copying is neutral action feedback rather than a
  * semantic success status. The accessible label switches from `"Copy"` to
@@ -81,6 +93,7 @@ export function CopyButton({
   copiedLabel = "Copied",
   showLabel = false,
   variant = "ghost",
+  tone,
   size,
   className,
   onPress,
@@ -112,19 +125,32 @@ export function CopyButton({
     [onCopied, onPress, timeout, value],
   );
 
+  // A label-less CopyButton is icon-only, so it goes through `IconButton` — the ONE sanctioned
+  // icon-only path, and the reason the `aria-label` below can never go missing. With a visible
+  // label it is a normal text Button.
+  // One JSX tree, two hosts: the cast is safe because `aria-label` (IconButton's only extra
+  // requirement) is always supplied below.
+  const Control = (showLabel ? Button : IconButton) as React.ComponentType<
+    IconButtonProps
+  >;
+  // Assembled once and cast once: `variant`/`tone` are a discriminated pair on the Button matrix,
+  // and spreading them across separate JSX attributes loses that pairing.
+  const controlProps = {
+    ...props,
+    type: "button",
+    variant,
+    tone,
+    size: size ?? "sm",
+    "data-slot": "copy-button",
+    "data-copied": copied ? "" : undefined,
+    "data-label-visible": showLabel ? "" : undefined,
+    "aria-label": copied ? copiedLabel : copyLabel,
+    onClick: handleClick,
+    className: cn(copied && "text-primary hover:text-primary", className),
+  } as unknown as IconButtonProps;
+
   return (
-    <Button
-      {...props}
-      type="button"
-      variant={variant}
-      size={size ?? (showLabel ? "sm" : "icon-sm")}
-      data-slot="copy-button"
-      data-copied={copied ? "" : undefined}
-      data-label-visible={showLabel ? "" : undefined}
-      aria-label={copied ? copiedLabel : copyLabel}
-      onClick={handleClick}
-      className={cn(copied && "text-primary hover:text-primary", className)}
-    >
+    <Control {...controlProps}>
       {/*
        * Keyed presence (CX-13): the key ties each icon to the copied boundary so
        * it remounts and its pop-in mount animation replays on every swap. A
@@ -155,6 +181,6 @@ export function CopyButton({
       <span className="sr-only" role="status">
         {copied ? copiedLabel : ""}
       </span>
-    </Button>
+    </Control>
   );
 }

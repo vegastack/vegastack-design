@@ -12,7 +12,7 @@ function Basic({
 }: {
   multiple?: boolean;
   onValueChange?: (value: string[]) => void;
-  size?: "sm" | "default" | "lg";
+  size?: "sm" | "md" | "lg";
 } = {}) {
   return (
     <ToggleGroup

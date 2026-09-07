@@ -90,7 +90,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": ["@vegastack/button"],
+      "registryDependencies": ["@vegastack/button", "@vegastack/icon-button"],
       "files": [
         {
           "path": "packages/ui/registry/ui/message-scroller.tsx",
@@ -268,7 +268,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/icon-button"],
       "files": [
         {
           "path": "packages/ui/registry/ui/alert.tsx",
@@ -346,7 +346,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/icon-button"],
       "files": [
         {
           "path": "packages/ui/registry/ui/dialog.tsx",
@@ -1088,7 +1088,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/icon-button"],
       "files": [
         {
           "path": "packages/ui/registry/ui/sheet.tsx",
@@ -1167,7 +1167,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/icon-button"],
       "files": [
         {
           "path": "packages/ui/registry/ui/pagination.tsx",
@@ -1363,7 +1363,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": ["@vegastack/button"],
+      "registryDependencies": ["@vegastack/button", "@vegastack/icon-button"],
       "files": [
         {
           "path": "packages/ui/registry/ui/copy-button.tsx",
@@ -1438,7 +1438,11 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": ["@vegastack/button", "@vegastack/dropdown-menu"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/icon-button"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/split-button.tsx",
@@ -1923,7 +1927,11 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": ["@vegastack/badge", "@vegastack/icon-button"],
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/icon-button"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/notification-bell.tsx",
@@ -1948,6 +1956,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
+      "registryDependencies": ["@vegastack/icon-button"],
       "files": [
         {
           "path": "packages/ui/registry/ui/onboarding-checklist.tsx",
@@ -2097,7 +2106,6 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/button",
         "@vegastack/icon-button",
         "@vegastack/truncated-text"
       ],
@@ -2184,6 +2192,7 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/dropdown-menu",
+        "@vegastack/icon-button",
         "@vegastack/input"
       ],
       "files": [
@@ -2323,8 +2332,8 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
+        "@vegastack/icon-button",
         "@vegastack/popover",
-        "@vegastack/button",
         "@vegastack/use-list-nav"
       ],
       "files": [
@@ -2352,9 +2361,9 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/popover",
-        "@vegastack/button",
+        "@vegastack/icon-button",
         "@vegastack/input",
+        "@vegastack/popover",
         "@vegastack/use-list-nav"
       ],
       "files": [
@@ -12581,6 +12590,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
+      "registryDependencies": ["@vegastack/icon-button"],
       "files": [
         {
           "path": "packages/ui/registry/ui/announcement-banner.tsx",

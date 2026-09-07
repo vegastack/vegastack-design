@@ -44,15 +44,37 @@ test("render prop supports non-native action elements with nativeButton=false", 
   expect(btn.element().tagName).toBe("SPAN");
 });
 
-test("applies variant + size data attributes", async () => {
+test("applies variant + tone + size data attributes", async () => {
   const screen = await render(
-    <Button variant="destructive" size="lg">
+    <Button variant="soft" tone="destructive" size="lg">
       Delete
     </Button>,
   );
   const btn = screen.getByRole("button", { name: "Delete" });
-  await expect.element(btn).toHaveAttribute("data-variant", "destructive");
+  await expect.element(btn).toHaveAttribute("data-variant", "soft");
+  await expect.element(btn).toHaveAttribute("data-tone", "destructive");
   await expect.element(btn).toHaveAttribute("data-size", "lg");
+});
+
+test("tone defaults to neutral and sets the tone custom properties", async () => {
+  const screen = await render(<Button>Save</Button>);
+  const btn = screen
+    .getByRole("button", { name: "Save" })
+    .element() as HTMLElement;
+  await expect
+    .element(screen.getByRole("button", { name: "Save" }))
+    .toHaveAttribute("data-tone", "neutral");
+  // The solid recipe reads `--btn-fill`; the neutral tone must actually define it.
+  expect(getComputedStyle(btn).getPropertyValue("--btn-fill").trim()).not.toBe(
+    "",
+  );
+});
+
+test("cta emits no tone at all — it is brand-locked", async () => {
+  const screen = await render(<Button variant="cta">Get started</Button>);
+  await expect
+    .element(screen.getByRole("button", { name: "Get started" }))
+    .not.toHaveAttribute("data-tone");
 });
 
 test("keeps the link variant underlined at rest", async () => {
@@ -129,7 +151,7 @@ test("cta variant composes a trailing icon as a child, not baked in", async () =
   await expect.element(screen.getByTestId("chevron")).toBeInTheDocument();
 });
 
-test("cta variant does not disturb the default variant classes", async () => {
+test("cta variant does not disturb the solid variant classes", async () => {
   const screen = await render(<Button>Save</Button>);
   const btn = screen
     .getByRole("button", { name: "Save" })
@@ -140,52 +162,60 @@ test("cta variant does not disturb the default variant classes", async () => {
 });
 
 /* ---------------------------------------------------------------------------
- * Loading + fixed-square icon sizes — the spinner REPLACES the icon child
- * (both at once overflow the square). The aria-label keeps the accessible name.
+ * Loading — the spinner is taken OUT of flow and stacked over the label, so the
+ * button's width is identical across the flip (audit B1-08).
  * ------------------------------------------------------------------------ */
 
-test("loading with an icon size renders the spinner INSTEAD of the icon child (one glyph in the square)", async () => {
-  function PlusStub() {
-    return <svg data-testid="plus-icon" aria-hidden />;
-  }
-  const screen = await render(
-    <Button size="icon" loading aria-label="Add item">
-      <PlusStub />
-    </Button>,
-  );
+test("loading keeps the label mounted (hidden) and shows exactly one spinner", async () => {
+  const screen = await render(<Button loading>Save changes</Button>);
   const btn = screen
-    .getByRole("button", { name: "Add item" })
-    .element() as HTMLElement;
-  expect(btn.querySelectorAll("svg")).toHaveLength(1); // exactly one glyph: the spinner
-  expect(btn.querySelector('[data-testid="plus-icon"]')).toBeNull();
-});
-
-test("loading with a text size keeps the label next to the spinner (unchanged behavior)", async () => {
-  const screen = await render(<Button loading>Save</Button>);
-  const btn = screen
-    .getByRole("button", { name: "Save" })
+    .getByRole("button", { name: "Save changes" })
     .element() as HTMLElement;
   expect(btn.querySelectorAll("svg")).toHaveLength(1); // the spinner
-  expect(btn.textContent).toContain("Save");
+  expect(btn.textContent).toContain("Save changes");
 });
 
-test('finish="lit" applies the lit shadow on the default variant and marks data-finish', async () => {
-  const screen = await render(<Button finish="lit">Create</Button>);
-  const btn = screen.getByRole("button", { name: "Create" });
-  await expect.element(btn).toHaveAttribute("data-finish", "lit");
-  expect((btn.element() as HTMLElement).className).toContain(
-    "shadow-(--shadow-lit)",
-  );
+test("loading does not move the button's width", async () => {
+  const idle = await render(<Button>Save changes</Button>);
+  const idleWidth = (
+    idle.getByRole("button", { name: "Save changes" }).element() as HTMLElement
+  ).getBoundingClientRect().width;
+
+  const busy = await render(<Button loading>Save changes</Button>);
+  const busyWidth = (
+    busy.getByRole("button", { name: "Save changes" }).element() as HTMLElement
+  ).getBoundingClientRect().width;
+
+  expect(Math.abs(busyWidth - idleWidth)).toBeLessThan(0.5);
 });
 
-test('finish="lit" is a no-op on non-default variants (flat stays the rule)', async () => {
+/* ---------------------------------------------------------------------------
+ * Disabled is the aria-disabled form (audit D7): the control keeps its pointer
+ * events so a Tooltip can explain why it is unavailable.
+ * ------------------------------------------------------------------------ */
+
+test("disabled renders aria-disabled, not the native attribute, and keeps pointer events", async () => {
+  const onClick = vi.fn();
   const screen = await render(
-    <Button variant="outline" finish="lit">
-      Cancel
+    <Button disabled onClick={onClick}>
+      Save
     </Button>,
   );
-  const btn = screen.getByRole("button", { name: "Cancel" });
-  expect((btn.element() as HTMLElement).className).not.toContain(
-    "shadow-(--shadow-lit)",
-  );
+  const btn = screen.getByRole("button", { name: "Save" });
+  await expect.element(btn).toHaveAttribute("aria-disabled", "true");
+  await expect.element(btn).not.toHaveAttribute("disabled");
+  const element = btn.element() as HTMLElement;
+  expect(getComputedStyle(element).pointerEvents).not.toBe("none");
+  await btn.click({ force: true });
+  expect(onClick).not.toHaveBeenCalled();
+});
+
+test("a disabled button dims, a loading one does not", async () => {
+  const off = await render(<Button disabled>Save</Button>);
+  const offEl = off.getByRole("button", { name: "Save" }).element();
+  expect(Number(getComputedStyle(offEl).opacity)).toBeLessThan(1);
+
+  const busy = await render(<Button loading>Save</Button>);
+  const busyEl = busy.getByRole("button", { name: "Save" }).element();
+  expect(Number(getComputedStyle(busyEl).opacity)).toBe(1);
 });

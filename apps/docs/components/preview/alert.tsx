@@ -98,7 +98,7 @@ export function alertActions(): ReactNode {
             Renew within 3 days to avoid interruption.
           </AlertDescription>
           <AlertActions>
-            <Button variant="warning-outline" size="sm">
+            <Button variant="outline" tone="warning" size="sm">
               Renew now
             </Button>
             <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>

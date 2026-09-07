@@ -1,4 +1,4 @@
-// @vegastack alert@0.6.0 sha256-WDTgjh0aX5oQhhdM+X7xITEIhV411NQLYXHPSKo6K+c=
+// @vegastack alert@0.6.0 sha256-+ZCqAY4vQ3DAk9Q9nebrdUWqxR6J6RCOWTt56c/V2eM=
 
 "use client";
 
@@ -13,6 +13,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@vegastack/design";
+import { IconButton } from "@/components/ui/icon-button";
 
 /**
  * Alert variants — `default` (neutral) plus four semantic statuses. Per the
@@ -127,7 +128,7 @@ export interface AlertProps
  *   <AlertTitle>Subscription expiring</AlertTitle>
  *   <AlertDescription>Renew within 3 days to avoid interruption.</AlertDescription>
  *   <AlertActions>
- *     <Button variant="warning-outline" size="sm">Renew now</Button>
+ *     <Button variant="outline" tone="warning" size="sm">Renew now</Button>
  *   </AlertActions>
  * </Alert>
  */
@@ -183,15 +184,16 @@ function Alert({
         {children}
       </div>
       {dismissable ? (
-        <button
-          type="button"
+        <IconButton
+          variant="ghost"
+          size="xs"
           data-slot="alert-dismiss"
           onClick={handleDismiss}
           aria-label={dismissLabel}
-          className="absolute top-3 right-3 inline-flex shrink-0 rounded-md p-1 text-current opacity-(--opacity-hint) transition-opacity duration-fast ease-standard hover:opacity-100"
+          className="absolute top-2 end-2 text-current"
         >
           <X />
-        </button>
+        </IconButton>
       ) : null}
     </div>
   );

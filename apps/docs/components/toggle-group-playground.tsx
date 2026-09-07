@@ -17,7 +17,7 @@ type ToggleGroupPlaygroundKey = "size" | "orientation" | "multiple";
 /** `size` set once on the root flows to every item via context. */
 const SIZE_OPTIONS = [
   { value: "sm", label: "Small" },
-  { value: "default", label: "Default" },
+  { value: "md", label: "Medium" },
   { value: "lg", label: "Large" },
 ] as const;
 
@@ -34,7 +34,7 @@ const toggleGroupPlaygroundConfig: PlaygroundConfig<ToggleGroupPlaygroundKey> =
         key: "size",
         label: "Size",
         options: SIZE_OPTIONS,
-        defaultValue: "default",
+        defaultValue: "md",
       },
       {
         type: "select",
@@ -76,7 +76,7 @@ const toggleGroupPlaygroundConfig: PlaygroundConfig<ToggleGroupPlaygroundKey> =
       if (state.multiple) props.push("multiple");
       if (state.orientation !== "horizontal")
         props.push(`orientation="${state.orientation}"`);
-      if (state.size !== "default") props.push(`size="${state.size}"`);
+      if (state.size !== "md") props.push(`size="${state.size}"`);
       return `<ToggleGroup ${props.join(" ")}>
   <ToggleGroupItem value="left" aria-label="Align left">
     <AlignLeft />

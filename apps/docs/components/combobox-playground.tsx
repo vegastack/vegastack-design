@@ -22,7 +22,7 @@ type ComboboxPlaygroundKey = "size" | "disabled";
 
 const SIZE_OPTIONS = [
   { value: "sm", label: "Small" },
-  { value: "default", label: "Default" },
+  { value: "md", label: "Medium" },
   { value: "lg", label: "Large" },
 ] as const;
 
@@ -35,7 +35,7 @@ const comboboxPlaygroundConfig: PlaygroundConfig<ComboboxPlaygroundKey> = {
       key: "size",
       label: "Size",
       options: SIZE_OPTIONS,
-      defaultValue: "default",
+      defaultValue: "md",
     },
     { type: "switch", key: "disabled", label: "Disabled", defaultValue: false },
   ],
@@ -67,7 +67,7 @@ const comboboxPlaygroundConfig: PlaygroundConfig<ComboboxPlaygroundKey> = {
     );
   },
   toCode: (state) => {
-    const sizeProp = state.size !== "default" ? ` size="${state.size}"` : "";
+    const sizeProp = state.size !== "md" ? ` size="${state.size}"` : "";
     const rootProps = state.disabled ? " disabled" : "";
     return [
       'const fonts = ["Sans-serif", "Serif", "Monospace", "Cursive", "Fantasy"];',

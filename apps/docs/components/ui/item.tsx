@@ -1,4 +1,4 @@
-// @vegastack item@0.6.0 sha256-eCKgD/+wKayWRw5jjxmNX5F9ugttHMFJnjZu+SJ3TqE=
+// @vegastack item@0.6.0 sha256-AcmMAypqLNYuNVtu9OCVDa36iVt/X+UwQss6D2qUurw=
 
 "use client";
 
@@ -30,12 +30,12 @@ export const itemVariants = cva(
       },
       size: {
         /** Roomy padding — the standard row density. */
-        default: "gap-4 p-4",
+        md: "gap-4 p-4",
         /** Compact padding — dense lists, sidebars. */
         sm: "gap-2.5 px-4 py-3",
       },
     },
-    defaultVariants: { variant: "default", size: "default" },
+    defaultVariants: { variant: "default", size: "md" },
   },
 );
 
@@ -61,9 +61,9 @@ export interface ItemProps
   variant?: ItemVariant;
   /**
    * Padding density.
-   * - `default`: roomy (standard row).
+   * - `md`: roomy (standard row).
    * - `sm`: compact (dense lists).
-   * @default 'default'
+   * @default 'md'
    */
   size?: ItemSize;
   /**
@@ -104,7 +104,7 @@ export interface ItemProps
 export function Item({
   className,
   variant = "default",
-  size = "default",
+  size = "md",
   render,
   ref,
   ...props

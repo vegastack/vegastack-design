@@ -1,4 +1,4 @@
-// @vegastack toggle@0.6.0 sha256-5rO58nI+amrJi3j0aHxd7IHh8+LU0bkBvTeCdn80VEg=
+// @vegastack toggle@0.6.0 sha256-R0mjy0uPMMi4iTiU50Peo+5fjIUELjbP3Y7Pai1wtoc=
 
 "use client";
 
@@ -31,11 +31,11 @@ export const toggleVariants = cva(
       // Control heights on the shared 28 / 32 / 40 scale (h-(--size-sm) / h-(--size-md) / h-(--size-lg)).
       size: {
         sm: "h-(--size-sm) min-w-(--size-sm) gap-1 px-1.5 text-label-sm [&_svg:not([class*='size-'])]:size-(--icon-inline)",
-        default: "h-(--size-md) min-w-(--size-md) px-2",
+        md: "h-(--size-md) min-w-(--size-md) px-2",
         lg: "h-(--size-lg) min-w-(--size-lg) px-2.5",
       },
     },
-    defaultVariants: { size: "default" },
+    defaultVariants: { size: "md" },
   },
 );
 
@@ -54,7 +54,7 @@ export interface ToggleProps
  * @example
  * <Toggle aria-label="Bold" defaultPressed><Bold /></Toggle>
  */
-export function Toggle({ className, size = "default", ...props }: ToggleProps) {
+export function Toggle({ className, size = "md", ...props }: ToggleProps) {
   const variantClassName = toggleVariants({ size });
   const resolvedClassName: React.ComponentPropsWithRef<
     typeof BaseToggle

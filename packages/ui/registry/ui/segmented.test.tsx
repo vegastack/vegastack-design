@@ -11,7 +11,7 @@ function Basic({
   defaultValue = "monthly",
 }: {
   onValueChange?: (value: string) => void;
-  size?: "default" | "lg";
+  size?: "md" | "lg";
   defaultValue?: string;
 } = {}) {
   return (

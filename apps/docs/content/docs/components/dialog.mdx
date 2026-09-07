@@ -37,7 +37,7 @@ import { Button } from "@/components/ui/button";
     </DialogHeader>
     <DialogFooter>
       <DialogClose render={<Button variant="outline">Cancel</Button>} />
-      <Button variant="destructive">Delete project</Button>
+      <Button variant="soft" tone="destructive">Delete project</Button>
     </DialogFooter>
   </DialogContent>
 </Dialog>;
@@ -61,7 +61,7 @@ Compose the parts inside the root:
 ```tsx
 <Dialog>
   <DialogTrigger render={<Button>Open</Button>} />
-  <DialogContent size="default">
+  <DialogContent size="md">
     <DialogHeader>
       <DialogTitle>Title</DialogTitle>
       <DialogDescription>Supporting description text.</DialogDescription>

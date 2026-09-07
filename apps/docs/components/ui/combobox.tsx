@@ -1,4 +1,4 @@
-// @vegastack combobox@0.6.0 sha256-KoxnR6PAwyohtcv3y9AjvsLJnGfnYkKPVg9vlmXV8So=
+// @vegastack combobox@0.6.0 sha256-6BMVwBjqMGHB7a/yqgC/Cx9bTLftqB+lfUDxeQy9Oi0=
 
 "use client";
 
@@ -160,11 +160,11 @@ export const comboboxInputVariants = cva(
     variants: {
       size: {
         sm: "h-(--size-sm) text-sm",
-        default: "h-(--size-md)",
+        md: "h-(--size-md)",
         lg: "h-(--size-lg)",
       },
     },
-    defaultVariants: { size: "default" },
+    defaultVariants: { size: "md" },
   },
 );
 
@@ -176,7 +176,7 @@ export interface ComboboxInputProps
 
 /**
  * `ComboboxInput` — the text field that filters the list as the user types. Styled on the shared
- * 28/32/40 control scale (`size`: `sm` / `default` / `lg`), matching `Input`/`Select`. Use standalone
+ * 28/32/40 control scale (`size`: `sm` / `md` / `lg`), matching `Input`/`Select`. Use standalone
  * for a bare search field, or nested in a {@link ComboboxInputGroup} alongside a
  * {@link ComboboxTrigger} / {@link ComboboxClear} / {@link ComboboxChips}. Renders an `<input>`.
  *
@@ -185,7 +185,7 @@ export interface ComboboxInputProps
  */
 export function ComboboxInput({
   className,
-  size = "default",
+  size = "md",
   ...props
 }: ComboboxInputProps) {
   return (
@@ -260,11 +260,11 @@ export const comboboxInputGroupVariants = cva(
     variants: {
       size: {
         sm: "min-h-(--size-sm)",
-        default: "min-h-(--size-md)",
+        md: "min-h-(--size-md)",
         lg: "min-h-(--size-lg)",
       },
     },
-    defaultVariants: { size: "default" },
+    defaultVariants: { size: "md" },
   },
 );
 
@@ -290,7 +290,7 @@ export interface ComboboxInputGroupProps
  */
 export function ComboboxInputGroup({
   className,
-  size = "default",
+  size = "md",
   ...props
 }: ComboboxInputGroupProps) {
   return (
@@ -322,11 +322,11 @@ export const comboboxTriggerVariants = cva(
     variants: {
       size: {
         sm: "size-(--size-sm)",
-        default: "size-(--size-md)",
+        md: "size-(--size-md)",
         lg: "size-(--size-lg)",
       },
     },
-    defaultVariants: { size: "default" },
+    defaultVariants: { size: "md" },
   },
 );
 
@@ -347,7 +347,7 @@ export interface ComboboxTriggerProps
  */
 export function ComboboxTrigger({
   className,
-  size = "default",
+  size = "md",
   children,
   ...props
 }: ComboboxTriggerProps) {

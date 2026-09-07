@@ -1,4 +1,4 @@
-// @vegastack otp-input@0.6.0 sha256-wo4tH2FJCxqF1ZpHhGsgM9ze0yEs4wOYsYhPBM5Gz90=
+// @vegastack otp-input@0.6.0 sha256-M8pY6fyRIzeVSXp8UsF2tXMZcfHQWAtqGlNk9mjkpDE=
 
 "use client";
 
@@ -18,7 +18,7 @@ export interface OTPInputProps extends Omit<
 > {
   /**
    * Slot size on the shared 28/32/40 control scale (register P1-04).
-   * @default 'default'
+   * @default 'md'
    */
   size?: keyof typeof slotSizeClasses;
   /**
@@ -129,7 +129,7 @@ export interface OTPInputProps extends Omit<
 /** Slot scale (register P1-04) — the shared 28/32/40 control tier with a type tier to match. */
 const slotSizeClasses = {
   sm: "size-(--size-sm) text-base",
-  default: "size-(--size-md) text-lg",
+  md: "size-(--size-md) text-lg",
   lg: "size-(--size-lg) text-xl",
 } as const;
 
@@ -190,7 +190,7 @@ export function OTPInput({
   separatorClassName,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
-  size = "default",
+  size = "md",
   shakeSignal,
   onAnimationEnd,
   ref,

@@ -35,7 +35,7 @@ test("root carries data-slot and default data-size", async () => {
   const screen = await render(<Card>Body</Card>);
   const card = screen.getByText("Body");
   await expect.element(card).toHaveAttribute("data-slot", "card");
-  await expect.element(card).toHaveAttribute("data-size", "default");
+  await expect.element(card).toHaveAttribute("data-size", "md");
 });
 
 test('size="sm" sets the data-size attribute', async () => {

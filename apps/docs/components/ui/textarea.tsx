@@ -1,4 +1,4 @@
-// @vegastack textarea@0.6.0 sha256-MBmMK2vnOdKYCW6+o8SXGGTQFeZ36xROjawm8lgwkr4=
+// @vegastack textarea@0.6.0 sha256-qkBzcntDnHXUos8V7JwDz4PA3EyGlV3bKiahnjjISnM=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -8,7 +8,7 @@ export interface TextareaProps extends React.ComponentProps<"textarea"> {
   /**
    * Density tier — `sm` compact, `default`, `lg` roomy. Multiline fields scale by
    * min-height + padding (register P1-04).
-   * @default 'default'
+   * @default 'md'
    */
   size?: keyof typeof sizeClasses;
   /**
@@ -35,7 +35,7 @@ export interface TextareaProps extends React.ComponentProps<"textarea"> {
  */
 const sizeClasses = {
   sm: "min-h-12 px-2.5 py-1.5 text-sm",
-  default: "min-h-16 px-3 py-2",
+  md: "min-h-16 px-3 py-2",
   lg: "min-h-24 px-3 py-2.5",
 } as const;
 
@@ -62,7 +62,7 @@ const fieldClasses =
 export function Textarea({
   className,
   autoGrow = false,
-  size = "default",
+  size = "md",
   ref,
   ...props
 }: TextareaProps) {

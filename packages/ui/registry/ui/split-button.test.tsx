@@ -111,10 +111,11 @@ test("composes DropdownMenuItem children via the `menu` slot", async () => {
   expect(onClick).toHaveBeenCalledOnce();
 });
 
-test("passes variant + size through to both halves and tags the slot", async () => {
+test("passes variant + tone + size through to both halves and tags the slot", async () => {
   const screen = await render(
     <SplitButton
-      variant="destructive"
+      variant="soft"
+      tone="destructive"
       size="lg"
       actions={[{ label: "Force delete" }]}
     >
@@ -123,8 +124,10 @@ test("passes variant + size through to both halves and tags the slot", async () 
   );
   const primary = screen.getByRole("button", { name: "Delete" });
   const trigger = screen.getByRole("button", { name: "More options" });
-  await expect.element(primary).toHaveAttribute("data-variant", "destructive");
+  await expect.element(primary).toHaveAttribute("data-variant", "soft");
+  await expect.element(primary).toHaveAttribute("data-tone", "destructive");
   await expect.element(primary).toHaveAttribute("data-size", "lg");
+  await expect.element(trigger).toHaveAttribute("data-size", "lg");
   await expect
     .element(primary)
     .toHaveAttribute("data-slot", "split-button-primary");

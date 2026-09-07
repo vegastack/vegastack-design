@@ -1,4 +1,4 @@
-// @vegastack audio-player@0.6.0 sha256-S/wIJy1d1WgT90zXo3iA7mmSg+zF3y6Xys6YLejmyQE=
+// @vegastack audio-player@0.6.0 sha256-cpw/oxtA0ZqEYNYr96trwgwAEObkXKLVMrlvLXEpWMU=
 
 "use client";
 
@@ -777,7 +777,7 @@ export function MediaPlayerControls({
         render={
           <IconButton
             aria-label={`${label} settings`}
-            size="default"
+            size="md"
             variant="ghost"
             className={cn(
               "rounded-full",
@@ -886,7 +886,7 @@ export function MediaPlayerControls({
       <IconButton
         aria-label={playing ? `Pause ${label}` : `Play ${label}`}
         aria-pressed={playing}
-        size="default"
+        size="md"
         variant="ghost"
         onClick={togglePlayback}
         className={cn(
@@ -916,7 +916,7 @@ export function MediaPlayerControls({
     <MediaControlTooltip content={`Rewind ${skipSeconds}s (J)`}>
       <IconButton
         aria-label={`Rewind ${skipSeconds} seconds`}
-        size="default"
+        size="md"
         variant="ghost"
         onClick={() => skipBy(-skipSeconds)}
         className={cn(
@@ -934,7 +934,7 @@ export function MediaPlayerControls({
     <MediaControlTooltip content={`Forward ${skipSeconds}s (L)`}>
       <IconButton
         aria-label={`Forward ${skipSeconds} seconds`}
-        size="default"
+        size="md"
         variant="ghost"
         onClick={() => skipBy(skipSeconds)}
         className={cn(
@@ -955,7 +955,7 @@ export function MediaPlayerControls({
     <MediaControlTooltip content="Transcript">
       <IconButton
         aria-label={`${label} transcript`}
-        size="default"
+        size="md"
         variant="ghost"
         onClick={onTranscriptClick}
         className={cn(
@@ -1012,7 +1012,7 @@ export function MediaPlayerControls({
         <IconButton
           aria-label={muted ? `Unmute ${label}` : `Mute ${label}`}
           aria-pressed={muted}
-          size="default"
+          size="md"
           variant="ghost"
           onClick={toggleMuted}
           className={cn(
@@ -1070,7 +1070,7 @@ export function MediaPlayerControls({
       <IconButton
         aria-label={`${isFullscreen ? "Exit fullscreen" : "Fullscreen"} ${label}`}
         aria-pressed={isFullscreen}
-        size="default"
+        size="md"
         variant="ghost"
         onClick={onFullscreenToggle}
         className={cn(

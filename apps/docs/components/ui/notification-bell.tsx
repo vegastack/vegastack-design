@@ -1,11 +1,16 @@
-// @vegastack notification-bell@0.6.0 sha256-/ljB38F/NJMjn34XRVyfeDsVROkAC1SujMOYYVzH3zk=
+// @vegastack notification-bell@0.6.0 sha256-jp5vDQlC9kXFl5ARiOdMP4TQGCQcExOGztGgGygLYKs=
 
 "use client";
 
 import * as React from "react";
 import { Bell } from "lucide-react";
 import { cn } from "@vegastack/design";
-import { IconButton, type IconButtonProps } from "@/components/ui/icon-button";
+import type { ButtonAppearance } from "@/components/ui/button";
+import {
+  IconButton,
+  type IconButtonOwnProps,
+  type IconButtonProps,
+} from "@/components/ui/icon-button";
 import { Badge } from "@/components/ui/badge";
 
 /** Above this count the badge caps to the `"99+"` overflow label. */
@@ -18,10 +23,10 @@ const MAX_COUNT = 99;
  * owns the unread `count` (e.g. from its own query) and passes it down, along
  * with the `onClick` that opens the notifications surface.
  */
-export interface NotificationBellProps extends Omit<
-  IconButtonProps,
-  "children" | "aria-label" | "label"
-> {
+export type NotificationBellProps =
+  & Omit<IconButtonOwnProps, "children" | "aria-label" | "label">
+  & ButtonAppearance
+  & {
   /**
    * Unread notification count, supplied by the app. `0` (or omitted) hides the
    * badge; values above `99` render as `"99+"`.
@@ -40,8 +45,8 @@ export interface NotificationBellProps extends Omit<
    * `"Notifications"`).
    * @default 'Notifications'
    */
-  "aria-label"?: string;
-}
+    "aria-label"?: string;
+  };
 
 /**
  * `NotificationBell` — a bell {@link IconButton} with an unread-count badge
@@ -102,7 +107,7 @@ export function NotificationBell({
       data-unread={hasUnread ? "" : undefined}
       className={cn("relative inline-flex", className)}
     >
-      <IconButton {...props} aria-label={accessibleName}>
+      <IconButton {...(props as IconButtonProps)} aria-label={accessibleName}>
         <Bell />
       </IconButton>
       {hasUnread ? (

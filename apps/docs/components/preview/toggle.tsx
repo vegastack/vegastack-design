@@ -25,7 +25,7 @@ export function toggleSizesAndStates(): ReactNode {
           <Underline />
           Small
         </Toggle>
-        <Toggle size="default" aria-label="Default bold">
+        <Toggle size="md" aria-label="Default bold">
           <Bold />
           Default
         </Toggle>

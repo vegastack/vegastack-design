@@ -1,11 +1,11 @@
-// @vegastack progress-indicator@0.6.0 sha256-jQpRBCXJTIcBdtzhBJm0kJohm0fbCF5anBhXpvO4ZAA=
+// @vegastack progress-indicator@0.6.0 sha256-GQ0NMS2/geUquX/Paa357J20X/LtPuaIui6zeb1DxZc=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@vegastack/design";
 
 /**
- * ProgressIndicator size scale — mirrors the system scale (`xs`/`sm`/`default`/`lg`)
+ * ProgressIndicator size scale — mirrors the system scale (`xs`/`sm`/`md`/`lg`)
  * and maps to the `size-*` token utilities. The SVG inherits `currentColor`, so
  * the track (the same colour at reduced opacity) and the fill come from `text-*`
  * utilities on the root — no hardcoded color is baked in. The default is
@@ -25,7 +25,7 @@ export const progressIndicatorVariants = cva(
       size: {
         xs: "",
         sm: "",
-        default: "",
+        md: "",
         lg: "",
       },
     },
@@ -42,7 +42,7 @@ export const progressIndicatorVariants = cva(
       },
       {
         variant: "default",
-        size: "default",
+        size: "md",
         className: "size-5",
       },
       {
@@ -62,7 +62,7 @@ export const progressIndicatorVariants = cva(
       },
       {
         variant: "contained-value",
-        size: "default",
+        size: "md",
         className: "size-16",
       },
       {
@@ -71,7 +71,7 @@ export const progressIndicatorVariants = cva(
         className: "size-20",
       },
     ],
-    defaultVariants: { size: "default", variant: "default" },
+    defaultVariants: { size: "md", variant: "default" },
   },
 );
 
@@ -130,8 +130,8 @@ export interface ProgressIndicatorProps
   segments?: number;
   /**
    * Size variant — mirrors the system scale and maps to the `size-*` tokens.
-   * `xs` (14px), `sm` (16px), `default` (20px), `lg` (24px).
-   * @default 'default'
+   * `xs` (14px), `sm` (16px), `md` (20px), `lg` (24px).
+   * @default 'md'
    */
   size?: ProgressIndicatorSize;
   /**
@@ -182,7 +182,7 @@ export interface ProgressIndicatorProps
  */
 export function ProgressIndicator({
   className,
-  size = "default",
+  size = "md",
   variant = "default",
   shape = "circle",
   segments,
@@ -218,21 +218,21 @@ export function ProgressIndicator({
   const glyphSizeClassName = {
     xs: "size-3.5",
     sm: "size-4",
-    default: "size-5",
+    md: "size-5",
     lg: "size-6",
-  }[size ?? "default"];
+  }[size ?? "md"];
   const valueLabelClassName = {
     xs: "text-sm",
     sm: "text-base",
-    default: "text-xl",
+    md: "text-xl",
     lg: "text-2xl",
-  }[size ?? "default"];
+  }[size ?? "md"];
   const containedValueLabelClassName = {
     xs: "text-xs",
     sm: "text-sm",
-    default: "text-base",
+    md: "text-base",
     lg: "text-xl",
-  }[size ?? "default"];
+  }[size ?? "md"];
   const rootClassName = progressIndicatorVariants({
     size,
     variant,
@@ -246,9 +246,9 @@ export function ProgressIndicator({
     const barSize = {
       xs: "h-0.5 w-2",
       sm: "h-0.5 w-2.5",
-      default: "h-1 w-3",
+      md: "h-1 w-3",
       lg: "h-1 w-4",
-    }[size ?? "default"];
+    }[size ?? "md"];
     return (
       <span
         ref={ref}

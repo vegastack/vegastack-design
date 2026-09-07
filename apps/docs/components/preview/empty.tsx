@@ -39,7 +39,7 @@ export function emptyDemo(): ReactNode {
 export function emptyDemoSizes(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch gap-4">
-      {(["sm", "default", "lg"] as const).map((size) => (
+      {(["sm", "md", "lg"] as const).map((size) => (
         <Empty key={size} bordered size={size} className="w-full">
           <EmptyHeader>
             <EmptyMedia>
@@ -186,7 +186,7 @@ export function emptyDemoIntents(): ReactNode {
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button size="sm" variant="info">
+          <Button size="sm" variant="soft" tone="info">
             Clear filters
           </Button>
         </EmptyContent>
@@ -202,7 +202,7 @@ export function emptyDemoIntents(): ReactNode {
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button size="sm" variant="destructive">
+          <Button size="sm" variant="soft" tone="destructive">
             Retry
           </Button>
         </EmptyContent>

@@ -60,13 +60,13 @@ export function checkboxSizes(): ReactNode {
       {/* The indicator icon scales with the box, so sm reads smaller end-to-end. */}
       <div className="flex items-center gap-6">
         <Checkbox size="sm" defaultChecked aria-label="Small" />
-        <Checkbox size="default" defaultChecked aria-label="Default" />
+        <Checkbox size="md" defaultChecked aria-label="Default" />
       </div>
       <Field label="Small" orientation="horizontal">
         <Checkbox size="sm" defaultChecked />
       </Field>
       <Field label="Default" orientation="horizontal">
-        <Checkbox size="default" defaultChecked />
+        <Checkbox size="md" defaultChecked />
       </Field>
     </Wrapper>
   );
@@ -122,14 +122,14 @@ export function checkboxSizeStateMatrix(): ReactNode {
 
           {/* default row */}
           <span className="font-mono">default</span>
-          <Checkbox size="default" aria-label="Default unchecked" />
+          <Checkbox size="md" aria-label="Default unchecked" />
           <Checkbox
-            size="default"
+            size="md"
             defaultChecked
             aria-label="Default checked"
           />
           <Checkbox
-            size="default"
+            size="md"
             indeterminate={mixedDefault === "indeterminate"}
             checked={mixedDefault === true}
             onCheckedChange={(next) => setMixedDefault(next)}

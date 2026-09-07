@@ -11,7 +11,7 @@ import {
 type CheckboxPlaygroundKey = "size" | "disabled" | "indeterminate";
 
 const SIZE_OPTIONS = [
-  { value: "default", label: "Default" },
+  { value: "md", label: "Medium" },
   { value: "sm", label: "Small" },
 ] as const;
 
@@ -22,7 +22,7 @@ const checkboxPlaygroundConfig: PlaygroundConfig<CheckboxPlaygroundKey> = {
       key: "size",
       label: "Size",
       options: SIZE_OPTIONS,
-      defaultValue: "default",
+      defaultValue: "md",
     },
     { type: "switch", key: "disabled", label: "Disabled", defaultValue: false },
     {
@@ -43,7 +43,7 @@ const checkboxPlaygroundConfig: PlaygroundConfig<CheckboxPlaygroundKey> = {
   ),
   toCode: (state) => {
     const props: string[] = [];
-    if (state.size !== "default") props.push(`size="${state.size}"`);
+    if (state.size !== "md") props.push(`size="${state.size}"`);
     if (state.disabled) props.push("disabled");
     if (state.indeterminate) props.push("indeterminate");
     const propsString = props.length > 0 ? ` ${props.join(" ")}` : "";

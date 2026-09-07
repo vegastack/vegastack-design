@@ -1,11 +1,10 @@
-// @vegastack page-header@0.6.0 sha256-UDyD3WTBDn+xR2SSmZRU9HCYCYr3Hq0iqet1cQnMem0=
+// @vegastack page-header@0.6.0 sha256-B1npAZHI3KXMWRFp31B2VMkSUtr8BUSF43oBR0EJqjI=
 
 "use client";
 
 import * as React from "react";
 import { ChevronLeft, Star } from "lucide-react";
 import { cn } from "@vegastack/design";
-import { buttonVariants } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { TruncatedText } from "@/components/ui/truncated-text";
 
@@ -233,17 +232,16 @@ export function PageHeader({
               </IconButton>
             ) : null}
             {hasBack && !onBack && backHref ? (
-              <a
-                href={backHref}
+              <IconButton
+                variant="ghost"
+                size="sm"
                 aria-label={backLabel}
                 data-slot="page-header-back"
-                className={cn(
-                  buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                  "-ml-2 shrink-0",
-                )}
+                className="-ms-2 shrink-0"
+                render={<a href={backHref} />}
               >
                 <ChevronLeft aria-hidden />
-              </a>
+              </IconButton>
             ) : null}
             {/* min-w-0 lets the h1 shrink below its content width inside the flex row above —
                 without it, the flex item's default `min-width: auto` would stop TruncatedText's

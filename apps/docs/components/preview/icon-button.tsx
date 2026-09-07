@@ -32,13 +32,10 @@ export function iconButton(): ReactNode {
 export function iconButtonVariants(): ReactNode {
   return (
     <Wrapper>
-      <IconButton aria-label="Settings" variant="default">
+      <IconButton aria-label="Settings" variant="solid">
         <Settings />
       </IconButton>
-      <IconButton aria-label="Ask AI" variant="default">
-        <Sparkles />
-      </IconButton>
-      <IconButton aria-label="Notifications" variant="secondary">
+      <IconButton aria-label="Notifications" variant="soft">
         <Bell />
       </IconButton>
       <IconButton aria-label="Edit" variant="outline">
@@ -50,32 +47,52 @@ export function iconButtonVariants(): ReactNode {
       <IconButton aria-label="Copy link" variant="link">
         <Link />
       </IconButton>
-      <IconButton aria-label="Assistant" variant="glass">
+    </Wrapper>
+  );
+}
+
+export function iconButtonTones(): ReactNode {
+  return (
+    <Wrapper>
+      <IconButton aria-label="Ask AI" variant="soft">
         <Sparkles />
       </IconButton>
-      <IconButton aria-label="Confirm" variant="success">
-        <Check />
-      </IconButton>
-      <IconButton aria-label="Favorite" variant="warning">
-        <Heart />
-      </IconButton>
-      <IconButton aria-label="Delete" variant="destructive">
+      <IconButton aria-label="Delete" variant="soft" tone="destructive">
         <Trash2 />
       </IconButton>
-      <IconButton aria-label="Information" variant="info">
-        <Info />
-      </IconButton>
-      <IconButton aria-label="Approve" variant="success-outline">
+      <IconButton aria-label="Confirm" variant="soft" tone="success">
         <Check />
       </IconButton>
-      <IconButton aria-label="Warning" variant="warning-outline">
+      <IconButton aria-label="Warning" variant="soft" tone="warning">
         <TriangleAlert />
       </IconButton>
-      <IconButton aria-label="Delete" variant="destructive-outline">
+      <IconButton aria-label="Information" variant="soft" tone="info">
+        <Info />
+      </IconButton>
+      <IconButton aria-label="Approve" variant="outline" tone="success">
+        <Check />
+      </IconButton>
+      <IconButton aria-label="Remove" variant="outline" tone="destructive">
         <Trash2 />
       </IconButton>
-      <IconButton aria-label="Details" variant="info-outline">
-        <Bell />
+    </Wrapper>
+  );
+}
+
+export function iconButtonShapes(): ReactNode {
+  return (
+    <Wrapper>
+      <IconButton aria-label="Favorite" variant="outline" shape="square">
+        <Heart />
+      </IconButton>
+      <IconButton aria-label="Favorite" variant="outline" shape="round">
+        <Heart />
+      </IconButton>
+      <IconButton aria-label="Favorite" variant="soft" shape="round">
+        <Heart />
+      </IconButton>
+      <IconButton aria-label="Favorite" variant="solid" shape="round">
+        <Heart />
       </IconButton>
     </Wrapper>
   );
@@ -90,7 +107,7 @@ export function iconButtonSizes(): ReactNode {
       <IconButton aria-label="Add item" size="sm">
         <Plus />
       </IconButton>
-      <IconButton aria-label="Add item" size="default">
+      <IconButton aria-label="Add item" size="md">
         <Plus />
       </IconButton>
       <IconButton aria-label="Add item" size="lg">

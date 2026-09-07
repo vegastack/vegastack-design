@@ -12,7 +12,7 @@ test("renders a named numeric input inside the group chrome", async () => {
   const input = screen.getByRole("textbox", { name: "Quantity" });
   await expect.element(input).toBeInTheDocument();
   const root = document.querySelector('[data-slot="number-field"]')!;
-  expect(root.getAttribute("data-size")).toBe("default");
+  expect(root.getAttribute("data-size")).toBe("md");
 });
 
 test("stepper buttons increment and decrement the value", async () => {

@@ -84,7 +84,7 @@ export function paginationRouting(): ReactNode {
 export function paginationSizes(): ReactNode {
   return (
     <Wrapper className="flex-col gap-4">
-      {(["sm", "default", "lg", "icon"] as const).map((size) => (
+      {(["sm", "md", "lg", "icon"] as const).map((size) => (
         <div key={size} className="flex items-center gap-3">
           <span className="text-muted-foreground w-14 text-right font-mono text-sm">
             {size}
