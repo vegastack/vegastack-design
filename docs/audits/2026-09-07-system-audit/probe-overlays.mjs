@@ -35,6 +35,7 @@ const cases = [
   ["dialog", "dialogSizes", "click:2"],
   ["alert-dialog", "alertDialogIntents", "click"],
   ["sheet", "sheetSides", "click"],
+  ["navigation-menu", "navigationMenu", "click"],
   ["popover", "popoverForm", "click"],
   ["hover-card", "hoverCardSides", "hover"],
   ["tooltip", "tooltipSides", "hover"],
@@ -62,8 +63,10 @@ for (const dark of [false, true]) {
       if (!(await fixture.count()))
         fixture = page.locator("[data-vrt-preview]").first();
       await fixture.evaluate((e) => e.scrollIntoView({ block: "center" }));
+      // `:not(:disabled)` matters: several previews lead with a DISABLED example (selectStates
+      // opens with a disabled trigger), and clicking it just times out.
       const triggers = fixture.locator(
-        "button, [role=combobox], input, [data-slot$='trigger'], [data-slot=context-menu-trigger]",
+        "button:not(:disabled), [role=combobox]:not(:disabled), input:not(:disabled), [data-slot$='trigger']:not(:disabled), [data-slot=context-menu-trigger]",
       );
       const n = await triggers.count();
       const pick = action.endsWith(":last")
@@ -90,7 +93,7 @@ for (const dark of [false, true]) {
       await page.waitForTimeout(500);
       const info = await page.evaluate(() => {
         const sel =
-          "[data-slot$='content'], [data-slot=sheet-content], [data-sonner-toast], [data-slot=command]";
+          "[data-slot$='content'], [data-slot=sheet-content], [data-sonner-toast], [data-slot=command], [data-slot=navigation-menu-popup]";
         const els = [...document.querySelectorAll(sel)].filter(
           (e) => e.getBoundingClientRect().width > 0,
         );
@@ -145,8 +148,10 @@ const motion = [];
       if (!(await fixture.count()))
         fixture = page.locator("[data-vrt-preview]").first();
       await fixture.evaluate((e) => e.scrollIntoView({ block: "center" }));
+      // `:not(:disabled)` matters: several previews lead with a DISABLED example (selectStates
+      // opens with a disabled trigger), and clicking it just times out.
       const triggers = fixture.locator(
-        "button, [role=combobox], input, [data-slot$='trigger'], [data-slot=context-menu-trigger]",
+        "button:not(:disabled), [role=combobox]:not(:disabled), input:not(:disabled), [data-slot$='trigger']:not(:disabled), [data-slot=context-menu-trigger]",
       );
       const n = await triggers.count();
       const pick = action.endsWith(":last")
@@ -164,10 +169,12 @@ const motion = [];
         await pick.click();
         await page.keyboard.press("ArrowDown");
       } else await pick.click();
-      await page.waitForTimeout(600);
+      // HoverCard is delay-gated (TIMINGS.hoverOpenDelayMs = 700), so a 600ms wait measured an
+      // empty page and reported no timing at all. Wait past the open delay plus the transition.
+      await page.waitForTimeout(action === "hover" ? 1600 : 600);
       const read = await page.evaluate(() => {
         const sel =
-          "[data-slot$='content'], [data-slot=sheet-content], [data-sonner-toast], [data-slot=command]";
+          "[data-slot$='content'], [data-slot=sheet-content], [data-sonner-toast], [data-slot=command], [data-slot=navigation-menu-popup]";
         return [...document.querySelectorAll(sel)]
           .filter((e) => e.getBoundingClientRect().width > 0)
           .slice(0, 2)
