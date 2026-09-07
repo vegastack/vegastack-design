@@ -114,6 +114,7 @@ Every bug found + root cause + fix. Append-only.
   `/docs/components/button`, click "Fullscreen preview", and press Tab six times.
 
 ---
+
 ## 2026-09-07 — `IconButton` swallows a caller's `data-slot` (Fo1, found by the push gate)
 
 - **Symptom.** `PasswordInput`'s reveal toggle set `data-slot="password-input-toggle"` on the
@@ -550,6 +551,7 @@ re-diagnose it, and because a race that flakes under load is a real race.
   subscribes to. Same visible behaviour, one `<span>` re-rendered instead of a grid.
 
 ---
+
 ## 2026-09-07 — Two defects the audit did not name, found while unifying the field chrome (Fo1)
 
 - **The forced-colours focus outline was being clipped on every field with addons.** F1 fixed B1-01
@@ -577,7 +579,6 @@ re-diagnose it, and because a race that flakes under load is a real race.
   than the source string, and should recognise `fieldControl` as an imported focus affordance.
 
 ---
-
 
 ## 2026-09-07 — Two defects the audit did not name, found while building the surface ladder
 
@@ -1259,3 +1260,39 @@ count`, so a page that loads with unread items sits still; the cue additionally 
 - **The class to recognise:** a component that ships a workaround prop for its own default has the
   default wrong. `option`, `treeitem` and `gridcell` are the same shape of hazard — the container
   must license the role, never a default.
+
+---
+
+## 2026-09-07 — Prosemirror duplicated in the tree (stale lockfile, not a dependency conflict)
+
+- **Symptom:** the `@tiptap/*` 3.27.4 → 3.31.3 security bump surfaced two copies of the prosemirror
+  packages in the tree. The obvious reading — that two tiptap entry points had pinned incompatible
+  prosemirror ranges and the duplication was structural — would have meant `pnpm.overrides`.
+- **Root cause:** neither. The lockfile had drifted: it still described resolutions from before
+  several tiptap minors, so the new versions could not dedupe against the recorded ones. A lockfile
+  refresh collapsed the duplicates on its own.
+- **Fix:** refresh the lockfile; no override added. Recorded because an override would have been the
+  wrong fix and would have quietly outlived its cause — a permanent pin papering over a stale file.
+- **Rider:** the same refresh cleared the bulk of the transitive advisories. `pnpm audit` went 47 → 3
+  findings, 0 critical. The remaining high sits on `postcss` under `shadcn`/`tsup`.
+
+---
+
+## 2026-09-07 — Two unit-lane failures under concurrent gate runs, both flakes (test-environment)
+
+- **Symptom:** during the D1 branch's `gates:push` runs, the browser unit lane failed twice on tests
+  the branch does not touch — `provider.test.tsx` ("useVegaStackTheme exposes resolvedTheme")
+  and `use-list-nav.test.tsx` ("edges clamp — no wrap-around"). Both reported
+  `Matcher did not succeed in time`, and the second took **19.5s** for a test that normally runs in
+  about 1s.
+- **Root cause:** machine contention, not the upgrade. Sibling agents were running their own
+  `gates:push` in parallel worktrees; load average was **~20 on the first failure and ~40 on the
+  second**, and the whole unit lane stretched from its usual ~20s to 118s. Both files are ours and
+  neither imports anything the Base UI / shadcn bump changed.
+- **Proof:** re-run in isolation on a quiet machine, `provider.test.tsx` passes **8/8** and
+  `use-list-nav.test.tsx` passes **15/15**; a subsequent full `gates:push` passed all five gates with
+  880 contract checks and no skips.
+- **Fix:** none in code. Recorded so the next reader does not chase a phantom regression — and as
+  evidence for the standing rule that a failing browser test is re-run in isolation before it is
+  believed. The real lesson is about the gate ladder, not the tests: several agents running the
+  browser lanes concurrently on one machine manufactures timeouts.
