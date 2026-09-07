@@ -132,10 +132,14 @@ idempotency check would fail after anyone ran the formatter.
   `apps/docs/vrt/page-routes.ts` and `vrt-review.mjs`, all of which G1-a owns, and
   `apps/docs/app/**` is declared global for both pixel lanes so the change forces a full sweep on
   every subsequent edit.
-- **What actually moved the number:** the refactor itself. See the PR for the measured before/after
-  payload of `/docs/components/button`.
-- **Revisit:** if the wall is still the largest client cost after this lands, a dedicated route
-  segment is the right fix and should be scoped as its own issue against the route-scope owners.
+- **What the refactor itself did to the number — measured, with a caveat.** After this change every
+  docs page loads 26 scripts totalling **3,645 KB**. The gallery's JSDoc records **3,873 KB** for the
+  same page before it. That is a ~228 KB improvement, but the two figures were taken on different
+  content at different times and **the baseline was not rebuilt here**, so treat the delta as
+  indicative rather than exact. The shared-manifest problem is unchanged: every docs page still
+  carries the wall.
+- **Revisit — this is still the largest client cost on every docs route.** A dedicated route segment
+  remains the right fix and should be scoped as its own issue against the route-scope owners.
   **Needs MK.**
 
 ---

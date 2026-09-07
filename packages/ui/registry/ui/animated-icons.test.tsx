@@ -2,6 +2,7 @@ import * as React from "react";
 import { MotionConfig } from "motion/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
+import { expectNoA11yViolations } from "../../test/a11y";
 import { ActivityIcon } from "./icons/activity";
 
 interface AnimationHandle {
@@ -400,6 +401,30 @@ test("size resolves through the --icon-default role token by default", async () 
   expect(svg("explicit-size")?.getAttribute("width")).toBe(
     "var(--icon-feature)",
   );
+});
+
+test("an icon tile is a named control, not a focusable div", async () => {
+  mockReducedMotion(true);
+  // The exact markup the docs gallery tile renders (apps/docs AnimatedIconCard):
+  // a real button carrying the name, with the glyph decorative inside it. The
+  // gallery used to render 439 focusable <div>s with no role — reachable by
+  // keyboard and announced as nothing.
+  const screen = await render(
+    <div data-testid="tile">
+      <button type="button" aria-label="Activity">
+        <ActivityIcon />
+        <span aria-hidden>Activity</span>
+      </button>
+    </div>,
+  );
+  const tile = screen.getByTestId("tile").element();
+  expect(tile.querySelectorAll("div[tabindex]")).toHaveLength(0);
+  expect(tile.querySelector("button")?.getAttribute("aria-label")).toBe(
+    "Activity",
+  );
+  // color-contrast/target-size need compiled CSS, which this suite does not load
+  // — both are proven on the real page by the compiled-CSS and contract lanes.
+  await expectNoA11yViolations(tile, ["color-contrast", "target-size"]);
 });
 
 test("a timer-driven icon cancels its deferred work on unmount", async () => {

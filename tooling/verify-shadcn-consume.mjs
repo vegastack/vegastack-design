@@ -133,6 +133,16 @@ const REQUIRED_EXTERNAL_FAMILIES = {
   recharts: (dependencies, name) =>
     dependencies.some((dependency) => dependency.startsWith("recharts")),
   "dashboard-block": (_dependencies, name) => name === "dashboard-01",
+  // Every animated icon is now a data module over
+  // `@vegastack/design/create-animated-icon`, and they come in two import
+  // shapes. Both are pinned, because the set-cover would otherwise satisfy the
+  // `motion` family above with whichever single icon it reached first:
+  //   · icon-a-arrow-down — the plain shape: the factory subpath and Motion TYPES only.
+  //   · icon-redo         — additionally imports a Motion VALUE (`cubicBezier`),
+  //                         so the real CLI proves that runtime import resolves too.
+  "animated-icon-types-only": (_dependencies, name) =>
+    name === "icon-a-arrow-down",
+  "animated-icon-motion-value": (_dependencies, name) => name === "icon-redo",
 };
 
 // ── the two consumer layouts the SIMULATED path proves (Codex R12: non-default required) ──
