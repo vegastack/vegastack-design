@@ -1,18 +1,18 @@
 {
   "schema": 1,
-  "tree": "tree-6ef0fe250b65b644f3ae4bd9dd54d32062480d8b",
-  "treeFiles": 2694,
-  "head": "0e48ed55e7eb3e1d94ca18e3804ead78abce17b2",
-  "writtenAt": "2026-09-07T11:57:00.096Z",
+  "tree": "tree-a5b571c9f08e3b8d90d8c9a663fc7e64aac78fcd",
+  "treeFiles": 2701,
+  "head": "97e8506b67915a5e41abdfaddc1fe4b0b8999b3a",
+  "writtenAt": "2026-09-07T18:34:08.570Z",
   "mode": "push",
   "base": {
     "ref": "origin/main",
-    "sha": "6f11a4bc9aa6539f3f5791b7b5c47aa131f5d4b2"
+    "sha": "9c33dfaf6fa8c38dc2e1e009620ecb06d86dc4ff"
   },
   "host": {
-    "platform": "darwin",
-    "arch": "arm64",
-    "node": "v25.9.0"
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v24.20.0"
   },
   "toolchain": {
     "@playwright/test": "1.61.0",
@@ -23,28 +23,28 @@
     "contracts": true,
     "unit": true,
     "smoke": true,
-    "contractsReason": "global surface changed (apps/docs/app/(home)/page.tsx, apps/docs/app/docs/[[...slug]]/page.tsx, apps/docs/app/docs/layout.tsx, +71 more)"
+    "contractsReason": "global surface changed (apps/docs/app/(home)/page.tsx, apps/docs/app/docs/[[...slug]]/page.tsx, apps/docs/app/docs/layout.tsx, +73 more)"
   },
   "gates": {
     "typecheck": {
       "status": "pass",
-      "durationMs": 2097
+      "durationMs": 43777
     },
     "lint": {
       "status": "pass",
-      "durationMs": 2234
+      "durationMs": 19701
     },
     "unit": {
       "status": "pass",
-      "durationMs": 30935
+      "durationMs": 52681
     },
     "smoke": {
       "status": "pass",
-      "durationMs": 55288
+      "durationMs": 26254
     },
     "contracts": {
       "status": "pass",
-      "durationMs": 615638,
+      "durationMs": 577155,
       "executed": 880,
       "full": true,
       "scopeRoutes": 110

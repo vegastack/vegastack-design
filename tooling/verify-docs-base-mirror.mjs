@@ -31,7 +31,11 @@ const MIRRORED_SELECTORS = [
   ':disabled,[aria-disabled="true"],[data-disabled]',
   ":focus-visible",
   "@media (forced-colors: active)>:focus-visible",
-  '@media (forced-colors: active)>[data-slot="text-edit"]:focus-within',
+  // F1's B1-01 block covers every text-entry control, not just TextEdit: the tint is the focus
+  // affordance on all four, and forced colours replaces `border-color` on all four. The key is the
+  // whole selector list because that is one rule — mirroring a subset would let the docs copy drop
+  // three of them silently.
+  '@media (forced-colors: active)>input:focus,textarea:focus,[contenteditable="true"]:focus,[data-slot="text-edit"]:focus-within',
   "@media (prefers-reduced-motion: reduce)>*,::before,::after",
 ];
 

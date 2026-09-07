@@ -37,6 +37,8 @@ export const BROWSER_ONLY_NOTES: Record<string, string> = {
     "_Icon gallery — browser only. The icon inventory is listed under Registry items in llms.txt._",
   ColorPalette:
     "_Colour token specimen — browser only; the values are in design.md §Colours._",
+  SurfaceLadder:
+    "_Surface-ladder specimen — browser only; it renders both themes side by side. The rungs and their alpha twins are in design.md §Colours → Surfaces — the ladder._",
   TypeScale:
     "_Type scale specimen — browser only; the ladder is in design.md §Typography._",
   TypeScaleSizes:
