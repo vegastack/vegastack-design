@@ -1274,11 +1274,13 @@ count`, so a page that loads with unread items sits still; the cue additionally 
 - **Fix:** refresh the lockfile; no override added. Recorded because an override would have been the
   wrong fix and would have quietly outlived its cause — a permanent pin papering over a stale file.
 - **Rider:** the same refresh cleared the bulk of the transitive advisories. `pnpm audit` went 47 → 3
-  findings, 0 critical. The remaining high sits on `postcss` under `shadcn`/`tsup`.
+  findings, 0 critical; the one remaining high sat on `postcss` under `shadcn`/`tsup`. The shadcn
+  4.13.0 → 4.21.0 bump later in the batch cleared that path too, so the branch finishes at **1 low**
+  (a Windows-only esbuild dev-server file read reached through `tsup`) and **0 critical/high**.
 
 ---
 
-## 2026-09-07 — Two unit-lane failures under concurrent gate runs, both flakes (test-environment)
+## 2026-09-07 — Browser-lane failures under concurrent gate runs, all flakes (test-environment)
 
 - **Symptom:** during the D1 branch's `gates:push` runs, the browser unit lane failed twice on tests
   the branch does not touch — `provider.test.tsx` ("useVegaStackTheme exposes resolvedTheme")
@@ -1296,3 +1298,36 @@ count`, so a page that loads with unread items sits still; the cue additionally 
   evidence for the standing rule that a failing browser test is re-run in isolation before it is
   believed. The real lesson is about the gate ladder, not the tests: several agents running the
   browser lanes concurrently on one machine manufactures timeouts.
+- **Recurrence the same evening, larger and with a cleaner disproof.** After the rebase onto F1, a
+  `gates:push` at load ~50 failed **twelve** checks across three lanes — unit ×3 (`accordion`,
+  `marketing-surface` "propagates the scope to Select positioner and popup layers", `provider`),
+  cross-engine smoke ×2 (`use-animation-replay`, one Chromium and one Firefox), and contracts ×7
+  (`otp-input`, `split-button`, `button` on the 24px pointer-target check, in the mobile and dark
+  Chromium projects). The shape invites the wrong conclusion twice over: a scope-propagation failure
+  reads as a Base UI 1.8 portal regression, and a pointer-target failure reads as an F1 surface-ladder
+  regression. Both readings are wrong. Re-run on a quiet machine the **whole** browser unit lane
+  passes — **123 files / 1529 tests in 46s**, against 256s for the same lane when it failed. Every
+  one of these checks depends on layout or animation settling within a timeout, which is exactly the
+  class contention breaks; the `marketing-surface` and `use-animation-replay` cases are the tell,
+  since a genuine class-propagation or animation-class defect would be deterministic, not load-dependent.
+
+---
+
+## 2026-09-07 — `changelog-lint` accepts a commit link that is not in the branch's history (fail-open)
+
+- **Symptom:** the 0.7.0 entry shipped a link to `7ec6372`, a commit that had been superseded by an
+  amend and was no longer an ancestor of HEAD. `changelog-lint` passed it, and the pre-commit
+  "changelog vocabulary" gate passed it too. On GitHub that URL resolves to nothing for anyone who
+  did not have the orphan in their local object store.
+- **Root cause:** the check is `git cat-file -e <sha>^{commit}` — it asks whether the **object
+  exists**, not whether it is **reachable from HEAD**. An amended, rebased, or squashed commit stays
+  in the local object database (reflog keeps it alive) long after it leaves the branch, so every
+  such link passes locally and dies on push. The failure is invisible on the machine that writes the
+  changelog and visible to everyone else — the worst shape for a link check.
+- **Fix (this entry):** the citation was corrected to `cbc3050`, and every sha in `CHANGELOG.md` was
+  re-checked with `git merge-base --is-ancestor <sha> HEAD` — all 17 are in history.
+- **Root fix not taken here, deliberately.** `tooling/changelog-lint.mjs` is `tooling/**`, which is
+  G1-a's (#49) territory on this audit, so changing it in this branch would collide. The one-line
+  strengthening is to replace the `cat-file -e` probe with `git merge-base --is-ancestor`, with a
+  documented allowance for entries that legitimately cite commits from before a history rewrite.
+  Flagged for #49 rather than fixed in #34.
