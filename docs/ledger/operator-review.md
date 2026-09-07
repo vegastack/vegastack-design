@@ -220,6 +220,15 @@ idempotency check would fail after anyone ran the formatter.
 
 ---
 
+## 2026-09-07 — Di1 display leaves: three calls the batch brief did not settle
+
+**Decision:** delete two reduced-motion copies the brief's own doctrine draft had sanctioned; leave `CommandShortcut` as plain text; leave the `TruncationFocusProvider` consumption side to T1.
+
+- **The two `data-drag-pending` `motion-reduce:` copies went.** Options: (a) keep them and write the doctrine around them, as the in-progress draft did; (b) delete them and state the rule without an exception. Chose (b): the global reset makes them provably redundant (`animate-pulse` rests at `opacity: 1`, and the reset caps the animation at one 0.01ms iteration), and a doctrine that carries a false exception is worse than one with none. `design.md` and `docs/ledger/bugs.md` both record the reasoning. Registry source now holds exactly one `motion-reduce:` utility, and it is the one the reset genuinely cannot cover.
+- **`CommandShortcut` was NOT converted to `Kbd`,** despite the batch task line asking for it. Two authorities say otherwise and both outrank the task line: the audit finding itself (`02-batch-02-display-leaves.md` B2-07) defers `command.tsx`'s shortcut chips to Batch 3, and `command.tsx`'s own source carries a prior audit-reviewed decision that palette shortcut hints are plain muted text on purpose — chip-styled keys would make every palette row read busier than the menus beside it. Converting it would have re-opened a settled call and stolen scope from O1. **Flagged for MK:** if the intent really is chips in the palette, that is one render change in Batch 3, not here.
+- **`TruncationFocusProvider` ships without its consumers.** `TruncatedText` / `IconText` / `TableCellText` / `RelativeTime` all take `focusable`, and the provider that sets a region-wide default is exported — but nothing wraps `DataList` / `DataGrid` in it yet, because those files belong to T1 (tables) and the brief made the wiring conditional on T1 having merged first. It has not. So the D9 default (`false` inside a grid) is currently reachable only by an explicit `focusable={false}` or a hand-placed provider. Docs and JSDoc were written to describe the mechanism and the contract rather than claim the hosts already adopt it. **T1 owes the two-line wrap.** Until then a truncated grid cell still takes a tab stop — the pre-existing behaviour, so nothing regressed; the fix just is not complete.
+
+
 ## 2026-09-07 — F1 surface ladder: eye-tuned rung values and the `bg-muted` mapping
 
 **Decision:** ship the ladder at values that differ from `03-proposals.md` §P1's start values wherever the contrast gate said P1's number could not hold, and keep `bg-muted` on the sites where it already means "rung 1".

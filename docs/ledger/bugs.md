@@ -243,6 +243,30 @@ re-diagnose it, and because a race that flakes under load is a real race.
 - **Why the spec and not the component:** the contract lane must tolerate fixtures that legitimately
   re-render, or every future self-updating component becomes unverifiable. Both branches reached that
   conclusion independently.
+---
+
+## 2026-09-07 — Two undeclared registry dependencies, surfaced by consolidating the leaves
+
+- **`tooltip` imported `Kbd` without declaring `@vegastack/kbd`; `relative-time` imported
+  `TruncatedText` without declaring `@vegastack/truncated-text`.** Both appeared the moment B2-07
+  made `TooltipKbd` render the real `Kbd`, and B2-04 gave `RelativeTime` the shared
+  `useTruncationFocusable`. `verify-registry-deps` caught them inside `registry:build` and blocked it
+  — exactly the fail-closed behaviour intended, and worth recording because it is the failure mode a
+  consumer would have hit as a missing module after `shadcn add @vegastack/tooltip`. **Fix:** both
+  `registryDependencies` arrays now declare the item they import. The lesson for anyone consolidating
+  two components into one: a new cross-component import is a distribution change, not just a code
+  change.
+
+- **A doctrine paragraph asserted two `motion-reduce:` copies were load-bearing when they are not.**
+  While writing the reduced-motion rule this batch claimed `board`'s and `sortable-list`'s
+  `motion-reduce:data-drag-pending:animate-none` had to survive because the global reset does not
+  cover them. It does: the reset sets `animation-duration: 0.01ms` and `animation-iteration-count: 1`,
+  and `animate-pulse`'s keyframes are `opacity: 1` at both 0% and 100%, so a single 0.01ms iteration
+  already lands on exactly the frame `animate-none` would. Both were deleted and `design.md` was
+  corrected. The one genuine survivor is `staggered-text-reveal`'s
+  `motion-reduce:[animation-delay:0s]` — the reset does NOT zero `animation-delay`, so without it a
+  reduced-motion reader waits out the full stagger on invisible words. **Rule of thumb:** a
+  `motion-reduce:` variant earns its place only if it changes something the reset does not touch.
 
 ---
 
