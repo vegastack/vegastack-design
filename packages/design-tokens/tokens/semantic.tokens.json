@@ -1209,6 +1209,14 @@
       "unit": "ms"
     }
   },
+  "duration-indeterminate": {
+    "$type": "duration",
+    "$value": {
+      "value": 1200,
+      "unit": "ms"
+    },
+    "$description": "1200ms \u2014 the loop cadence of the ONE sanctioned looping utility, `motion-indeterminate` (an indeterminate Progress sweep; audit M-06). Not an interaction duration: interactions use fast/base/slow."
+  },
   "motion-ease-standard": {
     "$type": "cubicBezier",
     "$value": [0.2, 0, 0, 1]

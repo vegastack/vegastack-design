@@ -1,6 +1,4 @@
-// @vegastack progress@0.6.0 sha256-f6htnXhnbxgp5zY6WXuAWA68ZZolX1dacSdg+4WvajY=
-
-"use client";
+// @vegastack progress@0.6.0 sha256-cADnsKcaOrpRTvXvXso+WcLKp5Oai7ldibvW2EqbJXg=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -49,7 +47,7 @@ export interface ProgressProps
    */
   max?: number;
   /**
-   * Track + indicator height. `sm` (6px), `default` (8px), `lg` (12px).
+   * Track + indicator height. `sm` (6px), `md` (8px), `lg` (12px).
    * @default 'md'
    */
   size?: ProgressSize;
@@ -88,6 +86,12 @@ export interface ProgressProps
  * Renders a `role="progressbar"` with `aria-valuenow` / `aria-valuemin` /
  * `aria-valuemax` managed by Base UI — pass `null` for an indeterminate state.
  * Always give it an accessible name (`aria-label`, or an associated label).
+ *
+ * Indeterminate is a distinct visual, not a full bar: the indicator becomes a
+ * 35%-wide segment sweeping the track (`motion-indeterminate`), and Base UI drops
+ * `aria-valuenow`. Under `prefers-reduced-motion` the global reset collapses the
+ * loop to its resting frame — a static 35% segment — so the bar still cannot be
+ * mistaken for "complete".
  *
  * @example
  * // determinate
@@ -128,7 +132,13 @@ export function Progress({
         <BaseProgress.Indicator
           data-slot="progress-indicator"
           className={cn(
-            "h-full rounded-full bg-primary transition-[width] duration-base ease-standard motion-reduce:transition-none",
+            "h-full rounded-full bg-primary transition-[width] duration-base ease-standard",
+            // Indeterminate (audit B2-01): Base UI writes NO inline width when `value` is
+            // null, so the indicator would otherwise inherit the track's full width and read
+            // as 100% complete. Take it out of flow and give it its own 35% segment that
+            // sweeps the track on the one sanctioned loop. `transition-[width]` above is inert
+            // here — there is no width to interpolate.
+            "data-indeterminate:absolute data-indeterminate:inset-y-0 data-indeterminate:w-[35%] data-indeterminate:motion-indeterminate",
             indicatorClassName,
           )}
         />

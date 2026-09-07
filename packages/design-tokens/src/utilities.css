@@ -601,6 +601,10 @@
  *   - motion-shake      : horizontal error jiggle. Replayable: re-trigger by
  *                         remounting (key bump) or toggling the class after
  *                         `animationend`.
+ *   - motion-indeterminate : the ONE sanctioned looping utility — the sweeping
+ *                         segment of an indeterminate Progress. Looping motion is
+ *                         otherwise banned; an indeterminate bar has no other way
+ *                         to say "still working" (audit M-06).
  * ------------------------------------------------------------------------- */
 @keyframes vs-pop-in {
   from {
@@ -674,6 +678,28 @@
 
 @utility motion-flash {
   animation: vs-flash var(--duration-slow) var(--motion-ease-standard);
+}
+
+@keyframes vs-indeterminate {
+  /* Indeterminate progress (audit M-06, 2026-09-07): a 35%-wide segment sweeps the
+   * track and returns. The 0% and 100% stops are IDENTICAL on purpose — the global
+   * prefers-reduced-motion reset in base.css collapses every animation to its `to`
+   * state, so a reduced-motion user sees a static 35% segment resting at the start
+   * of the track instead of a bar that reads as 100% complete. */
+  0% {
+    inset-inline-start: 0%;
+  }
+  50% {
+    inset-inline-start: 65%;
+  }
+  100% {
+    inset-inline-start: 0%;
+  }
+}
+
+@utility motion-indeterminate {
+  animation: vs-indeterminate var(--duration-indeterminate)
+    var(--motion-ease-standard) infinite;
 }
 
 /* ---------------------------------------------------------------------------
