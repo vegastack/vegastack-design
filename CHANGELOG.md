@@ -73,6 +73,20 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   tokens keep overlay chrome dark-scrim + light-ink in both themes.
   [docs](https://design.vegastack.com/docs/foundations/colors) ·
   [`0e88dc5`](https://github.com/VegaStack/vegastack-design/commit/0e88dc5)
+- **Text on the soft media scrim is gated at AA** — `media-foreground` on `media-scrim` was checked
+  only against the 3:1 non-text floor while the token contract permitted labels on it, so the
+  contract was wider than its enforcement. The pair is now gated at 4.5:1; it measures 5.22:1 over
+  the white worst case, so nothing moves today and a future scrim retune that thins it under AA
+  fails the build instead of silently demoting its labels.
+  [docs](https://design.vegastack.com/docs/foundations/colors) ·
+  [`65975e1`](https://github.com/VegaStack/vegastack-design/commit/65975e1)
+- **The surface-ladder specimen showed the wrong swatches** — the "alpha twins" panel labelled two
+  swatches `--alpha-hover` / `--alpha-pressed` while painting the opaque `surface-2` / `surface-3`
+  rungs, so it demonstrated the opposite of the twins' claim. It now paints the real `foreground`
+  composites over three hosts (page, card, well) in both themes, with the opaque rung beside each
+  wash for comparison.
+  [docs](https://design.vegastack.com/docs/foundations/colors) ·
+  [`65975e1`](https://github.com/VegaStack/vegastack-design/commit/65975e1)
 
 ### 📦 npm
 
@@ -154,6 +168,26 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
   entry classifies, a placeholder whose runtime renderer is missing (nested ones included), and a
   component registered in the MDX map but absent from the manifest. Before it, the first rendered
   to a single space and the second to its bare children.
+- **Theming and Colors no longer teach a removed token** — both pages used
+  `bg-primary/(--alpha-surface-subtle)` as the worked example of an override flowing through the
+  `@theme inline` bridge. That alpha role was deleted with the ladder, so the example compiled to
+  nothing; both now show the `fillInteractive` recipe's real washes.
+  [docs](https://design.vegastack.com/docs/foundations/theming) ·
+  [`65975e1`](https://github.com/VegaStack/vegastack-design/commit/65975e1)
+- **Per-family variants are documented as eight tokens, not six** — `subtle-hover` and
+  `subtle-active` (the soft fill's hover and pressed steps, precomposed at build time and AA-gated
+  against `-text`) were missing from the Colors page, and from `design.md`, which called the ramp
+  seven tokens.
+  [docs](https://design.vegastack.com/docs/foundations/colors) ·
+  [`65975e1`](https://github.com/VegaStack/vegastack-design/commit/65975e1)
+- **Doctrine corrections in `design.md`** — the hairline is described as the derived `foreground`
+  alpha rather than a solid border; Button `secondary` as the rung-1 fill over a transparent base
+  border rather than a card fill plus border; Input/Select/Textarea as transparent with a dark-only
+  wash rather than a `secondary` fill; and the switch off-track as `surface-3` rather than the
+  removed `track` token. The Sidebar page's active-row description matches the shipped
+  `surface-3` rest / `surface-2` hover behaviour.
+  [docs](https://design.vegastack.com/docs/foundations/colors) ·
+  [`65975e1`](https://github.com/VegaStack/vegastack-design/commit/65975e1)
 
 ## [0.6.0] — August 31, 2026
 
