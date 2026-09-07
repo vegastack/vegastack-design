@@ -6,6 +6,10 @@
  * The contract inventory is tooling metadata, not a consumer API. This verifier deliberately
  * derives the authoritative item classes from registry type + source path so `icon-button` can
  * never be mistaken for one of the generated `icon-*` mirrors.
+ *
+ *   node tooling/verify-component-contracts.mjs                          # reconcile
+ *   node tooling/verify-component-contracts.mjs --write-data-attributes  # resync the extraction
+ *   node tooling/verify-component-contracts.mjs --self-test              # NEGATIVE: prove drift fails
  */
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -257,6 +261,125 @@ function computeDataAttributes(record) {
   }
   return result;
 }
+
+/**
+ * The `dataAttributes` drift comparison, as one function so `--self-test` can prove it REJECTS a
+ * drifted record. The reconciliation below calls it; nothing else compares the two.
+ */
+function dataAttributesProblem(record, expected) {
+  if (
+    JSON.stringify(record.dataAttributes ?? null) === JSON.stringify(expected)
+  ) {
+    return null;
+  }
+  return `component ${record.name}: dataAttributes is stale — run node tooling/verify-component-contracts.mjs --write-data-attributes`;
+}
+
+/**
+ * `--self-test` — the NEGATIVE proof for the extraction gate.
+ *
+ * The reconciliation's own green run only shows that the contract currently matches the source.
+ * It says nothing about whether a mismatch would be CAUGHT, and a gate never observed failing is
+ * an assumption (AGENTS.md § Verification ladder). So this drifts a real component record in
+ * memory — four ways, each a distinct shape of rot — and requires every one to be rejected, then
+ * requires the pristine record to pass.
+ *
+ *   node tooling/verify-component-contracts.mjs --self-test
+ */
+function selfTest() {
+  const components = contracts.components ?? [];
+  const subject = components.find(
+    (record) =>
+      Object.keys(computeDataAttributes(record)).length > 0 &&
+      Object.values(computeDataAttributes(record)).some(
+        (part) => part.attributes.length > 0,
+      ),
+  );
+  if (!subject) {
+    console.error(
+      "✗ verify-component-contracts self-test: no component record yields extractable dataAttributes — the extractor is not being exercised",
+    );
+    process.exit(1);
+  }
+  const expected = computeDataAttributes(subject);
+  const part = Object.keys(expected).find(
+    (name) => expected[name].attributes.length > 0,
+  );
+
+  const clone = () => JSON.parse(JSON.stringify(expected));
+  const drifts = [
+    [
+      "an attribute the source no longer renders",
+      (data) => {
+        data[part].attributes.push({ name: "data-gone", values: [] });
+      },
+    ],
+    [
+      "an attribute the source renders and the contract dropped",
+      (data) => {
+        data[part].attributes.shift();
+      },
+    ],
+    [
+      "a changed literal value",
+      (data) => {
+        data[part].attributes[0].values = ["not-what-the-source-says"];
+      },
+    ],
+    [
+      "a whole part the source no longer exports",
+      (data) => {
+        data.PartThatDoesNotExist = { attributes: [], cssVariables: [] };
+      },
+    ],
+  ];
+
+  for (const [label, drift] of drifts) {
+    const data = clone();
+    drift(data);
+    const problem = dataAttributesProblem(
+      { name: subject.name, dataAttributes: data },
+      expected,
+    );
+    if (!problem) {
+      console.error(
+        `✗ verify-component-contracts self-test: "${label}" was NOT rejected`,
+      );
+      process.exit(1);
+    }
+  }
+
+  if (
+    dataAttributesProblem(
+      { name: subject.name, dataAttributes: null },
+      expected,
+    ) === null
+  ) {
+    console.error(
+      "✗ verify-component-contracts self-test: a MISSING dataAttributes field was not rejected",
+    );
+    process.exit(1);
+  }
+
+  if (
+    dataAttributesProblem(
+      { name: subject.name, dataAttributes: expected },
+      expected,
+    ) !== null
+  ) {
+    console.error(
+      "✗ verify-component-contracts self-test: the pristine record was rejected",
+    );
+    process.exit(1);
+  }
+
+  console.log(
+    `✓ verify-component-contracts self-test: dataAttributes drift on \`${subject.name}.${part}\` rejected in five shapes (added, dropped, changed value, phantom part, missing field); the extracted record accepted`,
+  );
+  process.exit(0);
+}
+
+if (process.argv.includes("--self-test")) selfTest();
 
 function validateRichRecord(record, item, label) {
   assert(
@@ -678,11 +801,8 @@ for (const record of components) {
   if (writeDataAttributes) {
     record.dataAttributes = expectedDataAttributes;
   } else {
-    assert(
-      JSON.stringify(record.dataAttributes ?? null) ===
-        JSON.stringify(expectedDataAttributes),
-      `component ${record.name}: dataAttributes is stale — run node tooling/verify-component-contracts.mjs --write-data-attributes`,
-    );
+    const drift = dataAttributesProblem(record, expectedDataAttributes);
+    if (drift) fail(drift);
   }
   if (record.wave in waveCounts) waveCounts[record.wave]++;
   else fail(`component ${record.name}: unknown wave ${record.wave}`);

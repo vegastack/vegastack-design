@@ -24,13 +24,17 @@ import {
  *
  * `hero` suppresses the `data-vrt-preview` key, and that is load-bearing rather than cosmetic.
  * That attribute is the probe key for two lanes, and `contracts.spec.ts` probes
- * `page.locator("[data-vrt-preview]").first()` — ONE fixture per route. Stamping it on the hero
- * would not add coverage; it would silently MOVE the blocking gate from the documented example
- * fixture to the hero, for all 110 routes, as a side effect of a chrome change. Which fixture the
- * lane measures is a decision for `component-contracts.json`, so the hero renders identical chrome
- * and stays out of the probe. Measured: moving it fails timeline, data-grid and text-edit on the
- * 24px target floor — real, previously unmeasured defects, recorded in `docs/ledger/bugs.md`
- * (2026-09-07) with the one-line reproduction, for the component batches to fix.
+ * `page.locator("[data-vrt-preview]").first()` — so the fixture that gets measured is simply the
+ * FIRST one carrying the key in DOM order, per route. Nothing chooses it: not
+ * `component-contracts.json`, not the page frontmatter. The hero renders above every body example,
+ * so stamping it would not add coverage — it would silently MOVE the blocking gate from the
+ * documented example fixture to the hero, on all 110 routes, as a side effect of a chrome change.
+ * The hero therefore renders identical chrome and stays out of the probe, which keeps the measured
+ * fixture exactly the one `main` measured. Measured: moving it fails timeline, data-grid and
+ * text-edit on the 24px target floor — real, previously unmeasured defects, recorded in
+ * `docs/ledger/bugs.md` (2026-09-07) with the one-line reproduction, for the component batches to
+ * fix. Probing EVERY contract-listed fixture instead of `.first()` is the root fix, raised for
+ * G1-b.
  */
 export async function ComponentPreview({
   name,

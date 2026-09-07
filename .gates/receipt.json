@@ -2,8 +2,8 @@
   "schema": 1,
   "tree": "tree-6ef0fe250b65b644f3ae4bd9dd54d32062480d8b",
   "treeFiles": 2694,
-  "head": "1de8fffff21e63fecfae7ecb6c3161f1816ccd7b",
-  "writtenAt": "2026-09-07T11:37:34.736Z",
+  "head": "0e48ed55e7eb3e1d94ca18e3804ead78abce17b2",
+  "writtenAt": "2026-09-07T11:57:00.096Z",
   "mode": "push",
   "base": {
     "ref": "origin/main",
@@ -28,23 +28,23 @@
   "gates": {
     "typecheck": {
       "status": "pass",
-      "durationMs": 165194
+      "durationMs": 2097
     },
     "lint": {
       "status": "pass",
-      "durationMs": 16188
+      "durationMs": 2234
     },
     "unit": {
       "status": "pass",
-      "durationMs": 35379
+      "durationMs": 30935
     },
     "smoke": {
       "status": "pass",
-      "durationMs": 119755
+      "durationMs": 55288
     },
     "contracts": {
       "status": "pass",
-      "durationMs": 410645,
+      "durationMs": 615638,
       "executed": 880,
       "full": true,
       "scopeRoutes": 110

@@ -1,4 +1,10 @@
 import type { LLMsOptions } from "fumadocs-core/mdx-plugins/remark-llms";
+import {
+  BROWSER_ONLY_NOTES,
+  RUNTIME_PLACEHOLDERS,
+  classifyMdxElement,
+  unknownElementError,
+} from "./mdx-manifest";
 
 /**
  * Compile-time half of the agent export (DS-01). `remarkLLMs` (fumadocs-core 16.11.5) keeps
@@ -13,12 +19,19 @@ import type { LLMsOptions } from "fumadocs-core/mdx-plugins/remark-llms";
  *   `\0{json}\0` placeholders `renderPlaceholder()` resolves in `lib/markdown-export.ts`, with
  *   block children stringified as flow (fumadocs' own `placeholder()` uses phrasing, which glues
  *   paragraphs together).
- * - **Everything else** — children only. Browser-only surfaces (playgrounds, the Story explorer,
- *   the foundation specimens, the icon gallery) are replaced by an explicit one-line note so the
- *   omission is visible rather than silent.
+ * - **Browser-only** — playgrounds, the Story explorer, the foundation specimens and the icon
+ *   gallery are replaced by an explicit one-line note so the omission is visible, never silent.
+ * - **Structural wrappers and HTML elements** — children only, and ONLY for the names
+ *   `lib/mdx-manifest.ts` lists as such.
  *
- * `tooling/verify-docs-export.mjs` fails the build if any `<Capitalised` tag or `\0` residue
- * survives outside a code fence.
+ * There is no catch-all. Every element name is classified by `classifyMdxElement()`, and an
+ * unclassified one THROWS at build time: the previous `default: return children || " "` turned an
+ * unregistered component into a single space and a placeholder with no runtime renderer into its
+ * bare children, both of which the export gate could not see because nothing was left to find.
+ *
+ * `tooling/verify-docs-export.mjs` is the second line: it fails the build if any `<Capitalised`
+ * tag, namespaced (`<story.WithControl />`) or custom-element (`<api-table />`) tag, or `\0`
+ * residue survives outside a code fence.
  */
 type Stringify = NonNullable<LLMsOptions["stringify"]>;
 type Nodes = Parameters<Stringify>[0];
@@ -38,41 +51,6 @@ interface JsxElement {
   attributes: JsxAttribute[];
   children: Nodes[];
 }
-
-/** Elements resolved at runtime because they read the file system or run the type generator. */
-export const RUNTIME_PLACEHOLDERS = new Set([
-  "ComponentPreview",
-  "ApiTable",
-  "AutoTypeTable",
-  "InstallSteps",
-  "Anatomy",
-  "StatesTested",
-  "ComponentChangelog",
-]);
-
-/** Browser-only surfaces, replaced by an explicit note (never dropped silently). */
-const BROWSER_ONLY_NOTES: Record<string, string> = {
-  IconGallery:
-    "_Icon gallery — browser only. The icon inventory is listed under Registry items in llms.txt._",
-  ColorPalette:
-    "_Colour token specimen — browser only; the values are in design.md §Colours._",
-  TypeScale:
-    "_Type scale specimen — browser only; the ladder is in design.md §Typography._",
-  TypeScaleSizes:
-    "_Type size specimen — browser only; the ladder is in design.md §Typography._",
-  TypeCoreLadder:
-    "_Type ladder specimen — browser only; the ladder is in design.md §Typography._",
-  RadiusScale:
-    "_Radius specimen — browser only; the scale is in design.md §Shapes._",
-  ShadowScale:
-    "_Shadow specimen — browser only; the two sanctioned shadows are in design.md §Elevation._",
-  SpacingScale:
-    "_Spacing specimen — browser only; the 4px ladder is in design.md §Layout._",
-  MotionSpecimen:
-    "_Motion specimen — browser only; the tokens are in design.md §Motion._",
-  FocusRingSpecimen:
-    "_Focus-ring specimen — browser only; the contract is in design.md §Accessibility._",
-};
 
 function isJsx(node: Nodes): node is Nodes & JsxElement {
   return node.type === "mdxJsxFlowElement" || node.type === "mdxJsxTextElement";
@@ -170,17 +148,27 @@ export const stringifyMdxForAgents: Stringify = (
   const element = node as JsxElement;
   const name = element.name ?? "";
 
-  if (RUNTIME_PLACEHOLDERS.has(name)) return placeholder(element, state, info);
-
-  if (name in BROWSER_ONLY_NOTES) return BROWSER_ONLY_NOTES[name];
-  if (name.endsWith("Playground")) {
-    return "_Interactive playground — browser only. The prop surface is in the API Reference below._";
-  }
-  // The Story "Explorer" (`<story.WithControl />`) is generated from the same types the API
-  // Reference documents. NOTE: `remarkLLMs` treats an empty string as "no override" and falls
-  // back to emitting the JSX, so every branch below returns non-empty markdown.
-  if (name.endsWith(".WithControl")) {
-    return "_Story explorer — browser only. Every prop is listed in the API Reference below._";
+  // NOTE: `remarkLLMs` treats an empty string as "no override" and falls back to emitting the JSX
+  // verbatim, so every branch below returns non-empty markdown.
+  const kind = classifyMdxElement(element.name);
+  switch (kind) {
+    case undefined:
+      throw unknownElementError(name, "the agent-export stringifier");
+    case "fragment":
+    case "structural-wrapper":
+    case "html":
+      return nonEmpty(childrenMarkdown(element, state, info));
+    case "runtime-placeholder":
+      return placeholder(element, state, info);
+    case "browser-only":
+      return BROWSER_ONLY_NOTES[name];
+    case "playground":
+      return "_Interactive playground — browser only. The prop surface is in the API Reference below._";
+    case "story-explorer":
+      // The Story explorer is generated from the same types the API Reference documents.
+      return "_Story explorer — browser only. Every prop is listed in the API Reference below._";
+    case "rendered":
+      break;
   }
 
   switch (name) {
@@ -249,7 +237,13 @@ export const stringifyMdxForAgents: Stringify = (
     case "RegistryInstallCallout":
       return REGISTRY_NOTICE_MARKDOWN;
     default:
-      return nonEmpty(childrenMarkdown(element, state, info));
+      // Unreachable: `kind === "rendered"` means the manifest lists this name in
+      // RENDERED_ELEMENTS, and `verify-docs-export.mjs`'s manifest-coverage check proves every
+      // such name has a case here.
+      throw unknownElementError(
+        name,
+        "the agent-export stringifier's rendered branch",
+      );
   }
 };
 

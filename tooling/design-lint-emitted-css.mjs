@@ -65,19 +65,159 @@ const ALLOWED_SELECTOR_PREFIXES = [
  * A `:where()` selector contributes ZERO specificity, so such a rule is a default any real rule
  * beats — `@tailwindcss/typography` writes all ten of its heavy weights that way. Flagging the
  * default itself would be unfixable (the plugin owns it); what matters is that the shell actually
- * overrides it. So the default is cleared only when this stylesheet also carries a `.prose` rule
- * that names the same element and puts it back on the ladder. Delete the override in `global.css`
- * and every one of these findings returns.
+ * overrides it. So the default is cleared only when this stylesheet carries an override that
+ * COVERS it: an on-ladder `font-weight` rule whose selector set includes every element path the
+ * default matches.
+ *
+ * "Covers" is compared properly rather than by name. The first version of this check pulled the
+ * last element out of the default's `:where(…)` and searched the sheet for ANY `.prose … h2 …`
+ * rule with an on-ladder weight — so `.prose aside h2 { font-weight: 500 }`, an override that
+ * reaches one element in one container, silently cleared `.prose :where(h2) { font-weight: 600 }`
+ * for every heading on the site. The narrowed-override fixture in the self-test is that exact
+ * shape and must fail.
  */
-function neutralisedProseDefault(selector, css) {
-  const target = /^\.prose :where\(([^)]*)\)/.exec(selector);
-  if (!target) return false;
-  const element = target[1].trim().split(/\s+/).pop();
-  if (!element) return false;
-  const override = new RegExp(
-    `\\.prose[^{}]*\\b${element}\\b[^{}]*\\{[^}]*font-weight:\\s*var\\(--font-weight-(?:normal|medium)\\)`,
+
+/** Split a selector list on TOP-LEVEL commas — `:is(h1,h2)` must not be split. */
+function splitTopLevel(text, separator = ",") {
+  const parts = [];
+  let depth = 0;
+  let current = "";
+  for (const char of text) {
+    if (char === "(") depth++;
+    else if (char === ")") depth--;
+    if (char === separator && depth === 0) {
+      parts.push(current);
+      current = "";
+      continue;
+    }
+    current += char;
+  }
+  parts.push(current);
+  return parts.map((part) => part.trim()).filter(Boolean);
+}
+
+/** Remove `:not(...)` guards — typography's `:not(:where([class~=not-prose] *))` is one. */
+function stripNot(compound) {
+  let out = "";
+  let index = 0;
+  while (index < compound.length) {
+    if (compound.startsWith(":not(", index)) {
+      let depth = 0;
+      let cursor = index + 4;
+      for (; cursor < compound.length; cursor++) {
+        if (compound[cursor] === "(") depth++;
+        else if (compound[cursor] === ")" && --depth === 0) break;
+      }
+      index = cursor + 1;
+      continue;
+    }
+    out += compound[index++];
+  }
+  return out;
+}
+
+/**
+ * Expand one compound selector into its alternatives, each as `{ text, zeroSpecificity }`.
+ * A bare `:is(a,b)` / `:where(a,b)` expands to its arguments; `:where(…)` marks the alternative
+ * as contributing no specificity, which is what makes the plugin's defaults overridable.
+ */
+function expandCompound(compound) {
+  const clean = stripNot(compound).trim();
+  if (!clean) return [];
+  const functional = /^:(is|where|matches|any)\(([\s\S]*)\)$/.exec(clean);
+  if (functional) {
+    const zero = functional[1] === "where";
+    return splitTopLevel(functional[2]).flatMap((inner) =>
+      expandSelector(inner).map((path) => ({
+        path: path.path,
+        zeroSpecificity: zero || path.zeroSpecificity,
+      })),
+    );
+  }
+  return [{ path: [clean], zeroSpecificity: false }];
+}
+
+/**
+ * Expand one complex selector into every element PATH it matches, as an array of steps.
+ * Only the descendant combinator is modelled; a child/sibling combinator yields `null`, which
+ * callers treat as "cannot be compared" — never as a match.
+ */
+export function expandSelector(selector) {
+  const normalised = selector.replace(/\s+/g, " ").trim();
+  if (/[>+~]/.test(normalised.replace(/\([^)]*\)/g, ""))) {
+    return [{ path: null, zeroSpecificity: false }];
+  }
+  // Split on descendant whitespace at depth 0 so `:is(thead th)` stays one compound.
+  const steps = splitTopLevel(normalised, " ");
+  let paths = [{ path: [], zeroSpecificity: false }];
+  for (const step of steps) {
+    const alternatives = expandCompound(step);
+    if (alternatives.length === 0)
+      return [{ path: null, zeroSpecificity: false }];
+    const next = [];
+    for (const prefix of paths) {
+      for (const alternative of alternatives) {
+        if (alternative.path === null || prefix.path === null) {
+          next.push({ path: null, zeroSpecificity: false });
+          continue;
+        }
+        next.push({
+          path: [...prefix.path, ...alternative.path],
+          zeroSpecificity:
+            prefix.zeroSpecificity || alternative.zeroSpecificity,
+        });
+      }
+    }
+    paths = next;
+  }
+  return paths;
+}
+
+const ON_LADDER_WEIGHT =
+  /font-weight:\s*var\(--font-weight-(?:normal|medium)\)/;
+
+/**
+ * Every element path an on-ladder `.prose` weight override in this stylesheet reaches, as
+ * `".prose|h1"`-style keys. An override that is itself entirely inside `:where()` contributes
+ * nothing: it carries no specificity, so it does not reliably beat the default it would clear.
+ */
+function overriddenProsePaths(css) {
+  const covered = new Set();
+  for (const match of css.matchAll(/([^{}]+)\{([^}]*)\}/g)) {
+    const selector = match[1].replace(/\s+/g, " ").trim();
+    if (!selector || selector.startsWith("@")) continue;
+    if (!ON_LADDER_WEIGHT.test(match[2])) continue;
+    for (const one of splitTopLevel(selector)) {
+      if (!one.startsWith(".prose")) continue;
+      for (const expanded of expandSelector(one)) {
+        if (expanded.path === null || expanded.zeroSpecificity) continue;
+        covered.add(expanded.path.join("|"));
+      }
+    }
+  }
+  return covered;
+}
+
+/**
+ * True when EVERY element path this zero-specificity `.prose` default matches is also matched by
+ * an on-ladder override in the same stylesheet. A narrower override covers fewer paths and
+ * therefore never clears the default.
+ */
+function neutralisedProseDefault(
+  selector,
+  css,
+  covered = overriddenProsePaths(css),
+) {
+  const alternatives = splitTopLevel(selector)
+    .filter((one) => one.startsWith(".prose"))
+    .flatMap((one) => expandSelector(one));
+  if (alternatives.length === 0) return false;
+  // Only a zero-specificity default is overridable at all; a literal `.prose h2{font-weight:600}`
+  // is a real rule the shell authored and must fix, not neutralise.
+  if (!alternatives.every((one) => one.zeroSpecificity)) return false;
+  return alternatives.every(
+    (one) => one.path !== null && covered.has(one.path.join("|")),
   );
-  return override.test(css);
 }
 
 /**
@@ -89,6 +229,7 @@ function neutralisedProseDefault(selector, css) {
 export function findOffences(css, usedClasses) {
   const offences = [];
   const body = stripFontFaces(css);
+  const coveredProsePaths = overriddenProsePaths(body);
 
   for (const match of body.matchAll(/([^{}]+)\{([^}]*)\}/g)) {
     const selector = match[1].replace(/\s+/g, " ").trim();
@@ -99,7 +240,7 @@ export function findOffences(css, usedClasses) {
 
     for (const weight of declarations.matchAll(/font-weight:\s*(\d{3})/g)) {
       if (Number(weight[1]) <= MAX_FONT_WEIGHT) continue;
-      if (neutralisedProseDefault(selector, body)) continue;
+      if (neutralisedProseDefault(selector, body, coveredProsePaths)) continue;
       offences.push(
         `${selector} { font-weight: ${weight[1]} } — the ladder is 400/500; override it in app/global.css`,
       );
@@ -212,6 +353,27 @@ function selfTest() {
       findOffences,
     ],
     [
+      // A NARROWER override must not clear a site-wide default. `.prose aside h2` reaches h2
+      // inside an <aside> only; every other heading on the site stays at 600. The first version
+      // of this lane accepted it because it searched for any `.prose … h2 …` rule by name.
+      "narrowed override does not neutralise the default",
+      `${PROSE_DEFAULT}.prose aside h2{font-weight:var(--font-weight-medium)}`,
+      findOffences,
+    ],
+    [
+      // A `:where()`-wrapped "override" carries no specificity, so it does not reliably win.
+      "zero-specificity override does not neutralise the default",
+      `${PROSE_DEFAULT}.prose :where(h2){font-weight:var(--font-weight-medium)}`,
+      findOffences,
+    ],
+    [
+      // The override covers h2 but the default also matches h3 — partial coverage is not coverage.
+      "partial coverage does not neutralise a multi-element default",
+      ".prose :where(h2,h3):not(:where([class~=not-prose])){font-weight:600}" +
+        ".prose :is(h2){font-weight:var(--font-weight-medium)}",
+      findOffences,
+    ],
+    [
       "raw palette on a rendered class",
       ".fd-thing{color:var(--color-emerald-500)}",
       findOffences,
@@ -251,6 +413,19 @@ function selfTest() {
     );
     process.exit(1);
   }
+  // A default whose path is a DESCENDANT pair is cleared by an override naming the same pair.
+  if (
+    findOffences(
+      ".prose :where(thead th):not(:where([class~=not-prose])){font-weight:600}" +
+        ".prose :is(h1,h2,dt,thead th){font-weight:var(--font-weight-medium)}",
+      new Set(),
+    ).length > 0
+  ) {
+    console.error(
+      "✗ design-lint --emitted-css self-test: a descendant-path default with a matching override was reported",
+    );
+    process.exit(1);
+  }
   // A palette utility that no element carries is documentation, not a violation.
   if (
     findOffences(
@@ -264,7 +439,7 @@ function selfTest() {
     process.exit(1);
   }
   console.log(
-    "✓ design-lint --emitted-css self-test: heavy weights, unoverridden prose defaults, rendered raw palette and lost remaps rejected; @font-face weights, overridden defaults and unrendered classes accepted",
+    "✓ design-lint --emitted-css self-test: heavy weights, unoverridden prose defaults, NARROWED / zero-specificity / partial overrides, rendered raw palette and lost remaps rejected; @font-face weights, genuinely covering overrides (element and descendant-path) and unrendered classes accepted",
   );
 }
 

@@ -11,6 +11,7 @@ import {
   StatesTested,
 } from "@/components/generated-sections";
 import type { MDXComponents } from "mdx/types";
+import { assertMdxMapMatchesManifest } from "@/lib/mdx-manifest";
 import { ComponentPreview } from "@/components/component-preview";
 import { StoryExplorer } from "@/components/story-explorer";
 import { DoDont } from "@/components/do-dont";
@@ -73,6 +74,18 @@ import { ToggleGroupPlayground } from "@/components/toggle-group-playground";
 import { TogglePlayground } from "@/components/toggle-playground";
 import { TooltipPlayground } from "@/components/tooltip-playground";
 import { TruncatedTextPlayground } from "@/components/truncated-text-playground";
+
+/**
+ * Names fumadocs supplies through its own spreads. Everything else in the map below is repo-owned
+ * and MUST be classified in `lib/mdx-manifest.ts`, which the agent-export stringifier and the
+ * runtime placeholder renderer read — a component that renders for humans and is unknown to the
+ * manifest is a section agents silently never see.
+ */
+const INHERITED_MDX_KEYS = new Set([
+  ...Object.keys(defaultMdxComponents),
+  ...Object.keys(TabsComponents),
+  ...Object.keys(Twoslash),
+]);
 
 export function getMDXComponents(components?: MDXComponents) {
   return {
@@ -156,6 +169,14 @@ export function getMDXComponents(components?: MDXComponents) {
     ...components,
   } satisfies MDXComponents;
 }
+
+// Module load, so the mismatch fails `next build` rather than surfacing in a review. `components`
+// is omitted: per-render overrides are the caller's, not the page vocabulary.
+assertMdxMapMatchesManifest(
+  Object.keys(getMDXComponents()).filter(
+    (name) => !INHERITED_MDX_KEYS.has(name),
+  ),
+);
 
 export const useMDXComponents = getMDXComponents;
 

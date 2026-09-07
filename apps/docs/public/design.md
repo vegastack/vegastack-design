@@ -2092,10 +2092,17 @@ alternating pattern within one page.
 ## Docs canon
 
 A component's documentation page is part of the component, not a follow-up, and it serves humans
-and agents from the same source. Every page has the same shape, in this order; every section has a
-required machine-readable part and an optional prose part, and the machine-readable part is
-generated from an authority rather than typed. Approved 2026-09-07 (audit `08-docs-structure.md`
-§2; decisions D19, D26, DD-1…DD-5).
+and agents from the same source. The table below is **the standard every component page is
+written to** — the shape, the order, and the authority each section is generated from. Approved
+2026-09-07 (audit `08-docs-structure.md` §2; decisions D19, D26, DD-1…DD-5).
+
+**It is the target, not a report on the current tree.** The generated sections shipped as MDX
+components in 0.7.0 and are placed on three reference pages (button, dialog, data-grid); the
+remaining pages are migrated to this shape in the following release, and the section headings move
+from `## Installation` to `## Install` in that same atomic change. What already holds everywhere is
+the API Reference (row 7, rendered flat and expanded on all 110 pages) and the markdown export
+below. Read this table when writing or changing a page; do not read it as a description of what
+every page contains today.
 
 | #   | Section                          | Required content                                                                                                                                                                                                                                                         | Source of truth                                                 |
 | --- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------- |
@@ -2114,6 +2121,11 @@ generated from an authority rather than typed. Approved 2026-09-07 (audit `08-do
 Nothing follows Do / Don't except the generated Changelog. "Notes", "Voice" and "How it works"
 fold into Usage or Scope. Marketing-only leaves skip Scope, Anatomy and Playground and keep the
 rest.
+
+Row 6 is a permission, not a requirement: a page carries a curated playground, or the Story
+explorer where none exists, or **neither** — and `tooling/verify-docs-export.mjs` enforces only
+"never both, and an Explorer always wrapped". Measured 2026-09-07: 45 curated · 6 Explorer ·
+59 neither · 0 both.
 
 **Humans and agents read the same page.** Every MDX component renders to markdown for the per-page
 `.md` route and `llms-full.txt`: the fixture source, the flat prop tables, the install steps and

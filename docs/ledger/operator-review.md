@@ -37,9 +37,17 @@ Every judgment-call / assumption / best-guess decision made instead of pausing �
 - **Decision:** the 24 Story files whose pages already carry a curated `PropsPlayground` are
   removed; the 6 pages with no playground (audio-player, label, marker, password-input, slider,
   video-player) keep theirs. Verified by cross-checking the deleted set against every page matching
-  a `*Playground` usage: the two sets are exact complements, with no page left with neither.
-- **Mechanism, not just state:** `verify-docs-export.mjs` fails any page carrying both, so the
-  policy holds as Do1-b migrates the rest rather than depending on this one sweep.
+  a `*Playground` usage: within the 30 pages that had a Story file, the two sets are exact
+  complements.
+- **Measured, across all 110 component pages: 45 curated playground · 6 Explorer · 59 neither ·
+  0 both.** "Neither" is the canon, not a gap: canon row 6 reads "Playground _(where curated)_" and
+  DD-2/3 sanctions the Explorer only where no curated playground exists — a permission, not a
+  requirement. An earlier draft of this entry said "no page left with neither", which was false and
+  would have read as an obligation to put an interactive surface on all 110 pages.
+- **Mechanism, not just state:** `verify-docs-export.mjs` fails any page carrying BOTH and any
+  Explorer rendered outside `<StoryExplorer>`, with negative self-tests for each and an accepting
+  fixture for "neither", so the policy holds as Do1-b migrates the rest rather than depending on
+  this one sweep. It does not, and must not, require either.
 
 **3. The "## Installation" heading is not renamed here.**
 
@@ -64,7 +72,39 @@ Every judgment-call / assumption / best-guess decision made instead of pausing �
   and all ten findings return — while refusing to report the documentation of a rule as a violation
   of it.
 
-**5. `<Wrapper>` is unwrapped from the emitted fixture source.**
+**5. Two transitional aliases are kept for Do1-b, deliberately and recorded here.**
+
+- `AutoTypeTable: ApiTable` in the MDX map, so the 107 pages that still author the legacy name
+  render the new flat table without a body rewrite; and the slug-inferred `registry` frontmatter
+  fallback in `app/docs/[[...slug]]/page.tsx`, so a page that has not yet declared `registry:` still
+  resolves its item.
+- **Why they are not shims in the mandate's sense:** each exists to let ONE atomic rename happen in
+  Do1-b (rename the usages on all 110 pages; make `registry` required in `source.config.ts`) instead
+  of a 110-page rewrite inside this batch. **Do1-b must remove both**; its acceptance requires it.
+  No gate is added here to force their removal — a gate that fails on the current tree is not a
+  gate, and Do1-b's own acceptance is the enforcement.
+
+**6. The fullscreen dialog's background isolation is asserted as `aria-hidden`, not `inert`.**
+
+- **Measured while writing the browser assertion:** `@base-ui/react` 1.6.0 isolates the background
+  with `aria-hidden="true"` plus a `data-base-ui-inert` marker, and does NOT set the `inert`
+  attribute on outside elements. `FloatingFocusManager.mjs:340-345` calls
+  `markOthers(insideElements, { ariaHidden: modal, mark: false })` and then `markOthers(floating…)`
+  for the marker; `inert` is a supported option of `markOthers` (`markOthers.mjs:147-157`) that Base
+  UI never passes `true`. An assertion on `[inert]` therefore fails against a correctly-working
+  modal dialog — it did, in all four Chromium projects, before this was measured.
+- **Options:** (a) assert the mechanism Base UI actually implements; (b) add `inert` ourselves in
+  `dialog.tsx` so the stronger attribute is present.
+- **Why (a):** modality here rests on the focus trap + `aria-hidden` + the backdrop, which is
+  complete for keyboard and assistive tech; `inert` would additionally block pointer and
+  find-in-page, a marginal gain. And `dialog.tsx` is a registry source Do1-a deliberately does not
+  touch — a component change smuggled in through a docs batch is exactly the collision the wave
+  plan exists to prevent. The prose that claimed `inert` (the spec comment and
+  `preview-controls.tsx`) is corrected to say what is true.
+- **Revisit:** if a component batch that owns Dialog wants pointer/find-in-page isolation too, the
+  assertion tightens to `[inert]` in the same commit.
+
+**7. `<Wrapper>` is unwrapped from the emitted fixture source.**
 
 - The extractor drops the docs-only `./wrapper` import, which left `<Wrapper>` in the snippet
   referencing an undefined component — the code shown to humans and agents did not compile. It is

@@ -8,8 +8,10 @@ import { test, expect } from "@playwright/test";
  * on the exact defect the audit measured.
  *
  * It lives in `vrt/` beside the other suites but is NOT part of the contract lane:
- * `tooling/contracts-run.mjs` always passes `contracts.spec.ts` as a positional filter, so this
- * file only runs when invoked directly (`pnpm --filter @vegastack/docs test:docs-shell`).
+ * `tooling/contracts-run.mjs` always passes `contracts.spec.ts` as a positional filter. It is the
+ * docs package's `test` script, so `turbo run test` — and therefore root `pnpm test` — executes it;
+ * `pnpm --filter @vegastack/docs test:docs-shell` runs it directly. Adding it to the attested
+ * browser lane in `tooling/gates.mjs` belongs to G1-b, which owns that file.
  */
 const BUTTON = "/docs/components/button";
 
@@ -122,7 +124,9 @@ test.describe("docs shell", () => {
   /**
    * DC-03 / DD-4. The old fullscreen overlay was a `role="dialog" aria-modal="true"` with no trap:
    * Tab walked straight out into the docs chrome behind it. It is now the system `Dialog`, which
-   * owns the trap, `inert`, scroll lock and Esc. Tabbing all the way round must never leave.
+   * owns the trap, background isolation, scroll lock and Esc. Tabbing all the way round must never
+   * leave. (Base UI isolates with `aria-hidden` + `data-base-ui-inert`, not the `inert` attribute —
+   * see the isolation test below.)
    */
   test("DC-03 fullscreen preview traps focus and closes on Escape", async ({
     page,
@@ -158,6 +162,120 @@ test.describe("docs shell", () => {
 
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
+  });
+
+  /**
+   * DC-01 / DD-5, the half a source read cannot reach: a Base UI popup is PORTALED to `<body>`,
+   * outside `.vs-type-product`, so it inherits the Fumadocs prose base unless the portal itself is
+   * scoped. `app/global.css` scopes `[data-base-ui-portal]` alongside `.vs-type-product` — this
+   * opens a real Dialog and reads what the browser computed inside the portal.
+   *
+   * Asserted against the TOKEN, not a literal: the product base is `--type-product-base` with
+   * `--type-product-base--line-height`, and the test resolves both in the document rather than
+   * hard-coding 14/21 here, so a deliberate token change moves the assertion with it.
+   */
+  test("DC-01 an opened Base UI portal renders at the product type scale", async ({
+    page,
+  }) => {
+    await page.goto(BUTTON);
+    await page
+      .getByRole("button", { name: "Fullscreen preview" })
+      .first()
+      .click();
+    await expect(page.locator("[data-preview-fullscreen]")).toBeVisible();
+
+    const portal = page.locator("[data-base-ui-portal]").first();
+    await expect(portal).toBeAttached();
+
+    const measured = await portal.evaluate((element) => {
+      const style = getComputedStyle(element);
+      const root = getComputedStyle(document.documentElement);
+      const probe = document.createElement("div");
+      probe.style.fontSize = root
+        .getPropertyValue("--type-product-base")
+        .trim();
+      probe.style.lineHeight = root
+        .getPropertyValue("--type-product-base--line-height")
+        .trim();
+      document.body.append(probe);
+      const expected = {
+        fontSize: getComputedStyle(probe).fontSize,
+        lineHeight: getComputedStyle(probe).lineHeight,
+      };
+      probe.remove();
+      return {
+        fontSize: style.fontSize,
+        lineHeight: style.lineHeight,
+        expected,
+        prose: getComputedStyle(
+          document.querySelector(".prose") ?? document.body,
+        ).fontSize,
+      };
+    });
+
+    expect(measured.expected.fontSize).not.toBe("");
+    expect(measured.fontSize).toBe(measured.expected.fontSize);
+    expect(measured.lineHeight).toBe(measured.expected.lineHeight);
+    expect(measured.lineHeight).not.toBe("normal");
+    // The defect this replaces: the portal inheriting the docs prose base instead.
+    expect(measured.fontSize).not.toBe(measured.prose);
+  });
+
+  /**
+   * DC-03 / DD-4, the other half of the rebuild. The focus-trap test above proves Tab cannot leave;
+   * this proves the background is genuinely ISOLATED — the property the old hand-rolled
+   * `role="dialog" aria-modal="true"` overlay claimed in ARIA and did not have, so a screen-reader
+   * cursor still walked the docs chrome behind it.
+   *
+   * **The mechanism is `aria-hidden`, not the `inert` attribute, and that is a Base UI fact worth
+   * stating rather than a shortfall to paper over.** `@base-ui/react` 1.6.0's
+   * `FloatingFocusManager` calls `markOthers(insideElements, { ariaHidden: modal, mark: false })`
+   * and then `markOthers([floating, …portals])` for the marker
+   * (`floating-ui-react/components/FloatingFocusManager.mjs:340-345`,
+   * `floating-ui-react/utils/markOthers.mjs:147-157`) — `inert` is a supported option of
+   * `markOthers` that Base UI never passes `true`. Outside elements therefore receive
+   * `aria-hidden="true"` plus the `data-base-ui-inert` marker, and modality rests on that pair
+   * together with the focus trap and the backdrop. Asserting `[inert]` here would fail against a
+   * correctly-working dialog; asserting the pair fails the moment modality regresses.
+   */
+  test("DC-03 the fullscreen preview isolates the background, and releases it on close", async ({
+    page,
+  }) => {
+    await page.goto(BUTTON);
+    const article = page.locator("article").first();
+    await expect(article).toBeAttached();
+
+    const isolation = () =>
+      article.evaluate((element) => ({
+        ariaHidden: element.closest("[aria-hidden='true']") !== null,
+        marked: element.closest("[data-base-ui-inert]") !== null,
+      }));
+
+    expect(await isolation()).toEqual({ ariaHidden: false, marked: false });
+
+    await page
+      .getByRole("button", { name: "Fullscreen preview" })
+      .first()
+      .click();
+    await expect(page.locator("[data-preview-fullscreen]")).toBeVisible();
+
+    expect(
+      await isolation(),
+      "the docs article behind the fullscreen dialog is not hidden from assistive tech",
+    ).toEqual({ ariaHidden: true, marked: true });
+
+    // The dialog's own content must NOT be caught by the same isolation.
+    expect(
+      await page.locator("[data-preview-fullscreen]").evaluate((element) => ({
+        ariaHidden: element.closest("[aria-hidden='true']") !== null,
+        marked: element.closest("[data-base-ui-inert]") !== null,
+      })),
+    ).toEqual({ ariaHidden: false, marked: false });
+
+    // Isolation must be RELEASED on close — a leaked `aria-hidden` silences the whole page.
+    await page.keyboard.press("Escape");
+    await expect(page.locator("[data-preview-fullscreen]")).toBeHidden();
+    expect(await isolation()).toEqual({ ariaHidden: false, marked: false });
   });
 
   /**

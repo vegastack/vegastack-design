@@ -49,8 +49,11 @@ target (visual 64.4×16.0px)` — the hit lands on `<li data-slot="timeline-sepa
   body, so they were already covered).
 - **What Do1-a did:** the hero keeps identical frame chrome but does NOT take the probe key
   (`ComponentPreview hero`). Coverage is unchanged from `main` — the documented example fixture is
-  probed exactly as before — and the lane's choice of fixture stays a `component-contracts.json`
-  decision instead of a side effect. Do1-a changed no component source (`git diff origin/main -- packages/ui/registry` is empty), so it cannot fix the three components without colliding with the
+  probed exactly as before. To be precise about the mechanism: nothing _chooses_ which fixture the
+  lane measures. `.first()` takes whichever element carries `data-vrt-preview` first in DOM order,
+  and the hero renders above every body example, so it would have taken the probe on every route.
+  Keeping it out restores the pre-existing selection rather than making the selection a decision;
+  making it one is part of the root fix below. Do1-a changed no component source (`git diff origin/main -- packages/ui/registry` is empty), so it cannot fix the three components without colliding with the
   wave-3/4 batches that own them.
 - **Open, and owned by the component batches.** Reproduce in one line by dropping `hero` from the
   `<ComponentPreview>` in `apps/docs/app/docs/[[...slug]]/page.tsx` and running
@@ -59,8 +62,9 @@ target (visual 64.4×16.0px)` — the hit lands on `<li data-slot="timeline-sepa
   checkbox cell, and the text-edit control — the same class the `target-size` axe findings on
   data-grid report.
 - **Worth fixing at the root too:** probing only `.first()` means every route has exactly one
-  verified fixture no matter how many it documents. That is a coverage ceiling nobody chose; the
-  contract lane should probe every fixture the contract lists. Raised for G1-b.
+  verified fixture no matter how many it documents, and _which_ one is decided by DOM order rather
+  than by any authority. That is a coverage ceiling nobody chose; the contract lane should probe
+  every fixture the contract lists. Raised for G1-b.
 
 ---
 

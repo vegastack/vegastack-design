@@ -89,21 +89,27 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   their alpha twins; the sidebar section now says the rail is aliases, not a second palette.
   [docs](https://design.vegastack.com/docs/foundations/colors) ·
   [`6c1b7bf`](https://github.com/VegaStack/vegastack-design/commit/6c1b7bf)
-- **One page canon, for humans and agents alike.** Every component page now has a fixed shape whose
-  machine-readable half is generated from the two authorities rather than typed: Install from
-  `registry.json` (the `shadcn add` command, the registry dependencies and the sanctioned engines),
-  Anatomy from the contract's new `dataAttributes`, the states-tested table from the contract's
-  `states`, and a per-item Changelog filtered out of this file. The canon table is `design.md`
-  §Docs canon. [canon](/docs/components/button)
+- **One page canon, for humans and agents alike — the infrastructure, and three reference pages.**
+  The canon defines a fixed page shape whose machine-readable half is generated from the two
+  authorities rather than typed: Install from `registry.json` (the `shadcn add` command, the
+  registry dependencies and the sanctioned engines), Anatomy from the contract's new
+  `dataAttributes`, the states-tested table from the contract's `states`, and a per-item Changelog
+  filtered out of this file. This release ships those generated sections as MDX components and
+  places them on **three reference pages** (button, dialog, data-grid); the remaining 107 pages
+  keep their current bodies and are migrated to the canon in the next release. The canon table is
+  `design.md` §Docs canon — the target shape, not a description of every page today.
+  [canon](/docs/components/button)
 - **The markdown export is real markdown.** The per-page `.md` route and `llms-full.txt` previously
   emitted `<AutoTypeTable …/>` and `<ComponentPreview …/>` verbatim — 107 of 110 component pages
   and 260 occurrences in `llms-full.txt` — so an agent reading the docs saw no props and no example
   code at all. Every MDX component now renders to markdown: the exact fixture source the Code tab
   shows, the flat prop tables, the install steps, the do/don't pairs. Browser-only surfaces are
   replaced by a one-line note rather than dropped silently.
-- **API tables are flat and expanded.** One table per exported part — name, the literal union
-  (`"default" | "secondary" | …`, not `union`), the `@default` value, the description — instead of
-  collapsed accordion rows. Own props only, and a part with no own props of its own gets one
+- **API tables are flat and expanded, on every page at once.** One table per exported part — name,
+  the literal union (`"default" | "secondary" | …`, not `union`), the `@default` value, the
+  description — instead of collapsed accordion rows. This one lands everywhere immediately: the
+  renderer is registered under the legacy `AutoTypeTable` name the 107 unmigrated pages author, so
+  no page body had to change for it. Own props only, and a part with no own props of its own gets one
   sentence instead of the 138 "(no own props)" placeholder rows that filled 18 pages. A second
   table lists the `data-*` attributes and CSS variables the part exposes.
   [example](/docs/components/dialog)
@@ -139,7 +145,14 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
 - **`verify-component-contracts --write-data-attributes`** extracts each part's `data-*` attributes
   and CSS variables from the canonical source through the TypeScript AST; the default mode fails
   when the contract drifts from the source.
-- Each of the four ships a negative self-test, so none of them can pass by never having run.
+- Each of the four ships a negative self-test, so none of them can pass by never having run — and
+  so does `verify-component-contracts`, whose `--self-test` drifts a `dataAttributes` record in
+  memory and requires the reconciliation to reject it.
+- **`verify-mdx-manifest`** (docs `lint`) proves the agent export fails closed on the three
+  failures that leave no artefact behind for the gate above to find: an MDX component no manifest
+  entry classifies, a placeholder whose runtime renderer is missing (nested ones included), and a
+  component registered in the MDX map but absent from the manifest. Before it, the first rendered
+  to a single space and the second to its bare children.
 
 ## [0.6.0] — August 31, 2026
 

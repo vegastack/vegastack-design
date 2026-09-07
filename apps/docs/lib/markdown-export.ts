@@ -8,6 +8,10 @@ import {
   getStatesTested,
 } from "@/lib/generated-sections";
 import { getComponentChangelog } from "@/lib/changelog";
+import {
+  RUNTIME_PLACEHOLDERS,
+  assertKnownPlaceholders,
+} from "@/lib/mdx-manifest";
 
 /**
  * Runtime half of the agent export (DS-01). The compile-time stringifier
@@ -150,14 +154,32 @@ const RENDERERS: Record<
   },
 };
 
+/**
+ * The manifest and the renderer table must name exactly the same set. Checked at module load, so
+ * a placeholder added to the manifest without a renderer fails `next build` rather than silently
+ * degrading to its children in every `.md` file.
+ */
+const rendererNames = new Set(Object.keys(RENDERERS));
+{
+  const missing = [...RUNTIME_PLACEHOLDERS].filter(
+    (name) => !rendererNames.has(name),
+  );
+  const extra = [...rendererNames].filter(
+    (name) => !RUNTIME_PLACEHOLDERS.has(name),
+  );
+  if (missing.length > 0 || extra.length > 0) {
+    throw new Error(
+      `lib/markdown-export.ts RENDERERS and RUNTIME_PLACEHOLDERS disagree — ` +
+        `${missing.length > 0 ? `no renderer for ${missing.join(", ")}; ` : ""}` +
+        `${extra.length > 0 ? `renderer for unlisted ${extra.join(", ")}` : ""}`.trim(),
+    );
+  }
+}
+
 /** Resolve every runtime placeholder in processed markdown; unknown names fail the build. */
 export async function renderAgentMarkdown(processed: string) {
-  const rendered = await renderPlaceholder(processed, {
-    ...RENDERERS,
-    // `renderPlaceholder` silently emits `children` for a name without a renderer; the compile-time
-    // stringifier only emits placeholders for RUNTIME_PLACEHOLDERS, so a miss is a programming
-    // error and must surface, not degrade.
-  });
+  assertKnownPlaceholders(processed, rendererNames);
+  const rendered = await renderPlaceholder(processed, RENDERERS);
   if (rendered.includes("\0")) {
     throw new Error(
       "Agent markdown still contains an unresolved placeholder — a RUNTIME_PLACEHOLDERS name has no renderer in lib/markdown-export.ts",
