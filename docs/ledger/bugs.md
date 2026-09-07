@@ -4,6 +4,72 @@ Every bug found + root cause + fix. Append-only.
 
 ---
 
+## 2026-09-07 — An audit probe reported every route clean when there was nothing to probe
+
+- **Symptom:** with `apps/docs/out` renamed away, `node tooling/audit/probe-states.mjs --routes button`
+  printed `button: 0 probed, 0 flagged` and **exited 0**. A probe whose job is to find micro-detail
+  defects reported a clean route it had never loaded.
+- **Root cause:** each of `capture.mjs` and the three `probe-*.mjs` had grown its own copy of
+  "reserve a port, spawn `serve out`, poll it 50×". Two of the four copies fell THROUGH the poll:
+  after 10s of refused connections they carried on to `page.goto`, every navigation failed, and the
+  per-route try/catch turned each failure into a logged line rather than an exit code. `capture.mjs`
+  checked that `apps/docs/out/index.html` existed but still ignored the poll's outcome;
+  `probe-states.mjs` checked neither.
+- **Fix:** one `tooling/audit/docs-server.mjs` owns the server for all four. A missing export and a
+  server that never binds are two separate refusals, each `exit 2` with the rebuild command; a
+  reused `--port` that answers nothing is refused too. And `requireProbedSomething()` applies
+  `contracts-run.mjs`'s rule — a non-empty route list that probed zero elements is a FAILURE, not a
+  clean run — to all four harnesses.
+- **Class:** a harness that catches its own errors per item must still fail on "every item errored".
+  Counting successes and refusing zero is the cheap general form.
+
+---
+
+## 2026-09-07 — `import { ROOT }` landed inside a template literal, and `pnpm lint` could not see it
+
+- **Symptom:** the fs-lib conversion put `import { ROOT } from "./lib/fs.mjs";` inside
+  `verify-shadcn-consume.mjs`'s `SIDECAR_SRC` template literal — the source text of the child
+  process that serves the registry. The module was left referencing an undefined `ROOT` and died on
+  its first line of work; the sidecar received an import it cannot resolve, on top of its own
+  `const ROOT = process.argv[4]`. Fixed in `1b8c7b1c`.
+- **Root cause of the ESCAPE, which is the interesting half:** `verify-shadcn-consume.mjs` is not in
+  the `pnpm lint` chain. It runs only as `pnpm registry:verify-consume` — in `ci.yml`, in
+  `gates:ship`, and as the last step of the release chain — so `pnpm lint` stayed green and
+  `pnpm release:preflight` caught it at the far end. Roughly seventy scripts live under `tooling/`
+  and only some execute during lint; any of the others can be broken outright with every local gate
+  green.
+- **Fix (systemic):** `tooling/verify-tooling-imports.mjs`, wired into `lint:repo`. It runs
+  TypeScript's binder over every `tooling/**/*.mjs` and reports syntax errors plus TS2304/TS2552
+  "cannot find name" — identifier resolution only, no type checking. Verified against the pre-fix
+  file: five `Cannot find name 'ROOT'` findings at lines 60, 61, 82, 85 and 367. Its `--self-test`
+  reproduces the misplaced-import shape and asserts the rejection.
+- **Two options were rejected, and why they are worth remembering.** `node --check` would NOT have
+  caught this — verified by execution: the misplaced import is just characters inside a string, and
+  an unresolved module-scope identifier is a runtime `ReferenceError`, not a syntax error. Dynamic
+  import WOULD catch it but is unusable: nearly every tooling script does its work on import, so a
+  sweep would run the gates, spawn browsers and rewrite generated files.
+- **Cost, recorded on purpose:** 16-19s over 69 files, almost all of it TypeScript loading its default
+  library once. `lint:repo`'s turbo inputs already include `tooling/**`, so it is paid only when a
+  tooling script changes.
+
+---
+
+## 2026-09-07 — A negative fixture anchored on a workflow step that had been folded away
+
+- **Symptom:** `verify-workflow-security-negative.mjs`'s shell-injection case anchored its mutation
+  on a `pnpm design:verify` step in `ci.yml`. That step was folded into `pnpm lint` earlier the same
+  day, so the mutation no longer applied.
+- **Why it did not become a silent pass:** the harness distinguishes "the pattern was absent" from
+  "the gate accepted it" and reports the first as a HARNESS BUG with a non-zero exit — which is
+  exactly what it did. Re-anchored to `pnpm lint`, the one step every checkout of `ci.yml` runs.
+- **Class, and the rule that follows:** a negative fixture anchored on the TEXT of a file the
+  fixture does not own is a dependency on someone else's refactor. Such a fixture must assert its
+  anchor exists and fail when it does not — never treat an unapplied mutation as a pass. Every case
+  in that harness is checked this way, and `mutateAfter` cases are additionally rejected when the
+  mutation produces no change.
+
+---
+
 ## 2026-09-07 — The deploy's "full sweep required" guard accepted a scoped one-route push receipt
 
 - **Symptom:** `deploy.yml`'s `receipt-guard` ran
@@ -20,7 +86,9 @@ Every bug found + root cause + fix. Append-only.
   §Verification ladder lists as "attested via `.gates/receipt.json`" was never in the receipt at all.
   A guard cannot demand what the writer never records.
 - **Fix (schema 2, decision TD-1):** the writer records every gate the run executed, including the
-  ship-only three, and every lane a stopped run never reached is recorded as not-run.
+  ship-only three, and the three push lanes a stopped run never reached (`unit`, `smoke`,
+  `contracts`) are written as `skipped` rather than omitted. The ship-only three stay ABSENT from a
+  push receipt — a push never runs them — and it is that absence `--require-full-sweep` rejects.
   `verifyReceipt({ requireFullSweep })` requires `mode === "ship"`, every gate in `ALL_GATES`
   present and passing, `contracts.full === true`, and `contracts.scopeRoutes ===
 COMPONENT_ROUTES.length` — read from the generated route authority, never a literal, so adding a

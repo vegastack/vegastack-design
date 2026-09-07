@@ -24,7 +24,11 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   does not run is rejected rather than ignored.
 - **`GATES_SKIP` is loud again.** It recorded nothing when only a ship-only gate failed — the
   receipt was written with `skips: []` and every listed gate passing. Every failed gate id is now
-  recorded, and every lane a stopped run never reached is recorded as not-run.
+  recorded, and a stopped run's unreached push lanes (`unit`, `smoke`, `contracts`) are written as
+  `skipped` rather than omitted, so the guard rejects them instead of reading silence as "not
+  required". The three ship-only gates (`all-browsers`, `registry`, `consume`) are still simply
+  ABSENT from a push receipt — a push never runs them — and absence is what
+  `verify-gate-receipt.mjs --require-full-sweep` rejects on a deploy.
 - **`versionBumpOnly()` can see untracked files.** `git diff` produces no hunk for one, so a working
   tree holding 2,716 untracked files classified as "pure version bump — no observable change", and a
   brand-new `packages/ui/registry/ui/foo.tsx` classified identically. Untracked paths are now judged

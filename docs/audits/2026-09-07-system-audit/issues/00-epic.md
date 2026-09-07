@@ -10,19 +10,19 @@ On 2026-09-07 the whole design system was audited component by component (110 co
 against Vercel Geist / Linear / Raycast / Radix. Every finding, its evidence and MK's decisions are
 on disk under `docs/audits/2026-09-07-system-audit/`:
 
-| file                                                       | contents                                                                                                |
-| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `00-decisions.md`                                          | every doubt and MK's answer (D1–D30, DD-1–5, TD-1–7) — **the decisions are final; do not re-open them** |
-| `00-register.md`, `00-graph.md`                            | the component inventory and dependency graph (tiers, consumers)                                         |
-| `01-system.md`, `01-deps.md`, `01-class-histogram.md`      | token layer, global CSS, API conventions, dependency report with 10 ordered update batches              |
-| `02-batch-01…09-*.md`                                      | per-component findings with `file:line` evidence, motion register, verified-fine lists                  |
-| `03-proposals.md`                                          | P1 surface-token ladder and P2 Button `variant × tone` (with the migration table)                       |
-| `04-cross-cutting.md`                                      | the consolidation map, before-counts, spacing/type rules, lint rules to add                             |
-| `05-docs-chrome.md`, `06-tooling-gates.md`                 | docs shell and gates audits                                                                             |
-| `07-state-probe.md`                                        | hover/pressed/focus/radius probe over 817 elements (+ dark pass)                                        |
-| `08-docs-structure.md`                                     | the docs page canon and agent export design                                                             |
-| `99-change-list.md`                                        | this epic's batch table, doctrine amendments, counts to drive to zero                                   |
-| `capture.mjs`, `probe-*.mjs`, `graph.mjs`, `histogram.mjs` | the harnesses; `captures/` is gitignored — rerun to regenerate                                          |
+| file                                                  | contents                                                                                                                                |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `00-decisions.md`                                     | every doubt and MK's answer (D1–D30, DD-1–5, TD-1–7) — **the decisions are final; do not re-open them**                                 |
+| `00-register.md`, `00-graph.md`                       | the component inventory and dependency graph (tiers, consumers)                                                                         |
+| `01-system.md`, `01-deps.md`, `01-class-histogram.md` | token layer, global CSS, API conventions, dependency report with 10 ordered update batches                                              |
+| `02-batch-01…09-*.md`                                 | per-component findings with `file:line` evidence, motion register, verified-fine lists                                                  |
+| `03-proposals.md`                                     | P1 surface-token ladder and P2 Button `variant × tone` (with the migration table)                                                       |
+| `04-cross-cutting.md`                                 | the consolidation map, before-counts, spacing/type rules, lint rules to add                                                             |
+| `05-docs-chrome.md`, `06-tooling-gates.md`            | docs shell and gates audits                                                                                                             |
+| `07-state-probe.md`                                   | hover/pressed/focus/radius probe over 817 elements (+ dark pass)                                                                        |
+| `08-docs-structure.md`                                | the docs page canon and agent export design                                                                                             |
+| `99-change-list.md`                                   | this epic's batch table, doctrine amendments, counts to drive to zero                                                                   |
+| `tooling/audit/*.mjs`                                 | the harnesses — they live in `tooling/audit/`, not this folder; browser evidence goes to a gitignored `.audit/`, so rerun to regenerate |
 
 ## Batches (one issue each, execution order)
 
