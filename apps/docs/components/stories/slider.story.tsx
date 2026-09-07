@@ -1,5 +1,5 @@
 import { defineStory } from "@/lib/story";
-import { Slider } from "@/components/ui/slider";
+import { Slider } from "./slider.client";
 
 /**
  * Story explorer for `Slider` — controls auto-generated from `SliderProps` by the Story
