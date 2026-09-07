@@ -25,7 +25,7 @@ import {
   <ContextMenuTrigger>Right-click here</ContextMenuTrigger>
   <ContextMenuContent>
     <ContextMenuItem>Copy</ContextMenuItem>
-    <ContextMenuItem variant="destructive">Delete</ContextMenuItem>
+    <ContextMenuItem tone="destructive">Delete</ContextMenuItem>
   </ContextMenuContent>
 </ContextMenu>;
 ```
@@ -67,7 +67,7 @@ itself against the pointer where the menu was opened.
 - `ContextMenu` — the root that groups every part (`ContextMenu.Root`; renders no element).
 - `ContextMenuTrigger` — the area you right-click, long-press, or focus and open with <kbd>Menu</kbd> / <kbd>Shift</kbd>+<kbd>F10</kbd> (`data-slot="context-menu-trigger"`; renders a `<div>`). Use `render` to compose with your own element.
 - `ContextMenuContent` — the floating popup; portals to `<body>` and positions against the pointer (`data-slot="context-menu-content"`). Accepts `side`, `align`, `sideOffset`, `collisionPadding`, and exposes `portalProps` / `positionerProps`.
-- `ContextMenuItem` — a selectable action (`data-slot="context-menu-item"`). Supports `variant="destructive"` and `inset`.
+- `ContextMenuItem` — a selectable action (`data-slot="context-menu-item"`). Supports `tone="destructive"` and `inset`.
 - `ContextMenuGroup` + `ContextMenuLabel` — a labelled section; the label becomes the group's accessible name.
 - `ContextMenuSeparator` — a divider between sections (`role="separator"`).
 - `ContextMenuShortcut` — an inline-end-aligned keyboard hint inside an item.
@@ -88,7 +88,7 @@ item, a destructive action, and a nested submenu.
 ## Items
 
 Items take leading `lucide-react` icons as children, a trailing `ContextMenuShortcut`, and a
-`variant="destructive"` for delete/remove actions. Use `inset` to align items that have no leading
+`tone="destructive"` for delete/remove actions. Use `inset` to align items that have no leading
 icon with those that do.
 
 ```tsx
@@ -97,7 +97,7 @@ icon with those that do.
   Copy
   <ContextMenuShortcut>⌘C</ContextMenuShortcut>
 </ContextMenuItem>
-<ContextMenuItem variant="destructive">
+<ContextMenuItem tone="destructive">
   <Trash2 />
   Delete
 </ContextMenuItem>

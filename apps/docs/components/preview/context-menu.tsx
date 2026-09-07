@@ -52,7 +52,7 @@ export function contextMenu(): ReactNode {
             <ContextMenuShortcut>⌘X</ContextMenuShortcut>
           </ContextMenuItem>
           <ContextMenuSeparator />
-          <ContextMenuItem variant="destructive">
+          <ContextMenuItem tone="destructive">
             <Trash2 />
             Delete
           </ContextMenuItem>
@@ -152,7 +152,7 @@ export function contextMenuRich(): ReactNode {
 
           <ContextMenuSeparator />
 
-          <ContextMenuItem variant="destructive">
+          <ContextMenuItem tone="destructive">
             <Trash2 />
             Delete
             <ContextMenuShortcut>⌘⌫</ContextMenuShortcut>

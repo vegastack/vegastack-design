@@ -26,7 +26,7 @@ import { Button } from "@/components/ui/button";
   <DropdownMenuTrigger render={<Button variant="outline">Open menu</Button>} />
   <DropdownMenuContent>
     <DropdownMenuItem>Profile</DropdownMenuItem>
-    <DropdownMenuItem variant="destructive">Delete account</DropdownMenuItem>
+    <DropdownMenuItem tone="destructive">Delete account</DropdownMenuItem>
   </DropdownMenuContent>
 </DropdownMenu>;
 ```
@@ -67,7 +67,7 @@ sit inside the root; the content portals to `<body>` and positions itself agains
 - `DropdownMenu` — the root that groups every part (`Menu.Root`; renders no element).
 - `DropdownMenuTrigger` — the button that opens the menu (`data-slot="dropdown-menu-trigger"`). Use `render` to compose with a `Button`.
 - `DropdownMenuContent` — the floating popup; portals to `<body>` and positions against the trigger (`data-slot="dropdown-menu-content"`). Accepts `side`, `align`, `sideOffset`, `collisionPadding`, exposes `portalProps` / `positionerProps`, and can wrap items in an optional Base UI Viewport via `viewportProps`.
-- `DropdownMenuItem` — a selectable action (`data-slot="dropdown-menu-item"`). Supports `variant="destructive"` and `inset`.
+- `DropdownMenuItem` — a selectable action (`data-slot="dropdown-menu-item"`). Supports `tone="destructive"` and `inset`.
 - `DropdownMenuGroup` + `DropdownMenuLabel` — a labelled section; the label becomes the group's accessible name.
 - `DropdownMenuSeparator` — a divider between sections (`role="separator"`).
 - `DropdownMenuShortcut` — an inline-end-aligned keyboard hint inside an item.
@@ -88,7 +88,7 @@ item, a destructive action, and a nested submenu.
 ## Items
 
 Items take leading `lucide-react` icons as children, a trailing `DropdownMenuShortcut`, and a
-`variant="destructive"` for delete/remove actions. Use `inset` to align items that have no leading
+`tone="destructive"` for delete/remove actions. Use `inset` to align items that have no leading
 icon with those that do.
 
 ```tsx
@@ -97,7 +97,7 @@ icon with those that do.
   Settings
   <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
 </DropdownMenuItem>
-<DropdownMenuItem variant="destructive">
+<DropdownMenuItem tone="destructive">
   <Trash2 />
   Delete
 </DropdownMenuItem>
