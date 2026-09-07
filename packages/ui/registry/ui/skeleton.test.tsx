@@ -52,11 +52,19 @@ test("normalizes non-finite counts to a single placeholder", async () => {
     .not.toHaveAttribute("data-count");
 });
 
-test("includes the reduced-motion guard alongside the pulse", async () => {
+test("pulses without restating the global reduced-motion reset", async () => {
   const screen = await render(<Skeleton data-testid="sk" />);
   const sk = screen.getByTestId("sk");
   await expect.element(sk).toHaveClass("animate-pulse");
-  await expect.element(sk).toHaveClass("motion-reduce:animate-none");
+  // base.css zeroes every animation under prefers-reduced-motion with the one
+  // sanctioned !important; a per-component `motion-reduce:` copy is dead weight
+  // that drifts (audit B2-06).
+  expect(sk.element().className).not.toContain("motion-reduce:");
+});
+
+test("a line skeleton uses the text radius, not a pill", async () => {
+  const screen = await render(<Skeleton shape="line" data-testid="line" />);
+  await expect.element(screen.getByTestId("line")).toHaveClass("rounded-sm");
 });
 
 test("merges a custom className", async () => {

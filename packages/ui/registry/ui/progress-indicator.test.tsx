@@ -136,7 +136,8 @@ test("the fill arc carries the stroke-dasharray sweep transition utility classes
   expect(className).toContain("transition-[stroke-dasharray]");
   expect(className).toContain("duration-base");
   expect(className).toContain("ease-standard");
-  expect(className).toContain("motion-reduce:transition-none");
+  // Reduced motion is the global base.css reset's job; a component never restates it.
+  expect(className).not.toContain("motion-reduce:");
 });
 
 test("the track outline never carries a stroke-dasharray attribute (selector stays unambiguous)", async () => {
