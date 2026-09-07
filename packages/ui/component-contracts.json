@@ -15359,7 +15359,7 @@
         "navigation": "required",
         "preview": "required",
         "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "crossBrowserSmoke": "selected"
       },
       "previewModule": "media-player-controls"
     },

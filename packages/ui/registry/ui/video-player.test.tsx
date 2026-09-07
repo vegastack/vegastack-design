@@ -149,11 +149,19 @@ test("renders the video frame with shared controls", async () => {
   expect(
     playButton.querySelector("svg")?.classList.contains("fill-current"),
   ).toBe(true);
+  // The seek's hidden-until-hover thumb is now `Slider thumb="hover"` on the
+  // `overlay` variant — the ~70 `[&_[data-slot=slider-*]]` descendant overrides
+  // the players used to reach in with are deleted (audit B4-05).
+  const seek = screen.container.querySelector(
+    '[data-slot="media-player-progress"] [data-slot="slider"]',
+  );
+  expect(seek?.getAttribute("data-thumb")).toBe("hover");
+  expect(seek?.getAttribute("data-variant")).toBe("overlay");
   expect(
     screen.container
       .querySelector('[data-slot="media-player-progress"]')
-      ?.classList.contains("[&_[data-slot=slider-thumb]]:opacity-0"),
-  ).toBe(true);
+      ?.className.includes("[&_[data-slot=slider"),
+  ).toBe(false);
 });
 
 test("uses a named, smoothly expanding video progress control", async () => {
@@ -181,25 +189,14 @@ test("uses a named, smoothly expanding video progress control", async () => {
     expect(track).not.toBeNull();
     expect(thumb).not.toBeNull();
     expect(progress?.dataset.variant).toBe("overlay");
-    expect(progress?.classList.contains("group/media-progress")).toBe(true);
-    expect(
-      progress?.classList.contains(
-        "[&_[data-slot=slider-track]]:transition-[height]",
-      ),
-    ).toBe(true);
-    expect(
-      progress?.classList.contains(
-        "[&_[data-slot=slider-thumb]]:transition-opacity",
-      ),
-    ).toBe(true);
-    expect(
-      progress?.classList.contains("hover:[&_[data-slot=slider-track]]:h-1.5"),
-    ).toBe(true);
-    expect(
-      progress?.classList.contains(
-        "hover:[&_[data-slot=slider-thumb]]:opacity-100",
-      ),
-    ).toBe(true);
+    // The growing track and the revealed thumb are the `overlay` variant's own
+    // recipe now: the track carries the height transition, the thumb the
+    // opacity one, and both key off Slider's `group/slider` — not off a
+    // `group/media-progress` the player invented (audit B4-05).
+    expect(track?.className).toContain("transition-[height,width]");
+    expect(track?.className).toContain("group-hover/slider:");
+    expect(thumb?.className).toContain("transition-");
+    expect(progress?.className.includes("[&_[data-slot=slider")).toBe(false);
 
     expect(getComputedStyle(track!).height).toBe("4px");
     expect(getComputedStyle(track!).transitionProperty).toBe("height");
@@ -337,10 +334,18 @@ test("supports keyboard playback, skip, and mute from the controls group", async
   });
 
   await showVideoControls(screen.container);
+  // The controls group is no longer a tab stop (audit TD-4) — the FRAME is the
+  // player's surface, and the `surface` scope is what owns Space and the
+  // arrows. Inside the group those keys stay with the focused control.
   const group = screen.getByRole("group", {
     name: "Demo video media controls",
   });
-  group.element().focus();
+  expect(group.element().hasAttribute("tabindex")).toBe(false);
+  (
+    screen.container.querySelector(
+      '[data-slot="video-player-frame"]',
+    ) as HTMLElement
+  ).focus();
   await userEvent.keyboard(" ");
   expect(play).toHaveBeenCalledOnce();
   expect(onPlayStateChange).toHaveBeenLastCalledWith(true);
@@ -620,23 +625,14 @@ test("keeps the volume slider reachable from the mute control", async () => {
     expect(volumeSurface?.classList.contains("py-1")).toBe(true);
     expect(getComputedStyle(volumeSurface!).width).toBe("32px");
     expect(getComputedStyle(volumeSurface!).padding).toBe("4px");
-    expect(
-      volumePanel
-        ?.querySelector('[data-slot="slider"]')
-        ?.classList.contains("[&_[data-slot=slider-control]]:flex-col"),
-    ).toBe(true);
-    expect(
-      volumePanel
-        ?.querySelector('[data-slot="slider"]')
-        ?.classList.contains("[&_[data-slot=slider-thumb]]:size-3"),
-    ).toBe(true);
-    expect(
-      volumePanel
-        ?.querySelector('[data-slot="slider"]')
-        ?.classList.contains(
-          "[&_[data-slot=slider-control]]:h-[calc(var(--size-lg)+var(--spacing)*4)]",
-        ),
-    ).toBe(true);
+    // Vertical layout and overlay ink are Slider props now; the player passes
+    // them instead of restyling Slider's internals from outside (audit B4-05).
+    const volumeSlider = volumePanel?.querySelector('[data-slot="slider"]');
+    expect(volumeSlider?.getAttribute("data-orientation")).toBe("vertical");
+    expect(volumeSlider?.getAttribute("data-variant")).toBe("overlay");
+    expect(volumeSlider?.className.includes("[&_[data-slot=slider")).toBe(
+      false,
+    );
 
     // The volume slider uses Base UI `thumbAlignment="edge"` so the thumb stays
     // inset within the surface at the 0% and 100% extremes instead of letting its
