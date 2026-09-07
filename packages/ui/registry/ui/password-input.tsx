@@ -1,4 +1,4 @@
-// @vegastack password-input@0.6.0 sha256-cpZiJODTlhoDSYjwFjV4AziFY+Lmaa18h8QGKK1aYw4=
+// @vegastack password-input@0.6.0 sha256-jJlYoomG8TtBGUhlatfurVL6gOIqBMU/wQuRetLZ3u8=
 
 "use client";
 
@@ -100,6 +100,9 @@ export function PasswordInput({
             className={cn(
               "flex size-(--size-xs) items-center justify-center rounded-md text-muted-foreground ",
               "hover:text-foreground",
+              // The toggle sits INSIDE the field box, so a wash would touch the input border;
+              // its hover is ink, and so is its pressed step.
+              "active:text-muted-foreground",
               "focus-visible:text-foreground",
               "disabled:pointer-events-none disabled:opacity-(--opacity-dim)",
             )}

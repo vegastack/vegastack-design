@@ -1773,7 +1773,14 @@ and each has an **alpha twin** so the same rung composites onto any backdrop.
   `surfaceInteractive` (`hover:bg-surface-2 active:bg-surface-3`) for a control on a known surface,
   and `fillInteractive.<tone>` (`hover:bg-<tone>/(--alpha-hover) active:bg-<tone>/(--alpha-pressed)`)
   for one on an unknown backdrop or in its own hue. No component writes its own `hover:bg-*`
-  literal; opacity dims (`/80`) and one-off ink tints are not hover states.
+  literal, and **an opacity dim (`/80`) is never a hover state** — it thins the fill instead of
+  moving it.
+- **A control with no surface signals in ink, both ways.** An accordion header, a link-like trigger
+  or an icon-only ink button whose hover is an underline or a brighter ink takes its _pressed_ step
+  in ink as well (`active:text-muted-foreground`). This is the one sanctioned alternative to the
+  wash, and it exists because those controls sit flush against a container hairline, where a wash
+  would violate the inset rule above. When such a control is later given padding and an inner
+  radius, it moves to the recipes — both steps together.
 - **A solid fill does not use the alpha twins.** A solid already owns darker `-hover`/`-active`
   steps; an alpha over a solid only thins it. Soft (tinted) fills step through their precomposed
   `<family>-subtle-hover` / `<family>-subtle-active`.

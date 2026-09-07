@@ -1047,7 +1047,7 @@
         "whenToUse": "Group related content into collapsible sections — FAQs, settings groups.",
         "whenNotToUse": "Hiding critical content, or sequential steps (stepper).",
         "version": "0.6.0",
-        "integrity": "sha256-5CsDvQ7+K7JjAkOXT9wcLrKkMRWKcb853P231vGQ5vs="
+        "integrity": "sha256-Jcu8acVwWLccr307lEb2cjbITPvpQImtJUxX8fWEYG4="
       }
     },
     {
@@ -1075,7 +1075,7 @@
         "whenToUse": "A single show/hide region — extra detail, an optional form section, 'read more'.",
         "whenNotToUse": "Several coordinated sections where one opens at a time — use Accordion.",
         "version": "0.6.0",
-        "integrity": "sha256-GKc21eYddrBii+52j5dgoTSeqLHZHso4vTQmykufxug="
+        "integrity": "sha256-0RiFNjUss5txZOsvFkHFiOQLMBfOtHhNnYfjuwE1KnA="
       }
     },
     {
@@ -1597,7 +1597,7 @@
         "whenToUse": "Any password entry — login, signup, reset, settings. Use requirements for enforced rules.",
         "whenNotToUse": "Non-secret text (Input) or one-time codes (OTP Input).",
         "version": "0.6.0",
-        "integrity": "sha256-cpZiJODTlhoDSYjwFjV4AziFY+Lmaa18h8QGKK1aYw4="
+        "integrity": "sha256-jJlYoomG8TtBGUhlatfurVL6gOIqBMU/wQuRetLZ3u8="
       }
     },
     {
