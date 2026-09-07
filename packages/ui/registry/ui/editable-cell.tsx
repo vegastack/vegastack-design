@@ -8,6 +8,7 @@ import { cn } from "@vegastack/design";
 import { FieldInline } from "@/components/ui/field-inline";
 import { Spinner } from "@/components/ui/spinner";
 import { useAnnouncer } from "@/components/ui/use-announcer";
+import { useInlineEdit } from "@/components/ui/use-inline-edit";
 import type { AutoSaveStatus } from "@/components/ui/auto-save-input";
 import {
   Select,
@@ -150,7 +151,8 @@ const statusSlotClasses = "flex size-4 shrink-0 items-center justify-center";
 /**
  * `EditableCell` — an inline-editable value with an async commit lifecycle.
  * Composes `FieldInline` as the text leaf (Enter-commit / Esc-cancel /
- * commit-on-blur, double-commit guard, focus-and-select on open) and layers on the
+ * commit-on-blur, double-commit guard, focus-and-select on open — all of it `useInlineEdit`,
+ * which this cell shares for its own edit-mode state) and layers on the
  * three things every optimistic inline edit needs beyond it: the
  * `idle → saving → saved | error` status indicator, conflict revert with a
  * polite announcement, and a typed editor registry (`text` | `select` |
@@ -192,18 +194,18 @@ export function EditableCell({
   className,
   ref,
 }: EditableCellProps) {
-  // Edit mode — controlled when `editing` is provided (the managed-grid path),
-  // else internal.
-  const [internalEditing, setInternalEditing] = React.useState(false);
-  const isEditingControlled = editing !== undefined;
-  const isEditing = isEditingControlled ? editing : internalEditing;
-  const setEditingState = React.useCallback(
-    (next: boolean) => {
-      if (!isEditingControlled) setInternalEditing(next);
-      onEditingChange?.(next);
-    },
-    [isEditingControlled, onEditingChange],
-  );
+  // Edit mode comes from the shared inline-edit machine (audit B9-06) — the same hook the text
+  // leaf runs on, so `text`, `select` and `custom` editors all resolve controlled-vs-internal
+  // `editing` one way instead of through a private copy that had already drifted from
+  // FieldInline's. Only the MODE half is used here: this cell's editors commit through
+  // `handleCommit` below, which owns the optimistic layer the hook knows nothing about — hence
+  // no `onCommit`, which the hook makes optional for exactly this case.
+  const { isEditing, setEditing: setEditingState } = useInlineEdit({
+    value,
+    editing,
+    onEditingChange,
+    disabled: disabled || readOnly,
+  });
 
   // Async status — controlled when `status` is provided, else derived from the
   // `onCommit` promise.
@@ -289,7 +291,7 @@ export function EditableCell({
       <Select
         items={editor.options}
         value={displayValue}
-        open={isEditingControlled ? isEditing : undefined}
+        open={editing !== undefined ? isEditing : undefined}
         onOpenChange={(nextOpen) => setEditingState(nextOpen)}
         onValueChange={(next) => {
           if (typeof next === "string") handleCommit(next);
@@ -360,8 +362,8 @@ export function EditableCell({
             mount animation replays. Color never carries status alone — the
             icon shape differs per state and the announcer speaks it. */}
         {status === "saving" ? (
-          // Decorative (label="") — the sr-only sibling announces "Saving…".
-          <Spinner size="sm" label="" />
+          // Decorative — the sr-only sibling below already announces "Saving…".
+          <Spinner size="sm" decorative />
         ) : status === "saved" ? (
           <Check
             key="saved"
