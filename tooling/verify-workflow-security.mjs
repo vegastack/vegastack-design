@@ -471,6 +471,32 @@ assert.doesNotMatch(
   "release.yml: quality-gate must be unconditional — an `if:` reintroduces a push to main that is " +
     "never re-verified; turbo's cache is what keeps an already-verified tree cheap",
 );
+// `release-classify.mjs` is how a developer PREDICTS that, and it kept printing
+// "quality-gate skipped (nothing to publish)" for a whole PR after the condition was deleted — a
+// tool that reports a gate as skipped when it always runs is worse than no tool. Read cwd-relative,
+// exactly like the workflows above, so the negative harness can mutate it in its scratch tree.
+const RELEASE_CLASSIFY = "tooling/release-classify.mjs";
+const releaseClassify = readFileSync(RELEASE_CLASSIFY, "utf8");
+const qualityGateReport =
+  /console\.log\(\s*[`"']\s*quality-gate[\s\S]*?\n\);/.exec(
+    releaseClassify,
+  )?.[0];
+assert.ok(
+  qualityGateReport,
+  `${RELEASE_CLASSIFY}: no console.log reports the quality-gate row — the prediction tool must say ` +
+    "what release.yml will do with the quality gate",
+);
+assert.doesNotMatch(
+  qualityGateReport,
+  /outputs\.publish|skipped/,
+  `${RELEASE_CLASSIFY}: the quality-gate row must not be conditioned on \`publish\` or describe the ` +
+    "gate as skipped — release.yml's quality-gate carries no `if:` and runs on every push to main",
+);
+assert.match(
+  qualityGateReport,
+  /RUNS/,
+  `${RELEASE_CLASSIFY}: the quality-gate row must say the gate RUNS`,
+);
 // The cache only survives between runs if it lives outside the workspace actions/checkout cleans.
 for (const [name, job] of [
   ["ci.yml", jobBlock(sources["ci.yml"], "verify")],

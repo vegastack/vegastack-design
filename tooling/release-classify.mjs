@@ -169,7 +169,10 @@ console.log(
   `  receipt-guard    RUNS — rejects the push unless .gates/receipt.json covers this tree`,
 );
 console.log(
-  `  quality-gate     ${outputs.publish === "true" ? "RUNS (free, self-hosted)" : "skipped (nothing to publish)"}`,
+  "  quality-gate     RUNS — unconditionally, on every push to main. It carries no `if:`: the\n" +
+    "                   `publish` condition was removed, so a push with nothing to publish is still\n" +
+    "                   re-verified. Free and self-hosted, and turbo replays an already-verified tree\n" +
+    "                   in seconds. `ci.yml`'s `verify` job is the same lanes on every pull request.",
 );
 if (outputs.publish === "true")
   console.log(

@@ -31,12 +31,18 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 
 import { ROOT } from "./lib/fs.mjs";
 
 const GATE = join(ROOT, "tooling/verify-workflow-security.mjs");
 const WORKFLOWS = join(ROOT, ".github/workflows");
+// The gate reads this one cwd-relative too (it asserts the release PREDICTION tool agrees with the
+// workflow), so the scratch tree has to be a mini-repo of every file the gate opens, not just the
+// workflows — otherwise every case would die on ENOENT instead of on its own mutation.
+const EXTRA_SOURCES = ["tooling/release-classify.mjs"];
+/** The quality-gate row release-classify prints, as one console.log call. */
+const QUALITY_GATE_ROW = /console\.log\(\s*[`"']\s*quality-gate[\s\S]*?\n\);/;
 
 /** Sanity: the gate must PASS on the real workflows, or every rejection below proves nothing. */
 {
@@ -191,6 +197,22 @@ const CASES = [
     replace: "        run: echo boundary-check-skipped\n",
     expect: /canonical production probe/,
   },
+  {
+    id: "release-classify predicting the quality gate as skipped again",
+    path: "tooling/release-classify.mjs",
+    mutateAfter: (source) =>
+      source.replace(
+        QUALITY_GATE_ROW,
+        'console.log(\n  `  quality-gate     ${outputs.publish === "true" ? "RUNS" : "skipped (nothing to publish)"}`,\n);',
+      ),
+    expect: /must not be conditioned on/,
+  },
+  {
+    id: "release-classify no longer reporting the quality gate at all",
+    path: "tooling/release-classify.mjs",
+    mutateAfter: (source) => source.replace(QUALITY_GATE_ROW, ""),
+    expect: /no console\.log reports the quality-gate row/,
+  },
 ];
 
 let failures = 0;
@@ -200,14 +222,19 @@ for (const testCase of CASES) {
     const directory = join(scratch, ".github/workflows");
     mkdirSync(directory, { recursive: true });
     cpSync(WORKFLOWS, directory, { recursive: true });
+    for (const source of EXTRA_SOURCES) {
+      mkdirSync(join(scratch, dirname(source)), { recursive: true });
+      cpSync(join(ROOT, source), join(scratch, source));
+    }
 
-    const path = join(directory, testCase.file);
+    const target = testCase.path ?? `.github/workflows/${testCase.file}`;
+    const path = join(scratch, target);
     const original = readFileSync(path, "utf8");
     let mutated = original;
     if (testCase.find) {
       if (!original.includes(testCase.find)) {
         console.log(
-          `✗ ${testCase.id}\n    HARNESS BUG — pattern absent from ${testCase.file}, nothing mutated`,
+          `✗ ${testCase.id}\n    HARNESS BUG — pattern absent from ${target}, nothing mutated`,
         );
         failures++;
         continue;
@@ -258,6 +285,6 @@ if (failures > 0) {
 console.log(
   `\n✓ workflow-security-negative: all ${CASES.length} mutations rejected — container ban, runner ` +
     `allowlist (both directions), receipt-guard presence and wiring, shell injection, credential ` +
-    `persistence, token scope, pull_request_target, stray OIDC, publish dependencies, and the ` +
-    `unconditional production-boundary chain`,
+    `persistence, token scope, pull_request_target, stray OIDC, publish dependencies, the ` +
+    `unconditional production-boundary chain, and release-classify's quality-gate prediction`,
 );
