@@ -1847,7 +1847,7 @@
       "name": "badge",
       "registryType": "registry:ui",
       "title": "Badge",
-      "summary": "A compact status or label chip. 3 variants × semantic colors × 4 sizes, with dot, loading, and icon support.",
+      "summary": "A compact status or label chip — solid / soft / outline / minimal × 5 semantic colors × 3 real size tiers, with a dot, a leading icon, and loading.",
       "family": "data-display",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/badge.tsx"],
@@ -4658,7 +4658,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/tooltip",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/kbd"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.3.2",
@@ -5705,7 +5705,7 @@
       "name": "kbd",
       "registryType": "registry:ui",
       "title": "Kbd",
-      "summary": "A styled keyboard-key indicator — OS-aware modifier glyphs, a keys array, and small sizes.",
+      "summary": "The one keyboard-key chip — modifier labels the caller resolves per platform, a keys array, and three inline sizes.",
       "family": "data-display",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/kbd.tsx"],
@@ -5854,7 +5854,7 @@
       "name": "skeleton",
       "registryType": "registry:ui",
       "title": "Skeleton",
-      "summary": "A token-driven loading placeholder — line, circle, rect, card shapes, configurable count, reduced-motion-aware pulse.",
+      "summary": "A token-driven loading placeholder — line, circle, rect, card shapes, a configurable count, and a pulse that stops under reduced motion.",
       "family": "feedback",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/skeleton.tsx"],
@@ -8976,7 +8976,7 @@
       "name": "progress",
       "registryType": "registry:ui",
       "title": "Progress",
-      "summary": "A determinate horizontal progress bar for measurable, ongoing tasks — built on Base UI Progress.",
+      "summary": "A horizontal progress bar for measurable, ongoing tasks — determinate or a sweeping indeterminate segment, built on Base UI Progress.",
       "family": "feedback",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/progress.tsx"],
@@ -11940,7 +11940,7 @@
       "name": "truncated-text",
       "registryType": "registry:ui",
       "title": "Truncated Text",
-      "summary": "Truncate text to one line or N lines with an ellipsis, revealing the full text in a tooltip only when it overflows.",
+      "summary": "Truncate text to one line or N lines with an ellipsis, revealing the full text in a tooltip only when it overflows — with per-region control over the tab stop.",
       "family": "data-display",
       "wave": "Content/marketing",
       "sourceFiles": ["packages/ui/registry/ui/truncated-text.tsx"],
@@ -11999,6 +11999,33 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TruncationFocusProvider",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/truncated-text.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A context provider renders no DOM node of its own, so there is no ref target to forward."
+          }
+        },
+        {
+          "name": "TruncationFocusProviderProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/truncated-text.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "useTruncationFocusable",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/truncated-text.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Hooks render nothing and expose no ref contract."
           }
         }
       ],
@@ -14515,7 +14542,10 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/relative-time",
-      "registryDependencies": ["@vegastack/tooltip"],
+      "registryDependencies": [
+        "@vegastack/tooltip",
+        "@vegastack/truncated-text"
+      ],
       "npmDependencies": [
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"

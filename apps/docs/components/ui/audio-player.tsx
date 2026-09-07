@@ -1,4 +1,4 @@
-// @vegastack audio-player@0.6.0 sha256-cpw/oxtA0ZqEYNYr96trwgwAEObkXKLVMrlvLXEpWMU=
+// @vegastack audio-player@0.6.0 sha256-xH4rrn68NycNrAc9k6DEQBkYBYAVbv8nEr/LDZag9WI=
 
 "use client";
 
@@ -254,9 +254,9 @@ function MediaProgressSlider({
         // exactly matching how the ghost transport controls brighten on hover;
         // the colour change is immediate (colour transitions are banned).
         variant === "default" &&
-          "[&_[data-slot=slider-indicator]]:bg-muted-foreground [&_[data-slot=slider-thumb]]:border-0 [&_[data-slot=slider-thumb]]:bg-muted-foreground [&_[data-slot=slider-thumb]]:opacity-0 [&_[data-slot=slider-thumb]]:transition-opacity [&_[data-slot=slider-thumb]]:duration-fast [&_[data-slot=slider-thumb]]:ease-standard hover:[&_[data-slot=slider-thumb]]:opacity-100 focus-within:[&_[data-slot=slider-thumb]]:opacity-100 [&_[data-slot=slider-thumb][data-dragging]]:opacity-100 motion-reduce:[&_[data-slot=slider-thumb]]:transition-none hover:[&_[data-slot=slider-indicator]]:bg-foreground focus-within:[&_[data-slot=slider-indicator]]:bg-foreground has-[[data-slot=slider-thumb][data-dragging]]:[&_[data-slot=slider-indicator]]:bg-foreground hover:[&_[data-slot=slider-thumb]]:bg-foreground focus-within:[&_[data-slot=slider-thumb]]:bg-foreground [&_[data-slot=slider-thumb][data-dragging]]:bg-foreground",
+          "[&_[data-slot=slider-indicator]]:bg-muted-foreground [&_[data-slot=slider-thumb]]:border-0 [&_[data-slot=slider-thumb]]:bg-muted-foreground [&_[data-slot=slider-thumb]]:opacity-0 [&_[data-slot=slider-thumb]]:transition-opacity [&_[data-slot=slider-thumb]]:duration-fast [&_[data-slot=slider-thumb]]:ease-standard hover:[&_[data-slot=slider-thumb]]:opacity-100 focus-within:[&_[data-slot=slider-thumb]]:opacity-100 [&_[data-slot=slider-thumb][data-dragging]]:opacity-100 hover:[&_[data-slot=slider-indicator]]:bg-foreground focus-within:[&_[data-slot=slider-indicator]]:bg-foreground has-[[data-slot=slider-thumb][data-dragging]]:[&_[data-slot=slider-indicator]]:bg-foreground hover:[&_[data-slot=slider-thumb]]:bg-foreground focus-within:[&_[data-slot=slider-thumb]]:bg-foreground [&_[data-slot=slider-thumb][data-dragging]]:bg-foreground",
         variant === "overlay" &&
-          "[&_[data-slot=slider-track]]:h-1 [&_[data-slot=slider-track]]:bg-primary-foreground/(--alpha-wash-strong) [&_[data-slot=slider-track]]:transition-[height] [&_[data-slot=slider-track]]:duration-fast [&_[data-slot=slider-track]]:ease-standard hover:[&_[data-slot=slider-track]]:h-1.5 focus-within:[&_[data-slot=slider-track]]:h-1.5 motion-reduce:[&_[data-slot=slider-track]]:transition-none [&_[data-slot=slider-indicator]]:bg-primary-foreground [&_[data-slot=slider-thumb]]:size-4 [&_[data-slot=slider-thumb]]:border-primary-foreground [&_[data-slot=slider-thumb]]:bg-primary-foreground [&_[data-slot=slider-thumb]]:opacity-0 [&_[data-slot=slider-thumb]]:transition-opacity [&_[data-slot=slider-thumb]]:duration-fast [&_[data-slot=slider-thumb]]:ease-standard hover:[&_[data-slot=slider-thumb]]:opacity-100 focus-within:[&_[data-slot=slider-thumb]]:opacity-100 [&_[data-slot=slider-thumb][data-dragging]]:opacity-100 motion-reduce:[&_[data-slot=slider-thumb]]:transition-none",
+          "[&_[data-slot=slider-track]]:h-1 [&_[data-slot=slider-track]]:bg-primary-foreground/(--alpha-wash-strong) [&_[data-slot=slider-track]]:transition-[height] [&_[data-slot=slider-track]]:duration-fast [&_[data-slot=slider-track]]:ease-standard hover:[&_[data-slot=slider-track]]:h-1.5 focus-within:[&_[data-slot=slider-track]]:h-1.5 [&_[data-slot=slider-indicator]]:bg-primary-foreground [&_[data-slot=slider-thumb]]:size-4 [&_[data-slot=slider-thumb]]:border-primary-foreground [&_[data-slot=slider-thumb]]:bg-primary-foreground [&_[data-slot=slider-thumb]]:opacity-0 [&_[data-slot=slider-thumb]]:transition-opacity [&_[data-slot=slider-thumb]]:duration-fast [&_[data-slot=slider-thumb]]:ease-standard hover:[&_[data-slot=slider-thumb]]:opacity-100 focus-within:[&_[data-slot=slider-thumb]]:opacity-100 [&_[data-slot=slider-thumb][data-dragging]]:opacity-100",
       )}
     >
       <Slider
@@ -1201,7 +1201,7 @@ export function MediaPlayerControls({
         >
           <span
             data-slot="media-player-time-elapsed"
-            className="shrink-0 text-xs text-muted-foreground tabular-nums"
+            className="shrink-0 text-sm text-muted-foreground tabular-nums"
           >
             {formatTime(currentTime)}
           </span>
@@ -1213,7 +1213,7 @@ export function MediaPlayerControls({
           <div className="min-w-0 flex-1 px-1">{seekControl}</div>
           <span
             data-slot="media-player-time-duration"
-            className="shrink-0 text-xs text-muted-foreground tabular-nums"
+            className="shrink-0 text-sm text-muted-foreground tabular-nums"
           >
             {formatTime(displayedDuration)}
           </span>
