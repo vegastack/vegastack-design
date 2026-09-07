@@ -88,6 +88,28 @@ Every bug found + root cause + fix. Append-only.
   `/docs/components/button`, click "Fullscreen preview", and press Tab six times.
 
 ---
+## 2026-09-07 — `IconButton` swallows a caller's `data-slot` (Fo1, found by the push gate)
+
+- **Symptom.** `PasswordInput`'s reveal toggle set `data-slot="password-input-toggle"` on the
+  `IconButton` it renders. The DOM said `data-slot="icon-button"`, in all three engines, and the
+  test that asserted the intended value failed on Chromium, Firefox and WebKit alike.
+- **Root cause.** `icon-button.tsx` renders `<Button {...props} size={sizeMap[size]}
+  data-slot="icon-button">`. The literal follows the spread, so `IconButton` overwrites any
+  `data-slot` a caller passes — silently, and for every caller. It is not specific to this batch:
+  `page-header.tsx` passes `data-slot="page-header-back"` and has been losing it since it was
+  written, which is why nothing had noticed.
+- **Fix (this batch).** The inert prop is gone from `PasswordInput` and the assertion names what the
+  element actually is. **Not fixed at the root:** `icon-button.tsx` is F2's file boundary, and the
+  root fix is to move the literal ahead of the spread (`data-slot="icon-button" {...props}`) so a
+  caller can name its slot — one line, but it changes a component another batch is actively editing,
+  and it would also un-break `page-header`. Raised for MK in the Fo1 PR rather than taken here.
+- **Why no gate caught it.** Nothing asserts that a `data-slot` a component passes down survives to
+  the DOM; the attribute is only ever checked on the component that owns it. A generic rule is
+  plausible (a component that spreads props must not write a `data-slot` literal after the spread)
+  and belongs with design-lint's AST rules, not here.
+
+---
+
 
 ## 2026-09-08 — The `relative-time` 320px contract fails nondeterministically under the full sweep
 
