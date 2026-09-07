@@ -21810,11 +21810,7 @@
       {
         "name": "icon-bot-message-square",
         "sourceFile": "packages/ui/registry/ui/icons/bot-message-square.tsx",
-        "publicSymbols": [
-          "BotMessageSquareHandle",
-          "BotMessageSquareIcon",
-          "BotMessageSquareIconHandle"
-        ]
+        "publicSymbols": ["BotMessageSquareIcon", "BotMessageSquareIconHandle"]
       },
       {
         "name": "icon-box",
@@ -21980,11 +21976,7 @@
       {
         "name": "icon-chevron-first",
         "sourceFile": "packages/ui/registry/ui/icons/chevron-first.tsx",
-        "publicSymbols": [
-          "ChevronFirstIcon",
-          "ChevronFirstIconHandle",
-          "ChevronsDownUpIconHandle"
-        ]
+        "publicSymbols": ["ChevronFirstIcon", "ChevronFirstIconHandle"]
       },
       {
         "name": "icon-chevron-left",
@@ -22154,11 +22146,7 @@
       {
         "name": "icon-concierge-bell",
         "sourceFile": "packages/ui/registry/ui/icons/concierge-bell.tsx",
-        "publicSymbols": [
-          "ConciergeBellHandle",
-          "ConciergeBellIcon",
-          "ConciergeBellIconHandle"
-        ]
+        "publicSymbols": ["ConciergeBellIcon", "ConciergeBellIconHandle"]
       },
       {
         "name": "icon-connect",
@@ -22782,20 +22770,12 @@
       {
         "name": "icon-key-circle",
         "sourceFile": "packages/ui/registry/ui/icons/key-circle.tsx",
-        "publicSymbols": [
-          "KeyCircleIcon",
-          "KeyCircleIconHandle",
-          "KeyIconHandle"
-        ]
+        "publicSymbols": ["KeyCircleIcon", "KeyCircleIconHandle"]
       },
       {
         "name": "icon-key-square",
         "sourceFile": "packages/ui/registry/ui/icons/key-square.tsx",
-        "publicSymbols": [
-          "KeyIconHandle",
-          "KeySquareIcon",
-          "KeySquareIconHandle"
-        ]
+        "publicSymbols": ["KeySquareIcon", "KeySquareIconHandle"]
       },
       {
         "name": "icon-keyboard",
@@ -23291,11 +23271,7 @@
       {
         "name": "icon-refresh-cw",
         "sourceFile": "packages/ui/registry/ui/icons/refresh-cw.tsx",
-        "publicSymbols": [
-          "RefreshCCWIconWIcon",
-          "RefreshCWIcon",
-          "RefreshCWIconHandle"
-        ]
+        "publicSymbols": ["RefreshCWIcon", "RefreshCWIconHandle"]
       },
       {
         "name": "icon-refresh-cw-off",
@@ -23441,11 +23417,7 @@
       {
         "name": "icon-square-activity",
         "sourceFile": "packages/ui/registry/ui/icons/square-activity.tsx",
-        "publicSymbols": [
-          "ActivityIconHandle",
-          "SquareActivityIcon",
-          "SquareActivityIconHandle"
-        ]
+        "publicSymbols": ["SquareActivityIcon", "SquareActivityIconHandle"]
       },
       {
         "name": "icon-square-arrow-down",
@@ -23779,7 +23751,7 @@
       {
         "name": "icon-zap",
         "sourceFile": "packages/ui/registry/ui/icons/zap.tsx",
-        "publicSymbols": ["ZapHandle", "ZapIcon", "ZapIconHandle"]
+        "publicSymbols": ["ZapIcon", "ZapIconHandle"]
       },
       {
         "name": "icon-zap-off",
