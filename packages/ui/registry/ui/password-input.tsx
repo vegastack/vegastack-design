@@ -97,8 +97,10 @@ export function PasswordInput({
           // it makes the accessible name a compile-time requirement. `xs` is 24px, which
           // leaves the wash inset 4px inside a 32px field — clear of the hairline, so the
           // ghost fill satisfies the hover-geometry rule that forced the old ink-only hover.
+          // No `data-slot` of our own: `IconButton` writes `data-slot="icon-button"` AFTER its
+          // prop spread, so a caller's value never reaches the DOM. The toggle is addressed by
+          // role + accessible name, which is what assistive tech and tests both use anyway.
           <IconButton
-            data-slot="password-input-toggle"
             variant="ghost"
             size="xs"
             onClick={() => setVisible((v) => !v)}

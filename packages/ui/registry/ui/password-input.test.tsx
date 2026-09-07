@@ -187,9 +187,7 @@ test("the toggle is an IconButton with the ghost recipe and an accessible name",
   const toggle = screen.getByRole("button", {
     name: "Toggle password visibility",
   });
-  await expect
-    .element(toggle)
-    .toHaveAttribute("data-slot", "password-input-toggle");
+  await expect.element(toggle).toHaveAttribute("data-slot", "icon-button");
   await expect.element(toggle).toHaveAttribute("data-variant", "ghost");
   await expect.element(toggle).toHaveAttribute("data-size", "xs");
 });
