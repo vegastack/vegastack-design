@@ -1150,8 +1150,19 @@ for (const record of publicRecords) {
     `llms-full is missing ${record.route}`,
   );
 }
+// llms.txt has three link-bearing sections and each has its OWN exactness rule (§3 of the docs
+// canon): the page index lists every page exactly once, the registry roster lists every
+// installable item exactly once, and the skill roster carries no page links at all. Counting
+// links across the whole file would make the roster read as duplication of the index, so each
+// section is measured against the set it is supposed to mirror.
+const pageIndexSection = llmsIndex.split("\n## Design contract")[0];
+const rosterSection = (llmsIndex.match(
+  /\n## Registry items\n[\s\S]*?(?=\n## |$)/,
+) ?? [""])[0];
+assert.ok(rosterSection, "llms.txt is missing the Registry items roster");
+
 const llmsIndexRoutes = [
-  ...llmsIndex.matchAll(/\]\((\/docs(?:\/[^)]+)?)\)/g),
+  ...pageIndexSection.matchAll(/\]\((\/docs(?:\/[^)]+)?)\)/g),
 ].map((match) => match[1]);
 assert.equal(
   llmsIndexRoutes.length,
@@ -1163,6 +1174,39 @@ assert.deepEqual(
   new Set(publicRecords.map(({ route }) => route)),
   "llms.txt route set drifted",
 );
+
+// The roster is generated from `component-contracts.json`; this proves it reached the artifact
+// intact — every item once, each with the `shadcn add` command an agent needs.
+const contracts = JSON.parse(
+  await readFile(
+    path.join(OUT_DIR, "../../../packages/ui/component-contracts.json"),
+    "utf8",
+  ),
+);
+const registryItems = [
+  ...contracts.components,
+  ...contracts.hooks,
+  ...contracts.blocks,
+];
+const rosterNames = [
+  ...rosterSection.matchAll(/^- \[[^\]]+\]\([^)]+\) `([^`]+)`/gm),
+].map((match) => match[1]);
+assert.equal(
+  rosterNames.length,
+  registryItems.length,
+  "llms.txt roster has duplicate or missing registry items",
+);
+assert.deepEqual(
+  new Set(rosterNames),
+  new Set(registryItems.map(({ name }) => name)),
+  "llms.txt roster drifted from component-contracts.json",
+);
+for (const name of rosterNames) {
+  assert.ok(
+    rosterSection.includes(`pnpm dlx shadcn@latest add @vegastack/${name}\``),
+    `llms.txt roster is missing the install command for ${name}`,
+  );
+}
 const llmsFullRoutes = [
   ...llmsFull.matchAll(/^# .+ \((\/docs(?:\/[^)]+)?)\)$/gm),
 ].map((match) => match[1]);

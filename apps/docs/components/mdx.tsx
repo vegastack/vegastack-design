@@ -1,14 +1,19 @@
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import * as TabsComponents from "fumadocs-ui/components/tabs";
-import { TypeTable } from "fumadocs-ui/components/type-table";
-import { AutoTypeTable, type AutoTypeTableProps } from "fumadocs-typescript/ui";
-import {
-  createGenerator,
-  createFileSystemGeneratorCache,
-} from "fumadocs-typescript";
+import { Steps, Step } from "fumadocs-ui/components/steps";
+import { Files, File, Folder } from "fumadocs-ui/components/files";
 import * as Twoslash from "fumadocs-twoslash/ui";
+import { ApiTable, TypeTable } from "@/components/api-table";
+import {
+  Anatomy,
+  ComponentChangelog,
+  InstallSteps,
+  StatesTested,
+} from "@/components/generated-sections";
 import type { MDXComponents } from "mdx/types";
+import { assertMdxMapMatchesManifest } from "@/lib/mdx-manifest";
 import { ComponentPreview } from "@/components/component-preview";
+import { StoryExplorer } from "@/components/story-explorer";
 import { DoDont } from "@/components/do-dont";
 import {
   ColorPalette,
@@ -70,83 +75,39 @@ import { TogglePlayground } from "@/components/toggle-playground";
 import { TooltipPlayground } from "@/components/tooltip-playground";
 import { TruncatedTextPlayground } from "@/components/truncated-text-playground";
 
-const baseGenerator = createGenerator({
-  cache: createFileSystemGeneratorCache(".next/fumadocs-typescript"),
-});
-
-// ts-morph's property-symbol enumeration order is NOT stable across program instances, and the
-// generator cache lives in `.next` (cleared between builds) — so without an explicit sort, API
-// tables shuffle their inherited-prop rows on every rebuild (caught by VRT: baselines from one
-// build failed the next). Deterministic order: props DECLARED IN THIS REPO first (the component's
-// own API), then everything inherited (@types/react DOM/aria attributes, Base UI extras), required
-// before optional and alphabetical within each group. Own-ness is stamped as a marker tag inside
-// the generator's `transform` hook — that runs before the cache write, so cached entries keep it;
-// the AutoTypeTable renderer ignores unknown tag names (verified in parseTags).
-const OWN_PROP_TAG = "vs-own-prop";
-
-const generator: typeof baseGenerator = {
-  ...baseGenerator,
-  async generateTypeTable(props, options) {
-    const docs = await baseGenerator.generateTypeTable(props, {
-      ...options,
-      transform(entry, propertyType, propertySymbol) {
-        options?.transform?.call(this, entry, propertyType, propertySymbol);
-        const own = propertySymbol
-          .getDeclarations()
-          .some(
-            (decl) =>
-              !decl.getSourceFile().getFilePath().includes("node_modules"),
-          );
-        if (own) entry.tags.push({ name: OWN_PROP_TAG, text: "" });
-      },
-    });
-    return docs.map((doc) => {
-      // Phase D bloat fix: API tables list OWN props only. Expanding every inherited DOM/aria/Base
-      // UI prop made the top pages 9–16MB of HTML each (plus 3× ~8MB RSC payload copies — 755MB of
-      // the 785MB export was these tables). Inherited surface is what TypeScript is for; the docs
-      // convention (shadcn/Radix alike) is to document the component's own API. Components that
-      // add no props of their own get a single explanatory row instead of an empty table.
-      const own = doc.entries.filter((e) =>
-        e.tags.some((t) => t.name === OWN_PROP_TAG),
-      );
-      const entries = own.length
-        ? own.sort((a, b) => {
-            const aReq = a.required ? 0 : 1;
-            const bReq = b.required ? 0 : 1;
-            if (aReq !== bReq) return aReq - bReq;
-            return a.name.localeCompare(b.name, "en");
-          })
-        : [
-            {
-              name: "(no own props)",
-              description:
-                "This part adds no props of its own — it accepts everything the underlying element/primitive accepts (className, ref, ARIA attributes, event handlers, …).",
-              type: "—",
-              typeHref: undefined,
-              simplifiedType: "—",
-              tags: [],
-              // `required: true` — counter-intuitive, but the renderer appends the optional "?"
-              // marker to non-required names, which made this placeholder read "(no own props)?"
-              // (an audit finding: it looks like a broken prop name). It is not a prop at all.
-              required: true,
-              deprecated: false,
-            },
-          ];
-      return { ...doc, entries };
-    });
-  },
-};
+/**
+ * Names fumadocs supplies through its own spreads. Everything else in the map below is repo-owned
+ * and MUST be classified in `lib/mdx-manifest.ts`, which the agent-export stringifier and the
+ * runtime placeholder renderer read — a component that renders for humans and is unknown to the
+ * manifest is a section agents silently never see.
+ */
+const INHERITED_MDX_KEYS = new Set([
+  ...Object.keys(defaultMdxComponents),
+  ...Object.keys(TabsComponents),
+  ...Object.keys(Twoslash),
+]);
 
 export function getMDXComponents(components?: MDXComponents) {
   return {
     ...defaultMdxComponents,
     ...TabsComponents,
     ...Twoslash,
+    Steps,
+    Step,
+    Files,
+    File,
+    Folder,
+    // One flat renderer for every API table (DS-02/DS-03). `AutoTypeTable` is the legacy name the
+    // pages still use; Do1-b renames the usages to `ApiTable`.
+    ApiTable,
+    AutoTypeTable: ApiTable,
     TypeTable,
-    AutoTypeTable: (props: Partial<AutoTypeTableProps>) => (
-      <AutoTypeTable {...props} generator={generator} />
-    ),
+    InstallSteps,
+    Anatomy,
+    StatesTested,
+    ComponentChangelog,
     ComponentPreview,
+    StoryExplorer,
     RegistryInstallCallout,
     DoDont,
     ColorPalette,
@@ -208,6 +169,14 @@ export function getMDXComponents(components?: MDXComponents) {
     ...components,
   } satisfies MDXComponents;
 }
+
+// Module load, so the mismatch fails `next build` rather than surfacing in a review. `components`
+// is omitted: per-render overrides are the caller's, not the page vocabulary.
+assertMdxMapMatchesManifest(
+  Object.keys(getMDXComponents()).filter(
+    (name) => !INHERITED_MDX_KEYS.has(name),
+  ),
+);
 
 export const useMDXComponents = getMDXComponents;
 

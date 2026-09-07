@@ -26,6 +26,78 @@ Every bug found + root cause + fix. Append-only.
 
 ---
 
+## 2026-09-07 — The 24px target floor is measured on ONE fixture per route, and three heroes fail it
+
+- **Symptom (found, not fixed, by Do1-a):** routing the frontmatter hero through
+  `ComponentPreview` (DC-05) gave the hero a `data-vrt-preview` key. `contracts.spec.ts` probes
+  `page.locator("[data-vrt-preview]").first()` — **one** fixture per route — so the hero became the
+  probed fixture on all 110 routes, and `pnpm gates:push` went from green to **12 failures**:
+  `/docs/components/timeline`, `/docs/components/data-grid` and `/docs/components/text-edit`,
+  in all four Chromium projects, on "effective 24px pointer targets". Example, verbatim:
+  `interactive control 0 on /docs/components/timeline must own a centred >=24px effective pointer
+target (visual 64.4×16.0px)` — the hit lands on `<li data-slot="timeline-separator">` rather than
+  a control of its own.
+- **Not caused by the type-scale fix.** Removing the DC-01 `font-size`/`line-height` lines from
+  `.vs-type-product` and re-running the three routes reproduced all 12 failures unchanged, so the
+  smaller inherited base is not the mechanism. `main` at 6f11a4bc (this branch's merge-base at the time) passed 24/24 on the same
+  three routes, which places the change on this branch.
+- **Root cause, in two parts.** (1) The blocking lane measures a single fixture per route, so which
+  fixture carries the probe key silently decides what is verified — a chrome change moved it for
+  every component at once. (2) The hero fixtures `timeline`, `dataGrid` and `textEdit` genuinely
+  fail the 24×24 floor, and had never been measured because they are not among the body examples
+  those three pages document (button and dialog, by contrast, document their hero fixture in the
+  body, so they were already covered).
+- **What Do1-a did:** the hero keeps identical frame chrome but does NOT take the probe key
+  (`ComponentPreview hero`). Coverage is unchanged from `main` — the documented example fixture is
+  probed exactly as before. To be precise about the mechanism: nothing _chooses_ which fixture the
+  lane measures. `.first()` takes whichever element carries `data-vrt-preview` first in DOM order,
+  and the hero renders above every body example, so it would have taken the probe on every route.
+  Keeping it out restores the pre-existing selection rather than making the selection a decision;
+  making it one is part of the root fix below. Do1-a changed no component source (`git diff origin/main -- packages/ui/registry` is empty), so it cannot fix the three components without colliding with the
+  wave-3/4 batches that own them.
+- **Open, and owned by the component batches.** Reproduce in one line by dropping `hero` from the
+  `<ComponentPreview>` in `apps/docs/app/docs/[[...slug]]/page.tsx` and running
+  `node tooling/contracts-run.mjs --routes /docs/components/timeline,/docs/components/data-grid,/docs/components/text-edit`.
+  The real fix is an invisible ≥24px hit area on the timeline separator marker, the data-grid row
+  checkbox cell, and the text-edit control — the same class the `target-size` axe findings on
+  data-grid report.
+- **Worth fixing at the root too:** probing only `.first()` means every route has exactly one
+  verified fixture no matter how many it documents, and _which_ one is decided by DOM order rather
+  than by any authority. That is a coverage ceiling nobody chose; the contract lane should probe
+  every fixture the contract lists. Raised for G1-b.
+
+---
+
+## 2026-09-07 — The agent-facing markdown export shipped JSX instead of docs (DS-01)
+
+- **Symptom:** the per-page `.md` route and `llms-full.txt` contained `<AutoTypeTable path=…
+name="ButtonProps" />` and `<ComponentPreview name=… file=… />` verbatim. Measured on the built
+  export before the fix: the tag survived on **107 of 110** component pages and **260 times** in
+  `llms-full.txt`, and 18 pages carried **138 "(no own props)"** placeholder rows. An agent reading
+  the docs — the channel this repo tells consumers to use — got zero prop tables and zero example
+  source, while a human on the same page got both.
+- **Root cause:** `lib/source.ts` called `page.data.getText("processed")` with no components. In
+  fumadocs-core 16.11.5 `remarkLLMs` keeps every MDX JSX element in the processed markdown unless a
+  `stringify` callback overrides it, so the tags passed straight through. Nothing was broken; the
+  rendering step was simply never written. It went unnoticed because **no gate read the export.**
+  The docs build asserted the `.md` files existed and were the right size — never that they had
+  content an agent could use.
+- **Fix:** `lib/mdx-markdown.ts` renders every MDX component to markdown at compile time, or emits
+  a placeholder that `lib/markdown-export.ts` resolves at build time for the elements needing the
+  file system or the type generator. Both API-table renderers share `getApiDocs()`, so the page and
+  the `.md` cannot drift again.
+- **Systemic fix — the export is now gated.** `tooling/verify-docs-export.mjs` reads the BUILT
+  markdown and fails on any JSX tag outside a code fence, any unresolved placeholder, and any empty
+  API table, with a negative self-test proving each check rejects its defect. That, not the
+  rendering code, is what stops this recurring: the defect class was "an artifact nobody verified",
+  and a second unverified artifact would have gone the same way.
+- **Note on the acceptance number.** The audit's acceptance criterion was
+  `grep -c "<[A-Z]" apps/docs/out/docs/components/*.md` → 0. That can never hold once the fixture
+  source is inlined, because example code legitimately contains `<Button>`. The gate strips code
+  fences and inline code first; JSX outside code is the real measure, and it is 0.
+
+---
+
 ## 2026-07-27 — Firefox neuters the DataTransfer of a synthetic ClipboardEvent (test-only)
 
 - **Symptom:** `chip-input.test.tsx` "paste splits on the delimiter set" failed only in Firefox

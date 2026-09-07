@@ -49,17 +49,17 @@ export function IconGallery() {
   return (
     <div className="not-prose my-6 space-y-6">
       <div>
-        <p className="mb-3 text-sm font-medium text-fd-foreground">
+        <p className="mb-3 text-sm font-medium text-foreground">
           Functional — `Icon` (lucide)
         </p>
         <div className="flex flex-wrap gap-4">
           {FUNCTIONAL.map(({ as, label }) => (
             <div
               key={label}
-              className="flex w-20 flex-col items-center gap-2 rounded-lg border border-fd-border bg-fd-card p-3 text-fd-foreground"
+              className="flex w-20 flex-col items-center gap-2 rounded-lg border border-border bg-card p-3 text-foreground"
             >
               <Icon as={as} size="lg" aria-label={label} />
-              <span className="text-xs leading-4 text-fd-muted-foreground">
+              <span className="text-xs leading-4 text-muted-foreground">
                 {label}
               </span>
             </div>
@@ -67,17 +67,17 @@ export function IconGallery() {
         </div>
       </div>
       <div>
-        <p className="mb-3 text-sm font-medium text-fd-foreground">
+        <p className="mb-3 text-sm font-medium text-foreground">
           Brand — `BrandIcon` (thesvg)
         </p>
         <div className="flex flex-wrap gap-4">
           {BRANDS.map((icon) => (
             <div
               key={icon.slug}
-              className="flex w-20 flex-col items-center gap-2 rounded-lg border border-fd-border bg-fd-card p-3"
+              className="flex w-20 flex-col items-center gap-2 rounded-lg border border-border bg-card p-3"
             >
               <BrandIcon icon={icon} variant="auto" size="lg" />
-              <span className="text-xs leading-4 text-fd-muted-foreground">
+              <span className="text-xs leading-4 text-muted-foreground">
                 {icon.title}
               </span>
             </div>
@@ -85,7 +85,7 @@ export function IconGallery() {
         </div>
       </div>
       <div>
-        <p className="mb-3 text-sm font-medium text-fd-foreground">
+        <p className="mb-3 text-sm font-medium text-foreground">
           Motion — `AnimatedIcon` (lucide-animated) · hover or focus the card to
           animate
         </p>
@@ -95,9 +95,9 @@ export function IconGallery() {
               key={chunkIndex}
               data-vrt-icon-chunk={chunkIndex}
               aria-label={`Animated icons ${chunkIndex * ANIMATED_ICON_CHUNK_SIZE + 1}–${chunkIndex * ANIMATED_ICON_CHUNK_SIZE + chunk.length}`}
-              className="rounded-lg border border-fd-border p-3"
+              className="rounded-lg border border-border p-3"
             >
-              <p className="mb-3 text-sm text-fd-muted-foreground">
+              <p className="mb-3 text-sm text-muted-foreground">
                 Icons {chunkIndex * ANIMATED_ICON_CHUNK_SIZE + 1}–
                 {chunkIndex * ANIMATED_ICON_CHUNK_SIZE + chunk.length}
               </p>
@@ -109,7 +109,9 @@ export function IconGallery() {
                     key={label}
                     as={as}
                     label={label}
-                    className="flex w-20 cursor-default flex-col items-center gap-2 rounded-lg border border-fd-border bg-fd-card p-3 text-fd-foreground hover:bg-fd-accent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-fd-ring"
+                    // A real button: the global `:focus-visible` outline applies, no hand-typed
+                    // ring (DC-09/DC-12).
+                    className="flex w-20 flex-col items-center gap-2 rounded-lg border border-border bg-card p-3 text-foreground hover:bg-accent"
                   />
                 ))}
               </div>

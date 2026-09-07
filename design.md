@@ -2089,6 +2089,59 @@ outer `MarketingSurface` wraps the entire page, and the rest of `/docs` stays th
 product surface — a single, deliberate temperature boundary at the home→docs navigation, not an
 alternating pattern within one page.
 
+## Docs canon
+
+A component's documentation page is part of the component, not a follow-up, and it serves humans
+and agents from the same source. The table below is **the standard every component page is
+written to** — the shape, the order, and the authority each section is generated from. Approved
+2026-09-07 (audit `08-docs-structure.md` §2; decisions D19, D26, DD-1…DD-5).
+
+**It is the target, not a report on the current tree.** The generated sections shipped as MDX
+components in 0.7.0 and are placed on three reference pages (button, dialog, data-grid); the
+remaining pages are migrated to this shape in the following release, and the section headings move
+from `## Installation` to `## Install` in that same atomic change. What already holds everywhere is
+the API Reference (row 7, rendered flat and expanded on all 110 pages) and the markdown export
+below. Read this table when writing or changing a page; do not read it as a description of what
+every page contains today.
+
+| #   | Section                          | Required content                                                                                                                                                                                                                                                         | Source of truth                                                 |
+| --- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| 0   | **Frontmatter**                  | `title`, `description`, `preview` (hero fixture), `registry` (item name), `status` (`stable \| preview \| deprecated`), `since` (version), `a11y` (pattern name)                                                                                                         | validated by `apps/docs/source.config.ts`                       |
+| 1   | **Install**                      | one `Steps` block: the `shadcn add` command, the item's `registryDependencies`, and the sanctioned engines it pulls in. The registry-auth notice is a site `Banner`, shown ONCE, never per page                                                                          | generated from `registry.json`                                  |
+| 2   | **Usage**                        | the minimal import plus one canonical snippet — the "if you copy one thing" example, ≤12 lines                                                                                                                                                                           | hand-written                                                    |
+| 3   | **Scope** _(composites)_         | three bullets at most: owns / does not own / compose with                                                                                                                                                                                                                | hand-written; required when the contract marks it composite     |
+| 4   | **Anatomy** _(compounds)_        | every exported part with the `data-slot` names it renders                                                                                                                                                                                                                | generated from the contract's `dataAttributes`                  |
+| 5   | **Examples**                     | one `ComponentPreview` per fixture, each a contract-lane route; the fixture source appears in the markdown export                                                                                                                                                        | `components/preview/<name>.tsx`                                 |
+| 6   | **Playground** _(where curated)_ | the curated `PropsPlayground`. The Story explorer is sanctioned ONLY where no curated playground exists — never both on one page (DD-3)                                                                                                                                  | `components/*-playground.tsx`                                   |
+| 7   | **API Reference**                | one flat, expanded table per exported part — name · the literal union · default · description. Own props only; a part with no own props gets ONE sentence, never placeholder rows. A second small table lists the `data-*` attributes and CSS variables the part exposes | `fumadocs-typescript` + the contract's `dataAttributes`         |
+| 8   | **Accessibility**                | the pattern name, the keyboard table, screen-reader announcements, and the states the lanes exercise                                                                                                                                                                     | keyboard table hand-written; states generated from the contract |
+| 9   | **Do / Don't**                   | at least two pairs                                                                                                                                                                                                                                                       | `DoDont`                                                        |
+| 10  | **Changelog** _(generated)_      | the item's entries, filtered by name                                                                                                                                                                                                                                     | `/CHANGELOG.md`                                                 |
+
+Nothing follows Do / Don't except the generated Changelog. "Notes", "Voice" and "How it works"
+fold into Usage or Scope. Marketing-only leaves skip Scope, Anatomy and Playground and keep the
+rest.
+
+Row 6 is a permission, not a requirement: a page carries a curated playground, or the Story
+explorer where none exists, or **neither** — and `tooling/verify-docs-export.mjs` enforces only
+"never both, and an Explorer always wrapped". Measured 2026-09-07: 45 curated · 6 Explorer ·
+59 neither · 0 both.
+
+**Humans and agents read the same page.** Every MDX component renders to markdown for the per-page
+`.md` route and `llms-full.txt`: the fixture source, the flat prop tables, the install steps and
+the do/don't pairs are all there, and a browser-only surface is replaced by an explicit one-line
+note rather than dropped silently. `tooling/verify-docs-export.mjs` fails the build on any JSX tag
+that survives outside a code fence, any unresolved placeholder, and any empty API table.
+`llms.txt` additionally carries the registry roster — every installable item with its page and its
+`shadcn add` target — and the public skill roster.
+
+**The docs shell obeys this system end to end (DD-1).** Fumadocs' chrome and the typography plugin
+are compiled against Tailwind's stock theme, so their weights, radii and shadows are remapped to
+system values once in `apps/docs/app/global.css`, and `design-lint --docs-shell --emitted-css`
+reads the BUILT stylesheet to prove it — source linting cannot see a value this repo never wrote.
+`apps/docs/vrt/docs-shell.spec.ts` asserts the rest in a browser: the product type scope, the
+weight ladder as computed, the fullscreen focus trap, the skip link, and named tab stops.
+
 ---
 
 > **Provenance.** This is the canonical v2 specification for the finalized token system (v1, the pre-overhaul

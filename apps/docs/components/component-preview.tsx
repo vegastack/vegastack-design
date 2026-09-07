@@ -1,9 +1,8 @@
 import { Tab, Tabs } from "fumadocs-ui/components/tabs";
 import { CodeBlock, Pre } from "fumadocs-ui/components/codeblock";
 import { highlight } from "fumadocs-core/highlight";
-import { readFileSync, existsSync } from "node:fs";
 import * as Preview from "./preview";
-import { CopyPromptButton } from "./copy-prompt";
+import { readFixtureSource } from "@/lib/fixture-source";
 import {
   PreviewControlsProvider,
   FrameWidthToggle,
@@ -11,45 +10,40 @@ import {
   PreviewFrameContainer,
 } from "./preview-controls";
 
-// Only `components/preview/<name>.tsx` demos map 1:1 onto a registry item (`file` can also point
-// at a block page or a shared non-component demo file — `dashboard-01`, `utilities`, `wrapper` —
-// which have no `shadcn add` target). Gate on BOTH the naming convention and the registry item
-// actually existing, so "Copy Prompt" only ever appears where an install command is real.
-const PREVIEW_FILE_PATTERN = /^components\/preview\/([\w-]+)\.tsx$/;
-
-function getRegistryComponentName(file?: string): string | undefined {
-  if (!file) return undefined;
-  const match = PREVIEW_FILE_PATTERN.exec(file);
-  if (!match) return undefined;
-  const [, name] = match;
-  // Resolved relative to `apps/docs` (this file's own `readFileSync(file, …)` below proves that
-  // cwd — `file="../../packages/ui/registry/blocks/dashboard-01/page.tsx"` elsewhere in the repo
-  // already round-trips through it).
-  return existsSync(`../../packages/ui/registry/ui/${name}.tsx`)
-    ? name
-    : undefined;
-}
-
 /**
- * `<ComponentPreview name="buttonVariants" file="components/preview/index.tsx" />`
- * — Preview ⇄ Code toggle. Renders the live example (from ./preview) above the
- * highlighted source, read from disk at build time (compatible with output:'export').
+ * `<ComponentPreview name="buttonVariants" file="components/preview/button.tsx" />`
+ * — Preview ⇄ Code toggle. Renders the live example (from ./preview) above the highlighted
+ * source of THAT fixture — the import block plus the one named function, read from disk at build
+ * time through `readFixtureSource` (compatible with output:'export'). The markdown export inlines
+ * the identical snippet, so a reader and an agent see the same code (DS-01).
  *
- * The `Tabs` `label` slot carries a toolbar (docs-infra Phase D): a responsive-frame width
- * toggle (always) and a "Copy Prompt" button (only when `file` resolves to a real registry
- * component — see {@link getRegistryComponentName}). Both live in `PreviewControlsProvider` so
- * the width toggle and the frame it drives — separate subtrees of the same `<Tabs>` — share
- * state. This renders once per `<ComponentPreview>` call, so a page with several previews of the
- * same component (e.g. Button's Variants/Sizes/States/Matrix) shows the toolbar that many times —
- * page.tsx-level placement (once per page, next to the existing "Copy Markdown" button) is out of
- * scope here (`apps/docs/app/**` is owned by another phase).
+ * The `Tabs` `label` slot carries the per-frame controls: the responsive-frame width toggle and
+ * the fullscreen toggle (DD-2). "Copy Prompt" lives once in the page header, not here (DC-04).
+ * Without `file` (the frontmatter hero, DC-05) only the "Preview" tab renders, in the same frame
+ * as every other example.
+ *
+ * `hero` suppresses the `data-vrt-preview` key, and that is load-bearing rather than cosmetic.
+ * That attribute is the probe key for two lanes, and `contracts.spec.ts` probes
+ * `page.locator("[data-vrt-preview]").first()` — so the fixture that gets measured is simply the
+ * FIRST one carrying the key in DOM order, per route. Nothing chooses it: not
+ * `component-contracts.json`, not the page frontmatter. The hero renders above every body example,
+ * so stamping it would not add coverage — it would silently MOVE the blocking gate from the
+ * documented example fixture to the hero, on all 110 routes, as a side effect of a chrome change.
+ * The hero therefore renders identical chrome and stays out of the probe, which keeps the measured
+ * fixture exactly the one `main` measured. Measured: moving it fails timeline, data-grid and
+ * text-edit on the 24px target floor — real, previously unmeasured defects, recorded in
+ * `docs/ledger/bugs.md` (2026-09-07) with the one-line reproduction, for the component batches to
+ * fix. Probing EVERY contract-listed fixture instead of `.first()` is the root fix, raised for
+ * G1-b.
  */
 export async function ComponentPreview({
   name,
   file,
+  hero = false,
 }: {
   name: string;
   file?: string;
+  hero?: boolean;
 }) {
   const Comp = Preview[name as keyof typeof Preview] as
     (() => React.ReactNode) | undefined;
@@ -62,22 +56,17 @@ export async function ComponentPreview({
 
   let codeNode: React.ReactNode = null;
   if (file) {
-    const source = readFileSync(file, "utf8");
-    codeNode = await highlight(source, {
+    codeNode = await highlight(readFixtureSource(file, name), {
       lang: "tsx",
       themes: { light: "github-light", dark: "github-dark" },
       components: { pre: Pre },
     });
   }
 
-  const componentName = getRegistryComponentName(file);
   const toolbar = (
     <div className="flex items-center gap-2">
       <FrameWidthToggle />
       <FullscreenToggle />
-      {componentName ? (
-        <CopyPromptButton componentName={componentName} />
-      ) : null}
     </div>
   );
 
@@ -85,10 +74,13 @@ export async function ComponentPreview({
     <PreviewControlsProvider>
       <Tabs items={file ? ["Preview", "Code"] : ["Preview"]} label={toolbar}>
         <Tab value="Preview">
-          {/* Product type-scale scope (T1/CX-6): demos render on the product ladder while the
-              surrounding docs shell stays on the doc ladder. Portaled popups re-enter via
-              [data-base-ui-portal] in global.css. */}
-          <div className="vs-type-product" data-vrt-preview={name}>
+          {/* Product type-scale scope (T1/CX-6, DC-01): demos render on the product ladder —
+              font-size included — while the surrounding docs shell stays on the doc ladder.
+              Portaled popups re-enter via [data-base-ui-portal] in global.css. */}
+          <div
+            className="vs-type-product"
+            data-vrt-preview={hero ? undefined : name}
+          >
             <PreviewFrameContainer>
               <Comp />
             </PreviewFrameContainer>

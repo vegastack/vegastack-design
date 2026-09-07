@@ -15,6 +15,103 @@ Every judgment-call / assumption / best-guess decision made instead of pausing �
 - **P1's "bordered elements hover by border, not fill" is deliberately NOT applied to outline buttons and cards.** Issue #32's Do-list §3 explicitly maps those sites to the `surfaceInteractive` recipe (a fill), Button variant mechanism is F2's scope, and a 1px hairline moving is below the state probe's visibility threshold — a border-only hover would have left `hover-invisible` non-zero, which is F1's acceptance criterion. **Flagged for MK:** if the intent was genuinely border-only hover on bordered controls, that is a one-line change in F2.
 - **Status text inks were re-tuned to buy the soft pressed rung headroom.** Adding `<family>-subtle-active` (a second wash rung over `-subtle`) put `destructive/success/warning/info-text` at or under AA on their own pressed fill — light blue was worst at 4.50:1 on hover with nothing left. Each ink moved 0.015–0.04 L (darker in light, lighter in dark). Every other pair only gains contrast. This was not in the issue text but is forced by it: without the move there is no pressed step on soft buttons.
 
+## 2026-09-07 — Do1-a judgment calls (docs canon, chrome, export gates)
+
+**1. `dataAttributes` is extracted from source, not hand-typed.**
+
+- **Options:** (a) hand-write the `data-*`/CSS-variable inventory into 110 contract records;
+  (b) extract it from the canonical source in the generator and have the verifier check it.
+- **Why (b):** 331 parts and 493 attributes is more than anyone will keep correct by hand, and a
+  hand-typed inventory that drifts is worse than none — it documents attributes the component
+  stopped rendering. `verify-component-contracts.mjs` now walks each exported part's own function
+  body through the TypeScript AST, records literal values (and `values: []` where the value mirrors
+  a prop), and fails when the field drifts; `--write-data-attributes` resyncs it. The field stays in
+  the contract so the docs read one authority, but no human types it.
+- **Revisit:** attributes rendered by an unexported helper a part composes are attributed to the
+  helper, so they do not appear. That is deliberate — the contract records what a part's own
+  function paints — but if a component ever moves its `data-slot` into a shared helper the table
+  will silently shrink.
+
+**2. The Explorer policy (DD-3) is applied per page, not by deleting every Explorer.**
+
+- **Decision:** the 24 Story files whose pages already carry a curated `PropsPlayground` are
+  removed; the 6 pages with no playground (audio-player, label, marker, password-input, slider,
+  video-player) keep theirs. Verified by cross-checking the deleted set against every page matching
+  a `*Playground` usage: within the 30 pages that had a Story file, the two sets are exact
+  complements.
+- **Measured, across all 110 component pages: 45 curated playground · 6 Explorer · 59 neither ·
+  0 both.** "Neither" is the canon, not a gap: canon row 6 reads "Playground _(where curated)_" and
+  DD-2/3 sanctions the Explorer only where no curated playground exists — a permission, not a
+  requirement. An earlier draft of this entry said "no page left with neither", which was false and
+  would have read as an obligation to put an interactive surface on all 110 pages.
+- **Mechanism, not just state:** `verify-docs-export.mjs` fails any page carrying BOTH and any
+  Explorer rendered outside `<StoryExplorer>`, with negative self-tests for each and an accepting
+  fixture for "neither", so the policy holds as Do1-b migrates the rest rather than depending on
+  this one sweep. It does not, and must not, require either.
+
+**3. The "## Installation" heading is not renamed here.**
+
+- **Options:** (a) rename it to the canon's "Install" on the three reference pages and teach
+  `verify-component-contracts.mjs` to accept either during the migration; (b) leave the heading and
+  change only the section's CONTENT to the generated form.
+- **Why (b):** (a) means a dual-accept transitional rule — the kind of shim the audit mandate
+  rejects — living in the verifier for a whole wave. The rename is one atomic Do1-b change across
+  all 110 pages plus the verifier plus AGENTS.md. The valuable proof here is that the section is
+  GENERATED, which (b) demonstrates fully.
+
+**4. The emitted-CSS lane judges what reaches the page, not which rules exist.**
+
+- Two findings on the first run were not defects. `@tailwindcss/typography` writes its heavy
+  heading weights inside `:where()`, which contributes zero specificity — an overridable default,
+  and unfixable at its source since the plugin owns it. And `.bg-neutral-900` exists in the built
+  CSS only because Tailwind scans the foundations pages, which document that class as a Don't; no
+  element carries it.
+- **Decision:** the lane clears a `:where()` default only when the stylesheet also carries a real
+  override for that element, and reports a palette utility only when it appears in a `class=`
+  attribute of the built HTML. Both keep the gate falsifiable — delete the override in `global.css`
+  and all ten findings return — while refusing to report the documentation of a rule as a violation
+  of it.
+
+**5. Two transitional aliases are kept for Do1-b, deliberately and recorded here.**
+
+- `AutoTypeTable: ApiTable` in the MDX map, so the 107 pages that still author the legacy name
+  render the new flat table without a body rewrite; and the slug-inferred `registry` frontmatter
+  fallback in `app/docs/[[...slug]]/page.tsx`, so a page that has not yet declared `registry:` still
+  resolves its item.
+- **Why they are not shims in the mandate's sense:** each exists to let ONE atomic rename happen in
+  Do1-b (rename the usages on all 110 pages; make `registry` required in `source.config.ts`) instead
+  of a 110-page rewrite inside this batch. **Do1-b must remove both**; its acceptance requires it.
+  No gate is added here to force their removal — a gate that fails on the current tree is not a
+  gate, and Do1-b's own acceptance is the enforcement.
+
+**6. The fullscreen dialog's background isolation is asserted as `aria-hidden`, not `inert`.**
+
+- **Measured while writing the browser assertion:** `@base-ui/react` 1.6.0 isolates the background
+  with `aria-hidden="true"` plus a `data-base-ui-inert` marker, and does NOT set the `inert`
+  attribute on outside elements. `FloatingFocusManager.mjs:340-345` calls
+  `markOthers(insideElements, { ariaHidden: modal, mark: false })` and then `markOthers(floating…)`
+  for the marker; `inert` is a supported option of `markOthers` (`markOthers.mjs:147-157`) that Base
+  UI never passes `true`. An assertion on `[inert]` therefore fails against a correctly-working
+  modal dialog — it did, in all four Chromium projects, before this was measured.
+- **Options:** (a) assert the mechanism Base UI actually implements; (b) add `inert` ourselves in
+  `dialog.tsx` so the stronger attribute is present.
+- **Why (a):** modality here rests on the focus trap + `aria-hidden` + the backdrop, which is
+  complete for keyboard and assistive tech; `inert` would additionally block pointer and
+  find-in-page, a marginal gain. And `dialog.tsx` is a registry source Do1-a deliberately does not
+  touch — a component change smuggled in through a docs batch is exactly the collision the wave
+  plan exists to prevent. The prose that claimed `inert` (the spec comment and
+  `preview-controls.tsx`) is corrected to say what is true.
+- **Revisit:** if a component batch that owns Dialog wants pointer/find-in-page isolation too, the
+  assertion tightens to `[inert]` in the same commit.
+
+**7. `<Wrapper>` is unwrapped from the emitted fixture source.**
+
+- The extractor drops the docs-only `./wrapper` import, which left `<Wrapper>` in the snippet
+  referencing an undefined component — the code shown to humans and agents did not compile. It is
+  now replaced by its children, or by a fragment where the frame has sibling children (the frame is
+  usually the returned root, so a plain unwrap would produce adjacent JSX with no parent). Verified
+  across all 446 `ComponentPreview` usages: zero extraction errors, zero `Wrapper` residue.
+
 ##
 
 ## 2026-07-24 — GitHub Team approval boundary

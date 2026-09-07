@@ -35,6 +35,49 @@
   --font-family-serif: var(--font-newsreader), ui-serif, Georgia, serif;
 }
 
+/* ── The docs shell obeys the system it documents (DD-1, DC-02) ──────────────────────────────
+   Fumadocs' chrome is authored against Tailwind's stock theme: headings, sidebar group titles and
+   `<strong>` at weight 600/700, `rounded-xl`/`rounded-2xl` cards, `shadow-sm/md/lg/2xl` on
+   popovers. The system's ladders are 400/500, radius capped at `lg`, and exactly two shadows —
+   so the stock theme values are remapped HERE, once, for the whole shell. Fumadocs' own classes
+   keep working; they now resolve to system values. `design-lint --docs-shell --emitted-css`
+   reads the built CSS and fails if any of these remaps goes missing. */
+:root {
+  --font-weight-semibold: 500;
+  --font-weight-bold: 500;
+  --radius-xl: var(--radius-lg);
+  --radius-2xl: var(--radius-lg);
+  /* `@fumadocs/story`'s arg-form validation copy is the one chrome surface authored in a raw
+     palette class (`text-red-400/80`); the palette var itself is re-pointed at the system's
+     destructive ink so the rendered colour is on-system. */
+  --color-red-400: var(--destructive-text);
+}
+
+/* `@tailwindcss/typography` writes LITERAL weights into `.prose :where(…)` — h1 800, h1 strong 900,
+   h2/h3/h4/dt/thead-th 600, and the `hN strong` pairs at 700/800 — so remapping
+   `--font-weight-semibold/bold` above cannot reach a single MDX heading. Measured in the emitted
+   stylesheet: 10 selectors off the 400/500 ladder. The plugin's rules are zero-specificity
+   (`:where()`), so one `.prose :is(…)` rule wins on specificity alone, in either source order.
+   `design-lint --docs-shell --emitted-css` re-reads the built CSS and fails if any literal weight
+   above 500 reappears. */
+.prose :is(h1, h2, h3, h4, h5, h6, dt, thead th),
+.prose :is(h1, h2, h3, h4, h5, h6) strong {
+  font-weight: var(--font-weight-medium);
+}
+
+/* Shadows are INLINED by Tailwind at build time (`.shadow-md { --tw-shadow: 0 4px 6px … }`), so a
+   runtime `:root` remap cannot reach them — the theme value itself is overridden. Flat surfaces
+   carry no shadow; floating surfaces carry the one overlay shadow. */
+@theme inline {
+  --shadow-2xs: 0 0 transparent;
+  --shadow-xs: 0 0 transparent;
+  --shadow-sm: 0 0 transparent;
+  --shadow-md: 0 0 transparent;
+  --shadow-lg: var(--shadow-overlay);
+  --shadow-xl: var(--shadow-overlay);
+  --shadow-2xl: var(--shadow-overlay);
+}
+
 /* ── Two-layer type-scale boundary (plan v5 T1, CX-6) ─────────────────────────────────────────
    The token theme remaps Tailwind's `text-*` ladder to the PRODUCT scale (xs 11 → 3xl 24,
    base = 14) via the `--type-*` binding vars. The DOCS SHELL is deliberately NOT a product
@@ -66,6 +109,11 @@
 }
 .vs-type-product,
 [data-base-ui-portal] {
+  /* DC-01 / DD-5: the scope re-binds the ladder AND sets the inherited base, so a demo (or a
+     portaled popup) that relies on inheritance renders at the product 14/21, not the 15/28
+     prose base of the Fumadocs page around it. Asserted by `vrt/docs-shell.spec.ts`. */
+  font-size: var(--type-product-base);
+  line-height: var(--type-product-base--line-height);
   --type-xs: var(--type-product-xs);
   --type-xs--line-height: var(--type-product-xs--line-height);
   --type-sm: var(--type-product-sm);
@@ -84,6 +132,21 @@
 
 html {
   scrollbar-gutter: stable;
+}
+
+/* API Reference tables (DS-02): flat and expanded, every row visible. Prose already styles
+   `table`; this only stops long literal unions from forcing horizontal scroll. */
+.vs-api-table {
+  width: 100%;
+  table-layout: auto;
+}
+.vs-api-table td,
+.vs-api-table th {
+  vertical-align: top;
+}
+.vs-api-table code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 /* Scroll progress is written once on the sentence and distributed across its

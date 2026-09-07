@@ -317,7 +317,27 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "marker"
+      "previewModule": "marker",
+      "dataAttributes": {
+        "MarkerIcon": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["marker-icon"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MarkerContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["marker-content"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "message",
@@ -509,7 +529,67 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "message"
+      "previewModule": "message",
+      "dataAttributes": {
+        "MessageGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["message-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "Message": {
+          "attributes": [
+            {
+              "name": "data-align",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["message"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageAvatar": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["message-avatar"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["message-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["message-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageFooter": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["message-footer"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "bubble",
@@ -711,7 +791,52 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "bubble"
+      "previewModule": "bubble",
+      "dataAttributes": {
+        "BubbleGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["bubble-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "Bubble": {
+          "attributes": [
+            {
+              "name": "data-align",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["bubble"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "BubbleReactions": {
+          "attributes": [
+            {
+              "name": "data-align",
+              "values": []
+            },
+            {
+              "name": "data-side",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["bubble-reactions"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "message-scroller",
@@ -927,7 +1052,66 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "message-scroller"
+      "previewModule": "message-scroller",
+      "dataAttributes": {
+        "MessageScroller": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["message-scroller"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageScrollerViewport": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["message-scroller-viewport"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageScrollerContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["message-scroller-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageScrollerItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["message-scroller-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageScrollerButton": {
+          "attributes": [
+            {
+              "name": "data-direction",
+              "values": []
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["message-scroller-button"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "attachment",
@@ -1261,7 +1445,97 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "attachment"
+      "previewModule": "attachment",
+      "dataAttributes": {
+        "Attachment": {
+          "attributes": [
+            {
+              "name": "data-orientation",
+              "values": []
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["attachment"]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "AttachmentGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["attachment-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AttachmentMedia": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["attachment-media", "attachment-media-overlay"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "AttachmentContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["attachment-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AttachmentTitle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["attachment-title"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AttachmentDescription": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["attachment-description"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AttachmentProgress": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["attachment-progress"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AttachmentActions": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["attachment-actions"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "tool-call-chip",
@@ -1350,7 +1624,18 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "tool-call-chip"
+      "previewModule": "tool-call-chip",
+      "dataAttributes": {
+        "ToolCallChip": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["tool-call-chip-meta"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "button",
@@ -1509,7 +1794,34 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "button"
+      "previewModule": "button",
+      "dataAttributes": {
+        "Button": {
+          "attributes": [
+            {
+              "name": "data-finish",
+              "values": ["lit"]
+            },
+            {
+              "name": "data-loading",
+              "values": [""]
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["button"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "badge",
@@ -1630,7 +1942,8 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "badge"
+      "previewModule": "badge",
+      "dataAttributes": {}
     },
     {
       "name": "tag-group",
@@ -1748,7 +2061,35 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "tag-group"
+      "previewModule": "tag-group",
+      "dataAttributes": {
+        "Tag": {
+          "attributes": [
+            {
+              "name": "data-hue",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["tag"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "TagGroup": {
+          "attributes": [
+            {
+              "name": "data-expanded",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["tag-group", "tag-group-overflow"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "stat",
@@ -1938,7 +2279,62 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "stat"
+      "previewModule": "stat",
+      "dataAttributes": {
+        "Stat": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["stat"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "StatLabel": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["stat-label"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "StatValue": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["stat-value"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "StatEmpty": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["stat-empty"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "StatDelta": {
+          "attributes": [
+            {
+              "name": "data-intent",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["stat-delta"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "alert",
@@ -2114,7 +2510,58 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "alert"
+      "previewModule": "alert",
+      "dataAttributes": {
+        "Alert": {
+          "attributes": [
+            {
+              "name": "data-intent",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "alert",
+                "alert-content",
+                "alert-dismiss",
+                "alert-icon"
+              ]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "AlertTitle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["alert-title"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AlertDescription": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["alert-description"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AlertActions": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["alert-actions"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "input",
@@ -2215,7 +2662,22 @@
         "vrt": "required",
         "crossBrowserSmoke": "selected"
       },
-      "previewModule": "input"
+      "previewModule": "input",
+      "dataAttributes": {
+        "Input": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["input", "input-group", "input-prefix", "input-suffix"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "field",
@@ -2520,7 +2982,112 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "field"
+      "previewModule": "field",
+      "dataAttributes": {
+        "FieldRoot": {
+          "attributes": [
+            {
+              "name": "data-orientation",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["field"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldLabel": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-label"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldControl": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-control"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldDescription": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-description"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldError": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-error"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldSuccess": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-success"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldSet": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-set"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldLegend": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-legend"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "Field": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-header", "field-label-action"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "dialog",
@@ -2795,7 +3362,94 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "dialog"
+      "previewModule": "dialog",
+      "dataAttributes": {
+        "DialogTrigger": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dialog-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DialogContent": {
+          "attributes": [
+            {
+              "name": "data-placement",
+              "values": []
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "dialog-backdrop",
+                "dialog-close",
+                "dialog-content",
+                "dialog-viewport"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DialogHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dialog-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DialogFooter": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dialog-footer"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DialogTitle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dialog-title"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DialogDescription": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dialog-description"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DialogClose": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dialog-close-action"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DialogTitleBar": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dialog-title-bar"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "select",
@@ -3075,7 +3729,103 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "select"
+      "previewModule": "select",
+      "dataAttributes": {
+        "Select": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["select"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SelectValue": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["select-value"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SelectGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["select-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SelectTrigger": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["select-icon", "select-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SelectList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["select-list"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SelectContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "select-content",
+                "select-positioner",
+                "select-scroll-down",
+                "select-scroll-up"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SelectItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "select-item",
+                "select-item-indicator",
+                "select-item-text"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SelectLabel": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["select-label"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SelectSeparator": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["select-separator"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "combobox",
@@ -3558,7 +4308,174 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "combobox"
+      "previewModule": "combobox",
+      "dataAttributes": {
+        "Combobox": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxValue": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-value"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxInput": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["combobox-input"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxPopupInput": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-popup-input", "combobox-popup-input-wrapper"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxInputGroup": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["combobox-input-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxTrigger": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["combobox-icon", "combobox-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-list"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-content", "combobox-positioner"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-item", "combobox-item-indicator"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxGroupLabel": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-group-label"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxEmpty": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-empty"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxStatus": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-status"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxClear": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-clear"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxChips": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-chips"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxChip": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-chip"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComboboxChipRemove": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["combobox-chip-remove"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "tooltip",
@@ -3737,7 +4654,58 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "tooltip"
+      "previewModule": "tooltip",
+      "dataAttributes": {
+        "Tooltip": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["tooltip"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "TooltipTrigger": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["tooltip-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "TooltipContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "tooltip-content",
+                "tooltip-positioner",
+                "tooltip-viewport"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "TooltipArrow": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["tooltip-arrow"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "TooltipKbd": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["tooltip-kbd"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "dropdown-menu",
@@ -4102,7 +5070,128 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "dropdown-menu"
+      "previewModule": "dropdown-menu",
+      "dataAttributes": {
+        "DropdownMenuTrigger": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuRadioGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-radio-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "dropdown-menu-content",
+                "dropdown-menu-positioner",
+                "dropdown-menu-viewport"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuItem": {
+          "attributes": [
+            {
+              "name": "data-inset",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-item"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuCheckboxItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-checkbox-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuRadioItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-radio-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuLabel": {
+          "attributes": [
+            {
+              "name": "data-inset",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-label"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuSeparator": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-separator"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuShortcut": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-shortcut"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DropdownMenuSubTrigger": {
+          "attributes": [
+            {
+              "name": "data-inset",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["dropdown-menu-sub-trigger"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "tabs",
@@ -4269,7 +5358,49 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "tabs"
+      "previewModule": "tabs",
+      "dataAttributes": {
+        "Tabs": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["tabs"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "TabsList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["tabs-indicator", "tabs-list"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "TabsTrigger": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["tabs-trigger", "tabs-trigger-count"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "TabsContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["tabs-content"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "card",
@@ -4479,7 +5610,76 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "card"
+      "previewModule": "card",
+      "dataAttributes": {
+        "Card": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["card"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CardHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["card-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CardTitle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["card-title"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CardDescription": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["card-description"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CardAction": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["card-action"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CardContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["card-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CardFooter": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["card-footer"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "kbd",
@@ -4604,7 +5804,31 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "kbd"
+      "previewModule": "kbd",
+      "dataAttributes": {
+        "Kbd": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["kbd"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "KbdGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["kbd-group"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "skeleton",
@@ -4739,7 +5963,35 @@
         "vrt": "required",
         "crossBrowserSmoke": "selected"
       },
-      "previewModule": "skeleton"
+      "previewModule": "skeleton",
+      "dataAttributes": {
+        "Skeleton": {
+          "attributes": [
+            {
+              "name": "data-count",
+              "values": []
+            },
+            {
+              "name": "data-shape",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["skeleton", "skeleton-line"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SkeletonReveal": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["skeleton-reveal-content"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "spinner",
@@ -4843,7 +6095,22 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "spinner"
+      "previewModule": "spinner",
+      "dataAttributes": {
+        "Spinner": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["spinner"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "separator",
@@ -4940,7 +6207,18 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "separator"
+      "previewModule": "separator",
+      "dataAttributes": {
+        "Separator": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["separator"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "empty",
@@ -5231,7 +6509,101 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "empty"
+      "previewModule": "empty",
+      "dataAttributes": {
+        "Empty": {
+          "attributes": [
+            {
+              "name": "data-bordered",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["empty"]
+            },
+            {
+              "name": "data-surface",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "EmptyHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["empty-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "EmptyMedia": {
+          "attributes": [
+            {
+              "name": "data-intent",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["empty-media"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "EmptyTitle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["empty-title"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "EmptyDescription": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["empty-description"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "EmptyContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["empty-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "EmptyIllustration": {
+          "attributes": [
+            {
+              "name": "data-name",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["empty-illustration"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "EmptyValue": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["empty-value"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "checkbox",
@@ -5359,7 +6731,22 @@
         "vrt": "required",
         "crossBrowserSmoke": "selected"
       },
-      "previewModule": "checkbox"
+      "previewModule": "checkbox",
+      "dataAttributes": {
+        "Checkbox": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["checkbox", "checkbox-indicator"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "switch",
@@ -5481,7 +6868,22 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "switch"
+      "previewModule": "switch",
+      "dataAttributes": {
+        "Switch": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["switch", "switch-thumb"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "avatar",
@@ -5621,7 +7023,31 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "avatar"
+      "previewModule": "avatar",
+      "dataAttributes": {
+        "Avatar": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["avatar", "avatar-fallback", "avatar-image"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AvatarGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["avatar-group"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "label",
@@ -5709,7 +7135,22 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "label"
+      "previewModule": "label",
+      "dataAttributes": {
+        "Label": {
+          "attributes": [
+            {
+              "name": "data-required",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["label"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "textarea",
@@ -5809,7 +7250,22 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "textarea"
+      "previewModule": "textarea",
+      "dataAttributes": {
+        "Textarea": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["textarea"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "radio-group",
@@ -5949,7 +7405,35 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "radio-group"
+      "previewModule": "radio-group",
+      "dataAttributes": {
+        "RadioGroup": {
+          "attributes": [
+            {
+              "name": "data-orientation",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["radio-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RadioGroupItem": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["radio-group-indicator", "radio-group-item"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "slider",
@@ -6038,7 +7522,24 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "slider"
+      "previewModule": "slider",
+      "dataAttributes": {
+        "Slider": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "slider",
+                "slider-control",
+                "slider-indicator",
+                "slider-thumb",
+                "slider-track"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "toggle",
@@ -6142,7 +7643,22 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "toggle"
+      "previewModule": "toggle",
+      "dataAttributes": {
+        "Toggle": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["toggle"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "toggle-group",
@@ -6256,7 +7772,35 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "toggle-group"
+      "previewModule": "toggle-group",
+      "dataAttributes": {
+        "ToggleGroup": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": ["default"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["toggle-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ToggleGroupItem": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["toggle-group-item"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "segmented",
@@ -6398,7 +7942,35 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "segmented"
+      "previewModule": "segmented",
+      "dataAttributes": {
+        "Segmented": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["segmented"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SegmentedItem": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["segmented-item"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "accordion",
@@ -6552,7 +8124,45 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "accordion"
+      "previewModule": "accordion",
+      "dataAttributes": {
+        "Accordion": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["accordion"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AccordionItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["accordion-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AccordionTrigger": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["accordion-header", "accordion-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AccordionContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["accordion-content"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "collapsible",
@@ -6683,7 +8293,36 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "collapsible"
+      "previewModule": "collapsible",
+      "dataAttributes": {
+        "Collapsible": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["collapsible"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CollapsibleTrigger": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["collapsible-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CollapsibleContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["collapsible-content"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "popover",
@@ -6890,7 +8529,67 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "popover"
+      "previewModule": "popover",
+      "dataAttributes": {
+        "PopoverTrigger": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["popover-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PopoverContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "popover-content",
+                "popover-positioner",
+                "popover-viewport"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PopoverClose": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["popover-close"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PopoverArrow": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["popover-arrow"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PopoverTitle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["popover-title"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PopoverDescription": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["popover-description"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "alert-dialog",
@@ -7165,7 +8864,93 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "alert-dialog"
+      "previewModule": "alert-dialog",
+      "dataAttributes": {
+        "AlertDialogTrigger": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["alert-dialog-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AlertDialogContent": {
+          "attributes": [
+            {
+              "name": "data-intent",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "alert-dialog-backdrop",
+                "alert-dialog-content",
+                "alert-dialog-viewport"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AlertDialogHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["alert-dialog-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AlertDialogFooter": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["alert-dialog-footer"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AlertDialogTitle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["alert-dialog-title"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AlertDialogDescription": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["alert-dialog-description"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AlertDialogAction": {
+          "attributes": [
+            {
+              "name": "data-intent",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["alert-dialog-action"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AlertDialogCancel": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["alert-dialog-cancel"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "progress",
@@ -7278,7 +9063,22 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "progress"
+      "previewModule": "progress",
+      "dataAttributes": {
+        "Progress": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["progress", "progress-indicator", "progress-track"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "breadcrumb",
@@ -7535,7 +9335,72 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "breadcrumb"
+      "previewModule": "breadcrumb",
+      "dataAttributes": {
+        "Breadcrumb": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["breadcrumb"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "BreadcrumbList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["breadcrumb-list"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "BreadcrumbItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["breadcrumb-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "BreadcrumbPage": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["breadcrumb-page"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "BreadcrumbSeparator": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["breadcrumb-separator"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "BreadcrumbEllipsis": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["breadcrumb-ellipsis"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "BreadcrumbCollapsed": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["breadcrumb-collapsed-trigger"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "navigation-menu",
@@ -7767,7 +9632,85 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "navigation-menu"
+      "previewModule": "navigation-menu",
+      "dataAttributes": {
+        "NavigationMenu": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["navigation-menu"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "NavigationMenuList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["navigation-menu-list"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "NavigationMenuItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["navigation-menu-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "NavigationMenuTrigger": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["navigation-menu-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "NavigationMenuContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["navigation-menu-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "NavigationMenuLink": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["navigation-menu-link"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "NavigationMenuPanel": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "navigation-menu-popup",
+                "navigation-menu-positioner",
+                "navigation-menu-viewport"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "NavigationMenuGridLink": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["navigation-menu-grid-link"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "sheet",
@@ -8021,7 +9964,81 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "sheet"
+      "previewModule": "sheet",
+      "dataAttributes": {
+        "SheetTrigger": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sheet-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SheetContent": {
+          "attributes": [
+            {
+              "name": "data-side",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "sheet-backdrop",
+                "sheet-close",
+                "sheet-content",
+                "sheet-viewport"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SheetHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sheet-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SheetFooter": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sheet-footer"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SheetTitle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sheet-title"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SheetDescription": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sheet-description"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SheetClose": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sheet-close-action"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "hover-card",
@@ -8171,7 +10188,49 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "hover-card"
+      "previewModule": "hover-card",
+      "dataAttributes": {
+        "HoverCard": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["hover-card"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "HoverCardTrigger": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["hover-card-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "HoverCardContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "hover-card-content",
+                "hover-card-positioner",
+                "hover-card-viewport"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "HoverCardArrow": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["hover-card-arrow"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "context-menu",
@@ -8536,7 +10595,124 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "context-menu"
+      "previewModule": "context-menu",
+      "dataAttributes": {
+        "ContextMenuTrigger": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["context-menu-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ContextMenuGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["context-menu-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ContextMenuRadioGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["context-menu-radio-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ContextMenuContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["context-menu-content", "context-menu-positioner"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ContextMenuItem": {
+          "attributes": [
+            {
+              "name": "data-inset",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["context-menu-item"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "ContextMenuCheckboxItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["context-menu-checkbox-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ContextMenuRadioItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["context-menu-radio-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ContextMenuLabel": {
+          "attributes": [
+            {
+              "name": "data-inset",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["context-menu-label"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ContextMenuSeparator": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["context-menu-separator"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ContextMenuShortcut": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["context-menu-shortcut"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ContextMenuSubTrigger": {
+          "attributes": [
+            {
+              "name": "data-inset",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["context-menu-sub-trigger"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "pagination",
@@ -8785,7 +10961,54 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "pagination"
+      "previewModule": "pagination",
+      "dataAttributes": {
+        "Pagination": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["pagination"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PaginationContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["pagination-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PaginationItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["pagination-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PaginationEllipsis": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["pagination-ellipsis"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PaginationPager": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["pagination-pager"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "scroll-area",
@@ -8899,7 +11122,31 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "scroll-area"
+      "previewModule": "scroll-area",
+      "dataAttributes": {
+        "ScrollBar": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["scroll-area-scrollbar", "scroll-area-thumb"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ScrollArea": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "scroll-area",
+                "scroll-area-corner",
+                "scroll-area-viewport"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "resizable",
@@ -9032,7 +11279,36 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "resizable"
+      "previewModule": "resizable",
+      "dataAttributes": {
+        "ResizablePanelGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["resizable-panel-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ResizablePanel": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["resizable-panel"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ResizableHandle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["resizable-handle"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "table",
@@ -9253,7 +11529,93 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "table"
+      "previewModule": "table",
+      "dataAttributes": {
+        "Table": {
+          "attributes": [
+            {
+              "name": "data-density",
+              "values": ["compact"]
+            },
+            {
+              "name": "data-grid",
+              "values": [""]
+            },
+            {
+              "name": "data-header-tone",
+              "values": ["ink"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["table", "table-container"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "TableHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["table-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "TableBody": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["table-body"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "TableFooter": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["table-footer"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "TableRow": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["table-row"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "TableHead": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["table-head"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "TableCell": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["table-cell"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "TableCaption": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["table-caption"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "status-icon",
@@ -9362,7 +11724,26 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "status-icon"
+      "previewModule": "status-icon",
+      "dataAttributes": {
+        "StatusIcon": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["status-icon"]
+            },
+            {
+              "name": "data-status",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "progress-indicator",
@@ -9502,7 +11883,34 @@
         "vrt": "required",
         "crossBrowserSmoke": "selected"
       },
-      "previewModule": "progress-indicator"
+      "previewModule": "progress-indicator",
+      "dataAttributes": {
+        "ProgressIndicator": {
+          "attributes": [
+            {
+              "name": "data-shape",
+              "values": ["segments"]
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["progress-indicator"]
+            },
+            {
+              "name": "data-value",
+              "values": []
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "truncated-text",
@@ -9632,7 +12040,40 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "truncated-text"
+      "previewModule": "truncated-text",
+      "dataAttributes": {
+        "TruncatedText": {
+          "attributes": [
+            {
+              "name": "data-lines",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["truncated-text"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "IconText": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["icon-text", "icon-text-label"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "TableCellText": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["table-cell-text"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "icon-button",
@@ -9731,7 +12172,18 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "icon-button"
+      "previewModule": "icon-button",
+      "dataAttributes": {
+        "IconButton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["icon-button"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "copy-button",
@@ -9821,7 +12273,26 @@
         "vrt": "required",
         "crossBrowserSmoke": "selected"
       },
-      "previewModule": "copy-button"
+      "previewModule": "copy-button",
+      "dataAttributes": {
+        "CopyButton": {
+          "attributes": [
+            {
+              "name": "data-copied",
+              "values": [""]
+            },
+            {
+              "name": "data-label-visible",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["copy-button", "copy-button-label"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "password-input",
@@ -9928,7 +12399,26 @@
         "vrt": "required",
         "crossBrowserSmoke": "selected"
       },
-      "previewModule": "password-input"
+      "previewModule": "password-input",
+      "dataAttributes": {
+        "PasswordInput": {
+          "attributes": [
+            {
+              "name": "data-met",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "password-input",
+                "password-input-requirements",
+                "password-input-toggle"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "otp-input",
@@ -10032,7 +12522,18 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "otp-input"
+      "previewModule": "otp-input",
+      "dataAttributes": {
+        "OTPInput": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["otp-input", "otp-input-separator", "otp-input-slot"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "split-button",
@@ -10129,7 +12630,34 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "split-button"
+      "previewModule": "split-button",
+      "dataAttributes": {
+        "SplitButton": {
+          "attributes": [
+            {
+              "name": "data-loading",
+              "values": [""]
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "split-button",
+                "split-button-primary",
+                "split-button-trigger"
+              ]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "editable-cell",
@@ -10262,7 +12790,26 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "editable-cell"
+      "previewModule": "editable-cell",
+      "dataAttributes": {
+        "EditableCell": {
+          "attributes": [
+            {
+              "name": "data-focus-mode",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["editable-cell", "editable-cell-status"]
+            },
+            {
+              "name": "data-status",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "number-field",
@@ -10359,7 +12906,29 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "number-field"
+      "previewModule": "number-field",
+      "dataAttributes": {
+        "NumberField": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "number-field",
+                "number-field-decrement",
+                "number-field-increment",
+                "number-field-input",
+                "number-field-prefix",
+                "number-field-suffix"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "chip-input",
@@ -10472,7 +13041,30 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "chip-input"
+      "previewModule": "chip-input",
+      "dataAttributes": {
+        "ChipInput": {
+          "attributes": [
+            {
+              "name": "data-disabled",
+              "values": [""]
+            },
+            {
+              "name": "data-invalid",
+              "values": [""]
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["chip-input"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "action-bar",
@@ -10565,7 +13157,30 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "action-bar"
+      "previewModule": "action-bar",
+      "dataAttributes": {
+        "ActionBar": {
+          "attributes": [
+            {
+              "name": "data-active",
+              "values": ["false", "true"]
+            },
+            {
+              "name": "data-pending",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "action-bar",
+                "action-bar-actions",
+                "action-bar-status"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "stepper",
@@ -10684,7 +13299,39 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "stepper"
+      "previewModule": "stepper",
+      "dataAttributes": {
+        "Stepper": {
+          "attributes": [
+            {
+              "name": "data-disabled",
+              "values": [""]
+            },
+            {
+              "name": "data-orientation",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "stepper",
+                "stepper-blocked-reason",
+                "stepper-connector",
+                "stepper-content",
+                "stepper-description",
+                "stepper-label",
+                "stepper-node",
+                "stepper-step"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "timeline",
@@ -10810,7 +13457,42 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "timeline"
+      "previewModule": "timeline",
+      "dataAttributes": {
+        "Timeline": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["timeline"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "TimelineItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "timeline-connector",
+                "timeline-content",
+                "timeline-item",
+                "timeline-node",
+                "timeline-rail"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "TimelineSeparator": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["timeline-separator"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "shortcut-overlay",
@@ -10919,7 +13601,23 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "shortcut-overlay"
+      "previewModule": "shortcut-overlay",
+      "dataAttributes": {
+        "ShortcutOverlay": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "shortcut-overlay",
+                "shortcut-overlay-category",
+                "shortcut-overlay-empty",
+                "shortcut-overlay-row"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "filter-bar-managed",
@@ -11059,7 +13757,44 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "filter-bar-managed"
+      "previewModule": "filter-bar-managed",
+      "dataAttributes": {
+        "FilterBuilder": {
+          "attributes": [
+            {
+              "name": "data-depth",
+              "values": []
+            },
+            {
+              "name": "data-disabled",
+              "values": [""]
+            },
+            {
+              "name": "data-invalid",
+              "values": [""]
+            },
+            {
+              "name": "data-op",
+              "values": []
+            },
+            {
+              "name": "data-read-only",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "filter-builder",
+                "filter-builder-cap-reason",
+                "filter-builder-condition",
+                "filter-builder-condition-error",
+                "filter-builder-group"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "sortable-list",
@@ -11175,7 +13910,42 @@
         "vrt": "required",
         "crossBrowserSmoke": "selected"
       },
-      "previewModule": "sortable-list"
+      "previewModule": "sortable-list",
+      "dataAttributes": {
+        "SortableList": {
+          "attributes": [
+            {
+              "name": "data-drag-item",
+              "values": []
+            },
+            {
+              "name": "data-drag-pending",
+              "values": []
+            },
+            {
+              "name": "data-dragging",
+              "values": []
+            },
+            {
+              "name": "data-drop-container",
+              "values": []
+            },
+            {
+              "name": "data-drop-edge",
+              "values": []
+            },
+            {
+              "name": "data-drop-over",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["sortable-list", "sortable-list-item"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "board",
@@ -11311,7 +14081,57 @@
         "vrt": "required",
         "crossBrowserSmoke": "selected"
       },
-      "previewModule": "board"
+      "previewModule": "board",
+      "dataAttributes": {
+        "Board": {
+          "attributes": [
+            {
+              "name": "data-column",
+              "values": []
+            },
+            {
+              "name": "data-drag-item",
+              "values": []
+            },
+            {
+              "name": "data-drag-pending",
+              "values": []
+            },
+            {
+              "name": "data-dragging",
+              "values": []
+            },
+            {
+              "name": "data-drop-edge",
+              "values": []
+            },
+            {
+              "name": "data-drop-over",
+              "values": []
+            },
+            {
+              "name": "data-read-only",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "board",
+                "board-card",
+                "board-card-surface",
+                "board-column",
+                "board-column-body",
+                "board-column-collapsed",
+                "board-column-collapsed-title",
+                "board-column-empty",
+                "board-column-title",
+                "board-scroller"
+              ]
+            }
+          ],
+          "cssVariables": ["--board-column-width"]
+        }
+      }
     },
     {
       "name": "dropzone",
@@ -11411,7 +14231,30 @@
         "vrt": "required",
         "crossBrowserSmoke": "selected"
       },
-      "previewModule": "dropzone"
+      "previewModule": "dropzone",
+      "dataAttributes": {
+        "Dropzone": {
+          "attributes": [
+            {
+              "name": "data-disabled",
+              "values": [""]
+            },
+            {
+              "name": "data-drag-invalid",
+              "values": []
+            },
+            {
+              "name": "data-dragging",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["dropzone"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "field-inline",
@@ -11523,7 +14366,18 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "field-inline"
+      "previewModule": "field-inline",
+      "dataAttributes": {
+        "FieldInline": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-inline", "field-inline-error"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "relative-time",
@@ -11616,7 +14470,22 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "relative-time"
+      "previewModule": "relative-time",
+      "dataAttributes": {
+        "RelativeTime": {
+          "attributes": [
+            {
+              "name": "data-mode",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["relative-time"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "settings-row",
@@ -11746,7 +14615,46 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "settings-row"
+      "previewModule": "settings-row",
+      "dataAttributes": {
+        "SettingsSection": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "settings-section",
+                "settings-section-description",
+                "settings-section-header",
+                "settings-section-title"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SettingsCard": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["settings-card"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SettingsRow": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "settings-row",
+                "settings-row-control",
+                "settings-row-description",
+                "settings-row-label"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "image",
@@ -11858,7 +14766,31 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "image"
+      "previewModule": "image",
+      "dataAttributes": {
+        "Image": {
+          "attributes": [
+            {
+              "name": "data-aspect-ratio",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "image",
+                "image-fallback",
+                "image-img",
+                "image-skeleton"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "audio-player",
@@ -11996,7 +14928,53 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "audio-player"
+      "previewModule": "audio-player",
+      "dataAttributes": {
+        "MediaPlayerControls": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "media-player-actions",
+                "media-player-actions-compact",
+                "media-player-controls",
+                "media-player-controls-layout",
+                "media-player-seek",
+                "media-player-skip-controls",
+                "media-player-time",
+                "media-player-time-duration",
+                "media-player-time-elapsed",
+                "media-player-transport",
+                "media-player-volume",
+                "media-player-volume-panel",
+                "media-player-volume-surface"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": ["paused", "playing"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "AudioPlayer": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["audio-player", "audio-player-header"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "video-player",
@@ -12118,7 +15096,33 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "video-player"
+      "previewModule": "video-player",
+      "dataAttributes": {
+        "VideoPlayer": {
+          "attributes": [
+            {
+              "name": "data-aspect-ratio",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "video-player",
+                "video-player-controls-overlay",
+                "video-player-controls-scrim",
+                "video-player-frame",
+                "video-player-header",
+                "video-player-media"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": ["hidden", "visible"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "notification-bell",
@@ -12207,7 +15211,22 @@
         "vrt": "required",
         "crossBrowserSmoke": "selected"
       },
-      "previewModule": "notification-bell"
+      "previewModule": "notification-bell",
+      "dataAttributes": {
+        "NotificationBell": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["notification-bell", "notification-bell-badge"]
+            },
+            {
+              "name": "data-unread",
+              "values": [""]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "onboarding-checklist",
@@ -12324,7 +15343,35 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "onboarding-checklist"
+      "previewModule": "onboarding-checklist",
+      "dataAttributes": {
+        "OnboardingChecklist": {
+          "attributes": [
+            {
+              "name": "data-collapsed",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["onboarding-checklist"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "OnboardingChecklistItem": {
+          "attributes": [
+            {
+              "name": "data-done",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["onboarding-checklist-item"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "markdown-view",
@@ -12430,7 +15477,18 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "markdown-view"
+      "previewModule": "markdown-view",
+      "dataAttributes": {
+        "MarkdownView": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["markdown-view"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "code-block",
@@ -12521,7 +15579,22 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "code-block"
+      "previewModule": "code-block",
+      "dataAttributes": {
+        "CodeBlock": {
+          "attributes": [
+            {
+              "name": "data-language",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["code-block", "code-block-header", "code-block-pre"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "sonner",
@@ -12633,7 +15706,18 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "sonner"
+      "previewModule": "sonner",
+      "dataAttributes": {
+        "Toaster": {
+          "attributes": [],
+          "cssVariables": [
+            "--border-radius",
+            "--normal-bg",
+            "--normal-border",
+            "--normal-text"
+          ]
+        }
+      }
     },
     {
       "name": "provider",
@@ -12740,7 +15824,8 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "provider"
+      "previewModule": "provider",
+      "dataAttributes": {}
     },
     {
       "name": "command",
@@ -13037,7 +16122,108 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "command"
+      "previewModule": "command",
+      "dataAttributes": {
+        "Command": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["command"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommandDialog": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["command-dialog-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommandInput": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["command-input", "command-input-wrapper"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommandList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["command-list"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommandEmpty": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["command-empty"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommandLoading": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["command-loading"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommandGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["command-group", "command-group-heading"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommandSeparator": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["command-separator"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommandItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["command-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommandShortcut": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["command-shortcut"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommandFooter": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["command-footer"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "page-header",
@@ -13148,7 +16334,38 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "page-header"
+      "previewModule": "page-header",
+      "dataAttributes": {
+        "FavoriteStar": {
+          "attributes": [
+            {
+              "name": "data-active",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["page-header-favorite"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PageHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "page-header",
+                "page-header-actions",
+                "page-header-back",
+                "page-header-breadcrumb",
+                "page-header-description",
+                "page-header-title"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "sidebar",
@@ -13588,7 +16805,155 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "sidebar"
+      "previewModule": "sidebar",
+      "dataAttributes": {
+        "SidebarProvider": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sidebar-wrapper"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "Sidebar": {
+          "attributes": [
+            {
+              "name": "data-collapsible",
+              "values": ["", "none"]
+            },
+            {
+              "name": "data-mobile",
+              "values": ["true"]
+            },
+            {
+              "name": "data-side",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["sidebar", "sidebar-sheet-content"]
+            },
+            {
+              "name": "data-state",
+              "values": ["expanded"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sidebar-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sidebar-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarFooter": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sidebar-footer"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sidebar-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarGroupLabel": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sidebar-group-label"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarMenu": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sidebar-menu"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarMenuItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sidebar-menu-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarMenuBadge": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sidebar-menu-badge"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarMenuSkeleton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sidebar-menu-skeleton"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarSeparator": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sidebar-separator"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarRail": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sidebar-rail"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarInset": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sidebar-inset"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "app-shell",
@@ -13764,7 +17129,62 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "app-shell"
+      "previewModule": "app-shell",
+      "dataAttributes": {
+        "AppShell": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["app-shell", "app-shell-skip-link"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AppShellSidebar": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["app-shell-sidebar"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AppShellHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "app-shell-header",
+                "app-shell-header-actions",
+                "app-shell-header-middle"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AppShellContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["app-shell-content"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "AppShellSkeleton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["app-shell-skeleton"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "filter-bar",
@@ -13906,7 +17326,40 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "filter-bar"
+      "previewModule": "filter-bar",
+      "dataAttributes": {
+        "FilterChip": {
+          "attributes": [
+            {
+              "name": "data-active",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["filter-chip", "filter-chip-remove"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FilterBar": {
+          "attributes": [
+            {
+              "name": "data-filter-id",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "filter-bar",
+                "filter-bar-add",
+                "filter-bar-search",
+                "filter-bar-trailing"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "auto-save-input",
@@ -14022,7 +17475,22 @@
         "vrt": "required",
         "crossBrowserSmoke": "selected"
       },
-      "previewModule": "auto-save-input"
+      "previewModule": "auto-save-input",
+      "dataAttributes": {
+        "AutoSaveInput": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["auto-save-input", "auto-save-input-status"]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "country-select",
@@ -14139,7 +17607,18 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "country-select"
+      "previewModule": "country-select",
+      "dataAttributes": {
+        "CountrySelect": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["country-select", "country-select-item"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "region-select",
@@ -14279,7 +17758,26 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "region-select"
+      "previewModule": "region-select",
+      "dataAttributes": {
+        "RegionSelect": {
+          "attributes": [
+            {
+              "name": "data-fallback",
+              "values": [""]
+            },
+            {
+              "name": "data-placeholder",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["region-select"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "date-picker",
@@ -14496,7 +17994,80 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "date-picker"
+      "previewModule": "date-picker",
+      "dataAttributes": {
+        "Calendar": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["calendar"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CalendarDayButton": {
+          "attributes": [
+            {
+              "name": "data-day",
+              "values": []
+            },
+            {
+              "name": "data-range-end",
+              "values": [""]
+            },
+            {
+              "name": "data-range-middle",
+              "values": [""]
+            },
+            {
+              "name": "data-range-start",
+              "values": [""]
+            },
+            {
+              "name": "data-selected-single",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["calendar-day"]
+            },
+            {
+              "name": "data-today",
+              "values": [""]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DatePicker": {
+          "attributes": [
+            {
+              "name": "data-empty",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["date-picker-content", "date-picker-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DateRangePicker": {
+          "attributes": [
+            {
+              "name": "data-empty",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "date-range-picker-content",
+                "date-range-picker-trigger"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "color-picker",
@@ -14616,7 +18187,22 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "color-picker"
+      "previewModule": "color-picker",
+      "dataAttributes": {
+        "ColorPicker": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "color-picker",
+                "color-picker-check",
+                "color-picker-swatch"
+              ]
+            }
+          ],
+          "cssVariables": ["--swatch-cols"]
+        }
+      }
     },
     {
       "name": "emoji-picker",
@@ -14756,7 +18342,25 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "emoji-picker"
+      "previewModule": "emoji-picker",
+      "dataAttributes": {
+        "EmojiPicker": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "emoji-picker",
+                "emoji-picker-empty",
+                "emoji-picker-grid",
+                "emoji-picker-item",
+                "emoji-picker-search",
+                "emoji-picker-status"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "data-list",
@@ -14916,7 +18520,44 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "data-list"
+      "previewModule": "data-list",
+      "dataAttributes": {
+        "DataList": {
+          "attributes": [
+            {
+              "name": "data-clickable",
+              "values": [""]
+            },
+            {
+              "name": "data-selected",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "data-list",
+                "data-list-empty-row",
+                "data-list-footer",
+                "data-list-head",
+                "data-list-root",
+                "data-list-row",
+                "data-list-row-action",
+                "data-list-skeleton-row",
+                "data-list-toolbar"
+              ]
+            },
+            {
+              "name": "data-sortable",
+              "values": [""]
+            },
+            {
+              "name": "data-sorted",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "data-grid",
@@ -15083,7 +18724,50 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected"
       },
-      "previewModule": "data-grid"
+      "previewModule": "data-grid",
+      "dataAttributes": {
+        "DataGrid": {
+          "attributes": [
+            {
+              "name": "data-collapsed",
+              "values": [""]
+            },
+            {
+              "name": "data-grid-id",
+              "values": []
+            },
+            {
+              "name": "data-group",
+              "values": []
+            },
+            {
+              "name": "data-selected",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "data-grid",
+                "data-grid-cell",
+                "data-grid-footer",
+                "data-grid-group-row",
+                "data-grid-head",
+                "data-grid-load-more",
+                "data-grid-merged",
+                "data-grid-row",
+                "data-grid-section",
+                "data-grid-toolbar",
+                "data-grid-virtual-pad"
+              ]
+            },
+            {
+              "name": "data-sorted",
+              "values": []
+            }
+          ],
+          "cssVariables": ["--data-grid-virtual-pad"]
+        }
+      }
     },
     {
       "name": "property-list",
@@ -15232,7 +18916,45 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "property-list"
+      "previewModule": "property-list",
+      "dataAttributes": {
+        "PropertyList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["property-list"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PropertyRow": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["property-row"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PropertyLabel": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["property-label"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PropertyValue": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["property-value"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "item",
@@ -15552,7 +19274,94 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "item"
+      "previewModule": "item",
+      "dataAttributes": {
+        "ItemMedia": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["item-media"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "ItemContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["item-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ItemTitle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["item-title"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ItemDescription": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["item-description"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ItemActions": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["item-actions"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ItemHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["item-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ItemFooter": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["item-footer"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ItemGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["item-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ItemSeparator": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["item-separator"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "chart",
@@ -15753,7 +19562,36 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "chart"
+      "previewModule": "chart",
+      "dataAttributes": {
+        "ChartContainer": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["chart"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ChartTooltipContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["chart-tooltip-content", "chart-tooltip-indicator"]
+            }
+          ],
+          "cssVariables": ["--color-bg", "--color-border"]
+        },
+        "ChartLegendContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["chart-legend-content", "chart-legend-indicator"]
+            }
+          ],
+          "cssVariables": ["--color-bg"]
+        }
+      }
     },
     {
       "name": "animated-number",
@@ -15847,7 +19685,22 @@
         "vrt": "required",
         "crossBrowserSmoke": "selected"
       },
-      "previewModule": "animated-number"
+      "previewModule": "animated-number",
+      "dataAttributes": {
+        "AnimatedNumber": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "animated-number",
+                "animated-number-live",
+                "animated-number-value"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "text-edit",
@@ -15964,7 +19817,26 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "text-edit"
+      "previewModule": "text-edit",
+      "dataAttributes": {
+        "TextEdit": {
+          "attributes": [
+            {
+              "name": "data-editable",
+              "values": [""]
+            },
+            {
+              "name": "data-invalid",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["text-edit", "text-edit-content"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "marketing-surface",
@@ -16053,7 +19925,8 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "marketing-surface"
+      "previewModule": "marketing-surface",
+      "dataAttributes": {}
     },
     {
       "name": "section-header",
@@ -16149,7 +20022,28 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "section-header"
+      "previewModule": "section-header",
+      "dataAttributes": {
+        "SectionHeader": {
+          "attributes": [
+            {
+              "name": "data-align",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "section-header",
+                "section-header-description",
+                "section-header-eyebrow",
+                "section-header-eyebrow-mark",
+                "section-header-title"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "figure-frame",
@@ -16240,7 +20134,24 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "figure-frame"
+      "previewModule": "figure-frame",
+      "dataAttributes": {
+        "FigureFrame": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "figure-frame",
+                "figure-frame-caption",
+                "figure-frame-caption-text",
+                "figure-frame-media",
+                "figure-frame-number"
+              ]
+            }
+          ],
+          "cssVariables": ["--figure-frame-ratio"]
+        }
+      }
     },
     {
       "name": "terminal",
@@ -16346,7 +20257,26 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "terminal"
+      "previewModule": "terminal",
+      "dataAttributes": {
+        "Terminal": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "terminal",
+                "terminal-body",
+                "terminal-command-row",
+                "terminal-copy",
+                "terminal-header",
+                "terminal-line",
+                "terminal-prompt"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "logo-row",
@@ -16448,7 +20378,27 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "logo-row"
+      "previewModule": "logo-row",
+      "dataAttributes": {
+        "LogoRow": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "logo-row",
+                "logo-row-item",
+                "logo-row-label",
+                "logo-row-list"
+              ]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "testimonial",
@@ -16539,7 +20489,24 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "testimonial"
+      "previewModule": "testimonial",
+      "dataAttributes": {
+        "Testimonial": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "testimonial",
+                "testimonial-attribution",
+                "testimonial-name",
+                "testimonial-quote",
+                "testimonial-role"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "announcement-banner",
@@ -16629,7 +20596,18 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "announcement-banner"
+      "previewModule": "announcement-banner",
+      "dataAttributes": {
+        "AnnouncementBanner": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["announcement-banner", "announcement-banner-action"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "ruled-band",
@@ -16739,7 +20717,31 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "ruled-band"
+      "previewModule": "ruled-band",
+      "dataAttributes": {
+        "RuledBand": {
+          "attributes": [
+            {
+              "name": "data-rule",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["ruled-band"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RuledBandLabel": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["ruled-band-label"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "pricing-section",
@@ -16854,7 +20856,31 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "pricing-section"
+      "previewModule": "pricing-section",
+      "dataAttributes": {
+        "PricingSection": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["pricing-section"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PlanCard": {
+          "attributes": [
+            {
+              "name": "data-highlighted",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["plan-card", "plan-card-action", "plan-card-price"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "comparison-matrix",
@@ -16981,7 +21007,40 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "comparison-matrix"
+      "previewModule": "comparison-matrix",
+      "dataAttributes": {
+        "ComparisonMatrix": {
+          "attributes": [
+            {
+              "name": "data-highlighted",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["comparison-matrix", "comparison-matrix-container"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComparisonGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["comparison-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ComparisonRow": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["comparison-row"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "staggered-text-reveal",
@@ -17075,7 +21134,18 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "staggered-text-reveal"
+      "previewModule": "staggered-text-reveal",
+      "dataAttributes": {
+        "StaggeredTextReveal": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["staggered-text-reveal", "staggered-text-reveal-word"]
+            }
+          ],
+          "cssVariables": ["--stagger-i", "--stagger-step"]
+        }
+      }
     },
     {
       "name": "particle-field",
@@ -17175,7 +21245,22 @@
         "vrt": "required",
         "crossBrowserSmoke": "not-selected-intentional-subset"
       },
-      "previewModule": "particle-field"
+      "previewModule": "particle-field",
+      "dataAttributes": {
+        "ParticleField": {
+          "attributes": [
+            {
+              "name": "data-drawn",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["particle-field", "particle-field-canvas"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     }
   ],
   "animatedIcons": {

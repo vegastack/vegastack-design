@@ -42,15 +42,38 @@ const rawArgs = process.argv.slice(2);
 const tokenCssRoots = [];
 const ROOTS = [];
 let docsShellMode = false;
+let emittedCssMode = false;
 for (let i = 0; i < rawArgs.length; i++) {
   if (rawArgs[i] === "--token-css") {
     const next = rawArgs[++i];
     if (next) tokenCssRoots.push(next);
   } else if (rawArgs[i] === "--docs-shell") {
     docsShellMode = true;
+  } else if (rawArgs[i] === "--emitted-css") {
+    emittedCssMode = true;
   } else {
     ROOTS.push(rawArgs[i]);
   }
+}
+
+// `--emitted-css` is the DC-02 lane over the BUILT stylesheet: the off-system values in the docs
+// site come from Fumadocs and the typography plugin, so source linting can never see them. It
+// lives in its own module (TG-08 edits this file in the same wave); this is the only hook.
+if (emittedCssMode) {
+  const { lintEmittedDocsCss } = await import("./design-lint-emitted-css.mjs");
+  const { files, findings } = lintEmittedDocsCss();
+  if (findings.length > 0) {
+    console.error(
+      `✗ design-lint --emitted-css: ${findings.length} offender(s)`,
+    );
+    for (const finding of findings.slice(0, 40))
+      console.error(`  ✗ ${finding}`);
+    process.exit(1);
+  }
+  console.log(
+    `✓ design-lint --emitted-css: ${files.length} built stylesheet(s) on-system`,
+  );
+  process.exit(0);
 }
 if (docsShellMode && ROOTS.length === 0) {
   ROOTS.push(

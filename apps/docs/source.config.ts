@@ -9,14 +9,22 @@ import {
 } from "fumadocs-typescript";
 import { transformerTwoslash } from "fumadocs-twoslash";
 import { rehypeCodeDefaultOptions } from "fumadocs-core/mdx-plugins";
+import { stringifyMdxForAgents } from "./lib/mdx-markdown";
+import { PAGE_STATUSES } from "./lib/shared";
 
 const generator = createGenerator({
   cache: createFileSystemGeneratorCache(".next/fumadocs-typescript"),
 });
 
-// Self-contained shallow frontmatter schema (the fields the showcase actually uses). Extending
-// fumadocs' `pageSchema` trips TS2589 ("Type instantiation is excessively deep") under TS 6 + Zod 4
-// during `next build`'s typecheck; a flat schema avoids the deep pageSchema type entirely.
+/**
+ * Frontmatter — canon row 0 (`08-docs-structure.md` §2). `registry`, `status`, `since` and `a11y`
+ * are validated on shape now and become REQUIRED for component pages when Do1-b migrates every
+ * page; until then a page may omit them and the header simply shows nothing.
+ *
+ * Self-contained shallow schema (the fields the showcase actually uses). Extending fumadocs'
+ * `pageSchema` trips TS2589 ("Type instantiation is excessively deep") under TS 6 + Zod 4 during
+ * `next build`'s typecheck; a flat schema avoids the deep pageSchema type entirely.
+ */
 const docFrontmatterSchema = z.object({
   title: z.string().min(1).max(70),
   description: z
@@ -30,14 +38,38 @@ const docFrontmatterSchema = z.object({
   audience: z.enum(["public", "internal"]),
   icon: z.string().optional(),
   full: z.boolean().optional(),
+  /** Hero fixture — a named export of `components/preview`. */
   preview: z.string().optional(),
+  /** Registry item name (`data-grid`), the `shadcn add @vegastack/<registry>` target. */
+  registry: z
+    .string()
+    .regex(
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      "registry must be a kebab-case item name",
+    )
+    .optional(),
+  status: z.enum(PAGE_STATUSES).optional(),
+  /** Design-system version the item first shipped in. */
+  since: z
+    .string()
+    .regex(/^\d+\.\d+\.\d+$/, "since must be a semver version, e.g. 0.4.0")
+    .optional(),
+  /** Accessibility pattern name — `APG grid`, `native button`. */
+  a11y: z.string().min(1).max(60).optional(),
 });
+
+/**
+ * Agent export (DS-01): the processed markdown behind `getText("processed")`, the per-page `.md`
+ * route and `llms-full.txt`. `stringifyMdxForAgents` renders every MDX component to markdown at
+ * compile time or leaves a placeholder for `lib/markdown-export.ts` to resolve at build time.
+ */
+const includeProcessedMarkdown = { stringify: stringifyMdxForAgents };
 
 export const docs = defineDocs({
   dir: "content/docs",
   docs: {
     schema: docFrontmatterSchema,
-    postprocess: { includeProcessedMarkdown: true },
+    postprocess: { includeProcessedMarkdown },
   },
   meta: { schema: metaSchema },
 });
@@ -46,7 +78,7 @@ export const internalDocs = defineDocs({
   dir: "content/internal",
   docs: {
     schema: docFrontmatterSchema,
-    postprocess: { includeProcessedMarkdown: true },
+    postprocess: { includeProcessedMarkdown },
   },
   meta: { schema: metaSchema },
 });

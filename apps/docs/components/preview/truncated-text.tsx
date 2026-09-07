@@ -31,7 +31,7 @@ const LONG_DESCRIPTION =
 export function truncatedText(): ReactNode {
   return (
     <Wrapper>
-      <div className="w-56 space-y-1 rounded-md border border-fd-border p-3">
+      <div className="w-56 space-y-1 rounded-md border border-border p-3">
         <p className="text-sm text-muted-foreground">Report name</p>
         {/* Single line: hover or focus to reveal the full title in a tooltip. */}
         <TruncatedText className="text-base text-foreground">
@@ -45,7 +45,7 @@ export function truncatedText(): ReactNode {
 export function truncatedTextMultiline(): ReactNode {
   return (
     <Wrapper>
-      <div className="w-56 space-y-1 rounded-md border border-fd-border p-3">
+      <div className="w-56 space-y-1 rounded-md border border-border p-3">
         <p className="text-sm text-muted-foreground">Description</p>
         {/* Clamp to two lines; the overflow tooltip carries the rest. */}
         <TruncatedText
@@ -69,7 +69,7 @@ export function truncatedTextLines(): ReactNode {
       {([1, 3, 6] as const).map((n) => (
         <div
           key={n}
-          className="w-56 space-y-1 rounded-md border border-fd-border p-3"
+          className="w-56 space-y-1 rounded-md border border-border p-3"
         >
           <p className="text-sm text-muted-foreground">lines={n}</p>
           <TruncatedText as="p" lines={n} className="text-base text-foreground">
@@ -86,7 +86,7 @@ const FILE_NAME = "Q3-2026-revenue-reconciliation-north-america-final-v7.xlsx";
 export function iconText(): ReactNode {
   return (
     <Wrapper>
-      <div className="w-56 rounded-md border border-fd-border p-2">
+      <div className="w-56 rounded-md border border-border p-2">
         {/* Icon and trailing Badge stay pinned (shrink-0); only the label
             truncates and reveals the full name in a tooltip on hover/focus. */}
         <IconText
@@ -106,7 +106,7 @@ export function iconTextSides(): ReactNode {
   return (
     <Wrapper className="flex-col items-start gap-3">
       {(["top", "right", "bottom", "left"] as const).map((side) => (
-        <div key={side} className="w-56 rounded-md border border-fd-border p-2">
+        <div key={side} className="w-56 rounded-md border border-border p-2">
           <IconText
             icon={<FileText className="size-(--icon-default)" />}
             text={`tooltipSide="${side}" — ${FILE_NAME}`}

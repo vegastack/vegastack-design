@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "@vegastack/design";
+import { cn } from "@/lib/cn";
 
 interface HomeProofStatementProps {
   id: string;

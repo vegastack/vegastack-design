@@ -5,15 +5,21 @@
   "type": "module",
   "scripts": {
     "prepare:content": "fumadocs-mdx",
-    "build": "pnpm prepare:content && next build && tsx scripts/generate-markdown.ts && pnpm verify:metadata",
+    "build": "pnpm prepare:content && next build && tsx scripts/generate-markdown.ts && pnpm verify:metadata && pnpm verify:export && pnpm verify:emitted-css",
     "dev": "pnpm prepare:content && next dev",
     "start": "serve out",
-    "lint": "pnpm prepare:content && eslint . && node scripts/deployment-boundaries.test.mjs && node ../../tooling/design-lint.mjs --token-css app && node ../../tooling/design-lint.mjs components/ui && node ../../tooling/design-lint.mjs components/preview && node ../../tooling/design-lint.mjs --docs-shell && node ../../tooling/content-lint.mjs && node ../../tooling/verify-provider-dogfood.mjs && tsx scripts/lint-links.ts && node ../../tooling/changelog-lint.mjs && node ../../tooling/sync-changelog.mjs --check",
+    "lint": "pnpm prepare:content && eslint . && node scripts/deployment-boundaries.test.mjs && node ../../tooling/design-lint.mjs --token-css app && node ../../tooling/design-lint.mjs components/ui && node ../../tooling/design-lint.mjs components/preview && node ../../tooling/design-lint.mjs --docs-shell && node ../../tooling/content-lint.mjs && node ../../tooling/verify-provider-dogfood.mjs && tsx scripts/lint-links.ts && node ../../tooling/changelog-lint.mjs && node ../../tooling/sync-changelog.mjs --check && node ../../tooling/verify-docs-export.mjs --self-test && pnpm verify:mdx-manifest && node ../../tooling/design-lint-emitted-css.mjs --self-test && pnpm verify:base-mirror && node ../../tooling/verify-docs-base-mirror.mjs --self-test",
     "typecheck": "pnpm prepare:content && next typegen && tsc --noEmit && tsc --noEmit -p tsconfig.vrt.json",
     "registry:serve": "serve public/r -l 4000 --cors",
+    "test": "pnpm test:docs-shell",
     "test:contracts": "playwright test contracts.spec.ts",
     "lint:links": "tsx scripts/lint-links.ts",
-    "verify:metadata": "node scripts/verify-metadata.mjs"
+    "verify:metadata": "node scripts/verify-metadata.mjs",
+    "verify:export": "node ../../tooling/verify-docs-export.mjs",
+    "verify:mdx-manifest": "tsx scripts/verify-mdx-manifest.ts",
+    "verify:emitted-css": "node ../../tooling/design-lint.mjs --docs-shell --emitted-css",
+    "verify:base-mirror": "node ../../tooling/verify-docs-base-mirror.mjs",
+    "test:docs-shell": "playwright test docs-shell.spec.ts"
   },
   "dependencies": {
     "@atlaskit/pragmatic-drag-and-drop": "^2.0.1",

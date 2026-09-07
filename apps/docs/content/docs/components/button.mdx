@@ -2,18 +2,16 @@
 title: Button
 description: Trigger an action — 15 variants × 8 sizes, with loading and Base UI Button semantics.
 audience: public
+registry: button
+status: stable
+since: 0.1.0
+a11y: native button
 preview: button
 ---
 
-import { story } from "@/components/stories/button.story";
-
 ## Installation
 
-```npm
-npx shadcn@latest add @vegastack/button
-```
-
-<RegistryInstallCallout />
+<InstallSteps name="button" />
 
 ## Usage
 
@@ -42,13 +40,6 @@ Try all 15 variants and all 8 sizes — the square `icon-*` sizes switch to an i
 `aria-label` — plus the `disabled` and `loading` states, then copy the generated JSX.
 
 <ButtonPlayground />
-
-### Explorer
-
-Every `Button` prop, auto-generated from its TypeScript types — the exhaustive counterpart to the
-curated playground above.
-
-<story.WithControl />
 
 ### Variants
 
@@ -96,12 +87,17 @@ The same variant reads differently at each size — padding, height, and text-si
 
 <ComponentPreview name="buttonMatrix" file="components/preview/button.tsx" />
 
+### Lit finish
+
+The Wave-2 `finish="lit"` prop adds the `--shadow-lit` top-light + warm ambient pair to the
+**primary** action only — the one sanctioned exception to flat-by-default. On every other
+variant `finish` is a deliberate no-op, so a stray prop can never un-flatten a surface.
+
+<ComponentPreview name="buttonFinish" file="components/preview/button.tsx" />
+
 ## API Reference
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/button.tsx"
-  name="ButtonProps"
-/>
+<ApiTable path="../../packages/ui/registry/ui/button.tsx" name="ButtonProps" />
 
 ## Accessibility
 
@@ -111,6 +107,10 @@ The same variant reads differently at each size — padding, height, and text-si
 - `render` is for action elements. Do not render links through `Button`; style anchors with `buttonVariants({ variant, size })` when navigation should look like a button.
 - Icon-only buttons must use `size="icon-*"` with an `aria-label`.
 
+The states the verification lanes exercise for this item (generated from `component-contracts.json`):
+
+<StatesTested name="button" />
+
 ## Do / Don't
 
 <DoDont
@@ -118,10 +118,6 @@ The same variant reads differently at each size — padding, height, and text-si
   dont="Use Button for navigation to a URL — use a link styled with buttonVariants."
 />
 
-## Lit finish
+## Changelog
 
-The Wave-2 `finish="lit"` prop adds the `--shadow-lit` top-light + warm ambient pair to the
-**primary** action only — the one sanctioned exception to flat-by-default. On every other
-variant `finish` is a deliberate no-op, so a stray prop can never un-flatten a surface.
-
-<ComponentPreview name="buttonFinish" file="components/preview/button.tsx" />
+<ComponentChangelog name="button" />

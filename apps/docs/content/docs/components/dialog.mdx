@@ -2,16 +2,16 @@
 title: Dialog
 description: A modal overlay — five sizes, a header/footer layout, focus trapping, and animated enter/exit.
 audience: public
+registry: dialog
+status: stable
+since: 0.1.0
+a11y: APG dialog (modal)
 preview: dialog
 ---
 
 ## Installation
 
-```npm
-npx shadcn@latest add @vegastack/dialog
-```
-
-<RegistryInstallCallout />
+<InstallSteps name="dialog" />
 
 ## Usage
 
@@ -51,7 +51,12 @@ Pick a size and toggle the close button, open the dialog, then copy the generate
 
 ## Anatomy
 
-`Dialog` is a compound component built on Base UI's Dialog. Compose the parts inside the root:
+`Dialog` is a compound component built on Base UI's Dialog. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="dialog" />
+
+Compose the parts inside the root:
 
 ```tsx
 <Dialog>
@@ -126,14 +131,14 @@ The popup caps its height at `max-h-[calc(100dvh-2rem)]`. When the body is talle
 
 ### DialogContent
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/dialog.tsx"
   name="DialogContentProps"
 />
 
 ### DialogTitleBar
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/dialog.tsx"
   name="DialogTitleBarProps"
 />
@@ -162,9 +167,17 @@ wrappers that accept standard `<div>` props.
 | <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Move focus between controls — trapped within the open dialog. |
 | <kbd>Esc</kbd>                                     | Close the dialog.                                             |
 
+The states the verification lanes exercise for this item (generated from `component-contracts.json`):
+
+<StatesTested name="dialog" />
+
 ## Do / Don't
 
 <DoDont
   do="Always include a DialogTitle so the dialog has an accessible name, and put primary actions in the DialogFooter."
   dont="Use a Dialog for a full-screen, scroll-heavy mobile experience — use a Drawer/Sheet instead."
 />
+
+## Changelog
+
+<ComponentChangelog name="dialog" />

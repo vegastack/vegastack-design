@@ -7,3 +7,7 @@ export const gitConfig = {
   repo: "vegastack-design",
   branch: "main",
 };
+
+/** Canon row 0 — the lifecycle a component page declares in frontmatter. */
+export const PAGE_STATUSES = ["stable", "preview", "deprecated"] as const;
+export type PageStatus = (typeof PAGE_STATUSES)[number];

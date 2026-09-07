@@ -1,4 +1,7 @@
 import type { CSSProperties } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Kbd } from "@/components/ui/kbd";
 
 /**
  * Every shipped semantic token (the `--<name>` CSS vars in `@vegastack/design-tokens/theme.css`),
@@ -131,20 +134,20 @@ export function ColorPalette() {
     <div className="not-prose my-6 space-y-6">
       {COLOR_GROUPS.map((group) => (
         <div key={group.label}>
-          <h3 className="mb-2 text-xs font-medium text-fd-muted-foreground">
+          <h3 className="mb-2 text-xs font-medium text-muted-foreground">
             {group.label}
           </h3>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {group.tokens.map((name) => (
               <div
                 key={name}
-                className="overflow-hidden rounded-lg border border-fd-border"
+                className="overflow-hidden rounded-lg border border-border"
               >
                 <div
                   className="h-12"
                   style={{ backgroundColor: `var(--${name})` }}
                 />
-                <div className="bg-fd-card px-2 py-1.5 text-mono-label text-fd-muted-foreground">
+                <div className="bg-card px-2 py-1.5 text-mono-label text-muted-foreground">
                   --{name}
                 </div>
               </div>
@@ -267,9 +270,9 @@ export function SurfaceLadder() {
 /** Live type-scale specimen — Geist display/heading/body plus the mono voice layer. */
 export function TypeScale() {
   return (
-    <div className="not-prose my-6 space-y-4 rounded-lg border border-fd-border bg-fd-card p-6">
+    <div className="not-prose my-6 space-y-4 rounded-lg border border-border bg-card p-6">
       <p
-        className="font-sans text-fd-foreground"
+        className="font-sans text-foreground"
         style={{
           fontSize: "var(--text-display-sm)",
           lineHeight: "var(--text-display-sm--line-height)",
@@ -280,7 +283,7 @@ export function TypeScale() {
         Geist display — hero heading
       </p>
       <p
-        className="font-sans text-fd-foreground"
+        className="font-sans text-foreground"
         style={{
           fontSize: "var(--text-h2)",
           lineHeight: "var(--text-h2--line-height)",
@@ -290,13 +293,13 @@ export function TypeScale() {
       >
         Geist — section heading at 400
       </p>
-      <p className="font-sans text-base text-fd-foreground">
+      <p className="font-sans text-base text-foreground">
         Geist sans — body copy.
       </p>
-      <p className="font-sans text-sm text-fd-muted-foreground">
+      <p className="font-sans text-sm text-muted-foreground">
         Geist sans — caption / muted.
       </p>
-      <p className="font-mono text-sm text-fd-foreground">
+      <p className="font-mono text-sm text-foreground">
         Geist Mono — $1,234.56 · code · numbers
       </p>
     </div>
@@ -321,12 +324,12 @@ export function RadiusScale() {
       {RADIUS_STEPS.map(({ token, value }) => (
         <div key={token} className="flex flex-col items-center gap-2">
           <div
-            className="h-16 w-16 border border-fd-border bg-fd-muted"
+            className="h-16 w-16 border border-border bg-muted"
             style={{ borderRadius: `var(${token})` }}
           />
           <div className="text-center">
-            <p className="text-mono-label text-fd-foreground">{token}</p>
-            <p className="text-code-sm text-fd-muted-foreground">{value}</p>
+            <p className="text-mono-label text-foreground">{token}</p>
+            <p className="text-code-sm text-muted-foreground">{value}</p>
           </div>
         </div>
       ))}
@@ -341,29 +344,24 @@ export function RadiusScale() {
 export function ShadowScale() {
   return (
     <div className="not-prose my-6">
-      <div className="flex flex-wrap items-start gap-6 rounded-lg bg-fd-background p-8">
+      <div className="flex flex-wrap items-start gap-6 rounded-lg bg-background p-8">
         <div
-          className="rounded-lg border border-fd-border bg-fd-card px-5 py-4"
+          className="rounded-lg border border-border bg-card px-5 py-4"
           style={{ boxShadow: "var(--shadow-overlay)" }}
         >
-          <p className="text-sm font-medium text-fd-foreground">
-            Overlay surface
-          </p>
-          <p className="text-xs text-fd-muted-foreground">
+          <p className="text-sm font-medium text-foreground">Overlay surface</p>
+          <p className="text-xs text-muted-foreground">
             Floating panel — popover, dialog, menu.
           </p>
         </div>
-        <p className="text-mono-label text-fd-muted-foreground">
+        <p className="text-mono-label text-muted-foreground">
           --shadow-overlay
         </p>
         <div className="flex flex-col gap-3">
-          <button
-            type="button"
-            className="rounded-md bg-primary px-4 py-2 text-label text-primary-foreground shadow-(--shadow-lit)"
-          >
-            Lit primary action
-          </button>
-          <p className="text-mono-label text-fd-muted-foreground">
+          {/* The real component, not a lookalike (DC-09): `finish="lit"` is the one sanctioned
+              action shadow. */}
+          <Button finish="lit">Lit primary action</Button>
+          <p className="text-mono-label text-muted-foreground">
             --shadow-lit · actions only
           </p>
         </div>
@@ -386,10 +384,10 @@ export function SpacingScale() {
       {SPACING_STEPS.map((step) => (
         <div key={step} className="flex items-center gap-3">
           <div
-            className="h-4 rounded-sm bg-fd-primary"
+            className="h-4 rounded-sm bg-primary"
             style={{ width: `calc(var(--spacing) * ${step})` }}
           />
-          <span className="text-mono-label text-fd-muted-foreground">
+          <span className="text-mono-label text-muted-foreground">
             {step} · calc(var(--spacing) * {step}) · {step * 4}px
           </span>
         </div>
@@ -427,14 +425,14 @@ function MotionTrack({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <div className="relative h-6 overflow-hidden rounded-md border border-fd-border bg-fd-muted">
+      <div className="relative h-6 overflow-hidden rounded-md border border-border bg-muted">
         <span
-          className="absolute start-1 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-fd-primary motion-reduce:animate-none"
+          className="absolute start-1 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-primary motion-reduce:animate-none"
           style={style}
         />
       </div>
-      <p className="text-mono-label text-fd-foreground">{label}</p>
-      <p className="text-code-sm text-fd-muted-foreground">{value}</p>
+      <p className="text-mono-label text-foreground">{label}</p>
+      <p className="text-code-sm text-muted-foreground">{value}</p>
     </div>
   );
 }
@@ -450,7 +448,7 @@ export function MotionSpecimen() {
         }
       `}</style>
       <div>
-        <h3 className="mb-2 text-xs font-medium text-fd-muted-foreground">
+        <h3 className="mb-2 text-xs font-medium text-muted-foreground">
           Duration
         </h3>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -467,7 +465,7 @@ export function MotionSpecimen() {
         </div>
       </div>
       <div>
-        <h3 className="mb-2 text-xs font-medium text-fd-muted-foreground">
+        <h3 className="mb-2 text-xs font-medium text-muted-foreground">
           Easing
         </h3>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -549,7 +547,7 @@ const CORE_STEPS: { token: string; px: string }[] = [
 /** Live numeric type-ramp specimen reading the `--text-*` size/leading tokens. */
 export function TypeScaleSizes() {
   return (
-    <div className="vs-type-product not-prose my-6 divide-y divide-fd-border rounded-lg border border-fd-border">
+    <div className="vs-type-product not-prose my-6 divide-y divide-border rounded-lg border border-border">
       {TYPE_STEPS.map(({ token, size, leading, note }) => (
         <div
           key={token}
@@ -558,8 +556,8 @@ export function TypeScaleSizes() {
           <span
             className={
               /code/.test(token)
-                ? "font-mono text-fd-foreground"
-                : "font-sans text-fd-foreground"
+                ? "font-mono text-foreground"
+                : "font-sans text-foreground"
             }
             style={{
               fontSize: `var(${token})`,
@@ -570,7 +568,7 @@ export function TypeScaleSizes() {
           >
             Geist — the quick brown fox
           </span>
-          <span className="text-mono-label text-fd-muted-foreground">
+          <span className="text-mono-label text-muted-foreground">
             {token} · {size} / {leading}
             {note ? ` · ${note}` : ""}
           </span>
@@ -583,14 +581,14 @@ export function TypeScaleSizes() {
 /** Live core-ladder specimen — the token-driven values behind `text-xs…text-3xl`. */
 export function TypeCoreLadder() {
   return (
-    <div className="vs-type-product not-prose my-6 divide-y divide-fd-border rounded-lg border border-fd-border">
+    <div className="vs-type-product not-prose my-6 divide-y divide-border rounded-lg border border-border">
       {CORE_STEPS.map(({ token, px }) => (
         <div
           key={token}
           className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-4 py-3"
         >
           <span
-            className="font-sans text-fd-foreground"
+            className="font-sans text-foreground"
             style={{
               fontSize: `var(${token})`,
               lineHeight: `var(${token}--line-height)`,
@@ -598,7 +596,7 @@ export function TypeCoreLadder() {
           >
             Geist — the quick brown fox
           </span>
-          <span className="text-mono-label text-fd-muted-foreground">
+          <span className="text-mono-label text-muted-foreground">
             {token} · {px}px
           </span>
         </div>
@@ -614,26 +612,21 @@ export function TypeCoreLadder() {
  */
 export function FocusRingSpecimen() {
   return (
-    <div className="not-prose my-6 space-y-3 rounded-lg border border-fd-border bg-fd-card p-6">
-      <p className="text-xs text-fd-muted-foreground">
-        Press{" "}
-        <kbd className="rounded border border-fd-border bg-fd-muted px-1.5 py-0.5 text-code-sm">
-          Tab
-        </kbd>{" "}
-        to move focus onto these controls and reveal the{" "}
-        <span className="font-mono">--ring</span> outline.
+    <div className="not-prose my-6 space-y-3 rounded-lg border border-border bg-card p-6">
+      <p className="text-xs text-muted-foreground">
+        Press <Kbd size="sm">Tab</Kbd> to move focus onto these controls and
+        reveal the <span className="font-mono">--ring</span> outline.
       </p>
-      <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          className="rounded-md bg-fd-primary px-4 py-2 text-sm font-medium text-fd-primary-foreground outline-none focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-fd-ring"
-        >
-          Focusable button
-        </button>
-        <input
+      {/* The real components (DC-09): the specimen demonstrates the ring `Button` gets from the
+          global `:focus-visible` rule and the border tint `Input` uses instead — not a copy of
+          either. Product type scale so the controls render at their shipped size. */}
+      <div className="vs-type-product flex flex-wrap items-center gap-3">
+        <Button>Focusable button</Button>
+        <Input
           type="text"
           placeholder="Focusable input"
-          className="rounded-md border border-fd-border bg-fd-background px-3 py-2 text-sm text-fd-foreground outline-none focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-fd-ring"
+          aria-label="Focusable input"
+          className="w-48"
         />
       </div>
     </div>

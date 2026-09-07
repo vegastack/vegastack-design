@@ -1,12 +1,8 @@
 "use client";
 
-import * as React from "react";
-import { usePathname } from "fumadocs-core/framework";
 import { Check, Sparkles } from "lucide-react";
-import { TIMINGS } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/sonner";
-import { docsRoute } from "@/lib/shared";
+import { useMarkdownCopy } from "@/components/use-markdown-copy";
 
 export interface CopyPromptButtonProps {
   /**
@@ -14,17 +10,14 @@ export interface CopyPromptButtonProps {
    * `pnpm dlx shadcn@latest add @vegastack/<name>` install command.
    */
   componentName: string;
+  /** The page's markdown URL, resolved by the server page through `getPageMarkdownUrl()`. */
+  markdownUrl: string;
   /**
    * Human-facing name used in the composed prompt text.
    * @default a title-cased version of `componentName`
    */
   displayName?: string;
 }
-
-// Keyed by the resolved markdown URL — mirrors fumadocs' own `MarkdownCopyButton` cache
-// (`page-actions.tsx`) so re-clicking, or a second ComponentPreview on the same page, never
-// refetches the same generated Markdown file.
-const markdownCache = new Map<string, Promise<string>>();
 
 function toTitleCase(slug: string) {
   return slug
@@ -35,83 +28,20 @@ function toTitleCase(slug: string) {
 
 /**
  * `CopyPromptButton` — copies an LLM-ready prompt for the current component page to the
- * clipboard: the component name, its `shadcn add` install command, and the page's raw markdown
- * (fetched at runtime from the same static `.md` sibling route fumadocs' own "Copy Markdown"
- * button uses — see `getPageMarkdownUrl` in `lib/source.ts`). Paste the result straight into an
- * AI assistant to scaffold usage.
- *
- * Static-export-friendly: production fetches the materialized `.md` sibling. Development uses
- * the pre-rendered Fumadocs staging route before the export postprocessor runs.
+ * clipboard: the component name, its `shadcn add` install command, and the page's agent markdown
+ * (the same `.md` the "Copy Markdown" button fetches — fixture source and flat API tables
+ * included). Rendered ONCE per page in the header (DC-04/DD-2), never per preview frame.
  */
 export function CopyPromptButton({
   componentName,
+  markdownUrl,
   displayName,
 }: CopyPromptButtonProps) {
-  const pathname = usePathname();
-  const [status, setStatus] = React.useState<"idle" | "loading" | "copied">(
-    "idle",
-  );
-  const revertTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined,
-  );
-
-  React.useEffect(() => () => clearTimeout(revertTimer.current), []);
-
   const name = displayName ?? toTitleCase(componentName);
-
-  const handleClick = React.useCallback(async () => {
-    const relativePath = pathname.startsWith(docsRoute)
-      ? pathname.slice(docsRoute.length)
-      : pathname;
-    const markdownUrl =
-      process.env.NODE_ENV === "development"
-        ? `/llms.mdx/docs${relativePath}/content.md`
-        : `${pathname}.md`;
-
-    setStatus("loading");
-    try {
-      const cached = markdownCache.get(markdownUrl);
-      const promise =
-        cached ??
-        fetch(markdownUrl).then((res) => {
-          if (!res.ok)
-            throw new Error(`Markdown request failed with ${res.status}`);
-          return res.text();
-        });
-      if (!cached) markdownCache.set(markdownUrl, promise);
-      const markdown = await promise.catch((error) => {
-        markdownCache.delete(markdownUrl);
-        throw error;
-      });
-
-      const installCommand = `pnpm dlx shadcn@latest add @vegastack/${componentName}`;
-      const prompt = [
-        `Use the VegaStack ${name} component in this project.`,
-        "",
-        "Install it:",
-        "```bash",
-        installCommand,
-        "```",
-        "",
-        "Component docs and usage, from the VegaStack design system:",
-        "",
-        markdown.trim(),
-      ].join("\n");
-
-      await navigator.clipboard.writeText(prompt);
-      setStatus("copied");
-      toast.success(`${name} prompt copied — paste it into your AI assistant`);
-      revertTimer.current = setTimeout(
-        () => setStatus("idle"),
-        TIMINGS.feedbackRevertMs,
-      );
-    } catch {
-      // Clipboard write / fetch can both reject (denied permission, offline, insecure context) —
-      // fall back to idle rather than claim a false success.
-      setStatus("idle");
-      toast.error("Could not copy the prompt");
-    }
-  }, [componentName, name, pathname]);
+  const { status, copy } = useMarkdownCopy(markdownUrl, {
+    success: `${name} prompt copied — paste it into your AI assistant`,
+    error: "Could not copy the prompt",
+  });
 
   return (
     <Button
@@ -121,7 +51,23 @@ export function CopyPromptButton({
       data-slot="copy-prompt-button"
       className="gap-1.5 [&_svg]:size-(--icon-inline)"
       disabled={status === "loading"}
-      onClick={handleClick}
+      aria-busy={status === "loading"}
+      onClick={() =>
+        copy((markdown) =>
+          [
+            `Use the VegaStack ${name} component in this project.`,
+            "",
+            "Install it:",
+            "```bash",
+            `pnpm dlx shadcn@latest add @vegastack/${componentName}`,
+            "```",
+            "",
+            "Component docs and usage, from the VegaStack design system:",
+            "",
+            markdown.trim(),
+          ].join("\n"),
+        )
+      }
     >
       {status === "copied" ? <Check aria-hidden /> : <Sparkles aria-hidden />}
       {status === "copied" ? "Copied" : "Copy Prompt"}

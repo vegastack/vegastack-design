@@ -6,16 +6,26 @@
  * The contract inventory is tooling metadata, not a consumer API. This verifier deliberately
  * derives the authoritative item classes from registry type + source path so `icon-button` can
  * never be mistaken for one of the generated `icon-*` mirrors.
+ *
+ *   node tooling/verify-component-contracts.mjs                          # reconcile
+ *   node tooling/verify-component-contracts.mjs --write-data-attributes  # resync the extraction
+ *   node tooling/verify-component-contracts.mjs --self-test              # NEGATIVE: prove drift fails
  */
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import ts from "typescript";
+import prettier from "prettier";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const readJson = (path) => JSON.parse(readFileSync(join(root, path), "utf8"));
 const registry = readJson("packages/ui/registry.json");
-const contracts = readJson("packages/ui/component-contracts.json");
+const contractsPath = "packages/ui/component-contracts.json";
+const contracts = readJson(contractsPath);
 const problems = [];
+// `--write-data-attributes` regenerates every component's `dataAttributes` field from source
+// and rewrites the contract (prettier-formatted); the default mode verifies the field matches.
+const writeDataAttributes = process.argv.includes("--write-data-attributes");
 
 function fail(message) {
   problems.push(message);
@@ -116,6 +126,260 @@ function sourceExports(paths) {
   }
   return sorted(names);
 }
+
+/* ── `dataAttributes` — the `data-*` attributes and CSS custom properties each exported part renders
+ *
+ * Extracted from the canonical source through the TypeScript AST, never hand-typed: for every
+ * exported function component the walk collects the JSX attributes named `data-*` in that
+ * function's own body (a literal string value is listed; an expression value — `data-size={size}`,
+ * a conditional, `dataSlot ?? "button"` — records the literal branches it can see and otherwise
+ * `values: []`, meaning "mirrors a prop or state"), plus the `--*` keys of object-literal `style`
+ * props. Attributes rendered by an unexported helper the part composes are attributed to the
+ * helper, not the part — the contract records what a part's own function paints.
+ *
+ * The docs generate the Anatomy `data-slot` names and the API Reference "data attributes" table
+ * from this field (`apps/docs/lib/generated-sections.ts`, `components/api-table.tsx`); this
+ * verifier fails when the field drifts from the source, and `--write-data-attributes` resyncs it.
+ */
+function literalStrings(node) {
+  if (!node) return [];
+  if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
+    return [node.text];
+  }
+  if (ts.isParenthesizedExpression(node))
+    return literalStrings(node.expression);
+  if (ts.isConditionalExpression(node)) {
+    return [
+      ...literalStrings(node.whenTrue),
+      ...literalStrings(node.whenFalse),
+    ];
+  }
+  if (
+    ts.isBinaryExpression(node) &&
+    (node.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken ||
+      node.operatorToken.kind === ts.SyntaxKind.BarBarToken)
+  ) {
+    return [...literalStrings(node.left), ...literalStrings(node.right)];
+  }
+  return [];
+}
+
+function collectDataAttributes(fn, sourceFile, into) {
+  const visit = (node) => {
+    // Nested function components are their own parts (or private helpers); do not descend.
+    if (
+      node !== fn &&
+      (ts.isFunctionDeclaration(node) || ts.isFunctionExpression(node))
+    ) {
+      return;
+    }
+    if (ts.isJsxAttribute(node)) {
+      const name = node.name.getText(sourceFile);
+      if (name.startsWith("data-")) {
+        const entry = into.attributes.get(name) ?? new Set();
+        into.attributes.set(name, entry);
+        if (node.initializer) {
+          const values = ts.isJsxExpression(node.initializer)
+            ? literalStrings(node.initializer.expression)
+            : literalStrings(node.initializer);
+          for (const value of values) entry.add(value);
+        }
+      }
+      if (
+        name === "style" &&
+        node.initializer &&
+        ts.isJsxExpression(node.initializer)
+      ) {
+        let expression = node.initializer.expression;
+        while (
+          expression &&
+          (ts.isAsExpression(expression) ||
+            ts.isParenthesizedExpression(expression))
+        ) {
+          expression = expression.expression;
+        }
+        if (expression && ts.isObjectLiteralExpression(expression)) {
+          for (const property of expression.properties) {
+            if (!ts.isPropertyAssignment(property)) continue;
+            const key = property.name;
+            const text = ts.isComputedPropertyName(key)
+              ? literalStrings(key.expression)[0]
+              : ts.isStringLiteral(key)
+                ? key.text
+                : undefined;
+            if (text?.startsWith("--")) into.cssVariables.add(text);
+          }
+        }
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(fn);
+}
+
+function computeDataAttributes(record) {
+  const result = {};
+  for (const path of record.sourceFiles.filter((candidate) =>
+    /\.tsx$/.test(candidate),
+  )) {
+    const absolute = join(root, path);
+    if (!existsSync(absolute)) continue;
+    const sourceFile = ts.createSourceFile(
+      path,
+      readFileSync(absolute, "utf8"),
+      ts.ScriptTarget.Latest,
+      true,
+      ts.ScriptKind.TSX,
+    );
+    for (const statement of sourceFile.statements) {
+      if (
+        !ts.isFunctionDeclaration(statement) ||
+        !statement.name ||
+        !statement.body
+      ) {
+        continue;
+      }
+      const name = statement.name.text;
+      const isPart = (record.publicSymbols ?? []).some(
+        (symbol) => symbol.name === name && symbol.kind === "component",
+      );
+      if (!isPart) continue;
+      const found = { attributes: new Map(), cssVariables: new Set() };
+      collectDataAttributes(statement, sourceFile, found);
+      if (found.attributes.size === 0 && found.cssVariables.size === 0)
+        continue;
+      result[name] = {
+        attributes: [...found.attributes.entries()]
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([attribute, values]) => ({
+            name: attribute,
+            values: sorted(values),
+          })),
+        cssVariables: sorted(found.cssVariables),
+      };
+    }
+  }
+  return result;
+}
+
+/**
+ * The `dataAttributes` drift comparison, as one function so `--self-test` can prove it REJECTS a
+ * drifted record. The reconciliation below calls it; nothing else compares the two.
+ */
+function dataAttributesProblem(record, expected) {
+  if (
+    JSON.stringify(record.dataAttributes ?? null) === JSON.stringify(expected)
+  ) {
+    return null;
+  }
+  return `component ${record.name}: dataAttributes is stale — run node tooling/verify-component-contracts.mjs --write-data-attributes`;
+}
+
+/**
+ * `--self-test` — the NEGATIVE proof for the extraction gate.
+ *
+ * The reconciliation's own green run only shows that the contract currently matches the source.
+ * It says nothing about whether a mismatch would be CAUGHT, and a gate never observed failing is
+ * an assumption (AGENTS.md § Verification ladder). So this drifts a real component record in
+ * memory — four ways, each a distinct shape of rot — and requires every one to be rejected, then
+ * requires the pristine record to pass.
+ *
+ *   node tooling/verify-component-contracts.mjs --self-test
+ */
+function selfTest() {
+  const components = contracts.components ?? [];
+  const subject = components.find(
+    (record) =>
+      Object.keys(computeDataAttributes(record)).length > 0 &&
+      Object.values(computeDataAttributes(record)).some(
+        (part) => part.attributes.length > 0,
+      ),
+  );
+  if (!subject) {
+    console.error(
+      "✗ verify-component-contracts self-test: no component record yields extractable dataAttributes — the extractor is not being exercised",
+    );
+    process.exit(1);
+  }
+  const expected = computeDataAttributes(subject);
+  const part = Object.keys(expected).find(
+    (name) => expected[name].attributes.length > 0,
+  );
+
+  const clone = () => JSON.parse(JSON.stringify(expected));
+  const drifts = [
+    [
+      "an attribute the source no longer renders",
+      (data) => {
+        data[part].attributes.push({ name: "data-gone", values: [] });
+      },
+    ],
+    [
+      "an attribute the source renders and the contract dropped",
+      (data) => {
+        data[part].attributes.shift();
+      },
+    ],
+    [
+      "a changed literal value",
+      (data) => {
+        data[part].attributes[0].values = ["not-what-the-source-says"];
+      },
+    ],
+    [
+      "a whole part the source no longer exports",
+      (data) => {
+        data.PartThatDoesNotExist = { attributes: [], cssVariables: [] };
+      },
+    ],
+  ];
+
+  for (const [label, drift] of drifts) {
+    const data = clone();
+    drift(data);
+    const problem = dataAttributesProblem(
+      { name: subject.name, dataAttributes: data },
+      expected,
+    );
+    if (!problem) {
+      console.error(
+        `✗ verify-component-contracts self-test: "${label}" was NOT rejected`,
+      );
+      process.exit(1);
+    }
+  }
+
+  if (
+    dataAttributesProblem(
+      { name: subject.name, dataAttributes: null },
+      expected,
+    ) === null
+  ) {
+    console.error(
+      "✗ verify-component-contracts self-test: a MISSING dataAttributes field was not rejected",
+    );
+    process.exit(1);
+  }
+
+  if (
+    dataAttributesProblem(
+      { name: subject.name, dataAttributes: expected },
+      expected,
+    ) !== null
+  ) {
+    console.error(
+      "✗ verify-component-contracts self-test: the pristine record was rejected",
+    );
+    process.exit(1);
+  }
+
+  console.log(
+    `✓ verify-component-contracts self-test: dataAttributes drift on \`${subject.name}.${part}\` rejected in five shapes (added, dropped, changed value, phantom part, missing field); the extracted record accepted`,
+  );
+  process.exit(0);
+}
+
+if (process.argv.includes("--self-test")) selfTest();
 
 function validateRichRecord(record, item, label) {
   assert(
@@ -533,6 +797,13 @@ for (const record of components) {
   );
   if (!item) continue;
   validateRichRecord(record, item, `component ${record.name}`);
+  const expectedDataAttributes = computeDataAttributes(record);
+  if (writeDataAttributes) {
+    record.dataAttributes = expectedDataAttributes;
+  } else {
+    const drift = dataAttributesProblem(record, expectedDataAttributes);
+    if (drift) fail(drift);
+  }
   if (record.wave in waveCounts) waveCounts[record.wave]++;
   else fail(`component ${record.name}: unknown wave ${record.wave}`);
 
@@ -1083,6 +1354,18 @@ assert(
   unknownStatuses === 0,
   `component contract must contain zero unknown statuses; received ${unknownStatuses}`,
 );
+
+if (writeDataAttributes) {
+  const formatted = await prettier.format(JSON.stringify(contracts, null, 2), {
+    parser: "json",
+    filepath: join(root, contractsPath),
+  });
+  writeFileSync(join(root, contractsPath), formatted);
+  console.log(
+    `✓ verify-component-contracts: wrote dataAttributes for ${components.length} components — run pnpm design:derived next`,
+  );
+  process.exit(0);
+}
 
 if (problems.length > 0) {
   console.error(`✗ verify-component-contracts: ${problems.length} problem(s)`);
