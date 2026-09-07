@@ -10,6 +10,83 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.7.0] — September 7, 2026
+
+### ⚠️ Breaking
+
+- **Surface tokens are now one ladder.** `secondary`, `muted` and `accent` were a single OKLCH
+  value under three names, so no hover or pressed state could be seen on a card. They are now
+  **aliases** of ladder rungs and have no independent values: `secondary` = `muted` = `surface-1`,
+  `accent` = `sidebar-accent` = `surface-2`, `sidebar` = `card`, `sidebar-border` = `border`,
+  `sidebar-ring` = `ring`. Existing `bg-muted` / `bg-accent` / `bg-sidebar-*` utilities keep
+  compiling and keep their rest appearance; only `accent` moves (one rung darker, because it is the
+  hover rung). Name the rung in new code.
+  [docs](/docs/foundations/colors) ·
+  [`0e88dc5`](https://github.com/VegaStack/vegastack-design/commit/0e88dc5)
+- **`track` is removed.** The switch off-track, slider rail and progress track are all `surface-1`.
+  [docs](/docs/foundations/colors) ·
+  [`0e88dc5`](https://github.com/VegaStack/vegastack-design/commit/0e88dc5)
+- **Light cards are page-coloured.** `card` was `oklch(0.985)` against a `0.994` page — a grey slab
+  no reference system draws. It is now the page colour, separated by the hairline alone; dark keeps
+  its one-step lift. `popover` is `card` in both themes.
+  [docs](/docs/foundations/colors) ·
+  [`0e88dc5`](https://github.com/VegaStack/vegastack-design/commit/0e88dc5)
+- **`border` and `input` are translucent.** `border` is derived as `foreground` at `--alpha-border`
+  (8% light / 14% dark) so one hairline reads on the page, on a card, inside a well and on a dark
+  band. Anything that assumed an opaque border value should read the variable instead.
+  [docs](/docs/foundations/colors) ·
+  [`0e88dc5`](https://github.com/VegaStack/vegastack-design/commit/0e88dc5)
+
+### 🔧 Changed components
+
+- **Button**, **Select**, **Sidebar**, **Toggle**, **Tabs**, **Table**, **DataGrid**, **DataList**,
+  **Board**, **Item**, **Pagination**, **NavigationMenu**, **Combobox**, **DatePicker**, **Dialog**,
+  **Sheet**, **Popover**, **HoverCard**, **Segmented**, **TagGroup**, **Bubble**, **Card**,
+  **AppShell**, **EmojiPicker**, **FieldInline**, **MessageScroller**, **NumberField**,
+  **OnboardingChecklist**, **ShortcutOverlay**, **Sonner**, **Switch**, **ToolCallChip** and the
+  **dashboard-01** block — every hover now climbs one rung and **every control has a pressed
+  step**. Previously only the solid primary Button darkened on `:active`; a state probe found 268
+  elements where pressing changed nothing. Select's trigger hovered only in dark mode; it now
+  hovers in both. The current sidebar row rests on `surface-3` so hovering it still moves.
+  [docs](/docs/components/button) ·
+  [`273a602`](https://github.com/VegaStack/vegastack-design/commit/273a602)
+- **ComparisonMatrix**, **PricingSection** — the promoted column and the highlighted plan used
+  `info` (blue). `info` is links and informational UI only; promotion is a neutral ladder rung.
+  [docs](/docs/components/comparison-matrix) ·
+  [`273a602`](https://github.com/VegaStack/vegastack-design/commit/273a602)
+
+### 🐛 Fixed
+
+- **Text-entry focus under forced colours** — Input, Textarea, NumberField, OTPInput and TextEdit
+  signal focus with a border tint and `outline-none`. Windows High Contrast replaces `border-color`
+  outright, so a focused field showed no indicator at all. The token layer now paints a real
+  `2px` outline under `forced-colors: active`, once, for every text-entry control.
+  [docs](/docs/foundations/colors) ·
+  [`273a602`](https://github.com/VegaStack/vegastack-design/commit/273a602)
+- **Media chrome no longer inverts in dark** — the video scrim and its controls were built from
+  `primary`, which flips with the theme, so in dark the scrim rendered near-white with near-black
+  icons. New theme-invariant `--media-scrim`, `--media-scrim-strong` and `--media-foreground`
+  tokens keep overlay chrome dark-scrim + light-ink in both themes.
+  [docs](/docs/foundations/colors) ·
+  [`0e88dc5`](https://github.com/VegaStack/vegastack-design/commit/0e88dc5)
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.4.0`** — the surface ladder (`surface-1/2/3`), the alpha
+  twins `--alpha-hover` / `--alpha-pressed` / `--alpha-border`, theme-invariant media tokens,
+  `--chart-single`, and the layout scale `--layout-header-height` / `--sidebar-width-mobile` /
+  `--layout-overlay-max-height` / `--panel-width-sm|md|lg`.
+- **`@vegastack/design`** → **`0.4.0`** — exports the `surfaceInteractive` and `fillInteractive`
+  hover/pressed recipes, plus the `FillTone` type.
+- The design-system registry (`@vegastack/ui`) bumps 0.6.0 → 0.7.0.
+
+### 📚 Docs
+
+- **Colors** — a new surface-ladder specimen renders both themes side by side with the rungs and
+  their alpha twins; the sidebar section now says the rail is aliases, not a second palette.
+  [docs](/docs/foundations/colors) ·
+  [`6c1b7bf`](https://github.com/VegaStack/vegastack-design/commit/6c1b7bf)
+
 ## [0.6.0] — August 31, 2026
 
 ### 🔧 Changed components
