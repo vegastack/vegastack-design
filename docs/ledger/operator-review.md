@@ -54,6 +54,76 @@ gate _claimed_, not a change of direction — no F1 decision is re-opened.
   a page+card specimen would have shown two identical columns and taught nothing.
 
 **Needs MK:** nothing. Every item is a document or gate catching up to shipped, decided behaviour.
+## 2026-09-07 — Animated icons: three calls from the Codex round on PR #57 (issue #46)
+
+**1. `chevron-first`'s handle type is a RENAME, not an alias removal — and the rename is kept.**
+
+- **What was actually there:** upstream copy-pasted `chevron-first`'s `displayName` from another
+  icon, so its primary exported interface was `ChevronsDownUpIconHandle` and `ChevronFirstIconHandle`
+  was the `@deprecated` alias _of_ it. The other seven icons in the same list are the ordinary shape
+  (primary survives, `@deprecated` alias deleted). The first changelog draft counted all eight as
+  alias removals, which described the opposite of what happened to this one.
+- **Options:** (a) keep `ChevronsDownUpIconHandle` as the surviving name, matching the old primary;
+  (b) keep `ChevronFirstIconHandle`, matching the exported component symbol and the registry item
+  name; (c) keep both.
+- **Chosen: (b).** The exported symbol is what consumers import and what `component-contracts.json`
+  pins, and a handle type whose name disagrees with its own icon is the upstream bug, not a
+  contract. (c) is a compatibility alias, which the audit mandate forbids outright. Documented as a
+  breaking rename with both names named, so a consumer of the old name can act on it.
+
+**2. Reduced motion is a hand-rolled store, not a Motion hook — and that is a deliberate cost.**
+
+- **Why:** neither Motion hook can express "live". In 12.42.2 `useReducedMotion()` is
+  `useState(prefersReducedMotion.current)` — one read of a module singleton captured at first import,
+  its own source carrying a `TODO` about not updating — and `useReducedMotionConfig()` composes
+  `<MotionConfig>` over that same one-shot value. The previous implementation therefore claimed a
+  behaviour it did not have: an icon already on screen when the user turned the preference on kept
+  animating. The factory now subscribes to the media query through `useSyncExternalStore` and keeps
+  the `<MotionConfig>` override by reading `MotionConfigContext` directly.
+- **The cost:** `MotionConfigContext` is a public export of `motion/react` but is not part of the
+  documented hook surface, so a future Motion major could move it. **D3 (motion 13) compatibility:**
+  this is one import in one file, `tooling/verify-animated-icons.mjs` asserts each half of the
+  mechanism separately, and the suite tests a live media-query transition in both directions — so a
+  break surfaces as a named gate failure, not as silently dead reduced-motion support. If Motion
+  ever ships a subscribing hook, delete the store and the override branch and use it.
+
+**2b. `<MotionConfig reducedMotion>` overrides in ONE direction only — this is a deliberate
+capability loss, and it needs MK's eye.**
+
+- **What forced the call:** `MotionConfigContext`'s default value is `reducedMotion: "never"` —
+  Motion does not auto-reduce; an app opts in with `"user"`. And `MotionConfig` merges over its
+  parent, so an explicit `<MotionConfig reducedMotion="never">` and **no `<MotionConfig>` at all**
+  produce identical context values. Nothing public can tell them apart. Honouring `"never"` as an
+  opt-out therefore also switches reduced motion off for every consumer who configured nothing,
+  which is how both `useReducedMotionConfig()` and my first fix for it ended up ignoring the OS
+  preference entirely (see `bugs.md`, 2026-09-07 (d)).
+- **Options:** (a) honour `"never"`, and accept that the un-configured tree — almost every consumer
+  — never reduces motion; (b) ignore `"never"`, so the OS preference always wins and only
+  `"always"` can add reduction; (c) reach into React internals to capture the default context object
+  and compare identity, recovering both behaviours.
+- **Chosen: (b).** (a) is a WCAG failure on the default path and contradicts what the docs page
+  promises. (c) depends on `MotionConfigContext._currentValue`, a private React field, to keep an
+  escape hatch whose only purpose is to animate against a user's explicitly stated preference —
+  paying in fragility for a capability the design system should probably not offer. (b) fails safe:
+  the worst outcome is a consumer who wanted motion getting stillness.
+- **What it costs:** a consumer cannot force full motion for icons. `<MotionConfig
+reducedMotion="never">` is now inert for them. **Needs MK:** confirm that trade, or say that the
+  escape hatch must exist and take option (c).
+
+**3. The animated-icon gate now pins each generated module by hash.**
+
+- **The hole:** `animated-icon-sources.json` pinned only the SHA-256 of the bytes fetched from
+  upstream. Nothing bound those to the module generated from them, so editing a digit of a glyph
+  path left all 439 icons passing — every remaining assertion is a schema check, and a hand-edited
+  path is still schema-valid. Reported by Codex as a fail-open gate; reproduced exactly.
+- **Chosen:** the manifest carries `moduleSha256` per icon — the hash of the generated module body
+  with the `registry:build` provenance header excluded, which is precisely the slice the mirror
+  itself compares when deciding a file changed — and the verifier recomputes it from disk. The
+  mirror stamps it on every write run and re-checks it under `--check`. Two of the fourteen
+  `--self-test` mutations (a glyph-path edit and a timing edit that uses a _sanctioned_ duration)
+  exist specifically to prove nothing else in the gate can catch these.
+
+---
 
 ## 2026-09-07 — Animated-icon factory: seven calls D28 did not settle (issue #46)
 
@@ -105,11 +175,17 @@ the `AnimatedIcon` wrapper API stay unchanged"). These seven were left open and 
 answer.
 
 **6. The acceptance thresholds were estimates, and one was not met.** The issue predicted
-`< 12,000` lines and a `≥ 2 MB` drop in `apps/docs/public/r`. Measured: **12,823 lines** (from
-79,078, −84%) and **1.57 MB** (4.48 → 2.91 MB). The residual is upstream path geometry and Motion
-variant data — the per-icon payload itself — so closing the remaining gap would mean discarding
-upstream choreography, not removing duplication. **Needs MK:** accept the measured numbers, or say
-which data should be dropped.
+`< 12,000` lines and a `≥ 2 MB` drop in `apps/docs/public/r`. Measured on the branch head:
+**12,951 lines** (from 79,078, −83.6%; 599,280 bytes from 2,158,838, i.e. 0.57 MiB from 2.06 MiB)
+and a **1.56 MiB** registry drop (4,697,592 → 3,061,351 bytes, i.e. 4.48 → 2.92 MiB). Neither
+threshold is met. The residual is upstream path geometry and Motion variant data — the per-icon
+payload itself — so closing the remaining gap would mean discarding upstream choreography, not
+removing duplication. The one lever that would move the line count is `printWidth`, and widening it
+to hit `< 12,000` would be gaming the target rather than removing anything, so `printWidth` stays at 200. **Needs MK:** accept the measured numbers, or say which data should be dropped.
+
+_Corrected 2026-09-07 (Codex round on PR #57): the figures first recorded here (12,823 lines,
+1.57 MB) predated later commits on the branch and were never re-measured. Every number above is
+re-measured at the branch head; `CHANGELOG.md` and the changeset carry the same figures._
 
 **7. Formatting for generated data files.** A root `.prettierrc.json` now sets `printWidth: 200` and
 `objectWrap: "collapse"` for the two icon directories only (no repo-wide options are set, so nothing
@@ -143,6 +219,7 @@ idempotency check would fail after anyone ran the formatter.
   **Needs MK.**
 
 ---
+
 ## 2026-09-07 — F1 surface ladder: eye-tuned rung values and the `bg-muted` mapping
 
 **Decision:** ship the ladder at values that differ from `03-proposals.md` §P1's start values wherever the contrast gate said P1's number could not hold, and keep `bg-muted` on the sites where it already means "rung 1".

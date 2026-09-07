@@ -8,24 +8,25 @@ import {
 } from "@vegastack/design/icons";
 
 /**
- * `AnimatedIconCard` — a gallery tile whose WHOLE surface drives the icon's motion.
+ * `AnimatedIconCard` — a gallery tile whose WHOLE surface drives the icon's motion. A real
+ * `<button type="button">` named by the icon (DC-12): one tab stop with a role and an accessible
+ * name, not a focusable `div`. Activating it replays the animation.
  *
- * Why this lives here (a client leaf) and not inside `AnimatedIcon`: the shared
- * `AnimatedIcon` wrapper is deliberately hook-free so it stays server-safe — it
- * ships in the same bundle entry as `Icon`/`BrandIcon`, and adding `useRef`/
- * `useEffect` there would force a `'use client'` boundary onto those server-safe
- * components too. The mirrored `lucide-animated` icons already expose an
- * imperative handle for exactly this, so the ancestor-hover wiring belongs in the
- * interactive leaf that needs it.
+ * Why this lives here (a client leaf) and not inside `AnimatedIcon`: the shared `AnimatedIcon`
+ * wrapper is deliberately hook-free so it stays server-safe — it ships in the same bundle entry
+ * as `Icon`/`BrandIcon`, and adding `useRef`/`useEffect` there would force a `'use client'`
+ * boundary onto those server-safe components too. The mirrored `lucide-animated` icons already
+ * expose an imperative handle for exactly this, so the wiring belongs in the interactive leaf
+ * that needs it.
  *
- * The mechanism: attaching a ref flips the mirrored icon into "controlled" mode,
- * which disables its own glyph-only hover — so the card's handlers become the
- * single source of truth. Pointer AND keyboard are wired, so a tab-focused card
- * animates exactly like a hovered one.
+ * The mechanism: attaching a ref flips the mirrored icon into "controlled" mode, which disables
+ * ALL of its own triggers — hover, focus, and the touch `pointerdown` tap — so the card must
+ * re-provide every one of them or that input silently stops working. Hover, focus, tap and click
+ * are therefore all wired here, under the same pointer-type rules the factory applies: a coarse
+ * pointer plays on `pointerdown` (a touch "hover" is meaningless), a fine pointer plays on enter
+ * and rests on leave.
  *
- * The host is a real `<button>`: the tile is a keyboard-operable control, and a
- * focusable `<div>` with no role is announced as nothing at all. The glyph is
- * decorative here because the button carries the name.
+ * The glyph is decorative because the button carries the name.
  */
 export function AnimatedIconCard({
   as,
@@ -40,18 +41,41 @@ export function AnimatedIconCard({
   const start = React.useCallback(() => icon.current?.startAnimation(), []);
   const stop = React.useCallback(() => icon.current?.stopAnimation(), []);
 
+  const handlePointerEnter = React.useCallback(
+    (event: React.PointerEvent<HTMLButtonElement>) => {
+      if (event.pointerType !== "touch") start();
+    },
+    [start],
+  );
+  const handlePointerLeave = React.useCallback(
+    (event: React.PointerEvent<HTMLButtonElement>) => {
+      if (event.pointerType !== "touch") stop();
+    },
+    [stop],
+  );
+  // The tap driver the ref latch takes away. Without it the whole gallery is
+  // inert on a touch device: no hover exists there, and nothing else plays.
+  const handlePointerDown = React.useCallback(
+    (event: React.PointerEvent<HTMLButtonElement>) => {
+      if (event.pointerType === "touch") start();
+    },
+    [start],
+  );
+
   return (
     <button
       type="button"
-      aria-label={label}
-      onMouseEnter={start}
-      onMouseLeave={stop}
+      aria-label={`${label} icon — play animation`}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
+      onPointerDown={handlePointerDown}
       onFocus={start}
       onBlur={stop}
+      onClick={start}
       className={className}
     >
-      <AnimatedIcon ref={icon} as={as} size="lg" />
-      <span aria-hidden className="text-xs leading-4 text-fd-muted-foreground">
+      <AnimatedIcon ref={icon} as={as} size="lg" aria-hidden />
+      <span aria-hidden className="text-xs leading-4 text-muted-foreground">
         {label}
       </span>
     </button>

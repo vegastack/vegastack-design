@@ -3,13 +3,83 @@
 import * as React from "react";
 import {
   AnimatePresence,
+  MotionConfigContext,
   motion,
   useAnimation,
-  useReducedMotionConfig,
 } from "motion/react";
 import type { Transition, Variants } from "motion/react";
 
 import { cn } from "../index";
+
+const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+
+/**
+ * Motion does not ship a hook that tracks the OS preference over time. In
+ * 12.42.2 `useReducedMotion()` is literally
+ * `useState(prefersReducedMotion.current)` — a one-shot read of a module
+ * singleton captured on first import, with a standing `TODO` in its source
+ * about not updating — and `useReducedMotionConfig()` layers `<MotionConfig>`
+ * on top of that same one-shot value. A mounted icon therefore never re-renders
+ * when the preference is turned on, which is exactly when it matters most.
+ *
+ * So the media query is subscribed to directly, through
+ * `useSyncExternalStore`: the store re-renders every mounted icon on a live
+ * change, and the SSR snapshot is `false` (no preference is knowable on the
+ * server).
+ */
+function subscribeToReducedMotion(onStoreChange: () => void) {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function")
+    return () => {};
+  const query = window.matchMedia(REDUCED_MOTION_QUERY);
+  query.addEventListener("change", onStoreChange);
+  return () => query.removeEventListener("change", onStoreChange);
+}
+
+function readReducedMotion() {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function")
+    return false;
+  return window.matchMedia(REDUCED_MOTION_QUERY).matches;
+}
+
+/** No preference exists on the server; icons render at rest and hydrate. */
+function readReducedMotionOnServer() {
+  return false;
+}
+
+/**
+ * The live preference, with `<MotionConfig reducedMotion="always">` able to
+ * force reduction on top of it.
+ *
+ * The override is deliberately ONE-WAY, and that is forced by Motion's own
+ * defaults. `MotionConfigContext`'s default value is
+ * `{ …, reducedMotion: "never" }` — Motion does not reduce motion unless an
+ * application opts in with `<MotionConfig reducedMotion="user">` — and
+ * `MotionConfig` merges over its parent, so an explicit `reducedMotion="never"`
+ * and *no `<MotionConfig>` at all* produce byte-identical context values. There
+ * is no public way to tell them apart.
+ *
+ * Given that ambiguity, honouring `"never"` as an opt-out is not a neutral
+ * choice: it silently disables reduced motion for every consumer who mounts no
+ * `<MotionConfig>`, which is most of them, and the docs promise the opposite
+ * ("no `MotionConfig` is required for VegaStack icon safety"). So the OS
+ * preference always wins unless a consumer asks for MORE reduction. A consumer
+ * who genuinely wants motion against the user's stated preference has to hold
+ * that decision themselves rather than getting it by default.
+ *
+ * This is why neither Motion hook is used: `useReducedMotionConfig()` applies
+ * exactly the `"never"` branch described above, so under Motion's default
+ * context it returns `false` unconditionally and the preference is never read.
+ */
+function useLiveReducedMotion() {
+  const preference = React.useSyncExternalStore(
+    subscribeToReducedMotion,
+    readReducedMotion,
+    readReducedMotionOnServer,
+  );
+  const { reducedMotion } = React.useContext(MotionConfigContext);
+  if (reducedMotion === "always") return true;
+  return preference;
+}
 
 /**
  * Motion's imperative controls. `motion` does not export a public name for this
@@ -64,7 +134,10 @@ export interface AnimatedIconChoreography {
    * the call site — the factory creates exactly the groups the spec declares.
    */
   control: (group?: string) => AnimatedIconControls;
-  /** The live `useReducedMotionConfig()` preference. */
+  /**
+   * The live `(prefers-reduced-motion: reduce)` preference, with an explicit
+   * `<MotionConfig reducedMotion>` override applied.
+   */
   shouldReduceMotion: boolean;
   /**
    * Play a definition. A no-op that also halts the control when reduced motion
@@ -380,11 +453,9 @@ export function createAnimatedIcon(
     // `groupNames` is fixed when the component type is created, so this loop
     // calls the same hooks in the same order on every render of this component.
     const controlList = groupNames.map(() => useAnimation()); // eslint-disable-line react-hooks/rules-of-hooks -- fixed-length list, see above
-    // `useReducedMotionConfig`, not `useReducedMotion`: it returns the OS
-    // preference by default AND honours an explicit `<MotionConfig
-    // reducedMotion>` from the consumer. The plain hook reads a module-level
-    // singleton only, which no consumer and no test can influence.
-    const shouldReduceMotion = useReducedMotionConfig() ?? false;
+    // A live subscription to the media query, not either of Motion's one-shot
+    // hooks — see `useLiveReducedMotion` above for why neither can be used.
+    const shouldReduceMotion = useLiveReducedMotion();
     const [isActive, setIsActive] = React.useState(false);
 
     const reduceRef = React.useRef(shouldReduceMotion);

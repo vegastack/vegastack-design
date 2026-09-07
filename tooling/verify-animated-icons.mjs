@@ -10,6 +10,12 @@
 // reappears in a generated file, the duplication this architecture removed is
 // creeping back and the gate fails.
 //
+// A schema, though, is satisfiable by hand: a well-formed path string is still
+// well-formed after someone edits a digit of it. So the manifest additionally
+// pins `moduleSha256` — the hash of each generated module body — and this script
+// recomputes it from disk. That clause is what makes the corpus half of this
+// gate fail-CLOSED rather than merely well-shaped.
+//
 // `--self-test` proves the assertions can actually fail, by mutating a copy of
 // the real corpus and requiring each mutation to be rejected.
 import {
@@ -20,9 +26,12 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
+import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 import ts from "typescript";
+
+const sha256 = (value) => createHash("sha256").update(value).digest("hex");
 
 const EXPECTED_COUNT = 439;
 const SOURCE_DIR = "packages/ui/registry/ui/icons";
@@ -177,13 +186,55 @@ function verifyFactory(source, failures) {
   if (!/^"use client";/m.test(source)) fail("missing 'use client' directive");
   if (/\bforwardRef\b/.test(source))
     fail("React.forwardRef is forbidden under React 19");
-  // The config-aware hook, deliberately: it honours the OS preference AND an
-  // explicit <MotionConfig reducedMotion> from the consumer. The plain
-  // useReducedMotion() reads a module singleton nothing can influence.
-  if (!source.includes("useReducedMotionConfig()"))
-    fail("missing the intrinsic reduced-motion hook");
-  if (/\buseReducedMotion\(\)/.test(source))
-    fail("use useReducedMotionConfig(), which also honours <MotionConfig>");
+  // Reduced motion must be a LIVE subscription. Both of Motion's hooks read a
+  // module singleton once (12.42.2: `useState(prefersReducedMotion.current)`,
+  // with a standing TODO about not updating), so an icon mounted before the
+  // preference is switched on would keep animating. Neither is acceptable here.
+  // Checked against the IMPORTS, not the text: the comment above the store
+  // explains why both hooks are unusable, and must be allowed to name them.
+  const imported = new Set();
+  for (const statement of file.statements) {
+    if (!ts.isImportDeclaration(statement)) continue;
+    const bindings = statement.importClause?.namedBindings;
+    if (!bindings || !ts.isNamedImports(bindings)) continue;
+    for (const element of bindings.elements)
+      imported.add(element.name.getText(file));
+  }
+  for (const hook of ["useReducedMotion", "useReducedMotionConfig"]) {
+    if (imported.has(hook)) {
+      fail(
+        `${hook} never re-renders on a live preference change; subscribe to the media query`,
+      );
+    }
+  }
+  if (!/useSyncExternalStore\(/.test(source))
+    fail("the reduced-motion preference must be a subscribed external store");
+  if (!/"\(prefers-reduced-motion: reduce\)"/.test(source))
+    fail("the reduced-motion store must read the prefers-reduced-motion query");
+  if (!/matchMedia\(/.test(source))
+    fail("the reduced-motion store must read the preference from matchMedia");
+  if (!/addEventListener\("change"/.test(source))
+    fail("the reduced-motion store must subscribe to media-query changes");
+  if (!/removeEventListener\("change"/.test(source))
+    fail("the reduced-motion subscription must be torn down");
+  // <MotionConfig reducedMotion="always"> may add reduction on top of the
+  // preference. It may NOT take it away: Motion's default context value is
+  // `reducedMotion: "never"`, which is indistinguishable from an explicit
+  // opt-out, so honouring that branch would disable reduced motion for every
+  // consumer who mounts no <MotionConfig> at all. The preference must be the
+  // value that falls through.
+  if (!/MotionConfigContext\b/.test(source))
+    fail('<MotionConfig reducedMotion="always"> must override the preference');
+  if (!/reducedMotion === "always"/.test(source))
+    fail('<MotionConfig reducedMotion="always"> must force reduced motion');
+  if (/reducedMotion === "never"/.test(source))
+    fail(
+      'reducedMotion === "never" is Motion\'s DEFAULT context value, not an ' +
+        "opt-out; branching on it disables reduced motion for every consumer " +
+        "who mounts no <MotionConfig>",
+    );
+  if (!/^\s*return preference;$/m.test(source))
+    fail("the OS preference must be the value that falls through");
   if (!source.includes('size = "var(--icon-default)"'))
     fail("default size must resolve from --icon-default at runtime");
   if (
@@ -313,7 +364,7 @@ function verifyWrapper(source, failures) {
     fail("wrapper props must expose the imperative ref");
   if (!source.includes("ref={ref}"))
     fail("wrapper does not pass the ref through");
-  if (!source.includes("useReducedMotionConfig()")) {
+  if (!source.includes("prefers-reduced-motion")) {
     fail("JSDoc must document the intrinsic reduced-motion contract");
   }
   if (!source.includes("HTMLSpanElement")) {
@@ -349,7 +400,14 @@ function verifyManifest(manifestPath, failures) {
       fail(`${item.name}: URL drift`);
     if (item.license !== "MIT") fail(`${item.name}: license drift`);
     if (!/^[0-9a-f]{64}$/.test(item.sha256))
-      fail(`${item.name}: invalid SHA-256`);
+      fail(`${item.name}: invalid upstream SHA-256`);
+    // The upstream hash pins the BYTES WE FETCHED. It says nothing about the
+    // module we generated from them, so on its own it leaves this whole gate
+    // fail-open: hand-edit a path string in a mirrored module and every
+    // assertion above still passes. `moduleSha256` closes that — it pins the
+    // generated body itself, and `verifyIcon` recomputes it from disk.
+    if (!/^[0-9a-f]{64}$/.test(item.moduleSha256))
+      fail(`${item.name}: invalid generated-module SHA-256`);
   }
   return manifest;
 }
@@ -369,6 +427,20 @@ function verifyIcon(item, sourceDir, vocabulary, stats, failures) {
     "// Generated by tooling/mirror-animated-icons.mjs — do NOT hand-edit; re-run the mirror to update.\n";
   if (!mirrorSource.startsWith(expectedHeader))
     fail("deterministic attribution header drift");
+
+  // The binding assertion: this file's generated body, byte for byte, is the
+  // one the mirror emitted and the manifest pinned. Everything else in this
+  // function is a schema check that a careful hand-edit can satisfy; this one
+  // cannot be satisfied by any edit at all. The registry provenance header is
+  // stamped later by `registry:build`, so it is excluded — exactly the slice
+  // `tooling/mirror-animated-icons.mjs` compares when it decides a file changed.
+  const moduleSha256 = sha256(mirrorSource);
+  if (moduleSha256 !== item.moduleSha256) {
+    fail(
+      `generated module drift — expected ${item.moduleSha256}, got ${moduleSha256}; ` +
+        "re-run tooling/mirror-animated-icons.mjs rather than hand-editing",
+    );
+  }
   if (!/^"use client";$/m.test(source)) fail("missing 'use client' directive");
 
   if (/#[0-9a-fA-F]{3,8}\b/.test(source)) fail("hardcoded color detected");
@@ -807,6 +879,77 @@ function selfTest() {
       },
     ],
     [
+      // Codex's exact fail-open case: one digit of Bell's glyph. Every schema
+      // assertion still passes — it is a well-formed path in a well-formed
+      // data module — so ONLY the generated-module hash can reject it.
+      "a hand-edited glyph path",
+      (dir) => {
+        const path = join(dir, "icons", "bell.tsx");
+        writeFileSync(
+          path,
+          readFileSync(path, "utf8").replace("3 9 3 9H3", "3 8 3 9H3"),
+        );
+      },
+    ],
+    [
+      // Same shape, on the choreography instead of the geometry, and using a
+      // SANCTIONED duration so the vocabulary check cannot be what rejects it.
+      "a hand-edited choreography (sanctioned value, wrong timing)",
+      (dir) => {
+        const path = join(dir, "icons", "bell.tsx");
+        writeFileSync(
+          path,
+          readFileSync(path, "utf8").replace("duration: 0.5", "duration: 0.4"),
+        );
+      },
+    ],
+    [
+      "a reduced-motion store that never subscribes",
+      (dir) => {
+        const path = join(dir, "create-animated-icon.tsx");
+        writeFileSync(
+          path,
+          readFileSync(path, "utf8")
+            .replace('query.addEventListener("change", onStoreChange);', "")
+            .replace(
+              'return () => query.removeEventListener("change", onStoreChange);',
+              "return () => {};",
+            ),
+        );
+      },
+    ],
+    [
+      'a factory that ignores <MotionConfig reducedMotion="always">',
+      (dir) => {
+        const path = join(dir, "create-animated-icon.tsx");
+        writeFileSync(
+          path,
+          readFileSync(path, "utf8").replace(
+            'if (reducedMotion === "always") return true;',
+            "",
+          ),
+        );
+      },
+    ],
+    [
+      // The regression this branch caused in the first place: Motion's DEFAULT
+      // context value is `reducedMotion: "never"`, so re-adding this line makes
+      // the factory return false for every consumer who mounts no
+      // <MotionConfig> — the OS preference stops being read at all.
+      'a factory that treats reducedMotion="never" as an opt-out',
+      (dir) => {
+        const path = join(dir, "create-animated-icon.tsx");
+        writeFileSync(
+          path,
+          readFileSync(path, "utf8").replace(
+            'if (reducedMotion === "always") return true;',
+            'if (reducedMotion === "always") return true;\n' +
+              '  if (reducedMotion === "never") return false;',
+          ),
+        );
+      },
+    ],
+    [
       "a dependency-less reduced-motion effect in the factory",
       (dir) => {
         const path = join(dir, "create-animated-icon.tsx");
@@ -930,5 +1073,5 @@ console.log(`  Motion duration archetype: ${durationRange}`);
 console.log(`  Motion easing archetypes: ${top(stats.easings)}`);
 console.log(`  Motion renderer types: ${top(stats.transitionTypes)}`);
 console.log(
-  `  manifest: ${basename(MANIFEST_PATH)} (${manifest.items.length} URL/MIT/SHA-256 records)`,
+  `  manifest: ${basename(MANIFEST_PATH)} (${manifest.items.length} records: URL/MIT, upstream SHA-256, generated-module SHA-256)`,
 );

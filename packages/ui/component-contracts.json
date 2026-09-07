@@ -21406,7 +21406,7 @@
         ],
         "reducedMotion": {
           "status": "intrinsic",
-          "rationale": "Every generated mirror calls Motion useReducedMotion(), blocks playback while reduction is requested, and resets immediately to the static normal state if the preference changes."
+          "rationale": "createAnimatedIcon subscribes to (prefers-reduced-motion: reduce) live (useSyncExternalStore over a matchMedia change listener), with <MotionConfig reducedMotion> as an override; playback is blocked while reduction is requested and every mounted icon resets immediately to the static normal state when the preference changes."
         }
       },
       "engines": [

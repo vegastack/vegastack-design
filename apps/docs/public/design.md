@@ -1917,11 +1917,17 @@ upstream choreography is not a plain play/rest pair — its start/stop steps. Th
 in `@vegastack/design/create-animated-icon`: the animation controls, the reduced-motion gate, the
 imperative `startAnimation`/`stopAnimation` handle, and the multi-input trigger rules (hover plays on
 a fine pointer, a tap plays on touch, focus plays and blur rests, and every one of them stands down
-once a consumer attaches a ref). The host is an **`inline-flex` `<span>`** — an icon sits inside a
-line of text, so a block-level box there is a layout bug. Reduced motion is read through Motion's
-config-aware hook, so a consumer can force it with `<MotionConfig reducedMotion>` as well as by OS
-preference. A behaviour that belongs to every icon belongs in the factory; a generated icon module
-that contains a hook, an event handler, or any JSX is a defect the gate rejects.
+once a consumer attaches a ref — including the tap driver, so a ref-controlled icon that omits its
+own `pointerdown` handler is dead on touch). The host is an **`inline-flex` `<span>`** — an icon sits
+inside a line of text, so a block-level box there is a layout bug. Reduced motion is a **live
+subscription** to `prefers-reduced-motion`, not a one-shot read: turning the preference on settles
+every icon already on screen. `<MotionConfig reducedMotion="always">` adds reduction on top; the
+override is **one-way**, because Motion's default context value is `reducedMotion: "never"` and is
+indistinguishable from an explicit one, so honouring it would disable reduced motion for every
+consumer who mounts no `MotionConfig`.
+A behaviour that belongs to every icon belongs in the factory; a generated icon module that contains
+a hook, an event handler, or any JSX is a defect the gate rejects — and each generated module is
+pinned by SHA-256 in the mirror manifest, so a hand-edited path or timing value is rejected too.
 
 ## Components
 

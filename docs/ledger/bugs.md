@@ -116,14 +116,134 @@ stopAnimation]`, where `stopAnimation` is a `useCallback` over stable inputs. `[
   never reached it; and (2) the assertion compared `path.getAttribute("style")`, which does not
   change during a `pathLength` stroke-draw animation, so it would have held even with motion running.
   Reproduced by asserting on `path.outerHTML` instead: the icon animated under a "reduced" mock.
-- **Fix:** the factory reads `useReducedMotionConfig()`, which returns the OS preference **and**
-  honours an explicit `<MotionConfig reducedMotion>`. That is both the stronger contract (a consumer
-  can force reduced motion) and the only seam a test can drive. Three tests now cover it — hover
-  suppressed, handle suppressed, and a `reducedMotion="never"` **negative control** so a green pair
-  cannot come from a probe that never animates in the first place.
+- **Fix:** the factory subscribes to `(prefers-reduced-motion: reduce)` itself, through
+  `useSyncExternalStore`, and reads `MotionConfigContext` for the `<MotionConfig reducedMotion>`
+  override. (Two intermediate fixes were wrong: `useReducedMotionConfig()`, and then a two-way
+  `MotionConfig` override — see (c) and (d) in the entry below.) That is both the stronger contract
+  and a seam a test can actually drive. Five tests now cover it: hover suppressed, handle suppressed,
+  an un-configured tree with the preference off as a **negative control** so a green set cannot come
+  from a probe that never animates, a live media-query transition in both directions, and the
+  un-configured tree with the preference ON.
 - **Rider:** the browser-unit suite renders without the compiled stylesheet, so the new host-element
   assertion checks the `inline-flex` class rather than the computed `display`. The rendered box is
   the pixel lane's job, not this suite's.
+
+---
+
+## 2026-09-07 — Three more in the same corpus: a fail-open gate, a touch-inert gallery, and a "live" preference that was not live
+
+Found by the Codex adversarial round on PR #57, all three reproduced before being fixed.
+
+### (a) The animated-icon gate could not see a hand-edited module (fail-open)
+
+- **Symptom:** changing one digit of Bell's glyph path (`…3 9 3 9H3` → `…3 8 3 9H3`) left
+  `node tooling/verify-animated-icons.mjs` fully green across all 439 icons.
+- **Root cause:** `packages/ui/animated-icon-sources.json` pinned `sha256` of the bytes **fetched
+  from upstream**, and the verifier only checked that those hashes _looked like_ SHA-256. Nothing
+  bound the pinned upstream data to the module generated from it. Every other assertion in the gate
+  is a schema check, and a hand-edited path is still schema-valid — so the corpus half of the gate
+  was decorative.
+- **Fix:** the manifest carries `moduleSha256` per icon — the hash of the generated module body with
+  the `registry:build` provenance header excluded, which is exactly the slice the mirror compares
+  when deciding a file changed — and `verifyIcon` recomputes it from disk on every run.
+  `tooling/mirror-animated-icons.mjs` stamps it on every write run and verifies it under `--check`.
+  Two of the now-fourteen `--self-test` mutations exist solely to prove nothing else catches this: a
+  glyph-path edit, and a timing edit that uses a **sanctioned** duration so the Motion-vocabulary
+  check cannot be what rejects it. Confirmed against live upstream: `mirror --check` regenerates all
+  439 modules byte-identically and agrees with every stamped hash.
+
+### (b) The docs icon gallery was inert on touch
+
+- **Symptom:** on a touch device, no tile in the 439-icon gallery ever animated.
+- **Root cause:** `AnimatedIconCard` drives its icon through a ref, and attaching a ref flips the
+  icon into controlled mode — which suppresses **all** of its own triggers, including the touch
+  `pointerdown` tap driver, not just the hover it was suppressing on purpose. The card re-provided
+  mouse-enter/leave and focus/blur but not `pointerdown`, and a touch device has neither hover nor
+  focus, so there was no driver left at all.
+- **Fix:** the card wires `onPointerDown` (and switches to pointer events for enter/leave) under the
+  same pointer-type rules the factory applies. The old coverage was a hand-retyped copy of the
+  tile's markup, which could not have caught this; it is replaced by tests that render the real
+  `AnimatedIconCard` and play it through hover, focus and tap, with an untouched tile as the
+  negative control.
+
+### (c) "Reduced motion updates live" was false
+
+- **Symptom:** an icon already on screen kept animating after the OS preference was switched on.
+- **Root cause:** Motion 12.42.2's `useReducedMotion()` is `useState(prefersReducedMotion.current)`
+  with no subscription — its own source carries a standing `TODO` about this — and
+  `useReducedMotionConfig()` layers `<MotionConfig>` over that same one-shot value. The dependency
+  array added in the entry above was correct, but the dependency it watched could never change.
+- **Fix:** `useSyncExternalStore` over a `matchMedia("(prefers-reduced-motion: reduce)")` change
+  listener, SSR snapshot `false`, combined with `MotionConfigContext` so an explicit
+  `reducedMotion="always"` still wins. (This fix also read `"never"` as an override, which was itself
+  a defect — see (d).) Proven by a test that stubs `matchMedia` with
+  dispatchable listeners and moves the preference in both directions while the icon is mounted, and
+  that asserts the listener is removed on unmount. The verifier now asserts each half of the
+  mechanism separately and rejects an import of either Motion hook.
+
+### (d) …and reduced motion was not honoured **at all** without a `<MotionConfig>`
+
+Found while verifying the fix for (c): the live-transition test failed on the first run, with the
+icon animating under a `matchMedia` stub reporting `reduce`. Not a flake, and not the harness — the
+fix for (c) was wrong.
+
+- **Symptom:** with the OS preference set and no `<MotionConfig>` anywhere in the tree — the tree
+  almost every consumer actually has — icons animated normally. The docs page promised the opposite
+  in as many words: "no `MotionConfig` is required for VegaStack icon safety."
+- **Root cause:** `MotionConfigContext`'s **default value** is
+  `{ transformPagePoint, isStatic: false, reducedMotion: "never" }`. Motion does not reduce motion
+  unless an app opts in with `reducedMotion="user"`. So the override branch
+  `if (reducedMotion === "never") return false;` fires on every un-configured tree and the preference
+  is never read. This was true of the ORIGINAL implementation too: `useReducedMotionConfig()` has
+  that exact branch, so the earlier "fix" that adopted it (entry above, and the first commit of this
+  PR) had silently disabled reduced motion for icons rather than strengthening it. Three separate
+  reduced-motion tests were green throughout, because every one of them mounted a `<MotionConfig>`.
+- **Why it cannot simply be repaired:** `MotionConfig` merges over its parent config, so an explicit
+  `<MotionConfig reducedMotion="never">` and no provider at all yield identical context values.
+  There is no public way to distinguish "the consumer opted out" from "the consumer configured
+  nothing".
+- **Fix:** the override is now **one-way**. `reducedMotion === "always"` forces reduction; every
+  other value, the default included, falls through to the live OS preference. Losing the
+  animate-anyway escape hatch is the deliberate cost — it is the branch that cannot be told apart
+  from silence, and defaulting it against the user's stated preference is an accessibility failure,
+  while defaulting it toward them is not.
+- **Coverage that would have caught it, now present:** an icon rendered with the preference on and
+  **no `<MotionConfig>`**, and a second asserting `<MotionConfig reducedMotion="never">` cannot
+  defeat the preference. The verifier now _rejects_ a `reducedMotion === "never"` branch in the
+  factory and requires the preference to be the fall-through value; a fifteenth `--self-test`
+  mutation re-adds that branch and proves the gate rejects it.
+
+### (e) Observed in passing, NOT fixed here: `/docs/components/relative-time` flakes in a full contract sweep
+
+Not an icon defect and not caused by this branch — recorded so the next person who sees it does not
+re-diagnose it, and because a race that flakes under load is a real race.
+
+- **Observed:** `pnpm gates:push` on this branch went full-sweep (a global surface changed) and 4 of
+  880 checks failed — the same assertion in all four Chromium projects:
+  `/docs/components/relative-time contains its primary fixture at 320px`, failing at
+  `fixture.scrollIntoViewIfNeeded()` with `Element is not attached to the DOM`, one line after
+  `await expect(fixture).toBeVisible()` had passed.
+- **Why it is not this branch:** `relative-time` imports nothing from
+  `@vegastack/design/create-animated-icon`, renders no animated icon, and none of its files are
+  touched here. Re-running that route in isolation on the identical tree passed 8/8 in 22s.
+- **Mechanism:** `relative-time` reschedules a `setTimeout` on an adaptive interval that goes down
+  to ~1s near the target, and also flips `hydrated` in an effect on mount. Under a 110-route sweep on
+  a loaded shared box, a tick lands between `toBeVisible()` and `scrollIntoViewIfNeeded()` and
+  replaces the node the locator resolved. Under no load the window is too small to hit — which is
+  exactly why it only appears in the full sweep.
+- **Fixed here after all, on the spec side.** The first re-run of the full sweep reproduced it (2
+  failures instead of 4), so it is not an occasional flake but a race that lands on essentially every
+  full sweep — and it therefore blocks the gate receipt for _any_ change touching a global surface,
+  not just this one. `contracts.spec.ts` now re-resolves the fixture and retries the scroll under
+  `expect(...).toPass()` instead of acting on a single resolved handle. The component is not
+  touched: its ticking is correct behaviour. No assertion is weakened — both 320px reflow polls, the
+  RTL poll and the closing visibility assertion are unchanged.
+- **Why the spec and not the component:** the contract lane must tolerate fixtures that legitimately
+  re-render, or every future self-updating component becomes unverifiable. Flagged in the PR as an
+  edit outside I1's lane.
+
+---
+
 ## 2026-09-07 — Two defects the audit did not name, found while building the surface ladder
 
 - **A light-only alias leaks the light value into `.dark`.** `chart-single` was authored once, in

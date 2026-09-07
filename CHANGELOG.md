@@ -33,13 +33,23 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   `size` prop, the `startAnimation`/`stopAnimation` handle and the `AnimatedIcon` wrapper API are
   unchanged.
   [docs](https://design.vegastack.com/docs/foundations/icons) ·
-  [`70fe6b2`](https://github.com/VegaStack/vegastack-design/commit/70fe6b2)
-- **Animated icons** — reduced motion is now read through Motion's config-aware hook, so
-  `<MotionConfig reducedMotion="always">` suppresses icon playback as well as the OS preference
-  does. Previously only the OS preference was consulted, through a module-level singleton no
-  consumer could influence.
+  [`1a6783e`](https://github.com/VegaStack/vegastack-design/commit/1a6783e)
+- **Animated icons** — reduced motion is now a live subscription to
+  `(prefers-reduced-motion: reduce)`, so turning the preference on settles every mounted icon
+  immediately instead of only affecting icons mounted afterwards. Motion's own hooks cannot do this:
+  in 12.42.2 `useReducedMotion()` is `useState(prefersReducedMotion.current)` — a one-shot read of a
+  module singleton captured at first import, with a standing `TODO` about not updating — and
+  `useReducedMotionConfig()` layers `<MotionConfig>` on that same one-shot value.
+- **Animated icons** — the OS reduced-motion preference was never consulted at all unless the
+  application happened to mount a `<MotionConfig>`. `useReducedMotionConfig()` returns `false`
+  outright when the context says `reducedMotion: "never"`, and `"never"` is precisely Motion's
+  **default** context value — so on the un-configured tree that almost every consumer has, icons
+  animated regardless of the preference. The factory now treats the preference as the base value and
+  lets `<MotionConfig reducedMotion="always">` add reduction on top; the override is one-way,
+  because an explicit `reducedMotion="never"` is byte-identical to no provider at all and honouring
+  it would switch reduced motion off for everyone who configured nothing.
   [docs](https://design.vegastack.com/docs/foundations/icons) ·
-  [`70fe6b2`](https://github.com/VegaStack/vegastack-design/commit/70fe6b2)
+  [`1a6783e`](https://github.com/VegaStack/vegastack-design/commit/1a6783e)
 
 ### 🛠 CLI & tooling
 
@@ -49,14 +59,16 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   that meant regenerating 439 files and trusting that all 439 agreed. The controller now lives once
   in `createAnimatedIcon`, and each icon is a `createAnimatedIcon({ … })` call describing only its
   geometry, its Motion variants, and (for 49 icons) its non-default start/stop steps. The corpus
-  went from 79,078 lines to 12,823 (-84%) and from 2.06 MB to 0.57 MB of source; the served registry
-  fell from 4.48 MB to 2.91 MB. `tooling/mirror-animated-icons.mjs` emits the data modules and fails
-  closed on any upstream archetype it cannot model;
+  went from 79,078 lines to 12,951 (-84%) and from 2.06 MiB to 0.57 MiB of source; the served
+  registry fell from 4.48 MiB to 2.92 MiB. `tooling/mirror-animated-icons.mjs` emits the data
+  modules and fails closed on any upstream archetype it cannot model;
   `tooling/verify-animated-icons.mjs` asserts the controller contract once against the factory,
   holds every module to a schema whose central clause is that a data module contains no controller
-  at all, and carries a `--self-test` that proves ten distinct regressions are rejected.
+  at all, pins each generated module by SHA-256 in `packages/ui/animated-icon-sources.json` so a
+  hand-edited path or timing value is rejected outright, and carries a `--self-test` that proves
+  fourteen distinct regressions are rejected.
   [docs](https://design.vegastack.com/docs/foundations/icons) ·
-  [`70fe6b2`](https://github.com/VegaStack/vegastack-design/commit/70fe6b2)
+  [`1a6783e`](https://github.com/VegaStack/vegastack-design/commit/1a6783e)
 
 ### 📦 npm
 
@@ -77,6 +89,70 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   their alpha twins; the sidebar section now says the rail is aliases, not a second palette.
   [docs](https://design.vegastack.com/docs/foundations/colors) ·
   [`6c1b7bf`](https://github.com/VegaStack/vegastack-design/commit/6c1b7bf)
+- **One page canon, for humans and agents alike — the infrastructure, and three reference pages.**
+  The canon defines a fixed page shape whose machine-readable half is generated from the two
+  authorities rather than typed: Install from `registry.json` (the `shadcn add` command, the
+  registry dependencies and the sanctioned engines), Anatomy from the contract's new
+  `dataAttributes`, the states-tested table from the contract's `states`, and a per-item Changelog
+  filtered out of this file. This release ships those generated sections as MDX components and
+  places them on **three reference pages** (button, dialog, data-grid); the remaining 107 pages
+  keep their current bodies and are migrated to the canon in the next release. The canon table is
+  `design.md` §Docs canon — the target shape, not a description of every page today.
+  [canon](/docs/components/button)
+- **The markdown export is real markdown.** The per-page `.md` route and `llms-full.txt` previously
+  emitted `<AutoTypeTable …/>` and `<ComponentPreview …/>` verbatim — 107 of 110 component pages
+  and 260 occurrences in `llms-full.txt` — so an agent reading the docs saw no props and no example
+  code at all. Every MDX component now renders to markdown: the exact fixture source the Code tab
+  shows, the flat prop tables, the install steps, the do/don't pairs. Browser-only surfaces are
+  replaced by a one-line note rather than dropped silently.
+- **API tables are flat and expanded, on every page at once.** One table per exported part — name,
+  the literal union (`"default" | "secondary" | …`, not `union`), the `@default` value, the
+  description — instead of collapsed accordion rows. This one lands everywhere immediately: the
+  renderer is registered under the legacy `AutoTypeTable` name the 107 unmigrated pages author, so
+  no page body had to change for it. Own props only, and a part with no own props of its own gets one
+  sentence instead of the 138 "(no own props)" placeholder rows that filled 18 pages. A second
+  table lists the `data-*` attributes and CSS variables the part exposes.
+  [example](/docs/components/dialog)
+- **`llms.txt` carries the registry roster and the skill roster** — every installable item with its
+  page and its `shadcn add` target, and the public agent skills — so an agent can go from "I need a
+  data grid" to the page and the install command without scraping.
+  [guide](/docs/guides/agent-skills)
+- **The docs shell obeys the design system it documents.** Fumadocs' chrome and the typography
+  plugin are compiled against Tailwind's stock theme, so headings, sidebar titles and prose
+  `<strong>` rendered at weight 600–900 in a system whose ladder is 400/500, cards used
+  `rounded-xl`, and popovers used the stock shadow ladder. All of it is remapped to system values
+  once. Demos also sat on the 15px/28px prose base because the product type scope re-bound the
+  `--type-*` vars but not the inherited `font-size`. [foundations](/docs/foundations/typography)
+- **Fullscreen preview is the system `Dialog`.** The old overlay declared `role="dialog"
+aria-modal="true"` and had no focus trap — Tab walked straight out into the hidden chrome behind
+  it. Copy Prompt moved once into the page header (it was repeated six times on the Button page),
+  the hero preview renders through the same frame as every other example, a skip link is now the
+  first tab stop on every page, and the icon-gallery tile is a real labelled button instead of 439
+  nameless focusable `div`s. [accessibility](/docs/foundations/accessibility)
+
+### 🛠 CLI & tooling
+
+- **`verify-docs-export`** fails the docs build on any JSX tag surviving outside a code fence, any
+  unresolved export placeholder, or any empty API table — the regression guard for the export
+  above — and enforces that a page carries either a curated playground or the Story explorer, never
+  both.
+- **`verify-docs-base-mirror`** diffs the rule blocks `apps/docs/app/global.css` hand-copies from
+  `base.css`, which had no gate. It counts `@apply` as a declaration: the focus ring is expressed
+  only that way on both sides, so filtering `@`-prefixed lines compared that block as empty against
+  empty and could never fail.
+- **`design-lint --docs-shell --emitted-css`** reads the BUILT stylesheet, because the shell's
+  off-system values are compiled in by dependencies and never appear in this repo's source.
+- **`verify-component-contracts --write-data-attributes`** extracts each part's `data-*` attributes
+  and CSS variables from the canonical source through the TypeScript AST; the default mode fails
+  when the contract drifts from the source.
+- Each of the four ships a negative self-test, so none of them can pass by never having run — and
+  so does `verify-component-contracts`, whose `--self-test` drifts a `dataAttributes` record in
+  memory and requires the reconciliation to reject it.
+- **`verify-mdx-manifest`** (docs `lint`) proves the agent export fails closed on the three
+  failures that leave no artefact behind for the gate above to find: an MDX component no manifest
+  entry classifies, a placeholder whose runtime renderer is missing (nested ones included), and a
+  component registered in the MDX map but absent from the manifest. Before it, the first rendered
+  to a single space and the second to its bare children.
 
 ### 🐛 Fixed
 
@@ -96,11 +172,17 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   it was written without a dependency array. It now runs when the preference changes, once, in the
   factory.
   [docs](https://design.vegastack.com/docs/foundations/icons) ·
-  [`70fe6b2`](https://github.com/VegaStack/vegastack-design/commit/70fe6b2)
+  [`1a6783e`](https://github.com/VegaStack/vegastack-design/commit/1a6783e)
 - **Docs** — each tile in the icon gallery was a focusable `<div>` with no role, so all 439 were
   reachable by keyboard and announced as nothing. Each is now a real `<button>`.
   [docs](https://design.vegastack.com/docs/foundations/icons) ·
-  [`70fe6b2`](https://github.com/VegaStack/vegastack-design/commit/70fe6b2)
+  [`1a6783e`](https://github.com/VegaStack/vegastack-design/commit/1a6783e)
+- **Docs** — the icon gallery was inert on touch. A tile drives its icon through a ref, and holding
+  the ref suppresses every trigger the icon provides for itself, including its tap-to-play
+  `pointerdown`; the tile replaced hover and focus but not that one, so on a phone nothing in the
+  gallery ever moved. Tiles now carry the tap driver too, under the same pointer-type rules.
+  [docs](https://design.vegastack.com/docs/foundations/icons) ·
+  [`1a6783e`](https://github.com/VegaStack/vegastack-design/commit/1a6783e)
 
 ### ⚠️ Breaking
 
@@ -156,13 +238,19 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   is unavailable. Base UI still suppresses activation. Code asserting `element.disabled` should read
   `aria-disabled` instead.
   [docs](https://design.vegastack.com/docs/components/button)
-- **Eight animated icons drop a deprecated handle alias.** `BotMessageSquareHandle`,
-  `ChevronsDownUpIconHandle` (on `chevron-first`), `ConciergeBellHandle`, `KeyIconHandle` (on
-  `key-circle` and `key-square`), `RefreshCCWIconWIcon`, `ActivityIconHandle` (on `square-activity`)
-  and `ZapHandle` were `@deprecated` aliases left behind by upstream naming quirks. Each icon still
-  exports `<Name>IconHandle`; only the alias is gone.
+- **Seven animated icons drop a deprecated handle alias; an eighth renames its handle type.**
+  `BotMessageSquareHandle`, `ConciergeBellHandle`, `KeyIconHandle` (on both `key-circle` and
+  `key-square`), `RefreshCCWIconWIcon` (on `refresh-cw`), `ActivityIconHandle` (on
+  `square-activity`) and `ZapHandle` were `@deprecated` aliases left behind by upstream naming
+  quirks; each of those icons still exports its `<Name>IconHandle` and only the alias is gone.
+  `chevron-first` is the different case and is a **rename, not an alias removal**: upstream had
+  copy-pasted a `displayName` from another icon, so the primary interface was called
+  `ChevronsDownUpIconHandle` and `ChevronFirstIconHandle` was the `@deprecated` alias of it. The
+  exported component symbol is authoritative, so the name that survives is the one that matches it —
+  **`ChevronsDownUpIconHandle` → `ChevronFirstIconHandle`**. Consumers of the old name must rename;
+  no compatibility alias is kept.
   [docs](https://design.vegastack.com/docs/foundations/icons) ·
-  [`70fe6b2`](https://github.com/VegaStack/vegastack-design/commit/70fe6b2)
+  [`1a6783e`](https://github.com/VegaStack/vegastack-design/commit/1a6783e)
 
 ### 🗑 Removed / renamed
 

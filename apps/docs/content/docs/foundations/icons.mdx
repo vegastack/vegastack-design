@@ -44,9 +44,21 @@ only driver). The host is an `inline-flex` `<span>`, so an icon sits on the text
 breaking the line.
 
 Reduced motion is intrinsic: playback becomes a no-op and the icon returns immediately to its static
-resting state. It honours the OS preference **and** an explicit
-`<MotionConfig reducedMotion="always">`, so an application that already coordinates its motion
-centrally gets icons for free — but no `MotionConfig` is required for VegaStack icon safety.
+resting state. The preference is **subscribed to, not sampled once** — turning it on settles every
+icon already on screen, not just the ones mounted afterwards. An explicit
+`<MotionConfig reducedMotion="always">` adds reduction on top of it, so an application that already
+coordinates its motion centrally gets icons for free — and no `MotionConfig` is required for
+VegaStack icon safety.
+
+The override is **one-way on purpose**. Motion's own default is `reducedMotion: "never"`, and
+`MotionConfig` merges over its parent, so an explicit `reducedMotion="never"` and no `MotionConfig`
+at all produce identical context values — nothing can tell them apart. Honouring `"never"` as an
+opt-out would therefore switch reduced motion off for every consumer who configured nothing, so the
+OS preference always wins unless you ask for more reduction, never less.
+
+Attaching a ref makes your handler the only driver, which includes the tap driver: on a touch device
+there is no hover and no focus, so a ref-controlled icon needs a `pointerdown` handler of its own or
+it will never play.
 
 <IconGallery />
 

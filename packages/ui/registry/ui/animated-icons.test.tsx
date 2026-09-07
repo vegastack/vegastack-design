@@ -3,6 +3,13 @@ import { MotionConfig } from "motion/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
 import { expectNoA11yViolations } from "../../test/a11y";
+// The docs gallery tile, tested as the real component rather than as a hand
+// re-typed copy of its markup. It lives in `apps/docs` because it is docs
+// chrome, and `apps/docs` has no browser test runner of its own — this suite is
+// the only place its behaviour can actually be exercised, and the ONE thing it
+// gets uniquely wrong (a ref-controlled icon has no touch driver unless the
+// host re-provides it) is invisible to any assertion about markup.
+import { AnimatedIconCard } from "../../../../apps/docs/components/animated-icon-card";
 import { ActivityIcon } from "./icons/activity";
 
 interface AnimationHandle {
@@ -60,6 +67,52 @@ function mockReducedMotion(matches: boolean) {
         dispatchEvent: () => false,
       }) as MediaQueryList,
   );
+}
+
+/**
+ * A `matchMedia` stub whose listeners can actually be fired, so a test can move
+ * the OS preference WHILE an icon is mounted. Motion's own hooks read a module
+ * singleton once at first import and never update — the factory therefore
+ * subscribes to the query itself, and this is what proves it.
+ */
+function controllableReducedMotion(initial: boolean) {
+  const listeners = new Set<(event: MediaQueryListEvent) => void>();
+  let matches = initial;
+  vi.spyOn(window, "matchMedia").mockImplementation((query: string) => {
+    const reduce = query === "(prefers-reduced-motion: reduce)";
+    return {
+      get matches() {
+        return reduce ? matches : false;
+      },
+      media: query,
+      onchange: null,
+      addEventListener: (
+        type: string,
+        listener: (event: MediaQueryListEvent) => void,
+      ) => {
+        if (reduce && type === "change") listeners.add(listener);
+      },
+      removeEventListener: (
+        type: string,
+        listener: (event: MediaQueryListEvent) => void,
+      ) => {
+        if (reduce && type === "change") listeners.delete(listener);
+      },
+      addListener: () => {},
+      removeListener: () => {},
+      dispatchEvent: () => false,
+    } as unknown as MediaQueryList;
+  });
+  return {
+    set(next: boolean) {
+      matches = next;
+      for (const listener of listeners)
+        listener({ matches: next } as MediaQueryListEvent);
+    },
+    get listenerCount() {
+      return listeners.size;
+    },
+  };
 }
 
 function nextFrame() {
@@ -336,12 +389,13 @@ test("attaching a ref suppresses the icon's own hover trigger", async () => {
   expect(await didAnimate(root)).toBe(true);
 });
 
-// Motion reads the OS preference through a module-level singleton captured on
-// first import, so a `window.matchMedia` spy installed inside a test never
-// reaches it. `MotionConfig reducedMotion="always"` drives the SAME
-// `useReducedMotion()` the factory calls, and is therefore the only way this
-// suite can actually prove the gate. (See docs/ledger/bugs.md, 2026-09-07: the
-// pre-existing matchMedia-based assertion could not fail.)
+// `<MotionConfig reducedMotion="always">` is the consumer-facing half of the
+// gate: it adds reduction on top of the OS preference. The OS-preference half is
+// covered separately by the live-transition test below, which drives a
+// dispatchable `matchMedia` stub — something that only works because the factory
+// subscribes to the query itself rather than reading Motion's import-time
+// singleton. (See docs/ledger/bugs.md, 2026-09-07: the pre-existing
+// matchMedia-based assertion could not fail, for exactly that reason.)
 test("reduced motion suppresses the hover trigger, not just the handle", async () => {
   const screen = await render(
     <MotionConfig reducedMotion="always">
@@ -372,6 +426,43 @@ test("reduced motion suppresses the imperative handle too", async () => {
 test("playback resumes when the preference is not set", async () => {
   // The negative control for the two tests above: same icon, same trigger, no
   // reduced-motion config — so a green pair cannot come from a broken probe.
+  // Deliberately NO <MotionConfig>: the un-configured tree is the one almost
+  // every consumer actually has, so it is the one the control must exercise.
+  mockReducedMotion(false);
+  const screen = await render(<ActivityIcon data-testid="icon" />);
+  await nextFrame();
+  const root = screen.getByTestId("icon").element();
+  root.dispatchEvent(
+    new PointerEvent("pointerover", { bubbles: true, pointerType: "mouse" }),
+  );
+  expect(await didAnimate(root)).toBe(true);
+});
+
+// The case every other reduced-motion test here missed, and the one almost
+// every consumer is actually in: the OS preference set, and NO <MotionConfig>
+// anywhere in the tree. Motion's `MotionConfigContext` defaults to
+// `reducedMotion: "never"`, so a factory that treats that value as an opt-out
+// returns false for everyone and never reads the preference at all — which is
+// what both `useReducedMotionConfig()` and the first fix for it did. The docs
+// promise the opposite ("no MotionConfig is required for VegaStack icon
+// safety"), so this is the assertion that holds them to it.
+test("the OS preference is honoured with no <MotionConfig> in the tree", async () => {
+  mockReducedMotion(true);
+  const screen = await render(<ActivityIcon data-testid="icon" />);
+  await nextFrame();
+  const root = screen.getByTestId("icon").element();
+  root.dispatchEvent(
+    new PointerEvent("pointerover", { bubbles: true, pointerType: "mouse" }),
+  );
+  expect(await didAnimate(root)).toBe(false);
+});
+
+// …and a consumer cannot take reduced motion away from the user by asking for
+// Motion's default value explicitly. `<MotionConfig reducedMotion="never">`
+// produces a context byte-identical to no provider at all, so it cannot mean
+// "animate anyway" without meaning it for everyone who configured nothing.
+test('<MotionConfig reducedMotion="never"> cannot defeat the OS preference', async () => {
+  mockReducedMotion(true);
   const screen = await render(
     <MotionConfig reducedMotion="never">
       <ActivityIcon data-testid="icon" />
@@ -382,7 +473,7 @@ test("playback resumes when the preference is not set", async () => {
   root.dispatchEvent(
     new PointerEvent("pointerover", { bubbles: true, pointerType: "mouse" }),
   );
-  expect(await didAnimate(root)).toBe(true);
+  expect(await didAnimate(root)).toBe(false);
 });
 
 test("size resolves through the --icon-default role token by default", async () => {
@@ -403,28 +494,149 @@ test("size resolves through the --icon-default role token by default", async () 
   );
 });
 
+// ---------------------------------------------------------------------------
+// The docs gallery tile (`AnimatedIconCard`).
+//
+// Attaching a ref latches the icon into controlled mode, which disables ALL of
+// its own triggers — so every input the tile supports is one the tile itself
+// has to re-provide. Asserting on its markup cannot see that; only playing the
+// icon through each input can.
+// ---------------------------------------------------------------------------
+
+function tileButton(container: Element, label: string) {
+  // The tile's accessible name is the icon name plus what activating it does
+  // (DC-12), so match on the label rather than assuming the whole string.
+  const button = container.querySelector<HTMLButtonElement>(
+    `button[aria-label^="${label} icon"]`,
+  );
+  if (!button) throw new Error(`no gallery tile labelled ${label}`);
+  return button;
+}
+
+const hover = (element: Element) =>
+  element.dispatchEvent(
+    new PointerEvent("pointerover", { bubbles: true, pointerType: "mouse" }),
+  );
+const unhover = (element: Element) =>
+  element.dispatchEvent(
+    new PointerEvent("pointerout", { bubbles: true, pointerType: "mouse" }),
+  );
+const tap = (element: Element) =>
+  element.dispatchEvent(
+    new PointerEvent("pointerdown", { bubbles: true, pointerType: "touch" }),
+  );
+
 test("an icon tile is a named control, not a focusable div", async () => {
   mockReducedMotion(true);
-  // The exact markup the docs gallery tile renders (apps/docs AnimatedIconCard):
-  // a real button carrying the name, with the glyph decorative inside it. The
-  // gallery used to render 439 focusable <div>s with no role — reachable by
+  // The gallery used to render 439 focusable <div>s with no role — reachable by
   // keyboard and announced as nothing.
   const screen = await render(
     <div data-testid="tile">
-      <button type="button" aria-label="Activity">
-        <ActivityIcon />
-        <span aria-hidden>Activity</span>
-      </button>
+      <AnimatedIconCard as={ActivityIcon} label="Activity" />
     </div>,
   );
   const tile = screen.getByTestId("tile").element();
   expect(tile.querySelectorAll("div[tabindex]")).toHaveLength(0);
-  expect(tile.querySelector("button")?.getAttribute("aria-label")).toBe(
-    "Activity",
-  );
+  expect(tileButton(tile, "Activity").type).toBe("button");
   // color-contrast/target-size need compiled CSS, which this suite does not load
   // — both are proven on the real page by the compiled-CSS and contract lanes.
   await expectNoA11yViolations(tile, ["color-contrast", "target-size"]);
+});
+
+test("an icon tile plays from hover, focus, and touch", async () => {
+  mockReducedMotion(false);
+  const screen = await render(
+    <div data-testid="tiles">
+      <AnimatedIconCard as={ActivityIcon} label="Hovered" />
+      <AnimatedIconCard as={ActivityIcon} label="Focused" />
+      <AnimatedIconCard as={ActivityIcon} label="Tapped" />
+      <AnimatedIconCard as={ActivityIcon} label="Idle" />
+    </div>,
+  );
+  const tiles = screen.getByTestId("tiles").element();
+
+  hover(tileButton(tiles, "Hovered"));
+  expect(await didAnimate(tileButton(tiles, "Hovered"))).toBe(true);
+
+  tileButton(tiles, "Focused").focus();
+  expect(await didAnimate(tileButton(tiles, "Focused"))).toBe(true);
+
+  // The regression this test exists for: on a touch device no hover and no
+  // focus ever arrives, so without a pointerdown driver the whole gallery is
+  // inert — and the icon's own tap handler is suppressed by the tile's ref.
+  tap(tileButton(tiles, "Tapped"));
+  expect(await didAnimate(tileButton(tiles, "Tapped"))).toBe(true);
+
+  // The negative control: an untouched tile stays at rest, so the three
+  // assertions above cannot be passing on a probe that always reports movement.
+  expect(await didAnimate(tileButton(tiles, "Idle"))).toBe(false);
+});
+
+test("an icon tile honours reduced motion, and plays again without it", async () => {
+  mockReducedMotion(false);
+  const screen = await render(
+    <>
+      <MotionConfig reducedMotion="always">
+        <div data-testid="reduced">
+          <AnimatedIconCard as={ActivityIcon} label="Reduced" />
+        </div>
+      </MotionConfig>
+      {/* No <MotionConfig>: the preference is off, so the tile plays. Using
+          reducedMotion="never" here would assert nothing, because that value is
+          Motion's default and the factory deliberately ignores it. */}
+      <div data-testid="full">
+        <AnimatedIconCard as={ActivityIcon} label="Full" />
+      </div>
+    </>,
+  );
+  await nextFrame();
+
+  const reduced = tileButton(
+    screen.getByTestId("reduced").element(),
+    "Reduced",
+  );
+  hover(reduced);
+  expect(await didAnimate(reduced)).toBe(false);
+
+  // The negative control for the assertion above: same tile, same trigger.
+  const full = tileButton(screen.getByTestId("full").element(), "Full");
+  hover(full);
+  expect(await didAnimate(full)).toBe(true);
+});
+
+test("a mounted icon follows a live reduced-motion change in both directions", async () => {
+  // Motion 12.42.2's useReducedMotion() is `useState(prefersReducedMotion.current)`
+  // with no subscription (its own source carries a TODO about this), so an icon
+  // built on it would keep the value captured at first import forever. The
+  // factory subscribes to the media query instead; this is the proof.
+  const media = controllableReducedMotion(true);
+  const screen = await render(<ActivityIcon data-testid="icon" />);
+  await nextFrame();
+  const root = screen.getByTestId("icon").element();
+  expect(media.listenerCount).toBeGreaterThan(0);
+
+  hover(root);
+  expect(await didAnimate(root)).toBe(false);
+  unhover(root);
+
+  // Preference switched OFF while mounted.
+  media.set(false);
+  await nextFrame();
+  hover(root);
+  expect(await didAnimate(root)).toBe(true);
+  unhover(root);
+  await new Promise((resolve) => setTimeout(resolve, 150));
+
+  // …and back ON, which must settle the icon and re-gate playback.
+  media.set(true);
+  await nextFrame();
+  await new Promise((resolve) => setTimeout(resolve, 150));
+  hover(root);
+  expect(await didAnimate(root)).toBe(false);
+
+  // The subscription is torn down with the icon.
+  await screen.unmount();
+  expect(media.listenerCount).toBe(0);
 });
 
 test("a timer-driven icon cancels its deferred work on unmount", async () => {

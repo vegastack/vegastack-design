@@ -2328,7 +2328,8 @@ function readManifest() {
     if (
       item.url !== `${REGISTRY}/${item.name}.json` ||
       item.license !== "MIT" ||
-      !/^[0-9a-f]{64}$/.test(item.sha256)
+      !/^[0-9a-f]{64}$/.test(item.sha256) ||
+      !/^[0-9a-f]{64}$/.test(item.moduleSha256)
     ) {
       throw new Error(
         `${MANIFEST_PATH}: invalid source record for ${item.name}`,
@@ -2348,6 +2349,15 @@ const generated = await Promise.all(
     name: item.name,
     source: await transform(item.source, item.name),
   })),
+);
+
+// The hash of what we GENERATED, distinct from the hash of what we FETCHED.
+// `sha256` pins the upstream bytes; `moduleSha256` pins the module those bytes
+// were turned into, which is the only thing `tooling/verify-animated-icons.mjs`
+// can hold a committed file to. Without it a hand-edited path string in a
+// mirrored module passes every schema assertion that gate makes.
+const moduleHashes = new Map(
+  generated.map(({ name, source }) => [name, sha256(source)]),
 );
 
 const expectedFiles = new Set(generated.map((item) => `${item.name}.tsx`));
@@ -2375,6 +2385,15 @@ if (check) {
       `animated-icon mirror drift: ${changed.length} changed/missing, ${orphaned.length} orphaned`,
     );
   }
+  const stale = manifest.items.filter(
+    (item) => item.moduleSha256 !== moduleHashes.get(item.name),
+  );
+  if (stale.length > 0) {
+    throw new Error(
+      `${MANIFEST_PATH}: generated-module hash drift for ${stale.length} item(s) ` +
+        `(first: ${stale[0].name}); re-run the mirror without --check`,
+    );
+  }
   console.log(
     `✓ mirror check: ${generated.length} canonical icons match the pinned manifest`,
   );
@@ -2395,13 +2414,21 @@ for (const filename of orphaned) {
   rmSync(assertExistingPathInside(SAFE_SOURCE_DIR, orphanPath));
 }
 
-if (refresh) {
-  manifest = stableJson(manifest);
-  writeFileSync(
-    assertWritablePathInside(REPO_ROOT, MANIFEST_PATH),
-    `${JSON.stringify(manifest, null, 2)}\n`,
-  );
-}
+// The manifest is rewritten on every write run, not only on --refresh: the
+// generated-module hashes it carries are a property of THIS run's output, so
+// leaving them behind after a factory change would re-open the fail-open hole.
+// Writing the same bytes when nothing moved keeps the run idempotent.
+manifest = stableJson({
+  ...manifest,
+  items: manifest.items.map((item) => ({
+    ...item,
+    moduleSha256: moduleHashes.get(item.name),
+  })),
+});
+writeFileSync(
+  assertWritablePathInside(REPO_ROOT, MANIFEST_PATH),
+  `${JSON.stringify(manifest, null, 2)}\n`,
+);
 
 console.log(
   `✓ mirror: ${generated.length} canonical icon(s), ${changed.length} written/changed` +
