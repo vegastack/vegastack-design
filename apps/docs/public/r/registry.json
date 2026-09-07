@@ -1423,7 +1423,7 @@
         "whenToUse": "Display tabular data with header/body/footer rows — lists, comparisons, summaries.",
         "whenNotToUse": "Page layout or non-tabular content — use a grid/flex layout.",
         "version": "0.6.0",
-        "integrity": "sha256-W+MtddoC0jzkP1mrzvmM215wAgx7IDppgBZ2xcS0biI="
+        "integrity": "sha256-puH25QBPwr10DK9r/dc3GaqhsLtBbXdQzcN4NDRdU/s="
       }
     },
     {
@@ -2460,7 +2460,7 @@
         "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
         "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
         "version": "0.6.0",
-        "integrity": "sha256-UYetGdIoeW/E9bQllk0Knn9rU1Zhp+QrIHwFwPNz/yw="
+        "integrity": "sha256-XIXPaSErisqOEgMKcki/6/L9LTHH9uIJhGYKezQxUUQ="
       }
     },
     {
@@ -2759,7 +2759,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.6.0",
-        "integrity": "sha256-Yb+lK9yJ5I2W+5ohppjTyW9iuanhd6oKaWvGGRER04U="
+        "integrity": "sha256-fJLqYRvi/OFSacHpbP9VNaWsaVzouP8JI/UBWm6TC4I="
       }
     },
     {
@@ -2792,7 +2792,7 @@
         "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, and loading/empty states.",
         "whenNotToUse": "A board/kanban view (Board), full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.6.0",
-        "integrity": "sha256-ULKp6lmd5GL1LvY2wgCHqvfW+Zl01iFz1LJxPWlrLuQ="
+        "integrity": "sha256-dzg8sk4KVZdBG730x7GbwWN3rarvD2OSE1hlp9yOmRU="
       }
     },
     {

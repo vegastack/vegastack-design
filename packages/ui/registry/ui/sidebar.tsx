@@ -1,4 +1,4 @@
-// @vegastack sidebar@0.6.0 sha256-UYetGdIoeW/E9bQllk0Knn9rU1Zhp+QrIHwFwPNz/yw=
+// @vegastack sidebar@0.6.0 sha256-XIXPaSErisqOEgMKcki/6/L9LTHH9uIJhGYKezQxUUQ=
 
 "use client";
 
@@ -510,7 +510,11 @@ export const sidebarMenuButtonVariants = cva(
     // moves (SP-06). sidebar-accent is an alias of surface-2 — the rail has no palette of its own.
     "text-sidebar-foreground hover:text-sidebar-accent-foreground active:text-sidebar-accent-foreground",
     surfaceInteractive,
+    // The ACTIVE row rests on the pressed rung; hovering it steps DOWN to the hover rung and
+    // pressing returns it to rest, so an active row still moves under the cursor (SP-06).
+    // Without the explicit `data-[active=true]:hover:` the `data-` variant outranks `hover:`.
     "data-[active=true]:bg-surface-3 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground",
+    "data-[active=true]:hover:bg-surface-2 data-[active=true]:active:bg-surface-3",
     "disabled:pointer-events-none disabled:opacity-(--opacity-dim) aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
     // Leading active-indicator rail.
     "before:absolute before:top-1 before:bottom-1 before:start-0 before:w-0.5 before:scale-y-0 before:rounded-full before:bg-sidebar-primary before:transition-transform before:duration-fast before:ease-standard data-[active=true]:before:scale-y-100",

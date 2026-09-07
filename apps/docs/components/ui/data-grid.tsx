@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.6.0 sha256-Yb+lK9yJ5I2W+5ohppjTyW9iuanhd6oKaWvGGRER04U=
+// @vegastack data-grid@0.6.0 sha256-fJLqYRvi/OFSacHpbP9VNaWsaVzouP8JI/UBWm6TC4I=
 
 "use client";
 
@@ -843,7 +843,9 @@ export function DataGrid<T>({
         {...virtualProps}
         className={cn(
           isSelected &&
-            "bg-surface-3 hover:bg-surface-3 active:bg-surface-3 data-selected:bg-surface-3",
+            // A selected row still has to move under the cursor (SP-06): it rests on the pressed
+            // rung, hovers DOWN one rung, and returns to rest while pressed.
+            "bg-surface-3 hover:bg-surface-2 active:bg-surface-3 data-selected:bg-surface-3 data-selected:hover:bg-surface-2",
         )}
       >
         {selectable ? (

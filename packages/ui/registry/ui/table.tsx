@@ -1,4 +1,4 @@
-// @vegastack table@0.6.0 sha256-W+MtddoC0jzkP1mrzvmM215wAgx7IDppgBZ2xcS0biI=
+// @vegastack table@0.6.0 sha256-puH25QBPwr10DK9r/dc3GaqhsLtBbXdQzcN4NDRdU/s=
 
 import * as React from "react";
 import { cn, surfaceInteractive } from "@vegastack/design";
@@ -191,7 +191,11 @@ function TableRow({ className, ref, ...props }: TableRowProps) {
       ref={ref}
       data-slot="table-row"
       className={cn(
+        // A SELECTED row rests on the pressed rung, so hovering it steps DOWN to the hover rung and
+        // pressing returns it to rest — otherwise `data-selected` simply outranks `hover:` at equal
+        // specificity and a selected row reads dead under the cursor (SP-06).
         "border-b border-border data-selected:bg-surface-3",
+        "data-selected:hover:bg-surface-2 data-selected:active:bg-surface-3",
         surfaceInteractive,
         className,
       )}
