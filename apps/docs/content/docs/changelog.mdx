@@ -289,6 +289,30 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
   announcement is still spoken, and holds its state outside the host so announcing no longer
   re-renders a whole DataGrid.
   [docs](/docs/guides/components)
+- **`Sheet` runs on Base UI's `Drawer`.** It gains swipe-to-dismiss, snap points
+  (`snapPoints` / `snapPoint` / `onSnapPointChange` pass straight through) and
+  `SheetVirtualKeyboardProvider` for bottom sheets containing fields. `side` moves from
+  `SheetContent` to the `Sheet` root, because it selects the dismiss gesture as well as the pinned
+  edge, and a `side` on the content could disagree with the gesture. Swipe is always an addition:
+  `Esc`, the close button and a backdrop press still close the panel.
+  [docs](/docs/components/sheet)
+- **`SheetContent` sizes through `size`.** `sm · md · lg · full` from the shared
+  `--panel-width-*` vocabulary replaces `className` width overrides — one tier means a width on a
+  `left`/`right` sheet and a height on a `top`/`bottom` one.
+  [docs](/docs/components/sheet)
+- **Menu items take `tone`, not `variant`.** `DropdownMenuItem`, `ContextMenuItem` and their
+  checkbox/radio siblings use `tone="destructive"`, matching Button's tone axis.
+  [docs](/docs/components/dropdown-menu)
+
+### 🧩 New components
+
+- **`floating-surface`** — the shared floating-overlay module every anchored overlay now composes:
+  one `Portal → Positioner → Popup (→ Viewport)` composer, one theme-scope hand-off across the
+  portal boundary, one arrow, and four painted surfaces (`panel` at the 16px tier, `menu` at list
+  density, `tooltip` as the inverted ink chip, `navigation` for the morphing mega-menu). It also
+  owns `menuItemVariants` — the one list-item recipe behind menu items, select options, combobox
+  options and command rows — and `PanelSearchFrame`, the in-panel search row.
+  [docs](/docs/components/floating-surface)
 
 ### 🗑 Removed / renamed
 
@@ -304,6 +328,13 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
 - **`TagHue`** — the hue vocabulary moved to the Chip primitive and is exported as **`ChipHue`**
   from `@vegastack/chip`. `Tag`'s `hue` prop is unchanged; only the type's name and home moved.
   [docs](/docs/components/chip)
+- **`AlertDialogContent intent`** — it wrote a `data-intent` hint and nothing else, leaving two
+  props named for one concept with one of them inert. `AlertDialogAction intent` is the single
+  owner of a confirmation's tone.
+  [docs](/docs/components/alert-dialog)
+- **Hand-written `100dvh` overlay height calcs** — replaced by `--layout-overlay-max-height` and
+  Base UI's `--available-height`.
+  [docs](/docs/components/dialog)
 
 ### 🔧 Changed components
 
@@ -386,6 +417,31 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
   `info` (blue). `info` is links and informational UI only; promotion is a neutral ladder rung.
   [docs](/docs/components/comparison-matrix) ·
   [`273a602`](https://github.com/VegaStack/vegastack-design/commit/273a602)
+- **Popover**, **HoverCard**, **Tooltip**, **DropdownMenu**, **ContextMenu**, **Select**,
+  **Combobox**, **NavigationMenu** — eight lookalike overlays became one module. Each now composes
+  `floating-surface` instead of restating its own portal, positioner, popup surface, arrow and
+  theme-scope plumbing. `ContextMenu` is bound to the same item parts as `DropdownMenu` (Base UI's
+  `ContextMenu` namespace re-exports `Menu`'s parts verbatim), so the two menus can no longer drift.
+  [docs](/docs/components/floating-surface)
+- **Overlay motion follows one measured scale.** Every floating surface enters and leaves at
+  `duration-fast` (150ms); NavigationMenu takes `duration-base` (200ms) because it resizes between
+  items rather than simply appearing; the modal family — Dialog, AlertDialog, Sheet — is
+  `duration-base`. Timings were measured against Vercel and Linear rather than chosen.
+  [docs](/docs/foundations/motion)
+- **Overlay padding has two tiers, not per-surface literals.** 24px (`p-6`) for Dialog,
+  AlertDialog and Sheet; 16px (`p-4`) for Popover and HoverCard; menus keep list density. Panel
+  widths come from `--panel-width-*`, and a viewport-capped popup uses Base UI's
+  `--available-height` instead of a hand-written `100dvh` calc. `DialogContent` and Command size
+  through `size`.
+  [docs](/docs/components/dialog)
+- **Command**, **Combobox**, **EmojiPicker**, **ShortcutOverlay** — the in-panel search row is one
+  recipe. A bordered `Input` inside a bordered popup drew two borders; `PanelSearchFrame` is a
+  sticky, full-bleed header row with a leading glyph, no box of its own and a hairline below.
+  [docs](/docs/components/command)
+- **Popover** and **Select** document their modality. Both are modal by default so the page
+  cannot scroll out from under an open panel; pass `modal={false}` for a lightweight one. Combobox
+  stays non-modal and says why in its source.
+  [docs](/docs/components/select)
 
 ### 🐛 Fixed
 
