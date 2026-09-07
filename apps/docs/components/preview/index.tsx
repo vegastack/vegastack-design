@@ -66,6 +66,7 @@ export * from "./relative-time";
 export * from "./settings-row";
 export * from "./image";
 export * from "./audio-player";
+export * from "./media-player-controls";
 export * from "./video-player";
 export * from "./notification-bell";
 export * from "./markdown-view";

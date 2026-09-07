@@ -24,7 +24,7 @@
     "Navigation/layout": 14,
     "Overlays": 14,
     "Data display": 11,
-    "Content/marketing": 22,
+    "Content/marketing": 23,
     "AI/chat": 6,
     "Hooks": 7,
     "Block": 1,
@@ -130,6 +130,7 @@
       "empty",
       "truncated-text",
       "image",
+      "media-player-controls",
       "audio-player",
       "video-player",
       "onboarding-checklist",
@@ -7289,12 +7290,45 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "SliderThumbVisibility",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/slider.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SliderVariant",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/slider.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["bare", "default", "media", "overlay"],
+            "evidence": "packages/ui/registry/ui/slider.tsx: SliderVariant union + trackByVariant/indicatorByVariant/thumbByVariant recipes"
+          },
+          {
+            "name": "thumb",
+            "values": ["always", "hover", "none"],
+            "evidence": "packages/ui/registry/ui/slider.tsx: SliderThumbVisibility union"
+          },
+          {
+            "name": "orientation",
+            "values": ["horizontal", "vertical"],
+            "evidence": "packages/ui/registry/ui/slider.tsx: orientation prop, with data-orientation-keyed layout on every part"
+          }
+        ]
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -7304,7 +7338,7 @@
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "disabled", "dragging", "range"],
+          "values": ["default", "disabled", "dragging", "range", "vertical"],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
@@ -7314,8 +7348,8 @@
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "disabled"],
-          "evidence": "Observed from token classes, state selectors, or visual branches."
+          "values": ["default", "disabled", "marks", "value-readout"],
+          "evidence": "Observed from token classes, the per-variant rail/fill/thumb recipes, the aria-hidden mark ticks, the showValue floating readout, and state selectors."
         }
       },
       "responsive": {
@@ -15043,7 +15077,14 @@
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "complete", "empty", "error", "loading"],
+          "values": [
+            "default",
+            "complete",
+            "empty",
+            "error",
+            "loading",
+            "lazy-loading"
+          ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
@@ -15118,6 +15159,211 @@
       }
     },
     {
+      "name": "media-player-controls",
+      "registryType": "registry:ui",
+      "title": "Media Player Controls",
+      "summary": "The shared media transport — play/pause, skip, seek, elapsed/duration, mute + volume, playback speed, and one keyboard shortcut map (useMediaShortcuts) — composed by Audio Player and Video Player.",
+      "family": "media",
+      "wave": "Content/marketing",
+      "sourceFiles": ["packages/ui/registry/ui/media-player-controls.tsx"],
+      "publicSymbols": [
+        {
+          "name": "assignRef",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/media-player-controls.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "clampTime",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/media-player-controls.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "formatDefaultTime",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/media-player-controls.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "getMediaDuration",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/media-player-controls.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "MediaPlayerControls",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/media-player-controls.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "MediaPlayerControlsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/media-player-controls.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MediaShortcutScope",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/media-player-controls.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "useMediaShortcuts",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/media-player-controls.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "UseMediaShortcutsOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/media-player-controls.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseMediaShortcutsResult",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/media-player-controls.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["default", "overlay"],
+            "evidence": "packages/ui/registry/ui/media-player-controls.tsx: MediaPlayerControlsProps variant union (default | overlay)"
+          },
+          {
+            "name": "seekVariant",
+            "values": ["slider", "waveform"],
+            "evidence": "packages/ui/registry/ui/media-player-controls.tsx: MediaPlayerControlsProps seekVariant union (slider | waveform)"
+          }
+        ]
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "playing",
+            "paused",
+            "muted",
+            "volume",
+            "seeking",
+            "keyboard-shortcuts",
+            "playback-rate",
+            "quality",
+            "fullscreen",
+            "transcript"
+          ],
+          "evidence": "Observed from media event handlers, the shared useMediaShortcuts map, the volume panel, settings submenus, and state attributes."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": [
+            "focus-visible",
+            "keyboard-operable",
+            "labeled",
+            "semantic-html"
+          ],
+          "evidence": "Observed from the labelled control group, named IconButton controls, the composed Slider, and the centralized inset focus outline."
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "overlay",
+            "waveform",
+            "volume-open",
+            "compact"
+          ],
+          "evidence": "Observed from the two-variant chrome (theme-invariant --media-* tokens on overlay), the waveform seek branch, the volume panel branch, and the container-query compact layout."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "overflow-and-scroll",
+          "responsive-or-container-layout",
+          "mobile-or-touch-mode"
+        ],
+        "rationale": "Source uses container queries, truncation, flexible seek controls, and touch-oriented transport buttons."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": ["tokenized CSS transition"],
+        "reducedMotion": {
+          "status": "observed-or-documented",
+          "rationale": "Composed controls use tokenized transitions and inherited reduced-motion handling."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/media-player-controls",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/icon-button",
+        "@vegastack/slider",
+        "@vegastack/tooltip"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.24.0",
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design@^0.3.2",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/media-player-controls.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "previewModule": "media-player-controls"
+    },
+    {
       "name": "audio-player",
       "registryType": "registry:ui",
       "title": "Audio Player",
@@ -15138,25 +15384,6 @@
         },
         {
           "name": "AudioPlayerProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/audio-player.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "MediaPlayerControls",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/audio-player.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to the shared controls root."
-          }
-        },
-        {
-          "name": "MediaPlayerControlsProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/audio-player.tsx",
           "ref": {
@@ -15188,12 +15415,13 @@
             "playing",
             "paused",
             "muted",
+            "volume",
             "seeking",
             "keyboard-shortcuts",
             "playback-rate",
             "transcript"
           ],
-          "evidence": "Observed from media event handlers, rewind/forward transport, keyboard handlers, control callbacks (including the optional onTranscriptClick), the two-line narrow layout, and state attributes."
+          "evidence": "Observed from media event handlers, rewind/forward transport, the shared useMediaShortcuts map, the mute + volume control, control callbacks (including the optional onTranscriptClick), the two-line narrow layout, and state attributes."
         },
         "accessibility": {
           "status": "observed",
@@ -15230,16 +15458,8 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/audio-player",
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/dropdown-menu",
-        "@vegastack/icon-button",
-        "@vegastack/slider",
-        "@vegastack/tooltip"
-      ],
+      "registryDependencies": ["@vegastack/media-player-controls"],
       "npmDependencies": [
-        "lucide-react@^1.24.0",
-        "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
@@ -15405,7 +15625,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/video-player",
-      "registryDependencies": ["@vegastack/audio-player"],
+      "registryDependencies": ["@vegastack/media-player-controls"],
       "npmDependencies": [
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
