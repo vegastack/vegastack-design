@@ -805,3 +805,32 @@ transparent)`) before committing to the shape. Two consequences worth knowing:
   family, the way `surfaceInteractive` is the recipe for the ladder. `design.md` §Components states
   the mechanism explicitly; the AGENTS.md sentence was left as F1 wrote it rather than edited by a
   sibling batch.
+
+## 2026-09-07 — F2's first clean push gate lost a run to the known Firefox actionability flake
+
+- **What happened:** `pnpm gates:push` failed once on `smoke`, with
+  `use-animation-replay.test.tsx > replaying while already playing restarts cleanly` timing out at
+  `await button.click()` under **Firefox only** (29s for a 13-test file). Nothing in F2 touches
+  `use-animation-replay`. The same file, run in isolation on the same tree with the same config,
+  passed 26/26 across Chromium and Firefox in 12s.
+- **Why it is not a new defect:** this is the failure mode already recorded on 2026-08-28 —
+  "Firefox launches but its click/pointer actionability into popovers/portals times out" on this
+  macOS build. WebKit is still host-skipped for the same environmental reason (`_WKBrowserContext`
+  dropped in 26.6.2), which the lane prints on every run.
+- **How it was handled:** re-ran the file in isolation to confirm, then re-ran the FULL `gates:push`
+  rather than reaching for `GATES_SKIP`. The receipt on this branch is from a run in which every
+  gate passed on its own merits. Recorded because a receipt shows the passing run and not the one
+  before it, and a reviewer should know a re-run happened and why.
+- **The second re-run lost a different lane to machine saturation, same handling.** `contracts`
+  failed once with `Test timeout of 120000ms exceeded` on
+  `/docs/components/otp-input … effective 24px pointer targets` in `chromium-dark` — 879/880 passed.
+  The SAME assertion passed in `chromium`, `mobile-chromium` and `mobile-chromium-dark` in that very
+  run, and had passed in all four projects in the two preceding full sweeps. `uptime` at the moment
+  of failure read **load average 45.5**, with two sibling audit agents running their own
+  `gates.mjs push` / `contracts-run.mjs` in parallel worktrees. Re-run in isolation on the same tree:
+  8/8 passed, the dark case in 1.1m against a 120s budget.
+- **The lesson, which is about the budget and not about otp-input.** OTP's target-floor test probes
+  every slot, so it is the longest single contract in the suite and sits closest to the per-test
+  timeout — it is the first thing to fall over when several agents share one machine. If concurrent
+  audit work continues, either raise the per-test timeout for that route or serialise the gate runs;
+  do not read this failure as an OTPInput defect.
