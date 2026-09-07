@@ -9,11 +9,12 @@
 // WHAT IT CANNOT CHECK
 //   That the receipt is honest. See tooling/lib/gate-receipt.mjs — this is attestation, not proof.
 //   CI independently re-executes every non-browser gate, so the receipt is load-bearing only for the
-//   four browser lanes.
+//   browser lanes.
 //
 // USAGE
 //   node tooling/verify-gate-receipt.mjs                       # classify from origin/main → HEAD
 //   node tooling/verify-gate-receipt.mjs --contracts true --unit true --smoke false
+//   node tooling/verify-gate-receipt.mjs --require-full-sweep  # a deploy: gates:ship, every gate
 //   node tooling/verify-gate-receipt.mjs --allow-skip contracts   # MK acknowledgement, one gate
 
 import { execFileSync } from "node:child_process";
@@ -24,6 +25,7 @@ import {
   versionBumpOnly,
   workingTreeContentHash,
 } from "./lib/change-set.mjs";
+import { fatal as exit } from "./lib/fs.mjs";
 import {
   CONDITIONAL_GATES,
   contractSha256,
@@ -32,28 +34,29 @@ import {
   RECEIPT_REPO_PATH,
   verifyReceipt,
 } from "./lib/gate-receipt.mjs";
+import { COMPONENT_ROUTES } from "./lib/route-scope.mjs";
 
 const USAGE = `Usage: node tooling/verify-gate-receipt.mjs [options]
 
-  --contracts <bool>   require the contracts lane (default: ask tooling/classify-change.mjs)
-  --unit <bool>        require the browser-unit lane
-  --smoke <bool>       require the cross-engine smoke lane
-  --before <ref>       classification range start, when classifying here
-  --after <ref>        classification range end
-  --allow-skip <gate>  accept a recorded skip for this gate (MK acknowledgement; repeatable)
+  --contracts <bool>     require the contracts lane (default: ask tooling/classify-change.mjs)
+  --unit <bool>          require the browser-unit lane
+  --smoke <bool>         require the cross-engine smoke lane
+  --require-full-sweep   require a \`gates ship\` receipt: every gate passing, contracts over every
+                         component route. What a deploy passes. Ignores the change class entirely.
+  --before <ref>         classification range start, when classifying here
+  --after <ref>          classification range end
+  --allow-skip <gate>    accept a recorded skip for this gate (MK acknowledgement; repeatable)
 
 Exit codes: 0 the receipt covers this tree · 1 it does not · 2 the guard could not run.`;
 
-function fatal(message) {
-  console.error(`verify-gate-receipt: ${message}`);
-  process.exit(2);
-}
+const fatal = (message) => exit("verify-gate-receipt", message);
 
 const options = {
   required: {},
   before: null,
   after: null,
   allowedSkips: [],
+  requireFullSweep: false,
 };
 const bool = (flag, raw) => {
   if (raw === "true") return true;
@@ -73,6 +76,7 @@ for (let index = 2; index < process.argv.length; index++) {
   else if (flag === "--before") options.before = value();
   else if (flag === "--after") options.after = value();
   else if (flag === "--allow-skip") options.allowedSkips.push(value());
+  else if (flag === "--require-full-sweep") options.requireFullSweep = true;
   else if (flag === "--help" || flag === "-h") {
     console.log(USAGE);
     process.exit(0);
@@ -86,6 +90,10 @@ for (let index = 2; index < process.argv.length; index++) {
  * the one shape of this guard that could silently pass everything, which is why the workflows are
  * wired to pass explicit values.
  */
+// A full sweep requires every lane regardless of the change, so there is nothing to classify.
+if (options.requireFullSweep)
+  for (const gate of CONDITIONAL_GATES) options.required[gate] = true;
+
 const unclassified = CONDITIONAL_GATES.filter(
   (gate) => options.required[gate] === undefined,
 );
@@ -152,6 +160,8 @@ const { problems } = verifyReceipt(receipt, {
   pinned: pinnedToolchain(),
   contractSha: contractSha256(),
   allowedSkips: options.allowedSkips,
+  requireFullSweep: options.requireFullSweep,
+  componentRouteCount: COMPONENT_ROUTES.length,
   carryVerified,
 });
 
@@ -181,10 +191,13 @@ if (problems.length > 0) {
 }
 
 console.log(
-  `\n✓ gate receipt covers this tree: every required gate (${
-    Object.entries(options.required)
-      .filter(([, value]) => value)
-      .map(([gate]) => gate)
-      .join(", ") || "none beyond the always-required pair"
-  }) is present and passing on the pinned Playwright.`,
+  options.requireFullSweep
+    ? `\n✓ gate receipt is a full \`gates ship\` sweep of this tree: every gate is present and passing, ` +
+        `and the contract lane covered all ${COMPONENT_ROUTES.length} component routes on the pinned Playwright.`
+    : `\n✓ gate receipt covers this tree: every required gate (${
+        Object.entries(options.required)
+          .filter(([, value]) => value)
+          .map(([gate]) => gate)
+          .join(", ") || "none beyond the always-required pair"
+      }) is present and passing on the pinned Playwright.`,
 );

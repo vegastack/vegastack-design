@@ -32,13 +32,16 @@ concurrency:
 #                      request returns 200 and expectProtected() fails the deploy loudly.
 #
 # THE CONTRACT GATE THAT USED TO LIVE HERE IS GONE, AND WAS REPLACED RATHER THAN DROPPED.
-# It ran the 864 behaviour contracts on four billed `ubuntu-latest` shards (~135 minutes per deploy)
-# and existed because `main` carries no branch protection, `ci.yml` fires only on `pull_request`, and
-# `release.yml`'s gate was conditional — so a direct push to `main` could reach a deploy having never
-# executed a single contract assertion. That reasoning still holds, so `receipt-guard` below now
-# closes the same hole for ~seconds: it demands a receipt covering the deployed tree with ALL THREE
-# browser lanes present and passing, which only `pnpm gates:ship` (a full 108-route sweep) produces.
-# A deploy therefore still cannot happen without a complete contract run — the run just happened on a
+# It ran the behaviour contracts on four billed `ubuntu-latest` shards (~135 minutes per deploy) and
+# existed because `main` carries no branch protection and `ci.yml` fires only on `pull_request` — so
+# a direct push to `main` could reach a deploy having never executed a single contract assertion.
+# That reasoning still holds, so `receipt-guard` below closes the same hole for ~seconds: it demands
+# a schema-2 receipt written by `pnpm gates:ship` for the deployed tree — every gate present and
+# passing, the contract lane run with `--all` over every component route — via
+# `--require-full-sweep`. Until 2026-09-07 the guard here only checked that the three push lanes
+# were present, and a scoped one-route push receipt satisfied it (audit TG-01, reproduced); the
+# schema-2 receipt records the ship-only gates and the sweep shape, so that receipt is now rejected.
+# A deploy therefore still cannot happen without a complete sweep — the run just happened on a
 # developer machine, and the receipt is how this workflow knows it did.
 
 jobs:
@@ -56,11 +59,13 @@ jobs:
           }
 
   # The browser half, attested rather than executed. Unlike ci.yml and release.yml this job requires
-  # ALL THREE browser lanes unconditionally: a production deploy is the one step that must be preceded
-  # by a complete local sweep, and only `pnpm gates:ship` — which runs the full 108-route contract
-  # suite, the three-engine unit suite, and the cross-engine smoke — produces a receipt that satisfies
-  # it. Conditional requirements would let a docs-only deploy through on a partial sweep, which is
-  # exactly the hole the deleted hosted gate existed to close.
+  # THE FULL SWEEP unconditionally: a production deploy is the one step that must be preceded by a
+  # complete local run, and only `pnpm gates:ship` — the contract suite over every component route,
+  # the complete three-engine suite, the cross-engine smoke, registry-build idempotency, and the
+  # consume round-trip — produces a receipt that satisfies `--require-full-sweep`. Conditional
+  # requirements would let a docs-only deploy through on a partial sweep, which is exactly the hole
+  # the deleted hosted gate existed to close. A push receipt on main — even a green one — blocks the
+  # deploy until `gates:ship` re-mints it; that is the intended cost, not a fault.
   #
   # A receipt is ATTESTATION, NOT PROOF (tooling/lib/gate-receipt.mjs). For an outward deploy that
   # residual trust is bounded by the fact that dispatching this workflow is itself an explicit MK
@@ -79,7 +84,7 @@ jobs:
       - name: Require a full-sweep gate receipt for the deployed tree
         run: |
           set -euo pipefail
-          node tooling/verify-gate-receipt.mjs --contracts true --unit true --smoke true
+          node tooling/verify-gate-receipt.mjs --require-full-sweep
 
   # Build, sign, and deploy in ONE job. These were three isolated jobs (build-curated → sign-curated →
   # deploy-curated) that passed the built docs between them as artifacts. Actions artifact storage is

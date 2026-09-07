@@ -32,25 +32,32 @@ import {
   versionBumpOnly,
   workingTreeContentHash,
 } from "./lib/change-set.mjs";
+import { fatal as exit } from "./lib/fs.mjs";
 import {
   contractSha256,
   readReceipt,
   RECEIPT_PATH,
   RECEIPT_REPO_PATH,
+  SCHEMA,
 } from "./lib/gate-receipt.mjs";
 
 const CARRY_REASON = "version-bump";
 
-function fatal(message) {
-  console.error(`gate-receipt-carry: ${message}`);
-  process.exit(1);
-}
+const fatal = (message) => exit("gate-receipt-carry", message, { code: 1 });
 
 const receipt = readReceipt();
 if (receipt.__unreadable)
   fatal(
     `no usable receipt at ${RECEIPT_REPO_PATH} (${receipt.__unreadable}). The commit this Version PR ` +
       "is based on must carry one — that is what is being carried forward.",
+  );
+// A carry preserves the receipt's gate record verbatim, so it can only preserve what the schema
+// records. A schema-1 receipt never recorded the ship-only gates; carrying it forward would hand a
+// deploy a receipt the guard rejects for a reason nobody can fix on a bot-authored branch.
+if (receipt.schema !== SCHEMA)
+  fatal(
+    `the existing receipt is schema ${receipt.schema}, and only schema ${SCHEMA} can be carried — ` +
+      "re-run `pnpm gates:ship` on the commit this bump is based on and commit that receipt first",
   );
 
 const previousTree = receipt.tree;

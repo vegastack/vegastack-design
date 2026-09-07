@@ -3,10 +3,10 @@
 // WHAT IT IS FOR
 //   Under the local-first topology (docs/plans/2026-07-25-cicd-local-first-revamp.md, Option A) no
 //   GitHub-hosted runner executes a browser gate. CI re-executes the entire non-browser half on the
-//   free mac minis and therefore needs no receipt for it. The four browser lanes — the unit suite,
-//   the cross-engine smoke, the three-engine suite, and the 864 behaviour contracts — run only on a
-//   developer machine. This file is how a push carries evidence that they ran, and ran against the
-//   content being pushed.
+//   free mac minis and therefore needs no receipt for it. The browser lanes — the unit suite, the
+//   cross-engine smoke, the three-engine suite, and the behaviour contracts over every component
+//   route — run only on a developer machine. This file is how a push carries evidence that they
+//   ran, and ran against the content being pushed.
 //
 // WHAT IT IS NOT
 //   Proof. `git push --no-verify` plus a hand-edited JSON defeats it, and nothing here pretends
@@ -17,6 +17,17 @@
 //
 //   Say this out loud in AGENTS.md and in review. A receipt read as proof is worse than no receipt.
 //
+// SCHEMA 2 (2026-09-07, audit TG-01/TG-02, decision TD-1)
+//   Schema 1 recorded only the five push-lane gates. The three gates that run ONLY under
+//   `pnpm gates:ship` — the complete three-engine suite, registry-build idempotency, and the shadcn
+//   consume round-trip — were dropped from the receipt on write, so a deploy could not tell a scoped
+//   one-route push receipt from a full sweep (reproduced: `deploy.yml`'s guard accepted one), and a
+//   `GATES_SKIP` that let a failing ship-only gate through recorded NOTHING. Schema 2 records every
+//   gate the run executed, records every failed gate id under `skips`, and lets a caller demand a
+//   full sweep: `mode === "ship"`, every gate present and passing, the contract lane run with
+//   `full: true` over every component route. A schema-1 receipt is rejected outright — there is no
+//   way to tell what it omitted.
+//
 // WHY IT BINDS TO A WORKING-TREE HASH
 //   `tree` is a git tree hash of the working tree with `.gates/` excluded (see
 //   tooling/lib/change-set.mjs). Excluding the receipt's own directory is what makes the binding
@@ -26,9 +37,10 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { ROOT } from "./change-set.mjs";
+import { ROOT, readJson } from "./fs.mjs";
+import { COMPONENT_ROUTES } from "./route-scope.mjs";
 
-export const SCHEMA = 1;
+export const SCHEMA = 2;
 export const RECEIPT_PATH = join(ROOT, ".gates/receipt.json");
 export const RECEIPT_REPO_PATH = ".gates/receipt.json";
 
@@ -41,7 +53,17 @@ export const ALWAYS_REQUIRED = ["typecheck", "lint"];
 /** Gates required only when the change class calls for them. Every one is a BROWSER lane. */
 export const CONDITIONAL_GATES = ["unit", "smoke", "contracts"];
 
-export const ALL_GATES = [...ALWAYS_REQUIRED, ...CONDITIONAL_GATES];
+/**
+ * Gates that run only under `pnpm gates:ship`. A deploy requires all of them; a push never records
+ * them. Schema 1 dropped these on write, which is the hole schema 2 closes.
+ */
+export const SHIP_GATES = ["all-browsers", "registry", "consume"];
+
+export const ALL_GATES = [
+  ...ALWAYS_REQUIRED,
+  ...CONDITIONAL_GATES,
+  ...SHIP_GATES,
+];
 
 export const VALID_STATUSES = new Set(["pass", "fail", "skipped"]);
 
@@ -52,10 +74,8 @@ export const VALID_STATUSES = new Set(["pass", "fail", "skipped"]);
  * behaviour, and the pinned version is what the rest of the ladder assumes.
  */
 export function pinnedToolchain() {
-  const read = (relative) =>
-    JSON.parse(readFileSync(join(ROOT, relative), "utf8"));
-  const docs = read("apps/docs/package.json");
-  const ui = read("packages/ui/package.json");
+  const docs = readJson(join(ROOT, "apps/docs/package.json"));
+  const ui = readJson(join(ROOT, "packages/ui/package.json"));
   return {
     "@playwright/test":
       docs.devDependencies?.["@playwright/test"] ??
@@ -70,7 +90,7 @@ export function pinnedToolchain() {
 export function installedToolchain() {
   const version = (relative) => {
     try {
-      return JSON.parse(readFileSync(join(ROOT, relative), "utf8")).version;
+      return readJson(join(ROOT, relative)).version;
     } catch {
       return null;
     }
@@ -108,6 +128,11 @@ export function readReceipt(path = RECEIPT_PATH) {
  * Returns `{ problems: string[] }`. Every check is a separate problem string so a failing guard
  * reports everything wrong at once — a guard that stops at the first problem turns one fix-and-rerun
  * cycle into five.
+ *
+ * `requireFullSweep` is what a DEPLOY passes. It ignores the change class entirely: the receipt must
+ * come from `gates ship`, carry every gate in ALL_GATES as `pass`, and record a contract lane that
+ * ran `--all` over exactly `componentRouteCount` routes. Anything less is a partial sweep, and a
+ * partial sweep is a blocked deploy, not a smaller one.
  */
 export function verifyReceipt(
   receipt,
@@ -117,6 +142,8 @@ export function verifyReceipt(
     pinned = pinnedToolchain(),
     contractSha = contractSha256(),
     allowedSkips = [],
+    requireFullSweep = false,
+    componentRouteCount = COMPONENT_ROUTES.length,
     // Set by the caller ONLY after re-deriving `versionBumpOnly()` from git between the receipt's
     // `carriedFrom` tree and this one. A carry the caller has not verified is rejected below —
     // otherwise `carriedFrom` would be a free-text field that excuses any tree.
@@ -135,10 +162,17 @@ export function verifyReceipt(
     return { problems };
   }
 
-  if (receipt.schema !== SCHEMA)
+  if (receipt.schema !== SCHEMA) {
     fail(
-      `gate receipt schema is ${receipt.schema}, expected ${SCHEMA} — regenerate it with \`pnpm gates:push\``,
+      receipt.schema === 1
+        ? `gate receipt schema is 1, expected ${SCHEMA} — a schema-1 receipt never recorded the ship-only ` +
+            "gates (all-browsers, registry, consume) and cannot say what it omitted; regenerate it with " +
+            "`pnpm gates:push` (or `pnpm gates:ship` before a deploy)"
+        : `gate receipt schema is ${receipt.schema}, expected ${SCHEMA} — regenerate it with \`pnpm gates:push\``,
     );
+    // Nothing below can be read from a receipt whose shape is unknown.
+    return { problems };
+  }
 
   if (typeof receipt.tree !== "string" || receipt.tree.length === 0)
     fail("gate receipt records no tree hash, so it describes nothing");
@@ -203,18 +237,22 @@ export function verifyReceipt(
       fail(`gate \`${name}\` FAILED and was pushed anyway`);
   }
 
-  const requiredGates = [
-    ...ALWAYS_REQUIRED,
-    ...CONDITIONAL_GATES.filter((name) => required[name] === true),
-  ];
+  const requiredGates = requireFullSweep
+    ? ALL_GATES
+    : [
+        ...ALWAYS_REQUIRED,
+        ...CONDITIONAL_GATES.filter((name) => required[name] === true),
+      ];
   for (const name of requiredGates) {
     const entry = gates[name];
     if (!entry) {
       fail(
         `this change requires the \`${name}\` gate and the receipt does not carry it` +
-          (CONDITIONAL_GATES.includes(name)
-            ? " — tooling/classify-change.mjs classified the change as needing it"
-            : ""),
+          (requireFullSweep
+            ? " — a deploy requires the full sweep, which only `pnpm gates:ship` records"
+            : CONDITIONAL_GATES.includes(name)
+              ? " — tooling/classify-change.mjs classified the change as needing it"
+              : ""),
       );
       continue;
     }
@@ -228,7 +266,7 @@ export function verifyReceipt(
 
   // A contracts entry that passed while executing nothing is the specific fail-open this whole
   // design has to survive: an empty scope reads exactly like a green run.
-  if (required.contracts === true) {
+  if (required.contracts === true || requireFullSweep) {
     const contracts = gates.contracts;
     if (contracts?.status === "pass" && !(contracts.executed > 0))
       fail(
@@ -244,13 +282,42 @@ export function verifyReceipt(
       );
   }
 
+  // THE FULL-SWEEP CONTRACT. Schema 1 could not express this, so `deploy.yml` accepted a one-route
+  // push receipt while its comments promised a full sweep (audit TG-01, reproduced).
+  if (requireFullSweep) {
+    if (receipt.mode !== "ship")
+      fail(
+        `gate receipt was written by \`gates ${receipt.mode}\`, but a deploy requires the full sweep ` +
+          "that only `pnpm gates:ship` produces — a scoped push receipt is not a smaller deploy, it is no deploy",
+      );
+    const contracts = gates.contracts;
+    if (contracts && contracts.full !== true)
+      fail(
+        "the contracts gate did not run with --all (`full` is not true) — a deploy requires every " +
+          "component route, not the routes one diff could reach",
+      );
+    if (contracts && contracts.scopeRoutes !== componentRouteCount)
+      fail(
+        `the contracts gate covered ${contracts.scopeRoutes ?? "an unrecorded number of"} route(s) ` +
+          `but this tree has ${componentRouteCount} component routes — the sweep did not cover the inventory being deployed`,
+      );
+  }
+
   const skips = receipt.skips ?? [];
-  for (const skip of skips)
+  for (const skip of skips) {
+    if (!ALL_GATES.includes(skip?.gate)) {
+      fail(
+        `gate receipt records a skip for an unknown gate ${JSON.stringify(skip?.gate)} — a skip that ` +
+          "names nothing the ladder runs cannot be acknowledged, only investigated",
+      );
+      continue;
+    }
     if (!allowedSkips.includes(skip.gate))
       fail(
         `gate \`${skip.gate}\` was deliberately skipped (${skip.reason ?? "no reason recorded"}) — ` +
           "a recorded skip needs MK acknowledgement, it is not self-clearing",
       );
+  }
 
   return { problems };
 }
