@@ -227,7 +227,7 @@ test("uses larger video actions and a sans time readout", async () => {
   ]) {
     await expect
       .element(screen.getByRole("button", { name }))
-      .toHaveAttribute("data-size", "icon");
+      .toHaveAttribute("data-size", "md");
   }
 
   const time = screen.container.querySelector(

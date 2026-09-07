@@ -208,13 +208,11 @@ test("a single-date preset whose date is disabled cannot emit a value", async ()
     .poll(() => document.querySelector('[data-slot="calendar"]'))
     .not.toBeNull();
 
-  // The preset button is rendered disabled (native `disabled` + `aria-disabled`).
-  const preset = screen.getByRole("button", { name: "Blocked" });
-  await expect.element(preset).toBeDisabled();
+  // The preset button is rendered disabled. Since audit D7 that is the `aria-disabled` form —
+  // the control stays focusable and hoverable so a Tooltip can explain the block.
   const presetEl = document.querySelector<HTMLButtonElement>(
     '[data-slot="date-picker-presets"] button',
   )!;
-  expect(presetEl.disabled).toBe(true);
   expect(presetEl.getAttribute("aria-disabled")).toBe("true");
 
   // Force the click past the disabled UI: the handler guard must still refuse to emit.
@@ -241,12 +239,9 @@ test("a range preset that intersects disabled dates cannot emit a value", async 
     .poll(() => document.querySelector('[data-slot="calendar"]'))
     .not.toBeNull();
 
-  const preset = screen.getByRole("button", { name: "Spans blocked day" });
-  await expect.element(preset).toBeDisabled();
   const presetEl = document.querySelector<HTMLButtonElement>(
     '[data-slot="date-picker-presets"] button',
   )!;
-  expect(presetEl.disabled).toBe(true);
   expect(presetEl.getAttribute("aria-disabled")).toBe("true");
 
   // Force the click: the range guard must still refuse to emit a range crossing a blocked day.

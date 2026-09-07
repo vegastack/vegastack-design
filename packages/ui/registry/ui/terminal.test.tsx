@@ -163,7 +163,7 @@ test("the trailing icon CopyButton copies only the command lines, joined by newl
     <Terminal lines={["first", { output: "ignored" }, "second"]} />,
   );
   const copyButton = screen.getByRole("button", { name: "Copy command" });
-  await expect.element(copyButton).toHaveAttribute("data-size", "icon-sm");
+  await expect.element(copyButton).toHaveAttribute("data-size", "sm");
   expect(copyButton.element().className).toContain("text-foreground");
   expect(
     screen.container.querySelector('[data-slot="copy-button-label"]'),

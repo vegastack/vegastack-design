@@ -1,4 +1,4 @@
-// @vegastack button@0.6.0 sha256-wkbsc5IPBjYR4obOfjuxnMDYR51rP1A7mQiGCX4a7Nc=
+// @vegastack button@0.6.0 sha256-r1ujnTdEUU5qMUsoVLSRQg15JtVlVzE6IkzJ0FhYNMg=
 
 "use client";
 
@@ -10,23 +10,14 @@ import { cn } from "@vegastack/design";
 
 /** The six shapes an action can take. `cta` is the one marketing recipe and ignores `tone`. */
 export type ButtonVariant =
-  | "solid"
-  | "soft"
-  | "outline"
-  | "ghost"
-  | "link"
-  | "cta";
+  "solid" | "soft" | "outline" | "ghost" | "link" | "cta";
 
 /** The one control-height vocabulary — the same names the `--size-*` tokens carry. */
 export type ButtonSize = "xs" | "sm" | "md" | "lg";
 
 /** The five hues a shape can carry. Every non-`cta` variant reads them from the same recipe. */
 export type ButtonTone =
-  | "neutral"
-  | "destructive"
-  | "success"
-  | "warning"
-  | "info";
+  "neutral" | "destructive" | "success" | "warning" | "info";
 
 /**
  * `tone` is a set of CSS custom properties, `variant` is a recipe that reads them (audit P2,
@@ -165,39 +156,37 @@ export type ButtonAppearance =
  * re-apply {@link ButtonAppearance} itself — omitting keys from a union would flatten it and lose
  * the forbidden-cell constraint.
  */
-export type ButtonOwnProps =
-  & Omit<BaseButtonProps, "className">
-  & {
-    /**
-     * Control height, from the one `xs · sm · md · lg` vocabulary the `--size-*` tokens carry.
-     * @default 'md'
-     */
-    size?: ButtonSize;
-    /** Classes or a Base UI state resolver merged with the button variants.
-     * @default undefined
-     */
-    className?: BaseButtonProps["className"];
-    /**
-     * Slot marker for wrapper components that compose Button through Base UI
-     * `render` and need their own generated registry slot.
-     * @default 'button'
-     */
-    "data-slot"?: string;
-    /**
-     * Loading-state marker for wrapper components that reflect a host-owned pending
-     * state onto a composed Button without its `loading` visuals (e.g. SplitButton's
-     * chevron half). The Button's own `loading` prop always wins when set.
-     * @default undefined
-     */
-    "data-loading"?: string;
-    /**
-     * Shows a spinner over the label, disables interaction, and sets `aria-busy`. The
-     * label keeps its box (it only goes `invisible`), so the button's width does not
-     * move across the flip.
-     * @default false
-     */
-    loading?: boolean;
-  };
+export type ButtonOwnProps = Omit<BaseButtonProps, "className"> & {
+  /**
+   * Control height, from the one `xs · sm · md · lg` vocabulary the `--size-*` tokens carry.
+   * @default 'md'
+   */
+  size?: ButtonSize;
+  /** Classes or a Base UI state resolver merged with the button variants.
+   * @default undefined
+   */
+  className?: BaseButtonProps["className"];
+  /**
+   * Slot marker for wrapper components that compose Button through Base UI
+   * `render` and need their own generated registry slot.
+   * @default 'button'
+   */
+  "data-slot"?: string;
+  /**
+   * Loading-state marker for wrapper components that reflect a host-owned pending
+   * state onto a composed Button without its `loading` visuals (e.g. SplitButton's
+   * chevron half). The Button's own `loading` prop always wins when set.
+   * @default undefined
+   */
+  "data-loading"?: string;
+  /**
+   * Shows a spinner over the label, disables interaction, and sets `aria-busy`. The
+   * label keeps its box (it only goes `invisible`), so the button's width does not
+   * move across the flip.
+   * @default false
+   */
+  loading?: boolean;
+};
 
 /** Props accepted by `Button`. */
 export type ButtonProps = ButtonOwnProps & ButtonAppearance;
@@ -241,7 +230,11 @@ export function Button({
   // `cta` is brand-locked: passing `null` (not `undefined`) tells cva to emit NO tone variant, so
   // the thirteen unread custom properties stay off the element.
   const resolvedTone = variant === "cta" ? null : (tone ?? "neutral");
-  const variantClassName = buttonVariants({ variant, tone: resolvedTone, size });
+  const variantClassName = buttonVariants({
+    variant,
+    tone: resolvedTone,
+    size,
+  });
   const resolvedClassName: BaseButtonProps["className"] =
     typeof className === "function"
       ? (state) => cn(variantClassName, className(state))
@@ -265,18 +258,25 @@ export function Button({
       focusableWhenDisabled={focusableWhenDisabled ?? true}
       className={resolvedClassName}
     >
-      {/* The spinner is taken OUT of flow and centred over the label; the label keeps its box and
-          only loses visibility (an inherited property, so `display: contents` still hides every
-          child). Width is therefore identical loading and not (audit B1-08). */}
+      {/* While loading the spinner is taken OUT of flow and centred over the label, and the label
+          keeps its box behind `visibility: hidden` — an inherited property, so a `display: contents`
+          wrapper still hides every child. Width is therefore identical loading and not (audit
+          B1-08). The wrapper exists ONLY while loading: a permanent `display: contents` box changes
+          how Chromium hit-tests a child SVG (measured — it starts returning the svg instead of the
+          button from `elementFromPoint`), and the 24px pointer-target contract depends on that. */}
       {loading ? (
-        <span
-          aria-hidden
-          className="absolute inset-0 flex items-center justify-center"
-        >
-          <Spinner size="inherit" label="" />
-        </span>
-      ) : null}
-      <span className={cn("contents", loading && "invisible")}>{children}</span>
+        <>
+          <span
+            aria-hidden
+            className="absolute inset-0 flex items-center justify-center"
+          >
+            <Spinner size="inherit" label="" />
+          </span>
+          <span className="contents invisible">{children}</span>
+        </>
+      ) : (
+        children
+      )}
     </BaseButton>
   );
 }

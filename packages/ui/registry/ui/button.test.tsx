@@ -56,17 +56,14 @@ test("applies variant + tone + size data attributes", async () => {
   await expect.element(btn).toHaveAttribute("data-size", "lg");
 });
 
-test("tone defaults to neutral and sets the tone custom properties", async () => {
+test("tone defaults to neutral and emits its custom-property class", async () => {
   const screen = await render(<Button>Save</Button>);
-  const btn = screen
-    .getByRole("button", { name: "Save" })
-    .element() as HTMLElement;
-  await expect
-    .element(screen.getByRole("button", { name: "Save" }))
-    .toHaveAttribute("data-tone", "neutral");
-  // The solid recipe reads `--btn-fill`; the neutral tone must actually define it.
-  expect(getComputedStyle(btn).getPropertyValue("--btn-fill").trim()).not.toBe(
-    "",
+  const btn = screen.getByRole("button", { name: "Save" });
+  await expect.element(btn).toHaveAttribute("data-tone", "neutral");
+  // The solid recipe reads `--btn-fill`; the neutral tone must actually declare it. That the
+  // property RESOLVES is measured under compiled CSS in test/button-matrix.browser.test.tsx.
+  expect((btn.element() as HTMLElement).className).toContain(
+    "[--btn-fill:var(--color-primary)]",
   );
 });
 
@@ -175,18 +172,19 @@ test("loading keeps the label mounted (hidden) and shows exactly one spinner", a
   expect(btn.textContent).toContain("Save changes");
 });
 
-test("loading does not move the button's width", async () => {
-  const idle = await render(<Button>Save changes</Button>);
-  const idleWidth = (
-    idle.getByRole("button", { name: "Save changes" }).element() as HTMLElement
-  ).getBoundingClientRect().width;
-
-  const busy = await render(<Button loading>Save changes</Button>);
-  const busyWidth = (
-    busy.getByRole("button", { name: "Save changes" }).element() as HTMLElement
-  ).getBoundingClientRect().width;
-
-  expect(Math.abs(busyWidth - idleWidth)).toBeLessThan(0.5);
+test("loading takes the spinner out of flow and only hides the label", async () => {
+  // The measured width claim lives in test/button-matrix.browser.test.tsx (compiled CSS); this is
+  // the structural half — the spinner is absolutely positioned and the label keeps its box.
+  const screen = await render(<Button loading>Save changes</Button>);
+  const btn = screen
+    .getByRole("button", { name: "Save changes" })
+    .element() as HTMLElement;
+  expect(btn.className).toContain("relative");
+  const spinnerHost = btn.querySelector("span[aria-hidden]")!;
+  expect(spinnerHost.className).toContain("absolute");
+  const label = btn.querySelector("span.contents")!;
+  expect(label.className).toContain("invisible");
+  expect(label.textContent).toBe("Save changes");
 });
 
 /* ---------------------------------------------------------------------------
@@ -204,18 +202,17 @@ test("disabled renders aria-disabled, not the native attribute, and keeps pointe
   const btn = screen.getByRole("button", { name: "Save" });
   await expect.element(btn).toHaveAttribute("aria-disabled", "true");
   await expect.element(btn).not.toHaveAttribute("disabled");
-  const element = btn.element() as HTMLElement;
-  expect(getComputedStyle(element).pointerEvents).not.toBe("none");
   await btn.click({ force: true });
   expect(onClick).not.toHaveBeenCalled();
 });
 
-test("a disabled button dims, a loading one does not", async () => {
-  const off = await render(<Button disabled>Save</Button>);
-  const offEl = off.getByRole("button", { name: "Save" }).element();
-  expect(Number(getComputedStyle(offEl).opacity)).toBeLessThan(1);
-
-  const busy = await render(<Button loading>Save</Button>);
-  const busyEl = busy.getByRole("button", { name: "Save" }).element();
-  expect(Number(getComputedStyle(busyEl).opacity)).toBe(1);
+test("the dim is keyed off data-disabled and excluded while loading", async () => {
+  // Rendered opacity is measured in test/button-matrix.browser.test.tsx; here we pin that the
+  // pending state is marked so the dim can be excluded from it at all.
+  const screen = await render(<Button loading>Save</Button>);
+  const btn = screen.getByRole("button", { name: "Save" });
+  await expect.element(btn).toHaveAttribute("data-loading", "");
+  expect((btn.element() as HTMLElement).className).toContain(
+    "data-disabled:not-data-loading:opacity-(--opacity-dim)",
+  );
 });

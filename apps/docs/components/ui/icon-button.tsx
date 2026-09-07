@@ -1,4 +1,4 @@
-// @vegastack icon-button@0.6.0 sha256-7RHKwXg727F+QLED+rDIVyPnencE4vJBZnyXJV/A3wU=
+// @vegastack icon-button@0.6.0 sha256-1XMy3kfYyvGeZfJlSTQRaSMpNRkXVErTtecUMvhGGq4=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -33,9 +33,7 @@ const squareBySize: Record<IconButtonSize, string> = {
  * `IconButtonSize` scale) and requires an accessible `aria-label` because the icon child carries
  * no text.
  */
-export type IconButtonOwnProps =
-  & Omit<ButtonOwnProps, "size" | "aria-label">
-  & {
+export type IconButtonOwnProps = Omit<ButtonOwnProps, "size" | "aria-label"> & {
   /**
    * The icon to render. Pass a single `lucide-react` (or `@vegastack/design/icons`)
    * element — it is sized automatically by the chosen `size`. Optional only so the control can be
@@ -59,7 +57,7 @@ export type IconButtonOwnProps =
    * visible text).
    */
   "aria-label": string;
-  };
+};
 
 /** Props accepted by `IconButton`. */
 export type IconButtonProps = IconButtonOwnProps & ButtonAppearance;
@@ -102,7 +100,7 @@ export function IconButton({
     <Button
       {...(props as ButtonProps)}
       size={size}
-      data-slot="icon-button"
+      data-slot={dataSlot ?? "icon-button"}
       data-shape={shape}
       className={resolvedClassName}
     >
