@@ -1,4 +1,4 @@
-// @vegastack field-inline@0.6.0 sha256-7vIBuQwHZtrw17wZczkMh41k988CLin7tIieXzRvWBg=
+// @vegastack field-inline@0.6.0 sha256-WbAylw8DngJJPSNSvuL38t6o+pIWSRlClwSw+hw7z7Y=
 
 "use client";
 
@@ -283,7 +283,10 @@ export function FieldInline({
           "inline-flex h-(--size-md) max-w-full min-w-0 items-center rounded-md border border-transparent px-3 py-1 text-base",
           borderless && "h-auto rounded-none px-0 py-0",
           !disabled && !readOnly && cn("cursor-text", surfaceInteractive),
-          "aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
+          // D7: no `pointer-events-none`. A disabled inline field stays hoverable so a Tooltip
+          // can explain WHY it cannot be edited; `useInlineEdit` already no-ops `start()` while
+          // disabled, so the click handler needs no chrome-level defence.
+          "aria-disabled:opacity-(--opacity-dim)",
           className,
         )}
       >

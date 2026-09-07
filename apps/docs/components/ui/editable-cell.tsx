@@ -269,7 +269,7 @@ export function EditableCell({
         },
       );
     },
-    [onCommit, displayValue, setEditingState],
+    [onCommit, displayValue, setEditingState, setAnnouncement],
   );
 
   const cancelEdit = React.useCallback(

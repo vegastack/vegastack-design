@@ -1,11 +1,11 @@
-// @vegastack auto-save-input@0.6.0 sha256-XTVlTWpuG6NhRGL/XUTVb3pVMY9RBqGTyMBJ1OZBP/I=
+// @vegastack auto-save-input@0.6.0 sha256-W4gija8stOr1+H/Fu3A1iUoY+i0cQu5XGW6l1ljmWmo=
 
 "use client";
 
 import * as React from "react";
 import { Check, X } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
-import { cn, TIMINGS } from "@vegastack/design";
+import { TIMINGS } from "@vegastack/design";
 // `Input` is owned by the sibling Input component; shadcn rewrites this alias on
 // `add`, and vitest/tsconfig map `@/components/ui/*` → `registry/ui/*`.
 import { Input } from "@/components/ui/input";
