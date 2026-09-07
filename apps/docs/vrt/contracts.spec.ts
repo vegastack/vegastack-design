@@ -268,7 +268,21 @@ test.describe("component contract — narrow reflow and RTL", () => {
 
       const fixture = page.locator("[data-vrt-preview]").first();
       await expect(fixture).toBeVisible();
-      await fixture.scrollIntoViewIfNeeded();
+      // A fixture that re-renders on its own timer — relative-time reschedules a
+      // `setTimeout`, which `setClock` then fires — can detach between the visibility
+      // assertion and the scroll, failing with "Element is not attached to the DOM".
+      // Locators re-resolve on every attempt, so a bounded retry rides the re-render
+      // out instead of racing it. See `docs/ledger/bugs.md`, 2026-09-07.
+      await expect
+        .poll(async () => {
+          try {
+            await fixture.scrollIntoViewIfNeeded({ timeout: 2_000 });
+            return true;
+          } catch {
+            return false;
+          }
+        })
+        .toBe(true);
       await expect
         .poll(() =>
           page.evaluate(

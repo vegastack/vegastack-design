@@ -28,13 +28,19 @@ Every bug found + root cause + fix. Append-only.
   the loaded parallel sweep a tick lands inside that window and the handle goes stale. Isolated, the
   machine is fast enough that the window closes before a tick arrives — which is exactly why an
   isolated rerun "proves" nothing here and the sweep is the only place it shows.
-- **Not fixed here.** The `[data-vrt-preview].first()` probe is already routed to **G1-b (#49)**, and
-  the component's tick to D1 — this entry is the reproduction and the evidence, so whoever takes it
-  does not have to rediscover that the base branch fails too.
-- **Whatever the fix, it must not be "retry until green".** Re-running until the race misses is
-  regenerating the evidence under review, the same failure mode the VRT baselines were deleted for.
-  The fix is to make the fixture stable for the assertion (freeze the clock on the contract route, or
-  re-resolve the locator inside the action), not to widen a timeout.
+- **Systemic fix — the probe, not the fixture.** Fixed at the root in `apps/docs/vrt/contracts.spec.ts`
+  (the 320px reflow check): the bare `await fixture.scrollIntoViewIfNeeded()` is now a bounded retry —
+  `expect.poll` around a 2s-timeout scroll that swallows the detachment and lets the locator re-resolve
+  on the next attempt. A Playwright locator is lazy and re-resolves per action, so the retry lands on
+  the fixture's post-re-render element instead of a stale handle. This is deliberately a fix to the
+  PROBE and not a pin on `relative-time`: every fixture that legitimately re-renders on its own timer
+  hits the same window, so pinning one component's clock would leave the trap armed for the next one.
+- **What it did NOT change.** The assertions are untouched — the scroll is a setup step for the
+  `scrollWidth <= clientWidth` reflow check, which still fails on a real 320px overflow, and the RTL
+  containment and 24px target-floor checks are unmodified. The `.first()` fixture selection is left
+  alone; that remains **G1-b (#49)**'s call. No timeout was widened and nothing retries an assertion:
+  only the scroll setup step retries, which is why this is not "re-run until green" — the same failure
+  mode the VRT baselines were deleted for.
 
 ## 2026-09-07 — `design:sync:check` cannot see prose that names a deleted token
 
