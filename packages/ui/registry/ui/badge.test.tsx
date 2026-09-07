@@ -23,6 +23,49 @@ test("applies variant + color + size data attributes", async () => {
   await expect.element(badge).toHaveAttribute("data-size", "lg");
 });
 
+test("minimal carries a leading dot by default — status is never colour alone", async () => {
+  // A minimal badge has no container, so colour is the only thing left to carry
+  // status unless something non-colour does (WCAG 1.4.1). The dot is that
+  // carrier, and it is on by default ONLY here.
+  const screen = await render(
+    <Badge variant="minimal" intent="warning" data-testid="m">
+      Pending
+    </Badge>,
+  );
+  const el = screen.getByTestId("m").element();
+  expect(el.getAttribute("data-dot")).toBe("");
+  expect(el.querySelector('[aria-hidden="true"]')).not.toBeNull();
+
+  // ...and off by default on every container-ful variant.
+  const soft = await render(
+    <Badge intent="warning" data-testid="s">
+      Pending
+    </Badge>,
+  );
+  expect(soft.getByTestId("s").element().getAttribute("data-dot")).toBeNull();
+});
+
+test("an explicit dot={false} opts a minimal badge out", async () => {
+  const screen = await render(
+    <Badge variant="minimal" dot={false} data-testid="m">
+      Quiet
+    </Badge>,
+  );
+  expect(screen.getByTestId("m").element().getAttribute("data-dot")).toBeNull();
+});
+
+test("icon takes the dot's place rather than joining it", async () => {
+  const screen = await render(
+    <Badge variant="minimal" icon={<svg data-testid="ic" />} data-testid="m">
+      Paid
+    </Badge>,
+  );
+  const el = screen.getByTestId("m").element();
+  expect(el.querySelector('[data-testid="ic"]')).not.toBeNull();
+  // `icon` suppresses the default dot — one leading marker, never two.
+  expect(el.getAttribute("data-dot")).toBeNull();
+});
+
 test("renders a decorative dot when dot is set", async () => {
   const screen = await render(<Badge dot>Online</Badge>);
   const badge = screen.getByText("Online");
