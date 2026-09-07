@@ -513,3 +513,53 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   component test pins the scroll-region contract, the targeted route passes 8/8 checks, and the full
   behavior suite passes 880/880. The class to recognise is a sticky decorative table corner sharing
   the z-layer of interactive column headers without an explicit overlap probe.
+
+## 2026-09-07 — A loading Button lost its accessible name to `visibility: hidden`
+
+- **Symptom:** the F2 rebuild stacked the loading spinner over the label so the button's width would
+  stop moving (audit B1-08), hiding the label with `invisible`. The unit suite, design-lint and
+  `pnpm lint` all passed; `capture.mjs --routes button` reported `axe=2` — `button-name` (critical)
+  on the loading fixture in both themes.
+- **Root cause:** `visibility: hidden` removes a subtree from the accessibility tree, not just from
+  paint. The button's only text was inside it, so a pending "Save changes" button announced nothing.
+  Nothing in the unit lane could see it: axe there runs without compiled CSS, so the label was still
+  visible to it.
+- **Systemic fix:** the label is hidden with `opacity-0` instead — it keeps its box, keeps its name,
+  and the spinner still covers it. A named regression test (`a loading button keeps its accessible
+name`) pins the role-plus-name query, which is the assertion that actually fails when a future
+  change reaches for `invisible`, `hidden` or `sr-only` here. The class to recognise: **any
+  visual-only hide applied to the element that carries a control's accessible name.**
+
+## 2026-09-07 — A `display: contents` wrapper changed how Chromium hit-tests a child SVG
+
+- **Symptom:** after wrapping Button's children in a permanent `<span class="contents">` (so the
+  loading spinner could stack over them), `filter-bar.test.tsx`'s `elementFromPoint` probe started
+  returning the `<svg>` instead of the `<button>` at a point 1px inside the chip's remove control.
+  The 24×24 pointer target was intact; only the element under the point changed.
+- **Root cause:** reproduced in isolation — a bare icon child returns `BUTTON` from
+  `document.elementFromPoint`, and the identical markup with the icon inside a `display: contents`
+  span returns `svg`. Production compiles `[&_svg]:pointer-events-none`, so the real app and the
+  contract suite were unaffected; the unit lane runs without compiled CSS and is exactly where the
+  difference shows.
+- **Systemic fix:** the wrapper is rendered ONLY while `loading`, so the resting DOM is unchanged
+  and hit-testing is identical to before. The rule worth keeping: **`display: contents` is not
+  layout-neutral for hit-testing**; do not introduce it on a permanent path in a control whose
+  pointer target is under contract.
+
+## 2026-09-07 — The state probe's own presses hide the hover it is measuring
+
+- **Symptom:** `probe-states.mjs` flagged 21 of 24 elements on `/docs/components/split-button` as
+  `hover-invisible` / `active-same-as-hover`, plus later `popover-trigger`s on color-picker and
+  emoji-picker and later `pagination-link`s. The same recipes were clean on `/docs/components/button`.
+- **Root cause:** the probe hovers, then `mouse.down()`s, every element in DOM order. Pressing a
+  menu or popover trigger OPENS it, and Base UI renders an internal backdrop over the viewport; from
+  that point on `loc.hover({force: true})` lands on the backdrop, so `:hover` never applies to any
+  later element. The tell is in the data: the FIRST element of each fixture is always clean and
+  everything after the first trigger is flagged. A direct hover-only pass over the same elements
+  measured a real hover AND a real pressed step on every one.
+- **Systemic fix:** none in this change — the probe is an audit instrument, not a gate, and F2 does
+  not own `tooling/`. Recorded so the finding is not re-litigated: **`07-state-probe.md` SP-04's
+  `split-button-primary` / `popover-trigger` / `sheet-trigger` / `dialog-trigger` rows are suspect
+  for the same reason** and should be re-measured with a hover-only pass before anyone "fixes" them.
+  The probe should dismiss (Escape) after each press, or skip pressing elements with
+  `aria-haspopup`.

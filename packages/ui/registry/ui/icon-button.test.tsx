@@ -129,5 +129,5 @@ test("loading stacks the spinner over the hidden icon rather than replacing it",
   const el = btn.element() as HTMLElement;
   // Two glyphs: the out-of-flow spinner, and the icon still holding the square open.
   expect(el.querySelectorAll("svg")).toHaveLength(2);
-  expect(el.querySelector("span.contents")!.className).toContain("invisible");
+  expect(el.querySelector("span.contents")!.className).toContain("opacity-0");
 });

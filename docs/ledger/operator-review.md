@@ -749,3 +749,59 @@ each was invisible in review and each is the kind that would have degraded the t
   desktop session (the LaunchAgent path already noted for the minis), or on a machine in WebKit's
   macOS 26.2–26.5 window — then re-enable enforced WebKit (`WEBKIT_LANE=require`) and confirm
   `all-browsers` Firefox passes.
+
+## 2026-09-07 — F2 judgment calls: the Button matrix, the disabled contract, and what was left raw
+
+- **`tone` is CSS custom properties, not thirty class strings (P2 option a, as decided).** Each of
+  the six `variant` recipes is written once and reads `--btn-fill` / `--btn-soft` / `--btn-tint` /
+  `--btn-line` / `--btn-face` / `--btn-link`; each of the five `tone`s only sets them. Verified that
+  Tailwind v4.3 compiles a var-valued colour with a var opacity modifier
+  (`bg-(--btn-fill)/(--alpha-hover)` → `color-mix(in oklab, var(--btn-fill) var(--alpha-hover),
+transparent)`) before committing to the shape. Two consequences worth knowing:
+  - `--btn-ghost-ink` is the `inherit` keyword for the neutral tone, which is invalid-at-
+    computed-value-time for a custom property and therefore reads back empty from
+    `getComputedStyle`. That is the mechanism, not a bug: a neutral ghost keeps its host's ink (so a
+    dismiss control inside muted chrome stays muted), and a status ghost takes its own. It has a
+    dedicated compiled-CSS test rather than being lumped into the "every var resolves" loop.
+  - A status tone's soft hover/pressed rungs are the PRECOMPOSED `<family>-subtle-hover` /
+    `-subtle-active` tokens, never a live wash. A wash would replace the subtle fill instead of
+    climbing off it.
+- **The forbidden cell is a type, not a lint rule.** D4 says a destructive action is never a solid
+  red button. `ButtonAppearance` is a three-member union, so `<Button tone="destructive">` without an
+  explicit non-solid `variant` does not compile, and neither does `variant="cta"` with a `tone`.
+  A lint rule was the other option; F2 does not own `tooling/design-lint.mjs` beyond the exemption
+  counts (G1-a is in flight), and a compile error reaches consumers of the copied-in source too,
+  which a repo-local lint rule never would.
+- **`disabled` is now always the `aria-disabled` form, on every Button (D7).** Previously
+  `focusableWhenDisabled` was set only while loading. A native `disabled` button receives no pointer
+  events at all in any browser, so dropping `pointer-events-none` alone would NOT have delivered the
+  tooltip D7 asks for — the attribute had to change too. Base UI suppresses activation either way.
+  Cost accepted: tests that asserted `element.disabled` now assert `aria-disabled` (date-picker
+  presets, filter-bar-managed caps, split-button), and a disabled control stays in the tab order,
+  which is the APG-sanctioned pattern for an explained-unavailable action.
+- **`:active` still paints on a disabled control.** With pointer events restored, pressing a
+  disabled button briefly shows the pressed fill. Left as-is: batch 1 decided hover-on-disabled is
+  allowed, and suppressing `:active` would mean a `not-aria-disabled:` guard on all six variant
+  recipes. Flagged rather than silently accepted.
+- **Left raw on purpose, against the issue's `<button>`-count acceptance.** Four files keep their
+  `RAW_INTERACTIVE_EXEMPTIONS` entries, and the reasons differ:
+  - `data-grid` (2) and `data-list` (2) — the sort headers and the row-action wrapper are TEXT
+    controls that must inherit the cell's typography and add no box. Wrapping them in `Button` would
+    add a height, a label voice and `whitespace-nowrap` to a table cell.
+  - `onboarding-checklist` (3 → 2) — the icon-only collapse toggle became an `IconButton`; the
+    collapsed progress pill and the step rows carry visible text and stay text controls.
+  - `password-input` (1) and `tag-group` (2) — these are chip-internal micro-controls. The password
+    toggle sits INSIDE the field box, where F1 deliberately gave it an ink-only hover and pressed
+    step because a surface wash would touch the input border; making it an `IconButton` would undo
+    that decision two batches later. Tag's remove and overflow controls belong to the Chip primitive
+    (T2), explicitly out of F2's scope.
+    The exemption map fails closed in both directions, so all four are counted, and the four files that
+    DID lose their raw controls tripped the rule in the removing direction — which is the point of it.
+- **`paginationLinkVariants` keeps a size key named `icon`.** It sizes an `<a>` page-number tile,
+  not a control on the `--size-*` ladder, and renaming it is a PaginationLink API change with no
+  audit finding behind it. Noted so the next sweep does not read it as missed work.
+- **Doctrine amendment worth MK's eye:** F1's AGENTS.md rule says "no component writes its own
+  `hover:bg-*`". Button now does — through the tone vars — because it IS the recipe for its own
+  family, the way `surfaceInteractive` is the recipe for the ladder. `design.md` §Components states
+  the mechanism explicitly; the AGENTS.md sentence was left as F1 wrote it rather than edited by a
+  sibling batch.

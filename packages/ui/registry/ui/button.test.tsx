@@ -95,6 +95,15 @@ test("no a11y violations — loading", async () => {
   await expectNoA11yViolations(screen.container);
 });
 
+test("a loading button keeps its accessible name", async () => {
+  // Regression: hiding the label with `visibility: hidden` while the spinner overlays it dropped
+  // the label out of the accessibility tree, so axe reported `button-name` on the Button route.
+  const screen = await render(<Button loading>Save changes</Button>);
+  await expect
+    .element(screen.getByRole("button", { name: "Save changes" }))
+    .toBeInTheDocument();
+});
+
 test("forwards ref to the underlying button element", async () => {
   const ref = React.createRef<HTMLButtonElement>();
   await render(<Button ref={ref}>Save</Button>);
@@ -183,7 +192,10 @@ test("loading takes the spinner out of flow and only hides the label", async () 
   const spinnerHost = btn.querySelector("span[aria-hidden]")!;
   expect(spinnerHost.className).toContain("absolute");
   const label = btn.querySelector("span.contents")!;
-  expect(label.className).toContain("invisible");
+  // `opacity-0`, not `invisible` — `visibility: hidden` would drop the label out of the
+  // accessibility tree and leave the loading button with no discernible name.
+  expect(label.className).toContain("opacity-0");
+  expect(label.className).not.toContain("invisible");
   expect(label.textContent).toBe("Save changes");
 });
 

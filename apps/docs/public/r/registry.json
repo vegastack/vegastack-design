@@ -207,7 +207,7 @@
         "whenToUse": "Any clickable action — submit, confirm, destructive, etc.",
         "whenNotToUse": "Navigation to a URL — use a link styled as a button (variant=link).",
         "version": "0.6.0",
-        "integrity": "sha256-+cj8tw3XnErUNb8ZyFxuxvBa6vpHpzEvqynz/mnZAlk="
+        "integrity": "sha256-GexXoOpBIyWIuS3L5UMqy7wACNFA7x7i7ghmV/kk6Lo="
       }
     },
     {

@@ -1,4 +1,4 @@
-// @vegastack button@0.6.0 sha256-+cj8tw3XnErUNb8ZyFxuxvBa6vpHpzEvqynz/mnZAlk=
+// @vegastack button@0.6.0 sha256-GexXoOpBIyWIuS3L5UMqy7wACNFA7x7i7ghmV/kk6Lo=
 
 "use client";
 
@@ -181,8 +181,8 @@ export type ButtonOwnProps = Omit<BaseButtonProps, "className"> & {
   "data-loading"?: string;
   /**
    * Shows a spinner over the label, disables interaction, and sets `aria-busy`. The
-   * label keeps its box (it only goes `invisible`), so the button's width does not
-   * move across the flip.
+   * label keeps its box at `opacity: 0`, so the button's width does not move across
+   * the flip and its accessible name survives.
    * @default false
    */
   loading?: boolean;
@@ -259,11 +259,11 @@ export function Button({
       className={resolvedClassName}
     >
       {/* While loading the spinner is taken OUT of flow and centred over the label, and the label
-          keeps its box behind `visibility: hidden` — an inherited property, so a `display: contents`
-          wrapper still hides every child. Width is therefore identical loading and not (audit
-          B1-08). The wrapper exists ONLY while loading: a permanent `display: contents` box changes
-          how Chromium hit-tests a child SVG (measured — it starts returning the svg instead of the
-          button from `elementFromPoint`), and the 24px pointer-target contract depends on that. */}
+          keeps its box at `opacity: 0`, so the button's accessible name survives. Width is
+          therefore identical loading and not (audit B1-08). The wrapper exists ONLY while loading:
+          a permanent `display: contents` box changes how Chromium hit-tests a child SVG (measured —
+          `elementFromPoint` starts returning the svg instead of the button), and the 24px
+          pointer-target contract depends on that. */}
       {loading ? (
         <>
           <span
@@ -272,7 +272,10 @@ export function Button({
           >
             <Spinner size="inherit" label="" />
           </span>
-          <span className="contents invisible">{children}</span>
+          {/* `opacity-0`, NOT `invisible`: `visibility: hidden` would drop the label out of the
+              accessibility tree, leaving a loading button with no discernible name (caught by axe
+              on the Button route, 2026-09-07). Opacity hides it visually and keeps the name. */}
+          <span className="contents opacity-0">{children}</span>
         </>
       ) : (
         children
