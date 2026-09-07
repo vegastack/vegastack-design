@@ -1,4 +1,4 @@
-// @vegastack checkbox-group@0.6.0 sha256-TTo6PpKAp/BrWMiERlUWMEdp90frIFp+qQJoSR0IIdY=
+// @vegastack checkbox-group@0.6.0 sha256-3XDtW01eqpWXftgh3amuVqeDHlMOj/REv6jSHOi/i1o=
 
 "use client";
 
@@ -118,9 +118,15 @@ export function CheckboxGroup({
       ref={ref}
       data-slot="checkbox-group"
       className={cn(
-        // 8px between rows is the "inside a group" rhythm; `items-start` keeps a wrapped
+        // 12px between rows, and the number is load-bearing rather than taste. `Checkbox` buys
+        // its WCAG 2.5.8 target with an invisible `::before` inset 6px beyond a 16px box — a
+        // 28px effective hit area. At `gap-2` the rows sit 24px centre to centre, so those hit
+        // areas overlap by 4px and the LATER row wins the point 12px below its neighbour's
+        // centre: the contract probe's `elementFromPoint` came back holding the wrong checkbox.
+        // At `gap-3` the centres are 28px apart, the hit areas meet exactly and never overlap,
+        // and every row owns a clean centred 24px target. `items-start` keeps a wrapped
         // two-line label aligned to its box instead of centred against it.
-        "flex flex-col items-start gap-2",
+        "flex flex-col items-start gap-3",
         "group-has-disabled/field:opacity-(--opacity-dim)",
         className,
       )}
