@@ -11,13 +11,17 @@
 //   component <name>                ~44s     design-lint 1.7s · that unit file 2.8s · its closure 40s
 //   push, nothing contract-relevant ~33s     typecheck 17s · lint 16s · all browser lanes SKIPPED
 //   push, one component touched     ~1m45s    + unit 16s · smoke 17s · a 3-route closure 40s
-//   push, a GLOBAL surface touched  ~9-11min  + the full 108-route sweep (864 checks)
+//   push, a GLOBAL surface touched  ~9-11min  + the contract sweep over every component route
 //   ship                            ~17-18min + all-browsers 1m39 · consume 3m42 · full contracts
 //
-//   A COLD docs export adds ~1m40 to any lane that needs `apps/docs/out`. Note `turbo.json` lists
-//   `tooling/**` in `globalDependencies`, so editing anything in this directory invalidates that
-//   build — which is why the component loop measured 2m44 while this file was being edited and 44s
-//   when it was not.
+//   A COLD docs export adds ~1m40 to any lane that needs `apps/docs/out`. `turbo.json` no longer
+//   hashes `tooling/**` globally: `globalDependencies` names the exact scripts a build executes, so
+//   editing THIS file (or any other non-build script) leaves the docs export cached, while editing a
+//   build-time script still invalidates it. `tooling/verify-turbo-inputs.mjs` asserts that list in
+//   both directions inside `pnpm lint` — a build-time script missing from it would serve a stale
+//   export to the contract lane as fresh, and a glob widening back to `tooling/**` would bring the
+//   cost back. Before that narrowing, the component loop measured 2m44 while this file was being
+//   edited and 44s when it was not.
 //
 // TWO ORDERING RULES, BOTH LEARNED THE HARD WAY
 //   1. A TIER BARRIER. The cheap tier runs to completion, but the browser tier does not start behind

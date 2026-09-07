@@ -82,7 +82,8 @@ preflight → changesets → changelog entry → Version PR → **npm OIDC publi
 ## Verification culture
 
 Fail-closed gates end to end: design-lint (token-only styling) · browser-mode unit tests + axe ·
-768 component behaviour contracts (320px reflow, RTL, 24px pointer targets — the focus-indicator
+component behaviour contracts over every component route (320px reflow, RTL, 24px pointer targets —
+the focus-indicator
 check is a known no-op under forced-colors, see docs/ledger/bugs.md 2026-07-25) ·
 real-CLI consume verification (contract-driven across every registry item and both layouts) ·
 registry integrity (SHA-256 + Sigstore) · changelog, skill, and link lints. The **reference
