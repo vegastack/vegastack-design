@@ -38,8 +38,13 @@ distribution channels, both already wired:
    component name(s) in the summary** — `@vegastack/ui`'s generated `CHANGELOG.md` is the
    consumer-facing "what changed per version".
 4. PR → review → merge to `main`. `release.yml` runs the full unprivileged gate (typecheck, lint,
-   test, all-browser smoke, build, `registry:build` idempotency, `registry:verify-consume`), plus
-   the 864-check component contract suite when the visual surface changed. A
+   test, all-browser smoke, build, `registry:build` idempotency, `registry:verify-consume`)
+   on **every** push to `main`, not only a publishing one (decision
+   TD-6, 2026-09-07): it used to be conditional on `publish == 'true'`, so a direct push touching
+   only `apps/docs/` reached `main` with none of it re-executed. Efficiency now comes from turbo's
+   content-addressed cache, never from a condition, so an already-verified tree replays in
+   seconds. The contract suite over every component route runs locally and is attested here, not
+   re-executed. A
    changeset-bearing run then uses its version job to update the **Version Packages** PR.
    Review its package versions, generated changelogs, registry item versions, and regenerated
    `/r/*`; merging that PR is the separate human action that authorizes the next main run's isolated
@@ -69,10 +74,15 @@ workflow changes out of a changeset-bearing push if package work unexpectedly be
 ## Where the jobs run
 
 **No CI runner executes a browser.** The browser-unit suite, the cross-engine smoke, the three-engine
-suite, and the 864 behaviour contracts run on a developer machine — scoped in `.husky/pre-push`, in
+suite, and the behaviour contracts over every component route run on a developer machine — scoped in `.husky/pre-push`, in
 full under `pnpm gates:ship` — and each run writes `.gates/receipt.json`, bound to a git tree hash of
 the working tree with `.gates/` excluded. Every workflow has a `receipt-guard` job that rejects a push
-whose receipt does not cover the pushed tree. A receipt is **attestation, not proof**; see
+whose receipt does not cover the pushed tree. **`deploy.yml`'s guard is stricter than the
+others:** it passes `--require-full-sweep`, so it accepts only a schema-2 receipt written by
+`pnpm gates:ship` — `mode: "ship"`, every gate passing including the three ship-only ones
+(`all-browsers`, `registry`, `consume`), and a contract lane run with `full: true` over every
+component route. A green `gates:push` receipt on `main` blocks the deploy until `gates:ship`
+re-mints it; that is the intended cost. A receipt is **attestation, not proof**; see
 `tooling/lib/gate-receipt.mjs` and AGENTS.md § Locked decisions for exactly what that does and does
 not buy.
 

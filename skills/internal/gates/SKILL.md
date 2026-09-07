@@ -63,6 +63,19 @@ node tooling/contracts-run.mjs --routes /docs/components/<name>
 gate becomes visible and auditable instead of silent. Say that plainly; a receipt read as proof is
 worse than no receipt.
 
+**Schema 2** (since 2026-09-07) records **every** gate a run executed — including the three that only
+`pnpm gates:ship` runs (`all-browsers`, `registry`, `consume`) — and **every** failed gate id under
+`skips`. Schema 1 dropped both, which is why a deploy could be satisfied by a scoped one-route push
+receipt and why `GATES_SKIP` past a failing ship-only gate recorded nothing. Two consequences worth
+stating when asked:
+
+- `pnpm gates:push` writes a **push** receipt. That is what a PR and a push to `main` need.
+- **A deploy needs a `pnpm gates:ship` receipt and nothing else will do.** `deploy.yml` runs
+  `verify-gate-receipt.mjs --require-full-sweep`, which demands `mode: "ship"`, every gate passing,
+  and a contract lane run with `full: true` over every component route. A green push receipt on
+  `main` blocks the deploy — that is the intended cost, not a fault, and the fix is to run
+  `pnpm gates:ship` and commit the receipt it writes. Never hand-edit one.
+
 Common CI rejections and what each actually means:
 
 | `verify-gate-receipt` says                                      | Cause                                                       | Fix                                                               |
@@ -72,6 +85,10 @@ Common CI rejections and what each actually means:
 | ran against @playwright/test A but this tree pins B             | gates ran on a stale install                                | `pnpm install`, re-run                                            |
 | reports pass but executed 0 tests                               | an empty scope reported as green                            | investigate the scope; do not re-run hoping it changes            |
 | was deliberately skipped … needs MK acknowledgement             | `GATES_SKIP` was used                                       | MK's call, not yours. Present the reason recorded in the receipt. |
+| schema is 1, expected 2                                         | a receipt minted before 2026-09-07                          | `pnpm gates:push` (or `gates:ship` before a deploy) and commit it |
+| written by `gates push`, but a deploy requires the full sweep   | a push receipt reached the deploy guard                     | `pnpm gates:ship` on the tree being deployed, commit that receipt |
+| covered N route(s) but this tree has M component routes         | the sweep predates a component being added or removed       | re-run `pnpm gates:ship`; do not edit the receipt                 |
+| records a skip for an unknown gate                              | a hand-edited or corrupted receipt                          | investigate — the ladder never writes a gate id it does not run   |
 
 ## 5. Running the ladder
 

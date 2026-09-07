@@ -9,6 +9,50 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.7.0] — September 7, 2026
+
+### 🛠 CLI & tooling
+
+- **Gate receipt schema 2 — a deploy can no longer be satisfied by a scoped push receipt.** Schema 1
+  recorded only the five push-lane gates, so the three that only `pnpm gates:ship` runs
+  (`all-browsers`, `registry`, `consume`) never reached `.gates/receipt.json` at all, and
+  `deploy.yml`'s guard — whose own comments promised a full sweep — accepted a one-route push
+  receipt. It now runs `verify-gate-receipt.mjs --require-full-sweep`, which demands
+  `mode: "ship"`, every gate present and passing, and a contract lane run with `full: true` over
+  every component route (the route count comes from the generated route authority, never a
+  literal). A schema-1 receipt is rejected outright, and a recorded skip naming a gate the ladder
+  does not run is rejected rather than ignored.
+- **`GATES_SKIP` is loud again.** It recorded nothing when only a ship-only gate failed — the
+  receipt was written with `skips: []` and every listed gate passing. Every failed gate id is now
+  recorded, and every lane a stopped run never reached is recorded as not-run.
+- **`versionBumpOnly()` can see untracked files.** `git diff` produces no hunk for one, so a working
+  tree holding 2,716 untracked files classified as "pure version bump — no observable change", and a
+  brand-new `packages/ui/registry/ui/foo.tsx` classified identically. Untracked paths are now judged
+  by the same per-path rules before any diff is read.
+- **The release quality gate runs on every push to `main`.** It was conditional on
+  `publish == 'true'`, so a direct push touching only `apps/docs/` reached `main` — and could reach a
+  deploy — with `typecheck`, `lint`, and `design:verify` never re-executed. Efficiency now comes from
+  turbo's content-addressed cache rather than a condition: `pnpm lint` is one `turbo run` over
+  `lint:repo`, `lint:secrets`, `lint:hooks`, `design:verify`, and per-package `lint`, and CI points
+  `TURBO_CACHE_DIR` outside the workspace so the cache survives `actions/checkout`.
+- **`turbo.json` no longer hashes every script under `tooling/` globally.** `globalDependencies` names the exact
+  build-time scripts, so editing the gate ladder stops invalidating the ~1m40 docs export. New
+  `tooling/verify-turbo-inputs.mjs` fails closed in both directions — a build-time script missing
+  from the list, or a glob widening back to the catch-all — and carries a self-test for both.
+- **`transition-pairing` is anchored to the token names.** `transition-opacity duration-300
+ease-in-out` passed lint because the rule only required a `duration-`/`ease-` prefix. It now
+  requires `duration-fast|base|slow` with `ease-standard|emphasized|exit|spring` and names the raw
+  Tailwind step it found; `duration-0` stays legal as a structural modifier.
+- **`tooling/lib/fs.mjs`** replaces 27 independent repository-root derivations, seven private
+  directory walkers, and five `fatal()` helpers. Its `walk()` fails closed — an unreadable root
+  throws instead of reporting a clean tree, which is what `content-lint.mjs` used to do.
+- **The audit harness is repository tooling.** `capture.mjs`, the three `probe-*.mjs`, `graph.mjs`,
+  and `histogram.mjs` moved from the dated audit folder into `tooling/audit/` with unchanged CLIs.
+  Browser evidence now lands in a gitignored `.audit/`; the two document generators keep writing
+  their committed markdown.
+- **`.npmrc`'s comment** no longer describes an `actions/setup-node` token injection that the
+  workflow-security gate forbids and `release.yml` has not done since it moved to npm OIDC.
+
 ## [0.6.0] — August 31, 2026
 
 ### 🔧 Changed components

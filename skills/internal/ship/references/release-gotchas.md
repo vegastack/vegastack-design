@@ -236,6 +236,6 @@ correctly leaves `publish=false` and cannot re-publish by accident.
 
 **The forced-colors focus assertion cannot fail.** Chromium paints its own ≥2px ring in that mode and
 forced-colors repaints borders, so both branches of `hasOutline || hasTextEntryTint` are always true —
-deleting the design system's focus ring leaves all 768 checks green. Pre-existing, reproduced against
-the spec before the 2026-07-25 rewrite. Fixing it changes what 192 checks assert, so it is scoped
+deleting the design system's focus ring leaves every check green. Pre-existing, reproduced against
+the spec before the 2026-07-25 rewrite. Fixing it changes what every focus assertion asserts, so it is scoped
 separately. **Until then it is not coverage.** Evidence: `docs/ledger/bugs.md`, 2026-07-25.

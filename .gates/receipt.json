@@ -1,13 +1,13 @@
 {
-  "schema": 1,
-  "tree": "tree-7336ff5b7f2bf959d1f5b8773f9ab60d6690c904",
-  "treeFiles": 2707,
-  "head": "9a7e979858d10a141b9b648c68c786df7a08e965",
-  "writtenAt": "2026-09-07T09:09:49.503Z",
+  "schema": 2,
+  "tree": "tree-2004c69138977025badd9f56b06dfc81ef956970",
+  "treeFiles": 2711,
+  "head": "4d9390b8b57f263938726b6a3da8c49766d56f95",
+  "writtenAt": "2026-09-07T10:45:20.778Z",
   "mode": "push",
   "base": {
     "ref": "origin/main",
-    "sha": "fed75f33341c217b5ac1dd379edbca0d87f0550b"
+    "sha": "6f11a4bc9aa6539f3f5791b7b5c47aa131f5d4b2"
   },
   "host": {
     "platform": "darwin",
@@ -28,11 +28,11 @@
   "gates": {
     "typecheck": {
       "status": "pass",
-      "durationMs": 615
+      "durationMs": 20632
     },
     "lint": {
       "status": "pass",
-      "durationMs": 633
+      "durationMs": 12234
     },
     "unit": {
       "status": "skipped",
@@ -47,10 +47,7 @@
     "contracts": {
       "status": "skipped",
       "durationMs": 0,
-      "reason": "changed component sources — no route in scope",
-      "executed": 880,
-      "full": true,
-      "scopeRoutes": 110
+      "reason": "changed component sources — no route in scope"
     }
   },
   "skips": []

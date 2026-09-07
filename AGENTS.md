@@ -94,8 +94,9 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
 - **Docs** — Fumadocs, static export to Cloudflare Workers Static Assets. Storybook is deferred.
 - **Verification is local-first; CI verifies that it happened.** Decided 2026-07-25 (Option A), plan
   in `docs/plans/2026-07-25-cicd-local-first-revamp.md`. **No CI runner executes a browser.** The
-  browser-unit suite, the cross-engine smoke, the three-engine suite, and the 864 behaviour contracts
-  all run in `.husky/pre-push` (scoped) and `pnpm gates:ship` (full) on a developer machine. Each run
+  browser-unit suite, the cross-engine smoke, the three-engine suite, and the behaviour contracts over
+  every component route all run in `.husky/pre-push` (scoped) and `pnpm gates:ship` (full) on a
+  developer machine. Each run
   writes `.gates/receipt.json`, bound to a git tree hash of the working tree with `.gates/` excluded,
   and every workflow's `receipt-guard` job rejects a push whose receipt does not cover the pushed
   tree. The free mac minis independently **re-execute** the entire non-browser half.
@@ -104,8 +105,20 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
 - **A receipt is attestation, not proof, and that is written down on purpose.** `--no-verify`,
   `HUSKY=0`, or a hand-edited JSON defeats it. What it buys is that skipping a browser gate becomes a
   visible, auditable act instead of a silent one — and under Option A that is the entire guarantee on
-  those four lanes. Seven of eleven gate rows remain machine-verified for free; the split is stated
-  row by row in § Verification ladder. When more than one person merges component changes
+  the browser lanes. Most gate rows remain machine-verified for free; the split is stated
+  row by row in § Verification ladder. **Schema 2 (2026-09-07, audit TG-01/TG-02, decision TD-1) is
+  what makes that guarantee real.** Schema 1 recorded only the five push-lane gates, so the three
+  gates `pnpm gates:ship` alone runs — the complete three-engine suite, `registry:build`
+  idempotency, and the shadcn consume round-trip — never reached the receipt at all, and a
+  `GATES_SKIP` past one of them wrote `skips: []` with every listed gate passing. Schema 2 records
+  **every** gate the run executed and **every** failed gate id, and it lets a caller demand a full
+  sweep: `deploy.yml`'s guard now runs
+  `node tooling/verify-gate-receipt.mjs --require-full-sweep`, which requires `mode: "ship"`, every
+  gate present and passing, and a contract lane run with `full: true` over every component route.
+  Until then that guard accepted a scoped one-route push receipt while its own comments promised a
+  full sweep (reproduced). A schema-1 receipt is rejected outright — there is no way to tell what it
+  omitted — and a skip naming a gate the ladder does not run is rejected rather than ignored.
+  A push still mints a push receipt; only a deploy demands the sweep. When more than one person merges component changes
   independently, the answer is required status checks plus a second machine re-running the lanes, not
   a cleverer receipt. **One carry is legitimate and checkable:** `changeset version` moves the tree
   hash while changing no code a browser gate can observe, so `tooling/gate-receipt-carry.mjs` carries
@@ -287,7 +300,7 @@ pnpm --filter @vegastack/ui test                     # browser-mode unit + axe
 pnpm --filter @vegastack/ui test:smoke               # WebKit + Firefox, contract-selected subset
 pnpm --filter @vegastack/ui test:all-browsers        # the complete suite in three engines
 pnpm contracts                                       # behaviour contracts, SCOPED to the diff
-pnpm contracts:all                                   # all 108 routes / 864 checks
+pnpm contracts:all                                   # every component route (count in §Numbers)
 pnpm classify                                        # which gates this change requires, and why
 pnpm lint                                            # the full gate chain — see package.json
 pnpm registry:build && git status --porcelain        # must be idempotent: clean tree after
@@ -298,11 +311,11 @@ node tooling/vrt-review.mjs                          # before/after pixels — r
 **What CI re-executes versus what it takes on trust.** Every browser lane is attested; everything
 else is independently re-run for free on the minis. Do not blur this line in review.
 
-| gate                                                                                                                                                                                               | runs where               | CI                                     |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | -------------------------------------- |
-| static gates, `design:verify`, `typecheck`, `lint`, `registry:build` idempotency, `design:derived:check`, `registry:verify-consume`, both `SITE_VISIBILITY` builds, `@vegastack/design` node tests | hook **and** mini        | **re-executed**                        |
-| `@vegastack/ui` browser unit + axe · cross-engine smoke · three-engine suite · 864 behaviour contracts                                                                                             | hook / `gates:ship` only | **attested** via `.gates/receipt.json` |
-| `vrt-review` pixels                                                                                                                                                                                | `/ship` only             | review step, never a gate              |
+| gate                                                                                                                                                                                               | runs where               | CI                                                   |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | ---------------------------------------------------- |
+| static gates, `design:verify`, `typecheck`, `lint`, `registry:build` idempotency, `design:derived:check`, `registry:verify-consume`, both `SITE_VISIBILITY` builds, `@vegastack/design` node tests | hook **and** mini        | **re-executed** on every PR and every push to `main` |
+| `@vegastack/ui` browser unit + axe · cross-engine smoke · three-engine suite · behaviour contracts over every component route                                                                      | hook / `gates:ship` only | **attested** via `.gates/receipt.json`               |
+| `vrt-review` pixels                                                                                                                                                                                | `/ship` only             | review step, never a gate                            |
 
 Scope is decided by `tooling/lib/route-scope.mjs`, shared by the contract lane and the pixel lane with
 per-lane overrides. Anything unrecognised forces a full sweep — over-capturing costs minutes,
@@ -310,22 +323,34 @@ under-capturing ships an unverified change. `tooling/verify-route-scope.mjs` pro
 including the one path the two lanes classify OPPOSITELY (`contracts.spec.ts` cannot move a pixel, but
 it IS the contract assertions).
 
-`pnpm lint` is the umbrella: shadcn base check, skill lint, the public-skill mirror, security
-boundaries, workflow security, secret scan, `design:verify` (token build, design.md sync, contract
+`pnpm lint` is the umbrella, and since 2026-09-07 it is **one `turbo run`** rather than a shell chain:
+`lint:repo` (shadcn base check, skill lint, the public-skill mirror, security boundaries, workflow
+security both ways, turbo-input honesty and its self-test), `lint:secrets`, `lint:hooks` (never
+cached — it reads machine state), `design:verify` (token build, design.md sync, contract
 reconciliation, public API docs, animated icons, theme parity, portal theme scope, **RSC safety**,
-toaster mirror, structural design-lint, negative registry-integrity fixtures), then per-package lint.
+toaster mirror, structural design-lint, the fs-lib fixture, and the negative registry-integrity,
+route-scope, classifier and gate-receipt fixtures), then per-package lint. Every task but `lint:hooks`
+is cached on declared inputs, so a second `pnpm lint` on an unchanged tree is a seconds-long replay of
+FULL TURBO cache hits — that is what makes running the quality gate on **every** push to `main` free
+(decision TD-6). `turbo.json` no longer puts `tooling/**` in `globalDependencies`: it names the exact
+build-time scripts, and `tooling/verify-turbo-inputs.mjs` fails closed in both directions — a
+build-time script missing from the list (a stale export served to the contract lane as fresh) and a
+glob widening back to `tooling/**` (the ~1m40 docs export re-paid on every tooling edit, decision
+TD-7). Nothing under `tooling/audit/` is a build input, and the self-test proves adding it is
+rejected.
 
 Every gate fails closed. A gate that has never been observed failing is an assumption — that is why
 `verify-design-lint-structural.mjs` and `verify-registry-integrity-negative.mjs` exist.
 
 **The component contract suite is the blocking visual-surface gate — it now blocks locally.**
-`apps/docs/vrt/contracts.spec.ts` runs 864 checks over every component route — 320px reflow, RTL
+`apps/docs/vrt/contracts.spec.ts` runs its assertions over every component route (the route count is
+generated into §Numbers; never quote a check total from prose) — 320px reflow, RTL
 containment, effective 24px pointer targets, and a focus-indicator check. It takes no screenshots and
 needs no baselines, so it cannot be cleared by regenerating its own evidence.
 
 **The focus-indicator check currently cannot fail, and must not be cited as coverage.** Measured
 2026-07-25: it runs under `forcedColors: "active"`, where Chromium paints its own ≥2px focus ring, so
-deleting the design system's `:focus-visible` rule leaves all 864 checks green. Its fallback branch is
+deleting the design system's `:focus-visible` rule leaves every check green. Its fallback branch is
 also unconditionally true, because forced-colors repaints borders on focus. Pre-existing — reproduced
 against the spec before that day's rewrite. Reflow, RTL, and the 24px target floor are unaffected and
 demonstrably still fail on real defects. Evidence, reproduction, and why the fix is scoped separately:
@@ -335,7 +360,7 @@ executes it, and `receipt-guard` rejects a push whose receipt lacks it when the 
 
 ```bash
 pnpm contracts                                  # scoped to the diff — measured 24s for one route
-pnpm contracts:all                              # all 108 routes / 864 checks — measured ~14m
+pnpm contracts:all                              # every component route — measured ~14m
 node tooling/contracts-run.mjs --routes /docs/components/button
 ```
 
@@ -450,6 +475,7 @@ below is generated — never hand-edit it, and never quote a count from memory.
 <!-- NUMBERS:START — generated by tooling/sync-component-derived.mjs from packages/ui/component-contracts.json. DO NOT EDIT. -->
 
 - **Registry items: 556** — 110 components · 439 animated icons · 6 hooks (`use-animation-replay`, `use-drag-reorder`, `use-file-drop`, `use-list-nav`, `use-mobile`, `use-platform`) · 1 block (`dashboard-01`)
+- **Contract routes: 110** — one per component page; `pnpm contracts:all` sweeps every one. The suite's CHECK total is this count times the assertions in `apps/docs/vrt/contracts.spec.ts`, so quote the route count or say "every component route" — never a hand-written check total (audit TG-05 found one wrong in nine places).
 - Contract SHA-256: `d52ae5de2cc64ee94742138760fa40eec7ed67fa62f718cc7ad2e77c4ff638a7`
 
 <!-- NUMBERS:END -->

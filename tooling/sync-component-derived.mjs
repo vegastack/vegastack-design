@@ -6,12 +6,12 @@
  */
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 
-const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+import { ROOT } from "./lib/fs.mjs";
+
 const check = process.argv.includes("--check");
-const contractPath = join(root, "packages/ui/component-contracts.json");
+const contractPath = join(ROOT, "packages/ui/component-contracts.json");
 const contractBytes = readFileSync(contractPath);
 const contracts = JSON.parse(contractBytes);
 const contractSha256 = createHash("sha256").update(contractBytes).digest("hex");
@@ -162,7 +162,7 @@ const smokeTests = [
   .sort();
 
 const animatedIcons = contracts.animatedIcons.members.map((record) => {
-  const source = readFileSync(join(root, record.sourceFile), "utf8");
+  const source = readFileSync(join(ROOT, record.sourceFile), "utf8");
   const runtimeExports = record.publicSymbols.filter((symbol) => {
     if (!symbol.endsWith("Icon")) return false;
     const escaped = symbol.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -362,6 +362,7 @@ const numbersBody = `- **Registry items: ${contracts.expectedCounts.totalRegistr
   .join(
     ", ",
   )}) · ${contracts.blocks.length} block (${contracts.blocks.map((b) => `\`${b.name}\``).join(", ")})
+- **Contract routes: ${componentRoutes.length}** — one per component page; \`pnpm contracts:all\` sweeps every one. The suite's CHECK total is this count times the assertions in \`apps/docs/vrt/contracts.spec.ts\`, so quote the route count or say "every component route" — never a hand-written check total (audit TG-05 found one wrong in nine places).
 - Contract SHA-256: \`${contractSha256}\``;
 
 const INVENTORY_START =
@@ -382,7 +383,7 @@ Chat & Communication, and Brand & Marketing. Start with [Button](/docs/component
 
 /** Replace a marked region in a markdown file, failing closed if the markers are gone. */
 function injectRegion(file, startMarker, endMarker, body, label) {
-  const path = join(root, file);
+  const path = join(ROOT, file);
   let src;
   try {
     src = readFileSync(path, "utf8");
@@ -445,7 +446,7 @@ injectRegion(
 
 let stale = 0;
 for (const [relative, expected] of outputs) {
-  const absolute = join(root, relative);
+  const absolute = join(ROOT, relative);
   let actual;
   try {
     actual = readFileSync(absolute, "utf8");

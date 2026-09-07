@@ -4,6 +4,79 @@ Every bug found + root cause + fix. Append-only.
 
 ---
 
+## 2026-09-07 — The deploy's "full sweep required" guard accepted a scoped one-route push receipt
+
+- **Symptom:** `deploy.yml`'s `receipt-guard` ran
+  `verify-gate-receipt.mjs --contracts true --unit true --smoke true`, and the surrounding comments
+  claimed only `pnpm gates:ship` could satisfy it. A synthetic receipt with `mode: "push"` and
+  `contracts: { executed: 8, full: false, scopeRoutes: 1 }` over the real tree hash was accepted:
+  `problems: []`. One route's worth of contract evidence authorized a production deploy of the whole
+  inventory.
+- **Root cause:** two independent halves, and either alone would have been enough.
+  `verifyReceipt()` checked only that `executed > 0` and that a passing contracts entry was not
+  simultaneously empty-scoped; it never read `mode` or `contracts.full`. And `gates.mjs` filtered the
+  receipt it wrote through `ALL_GATES`, which listed only the five push lanes — so `all-browsers`,
+  `registry`, and `consume` were **dropped on write** and the three-engine suite that AGENTS.md
+  §Verification ladder lists as "attested via `.gates/receipt.json`" was never in the receipt at all.
+  A guard cannot demand what the writer never records.
+- **Fix (schema 2, decision TD-1):** the writer records every gate the run executed, including the
+  ship-only three, and every lane a stopped run never reached is recorded as not-run.
+  `verifyReceipt({ requireFullSweep })` requires `mode === "ship"`, every gate in `ALL_GATES`
+  present and passing, `contracts.full === true`, and `contracts.scopeRoutes ===
+COMPONENT_ROUTES.length` — read from the generated route authority, never a literal, so adding a
+  component invalidates a stale sweep instead of silently shrinking it. `deploy.yml` passes
+  `--require-full-sweep`, and `verify-workflow-security.mjs` asserts the flag is present so deleting
+  it fails the security gate rather than quietly reopening the hole. A schema-1 receipt is rejected
+  outright: it cannot say what it omitted.
+- **Negative fixtures** (all in `verify-gate-receipt-negative.mjs`, run inside `pnpm lint`): a
+  scoped push receipt at the deploy guard, a ship receipt with a ship-only gate skipped, a skip
+  naming an unknown gate, and a schema-1 receipt.
+- **Rider:** `gate-receipt-carry.mjs` now refuses to carry a non-schema-2 receipt. Carrying preserves
+  the gate record verbatim, so carrying a schema-1 record forward would hand the deploy guard a
+  receipt whose rejection nobody could fix on a bot-authored Version PR.
+
+---
+
+## 2026-09-07 — `GATES_SKIP` recorded nothing when only a ship-only gate failed
+
+- **Symptom:** `GATES_SKIP="reason" pnpm gates:ship` with a failing `all-browsers`, `registry`, or
+  `consume` wrote a receipt with `skips: []`, every listed gate `pass`, and exited 0. The "loud door"
+  — the whole point of `GATES_SKIP` being a recorded, MK-acknowledged act rather than a silent one —
+  was silent for exactly the three gates that only run at ship time.
+- **Root cause:** the same `ALL_GATES` filter as above, applied a second time when building `skips`.
+  A gate the receipt did not know about could not be recorded as skipped.
+- **Fix:** every failed gate id is recorded regardless, and `verifyReceipt()` rejects a skip naming a
+  gate the ladder does not run rather than ignoring it — a hand-edited receipt now fails loudly
+  instead of passing quietly.
+
+---
+
+## 2026-09-07 — `versionBumpOnly()` classified 2,716 untracked files as pure version churn
+
+- **Symptom:** on a working tree whose only change was 2,716 untracked files,
+  `node tooling/classify-change.mjs` reported `contracts false — none (pure version bump — no
+observable change)`, and `versionBumpOnly(HEAD, null)` returned `ok: true, files: 2716,
+offenders: 0`. A brand-new `packages/ui/registry/ui/foo.tsx` classified identically.
+- **Root cause:** the predicate decides by reading `git diff -U0 <before> -- <files>` bodies. An
+  untracked file produces no hunk, so the loop that finds offenders never saw one — the same
+  fail-open `dropProvenanceOnly` in the same file documents fixing twice.
+- **Blast radius:** `pnpm classify`, `release-classify.mjs`, `verify-gate-receipt.mjs` run without
+  explicit flags, and the working-tree carry inside `pnpm version-packages`. CI passes commit ranges
+  and `gates.mjs push` does not use the predicate, so the hook lane was unaffected.
+- **Fix:** when `after === null`, untracked paths are judged first, by the same per-path rules —
+  a new changeset is release intent (offender), a new package `CHANGELOG.md` is append-only
+  (allowed), re-derived registry and contract output is exempt because CI re-executes it, and
+  anything else is a file no commit has ever seen (offender). The diff loop then runs over the
+  tracked remainder only.
+- **Negative fixture:** `verify-classify-change.mjs` builds a synthetic repository from the tooling
+  under test plus the authorities the classifier reads, adds one untracked component source, and
+  asserts both the predicate and `classify-change.mjs` demand the component gates. A synthetic repo
+  rather than this one: probing the real tree would race every gate that walks
+  `packages/ui/registry`, and a clone would exercise the committed tooling rather than the working
+  tree's.
+
+---
+
 ## 2026-07-27 — Firefox neuters the DataTransfer of a synthetic ClipboardEvent (test-only)
 
 - **Symptom:** `chip-input.test.tsx` "paste splits on the delimiter set" failed only in Firefox

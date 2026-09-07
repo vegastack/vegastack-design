@@ -40,7 +40,7 @@ node tooling/design-lint.mjs packages/ui/registry                    # component
 node tooling/design-lint.mjs --token-css packages/design-tokens/src  # token CSS (!important only)
 node tooling/design-lint.mjs --token-css apps/docs/app               # docs app CSS (!important only)
 pnpm lint && pnpm typecheck
-pnpm gates:ship                                  # the full sweep, including all 96 contract routes
+pnpm gates:ship                                  # the full sweep, over every component route
 pnpm registry:build && git status --porcelain    # must be idempotent — clean tree after
 pnpm design:derived && git status --porcelain    # contract-derived surfaces must be current
 pnpm classify                                    # which gates this change REQUIRES, and why
@@ -154,10 +154,10 @@ severity. **If the task was an audit, stop here — report, never auto-fix.**
 
 ## 8. Visual review discipline
 
-Visual verification is split: **behaviour** is a gate (`apps/docs/vrt/contracts.spec.ts`, 768 checks,
-no screenshots, no baselines) that runs in `.husky/pre-push` and is attested to CI by
-`.gates/receipt.json`; **pixels** are a local review step (`tooling/vrt-review.mjs`, before/after on
-one machine, nothing committed).
+Visual verification is split: **behaviour** is a gate (`apps/docs/vrt/contracts.spec.ts`, asserting
+over every component route, no screenshots, no baselines) that runs in `.husky/pre-push` and is
+attested to CI by `.gates/receipt.json`; **pixels** are a local review step (`tooling/vrt-review.mjs`,
+before/after on one machine, nothing committed).
 
 **Under this topology the receipt is a review target in its own right.** No CI runner executes a
 browser, so a review that accepts "CI was green" as evidence the contracts ran has accepted nothing.
@@ -169,7 +169,19 @@ node -p "const r=require('./.gates/receipt.json'); [r.tree, r.mode, JSON.stringi
 ```
 
 A receipt whose `skips[]` is non-empty is a finding regardless of how the run looks: it means
-`GATES_SKIP` was used and a browser lane did not run.
+`GATES_SKIP` was used and a gate did not run. Since **schema 2** that list is trustworthy in a way it
+was not before: it records EVERY failed gate id, not just the push lanes, so a `GATES_SKIP` past a
+failing `all-browsers`/`registry`/`consume` no longer writes `skips: []` with everything green
+(audit TG-02). Three more receipt findings to check by execution, never by reading:
+
+- **`schema` must be 2.** A schema-1 receipt is rejected outright and cannot say what it omitted.
+- **A deploy needs `mode: "ship"`.** `deploy.yml` passes `--require-full-sweep`; before 2026-09-07 it
+  accepted a scoped one-route push receipt while its own comments promised a full sweep (TG-01,
+  reproduced). Any change that drops that flag is a high finding —
+  `tooling/verify-workflow-security.mjs` now asserts it is there.
+- **`gates.contracts.scopeRoutes` must equal the component-route count** on a full sweep, and
+  `full` must be `true`. A sweep that predates a component being added covers an inventory that no
+  longer exists.
 
 Reviewing a before/after report:
 

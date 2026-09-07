@@ -48,12 +48,16 @@ SITE_VISIBILITY=private pnpm --filter @vegastack/docs build
 
 `pnpm gates:ship` is not a convenience wrapper — it is the release's evidence. It runs the full lint
 chain, `typecheck`, the browser-unit suite, the cross-engine smoke, the complete three-engine suite,
-`registry:build` idempotency, the `shadcn` consume round-trip, and **all 96 contract routes**, then
-writes `.gates/receipt.json` binding those results to a tree hash.
+`registry:build` idempotency, the `shadcn` consume round-trip, and **every component route** (the
+count is generated into AGENTS.md §Numbers — never quote one from memory), then writes
+`.gates/receipt.json` binding those results to a tree hash.
 
-**No CI runner executes a browser.** `deploy.yml`'s `receipt-guard` demands a receipt with all three
-browser lanes present and passing, which only this command produces — so a deploy is impossible
-without it. That also means a partial sweep is not a shortcut here; it is a blocked deploy.
+**No CI runner executes a browser.** `deploy.yml`'s `receipt-guard` runs
+`verify-gate-receipt.mjs --require-full-sweep`, which demands a **schema-2** receipt with
+`mode: "ship"`, every gate present and passing (the three ship-only gates included), and a contract
+lane run with `full: true` over every component route. Only this command produces one — so a deploy
+is impossible without it, and a green `gates:push` receipt on `main` is **not** enough. A partial
+sweep is not a shortcut here; it is a blocked deploy.
 
 **Run this BEFORE committing, then commit `.gates/receipt.json` together with the release.**
 `.gates/` is excluded from the tree hash the receipt binds to, so including it in the commit cannot

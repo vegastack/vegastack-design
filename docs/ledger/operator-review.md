@@ -4,6 +4,29 @@ Every judgment-call / assumption / best-guess decision made instead of pausing �
 
 ---
 
+## 2026-09-07 — Turbo cache topology for the unconditional quality gate
+
+**Decision:** Run `typecheck`/`lint`/`design:verify` on every push to `main` and on every PR, and buy back the cost with turbo's **local** cache on each mini, pointed at `$HOME/.cache/turbo/vegastack-design` — no remote cache, no receipt-based skip.
+
+- **Options:** (a) keep the `publish == 'true'` condition and accept that a docs-only push to `main` is never re-verified; (b) run unconditionally and eat the full cost; (c) run unconditionally through turbo's local cache; (d) run unconditionally through a shared remote cache so a PR's verification is reused by the later push to `main`.
+- **Why (c):** decision TD-6 is "don't re-verify what is verified", and a content-addressed cache is the only form of that which cannot be wrong — a condition can be, and the old one was (audit TG-04). Remote caching (d) is strictly better when two different machines see the same tree, but it needs a signing key and either Vercel's service or a self-hosted cache server; `turbo.json` carries a `remoteCache` block but nothing is configured, and inventing a secret is not in this issue's scope. The minis are few and sticky enough that a local cache captures most of the reuse. The one non-obvious requirement is that `actions/checkout` runs `git clean -ffdx`, which deletes the default `.turbo/cache` before every run — so the cache must live outside the workspace or it can never hit. `verify-workflow-security.mjs` now asserts both the `TURBO_CACHE_DIR` line and the absence of any receipt-conditioned step in those jobs.
+- **Revisit:** if a second machine starts re-running lanes, or PR-to-main reuse becomes the dominant cost, wire the remote cache — the task graph needs no change, only credentials.
+
+## 2026-09-07 — Where the audit harness lives, and where its output goes
+
+**Decision:** The six harness scripts move to `tooling/audit/`. Browser **evidence** (`capture.mjs`, the three `probe-*.mjs`) writes to a gitignored `.audit/` at the repository root; the two **document** generators (`graph.mjs`, `histogram.mjs`) keep writing their committed markdown into the dated audit folder. Both honour `--out <dir>` / `AUDIT_OUT_DIR`.
+
+- **Options:** (a) leave the scripts in `docs/audits/2026-09-07-system-audit/`; (b) move them to `tooling/audit/` and keep all output under the dated folder; (c) move them and split output by kind.
+- **Why (c):** the audit folder is a point-in-time record — AGENTS.md §Truth hierarchy says so explicitly — and executable tooling that the next audit will rerun does not belong inside a record. But `00-graph.md`, `00-register.md`, and `01-class-histogram.md` genuinely **are** that record, so their generators must keep writing there or the record stops being reproducible. Evidence is the opposite: thousands of regenerated PNGs, specific to one run rather than one audit. Under (b) the next audit inherits a stale dated folder name or needs a second `.gitignore` line; `.audit/` is dateless because the evidence is. Verified by execution: run from their new home, `graph.mjs` and `histogram.mjs` reproduce the committed record byte-for-byte after prettier, apart from `00-graph.json`'s `generated` timestamp.
+- **Rider:** nothing under `tooling/audit/` is a build input, so it is deliberately absent from `turbo.json`'s `globalDependencies`; `verify-turbo-inputs.mjs`'s self-test asserts that adding `tooling/audit/**` there is rejected.
+
+## 2026-09-07 — Deriving the contract count instead of deleting it
+
+**Decision:** Emit the component-route count into AGENTS.md's generated §Numbers block and have every other surface say "every component route"; never write a check total in prose.
+
+- **Options:** (a) hand-correct "864 checks / 108 routes" to the current numbers in all nine places; (b) delete every count and say "every component route"; (c) generate the route count once, in the block that is already regenerated and gate-checked, and phrase everything else relatively.
+- **Why (c):** (a) is what produced the bug — nine hand-written literals, wrong in all nine, in a file AGENTS.md's own rule says must never quote a count from prose. (b) loses a number that is genuinely useful when reading a receipt (`scopeRoutes` has to be compared against something). The **check** total stays unwritten deliberately: it is routes × the assertions in `contracts.spec.ts`, and deriving that multiplier from prose would rot the moment an assertion is added — which is precisely how 864 outlived 880. `sync-component-derived.mjs` now emits the route count and `pnpm design:derived:check` fails closed when it drifts.
+
 ## 2026-07-24 — GitHub Team approval boundary
 
 **Decision:** Keep the already-working repository secrets and use reviewed merges/manual dispatches instead of GitHub environments.
