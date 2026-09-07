@@ -33,13 +33,13 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   `size` prop, the `startAnimation`/`stopAnimation` handle and the `AnimatedIcon` wrapper API are
   unchanged.
   [docs](https://design.vegastack.com/docs/foundations/icons) ·
-  [`a91ab57`](https://github.com/VegaStack/vegastack-design/commit/a91ab57)
+  [`70fe6b2`](https://github.com/VegaStack/vegastack-design/commit/70fe6b2)
 - **Animated icons** — reduced motion is now read through Motion's config-aware hook, so
   `<MotionConfig reducedMotion="always">` suppresses icon playback as well as the OS preference
   does. Previously only the OS preference was consulted, through a module-level singleton no
   consumer could influence.
   [docs](https://design.vegastack.com/docs/foundations/icons) ·
-  [`a91ab57`](https://github.com/VegaStack/vegastack-design/commit/a91ab57)
+  [`70fe6b2`](https://github.com/VegaStack/vegastack-design/commit/70fe6b2)
 
 ### 🛠 CLI & tooling
 
@@ -56,7 +56,7 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   holds every module to a schema whose central clause is that a data module contains no controller
   at all, and carries a `--self-test` that proves ten distinct regressions are rejected.
   [docs](https://design.vegastack.com/docs/foundations/icons) ·
-  [`a91ab57`](https://github.com/VegaStack/vegastack-design/commit/a91ab57)
+  [`70fe6b2`](https://github.com/VegaStack/vegastack-design/commit/70fe6b2)
 
 ### 📦 npm
 
@@ -96,11 +96,11 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   it was written without a dependency array. It now runs when the preference changes, once, in the
   factory.
   [docs](https://design.vegastack.com/docs/foundations/icons) ·
-  [`a91ab57`](https://github.com/VegaStack/vegastack-design/commit/a91ab57)
+  [`70fe6b2`](https://github.com/VegaStack/vegastack-design/commit/70fe6b2)
 - **Docs** — each tile in the icon gallery was a focusable `<div>` with no role, so all 439 were
   reachable by keyboard and announced as nothing. Each is now a real `<button>`.
   [docs](https://design.vegastack.com/docs/foundations/icons) ·
-  [`a91ab57`](https://github.com/VegaStack/vegastack-design/commit/a91ab57)
+  [`70fe6b2`](https://github.com/VegaStack/vegastack-design/commit/70fe6b2)
 
 ### ⚠️ Breaking
 
@@ -162,7 +162,7 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   and `ZapHandle` were `@deprecated` aliases left behind by upstream naming quirks. Each icon still
   exports `<Name>IconHandle`; only the alias is gone.
   [docs](https://design.vegastack.com/docs/foundations/icons) ·
-  [`a91ab57`](https://github.com/VegaStack/vegastack-design/commit/a91ab57)
+  [`70fe6b2`](https://github.com/VegaStack/vegastack-design/commit/70fe6b2)
 
 ### 🗑 Removed / renamed
 
