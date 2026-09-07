@@ -24,7 +24,7 @@ export function alertDialog(): ReactNode {
         <AlertDialogTrigger
           render={<Button variant="outline" tone="destructive">Delete project</Button>}
         />
-        <AlertDialogContent intent="destructive">
+        <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete project?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -92,7 +92,7 @@ export function alertDialogIntents(): ReactNode {
           <AlertDialogTrigger
             render={<Button variant="outline">{label}</Button>}
           />
-          <AlertDialogContent intent={intent}>
+          <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>{title}</AlertDialogTitle>
               <AlertDialogDescription>{description}</AlertDialogDescription>

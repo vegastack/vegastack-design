@@ -35,7 +35,7 @@ import { Button } from "@/components/ui/button";
       </Button>
     }
   />
-  <AlertDialogContent intent="destructive">
+  <AlertDialogContent>
     <AlertDialogHeader>
       <AlertDialogTitle>Delete project?</AlertDialogTitle>
       <AlertDialogDescription>
@@ -64,7 +64,7 @@ root:
 ```tsx
 <AlertDialog>
   <AlertDialogTrigger render={<Button>Delete</Button>} />
-  <AlertDialogContent intent="destructive">
+  <AlertDialogContent>
     <AlertDialogHeader>
       <AlertDialogTitle>Title</AlertDialogTitle>
       <AlertDialogDescription>
@@ -85,8 +85,8 @@ root:
 - `AlertDialogTrigger` — the control that opens the dialog (`data-slot="alert-dialog-trigger"`).
   Pass `render` to compose it with a `Button`.
 - `AlertDialogContent` — the centered popup (`data-slot="alert-dialog-content"`). Composes Base UI's
-  Portal + Backdrop + Viewport + Popup, takes the `intent`, animates enter/exit. No top-right close
-  button.
+  Portal + Backdrop + Viewport + Popup and animates enter/exit. No top-right close button, and no
+  `intent` — the confirm button owns that.
 - `AlertDialogHeader` — groups the title and description (`data-slot="alert-dialog-header"`).
 - `AlertDialogTitle` — the dialog's accessible name (`data-slot="alert-dialog-title"`, `<h2>`).
   Wired to the popup via `aria-labelledby`.
@@ -106,19 +106,19 @@ root:
 
 ### Intents
 
-Set `intent` on `AlertDialogContent` (for grouping) and on `AlertDialogAction` (to tint the confirm
-button): `default`, `destructive`, `success`, and `warning`.
+Set `intent` on `AlertDialogAction` to tint the confirm button: `default`, `destructive`, `success`,
+and `warning`.
 
 <ComponentPreview
   name="alertDialogIntents"
   file="components/preview/alert-dialog.tsx"
 />
 
-The `intent` on `AlertDialogContent` is **metadata only** — it sets a `data-intent` attribute for
-grouping/styling hooks but does **not** tint the popup itself. The visible color comes entirely from
-the matching `intent` on `AlertDialogAction`, which maps to a semantic `Button` variant
-(`destructive-outline`, `success-outline`, `warning-outline`). Always set both so the data hook and
-the confirm button stay in sync.
+`AlertDialogContent` deliberately has **no** `intent`. It used to accept one that wrote a
+`data-intent` attribute and nothing else, while the visible colour came from `AlertDialogAction` —
+two props for one concept, one of them inert. `AlertDialogAction intent` is the single owner; it maps
+to the shared `Button` matrix (`variant="outline"` plus the matching `tone`), so a destructive
+confirm is an outline button, never a solid red one.
 
 ### Scrollable content
 

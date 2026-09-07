@@ -124,11 +124,24 @@ export interface FloatingSurfaceParts {
   Viewport?: React.ElementType;
 }
 
+/**
+ * The structural shape a Base UI floating part is handed. Deliberately open: it names only the two
+ * members this module reads (`className`, in either of Base UI's two forms, and `children`) and
+ * lets every other prop pass through unread, so an overlay can forward its own Base UI part props
+ * without them being narrowed here.
+ */
 type FloatingPartProps = {
   className?: string | ((state: never) => string | undefined);
   children?: React.ReactNode;
-  [key: string]: unknown;
 };
+
+/**
+ * A bag of Base UI part props forwarded verbatim, with nothing in it read here. Deliberately
+ * `object` rather than `Record<string, unknown>`: Base UI's part-prop types are interfaces, and TS
+ * only infers an implicit index signature for object-literal types, so a `Record` target would
+ * reject every real Base UI prop type.
+ */
+type FloatingPassthroughProps = object;
 
 /** Props accepted by `FloatingSurface`. */
 export interface FloatingSurfaceProps extends
@@ -150,12 +163,12 @@ export interface FloatingSurfaceProps extends
    * Positioning props forwarded to the `Positioner` (side, align, sideOffset, …).
    * @default undefined
    */
-  positioning?: Record<string, unknown>;
+  positioning?: FloatingPassthroughProps;
   /**
    * Props forwarded to the `Portal`.
    * @default undefined
    */
-  portalProps?: Record<string, unknown>;
+  portalProps?: FloatingPassthroughProps;
   /**
    * Extra props forwarded to the `Positioner`, merged after `positioning`.
    * @default undefined
@@ -326,7 +339,7 @@ export function FloatingArrow({
   tone = "panel",
   className,
   ...props
-}: FloatingArrowProps & Record<string, unknown>) {
+}: FloatingArrowProps & FloatingPassthroughProps) {
   const Arrow = element as React.ComponentType<FloatingPartProps>;
   return (
     <Arrow
@@ -711,6 +724,12 @@ export interface PanelSearchFrameProps extends React.ComponentProps<"div"> {
    * @default true
    */
   focusTint?: boolean;
+  /**
+   * Row height tier. `md` is the in-panel default; `lg` is the palette-in-a-dialog tier, where the
+   * search row is the dialog's primary affordance.
+   * @default "md"
+   */
+  size?: "md" | "lg";
 }
 
 /**
@@ -726,6 +745,7 @@ export interface PanelSearchFrameProps extends React.ComponentProps<"div"> {
 export function PanelSearchFrame({
   className,
   focusTint = true,
+  size = "md",
   children,
   ...props
 }: PanelSearchFrameProps) {
@@ -733,7 +753,8 @@ export function PanelSearchFrame({
     <div
       data-slot="panel-search"
       className={cn(
-        "sticky top-0 z-(--z-raised) flex h-(--size-md) items-center gap-2 border-b border-border bg-popover px-3",
+        "sticky top-0 z-(--z-raised) flex items-center gap-2 border-b border-border bg-popover px-3",
+        size === "lg" ? "h-(--size-lg)" : "h-(--size-md)",
         focusTint && "focus-within:border-ring/(--alpha-tint-border)",
         className,
       )}
@@ -741,7 +762,10 @@ export function PanelSearchFrame({
     >
       <Search
         aria-hidden
-        className="size-(--icon-default) shrink-0 text-muted-foreground"
+        className={cn(
+          "shrink-0 text-muted-foreground",
+          size === "lg" ? "size-(--icon-action)" : "size-(--icon-default)",
+        )}
       />
       {children}
     </div>
@@ -753,7 +777,7 @@ export function PanelSearchFrame({
  * it to whichever input the panel owns.
  */
 export const panelSearchInputClassName = cn(
-  "h-(--size-md) w-full min-w-0 bg-transparent text-base text-foreground outline-none",
+  "h-full w-full min-w-0 bg-transparent text-base text-foreground outline-none",
   "placeholder:text-muted-foreground-faint",
   "disabled:cursor-not-allowed disabled:opacity-(--opacity-dim)",
 );

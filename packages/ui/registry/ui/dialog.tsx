@@ -28,12 +28,15 @@ import { IconButton } from "@/components/ui/icon-button";
  */
 export const dialogContentVariants = cva(
   [
-    "relative z-(--z-overlay) flex max-h-[calc(100dvh-var(--spacing)*8)] w-full flex-col gap-4",
+    // `max-h-full` rather than a `100dvh` calc: the viewport below is `fixed inset-0 p-4`, so its
+    // content box IS the available height and the popup can simply fill it (audit B3-09).
+    "relative z-(--z-overlay) flex max-h-full w-full flex-col gap-4",
     // No `outline-none`: Base UI focuses the popup on open, so the centralized base.css
     // `:focus-visible` outline stays as the keyboard-focus indicator (WCAG 2.4.7, register P0-02).
-    "rounded-lg border border-border bg-popover p-5 text-base text-popover-foreground shadow-overlay",
-    // Enter/exit — scale + fade, token durations + standard easing.
-    "origin-center transition-[opacity,transform] duration-fast ease-standard",
+    // 24px is the modal-family padding tier (D14); popovers and hover cards take 16.
+    "rounded-lg border border-border bg-popover p-6 text-base text-popover-foreground shadow-overlay",
+    // Enter/exit — scale + fade. D11: modals move at `base` (200ms), floating surfaces at 150.
+    "origin-center transition-[opacity,transform] duration-base ease-standard",
     "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
     "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
   ],
@@ -167,7 +170,8 @@ export function DialogContent({
         className={cn(
           themeScope,
           "fixed inset-0 z-(--z-overlay) bg-overlay",
-          "transition-opacity duration-fast ease-standard",
+          // The backdrop moves with its panel — D11 pairs both at `base` (200ms).
+          "transition-opacity duration-base ease-standard",
           "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
         )}
       />

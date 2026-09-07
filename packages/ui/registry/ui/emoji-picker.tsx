@@ -11,7 +11,10 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { IconButton } from "@/components/ui/icon-button";
-import { Input } from "@/components/ui/input";
+import {
+  PanelSearchFrame,
+  PanelSearchInput,
+} from "@/components/ui/floating-surface";
 import { useListNav } from "@/components/ui/use-list-nav";
 
 /* ------------------------------------------------------------------------------------------------
@@ -23,7 +26,7 @@ import { useListNav } from "@/components/ui/use-list-nav";
  * standard categories. This keeps the copy-in zero-dependency and tree-shakeable; consumers who need
  * the full Unicode set can extend `EMOJI` or swap in their own data.
  *
- * Composition: our `Popover` (trigger + floating panel) + a search `Input` + a plain scrollable grid
+ * Composition: our `Popover` (trigger + floating panel) + the shared panel-search row + a grid
  * of icon `Button`s. Each emoji button carries an `aria-label` (the emoji name) so the grid is
  * screen-reader navigable. Search filters across emoji names and keywords.
  * ----------------------------------------------------------------------------------------------*/
@@ -491,7 +494,7 @@ export interface EmojiPickerProps {
 
 /**
  * `EmojiPicker` — a popover with a searchable, category-grouped grid of emoji that returns the
- * selected character via `onValueChange`. Built on our `Popover` + a search `Input` + a scrollable grid
+ * selected character via `onValueChange`. Built on our `Popover` + the shared panel-search row + a scrollable grid
  * of icon `Button`s, with a curated embedded emoji dataset (`EMOJI`) so it ships zero extra
  * dependencies. Each emoji button is keyboard-focusable and has an `aria-label`.
  *
@@ -614,17 +617,17 @@ export function EmojiPicker({
         )}
       >
         <div className="flex flex-col">
-          {/* Search */}
-          <div className="border-b border-border p-2">
-            <Input
-              type="search"
+          {/* Search — the shared in-panel recipe: leading glyph, no box of its own, hairline
+              below. A bordered `Input` inside a bordered popup nests two borders (B8-04). */}
+          <PanelSearchFrame>
+            <PanelSearchInput
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={searchPlaceholder}
               aria-label={searchPlaceholder}
               data-slot="emoji-picker-search"
             />
-          </div>
+          </PanelSearchFrame>
           <div
             data-slot="emoji-picker-status"
             role="status"

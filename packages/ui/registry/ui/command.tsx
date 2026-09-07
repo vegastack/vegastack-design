@@ -5,8 +5,13 @@
 import * as React from "react";
 import { Combobox as BaseCombobox } from "@base-ui/react/combobox";
 import { Separator as BaseSeparator } from "@base-ui/react/separator";
-import { Search } from "lucide-react";
 import { cn } from "@vegastack/design";
+import {
+  menuItemVariants,
+  menuLabelClassName,
+  PanelSearchFrame,
+  panelSearchInputClassName,
+} from "@/components/ui/floating-surface";
 import {
   Dialog,
   DialogContent,
@@ -69,7 +74,21 @@ export type CommandProps<Value = unknown> = Omit<
    * @default 'always'
    */
   autoHighlight?: boolean | "always";
+  /**
+   * Row density. `md` is the inline/popover palette; `lg` is the ⌘K-in-a-dialog tier — a taller
+   * search row and roomier items. Replaces the descendant-selector re-tuning `CommandDialog` used
+   * to do (audit B3-12).
+   * @default "md"
+   */
+  size?: CommandSize;
 };
+
+/** The density tiers a `Command` palette can render at. */
+export type CommandSize = "md" | "lg";
+
+// The one place the tier is read from: `CommandInput` and `CommandItem` are rendered by the
+// consumer, not by `Command`, so the tier travels by context rather than by cloning children.
+const CommandSizeContext = React.createContext<CommandSize>("md");
 
 /**
  * `Command` — the palette root. Owns the search query (`inputValue`), the query-filtered `items`,
@@ -112,6 +131,7 @@ export function Command<Value = unknown>({
   className,
   loop = false,
   autoHighlight = "always",
+  size = "md",
   children,
   ...props
 }: CommandProps<Value>) {
@@ -130,12 +150,15 @@ export function Command<Value = unknown>({
     >
       <div
         data-slot="command"
+        data-size={size}
         className={cn(
           "flex h-full w-full flex-col overflow-hidden rounded-lg bg-popover text-popover-foreground",
           className,
         )}
       >
-        {children}
+        <CommandSizeContext.Provider value={size}>
+          {children}
+        </CommandSizeContext.Provider>
       </div>
     </BaseCombobox.Root>
   );
@@ -208,14 +231,7 @@ export function CommandDialog({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        <Command
-          {...commandProps}
-          className={cn(
-            "[&_[data-slot=command-input-wrapper]]:h-(--size-lg) [&_[data-slot=command-input]]:h-(--size-lg) [&_[data-slot=command-input-wrapper]_svg]:size-(--icon-action)",
-            "[&_[data-slot=command-item]]:px-3 [&_[data-slot=command-item]]:py-2",
-            className,
-          )}
-        >
+        <Command size="lg" {...commandProps} className={className}>
           {children}
         </Command>
       </DialogContent>
@@ -245,15 +261,9 @@ export function CommandInput({ className, ...props }: CommandInputProps) {
       : typeof props.placeholder === "string"
         ? props.placeholder
         : "Search");
+  const size = React.useContext(CommandSizeContext);
   return (
-    <div
-      data-slot="command-input-wrapper"
-      className="flex h-(--size-md) items-center gap-2 border-b border-border px-3 focus-within:border-ring/(--alpha-tint-border)"
-    >
-      <Search
-        aria-hidden
-        className="size-(--icon-default) shrink-0 text-muted-foreground"
-      />
+    <PanelSearchFrame data-slot="command-input-wrapper" size={size}>
       <BaseCombobox.Input
         data-slot="command-input"
         aria-label={accessibleName}
@@ -262,15 +272,10 @@ export function CommandInput({ className, ...props }: CommandInputProps) {
         // it — verified: consistently absent across every render, not a timing race. Command is
         // architecturally always "expanded" (`inline open`), so hardcode it true.
         aria-expanded="true"
-        className={cn(
-          "flex h-(--size-md) w-full bg-transparent text-base text-foreground outline-none",
-          "placeholder:text-muted-foreground-faint",
-          "disabled:cursor-not-allowed disabled:opacity-(--opacity-dim)",
-          className,
-        )}
+        className={cn(panelSearchInputClassName, className)}
         {...props}
       />
-    </div>
+    </PanelSearchFrame>
   );
 }
 
@@ -305,7 +310,7 @@ export function CommandList<Item = unknown>({
     <BaseCombobox.List
       data-slot="command-list"
       className={cn(
-        "flex max-h-80 scroll-py-1 flex-col overflow-x-hidden overflow-y-auto",
+        "flex max-h-80 scroll-py-1 flex-col overflow-x-hidden overflow-y-auto p-1",
         className,
       )}
       {...props}
@@ -409,13 +414,13 @@ export function CommandGroup<Item = unknown>({
     <BaseCombobox.Group
       data-slot="command-group"
       items={items}
-      className={cn("overflow-hidden p-1 text-foreground", className)}
+      className={cn("overflow-hidden text-foreground", className)}
       {...props}
     >
       {heading ? (
         <BaseCombobox.GroupLabel
           data-slot="command-group-heading"
-          className="px-2 py-1.5 text-label-sm text-muted-foreground"
+          className={menuLabelClassName}
         >
           {heading}
         </BaseCombobox.GroupLabel>
@@ -492,19 +497,13 @@ export function CommandItem<Value = unknown>({
   value,
   ...props
 }: CommandItemProps<Value>) {
+  const size = React.useContext(CommandSizeContext);
   return (
     <BaseCombobox.Item
       data-slot="command-item"
       value={value}
       onClick={onSelect ? () => onSelect(value as Value) : undefined}
-      className={cn(
-        "relative flex items-center gap-2 rounded-sm px-2 py-1.5 text-base outline-none select-none",
-        "text-foreground",
-        "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
-        "data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim)",
-        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
-        className,
-      )}
+      className={cn(menuItemVariants({ size }), className)}
       {...props}
     />
   );

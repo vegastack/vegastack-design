@@ -32,7 +32,7 @@ import { Button, type ButtonAppearance } from "@/components/ui/button";
  * @example
  * <AlertDialog>
  *   <AlertDialogTrigger render={<Button variant="outline" tone="destructive">Delete</Button>} />
- *   <AlertDialogContent intent="destructive">
+ *   <AlertDialogContent>
  *     <AlertDialogHeader>
  *       <AlertDialogTitle>Delete project</AlertDialogTitle>
  *       <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
@@ -94,18 +94,16 @@ export function AlertDialogTrigger({
 export type AlertDialogIntent =
   "default" | "destructive" | "success" | "warning";
 
-/** Props accepted by `AlertDialogContent`. */
-export interface AlertDialogContentProps extends React.ComponentProps<
+/**
+ * Props accepted by `AlertDialogContent`.
+ *
+ * There is deliberately no `intent` here. It used to write a `data-intent` hint and nothing else,
+ * while the confirm button's tint was set separately on `AlertDialogAction` — two props for one
+ * concept, one of them inert (audit B3-08). `AlertDialogAction intent` is the single owner.
+ */
+export type AlertDialogContentProps = React.ComponentProps<
   typeof BaseAlertDialog.Popup
-> {
-  /**
-   * Semantic intent of the confirmation. Provided here for documentation/grouping; it does not
-   * style the popup itself — set the matching `intent` on `AlertDialogAction` to tint the confirm
-   * button.
-   * @default "default"
-   */
-  intent?: AlertDialogIntent;
-}
+>;
 
 /**
  * `AlertDialogContent` — the centered popup. Composes Base UI's `Portal` + `Backdrop` + `Viewport`
@@ -120,8 +118,6 @@ export interface AlertDialogContentProps extends React.ComponentProps<
 export function AlertDialogContent({
   className,
   children,
-  // `intent` is consumed for the `data-intent` hint only; it does not restyle the popup.
-  intent = "default",
   ...props
 }: AlertDialogContentProps) {
   const themeScope = useInternalThemeScope();
@@ -133,7 +129,7 @@ export function AlertDialogContent({
         className={cn(
           themeScope,
           "fixed inset-0 z-(--z-overlay) bg-overlay",
-          "transition-opacity duration-fast ease-standard",
+          "transition-opacity duration-base ease-standard",
           "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
         )}
       />
@@ -146,16 +142,19 @@ export function AlertDialogContent({
       >
         <BaseAlertDialog.Popup
           data-slot="alert-dialog-content"
-          data-intent={intent}
           className={cn(
             themeScope,
-            "relative z-(--z-overlay) flex max-h-[calc(100dvh-var(--spacing)*8)] w-full flex-col gap-4",
+            // `max-h-full`: the viewport is `fixed inset-0 p-4`, so its content box already IS the
+            // available height (audit B3-09).
+            "relative z-(--z-overlay) flex max-h-full w-full flex-col gap-4",
             // No `outline-none`: Base UI focuses the popup on open, so the centralized base.css
             // `:focus-visible` outline stays as the keyboard-focus indicator (register P0-02).
-            "rounded-lg border border-border bg-popover p-5 text-base text-popover-foreground shadow-overlay",
+            // 24px modal-family padding tier (D14).
+            "rounded-lg border border-border bg-popover p-6 text-base text-popover-foreground shadow-overlay",
             "sm:max-w-sm",
             // Enter/exit — scale + fade, token durations + standard easing.
-            "origin-center transition-[opacity,transform] duration-fast ease-standard",
+            // D11: modals move at `base` (200ms).
+            "origin-center transition-[opacity,transform] duration-base ease-standard",
             "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
             "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
             className,
@@ -292,7 +291,7 @@ export interface AlertDialogActionProps extends React.ComponentProps<
   typeof BaseAlertDialog.Close
 > {
   /**
-   * Semantic tint of the confirm button — match it to the dialog's `intent`.
+   * Semantic tint of the confirm button — the single owner of the confirmation's severity.
    * @default "default"
    */
   intent?: AlertDialogIntent;

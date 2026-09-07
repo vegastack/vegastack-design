@@ -5,21 +5,16 @@
 import * as React from "react";
 import { Combobox as BaseCombobox } from "@base-ui/react/combobox";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Check, ChevronsUpDown, Search, X } from "lucide-react";
+import { Check, ChevronsUpDown, X } from "lucide-react";
 import { cn, FLOATING, surfaceInteractive } from "@vegastack/design";
-import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { Chip, ChipRemove } from "@/components/ui/chip";
-
-function mergeStateClassName<State>(
-  className: string,
-  userClassName: string | ((state: State) => string | undefined) | undefined,
-) {
-  if (typeof userClassName === "function") {
-    return (state: State) => cn(className, userClassName(state));
-  }
-
-  return cn(className, userClassName);
-}
+import {
+  FloatingSurface,
+  menuItemVariants,
+  menuLabelClassName,
+  PanelSearchFrame,
+  panelSearchInputClassName,
+} from "@/components/ui/floating-surface";
 
 /* ------------------------------------------------------------------------------------------------
  * Combobox — a filterable, keyboard-navigable listbox behind a text input. Built on
@@ -219,30 +214,21 @@ export function ComboboxPopupInput({
   ...props
 }: ComboboxPopupInputProps) {
   return (
-    <div
+    <PanelSearchFrame
       data-slot="combobox-popup-input-wrapper"
       // No focus tint here, unlike CommandInput's wrapper: this input is AUTO-focused the
       // moment the popup opens, so a `focus-within:border-ring/…` tint would be permanently
       // on — and in dark it paints the hairline near-white (ring is a light tint token),
       // reading as a stray border rather than a focus affordance. The open popup + caret
       // already communicate focus; the hairline stays a plain `border-border` separator.
-      className="sticky top-0 z-(--z-raised) flex items-center gap-2 border-b border-border bg-popover px-3"
+      focusTint={false}
     >
-      <Search
-        aria-hidden
-        className="size-(--icon-default) shrink-0 text-muted-foreground"
-      />
       <BaseCombobox.Input
         data-slot="combobox-popup-input"
-        className={cn(
-          "h-(--size-md) w-full min-w-0 bg-transparent text-base text-foreground outline-none",
-          "placeholder:text-muted-foreground-faint",
-          "disabled:cursor-not-allowed disabled:opacity-(--opacity-dim)",
-          className,
-        )}
+        className={cn(panelSearchInputClassName, className)}
         {...props}
       />
-    </div>
+    </PanelSearchFrame>
   );
 }
 
@@ -442,7 +428,6 @@ export interface ComboboxContentProps extends React.ComponentProps<
  * </ComboboxContent>
  */
 export function ComboboxContent({
-  className,
   children,
   side = "bottom",
   align = "start",
@@ -452,42 +437,24 @@ export function ComboboxContent({
   portalProps,
   ...props
 }: ComboboxContentProps) {
-  const themeScope = useInternalThemeScope();
-  const { className: positionerClassName, ...positionerPropsRest } =
-    positionerProps ?? {};
-
   return (
-    <BaseCombobox.Portal {...portalProps}>
-      <BaseCombobox.Positioner
-        {...positionerPropsRest}
-        data-slot="combobox-positioner"
-        side={side}
-        align={align}
-        sideOffset={sideOffset}
-        collisionPadding={collisionPadding}
-        className={mergeStateClassName<BaseCombobox.Positioner.State>(
-          cn(themeScope, "z-(--z-overlay) outline-none"),
-          positionerClassName,
-        )}
-      >
-        <BaseCombobox.Popup
-          data-slot="combobox-content"
-          className={cn(
-            themeScope,
-            "relative z-(--z-overlay) max-h-[var(--available-height)] min-w-[var(--anchor-width)] origin-[var(--transform-origin)] overflow-x-hidden overflow-y-auto overscroll-contain rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-overlay",
-            // `scale` must be listed explicitly — Tailwind v4 `scale-*` sets the CSS `scale`
-            // property, which `transform` does not cover (register P0-06; matches every sibling).
-            "transition-[transform,scale,opacity] duration-fast ease-standard",
-            "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
-            "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
-            className,
-          )}
-          {...props}
-        >
-          {children}
-        </BaseCombobox.Popup>
-      </BaseCombobox.Positioner>
-    </BaseCombobox.Portal>
+    <FloatingSurface
+      parts={{
+        Portal: BaseCombobox.Portal,
+        Positioner: BaseCombobox.Positioner,
+        Popup: BaseCombobox.Popup,
+      }}
+      slot="combobox"
+      surface="menu"
+      positioning={{ side, align, sideOffset, collisionPadding }}
+      portalProps={portalProps}
+      positionerProps={positionerProps}
+      popupProps={props}
+      // At least as wide as its anchor, and a positioning context for a sticky popup input.
+      className="relative min-w-[var(--anchor-width)]"
+    >
+      {children}
+    </FloatingSurface>
   );
 }
 
@@ -514,13 +481,7 @@ export function ComboboxItem({
   return (
     <BaseCombobox.Item
       data-slot="combobox-item"
-      className={cn(
-        "relative flex w-full items-center gap-2 rounded-sm py-1.5 pe-8 ps-2 text-base outline-none select-none",
-        "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
-        "data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim)",
-        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
-        className,
-      )}
+      className={cn(menuItemVariants({ indicator: "trailing" }), className)}
       {...props}
     >
       <span className="absolute end-2 flex size-(--icon-default) items-center justify-center text-foreground">
@@ -580,7 +541,7 @@ export function ComboboxGroupLabel({
     <BaseCombobox.GroupLabel
       data-slot="combobox-group-label"
       className={cn(
-        "px-2 py-1.5 text-label-sm text-muted-foreground",
+        menuLabelClassName,
         className,
       )}
       {...props}

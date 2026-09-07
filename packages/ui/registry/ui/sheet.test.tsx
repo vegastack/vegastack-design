@@ -81,8 +81,8 @@ test("applies the side data attribute (default right)", async () => {
 
 test("applies the chosen side data attribute", async () => {
   const screen = await render(
-    <Sheet defaultOpen>
-      <SheetContent side="left">
+    <Sheet defaultOpen side="left">
+      <SheetContent>
         <SheetTitle>Left side</SheetTitle>
         <SheetDescription>Slides in from the left.</SheetDescription>
       </SheetContent>
@@ -169,8 +169,8 @@ test.each([
   "%s sheet pads its flush edge with env(safe-area-inset-%s) (audit §a)",
   async (side, expectedClass) => {
     const screen = await render(
-      <Sheet defaultOpen>
-        <SheetContent side={side}>
+      <Sheet defaultOpen side={side}>
+        <SheetContent>
           <SheetTitle>{side} side</SheetTitle>
           <SheetDescription>Safe-area padding check.</SheetDescription>
         </SheetContent>
@@ -181,7 +181,7 @@ test.each([
   },
 );
 
-test("modal-family rhythm matches Dialog: p-5 header/footer inset, close at top-3 end-3", async () => {
+test("modal-family rhythm matches Dialog: p-6 header/footer inset, close at top-3 end-3", async () => {
   const screen = await render(<Example />);
   await screen.getByRole("button", { name: "Open sheet" }).click();
   await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
@@ -189,8 +189,8 @@ test("modal-family rhythm matches Dialog: p-5 header/footer inset, close at top-
   const header = document.querySelector('[data-slot="sheet-header"]')!;
   const footer = document.querySelector('[data-slot="sheet-footer"]')!;
   const close = document.querySelector('[data-slot="sheet-close"]')!;
-  expect(header.classList.contains("p-5")).toBe(true);
-  expect(footer.classList.contains("p-5")).toBe(true);
+  expect(header.classList.contains("p-6")).toBe(true);
+  expect(footer.classList.contains("p-6")).toBe(true);
   expect(close.classList.contains("top-3")).toBe(true);
   expect(close.classList.contains("end-3")).toBe(true);
 });
@@ -201,4 +201,31 @@ test("panel keeps the centralized focus-visible outline (no outline-none — reg
   await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
   const popup = document.querySelector('[data-slot="sheet-content"]')!;
   expect(popup.className).not.toMatch(/\boutline-none\b/);
+});
+
+test("size drives the panel extent instead of a className override (B3-11)", async () => {
+  const screen = await render(
+    <Sheet defaultOpen side="right">
+      <SheetContent size="lg">
+        <SheetTitle>Large</SheetTitle>
+        <SheetDescription>Sized by the size prop.</SheetDescription>
+      </SheetContent>
+    </Sheet>,
+  );
+  const popup = screen.getByRole("dialog").element();
+  expect(popup.getAttribute("data-size")).toBe("lg");
+  expect(popup.className).toContain("w-(--panel-width-lg)");
+});
+
+test("a bottom sheet reads the same size tier as a height", async () => {
+  const screen = await render(
+    <Sheet defaultOpen side="bottom">
+      <SheetContent size="sm">
+        <SheetTitle>Bottom</SheetTitle>
+        <SheetDescription>Height tier.</SheetDescription>
+      </SheetContent>
+    </Sheet>,
+  );
+  const popup = screen.getByRole("dialog").element();
+  expect(popup.className).toContain("max-h-(--panel-width-sm)");
 });
