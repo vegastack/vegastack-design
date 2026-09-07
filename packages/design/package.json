@@ -38,6 +38,12 @@
       "require": "./dist/icons/index.cjs",
       "default": "./dist/icons/index.js"
     },
+    "./create-animated-icon": {
+      "types": "./dist/create-animated-icon.d.ts",
+      "import": "./dist/create-animated-icon.js",
+      "require": "./dist/create-animated-icon.cjs",
+      "default": "./dist/create-animated-icon.js"
+    },
     "./theme-scope": {
       "types": "./dist/theme-scope.d.ts",
       "import": "./dist/theme-scope.js",
@@ -74,6 +80,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "lucide-react": "^1.24.0",
+    "motion": "^12.42.2",
     "thesvg": "^3.2.6",
     "tailwindcss": "catalog:"
   },
@@ -82,6 +89,9 @@
       "optional": true
     },
     "lucide-react": {
+      "optional": true
+    },
+    "motion": {
       "optional": true
     },
     "thesvg": {
@@ -97,6 +107,7 @@
     "@vegastack/typescript-config": "workspace:*",
     "eslint": "^10.7.0",
     "lucide-react": "^1.24.0",
+    "motion": "^12.42.2",
     "react": "catalog:",
     "react-dom": "catalog:",
     "tailwindcss": "catalog:",

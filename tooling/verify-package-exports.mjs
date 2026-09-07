@@ -27,6 +27,12 @@ assert.equal(
   "@vegastack/design/icons CommonJS export is not executable",
 );
 assert.equal(
+  typeof requireDesign("@vegastack/design/create-animated-icon")
+    .createAnimatedIcon,
+  "function",
+  "@vegastack/design/create-animated-icon CommonJS export is not executable",
+);
+assert.equal(
   typeof requireDesign("@vegastack/design/theme-scope").useInternalThemeScope,
   "function",
   "@vegastack/design/theme-scope CommonJS export is not executable",

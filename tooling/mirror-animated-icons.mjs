@@ -824,6 +824,1301 @@ function addMultiInputTriggers(source, filename) {
   ]);
 }
 
+// ---------------------------------------------------------------------------
+// Data-module extraction
+//
+// Everything above normalizes upstream into ONE canonical controller shape. That
+// shape is now an intermediate, not the artifact: the controller lives once in
+// `createAnimatedIcon`, so the extractor below reduces the normalized component
+// to the only things that are genuinely per-icon — its geometry, its Motion
+// variants, and (for the handful of icons whose upstream choreography is not a
+// plain play/rest pair) its start/stop steps.
+//
+// Every step fails closed. An upstream archetype the extractor cannot model is
+// an exception, never a silent approximation.
+// ---------------------------------------------------------------------------
+
+const ROOT_DEFAULT_ATTRS = {
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: "2",
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+};
+
+/** SVG elements the factory knows how to draw, plain and Motion-wrapped. */
+const DRAWABLE_TAGS = new Set([
+  "circle",
+  "defs",
+  "ellipse",
+  "g",
+  "line",
+  "path",
+  "pattern",
+  "polygon",
+  "polyline",
+  "rect",
+  "text",
+]);
+
+/** Presentation attributes forwarded to the DOM verbatim. */
+const STATIC_ATTRS = new Set([
+  "clipPath",
+  "clipRule",
+  "cx",
+  "cy",
+  "d",
+  "dominantBaseline",
+  "fill",
+  "fillOpacity",
+  "fillRule",
+  "fontSize",
+  "fontWeight",
+  "height",
+  "id",
+  "mask",
+  "opacity",
+  "overflow",
+  "pathLength",
+  "patternUnits",
+  "points",
+  "r",
+  "rx",
+  "ry",
+  "stroke",
+  "strokeDasharray",
+  "strokeLinecap",
+  "strokeLinejoin",
+  "strokeOpacity",
+  "strokeWidth",
+  "textAnchor",
+  "transform",
+  "vectorEffect",
+  "width",
+  "x",
+  "x1",
+  "x2",
+  "y",
+  "y1",
+  "y2",
+]);
+
+/** Motion props the spec models directly. */
+const MOTION_ATTRS = new Set([
+  "animate",
+  "className",
+  "custom",
+  "exit",
+  "initial",
+  "style",
+  "transition",
+  "variants",
+]);
+
+/** Attributes the factory owns, so a data module must not restate them. */
+const DROPPED_ATTRS = new Set(["key", "xmlns"]);
+
+/**
+ * Node keys the spec itself owns. Static SVG attributes sit flat alongside them
+ * (one line per element instead of a nested `attrs` object), so a future SVG
+ * attribute that collides with one of these must fail rather than be swallowed.
+ */
+const RESERVED_NODE_KEYS = new Set([
+  "animate",
+  "children",
+  "className",
+  "custom",
+  "exit",
+  "group",
+  "inherit",
+  "initial",
+  "style",
+  "tag",
+  "text",
+  "transition",
+  "variants",
+]);
+
+/** The state identifier upstream uses for a mount/unmount presence swap. */
+const PRESENCE_STATE_IDENTIFIER = "isHovered";
+
+/**
+ * The icons whose upstream `startAnimation`/`stopAnimation` reach for something
+ * the mechanical rewriter cannot express — a component-local helper, a timer, or
+ * React state. Each entry is a hand-reviewed transcription of that upstream
+ * choreography onto the factory's context, and is reachable ONLY once the
+ * mechanical path has already refused the icon. A new archetype therefore throws
+ * rather than silently taking the default play/rest pair, and upstream cannot
+ * change one of these without failing the manifest's SHA-256 first.
+ */
+const CHOREOGRAPHY_OVERRIDES = {
+  // Timer-driven: show the question mark, then hide it 1.5s later. The factory
+  // cancels pending work on stop and on unmount, so `cancelHide` is implicit.
+  "wifi-low": {
+    groups: ["default", "question"],
+    start: `async ({ run, controls, after }) => {
+      await run(controls.default, "fadeOut");
+      run(controls.default, "fadeIn");
+      run(controls.question, "show");
+      after(1500, () => run(controls.question, "hide"));
+    }`,
+    stop: `({ reset, controls }) => {
+      reset(controls.default, "fadeIn");
+      reset(controls.question, "hide");
+    }`,
+  },
+  // Upstream wrapped both halves in `startAll`/`stopAll` purely to attach
+  // `.catch()` guards; the factory's `run` already resolves on interruption.
+  projector: {
+    groups: ["path", "body"],
+    start: `async ({ run, controls }) => {
+      run(controls.body, "animate");
+      await run(controls.path, "hidden");
+      await run(controls.path, "animate");
+    }`,
+    stop: `({ run, controls }) => {
+      run(controls.body, "normal");
+      run(controls.path, "visible");
+    }`,
+  },
+  // `runPathIntro` is a single-use helper; inlined.
+  "phone-call": {
+    groups: ["svg", "path"],
+    start: `async ({ run, controls }) => {
+      await Promise.all([
+        run(controls.svg, "animate"),
+        (async () => {
+          await run(controls.path, "fadeOut");
+          run(controls.path, "fadeIn");
+        })(),
+      ]);
+    }`,
+    stop: `({ reset, controls }) => {
+      reset(controls.svg, "normal");
+      reset(controls.path, "normal");
+    }`,
+  },
+  "satellite-dish": {
+    groups: ["svg", "path"],
+    start: `async ({ run, controls }) => {
+      await Promise.all([
+        run(controls.svg, "animate"),
+        (async () => {
+          await run(controls.path, "fadeOut");
+          run(controls.path, "fadeIn");
+        })(),
+      ]);
+    }`,
+    stop: `({ reset, controls }) => {
+      reset(controls.svg, "normal");
+      reset(controls.path, "normal");
+    }`,
+  },
+  // Upstream drove this from an effect on hover state rather than from the
+  // handle; the flicker definition and its instant reset move onto the handle.
+  keyboard: {
+    groups: ["default"],
+    start: `({ run, controls }) =>
+      run(controls.default, (i: number) => ({
+        opacity: [1, 0.2, 1],
+        transition: {
+          duration: 1.5,
+          times: [0, 0.5, 1],
+          delay: i * 0.2 * Math.random(),
+          repeat: 1,
+          repeatType: "reverse",
+        },
+      }))`,
+    stop: `({ set, controls }) => set(controls.default, { opacity: 1 })`,
+  },
+  // Purely presence-driven: the factory's own active state is the whole
+  // mechanism, so neither half touches a control.
+  volume: { groups: [], start: null, stop: null },
+};
+
+function jsxAttributeMap(node, file) {
+  const attributes = new Map();
+  for (const property of node.attributes.properties) {
+    if (!ts.isJsxAttribute(property)) {
+      throw new Error("unsupported JSX spread attribute on an icon element");
+    }
+    attributes.set(property.name.getText(file), property);
+  }
+  return attributes;
+}
+
+/**
+ * Evaluate an expression to a literal, optionally under a `.map()` scope.
+ * Deliberately tiny: identifiers, member access, literals and arithmetic are
+ * everything the upstream corpus uses. Anything else returns `undefined`, which
+ * every caller treats as "cannot model — fail".
+ */
+function literalValue(node, file, scope, constants) {
+  if (!node) return undefined;
+  if (
+    ts.isParenthesizedExpression(node) ||
+    ts.isAsExpression(node) ||
+    ts.isSatisfiesExpression(node) ||
+    ts.isNonNullExpression(node) ||
+    ts.isTypeAssertionExpression?.(node)
+  ) {
+    return literalValue(node.expression, file, scope, constants);
+  }
+  if (ts.isConditionalExpression(node)) {
+    const condition = literalValue(node.condition, file, scope, constants);
+    if (condition === undefined) return undefined;
+    return literalValue(
+      condition ? node.whenTrue : node.whenFalse,
+      file,
+      scope,
+      constants,
+    );
+  }
+  if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node))
+    return node.text;
+  if (ts.isNumericLiteral(node)) return Number(node.text);
+  if (node.kind === ts.SyntaxKind.TrueKeyword) return true;
+  if (node.kind === ts.SyntaxKind.FalseKeyword) return false;
+  if (
+    ts.isPrefixUnaryExpression(node) &&
+    node.operator === ts.SyntaxKind.MinusToken
+  ) {
+    const operand = literalValue(node.operand, file, scope, constants);
+    return typeof operand === "number" ? -operand : undefined;
+  }
+  if (ts.isIdentifier(node)) {
+    if (scope && Object.hasOwn(scope, node.text)) return scope[node.text];
+    if (constants && constants.has(node.text)) return constants.get(node.text);
+    return undefined;
+  }
+  if (ts.isPropertyAccessExpression(node)) {
+    const target = literalValue(node.expression, file, scope, constants);
+    if (target && typeof target === "object" && !Array.isArray(target)) {
+      return Object.hasOwn(target, node.name.text)
+        ? target[node.name.text]
+        : undefined;
+    }
+    return undefined;
+  }
+  if (ts.isTemplateExpression(node)) {
+    let out = node.head.text;
+    for (const span of node.templateSpans) {
+      const value = literalValue(span.expression, file, scope, constants);
+      if (value === undefined) return undefined;
+      out += String(value) + span.literal.text;
+    }
+    return out;
+  }
+  if (ts.isBinaryExpression(node)) {
+    const left = literalValue(node.left, file, scope, constants);
+    const right = literalValue(node.right, file, scope, constants);
+    if (left === undefined || right === undefined) return undefined;
+    switch (node.operatorToken.kind) {
+      case ts.SyntaxKind.PlusToken:
+        return typeof left === "number" && typeof right === "number"
+          ? left + right
+          : `${left}${right}`;
+      case ts.SyntaxKind.MinusToken:
+        return left - right;
+      case ts.SyntaxKind.AsteriskToken:
+        return left * right;
+      case ts.SyntaxKind.SlashToken:
+        return right === 0 ? undefined : left / right;
+      case ts.SyntaxKind.PercentToken:
+        return right === 0 ? undefined : left % right;
+      case ts.SyntaxKind.EqualsEqualsEqualsToken:
+        return left === right;
+      case ts.SyntaxKind.ExclamationEqualsEqualsToken:
+        return left !== right;
+      case ts.SyntaxKind.LessThanToken:
+        return left < right;
+      case ts.SyntaxKind.LessThanEqualsToken:
+        return left <= right;
+      case ts.SyntaxKind.GreaterThanToken:
+        return left > right;
+      case ts.SyntaxKind.GreaterThanEqualsToken:
+        return left >= right;
+      default:
+        return undefined;
+    }
+  }
+  if (ts.isArrayLiteralExpression(node)) {
+    // A trailing elision is an upstream typo (`"…", ,`). `Array.prototype.map`
+    // skips holes, so the icon never drew one — drop it and match that. An
+    // interior hole would shift `custom` indices, so refuse it instead.
+    const elements = [...node.elements];
+    while (elements.length > 0 && ts.isOmittedExpression(elements.at(-1))) {
+      elements.pop();
+    }
+    if (elements.some((element) => ts.isOmittedExpression(element)))
+      return undefined;
+    const items = elements.map((element) =>
+      literalValue(element, file, scope, constants),
+    );
+    return items.some((item) => item === undefined) ? undefined : items;
+  }
+  if (ts.isObjectLiteralExpression(node)) {
+    const out = {};
+    for (const property of node.properties) {
+      if (ts.isShorthandPropertyAssignment(property)) {
+        const value = literalValue(property.name, file, scope, constants);
+        if (value === undefined) return undefined;
+        out[property.name.text] = value;
+        continue;
+      }
+      if (!ts.isPropertyAssignment(property)) return undefined;
+      const key =
+        ts.isIdentifier(property.name) || ts.isStringLiteral(property.name)
+          ? property.name.text
+          : undefined;
+      if (key === undefined) return undefined;
+      const value = literalValue(property.initializer, file, scope, constants);
+      if (value === undefined) return undefined;
+      out[key] = value;
+    }
+    return out;
+  }
+  return undefined;
+}
+
+function attributeExpression(attribute, file) {
+  if (!attribute.initializer) return undefined;
+  if (ts.isStringLiteral(attribute.initializer)) return attribute.initializer;
+  if (ts.isJsxExpression(attribute.initializer))
+    return attribute.initializer.expression;
+  return undefined;
+}
+
+/** Render an expression back to source, resolving any `.map()` scope first. */
+function expressionText(node, file, scope, constants) {
+  if (!scope) return node.getText(file);
+  const value = literalValue(node, file, scope, constants);
+  if (value !== undefined) return JSON.stringify(value);
+  let usesScope = false;
+  const visit = (child) => {
+    if (ts.isIdentifier(child) && Object.hasOwn(scope, child.text))
+      usesScope = true;
+    ts.forEachChild(child, visit);
+  };
+  visit(node);
+  if (usesScope) {
+    throw new Error(
+      `cannot resolve mapped expression \`${node.getText(file)}\` to a literal`,
+    );
+  }
+  return node.getText(file);
+}
+
+function jsxChildren(node) {
+  return (node.children ?? []).filter((child) => {
+    if (ts.isJsxText(child)) return child.getText().trim().length > 0;
+    return !ts.isJsxExpression(child) || Boolean(child.expression);
+  });
+}
+
+/**
+ * Turn one JSX child into spec nodes. Returns an array because `.map()` and a
+ * transparent `<AnimatePresence>` each expand to several nodes in place.
+ */
+function extractNodes(child, file, context, scope) {
+  if (ts.isJsxText(child)) {
+    throw new Error(`unexpected text node \`${child.getText().trim()}\``);
+  }
+  if (ts.isJsxExpression(child)) {
+    if (!child.expression) return [];
+    return extractExpressionChild(child.expression, file, context, scope);
+  }
+  if (ts.isJsxElement(child) || ts.isJsxSelfClosingElement(child)) {
+    const opening = ts.isJsxElement(child) ? child.openingElement : child;
+    const tag = opening.tagName.getText(file);
+    if (tag === "AnimatePresence") {
+      // Only a conditional swap is a real presence boundary; upstream also uses
+      // the wrapper decoratively around children that never unmount.
+      const inner = ts.isJsxElement(child) ? jsxChildren(child) : [];
+      return inner.flatMap((node) => extractNodes(node, file, context, scope));
+    }
+    return [extractElement(child, file, context, scope)];
+  }
+  if (ts.isJsxFragment(child)) {
+    return jsxChildren(child).flatMap((node) =>
+      extractNodes(node, file, context, scope),
+    );
+  }
+  throw new Error(
+    `unsupported JSX child \`${child.getText(file).slice(0, 60)}\``,
+  );
+}
+
+function extractExpressionChild(expression, file, context, scope) {
+  if (
+    ts.isCallExpression(expression) &&
+    ts.isPropertyAccessExpression(expression.expression) &&
+    expression.expression.name.text === "map"
+  ) {
+    return extractMap(expression, file, context, scope);
+  }
+  if (ts.isConditionalExpression(expression)) {
+    return [extractPresence(expression, file, context, scope)];
+  }
+  throw new Error(
+    `unsupported JSX expression child \`${expression.getText(file).slice(0, 60)}\``,
+  );
+}
+
+/** Unroll `ARRAY.map((item, index) => <el/>)` into explicit nodes. */
+function extractMap(call, file, context, scope) {
+  if (scope) throw new Error("nested .map() is not supported");
+  const source = call.expression.expression;
+  const items = literalValue(source, file, undefined, context.constants);
+  if (!Array.isArray(items)) {
+    throw new Error(
+      `cannot resolve \`${source.getText(file)}\` to a literal array`,
+    );
+  }
+  const callback = call.arguments[0];
+  if (!callback || !ts.isArrowFunction(callback)) {
+    throw new Error(".map() callback must be an arrow function");
+  }
+  const [itemParameter, indexParameter] = callback.parameters;
+  const body = ts.isParenthesizedExpression(callback.body)
+    ? callback.body.expression
+    : callback.body;
+  if (!ts.isJsxElement(body) && !ts.isJsxSelfClosingElement(body)) {
+    throw new Error(".map() callback must return a single JSX element");
+  }
+  return items.map((item, index) => {
+    const mapScope = {};
+    if (itemParameter && ts.isIdentifier(itemParameter.name))
+      mapScope[itemParameter.name.text] = item;
+    if (indexParameter && ts.isIdentifier(indexParameter.name))
+      mapScope[indexParameter.name.text] = index;
+    return extractElement(body, file, context, mapScope);
+  });
+}
+
+/** `{state ? <Fragment/> : <Fragment/>}` inside `<AnimatePresence>`. */
+function extractPresence(conditional, file, context, scope) {
+  if (
+    !ts.isIdentifier(conditional.condition) ||
+    conditional.condition.text !== PRESENCE_STATE_IDENTIFIER
+  ) {
+    throw new Error(
+      `presence swap must be driven by \`${PRESENCE_STATE_IDENTIFIER}\`, got \`${conditional.condition.getText(file)}\``,
+    );
+  }
+  context.usesPresence = true;
+  const branch = (input) => {
+    const node = ts.isParenthesizedExpression(input) ? input.expression : input;
+    if (!ts.isJsxElement(node) && !ts.isJsxFragment(node)) {
+      throw new Error("presence branches must be fragments");
+    }
+    return jsxChildren(node).flatMap((child) =>
+      extractNodes(child, file, context, scope),
+    );
+  };
+  return {
+    tag: "presence",
+    active: branch(conditional.whenTrue),
+    rest: branch(conditional.whenFalse),
+  };
+}
+
+function extractElement(element, file, context, scope) {
+  const opening = ts.isJsxElement(element) ? element.openingElement : element;
+  const rawTag = opening.tagName.getText(file);
+  const baseTag = rawTag.startsWith("motion.") ? rawTag.slice(7) : rawTag;
+  if (!DRAWABLE_TAGS.has(baseTag)) {
+    throw new Error(`unsupported SVG element \`${rawTag}\``);
+  }
+  const node = { tag: rawTag };
+  const attrs = {};
+  for (const [name, attribute] of jsxAttributeMap(opening, file)) {
+    if (DROPPED_ATTRS.has(name)) continue;
+    const expression = attributeExpression(attribute, file);
+    if (!expression) throw new Error(`attribute \`${name}\` has no value`);
+    if (STATIC_ATTRS.has(name)) {
+      if (RESERVED_NODE_KEYS.has(name)) {
+        throw new Error(
+          `SVG attribute \`${name}\` collides with a reserved spec key`,
+        );
+      }
+      const value = literalValue(expression, file, scope, context.constants);
+      if (typeof value !== "string" && typeof value !== "number") {
+        throw new Error(
+          `attribute \`${name}\` must resolve to a string or number, got \`${expression.getText(file)}\``,
+        );
+      }
+      attrs[name] = value;
+      continue;
+    }
+    if (!MOTION_ATTRS.has(name)) {
+      throw new Error(`unsupported attribute \`${name}\` on \`${rawTag}\``);
+    }
+    if (name === "animate") {
+      const group = context.groupOf(expression, file);
+      if (group) {
+        node.group = group;
+        continue;
+      }
+    }
+    if (name === "custom") {
+      // Motion passes `custom` straight to a variant resolver, so it may be any
+      // serializable value — an index, a delay, or a small offset object.
+      const value = literalValue(expression, file, scope, context.constants);
+      if (value === undefined) {
+        throw new Error(
+          `\`custom\` must resolve to a literal on \`${rawTag}\`, got \`${expression.getText(file)}\``,
+        );
+      }
+      node.custom = value;
+      continue;
+    }
+    node[name] = {
+      raw: expressionText(expression, file, scope, context.constants),
+    };
+  }
+  if (Object.keys(attrs).length > 0) node.attrs = attrs;
+
+  const driven = Boolean(node.group || node.animate);
+  if (rawTag.startsWith("motion.") && !driven) {
+    // Not bound to a control and carrying no literal target: Motion's variant
+    // propagation drives it from an animated ancestor, a presence branch mounts
+    // it, or — in a few upstream icons — nothing drives it at all and it simply
+    // renders statically. All three are preserved verbatim; the check that a
+    // control did not get LOST during extraction is `assertGroupsBound` below,
+    // which is the property this generator can actually get wrong.
+    node.inherit = true;
+    if (!context.animatedAncestor && !context.usesPresence) {
+      context.inertNodes += 1;
+    }
+  }
+
+  if (ts.isJsxElement(element)) {
+    const children = jsxChildren(element);
+    const text = children.filter((child) => ts.isJsxText(child));
+    if (text.length > 0) {
+      if (children.length !== text.length) {
+        throw new Error(`\`${rawTag}\` mixes text and element children`);
+      }
+      node.text = text.map((child) => child.getText().trim()).join("");
+    } else if (children.length > 0) {
+      const outer = context.animatedAncestor;
+      context.animatedAncestor = outer || driven || Boolean(node.inherit);
+      node.children = children.flatMap((child) =>
+        extractNodes(child, file, context, scope),
+      );
+      context.animatedAncestor = outer;
+    }
+  }
+  return node;
+}
+
+/**
+ * Every control upstream declared must still drive something after extraction.
+ * This is the failure mode a data-model generator actually has — silently
+ * dropping an `animate={xControls}` binding leaves an icon that renders
+ * correctly and never moves — so it is checked directly rather than inferred.
+ */
+function assertGroupsBound(filename, groups, root, elements) {
+  const bound = new Set();
+  if (root.group) bound.add(root.group);
+  const walk = (nodes) => {
+    for (const node of nodes) {
+      if (node.tag === "presence") {
+        walk(node.active);
+        walk(node.rest);
+        continue;
+      }
+      if (node.group) bound.add(node.group);
+      if (node.children) walk(node.children);
+    }
+  };
+  walk(elements);
+  const unbound = groups.filter((group) => !bound.has(group));
+  if (unbound.length > 0) {
+    throw new Error(
+      `${filename}: control group(s) [${unbound.join(", ")}] drive nothing after extraction`,
+    );
+  }
+}
+
+/** `bodyControls` → `body`; the lone `controls` → `default`. */
+function groupNameFor(identifier) {
+  if (identifier === "controls") return "default";
+  const stripped = identifier.replace(/Controls$/, "");
+  if (!stripped || stripped === identifier) {
+    throw new Error(
+      `cannot derive a control-group name from \`${identifier}\``,
+    );
+  }
+  return stripped;
+}
+
+/**
+ * `declarations` are the module-scope statements a data module may carry over
+ * verbatim. `literals` additionally includes component-local constants, because
+ * a `.map()` source array is sometimes declared inside the component body — and
+ * those are unrolled at generation time rather than carried.
+ */
+function collectModuleConstants(file, componentBody) {
+  const declarations = new Map();
+  const literals = new Map();
+  for (const statement of file.statements) {
+    if (!ts.isVariableStatement(statement)) continue;
+    for (const declaration of statement.declarationList.declarations) {
+      if (!ts.isIdentifier(declaration.name)) continue;
+      // The component itself is what this whole generator exists to delete, so
+      // it must never be eligible to be carried over as a "referenced constant".
+      const text = statement.getText(file);
+      if (!/\buse[A-Z]/.test(text))
+        declarations.set(declaration.name.text, text);
+      const value = literalValue(declaration.initializer, file, undefined);
+      if (value !== undefined) literals.set(declaration.name.text, value);
+    }
+  }
+  const visit = (node) => {
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)) {
+      if (!literals.has(node.name.text)) {
+        const value = literalValue(node.initializer, file, undefined, literals);
+        if (value !== undefined) literals.set(node.name.text, value);
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(file);
+
+  // Some upstream icons declare their variants inside the component rather than
+  // at module scope. Those are still pure data, so they are eligible to be
+  // hoisted — but only the component body's OWN statements, never a declaration
+  // nested inside a callback, whose free variables do not exist at module scope.
+  if (componentBody && ts.isBlock(componentBody)) {
+    for (const statement of componentBody.statements) {
+      if (!ts.isVariableStatement(statement)) continue;
+      const text = statement.getText(file);
+      if (/\buse[A-Z]/.test(text)) continue;
+      for (const declaration of statement.declarationList.declarations) {
+        if (!ts.isIdentifier(declaration.name)) continue;
+        if (declarations.has(declaration.name.text)) continue;
+        declarations.set(declaration.name.text, text);
+      }
+    }
+  }
+  return { declarations, literals };
+}
+
+/** Named value imports the upstream module took from `motion/react`. */
+function collectMotionValueImports(file) {
+  const names = new Set();
+  for (const statement of file.statements) {
+    if (
+      !ts.isImportDeclaration(statement) ||
+      !ts.isStringLiteral(statement.moduleSpecifier) ||
+      statement.moduleSpecifier.text !== "motion/react" ||
+      statement.importClause?.isTypeOnly
+    ) {
+      continue;
+    }
+    const bindings = statement.importClause?.namedBindings;
+    if (!bindings || !ts.isNamedImports(bindings)) continue;
+    for (const specifier of bindings.elements) {
+      if (specifier.isTypeOnly) continue;
+      names.add(specifier.name.text);
+    }
+  }
+  // The controller's own imports are what this generator deletes; only helpers
+  // a variants object still calls (an easing factory, say) survive.
+  for (const owned of [
+    "AnimatePresence",
+    "motion",
+    "useAnimation",
+    "useReducedMotion",
+  ]) {
+    names.delete(owned);
+  }
+  return names;
+}
+
+/** Reduce the normalized component to the icon's data. */
+function extractSpec(source, name, componentName) {
+  const filename = `${name}.tsx`;
+  // One parse, one AST: node positions are only meaningful against the
+  // SourceFile they came from, so everything below reads `facts.file`.
+  const facts = componentFacts(source, filename);
+  const file = facts.file;
+  const { declarations, literals } = collectModuleConstants(
+    file,
+    facts.component.body,
+  );
+  const controlNames = facts.controls;
+  const groups = controlNames.map(groupNameFor);
+  const groupByIdentifier = new Map(
+    controlNames.map((identifier, index) => [identifier, groups[index]]),
+  );
+
+  const context = {
+    constants: literals,
+    usesPresence: false,
+    animatedAncestor: false,
+    inertNodes: 0,
+    groupOf(expression) {
+      if (!ts.isIdentifier(expression)) return undefined;
+      return groupByIdentifier.get(expression.text);
+    },
+  };
+
+  let rootElement;
+  const findRoot = (node) => {
+    if (ts.isJsxElement(node)) {
+      const tag = node.openingElement.tagName.getText(file);
+      if (tag === "svg" || tag === "motion.svg") {
+        if (rootElement) throw new Error(`${filename}: multiple root SVGs`);
+        rootElement = node;
+      }
+    }
+    ts.forEachChild(node, findRoot);
+  };
+  findRoot(file);
+  if (!rootElement) throw new Error(`${filename}: no root SVG element`);
+
+  const rootTag = rootElement.openingElement.tagName.getText(file);
+  const root = {};
+  for (const [attribute, node] of jsxAttributeMap(
+    rootElement.openingElement,
+    file,
+  )) {
+    if (DROPPED_ATTRS.has(attribute)) continue;
+    if (attribute === "width" || attribute === "height") continue; // factory owns `size`
+    const expression = attributeExpression(node, file);
+    if (!expression) throw new Error(`root SVG \`${attribute}\` has no value`);
+    if (attribute === "animate") {
+      const group = context.groupOf(expression, file);
+      if (group) {
+        root.group = group;
+        continue;
+      }
+    }
+    if (STATIC_ATTRS.has(attribute) || attribute === "viewBox") {
+      const value = literalValue(expression, file, undefined, literals);
+      if (typeof value !== "string" && typeof value !== "number") {
+        throw new Error(`root SVG \`${attribute}\` must be a literal`);
+      }
+      if (String(ROOT_DEFAULT_ATTRS[attribute] ?? "") === String(value))
+        continue;
+      root[attribute] = value;
+      continue;
+    }
+    if (!MOTION_ATTRS.has(attribute)) {
+      throw new Error(`unsupported root SVG attribute \`${attribute}\``);
+    }
+    root[attribute] = { raw: expression.getText(file) };
+  }
+  if (rootTag === "motion.svg") {
+    root.tag = "motion.svg";
+    if (!root.group && !root.animate) root.inherit = true;
+  }
+
+  // Motion propagates a variant state down the tree, so a child that binds no
+  // control of its own is legitimate exactly when an ancestor is animated.
+  context.animatedAncestor = Boolean(
+    root.group || root.animate || root.variants,
+  );
+  const elements = jsxChildren(rootElement).flatMap((child) =>
+    extractNodes(child, file, context, undefined),
+  );
+  if (elements.length === 0) throw new Error(`${filename}: icon draws nothing`);
+
+  assertGroupsBound(filename, groups, root, elements);
+
+  const choreography = extractChoreography(
+    source,
+    name,
+    groups,
+    groupByIdentifier,
+  );
+  if (choreography.groups) {
+    // An override states the group order it was written against; hold the
+    // extraction to it so a reordered upstream cannot silently rebind controls.
+    const declared = choreography.groups.join(",");
+    if (declared !== groups.join(",")) {
+      throw new Error(
+        `${filename}: choreography override expects control groups [${declared}], found [${groups.join(",")}]`,
+      );
+    }
+  }
+
+  return {
+    name: componentName,
+    root,
+    elements,
+    groups,
+    usesPresence: context.usesPresence,
+    start: choreography.start,
+    stop: choreography.stop,
+    declarations,
+    motionValueImports: collectMotionValueImports(file),
+  };
+}
+
+/**
+ * Move `startAnimation`/`stopAnimation` onto the factory context. The default
+ * play/rest pair collapses to nothing; anything else is rewritten mechanically,
+ * and an icon the rewriter refuses must have a reviewed override.
+ */
+function extractChoreography(source, name, groups, groupByIdentifier) {
+  const filename = `${name}.tsx`;
+  const file = parse(source, filename);
+  const bodies = {};
+  const find = (node) => {
+    if (
+      ts.isVariableDeclaration(node) &&
+      ts.isIdentifier(node.name) &&
+      (node.name.text === "startAnimation" ||
+        node.name.text === "stopAnimation") &&
+      node.initializer
+    ) {
+      bodies[node.name.text] ??= node.initializer;
+    }
+    ts.forEachChild(node, find);
+  };
+  find(file);
+  if (!bodies.startAnimation || !bodies.stopAnimation) {
+    if (CHOREOGRAPHY_OVERRIDES[name]) return CHOREOGRAPHY_OVERRIDES[name];
+    throw new Error(`${filename}: missing start/stop declarations`);
+  }
+
+  const locals = collectChoreographyLocals(file, file);
+  const rewritten = {};
+  for (const key of ["startAnimation", "stopAnimation"]) {
+    let node = bodies[key];
+    if (
+      ts.isCallExpression(node) &&
+      ts.isIdentifier(node.expression) &&
+      node.expression.text === "useCallback"
+    ) {
+      node = node.arguments[0];
+    }
+    // `const startAnimation = triggerEffect;` — an alias for a local helper.
+    if (ts.isIdentifier(node) && locals.helpers.has(node.text)) {
+      node = locals.helpers.get(node.text);
+    }
+    if (!node || !ts.isArrowFunction(node)) {
+      rewritten[key] = undefined;
+      continue;
+    }
+    rewritten[key] = rewriteChoreographyBody(
+      node,
+      file,
+      groupByIdentifier,
+      locals,
+    );
+  }
+
+  if (
+    rewritten.startAnimation === undefined ||
+    rewritten.stopAnimation === undefined
+  ) {
+    const override = CHOREOGRAPHY_OVERRIDES[name];
+    if (!override) {
+      throw new Error(
+        `${filename}: choreography uses a construct the generator cannot model; add a reviewed CHOREOGRAPHY_OVERRIDES entry`,
+      );
+    }
+    return override;
+  }
+
+  const primary = groups[0] ?? "default";
+  const normalize = (text) => text.replace(/\s+/g, " ").trim();
+  if (
+    groups.length <= 1 &&
+    normalize(rewritten.startAnimation) ===
+      `run(controls.${primary}, "animate")` &&
+    normalize(rewritten.stopAnimation) ===
+      `reset(controls.${primary}, "normal")`
+  ) {
+    return { start: null, stop: null };
+  }
+  return {
+    start: choreographyClosure(rewritten.startAnimation),
+    stop: choreographyClosure(rewritten.stopAnimation),
+  };
+}
+
+/** Destructure only the context keys the body actually reaches for. */
+function choreographyClosure(body) {
+  const used = ["after", "controls", "flags", "reset", "run", "set"].filter(
+    (key) => new RegExp(`\\b${key}\\b`).test(body),
+  );
+  const parameter = used.length > 0 ? `{ ${used.join(", ")} }` : "";
+  const prefix = /\bawait\b/.test(body) ? "async " : "";
+  return `${prefix}(${parameter}) => { ${body}; }`;
+}
+
+/** Globals a choreography body may legitimately reach for. */
+const CHOREOGRAPHY_GLOBALS = new Set([
+  "Math",
+  "Number",
+  "Promise",
+  "undefined",
+]);
+
+/** Identifiers a nested function or block introduces, which are always in scope. */
+function collectBoundNames(node, into) {
+  if (
+    ts.isArrowFunction(node) ||
+    ts.isFunctionExpression(node) ||
+    ts.isFunctionDeclaration(node)
+  ) {
+    for (const parameter of node.parameters) {
+      const visitBinding = (binding) => {
+        if (ts.isIdentifier(binding)) into.add(binding.text);
+        else ts.forEachChild(binding, visitBinding);
+      };
+      visitBinding(parameter.name);
+    }
+  }
+  if (ts.isVariableDeclaration(node)) {
+    const visitBinding = (binding) => {
+      if (ts.isIdentifier(binding)) into.add(binding.text);
+      else ts.forEachChild(binding, visitBinding);
+    };
+    visitBinding(node.name);
+  }
+  ts.forEachChild(node, (child) => collectBoundNames(child, into));
+}
+
+/**
+ * Rewrite one arrow body onto the factory context, or return `undefined` when it
+ * reaches for something the context cannot express.
+ *
+ * Three component-local idioms are translated rather than refused, because each
+ * is a mechanical consequence of the per-icon controller the factory replaces:
+ * a zero-argument helper (inlined at its call site), a `useRef` latch used as a
+ * re-entrancy guard (mapped onto the context's per-instance `flags`), and the
+ * `runAnimation`/`resetAnimation` pair (the context's `run`/`reset`).
+ */
+function rewriteChoreographyBody(
+  arrow,
+  file,
+  groupByIdentifier,
+  locals,
+  depth = 0,
+) {
+  if (depth > 3) return undefined;
+  const body = arrow.body;
+  const statements = ts.isBlock(body) ? body.statements : [body];
+  const bound = new Set();
+  for (const statement of statements) collectBoundNames(statement, bound);
+
+  const edits = [];
+  let modellable = true;
+
+  const visit = (node) => {
+    // A zero-argument call to a component-local helper is inlined as an IIFE so
+    // `await helper()` keeps its ordering.
+    if (
+      ts.isCallExpression(node) &&
+      ts.isIdentifier(node.expression) &&
+      node.arguments.length === 0 &&
+      locals.helpers.has(node.expression.text)
+    ) {
+      const helper = locals.helpers.get(node.expression.text);
+      const inner = rewriteChoreographyBody(
+        helper,
+        file,
+        groupByIdentifier,
+        locals,
+        depth + 1,
+      );
+      if (inner === undefined) {
+        modellable = false;
+        return;
+      }
+      const isAsync = helper.modifiers?.some(
+        (modifier) => modifier.kind === ts.SyntaxKind.AsyncKeyword,
+      );
+      edits.push({
+        start: node.getStart(file),
+        end: node.end,
+        text: `(${isAsync ? "async " : ""}() => { ${inner}; })()`,
+      });
+      return; // do not descend: the whole call has been replaced
+    }
+    // `somethingRef.current` — a per-instance latch the factory keeps for us.
+    if (
+      ts.isPropertyAccessExpression(node) &&
+      node.name.text === "current" &&
+      ts.isIdentifier(node.expression) &&
+      locals.latches.has(node.expression.text)
+    ) {
+      edits.push({
+        start: node.getStart(file),
+        end: node.end,
+        text: `flags.${node.expression.text.replace(/Ref$/, "")}`,
+      });
+      return;
+    }
+    if (ts.isIdentifier(node)) {
+      const parent = node.parent;
+      const isPropertyName =
+        parent && ts.isPropertyAccessExpression(parent) && parent.name === node;
+      const isPropertyKey =
+        parent &&
+        (ts.isPropertyAssignment(parent) ||
+          ts.isShorthandPropertyAssignment(parent)) &&
+        parent.name === node;
+      if (!isPropertyName && !isPropertyKey) {
+        if (groupByIdentifier.has(node.text)) {
+          edits.push({
+            start: node.getStart(file),
+            end: node.end,
+            text: `controls.${groupByIdentifier.get(node.text)}`,
+          });
+        } else if (node.text === "runAnimation") {
+          edits.push({
+            start: node.getStart(file),
+            end: node.end,
+            text: "run",
+          });
+        } else if (node.text === "resetAnimation") {
+          edits.push({
+            start: node.getStart(file),
+            end: node.end,
+            text: "reset",
+          });
+        } else if (
+          !CHOREOGRAPHY_GLOBALS.has(node.text) &&
+          !bound.has(node.text)
+        ) {
+          modellable = false;
+        }
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  for (const statement of statements) visit(statement);
+  if (!modellable) return undefined;
+
+  const start = statements[0].getStart(file);
+  const end = statements.at(-1).end;
+  const slice = file.text.slice(start, end);
+  const localEdits = [];
+  for (const edit of edits) {
+    if (edit.start < start || edit.end > end) continue;
+    const scoped = {
+      start: edit.start - start,
+      end: edit.end - start,
+      text: edit.text,
+    };
+    // An inlined helper swallows every edit inside it, so drop nested edits.
+    if (
+      localEdits.some(
+        (existing) =>
+          scoped.start >= existing.start && scoped.end <= existing.end,
+      )
+    ) {
+      continue;
+    }
+    localEdits.push(scoped);
+  }
+  return applyEdits(slice, localEdits).replace(/;\s*$/, "");
+}
+
+/** Component-local helpers and latches a choreography body may reference. */
+function collectChoreographyLocals(componentBody, file) {
+  const helpers = new Map();
+  const latches = new Set();
+  const visit = (node) => {
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)) {
+      let initializer = node.initializer;
+      if (
+        initializer &&
+        ts.isCallExpression(initializer) &&
+        ts.isIdentifier(initializer.expression)
+      ) {
+        if (initializer.expression.text === "useCallback") {
+          initializer = initializer.arguments[0];
+        } else if (initializer.expression.text === "useRef") {
+          if (node.name.text !== "isControlledRef") latches.add(node.name.text);
+          initializer = undefined;
+        }
+      }
+      if (
+        initializer &&
+        ts.isArrowFunction(initializer) &&
+        initializer.parameters.length === 0 &&
+        node.name.text !== "startAnimation" &&
+        node.name.text !== "stopAnimation"
+      ) {
+        helpers.set(node.name.text, initializer);
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(componentBody);
+  return { helpers, latches };
+}
+
+// ---------------------------------------------------------------------------
+// Data-module emission
+// ---------------------------------------------------------------------------
+
+const IDENTIFIER_PATTERN = /\b[A-Za-z_$][\w$]*\b/g;
+
+function literalLiteral(value) {
+  return JSON.stringify(value);
+}
+
+function emitNode(node) {
+  if (node.tag === "presence") {
+    return `{ tag: "presence", active: [${node.active
+      .map(emitNode)
+      .join(", ")}], rest: [${node.rest.map(emitNode).join(", ")}] }`;
+  }
+  // A static `<path d="…"/>` — by far the commonest node — is just its geometry.
+  const attrKeys = Object.keys(node.attrs ?? {});
+  const bare =
+    node.tag === "path" &&
+    attrKeys.length === 1 &&
+    attrKeys[0] === "d" &&
+    !node.children &&
+    !node.text;
+  if (bare) return JSON.stringify(node.attrs.d);
+
+  const parts = [`tag: ${JSON.stringify(node.tag)}`];
+  for (const [key, value] of Object.entries(node.attrs ?? {})) {
+    parts.push(
+      `${/^[A-Za-z_$][\w$]*$/.test(key) ? key : JSON.stringify(key)}: ${literalLiteral(value)}`,
+    );
+  }
+  for (const key of [
+    "variants",
+    "initial",
+    "animate",
+    "exit",
+    "transition",
+    "style",
+    "className",
+  ]) {
+    if (node[key]) parts.push(`${key}: ${node[key].raw}`);
+  }
+  if (node.custom !== undefined)
+    parts.push(`custom: ${literalLiteral(node.custom)}`);
+  // `default` is the factory's implicit group, so only a named one is stated.
+  if (node.group && node.group !== "default")
+    parts.push(`group: ${JSON.stringify(node.group)}`);
+  if (node.inherit) parts.push("inherit: true");
+  if (node.text) parts.push(`text: ${JSON.stringify(node.text)}`);
+  if (node.children)
+    parts.push(`children: [${node.children.map(emitNode).join(", ")}]`);
+  return `{ ${parts.join(", ")} }`;
+}
+
+function emitRoot(root) {
+  const parts = [];
+  if (root.tag) parts.push(`tag: ${JSON.stringify(root.tag)}`);
+  for (const key of [
+    "viewBox",
+    "fill",
+    "stroke",
+    "strokeWidth",
+    "strokeLinecap",
+    "strokeLinejoin",
+    "overflow",
+  ]) {
+    if (root[key] !== undefined)
+      parts.push(`${key}: ${literalLiteral(root[key])}`);
+  }
+  for (const key of [
+    "variants",
+    "initial",
+    "animate",
+    "transition",
+    "style",
+    "className",
+  ]) {
+    if (root[key]) parts.push(`${key}: ${root[key].raw}`);
+  }
+  if (root.custom !== undefined)
+    parts.push(`custom: ${literalLiteral(root.custom)}`);
+  if (root.group && root.group !== "default")
+    parts.push(`group: ${JSON.stringify(root.group)}`);
+  if (root.inherit) parts.push("inherit: true");
+  return parts.length > 0 ? `{ ${parts.join(", ")} }` : undefined;
+}
+
+/**
+ * Carry over exactly the module-scope declarations the emitted spec still
+ * references — transitively, and in their original order.
+ */
+function carriedDeclarations(spec, referenceText) {
+  // Identifiers inside string literals are data (path geometry, variant labels,
+  // the component's own name) and must not pull a declaration in.
+  const withoutStrings = (text) => text.replace(/"(?:[^"\\]|\\.)*"/g, '""');
+  const wanted = new Set();
+  const queue = [withoutStrings(referenceText)];
+  while (queue.length > 0) {
+    const text = queue.pop();
+    for (const identifier of text.match(IDENTIFIER_PATTERN) ?? []) {
+      if (wanted.has(identifier)) continue;
+      const declaration = spec.declarations.get(identifier);
+      if (!declaration) continue;
+      wanted.add(identifier);
+      queue.push(withoutStrings(declaration));
+    }
+  }
+  const ordered = [];
+  for (const [identifier, text] of spec.declarations) {
+    if (wanted.has(identifier)) ordered.push(text);
+  }
+  return ordered;
+}
+
+function emitModule(spec, name) {
+  const rootText = emitRoot(spec.root);
+  const elementsText = spec.elements.map(emitNode).join(",\n    ");
+  const specParts = [`name: ${JSON.stringify(spec.name)}`];
+  if (rootText) specParts.push(`svg: ${rootText}`);
+  specParts.push(`elements: [\n    ${elementsText},\n  ]`);
+  if (spec.groups.length > 1)
+    specParts.push(`groups: ${JSON.stringify(spec.groups)}`);
+  if (spec.start) specParts.push(`start: ${spec.start}`);
+  if (spec.stop) specParts.push(`stop: ${spec.stop}`);
+
+  const specText = `{\n  ${specParts.join(",\n  ")},\n}`;
+  const declarations = carriedDeclarations(spec, specText);
+  const declarationText = declarations.join("\n\n");
+  const typeImports = [];
+  if (/\bVariants\b/.test(declarationText)) typeImports.push("Variants");
+  if (/\bTransition\b/.test(declarationText)) typeImports.push("Transition");
+  const valueImports = [...spec.motionValueImports]
+    .filter((identifier) =>
+      new RegExp(`\\b${identifier}\\b`).test(declarationText + specText),
+    )
+    .sort();
+
+  const imports = [];
+  if (valueImports.length > 0) {
+    imports.push(`import { ${valueImports.join(", ")} } from "motion/react";`);
+  }
+  if (typeImports.length > 0) {
+    imports.push(
+      `import type { ${typeImports.join(", ")} } from "motion/react";`,
+    );
+  }
+  imports.push(
+    'import { createAnimatedIcon, type AnimatedIconHandle } from "@vegastack/design/create-animated-icon";',
+  );
+
+  const blocks = ['"use client";', imports.join("\n")];
+  if (declarationText) blocks.push(declarationText);
+  blocks.push(
+    `export type ${spec.name}Handle = AnimatedIconHandle;`,
+    `export const ${spec.name} = createAnimatedIcon(${specText});`,
+  );
+  return `${blocks.join("\n\n")}\n`;
+}
+
 async function transform(upstreamSource, name) {
   assertGeneratedName(name, "animated icon name");
   const filename = `${name}.tsx`;
@@ -858,11 +2153,17 @@ async function transform(upstreamSource, name) {
   source = addMultiInputTriggers(source, filename);
   source = normalizePublicHandleName(source, filename);
 
-  const hex = source.match(/#[0-9a-fA-F]{3,8}\b/);
+  // The normalized controller is now only an intermediate: reduce it to data and
+  // emit a module that hands that data to the one shared factory.
+  const componentName = componentSymbol(source, filename);
+  const spec = extractSpec(source, name, componentName);
+  const module = emitModule(spec, name);
+
+  const hex = module.match(/#[0-9a-fA-F]{3,8}\b/);
   if (hex) throw new Error(`${filename}: hardcoded color ${hex[0]}`);
   if (
     /(?:bg|text|border|stroke|fill)-(?:red|orange|amber|green|blue|purple|neutral|gray|zinc|slate|stone)-\d{2,3}\b/.test(
-      source,
+      module,
     )
   ) {
     throw new Error(`${filename}: raw palette utility`);
@@ -876,11 +2177,49 @@ async function transform(upstreamSource, name) {
     resolveInside(SAFE_SOURCE_DIR, `${name}.tsx`),
   );
   const prettierConfig = (await resolveConfig(filepath)) ?? {};
-  return format(header + source.trimStart() + "\n", {
+  return format(header + module.trimStart() + "\n", {
     ...prettierConfig,
     filepath,
     parser: "typescript",
   });
+}
+
+/**
+ * The public `<Pascal>Icon` symbol. The EXPORTED name is authoritative — it is
+ * what consumers import and what `component-contracts.json` pins — and at least
+ * one upstream icon (`chevron-first`) carries a copy-pasted `displayName` that
+ * names a different icon entirely.
+ */
+function componentSymbol(source, filename) {
+  const file = parse(source, filename);
+  for (const statement of file.statements) {
+    if (
+      ts.isVariableStatement(statement) &&
+      statement.modifiers?.some(
+        (modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword,
+      )
+    ) {
+      const declaration = statement.declarationList.declarations.find(
+        (candidate) =>
+          ts.isIdentifier(candidate.name) && /Icon$/.test(candidate.name.text),
+      );
+      if (declaration && ts.isIdentifier(declaration.name))
+        return declaration.name.text;
+    }
+    if (
+      ts.isExportDeclaration(statement) &&
+      statement.exportClause &&
+      ts.isNamedExports(statement.exportClause)
+    ) {
+      const specifier = statement.exportClause.elements.find((element) =>
+        /Icon$/.test(element.name.text),
+      );
+      if (specifier) return specifier.name.text;
+    }
+  }
+  const displayName = source.match(/\.displayName\s*=\s*"([A-Za-z0-9]+Icon)"/);
+  if (displayName) return displayName[1];
+  throw new Error(`${filename}: missing exported icon symbol`);
 }
 
 async function readUpstreamSource(item) {
