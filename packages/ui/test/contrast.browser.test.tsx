@@ -71,13 +71,13 @@ function Surfaces() {
         </Badge>
       </div>
       <div className="flex flex-wrap gap-2">
-        <Badge variant="subtle" intent="success">
+        <Badge variant="soft" intent="success">
           subtle success
         </Badge>
-        <Badge variant="subtle" intent="warning">
+        <Badge variant="soft" intent="warning">
           subtle warning
         </Badge>
-        <Badge variant="subtle" intent="destructive">
+        <Badge variant="soft" intent="destructive">
           subtle destructive
         </Badge>
         <Badge variant="outline" intent="default">

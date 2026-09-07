@@ -42,7 +42,9 @@ test("loading sets aria-busy and replaces the dot with a spinner", async () => {
   // The spinner (svg) is rendered; the dot span is suppressed while loading.
   const spinner = badge.element().querySelector("svg");
   expect(spinner).not.toBeNull();
-  expect(spinner?.className.baseVal).toContain("motion-reduce:animate-none");
+  expect(spinner?.className.baseVal).toContain("animate-spin");
+  // Reduced motion is the global base.css reset's job; a component never restates it.
+  expect(spinner?.className.baseVal).not.toContain("motion-reduce:");
 });
 
 test("does not carry the motion-pop-in class by default", async () => {

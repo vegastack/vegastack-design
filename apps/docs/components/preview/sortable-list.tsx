@@ -40,7 +40,7 @@ export function sortableList(): ReactNode {
             <span className="flex min-w-0 items-center gap-2">
               <span className="truncate">{item.label}</span>
               {item.disabled ? (
-                <Badge variant="subtle" size="sm">
+                <Badge variant="soft" size="sm">
                   Locked
                 </Badge>
               ) : null}
