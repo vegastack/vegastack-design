@@ -48,3 +48,25 @@ export function videoPlayerSquare(): ReactNode {
     </Wrapper>
   );
 }
+
+/**
+ * The overlay pinned open with `controlsVisible`. Without it the chrome is
+ * revealed by a pointer or by focus and fades a second later, so a static
+ * capture never contains it — which is exactly why the contract lane could not
+ * see the video controls at all (audit B4-11). Consumers get the same prop for
+ * a kiosk or always-on player.
+ */
+export function videoPlayerControlsVisible(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="w-full max-w-2xl">
+        <VideoPlayer
+          src={SAMPLE_VIDEO}
+          poster={POSTER}
+          label="Always-on video"
+          controlsVisible
+        />
+      </div>
+    </Wrapper>
+  );
+}

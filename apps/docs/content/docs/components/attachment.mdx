@@ -192,6 +192,9 @@ aria-live="polite"`, the same pattern as
 - `state="disabled"` visually dims the card and sets `pointer-events-none` +
   `aria-disabled`, but it cannot reach into children — also pass `disabled` to
   any nested `IconButton` so it is unreachable by keyboard, not just the mouse.
+- `AttachmentTrigger` is a real button covering the card, and it shows the system's standard
+  `:focus-visible` outline, inset so the card's rounded corners do not clip it. It does not rely
+  on a border tint alone — a tint is the text-entry treatment, not a button's.
 - `AttachmentTrigger` and `AttachmentActions` share the same `z-(--z-raised)`
   stacking band; place `AttachmentTrigger` first in JSX so the actions stay on
   top and clickable.

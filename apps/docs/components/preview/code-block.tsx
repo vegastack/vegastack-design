@@ -23,3 +23,21 @@ export function codeBlock(): ReactNode {
     </Wrapper>
   );
 }
+
+const LONG_LINE = `docker run --rm -it --name vegastack-registry --env REGISTRY_BASE_URL=https://design.vegastack.com/r --env CF_ACCESS_CLIENT_ID=$CF_ACCESS_CLIENT_ID --volume "$PWD":/workspace ghcr.io/vegastack/registry-preflight:latest --verify --fail-closed`;
+
+/**
+ * A line far wider than the panel. The block scrolls inside its own
+ * `overflow-x` container rather than widening the page — the audit's 320px
+ * reflow contract fails the moment a code sample pushes the document sideways
+ * (B4-11: there was no fixture for this, so the contract lane never checked it).
+ */
+export function codeBlockOverflow(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch gap-4">
+      <CodeBlock language="bash" copyValue={LONG_LINE}>
+        {LONG_LINE}
+      </CodeBlock>
+    </Wrapper>
+  );
+}

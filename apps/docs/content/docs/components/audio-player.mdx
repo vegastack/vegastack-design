@@ -124,7 +124,11 @@ control cycles through. Each tap advances to the next rate in order and wraps pa
   (J / L and ← / →).
 - The transcript control appears only on the narrow layout and only when `onTranscriptClick` is
   supplied; it carries an accessible name derived from `label` and opens whatever the consumer wires.
-- Audio has no visible volume control; mute stays available on the M key.
+- Mute and a volume rail are present in **both** layouts. The rail is a vertical `Slider` that
+  opens from the mute button on hover or focus; mute also stays on the M key. (Before the
+  2026-09-07 audit, audio had no volume control at all and mute was keyboard-only.)
+- The seek thumb is hidden at rest only where a pointer can hover. On a touch device it stays
+  visible — without it there is no scrub affordance at all.
 - The native `<audio>` element is used as the media engine and does not expose browser-native
   controls; VegaStack renders the consistent control surface.
 
