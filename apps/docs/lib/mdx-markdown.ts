@@ -22,7 +22,7 @@ import type { LLMsOptions } from "fumadocs-core/mdx-plugins/remark-llms";
  */
 type Stringify = NonNullable<LLMsOptions["stringify"]>;
 type Nodes = Parameters<Stringify>[0];
-type Parent = Parameters<Stringify>[1];
+// [1] is the parent node; this stringifier decides per element and never consults it.
 type State = Parameters<Stringify>[2];
 type Info = Parameters<Stringify>[3];
 
