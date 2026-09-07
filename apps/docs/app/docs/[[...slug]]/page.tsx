@@ -93,7 +93,7 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
           {/* The hero fixture renders through the SAME frame as every example (DC-05): identical
               chrome, width toggle, fullscreen and product type scope — Preview tab only. */}
           {page.data.preview ? (
-            <ComponentPreview name={page.data.preview} />
+            <ComponentPreview name={page.data.preview} hero />
           ) : null}
           <MDX
             components={getMDXComponents({

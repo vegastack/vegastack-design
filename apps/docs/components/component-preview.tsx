@@ -21,13 +21,25 @@ import {
  * the fullscreen toggle (DD-2). "Copy Prompt" lives once in the page header, not here (DC-04).
  * Without `file` (the frontmatter hero, DC-05) only the "Preview" tab renders, in the same frame
  * as every other example.
+ *
+ * `hero` suppresses the `data-vrt-preview` key, and that is load-bearing rather than cosmetic.
+ * That attribute is the probe key for two lanes, and `contracts.spec.ts` probes
+ * `page.locator("[data-vrt-preview]").first()` — ONE fixture per route. Stamping it on the hero
+ * would not add coverage; it would silently MOVE the blocking gate from the documented example
+ * fixture to the hero, for all 110 routes, as a side effect of a chrome change. Which fixture the
+ * lane measures is a decision for `component-contracts.json`, so the hero renders identical chrome
+ * and stays out of the probe. Measured: moving it fails timeline, data-grid and text-edit on the
+ * 24px target floor — real, previously unmeasured defects, recorded in `docs/ledger/bugs.md`
+ * (2026-09-07) with the one-line reproduction, for the component batches to fix.
  */
 export async function ComponentPreview({
   name,
   file,
+  hero = false,
 }: {
   name: string;
   file?: string;
+  hero?: boolean;
 }) {
   const Comp = Preview[name as keyof typeof Preview] as
     (() => React.ReactNode) | undefined;
@@ -61,7 +73,10 @@ export async function ComponentPreview({
           {/* Product type-scale scope (T1/CX-6, DC-01): demos render on the product ladder —
               font-size included — while the surrounding docs shell stays on the doc ladder.
               Portaled popups re-enter via [data-base-ui-portal] in global.css. */}
-          <div className="vs-type-product" data-vrt-preview={name}>
+          <div
+            className="vs-type-product"
+            data-vrt-preview={hero ? undefined : name}
+          >
             <PreviewFrameContainer>
               <Comp />
             </PreviewFrameContainer>
