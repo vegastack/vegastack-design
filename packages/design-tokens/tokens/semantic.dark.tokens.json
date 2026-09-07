@@ -41,21 +41,30 @@
     "$type": "color",
     "$value": "{color.white}"
   },
-  "track": {
+  "surface-1": {
     "$type": "color",
-    "$value": "{color.neutral.600}"
+    "$value": "{color.neutral.850}",
+    "$description": "Dark ladder: card 0.205 -> surface-1 0.236 -> surface-2 0.269 -> surface-3 0.29 (lighter = higher, ~0.03 L per rung, the Radix/Linear dark step)."
+  },
+  "surface-2": {
+    "$type": "color",
+    "$value": "{color.neutral.800}"
+  },
+  "surface-3": {
+    "$type": "color",
+    "$value": "{color.neutral.750}"
   },
   "secondary": {
     "$type": "color",
-    "$value": "{color.neutral.800}"
+    "$value": "{surface-1}"
   },
   "secondary-foreground": {
     "$type": "color",
-    "$value": "{color.neutral.200}"
+    "$value": "{foreground}"
   },
   "muted": {
     "$type": "color",
-    "$value": "{color.neutral.800}"
+    "$value": "{surface-1}"
   },
   "muted-foreground": {
     "$type": "color",
@@ -67,11 +76,11 @@
   },
   "accent": {
     "$type": "color",
-    "$value": "{color.neutral.800}"
+    "$value": "{surface-2}"
   },
   "accent-foreground": {
     "$type": "color",
-    "$value": "{color.neutral.100b}"
+    "$value": "{foreground}"
   },
   "destructive-subtle": {
     "$type": "color",
@@ -79,7 +88,12 @@
   },
   "destructive-text": {
     "$type": "color",
-    "$value": "{color.red.400}"
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.74, 0.16, 25],
+      "alpha": 1
+    },
+    "$description": "Dark red ink (was red.400, L 0.72); +0.02 L so the soft pressed rung (fill @40% over subtle) clears 4.5:1 — see the light destructive-text note."
   },
   "destructive-border": {
     "$type": "color",
@@ -92,7 +106,12 @@
   },
   "success-text": {
     "$type": "color",
-    "$value": "{color.green.500}"
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.74, 0.17, 150],
+      "alpha": 1
+    },
+    "$description": "Dark green ink (was green.500, L 0.72); +0.02 L for the soft pressed rung."
   },
   "warning-subtle": {
     "$type": "color",
@@ -108,7 +127,12 @@
   },
   "info-text": {
     "$type": "color",
-    "$value": "{color.blue.400}"
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.76, 0.13, 256],
+      "alpha": 1
+    },
+    "$description": "Dark link / informational blue ink (was blue.400, L 0.72); +0.04 L for the soft pressed rung — blue had the least headroom (4.50:1 at hover)."
   },
   "overlay": {
     "$type": "color",
@@ -117,10 +141,6 @@
       "components": [0, 0, 0],
       "alpha": 0.55
     }
-  },
-  "border": {
-    "$type": "color",
-    "$value": "{color.neutral.800}"
   },
   "input": {
     "$type": "color",
@@ -161,6 +181,11 @@
   "chart-8": {
     "$type": "color",
     "$value": "{color.blue.400}"
+  },
+  "chart-single": {
+    "$type": "color",
+    "$value": "{foreground}",
+    "$description": "Repeated here on purpose: an alias is resolved per run, so a light-only alias would leak the LIGHT ink into `.dark` through the cascade (the contrast gate caught exactly that)."
   },
   "tag-blue": {
     "$type": "color",
@@ -404,27 +429,27 @@
   },
   "sidebar": {
     "$type": "color",
-    "$value": "{color.neutral.950}"
+    "$value": "{card}"
   },
   "sidebar-foreground": {
     "$type": "color",
-    "$value": "{color.neutral.300}"
+    "$value": "{foreground}"
   },
   "sidebar-primary": {
     "$type": "color",
-    "$value": "{color.neutral.200}"
+    "$value": "{primary}"
   },
   "sidebar-primary-foreground": {
     "$type": "color",
-    "$value": "{color.neutral.950}"
+    "$value": "{primary-foreground}"
   },
   "sidebar-accent": {
     "$type": "color",
-    "$value": "{color.neutral.900}"
+    "$value": "{surface-2}"
   },
   "sidebar-accent-foreground": {
     "$type": "color",
-    "$value": "{color.neutral.200}"
+    "$value": "{foreground}"
   },
   "sidebar-border": {
     "$type": "color",
@@ -432,7 +457,7 @@
   },
   "sidebar-ring": {
     "$type": "color",
-    "$value": "{primary}"
+    "$value": "{ring}"
   },
   "brand": {
     "$type": "color",
@@ -458,6 +483,14 @@
       "unit": "%"
     },
     "$description": "Dark half of the theme-split soft-surface resting wash."
+  },
+  "alpha-border": {
+    "$type": "dimension",
+    "$value": {
+      "value": 14,
+      "unit": "%"
+    },
+    "$description": "Dark half of the hairline alpha (D14): near-white ink needs more alpha than near-black to read as a line — foreground at 14% over card measures L 0.325, over the page 0.302."
   },
   "shadow-overlay": {
     "$type": "shadow",

@@ -55,13 +55,19 @@
     outline-color: Highlight;
   }
 
-  /* Composite text-entry surfaces (TextEdit) put their focus affordance on a WRAPPER via
-     `focus-within:border-ring/…` — a border TINT. The wrapper itself never matches
-     `:focus-visible` (the contenteditable inside it does), and forced-colors replaces
-     border-color outright, so in forced-colors mode that surface had NO visible focus indicator
-     at all. A real outline is the only affordance the forced palette preserves.
-     Simple fields (Input/Textarea/Select) need no equivalent: there the focused element IS the
-     control, so the `:focus-visible` rule above already covers them. */
+  /* Text-entry focus (B1-01, 2026-09-07). Every text-entry control signals focus with the
+     border TINT (`focus:border-ring/(--alpha-tint-border)`) and strips the outline
+     (`outline-none`), because a raw text field cannot tell mouse from keyboard. Forced colours
+     replaces `border-color` outright, so the tint vanishes and `outline-style: none` stays in
+     force — a Windows High Contrast user had no caret location at all. This block is UNLAYERED
+     on purpose: it beats the component's `outline-none` (a layered utility) regardless of
+     specificity, so the fallback is written ONCE here, never per component.
+     - `input`/`textarea` at `:focus` (not `:focus-visible`, matching the tint's trigger);
+     - composite editors (TextEdit's contenteditable) at `:focus`;
+     - wrapper-tinted surfaces (`data-slot="text-edit"`, the input groups) at `:focus-within`. */
+  input:focus,
+  textarea:focus,
+  [contenteditable="true"]:focus,
   [data-slot="text-edit"]:focus-within {
     outline: 2px solid Highlight;
     outline-offset: 1px;

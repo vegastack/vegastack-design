@@ -10,7 +10,8 @@
   },
   "card": {
     "$type": "color",
-    "$value": "{color.neutral.50}"
+    "$value": "{background}",
+    "$description": "Light cards are PAGE-COLOURED and separated by the alpha hairline alone (surface-ladder decision 2026-09-07, P1): no reference system lifts or sinks a light card. Dark keeps the one-step lift (neutral.900)."
   },
   "card-foreground": {
     "$type": "color",
@@ -18,11 +19,27 @@
   },
   "popover": {
     "$type": "color",
-    "$value": "{color.white}"
+    "$value": "{card}",
+    "$description": "Every floating surface is the card surface + shadow-overlay; never a lighter or darker rung of its own."
   },
   "popover-foreground": {
     "$type": "color",
     "$value": "{color.neutral.950}"
+  },
+  "surface-1": {
+    "$type": "color",
+    "$value": "{color.neutral.100}",
+    "$description": "Surface ladder rung 1 — the REST fill of a filled control (secondary/soft button, kbd, chip, segmented rail, tab-list pill) and the sunken well (code block, skeleton, disabled field, slider/progress track). `secondary` and `muted` are aliases of this rung."
+  },
+  "surface-2": {
+    "$type": "color",
+    "$value": "{color.neutral.150}",
+    "$description": "Surface ladder rung 2 — the HOVER step: a transparent row/item/ghost control hovers to it, a rung-1 control hovers to it. `accent` and `sidebar-accent` are aliases. Alpha twin: bg-foreground/(--alpha-hover)."
+  },
+  "surface-3": {
+    "$type": "color",
+    "$value": "{color.neutral.200}",
+    "$description": "Surface ladder rung 3 — the PRESSED / SELECTED step (active:, data-selected, the active sidebar row, the switch off-track). Alpha twin: bg-foreground/(--alpha-pressed)."
   },
   "primary": {
     "$type": "color",
@@ -40,21 +57,20 @@
     "$type": "color",
     "$value": "{color.neutral.850}"
   },
-  "track": {
-    "$type": "color",
-    "$value": "{color.neutral.300}"
-  },
   "secondary": {
     "$type": "color",
-    "$value": "{color.neutral.100}"
+    "$value": "{surface-1}",
+    "$description": "ALIAS of surface-1 (kept so shadcn-shaped code keeps compiling). Never retune independently."
   },
   "secondary-foreground": {
     "$type": "color",
-    "$value": "{color.neutral.900}"
+    "$value": "{foreground}",
+    "$description": "ALIAS of foreground — one ink on every neutral rung."
   },
   "muted": {
     "$type": "color",
-    "$value": "{color.neutral.100}"
+    "$value": "{surface-1}",
+    "$description": "ALIAS of surface-1 (shadcn name). muted-foreground stays a real text role."
   },
   "muted-foreground": {
     "$type": "color",
@@ -66,11 +82,13 @@
   },
   "accent": {
     "$type": "color",
-    "$value": "{color.neutral.100}"
+    "$value": "{surface-2}",
+    "$description": "ALIAS of surface-2, the hover/highlight rung (shadcn's `accent` — a NEUTRAL, never a hue). Menu/select/command `data-highlighted` rides on it."
   },
   "accent-foreground": {
     "$type": "color",
-    "$value": "{color.neutral.900}"
+    "$value": "{foreground}",
+    "$description": "ALIAS of foreground."
   },
   "destructive": {
     "$type": "color",
@@ -86,7 +104,12 @@
   },
   "destructive-text": {
     "$type": "color",
-    "$value": "{color.red.650}"
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.496, 0.2, 25],
+      "alpha": 1
+    },
+    "$description": "Page-readable red ink (was red.650, L 0.521). Re-tuned -0.025 L on 2026-09-07 so the soft PRESSED rung (`destructive-subtle-active`, fill @12% over subtle) still clears 4.5:1 — at the old ink the soft family sat at the AA edge on hover (4.60:1) and had no room for a pressed step. Every other pair only gains contrast."
   },
   "destructive-border": {
     "$type": "color",
@@ -107,7 +130,12 @@
   },
   "success-text": {
     "$type": "color",
-    "$value": "{color.green.650}"
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.48, 0.13, 150],
+      "alpha": 1
+    },
+    "$description": "Page-readable green ink (was green.650, L 0.5); -0.02 L for the soft pressed rung — see destructive-text."
   },
   "warning": {
     "$type": "color",
@@ -123,7 +151,12 @@
   },
   "warning-text": {
     "$type": "color",
-    "$value": "{color.amber.650}"
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.505, 0.139, 42],
+      "alpha": 1
+    },
+    "$description": "Page-readable amber ink (was amber.650, L 0.52); -0.015 L for the soft pressed rung — see destructive-text."
   },
   "info": {
     "$type": "color",
@@ -139,7 +172,12 @@
   },
   "info-text": {
     "$type": "color",
-    "$value": "{color.blue.650}"
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.5, 0.171, 256],
+      "alpha": 1
+    },
+    "$description": "Link / informational blue ink (was blue.650, L 0.52); -0.02 L for the soft pressed rung — see destructive-text."
   },
   "overlay": {
     "$type": "color",
@@ -148,15 +186,35 @@
       "components": [0.13, 0.002, 75],
       "alpha": 0.28
     },
-    "$description": "Modal scrim \u2014 the ONE sanctioned alpha-composite literal (a translucent wash has no primitive step; alpha is intrinsic to the role)."
+    "$description": "Modal scrim \u2014 an alpha-composite literal (a translucent wash has no primitive step; alpha is intrinsic to the role). Theme-split: the dark scrim is deeper."
   },
-  "border": {
+  "media-scrim": {
     "$type": "color",
-    "$value": "{color.neutral.200}"
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.13, 0.002, 75],
+      "alpha": 0.6
+    },
+    "$description": "THEME-INVARIANT media chrome scrim (B4-01): the gradient/backdrop behind controls laid over video or imagery. Always a warm-black alpha, never a theme token, so the chrome reads dark-scrim + light-ink in both themes (`primary` flips with the theme and inverted the chrome in dark). media-foreground clears 5.2:1 on it over a white worst-case backdrop."
+  },
+  "media-scrim-strong": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.13, 0.002, 75],
+      "alpha": 0.8
+    },
+    "$description": "Theme-invariant strong scrim for opaque media pills (volume popover, time badge) \u2014 11:1 for media-foreground over a white worst case."
+  },
+  "media-foreground": {
+    "$type": "color",
+    "$value": "{color.neutral.50}",
+    "$description": "Theme-invariant media chrome ink: the warm off-white used for every icon, label and track drawn over media-scrim. Not overridden in dark on purpose."
   },
   "input": {
     "$type": "color",
-    "$value": "{border}"
+    "$value": "{border}",
+    "$description": "ALIAS of border (the alpha hairline). `border` itself is DERIVED by the SD preprocessor: foreground at --alpha-border (D14) so one hairline survives on page, card, well and dark band alike."
   },
   "ring": {
     "$type": "color",
@@ -194,6 +252,11 @@
   "chart-8": {
     "$type": "color",
     "$value": "{color.blue.700}"
+  },
+  "chart-single": {
+    "$type": "color",
+    "$value": "{foreground}",
+    "$description": "Single-series chart ink (D29): one series is drawn in foreground ink; the categorical chart-1…8 hues start at two series."
   },
   "brand": {
     "$type": "color",
@@ -447,27 +510,29 @@
   },
   "sidebar": {
     "$type": "color",
-    "$value": "{color.neutral.50}"
+    "$value": "{card}",
+    "$description": "The sidebar-* family is ALIASES ONLY (B6-01): the rail is a card surface on the ladder, not a second palette. Names kept for shadcn-shaped code."
   },
   "sidebar-foreground": {
     "$type": "color",
-    "$value": "{color.neutral.800}"
+    "$value": "{foreground}"
   },
   "sidebar-primary": {
     "$type": "color",
-    "$value": "{color.neutral.950}"
+    "$value": "{primary}"
   },
   "sidebar-primary-foreground": {
     "$type": "color",
-    "$value": "{color.neutral.50}"
+    "$value": "{primary-foreground}"
   },
   "sidebar-accent": {
     "$type": "color",
-    "$value": "{color.neutral.150}"
+    "$value": "{surface-2}",
+    "$description": "ALIAS of surface-2 — the rail's hover rung; the active row sits one rung higher on surface-3 so active+hover still moves (SP-06)."
   },
   "sidebar-accent-foreground": {
     "$type": "color",
-    "$value": "{color.neutral.950}"
+    "$value": "{foreground}"
   },
   "sidebar-border": {
     "$type": "color",
@@ -475,7 +540,7 @@
   },
   "sidebar-ring": {
     "$type": "color",
-    "$value": "{primary}"
+    "$value": "{ring}"
   },
   "radius": {
     "$type": "dimension",
@@ -606,6 +671,51 @@
     },
     "$description": "Collapsed icon-only rail width."
   },
+  "sidebar-width-mobile": {
+    "$type": "dimension",
+    "$value": {
+      "value": 18,
+      "unit": "rem"
+    },
+    "$description": "Width of the sidebar when it renders as an off-canvas sheet below the md breakpoint (was an inline `18rem` fallback, B6-08)."
+  },
+  "layout-header-height": {
+    "$type": "dimension",
+    "$value": {
+      "value": 3.5,
+      "unit": "rem"
+    },
+    "$description": "56px app-shell header band (was a raw `h-14`, B6-08). Sticky/fixed content below the header offsets by this."
+  },
+  "layout-overlay-max-height": {
+    "$type": "dimension",
+    "$value": "calc(100dvh - 16rem)",
+    "$description": "The tallest a scrolling overlay body (Command list, Board column, ShortcutOverlay) may grow: the dynamic viewport minus a 16rem chrome allowance. DTCG 2025.10 has no calc expression type, so this dimension is authored as the CSS string it resolves to and passed through verbatim (the same precedent as the `easing` linear() token)."
+  },
+  "panel-width-sm": {
+    "$type": "dimension",
+    "$value": {
+      "value": 14,
+      "unit": "rem"
+    },
+    "$description": "224px floating panel (compact popover, small menu, single-value date trigger)."
+  },
+  "panel-width-md": {
+    "$type": "dimension",
+    "$value": {
+      "value": 18,
+      "unit": "rem"
+    },
+    "$description": "288px floating panel — the default Popover, EmojiPicker, checklist card, range date trigger."
+  },
+  "panel-width-lg": {
+    "$type": "dimension",
+    "$value": {
+      "value": 20,
+      "unit": "rem"
+    },
+    "$description": "320px floating panel (rich HoverCard previews)."
+  },
   "shadow-overlay": {
     "$type": "shadow",
     "$value": "0 4px 14px -4px oklch(0.13 0.002 75 / 0.10), 0 2px 4px -2px oklch(0.13 0.002 75 / 0.06)"
@@ -664,6 +774,30 @@
       "unit": "%"
     },
     "$description": "Element opacity of the circular progress track ring."
+  },
+  "alpha-hover": {
+    "$type": "dimension",
+    "$value": {
+      "value": 7,
+      "unit": "%"
+    },
+    "$description": "The alpha twin of surface-2: `bg-<ink>/(--alpha-hover)` composites the hover rung onto ANY backdrop (a kbd inside a hovered row, a chip on a well, a control over media). foreground at 7% over the page measures L 0.943 light / 0.267 dark over card \u2014 within 0.003 of the opaque rung. Theme-invariant."
+  },
+  "alpha-pressed": {
+    "$type": "dimension",
+    "$value": {
+      "value": 10,
+      "unit": "%"
+    },
+    "$description": "The alpha twin of surface-3 (pressed/selected): foreground at 10% measures L 0.921 light / 0.292 dark over card. Theme-invariant."
+  },
+  "alpha-border": {
+    "$type": "dimension",
+    "$value": {
+      "value": 8,
+      "unit": "%"
+    },
+    "$description": "The hairline alpha (D14): `border` is DERIVED as foreground at this alpha, so one hairline reads on page, card, well and dark band. 8% light (L 0.936, Geist gray-400 territory) / 14% dark (L 0.325 over card)."
   },
   "alpha-tint-border": {
     "$type": "dimension",

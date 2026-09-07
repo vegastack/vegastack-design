@@ -34,6 +34,32 @@ const PAIRS = [
   // The secondary-text workhorse must read on the page surfaces it actually sits on (P2-25).
   ["background", "muted-foreground"],
   ["card", "muted-foreground"],
+  // The surface ladder (2026-09-07, P1): body ink AND the secondary-text workhorse must read on
+  // every rung, because a hovered row, a pressed chip and a selected cell all carry both.
+  ["surface-1", "foreground"],
+  ["surface-2", "foreground"],
+  ["surface-3", "foreground"],
+  ["surface-1", "muted-foreground"],
+  ["surface-2", "muted-foreground"],
+  ["surface-3", "muted-foreground"],
+];
+
+// The ladder's ALPHA twins (`bg-foreground/(--alpha-hover|pressed)`) composite onto the resting
+// surfaces a TRANSPARENT control sits on; the ink must still read once they are painted over each.
+// A FILLED control (rest = surface-1) steps the opaque rungs instead (P1), so the well is not a
+// host here — dark muted-foreground over foreground@10% over surface-1 measured 4.11:1.
+const LADDER_ALPHAS = ["alpha-hover", "alpha-pressed"];
+const LADDER_HOSTS = ["background", "card", "popover"];
+const LADDER_INKS = ["foreground", "muted-foreground"];
+
+// Theme-invariant media chrome (B4-01): the off-white ink over the two scrims, measured against
+// the WORST backdrop a scrim can sit on (the light page — a scrim over a bright frame is the
+// weakest case; over dark video it only improves). Text on the strong pill needs AA (4.5:1); the
+// icons and track on the soft gradient scrim are non-text parts (1.4.11, 3:1). Floors are
+// literal here because `AA_NONTEXT` is declared further down.
+const MEDIA_CASES = [
+  ["media-scrim-strong", 4.5, "pill text"],
+  ["media-scrim", 3, "overlay icons"],
 ];
 
 // muted-foreground-faint is DELIBERATELY sub-AA (placeholders/disabled only — design.md), but it
@@ -46,8 +72,29 @@ const FAINT_FLOOR = 2.5;
 // NOT gated: `border` hairlines and the switch off-`track` — decorative separation / redundant
 // affordances (thumb + layout identify the control), the documented industry-standard exemption.
 const AA_NONTEXT = 3;
-const NONTEXT = ["ring", "primary", "brand"];
-const FOCUS_SURFACES = ["background", "card", "popover", "muted", "sidebar"];
+// Focus rings and checked controls can sit on ANY rung (a focused control inside a hovered or
+// selected row); the brand marker and the single-series chart ink only ever sit on the resting
+// surfaces (page, card, popover, well) — nobody draws a chart on a hovered row, and the locked
+// brand value (CX-9) measures 2.92:1 on the light pressed rung, so it is deliberately not gated
+// there.
+const NONTEXT = ["ring", "primary"];
+const FOCUS_SURFACES = [
+  "background",
+  "card",
+  "popover",
+  "surface-1",
+  "surface-2",
+  "surface-3",
+  "sidebar",
+];
+const MARKERS = ["brand", "chart-single"];
+const MARKER_SURFACES = [
+  "background",
+  "card",
+  "popover",
+  "surface-1",
+  "sidebar",
+];
 
 // Charts and tags are categorical color, not status or action color. Their strokes, dots, and
 // swatches still communicate data, so every palette member must clear the non-text floor on the
@@ -133,7 +180,9 @@ function parseBlock(css, selector) {
           `${selector}: invalid OKLCH components in --${name}: ${value}`,
         );
       }
-      out[name] = parsed.slice(0, 3);
+      // Keep the alpha as a 4th element: solid checks spread only L/C/H, the alpha-composite
+      // checks (border, media scrims) read it explicitly.
+      out[name] = parsed;
     }
   }
   return out;
@@ -250,12 +299,15 @@ for (const [theme, vars] of Object.entries(themes)) {
       );
   }
   // Non-text UI parts (1.4.11), including the real focus-ring surfaces.
-  for (const part of NONTEXT) {
+  for (const [part, surfaces] of [
+    ...NONTEXT.map((part) => [part, FOCUS_SURFACES]),
+    ...MARKERS.map((part) => [part, MARKER_SURFACES]),
+  ]) {
     if (!vars[part]) {
       fail(`${theme}: non-text token ${part} missing — fail-closed`);
       continue;
     }
-    for (const surface of FOCUS_SURFACES) {
+    for (const surface of surfaces) {
       if (!vars[surface]) {
         fail(
           `${theme}: ${surface} missing for non-text ${part} contrast — fail-closed`,
@@ -305,6 +357,7 @@ for (const [theme, vars] of Object.entries(themes)) {
       "card",
       `${family}-subtle`,
       `${family}-subtle-hover`,
+      `${family}-subtle-active`,
     ]) {
       if (!vars[surface]) {
         fail(
@@ -337,9 +390,12 @@ for (const [theme, vars] of Object.entries(themes)) {
     // These outline-button washes are documented for the page/card/popover families. `muted` is
     // intentionally excluded here: it is itself a tinted surface rather than an approved parent
     // for another tinted control, and compositing two tints is not part of the component contract.
+    // Rest is the faint wash; hover and pressed are the ladder's alpha twins in the family's own
+    // hue (`fillInteractive.<family>`, F1 2026-09-07).
     const cases = ["background", "card", "popover"].flatMap((surface) => [
       ["alpha-surface-faint", surface, "outline rest"],
-      ["alpha-surface-subtle", surface, "outline hover"],
+      ["alpha-hover", surface, "outline hover"],
+      ["alpha-pressed", surface, "outline pressed"],
     ]);
     for (const [alphaName, surface, label] of cases) {
       const a = alphas[alphaName];
@@ -401,6 +457,72 @@ for (const [theme, vars] of Object.entries(themes)) {
             `${theme}: invalid-state border destructive-border@${Math.round(a * 100)}% on ${surface} = ${ratio.toFixed(2)}:1 (WCAG 1.4.11 needs ${AA_NONTEXT}:1)`,
           );
       }
+    }
+  }
+
+  // SURFACE LADDER alpha twins (2026-09-07): `bg-foreground/(--alpha-hover|pressed)` painted over
+  // every host surface must keep body ink AND muted text at AA — this is what a hovered/pressed
+  // kbd, chip or row actually renders as.
+  for (const alphaName of LADDER_ALPHAS) {
+    const a = alphas[alphaName];
+    const wash = vars.foreground;
+    if (a == null || !wash) {
+      fail(
+        `${theme}: ${alphaName}/foreground missing for the ladder composite — fail-closed`,
+      );
+      continue;
+    }
+    for (const host of LADDER_HOSTS) {
+      const bg = vars[host];
+      if (!bg) {
+        fail(
+          `${theme}: ${host} missing for the ladder composite — fail-closed`,
+        );
+        continue;
+      }
+      const composite = compositeLinear(wash, a, bg);
+      for (const inkName of LADDER_INKS) {
+        const ink = vars[inkName];
+        if (!ink) {
+          fail(
+            `${theme}: ${inkName} missing for the ladder composite — fail-closed`,
+          );
+          continue;
+        }
+        checked++;
+        const ratio = contrastCompositeBg(ink, composite);
+        if (ratio < AA_NORMAL)
+          fail(
+            `${theme}: ${inkName} on foreground@${Math.round(a * 100)}% (${alphaName}) over ${host} = ${ratio.toFixed(2)}:1 (WCAG AA needs ${AA_NORMAL}:1)`,
+          );
+      }
+    }
+  }
+  // MEDIA CHROME (B4-01): theme-invariant ink over theme-invariant scrims, measured over the
+  // LIGHT page as the worst-case backdrop in both theme runs (the scrim never changes with theme).
+  {
+    const ink = vars["media-foreground"];
+    const worstBackdrop = light.background;
+    for (const [scrimName, floor, label] of MEDIA_CASES) {
+      const scrim = vars[scrimName];
+      if (!ink || !scrim || !worstBackdrop) {
+        fail(`${theme}: media-foreground/${scrimName} missing — fail-closed`);
+        continue;
+      }
+      const scrimAlpha = scrim[3];
+      if (!(scrimAlpha > 0 && scrimAlpha < 1)) {
+        fail(
+          `${theme}: ${scrimName} must be an alpha colour (got alpha ${scrimAlpha}) — fail-closed`,
+        );
+        continue;
+      }
+      checked++;
+      const composite = compositeLinear(scrim, scrimAlpha, worstBackdrop);
+      const ratio = contrastCompositeBg(ink, composite);
+      if (ratio < floor)
+        fail(
+          `${theme}: media-foreground on ${scrimName} over a light page (${label}) = ${ratio.toFixed(2)}:1 (needs ${floor}:1)`,
+        );
     }
   }
 

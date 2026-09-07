@@ -27,19 +27,13 @@
           "alpha": 1
         }
       },
-      "100b": {
-        "$value": {
-          "colorSpace": "oklch",
-          "components": [0.967, 0.003, 75],
-          "alpha": 1
-        }
-      },
       "150": {
         "$value": {
           "colorSpace": "oklch",
-          "components": [0.955, 0.003, 75],
+          "components": [0.945, 0.003, 75],
           "alpha": 1
-        }
+        },
+        "$description": "The light hover step (surface-2). Retuned 0.955 -> 0.945 in the 2026-09-07 surface-ladder work so the light rungs sit one even ~0.025 L apart (0.970 -> 0.945 -> 0.922), matching the Geist/Radix step size."
       },
       "200": {
         "$value": {
@@ -96,6 +90,14 @@
           "components": [0.353, 0.003, 75],
           "alpha": 1
         }
+      },
+      "750": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [0.29, 0.003, 75],
+          "alpha": 1
+        },
+        "$description": "The dark pressed/selected step (surface-3). 0.29 is the highest rung on which dark muted-foreground (neutral.450) still clears 4.5:1 (4.54:1 measured); 0.305 failed at 4.31:1."
       },
       "800": {
         "$value": {
