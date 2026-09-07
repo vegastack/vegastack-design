@@ -26,6 +26,36 @@ Every bug found + root cause + fix. Append-only.
 
 ---
 
+## 2026-09-07 — The agent-facing markdown export shipped JSX instead of docs (DS-01)
+
+- **Symptom:** the per-page `.md` route and `llms-full.txt` contained `<AutoTypeTable path=…
+name="ButtonProps" />` and `<ComponentPreview name=… file=… />` verbatim. Measured on the built
+  export before the fix: the tag survived on **107 of 110** component pages and **260 times** in
+  `llms-full.txt`, and 18 pages carried **138 "(no own props)"** placeholder rows. An agent reading
+  the docs — the channel this repo tells consumers to use — got zero prop tables and zero example
+  source, while a human on the same page got both.
+- **Root cause:** `lib/source.ts` called `page.data.getText("processed")` with no components. In
+  fumadocs-core 16.11.5 `remarkLLMs` keeps every MDX JSX element in the processed markdown unless a
+  `stringify` callback overrides it, so the tags passed straight through. Nothing was broken; the
+  rendering step was simply never written. It went unnoticed because **no gate read the export.**
+  The docs build asserted the `.md` files existed and were the right size — never that they had
+  content an agent could use.
+- **Fix:** `lib/mdx-markdown.ts` renders every MDX component to markdown at compile time, or emits
+  a placeholder that `lib/markdown-export.ts` resolves at build time for the elements needing the
+  file system or the type generator. Both API-table renderers share `getApiDocs()`, so the page and
+  the `.md` cannot drift again.
+- **Systemic fix — the export is now gated.** `tooling/verify-docs-export.mjs` reads the BUILT
+  markdown and fails on any JSX tag outside a code fence, any unresolved placeholder, and any empty
+  API table, with a negative self-test proving each check rejects its defect. That, not the
+  rendering code, is what stops this recurring: the defect class was "an artifact nobody verified",
+  and a second unverified artifact would have gone the same way.
+- **Note on the acceptance number.** The audit's acceptance criterion was
+  `grep -c "<[A-Z]" apps/docs/out/docs/components/*.md` → 0. That can never hold once the fixture
+  source is inlined, because example code legitimately contains `<Button>`. The gate strips code
+  fences and inline code first; JSX outside code is the real measure, and it is 0.
+
+---
+
 ## 2026-07-27 — Firefox neuters the DataTransfer of a synthetic ClipboardEvent (test-only)
 
 - **Symptom:** `chip-input.test.tsx` "paste splits on the delimiter set" failed only in Firefox

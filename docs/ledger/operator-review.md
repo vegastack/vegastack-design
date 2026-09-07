@@ -15,6 +15,63 @@ Every judgment-call / assumption / best-guess decision made instead of pausing �
 - **P1's "bordered elements hover by border, not fill" is deliberately NOT applied to outline buttons and cards.** Issue #32's Do-list §3 explicitly maps those sites to the `surfaceInteractive` recipe (a fill), Button variant mechanism is F2's scope, and a 1px hairline moving is below the state probe's visibility threshold — a border-only hover would have left `hover-invisible` non-zero, which is F1's acceptance criterion. **Flagged for MK:** if the intent was genuinely border-only hover on bordered controls, that is a one-line change in F2.
 - **Status text inks were re-tuned to buy the soft pressed rung headroom.** Adding `<family>-subtle-active` (a second wash rung over `-subtle`) put `destructive/success/warning/info-text` at or under AA on their own pressed fill — light blue was worst at 4.50:1 on hover with nothing left. Each ink moved 0.015–0.04 L (darker in light, lighter in dark). Every other pair only gains contrast. This was not in the issue text but is forced by it: without the move there is no pressed step on soft buttons.
 
+## 2026-09-07 — Do1-a judgment calls (docs canon, chrome, export gates)
+
+**1. `dataAttributes` is extracted from source, not hand-typed.**
+
+- **Options:** (a) hand-write the `data-*`/CSS-variable inventory into 110 contract records;
+  (b) extract it from the canonical source in the generator and have the verifier check it.
+- **Why (b):** 331 parts and 493 attributes is more than anyone will keep correct by hand, and a
+  hand-typed inventory that drifts is worse than none — it documents attributes the component
+  stopped rendering. `verify-component-contracts.mjs` now walks each exported part's own function
+  body through the TypeScript AST, records literal values (and `values: []` where the value mirrors
+  a prop), and fails when the field drifts; `--write-data-attributes` resyncs it. The field stays in
+  the contract so the docs read one authority, but no human types it.
+- **Revisit:** attributes rendered by an unexported helper a part composes are attributed to the
+  helper, so they do not appear. That is deliberate — the contract records what a part's own
+  function paints — but if a component ever moves its `data-slot` into a shared helper the table
+  will silently shrink.
+
+**2. The Explorer policy (DD-3) is applied per page, not by deleting every Explorer.**
+
+- **Decision:** the 24 Story files whose pages already carry a curated `PropsPlayground` are
+  removed; the 6 pages with no playground (audio-player, label, marker, password-input, slider,
+  video-player) keep theirs. Verified by cross-checking the deleted set against every page matching
+  a `*Playground` usage: the two sets are exact complements, with no page left with neither.
+- **Mechanism, not just state:** `verify-docs-export.mjs` fails any page carrying both, so the
+  policy holds as Do1-b migrates the rest rather than depending on this one sweep.
+
+**3. The "## Installation" heading is not renamed here.**
+
+- **Options:** (a) rename it to the canon's "Install" on the three reference pages and teach
+  `verify-component-contracts.mjs` to accept either during the migration; (b) leave the heading and
+  change only the section's CONTENT to the generated form.
+- **Why (b):** (a) means a dual-accept transitional rule — the kind of shim the audit mandate
+  rejects — living in the verifier for a whole wave. The rename is one atomic Do1-b change across
+  all 110 pages plus the verifier plus AGENTS.md. The valuable proof here is that the section is
+  GENERATED, which (b) demonstrates fully.
+
+**4. The emitted-CSS lane judges what reaches the page, not which rules exist.**
+
+- Two findings on the first run were not defects. `@tailwindcss/typography` writes its heavy
+  heading weights inside `:where()`, which contributes zero specificity — an overridable default,
+  and unfixable at its source since the plugin owns it. And `.bg-neutral-900` exists in the built
+  CSS only because Tailwind scans the foundations pages, which document that class as a Don't; no
+  element carries it.
+- **Decision:** the lane clears a `:where()` default only when the stylesheet also carries a real
+  override for that element, and reports a palette utility only when it appears in a `class=`
+  attribute of the built HTML. Both keep the gate falsifiable — delete the override in `global.css`
+  and all ten findings return — while refusing to report the documentation of a rule as a violation
+  of it.
+
+**5. `<Wrapper>` is unwrapped from the emitted fixture source.**
+
+- The extractor drops the docs-only `./wrapper` import, which left `<Wrapper>` in the snippet
+  referencing an undefined component — the code shown to humans and agents did not compile. It is
+  now replaced by its children, or by a fragment where the frame has sibling children (the frame is
+  usually the returned root, so a plain unwrap would produce adjacent JSX with no parent). Verified
+  across all 446 `ComponentPreview` usages: zero extraction errors, zero `Wrapper` residue.
+
 ##
 
 ## 2026-07-24 — GitHub Team approval boundary

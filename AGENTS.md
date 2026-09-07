@@ -380,13 +380,25 @@ to it only for motion or another evidenced cross-engine risk, never by editing t
 
 ### Docs authoring
 
-A component page is part of the component, not a follow-up. Section order is Installation → Usage →
-Examples → API Reference → Accessibility → Do/Don't, plus Anatomy for compound components. Register
-the page in `apps/docs/content/docs/components/meta.json`, re-export the preview from the barrel, and
-add the component's record to `component-contracts.json` so its contract route is generated. No
-`{@link}` — MDX parses `{…}` as JS. `tooling/content-lint.mjs` rejects skipped visual tests. Guides
-pages live in `apps/docs/content/docs/guides/`; unlisted/noindex operations guides live in
-`apps/docs/content/internal/` and are public by policy even though they are excluded from discovery.
+A component page is part of the component, not a follow-up, and it serves humans and agents from
+the same source. **The page canon — the fixed section order, what each section must contain, and
+which authority generates it — is `design.md` §Docs canon.** Read that table before writing or
+changing a page; the summary here is deliberately lossy.
+
+The parts that are not negotiable from anywhere: sections appear in the canon's order and nothing
+follows Do/Don't except the generated Changelog; the machine-readable half of a section is
+generated (`InstallSteps`, `Anatomy`, `ApiTable`, `StatesTested`, `ComponentChangelog`), never
+typed; an API table lists own props only, expanded, with the literal union — a part with no own
+props gets one sentence, never placeholder rows; the Story explorer appears only where no curated
+playground does (DD-3).
+
+Register the page in `apps/docs/content/docs/components/meta.json`, re-export the preview from the
+barrel, and add the component's record to `component-contracts.json` so its contract route and its
+`dataAttributes` are generated. No `{@link}` — MDX parses `{…}` as JS. `tooling/content-lint.mjs`
+rejects skipped visual tests; `tooling/verify-docs-export.mjs` rejects a page whose markdown export
+still carries JSX or an empty API table. Guides pages live in `apps/docs/content/docs/guides/`;
+unlisted/noindex operations guides live in `apps/docs/content/internal/` and are public by policy
+even though they are excluded from discovery.
 
 ### Review and audit
 

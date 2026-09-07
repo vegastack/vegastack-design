@@ -89,6 +89,57 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   their alpha twins; the sidebar section now says the rail is aliases, not a second palette.
   [docs](https://design.vegastack.com/docs/foundations/colors) ·
   [`6c1b7bf`](https://github.com/VegaStack/vegastack-design/commit/6c1b7bf)
+- **One page canon, for humans and agents alike.** Every component page now has a fixed shape whose
+  machine-readable half is generated from the two authorities rather than typed: Install from
+  `registry.json` (the `shadcn add` command, the registry dependencies and the sanctioned engines),
+  Anatomy from the contract's new `dataAttributes`, the states-tested table from the contract's
+  `states`, and a per-item Changelog filtered out of this file. The canon table is `design.md`
+  §Docs canon. [canon](/docs/components/button)
+- **The markdown export is real markdown.** The per-page `.md` route and `llms-full.txt` previously
+  emitted `<AutoTypeTable …/>` and `<ComponentPreview …/>` verbatim — 107 of 110 component pages
+  and 260 occurrences in `llms-full.txt` — so an agent reading the docs saw no props and no example
+  code at all. Every MDX component now renders to markdown: the exact fixture source the Code tab
+  shows, the flat prop tables, the install steps, the do/don't pairs. Browser-only surfaces are
+  replaced by a one-line note rather than dropped silently.
+- **API tables are flat and expanded.** One table per exported part — name, the literal union
+  (`"default" | "secondary" | …`, not `union`), the `@default` value, the description — instead of
+  collapsed accordion rows. Own props only, and a part with no own props of its own gets one
+  sentence instead of the 138 "(no own props)" placeholder rows that filled 18 pages. A second
+  table lists the `data-*` attributes and CSS variables the part exposes.
+  [example](/docs/components/dialog)
+- **`llms.txt` carries the registry roster and the skill roster** — every installable item with its
+  page and its `shadcn add` target, and the public agent skills — so an agent can go from "I need a
+  data grid" to the page and the install command without scraping.
+  [guide](/docs/guides/agent-skills)
+- **The docs shell obeys the design system it documents.** Fumadocs' chrome and the typography
+  plugin are compiled against Tailwind's stock theme, so headings, sidebar titles and prose
+  `<strong>` rendered at weight 600–900 in a system whose ladder is 400/500, cards used
+  `rounded-xl`, and popovers used the stock shadow ladder. All of it is remapped to system values
+  once. Demos also sat on the 15px/28px prose base because the product type scope re-bound the
+  `--type-*` vars but not the inherited `font-size`. [foundations](/docs/foundations/typography)
+- **Fullscreen preview is the system `Dialog`.** The old overlay declared `role="dialog"
+aria-modal="true"` and had no focus trap — Tab walked straight out into the hidden chrome behind
+  it. Copy Prompt moved once into the page header (it was repeated six times on the Button page),
+  the hero preview renders through the same frame as every other example, a skip link is now the
+  first tab stop on every page, and the icon-gallery tile is a real labelled button instead of 439
+  nameless focusable `div`s. [accessibility](/docs/foundations/accessibility)
+
+### 🛠 CLI & tooling
+
+- **`verify-docs-export`** fails the docs build on any JSX tag surviving outside a code fence, any
+  unresolved export placeholder, or any empty API table — the regression guard for the export
+  above — and enforces that a page carries either a curated playground or the Story explorer, never
+  both.
+- **`verify-docs-base-mirror`** diffs the rule blocks `apps/docs/app/global.css` hand-copies from
+  `base.css`, which had no gate. It counts `@apply` as a declaration: the focus ring is expressed
+  only that way on both sides, so filtering `@`-prefixed lines compared that block as empty against
+  empty and could never fail.
+- **`design-lint --docs-shell --emitted-css`** reads the BUILT stylesheet, because the shell's
+  off-system values are compiled in by dependencies and never appear in this repo's source.
+- **`verify-component-contracts --write-data-attributes`** extracts each part's `data-*` attributes
+  and CSS variables from the canonical source through the TypeScript AST; the default mode fails
+  when the contract drifts from the source.
+- Each of the four ships a negative self-test, so none of them can pass by never having run.
 
 ## [0.6.0] — August 31, 2026
 
