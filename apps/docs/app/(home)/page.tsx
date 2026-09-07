@@ -188,6 +188,7 @@ const SYSTEM_PROMISE =
 export default function HomePage() {
   return (
     <div
+      id="content"
       className="flex flex-1 flex-col bg-background text-foreground"
       style={MONOCHROME_BRAND_STYLE}
     >

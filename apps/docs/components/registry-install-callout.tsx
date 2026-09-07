@@ -1,18 +1,24 @@
+import Link from "next/link";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
+/**
+ * The registry-auth notice, on the system `Alert` (DC-08): logical spacing, `Link`, no bespoke
+ * box. The canon renders this ONCE per site as the docs `Banner` (`app/docs/layout.tsx`); the
+ * per-page usage is removed when Do1-b migrates the page bodies.
+ */
 export function RegistryInstallCallout() {
   return (
-    <div className="rounded-lg border border-info/(--alpha-outline-border) bg-info/(--alpha-surface-faint) p-4 text-sm text-info-text">
-      <p className="font-medium text-foreground">Registry setup required</p>
-      <p className="mt-1 text-muted-foreground">
-        Run this command only after configuring the Base UI shadcn project, the
-        <code className="mx-1 rounded bg-background px-1 py-0.5">
-          @vegastack
-        </code>
-        registry namespace, and Cloudflare Access service-token headers in
-        <a className="ml-1 underline underline-offset-4" href="/docs/install">
-          Install From VegaStack Registry
-        </a>
+    <Alert intent="info" className="not-prose my-4">
+      <AlertTitle>Registry setup required</AlertTitle>
+      <AlertDescription>
+        Run this command only after configuring the Base UI shadcn project, the{" "}
+        <code>@vegastack</code> registry namespace, and the Cloudflare Access
+        service-token headers in{" "}
+        <Link className="underline underline-offset-4" href="/docs/install">
+          Install from the VegaStack registry
+        </Link>
         .
-      </p>
-    </div>
+      </AlertDescription>
+    </Alert>
   );
 }

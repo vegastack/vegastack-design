@@ -15,7 +15,7 @@ export function copyButton(): ReactNode {
           text-primary for ~1.5s. The copied state is owned internally by the
           component — both states are exercised on this live instance, no
           doc-local state hack. */}
-      <code className="rounded-md border border-fd-border bg-fd-muted px-2 py-1 font-mono text-base">
+      <code className="rounded-md border border-border bg-muted px-2 py-1 font-mono text-base">
         npx shadcn add @vegastack/button
       </code>
       <CopyButton value="npx shadcn add @vegastack/button" />
@@ -44,21 +44,21 @@ export function copyButtonStates(): ReactNode {
       {/* Idle — the default Copy icon. */}
       <div className="flex flex-col items-center gap-2">
         <CopyButton value="idle" />
-        <span className="text-sm text-fd-muted-foreground">Idle</span>
+        <span className="text-sm text-muted-foreground">Idle</span>
       </div>
       {/* Copied — the primary tint + label flip are owned internally and only
           appear after a real clipboard write, so this is a labelled live cell:
           click it to see the Check icon (text-primary) + "Copied" label for ~1.5s. */}
       <div className="flex flex-col items-center gap-2">
         <CopyButton value="click me to see the copied state" />
-        <span className="text-sm text-fd-muted-foreground">
+        <span className="text-sm text-muted-foreground">
           Copied (click — live)
         </span>
       </div>
       {/* Disabled — forwarded straight to the underlying Button. */}
       <div className="flex flex-col items-center gap-2">
         <CopyButton value="disabled" disabled />
-        <span className="text-sm text-fd-muted-foreground">Disabled</span>
+        <span className="text-sm text-muted-foreground">Disabled</span>
       </div>
     </Wrapper>
   );
@@ -91,7 +91,7 @@ export function copyButtonWithToast(): ReactNode {
   return (
     <Wrapper>
       {/* `onCopied` fires after a successful write — surface a toast (live). */}
-      <code className="rounded-md border border-fd-border bg-fd-muted px-2 py-1 font-mono text-base">
+      <code className="rounded-md border border-border bg-muted px-2 py-1 font-mono text-base">
         vsk_live_3f9a…
       </code>
       <CopyButton

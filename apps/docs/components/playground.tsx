@@ -87,11 +87,11 @@ export function PropsPlayground<Keys extends string>({
   const code = toCode(state);
 
   return (
-    <div className="not-prose my-4 overflow-hidden rounded-lg border border-fd-border bg-fd-secondary">
-      <div className="vs-type-product flex min-h-32 items-center justify-center border-b border-fd-border bg-fd-background p-6">
+    <div className="not-prose my-4 overflow-hidden rounded-lg border border-border bg-secondary">
+      <div className="vs-type-product flex min-h-32 items-center justify-center border-b border-border bg-background p-6">
         {render(state)}
       </div>
-      <div className="flex flex-wrap items-end gap-4 border-b border-fd-border p-4">
+      <div className="flex flex-wrap items-end gap-4 border-b border-border p-4">
         {controls.map((control) => (
           <PlaygroundControlField
             key={control.key}
@@ -102,13 +102,13 @@ export function PropsPlayground<Keys extends string>({
         ))}
       </div>
       <div className="relative">
-        <pre className="overflow-x-auto p-4 pe-12 font-mono text-sm text-fd-foreground">
+        <pre className="overflow-x-auto p-4 pe-12 font-mono text-sm text-foreground">
           <code>{code}</code>
         </pre>
         <CopyButton
           value={code}
           variant="outline"
-          className="absolute top-2 end-2 bg-fd-background"
+          className="absolute top-2 end-2 bg-background"
         />
       </div>
     </div>

@@ -1,14 +1,9 @@
-"use client";
-
-import * as React from "react";
 import Link from "next/link";
 import { ArrowRight, Database, FileText, ShieldCheck } from "lucide-react";
 import { Icon } from "@vegastack/design/icons";
 import { Avatar } from "@/components/ui/avatar";
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
 import { Button } from "@/components/ui/button";
-import { Field } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import {
   Message,
   MessageAvatar,
@@ -18,7 +13,16 @@ import {
 } from "@/components/ui/message";
 import { StatusIcon } from "@/components/ui/status-icon";
 import { ToolCallChip } from "@/components/ui/tool-call-chip";
+import {
+  TraceInputLayers,
+  TraceTabs,
+} from "@/components/home-system-trace-tabs";
 
+/**
+ * The home "system trace" — one component followed from token roles through owned behaviour
+ * into a product pattern. Server-rendered (DC-13): the only client leaves are the system `Tabs`
+ * and the Input trace's shared project-name state, both in `home-system-trace-tabs.tsx`.
+ */
 type Trace = "button" | "input" | "message";
 
 const TRACE_ORDER = ["button", "input", "message"] as const;
@@ -62,21 +66,50 @@ const TRACE_DATA = {
   },
 } as const;
 
+function LayerHeader({
+  index,
+  title,
+  meta,
+}: {
+  index: string;
+  title: string;
+  meta?: string;
+}) {
+  return (
+    <div className="flex items-baseline justify-between gap-3 border-b border-border pb-4">
+      <div>
+        <p className="font-mono text-mono-label text-muted-foreground">
+          {index}
+        </p>
+        <h3 className="mt-2 text-h3 text-foreground">{title}</h3>
+      </div>
+      {meta ? (
+        <span className="font-mono text-mono-label text-muted-foreground">
+          {meta}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+function LayerCaption({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="mt-auto text-sm leading-relaxed text-muted-foreground">
+      {children}
+    </p>
+  );
+}
+
+const COMPONENT_CAPTION =
+  "Variants, state, keyboard semantics, and responsive behavior stay in one owned source.";
+const PATTERN_CAPTION =
+  "The composition remains recognizable because it inherits the same contract rather than restyling locally.";
+
 function FoundationLayer({ trace }: { trace: Trace }) {
   const data = TRACE_DATA[trace];
   return (
     <div className="flex h-full min-w-0 flex-col gap-5 p-5">
-      <div className="flex items-baseline justify-between gap-3 border-b border-border pb-4">
-        <div>
-          <p className="font-mono text-mono-label text-muted-foreground">
-            01 / Foundation
-          </p>
-          <h3 className="mt-2 text-h3 text-foreground">Semantic roles</h3>
-        </div>
-        <span className="font-mono text-mono-label text-muted-foreground">
-          DTCG
-        </span>
-      </div>
+      <LayerHeader index="01 / Foundation" title="Semantic roles" meta="DTCG" />
       <div className="flex flex-col">
         {data.tokens.map(([token, value]) => (
           <div
@@ -92,32 +125,58 @@ function FoundationLayer({ trace }: { trace: Trace }) {
           </div>
         ))}
       </div>
-      <p className="mt-auto text-sm leading-relaxed text-muted-foreground">
+      <LayerCaption>
         Light and dark resolve independently while the semantic name stays
         stable.
-      </p>
+      </LayerCaption>
     </div>
   );
 }
 
-function ComponentLayer({
-  trace,
-  projectName,
-  onProjectNameChange,
+function StaticLayer({
+  index,
+  title,
+  caption,
+  children,
 }: {
-  trace: Trace;
-  projectName: string;
-  onProjectNameChange: (value: string) => void;
+  index: string;
+  title: string;
+  caption: string;
+  children: React.ReactNode;
 }) {
   return (
     <div className="flex h-full min-w-0 flex-col gap-5 p-5">
-      <div className="border-b border-border pb-4">
-        <p className="font-mono text-mono-label text-muted-foreground">
-          02 / Component
-        </p>
-        <h3 className="mt-2 text-h3 text-foreground">Owned behavior</h3>
-      </div>
+      <LayerHeader index={index} title={title} />
       <div className="flex min-h-44 flex-1 items-center justify-center rounded-lg border border-border bg-background p-5">
+        {children}
+      </div>
+      <LayerCaption>{caption}</LayerCaption>
+    </div>
+  );
+}
+
+function ComponentAndPatternLayers({ trace }: { trace: Trace }) {
+  if (trace === "input") {
+    return (
+      <TraceInputLayers
+        componentHeader={
+          <LayerHeader index="02 / Component" title="Owned behavior" />
+        }
+        patternHeader={
+          <LayerHeader index="03 / Pattern" title="Product context" />
+        }
+        componentCaption={<LayerCaption>{COMPONENT_CAPTION}</LayerCaption>}
+        patternCaption={<LayerCaption>{PATTERN_CAPTION}</LayerCaption>}
+      />
+    );
+  }
+  return (
+    <>
+      <StaticLayer
+        index="02 / Component"
+        title="Owned behavior"
+        caption={COMPONENT_CAPTION}
+      >
         {trace === "button" ? (
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Button>Deploy</Button>
@@ -126,57 +185,17 @@ function ComponentLayer({
             </Button>
             <Button disabled>Unavailable</Button>
           </div>
-        ) : null}
-        {trace === "input" ? (
-          <Field
-            label="Project name"
-            description="The composed pattern updates while you type."
-          >
-            <Input
-              name="trace-project-name"
-              autoComplete="off"
-              value={projectName}
-              onValueChange={onProjectNameChange}
-              placeholder="VegaStack Design…"
-            />
-          </Field>
-        ) : null}
-        {trace === "message" ? (
+        ) : (
           <ToolCallChip label="Registry searched" meta="6 matches">
             <Icon as={Database} size="xs" />
           </ToolCallChip>
-        ) : null}
-      </div>
-      <p className="text-sm leading-relaxed text-muted-foreground">
-        Variants, state, keyboard semantics, and responsive behavior stay in one
-        owned source.
-      </p>
-    </div>
-  );
-}
-
-function PatternLayer({
-  trace,
-  projectName,
-}: {
-  trace: Trace;
-  projectName: string;
-}) {
-  const normalizedName = projectName.trim() || "Untitled project";
-  const slug = normalizedName
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-
-  return (
-    <div className="flex h-full min-w-0 flex-col gap-5 p-5">
-      <div className="border-b border-border pb-4">
-        <p className="font-mono text-mono-label text-muted-foreground">
-          03 / Pattern
-        </p>
-        <h3 className="mt-2 text-h3 text-foreground">Product context</h3>
-      </div>
-      <div className="flex min-h-44 flex-1 items-center justify-center rounded-lg border border-border bg-background p-5">
+        )}
+      </StaticLayer>
+      <StaticLayer
+        index="03 / Pattern"
+        title="Product context"
+        caption={PATTERN_CAPTION}
+      >
         {trace === "button" ? (
           <div className="w-full max-w-sm">
             <div className="flex items-start justify-between gap-4">
@@ -190,23 +209,7 @@ function PatternLayer({
             </div>
             <Button className="mt-5 w-full">Deploy release</Button>
           </div>
-        ) : null}
-        {trace === "input" ? (
-          <div className="w-full max-w-sm">
-            <p className="text-label text-foreground">Project identity</p>
-            <p className="mt-1 truncate text-h3 text-foreground">
-              {normalizedName}
-            </p>
-            <p className="mt-1 truncate font-mono text-sm text-muted-foreground">
-              /projects/{slug || "untitled-project"}
-            </p>
-            <div className="mt-5 flex items-center gap-2 text-sm text-muted-foreground">
-              <StatusIcon status="done" size="sm" label="Valid project name" />
-              <span>Ready to create</span>
-            </div>
-          </div>
-        ) : null}
-        {trace === "message" ? (
+        ) : (
           <MessageGroup className="w-full max-w-sm">
             <Message>
               <MessageAvatar>
@@ -226,41 +229,23 @@ function PatternLayer({
               </MessageContent>
             </Message>
           </MessageGroup>
-        ) : null}
-      </div>
-      <p className="text-sm leading-relaxed text-muted-foreground">
-        The composition remains recognizable because it inherits the same
-        contract rather than restyling locally.
-      </p>
-    </div>
+        )}
+      </StaticLayer>
+    </>
   );
 }
 
-function TracePanel({
-  trace,
-  projectName,
-  onProjectNameChange,
-}: {
-  trace: Trace;
-  projectName: string;
-  onProjectNameChange: (value: string) => void;
-}) {
+function TracePanel({ trace }: { trace: Trace }) {
   const data = TRACE_DATA[trace];
-
   return (
-    <div className="motion-enter-up">
+    <div>
       <p className="border-b border-border px-5 py-4 text-sm leading-relaxed text-muted-foreground">
         {data.description}
       </p>
 
       <div className="grid lg:grid-cols-3 lg:divide-x lg:divide-border">
         <FoundationLayer trace={trace} />
-        <ComponentLayer
-          trace={trace}
-          projectName={projectName}
-          onProjectNameChange={onProjectNameChange}
-        />
-        <PatternLayer trace={trace} projectName={projectName} />
+        <ComponentAndPatternLayers trace={trace} />
       </div>
 
       <div className="grid border-t border-border sm:grid-cols-3 sm:divide-x sm:divide-border">
@@ -289,39 +274,6 @@ function TracePanel({
 }
 
 export function HomeSystemTrace() {
-  const [trace, setTrace] = React.useState<Trace>("button");
-  const [projectName, setProjectName] = React.useState("VegaStack Design");
-
-  const handleTabKeyDown = React.useCallback(
-    (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
-        return;
-      }
-
-      event.preventDefault();
-      const currentIndex = TRACE_ORDER.indexOf(trace);
-      let nextIndex = currentIndex;
-
-      if (event.key === "ArrowLeft") {
-        nextIndex =
-          (currentIndex - 1 + TRACE_ORDER.length) % TRACE_ORDER.length;
-      } else if (event.key === "ArrowRight") {
-        nextIndex = (currentIndex + 1) % TRACE_ORDER.length;
-      } else if (event.key === "Home") {
-        nextIndex = 0;
-      } else if (event.key === "End") {
-        nextIndex = TRACE_ORDER.length - 1;
-      }
-
-      const nextTrace = TRACE_ORDER[nextIndex];
-      setTrace(nextTrace);
-      requestAnimationFrame(() => {
-        document.getElementById(`trace-tab-${nextTrace}`)?.focus();
-      });
-    },
-    [trace],
-  );
-
   return (
     <div className="vs-type-product overflow-hidden rounded-lg border border-border bg-card">
       <div className="border-b border-border p-5">
@@ -333,51 +285,13 @@ export function HomeSystemTrace() {
           </p>
         </div>
       </div>
-
-      <div className="border-b border-border p-3">
-        <div
-          role="tablist"
-          aria-orientation="horizontal"
-          aria-label="Choose a component to trace through the system"
-          className="grid grid-cols-3 gap-1 rounded-lg bg-muted p-1"
-          onKeyDown={handleTabKeyDown}
-        >
-          {TRACE_ORDER.map((value) => {
-            const active = trace === value;
-            return (
-              <Button
-                key={value}
-                id={`trace-tab-${value}`}
-                role="tab"
-                aria-controls="trace-panel"
-                aria-selected={active}
-                tabIndex={active ? 0 : -1}
-                data-active={active ? "" : undefined}
-                variant="ghost"
-                size="sm"
-                className="w-full data-[active]:bg-foreground data-[active]:text-background data-[active]:hover:bg-foreground data-[active]:hover:text-background"
-                onClick={() => setTrace(value)}
-              >
-                {TRACE_DATA[value].label}
-              </Button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div
-        id="trace-panel"
-        role="tabpanel"
-        aria-labelledby={`trace-tab-${trace}`}
-        tabIndex={0}
-      >
-        <TracePanel
-          key={trace}
-          trace={trace}
-          projectName={projectName}
-          onProjectNameChange={setProjectName}
-        />
-      </div>
+      <TraceTabs
+        items={TRACE_ORDER.map((trace) => ({
+          value: trace,
+          label: TRACE_DATA[trace].label,
+          panel: <TracePanel trace={trace} />,
+        }))}
+      />
     </div>
   );
 }

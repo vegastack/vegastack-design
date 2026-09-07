@@ -7,9 +7,11 @@ import {
   ViewOptionsPopover,
 } from "fumadocs-ui/layouts/docs/page";
 import { notFound } from "next/navigation";
+import { existsSync } from "node:fs";
 import { getMDXComponents } from "@/components/mdx";
 import { createRelativeLink } from "fumadocs-ui/mdx";
-import * as Preview from "@/components/preview";
+import { ComponentPreview } from "@/components/component-preview";
+import { PageActions, PageFacts } from "@/components/page-header";
 import { gitConfig } from "@/lib/shared";
 import {
   createMetadata,
@@ -18,44 +20,30 @@ import {
   serializeStructuredData,
 } from "@/lib/metadata";
 import type { Metadata } from "next";
-import { SafeMarkdownCopyButton } from "@/components/safe-markdown-copy-button";
+
+type DocsPageData =
+  ReturnType<typeof source.getPage> extends infer P
+    ? P extends { data: infer D }
+      ? D
+      : never
+    : never;
 
 /**
- * Deterministic, server-rendered "Last updated" stamp. Replaces fumadocs' `PageLastUpdate`,
- * which renders `toLocaleDateString()` (locale-dependent "7/18/2026") inside a client
- * `useEffect` — numeric US format + a visible hydration pop-in. This formats once on the
- * server as "Jul 18, 2026" with a semantic `<time>` element.
+ * The registry item a component page documents — the `shadcn add @vegastack/<name>` target the
+ * "Copy Prompt" button composes. Canon row 0 declares it as `registry:` frontmatter; until Do1-b
+ * migrates every page the fallback is the page's own slug when a registry source of that name
+ * exists (the same existence check the preview toolbar used to make per frame).
  */
-const LAST_UPDATED_FORMAT = new Intl.DateTimeFormat("en-US", {
-  year: "numeric",
-  month: "short",
-  day: "numeric",
-});
-
-function LastUpdated({ date }: { date: Date }) {
-  return (
-    <p className="ms-auto text-sm text-fd-muted-foreground">
-      Last updated{" "}
-      <time dateTime={date.toISOString()}>
-        {LAST_UPDATED_FORMAT.format(date)}
-      </time>
-    </p>
-  );
-}
-
-function getPreviewComponent(name: string | undefined) {
-  if (!name) return null;
-
-  const Comp = Preview[name as keyof typeof Preview] as
-    (() => React.ReactNode) | undefined;
-  if (!Comp) {
-    const available = Object.keys(Preview).sort().join(", ");
-    throw new Error(
-      `Missing page preview "${name}". Add it to apps/docs/components/preview or fix the MDX frontmatter. Available previews: ${available}`,
-    );
-  }
-
-  return Comp;
+function getRegistryName(
+  data: DocsPageData,
+  slugs: string[],
+): string | undefined {
+  if (data.registry) return data.registry;
+  if (slugs[0] !== "components") return undefined;
+  const name = slugs.at(-1);
+  return name && existsSync(`../../packages/ui/registry/ui/${name}.tsx`)
+    ? name
+    : undefined;
 }
 
 export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
@@ -65,7 +53,7 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
 
   const MDX = page.data.body;
   const markdownUrl = getPageMarkdownUrl(page);
-  const PreviewComp = getPreviewComponent(page.data.preview);
+  const registryName = getRegistryName(page.data, page.slugs);
   const description = page.data.description ?? defaultDescription;
   const structuredData = createPageStructuredData({
     title: page.data.title,
@@ -82,22 +70,31 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
           __html: serializeStructuredData(structuredData),
         }}
       />
-      <DocsPage toc={page.data.toc} full={page.data.full}>
+      {/* `id="content"` is the skip-link target (DC-06), on the docs and home roots alike. */}
+      <DocsPage id="content" toc={page.data.toc} full={page.data.full}>
         <DocsTitle>{page.data.title}</DocsTitle>
         <DocsDescription className="mb-0">{description}</DocsDescription>
-        <div className="flex flex-row gap-2 items-center border-b pb-6">
-          <SafeMarkdownCopyButton markdownUrl={markdownUrl} />
+        <PageFacts
+          status={page.data.status}
+          since={page.data.since}
+          a11y={page.data.a11y}
+        />
+        <PageActions
+          markdownUrl={markdownUrl}
+          registryName={registryName}
+          lastModified={page.data.lastModified}
+        >
           <ViewOptionsPopover
             markdownUrl={markdownUrl}
             githubUrl={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/apps/docs/content/docs/${page.path}`}
           />
-          {/* Git-derived timestamp (fumadocs-mdx last-modified plugin, source.config.ts). */}
-          {page.data.lastModified ? (
-            <LastUpdated date={page.data.lastModified} />
-          ) : null}
-        </div>
+        </PageActions>
         <DocsBody>
-          {PreviewComp ? <PreviewComp /> : null}
+          {/* The hero fixture renders through the SAME frame as every example (DC-05): identical
+              chrome, width toggle, fullscreen and product type scope — Preview tab only. */}
+          {page.data.preview ? (
+            <ComponentPreview name={page.data.preview} />
+          ) : null}
           <MDX
             components={getMDXComponents({
               a: createRelativeLink(source, page),

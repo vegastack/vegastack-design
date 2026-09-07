@@ -66,7 +66,15 @@ export default function Layout({ children }: LayoutProps<"/">) {
           popups — Dialog, Popover, Tooltip, Select, menus, Sheet — reliably render above the
           Fumadocs chrome. Required by Base UI's portal setup; mirrored in @vegastack/design-tokens/base.css
           for consumers. */}
-      <body className="isolate flex flex-col min-h-screen">
+      <body className="isolate flex min-h-dvh flex-col">
+        {/* Skip link — the FIRST tab stop on every page (DC-06, WCAG 2.4.1). Targets the
+            `#content` root the docs page (`DocsPage id="content"`) and the home page both set. */}
+        <a
+          href="#content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:start-2 focus:z-(--z-overlay) focus:rounded-md focus:border focus:border-border focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:text-foreground"
+        >
+          Skip to content
+        </a>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
