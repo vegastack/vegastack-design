@@ -5,6 +5,11 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Field as BaseField } from "@base-ui/react/field";
 import { cn } from "@vegastack/design";
 import { Input } from "@/components/ui/input";
+import {
+  mergeRefs,
+  useShakeOnInvalid,
+  type ShakeSignal,
+} from "@/components/ui/use-animation-replay";
 
 /**
  * Field layout variants. `orientation` controls how the label sits relative to
@@ -33,12 +38,34 @@ export const fieldVariants = cva("group/field flex w-full text-foreground", {
 
 /** Props accepted by `FieldRoot`. */
 export type FieldRootProps = React.ComponentProps<typeof BaseField.Root> &
-  VariantProps<typeof fieldVariants>;
+  VariantProps<typeof fieldVariants> & {
+    /**
+     * Bump to a new value (e.g. a submit-attempt counter) to re-shake a field that is ALREADY
+     * invalid. The field shakes itself once, automatically, the moment it BECOMES invalid; this
+     * is only for a repeat failure against a field that never stopped being wrong.
+
+     * @default undefined
+     */
+    shakeSignal?: ShakeSignal;
+  };
 
 /**
- * `FieldRoot` — groups all parts of a field and wires accessibility between
- * them. Renders a `<div>`. Use the prop-driven {@link Field} for the common case;
- * reach for the primitives when you need full control over composition.
+ * `FieldRoot` — groups all parts of a field, wires accessibility between them, and OWNS the
+ * field's validation feedback. Renders a `<div>`. Use the prop-driven {@link Field} for the
+ * common case; reach for the primitives when you need full control over composition.
+ *
+ * **The invalid shake lives here** (audit D5, 2026-09-07). It used to be wired into five
+ * controls individually — Input, Checkbox, RadioGroupItem, OTPInput and NumberField each carried
+ * the same `useShakeOnInvalid` + `mergeRefs` + `onAnimationEnd` plumbing, while `Textarea`, the
+ * sibling of the first one, silently had none. One observer on the field root replaces all of
+ * it: every control a `Field` wraps now reacts identically, whether or not its author remembered
+ * to opt in. The whole field shakes as one block, label and message included — the field is what
+ * the user got wrong, and moving the control alone under a still label read as a glitch.
+ *
+ * Base UI writes `data-invalid` onto this root, so the observer sees validity from `<Field
+ * error=…>`, from a `validate` callback, and from native constraint validation alike — it never
+ * has to be told. It fires only on a live valid→invalid transition, so a form rendered with
+ * server-side errors does not shake on first paint.
  *
  * @example
  * <FieldRoot><FieldLabel>Email</FieldLabel><FieldControl /></FieldRoot>
@@ -46,15 +73,38 @@ export type FieldRootProps = React.ComponentProps<typeof BaseField.Root> &
 export function FieldRoot({
   className,
   orientation = "vertical",
+  shakeSignal,
+  onAnimationEnd,
   ref,
   ...props
 }: FieldRootProps) {
+  // Destructured so hook fields (stable across renders) can appear in dependency arrays
+  // without dragging the per-render container object in (react-hooks/exhaustive-deps).
+  const {
+    invalidRef: shakeInvalidRef,
+    className: shakeClassName,
+    onAnimationEnd: shakeAnimationEnd,
+  } = useShakeOnInvalid({ shakeSignal });
+  const rootRef = React.useMemo(
+    () => mergeRefs(ref, shakeInvalidRef),
+    [ref, shakeInvalidRef],
+  );
+  const handleAnimationEnd: NonNullable<FieldRootProps["onAnimationEnd"]> =
+    React.useCallback(
+      (event) => {
+        shakeAnimationEnd(event);
+        onAnimationEnd?.(event);
+      },
+      [onAnimationEnd, shakeAnimationEnd],
+    );
+
   return (
     <BaseField.Root
-      ref={ref}
+      ref={rootRef}
       data-slot="field"
       data-orientation={orientation}
-      className={cn(fieldVariants({ orientation }), className)}
+      className={cn(fieldVariants({ orientation }), shakeClassName, className)}
+      onAnimationEnd={handleAnimationEnd}
       {...props}
     />
   );
@@ -144,11 +194,20 @@ export function FieldDescription({
 export type FieldErrorProps = React.ComponentProps<typeof BaseField.Error>;
 
 /**
- * `FieldError` — validation error message. Renders a `<div role="alert">` only
- * when the control is invalid (or `match` says so). Tinted destructive.
+ * `FieldError` — validation error message. Renders a `<div role="status">` only
+ * when the control is invalid (or `match` says so). Tinted destructive, and rendered BELOW the
+ * control it describes (audit D4).
  *
- * The message itself stays still, including when the page first renders invalid.
- * Interactive controls may provide their own transition-triggered invalid cue.
+ * The role is `status`, not `alert` (audit D23): inline field validation is a polite,
+ * user-initiated result — the person just typed or submitted and is looking at the field — and
+ * `alert` interrupts whatever the screen reader was saying to announce it. `alert` stays
+ * reserved for something that arrives without being asked for. `aria-live`/`aria-atomic` are
+ * spelled out alongside the role because this element MOUNTS with its text already in it, and a
+ * live region inserted complete is announced far less reliably than one whose contents change.
+ *
+ * The message itself stays still, including when the page first renders invalid — the motion
+ * cue is the field's own shake, which `FieldRoot` owns and which fires only on a live
+ * valid→invalid transition.
  *
  * @example
  * <FieldError match>Email is required.</FieldError>
@@ -158,7 +217,9 @@ export function FieldError({ className, ref, ...props }: FieldErrorProps) {
     <BaseField.Error
       ref={ref}
       // Base UI's Field.Error has no role; announce the message to assistive tech.
-      role="alert"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
       data-slot="field-error"
       className={cn("text-sm leading-normal text-destructive-text", className)}
       {...props}
@@ -299,8 +360,9 @@ export interface FieldProps extends FieldRootProps {
    */
   labelAction?: React.ReactNode;
   /**
-   * Helper text rendered under the label. Linked to the control via
-   * `aria-describedby`.
+   * Helper text rendered BELOW the control, above any error or success message, and linked to
+   * the control via `aria-describedby` (audit D4). In `orientation="responsive"` it stays in the
+   * label column, which is the whole point of that layout.
 
    * @default undefined
    */
@@ -437,10 +499,14 @@ export function Field({
               ) : null}
             </div>
           ) : null}
+          {children}
+          {/* Helper text sits UNDER the control (audit D4/B1-07). Above it, the description
+              pushed the input away from its own label and, when it wrapped, put two lines of
+              prose between the two things the eye pairs. Geist, Linear, Raycast, Apple HIG and
+              Material all place it here, and the error/success message extends the same line. */}
           {description != null ? (
             <FieldDescription>{description}</FieldDescription>
           ) : null}
-          {children}
         </>
       )}
       {error != null ? (

@@ -7,11 +7,6 @@ import { Checkbox as BaseCheckbox } from "@base-ui/react/checkbox";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Check, Minus } from "lucide-react";
 import { cn } from "@vegastack/design";
-import {
-  mergeRefs,
-  useShakeOnInvalid,
-  type ShakeSignal,
-} from "@/components/ui/use-animation-replay";
 
 /**
  * Checkbox variants. `size` mirrors the form-control scale so checkboxes line up
@@ -30,11 +25,23 @@ export const checkboxVariants = cva(
   [
     "peer relative inline-flex shrink-0 items-center justify-center rounded-sm border border-input bg-transparent text-current",
     "dark:bg-input/(--alpha-input)",
-    "hover:border-ring/(--alpha-tint-border)",
+    // Hover is the SAME neutral border rung every field wears (`fieldControl`'s
+    // `--alpha-border-subtle`), not the `ring` tint — `ring` is reserved for focus, and a
+    // checkbox sitting beside an Input must not hover in a different language (audit SP-04).
+    "not-disabled:hover:border-foreground/(--alpha-border-subtle)",
     "data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground",
     "data-indeterminate:border-primary data-indeterminate:bg-primary data-indeterminate:text-primary-foreground",
+    // …and once it is FILLED the neutral tint has nothing to tint, so the checked box steps
+    // through the solid's own darker rungs instead — the doctrine's "a solid fill does not use
+    // the alpha twins" rule. F1 left this half undone; a ticked checkbox read dead under the
+    // cursor while an unticked one moved.
+    "not-disabled:data-checked:hover:border-primary-hover not-disabled:data-checked:hover:bg-primary-hover",
+    "not-disabled:data-checked:active:border-primary-active not-disabled:data-checked:active:bg-primary-active",
+    "not-disabled:data-indeterminate:hover:border-primary-hover not-disabled:data-indeterminate:hover:bg-primary-hover",
     "aria-invalid:border-destructive-border/(--alpha-tint-border) data-invalid:border-destructive-border/(--alpha-tint-border)",
-    "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-(--opacity-dim)",
+    // D7: no `pointer-events-none`. A disabled control must stay hoverable so a Tooltip can
+    // say why it is unavailable; Base UI suppresses the activation either way.
+    "disabled:cursor-not-allowed disabled:opacity-(--opacity-dim)",
     "group-has-disabled/field:opacity-(--opacity-dim)",
   ].join(" "),
   {
@@ -93,15 +100,6 @@ export interface CheckboxProps
    * @default undefined
    */
   render?: React.ComponentProps<typeof BaseCheckbox.Root>["render"];
-  /**
-   * Bump to a new value (e.g. a submit-attempt counter) to re-shake the checkbox while it's
-   * ALREADY invalid — e.g. a required checkbox left unticked across repeated failed submits. The
-   * checkbox already auto-shakes once the moment it first becomes invalid; this is only for
-   * repeat failures against a still-invalid checkbox. See `useShakeOnInvalid` (`use-animation-replay`).
-
-   * @default undefined
-   */
-  shakeSignal?: ShakeSignal;
 }
 
 /**
@@ -135,38 +133,15 @@ export interface CheckboxProps
 export function Checkbox({
   className,
   size = "md",
-  shakeSignal,
-  onAnimationEnd,
   ref,
   ...props
 }: CheckboxProps) {
-  // Destructured so hook fields (stable across renders) can appear in dependency arrays
-  // without dragging the per-render container object in (react-hooks/exhaustive-deps).
-  const {
-    invalidRef: shakeInvalidRef,
-    className: shakeClassName,
-    onAnimationEnd: shakeAnimationEnd,
-  } = useShakeOnInvalid({ shakeSignal });
-  const rootRef = React.useMemo(
-    () => mergeRefs(ref, shakeInvalidRef),
-    [ref, shakeInvalidRef],
-  );
-  const handleAnimationEnd: NonNullable<CheckboxProps["onAnimationEnd"]> =
-    React.useCallback(
-      (event) => {
-        shakeAnimationEnd(event);
-        onAnimationEnd?.(event);
-      },
-      [onAnimationEnd, shakeAnimationEnd],
-    );
-
   return (
     <BaseCheckbox.Root
-      ref={rootRef}
+      ref={ref}
       data-slot="checkbox"
       data-size={size}
-      className={cn(checkboxVariants({ size }), shakeClassName, className)}
-      onAnimationEnd={handleAnimationEnd}
+      className={cn(checkboxVariants({ size }), className)}
       {...props}
     >
       <BaseCheckbox.Indicator
