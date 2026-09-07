@@ -1,7 +1,7 @@
-// @vegastack textarea@0.6.0 sha256-qkBzcntDnHXUos8V7JwDz4PA3EyGlV3bKiahnjjISnM=
+// @vegastack textarea@0.6.0 sha256-0VtRCzDrVBtUMD5Q+sICrKCZd6kCwYn6HmzNqk8rdgA=
 
 import * as React from "react";
-import { cn } from "@vegastack/design";
+import { cn, fieldControl } from "@vegastack/design";
 
 /** Props accepted by `Textarea`. */
 export interface TextareaProps extends React.ComponentProps<"textarea"> {
@@ -22,14 +22,6 @@ export interface TextareaProps extends React.ComponentProps<"textarea"> {
 }
 
 /**
- * Shared field classes for the textarea surface — border, `aria-invalid`,
- * and `disabled` styling all live here. Mirrors `Input` exactly so the two
- * fields are visually identical: the darkened `ring/70` border is the sole
- * focus cue (no ring). Every value is a semantic token (no hardcoded colors,
- * no arbitrary values).
- */
-
-/**
  * Density scale (register P1-04) — multiline fields size by minimum height and
  * padding rather than the fixed control heights; `sm` steps the type down a tier.
  */
@@ -39,14 +31,14 @@ const sizeClasses = {
   lg: "min-h-24 px-3 py-2.5",
 } as const;
 
-const fieldClasses =
-  "w-full min-w-0 rounded-md border border-input bg-transparent text-base  outline-none " +
-  "focus:border-ring/(--alpha-tint-border) " +
-  "dark:bg-input/(--alpha-input) " +
-  "placeholder:text-muted-foreground-faint " +
-  "selection:bg-primary selection:text-primary-foreground " +
-  "aria-invalid:border-destructive-border/(--alpha-tint-border) " +
-  "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-(--opacity-dim) disabled:bg-muted";
+/**
+ * Layout only — the border/focus/invalid/disabled chrome is `fieldControl`, the one recipe
+ * every text-entry control in the system shares (audit B1-11), so `Input` and `Textarea` can
+ * no longer drift apart. `outline-hidden` rather than the outline-REMOVING utility: it compiles to a
+ * transparent 2px outline that `forced-colors: active` repaints, which is what keeps a focused
+ * textarea locatable once the forced palette has erased the border tint (audit B1-01).
+ */
+const layoutClasses = "w-full min-w-0 text-base outline-hidden";
 
 /**
  * `Textarea` — a styled native `<textarea>` for multi-line text entry, with
@@ -72,7 +64,8 @@ export function Textarea({
       data-slot="textarea"
       data-size={size}
       className={cn(
-        fieldClasses,
+        fieldControl,
+        layoutClasses,
         sizeClasses[size],
         autoGrow ? "resize-none field-sizing-content" : "resize-y",
         className,

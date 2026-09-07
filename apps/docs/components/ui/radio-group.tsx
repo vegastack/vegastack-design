@@ -1,4 +1,4 @@
-// @vegastack radio-group@0.6.0 sha256-lnAsTjpC/8dZGnRTKmg1aKFmtjugmzFd2wW7Ox0RJzM=
+// @vegastack radio-group@0.6.0 sha256-CFESMdwKHnNUPw4pr9LvtIa6AtqsJEwBaOEVr1AdIo0=
 
 "use client";
 
@@ -7,11 +7,6 @@ import { RadioGroup as BaseRadioGroup } from "@base-ui/react/radio-group";
 import { Radio } from "@base-ui/react/radio";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@vegastack/design";
-import {
-  mergeRefs,
-  useShakeOnInvalid,
-  type ShakeSignal,
-} from "@/components/ui/use-animation-replay";
 
 /**
  * RadioGroup layout variants. `orientation` controls how the items flow and is
@@ -166,15 +161,6 @@ export interface RadioGroupItemProps extends React.ComponentProps<
    * @default undefined
    */
   render?: React.ComponentProps<typeof Radio.Root>["render"];
-  /**
-   * Bump to a new value (e.g. a submit-attempt counter) to re-shake this item while it's
-   * ALREADY invalid — the item already auto-shakes once the moment it first becomes invalid;
-   * this is only for repeat failures against a still-invalid group. See `useShakeOnInvalid`
-   * (`use-animation-replay`).
-
-   * @default undefined
-   */
-  shakeSignal?: ShakeSignal;
 }
 
 /**
@@ -195,49 +181,31 @@ export interface RadioGroupItemProps extends React.ComponentProps<
 export function RadioGroupItem({
   className,
   size = "md",
-  shakeSignal,
-  onAnimationEnd,
   ref,
   ...props
 }: RadioGroupItemProps) {
-  // Destructured so hook fields (stable across renders) can appear in dependency arrays
-  // without dragging the per-render container object in (react-hooks/exhaustive-deps).
-  const {
-    invalidRef: shakeInvalidRef,
-    className: shakeClassName,
-    onAnimationEnd: shakeAnimationEnd,
-  } = useShakeOnInvalid({ shakeSignal });
-  const rootRef = React.useMemo(
-    () => mergeRefs(ref, shakeInvalidRef),
-    [ref, shakeInvalidRef],
-  );
-  const handleAnimationEnd: NonNullable<RadioGroupItemProps["onAnimationEnd"]> =
-    React.useCallback(
-      (event) => {
-        shakeAnimationEnd(event);
-        onAnimationEnd?.(event);
-      },
-      [onAnimationEnd, shakeAnimationEnd],
-    );
-
   return (
     <Radio.Root
-      ref={rootRef}
+      ref={ref}
       data-slot="radio-group-item"
       data-size={size}
       className={cn(
         "peer relative inline-flex shrink-0 items-center justify-center rounded-full border border-input bg-transparent text-current",
         itemSizeClasses[size],
         "dark:bg-input/(--alpha-input)",
-        "hover:border-ring/(--alpha-tint-border)",
+        // The one field hover rung (see `checkbox.tsx`) — neutral ink, never the `ring` tint
+        // that means focus; and the SELECTED item steps through the solid's own darker rungs,
+        // so a chosen radio still moves under the cursor (audit SP-04).
+        "not-disabled:hover:border-foreground/(--alpha-border-subtle)",
         "data-checked:border-primary",
+        "not-disabled:data-checked:hover:border-primary-hover",
+        "not-disabled:data-checked:active:border-primary-active",
         "aria-invalid:border-destructive-border/(--alpha-tint-border) data-invalid:border-destructive-border/(--alpha-tint-border)",
-        "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-(--opacity-dim)",
+        // D7: no `pointer-events-none` — a disabled control stays hoverable for its Tooltip.
+        "disabled:cursor-not-allowed disabled:opacity-(--opacity-dim)",
         "group-has-disabled/field:opacity-(--opacity-dim)",
-        shakeClassName,
         className,
       )}
-      onAnimationEnd={handleAnimationEnd}
       {...props}
     >
       <Radio.Indicator

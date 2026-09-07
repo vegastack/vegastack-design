@@ -1,4 +1,6 @@
-// @vegastack switch@0.6.0 sha256-qqIPwrBKlW/xvqMAR7RIFATw0aWYo4rR6DeXRoN7Uyc=
+// @vegastack switch@0.6.0 sha256-XYap1jxnM+Z/EXG7X+w6tCo12pYTUngEw8MucnzAdbw=
+
+"use client";
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -17,6 +19,14 @@ export const switchVariants = cva(
   // supplies the associated error copy, which is the only invalid affordance the switch needs.
   "group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent bg-clip-padding p-0.5  " +
     "bg-surface-3 data-checked:bg-primary " +
+    // The switch was the one control in the batch with NO hover treatment at all (audit SP-04).
+    // Its track already sits on the ladder's top rung, so there is no rung left to climb: the
+    // hover step is the same neutral BORDER tint the checkbox and radio wear, which the
+    // transparent border + `bg-clip-padding` were already reserving space for — so nothing
+    // moves when it appears. Checked, the filled track takes the solid's own darker rungs.
+    "not-disabled:hover:border-foreground/(--alpha-border-subtle) " +
+    "not-disabled:data-checked:hover:bg-primary-hover not-disabled:data-checked:active:bg-primary-active " +
+    // D7: no `pointer-events-none` — a disabled control stays hoverable for its Tooltip.
     "disabled:cursor-not-allowed disabled:opacity-(--opacity-dim)",
   {
     variants: {

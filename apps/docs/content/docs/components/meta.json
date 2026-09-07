@@ -25,6 +25,7 @@
     "label",
     "slider",
     "checkbox",
+    "checkbox-group",
     "radio-group",
     "switch",
     "select",

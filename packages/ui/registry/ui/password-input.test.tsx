@@ -160,82 +160,38 @@ test("no a11y violations — visibility toggled", async () => {
 });
 
 /* ---------------------------------------------------------------------------
- * Motion (Phase M) — Eye↔EyeOff keyed-presence swap.
+ * Motion — there is NONE, and that is the assertion (audit B8-08, 2026-09-07).
  *
- * Same style-mirror technique as copy-button.test.tsx / auto-save-input.test.tsx
- * (see checkbox.test.tsx's "Touch-target remediation" section for the original
- * pattern) — this harness has no compiled Tailwind, so `motion-pop-in` /
- * `vs-pop-in` are mirrored locally.
- *
- * `motion-pop-in` (not a bespoke transition) was the deliberate choice here even
- * though this is a toggle, not a success state — see the deviation comment on
- * the icon swap in password-input.tsx for the reasoning (tiny spring overshoot,
- * and the sanctioned vocabulary has no plain-fade alternative that can animate a
- * freshly keyed-remounted element).
+ * The eye swap used to replay `motion-pop-in` on every toggle behind a
+ * `hasToggledRef` guard whose only job was to stop the animation firing on first
+ * paint — a tell that the animation did not belong there. A visibility toggle is
+ * not an arrival and not a success; Geist and Linear both swap the glyph
+ * instantly. These tests fail if any motion utility comes back.
  * ------------------------------------------------------------------------------*/
 
-function injectMotionPopInMirror(): () => void {
-  const style = document.createElement("style");
-  style.textContent = `
-    :root {
-      --duration-fast: 150ms;
-      --motion-ease-spring: linear(0, 0.5 60%, 1.05 80%, 0.98 90%, 1);
-    }
-    @keyframes vs-pop-in {
-      from { opacity: 0; scale: 0.9; }
-      to { opacity: 1; scale: 1; }
-    }
-    .motion-pop-in {
-      animation: vs-pop-in var(--duration-fast) var(--motion-ease-spring);
-    }
-  `;
-  document.head.appendChild(style);
-  return () => document.head.removeChild(style);
-}
-
-test("the initial Eye icon stays still on mount", async () => {
-  const cleanup = injectMotionPopInMirror();
-  try {
-    const screen = await render(<PasswordInput aria-label="Password" />);
-    const toggle = screen
-      .getByRole("button", { name: "Toggle password visibility" })
-      .element() as HTMLElement;
-    const icon = toggle.querySelector("svg") as SVGElement;
-    expect(icon.classList.contains("motion-pop-in")).toBe(false);
-    expect(getComputedStyle(icon).animationName).toBe("none");
-  } finally {
-    cleanup();
-  }
-});
-
-test("the EyeOff icon carries motion-pop-in after toggling visibility on", async () => {
-  const cleanup = injectMotionPopInMirror();
-  try {
-    const screen = await render(<PasswordInput aria-label="Password" />);
-    const toggle = screen.getByRole("button", {
-      name: "Toggle password visibility",
-    });
-    await toggle.click();
-    const icon = toggle.element().querySelector("svg") as SVGElement;
-    expect(icon.classList.contains("motion-pop-in")).toBe(true);
-    expect(getComputedStyle(icon).animationName).toBe("vs-pop-in");
-  } finally {
-    cleanup();
-  }
-});
-
-test("the icon remounts (new node identity) across the Eye/EyeOff swap", async () => {
+test("neither glyph carries a motion utility, at mount or after a toggle", async () => {
   const screen = await render(<PasswordInput aria-label="Password" />);
   const toggle = screen.getByRole("button", {
     name: "Toggle password visibility",
   });
-  const before = toggle.element().querySelector("svg");
-  expect(before).not.toBeNull();
+  const initial = toggle.element().querySelector("svg") as SVGElement;
+  expect(initial.className.baseVal).not.toMatch(/motion-/);
 
   await toggle.click();
-  const after = toggle.element().querySelector("svg");
-  expect(after).not.toBeNull();
-  expect(after).not.toBe(before);
+  const swapped = toggle.element().querySelector("svg") as SVGElement;
+  expect(swapped.className.baseVal).not.toMatch(/motion-/);
+});
+
+test("the toggle is an IconButton with the ghost recipe and an accessible name", async () => {
+  const screen = await render(<PasswordInput aria-label="Password" />);
+  const toggle = screen.getByRole("button", {
+    name: "Toggle password visibility",
+  });
+  await expect
+    .element(toggle)
+    .toHaveAttribute("data-slot", "password-input-toggle");
+  await expect.element(toggle).toHaveAttribute("data-variant", "ghost");
+  await expect.element(toggle).toHaveAttribute("data-size", "xs");
 });
 
 test("rapid double-toggle settles on the correct icon and type without crashing", async () => {

@@ -19,6 +19,7 @@ export * from "./spinner";
 export * from "./separator";
 export * from "./empty";
 export * from "./checkbox";
+export * from "./checkbox-group";
 export * from "./switch";
 export * from "./avatar";
 export * from "./label";

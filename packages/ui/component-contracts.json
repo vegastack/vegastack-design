@@ -12,21 +12,21 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 560,
-    "components": 113,
+    "totalRegistryItems": 562,
+    "components": 114,
     "animatedIcons": 439,
-    "hooks": 7,
+    "hooks": 8,
     "blocks": 1
   },
   "expectedWaveCounts": {
-    "Core controls": 23,
+    "Core controls": 24,
     "Forms/editing": 22,
     "Navigation/layout": 14,
     "Overlays": 14,
     "Data display": 11,
     "Content/marketing": 23,
     "AI/chat": 6,
-    "Hooks": 7,
+    "Hooks": 8,
     "Block": 1,
     "Animated icons": 439
   },
@@ -42,6 +42,7 @@
       "input",
       "textarea",
       "checkbox",
+      "checkbox-group",
       "radio-group",
       "switch",
       "slider",
@@ -161,6 +162,7 @@
     "Hooks": [
       "use-animation-replay",
       "use-announcer",
+      "use-inline-edit",
       "use-drag-reorder",
       "use-file-drop",
       "use-list-nav",
@@ -1540,7 +1542,7 @@
       "name": "tool-call-chip",
       "registryType": "registry:ui",
       "title": "Tool Call Chip",
-      "summary": "An agent-activity chip — tool action label + muted result meta, optionally rendered as a button.",
+      "summary": "An agent-activity chip \u2014 tool action label + muted result meta, optionally rendered as a button.",
       "family": "chat",
       "wave": "AI/chat",
       "sourceFiles": ["packages/ui/registry/ui/tool-call-chip.tsx"],
@@ -2097,7 +2099,7 @@
       "name": "stat",
       "registryType": "registry:ui",
       "title": "Stat",
-      "summary": "A labelled value block — muted label over a value, honest faint empty state, optional delta line. Two scales.",
+      "summary": "A labelled value block \u2014 muted label over a value, honest faint empty state, optional delta line. Two scales.",
       "family": "display",
       "wave": "Data display",
       "sourceFiles": ["packages/ui/registry/ui/stat.tsx"],
@@ -2341,7 +2343,7 @@
       "name": "alert",
       "registryType": "registry:ui",
       "title": "Alert",
-      "summary": "A status banner — five semantic variants, an optional icon, and an optional dismiss button.",
+      "summary": "A status banner \u2014 five semantic variants, an optional icon, and an optional dismiss button.",
       "family": "feedback",
       "wave": "Content/marketing",
       "sourceFiles": ["packages/ui/registry/ui/alert.tsx"],
@@ -2567,7 +2569,7 @@
       "name": "input",
       "registryType": "registry:ui",
       "title": "Input",
-      "summary": "A styled Base UI input — all input types, Field state data attributes, error and disabled states, focus-visible ring, and optional prefix/suffix addons.",
+      "summary": "A styled Base UI input \u2014 all input types, Field state data attributes, error and disabled states, focus-visible ring, and optional prefix/suffix addons.",
       "family": "form",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/input.tsx"],
@@ -2646,7 +2648,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/input",
-      "registryDependencies": ["@vegastack/use-animation-replay"],
+      "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.3.2",
@@ -2682,7 +2684,7 @@
       "name": "field",
       "registryType": "registry:ui",
       "title": "Field",
-      "summary": "A form-field wrapper — label, inline label action, description, and error/success message, built on Base UI Field.",
+      "summary": "A form-field wrapper \u2014 label, inline label action, description, and error/success message, built on Base UI Field.",
       "family": "form",
       "wave": "Forms/editing",
       "sourceFiles": ["packages/ui/registry/ui/field.tsx"],
@@ -2964,7 +2966,10 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/field",
-      "registryDependencies": ["@vegastack/input"],
+      "registryDependencies": [
+        "@vegastack/input",
+        "@vegastack/use-animation-replay"
+      ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
@@ -3091,7 +3096,7 @@
       "name": "dialog",
       "registryType": "registry:ui",
       "title": "Dialog",
-      "summary": "A modal overlay — five sizes, a header/footer layout, focus trapping, and animated enter/exit.",
+      "summary": "A modal overlay \u2014 five sizes, a header/footer layout, focus trapping, and animated enter/exit.",
       "family": "overlay",
       "wave": "Overlays",
       "sourceFiles": ["packages/ui/registry/ui/dialog.tsx"],
@@ -3452,7 +3457,7 @@
       "name": "select",
       "registryType": "registry:ui",
       "title": "Select",
-      "summary": "A dropdown for choosing one option — trigger with value and chevron, grouped scrollable popup, full keyboard navigation, animated enter/exit.",
+      "summary": "A dropdown for choosing one option \u2014 trigger with value and chevron, grouped scrollable popup, full keyboard navigation, animated enter/exit.",
       "family": "form",
       "wave": "Forms/editing",
       "sourceFiles": ["packages/ui/registry/ui/select.tsx"],
@@ -3822,7 +3827,7 @@
       "name": "combobox",
       "registryType": "registry:ui",
       "title": "Combobox",
-      "summary": "A filterable, keyboard-navigable listbox behind a text input — type-to-filter, grouped items, async status, and a multi-select chip mode.",
+      "summary": "A filterable, keyboard-navigable listbox behind a text input \u2014 type-to-filter, grouped items, async status, and a multi-select chip mode.",
       "family": "form",
       "wave": "Forms/editing",
       "sourceFiles": ["packages/ui/registry/ui/combobox.tsx"],
@@ -4465,7 +4470,7 @@
       "name": "tooltip",
       "registryType": "registry:ui",
       "title": "Tooltip",
-      "summary": "A floating label on hover or focus — smart shared delay, rich content, optional keyboard hints, collision-aware positioning.",
+      "summary": "A floating label on hover or focus \u2014 smart shared delay, rich content, optional keyboard hints, collision-aware positioning.",
       "family": "overlay",
       "wave": "Overlays",
       "sourceFiles": ["packages/ui/registry/ui/tooltip.tsx"],
@@ -4672,7 +4677,7 @@
       "name": "dropdown-menu",
       "registryType": "registry:ui",
       "title": "Dropdown Menu",
-      "summary": "A menu of actions triggered by a button — items, submenus, separators, labels, shortcuts, and checkbox/radio selections.",
+      "summary": "A menu of actions triggered by a button \u2014 items, submenus, separators, labels, shortcuts, and checkbox/radio selections.",
       "family": "overlay",
       "wave": "Overlays",
       "sourceFiles": ["packages/ui/registry/ui/dropdown-menu.tsx"],
@@ -5038,7 +5043,7 @@
       "name": "tabs",
       "registryType": "registry:ui",
       "title": "Tabs",
-      "summary": "Layered content sections — line or pill variants, optional icons and count badges, horizontal or vertical, full keyboard navigation.",
+      "summary": "Layered content sections \u2014 line or pill variants, optional icons and count badges, horizontal or vertical, full keyboard navigation.",
       "family": "navigation",
       "wave": "Navigation/layout",
       "sourceFiles": ["packages/ui/registry/ui/tabs.tsx"],
@@ -5246,7 +5251,7 @@
       "name": "card",
       "registryType": "registry:ui",
       "title": "Card",
-      "summary": "A borders-only content surface — no shadows, with composable header, content, and footer parts.",
+      "summary": "A borders-only content surface \u2014 no shadows, with composable header, content, and footer parts.",
       "family": "data-display",
       "wave": "Data display",
       "sourceFiles": ["packages/ui/registry/ui/card.tsx"],
@@ -5834,7 +5839,7 @@
       "name": "spinner",
       "registryType": "registry:ui",
       "title": "Spinner",
-      "summary": "An indeterminate loading indicator — a spinning icon inheriting currentColor, four sizes, role=status by default.",
+      "summary": "An indeterminate loading indicator \u2014 a spinning icon inheriting currentColor, four sizes, role=status by default.",
       "family": "feedback",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/spinner.tsx"],
@@ -5952,7 +5957,7 @@
       "name": "separator",
       "registryType": "registry:ui",
       "title": "Separator",
-      "summary": "A thin rule dividing content — horizontal or vertical, decorative by default, built on Base UI.",
+      "summary": "A thin rule dividing content \u2014 horizontal or vertical, decorative by default, built on Base UI.",
       "family": "layout",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/separator.tsx"],
@@ -6059,7 +6064,7 @@
       "name": "empty",
       "registryType": "registry:ui",
       "title": "Empty",
-      "summary": "A zero-data placeholder — icon, title, description, actions, with intent tints and an optional dashed border.",
+      "summary": "A zero-data placeholder \u2014 icon, title, description, actions, with intent tints and an optional dashed border.",
       "family": "data-display",
       "wave": "Content/marketing",
       "sourceFiles": ["packages/ui/registry/ui/empty.tsx"],
@@ -6443,7 +6448,7 @@
       "name": "checkbox",
       "registryType": "registry:ui",
       "title": "Checkbox",
-      "summary": "A binary (or tri-state) toggle — checked, unchecked, indeterminate, disabled, built on Base UI Checkbox.",
+      "summary": "A binary (or tri-state) toggle \u2014 checked, unchecked, indeterminate, disabled, built on Base UI Checkbox.",
       "family": "form",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/checkbox.tsx"],
@@ -6547,7 +6552,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/checkbox",
-      "registryDependencies": ["@vegastack/use-animation-replay"],
+      "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
@@ -6582,10 +6587,100 @@
       }
     },
     {
+      "name": "checkbox-group",
+      "registryType": "registry:ui",
+      "title": "Checkbox Group",
+      "summary": "Shared state for a set of checkboxes, with first-class \u201cselect all\u201d \u2014 parent, mixed, and the whole-set toggle, built on Base UI Checkbox Group.",
+      "family": "form",
+      "wave": "Core controls",
+      "sourceFiles": ["packages/ui/registry/ui/checkbox-group.tsx"],
+      "publicSymbols": [
+        {
+          "name": "CheckboxGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/checkbox-group.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "BaseCheckboxGroup",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "CheckboxGroupProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/checkbox-group.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "The group is layout only; the children carry the control size scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "checked", "disabled", "indeterminate"],
+          "evidence": "Observed from branches, state attributes, and inline source contract."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["checked", "focus-visible", "labeled", "semantic-html"],
+          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "disabled", "dark"],
+          "evidence": "Observed from token classes, state selectors, or visual branches."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "inherited-global",
+          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
+          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/checkbox-group",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design@^0.3.2",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/checkbox-group.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected"
+      },
+      "previewModule": "checkbox-group"
+    },
+    {
       "name": "switch",
       "registryType": "registry:ui",
       "title": "Switch",
-      "summary": "An on/off toggle for instant, self-saving binary settings — built on Base UI Switch.",
+      "summary": "An on/off toggle for instant, self-saving binary settings \u2014 built on Base UI Switch.",
       "family": "form",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/switch.tsx"],
@@ -6884,7 +6979,7 @@
       "name": "label",
       "registryType": "registry:ui",
       "title": "Label",
-      "summary": "A styled native label for form controls — htmlFor association, disabled dimming, optional required indicator.",
+      "summary": "A styled native label for form controls \u2014 htmlFor association, disabled dimming, optional required indicator.",
       "family": "form",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/label.tsx"],
@@ -6986,7 +7081,7 @@
       "name": "textarea",
       "registryType": "registry:ui",
       "title": "Textarea",
-      "summary": "A styled native textarea for multi-line text — error/disabled states, a focus-visible ring, and an optional auto-grow mode.",
+      "summary": "A styled native textarea for multi-line text \u2014 error/disabled states, a focus-visible ring, and an optional auto-grow mode.",
       "family": "form",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/textarea.tsx"],
@@ -7100,7 +7195,7 @@
       "name": "radio-group",
       "registryType": "registry:ui",
       "title": "Radio Group",
-      "summary": "A set of mutually-exclusive options — single selection, arrow-key navigation, disabled, built on Base UI Radio Group.",
+      "summary": "A set of mutually-exclusive options \u2014 single selection, arrow-key navigation, disabled, built on Base UI Radio Group.",
       "family": "form",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/radio-group.tsx"],
@@ -7217,7 +7312,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/radio-group",
-      "registryDependencies": ["@vegastack/use-animation-replay"],
+      "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
@@ -7267,7 +7362,7 @@
       "name": "slider",
       "registryType": "registry:ui",
       "title": "Slider",
-      "summary": "Pick a number or a [from, to] range from a continuous track — keyboard accessible, with optional steps. Built on Base UI Slider.",
+      "summary": "Pick a number or a [from, to] range from a continuous track \u2014 keyboard accessible, with optional steps. Built on Base UI Slider.",
       "family": "form",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/slider.tsx"],
@@ -7416,7 +7511,7 @@
       "name": "toggle",
       "registryType": "registry:ui",
       "title": "Toggle",
-      "summary": "A two-state button that can be pressed on or off — bold/italic, mute, pin.",
+      "summary": "A two-state button that can be pressed on or off \u2014 bold/italic, mute, pin.",
       "family": "actions",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/toggle.tsx"],
@@ -7534,7 +7629,7 @@
       "name": "toggle-group",
       "registryType": "registry:ui",
       "title": "Toggle Group",
-      "summary": "Joined toggle buttons sharing one selection — single or multiple, variants/sizes, horizontal/vertical, full keyboard navigation.",
+      "summary": "Joined toggle buttons sharing one selection \u2014 single or multiple, variants/sizes, horizontal/vertical, full keyboard navigation.",
       "family": "actions",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/toggle-group.tsx"],
@@ -7675,7 +7770,7 @@
       "name": "segmented",
       "registryType": "registry:ui",
       "title": "Segmented",
-      "summary": "Segmented control — a single-select, always-one-selected view/mode switcher on a muted track with a raised active chip.",
+      "summary": "Segmented control \u2014 a single-select, always-one-selected view/mode switcher on a muted track with a raised active chip.",
       "family": "actions",
       "wave": "Forms/editing",
       "sourceFiles": ["packages/ui/registry/ui/segmented.tsx"],
@@ -7844,7 +7939,7 @@
       "name": "accordion",
       "registryType": "registry:ui",
       "title": "Accordion",
-      "summary": "A stack of collapsible sections — single or multiple open, animated height, a rotating chevron, full keyboard support.",
+      "summary": "A stack of collapsible sections \u2014 single or multiple open, animated height, a rotating chevron, full keyboard support.",
       "family": "data-display",
       "wave": "Navigation/layout",
       "sourceFiles": ["packages/ui/registry/ui/accordion.tsx"],
@@ -8622,7 +8717,7 @@
       "name": "popover",
       "registryType": "registry:ui",
       "title": "Popover",
-      "summary": "A click-triggered floating panel for arbitrary content — positioning, an optional arrow, and built-in dismiss.",
+      "summary": "A click-triggered floating panel for arbitrary content \u2014 positioning, an optional arrow, and built-in dismiss.",
       "family": "overlay",
       "wave": "Overlays",
       "sourceFiles": ["packages/ui/registry/ui/popover.tsx"],
@@ -8866,7 +8961,7 @@
       "name": "alert-dialog",
       "registryType": "registry:ui",
       "title": "Alert Dialog",
-      "summary": "A modal confirmation dialog with four semantic intents — non-dismissable, forcing a deliberate Cancel/confirm choice.",
+      "summary": "A modal confirmation dialog with four semantic intents \u2014 non-dismissable, forcing a deliberate Cancel/confirm choice.",
       "family": "overlay",
       "wave": "Overlays",
       "sourceFiles": ["packages/ui/registry/ui/alert-dialog.tsx"],
@@ -9349,7 +9444,7 @@
       "name": "breadcrumb",
       "registryType": "registry:ui",
       "title": "Breadcrumb",
-      "summary": "A hierarchical navigation trail — links, separators, the current page, and ellipsis collapse for long paths.",
+      "summary": "A hierarchical navigation trail \u2014 links, separators, the current page, and ellipsis collapse for long paths.",
       "family": "navigation",
       "wave": "Navigation/layout",
       "sourceFiles": ["packages/ui/registry/ui/breadcrumb.tsx"],
@@ -9670,7 +9765,7 @@
       "name": "navigation-menu",
       "registryType": "registry:ui",
       "title": "Navigation Menu",
-      "summary": "Site-nav mega-dropdown on the Base UI NavigationMenu primitive — chip triggers, one shared sliding panel, grid links.",
+      "summary": "Site-nav mega-dropdown on the Base UI NavigationMenu primitive \u2014 chip triggers, one shared sliding panel, grid links.",
       "family": "navigation",
       "wave": "Navigation/layout",
       "sourceFiles": ["packages/ui/registry/ui/navigation-menu.tsx"],
@@ -9966,7 +10061,7 @@
       "name": "sheet",
       "registryType": "registry:ui",
       "title": "Sheet",
-      "summary": "A dialog that slides in from a screen edge — four sides, header/footer layout, focus trapping, animated slide.",
+      "summary": "A dialog that slides in from a screen edge \u2014 four sides, header/footer layout, focus trapping, animated slide.",
       "family": "overlay",
       "wave": "Overlays",
       "sourceFiles": ["packages/ui/registry/ui/sheet.tsx"],
@@ -10345,7 +10440,7 @@
       "name": "hover-card",
       "registryType": "registry:ui",
       "title": "Hover Card",
-      "summary": "A rich preview panel that opens on hover or focus — interactive content, four directions, forgiving delays.",
+      "summary": "A rich preview panel that opens on hover or focus \u2014 interactive content, four directions, forgiving delays.",
       "family": "overlay",
       "wave": "Overlays",
       "sourceFiles": ["packages/ui/registry/ui/hover-card.tsx"],
@@ -10514,7 +10609,7 @@
       "name": "context-menu",
       "registryType": "registry:ui",
       "title": "Context Menu",
-      "summary": "A menu of actions revealed by right-click (or long-press) — items, submenus, separators, labels, shortcuts, checkbox/radio.",
+      "summary": "A menu of actions revealed by right-click (or long-press) \u2014 items, submenus, separators, labels, shortcuts, checkbox/radio.",
       "family": "overlay",
       "wave": "Overlays",
       "sourceFiles": ["packages/ui/registry/ui/context-menu.tsx"],
@@ -10880,7 +10975,7 @@
       "name": "pagination",
       "registryType": "registry:ui",
       "title": "Pagination",
-      "summary": "Page navigation — previous/next, numbered page links, an ellipsis for long ranges, and the active page.",
+      "summary": "Page navigation \u2014 previous/next, numbered page links, an ellipsis for long ranges, and the active page.",
       "family": "navigation",
       "wave": "Navigation/layout",
       "sourceFiles": ["packages/ui/registry/ui/pagination.tsx"],
@@ -11179,7 +11274,7 @@
       "name": "scroll-area",
       "registryType": "registry:ui",
       "title": "Scroll Area",
-      "summary": "A scroll container with custom, auto-hiding scrollbars — dual-axis, token-styled, built on Base UI ScrollArea.",
+      "summary": "A scroll container with custom, auto-hiding scrollbars \u2014 dual-axis, token-styled, built on Base UI ScrollArea.",
       "family": "layout",
       "wave": "Navigation/layout",
       "sourceFiles": ["packages/ui/registry/ui/scroll-area.tsx"],
@@ -11316,7 +11411,7 @@
       "name": "resizable",
       "registryType": "registry:ui",
       "title": "Resizable",
-      "summary": "Draggable, keyboard-resizable split panes — horizontal or vertical, nestable, with an optional collapsible panel. Built on react-resizable-panels.",
+      "summary": "Draggable, keyboard-resizable split panes \u2014 horizontal or vertical, nestable, with an optional collapsible panel. Built on react-resizable-panels.",
       "family": "layout",
       "wave": "Navigation/layout",
       "sourceFiles": ["packages/ui/registry/ui/resizable.tsx"],
@@ -11477,7 +11572,7 @@
       "name": "table",
       "registryType": "registry:ui",
       "title": "Table",
-      "summary": "Styled semantic table primitives — a scrollable container plus header, body, footer, row, head, cell, caption.",
+      "summary": "Styled semantic table primitives \u2014 a scrollable container plus header, body, footer, row, head, cell, caption.",
       "family": "data-display",
       "wave": "Data display",
       "sourceFiles": ["packages/ui/registry/ui/table.tsx"],
@@ -11783,7 +11878,7 @@
       "name": "status-icon",
       "registryType": "registry:ui",
       "title": "Status Icon",
-      "summary": "A small status indicator icon — todo, in progress, blocked, done — each mapping to a lucide icon and semantic color.",
+      "summary": "A small status indicator icon \u2014 todo, in progress, blocked, done \u2014 each mapping to a lucide icon and semantic color.",
       "family": "data-display",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/status-icon.tsx"],
@@ -11910,7 +12005,7 @@
       "name": "progress-indicator",
       "registryType": "registry:ui",
       "title": "Progress Indicator",
-      "summary": "A compact circular pie-fill progress indicator (0–100%) with optional visible percentage variants.",
+      "summary": "A compact circular pie-fill progress indicator (0\u2013100%) with optional visible percentage variants.",
       "family": "feedback",
       "wave": "Data display",
       "sourceFiles": ["packages/ui/registry/ui/progress-indicator.tsx"],
@@ -12410,7 +12505,7 @@
       "name": "copy-button",
       "registryType": "registry:ui",
       "title": "Copy Button",
-      "summary": "Copy a value to the clipboard with transient check feedback — a ghost icon button that swaps Copy → Check and fires onCopied.",
+      "summary": "Copy a value to the clipboard with transient check feedback \u2014 a ghost icon button that swaps Copy \u2192 Check and fires onCopied.",
       "family": "actions",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/copy-button.tsx"],
@@ -12599,7 +12694,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/password-input",
-      "registryDependencies": ["@vegastack/input"],
+      "registryDependencies": ["@vegastack/icon-button", "@vegastack/input"],
       "npmDependencies": [
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.3.2",
@@ -12639,7 +12734,7 @@
       "name": "otp-input",
       "registryType": "registry:ui",
       "title": "OTP Input",
-      "summary": "A multi-slot one-time-passcode input — keyboard navigation, paste distribution, masking, disabled, built on Base UI OTP Field.",
+      "summary": "A multi-slot one-time-passcode input \u2014 keyboard navigation, paste distribution, masking, disabled, built on Base UI OTP Field.",
       "family": "form",
       "wave": "Forms/editing",
       "sourceFiles": ["packages/ui/registry/ui/otp-input.tsx"],
@@ -12721,7 +12816,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/otp-input",
-      "registryDependencies": ["@vegastack/use-animation-replay"],
+      "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.3.2",
@@ -12753,7 +12848,7 @@
       "name": "split-button",
       "registryType": "registry:ui",
       "title": "Split Button",
-      "summary": "A primary action joined to a dropdown of related secondary actions — one default click, plus a chevron menu.",
+      "summary": "A primary action joined to a dropdown of related secondary actions \u2014 one default click, plus a chevron menu.",
       "family": "actions",
       "wave": "Navigation/layout",
       "sourceFiles": ["packages/ui/registry/ui/split-button.tsx"],
@@ -12884,7 +12979,7 @@
       "name": "editable-cell",
       "registryType": "registry:ui",
       "title": "Editable Cell",
-      "summary": "Inline-editable value with an async commit lifecycle — optimistic display, saving/saved/error status, revert on a rejected write, and a typed text/select/custom editor registry.",
+      "summary": "Inline-editable value with an async commit lifecycle \u2014 optimistic display, saving/saved/error status, revert on a rejected write, and a typed text/select/custom editor registry.",
       "family": "form",
       "wave": "Forms/editing",
       "sourceFiles": ["packages/ui/registry/ui/editable-cell.tsx"],
@@ -12995,7 +13090,8 @@
         "@vegastack/field-inline",
         "@vegastack/select",
         "@vegastack/spinner",
-        "@vegastack/use-announcer"
+        "@vegastack/use-announcer",
+        "@vegastack/use-inline-edit"
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
@@ -13036,7 +13132,7 @@
       "name": "number-field",
       "registryType": "registry:ui",
       "title": "Number Field",
-      "summary": "Locale-aware numeric input on Base UI's NumberField in Input's field chrome — Intl formatting (money is a format prop), min/max/step, keyboard stepping, wheel scrub, full-height steppers.",
+      "summary": "Locale-aware numeric input on Base UI's NumberField in Input's field chrome \u2014 Intl formatting (money is a format prop), min/max/step, keyboard stepping, wheel scrub, full-height steppers.",
       "family": "form",
       "wave": "Forms/editing",
       "sourceFiles": ["packages/ui/registry/ui/number-field.tsx"],
@@ -13110,7 +13206,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/number-field",
-      "registryDependencies": ["@vegastack/use-animation-replay"],
+      "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.24.0",
@@ -13313,7 +13409,7 @@
       "name": "chip-input",
       "registryType": "registry:ui",
       "title": "Chip Input",
-      "summary": "Free-token entry field — Enter/comma/paste commits chips, Backspace removes, per-chip validation marks invalid entries instead of dropping them. Combobox field chrome + real Tag chips.",
+      "summary": "Free-token entry field \u2014 Enter/comma/paste commits chips, Backspace removes, per-chip validation marks invalid entries instead of dropping them. Combobox field chrome + real Tag chips.",
       "family": "form",
       "wave": "Forms/editing",
       "sourceFiles": ["packages/ui/registry/ui/chip-input.tsx"],
@@ -13449,7 +13545,7 @@
       "name": "action-bar",
       "registryType": "registry:ui",
       "title": "Action Bar",
-      "summary": "Floating contextual bar — status region + action children, CSS-only enter/exit, raised band. Bulk selection, unsaved changes, and batch progress are recipes over it.",
+      "summary": "Floating contextual bar \u2014 status region + action children, CSS-only enter/exit, raised band. Bulk selection, unsaved changes, and batch progress are recipes over it.",
       "family": "feedback",
       "wave": "Overlays",
       "sourceFiles": ["packages/ui/registry/ui/action-bar.tsx"],
@@ -13564,7 +13660,7 @@
       "name": "stepper",
       "registryType": "registry:ui",
       "title": "Stepper",
-      "summary": "A bounded linear process as an ordered list — complete/current/upcoming/error states on StatusIcon's vocabulary, aria-current=step, advance-gating message, focus follows the process.",
+      "summary": "A bounded linear process as an ordered list \u2014 complete/current/upcoming/error states on StatusIcon's vocabulary, aria-current=step, advance-gating message, focus follows the process.",
       "family": "navigation",
       "wave": "Navigation/layout",
       "sourceFiles": ["packages/ui/registry/ui/stepper.tsx"],
@@ -13610,7 +13706,7 @@
       "variants": {
         "status": "observed",
         "dimensions": ["orientation"],
-        "rationale": "horizontal | vertical — identical DOM and reading order, layout only."
+        "rationale": "horizontal | vertical \u2014 identical DOM and reading order, layout only."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -13644,7 +13740,7 @@
         "visual": {
           "status": "observed",
           "values": ["complete", "current", "upcoming", "error", "disabled"],
-          "evidence": "StatusIcon tokens per state (current's glyph pinned to animate-none — position, not activity); ink vs muted labels; warning-text blocked reason; connector hairlines."
+          "evidence": "StatusIcon tokens per state (current's glyph pinned to animate-none \u2014 position, not activity); ink vs muted labels; warning-text blocked reason; connector hairlines."
         }
       },
       "responsive": {
@@ -13714,7 +13810,7 @@
       "name": "timeline",
       "registryType": "registry:ui",
       "title": "Timeline",
-      "summary": "Rail geometry for chronological records — a continuous connector with a node per entry. Rows compose Item parts; separators render through Marker; entries carry content-visibility render skipping.",
+      "summary": "Rail geometry for chronological records \u2014 a continuous connector with a node per entry. Rows compose Item parts; separators render through Marker; entries carry content-visibility render skipping.",
       "family": "data-display",
       "wave": "Data display",
       "sourceFiles": ["packages/ui/registry/ui/timeline.tsx"],
@@ -13874,7 +13970,7 @@
       "name": "shortcut-overlay",
       "registryType": "registry:ui",
       "title": "Shortcut Overlay",
-      "summary": "The ?-triggered dialog listing keyboard shortcuts, rendered from a declaration registry (keys, label, category, when) — grouped, filterable, platform-aware via use-platform + Kbd.",
+      "summary": "The ?-triggered dialog listing keyboard shortcuts, rendered from a declaration registry (keys, label, category, when) \u2014 grouped, filterable, platform-aware via use-platform + Kbd.",
       "family": "overlay",
       "wave": "Overlays",
       "sourceFiles": ["packages/ui/registry/ui/shortcut-overlay.tsx"],
@@ -13894,7 +13990,7 @@
           "source": "packages/ui/registry/ui/shortcut-overlay.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Renders a composed Dialog; no stable public ref target is forwarded — the dialog content is portaled."
+            "rationale": "Renders a composed Dialog; no stable public ref target is forwarded \u2014 the dialog content is portaled."
           }
         },
         {
@@ -13998,7 +14094,7 @@
       "name": "filter-bar-managed",
       "registryType": "registry:ui",
       "title": "Filter Builder",
-      "summary": "The stateful nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.",
+      "summary": "The stateful nested and/or filter builder \u2014 host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.",
       "family": "data",
       "wave": "Forms/editing",
       "sourceFiles": ["packages/ui/registry/ui/filter-bar-managed.tsx"],
@@ -14174,7 +14270,7 @@
       "name": "sortable-list",
       "registryType": "registry:ui",
       "title": "Sortable List",
-      "summary": "Reorderable rows on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, keyboard move mode, a lossless Move menu, and server-refusable moves. Controlled; the host owns the order.",
+      "summary": "Reorderable rows on ItemGroup/Item via use-drag-reorder \u2014 pointer drag with drop indicators, keyboard move mode, a lossless Move menu, and server-refusable moves. Controlled; the host owns the order.",
       "family": "data",
       "wave": "Forms/editing",
       "sourceFiles": ["packages/ui/registry/ui/sortable-list.tsx"],
@@ -14245,7 +14341,7 @@
         "visual": {
           "status": "observed",
           "values": ["default", "dragging", "drop-edge", "pending", "disabled"],
-          "evidence": "2px primary drop-indicator hairline on the closest edge; lifted rows dim (flat — no shadow, per doctrine); pending rows shimmer with the sanctioned loader animation, static under reduced motion."
+          "evidence": "2px primary drop-indicator hairline on the closest edge; lifted rows dim (flat \u2014 no shadow, per doctrine); pending rows shimmer with the sanctioned loader animation, static under reduced motion."
         }
       },
       "responsive": {
@@ -14324,7 +14420,7 @@
       "name": "board",
       "registryType": "registry:ui",
       "title": "Board",
-      "summary": "Kanban columns over use-drag-reorder — content/chrome split (host renders card content only), pointer drag, keyboard move mode + roving focus, lossless per-card Move menu with lock reasons, server-refusable moves, collapsed lanes, Empty-bordered drop targets.",
+      "summary": "Kanban columns over use-drag-reorder \u2014 content/chrome split (host renders card content only), pointer drag, keyboard move mode + roving focus, lossless per-card Move menu with lock reasons, server-refusable moves, collapsed lanes, Empty-bordered drop targets.",
       "family": "layout",
       "wave": "Navigation/layout",
       "sourceFiles": ["packages/ui/registry/ui/board.tsx"],
@@ -14393,7 +14489,7 @@
             "status-announcement",
             "semantic-html"
           ],
-          "evidence": "Roving focus across the ragged card grid (RTL-aware ←/→ for browsing AND move mode); Space move mode with focus restored across cross-column remounts, Enter activate, M opens the named Move menu — within-column up/down/top/bottom plus cross-column targets with visible lock reasons; a populated column wraps its cards in role=list (an empty column renders the Empty affordance instead); polite move/rejection announcements."
+          "evidence": "Roving focus across the ragged card grid (RTL-aware \u2190/\u2192 for browsing AND move mode); Space move mode with focus restored across cross-column remounts, Enter activate, M opens the named Move menu \u2014 within-column up/down/top/bottom plus cross-column targets with visible lock reasons; a populated column wraps its cards in role=list (an empty column renders the Empty affordance instead); polite move/rejection announcements."
         },
         "visual": {
           "status": "observed",
@@ -14406,7 +14502,7 @@
             "collapsed",
             "empty"
           ],
-          "evidence": "Flat dragged cards (dim, never a shadow — doctrine); 2px primary drop-indicator; column border tint while a drag is over; pending shimmer (sanctioned loader animation, reduced-motion aware); Empty bordered drop-zone look."
+          "evidence": "Flat dragged cards (dim, never a shadow \u2014 doctrine); 2px primary drop-indicator; column border tint while a drag is over; pending shimmer (sanctioned loader animation, reduced-motion aware); Empty bordered drop-zone look."
         }
       },
       "responsive": {
@@ -14509,7 +14605,7 @@
       "name": "dropzone",
       "registryType": "registry:ui",
       "title": "Dropzone",
-      "summary": "File acquisition surface — drop, click-to-browse, and paste — as a thin shell over use-file-drop; the surface is the named focusable control over a hidden picker-bridge input; data-dragging/data-drag-invalid styling flags.",
+      "summary": "File acquisition surface \u2014 drop, click-to-browse, and paste \u2014 as a thin shell over use-file-drop; the surface is the named focusable control over a hidden picker-bridge input; data-dragging/data-drag-invalid styling flags.",
       "family": "form",
       "wave": "Forms/editing",
       "sourceFiles": ["packages/ui/registry/ui/dropzone.tsx"],
@@ -14631,7 +14727,7 @@
       "name": "field-inline",
       "registryType": "registry:ui",
       "title": "Field Inline",
-      "summary": "Click-to-edit text — displays a value, swaps to a focused input on click, commits on Enter or blur, cancels on Escape.",
+      "summary": "Click-to-edit text \u2014 displays a value, swaps to a focused input on click, commits on Enter or blur, cancels on Escape.",
       "family": "form",
       "wave": "Forms/editing",
       "sourceFiles": ["packages/ui/registry/ui/field-inline.tsx"],
@@ -14722,7 +14818,11 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/field-inline",
-      "registryDependencies": ["@vegastack/input"],
+      "registryDependencies": [
+        "@vegastack/input",
+        "@vegastack/use-animation-replay",
+        "@vegastack/use-inline-edit"
+      ],
       "npmDependencies": [
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
@@ -14753,7 +14853,7 @@
       "name": "relative-time",
       "registryType": "registry:ui",
       "title": "Relative Time",
-      "summary": "Render a date as a human-relative string (\"2 hours ago\", \"yesterday\") with native Intl.RelativeTimeFormat — self-updating, with an absolute-date tooltip.",
+      "summary": "Render a date as a human-relative string (\"2 hours ago\", \"yesterday\") with native Intl.RelativeTimeFormat \u2014 self-updating, with an absolute-date tooltip.",
       "family": "data-display",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/relative-time.tsx"],
@@ -14863,7 +14963,7 @@
       "name": "settings-row",
       "registryType": "registry:ui",
       "title": "Settings Row",
-      "summary": "A borders-only settings layout — titled sections, bordered cards, and label-plus-control rows.",
+      "summary": "A borders-only settings layout \u2014 titled sections, bordered cards, and label-plus-control rows.",
       "family": "layout",
       "wave": "Forms/editing",
       "sourceFiles": ["packages/ui/registry/ui/settings-row.tsx"],
@@ -15682,7 +15782,7 @@
       "name": "notification-bell",
       "registryType": "registry:ui",
       "title": "Notification Bell",
-      "summary": "A bell icon button with an unread-count badge overlay. Presentational — the app supplies the count.",
+      "summary": "A bell icon button with an unread-count badge overlay. Presentational \u2014 the app supplies the count.",
       "family": "media",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/notification-bell.tsx"],
@@ -15789,7 +15889,7 @@
       "name": "onboarding-checklist",
       "registryType": "registry:ui",
       "title": "Onboarding Checklist",
-      "summary": "A getting-started card — segmented progress + step rows, collapsible to a progress pill.",
+      "summary": "A getting-started card \u2014 segmented progress + step rows, collapsible to a progress pill.",
       "family": "display",
       "wave": "Content/marketing",
       "sourceFiles": ["packages/ui/registry/ui/onboarding-checklist.tsx"],
@@ -15936,7 +16036,7 @@
       "name": "markdown-view",
       "registryType": "registry:ui",
       "title": "Markdown View",
-      "summary": "Render a markdown string to safe, token-styled HTML — headings, lists, code, blockquotes, links, GFM tables — XSS-safe, no raw HTML.",
+      "summary": "Render a markdown string to safe, token-styled HTML \u2014 headings, lists, code, blockquotes, links, GFM tables \u2014 XSS-safe, no raw HTML.",
       "family": "data-display",
       "wave": "Content/marketing",
       "sourceFiles": ["packages/ui/registry/ui/markdown-view.tsx"],
@@ -16052,7 +16152,7 @@
       "name": "code-block",
       "registryType": "registry:ui",
       "title": "Code Block",
-      "summary": "A code panel with a language header and copy affordance — the shared code surface for chat transcripts, docs, and examples.",
+      "summary": "A code panel with a language header and copy affordance \u2014 the shared code surface for chat transcripts, docs, and examples.",
       "family": "display",
       "wave": "Content/marketing",
       "sourceFiles": ["packages/ui/registry/ui/code-block.tsx"],
@@ -16157,7 +16257,7 @@
       "name": "sonner",
       "registryType": "registry:ui",
       "title": "Toast",
-      "summary": "Brief, non-blocking notifications — a token-styled Sonner toaster with success/error/warning/info variants that follows the theme.",
+      "summary": "Brief, non-blocking notifications \u2014 a token-styled Sonner toaster with success/error/warning/info variants that follows the theme.",
       "family": "feedback",
       "wave": "Overlays",
       "sourceFiles": ["packages/ui/registry/ui/sonner.tsx"],
@@ -16279,7 +16379,7 @@
       "name": "provider",
       "registryType": "registry:ui",
       "title": "Provider",
-      "summary": "The single app-root wrapper — theme (next-themes), Sonner toasts, tooltip coordination, and text direction in one mount-once component.",
+      "summary": "The single app-root wrapper \u2014 theme (next-themes), Sonner toasts, tooltip coordination, and text direction in one mount-once component.",
       "family": "feedback",
       "wave": "Overlays",
       "sourceFiles": ["packages/ui/registry/ui/provider.tsx"],
@@ -16386,7 +16486,7 @@
       "name": "command",
       "registryType": "registry:ui",
       "title": "Command Menu",
-      "summary": "A searchable command palette — filtered, grouped items with keyboard navigation, optionally inside a ⌘K dialog.",
+      "summary": "A searchable command palette \u2014 filtered, grouped items with keyboard navigation, optionally inside a \u2318K dialog.",
       "family": "navigation",
       "wave": "Navigation/layout",
       "sourceFiles": ["packages/ui/registry/ui/command.tsx"],
@@ -16799,7 +16899,7 @@
       "name": "page-header",
       "registryType": "registry:ui",
       "title": "Page Header",
-      "summary": "The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star.",
+      "summary": "The standardized header at the top of a page \u2014 back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star.",
       "family": "navigation",
       "wave": "Content/marketing",
       "sourceFiles": ["packages/ui/registry/ui/page-header.tsx"],
@@ -16940,7 +17040,7 @@
       "name": "sidebar",
       "registryType": "registry:ui",
       "title": "Sidebar",
-      "summary": "A collapsible app navigation rail — header/content/footer, labelled groups, menu items with active state, and an expand/collapse trigger.",
+      "summary": "A collapsible app navigation rail \u2014 header/content/footer, labelled groups, menu items with active state, and an expand/collapse trigger.",
       "family": "navigation",
       "wave": "Navigation/layout",
       "sourceFiles": ["packages/ui/registry/ui/sidebar.tsx"],
@@ -17527,7 +17627,7 @@
       "name": "app-shell",
       "registryType": "registry:ui",
       "title": "App Shell",
-      "summary": "The shared dashboard layout — a skip-linked sidebar + header + scrollable main region, composing Sidebar/SidebarTrigger into one reusable, hash-tracked shell.",
+      "summary": "The shared dashboard layout \u2014 a skip-linked sidebar + header + scrollable main region, composing Sidebar/SidebarTrigger into one reusable, hash-tracked shell.",
       "family": "layout",
       "wave": "Navigation/layout",
       "sourceFiles": ["packages/ui/registry/ui/app-shell.tsx"],
@@ -17757,7 +17857,7 @@
       "name": "filter-bar",
       "registryType": "registry:ui",
       "title": "Filter Bar",
-      "summary": "A row of removable filter chips, an \"Add filter\" dropdown, and an optional search input — for list and table filter toolbars.",
+      "summary": "A row of removable filter chips, an \"Add filter\" dropdown, and an optional search input \u2014 for list and table filter toolbars.",
       "family": "data",
       "wave": "Forms/editing",
       "sourceFiles": ["packages/ui/registry/ui/filter-bar.tsx"],
@@ -18343,7 +18443,7 @@
       "name": "date-picker",
       "registryType": "registry:ui",
       "title": "Date Picker",
-      "summary": "Pick a single date or a date range from a calendar popover — token-styled, keyboard-navigable, with optional quick presets.",
+      "summary": "Pick a single date or a date range from a calendar popover \u2014 token-styled, keyboard-navigable, with optional quick presets.",
       "family": "form",
       "wave": "Forms/editing",
       "sourceFiles": ["packages/ui/registry/ui/date-picker.tsx"],
@@ -18632,7 +18732,7 @@
       "name": "color-picker",
       "registryType": "registry:ui",
       "title": "Color Picker",
-      "summary": "A swatch-triggered popover presenting a grid of preset colors — pick one, fire onValueChange, mark the selection.",
+      "summary": "A swatch-triggered popover presenting a grid of preset colors \u2014 pick one, fire onValueChange, mark the selection.",
       "family": "form",
       "wave": "Forms/editing",
       "sourceFiles": ["packages/ui/registry/ui/color-picker.tsx"],
@@ -18923,7 +19023,7 @@
       "name": "data-list",
       "registryType": "registry:ui",
       "title": "Data List",
-      "summary": "A generic, typed data table — configurable columns, row selection, sortable headers, plus loading and empty states.",
+      "summary": "A generic, typed data table \u2014 configurable columns, row selection, sortable headers, plus loading and empty states.",
       "family": "data",
       "wave": "Data display",
       "sourceFiles": ["packages/ui/registry/ui/data-list.tsx"],
@@ -19119,7 +19219,7 @@
       "name": "data-grid",
       "registryType": "registry:ui",
       "title": "Data Grid",
-      "summary": "The full-parity grid — TanStack-sorted multi-key sort, column picker with responsive revelation, collapsible grouping, keyboard-continuous load-more, opt-in virtualization, and an APG grid keyboard layer with inline cell editing.",
+      "summary": "The full-parity grid \u2014 TanStack-sorted multi-key sort, column picker with responsive revelation, collapsible grouping, keyboard-continuous load-more, opt-in virtualization, and an APG grid keyboard layer with inline cell editing.",
       "family": "data",
       "wave": "Data display",
       "sourceFiles": ["packages/ui/registry/ui/data-grid.tsx"],
@@ -19130,7 +19230,7 @@
           "source": "packages/ui/registry/ui/data-grid.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Generic function component; no stable public ref target is forwarded — the grid's focus model is the roving-cell API, not a root ref."
+            "rationale": "Generic function component; no stable public ref target is forwarded \u2014 the grid's focus model is the roving-cell API, not a root ref."
           }
         },
         {
@@ -19515,7 +19615,7 @@
       "name": "item",
       "registryType": "registry:ui",
       "title": "Item",
-      "summary": "A compact anatomy row for list/feed content — media, title, description, actions, groupable with dividers.",
+      "summary": "A compact anatomy row for list/feed content \u2014 media, title, description, actions, groupable with dividers.",
       "family": "data-display",
       "wave": "Content/marketing",
       "sourceFiles": ["packages/ui/registry/ui/item.tsx"],
@@ -19921,7 +20021,7 @@
       "name": "chart",
       "registryType": "registry:ui",
       "title": "Chart",
-      "summary": "A themed Recharts wrapper — token-only series colors (--chart-1…--chart-8), a bordered tooltip/legend, and Recharts' own built-in keyboard + screen-reader layer.",
+      "summary": "A themed Recharts wrapper \u2014 token-only series colors (--chart-1\u2026--chart-8), a bordered tooltip/legend, and Recharts' own built-in keyboard + screen-reader layer.",
       "family": "data-display",
       "wave": "Data display",
       "sourceFiles": ["packages/ui/registry/ui/chart.tsx"],
@@ -20150,7 +20250,7 @@
       "name": "animated-number",
       "registryType": "registry:ui",
       "title": "Animated Number",
-      "summary": "A number display that tweens from its previous value to a new one on every change — Intl.NumberFormat-aware (currency/percent/compact), instant under reduced motion, the dashboard stat-card counter.",
+      "summary": "A number display that tweens from its previous value to a new one on every change \u2014 Intl.NumberFormat-aware (currency/percent/compact), instant under reduced motion, the dashboard stat-card counter.",
       "family": "data-display",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/animated-number.tsx"],
@@ -20258,7 +20358,7 @@
       "name": "text-edit",
       "registryType": "registry:ui",
       "title": "Text Edit",
-      "summary": "A Tiptap-based rich-text editor with a compact, token-styled toolbar (bold, italic, strike, heading, lists, blockquote, code) — controlled HTML in, HTML out. Collaboration deferred.",
+      "summary": "A Tiptap-based rich-text editor with a compact, token-styled toolbar (bold, italic, strike, heading, lists, blockquote, code) \u2014 controlled HTML in, HTML out. Collaboration deferred.",
       "family": "rich-text",
       "wave": "Forms/editing",
       "sourceFiles": ["packages/ui/registry/ui/text-edit.tsx"],
@@ -20482,7 +20582,7 @@
       "name": "section-header",
       "registryType": "registry:ui",
       "title": "Section Header",
-      "summary": "A marketing section lead-in — mono uppercase eyebrow, display-scale title, optional description.",
+      "summary": "A marketing section lead-in \u2014 mono uppercase eyebrow, display-scale title, optional description.",
       "family": "marketing",
       "wave": "Content/marketing",
       "sourceFiles": ["packages/ui/registry/ui/section-header.tsx"],
@@ -20829,7 +20929,7 @@
       "name": "logo-row",
       "registryType": "registry:ui",
       "title": "Logo Row",
-      "summary": "A muted logo/wordmark strip — alpha-dimmed at rest, restoring on hover for linked items.",
+      "summary": "A muted logo/wordmark strip \u2014 alpha-dimmed at rest, restoring on hover for linked items.",
       "family": "marketing",
       "wave": "Content/marketing",
       "sourceFiles": ["packages/ui/registry/ui/logo-row.tsx"],
@@ -20950,7 +21050,7 @@
       "name": "testimonial",
       "registryType": "registry:ui",
       "title": "Testimonial",
-      "summary": "A pull-quote — a serif-italic quote over a mono uppercase attribution line.",
+      "summary": "A pull-quote \u2014 a serif-italic quote over a mono uppercase attribution line.",
       "family": "marketing",
       "wave": "Content/marketing",
       "sourceFiles": ["packages/ui/registry/ui/testimonial.tsx"],
@@ -21057,7 +21157,7 @@
       "name": "announcement-banner",
       "registryType": "registry:ui",
       "title": "Announcement Banner",
-      "summary": "A dismissible one-line announcement — the full-width inverse page-top band (in-content notices use Alert variant=strip).",
+      "summary": "A dismissible one-line announcement \u2014 the full-width inverse page-top band (in-content notices use Alert variant=strip).",
       "family": "marketing",
       "wave": "Content/marketing",
       "sourceFiles": ["packages/ui/registry/ui/announcement-banner.tsx"],
@@ -21161,7 +21261,7 @@
       "name": "ruled-band",
       "registryType": "registry:ui",
       "title": "Ruled Band",
-      "summary": "A hairline-bounded editorial strip with mono-label ends — the changelog/serial-number furniture.",
+      "summary": "A hairline-bounded editorial strip with mono-label ends \u2014 the changelog/serial-number furniture.",
       "family": "marketing",
       "wave": "Content/marketing",
       "sourceFiles": ["packages/ui/registry/ui/ruled-band.tsx"],
@@ -21294,7 +21394,7 @@
       "name": "pricing-section",
       "registryType": "registry:ui",
       "title": "Pricing Section",
-      "summary": "Marketing plan cards — mono price display, check feature lists, highlighted-plan treatment.",
+      "summary": "Marketing plan cards \u2014 mono price display, check feature lists, highlighted-plan treatment.",
       "family": "marketing",
       "wave": "Content/marketing",
       "sourceFiles": ["packages/ui/registry/ui/pricing-section.tsx"],
@@ -21432,7 +21532,7 @@
       "name": "comparison-matrix",
       "registryType": "registry:ui",
       "title": "Comparison Matrix",
-      "summary": "A plan-feature matrix with accessible ✓/− availability cells and a highlighted plan column.",
+      "summary": "A plan-feature matrix with accessible \u2713/\u2212 availability cells and a highlighted plan column.",
       "family": "marketing",
       "wave": "Data display",
       "sourceFiles": ["packages/ui/registry/ui/comparison-matrix.tsx"],
@@ -21591,7 +21691,7 @@
       "name": "staggered-text-reveal",
       "registryType": "registry:ui",
       "title": "Staggered Text Reveal",
-      "summary": "Display text whose words rise in on mount, staggered one motion-enter-up step apart — CSS-only.",
+      "summary": "Display text whose words rise in on mount, staggered one motion-enter-up step apart \u2014 CSS-only.",
       "family": "marketing/motion",
       "wave": "Content/marketing",
       "sourceFiles": ["packages/ui/registry/ui/staggered-text-reveal.tsx"],
@@ -21695,7 +21795,7 @@
       "name": "particle-field",
       "registryType": "registry:ui",
       "title": "Particle Field",
-      "summary": "A deterministic, very-low-alpha canvas field of drifting phosphor dots — hero atmosphere only.",
+      "summary": "A deterministic, very-low-alpha canvas field of drifting phosphor dots \u2014 hero atmosphere only.",
       "family": "marketing",
       "wave": "Content/marketing",
       "sourceFiles": ["packages/ui/registry/ui/particle-field.tsx"],
@@ -24236,7 +24336,7 @@
       "name": "use-animation-replay",
       "registryType": "registry:hook",
       "title": "useAnimationReplay / useShakeOnInvalid",
-      "summary": "Replay a mount-style CSS animation (e.g. motion-shake) on demand via class-toggle, without remounting the element — preserves focus/caret/selection on form controls. Includes useShakeOnInvalid, the auto-shake-on-invalid-transition convenience built on it.",
+      "summary": "Replay a mount-style CSS animation (e.g. motion-shake) on demand via class-toggle, without remounting the element \u2014 preserves focus/caret/selection on form controls. Includes useShakeOnInvalid, the auto-shake-on-invalid-transition convenience built on it.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-animation-replay.ts"],
@@ -24459,10 +24559,103 @@
       }
     },
     {
+      "name": "use-inline-edit",
+      "registryType": "registry:hook",
+      "title": "useInlineEdit",
+      "summary": "The click-to-edit state machine \u2014 draft, commit, cancel, focus restoration and the double-commit guard \u2014 shared by FieldInline and EditableCell, with no opinion about what the editor or the display look like.",
+      "family": "hook",
+      "wave": "Hooks",
+      "sourceFiles": ["packages/ui/registry/ui/use-inline-edit.ts"],
+      "publicSymbols": [
+        {
+          "name": "useInlineEdit",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-inline-edit.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "UseInlineEditOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-inline-edit.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseInlineEditResult",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-inline-edit.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A hook renders nothing and owns no size scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "editing", "disabled"],
+          "evidence": "Observed from branches, state attributes, and inline source contract."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["focus-management"],
+          "evidence": "Focus moves into the editor and selects the value when the edit opens, and returns to the display element only when the KEYBOARD closed it."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render visual states."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/ui/use-inline-edit.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "docsSlug": "/docs/guides/components",
+      "previewModule": null
+    },
+    {
       "name": "use-drag-reorder",
       "registryType": "registry:hook",
       "title": "useDragReorder",
-      "summary": "The system's one drag engine seam — Pragmatic drag-and-drop pointer/touch mechanics plus the house keyboard move mode, live-region vocabulary, and async pending/rejected drop contract. One API for single lists and cross-container boards.",
+      "summary": "The system's one drag engine seam \u2014 Pragmatic drag-and-drop pointer/touch mechanics plus the house keyboard move mode, live-region vocabulary, and async pending/rejected drop contract. One API for single lists and cross-container boards.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-drag-reorder.ts"],
@@ -24553,7 +24746,7 @@
         "visual": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "Pure hooks do not render visual states — consumers style off data-dragging/data-drop-edge/data-drag-pending."
+          "evidence": "Pure hooks do not render visual states \u2014 consumers style off data-dragging/data-drop-edge/data-drag-pending."
         }
       },
       "responsive": {
@@ -24595,7 +24788,7 @@
       "name": "use-file-drop",
       "registryType": "registry:hook",
       "title": "useFileDrop",
-      "summary": "File acquisition (drop, browse, paste) over the sanctioned react-dropzone engine — typed rejection reasons aligned with AttachmentState, announcement payload, window-level missed-drop protection.",
+      "summary": "File acquisition (drop, browse, paste) over the sanctioned react-dropzone engine \u2014 typed rejection reasons aligned with AttachmentState, announcement payload, window-level missed-drop protection.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-file-drop.ts"],
@@ -24677,7 +24870,7 @@
         "visual": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "Pure hooks do not render visual states — consumers style off data-dragging/data-drag-invalid."
+          "evidence": "Pure hooks do not render visual states \u2014 consumers style off data-dragging/data-drag-invalid."
         }
       },
       "responsive": {
@@ -24716,7 +24909,7 @@
       "name": "use-list-nav",
       "registryType": "registry:hook",
       "title": "useListNav",
-      "summary": "Roving-tabindex keyboard navigation for a list or grid of focusable items — one Tab stop per collection, RTL-aware arrows, Home/End jumps scoped to the collection or the row.",
+      "summary": "Roving-tabindex keyboard navigation for a list or grid of focusable items \u2014 one Tab stop per collection, RTL-aware arrows, Home/End jumps scoped to the collection or the row.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-list-nav.ts"],
@@ -24816,7 +25009,7 @@
       "name": "use-platform",
       "registryType": "registry:hook",
       "title": "usePlatform",
-      "summary": "SSR-safe platform detection — { os, isTouch } from navigator.userAgentData with a navigator.platform fallback, corrected after hydration with no mismatch warning.",
+      "summary": "SSR-safe platform detection \u2014 { os, isTouch } from navigator.userAgentData with a navigator.platform fallback, corrected after hydration with no mismatch warning.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-platform.ts"],
@@ -24925,7 +25118,7 @@
       "name": "use-mobile",
       "registryType": "registry:hook",
       "title": "useIsMobile",
-      "summary": "SSR-safe viewport-width hook — reports whether the viewport is below a breakpoint (default 768px), live across resizes.",
+      "summary": "SSR-safe viewport-width hook \u2014 reports whether the viewport is below a breakpoint (default 768px), live across resizes.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-mobile.ts"],
@@ -25000,7 +25193,7 @@
       "name": "dashboard-01",
       "registryType": "registry:block",
       "title": "Dashboard 01",
-      "summary": "An AI-platform dashboard starter page — sidebar nav, stat cards, a usage chart, and a recent-activity list, built entirely from existing VegaStack components.",
+      "summary": "An AI-platform dashboard starter page \u2014 sidebar nav, stat cards, a usage chart, and a recent-activity list, built entirely from existing VegaStack components.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
