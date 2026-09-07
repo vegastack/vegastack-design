@@ -74,7 +74,8 @@ export interface AutoSaveInputProps extends Omit<
 }
 
 /** Trailing status-slot classes — fixed-width so the field doesn't shift as the icon swaps. */
-const statusSlotClasses = "flex size-4 shrink-0 items-center justify-center";
+const statusSlotClasses =
+  "flex size-(--icon-default) shrink-0 items-center justify-center";
 
 /**
  * `AutoSaveInput` — an {@link Input} that debounces edits and persists them via
@@ -232,7 +233,11 @@ export function AutoSaveInput({
            * here for visual consistency between the two success checks.
            */}
           {status === "saving" ? (
-            <Spinner key="saving" label="" className="text-muted-foreground" />
+            <Spinner
+              key="saving"
+              decorative
+              className="text-muted-foreground"
+            />
           ) : status === "saved" ? (
             <Check
               key="saved"
@@ -263,7 +268,7 @@ export function AutoSaveInput({
           )}
         </span>
       }
-      className={cn(className)}
+      className={className}
       {...props}
     />
   );

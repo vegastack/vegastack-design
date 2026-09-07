@@ -47,14 +47,21 @@ export interface SpinnerProps
    */
   size?: "xs" | "sm" | "md" | "lg" | "inherit";
   /**
-   * Accessible label announced by assistive tech while the spinner is visible.
-   * When provided, the spinner exposes `role="status"` + `aria-label` so screen
-   * readers announce the loading state. Pass an empty string (or rely on a
-   * sibling that already labels the loading region) to make the spinner purely
-   * decorative — it is then hidden with `aria-hidden`.
+   * Accessible label announced by assistive tech while the spinner is visible. The spinner
+   * exposes `role="status"` + `aria-label` so screen readers announce the loading state.
    * @default 'Loading'
    */
   label?: string;
+  /**
+   * Marks the spinner as decoration: `aria-hidden`, no role, no label. Use it when the
+   * surrounding UI already announces the loading state — a button with loading text, or a
+   * sibling live region that says "Saving…" — so the announcement is not made twice.
+   *
+   * This is the sanctioned way to say it (audit B8-09). `label=""` also works and means the
+   * same thing, but it says it by passing a value that reads as a mistake at the call site.
+   * @default false
+   */
+  decorative?: boolean;
 }
 
 /**
@@ -67,7 +74,7 @@ export interface SpinnerProps
  * Accessible by default: it renders `role="status"` with an `aria-label`
  * (default `"Loading"`) so the loading state is announced. When the surrounding
  * UI already labels the loading region — e.g. a button with loading text — pass
- * `label=""` to mark the spinner decorative (`aria-hidden`) and avoid a double
+ * `decorative` to hide it from assistive tech (`aria-hidden`) and avoid a double
  * announcement.
  *
  * Pure presentational and server-safe — no hooks, no `'use client'`. Forwards
@@ -80,10 +87,11 @@ export function Spinner({
   className,
   size = "md",
   label = "Loading",
+  decorative: decorativeProp = false,
   ref,
   ...props
 }: SpinnerProps) {
-  const decorative = label === "";
+  const decorative = decorativeProp || label === "";
   return (
     <Loader
       ref={ref}

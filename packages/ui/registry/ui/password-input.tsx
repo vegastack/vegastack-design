@@ -5,6 +5,7 @@
 import * as React from "react";
 import { Eye, EyeOff, Check, X } from "lucide-react";
 import { cn } from "@vegastack/design";
+import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 
 /** A single password rule shown in the optional requirements checklist. */
@@ -36,17 +37,22 @@ export interface PasswordInputProps extends Omit<
 }
 
 /** Checklist-row classes — small, muted by default, success when the rule is met. */
-const requirementClasses = "flex items-center gap-1.5 text-sm ";
+const requirementClasses = "flex items-center gap-1.5 text-sm";
 
 /**
  * `PasswordInput` — a password field with a show/hide eye toggle and an optional
- * requirements checklist. Wraps {@link Input} with a trailing icon button
+ * requirements checklist. Wraps {@link Input} with a trailing {@link IconButton}
  * (lucide `Eye`/`EyeOff`) that flips the field between `type="password"` and
  * `type="text"`; visibility is local component state. Pass `requirements` to
  * render a live checklist (lucide `Check`/`X`, `text-success-text`/`text-muted-foreground`)
  * for signup and password-reset flows. Token-only and accessible — the toggle
- * is a real `<button>` with an `aria-label` and `aria-pressed`, and forwards its
- * ref to the underlying `<input>`.
+ * is an `IconButton`, which makes its `aria-label` a type error to omit, and the field
+ * forwards its ref to the underlying `<input>`.
+ *
+ * The eye swap has **no motion** (audit B8-08). It used to replay `motion-pop-in` on every
+ * toggle behind a `hasToggledRef` guard; a visibility toggle is not an arrival and not a
+ * success, Geist and Linear both swap the glyph instantly, and the guard existed only to stop
+ * the animation firing on first paint — a tell that the animation did not belong there.
  *
  * @example
  * <PasswordInput
@@ -70,7 +76,6 @@ export function PasswordInput({
   const [visible, setVisible] = React.useState(false);
   const requirementsId = React.useId();
   const requirementsStatusId = React.useId();
-  const hasToggledRef = React.useRef(false);
   const requirementItems = requirements ?? [];
   const hasRequirements = requirementItems.length > 0;
   const metCount = requirementItems.filter((req) => req.met).length;
@@ -87,65 +92,22 @@ export function PasswordInput({
         disabled={disabled}
         aria-describedby={describedBy}
         suffix={
-          <button
-            type="button"
+          // `IconButton` rather than a hand-rolled `<button>` (audit B8-08): it already owns
+          // the 24px pointer target, the focus grammar and the ghost hover/pressed pair, and
+          // it makes the accessible name a compile-time requirement. `xs` is 24px, which
+          // leaves the wash inset 4px inside a 32px field — clear of the hairline, so the
+          // ghost fill satisfies the hover-geometry rule that forced the old ink-only hover.
+          <IconButton
             data-slot="password-input-toggle"
-            onClick={() => {
-              hasToggledRef.current = true;
-              setVisible((v) => !v);
-            }}
+            variant="ghost"
+            size="xs"
+            onClick={() => setVisible((v) => !v)}
             disabled={disabled}
             aria-label={toggleAriaLabel}
             aria-pressed={visible}
-            className={cn(
-              "flex size-(--size-xs) items-center justify-center rounded-md text-muted-foreground ",
-              "hover:text-foreground",
-              // The toggle sits INSIDE the field box, so a wash would touch the input border;
-              // its hover is ink, and so is its pressed step.
-              "active:text-muted-foreground",
-              "focus-visible:text-foreground",
-              "disabled:pointer-events-none disabled:opacity-(--opacity-dim)",
-            )}
           >
-            {/*
-             * Keyed presence (CX-13): keying to visible remounts the icon so its
-             * mount animation replays on every toggle. Deliberately reused the
-             * same pop-in utility rather than inventing a bespoke fade — a
-             * toggle is not a success event, but (a) the spring easing's
-             * overshoot is genuinely tiny (scale 0.9 to 1, peaking around 1.05 —
-             * see the spring token definition in packages/design-tokens/src/base.css),
-             * so in practice it doesn't read as celebratory, and (b) the
-             * sanctioned motion vocabulary has no plain fade/scale alternative
-             * that can animate a value on the very frame a keyed element
-             * remounts (there's no prior computed style to interpolate from
-             * without a starting-style mechanism, which isn't part of this
-             * phase's utilities) — and one-off arbitrary motion values outside
-             * the sanctioned utilities are lint-banned. The rise-on-enter
-             * utility was also considered and rejected — it's documented for
-             * content arrival (chat messages, skeleton reveal), and the rise
-             * reads oddly on a 16px inline icon. Full reasoning:
-             * docs/plans/.m-swap-summary.md.
-             */}
-            {visible ? (
-              <EyeOff
-                key="eye-off"
-                className={cn(
-                  "size-(--icon-default)",
-                  hasToggledRef.current && "motion-pop-in",
-                )}
-                aria-hidden
-              />
-            ) : (
-              <Eye
-                key="eye"
-                className={cn(
-                  "size-(--icon-default)",
-                  hasToggledRef.current && "motion-pop-in",
-                )}
-                aria-hidden
-              />
-            )}
-          </button>
+            {visible ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
+          </IconButton>
         }
         {...props}
       />

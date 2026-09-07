@@ -280,10 +280,6 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     },
   ],
   [
-    "/password-input.tsx",
-    { counts: { button: 1 }, rationale: "field-integrated visibility toggle" },
-  ],
-  [
     "/sidebar.tsx",
     {
       counts: { button: 3 },
