@@ -2,7 +2,7 @@
 
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, relative, resolve } from "node:path";
+import { relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 // Both imported by PACKAGE NAME from root devDependencies. They were previously reached through
 // `../packages/design-tokens/node_modules/style-dictionary/lib/StyleDictionary.js` (an internal
@@ -13,8 +13,8 @@ import StyleDictionary from "style-dictionary";
 import * as YAML from "yaml";
 import "../packages/design-tokens/sd-hooks.mjs";
 import { designMdConfig } from "./design-md.config.mjs";
+import { ROOT as repositoryRoot } from "./lib/fs.mjs";
 
-const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const checkMode = process.argv.includes("--check");
 const selfTestMode = process.argv.includes("--self-test");
 const allowedArguments = new Set(["--check", "--self-test"]);

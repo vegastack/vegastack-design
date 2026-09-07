@@ -5,14 +5,20 @@
 // Writes a COMMITTED audit document, so it defaults to the dated audit folder, not `.audit/`.
 import fs from "node:fs";
 import path from "node:path";
-import { ROOT as root } from "../lib/fs.mjs";
+import { ROOT as root, walk } from "../lib/fs.mjs";
 import { documentDir } from "./out-dir.mjs";
 const dirs = ["packages/ui/registry/ui", "packages/ui/registry/blocks"];
+// `walk`, not `fs.readdirSync({ recursive: true })`: Node's recursive reader FOLLOWS a symlinked
+// directory, and it swallows an unreadable root rather than throwing — which here would read as
+// "the design system uses fewer classes than it does".
 const files = [];
 for (const d of dirs)
-  for (const f of fs.readdirSync(path.join(root, d), { recursive: true }))
-    if (/\.tsx?$/.test(f) && !/\.test\./.test(f) && !/icons\//.test(f))
-      files.push(path.join(root, d, f));
+  files.push(
+    ...walk(path.join(root, d), {
+      include: (rel) => /\.tsx?$/.test(rel) && !/\.test\./.test(rel),
+      prune: (rel) => rel === "icons" || rel.endsWith("/icons"),
+    }),
+  );
 const buckets = {
   padding: /^-?(p|px|py|pt|pr|pb|pl|ps|pe)-/,
   margin: /^-?(m|mx|my|mt|mr|mb|ml|ms|me)-/,

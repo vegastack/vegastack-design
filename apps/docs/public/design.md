@@ -10,8 +10,8 @@ generated:
   inputs:
     generator:
       path: "tooling/sync-design-md.mjs"
-      bytes: 12571
-      sha256: "e89e7b952e08607c080e027176a784f27bd2a104c52590a46008e65058bf74ab"
+      bytes: 12538
+      sha256: "43e7c7e64fd2a91437fcbba7cfffd55f5a370e597bce71f35cd6933f1f13a358"
     config:
       path: "tooling/design-md.config.mjs"
       bytes: 3484
