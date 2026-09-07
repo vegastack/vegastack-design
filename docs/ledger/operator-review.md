@@ -834,3 +834,34 @@ transparent)`) before committing to the shape. Two consequences worth knowing:
   timeout — it is the first thing to fall over when several agents share one machine. If concurrent
   audit work continues, either raise the per-test timeout for that route or serialise the gate runs;
   do not read this failure as an OTPInput defect.
+
+## 2026-09-08 — F2's gate moved to the Ryzen boxes, and the committed receipt was stale
+
+- **The committed receipt did not describe this tree, and said so.** `.gates/receipt.json` on the
+  branch recorded `head d14bd886` against base `6f11a4bc` — the main from BEFORE F1 merged. The
+  branch had since been rebased onto `9c33dfaf`, so the receipt covered a tree that no longer
+  existed. A finisher had noticed it "reports as covering this tree"; it did not, and the fix was
+  never to reason about it but to re-run the ladder. **A receipt is only ever evidence about the
+  tree hash it names** — read the `head`/`base` fields before trusting one, especially after a
+  rebase.
+- **Every browser lane now runs on the Ryzen boxes** through the session runner, which mirrors the
+  commit plus the dirty tree to a box, runs under a per-box lane lock, and copies `.gates/` back.
+  The pulled receipt's `host.platform` reads `linux`; CI does not check it.
+- **The full sweep failed two lanes. One was a real test defect; one was environmental.**
+  - `unit` — `button-matrix.browser.test.tsx > a neutral ghost inherits its host ink` asserted
+    `rgb(1, 2, 3)` and got `oklch(0.145 0.003 75)`. This one was a REAL defect, in the test, and it
+    is written up in `bugs.md`: the assertion measures a rest state, and the pointer was sitting on
+    the button. It reproduced in every full sweep and passed in isolation, which is the signature of
+    shared-page pointer state, not of a flake. Fixed by parking the pointer on a spacer first.
+  - `contracts` — `/docs/components/relative-time contains its primary fixture at 320px` failed in
+    `mobile-chromium` and `mobile-chromium-dark` with `locator.scrollIntoViewIfNeeded: Element is
+not attached to the DOM`, 878/880 passing. That is a detach during an actionability wait, not a
+    containment failure, and **F2 touches no file under `relative-time`** — the component re-renders
+    on its own ticker, which is exactly the shape that detaches a node mid-action.
+- **A third sweep lost the unit lane to a harness error** — `Failed to run the test … Cannot connect
+to the iframe` for one file, with **1488 tests passed and zero assertion failures** in the same
+  run. That one is genuinely environmental: it is the vitest browser orchestrator failing to attach
+  an iframe under load, not a test outcome.
+- **Handled by re-running the full ladder and by fixing the real defect, never by `GATES_SKIP` or
+  `--no-verify`.** Recorded because the receipt on the branch shows only the passing run, and a
+  reviewer should know what was re-run and on what evidence each failure was classified.

@@ -600,3 +600,27 @@ name`) pins the role-plus-name query, which is the assertion that actually fails
   `stacking`, `surface-ladder`) that belong to other batches in flight. **Left for MK / G1-a**, and
   listed in the F2 PR: an untyped test directory is exactly where a fixture rots into a
   green-but-empty gate.
+
+## 2026-09-08 — A rest-state assertion measured a hovered button, because the pointer never moved
+
+- **Symptom:** `button-matrix.browser.test.tsx > a neutral ghost inherits its host ink; a status
+ghost takes its own` expected the neutral ghost to compute `rgb(1, 2, 3)` (its host's ink) and got
+  `oklch(0.145 0.003 75)`. It failed in **every** full `pnpm gates:push` sweep and passed 7/7 when
+  the file was run on its own, on the same box and the same tree.
+- **Root cause:** the received value is exactly `--foreground`, which for the neutral tone is exactly
+  `--btn-tint` — the ink a ghost paints **on hover** (`hover:text-(--btn-tint)`). Every test file in
+  a run shares one browser page, and the pointer stays wherever the previously executed file left
+  it; in a full sweep it was already sitting where this button mounts, so the button was in `:hover`
+  before the first line of the test ran. In isolation nothing had moved the pointer, so the same code
+  passed. The failure screenshot settles it: `Dismiss` is drawn with a hover background and `Approve`
+  is not. A diagnostic render confirmed the mechanism itself is intact — the host div computes
+  `rgb(1, 2, 3)`, the button's parent is that div, `--btn-ghost-ink` reads back empty, and the button
+  computes `rgb(1, 2, 3)` — and the compiled CSS is exactly
+  `.text-(--btn-ghost-ink){color:var(--btn-ghost-ink)}` plus
+  `.[--btn-ghost-ink:inherit]{--btn-ghost-ink:inherit}`, so `color` is invalid-at-computed-value-time
+  and falls back to the inherited ink as designed.
+- **Systemic fix:** the fixture renders a spacer and the test parks the pointer on it with
+  `userEvent.hover` before measuring, so rest is actually rest. The rule worth keeping: **a test that
+  asserts a rest-state style must establish rest — the pointer is shared, page-scoped state that no
+  `render()` resets.** The tell for this whole class is a test that fails only in the full suite and
+  passes in isolation while the "wrong" value is precisely some other state's token.

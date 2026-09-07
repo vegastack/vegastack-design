@@ -1,6 +1,7 @@
 import "./contrast.css"; // compiled Tailwind + @vegastack token theme (Vite via @tailwindcss/vite)
 import * as React from "react";
 import { render } from "vitest-browser-react";
+import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { Button, type ButtonTone } from "../registry/ui/button";
 import { IconButton } from "../registry/ui/icon-button";
@@ -89,6 +90,8 @@ test("a soft button's rest, hover and pressed fills are three distinct colours",
 test("a neutral ghost inherits its host ink; a status ghost takes its own", async () => {
   const screen = await render(
     <div style={{ color: "rgb(1, 2, 3)" }}>
+      {/* Parking space for the pointer — see the `userEvent.hover` below. */}
+      <div data-testid="away" style={{ height: 240 }} />
       <Button data-testid="neutral" variant="ghost">
         Dismiss
       </Button>
@@ -97,10 +100,17 @@ test("a neutral ghost inherits its host ink; a status ghost takes its own", asyn
       </Button>
     </div>,
   );
-  const at = (id: string) =>
-    getComputedStyle(
-      screen.container.querySelector<HTMLElement>(`[data-testid="${id}"]`)!,
-    ).color;
+  const el = (id: string) =>
+    screen.container.querySelector<HTMLElement>(`[data-testid="${id}"]`)!;
+  const at = (id: string) => getComputedStyle(el(id)).color;
+
+  // This asserts the REST ink, and every test file in the run shares one browser page: the pointer
+  // stays wherever the previously executed file left it, so it can already be sitting on top of
+  // this button by the time it mounts. A hovered ghost paints `--btn-tint` (for the neutral tone,
+  // `--foreground`) instead of inheriting, which made this test fail in the full suite and pass in
+  // isolation — the tell was a hover background on `Dismiss` in the failure screenshot. Park the
+  // pointer on a spacer so rest is actually rest.
+  await userEvent.hover(el("away"));
 
   expect(at("neutral")).toBe("rgb(1, 2, 3)");
   expect(at("success")).not.toBe("rgb(1, 2, 3)");
