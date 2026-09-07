@@ -9,7 +9,8 @@
 //      component source and docs copy-in: 1082 files on a 538-item registry. Those paths are
 //      legitimately component sources, so a filename-level filter CANNOT tell that one-line comment
 //      apart from a real edit — it has to read the diff body. Without this, every version bump would
-//      trigger a full 108-route sweep that cannot possibly have moved anything.
+//      trigger a full contract sweep over every component route that cannot possibly have moved
+//      anything.
 //   3. WHAT THE CONTENT HASH OF THE TREE UNDER TEST IS — the anchor the gate receipt binds to.
 //
 // The provenance subtraction was written twice before as workflow shell and was wrong in both
@@ -20,14 +21,11 @@
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 
-export const ROOT = resolve(
-  dirname(fileURLToPath(import.meta.url)),
-  "..",
-  "..",
-);
+import { ROOT } from "./fs.mjs";
+
+export { ROOT };
 
 /** The provenance header registry:build stamps into every component source and docs copy-in. */
 export const PROVENANCE_HEADER = /^[+-]\/\/ @vegastack [a-z0-9-]+@[0-9]/;
@@ -314,11 +312,34 @@ export function versionBumpOnly(before, after = null) {
     ? changedFilesInRange(before, after)
     : changedFilesInWorkingTree(before);
   const offenders = [];
+
+  // AN UNTRACKED FILE PRODUCES NO DIFF HUNK, so the loop below never sees it and would wave it
+  // through — the same fail-open `dropProvenanceOnly` documents fixing twice. Measured 2026-09-07
+  // (audit TG-03): a working tree holding 2,716 untracked files classified as "pure version bump —
+  // no observable change", and a brand-new `packages/ui/registry/ui/foo.tsx` classified the same.
+  // So untracked paths are judged here, by the same per-path rules, before any diff is read:
+  //   · a new changeset is new release intent                       → offender
+  //   · a new package CHANGELOG is all additions (append-only rule)  → allowed
+  //   · registry / contract-derived output is re-derived in CI       → exempt by re-execution
+  //   · anything else is a file no commit has ever seen               → offender
+  const untracked = after === null ? new Set(untrackedFiles()) : new Set();
+  for (const file of files) {
+    if (!untracked.has(file)) continue;
+    if (/(^|\/)CHANGELOG\.md$/.test(file)) continue;
+    if (GENERATED_REGISTRY_OUTPUT.test(file)) continue;
+    if (CONTRACT_DERIVED_OUTPUT.some((pattern) => pattern.test(file))) continue;
+    offenders.push({
+      file,
+      line: "(untracked — no commit has this file, so it cannot be version churn)",
+    });
+  }
+  const diffable = files.filter((file) => !untracked.has(file));
+
   const BATCH = 200;
-  for (let index = 0; index < files.length; index += BATCH) {
+  for (let index = 0; index < diffable.length; index += BATCH) {
     const args = ["diff", "-U0", "--no-renames", before];
     if (after) args.push(after);
-    args.push("--", ...files.slice(index, index + BATCH));
+    args.push("--", ...diffable.slice(index, index + BATCH));
     const diff = git(args);
     for (const [file, body] of splitDiffByFile(diff)) {
       const lines = body.filter(isBodyLine);

@@ -6,7 +6,7 @@
 //   shell, and both times in a way reading could not catch (docs/ledger/operator-review.md,
 //   2026-07-25):
 //
-//     - reporting a rendered-surface change for a pure version bump, so the 768-check gate re-ran
+//     - reporting a rendered-surface change for a pure version bump, so the full contract gate re-ran
 //       over 1082 files whose only diff was a re-stamped provenance comment;
 //     - then, after the fix, referencing an unbound variable inside `$( … || true )` so it reported
 //       NO change for a real component edit and exited 0 — a fail-open with a green log.
@@ -17,9 +17,16 @@
 
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 
 import {
   isSubstantiveLine,
@@ -261,6 +268,115 @@ checks += 2;
   checks++;
 }
 
+// ── an untracked file is never version churn ──────────────────────────────────────────────────────
+//
+// `git diff` cannot see an untracked file, so the version-bump predicate never saw one either: on
+// 2026-09-07 a working tree holding 2,716 untracked audit files classified as "pure version bump —
+// no observable change", and a brand-new `packages/ui/registry/ui/foo.tsx` classified identically
+// (audit TG-03). That reached `pnpm classify`, `release-classify`, the guard run without flags, and
+// the working-tree carry inside `pnpm version-packages`.
+//
+// The fixture is a SYNTHETIC repository, not this one: it copies the tooling under test plus the
+// committed authorities the classifier reads into a fresh `git init`, commits them, then adds one
+// untracked component source. Probing the real tree instead would race every other gate that walks
+// `packages/ui/registry` (design-lint, typecheck, registry:build), and a clone would exercise the
+// COMMITTED tooling rather than the working tree's.
+
+{
+  const repo = mkdtempSync(join(tmpdir(), "classify-untracked-"));
+  const gitIn = (args) =>
+    execFileSync(
+      "git",
+      ["-c", "user.name=fixture", "-c", "user.email=fixture@local", ...args],
+      {
+        cwd: repo,
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "pipe"],
+      },
+    );
+  try {
+    for (const relative of [
+      "tooling",
+      "packages/ui/component-contracts.json",
+      "packages/ui/package.json",
+      "apps/docs/package.json",
+      "apps/docs/vrt/contract-routes.generated.ts",
+      "apps/docs/vrt/icon-chunks.generated.ts",
+    ]) {
+      mkdirSync(dirname(join(repo, relative)), { recursive: true });
+      cpSync(join(ROOT, relative), join(repo, relative), { recursive: true });
+    }
+    gitIn(["init", "--quiet", "--initial-branch=main"]);
+    gitIn(["add", "-A"]);
+    gitIn(["commit", "--quiet", "--no-verify", "-m", "fixture"]);
+
+    const probe = "packages/ui/registry/ui/zz-untracked-probe.tsx";
+    mkdirSync(dirname(join(repo, probe)), { recursive: true });
+    writeFileSync(
+      join(repo, probe),
+      'export function UntrackedProbe() {\n  return <button type="button">probe</button>;\n}\n',
+    );
+
+    // The predicate itself, from the copied tooling so ROOT resolves to the fixture repository.
+    const predicate = JSON.parse(
+      execFileSync(
+        "node",
+        [
+          "--input-type=module",
+          "-e",
+          `import { versionBumpOnly } from ${JSON.stringify(join(repo, "tooling/lib/change-set.mjs"))};\n` +
+            "console.log(JSON.stringify(versionBumpOnly('HEAD', null)));",
+        ],
+        { cwd: repo, encoding: "utf8" },
+      ),
+    );
+    assert.equal(
+      predicate.ok,
+      false,
+      "a tree whose only change is one UNTRACKED component source must NOT be pure version churn — " +
+        "this is the TG-03 fail-open",
+    );
+    assert.deepEqual(
+      predicate.offenders.map((offender) => offender.file),
+      [probe],
+      "the untracked file must be named as the offender",
+    );
+    checks += 2;
+
+    // And the classifier built on it: the working tree requires the component gates.
+    const classified = JSON.parse(
+      execFileSync(
+        "node",
+        [
+          join(repo, "tooling/classify-change.mjs"),
+          "--before",
+          "HEAD",
+          "--json",
+        ],
+        { cwd: repo, encoding: "utf8" },
+      ),
+    );
+    assert.equal(
+      classified.pureVersionBump,
+      false,
+      "an untracked component source must never classify as a pure version bump",
+    );
+    assert.equal(
+      classified.contracts,
+      true,
+      "an untracked component source must require the contract lane",
+    );
+    assert.equal(
+      classified.unit,
+      true,
+      "an untracked component source must require the browser-unit lane",
+    );
+    checks += 3;
+  } finally {
+    rmSync(repo, { recursive: true, force: true });
+  }
+}
+
 // ── no output may ever be unset ──────────────────────────────────────────────────────────────────
 
 // An output the workflow never set reads as false in an `if:`, so the gate it guards is SKIPPED
@@ -291,6 +407,6 @@ for (const [result, label] of [
 
 console.log(
   `✓ classify-change: ${checks} assertions — a real Version Packages commit (${bump.json.provenanceOnlyFiles} ` +
-    `provenance-only files) requires no contract lane, a real component change requires one, and every ` +
-    `$GITHUB_OUTPUT key is always set`,
+    `provenance-only files) requires no contract lane, a real component change requires one, an ` +
+    `UNTRACKED component source requires the component gates, and every $GITHUB_OUTPUT key is always set`,
 );
