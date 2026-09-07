@@ -415,8 +415,6 @@ idempotency check would fail after anyone ran the formatter.
   forward every prop adds a component and hides where `value` goes. Both are reversible if a consumer
   needs them; neither is worth shipping speculatively.
 
-##
-
 ## 2026-09-07 — F1 surface ladder: eye-tuned rung values and the `bg-muted` mapping
 
 **Decision:** ship the ladder at values that differ from `03-proposals.md` §P1's start values wherever the contrast gate said P1's number could not hold, and keep `bg-muted` on the sites where it already means "rung 1".
