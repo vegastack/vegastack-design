@@ -58,8 +58,12 @@ export interface AnimatedIconHandle {
  * primitive an icon may need is here, so an icon module never touches React.
  */
 export interface AnimatedIconChoreography {
-  /** Control groups, keyed by name. `default` always exists. */
-  controls: Record<string, AnimatedIconControls>;
+  /**
+   * Look up a control group by name; no argument gives the primary group. A
+   * function rather than a record so a group is never `possibly undefined` at
+   * the call site — the factory creates exactly the groups the spec declares.
+   */
+  control: (group?: string) => AnimatedIconControls;
   /** The live `useReducedMotionConfig()` preference. */
   shouldReduceMotion: boolean;
   /**
@@ -450,9 +454,23 @@ export function createAnimatedIcon(
     );
 
     const flagsRef = React.useRef<Record<string, unknown>>({});
+
+    // Index rather than key: `groupNames` is fixed when the component type is
+    // created and the generator only ever names a group it declared, so the
+    // lookup is total. An unknown name falls back to the primary control rather
+    // than handing a hand-written spec an undefined.
+    const control = React.useCallback(
+      (group?: string) => {
+        const index = group ? groupNames.indexOf(group) : 0;
+        return controlList[index === -1 ? 0 : index] as AnimatedIconControls;
+      },
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- stable entries
+      controlList,
+    );
+
     const choreography = React.useMemo<AnimatedIconChoreography>(
       () => ({
-        controls,
+        control,
         shouldReduceMotion,
         run,
         reset,
@@ -460,10 +478,10 @@ export function createAnimatedIcon(
         after,
         flags: flagsRef.current,
       }),
-      [controls, shouldReduceMotion, run, reset, set, after],
+      [control, shouldReduceMotion, run, reset, set, after],
     );
 
-    const primaryControl = controls[groupNames[0] ?? "default"];
+    const primaryControl = control();
 
     const startAnimation = React.useCallback(() => {
       clearTimers();
@@ -472,7 +490,7 @@ export function createAnimatedIcon(
         void spec.start(choreography);
         return;
       }
-      if (usesControls && primaryControl) void run(primaryControl, "animate");
+      if (usesControls) void run(primaryControl, "animate");
     }, [choreography, clearTimers, run, primaryControl]);
 
     const stopAnimation = React.useCallback(() => {
@@ -482,7 +500,7 @@ export function createAnimatedIcon(
         void spec.stop(choreography);
         return;
       }
-      if (usesControls && primaryControl) void reset(primaryControl, "normal");
+      if (usesControls) void reset(primaryControl, "normal");
     }, [choreography, clearTimers, reset, primaryControl]);
 
     React.useImperativeHandle(ref, () => {

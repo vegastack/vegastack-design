@@ -957,70 +957,70 @@ const CHOREOGRAPHY_OVERRIDES = {
   // cancels pending work on stop and on unmount, so `cancelHide` is implicit.
   "wifi-low": {
     groups: ["default", "question"],
-    start: `async ({ run, controls, after }) => {
-      await run(controls.default, "fadeOut");
-      run(controls.default, "fadeIn");
-      run(controls.question, "show");
-      after(1500, () => run(controls.question, "hide"));
+    start: `async ({ run, control, after }) => {
+      await run(control(), "fadeOut");
+      run(control(), "fadeIn");
+      run(control("question"), "show");
+      after(1500, () => run(control("question"), "hide"));
     }`,
-    stop: `({ reset, controls }) => {
-      reset(controls.default, "fadeIn");
-      reset(controls.question, "hide");
+    stop: `({ reset, control }) => {
+      reset(control(), "fadeIn");
+      reset(control("question"), "hide");
     }`,
   },
   // Upstream wrapped both halves in `startAll`/`stopAll` purely to attach
   // `.catch()` guards; the factory's `run` already resolves on interruption.
   projector: {
     groups: ["path", "body"],
-    start: `async ({ run, controls }) => {
-      run(controls.body, "animate");
-      await run(controls.path, "hidden");
-      await run(controls.path, "animate");
+    start: `async ({ run, control }) => {
+      run(control("body"), "animate");
+      await run(control("path"), "hidden");
+      await run(control("path"), "animate");
     }`,
-    stop: `({ run, controls }) => {
-      run(controls.body, "normal");
-      run(controls.path, "visible");
+    stop: `({ run, control }) => {
+      run(control("body"), "normal");
+      run(control("path"), "visible");
     }`,
   },
   // `runPathIntro` is a single-use helper; inlined.
   "phone-call": {
     groups: ["svg", "path"],
-    start: `async ({ run, controls }) => {
+    start: `async ({ run, control }) => {
       await Promise.all([
-        run(controls.svg, "animate"),
+        run(control("svg"), "animate"),
         (async () => {
-          await run(controls.path, "fadeOut");
-          run(controls.path, "fadeIn");
+          await run(control("path"), "fadeOut");
+          run(control("path"), "fadeIn");
         })(),
       ]);
     }`,
-    stop: `({ reset, controls }) => {
-      reset(controls.svg, "normal");
-      reset(controls.path, "normal");
+    stop: `({ reset, control }) => {
+      reset(control("svg"), "normal");
+      reset(control("path"), "normal");
     }`,
   },
   "satellite-dish": {
     groups: ["svg", "path"],
-    start: `async ({ run, controls }) => {
+    start: `async ({ run, control }) => {
       await Promise.all([
-        run(controls.svg, "animate"),
+        run(control("svg"), "animate"),
         (async () => {
-          await run(controls.path, "fadeOut");
-          run(controls.path, "fadeIn");
+          await run(control("path"), "fadeOut");
+          run(control("path"), "fadeIn");
         })(),
       ]);
     }`,
-    stop: `({ reset, controls }) => {
-      reset(controls.svg, "normal");
-      reset(controls.path, "normal");
+    stop: `({ reset, control }) => {
+      reset(control("svg"), "normal");
+      reset(control("path"), "normal");
     }`,
   },
   // Upstream drove this from an effect on hover state rather than from the
   // handle; the flicker definition and its instant reset move onto the handle.
   keyboard: {
     groups: ["default"],
-    start: `({ run, controls }) =>
-      run(controls.default, (i: number) => ({
+    start: `({ run, control }) =>
+      run(control(), (i: number) => ({
         opacity: [1, 0.2, 1],
         transition: {
           duration: 1.5,
@@ -1030,7 +1030,7 @@ const CHOREOGRAPHY_OVERRIDES = {
           repeatType: "reverse",
         },
       }))`,
-    stop: `({ set, controls }) => set(controls.default, { opacity: 1 })`,
+    stop: `({ set, control }) => set(control(), { opacity: 1 })`,
   },
   // Purely presence-driven: the factory's own active state is the whole
   // mechanism, so neither half touches a control.
@@ -1443,6 +1443,16 @@ function assertGroupsBound(filename, groups, root, elements) {
   }
 }
 
+/**
+ * How a choreography closure names a control. `control()` is the primary group,
+ * which is what a single-control icon always has.
+ */
+function controlExpression(group) {
+  return group === "default"
+    ? "control()"
+    : `control(${JSON.stringify(group)})`;
+}
+
 /** `bodyControls` → `body`; the lone `controls` → `default`. */
 function groupNameFor(identifier) {
   if (identifier === "controls") return "default";
@@ -1732,14 +1742,12 @@ function extractChoreography(source, name, groups, groupByIdentifier) {
     return override;
   }
 
-  const primary = groups[0] ?? "default";
+  const primary = controlExpression(groups[0] ?? "default");
   const normalize = (text) => text.replace(/\s+/g, " ").trim();
   if (
     groups.length <= 1 &&
-    normalize(rewritten.startAnimation) ===
-      `run(controls.${primary}, "animate")` &&
-    normalize(rewritten.stopAnimation) ===
-      `reset(controls.${primary}, "normal")`
+    normalize(rewritten.startAnimation) === `run(${primary}, "animate")` &&
+    normalize(rewritten.stopAnimation) === `reset(${primary}, "normal")`
   ) {
     return { start: null, stop: null };
   }
@@ -1751,7 +1759,7 @@ function extractChoreography(source, name, groups, groupByIdentifier) {
 
 /** Destructure only the context keys the body actually reaches for. */
 function choreographyClosure(body) {
-  const used = ["after", "controls", "flags", "reset", "run", "set"].filter(
+  const used = ["after", "control", "flags", "reset", "run", "set"].filter(
     (key) => new RegExp(`\\b${key}\\b`).test(body),
   );
   const parameter = used.length > 0 ? `{ ${used.join(", ")} }` : "";
@@ -1877,7 +1885,7 @@ function rewriteChoreographyBody(
           edits.push({
             start: node.getStart(file),
             end: node.end,
-            text: `controls.${groupByIdentifier.get(node.text)}`,
+            text: controlExpression(groupByIdentifier.get(node.text)),
           });
         } else if (node.text === "runAnimation") {
           edits.push({
