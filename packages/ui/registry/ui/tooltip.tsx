@@ -181,12 +181,15 @@ export function TooltipContent({
       }}
       slot="tooltip"
       surface="tooltip"
-      // No explicit `role="tooltip"`: Base UI already sets it on the popup (B3-10).
+      // `role="tooltip"` stays explicit. The 2026-09-07 audit's B3-10 asserted Base UI already
+      // sets it; verified against the INSTALLED @base-ui/react 1.6.0, it does not — the string
+      // "tooltip" appears in no role assignment anywhere in the package, and removing this prop
+      // made `getByRole("tooltip")` fail in truncated-text.test.tsx. The finding is rejected.
       positioning={{ side, sideOffset, align }}
       portalProps={portalProps}
       positionerProps={positionerProps}
       viewportProps={viewportProps}
-      popupProps={props}
+      popupProps={{ role: "tooltip", ...props }}
       arrow={arrow ? <TooltipArrow /> : undefined}
     >
       {children}

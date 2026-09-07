@@ -514,7 +514,7 @@
         "whenToUse": "Short supplementary labels on icon buttons, toolbar actions, and controls — optionally with a shortcut hint.",
         "whenNotToUse": "Interactive content (links/buttons) or essential information — a tooltip isn't reliably reachable; use a Popover.",
         "version": "0.6.0",
-        "integrity": "sha256-P/esZNU6sjt2sCCFDIVub4dx46dd0mwsC11Y9up+PS0="
+        "integrity": "sha256-aBk9xxfkmsxKUo/Gt+5T29sybI1I7zB85YwpG+hJuFg="
       }
     },
     {
