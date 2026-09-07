@@ -452,7 +452,7 @@
         "whenToUse": "Choosing a single value from a fixed, known set — fonts, timezones, statuses — especially long/grouped lists.",
         "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), multi-select, or free-text/async search (combobox).",
         "version": "0.6.0",
-        "integrity": "sha256-l2+kj05rSQ7RXJS5KstB6g02YzEXTwNHuOF/Y4/jzok="
+        "integrity": "sha256-N2PUAP5BZ2kK1wMKk7u3d1LXpIiAbrKl4oMFW+//Pss="
       }
     },
     {

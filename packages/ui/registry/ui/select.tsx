@@ -1,4 +1,4 @@
-// @vegastack select@0.6.0 sha256-l2+kj05rSQ7RXJS5KstB6g02YzEXTwNHuOF/Y4/jzok=
+// @vegastack select@0.6.0 sha256-N2PUAP5BZ2kK1wMKk7u3d1LXpIiAbrKl4oMFW+//Pss=
 
 "use client";
 
@@ -63,6 +63,11 @@ export type SelectProps<
  * uncontrolled (`defaultValue`); pass `items` so {@link SelectValue} can render a
  * selected item's label instead of its raw value.
  *
+ * **Modal by default** (audit D12): while the listbox is open, background scroll is
+ * locked so the trigger cannot slide out from under the popup — the same modality
+ * {@link Popover} uses. Pass `modal={false}` for a listbox that leaves the page
+ * scrollable and interactive.
+ *
  * @example
  * <Select defaultValue="serif">
  *   <SelectTrigger><SelectValue placeholder="Pick a font" /></SelectTrigger>
@@ -76,8 +81,6 @@ export function Select<Value, Multiple extends boolean | undefined = false>({
   modal = true,
   ...props
 }: SelectProps<Value, Multiple>) {
-  // Modal by default: lock background scroll while the listbox is open so the
-  // trigger stays anchored (consistent with our menus/popovers). Overridable.
   return <BaseSelect.Root data-slot="select" modal={modal} {...props} />;
 }
 
