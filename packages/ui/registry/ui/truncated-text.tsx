@@ -1,4 +1,4 @@
-// @vegastack truncated-text@0.6.0 sha256-AhtX/isbYs6FDVmCMfwmebT0xSDjiJa0mz4sYT7APSI=
+// @vegastack truncated-text@0.6.0 sha256-OiYh28n0XTc/pc9m/2b7ytBH4msczOAQ5SdkHAMBT6w=
 
 "use client";
 
@@ -46,6 +46,10 @@ export interface TruncationFocusProviderProps {
    * still wins.
    */
   focusable: boolean;
+  /**
+   * The region the default applies to — typically the rows of a grid or list.
+   * @default undefined
+   */
   children?: React.ReactNode;
 }
 

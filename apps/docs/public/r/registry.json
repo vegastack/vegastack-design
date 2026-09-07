@@ -1520,7 +1520,7 @@
         "whenToUse": "Long values in constrained layouts — table cells, nav labels, IDs/paths.",
         "whenNotToUse": "Essential action text or content that must be fully visible.",
         "version": "0.6.0",
-        "integrity": "sha256-AhtX/isbYs6FDVmCMfwmebT0xSDjiJa0mz4sYT7APSI="
+        "integrity": "sha256-OiYh28n0XTc/pc9m/2b7ytBH4msczOAQ5SdkHAMBT6w="
       }
     },
     {
