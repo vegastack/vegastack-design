@@ -314,7 +314,12 @@ assert.equal(
   0,
   "registry:verify-consume FAILS on the bumped tree — this is exactly what blocks `quality-gate`\n" +
     "  during a release, and it is the gate that catches an unusable published registry.\n" +
-    String(consume.stdout).split("\n").slice(-14).join("\n"),
+    // STDERR, not just stdout. verify-shadcn-consume prints its per-problem detail to stderr and
+    // only its ✓ progress to stdout, so a stdout-only tail showed a wall of ticks and hid every
+    // reason — a failure nobody can diagnose is barely better than one nobody sees. Every other
+    // assertion in this file already concatenates both streams; this one did not.
+    `${String(consume.stdout).split("\n").slice(-14).join("\n")}\n` +
+    `${consume.stderr}`,
 );
 ok(/(\d+)\/\1 graphs/.exec(consume.stdout)?.[0] ?? "");
 
