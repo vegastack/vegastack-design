@@ -1,10 +1,10 @@
-// @vegastack hover-card@0.6.0 sha256-KuK5FBGwBQQcN9OokojSUS3lvYaD4L/4CvZAKUFyNKw=
+// @vegastack hover-card@0.6.0 sha256-IU/IPMsJkDyTSh8I+bj9MSUr61PB4l36ofVTwMd0Ots=
 
 "use client";
 
 import * as React from "react";
 import { PreviewCard as BasePreviewCard } from "@base-ui/react/preview-card";
-import { cn, TIMINGS, FLOATING } from "@vegastack/design";
+import { TIMINGS, FLOATING } from "@vegastack/design";
 import {
   FloatingArrow,
   FloatingSurface,

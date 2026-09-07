@@ -1334,7 +1334,7 @@
         "whenToUse": "A rich optional preview of an entity — a user/agent/team card. Pass resolved content as children.",
         "whenNotToUse": "Plain-text labels (Tooltip), blocking content (Dialog), or anything essential (hover-only isn't reachable on touch).",
         "version": "0.6.0",
-        "integrity": "sha256-KuK5FBGwBQQcN9OokojSUS3lvYaD4L/4CvZAKUFyNKw="
+        "integrity": "sha256-IU/IPMsJkDyTSh8I+bj9MSUr61PB4l36ofVTwMd0Ots="
       }
     },
     {
