@@ -52,6 +52,8 @@ import { tmpdir } from "node:os";
 import { pathToFileURL } from "node:url";
 import { dirname, join } from "node:path";
 
+import { ROOT } from "./lib/fs.mjs";
+
 const registryDir = join(ROOT, "apps/docs/public/r");
 const shippedVerifier = join(
   ROOT,
@@ -284,8 +286,6 @@ import { createServer } from 'node:http';
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join, extname } from 'node:path';
-
-import { ROOT } from "./lib/fs.mjs";
 
 const registryDir = process.argv[2];
 const tarballDir = process.argv[3];
