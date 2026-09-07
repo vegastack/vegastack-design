@@ -20,11 +20,55 @@ visual values, enforced by `tooling/design-lint.mjs`. Token names verified again
 
 ## Semantic colors
 
-`bg-primary` / `text-muted-foreground` / `border-border` / `bg-accent text-accent-foreground`
-(highlighted state) / per-family `{success,warning,destructive,info}` each with
-`-hover`/`-active`/`-subtle`/`-subtle-hover`/`-text`/`-foreground` variants / `bg-popover
-text-popover-foreground` / `bg-card` / `bg-muted` / `bg-sidebar*` / `--brand` (marker-role accent
-ONLY — never a functional-state color; never hue-alone, see `colors.mdx`).
+### The surface ladder — the only neutral vocabulary
+
+Neutral surfaces and every interaction step are ONE ladder. Reach for a rung by name:
+
+| token           | role                                                                                        |
+| --------------- | ------------------------------------------------------------------------------------------- |
+| `bg-background` | the page                                                                                    |
+| `bg-card`       | every surface — card, popover, sheet, dialog, sidebar rail (`popover`/`sidebar` ARE `card`) |
+| `bg-surface-1`  | the rest fill of a filled control (soft button, kbd, chip, tab rail) and every well/track   |
+| `bg-surface-2`  | **hover**                                                                                   |
+| `bg-surface-3`  | **pressed / selected** (`data-selected:bg-surface-3`)                                       |
+
+`secondary`, `muted`, `accent` and every `sidebar-*` name are **ALIASES** of these rungs
+(`secondary` = `muted` = `surface-1`, `accent` = `sidebar-accent` = `surface-2`, `sidebar` = `card`).
+They compile, but new code names the rung. There is no `track` token — tracks are `surface-1`.
+
+**Never write a `hover:bg-*` literal.** Both washes come from the recipes exported by
+`@vegastack/design`:
+
+```tsx
+import { cn, surfaceInteractive, fillInteractive } from "@vegastack/design";
+
+surfaceInteractive; // "hover:bg-surface-2 active:bg-surface-3" — a control on a known surface
+fillInteractive.destructive; // "hover:bg-destructive/(--alpha-hover) active:bg-destructive/(--alpha-pressed)"
+```
+
+Use `fillInteractive.<tone>` when the backdrop is NOT a ladder surface (a kbd inside a hovered row,
+a chip on a well, chrome over media) or when the control hovers in its own hue. A SOLID fill uses
+neither — it owns darker `-hover`/`-active` steps already; a soft fill steps through its precomposed
+`{family}-subtle-hover` / `{family}-subtle-active`.
+
+**Every control needs a pressed step.** Hover moves one rung, pressing moves one more; a hover wash
+is inset ≥4px from any container hairline and inherits the container's inner radius.
+
+### The rest
+
+`bg-primary` / `text-muted-foreground` / `border-border` / per-family
+`{success,warning,destructive,info}` each with
+`-hover`/`-active`/`-subtle`/`-subtle-hover`/`-subtle-active`/`-text`/`-foreground` variants /
+`--brand` (marker-role accent ONLY — never a functional-state color; never hue-alone, see
+`colors.mdx`) / `--chart-single` (a ONE-series chart is drawn in foreground ink; `chart-1…8` start
+at two series) / theme-invariant media chrome `bg-media-scrim`, `bg-media-scrim-strong`,
+`text-media-foreground` (never `primary` over video — it inverts with the theme).
+
+`info` is **links and informational UI only**. Promotion, selection and emphasis take a ladder rung
+or `primary` — never `info`.
+
+`border` is DERIVED as `foreground` at `--alpha-border` (8% light / 14% dark): one translucent
+hairline that reads on page, card, well and dark band. `input` and `sidebar-border` alias it.
 
 No hex, no raw Tailwind palette (`bg-neutral-900`, `text-red-500`).
 
@@ -72,18 +116,24 @@ Never a raw `/NN` alpha step (`raw-alpha`) or a raw `opacity-NN` (`raw-opacity`;
 `opacity-100` are exempt structural endpoints).
 
 Alpha role tokens (not exhaustive — see `theme.css`): `--alpha-tint-border` (focus/invalid border
-tint), `--alpha-input`/`--alpha-input-hover` (dark-mode input wash), `--alpha-wash`/
-`--alpha-wash-faint`/`--alpha-wash-strong` (hover washes), `--alpha-surface-faint`/
-`--alpha-surface-subtle`, `--alpha-soft-hover`/`--alpha-soft-surface` (theme-split),
+tint), `--alpha-input` (dark-mode input wash), `--alpha-wash`/
+`--alpha-wash-faint`/`--alpha-wash-strong` (hover washes), `--alpha-surface-faint`,
+`--alpha-soft-hover`/`--alpha-soft-surface` (theme-split),
 `--alpha-ink-tint`/`--alpha-ink-tint-strong`, `--alpha-border-soft`/`--alpha-border-subtle`/
 `--alpha-outline-border`/`--alpha-outline-soft`, `--alpha-glass`/`--alpha-glass-hover`,
-`--alpha-backdrop-soft`, `--alpha-link-hover`, `--alpha-fill-hover`.
+`--alpha-backdrop-soft`, `--alpha-link-hover`, and the ladder's own twins
+`--alpha-hover` (7%) / `--alpha-pressed` (10%) / `--alpha-border` (8% light, 14% dark).
 
 Element-opacity tokens: `--opacity-dim` (50%, the uniform disabled-state opacity — NOT design.md's
 stale 45%), `--opacity-hint`/`--opacity-hint-soft`, `--opacity-track`.
 
-Precomposed `{family}-subtle-hover` colors exist where an alpha-over-surface composite would fail AA
-— prefer them over hand-rolling a new alpha composite for a hover state.
+Precomposed `{family}-subtle-hover` and `{family}-subtle-active` colors exist where an
+alpha-over-surface composite would fail AA — prefer them over hand-rolling a new alpha composite for
+a hover or pressed state.
+
+Layout dimension tokens: `--layout-header-height` (3.5rem), `--sidebar-width` / `--sidebar-width-icon`
+/ `--sidebar-width-mobile`, `--layout-overlay-max-height` (the ceiling for a scrolling overlay body),
+`--panel-width-sm/md/lg` (14/18/20rem floating panels).
 
 ## Z-index
 

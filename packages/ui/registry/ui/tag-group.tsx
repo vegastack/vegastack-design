@@ -1,4 +1,4 @@
-// @vegastack tag-group@0.6.0 sha256-n3nkG1f91ja4GYEvP/wzKdcOG0dUs+ZIMAJPRrPQXIw=
+// @vegastack tag-group@0.6.0 sha256-MmzpdaHOznWi/OG1R1+kYPQ5/Jbw1q5QdZ4qttaFwEY=
 
 "use client";
 
@@ -219,7 +219,7 @@ export function TagGroup({
               // the visible overflow chip at the compact 20px tag height, so
               // clipping ancestors cannot erase an out-of-bounds pseudo target.
               "inline-flex h-(--size-xs) min-w-(--size-xs) shrink-0 appearance-none items-center justify-center rounded-full text-label-sm text-muted-foreground select-none",
-              "hover:text-foreground hover:[&>span]:bg-muted",
+              "hover:text-foreground hover:[&>span]:bg-surface-2 active:[&>span]:bg-surface-3",
             )}
           >
             <span className="inline-flex h-5 items-center rounded-full border border-border bg-transparent px-1.5">

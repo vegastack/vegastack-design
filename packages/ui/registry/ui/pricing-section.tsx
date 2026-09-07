@@ -1,4 +1,4 @@
-// @vegastack pricing-section@0.6.0 sha256-ioGhsT9ytJHA5Y5nNGblgvEoeeHaynz7qCqUZIPTGDI=
+// @vegastack pricing-section@0.6.0 sha256-+rXtivScl2T9fM+k9REDtLKnayRwNiGtby5AjfXteXg=
 
 import * as React from "react";
 import { Check } from "lucide-react";
@@ -11,7 +11,8 @@ import { Badge } from "@/components/ui/badge";
  * PricingSection / PlanCard — the marketing pricing family (Wave 4, from the pricing-page
  * teardown): hairline plan cards with a mono price display (an IMPROVEMENT over the reference —
  * numerals are mono per the system's numbers rule), check feature lists, in-card CTA slot, and
- * an info-family highlight treatment + "Popular" badge for the promoted plan. Server-safe;
+ * a primary-ink border + neutral "Popular" badge for the promoted plan (promotion is neutral
+ * primary/ladder, never `info` — blue is links and informational UI only). Server-safe;
  * billing toggles compose from `Segmented` at the call site.
  * ----------------------------------------------------------------------------------------------*/
 
@@ -52,7 +53,7 @@ export interface PlanCardProps extends React.ComponentPropsWithRef<"div"> {
   /** The plan's CTA (a full-width Button). @default undefined */
   action?: React.ReactNode;
   /**
-   * Promote this plan: info-family border + the "Popular" badge.
+   * Promote this plan: primary-ink border + the "Popular" badge.
    * @default false
    */
   highlighted?: boolean;
@@ -94,7 +95,7 @@ export function PlanCard({
       data-highlighted={highlighted ? "" : undefined}
       className={cn(
         "relative flex min-w-0 flex-col gap-4 rounded-lg border border-border bg-card p-4 text-card-foreground",
-        highlighted && "border-info/(--alpha-outline-border)",
+        highlighted && "border-primary",
         className,
       )}
       {...props}
@@ -102,7 +103,7 @@ export function PlanCard({
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-label">{name}</h3>
         {highlighted ? (
-          <Badge intent="info" bordered>
+          <Badge intent="default" bordered>
             {highlightLabel}
           </Badge>
         ) : null}

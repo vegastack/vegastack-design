@@ -1,4 +1,4 @@
-// @vegastack sheet@0.6.0 sha256-WZeufCZQl0Mntio4zhwVZNO89V0A9Ct5SEPAjbpOmBc=
+// @vegastack sheet@0.6.0 sha256-ZdXU2/LnCyroHhhgn0RYnRpATEyrNejksacqfiTp4MY=
 
 "use client";
 
@@ -6,7 +6,7 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { cn, surfaceInteractive } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 
 /* ------------------------------------------------------------------------------------------------
@@ -200,8 +200,8 @@ export function SheetContent({
               className={cn(
                 // top-3/end-3 matches Dialog's close-button inset — one modal-family rhythm.
                 "absolute top-3 end-3 inline-flex size-(--size-md) shrink-0 items-center justify-center",
-                "rounded-md text-muted-foreground  select-none",
-                "hover:bg-muted hover:text-foreground",
+                "rounded-md text-muted-foreground select-none hover:text-foreground",
+                surfaceInteractive,
                 "[&_svg:not([class*='size-'])]:size-(--icon-default) [&_svg]:pointer-events-none [&_svg]:shrink-0",
               )}
             >

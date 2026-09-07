@@ -1,4 +1,4 @@
-// @vegastack button@0.6.0 sha256-BAjKx5xdL3lTfFQthauR2HOgxlxRdjEIAyryG3Neyw8=
+// @vegastack button@0.6.0 sha256-/AfLWngwzI63V7W1U/fBlgpVuOBtvQnNfY9cZiyZy6k=
 
 "use client";
 
@@ -6,7 +6,7 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Button as BaseButton } from "@base-ui/react/button";
 import { Spinner } from "@/components/ui/spinner";
-import { cn } from "@vegastack/design";
+import { cn, fillInteractive, surfaceInteractive } from "@vegastack/design";
 
 /**
  * Button variants — base, semantic-filled, semantic-outline, and glass.
@@ -24,30 +24,47 @@ export const buttonVariants = cva(
       variant: {
         default:
           "bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-active",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/(--alpha-fill-hover)",
-        outline:
-          "border-border bg-background hover:bg-muted hover:text-foreground focus-visible:border-ring/(--alpha-tint-border) dark:border-input dark:bg-input/(--alpha-input) dark:hover:bg-input/(--alpha-input-hover)",
-        ghost:
-          "hover:bg-muted hover:text-foreground dark:hover:bg-muted/(--alpha-wash)",
-        link: "text-info-text underline underline-offset-4 hover:text-info-text/(--alpha-link-hover)",
+        // Every non-solid variant climbs the surface ladder (hover = rung 2, pressed = rung 3)
+        // through the ONE shared recipe; solids keep their own darker -hover/-active steps, soft
+        // fills their precomposed -subtle-hover/-subtle-active, and the outline tints composite
+        // their own hue at --alpha-hover/--alpha-pressed (F1, 2026-09-07). The variant SET itself
+        // is F2's (variant × tone).
+        secondary: cn(
+          "bg-secondary text-secondary-foreground",
+          surfaceInteractive,
+        ),
+        outline: cn(
+          "border-border bg-background hover:text-foreground focus-visible:border-ring/(--alpha-tint-border)",
+          surfaceInteractive,
+        ),
+        ghost: cn("hover:text-foreground", surfaceInteractive),
+        // A text link dims on hover and re-inks on press — the pressed step of a link is solid ink.
+        link: "text-info-text underline underline-offset-4 hover:text-info-text/(--alpha-link-hover) active:text-info-text",
         destructive:
-          "bg-destructive-subtle text-destructive-text hover:bg-destructive-subtle-hover",
+          "bg-destructive-subtle text-destructive-text hover:bg-destructive-subtle-hover active:bg-destructive-subtle-active",
         success:
-          "bg-success-subtle text-success-text hover:bg-success-subtle-hover",
+          "bg-success-subtle text-success-text hover:bg-success-subtle-hover active:bg-success-subtle-active",
         warning:
-          "bg-warning-subtle text-warning-text hover:bg-warning-subtle-hover",
-        info: "bg-info-subtle text-info-text hover:bg-info-subtle-hover",
+          "bg-warning-subtle text-warning-text hover:bg-warning-subtle-hover active:bg-warning-subtle-active",
+        info: "bg-info-subtle text-info-text hover:bg-info-subtle-hover active:bg-info-subtle-active",
         glass:
-          "border-border bg-background/(--alpha-glass) text-foreground backdrop-blur-glass hover:bg-background/(--alpha-glass-hover)",
-        "destructive-outline":
-          "border-destructive/(--alpha-outline-border) bg-destructive/(--alpha-surface-faint) text-destructive-text hover:border-destructive hover:bg-destructive/(--alpha-surface-subtle)",
-        "success-outline":
-          "border-success/(--alpha-outline-border) bg-success/(--alpha-surface-faint) text-success-text hover:border-success hover:bg-success/(--alpha-surface-subtle)",
-        "warning-outline":
-          "border-warning/(--alpha-outline-border) bg-warning/(--alpha-surface-faint) text-warning-text hover:border-warning hover:bg-warning/(--alpha-surface-subtle)",
-        "info-outline":
-          "border-info/(--alpha-outline-border) bg-info/(--alpha-surface-faint) text-info-text hover:border-info hover:bg-info/(--alpha-surface-subtle)",
+          "border-border bg-background/(--alpha-glass) text-foreground backdrop-blur-glass hover:bg-background/(--alpha-glass-hover) active:bg-background",
+        "destructive-outline": cn(
+          "border-destructive/(--alpha-outline-border) bg-destructive/(--alpha-surface-faint) text-destructive-text hover:border-destructive",
+          fillInteractive.destructive,
+        ),
+        "success-outline": cn(
+          "border-success/(--alpha-outline-border) bg-success/(--alpha-surface-faint) text-success-text hover:border-success",
+          fillInteractive.success,
+        ),
+        "warning-outline": cn(
+          "border-warning/(--alpha-outline-border) bg-warning/(--alpha-surface-faint) text-warning-text hover:border-warning",
+          fillInteractive.warning,
+        ),
+        "info-outline": cn(
+          "border-info/(--alpha-outline-border) bg-info/(--alpha-surface-faint) text-info-text hover:border-info",
+          fillInteractive.info,
+        ),
         // Marketing CTA (audit 17-brand-direction §Color & surface + §Shape): the ONE sanctioned
         // use of the `--brand` phosphor accent as a button — accent-outline, sharp corners
         // (rounded-(--radius-sharp), rationed per D18), mono-uppercase label (the brand voice
@@ -56,7 +73,10 @@ export const buttonVariants = cva(
         // `outline` variant above already relies on (`border-border` overriding the base's
         // `border-transparent`). Compose a trailing chevron as a CHILD (e.g. `<ChevronRight />`)
         // — this variant is style-only, it never bakes in an icon.
-        cta: "rounded-(--radius-sharp) border-brand/(--alpha-outline-border) bg-brand/(--alpha-surface-faint) font-mono text-mono-label text-brand uppercase hover:border-brand hover:bg-brand/(--alpha-surface-subtle) active:bg-brand/(--alpha-surface-subtle)",
+        cta: cn(
+          "rounded-(--radius-sharp) border-brand/(--alpha-outline-border) bg-brand/(--alpha-surface-faint) font-mono text-mono-label text-brand uppercase hover:border-brand",
+          fillInteractive.brand,
+        ),
       },
       size: {
         // Text-bearing sizes pair their composed icon with the TEXT — `--icon-inline` (14px,

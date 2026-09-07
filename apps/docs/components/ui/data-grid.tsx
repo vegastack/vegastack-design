@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.6.0 sha256-XUKkbIwMBxGT++ziIfANrVdKpNNknwWEfHCUtMqa2bY=
+// @vegastack data-grid@0.6.0 sha256-fJLqYRvi/OFSacHpbP9VNaWsaVzouP8JI/UBWm6TC4I=
 
 "use client";
 
@@ -842,7 +842,10 @@ export function DataGrid<T>({
         aria-selected={selectable ? isSelected : undefined}
         {...virtualProps}
         className={cn(
-          isSelected && "bg-accent hover:bg-accent data-selected:bg-accent",
+          isSelected &&
+            // A selected row still has to move under the cursor (SP-06): it rests on the pressed
+            // rung, hovers DOWN one rung, and returns to rest while pressed.
+            "bg-surface-3 hover:bg-surface-2 active:bg-surface-3 data-selected:bg-surface-3 data-selected:hover:bg-surface-2",
         )}
       >
         {selectable ? (
@@ -1188,7 +1191,7 @@ export function DataGrid<T>({
                   <TableRow
                     data-slot="data-grid-group-row"
                     aria-rowindex={ariaGroupRowIndex.get(section.id)}
-                    className="bg-muted/(--alpha-wash) hover:bg-muted/(--alpha-wash)"
+                    className="bg-surface-1 hover:bg-surface-1 active:bg-surface-1"
                   >
                     <TableCell colSpan={colSpan} className="py-1">
                       <button

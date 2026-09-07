@@ -1,4 +1,4 @@
-// @vegastack collapsible@0.6.0 sha256-GKc21eYddrBii+52j5dgoTSeqLHZHso4vTQmykufxug=
+// @vegastack collapsible@0.6.0 sha256-0RiFNjUss5txZOsvFkHFiOQLMBfOtHhNnYfjuwE1KnA=
 
 "use client";
 
@@ -80,6 +80,8 @@ export function CollapsibleTrigger({
       className={cn(
         "group/collapsible-trigger inline-flex min-h-(--size-xs) items-center justify-between gap-2 text-label text-foreground select-none",
         "hover:underline",
+        // Pressed step for an ink-signalled trigger — see the note in accordion.tsx.
+        "active:text-muted-foreground",
         // Base UI surfaces root-level `disabled` as a `data-disabled` attribute
         // on the trigger (no native `disabled` attribute), so style both.
         "disabled:pointer-events-none disabled:opacity-(--opacity-dim)",

@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.6.0 sha256-avfGfu4KwdhauTsbWxkVcftV6NozRfVk+a+hHQApWZU=
+// @vegastack date-picker@0.6.0 sha256-SDUY+KfNkevxDB0Lu0QbvsynvZosNKbZa7nMOK3sNxo=
 
 "use client";
 
@@ -18,7 +18,7 @@ import {
   ChevronDown,
   Calendar as CalendarIcon,
 } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { cn, surfaceInteractive } from "@vegastack/design";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Popover,
@@ -135,11 +135,13 @@ export function Calendar({
           defaultClassNames.nav,
         ),
         button_previous: cn(
-          "inline-flex size-(--size-sm) items-center justify-center rounded-md text-muted-foreground  select-none hover:bg-accent hover:text-accent-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
+          "inline-flex size-(--size-sm) items-center justify-center rounded-md text-muted-foreground select-none hover:text-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
+          surfaceInteractive,
           defaultClassNames.button_previous,
         ),
         button_next: cn(
-          "inline-flex size-(--size-sm) items-center justify-center rounded-md text-muted-foreground  select-none hover:bg-accent hover:text-accent-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
+          "inline-flex size-(--size-sm) items-center justify-center rounded-md text-muted-foreground select-none hover:text-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
+          surfaceInteractive,
           defaultClassNames.button_next,
         ),
         month_caption: cn(
@@ -306,16 +308,17 @@ export function CalendarDayButton({
       className={cn(
         buttonVariants({ variant: "ghost", size: "icon" }),
         "flex aspect-square size-auto w-full min-w-(--size-md) flex-col gap-1 rounded-md leading-none font-normal",
-        // Neutral hover for an unselected day.
-        "hover:bg-accent hover:text-accent-foreground",
+        // Neutral hover/pressed for an unselected day.
+        "hover:text-foreground",
+        surfaceInteractive,
         // Today: a quiet neutral ring so it reads even when not selected.
         "data-[today]:ring-2 data-[today]:ring-ring/(--alpha-outline-soft)",
         // Selected single + range ends: solid primary surface (selection = primary ink).
         "data-[selected-single]:bg-primary data-[selected-single]:text-primary-foreground data-[selected-single]:ring-0 data-[selected-single]:hover:bg-primary",
         "data-[range-start]:rounded-s-md data-[range-start]:bg-primary data-[range-start]:text-primary-foreground data-[range-start]:ring-0 data-[range-start]:hover:bg-primary",
         "data-[range-end]:rounded-e-md data-[range-end]:bg-primary data-[range-end]:text-primary-foreground data-[range-end]:ring-0 data-[range-end]:hover:bg-primary",
-        // Range middle: soft accent surface, square corners.
-        "data-[range-middle]:rounded-none data-[range-middle]:bg-accent data-[range-middle]:text-accent-foreground",
+        // Range middle: the hover rung, square corners.
+        "data-[range-middle]:rounded-none data-[range-middle]:bg-surface-2 data-[range-middle]:text-foreground",
         className,
       )}
       {...props}
@@ -552,7 +555,7 @@ export function DatePicker({
             data-empty={value ? undefined : ""}
             aria-label={ariaLabel}
             className={cn(
-              "w-56 justify-start gap-2 font-normal data-[empty]:text-muted-foreground",
+              "w-(--panel-width-sm) justify-start gap-2 font-normal data-[empty]:text-muted-foreground",
               className,
             )}
           >
@@ -758,7 +761,7 @@ export function DateRangePicker({
             data-empty={value?.from ? undefined : ""}
             aria-label={ariaLabel}
             className={cn(
-              "w-72 justify-start gap-2 font-normal data-[empty]:text-muted-foreground",
+              "w-(--panel-width-md) justify-start gap-2 font-normal data-[empty]:text-muted-foreground",
               className,
             )}
           >

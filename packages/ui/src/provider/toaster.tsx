@@ -183,11 +183,11 @@ export function Toaster({
           actionButton:
             "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
           cancelButton:
-            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+            "group-[.toast]:bg-surface-1 group-[.toast]:text-muted-foreground group-[.toast]:hover:bg-surface-2 group-[.toast]:active:bg-surface-3",
           // The dismiss X: Sonner's default chrome re-tokened to the house surface
           // (its stock styling reads Sonner-internal grays that ignore the theme).
           closeButton:
-            "group-[.toast]:border-border group-[.toast]:bg-background group-[.toast]:text-muted-foreground group-[.toast]:hover:bg-muted group-[.toast]:hover:text-foreground",
+            "group-[.toast]:border-border group-[.toast]:bg-background group-[.toast]:text-muted-foreground group-[.toast]:hover:bg-surface-2 group-[.toast]:hover:text-foreground group-[.toast]:active:bg-surface-3",
           success:
             "group-[.toaster]:border-success/(--alpha-border-soft) group-[.toaster]:bg-success-subtle",
           error:

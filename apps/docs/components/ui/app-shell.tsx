@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.6.0 sha256-o8zN9agV/fIVGC9J5hXOvC193lQqGpLKqcY47wEp+is=
+// @vegastack app-shell@0.6.0 sha256-AolZnaXrTvsNZwtUh/MArbz8UMAUj30ON7SrbGT5R9w=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -191,7 +191,7 @@ export function AppShellHeader({
     <header
       data-slot="app-shell-header"
       className={cn(
-        "flex h-14 shrink-0 items-center gap-2 border-b border-border bg-background px-4",
+        "flex h-(--layout-header-height) shrink-0 items-center gap-2 border-b border-border bg-background px-4",
         className,
       )}
       {...props}
@@ -355,7 +355,7 @@ export function AppShellSkeleton({
       </div>
 
       <div className="flex h-svh min-w-0 flex-1 flex-col">
-        <div className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-4">
+        <div className="flex h-(--layout-header-height) shrink-0 items-center gap-2 border-b border-border px-4">
           <Skeleton shape="circle" className="size-(--icon-default)" />
           <Skeleton className="h-4 w-32" />
         </div>

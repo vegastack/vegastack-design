@@ -1,4 +1,4 @@
-// @vegastack message-scroller@0.6.0 sha256-TBQvgQIb8qRxiJ5koZEdWXw8/buq/VI/AoxKQx47ZBI=
+// @vegastack message-scroller@0.6.0 sha256-MZbaayDOhXKTcGTXDSZ9OQn6naE/rf3VTC5ig4W0thQ=
 
 "use client";
 
@@ -10,7 +10,7 @@ import {
   useMessageScrollerVisibility,
 } from "@shadcn/react/message-scroller";
 import { ArrowDown } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { cn, surfaceInteractive } from "@vegastack/design";
 import { Button, type ButtonProps } from "@/components/ui/button";
 
 /* ------------------------------------------------------------------------------------------------
@@ -216,7 +216,8 @@ export function MessageScrollerButton({
       direction={direction}
       behavior={resolvedBehavior}
       className={cn(
-        "absolute start-1/2 -translate-x-1/2 border-border bg-background text-foreground transition-[translate,scale,opacity] duration-base hover:bg-muted hover:text-foreground data-[active=false]:pointer-events-none data-[active=false]:scale-95 data-[active=false]:opacity-0 data-[active=false]:duration-slow data-[active=false]:ease-exit data-[active=true]:translate-y-0 data-[active=true]:scale-100 data-[active=true]:opacity-100 data-[active=true]:ease-emphasized data-[direction=end]:bottom-4 data-[direction=end]:data-[active=false]:translate-y-full data-[direction=start]:top-4 data-[direction=start]:data-[active=false]:-translate-y-full rtl:translate-x-1/2 data-[direction=start]:[&_svg]:rotate-180",
+        "absolute start-1/2 -translate-x-1/2 border-border bg-background text-foreground transition-[translate,scale,opacity] duration-base hover:text-foreground data-[active=false]:pointer-events-none data-[active=false]:scale-95 data-[active=false]:opacity-0 data-[active=false]:duration-slow data-[active=false]:ease-exit data-[active=true]:translate-y-0 data-[active=true]:scale-100 data-[active=true]:opacity-100 data-[active=true]:ease-emphasized data-[direction=end]:bottom-4 data-[direction=end]:data-[active=false]:translate-y-full data-[direction=start]:top-4 data-[direction=start]:data-[active=false]:-translate-y-full rtl:translate-x-1/2 data-[direction=start]:[&_svg]:rotate-180",
+        surfaceInteractive,
         className,
       )}
       render={render ?? <Button variant={variant} size={size} />}

@@ -39,10 +39,13 @@ test("boolean availability renders sr-labelled glyphs, values render literally",
   await expect.element(screen.getByText("Unlimited")).toBeInTheDocument();
 });
 
-test("highlighted column cells carry the info tint", async () => {
+test("highlighted column cells carry the neutral hover-rung tint", async () => {
   await render(<Example />);
-  const tinted = document.querySelectorAll('td[class*="bg-info"]');
+  // The highlight is a NEUTRAL rung of the surface ladder, never `info` — `info` is reserved for
+  // links and informational status (design.md §Chromatic colour, F1 2026-09-07).
+  const tinted = document.querySelectorAll('td[class*="bg-surface-2"]');
   expect(tinted.length).toBeGreaterThan(0);
+  expect(document.querySelectorAll('td[class*="bg-info"]').length).toBe(0);
 });
 
 test("has no accessibility violations", async () => {

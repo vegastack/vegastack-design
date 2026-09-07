@@ -26,6 +26,9 @@ const FAMILIES = ["destructive", "success", "warning", "info"];
 const HOVER_DELTA = -0.05;
 const ACTIVE_DELTA = -0.09;
 const SUBTLE_HOVER_ALPHA = { light: 0.07, dark: 0.3 };
+// One more rung for the pressed soft fill: light 12% (hover 7% + ~the ladder's 5% step), dark
+// 40% (hover 30%). Gated for `<family>-text` AA in contrast-check.mjs like the hover step.
+const SUBTLE_ACTIVE_ALPHA = { light: 0.12, dark: 0.4 };
 
 const clamp01 = (x) => Math.max(0, Math.min(1, x));
 function oklchToLinear(L, C, H) {
@@ -108,6 +111,37 @@ StyleDictionary.registerPreprocessor({
       : "tokens/semantic.dark.tokens.json";
     const alpha = SUBTLE_HOVER_ALPHA[isLightRun ? "light" : "dark"];
 
+    // `border` (D14, 2026-09-07): the ONE hairline is DERIVED as `foreground` at `alpha-border`
+    // per theme, so it composites on page, card, well and dark band alike and can never drift from
+    // the ink it is a tint of. `input` and `sidebar-border` alias it in the source files. Both
+    // inputs are per-theme tokens of THIS run (foreground and alpha-border are overridden in dark).
+    {
+      const ink = resolveRaw(dictionary, dictionary.foreground?.$value);
+      const alphaBorder = resolveRaw(
+        dictionary,
+        dictionary["alpha-border"]?.$value,
+      );
+      if (
+        ink?.colorSpace !== "oklch" ||
+        typeof alphaBorder?.value !== "number"
+      ) {
+        throw new Error(
+          "derive-interaction-states: `border` needs an oklch `foreground` and a `%` `alpha-border` token in this theme",
+        );
+      }
+      dictionary.border = {
+        $type: "color",
+        $value: {
+          colorSpace: "oklch",
+          components: [...ink.components],
+          alpha: alphaBorder.value / 100,
+        },
+        $description: `DERIVED: foreground at ${alphaBorder.value}% (alpha-border) — the one alpha hairline (D14).`,
+        filePath,
+        isSource: true,
+      };
+    }
+
     for (const fam of FAMILIES) {
       const fillRaw = resolveRaw(
         dictionary,
@@ -139,6 +173,15 @@ StyleDictionary.registerPreprocessor({
       dictionary[`${fam}-subtle-hover`] = mk(
         [round(L, 3), round(C, 3), round(H, 1)],
         `DERIVED: ${fam} fill @${alpha * 100}% composited over ${fam}-subtle (soft-hover surface, AA-gated against ${fam}-text).`,
+      );
+      // The PRESSED step of a soft fill (F1, 2026-09-07): one more rung of the same wash. An
+      // `active:bg-<fam>/(--alpha-pressed)` would REPLACE the subtle fill with a thin wash over
+      // the page, so the pressed surface is precomposed exactly like the hover one.
+      const pressedAlpha = SUBTLE_ACTIVE_ALPHA[isLightRun ? "light" : "dark"];
+      const [La, Ca, Ha] = compositeOklch(fill, pressedAlpha, subtle);
+      dictionary[`${fam}-subtle-active`] = mk(
+        [round(La, 3), round(Ca, 3), round(Ha, 1)],
+        `DERIVED: ${fam} fill @${pressedAlpha * 100}% composited over ${fam}-subtle (soft-pressed surface, AA-gated against ${fam}-text).`,
       );
     }
     return dictionary;

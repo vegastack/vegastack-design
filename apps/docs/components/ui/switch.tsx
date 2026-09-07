@@ -1,4 +1,4 @@
-// @vegastack switch@0.6.0 sha256-/dZlW3J6+TFS5l1bDWcV4TTjTMYfP7gpFdwnqwEBgo0=
+// @vegastack switch@0.6.0 sha256-zjB0AYySGUZwmxJWyZ2Mh4WKkXvKnXqVaeY4d+fU5rE=
 
 "use client";
 
@@ -10,7 +10,7 @@ import { cn } from "@vegastack/design";
 /**
  * Switch track variants — the outer rail. State is driven by Base UI's
  * `data-checked` / `data-unchecked` attributes (no JS state classes), and every
- * value is a semantic token (no hardcoded colors). `bg-track` when off,
+ * value is a semantic token (no hardcoded colors). `bg-surface-3` when off,
  * neutral `bg-primary` ink when on, with a `:focus-visible` ring.
  */
 export const switchVariants = cva(
@@ -18,7 +18,7 @@ export const switchVariants = cva(
   // status dot. `aria-invalid` stays on the DOM as the semantic cue, and the wrapping `Field`
   // supplies the associated error copy, which is the only invalid affordance the switch needs.
   "group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent bg-clip-padding p-0.5  " +
-    "bg-track data-checked:bg-primary " +
+    "bg-surface-3 data-checked:bg-primary " +
     "disabled:cursor-not-allowed disabled:opacity-(--opacity-dim)",
   {
     variants: {

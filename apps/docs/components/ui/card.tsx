@@ -1,4 +1,4 @@
-// @vegastack card@0.6.0 sha256-1xYbtlzw7incZEVF7diaexUDsNv+sLq006aUbSfvOAA=
+// @vegastack card@0.6.0 sha256-q8iQhYDB7whKYhhIr59YnxKDtNADgOMWvOEjh0VpXjI=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -177,7 +177,7 @@ function CardFooter({ className, ref, ...props }: CardFooterProps) {
       ref={ref}
       data-slot="card-footer"
       className={cn(
-        "flex items-center rounded-b-lg border-t border-border bg-muted/(--alpha-wash) p-4 group-data-[size=sm]/card:p-3",
+        "flex items-center rounded-b-lg border-t border-border bg-surface-1 p-4 group-data-[size=sm]/card:p-3",
         className,
       )}
       {...props}

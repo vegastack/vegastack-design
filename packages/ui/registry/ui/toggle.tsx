@@ -1,11 +1,11 @@
-// @vegastack toggle@0.6.0 sha256-mLPHsQM/KOnjHyTCd+Qq8rG3izluTRIHmIOFNfBs/YY=
+// @vegastack toggle@0.6.0 sha256-5rO58nI+amrJi3j0aHxd7IHh8+LU0bkBvTeCdn80VEg=
 
 "use client";
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Toggle as BaseToggle } from "@base-ui/react/toggle";
-import { cn } from "@vegastack/design";
+import { cn, surfaceInteractive } from "@vegastack/design";
 
 /**
  * Toggle variants — a two-state pressed button. The pressed state is driven by
@@ -19,7 +19,13 @@ export const toggleVariants = cva(
   // `accent` token is ~white in this theme, so a foreground overlay carries the contrast.
   // Controls round at `md` (8px). ToggleGroup shares this exact treatment — a standalone
   // Toggle and a group item look identical when on.
-  "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md bg-transparent text-label whitespace-nowrap  select-none hover:bg-muted hover:text-foreground data-pressed:bg-foreground/(--alpha-ink-tint) data-pressed:text-foreground hover:data-pressed:bg-foreground/(--alpha-ink-tint-strong) disabled:pointer-events-none disabled:opacity-(--opacity-dim) aria-invalid:border-destructive-border/(--alpha-tint-border) [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
+  cn(
+    "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md bg-transparent text-label whitespace-nowrap select-none hover:text-foreground disabled:pointer-events-none disabled:opacity-(--opacity-dim) aria-invalid:border-destructive-border/(--alpha-tint-border) [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
+    surfaceInteractive,
+    // Pressed ("on") keeps the ink tint; hovering it strengthens the tint and pressing it again
+    // previews the release by dropping back to the resting tint — a step in every state.
+    "data-pressed:bg-foreground/(--alpha-ink-tint) data-pressed:text-foreground hover:data-pressed:bg-foreground/(--alpha-ink-tint-strong) active:data-pressed:bg-foreground/(--alpha-ink-tint)",
+  ),
   {
     variants: {
       // Control heights on the shared 28 / 32 / 40 scale (h-(--size-sm) / h-(--size-md) / h-(--size-lg)).

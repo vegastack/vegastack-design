@@ -59,6 +59,66 @@ export function cn(...inputs: ClassValue[]): string {
 export type { ClassValue };
 
 /**
+ * THE hover/pressed recipe for a control that sits on a KNOWN surface (page, card, popover, well):
+ * hover climbs one rung of the surface ladder, pressing climbs one more. Rows, menu items, ghost and
+ * outline buttons, sidebar buttons, toggles, tabs, table rows, pagination — every transparent
+ * control — spread this string instead of writing a `hover:bg-*` literal.
+ *
+ * `hover:` compiles under `@media (hover: hover)` in Tailwind v4, so touch devices keep the rest
+ * fill and still get the pressed rung through `active:`. A selected/current state is the SAME rung
+ * as pressed (`data-selected:bg-surface-3`), which is why the two are never far apart.
+ *
+ * @example
+ * <button className={cn("rounded-md px-2", surfaceInteractive)} />
+ */
+export const surfaceInteractive = "hover:bg-surface-2 active:bg-surface-3";
+
+/**
+ * The inks a translucent hover/pressed wash can be composited from — the neutral ink and the five
+ * chromatic families the Button matrix and its outline/soft variants use.
+ */
+export type FillTone =
+  | "foreground"
+  | "primary"
+  | "destructive"
+  | "success"
+  | "warning"
+  | "info"
+  | "brand";
+
+/**
+ * The ALPHA twin of {@link surfaceInteractive}: the same two rungs composited from an ink at
+ * `--alpha-hover` / `--alpha-pressed`, for a control whose backdrop is not a ladder surface (a kbd
+ * inside a hovered row, a chip on a well, chrome over media) or one that hovers in its OWN hue (the
+ * outline/soft status buttons). `foreground` is the neutral twin — it measures within 0.003 L of
+ * `surface-2`/`surface-3` on the page in both themes and is AA-gated over page, card and popover.
+ *
+ * Solid fills do NOT use this: a solid already owns its darker `<tone>-hover` / `<tone>-active`
+ * steps (`bg-primary hover:bg-primary-hover active:bg-primary-active`) — an alpha over a solid
+ * would only thin it.
+ *
+ * Every value is a literal so Tailwind's scanner sees it in this file (and in the shipped `dist`,
+ * which `preset.css` scans).
+ *
+ * @example
+ * <button className={cn("bg-destructive-subtle text-destructive-text", fillInteractive.destructive)} />
+ */
+export const fillInteractive: Record<FillTone, string> = {
+  foreground:
+    "hover:bg-foreground/(--alpha-hover) active:bg-foreground/(--alpha-pressed)",
+  primary:
+    "hover:bg-primary/(--alpha-hover) active:bg-primary/(--alpha-pressed)",
+  destructive:
+    "hover:bg-destructive/(--alpha-hover) active:bg-destructive/(--alpha-pressed)",
+  success:
+    "hover:bg-success/(--alpha-hover) active:bg-success/(--alpha-pressed)",
+  warning:
+    "hover:bg-warning/(--alpha-hover) active:bg-warning/(--alpha-pressed)",
+  info: "hover:bg-info/(--alpha-hover) active:bg-info/(--alpha-pressed)",
+  brand: "hover:bg-brand/(--alpha-hover) active:bg-brand/(--alpha-pressed)",
+};
+
+/**
  * @internal Registry theme-scope plumbing lives at `@vegastack/design/theme-scope`, NOT here.
  * It calls `React.createContext()` at module scope, which is `undefined` under the `react-server`
  * condition — re-exporting it from this entry would make every Server Component that imports

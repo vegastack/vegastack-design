@@ -1,4 +1,4 @@
-// @vegastack accordion@0.6.0 sha256-5CsDvQ7+K7JjAkOXT9wcLrKkMRWKcb853P231vGQ5vs=
+// @vegastack accordion@0.6.0 sha256-Jcu8acVwWLccr307lEb2cjbITPvpQImtJUxX8fWEYG4=
 
 "use client";
 
@@ -113,6 +113,10 @@ export function AccordionTrigger({
         className={cn(
           "group/accordion-trigger flex flex-1 items-center justify-between gap-4 py-3 text-start text-label text-foreground ",
           "hover:underline",
+          // Ink-signalled control: its hover is the underline, so its PRESSED step is ink too.
+          // A background wash here would run flush into the item hairline (design.md Hover
+          // geometry); converting the pair to a wash belongs with the accordion geometry pass.
+          "active:text-muted-foreground",
           // Base UI surfaces item/root-level `disabled` as a `data-disabled` attribute
           // on the trigger (no native `disabled` attribute), so style both.
           "disabled:pointer-events-none disabled:opacity-(--opacity-dim)",

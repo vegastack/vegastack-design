@@ -143,8 +143,11 @@ html {
   :focus-visible {
     outline-color: Highlight;
   }
-  /* TextEdit signals focus on a WRAPPER via border tint; that wrapper never matches
-     `:focus-visible` and forced-colors replaces border-color, so it needs a real outline. */
+  /* Text-entry controls signal focus with a border TINT and `outline-none`; forced-colors
+     replaces border-color, so they need a real outline (mirror of base.css B1-01 block). */
+  input:focus,
+  textarea:focus,
+  [contenteditable="true"]:focus,
   [data-slot="text-edit"]:focus-within {
     outline: 2px solid Highlight;
     outline-offset: 1px;

@@ -1,4 +1,4 @@
-// @vegastack tabs@0.6.0 sha256-3tWjWq/Xdkmx+ThtlCjAnnLZNhPBn2TL/6xowqvQIbk=
+// @vegastack tabs@0.6.0 sha256-WcFS+s35ZMfBbcJfQcPdSsVfSK/+i54vzQIrU6UfMy0=
 
 "use client";
 
@@ -81,7 +81,7 @@ export const tabsListVariants = cva(
           // …or an inline-start rule (vertical), mirrored in RTL.
           "group-data-[orientation=vertical]/tabs:border-s group-data-[orientation=vertical]/tabs:border-border",
         ),
-        pill: "gap-1 rounded-lg bg-muted p-1 text-muted-foreground group-data-[orientation=vertical]/tabs:w-fit",
+        pill: "gap-1 rounded-lg bg-surface-1 p-1 text-muted-foreground group-data-[orientation=vertical]/tabs:w-fit",
         /** Free-standing chip tabs (Wave 2 — the record-page treatment): no track;
          * the active trigger raises to a secondary chip with the one hairline. */
         chip: "gap-1 bg-transparent group-data-[orientation=vertical]/tabs:w-fit",
@@ -214,15 +214,16 @@ export function TabsTrigger({
         // line: flush, sized to align with the list rule on the 32px control scale;
         // active color only (the moving Indicator paints the primary underline).
         "group-data-[variant=line]/tabs-list:h-(--size-md) group-data-[variant=line]/tabs-list:rounded-md group-data-[variant=line]/tabs-list:px-3",
-        "group-data-[variant=line]/tabs-list:hover:bg-muted/(--alpha-wash-strong)",
+        "group-data-[variant=line]/tabs-list:hover:bg-surface-2 group-data-[variant=line]/tabs-list:active:bg-surface-3",
         "group-data-[orientation=vertical]/tabs:group-data-[variant=line]/tabs-list:justify-start",
         // pill: raised chip on active, on the 32px control scale.
         "group-data-[variant=pill]/tabs-list:h-(--size-md) group-data-[variant=pill]/tabs-list:rounded-md group-data-[variant=pill]/tabs-list:px-3",
+        "group-data-[variant=pill]/tabs-list:not-data-[active]:hover:bg-surface-2 group-data-[variant=pill]/tabs-list:not-data-[active]:active:bg-surface-3",
         "group-data-[variant=pill]/tabs-list:data-[active]:bg-background group-data-[variant=pill]/tabs-list:data-[active]:text-foreground",
         "group-data-[orientation=vertical]/tabs:group-data-[variant=pill]/tabs-list:justify-start",
         // chip: free-standing on the 28px scale; active = secondary chip + the one border.
         "group-data-[variant=chip]/tabs-list:h-(--size-sm) group-data-[variant=chip]/tabs-list:rounded-md group-data-[variant=chip]/tabs-list:border group-data-[variant=chip]/tabs-list:border-transparent group-data-[variant=chip]/tabs-list:px-2.5 group-data-[variant=chip]/tabs-list:text-label-sm",
-        "group-data-[variant=chip]/tabs-list:hover:bg-muted/(--alpha-wash-strong)",
+        "group-data-[variant=chip]/tabs-list:hover:bg-surface-2 group-data-[variant=chip]/tabs-list:active:bg-surface-3",
         "group-data-[variant=chip]/tabs-list:data-[active]:border-border group-data-[variant=chip]/tabs-list:data-[active]:bg-secondary group-data-[variant=chip]/tabs-list:data-[active]:text-foreground",
         "group-data-[orientation=vertical]/tabs:group-data-[variant=chip]/tabs-list:justify-start",
         className,
@@ -234,9 +235,10 @@ export function TabsTrigger({
         <span
           data-slot="tabs-trigger-count"
           className={cn(
-            "ms-0.5 inline-flex min-w-4 items-center justify-center rounded-full bg-muted px-1 text-label-sm tabular-nums text-muted-foreground ",
+            // The count sits one rung above WHATEVER the trigger currently paints (rest, hover,
+            // pressed, active chip) — the alpha twin of the ladder does that in one class.
+            "ms-0.5 inline-flex min-w-4 items-center justify-center rounded-full bg-foreground/(--alpha-hover) px-1 text-label-sm tabular-nums text-muted-foreground",
             "group-data-[variant=pill]/tabs-list:bg-background/(--alpha-backdrop-soft)",
-            "group-data-[variant=chip]/tabs-list:bg-muted/(--alpha-wash-strong)",
           )}
         >
           {count}

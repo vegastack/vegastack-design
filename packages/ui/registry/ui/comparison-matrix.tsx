@@ -1,4 +1,4 @@
-// @vegastack comparison-matrix@0.6.0 sha256-HHpi5n6lBqGs69V9S2W/9HbAcIHH80UE13S6dqhQSPM=
+// @vegastack comparison-matrix@0.6.0 sha256-yZ4YP4EKUYRnSqLxiLTqseCXBZRwEheetRG1gSS94mA=
 
 "use client";
 
@@ -11,7 +11,7 @@ import { cn } from "@vegastack/design";
  * deliberate a11y IMPROVEMENT over the reference: availability renders as ✓ / − glyphs with
  * screen-reader text, never bare unlabeled dots. Native <table> semantics: column headers are
  * the plans, row headers are the features, group rows span the table. The highlighted plan's
- * column gets a subtle info tint, and the plan COUNT travels with it, so group headings span the
+ * column gets the neutral hover-rung tint, and the plan COUNT travels with it, so group headings span the
  * real column count and every row renders exactly one cell per plan.
  * ----------------------------------------------------------------------------------------------*/
 
@@ -95,7 +95,7 @@ export function ComparisonMatrix({
                 data-highlighted={i === highlightedIndex ? "" : undefined}
                 className={cn(
                   "px-3 py-3 text-start align-top text-label whitespace-nowrap",
-                  i === highlightedIndex && "bg-info/(--alpha-surface-faint)",
+                  i === highlightedIndex && "bg-surface-2",
                 )}
               >
                 <span className="flex flex-col items-start gap-2">
@@ -204,7 +204,7 @@ export function ComparisonRow({
           key={i}
           className={cn(
             "px-3 whitespace-nowrap",
-            i === highlightedIndex && "bg-info/(--alpha-surface-faint)",
+            i === highlightedIndex && "bg-surface-2",
           )}
         >
           {value === true ? (

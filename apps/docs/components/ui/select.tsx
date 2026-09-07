@@ -1,4 +1,4 @@
-// @vegastack select@0.6.0 sha256-iOQxQQndJ++A4axvt4CtQH/rQvwX16kVRhqJ1Mcl6bk=
+// @vegastack select@0.6.0 sha256-CDLcBdNMMxTQ3DA/Jm3rxStDr8FMbVo/+VFUkQGy1ks=
 
 "use client";
 
@@ -6,7 +6,7 @@ import * as React from "react";
 import { Select as BaseSelect } from "@base-ui/react/select";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
-import { cn, FLOATING } from "@vegastack/design";
+import { cn, FLOATING, surfaceInteractive } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 
 function mergeStateClassName<State>(
@@ -30,7 +30,11 @@ export const selectTriggerVariants = cva(
   [
     "group/select-trigger flex w-full items-center justify-between gap-2 rounded-md border border-input bg-transparent text-base whitespace-nowrap select-none",
     "focus:border-ring/(--alpha-tint-border)",
-    "dark:bg-input/(--alpha-input) dark:hover:bg-input/(--alpha-input-hover)",
+    // The trigger is a transparent control, so it climbs the surface ladder like every other one
+    // (SP-04: it used to hover ONLY in dark, via `dark:hover:bg-input/…` — one theme hovered and
+    // the other did not). The dark resting fill stays: it is the field's inset, not a hover step.
+    "dark:bg-input/(--alpha-input)",
+    surfaceInteractive,
     "data-[placeholder]:text-muted-foreground",
     "aria-invalid:border-destructive-border/(--alpha-tint-border) data-invalid:border-destructive-border/(--alpha-tint-border)",
     "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-(--opacity-dim)",

@@ -1,4 +1,4 @@
-// @vegastack sidebar@0.6.0 sha256-5/CSREnOhK9zM79Hp6dPxZZOcHt5QiQBoYTZORfzLE0=
+// @vegastack sidebar@0.6.0 sha256-XIXPaSErisqOEgMKcki/6/L9LTHH9uIJhGYKezQxUUQ=
 
 "use client";
 
@@ -6,7 +6,7 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { useRender } from "@base-ui/react/use-render";
 import { PanelLeft } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { cn, surfaceInteractive } from "@vegastack/design";
 import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
@@ -282,14 +282,10 @@ export function Sidebar({
         <SheetContent
           side={side}
           data-slot="sidebar-sheet-content"
-          // `--sidebar-width-mobile` mirrors `--sidebar-width`/`--sidebar-width-icon`'s
-          // var+arbitrary-class routing, but (unlike those two) it isn't a global design token
-          // yet — packages/design-tokens is out of scope for this change (see the summary for the
-          // follow-up). The `18rem` fallback lives INSIDE the var() call (an arbitrary-value
-          // class, sanctioned by the design-lint arbitrary-value contract), never in a raw
-          // style literal, so it stays lint-clean; override it same as the other two, with a
+          // `--sidebar-width-mobile` is a design token (18rem) like `--sidebar-width` and
+          // `--sidebar-width-icon`; override it the same way, with a
           // `style={{ '--sidebar-width-mobile': '20rem' }}` on `SidebarProvider`.
-          className="w-[var(--sidebar-width-mobile,18rem)] max-w-[var(--sidebar-width-mobile,18rem)] gap-0 border-sidebar-border bg-sidebar p-0 text-sidebar-foreground"
+          className="w-(--sidebar-width-mobile) max-w-(--sidebar-width-mobile) gap-0 border-sidebar-border bg-sidebar p-0 text-sidebar-foreground"
         >
           <SheetHeader className="sr-only">
             <SheetTitle>Navigation</SheetTitle>
@@ -510,8 +506,15 @@ export function SidebarMenuItem({ className, ...props }: SidebarMenuItemProps) {
 export const sidebarMenuButtonVariants = cva(
   cn(
     "group/menu-button peer/menu-button relative flex w-full items-center gap-2 overflow-hidden rounded-md px-2 text-start text-base transition-[width,height,padding] duration-fast ease-standard select-none",
-    "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground",
-    "data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground",
+    // Hover = rung 2, pressed = rung 3; the ACTIVE row rests on rung 3 so hovering it still
+    // moves (SP-06). sidebar-accent is an alias of surface-2 — the rail has no palette of its own.
+    "text-sidebar-foreground hover:text-sidebar-accent-foreground active:text-sidebar-accent-foreground",
+    surfaceInteractive,
+    // The ACTIVE row rests on the pressed rung; hovering it steps DOWN to the hover rung and
+    // pressing returns it to rest, so an active row still moves under the cursor (SP-06).
+    // Without the explicit `data-[active=true]:hover:` the `data-` variant outranks `hover:`.
+    "data-[active=true]:bg-surface-3 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground",
+    "data-[active=true]:hover:bg-surface-2 data-[active=true]:active:bg-surface-3",
     "disabled:pointer-events-none disabled:opacity-(--opacity-dim) aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
     // Leading active-indicator rail.
     "before:absolute before:top-1 before:bottom-1 before:start-0 before:w-0.5 before:scale-y-0 before:rounded-full before:bg-sidebar-primary before:transition-transform before:duration-fast before:ease-standard data-[active=true]:before:scale-y-100",
@@ -783,7 +786,8 @@ export function SidebarTrigger({
         toggleSidebar();
       },
       className: cn(
-        "relative inline-flex size-(--size-sm) shrink-0 items-center justify-center rounded-md text-sidebar-foreground  before:absolute before:-inset-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&_svg]:size-(--icon-default) [&_svg]:shrink-0",
+        "relative inline-flex size-(--size-sm) shrink-0 items-center justify-center rounded-md text-sidebar-foreground before:absolute before:-inset-2 hover:text-sidebar-accent-foreground [&_svg]:size-(--icon-default) [&_svg]:shrink-0",
+        surfaceInteractive,
         className,
       ),
       children: <PanelLeft aria-hidden />,

@@ -1,4 +1,4 @@
-// @vegastack pagination@0.6.0 sha256-bOvwUOygGw/lh4EA3BOkz8i2Ce8Mjd4DCOTYN73ue3w=
+// @vegastack pagination@0.6.0 sha256-o4/5dSdkwgTFzK+/V3qVY1NnofwIBHZosdFQwuFsjYI=
 
 "use client";
 
@@ -99,7 +99,7 @@ function PaginationItem({ className, ...props }: PaginationItemProps) {
  * value is a semantic token (no hardcoded colors).
  */
 export const paginationLinkVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border border-transparent bg-clip-padding text-label whitespace-nowrap tabular-nums  select-none hover:bg-accent hover:text-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim) [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
+  "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border border-transparent bg-clip-padding text-label whitespace-nowrap tabular-nums select-none hover:bg-surface-2 hover:text-foreground active:bg-surface-3 aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim) [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
   {
     variants: {
       isActive: {
