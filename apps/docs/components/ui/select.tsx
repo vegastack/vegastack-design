@@ -1,4 +1,4 @@
-// @vegastack select@0.6.0 sha256-Y00sqlpOxvXMUJ+q6y+j4DMTmmLnSY8qZCszbfs52lU=
+// @vegastack select@0.6.0 sha256-l2+kj05rSQ7RXJS5KstB6g02YzEXTwNHuOF/Y4/jzok=
 
 "use client";
 
@@ -7,18 +7,12 @@ import { Select as BaseSelect } from "@base-ui/react/select";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn, FLOATING, surfaceInteractive } from "@vegastack/design";
-import { useInternalThemeScope } from "@vegastack/design/theme-scope";
-
-function mergeStateClassName<State>(
-  className: string,
-  userClassName: string | ((state: State) => string | undefined) | undefined,
-) {
-  if (typeof userClassName === "function") {
-    return (state: State) => cn(className, userClassName(state));
-  }
-
-  return cn(className, userClassName);
-}
+import {
+  FloatingSurface,
+  menuItemVariants,
+  menuLabelClassName,
+  menuSeparatorClassName,
+} from "@/components/ui/floating-surface";
 
 /**
  * Trigger variants. `size` mirrors the input/button scale — `sm` (h-(--size-sm)),
@@ -243,7 +237,6 @@ export interface SelectContentProps extends React.ComponentProps<
  * <SelectContent><SelectItem value="pro">Pro</SelectItem></SelectContent>
  */
 export function SelectContent({
-  className,
   children,
   side = "bottom",
   align = "start",
@@ -253,54 +246,36 @@ export function SelectContent({
   listProps,
   ...props
 }: SelectContentProps) {
-  const themeScope = useInternalThemeScope();
-  const { className: positionerClassName, ...positionerPropsRest } =
-    positionerProps ?? {};
-
   return (
-    <BaseSelect.Portal>
-      <BaseSelect.Positioner
-        {...positionerPropsRest}
-        data-slot="select-positioner"
-        side={side}
-        align={align}
-        sideOffset={sideOffset}
-        alignItemWithTrigger={alignItemWithTrigger}
-        className={mergeStateClassName<BaseSelect.Positioner.State>(
-          cn(themeScope, "z-(--z-overlay) outline-none"),
-          positionerClassName,
-        )}
+    <FloatingSurface
+      parts={{
+        Portal: BaseSelect.Portal,
+        Positioner: BaseSelect.Positioner,
+        Popup: BaseSelect.Popup,
+      }}
+      slot="select"
+      surface="menu"
+      positioning={{ side, align, sideOffset, alignItemWithTrigger }}
+      positionerProps={positionerProps}
+      popupProps={props}
+      // The popup is at least as wide as its trigger, and hosts absolutely-positioned scroll
+      // arrows — the two things a select popup adds to the shared `menu` surface.
+      className="relative min-w-[var(--anchor-width)]"
+    >
+      <BaseSelect.ScrollUpArrow
+        data-slot="select-scroll-up"
+        className="z-(--z-raised) flex h-6 w-full cursor-default items-center justify-center rounded-t-lg bg-popover text-muted-foreground"
       >
-        <BaseSelect.Popup
-          data-slot="select-content"
-          className={cn(
-            themeScope,
-            "relative z-(--z-overlay) max-h-[var(--available-height)] min-w-[var(--anchor-width)] max-w-[var(--available-width)] origin-[var(--transform-origin)] overflow-x-hidden overflow-y-auto overscroll-contain rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-overlay",
-            // `scale` must be listed explicitly — Tailwind v4 `scale-*` sets the CSS `scale`
-            // property, which `transform` does not cover (register P0-06; matches every sibling).
-            "transition-[transform,scale,opacity] duration-fast ease-standard",
-            "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
-            "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
-            className,
-          )}
-          {...props}
-        >
-          <BaseSelect.ScrollUpArrow
-            data-slot="select-scroll-up"
-            className="z-(--z-raised) flex h-6 w-full cursor-default items-center justify-center rounded-t-lg bg-popover text-muted-foreground"
-          >
-            <ChevronUp className="size-(--icon-default)" aria-hidden />
-          </BaseSelect.ScrollUpArrow>
-          <SelectList {...listProps}>{children}</SelectList>
-          <BaseSelect.ScrollDownArrow
-            data-slot="select-scroll-down"
-            className="z-(--z-raised) flex h-6 w-full cursor-default items-center justify-center rounded-b-lg bg-popover text-muted-foreground"
-          >
-            <ChevronDown className="size-(--icon-default)" aria-hidden />
-          </BaseSelect.ScrollDownArrow>
-        </BaseSelect.Popup>
-      </BaseSelect.Positioner>
-    </BaseSelect.Portal>
+        <ChevronUp className="size-(--icon-default)" aria-hidden />
+      </BaseSelect.ScrollUpArrow>
+      <SelectList {...listProps}>{children}</SelectList>
+      <BaseSelect.ScrollDownArrow
+        data-slot="select-scroll-down"
+        className="z-(--z-raised) flex h-6 w-full cursor-default items-center justify-center rounded-b-lg bg-popover text-muted-foreground"
+      >
+        <ChevronDown className="size-(--icon-default)" aria-hidden />
+      </BaseSelect.ScrollDownArrow>
+    </FloatingSurface>
   );
 }
 
@@ -324,13 +299,7 @@ export function SelectItem({ className, children, ...props }: SelectItemProps) {
   return (
     <BaseSelect.Item
       data-slot="select-item"
-      className={cn(
-        "relative flex w-full items-center gap-2 rounded-sm py-1.5 pe-8 ps-2 text-base outline-none select-none",
-        "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
-        "data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim)",
-        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
-        className,
-      )}
+      className={cn(menuItemVariants({ indicator: "trailing" }), className)}
       {...props}
     >
       <span className="absolute end-2 flex size-(--icon-default) items-center justify-center text-foreground">
@@ -368,10 +337,7 @@ export function SelectLabel({ className, ...props }: SelectLabelProps) {
   return (
     <BaseSelect.GroupLabel
       data-slot="select-label"
-      className={cn(
-        "px-2 py-1.5 text-label-sm text-muted-foreground",
-        className,
-      )}
+      className={cn(menuLabelClassName, className)}
       {...props}
     />
   );
@@ -393,7 +359,7 @@ export function SelectSeparator({ className, ...props }: SelectSeparatorProps) {
   return (
     <BaseSelect.Separator
       data-slot="select-separator"
-      className={cn("-mx-1 my-1 h-px bg-border", className)}
+      className={cn(menuSeparatorClassName, className)}
       {...props}
     />
   );

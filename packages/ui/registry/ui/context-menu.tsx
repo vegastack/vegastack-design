@@ -1,3 +1,5 @@
+// @vegastack context-menu@0.6.0 sha256-7JENlBFIC8LjYaGQ31YvPO8wO1SDs7stpaZ1chXmN1s=
+
 "use client";
 
 import * as React from "react";

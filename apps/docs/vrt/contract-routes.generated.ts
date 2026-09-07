@@ -39,6 +39,7 @@ export const COMPONENT_ROUTES = [
   "/docs/components/segmented",
   "/docs/components/accordion",
   "/docs/components/collapsible",
+  "/docs/components/floating-surface",
   "/docs/components/popover",
   "/docs/components/alert-dialog",
   "/docs/components/progress",

@@ -419,6 +419,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "floating-surface",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/floating-surface.tsx"
+      ],
+      "docsSlug": "/docs/components/floating-surface",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "popover",
       "inventoryClass": "component",
       "wave": "Overlays",

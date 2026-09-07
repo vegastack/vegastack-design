@@ -1,23 +1,14 @@
-// @vegastack tooltip@0.6.0 sha256-PkuvtmIOObVvVJ0VH0WZcp1zPeMCtu6u+JNfMYcosQM=
+// @vegastack tooltip@0.6.0 sha256-P/esZNU6sjt2sCCFDIVub4dx46dd0mwsC11Y9up+PS0=
 
 "use client";
 
 import * as React from "react";
 import { Tooltip as BaseTooltip } from "@base-ui/react/tooltip";
 import { cn, FLOATING } from "@vegastack/design";
-import { useInternalThemeScope } from "@vegastack/design/theme-scope";
-import { Kbd } from "@/components/ui/kbd";
-
-function mergeStateClassName<State>(
-  className: string,
-  userClassName: string | ((state: State) => string | undefined) | undefined,
-) {
-  if (typeof userClassName === "function") {
-    return (state: State) => cn(className, userClassName(state));
-  }
-
-  return cn(className, userClassName);
-}
+import {
+  FloatingArrow,
+  FloatingSurface,
+} from "@/components/ui/floating-surface";
 
 /**
  * `TooltipProvider` — shares a single open/close delay across every tooltip in
@@ -169,7 +160,6 @@ export interface TooltipContentProps extends React.ComponentProps<
  * <TooltipContent />
  */
 export function TooltipContent({
-  className,
   children,
   side = "top",
   sideOffset = FLOATING.sideOffsetDetached,
@@ -180,58 +170,26 @@ export function TooltipContent({
   arrow = false,
   ...props
 }: TooltipContentProps) {
-  const themeScope = useInternalThemeScope();
-  const { className: positionerClassName, ...positionerPropsRest } =
-    positionerProps ?? {};
-  const { className: viewportClassName, ...viewportPropsRest } =
-    viewportProps ?? {};
-
   return (
-    <BaseTooltip.Portal {...portalProps}>
-      <BaseTooltip.Positioner
-        {...positionerPropsRest}
-        data-slot="tooltip-positioner"
-        side={side}
-        sideOffset={sideOffset}
-        align={align}
-        className={mergeStateClassName<BaseTooltip.Positioner.State>(
-          cn(themeScope, "z-(--z-overlay)"),
-          positionerClassName,
-        )}
-      >
-        <BaseTooltip.Popup
-          data-slot="tooltip-content"
-          role="tooltip"
-          className={cn(
-            themeScope,
-            "z-(--z-overlay) flex w-fit max-w-xs origin-(--transform-origin) items-center gap-2 rounded-md bg-foreground px-2.5 py-1 text-sm text-background shadow-overlay select-none",
-            // Enter/exit transitions driven by Base UI transition data attributes.
-            "transition-[transform,scale,opacity] duration-fast ease-standard",
-            "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
-            "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
-            "data-[instant]:duration-0",
-            className,
-          )}
-          {...props}
-        >
-          {arrow ? <TooltipArrow /> : null}
-          {viewportProps ? (
-            <BaseTooltip.Viewport
-              {...viewportPropsRest}
-              data-slot="tooltip-viewport"
-              className={mergeStateClassName<BaseTooltip.Viewport.State>(
-                themeScope ?? "",
-                viewportClassName,
-              )}
-            >
-              {children}
-            </BaseTooltip.Viewport>
-          ) : (
-            children
-          )}
-        </BaseTooltip.Popup>
-      </BaseTooltip.Positioner>
-    </BaseTooltip.Portal>
+    <FloatingSurface
+      parts={{
+        Portal: BaseTooltip.Portal,
+        Positioner: BaseTooltip.Positioner,
+        Popup: BaseTooltip.Popup,
+        Viewport: BaseTooltip.Viewport,
+      }}
+      slot="tooltip"
+      surface="tooltip"
+      // No explicit `role="tooltip"`: Base UI already sets it on the popup (B3-10).
+      positioning={{ side, sideOffset, align }}
+      portalProps={portalProps}
+      positionerProps={positionerProps}
+      viewportProps={viewportProps}
+      popupProps={props}
+      arrow={arrow ? <TooltipArrow /> : undefined}
+    >
+      {children}
+    </FloatingSurface>
   );
 }
 
@@ -249,62 +207,48 @@ export interface TooltipArrowProps extends React.ComponentProps<
  * @example
  * <TooltipArrow />
  */
-export function TooltipArrow({ className, ...props }: TooltipArrowProps) {
+export function TooltipArrow(props: TooltipArrowProps) {
   return (
-    <BaseTooltip.Arrow
-      data-slot="tooltip-arrow"
-      className={cn(
-        "data-[side=bottom]:-top-1 data-[side=top]:-bottom-1 data-[side=left]:-right-1 data-[side=right]:-left-1",
-        className,
-      )}
+    <FloatingArrow
+      element={BaseTooltip.Arrow}
+      slot="tooltip-arrow"
+      tone="tooltip"
       {...props}
-    >
-      <span className="block size-2 rotate-45 rounded-xs bg-foreground" />
-    </BaseTooltip.Arrow>
+    />
   );
 }
 
-/** Props accepted by `TooltipKbd`. */
+/**
+ * `TooltipKbd` — render a keyboard shortcut hint inside a tooltip. Each key is
+ * a `<kbd>` styled with `bg-muted` / `text-muted-foreground`. Pass a single
+ * string (`"⌘K"` is split per character) or an array of key tokens.
+ */
 export interface TooltipKbdProps extends React.ComponentProps<"span"> {
   /** The shortcut — a string (split per glyph) or explicit key tokens. */
   keys: string | readonly string[];
-  /**
-   * Platform label mode, forwarded to `Kbd`. Resolve it at the call site with
-   * `usePlatform()`; the default matches that hook's SSR fallback.
-   * @default 'other'
-   */
-  os?: "mac" | "other";
 }
 
-/**
- * `TooltipKbd` — a keyboard shortcut hint inside a tooltip. Pass a single string
- * (`"⌘K"` is split per character) or an array of key tokens.
- *
- * It renders `Kbd size="xs"` rather than restyling its own `<kbd>`: there is one
- * key chip in the system and this is not a second one (audit B2-07). That also
- * buys it the OS rewrite — a Windows reader sees `Ctrl`, not `⌘`.
+/** `TooltipKbd` renders a sequence of compact keyboard-key labels.
  *
  * @example
- * const { os } = usePlatform();
- * <TooltipKbd keys={["⌘", "K"]} os={os === "mac" ? "mac" : "other"} />
+ * <TooltipKbd />
  */
-export function TooltipKbd({
-  keys,
-  os = "other",
-  className,
-  ...props
-}: TooltipKbdProps) {
+export function TooltipKbd({ keys, className, ...props }: TooltipKbdProps) {
   const tokens = Array.isArray(keys) ? keys : [...(keys as string)];
   return (
-    <Kbd
-      // Kbd's `keys` form spreads these onto its KbdGroup root, so the documented
-      // `data-slot="tooltip-kbd"` hook survives the consolidation.
+    <span
       data-slot="tooltip-kbd"
-      keys={tokens}
-      size="xs"
-      os={os}
-      className={className}
+      className={cn("inline-flex shrink-0 items-center gap-0.5", className)}
       {...props}
-    />
+    >
+      {tokens.map((key, i) => (
+        <kbd
+          key={`${key}-${i}`}
+          className="inline-flex h-4 min-w-4 items-center justify-center rounded border border-border bg-muted px-1 font-mono text-sm leading-none font-medium text-muted-foreground"
+        >
+          {key}
+        </kbd>
+      ))}
+    </span>
   );
 }

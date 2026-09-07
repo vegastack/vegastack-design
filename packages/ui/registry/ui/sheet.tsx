@@ -1,3 +1,5 @@
+// @vegastack sheet@0.6.0 sha256-kHUmFKmi7ep7qITIt0x+h3m6H3lUlC+aEjZ71MbQuNI=
+
 "use client";
 
 import * as React from "react";
@@ -169,13 +171,13 @@ export interface SheetProps extends Omit<
  *   </SheetContent>
  * </Sheet>
  */
-export function Sheet({ side = "right", children, ...props }: SheetProps) {
+export function Sheet({ side = "right", ...props }: SheetProps) {
+  // The provider wraps the root rather than its children so `children` reaches Base UI untouched —
+  // `Drawer.Root` also accepts a payload render function for detached triggers.
   return (
-    <Drawer.Root swipeDirection={SWIPE_DIRECTION[side]} {...props}>
-      <SheetSideContext.Provider value={side}>
-        {children}
-      </SheetSideContext.Provider>
-    </Drawer.Root>
+    <SheetSideContext.Provider value={side}>
+      <Drawer.Root swipeDirection={SWIPE_DIRECTION[side]} {...props} />
+    </SheetSideContext.Provider>
   );
 }
 

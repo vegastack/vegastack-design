@@ -1,0 +1,136 @@
+---
+title: Floating Surface
+description: The shared floating-overlay module — one Portal/Positioner/Popup composer, the popup surface recipes, the list-item recipe, and the in-panel search row.
+audience: public
+preview: floatingSurface
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/floating-surface
+```
+
+<RegistryInstallCallout />
+
+Every overlay in the system already depends on it, so `shadcn add @vegastack/popover` (or any menu, select, combobox or command item) installs it for you. Add it directly only when you are building a new anchored surface of your own.
+
+## Usage
+
+`floating-surface` is the answer to a question every overlay used to answer separately: what does a floating panel look like, how does it enter and leave, how does a row inside it highlight, and what does a search field inside a panel look like.
+
+It is a module of recipes and one composer, not a rendered component you place in a page:
+
+- `FloatingSurface` composes a Base UI namespace's `Portal → Positioner → Popup (→ Viewport)` into a single element, paints one of four surfaces, applies the enter/exit motion, and carries the internal theme scope across the portal boundary.
+- `FloatingArrow` draws the directional wedge in either the bordered panel tone or the inverted tooltip tone.
+- `menuItemVariants` is the one row recipe behind menu items, checkbox/radio items, submenu triggers, select options, combobox options and command rows.
+- `createMenuParts(prefix)` binds the one menu-row implementation to a component's `data-slot` prefix. Base UI's `ContextMenu` namespace re-exports `Menu`'s item, checkbox-item, radio-item, group-label, submenu-trigger and separator parts verbatim, so `DropdownMenu` and `ContextMenu` are not two components that look alike — below the trigger they are the same component.
+- `PanelSearchFrame` / `PanelSearchInput` are the "search inside a panel" row: a leading glyph, no box of its own, and a hairline below.
+
+```tsx
+<FloatingSurface
+  parts={{
+    Portal: Popover.Portal,
+    Positioner: Popover.Positioner,
+    Popup: Popover.Popup,
+  }}
+  slot="popover"
+  surface="panel"
+  positioning={{ side, sideOffset, align, collisionPadding }}
+  popupProps={props}
+>
+  {children}
+</FloatingSurface>
+```
+
+`parts` stays structural on purpose: each overlay hands in its OWN Base UI parts, so `PopoverContent`, `SelectContent` and friends keep their precise Base UI prop types. Only the internal hand-off is generic.
+
+## Examples
+
+### The surfaces
+
+`surface` picks what the popup paints. `panel` is the 16px popover tier (Popover, HoverCard); `menu` is the same surface at list density with a 4px inset floor (DropdownMenu, ContextMenu, Select, Combobox, Command); `tooltip` is the inverted ink chip; `navigation` is the morphing mega-menu panel.
+
+<ComponentPreview
+  name="floatingSurface"
+  file="components/preview/floating-surface.tsx"
+/>
+
+### Motion
+
+`motion` picks the timing. Every floating surface enters and leaves at `duration-fast` (150ms) with `ease-standard`; only NavigationMenu takes `base` (200ms), because it resizes between items rather than simply appearing. Modal surfaces — Dialog, AlertDialog, Sheet — sit outside this module and move at `base` with their backdrops.
+
+### Rows
+
+`menuItemVariants` carries the surface ladder: `data-highlighted` (Base UI sets it for both pointer hover and keyboard navigation) washes the row to `surface-2`, and pressed or selected takes `surface-3`. The `md` radius inside the list's 4px padding keeps every wash inset from the popup hairline and concentric with the popup's `lg` corner.
+
+```tsx
+<Menu.Item className={cn(menuItemVariants({ tone: "destructive" }))} />
+<Select.Item className={cn(menuItemVariants({ indicator: "trailing" }))} />
+```
+
+### Panel search
+
+A bordered `Input` inside a bordered popup nests two borders. `PanelSearchFrame` is the alternative: a sticky, full-bleed header row with a hairline below.
+
+```tsx
+<PanelSearchFrame focusTint={false}>
+  <Combobox.Input className={panelSearchInputClassName} />
+</PanelSearchFrame>
+```
+
+Turn `focusTint` off when the field is autofocused as the panel opens — a permanently-lit hairline reads as a stray border rather than a focus affordance.
+
+## API Reference
+
+### FloatingSurface
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/floating-surface.tsx"
+  name="FloatingSurfaceProps"
+/>
+
+### FloatingSurfaceParts
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/floating-surface.tsx"
+  name="FloatingSurfaceParts"
+/>
+
+### FloatingArrow
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/floating-surface.tsx"
+  name="FloatingArrowProps"
+/>
+
+### PanelSearchFrame
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/floating-surface.tsx"
+  name="PanelSearchFrameProps"
+/>
+
+### Menu parts
+
+`createMenuParts(prefix)` returns `Group`, `RadioGroup`, `Item`, `CheckboxItem`, `RadioItem`, `Label`, `Separator`, `Shortcut` and `SubTrigger`, each already carrying `<prefix>-<part>` as its `data-slot`.
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/floating-surface.tsx"
+  name="MenuPartItemProps"
+/>
+
+## Accessibility
+
+- The module adds no ARIA of its own — every part it renders is a Base UI part, and Base UI owns the roles, `aria-*` wiring and focus management for each namespace.
+- Popups keep their native focus outline. A floating popup can receive keyboard focus (initial focus, focus wrap), so the centralized `:focus-visible` outline stays as its indicator (WCAG 2.4.7).
+- `menuItemVariants` never signals state by colour alone: a highlighted row changes background, and selection is additionally carried by the component's own check or dot indicator.
+- Rows are washed on `data-highlighted`, which Base UI sets for keyboard navigation as well as pointer hover, so keyboard users see the same affordance as mouse users.
+- `PanelSearchFrame` renders only chrome — the field inside it keeps its own accessible name (`aria-label` or a wired label).
+
+## Do / Don't
+
+<DoDont
+  do="Compose FloatingSurface and menuItemVariants when you build a new anchored overlay or list surface, so it inherits the system's surface, motion, and highlight ladder for free."
+  dont="Restate the Portal/Positioner/Popup plumbing, a row's hover wash, or a panel search row in a component. That is exactly the duplication this module replaced — and it drifts."
+/>

@@ -35,6 +35,7 @@
     "color-picker",
     "emoji-picker",
     "---Overlays---",
+    "floating-surface",
     "dialog",
     "alert-dialog",
     "sheet",

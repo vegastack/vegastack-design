@@ -546,7 +546,7 @@ assert(
 );
 
 const expected = {
-  totalRegistryItems: 558,
+  totalRegistryItems: 559,
   components: 111,
   animatedIcons: 439,
   hooks: 7,
@@ -563,7 +563,7 @@ const expectedWaves = {
   "Core controls": 23,
   "Forms/editing": 22,
   "Navigation/layout": 14,
-  Overlays: 13,
+  Overlays: 14,
   "Data display": 11,
   "Content/marketing": 22,
   "AI/chat": 6,
@@ -635,6 +635,7 @@ const expectedComponentWaveMembers = {
     "board",
   ],
   Overlays: [
+    "floating-surface",
     "alert-dialog",
     "dialog",
     "sheet",

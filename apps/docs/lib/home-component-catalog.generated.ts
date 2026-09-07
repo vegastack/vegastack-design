@@ -330,6 +330,11 @@ export const HOME_COMPONENT_GROUPS = [
     "description": "Focused tasks, contextual actions, menus, commands, and progressive disclosure.",
     "components": [
       {
+        "name": "floating-surface",
+        "title": "Floating Surface",
+        "href": "/docs/components/floating-surface"
+      },
+      {
         "name": "alert-dialog",
         "title": "Alert Dialog",
         "href": "/docs/components/alert-dialog"

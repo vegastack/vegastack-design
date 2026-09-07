@@ -87,6 +87,7 @@ component and never an icon.
 - **`context-menu`** — A menu of actions revealed by right-click (or long-press) — items, submenus, separators, labels, shortcuts, checkbox/radio.
 - **`dialog`** — A modal overlay — five sizes, a header/footer layout, focus trapping, and animated enter/exit.
 - **`dropdown-menu`** — A menu of actions triggered by a button — items, submenus, separators, labels, shortcuts, and checkbox/radio selections.
+- **`floating-surface`** — The shared floating-overlay module: one Portal/Positioner/Popup composer, the popup surface recipes, the list-item recipe, and the in-panel search row.
 - **`hover-card`** — A rich preview panel that opens on hover or focus — interactive content, four directions, forgiving delays.
 - **`popover`** — A click-triggered floating panel for arbitrary content — positioning, an optional arrow, and built-in dismiss.
 - **`sheet`** — A dialog that slides in from a screen edge — four sides, header/footer layout, focus trapping, animated slide.

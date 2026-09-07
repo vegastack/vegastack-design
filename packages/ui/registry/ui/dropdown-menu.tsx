@@ -1,3 +1,5 @@
+// @vegastack dropdown-menu@0.6.0 sha256-ds0digTFmY0JipwJmMyGQvP1siY9Xk5dFVhfGeRGmak=
+
 "use client";
 
 import * as React from "react";

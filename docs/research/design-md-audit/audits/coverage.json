@@ -92,8 +92,8 @@
       ]
     },
     "Overlays": {
-      "expected": 13,
-      "actual": 13,
+      "expected": 14,
+      "actual": 14,
       "members": [
         "action-bar",
         "alert-dialog",
@@ -101,6 +101,7 @@
         "dialog",
         "dropdown-menu",
         "emoji-picker",
+        "floating-surface",
         "hover-card",
         "popover",
         "provider",

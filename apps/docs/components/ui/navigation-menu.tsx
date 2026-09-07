@@ -1,4 +1,4 @@
-// @vegastack navigation-menu@0.6.0 sha256-ZUwZAJ/Z7fpOPPoMHwuFv/7xMuj6LRbwUPkYzDjI57k=
+// @vegastack navigation-menu@0.6.0 sha256-FR9D08XKHkCf214G9MtMDFQq3a+/i+QLi35oTbrk8Xw=
 
 "use client";
 
@@ -6,7 +6,10 @@ import * as React from "react";
 import { NavigationMenu as BaseNavigationMenu } from "@base-ui/react/navigation-menu";
 import { ChevronDown } from "lucide-react";
 import { cn, FLOATING, surfaceInteractive } from "@vegastack/design";
-import { useInternalThemeScope } from "@vegastack/design/theme-scope";
+import {
+  FloatingSurface,
+  mergeStateClassName,
+} from "@/components/ui/floating-surface";
 
 /* ------------------------------------------------------------------------------------------------
  * NavigationMenu — the site-nav mega-dropdown (Wave 4, from the marketing-teardown nav anatomy):
@@ -179,37 +182,32 @@ export function NavigationMenuPanel({
   sideOffset = FLOATING.sideOffsetDetached,
   ...props
 }: NavigationMenuPanelProps) {
-  const themeScope = useInternalThemeScope();
-
   return (
-    <BaseNavigationMenu.Portal>
-      <BaseNavigationMenu.Positioner
-        data-slot="navigation-menu-positioner"
-        sideOffset={sideOffset}
-        className={cn(
-          themeScope,
-          "z-(--z-overlay) h-(--positioner-height) w-(--positioner-width) transition-[top,left,right,bottom] duration-base ease-standard",
+    <FloatingSurface
+      parts={{
+        Portal: BaseNavigationMenu.Portal,
+        Positioner: BaseNavigationMenu.Positioner,
+        Popup: BaseNavigationMenu.Popup,
+        Viewport: BaseNavigationMenu.Viewport,
+      }}
+      slot="navigation-menu"
+      popupSlot="navigation-menu-popup"
+      surface="navigation"
+      // The one floating surface that morphs between items rather than simply appearing, so it
+      // takes the D11 modal duration (200ms) instead of the 150ms floating one.
+      motion="base"
+      viewport="always"
+      positioning={{ sideOffset }}
+      positionerProps={{
+        ...props,
+        // The positioner is the element that resizes between items, so the size vars and the
+        // top/left transition live here rather than on the popup.
+        className: mergeStateClassName(
+          "h-(--positioner-height) w-(--positioner-width) transition-[top,left,right,bottom] duration-base ease-standard",
           className,
-        )}
-        {...props}
-      >
-        <BaseNavigationMenu.Popup
-          data-slot="navigation-menu-popup"
-          className={cn(
-            themeScope,
-            "h-(--popup-height) w-full rounded-lg border border-border bg-popover text-popover-foreground shadow-overlay sm:w-(--popup-width)",
-            "transition-[opacity,transform,width,height] duration-base ease-standard",
-            "data-[starting-style]:scale-95 data-[starting-style]:opacity-0 data-[starting-style]:-translate-y-px",
-            "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
-          )}
-        >
-          <BaseNavigationMenu.Viewport
-            data-slot="navigation-menu-viewport"
-            className={cn(themeScope, "relative h-full w-full overflow-hidden")}
-          />
-        </BaseNavigationMenu.Popup>
-      </BaseNavigationMenu.Positioner>
-    </BaseNavigationMenu.Portal>
+        ),
+      }}
+    />
   );
 }
 
