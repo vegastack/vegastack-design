@@ -33,7 +33,7 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { ROOT } from "./lib/change-set.mjs";
+import { ROOT } from "./lib/fs.mjs";
 
 const GATE = join(ROOT, "tooling/verify-workflow-security.mjs");
 const WORKFLOWS = join(ROOT, ".github/workflows");
@@ -106,9 +106,13 @@ const CASES = [
   {
     id: "shell injection through a run: body",
     file: "ci.yml",
-    find: "      - run: pnpm design:verify",
+    // Anchored to `pnpm lint`, which is the one step every checkout of ci.yml runs. It used to
+    // anchor on `pnpm design:verify`; when that step was folded into `pnpm lint` (turbo cache,
+    // 2026-09-07) the mutation stopped applying and this case reported a harness bug — which is
+    // exactly the outcome this file is built to produce rather than a silent pass.
+    find: "      - run: pnpm lint\n",
     replace:
-      "      - run: echo ${{ github.event.pull_request.title }}\n      - run: pnpm design:verify",
+      "      - run: echo ${{ github.event.pull_request.title }}\n      - run: pnpm lint\n",
     expect: /interpolated directly into a run: script/,
   },
   {

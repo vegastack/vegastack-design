@@ -12,8 +12,9 @@ concurrency:
 
 # THIS WORKFLOW COSTS NOTHING. Every job runs on the self-hosted mac minis, because after the
 # local-first migration nothing here drives a browser: the Vitest browser suite, the cross-engine
-# smoke, and the 864 behaviour contracts all run in `.husky/pre-push` on a developer machine and are
-# attested by `.gates/receipt.json`, which `receipt-guard` below verifies against the pushed tree.
+# smoke, and the behaviour contracts over every component route all run in `.husky/pre-push` on a
+# developer machine and are attested by `.gates/receipt.json`, which `receipt-guard` below verifies
+# against the pushed tree.
 #
 # Before the migration this workflow was ~110 billable minutes per push (a ~10-17min `verify` plus
 # four ~25min contract shards, re-paid on every push because `cancel-in-progress` restarts it).
@@ -38,18 +39,27 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      # Self-contained on a clean checkout: design:verify builds the gitignored token dist before
-      # checking generated design.md, the 538-item contracts, contrast, dark/marketing parity, RSC
-      # safety, and the five negative fixtures — including the route-scope, classifier, and
-      # gate-receipt ones this topology depends on.
-      - run: pnpm design:verify
+      # THE TURBO CACHE LIVES OUTSIDE THE WORKSPACE. actions/checkout runs `git clean -ffdx` before
+      # every checkout, which deletes the default `.turbo/cache`. Pointing TURBO_CACHE_DIR at the
+      # runner's home makes the cache survive between runs on the same mini, so a tree already
+      # verified by an earlier run (a PR's merge commit, then the same tree on main) is a seconds-long
+      # replay instead of a re-execution (decision TD-6: "do not re-verify what is verified"). The
+      # cache is keyed on content, never on a receipt or a branch — there is no "skip if verified"
+      # branch here, only turbo's input hash. `$HOME` is set through the shell, not `${{ }}`.
+      - name: Keep the turbo cache across workspace cleans
+        run: echo "TURBO_CACHE_DIR=$HOME/.cache/turbo/vegastack-design" >> "$GITHUB_ENV"
       # Workspace gates (Turborepo, package-scoped). Root-level `pnpm exec tsc/vitest` do NOT
       # resolve the per-package tsconfig path aliases / vitest configs and fail before validating
       # anything — always go through the package scripts.
       - run: pnpm typecheck # turbo run typecheck — per-package `tsc --noEmit`
-      # `pnpm lint` includes verify-hooks-installed.mjs, so a tree whose hooks are missing, emptied,
-      # or unwired fails HERE. That matters more than it looks: those hooks are the only place the
-      # browser lanes run, and husky's dispatcher exits 0 silently when a committed hook is absent.
+      # ONE turbo run: the repo-level static gates, the secret scan, the hook check (never cached —
+      # it reads machine state), `design:verify` (which depends on the three package builds and
+      # checks generated design.md, the contracts, contrast, dark/marketing parity, RSC safety, and
+      # every negative fixture this topology depends on), then per-package lint. Everything but the
+      # hook check is cached on its declared inputs; tooling/verify-turbo-inputs.mjs keeps those
+      # declarations honest. `pnpm lint` includes verify-hooks-installed.mjs, so a tree whose hooks
+      # are missing, emptied, or unwired fails HERE — those hooks are the only place the browser
+      # lanes run, and husky's dispatcher exits 0 silently when a committed hook is absent.
       - run: pnpm lint
       # `@vegastack/design`'s tests are three plain `node test/*.mjs` files and run here.
       # `@vegastack/ui`'s are Vitest browser mode and run in the pre-push hook — hence the filter

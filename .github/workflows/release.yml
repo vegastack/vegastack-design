@@ -29,8 +29,9 @@ env:
 jobs:
   # What does this push require, and what will it DO? One authority, called rather than reimplemented
   # in shell — tooling/classify-change.mjs. That logic lived here as bash and was wrong in both
-  # directions on 2026-07-25 (first demanding the 768-check gate for a pure version bump across 1082
-  # provenance-re-stamped files, then reporting no change for a real component edit while exiting 0).
+  # directions on 2026-07-25 (first demanding the full contract sweep for a pure version bump across
+  # 1082 provenance-re-stamped files, then reporting no change for a real component edit while
+  # exiting 0).
   # tooling/verify-classify-change.mjs now proves both directions against those actual commits.
   changes:
     runs-on: [self-hosted, vsk-runners-mac-mini]
@@ -91,9 +92,17 @@ jobs:
   # Repository code and dependencies are validated without write or OIDC authority. Free, on a mini,
   # and with no container: the container existed only for the three-engine browser suite, which now
   # runs locally.
+  #
+  # UNCONDITIONAL, on every push to main (decision TD-6, audit TG-04). It used to run only when
+  # `publish == 'true'`, so a direct push touching only apps/docs reached main — and could reach a
+  # deploy — with typecheck, lint, and design:verify never re-executed. `main` has no branch
+  # protection, so this job IS the re-execution. Efficiency comes from turbo's content-addressed
+  # cache, not from a condition: an already-verified tree (the PR's merge commit, verified by ci.yml
+  # on the same mini) replays in seconds, and only changed inputs re-execute. There is deliberately
+  # no "skip if the receipt says so" branch — a receipt is attestation of the BROWSER lanes and says
+  # nothing about these.
   quality-gate:
     needs: [changes, receipt-guard]
-    if: needs.changes.outputs.publish == 'true'
     runs-on: [self-hosted, vsk-runners-mac-mini]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -105,6 +114,10 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      # Same cache location as ci.yml — actions/checkout's `git clean -ffdx` would otherwise delete
+      # `.turbo/cache` before every run and no tree could ever be "already verified".
+      - name: Keep the turbo cache across workspace cleans
+        run: echo "TURBO_CACHE_DIR=$HOME/.cache/turbo/vegastack-design" >> "$GITHUB_ENV"
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm exec turbo run test --filter=@vegastack/design

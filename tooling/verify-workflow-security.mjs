@@ -32,9 +32,10 @@ const SELF_HOSTED = "[self-hosted, vsk-runners-mac-mini]";
 //
 // NO BROWSER RUNS IN CI AT ALL. That is the whole point of the local-first topology
 // (docs/plans/2026-07-25-cicd-local-first-revamp.md): the Vitest browser suite, the cross-engine
-// smoke, the three-engine suite, and the 864 behaviour contracts run in `.husky/pre-push` on a
-// developer machine and are attested by `.gates/receipt.json`, which the `receipt-guard` job in each
-// workflow verifies against the pushed tree. So the mac minis' inability to launch Chromium — a host
+// smoke, the three-engine suite, and the behaviour contracts over every component route run in
+// `.husky/pre-push` / `pnpm gates:ship` on a developer machine and are attested by
+// `.gates/receipt.json`, which the `receipt-guard` job in each workflow verifies against the pushed
+// tree. So the mac minis' inability to launch Chromium — a host
 // bug, recorded in AGENTS.md § Locked decisions — no longer blocks anything, and every job that
 // executes repository code is free.
 //
@@ -253,6 +254,16 @@ for (const [name, source] of Object.entries(sources)) {
       /verify-gate-receipt\.mjs/,
       `${name}: receipt-guard does not run tooling/verify-gate-receipt.mjs`,
     );
+    // A DEPLOY demands the full sweep, and the flag is what makes the guard demand it. Without it
+    // the guard classifies the change and accepts whatever push receipt covers that class — which
+    // is how a scoped one-route receipt satisfied a "full sweep required" deploy (audit TG-01).
+    if (name === "deploy.yml")
+      assert.match(
+        guard,
+        /verify-gate-receipt\.mjs\s+--require-full-sweep/,
+        "deploy.yml: receipt-guard must pass --require-full-sweep — a deploy is the one step that " +
+          "must be preceded by a complete `gates ship` run, and only that flag makes the guard demand one",
+      );
   }
 
   for (const [job, runner] of runners) {
@@ -444,11 +455,39 @@ assert.match(
 );
 // The quality gate itself must be gated on the receipt: validating the non-browser half while the
 // browser half was never attested is the exact fail-open this topology has to avoid.
+const qualityGate = jobBlock(sources["release.yml"], "quality-gate");
 assert.match(
-  jobBlock(sources["release.yml"], "quality-gate"),
+  qualityGate,
   /^    needs: \[changes, receipt-guard\]$/m,
   "release.yml: quality-gate must depend on receipt-guard",
 );
+// And it runs on EVERY push to main (decision TD-6). `main` has no branch protection, so this job is
+// the only re-execution of typecheck/lint/design:verify a direct push ever gets; the old
+// `publish == 'true'` condition let a docs-only push skip all of it (audit TG-04). Efficiency is
+// turbo's cache, never a condition.
+assert.doesNotMatch(
+  qualityGate,
+  /^    if:/m,
+  "release.yml: quality-gate must be unconditional — an `if:` reintroduces a push to main that is " +
+    "never re-verified; turbo's cache is what keeps an already-verified tree cheap",
+);
+// The cache only survives between runs if it lives outside the workspace actions/checkout cleans.
+for (const [name, job] of [
+  ["ci.yml", jobBlock(sources["ci.yml"], "verify")],
+  ["release.yml", qualityGate],
+]) {
+  assert.match(
+    job,
+    /TURBO_CACHE_DIR=\$HOME\/[^\s"]+" >> "\$GITHUB_ENV"/,
+    `${name}: the quality gate must point TURBO_CACHE_DIR outside the workspace — actions/checkout ` +
+      "runs `git clean -ffdx`, so the default .turbo/cache never survives to the next run",
+  );
+  assert.doesNotMatch(
+    job,
+    /receipt\.json[^\n]*\n[^\n]*if:|if:[^\n]*receipt/,
+    `${name}: no step may be conditioned on the receipt — it attests the browser lanes and says nothing about these gates`,
+  );
+}
 assert.doesNotMatch(sources["release.yml"], /^  environment-guard:$/m);
 assert.doesNotMatch(sources["release.yml"], /^    environment:/m);
 assert.doesNotMatch(

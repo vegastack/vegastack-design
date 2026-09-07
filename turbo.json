@@ -3,7 +3,18 @@
   "ui": "stream",
   "globalPassThroughEnv": ["PLAYWRIGHT_BROWSERS_PATH"],
   "globalEnv": ["SITE_VISIBILITY"],
-  "globalDependencies": ["tooling/**"],
+  "globalDependencies": [
+    "tooling/contrast-check.mjs",
+    "tooling/lib/fs.mjs",
+    "tooling/registry-hash.mjs",
+    "tooling/registry-header.mjs",
+    "tooling/registry-stamp.mjs",
+    "tooling/safe-path.mjs",
+    "tooling/sync-component-derived.mjs",
+    "tooling/verify-headers.mjs",
+    "tooling/verify-registry-deps.mjs",
+    "tooling/verify-ui-use-client.mjs"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -14,7 +25,25 @@
       "persistent": true
     },
     "lint": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/tooling/**"]
+    },
+    "@vegastack/docs#lint": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/tooling/**",
+        "$TURBO_ROOT$/skills/**",
+        "$TURBO_ROOT$/CHANGELOG.md"
+      ]
+    },
+    "@vegastack/design#lint": {
+      "dependsOn": ["^build", "@vegastack/ui#build"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/tooling/**"]
+    },
+    "@vegastack/design-tokens#lint": {
+      "dependsOn": ["^build", "build"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/tooling/**"]
     },
     "test": {
       "dependsOn": ["^build"],
@@ -22,6 +51,43 @@
     },
     "typecheck": {
       "dependsOn": ["^build"]
+    },
+    "//#lint:repo": {
+      "inputs": [
+        "tooling/**",
+        "skills/**",
+        ".claude/skills/**",
+        ".agents/skills/**",
+        ".github/**",
+        ".husky/**",
+        ".npmrc",
+        "pnpm-workspace.yaml",
+        "$TURBO_ROOT$/packages/design/skills/**",
+        "$TURBO_ROOT$/apps/docs/components.json",
+        "$TURBO_ROOT$/apps/docs/tsconfig.json",
+        "$TURBO_ROOT$/apps/docs/package.json"
+      ]
+    },
+    "//#lint:secrets": {
+      "inputs": ["$TURBO_DEFAULT$"]
+    },
+    "//#lint:hooks": {
+      "cache": false
+    },
+    "//#design:verify": {
+      "dependsOn": [
+        "@vegastack/design-tokens#build",
+        "@vegastack/design#build",
+        "@vegastack/ui#build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!.gates/**",
+        "!.github/**",
+        "!.changeset/**",
+        "!docs/audits/**",
+        "!docs/plans/**"
+      ]
     }
   },
   "remoteCache": {
