@@ -545,6 +545,11 @@ test("keeps shortcuts active after the controls fade and unmount", async () => {
 
     await showVideoControls(screen.container);
     await screen.getByRole("button", { name: "Play Demo video" }).click();
+    // The player deliberately holds the overlay open while focus is inside the frame, and engines
+    // disagree on whether a click focuses the button it hit. Move focus out explicitly, so this
+    // test measures the pointer-driven fade-and-unmount it is named for rather than an engine's
+    // click-focus convention. (Without this it passed in Chromium and hung visible in WebKit.)
+    (document.activeElement as HTMLElement | null)?.blur();
     await parkPointer();
     await vi.advanceTimersByTimeAsync(1150);
     await vi.waitFor(() =>
