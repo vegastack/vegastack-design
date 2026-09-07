@@ -94,7 +94,7 @@ tooling/sync-changelog.mjs`, and a changeset (`pnpm changeset`) for every consum
    package change (`@vegastack/ui` minor for any registry item change).
 6. Verify by execution, never by reading: `pnpm gates:component <name>` per touched component,
    `pnpm gates:push` before opening the PR, the issue's acceptance commands, and the audit
-   harness on touched routes (`node docs/audits/2026-09-07-system-audit/probe-states.mjs --routes
+   harness on touched routes (`node tooling/audit/probe-states.mjs --routes
 …` light and `--dark`; `capture.mjs --routes …`; `probe-overlays.mjs`/`probe-media.mjs` where
    relevant). Read the reports, not the exit codes. Run `pnpm gates:push` **before** the final
    commit and include `.gates/receipt.json`.

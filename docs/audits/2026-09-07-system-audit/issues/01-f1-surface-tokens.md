@@ -59,7 +59,7 @@ matrix is `03-proposals.md` §P1; reference research is `research-surface-palett
 
 ## Acceptance
 
-- `node docs/audits/2026-09-07-system-audit/probe-states.mjs --all` reports 0 `hover-invisible`
+- `node tooling/audit/probe-states.mjs --all` reports 0 `hover-invisible`
   on buttons/triggers/rows and 0 `active-same-as-hover` on buttons/toggles/triggers/tabs (light
   and `--dark`).
 - `grep -rE "hover:bg-(accent|muted|secondary|sidebar-accent)\b" packages/ui/registry/ui` → 0.

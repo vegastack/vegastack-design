@@ -1,10 +1,14 @@
 // Opens each overlay component in its docs preview and screenshots the OPEN state (light + dark).
+//
+//   node tooling/audit/probe-overlays.mjs
+//   --out <dir>  write elsewhere (default `.audit/_overlays`, or $AUDIT_OUT_DIR)
 import { createRequire } from "node:module";
 import fs from "node:fs";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { createServer } from "node:net";
-const root = path.resolve(import.meta.dirname, "../../..");
+import { ROOT as root } from "../lib/fs.mjs";
+import { evidenceDir } from "./out-dir.mjs";
 const docs = path.join(root, "apps/docs");
 const { chromium } = createRequire(path.join(docs, "package.json"))(
   "@playwright/test",
@@ -21,9 +25,32 @@ const server = spawn("pnpm", ["exec", "serve", "out", "-l", String(port)], {
   stdio: "ignore",
   detached: true,
 });
-await new Promise((r) => setTimeout(r, 1500));
-const out = path.join(import.meta.dirname, "captures", "_overlays");
-fs.mkdirSync(out, { recursive: true });
+// POLL for readiness, never sleep a fixed interval. A 1500ms sleep was enough on an idle
+// machine and not enough on a loaded one — `serve` had not bound the port yet and the first
+// `page.goto` died with ERR_CONNECTION_REFUSED, which reads as a broken probe rather than a slow
+// one. Reproduced 2026-09-07 while sibling gate runs were saturating the box.
+const sleep = (ms) => new Promise((d) => setTimeout(d, ms));
+let ready = false;
+for (let i = 0; i < 50; i++) {
+  try {
+    if ((await fetch(`http://127.0.0.1:${port}/`)).ok) {
+      ready = true;
+      break;
+    }
+  } catch {}
+  await sleep(200);
+}
+if (!ready) {
+  try {
+    process.kill(-server.pid, "SIGTERM");
+  } catch {}
+  console.error(
+    `could not reach the docs server on 127.0.0.1:${port} after 10s — is \`apps/docs/out\` built? ` +
+      "(`pnpm exec turbo run build --filter=@vegastack/docs`)",
+  );
+  process.exit(2);
+}
+const out = evidenceDir("_overlays");
 const browser = await chromium.launch();
 // [route, preview, action]
 const cases = [

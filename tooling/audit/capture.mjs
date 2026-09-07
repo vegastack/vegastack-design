@@ -5,18 +5,20 @@
 // `data-slot` element, runs axe on each fixture, records console errors, and walks the first eight
 // Tab stops at 1280 light to capture focus-visible treatment.
 //
-//   node docs/audits/2026-09-07-system-audit/capture.mjs --routes button,input   # or --all
+//   node tooling/audit/capture.mjs --routes button,input   # or --all
 //   --port <n>   use an already running `serve out` on that port (else one is started)
 //   --no-focus   skip the Tab-walk lane
+//   --out <dir>  write elsewhere (default `.audit/`, or $AUDIT_OUT_DIR)
 //
-// Output: docs/audits/2026-09-07-system-audit/captures/<route>/…  (gitignored, evidence only)
+// Output: .audit/<route>/…  (gitignored, evidence only — see tooling/audit/out-dir.mjs)
 import { createRequire } from "node:module";
 import fs from "node:fs";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { createServer } from "node:net";
 
-const root = path.resolve(import.meta.dirname, "../../..");
+import { ROOT as root } from "../lib/fs.mjs";
+import { evidenceDir } from "./out-dir.mjs";
 const docs = path.join(root, "apps/docs");
 const require = createRequire(path.join(docs, "package.json"));
 const { chromium } = require("@playwright/test");
@@ -74,8 +76,7 @@ for (const r of routes)
   if (!allRoutes.includes(r))
     console.warn(`warning: ${r} is not a contract route`);
 
-const outDir = path.join(import.meta.dirname, "captures");
-fs.mkdirSync(outDir, { recursive: true });
+const outDir = evidenceDir();
 
 function reservePort() {
   return new Promise((ok, fail) => {

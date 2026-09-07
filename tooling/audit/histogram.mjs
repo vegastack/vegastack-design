@@ -1,8 +1,12 @@
 // Utility-class histogram over every registry source file. Buckets by design-system role so
-// off-scale and near-duplicate values are visible. node docs/audits/2026-09-07-system-audit/histogram.mjs
+// off-scale and near-duplicate values are visible.
+//
+//   node tooling/audit/histogram.mjs   [--out <dir>]
+// Writes a COMMITTED audit document, so it defaults to the dated audit folder, not `.audit/`.
 import fs from "node:fs";
 import path from "node:path";
-const root = path.resolve(import.meta.dirname, "../../..");
+import { ROOT as root } from "../lib/fs.mjs";
+import { documentDir } from "./out-dir.mjs";
 const dirs = ["packages/ui/registry/ui", "packages/ui/registry/blocks"];
 const files = [];
 for (const d of dirs)
@@ -67,6 +71,6 @@ for (const [b, m] of Object.entries(counts)) {
     md += `| \`${k}\` | ${v} | ${[...where[b][k]].length}${[...where[b][k]].length <= 3 ? " (" + [...where[b][k]].join(", ") + ")" : ""} |\n`;
   md += "\n";
 }
-fs.writeFileSync(path.join(import.meta.dirname, "01-class-histogram.md"), md);
+fs.writeFileSync(path.join(documentDir(), "01-class-histogram.md"), md);
 for (const [b, m] of Object.entries(counts))
   console.log(b, Object.keys(m).length, "distinct");

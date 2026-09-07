@@ -1,10 +1,12 @@
 // Builds the dependency graph + register for the 2026-09-07 system audit.
 // Source of truth: packages/ui/registry/ui/* and component-contracts.json. Regenerate with:
-//   node docs/audits/2026-09-07-system-audit/graph.mjs
+//   node tooling/audit/graph.mjs   [--out <dir>]
+// Writes the audit's COMMITTED documents, so it defaults to the dated audit folder, not `.audit/`.
 import fs from "node:fs";
 import path from "node:path";
 
-const root = path.resolve(import.meta.dirname, "../../..");
+import { ROOT as root } from "../lib/fs.mjs";
+import { documentDir } from "./out-dir.mjs";
 const uiDir = path.join(root, "packages/ui/registry/ui");
 const contracts = JSON.parse(
   fs.readFileSync(
@@ -127,7 +129,7 @@ const out = [...nodes.values()].map((n) => ({
 }));
 out.sort((a, b) => a.tier - b.tier || a.name.localeCompare(b.name));
 
-const dir = import.meta.dirname;
+const dir = documentDir();
 fs.writeFileSync(
   path.join(dir, "00-graph.json"),
   JSON.stringify(

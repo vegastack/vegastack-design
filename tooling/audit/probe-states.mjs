@@ -12,8 +12,9 @@
 //   focus-none             keyboard focus produces no outline, no border change, no box-shadow
 //   active-same-as-hover   pressing changes nothing beyond hover (no pressed step)
 //
-//   node docs/audits/2026-09-07-system-audit/probe-states.mjs --routes tabs,button   # or --all
+//   node tooling/audit/probe-states.mjs --routes tabs,button   # or --all
 //   --port <n>  reuse a running `serve out`
+//   --out <dir> write elsewhere (default `.audit/_states`, or $AUDIT_OUT_DIR)
 
 import { createRequire } from "node:module";
 import fs from "node:fs";
@@ -21,7 +22,8 @@ import path from "node:path";
 import { spawn } from "node:child_process";
 import { createServer } from "node:net";
 
-const root = path.resolve(import.meta.dirname, "../../..");
+import { ROOT as root } from "../lib/fs.mjs";
+import { evidenceDir } from "./out-dir.mjs";
 const docs = path.join(root, "apps/docs");
 const require = createRequire(path.join(docs, "package.json"));
 const { chromium } = require("@playwright/test");
@@ -62,12 +64,7 @@ if (!routes.length) {
   process.exit(2);
 }
 
-const outDir = path.join(
-  import.meta.dirname,
-  "captures",
-  "_states" + (opt.dark ? "-dark" : ""),
-);
-fs.mkdirSync(outDir, { recursive: true });
+const outDir = evidenceDir("_states" + (opt.dark ? "-dark" : ""));
 
 function reservePort() {
   return new Promise((ok, fail) => {

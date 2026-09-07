@@ -63,8 +63,8 @@ would fail the tree before). Do1 can run in parallel with anything after F2.
   before the PR, `pnpm gates:ship` only when MK asks to ship.
 - After a batch, rerun the audit harness on the touched routes and confirm the relevant counts in
   `99-change-list.md` §Counts went down:
-  `node docs/audits/2026-09-07-system-audit/probe-states.mjs --routes a,b` and
-  `node docs/audits/2026-09-07-system-audit/capture.mjs --routes a,b`.
+  `node tooling/audit/probe-states.mjs --routes a,b` and
+  `node tooling/audit/capture.mjs --routes a,b`.
 - No new sanctioned dependency without an MK decision; the ones this audit sanctioned are listed in
   `00-decisions.md` (D25, D30).
 

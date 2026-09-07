@@ -1,11 +1,14 @@
 // Forced-colors focus probe: does a focused text-entry control paint ANY indicator when the
-// authored border tint is erased by the forced palette? node …/probe-forced-colors.mjs
+// authored border tint is erased by the forced palette?
+//
+//   node tooling/audit/probe-forced-colors.mjs   [--out <dir>]
 import { createRequire } from "node:module";
 import fs from "node:fs";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { createServer } from "node:net";
-const root = path.resolve(import.meta.dirname, "../../..");
+import { ROOT as root } from "../lib/fs.mjs";
+import { evidenceDir } from "./out-dir.mjs";
 const docs = path.join(root, "apps/docs");
 const { chromium } = createRequire(path.join(docs, "package.json"))(
   "@playwright/test",
@@ -22,7 +25,31 @@ const server = spawn("pnpm", ["exec", "serve", "out", "-l", String(port)], {
   stdio: "ignore",
   detached: true,
 });
-await new Promise((r) => setTimeout(r, 1500));
+// POLL for readiness, never sleep a fixed interval. A 1500ms sleep was enough on an idle
+// machine and not enough on a loaded one — `serve` had not bound the port yet and the first
+// `page.goto` died with ERR_CONNECTION_REFUSED, which reads as a broken probe rather than a slow
+// one. Reproduced 2026-09-07 while sibling gate runs were saturating the box.
+const sleep = (ms) => new Promise((d) => setTimeout(d, ms));
+let ready = false;
+for (let i = 0; i < 50; i++) {
+  try {
+    if ((await fetch(`http://127.0.0.1:${port}/`)).ok) {
+      ready = true;
+      break;
+    }
+  } catch {}
+  await sleep(200);
+}
+if (!ready) {
+  try {
+    process.kill(-server.pid, "SIGTERM");
+  } catch {}
+  console.error(
+    `could not reach the docs server on 127.0.0.1:${port} after 10s — is \`apps/docs/out\` built? ` +
+      "(`pnpm exec turbo run build --filter=@vegastack/docs`)",
+  );
+  process.exit(2);
+}
 const browser = await chromium.launch();
 const ctx = await browser.newContext({
   forcedColors: "active",
@@ -90,14 +117,10 @@ await page
   .locator("[data-vrt-preview]")
   .first()
   .screenshot({
-    path: path.join(
-      import.meta.dirname,
-      "captures",
-      "probe-forced-colors-input-focused.png",
-    ),
+    path: path.join(evidenceDir(), "probe-forced-colors-input-focused.png"),
   });
 fs.writeFileSync(
-  path.join(import.meta.dirname, "captures", "probe-forced-colors.json"),
+  path.join(evidenceDir(), "probe-forced-colors.json"),
   JSON.stringify(out, null, 2),
 );
 await browser.close();
