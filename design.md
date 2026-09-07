@@ -1911,6 +1911,18 @@ state. Never inline an ad-hoc `<svg>` as an icon; never mix icon libraries.
 With text that can wrap, align the icon to the **first line**, not the block midpoint: use an
 `items-start` row and a line-height-sized icon wrapper. Keep the icon optically equal to the text size.
 
+**The factory owns the controller; icons are data.** Every mirrored lucide-animated icon is a
+`createAnimatedIcon({ … })` call describing only its geometry, its Motion variants, and — where
+upstream choreography is not a plain play/rest pair — its start/stop steps. The controller lives once
+in `@vegastack/design/create-animated-icon`: the animation controls, the reduced-motion gate, the
+imperative `startAnimation`/`stopAnimation` handle, and the multi-input trigger rules (hover plays on
+a fine pointer, a tap plays on touch, focus plays and blur rests, and every one of them stands down
+once a consumer attaches a ref). The host is an **`inline-flex` `<span>`** — an icon sits inside a
+line of text, so a block-level box there is a layout bug. Reduced motion is read through Motion's
+config-aware hook, so a consumer can force it with `<MotionConfig reducedMotion>` as well as by OS
+preference. A behaviour that belongs to every icon belongs in the factory; a generated icon module
+that contains a hook, an event handler, or any JSX is a defect the gate rejects.
+
 ## Components
 
 Each component composes from tokens (frontmatter `recipes` gives the compact machine recipes). One control-height scale —

@@ -55,6 +55,90 @@ gate _claimed_, not a change of direction — no F1 decision is re-opened.
 
 **Needs MK:** nothing. Every item is a document or gate catching up to shipped, decided behaviour.
 
+## 2026-09-07 — Animated-icon factory: seven calls D28 did not settle (issue #46)
+
+D28 fixed the architecture ("factory + data modules") and the constraints ("public icon names and
+the `AnimatedIcon` wrapper API stay unchanged"). These seven were left open and were decided here.
+
+**1. Host element — an `inline-flex` `<span>`.**
+
+- **Options:** (a) keep the block-level `<div>`; (b) an `inline-flex` `<span>`; (c) make the `<svg>`
+  itself the root and drop the host entirely.
+- **Why (b):** (a) is the audit's own finding — an icon sits inside a line of text and a block box
+  there breaks the line. (c) is leanest but changes the public prop type from HTML attributes to SVG
+  attributes, which breaks `AnimatedIcon`'s `as` contract and every consumer spreading `className`,
+  `role` or a data attribute — a wrapper-API change D28 forbids. (b) fixes the layout bug and keeps
+  the prop surface, at the cost of one type change: `AnimatedIconComponent` and the icon props move
+  from `HTMLDivElement` to `HTMLSpanElement`. **Needs MK:** that is a public type change and is why
+  `@vegastack/design` takes a minor, not a patch.
+
+**2. Subpath — `@vegastack/design/create-animated-icon`, not `./icons`.**
+
+- **Options:** (a) export the factory from the existing `./icons` entry; (b) a new subpath.
+- **Why (b):** `./icons` deliberately imports no `motion` — it carries `Icon`/`BrandIcon`, which a
+  consumer uses without any animation engine. Putting the factory there would force `motion` into
+  their graph and make the whole entry client-only. This is the same reason `./theme-scope` is
+  already separate. `motion` becomes an **optional** peer dependency of `@vegastack/design`.
+
+**3. Choreography is a closure, not a step table.**
+
+- **Options:** (a) reify every icon's start/stop into declarative step data; (b) let the 49
+  non-default icons carry a small `start`/`stop` closure over the factory's context.
+- **Why (b):** 390 of 439 icons need neither — they take the factory's default play/rest pair and say
+  nothing. Of the rest, the choreography is genuinely per-icon (awaited sequences, `Promise.all`,
+  a 1.5s deferred hide, a re-entrancy latch). A declarative step language rich enough to express all
+  of that would be a worse, less readable encoding of the same four lines, and every construct would
+  need its own interpreter in the factory. The duplication D28 targets — the controller — is gone
+  either way; what remains per icon is irreducibly per-icon. The factory supplies the primitives
+  (`run`/`reset`/`set`/`after`/`flags`) so a closure never touches React.
+
+**4. A reviewed override table for six icons, and a hard failure otherwise.**
+
+- Six icons (`wifi-low`, `projector`, `phone-call`, `satellite-dish`, `keyboard`, `volume`) reached
+  for a component-local helper, a timer, or React state that the mechanical rewriter cannot express.
+  Rather than approximate them, `CHOREOGRAPHY_OVERRIDES` in the mirror carries a hand-reviewed
+  transcription for each, reachable **only** after the mechanical path has refused the icon. A new
+  archetype therefore throws instead of silently taking the default. Upstream cannot change one of
+  these without failing the manifest's SHA-256 first.
+
+**5. The icon gallery keeps its route.** See the separate entry below — the measurement changed the
+answer.
+
+**6. The acceptance thresholds were estimates, and one was not met.** The issue predicted
+`< 12,000` lines and a `≥ 2 MB` drop in `apps/docs/public/r`. Measured: **12,823 lines** (from
+79,078, −84%) and **1.57 MB** (4.48 → 2.91 MB). The residual is upstream path geometry and Motion
+variant data — the per-icon payload itself — so closing the remaining gap would mean discarding
+upstream choreography, not removing duplication. **Needs MK:** accept the measured numbers, or say
+which data should be dropped.
+
+**7. Formatting for generated data files.** A root `.prettierrc.json` now sets `printWidth: 200` and
+`objectWrap: "collapse"` for the two icon directories only (no repo-wide options are set, so nothing
+else changes). Without it the mirror's output and `pnpm format` would disagree and the mirror's
+idempotency check would fail after anyone ran the formatter.
+
+## 2026-09-07 — The icon gallery keeps its route; the refactor was the fix (issue #46)
+
+**Decision:** Do not split `/docs/foundations/icons` into its own route segment.
+
+- **Options:** (a) a dedicated `app/docs/foundations/icons/` segment; (b) remove `IconGallery` from
+  the global MDX map and import it inside the MDX file; (c) leave the routing alone.
+- **Why (c):** the gallery's own JSDoc records that (b) was already tried and measured — a dynamic
+  `import()` isolated the wall into its own chunk but left `button.html`'s total script payload
+  unchanged, because the catch-all `app/docs/[[...slug]]` route has **one** client-reference manifest
+  shared by every docs page. Moving the import into the MDX lands in that same manifest, so it buys
+  nothing. That leaves (a), which is the only mechanism that would work — and it is out of this
+  issue's lane: the route slug is pinned in `component-contracts.json` and consumed by
+  `tooling/lib/route-scope.mjs`, `verify-route-scope.mjs`, `verify-component-contracts.mjs`,
+  `apps/docs/vrt/page-routes.ts` and `vrt-review.mjs`, all of which G1-a owns, and
+  `apps/docs/app/**` is declared global for both pixel lanes so the change forces a full sweep on
+  every subsequent edit.
+- **What actually moved the number:** the refactor itself. See the PR for the measured before/after
+  payload of `/docs/components/button`.
+- **Revisit:** if the wall is still the largest client cost after this lands, a dedicated route
+  segment is the right fix and should be scoped as its own issue against the route-scope owners.
+  **Needs MK.**
+
+---
 ## 2026-09-07 — F1 surface ladder: eye-tuned rung values and the `bg-muted` mapping
 
 **Decision:** ship the ladder at values that differ from `03-proposals.md` §P1's start values wherever the contrast gate said P1's number could not hold, and keep `bg-muted` on the sites where it already means "rung 1".

@@ -84,6 +84,46 @@ Every bug found + root cause + fix. Append-only.
   examples that define their own variables. Like every other gate here it needs a negative fixture —
   a file naming a nonexistent token, proving the lint fails — or it is an assumption.
 
+## 2026-09-07 — 439 reduced-motion effects with no dependency array, and a reduced-motion assertion that could not fail
+
+Two defects in the same contract, found while replacing the per-icon controllers with one factory
+(issue #46). They are recorded together because the second is why the first survived so long.
+
+### (a) The effect ran after every render
+
+- **Symptom:** every one of the 439 mirrored icons carried
+  `useEffect(() => { if (shouldReduceMotion) stopAnimation(); });` — no dependency array, so the
+  effect ran after **every** render of every icon. On the docs icons page that is 439 effects per
+  render pass, each closing over a fresh `stopAnimation`.
+- **Root cause:** the generator emitted the effect without a dependency list
+  (`tooling/mirror-animated-icons.mjs`, `addReducedMotionEngine`). Because the icons were generated,
+  the mistake was made once and copied 439 times — which is the structural argument for the factory,
+  not merely a tidiness one.
+- **Fix:** the effect now lives once in `createAnimatedIcon` with `[shouldReduceMotion,
+stopAnimation]`, where `stopAnimation` is a `useCallback` over stable inputs. `[]` alone would have
+  been wrong in the other direction: it would stop settling the icon when the preference changes
+  mid-session, which is the behaviour the gate requires.
+  `tooling/verify-animated-icons.mjs` now fails if that effect has no dependency array or does not
+  depend on `shouldReduceMotion`, and its `--self-test` proves that failure.
+
+### (b) The reduced-motion test could not fail (pre-existing fail-open)
+
+- **Symptom:** `animated-icons.test.tsx`'s "reduced motion keeps imperative playback in the immediate
+  resting state" passed whether or not reduced motion was actually in effect.
+- **Root cause, two independent reasons:** (1) the test forced the preference with
+  `vi.spyOn(window, "matchMedia")`, but Motion resolves `useReducedMotion()` from a **module-level
+  singleton** captured when the module is first imported — before any test body runs — so the spy
+  never reached it; and (2) the assertion compared `path.getAttribute("style")`, which does not
+  change during a `pathLength` stroke-draw animation, so it would have held even with motion running.
+  Reproduced by asserting on `path.outerHTML` instead: the icon animated under a "reduced" mock.
+- **Fix:** the factory reads `useReducedMotionConfig()`, which returns the OS preference **and**
+  honours an explicit `<MotionConfig reducedMotion>`. That is both the stronger contract (a consumer
+  can force reduced motion) and the only seam a test can drive. Three tests now cover it — hover
+  suppressed, handle suppressed, and a `reducedMotion="never"` **negative control** so a green pair
+  cannot come from a probe that never animates in the first place.
+- **Rider:** the browser-unit suite renders without the compiled stylesheet, so the new host-element
+  assertion checks the `inline-flex` class rather than the computed `display`. The rendered box is
+  the pixel lane's job, not this suite's.
 ## 2026-09-07 — Two defects the audit did not name, found while building the surface ladder
 
 - **A light-only alias leaks the light value into `.dark`.** `chart-single` was authored once, in

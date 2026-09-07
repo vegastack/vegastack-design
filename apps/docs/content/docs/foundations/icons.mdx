@@ -34,9 +34,19 @@ import { ActivityIcon } from "@/components/ui/icons/activity";
 <AnimatedIcon as={ActivityIcon} size="md" aria-label="Activity" />;
 ```
 
-Every generated mirror handles `prefers-reduced-motion` intrinsically: playback becomes a no-op and
-the icon returns immediately to its static resting state. A consumer-level `MotionConfig` may still
-coordinate other application motion, but it is not required for VegaStack icon safety.
+**The factory owns the controller; icons are data.** A mirrored icon is a `createAnimatedIcon({ … })`
+call describing its geometry, its Motion variants, and — where upstream choreography is not a plain
+play/rest pair — its start/stop steps. Everything shared lives once in
+`@vegastack/design/create-animated-icon`: the animation controls, the reduced-motion gate, the
+imperative handle, and the trigger rules (hover plays on a fine pointer, a tap plays on touch, focus
+plays and blur rests, and all of them stand down once you attach a ref, so your handler becomes the
+only driver). The host is an `inline-flex` `<span>`, so an icon sits on the text baseline instead of
+breaking the line.
+
+Reduced motion is intrinsic: playback becomes a no-op and the icon returns immediately to its static
+resting state. It honours the OS preference **and** an explicit
+`<MotionConfig reducedMotion="always">`, so an application that already coordinates its motion
+centrally gets icons for free — but no `MotionConfig` is required for VegaStack icon safety.
 
 <IconGallery />
 

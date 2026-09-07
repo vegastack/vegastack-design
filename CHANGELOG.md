@@ -11,6 +11,97 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
 ## [0.7.0] — September 7, 2026
 
+### 🔧 Changed components
+
+- **Button**, **Select**, **Sidebar**, **Toggle**, **Tabs**, **Table**, **DataGrid**, **DataList**,
+  **Board**, **Item**, **Pagination**, **NavigationMenu**, **Combobox**, **DatePicker**, **Dialog**,
+  **Sheet**, **Popover**, **HoverCard**, **Segmented**, **TagGroup**, **Bubble**, **Card**,
+  **AppShell**, **EmojiPicker**, **FieldInline**, **MessageScroller**, **NumberField**,
+  **OnboardingChecklist**, **ShortcutOverlay**, **Sonner**, **Switch**, **ToolCallChip** and the
+  **dashboard-01** block — every hover now climbs one rung and **every control has a pressed
+  step**. Previously only the solid primary Button darkened on `:active`; a state probe found 268
+  elements where pressing changed nothing. Select's trigger hovered only in dark mode; it now
+  hovers in both. The current sidebar row rests on `surface-3` so hovering it still moves.
+  [docs](https://design.vegastack.com/docs/components/button) ·
+  [`273a602`](https://github.com/VegaStack/vegastack-design/commit/273a602)
+- **ComparisonMatrix**, **PricingSection** — the promoted column and the highlighted plan used
+  `info` (blue). `info` is links and informational UI only; promotion is a neutral ladder rung.
+  [docs](https://design.vegastack.com/docs/components/comparison-matrix) ·
+  [`273a602`](https://github.com/VegaStack/vegastack-design/commit/273a602)
+- **Animated icons** — the host element is now an `inline-flex` `<span>` rather than a block-level
+  `<div>`, so an icon placed in a line of text no longer breaks the line box. Public icon names, the
+  `size` prop, the `startAnimation`/`stopAnimation` handle and the `AnimatedIcon` wrapper API are
+  unchanged.
+  [docs](https://design.vegastack.com/docs/foundations/icons) ·
+  [`a91ab57`](https://github.com/VegaStack/vegastack-design/commit/a91ab57)
+- **Animated icons** — reduced motion is now read through Motion's config-aware hook, so
+  `<MotionConfig reducedMotion="always">` suppresses icon playback as well as the OS preference
+  does. Previously only the OS preference was consulted, through a module-level singleton no
+  consumer could influence.
+  [docs](https://design.vegastack.com/docs/foundations/icons) ·
+  [`a91ab57`](https://github.com/VegaStack/vegastack-design/commit/a91ab57)
+
+### 🛠 CLI & tooling
+
+- **Animated icons are one factory plus 439 data modules.** Every mirrored `lucide-animated` icon
+  used to carry its own copy of the controller — the animation controls, the reduced-motion gate,
+  five pointer/focus handlers, the imperative handle and a block-level host — so a change to any of
+  that meant regenerating 439 files and trusting that all 439 agreed. The controller now lives once
+  in `createAnimatedIcon`, and each icon is a `createAnimatedIcon({ … })` call describing only its
+  geometry, its Motion variants, and (for 49 icons) its non-default start/stop steps. The corpus
+  went from 79,078 lines to 12,823 (-84%) and from 2.06 MB to 0.57 MB of source; the served registry
+  fell from 4.48 MB to 2.91 MB. `tooling/mirror-animated-icons.mjs` emits the data modules and fails
+  closed on any upstream archetype it cannot model;
+  `tooling/verify-animated-icons.mjs` asserts the controller contract once against the factory,
+  holds every module to a schema whose central clause is that a data module contains no controller
+  at all, and carries a `--self-test` that proves ten distinct regressions are rejected.
+  [docs](https://design.vegastack.com/docs/foundations/icons) ·
+  [`a91ab57`](https://github.com/VegaStack/vegastack-design/commit/a91ab57)
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.4.0`** — the surface ladder (`surface-1/2/3`), the alpha
+  twins `--alpha-hover` / `--alpha-pressed` / `--alpha-border`, theme-invariant media tokens,
+  `--chart-single`, and the layout scale `--layout-header-height` / `--sidebar-width-mobile` /
+  `--layout-overlay-max-height` / `--panel-width-sm|md|lg`.
+- **`@vegastack/design`** → **`0.4.0`** — exports the `surfaceInteractive` and `fillInteractive`
+  hover/pressed recipes, plus the `FillTone` type; adds the
+  `@vegastack/design/create-animated-icon` subpath exporting `createAnimatedIcon`, and declares
+  `motion` as an optional peer dependency (only an animated icon pulls it in; `Icon`/`BrandIcon`
+  still do not). `AnimatedIconComponent` now types its host as `HTMLSpanElement`.
+- The design-system registry (`@vegastack/ui`) bumps 0.6.0 → 0.7.0.
+
+### 📚 Docs
+
+- **Colors** — a new surface-ladder specimen renders both themes side by side with the rungs and
+  their alpha twins; the sidebar section now says the rail is aliases, not a second palette.
+  [docs](https://design.vegastack.com/docs/foundations/colors) ·
+  [`6c1b7bf`](https://github.com/VegaStack/vegastack-design/commit/6c1b7bf)
+
+### 🐛 Fixed
+
+- **Text-entry focus under forced colours** — Input, Textarea, NumberField, OTPInput and TextEdit
+  signal focus with a border tint and `outline-none`. Windows High Contrast replaces `border-color`
+  outright, so a focused field showed no indicator at all. The token layer now paints a real
+  `2px` outline under `forced-colors: active`, once, for every text-entry control.
+  [docs](https://design.vegastack.com/docs/foundations/colors) ·
+  [`273a602`](https://github.com/VegaStack/vegastack-design/commit/273a602)
+- **Media chrome no longer inverts in dark** — the video scrim and its controls were built from
+  `primary`, which flips with the theme, so in dark the scrim rendered near-white with near-black
+  icons. New theme-invariant `--media-scrim`, `--media-scrim-strong` and `--media-foreground`
+  tokens keep overlay chrome dark-scrim + light-ink in both themes.
+  [docs](https://design.vegastack.com/docs/foundations/colors) ·
+  [`0e88dc5`](https://github.com/VegaStack/vegastack-design/commit/0e88dc5)
+- **Animated icons** — the reduced-motion effect ran after _every_ render in all 439 icons, because
+  it was written without a dependency array. It now runs when the preference changes, once, in the
+  factory.
+  [docs](https://design.vegastack.com/docs/foundations/icons) ·
+  [`a91ab57`](https://github.com/VegaStack/vegastack-design/commit/a91ab57)
+- **Docs** — each tile in the icon gallery was a focusable `<div>` with no role, so all 439 were
+  reachable by keyboard and announced as nothing. Each is now a real `<button>`.
+  [docs](https://design.vegastack.com/docs/foundations/icons) ·
+  [`a91ab57`](https://github.com/VegaStack/vegastack-design/commit/a91ab57)
+
 ### ⚠️ Breaking
 
 - **Surface tokens are now one ladder.** `secondary`, `muted` and `accent` were a single OKLCH
@@ -65,6 +156,13 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   is unavailable. Base UI still suppresses activation. Code asserting `element.disabled` should read
   `aria-disabled` instead.
   [docs](https://design.vegastack.com/docs/components/button)
+- **Eight animated icons drop a deprecated handle alias.** `BotMessageSquareHandle`,
+  `ChevronsDownUpIconHandle` (on `chevron-first`), `ConciergeBellHandle`, `KeyIconHandle` (on
+  `key-circle` and `key-square`), `RefreshCCWIconWIcon`, `ActivityIconHandle` (on `square-activity`)
+  and `ZapHandle` were `@deprecated` aliases left behind by upstream naming quirks. Each icon still
+  exports `<Name>IconHandle`; only the alias is gone.
+  [docs](https://design.vegastack.com/docs/foundations/icons) ·
+  [`a91ab57`](https://github.com/VegaStack/vegastack-design/commit/a91ab57)
 
 ### 🗑 Removed / renamed
 
