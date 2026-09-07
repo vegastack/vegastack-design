@@ -101,10 +101,7 @@ control cycles through. Each tap advances to the next rate in order and wraps pa
 | ----------------------------------- | -------------------------------------------------------------------- |
 | <kbd>Tab</kbd>                      | Move through play/pause, rewind, forward, seek, and speed            |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused button                                          |
-| <kbd>Space</kbd>                    | Play or pause when the media controls group is focused               |
 | <kbd>K</kbd>                        | Play or pause                                                        |
-| <kbd>←</kbd>                        | Rewind 15 seconds when the media controls group is focused           |
-| <kbd>→</kbd>                        | Forward 15 seconds when the media controls group is focused          |
 | <kbd>J</kbd>                        | Rewind 15 seconds                                                    |
 | <kbd>L</kbd>                        | Forward 15 seconds                                                   |
 | <kbd>M</kbd>                        | Toggle mute                                                          |
@@ -120,8 +117,8 @@ control cycles through. Each tap advances to the next rate in order and wraps pa
 - Playback speed is a single tappable button that cycles the rates; its accessible name always
   announces the current speed.
 - Rewind and forward are visible buttons on both layouts (inline on a wide player; flanking
-  play/pause on the second line of a narrow, mobile-width player) and keyboard shortcuts everywhere
-  (J / L and ← / →).
+  play/pause on the second line of a narrow, mobile-width player) and keyboard shortcuts anywhere
+  inside the player (J / L).
 - The transcript control appears only on the narrow layout and only when `onTranscriptClick` is
   supplied; it carries an accessible name derived from `label` and opens whatever the consumer wires.
 - Mute and a volume rail are present in **both** layouts. The rail is a vertical `Slider` that

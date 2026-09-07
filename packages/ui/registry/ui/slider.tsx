@@ -86,10 +86,19 @@ export type SliderThumbVisibility = "always" | "hover" | "none";
  *   position cue while this slider keeps every pointer and keyboard seek semantic.
  */
 const trackByVariant: Record<SliderVariant, string> = {
-  default: "bg-muted",
-  media: "bg-muted",
+  default:
+    "bg-muted data-[orientation=horizontal]:h-1.5 data-[orientation=vertical]:w-1.5",
+  media:
+    "bg-muted data-[orientation=horizontal]:h-1.5 data-[orientation=vertical]:w-1.5",
+  // The resting thickness lives HERE and nowhere else. A base
+  // `data-[orientation=horizontal]:h-1.5` alongside this `h-1` would carry the SAME specificity,
+  // so which one applied would be decided by Tailwind's utility sort order (`h-1` before `h-1.5`)
+  // rather than by this file — the rail would silently render at the default thickness and the
+  // engagement rules below would be dead. The `group-*` variants DO outrank it: Tailwind compiles
+  // them to `&:is(:where(.group\/slider):hover *)`, and the `:hover` inside `:is()` adds a class
+  // to the count.
   overlay:
-    "bg-media-foreground/(--alpha-wash-strong) transition-[height,width] duration-fast ease-standard group-hover/slider:data-[orientation=horizontal]:h-1.5 group-focus-within/slider:data-[orientation=horizontal]:h-1.5 data-[orientation=horizontal]:h-1",
+    "bg-media-foreground/(--alpha-wash-strong) transition-[height,width] duration-fast ease-standard motion-reduce:transition-none data-[orientation=horizontal]:h-1 data-[orientation=vertical]:w-1 group-hover/slider:data-[orientation=horizontal]:h-1.5 group-focus-within/slider:data-[orientation=horizontal]:h-1.5 group-hover/slider:data-[orientation=vertical]:w-1.5 group-focus-within/slider:data-[orientation=vertical]:w-1.5",
   bare: "bg-transparent",
 };
 
@@ -311,12 +320,16 @@ export function Slider({
         data-slot="slider-control"
         className={cn(
           "relative flex data-disabled:cursor-not-allowed",
-          "data-[orientation=horizontal]:w-full data-[orientation=horizontal]:items-center data-[orientation=horizontal]:py-1.5",
-          "data-[orientation=vertical]:h-full data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-center data-[orientation=vertical]:justify-center data-[orientation=vertical]:px-1.5",
+          "data-[orientation=horizontal]:w-full data-[orientation=horizontal]:items-center",
+          "data-[orientation=vertical]:h-full data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-center data-[orientation=vertical]:justify-center",
           // The bare layer is a hit target over custom-drawn media: it fills its
-          // box and drops the padding a standalone rail needs.
-          variant === "bare" &&
-            "size-full data-[orientation=horizontal]:py-0 data-[orientation=vertical]:px-0",
+          // box and drops the padding a standalone rail needs. Declared as an EITHER/OR rather
+          // than an override for the same reason the rail thickness is: `py-0` and `py-1.5` under
+          // the same `data-[orientation]` variant tie on specificity, and the tie is broken by
+          // Tailwind's sort order, not by this file.
+          variant === "bare"
+            ? "size-full"
+            : "data-[orientation=horizontal]:py-1.5 data-[orientation=vertical]:px-1.5",
           variant !== "default" && "cursor-pointer",
         )}
       >
@@ -324,8 +337,9 @@ export function Slider({
           data-slot="slider-track"
           className={cn(
             "relative grow overflow-hidden rounded-full",
-            "data-[orientation=horizontal]:h-1.5 data-[orientation=horizontal]:w-full",
-            "data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1.5",
+            // Length only — the rail's THICKNESS is owned by `trackByVariant`, so that a variant
+            // asking for a thinner rail is not competing with an equal-specificity base rule.
+            "data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full",
             variant === "bare" && "size-full rounded-none",
             trackByVariant[variant],
           )}
@@ -348,8 +362,8 @@ export function Slider({
                   className={cn(
                     "absolute size-0.5 rounded-full bg-background",
                     orientation === "vertical"
-                      ? "start-1/2 bottom-[var(--slider-mark)] -translate-x-1/2 translate-y-1/2"
-                      : "top-1/2 start-[var(--slider-mark)] -translate-x-1/2 -translate-y-1/2",
+                      ? "start-1/2 bottom-[var(--slider-mark)] -translate-x-1/2 translate-y-1/2 rtl:translate-x-1/2"
+                      : "top-1/2 start-[var(--slider-mark)] -translate-x-1/2 -translate-y-1/2 rtl:translate-x-1/2",
                   )}
                   style={
                     {
@@ -417,7 +431,10 @@ export function Slider({
                   data-slot="slider-value"
                   aria-hidden="true"
                   className={cn(
-                    "pointer-events-none absolute bottom-full start-1/2 mb-1 -translate-x-1/2 rounded-md border border-border bg-popover px-1.5 py-0.5 text-label-sm whitespace-nowrap text-popover-foreground tabular-nums",
+                    // `start-1/2` is logical but `-translate-x-1/2` is physical: in RTL the inset
+                    // resolves to `right: 50%` and a negative X shift pushes the bubble further
+                    // right, so it has to flip with the direction to stay centred on the thumb.
+                    "pointer-events-none absolute bottom-full start-1/2 mb-1 -translate-x-1/2 rtl:translate-x-1/2 rounded-md border border-border bg-popover px-1.5 py-0.5 text-label-sm whitespace-nowrap text-popover-foreground tabular-nums",
                     "opacity-0 transition-opacity duration-fast ease-standard",
                     "group-data-dragging/slider-thumb:motion-pop-in group-data-dragging/slider-thumb:opacity-100",
                     "group-has-[:focus-visible]/slider-thumb:motion-pop-in group-has-[:focus-visible]/slider-thumb:opacity-100",

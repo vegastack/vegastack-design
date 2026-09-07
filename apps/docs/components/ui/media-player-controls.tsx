@@ -1,4 +1,4 @@
-// @vegastack media-player-controls@0.6.0 sha256-gyvJh2NG4k1MWhwXd2QSbjOxRGlj5lTXJV22IzCwzyE=
+// @vegastack media-player-controls@0.6.0 sha256-RuBZFcadzluHbvXTkWfxBvvcaIr1s8GPk11+ZHbK2Fk=
 
 "use client";
 
@@ -263,6 +263,19 @@ export function useMediaShortcuts({
   return { togglePlayback, skipBy, toggleMuted, runShortcut };
 }
 
+/**
+ * Where this player's popups are portaled. A portal to `<body>` is invisible in fullscreen: the
+ * element passed to `requestFullscreen()` is the video FRAME, and the top layer renders that
+ * subtree only — anything outside it is not painted at all. The volume panel is already inline
+ * for exactly this reason; the tooltips and the settings menu need the same treatment, and a
+ * context carries the frame to them without threading a prop through every control.
+ *
+ * `null` (the default, and what `AudioPlayer` leaves it at) means "portal to `<body>`", which is
+ * correct for a player that never goes fullscreen.
+ */
+const MediaPortalContainerContext =
+  React.createContext<React.RefObject<HTMLElement | null> | null>(null);
+
 function MediaControlTooltip({
   children,
   content,
@@ -270,10 +283,13 @@ function MediaControlTooltip({
   children: React.ReactElement;
   content: React.ReactNode;
 }) {
+  const container = React.useContext(MediaPortalContainerContext);
   return (
     <Tooltip>
       <TooltipTrigger render={children} />
-      <TooltipContent>{content}</TooltipContent>
+      <TooltipContent portalProps={container ? { container } : undefined}>
+        {content}
+      </TooltipContent>
     </Tooltip>
   );
 }
@@ -409,6 +425,12 @@ export interface MediaPlayerControlsProps extends Omit<
    */
   mediaRef: React.RefObject<HTMLMediaElement | null>;
   /**
+   * Element the tooltips and the settings menu portal into. Pass the fullscreen host (the video
+   * frame) so they stay visible in fullscreen, where a portal to `<body>` renders nothing.
+   * @default undefined
+   */
+  portalContainer?: React.RefObject<HTMLElement | null>;
+  /**
    * Accessible label prefix used for transport controls and the seek slider.
    * @default 'Media'
    */
@@ -528,6 +550,7 @@ export interface MediaPlayerControlsProps extends Omit<
 export function MediaPlayerControls({
   className,
   mediaRef,
+  portalContainer,
   label = "Media",
   skipSeconds = DEFAULT_SKIP_SECONDS,
   playbackRates = DEFAULT_PLAYBACK_RATES,
@@ -562,29 +585,44 @@ export function MediaPlayerControls({
   const [playbackRate, setPlaybackRate] = React.useState(defaultPlaybackRate);
   const [quality, setQuality] = React.useState(defaultQuality ?? "");
 
+  /**
+   * The consumer's callbacks, held in a ref so their identity never reaches an effect's dep array.
+   * An inline `onTimeChange` gets a new identity on every render, `timeupdate` re-renders ~4×/s,
+   * and the media-element effect below would then tear down and re-run several times a second —
+   * re-applying `defaultPlaybackRate` each time, so a viewer's chosen speed snapped back to 1×
+   * while the media played.
+   */
+  const callbacksRef = React.useRef({
+    onTimeChange,
+    onPlayStateChange,
+    onPlaybackRateChange,
+  });
+  React.useLayoutEffect(() => {
+    callbacksRef.current = {
+      onTimeChange,
+      onPlayStateChange,
+      onPlaybackRateChange,
+    };
+  });
+
   const syncFromMedia = React.useCallback(() => {
     const media = mediaRef.current;
     const nextTime = media?.currentTime ?? 0;
     const nextDuration = getMediaDuration(media);
     setCurrentTime(nextTime);
     setDuration(nextDuration);
-    onTimeChange?.(nextTime, nextDuration);
-  }, [mediaRef, onTimeChange]);
+    callbacksRef.current.onTimeChange?.(nextTime, nextDuration);
+  }, [mediaRef]);
 
-  const syncPlaying = React.useCallback(
-    (nextPlaying: boolean) => {
-      setPlaying(nextPlaying);
-      onPlayStateChange?.(nextPlaying);
-    },
-    [onPlayStateChange],
-  );
+  const syncPlaying = React.useCallback((nextPlaying: boolean) => {
+    setPlaying(nextPlaying);
+    callbacksRef.current.onPlayStateChange?.(nextPlaying);
+  }, []);
 
   React.useEffect(() => {
     const media = mediaRef.current;
     if (!media) return;
 
-    media.playbackRate = defaultPlaybackRate;
-    setPlaybackRate(media.playbackRate);
     syncFromMedia();
     syncPlaying(!media.paused);
     setMuted(media.muted);
@@ -602,7 +640,7 @@ export function MediaPlayerControls({
     };
     const handleRateChange = () => {
       setPlaybackRate(media.playbackRate);
-      onPlaybackRateChange?.(media.playbackRate);
+      callbacksRef.current.onPlaybackRateChange?.(media.playbackRate);
     };
 
     media.addEventListener("timeupdate", handleTimeUpdate);
@@ -624,13 +662,16 @@ export function MediaPlayerControls({
       media.removeEventListener("volumechange", handleVolumeChange);
       media.removeEventListener("ratechange", handleRateChange);
     };
-  }, [
-    defaultPlaybackRate,
-    mediaRef,
-    onPlaybackRateChange,
-    syncFromMedia,
-    syncPlaying,
-  ]);
+  }, [mediaRef, syncFromMedia, syncPlaying]);
+
+  // Applying the default rate is a SEPARATE effect keyed on the default itself, so it runs on
+  // mount and when the prop genuinely changes — never as a side effect of a listener rebind.
+  React.useEffect(() => {
+    const media = mediaRef.current;
+    if (!media) return;
+    media.playbackRate = defaultPlaybackRate;
+    setPlaybackRate(media.playbackRate);
+  }, [defaultPlaybackRate, mediaRef]);
 
   // ONE shortcut map — the same hook the video frame and its document listener
   // use, so a key can never mean two things depending on where focus sits.
@@ -768,7 +809,11 @@ export function MediaPlayerControls({
           </IconButton>
         }
       />
-      <DropdownMenuContent align="end" className="min-w-52">
+      <DropdownMenuContent
+        align="end"
+        className="min-w-52"
+        portalProps={portalContainer ? { container: portalContainer } : undefined}
+      >
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
             <span className="min-w-0 flex-1 truncate">Playback speed</span>
@@ -778,6 +823,9 @@ export function MediaPlayerControls({
           </DropdownMenuSubTrigger>
           <DropdownMenuSubContent
             className={cn("min-w-40", MEDIA_SUBMENU_RADIO_ITEM_CLASS)}
+            portalProps={
+              portalContainer ? { container: portalContainer } : undefined
+            }
           >
             <DropdownMenuRadioGroup
               value={String(playbackRate)}
@@ -803,6 +851,9 @@ export function MediaPlayerControls({
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent
               className={cn("min-w-40", MEDIA_SUBMENU_RADIO_ITEM_CLASS)}
+              portalProps={
+                portalContainer ? { container: portalContainer } : undefined
+              }
             >
               <DropdownMenuRadioGroup
                 value={selectedQuality}
@@ -992,7 +1043,7 @@ export function MediaPlayerControls({
       {volumeOpen ? (
         <div
           data-slot="media-player-volume-panel"
-          className="absolute bottom-full start-1/2 z-(--z-raised) flex -translate-x-1/2 pb-2"
+          className="absolute bottom-full start-1/2 z-(--z-raised) flex -translate-x-1/2 rtl:translate-x-1/2 pb-2"
         >
           <div
             data-slot="media-player-volume-surface"
@@ -1093,6 +1144,7 @@ export function MediaPlayerControls({
   }
 
   return (
+    <MediaPortalContainerContext.Provider value={portalContainer ?? null}>
     <div
       ref={ref}
       data-slot="media-player-controls"
@@ -1198,5 +1250,6 @@ export function MediaPlayerControls({
         </div>
       </div>
     </div>
+    </MediaPortalContainerContext.Provider>
   );
 }

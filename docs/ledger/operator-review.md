@@ -1185,6 +1185,38 @@ transparent)`) before committing to the shape. Two consequences worth knowing:
   `component-contracts.json`, so a new registry item must be written into both or the gate fails.
   556 → 557 items, 110 → 111 components, Content/marketing 22 → 23. No assertion was loosened.
 
+## 2026-09-07 — M1 adversarial review round: what was fixed, what was left
+
+An independent read of the M1 diff against the B4 findings ran before the PR. Everything it found
+that this batch owns was fixed at the root and is listed above in `bugs.md`
+(the overlay rail's specificity tie; the playback-rate reset). Three more were fixed without a
+`bugs.md` entry, being defects of documentation or direction rather than behaviour:
+
+- **`audio-player.mdx` documented shortcuts the diff had deleted.** The keyboard table still listed
+  Space-to-play and ←/→-to-seek "when the media controls group is focused". Those are `surface`
+  scope in `useMediaShortcuts`, the controls group is deliberately no longer a tab stop, and
+  `AudioPlayer` hosts no surface listener — so they no longer exist in the audio player. The rows
+  were removed rather than the behaviour restored: Space and the arrows belong to whichever control
+  has focus, which is exactly why the scope split was drawn there.
+- **Tooltips and the settings menu were invisible in fullscreen.** The volume panel was built inline
+  precisely because a portal to `<body>` is not painted inside a fullscreen element — but the same
+  reasoning was never applied to the other two popups in the same control bar. `MediaPlayerControls`
+  now takes `portalContainer`, `VideoPlayer` passes its frame, and a context carries it to every
+  tooltip without threading a prop through every control.
+- **`showValue` and the volume panel were mis-centred in RTL** — a logical `start-1/2` paired with a
+  physical `-translate-x-1/2`. Fixed on the new surfaces only.
+
+Left out, deliberately:
+
+- **`MEDIA_SUBMENU_RADIO_ITEM_CLASS` still restyles `DropdownMenuSubContent` from outside.** It is
+  the same class of leak as B4-05, relocated rather than removed. The honest fix is a
+  `trailingIndicator` prop on `DropdownMenuRadioItem`, and `dropdown-menu` belongs to **O1**. Flagged
+  for MK; M1 does not touch an overlay component to close it.
+- **B4-11's `copy-button` sub-item** — the implicit `size="sm"` flip under `showLabel` — is
+  untouched. `copy-button` is not an M1 component and the finding asks for a decision (document it
+  or drop it) rather than a mechanical edit. Flagged for MK; the `text-edit.mdx` half of B4-11 is
+  M2's by the do-not-touch list.
+
 ## 2026-09-08 — F2's gate moved to the Ryzen boxes, and the committed receipt was stale
 
 - **The committed receipt did not describe this tree, and said so.** `.gates/receipt.json` on the

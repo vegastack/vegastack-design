@@ -969,6 +969,39 @@ name`) pins the role-plus-name query, which is the assertion that actually fails
   `(hover: none)` and `:focus-visible` both keep it drawn. Zero descendant overrides remain in
   either player (`grep -c "\[&_\[data-slot=slider" → 0`).
 
+## 2026-09-07 — The overlay seek rail rendered at the default thickness (found in M1 review)
+
+- **Symptom:** the video overlay's seek rail rested at 6px instead of 4px, and the "rail thickens on
+  hover/focus" affordance it is supposed to have did nothing at all.
+- **Root cause:** a cascade tie introduced by the same refactor that moved the media recipes into
+  `Slider`. The shared `BaseSlider.Track` declared `data-[orientation=horizontal]:h-1.5`
+  unconditionally, and `trackByVariant.overlay` declared `data-[orientation=horizontal]:h-1`. Both
+  compile to the same specificity, so the winner is decided by Tailwind's utility sort order (`h-1`
+  is emitted before `h-1.5`) rather than by the component — the base won, and the `group-hover` /
+  `group-focus-within` thickening then had nothing to thicken from. The code this replaced was
+  correct by accident: it overrode the track from the ROOT element (`hover:[&_[data-slot=slider-track]]:h-1.5`),
+  a descendant selector that genuinely outranks the track's own rule.
+- **Systemic fix:** the rail's thickness now lives in exactly one place — the per-variant record —
+  and the base Track declares only the length axis. The same tie existed between the control's
+  `py-1.5` and `bare`'s `py-0`; that is now an either/or, not an override.
+  `packages/ui/test/media-chrome.browser.test.tsx` asserts the resting height against the compiled
+  CSS, which is the only place a specificity tie is observable. Structural unit tests cannot see
+  this class of defect: the class string is present and correct in the DOM either way.
+
+## 2026-09-07 — A viewer's playback speed reset several times a second (found in M1 review)
+
+- **Symptom:** selecting 1.5× or 2× held only until playback resumed, then snapped back to 1×.
+- **Root cause:** the media-element effect in `media-player-controls.tsx` listed the consumer's
+  `onTimeChange` in its dependency array (through `syncFromMedia`). `timeupdate` fires ~4×/s while
+  media plays and re-renders the controls; a consumer passing an inline callback — the shape every
+  docs example uses — hands over a new identity on each of those renders, so the effect tore down
+  and re-ran at the same rate, and its first statement was
+  `media.playbackRate = defaultPlaybackRate`.
+- **Systemic fix:** the consumer callbacks are held in a ref updated in a layout effect, so their
+  identity never reaches a dependency array, and applying the default rate is its own effect keyed
+  on the default itself. Pre-existing in `audio-player.tsx`, but the refactor made it one module
+  that both players inherit, which is the moment to fix it rather than duplicate it.
+
 ## 2026-09-08 — A rest-state assertion measured a hovered button, because the pointer never moved
 
 - **Symptom:** `button-matrix.browser.test.tsx > a neutral ghost inherits its host ink; a status

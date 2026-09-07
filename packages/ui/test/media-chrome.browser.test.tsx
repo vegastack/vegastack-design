@@ -114,3 +114,20 @@ test("the rendered overlay chrome does not change with the theme", async () => {
   const dark = await renderOverlay(true);
   expect([scrimStop(dark), overlayInk(dark)]).toEqual(lightChrome);
 });
+
+/**
+ * The overlay rail's RESTING thickness, in compiled CSS. This is a cascade gate, not a colour one:
+ * `trackByVariant.overlay` asks for `h-1` (4px), and for as long as the shared Track ALSO carried
+ * an unconditional `data-[orientation=horizontal]:h-1.5` the two tied on specificity and Tailwind's
+ * utility sort order decided the winner — `h-1.5` — so the rail silently rendered at the default
+ * 6px and the `group-hover`/`group-focus-within` thickening became a no-op. No structural unit test
+ * can see that; it only exists once the theme is compiled and the browser has resolved the cascade.
+ */
+test("the overlay seek rail rests at its own thickness, not the default rail's", async () => {
+  const container = await renderOverlay(false);
+  const track = container.querySelector(
+    '[data-slot="media-player-controls"][data-variant="overlay"] [data-slot="slider-track"][data-orientation="horizontal"]',
+  );
+  if (!track) throw new Error("overlay seek track not found");
+  expect(getComputedStyle(track).height).toBe("4px");
+});

@@ -480,3 +480,44 @@ test("F is unhandled when no fullscreen handler is supplied", async () => {
   await render(<Probe />);
   expect(api!.runShortcut("f", "surface")).toBe(false);
 });
+
+/**
+ * A viewer's chosen playback speed must survive the consumer re-rendering. `timeupdate` fires
+ * roughly four times a second while media plays, and a consumer passing an inline `onTimeChange`
+ * (the shape every docs example uses) hands the controls a new callback identity on each of those
+ * renders. While that identity sat in the media-element effect's dep array, the effect tore down
+ * and re-ran at the same rate — and its first act was `media.playbackRate = defaultPlaybackRate`,
+ * so a selected 2× snapped back to 1× within a quarter of a second of pressing play. Applying the
+ * default is now its own effect, keyed on the default itself.
+ */
+test("a re-render with a fresh callback identity does not reset the playback rate", async () => {
+  const mediaRef = React.createRef<HTMLMediaElement>();
+
+  function Consumer() {
+    const [, setTick] = React.useState(0);
+    return (
+      <div>
+        <button type="button" onClick={() => setTick((n) => n + 1)}>
+          re-render
+        </button>
+        <Host
+          mediaRef={mediaRef as React.RefObject<HTMLMediaElement | null>}
+          // Deliberately inline: a new identity on every render, which is the defect's trigger.
+          onTimeChange={() => {}}
+          defaultPlaybackRate={1}
+        />
+      </div>
+    );
+  }
+
+  const screen = await render(<Consumer />);
+  await expect.poll(() => mediaRef.current).not.toBeNull();
+
+  const media = mediaRef.current as HTMLMediaElement;
+  media.playbackRate = 2;
+
+  await userEvent.click(screen.getByRole("button", { name: "re-render" }));
+  await userEvent.click(screen.getByRole("button", { name: "re-render" }));
+
+  expect(media.playbackRate).toBe(2);
+});

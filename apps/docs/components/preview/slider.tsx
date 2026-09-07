@@ -161,9 +161,10 @@ export function sliderVertical(): ReactNode {
 }
 
 /**
- * The `media` variant with `thumb="hover"` — the seek treatment the players use:
- * a thicker rail on engagement, and a thumb hidden at rest ONLY where a pointer
- * can hover (on touch it stays visible, or there is no scrub affordance at all).
+ * The `media` variant with `thumb="hover"` — the seek treatment the audio card uses: a fill that
+ * brightens on engagement, and a thumb hidden at rest ONLY where a pointer can hover (on touch it
+ * stays visible, or there is no scrub affordance at all). The rail THICKENS on engagement in
+ * `overlay` only, which is the variant drawn over video.
  */
 export function sliderMedia(): ReactNode {
   return (

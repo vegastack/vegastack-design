@@ -15347,7 +15347,6 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
-        "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
