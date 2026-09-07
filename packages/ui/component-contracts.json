@@ -1819,10 +1819,6 @@
         "Button": {
           "attributes": [
             {
-              "name": "data-finish",
-              "values": ["lit"]
-            },
-            {
               "name": "data-loading",
               "values": [""]
             },
@@ -1833,6 +1829,10 @@
             {
               "name": "data-slot",
               "values": ["button"]
+            },
+            {
+              "name": "data-tone",
+              "values": []
             },
             {
               "name": "data-variant",
@@ -7798,7 +7798,7 @@
           "attributes": [
             {
               "name": "data-size",
-              "values": ["default"]
+              "values": ["md"]
             },
             {
               "name": "data-slot",
@@ -11023,7 +11023,11 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["pagination-pager"]
+              "values": [
+                "pagination-pager",
+                "pagination-pager-next",
+                "pagination-pager-previous"
+              ]
             }
           ],
           "cssVariables": []
@@ -12229,6 +12233,10 @@
         "IconButton": {
           "attributes": [
             {
+              "name": "data-shape",
+              "values": []
+            },
+            {
               "name": "data-slot",
               "values": ["icon-button"]
             }
@@ -12330,16 +12338,8 @@
         "CopyButton": {
           "attributes": [
             {
-              "name": "data-copied",
-              "values": [""]
-            },
-            {
-              "name": "data-label-visible",
-              "values": [""]
-            },
-            {
               "name": "data-slot",
-              "values": ["copy-button", "copy-button-label"]
+              "values": ["copy-button-label"]
             }
           ],
           "cssVariables": []
@@ -12705,6 +12705,10 @@
                 "split-button-primary",
                 "split-button-trigger"
               ]
+            },
+            {
+              "name": "data-tone",
+              "values": []
             },
             {
               "name": "data-variant",
@@ -15413,7 +15417,10 @@
             },
             {
               "name": "data-slot",
-              "values": ["onboarding-checklist"]
+              "values": [
+                "onboarding-checklist",
+                "onboarding-checklist-collapse"
+              ]
             }
           ],
           "cssVariables": []
@@ -20663,7 +20670,11 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["announcement-banner", "announcement-banner-action"]
+              "values": [
+                "announcement-banner",
+                "announcement-banner-action",
+                "announcement-banner-dismiss"
+              ]
             }
           ],
           "cssVariables": []
