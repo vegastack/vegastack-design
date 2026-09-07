@@ -22,8 +22,8 @@ generated:
       sha256: "bade126afb17ad70f251299bce42d2885f4b94e137a88e2e24479cbcbdbd6994"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 34983
-      sha256: "8ffe5c6d23f41ab8b08525b31f347072baba6a27b3aa1f93ac1627e4d580a31e"
+      bytes: 34354
+      sha256: "a95f9f5086fd438d947c0d038d6adb3197f8ab4aad0ae54a4c3d751dc9912f61"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
       bytes: 11802
@@ -58,10 +58,6 @@ themes:
       type: "dimension"
       value: "20%"
       description: "Alert variant border tint (border-<family>)."
-    alpha-fill-hover:
-      type: "dimension"
-      value: "80%"
-      description: "Hover dim of an interactive solid fill (bg-primary/secondary/muted/accent on chat bubbles, secondary button)."
     alpha-glass:
       type: "dimension"
       value: "90%"
@@ -86,10 +82,6 @@ themes:
       type: "dimension"
       value: "30%"
       description: "Dark-theme input fill tint (bg-input) — see the dark-tint scoping note."
-    alpha-input-hover:
-      type: "dimension"
-      value: "50%"
-      description: "Dark-theme input fill tint on hover (bg-input)."
     alpha-link-hover:
       type: "dimension"
       value: "80%"
@@ -118,10 +110,6 @@ themes:
       type: "dimension"
       value: "5%"
       description: "Resting wash of the outline button family (bg-<family>)."
-    alpha-surface-subtle:
-      type: "dimension"
-      value: "10%"
-      description: "Hover wash of the outline button family (bg-<family>)."
     alpha-tint-border:
       type: "dimension"
       value: "70%"
@@ -855,10 +843,6 @@ themes:
       type: "dimension"
       value: "20%"
       description: "Alert variant border tint (border-<family>)."
-    alpha-fill-hover:
-      type: "dimension"
-      value: "80%"
-      description: "Hover dim of an interactive solid fill (bg-primary/secondary/muted/accent on chat bubbles, secondary button)."
     alpha-glass:
       type: "dimension"
       value: "90%"
@@ -883,10 +867,6 @@ themes:
       type: "dimension"
       value: "30%"
       description: "Dark-theme input fill tint (bg-input) — see the dark-tint scoping note."
-    alpha-input-hover:
-      type: "dimension"
-      value: "50%"
-      description: "Dark-theme input fill tint on hover (bg-input)."
     alpha-link-hover:
       type: "dimension"
       value: "80%"
@@ -915,10 +895,6 @@ themes:
       type: "dimension"
       value: "5%"
       description: "Resting wash of the outline button family (bg-<family>)."
-    alpha-surface-subtle:
-      type: "dimension"
-      value: "10%"
-      description: "Hover wash of the outline button family (bg-<family>)."
     alpha-tint-border:
       type: "dimension"
       value: "70%"

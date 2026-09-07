@@ -839,14 +839,6 @@
     },
     "$description": "Resting wash of the outline button family (bg-<family>)."
   },
-  "alpha-surface-subtle": {
-    "$type": "dimension",
-    "$value": {
-      "value": 10,
-      "unit": "%"
-    },
-    "$description": "Hover wash of the outline button family (bg-<family>)."
-  },
   "alpha-ink-tint": {
     "$type": "dimension",
     "$value": {
@@ -886,22 +878,6 @@
       "unit": "%"
     },
     "$description": "Dark-theme input fill tint (bg-input) \u2014 see the dark-tint scoping note."
-  },
-  "alpha-input-hover": {
-    "$type": "dimension",
-    "$value": {
-      "value": 50,
-      "unit": "%"
-    },
-    "$description": "Dark-theme input fill tint on hover (bg-input)."
-  },
-  "alpha-fill-hover": {
-    "$type": "dimension",
-    "$value": {
-      "value": 80,
-      "unit": "%"
-    },
-    "$description": "Hover dim of an interactive solid fill (bg-primary/secondary/muted/accent on chat bubbles, secondary button)."
   },
   "alpha-wash-faint": {
     "$type": "dimension",

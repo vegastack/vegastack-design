@@ -23,6 +23,10 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   [docs](https://design.vegastack.com/docs/foundations/colors) ·
   [`0e88dc5`](https://github.com/VegaStack/vegastack-design/commit/0e88dc5)
 - **`track` is removed.** The switch off-track, slider rail and progress track are all `surface-1`.
+  Three alpha roles are removed with it, because the ladder is now the one hover mechanism and
+  nothing references them: `--alpha-fill-hover` (the secondary button's `/80` opacity dim),
+  `--alpha-input-hover` (the dark-only input hover wash) and `--alpha-surface-subtle` (the outline
+  button's hover tint, now `--alpha-hover` in the family's own hue).
   [docs](https://design.vegastack.com/docs/foundations/colors) ·
   [`0e88dc5`](https://github.com/VegaStack/vegastack-design/commit/0e88dc5)
 - **Light cards are page-coloured.** `card` was `oklch(0.985)` against a `0.994` page — a grey slab

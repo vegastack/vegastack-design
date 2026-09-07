@@ -116,12 +116,12 @@ Never a raw `/NN` alpha step (`raw-alpha`) or a raw `opacity-NN` (`raw-opacity`;
 `opacity-100` are exempt structural endpoints).
 
 Alpha role tokens (not exhaustive — see `theme.css`): `--alpha-tint-border` (focus/invalid border
-tint), `--alpha-input`/`--alpha-input-hover` (dark-mode input wash), `--alpha-wash`/
-`--alpha-wash-faint`/`--alpha-wash-strong` (hover washes), `--alpha-surface-faint`/
-`--alpha-surface-subtle`, `--alpha-soft-hover`/`--alpha-soft-surface` (theme-split),
+tint), `--alpha-input` (dark-mode input wash), `--alpha-wash`/
+`--alpha-wash-faint`/`--alpha-wash-strong` (hover washes), `--alpha-surface-faint`,
+`--alpha-soft-hover`/`--alpha-soft-surface` (theme-split),
 `--alpha-ink-tint`/`--alpha-ink-tint-strong`, `--alpha-border-soft`/`--alpha-border-subtle`/
 `--alpha-outline-border`/`--alpha-outline-soft`, `--alpha-glass`/`--alpha-glass-hover`,
-`--alpha-backdrop-soft`, `--alpha-link-hover`, `--alpha-fill-hover`, and the ladder's own twins
+`--alpha-backdrop-soft`, `--alpha-link-hover`, and the ladder's own twins
 `--alpha-hover` (7%) / `--alpha-pressed` (10%) / `--alpha-border` (8% light, 14% dark).
 
 Element-opacity tokens: `--opacity-dim` (50%, the uniform disabled-state opacity — NOT design.md's
