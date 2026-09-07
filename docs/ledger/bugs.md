@@ -263,10 +263,15 @@ re-diagnose it, and because a race that flakes under load is a real race.
   cover them. It does: the reset sets `animation-duration: 0.01ms` and `animation-iteration-count: 1`,
   and `animate-pulse`'s keyframes are `opacity: 1` at both 0% and 100%, so a single 0.01ms iteration
   already lands on exactly the frame `animate-none` would. Both were deleted and `design.md` was
-  corrected. The one genuine survivor is `staggered-text-reveal`'s
-  `motion-reduce:[animation-delay:0s]` — the reset does NOT zero `animation-delay`, so without it a
-  reduced-motion reader waits out the full stagger on invisible words. **Rule of thumb:** a
-  `motion-reduce:` variant earns its place only if it changes something the reset does not touch.
+  corrected. One copy WAS load-bearing — `staggered-text-reveal`'s
+  `motion-reduce:[animation-delay:0s]`, because the reset zeroed duration but not `animation-delay`,
+  so a reduced-motion reader still watched the words arrive one at a time across the full stagger
+  window. That is a hole in the reset, not a property of the component: **fix:** the
+  `prefers-reduced-motion` block now also sets `animation-delay: 0s !important` and
+  `transition-delay: 0s !important`, and the component's copy went with the rest. The registry now
+  contains zero `motion-reduce:` utilities. **Rule of thumb:** if a component seems to need its own
+  `motion-reduce:` variant, the global reset is missing a property — widen the reset, do not grant an
+  exception. A duration-only reset is an incomplete one; delay is motion too.
 
 ---
 

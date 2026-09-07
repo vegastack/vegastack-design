@@ -15783,7 +15783,7 @@
         "whenToUse": "A hero headline's entrance, composed inside a real heading element.",
         "whenNotToUse": "Body copy, or anywhere the entrance would replay on every re-render/scroll.",
         "version": "0.6.0",
-        "integrity": "sha256-vLDRt6nqr9sHkoZWYLjyCg0IppsSi8NDUoNMSufP+yI="
+        "integrity": "sha256-fgtjNQouY4VHRPhJGouN6uAyqN7N1sxa63HGO3Hw6LI="
       }
     },
     {

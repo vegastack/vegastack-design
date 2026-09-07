@@ -1896,11 +1896,15 @@ can't reach (they live outside normal element matching, on the root's snapshot l
 **Reduced motion is global and is never restated in a component** (audit B2-06, 2026-09-07). The
 `base.css` block owns it with the one sanctioned `!important`, so it already wins over any authored
 duration; a per-component `motion-reduce:animate-none` / `motion-reduce:transition-none` adds nothing
-and is a second copy of a rule that can then drift. Twelve such copies across ten components were
-deleted. The ONE case that survives is a `motion-reduce:` variant that changes **behaviour rather than
-duration** — the reset zeroes `animation-duration` and `iteration-count` but NOT `animation-delay`, so
-`staggered-text-reveal`'s `motion-reduce:[animation-delay:0s]` is load-bearing (without it a
-reduced-motion reader waits out the full stagger on invisible words). The `data-drag-pending` pulses in
+and is a second copy of a rule that can then drift. Every such copy was deleted — the repo now contains
+**zero** `motion-reduce:` utilities, and that is the enforceable statement of the rule. The one case that
+looked like a genuine exception forced a fix to the reset instead of an exception to the doctrine: the
+block zeroed `animation-duration` and `iteration-count` but not `animation-delay`, so a staggered
+entrance still played out over its full real-time delay window (each word popping instantly, one after
+another) — a moving sequence, not the static end state reduced motion promises. The reset now also zeros
+`animation-delay` and `transition-delay`, `staggered-text-reveal` restates nothing, and the rule holds
+without a carve-out. When a component appears to need its own `motion-reduce:` variant, the reset is
+missing a property; fix the reset. The `data-drag-pending` pulses in
 `board` and `sortable-list` are NOT such a case and went with the rest: `animate-pulse` resolves to
 `opacity: 1` at both ends, so a 0.01ms single iteration already lands on the same resting frame
 `animate-none` would. Anything else is banned.

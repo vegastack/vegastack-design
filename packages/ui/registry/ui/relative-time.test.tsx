@@ -11,12 +11,32 @@ import { RelativeTime } from "./relative-time";
 const NOW = Date.UTC(2026, 0, 15, 12, 0, 0); // 2026-01-15T12:00:00Z
 const ms = (n: number) => NOW + n;
 
-test("uses a deterministic pending value during uncontrolled server rendering", () => {
+test("server-renders the absolute date, never an empty placeholder (B2-05)", () => {
   const markup = renderToString(
     <RelativeTime date="2026-01-15T10:00:00.000Z" title={false} />,
   );
-  expect(markup).toContain('aria-busy="true"');
-  expect(markup).toMatch(/aria-busy="true"[^>]*><\/time>$/);
+  // The pre-hydration frame is a real, readable date — not a blank element the
+  // client fills in later, and not an `aria-busy` placeholder.
+  const absolute = new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium",
+  }).format(new Date("2026-01-15T10:00:00.000Z"));
+  expect(markup).toContain(absolute);
+  expect(markup).not.toContain("aria-busy");
+  expect(markup).not.toMatch(/><\/time>/);
+  // The machine-readable instant is present from the very first byte.
+  expect(markup).toMatch(/datetime="2026-01-15T10:00:00\.000Z"/i);
+});
+
+test("a controlled `now` server-renders the relative label with no swap", () => {
+  const markup = renderToString(
+    <RelativeTime
+      date={new Date(ms(-2 * 3_600_000))}
+      now={NOW}
+      title={false}
+      locale="en"
+    />,
+  );
+  expect(markup).toContain("2 hours ago");
 });
 
 test('renders a past instant as "ago" copy', async () => {

@@ -309,11 +309,13 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
   `"use client"` without touching a hook or a handler. A client module poisons every RSC importer
   downstream — `buttonVariants` could not be read from a server component. 84 client leaves in the
   registry became 72.
-- **Reduced motion is stated once, globally.** Twelve `motion-reduce:` copies across ten components
-  were deleted. The `base.css` reset already zeroes every animation and transition with the one
-  sanctioned `!important`, so a per-component restatement adds nothing and is a second copy that can
-  drift. The single survivor changes _behaviour_, not duration: the reset does not zero
-  `animation-delay`, so `StaggeredTextReveal` still needs its own.
+- **Reduced motion is stated once, globally.** All thirteen `motion-reduce:` copies across eleven
+  components were deleted — the registry now carries zero. The `base.css` reset owns the rule with the
+  one sanctioned `!important`, so a per-component restatement adds nothing and is a second copy that
+  can drift. One copy looked load-bearing and exposed a hole in the reset instead: it zeroed
+  animation _duration_ but not _delay_, so `StaggeredTextReveal` still played its words out one by one
+  over the full stagger window. The reset now zeros `animation-delay` and `transition-delay` too, so
+  the component restates nothing and the rule holds with no carve-out.
 - **`TruncatedText` gains `focusable`,** with a `TruncationFocusProvider` that sets it for a whole
   region. Clipped text becomes a Tooltip trigger and takes a tab stop — in a 50-row table that is 50
   extra tab stops layered on a grid's own roving focus, and CSS truncation never hides anything from
@@ -398,6 +400,9 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
 - **`@vegastack/design-tokens`** also drops the retired `--shadow-lit` token.
 - **`@vegastack/design-tokens`** adds `--duration-indeterminate` (1200ms) and the
   `motion-indeterminate` utility — the ONE sanctioned looping animation.
+- **`@vegastack/design-tokens`** extends the `prefers-reduced-motion` reset with
+  `animation-delay: 0s` / `transition-delay: 0s`, so a staggered entrance lands on its end state at
+  once instead of sequencing over its delay window.
 - The design-system registry (`@vegastack/ui`) bumps 0.6.0 → 0.7.0.
 
 ### 📚 Docs

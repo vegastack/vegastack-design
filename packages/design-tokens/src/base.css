@@ -91,7 +91,15 @@
   ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+    /* A zeroed DURATION alone is not enough: a staggered entrance schedules its
+     * per-item `animation-delay` in real time, so the items would still appear
+     * one after another (each instantly) over the full stagger window. Zeroing
+     * the delay too is what makes "reduced motion" a static end state — and it
+     * is why no component needs its own `motion-reduce:` restatement (audit
+     * batch Di1 / B2-06). */
+    animation-delay: 0s !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
     scroll-behavior: auto !important;
   }
 
