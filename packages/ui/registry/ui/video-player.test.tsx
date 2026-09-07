@@ -12,7 +12,16 @@ const SOURCE = "data:video/mp4;base64,";
 // origin, and Firefox dispatches a pointerenter when the frame appears under the resting pointer
 // (Chromium does not) — which auto-shows the overlay and makes "controls hidden at rest" assertions
 // flake by engine and test order. Parking the pointer away makes the at-rest state deterministic.
-beforeEach(async () => {
+/**
+ * Move the harness pointer to the far bottom-right, well clear of the player.
+ *
+ * `userEvent.unhover(frame)` is NOT equivalent: it parks the pointer at the viewport origin, and
+ * the player renders at the top-left — so in WebKit the pointer lands back INSIDE the frame, no
+ * `pointerleave` fires, and the overlay never hides. (Chromium happened to dispatch the leave
+ * anyway, which is why this only ever failed on the cross-engine lane.) Hovering a real corner
+ * element states where the pointer should go instead of relying on an engine's idea of "nowhere".
+ */
+async function parkPointer() {
   const corner = document.createElement("div");
   corner.style.cssText =
     "position:fixed;right:0;bottom:0;width:8px;height:8px;z-index:2147483647;";
@@ -22,7 +31,13 @@ beforeEach(async () => {
   } finally {
     corner.remove();
   }
-});
+}
+
+// Park the harness pointer in a far corner before every test. The player renders at the top-left
+// origin, and Firefox dispatches a pointerenter when the frame appears under the resting pointer
+// (Chromium does not) — which auto-shows the overlay and makes "controls hidden at rest" assertions
+// flake by engine and test order. Parking the pointer away makes the at-rest state deterministic.
+beforeEach(parkPointer);
 
 function setMediaState(
   media: HTMLMediaElement,
@@ -459,7 +474,7 @@ test("shows overlay controls on hover and hides them after pointer leave", async
     });
     await screen.getByRole("button", { name: "Play Demo video" }).click();
 
-    await userEvent.unhover(frame!);
+    await parkPointer();
     await vi.advanceTimersByTimeAsync(999);
     expect(
       screen.container.querySelector(
@@ -530,7 +545,7 @@ test("keeps shortcuts active after the controls fade and unmount", async () => {
 
     await showVideoControls(screen.container);
     await screen.getByRole("button", { name: "Play Demo video" }).click();
-    await userEvent.unhover(frame);
+    await parkPointer();
     await vi.advanceTimersByTimeAsync(1150);
     await vi.waitFor(() =>
       expect(

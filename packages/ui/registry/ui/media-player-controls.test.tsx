@@ -36,7 +36,22 @@ function setMediaState(
   media: HTMLMediaElement,
   state: { currentTime?: number; duration?: number; paused?: boolean },
 ) {
-  if (state.currentTime != null) media.currentTime = state.currentTime;
+  if (state.currentTime != null) {
+    // `currentTime` is instrumented rather than assigned. A media element in a unit test never
+    // actually loads: with `readyState === HAVE_NOTHING` WebKit IGNORES a write to `currentTime`
+    // (the spec's seek algorithm has nothing to seek), so the assertion below measured the engine's
+    // media pipeline instead of the component's shortcut map, and read 0 in WebKit while passing in
+    // Chromium. Backing the property with a plain value makes both engines report what the
+    // component actually did, which is the contract under test.
+    let time = state.currentTime;
+    Object.defineProperty(media, "currentTime", {
+      configurable: true,
+      get: () => time,
+      set: (next: number) => {
+        time = next;
+      },
+    });
+  }
   if (state.duration != null) {
     Object.defineProperty(media, "duration", {
       configurable: true,
