@@ -65,9 +65,9 @@ export interface AnimatedIconProps extends Omit<
  * Deliberately imports no `motion` — the mirrored icon carries that dependency
  * through `@vegastack/design/create-animated-icon`, so this entry stays
  * lightweight for consumers who only use `Icon`/`BrandIcon`. Every mirrored icon
- * reads Motion's `useReducedMotion()` preference intrinsically (in the factory,
- * once) and settles immediately at its static resting state when the user
- * requests reduced motion.
+ * reads Motion's `useReducedMotionConfig()` preference intrinsically (in the
+ * factory, once) and settles immediately at its static resting state when the
+ * user requests reduced motion — by OS preference or via <MotionConfig>.
  *
  * @example
  * 'use client';

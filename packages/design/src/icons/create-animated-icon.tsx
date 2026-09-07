@@ -5,7 +5,7 @@ import {
   AnimatePresence,
   motion,
   useAnimation,
-  useReducedMotion,
+  useReducedMotionConfig,
 } from "motion/react";
 import type { Transition, Variants } from "motion/react";
 
@@ -60,7 +60,7 @@ export interface AnimatedIconHandle {
 export interface AnimatedIconChoreography {
   /** Control groups, keyed by name. `default` always exists. */
   controls: Record<string, AnimatedIconControls>;
-  /** The live `useReducedMotion()` preference. */
+  /** The live `useReducedMotionConfig()` preference. */
   shouldReduceMotion: boolean;
   /**
    * Play a definition. A no-op that also halts the control when reduced motion
@@ -376,7 +376,11 @@ export function createAnimatedIcon(
     // `groupNames` is fixed when the component type is created, so this loop
     // calls the same hooks in the same order on every render of this component.
     const controlList = groupNames.map(() => useAnimation()); // eslint-disable-line react-hooks/rules-of-hooks -- fixed-length list, see above
-    const shouldReduceMotion = useReducedMotion() ?? false;
+    // `useReducedMotionConfig`, not `useReducedMotion`: it returns the OS
+    // preference by default AND honours an explicit `<MotionConfig
+    // reducedMotion>` from the consumer. The plain hook reads a module-level
+    // singleton only, which no consumer and no test can influence.
+    const shouldReduceMotion = useReducedMotionConfig() ?? false;
     const [isActive, setIsActive] = React.useState(false);
 
     const reduceRef = React.useRef(shouldReduceMotion);

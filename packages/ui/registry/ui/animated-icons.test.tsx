@@ -1,4 +1,5 @@
 import * as React from "react";
+import { MotionConfig } from "motion/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
 import { ActivityIcon } from "./icons/activity";
@@ -9,7 +10,7 @@ interface AnimationHandle {
 }
 
 type GeneratedIcon = React.ComponentType<
-  Omit<React.HTMLAttributes<HTMLDivElement>, "ref"> & {
+  Omit<React.HTMLAttributes<HTMLSpanElement>, "ref"> & {
     size?: number | string;
     ref?: React.Ref<AnimationHandle>;
   }
@@ -115,6 +116,12 @@ test(
     );
     expect(roots).toHaveLength(439);
     for (const root of roots) {
+      // An icon sits inside a line of text: the host must be an inline box, not
+      // the block-level <div> the per-icon controllers used to render. This
+      // suite renders without the compiled stylesheet, so the class is what can
+      // be asserted here; the rendered box is covered by the docs pixel lane.
+      expect(root.tagName).toBe("SPAN");
+      expect(root.classList.contains("inline-flex")).toBe(true);
       const svg = root.querySelector("svg");
       expect(svg).not.toBeNull();
       expect(svg?.getAttribute("height")).toBe("var(--icon-default)");
@@ -253,4 +260,157 @@ test("preserves consumer callbacks across pointer, touch, and keyboard-compatibl
   expect(onPointerLeave).toHaveBeenCalledOnce();
   expect(onMouseEnter).toHaveBeenCalledOnce();
   expect(onMouseLeave).toHaveBeenCalledOnce();
+});
+
+// ---------------------------------------------------------------------------
+// The factory's controller contract.
+//
+// These behaviours used to be copy-pasted into all 439 mirrors, so testing one
+// icon tested one copy. They now live in `createAnimatedIcon`, which means a
+// single assertion here covers the whole corpus — and a regression in any of
+// them breaks every icon at once, so each is pinned explicitly.
+// ---------------------------------------------------------------------------
+
+/** Play the icon and report whether its geometry actually moved. */
+async function didAnimate(element: Element) {
+  const path = element.querySelector("path");
+  if (!path) throw new Error("icon drew no path");
+  const resting = path.outerHTML;
+  await waitForMarkupChange(path, resting);
+  return path.outerHTML !== resting;
+}
+
+test("hover plays on a fine pointer", async () => {
+  mockReducedMotion(false);
+  const screen = await render(<ActivityIcon data-testid="icon" />);
+  const root = screen.getByTestId("icon").element();
+  root.dispatchEvent(
+    new PointerEvent("pointerover", { bubbles: true, pointerType: "mouse" }),
+  );
+  expect(await didAnimate(root)).toBe(true);
+});
+
+test("hover does not play on a touch pointer; pointer-down does", async () => {
+  mockReducedMotion(false);
+  const screen = await render(
+    <>
+      <ActivityIcon data-testid="hovered" />
+      <ActivityIcon data-testid="tapped" />
+    </>,
+  );
+  const hovered = screen.getByTestId("hovered").element();
+  hovered.dispatchEvent(
+    new PointerEvent("pointerover", { bubbles: true, pointerType: "touch" }),
+  );
+  expect(await didAnimate(hovered)).toBe(false);
+
+  const tapped = screen.getByTestId("tapped").element();
+  tapped.dispatchEvent(
+    new PointerEvent("pointerdown", { bubbles: true, pointerType: "touch" }),
+  );
+  expect(await didAnimate(tapped)).toBe(true);
+});
+
+test("focus plays", async () => {
+  mockReducedMotion(false);
+  const screen = await render(<ActivityIcon tabIndex={0} data-testid="icon" />);
+  const root = screen.getByTestId("icon").element() as HTMLElement;
+  root.focus();
+  expect(await didAnimate(root)).toBe(true);
+});
+
+test("attaching a ref suppresses the icon's own hover trigger", async () => {
+  mockReducedMotion(false);
+  const ref = React.createRef<AnimationHandle>();
+  const screen = await render(<ActivityIcon ref={ref} data-testid="icon" />);
+  await nextFrame();
+  const root = screen.getByTestId("icon").element();
+  root.dispatchEvent(
+    new PointerEvent("pointerover", { bubbles: true, pointerType: "mouse" }),
+  );
+  expect(await didAnimate(root)).toBe(false);
+
+  // …but the handle still drives it.
+  ref.current?.startAnimation();
+  expect(await didAnimate(root)).toBe(true);
+});
+
+// Motion reads the OS preference through a module-level singleton captured on
+// first import, so a `window.matchMedia` spy installed inside a test never
+// reaches it. `MotionConfig reducedMotion="always"` drives the SAME
+// `useReducedMotion()` the factory calls, and is therefore the only way this
+// suite can actually prove the gate. (See docs/ledger/bugs.md, 2026-09-07: the
+// pre-existing matchMedia-based assertion could not fail.)
+test("reduced motion suppresses the hover trigger, not just the handle", async () => {
+  const screen = await render(
+    <MotionConfig reducedMotion="always">
+      <ActivityIcon data-testid="icon" />
+    </MotionConfig>,
+  );
+  await nextFrame();
+  const root = screen.getByTestId("icon").element();
+  root.dispatchEvent(
+    new PointerEvent("pointerover", { bubbles: true, pointerType: "mouse" }),
+  );
+  expect(await didAnimate(root)).toBe(false);
+});
+
+test("reduced motion suppresses the imperative handle too", async () => {
+  const ref = React.createRef<AnimationHandle>();
+  const screen = await render(
+    <MotionConfig reducedMotion="always">
+      <ActivityIcon ref={ref} data-testid="icon" />
+    </MotionConfig>,
+  );
+  await nextFrame();
+  const root = screen.getByTestId("icon").element();
+  ref.current?.startAnimation();
+  expect(await didAnimate(root)).toBe(false);
+});
+
+test("playback resumes when the preference is not set", async () => {
+  // The negative control for the two tests above: same icon, same trigger, no
+  // reduced-motion config — so a green pair cannot come from a broken probe.
+  const screen = await render(
+    <MotionConfig reducedMotion="never">
+      <ActivityIcon data-testid="icon" />
+    </MotionConfig>,
+  );
+  await nextFrame();
+  const root = screen.getByTestId("icon").element();
+  root.dispatchEvent(
+    new PointerEvent("pointerover", { bubbles: true, pointerType: "mouse" }),
+  );
+  expect(await didAnimate(root)).toBe(true);
+});
+
+test("size resolves through the --icon-default role token by default", async () => {
+  mockReducedMotion(true);
+  const screen = await render(
+    <>
+      <ActivityIcon data-testid="default-size" />
+      <ActivityIcon data-testid="explicit-size" size="var(--icon-feature)" />
+    </>,
+  );
+  const svg = (testId: string) =>
+    screen.getByTestId(testId).element().querySelector("svg");
+  expect(svg("default-size")?.getAttribute("width")).toBe(
+    "var(--icon-default)",
+  );
+  expect(svg("explicit-size")?.getAttribute("width")).toBe(
+    "var(--icon-feature)",
+  );
+});
+
+test("a timer-driven icon cancels its deferred work on unmount", async () => {
+  mockReducedMotion(false);
+  // `wifi-low` is the one icon whose choreography schedules deferred work; the
+  // factory owns that timer, so unmounting mid-flight must not throw.
+  const { WifiLowIcon } = await import("./icons/wifi-low");
+  const ref = React.createRef<AnimationHandle>();
+  const screen = await render(<WifiLowIcon ref={ref} data-testid="icon" />);
+  ref.current?.startAnimation();
+  await nextFrame();
+  await screen.unmount();
+  await new Promise((resolve) => setTimeout(resolve, 60));
 });

@@ -1551,7 +1551,12 @@ function extractSpec(source, name, componentName) {
     facts.component.body,
   );
   const controlNames = facts.controls;
-  const groups = controlNames.map(groupNameFor);
+  // A lone control is always the factory's implicit `default` group, whatever
+  // upstream happened to call it (`pathControls`, `svgControls`, …). Without
+  // this, a single-control icon would emit no `groups` and then reach for a
+  // group the factory never created.
+  const groups =
+    controlNames.length === 1 ? ["default"] : controlNames.map(groupNameFor);
   const groupByIdentifier = new Map(
     controlNames.map((identifier, index) => [identifier, groups[index]]),
   );
@@ -2077,6 +2082,14 @@ function carriedDeclarations(spec, referenceText) {
 function emitModule(spec, name) {
   const rootText = emitRoot(spec.root);
   const elementsText = spec.elements.map(emitNode).join(",\n    ");
+  if (spec.groups.length <= 1 && (spec.groups[0] ?? "default") !== "default") {
+    // `groups` is only emitted for more than one control, so a lone group MUST
+    // be the implicit `default` or the emitted module reaches for a control the
+    // factory never created.
+    throw new Error(
+      `${name}.tsx: a single control group must be named default, got ${spec.groups[0]}`,
+    );
+  }
   const specParts = [`name: ${JSON.stringify(spec.name)}`];
   if (rootText) specParts.push(`svg: ${rootText}`);
   specParts.push(`elements: [\n    ${elementsText},\n  ]`);

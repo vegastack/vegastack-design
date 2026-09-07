@@ -177,8 +177,13 @@ function verifyFactory(source, failures) {
   if (!/^"use client";/m.test(source)) fail("missing 'use client' directive");
   if (/\bforwardRef\b/.test(source))
     fail("React.forwardRef is forbidden under React 19");
-  if (!source.includes("useReducedMotion()"))
+  // The config-aware hook, deliberately: it honours the OS preference AND an
+  // explicit <MotionConfig reducedMotion> from the consumer. The plain
+  // useReducedMotion() reads a module singleton nothing can influence.
+  if (!source.includes("useReducedMotionConfig()"))
     fail("missing the intrinsic reduced-motion hook");
+  if (/\buseReducedMotion\(\)/.test(source))
+    fail("use useReducedMotionConfig(), which also honours <MotionConfig>");
   if (!source.includes('size = "var(--icon-default)"'))
     fail("default size must resolve from --icon-default at runtime");
   if (
@@ -308,7 +313,7 @@ function verifyWrapper(source, failures) {
     fail("wrapper props must expose the imperative ref");
   if (!source.includes("ref={ref}"))
     fail("wrapper does not pass the ref through");
-  if (!source.includes("useReducedMotion()")) {
+  if (!source.includes("useReducedMotionConfig()")) {
     fail("JSDoc must document the intrinsic reduced-motion contract");
   }
   if (!source.includes("HTMLSpanElement")) {
