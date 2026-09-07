@@ -14,20 +14,20 @@ generated:
       sha256: "e89e7b952e08607c080e027176a784f27bd2a104c52590a46008e65058bf74ab"
     config:
       path: "tooling/design-md.config.mjs"
-      bytes: 3613
-      sha256: "73455fd3dd920a7aefeb039c3c23051e1421e8cd78ed9d2aa2917b160f5a227a"
+      bytes: 3569
+      sha256: "613dccee60a24fa29905ea12001cb656d7a3303669edd148de3ccba73569a9dd"
     primitives:
       path: "packages/design-tokens/tokens/primitives.tokens.json"
       bytes: 9953
       sha256: "bade126afb17ad70f251299bce42d2885f4b94e137a88e2e24479cbcbdbd6994"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 34882
-      sha256: "ba9ff51ea3f34734bf41b82afc34c93800946926af44552853c99671238cfe25"
+      bytes: 34433
+      sha256: "4d2a3c16d03cdf49f29cae66e67e2f8d57af5c41522304e52709d955e5145367"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
-      bytes: 11802
-      sha256: "4d68fc03927b83d75adb09d2395177293e9057d75c9126e7d7940b31ae96f7b8"
+      bytes: 11669
+      sha256: "64ce2b3b12d670ba613dc03c30a09e38fe89488a7d0d42bdeda0a76129e4e925"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -218,7 +218,7 @@ themes:
     effect-blur-glass:
       type: "dimension"
       value: "8px"
-      description: "Backdrop blur for the existing glass Button finish. Matches Tailwind v4's shipped blur-sm value while exposing the effect through a semantic contract."
+      description: "Backdrop blur for chrome that floats over content (the Attachment upload veil). The Button `glass` variant it was introduced for was deleted 2026-09-07 (audit D16)."
     font-family-display:
       type: "fontFamily"
       value: "Geist, sans-serif"
@@ -422,10 +422,6 @@ themes:
       type: "color"
       value: "oklch(0.145 0.003 75)"
       description: "ALIAS of foreground — one ink on every neutral rung."
-    shadow-lit:
-      type: "shadow"
-      value: "inset 0 1px 0 0 oklch(1 0 0 / 0.12), 0 1px 2px 0 oklch(0.13 0.002 75 / 0.18), 0 2px 6px -2px oklch(0.13 0.002 75 / 0.14)"
-      description: "Wave 2 'lit' action finish (MK-approved amendment to flat-by-default): a 1px on-fill top-light + warm-ink ambient pair for PRIMARY actions only. Attio-calibrated, warm-adapted. Never on cards/surfaces — the flat elevation model stands everywhere else."
     shadow-overlay:
       type: "shadow"
       value: "0 4px 14px -4px oklch(0.13 0.002 75 / 0.1), 0 2px 4px -2px oklch(0.13 0.002 75 / 0.06)"
@@ -1001,7 +997,7 @@ themes:
     effect-blur-glass:
       type: "dimension"
       value: "8px"
-      description: "Backdrop blur for the existing glass Button finish. Matches Tailwind v4's shipped blur-sm value while exposing the effect through a semantic contract."
+      description: "Backdrop blur for chrome that floats over content (the Attachment upload veil). The Button `glass` variant it was introduced for was deleted 2026-09-07 (audit D16)."
     font-family-display:
       type: "fontFamily"
       value: "Geist, sans-serif"
@@ -1199,9 +1195,6 @@ themes:
     secondary-foreground:
       type: "color"
       value: "oklch(0.922 0.003 75)"
-    shadow-lit:
-      type: "shadow"
-      value: "inset 0 1px 0 0 oklch(1 0 0 / 0.35), 0 2px 6px -2px oklch(0 0 0 / 0.5)"
     shadow-overlay:
       type: "shadow"
       value: "0 8px 28px -6px oklch(0 0 0 / 0.48), 0 2px 8px -2px oklch(0 0 0 / 0.4)"
@@ -1601,7 +1594,6 @@ recipes:
     height: "{size-md}"
     paddingInline: "0.75rem"
     typography: "{text-label}"
-    shadow: "{shadow-lit}"
     interactionColorTransition: "immediate"
   button-secondary:
     background: "{surface-1}"
@@ -1676,10 +1668,10 @@ or shadows. The **neutral-ink primary does the bulk of the work**; colour is rat
 - **One warm neutral ramp.** Every grey/black/white comes from the shared OKLCH neutral primitives
   (hue 75, chroma ~0.003 — barely warm), identical in both themes.
 - **OKLCH-authored.** All colours are authored in OKLCH in the DTCG source; the hex shown is the sRGB render — P3-ready notation, sRGB-faithful chroma (no wide-gamut push, by restraint).
-- **Scales are tokens.** Colour, control sizes (`--size-*`), radius (`--radius-*`), the two sanctioned shadows (`--shadow-overlay` / `--shadow-lit`), motion, and type (`--text-*`) are all DTCG tokens — change one, every component re-skins.
+- **Scales are tokens.** Colour, control sizes (`--size-*`), radius (`--radius-*`), the one sanctioned shadow (`--shadow-overlay`), motion, and type (`--text-*`) are all DTCG tokens — change one, every component re-skins.
 - **Neutral-ink primary.** The default action is a charcoal/near-white neutral (Vercel-style), not a colour. Almost every button is `primary`.
 - **One rationed chromatic.** `info` (blue) = links and informational UI — the whole colour budget beyond status. The neutral-ink `primary` carries the key action, AI/agent surfaces, and selected/active state.
-- **One border, flat by default.** A single warm-neutral hairline carries all separation, and it is an **alpha**: `border` is DERIVED as `foreground` at `--alpha-border` (8% light / 14% dark), so the same line reads on the page, on a card, in a well and on a dark band. Only overlays get `shadow-overlay`; only primary actions get the restrained `shadow-lit` finish.
+- **One border, flat by default.** A single warm-neutral hairline carries all separation, and it is an **alpha**: `border` is DERIVED as `foreground` at `--alpha-border` (8% light / 14% dark), so the same line reads on the page, on a card, in a well and on a dark band. Overlays get `shadow-overlay`; nothing else gets a shadow at all.
 - **Restrained headlines, crisp body.** Functional headings and the display hero both render at weight 400; 14px body; weight tops out at a rare 600 emphasis (D3), never a UI default.
 - **One neutral focus outline.** A 2px `:focus-visible` outline in the `ring` token (= primary ink), centralized — never a colour or glow, so the accent stays free.
 - **AA by contract.** Every gated foreground/background pair clears WCAG 2.2 AA in both themes, enforced by a fail-closed build gate.
@@ -1852,11 +1844,11 @@ renders inside does.
 
 **Flat by default.** Cards, inputs, panels, tables, and the sidebar are **one hairline border, no shadow.**
 Only true **overlays** — `dropdown` · `tooltip` · `popover` · `menu` · `select` · `dialog` · `sheet` — get
-`shadow-overlay`. The only other sanctioned shadow is `shadow-lit`, a restrained inset top-light plus
-ambient pair for the neutral primary action. It is an action finish, never surface elevation.
+`shadow-overlay`. Nothing else casts a shadow — the `shadow-lit` action finish and the Button `finish`
+prop that carried it were retired 2026-09-07 (audit B1-04), so flat-by-default has no exception left.
 
-- There are exactly **two named shadow roles** (`shadow-overlay` and `shadow-lit`); no generic elevation
-  ladder and no raw shadow values.
+- There is exactly **one named shadow role** (`shadow-overlay`); no generic elevation ladder, no
+  action finish, and no raw shadow values.
 - **Dialogs** rely on the **`overlay` scrim** + `shadow-overlay`, not a dramatic drop.
 - **In dark**, the overlay shadow is strengthened but remains subordinate to the **lifted surface**
   (`popover`/`card` a step above `background`) and the border.
@@ -1922,11 +1914,15 @@ With text that can wrap, align the icon to the **first line**, not the block mid
 ## Components
 
 Each component composes from tokens (frontmatter `recipes` gives the compact machine recipes). One control-height scale —
-**xs 24 (Button only) / sm 28 / md 32 (default) / lg 40** (`h-6`/`h-7`/`h-8`/`h-10`), shared by buttons,
-inputs, and selects (inputs/selects use sm–lg only) so they line up; padding-x xs 8 / sm 10 / md 12 / lg 16
-(buttons), 12 (inputs). Tokenised as `--size-{xs,sm,md,lg}`.
+**xs 24 (Button only) / sm 28 / md 32 (the default tier) / lg 40** (`h-6`/`h-7`/`h-8`/`h-10`), shared by
+buttons, inputs, and selects (inputs/selects use sm–lg only) so they line up; padding-x xs 8 / sm 10 /
+md 12 / lg 16 (buttons), 12 (inputs). Tokenised as `--size-{xs,sm,md,lg}`. **Every component's `size`
+prop uses exactly these four names** — `xs · sm · md · lg`, with `md` the default. There is no tier
+called `default` anywhere in the system (renamed 2026-09-07, audit B1-05), and no component owns a
+private size vocabulary.
 
-- **Button** — the CORE variants: `primary` (neutral-ink fill, the default for everything, including the single key action or an AI moment); `secondary` (the rung-1 fill — `bg-secondary` = `surface-1` — over the shared transparent base border, NOT a bordered card) and `ghost` (transparent, hovering to the rung-2 wash) for lower emphasis; `destructive` for danger — **soft-only** (`destructive.subtle` fill + `.text`; D4 — the destructive Button never uses the solid fill). The SHIPPED surface is wider (15 variants × 8 sizes): `outline`, `link`, `glass`, the soft `success`/`warning`/`info` family mirrors of `destructive`, the four `{family}-outline` tints, the marketing `cta`, and the `icon`/`icon-*` size tiers — all documented per-variant in the Button docs page; this section names only the canonical core. Sizes `xs`(24, icon affordances)/`sm`(28)/`default`(32)/`lg`(40). Radius `md`; `text-base`/500 label. **Hover/active darken within the button's own colour** — nothing borrows a hue.
+- **Button — two axes, not a list of variants** (audit P2, 2026-09-07). `variant` is the SHAPE: `solid` (the workhorse — a filled action, including the single key action or an AI moment) · `soft` (a tinted fill, the standard lower-emphasis and the ONLY destructive action) · `outline` (a bordered face) · `ghost` (transparent until hovered) · `link` (a text link) · `cta` (the one marketing recipe, brand-locked and tone-less; see Marketing). `tone` is the HUE: `neutral` (default) · `destructive` · `success` · `warning` · `info`. The two compose freely with ONE forbidden cell: **`tone="destructive"` never takes `variant="solid"`** (D4 — a destructive action is soft, outline, ghost or link, never a solid red button). That rule is enforced by the type, not by review. Each variant is written once and reads its hue from `--btn-*` custom properties the tone sets, so all thirty cells share one hover/pressed grammar: solids step to their own darker `-hover`/`-active`, everything else climbs the surface ladder (rung 2 hover, rung 3 pressed) in its own family. Retired the same day: `glass` (D16), the `finish="lit"` prop (B1-04), and the seven colour-in-the-name variants (`success`/`warning`/`info`/`*-outline`) the tone axis replaces. Sizes `xs`(24)/`sm`(28)/`md`(32)/`lg`(40); Button has **no icon size tier** — an icon-only action is `IconButton`, which makes the missing `aria-label` a type error and owns `shape="square" | "round"`. Radius `md`; `text-base`/500 label. **Hover/active darken within the button's own colour** — nothing borrows a hue.
+- **Loading and disabled are one contract across Button, IconButton, SplitButton, Toggle and Tabs.** `loading` stacks the spinner OVER the label and keeps the label's box (`visibility: hidden`), so a button never changes width when a request starts (B1-08). `disabled` renders `aria-disabled`, **not** the native attribute, and never `pointer-events: none` — an unavailable control must stay focusable and hoverable so a Tooltip can say why (D7). Base UI suppresses activation either way. A disabled control dims; a pending one does not.
 - **States** (every button) — default · hover · focus · active · disabled (`opacity-(--opacity-dim)`, 50% + `not-allowed`) · loading (spinner honouring reduced-motion). **Focus = the neutral 2px `:focus-visible` outline (`ring` token = primary ink)** — never a box-shadow glow.
 - **Input / Select / Textarea** — transparent fill on the page (dark adds `bg-input/(--alpha-input)` so the field reads as a well against the dark ground), the one `border`, radius `md`, 32px. **Consistent border scale (one alpha step, no per-mode opacity hacks): rest = `border`/`input`; focus/active = `ring/70`; error = `destructive-border/70`.** The error ink is the ONE deliberate per-theme exception in this scale: `destructive` is tuned as a solid button fill carrying light text, and at 70% on the dark ground it measures **1.92:1** — under the 3:1 WCAG 1.4.11 floor for a non-text indicator — while lightening `destructive` itself would drop `destructive-foreground` on the solid button below 4.5:1. So the border has its own role, `destructive-border` (light `red.700` → 4.24:1, dark `red.400` → 4.00:1). The _alpha_ stays identical across themes; only the ink re-grounds. `tooling/contrast-check.mjs` gates this pair composited over background/card/popover/muted/secondary in both themes. Text-entry fields (Input, Textarea, Field control, OTP slots) use the darkened `ring/70` border as their _sole_ focus indicator — no outline (a raw text input can't distinguish mouse from keyboard, so the border is the one consistent cue for both click and Tab). Button-style triggers (Select, date-picker, country-select, color-picker — built on the `outline` Button variant) darken the border to `ring/70` on focus AND add the neutral 2px outline for keyboard nav (`:focus-visible` only). Never a colour, never a glow. Error = `destructive/70` border + `destructive.text` helper. Disabled = reduced opacity + `not-allowed`.
 - **Card / Panel** — `card` surface, the one `border`, radius `lg`, **flat (no shadow)**.
@@ -1975,8 +1971,8 @@ Copy is part of the design — precise, no filler.
 - Use **semantic tokens only** — `bg-primary`, `text-muted-foreground`, `border-border`. Apply **type tokens** instead of hand-set size/weight.
 - Keep `primary` (neutral) as the workhorse — it also carries the one key action / AI moment / selection; **ration `info` (blue)** to links and informational UI.
 - Use `info` (blue) for links and informational UI; pair every state colour with an icon + text.
-- Use the **one border** everywhere; stay flat — overlays get `shadow-overlay`, and primary actions alone
-  may use `shadow-lit`.
+- Use the **one border** everywhere; stay flat — overlays get `shadow-overlay`, and nothing else gets
+  a shadow.
 - Keep hover/active/focus colour changes immediate; reserve tokenized motion for geometry, opacity, and
   lifecycle changes that clarify state.
 - Use the one neutral `:focus-visible` outline (2px, `ring` = primary ink) on every interactive element except text-entry fields, which use a border-tint instead (see Accessibility).

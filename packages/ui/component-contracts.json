@@ -1036,7 +1036,7 @@
         }
       ],
       "docsSlug": "/docs/components/message-scroller",
-      "registryDependencies": ["@vegastack/button"],
+      "registryDependencies": ["@vegastack/button", "@vegastack/icon-button"],
       "npmDependencies": [
         "@shadcn/react@^0.2.1",
         "@vegastack/design@^0.3.2",
@@ -1641,7 +1641,7 @@
       "name": "button",
       "registryType": "registry:ui",
       "title": "Button",
-      "summary": "Trigger an action. 15 variants × 8 sizes, with loading + Base UI Button semantics.",
+      "summary": "Trigger an action. Six variants × five tones × four sizes, with loading + Base UI Button semantics.",
       "family": "actions",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/button.tsx"],
@@ -1657,8 +1657,53 @@
           }
         },
         {
+          "name": "ButtonAppearance",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/button.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ButtonOwnProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/button.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "ButtonProps",
-          "kind": "interface",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/button.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ButtonSize",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/button.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ButtonTone",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/button.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ButtonVariant",
+          "kind": "type",
           "source": "packages/ui/registry/ui/button.tsx",
           "ref": {
             "status": "not-applicable",
@@ -1679,29 +1724,13 @@
         "status": "observed",
         "dimensions": [
           {
-            "name": "finish",
-            "values": ["flat", "lit"],
-            "evidence": "packages/ui/registry/ui/button.tsx: CVA; packages/ui/registry/ui/button.tsx: prop union"
+            "name": "variant",
+            "values": ["cta", "ghost", "link", "outline", "soft", "solid"],
+            "evidence": "packages/ui/registry/ui/button.tsx: CVA"
           },
           {
-            "name": "variant",
-            "values": [
-              "cta",
-              "default",
-              "destructive",
-              "destructive-outline",
-              "ghost",
-              "glass",
-              "info",
-              "info-outline",
-              "link",
-              "outline",
-              "secondary",
-              "success",
-              "success-outline",
-              "warning",
-              "warning-outline"
-            ],
+            "name": "tone",
+            "values": ["destructive", "info", "neutral", "success", "warning"],
             "evidence": "packages/ui/registry/ui/button.tsx: CVA"
           }
         ]
@@ -1711,16 +1740,7 @@
         "dimensions": [
           {
             "name": "size",
-            "values": [
-              "default",
-              "icon",
-              "icon-lg",
-              "icon-sm",
-              "icon-xs",
-              "lg",
-              "sm",
-              "xs"
-            ],
+            "values": ["lg", "md", "sm", "xs"],
             "evidence": "packages/ui/registry/ui/button.tsx: CVA"
           }
         ]
@@ -2493,7 +2513,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/alert",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/icon-button"],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
@@ -3344,7 +3364,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/dialog",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/icon-button"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
@@ -9946,7 +9966,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/sheet",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/icon-button"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
@@ -10943,7 +10963,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/pagination",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/icon-button"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
@@ -12079,7 +12099,7 @@
       "name": "icon-button",
       "registryType": "registry:ui",
       "title": "Icon Button",
-      "summary": "A square, icon-only action button — a thin Button wrapper that requires an accessible label.",
+      "summary": "A square or round icon-only action button — a thin Button wrapper that requires an accessible label.",
       "family": "actions",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/icon-button.tsx"],
@@ -12095,8 +12115,26 @@
           }
         },
         {
+          "name": "IconButtonOwnProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/icon-button.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "IconButtonProps",
-          "kind": "interface",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/icon-button.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "IconButtonShape",
+          "kind": "type",
           "source": "packages/ui/registry/ui/icon-button.tsx",
           "ref": {
             "status": "not-applicable",
@@ -12114,16 +12152,21 @@
         }
       ],
       "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "shape",
+            "values": ["round", "square"],
+            "evidence": "packages/ui/registry/ui/icon-button.tsx: prop union"
+          }
+        ]
       },
       "sizes": {
         "status": "observed",
         "dimensions": [
           {
             "name": "size",
-            "values": ["default", "lg", "sm", "xs"],
+            "values": ["lg", "md", "sm", "xs"],
             "evidence": "packages/ui/registry/ui/icon-button.tsx: prop union"
           }
         ]
@@ -12257,7 +12300,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/copy-button",
-      "registryDependencies": ["@vegastack/button"],
+      "registryDependencies": ["@vegastack/button", "@vegastack/icon-button"],
       "npmDependencies": [
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.3.2",
@@ -12614,7 +12657,11 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/split-button",
-      "registryDependencies": ["@vegastack/button", "@vegastack/dropdown-menu"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/icon-button"
+      ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.3.2",
@@ -15195,7 +15242,11 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/notification-bell",
-      "registryDependencies": ["@vegastack/badge", "@vegastack/icon-button"],
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/icon-button",
+        "@vegastack/button"
+      ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.3.2",
@@ -15327,7 +15378,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/onboarding-checklist",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/icon-button"],
       "npmDependencies": [
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.3.2",
@@ -16315,7 +16366,6 @@
       "engines": [],
       "docsSlug": "/docs/components/page-header",
       "registryDependencies": [
-        "@vegastack/button",
         "@vegastack/icon-button",
         "@vegastack/truncated-text"
       ],
@@ -17309,7 +17359,8 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/dropdown-menu",
-        "@vegastack/input"
+        "@vegastack/input",
+        "@vegastack/icon-button"
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
@@ -18169,8 +18220,8 @@
       "docsSlug": "/docs/components/color-picker",
       "registryDependencies": [
         "@vegastack/popover",
-        "@vegastack/button",
-        "@vegastack/use-list-nav"
+        "@vegastack/use-list-nav",
+        "@vegastack/icon-button"
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
@@ -18323,9 +18374,9 @@
       "docsSlug": "/docs/components/emoji-picker",
       "registryDependencies": [
         "@vegastack/popover",
-        "@vegastack/button",
         "@vegastack/input",
-        "@vegastack/use-list-nav"
+        "@vegastack/use-list-nav",
+        "@vegastack/icon-button"
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
@@ -20580,7 +20631,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/announcement-banner",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/icon-button"],
       "npmDependencies": [
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.3.2",

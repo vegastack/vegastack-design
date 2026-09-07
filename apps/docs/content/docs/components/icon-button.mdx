@@ -1,6 +1,6 @@
 ---
 title: Icon Button
-description: A square, icon-only action button — a thin Button wrapper that requires an accessible label.
+description: A square or round icon-only action button — a thin Button wrapper that requires an accessible label.
 audience: public
 preview: iconButton
 ---
@@ -22,32 +22,55 @@ import { Plus } from "lucide-react";
 </IconButton>;
 ```
 
-`IconButton` is a thin wrapper over [`Button`](/docs/components/button): it forces a square `icon-*`
-size and **requires** `aria-label`, since the icon carries no visible text.
+`IconButton` is a thin wrapper over [`Button`](/docs/components/button): it forces icon-only
+geometry and **requires** `aria-label`, since the icon carries no visible text. It is the only
+sanctioned icon-only path — `Button` has no icon size tier — so an unlabeled icon control cannot
+compile.
 
 ## Examples
 
 ### Playground
 
-Try every pass-through variant, the square size scale, and the disabled / loading states, then copy the generated JSX.
+Try the pass-through `variant × tone` matrix, the size scale, `shape`, and the disabled / loading
+states, then copy the generated JSX.
 
 <IconButtonPlayground />
 
 ### Variants
 
-Every [`Button`](/docs/components/button) variant passes straight through — the base set (`default`,
-`secondary`, `outline`, `ghost`, `link`, `glass`), the semantic-filled tones (`success`,
-`warning`, `destructive`, `info`), and their semantic-outline counterparts all work.
+Every [`Button`](/docs/components/button) shape passes straight through: `solid`, `soft`, `outline`,
+`ghost`, `link`.
 
 <ComponentPreview
   name="iconButtonVariants"
   file="components/preview/icon-button.tsx"
 />
 
+### Tones
+
+`tone` passes through too, so a status-coloured icon action needs no special variant. The one
+forbidden cell is the same one `Button` forbids: `tone="destructive"` never takes `variant="solid"`.
+
+<ComponentPreview
+  name="iconButtonTones"
+  file="components/preview/icon-button.tsx"
+/>
+
+### Shape
+
+`shape="round"` is the sanctioned way to get a circular control — a `rounded-full` override on a
+Button is not. Reserve it for avatar-adjacent and media-transport chrome; product chrome stays
+`square`.
+
+<ComponentPreview
+  name="iconButtonShapes"
+  file="components/preview/icon-button.tsx"
+/>
+
 ### Sizes
 
-`xs`, `sm`, `default`, and `lg` map to `Button`'s square `icon-xs`, `icon-sm`, `icon`, and `icon-lg`
-sizes respectively.
+`xs` (24), `sm` (28), `md` (32), `lg` (40) — the same `--size-*` vocabulary every other control
+uses, pinned square.
 
 <ComponentPreview
   name="iconButtonSizes"
@@ -56,8 +79,9 @@ sizes respectively.
 
 ### States
 
-Idle, `disabled`, and `loading` — both flags inherited from `Button`. `disabled` removes the button from
-the tab order; `loading` shows a spinner, sets `aria-busy`, and stays focusable.
+Idle, `disabled`, and `loading` — both flags inherited from `Button`. `disabled` renders
+`aria-disabled` and keeps the control focusable and hoverable so a Tooltip can explain why it is
+unavailable; `loading` stacks a spinner over the icon, sets `aria-busy`, and holds the square open.
 
 <ComponentPreview
   name="iconButtonStates"
@@ -68,8 +92,11 @@ the tab order; `loading` shows a spinner, sets `aria-busy`, and stays focusable.
 
 <AutoTypeTable
   path="../../packages/ui/registry/ui/icon-button.tsx"
-  name="IconButtonProps"
+  name="IconButtonOwnProps"
 />
+
+`variant` and `tone` come from [`Button`](/docs/components/button#api-reference) and are typed as a
+pair, so the forbidden `solid` + `destructive` cell is a compile error here too.
 
 ## Accessibility
 
@@ -77,7 +104,7 @@ the tab order; `loading` shows a spinner, sets `aria-busy`, and stays focusable.
   so an unlabeled icon button can never ship.
 - Renders a native `<button type="button">`; keyboard <kbd>Enter</kbd> / <kbd>Space</kbd> activate it.
 - `:focus-visible` shows a 2px ring (`outline-ring`) — never `outline: none`.
-- `loading` sets `aria-busy="true"` and disables interaction; `disabled` removes it from the tab order.
+- `loading` sets `aria-busy="true"` and disables interaction; `disabled` sets `aria-disabled` and keeps the control focusable, so a Tooltip can say why.
 
 | Key              | Action                          |
 | ---------------- | ------------------------------- |

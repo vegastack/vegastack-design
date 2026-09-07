@@ -104,9 +104,13 @@ Contract for every new animated element:
 - **`intent`** names a semantic color family (`'default' | 'success' | 'warning' | 'destructive' |
 'info'`). Keep it orthogonal to a genuinely separate fill axis if one exists (Badge's `variant`:
   `'subtle' | 'solid' | 'minimal'`). Never invent a synonym (`color`, `status`) — there is no `color`
-  prop anywhere in the system. Button is the one documented exception: its single 14-value `variant`
-  enum deliberately bakes style×family into one axis.
-- **`data-slot`** on every part, plus `data-variant`/`data-size`/`data-state` reflecting the resolved
+  prop anywhere in the system. **Button is the model to copy, not an exception:** it splits the two
+  concerns into `variant` (the SHAPE — `solid · soft · outline · ghost · link · cta`) × `tone` (the
+  HUE — `neutral · destructive · success · warning · info`), writes each recipe once, and lets the
+  tone set `--btn-*` custom properties the recipe reads. When a component genuinely needs both axes,
+  do that; when it only needs the hue, it is `intent`. The one cell Button's TYPE forbids is
+  `tone="destructive"` with `variant="solid"` (D4).
+- **`data-slot`** on every part, plus `data-variant`/`data-tone`/`data-size`/`data-state` reflecting the resolved
   CVA variant so consumers can target state in CSS without new props. Base UI already supplies
   `data-highlighted`/`data-selected`/`data-focused` — style off those, do not duplicate them.
 - **Render-prop contract** — a component owning a SINGLE polymorphic root must expose Base UI's
@@ -139,14 +143,16 @@ Contract for every new animated element:
 - **Icons** — `lucide-react` (direct import is fine for internal chrome: chevrons, spinners) or
   `Icon`/`BrandIcon` from `@vegastack/design/icons`. No other library (`icon-source`), no inline
   `<svg>` as an icon (`inline-svg-icon`).
-- **Icon-only accessible names** — `<Button size="icon*">` with no visible text MUST carry
-  `aria-label`/`aria-labelledby` on the same element, or a spread that could supply one (AST rule
-  `icon-button-name`). Prefer `IconButton`, which requires the label at the type level.
+- **Icon-only controls are `IconButton`, always.** `Button` has no icon size tier; `IconButton`
+  makes the missing `aria-label` a TYPE error and owns `shape="square" | "round"` (a `rounded-full`
+  override on a Button is not the way to get a circle). The legacy AST rule `icon-button-name` still
+  guards any `<Button size="icon*">` that a consumer's older copy might carry.
 - **Chevron policy** — `ChevronsUpDown` marks combobox-style triggers that filter/search (Combobox,
   CountrySelect, RegionSelect, DataList sortable headers). `ChevronDown` marks select-style triggers
   that open a fixed list (Select, DatePicker, SplitButton, Accordion — rotates 180°). Never mix the
   two within one trigger family.
-- **Size scale mirrors Button's** — `xs`/`sm`/`default`/`lg` where applicable, on `--size-*`.
+- **One size vocabulary, system-wide** — `xs`/`sm`/`md`/`lg`, on `--size-*`, with `md` the default
+  tier. No component may name a tier `default`, and none may invent a private scale.
 - **No native interactive HTML** — canonical components may not render native
   `<button>`/`<input>`/`<select>`/`<textarea>` without an exact per-tag count and rationale in
   `RAW_INTERACTIVE_EXEMPTIONS` (`raw-interactive-html`). Compose the VegaStack control instead.

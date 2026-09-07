@@ -720,18 +720,13 @@
     "$type": "shadow",
     "$value": "0 4px 14px -4px oklch(0.13 0.002 75 / 0.10), 0 2px 4px -2px oklch(0.13 0.002 75 / 0.06)"
   },
-  "shadow-lit": {
-    "$type": "shadow",
-    "$value": "inset 0 1px 0 0 oklch(1 0 0 / 0.12), 0 1px 2px 0 oklch(0.13 0.002 75 / 0.18), 0 2px 6px -2px oklch(0.13 0.002 75 / 0.14)",
-    "$description": "Wave 2 'lit' action finish (MK-approved amendment to flat-by-default): a 1px on-fill top-light + warm-ink ambient pair for PRIMARY actions only. Attio-calibrated, warm-adapted. Never on cards/surfaces \u2014 the flat elevation model stands everywhere else."
-  },
   "effect-blur-glass": {
     "$type": "dimension",
     "$value": {
       "value": 8,
       "unit": "px"
     },
-    "$description": "Backdrop blur for the existing glass Button finish. Matches Tailwind v4's shipped blur-sm value while exposing the effect through a semantic contract."
+    "$description": "Backdrop blur for chrome that floats over content (the Attachment upload veil). The Button `glass` variant it was introduced for was deleted 2026-09-07 (audit D16)."
   },
   "z-raised": {
     "$type": "number",

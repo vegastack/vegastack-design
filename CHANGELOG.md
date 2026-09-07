@@ -40,9 +40,56 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   band. Anything that assumed an opaque border value should read the variable instead.
   [docs](https://design.vegastack.com/docs/foundations/colors) ·
   [`0e88dc5`](https://github.com/VegaStack/vegastack-design/commit/0e88dc5)
+- **Button is two axes, not fifteen variants.** `variant` is now the SHAPE — `solid` · `soft` ·
+  `outline` · `ghost` · `link` · `cta` — and the new `tone` prop is the HUE — `neutral` (default) ·
+  `destructive` · `success` · `warning` · `info`. Every recipe is written once and reads the hue from
+  `--btn-*` custom properties, so all thirty cells share one hover/pressed grammar. Rename map:
+  `default` → `solid`, `secondary` → `soft`, `destructive` → `soft` + `tone="destructive"`,
+  `success`/`warning`/`info` → `soft` + the matching tone, `{family}-outline` → `outline` + the
+  matching tone; `outline`, `ghost`, `link` and `cta` keep their names. A destructive action is
+  **never** a solid red button — `tone="destructive"` with `variant="solid"` does not type-check.
+  [docs](https://design.vegastack.com/docs/components/button)
+- **One size vocabulary: `xs · sm · md · lg`.** The tier every component called `default` is now
+  `md`, matching the `--size-*` tokens it was always built from. This is a rename across Button,
+  IconButton, SplitButton, Badge, Input, Textarea, Select, Combobox, Avatar, Card, Item, Empty, Kbd,
+  Dialog, Switch, Checkbox, RadioGroup, Toggle, ToggleGroup, Segmented, Stat, Spinner, StatusIcon,
+  Progress, ProgressIndicator, OTPInput, NumberField, Attachment, ChipInput, Pagination and Sidebar.
+  There is no alias — `size="default"` is a type error.
+  [docs](https://design.vegastack.com/docs/components/button)
+- **`Button` has no icon size tier.** `size="icon"` / `icon-xs` / `icon-sm` / `icon-lg` are gone;
+  every icon-only action is `IconButton`, which makes the missing `aria-label` a type error and now
+  owns `shape="square" | "round"`.
+  [docs](https://design.vegastack.com/docs/components/icon-button)
+- **`disabled` is `aria-disabled`, not the native attribute.** Button, IconButton and SplitButton
+  keep their pointer events and stay focusable when disabled, so a Tooltip can explain why the action
+  is unavailable. Base UI still suppresses activation. Code asserting `element.disabled` should read
+  `aria-disabled` instead.
+  [docs](https://design.vegastack.com/docs/components/button)
+
+### 🗑 Removed / renamed
+
+- **Button `glass`** — the frosted variant had no product consumer; media chrome uses the
+  theme-invariant `--media-*` tokens instead.
+- **Button `finish` and the `--shadow-lit` token** — the "lit" action finish is retired, so
+  flat-by-default now has no exception at all and the system has exactly **one** shadow role,
+  `shadow-overlay`.
+- **Button `success` / `warning` / `info` / `destructive-outline` / `success-outline` /
+  `warning-outline` / `info-outline`** — seven variants that baked a colour into a name, replaced by
+  the `tone` axis.
+  [docs](https://design.vegastack.com/docs/components/button)
 
 ### 🔧 Changed components
 
+- **IconButton everywhere.** The dismiss, pager and toggle controls that were hand-rolled
+  `<button>` elements in Alert, AnnouncementBanner, Dialog, Sheet, Pagination, OnboardingChecklist
+  and FilterBar are now `IconButton`, and CopyButton, MessageScrollerButton, ColorPicker,
+  EmojiPicker, PageHeader and SplitButton's chevron half compose it too — so they all inherit the
+  matrix, the focus ring, the loading contract and the required accessible name.
+  [docs](https://design.vegastack.com/docs/components/icon-button)
+- **A loading Button no longer changes width.** The spinner is taken out of flow and stacked over the
+  label, which keeps its box behind `visibility: hidden`; previously a "Save changes" button jumped
+  about 20px the moment a request started.
+  [docs](https://design.vegastack.com/docs/components/button)
 - **Button**, **Select**, **Sidebar**, **Toggle**, **Tabs**, **Table**, **DataGrid**, **DataList**,
   **Board**, **Item**, **Pagination**, **NavigationMenu**, **Combobox**, **DatePicker**, **Dialog**,
   **Sheet**, **Popover**, **HoverCard**, **Segmented**, **TagGroup**, **Bubble**, **Card**,
@@ -103,10 +150,18 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   `--layout-overlay-max-height` / `--panel-width-sm|md|lg`.
 - **`@vegastack/design`** → **`0.4.0`** — exports the `surfaceInteractive` and `fillInteractive`
   hover/pressed recipes, plus the `FillTone` type.
+- **`@vegastack/design-tokens`** also drops the retired `--shadow-lit` token.
 - The design-system registry (`@vegastack/ui`) bumps 0.6.0 → 0.7.0.
 
 ### 📚 Docs
 
+- **Button** — the page is rebuilt around the matrix: a variant row, a tone row, and the full
+  `variant × tone` grid with the forbidden `solid` + `destructive` cell called out. The "Lit finish"
+  section is gone. IconButton gains Tones and Shape sections; SplitButton gains Tones.
+  [docs](https://design.vegastack.com/docs/components/button)
+- **Elevation** — "the two roles" is now "the one role"; every foundations page that named
+  `shadow-lit` was corrected.
+  [docs](https://design.vegastack.com/docs/foundations/elevation)
 - **Colors** — a new surface-ladder specimen renders both themes side by side with the rungs and
   their alpha twins; the sidebar section now says the rail is aliases, not a second palette.
   [docs](https://design.vegastack.com/docs/foundations/colors) ·

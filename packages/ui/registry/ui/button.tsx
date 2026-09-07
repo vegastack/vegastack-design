@@ -1,9 +1,9 @@
-// @vegastack button@0.6.0 sha256-r1ujnTdEUU5qMUsoVLSRQg15JtVlVzE6IkzJ0FhYNMg=
+// @vegastack button@0.6.0 sha256-+cj8tw3XnErUNb8ZyFxuxvBa6vpHpzEvqynz/mnZAlk=
 
 "use client";
 
 import * as React from "react";
-import { cva, type VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
 import { Button as BaseButton } from "@base-ui/react/button";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@vegastack/design";
