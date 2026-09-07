@@ -1,4 +1,4 @@
-// @vegastack button@0.6.0 sha256-GexXoOpBIyWIuS3L5UMqy7wACNFA7x7i7ghmV/kk6Lo=
+// @vegastack button@0.6.0 sha256-/L+ySRZHzr+cg/jdOSjW151w1yzEutSgQ//VG9Zj/2o=
 
 "use client";
 
@@ -41,6 +41,12 @@ export type ButtonTone =
  * A status tone's soft rungs are the PRECOMPOSED `<family>-subtle-hover` / `-subtle-active` tokens
  * (derived per-theme in `sd-hooks.mjs` and AA-gated against `<family>-text`), never a live wash —
  * a wash would replace the subtle fill instead of climbing off it.
+ *
+ * Every reference is to the RAW token variable (`var(--destructive-text)`), never Tailwind's
+ * `--color-*` alias. The aliases are declared once on `:root`, so their value is computed there and
+ * a NESTED theme scope (`<div class="dark">`, `MarketingSurface`) never re-resolves them — a button
+ * inside one would paint light-theme ink on a dark ground. The raw tokens are redeclared in every
+ * scope, so they resolve at the button. Measured by the dark half of the rendered-contrast gate.
  */
 export const buttonVariants = cva(
   // `text-label` is the chrome-control voice (14/500, −1% tracking) — the same voice every
@@ -62,34 +68,34 @@ export const buttonVariants = cva(
     variants: {
       tone: {
         neutral: cn(
-          "[--btn-fill:var(--color-primary)] [--btn-fill-hover:var(--color-primary-hover)] [--btn-fill-active:var(--color-primary-active)] [--btn-ink:var(--color-primary-foreground)]",
-          "[--btn-soft:var(--color-secondary)] [--btn-soft-hover:var(--color-surface-2)] [--btn-soft-active:var(--color-surface-3)]",
-          "[--btn-tint:var(--color-foreground)] [--btn-ghost-ink:inherit] [--btn-link:var(--color-info-text)]",
-          "[--btn-face:var(--color-background)] [--btn-line:var(--color-border)] [--btn-line-hover:var(--color-border)]",
+          "[--btn-fill:var(--primary)] [--btn-fill-hover:var(--primary-hover)] [--btn-fill-active:var(--primary-active)] [--btn-ink:var(--primary-foreground)]",
+          "[--btn-soft:var(--secondary)] [--btn-soft-hover:var(--surface-2)] [--btn-soft-active:var(--surface-3)]",
+          "[--btn-tint:var(--foreground)] [--btn-ghost-ink:inherit] [--btn-link:var(--info-text)]",
+          "[--btn-face:var(--background)] [--btn-line:var(--border)] [--btn-line-hover:var(--border)]",
         ),
         destructive: cn(
-          "[--btn-fill:var(--color-destructive)] [--btn-fill-hover:var(--color-destructive-hover)] [--btn-fill-active:var(--color-destructive-active)] [--btn-ink:var(--color-destructive-foreground)]",
-          "[--btn-soft:var(--color-destructive-subtle)] [--btn-soft-hover:var(--color-destructive-subtle-hover)] [--btn-soft-active:var(--color-destructive-subtle-active)]",
-          "[--btn-tint:var(--color-destructive-text)] [--btn-ghost-ink:var(--color-destructive-text)] [--btn-link:var(--color-destructive-text)]",
-          "[--btn-face:color-mix(in_oklab,var(--color-destructive)_var(--alpha-surface-faint),transparent)] [--btn-line:color-mix(in_oklab,var(--color-destructive)_var(--alpha-outline-border),transparent)] [--btn-line-hover:var(--color-destructive)]",
+          "[--btn-fill:var(--destructive)] [--btn-fill-hover:var(--destructive-hover)] [--btn-fill-active:var(--destructive-active)] [--btn-ink:var(--destructive-foreground)]",
+          "[--btn-soft:var(--destructive-subtle)] [--btn-soft-hover:var(--destructive-subtle-hover)] [--btn-soft-active:var(--destructive-subtle-active)]",
+          "[--btn-tint:var(--destructive-text)] [--btn-ghost-ink:var(--destructive-text)] [--btn-link:var(--destructive-text)]",
+          "[--btn-face:color-mix(in_oklab,var(--destructive)_var(--alpha-surface-faint),transparent)] [--btn-line:color-mix(in_oklab,var(--destructive)_var(--alpha-outline-border),transparent)] [--btn-line-hover:var(--destructive)]",
         ),
         success: cn(
-          "[--btn-fill:var(--color-success)] [--btn-fill-hover:var(--color-success-hover)] [--btn-fill-active:var(--color-success-active)] [--btn-ink:var(--color-success-foreground)]",
-          "[--btn-soft:var(--color-success-subtle)] [--btn-soft-hover:var(--color-success-subtle-hover)] [--btn-soft-active:var(--color-success-subtle-active)]",
-          "[--btn-tint:var(--color-success-text)] [--btn-ghost-ink:var(--color-success-text)] [--btn-link:var(--color-success-text)]",
-          "[--btn-face:color-mix(in_oklab,var(--color-success)_var(--alpha-surface-faint),transparent)] [--btn-line:color-mix(in_oklab,var(--color-success)_var(--alpha-outline-border),transparent)] [--btn-line-hover:var(--color-success)]",
+          "[--btn-fill:var(--success)] [--btn-fill-hover:var(--success-hover)] [--btn-fill-active:var(--success-active)] [--btn-ink:var(--success-foreground)]",
+          "[--btn-soft:var(--success-subtle)] [--btn-soft-hover:var(--success-subtle-hover)] [--btn-soft-active:var(--success-subtle-active)]",
+          "[--btn-tint:var(--success-text)] [--btn-ghost-ink:var(--success-text)] [--btn-link:var(--success-text)]",
+          "[--btn-face:color-mix(in_oklab,var(--success)_var(--alpha-surface-faint),transparent)] [--btn-line:color-mix(in_oklab,var(--success)_var(--alpha-outline-border),transparent)] [--btn-line-hover:var(--success)]",
         ),
         warning: cn(
-          "[--btn-fill:var(--color-warning)] [--btn-fill-hover:var(--color-warning-hover)] [--btn-fill-active:var(--color-warning-active)] [--btn-ink:var(--color-warning-foreground)]",
-          "[--btn-soft:var(--color-warning-subtle)] [--btn-soft-hover:var(--color-warning-subtle-hover)] [--btn-soft-active:var(--color-warning-subtle-active)]",
-          "[--btn-tint:var(--color-warning-text)] [--btn-ghost-ink:var(--color-warning-text)] [--btn-link:var(--color-warning-text)]",
-          "[--btn-face:color-mix(in_oklab,var(--color-warning)_var(--alpha-surface-faint),transparent)] [--btn-line:color-mix(in_oklab,var(--color-warning)_var(--alpha-outline-border),transparent)] [--btn-line-hover:var(--color-warning)]",
+          "[--btn-fill:var(--warning)] [--btn-fill-hover:var(--warning-hover)] [--btn-fill-active:var(--warning-active)] [--btn-ink:var(--warning-foreground)]",
+          "[--btn-soft:var(--warning-subtle)] [--btn-soft-hover:var(--warning-subtle-hover)] [--btn-soft-active:var(--warning-subtle-active)]",
+          "[--btn-tint:var(--warning-text)] [--btn-ghost-ink:var(--warning-text)] [--btn-link:var(--warning-text)]",
+          "[--btn-face:color-mix(in_oklab,var(--warning)_var(--alpha-surface-faint),transparent)] [--btn-line:color-mix(in_oklab,var(--warning)_var(--alpha-outline-border),transparent)] [--btn-line-hover:var(--warning)]",
         ),
         info: cn(
-          "[--btn-fill:var(--color-info)] [--btn-fill-hover:var(--color-info-hover)] [--btn-fill-active:var(--color-info-active)] [--btn-ink:var(--color-info-foreground)]",
-          "[--btn-soft:var(--color-info-subtle)] [--btn-soft-hover:var(--color-info-subtle-hover)] [--btn-soft-active:var(--color-info-subtle-active)]",
-          "[--btn-tint:var(--color-info-text)] [--btn-ghost-ink:var(--color-info-text)] [--btn-link:var(--color-info-text)]",
-          "[--btn-face:color-mix(in_oklab,var(--color-info)_var(--alpha-surface-faint),transparent)] [--btn-line:color-mix(in_oklab,var(--color-info)_var(--alpha-outline-border),transparent)] [--btn-line-hover:var(--color-info)]",
+          "[--btn-fill:var(--info)] [--btn-fill-hover:var(--info-hover)] [--btn-fill-active:var(--info-active)] [--btn-ink:var(--info-foreground)]",
+          "[--btn-soft:var(--info-subtle)] [--btn-soft-hover:var(--info-subtle-hover)] [--btn-soft-active:var(--info-subtle-active)]",
+          "[--btn-tint:var(--info-text)] [--btn-ghost-ink:var(--info-text)] [--btn-link:var(--info-text)]",
+          "[--btn-face:color-mix(in_oklab,var(--info)_var(--alpha-surface-faint),transparent)] [--btn-line:color-mix(in_oklab,var(--info)_var(--alpha-outline-border),transparent)] [--btn-line-hover:var(--info)]",
         ),
       },
       variant: {

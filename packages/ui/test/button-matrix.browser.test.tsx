@@ -106,6 +106,33 @@ test("a neutral ghost inherits its host ink; a status ghost takes its own", asyn
   expect(at("success")).not.toBe("rgb(1, 2, 3)");
 });
 
+test("the tone vars follow a NESTED theme scope, not just :root", async () => {
+  // Regression: the tone vars first referenced Tailwind's `--color-*` aliases, which are declared
+  // once on `:root` and therefore computed there — inside a `<div class="dark">` (or a
+  // MarketingSurface) a button kept painting light-theme ink on a dark ground. Referencing the raw
+  // token variables makes the value resolve at the button. Caught by the dark half of the
+  // rendered-contrast gate; pinned here as the direct assertion.
+  const screen = await render(
+    <div>
+      <Button data-testid="light" variant="soft" tone="destructive">
+        Delete
+      </Button>
+      <div className="dark">
+        <Button data-testid="dark" variant="soft" tone="destructive">
+          Delete
+        </Button>
+      </div>
+    </div>,
+  );
+  const ink = (id: string) =>
+    getComputedStyle(
+      screen.container.querySelector<HTMLElement>(`[data-testid="${id}"]`)!,
+    ).color;
+
+  expect(ink("light")).not.toBe("");
+  expect(ink("dark")).not.toBe(ink("light"));
+});
+
 test("loading does not move the button's width (audit B1-08)", async () => {
   const screen = await render(
     <div>

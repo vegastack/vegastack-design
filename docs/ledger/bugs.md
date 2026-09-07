@@ -563,3 +563,40 @@ name`) pins the role-plus-name query, which is the assertion that actually fails
   for the same reason** and should be re-measured with a hover-only pass before anyone "fixes" them.
   The probe should dismiss (Escape) after each press, or skip pressing elements with
   `aria-haspopup`.
+
+## 2026-09-07 — Tailwind's `--color-*` aliases do not follow a nested theme scope
+
+- **Symptom:** the rendered-contrast gate's dark half failed on the new `outline` status buttons with
+  four `color-contrast` violations — foreground `#b9031d` (the LIGHT `destructive-text`) on a dark
+  ground. The light half passed, the docs captures looked right, and every unit test passed.
+- **Root cause:** the Button tone vars were written as
+  `[--btn-tint:var(--color-destructive-text)]`. Tailwind's `@theme inline` emits
+  `--color-destructive-text: var(--destructive-text)` **once, on `:root`**, so its value is computed
+  there. `.dark` redeclares `--destructive-text`, not the alias — and a custom property's value is
+  computed where it is DECLARED, then inherited. On a page whose `.dark` sits on `<html>` this is
+  invisible; inside a NESTED scope (`<div class="dark">`, `MarketingSurface`, the docs preview theme
+  toggle, a portal under `useInternalThemeScope`) the alias keeps the light value while everything
+  around it goes dark. Utilities are unaffected — `text-destructive-text` is inlined to
+  `var(--destructive-text)` by `@theme inline`, which is exactly the mechanism the alias bypasses.
+- **Systemic fix:** every `--btn-*` declaration references the RAW token variable
+  (`var(--destructive-text)`), never the `--color-*` alias. `test/button-matrix.browser.test.tsx`
+  pins it directly by rendering the same button inside and outside a nested `.dark` and asserting the
+  ink differs. The rule: **never reference a `--color-*` alias from an arbitrary property or inline
+  style — reference the raw token.** Utilities may keep using the alias; they are inlined.
+
+## 2026-09-07 — The rendered-contrast gate had been measuring unstyled Badges and Alerts
+
+- **Symptom:** found while expanding the fixture for the Button matrix — `packages/ui/test/` is
+  outside the package's `tsconfig.json` `include`, so nothing type-checks the compiled-CSS gates.
+- **Root cause:** the fixture passed `<Badge color="…">` (Badge's prop is `intent`; `color` does not
+  exist) and `<Badge variant="soft">` / `<Alert variant="success">` (neither value is in those
+  unions). CVA returns nothing for an unknown variant and an unknown prop is dropped, so those
+  specimens rendered as the NEUTRAL badge and alert. The gate reported "no contrast violations" for
+  the badge and alert families while measuring the same neutral chip repeatedly. It also still
+  rendered `<Button variant="secondary">` after F2 deleted that variant.
+- **Systemic fix:** the fixture now uses the real props, so the specimens are the ones the gate
+  names. The type hole itself is NOT fixed here — adding `"test"` to the package's `include` surfaces
+  a dozen pre-existing errors in sibling files (CSS side-effect imports, `overlay-portal`,
+  `stacking`, `surface-ladder`) that belong to other batches in flight. **Left for MK / G1-a**, and
+  listed in the F2 PR: an untyped test directory is exactly where a fixture rots into a
+  green-but-empty gate.
