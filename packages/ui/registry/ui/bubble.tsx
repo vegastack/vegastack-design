@@ -1,4 +1,4 @@
-// @vegastack bubble@0.6.0 sha256-jdAWnfVvNoGc3AdD3Onk62HH72BjVlIjgns5OxrKxVA=
+// @vegastack bubble@0.6.0 sha256-J3+6R9Twe+lIXwXgNqFZ2cbzeIc+8fcJXPGDctF03sw=
 
 "use client";
 
@@ -47,25 +47,25 @@ export const bubbleVariants = cva(
       variant: {
         /** Dark neutral surface — the current user's own ("sent") messages. */
         default:
-          "*:data-[slot=bubble-content]:bg-primary *:data-[slot=bubble-content]:text-primary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-primary/(--alpha-fill-hover)",
+          "*:data-[slot=bubble-content]:bg-primary *:data-[slot=bubble-content]:text-primary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-primary-hover [&>[data-slot=bubble-content]:is(button,a):active]:bg-primary-active",
         /** Neutral "received" surface. */
         secondary:
-          "*:data-[slot=bubble-content]:bg-secondary *:data-[slot=bubble-content]:text-secondary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-secondary/(--alpha-fill-hover)",
+          "*:data-[slot=bubble-content]:bg-secondary *:data-[slot=bubble-content]:text-secondary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-surface-2 [&>[data-slot=bubble-content]:is(button,a):active]:bg-surface-3",
         /** Quieter neutral "received" surface. */
         muted:
-          "*:data-[slot=bubble-content]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted/(--alpha-fill-hover)",
+          "*:data-[slot=bubble-content]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:bg-surface-2 [&>[data-slot=bubble-content]:is(button,a):active]:bg-surface-3",
         /** Neutral accent-tinted "received" surface, readable in light + dark. */
         tinted:
-          "*:data-[slot=bubble-content]:bg-accent *:data-[slot=bubble-content]:text-accent-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-accent/(--alpha-fill-hover)",
+          "*:data-[slot=bubble-content]:bg-accent *:data-[slot=bubble-content]:text-accent-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-surface-3 [&>[data-slot=bubble-content]:is(button,a):active]:bg-foreground/(--alpha-pressed)",
         /** Outlined surface on the page background. */
         outline:
-          "*:data-[slot=bubble-content]:border-border *:data-[slot=bubble-content]:bg-background [&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-input/(--alpha-input)",
+          "*:data-[slot=bubble-content]:border-border *:data-[slot=bubble-content]:bg-background [&>[data-slot=bubble-content]:is(button,a):hover]:bg-surface-2 [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground [&>[data-slot=bubble-content]:is(button,a):active]:bg-surface-3",
         /** No surface — plain text, no padding (e.g. for rich/markdown content). */
         ghost:
-          "border-none *:data-[slot=bubble-content]:rounded-none *:data-[slot=bubble-content]:bg-transparent *:data-[slot=bubble-content]:p-0 [&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted/(--alpha-wash)",
+          "border-none *:data-[slot=bubble-content]:rounded-none *:data-[slot=bubble-content]:bg-transparent *:data-[slot=bubble-content]:p-0 [&>[data-slot=bubble-content]:is(button,a):hover]:bg-surface-2 [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground [&>[data-slot=bubble-content]:is(button,a):active]:bg-surface-3",
         /** Error / failed-message surface. */
         destructive:
-          "*:data-[slot=bubble-content]:bg-destructive/(--alpha-soft-surface) *:data-[slot=bubble-content]:text-destructive [&>[data-slot=bubble-content]:is(button,a):hover]:bg-destructive/(--alpha-soft-hover)",
+          "*:data-[slot=bubble-content]:bg-destructive/(--alpha-soft-surface) *:data-[slot=bubble-content]:text-destructive [&>[data-slot=bubble-content]:is(button,a):hover]:bg-destructive/(--alpha-soft-hover) [&>[data-slot=bubble-content]:is(button,a):active]:bg-destructive-subtle-active",
       },
     },
     defaultVariants: {

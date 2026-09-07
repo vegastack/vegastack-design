@@ -1,4 +1,4 @@
-// @vegastack popover@0.6.0 sha256-1u/2+roVltRJkqaMhX6ZV3fLlyJ1FZd1J9qzsUTj4hQ=
+// @vegastack popover@0.6.0 sha256-toRLYB11/i7YY9ZDWYiZ3hUwt+skinLi4XLsEoIAbqQ=
 
 "use client";
 
@@ -189,7 +189,7 @@ export function PopoverContent({
             // The native outline is deliberately NOT stripped: the popup itself can receive
             // keyboard focus (initial focus / focus wrap), so the centralized base.css
             // `:focus-visible` outline stays as the indicator (WCAG 2.4.7, register P0-02).
-            "z-(--z-overlay) w-72 max-w-[calc(100vw-var(--spacing)*8)] origin-(--transform-origin) rounded-lg border border-border bg-popover p-4 text-base text-popover-foreground shadow-overlay",
+            "z-(--z-overlay) w-(--panel-width-md) max-w-[calc(100vw-var(--spacing)*8)] origin-(--transform-origin) rounded-lg border border-border bg-popover p-4 text-base text-popover-foreground shadow-overlay",
             // Enter/exit — scale + fade, token duration + standard easing.
             "transition-[transform,scale,opacity] duration-fast ease-standard",
             "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",

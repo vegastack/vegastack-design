@@ -8,4 +8,5 @@
 @import "@vegastack/design-tokens/base.css";
 
 @source '../registry/ui/**/*.tsx';
+@source '../../design/src/index.ts'; /* the surfaceInteractive / fillInteractive recipe literals */
 @source './contrast.browser.test.tsx';

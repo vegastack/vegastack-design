@@ -1,4 +1,4 @@
-// @vegastack segmented@0.6.0 sha256-QqCNq67eGSpvyJbqGEtYrmpM80sEzHPsUTnH0ZSfaus=
+// @vegastack segmented@0.6.0 sha256-IGAs0pfTgAilzP7q+fNXuw4q9axexH1nOVSGwnJYDV4=
 
 "use client";
 
@@ -28,7 +28,7 @@ const SegmentedContext = React.createContext<{ size: "default" | "lg" }>({
 });
 
 export const segmentedVariants = cva(
-  "inline-flex w-fit items-center gap-0.5 rounded-md bg-muted p-0.5 text-muted-foreground",
+  "inline-flex w-fit items-center gap-0.5 rounded-md bg-surface-1 p-0.5 text-muted-foreground",
   {
     variants: {
       size: {
@@ -45,7 +45,8 @@ export const segmentedVariants = cva(
 export const segmentedItemVariants = cva(
   cn(
     "inline-flex min-w-0 shrink-0 items-center justify-center gap-1.5 rounded-sm border border-transparent text-label-sm whitespace-nowrap select-none",
-    "hover:text-foreground data-pressed:border-border data-pressed:bg-background data-pressed:text-foreground",
+    "hover:text-foreground not-data-pressed:hover:bg-surface-2 not-data-pressed:active:bg-surface-3",
+    "data-pressed:border-border data-pressed:bg-background data-pressed:text-foreground",
     "disabled:pointer-events-none disabled:opacity-(--opacity-dim)",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-compact)",
   ),

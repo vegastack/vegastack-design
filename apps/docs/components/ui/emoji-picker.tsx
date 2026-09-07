@@ -1,4 +1,4 @@
-// @vegastack emoji-picker@0.6.0 sha256-LissMP6s40kSzai2Rpyy7XvK7GJyTtAkyawqhCWXG5Q=
+// @vegastack emoji-picker@0.6.0 sha256-628hFHHLtOfp5evvSwiog9iRrqRgq4QTXFDSEgfR3NY=
 
 "use client";
 
@@ -609,7 +609,7 @@ export function EmojiPicker({
         align={align}
         sideOffset={FLOATING.sideOffsetAttached}
         className={cn(
-          "w-72 max-w-[calc(100vw-var(--spacing)*8)] p-0",
+          "w-(--panel-width-md) max-w-[calc(100vw-var(--spacing)*8)] p-0",
           className,
         )}
       >

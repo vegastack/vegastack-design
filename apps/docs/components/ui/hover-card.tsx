@@ -1,4 +1,4 @@
-// @vegastack hover-card@0.6.0 sha256-eQ2BcjLIw/mMPuAK+10yJi51GhFBuYbe3WxuItOExO8=
+// @vegastack hover-card@0.6.0 sha256-pQA4GMeefc4XUktMvhlCs0VbPg3lrALXddC7ZT4qSTg=
 
 "use client";
 
@@ -198,7 +198,7 @@ export interface HoverCardContentProps extends React.ComponentProps<
  * animated in/out via `data-[starting-style]` / `data-[ending-style]`.
  *
  * Place arbitrary, app-resolved content inside — an avatar + name + stats row, a team summary, an
- * agent card. Override `className` (e.g. `w-80`) when the preview needs more room.
+ * agent card. Override `className` (e.g. `w-(--panel-width-lg)`) when the preview needs more room.
 
  *
  * @example

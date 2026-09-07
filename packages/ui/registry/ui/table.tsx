@@ -1,7 +1,7 @@
-// @vegastack table@0.6.0 sha256-5+KQLYjFP3MOwcbhLz9M12xI0Ty6i4JVuKEWvDZZ/uU=
+// @vegastack table@0.6.0 sha256-W+MtddoC0jzkP1mrzvmM215wAgx7IDppgBZ2xcS0biI=
 
 import * as React from "react";
-import { cn } from "@vegastack/design";
+import { cn, surfaceInteractive } from "@vegastack/design";
 
 /** Props for `Table` — a native `<table>` rendered inside an overflow container. */
 export interface TableProps extends React.ComponentProps<"table"> {
@@ -191,7 +191,8 @@ function TableRow({ className, ref, ...props }: TableRowProps) {
       ref={ref}
       data-slot="table-row"
       className={cn(
-        "border-b border-border  hover:bg-accent data-selected:bg-accent",
+        "border-b border-border data-selected:bg-surface-3",
+        surfaceInteractive,
         className,
       )}
       {...props}

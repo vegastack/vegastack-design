@@ -14,20 +14,20 @@ generated:
       sha256: "e89e7b952e08607c080e027176a784f27bd2a104c52590a46008e65058bf74ab"
     config:
       path: "tooling/design-md.config.mjs"
-      bytes: 3484
-      sha256: "499b05cc1105085f3a5fc4b454ddfda46a69bb4d609171f0f289a9be1ee8739f"
+      bytes: 3613
+      sha256: "73455fd3dd920a7aefeb039c3c23051e1421e8cd78ed9d2aa2917b160f5a227a"
     primitives:
       path: "packages/design-tokens/tokens/primitives.tokens.json"
-      bytes: 9520
-      sha256: "09b8a97df522e597e7bee71a4ed3c3dd380a6df0402476401566a5f4315682f8"
+      bytes: 9953
+      sha256: "bade126afb17ad70f251299bce42d2885f4b94e137a88e2e24479cbcbdbd6994"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 27838
-      sha256: "3f77067c3f92ae8a4e00c786492362fbee20f354cb2e6ec428650e8ad9623a40"
+      bytes: 34983
+      sha256: "8ffe5c6d23f41ab8b08525b31f347072baba6a27b3aa1f93ac1627e4d580a31e"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
-      bytes: 10391
-      sha256: "7ac090ee3b41a5e3a01fb974e9dce23437f5108359bbe599d0c5dd7976147807"
+      bytes: 11802
+      sha256: "4d68fc03927b83d75adb09d2395177293e9057d75c9126e7d7940b31ae96f7b8"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -36,14 +36,20 @@ themes:
   light:
     accent:
       type: "color"
-      value: "oklch(0.97 0.003 75)"
+      value: "oklch(0.945 0.003 75)"
+      description: "ALIAS of surface-2, the hover/highlight rung (shadcn's `accent` — a NEUTRAL, never a hue). Menu/select/command `data-highlighted` rides on it."
     accent-foreground:
       type: "color"
-      value: "oklch(0.205 0.003 75)"
+      value: "oklch(0.145 0.003 75)"
+      description: "ALIAS of foreground."
     alpha-backdrop-soft:
       type: "dimension"
       value: "60%"
       description: "Translucent surface backdrop (bg-background) — pill tab list."
+    alpha-border:
+      type: "dimension"
+      value: "8%"
+      description: "The hairline alpha (D14): `border` is DERIVED as foreground at this alpha, so one hairline reads on page, card, well and dark band. 8% light (L 0.936, Geist gray-400 territory) / 14% dark (L 0.325 over card)."
     alpha-border-soft:
       type: "dimension"
       value: "30%"
@@ -64,6 +70,10 @@ themes:
       type: "dimension"
       value: "95%"
       description: "Glass button surface on hover."
+    alpha-hover:
+      type: "dimension"
+      value: "7%"
+      description: "The alpha twin of surface-2: `bg-<ink>/(--alpha-hover)` composites the hover rung onto ANY backdrop (a kbd inside a hovered row, a chip on a well, a control over media). foreground at 7% over the page measures L 0.943 light / 0.267 dark over card — within 0.003 of the opaque rung. Theme-invariant."
     alpha-ink-tint:
       type: "dimension"
       value: "10%"
@@ -92,6 +102,10 @@ themes:
       type: "dimension"
       value: "50%"
       description: "Soft neutral outline/ring (base outline default, date-picker today ring)."
+    alpha-pressed:
+      type: "dimension"
+      value: "10%"
+      description: "The alpha twin of surface-3 (pressed/selected): foreground at 10% measures L 0.921 light / 0.292 dark over card. Theme-invariant."
     alpha-soft-hover:
       type: "dimension"
       value: "20%"
@@ -129,14 +143,16 @@ themes:
       value: "oklch(0.994 0.002 75)"
     border:
       type: "color"
-      value: "oklch(0.922 0.003 75)"
+      value: "oklch(0.145 0.003 75 / 0.08)"
+      description: "DERIVED: foreground at 8% (alpha-border) — the one alpha hairline (D14)."
     brand:
       type: "color"
       value: "oklch(0.6 0.17 148)"
       description: "The phosphor-green brand accent, LIGHT half (theme-split per CX-9): marker roles ONLY (live/AI-state dot, sparkline endpoint, eyebrow highlight, terminal prompt glyph). 3.5:1 on card/background — meaningful glyphs pass WCAG 1.4.11. Never fills, borders-at-rest, headlines, or buttons."
     card:
       type: "color"
-      value: "oklch(0.985 0.003 75)"
+      value: "oklch(0.994 0.002 75)"
+      description: "Light cards are PAGE-COLOURED and separated by the alpha hairline alone (surface-ladder decision 2026-09-07, P1): no reference system lifts or sinks a light card. Dark keeps the one-step lift (neutral.900)."
     card-foreground:
       type: "color"
       value: "oklch(0.145 0.003 75)"
@@ -165,6 +181,10 @@ themes:
     chart-8:
       type: "color"
       value: "oklch(0.531 0.182 256)"
+    chart-single:
+      type: "color"
+      value: "oklch(0.145 0.003 75)"
+      description: "Single-series chart ink (D29): one series is drawn in foreground ink; the categorical chart-1…8 hues start at two series."
     destructive:
       type: "color"
       value: "oklch(0.505 0.213 27.52)"
@@ -186,13 +206,18 @@ themes:
     destructive-subtle:
       type: "color"
       value: "oklch(0.949 0.022 24)"
+    destructive-subtle-active:
+      type: "color"
+      value: "oklch(0.883 0.046 19.3)"
+      description: "DERIVED: destructive fill @12% composited over destructive-subtle (soft-pressed surface, AA-gated against destructive-text)."
     destructive-subtle-hover:
       type: "color"
       value: "oklch(0.91 0.036 20.4)"
       description: "DERIVED: destructive fill @7.000000000000001% composited over destructive-subtle (soft-hover surface, AA-gated against destructive-text)."
     destructive-text:
       type: "color"
-      value: "oklch(0.521 0.2 25)"
+      value: "oklch(0.496 0.2 25)"
+      description: "Page-readable red ink (was red.650, L 0.521). Re-tuned -0.025 L on 2026-09-07 so the soft PRESSED rung (`destructive-subtle-active`, fill @12% over subtle) still clears 4.5:1 — at the old ink the soft family sat at the AA edge on hover (4.60:1) and had no room for a pressed step. Every other pair only gains contrast."
     duration-base:
       type: "duration"
       value: "200ms"
@@ -264,16 +289,42 @@ themes:
     info-subtle:
       type: "color"
       value: "oklch(0.961 0.018 253)"
+    info-subtle-active:
+      type: "color"
+      value: "oklch(0.906 0.038 250.5)"
+      description: "DERIVED: info fill @12% composited over info-subtle (soft-pressed surface, AA-gated against info-text)."
     info-subtle-hover:
       type: "color"
       value: "oklch(0.929 0.03 251.1)"
       description: "DERIVED: info fill @7.000000000000001% composited over info-subtle (soft-hover surface, AA-gated against info-text)."
     info-text:
       type: "color"
-      value: "oklch(0.52 0.171 256)"
+      value: "oklch(0.5 0.171 256)"
+      description: "Link / informational blue ink (was blue.650, L 0.52); -0.02 L for the soft pressed rung — see destructive-text."
     input:
       type: "color"
-      value: "oklch(0.922 0.003 75)"
+      value: "oklch(0.145 0.003 75 / 0.08)"
+      description: "ALIAS of border (the alpha hairline). `border` itself is DERIVED by the SD preprocessor: foreground at --alpha-border (D14) so one hairline survives on page, card, well and dark band alike."
+    layout-header-height:
+      type: "dimension"
+      value: "3.5rem"
+      description: "56px app-shell header band (was a raw `h-14`, B6-08). Sticky/fixed content below the header offsets by this."
+    layout-overlay-max-height:
+      type: "dimension"
+      value: "calc(100dvh - 16rem)"
+      description: "The tallest a scrolling overlay body (Command list, Board column, ShortcutOverlay) may grow: the dynamic viewport minus a 16rem chrome allowance. DTCG 2025.10 has no calc expression type, so this dimension is authored as the CSS string it resolves to and passed through verbatim (the same precedent as the `easing` linear() token)."
+    media-foreground:
+      type: "color"
+      value: "oklch(0.985 0.003 75)"
+      description: "Theme-invariant media chrome ink: the warm off-white used for every icon, label and track drawn over media-scrim. Not overridden in dark on purpose."
+    media-scrim:
+      type: "color"
+      value: "oklch(0.13 0.002 75 / 0.6)"
+      description: "THEME-INVARIANT media chrome scrim (B4-01): the gradient/backdrop behind controls laid over video or imagery. Always a warm-black alpha, never a theme token, so the chrome reads dark-scrim + light-ink in both themes (`primary` flips with the theme and inverted the chrome in dark). media-foreground clears 5.2:1 on it over a white worst-case backdrop."
+    media-scrim-strong:
+      type: "color"
+      value: "oklch(0.13 0.002 75 / 0.8)"
+      description: "Theme-invariant strong scrim for opaque media pills (volume popover, time badge) — 11:1 for media-foreground over a white worst case."
     motion-blur:
       type: "dimension"
       value: "2px"
@@ -294,6 +345,7 @@ themes:
     muted:
       type: "color"
       value: "oklch(0.97 0.003 75)"
+      description: "ALIAS of surface-1 (shadcn name). muted-foreground stays a real text role."
     muted-foreground:
       type: "color"
       value: "oklch(0.439 0.003 75)"
@@ -319,10 +371,23 @@ themes:
     overlay:
       type: "color"
       value: "oklch(0.13 0.002 75 / 0.28)"
-      description: "Modal scrim — the ONE sanctioned alpha-composite literal (a translucent wash has no primitive step; alpha is intrinsic to the role)."
+      description: "Modal scrim — an alpha-composite literal (a translucent wash has no primitive step; alpha is intrinsic to the role). Theme-split: the dark scrim is deeper."
+    panel-width-lg:
+      type: "dimension"
+      value: "20rem"
+      description: "320px floating panel (rich HoverCard previews)."
+    panel-width-md:
+      type: "dimension"
+      value: "18rem"
+      description: "288px floating panel — the default Popover, EmojiPicker, checklist card, range date trigger."
+    panel-width-sm:
+      type: "dimension"
+      value: "14rem"
+      description: "224px floating panel (compact popover, small menu, single-value date trigger)."
     popover:
       type: "color"
       value: "oklch(0.994 0.002 75)"
+      description: "Every floating surface is the card surface + shadow-overlay; never a lighter or darker rung of its own."
     popover-foreground:
       type: "color"
       value: "oklch(0.145 0.003 75)"
@@ -364,9 +429,11 @@ themes:
     secondary:
       type: "color"
       value: "oklch(0.97 0.003 75)"
+      description: "ALIAS of surface-1 (kept so shadcn-shaped code keeps compiling). Never retune independently."
     secondary-foreground:
       type: "color"
-      value: "oklch(0.205 0.003 75)"
+      value: "oklch(0.145 0.003 75)"
+      description: "ALIAS of foreground — one ink on every neutral rung."
     shadow-lit:
       type: "shadow"
       value: "inset 0 1px 0 0 oklch(1 0 0 / 0.12), 0 1px 2px 0 oklch(0.13 0.002 75 / 0.18), 0 2px 6px -2px oklch(0.13 0.002 75 / 0.14)"
@@ -376,22 +443,24 @@ themes:
       value: "0 4px 14px -4px oklch(0.13 0.002 75 / 0.1), 0 2px 4px -2px oklch(0.13 0.002 75 / 0.06)"
     sidebar:
       type: "color"
-      value: "oklch(0.985 0.003 75)"
+      value: "oklch(0.994 0.002 75)"
+      description: "The sidebar-* family is ALIASES ONLY (B6-01): the rail is a card surface on the ladder, not a second palette. Names kept for shadcn-shaped code."
     sidebar-accent:
       type: "color"
-      value: "oklch(0.955 0.003 75)"
+      value: "oklch(0.945 0.003 75)"
+      description: "ALIAS of surface-2 — the rail's hover rung; the active row sits one rung higher on surface-3 so active+hover still moves (SP-06)."
     sidebar-accent-foreground:
       type: "color"
       value: "oklch(0.145 0.003 75)"
     sidebar-border:
       type: "color"
-      value: "oklch(0.922 0.003 75)"
+      value: "oklch(0.145 0.003 75 / 0.08)"
     sidebar-foreground:
       type: "color"
-      value: "oklch(0.269 0.003 75)"
+      value: "oklch(0.145 0.003 75)"
     sidebar-primary:
       type: "color"
-      value: "oklch(0.145 0.003 75)"
+      value: "oklch(0.353 0.003 75)"
     sidebar-primary-foreground:
       type: "color"
       value: "oklch(0.985 0.003 75)"
@@ -406,6 +475,10 @@ themes:
       type: "dimension"
       value: "3rem"
       description: "Collapsed icon-only rail width."
+    sidebar-width-mobile:
+      type: "dimension"
+      value: "18rem"
+      description: "Width of the sidebar when it renders as an off-canvas sheet below the md breakpoint (was an inline `18rem` fallback, B6-08)."
     size-lg:
       type: "dimension"
       value: "2.5rem"
@@ -436,13 +509,30 @@ themes:
     success-subtle:
       type: "color"
       value: "oklch(0.951 0.051 150)"
+    success-subtle-active:
+      type: "color"
+      value: "oklch(0.896 0.065 151.7)"
+      description: "DERIVED: success fill @12% composited over success-subtle (soft-pressed surface, AA-gated against success-text)."
     success-subtle-hover:
       type: "color"
       value: "oklch(0.919 0.059 151.1)"
       description: "DERIVED: success fill @7.000000000000001% composited over success-subtle (soft-hover surface, AA-gated against success-text)."
     success-text:
       type: "color"
-      value: "oklch(0.5 0.13 150)"
+      value: "oklch(0.48 0.13 150)"
+      description: "Page-readable green ink (was green.650, L 0.5); -0.02 L for the soft pressed rung — see destructive-text."
+    surface-1:
+      type: "color"
+      value: "oklch(0.97 0.003 75)"
+      description: "Surface ladder rung 1 — the REST fill of a filled control (secondary/soft button, kbd, chip, segmented rail, tab-list pill) and the sunken well (code block, skeleton, disabled field, slider/progress track). `secondary` and `muted` are aliases of this rung."
+    surface-2:
+      type: "color"
+      value: "oklch(0.945 0.003 75)"
+      description: "Surface ladder rung 2 — the HOVER step: a transparent row/item/ghost control hovers to it, a rung-1 control hovers to it. `accent` and `sidebar-accent` are aliases. Alpha twin: bg-foreground/(--alpha-hover)."
+    surface-3:
+      type: "color"
+      value: "oklch(0.922 0.003 75)"
+      description: "Surface ladder rung 3 — the PRESSED / SELECTED step (active:, data-selected, the active sidebar row, the switch off-track). Alpha twin: bg-foreground/(--alpha-pressed)."
     tag-blue:
       type: "color"
       value: "oklch(0.6 0.16 256)"
@@ -635,9 +725,6 @@ themes:
         fontWeight: "600"
         letterSpacing: "-0.01em"
       description: "Rare 600-weight emphasis role. Use text-strong only when 500 cannot carry the hierarchy; raw font-semibold/font-bold utilities remain forbidden."
-    track:
-      type: "color"
-      value: "oklch(0.87 0.003 75)"
     type-doc-2xl:
       type: "typography"
       value:
@@ -725,13 +812,18 @@ themes:
     warning-subtle:
       type: "color"
       value: "oklch(0.96 0.019 42)"
+    warning-subtle-active:
+      type: "color"
+      value: "oklch(0.906 0.034 51.5)"
+      description: "DERIVED: warning fill @12% composited over warning-subtle (soft-pressed surface, AA-gated against warning-text)."
     warning-subtle-hover:
       type: "color"
       value: "oklch(0.929 0.027 48.8)"
       description: "DERIVED: warning fill @7.000000000000001% composited over warning-subtle (soft-hover surface, AA-gated against warning-text)."
     warning-text:
       type: "color"
-      value: "oklch(0.52 0.139 42)"
+      value: "oklch(0.505 0.139 42)"
+      description: "Page-readable amber ink (was amber.650, L 0.52); -0.015 L for the soft pressed rung — see destructive-text."
     z-overlay:
       type: "number"
       value: 50
@@ -746,11 +838,15 @@ themes:
       value: "oklch(0.269 0.003 75)"
     accent-foreground:
       type: "color"
-      value: "oklch(0.967 0.003 75)"
+      value: "oklch(0.922 0.003 75)"
     alpha-backdrop-soft:
       type: "dimension"
       value: "60%"
       description: "Translucent surface backdrop (bg-background) — pill tab list."
+    alpha-border:
+      type: "dimension"
+      value: "14%"
+      description: "Dark half of the hairline alpha (D14): near-white ink needs more alpha than near-black to read as a line — foreground at 14% over card measures L 0.325, over the page 0.302."
     alpha-border-soft:
       type: "dimension"
       value: "30%"
@@ -771,6 +867,10 @@ themes:
       type: "dimension"
       value: "95%"
       description: "Glass button surface on hover."
+    alpha-hover:
+      type: "dimension"
+      value: "7%"
+      description: "The alpha twin of surface-2: `bg-<ink>/(--alpha-hover)` composites the hover rung onto ANY backdrop (a kbd inside a hovered row, a chip on a well, a control over media). foreground at 7% over the page measures L 0.943 light / 0.267 dark over card — within 0.003 of the opaque rung. Theme-invariant."
     alpha-ink-tint:
       type: "dimension"
       value: "10%"
@@ -799,6 +899,10 @@ themes:
       type: "dimension"
       value: "50%"
       description: "Soft neutral outline/ring (base outline default, date-picker today ring)."
+    alpha-pressed:
+      type: "dimension"
+      value: "10%"
+      description: "The alpha twin of surface-3 (pressed/selected): foreground at 10% measures L 0.921 light / 0.292 dark over card. Theme-invariant."
     alpha-soft-hover:
       type: "dimension"
       value: "30%"
@@ -836,7 +940,8 @@ themes:
       value: "oklch(0.175 0.003 75)"
     border:
       type: "color"
-      value: "oklch(0.269 0.003 75)"
+      value: "oklch(0.922 0.003 75 / 0.14)"
+      description: "DERIVED: foreground at 14% (alpha-border) — the one alpha hairline (D14)."
     brand:
       type: "color"
       value: "oklch(0.86 0.21 148)"
@@ -871,6 +976,10 @@ themes:
     chart-8:
       type: "color"
       value: "oklch(0.72 0.13 256)"
+    chart-single:
+      type: "color"
+      value: "oklch(0.922 0.003 75)"
+      description: "Repeated here on purpose: an alias is resolved per run, so a light-only alias would leak the LIGHT ink into `.dark` through the cascade (the contrast gate caught exactly that)."
     destructive:
       type: "color"
       value: "oklch(0.505 0.213 27.52)"
@@ -892,13 +1001,18 @@ themes:
     destructive-subtle:
       type: "color"
       value: "oklch(0.275 0.07 25)"
+    destructive-subtle-active:
+      type: "color"
+      value: "oklch(0.364 0.137 26.9)"
+      description: "DERIVED: destructive fill @40% composited over destructive-subtle (soft-pressed surface, AA-gated against destructive-text)."
     destructive-subtle-hover:
       type: "color"
       value: "oklch(0.34 0.123 26.3)"
       description: "DERIVED: destructive fill @30% composited over destructive-subtle (soft-hover surface, AA-gated against destructive-text)."
     destructive-text:
       type: "color"
-      value: "oklch(0.72 0.16 25)"
+      value: "oklch(0.74 0.16 25)"
+      description: "Dark red ink (was red.400, L 0.72); +0.02 L so the soft pressed rung (fill @40% over subtle) clears 4.5:1 — see the light destructive-text note."
     duration-base:
       type: "duration"
       value: "200ms"
@@ -970,16 +1084,41 @@ themes:
     info-subtle:
       type: "color"
       value: "oklch(0.275 0.059 255)"
+    info-subtle-active:
+      type: "color"
+      value: "oklch(0.38 0.114 254.5)"
+      description: "DERIVED: info fill @40% composited over info-subtle (soft-pressed surface, AA-gated against info-text)."
     info-subtle-hover:
       type: "color"
       value: "oklch(0.354 0.101 254.3)"
       description: "DERIVED: info fill @30% composited over info-subtle (soft-hover surface, AA-gated against info-text)."
     info-text:
       type: "color"
-      value: "oklch(0.72 0.13 256)"
+      value: "oklch(0.76 0.13 256)"
+      description: "Dark link / informational blue ink (was blue.400, L 0.72); +0.04 L for the soft pressed rung — blue had the least headroom (4.50:1 at hover)."
     input:
       type: "color"
-      value: "oklch(0.269 0.003 75)"
+      value: "oklch(0.922 0.003 75 / 0.14)"
+    layout-header-height:
+      type: "dimension"
+      value: "3.5rem"
+      description: "56px app-shell header band (was a raw `h-14`, B6-08). Sticky/fixed content below the header offsets by this."
+    layout-overlay-max-height:
+      type: "dimension"
+      value: "calc(100dvh - 16rem)"
+      description: "The tallest a scrolling overlay body (Command list, Board column, ShortcutOverlay) may grow: the dynamic viewport minus a 16rem chrome allowance. DTCG 2025.10 has no calc expression type, so this dimension is authored as the CSS string it resolves to and passed through verbatim (the same precedent as the `easing` linear() token)."
+    media-foreground:
+      type: "color"
+      value: "oklch(0.985 0.003 75)"
+      description: "Theme-invariant media chrome ink: the warm off-white used for every icon, label and track drawn over media-scrim. Not overridden in dark on purpose."
+    media-scrim:
+      type: "color"
+      value: "oklch(0.13 0.002 75 / 0.6)"
+      description: "THEME-INVARIANT media chrome scrim (B4-01): the gradient/backdrop behind controls laid over video or imagery. Always a warm-black alpha, never a theme token, so the chrome reads dark-scrim + light-ink in both themes (`primary` flips with the theme and inverted the chrome in dark). media-foreground clears 5.2:1 on it over a white worst-case backdrop."
+    media-scrim-strong:
+      type: "color"
+      value: "oklch(0.13 0.002 75 / 0.8)"
+      description: "Theme-invariant strong scrim for opaque media pills (volume popover, time badge) — 11:1 for media-foreground over a white worst case."
     motion-blur:
       type: "dimension"
       value: "2px"
@@ -999,7 +1138,7 @@ themes:
       value: "cubic-bezier(0.2, 0, 0, 1)"
     muted:
       type: "color"
-      value: "oklch(0.269 0.003 75)"
+      value: "oklch(0.236 0.003 75)"
     muted-foreground:
       type: "color"
       value: "oklch(0.66 0.003 75)"
@@ -1025,6 +1164,18 @@ themes:
     overlay:
       type: "color"
       value: "oklch(0 0 0 / 0.55)"
+    panel-width-lg:
+      type: "dimension"
+      value: "20rem"
+      description: "320px floating panel (rich HoverCard previews)."
+    panel-width-md:
+      type: "dimension"
+      value: "18rem"
+      description: "288px floating panel — the default Popover, EmojiPicker, checklist card, range date trigger."
+    panel-width-sm:
+      type: "dimension"
+      value: "14rem"
+      description: "224px floating panel (compact popover, small menu, single-value date trigger)."
     popover:
       type: "color"
       value: "oklch(0.205 0.003 75)"
@@ -1068,7 +1219,7 @@ themes:
       value: "oklch(0.922 0.003 75)"
     secondary:
       type: "color"
-      value: "oklch(0.269 0.003 75)"
+      value: "oklch(0.236 0.003 75)"
     secondary-foreground:
       type: "color"
       value: "oklch(0.922 0.003 75)"
@@ -1081,19 +1232,19 @@ themes:
       description: "DARK overlay shadow, strengthened (Wave 1 — Attio-calibrated): the old single 24px layer was near-invisible on the dark canvas; this two-layer ramp restores the floating cue while staying below Attio's 88px maximal ramp."
     sidebar:
       type: "color"
-      value: "oklch(0.145 0.003 75)"
+      value: "oklch(0.205 0.003 75)"
     sidebar-accent:
       type: "color"
-      value: "oklch(0.205 0.003 75)"
+      value: "oklch(0.269 0.003 75)"
     sidebar-accent-foreground:
       type: "color"
       value: "oklch(0.922 0.003 75)"
     sidebar-border:
       type: "color"
-      value: "oklch(0.269 0.003 75)"
+      value: "oklch(0.922 0.003 75 / 0.14)"
     sidebar-foreground:
       type: "color"
-      value: "oklch(0.87 0.003 75)"
+      value: "oklch(0.922 0.003 75)"
     sidebar-primary:
       type: "color"
       value: "oklch(0.922 0.003 75)"
@@ -1111,6 +1262,10 @@ themes:
       type: "dimension"
       value: "3rem"
       description: "Collapsed icon-only rail width."
+    sidebar-width-mobile:
+      type: "dimension"
+      value: "18rem"
+      description: "Width of the sidebar when it renders as an off-canvas sheet below the md breakpoint (was an inline `18rem` fallback, B6-08)."
     size-lg:
       type: "dimension"
       value: "2.5rem"
@@ -1141,13 +1296,28 @@ themes:
     success-subtle:
       type: "color"
       value: "oklch(0.276 0.061 150)"
+    success-subtle-active:
+      type: "color"
+      value: "oklch(0.371 0.101 148.5)"
+      description: "DERIVED: success fill @40% composited over success-subtle (soft-pressed surface, AA-gated against success-text)."
     success-subtle-hover:
       type: "color"
       value: "oklch(0.348 0.092 148.9)"
       description: "DERIVED: success fill @30% composited over success-subtle (soft-hover surface, AA-gated against success-text)."
     success-text:
       type: "color"
-      value: "oklch(0.72 0.17 150)"
+      value: "oklch(0.74 0.17 150)"
+      description: "Dark green ink (was green.500, L 0.72); +0.02 L for the soft pressed rung."
+    surface-1:
+      type: "color"
+      value: "oklch(0.236 0.003 75)"
+      description: "Dark ladder: card 0.205 -> surface-1 0.236 -> surface-2 0.269 -> surface-3 0.29 (lighter = higher, ~0.03 L per rung, the Radix/Linear dark step)."
+    surface-2:
+      type: "color"
+      value: "oklch(0.269 0.003 75)"
+    surface-3:
+      type: "color"
+      value: "oklch(0.29 0.003 75)"
     tag-blue:
       type: "color"
       value: "oklch(0.72 0.14 256)"
@@ -1339,9 +1509,6 @@ themes:
         fontWeight: "600"
         letterSpacing: "-0.01em"
       description: "Rare 600-weight emphasis role. Use text-strong only when 500 cannot carry the hierarchy; raw font-semibold/font-bold utilities remain forbidden."
-    track:
-      type: "color"
-      value: "oklch(0.439 0.003 75)"
     type-doc-2xl:
       type: "typography"
       value:
@@ -1429,6 +1596,10 @@ themes:
     warning-subtle:
       type: "color"
       value: "oklch(0.28 0.069 42)"
+    warning-subtle-active:
+      type: "color"
+      value: "oklch(0.381 0.1 47.3)"
+      description: "DERIVED: warning fill @40% composited over warning-subtle (soft-pressed surface, AA-gated against warning-text)."
     warning-subtle-hover:
       type: "color"
       value: "oklch(0.356 0.093 46.6)"
@@ -1457,10 +1628,10 @@ recipes:
     shadow: "{shadow-lit}"
     interactionColorTransition: "immediate"
   button-secondary:
-    background: "{card}"
-    foreground: "{foreground}"
-    border: "{border}"
-    hover: "{accent}"
+    background: "{surface-1}"
+    foreground: "{secondary-foreground}"
+    hover: "{surface-2}"
+    active: "{surface-3}"
     radius: "{radius-md}"
     height: "{size-md}"
     paddingInline: "0.75rem"
@@ -1470,13 +1641,14 @@ recipes:
     background: "{destructive-subtle}"
     foreground: "{destructive-text}"
     hover: "{destructive-subtle-hover}"
+    active: "{destructive-subtle-active}"
     radius: "{radius-md}"
     height: "{size-md}"
     paddingInline: "0.75rem"
     typography: "{text-label}"
     interactionColorTransition: "immediate"
   input:
-    background: "{secondary}"
+    background: "{surface-1}"
     foreground: "{foreground}"
     border: "{input}"
     focusBorder: "{ring}"
@@ -1498,7 +1670,9 @@ recipes:
     shadow: "{shadow-overlay}"
   menu-item:
     foreground: "{foreground}"
-    hover: "{accent}"
+    hover: "{surface-2}"
+    active: "{surface-3}"
+    selected: "{surface-3}"
     radius: "{radius-sm}"
     height: "{size-md}"
     paddingInline: "0.5rem"
@@ -1543,19 +1717,66 @@ warm near-white and `neutral-925` a barely-warm deep canvas (genuinely dark, not
 are semantic references into that family. The generated frontmatter exposes the resolved semantic values;
 `packages/design-tokens/tokens/primitives.tokens.json` owns the ramp itself.
 
-### Surfaces, text & lines
+### Surfaces — the ladder
 
-- **`background`** is the page; **`card`/`popover`** are surfaces (`neutral-50`/`white` in light;
-  lifted to `neutral-900` in dark).
-- **`secondary`** and **`muted`** (`neutral-100` / `neutral-800`) carry inset/control fills.
-  **`accent`** is the **neutral** hover/selected fill (it is _not_ a colour — `bg-accent` must never be
-  blue or any other hue; this is shadcn's `accent`).
-- **Text ramp:** `foreground` (ink) → `muted-foreground` (secondary text, the AA workhorse) → `muted-foreground-faint` (placeholders & disabled **only** — intentionally below AA; never for content, including captions).
-- **`primary`** is a charcoal (`neutral-700`) in light / near-white (`neutral-200`) in dark — the neutral-ink workhorse action, with `primary-hover`/`primary-active` one step further.
-- **One border.** A single **solid warm-neutral** `border` (`neutral-200` light / `neutral-800` dark) on **every** card, input, table, and overlay. The shadcn token names `input` and `sidebar-border` **alias** to it — same appearance, names kept so registry components keep working. Plus the `overlay` token for the modal scrim. No `border-strong` / `overlay-border` / ad-hoc line token; overlays separate via the shadow, not a heavier border.
+**One neutral ladder carries every surface and every interaction step.** Three rungs sit above the
+page; each rung is one even step (~0.025 L light, ~0.03 L dark — the Geist/Radix/Linear step size),
+and each has an **alpha twin** so the same rung composites onto any backdrop.
+
+| role                             | token                          | light L | dark L | what sits on it                                                                          |
+| -------------------------------- | ------------------------------ | ------: | -----: | ---------------------------------------------------------------------------------------- |
+| Page                             | `background`                   |   0.994 |  0.175 | the canvas                                                                               |
+| Surface                          | `card` = `popover` = `sidebar` |   0.994 |  0.205 | cards, panels, every floating surface, the rail                                          |
+| Rung 1 — rest fill / sunken well | `surface-1`                    |   0.970 |  0.236 | the rest fill of a filled control (soft button, kbd, chip, tab-list rail) and every well |
+| Rung 2 — **hover**               | `surface-2`                    |   0.945 |  0.269 | a transparent row/item/ghost control on hover; a rung-1 control on hover                 |
+| Rung 3 — **pressed / selected**  | `surface-3`                    |   0.922 |  0.290 | `active:`, `data-selected`, the current sidebar row                                      |
+
+- **Light surfaces are page-coloured**; a light card is separated by the hairline alone. No
+  reference system lifts or sinks a light card, and neither do we. **Dark keeps the one-step lift**
+  (0.175 → 0.205), which is how dark UIs read depth.
+- **`popover` and `sidebar` are the card surface.** A floating surface is card + `shadow-overlay`,
+  never a lighter or darker rung of its own; the rail is not a second palette.
+- **The alpha twins** are `--alpha-hover` (7%) and `--alpha-pressed` (10%) on an ink. Painted over
+  the page they land within 0.003 L of the opaque rungs, so `bg-foreground/(--alpha-hover)` and
+  `bg-surface-2` are interchangeable by eye — use the alpha form when the backdrop is _not_ a ladder
+  surface (a kbd inside a hovered row, a chip on a well, chrome over media) or when a control hovers
+  in its own hue. Both alphas are theme-invariant.
+- **`secondary`, `muted`, `accent` and the whole `sidebar-*` family are ALIASES**, kept so
+  shadcn-shaped code keeps compiling: `secondary` = `muted` = `surface-1`, `accent` =
+  `sidebar-accent` = `surface-2`, `sidebar` = `card`, `sidebar-border` = `border`, `sidebar-ring` =
+  `ring`. They have no independent values in the token source and must never be retuned on their
+  own. `accent` is a **neutral** — `bg-accent` is never blue or any other hue.
+- **Text ramp:** `foreground` (ink) → `muted-foreground` (secondary text, the AA workhorse) →
+  `muted-foreground-faint` (placeholders & disabled **only** — intentionally below AA; never for
+  content, including captions). Both real inks clear AA on **every** rung in both themes; that is a
+  build gate, not a guideline.
+- **`primary`** is a charcoal (`neutral-700`) in light / near-white (`neutral-200`) in dark — the
+  neutral-ink workhorse action, with `primary-hover`/`primary-active` one step further.
+- **One border, and it is an alpha.** `border` is **derived** as `foreground` at `--alpha-border`
+  (8% light / 14% dark), so a single hairline reads on the page, on a card, in a well and on a dark
+  band without ever drifting from the ink it tints. `input` and `sidebar-border` alias it. Plus
+  `overlay` for the modal scrim. No `border-strong` / `overlay-border` / ad-hoc line token; overlays
+  separate via the shadow, not a heavier border.
 - **`ring`** is the focus basis and equals **`primary`** (neutral ink) — see Accessibility.
-- **`track`** (`neutral-300` / `neutral-600`) is the switch/toggle off-track — a theme-flipping neutral so a disabled toggle never glows bright in dark.
-- **The sidebar** is a self-contained surface (`sidebar` / `sidebar-foreground`, border = the one `border`). Its active/hover/focus reuse the main `primary` / `accent` / `ring`.
+- **Tracks and wells are `surface-1`** — slider rail, progress track, switch off-track, skeleton,
+  code block, disabled field. There is no separate `track` token; it was deleted into the ladder.
+
+### Hover geometry
+
+- **A hover wash is inset ≥4px from any container hairline** and **inherits the container's inner
+  radius**. A wash that runs flush into the border reads as a rendering bug, not a state.
+- **A pressed step exists on every control.** Hover moves one rung; pressing moves one more. A
+  control that changes nothing on `:active` is unfinished.
+- **Selected is the pressed rung**, not a fourth step (`data-selected:bg-surface-3`) — which is why
+  an active row must still visibly move when hovered.
+- **One hover mechanism.** Every wash comes from the two recipes exported by `@vegastack/design`:
+  `surfaceInteractive` (`hover:bg-surface-2 active:bg-surface-3`) for a control on a known surface,
+  and `fillInteractive.<tone>` (`hover:bg-<tone>/(--alpha-hover) active:bg-<tone>/(--alpha-pressed)`)
+  for one on an unknown backdrop or in its own hue. No component writes its own `hover:bg-*`
+  literal; opacity dims (`/80`) and one-off ink tints are not hover states.
+- **A solid fill does not use the alpha twins.** A solid already owns darker `-hover`/`-active`
+  steps; an alpha over a solid only thins it. Soft (tinted) fills step through their precomposed
+  `<family>-subtle-hover` / `<family>-subtle-active`.
 
 ### Chromatic colour — rationed
 
@@ -1574,7 +1795,7 @@ status hues**. Each family is a seven-token ramp (`fill` / `hover` / `active` / 
 **Usage rules**
 
 - **`primary` (neutral) is the default AND the accent** — it carries almost every action plus the value/selection accents: the single most important action, AI/agent surfaces, active tab underline, current page, slider/progress fill, selected date, and checked switch/checkbox/radio and the select checkmark. There is no separate accent hue.
-- **`info` (blue) is for links and informational UI** — text links, info alerts/badges. This is the conventional "blue = link/info," and the only chromatic accent.
+- **`info` (blue) is for links and informational UI ONLY** — text links, info alerts and badges. This is the conventional "blue = link/info," and the only chromatic accent. It is **never** promotion, selection or emphasis: a highlighted pricing plan, a promoted comparison column, a selected row and a neutral empty state all take a ladder rung (`surface-2`/`surface-3`) or `primary`, never `info`.
 - **Keep blue out of action clusters.** `info` (≈256°) is link/info **text** only. Actions are neutral `primary`, so a blue link never competes with an action for "which is clickable?"
 - For a solid button use `{family}.fill` + white text; for an alert/badge use `{family}.subtle` + `{family}.text`; for hover/active step to `.hover` / `.active`.
 
@@ -1654,9 +1875,12 @@ ambient pair for the neutral primary action. It is an action finish, never surfa
 
 ### Surfaces — the stacking ladder
 
-Depth comes from surface contrast, not shadow. Five rungs, no more: **Canvas** (`background`) → **Subtle**
-(`secondary`) → **Card** (`card`) → **Overlay** (`card` + shadow); and **Sunken** (`muted`) for insets
-(wells, code blocks, track fills). Up = a different surface token (+ border); down = `muted` inset.
+Depth comes from surface contrast, not shadow. The rungs and their values are defined once in
+§Colours → Surfaces — the ladder; here is only how they **stack**: **Page** (`background`) →
+**Surface** (`card`/`popover`/`sidebar`, page-coloured in light, one step lifted in dark) →
+**Overlay** (the same surface + `shadow-overlay`). Insets go the other way onto **`surface-1`**
+(wells, code blocks, tracks). `surface-2` and `surface-3` are interaction rungs, not elevation —
+never build a static panel out of them.
 
 ## Motion
 

@@ -1,10 +1,10 @@
-// @vegastack onboarding-checklist@0.6.0 sha256-LXl7sf5n/kcKSWnJE3BouhBz+rBPGyYVMFDd0Tv9oPw=
+// @vegastack onboarding-checklist@0.6.0 sha256-BkrSiNQNxNpBxvhfGD2nG/oUTIBUgmwaj3StsBekr0A=
 
 "use client";
 
 import * as React from "react";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { cn, surfaceInteractive } from "@vegastack/design";
 
 /* ------------------------------------------------------------------------------------------------
  * OnboardingChecklist — the getting-started card (Wave 4, from the app teardown's floating
@@ -89,8 +89,8 @@ export function OnboardingChecklist({
         aria-expanded={false}
         onClick={() => setCollapsed(false)}
         className={cn(
-          "inline-flex h-(--size-sm) w-fit items-center gap-2 rounded-full border border-border bg-card px-3 text-label-sm text-foreground",
-          " select-none hover:bg-muted",
+          "inline-flex h-(--size-sm) w-fit items-center gap-2 rounded-full border border-border bg-card px-3 text-label-sm text-foreground select-none",
+          surfaceInteractive,
           className,
         )}
         {...props}
@@ -113,7 +113,7 @@ export function OnboardingChecklist({
       ref={ref}
       data-slot="onboarding-checklist"
       className={cn(
-        "w-72 max-w-full rounded-lg border border-border bg-card p-3 text-card-foreground",
+        "w-(--panel-width-md) max-w-full rounded-lg border border-border bg-card p-3 text-card-foreground",
         className,
       )}
       {...props}
@@ -199,8 +199,8 @@ export function OnboardingChecklistItem({
         data-done={done ? "" : undefined}
         disabled={done}
         className={cn(
-          "flex h-(--size-md) w-full items-center gap-2 rounded-md px-2 text-left text-label text-foreground",
-          " select-none hover:bg-muted",
+          "flex h-(--size-md) w-full items-center gap-2 rounded-md px-2 text-left text-label text-foreground select-none",
+          surfaceInteractive,
           "disabled:pointer-events-none data-done:text-muted-foreground data-done:line-through",
           "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-inline) [&_svg]:text-muted-foreground",
           className,

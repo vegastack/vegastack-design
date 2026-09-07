@@ -1,4 +1,4 @@
-// @vegastack chart@0.6.0 sha256-koO/nVTEVX1F0u5R4DPUdUYeRymbMELK8o4qKsnMYps=
+// @vegastack chart@0.6.0 sha256-aklul0+NCa6fdz8Qa25mnPrRbKZn5PN0815S5z2ycWM=
 
 "use client";
 
@@ -59,8 +59,12 @@ import { cn } from "@vegastack/design";
  * intentional, not incidental, and (b) survives a future Recharts version changing that default.
  * ----------------------------------------------------------------------------------------------*/
 
-/** One of the theme-split chart series tokens (`packages/design-tokens`, `:root` + `.dark`). */
+/**
+ * One of the chart ink tokens (`packages/design-tokens`, `:root` + `.dark`): `chart-single` is
+ * foreground ink for a ONE-series chart (D29); the categorical `chart-1…8` hues start at two series.
+ */
 export type ChartColorToken =
+  | "chart-single"
   | "chart-1"
   | "chart-2"
   | "chart-3"

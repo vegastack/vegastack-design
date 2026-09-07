@@ -1,4 +1,4 @@
-// @vegastack shortcut-overlay@0.6.0 sha256-g8cE3Equ/lGkQim6ZvLCNvyxGRktPDoyEGGrLiW5vmM=
+// @vegastack shortcut-overlay@0.6.0 sha256-kk8sOe8Ha8Q1fYu5VqvnS/KCPVo7MwF2UPWRkP8LEtw=
 
 "use client";
 
@@ -212,7 +212,7 @@ export function ShortcutOverlay({
             onChange={(event) => setQuery(event.target.value)}
           />
         ) : null}
-        <ScrollArea className="max-h-[calc(100dvh-var(--spacing)*64)]">
+        <ScrollArea className="max-h-(--layout-overlay-max-height)">
           <div className="flex flex-col gap-4 pe-3">
             {categories.length === 0 ? (
               <p

@@ -1,10 +1,10 @@
-// @vegastack board@0.6.0 sha256-U1AOi6AoZq0Kl+9q3EeIHMg8xt2S8o34aKX5a6upZfw=
+// @vegastack board@0.6.0 sha256-4vI/pRKDVKggF9yoxmr0N8dTlrOlGS7jitFNvzu3Ehc=
 
 "use client";
 
 import * as React from "react";
 import { EllipsisVertical } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { cn, surfaceInteractive } from "@vegastack/design";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -378,7 +378,7 @@ export function Board<T>({
                   : containerProps["data-drop-over"]
               }
               className={cn(
-                "w-(--board-column-width) shrink-0 gap-2 bg-muted/(--alpha-wash) py-2",
+                "w-(--board-column-width) shrink-0 gap-2 bg-surface-1 py-2",
                 "data-drop-over:border-primary/(--alpha-outline-border)",
               )}
             >
@@ -397,7 +397,7 @@ export function Board<T>({
                 ) : null}
               </CardHeader>
               <CardContent className="px-2">
-                <ScrollArea className="max-h-[calc(100dvh-var(--spacing)*64)]">
+                <ScrollArea className="max-h-(--layout-overlay-max-height)">
                   <div
                     data-slot="board-column-body"
                     ref={
@@ -488,7 +488,7 @@ export function Board<T>({
                                 onClick={() => onCardActivate?.(item)}
                                 className={cn(
                                   "flex w-full min-w-0 cursor-grab flex-col gap-1 rounded-md border border-border bg-card p-3 text-start text-base",
-                                  "hover:bg-accent",
+                                  surfaceInteractive,
                                   readOnly && "cursor-default",
                                 )}
                               >

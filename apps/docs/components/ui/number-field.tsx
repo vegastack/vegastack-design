@@ -1,4 +1,4 @@
-// @vegastack number-field@0.6.0 sha256-webk47Tos48C+HB9QZJWeJMU90kRBeTbSv52TjwQGYw=
+// @vegastack number-field@0.6.0 sha256-Gh5RXYyRD2vdUaHWrGOp46d3MNZxOTWYcJSL80Ov2d8=
 
 "use client";
 
@@ -141,7 +141,7 @@ const addonClasses =
  */
 const stepperClasses =
   "flex h-full w-(--size-sm) shrink-0 items-center justify-center text-muted-foreground " +
-  "hover:text-foreground hover:bg-muted " +
+  "hover:text-foreground hover:bg-surface-2 active:bg-surface-3 " +
   "focus-visible:-outline-offset-2 " +
   "disabled:pointer-events-none disabled:opacity-(--opacity-dim) " +
   "data-disabled:pointer-events-none data-disabled:opacity-(--opacity-dim)";

@@ -1,4 +1,4 @@
-// @vegastack data-list@0.6.0 sha256-5zl6PXEaxhxefgmeEnux//fzlWYTNmLmvjH3jgAeC2U=
+// @vegastack data-list@0.6.0 sha256-ULKp6lmd5GL1LvY2wgCHqvfW+Zl01iFz1LJxPWlrLuQ=
 
 "use client";
 
@@ -604,7 +604,7 @@ export function DataList<T>({
                     // the authoritative selection cue). Overrides the base Table row's
                     // hover-only `accent` so the tint stays through hover as well.
                     isSelected &&
-                      "bg-accent hover:bg-accent data-selected:bg-accent",
+                      "bg-surface-3 hover:bg-surface-3 active:bg-surface-3 data-selected:bg-surface-3",
                   )}
                 >
                   {selectable && (

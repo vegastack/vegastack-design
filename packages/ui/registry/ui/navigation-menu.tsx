@@ -1,11 +1,11 @@
-// @vegastack navigation-menu@0.6.0 sha256-FOVfnfzVIqK88lGZVAFeyU3Cm1THJGlHzbCaigrFd2o=
+// @vegastack navigation-menu@0.6.0 sha256-ZUwZAJ/Z7fpOPPoMHwuFv/7xMuj6LRbwUPkYzDjI57k=
 
 "use client";
 
 import * as React from "react";
 import { NavigationMenu as BaseNavigationMenu } from "@base-ui/react/navigation-menu";
 import { ChevronDown } from "lucide-react";
-import { cn, FLOATING } from "@vegastack/design";
+import { cn, FLOATING, surfaceInteractive } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 
 /* ------------------------------------------------------------------------------------------------
@@ -84,9 +84,10 @@ export function NavigationMenuItem(props: NavigationMenuItemProps) {
 
 const navTriggerClasses = cn(
   "inline-flex h-(--size-md) items-center gap-1 rounded-md px-3 text-label text-muted-foreground select-none",
-  " hover:bg-muted hover:text-foreground",
+  "hover:text-foreground",
+  surfaceInteractive,
   // Open trigger stays lit (the teardown's open-equals-hover rule).
-  "data-[popup-open]:bg-muted data-[popup-open]:text-foreground",
+  "data-[popup-open]:bg-surface-2 data-[popup-open]:text-foreground",
   "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-inline)",
 );
 
@@ -242,7 +243,8 @@ export function NavigationMenuGridLink({
     <BaseNavigationMenu.Link
       data-slot="navigation-menu-grid-link"
       className={cn(
-        "flex items-start gap-3 rounded-md p-3 no-underline  select-none hover:bg-muted",
+        "flex items-start gap-3 rounded-md p-3 no-underline select-none",
+        surfaceInteractive,
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default) [&_svg]:text-muted-foreground",
         className,
       )}

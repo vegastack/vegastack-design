@@ -1,9 +1,9 @@
-// @vegastack field-inline@0.6.0 sha256-wLfZjH/AOXrWnrp+k0D96pMxDFs8CIg79/ngNbCyOCg=
+// @vegastack field-inline@0.6.0 sha256-fOPfo1RIRkzYGSFvoqEV4+ny4Q0m5GnpLTzvQg1gbPI=
 
 "use client";
 
 import * as React from "react";
-import { cn } from "@vegastack/design";
+import { cn, surfaceInteractive } from "@vegastack/design";
 import { Input } from "@/components/ui/input";
 
 /** Props accepted by `FieldInline`. */
@@ -122,7 +122,7 @@ export interface FieldInlineProps {
  * original value.
  *
  * Purely presentational — `onCommit` is a callback and the app persists the
- * result. Token-only styling; the display affordance is `hover:bg-muted`.
+ * result. Token-only styling; the display affordance is the shared surface recipe.
  *
  * The edit-mode `<input>` always carries an accessible name: pass `label` (or
  * `aria-label`/`aria-labelledby`) for a clear semantic name, otherwise it falls
@@ -357,7 +357,7 @@ export function FieldInline({
           // swapping display text for the focused editor never moves adjacent layout or text.
           "inline-flex h-(--size-md) max-w-full min-w-0 items-center rounded-md border border-transparent px-3 py-1 text-base",
           borderless && "h-auto rounded-none px-0 py-0",
-          !disabled && !readOnly && "cursor-text hover:bg-muted",
+          !disabled && !readOnly && cn("cursor-text", surfaceInteractive),
           "aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
           className,
         )}

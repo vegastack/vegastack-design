@@ -1,4 +1,4 @@
-// @vegastack combobox@0.6.0 sha256-joFgifLlX0QPPh5Wq81eA9rMy2sSa3aFWyVAvKAQDn8=
+// @vegastack combobox@0.6.0 sha256-KoxnR6PAwyohtcv3y9AjvsLJnGfnYkKPVg9vlmXV8So=
 
 "use client";
 
@@ -6,7 +6,7 @@ import * as React from "react";
 import { Combobox as BaseCombobox } from "@base-ui/react/combobox";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Check, ChevronsUpDown, Search, X } from "lucide-react";
-import { cn, FLOATING } from "@vegastack/design";
+import { cn, FLOATING, surfaceInteractive } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 
 function mergeStateClassName<State>(
@@ -313,7 +313,8 @@ export function ComboboxInputGroup({
 export const comboboxTriggerVariants = cva(
   [
     "inline-flex shrink-0 items-center justify-center rounded-md text-muted-foreground select-none",
-    "hover:bg-muted hover:text-foreground dark:hover:bg-muted/(--alpha-wash)",
+    "hover:text-foreground",
+    surfaceInteractive,
     "data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-(--opacity-dim)",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
   ].join(" "),

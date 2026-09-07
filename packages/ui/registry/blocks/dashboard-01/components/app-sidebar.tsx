@@ -1,4 +1,4 @@
-// @vegastack dashboard-01@0.6.0 sha256-H3abUSAP+yCnOjs0Qy0Y1R9PhqJQJ3wR7w7/ZX2dI58=
+// @vegastack dashboard-01@0.6.0 sha256-awH7HB+/CTrStQspu95O8afvNerzKRgXPBkFIV1F8J8=
 
 "use client";
 
@@ -29,6 +29,7 @@ import {
   User,
   type LucideIcon,
 } from "lucide-react";
+import { cn, surfaceInteractive } from "@vegastack/design";
 import { AppShellSidebar } from "@/components/ui/app-shell";
 import { Avatar } from "@/components/ui/avatar";
 import {
@@ -161,7 +162,12 @@ export function AppSidebar({
 
       <SidebarFooter>
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex w-full items-center gap-2 rounded-md p-2 text-left hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+          <DropdownMenuTrigger
+            className={cn(
+              "flex w-full items-center gap-2 rounded-md p-2 text-start",
+              surfaceInteractive,
+            )}
+          >
             <Avatar
               size="sm"
               src={user.avatarUrl}
@@ -184,7 +190,11 @@ export function AppSidebar({
               className="size-(--icon-inline) shrink-0 text-muted-foreground group-data-[state=collapsed]/sidebar:hidden"
             />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" side="top" className="w-56">
+          <DropdownMenuContent
+            align="start"
+            side="top"
+            className="w-(--panel-width-sm)"
+          >
             <DropdownMenuLabel>{user.name}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>

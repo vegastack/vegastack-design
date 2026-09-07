@@ -1,4 +1,4 @@
-// @vegastack item@0.6.0 sha256-AdGBxHKOq/zSojaeGBuQTd4dPAS+6UIsvXtXA4x5X78=
+// @vegastack item@0.6.0 sha256-eCKgD/+wKayWRw5jjxmNX5F9ugttHMFJnjZu+SJ3TqE=
 
 "use client";
 
@@ -17,7 +17,7 @@ import { Separator } from "@/components/ui/separator";
  * ----------------------------------------------------------------------------------------------*/
 
 export const itemVariants = cva(
-  "group/item relative flex w-full flex-wrap items-center rounded-md border border-transparent text-base [&_svg]:pointer-events-none [&_svg]:shrink-0 [&:is(a,button)]:hover:bg-accent/(--alpha-wash)",
+  "group/item relative flex w-full flex-wrap items-center rounded-md border border-transparent text-base [&_svg]:pointer-events-none [&_svg]:shrink-0 [&:is(a,button)]:hover:bg-surface-2 [&:is(a,button)]:active:bg-surface-3",
   {
     variants: {
       variant: {
@@ -26,7 +26,7 @@ export const itemVariants = cva(
         /** A hairline border around the row. */
         outline: "border-border",
         /** A filled neutral wash — reads as a self-contained block. */
-        muted: "bg-muted/(--alpha-wash)",
+        muted: "bg-surface-1",
       },
       size: {
         /** Roomy padding — the standard row density. */

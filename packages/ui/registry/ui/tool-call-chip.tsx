@@ -1,4 +1,4 @@
-// @vegastack tool-call-chip@0.6.0 sha256-wimLW5QqIY3oljKKZ5njwwKSeTbtRHyMIR933jjJvPs=
+// @vegastack tool-call-chip@0.6.0 sha256-eOq9D/VPQVo5rFVSZNF56AHYZqqEDVgvpcJrwPAyHqg=
 
 "use client";
 
@@ -61,7 +61,7 @@ export function ToolCallChip({
         "inline-flex h-(--size-sm) w-fit max-w-full min-w-0 items-center gap-1.5 rounded-md border border-border bg-card px-2.5 text-label-sm text-foreground",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-inline) [&_svg]:text-muted-foreground",
         // Interactive composition (render={<button/>}): hover + press follow the ghost grammar.
-        "[&:is(button)]:hover:bg-muted",
+        "[&:is(button)]:hover:bg-surface-2 [&:is(button)]:active:bg-surface-3",
         className,
       ),
       children: (
