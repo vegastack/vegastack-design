@@ -206,7 +206,7 @@ export function AppSidebar({
               Billing
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive" onClick={onLogout}>
+            <DropdownMenuItem tone="destructive" onClick={onLogout}>
               <LogOut />
               Log out
             </DropdownMenuItem>

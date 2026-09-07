@@ -90,7 +90,7 @@ test("applies the destructive variant data attribute", async () => {
     <ContextMenu>
       <ContextMenuTrigger>Right-click me</ContextMenuTrigger>
       <ContextMenuContent>
-        <ContextMenuItem variant="destructive">Delete</ContextMenuItem>
+        <ContextMenuItem tone="destructive">Delete</ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>,
   );
@@ -102,7 +102,7 @@ test("applies the destructive variant data attribute", async () => {
   );
   await expect
     .element(page.getByRole("menuitem", { name: "Delete" }))
-    .toHaveAttribute("data-variant", "destructive");
+    .toHaveAttribute("data-tone", "destructive");
 });
 
 test("renders label, separator and a shortcut hint", async () => {
@@ -411,7 +411,7 @@ test("no a11y violations with the menu open", async () => {
         <ContextMenuGroup>
           <ContextMenuLabel>Account</ContextMenuLabel>
           <ContextMenuItem>Settings</ContextMenuItem>
-          <ContextMenuItem variant="destructive">
+          <ContextMenuItem tone="destructive">
             Delete account
           </ContextMenuItem>
         </ContextMenuGroup>

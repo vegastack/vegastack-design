@@ -5,19 +5,11 @@
 import * as React from "react";
 import { Tooltip as BaseTooltip } from "@base-ui/react/tooltip";
 import { cn, FLOATING } from "@vegastack/design";
-import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { Kbd } from "@/components/ui/kbd";
-
-function mergeStateClassName<State>(
-  className: string,
-  userClassName: string | ((state: State) => string | undefined) | undefined,
-) {
-  if (typeof userClassName === "function") {
-    return (state: State) => cn(className, userClassName(state));
-  }
-
-  return cn(className, userClassName);
-}
+import {
+  FloatingArrow,
+  FloatingSurface,
+} from "@/components/ui/floating-surface";
 
 /**
  * `TooltipProvider` — shares a single open/close delay across every tooltip in
@@ -169,7 +161,6 @@ export interface TooltipContentProps extends React.ComponentProps<
  * <TooltipContent />
  */
 export function TooltipContent({
-  className,
   children,
   side = "top",
   sideOffset = FLOATING.sideOffsetDetached,
@@ -180,58 +171,26 @@ export function TooltipContent({
   arrow = false,
   ...props
 }: TooltipContentProps) {
-  const themeScope = useInternalThemeScope();
-  const { className: positionerClassName, ...positionerPropsRest } =
-    positionerProps ?? {};
-  const { className: viewportClassName, ...viewportPropsRest } =
-    viewportProps ?? {};
-
   return (
-    <BaseTooltip.Portal {...portalProps}>
-      <BaseTooltip.Positioner
-        {...positionerPropsRest}
-        data-slot="tooltip-positioner"
-        side={side}
-        sideOffset={sideOffset}
-        align={align}
-        className={mergeStateClassName<BaseTooltip.Positioner.State>(
-          cn(themeScope, "z-(--z-overlay)"),
-          positionerClassName,
-        )}
-      >
-        <BaseTooltip.Popup
-          data-slot="tooltip-content"
-          role="tooltip"
-          className={cn(
-            themeScope,
-            "z-(--z-overlay) flex w-fit max-w-xs origin-(--transform-origin) items-center gap-2 rounded-md bg-foreground px-2.5 py-1 text-sm text-background shadow-overlay select-none",
-            // Enter/exit transitions driven by Base UI transition data attributes.
-            "transition-[transform,scale,opacity] duration-fast ease-standard",
-            "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
-            "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
-            "data-[instant]:duration-0",
-            className,
-          )}
-          {...props}
-        >
-          {arrow ? <TooltipArrow /> : null}
-          {viewportProps ? (
-            <BaseTooltip.Viewport
-              {...viewportPropsRest}
-              data-slot="tooltip-viewport"
-              className={mergeStateClassName<BaseTooltip.Viewport.State>(
-                themeScope ?? "",
-                viewportClassName,
-              )}
-            >
-              {children}
-            </BaseTooltip.Viewport>
-          ) : (
-            children
-          )}
-        </BaseTooltip.Popup>
-      </BaseTooltip.Positioner>
-    </BaseTooltip.Portal>
+    <FloatingSurface
+      parts={{
+        Portal: BaseTooltip.Portal,
+        Positioner: BaseTooltip.Positioner,
+        Popup: BaseTooltip.Popup,
+        Viewport: BaseTooltip.Viewport,
+      }}
+      slot="tooltip"
+      surface="tooltip"
+      // No explicit `role="tooltip"`: Base UI already sets it on the popup (B3-10).
+      positioning={{ side, sideOffset, align }}
+      portalProps={portalProps}
+      positionerProps={positionerProps}
+      viewportProps={viewportProps}
+      popupProps={props}
+      arrow={arrow ? <TooltipArrow /> : undefined}
+    >
+      {children}
+    </FloatingSurface>
   );
 }
 
@@ -249,18 +208,14 @@ export interface TooltipArrowProps extends React.ComponentProps<
  * @example
  * <TooltipArrow />
  */
-export function TooltipArrow({ className, ...props }: TooltipArrowProps) {
+export function TooltipArrow(props: TooltipArrowProps) {
   return (
-    <BaseTooltip.Arrow
-      data-slot="tooltip-arrow"
-      className={cn(
-        "data-[side=bottom]:-top-1 data-[side=top]:-bottom-1 data-[side=left]:-right-1 data-[side=right]:-left-1",
-        className,
-      )}
+    <FloatingArrow
+      element={BaseTooltip.Arrow}
+      slot="tooltip-arrow"
+      tone="tooltip"
       {...props}
-    >
-      <span className="block size-2 rotate-45 rounded-xs bg-foreground" />
-    </BaseTooltip.Arrow>
+    />
   );
 }
 

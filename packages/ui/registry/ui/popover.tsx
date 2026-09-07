@@ -5,18 +5,10 @@
 import * as React from "react";
 import { Popover as BasePopover } from "@base-ui/react/popover";
 import { cn, FLOATING } from "@vegastack/design";
-import { useInternalThemeScope } from "@vegastack/design/theme-scope";
-
-function mergeStateClassName<State>(
-  className: string,
-  userClassName: string | ((state: State) => string | undefined) | undefined,
-) {
-  if (typeof userClassName === "function") {
-    return (state: State) => cn(className, userClassName(state));
-  }
-
-  return cn(className, userClassName);
-}
+import {
+  FloatingArrow,
+  FloatingSurface,
+} from "@/components/ui/floating-surface";
 
 /* ------------------------------------------------------------------------------------------------
  * Popover — a click-triggered floating panel for arbitrary content, built on Base UI's Popover.
@@ -150,7 +142,6 @@ export interface PopoverContentProps extends React.ComponentProps<
  * <PopoverContent />
  */
 export function PopoverContent({
-  className,
   children,
   side = "bottom",
   sideOffset = FLOATING.sideOffsetDetached,
@@ -162,60 +153,28 @@ export function PopoverContent({
   arrow = false,
   ...props
 }: PopoverContentProps) {
-  const themeScope = useInternalThemeScope();
-  const { className: positionerClassName, ...positionerPropsRest } =
-    positionerProps ?? {};
-  const { className: viewportClassName, ...viewportPropsRest } =
-    viewportProps ?? {};
-
   return (
-    <BasePopover.Portal {...portalProps}>
-      <BasePopover.Positioner
-        {...positionerPropsRest}
-        data-slot="popover-positioner"
-        side={side}
-        sideOffset={sideOffset}
-        align={align}
-        collisionPadding={collisionPadding}
-        className={mergeStateClassName<BasePopover.Positioner.State>(
-          cn(themeScope, "z-(--z-overlay)"),
-          positionerClassName,
-        )}
-      >
-        <BasePopover.Popup
-          data-slot="popover-content"
-          className={cn(
-            themeScope,
-            // The native outline is deliberately NOT stripped: the popup itself can receive
-            // keyboard focus (initial focus / focus wrap), so the centralized base.css
-            // `:focus-visible` outline stays as the indicator (WCAG 2.4.7, register P0-02).
-            "z-(--z-overlay) w-(--panel-width-md) max-w-[calc(100vw-var(--spacing)*8)] origin-(--transform-origin) rounded-lg border border-border bg-popover p-4 text-base text-popover-foreground shadow-overlay",
-            // Enter/exit — scale + fade, token duration + standard easing.
-            "transition-[transform,scale,opacity] duration-fast ease-standard",
-            "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
-            "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
-            className,
-          )}
-          {...props}
-        >
-          {arrow ? <PopoverArrow /> : null}
-          {viewportProps ? (
-            <BasePopover.Viewport
-              {...viewportPropsRest}
-              data-slot="popover-viewport"
-              className={mergeStateClassName<BasePopover.Viewport.State>(
-                themeScope ?? "",
-                viewportClassName,
-              )}
-            >
-              {children}
-            </BasePopover.Viewport>
-          ) : (
-            children
-          )}
-        </BasePopover.Popup>
-      </BasePopover.Positioner>
-    </BasePopover.Portal>
+    <FloatingSurface
+      parts={{
+        Portal: BasePopover.Portal,
+        Positioner: BasePopover.Positioner,
+        Popup: BasePopover.Popup,
+        Viewport: BasePopover.Viewport,
+      }}
+      slot="popover"
+      surface="panel"
+      // The native outline on the popup is deliberately NOT stripped: the popup itself can receive
+      // keyboard focus (initial focus / focus wrap), so the centralized base.css `:focus-visible`
+      // outline stays as the indicator (WCAG 2.4.7, register P0-02).
+      positioning={{ side, sideOffset, align, collisionPadding }}
+      portalProps={portalProps}
+      positionerProps={positionerProps}
+      viewportProps={viewportProps}
+      popupProps={props}
+      arrow={arrow ? <PopoverArrow /> : undefined}
+    >
+      {children}
+    </FloatingSurface>
   );
 }
 
@@ -251,18 +210,14 @@ export type PopoverArrowProps = React.ComponentProps<typeof BasePopover.Arrow>;
  * @example
  * <PopoverArrow />
  */
-export function PopoverArrow({ className, ...props }: PopoverArrowProps) {
+export function PopoverArrow(props: PopoverArrowProps) {
   return (
-    <BasePopover.Arrow
-      data-slot="popover-arrow"
-      className={cn(
-        "data-[side=bottom]:-top-1.5 data-[side=top]:-bottom-1.5 data-[side=left]:-right-1.5 data-[side=right]:-left-1.5",
-        className,
-      )}
+    <FloatingArrow
+      element={BasePopover.Arrow}
+      slot="popover-arrow"
+      tone="panel"
       {...props}
-    >
-      <span className="block size-2.5 rotate-45 rounded-xs border-r border-b border-border bg-popover" />
-    </BasePopover.Arrow>
+    />
   );
 }
 

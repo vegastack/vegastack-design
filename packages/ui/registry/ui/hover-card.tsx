@@ -5,18 +5,10 @@
 import * as React from "react";
 import { PreviewCard as BasePreviewCard } from "@base-ui/react/preview-card";
 import { cn, TIMINGS, FLOATING } from "@vegastack/design";
-import { useInternalThemeScope } from "@vegastack/design/theme-scope";
-
-function mergeStateClassName<State>(
-  className: string,
-  userClassName: string | ((state: State) => string | undefined) | undefined,
-) {
-  if (typeof userClassName === "function") {
-    return (state: State) => cn(className, userClassName(state));
-  }
-
-  return cn(className, userClassName);
-}
+import {
+  FloatingArrow,
+  FloatingSurface,
+} from "@/components/ui/floating-surface";
 
 /* ------------------------------------------------------------------------------------------------
  * HoverCard — a rich preview panel that opens when a trigger is hovered or focused, built on Base
@@ -194,7 +186,7 @@ export interface HoverCardContentProps extends React.ComponentProps<
  * `HoverCardContent` — the floating preview panel. Bundles Base UI PreviewCard's `Portal` +
  * `Positioner` + `Popup` so consumers render a single part, while exposing pass-through props for
  * advanced portal, positioner, and viewport configuration. Themed with `bg-popover` /
- * `text-popover-foreground`, a bordered `rounded-lg` `w-64` surface with `p-4` padding, and
+ * `text-popover-foreground`, a bordered `rounded-lg` `w-(--panel-width-md)` surface with the 16px popover padding (D14), and
  * animated in/out via `data-[starting-style]` / `data-[ending-style]`.
  *
  * Place arbitrary, app-resolved content inside — an avatar + name + stats row, a team summary, an
@@ -205,7 +197,6 @@ export interface HoverCardContentProps extends React.ComponentProps<
  * <HoverCardContent />
  */
 export function HoverCardContent({
-  className,
   children,
   side = "bottom",
   sideOffset = FLOATING.sideOffsetDetached,
@@ -217,60 +208,27 @@ export function HoverCardContent({
   arrow = false,
   ...props
 }: HoverCardContentProps) {
-  const themeScope = useInternalThemeScope();
-  const { className: positionerClassName, ...positionerPropsRest } =
-    positionerProps ?? {};
-  const { className: viewportClassName, ...viewportPropsRest } =
-    viewportProps ?? {};
-
   return (
-    <BasePreviewCard.Portal {...portalProps}>
-      <BasePreviewCard.Positioner
-        {...positionerPropsRest}
-        data-slot="hover-card-positioner"
-        side={side}
-        sideOffset={sideOffset}
-        align={align}
-        collisionPadding={collisionPadding}
-        className={mergeStateClassName<BasePreviewCard.Positioner.State>(
-          cn(themeScope, "z-(--z-overlay)"),
-          positionerClassName,
-        )}
-      >
-        <BasePreviewCard.Popup
-          data-slot="hover-card-content"
-          className={cn(
-            themeScope,
-            // The native outline is deliberately NOT stripped: the centralized base.css
-            // `:focus-visible` outline stays as the indicator if the popup ever receives
-            // keyboard focus (register P0-02).
-            "z-(--z-overlay) w-64 max-w-[calc(100vw-var(--spacing)*8)] origin-(--transform-origin) rounded-lg border border-border bg-popover p-4 text-base text-popover-foreground shadow-overlay",
-            // Enter/exit — scale + fade, token duration + standard easing.
-            "transition-[transform,scale,opacity] duration-fast ease-standard",
-            "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
-            "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
-            className,
-          )}
-          {...props}
-        >
-          {arrow ? <HoverCardArrow /> : null}
-          {viewportProps ? (
-            <BasePreviewCard.Viewport
-              {...viewportPropsRest}
-              data-slot="hover-card-viewport"
-              className={mergeStateClassName<BasePreviewCard.Viewport.State>(
-                themeScope ?? "",
-                viewportClassName,
-              )}
-            >
-              {children}
-            </BasePreviewCard.Viewport>
-          ) : (
-            children
-          )}
-        </BasePreviewCard.Popup>
-      </BasePreviewCard.Positioner>
-    </BasePreviewCard.Portal>
+    <FloatingSurface
+      parts={{
+        Portal: BasePreviewCard.Portal,
+        Positioner: BasePreviewCard.Positioner,
+        Popup: BasePreviewCard.Popup,
+        Viewport: BasePreviewCard.Viewport,
+      }}
+      slot="hover-card"
+      surface="panel"
+      // The native outline on the popup is deliberately NOT stripped: the centralized base.css
+      // `:focus-visible` outline stays as the indicator if the popup ever receives keyboard focus.
+      positioning={{ side, sideOffset, align, collisionPadding }}
+      portalProps={portalProps}
+      positionerProps={positionerProps}
+      viewportProps={viewportProps}
+      popupProps={props}
+      arrow={arrow ? <HoverCardArrow /> : undefined}
+    >
+      {children}
+    </FloatingSurface>
   );
 }
 
@@ -287,17 +245,13 @@ export type HoverCardArrowProps = React.ComponentProps<
  * @example
  * <HoverCardArrow />
  */
-export function HoverCardArrow({ className, ...props }: HoverCardArrowProps) {
+export function HoverCardArrow(props: HoverCardArrowProps) {
   return (
-    <BasePreviewCard.Arrow
-      data-slot="hover-card-arrow"
-      className={cn(
-        "data-[side=bottom]:-top-1.5 data-[side=top]:-bottom-1.5 data-[side=left]:-right-1.5 data-[side=right]:-left-1.5",
-        className,
-      )}
+    <FloatingArrow
+      element={BasePreviewCard.Arrow}
+      slot="hover-card-arrow"
+      tone="panel"
       {...props}
-    >
-      <span className="block size-2.5 rotate-45 rounded-xs border-r border-b border-border bg-popover" />
-    </BasePreviewCard.Arrow>
+    />
   );
 }

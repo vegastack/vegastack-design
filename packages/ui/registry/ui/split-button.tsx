@@ -125,7 +125,7 @@ export function SplitButton({
           key={index}
           onClick={action.onClick}
           disabled={action.disabled}
-          variant={action.destructive ? "destructive" : "default"}
+          tone={action.destructive ? "destructive" : "default"}
         >
           {action.icon}
           {action.label}
