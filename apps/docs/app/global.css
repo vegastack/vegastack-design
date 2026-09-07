@@ -211,9 +211,16 @@ html {
   input:focus,
   textarea:focus,
   [contenteditable="true"]:focus,
-  [data-slot="text-edit"]:focus-within {
+  [data-slot="text-edit"]:focus-within,
+  [data-field-group]:focus-within {
     outline: 2px solid Highlight;
     outline-offset: 1px;
+  }
+  /* …and only one of them paints: a bordered field group clips, so the inner control's offset
+     ring would be drawn and then cut (mirror of the base.css Fo1 block). */
+  [data-field-group] input:focus,
+  [data-field-group] textarea:focus {
+    outline: none;
   }
 }
 
