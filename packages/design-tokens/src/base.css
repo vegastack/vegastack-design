@@ -64,13 +64,28 @@
      specificity, so the fallback is written ONCE here, never per component.
      - `input`/`textarea` at `:focus` (not `:focus-visible`, matching the tint's trigger);
      - composite editors (TextEdit's contenteditable) at `:focus`;
-     - wrapper-tinted surfaces (`data-slot="text-edit"`, the input groups) at `:focus-within`. */
+     - wrapper-tinted surfaces (`data-slot="text-edit"`, and every `data-field-group`) at
+       `:focus-within`. */
   input:focus,
   textarea:focus,
   [contenteditable="true"]:focus,
-  [data-slot="text-edit"]:focus-within {
+  [data-slot="text-edit"]:focus-within,
+  [data-field-group]:focus-within {
     outline: 2px solid Highlight;
     outline-offset: 1px;
+  }
+
+  /* …and only ONE of them paints (Fo1, 2026-09-07). A bordered field GROUP — Input's prefix/suffix
+     wrapper, NumberField's stepper group, ChipInput, the Combobox input-group — clips with
+     `overflow-hidden` so its addons follow the rounded corner. The inner input's own outline is
+     offset outward INTO that clip, so it was drawn and then cut, which is how an addon field ended
+     up with no visible focus at all under the forced palette. The group carries the outline (it is
+     the element whose border the tint would have moved); the control inside it stands down, so the
+     two never paint a double ring. `data-field-group` is set by every consumer of
+     `fieldControlGroup` in `@vegastack/design` — the attribute IS the contract. */
+  [data-field-group] input:focus,
+  [data-field-group] textarea:focus {
+    outline: none;
   }
 }
 
