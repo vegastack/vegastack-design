@@ -5,51 +5,14 @@
 import { createRequire } from "node:module";
 import fs from "node:fs";
 import path from "node:path";
-import { spawn } from "node:child_process";
-import { createServer } from "node:net";
 import { ROOT as root } from "../lib/fs.mjs";
+import { startDocsServer, requireProbedSomething } from "./docs-server.mjs";
 import { evidenceDir } from "./out-dir.mjs";
 const docs = path.join(root, "apps/docs");
 const { chromium } = createRequire(path.join(docs, "package.json"))(
   "@playwright/test",
 );
-const port = await new Promise((ok) => {
-  const p = createServer();
-  p.listen(0, "127.0.0.1", () => {
-    const { port } = p.address();
-    p.close(() => ok(port));
-  });
-});
-const server = spawn("pnpm", ["exec", "serve", "out", "-l", String(port)], {
-  cwd: docs,
-  stdio: "ignore",
-  detached: true,
-});
-// POLL for readiness, never sleep a fixed interval. A 1500ms sleep was enough on an idle
-// machine and not enough on a loaded one — `serve` had not bound the port yet and the first
-// `page.goto` died with ERR_CONNECTION_REFUSED, which reads as a broken probe rather than a slow
-// one. Reproduced 2026-09-07 while sibling gate runs were saturating the box.
-const sleep = (ms) => new Promise((d) => setTimeout(d, ms));
-let ready = false;
-for (let i = 0; i < 50; i++) {
-  try {
-    if ((await fetch(`http://127.0.0.1:${port}/`)).ok) {
-      ready = true;
-      break;
-    }
-  } catch {}
-  await sleep(200);
-}
-if (!ready) {
-  try {
-    process.kill(-server.pid, "SIGTERM");
-  } catch {}
-  console.error(
-    `could not reach the docs server on 127.0.0.1:${port} after 10s — is \`apps/docs/out\` built? ` +
-      "(`pnpm exec turbo run build --filter=@vegastack/docs`)",
-  );
-  process.exit(2);
-}
+const { base, stop: stopServer } = await startDocsServer();
 const out = evidenceDir("_overlays");
 const browser = await chromium.launch();
 // [route, preview, action]
@@ -82,7 +45,7 @@ for (const dark of [false, true]) {
   for (const [route, preview, action] of cases) {
     const page = await ctx.newPage();
     try {
-      await page.goto(`http://127.0.0.1:${port}/docs/components/${route}`, {
+      await page.goto(`${base}/docs/components/${route}`, {
         waitUntil: "networkidle",
       });
       let fixture = page.locator(`[data-vrt-preview="${preview}"]`).first();
@@ -152,6 +115,11 @@ fs.writeFileSync(
   JSON.stringify(results, null, 2),
 );
 await browser.close();
-try {
-  process.kill(-server.pid, "SIGTERM");
-} catch {}
+stopServer();
+// Every case is wrapped in a try/catch that logs `ERR` and continues, so a server that dies mid-run
+// would otherwise leave an empty results.json and exit 0.
+requireProbedSomething({
+  label: "probe-overlays",
+  routes: cases,
+  probed: results.length,
+});

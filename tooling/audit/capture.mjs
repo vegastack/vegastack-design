@@ -14,10 +14,9 @@
 import { createRequire } from "node:module";
 import fs from "node:fs";
 import path from "node:path";
-import { spawn } from "node:child_process";
-import { createServer } from "node:net";
 
 import { ROOT as root } from "../lib/fs.mjs";
+import { startDocsServer, requireProbedSomething } from "./docs-server.mjs";
 import { evidenceDir } from "./out-dir.mjs";
 const docs = path.join(root, "apps/docs");
 const require = createRequire(path.join(docs, "package.json"));
@@ -78,43 +77,8 @@ for (const r of routes)
 
 const outDir = evidenceDir();
 
-function reservePort() {
-  return new Promise((ok, fail) => {
-    const p = createServer();
-    p.unref();
-    p.on("error", fail);
-    p.listen(0, "127.0.0.1", () => {
-      const { port } = p.address();
-      p.close(() => ok(port));
-    });
-  });
-}
-const sleep = (ms) => new Promise((d) => setTimeout(d, ms));
-
-let server = null;
-let port = opt.port;
-if (!port) {
-  if (!fs.existsSync(path.join(docs, "out/index.html"))) {
-    console.error(
-      "apps/docs/out is missing — run `pnpm exec turbo run build --filter=@vegastack/docs`",
-    );
-    process.exit(2);
-  }
-  port = await reservePort();
-  server = spawn("pnpm", ["exec", "serve", "out", "-l", String(port)], {
-    cwd: docs,
-    stdio: "ignore",
-    detached: true,
-  });
-  for (let i = 0; i < 50; i++) {
-    try {
-      const res = await fetch(`http://127.0.0.1:${port}/`);
-      if (res.ok) break;
-    } catch {}
-    await sleep(200);
-  }
-}
-const base = `http://127.0.0.1:${port}`;
+const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
+const { base, stop: stopServer } = await startDocsServer({ port: opt.port });
 
 const LANES = [
   { id: "320-light-ltr", width: 320, dark: false, rtl: false },
@@ -380,11 +344,13 @@ try {
   }
 } finally {
   await browser.close();
-  if (server)
-    try {
-      process.kill(-server.pid, "SIGTERM");
-    } catch {}
+  stopServer();
 }
+requireProbedSomething({
+  label: "capture",
+  routes,
+  probed: summary.reduce((total, entry) => total + entry.previews, 0),
+});
 fs.writeFileSync(
   path.join(outDir, `summary-${Date.now()}.json`),
   JSON.stringify(summary, null, 2),

@@ -19,10 +19,9 @@
 import { createRequire } from "node:module";
 import fs from "node:fs";
 import path from "node:path";
-import { spawn } from "node:child_process";
-import { createServer } from "node:net";
 
 import { ROOT as root } from "../lib/fs.mjs";
+import { startDocsServer, requireProbedSomething } from "./docs-server.mjs";
 import { evidenceDir } from "./out-dir.mjs";
 const docs = path.join(root, "apps/docs");
 const require = createRequire(path.join(docs, "package.json"));
@@ -66,35 +65,8 @@ if (!routes.length) {
 
 const outDir = evidenceDir("_states" + (opt.dark ? "-dark" : ""));
 
-function reservePort() {
-  return new Promise((ok, fail) => {
-    const p = createServer();
-    p.unref();
-    p.on("error", fail);
-    p.listen(0, "127.0.0.1", () => {
-      const { port } = p.address();
-      p.close(() => ok(port));
-    });
-  });
-}
-const sleep = (ms) => new Promise((d) => setTimeout(d, ms));
-let server = null;
-let port = opt.port;
-if (!port) {
-  port = await reservePort();
-  server = spawn("pnpm", ["exec", "serve", "out", "-l", String(port)], {
-    cwd: docs,
-    stdio: "ignore",
-    detached: true,
-  });
-  for (let i = 0; i < 50; i++) {
-    try {
-      if ((await fetch(`http://127.0.0.1:${port}/`)).ok) break;
-    } catch {}
-    await sleep(200);
-  }
-}
-const base = `http://127.0.0.1:${port}`;
+const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
+const { base, stop: stopServer } = await startDocsServer({ port: opt.port });
 
 const SELECTOR = [
   "button",
@@ -477,11 +449,13 @@ try {
   }
 } finally {
   await browser.close();
-  if (server)
-    try {
-      process.kill(-server.pid);
-    } catch {}
+  stopServer();
 }
+requireProbedSomething({
+  label: "probe-states",
+  routes,
+  probed: index.reduce((total, entry) => total + entry.elements, 0),
+});
 const prev = fs.existsSync(path.join(outDir, "index.json"))
   ? JSON.parse(fs.readFileSync(path.join(outDir, "index.json"), "utf8"))
   : [];
