@@ -8,11 +8,11 @@
  * never be mistaken for one of the generated `icon-*` mirrors.
  */
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 
-const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const readJson = (path) => JSON.parse(readFileSync(join(root, path), "utf8"));
+import { ROOT, relativeToRoot, walk } from "./lib/fs.mjs";
+
+const readJson = (path) => JSON.parse(readFileSync(join(ROOT, path), "utf8"));
 const registry = readJson("packages/ui/registry.json");
 const contracts = readJson("packages/ui/component-contracts.json");
 const problems = [];
@@ -109,7 +109,7 @@ function extractExports(source) {
 function sourceExports(paths) {
   const names = new Set();
   for (const path of paths.filter((candidate) => /\.tsx?$/.test(candidate))) {
-    const absolute = join(root, path);
+    const absolute = join(ROOT, path);
     if (!existsSync(absolute)) continue;
     for (const name of extractExports(readFileSync(absolute, "utf8")))
       names.add(name);
@@ -142,7 +142,7 @@ function validateRichRecord(record, item, label) {
   );
   for (const path of record.sourceFiles ?? []) {
     assert(
-      existsSync(join(root, path)),
+      existsSync(join(ROOT, path)),
       `${label}: source file is missing: ${path}`,
     );
   }
@@ -265,7 +265,7 @@ function validateRichRecord(record, item, label) {
   );
   for (const path of record.testFiles ?? []) {
     assert(
-      existsSync(join(root, path)),
+      existsSync(join(ROOT, path)),
       `${label}: test file is missing: ${path}`,
     );
   }
@@ -536,13 +536,13 @@ for (const record of components) {
   if (record.wave in waveCounts) waveCounts[record.wave]++;
   else fail(`component ${record.name}: unknown wave ${record.wave}`);
 
-  const docsFile = join(root, "apps/docs/content", `${record.docsSlug}.mdx`);
+  const docsFile = join(ROOT, "apps/docs/content", `${record.docsSlug}.mdx`);
   assert(
     existsSync(docsFile),
     `component ${record.name}: docs page missing for ${record.docsSlug}`,
   );
   const previewFile = join(
-    root,
+    ROOT,
     "apps/docs/components/preview",
     `${record.previewModule}.tsx`,
   );
@@ -596,7 +596,7 @@ for (const record of components) {
     }
   }
   const testSource = (record.testFiles ?? [])
-    .map((path) => readFileSync(join(root, path), "utf8"))
+    .map((path) => readFileSync(join(ROOT, path), "utf8"))
     .join("\n");
   assert(
     testSource.includes("expectNoA11yViolations"),
@@ -719,7 +719,7 @@ for (const member of icons) {
     `animated icon ${member.name}: sourceFile must match registry`,
   );
   assert(
-    existsSync(join(root, member.sourceFile)),
+    existsSync(join(ROOT, member.sourceFile)),
     `animated icon ${member.name}: source is missing`,
   );
   sameStrings(
@@ -756,7 +756,7 @@ for (const item of animatedSourceManifest.items ?? []) {
   );
 }
 const animatedBrowserTest = readFileSync(
-  join(root, "packages/ui/registry/ui/animated-icons.test.tsx"),
+  join(ROOT, "packages/ui/registry/ui/animated-icons.test.tsx"),
   "utf8",
 );
 assert(
@@ -784,19 +784,19 @@ for (const record of blocks) {
   );
   if (!item) continue;
   validateRichRecord(record, item, `block ${record.name}`);
-  const docsFile = join(root, "apps/docs/content", `${record.docsSlug}.mdx`);
+  const docsFile = join(ROOT, "apps/docs/content", `${record.docsSlug}.mdx`);
   assert(
     existsSync(docsFile),
     `block ${record.name}: docs page missing for ${record.docsSlug}`,
   );
   assert(
     existsSync(
-      join(root, "apps/docs/components/preview", `${record.previewModule}.tsx`),
+      join(ROOT, "apps/docs/components/preview", `${record.previewModule}.tsx`),
     ),
     `block ${record.name}: preview module missing`,
   );
   const testSource = (record.testFiles ?? [])
-    .map((path) => readFileSync(join(root, path), "utf8"))
+    .map((path) => readFileSync(join(ROOT, path), "utf8"))
     .join("\n");
   assert(
     testSource.includes("expectNoA11yViolations"),
@@ -806,7 +806,7 @@ for (const record of blocks) {
 
 // Canonical source parity: no unregistered non-test implementation may hide beside the modeled
 // files. Generated icon mirrors are reconciled separately from top-level components/hooks.
-const topLevelCanonical = readdirSync(join(root, "packages/ui/registry/ui"), {
+const topLevelCanonical = readdirSync(join(ROOT, "packages/ui/registry/ui"), {
   withFileTypes: true,
 })
   .filter(
@@ -824,7 +824,7 @@ sameStrings(
   topLevelCanonical,
   "top-level canonical source inventory",
 );
-const iconFiles = readdirSync(join(root, "packages/ui/registry/ui/icons"))
+const iconFiles = readdirSync(join(ROOT, "packages/ui/registry/ui/icons"))
   .filter((name) => name.endsWith(".tsx"))
   .map((name) => `packages/ui/registry/ui/icons/${name}`);
 sameStrings(
@@ -832,15 +832,9 @@ sameStrings(
   iconFiles,
   "animated-icon source inventory",
 );
-const blockFiles = [];
-function walkBlock(path) {
-  for (const entry of readdirSync(join(root, path), { withFileTypes: true })) {
-    const child = `${path}/${entry.name}`;
-    if (entry.isDirectory()) walkBlock(child);
-    else if (!/\.test\.tsx?$/.test(entry.name)) blockFiles.push(child);
-  }
-}
-walkBlock("packages/ui/registry/blocks");
+const blockFiles = walk(join(ROOT, "packages/ui/registry/blocks"), {
+  include: (relative) => !/\.test\.tsx?$/.test(relative),
+}).map((absolute) => relativeToRoot(absolute));
 sameStrings(
   blocks.flatMap((record) => record.sourceFiles),
   blockFiles,
@@ -869,7 +863,7 @@ sameStrings(
 );
 
 const previewIndex = readFileSync(
-  join(root, "apps/docs/components/preview/index.tsx"),
+  join(ROOT, "apps/docs/components/preview/index.tsx"),
   "utf8",
 );
 const previewExports = [
@@ -886,7 +880,7 @@ for (const record of [...components, ...blocks]) {
   );
 }
 const allowedPreviewInfrastructure = new Set(["index", "utilities", "wrapper"]);
-const previewFiles = readdirSync(join(root, "apps/docs/components/preview"))
+const previewFiles = readdirSync(join(ROOT, "apps/docs/components/preview"))
   .filter((name) => name.endsWith(".tsx"))
   .map((name) => name.replace(/\.tsx$/, ""))
   .filter((name) => !allowedPreviewInfrastructure.has(name));
@@ -897,15 +891,15 @@ sameStrings(
 );
 
 const vrtSource = readFileSync(
-  join(root, "apps/docs/vrt/components.spec.ts"),
+  join(ROOT, "apps/docs/vrt/components.spec.ts"),
   "utf8",
 );
 const vrtPageRoutesSource = readFileSync(
-  join(root, "apps/docs/vrt/page-routes.ts"),
+  join(ROOT, "apps/docs/vrt/page-routes.ts"),
   "utf8",
 );
 const generatedRouteSource = readFileSync(
-  join(root, "apps/docs/vrt/contract-routes.generated.ts"),
+  join(ROOT, "apps/docs/vrt/contract-routes.generated.ts"),
   "utf8",
 );
 function parseGeneratedRoutes(name) {
@@ -968,7 +962,7 @@ assert(
   "shared VRT page routes are missing the animated-icon docs route",
 );
 const iconDocsFile = join(
-  root,
+  ROOT,
   "apps/docs/content",
   `${contracts.animatedIcons.sharedContract.docsSlug}.mdx`,
 );
@@ -981,7 +975,7 @@ if (existsSync(iconDocsFile)) {
   );
 }
 const generatedIconGallery = readFileSync(
-  join(root, "apps/docs/components/animated-icon-gallery.generated.tsx"),
+  join(ROOT, "apps/docs/components/animated-icon-gallery.generated.tsx"),
   "utf8",
 );
 const generatedIconImports = [
@@ -999,7 +993,7 @@ sameStrings(
   "generated icon gallery membership",
 );
 const generatedIconVrt = readFileSync(
-  join(root, "apps/docs/vrt/icon-chunks.generated.ts"),
+  join(ROOT, "apps/docs/vrt/icon-chunks.generated.ts"),
   "utf8",
 );
 assert(
@@ -1022,7 +1016,7 @@ assert(
 // Cross-browser smoke is intentionally selective. It is reported from real config and reconciled
 // against modeled tests, but non-selection is not treated as a coverage failure.
 const smokeSource = readFileSync(
-  join(root, "packages/ui/vitest.smoke.config.ts"),
+  join(ROOT, "packages/ui/vitest.smoke.config.ts"),
   "utf8",
 );
 assert(

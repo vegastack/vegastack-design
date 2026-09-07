@@ -22,14 +22,11 @@
 //   unrecognised forces a full sweep, and `routes === null` means exactly that.
 
 import { readFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
+import { ROOT, readJson } from "./fs.mjs";
 
-const CONTRACTS = JSON.parse(
-  readFileSync(join(ROOT, "packages/ui/component-contracts.json"), "utf8"),
-);
+const CONTRACTS = readJson(join(ROOT, "packages/ui/component-contracts.json"));
 
 export const COMPONENTS = CONTRACTS.components;
 export const BLOCKS = CONTRACTS.blocks;
@@ -117,7 +114,7 @@ export const PIXEL_NON_VISUAL = [
   /\.md$/,
   /(^|\/)package\.json$/,
   /(^|\/)tsconfig(\.\w+)?\.json$/,
-  /(^|\/)(\.gitignore|\.prettierrc|\.prettierignore|turbo\.json)$/,
+  /(^|\/)(\.gitignore|\.prettierrc|\.prettierignore|\.npmrc|turbo\.json)$/,
   /(^|\/)eslint\.config\.[cm]?js$/,
   /(^|\/)vitest[.\w]*\.config\.ts$/,
   /^apps\/docs\/public\/r\//,
@@ -170,7 +167,7 @@ export const PIXEL_SCOPE = {
  *     `component-contracts.json` and `registry.json`. Neither can change what a component page
  *     RENDERS — the markup comes from the component sources and previews. `registry.json` in
  *     particular carries every item's `meta.version`, so treating it as global would make a pure
- *     version bump demand the full 108-route sweep, which is precisely the waste
+ *     version bump demand the full sweep over every component route, which is precisely the waste
  *     `docs/ledger/operator-review.md` records removing. And a route-set change cannot hide here:
  *     it necessarily rewrites `contract-routes.generated.ts`, which IS global below, and
  *     `pnpm design:derived:check` fails closed if the two ever drift apart. So the conservative
@@ -191,7 +188,7 @@ export const CONTRACT_NON_VISUAL = [
   /\.md$/,
   /(^|\/)package\.json$/,
   /(^|\/)tsconfig(\.\w+)?\.json$/,
-  /(^|\/)(\.gitignore|\.prettierrc|\.prettierignore|turbo\.json)$/,
+  /(^|\/)(\.gitignore|\.prettierrc|\.prettierignore|\.npmrc|turbo\.json)$/,
   /(^|\/)eslint\.config\.[cm]?js$/,
   /(^|\/)vitest[.\w]*\.config\.ts$/,
   /^apps\/docs\/public\/r\//,

@@ -40,9 +40,9 @@ import {
   realpathSync,
 } from "node:fs";
 import { join, dirname, relative, sep } from "node:path";
-import { fileURLToPath } from "node:url";
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+import { ROOT, walk } from "./lib/fs.mjs";
+
 const SKILLS = join(ROOT, "skills");
 const GROUPS = ["internal", "public"];
 const SURFACES = [".agents/skills", ".claude/skills"];
@@ -112,17 +112,10 @@ function discoverSkills() {
 }
 
 /** Every markdown file that ships with a skill, so references/ is checked too. */
-function skillFiles(dir) {
-  const out = [];
-  for (const entry of readdirSync(dir, {
-    withFileTypes: true,
-    recursive: true,
-  })) {
-    if (!entry.isFile() || !entry.name.endsWith(".md")) continue;
-    out.push(join(entry.parentPath ?? entry.path, entry.name));
-  }
-  return out;
-}
+const skillFiles = (dir) =>
+  walk(dir, {
+    include: (relative, entry) => entry.isFile() && relative.endsWith(".md"),
+  });
 
 const skills = discoverSkills();
 if (skills.size === 0) {

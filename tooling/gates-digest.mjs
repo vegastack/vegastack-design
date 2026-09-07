@@ -23,7 +23,7 @@ const MAX_AGE_HOURS = 12;
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-const ROOT = process.cwd();
+import { ROOT } from "./lib/fs.mjs";
 
 function main() {
   let failure;

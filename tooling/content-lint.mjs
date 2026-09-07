@@ -3,11 +3,10 @@
 // consumer-facing commands. VegaStack consumes current shadcn Base UI support via
 // `pnpm dlx shadcn@latest`; old pinned `shadcn@4.7.0` snippets silently drift back
 // toward the pre-Base workflow.
-import { readdirSync, readFileSync, statSync } from "node:fs";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+import { fatal, ROOT, walk as walkTree } from "./lib/fs.mjs";
 
 const STALE_SHADCN_RE = /\b(?:npx\s+)?shadcn@4\.7\.0\b/g;
 
@@ -34,19 +33,21 @@ const SKIPPED_DESCRIBE_RE = /\b(?:test\.|it\.)?describe\.skip\s*\(/g;
 const COMMITTED_BASELINE_RE =
   /commit\s+(?:the\s+)?(?:VRT\s+)?baselines?|update_baselines|verify:vrt-baselines/g;
 
-function walk(dir, out = [], ext = /\.(md|mdx)$/) {
-  let entries;
+/**
+ * FAILS CLOSED on an unreadable root. The previous walker returned `[]` when `readdirSync` threw,
+ * so a moved `skills/` or `apps/docs/content` tree read as clean — the exact fail-open
+ * design-lint.mjs had already fixed for its own roots (audit TG-07). Exit 2 is "could not run",
+ * which is the truthful answer when the thing to lint is not there.
+ */
+function walk(dir, ext = /\.(md|mdx)$/) {
   try {
-    entries = readdirSync(dir);
-  } catch {
-    return out;
+    return walkTree(dir, { include: (relative) => ext.test(relative) });
+  } catch (error) {
+    return fatal(
+      "content-lint",
+      `cannot read root '${dir.replace(ROOT + "/", "")}': ${error.message} — an unreadable root is not a clean one`,
+    );
   }
-  for (const name of entries) {
-    const p = join(dir, name);
-    if (statSync(p).isDirectory()) walk(p, out, ext);
-    else if (ext.test(name)) out.push(p);
-  }
-  return out;
 }
 
 let violations = 0;
@@ -69,7 +70,7 @@ for (const [dir, expectedAudience] of [
   [PUBLIC_DOCS_DIR, "public"],
   [INTERNAL_DOCS_DIR, "internal"],
 ]) {
-  for (const file of walk(dir, [], /\.mdx$/)) {
+  for (const file of walk(dir, /\.mdx$/)) {
     const contents = readFileSync(file, "utf8");
     const frontmatterMatch = contents.match(/^---\n([\s\S]*?)\n---/);
     const relative = file.replace(ROOT + "/", "");
@@ -158,7 +159,7 @@ for (const dir of SCAN_DIRS) {
 // Reject stale visual-coverage guidance: skipped visual describes + committed-baseline instructions.
 const seenVisualFiles = new Set();
 for (const dir of VISUAL_SCAN_DIRS) {
-  for (const file of walk(dir, [], VISUAL_EXT)) {
+  for (const file of walk(dir, VISUAL_EXT)) {
     if (seenVisualFiles.has(file)) continue;
     seenVisualFiles.add(file);
     const lines = readFileSync(file, "utf8").split("\n");

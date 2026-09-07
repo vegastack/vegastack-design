@@ -25,11 +25,11 @@
 // Wired into `pnpm --filter @vegastack/design run verify` (and its `lint`).
 
 import { createRequire } from "node:module";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 
-const here = dirname(fileURLToPath(import.meta.url));
-const presetDir = join(here, "..", "packages", "design");
+import { ROOT } from "./lib/fs.mjs";
+
+const presetDir = join(ROOT, "packages", "design");
 
 // Resolve the Tailwind compile pipeline from the preset's own dependency graph (devDeps),
 // so this gate is self-contained and independent of hoisting.

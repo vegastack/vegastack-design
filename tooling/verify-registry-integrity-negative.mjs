@@ -2,14 +2,14 @@
 
 /** Positive whole-registry hash verification plus required tamper-negative probes. */
 import { readFileSync, readdirSync } from "node:fs";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { itemHash } from "./registry-hash.mjs";
 
-const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const registryDir = join(root, "apps/docs/public/r");
+import { ROOT } from "./lib/fs.mjs";
+
+const registryDir = join(ROOT, "apps/docs/public/r");
 const sourceRegistry = JSON.parse(
-  readFileSync(join(root, "packages/ui/registry.json"), "utf8"),
+  readFileSync(join(ROOT, "packages/ui/registry.json"), "utf8"),
 );
 const expectedNames = (sourceRegistry.items ?? [])
   .map((item) => item.name)

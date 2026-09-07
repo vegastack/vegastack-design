@@ -49,18 +49,16 @@ import {
   rmSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { fileURLToPath, pathToFileURL } from "node:url";
-import { dirname, join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+import { dirname, join } from "node:path";
 
-const here = dirname(fileURLToPath(import.meta.url));
-const repoRoot = join(here, "..");
-const registryDir = join(repoRoot, "apps/docs/public/r");
+const registryDir = join(ROOT, "apps/docs/public/r");
 const shippedVerifier = join(
-  repoRoot,
+  ROOT,
   "packages/design/bin/verify-registry-item.mjs",
 );
-const docsNodeModules = join(repoRoot, "apps/docs/node_modules");
-const tscBin = join(repoRoot, "node_modules/.bin/tsc");
+const docsNodeModules = join(ROOT, "apps/docs/node_modules");
+const tscBin = join(ROOT, "node_modules/.bin/tsc");
 const shadcnBin = join(docsNodeModules, ".bin/shadcn");
 
 // Import the SHIPPED verifier's canonical logic directly — the SAME functions the bin uses, so
@@ -81,10 +79,10 @@ const KILL = "SIGKILL";
 // Declared @vegastack/* deps across registry items — these must be installable locally for the
 // REAL `shadcn add` (verified: items declare exactly @vegastack/design + @vegastack/design-tokens).
 const VEGASTACK_DEP_PKGS = [
-  { name: "@vegastack/design", dir: join(repoRoot, "packages/design") },
+  { name: "@vegastack/design", dir: join(ROOT, "packages/design") },
   {
     name: "@vegastack/design-tokens",
-    dir: join(repoRoot, "packages/design-tokens"),
+    dir: join(ROOT, "packages/design-tokens"),
   },
 ];
 
@@ -287,9 +285,11 @@ import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join, extname } from 'node:path';
 
+import { ROOT } from "./lib/fs.mjs";
+
 const registryDir = process.argv[2];
 const tarballDir = process.argv[3];
-const repoRoot = process.argv[4];
+const ROOT = process.argv[4];
 
 // Build the npm-registry package map from the packed tarballs in tarballDir.
 const pkgs = {};
@@ -322,7 +322,7 @@ const npmServer = createServer((req, res) => {
   if (pm && pkgs[pm[1]]) {
     const p = pkgs[pm[1]];
     const buf = readFileSync(p.file);
-    const manifest = JSON.parse(readFileSync(join(repoRoot, 'packages', p.pkg, 'package.json'), 'utf8'));
+    const manifest = JSON.parse(readFileSync(join(ROOT, 'packages', p.pkg, 'package.json'), 'utf8'));
     // Mirror what "pnpm pack" does to the tarball's own manifest: workspace:* ranges are
     // rewritten to concrete versions at pack time (e.g. design's dependency on tokens).
     // The packument must match, or the consumer's resolver chokes on "workspace:*".
@@ -364,11 +364,9 @@ function startSidecar(scratchRoot, tarballDir) {
   const sidecarPath = join(scratchRoot, "registry-sidecar.mjs");
   writeFileSync(sidecarPath, SIDECAR_SRC);
   return new Promise((resolveServer, reject) => {
-    const child = spawn(
-      "node",
-      [sidecarPath, registryDir, tarballDir, repoRoot],
-      { stdio: ["ignore", "pipe", "pipe"] },
-    );
+    const child = spawn("node", [sidecarPath, registryDir, tarballDir, ROOT], {
+      stdio: ["ignore", "pipe", "pipe"],
+    });
     let buf = "";
     const timer = setTimeout(() => {
       child.kill("SIGKILL");

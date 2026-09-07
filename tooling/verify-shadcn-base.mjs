@@ -1,9 +1,9 @@
 import { spawnSync } from "node:child_process";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 
-const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
-const docsDir = join(repoRoot, "apps/docs");
+import { ROOT } from "./lib/fs.mjs";
+
+const docsDir = join(ROOT, "apps/docs");
 
 const result = spawnSync(
   "pnpm",

@@ -3,11 +3,15 @@
 // A `.vs-marketing` class cannot cross a portal boundary by inheritance, so each owner must read
 // the internal theme scope and attach it to a real element rendered inside the portal/engine host.
 
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import ts from "typescript";
 
-const ROOT = "packages/ui/registry/ui";
+import { ROOT, relativeToRoot, walk as walkTree } from "./lib/fs.mjs";
+
+// Anchored to the repository root, not the caller's cwd — the previous relative literal only
+// worked when invoked from the root.
+const REGISTRY = join(ROOT, "packages/ui/registry/ui");
 
 // This is deliberately explicit as well as discoverable: adding/removing a portal is an audited
 // architecture change, not something that should silently change the expected coverage count.
@@ -29,18 +33,13 @@ const EXPECTED_HOSTS = new Map([
   ["packages/ui/registry/ui/tooltip.tsx", ["BaseTooltip.Portal"]],
 ]);
 
-function walk(dir, out = []) {
-  for (const name of readdirSync(dir)) {
-    const path = join(dir, name);
-    const stat = statSync(path);
-    if (stat.isDirectory()) {
-      if (name !== "icons") walk(path, out);
-    } else if (name.endsWith(".tsx") && !name.endsWith(".test.tsx")) {
-      out.push(path.replaceAll("\\", "/"));
-    }
-  }
-  return out;
-}
+/** Repo-relative paths, because EXPECTED_HOSTS is keyed by them. */
+const walk = (dir) =>
+  walkTree(dir, {
+    prune: (relative) => relative === "icons",
+    include: (relative) =>
+      relative.endsWith(".tsx") && !relative.endsWith(".test.tsx"),
+  }).map((path) => relativeToRoot(path));
 
 function isPortalHost(tag, portalAliases) {
   const leaf = tag.split(".").at(-1);
@@ -69,8 +68,8 @@ function functionLabel(node, sf) {
 const observed = new Map();
 const violations = [];
 
-for (const file of walk(ROOT)) {
-  const src = readFileSync(file, "utf8");
+for (const file of walk(REGISTRY)) {
+  const src = readFileSync(join(ROOT, file), "utf8");
   const sf = ts.createSourceFile(
     file,
     src,

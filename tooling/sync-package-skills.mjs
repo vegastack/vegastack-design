@@ -20,9 +20,9 @@ import {
   existsSync,
 } from "node:fs";
 import { join, dirname, relative, sep } from "node:path";
-import { fileURLToPath } from "node:url";
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+import { ROOT, walk } from "./lib/fs.mjs";
+
 const SRC = join(ROOT, "skills/public");
 const DEST = join(ROOT, "packages/design/skills");
 const check = process.argv.includes("--check");
@@ -30,16 +30,9 @@ const check = process.argv.includes("--check");
 /** Every file under dir, as paths relative to dir, POSIX-normalised for stable comparison. */
 function listFiles(dir) {
   if (!existsSync(dir)) return [];
-  const out = [];
-  for (const entry of readdirSync(dir, {
-    withFileTypes: true,
-    recursive: true,
-  })) {
-    if (!entry.isFile()) continue;
-    const abs = join(entry.parentPath ?? entry.path, entry.name);
-    out.push(relative(dir, abs).split(sep).join("/"));
-  }
-  return out.sort();
+  return walk(dir, { include: (_relative, entry) => entry.isFile() }).map(
+    (abs) => relative(dir, abs).split(sep).join("/"),
+  );
 }
 
 if (!existsSync(SRC)) {

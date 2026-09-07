@@ -15,8 +15,6 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, resolve } from "node:path";
 import { format, resolveConfig } from "prettier";
 import ts from "typescript";
 import {
@@ -26,17 +24,18 @@ import {
   resolveInside,
 } from "./safe-path.mjs";
 
+import { ROOT } from "./lib/fs.mjs";
+
 const REGISTRY = "https://lucide-animated.com/r";
 const INDEX_URL = `${REGISTRY}/registry.json`;
-const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const SOURCE_DIR = resolveInside(REPO_ROOT, "packages/ui/registry/ui/icons");
+const SOURCE_DIR = resolveInside(ROOT, "packages/ui/registry/ui/icons");
 const MANIFEST_PATH = resolveInside(
-  REPO_ROOT,
+  ROOT,
   "packages/ui/animated-icon-sources.json",
 );
 const SAFE_SOURCE_DIR = existsSync(SOURCE_DIR)
-  ? assertExistingPathInside(REPO_ROOT, SOURCE_DIR)
-  : assertWritablePathInside(REPO_ROOT, SOURCE_DIR);
+  ? assertExistingPathInside(ROOT, SOURCE_DIR)
+  : assertWritablePathInside(ROOT, SOURCE_DIR);
 const EXPECTED_COUNT = 439;
 const CONCURRENCY = 12;
 
@@ -944,7 +943,7 @@ function readManifest() {
     throw new Error(`${MANIFEST_PATH} is missing; run once with --refresh`);
   }
   const manifest = JSON.parse(
-    readFileSync(assertExistingPathInside(REPO_ROOT, MANIFEST_PATH), "utf8"),
+    readFileSync(assertExistingPathInside(ROOT, MANIFEST_PATH), "utf8"),
   );
   if (
     manifest.schemaVersion !== 1 ||
@@ -1038,7 +1037,7 @@ for (const filename of orphaned) {
 if (refresh) {
   manifest = stableJson(manifest);
   writeFileSync(
-    assertWritablePathInside(REPO_ROOT, MANIFEST_PATH),
+    assertWritablePathInside(ROOT, MANIFEST_PATH),
     `${JSON.stringify(manifest, null, 2)}\n`,
   );
 }

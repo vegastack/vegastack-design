@@ -21,13 +21,12 @@
 //
 // design-lint's `presentational-client-boundary` rule is the INVERSE check (a `'use client'` that
 // isn't earned). This is the missing direction: a client boundary that is required but absent.
-import { readdirSync, readFileSync, statSync, existsSync } from "node:fs";
-import { join, dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { readFileSync, existsSync } from "node:fs";
+import { resolve } from "node:path";
 import { execFileSync } from "node:child_process";
 import ts from "typescript";
 
-const REPO_ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
+import { ROOT, walk as walkTree } from "./lib/fs.mjs";
 
 // Exactly the React exports that are `undefined` under the `react-server` condition (verified
 // against the installed react — see react/react.react-server.js). `useCallback`, `useMemo`,
@@ -66,7 +65,7 @@ const SERVER_SAFE_ENTRIES = [
 
 let entriesChecked = 0;
 for (const rel of SERVER_SAFE_ENTRIES) {
-  const abs = resolve(REPO_ROOT, rel);
+  const abs = resolve(ROOT, rel);
   if (!existsSync(abs)) {
     problems.push(
       `${rel}: not built — run \`pnpm --filter @vegastack/design build\` before this gate`,
@@ -82,7 +81,7 @@ for (const rel of SERVER_SAFE_ENTRIES) {
         "-e",
         `await import(${JSON.stringify(abs)});`,
       ],
-      { cwd: resolve(REPO_ROOT, "packages/design"), stdio: "pipe" },
+      { cwd: resolve(ROOT, "packages/design"), stdio: "pipe" },
     );
     entriesChecked++;
   } catch (err) {
@@ -100,26 +99,18 @@ for (const rel of SERVER_SAFE_ENTRIES) {
 }
 
 /* ── PART B — canonical registry components missing a required client boundary ────────────────── */
-function walk(dir) {
-  const out = [];
-  for (const name of readdirSync(dir)) {
-    const p = join(dir, name);
-    if (statSync(p).isDirectory()) {
-      if (name === "icons") continue; // generated mirrors; covered by verify-animated-icons
-      out.push(...walk(p));
-    } else if (
-      /\.tsx?$/.test(name) &&
-      !/\.(?:test|spec)\.tsx?$/.test(name) &&
-      !name.endsWith(".d.ts")
-    ) {
-      out.push(p);
-    }
-  }
-  return out;
-}
+const walk = (dir) =>
+  walkTree(dir, {
+    // generated mirrors; covered by verify-animated-icons
+    prune: (relative) => relative === "icons",
+    include: (relative) =>
+      /\.tsx?$/.test(relative) &&
+      !/\.(?:test|spec)\.tsx?$/.test(relative) &&
+      !relative.endsWith(".d.ts"),
+  });
 
 const roots = ["packages/ui/registry/ui", "packages/ui/registry/blocks"].map(
-  (r) => resolve(REPO_ROOT, r),
+  (r) => resolve(ROOT, r),
 );
 let modulesChecked = 0;
 
@@ -128,7 +119,7 @@ for (const root of roots) {
     const src = readFileSync(file, "utf8");
     if (/^\s*['"]use client['"];/m.test(src)) continue; // already a client module
     modulesChecked++;
-    const rel = file.slice(REPO_ROOT.length + 1);
+    const rel = file.slice(ROOT.length + 1);
     const scriptKind = file.endsWith(".tsx")
       ? ts.ScriptKind.TSX
       : ts.ScriptKind.TS;

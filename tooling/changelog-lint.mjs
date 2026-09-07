@@ -6,12 +6,12 @@
 //   • every /docs (or design.vegastack.com/docs) link resolves to a real content page
 // Wired into the docs lint chain; also run by the ship skill before releasing.
 import { readFileSync, existsSync } from "node:fs";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { execSync } from "node:child_process";
 import assert from "node:assert/strict";
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+import { ROOT } from "./lib/fs.mjs";
+
 const SRC = join(ROOT, "CHANGELOG.md");
 const CONTENT = join(ROOT, "apps/docs/content");
 

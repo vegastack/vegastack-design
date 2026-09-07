@@ -13,10 +13,10 @@
 // Runs as `@vegastack/ui` `postbuild`, so it fires on every build of the package — locally and in CI
 // (`pnpm build` → turbo → this package's build).
 import { readFileSync } from "node:fs";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+import { ROOT } from "./lib/fs.mjs";
+
 const DIST = join(ROOT, "packages/ui/dist/index.js");
 const rel = DIST.replace(ROOT + "/", "");
 

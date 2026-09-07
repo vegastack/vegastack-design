@@ -4,8 +4,7 @@
 // Checks all three shipped surfaces: the registry-JSON files[].content, the registry SOURCE file,
 // and the docs copy-in. Run as the last step of `registry:build` and standalone in CI/audit.
 import { readdirSync, readFileSync, existsSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 import { readProvenanceHeader } from "./registry-hash.mjs";
 import {
   assertExistingPathInside,
@@ -13,20 +12,19 @@ import {
   resolveInside,
 } from "./safe-path.mjs";
 
-const here = dirname(fileURLToPath(import.meta.url));
-const repoRoot = join(here, "..");
+import { ROOT } from "./lib/fs.mjs";
 
-const dir = join(repoRoot, "apps/docs/public/r");
+const dir = join(ROOT, "apps/docs/public/r");
 const SKIP = new Set(["integrity-manifest.json", "registry.json"]);
 const sourceRegistry = JSON.parse(
-  readFileSync(join(repoRoot, "packages/ui/registry.json"), "utf8"),
+  readFileSync(join(ROOT, "packages/ui/registry.json"), "utf8"),
 );
 const sourceNames = (sourceRegistry.items ?? []).map((item) => item.name);
 const expectedNames = [...sourceNames].sort();
 const expectedSet = new Set(expectedNames);
 
 const uiPkg = JSON.parse(
-  readFileSync(join(repoRoot, "packages/ui/package.json"), "utf8"),
+  readFileSync(join(ROOT, "packages/ui/package.json"), "utf8"),
 );
 const version = uiPkg.version;
 
@@ -34,7 +32,7 @@ const version = uiPkg.version;
 // apps/docs/components.json aliases — MUST mirror tooling/registry-header.mjs `resolveDocsCopyPath`
 // (since R12 the targets are placeholders, not relative paths; resolving with a plain join silently
 // missed the copy-in surface).
-const docsRoot = join(repoRoot, "apps/docs");
+const docsRoot = join(ROOT, "apps/docs");
 const docsAliases =
   JSON.parse(readFileSync(join(docsRoot, "components.json"), "utf8")).aliases ??
   {};
@@ -54,11 +52,11 @@ function resolveDocsCopyPath(target) {
 }
 
 const registrySourceRoots = [
-  join(repoRoot, "packages/ui/registry/ui"),
-  join(repoRoot, "packages/ui/registry/blocks"),
+  join(ROOT, "packages/ui/registry/ui"),
+  join(ROOT, "packages/ui/registry/blocks"),
 ];
 function resolveRegistrySourcePath(sourcePath) {
-  const candidate = resolveInside(repoRoot, sourcePath);
+  const candidate = resolveInside(ROOT, sourcePath);
   for (const root of registrySourceRoots) {
     try {
       return { candidate: assertPathInside(root, candidate), root };
@@ -169,7 +167,7 @@ for (const f of outputFilenames) {
         if (existsSync(srcPath))
           check(
             `${item.name} [source ${file.path}]`,
-            readFileSync(assertExistingPathInside(repoRoot, srcPath), "utf8"),
+            readFileSync(assertExistingPathInside(ROOT, srcPath), "utf8"),
             item.name,
             integrity,
           );

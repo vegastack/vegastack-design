@@ -7,16 +7,16 @@
 //
 // Fail-closed: any mismatch exits 1. Runs as part of `registry:build`.
 import { readFileSync } from "node:fs";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import ts from "typescript";
 
-const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+import { ROOT } from "./lib/fs.mjs";
+
 const registry = JSON.parse(
-  readFileSync(join(root, "packages/ui/registry.json"), "utf8"),
+  readFileSync(join(ROOT, "packages/ui/registry.json"), "utf8"),
 );
 const uiPkg = JSON.parse(
-  readFileSync(join(root, "packages/ui/package.json"), "utf8"),
+  readFileSync(join(ROOT, "packages/ui/package.json"), "utf8"),
 );
 // The version actually installed and tested wins: an item's declared npm range
 // must be satisfiable by packages/ui/package.json's own range for the same
@@ -108,7 +108,7 @@ for (const item of registry.items) {
   for (const f of componentFiles) {
     let src;
     try {
-      src = readFileSync(join(root, f.path), "utf8");
+      src = readFileSync(join(ROOT, f.path), "utf8");
     } catch {
       console.log(`${item.name}: listed file missing on disk — ${f.path}`);
       violations++;

@@ -10,10 +10,10 @@
 // site-absolute links (https://design.vegastack.com/docs/...) become root-relative so
 // lint-links validates them; commit links stay absolute.
 import { readFileSync, writeFileSync } from "node:fs";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+import { ROOT } from "./lib/fs.mjs";
+
 const SRC = join(ROOT, "CHANGELOG.md");
 const PAGE = join(ROOT, "apps/docs/content/docs/changelog.mdx");
 const START =

@@ -15,13 +15,12 @@
 // Wired into release.yml as part of the changesets `version` command.
 import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { execSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 
-const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
+import { ROOT } from "./lib/fs.mjs";
 
 const uiPkg = JSON.parse(
-  readFileSync(join(repoRoot, "packages/ui/package.json"), "utf8"),
+  readFileSync(join(ROOT, "packages/ui/package.json"), "utf8"),
 );
 const version = uiPkg.version;
 if (!version) {
@@ -43,13 +42,13 @@ if (!version) {
  */
 const PUBLIC_DEPENDENCIES = ["design", "design-tokens"].map((directory) => {
   const manifest = JSON.parse(
-    readFileSync(join(repoRoot, `packages/${directory}/package.json`), "utf8"),
+    readFileSync(join(ROOT, `packages/${directory}/package.json`), "utf8"),
   );
   return { name: manifest.name, range: `^${manifest.version}` };
 });
 
 // 1+2. sync every item's meta.version in the canonical registry manifest
-const registryPath = join(repoRoot, "packages/ui/registry.json");
+const registryPath = join(ROOT, "packages/ui/registry.json");
 const registry = JSON.parse(readFileSync(registryPath, "utf8"));
 let updated = 0;
 let rangesUpdated = 0;
@@ -98,10 +97,10 @@ console.log(
 );
 
 // 2b. the MACHINE AUTHORITY records the same ranges, and `verify-component-contracts` compares the
-// two — so if only the manifest moved, that gate fails with 96 problems. Both have to move together,
+// two — so if only the manifest moved, that gate fails once per component. Both have to move together,
 // in the same step, or every release breaks it. The range here is derived data, not a human decision;
 // everything else in this file stays hand-maintained.
-const contractsPath = join(repoRoot, "packages/ui/component-contracts.json");
+const contractsPath = join(ROOT, "packages/ui/component-contracts.json");
 const contracts = JSON.parse(readFileSync(contractsPath, "utf8"));
 let contractRanges = 0;
 for (const record of [
@@ -136,16 +135,16 @@ if (contractRanges > 0) {
 }
 
 // 3. rebuild all generated surfaces so public/r JSONs + headers pick the version up
-execSync("pnpm run registry:build", { cwd: repoRoot, stdio: "inherit" });
+execSync("pnpm run registry:build", { cwd: ROOT, stdio: "inherit" });
 
 // 4. Contract dependency ranges are part of the authority hash. Regenerate every surface carrying
 // that hash here, inside the SAME command production executes, rather than relying on a caller to
 // remember a follow-up. The old release preflight ran this separately and therefore masked that the
 // real Version Packages command left AGENTS.md and six other generated surfaces stale.
-execSync("pnpm run design:derived", { cwd: repoRoot, stdio: "inherit" });
+execSync("pnpm run design:derived", { cwd: ROOT, stdio: "inherit" });
 
 // 5. fail-closed: every built item must now advertise exactly this version
-const outDir = join(repoRoot, "apps/docs/public/r");
+const outDir = join(ROOT, "apps/docs/public/r");
 const SKIP = new Set(["integrity-manifest.json", "registry.json"]);
 const problems = [];
 let checked = 0;

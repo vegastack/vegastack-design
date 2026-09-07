@@ -178,7 +178,8 @@ expectEmpty(
 // neither can change what a component page renders, a route-set change necessarily rewrites
 // `contract-routes.generated.ts` (which IS contract-global), and `pnpm design:derived:check` fails
 // closed if those two drift. Marking `registry.json` global instead would make every pure version
-// bump demand the full 108-route sweep, since it carries each item's `meta.version` — the exact waste
+// bump demand a full sweep over every component route, since it carries each item's `meta.version` —
+// the exact waste
 // docs/ledger/operator-review.md records removing. The version-bump end of this is asserted for real
 // in tooling/verify-classify-change.mjs against a historical Version Packages commit.
 for (const [lane, config] of [
@@ -249,6 +250,9 @@ for (const [lane, config] of [
     "apps/docs/package.json",
     "packages/ui/tsconfig.json",
     "turbo.json",
+    // Package-manager configuration cannot move a pixel or a contract. Before it was listed here it
+    // fell through to unrecognised-is-global, so a comment edit in .npmrc demanded the full sweep.
+    ".npmrc",
     "apps/docs/eslint.config.mjs",
     "packages/ui/vitest.smoke.config.ts",
     "apps/docs/public/r/button.json",

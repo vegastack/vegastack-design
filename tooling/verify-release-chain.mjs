@@ -183,7 +183,7 @@ step("registry ranges follow the published packages (§1)");
 }
 ok();
 
-// §2 — and the machine authority must agree, or verify-component-contracts fails with 96 problems.
+// §2 — and the machine authority must agree, or verify-component-contracts fails once per component.
 // Check rather than generate here: version-sync is the production command and must have regenerated
 // these surfaces itself. Generating them in preflight used to mask a broken Version Packages tree.
 step("version-sync refreshed the contract-derived surfaces (§2)");

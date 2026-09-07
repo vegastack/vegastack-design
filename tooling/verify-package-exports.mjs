@@ -5,13 +5,12 @@
 // target, including the package.json subpath tools commonly resolve.
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 
-const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+import { ROOT } from "./lib/fs.mjs";
 
 function packageRequire(directory) {
-  return createRequire(join(root, "packages", directory, "package.json"));
+  return createRequire(join(ROOT, "packages", directory, "package.json"));
 }
 
 const requireDesign = packageRequire("design");
@@ -19,7 +18,7 @@ const design = requireDesign("@vegastack/design");
 assert.equal(
   typeof design.cn,
   "function",
-  "@vegastack/design CommonJS root does not export cn",
+  "@vegastack/design CommonJS ROOT does not export cn",
 );
 assert.equal(
   typeof requireDesign("@vegastack/design/icons").Icon,
@@ -42,7 +41,7 @@ const requireTokens = packageRequire("design-tokens");
 assert.equal(
   typeof requireTokens("@vegastack/design-tokens"),
   "object",
-  "@vegastack/design-tokens CommonJS root is not executable",
+  "@vegastack/design-tokens CommonJS ROOT is not executable",
 );
 assert.equal(
   requireTokens("@vegastack/design-tokens/package.json").name,

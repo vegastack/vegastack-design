@@ -5,14 +5,13 @@
 // meta.integrity. It also pins the duplicated consumer/tooling Sigstore default exactly. Run in CI.
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 import { itemHash as canonicalHash } from "./registry-hash.mjs";
 import { itemHash as binHash } from "../packages/design/bin/verify-registry-item.mjs";
 
-const here = dirname(fileURLToPath(import.meta.url));
-const root = join(here, "..");
-const registryDir = join(root, "apps", "docs", "public", "r");
+import { ROOT } from "./lib/fs.mjs";
+
+const registryDir = join(ROOT, "apps", "docs", "public", "r");
 const itemFiles = readdirSync(registryDir)
   .filter(
     (name) =>
@@ -45,7 +44,7 @@ for (const file of [
   "tooling/verify-item.mjs",
 ]) {
   assert.match(
-    readFileSync(join(root, file), "utf8"),
+    readFileSync(join(ROOT, file), "utf8"),
     expectedSigner,
     `${file}: Sigstore signer default must preserve the canonical lowercase GitHub repository identity`,
   );

@@ -2,13 +2,13 @@
 
 /** Fail closed on public component/props documentation declared by the component contract. */
 import { readFileSync } from "node:fs";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import ts from "typescript";
 
-const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+import { ROOT } from "./lib/fs.mjs";
+
 const contracts = JSON.parse(
-  readFileSync(join(root, "packages/ui/component-contracts.json"), "utf8"),
+  readFileSync(join(ROOT, "packages/ui/component-contracts.json"), "utf8"),
 );
 const records = [
   ...contracts.components,
@@ -47,7 +47,7 @@ for (const record of records) {
   const parsed = record.sourceFiles
     .filter((path) => /\.tsx?$/.test(path))
     .map((path) => {
-      const source = readFileSync(join(root, path), "utf8");
+      const source = readFileSync(join(ROOT, path), "utf8");
       return {
         path,
         source,

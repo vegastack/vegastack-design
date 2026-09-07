@@ -38,8 +38,7 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join, resolve } from "node:path";
 
 import {
   COMPONENT_ROUTES,
@@ -48,7 +47,8 @@ import {
   selectRoutes,
 } from "./lib/route-scope.mjs";
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+import { ROOT } from "./lib/fs.mjs";
+
 const DOCS = join(ROOT, "apps/docs");
 const GATES_DIR = join(ROOT, ".gates");
 const DEFAULT_REPORT = join(GATES_DIR, "contracts.json");

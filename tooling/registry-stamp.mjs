@@ -7,14 +7,14 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { itemHash } from "./registry-hash.mjs";
 
-const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
-const dir = join(repoRoot, "apps/docs/public/r");
+import { ROOT } from "./lib/fs.mjs";
+
+const dir = join(ROOT, "apps/docs/public/r");
 const sourceRegistry = JSON.parse(
-  readFileSync(join(repoRoot, "packages/ui/registry.json"), "utf8"),
+  readFileSync(join(ROOT, "packages/ui/registry.json"), "utf8"),
 );
 const sourceNames = (sourceRegistry.items ?? []).map((item) => item.name);
 const expectedNames = [...sourceNames].sort();

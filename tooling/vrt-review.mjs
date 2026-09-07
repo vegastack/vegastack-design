@@ -43,8 +43,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, relative, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join, relative, resolve } from "node:path";
 
 // Change → route mapping is shared with the contract lane. This lane's configuration is
 // PIXEL_SCOPE; the contract lane's differs, and in one case in the opposite direction — see
@@ -60,6 +59,8 @@ import {
   selectRoutes,
 } from "./lib/route-scope.mjs";
 
+import { ROOT } from "./lib/fs.mjs";
+
 const USAGE = `Usage: node tooling/vrt-review.mjs [options]
 
   --base <ref>     compare against this ref (default: origin/main, falling back to main)
@@ -72,7 +73,6 @@ const USAGE = `Usage: node tooling/vrt-review.mjs [options]
 
 Exit codes: 0 for any pixel outcome, 2 when no report could be produced.`;
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const OUTPUT_DIR = join(ROOT, ".vrt-review");
 
 // ── options ──────────────────────────────────────────────────────────────────────────────────────
