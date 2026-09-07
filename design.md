@@ -212,6 +212,10 @@ themes:
     duration-fast:
       type: "duration"
       value: "150ms"
+    duration-indeterminate:
+      type: "duration"
+      value: "1200ms"
+      description: "1200ms — the loop cadence of the ONE sanctioned looping utility, `motion-indeterminate` (an indeterminate Progress sweep; audit M-06). Not an interaction duration: interactions use fast/base/slow."
     duration-slow:
       type: "duration"
       value: "300ms"
@@ -991,6 +995,10 @@ themes:
     duration-fast:
       type: "duration"
       value: "150ms"
+    duration-indeterminate:
+      type: "duration"
+      value: "1200ms"
+      description: "1200ms — the loop cadence of the ONE sanctioned looping utility, `motion-indeterminate` (an indeterminate Progress sweep; audit M-06). Not an interaction duration: interactions use fast/base/slow."
     duration-slow:
       type: "duration"
       value: "300ms"
@@ -1801,7 +1809,11 @@ renders inside does.
 - **Body** `text-base`(14/21, **default**) — chosen for the reading-heavy surfaces of an agentic-
   enterprise product (logs, descriptions, agent output). `text-lg`(16/24) for leads.
 - **Core scale** `text-xs`(11) → `text-3xl`(24) — the CAP; `text-4xl` and above is off-scale and
-  lint-banned, use a display-tier utility instead.
+  lint-banned, use a display-tier utility instead. **`text-xs` is mono-only** (TD-3, 2026-09-07):
+  11px is reserved for the code/data roles, and sans copy floors at `text-sm`(12). Seven sites
+  across four components were reaching 11px in Geist Sans for density; they now sit at 12. If a
+  surface still feels too loud at 12, the answer is hierarchy — weight, colour, spacing — not a
+  smaller size the type scale does not offer.
 - **Display tier** `text-display-sm/md/lg/xl` (32/40/56/72), weight **400** throughout, tokenized
   tracking tightening −0.04em → −0.06em as size grows — marketing/docs heroes only (§Brand & marketing).
 - **Functional headings** `text-h1`(24) → `text-h3`(18) at **400**; `text-h4`(16) at **500**.
@@ -1880,7 +1892,21 @@ content's intrinsic size throughout close so text does not reflow. Avoid long, l
 **honour `prefers-reduced-motion`**: the global reset collapses `motion-*` keyframes to their resting end
 state, spinners freeze, skeletons go solid, transitions drop to 0 — and a dedicated
 `::view-transition-group/old/new(*)` kill switch covers route-change snapshots the universal `*` reset
-can't reach (they live outside normal element matching, on the root's snapshot layer). AI surfaces define
+can't reach (they live outside normal element matching, on the root's snapshot layer).
+**Reduced motion is global and is never restated in a component** (audit B2-06, 2026-09-07). The
+`base.css` block owns it with the one sanctioned `!important`, so it already wins over any authored
+duration; a per-component `motion-reduce:animate-none` / `motion-reduce:transition-none` adds nothing
+and is a second copy of a rule that can then drift. Twelve such copies across ten components were
+deleted. The ONE case that survives is a `motion-reduce:` variant that changes **behaviour rather than
+duration** — the reset zeroes `animation-duration` and `iteration-count` but NOT `animation-delay`, so
+`staggered-text-reveal`'s `motion-reduce:[animation-delay:0s]` is load-bearing (without it a
+reduced-motion reader waits out the full stagger on invisible words). The `data-drag-pending` pulses in
+`board` and `sortable-list` are NOT such a case and went with the rest: `animate-pulse` resolves to
+`opacity: 1` at both ends, so a 0.01ms single iteration already lands on the same resting frame
+`animate-none` would. Anything else is banned.
+A looping animation is likewise banned with one exception: `motion-indeterminate`, the sweeping segment
+of an indeterminate `Progress`, whose keyframes start and end on the same resting frame so the reset
+leaves a static 35% segment rather than a bar that reads as complete. AI surfaces define
 streaming reveal, a "thinking" pulse, and tool-progress.
 
 ## Shapes
@@ -1944,14 +1970,14 @@ private size vocabulary.
 - **States** (every button) — default · hover · focus · active · disabled (`opacity-(--opacity-dim)`, 50% + `not-allowed`) · loading (spinner honouring reduced-motion). **Focus = the neutral 2px `:focus-visible` outline (`ring` token = primary ink)** — never a box-shadow glow.
 - **Input / Select / Textarea** — transparent fill on the page (dark adds `bg-input/(--alpha-input)` so the field reads as a well against the dark ground), the one `border`, radius `md`, 32px. **Consistent border scale (one alpha step, no per-mode opacity hacks): rest = `border`/`input`; focus/active = `ring/70`; error = `destructive-border/70`.** The error ink is the ONE deliberate per-theme exception in this scale: `destructive` is tuned as a solid button fill carrying light text, and at 70% on the dark ground it measures **1.92:1** — under the 3:1 WCAG 1.4.11 floor for a non-text indicator — while lightening `destructive` itself would drop `destructive-foreground` on the solid button below 4.5:1. So the border has its own role, `destructive-border` (light `red.700` → 4.24:1, dark `red.400` → 4.00:1). The _alpha_ stays identical across themes; only the ink re-grounds. `tooling/contrast-check.mjs` gates this pair composited over background/card/popover/muted/secondary in both themes. Text-entry fields (Input, Textarea, Field control, OTP slots) use the darkened `ring/70` border as their _sole_ focus indicator — no outline (a raw text input can't distinguish mouse from keyboard, so the border is the one consistent cue for both click and Tab). Button-style triggers (Select, date-picker, country-select, color-picker — built on the `outline` Button variant) darken the border to `ring/70` on focus AND add the neutral 2px outline for keyboard nav (`:focus-visible` only). Never a colour, never a glow. Error = `destructive/70` border + `destructive.text` helper. Disabled = reduced opacity + `not-allowed`.
 - **Card / Panel** — `card` surface, the one `border`, radius `lg`, **flat (no shadow)**.
-- **Badge / Chip / Tag** — radius `full`; status/info badges use `{family}.subtle` + `{family}.text` (+ a 6px dot); neutral badge uses `muted`.
+- **Badge / Chip / Tag** — the SAME variant vocabulary as Button: `solid` (family fill + on-colour ink) · `soft` (`{family}.subtle` + `{family}.text`, the default) · `outline` (hairline, no fill — the Attio tag chip, also reachable as `bordered` on `soft`) · `minimal`. Radius `full`, except `minimal`, which has no container at all. Neutral resolves to `muted`. **Three REAL size tiers — `sm` 16px · `md` 20px · `lg` 24px** (D8, 2026-09-07): `sm` used to be `md` with 2px less horizontal padding, which is a padding value, not a size; it is now the dense-table chip. **`minimal` is ink only** — no background, no border, and no horizontal padding, so it aligns flush in a table cell instead of faking a pill — and it carries a **leading dot by default**, because a badge with no container has nothing but colour left to signal status with (1.4.1). An `icon` takes the dot's place; `dot={false}` opts out. The dot is 6px (8px at `lg`).
 - **Alert** — `{family}.subtle` background + `{family}.text`, radius `md`, **always paired with an icon** (never colour alone). Info alerts use `info` (blue).
 - **Dialog / Modal** — `popover` surface, the one `border`, radius `lg`, `shadow-overlay`, over the `overlay` scrim. Title `text-h3`/`h4`; actions right-aligned (`ghost` Cancel + intent button).
 - **Dropdown / Menu / Popover / Tooltip / Command palette** — `popover` surface, the one `border`, `shadow-overlay`; items use neutral `accent` hover at radius `sm`; destructive items use `destructive.text`; the selected command row uses `accent`.
 - **Tabs / Segmented** — underline or pill; the **active** tab underline / segment uses `primary` (selection).
 - **Switch / Checkbox / Radio** — neutral **`primary`** ink when on/checked, switch off-track = **`surface-3`** (the pressed rung; there is no `track` token); **Slider** fill = **`primary`**; radius `full` (switch/radio/thumb) or `sm` (checkbox).
 - **Navigation** — breadcrumb (`muted-foreground`, current = `foreground`), pagination (active = `primary`).
-- **Avatars · progress · skeleton** — avatar = `accent` fill + initials; progress/ring fill = `primary`; skeleton shimmer = neutral.
+- **Avatars · progress · skeleton** — avatar = `accent` fill + initials; progress/ring fill = `primary`; skeleton shimmer = neutral, at the **text radius** (`sm`) on a line placeholder, since an 8px radius on a 16px bar reads as a pill rather than as text. **An indeterminate `Progress` is a distinct visual, never a full bar**: Base UI writes no width when `value` is `null`, so a bar styled only for the determinate case reads as 100% complete. It renders a 35% segment sweeping the track (`motion-indeterminate`), and `aria-valuenow` is omitted.
 - **Content links** — `info` (blue), underlined at rest, and still protected by the global neutral
   focus-visible outline. Navigation and button-like anchors may use their spatial/control affordance
   instead, but must not lose the focus outline.

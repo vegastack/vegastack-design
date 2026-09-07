@@ -1,6 +1,6 @@
 ---
 title: Kbd
-description: A styled keyboard-key indicator — deterministic modifier labels, a keys array, and small sizes.
+description: The one keyboard-key chip — deterministic modifier labels resolved by the caller, a keys array, and three inline sizes.
 audience: public
 preview: kbd
 ---
@@ -46,29 +46,41 @@ Change the size and platform to watch the ⌘ glyph swap to Ctrl, then copy the 
 ### Combos
 
 Pass a `keys` array to render a shortcut, or compose individual `Kbd` chips inside a `KbdGroup`.
-Modifier glyphs render as mac glyphs by default; pass `os="other"` to rewrite them to words
-(`⌘` → `Ctrl`, `⌥` → `Alt`).
+Write tokens as mac glyphs; `os` decides how they render. The default is `os="other"`
+(words), so pass `os="mac"` — or the resolved platform — for the glyphs.
 
 <ComponentPreview name="kbdCombos" file="components/preview/kbd.tsx" />
 
 ### Sizes
 
-`xs`, `sm`, and `md` — sized to sit inline with text, menus, and tooltips.
+`xs`, `sm`, and `md` — sized to sit inline with text, menus, and tooltips. All three use
+one type role, `text-code-sm`; `md` previously reached the same 12px through `text-sm`,
+the same pixel size named twice.
 
 <ComponentPreview name="kbdSizes" file="components/preview/kbd.tsx" />
 
 ### Platform Labels
 
-`Kbd` is server-safe and deterministic. It defaults to mac glyphs; pass `os="other"` when the
-surrounding UI is for Windows/Linux shortcuts. The rewrite applies whether you pass a `keys` array
-or a single string child (`⌘` → `Ctrl`, `⇧` → `Shift`, `⌥` → `Alt`, `⌃` → `Ctrl`, `⏎`/`↵` →
-`Enter`, `⌫` → `Bksp`).
+`Kbd` is server-safe and deterministic: it reads no `navigator` and therefore never
+guesses the platform. **Resolving the platform is the caller's job** — run `usePlatform()`
+and pass the answer down. `os` defaults to `"other"`, the same fallback `usePlatform`
+reports before hydration, so an unwired chip shows a word every reader understands rather
+than shipping `⌘` to a Windows majority.
+
+The rewrite applies whether you pass a `keys` array or a single string child (`⌘` → `Ctrl`,
+`⇧` → `Shift`, `⌥` → `Alt`, `⌃` → `Ctrl`, `⏎`/`↵` → `Enter`, `⌫` → `Bksp`). On mac the glyph
+is rendered visually with an sr-only spoken name beside it, because a screen reader
+announces `⌘` as "place of interest sign" or skips it entirely.
 
 <ComponentPreview name="kbdPlatformLabels" file="components/preview/kbd.tsx" />
 
 ```tsx
+// The wiring every caller should use
+const { os } = usePlatform();
+<Kbd keys={["⌘", "K"]} os={os === "mac" ? "mac" : "other"} />;
+
 <Kbd os="mac" keys={['⌘', 'K']} />   {/* ⌘ K */}
-<Kbd os="other" keys={['⌘', 'K']} /> {/* Ctrl K */}
+<Kbd os="other" keys={['⌘', 'K']} /> {/* Ctrl K (the default) */}
 
 // Single string children are rewritten too
 <Kbd os="other">⌘</Kbd>             {/* Ctrl */}
@@ -97,7 +109,10 @@ to reuse the chip classes (the single `size` axis: `xs` | `sm` | `md`) on a cust
 - The chip is a label, never a control: it does not receive focus and carries no `tabindex`. Wire the
   actual shortcut up on the relevant control (e.g. a button or a menu item).
 - Modifier glyphs are rewritten to readable words on non-mac platforms, so a shortcut is never
-  announced as an unfamiliar symbol.
+  announced as an unfamiliar symbol. On mac the glyph is `aria-hidden` and an sr-only word
+  (`Command`, `Option`, …) carries the accessible name.
+- `Kbd` is the only key chip in the system: `TooltipKbd` renders it rather than restyling a
+  second `<kbd>`, so a shortcut hint reads identically wherever it appears.
 
 | Key      | Behavior                                                           |
 | -------- | ------------------------------------------------------------------ |
@@ -106,6 +121,6 @@ to reuse the chip classes (the single `size` axis: `xs` | `sm` | `md`) on a cust
 ## Do / Don't
 
 <DoDont
-  do="Use Kbd to display a shortcut alongside the control it triggers, and pass os when the shortcut copy targets a non-mac platform."
+  do="Use Kbd to display a shortcut alongside the control it triggers, and resolve os once with usePlatform at the call site."
   dont="Make a Kbd clickable or focusable, or hardcode ⌘ in copy that Windows and Linux users will also read."
 />

@@ -1,6 +1,6 @@
 ---
 title: Skeleton
-description: A token-driven loading placeholder — line, circle, rect, and card shapes, a configurable line count, and a reduced-motion-aware pulse.
+description: A token-driven loading placeholder — line, circle, rect, and card shapes, a configurable line count, and a pulse that stops under reduced motion.
 audience: public
 preview: skeleton
 ---
@@ -135,9 +135,9 @@ import { Skeleton, SkeletonReveal } from "@/components/ui/skeleton";
   "Loading…" label or live-region announcement.
 - Match the skeleton's layout to the real content so focus order and scroll
   position stay stable once data arrives — avoid layout shift.
-- The pulse animation respects `prefers-reduced-motion`: `animate-pulse` is paired
-  with `motion-reduce:animate-none`, so the placeholder stays static for users who
-  request reduced motion.
+- The pulse respects `prefers-reduced-motion`: the global reset in `base.css` zeroes
+  every animation, so the placeholder stays static. The component does not restate
+  that rule — one reset owns it, so it can never drift per component.
 
 ## Do / Don't
 

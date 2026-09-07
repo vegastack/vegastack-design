@@ -139,7 +139,39 @@ import { TableCellText } from '@/components/ui/truncated-text';
 paths, and other fixed-width values. Set `width` to match the column header so
 truncation engages within the column.
 
+### Focus inside a grid or list
+
+When text is clipped it becomes a Tooltip trigger and takes a tab stop, so keyboard users
+can read it. In a 50-row table that is 50 extra tab stops on top of `DataGrid`'s own roving
+cell focus — which is why `focusable` exists.
+
+It defaults to `true` standalone. A host that owns its own keyboard model flips the ambient
+default to `false` by wrapping its content in `TruncationFocusProvider` — that is the contract
+`DataList` and `DataGrid` adopt, since their roving cell focus already owns reachability. Any
+single cell can opt back in with `focusable`.
+
+Nothing is hidden either way — CSS truncation is invisible to a screen reader, which reads
+the full string regardless; the tooltip only ever served **sighted keyboard** users. Geist
+and Linear do not make truncated cells focusable either. On a device that cannot hover the
+element stays focusable no matter what, because the tap-to-toggle disclosure is then the
+only way to read the text at all.
+
+```tsx
+// A region that owns its own keyboard model turns the tab stops off
+<TruncationFocusProvider focusable={false}>{rows}</TruncationFocusProvider>
+
+// …and one cell can still opt back in
+<TableCellText text={longNote} focusable />
+```
+
 ## API Reference
+
+### TruncationFocusProvider
+
+<AutoTypeTable
+  path="../../packages/ui/registry/ui/truncated-text.tsx"
+  name="TruncationFocusProviderProps"
+/>
 
 ### TruncatedText
 
@@ -170,6 +202,10 @@ truncation engages within the column.
 - When clipped, the text becomes a Tooltip trigger and opens on **hover and
   keyboard focus** (never hover-only), so the full text is reachable without a
   pointer. The popup carries `role="tooltip"`.
+- `focusable` controls that tab stop; a `TruncationFocusProvider` turns it off for a whole
+  region (the grid/list contract). This removes no information: the full string is always in
+  the DOM and always read by assistive tech — the tooltip is a convenience for sighted
+  keyboard users, and inside a grid the roving cell focus is the reachability model.
 - **Touch fallback:** Base UI's Tooltip is hover/focus-only — it has no touch
   trigger — so on a `(hover: none)` device the clipped element additionally
   becomes a tap-to-toggle disclosure: `role="button"` + `aria-expanded` track
@@ -183,7 +219,7 @@ truncation engages within the column.
 
 | Key                                 | Action                                                                         |
 | ----------------------------------- | ------------------------------------------------------------------------------ |
-| <kbd>Tab</kbd>                      | Move focus to clipped text — its tooltip opens.                                |
+| <kbd>Tab</kbd>                      | Move focus to clipped text — its tooltip opens (when `focusable`).             |
 | <kbd>Esc</kbd>                      | Dismiss the open tooltip, or (touch fallback) re-clamp an expanded disclosure. |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | (Touch fallback only) Toggle the expand/collapse disclosure.                   |
 

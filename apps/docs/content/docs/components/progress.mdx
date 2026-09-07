@@ -1,6 +1,6 @@
 ---
 title: Progress
-description: A determinate horizontal progress bar for measurable, ongoing tasks — built on Base UI Progress.
+description: A horizontal progress bar for measurable, ongoing tasks — determinate or indeterminate, built on Base UI Progress.
 audience: public
 preview: progress
 ---
@@ -38,8 +38,6 @@ Adjust the bar's value and size — the fill sweeps to each new value — then c
 - **Indicator** — the primary fill (`data-slot="progress-indicator"`). Use `indicatorClassName` for
   fill styling; width and progress semantics are managed by Base UI.
 
-### Determinate and indeterminate
-
 ### Values
 
 `value` is reported against `max` (default `100`). The indicator width animates between values with a token-driven transition.
@@ -70,7 +68,15 @@ Pass `max` to track progress on an arbitrary scale — e.g. step `3` of `5`. The
 
 ### Indeterminate
 
-Pass `value={null}` when the duration is unknown. Base UI drops `aria-valuenow`, sets `data-indeterminate`, and animates the fill:
+Pass `value={null}` when the duration is unknown. Base UI drops `aria-valuenow` and sets
+`data-indeterminate`; the indicator becomes a **35%-wide segment sweeping the track**, not a
+filled bar.
+
+That distinction is the whole point: Base UI writes no inline width for an indeterminate
+indicator, so a bar styled only for the determinate case inherits the track's full width and
+reads as _100% complete_ — an upload in progress looking finished. Under
+`prefers-reduced-motion` the global reset collapses the sweep to its resting frame, a static
+35% segment, so it still never reads as complete.
 
 ```tsx
 <Progress value={null} aria-label="Loading" />
@@ -147,8 +153,8 @@ Use Base UI's `render` to swap the root element while keeping the `role="progres
 - Renders `role="progressbar"` with `aria-valuenow` / `aria-valuemin` / `aria-valuemax` managed by Base UI.
 - When `value` is `null` the bar is indeterminate — `aria-valuenow` is omitted and `data-indeterminate` is set.
 - Always give the bar an accessible name — an `aria-label`, or associate a visible label via `aria-labelledby`.
-- The fill transition includes `motion-reduce:transition-none` so users requesting reduced motion do
-  not get animated width changes.
+- The fill transition and the indeterminate sweep both stop under `prefers-reduced-motion`
+  through the global reset in `base.css` — no component restates it.
 
 | Attribute                         | Purpose                                                 |
 | --------------------------------- | ------------------------------------------------------- |
@@ -160,6 +166,6 @@ Use Base UI's `render` to swap the root element while keeping the `role="progres
 ## Do / Don't
 
 <DoDont
-  do="Use Progress for measurable, determinate tasks — uploads, multi-step forms, onboarding completion."
-  dont="Use Progress for an indefinite wait with no measurable value — use a Spinner there instead."
+  do="Use Progress for a task with a start and an end — uploads, multi-step forms, onboarding completion — and pass value={null} when the duration is genuinely unknown."
+  dont="Use Progress for a wait with no notion of completion at all — a Spinner says that better."
 />

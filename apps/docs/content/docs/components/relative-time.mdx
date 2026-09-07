@@ -113,6 +113,17 @@ disables the refresh timer.
   name="RelativeTimeProps"
 />
 
+### Server rendering
+
+An uncontrolled instance renders the **absolute** date (`"Mar 15, 2025"`) on the server and
+on the hydration render, then swaps to the relative label once the client clock exists.
+There is no empty frame and no layout jump.
+
+The reason it cannot simply render the relative label is that `"2 hours ago"` needs
+`Date.now()`, which the server cannot reproduce — so the two renders would disagree and
+React would warn. Deriving the first paint from the target instant alone keeps both sides
+byte-identical. Pass `now` to make the output fully deterministic and skip the swap.
+
 ## Accessibility
 
 - Renders a semantic `<time dateTime="…">` so the machine-readable ISO timestamp is
@@ -127,6 +138,12 @@ disables the refresh timer.
 | -------------- | ---------------------------------------------------------- |
 | <kbd>Tab</kbd> | Move focus to the timestamp (when the tooltip is enabled). |
 | <kbd>Esc</kbd> | Dismiss the open absolute-date tooltip.                    |
+
+`focusable` controls whether the timestamp takes a tab stop to open its absolute-date
+Tooltip. It defaults to `true` standalone, and to whatever an enclosing
+`TruncationFocusProvider` sets — `false` for a grid or list host, where 50 rows would
+otherwise mean 50 extra tab stops on top of that host's own roving focus. The
+machine-readable `dateTime` attribute is there either way.
 
 ## Do / Don't
 
