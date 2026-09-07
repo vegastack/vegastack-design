@@ -6,6 +6,9 @@ import type { CSSProperties } from "react";
  */
 const COLOR_GROUPS: { label: string; tokens: string[] }[] = [
   {
+    // The ladder itself is shown rung-by-rung, in both themes, by <SurfaceLadder /> above this
+    // grid; here are the surfaces and the text ramp as flat swatches. `secondary`/`muted`/`accent`
+    // are deliberately absent — they are ALIASES of the rungs, not roles of their own.
     label: "Surfaces & text",
     tokens: [
       "background",
@@ -14,13 +17,12 @@ const COLOR_GROUPS: { label: string; tokens: string[] }[] = [
       "card-foreground",
       "popover",
       "popover-foreground",
-      "secondary",
-      "secondary-foreground",
-      "muted",
+      "surface-1",
+      "surface-2",
+      "surface-3",
       "muted-foreground",
       "muted-foreground-faint",
-      "accent",
-      "accent-foreground",
+      "border",
     ],
   },
   {
@@ -150,6 +152,114 @@ export function ColorPalette() {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+/** The four rungs of the surface ladder, with the role each one carries. */
+const LADDER: { token: string; role: string }[] = [
+  { token: "background", role: "page" },
+  { token: "card", role: "surface · popover · sidebar" },
+  { token: "surface-1", role: "rest fill · sunken well" },
+  { token: "surface-2", role: "hover" },
+  { token: "surface-3", role: "pressed · selected" },
+];
+
+/** One theme's column of the ladder. `forceDark` paints a dark island inside a light page. */
+function LadderColumn({ forceDark }: { forceDark: boolean }) {
+  return (
+    <div
+      className={forceDark ? "dark" : undefined}
+      style={{ background: "var(--background)", color: "var(--foreground)" }}
+    >
+      <div
+        className="space-y-px p-4"
+        style={{ borderRadius: "var(--radius-lg)" }}
+      >
+        <p
+          className="mb-3 text-mono-label"
+          style={{ color: "var(--muted-foreground)" }}
+        >
+          {forceDark ? "DARK" : "LIGHT"}
+        </p>
+        {LADDER.map(({ token, role }) => (
+          <div
+            key={token}
+            className="flex items-center justify-between gap-3 px-3 py-2.5"
+            style={{
+              background: `var(--${token})`,
+              // Every rung carries the ONE alpha hairline — the point of the derived border.
+              border: "1px solid var(--border)",
+              borderRadius: "var(--radius-md)",
+            }}
+          >
+            <span className="text-mono-label">--{token}</span>
+            <span
+              className="text-sm"
+              style={{ color: "var(--muted-foreground)" }}
+            >
+              {role}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The surface ladder in both themes at once, plus the alpha twins.
+ *
+ * Rendered as two forced islands (`.dark` is a plain class selector on the token sheet), so a
+ * reader in either theme sees both halves — the ladder's whole claim is that light and dark step
+ * the same way, and a single-theme specimen cannot show that.
+ */
+export function SurfaceLadder() {
+  return (
+    <div className="not-prose my-6 space-y-4">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <LadderColumn forceDark={false} />
+        <LadderColumn forceDark />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {[false, true].map((forceDark) => (
+          <div
+            key={String(forceDark)}
+            className={forceDark ? "dark" : undefined}
+            style={{
+              background: "var(--card)",
+              border: "1px solid var(--border)",
+              borderRadius: "var(--radius-lg)",
+            }}
+          >
+            <div className="space-y-2 p-4">
+              <p
+                className="text-mono-label"
+                style={{ color: "var(--muted-foreground)" }}
+              >
+                ALPHA TWINS ON {forceDark ? "DARK" : "LIGHT"} CARD
+              </p>
+              {[
+                ["rest", "transparent"],
+                ["hover — --alpha-hover", "var(--surface-2)"],
+                ["pressed — --alpha-pressed", "var(--surface-3)"],
+              ].map(([label, bg]) => (
+                <div
+                  key={label}
+                  className="px-3 py-2 text-sm"
+                  style={{
+                    background: bg,
+                    borderRadius: "var(--radius-md)",
+                    color: "var(--foreground)",
+                  }}
+                >
+                  {label}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

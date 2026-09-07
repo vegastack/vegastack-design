@@ -12,6 +12,7 @@ import { ComponentPreview } from "@/components/component-preview";
 import { DoDont } from "@/components/do-dont";
 import {
   ColorPalette,
+  SurfaceLadder,
   TypeScale,
   RadiusScale,
   ShadowScale,
@@ -149,6 +150,7 @@ export function getMDXComponents(components?: MDXComponents) {
     RegistryInstallCallout,
     DoDont,
     ColorPalette,
+    SurfaceLadder,
     TypeScale,
     RadiusScale,
     ShadowScale,

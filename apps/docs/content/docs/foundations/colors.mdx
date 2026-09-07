@@ -8,6 +8,63 @@ Every color is a **semantic token** in OKLCH, defined in `@vegastack/design-toke
 CSS variable on `:root` (light) and `.dark`. Components only ever use semantic utilities
 (`bg-primary`, `text-muted-foreground`), never raw palettes or hex.
 
+## The surface ladder
+
+Neutral surfaces are **one ladder**, and every interaction step is a rung on it. Three rungs sit
+above the page; each is one even step (~0.025 L in light, ~0.03 L in dark).
+
+<SurfaceLadder />
+
+| Token          | Role                                                                           |
+| -------------- | ------------------------------------------------------------------------------ |
+| `--background` | the page                                                                       |
+| `--card`       | every surface — card, popover, sheet, dialog, the sidebar rail                 |
+| `--surface-1`  | the rest fill of a filled control (soft button, kbd, chip, tab rail) and wells |
+| `--surface-2`  | **hover**                                                                      |
+| `--surface-3`  | **pressed / selected**                                                         |
+
+**Light surfaces are page-coloured** — a light card is separated by its hairline alone. **Dark keeps
+the one-step lift** (0.175 → 0.205). `--popover` and `--sidebar` _are_ `--card`; a floating surface is
+the card surface plus `--shadow-overlay`, never a rung of its own.
+
+Each interaction rung also exists as an **alpha twin** — `--alpha-hover` (7%) and `--alpha-pressed`
+(10%) on an ink. Over the page they land within 0.003 L of the opaque rungs, so reach for the alpha
+form when the backdrop is _not_ a ladder surface (a `Kbd` inside a hovered row, a chip on a well,
+chrome over video) or when a control hovers in its own hue.
+
+Consume the two rungs through the recipes exported from `@vegastack/design` rather than writing the
+classes by hand:
+
+```tsx
+import { cn, surfaceInteractive, fillInteractive } from "@vegastack/design";
+
+// A transparent control on a known surface: hover = rung 2, pressed = rung 3.
+<button className={cn("rounded-md px-2", surfaceInteractive)} />;
+
+// A control on an unknown backdrop, or one that hovers in its own hue.
+<button
+  className={cn(
+    "bg-destructive-subtle text-destructive-text",
+    fillInteractive.destructive,
+  )}
+/>;
+```
+
+<Callout type="warn">
+  `--secondary`, `--muted`, `--accent` and the whole `--sidebar-*` family are
+  **aliases** of ladder rungs, kept so shadcn-shaped code keeps compiling. They
+  have no independent values and must never be retuned on their own: `secondary`
+  = `muted` = `surface-1`, `accent` = `sidebar-accent` = `surface-2`, `sidebar`
+  = `card`.
+</Callout>
+
+## One hairline, and it is an alpha
+
+`--border` is **derived**, not authored: it is `--foreground` at `--alpha-border` (8% light / 14%
+dark). One translucent hairline therefore reads correctly on the page, on a card, inside a well and
+on a dark band, and it can never drift from the ink it tints. `--input` and `--sidebar-border` alias
+it.
+
 <ColorPalette />
 
 ## Per-family variants
@@ -75,18 +132,19 @@ applies the bordered-tint chip formula (subtle fill + matching-hue hairline + hu
 
 ## Sidebar surface
 
-The **Sidebar surface** group is a self-contained eight-token set for the app navigation rail, so it
-can carry a different surface treatment from the main page without redefining the global tokens:
+The `--sidebar-*` names are kept so shadcn-shaped code keeps compiling, but they are **aliases of
+the ladder** — the rail is not a second palette (it used to be, and `--sidebar-accent` quietly held
+the only real hover step in the system):
 
-- **`--sidebar`** + **`--sidebar-foreground`** — the rail background and its default text.
-- **`--sidebar-primary`** + **`--sidebar-primary-foreground`** — the active/selected nav item fill and its on-fill text.
-- **`--sidebar-accent`** + **`--sidebar-accent-foreground`** — the hover/secondary surface and its text.
-- **`--sidebar-border`** + **`--sidebar-ring`** — the divider lines and the focus ring inside the rail.
+- **`--sidebar`** = `--card` · **`--sidebar-foreground`** = `--foreground` — the rail is a surface like any other.
+- **`--sidebar-primary`** = `--primary` · **`--sidebar-primary-foreground`** = `--primary-foreground` — the active-item marker rail.
+- **`--sidebar-accent`** = `--surface-2` — the hover rung. The **current** row rests one rung higher on
+  `--surface-3`, so hovering an already-active row still moves.
+- **`--sidebar-border`** = `--border` · **`--sidebar-ring`** = `--ring`.
 
-All eight are **theme-aware** and bridged to utilities through `@theme inline`
-(`--color-sidebar: var(--sidebar)`, etc.), so they consume as `bg-sidebar`, `text-sidebar-foreground`,
-`border-sidebar-border`, `ring-sidebar-ring`, and so on. In light mode `--sidebar` is a near-white
-`oklch(0.985 0.003 75)`; in dark mode it inverts to `oklch(0.145 0.003 75)`.
+They stay bridged through `@theme inline`, so `bg-sidebar`, `text-sidebar-foreground` and
+`border-sidebar-border` all still compile — they simply resolve to the ladder now. New code should
+prefer the ladder names.
 
 ## Beyond color
 

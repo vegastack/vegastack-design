@@ -42,7 +42,8 @@ Always use the utility, never a raw value.
 
 | Role     | Utilities                                                                                        |
 | -------- | ------------------------------------------------------------------------------------------------ |
-| Surface  | `bg-background` `bg-card` `bg-popover` `bg-muted` `bg-accent` `bg-sidebar-*`                     |
+| Surface  | `bg-background` (page) · `bg-card` (every surface; `popover`/`sidebar` ARE `card`)               |
+| Ladder   | `bg-surface-1` (rest fill / well) · `bg-surface-2` (hover) · `bg-surface-3` (pressed / selected) |
 | Text     | `text-foreground` `text-muted-foreground` `text-{primary,accent,popover}-foreground`             |
 | Status   | `bg-{destructive,success,warning,info}` + `-subtle` / `-hover` / `-text` / `-foreground`         |
 | Border   | `border-border` `border-input` — there are no rings; focus is the native outline                 |
@@ -51,6 +52,31 @@ Always use the utility, never a raw value.
 | Font     | `font-sans` `font-mono` `font-serif`                                                             |
 | Motion   | `duration-{fast,base,slow}` paired with `ease-{standard,emphasized,exit,spring}`                 |
 | Entrance | `motion-pop-in` `motion-enter-up` `motion-shake`                                                 |
+
+**Hover and pressed come from a recipe, never a literal.** Import the two class strings rather than
+writing `hover:bg-*` by hand — that is how a control gets both steps and stays on the ladder:
+
+```tsx
+import { cn, surfaceInteractive, fillInteractive } from "@vegastack/design";
+
+// A transparent control on a known surface.
+<button className={cn("rounded-md px-2", surfaceInteractive)} />;
+// hover:bg-surface-2 active:bg-surface-3
+
+// A control on an unknown backdrop, or one that hovers in its own hue.
+<button className={cn("bg-destructive-subtle", fillInteractive.destructive)} />;
+// hover:bg-destructive/(--alpha-hover) active:bg-destructive/(--alpha-pressed)
+```
+
+A **solid** fill uses neither — it steps through its own darker `-hover` / `-active` tokens.
+
+`secondary`, `muted`, `accent` and the `sidebar-*` family are **aliases** of ladder rungs
+(`secondary` = `muted` = `surface-1`, `accent` = `sidebar-accent` = `surface-2`, `sidebar` = `card`).
+They still compile; name the rung in new code.
+
+`border` is one translucent hairline — `foreground` at `--alpha-border` — so it reads on the page, on
+a card and inside a well alike. `info` is **links and informational UI only**: promotion and
+selection take a ladder rung or `primary`.
 
 Alpha and opacity are **different roles**: colour compositing takes an `--alpha-*` token
 (`bg-foreground/(--alpha-ink-tint)`), whole-element opacity takes an `--opacity-*` token

@@ -196,6 +196,15 @@ Enforced by `tooling/design-lint.mjs` and the `review` skill. Full token vocabul
 
 - **Colour** — semantic tokens only (`bg-primary`, `text-muted-foreground`, `border-border`). No hex,
   no raw palette. `text-muted-foreground-faint` is sub-AA: placeholder and disabled copy only.
+  `info` is links and informational UI only — promotion and selection take a ladder rung or `primary`.
+- **Surfaces are one ladder** — `background` → `card` (= `popover` = `sidebar`) → `surface-1` (rest
+  fill / well) → `surface-2` (hover) → `surface-3` (pressed / selected). `secondary`/`muted`/`accent`/
+  `sidebar-*` are ALIASES of those rungs with no independent values; name the rung in new code.
+  `border` is derived as `foreground` at `--alpha-border`.
+- **Hover/pressed come from the recipe, never a literal** — `surfaceInteractive` and
+  `fillInteractive.<tone>` from `@vegastack/design`. No component writes its own `hover:bg-*`. Every
+  control has a pressed step; a hover wash is inset ≥4px from a container hairline and inherits its
+  inner radius.
 - **Size** — `--size-*` for control heights, `--icon-*` for icon sizes. Never pass `size`/`width`/
   `height` directly to a lucide component.
 - **Radius** — caps at `rounded-lg`. `rounded-xl` was removed and is banned.
