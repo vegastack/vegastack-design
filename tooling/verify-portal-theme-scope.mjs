@@ -12,21 +12,19 @@ const ROOT = "packages/ui/registry/ui";
 // This is deliberately explicit as well as discoverable: adding/removing a portal is an audited
 // architecture change, not something that should silently change the expected coverage count.
 const EXPECTED_HOSTS = new Map([
+  // Every ANCHORED overlay (popover, hover-card, tooltip, the two menus, select, combobox,
+  // navigation-menu) hosts its portal through `floating-surface.tsx` since the 2026-09-07 audit
+  // (B3-01), so exactly one record covers all eight. Their own files are deliberately absent: if a
+  // portal ever reappears in one of them, the "unreviewed portal host" rule below fails closed on
+  // it rather than silently accepting a second, unscoped host.
+  ["packages/ui/registry/ui/floating-surface.tsx", ["Portal"]],
+  // Modal surfaces still own their own portal — they position themselves rather than an anchor,
+  // so they never went through the floating composer.
   ["packages/ui/registry/ui/alert-dialog.tsx", ["BaseAlertDialog.Portal"]],
-  ["packages/ui/registry/ui/combobox.tsx", ["BaseCombobox.Portal"]],
-  ["packages/ui/registry/ui/context-menu.tsx", ["ContextMenuPrimitive.Portal"]],
   ["packages/ui/registry/ui/dialog.tsx", ["BaseDialog.Portal"]],
-  ["packages/ui/registry/ui/dropdown-menu.tsx", ["Menu.Portal"]],
-  ["packages/ui/registry/ui/hover-card.tsx", ["BasePreviewCard.Portal"]],
-  [
-    "packages/ui/registry/ui/navigation-menu.tsx",
-    ["BaseNavigationMenu.Portal"],
-  ],
-  ["packages/ui/registry/ui/popover.tsx", ["BasePopover.Portal"]],
-  ["packages/ui/registry/ui/select.tsx", ["BaseSelect.Portal"]],
-  ["packages/ui/registry/ui/sheet.tsx", ["BaseDialog.Portal"]],
+  // Sheet moved from Base UI's Dialog to its Drawer (D15); the portal host moved with it.
+  ["packages/ui/registry/ui/sheet.tsx", ["Drawer.Portal"]],
   ["packages/ui/registry/ui/sonner.tsx", ["SonnerToaster"]],
-  ["packages/ui/registry/ui/tooltip.tsx", ["BaseTooltip.Portal"]],
 ]);
 
 function walk(dir, out = []) {
