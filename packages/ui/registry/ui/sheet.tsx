@@ -1,4 +1,4 @@
-// @vegastack sheet@0.6.0 sha256-kHUmFKmi7ep7qITIt0x+h3m6H3lUlC+aEjZ71MbQuNI=
+// @vegastack sheet@0.6.0 sha256-EjDtApCNDEYPgElSKKg136OPkbD8GnHoeLIUjT0RPds=
 
 "use client";
 
@@ -63,7 +63,11 @@ export const sheetVariants = cva(
   [
     // No `outline-none`: Base UI focuses the panel on open, so the centralized base.css
     // `:focus-visible` outline stays as the keyboard-focus indicator (WCAG 2.4.7, register P0-02).
-    "relative flex flex-col gap-4 overflow-y-auto overscroll-contain bg-popover text-base text-popover-foreground shadow-overlay",
+    // `z-(--z-overlay)` is load-bearing, not decoration: the Sheet popup is a portalled overlay
+    // and must sit in the overlay band. Base UI's Drawer popup, unlike the Dialog popup this
+    // replaced, does NOT carry a z-index of its own, so dropping it let a sheet render beneath
+    // other overlay-band content (caught by test/overlay-portal.browser.test.tsx).
+    "relative z-(--z-overlay) flex flex-col gap-4 overflow-y-auto overscroll-contain bg-popover text-base text-popover-foreground shadow-overlay",
     // D11: a modal-family surface moves at `base` (200ms), not the floating tier's 150ms.
     "transition-transform duration-base ease-standard data-[swiping]:duration-0",
   ],
@@ -138,10 +142,7 @@ const VIEWPORT_ALIGNMENT: Record<SheetSide, string> = {
 };
 
 /** Props accepted by `Sheet`. */
-export interface SheetProps extends Omit<
-  Drawer.Root.Props,
-  "swipeDirection"
-> {
+export interface SheetProps extends Omit<Drawer.Root.Props, "swipeDirection"> {
   /**
    * Which screen edge the panel is pinned to, slides in from, and is swiped towards to dismiss.
    * @default "right"

@@ -95,7 +95,7 @@ test("the filter narrows by label and shows the empty message when nothing match
     category: i < 6 ? "First" : "Second",
   }));
   const screen = await render(<ShortcutOverlay shortcuts={many} open />);
-  const filter = screen.getByRole("textbox", { name: "Filter shortcuts" });
+  const filter = screen.getByRole("searchbox", { name: "Filter shortcuts" });
   await expect.element(filter).toBeInTheDocument();
   await filter.fill("Shortcut 3");
   expect(

@@ -301,8 +301,13 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
   `left`/`right` sheet and a height on a `top`/`bottom` one.
   [docs](/docs/components/sheet)
 - **Menu items take `tone`, not `variant`.** `DropdownMenuItem`, `ContextMenuItem` and their
-  checkbox/radio siblings use `tone="destructive"`, matching Button's tone axis.
+  checkbox/radio siblings use `tone="destructive"`, matching Button's tone axis. The state attribute
+  moves with the prop: items expose `data-tone`, not `data-variant`.
   [docs](/docs/components/dropdown-menu)
+- **In-panel search fields are a `searchbox`.** Every panel-search row renders `type="search"`, so
+  `ShortcutOverlay`'s filter (and any other field inside the shared row) exposes the `searchbox`
+  role rather than a generic textbox. Selecting one by role in a test or script must change with it.
+  [docs](/docs/components/shortcut-overlay)
 
 ### 🧩 New components
 

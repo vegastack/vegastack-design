@@ -1304,7 +1304,7 @@
         "whenToUse": "A panel anchored to a screen edge — filters, detail/inspector panels, slide-in nav.",
         "whenNotToUse": "A centered confirmation or short form (Dialog), or a long multi-step flow (a page).",
         "version": "0.6.0",
-        "integrity": "sha256-kHUmFKmi7ep7qITIt0x+h3m6H3lUlC+aEjZ71MbQuNI="
+        "integrity": "sha256-EjDtApCNDEYPgElSKKg136OPkbD8GnHoeLIUjT0RPds="
       }
     },
     {

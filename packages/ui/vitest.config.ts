@@ -51,6 +51,10 @@ export default defineConfig({
       "@base-ui/react/form",
       "@base-ui/react/dialog",
       "@base-ui/react/alert-dialog",
+      // Sheet runs on Drawer (audit D15). Without pre-bundling it, Vite discovers the subpath
+      // mid-run, re-optimizes, reloads the page and splits React module identity — which fails
+      // whichever unrelated tests happen to be in flight (emoji-picker, date-picker).
+      "@base-ui/react/drawer",
       "@base-ui/react/button",
       "@base-ui/react/popover",
       "@base-ui/react/tooltip",

@@ -61,12 +61,16 @@ test("renders the arrow as the popup's first child when one is passed", async ()
   );
 });
 
-test("the popup carries the D11 floating motion pair", async () => {
-  await render(<SurfaceExample />);
-  const popup = document.querySelector('[data-slot="fixture-content"]')!;
-  const styles = getComputedStyle(popup);
-  expect(styles.transitionDuration).toBe("0.15s");
-  expect(styles.transitionTimingFunction).not.toBe("linear");
+// Structural, not computed: the unit lane renders WITHOUT compiled CSS (only `test/contrast.css`
+// is compiled, for the contrast gate), so `getComputedStyle` here reports UA defaults — `0s` for
+// any duration — and an assertion against it would be green for the wrong reason. The class pair
+// is what this file owns; the COMPUTED 150ms/200ms values are measured in a real browser by
+// `docs/audits/2026-09-07-system-audit/probe-overlays.mjs`, which is where D11 is actually proven.
+test("the popup carries the D11 floating motion pair", () => {
+  expect(floatingPopupVariants({ motion: "fast" })).toContain("duration-fast");
+  expect(floatingPopupVariants({ motion: "fast" })).toContain("ease-standard");
+  // NavigationMenu is the one floating surface D11 puts at the modal tier.
+  expect(floatingPopupVariants({ motion: "base" })).toContain("duration-base");
 });
 
 test("mergeStateClassName preserves Base UI's state-function form", () => {
@@ -74,9 +78,9 @@ test("mergeStateClassName preserves Base UI's state-function form", () => {
     state.open ? "open" : undefined,
   );
   expect(typeof merged).toBe("function");
-  expect((merged as (s: { open: boolean }) => string)({ open: true })).toContain(
-    "open",
-  );
+  expect(
+    (merged as (s: { open: boolean }) => string)({ open: true }),
+  ).toContain("open");
   expect(mergeStateClassName("base", "extra")).toContain("extra");
 });
 
@@ -124,9 +128,13 @@ test("the panel-search row is a hairline header, never a nested box", async () =
   const field = screen.getByRole("searchbox", { name: "Search" }).element();
   const frame = document.querySelector('[data-slot="panel-search"]')!;
 
-  // The frame draws exactly one hairline, at the bottom; the field draws none.
-  expect(getComputedStyle(frame).borderBottomWidth).toBe("1px");
-  expect(getComputedStyle(frame).borderTopWidth).toBe("0px");
-  expect(getComputedStyle(field).borderBottomWidth).toBe("0px");
+  // The frame draws exactly one hairline, at the bottom; the field draws none. Asserted on the
+  // class list rather than `getComputedStyle` for the same reason as the motion test above: this
+  // lane renders without compiled CSS, so every computed border width would read `0px` and the
+  // "field draws no border" half would pass even if the field DID draw one.
+  expect(frame.className).toContain("border-b");
+  expect(frame.className).toContain("border-border");
+  expect(frame.className).not.toContain("border-t");
+  expect(field.className).not.toContain("border");
   await expectNoA11yViolations(document.body);
 });

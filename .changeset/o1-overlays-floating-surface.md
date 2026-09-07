@@ -25,5 +25,8 @@ hand-written `100dvh` calc. `DialogContent` and Command size through `size`.
 virtual-keyboard provider; `side` moves from `SheetContent` to the `Sheet` root because it selects
 the dismiss gesture as well as the pinned edge, and `size` (`sm · md · lg · full`) replaces
 `className` width overrides. Menu items take `tone="destructive"` instead of
-`variant="destructive"`. `AlertDialogContent` loses its inert `intent` prop —
-`AlertDialogAction intent` is the single owner of a confirmation's tone.
+`variant="destructive"` (and expose it as `data-tone`, not `data-variant`).
+`AlertDialogContent` loses its inert `intent` prop — `AlertDialogAction intent` is the single
+owner of a confirmation's tone. `ShortcutOverlay`'s filter is now a real `searchbox` rather than a
+generic textbox, because every panel-search field renders `type="search"`; a query selecting it by
+role must change with it.
