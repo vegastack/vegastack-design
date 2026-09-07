@@ -1,4 +1,4 @@
-// @vegastack image@0.6.0 sha256-cJ98tAJhYKAZVKXPPYkMivhkxlGDG2hHUL0Kyc3IAS0=
+// @vegastack image@0.6.0 sha256-1+F/DB3rFLb+qi69kWSpCce90HlWWj6mrylGLJrH11c=
 
 "use client";
 
@@ -162,7 +162,7 @@ export function Image({
         <span
           aria-hidden="true"
           data-slot="image-skeleton"
-          className="absolute inset-0 animate-pulse bg-muted motion-reduce:animate-none"
+          className="absolute inset-0 animate-pulse bg-muted"
         />
       ) : null}
 

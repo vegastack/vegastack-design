@@ -1,6 +1,4 @@
-// @vegastack switch@0.6.0 sha256-gWLbXzsLeL6JbuL98FvxH0vnIpwxZD0mNxrgjq7YxHI=
-
-"use client";
+// @vegastack switch@0.6.0 sha256-qqIPwrBKlW/xvqMAR7RIFATw0aWYo4rR6DeXRoN7Uyc=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -60,8 +58,7 @@ export const switchThumbVariants = cva(
     variants: {
       size: {
         sm: "size-2.5 data-checked:translate-x-3 rtl:data-checked:-translate-x-3",
-        md:
-          "size-3.5 data-checked:translate-x-4 rtl:data-checked:-translate-x-4",
+        md: "size-3.5 data-checked:translate-x-4 rtl:data-checked:-translate-x-4",
         lg: "size-4.5 data-checked:translate-x-5 rtl:data-checked:-translate-x-5",
       },
     },
@@ -113,12 +110,7 @@ export interface SwitchProps
  * // Controlled
  * <Switch checked={enabled} onCheckedChange={setEnabled} aria-label="Enabled" />
  */
-export function Switch({
-  className,
-  size = "md",
-  ref,
-  ...props
-}: SwitchProps) {
+export function Switch({ className, size = "md", ref, ...props }: SwitchProps) {
   return (
     <BaseSwitch.Root
       ref={ref}
