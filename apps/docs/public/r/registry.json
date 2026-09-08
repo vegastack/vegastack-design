@@ -116,7 +116,7 @@
         "whenToUse": "A live chat/AI thread that must auto-scroll, virtualise long histories, and offer a jump-to-latest control.",
         "whenNotToUse": "A short, static list that fits without scrolling - use Message inside a plain container or Scroll Area.",
         "version": "0.6.0",
-        "integrity": "sha256-ORl2Dxvlc5f5gQrALylEltoTuA5UhpZwBAfOuROjLTs="
+        "integrity": "sha256-iLbnx7bCoGEds2ZKr4lUkcO55zGwzMY4rojquKtGOts="
       }
     },
     {
@@ -1884,10 +1884,13 @@
         "feedback"
       ],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/button"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/action-bar.tsx",
@@ -1899,7 +1902,7 @@
         "whenToUse": "A floating bar of contextual actions tied to transient state — N selected, unsaved changes, a batch operation in flight. The host owns the state; the bar shows status and actions.",
         "whenNotToUse": "Transient outcome notifications (toast), page-level primary actions (PageHeader), or owning selection — the host's list keeps selectedIds.",
         "version": "0.6.0",
-        "integrity": "sha256-S9cm6eIryuY7CB9hzh+awgmJDdTjDcovD9GqryZnck4="
+        "integrity": "sha256-NrmMKnFFYKLfBmzfyoNOudbDrf3oNsadioICrJzH0Lo="
       }
     },
     {

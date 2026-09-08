@@ -3,6 +3,33 @@ import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { MarkdownView } from "./markdown-view";
+import { TextEdit } from "./text-edit";
+
+/** The typographic properties a prose recipe is actually responsible for. */
+const PROSE_PROPERTIES = [
+  "font-family",
+  "font-size",
+  "font-weight",
+  "line-height",
+  "letter-spacing",
+  "color",
+  "background-color",
+  "margin-top",
+  "margin-bottom",
+  "padding-left",
+  "padding-right",
+  "border-radius",
+] as const;
+
+function proseStyle(element: Element): Record<string, string> {
+  const computed = getComputedStyle(element);
+  return Object.fromEntries(
+    PROSE_PROPERTIES.map((property) => [
+      property,
+      computed.getPropertyValue(property),
+    ]),
+  );
+}
 
 test("renders a heading from markdown", async () => {
   const screen = await render(<MarkdownView># Hello world</MarkdownView>);
@@ -41,6 +68,37 @@ test("renders headings, links, code, and list elements", async () => {
   expect(container.querySelector("code")).not.toBeNull();
   expect(container.querySelector("ul")).not.toBeNull();
   expect(container.querySelector("ol")).not.toBeNull();
+});
+
+test("MarkdownView and TextEdit render the same computed prose styles (h1, p, code)", async () => {
+  // The B4-09 acceptance: two surfaces, one recipe. Rendered markdown and edited rich text must be
+  // the same typography — measured off the resolved cascade, not off matching class strings, so a
+  // specificity change or a lost `@utility` fails here rather than in review.
+  const screen = await render(
+    <div>
+      <MarkdownView>{"# Title\n\nA paragraph with `code` in it."}</MarkdownView>
+      <TextEdit
+        aria-label="Body"
+        defaultValue="<h1>Title</h1><p>A paragraph with <code>code</code> in it.</p>"
+      />
+    </div>,
+  );
+  const rendered = screen.container.querySelector(
+    '[data-slot="markdown-view"]',
+  ) as HTMLElement;
+  const edited = screen.container.querySelector(".tiptap") as HTMLElement;
+  await expect.poll(() => edited?.querySelector("h1")).not.toBeNull();
+
+  for (const selector of ["h1", "p", "code"]) {
+    const a = rendered.querySelector(selector);
+    const b = edited.querySelector(selector);
+    expect(a, `MarkdownView is missing ${selector}`).not.toBeNull();
+    expect(b, `TextEdit is missing ${selector}`).not.toBeNull();
+    expect(
+      proseStyle(b!),
+      `${selector} drifted between the two surfaces`,
+    ).toEqual(proseStyle(a!));
+  }
 });
 
 test("renders fenced code blocks inside a <pre>", async () => {

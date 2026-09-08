@@ -1,9 +1,11 @@
-// @vegastack action-bar@0.6.0 sha256-S9cm6eIryuY7CB9hzh+awgmJDdTjDcovD9GqryZnck4=
+// @vegastack action-bar@0.6.0 sha256-NrmMKnFFYKLfBmzfyoNOudbDrf3oNsadioICrJzH0Lo=
 
 "use client";
 
 import * as React from "react";
+import { Toolbar } from "@base-ui/react/toolbar";
 import { cn } from "@vegastack/design";
+import { Button } from "@/components/ui/button";
 
 /* ---
 `ActionBar` exists because three different jobs kept asking for the same object — a
@@ -74,6 +76,14 @@ export interface ActionBarProps extends React.ComponentPropsWithRef<"div"> {
    * @default "Actions"
    */
   "aria-label"?: string;
+  /**
+   * The actions. Compose {@link ActionBarButton} and {@link ActionBarSeparator}: Base UI's toolbar
+   * builds its single tab stop from the items that register with it, so a bare `<Button>` renders
+   * but keeps its own tab stop and the arrow keys skip it.
+   *
+   * @default undefined
+   */
+  children?: React.ReactNode;
 }
 
 /**
@@ -82,16 +92,21 @@ export interface ActionBarProps extends React.ComponentPropsWithRef<"div"> {
  * the host's list keeps `selectedIds`); unsaved-changes and batch-progress bars
  * are the same object with different words.
  *
- * Enter/exit is the CSS-only recipe `MessageScrollerButton` established:
- * `data-[active=false]` translates the bar below the edge with `ease-exit`,
- * `data-[active=true]` returns it with `ease-emphasized` — no mount/unmount,
- * no JS animation.
+ * It is a Base UI `Toolbar` (audit B8-11): one tab stop, arrow keys between the
+ * actions, Shift+Tab out. Compose the actions as {@link ActionBarButton} and
+ * {@link ActionBarSeparator} — those are what register with the roving order.
+ *
+ * Enter/exit is the shared docked-control pair: `motion-dock-in` (150ms,
+ * `ease-emphasized`) and `motion-dock-out` (100ms, `ease-exit`), translate and
+ * fade, no scale — no mount/unmount, no JS animation.
  *
  * @example
  * <ActionBar open={count > 0} status={`${count} selected`}>
- *   <Button variant="ghost" size="sm">Tag</Button>
- *   <Separator orientation="vertical" />
- *   <Button variant="soft" tone="destructive" size="sm">Archive</Button>
+ *   <ActionBarButton onClick={tag}>Tag</ActionBarButton>
+ *   <ActionBarSeparator />
+ *   <ActionBarButton render={<Button variant="soft" tone="destructive" size="sm" />}>
+ *     Archive
+ *   </ActionBarButton>
  * </ActionBar>
  */
 export function ActionBar({
@@ -147,7 +162,7 @@ export function ActionBar({
     announcement ?? (typeof status === "string" ? status : undefined);
 
   return (
-    <div
+    <Toolbar.Root
       ref={ref}
       data-slot="action-bar"
       data-active={open ? "true" : "false"}
@@ -156,9 +171,6 @@ export function ActionBar({
       // removes the subtree from the tab order and the a11y tree while the
       // element stays mounted for the CSS exit transition.
       inert={!open || undefined}
-      // `group`, not `toolbar`: toolbar promises APG arrow-key traversal this
-      // bar does not implement — actions are ordinary Tab stops.
-      role="group"
       aria-label={ariaLabel}
       // Unitless measured centre; the class consumes it as calc(var(--action-bar-x) * 1px).
       style={
@@ -174,11 +186,11 @@ export function ActionBar({
         measured
           ? "start-[calc(var(--action-bar-x)*1px)] -translate-x-1/2 rtl:translate-x-1/2"
           : "inset-x-0 mx-auto",
-        // MessageScrollerButton's CSS-only enter/exit recipe, verbatim (one class
-        // literal so the duration/ease pairing is visible to the lint as it is to
-        // the reader): exit drops below the edge with ease-exit; enter returns
-        // with ease-emphasized.
-        "transition-[translate,scale,opacity] duration-base data-[active=false]:pointer-events-none data-[active=false]:translate-y-[calc(100%+var(--spacing)*4+env(safe-area-inset-bottom))] data-[active=false]:scale-95 data-[active=false]:opacity-0 data-[active=false]:duration-slow data-[active=false]:ease-exit data-[active=true]:translate-y-0 data-[active=true]:scale-100 data-[active=true]:opacity-100 data-[active=true]:ease-emphasized",
+        // The shared docked-control grammar (audit B8-11 / D11 amendment #7): 150ms in on
+        // `ease-emphasized`, 100ms out on `ease-exit`, translate + fade and no scale. Only the
+        // DISTANCE is stated here — the bar clears its own height plus the bottom gap and the
+        // safe-area inset — because that is the one part of a dock that is geometry, not grammar.
+        "data-[active=true]:motion-dock-in data-[active=true]:translate-y-0 data-[active=false]:motion-dock-out data-[active=false]:translate-y-[calc(100%+var(--spacing)*4+env(safe-area-inset-bottom))]",
         className,
       )}
       {...props}
@@ -191,7 +203,7 @@ export function ActionBar({
           {status}
         </div>
       ) : null}
-      <div
+      <Toolbar.Group
         data-slot="action-bar-actions"
         aria-busy={pending || undefined}
         // `inert`, not just pointer-events: a bulk operation in flight must not
@@ -203,7 +215,7 @@ export function ActionBar({
         )}
       >
         {children}
-      </div>
+      </Toolbar.Group>
       <span
         role="status"
         aria-live="polite"
@@ -212,6 +224,63 @@ export function ActionBar({
       >
         {open ? resolvedAnnouncement : undefined}
       </span>
-    </div>
+    </Toolbar.Root>
+  );
+}
+
+/** Props accepted by `ActionBarButton`. */
+export type ActionBarButtonProps = React.ComponentPropsWithRef<
+  typeof Toolbar.Button
+>;
+
+/**
+ * `ActionBarButton` — one action inside an {@link ActionBar}, and the reason the bar's roving
+ * focus is a real promise rather than a role that lies.
+ *
+ * Base UI's toolbar builds its single tab stop from the items that REGISTER with it, so an action
+ * has to be a `Toolbar.Button` to join the arrow-key order; a bare `<Button>` dropped into the bar
+ * still renders, but stays its own tab stop and the arrows skip it. This is that registration, with
+ * the bar's default action shape (a `ghost` `sm` button) already applied.
+ *
+ * Pass `render` to change the shape — a destructive action, an `IconButton`, a menu trigger:
+ *
+ * @example
+ * <ActionBarButton onClick={tag}>Tag</ActionBarButton>
+ * <ActionBarButton render={<Button variant="soft" tone="destructive" size="sm" />}>
+ *   Archive
+ * </ActionBarButton>
+ */
+export function ActionBarButton({ render, ...props }: ActionBarButtonProps) {
+  return (
+    <Toolbar.Button
+      data-slot="action-bar-button"
+      render={render ?? <Button variant="ghost" size="sm" />}
+      {...props}
+    />
+  );
+}
+
+/** Props accepted by `ActionBarSeparator`. */
+export type ActionBarSeparatorProps = React.ComponentPropsWithRef<
+  typeof Toolbar.Separator
+>;
+
+/**
+ * `ActionBarSeparator` — the hairline between two clusters of actions. `Toolbar.Separator` takes
+ * the orientation perpendicular to the toolbar, so a horizontal bar gets a vertical rule without
+ * being told.
+ *
+ * @example <ActionBarSeparator />
+ */
+export function ActionBarSeparator({
+  className,
+  ...props
+}: ActionBarSeparatorProps) {
+  return (
+    <Toolbar.Separator
+      data-slot="action-bar-separator"
+      className={cn("mx-0.5 h-4 w-px shrink-0 bg-border", className)}
+      {...props}
+    />
   );
 }
