@@ -206,6 +206,47 @@ export const fieldControlGroup = [
 ].join(" ");
 
 /**
+ * THE selected-chip recipe — one formula for every "raised chip on a muted track" control:
+ * Tabs `pill` and `chip`, `Segmented`, `Toggle` pressed and `ToggleGroup` pressed. Before this
+ * existed the four wrote four different selected looks (`bg-background`, `bg-secondary` + hairline,
+ * `bg-foreground/10`); audit 2026-09-07 B6-02.
+ *
+ * The track is the ladder's well rung (`surface-1`); the chip is the PRESSED/SELECTED rung
+ * (§Surfaces) expressed in its **alpha** form — `bg-foreground/(--alpha-ink-tint)` composites to
+ * within a hair of `surface-3` over the track, and doctrine reaches for the alpha twin exactly here
+ * ("a chip on a well"). Being an alpha is also what lets the SELECTED chip keep stepping: a hovered
+ * selected chip strengthens to `--alpha-ink-tint-strong` and a pressed one drops back to the resting
+ * tint (previewing the release), so no state ever reads as dead — an opaque `surface-3` chip would
+ * have nowhere left to climb.
+ *
+ * Base UI spells "selected" differently per primitive, so the state rules ship as two literal
+ * strings rather than a selector parameter (Tailwind v4's scanner only sees literals):
+ * {@link selectedChipVariants.pressed} for Toggle/ToggleGroup/Segmented (`data-pressed`) and
+ * {@link selectedChipVariants.active} for Tabs (`data-active`). The unselected steps are guarded by
+ * the matching `not-*` variant so the two sets are mutually exclusive and never race on specificity.
+ *
+ * @example
+ * <div className={cn("rounded-md p-0.5", selectedChipVariants.track)}>
+ *   <Toggle className={cn("rounded-sm", selectedChipVariants.item, selectedChipVariants.pressed)} />
+ * </div>
+ */
+export const selectedChipVariants = {
+  /** The muted track the chips sit in — the ladder's well rung. */
+  track: "bg-surface-1",
+  /**
+   * Chrome shared by every chip: a transparent hairline reserved at rest (so selecting adds no
+   * layout shift) and the muted→ink text step.
+   */
+  item: "border border-transparent hover:text-foreground",
+  /** Selected keyed on Base UI's `data-pressed` — Toggle, ToggleGroup, Segmented. */
+  pressed:
+    "not-data-pressed:hover:bg-foreground/(--alpha-hover) not-data-pressed:active:bg-foreground/(--alpha-pressed) data-pressed:border-border data-pressed:bg-foreground/(--alpha-ink-tint) data-pressed:text-foreground data-pressed:hover:bg-foreground/(--alpha-ink-tint-strong) data-pressed:active:bg-foreground/(--alpha-ink-tint)",
+  /** Selected keyed on Base UI's `data-active` — Tabs. */
+  active:
+    "not-data-[active]:hover:bg-foreground/(--alpha-hover) not-data-[active]:active:bg-foreground/(--alpha-pressed) data-[active]:border-border data-[active]:bg-foreground/(--alpha-ink-tint) data-[active]:text-foreground data-[active]:hover:bg-foreground/(--alpha-ink-tint-strong) data-[active]:active:bg-foreground/(--alpha-ink-tint)",
+} as const;
+
+/**
  * @internal Registry theme-scope plumbing lives at `@vegastack/design/theme-scope`, NOT here.
  * It calls `React.createContext()` at module scope, which is `undefined` under the `react-server`
  * condition — re-exporting it from this entry would make every Server Component that imports

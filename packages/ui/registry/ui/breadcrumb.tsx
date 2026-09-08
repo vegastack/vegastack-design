@@ -144,10 +144,12 @@ export type BreadcrumbPageProps = React.ComponentPropsWithRef<"span">;
  */
 function BreadcrumbPage({ className, ...props }: BreadcrumbPageProps) {
   return (
+    // A plain span with `aria-current="page"`. It is NOT a link and must not claim to be one:
+    // shadcn's inherited `role="link" aria-disabled="true"` made screen readers announce the
+    // current page as a *disabled link* — an interactive promise the element never keeps
+    // (B6-04). `aria-current` alone is the whole contract here.
     <span
       data-slot="breadcrumb-page"
-      role="link"
-      aria-disabled="true"
       aria-current="page"
       className={cn("font-normal text-foreground", className)}
       {...props}
@@ -293,10 +295,9 @@ function BreadcrumbCollapsed({
         ref={ref}
         aria-label={label}
         data-slot="breadcrumb-collapsed-trigger"
-        className={cn(
-          "rounded-sm  hover:text-foreground focus-visible:outline-ring",
-          className,
-        )}
+        // The focus ring is the global `:focus-visible` rule — restating it here (B6-10) only
+        // gave the two a way to drift.
+        className={cn("rounded-sm hover:text-foreground", className)}
         {...props}
       >
         <BreadcrumbEllipsis />
