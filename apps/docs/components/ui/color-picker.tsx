@@ -1,4 +1,4 @@
-// @vegastack color-picker@0.6.0 sha256-0KWr1+rI0OZAdSYzvdr7ZkRVWjdZL9V2IlcxBOsVKGo=
+// @vegastack color-picker@0.6.0 sha256-tAEOrHsa4KKp0i4kh8T8DbD2+713CRpJqR7LaJQAg+Y=
 
 "use client";
 
@@ -10,7 +10,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import { useListNav } from "@/components/ui/use-list-nav";
 
 /* ------------------------------------------------------------------------------------------------
@@ -193,11 +193,11 @@ export function ColorPicker({
         ref={ref}
         disabled={disabled}
         render={
-          <Button
+          <IconButton
             variant="outline"
-            size="icon-sm"
+            size="sm"
             aria-label={ariaLabel}
-            // Trigger is a control → `rounded-md` (Button's native radius); no `rounded-full`.
+            // Trigger is a control → `shape="square"` (the default); a swatch grid cell is round.
             className={className}
           >
             <span
@@ -208,7 +208,7 @@ export function ColorPicker({
               // Dynamic swatch color, not a design token.
               style={selected ? { backgroundColor: selected.color } : undefined}
             />
-          </Button>
+          </IconButton>
         }
       />
       <PopoverContent
@@ -231,11 +231,12 @@ export function ColorPicker({
           {colors.map((color, index) => {
             const isSelected = color.name === value;
             return (
-              <Button
+              <IconButton
                 key={color.name}
                 type="button"
                 variant="ghost"
-                size="icon-sm"
+                shape="round"
+                size="sm"
                 disabled={disabled}
                 aria-label={color.label}
                 aria-pressed={isSelected}
@@ -246,7 +247,7 @@ export function ColorPicker({
                   setActiveIndex(index);
                   onValueChange?.(color.name);
                 }}
-                className="size-(--size-sm) rounded-full p-0 hover:bg-transparent"
+                className="hover:bg-transparent"
               >
                 <span
                   data-slot="color-picker-swatch"
@@ -267,7 +268,7 @@ export function ColorPicker({
                     </span>
                   ) : null}
                 </span>
-              </Button>
+              </IconButton>
             );
           })}
         </div>

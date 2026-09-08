@@ -1,4 +1,4 @@
-// @vegastack spinner@0.6.0 sha256-e9JjL8PgH4hyZ2rhvQ/O3NuHSKdX2wpvNfeU2uDOE3o=
+// @vegastack spinner@0.6.0 sha256-G8dPzySfa5Vo7FcAjibzDF2UsoAAuFVMLvDtWklRh/8=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -21,7 +21,7 @@ export const spinnerVariants = cva(
       size: {
         xs: "size-(--icon-compact)",
         sm: "size-(--icon-inline)",
-        default: "size-(--icon-default)",
+        md: "size-(--icon-default)",
         lg: "size-(--icon-feature)",
         /**
          * No size class — the host's `[&_svg]` selector sizing applies (Button/Badge) —
@@ -30,7 +30,7 @@ export const spinnerVariants = cva(
         inherit: "text-current",
       },
     },
-    defaultVariants: { size: "default" },
+    defaultVariants: { size: "md" },
   },
 );
 
@@ -43,9 +43,9 @@ export interface SpinnerProps
    * Size variant — mirrors the rest of the scale and maps to the `size-*`
    * tokens. The spinner inherits `currentColor`, so set its color via the
    * parent's text color.
-   * @default 'default'
+   * @default 'md'
    */
-  size?: "xs" | "sm" | "default" | "lg" | "inherit";
+  size?: "xs" | "sm" | "md" | "lg" | "inherit";
   /**
    * Accessible label announced by assistive tech while the spinner is visible.
    * When provided, the spinner exposes `role="status"` + `aria-label` so screen
@@ -78,7 +78,7 @@ export interface SpinnerProps
  */
 export function Spinner({
   className,
-  size = "default",
+  size = "md",
   label = "Loading",
   ref,
   ...props

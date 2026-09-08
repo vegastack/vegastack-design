@@ -26,11 +26,11 @@ test('renders a button labelled "Copy" by default', async () => {
   await expect.element(btn).toHaveAttribute("data-slot", "copy-button");
 });
 
-test("defaults to ghost / icon-sm", async () => {
+test("defaults to ghost / sm", async () => {
   const screen = await render(<CopyButton value="hello" />);
   const btn = screen.getByRole("button", { name: "Copy" });
   await expect.element(btn).toHaveAttribute("data-variant", "ghost");
-  await expect.element(btn).toHaveAttribute("data-size", "icon-sm");
+  await expect.element(btn).toHaveAttribute("data-size", "sm");
 });
 
 test("showLabel renders visible status text and defaults to the small text-button size", async () => {

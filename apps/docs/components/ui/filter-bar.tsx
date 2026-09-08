@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.6.0 sha256-F445iXV1YjPkj0X2QMhJMJi7nwCzUOCKSPf2APv5jqM=
+// @vegastack filter-bar@0.6.0 sha256-CAHOLV1Orxu5rRE4MOzSkPKhvjk63MAruEsjs9VqvCw=
 
 "use client";
 
@@ -6,6 +6,7 @@ import * as React from "react";
 import { ListFilterPlus, X } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -234,10 +235,10 @@ export function FilterChip({
       {value != null ? (
         <span className="min-w-0 truncate font-medium">{value}</span>
       ) : null}
-      <Button
+      <IconButton
         type="button"
         variant="ghost"
-        size="icon-xs"
+        size="xs"
         onClick={onRemove}
         aria-label={computedRemoveLabel}
         data-slot="filter-chip-remove"
@@ -261,14 +262,14 @@ export function FilterChip({
           // and therefore its visual footprint and the × glyph's centered position
           // inside it (`items-center justify-center`, unaffected by the bigger box) —
           // is byte-for-byte identical to before (both resolve to 28px total).
-          "-mr-1 size-6 rounded-md",
+          "-me-1",
           active
             ? "text-foreground hover:bg-foreground/(--alpha-ink-tint) hover:text-foreground"
             : "text-muted-foreground hover:text-foreground",
         )}
       >
         <X className="size-(--icon-compact)" aria-hidden />
-      </Button>
+      </IconButton>
     </div>
   );
 }

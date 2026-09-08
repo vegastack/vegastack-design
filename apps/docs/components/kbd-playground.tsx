@@ -12,7 +12,7 @@ type KbdPlaygroundKey = "size" | "os";
 const SIZE_OPTIONS = [
   { value: "xs", label: "Extra small" },
   { value: "sm", label: "Small" },
-  { value: "default", label: "Default" },
+  { value: "md", label: "Medium" },
 ] as const;
 
 const OS_OPTIONS = [
@@ -31,7 +31,7 @@ const kbdPlaygroundConfig: PlaygroundConfig<KbdPlaygroundKey> = {
       key: "size",
       label: "Size",
       options: SIZE_OPTIONS,
-      defaultValue: "default",
+      defaultValue: "md",
     },
     {
       type: "select",
@@ -50,7 +50,7 @@ const kbdPlaygroundConfig: PlaygroundConfig<KbdPlaygroundKey> = {
   ),
   toCode: (state) => {
     const props: string[] = [];
-    if (state.size !== "default") props.push(`size="${state.size}"`);
+    if (state.size !== "md") props.push(`size="${state.size}"`);
     if (state.os !== "mac") props.push(`os="${state.os}"`);
     const propsString = props.length > 0 ? ` ${props.join(" ")}` : "";
     return `<Kbd keys={['⌘', 'K']}${propsString} />`;

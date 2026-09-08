@@ -48,7 +48,7 @@ export function progressIndicatorSizes(): ReactNode {
     <Wrapper className="gap-6">
       <ProgressIndicator value={66} size="xs" aria-label="Extra small" />
       <ProgressIndicator value={66} size="sm" aria-label="Small" />
-      <ProgressIndicator value={66} size="default" aria-label="Default" />
+      <ProgressIndicator value={66} size="md" aria-label="Default" />
       <ProgressIndicator value={66} size="lg" aria-label="Large" />
     </Wrapper>
   );

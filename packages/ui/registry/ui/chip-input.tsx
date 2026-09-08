@@ -1,4 +1,4 @@
-// @vegastack chip-input@0.6.0 sha256-Uqd3VIdyWxYvsViMQK9P2fJeyoHhujROnd7S+0AUz7U=
+// @vegastack chip-input@0.6.0 sha256-XH8zY3j0UE6HssTFSF3Azie6X6idg2gstdWjAzwG/yE=
 
 "use client";
 
@@ -60,11 +60,11 @@ export const chipInputVariants = cva(
       size: {
         // sm tightens the padding so the 24px inner input still fits the 28px tier.
         sm: "min-h-(--size-sm) p-0.5",
-        default: "min-h-(--size-md)",
+        md: "min-h-(--size-md)",
         lg: "min-h-(--size-lg)",
       },
     },
-    defaultVariants: { size: "default" },
+    defaultVariants: { size: "md" },
   },
 );
 
@@ -181,7 +181,7 @@ export function ChipInput({
   placeholder,
   "aria-label": ariaLabel,
   disabled = false,
-  size = "default",
+  size = "md",
   shakeSignal,
   className,
   ref,

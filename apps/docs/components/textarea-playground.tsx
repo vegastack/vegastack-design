@@ -11,7 +11,7 @@ type TextareaPlaygroundKey = "size" | "autoGrow" | "disabled" | "invalid";
 
 const SIZE_OPTIONS = [
   { value: "sm", label: "Small" },
-  { value: "default", label: "Default" },
+  { value: "md", label: "Medium" },
   { value: "lg", label: "Large" },
 ] as const;
 
@@ -22,7 +22,7 @@ const textareaPlaygroundConfig: PlaygroundConfig<TextareaPlaygroundKey> = {
       key: "size",
       label: "Size",
       options: SIZE_OPTIONS,
-      defaultValue: "default",
+      defaultValue: "md",
     },
     {
       type: "switch",
@@ -47,7 +47,7 @@ const textareaPlaygroundConfig: PlaygroundConfig<TextareaPlaygroundKey> = {
   ),
   toCode: (state) => {
     const props: string[] = [];
-    if (state.size !== "default") props.push(`size="${state.size}"`);
+    if (state.size !== "md") props.push(`size="${state.size}"`);
     if (state.autoGrow) props.push("autoGrow");
     props.push('placeholder="Tell us about your project…"');
     if (state.disabled) props.push("disabled");

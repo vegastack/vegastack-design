@@ -435,7 +435,7 @@ export function messageScrollerButtonVariants(): ReactNode {
               </MessageScrollerContent>
             </MessageScrollerViewport>
             {/* Forward `variant`/`size` from ButtonProps to restyle the affordance. */}
-            <MessageScrollerButton direction="end" variant="default" size="sm">
+            <MessageScrollerButton direction="end" variant="solid" size="sm">
               Jump to latest
             </MessageScrollerButton>
           </MessageScroller>

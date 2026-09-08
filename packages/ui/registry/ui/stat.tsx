@@ -1,4 +1,4 @@
-// @vegastack stat@0.6.0 sha256-OUbSP5T6Jxbm193SZtfwJrJhvo4nP1yaROQGaqvGUfA=
+// @vegastack stat@0.6.0 sha256-AtNs95bbUmEZe7gbG32yOyymdti5POvza5H6udP92eE=
 
 "use client";
 
@@ -17,22 +17,22 @@ import { cn } from "@vegastack/design";
 export const statValueVariants = cva("font-medium text-foreground", {
   variants: {
     size: {
-      default: "text-base",
+      md: "text-base",
       lg: "text-3xl tabular-nums",
     },
   },
-  defaultVariants: { size: "default" },
+  defaultVariants: { size: "md" },
 });
 
-const StatSizeContext = React.createContext<"default" | "lg">("default");
+const StatSizeContext = React.createContext<"md" | "lg">("md");
 
 /** Props for a labelled statistic group. */
 export interface StatProps extends React.ComponentPropsWithRef<"div"> {
   /**
    * Scale — `default` for facts/highlights rows, `lg` for dashboard tiles.
-   * @default 'default'
+   * @default 'md'
    */
-  size?: "default" | "lg";
+  size?: "md" | "lg";
 }
 
 /**
@@ -54,7 +54,7 @@ export interface StatProps extends React.ComponentPropsWithRef<"div"> {
  */
 export function Stat({
   className,
-  size = "default",
+  size = "md",
   ref,
   ...props
 }: StatProps) {

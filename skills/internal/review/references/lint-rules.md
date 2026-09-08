@@ -110,12 +110,15 @@ in both directions, so an added or removed rule fails the build until this file 
     setup) is exempt.
 28. **`icon-button-name`** (AST, TypeScript-parsed — catches multi-line JSX) — a
     `<Button size="icon*">` with no `aria-label`/`aria-labelledby` on the same element AND no spread
-    that could supply one. Suggest `aria-label`, or switching to `IconButton` (type-level enforced).
+    that could supply one. Since 2026-09-07 `Button` has no `icon*` size at all, so in this repo the
+    rule is a residual guard for consumer copies that predate the rename; the sanctioned path is
+    `IconButton`, which enforces the label at the type level.
 29. **`raw-interactive-html`** (AST) — canonical registry components may not render native
     `<button>`/`<input>`/`<select>`/`<textarea>` unless the file has an exact per-tag count and a
     concrete adapter/integration rationale in `RAW_INTERACTIVE_EXEMPTIONS`. Counts fail closed in
-    both directions: adding or removing a reviewed native control requires re-audit. `Textarea`'s
-    owned native adapter and Markdown's non-checkbox input passthrough are examples of narrow valid
+    both directions: adding or removing a reviewed native control requires re-audit — the F2 sweep
+    tripped this rule in the REMOVING direction on four files, which is the point. `Textarea`'s owned
+    native adapter and Markdown's non-checkbox input passthrough are examples of narrow valid
     exemptions.
 30. **`forward-ref`** (AST) — calls through React's namespace/default import or a named `forwardRef`
     import (including aliases) are banned. React 19 components accept `ref` as a normal prop. This

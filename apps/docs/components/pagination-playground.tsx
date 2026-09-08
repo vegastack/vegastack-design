@@ -22,7 +22,7 @@ type PaginationPlaygroundKey = "size";
 const SIZE_OPTIONS = [
   { value: "icon", label: "Icon (square)" },
   { value: "sm", label: "Small" },
-  { value: "default", label: "Default" },
+  { value: "md", label: "Medium" },
   { value: "lg", label: "Large" },
 ] as const;
 

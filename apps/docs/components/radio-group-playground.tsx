@@ -21,7 +21,7 @@ const ORIENTATION_OPTIONS = [
 ] as const;
 
 const SIZE_OPTIONS = [
-  { value: "default", label: "Default" },
+  { value: "md", label: "Medium" },
   { value: "sm", label: "Small" },
 ] as const;
 
@@ -45,7 +45,7 @@ const radioGroupPlaygroundConfig: PlaygroundConfig<RadioGroupPlaygroundKey> = {
       key: "size",
       label: "Item size",
       options: SIZE_OPTIONS,
-      defaultValue: "default",
+      defaultValue: "md",
     },
     { type: "switch", key: "disabled", label: "Disabled", defaultValue: false },
   ],
@@ -71,7 +71,7 @@ const radioGroupPlaygroundConfig: PlaygroundConfig<RadioGroupPlaygroundKey> = {
     if (state.orientation !== "vertical")
       groupProps.push(`orientation="${state.orientation}"`);
     if (state.disabled) groupProps.push("disabled");
-    const itemProps = state.size !== "default" ? ` size="${state.size}"` : "";
+    const itemProps = state.size !== "md" ? ` size="${state.size}"` : "";
     const items = DENSITY_OPTIONS.map((option) =>
       [
         `  <Field label="${option.label}" orientation="horizontal">`,

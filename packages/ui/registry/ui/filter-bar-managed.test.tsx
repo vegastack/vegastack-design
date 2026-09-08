@@ -208,10 +208,10 @@ test("the depth cap disables add-group with a readable reason", async () => {
   const addGroupButtons = screen.getByRole("button", { name: "Add group" });
   const nested = addGroupButtons.nth(0).element() as HTMLButtonElement;
   const root = addGroupButtons.nth(1).element() as HTMLButtonElement;
-  expect(root.disabled).toBe(false);
-  expect(nested.disabled).toBe(true);
-  // The reason is VISIBLE text beside the affordance — a natively-disabled
-  // button leaves the tab order, so aria-describedby on it is unreachable.
+  expect(root.getAttribute("aria-disabled")).not.toBe("true");
+  expect(nested.getAttribute("aria-disabled")).toBe("true");
+  // The reason is VISIBLE text beside the affordance, so it is readable by
+  // everyone rather than only by a screen reader that reaches the control.
   const reason = document.querySelector(
     '[data-slot="filter-builder-cap-reason"]',
   );
@@ -235,13 +235,13 @@ test("the condition cap disables add-condition but never add-group (restructurin
   const addCondition = screen
     .getByRole("button", { name: "Add condition" })
     .element() as HTMLButtonElement;
-  expect(addCondition.disabled).toBe(true);
+  expect(addCondition.getAttribute("aria-disabled")).toBe("true");
   const addGroup = screen
     .getByRole("button", { name: "Add group" })
     .element() as HTMLButtonElement;
   // An empty group adds zero conditions — at the cap the user may still
   // restructure the filter.
-  expect(addGroup.disabled).toBe(false);
+  expect(addGroup.getAttribute("aria-disabled")).not.toBe("true");
 });
 
 test("removing a condition moves focus to the NEXT sibling; removing the last focuses add-condition", async () => {

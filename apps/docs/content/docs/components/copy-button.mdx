@@ -23,13 +23,14 @@ import { CopyButton } from "@/components/ui/copy-button";
 
 ### Playground
 
-Try the forwarded variant and size axes and the disabled state — the copy action is live — then copy the generated JSX.
+Try the forwarded `variant × tone` and size axes, the label toggle, and the disabled state — the
+copy action is live — then copy the generated JSX.
 
 <CopyButtonPlayground />
 
 ### Copy feedback
 
-A `ghost` / `icon-sm` button that writes `value` to the clipboard and swaps the
+A `ghost` / `sm` icon button that writes `value` to the clipboard and swaps the
 `Copy` icon for a `Check` for ~1.5s. Pair it with the value it copies — an API
 key, an invite link, a code snippet — and use `onCopied` to surface a toast.
 
@@ -38,8 +39,8 @@ key, an invite link, a code snippet — and use `onCopied` to surface a toast.
 ### Visible label
 
 Set `showLabel` when the action needs stronger discoverability. The current
-`copyLabel` or `copiedLabel` appears beside the icon, and the default size changes
-from the square `icon-sm` control to the text-bearing `sm` control.
+`copyLabel` or `copiedLabel` appears beside the icon, and the control switches from an
+`IconButton` (square, `sm`) to a text-bearing `Button` at the same size.
 
 <ComponentPreview
   name="copyButtonLabels"
@@ -76,8 +77,8 @@ and only appears after a real write, so the middle cell below is live — click 
 
 ### Variants
 
-`CopyButton` defaults to `variant="ghost"` but forwards any [`Button`](/docs/components/button)
-variant unchanged.
+`CopyButton` defaults to `variant="ghost"` but forwards the whole
+[`Button`](/docs/components/button) `variant × tone` matrix unchanged.
 
 <ComponentPreview
   name="copyButtonVariants"
@@ -86,7 +87,7 @@ variant unchanged.
 
 ### Sizes
 
-`size` is forwarded too. It defaults to `icon-sm`, or `sm` when `showLabel` is enabled.
+`size` is forwarded too, from the one `xs · sm · md · lg` vocabulary. It defaults to `sm`.
 An explicit `size` always wins.
 
 <ComponentPreview
@@ -109,7 +110,7 @@ type, accessible labels, and icon children.
 
 - Renders a native `<button type="button">`; keyboard <kbd>Enter</kbd> / <kbd>Space</kbd> activate it.
 - The accessible name switches from `Copy` to `Copied` on success so screen readers announce the result; the icon is decorative (`aria-hidden`).
-- Inherits the underlying `Button`'s focus treatment: the default `ghost` variant shows the design system's global 2px focus ring (`outline-ring`) on `:focus-visible` and never sets `outline: none`. The bordered `outline` / `glass` variants additionally re-color their border with the `ring` token (`focus-visible:border-ring/(--alpha-tint-border)`).
+- Inherits the underlying `Button`'s focus treatment: the default `ghost` variant shows the design system's global 2px focus ring (`outline-ring`) on `:focus-visible` and never sets `outline: none`. The bordered `outline` variant additionally re-colors its border with the `ring` token (`focus-visible:border-ring/(--alpha-tint-border)`).
 - A failed clipboard write (denied permission or insecure context) leaves the button in its default state instead of showing a false success.
 
 | Key                                 | Action                         |

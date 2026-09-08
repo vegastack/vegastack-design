@@ -1,4 +1,4 @@
-// @vegastack select@0.6.0 sha256-CDLcBdNMMxTQ3DA/Jm3rxStDr8FMbVo/+VFUkQGy1ks=
+// @vegastack select@0.6.0 sha256-Y00sqlpOxvXMUJ+q6y+j4DMTmmLnSY8qZCszbfs52lU=
 
 "use client";
 
@@ -44,11 +44,11 @@ export const selectTriggerVariants = cva(
     variants: {
       size: {
         sm: "h-(--size-sm) px-2.5 text-sm",
-        default: "h-(--size-md) px-3",
+        md: "h-(--size-md) px-3",
         lg: "h-(--size-lg) px-3",
       },
     },
-    defaultVariants: { size: "default" },
+    defaultVariants: { size: "md" },
   },
 );
 
@@ -154,7 +154,7 @@ export interface SelectTriggerProps
  */
 export function SelectTrigger({
   className,
-  size = "default",
+  size = "md",
   children,
   ...props
 }: SelectTriggerProps) {

@@ -17,7 +17,7 @@ import {
 type CardPlaygroundKey = "size";
 
 const SIZE_OPTIONS = [
-  { value: "default", label: "Default" },
+  { value: "md", label: "Medium" },
   { value: "sm", label: "Small" },
 ] as const;
 
@@ -28,7 +28,7 @@ const cardPlaygroundConfig: PlaygroundConfig<CardPlaygroundKey> = {
       key: "size",
       label: "Size",
       options: SIZE_OPTIONS,
-      defaultValue: "default",
+      defaultValue: "md",
     },
   ],
   render: (state): ReactNode => (
@@ -45,7 +45,7 @@ const cardPlaygroundConfig: PlaygroundConfig<CardPlaygroundKey> = {
     </div>
   ),
   toCode: (state) => {
-    const sizeProp = state.size !== "default" ? ` size="${state.size}"` : "";
+    const sizeProp = state.size !== "md" ? ` size="${state.size}"` : "";
     return [
       `<Card${sizeProp}>`,
       "  <CardHeader>",

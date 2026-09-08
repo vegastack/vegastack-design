@@ -1,11 +1,16 @@
-// @vegastack split-button@0.6.0 sha256-U6yf1/1X5E8RqtLXDYrcWlPv3pWBZH768lGvk756hGs=
+// @vegastack split-button@0.6.0 sha256-5OEEZIBDDR6wUv8wQR/yw6GsuV8tuUrsIwa0Gbo31H4=
 
 "use client";
 
 import * as React from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@vegastack/design";
-import { Button, type ButtonProps } from "@/components/ui/button";
+import {
+  Button,
+  type ButtonAppearance,
+  type ButtonOwnProps,
+} from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -37,7 +42,8 @@ export interface SplitButtonAction {
  * composite, so there is no single root element a `render` prop could replace.
  * Compose it via its declarative `actions` array or composed `menu` children.
  */
-export type SplitButtonProps = Omit<ButtonProps, "render"> & {
+export type SplitButtonProps = Omit<ButtonOwnProps, "render"> &
+  ButtonAppearance & {
   /** The primary action's label. */
   children: React.ReactNode;
   /**
@@ -70,18 +76,6 @@ export type SplitButtonProps = Omit<ButtonProps, "render"> & {
       }
   );
 
-/** The chevron trigger's width per size, mirroring `Button`'s horizontal padding scale. */
-const triggerSizeClassName: Record<NonNullable<ButtonProps["size"]>, string> = {
-  xs: "px-1",
-  sm: "px-1.5",
-  default: "px-1.5",
-  lg: "px-2",
-  icon: "px-1.5",
-  "icon-xs": "px-1",
-  "icon-sm": "px-1.5",
-  "icon-lg": "px-2",
-};
-
 /**
  * `SplitButton` — a primary action button joined to a dropdown trigger. The left
  * half runs the default action on click; the chevron on the right opens a menu of
@@ -109,8 +103,9 @@ const triggerSizeClassName: Record<NonNullable<ButtonProps["size"]>, string> = {
  */
 export function SplitButton({
   className,
-  variant = "default",
-  size = "default",
+  variant = "solid",
+  tone,
+  size = "md",
   loading = false,
   disabled,
   children,
@@ -142,12 +137,14 @@ export function SplitButton({
     <div
       data-slot="split-button"
       data-variant={variant}
+      data-tone={tone}
       data-size={size}
       className={cn("inline-flex items-stretch", className)}
     >
-      {/* Primary action — joined on the right (square corner + shared seam). */}
+      {/* Primary action — joined on the right (square corner + shared seam). It is a plain Button,
+          so it keeps the matrix's own hover and pressed steps (audit SP-04). */}
       <Button
-        variant={variant}
+        {...({ variant, tone } as ButtonAppearance)}
         size={size}
         loading={loading}
         disabled={disabled}
@@ -163,32 +160,25 @@ export function SplitButton({
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
-              <Button
-                variant={variant}
+              <IconButton
+                {...({ variant, tone } as ButtonAppearance)}
                 size={size}
                 disabled={isDisabled}
                 // Loading CUE on the menu half (register P2-39): announced busy + styleable via
                 // data-loading. Deliberately NO second spinner — the primary half already shows
-                // one. While loading (but NOT truly disabled) the chevron stays focusable
-                // (`focusableWhenDisabled`, matching Button's own loading contract) so keyboard
-                // focus isn't dropped mid-action — Base UI renders `aria-disabled` instead of the
-                // native attribute, which also skips the `disabled:` opacity dim: the pending
-                // state must read as ONE joined control (the primary half doesn't dim while
-                // loading either), with `data-loading:pointer-events-none` keeping the half
-                // non-interactive. A true `disabled` prop still renders native disabled and dims
-                // both halves.
-                focusableWhenDisabled={loading && !disabled ? true : undefined}
+                // one. The half stays focusable and is marked `aria-disabled` (Button's uniform
+                // disabled form, audit D7), so keyboard focus isn't dropped mid-action and the
+                // pending state reads as ONE joined control — the primary half doesn't dim while
+                // loading either, and `data-loading` suppresses the dim on this half the same way.
+                // `data-loading:pointer-events-none` keeps it non-interactive.
                 aria-busy={loading || undefined}
                 data-loading={loading ? "" : undefined}
                 aria-label={menuLabel}
                 data-slot="split-button-trigger"
-                className={cn(
-                  "-ms-px rounded-s-none data-loading:pointer-events-none",
-                  triggerSizeClassName[size ?? "default"],
-                )}
+                className="-ms-px rounded-s-none data-loading:pointer-events-none"
               >
                 <ChevronDown aria-hidden />
-              </Button>
+              </IconButton>
             }
           />
           <DropdownMenuContent align={menuAlign} {...menuContentProps}>

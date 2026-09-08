@@ -1,6 +1,6 @@
 ---
 title: Button
-description: Trigger an action — 15 variants × 8 sizes, with loading and Base UI Button semantics.
+description: Trigger an action — six variants × five tones, four sizes, with loading and Base UI Button semantics.
 audience: public
 registry: button
 status: stable
@@ -21,6 +21,15 @@ import { Button } from "@/components/ui/button";
 <Button>Save changes</Button>;
 ```
 
+Appearance is two axes. `variant` is the shape — `solid`, `soft`, `outline`, `ghost`, `link`, plus
+the marketing `cta`. `tone` is the hue — `neutral` (the default), `destructive`, `success`,
+`warning`, `info`. Every recipe is written once and reads the tone through CSS custom properties,
+so hover and pressed behave identically in all thirty cells.
+
+```tsx
+<Button variant="soft" tone="destructive">Delete</Button>
+```
+
 To render a Button as a link, compose the anchor through `render` and pass `nativeButton={false}`
 — Base UI expects a native `<button>` by default and warns when `render` swaps in anything else:
 
@@ -36,18 +45,30 @@ import Link from "next/link";
 
 ### Playground
 
-Try all 15 variants and all 8 sizes — the square `icon-*` sizes switch to an icon child with an
-`aria-label` — plus the `disabled` and `loading` states, then copy the generated JSX.
+Pick a `variant`, a `tone`, and a `size`, flip `disabled` / `loading`, then copy the generated JSX.
 
 <ButtonPlayground />
 
 ### Variants
 
-Neutral (`default`, `secondary`, `outline`, `ghost`, `link`),
-semantic-filled (`destructive`, `success`, `warning`, `info`), semantic-outline (`*-outline`), and
-`glass`. The `link` variant is styled as a text link in the `info` color.
+The five product shapes at the default `neutral` tone. `link` is styled as a text link.
 
 <ComponentPreview name="buttonVariants" file="components/preview/button.tsx" />
+
+### Tones
+
+The same shape carrying each of the five hues. Status colour lives on `tone`, never in the variant
+name.
+
+<ComponentPreview name="buttonTones" file="components/preview/button.tsx" />
+
+### Variant × tone matrix
+
+The full grid, rows by variant and columns by tone. `solid` × `destructive` is deliberately absent:
+a destructive action is a **soft** (or outline / ghost / link) button, and passing that pair is a
+TypeScript error.
+
+<ComponentPreview name="buttonMatrix" file="components/preview/button.tsx" />
 
 ### Marketing CTA
 
@@ -56,7 +77,7 @@ semantic-filled (`destructive`, `success`, `warning`, `info`), semantic-outline 
 (`rounded-(--radius-sharp)`), and a mono-uppercase label (the brand voice layer). Reserve it for
 marketing surfaces, typically inside a [`MarketingSurface`](/docs/components/marketing-surface).
 Compose a trailing icon (e.g. `lucide-react`'s `ChevronRight`) as a **child** — the variant is
-style-only and never bakes one in.
+style-only and never bakes one in. `cta` is brand-locked and takes no `tone`.
 
 <ComponentPreview name="buttonCta" file="components/preview/button.tsx" />
 
@@ -69,43 +90,31 @@ style-only and never bakes one in.
 
 ### Sizes
 
-`xs`, `sm`, `default`, `lg`, plus square icon sizes `icon-xs`, `icon-sm`, `icon`, `icon-lg`.
+`xs`, `sm`, `md`, `lg` — the same vocabulary the `--size-*` tokens use. Icon-only actions are
+[`IconButton`](/docs/components/icon-button), which is the only icon-only path: `Button` has no
+icon size tier.
 
 <ComponentPreview name="buttonSizes" file="components/preview/button.tsx" />
 
 ### States
 
-Icons compose as children; `loading` shows a spinner and sets `aria-busy`; `disabled` is supported.
+Icons compose as children; `loading` stacks a spinner over the label so the button's width does not
+move; `disabled` is `aria-disabled` and stays hoverable so a Tooltip can explain why.
 
 <ComponentPreview name="buttonStates" file="components/preview/button.tsx" />
 
-### Variant × size matrix
-
-The same variant reads differently at each size — padding, height, and text-size shift together
-(`xs` drops to `text-xs`, `lg` grows the hit target). The grid pairs `default` / `outline` /
-`destructive` against `xs` / `default` / `lg` so the interplay is visible at a glance.
-
-<ComponentPreview name="buttonMatrix" file="components/preview/button.tsx" />
-
-### Lit finish
-
-The Wave-2 `finish="lit"` prop adds the `--shadow-lit` top-light + warm ambient pair to the
-**primary** action only — the one sanctioned exception to flat-by-default. On every other
-variant `finish` is a deliberate no-op, so a stray prop can never un-flatten a surface.
-
-<ComponentPreview name="buttonFinish" file="components/preview/button.tsx" />
-
 ## API Reference
 
-<ApiTable path="../../packages/ui/registry/ui/button.tsx" name="ButtonProps" />
+<ApiTable path="../../packages/ui/registry/ui/button.tsx" name="ButtonOwnProps" />
 
 ## Accessibility
 
 - Renders a native `<button type="button">` by default; keyboard <kbd>Enter</kbd> / <kbd>Space</kbd> activate it.
-- On `:focus-visible` every variant keeps the design system's global 2px focus ring (`outline-ring`) — `Button` sets no `outline: none` of its own, so the single global focus rule applies. The `outline` and `glass` variants additionally re-color their border with the `ring` token (`focus-visible:border-ring/(--alpha-tint-border)`).
+- On `:focus-visible` every variant keeps the design system's global 2px focus ring (`outline-ring`) — `Button` sets no `outline: none` of its own, so the single global focus rule applies. The `outline` variant additionally re-colors its border with the `ring` token (`focus-visible:border-ring/(--alpha-tint-border)`).
 - `loading` sets `aria-busy="true"`, prevents interaction, and remains focusable through Base UI `focusableWhenDisabled`.
-- `render` is for action elements. Do not render links through `Button`; style anchors with `buttonVariants({ variant, size })` when navigation should look like a button.
-- Icon-only buttons must use `size="icon-*"` with an `aria-label`.
+- `disabled` renders `aria-disabled` rather than the native attribute, so the control keeps its pointer events and stays focusable — wrap it in a `Tooltip` to say why it is unavailable. Base UI still suppresses activation.
+- `render` is for action elements. Do not render links through `Button`; style anchors with `buttonVariants({ variant, tone, size })` when navigation should look like a button.
+- Icon-only buttons must use `IconButton`, which makes the missing `aria-label` a type error.
 
 The states the verification lanes exercise for this item (generated from `component-contracts.json`):
 
@@ -114,7 +123,7 @@ The states the verification lanes exercise for this item (generated from `compon
 ## Do / Don't
 
 <DoDont
-  do="Use semantic variants to signal intent — destructive for delete, success for confirm."
+  do="Signal intent with tone — soft destructive for delete, soft success for confirm."
   dont="Use Button for navigation to a URL — use a link styled with buttonVariants."
 />
 

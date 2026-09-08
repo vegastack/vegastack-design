@@ -19,7 +19,7 @@ export function switchExample(): ReactNode {
 export function switchSizes(): ReactNode {
   // Full size × state matrix — thumb-travel geometry differs per size, so the
   // OFF state is shown alongside ON at every size (not just the default).
-  const sizes = ["sm", "default", "lg"] as const;
+  const sizes = ["sm", "md", "lg"] as const;
   return (
     <Wrapper className="flex-col items-start gap-4">
       <div

@@ -220,14 +220,6 @@ const FAINT_DECORATIVE_ALLOWLIST =
 // adding a control and removing the last reviewed control require re-auditing this rationale list.
 const RAW_INTERACTIVE_EXEMPTIONS = new Map([
   [
-    "/alert.tsx",
-    { counts: { button: 1 }, rationale: "alert-local dismiss control" },
-  ],
-  [
-    "/announcement-banner.tsx",
-    { counts: { button: 1 }, rationale: "banner-local dismiss control" },
-  ],
-  [
     "/attachment.tsx",
     { counts: { button: 1 }, rationale: "useRender native-button fallback" },
   ],
@@ -270,11 +262,11 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
   ],
   [
     "/onboarding-checklist.tsx",
-    { counts: { button: 3 }, rationale: "compound collapse and step controls" },
-  ],
-  [
-    "/pagination.tsx",
-    { counts: { button: 2 }, rationale: "headless pager boundary controls" },
+    {
+      counts: { button: 2 },
+      rationale:
+        "the collapsed progress pill and the step rows — both carry VISIBLE text, so they are text controls, not icon buttons (the icon-only collapse toggle became an IconButton in F2)",
+    },
   ],
   [
     "/password-input.tsx",

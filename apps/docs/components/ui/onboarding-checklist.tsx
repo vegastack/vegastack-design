@@ -1,10 +1,11 @@
-// @vegastack onboarding-checklist@0.6.0 sha256-BkrSiNQNxNpBxvhfGD2nG/oUTIBUgmwaj3StsBekr0A=
+// @vegastack onboarding-checklist@0.6.0 sha256-WAJMEZn4k98on5l/u/u7x4ifv5euvEbPKIpsQzaCiuE=
 
 "use client";
 
 import * as React from "react";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn, surfaceInteractive } from "@vegastack/design";
+import { IconButton } from "@/components/ui/icon-button";
 
 /* ------------------------------------------------------------------------------------------------
  * OnboardingChecklist — the getting-started card (Wave 4, from the app teardown's floating
@@ -120,17 +121,19 @@ export function OnboardingChecklist({
     >
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-label">{title}</h3>
-        <button
-          type="button"
+        <IconButton
+          variant="ghost"
+          size="xs"
           // Icon-only, so `aria-label` IS the accessible name here (no visible text to preserve —
           // unlike the collapsed pill above). `aria-expanded` pairs the two toggles.
           aria-label={collapseLabel}
           aria-expanded
           onClick={() => setCollapsed(true)}
-          className="relative inline-flex shrink-0 items-center justify-center rounded-md text-muted-foreground opacity-(--opacity-hint) transition-opacity duration-fast ease-standard before:absolute before:-inset-2 hover:opacity-100"
+          data-slot="onboarding-checklist-collapse"
+          className="text-muted-foreground"
         >
           <ChevronDown aria-hidden className="size-(--icon-inline)" />
-        </button>
+        </IconButton>
       </div>
       <p className="mt-0.5 text-sm text-muted-foreground">
         <span className="tabular-nums">

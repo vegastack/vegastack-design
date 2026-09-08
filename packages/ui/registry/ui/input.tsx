@@ -1,4 +1,4 @@
-// @vegastack input@0.6.0 sha256-G1q7GtjdhD3SIENdtdTep+/13tUaW1gkjW+P8+jcEDM=
+// @vegastack input@0.6.0 sha256-hK3+zeOKbVd3i0zdmOuK175iVSH30/L/QLo4SmhSQzw=
 
 "use client";
 
@@ -20,7 +20,7 @@ export interface InputProps extends Omit<
    * Control height on the shared 28/32/40 scale (`--size-sm/md/lg`), matching
    * Button and Select. (The native numeric `size` attribute is intentionally
    * replaced by this variant prop.)
-   * @default 'default'
+   * @default 'md'
    */
   size?: keyof typeof sizeClasses;
   /**
@@ -110,7 +110,7 @@ const addonClasses =
  */
 const sizeClasses = {
   sm: "h-(--size-sm) text-sm",
-  default: "h-(--size-md)",
+  md: "h-(--size-md)",
   lg: "h-(--size-lg)",
 } as const;
 
@@ -147,7 +147,7 @@ export function Input({
   className,
   containerClassName,
   type = "text",
-  size = "default",
+  size = "md",
   prefix,
   suffix,
   shakeSignal,

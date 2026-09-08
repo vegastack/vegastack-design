@@ -9,7 +9,7 @@ test("renders a switch with the slot and default size attributes", async () => {
   const sw = screen.getByRole("switch", { name: "Notifications" });
   await expect.element(sw).toBeInTheDocument();
   await expect.element(sw).toHaveAttribute("data-slot", "switch");
-  await expect.element(sw).toHaveAttribute("data-size", "default");
+  await expect.element(sw).toHaveAttribute("data-size", "md");
   // Starts unchecked.
   await expect.element(sw).toHaveAttribute("aria-checked", "false");
 });
@@ -163,9 +163,9 @@ function injectSwitchHitAreaMirror(): () => void {
     body { margin: 24px; }
     [data-slot="switch"] { position: relative; display: inline-flex; box-sizing: border-box; border: 1px solid transparent; }
     [data-slot="switch"][data-size="sm"] { width: 28px; height: 16px; }
-    [data-slot="switch"][data-size="default"] { width: 36px; height: 20px; }
+    [data-slot="switch"][data-size="md"] { width: 36px; height: 20px; }
     [data-slot="switch"][data-size="sm"]::before { content: ""; position: absolute; left: 0; right: 0; top: -6px; bottom: -6px; }
-    [data-slot="switch"][data-size="default"]::before { content: ""; position: absolute; left: 0; right: 0; top: -4px; bottom: -4px; }
+    [data-slot="switch"][data-size="md"]::before { content: ""; position: absolute; left: 0; right: 0; top: -4px; bottom: -4px; }
   `;
   document.head.appendChild(style);
   return () => document.head.removeChild(style);

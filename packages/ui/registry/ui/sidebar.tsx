@@ -1,4 +1,4 @@
-// @vegastack sidebar@0.6.0 sha256-XIXPaSErisqOEgMKcki/6/L9LTHH9uIJhGYKezQxUUQ=
+// @vegastack sidebar@0.6.0 sha256-y5Rzlivrcz3NLJOnN6/x+o2JJTcY5k/qsoKwBZSJPgU=
 
 "use client";
 
@@ -537,12 +537,12 @@ export const sidebarMenuButtonVariants = cva(
   {
     variants: {
       size: {
-        default: "h-(--size-md) text-base",
+        md: "h-(--size-md) text-base",
         sm: "h-(--size-sm) text-sm",
         lg: "h-(--size-lg) text-base",
       },
     },
-    defaultVariants: { size: "default" },
+    defaultVariants: { size: "md" },
   },
 );
 
@@ -583,7 +583,7 @@ export interface SidebarMenuButtonProps
  */
 export function SidebarMenuButton({
   className,
-  size = "default",
+  size = "md",
   isActive = false,
   render,
   ref,

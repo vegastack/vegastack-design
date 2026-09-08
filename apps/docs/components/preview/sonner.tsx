@@ -25,7 +25,8 @@ export function sonnerVariants(): ReactNode {
         Default
       </Button>
       <Button
-        variant="success"
+        variant="soft"
+        tone="success"
         onClick={() =>
           toast.success("Project deployed", {
             description: "main@a1f7c2 is live",
@@ -35,19 +36,22 @@ export function sonnerVariants(): ReactNode {
         Success
       </Button>
       <Button
-        variant="info"
+        variant="soft"
+        tone="info"
         onClick={() => toast.info("A new version is available")}
       >
         Info
       </Button>
       <Button
-        variant="warning"
+        variant="soft"
+        tone="warning"
         onClick={() => toast.warning("Storage is almost full")}
       >
         Warning
       </Button>
       <Button
-        variant="destructive"
+        variant="soft"
+        tone="destructive"
         onClick={() =>
           toast.error("Could not save changes", {
             description: "Check your connection and try again",

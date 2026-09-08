@@ -28,7 +28,7 @@ const STATE_OPTIONS = [
 ] as const;
 
 const SIZE_OPTIONS = [
-  { value: "default", label: "Default" },
+  { value: "md", label: "Medium" },
   { value: "sm", label: "Small" },
 ] as const;
 
@@ -74,7 +74,7 @@ const attachmentPlaygroundConfig: PlaygroundConfig<AttachmentPlaygroundKey> = {
       key: "size",
       label: "Size",
       options: SIZE_OPTIONS,
-      defaultValue: "default",
+      defaultValue: "md",
     },
     {
       type: "select",
@@ -117,7 +117,7 @@ const attachmentPlaygroundConfig: PlaygroundConfig<AttachmentPlaygroundKey> = {
   toCode: (state) => {
     const rootProps: string[] = [];
     if (state.state !== "idle") rootProps.push(`state="${state.state}"`);
-    if (state.size !== "default") rootProps.push(`size="${state.size}"`);
+    if (state.size !== "md") rootProps.push(`size="${state.size}"`);
     if (state.orientation !== "horizontal")
       rootProps.push(`orientation="${state.orientation}"`);
     const root = rootProps.length > 0 ? ` ${rootProps.join(" ")}` : "";

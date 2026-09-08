@@ -58,7 +58,7 @@ export function notificationBellPassthrough(): ReactNode {
       {/* IconButtonProps (size, variant, disabled, …) forward straight through. */}
       <NotificationBell count={3} size="xs" />
       <NotificationBell count={3} size="sm" />
-      <NotificationBell count={3} size="default" />
+      <NotificationBell count={3} size="md" />
       <NotificationBell count={3} size="lg" />
       <NotificationBell count={3} variant="outline" />
       <NotificationBell count={3} variant="ghost" />

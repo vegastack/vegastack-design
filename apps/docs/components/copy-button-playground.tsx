@@ -1,43 +1,58 @@
 "use client";
 
 import type { ReactNode } from "react";
+import type { ButtonAppearance } from "@/components/ui/button";
 import { CopyButton, type CopyButtonProps } from "@/components/ui/copy-button";
 import {
   PropsPlayground,
   type PlaygroundConfig,
 } from "@/components/playground";
 
-type CopyButtonPlaygroundKey = "variant" | "size" | "disabled";
+type CopyButtonPlaygroundKey =
+  | "variant"
+  | "tone"
+  | "size"
+  | "showLabel"
+  | "disabled";
 
 /** The string written to the clipboard — fixed, so the playground stays a props explorer. */
 const COPY_VALUE = "pnpm dlx shadcn@latest add @vegastack/button";
 
-/** Every `Button` variant is forwarded unchanged; the component's own default is `ghost`. */
+/** The Button matrix is forwarded unchanged; the component's own default is `ghost`. */
 const VARIANT_OPTIONS = [
-  { value: "default", label: "Default" },
-  { value: "secondary", label: "Secondary" },
+  { value: "solid", label: "Solid" },
+  { value: "soft", label: "Soft" },
   { value: "outline", label: "Outline" },
   { value: "ghost", label: "Ghost" },
   { value: "link", label: "Link" },
+] as const;
+
+const TONE_OPTIONS = [
+  { value: "neutral", label: "Neutral" },
   { value: "destructive", label: "Destructive" },
   { value: "success", label: "Success" },
   { value: "warning", label: "Warning" },
   { value: "info", label: "Info" },
-  { value: "glass", label: "Glass" },
-  { value: "destructive-outline", label: "Destructive outline" },
-  { value: "success-outline", label: "Success outline" },
-  { value: "warning-outline", label: "Warning outline" },
-  { value: "info-outline", label: "Info outline" },
-  { value: "cta", label: "CTA" },
 ] as const;
 
-/** The square `icon-*` sizes — the icon child has no text, so these keep the button square. */
+/** The one size vocabulary — without a visible label the control is a square `IconButton`. */
 const SIZE_OPTIONS = [
-  { value: "icon-xs", label: "Icon extra small" },
-  { value: "icon-sm", label: "Icon small" },
-  { value: "icon", label: "Icon" },
-  { value: "icon-lg", label: "Icon large" },
+  { value: "xs", label: "Extra small" },
+  { value: "sm", label: "Small" },
+  { value: "md", label: "Medium" },
+  { value: "lg", label: "Large" },
 ] as const;
+
+/**
+ * `solid` with the `destructive` tone is the doctrine's one forbidden cell, so the playground
+ * resolves the pair to `soft` instead of ignoring the tone.
+ */
+function resolveAppearance(variant: string, tone: string): ButtonAppearance {
+  if (variant === "solid" && tone === "destructive") {
+    return { variant: "soft", tone: "destructive" };
+  }
+  return { variant, tone } as ButtonAppearance;
+}
 
 const copyButtonPlaygroundConfig: PlaygroundConfig<CopyButtonPlaygroundKey> = {
   controls: [
@@ -50,26 +65,50 @@ const copyButtonPlaygroundConfig: PlaygroundConfig<CopyButtonPlaygroundKey> = {
     },
     {
       type: "select",
+      key: "tone",
+      label: "Tone",
+      options: TONE_OPTIONS,
+      defaultValue: "neutral",
+    },
+    {
+      type: "select",
       key: "size",
       label: "Size",
       options: SIZE_OPTIONS,
-      defaultValue: "icon-sm",
+      defaultValue: "sm",
+    },
+    {
+      type: "switch",
+      key: "showLabel",
+      label: "Show label",
+      defaultValue: false,
     },
     { type: "switch", key: "disabled", label: "Disabled", defaultValue: false },
   ],
   render: (state): ReactNode => (
     <CopyButton
       value={COPY_VALUE}
-      variant={state.variant as CopyButtonProps["variant"]}
+      {...resolveAppearance(String(state.variant), String(state.tone))}
       size={state.size as CopyButtonProps["size"]}
+      showLabel={Boolean(state.showLabel)}
       disabled={Boolean(state.disabled)}
     />
   ),
   toCode: (state) => {
+    const appearance = resolveAppearance(
+      String(state.variant),
+      String(state.tone),
+    ) as { variant: string; tone?: string };
     const props: string[] = [`value="${COPY_VALUE}"`];
-    // Component defaults are `ghost` / `icon-sm` — omit them for minimal JSX.
-    if (state.variant !== "ghost") props.push(`variant="${state.variant}"`);
-    if (state.size !== "icon-sm") props.push(`size="${state.size}"`);
+    // Component defaults are `ghost` / `sm` — omit them for minimal JSX.
+    if (appearance.variant !== "ghost") {
+      props.push(`variant="${appearance.variant}"`);
+    }
+    if (appearance.tone != null && appearance.tone !== "neutral") {
+      props.push(`tone="${appearance.tone}"`);
+    }
+    if (state.size !== "sm") props.push(`size="${state.size}"`);
+    if (state.showLabel) props.push("showLabel");
     if (state.disabled) props.push("disabled");
     return `<CopyButton ${props.join(" ")} />`;
   },

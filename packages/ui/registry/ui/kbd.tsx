@@ -1,4 +1,4 @@
-// @vegastack kbd@0.6.0 sha256-dIg9TKDHncGdhlbtTg6dUWo7vR02KnjekM8N4f4AovE=
+// @vegastack kbd@0.6.0 sha256-YedoElnc3s4DwQKc+SO/7Gjj59kxCUjeqYw6mfNHdIo=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -8,7 +8,7 @@ import { cn } from "@vegastack/design";
  * Kbd size scale — token-only. Each key is a small, non-interactive code chip
  * styled with `bg-muted` / `text-muted-foreground` and the one `border`, at the
  * tight `rounded-sm` (6px) used for inline controls. Sizes mirror the lower end
- * of the shared scale (`xs` / `sm` / `default`); the default carries the spec
+ * of the shared scale (`xs` / `sm` / `md`); the default carries the spec
  * `px-1.5 py-0.5` and the dense tabular `text-code-sm` mono figure.
  */
 export const kbdVariants = cva(
@@ -18,10 +18,10 @@ export const kbdVariants = cva(
       size: {
         xs: "h-4 min-w-4 px-1 py-0.5 text-code-sm leading-none",
         sm: "h-5 min-w-5 px-1 py-0.5 text-code-sm leading-none",
-        default: "h-6 min-w-6 px-1.5 py-0.5 text-sm leading-none",
+        md: "h-6 min-w-6 px-1.5 py-0.5 text-sm leading-none",
       },
     },
-    defaultVariants: { size: "default" },
+    defaultVariants: { size: "md" },
   },
 );
 
@@ -86,9 +86,9 @@ export interface KbdProps
     VariantProps<typeof kbdVariants> {
   /**
    * Size of the key chip — mirrors the lower end of the shared scale.
-   * @default 'default'
+   * @default 'md'
    */
-  size?: "xs" | "sm" | "default";
+  size?: "xs" | "sm" | "md";
   /**
    * Explicit key tokens to render. Each token becomes its own `<kbd>`. Modifier
    * glyphs (`⌘`, `⇧`, `⌥`, `⌃`, `⏎`, `⌫`) are rewritten to words on non-mac
@@ -126,7 +126,7 @@ export interface KbdProps
  */
 export function Kbd({
   className,
-  size = "default",
+  size = "md",
   keys,
   os = "mac",
   children,

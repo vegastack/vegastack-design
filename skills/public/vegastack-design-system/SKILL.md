@@ -25,6 +25,15 @@ pnpm dlx shadcn@latest list @vegastack
 
 Rules that decide most component questions:
 
+- **`Button` is two axes** — `variant` is the shape (`solid · soft · outline · ghost · link · cta`),
+  `tone` is the hue (`neutral · destructive · success · warning · info`). A destructive action is
+  `variant="soft" tone="destructive"`; a solid red button does not type-check. Icon-only actions are
+  **`IconButton`** (`shape="square" | "round"`) — `Button` has no icon size, and an icon in a bare
+  `<button>` is off-system. An icon-only LINK stays an `<a>`, styled with
+  `buttonVariants(...) + iconButtonGeometry(size)` — never an `IconButton`, which would put
+  `role="button"` on navigation.
+- **One size vocabulary everywhere** — `xs · sm · md · lg`, with `md` the default. No component has a
+  size called `default`.
 - **Compose `app-shell`** for a sidebar + header + main layout — never hand-roll the landmark trio.
 - **`segmented`** for 2–5 exclusive options inline; **`tabs`** when the choice switches page regions.
 - **`alert` variant=strip** for in-content notices and plan/trial rows; **`announcement-banner`** only

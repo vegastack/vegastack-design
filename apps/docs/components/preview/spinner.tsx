@@ -19,7 +19,7 @@ export function spinnerSizes(): ReactNode {
     <Wrapper className="gap-6">
       <Spinner size="xs" label="" />
       <Spinner size="sm" label="" />
-      <Spinner size="default" label="" />
+      <Spinner size="md" label="" />
       <Spinner size="lg" label="" />
     </Wrapper>
   );

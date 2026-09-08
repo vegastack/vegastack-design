@@ -56,7 +56,7 @@ root — every part forwards its ref and exposes a `data-slot`:
 </Card>
 ```
 
-- `Card` — the root surface (`data-slot="card"`). Borders-only, `rounded-lg`, `bg-card text-card-foreground`. Owns the `size` density (`default` / `sm`).
+- `Card` — the root surface (`data-slot="card"`). Borders-only, `rounded-lg`, `bg-card text-card-foreground`. Owns the `size` density (`md` / `sm`).
 - `CardHeader` — top region (`data-slot="card-header"`). Switches to a two-column grid when a `CardAction` is present.
 - `CardTitle` — the heading line (`data-slot="card-title"`).
 - `CardDescription` — muted supporting text under the title (`data-slot="card-description"`).
@@ -72,7 +72,7 @@ A card with a header, content, and a footer action row:
 
 ### Sizes
 
-`Card` exposes a single `size` density prop (`default` / `sm`). `sm` tightens the
+`Card` exposes a single `size` density prop (`md` / `sm`). `sm` tightens the
 internal padding (`py-3` / `px-3` instead of `py-4` / `px-4`), shrinks the part gap
 (`gap-3` vs `gap-4`), and steps the title down to `text-sm`. Set it once on the root —
 the header, content, and footer all react via `group-data-[size=sm]`.

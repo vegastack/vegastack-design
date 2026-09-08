@@ -29,7 +29,7 @@ export function statusIconSizes(): ReactNode {
     <Wrapper>
       <StatusIcon status="done" size="xs" />
       <StatusIcon status="done" size="sm" />
-      <StatusIcon status="done" size="default" />
+      <StatusIcon status="done" size="md" />
       <StatusIcon status="done" size="lg" />
     </Wrapper>
   );
@@ -60,7 +60,7 @@ export function statusIconWithLabel(): ReactNode {
 
 export function statusIconStatusSizeMatrix(): ReactNode {
   const statuses = ["todo", "progress", "blocked", "done"] as const;
-  const sizes = ["xs", "sm", "default", "lg"] as const;
+  const sizes = ["xs", "sm", "md", "lg"] as const;
   return (
     <Wrapper>
       <div className="grid grid-cols-4 gap-6">

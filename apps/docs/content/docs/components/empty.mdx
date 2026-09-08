@@ -45,7 +45,7 @@ Combine size, surface, and the dashed border with the media chip's variant and i
 `Empty` is a compound component. Compose the parts inside the root:
 
 ```tsx
-<Empty bordered size="default" surface="transparent">
+<Empty bordered size="md" surface="transparent">
   <EmptyHeader>
     <EmptyMedia intent="default">{/* lucide icon */}</EmptyMedia>
     <EmptyTitle>Title</EmptyTitle>
@@ -63,7 +63,7 @@ Combine size, surface, and the dashed border with the media chip's variant and i
 
 ## Sizes
 
-`size` controls vertical density only — `sm` (`py-8`) for empties inside cards, `default` (`py-12`)
+`size` controls vertical density only — `sm` (`py-8`) for empties inside cards, `md` (`py-12`)
 standalone, and `lg` (`py-16`) for full-page zero-data screens.
 
 <ComponentPreview name="emptyDemoSizes" file="components/preview/empty.tsx" />

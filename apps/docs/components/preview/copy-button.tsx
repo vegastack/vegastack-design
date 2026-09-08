@@ -70,8 +70,8 @@ export function copyButtonVariants(): ReactNode {
       {/* Defaults to ghost / icon-sm, but every Button presentation prop is forwarded. */}
       <CopyButton value="ghost" />
       <CopyButton value="outline" variant="outline" />
-      <CopyButton value="secondary" variant="secondary" />
-      <CopyButton value="destructive" variant="destructive" />
+      <CopyButton value="soft" variant="soft" />
+      <CopyButton value="destructive" variant="soft" tone="destructive" />
     </Wrapper>
   );
 }
@@ -80,9 +80,9 @@ export function copyButtonSizes(): ReactNode {
   return (
     <Wrapper>
       {/* `size` is forwarded too — icon sizes keep the button square. */}
-      <CopyButton value="icon-sm" variant="outline" size="icon-sm" />
-      <CopyButton value="icon" variant="outline" size="icon" />
-      <CopyButton value="icon-lg" variant="outline" size="icon-lg" />
+      <CopyButton value="sm" variant="outline" size="sm" />
+      <CopyButton value="md" variant="outline" size="md" />
+      <CopyButton value="lg" variant="outline" size="lg" />
     </Wrapper>
   );
 }

@@ -496,9 +496,5 @@
     "$type": "shadow",
     "$value": "0 8px 28px -6px oklch(0 0 0 / 0.48), 0 2px 8px -2px oklch(0 0 0 / 0.40)",
     "$description": "DARK overlay shadow, strengthened (Wave 1 \u2014 Attio-calibrated): the old single 24px layer was near-invisible on the dark canvas; this two-layer ramp restores the floating cue while staying below Attio's 88px maximal ramp."
-  },
-  "shadow-lit": {
-    "$type": "shadow",
-    "$value": "inset 0 1px 0 0 oklch(1 0 0 / 0.35), 0 2px 6px -2px oklch(0 0 0 / 0.5)"
   }
 }

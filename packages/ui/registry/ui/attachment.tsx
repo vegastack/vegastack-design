@@ -1,4 +1,4 @@
-// @vegastack attachment@0.6.0 sha256-mPvmdJSWT3tK5djLmLc37eKn9Y/QbrXKPITKnuqAyxE=
+// @vegastack attachment@0.6.0 sha256-RNOm2aliRmH8cDdASR9DMDZEY+t37XteIp6EQ1aPWKU=
 
 "use client";
 
@@ -33,7 +33,7 @@ export const attachmentVariants = cva(
     variants: {
       size: {
         /** Standalone chip density. */
-        default: "p-2",
+        md: "p-2",
         /** Tighter density for a message-compose attachment row. */
         sm: "gap-1.5 p-1.5 text-xs",
       },
@@ -44,11 +44,11 @@ export const attachmentVariants = cva(
         vertical: "w-28 flex-col items-stretch",
       },
     },
-    defaultVariants: { size: "default", orientation: "horizontal" },
+    defaultVariants: { size: "md", orientation: "horizontal" },
   },
 );
 
-/** Density — `default` for a standalone chip, `sm` for a tighter message-compose row. */
+/** Density — `md` for a standalone chip, `sm` for a tighter message-compose row. */
 export type AttachmentSize = NonNullable<
   VariantProps<typeof attachmentVariants>["size"]
 >;
@@ -76,7 +76,7 @@ export interface AttachmentProps
   state?: AttachmentState;
   /**
    * Density.
-   * @default 'default'
+   * @default 'md'
    */
   size?: AttachmentSize;
   /**
@@ -120,7 +120,7 @@ export interface AttachmentProps
 export function Attachment({
   className,
   state = "idle",
-  size = "default",
+  size = "md",
   orientation = "horizontal",
   ref,
   ...props

@@ -1,4 +1,4 @@
-// @vegastack sheet@0.6.0 sha256-ZdXU2/LnCyroHhhgn0RYnRpATEyrNejksacqfiTp4MY=
+// @vegastack sheet@0.6.0 sha256-Aobf9gfWAMzW/G7fpqLxoTJZZWys/pKx6OeA17aHwnc=
 
 "use client";
 
@@ -6,8 +6,9 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
-import { cn, surfaceInteractive } from "@vegastack/design";
+import { cn } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
+import { IconButton } from "@/components/ui/icon-button";
 
 /* ------------------------------------------------------------------------------------------------
  * Sheet — a dialog that slides in from a screen edge, built on Base UI's Dialog (NOT vaul).
@@ -195,15 +196,16 @@ export function SheetContent({
           {children}
           {showCloseButton ? (
             <BaseDialog.Close
-              data-slot="sheet-close"
-              aria-label={closeLabel}
-              className={cn(
-                // top-3/end-3 matches Dialog's close-button inset — one modal-family rhythm.
-                "absolute top-3 end-3 inline-flex size-(--size-md) shrink-0 items-center justify-center",
-                "rounded-md text-muted-foreground select-none hover:text-foreground",
-                surfaceInteractive,
-                "[&_svg:not([class*='size-'])]:size-(--icon-default) [&_svg]:pointer-events-none [&_svg]:shrink-0",
-              )}
+              render={
+                <IconButton
+                  variant="ghost"
+                  size="md"
+                  data-slot="sheet-close"
+                  aria-label={closeLabel}
+                  // top-3/end-3 matches Dialog's close-button inset — one modal-family rhythm.
+                  className="absolute top-3 end-3 text-muted-foreground"
+                />
+              }
             >
               <X aria-hidden />
             </BaseDialog.Close>

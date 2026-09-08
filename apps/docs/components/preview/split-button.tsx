@@ -43,11 +43,11 @@ export function splitButton(): ReactNode {
 export function splitButtonVariants(): ReactNode {
   return (
     <Wrapper>
-      <SplitButton variant="default" actions={saveActions}>
-        Default
+      <SplitButton variant="solid" actions={saveActions}>
+        Solid
       </SplitButton>
-      <SplitButton variant="secondary" actions={saveActions}>
-        Secondary
+      <SplitButton variant="soft" actions={saveActions}>
+        Soft
       </SplitButton>
       <SplitButton variant="outline" actions={saveActions}>
         Outline
@@ -58,32 +58,27 @@ export function splitButtonVariants(): ReactNode {
       <SplitButton variant="link" actions={saveActions}>
         Link
       </SplitButton>
-      <SplitButton variant="glass" actions={saveActions}>
-        Glass
+    </Wrapper>
+  );
+}
+
+export function splitButtonTones(): ReactNode {
+  return (
+    <Wrapper>
+      <SplitButton variant="soft" actions={saveActions}>
+        Neutral
       </SplitButton>
-      <SplitButton variant="destructive" actions={saveActions}>
+      <SplitButton variant="soft" tone="destructive" actions={saveActions}>
         Destructive
       </SplitButton>
-      <SplitButton variant="success" actions={saveActions}>
+      <SplitButton variant="soft" tone="success" actions={saveActions}>
         Success
       </SplitButton>
-      <SplitButton variant="warning" actions={saveActions}>
+      <SplitButton variant="soft" tone="warning" actions={saveActions}>
         Warning
       </SplitButton>
-      <SplitButton variant="info" actions={saveActions}>
+      <SplitButton variant="outline" tone="info" actions={saveActions}>
         Info
-      </SplitButton>
-      <SplitButton variant="destructive-outline" actions={saveActions}>
-        Destructive outline
-      </SplitButton>
-      <SplitButton variant="success-outline" actions={saveActions}>
-        Success outline
-      </SplitButton>
-      <SplitButton variant="warning-outline" actions={saveActions}>
-        Warning outline
-      </SplitButton>
-      <SplitButton variant="info-outline" actions={saveActions}>
-        Info outline
       </SplitButton>
     </Wrapper>
   );
@@ -108,8 +103,8 @@ export function splitButtonSizes(): ReactNode {
       <SplitButton size="sm" actions={saveActions}>
         Small
       </SplitButton>
-      <SplitButton size="default" actions={saveActions}>
-        Default
+      <SplitButton size="md" actions={saveActions}>
+        Medium
       </SplitButton>
       <SplitButton size="lg" actions={saveActions}>
         Large
@@ -122,7 +117,7 @@ export function splitButtonStates(): ReactNode {
   return (
     <Wrapper>
       {/* Declarative actions, with a destructive entry */}
-      <SplitButton variant="default" actions={publishActions}>
+      <SplitButton actions={publishActions}>
         Publish
       </SplitButton>
 

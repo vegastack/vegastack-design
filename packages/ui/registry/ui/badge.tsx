@@ -1,4 +1,4 @@
-// @vegastack badge@0.6.0 sha256-oG+nww82h6+pgyWImCngnvpPhoPTRDkImwXPY5hDT3A=
+// @vegastack badge@0.6.0 sha256-jSw6SS3x7TBTDOOaCDmbIf+7KyIf86mHKcSRL42VaH8=
 
 "use client";
 
@@ -48,7 +48,7 @@ export const badgeVariants = cva(
       },
       size: {
         sm: "h-5 gap-1 px-1.5 py-0.5 text-label-sm [&_svg:not([class*='size-'])]:size-(--icon-compact)",
-        default:
+        md:
           "h-5 gap-1 px-2 py-0.5 text-label-sm [&_svg:not([class*='size-'])]:size-(--icon-compact)",
         lg: "h-6 gap-1 px-2.5 py-0.5 text-label-sm [&_svg:not([class*='size-'])]:size-(--icon-inline)",
       },
@@ -182,7 +182,7 @@ export const badgeVariants = cva(
     defaultVariants: {
       variant: "subtle",
       intent: "default",
-      size: "default",
+      size: "md",
       bordered: false,
     },
   },
@@ -194,7 +194,7 @@ const dotSize: Record<
   string
 > = {
   sm: "size-1.5",
-  default: "size-1.5",
+  md: "size-1.5",
   lg: "size-2",
 };
 
@@ -232,9 +232,9 @@ export interface BadgeProps
   intent?: "default" | "success" | "warning" | "destructive" | "info";
   /**
    * Size variant — pills sit at the `h-5` badge height (`lg` roomier `h-6`).
-   * @default 'default'
+   * @default 'md'
    */
-  size?: "sm" | "default" | "lg";
+  size?: "sm" | "md" | "lg";
   /**
    * Draw the matching-hue hairline border on the `subtle` tint (the crisp
    * "chip" read on white surfaces). No-op on other variants.
@@ -288,7 +288,7 @@ export function Badge({
   className,
   variant = "subtle",
   intent = "default",
-  size = "default",
+  size = "md",
   bordered = false,
   dot = false,
   loading = false,
@@ -331,7 +331,7 @@ export function Badge({
             <span
               className={cn(
                 "shrink-0 rounded-full",
-                dotSize[size ?? "default"],
+                dotSize[size ?? "md"],
                 dotClass,
               )}
               aria-hidden

@@ -11,7 +11,7 @@ test("renders a progressbar with the slot + default size attributes", async () =
   const bar = screen.getByRole("progressbar", { name: "Upload progress" });
   await expect.element(bar).toBeInTheDocument();
   await expect.element(bar).toHaveAttribute("data-slot", "progress");
-  await expect.element(bar).toHaveAttribute("data-size", "default");
+  await expect.element(bar).toHaveAttribute("data-size", "md");
 });
 
 test("aria-valuenow reflects value against the default 0–100 scale", async () => {

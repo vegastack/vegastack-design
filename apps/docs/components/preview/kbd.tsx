@@ -34,7 +34,7 @@ export function kbdSizes(): ReactNode {
     <Wrapper>
       <Kbd size="xs">⌘</Kbd>
       <Kbd size="sm">⌘</Kbd>
-      <Kbd size="default">⌘</Kbd>
+      <Kbd size="md">⌘</Kbd>
     </Wrapper>
   );
 }

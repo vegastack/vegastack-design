@@ -17,7 +17,7 @@ type AvatarPlaygroundKey = "size" | "spacing";
 const SIZE_OPTIONS = [
   { value: "xs", label: "Extra small" },
   { value: "sm", label: "Small" },
-  { value: "default", label: "Default" },
+  { value: "md", label: "Medium" },
   { value: "lg", label: "Large" },
   { value: "xl", label: "Extra large" },
 ] as const;
@@ -35,7 +35,7 @@ const avatarPlaygroundConfig: PlaygroundConfig<AvatarPlaygroundKey> = {
       key: "size",
       label: "Size",
       options: SIZE_OPTIONS,
-      defaultValue: "default",
+      defaultValue: "md",
     },
     {
       type: "select",
@@ -55,7 +55,7 @@ const avatarPlaygroundConfig: PlaygroundConfig<AvatarPlaygroundKey> = {
     </AvatarGroup>
   ),
   toCode: (state) => {
-    const sizeProp = state.size !== "default" ? ` size="${state.size}"` : "";
+    const sizeProp = state.size !== "md" ? ` size="${state.size}"` : "";
     const spacingProp =
       state.spacing !== "default" ? ` spacing="${state.spacing}"` : "";
     return [

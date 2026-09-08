@@ -51,7 +51,7 @@ Mix the row's surface, density, and media treatment, then copy the generated JSX
 
 ```tsx
 <ItemGroup>
-  <Item variant="default" size="default">
+  <Item variant="default" size="md">
     <ItemMedia variant="icon">{/* lucide icon */}</ItemMedia>
     <ItemContent>
       <ItemHeader>{/* title + trailing meta */}</ItemHeader>
@@ -81,7 +81,7 @@ Mix the row's surface, density, and media treatment, then copy the generated JSX
 
 `variant` sets the row's surface — `default` (no surface, blends into the parent), `outline` (a
 hairline border), or `muted` (a filled neutral wash). `size` sets the padding density — roomy
-`default` or compact `sm` for dense lists.
+`md` or compact `sm` for dense lists.
 
 <ComponentPreview name="itemDemoVariants" file="components/preview/item.tsx" />
 

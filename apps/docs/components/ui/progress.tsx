@@ -1,4 +1,4 @@
-// @vegastack progress@0.6.0 sha256-bBS9Dcpu8bSoMC+ZtYws6rZ5z/uFI9jY23gYdiSlcTE=
+// @vegastack progress@0.6.0 sha256-f6htnXhnbxgp5zY6WXuAWA68ZZolX1dacSdg+4WvajY=
 
 "use client";
 
@@ -18,11 +18,11 @@ export const progressVariants = cva(
     variants: {
       size: {
         sm: "h-1.5",
-        default: "h-2",
+        md: "h-2",
         lg: "h-3",
       },
     },
-    defaultVariants: { size: "default" },
+    defaultVariants: { size: "md" },
   },
 );
 
@@ -50,7 +50,7 @@ export interface ProgressProps
   max?: number;
   /**
    * Track + indicator height. `sm` (6px), `default` (8px), `lg` (12px).
-   * @default 'default'
+   * @default 'md'
    */
   size?: ProgressSize;
   /**
@@ -105,7 +105,7 @@ export function Progress({
   className,
   trackClassName,
   indicatorClassName,
-  size = "default",
+  size = "md",
   value = null,
   max = 100,
   ref,

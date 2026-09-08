@@ -28,7 +28,7 @@ export const designMdConfig = {
     },
     elevation: {
       path: "apps/docs/content/docs/foundations/elevation.mdx",
-      tokens: ["shadow-overlay", "shadow-lit"],
+      tokens: ["shadow-overlay"],
     },
     charts: {
       path: "apps/docs/content/docs/foundations/colors.mdx",
@@ -66,7 +66,6 @@ export const designMdConfig = {
       height: "{size-md}",
       paddingInline: "0.75rem",
       typography: "{text-label}",
-      shadow: "{shadow-lit}",
       interactionColorTransition: "immediate",
     },
     "button-secondary": {

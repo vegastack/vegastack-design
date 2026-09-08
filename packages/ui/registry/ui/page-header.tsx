@@ -1,4 +1,4 @@
-// @vegastack page-header@0.6.0 sha256-UDyD3WTBDn+xR2SSmZRU9HCYCYr3Hq0iqet1cQnMem0=
+// @vegastack page-header@0.6.0 sha256-Cp0KOoeLD/zGoivbg/nK/kA/ODtZsThpu8roBfLJOIc=
 
 "use client";
 
@@ -6,7 +6,7 @@ import * as React from "react";
 import { ChevronLeft, Star } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { buttonVariants } from "@/components/ui/button";
-import { IconButton } from "@/components/ui/icon-button";
+import { IconButton, iconButtonGeometry } from "@/components/ui/icon-button";
 import { TruncatedText } from "@/components/ui/truncated-text";
 
 /**
@@ -233,13 +233,18 @@ export function PageHeader({
               </IconButton>
             ) : null}
             {hasBack && !onBack && backHref ? (
+              // The href form is NAVIGATION, so it stays a real `<a>` wearing the button's
+              // classes — routing an anchor through `IconButton` would put `role="button"` on a
+              // link. `iconButtonGeometry` is the same square the wrapper applies, so the two
+              // back affordances are pixel-identical.
               <a
                 href={backHref}
                 aria-label={backLabel}
                 data-slot="page-header-back"
                 className={cn(
-                  buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                  "-ml-2 shrink-0",
+                  buttonVariants({ variant: "ghost", size: "sm" }),
+                  iconButtonGeometry("sm"),
+                  "-ms-2 shrink-0",
                 )}
               >
                 <ChevronLeft aria-hidden />

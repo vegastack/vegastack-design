@@ -27,37 +27,54 @@ test("fires onClick", async () => {
   expect(onClick).toHaveBeenCalledOnce();
 });
 
-test("maps size to the square icon-* scale and tags the slot", async () => {
+test("uses the shared size vocabulary and tags the slot", async () => {
   const screen = await render(
     <IconButton aria-label="Add item" size="sm">
       <Plus />
     </IconButton>,
   );
   const btn = screen.getByRole("button", { name: "Add item" });
-  await expect.element(btn).toHaveAttribute("data-size", "icon-sm");
+  await expect.element(btn).toHaveAttribute("data-size", "sm");
   await expect.element(btn).toHaveAttribute("data-slot", "icon-button");
 });
 
-test("default size maps to `icon`", async () => {
+test("defaults to the md square and drops the text button's padding", async () => {
   const screen = await render(
     <IconButton aria-label="Add item">
       <Plus />
     </IconButton>,
   );
-  await expect
-    .element(screen.getByRole("button", { name: "Add item" }))
-    .toHaveAttribute("data-size", "icon");
+  const btn = screen.getByRole("button", { name: "Add item" });
+  await expect.element(btn).toHaveAttribute("data-size", "md");
+  // The rendered square is measured in test/button-matrix.browser.test.tsx (compiled CSS).
+  const className = (btn.element() as HTMLElement).className;
+  expect(className).toContain("w-(--size-md)");
+  expect(className).toContain("px-0");
+  expect(className).not.toContain("px-3");
 });
 
-test("passes variant through to Button", async () => {
+test("passes variant + tone through to Button", async () => {
   const screen = await render(
-    <IconButton aria-label="Delete" variant="destructive">
+    <IconButton aria-label="Delete" variant="soft" tone="destructive">
       <Plus />
     </IconButton>,
   );
-  await expect
-    .element(screen.getByRole("button", { name: "Delete" }))
-    .toHaveAttribute("data-variant", "destructive");
+  const btn = screen.getByRole("button", { name: "Delete" });
+  await expect.element(btn).toHaveAttribute("data-variant", "soft");
+  await expect.element(btn).toHaveAttribute("data-tone", "destructive");
+});
+
+test('shape="round" marks data-shape and wins over the base radius', async () => {
+  const screen = await render(
+    <IconButton aria-label="Add item" shape="round">
+      <Plus />
+    </IconButton>,
+  );
+  const btn = screen.getByRole("button", { name: "Add item" });
+  await expect.element(btn).toHaveAttribute("data-shape", "round");
+  const className = (btn.element() as HTMLElement).className;
+  expect(className).toContain("rounded-full");
+  expect(className).not.toContain("rounded-md");
 });
 
 test("no a11y violations", async () => {
@@ -100,15 +117,17 @@ test("forwards ref to the underlying button element", async () => {
   expect(ref.current?.dataset.slot).toBe("icon-button");
 });
 
-test("loading renders exactly one svg (the spinner replaces the icon in the fixed square)", async () => {
+test("loading stacks the spinner over the hidden icon rather than replacing it", async () => {
   const screen = await render(
     <IconButton aria-label="Add item" loading>
       <Plus />
     </IconButton>,
   );
-  // The accessible name survives the swap — it comes from aria-label, not the icon.
+  // The accessible name survives — it comes from aria-label, not the icon.
   const btn = screen.getByRole("button", { name: "Add item" });
   await expect.element(btn).toHaveAttribute("aria-busy", "true");
   const el = btn.element() as HTMLElement;
-  expect(el.querySelectorAll("svg")).toHaveLength(1);
+  // Two glyphs: the out-of-flow spinner, and the icon still holding the square open.
+  expect(el.querySelectorAll("svg")).toHaveLength(2);
+  expect(el.querySelector("span.contents")!.className).toContain("opacity-0");
 });

@@ -1,4 +1,4 @@
-// @vegastack segmented@0.6.0 sha256-IGAs0pfTgAilzP7q+fNXuw4q9axexH1nOVSGwnJYDV4=
+// @vegastack segmented@0.6.0 sha256-ei4jWxyv+hl/2yXvpbdRqNfCUEXYoKfV5ruRdtaNOWc=
 
 "use client";
 
@@ -23,8 +23,8 @@ import { cn } from "@vegastack/design";
  * </Segmented>
  * ----------------------------------------------------------------------------------------------*/
 
-const SegmentedContext = React.createContext<{ size: "default" | "lg" }>({
-  size: "default",
+const SegmentedContext = React.createContext<{ size: "md" | "lg" }>({
+  size: "md",
 });
 
 export const segmentedVariants = cva(
@@ -33,12 +33,12 @@ export const segmentedVariants = cva(
     variants: {
       size: {
         /** 28px track (24px chips) — the dense chrome scale. */
-        default: "",
+        md: "",
         /** 32px track (28px chips) — form-row scale. */
         lg: "",
       },
     },
-    defaultVariants: { size: "default" },
+    defaultVariants: { size: "md" },
   },
 );
 
@@ -53,11 +53,11 @@ export const segmentedItemVariants = cva(
   {
     variants: {
       size: {
-        default: "h-(--size-xs) px-2.5",
+        md: "h-(--size-xs) px-2.5",
         lg: "h-(--size-sm) px-3 text-label [&_svg:not([class*='size-'])]:size-(--icon-inline)",
       },
     },
-    defaultVariants: { size: "default" },
+    defaultVariants: { size: "md" },
   },
 );
 
@@ -85,11 +85,11 @@ export interface SegmentedProps
    */
   onValueChange?: (value: string) => void;
   /**
-   * Track density — `default` (24px chips in a 28px track, chrome scale) or
+   * Track density — `md` (24px chips in a 28px track, chrome scale) or
    * `lg` (28px chips, form-row scale).
-   * @default 'default'
+   * @default 'md'
    */
-  size?: "default" | "lg";
+  size?: "md" | "lg";
 }
 
 /**
@@ -106,7 +106,7 @@ export interface SegmentedProps
  */
 export function Segmented({
   className,
-  size = "default",
+  size = "md",
   value,
   defaultValue,
   onValueChange,
@@ -175,7 +175,7 @@ export interface SegmentedItemProps
    * Density override for a single chip.
    * @default inherited from Segmented
    */
-  size?: "default" | "lg";
+  size?: "md" | "lg";
 }
 
 /**
@@ -194,7 +194,7 @@ export function SegmentedItem({
   ...props
 }: SegmentedItemProps) {
   const context = React.useContext(SegmentedContext);
-  const resolvedSize = size ?? context.size ?? "default";
+  const resolvedSize = size ?? context.size ?? "md";
   const variantClassName = segmentedItemVariants({ size: resolvedSize });
   const resolvedClassName: React.ComponentProps<
     typeof BaseToggle

@@ -749,3 +749,147 @@ each was invisible in review and each is the kind that would have degraded the t
   desktop session (the LaunchAgent path already noted for the minis), or on a machine in WebKit's
   macOS 26.2–26.5 window — then re-enable enforced WebKit (`WEBKIT_LANE=require`) and confirm
   `all-browsers` Firefox passes.
+
+## 2026-09-07 — F2 judgment calls: the Button matrix, the disabled contract, and what was left raw
+
+- **`tone` is CSS custom properties, not thirty class strings (P2 option a, as decided).** Each of
+  the six `variant` recipes is written once and reads `--btn-fill` / `--btn-soft` / `--btn-tint` /
+  `--btn-line` / `--btn-face` / `--btn-link`; each of the five `tone`s only sets them. Verified that
+  Tailwind v4.3 compiles a var-valued colour with a var opacity modifier
+  (`bg-(--btn-fill)/(--alpha-hover)` → `color-mix(in oklab, var(--btn-fill) var(--alpha-hover),
+transparent)`) before committing to the shape. Two consequences worth knowing:
+  - `--btn-ghost-ink` is the `inherit` keyword for the neutral tone, which is invalid-at-
+    computed-value-time for a custom property and therefore reads back empty from
+    `getComputedStyle`. That is the mechanism, not a bug: a neutral ghost keeps its host's ink (so a
+    dismiss control inside muted chrome stays muted), and a status ghost takes its own. It has a
+    dedicated compiled-CSS test rather than being lumped into the "every var resolves" loop.
+  - A status tone's soft hover/pressed rungs are the PRECOMPOSED `<family>-subtle-hover` /
+    `-subtle-active` tokens, never a live wash. A wash would replace the subtle fill instead of
+    climbing off it.
+- **The forbidden cell is a type, not a lint rule.** D4 says a destructive action is never a solid
+  red button. `ButtonAppearance` is a three-member union, so `<Button tone="destructive">` without an
+  explicit non-solid `variant` does not compile, and neither does `variant="cta"` with a `tone`.
+  A lint rule was the other option; F2 does not own `tooling/design-lint.mjs` beyond the exemption
+  counts (G1-a is in flight), and a compile error reaches consumers of the copied-in source too,
+  which a repo-local lint rule never would.
+- **`disabled` is now always the `aria-disabled` form, on every Button (D7).** Previously
+  `focusableWhenDisabled` was set only while loading. A native `disabled` button receives no pointer
+  events at all in any browser, so dropping `pointer-events-none` alone would NOT have delivered the
+  tooltip D7 asks for — the attribute had to change too. Base UI suppresses activation either way.
+  Cost accepted: tests that asserted `element.disabled` now assert `aria-disabled` (date-picker
+  presets, filter-bar-managed caps, split-button), and a disabled control stays in the tab order,
+  which is the APG-sanctioned pattern for an explained-unavailable action.
+- **`:active` still paints on a disabled control.** With pointer events restored, pressing a
+  disabled button briefly shows the pressed fill. Left as-is: batch 1 decided hover-on-disabled is
+  allowed, and suppressing `:active` would mean a `not-aria-disabled:` guard on all six variant
+  recipes. Flagged rather than silently accepted.
+- **Left raw on purpose, against the issue's `<button>`-count acceptance.** Four files keep their
+  `RAW_INTERACTIVE_EXEMPTIONS` entries, and the reasons differ:
+  - `data-grid` (2) and `data-list` (2) — the sort headers and the row-action wrapper are TEXT
+    controls that must inherit the cell's typography and add no box. Wrapping them in `Button` would
+    add a height, a label voice and `whitespace-nowrap` to a table cell.
+  - `onboarding-checklist` (3 → 2) — the icon-only collapse toggle became an `IconButton`; the
+    collapsed progress pill and the step rows carry visible text and stay text controls.
+  - `password-input` (1) and `tag-group` (2) — these are chip-internal micro-controls. The password
+    toggle sits INSIDE the field box, where F1 deliberately gave it an ink-only hover and pressed
+    step because a surface wash would touch the input border; making it an `IconButton` would undo
+    that decision two batches later. Tag's remove and overflow controls belong to the Chip primitive
+    (T2), explicitly out of F2's scope.
+    The exemption map fails closed in both directions, so all four are counted, and the four files that
+    DID lose their raw controls tripped the rule in the removing direction — which is the point of it.
+- **`paginationLinkVariants` keeps a size key named `icon`.** It sizes an `<a>` page-number tile,
+  not a control on the `--size-*` ladder, and renaming it is a PaginationLink API change with no
+  audit finding behind it. Noted so the next sweep does not read it as missed work.
+- **Doctrine amendment worth MK's eye:** F1's AGENTS.md rule says "no component writes its own
+  `hover:bg-*`". Button now does — through the tone vars — because it IS the recipe for its own
+  family, the way `surfaceInteractive` is the recipe for the ladder. `design.md` §Components states
+  the mechanism explicitly; the AGENTS.md sentence was left as F1 wrote it rather than edited by a
+  sibling batch.
+
+## 2026-09-07 — F2's first clean push gate lost a run to the known Firefox actionability flake
+
+- **What happened:** `pnpm gates:push` failed once on `smoke`, with
+  `use-animation-replay.test.tsx > replaying while already playing restarts cleanly` timing out at
+  `await button.click()` under **Firefox only** (29s for a 13-test file). Nothing in F2 touches
+  `use-animation-replay`. The same file, run in isolation on the same tree with the same config,
+  passed 26/26 across Chromium and Firefox in 12s.
+- **Why it is not a new defect:** this is the failure mode already recorded on 2026-08-28 —
+  "Firefox launches but its click/pointer actionability into popovers/portals times out" on this
+  macOS build. WebKit is still host-skipped for the same environmental reason (`_WKBrowserContext`
+  dropped in 26.6.2), which the lane prints on every run.
+- **How it was handled:** re-ran the file in isolation to confirm, then re-ran the FULL `gates:push`
+  rather than reaching for `GATES_SKIP`. The receipt on this branch is from a run in which every
+  gate passed on its own merits. Recorded because a receipt shows the passing run and not the one
+  before it, and a reviewer should know a re-run happened and why.
+- **The second re-run lost a different lane to machine saturation, same handling.** `contracts`
+  failed once with `Test timeout of 120000ms exceeded` on
+  `/docs/components/otp-input … effective 24px pointer targets` in `chromium-dark` — 879/880 passed.
+  The SAME assertion passed in `chromium`, `mobile-chromium` and `mobile-chromium-dark` in that very
+  run, and had passed in all four projects in the two preceding full sweeps. `uptime` at the moment
+  of failure read **load average 45.5**, with two sibling audit agents running their own
+  `gates.mjs push` / `contracts-run.mjs` in parallel worktrees. Re-run in isolation on the same tree:
+  8/8 passed, the dark case in 1.1m against a 120s budget.
+- **The lesson, which is about the budget and not about otp-input.** OTP's target-floor test probes
+  every slot, so it is the longest single contract in the suite and sits closest to the per-test
+  timeout — it is the first thing to fall over when several agents share one machine. If concurrent
+  audit work continues, either raise the per-test timeout for that route or serialise the gate runs;
+  do not read this failure as an OTPInput defect.
+
+## 2026-09-08 — F2's gate moved to the Ryzen boxes, and the committed receipt was stale
+
+- **The committed receipt did not describe this tree, and said so.** `.gates/receipt.json` on the
+  branch recorded `head d14bd886` against base `6f11a4bc` — the main from BEFORE F1 merged. The
+  branch had since been rebased onto `9c33dfaf`, so the receipt covered a tree that no longer
+  existed. A finisher had noticed it "reports as covering this tree"; it did not, and the fix was
+  never to reason about it but to re-run the ladder. **A receipt is only ever evidence about the
+  tree hash it names** — read the `head`/`base` fields before trusting one, especially after a
+  rebase.
+- **Every browser lane now runs on the Ryzen boxes** through the session runner, which mirrors the
+  commit plus the dirty tree to a box, runs under a per-box lane lock, and copies `.gates/` back.
+  The pulled receipt's `host.platform` reads `linux`; CI does not check it.
+- **The full sweep failed two lanes. One was a real test defect; one was environmental.**
+  - `unit` — `button-matrix.browser.test.tsx > a neutral ghost inherits its host ink` asserted
+    `rgb(1, 2, 3)` and got `oklch(0.145 0.003 75)`. This one was a REAL defect, in the test, and it
+    is written up in `bugs.md`: the assertion measures a rest state, and the pointer was sitting on
+    the button. It reproduced in every full sweep and passed in isolation, which is the signature of
+    shared-page pointer state, not of a flake. Fixed by parking the pointer on a spacer first.
+  - `contracts` — `/docs/components/relative-time contains its primary fixture at 320px` failed in
+    `mobile-chromium` and `mobile-chromium-dark` with `locator.scrollIntoViewIfNeeded: Element is
+not attached to the DOM`, 878/880 passing. That is a detach during an actionability wait, not a
+    containment failure, and **F2 touches no file under `relative-time`** — the component re-renders
+    on its own ticker, which is exactly the shape that detaches a node mid-action.
+- **A third sweep lost the unit lane to a harness error** — `Failed to run the test … Cannot connect
+to the iframe` for one file, with **1488 tests passed and zero assertion failures** in the same
+  run. That one is genuinely environmental: it is the vitest browser orchestrator failing to attach
+  an iframe under load, not a test outcome.
+- **Handled by re-running the full ladder and by fixing the real defect, never by `GATES_SKIP` or
+  `--no-verify`.** Recorded because the receipt on the branch shows only the passing run, and a
+  reviewer should know what was re-run and on what evidence each failure was classified.
+
+## 2026-09-08 — The remote gates boxes replay a pre-rebase CSS chunk from a cache nothing clears
+
+- **What happened:** F2's finishing `pnpm gates:push` on a Ryzen box failed the contract lane
+  because the docs build failed: `design-lint --docs-shell --emitted-css` reported **10 offenders**,
+  every one a `@tailwindcss/typography` `.prose :where(…)` heavy weight (600/800/900). The same
+  commit built clean on the Mac — "2 built stylesheet(s) on-system".
+- **Root cause, and it is not the branch.** The rule that neutralises those weights,
+  `.prose :is(h1, h2, h3, h4, h5, h6, dt, thead th) { font-weight: var(--font-weight-medium) }` in
+  `apps/docs/app/global.css`, was introduced by **Do1-a (`d5c960a3`)**. The box's emitted chunk did
+  not contain that rule at all (`grep -c 'prose :is('` → local 1, box 0) while the box's
+  `global.css` was byte-identical and its tree clean at the pushed HEAD. The box had simply replayed
+  a Turbopack cache written before this worktree was rebased onto Do1-a.
+- **Why nothing cleaned it.** `remote-gates-v2.sh` rsyncs with `--exclude '.next' --exclude
+'apps/docs/out'` (correctly — they are build artifacts), and its remote reset ends in
+  `git clean -qfd`, which does **not** remove ignored files. So `apps/docs/.next` on the box is
+  immune to both the sync and the reset, and outlives every rebase.
+- **The class to recognise:** an emitted-CSS or built-artifact gate that fails ONLY on the remote box
+  while the identical tree passes locally is a stale remote build cache until proven otherwise —
+  diff the built artifact for the rule you expect, do not start editing source. The tell is that the
+  offending rules all belong to a dependency's defaults and the _override_ is the thing missing.
+- **Handling:** `rm -rf apps/docs/.next apps/docs/out` on the box, then re-ran the full ladder. Not
+  masked and not skipped: the rebuild is the stricter option, since it removes the cache the failing
+  run depended on.
+- **This will hit every batch still in flight.** Any agent whose worktree was rebased across Do1-a
+  and whose box worktree predates that rebase will see these exact 10 offenders. Clearing the two
+  directories on the box is the fix; the durable fix is for the runner to clear them (or to pass
+  `git clean -qfdx`) and belongs to whoever owns `remote-gates-v2.sh`, not to a component batch.

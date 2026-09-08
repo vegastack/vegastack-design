@@ -266,9 +266,9 @@ function injectRadioItemHitAreaMirror(): () => void {
   style.textContent = `
     body { margin: 24px; }
     [data-slot="radio-group-item"] { position: relative; display: inline-flex; box-sizing: border-box; border: 1px solid transparent; }
-    [data-slot="radio-group-item"][data-size="default"] { width: 16px; height: 16px; }
+    [data-slot="radio-group-item"][data-size="md"] { width: 16px; height: 16px; }
     [data-slot="radio-group-item"][data-size="sm"] { width: 14px; height: 14px; }
-    [data-slot="radio-group-item"][data-size="default"]::before { content: ""; position: absolute; inset: -6px; }
+    [data-slot="radio-group-item"][data-size="md"]::before { content: ""; position: absolute; inset: -6px; }
     [data-slot="radio-group-item"][data-size="sm"]::before { content: ""; position: absolute; inset: -6px; }
   `;
   document.head.appendChild(style);

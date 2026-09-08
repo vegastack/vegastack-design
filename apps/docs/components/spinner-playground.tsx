@@ -15,7 +15,7 @@ type SpinnerPlaygroundKey = "size";
 const SIZE_OPTIONS = [
   { value: "xs", label: "Extra small" },
   { value: "sm", label: "Small" },
-  { value: "default", label: "Default" },
+  { value: "md", label: "Medium" },
   { value: "lg", label: "Large" },
 ] as const;
 
@@ -26,7 +26,7 @@ const spinnerPlaygroundConfig: PlaygroundConfig<SpinnerPlaygroundKey> = {
       key: "size",
       label: "Size",
       options: SIZE_OPTIONS,
-      defaultValue: "default",
+      defaultValue: "md",
     },
   ],
   render: (state): ReactNode => (
@@ -34,7 +34,7 @@ const spinnerPlaygroundConfig: PlaygroundConfig<SpinnerPlaygroundKey> = {
   ),
   toCode: (state) => {
     const props: string[] = [];
-    if (state.size !== "default") props.push(`size="${state.size}"`);
+    if (state.size !== "md") props.push(`size="${state.size}"`);
     const propsString = props.length > 0 ? ` ${props.join(" ")}` : "";
     return `<Spinner${propsString} />`;
   },

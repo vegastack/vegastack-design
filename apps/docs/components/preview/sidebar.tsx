@@ -260,7 +260,7 @@ export function sidebarRight(): ReactNode {
 
 const SIZES = [
   { size: "sm", label: "sm (28px)" },
-  { size: "default", label: "default (32px)" },
+  { size: "md", label: "md (32px)" },
   { size: "lg", label: "lg (40px)" },
 ] as const;
 
@@ -277,7 +277,7 @@ export function sidebarSizes(): ReactNode {
                   <SidebarMenuItem key={entry.size}>
                     <SidebarMenuButton
                       size={entry.size}
-                      isActive={entry.size === "default"}
+                      isActive={entry.size === "md"}
                     >
                       <Home />
                       <span>{entry.label}</span>

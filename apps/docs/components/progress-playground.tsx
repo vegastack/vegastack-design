@@ -18,7 +18,7 @@ const VALUE_OPTIONS = [
 
 const SIZE_OPTIONS = [
   { value: "sm", label: "Small" },
-  { value: "default", label: "Default" },
+  { value: "md", label: "Medium" },
   { value: "lg", label: "Large" },
 ] as const;
 
@@ -38,7 +38,7 @@ const progressPlaygroundConfig: PlaygroundConfig<ProgressPlaygroundKey> = {
       key: "size",
       label: "Size",
       options: SIZE_OPTIONS,
-      defaultValue: "default",
+      defaultValue: "md",
     },
   ],
   render: (state): ReactNode => (
@@ -54,7 +54,7 @@ const progressPlaygroundConfig: PlaygroundConfig<ProgressPlaygroundKey> = {
   ),
   toCode: (state) => {
     const props: string[] = [`value={${state.value}}`];
-    if (state.size !== "default") props.push(`size="${state.size}"`);
+    if (state.size !== "md") props.push(`size="${state.size}"`);
     props.push('aria-label="Upload progress"');
     return `<Progress ${props.join(" ")} />`;
   },

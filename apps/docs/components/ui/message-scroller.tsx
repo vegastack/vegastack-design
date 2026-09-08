@@ -1,4 +1,4 @@
-// @vegastack message-scroller@0.6.0 sha256-MZbaayDOhXKTcGTXDSZ9OQn6naE/rf3VTC5ig4W0thQ=
+// @vegastack message-scroller@0.6.0 sha256-ORl2Dxvlc5f5gQrALylEltoTuA5UhpZwBAfOuROjLTs=
 
 "use client";
 
@@ -11,7 +11,11 @@ import {
 } from "@shadcn/react/message-scroller";
 import { ArrowDown } from "lucide-react";
 import { cn, surfaceInteractive } from "@vegastack/design";
-import { Button, type ButtonProps } from "@/components/ui/button";
+import {
+  type ButtonAppearance,
+  type ButtonOwnProps,
+} from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 
 /* ------------------------------------------------------------------------------------------------
  * MessageScroller — a virtualised, auto-scrolling conversation viewport built on the headless
@@ -172,13 +176,14 @@ export function MessageScrollerItem({
 export type MessageScrollerButtonProps = React.ComponentPropsWithRef<
   typeof MessageScrollerPrimitive.Button
 > &
-  Pick<ButtonProps, "variant" | "size">;
+  Pick<ButtonOwnProps, "size"> &
+  ButtonAppearance;
 
 /**
  * `MessageScrollerButton` — the floating "scroll to end" (or "start") affordance.
  * Renders our `Button`; it slides in only when the viewport is scrolled away
  * from the target edge (`data-active`) and animates out with our motion-ease
- * tokens. Defaults to a secondary `icon-sm` button with a down arrow.
+ * tokens. Defaults to a soft `sm` icon button with a down arrow.
  *
  * **Reduced motion:** the vendored primitive defaults its click-triggered scroll to
  * `behavior: "smooth"` (see `MessageScrollerButtonProps["behavior"]`, from
@@ -197,8 +202,9 @@ export function MessageScrollerButton({
   className,
   children,
   render,
-  variant = "secondary",
-  size = "icon-sm",
+  variant = "soft",
+  tone,
+  size = "sm",
   behavior = "smooth",
   ...props
 }: MessageScrollerButtonProps) {
@@ -220,17 +226,22 @@ export function MessageScrollerButton({
         surfaceInteractive,
         className,
       )}
-      render={render ?? <Button variant={variant} size={size} />}
+      render={
+        render ?? (
+          <IconButton
+            {...({ variant, tone } as ButtonAppearance)}
+            size={size}
+            aria-label={
+              direction === "end" ? "Scroll to end" : "Scroll to start"
+            }
+          />
+        )
+      }
       {...props}
     >
-      {children ?? (
-        <>
-          <ArrowDown />
-          <span className="sr-only">
-            {direction === "end" ? "Scroll to end" : "Scroll to start"}
-          </span>
-        </>
-      )}
+      {/* Icon-only by contract: the accessible name comes from the `IconButton`'s `aria-label`
+          above, so a `children` override should be an icon, never visible text. */}
+      {children ?? <ArrowDown />}
     </MessageScrollerPrimitive.Button>
   );
 }

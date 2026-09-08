@@ -65,9 +65,9 @@ with no drop shadow. The system ships two tightly scoped shadow roles:
 ```
 
 - `shadow-overlay` is reserved for floating overlay surfaces.
-- `shadow-lit` is an opt-in finish for approved primary actions only.
 
-No other elevation tokens exist, so there is no `shadow-sm` / `shadow-md` ladder to reach for.
+It is the only shadow token, so there is no `shadow-sm` / `shadow-md` ladder to reach for and no
+action finish either.
 
 <ShadowScale />
 
@@ -77,7 +77,7 @@ Corners use the fixed 2/6/8/12/full roles. `rounded-lg` is the 12px container ca
 <RadiusScale />
 
 <DoDont
-  do="Separate surfaces with border-border; use shadow-overlay for overlays and shadow-lit only for approved primary actions."
+  do="Separate surfaces with border-border and use shadow-overlay for overlays — nothing else."
   dont="Elevate cards, nest equal-elevation cards, or invent a generic shadow ladder."
 />
 

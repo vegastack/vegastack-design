@@ -13,7 +13,7 @@ type TogglePlaygroundKey = "size" | "disabled" | "defaultPressed";
 /** One look, three sizes — `Toggle` has no variant axis by design. */
 const SIZE_OPTIONS = [
   { value: "sm", label: "Small" },
-  { value: "default", label: "Default" },
+  { value: "md", label: "Medium" },
   { value: "lg", label: "Large" },
 ] as const;
 
@@ -24,7 +24,7 @@ const togglePlaygroundConfig: PlaygroundConfig<TogglePlaygroundKey> = {
       key: "size",
       label: "Size",
       options: SIZE_OPTIONS,
-      defaultValue: "default",
+      defaultValue: "md",
     },
     { type: "switch", key: "disabled", label: "Disabled", defaultValue: false },
     {
@@ -49,7 +49,7 @@ const togglePlaygroundConfig: PlaygroundConfig<TogglePlaygroundKey> = {
   ),
   toCode: (state) => {
     const props: string[] = ['aria-label="Toggle bold"'];
-    if (state.size !== "default") props.push(`size="${state.size}"`);
+    if (state.size !== "md") props.push(`size="${state.size}"`);
     if (state.defaultPressed) props.push("defaultPressed");
     if (state.disabled) props.push("disabled");
     return `<Toggle ${props.join(" ")}>\n  <Bold />\n</Toggle>`;

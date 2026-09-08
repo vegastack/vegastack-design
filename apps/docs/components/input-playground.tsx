@@ -17,7 +17,7 @@ const TYPE_OPTIONS = [
 
 const SIZE_OPTIONS = [
   { value: "sm", label: "Small" },
-  { value: "default", label: "Default" },
+  { value: "md", label: "Medium" },
   { value: "lg", label: "Large" },
 ] as const;
 
@@ -35,7 +35,7 @@ const inputPlaygroundConfig: PlaygroundConfig<InputPlaygroundKey> = {
       key: "size",
       label: "Size",
       options: SIZE_OPTIONS,
-      defaultValue: "default",
+      defaultValue: "md",
     },
     { type: "switch", key: "disabled", label: "Disabled", defaultValue: false },
     { type: "switch", key: "invalid", label: "Invalid", defaultValue: false },
@@ -56,7 +56,7 @@ const inputPlaygroundConfig: PlaygroundConfig<InputPlaygroundKey> = {
   toCode: (state) => {
     const props: string[] = [];
     if (state.type !== "text") props.push(`type="${state.type}"`);
-    if (state.size !== "default") props.push(`size="${state.size}"`);
+    if (state.size !== "md") props.push(`size="${state.size}"`);
     props.push('placeholder="you@vegastack.com"');
     if (state.disabled) props.push("disabled");
     if (state.invalid) props.push('aria-invalid="true"');

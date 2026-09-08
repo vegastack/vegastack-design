@@ -18,7 +18,7 @@ const LENGTH_OPTIONS = [
 /** The shared 28/32/40 control scale. */
 const SIZE_OPTIONS = [
   { value: "sm", label: "Small" },
-  { value: "default", label: "Default" },
+  { value: "md", label: "Medium" },
   { value: "lg", label: "Large" },
 ] as const;
 
@@ -36,7 +36,7 @@ const otpInputPlaygroundConfig: PlaygroundConfig<OTPInputPlaygroundKey> = {
       key: "size",
       label: "Size",
       options: SIZE_OPTIONS,
-      defaultValue: "default",
+      defaultValue: "md",
     },
     { type: "switch", key: "mask", label: "Mask", defaultValue: false },
     { type: "switch", key: "disabled", label: "Disabled", defaultValue: false },
@@ -53,7 +53,7 @@ const otpInputPlaygroundConfig: PlaygroundConfig<OTPInputPlaygroundKey> = {
   toCode: (state) => {
     const props: string[] = ['aria-label="Verification code"'];
     if (state.length !== "6") props.push(`length={${state.length}}`);
-    if (state.size !== "default") props.push(`size="${state.size}"`);
+    if (state.size !== "md") props.push(`size="${state.size}"`);
     if (state.mask) props.push("mask");
     if (state.disabled) props.push("disabled");
     return `<OTPInput ${props.join(" ")} />`;

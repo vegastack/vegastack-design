@@ -52,49 +52,81 @@ function Surfaces() {
         Muted text on the muted surface.
       </div>
 
-      {/* Badge: solid fills + soft tints across every status */}
+      {/* Badge: solid fills + subtle tints across every status */}
       <div className="flex flex-wrap gap-2">
-        <Badge variant="solid" color="default">
+        <Badge variant="solid" intent="default">
           solid default
         </Badge>
-        <Badge variant="solid" color="primary">
-          solid primary
+        <Badge variant="solid" intent="info">
+          solid info
         </Badge>
-        <Badge variant="solid" color="success">
+        <Badge variant="solid" intent="success">
           solid success
         </Badge>
-        <Badge variant="solid" color="warning">
+        <Badge variant="solid" intent="warning">
           solid warning
         </Badge>
-        <Badge variant="solid" color="destructive">
+        <Badge variant="solid" intent="destructive">
           solid destructive
         </Badge>
       </div>
       <div className="flex flex-wrap gap-2">
-        <Badge variant="soft" color="success">
-          soft success
+        <Badge variant="subtle" intent="success">
+          subtle success
         </Badge>
-        <Badge variant="soft" color="warning">
-          soft warning
+        <Badge variant="subtle" intent="warning">
+          subtle warning
         </Badge>
-        <Badge variant="soft" color="destructive">
-          soft destructive
+        <Badge variant="subtle" intent="destructive">
+          subtle destructive
         </Badge>
-        <Badge variant="outline" color="default">
+        <Badge variant="outline" intent="default">
           outline
         </Badge>
       </div>
 
-      {/* Button: tinted status variants exercise bg-X-subtle + text-X (the soft-pair contrast) */}
+      {/* Button: the soft tones exercise bg-X-subtle + text-X (the soft-pair contrast); the outline
+          tones exercise the faint tint + the same ink. */}
       <div className="flex flex-wrap gap-2">
-        <Button>Primary</Button>
-        <Button variant="secondary">Secondary</Button>
-        <Button variant="destructive">Destructive</Button>
-        <Button variant="success">Success</Button>
-        <Button variant="warning">Warning</Button>
-        <Button variant="info">Info</Button>
+        <Button>Solid</Button>
+        <Button variant="soft">Soft</Button>
+        <Button variant="soft" tone="destructive">
+          Destructive
+        </Button>
+        <Button variant="soft" tone="success">
+          Success
+        </Button>
+        <Button variant="soft" tone="warning">
+          Warning
+        </Button>
+        <Button variant="soft" tone="info">
+          Info
+        </Button>
         <Button variant="outline">Outline</Button>
         <Button variant="ghost">Ghost</Button>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <Button variant="outline" tone="destructive">
+          Bordered destructive action
+        </Button>
+        <Button variant="outline" tone="success">
+          Bordered success action
+        </Button>
+        <Button variant="outline" tone="warning">
+          Bordered warning action
+        </Button>
+        <Button variant="outline" tone="info">
+          Bordered info action
+        </Button>
+        <Button variant="solid" tone="success">
+          Filled success action
+        </Button>
+        <Button variant="solid" tone="warning">
+          Filled warning action
+        </Button>
+        <Button variant="solid" tone="info">
+          Filled info action
+        </Button>
       </div>
 
       {/* Real neutral mounting surfaces for the global focus-visible outline. The token gate proves
@@ -118,16 +150,32 @@ function Surfaces() {
 
       {/* Alpha-composited outline controls mounted on the non-page neutral surfaces they support. */}
       <div className="flex flex-wrap gap-2 rounded-md bg-card p-3">
-        <Button variant="destructive">Card destructive</Button>
-        <Button variant="success">Card success</Button>
-        <Button variant="warning">Card warning</Button>
-        <Button variant="info">Card info</Button>
+        <Button variant="soft" tone="destructive">
+          Card destructive
+        </Button>
+        <Button variant="soft" tone="success">
+          Card success
+        </Button>
+        <Button variant="soft" tone="warning">
+          Card warning
+        </Button>
+        <Button variant="soft" tone="info">
+          Card info
+        </Button>
       </div>
       <div className="flex flex-wrap gap-2 rounded-md bg-popover p-3">
-        <Button variant="destructive">Popover destructive</Button>
-        <Button variant="success">Popover success</Button>
-        <Button variant="warning">Popover warning</Button>
-        <Button variant="info">Popover info</Button>
+        <Button variant="soft" tone="destructive">
+          Popover destructive
+        </Button>
+        <Button variant="soft" tone="success">
+          Popover success
+        </Button>
+        <Button variant="soft" tone="warning">
+          Popover warning
+        </Button>
+        <Button variant="soft" tone="info">
+          Popover info
+        </Button>
       </div>
 
       {/* Categorical integration specimens: the token gate checks the ratios; these nodes prove all
@@ -151,15 +199,15 @@ function Surfaces() {
         items={[{ name: "Northstar" }, { name: "Kepler", href: "#kepler" }]}
       />
 
-      <Alert variant="success">
+      <Alert intent="success">
         <AlertTitle>Saved</AlertTitle>
         <AlertDescription>Your changes have been saved.</AlertDescription>
       </Alert>
-      <Alert variant="warning">
+      <Alert intent="warning">
         <AlertTitle>Heads up</AlertTitle>
         <AlertDescription>Subscription expiring soon.</AlertDescription>
       </Alert>
-      <Alert variant="info">
+      <Alert intent="info">
         <AlertTitle>FYI</AlertTitle>
         <AlertDescription>An informational note.</AlertDescription>
       </Alert>

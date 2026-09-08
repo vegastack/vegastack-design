@@ -1,4 +1,4 @@
-// @vegastack toggle-group@0.6.0 sha256-nPv+a/tkXrTHvIUynw0k7cXootyfjLj0rOOwMmBmIYc=
+// @vegastack toggle-group@0.6.0 sha256-tMcSEwLoJFLwQxiuCIXy35p6AuhLelqaeSMlBeTvoto=
 
 "use client";
 
@@ -19,7 +19,7 @@ import { toggleVariants } from "@/components/ui/toggle";
 type ToggleGroupContextValue = VariantProps<typeof toggleVariants>;
 
 const ToggleGroupContext = React.createContext<ToggleGroupContextValue>({
-  size: "default",
+  size: "md",
 });
 
 /* ------------------------------------------------------------------------------------------------
@@ -66,7 +66,7 @@ export interface ToggleGroupProps
   multiple?: boolean;
   /**
    * Control height/density applied to every item — mirrors the Button scale.
-   * @default 'default'
+   * @default 'md'
    */
   size?: VariantProps<typeof toggleVariants>["size"];
   /**
@@ -94,7 +94,7 @@ export interface ToggleGroupProps
  */
 export function ToggleGroup({
   className,
-  size = "default",
+  size = "md",
   multiple,
   orientation = "horizontal",
   onValueChange,
@@ -125,7 +125,7 @@ export function ToggleGroup({
     <BaseToggleGroup
       ref={ref}
       data-slot="toggle-group"
-      data-size={size ?? "default"}
+      data-size={size ?? "md"}
       multiple={multiple}
       orientation={orientation}
       onValueChange={handleValueChange}
@@ -153,7 +153,7 @@ export interface ToggleGroupItemProps
   /**
    * Control height/density. Defaults to the group's `size` (set via context); set
    * here only to override a single item.
-   * @default 'default'
+   * @default 'md'
    */
   size?: VariantProps<typeof toggleVariants>["size"];
 }
@@ -177,7 +177,7 @@ export function ToggleGroupItem({
   ...props
 }: ToggleGroupItemProps) {
   const context = React.useContext(ToggleGroupContext);
-  const resolvedSize = size ?? context.size ?? "default";
+  const resolvedSize = size ?? context.size ?? "md";
   const variantClassName = cn(
     // Inherits the shared `toggleVariants` — same evident neutral pressed fill as a
     // standalone Toggle (a group item is a genuine radio-/checkbox-like selection).

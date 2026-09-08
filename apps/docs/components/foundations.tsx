@@ -422,8 +422,8 @@ export function RadiusScale() {
 }
 
 /**
- * Elevation specimen. The system ships exactly two sanctioned roles:
- * `--shadow-overlay` for floating overlays and `--shadow-lit` for opt-in primary actions.
+ * Elevation specimen. The system ships exactly ONE sanctioned role, `--shadow-overlay`, for
+ * floating overlays. The `--shadow-lit` action finish was retired on 2026-09-07 (audit B1-04).
  */
 export function ShadowScale() {
   return (
@@ -441,14 +441,6 @@ export function ShadowScale() {
         <p className="text-mono-label text-muted-foreground">
           --shadow-overlay
         </p>
-        <div className="flex flex-col gap-3">
-          {/* The real component, not a lookalike (DC-09): `finish="lit"` is the one sanctioned
-              action shadow. */}
-          <Button finish="lit">Lit primary action</Button>
-          <p className="text-mono-label text-muted-foreground">
-            --shadow-lit · actions only
-          </p>
-        </div>
       </div>
     </div>
   );

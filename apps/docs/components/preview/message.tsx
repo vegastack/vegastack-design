@@ -14,6 +14,7 @@ import { Wrapper } from "./wrapper";
 import { Avatar } from "@/components/ui/avatar";
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
 import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import {
   Message,
   MessageAvatar,
@@ -125,18 +126,18 @@ export function messageActions(): ReactNode {
               </BubbleContent>
             </Bubble>
             <MessageFooter className="gap-0.5">
-              <Button variant="ghost" size="icon-sm" aria-label="Copy">
+              <IconButton variant="ghost" size="sm" aria-label="Copy">
                 <Copy />
-              </Button>
-              <Button variant="ghost" size="icon-sm" aria-label="Retry">
+              </IconButton>
+              <IconButton variant="ghost" size="sm" aria-label="Retry">
                 <RotateCcw />
-              </Button>
-              <Button variant="ghost" size="icon-sm" aria-label="Good response">
+              </IconButton>
+              <IconButton variant="ghost" size="sm" aria-label="Good response">
                 <ThumbsUp />
-              </Button>
-              <Button variant="ghost" size="icon-sm" aria-label="Bad response">
+              </IconButton>
+              <IconButton variant="ghost" size="sm" aria-label="Bad response">
                 <ThumbsDown />
-              </Button>
+              </IconButton>
             </MessageFooter>
           </MessageContent>
         </Message>
@@ -250,13 +251,13 @@ export function messageAttachment(): ReactNode {
                       248 KB
                     </span>
                   </span>
-                  <Button
+                  <IconButton
                     variant="ghost"
-                    size="icon-sm"
+                    size="sm"
                     aria-label="Download release-notes.pdf"
                   >
                     <Download />
-                  </Button>
+                  </IconButton>
                 </span>
               </BubbleContent>
             </Bubble>

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import type { ButtonAppearance } from "@/components/ui/button";
 import {
   SplitButton,
   type SplitButtonAction,
@@ -12,34 +13,48 @@ import {
 } from "@/components/playground";
 
 type SplitButtonPlaygroundKey =
-  "variant" | "size" | "destructiveAction" | "disabled" | "loading";
+  | "variant"
+  | "tone"
+  | "size"
+  | "destructiveAction"
+  | "disabled"
+  | "loading";
 
-/** `variant` passes straight through to both halves — the full 15-value Button scale. */
+/** `variant` and `tone` pass straight through to both halves. */
 const VARIANT_OPTIONS = [
-  { value: "default", label: "Default" },
-  { value: "secondary", label: "Secondary" },
+  { value: "solid", label: "Solid" },
+  { value: "soft", label: "Soft" },
   { value: "outline", label: "Outline" },
   { value: "ghost", label: "Ghost" },
   { value: "link", label: "Link" },
+] as const;
+
+const TONE_OPTIONS = [
+  { value: "neutral", label: "Neutral" },
   { value: "destructive", label: "Destructive" },
   { value: "success", label: "Success" },
   { value: "warning", label: "Warning" },
   { value: "info", label: "Info" },
-  { value: "glass", label: "Glass" },
-  { value: "destructive-outline", label: "Destructive outline" },
-  { value: "success-outline", label: "Success outline" },
-  { value: "warning-outline", label: "Warning outline" },
-  { value: "info-outline", label: "Info outline" },
-  { value: "cta", label: "CTA" },
 ] as const;
 
-/** The text sizes, mirroring `Button` — the square `icon-*` sizes make no sense on a labeled split. */
+/** The one size vocabulary, mirroring `Button`. */
 const SIZE_OPTIONS = [
   { value: "xs", label: "Extra small" },
   { value: "sm", label: "Small" },
-  { value: "default", label: "Default" },
+  { value: "md", label: "Medium" },
   { value: "lg", label: "Large" },
 ] as const;
+
+/**
+ * `solid` with the `destructive` tone is the doctrine's one forbidden cell, so the playground
+ * resolves the pair to `soft` instead of ignoring the tone.
+ */
+function resolveAppearance(variant: string, tone: string): ButtonAppearance {
+  if (variant === "solid" && tone === "destructive") {
+    return { variant: "soft", tone: "destructive" };
+  }
+  return { variant, tone } as ButtonAppearance;
+}
 
 // `destructive` is a per-action flag (`SplitButtonAction.destructive`), not a root prop — the
 // "Destructive action" switch flips the second menu item between a plain and a destructive row.
@@ -60,14 +75,21 @@ const splitButtonPlaygroundConfig: PlaygroundConfig<SplitButtonPlaygroundKey> =
         key: "variant",
         label: "Variant",
         options: VARIANT_OPTIONS,
-        defaultValue: "default",
+        defaultValue: "solid",
+      },
+      {
+        type: "select",
+        key: "tone",
+        label: "Tone",
+        options: TONE_OPTIONS,
+        defaultValue: "neutral",
       },
       {
         type: "select",
         key: "size",
         label: "Size",
         options: SIZE_OPTIONS,
-        defaultValue: "default",
+        defaultValue: "md",
       },
       {
         type: "switch",
@@ -85,7 +107,7 @@ const splitButtonPlaygroundConfig: PlaygroundConfig<SplitButtonPlaygroundKey> =
     ],
     render: (state): ReactNode => (
       <SplitButton
-        variant={state.variant as SplitButtonProps["variant"]}
+        {...resolveAppearance(String(state.variant), String(state.tone))}
         size={state.size as SplitButtonProps["size"]}
         disabled={Boolean(state.disabled)}
         loading={Boolean(state.loading)}
@@ -97,9 +119,18 @@ const splitButtonPlaygroundConfig: PlaygroundConfig<SplitButtonPlaygroundKey> =
       </SplitButton>
     ),
     toCode: (state) => {
+      const appearance = resolveAppearance(
+        String(state.variant),
+        String(state.tone),
+      ) as { variant: string; tone?: string };
       const props: string[] = [];
-      if (state.variant !== "default") props.push(`variant="${state.variant}"`);
-      if (state.size !== "default") props.push(`size="${state.size}"`);
+      if (appearance.variant !== "solid") {
+        props.push(`variant="${appearance.variant}"`);
+      }
+      if (appearance.tone != null && appearance.tone !== "neutral") {
+        props.push(`tone="${appearance.tone}"`);
+      }
+      if (state.size !== "md") props.push(`size="${state.size}"`);
       if (state.disabled) props.push("disabled");
       if (state.loading) props.push("loading");
       const propsString = props.length > 0 ? `\n  ${props.join(" ")}` : "";

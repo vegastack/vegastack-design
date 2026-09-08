@@ -41,9 +41,7 @@ export function pricingSection(): ReactNode {
             "Advanced reporting",
           ]}
           action={
-            <Button finish="lit" className="w-full">
-              Continue with Pro
-            </Button>
+            <Button className="w-full">Continue with Pro</Button>
           }
           highlighted
         />

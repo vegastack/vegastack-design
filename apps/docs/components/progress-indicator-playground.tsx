@@ -22,7 +22,7 @@ const VALUE_OPTIONS = [
 const SIZE_OPTIONS = [
   { value: "xs", label: "Extra small" },
   { value: "sm", label: "Small" },
-  { value: "default", label: "Default" },
+  { value: "md", label: "Medium" },
   { value: "lg", label: "Large" },
 ] as const;
 
@@ -54,7 +54,7 @@ const progressIndicatorPlaygroundConfig: PlaygroundConfig<ProgressIndicatorPlayg
         key: "size",
         label: "Size",
         options: SIZE_OPTIONS,
-        defaultValue: "default",
+        defaultValue: "md",
       },
       {
         type: "select",
@@ -82,7 +82,7 @@ const progressIndicatorPlaygroundConfig: PlaygroundConfig<ProgressIndicatorPlayg
     toCode: (state) => {
       const props: string[] = [`value={${state.value}}`];
       if (state.variant !== "default") props.push(`variant="${state.variant}"`);
-      if (state.size !== "default") props.push(`size="${state.size}"`);
+      if (state.size !== "md") props.push(`size="${state.size}"`);
       if (state.shape !== "circle") props.push(`shape="${state.shape}"`);
       return `<ProgressIndicator ${props.join(" ")} />`;
     },

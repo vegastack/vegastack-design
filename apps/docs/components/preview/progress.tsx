@@ -31,7 +31,7 @@ export function progressSizes(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch gap-4">
       <Progress value={50} size="sm" aria-label="Small" />
-      <Progress value={50} size="default" aria-label="Default" />
+      <Progress value={50} size="md" aria-label="Default" />
       <Progress value={50} size="lg" aria-label="Large" />
     </Wrapper>
   );
@@ -101,7 +101,7 @@ export function progressTrack(): ReactNode {
 
 // Size × value matrix — the two axes are independent.
 export function progressMatrix(): ReactNode {
-  const sizes = ["sm", "default", "lg"] as const;
+  const sizes = ["sm", "md", "lg"] as const;
   const values = [25, 60, 100];
   return (
     <Wrapper className="flex-col items-stretch gap-4">

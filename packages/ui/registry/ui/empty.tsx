@@ -1,4 +1,4 @@
-// @vegastack empty@0.6.0 sha256-eVY+rBS9iT1kfLwI8QdkVpXFWoLR+nGAX7iN4Sf3Ldk=
+// @vegastack empty@0.6.0 sha256-tYUBzfQLn5CqmL5SnPH/JXxBeyad8WKRK7JN2O3zkAc=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -15,7 +15,7 @@ export const emptyVariants = cva(
     variants: {
       size: {
         sm: "py-8",
-        default: "py-12",
+        md: "py-12",
         lg: "py-16",
       },
       bordered: {
@@ -31,7 +31,7 @@ export const emptyVariants = cva(
       },
     },
     defaultVariants: {
-      size: "default",
+      size: "md",
       bordered: false,
       surface: "transparent",
     },
@@ -90,9 +90,9 @@ export interface EmptyProps
     React.ComponentPropsWithRef<"div">,
     VariantProps<typeof emptyVariants> {
   /**
-   * Vertical density — `sm` for inside cards, `default` standalone, `lg` for
+   * Vertical density — `sm` for inside cards, `md` standalone, `lg` for
    * full-page empties.
-   * @default "default"
+   * @default "md"
    */
   size?: VariantProps<typeof emptyVariants>["size"];
   /**
@@ -130,7 +130,7 @@ export interface EmptyProps
  */
 function Empty({
   className,
-  size = "default",
+  size = "md",
   bordered = false,
   surface = "transparent",
   ...props

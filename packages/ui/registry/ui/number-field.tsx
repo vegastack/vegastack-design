@@ -1,4 +1,4 @@
-// @vegastack number-field@0.6.0 sha256-Gh5RXYyRD2vdUaHWrGOp46d3MNZxOTWYcJSL80Ov2d8=
+// @vegastack number-field@0.6.0 sha256-dfP86KhJstxMThGdgCASSXclxZRf1lF0jUFLfOllgs4=
 
 "use client";
 
@@ -46,9 +46,9 @@ export interface NumberFieldProps extends Omit<
    * Control height on the shared 28/32/40 scale (`--size-sm/md/lg`), matching
    * `Input`/Button/Select. (The native numeric `size` attribute is intentionally
    * replaced by this variant prop, exactly as on `Input`.)
-   * @default 'default'
+   * @default 'md'
    */
-  size?: "sm" | "default" | "lg";
+  size?: "sm" | "md" | "lg";
   /**
    * Accessible name for the numeric input. Required in practice unless a
    * wrapping `Field`/`aria-labelledby` supplies one — the input must never be
@@ -123,7 +123,7 @@ const groupClasses =
 
 const sizeClasses = {
   sm: "h-(--size-sm) text-sm",
-  default: "h-(--size-md)",
+  md: "h-(--size-md)",
   lg: "h-(--size-lg)",
 } as const;
 
@@ -170,7 +170,7 @@ const stepperClasses =
  * />
  */
 export function NumberField({
-  size = "default",
+  size = "md",
   "aria-label": ariaLabel,
   placeholder,
   prefix,

@@ -513,3 +513,137 @@ Six parallel Opus bug-hunt agents swept build/typecheck · a11y · token/Tailwin
   component test pins the scroll-region contract, the targeted route passes 8/8 checks, and the full
   behavior suite passes 880/880. The class to recognise is a sticky decorative table corner sharing
   the z-layer of interactive column headers without an explicit overlap probe.
+
+## 2026-09-07 — A loading Button lost its accessible name to `visibility: hidden`
+
+- **Symptom:** the F2 rebuild stacked the loading spinner over the label so the button's width would
+  stop moving (audit B1-08), hiding the label with `invisible`. The unit suite, design-lint and
+  `pnpm lint` all passed; `capture.mjs --routes button` reported `axe=2` — `button-name` (critical)
+  on the loading fixture in both themes.
+- **Root cause:** `visibility: hidden` removes a subtree from the accessibility tree, not just from
+  paint. The button's only text was inside it, so a pending "Save changes" button announced nothing.
+  Nothing in the unit lane could see it: axe there runs without compiled CSS, so the label was still
+  visible to it.
+- **Systemic fix:** the label is hidden with `opacity-0` instead — it keeps its box, keeps its name,
+  and the spinner still covers it. A named regression test (`a loading button keeps its accessible
+name`) pins the role-plus-name query, which is the assertion that actually fails when a future
+  change reaches for `invisible`, `hidden` or `sr-only` here. The class to recognise: **any
+  visual-only hide applied to the element that carries a control's accessible name.**
+
+## 2026-09-07 — A `display: contents` wrapper changed how Chromium hit-tests a child SVG
+
+- **Symptom:** after wrapping Button's children in a permanent `<span class="contents">` (so the
+  loading spinner could stack over them), `filter-bar.test.tsx`'s `elementFromPoint` probe started
+  returning the `<svg>` instead of the `<button>` at a point 1px inside the chip's remove control.
+  The 24×24 pointer target was intact; only the element under the point changed.
+- **Root cause:** reproduced in isolation — a bare icon child returns `BUTTON` from
+  `document.elementFromPoint`, and the identical markup with the icon inside a `display: contents`
+  span returns `svg`. Production compiles `[&_svg]:pointer-events-none`, so the real app and the
+  contract suite were unaffected; the unit lane runs without compiled CSS and is exactly where the
+  difference shows.
+- **Systemic fix:** the wrapper is rendered ONLY while `loading`, so the resting DOM is unchanged
+  and hit-testing is identical to before. The rule worth keeping: **`display: contents` is not
+  layout-neutral for hit-testing**; do not introduce it on a permanent path in a control whose
+  pointer target is under contract.
+
+## 2026-09-07 — The state probe's own presses hide the hover it is measuring
+
+- **Symptom:** `probe-states.mjs` flagged 21 of 24 elements on `/docs/components/split-button` as
+  `hover-invisible` / `active-same-as-hover`, plus later `popover-trigger`s on color-picker and
+  emoji-picker and later `pagination-link`s. The same recipes were clean on `/docs/components/button`.
+- **Root cause:** the probe hovers, then `mouse.down()`s, every element in DOM order. Pressing a
+  menu or popover trigger OPENS it, and Base UI renders an internal backdrop over the viewport; from
+  that point on `loc.hover({force: true})` lands on the backdrop, so `:hover` never applies to any
+  later element. The tell is in the data: the FIRST element of each fixture is always clean and
+  everything after the first trigger is flagged. A direct hover-only pass over the same elements
+  measured a real hover AND a real pressed step on every one.
+- **Systemic fix:** none in this change — the probe is an audit instrument, not a gate, and F2 does
+  not own `tooling/`. Recorded so the finding is not re-litigated: **`07-state-probe.md` SP-04's
+  `split-button-primary` / `popover-trigger` / `sheet-trigger` / `dialog-trigger` rows are suspect
+  for the same reason** and should be re-measured with a hover-only pass before anyone "fixes" them.
+  The probe should dismiss (Escape) after each press, or skip pressing elements with
+  `aria-haspopup`.
+
+## 2026-09-07 — Tailwind's `--color-*` aliases do not follow a nested theme scope
+
+- **Symptom:** the rendered-contrast gate's dark half failed on the new `outline` status buttons with
+  four `color-contrast` violations — foreground `#b9031d` (the LIGHT `destructive-text`) on a dark
+  ground. The light half passed, the docs captures looked right, and every unit test passed.
+- **Root cause:** the Button tone vars were written as
+  `[--btn-tint:var(--color-destructive-text)]`. Tailwind's `@theme inline` emits
+  `--color-destructive-text: var(--destructive-text)` **once, on `:root`**, so its value is computed
+  there. `.dark` redeclares `--destructive-text`, not the alias — and a custom property's value is
+  computed where it is DECLARED, then inherited. On a page whose `.dark` sits on `<html>` this is
+  invisible; inside a NESTED scope (`<div class="dark">`, `MarketingSurface`, the docs preview theme
+  toggle, a portal under `useInternalThemeScope`) the alias keeps the light value while everything
+  around it goes dark. Utilities are unaffected — `text-destructive-text` is inlined to
+  `var(--destructive-text)` by `@theme inline`, which is exactly the mechanism the alias bypasses.
+- **Systemic fix:** every `--btn-*` declaration references the RAW token variable
+  (`var(--destructive-text)`), never the `--color-*` alias. `test/button-matrix.browser.test.tsx`
+  pins it directly by rendering the same button inside and outside a nested `.dark` and asserting the
+  ink differs. The rule: **never reference a `--color-*` alias from an arbitrary property or inline
+  style — reference the raw token.** Utilities may keep using the alias; they are inlined.
+
+## 2026-09-07 — The rendered-contrast gate had been measuring unstyled Badges and Alerts
+
+- **Symptom:** found while expanding the fixture for the Button matrix — `packages/ui/test/` is
+  outside the package's `tsconfig.json` `include`, so nothing type-checks the compiled-CSS gates.
+- **Root cause:** the fixture passed `<Badge color="…">` (Badge's prop is `intent`; `color` does not
+  exist) and `<Badge variant="soft">` / `<Alert variant="success">` (neither value is in those
+  unions). CVA returns nothing for an unknown variant and an unknown prop is dropped, so those
+  specimens rendered as the NEUTRAL badge and alert. The gate reported "no contrast violations" for
+  the badge and alert families while measuring the same neutral chip repeatedly. It also still
+  rendered `<Button variant="secondary">` after F2 deleted that variant.
+- **Systemic fix:** the fixture now uses the real props, so the specimens are the ones the gate
+  names. The type hole itself is NOT fixed here — adding `"test"` to the package's `include` surfaces
+  a dozen pre-existing errors in sibling files (CSS side-effect imports, `overlay-portal`,
+  `stacking`, `surface-ladder`) that belong to other batches in flight. **Left for MK / G1-a**, and
+  listed in the F2 PR: an untyped test directory is exactly where a fixture rots into a
+  green-but-empty gate.
+
+## 2026-09-08 — A rest-state assertion measured a hovered button, because the pointer never moved
+
+- **Symptom:** `button-matrix.browser.test.tsx > a neutral ghost inherits its host ink; a status
+ghost takes its own` expected the neutral ghost to compute `rgb(1, 2, 3)` (its host's ink) and got
+  `oklch(0.145 0.003 75)`. It failed in **every** full `pnpm gates:push` sweep and passed 7/7 when
+  the file was run on its own, on the same box and the same tree.
+- **Root cause:** the received value is exactly `--foreground`, which for the neutral tone is exactly
+  `--btn-tint` — the ink a ghost paints **on hover** (`hover:text-(--btn-tint)`). Every test file in
+  a run shares one browser page, and the pointer stays wherever the previously executed file left
+  it; in a full sweep it was already sitting where this button mounts, so the button was in `:hover`
+  before the first line of the test ran. In isolation nothing had moved the pointer, so the same code
+  passed. The failure screenshot settles it: `Dismiss` is drawn with a hover background and `Approve`
+  is not. A diagnostic render confirmed the mechanism itself is intact — the host div computes
+  `rgb(1, 2, 3)`, the button's parent is that div, `--btn-ghost-ink` reads back empty, and the button
+  computes `rgb(1, 2, 3)` — and the compiled CSS is exactly
+  `.text-(--btn-ghost-ink){color:var(--btn-ghost-ink)}` plus
+  `.[--btn-ghost-ink:inherit]{--btn-ghost-ink:inherit}`, so `color` is invalid-at-computed-value-time
+  and falls back to the inherited ink as designed.
+- **Systemic fix:** the fixture renders a spacer and the test parks the pointer on it with
+  `userEvent.hover` before measuring, so rest is actually rest. The rule worth keeping: **a test that
+  asserts a rest-state style must establish rest — the pointer is shared, page-scoped state that no
+  `render()` resets.** The tell for this whole class is a test that fails only in the full suite and
+  passes in isolation while the "wrong" value is precisely some other state's token.
+
+## 2026-09-08 — The same `relative-time` fixture also breaks the 24px target-floor probe
+
+- **Symptom.** With the 320px reflow race fixed on `main` (`065315d5`), the full 110-route sweep
+  still failed twice on the SAME route, in a different check:
+  `/docs/components/relative-time retains focus visibility and effective 24px pointer targets`,
+  `mobile-chromium` and `mobile-chromium-dark`. Every one of the five probe points reported
+  `"hit": null` — `elementFromPoint` found nothing at coordinates derived from a rect the probe had
+  just measured (visual 27.0×21.0px, at y≈2180).
+- **Same cause, different assertion.** `relative-time` re-renders on its own self-rescheduling clock.
+  The 320px fix made the _scroll_ step resilient; the target-floor check measures a rect and then
+  hit-tests it, and a tick landing in that window leaves the probe firing at coordinates whose
+  element no longer exists. `"hit": null` on **every** point — rather than a wrong element or a
+  too-small box — is the tell that the target moved, not that it is undersized.
+- **Pre-existing, not caused by F2.** F2 touches no `relative-time` file (`git diff origin/main..HEAD
+--name-only` names none), and the route passes **8/8 in isolation on the same box and the same
+  tree** while failing only inside the loaded parallel sweep — the identical signature to the 320px
+  race recorded above.
+- **Not fixed here.** F2 does not own `apps/docs/vrt/contracts.spec.ts`; the 320px fix reached this
+  branch from `main`, and the sibling fix belongs with it. **G1-b**: the rect-measure-then-hit-test
+  window in the target-floor check needs the same bounded retry the scroll step got, or the probe
+  should re-measure the rect inside the poll. Until then a globally-scoped change can lose a full
+  sweep to it, and the correct handling is a re-run plus an isolated confirmation — never `GATES_SKIP`.

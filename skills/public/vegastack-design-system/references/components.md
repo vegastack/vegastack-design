@@ -11,9 +11,9 @@ component and never an icon.
 
 ## Actions
 
-- **`button`** — Trigger an action. 15 variants × 8 sizes, with loading + Base UI Button semantics.
+- **`button`** — Trigger an action. Six variants × five tones × four sizes, with loading + Base UI Button semantics.
 - **`copy-button`** — Copy a value to the clipboard with transient check feedback — a ghost icon button that swaps Copy → Check and fires onCopied.
-- **`icon-button`** — A square, icon-only action button — a thin Button wrapper that requires an accessible label.
+- **`icon-button`** — A square or round icon-only action button — a thin Button wrapper that requires an accessible label.
 - **`segmented`** — Segmented control — a single-select, always-one-selected view/mode switcher on a muted track with a raised active chip.
 - **`split-button`** — A primary action joined to a dropdown of related secondary actions — one default click, plus a chevron menu.
 - **`toggle`** — A two-state button that can be pressed on or off — bold/italic, mute, pin.

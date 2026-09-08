@@ -174,9 +174,9 @@ function injectCheckboxHitAreaMirror(): () => void {
        below need room to sample points OUTSIDE the visual box on every side. */
     body { margin: 24px; }
     [data-slot="checkbox"] { position: relative; display: inline-flex; box-sizing: border-box; border: 1px solid transparent; }
-    [data-slot="checkbox"][data-size="default"] { width: 16px; height: 16px; }
+    [data-slot="checkbox"][data-size="md"] { width: 16px; height: 16px; }
     [data-slot="checkbox"][data-size="sm"] { width: 14px; height: 14px; }
-    [data-slot="checkbox"][data-size="default"]::before { content: ""; position: absolute; inset: -6px; }
+    [data-slot="checkbox"][data-size="md"]::before { content: ""; position: absolute; inset: -6px; }
     [data-slot="checkbox"][data-size="sm"]::before { content: ""; position: absolute; inset: -6px; }
   `;
   document.head.appendChild(style);

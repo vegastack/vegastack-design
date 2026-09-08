@@ -1,4 +1,4 @@
-// @vegastack emoji-picker@0.6.0 sha256-628hFHHLtOfp5evvSwiog9iRrqRgq4QTXFDSEgfR3NY=
+// @vegastack emoji-picker@0.6.0 sha256-RN9jDzif2ghDTWGIeQ/41kK58TnPPvLCF2tDryyryA8=
 
 "use client";
 
@@ -10,7 +10,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { useListNav } from "@/components/ui/use-list-nav";
 
@@ -592,14 +592,14 @@ export function EmojiPicker({
         ref={ref}
         render={
           trigger ?? (
-            <Button
+            <IconButton
               variant="ghost"
-              size="icon-sm"
+              size="sm"
               className="text-muted-foreground"
               aria-label={triggerLabel}
             >
               <SmilePlus />
-            </Button>
+            </IconButton>
           )
         }
       />
@@ -663,11 +663,11 @@ export function EmojiPicker({
                         flatIndex += 1;
                         const index = flatIndex;
                         return (
-                          <Button
+                          <IconButton
                             key={entry.char}
                             type="button"
                             variant="ghost"
-                            size="icon"
+                            size="md"
                             data-slot="emoji-picker-item"
                             aria-label={entry.name}
                             title={entry.name}
@@ -680,7 +680,7 @@ export function EmojiPicker({
                             className="text-xl leading-none"
                           >
                             <span aria-hidden>{entry.char}</span>
-                          </Button>
+                          </IconButton>
                         );
                       })}
                     </div>

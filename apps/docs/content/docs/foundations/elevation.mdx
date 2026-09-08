@@ -16,15 +16,15 @@ overlay layer or the explicitly approved primary-action finish. There is no gene
 | Token | Light | Dark |
 |---|---|---|
 | `--shadow-overlay` | `0 4px 14px -4px oklch(0.13 0.002 75 / 0.1), 0 2px 4px -2px oklch(0.13 0.002 75 / 0.06)` | `0 8px 28px -6px oklch(0 0 0 / 0.48), 0 2px 8px -2px oklch(0 0 0 / 0.4)` |
-| `--shadow-lit` | `inset 0 1px 0 0 oklch(1 0 0 / 0.12), 0 1px 2px 0 oklch(0.13 0.002 75 / 0.18), 0 2px 6px -2px oklch(0.13 0.002 75 / 0.14)` | `inset 0 1px 0 0 oklch(1 0 0 / 0.35), 0 2px 6px -2px oklch(0 0 0 / 0.5)` |
 {/* DESIGN-TOKENS:elevation:END */}
 
-## The two roles
+## The one role
 
 - **`shadow-overlay`** — portaled popovers, menus, tooltips, dialogs, sheets, and similar surfaces
   that genuinely float above the page.
-- **`shadow-lit`** — an opt-in top-light/ambient finish for approved **primary actions only**. It is
-  not a card or container elevation and never creates a shadow ladder.
+
+That is the whole list. The `shadow-lit` action finish (and the Button `finish` prop that applied
+it) was retired on 2026-09-07, so flat-by-default now has no exception at all.
 
 Cards, panels, rows, inputs, and resting controls use `border-border` without a drop shadow. Sticky
 surfaces gain a separating border when they detach from adjacent content; they do not acquire an
@@ -43,6 +43,6 @@ surfaces. Raw z-index ladders are forbidden. Sonner manages its documented toast
 content so a toast remains visible when emitted from a dialog.
 
 <DoDont
-  do="Use border-border for flat surfaces, shadow-overlay for real overlays, and shadow-lit only for approved primary actions."
+  do="Use border-border for flat surfaces and shadow-overlay for real overlays — nothing else casts a shadow."
   dont="Create shadow-sm/md/lg tiers, elevate cards, or nest equal-elevation cards."
 />

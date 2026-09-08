@@ -111,10 +111,11 @@ test("composes DropdownMenuItem children via the `menu` slot", async () => {
   expect(onClick).toHaveBeenCalledOnce();
 });
 
-test("passes variant + size through to both halves and tags the slot", async () => {
+test("passes variant + tone + size through to both halves and tags the slot", async () => {
   const screen = await render(
     <SplitButton
-      variant="destructive"
+      variant="soft"
+      tone="destructive"
       size="lg"
       actions={[{ label: "Force delete" }]}
     >
@@ -123,8 +124,10 @@ test("passes variant + size through to both halves and tags the slot", async () 
   );
   const primary = screen.getByRole("button", { name: "Delete" });
   const trigger = screen.getByRole("button", { name: "More options" });
-  await expect.element(primary).toHaveAttribute("data-variant", "destructive");
+  await expect.element(primary).toHaveAttribute("data-variant", "soft");
+  await expect.element(primary).toHaveAttribute("data-tone", "destructive");
   await expect.element(primary).toHaveAttribute("data-size", "lg");
+  await expect.element(trigger).toHaveAttribute("data-size", "lg");
   await expect
     .element(primary)
     .toHaveAttribute("data-slot", "split-button-primary");
@@ -181,7 +184,7 @@ test("loading keeps the chevron un-dimmed (aria-disabled, NOT native disabled) a
   expect(document.querySelector('[role="menu"]')).toBeNull();
 });
 
-test("a true disabled prop natively disables (and dims) both halves", async () => {
+test("a true disabled prop marks both halves aria-disabled (audit D7)", async () => {
   const screen = await render(
     <SplitButton disabled actions={[{ label: "Save as draft" }]}>
       Save
@@ -189,8 +192,11 @@ test("a true disabled prop natively disables (and dims) both halves", async () =
   );
   const primary = screen.getByRole("button", { name: "Save" });
   const trigger = screen.getByRole("button", { name: "More options" });
-  await expect.element(primary).toHaveAttribute("disabled");
-  await expect.element(trigger).toHaveAttribute("disabled");
+  await expect.element(primary).toHaveAttribute("aria-disabled", "true");
+  await expect.element(trigger).toHaveAttribute("aria-disabled", "true");
+  // NOT the native attribute — the control keeps pointer events so a Tooltip can say why.
+  await expect.element(primary).not.toHaveAttribute("disabled");
+  await expect.element(trigger).not.toHaveAttribute("disabled");
 });
 
 test("no a11y violations — loading", async () => {

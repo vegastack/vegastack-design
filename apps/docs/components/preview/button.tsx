@@ -4,7 +4,11 @@ import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 import { ChevronRight, Plus, Trash2 } from "lucide-react";
 // Copied INTO apps/docs via `shadcn add @vegastack/button` (dogfoods the registry) → auto-scanned.
-import { Button } from "@/components/ui/button";
+import {
+  Button,
+  type ButtonAppearance,
+  type ButtonTone,
+} from "@/components/ui/button";
 import { MarketingSurface } from "@/components/ui/marketing-surface";
 
 export function button(): ReactNode {
@@ -15,23 +19,70 @@ export function button(): ReactNode {
   );
 }
 
+/** The five tones, in the order the matrix reads them. */
+const TONES: readonly ButtonTone[] = [
+  "neutral",
+  "destructive",
+  "success",
+  "warning",
+  "info",
+];
+
+/**
+ * The full `variant × tone` matrix. `solid × destructive` is deliberately absent — a destructive
+ * action is never a solid red button, and the type makes that cell unreachable.
+ */
+export function buttonMatrix(): ReactNode {
+  const rows = ["solid", "soft", "outline", "ghost", "link"] as const;
+  return (
+    <Wrapper className="flex-col items-stretch gap-3">
+      {rows.map((variant) => (
+        <div key={variant} className="flex flex-wrap items-center gap-3">
+          {TONES.map((tone) =>
+            variant === "solid" && tone === "destructive" ? (
+              <span key={tone} className="text-sm text-muted-foreground">
+                (no solid destructive)
+              </span>
+            ) : (
+              <Button key={tone} {...({ variant, tone } as ButtonAppearance)}>
+                {tone}
+              </Button>
+            ),
+          )}
+        </div>
+      ))}
+    </Wrapper>
+  );
+}
+
 export function buttonVariants(): ReactNode {
   return (
     <Wrapper>
-      <Button variant="default">Default</Button>
-      <Button variant="secondary">Secondary</Button>
+      <Button variant="solid">Solid</Button>
+      <Button variant="soft">Soft</Button>
       <Button variant="outline">Outline</Button>
       <Button variant="ghost">Ghost</Button>
       <Button variant="link">Link</Button>
-      <Button variant="destructive">Destructive</Button>
-      <Button variant="success">Success</Button>
-      <Button variant="warning">Warning</Button>
-      <Button variant="info">Info</Button>
-      <Button variant="glass">Glass</Button>
-      <Button variant="destructive-outline">Destructive outline</Button>
-      <Button variant="success-outline">Success outline</Button>
-      <Button variant="warning-outline">Warning outline</Button>
-      <Button variant="info-outline">Info outline</Button>
+    </Wrapper>
+  );
+}
+
+export function buttonTones(): ReactNode {
+  return (
+    <Wrapper>
+      <Button variant="soft">Neutral</Button>
+      <Button variant="soft" tone="destructive">
+        Destructive
+      </Button>
+      <Button variant="soft" tone="success">
+        Success
+      </Button>
+      <Button variant="soft" tone="warning">
+        Warning
+      </Button>
+      <Button variant="soft" tone="info">
+        Info
+      </Button>
     </Wrapper>
   );
 }
@@ -41,20 +92,8 @@ export function buttonSizes(): ReactNode {
     <Wrapper>
       <Button size="xs">Extra small</Button>
       <Button size="sm">Small</Button>
-      <Button size="default">Default</Button>
+      <Button size="md">Medium</Button>
       <Button size="lg">Large</Button>
-      <Button size="icon-xs" aria-label="Add">
-        <Plus />
-      </Button>
-      <Button size="icon-sm" aria-label="Add">
-        <Plus />
-      </Button>
-      <Button size="icon" aria-label="Add">
-        <Plus />
-      </Button>
-      <Button size="icon-lg" aria-label="Add">
-        <Plus />
-      </Button>
     </Wrapper>
   );
 }
@@ -68,7 +107,7 @@ export function buttonStates(): ReactNode {
       </Button>
       <Button loading>Loading</Button>
       <Button disabled>Disabled</Button>
-      <Button variant="destructive">
+      <Button variant="soft" tone="destructive">
         <Trash2 />
         Delete
       </Button>
@@ -85,43 +124,6 @@ export function buttonCta(): ReactNode {
           <ChevronRight />
         </Button>
       </MarketingSurface>
-    </Wrapper>
-  );
-}
-
-export function buttonMatrix(): ReactNode {
-  const variants = ["default", "outline", "destructive"] as const;
-  const sizes = ["xs", "default", "lg"] as const;
-  const sizeLabels: Record<(typeof sizes)[number], string> = {
-    xs: "Extra small",
-    default: "Default",
-    lg: "Large",
-  };
-  return (
-    <Wrapper className="flex-col items-stretch gap-3">
-      {variants.map((variant) => (
-        <div key={variant} className="flex flex-wrap items-center gap-3">
-          {sizes.map((size) => (
-            <Button key={size} variant={variant} size={size}>
-              {sizeLabels[size]}
-            </Button>
-          ))}
-        </div>
-      ))}
-    </Wrapper>
-  );
-}
-
-export function buttonFinish(): ReactNode {
-  // Wave 2 `lit` finish: the `--shadow-lit` top-light + warm ambient on the PRIMARY
-  // action only — every other variant stays flat (passing finish="lit" there is a no-op).
-  return (
-    <Wrapper className="items-center gap-3">
-      <Button>Flat (default)</Button>
-      <Button finish="lit">Lit primary</Button>
-      <Button variant="outline" finish="lit">
-        Outline stays flat
-      </Button>
     </Wrapper>
   );
 }

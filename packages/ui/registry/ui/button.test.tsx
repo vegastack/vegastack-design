@@ -44,15 +44,34 @@ test("render prop supports non-native action elements with nativeButton=false", 
   expect(btn.element().tagName).toBe("SPAN");
 });
 
-test("applies variant + size data attributes", async () => {
+test("applies variant + tone + size data attributes", async () => {
   const screen = await render(
-    <Button variant="destructive" size="lg">
+    <Button variant="soft" tone="destructive" size="lg">
       Delete
     </Button>,
   );
   const btn = screen.getByRole("button", { name: "Delete" });
-  await expect.element(btn).toHaveAttribute("data-variant", "destructive");
+  await expect.element(btn).toHaveAttribute("data-variant", "soft");
+  await expect.element(btn).toHaveAttribute("data-tone", "destructive");
   await expect.element(btn).toHaveAttribute("data-size", "lg");
+});
+
+test("tone defaults to neutral and emits its custom-property class", async () => {
+  const screen = await render(<Button>Save</Button>);
+  const btn = screen.getByRole("button", { name: "Save" });
+  await expect.element(btn).toHaveAttribute("data-tone", "neutral");
+  // The solid recipe reads `--btn-fill`; the neutral tone must actually declare it. That the
+  // property RESOLVES is measured under compiled CSS in test/button-matrix.browser.test.tsx.
+  expect((btn.element() as HTMLElement).className).toContain(
+    "[--btn-fill:var(--primary)]",
+  );
+});
+
+test("cta emits no tone at all — it is brand-locked", async () => {
+  const screen = await render(<Button variant="cta">Get started</Button>);
+  await expect
+    .element(screen.getByRole("button", { name: "Get started" }))
+    .not.toHaveAttribute("data-tone");
 });
 
 test("keeps the link variant underlined at rest", async () => {
@@ -74,6 +93,15 @@ test("no a11y violations — disabled", async () => {
 test("no a11y violations — loading", async () => {
   const screen = await render(<Button loading>Save</Button>);
   await expectNoA11yViolations(screen.container);
+});
+
+test("a loading button keeps its accessible name", async () => {
+  // Regression: hiding the label with `visibility: hidden` while the spinner overlays it dropped
+  // the label out of the accessibility tree, so axe reported `button-name` on the Button route.
+  const screen = await render(<Button loading>Save changes</Button>);
+  await expect
+    .element(screen.getByRole("button", { name: "Save changes" }))
+    .toBeInTheDocument();
 });
 
 test("forwards ref to the underlying button element", async () => {
@@ -129,7 +157,7 @@ test("cta variant composes a trailing icon as a child, not baked in", async () =
   await expect.element(screen.getByTestId("chevron")).toBeInTheDocument();
 });
 
-test("cta variant does not disturb the default variant classes", async () => {
+test("cta variant does not disturb the solid variant classes", async () => {
   const screen = await render(<Button>Save</Button>);
   const btn = screen
     .getByRole("button", { name: "Save" })
@@ -140,52 +168,63 @@ test("cta variant does not disturb the default variant classes", async () => {
 });
 
 /* ---------------------------------------------------------------------------
- * Loading + fixed-square icon sizes — the spinner REPLACES the icon child
- * (both at once overflow the square). The aria-label keeps the accessible name.
+ * Loading — the spinner is taken OUT of flow and stacked over the label, so the
+ * button's width is identical across the flip (audit B1-08).
  * ------------------------------------------------------------------------ */
 
-test("loading with an icon size renders the spinner INSTEAD of the icon child (one glyph in the square)", async () => {
-  function PlusStub() {
-    return <svg data-testid="plus-icon" aria-hidden />;
-  }
-  const screen = await render(
-    <Button size="icon" loading aria-label="Add item">
-      <PlusStub />
-    </Button>,
-  );
+test("loading keeps the label mounted (hidden) and shows exactly one spinner", async () => {
+  const screen = await render(<Button loading>Save changes</Button>);
   const btn = screen
-    .getByRole("button", { name: "Add item" })
-    .element() as HTMLElement;
-  expect(btn.querySelectorAll("svg")).toHaveLength(1); // exactly one glyph: the spinner
-  expect(btn.querySelector('[data-testid="plus-icon"]')).toBeNull();
-});
-
-test("loading with a text size keeps the label next to the spinner (unchanged behavior)", async () => {
-  const screen = await render(<Button loading>Save</Button>);
-  const btn = screen
-    .getByRole("button", { name: "Save" })
+    .getByRole("button", { name: "Save changes" })
     .element() as HTMLElement;
   expect(btn.querySelectorAll("svg")).toHaveLength(1); // the spinner
-  expect(btn.textContent).toContain("Save");
+  expect(btn.textContent).toContain("Save changes");
 });
 
-test('finish="lit" applies the lit shadow on the default variant and marks data-finish', async () => {
-  const screen = await render(<Button finish="lit">Create</Button>);
-  const btn = screen.getByRole("button", { name: "Create" });
-  await expect.element(btn).toHaveAttribute("data-finish", "lit");
-  expect((btn.element() as HTMLElement).className).toContain(
-    "shadow-(--shadow-lit)",
-  );
+test("loading takes the spinner out of flow and only hides the label", async () => {
+  // The measured width claim lives in test/button-matrix.browser.test.tsx (compiled CSS); this is
+  // the structural half — the spinner is absolutely positioned and the label keeps its box.
+  const screen = await render(<Button loading>Save changes</Button>);
+  const btn = screen
+    .getByRole("button", { name: "Save changes" })
+    .element() as HTMLElement;
+  expect(btn.className).toContain("relative");
+  const spinnerHost = btn.querySelector("span[aria-hidden]")!;
+  expect(spinnerHost.className).toContain("absolute");
+  const label = btn.querySelector("span.contents")!;
+  // `opacity-0`, not `invisible` — `visibility: hidden` would drop the label out of the
+  // accessibility tree and leave the loading button with no discernible name.
+  expect(label.className).toContain("opacity-0");
+  expect(label.className).not.toContain("invisible");
+  expect(label.textContent).toBe("Save changes");
 });
 
-test('finish="lit" is a no-op on non-default variants (flat stays the rule)', async () => {
+/* ---------------------------------------------------------------------------
+ * Disabled is the aria-disabled form (audit D7): the control keeps its pointer
+ * events so a Tooltip can explain why it is unavailable.
+ * ------------------------------------------------------------------------ */
+
+test("disabled renders aria-disabled, not the native attribute, and keeps pointer events", async () => {
+  const onClick = vi.fn();
   const screen = await render(
-    <Button variant="outline" finish="lit">
-      Cancel
+    <Button disabled onClick={onClick}>
+      Save
     </Button>,
   );
-  const btn = screen.getByRole("button", { name: "Cancel" });
-  expect((btn.element() as HTMLElement).className).not.toContain(
-    "shadow-(--shadow-lit)",
+  const btn = screen.getByRole("button", { name: "Save" });
+  await expect.element(btn).toHaveAttribute("aria-disabled", "true");
+  await expect.element(btn).not.toHaveAttribute("disabled");
+  await btn.click({ force: true });
+  expect(onClick).not.toHaveBeenCalled();
+});
+
+test("the dim is keyed off data-disabled and excluded while loading", async () => {
+  // Rendered opacity is measured in test/button-matrix.browser.test.tsx; here we pin that the
+  // pending state is marked so the dim can be excluded from it at all.
+  const screen = await render(<Button loading>Save</Button>);
+  const btn = screen.getByRole("button", { name: "Save" });
+  await expect.element(btn).toHaveAttribute("data-loading", "");
+  expect((btn.element() as HTMLElement).className).toContain(
+    "data-disabled:not-data-loading:opacity-(--opacity-dim)",
   );
 });

@@ -1,4 +1,4 @@
-// @vegastack card@0.6.0 sha256-q8iQhYDB7whKYhhIr59YnxKDtNADgOMWvOEjh0VpXjI=
+// @vegastack card@0.6.0 sha256-nOjLv7pj9xYl4LMSw9sZkFPZ9nD35J0K2KYG9T5BpQ8=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -10,9 +10,9 @@ import { cn } from "@vegastack/design";
 export type CardProps = React.ComponentProps<"div"> & {
   /**
    * Density of the card. `sm` tightens the internal padding and gaps.
-   * @default "default"
+   * @default "md"
    */
-  size?: "default" | "sm";
+  size?: "md" | "sm";
 };
 
 /**
@@ -34,7 +34,7 @@ export type CardProps = React.ComponentProps<"div"> & {
  *   </CardFooter>
  * </Card>
  */
-function Card({ className, size = "default", ref, ...props }: CardProps) {
+function Card({ className, size = "md", ref, ...props }: CardProps) {
   return (
     <div
       ref={ref}
