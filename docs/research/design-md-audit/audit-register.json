@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "244ce8ca048ecb2ea27ad6467c19349d22e6fe265b1df4b19abe9ae6d968fd9f",
+  "contractSha256": "8b3cddaeb1634fe42d7e403682af7f621493c18893c3be469b2c42d65835cddf",
   "expectedCounts": {
-    "totalRegistryItems": 562,
-    "components": 114,
+    "totalRegistryItems": 559,
+    "components": 112,
     "animatedIcons": 439,
-    "hooks": 8,
+    "hooks": 7,
     "blocks": 1
   },
   "records": [
@@ -295,17 +295,6 @@
         "packages/ui/registry/ui/checkbox.tsx"
       ],
       "docsSlug": "/docs/components/checkbox",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "checkbox-group",
-      "inventoryClass": "component",
-      "wave": "Core controls",
-      "family": "form",
-      "sourceFiles": [
-        "packages/ui/registry/ui/checkbox-group.tsx"
-      ],
-      "docsSlug": "/docs/components/checkbox-group",
       "contractStatus": "reconciled"
     },
     {
@@ -834,17 +823,6 @@
         "packages/ui/registry/ui/image.tsx"
       ],
       "docsSlug": "/docs/components/image",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "media-player-controls",
-      "inventoryClass": "component",
-      "wave": "Content/marketing",
-      "family": "media",
-      "sourceFiles": [
-        "packages/ui/registry/ui/media-player-controls.tsx"
-      ],
-      "docsSlug": "/docs/components/media-player-controls",
       "contractStatus": "reconciled"
     },
     {
@@ -6113,17 +6091,6 @@
       "family": "hook",
       "sourceFiles": [
         "packages/ui/registry/ui/use-announcer.ts"
-      ],
-      "docsSlug": "/docs/guides/components",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "use-inline-edit",
-      "inventoryClass": "hook",
-      "wave": "Hooks",
-      "family": "hook",
-      "sourceFiles": [
-        "packages/ui/registry/ui/use-inline-edit.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

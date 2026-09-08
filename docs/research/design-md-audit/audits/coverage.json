@@ -1,29 +1,28 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "244ce8ca048ecb2ea27ad6467c19349d22e6fe265b1df4b19abe9ae6d968fd9f",
+  "contractSha256": "8b3cddaeb1634fe42d7e403682af7f621493c18893c3be469b2c42d65835cddf",
   "inventory": {
-    "expected": 562,
-    "actual": 562,
-    "unique": 562
+    "expected": 559,
+    "actual": 559,
+    "unique": 559
   },
   "classes": {
-    "components": 114,
+    "components": 112,
     "animatedIcons": 439,
-    "hooks": 8,
+    "hooks": 7,
     "blocks": 1
   },
   "waves": {
     "Core controls": {
-      "expected": 24,
-      "actual": 24,
+      "expected": 23,
+      "actual": 23,
       "members": [
         "animated-number",
         "avatar",
         "badge",
         "button",
         "checkbox",
-        "checkbox-group",
         "copy-button",
         "icon-button",
         "input",
@@ -130,8 +129,8 @@
       ]
     },
     "Content/marketing": {
-      "expected": 23,
-      "actual": 23,
+      "expected": 22,
+      "actual": 22,
       "members": [
         "alert",
         "announcement-banner",
@@ -144,7 +143,6 @@
         "logo-row",
         "markdown-view",
         "marketing-surface",
-        "media-player-controls",
         "onboarding-checklist",
         "page-header",
         "particle-field",
@@ -171,14 +169,13 @@
       ]
     },
     "Hooks": {
-      "expected": 8,
-      "actual": 8,
+      "expected": 7,
+      "actual": 7,
       "members": [
         "use-animation-replay",
         "use-announcer",
         "use-drag-reorder",
         "use-file-drop",
-        "use-inline-edit",
         "use-list-nav",
         "use-mobile",
         "use-platform"
@@ -637,7 +634,8 @@
       ]
     }
   },
-  "componentRoutes": 114,
+  "componentRoutes": 112,
   "blockRoutes": 1,
-  "modeledExemptions": 3
+  "crossBrowserSmokeFiles": 14,
+  "modeledExemptions": 4
 }
