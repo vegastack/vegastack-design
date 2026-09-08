@@ -1,4 +1,4 @@
-// @vegastack copy-button@0.6.0 sha256-XvRZDw6l5GPxka51kntjL5Wn/5g/kzLvQjtRVL5OD0U=
+// @vegastack copy-button@0.6.0 sha256-nkc87Mbyvgpx+lxBx2+B8hRV87P+NoT9e3kFH2ty7tQ=
 
 "use client";
 
@@ -16,6 +16,7 @@ import {
   IconButton,
   type IconButtonProps,
 } from "@/components/ui/icon-button";
+import { useAnnouncer } from "@/components/ui/use-announcer";
 
 /** Props accepted by `CopyButton`. */
 export type CopyButtonProps =
@@ -76,11 +77,9 @@ export type CopyButtonProps =
  * `text-primary` for that window. Copying is neutral action feedback rather than a
  * semantic success status. The accessible label switches from `"Copy"` to
  * `"Copied"` so screen readers announce the result; the icon itself is decorative
- * (`aria-hidden`). A visually-hidden `role="status"` live region also renders the
- * `copiedLabel` text while `copied` is true (empty otherwise) — `aria-label` changes on
- * the button itself are not reliably announced by screen readers, so the live region is
- * what actually speaks the confirmation. Client-only — it uses `useState` +
- * `navigator.clipboard`.
+ * (`aria-hidden`). The confirmation is spoken by the shared `useAnnouncer` live region —
+ * `aria-label` changes on the button itself are not reliably announced by screen readers.
+ * Client-only — it uses `useState` + `navigator.clipboard`.
  *
  * @example
  * <CopyButton value={apiKey} onCopied={() => toast.success('Copied')} />
@@ -100,6 +99,7 @@ export function CopyButton({
   ...props
 }: CopyButtonProps) {
   const [copied, setCopied] = React.useState(false);
+  const { announce, Announcer } = useAnnouncer();
   const timer = React.useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
   );
@@ -114,6 +114,7 @@ export function CopyButton({
       try {
         await navigator.clipboard.writeText(value);
         setCopied(true);
+        announce(copiedLabel);
         onCopied?.(value);
         clearTimeout(timer.current);
         timer.current = setTimeout(() => setCopied(false), timeout);
@@ -122,7 +123,7 @@ export function CopyButton({
         // leave the button in its default state rather than show a false success.
       }
     },
-    [onCopied, onPress, timeout, value],
+    [announce, copiedLabel, onCopied, onPress, timeout, value],
   );
 
   // A label-less CopyButton is icon-only, so it goes through `IconButton` — the ONE sanctioned
@@ -175,12 +176,11 @@ export function CopyButton({
           {copied ? copiedLabel : copyLabel}
         </span>
       ) : null}
-      {/* Visually-hidden live region — announces the copy confirmation to screen readers.
-          The button's `aria-label` swap alone isn't reliably announced, so this is the actual
-          announcement mechanism. Empty (and un-announced) until `copied` flips true. */}
-      <span className="sr-only" role="status">
-        {copied ? copiedLabel : ""}
-      </span>
+      {/* The live region IS the announcement mechanism — the button's `aria-label` swap
+          alone is not reliably announced. `use-announcer` mounts it empty from first paint
+          (a region inserted at the moment it gains content is frequently missed) and
+          re-keys it per call, so copying twice in a row speaks twice. */}
+      <Announcer />
     </Control>
   );
 }

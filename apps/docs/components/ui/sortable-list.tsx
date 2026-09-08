@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.6.0 sha256-6auPAYnj+ID5Wyp9YDT64hbdQ55wduevKa1GGJonDH8=
+// @vegastack sortable-list@0.6.0 sha256-kw1GZ3ZE2njgEAiYBVD8hcIjZLOcvdGrqhyf5BOe1rU=
 
 "use client";
 
@@ -184,7 +184,7 @@ export function SortableList({
                 "data-dragging:opacity-(--opacity-dim)",
                 // A server-gated move in flight shimmers (the one sanctioned
                 // loader animation), instantly static under reduced motion.
-                "data-drag-pending:animate-pulse",
+                "data-drag-pending:animate-pulse motion-reduce:data-drag-pending:animate-none",
               )}
             >
               {rowDisabled ? null : (
@@ -274,7 +274,7 @@ export function SortableList({
           );
         })}
       </ItemGroup>
-      <span {...reorder.getLiveRegionProps()} />
+      <reorder.Announcer />
     </div>
   );
 }

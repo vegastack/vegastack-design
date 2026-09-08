@@ -1,8 +1,12 @@
-// @vegastack use-file-drop@0.6.0 sha256-Vaa8XD0Sa9bWpwTx5mFZTZaY4Km5oPVKalUnX1iUZuU=
+// @vegastack use-file-drop@0.6.0 sha256-+rgYeal6RpLl4YVe73gfS/hDLHkbomk3FkVbQ0ac4LM=
 
 "use client";
 
 import * as React from "react";
+import {
+  useAnnouncer,
+  type AnnouncerProps,
+} from "@/components/ui/use-announcer";
 import {
   useDropzone,
   type Accept,
@@ -134,14 +138,11 @@ export interface UseFileDropReturn {
   isDragInvalid: boolean;
   /** Open the file browser programmatically. A no-op while `disabled`. */
   open: () => void;
-  /** Props for the consumer-rendered polite live region. */
-  getLiveRegionProps: () => {
-    role: "status";
-    "aria-live": "polite";
-    "aria-atomic": "true";
-    className: string;
-    children: React.ReactNode;
-  };
+  /**
+   * The polite live region every acquisition announcement speaks through — the shared
+   * `useAnnouncer` node. Render it once, anywhere inside the drop surface.
+   */
+  Announcer: React.ComponentType<AnnouncerProps>;
 }
 
 /** Collapse the engine's error codes into the typed vocabulary. */
@@ -239,7 +240,7 @@ function armWindowFileDropGuard(): () => void {
  *   onFilesAccepted: (files) => stageUploads(files),
  * });
  * // <div {...drop.dropProps}> <input {...drop.inputProps} /> … </div>
- * // <span {...drop.getLiveRegionProps()} />
+ * // <drop.Announcer />
  */
 export function useFileDrop({
   onFilesAccepted,
@@ -253,13 +254,7 @@ export function useFileDrop({
   paste = true,
   preventWindowDrop = true,
 }: UseFileDropOptions): UseFileDropReturn {
-  const [announcement, setAnnouncementState] = React.useState({
-    text: "",
-    seq: 0,
-  });
-  const announce = React.useCallback((text: string) => {
-    setAnnouncementState((prev) => ({ text, seq: prev.seq + 1 }));
-  }, []);
+  const { announce, Announcer } = useAnnouncer();
 
   const acceptedRef = React.useRef(onFilesAccepted);
   acceptedRef.current = onFilesAccepted;
@@ -371,16 +366,6 @@ export function useFileDrop({
     open: () => {
       dropzone.open?.();
     },
-    getLiveRegionProps: () => ({
-      role: "status",
-      "aria-live": "polite",
-      "aria-atomic": "true",
-      className: "sr-only",
-      children: React.createElement(
-        "span",
-        { key: announcement.seq },
-        announcement.text,
-      ),
-    }),
+    Announcer,
   };
 }

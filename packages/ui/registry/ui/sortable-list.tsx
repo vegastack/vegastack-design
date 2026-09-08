@@ -274,7 +274,7 @@ export function SortableList({
           );
         })}
       </ItemGroup>
-      <span {...reorder.getLiveRegionProps()} />
+      <reorder.Announcer />
     </div>
   );
 }

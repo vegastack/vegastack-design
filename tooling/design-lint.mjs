@@ -282,8 +282,9 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
   [
     "/tag-group.tsx",
     {
-      counts: { button: 2 },
-      rationale: "tag removal and overflow disclosure controls",
+      counts: { button: 1 },
+      rationale:
+        "the overflow disclosure control — a Chip rendered as a button, because a chip's root is a span and no VegaStack control is a pill-shaped text button (tag removal became Chip's IconButton in T2)",
     },
   ],
   [

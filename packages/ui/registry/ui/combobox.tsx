@@ -1,4 +1,4 @@
-// @vegastack combobox@0.6.0 sha256-6BMVwBjqMGHB7a/yqgC/Cx9bTLftqB+lfUDxeQy9Oi0=
+// @vegastack combobox@0.6.0 sha256-oVapNIoPjBK9tWb9L9BQ+Ttxm4Fe4f9Dkv1KKs+Q4l4=
 
 "use client";
 
@@ -8,6 +8,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Check, ChevronsUpDown, Search, X } from "lucide-react";
 import { cn, FLOATING, surfaceInteractive } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
+import { Chip, ChipRemove } from "@/components/ui/chip";
 
 function mergeStateClassName<State>(
   className: string,
@@ -740,9 +741,8 @@ export function ComboboxClear({
 /* ------------------------------------------------------------------------------------------------
  * Chips + Chip + ChipRemove — the `multiple`-mode tag row. `ComboboxChips` wraps the selected-value
  * chips AND the `ComboboxInput` together (the input flows after the chips and keeps typing/filtering
- * — put it as the last child). Chip visuals mirror `FilterChip` (filter-bar.tsx): a neutral `accent`
- * pill with a trailing remove control, one control-scale tier down (`h-(--size-xs)`) to read as
- * inline tags rather than standalone chips.
+ * — put it as the last child). The chips ARE the `Chip` primitive (chip.tsx) at the inline (`sm`)
+ * tier, so they read as inline tags rather than standalone control-scale chips.
  * ----------------------------------------------------------------------------------------------*/
 
 /** Props accepted by `ComboboxChips`. */
@@ -781,14 +781,19 @@ export function ComboboxChips({ className, ...props }: ComboboxChipsProps) {
 }
 
 /** Props accepted by `ComboboxChip`. */
-export type ComboboxChipProps = React.ComponentProps<typeof BaseCombobox.Chip>;
+export type ComboboxChipProps =
+  & Omit<React.ComponentProps<typeof BaseCombobox.Chip>, "className">
+  & {
+    /** Classes merged with the shared chip geometry. @default undefined */
+    className?: string;
+  };
 
 /**
- * `ComboboxChip` — a single selected-value tag inside {@link ComboboxChips}. Neutral `accent` fill,
- * one control-scale tier down (`h-(--size-xs)`, matching `FilterChip`'s inline-tag treatment).
- * Pass the label text followed by a {@link ComboboxChipRemove} as children — they render as
- * siblings (not wrapped together) so the remove control stays independently clickable/focusable.
- * Renders a `<div>`.
+ * `ComboboxChip` — a single selected-value tag inside {@link ComboboxChips}. The `Chip` primitive
+ * at the inline (`sm`) tier, on Base UI's own `Combobox.Chip` via `render`, so a selected value in a
+ * combobox is geometrically the same object as a Tag or a filter chip. Pass the label text followed
+ * by a {@link ComboboxChipRemove} as children — they render as siblings (not wrapped together) so
+ * the remove control stays independently clickable/focusable. Renders a `<div>`.
  *
  * @example
  * <ComboboxChip>Design<ComboboxChipRemove aria-label="Remove Design" /></ComboboxChip>
@@ -798,30 +803,40 @@ export function ComboboxChip({
   children,
   ...props
 }: ComboboxChipProps) {
+  // Base UI's own props ride on the Chip ELEMENT that `Chip` renders through; `Chip` contributes
+  // only the geometry. That split is what keeps Base UI's state-function `className`/`render`
+  // signatures intact instead of flattening them onto a primitive that cannot express them.
   return (
-    <BaseCombobox.Chip
+    <Chip
       data-slot="combobox-chip"
-      className={cn(
-        "inline-flex h-(--size-xs) max-w-full shrink-0 items-center gap-1 rounded-md border border-border bg-accent pe-1 ps-2 text-sm text-foreground",
-        "data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim)",
-        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-compact)",
-        className,
-      )}
-      {...props}
+      size="sm"
+      active
+      render={<BaseCombobox.Chip {...props} />}
+      className={className}
     >
       {children}
-    </BaseCombobox.Chip>
+    </Chip>
   );
 }
 
 /** Props accepted by `ComboboxChipRemove`. */
-export type ComboboxChipRemoveProps = React.ComponentProps<
-  typeof BaseCombobox.ChipRemove
->;
+export type ComboboxChipRemoveProps =
+  & Omit<
+    React.ComponentProps<typeof BaseCombobox.ChipRemove>,
+    "className" | "aria-label"
+  >
+  & {
+    /** Classes merged with the shared remove-control geometry. @default undefined */
+    className?: string;
+    /** Accessible name announced to assistive tech — required, the `×` has no visible text. */
+    "aria-label": string;
+  };
 
 /**
  * `ComboboxChipRemove` — the trailing `×` control on a {@link ComboboxChip} that removes it from the
- * selection. Requires an `aria-label` (no visible text). Renders a `<button>`.
+ * selection: the shared `ChipRemove` (a round, ghost, real 24×24 `IconButton`) composed onto Base
+ * UI's `Combobox.ChipRemove`. Before T2 this was a bare 16px box with no hit-area expansion at all —
+ * a WCAG 2.5.8 failure. Requires an `aria-label` (no visible text). Renders a `<button>`.
  *
  * @example
  * <ComboboxChipRemove aria-label="Remove Design" />
@@ -829,20 +844,17 @@ export type ComboboxChipRemoveProps = React.ComponentProps<
 export function ComboboxChipRemove({
   className,
   children,
+  "aria-label": ariaLabel,
   ...props
 }: ComboboxChipRemoveProps) {
   return (
-    <BaseCombobox.ChipRemove
+    <ChipRemove
       data-slot="combobox-chip-remove"
-      className={cn(
-        "-me-0.5 ms-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-sm text-foreground",
-        "hover:bg-foreground/(--alpha-ink-tint)",
-        "data-[disabled]:pointer-events-none data-[disabled]:opacity-(--opacity-dim)",
-        className,
-      )}
-      {...props}
+      aria-label={ariaLabel}
+      render={<BaseCombobox.ChipRemove {...props} />}
+      className={className}
     >
-      {children ?? <X className="size-(--icon-compact)" aria-hidden />}
-    </BaseCombobox.ChipRemove>
+      {children}
+    </ChipRemove>
   );
 }

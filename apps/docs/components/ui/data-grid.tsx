@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.6.0 sha256-fJLqYRvi/OFSacHpbP9VNaWsaVzouP8JI/UBWm6TC4I=
+// @vegastack data-grid@0.6.0 sha256-JCbYTEI1uKzdQIgZw34hNHhR3SNcXz3ikdUqNLNYATA=
 
 "use client";
 
@@ -43,6 +43,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAnnouncer } from "@/components/ui/use-announcer";
 import {
   Table,
   TableBody,
@@ -652,13 +653,7 @@ export function DataGrid<T>({
     rowId: string;
     key: string;
   } | null>(null);
-  const [announcement, setAnnouncementState] = React.useState({
-    text: "",
-    seq: 0,
-  });
-  const announce = React.useCallback((text: string) => {
-    setAnnouncementState((prev) => ({ text, seq: prev.seq + 1 }));
-  }, []);
+  const { announce, Announcer } = useAnnouncer();
   const cellRefs = React.useRef(new Map<string, HTMLElement>());
   const cellKey = (row: number, col: number) => `${row}:${col}`;
   const loadMoreFired = React.useRef(false);
@@ -1252,14 +1247,7 @@ export function DataGrid<T>({
         </div>
       ) : null}
       {footer != null ? <div data-slot="data-grid-footer">{footer}</div> : null}
-      <span
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-        className="sr-only"
-      >
-        <span key={announcement.seq}>{announcement.text}</span>
-      </span>
+      <Announcer />
     </div>
   );
 }

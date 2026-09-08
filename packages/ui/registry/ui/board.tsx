@@ -618,7 +618,7 @@ export function Board<T>({
           );
         })}
       </div>
-      <span {...reorder.getLiveRegionProps()} />
+      <reorder.Announcer />
     </div>
   );
 }

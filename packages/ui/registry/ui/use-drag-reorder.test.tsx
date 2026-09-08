@@ -42,7 +42,7 @@ function Harness({
           ))}
         </ul>
       ))}
-      <span {...reorder.getLiveRegionProps()} />
+      <reorder.Announcer />
       <output data-testid="active">{reorder.activeId ?? "none"}</output>
       <output data-testid="pending">{reorder.pending?.id ?? "none"}</output>
     </div>
@@ -224,7 +224,7 @@ test("requestMove is the menu-equivalent entry point", async () => {
         >
           Move up
         </button>
-        <span {...reorder.getLiveRegionProps()} />
+        <reorder.Announcer />
       </div>
     );
   }

@@ -1,4 +1,4 @@
-// @vegastack dropzone@0.6.0 sha256-cj71V+hXHTaAqHLHunt18hu4FLuT6JlyQzGcJKEEMog=
+// @vegastack dropzone@0.6.0 sha256-kzivMaC5NU6IzTNITP7xaNPxhQznIi3np5Xdlv1buOU=
 
 "use client";
 
@@ -145,7 +145,7 @@ export function Dropzone({
           SIBLING of the surface: an interactive control may not contain
           another (axe nested-interactive). The engine reaches it by ref. */}
       <input {...drop.inputProps} />
-      <span {...drop.getLiveRegionProps()} />
+      <drop.Announcer />
     </>
   );
 }
