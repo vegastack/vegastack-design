@@ -1,4 +1,5 @@
 ---
 ---
 
-WP4 verification rebuild: contract-derived docs files become build outputs; no published package change.
+🛠 **WP4 of the verification rebuild** — the contract-derived docs files become build
+outputs rather than committed artefacts; no published package change.

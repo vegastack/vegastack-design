@@ -179,14 +179,27 @@ node tooling/changelog-lint.mjs                 # vocabulary, dates, shas, doc l
 ```
 
 Assembly runs BEFORE `changeset version` (which deletes the changesets it consumes) and takes the
-heading version from `changeset status`, changesets' own release plan. It is idempotent: a version
-whose `## [x.y.z]` heading already exists is not written twice. `--check` and assembly FAIL on a
-changeset with no marker — including the pre-convention ones `changeset-lint` grandfathers — so fix
-those before a release rather than at the version step.
+heading version from `changeset status`, changesets' own release plan. `--check` and assembly FAIL
+on a changeset with no marker; `changeset-lint` runs the same rule per PR, over every pending
+changeset with no grandfather list, so a failure here means someone bypassed the lint.
 
-A hand-written entry is still legitimate when a release needs prose no changeset carried (a
-migration note, a summary paragraph): edit `/CHANGELOG.md`, then `node tooling/sync-changelog.mjs`.
-It is the exception, not the per-PR obligation.
+**Idempotency is keyed on the assembled marker, not the version.** A written entry carries
+`<!-- assembled from N changesets: <fingerprint> -->` under its heading (stripped from the docs
+page, which is MDX and has no HTML comments). Re-running over the same pending set is a no-op.
+A `## [x.y.z]` heading with NO marker is a hand-written entry for the version about to be released,
+and the assembler **refuses**, loudly, with the reconciliation steps — because exiting 0 there
+would let `changeset version` delete every pending changeset whose prose was never placed. That is
+not hypothetical: `main` carried exactly such an entry, hand-written by the audit train, when this
+gate was written.
+
+**When a hand-written edit is legitimate — and when it is not.** The exception is bounded to the
+**Version PR, after assembly has already written the heading**: the entry exists, the changesets
+are consumed, and the release needs a line no changeset carried (a migration note, a summary
+paragraph). Edit `/CHANGELOG.md` inside that PR, then `node tooling/sync-changelog.mjs`.
+
+Never hand-write an entry for an **upcoming** version on `main`. Between releases the only
+changelog artefact is a changeset; a `## [x.y.z]` heading for a version that has not been assembled
+yet is the failure mode above, and reconciling one back into changesets is a day of work.
 
 ## 4. Version PR → publish
 

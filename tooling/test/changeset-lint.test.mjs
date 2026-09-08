@@ -8,7 +8,7 @@ import {
   splitChangeset,
   SECTIONS,
 } from "../changelog-assemble.mjs";
-import { lintChangesets, GRANDFATHERED } from "../changeset-lint.mjs";
+import { lintChangesets } from "../changeset-lint.mjs";
 
 /** A changeset file as it exists on disk, parsed the way the linter parses it. */
 const changeset = (file, source) => ({ file, ...splitChangeset(source) });
@@ -106,6 +106,22 @@ describe("resolveSection", () => {
   });
 });
 
+// The changeset body becomes a CHANGELOG bullet verbatim, so it is held to the assembled file's
+// prose rules — a dead docs link and an unknown commit sha are caught at PR time.
+const DEAD_DOCS_LINK = `---
+"@vegastack/ui": patch
+---
+
+\ud83d\udcda **Docs** — see [the page](/docs/components/does-not-exist).
+`;
+
+const UNKNOWN_SHA = `---
+"@vegastack/ui": patch
+---
+
+\ud83d\udc1b **Fixed** — [\`0000000\`](https://github.com/VegaStack/vegastack-design/commit/0000000).
+`;
+
 describe("lintChangesets", () => {
   const fixtures = [
     changeset("valid.md", VALID),
@@ -138,8 +154,37 @@ describe("lintChangesets", () => {
     expect(linted).toBe(2);
   });
 
+  test("a body whose docs link resolves to no page is rejected", () => {
+    const { problems } = lintChangesets({
+      changesets: [changeset("dead-link.md", DEAD_DOCS_LINK)],
+    });
+    expect(problems).toEqual([
+      "dead-link.md: docs link resolves to no content page: /docs/components/does-not-exist",
+    ]);
+  });
+
+  test("a body whose commit link names an unknown sha is rejected", () => {
+    const { problems } = lintChangesets({
+      changesets: [changeset("unknown-sha.md", UNKNOWN_SHA)],
+    });
+    expect(problems).toEqual([
+      "unknown-sha.md: commit link references unknown sha: 0000000",
+    ]);
+  });
+
+  test("the prose rules are changelog-lint's own, not a second copy", () => {
+    // The gate is only worth having if it is the SAME rule the assembled file is held to.
+    const seen = [];
+    lintChangesets({
+      changesets: [changeset("valid.md", VALID)],
+      prose: (text) => (seen.push(text), []),
+    });
+    expect(seen).toHaveLength(1);
+    expect(seen[0].startsWith("**Button**")).toBe(true);
+  });
+
   test("the repo's own pending changesets pass the gate as it is wired", () => {
-    // `pnpm lint` runs the linter with the pre-convention grandfather list; this is that run.
-    expect(lintChangesets({ skip: GRANDFATHERED }).problems).toEqual([]);
+    // `pnpm lint` runs the linter over every pending changeset; this is that run.
+    expect(lintChangesets().problems).toEqual([]);
   });
 });

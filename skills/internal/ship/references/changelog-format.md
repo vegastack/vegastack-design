@@ -11,7 +11,13 @@ contain — read it as the shape of a changeset body plus the entry scaffolding 
 
 ```markdown
 ## [x.y.z] — July 19, 2026
+
+<!-- assembled from 17 changesets: 4f0a91c2b7de -->
 ```
+
+The comment under the heading is the assembler's provenance line, and it is what makes a re-run a
+no-op. A heading WITHOUT it is a hand-written entry, which `changelog-assemble` refuses rather than
+merging into. `sync-changelog` strips it from the docs page (MDX has no HTML comments).
 
 - Version = the design-system (registry) version — `@vegastack/ui`'s version, which every
   registry item carries as `meta.version`.
@@ -46,8 +52,12 @@ contain — read it as the shape of a changeset body plus the entry scaffolding 
   `tooling/changeset-lint.mjs` failure.
 - An **empty** changeset (frontmatter naming no package) carrying body text is valid and IS
   assembled — the changelog line for a change that publishes nothing.
-- The assembler appends the commit sha of the changeset file when the body carries no commit link,
-  and generates the `📦 npm` bullets from the release plan, so an author writes neither.
+- The assembler appends the commit sha of the changeset file (7 characters, matching every existing
+  entry) when the body carries no commit link, and generates the `📦 npm` bullets from the release
+  plan — each public package's own `package.json` version before the bump, not the linked group's —
+  so an author writes neither.
+- A body's `/docs` links and commit shas are validated at PR time by `tooling/changeset-lint.mjs`,
+  using `changelog-lint`'s own rules rather than a second copy of them.
 - Multi-line bodies keep their line breaks; continuation lines are indented into the bullet.
 
 ## Bullets
