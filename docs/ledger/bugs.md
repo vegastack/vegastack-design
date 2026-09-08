@@ -624,3 +624,26 @@ ghost takes its own` expected the neutral ghost to compute `rgb(1, 2, 3)` (its h
   asserts a rest-state style must establish rest — the pointer is shared, page-scoped state that no
   `render()` resets.** The tell for this whole class is a test that fails only in the full suite and
   passes in isolation while the "wrong" value is precisely some other state's token.
+
+## 2026-09-08 — The same `relative-time` fixture also breaks the 24px target-floor probe
+
+- **Symptom.** With the 320px reflow race fixed on `main` (`065315d5`), the full 110-route sweep
+  still failed twice on the SAME route, in a different check:
+  `/docs/components/relative-time retains focus visibility and effective 24px pointer targets`,
+  `mobile-chromium` and `mobile-chromium-dark`. Every one of the five probe points reported
+  `"hit": null` — `elementFromPoint` found nothing at coordinates derived from a rect the probe had
+  just measured (visual 27.0×21.0px, at y≈2180).
+- **Same cause, different assertion.** `relative-time` re-renders on its own self-rescheduling clock.
+  The 320px fix made the _scroll_ step resilient; the target-floor check measures a rect and then
+  hit-tests it, and a tick landing in that window leaves the probe firing at coordinates whose
+  element no longer exists. `"hit": null` on **every** point — rather than a wrong element or a
+  too-small box — is the tell that the target moved, not that it is undersized.
+- **Pre-existing, not caused by F2.** F2 touches no `relative-time` file (`git diff origin/main..HEAD
+--name-only` names none), and the route passes **8/8 in isolation on the same box and the same
+  tree** while failing only inside the loaded parallel sweep — the identical signature to the 320px
+  race recorded above.
+- **Not fixed here.** F2 does not own `apps/docs/vrt/contracts.spec.ts`; the 320px fix reached this
+  branch from `main`, and the sibling fix belongs with it. **G1-b**: the rect-measure-then-hit-test
+  window in the target-floor check needs the same bounded retry the scroll step got, or the probe
+  should re-measure the rect inside the poll. Until then a globally-scoped change can lose a full
+  sweep to it, and the correct handling is a re-run plus an isolated confirmation — never `GATES_SKIP`.
