@@ -210,6 +210,25 @@ data-slot="icon-button">`. The literal follows the spread, so `IconButton` overw
 
 ---
 
+## 2026-09-08 — ⌘K on `/docs/components/command` opens two dialogs at once (found, not fixed)
+
+- **Symptom.** On the Command page, pressing ⌘K (Ctrl+K) opens the fixture's `CommandDialog` **and**
+  the Fumadocs site search dialog, stacked.
+- **Root cause.** Two window/document-level `keydown` listeners claim the same chord and neither
+  yields. `apps/docs/components/preview/command.tsx:309` binds ⌘K on `document` and calls
+  `preventDefault()`; Fumadocs' `SearchProvider` binds ⌘K on `window` and does **not** consult
+  `e.defaultPrevented` before toggling (`fumadocs-ui@16.15.8`, `dist/contexts/search.js` —
+  `if (hotKey.every(...)) { setIsOpen(o => !o); e.preventDefault(); }`). Both handlers therefore run
+  on every press.
+- **Pre-existing, not upgrade fallout.** Fumadocs owned ⌘K at 16.11.5 too; the 16.15 bump changed
+  nothing here. Found while auditing the `hotKey` decision in D2 (#50).
+- **Not fixed here, and why.** The fix is a docs-fixture change (scope the demo's binding, or give
+  it a different chord), and `SearchProviderProps.hotKey` is `HotKey[]` with no `false` — passing
+  `[]` would make `every()` vacuously true and open search on **every** keystroke, so disabling the
+  site hotkey is not the escape hatch the audit note implied. D2's remit is dependency migration,
+  not fixture behaviour. Owner: Do1-b (docs pages/fixtures).
+- **Reproduction.** Build the docs, open `/docs/components/command`, press ⌘K: two dialogs.
+
 ## 2026-09-08 — The `relative-time` 320px contract fails nondeterministically under the full sweep
 
 - **Symptom.** `/docs/components/relative-time contains its primary fixture at 320px` fails with

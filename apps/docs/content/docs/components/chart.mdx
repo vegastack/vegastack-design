@@ -124,7 +124,7 @@ defaults to `stroke="#ccc"`) — set them directly, with tokens, on the primitiv
 Every example on this page does this. We don't replicate the shadcn reference's
 `[&_.recharts-x[stroke='#ccc']]:stroke-border/50`-style attribute-value selector hack — it embeds hex
 literals this repo's design-lint bans outright, and it silently stops matching the moment a future
-Recharts version changes its internal default (verified against the installed `recharts@3.9.2` source
+Recharts version changes its internal default (verified against the installed `recharts@3.10.1` source
 while building this component).
 
 ## Examples
@@ -225,11 +225,11 @@ not auto-tabled). Per entry:
 
 Pass `accessibilityLayer` on the Recharts chart element (`<LineChart accessibilityLayer>`,
 `<BarChart accessibilityLayer>`, …) — every example on this page does. Verified against the installed
-`recharts@3.9.2`: when on, the chart's root `<svg>` gets `role="application"` and `tabIndex={0}`, and
+`recharts@3.10.1`: when on, the chart's root `<svg>` gets `role="application"` and `tabIndex={0}`, and
 Recharts' own accessibility layer wires arrow-key navigation between data points plus a live region
 that announces the active point — a real interaction layer, not a static image. `ChartContainer` does
 **not** add its own `role="img"`, which would collide with Recharts' `role="application"`; the
-accessible surface is Recharts' own. As of `3.9.2`, `accessibilityLayer` already **defaults to `true`**
+accessible surface is Recharts' own. As of `3.10.1`, `accessibilityLayer` already **defaults to `true`**
 on every Cartesian/Polar chart — set it explicitly anyway, so it reads as intentional and survives a
 future Recharts version changing that default.
 

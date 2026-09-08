@@ -298,6 +298,69 @@ packages/ui/registry/ui` → 0. The ref half IS 0. The other half cannot be 0 wh
 item worth an explicit nod.
 
 ---
+
+## 2026-09-08 — D2: the Fumadocs 16.15 family, lucide 1.42, axe 4.13, Playwright 1.63, recharts 3.10
+
+**Context:** dependency batches 5–6 of the 2026-09-07 audit (`01-deps.md`). Five of the six items
+turned out to need no source change at all; the judgment calls below are about the ones that did,
+and about the three places where the audit's instruction and the installed reality disagreed.
+
+**Decisions taken instead of pausing:**
+
+- **lucide-react lands on 1.42.0, not the audit's 1.41.0.** The range is a caret, so the choice is
+  really "newest mature release". 1.43.0 was published 2026-09-08 12:08 UTC, inside D1's new
+  explicit `minimumReleaseAge: 1440` window, and a strict floor fails the install rather than
+  granting itself an exclude — so 1.42.0 (2026-09-07) is the ceiling today. Taking 1.42.0 rather
+  than pinning back to 1.41.0 keeps the repo's normal "caret + mature" resolution and avoids an
+  exact pin nobody asked for. The rename sweep the batch was named after is a **no-op**: a script
+  collected all 126 distinct named `lucide-react` imports across `packages/ui/registry`,
+  `packages/design/src`, `apps/docs` and `tooling`, and resolved each against the installed 1.42.0
+  module — every one still exists, and `Trash` (the removed icon) was already `Trash2` everywhere.
+- **`@vegastack/design`'s lucide PEER range stays `^1.24.0`.** Bumping the devDependency moved the
+  peer too; that was reverted. The peer declares the minimum version this package is compatible
+  with, not the version we happen to test against, and narrowing it would make every consumer on a
+  1.2x/1.3x lucide take a peer warning for a change that affects nothing they call. The registry
+  items' declared `lucide-react@^1.24.0` in `packages/ui/registry.json` stays for the same reason.
+- **No `forceMount` was added to the docs' preview Tabs.** Fumadocs 16.12 stopped force-mounting
+  inactive `Tabs` panels, so a `ComponentPreview`'s **Code** panel is no longer in the prerendered
+  HTML. The audit flagged this as "where contracts need hidden panels" — they do not. The blocking
+  probe is `page.locator("[data-vrt-preview]").first()`, which lives inside the **Preview** panel:
+  the default tab, always mounted. The markdown export reads the fixture from disk, not the DOM, so
+  `verify-docs-export` is unaffected (confirmed: 143 files agent-clean, 110 API tables). Adding
+  `forceMount` would have restored dead HTML on 110 routes to satisfy nothing.
+- **Fumadocs' `theme={{ hotKey: false }}` is not set, because it would be dead config.** The audit
+  asked for a decision on 16.13's global `d` light/dark hotkey. `RootProvider` mounts `ThemeHotKey`
+  **inside** the `theme?.enabled !== false` branch (`fumadocs-ui@16.15.8`,
+  `dist/provider/base.js`), and this site sets `theme={{ enabled: false }}` because
+  `VegaStackProvider` owns theme — so no `keydown` listener is registered and typing `d` on a
+  component page does nothing. Rather than add a prop that is destructured out of an object that is
+  never read, the finding and the trigger condition are recorded at the call site in
+  `components/provider.tsx`, so re-enabling fumadocs' theme provider cannot silently reintroduce it.
+- **axe-core 4.13 triage.** 4.13 adds `sectionheader`/`sectionfooter`, treats `role=image` as
+  equivalent to `role=img`, allows `aria-actions`, enables `ElementInternals` by default, and
+  changes two rules that can newly fail: `aria-prohibited-attr` ("allow many elements to be named
+  and disallow **label** and **body** from being named"; a visible `aria-labelledby` drops to
+  needs-review) and `aria-allowed-role` (roles on a non-`details` `summary`; `figure` roles
+  restricted when a `figcaption` child is present). Mapped against the registry: no source names a
+  `<label>` or `<body>`, nothing uses `role="image"`, and there is no `summary`/`figure` +
+  `figcaption` pair — so the expected blast radius was nil, and the browser unit suite (which runs
+  axe on every component) is the enforcement. Its result for this branch is recorded in the PR.
+- **recharts 3.10's Legend migration is a documentation change, not a code change.** `align` and
+  `verticalAlign` are deprecated in favour of `position`/`offset`, but they are not removed, no
+  `ChartLegend` call site passes either, and `Legend` still injects `verticalAlign` into custom
+  content (`es6/component/Legend.js:260`), which is where `ChartLegendContent` reads it from. The
+  deprecation and the replacement are noted on the `ChartLegend` re-export so the next person
+  positioning a legend reaches for `position` instead of the deprecated pair.
+- **The changelog bullets carry no commit-sha links.** Every other 0.7.0 bullet does, but this
+  branch is stacked on an unmerged D1 and will be rebased once more before it opens; D1 already had
+  to spend a commit repointing its own orphaned links. Omitting them is allowed by
+  `changelog-lint` (shas are validated only where present) and is cheaper than a post-rebase
+  repoint that would also invalidate the gate receipt.
+- **Playwright 1.63 browser builds were installed on all five Ryzen boxes before the sweep**
+  (`npx playwright@1.63.0 install chromium firefox webkit`). The 1.61 builds were left in place, so
+  sibling branches still on 1.61 are unaffected. Nothing in the repo pins a browser revision; the
+  receipt pins only the two `package.json` versions.
+
 ## 2026-09-07 — F1 follow-up: reconciling the doctrine, the guides and the media gate with the ladder
 
 **Context:** a post-merge Codex review of F1 (#32, `9c33dfaf`) found that the token layer moved but
