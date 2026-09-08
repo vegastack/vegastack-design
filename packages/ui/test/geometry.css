@@ -1,0 +1,53 @@
+/* Compiled-CSS entry for the geometry behaviour contracts (geometry.browser.test.tsx).
+
+   Same mechanism as `contrast.css`: Tailwind v4 (via @tailwindcss/vite) compiles the REAL
+   @vegastack token theme so the fixtures render with real spacing, sizing and hit-area
+   utilities. The geometry assertions (320px reflow, RTL containment, effective 24px pointer
+   target) are meaningless without them — an uncompiled fixture has no `min-w-0`, no `truncate`,
+   and no `-inset-*` pseudo-element hit area to measure.
+
+   The `@source` globs must cover BOTH halves of what gets mounted: the canonical component
+   sources (the class literals inside each component's CVA) and the docs preview fixtures (the
+   composition classes the examples add, including `Wrapper`'s layout utilities). A missing glob
+   here does not error — it silently drops utilities and turns a real contract into a no-op. */
+@import "tailwindcss";
+@import "@vegastack/design-tokens/theme.css";
+@import "@vegastack/design-tokens/base.css";
+
+@source '../registry/ui/**/*.tsx';
+@source '../registry/blocks/**/*.tsx';
+@source '../../design/src/index.ts'; /* the surfaceInteractive / fillInteractive recipe literals */
+@source '../../../apps/docs/components/preview/**/*.tsx';
+@source '../../../apps/docs/components/preview-controls.tsx';
+/* The lane's own compiled-CSS sentinel (`w-6 h-6 min-w-0 truncate`, asserted in `beforeAll`)
+   lives in the test file, so it needs a glob of its own — the sentinel exists to prove this
+   stylesheet reached the page at all, and it can only do that if its utilities compile. */
+@source './geometry.browser.test.tsx';
+
+/* ── motion neutralised, for this lane only ─────────────────────────────────────────────────────
+   The geometry contracts measure a SETTLED layout: a fixture captured mid-transition can be
+   transiently wider, shorter, or offset from its resting size, which is exactly the flake the old
+   Playwright lane suppressed with `emulateMedia({ reducedMotion: "reduce" })`.
+
+   That knob is NOT available per test file — the Playwright provider's `contextOptions` in
+   `vitest.config.ts` apply to every file in the run — and setting it there is not free. Measured
+   2026-09-08: with `contextOptions.reducedMotion = "reduce"`, `contrast.browser.test.tsx` fails
+   both themes with "expected >=1px outline offset, got 0px", because the token base stylesheet's
+   sanctioned `prefers-reduced-motion` override (`transition-duration: 0.01ms !important`) starts
+   matching and the focus ring is read mid-transition. Turning a real, passing accessibility gate
+   red to stabilise a different one is not a trade worth making.
+
+   So the same neutralisation is written here instead. `geometry.css` is imported by exactly one
+   test file, so its blast radius is that file's page and nothing else. The declarations mirror
+   the shipped reduced-motion block in `@vegastack/design-tokens/base.css` — the end state these
+   rules force is the one a reduced-motion user actually sees in production. */
+*,
+::before,
+::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  animation-delay: 0s !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0s !important;
+  scroll-behavior: auto !important;
+}
