@@ -13,6 +13,12 @@
 //   and the runner allowlist is the only thing preventing a job from silently moving back onto billed
 //   capacity. Both are asserted here by mutation.
 //
+//   The ban is now CONDITIONAL — a job in LINUX_JOBS may run the pinned Playwright container on the
+//   LAN Debian boxes — which makes mutation coverage load-bearing rather than merely prudent: a
+//   conditional exception is exactly the shape that quietly widens into a hole. Four cases below pin
+//   it shut from both sides (wrong image, arbitrary image, un-allowlisted job on the Linux label,
+//   allowlisted job moved off it).
+//
 // HOW
 //   Each case copies the real workflows into a scratch directory, applies one mutation, and runs the
 //   gate with that directory as its cwd — the gate reads `.github/workflows` relative to cwd, so no
@@ -50,12 +56,47 @@ const WORKFLOWS = join(ROOT, ".github/workflows");
 
 const CASES = [
   {
-    id: "container on a self-hosted job",
+    id: "container on a mac-mini job",
     file: "ci.yml",
     find: "  verify:\n    runs-on: [self-hosted, vsk-runners-mac-mini]\n",
     replace:
       "  verify:\n    runs-on: [self-hosted, vsk-runners-mac-mini]\n    container: node:24\n",
-    expect: /declares a job container/,
+    expect: /declares a container but is not in LINUX_JOBS/,
+  },
+  {
+    id: "a container on the Linux runner pinned to the WRONG playwright version",
+    file: "verify-linux.yml",
+    find: "      image: mcr.microsoft.com/playwright:v1.61.0-noble",
+    replace: "      image: mcr.microsoft.com/playwright:v1.55.0-noble",
+    expect: /the only sanctioned\s+image is/,
+  },
+  {
+    id: "a container smuggled onto the Linux runner as an arbitrary image",
+    file: "verify-linux.yml",
+    find: "      image: mcr.microsoft.com/playwright:v1.61.0-noble",
+    replace: "      image: node:24",
+    expect: /the only sanctioned\s+image is/,
+  },
+  {
+    id: "the container job losing its bash default (sh cannot do `set -o pipefail`)",
+    file: "verify-linux.yml",
+    find: "    defaults:\n      run:\n        shell: bash\n",
+    replace: "",
+    expect: /without `defaults.run.shell: bash`/,
+  },
+  {
+    id: "a mini job moved onto the Linux runners without being allowlisted",
+    file: "ci.yml",
+    find: "  verify:\n    runs-on: [self-hosted, vsk-runners-mac-mini]\n",
+    replace: "  verify:\n    runs-on: [self-hosted, linux, vsk-runner]\n",
+    expect: /must run on \[self-hosted, vsk-runners-mac-mini\]/,
+  },
+  {
+    id: "the Linux browser job moved off the Linux runners",
+    file: "verify-linux.yml",
+    find: "    runs-on: [self-hosted, linux, vsk-runner]",
+    replace: "    runs-on: [self-hosted, vsk-runners-mac-mini]",
+    expect: /recorded as a LAN Linux job but runs on/,
   },
   {
     id: "a free mini job moved onto billed capacity",
@@ -252,8 +293,9 @@ if (failures > 0) {
   process.exit(1);
 }
 console.log(
-  `\n✓ workflow-security-negative: all ${CASES.length} mutations rejected — container ban, runner ` +
-    `allowlist (both directions), receipt-guard presence and wiring, shell injection, credential ` +
+  `\n✓ workflow-security-negative: all ${CASES.length} mutations rejected — the container ban and ` +
+    `its single pinned-image exception, the runner ` +
+    `allowlist (all three directions), receipt-guard presence and wiring, shell injection, credential ` +
     `persistence, token scope, pull_request_target, stray OIDC, publish dependencies, and the ` +
     `unconditional production-boundary chain`,
 );

@@ -1,0 +1,61 @@
+name: Verify (Linux)
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+# TEMPORARY — WP0 ACCEPTANCE ONLY.
+# This workflow exists to prove one thing: the LAN Linux runners can execute a real browser lane
+# inside the pinned Playwright container, which the mac minis cannot (no per-user Mach bootstrap
+# namespace — AGENTS.md § Locked decisions). WP2 folds this job into ci.yml and deletes this file;
+# keep it minimal until then, and do not grow it into a second CI surface.
+#
+# It deliberately carries NO `receipt-guard`: it is not (yet) part of the attestation topology, and
+# tooling/verify-workflow-security.mjs only requires the guard in ci/release/deploy.
+
+concurrency:
+  group: verify-linux-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-linux:
+    runs-on: [self-hosted, linux, vsk-runner]
+    container:
+      # Pinned to the `playwright` version in pnpm-lock.yaml; verify-workflow-security.mjs reads the
+      # lockfile and fails if the two drift, because a container whose browsers do not match the
+      # installed Playwright reports failures that are not defects.
+      image: mcr.microsoft.com/playwright:v1.61.0-noble
+      # Persistent host store, created by tooling/runner/provision-linux-runner.sh. Without it every
+      # run re-downloads the whole dependency graph into a throwaway container.
+      volumes:
+        - /opt/vsk-runner/pnpm-store:/pnpm-store
+    # A container's default shell is `sh`, not bash: without this, `set -o pipefail` in any run body
+    # dies with "Illegal option -o pipefail" and the job fails for a reason that is not a defect.
+    # Observed on the first proof run (34249693688). verify-workflow-security.mjs now requires it.
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      # The image ships Node 24.16 and corepack; no setup-node step is needed (and setup-node's
+      # tool cache would be thrown away with the container anyway).
+      - name: Enable corepack
+        run: |
+          set -euo pipefail
+          corepack enable
+          node -v
+          pnpm -v
+      # `--store-dir` rather than `pnpm config set`: the container has no PNPM_HOME on PATH, so
+      # `pnpm config set --global` exits 1 ("global bin directory is not in PATH"). The flag is the
+      # only form that works here, and it must name the same host path the volume above mounts.
+      - run: pnpm install --frozen-lockfile --store-dir /pnpm-store
+      # The browser lane itself: Vitest browser mode + axe, in Chromium from the image.
+      #
+      # Through turbo, not `pnpm --filter @vegastack/ui test`: turbo's `test` task dependsOn
+      # `^build`, and the suite imports `@vegastack/design`, whose dist is gitignored. Run bare, vite
+      # cannot resolve that import and the run HANGS on pre-transform errors rather than failing
+      # (reproduced in a container on vsk-node-05 before this was written).
+      - run: pnpm exec turbo run test --filter=@vegastack/ui

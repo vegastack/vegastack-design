@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 // DISCOVER every workflow rather than auditing a hard-coded list: a list meant a newly added
 // .github/workflows/*.yml was silently exempt from every generic check below (unpinned actions,
@@ -29,6 +30,29 @@ const sources = Object.fromEntries(
 // this repository deliberately left, and a job moved OFF ubuntu-latest can break publishing or void
 // a boundary proof. Every entry below states why it is where it is.
 const SELF_HOSTED = "[self-hosted, vsk-runners-mac-mini]";
+//
+// SECOND RUNNER CLASS: the two LAN Debian boxes (`vsk-node-05`, `vsk-node-07`), enrolled by
+// tooling/runner/provision-linux-runner.sh with the labels `self-hosted,linux,vsk-runner`. They
+// exist for the one thing the minis cannot do: start a container and run a real browser. A job on
+// them is still zero-billable — they are self-hosted hardware on the LAN.
+//
+// Membership is an ALLOWLIST, not a free choice, for the same reason the mac-mini rule is: a job
+// silently moved onto the Linux boxes escapes the mini topology's assumptions, and a job silently
+// moved OFF them loses the only lane that actually executes a browser in CI.
+const LINUX_RUNNER = "[self-hosted, linux, vsk-runner]";
+const LINUX_JOBS = {
+  // WP0 acceptance: prove the Linux boxes run the browser unit suite in the pinned Playwright
+  // image. WP2 folds this into ci.yml; this entry moves with it, it does not get deleted.
+  "verify-linux.yml": ["verify-linux"],
+};
+// A key naming a workflow that no longer exists would make its exception vanish silently, and the
+// container ban would then read as enforced on a file nobody checks.
+for (const name of Object.keys(LINUX_JOBS)) {
+  assert.ok(
+    discovered.includes(name),
+    `LINUX_JOBS names ${name}, which is not in ${WORKFLOW_DIR} — remove the entry or restore the workflow`,
+  );
+}
 //
 // NO BROWSER RUNS IN CI AT ALL. That is the whole point of the local-first topology
 // (docs/plans/2026-07-25-cicd-local-first-revamp.md): the Vitest browser suite, the cross-engine
@@ -164,13 +188,21 @@ function stepBlocks(source) {
   return blocks;
 }
 
-/** Names of jobs that declare a `container:`, so the ban can be scoped to self-hosted jobs. */
+/**
+ * Jobs that declare a `container:`, as `[job, image]` pairs. The image is returned — not just the
+ * job name — because on the Linux runners a container is ALLOWED, and what then has to be asserted
+ * is WHICH image: one whose browsers do not match the installed Playwright produces failures that
+ * are not defects. Both the inline (`container: img`) and mapping (`container:` / `  image: img`)
+ * forms are recognised; a mapping with no `image:` yields `null`, which the caller rejects rather
+ * than skipping.
+ */
 function containerJobs(source) {
-  const names = [];
+  const found = [];
   const lines = source.split("\n");
   let inJobs = false;
   let current = null;
-  for (const line of lines) {
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
     if (/^jobs:\s*$/.test(line)) {
       inJobs = true;
       continue;
@@ -182,10 +214,53 @@ function containerJobs(source) {
       current = job[1];
       continue;
     }
-    if (/^ {4}container:/.test(line) && current) names.push(current);
+    const container = /^ {4}container:[ \t]*(\S.*?)?\s*$/.exec(line);
+    if (!container || !current) continue;
+    if (container[1]) {
+      found.push([current, container[1]]);
+      continue;
+    }
+    let image = null;
+    for (let j = i + 1; j < lines.length; j++) {
+      const body = lines[j];
+      if (body.trim() === "") continue;
+      const indent = body.length - body.trimStart().length;
+      if (indent <= 4) break;
+      const match = /^ {6}image:[ \t]*(\S+)\s*$/.exec(body);
+      if (match) {
+        image = match[1];
+        break;
+      }
+    }
+    found.push([current, image]);
   }
-  return names;
+  return found;
 }
+
+/**
+ * The `playwright` version pnpm actually installs, read from the lockfile rather than hardcoded —
+ * a hardcoded copy would let this gate agree with itself while disagreeing with the tree.
+ */
+function lockfilePlaywrightVersion() {
+  // Resolved from THIS FILE, not the cwd: the workflow directory is read cwd-relative on purpose so
+  // verify-workflow-security-negative.mjs can point the gate at a mutated copy, and a cwd-relative
+  // lockfile read would make every one of those mutation cases die on ENOENT instead of testing
+  // anything.
+  const lock = readFileSync(
+    fileURLToPath(new URL("../pnpm-lock.yaml", import.meta.url)),
+    "utf8",
+  );
+  const match = /^ {2}playwright@(\d+\.\d+\.\d+):$/m.exec(lock);
+  assert.ok(
+    match,
+    "pnpm-lock.yaml: could not find the resolved `playwright` package version — the lockfile " +
+      "changed shape, so the container-image pin below would silently stop being checked",
+  );
+  return match[1];
+}
+
+const PLAYWRIGHT_VERSION = lockfilePlaywrightVersion();
+const PLAYWRIGHT_IMAGE = `mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble`;
 
 for (const [name, source] of Object.entries(sources)) {
   assert.doesNotMatch(
@@ -224,13 +299,41 @@ for (const [name, source] of Object.entries(sources)) {
   // "Illegal option -o pipefail" and reported it as registry drift), both guarded nothing. Dead
   // assertions are worse than absent ones: they read as coverage. So the ban replaces them, and
   // tooling/verify-workflow-security-negative.mjs proves the ban actually rejects a container.
-  assert.deepEqual(
-    containerJobs(source),
-    [],
-    `${name}: declares a job container. Containers are Linux-only and cannot start on the self-hosted ` +
-      `macOS runners, and no GitHub-hosted job here drives a browser any more — the lane that needed ` +
-      `the pinned Playwright image now runs locally.`,
-  );
+  //
+  // ONE NARROW EXCEPTION, added with the Linux runners: a job in LINUX_JOBS may declare a container,
+  // and only the pinned Playwright image whose version matches pnpm-lock.yaml. That is the entire
+  // reason those boxes exist. Everywhere else the ban stands unchanged, and
+  // tooling/verify-workflow-security-negative.mjs proves both halves by mutation.
+  const linuxJobs = new Set(LINUX_JOBS[name] ?? []);
+  for (const [job, image] of containerJobs(source)) {
+    assert.ok(
+      linuxJobs.has(job),
+      `${name}: job ${job} declares a container but is not in LINUX_JOBS. Containers are Linux-only ` +
+        `and cannot start on the self-hosted macOS minis at all; only a job on ${LINUX_RUNNER} may ` +
+        `declare one.`,
+    );
+    assert.equal(
+      image,
+      PLAYWRIGHT_IMAGE,
+      `${name}: job ${job} runs container image ${image ?? "(none declared)"}; the only sanctioned ` +
+        `image is ${PLAYWRIGHT_IMAGE}, whose version is read from pnpm-lock.yaml. A container whose ` +
+        `bundled browsers do not match the installed Playwright reports failures that are not defects.`,
+    );
+  }
+
+  // A container's default shell is `sh`. `set -o pipefail` — which every hardened run body here uses
+  // — is a bashism, so without a bash default the job dies on "Illegal option -o pipefail" and reads
+  // as a repository failure. This exact assertion existed before, guarding the old Playwright
+  // container, and was deleted with it; the first Linux proof run reproduced the failure within
+  // minutes. It is only meaningful for container jobs, which is why it is scoped to LINUX_JOBS.
+  for (const job of linuxJobs) {
+    assert.match(
+      jobBlock(source, job),
+      /^    defaults:\n      run:\n        shell: bash$/m,
+      `${name}: job ${job} runs in a container without \`defaults.run.shell: bash\`. The container's ` +
+        `default shell is sh, so \`set -o pipefail\` fails with "Illegal option -o pipefail".`,
+    );
+  }
 
   const allowed = new Set(GITHUB_HOSTED_JOBS[name] ?? []);
   const runners = jobRunners(source);
@@ -268,16 +371,30 @@ for (const [name, source] of Object.entries(sources)) {
       );
       continue;
     }
+    if (linuxJobs.has(job)) {
+      assert.equal(
+        runner,
+        LINUX_RUNNER,
+        `${name}: job ${job} is recorded as a LAN Linux job but runs on ${runner}`,
+      );
+      continue;
+    }
     assert.equal(
       runner,
       SELF_HOSTED,
-      `${name}: job ${job} must run on ${SELF_HOSTED}; add it to GITHUB_HOSTED_JOBS with a recorded reason if that is deliberate`,
+      `${name}: job ${job} must run on ${SELF_HOSTED}; add it to GITHUB_HOSTED_JOBS or LINUX_JOBS with a recorded reason if that is deliberate`,
     );
   }
   for (const job of allowed) {
     assert.ok(
       runners.has(job),
       `${name}: GITHUB_HOSTED_JOBS lists ${job}, which no longer exists`,
+    );
+  }
+  for (const job of linuxJobs) {
+    assert.ok(
+      runners.has(job),
+      `${name}: LINUX_JOBS lists ${job}, which no longer exists`,
     );
   }
 
