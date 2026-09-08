@@ -47,7 +47,7 @@ function Probe(options: UseFileDropOptions) {
         <input data-testid="picker" {...drop.inputProps} />
       </div>
       <span data-testid="dragging">{String(drop.isDragging)}</span>
-      <span {...drop.getLiveRegionProps()} data-testid="live" />
+      <drop.Announcer data-testid="live" />
     </div>
   );
 }
