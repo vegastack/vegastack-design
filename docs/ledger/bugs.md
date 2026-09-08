@@ -1331,6 +1331,23 @@ count`, so a page that loads with unread items sits still; the cue additionally 
   `origin/main` @ `9c33dfaf`. D1 is a dependency batch; a component change is the wrong instrument
   for a docs-harness race, and a speculative one that the evidence contradicts is the wrong change
   entirely.
+- **Then the race named itself, and the component theory died for good.** A later full sweep on this
+  branch failed the same 320px check on **three different components in one run** —
+  `relative-time` (chromium-dark), `sheet` (mobile-chromium) and `scroll-area` (mobile-chromium) —
+  each with the identical `locator.scrollIntoViewIfNeeded: Element is not attached to the DOM`.
+  877/880. Three unrelated components cannot share a `RelativeTime` hydration bug; what they share is
+  the probe. This is the strongest evidence yet that the defect is
+  `apps/docs/vrt/contracts.spec.ts`'s bare `scrollIntoViewIfNeeded()` on a fixture that may re-render,
+  and it retroactively confirms that removing the speculative component change was correct.
+- **So the probe fix is cherry-picked here rather than re-run around.** `138cefd5` from
+  `audit/f1-docfix` wraps the scroll in a bounded `expect.poll` with a 2s per-attempt timeout, so the
+  lazy locator re-resolves onto the post-re-render element instead of holding a stale handle. It
+  changes **no assertion**: the scroll is setup for the `scrollWidth <= clientWidth` reflow check, and
+  RTL containment, the 24px target floor and the `.first()` fixture selection are untouched. It is
+  taken here because a dependency batch cannot produce a receipt over a lane that fails for reasons
+  it did not cause, and re-running until the race misses would be regenerating the evidence under
+  review — the failure mode the VRT baselines were deleted for. The commit's own ledger entry stays
+  with `audit/f1-docfix`, which owns the fix.
 - **The `provider` unit flake finally has a mechanism, and it is not contention.** Two earlier
   entries filed `provider.test.tsx > useVegaStackTheme exposes resolvedTheme` under "machine
   contention" on the strength of `Matcher did not succeed in time`. The final sweep for this branch
