@@ -1571,7 +1571,7 @@
         "whenToUse": "Long values in constrained layouts — table cells, nav labels, IDs/paths.",
         "whenNotToUse": "Essential action text or content that must be fully visible.",
         "version": "0.6.0",
-        "integrity": "sha256-OiYh28n0XTc/pc9m/2b7ytBH4msczOAQ5SdkHAMBT6w="
+        "integrity": "sha256-kpC4PF0xj1ZSuyNCCgAPg9LBX1M/R1T7v+A/hGzZ5s4="
       }
     },
     {
@@ -1631,7 +1631,7 @@
         "whenToUse": "Copy a short opaque value — API key, invite link, ID, snippet — with clear confirmation.",
         "whenNotToUse": "Long-form content to read/edit, or when there is no discrete value to copy.",
         "version": "0.6.0",
-        "integrity": "sha256-nkc87Mbyvgpx+lxBx2+B8hRV87P+NoT9e3kFH2ty7tQ="
+        "integrity": "sha256-Hs3H+9eOl5lTyvgrOogE9qeCdEoQKMl08KS/bKj7AF0="
       }
     },
     {
@@ -1723,7 +1723,7 @@
         "whenToUse": "One primary action plus closely related variants — Save / Save as draft, Publish / Schedule.",
         "whenNotToUse": "Unrelated actions (DropdownMenu), a single action (Button), or value selection (Select).",
         "version": "0.6.0",
-        "integrity": "sha256-fa6AE2vZeVfjkjUKfw1Xvq1IC9gZHGguQFHyurOHc7g="
+        "integrity": "sha256-xnFyHeSmFI4Cty/8Rxj/lRBVhtpUd9QCnC0HwoI9/0c="
       }
     },
     {
@@ -1852,7 +1852,7 @@
         "whenToUse": "Entering an open set of short tokens — tags, e-mail recipients, domains, webhook events — where values are typed or pasted, not picked from a finite list.",
         "whenNotToUse": "Selection from a known item set (Combobox multiple), or a read-only label list (TagGroup).",
         "version": "0.6.0",
-        "integrity": "sha256-ul54z28NcyaN7aoUYFLJmq9stCzVPwRMNO6M/xZeJa8="
+        "integrity": "sha256-eAglbK9CyE7oxJ7HEx1RZeetcH1NW/UIOlE4hbnpwK4="
       }
     },
     {
@@ -2105,7 +2105,7 @@
         "whenToUse": "A visible upload surface — drop files, click to browse, paste — that hands accepted File[]s to the host and typed rejections back.",
         "whenNotToUse": "Chrome-less acquisition inside another surface (compose use-file-drop directly) or rendering upload progress (Attachment).",
         "version": "0.6.0",
-        "integrity": "sha256-kzivMaC5NU6IzTNITP7xaNPxhQznIi3np5Xdlv1buOU="
+        "integrity": "sha256-u4W+v4+Q+mXiP7Cogudfj3W0APwaDJYyXlxgm5zDpSo="
       }
     },
     {
@@ -2219,7 +2219,7 @@
         "whenToUse": "Display a resolved image URL with reserved aspect-ratio, a loading skeleton, and a graceful error fallback.",
         "whenNotToUse": "When you must fetch/resolve the source (R2/CDN keys) — presentational; resolve URLs app-side.",
         "version": "0.6.0",
-        "integrity": "sha256-1+F/DB3rFLb+qi69kWSpCce90HlWWj6mrylGLJrH11c="
+        "integrity": "sha256-CEeJDjBj8BQ7HFP3MKHTuBMTTPfk0ys+E9j/dc8XVpU="
       }
     },
     {
@@ -2254,7 +2254,7 @@
         "whenToUse": "A single audio asset that needs a compact, branded transport with rewind/forward, a tappable speed control, keyboard shortcuts, and a two-line mobile layout with an optional transcript control.",
         "whenNotToUse": "Playlists, queue management, waveform editing, transcript navigation, or audio recording.",
         "version": "0.6.0",
-        "integrity": "sha256-xH4rrn68NycNrAc9k6DEQBkYBYAVbv8nEr/LDZag9WI="
+        "integrity": "sha256-nbX1dw7JoRHMMQDqLZc0yPRIJy6LCn2TI/5HjlHvaME="
       }
     },
     {
@@ -15621,7 +15621,7 @@
         "whenToUse": "Starting a new AI-platform-style dashboard route — pull once and own it (not hash-tracked/re-pulled like app-shell).",
         "whenNotToUse": "You just need the shared shell mechanics across many routes — install app-shell/sidebar directly instead.",
         "version": "0.6.0",
-        "integrity": "sha256-vulxkBnXhFo4bjaxTWtBDoaUXhmdrjPxusWR8GsOxjk="
+        "integrity": "sha256-v3kOWBs/Dkmjb8qKjmOb/Pgpztp1mPAQUW3DNzLnmoE="
       }
     },
     {
@@ -15930,7 +15930,7 @@
         "whenToUse": "A hero headline's entrance, composed inside a real heading element.",
         "whenNotToUse": "Body copy, or anywhere the entrance would replay on every re-render/scroll.",
         "version": "0.6.0",
-        "integrity": "sha256-fgtjNQouY4VHRPhJGouN6uAyqN7N1sxa63HGO3Hw6LI="
+        "integrity": "sha256-HzZmwiauiQxC6s2tOg+QRDzwwWv0M+1YhuSw77KVtrM="
       }
     },
     {

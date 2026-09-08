@@ -285,15 +285,17 @@ packages/ui/registry/ui` → 0. The ref half IS 0. The other half cannot be 0 wh
   first render. That is more correct (no wasted frame reporting a value nobody asked for) and matches
   React's documented contract; `fallbackIsTouch` is now honestly described as the server/hydration
   answer only. The test asserts the new split rather than being deleted.
-- **`ShortcutOverlay`'s `panelSearch` recipe was NOT applied, because it does not exist yet.** The
-  brief said O1's recipe was on this batch's base; it is not — O1 (#40) is unmerged, and
-  `grep -rn panelSearch packages apps` finds nothing on `origin/main`. Adding a second, private
-  spelling of a recipe another batch owns would have to be unpicked when O1 lands, so the search
-  input is left to O1. The rest of item 5 shipped: `DialogContent size="md"` and the
-  `max-h-(--layout-overlay-max-height)` scroll region are both in.
+- **`ShortcutOverlay` is entirely O1's, and this batch ships nothing for it.** Item 5 asked for
+  `DialogContent size="md"`, the `--layout-overlay-max-height` scroll region and O1's `panelSearch`
+  recipe. The recipe did not exist while this work was being written (O1, #40, was unmerged), so it
+  was deferred; O1 then merged as `54c5cb68` carrying `PanelSearchFrame`, the full-bleed search row
+  AND `size="lg"` on this very surface. Rebasing onto it, the whole file was taken from O1 — a
+  narrower `size="md"` would have fought the full-bleed header O1 built for it, and the overlay is
+  O1's to own. `git diff origin/main -- packages/ui/registry/ui/shortcut-overlay.tsx` is empty by
+  design. The changelog bullet this batch had written for it was removed for the same reason.
 
-**Needs MK:** nothing blocking. The `size="md"` width change and the `function
-usePrefersReducedMotion` grep reading 1 are the two items worth an explicit nod.
+**Needs MK:** nothing blocking. The `function usePrefersReducedMotion` grep reading 1 is the one
+item worth an explicit nod.
 
 ---
 ## 2026-09-07 — F1 follow-up: reconciling the doctrine, the guides and the media gate with the ladder
