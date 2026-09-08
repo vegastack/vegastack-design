@@ -71,7 +71,7 @@ Compose the parts inside the root:
 </Select>
 ```
 
-- `Select` — the root; owns the value (`value` / `defaultValue` / `onValueChange`) and open state. Doesn't render an element of its own. Pass `items` so the trigger shows the selected option's label.
+- `Select` — the root; owns the value (`value` / `defaultValue` / `onValueChange`) and open state. Doesn't render an element of its own. Pass `items` so the trigger shows the selected option's label. Modal by default in VegaStack so the trigger cannot scroll out from under an open listbox; pass `modal={false}` for a listbox that leaves the page scrollable.
 - `SelectTrigger` — the button that opens the popup (`data-slot="select-trigger"`, `<button>`). Owns the `size` variant, renders the trailing chevron, and flips it open. Token border that re-colors with the `ring` token on focus.
 - `SelectValue` — renders the selected option's label, or the `placeholder` when empty (`data-slot="select-value"`, `<span>`).
 - `SelectContent` — the dropdown surface (`data-slot="select-content"`). Composes Base UI's Portal + Positioner + Popup + List, adds hover scroll arrows for long lists, sizes to at least the trigger width, caps to the viewport height, and animates enter/exit. Pass `alignItemWithTrigger={false}` when the popup edge should align to the trigger edge instead of aligning the selected item text over the trigger value.

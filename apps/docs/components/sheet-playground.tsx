@@ -45,12 +45,9 @@ const sheetPlaygroundConfig: PlaygroundConfig<SheetPlaygroundKey> = {
   ],
   // Renders CLOSED — the reader opens it via the trigger, so the initial state is deterministic.
   render: (state): ReactNode => (
-    <Sheet>
+    <Sheet side={state.side as SheetSide}>
       <SheetTrigger render={<Button variant="outline">Open sheet</Button>} />
-      <SheetContent
-        side={state.side as SheetSide}
-        showCloseButton={Boolean(state.showCloseButton)}
-      >
+      <SheetContent showCloseButton={Boolean(state.showCloseButton)}>
         <SheetHeader>
           <SheetTitle>Edit profile</SheetTitle>
           <SheetDescription>
@@ -65,14 +62,16 @@ const sheetPlaygroundConfig: PlaygroundConfig<SheetPlaygroundKey> = {
     </Sheet>
   ),
   toCode: (state) => {
-    const props: string[] = [];
-    if (state.side !== "right") props.push(`side="${state.side}"`);
-    if (!state.showCloseButton) props.push("showCloseButton={false}");
-    const propsString = props.length > 0 ? ` ${props.join(" ")}` : "";
+    // `side` belongs on the root (it picks the swipe direction as well as the edge);
+    // only the close-button toggle is a content prop.
+    const rootProps = state.side !== "right" ? ` side="${state.side}"` : "";
+    const contentProps = !state.showCloseButton
+      ? " showCloseButton={false}"
+      : "";
     return [
-      "<Sheet>",
+      `<Sheet${rootProps}>`,
       '  <SheetTrigger render={<Button variant="outline">Open sheet</Button>} />',
-      `  <SheetContent${propsString}>`,
+      `  <SheetContent${contentProps}>`,
       "    <SheetHeader>",
       "      <SheetTitle>Edit profile</SheetTitle>",
       "      <SheetDescription>Make changes to your profile here.</SheetDescription>",

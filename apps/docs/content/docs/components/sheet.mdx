@@ -26,9 +26,9 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 
-<Sheet>
+<Sheet side="right">
   <SheetTrigger render={<Button variant="outline">Edit profile</Button>} />
-  <SheetContent side="right">
+  <SheetContent>
     <SheetHeader>
       <SheetTitle>Edit profile</SheetTitle>
       <SheetDescription>Make changes to your profile here.</SheetDescription>
@@ -52,9 +52,9 @@ Choose the edge the panel slides in from and toggle the close button, then copy 
 `Sheet` is a compound component built on Base UI's Dialog. Compose the parts inside the root:
 
 ```tsx
-<Sheet>
+<Sheet side="right">
   <SheetTrigger render={<Button>Open</Button>} />
-  <SheetContent side="right">
+  <SheetContent size="md">
     <SheetHeader>
       <SheetTitle>Title</SheetTitle>
       <SheetDescription>Supporting description text.</SheetDescription>
@@ -68,9 +68,11 @@ Choose the edge the panel slides in from and toggle the close button, then copy 
 </Sheet>
 ```
 
-- `Sheet` — the root; owns open/close state (`open` / `defaultOpen` / `onOpenChange`). Modal by default — focus is trapped and page scroll is locked.
+- `Sheet` — the root; owns open/close state (`open` / `defaultOpen` / `onOpenChange`) and the `side`. Modal by default — focus is trapped and page scroll is locked. Built on Base UI's `Drawer`, so `snapPoints` / `snapPoint` / `onSnapPointChange` pass straight through.
 - `SheetTrigger` — the control that opens the sheet (`data-slot="sheet-trigger"`). Pass `render` to compose it with a `Button`.
-- `SheetContent` — the slide-in panel (`data-slot="sheet-content"`). Composes Base UI's Portal + Backdrop + Viewport + Popup, owns the `side`, slides enter/exit, and renders the top-right close button.
+- `SheetContent` — the slide-in panel (`data-slot="sheet-content"`). Composes Base UI Drawer's Portal + Backdrop + Viewport + Popup + Content, takes the `size`, slides enter/exit, and renders the top-end close button.
+- `SheetProvider` — groups sibling sheets so nested panels animate as one stack. A single sheet does not need it.
+- `SheetVirtualKeyboardProvider` — opts a bottom sheet containing form fields into Base UI's software-keyboard handling.
 - `SheetHeader` — groups the title and description (`data-slot="sheet-header"`).
 - `SheetTitle` — the sheet's accessible name (`data-slot="sheet-title"`, `<h2>`). Wired to the popup via `aria-labelledby`.
 - `SheetDescription` — supporting text (`data-slot="sheet-description"`, `<p>`). Wired via `aria-describedby`.
@@ -83,15 +85,19 @@ Choose the edge the panel slides in from and toggle the close button, then copy 
 
 ### Sides
 
-`SheetContent` takes a `side` prop controlling which edge the panel pins to and slides in from: `top`, `right` (default), `bottom`, and `left`. `left`/`right` pin full-height and cap their width; `top`/`bottom` span full-width and cap their height.
+`Sheet` takes a `side` prop controlling which edge the panel pins to, slides in from, and is swiped towards to dismiss: `top`, `right` (default), `bottom`, and `left`. `left`/`right` pin full-height and size their width; `top`/`bottom` span full-width and cap their height.
+
+`side` lives on the **root**, not on `SheetContent`: it selects Base UI's `swipeDirection` as well as the pinned edge, and a `side` that lived on the content could disagree with the gesture.
 
 <ComponentPreview name="sheetSides" file="components/preview/sheet.tsx" />
 
-### Customization
+### Sizes
 
-`SheetContent` exposes two close-button props and forwards `className` to the panel. Pass `showCloseButton={false}` to drop the top-right `X` (force dismissal through a footer action or `Esc`), `closeLabel` to relabel that button for screen readers, and a width utility in `className` to override the default `max-w-sm` cap on `left`/`right` sheets.
+`SheetContent` takes `size` — `sm`, `md` (default), `lg`, `full` — from the shared panel-width vocabulary. One tier means one thing in both axes: on a `left`/`right` sheet it is the panel's width, on a `top`/`bottom` sheet its height. Reach for it instead of a `className` width override.
 
-<ComponentPreview name="sheetCustom" file="components/preview/sheet.tsx" />
+`SheetContent` also exposes two close-button props: `showCloseButton={false}` drops the top-end `X` (force dismissal through a footer action, `Esc`, or a swipe), and `closeLabel` relabels that button for screen readers.
+
+<ComponentPreview name="sheetSizes" file="components/preview/sheet.tsx" />
 
 ```tsx
 {
@@ -102,7 +108,7 @@ Choose the edge the panel slides in from and toggle the close button, then copy 
 {
   /* Wider panel + a custom close-button label */
 }
-<SheetContent className="max-w-md" closeLabel="Dismiss filters">
+<SheetContent size="lg" closeLabel="Dismiss filters">
   {/* … */}
 </SheetContent>;
 ```
@@ -130,6 +136,8 @@ accept standard `<div>` props.
 - Focus is trapped inside the panel while open and restored to the trigger on close. Page scroll is locked.
 - The close button is a native button with an accessible label (`closeLabel`, default `"Close"`); meaning of the `X` icon is carried by that label. On hover it shifts to `bg-muted text-foreground`, and the browser's default focus outline is preserved (no `outline: none`).
 - The trigger and footer actions render as native buttons (or your composed `Button` via `render`), so they keep their own focus-visible treatment — the panel itself never suppresses focus indicators.
+- Swipe-to-dismiss is an addition, never the only way out: <kbd>Esc</kbd>, the close button, and a backdrop press all still close the sheet, so a pointer gesture is never required.
+- Wrap a bottom sheet containing form fields in `SheetVirtualKeyboardProvider` so the software keyboard does not cover the focused field.
 
 | Key                                                | Action                                                       |
 | -------------------------------------------------- | ------------------------------------------------------------ |

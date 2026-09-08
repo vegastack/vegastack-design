@@ -1144,3 +1144,30 @@ to the iframe` for one file, with **1488 tests passed and zero assertion failure
   and whose box worktree predates that rebase will see these exact 10 offenders. Clearing the two
   directories on the box is the fix; the durable fix is for the runner to clear them (or to pass
   `git clean -qfdx`) and belongs to whoever owns `remote-gates-v2.sh`, not to a component batch.
+## O1 · Overlays (#40) — judgment calls
+
+- **`floating-surface` ships as a registry `lib`-style item, not a `@vegastack/design` export.** The
+  brief left the choice to whichever surface the dependency gates could actually enforce. A
+  `@vegastack/design` export would have put component _markup_ into the npm layer, which that
+  package does not otherwise ship, and consumers could not then own or patch it — the copy-in model's
+  whole point. As a registry item it is declared in each overlay's `registryDependencies`, so
+  `verify-registry-deps` proves every overlay that composes it also installs it, and
+  `verify-shadcn-consume` installs it for real through the shadcn CLI.
+- **`context-menu.tsx` is 291 lines against the brief's "< 150" acceptance bar.** The duplicated
+  plumbing the bar was proxying for is gone: the file owns the root, the trigger and the popup, and
+  every item part is a re-export of `createMenuParts`. Its **code** is 134 lines
+  (`grep -vE '^\s*(//|/\*|\*|$)' | wc -l`); the remainder is the per-export `Props` type alias and
+  JSDoc block that `verify-public-api-docs` requires on every exported symbol. Meeting 150 total
+  would mean deleting documentation a gate mandates, so the line count was not chased. Flagged so the
+  next sweep does not read it as missed work.
+- **`AlertDialogContent intent` was deleted rather than wired to the confirm button's tone.** The
+  brief allowed either. It wrote a `data-intent` attribute and nothing else, so the system carried
+  two props named for one concept with one of them inert — the exact drift the audit exists to
+  remove. `AlertDialogAction intent` is now the single owner, mapping onto F2's Button matrix.
+- **`Combobox` stays non-modal while `Popover` and `Select` are modal (D12).** Not an inconsistency:
+  `modal` renders the rest of the page inert behind a clipped layer, and a multi-select Combobox's
+  own chips sit outside the popup, so modality makes chip removal unclickable while the popup is
+  open (verified). The reason is written in the component source, not just here.
+- **The Base UI version this was written against is 1.6.0, not 1.8.** D1 (#34) had not merged when
+  this branch was cut. Drawer's swipe/snap-point/virtual-keyboard API is what 1.6.0 ships. If D1
+  lands first, re-read Drawer's release notes before assuming the props still line up.

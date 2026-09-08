@@ -1,4 +1,4 @@
-// @vegastack shortcut-overlay@0.6.0 sha256-kk8sOe8Ha8Q1fYu5VqvnS/KCPVo7MwF2UPWRkP8LEtw=
+// @vegastack shortcut-overlay@0.6.0 sha256-+pvGxdkWHd21zxieJZs+H0tZ31CCB6uohQ18b10PvuI=
 
 "use client";
 
@@ -11,7 +11,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import {
+  PanelSearchFrame,
+  PanelSearchInput,
+} from "@/components/ui/floating-surface";
 import { Kbd } from "@/components/ui/kbd";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { usePlatform } from "@/components/ui/use-platform";
@@ -196,24 +199,31 @@ export function ShortcutOverlay({
 
   return (
     <Dialog open={isOpen} onOpenChange={setOpen}>
-      <DialogContent data-slot="shortcut-overlay" className="max-w-lg">
-        <DialogHeader>
+      {/* `p-0` + per-region padding: the filter row is the shared full-bleed panel-search recipe
+          (B9-11), which needs the dialog's own edges to run its hairline across. */}
+      <DialogContent
+        data-slot="shortcut-overlay"
+        size="lg"
+        className="gap-0 p-0"
+      >
+        <DialogHeader className="p-6 pb-4">
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
             Shortcuts available on this page.
           </DialogDescription>
         </DialogHeader>
         {showSearch ? (
-          <Input
-            size="sm"
-            aria-label="Filter shortcuts"
-            placeholder="Filter shortcuts…"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
+          <PanelSearchFrame className="border-t">
+            <PanelSearchInput
+              aria-label="Filter shortcuts"
+              placeholder="Filter shortcuts…"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
+          </PanelSearchFrame>
         ) : null}
         <ScrollArea className="max-h-(--layout-overlay-max-height)">
-          <div className="flex flex-col gap-4 pe-3">
+          <div className="flex flex-col gap-4 p-6 pt-4 pe-3">
             {categories.length === 0 ? (
               <p
                 data-slot="shortcut-overlay-empty"

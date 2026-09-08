@@ -420,7 +420,7 @@
         "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts.",
         "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or full-screen mobile scroll (Drawer/Sheet).",
         "version": "0.6.0",
-        "integrity": "sha256-+mZGrlZiFc0OUSdsy2bpzhIyD79Nj8kEmjTR9OJTe9k="
+        "integrity": "sha256-u8Oophs/1H1iKkRbyd0/RtINWIWGnHUlBIPQCxKVKIg="
       }
     },
     {
@@ -438,7 +438,9 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/floating-surface"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/select.tsx",
@@ -450,7 +452,7 @@
         "whenToUse": "Choosing a single value from a fixed, known set — fonts, timezones, statuses — especially long/grouped lists.",
         "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), multi-select, or free-text/async search (combobox).",
         "version": "0.6.0",
-        "integrity": "sha256-Y00sqlpOxvXMUJ+q6y+j4DMTmmLnSY8qZCszbfs52lU="
+        "integrity": "sha256-N2PUAP5BZ2kK1wMKk7u3d1LXpIiAbrKl4oMFW+//Pss="
       }
     },
     {
@@ -469,7 +471,8 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/chip"
+        "@vegastack/chip",
+        "@vegastack/floating-surface"
       ],
       "files": [
         {
@@ -482,7 +485,7 @@
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.6.0",
-        "integrity": "sha256-oVapNIoPjBK9tWb9L9BQ+Ttxm4Fe4f9Dkv1KKs+Q4l4="
+        "integrity": "sha256-2iOLz+SAWe11y1qHkINeSDKert68Z7wSzahK7t3gfA8="
       }
     },
     {
@@ -499,7 +502,8 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/kbd"
+        "@vegastack/kbd",
+        "@vegastack/floating-surface"
       ],
       "files": [
         {
@@ -512,7 +516,7 @@
         "whenToUse": "Short supplementary labels on icon buttons, toolbar actions, and controls — optionally with a shortcut hint.",
         "whenNotToUse": "Interactive content (links/buttons) or essential information — a tooltip isn't reliably reachable; use a Popover.",
         "version": "0.6.0",
-        "integrity": "sha256-PkuvtmIOObVvVJ0VH0WZcp1zPeMCtu6u+JNfMYcosQM="
+        "integrity": "sha256-yhChnF13G2LYwGdMTowFupaJIELbFwl6hWOaCACSN9U="
       }
     },
     {
@@ -530,7 +534,9 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/floating-surface"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/dropdown-menu.tsx",
@@ -542,7 +548,7 @@
         "whenToUse": "A button-triggered menu of actions — row actions (edit/duplicate/delete), account menus, view toggles.",
         "whenNotToUse": "Single-value form input (Select), page navigation (nav/menubar), or a persistent always-visible action list.",
         "version": "0.6.0",
-        "integrity": "sha256-cps+BUlTg5cT0obZoCPsTdMYpTyQx1uZTuITpfQS5NM="
+        "integrity": "sha256-ds0digTFmY0JipwJmMyGQvP1siY9Xk5dFVhfGeRGmak="
       }
     },
     {
@@ -1091,6 +1097,36 @@
       }
     },
     {
+      "name": "floating-surface",
+      "type": "registry:ui",
+      "title": "Floating Surface",
+      "description": "The shared floating-overlay module: one Portal/Positioner/Popup composer, the popup surface recipes, the list-item recipe, and the in-panel search row.",
+      "categories": [
+        "overlay"
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "class-variance-authority@^0.7.1",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.3.2",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/floating-surface.tsx",
+          "type": "registry:ui",
+          "target": "@ui/floating-surface.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Building or restyling an anchored overlay, a menu-like list, or a search row inside a panel — compose this rather than restating the plumbing.",
+        "whenNotToUse": "Product UI: install the overlay you actually want (Popover, DropdownMenu, Command); they already compose it.",
+        "version": "0.6.0",
+        "integrity": "sha256-2U2Y3Y7txMmdMMSmWcE/qsH0JI1HKfLVjzrrVfe8GFk="
+      }
+    },
+    {
       "name": "popover",
       "type": "registry:ui",
       "title": "Popover",
@@ -1103,7 +1139,9 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/floating-surface"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/popover.tsx",
@@ -1115,7 +1153,7 @@
         "whenToUse": "Lightweight optional content tied to a trigger — a settings form, a picker, extra detail.",
         "whenNotToUse": "Content that must block the page (Dialog) or a tooltip's worth of text (Tooltip).",
         "version": "0.6.0",
-        "integrity": "sha256-toRLYB11/i7YY9ZDWYiZ3hUwt+skinLi4XLsEoIAbqQ="
+        "integrity": "sha256-BwmNqkoeF1fB3YI+LNgkcAgu9fqZvx9qgIvBpdR+7PI="
       }
     },
     {
@@ -1145,7 +1183,7 @@
         "whenToUse": "Destructive/irreversible confirmations (delete, discard, reset) — backdrop non-dismissable.",
         "whenNotToUse": "Routine dismissable modal content — use Dialog.",
         "version": "0.6.0",
-        "integrity": "sha256-1FNA1pMFwXtpSk6otU3WJdgAx0A9NbR00VMCTDVW8Vs="
+        "integrity": "sha256-QjOAiQwvWB1wPvjRiFIpNWeptyvl/0Nx7oJXdsEh8ew="
       }
     },
     {
@@ -1233,8 +1271,11 @@
         "whenToUse": "Top-level site/product navigation with rich dropdown panels.",
         "whenNotToUse": "In-app action menus (DropdownMenu) or content tabs (Tabs).",
         "version": "0.6.0",
-        "integrity": "sha256-ZUwZAJ/Z7fpOPPoMHwuFv/7xMuj6LRbwUPkYzDjI57k="
-      }
+        "integrity": "sha256-FR9D08XKHkCf214G9MtMDFQq3a+/i+QLi35oTbrk8Xw="
+      },
+      "registryDependencies": [
+        "@vegastack/floating-surface"
+      ]
     },
     {
       "name": "sheet",
@@ -1265,7 +1306,7 @@
         "whenToUse": "A panel anchored to a screen edge — filters, detail/inspector panels, slide-in nav.",
         "whenNotToUse": "A centered confirmation or short form (Dialog), or a long multi-step flow (a page).",
         "version": "0.6.0",
-        "integrity": "sha256-Aobf9gfWAMzW/G7fpqLxoTJZZWys/pKx6OeA17aHwnc="
+        "integrity": "sha256-EjDtApCNDEYPgElSKKg136OPkbD8GnHoeLIUjT0RPds="
       }
     },
     {
@@ -1281,7 +1322,9 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/floating-surface"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/hover-card.tsx",
@@ -1293,7 +1336,7 @@
         "whenToUse": "A rich optional preview of an entity — a user/agent/team card. Pass resolved content as children.",
         "whenNotToUse": "Plain-text labels (Tooltip), blocking content (Dialog), or anything essential (hover-only isn't reachable on touch).",
         "version": "0.6.0",
-        "integrity": "sha256-pQA4GMeefc4XUktMvhlCs0VbPg3lrALXddC7ZT4qSTg="
+        "integrity": "sha256-IU/IPMsJkDyTSh8I+bj9MSUr61PB4l36ofVTwMd0Ots="
       }
     },
     {
@@ -1311,7 +1354,9 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/floating-surface"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/context-menu.tsx",
@@ -1323,7 +1368,7 @@
         "whenToUse": "Actions on right-click of a specific target — a canvas item, file row, text selection.",
         "whenNotToUse": "Discoverable/touch-first surfaces (DropdownMenu with a button) or form value selection (Select).",
         "version": "0.6.0",
-        "integrity": "sha256-eZan4ouWfivjVr9G5gqsTT6u9/b/nNsvI1xXr6VcZ0w="
+        "integrity": "sha256-7JENlBFIC8LjYaGQ31YvPO8wO1SDs7stpaZ1chXmN1s="
       }
     },
     {
@@ -1677,7 +1722,7 @@
         "whenToUse": "One primary action plus closely related variants — Save / Save as draft, Publish / Schedule.",
         "whenNotToUse": "Unrelated actions (DropdownMenu), a single action (Button), or value selection (Select).",
         "version": "0.6.0",
-        "integrity": "sha256-5OEEZIBDDR6wUv8wQR/yw6GsuV8tuUrsIwa0Gbo31H4="
+        "integrity": "sha256-fa6AE2vZeVfjkjUKfw1Xvq1IC9gZHGguQFHyurOHc7g="
       }
     },
     {
@@ -1909,7 +1954,7 @@
       ],
       "registryDependencies": [
         "@vegastack/dialog",
-        "@vegastack/input",
+        "@vegastack/floating-surface",
         "@vegastack/kbd",
         "@vegastack/scroll-area",
         "@vegastack/use-platform"
@@ -1925,7 +1970,7 @@
         "whenToUse": "Any app with keyboard shortcuts — declare each binding once (keys, label, category) and get the ?-dialog for free; the same data can feed tooltips and Command rows.",
         "whenNotToUse": "Inline shortcut hints (TooltipKbd, CommandShortcut) or executing bindings — the app's key handler owns dispatch.",
         "version": "0.6.0",
-        "integrity": "sha256-kk8sOe8Ha8Q1fYu5VqvnS/KCPVo7MwF2UPWRkP8LEtw="
+        "integrity": "sha256-+pvGxdkWHd21zxieJZs+H0tZ31CCB6uohQ18b10PvuI="
       }
     },
     {
@@ -2437,7 +2482,8 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/dialog"
+        "@vegastack/dialog",
+        "@vegastack/floating-surface"
       ],
       "files": [
         {
@@ -2450,7 +2496,7 @@
         "whenToUse": "A keyboard-first command palette or fuzzy-search picker — global ⌘K, action launchers, searchable lists.",
         "whenNotToUse": "A simple form select (Select), a small static action menu (DropdownMenu).",
         "version": "0.6.0",
-        "integrity": "sha256-IUJxY0a250yPQMrcupTJOTgv0c4VwXLH3x1ikI7rd/4="
+        "integrity": "sha256-usBgFHH2gHN0+lpH6cFCHYRA9R6zSDN/JqUXwVYCad8="
       }
     },
     {
@@ -2517,7 +2563,7 @@
         "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
         "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
         "version": "0.6.0",
-        "integrity": "sha256-y5Rzlivrcz3NLJOnN6/x+o2JJTcY5k/qsoKwBZSJPgU="
+        "integrity": "sha256-6XGWR6bwovmcPV9R2cgt/tIGNmVqfxPeLvTnac/V+gk="
       }
     },
     {
@@ -2762,8 +2808,8 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
+        "@vegastack/floating-surface",
         "@vegastack/icon-button",
-        "@vegastack/input",
         "@vegastack/popover",
         "@vegastack/use-list-nav"
       ],
@@ -2778,7 +2824,7 @@
         "whenToUse": "Lightweight emoji insertion — reactions, comments, status, icon selection.",
         "whenNotToUse": "A complete Unicode emoji browser — extend the embedded set or use a library.",
         "version": "0.6.0",
-        "integrity": "sha256-RN9jDzif2ghDTWGIeQ/41kK58TnPPvLCF2tDryyryA8="
+        "integrity": "sha256-KfQJnje7XNMEF0vat4xwv2FWPi068UIeCvc+cwrDtIE="
       }
     },
     {
@@ -15544,7 +15590,7 @@
         "whenToUse": "Starting a new AI-platform-style dashboard route — pull once and own it (not hash-tracked/re-pulled like app-shell).",
         "whenNotToUse": "You just need the shared shell mechanics across many routes — install app-shell/sidebar directly instead.",
         "version": "0.6.0",
-        "integrity": "sha256-RUCKZFatOmHR77xC0R3ENYW/5Kzs0Vqe/UPEzexamV0="
+        "integrity": "sha256-vulxkBnXhFo4bjaxTWtBDoaUXhmdrjPxusWR8GsOxjk="
       }
     },
     {

@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 558,
-    "components": 111,
+    "totalRegistryItems": 559,
+    "components": 112,
     "animatedIcons": 439,
     "hooks": 7,
     "blocks": 1
@@ -22,7 +22,7 @@
     "Core controls": 23,
     "Forms/editing": 22,
     "Navigation/layout": 14,
-    "Overlays": 13,
+    "Overlays": 14,
     "Data display": 11,
     "Content/marketing": 22,
     "AI/chat": 6,
@@ -97,6 +97,7 @@
       "board"
     ],
     "Overlays": [
+      "floating-surface",
       "alert-dialog",
       "dialog",
       "sheet",
@@ -3720,7 +3721,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/select",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/floating-surface"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
@@ -3793,12 +3794,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": [
-                "select-content",
-                "select-positioner",
-                "select-scroll-down",
-                "select-scroll-up"
-              ]
+              "values": ["select-scroll-down", "select-scroll-up"]
             }
           ],
           "cssVariables": []
@@ -4299,7 +4295,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/combobox",
-      "registryDependencies": ["@vegastack/chip"],
+      "registryDependencies": ["@vegastack/chip", "@vegastack/floating-surface"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
@@ -4390,15 +4386,6 @@
             {
               "name": "data-slot",
               "values": ["combobox-list"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ComboboxContent": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["combobox-content", "combobox-positioner"]
             }
           ],
           "cssVariables": []
@@ -4647,7 +4634,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/tooltip",
-      "registryDependencies": ["@vegastack/kbd"],
+      "registryDependencies": ["@vegastack/kbd", "@vegastack/floating-surface"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.3.2",
@@ -4679,28 +4666,6 @@
             {
               "name": "data-slot",
               "values": ["tooltip-trigger"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "TooltipContent": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "tooltip-content",
-                "tooltip-positioner",
-                "tooltip-viewport"
-              ]
-            }
-          ],
-          "cssVariables": []
-        },
-        "TooltipArrow": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["tooltip-arrow"]
             }
           ],
           "cssVariables": []
@@ -4809,15 +4774,6 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "dropdownMenuItemVariants",
-          "kind": "variant-builder",
-          "source": "packages/ui/registry/ui/dropdown-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
           }
         },
         {
@@ -5061,7 +5017,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/dropdown-menu",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/floating-surface"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
@@ -5086,116 +5042,6 @@
             {
               "name": "data-slot",
               "values": ["dropdown-menu-trigger"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "DropdownMenuGroup": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["dropdown-menu-group"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "DropdownMenuRadioGroup": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["dropdown-menu-radio-group"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "DropdownMenuContent": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "dropdown-menu-content",
-                "dropdown-menu-positioner",
-                "dropdown-menu-viewport"
-              ]
-            }
-          ],
-          "cssVariables": []
-        },
-        "DropdownMenuItem": {
-          "attributes": [
-            {
-              "name": "data-inset",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": ["dropdown-menu-item"]
-            },
-            {
-              "name": "data-variant",
-              "values": []
-            }
-          ],
-          "cssVariables": []
-        },
-        "DropdownMenuCheckboxItem": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["dropdown-menu-checkbox-item"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "DropdownMenuRadioItem": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["dropdown-menu-radio-item"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "DropdownMenuLabel": {
-          "attributes": [
-            {
-              "name": "data-inset",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": ["dropdown-menu-label"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "DropdownMenuSeparator": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["dropdown-menu-separator"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "DropdownMenuShortcut": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["dropdown-menu-shortcut"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "DropdownMenuSubTrigger": {
-          "attributes": [
-            {
-              "name": "data-inset",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": ["dropdown-menu-sub-trigger"]
             }
           ],
           "cssVariables": []
@@ -8334,6 +8180,435 @@
       }
     },
     {
+      "name": "floating-surface",
+      "registryType": "registry:ui",
+      "title": "Floating Surface",
+      "summary": "The shared floating-overlay module: one Portal/Positioner/Popup composer, the popup surface recipes, the list-item recipe, and the in-panel search row.",
+      "family": "overlay",
+      "wave": "Overlays",
+      "sourceFiles": ["packages/ui/registry/ui/floating-surface.tsx"],
+      "publicSymbols": [
+        {
+          "name": "FLOATING_POSITIONER",
+          "kind": "variable",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A recipe/factory export, not a rendered element — it accepts no runtime ref."
+          }
+        },
+        {
+          "name": "FloatingArrow",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders the Base UI Arrow part handed in through `element`; props (including `ref`) spread onto it, so ref forwarding is the underlying part's contract, not this module's."
+          }
+        },
+        {
+          "name": "FloatingArrowProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FloatingSurface",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders the Base UI Portal part handed in through `parts`; props (including `ref`) spread onto it, so ref forwarding is the underlying part's contract, not this module's."
+          }
+        },
+        {
+          "name": "FloatingSurfaceParts",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FloatingSurfaceProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FloatingSurfaceVariant",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MenuItemTone",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MenuItemVariantProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MenuPartCheckboxItemProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MenuPartContentProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MenuPartGroupProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MenuPartItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MenuPartLabelProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MenuPartRadioGroupProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MenuPartRadioItemProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MenuPartSeparatorProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MenuPartShortcutProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MenuPartSubTriggerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MenuParts",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PanelSearchFrame",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders div; props (including `ref`) spread onto it, so ref forwarding is the underlying part's contract, not this module's."
+          }
+        },
+        {
+          "name": "PanelSearchFrameProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PanelSearchInput",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders BaseInput; props (including `ref`) spread onto it, so ref forwarding is the underlying part's contract, not this module's."
+          }
+        },
+        {
+          "name": "PanelSearchInputProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "createMenuParts",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A recipe/factory export, not a rendered element — it accepts no runtime ref."
+          }
+        },
+        {
+          "name": "floatingPopupVariants",
+          "kind": "variable",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A recipe/factory export, not a rendered element — it accepts no runtime ref."
+          }
+        },
+        {
+          "name": "menuIndicatorWellClassName",
+          "kind": "variable",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A recipe/factory export, not a rendered element — it accepts no runtime ref."
+          }
+        },
+        {
+          "name": "menuItemVariants",
+          "kind": "variable",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A recipe/factory export, not a rendered element — it accepts no runtime ref."
+          }
+        },
+        {
+          "name": "menuLabelClassName",
+          "kind": "variable",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A recipe/factory export, not a rendered element — it accepts no runtime ref."
+          }
+        },
+        {
+          "name": "menuSeparatorClassName",
+          "kind": "variable",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A recipe/factory export, not a rendered element — it accepts no runtime ref."
+          }
+        },
+        {
+          "name": "menuShortcutClassName",
+          "kind": "variable",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A recipe/factory export, not a rendered element — it accepts no runtime ref."
+          }
+        },
+        {
+          "name": "mergeStateClassName",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A recipe/factory export, not a rendered element — it accepts no runtime ref."
+          }
+        },
+        {
+          "name": "panelSearchInputClassName",
+          "kind": "variable",
+          "source": "packages/ui/registry/ui/floating-surface.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A recipe/factory export, not a rendered element — it accepts no runtime ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "surface",
+            "values": ["panel", "menu", "tooltip", "navigation"],
+            "evidence": "floatingPopupVariants CVA in packages/ui/registry/ui/floating-surface.tsx"
+          },
+          {
+            "name": "motion",
+            "values": ["fast", "base"],
+            "evidence": "floatingPopupVariants CVA in packages/ui/registry/ui/floating-surface.tsx"
+          },
+          {
+            "name": "tone",
+            "values": ["default", "destructive"],
+            "evidence": "menuItemVariants CVA in packages/ui/registry/ui/floating-surface.tsx"
+          },
+          {
+            "name": "indicator",
+            "values": ["none", "leading", "trailing"],
+            "evidence": "menuItemVariants CVA in packages/ui/registry/ui/floating-surface.tsx"
+          }
+        ],
+        "rationale": "Two CVA recipes declare the surface/motion pair and the list-row tone/indicator pair."
+      },
+      "sizes": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["md", "lg"],
+            "evidence": "menuItemVariants CVA and PanelSearchFrame `size` in packages/ui/registry/ui/floating-surface.tsx"
+          }
+        ],
+        "rationale": "Rows and the panel-search row share one two-tier density scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "open", "highlighted", "selected", "disabled"],
+          "evidence": "Observed from the data-[starting-style]/[ending-style], data-highlighted, data-selected and data-disabled selectors in the recipes."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["focus-visible", "labeled", "semantic-html"],
+          "evidence": "Popups keep the centralized :focus-visible outline; every rendered part is a Base UI part that owns its own roles and ARIA."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "pressed", "selected", "disabled"],
+          "evidence": "Observed from the surface-2/surface-3 ladder and the opacity-(--opacity-dim) disabled step in menuItemVariants."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["overflow-and-scroll", "viewport-positioning-and-collision"],
+        "rationale": "The popup recipes cap themselves to Base UI's --available-width/--available-height and scroll past that; positioning and collision are the composer's whole job."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": [
+          "tokenized CSS transition",
+          "Base UI lifecycle transition"
+        ],
+        "reducedMotion": {
+          "status": "inherited-global",
+          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
+          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/floating-surface",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "class-variance-authority@^0.7.1",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.3.2",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/floating-surface.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "previewModule": "floating-surface",
+      "dataAttributes": {
+        "FloatingSurface": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "FloatingArrow": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "PanelSearchFrame": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["panel-search"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
       "name": "popover",
       "registryType": "registry:ui",
       "title": "Popover",
@@ -8522,7 +8797,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/popover",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/floating-surface"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.3.2",
@@ -8549,33 +8824,11 @@
           ],
           "cssVariables": []
         },
-        "PopoverContent": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "popover-content",
-                "popover-positioner",
-                "popover-viewport"
-              ]
-            }
-          ],
-          "cssVariables": []
-        },
         "PopoverClose": {
           "attributes": [
             {
               "name": "data-slot",
               "values": ["popover-close"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "PopoverArrow": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["popover-arrow"]
             }
           ],
           "cssVariables": []
@@ -8886,10 +9139,6 @@
         },
         "AlertDialogContent": {
           "attributes": [
-            {
-              "name": "data-intent",
-              "values": []
-            },
             {
               "name": "data-slot",
               "values": [
@@ -9624,7 +9873,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/navigation-menu",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/floating-surface"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.24.0",
@@ -9693,19 +9942,6 @@
             {
               "name": "data-slot",
               "values": ["navigation-menu-link"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "NavigationMenuPanel": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "navigation-menu-popup",
-                "navigation-menu-positioner",
-                "navigation-menu-viewport"
-              ]
             }
           ],
           "cssVariables": []
@@ -9844,7 +10080,35 @@
           }
         },
         {
+          "name": "SheetProvider",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sheet.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "Drawer.Provider",
+            "rationale": "Re-export of Base UI's Drawer.Provider; prop/ref forwarding is that part's own contract."
+          }
+        },
+        {
+          "name": "SheetProviderProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/sheet.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "SheetSide",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/sheet.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SheetSize",
           "kind": "type",
           "source": "packages/ui/registry/ui/sheet.tsx",
           "ref": {
@@ -9883,6 +10147,25 @@
         },
         {
           "name": "SheetTriggerProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/sheet.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SheetVirtualKeyboardProvider",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/sheet.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "Drawer.VirtualKeyboardProvider",
+            "rationale": "Re-export of Base UI's Drawer.VirtualKeyboardProvider; prop/ref forwarding is that part's own contract."
+          }
+        },
+        {
+          "name": "SheetVirtualKeyboardProviderProps",
           "kind": "type",
           "source": "packages/ui/registry/ui/sheet.tsx",
           "ref": {
@@ -9991,9 +10274,14 @@
               "values": []
             },
             {
+              "name": "data-size",
+              "values": []
+            },
+            {
               "name": "data-slot",
               "values": [
                 "sheet-backdrop",
+                "sheet-body",
                 "sheet-close",
                 "sheet-content",
                 "sheet-viewport"
@@ -10181,7 +10469,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/hover-card",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/floating-surface"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.3.2",
@@ -10213,28 +10501,6 @@
             {
               "name": "data-slot",
               "values": ["hover-card-trigger"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "HoverCardContent": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "hover-card-content",
-                "hover-card-positioner",
-                "hover-card-viewport"
-              ]
-            }
-          ],
-          "cssVariables": []
-        },
-        "HoverCardArrow": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["hover-card-arrow"]
             }
           ],
           "cssVariables": []
@@ -10334,15 +10600,6 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "contextMenuItemVariants",
-          "kind": "variant-builder",
-          "source": "packages/ui/registry/ui/context-menu.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
           }
         },
         {
@@ -10586,7 +10843,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/context-menu",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/floating-surface"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
@@ -10611,112 +10868,6 @@
             {
               "name": "data-slot",
               "values": ["context-menu-trigger"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ContextMenuGroup": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["context-menu-group"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ContextMenuRadioGroup": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["context-menu-radio-group"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ContextMenuContent": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["context-menu-content", "context-menu-positioner"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ContextMenuItem": {
-          "attributes": [
-            {
-              "name": "data-inset",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": ["context-menu-item"]
-            },
-            {
-              "name": "data-variant",
-              "values": []
-            }
-          ],
-          "cssVariables": []
-        },
-        "ContextMenuCheckboxItem": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["context-menu-checkbox-item"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ContextMenuRadioItem": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["context-menu-radio-item"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ContextMenuLabel": {
-          "attributes": [
-            {
-              "name": "data-inset",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": ["context-menu-label"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ContextMenuSeparator": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["context-menu-separator"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ContextMenuShortcut": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["context-menu-shortcut"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ContextMenuSubTrigger": {
-          "attributes": [
-            {
-              "name": "data-inset",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": ["context-menu-sub-trigger"]
             }
           ],
           "cssVariables": []
@@ -13824,7 +13975,7 @@
       "docsSlug": "/docs/components/shortcut-overlay",
       "registryDependencies": [
         "@vegastack/dialog",
-        "@vegastack/input",
+        "@vegastack/floating-surface",
         "@vegastack/kbd",
         "@vegastack/scroll-area",
         "@vegastack/use-platform"
@@ -16297,6 +16448,15 @@
           }
         },
         {
+          "name": "CommandSize",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/command.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "useCommandFilteredItems",
           "kind": "constant",
           "source": "packages/ui/registry/ui/command.tsx",
@@ -16357,7 +16517,10 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/command",
-      "registryDependencies": ["@vegastack/dialog"],
+      "registryDependencies": [
+        "@vegastack/dialog",
+        "@vegastack/floating-surface"
+      ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.24.0",
@@ -16378,6 +16541,10 @@
       "dataAttributes": {
         "Command": {
           "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
             {
               "name": "data-slot",
               "values": ["command"]
@@ -18571,10 +18738,10 @@
       "engines": [],
       "docsSlug": "/docs/components/emoji-picker",
       "registryDependencies": [
+        "@vegastack/floating-surface",
+        "@vegastack/icon-button",
         "@vegastack/popover",
-        "@vegastack/input",
-        "@vegastack/use-list-nav",
-        "@vegastack/icon-button"
+        "@vegastack/use-list-nav"
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",

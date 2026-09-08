@@ -117,9 +117,7 @@ export function splitButtonStates(): ReactNode {
   return (
     <Wrapper>
       {/* Declarative actions, with a destructive entry */}
-      <SplitButton actions={publishActions}>
-        Publish
-      </SplitButton>
+      <SplitButton actions={publishActions}>Publish</SplitButton>
 
       {/* Composed menu children via the `menu` slot */}
       <SplitButton
@@ -135,7 +133,7 @@ export function splitButtonStates(): ReactNode {
               Duplicate
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive">
+            <DropdownMenuItem tone="destructive">
               <Trash2 />
               Delete
             </DropdownMenuItem>

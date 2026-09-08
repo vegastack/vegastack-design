@@ -1,4 +1,4 @@
-// @vegastack split-button@0.6.0 sha256-5OEEZIBDDR6wUv8wQR/yw6GsuV8tuUrsIwa0Gbo31H4=
+// @vegastack split-button@0.6.0 sha256-fa6AE2vZeVfjkjUKfw1Xvq1IC9gZHGguQFHyurOHc7g=
 
 "use client";
 
@@ -125,7 +125,7 @@ export function SplitButton({
           key={index}
           onClick={action.onClick}
           disabled={action.disabled}
-          variant={action.destructive ? "destructive" : "default"}
+          tone={action.destructive ? "destructive" : "default"}
         >
           {action.icon}
           {action.label}

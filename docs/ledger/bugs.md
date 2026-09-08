@@ -897,3 +897,20 @@ ghost takes its own` expected the neutral ghost to compute `rgb(1, 2, 3)` (its h
   window in the target-floor check needs the same bounded retry the scroll step got, or the probe
   should re-measure the rect inside the poll. Until then a globally-scoped change can lose a full
   sweep to it, and the correct handling is a re-run plus an isolated confirmation — never `GATES_SKIP`.
+## 2026-09-07 — Audit finding B3-10 was wrong: Base UI does NOT set `role="tooltip"`
+
+- **Symptom:** B3-10 ("Tooltip drops explicit `role`") asserted that Base UI's Tooltip popup already
+  carries `role="tooltip"`, so ours was redundant. Removing the prop made
+  `getByRole("tooltip")` fail in `truncated-text.test.tsx`.
+- **Root cause:** the claim is not true of the INSTALLED `@base-ui/react` **1.6.0**. The string
+  `"tooltip"` appears in no role assignment anywhere in the package; the popup renders with no
+  implicit or explicit `role`. The audit finding was written from the library's documented intent
+  rather than from its shipped code.
+- **Resolution:** the finding is **rejected**, not deferred. `TooltipContent` keeps
+  `popupProps={{ role: "tooltip", ...props }}` — spread last so a caller can still override it — and
+  the source carries a comment naming the version the claim was checked against, so the next sweep
+  re-verifies rather than re-deletes. If a later Base UI does set the role, the prop becomes a
+  harmless no-op and can go then.
+- **Rule this reinforces:** an audit finding that says "the library already does X" is a claim about
+  a specific installed version. Check it against that version's shipped code before deleting
+  anything an assertion depends on.

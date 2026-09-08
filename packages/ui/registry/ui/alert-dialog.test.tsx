@@ -25,7 +25,7 @@ function Example({
   return (
     <AlertDialog>
       <AlertDialogTrigger>Delete project</AlertDialogTrigger>
-      <AlertDialogContent intent="destructive">
+      <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete project</AlertDialogTitle>
           <AlertDialogDescription>
@@ -76,13 +76,15 @@ test("wires aria-labelledby / aria-describedby to title and description", async 
   );
 });
 
-test("carries the intent data attribute on content and action", async () => {
+test("the confirm action is the single owner of intent (B3-08)", async () => {
   const screen = await render(<Example />);
   await screen.getByRole("button", { name: "Delete project" }).click();
 
+  // The popup no longer carries an inert `data-intent` hint…
   await expect
     .element(screen.getByRole("alertdialog"))
-    .toHaveAttribute("data-intent", "destructive");
+    .not.toHaveAttribute("data-intent");
+  // …the confirm button, which actually renders the tint, does.
   expect(
     document
       .querySelector('[data-slot="alert-dialog-action"]')
@@ -109,7 +111,7 @@ test("Action loading shows the spinner, marks aria-busy, and blocks the click fr
   const screen = await render(
     <AlertDialog>
       <AlertDialogTrigger>Delete project</AlertDialogTrigger>
-      <AlertDialogContent intent="destructive">
+      <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete project</AlertDialogTitle>
           <AlertDialogDescription>
@@ -149,7 +151,7 @@ test("no a11y violations — loading", async () => {
   const screen = await render(
     <AlertDialog>
       <AlertDialogTrigger>Delete project</AlertDialogTrigger>
-      <AlertDialogContent intent="destructive">
+      <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete project</AlertDialogTitle>
           <AlertDialogDescription>

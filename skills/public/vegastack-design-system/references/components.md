@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**111 components**, plus 439 animated-icon items, 7 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-list-nav`, `use-mobile`, `use-platform`), and 1 starter block (`dashboard-01`) — 558 registry items in total.
+**112 components**, plus 439 animated-icon items, 7 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-list-nav`, `use-mobile`, `use-platform`), and 1 starter block (`dashboard-01`) — 559 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so `icon-button` is the
@@ -87,6 +87,7 @@ component and never an icon.
 - **`context-menu`** — A menu of actions revealed by right-click (or long-press) — items, submenus, separators, labels, shortcuts, checkbox/radio.
 - **`dialog`** — A modal overlay — five sizes, a header/footer layout, focus trapping, and animated enter/exit.
 - **`dropdown-menu`** — A menu of actions triggered by a button — items, submenus, separators, labels, shortcuts, and checkbox/radio selections.
+- **`floating-surface`** — The shared floating-overlay module: one Portal/Positioner/Popup composer, the popup surface recipes, the list-item recipe, and the in-panel search row.
 - **`hover-card`** — A rich preview panel that opens on hover or focus — interactive content, four directions, forgiving delays.
 - **`popover`** — A click-triggered floating panel for arbitrary content — positioning, an optional arrow, and built-in dismiss.
 - **`sheet`** — A dialog that slides in from a screen edge — four sides, header/footer layout, focus trapping, animated slide.

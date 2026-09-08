@@ -70,7 +70,7 @@ test("applies the destructive variant data attribute", async () => {
     <DropdownMenu>
       <DropdownMenuTrigger>Open</DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+        <DropdownMenuItem tone="destructive">Delete</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>,
   );
@@ -78,7 +78,7 @@ test("applies the destructive variant data attribute", async () => {
   await screen.getByRole("button", { name: "Open" }).click();
   await expect
     .element(page.getByRole("menuitem", { name: "Delete" }))
-    .toHaveAttribute("data-variant", "destructive");
+    .toHaveAttribute("data-tone", "destructive");
 });
 
 test("renders label, separator and a shortcut hint", async () => {
@@ -315,7 +315,7 @@ test("no a11y violations with the menu open", async () => {
         <DropdownMenuGroup>
           <DropdownMenuLabel>Account</DropdownMenuLabel>
           <DropdownMenuItem>Settings</DropdownMenuItem>
-          <DropdownMenuItem variant="destructive">
+          <DropdownMenuItem tone="destructive">
             Delete account
           </DropdownMenuItem>
         </DropdownMenuGroup>

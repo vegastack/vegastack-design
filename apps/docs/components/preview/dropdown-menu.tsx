@@ -53,7 +53,7 @@ export function dropdownMenu(): ReactNode {
             <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive">
+          <DropdownMenuItem tone="destructive">
             <Trash2 />
             Delete account
           </DropdownMenuItem>
@@ -180,7 +180,7 @@ export function dropdownMenuRich(): ReactNode {
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem variant="destructive">
+          <DropdownMenuItem tone="destructive">
             <LogOut />
             Log out
             <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>

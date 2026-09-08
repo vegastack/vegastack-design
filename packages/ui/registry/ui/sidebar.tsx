@@ -1,4 +1,4 @@
-// @vegastack sidebar@0.6.0 sha256-y5Rzlivrcz3NLJOnN6/x+o2JJTcY5k/qsoKwBZSJPgU=
+// @vegastack sidebar@0.6.0 sha256-6XGWR6bwovmcPV9R2cgt/tIGNmVqfxPeLvTnac/V+gk=
 
 "use client";
 
@@ -278,9 +278,10 @@ export function Sidebar({
 
   if (isMobile) {
     return (
-      <Sheet open={openMobile} onOpenChange={setOpenMobile}>
+      // `side` now lives on the Sheet root: it picks the Base UI Drawer swipe direction as well
+      // as the pinned edge, so the gesture and the geometry cannot disagree.
+      <Sheet open={openMobile} onOpenChange={setOpenMobile} side={side}>
         <SheetContent
-          side={side}
           data-slot="sidebar-sheet-content"
           // `--sidebar-width-mobile` is a design token (18rem) like `--sidebar-width` and
           // `--sidebar-width-icon`; override it the same way, with a

@@ -42,6 +42,7 @@ export * from "./pricing-section";
 export * from "./comparison-matrix";
 export * from "./accordion";
 export * from "./collapsible";
+export * from "./floating-surface";
 export * from "./popover";
 export * from "./alert-dialog";
 export * from "./progress";

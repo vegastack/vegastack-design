@@ -58,9 +58,9 @@ export function sheetSides(): ReactNode {
   return (
     <Wrapper>
       {SIDES.map(({ side, label }) => (
-        <Sheet key={side}>
+        <Sheet key={side} side={side}>
           <SheetTrigger render={<Button variant="outline">{label}</Button>} />
-          <SheetContent side={side}>
+          <SheetContent>
             <SheetHeader>
               <SheetTitle>{label} sheet</SheetTitle>
               <SheetDescription>
@@ -85,60 +85,34 @@ export function sheetSides(): ReactNode {
   );
 }
 
-export function sheetCustom(): ReactNode {
+export function sheetSizes(): ReactNode {
   return (
     <Wrapper>
-      {/* No close (X) button — the only way out is a footer action or Escape. */}
-      <Sheet>
-        <SheetTrigger
-          render={<Button variant="outline">No close button</Button>}
-        />
-        <SheetContent showCloseButton={false}>
-          <SheetHeader>
-            <SheetTitle>Confirm before leaving</SheetTitle>
-            <SheetDescription>
-              With <code>showCloseButton={"{false}"}</code> there is no
-              top-right <code>X</code> — dismiss the panel through an explicit
-              footer action (or <kbd>Esc</kbd>).
-            </SheetDescription>
-          </SheetHeader>
-          <div className="flex-1 overflow-y-auto px-4">
-            <p className="text-muted-foreground">
-              Use this when leaving without a decision should be deliberate.
-            </p>
-          </div>
-          <SheetFooter>
-            <SheetClose render={<Button variant="outline">Discard</Button>} />
-            <SheetClose render={<Button>Save changes</Button>} />
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
-
-      {/* Width override — canonical caps at max-w-sm; widen it via className. */}
-      <Sheet>
-        <SheetTrigger render={<Button variant="outline">Wider panel</Button>} />
-        <SheetContent className="max-w-md" closeLabel="Dismiss filters">
-          <SheetHeader>
-            <SheetTitle>Filters</SheetTitle>
-            <SheetDescription>
-              A <code>className=&quot;max-w-md&quot;</code> override widens the
-              panel past the default <code>max-w-sm</code> cap. The close button
-              carries a custom <code>closeLabel</code> for screen readers.
-            </SheetDescription>
-          </SheetHeader>
-          <div className="flex-1 overflow-y-auto px-4">
-            <p className="text-muted-foreground">
-              Width overrides only apply to <code>left</code>/<code>right</code>{" "}
-              sheets; <code>top</code>/<code>bottom</code> sheets are full-width
-              and cap their height instead.
-            </p>
-          </div>
-          <SheetFooter>
-            <SheetClose render={<Button variant="outline">Cancel</Button>} />
-            <SheetClose render={<Button>Apply</Button>} />
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
+      {(["sm", "md", "lg", "full"] as const).map((size) => (
+        <Sheet key={size}>
+          <SheetTrigger render={<Button variant="outline">{size}</Button>} />
+          <SheetContent size={size} closeLabel="Dismiss filters">
+            <SheetHeader>
+              <SheetTitle>Filters — {size}</SheetTitle>
+              <SheetDescription>
+                <code>size</code> reads as a width on a <code>left</code>/
+                <code>right</code> sheet and as a height on a <code>top</code>/
+                <code>bottom</code> one, from the same panel-width vocabulary.
+              </SheetDescription>
+            </SheetHeader>
+            <div className="flex-1 overflow-y-auto px-4">
+              <p className="text-muted-foreground">
+                Drag the panel towards its edge to dismiss it — the sheet runs
+                on Base UI&apos;s Drawer, so swipe-to-close is built in.
+              </p>
+            </div>
+            <SheetFooter>
+              <SheetClose render={<Button variant="outline">Cancel</Button>} />
+              <SheetClose render={<Button>Apply</Button>} />
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>
+      ))}
     </Wrapper>
   );
 }
