@@ -285,7 +285,12 @@ packages/ui/registry/ui` → 0. The ref half IS 0. The other half cannot be 0 wh
   first render. That is more correct (no wasted frame reporting a value nobody asked for) and matches
   React's documented contract; `fallbackIsTouch` is now honestly described as the server/hydration
   answer only. The test asserts the new split rather than being deleted.
-- **`ShortcutOverlay`'s `panelSearch` recipe was NOT applied** — see "Left out", below.
+- **`ShortcutOverlay`'s `panelSearch` recipe was NOT applied, because it does not exist yet.** The
+  brief said O1's recipe was on this batch's base; it is not — O1 (#40) is unmerged, and
+  `grep -rn panelSearch packages apps` finds nothing on `origin/main`. Adding a second, private
+  spelling of a recipe another batch owns would have to be unpicked when O1 lands, so the search
+  input is left to O1. The rest of item 5 shipped: `DialogContent size="md"` and the
+  `max-h-(--layout-overlay-max-height)` scroll region are both in.
 
 **Needs MK:** nothing blocking. The `size="md"` width change and the `function
 usePrefersReducedMotion` grep reading 1 are the two items worth an explicit nod.
