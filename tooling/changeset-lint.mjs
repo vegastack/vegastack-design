@@ -31,7 +31,9 @@ import {
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-// Pending on main at c08f5f15, written before the section-marker convention existed.
+// Pending on main when this gate landed, written before the section-marker convention existed.
+// A sibling branch that merges another marker-less changeset before this PR does needs one more
+// line here (or a marker on its changeset) — the list is "everything pending before WP5".
 export const GRANDFATHERED = new Set([
   "animated-icon-factory.md",
   "di1-display-leaves.md",
@@ -48,6 +50,7 @@ export const GRANDFATHERED = new Set([
   "t2-chip-and-announcer.md",
   "wp1-geometry-contracts.md",
   "wp2-verify-command-empty.md",
+  "wp4-ungit-generated-empty.md",
 ]);
 
 /** Filenames present in `.changeset/` at `ref` — everything else is new and must conform. */
