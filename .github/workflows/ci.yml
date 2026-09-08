@@ -56,7 +56,7 @@ jobs:
       # Pinned to the `playwright` version in pnpm-lock.yaml; verify-workflow-security.mjs reads the
       # lockfile and fails if the two drift, because a container whose browsers do not match the
       # installed Playwright reports failures that are not defects.
-      image: mcr.microsoft.com/playwright:v1.61.0-noble
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
       # Persistent host store, created by tooling/runner/provision-linux-runner.sh. Without it every
       # run re-downloads the whole dependency graph into a throwaway container.
       volumes:

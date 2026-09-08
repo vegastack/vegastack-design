@@ -16,6 +16,17 @@ catalog:
 linkWorkspacePackages: true
 preferWorkspacePackages: true
 
+# `auto-install-peers=true` (.npmrc) makes pnpm resolve Next's OPTIONAL `@playwright/test` peer even
+# though no manifest in this repo declares it. Left alone it pins itself to whatever it first
+# resolved and drifts away from the `playwright` devDependency — and
+# `tooling/verify-workflow-security.mjs` derives the Linux job container tag
+# (`mcr.microsoft.com/playwright:v<version>-noble`) from the ONE `playwright` version the lockfile
+# resolves, and fails closed when it finds two. This override keeps the phantom peer in lockstep, so
+# the container tag has exactly one authority. Bump it together with `playwright` in
+# package.json / packages/ui/package.json.
+overrides:
+  "@playwright/test": "1.63.0"
+
 allowBuilds:
   esbuild: true
   msw: false

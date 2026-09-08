@@ -1,4 +1,4 @@
-// @vegastack chart@0.6.0 sha256-VFvY/FrtOphvirOfQu6/qBeM0ZBRjV7/YVUltgDmFOA=
+// @vegastack chart@0.6.0 sha256-/gTr8yWFurgFeWZET/sC2IMtbcu61MH5fi52MIXwgko=
 
 "use client";
 
@@ -195,7 +195,7 @@ function ChartContainer({
         data-slot="chart"
         style={{ ...chartStyle, ...style } as React.CSSProperties}
         className={cn(
-          "flex aspect-video justify-center text-sm",
+          "flex aspect-video justify-center text-xs",
           // Numerals canon: axis tick numerals are mono (SVG <text> takes font-family
           // via class), matching the tooltip's `font-mono tabular-nums` values.
           "[&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-axis-tick_text]:font-mono",
@@ -321,7 +321,7 @@ function ChartTooltipContent({
     <div
       data-slot="chart-tooltip-content"
       className={cn(
-        "grid min-w-32 items-start gap-1.5 rounded-lg border border-border bg-popover px-2.5 py-1.5 text-sm text-popover-foreground shadow-overlay",
+        "grid min-w-32 items-start gap-1.5 rounded-lg border border-border bg-popover px-2.5 py-1.5 text-xs text-popover-foreground shadow-overlay",
         className,
       )}
     >
@@ -404,6 +404,11 @@ function ChartTooltipContent({
 /**
  * `ChartLegend` — Recharts' `Legend`, re-exported so consumers don't need a second import from
  * `recharts`. Pair with {@link ChartLegendContent}: `<ChartLegend content={<ChartLegendContent />} />`.
+ *
+ * Recharts 3.10 deprecated `align`/`verticalAlign` in favour of `position` + `offset`. Neither
+ * deprecated prop is passed here, and `Legend` still injects `verticalAlign` into custom content,
+ * so {@link ChartLegendContent} keeps reading it for its top/bottom spacing. Reach for `position`
+ * when a chart needs the legend anywhere other than below the plot.
  */
 const ChartLegend = RechartsPrimitive.Legend;
 
