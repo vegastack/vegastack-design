@@ -1310,6 +1310,27 @@ count`, so a page that loads with unread items sits still; the cue additionally 
   one of these checks depends on layout or animation settling within a timeout, which is exactly the
   class contention breaks; the `marketing-surface` and `use-animation-replay` cases are the tell,
   since a genuine class-propagation or animation-class defect would be deterministic, not load-dependent.
+- **Third recurrence, and the one that is not contention — but is also not D1's to fix.** The final
+  `gates:push` for this branch, on a Ryzen box carrying several concurrent sweeps, failed
+  `/docs/components/relative-time contains its primary fixture at 320px` with
+  `locator.scrollIntoViewIfNeeded: Element is not attached to the DOM`, in a varying subset of the
+  four Chromium projects. Isolated, the route passes 8/8 — but unlike the entries above, it recurred
+  across full sweeps, so an isolated pass proves nothing here.
+- **What was actually established.** The node that detaches is not the component's own output: it is
+  the Fumadocs `<Tabs>` preview frame the fixture is mounted in
+  (`apps/docs/components/component-preview.tsx`), which re-renders and replaces the subtree the
+  `[data-vrt-preview]` handle is pointing at. A `RelativeTime` hydration change was tried against
+  this — withholding `dateTime` until hydration, on the theory that an attribute mismatch was forcing
+  the client re-render — and it **did not stop the failure**: the sweep after it came back
+  **876/880**, the same check failing, in all four projects rather than a subset. That change has been
+  removed from this branch along with its test and its changelog bullet; a theory that a sweep
+  disproves does not get to ship as a fix.
+- **Where the fix lives.** The durable fix is at the probe, not the component: make the 320px
+  fixture scroll survive a re-rendering fixture in `apps/docs/vrt/contracts.spec.ts`. That work is on
+  **`audit/f1-docfix`**, which also carries the proof that the same check fails on an unmodified
+  `origin/main` @ `9c33dfaf`. D1 is a dependency batch; a component change is the wrong instrument
+  for a docs-harness race, and a speculative one that the evidence contradicts is the wrong change
+  entirely.
 
 ---
 
