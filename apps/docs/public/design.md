@@ -22,8 +22,8 @@ generated:
       sha256: "bade126afb17ad70f251299bce42d2885f4b94e137a88e2e24479cbcbdbd6994"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 34252
-      sha256: "6f00a430854f77bc8b65f39d3939654a2e8c939b358e51d42489e07977e02f03"
+      bytes: 34780
+      sha256: "bf0997bdef1c56a426d936b6aaa4d0b8564d9b0c415c7054e641d10cb3504b4f"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
       bytes: 11669
@@ -308,15 +308,15 @@ themes:
     media-foreground:
       type: "color"
       value: "oklch(0.985 0.003 75)"
-      description: "Theme-invariant media chrome ink: the warm off-white used for every icon, label and track drawn over media-scrim. Not overridden in dark on purpose."
+      description: "Theme-invariant media chrome ink: the warm off-white used for every icon, label and track drawn over media-scrim or media-scrim-strong. Labels are allowed on EITHER scrim — both are gated at the AA text floor (4.5:1) against this ink over the white worst case. Not overridden in dark on purpose."
     media-scrim:
       type: "color"
       value: "oklch(0.13 0.002 75 / 0.6)"
-      description: "THEME-INVARIANT media chrome scrim (B4-01): the gradient/backdrop behind controls laid over video or imagery. Always a warm-black alpha, never a theme token, so the chrome reads dark-scrim + light-ink in both themes (`primary` flips with the theme and inverted the chrome in dark). media-foreground clears 5.2:1 on it over a white worst-case backdrop."
+      description: "THEME-INVARIANT media chrome scrim (B4-01): the gradient/backdrop behind controls laid over video or imagery. Always a warm-black alpha, never a theme token, so the chrome reads dark-scrim + light-ink in both themes (`primary` flips with the theme and inverted the chrome in dark). TEXT IS PERMITTED on this scrim: media-foreground clears 5.2:1 on it over a white worst-case backdrop, and tooling/contrast-check.mjs gates the pair at the AA TEXT floor (4.5:1), not the 3:1 non-text floor — so a retune that thins this scrim under AA fails the build rather than silently demoting its labels."
     media-scrim-strong:
       type: "color"
       value: "oklch(0.13 0.002 75 / 0.8)"
-      description: "Theme-invariant strong scrim for opaque media pills (volume popover, time badge) — 11:1 for media-foreground over a white worst case."
+      description: "Theme-invariant strong scrim for opaque media pills (volume popover, time badge) — 11:1 for media-foreground over a white worst case. Use it for any block of media text that needs headroom beyond the soft scrim's ~5.2:1, and for text over unusually bright or busy frames."
     motion-blur:
       type: "dimension"
       value: "2px"
@@ -1090,15 +1090,15 @@ themes:
     media-foreground:
       type: "color"
       value: "oklch(0.985 0.003 75)"
-      description: "Theme-invariant media chrome ink: the warm off-white used for every icon, label and track drawn over media-scrim. Not overridden in dark on purpose."
+      description: "Theme-invariant media chrome ink: the warm off-white used for every icon, label and track drawn over media-scrim or media-scrim-strong. Labels are allowed on EITHER scrim — both are gated at the AA text floor (4.5:1) against this ink over the white worst case. Not overridden in dark on purpose."
     media-scrim:
       type: "color"
       value: "oklch(0.13 0.002 75 / 0.6)"
-      description: "THEME-INVARIANT media chrome scrim (B4-01): the gradient/backdrop behind controls laid over video or imagery. Always a warm-black alpha, never a theme token, so the chrome reads dark-scrim + light-ink in both themes (`primary` flips with the theme and inverted the chrome in dark). media-foreground clears 5.2:1 on it over a white worst-case backdrop."
+      description: "THEME-INVARIANT media chrome scrim (B4-01): the gradient/backdrop behind controls laid over video or imagery. Always a warm-black alpha, never a theme token, so the chrome reads dark-scrim + light-ink in both themes (`primary` flips with the theme and inverted the chrome in dark). TEXT IS PERMITTED on this scrim: media-foreground clears 5.2:1 on it over a white worst-case backdrop, and tooling/contrast-check.mjs gates the pair at the AA TEXT floor (4.5:1), not the 3:1 non-text floor — so a retune that thins this scrim under AA fails the build rather than silently demoting its labels."
     media-scrim-strong:
       type: "color"
       value: "oklch(0.13 0.002 75 / 0.8)"
-      description: "Theme-invariant strong scrim for opaque media pills (volume popover, time badge) — 11:1 for media-foreground over a white worst case."
+      description: "Theme-invariant strong scrim for opaque media pills (volume popover, time badge) — 11:1 for media-foreground over a white worst case. Use it for any block of media text that needs headroom beyond the soft scrim's ~5.2:1, and for text over unusually bright or busy frames."
     motion-blur:
       type: "dimension"
       value: "2px"
@@ -1667,7 +1667,8 @@ shadcn component registry.
 
 **Light and dark are co-primary** — neither is derived; every token is authored and contrast-validated in
 both. The aesthetic is **warm-neutral, restrained, futuristic**: surfaces are a barely-warm white (deep,
-non-espresso near-black in dark), articulated by a **single solid hairline border**, not heavy fills
+non-espresso near-black in dark), articulated by a **single derived alpha hairline** (`foreground` at
+`--alpha-border` — 8% light / 14% dark), not heavy fills
 or shadows. The **neutral-ink primary does the bulk of the work**; colour is rationed and meaningful.
 
 **Key characteristics**
@@ -1678,7 +1679,7 @@ or shadows. The **neutral-ink primary does the bulk of the work**; colour is rat
 - **Scales are tokens.** Colour, control sizes (`--size-*`), radius (`--radius-*`), the one sanctioned shadow (`--shadow-overlay`), motion, and type (`--text-*`) are all DTCG tokens — change one, every component re-skins.
 - **Neutral-ink primary.** The default action is a charcoal/near-white neutral (Vercel-style), not a colour. Almost every button is `primary`.
 - **One rationed chromatic.** `info` (blue) = links and informational UI — the whole colour budget beyond status. The neutral-ink `primary` carries the key action, AI/agent surfaces, and selected/active state.
-- **One border, flat by default.** A single solid warm-neutral border carries all separation. Overlays get `shadow-overlay`; nothing else gets a shadow at all.
+- **One border, flat by default.** A single warm-neutral hairline carries all separation, and it is an **alpha**: `border` is DERIVED as `foreground` at `--alpha-border` (8% light / 14% dark), so the same line reads on the page, on a card, in a well and on a dark band. Overlays get `shadow-overlay`; nothing else gets a shadow at all.
 - **Restrained headlines, crisp body.** Functional headings and the display hero both render at weight 400; 14px body; weight tops out at a rare 600 emphasis (D3), never a UI default.
 - **One neutral focus outline.** A 2px `:focus-visible` outline in the `ring` token (= primary ink), centralized — never a colour or glow, so the accent stays free.
 - **AA by contract.** Every gated foreground/background pair clears WCAG 2.2 AA in both themes, enforced by a fail-closed build gate.
@@ -1734,8 +1735,10 @@ and each has an **alpha twin** so the same rung composites onto any backdrop.
   `overlay` for the modal scrim. No `border-strong` / `overlay-border` / ad-hoc line token; overlays
   separate via the shadow, not a heavier border.
 - **`ring`** is the focus basis and equals **`primary`** (neutral ink) — see Accessibility.
-- **Tracks and wells are `surface-1`** — slider rail, progress track, switch off-track, skeleton,
-  code block, disabled field. There is no separate `track` token; it was deleted into the ladder.
+- **Tracks and wells are `surface-1`** — slider rail, progress track, skeleton, code block,
+  disabled field. The **switch off-track is the exception: `surface-3`**, because it is a pressed /
+  selected-weight affordance rather than a well, and it must read against the thumb. There is no
+  separate `track` token; it was deleted into the ladder.
 
 ### Hover geometry
 
@@ -1764,8 +1767,10 @@ and each has an **alpha twin** so the same rung composites onto any backdrop.
 ### Chromatic colour — rationed
 
 The chrome is warm-neutral; colour carries meaning and is **rationed to one chromatic accent (blue) + three
-status hues**. Each family is a seven-token ramp (`fill` / `hover` / `active` / `foreground` / `subtle` /
-`subtle-hover` / `text`). All use **warm-off-white on-fill text** uniformly; `hover`/`active` darken so contrast only rises. `subtle`
+status hues**. Each family is an eight-token ramp (`fill` / `hover` / `active` / `foreground` / `subtle` /
+`subtle-hover` / `subtle-active` / `text`) — `subtle-active` is the soft fill's PRESSED step, precomposed
+like `subtle-hover` because an `active:bg-<fam>/(--alpha-pressed)` would replace the tint instead of
+stepping it. All use **warm-off-white on-fill text** uniformly; `hover`/`active` darken so contrast only rises. `subtle`
 (soft tinted background) and `text` (readable colour for page/alert) adapt per theme.
 
 | Family        | Role                                      | Fill (sRGB render of the shipped OKLCH) | On-fill                           | Hue             |
@@ -1965,16 +1970,16 @@ called `default` anywhere in the system (renamed 2026-09-07, audit B1-05), and n
 private size vocabulary.
 
 - **Button — two axes, not a list of variants** (audit P2, 2026-09-07). `variant` is the SHAPE: `solid` (the workhorse — a filled action, including the single key action or an AI moment) · `soft` (a tinted fill, the standard lower-emphasis and the ONLY destructive action) · `outline` (a bordered face) · `ghost` (transparent until hovered) · `link` (a text link) · `cta` (the one marketing recipe, brand-locked and tone-less; see Marketing). `tone` is the HUE: `neutral` (default) · `destructive` · `success` · `warning` · `info`. The two compose freely with ONE forbidden cell: **`tone="destructive"` never takes `variant="solid"`** (D4 — a destructive action is soft, outline, ghost or link, never a solid red button). That rule is enforced by the type, not by review. Each variant is written once and reads its hue from `--btn-*` custom properties the tone sets, so all thirty cells share one hover/pressed grammar: solids step to their own darker `-hover`/`-active`, everything else climbs the surface ladder (rung 2 hover, rung 3 pressed) in its own family. Retired the same day: `glass` (D16), the `finish="lit"` prop (B1-04), and the seven colour-in-the-name variants (`success`/`warning`/`info`/`*-outline`) the tone axis replaces. Sizes `xs`(24)/`sm`(28)/`md`(32)/`lg`(40); Button has **no icon size tier** — an icon-only action is `IconButton`, which makes the missing `aria-label` a type error and owns `shape="square" | "round"`. Radius `md`; `text-base`/500 label. **Hover/active darken within the button's own colour** — nothing borrows a hue.
-- **Loading and disabled are one contract across Button, IconButton, SplitButton, Toggle and Tabs.** `loading` stacks the spinner OVER the label and keeps the label's box (`visibility: hidden`), so a button never changes width when a request starts (B1-08). `disabled` renders `aria-disabled`, **not** the native attribute, and never `pointer-events: none` — an unavailable control must stay focusable and hoverable so a Tooltip can say why (D7). Base UI suppresses activation either way. A disabled control dims; a pending one does not.
+- **Loading and disabled are one contract across Button, IconButton, SplitButton, Toggle and Tabs.** `loading` stacks the spinner OVER the label and keeps the label's box with `opacity-0` — never `visibility: hidden`, which would drop the label out of the accessibility tree and leave a pending button with no accessible name — so a button never changes width when a request starts (B1-08). `disabled` renders `aria-disabled`, **not** the native attribute, and never `pointer-events: none` — an unavailable control must stay focusable and hoverable so a Tooltip can say why (D7). Base UI suppresses activation either way. A disabled control dims; a pending one does not.
 - **States** (every button) — default · hover · focus · active · disabled (`opacity-(--opacity-dim)`, 50% + `not-allowed`) · loading (spinner honouring reduced-motion). **Focus = the neutral 2px `:focus-visible` outline (`ring` token = primary ink)** — never a box-shadow glow.
-- **Input / Select / Textarea** — `secondary` fill, the one `border`, radius `md`, 32px. **Consistent border scale (one alpha step, no per-mode opacity hacks): rest = `border`/`input`; focus/active = `ring/70`; error = `destructive-border/70`.** The error ink is the ONE deliberate per-theme exception in this scale: `destructive` is tuned as a solid button fill carrying light text, and at 70% on the dark ground it measures **1.92:1** — under the 3:1 WCAG 1.4.11 floor for a non-text indicator — while lightening `destructive` itself would drop `destructive-foreground` on the solid button below 4.5:1. So the border has its own role, `destructive-border` (light `red.700` → 4.24:1, dark `red.400` → 4.00:1). The _alpha_ stays identical across themes; only the ink re-grounds. `tooling/contrast-check.mjs` gates this pair composited over background/card/popover/muted/secondary in both themes. Text-entry fields (Input, Textarea, Field control, OTP slots) use the darkened `ring/70` border as their _sole_ focus indicator — no outline (a raw text input can't distinguish mouse from keyboard, so the border is the one consistent cue for both click and Tab). Button-style triggers (Select, date-picker, country-select, color-picker — built on the `outline` Button variant) darken the border to `ring/70` on focus AND add the neutral 2px outline for keyboard nav (`:focus-visible` only). Never a colour, never a glow. Error = `destructive/70` border + `destructive.text` helper. Disabled = reduced opacity + `not-allowed`.
+- **Input / Select / Textarea** — transparent fill on the page (dark adds `bg-input/(--alpha-input)` so the field reads as a well against the dark ground), the one `border`, radius `md`, 32px. **Consistent border scale (one alpha step, no per-mode opacity hacks): rest = `border`/`input`; focus/active = `ring/70`; error = `destructive-border/70`.** The error ink is the ONE deliberate per-theme exception in this scale: `destructive` is tuned as a solid button fill carrying light text, and at 70% on the dark ground it measures **1.92:1** — under the 3:1 WCAG 1.4.11 floor for a non-text indicator — while lightening `destructive` itself would drop `destructive-foreground` on the solid button below 4.5:1. So the border has its own role, `destructive-border` (light `red.700` → 4.24:1, dark `red.400` → 4.00:1). The _alpha_ stays identical across themes; only the ink re-grounds. `tooling/contrast-check.mjs` gates this pair composited over background/card/popover/muted/secondary in both themes. Text-entry fields (Input, Textarea, Field control, OTP slots) use the darkened `ring/70` border as their _sole_ focus indicator — no outline (a raw text input can't distinguish mouse from keyboard, so the border is the one consistent cue for both click and Tab). Button-style triggers (Select, date-picker, country-select, color-picker — built on the `outline` Button variant) darken the border to `ring/70` on focus AND add the neutral 2px outline for keyboard nav (`:focus-visible` only). Never a colour, never a glow. Error = `destructive/70` border + `destructive.text` helper. Disabled = reduced opacity + `not-allowed`.
 - **Card / Panel** — `card` surface, the one `border`, radius `lg`, **flat (no shadow)**.
 - **Badge / Chip / Tag** — the SAME variant vocabulary as Button: `solid` (family fill + on-colour ink) · `soft` (`{family}.subtle` + `{family}.text`, the default) · `outline` (hairline, no fill — the Attio tag chip, also reachable as `bordered` on `soft`) · `minimal`. Radius `full`, except `minimal`, which has no container at all. Neutral resolves to `muted`. **Three REAL size tiers — `sm` 16px · `md` 20px · `lg` 24px** (D8, 2026-09-07): `sm` used to be `md` with 2px less horizontal padding, which is a padding value, not a size; it is now the dense-table chip. **`minimal` is ink only** — no background, no border, and no horizontal padding, so it aligns flush in a table cell instead of faking a pill — and it carries a **leading dot by default**, because a badge with no container has nothing but colour left to signal status with (1.4.1). An `icon` takes the dot's place; `dot={false}` opts out. The dot is 6px (8px at `lg`).
 - **Alert** — `{family}.subtle` background + `{family}.text`, radius `md`, **always paired with an icon** (never colour alone). Info alerts use `info` (blue).
 - **Dialog / Modal** — `popover` surface, the one `border`, radius `lg`, `shadow-overlay`, over the `overlay` scrim. Title `text-h3`/`h4`; actions right-aligned (`ghost` Cancel + intent button).
 - **Dropdown / Menu / Popover / Tooltip / Command palette** — `popover` surface, the one `border`, `shadow-overlay`; items use neutral `accent` hover at radius `sm`; destructive items use `destructive.text`; the selected command row uses `accent`.
 - **Tabs / Segmented** — underline or pill; the **active** tab underline / segment uses `primary` (selection).
-- **Switch / Checkbox / Radio** — neutral **`primary`** ink when on/checked, off-track = `track`; **Slider** fill = **`primary`**; radius `full` (switch/radio/thumb) or `sm` (checkbox).
+- **Switch / Checkbox / Radio** — neutral **`primary`** ink when on/checked, switch off-track = **`surface-3`** (the pressed rung; there is no `track` token); **Slider** fill = **`primary`**; radius `full` (switch/radio/thumb) or `sm` (checkbox).
 - **Navigation** — breadcrumb (`muted-foreground`, current = `foreground`), pagination (active = `primary`).
 - **Avatars · progress · skeleton** — avatar = `accent` fill + initials; progress/ring fill = `primary`; skeleton shimmer = neutral, at the **text radius** (`sm`) on a line placeholder, since an 8px radius on a 16px bar reads as a pill rather than as text. **An indeterminate `Progress` is a distinct visual, never a full bar**: Base UI writes no width when `value` is `null`, so a bar styled only for the determinate case reads as 100% complete. It renders a 35% segment sweeping the track (`motion-indeterminate`), and `aria-valuenow` is omitted.
 - **Content links** — `info` (blue), underlined at rest, and still protected by the global neutral
@@ -2133,6 +2138,59 @@ outer `MarketingSurface` wraps the entire page, and the rest of `/docs` stays th
 product surface — a single, deliberate temperature boundary at the home→docs navigation, not an
 alternating pattern within one page.
 
+## Docs canon
+
+A component's documentation page is part of the component, not a follow-up, and it serves humans
+and agents from the same source. The table below is **the standard every component page is
+written to** — the shape, the order, and the authority each section is generated from. Approved
+2026-09-07 (audit `08-docs-structure.md` §2; decisions D19, D26, DD-1…DD-5).
+
+**It is the target, not a report on the current tree.** The generated sections shipped as MDX
+components in 0.7.0 and are placed on three reference pages (button, dialog, data-grid); the
+remaining pages are migrated to this shape in the following release, and the section headings move
+from `## Installation` to `## Install` in that same atomic change. What already holds everywhere is
+the API Reference (row 7, rendered flat and expanded on all 110 pages) and the markdown export
+below. Read this table when writing or changing a page; do not read it as a description of what
+every page contains today.
+
+| #   | Section                          | Required content                                                                                                                                                                                                                                                         | Source of truth                                                 |
+| --- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| 0   | **Frontmatter**                  | `title`, `description`, `preview` (hero fixture), `registry` (item name), `status` (`stable \| preview \| deprecated`), `since` (version), `a11y` (pattern name)                                                                                                         | validated by `apps/docs/source.config.ts`                       |
+| 1   | **Install**                      | one `Steps` block: the `shadcn add` command, the item's `registryDependencies`, and the sanctioned engines it pulls in. The registry-auth notice is a site `Banner`, shown ONCE, never per page                                                                          | generated from `registry.json`                                  |
+| 2   | **Usage**                        | the minimal import plus one canonical snippet — the "if you copy one thing" example, ≤12 lines                                                                                                                                                                           | hand-written                                                    |
+| 3   | **Scope** _(composites)_         | three bullets at most: owns / does not own / compose with                                                                                                                                                                                                                | hand-written; required when the contract marks it composite     |
+| 4   | **Anatomy** _(compounds)_        | every exported part with the `data-slot` names it renders                                                                                                                                                                                                                | generated from the contract's `dataAttributes`                  |
+| 5   | **Examples**                     | one `ComponentPreview` per fixture, each a contract-lane route; the fixture source appears in the markdown export                                                                                                                                                        | `components/preview/<name>.tsx`                                 |
+| 6   | **Playground** _(where curated)_ | the curated `PropsPlayground`. The Story explorer is sanctioned ONLY where no curated playground exists — never both on one page (DD-3)                                                                                                                                  | `components/*-playground.tsx`                                   |
+| 7   | **API Reference**                | one flat, expanded table per exported part — name · the literal union · default · description. Own props only; a part with no own props gets ONE sentence, never placeholder rows. A second small table lists the `data-*` attributes and CSS variables the part exposes | `fumadocs-typescript` + the contract's `dataAttributes`         |
+| 8   | **Accessibility**                | the pattern name, the keyboard table, screen-reader announcements, and the states the lanes exercise                                                                                                                                                                     | keyboard table hand-written; states generated from the contract |
+| 9   | **Do / Don't**                   | at least two pairs                                                                                                                                                                                                                                                       | `DoDont`                                                        |
+| 10  | **Changelog** _(generated)_      | the item's entries, filtered by name                                                                                                                                                                                                                                     | `/CHANGELOG.md`                                                 |
+
+Nothing follows Do / Don't except the generated Changelog. "Notes", "Voice" and "How it works"
+fold into Usage or Scope. Marketing-only leaves skip Scope, Anatomy and Playground and keep the
+rest.
+
+Row 6 is a permission, not a requirement: a page carries a curated playground, or the Story
+explorer where none exists, or **neither** — and `tooling/verify-docs-export.mjs` enforces only
+"never both, and an Explorer always wrapped". Measured 2026-09-07: 45 curated · 6 Explorer ·
+59 neither · 0 both.
+
+**Humans and agents read the same page.** Every MDX component renders to markdown for the per-page
+`.md` route and `llms-full.txt`: the fixture source, the flat prop tables, the install steps and
+the do/don't pairs are all there, and a browser-only surface is replaced by an explicit one-line
+note rather than dropped silently. `tooling/verify-docs-export.mjs` fails the build on any JSX tag
+that survives outside a code fence, any unresolved placeholder, and any empty API table.
+`llms.txt` additionally carries the registry roster — every installable item with its page and its
+`shadcn add` target — and the public skill roster.
+
+**The docs shell obeys this system end to end (DD-1).** Fumadocs' chrome and the typography plugin
+are compiled against Tailwind's stock theme, so their weights, radii and shadows are remapped to
+system values once in `apps/docs/app/global.css`, and `design-lint --docs-shell --emitted-css`
+reads the BUILT stylesheet to prove it — source linting cannot see a value this repo never wrote.
+`apps/docs/vrt/docs-shell.spec.ts` asserts the rest in a browser: the product type scope, the
+weight ladder as computed, the fullscreen focus trap, the skip link, and named tab stops.
+
 ---
 
 > **Provenance.** This is the canonical v2 specification for the finalized token system (v1, the pre-overhaul
@@ -2140,7 +2198,7 @@ alternating pattern within one page.
 > `@vegastack/design-tokens`** (DTCG → OKLCH) with a CI drift-check, so the spec can't diverge from the shipped
 > tokens; the prose layer (Overview, Voice, Do/Don't, Accessibility) is hand-authored. An early single-accent
 > exploration is archived at `docs/research/design-comparison/proposed-design-system.html` (superseded — it
-> predates the locked decisions: solid border, neutral 2px ring, separate `info`=blue; not current). The live
+> predates the locked decisions: the one derived alpha hairline, neutral 2px ring, separate `info`=blue; not current). The live
 > showcase is the Fumadocs site under `apps/docs/`; decision history, the build plan, and the v2 rollout
 > ledger live in `docs/plans/`. Append-only normative `VS-*` rule IDs and external-source dispositions live
 > in `docs/research/design-md-audit/unified-reference.md`.
