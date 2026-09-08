@@ -80,6 +80,14 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
           ref: ${{ github.sha }}
+      # The runner's work directory is owned by the HOST runner user; inside the container the job
+      # runs as root, so every `git` call refuses the repository with "detected dubious ownership"
+      # (observed in run 34275909973: `tooling/secret-scan.mjs` shells out to `git ls-files` and died
+      # with exit 128 mid-`pnpm lint`). This is git's uid check, not a permissions problem, and it hits
+      # every tool in the chain that reads git — the secret scan, workspace-clean's tracked-path
+      # refusal, and the registry integrity test's restore proof.
+      - name: Trust the checkout inside the container
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Enable corepack
         run: |
           set -euo pipefail
