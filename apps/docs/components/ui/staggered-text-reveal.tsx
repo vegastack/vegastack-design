@@ -159,7 +159,7 @@ export function StaggeredTextReveal({
               // explicit `opacity-0`, which IS the FROM state, applied with the same
               // whole-element opacity token vocabulary the rest of the system uses.
               revealed
-                ? "motion-enter-up [animation-delay:calc(var(--stagger-i)*var(--stagger-step))] [animation-fill-mode:backwards] motion-reduce:[animation-delay:0s]"
+                ? "motion-enter-up [animation-delay:calc(var(--stagger-i)*var(--stagger-step))] [animation-fill-mode:backwards]"
                 : "opacity-0",
             )}
             style={
