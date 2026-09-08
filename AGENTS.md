@@ -250,13 +250,23 @@ never fix component styling there.
 
 The same discipline governs every other generated surface:
 
-| Authority                              | Regenerate with                        | Generated output                                                                               |
-| -------------------------------------- | -------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `packages/ui/registry/ui/*`            | `pnpm registry:build`                  | docs copy-in, `public/r/*.json`                                                                |
-| `packages/ui/component-contracts.json` | `pnpm design:derived`                  | component matrix, contract routes, home catalog, the public skill roster, this file's §Numbers |
-| `/CHANGELOG.md`                        | `node tooling/sync-changelog.mjs`      | the docs Changelog page                                                                        |
-| `skills/public/**`                     | `node tooling/sync-package-skills.mjs` | `packages/design/skills/**` (shipped in npm)                                                   |
-| `design.md`                            | `pnpm design:sync`                     | its derived doc surfaces                                                                       |
+| Authority                              | Regenerate with                        | Generated output                                                                |
+| -------------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------- |
+| `packages/ui/registry/ui/*`            | `pnpm registry:build`                  | docs copy-in, `public/r/*.json`                                                 |
+| `packages/ui/component-contracts.json` | `pnpm design:derived`                  | component matrix, the public skill roster, this file's §Numbers — all committed |
+| `/CHANGELOG.md`                        | `node tooling/sync-changelog.mjs`      | the docs Changelog page                                                         |
+| `skills/public/**`                     | `node tooling/sync-package-skills.mjs` | `packages/design/skills/**` (shipped in npm)                                    |
+| `design.md`                            | `pnpm design:sync`                     | its derived doc surfaces                                                        |
+
+**Not everything generated is committed.** Five contract-derived files — the contract routes, the
+icon chunk count, the home catalog, the animated-icon gallery, and the cross-browser smoke
+inventory — are **build outputs**: `.gitignore`d, listed in `tooling/lib/derived-build-outputs.mjs`,
+and written by `prepare:content` (which already runs before `build`, `dev`, `lint`, and `typecheck`
+in both `apps/docs` and `packages/ui`) or on demand by the few tooling readers that run before any
+build. Never stage one; `pnpm design:derived:check` deliberately ignores them, and
+`tooling/verify-component-contracts.mjs` regenerates them and reconciles the result against the
+contract instead. What stays committed is the registry copy-in and `public/r/*` (locked
+distribution decision) plus the derived PROSE above, which agents read straight out of git.
 
 ## Workflows
 

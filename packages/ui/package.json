@@ -25,12 +25,13 @@
   },
   "scripts": {
     "build": "tsup",
+    "prepare:content": "node ../../tooling/sync-component-derived.mjs --build-outputs --only packages/ui",
     "postbuild": "node ../../tooling/verify-ui-use-client.mjs",
     "lint": "node ../../tooling/design-lint.mjs registry",
     "design-lint": "node ../../tooling/design-lint.mjs registry",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "pnpm prepare:content && tsc --noEmit",
     "test": "vitest run",
-    "test:smoke": "vitest run --config vitest.smoke.config.ts",
+    "test:smoke": "pnpm prepare:content && vitest run --config vitest.smoke.config.ts",
     "test:all-browsers": "vitest run --config vitest.all-browsers.config.ts"
   },
   "dependencies": {

@@ -210,9 +210,18 @@ const GENERATED_REGISTRY_OUTPUT = /^apps\/docs\/public\/r\/.+\.json$/;
  *
  * They enter a version bump because version-sync rewrites the npm ranges in
  * `component-contracts.json`, which moves its SHA-256, which is stamped into every surface below.
+ *
+ * ONLY THE COMMITTED SURFACES ARE STILL COVERED BY `design:derived:check`. Since WP4/R4 the four
+ * `*.generated.*` entries below are gitignored BUILD OUTPUTS (see lib/derived-build-outputs.mjs),
+ * so they can never appear in a change set at all and these patterns are inert — kept because
+ * removing them would be a behaviour-neutral edit to a module WP3 deletes outright, and because a
+ * pattern that matches nothing is cheaper than a wrong one. What actually asserts those four now is
+ * `verify-component-contracts.mjs`, which regenerates them and reconciles the result against the
+ * contract. `component-contracts.json` itself is still tracked and still checked as described above.
  */
 const CONTRACT_DERIVED_OUTPUT = [
   /^packages\/ui\/component-contracts\.json$/,
+  // The next four are build outputs since WP4 — unreachable in a change set, kept inert.
   /^packages\/ui\/contract-smoke-tests\.generated\.json$/,
   /^apps\/docs\/vrt\/contract-routes\.generated\.ts$/,
   /^apps\/docs\/lib\/home-component-catalog\.generated\.ts$/,

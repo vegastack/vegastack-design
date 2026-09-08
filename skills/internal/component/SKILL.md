@@ -265,9 +265,13 @@ target: "@ui/<name>.tsx" }]` — the `@ui/` placeholder, never a hard-coded path
 8. **The contract record** — add (for a new component) or UPDATE (for a change to variants, sizes,
    states, motion, engines, or test files) the component's record in
    [`packages/ui/component-contracts.json`](../../../packages/ui/component-contracts.json), then run
-   `pnpm design:derived`. It generates `apps/docs/vrt/contract-routes.generated.ts`, the route list
-   consumed by BOTH the contract gate (`contracts.spec.ts`) and the local before/after capture
-   (`components.spec.ts`); never hand-edit the generated file. Both suites cover all four Playwright
+   `pnpm design:derived`. It refreshes the committed prose surfaces (the component matrix, the
+   public skill roster, AGENTS.md § Numbers) — commit those — and it regenerates
+   `apps/docs/vrt/contract-routes.generated.ts`, the route list consumed by BOTH the contract gate
+   (`contracts.spec.ts`) and the local before/after capture (`components.spec.ts`). That route list
+   and its four sibling `*.generated.*` files are **untracked build outputs**: `prepare:content`
+   writes them, `.gitignore` excludes them, and there is nothing to stage — the authority you commit
+   is the contract record. Never hand-edit a generated file. Both suites cover all four Playwright
    lanes from that one route — do not author a per-page `describe`, and never leave a skipped visual
    test (rejected by `tooling/content-lint.mjs`).
 

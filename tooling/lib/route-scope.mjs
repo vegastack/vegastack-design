@@ -24,8 +24,14 @@
 import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { ensureBuildOutputs } from "./derived-build-outputs.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
+
+// `icon-chunks.generated.ts` below is a BUILD OUTPUT, not repository content (WP4/R4), so a fresh
+// clone reaches this module before any build has written it. Generating on demand costs ~90 ms and
+// keeps the read that follows unconditional.
+ensureBuildOutputs();
 
 const CONTRACTS = JSON.parse(
   readFileSync(join(ROOT, "packages/ui/component-contracts.json"), "utf8"),
@@ -172,12 +178,17 @@ export const PIXEL_SCOPE = {
  *     particular carries every item's `meta.version`, so treating it as global would make a pure
  *     version bump demand the full 108-route sweep, which is precisely the waste
  *     `docs/ledger/operator-review.md` records removing. And a route-set change cannot hide here:
- *     it necessarily rewrites `contract-routes.generated.ts`, which IS global below, and
- *     `pnpm design:derived:check` fails closed if the two ever drift apart. So the conservative
- *     reading is already covered by a different trigger, and paying for it twice buys nothing.
+ *     it necessarily rewrites a COMPONENT SOURCE, its preview and its MDX page — each of which
+ *     selects that route on its own — so the conservative reading is already covered by a
+ *     different trigger, and paying for it twice buys nothing.
  *
- *   contracts.spec.ts and contract-routes.generated.ts are ABSENT here on purpose
- *     They are global instead. See CONTRACT_GLOBAL_SURFACE.
+ *     (Until WP4/R4 the argument named `contract-routes.generated.ts` as the covering trigger,
+ *     because a route-set change necessarily rewrote it and it is global below. That file is now a
+ *     gitignored BUILD OUTPUT, so it can never appear in a change set and that trigger is inert.
+ *     The component-source trigger above is what actually carries the guarantee now.)
+ *
+ *   contracts.spec.ts is ABSENT here on purpose
+ *     It is global instead. See CONTRACT_GLOBAL_SURFACE.
  */
 export const CONTRACT_NON_VISUAL = [
   /\.test\.tsx?$/,
@@ -202,14 +213,15 @@ export const CONTRACT_NON_VISUAL = [
 ];
 
 /**
- * Global FOR CONTRACTS. Everything the pixel lane calls global, minus its own spec, plus the three
- * authorities that decide what the contract lane asserts and over which routes:
+ * Global FOR CONTRACTS. Everything the pixel lane calls global, minus its own spec, plus the
+ * authority that decides what the contract lane asserts:
  *
  *   contracts.spec.ts                 the assertions themselves
- *   contract-routes.generated.ts      the route set
  *
- * The JSON authorities those two are generated FROM are deliberately NOT here — see
- * CONTRACT_NON_VISUAL for why the generated file is the correct and sufficient trigger.
+ * `contract-routes.generated.ts` is still listed for completeness, but since WP4/R4 it is a
+ * gitignored BUILD OUTPUT: it cannot appear in a change set, so the pattern never matches. The
+ * route set changing is covered by the component sources, previews and MDX pages that must change
+ * with it — see CONTRACT_NON_VISUAL, `the two machine-authority JSONs`.
  */
 export const CONTRACT_GLOBAL_SURFACE = [
   /^packages\/design-tokens\//,
