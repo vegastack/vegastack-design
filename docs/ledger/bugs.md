@@ -127,8 +127,11 @@ data-slot="icon-button">`. The literal follows the spread, so `IconButton` overw
   itself; that the two sides of one recipe disagreed is exactly what B4-09 predicted.
 - **Fix.** The shared `prose` recipe in `@vegastack/design` states it once, as
   `[&_a]:hover:text-info-text/(--alpha-link-hover)`, and both surfaces wear the same string. A unit
-  test compares the two surfaces' **computed** styles rather than their class names, so the next
-  divergence of this kind fails a gate instead of being read past.
+  test asserts that **all 116 rules** of `proseClassName` are present on both roots and that the only
+  extras are the six structural classes a contenteditable needs — so the two cannot diverge again
+  without a gate failing. Deliberately structural and not a `getComputedStyle` comparison: the
+  `@vegastack/ui` harness compiles no Tailwind CSS, so a resolved-style comparison would have found
+  both surfaces at browser defaults and passed no matter how far they had drifted.
 - **Class:** silent visual defect, pre-existing since the editor shipped. Not caught by any lint: the
   variant order is legal Tailwind and both orders compile.
 
