@@ -147,7 +147,7 @@ Found by the Codex adversarial round on PR #57, all three reproduced before bein
   the `registry:build` provenance header excluded, which is exactly the slice the mirror compares
   when deciding a file changed — and `verifyIcon` recomputes it from disk on every run.
   `tooling/mirror-animated-icons.mjs` stamps it on every write run and verifies it under `--check`.
-  Two of the now-fourteen `--self-test` mutations exist solely to prove nothing else catches this: a
+  Two of the now-fifteen `--self-test` mutations exist solely to prove nothing else catches this: a
   glyph-path edit, and a timing edit that uses a **sanctioned** duration so the Motion-vocabulary
   check cannot be what rejects it. Confirmed against live upstream: `mirror --check` regenerates all
   439 modules byte-identically and agrees with every stamped hash.
@@ -231,16 +231,18 @@ re-diagnose it, and because a race that flakes under load is a real race.
   a loaded shared box, a tick lands between `toBeVisible()` and `scrollIntoViewIfNeeded()` and
   replaces the node the locator resolved. Under no load the window is too small to hit — which is
   exactly why it only appears in the full sweep.
-- **Fixed here after all, on the spec side.** The first re-run of the full sweep reproduced it (2
-  failures instead of 4), so it is not an occasional flake but a race that lands on essentially every
-  full sweep — and it therefore blocks the gate receipt for _any_ change touching a global surface,
-  not just this one. `contracts.spec.ts` now re-resolves the fixture and retries the scroll under
-  `expect(...).toPass()` instead of acting on a single resolved handle. The component is not
-  touched: its ticking is correct behaviour. No assertion is weakened — both 320px reflow polls, the
-  RTL poll and the closing visibility assertion are unchanged.
+- **Not fixed on this branch in the end — main got there first.** This branch did carry a spec-side
+  fix (re-resolve the fixture and retry the scroll under `expect(...).toPass()`), because the first
+  re-run of the full sweep reproduced it (2 failures instead of 4): it is not an occasional flake but
+  a race that lands on essentially every full sweep, and it therefore blocks the gate receipt for
+  _any_ change touching a global surface, not just this one. While this PR was in review the F1
+  follow-up (`065315d5`, #59) landed the **same fix by the same mechanism** on `main` — a bounded
+  `expect.poll` retry around `scrollIntoViewIfNeeded`, with the component untouched. On the rebase
+  onto that main, this branch's version was dropped and main's kept, so there is exactly one
+  implementation. The full entry for it is the 2026-09-08 record at the top of this file.
 - **Why the spec and not the component:** the contract lane must tolerate fixtures that legitimately
-  re-render, or every future self-updating component becomes unverifiable. Flagged in the PR as an
-  edit outside I1's lane.
+  re-render, or every future self-updating component becomes unverifiable. Both branches reached that
+  conclusion independently.
 
 ---
 

@@ -119,7 +119,7 @@ reducedMotion="never">` is now inert for them. **Needs MK:** confirm that trade,
 - **Chosen:** the manifest carries `moduleSha256` per icon — the hash of the generated module body
   with the `registry:build` provenance header excluded, which is precisely the slice the mirror
   itself compares when deciding a file changed — and the verifier recomputes it from disk. The
-  mirror stamps it on every write run and re-checks it under `--check`. Two of the fourteen
+  mirror stamps it on every write run and re-checks it under `--check`. Two of the fifteen
   `--self-test` mutations (a glyph-path edit and a timing edit that uses a _sanctioned_ duration)
   exist specifically to prove nothing else in the gate can catch these.
 
