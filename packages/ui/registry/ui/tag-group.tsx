@@ -1,4 +1,4 @@
-// @vegastack tag-group@0.6.0 sha256-cqFx9Q85b8oTndPkMo0td+XiqcKF5JQNU+guUS/Uq70=
+// @vegastack tag-group@0.6.0 sha256-TYHxQwKu8kw71eppG4PKz2uw4qSfHepU42FsmGA/f88=
 
 "use client";
 
@@ -158,11 +158,15 @@ export function TagGroup({
         // overflow control rides inside one. No aria-expanded: the button
         // REPLACES itself with the expanded tags rather than toggling a region.
         <span role="listitem" className="inline-flex">
-          {/* The overflow control IS a chip — one geometry, and the whole 28px pill is the
-              pointer target, so the 24px floor is met by the real box with nothing to clip.
-              It is the one interactive chip in the system, so it is also the one that carries
-              the hover/pressed recipe; a plain Tag has neither, because clicking one does
-              nothing. */}
+          {/* The overflow control IS a chip — one geometry, and the whole pill is the pointer
+              target, so the 24px floor is met by the real box with nothing to clip. It is the
+              one interactive chip in the system, so it is also the one that carries the
+              hover/pressed recipe; a plain Tag has neither, because clicking one does nothing.
+
+              `min-w-(--size-sm)` is load-bearing, not decoration: a chip is `w-fit`, and "+2"
+              at the sm tier measures 23.8px wide — under the 24px floor, which the contract
+              lane caught. Flooring the width at the tier's own height makes the short cases a
+              circle and lets longer counts ("+12") grow past it. */}
           <Chip
             size="sm"
             data-slot="tag-group-overflow"
@@ -173,7 +177,7 @@ export function TagGroup({
               setExpanded(true);
             }}
             className={cn(
-              "text-muted-foreground select-none hover:text-foreground",
+              "min-w-(--size-sm) justify-center text-muted-foreground select-none hover:text-foreground",
               surfaceInteractive,
             )}
           >

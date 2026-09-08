@@ -99,6 +99,9 @@ test("overflow chip IS a chip — one pill that is its own 28px pointer target",
   expect(overflow.dataset.slot).toBe("tag-group-overflow");
   expect(overflow.dataset.size).toBe("sm");
   expect(overflow.className).toContain("h-(--size-sm)");
+  // A chip is `w-fit`, and "+1" is narrower than the 24px pointer floor — the contract lane
+  // measured 23.8px. The width floors at the tier's own height so the short cases are circles.
+  expect(overflow.className).toContain("min-w-(--size-sm)");
   expect(overflow.className).toContain("rounded-full");
   expect(overflow.querySelector("span")).toBeNull();
   // The one interactive chip carries the shared hover/pressed recipe verbatim.

@@ -269,7 +269,7 @@
         "whenToUse": "Decorative record labels/categories in rows that may overflow — the label voice.",
         "whenNotToUse": "Status signals (Badge) or interactive filters (Combobox chips).",
         "version": "0.6.0",
-        "integrity": "sha256-cqFx9Q85b8oTndPkMo0td+XiqcKF5JQNU+guUS/Uq70="
+        "integrity": "sha256-TYHxQwKu8kw71eppG4PKz2uw4qSfHepU42FsmGA/f88="
       }
     },
     {
