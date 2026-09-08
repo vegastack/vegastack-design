@@ -30,17 +30,13 @@ env:
 # lanes are EXECUTED here rather than attested. The `receipt-guard` job that used to stand in for
 # them is deleted along with `.gates/` (docs/plans/2026-09-08-verification-rebuild.md, R1).
 jobs:
-  # What does this push require, and what will it DO? One authority, called rather than reimplemented
-  # in shell — tooling/classify-change.mjs. That logic lived here as bash and was wrong in both
-  # directions on 2026-07-25 (first demanding the 768-check gate for a pure version bump across 1082
-  # provenance-re-stamped files, then reporting no change for a real component edit while exiting 0).
-  # tooling/verify-classify-change.mjs now proves both directions against those actual commits.
+  # What will this push DO — open a Version PR, publish, or neither? One authority, called rather
+  # than reimplemented in shell — tooling/release-detect.mjs. That logic lived here as bash and was
+  # wrong in both directions on 2026-07-25. It no longer decides which browser gates must have run:
+  # `quality-gate` EXECUTES them.
   changes:
     runs-on: [self-hosted, vsk-runners-mac-mini]
     outputs:
-      contracts: ${{ steps.detect.outputs.contracts }}
-      unit: ${{ steps.detect.outputs.unit }}
-      smoke: ${{ steps.detect.outputs.smoke }}
       publish: ${{ steps.detect.outputs.publish }}
       has_changesets: ${{ steps.detect.outputs.has_changesets }}
     steps:
@@ -63,7 +59,7 @@ jobs:
           fi
           # --check-npm so an INTERRUPTED release can resume. Versions can sit bumped-but-unpublished
           # on main; without asking the registry, no later push would ever set publish=true again.
-          node tooling/classify-change.mjs --before "$BEFORE" --after "$CURRENT_SHA" --check-npm
+          node tooling/release-detect.mjs --before "$BEFORE" --after "$CURRENT_SHA" --check-npm
 
   # Repository code and dependencies are validated without write or OIDC authority — by EXECUTING the
   # one command, browsers included, in the pinned Playwright container on the LAN Linux boxes. This

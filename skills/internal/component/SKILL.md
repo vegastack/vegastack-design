@@ -305,12 +305,12 @@ pnpm dlx shadcn@latest add @vegastack/<name> -y -o     # copy-in renders (serve 
 reconciliation, public API docs, theme parity, and the portal/mirror checks). Run it before calling
 a component done, or `pnpm lint`, which includes it.
 
-Then prove the behaviour contract and review the pixels. These are different things and neither
-substitutes for the other.
+Then prove the behaviour contract, and look at the component yourself. These are different things
+and neither substitutes for the other.
 
 ```bash
 pnpm verify                                    # BLOCKING. Includes 320px reflow · RTL · 24px targets
-node tooling/vrt-review.mjs                    # REVIEW. before/after on this machine; exits 0 either way
+pnpm -F @vegastack/docs dev                    # REVIEW. open the page and look at it
 ```
 
 1. The geometry contracts are the gate, and they live in
@@ -318,8 +318,8 @@ node tooling/vrt-review.mjs                    # REVIEW. before/after on this ma
    runs them and so does CI, on the LAN Linux runners in the pinned Playwright container. A red
    result is a defect in the component, not in the suite. Reproduce one fixture with
    `pnpm --filter @vegastack/ui exec vitest run test/geometry.browser.test.tsx -t <fixture>`.
-2. The review tool captures the branch's merge-base and the working tree, then writes
-   `.vrt-review/report.json` plus before/after/diff PNGs. **Read the images** for every entry whose
-   `status` is not `unchanged`, classify each intended / unintended / uncertain, and present the
-   verdict. No screenshot is committed — `.gitignore` excludes both output directories.
-3. A run that captured nothing prints SKIPPED. That is not evidence of a clean diff.
+2. There is **no pixel-capture tool**: the before/after lane was deleted with the attestation stack
+   (`docs/plans/2026-09-08-verification-rebuild.md` § 3.3), and no screenshot is taken or committed
+   anywhere. The visual half is a person opening the docs page in light and dark, at narrow and wide,
+   and exercising every state — rest, hover, pressed, focus-visible, disabled.
+3. "The gate is green" is not a visual verdict. Say what you looked at, or say you did not look.

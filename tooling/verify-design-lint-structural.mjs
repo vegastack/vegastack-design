@@ -8,10 +8,14 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 
+import { ROOT } from "./lib/fs.mjs";
+
 const scratch = mkdtempSync(join(tmpdir(), "vegastack-design-lint-"));
 const invalidDir = join(scratch, "packages/ui/registry/ui/invalid");
+const rawStepsDir = join(scratch, "packages/ui/registry/ui/raw-steps");
 const validDir = join(scratch, "packages/ui/registry/ui/valid");
 mkdirSync(invalidDir, { recursive: true });
+mkdirSync(rawStepsDir, { recursive: true });
 mkdirSync(validDir, { recursive: true });
 
 try {
@@ -45,12 +49,22 @@ export function LiteralRules(_props: RenderlessProps) {
 }
 `,
   );
+  // Tailwind's raw motion steps satisfied the old prefix-only pairing check: `duration-300` starts
+  // with `duration-` and `ease-in-out` starts with `ease-`. This specimen passes that rule and must
+  // fail the anchored one (audit TG-08). `duration-0` next to a real token pair stays legal.
+  writeFileSync(
+    join(rawStepsDir, "raw-steps.tsx"),
+    `export function RawSteps() {
+  return <div className="transition-opacity duration-300 ease-in-out">Raw steps</div>;
+}
+`,
+  );
   writeFileSync(
     join(validDir, "textarea.tsx"),
     `import type { ComponentProps } from 'react';
 
 export function Textarea(props: ComponentProps<'textarea'>) {
-  return <><textarea {...props} /><div className="grid-cols-[auto_repeat(3,auto)]" /></>;
+  return <><textarea {...props} /><div className="grid-cols-[auto_repeat(3,auto)]" /><div className="transition-opacity duration-fast ease-standard data-[instant]:duration-0" /></>;
 }
 `,
   );
@@ -59,7 +73,7 @@ export function Textarea(props: ComponentProps<'textarea'>) {
     process.execPath,
     ["tooling/design-lint.mjs", invalidDir],
     {
-      cwd: process.cwd(),
+      cwd: ROOT,
       encoding: "utf8",
     },
   );
@@ -102,11 +116,31 @@ export function Textarea(props: ComponentProps<'textarea'>) {
     process.exit(1);
   }
 
+  const rawSteps = spawnSync(
+    process.execPath,
+    ["tooling/design-lint.mjs", rawStepsDir],
+    { cwd: ROOT, encoding: "utf8" },
+  );
+  const rawStepsOutput = `${rawSteps.stdout ?? ""}\n${rawSteps.stderr ?? ""}`;
+  if (
+    rawSteps.status === 0 ||
+    !rawStepsOutput.includes("[transition-pairing]") ||
+    !rawStepsOutput.includes('"duration-300"') ||
+    !rawStepsOutput.includes('"ease-in-out"')
+  ) {
+    console.error(
+      "✗ design-lint accepted Tailwind's raw motion steps as a token pair — transition-pairing is " +
+        "anchored to duration-fast/base/slow + ease-standard/emphasized/exit/spring and must name the raw step",
+    );
+    console.error(rawStepsOutput.trim());
+    process.exit(1);
+  }
+
   const valid = spawnSync(
     process.execPath,
     ["tooling/design-lint.mjs", validDir],
     {
-      cwd: process.cwd(),
+      cwd: ROOT,
       encoding: "utf8",
     },
   );
@@ -117,7 +151,8 @@ export function Textarea(props: ComponentProps<'textarea'>) {
   }
 
   console.log(
-    `✓ design-lint structural specimens: ${requiredIds.length} negative rules fail closed; reviewed Textarea adapter passes`,
+    `✓ design-lint structural specimens: ${requiredIds.length} negative rules fail closed, raw motion ` +
+      `steps are rejected as a pairing; reviewed Textarea adapter (with a tokenised transition and a structural duration-0) passes`,
   );
 } finally {
   rmSync(scratch, { recursive: true, force: true });

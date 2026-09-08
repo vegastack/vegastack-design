@@ -153,43 +153,23 @@ severity. **If the task was an audit, stop here — report, never auto-fix.**
 
 ## 8. Visual review discipline
 
-Visual verification is split: **behaviour** is a gate — the geometry contracts in
+Visual verification is one thing now: the geometry contracts in
 `packages/ui/test/geometry.browser.test.tsx` (320px reflow, RTL containment, the effective 24px
 pointer target), which run inside `pnpm verify` and therefore inside CI, taking no screenshots and
-needing no baselines; **pixels** are a local review step (`tooling/vrt-review.mjs`, before/after on
-one machine, nothing committed).
+needing no baselines. There is no pixel lane and no baseline of any kind — a claim that "the pixel
+review passed" describes a tool that no longer exists.
 
 **The receipt is gone, and so is the review obligation it created.** Until 2026-09-08 no CI runner
 executed a browser, the lanes were attested by `.gates/receipt.json`, and a review that accepted "CI
 was green" had accepted an attestation rather than a run. CI now executes the same `pnpm verify` on
 the LAN Linux runners, so the reviewable question is simply whether the check ran and what it said.
 If you find a workflow, script, or skill still referring to `.gates/`, `receipt-guard`, `pnpm
-classify`, or `pnpm gates:*`, that is a finding — it is stale prose, not a mechanism.
+classify`, `pnpm gates:*`, `vrt-review`, or `contracts-run`, that is a finding — it is stale prose,
+not a mechanism.
 
-Reviewing a before/after report:
-
-- **Individually review every entry.** N non-unchanged entries is N decisions. Read the before,
-  after, AND diff image for each. Never bulk-accept, and never let a reading of an image substitute
-  for the pixel count — the count decides what gets looked at, the image decides what it means.
-- **A SKIPPED run is not a clean diff.** If the tool captured nothing, say so. Treating "no capture"
-  as "no change" is the exact false-coverage claim this section exists to catch.
-- **Exit code 2 is an infrastructure failure**, not a pass. A build or server died and no report
-  exists. An empty report presented as evidence is a high finding.
-- **A `note` field means the capture broke** (navigation error, timeout) — that entry has no visual
-  verdict at all and must not be counted as unchanged.
-- **Fresh-build requirement.** For the pixel lane `webServer.reuseExistingServer` must stay `false`. A
-  reused server has served pre-rewrite pages into a "passing" capture twice in this program's history.
-  Flag any config that reuses a server as a correctness risk, not a performance choice.
-
-  The contract lane no longer has that risk at all: the geometry contracts mount the preview
-  components directly in the vitest browser suite, with the real compiled token CSS, and depend on no
-  docs export and no server. There is nothing stale to reuse.
-
-- **All four lanes.** Every route captures desktop light/dark and mobile light/dark. An entry present
-  in only one lane means the scope filter dropped the others — investigate rather than assume.
-- **No committed screenshot, ever.** `.gitignore` excludes `apps/docs/vrt/*-snapshots/` and
-  `.vrt-review/`; `tooling/verify-workflow-security.mjs` rejects any workflow reaching for the
-  removed baseline machinery. A PR reintroducing either is a high finding.
+- **No committed screenshot, and no capture lane to produce one.**
+  `tooling/verify-workflow-security.mjs` rejects any workflow reaching for the removed baseline
+  machinery. A PR reintroducing either is a high finding.
 - **No skipped visual test.** `tooling/content-lint.mjs` rejects one; also flag prose that still
   describes deferred visual coverage as acceptable.
 
@@ -201,9 +181,8 @@ Reviewing the contract gate:
 - A gate run that executed zero tests is not passing evidence. It now iterates the preview barrel, so
   a fixture silently dropped from that barrel is a fixture silently dropped from the gate — check the
   reported test count against the fixture count rather than the exit code.
-- **Scope risk is gone, and that is the design.** There is no route scoping, no
-  `tooling/lib/route-scope.mjs` selection, and no classifier deciding which lanes a change requires:
-  every run is the full loop. A green run therefore cannot mean "the wrong subset passed". Any
+- **Scope risk is gone, and that is the design.** There is no route scoping and no classifier
+  deciding which lanes a change requires: every run is the full loop. A green run therefore cannot mean "the wrong subset passed". Any
   proposal to reintroduce scoping needs its own plan, because the two-minute loop is what made
   scoping pointless in the first place.
 

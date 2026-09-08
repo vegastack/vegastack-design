@@ -516,9 +516,9 @@ for (const [name, source] of Object.entries(sources)) {
     );
   }
 
-  // The committed-baseline pixel gate is gone: screenshots are captured locally by
-  // tooling/vrt-review.mjs, on one machine, and never committed. A workflow reaching for its
-  // machinery is reintroducing a gate that could only be cleared by overwriting its own evidence.
+  // The committed-baseline pixel gate is gone and nothing replaced it: no lane in this repository
+  // writes a screenshot. A workflow reaching for that machinery is reintroducing a gate that could
+  // only ever be cleared by overwriting its own evidence.
   assert.doesNotMatch(
     source,
     /verify:vrt-baselines|update_baselines|-snapshots/,

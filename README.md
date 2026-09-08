@@ -29,7 +29,7 @@ packages/
 apps/docs/         Fumadocs showcase + guides + the registry host (public/r)
 tooling/           verify.mjs (the one command) · registry hashing/verification · design-lint · lints
 .husky/            pre-commit · commit-msg — cheap static signal only; no browser, no pre-push
-skills/internal/   maintainer skills — component · review · ship · gates (being retired)
+skills/internal/   maintainer skills — component · review · ship
 skills/public/     consumer skills — shipped inside @vegastack/design (see skills/README.md)
 .github/workflows/ ci · release (npm OIDC) · deploy
                    every job is self-hosted: the LAN Linux boxes run `pnpm verify` in the
@@ -96,10 +96,10 @@ half in parallel for the cross-platform signal. Nothing is bound to a tree hash 
 attested: the receipt system existed only because no free runner could launch a browser, and that
 stopped being true on 2026-09-07.
 
-Pixel comparison is deliberately **not** a gate. `node tooling/vrt-review.mjs` captures the affected
-routes at the branch's merge-base and again at the working tree, on one machine, and emits a
-before/after report reviewed by a human during `/ship`. No screenshot is committed — see
-AGENTS.md § Verification ladder.
+No lane in this repository takes a screenshot. The blocking visual-surface gate is
+`packages/ui/test/geometry.browser.test.tsx`, which measures reflow, RTL containment, and effective
+pointer-target size against the real compiled token CSS — so it cannot be cleared by regenerating its
+own evidence. See AGENTS.md § Verification ladder.
 
 Counts are generated from `packages/ui/component-contracts.json` — see AGENTS.md § Numbers rather
 than trusting a number written down here.

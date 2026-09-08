@@ -22,15 +22,15 @@
 //     `style={…}` carrying a DIRECT visual property (gridTemplateColumns, width, height, minHeight,
 //     maxHeight, padding, …) — dynamic OR literal — FAILS. A hardcoded hex/px/rem literal in any
 //     style object also fails. Formalized in requirements §7.1 (semantic-tokens-only contract).
-import { readdirSync, readFileSync, statSync } from "node:fs";
-import { join, resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import ts from "typescript";
 
+import { ROOT as REPO_ROOT, walk as walkTree } from "./lib/fs.mjs";
+
 // `--docs-shell` injects fixed repo-relative roots, but the docs package invokes this script with
-// cwd=apps/docs. Anchor those roots to the repo root (this file lives in <repo>/tooling/) so the
-// flag lints the same 85 files regardless of the caller's cwd.
-const REPO_ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
+// cwd=apps/docs. Those roots are anchored to REPO_ROOT (tooling/lib/fs.mjs) so the flag lints the
+// same files regardless of the caller's cwd.
 
 // Roots passed with the `--token-css` flag are EXPORTED token CSS (e.g. `packages/design-tokens/src`).
 // These ship to consumers as `@vegastack/design-tokens/base.css` and so must honor the same no-`!important`
@@ -90,6 +90,17 @@ const COLOR_PROPS =
   "bg|text|border|ring|fill|stroke|decoration|divide|from|via|to|caret|accent|shadow|outline";
 const LEN_PROPS =
   "h|w|size|min-w|max-w|min-h|max-h|p|px|py|pt|pb|pl|pr|m|mx|my|mt|mb|ml|mr|gap|gap-x|gap-y|space-x|space-y|top|bottom|left|right|inset|rounded|leading|text|basis|grid-cols|grid-rows|translate-x|translate-y|scale|scale-x|scale-y|aspect|origin";
+
+// The motion vocabulary the transition-pairing rule accepts. A variant prefix (`hover:`,
+// `data-[open]:`) may precede a token; a bare Tailwind step may not stand in for one.
+const MOTION_DURATION_UTILITY =
+  /(?:^|[\s:\]])duration-(?:fast|base|slow)(?=\s|$)/;
+const MOTION_EASE_UTILITY =
+  /(?:^|[\s:\]])ease-(?:standard|emphasized|exit|spring)(?=\s|$)/;
+// Tailwind's own steps: `duration-<n>` for any n but 0 (`duration-0` is the structural collapse a
+// `data-[instant]:` variant needs and is not a duration choice) and the five named default curves.
+const RAW_MOTION_STEP =
+  /(?:^|[\s:\]])(duration-(?!0(?=\s|$))\d+|ease-(?:in-out|in|out|linear|initial))(?=\s|$)/g;
 
 const RULES = [
   {
@@ -455,31 +466,22 @@ const OUTLINE_NONE_EXEMPT = [
   "/sheet.tsx", // viewport container only
 ];
 
-function walk(dir, out = []) {
-  for (const name of readdirSync(dir)) {
-    const p = join(dir, name);
-    const s = statSync(p);
-    if (
-      s.isDirectory() &&
-      !(
-        docsShellMode &&
-        /apps\/docs\/components\/(?:preview|stories|ui)$/.test(
-          p.replaceAll("\\", "/"),
-        )
-      )
-    ) {
-      walk(p, out);
-    }
+function walk(dir) {
+  const absoluteRoot = resolve(dir).replaceAll("\\", "/");
+  return walkTree(dir, {
+    // In --docs-shell mode the component copy-in, previews, and stories are linted by their own
+    // invocations; the shell walk skips those subtrees.
+    prune: (relative) =>
+      docsShellMode &&
+      /apps\/docs\/components\/(?:preview|stories|ui)$/.test(
+        `${absoluteRoot}/${relative}`,
+      ),
     // Lint shipped component source only — skip test files (test scaffolding may use inline sizing).
-    else if (
-      /\.(tsx?|css)$/.test(name) &&
-      !/\.test\.(tsx?)$/.test(name) &&
-      !(docsShellMode && name.endsWith(".css"))
-    ) {
-      out.push(p);
-    }
-  }
-  return out;
+    include: (relative) =>
+      /\.(tsx?|css)$/.test(relative) &&
+      !/\.test\.(tsx?)$/.test(relative) &&
+      !(docsShellMode && relative.endsWith(".css")),
+  });
 }
 
 let violations = 0;
@@ -499,10 +501,16 @@ for (const root of ROOTS) {
     const literals = staticStringLiterals(file, src);
 
     // T4 transition-pairing contract: any string literal that declares a `transition*` utility
-    // MUST pair it with a `duration-*` AND an `ease-*` token in the SAME literal (otherwise the
+    // MUST pair it with a duration TOKEN and an ease TOKEN in the SAME literal (otherwise the
     // element silently inherits Tailwind's untokenized default curve — audit 09 §b1). The unit is
     // the string literal because the fix pattern co-locates the trio; `transition-none` /
     // `transition-discrete` are structural, not animated, and are exempt.
+    //
+    // ANCHORED TO THE TOKEN NAMES, not the prefix. The rule used to accept any `duration-*` and any
+    // `ease-*`, so `transition-opacity duration-300 ease-in-out` — Tailwind's raw steps, exactly
+    // what AGENTS.md §Build rules bans — passed as "paired" (audit TG-08). `duration-0` stays
+    // legal as a structural modifier (`data-[instant]:duration-0` collapses a transition) but does
+    // not satisfy the pairing on its own.
     for (const { text: lit, line } of literals) {
       const tokens = [
         ...lit.matchAll(
@@ -512,9 +520,16 @@ for (const root of ROOTS) {
         .map((t) => t[1])
         .filter((t) => t !== "transition-none" && t !== "transition-discrete");
       if (tokens.length === 0) continue;
-      if (!/\bduration-/.test(lit) || !/\bease-/.test(lit)) {
+      const hasDuration = MOTION_DURATION_UTILITY.test(lit);
+      const hasEase = MOTION_EASE_UTILITY.test(lit);
+      const rawSteps = [...lit.matchAll(RAW_MOTION_STEP)].map((m) => m[1]);
+      if (!hasDuration || !hasEase || rawSteps.length > 0) {
+        const detail =
+          rawSteps.length > 0
+            ? `uses raw Tailwind step(s) ${rawSteps.map((s) => `"${s}"`).join(", ")}`
+            : `without a duration-fast/base/slow + ease-standard/emphasized/exit/spring token pair`;
         console.log(
-          `${file}:${line} [transition-pairing] "${tokens[0]}" without a duration-*/ease-* token pair in the same class string`,
+          `${file}:${line} [transition-pairing] "${tokens[0]}" ${detail} in the same class string`,
         );
         violations++;
       }
@@ -720,15 +735,8 @@ for (const root of ROOTS) {
 const SCROLL_LOCK_SELECTOR = /html\s*>\s*body\[\s*data-scroll-locked\s*\]/;
 const SCROLL_LOCK_DECL =
   /^\s*(?:margin-right|--removed-body-scroll-bar-size)\s*:\s*0(?:px)?\s*!important\s*;?\s*$/;
-function walkCss(dir, out = []) {
-  for (const name of readdirSync(dir)) {
-    const p = join(dir, name);
-    const s = statSync(p);
-    if (s.isDirectory()) walkCss(p, out);
-    else if (/\.css$/.test(name)) out.push(p);
-  }
-  return out;
-}
+const walkCss = (dir) =>
+  walkTree(dir, { include: (relative) => /\.css$/.test(relative) });
 
 for (const root of tokenCssRoots) {
   let files;

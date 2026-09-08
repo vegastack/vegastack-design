@@ -17,16 +17,12 @@ self-hosted runners (provenance disabled; no `NPM_TOKEN`).
 ## 0. Release-chain preflight — run this FIRST
 
 ```bash
-pnpm release:preflight        # ~5min, in place, restores the tree on exit
+pnpm release:preflight        # = `pnpm verify:release`; the same command deploy.yml runs
 ```
 
-It simulates a version bump and runs the whole chain — version-sync, both authorities, and a full
-`shadcn` consume round-trip. A release is a chain, and a defect anywhere fails all of it.
-
-> **Stale under the verification rebuild.** `verify-release-chain.mjs` still asserts the receipt
-> carry, which `docs/plans/2026-09-08-verification-rebuild.md` removed along with `.gates/`. It is
-> scheduled for deletion in WP3; until then a failure in its receipt-carry step is the script being
-> out of date, not the release being broken. Every other step of it is current.
+It runs both docs-visibility matrices, the link check, the registry build and its idempotency
+assertion, a full `shadcn` consume round-trip, and the complete unit suite in all three engines. A
+release is a chain, and a defect anywhere fails all of it.
 
 **This exists because a release once took seven merge-and-watch cycles**, each one discovering the
 next broken link ~25 minutes later. Five of those seven would have surfaced in this single run. If it
@@ -59,7 +55,7 @@ That is the change from the previous topology: `pnpm gates:ship` used to be the 
 evidence, because no CI runner could launch a browser, and its `.gates/receipt.json` had to be
 committed with the release and had to describe exactly the pushed tree. Both the sweep command and
 the receipt are gone (`docs/plans/2026-09-08-verification-rebuild.md`, R1). Failures are ordinary
-command output now — the `gates` skill covers how to classify one at its root.
+command output now — the `review` skill covers how to classify one at its root.
 
 **If `git status` is not empty:** that is the signal, not an obstacle. Either the regenerated
 surfaces above changed (commit them with the work that caused them) or there is unrelated
@@ -69,18 +65,13 @@ snapshots the pushed commit.
 Then find out what the push will actually DO, before pushing:
 
 ```bash
-node tooling/release-classify.mjs        # origin/main → HEAD
+node tooling/release-detect.mjs --check-npm    # what release.yml's `changes` job will decide
 ```
 
-It extracts `release.yml`'s `detect` step verbatim and runs it, printing whether the quality gate
-runs and whether the run opens a Version PR or publishes. Reconcile that against what you expect.
-**A surprise here is the finding.** Exit 1 means the step left an output unset, which in an `if:`
-reads as false, so the requirement it drives is silently RELAXED rather than failed.
-
-Its `contracts` / `unit` / `smoke` outputs no longer drive anything: they existed to tell
-`receipt-guard` which lanes the receipt had to carry, and CI now simply runs every lane. Read
-`publish` and `has_changesets`; ignore the rest. (The classifier and this wrapper are both scheduled
-for deletion in WP3.)
+This is the same script `release.yml` calls, so what it prints is what the workflow will do: whether
+the run opens a Version PR (`has_changesets`) or publishes (`publish`). Reconcile that against what
+you expect — **a surprise here is the finding.** `--check-npm` asks the registry what is actually
+published, which is what lets an interrupted release resume.
 
 ## 1a. What the gates cannot see
 
@@ -104,23 +95,16 @@ have shipped.
 
 ## 1b. Visual review
 
-Run this whenever the release contains a component, token, preview, or docs-shell change. It is a
-review step, not a gate: it exits 0 for any pixel outcome.
+There is **no pixel-capture tool** any more; the before/after lane was deleted with the rest of the
+attestation stack (`docs/plans/2026-09-08-verification-rebuild.md` § 3.3). What replaced it is:
 
-```bash
-node tooling/vrt-review.mjs
-```
+- **The geometry contracts**, inside `pnpm verify` — 320px reflow, RTL containment, and the effective
+  24px pointer target, measured against the real compiled token CSS. Blocking, in CI, no baselines.
+- **A human looking at the docs site.** When a release contains a component, token, preview, or
+  docs-shell change, run `pnpm -F @vegastack/docs dev`, open the routes it touched, and describe what
+  changed. **Stop there. MK decides.** Never self-clear a visual change.
 
-Then follow [references/visual-review.md](references/visual-review.md) exactly:
-
-1. Read `.vrt-review/report.json`.
-2. For every entry with `status !== "unchanged"`, **read the before, after, and diff images**.
-3. Classify each **intended** / **unintended** / **uncertain**.
-4. Present a table — route, project, pixels changed, verdict, one-line reasoning.
-5. **Stop. MK decides.** Never self-clear a diff.
-
-A run that captured nothing prints SKIPPED. Report it as skipped; it is not evidence of a clean diff.
-An exit code of 2 means no report could be produced — an infrastructure failure, not a pass.
+See [references/visual-review.md](references/visual-review.md) for what to look at, route by route.
 
 ## 2. Changesets (one per user-visible package change)
 

@@ -75,8 +75,11 @@ in both directions, so an added or removed rule fails the build until this file 
     offset inside `calc()` must itself be a token — `calc(100dvh-2rem)` still fails despite the
     viewport unit.
 22. **`transition-pairing`** — a string literal containing a `transition*` utility without BOTH a
-    `duration-*` and an `ease-*` token in the SAME literal (`transition-none`/`-discrete` exempt).
-    Catches the silent-inherit-default-curve bug class.
+    duration token (`duration-fast`/`-base`/`-slow`) and an ease token
+    (`ease-standard`/`-emphasized`/`-exit`/`-spring`) in the SAME literal, or carrying any raw
+    Tailwind step (`duration-300`, `ease-in-out`, …) — the message names the raw step.
+    `transition-none`/`-discrete` are exempt, and `duration-0` is a legal structural modifier that
+    does not satisfy the pairing by itself. Catches the silent-inherit-default-curve bug class.
 23. **`color-transition`** / **`transition-all`** — `transition-colors`, any `transition-[…]` naming a
     colour property, and `transition-all` are banned. Colour changes are immediate; enumerate the
     causal opacity/transform/geometry properties instead.

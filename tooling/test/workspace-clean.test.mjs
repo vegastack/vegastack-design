@@ -29,8 +29,6 @@ const SCRIPT = fileURLToPath(
 
 /** Paths the script must remove in `--after-run`, relative to the root. */
 const AFTER_RUN = [
-  "apps/docs/test-results",
-  "apps/docs/playwright-report",
   "packages/ui/.vitest",
   "packages/ui/test/__screenshots__",
   "packages/ui/registry/ui/.vitest-attachments",
@@ -100,7 +98,7 @@ describe("--dry-run", () => {
 
   it("is the default mode when no flag is passed", () => {
     run([]);
-    expect(existsSync(join(root, "apps/docs/test-results"))).toBe(true);
+    expect(existsSync(join(root, "packages/ui/.vitest"))).toBe(true);
   });
 
   // REGRESSION, both orders. `--dry-run` used to assign to `mode`, so the last flag on the command

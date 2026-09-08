@@ -4295,7 +4295,10 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/combobox",
-      "registryDependencies": ["@vegastack/chip", "@vegastack/floating-surface"],
+      "registryDependencies": [
+        "@vegastack/chip",
+        "@vegastack/floating-surface"
+      ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
@@ -25154,7 +25157,7 @@
         "per-item-preview-module",
         "per-item-VRT-route"
       ],
-      "rationale": "The 439 deterministic generated mirrors share one schema, generator, icon gallery, Icons foundation page, and VRT route; exact membership and every source export remain fail-closed."
+      "rationale": "The 439 deterministic generated mirrors share one schema, generator, icon gallery, and Icons foundation page; exact membership and every source export remain fail-closed."
     },
     {
       "id": "pure-hooks-do-not-render",
@@ -25166,13 +25169,13 @@
         "visual-states",
         "rendered-a11y-states"
       ],
-      "rationale": "Pure hooks have source and browser tests but no independently rendered component surface; use-animation-replay is additionally exercised by cross-browser smoke."
+      "rationale": "Pure hooks have source and browser tests but no independently rendered component surface; use-animation-replay is additionally exercised by the three-engine release run."
     },
     {
       "id": "cross-browser-smoke-is-risk-selected",
       "appliesTo": ["components[*]", "hooks[*]", "blocks[*]"],
       "exemptFrom": ["universal-cross-browser-selection"],
-      "rationale": "Pull requests run the complete browser-unit suite in Chromium plus contract-risk-selected WebKit/Firefox smoke; main/release runs the complete suite in all three engines."
+      "rationale": "Every run of `pnpm verify` — local and CI — runs the complete browser-unit suite in Chromium; `pnpm verify:release` runs the complete suite in all three engines before a deploy. The risk-selected cross-engine smoke lane was deleted with the attestation stack; the release run covers everything it sampled."
     },
     {
       "id": "sonner-human-facing-alias",

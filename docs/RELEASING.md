@@ -80,7 +80,7 @@ registry build and idempotency, the shadcn consume round-trip, and the complete 
 engines) before `build-sign-deploy` starts.
 
 Until 2026-09-08 none of that ran in CI: no free runner could launch a browser, so those lanes ran in
-`.husky/pre-push` and `pnpm gates:ship` on a developer machine and were **attested** by
+`.husky/pre-push` and a local full-sweep command on a developer machine and were **attested** by
 `.gates/receipt.json`, which a `receipt-guard` job in each workflow verified against the pushed tree.
 The LAN Debian boxes can launch all three engines, so the receipt, the guard, the `pre-push` hook, and
 `.gates/` were all deleted (`docs/plans/2026-09-08-verification-rebuild.md`).
@@ -125,8 +125,9 @@ reconfirmed in run `30150905149`). Under this topology that blocks nothing. Fixi
 Actions runner as a LaunchAgent inside a logged-in session — is optional, and worth doing only if you
 later want a second machine independently re-running the browser lanes.
 
-**Screenshots are not part of CI.** Pixel comparison is a local `/ship` step —
-`node tooling/vrt-review.mjs` — reviewed by a human. Rationale and evidence:
+**Screenshots are not part of anything.** The pixel-capture lane was deleted with the rest of the
+attestation stack; the blocking visual-surface gate is the geometry contract suite inside
+`pnpm verify`, which takes no screenshots. Rationale and evidence:
 `docs/ledger/operator-review.md`, 2026-07-25.
 
 ### The changelog

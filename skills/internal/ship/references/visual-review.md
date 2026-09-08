@@ -1,88 +1,66 @@
 # Visual review during a release
 
-Screenshots are not a gate and are never committed. `tooling/vrt-review.mjs` captures the affected
-routes twice on ONE machine — once at the branch's merge-base, once at the working tree — and writes
-a report plus before/after/diff images. A person, reading them with their agent, decides what the
-change did.
+**There is no capture tool.** The before/after pixel lane (`tooling/vrt-review.mjs`, `.vrt-review/`,
+the Playwright fixture and full-page projects) was deleted with the rest of the attestation stack —
+`docs/plans/2026-09-08-verification-rebuild.md` § 3.3. Nothing in this repository takes a screenshot,
+and nothing ever committed one.
 
-## Division of labour
+What remains is a gate and a human, and this file is about the human half.
 
-| Stage          | Who                     | Why                                                              |
-| -------------- | ----------------------- | ---------------------------------------------------------------- |
-| Measurement    | Playwright's comparator | Deterministic. A 2px shift is a fact; a vision model can miss it |
-| Interpretation | the developer's agent   | Reads before/after/diff, judges intended vs unintended           |
-| Decision       | the developer           | Authority never leaves the human                                 |
+## What the gate already covers
 
-Never let a reading of an image substitute for the pixel count. The numbers decide _what gets looked
-at_; the agent decides _what it means_; the human decides _what happens_.
+`packages/ui/test/geometry.browser.test.tsx`, inside `pnpm verify` — so on every pull request, on the
+release push, and before every deploy:
 
-## Run it
+- **320px reflow** — no horizontal overflow at the narrowest supported viewport.
+- **RTL containment** — nothing escapes its container under `dir="rtl"`.
+- **Effective 24px pointer target** — measured with a real `elementFromPoint` probe, not
+  `getComputedStyle`, so an invisible hit area counts and a visually-large-but-unhittable control
+  does not.
 
-```bash
-node tooling/vrt-review.mjs                 # affected routes, fixture lane, vs origin/main
-node tooling/vrt-review.mjs --full-pages    # add the full-page lane (includes docs prose)
-node tooling/vrt-review.mjs --all           # every route, skip change detection
-node tooling/vrt-review.mjs --base <ref>    # compare against a different ref
-node tooling/vrt-review.mjs --routes /docs/components/button,/docs/components/card
-```
+It mounts the preview fixtures directly with the real compiled token CSS. It takes no screenshots and
+needs no baselines, so it cannot be cleared by regenerating its own evidence — which is exactly what
+made the old baseline gate worthless.
 
-It clones the merge-base into a temporary git worktree, installs and builds there, captures, then
-captures the working tree against that. Expect ~6-10 minutes: two full docs builds dominate.
+`contrast.browser.test.tsx` covers colour contrast in both themes. `stacking.browser.test.tsx` and
+`overlay-portal.browser.test.tsx` cover z-order and portal theme scope.
 
-**Scope.** Only routes the change can reach are captured. A component's own route plus every route
-whose component composes it (via `registryDependencies`); a preview file maps to its one page; a
-`.mdx` edit maps to that page's full-page capture only. Anything touching tokens, the shared runtime,
-the docs shell, the preview infrastructure, or the lockfile forces a full capture. A change touching
-no visual surface captures nothing and prints SKIPPED.
+## What the gate does not cover, and you must
 
-**Exit codes.** 0 for any pixel outcome — a difference is not a defect. 2 only when no report could
-be produced (a failed build, a dead server). A 2 is an infrastructure failure, never evidence.
-
-## Read the output
-
-```
-.vrt-review/report.json
-.vrt-review/<route-slug>[--full-page]--<project>/{before,after,diff}.png
-```
-
-Each entry carries `route`, `lane`, `project`, `status`, `changedPixels`, `totalPixels`,
-`percentChanged`, and the image paths. Everything needing a decision sorts first, largest change
-first inside that — triage by magnitude rather than opening everything.
-
-| `status`    | Means                                                                                                                                     |
-| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `unchanged` | Captured and identical                                                                                                                    |
-| `changed`   | Captured and different — read the images and give a verdict                                                                               |
-| `new`       | No base capture existed; the route is new                                                                                                 |
-| `removed`   | A base capture with no corresponding test at HEAD                                                                                         |
-| `broken`    | The test failed with no pixel evidence — navigation error, timeout, interrupted run. **Not a visual change and not a verdict.** Re-run it |
-
-`dimensions` appears when the capture changed size. `note` carries the failure message on a `broken`
-entry.
-
-**Known blind spot.** The fixture lane compares at `maxDiffPixels: 0`, so any change at all is
-reported. The full-page lane allows 100 pixels — a fixed, reviewable allowance that stops a tall
-page's height from scaling the tolerance. A full-page change under 100 pixels therefore reports as
-`unchanged`. If a change is expected to be sub-100-pixel and page-level, capture the fixture lane
-(the default) rather than relying on `--full-pages`.
+Layout drift that is legal, contained, contrasting, and still wrong: a changed rhythm, a wrong
+alignment, a hover wash that lost its inset, a radius that no longer matches its neighbour. No
+assertion in this repository can see any of that. A person has to look.
 
 ## Protocol
 
-1. Run the tool.
-2. Read `.vrt-review/report.json`.
-3. For every entry with `status !== "unchanged"`, **read the before, after, and diff images**.
-4. Classify each: **intended** (consistent with the changeset), **unintended**, or **uncertain**.
-5. Present a table — route, project, pixels changed, verdict, one-line reasoning.
-6. **Stop. The developer decides.** Never self-clear a diff.
+1. Build and serve the docs from the working tree:
 
-Report a SKIPPED run as skipped. It is not evidence of a clean diff.
+   ```bash
+   pnpm -F @vegastack/docs dev
+   ```
 
-## Known instabilities to expect, not accept
+2. Open every route the change can reach: the component's own page, every page whose component
+   composes it (follow `registryDependencies` in `packages/ui/registry.json`), and — for a token, a
+   docs-shell, or a preview-infrastructure change — a representative page from each family.
+3. Look at each in **light and dark**, and at **narrow and wide**. Interaction states are part of the
+   surface: rest, hover, pressed, focus-visible, disabled.
+4. Describe what changed, route by route, and classify each: **intended** (consistent with the
+   changeset), **unintended**, or **uncertain**.
+5. Present the list — route, what changed, verdict, one-line reasoning.
+6. **Stop. The developer decides.** Never self-clear a visual change, and never report "looks fine"
+   for a route you did not open.
 
-- A capture taken against a stale server pins outdated content. `reuseExistingServer` is `false` for
-  exactly this reason; it has caused a wrong reference twice. Never turn it on.
-- JS-driven animation races the capture. The spec emulates `reducedMotion: "reduce"` so those
-  components render their settled end state. A component that animates anyway is a component bug.
-- `content-visibility: auto` subtrees are not painted by Chromium's full-page screenshotter. The
-  spec forces `message-scroller-item` visible for the capture. A new component using
-  `content-visibility` needs the same treatment or its coverage is void.
+## Division of labour
+
+| Stage          | Who                    | Why                                      |
+| -------------- | ---------------------- | ---------------------------------------- |
+| Detection      | the geometry contracts | Deterministic, blocking, in CI           |
+| Interpretation | the developer's agent  | Opens the routes, judges intended vs not |
+| Decision       | the developer          | Authority never leaves the human         |
+
+## The cost, stated plainly
+
+Nothing enforces layout drift in CI. That is a deliberate trade, made because the previous gate's
+only escape hatch was overwriting the evidence under review — a gate that can be cleared by
+regenerating its own baseline is not a gate. If several people begin merging component changes
+independently, this is the first thing to revisit, and it needs its own plan.

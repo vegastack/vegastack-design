@@ -26,17 +26,8 @@
       "outputs": [
         "lib/home-component-catalog.generated.ts",
         "components/animated-icon-gallery.generated.tsx",
-        "vrt/contract-routes.generated.ts",
-        "vrt/icon-chunks.generated.ts",
         ".source/**"
       ]
-    },
-    "@vegastack/ui#prepare:content": {
-      "inputs": [
-        "$TURBO_ROOT$/packages/ui/component-contracts.json",
-        "$TURBO_ROOT$/packages/ui/registry/ui/icons/**"
-      ],
-      "outputs": ["contract-smoke-tests.generated.json"]
     },
     "build": {
       "dependsOn": ["^build", "prepare:content"],

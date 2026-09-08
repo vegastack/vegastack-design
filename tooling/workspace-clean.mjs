@@ -2,8 +2,8 @@
 // Reclaim local scratch that the verification loop produces, and nothing else.
 //
 // WHY THIS EXISTS
-//   Measured 2026-09-08 on the development Mac: `.turbo` 5.3 GB, `.next`/`out`/`test-results`/
-//   `.vrt-review` 2.1 GB, stale Playwright browser builds ~0.5 GB, 22 agent worktrees at 54 GB.
+//   Measured 2026-09-08 on the development Mac: `.turbo` 5.3 GB, `.next`/`out` and the browser
+//   lanes' scratch 2.1 GB, stale Playwright browser builds ~0.5 GB, 22 agent worktrees at 54 GB.
 //   None of it is tracked, all of it regenerates, and every byte of it accumulated because no step
 //   of the loop ever removed anything. `pnpm verify` now calls `--after-run` unconditionally (pass
 //   or fail), so a failed run leaves a clean tree instead of a directory of Playwright artifacts
@@ -89,8 +89,6 @@ const USAGE = `Usage: node tooling/workspace-clean.mjs [--after-run|--weekly] [-
 // and is meaningless afterwards. Globs are deliberately absent for all but `.vitest-attachments`,
 // which vitest writes wherever the failing test lived.
 const AFTER_RUN_PATHS = [
-  "apps/docs/test-results",
-  "apps/docs/playwright-report",
   "packages/ui/.vitest",
   "packages/ui/test/__screenshots__",
 ];

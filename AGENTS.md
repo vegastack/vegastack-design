@@ -61,7 +61,6 @@ confirm against 1–4 first. Locked decisions stay locked regardless of where th
 | Add or change a component, hook, or block                  | Load the **`component`** skill                                                           |
 | Review or audit this repo — gates, compliance, drift, bugs | Load the **`review`** skill                                                              |
 | Release, publish, deploy, or write a changeset entry       | Load the **`ship`** skill                                                                |
-| A git hook blocked a commit, or `pnpm verify` failed       | Load the **`gates`** skill                                                               |
 | Plan a non-trivial change                                  | Write a plan to `docs/plans/`, present it, wait for approval (§Planning)                 |
 | Write or change a docs page                                | §Docs authoring below, then the `component` skill §6                                     |
 | Understand what a component does                           | `docs/ledger/component-matrix.md`, or the MDX page                                       |
@@ -109,9 +108,11 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
   makes a box interchangeable, so `tooling/verify-workflow-security.mjs` REQUIRES it (not merely
   permits it) on every `LINUX_JOBS` entry and rejects it everywhere else. The negative harness proves
   both halves by mutation. This narrows the previous outright ban.
-- **Pixels stay a local review step**, unchanged: `node tooling/vrt-review.mjs` captures the base ref
-  and the working tree on one machine and emits a before/after report a human reads during `/ship`.
-  No screenshot is ever committed.
+- **No lane takes a screenshot.** The blocking visual-surface gate is
+  `packages/ui/test/geometry.browser.test.tsx` — reflow, RTL containment, and effective pointer-target
+  size, measured, inside `pnpm verify`. The local before/after pixel lane was deleted with the
+  attestation stack: it ran on one machine, exited 0 for every outcome, and was never a gate. Visual
+  judgement during `/ship` is a human opening the docs site.
 - **No CI job is GitHub-hosted.** Every job runs on self-hosted hardware — the mac minis for
   credential-only work and the cross-platform static signal, the LAN Debian boxes for the three
   verification jobs. A pull request, a release, and a deploy each cost zero billable minutes. The empty allowlist is enforced in
@@ -305,7 +306,6 @@ pnpm --filter @vegastack/ui test:all-browsers        # the complete suite in thr
 pnpm lint                                            # the full static gate chain — see package.json
 pnpm registry:build && git status --porcelain        # must be idempotent: clean tree after
 pnpm design:derived && git status --porcelain        # contract-derived surfaces must be current
-node tooling/vrt-review.mjs                          # before/after pixels — review, not a gate
 ```
 
 Go through turbo (or `pnpm verify`) for the browser suite rather than
@@ -320,13 +320,13 @@ import and the run HANGS on pre-transform errors rather than failing.
 | `pnpm verify` — typecheck, lint, `design:verify`, browser unit + axe + geometry, design CLI tests | `ci.yml`, `release.yml`, `deploy.yml`, on Linux |
 | `pnpm typecheck && pnpm lint && pnpm design:verify` (no browser) — the cross-platform signal      | `ci.yml`'s `verify-macos`, on the minis         |
 | `pnpm verify:release` — BOTH docs matrices, links, registry idempotency, consume, three engines   | `deploy.yml`, before `build-sign-deploy`        |
-| `vrt-review` pixels                                                                               | local `/ship` step, never a gate                |
 
-`.gates/receipt.json`, every `receipt-guard` job, `.husky/pre-push`, route scoping
-(`tooling/lib/route-scope.mjs`), and the change classifier were **removed** by
-`docs/plans/2026-09-08-verification-rebuild.md`. They existed because no free runner could launch a
-browser; the LAN Linux runners can, inside the pinned Playwright container, so the lanes are executed
-rather than attested. `--no-verify` and `HUSKY=0` stop being policy words.
+`.gates/receipt.json` and its guard jobs, `.husky/pre-push`, route scoping, the change classifier,
+the pixel-capture lane, the Playwright-over-the-docs-export contract suite, and the cross-engine smoke
+selection were all **removed** by `docs/plans/2026-09-08-verification-rebuild.md`. They existed
+because no free runner could launch a browser; the LAN Linux runners can, inside the pinned Playwright
+container, so the lanes are executed rather than attested. `--no-verify` and `HUSKY=0` stop being
+policy words, and no tooling script exists any more whose only job was to attest a browser gate.
 
 `pnpm lint` is the umbrella: shadcn base check, skill lint, the public-skill mirror, security
 boundaries, workflow security (+ its negative harness), secret scan, the `tooling` vitest project,
@@ -347,11 +347,9 @@ by regenerating its own evidence, and it runs inside `pnpm verify` — locally a
 not fail (it ran under `forcedColors: "active"`, where Chromium paints its own ring); that half was
 dropped rather than ported. Evidence: `docs/ledger/bugs.md`, 2026-07-25.
 
-**Pixel comparison is a local `/ship` step, not a gate.** `node tooling/vrt-review.mjs` captures the
-affected routes at the branch's merge-base and again at the working tree, on one machine minutes
-apart, then writes `.vrt-review/report.json` plus before/after/diff PNGs. It exits 0 for any pixel
-outcome and 2 only when it could not produce a report — a pixel difference is not a defect, and only
-a human can say whether it was intended. Procedure: the `ship` skill.
+**No lane takes a screenshot.** The local before/after pixel review was deleted with the rest of the
+attestation stack: it could only ever run on one machine, it exited 0 for every pixel outcome, and it
+was never a gate. Visual judgement during `/ship` is a human reading the docs site.
 
 One cost is accepted deliberately: **nothing enforces layout drift in CI** — the price of removing a
 gate whose only escape hatch was overwriting the evidence under review.
@@ -459,7 +457,7 @@ below is generated — never hand-edit it, and never quote a count from memory.
 <!-- NUMBERS:START — generated by tooling/sync-component-derived.mjs from packages/ui/component-contracts.json. DO NOT EDIT. -->
 
 - **Registry items: 559** — 112 components · 439 animated icons · 7 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-list-nav`, `use-mobile`, `use-platform`) · 1 block (`dashboard-01`)
-- Contract SHA-256: `a4f9a314360d010b74497e64248482bb85cd25414c2bbb6bbad228560944e808`
+- Contract SHA-256: `94e588ee43d3dd675bf65a51a076ea5a8396a2ddce84caf78b0fcd4e628ffacd`
 
 <!-- NUMBERS:END -->
 

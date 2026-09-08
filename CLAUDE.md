@@ -9,15 +9,15 @@ edit AGENTS.md instead.
 Claude-specific notes:
 
 - **Skills are already wired.** `.claude/skills/` symlinks every skill in `skills/internal/` and
-  `skills/public/`. Invoke by directory name: `/component`, `/review`, `/ship`, `/gates`.
+  `skills/public/`. Invoke by directory name: `/component`, `/review`, `/ship`.
   A new skill needs symlinks in **both** `.claude/skills/` and `.agents/skills/` (Codex reads the
   latter) — `tooling/skill-lint.mjs` fails closed if either is missing or stale.
 - **There is one verification command, and no session hooks.** `pnpm verify` — typecheck, lint,
   `design:verify`, and the `@vegastack/ui` browser suite — is what a developer runs, what `ci.yml`
   runs on a pull request, and what `release.yml` and `deploy.yml` run before anything outward. A
-  failure is ordinary terminal output; `.claude/settings.json` no longer runs a `gates-digest` hook
-  because there is no `.gates/` report to digest. Load the `gates` skill to classify a failure at its
-  root, and never self-clear one.
+  failure is ordinary terminal output; `.claude/settings.json` runs no session hooks, because there
+  is no gate report to digest. Load the `review` skill to classify a failure at its root, and never
+  self-clear one.
 - **Creating a top-level skills directory that did not exist at session start requires a restart**
   before Claude Code watches it. Edits to an existing skill are picked up live.
 
