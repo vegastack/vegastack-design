@@ -120,27 +120,40 @@ test("subscribes once and detaches the listener on unmount", async () => {
   });
 });
 
-test("serverFallback is what an environment without matchMedia reports", async () => {
+/**
+ * Run `body` with `window.matchMedia` removed — an SSR pass, or a runtime that simply has no
+ * media queries. Exactly ONE `render` per test: two roots inside a single test overlap React's
+ * `act()` bookkeeping, and the second container is torn down out from under the assertion.
+ */
+async function withoutMatchMedia(body: () => Promise<void>) {
   const original = window.matchMedia;
-  // @ts-expect-error — simulate a runtime with no matchMedia (an SSR pass, a bare JS runtime).
+  // @ts-expect-error — simulate a runtime with no matchMedia.
   delete window.matchMedia;
   try {
-    const truthy = await render(
-      <Harness query="(min-width: 100px)" serverFallback />,
-    );
-    await expect
-      .element(truthy.getByTestId("result"))
-      .toHaveTextContent("true");
-    truthy.unmount();
-
-    // ...and the default fallback is false, so an undeclared caller is unchanged.
-    const falsy = await render(<Harness query="(min-width: 100px)" />);
-    await expect
-      .element(falsy.getByTestId("result"))
-      .toHaveTextContent("false");
+    await body();
   } finally {
     window.matchMedia = original;
   }
+}
+
+test("serverFallback is what an environment without matchMedia reports", async () => {
+  await withoutMatchMedia(async () => {
+    const screen = await render(
+      <Harness query="(min-width: 100px)" serverFallback />,
+    );
+    await expect
+      .element(screen.getByTestId("result"))
+      .toHaveTextContent("true");
+  });
+});
+
+test("the default fallback is false, so an undeclared caller is unchanged", async () => {
+  await withoutMatchMedia(async () => {
+    const screen = await render(<Harness query="(min-width: 100px)" />);
+    await expect
+      .element(screen.getByTestId("result"))
+      .toHaveTextContent("false");
+  });
 });
 
 test("a live match wins over serverFallback once matchMedia is available", async () => {
