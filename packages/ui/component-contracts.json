@@ -7392,12 +7392,23 @@
                 "slider",
                 "slider-control",
                 "slider-indicator",
+                "slider-mark",
+                "slider-marks",
                 "slider-thumb",
-                "slider-track"
+                "slider-track",
+                "slider-value"
               ]
+            },
+            {
+              "name": "data-thumb",
+              "values": []
+            },
+            {
+              "name": "data-variant",
+              "values": []
             }
           ],
-          "cssVariables": []
+          "cssVariables": ["--slider-mark"]
         }
       }
     },
@@ -15360,7 +15371,40 @@
         "vrt": "required",
         "crossBrowserSmoke": "selected"
       },
-      "previewModule": "media-player-controls"
+      "previewModule": "media-player-controls",
+      "dataAttributes": {
+        "MediaPlayerControls": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "media-player-actions",
+                "media-player-actions-compact",
+                "media-player-controls",
+                "media-player-controls-layout",
+                "media-player-seek",
+                "media-player-skip-controls",
+                "media-player-time",
+                "media-player-time-duration",
+                "media-player-time-elapsed",
+                "media-player-transport",
+                "media-player-volume",
+                "media-player-volume-panel",
+                "media-player-volume-surface"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": ["paused", "playing"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "audio-player",
@@ -15473,37 +15517,6 @@
       },
       "previewModule": "audio-player",
       "dataAttributes": {
-        "MediaPlayerControls": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "media-player-actions",
-                "media-player-actions-compact",
-                "media-player-controls",
-                "media-player-controls-layout",
-                "media-player-seek",
-                "media-player-skip-controls",
-                "media-player-time",
-                "media-player-time-duration",
-                "media-player-time-elapsed",
-                "media-player-transport",
-                "media-player-volume",
-                "media-player-volume-panel",
-                "media-player-volume-surface"
-              ]
-            },
-            {
-              "name": "data-state",
-              "values": ["paused", "playing"]
-            },
-            {
-              "name": "data-variant",
-              "values": []
-            }
-          ],
-          "cssVariables": []
-        },
         "AudioPlayer": {
           "attributes": [
             {
