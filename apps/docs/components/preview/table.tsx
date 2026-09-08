@@ -82,7 +82,7 @@ export function table(): ReactNode {
               </TableCell>
               <TableCell>
                 <Badge
-                  variant="subtle"
+                  variant="soft"
                   intent={STATUS[row.status].color}
                   dot
                   size="sm"
@@ -129,7 +129,7 @@ export function tableWithCaptionAndFooter(): ReactNode {
               </TableCell>
               <TableCell>
                 <Badge
-                  variant="subtle"
+                  variant="soft"
                   intent={STATUS[row.status].color}
                   dot
                   size="sm"
@@ -309,7 +309,7 @@ export function tableSelectable(): ReactNode {
                 </TableCell>
                 <TableCell>
                   <Badge
-                    variant="subtle"
+                    variant="soft"
                     intent={STATUS[row.status].color}
                     dot
                     size="sm"

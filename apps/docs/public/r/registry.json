@@ -148,7 +148,7 @@
         "whenToUse": "A file attached to a chat message or a message-compose input - a chip/thumbnail with name, size, upload progress, and a remove action.",
         "whenNotToUse": "A generic file upload/drop zone with no chat context - reach for Empty (bordered drop zone) or a form Field instead.",
         "version": "0.6.0",
-        "integrity": "sha256-RNOm2aliRmH8cDdASR9DMDZEY+t37XteIp6EQ1aPWKU="
+        "integrity": "sha256-Lvl5GUKBqBpiBTrYi23o/tPEULkrFk6sBtSutdkcksw="
       }
     },
     {
@@ -207,14 +207,14 @@
         "whenToUse": "Any clickable action — submit, confirm, destructive, etc.",
         "whenNotToUse": "Navigation to a URL — use a link styled as a button (variant=link).",
         "version": "0.6.0",
-        "integrity": "sha256-/L+ySRZHzr+cg/jdOSjW151w1yzEutSgQ//VG9Zj/2o="
+        "integrity": "sha256-9PVBhV8RKhUYX/qUb5IEOhDkjN6CVjUGshD2wjVg0CI="
       }
     },
     {
       "name": "badge",
       "type": "registry:ui",
       "title": "Badge",
-      "description": "A compact status or label chip. 3 variants × semantic colors × 4 sizes, with dot, loading, and icon support.",
+      "description": "A compact status or label chip — solid / soft / outline / minimal × 5 semantic colors × 3 real size tiers, with a dot, a leading icon, and loading.",
       "categories": [
         "data-display"
       ],
@@ -239,7 +239,7 @@
         "whenToUse": "Label or annotate status, counts, or categories — e.g. Active, Beta, 3 New.",
         "whenNotToUse": "Anything clickable — use a Button; a Badge is a non-interactive label.",
         "version": "0.6.0",
-        "integrity": "sha256-jSw6SS3x7TBTDOOaCDmbIf+7KyIf86mHKcSRL42VaH8="
+        "integrity": "sha256-EYnhy2yIXziTJwUCp7TAdaln8o7N/Zuj+iOQnK6drg8="
       }
     },
     {
@@ -385,7 +385,7 @@
         "whenToUse": "Wrap any form control to give it a label, description, and accessible error/success message with auto-wired ARIA.",
         "whenNotToUse": "A bare control with its own label already wired — Field is for the label+message+a11y scaffold.",
         "version": "0.6.0",
-        "integrity": "sha256-R25S6M6J9iYNYP2/M54NVTMnHcwRyo38Dz5Z09oxbkA="
+        "integrity": "sha256-Iy48xrScYcPyBz8Ztswx9eECVYvfGSYtfEbsskM3gSs="
       }
     },
     {
@@ -493,7 +493,9 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/kbd"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/tooltip.tsx",
@@ -505,7 +507,7 @@
         "whenToUse": "Short supplementary labels on icon buttons, toolbar actions, and controls — optionally with a shortcut hint.",
         "whenNotToUse": "Interactive content (links/buttons) or essential information — a tooltip isn't reliably reachable; use a Popover.",
         "version": "0.6.0",
-        "integrity": "sha256-oYL7KSMBLkQphLb6YSchEeevTKESnIFF/KqvcsRJ+6I="
+        "integrity": "sha256-PkuvtmIOObVvVJ0VH0WZcp1zPeMCtu6u+JNfMYcosQM="
       }
     },
     {
@@ -564,7 +566,7 @@
         "whenToUse": "Organize related content into peer sections the user switches between in place; count badges surface pending items.",
         "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), or sections that must be visible at once.",
         "version": "0.6.0",
-        "integrity": "sha256-WcFS+s35ZMfBbcJfQcPdSsVfSK/+i54vzQIrU6UfMy0="
+        "integrity": "sha256-oVeNOfzPaH/RRqTG13zdCrAs7W46YuBgxF3sCd1i2QY="
       }
     },
     {
@@ -598,7 +600,7 @@
       "name": "kbd",
       "type": "registry:ui",
       "title": "Kbd",
-      "description": "A styled keyboard-key indicator — OS-aware modifier glyphs, a keys array, and small sizes.",
+      "description": "The one keyboard-key chip — modifier labels the caller resolves per platform, a keys array, and three inline sizes.",
       "categories": [
         "data-display"
       ],
@@ -619,14 +621,14 @@
         "whenToUse": "Display a keyboard shortcut or key in menus, tooltips, command palettes, help text.",
         "whenNotToUse": "As an interactive control or to capture keystrokes — Kbd is presentational only.",
         "version": "0.6.0",
-        "integrity": "sha256-YedoElnc3s4DwQKc+SO/7Gjj59kxCUjeqYw6mfNHdIo="
+        "integrity": "sha256-ZOjYrF92aqd0+ZMbKWUB4zsmcjcV14MsXkCqdljuH50="
       }
     },
     {
       "name": "skeleton",
       "type": "registry:ui",
       "title": "Skeleton",
-      "description": "A token-driven loading placeholder — line, circle, rect, card shapes, configurable count, reduced-motion-aware pulse.",
+      "description": "A token-driven loading placeholder — line, circle, rect, card shapes, a configurable count, and a pulse that stops under reduced motion.",
       "categories": [
         "feedback"
       ],
@@ -647,7 +649,7 @@
         "whenToUse": "Reserve layout space while content loads to avoid layout shift.",
         "whenNotToUse": "Indeterminate progress with no known layout (Spinner) or determinate tasks (progress bar).",
         "version": "0.6.0",
-        "integrity": "sha256-arqL25xLohZ3jxCL/jHnuEGR0EP3ujE7vMd6J5DBe38="
+        "integrity": "sha256-wqoXGxaPkjXk1egBl4M8tO5uH33SjFxWjBHKQ6NGXHc="
       }
     },
     {
@@ -676,7 +678,7 @@
         "whenToUse": "Signal an indeterminate, in-progress load — inside a button or a loading region.",
         "whenNotToUse": "Showing measurable progress (progress bar) or a skeleton-able layout (skeleton).",
         "version": "0.6.0",
-        "integrity": "sha256-G8dPzySfa5Vo7FcAjibzDF2UsoAAuFVMLvDtWklRh/8="
+        "integrity": "sha256-dciZg44WV0OIq/3XuUO4OMvB2LLXM5WuV2lfHUbwJCE="
       }
     },
     {
@@ -704,7 +706,7 @@
         "whenToUse": "Divide distinct sections of content, menus, or toolbars.",
         "whenNotToUse": "Pure spacing between elements — use margin/gap.",
         "version": "0.6.0",
-        "integrity": "sha256-jNwU+v6YVacu9Hr0f8waI+nIfUZcFnPgmRz1CZwU4DQ="
+        "integrity": "sha256-NB/xM+YersMnqjqXjnUIp7UeCWRgKg/y28IV6BPT0rs="
       }
     },
     {
@@ -793,7 +795,7 @@
         "whenToUse": "Settings that apply instantly — notifications, dark mode, feature flags.",
         "whenNotToUse": "Inside a form needing a Submit step — use a Checkbox.",
         "version": "0.6.0",
-        "integrity": "sha256-gWLbXzsLeL6JbuL98FvxH0vnIpwxZD0mNxrgjq7YxHI="
+        "integrity": "sha256-qqIPwrBKlW/xvqMAR7RIFATw0aWYo4rR6DeXRoN7Uyc="
       }
     },
     {
@@ -822,7 +824,7 @@
         "whenToUse": "Represent a user/entity with a photo, falling back to initials — alone or stacked in a group.",
         "whenNotToUse": "When you must fetch/resolve the image source — presentational; resolve R2/CDN keys app-side.",
         "version": "0.6.0",
-        "integrity": "sha256-lTUCcIlVSEoStQWAtnJwxim13LVb1VVjNsZc7CryArM="
+        "integrity": "sha256-K4DWrceYyPQ/1hpCthb9vu5hx7loZUnGrYI+cVGQ76o="
       }
     },
     {
@@ -935,7 +937,7 @@
         "whenToUse": "An imprecise value over a bounded range — volume, brightness, a price filter.",
         "whenNotToUse": "Exact values or large/open ranges (number input); on/off (Switch).",
         "version": "0.6.0",
-        "integrity": "sha256-1x2dq9i37G70vK3wWV5b7NxkK8KiCL4ONCmLkDj+Zj8="
+        "integrity": "sha256-yqdPQTleb/CZFXClWU/ItoYVRxyBslxHeFGvQKPQwRU="
       }
     },
     {
@@ -964,7 +966,7 @@
         "whenToUse": "A binary on/off control that persists — bold/italic, mute, pin.",
         "whenNotToUse": "One-shot action (Button) or mutually-exclusive options (ToggleGroup/RadioGroup).",
         "version": "0.6.0",
-        "integrity": "sha256-R0mjy0uPMMi4iTiU50Peo+5fjIUELjbP3Y7Pai1wtoc="
+        "integrity": "sha256-Q4OrjK/TmTL7piH/p4muRr/lh1L57FnmAnvTm0t8+YM="
       }
     },
     {
@@ -1080,7 +1082,7 @@
         "whenToUse": "A single show/hide region — extra detail, an optional form section, 'read more'.",
         "whenNotToUse": "Several coordinated sections where one opens at a time — use Accordion.",
         "version": "0.6.0",
-        "integrity": "sha256-0RiFNjUss5txZOsvFkHFiOQLMBfOtHhNnYfjuwE1KnA="
+        "integrity": "sha256-VTFzJu56e4p8obgyuqA16YOUnusVHSNqnAjQ2lnE5+w="
       }
     },
     {
@@ -1145,7 +1147,7 @@
       "name": "progress",
       "type": "registry:ui",
       "title": "Progress",
-      "description": "A determinate horizontal progress bar for measurable, ongoing tasks — built on Base UI Progress.",
+      "description": "A horizontal progress bar for measurable, ongoing tasks — determinate or a sweeping indeterminate segment, built on Base UI Progress.",
       "categories": [
         "feedback"
       ],
@@ -1167,7 +1169,7 @@
         "whenToUse": "Completion of a measurable task — uploads, multi-step forms, onboarding.",
         "whenNotToUse": "Indefinite waits (Spinner) or radial percentage display (out of scope).",
         "version": "0.6.0",
-        "integrity": "sha256-f6htnXhnbxgp5zY6WXuAWA68ZZolX1dacSdg+4WvajY="
+        "integrity": "sha256-cADnsKcaOrpRTvXvXso+WcLKp5Oai7ldibvW2EqbJXg="
       }
     },
     {
@@ -1376,7 +1378,7 @@
         "whenToUse": "Bounded panels whose content overflows — sidebars, log viewers, modal bodies, chat histories.",
         "whenNotToUse": "Whole-page scrolling, or content that already fits.",
         "version": "0.6.0",
-        "integrity": "sha256-teYgD+avSEytApy/qB1NC7XgigqiaCKAnsyrA4KUN0g="
+        "integrity": "sha256-Bx2QDy2TSpvdIzwoO9EhmIIJLa8nf1IocBX0V/kboMc="
       }
     },
     {
@@ -1405,7 +1407,7 @@
         "whenToUse": "User-adjustable split layouts — code editor panes, sidebar + content, inspector panels.",
         "whenNotToUse": "Fixed layouts, or layouts that only need to collapse/expand (Collapsible) without a drag/resize affordance.",
         "version": "0.6.0",
-        "integrity": "sha256-P0nTY/WFpwU7TUAVtjfS/CI08hidMqUIOxVD0319l/E="
+        "integrity": "sha256-/9Hyb848WsZ+jVHYmTFrHsdGVjJ/2fxE5sTeQTroU08="
       }
     },
     {
@@ -1461,7 +1463,7 @@
         "whenToUse": "Indicate the state of a task or item — todo, in progress, blocked, or done — alongside a label.",
         "whenNotToUse": "Measurable progress (Progress) or generic loading (Spinner).",
         "version": "0.6.0",
-        "integrity": "sha256-I3duWL1W4My4oftBHF0ctoK4oA1wf4Ztqq9wsC0GdFI="
+        "integrity": "sha256-VkURggASjADD3bgb948IVxjUpT1L6WzcD64N0PB6PCg="
       }
     },
     {
@@ -1489,14 +1491,14 @@
         "whenToUse": "A compact determinate percentage glyph — inline beside a label or metric, or with a visible percentage value.",
         "whenNotToUse": "Indefinite waits (Spinner) or wide tasks where a linear Progress bar reads better.",
         "version": "0.6.0",
-        "integrity": "sha256-GQ0NMS2/geUquX/Paa357J20X/LtPuaIui6zeb1DxZc="
+        "integrity": "sha256-JiTJqcfx7hocJ0oap//huci0JlNQD7Ni2MsH+qBeU2Y="
       }
     },
     {
       "name": "truncated-text",
       "type": "registry:ui",
       "title": "Truncated Text",
-      "description": "Truncate text to one line or N lines with an ellipsis, revealing the full text in a tooltip only when it overflows.",
+      "description": "Truncate text to one line or N lines with an ellipsis, revealing the full text in a tooltip only when it overflows — with per-region control over the tab stop.",
       "categories": [
         "data-display"
       ],
@@ -1518,7 +1520,7 @@
         "whenToUse": "Long values in constrained layouts — table cells, nav labels, IDs/paths.",
         "whenNotToUse": "Essential action text or content that must be fully visible.",
         "version": "0.6.0",
-        "integrity": "sha256-hBju6rcpL9INYyotL4j+JjbhbKMZv4YnUeLokIUFvBs="
+        "integrity": "sha256-OiYh28n0XTc/pc9m/2b7ytBH4msczOAQ5SdkHAMBT6w="
       }
     },
     {
@@ -1951,7 +1953,7 @@
         "whenToUse": "User-orderable single lists — settings sections, pipeline stages, ordered taxonomies — where the host persists (and may refuse) the order.",
         "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
         "version": "0.6.0",
-        "integrity": "sha256-qebYbRcSiIra0uLH7EUWkrkCU7DAOyw7RmRW6HypJLs="
+        "integrity": "sha256-6auPAYnj+ID5Wyp9YDT64hbdQ55wduevKa1GGJonDH8="
       }
     },
     {
@@ -1989,7 +1991,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.6.0",
-        "integrity": "sha256-4vI/pRKDVKggF9yoxmr0N8dTlrOlGS7jitFNvzu3Ehc="
+        "integrity": "sha256-HG12Y2MNbjX+3OGnD2fpLEi2eftsi1kThMOTkTFnsmI="
       }
     },
     {
@@ -2063,7 +2065,8 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/tooltip"
+        "@vegastack/tooltip",
+        "@vegastack/truncated-text"
       ],
       "files": [
         {
@@ -2076,7 +2079,7 @@
         "whenToUse": "A timestamp relative to now — comment/activity times (ago) or calendar-day grouping (day).",
         "whenNotToUse": "A fixed absolute date that should never change — just format it once.",
         "version": "0.6.0",
-        "integrity": "sha256-JHwvXmOuCLI7tMgyihtLiba9BIo/IaOH3ijGccBjU9o="
+        "integrity": "sha256-62Ertps/fQskXnzgbM/1MTs4ZDhMKmzdrl82ot0o0II="
       }
     },
     {
@@ -2131,7 +2134,7 @@
         "whenToUse": "Display a resolved image URL with reserved aspect-ratio, a loading skeleton, and a graceful error fallback.",
         "whenNotToUse": "When you must fetch/resolve the source (R2/CDN keys) — presentational; resolve URLs app-side.",
         "version": "0.6.0",
-        "integrity": "sha256-cJ98tAJhYKAZVKXPPYkMivhkxlGDG2hHUL0Kyc3IAS0="
+        "integrity": "sha256-1+F/DB3rFLb+qi69kWSpCce90HlWWj6mrylGLJrH11c="
       }
     },
     {
@@ -2166,7 +2169,7 @@
         "whenToUse": "A single audio asset that needs a compact, branded transport with rewind/forward, a tappable speed control, keyboard shortcuts, and a two-line mobile layout with an optional transcript control.",
         "whenNotToUse": "Playlists, queue management, waveform editing, transcript navigation, or audio recording.",
         "version": "0.6.0",
-        "integrity": "sha256-cpw/oxtA0ZqEYNYr96trwgwAEObkXKLVMrlvLXEpWMU="
+        "integrity": "sha256-xH4rrn68NycNrAc9k6DEQBkYBYAVbv8nEr/LDZag9WI="
       }
     },
     {
@@ -2893,7 +2896,7 @@
         "whenToUse": "Visualizing series data (trends, comparisons, breakdowns) with a Line/Bar/Area chart that needs to match the design system's theme automatically in light and dark.",
         "whenNotToUse": "Tabular/exact-value data a user needs to read precisely (Table), a single KPI number (a stat tile), or a progress/completion metric (Progress / ProgressIndicator).",
         "version": "0.6.0",
-        "integrity": "sha256-aklul0+NCa6fdz8Qa25mnPrRbKZn5PN0815S5z2ycWM="
+        "integrity": "sha256-VFvY/FrtOphvirOfQu6/qBeM0ZBRjV7/YVUltgDmFOA="
       }
     },
     {
@@ -15471,7 +15474,7 @@
         "whenToUse": "Starting a new AI-platform-style dashboard route — pull once and own it (not hash-tracked/re-pulled like app-shell).",
         "whenNotToUse": "You just need the shared shell mechanics across many routes — install app-shell/sidebar directly instead.",
         "version": "0.6.0",
-        "integrity": "sha256-awH7HB+/CTrStQspu95O8afvNerzKRgXPBkFIV1F8J8="
+        "integrity": "sha256-RUCKZFatOmHR77xC0R3ENYW/5Kzs0Vqe/UPEzexamV0="
       }
     },
     {
@@ -15780,7 +15783,7 @@
         "whenToUse": "A hero headline's entrance, composed inside a real heading element.",
         "whenNotToUse": "Body copy, or anywhere the entrance would replay on every re-render/scroll.",
         "version": "0.6.0",
-        "integrity": "sha256-vLDRt6nqr9sHkoZWYLjyCg0IppsSi8NDUoNMSufP+yI="
+        "integrity": "sha256-fgtjNQouY4VHRPhJGouN6uAyqN7N1sxa63HGO3Hw6LI="
       }
     },
     {

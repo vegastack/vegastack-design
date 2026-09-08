@@ -1,4 +1,4 @@
-// @vegastack spinner@0.6.0 sha256-G8dPzySfa5Vo7FcAjibzDF2UsoAAuFVMLvDtWklRh/8=
+// @vegastack spinner@0.6.0 sha256-dciZg44WV0OIq/3XuUO4OMvB2LLXM5WuV2lfHUbwJCE=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -15,7 +15,7 @@ import { cn } from "@vegastack/design";
  * (dark-on-dark) — the loading glyph must read in the host's own ink.
  */
 export const spinnerVariants = cva(
-  "shrink-0 animate-spin text-muted-foreground motion-reduce:animate-none",
+  "shrink-0 animate-spin text-muted-foreground",
   {
     variants: {
       size: {
@@ -61,7 +61,7 @@ export interface SpinnerProps
  * `Spinner` — an indeterminate loading indicator. A spinning `lucide-react`
  * `Loader` icon that defaults to `text-muted-foreground` (overridable via an
  * ancestor text color or a `className`, since it draws in `currentColor`) and
- * respects `prefers-reduced-motion` (`motion-reduce:animate-none`). Four sizes
+ * freezes under `prefers-reduced-motion` via the global `base.css` reset. Four sizes
  * (`xs`/`sm`/`default`/`lg`).
  *
  * Accessible by default: it renders `role="status"` with an `aria-label`

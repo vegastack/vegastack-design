@@ -57,19 +57,19 @@ component and never an icon.
 - **`accordion`** — A stack of collapsible sections — single or multiple open, animated height, a rotating chevron, full keyboard support.
 - **`animated-number`** — A number display that tweens from its previous value to a new one on every change — Intl.NumberFormat-aware (currency/percent/compact), instant under reduced motion, the dashboard stat-card counter.
 - **`avatar`** — A circular user/entity image with an initials fallback, five sizes, and an overlapping AvatarGroup stack.
-- **`badge`** — A compact status or label chip. 3 variants × semantic colors × 4 sizes, with dot, loading, and icon support.
+- **`badge`** — A compact status or label chip — solid / soft / outline / minimal × 5 semantic colors × 3 real size tiers, with a dot, a leading icon, and loading.
 - **`card`** — A borders-only content surface — no shadows, with composable header, content, and footer parts.
 - **`chart`** — A themed Recharts wrapper — token-only series colors (--chart-1…--chart-8), a bordered tooltip/legend, and Recharts' own built-in keyboard + screen-reader layer.
 - **`collapsible`** — A single toggleable open/close region with an animated height, built on Base UI Collapsible.
 - **`empty`** — A zero-data placeholder — icon, title, description, actions, with intent tints and an optional dashed border.
 - **`item`** — A compact anatomy row for list/feed content — media, title, description, actions, groupable with dividers.
-- **`kbd`** — A styled keyboard-key indicator — OS-aware modifier glyphs, a keys array, and small sizes.
+- **`kbd`** — The one keyboard-key chip — modifier labels the caller resolves per platform, a keys array, and three inline sizes.
 - **`markdown-view`** — Render a markdown string to safe, token-styled HTML — headings, lists, code, blockquotes, links, GFM tables — XSS-safe, no raw HTML.
 - **`relative-time`** — Render a date as a human-relative string ("2 hours ago", "yesterday") with native Intl.RelativeTimeFormat — self-updating, with an absolute-date tooltip.
 - **`status-icon`** — A small status indicator icon — todo, in progress, blocked, done — each mapping to a lucide icon and semantic color.
 - **`table`** — Styled semantic table primitives — a scrollable container plus header, body, footer, row, head, cell, caption.
 - **`timeline`** — Rail geometry for chronological records — a continuous connector with a node per entry. Rows compose Item parts; separators render through Marker; entries carry content-visibility render skipping.
-- **`truncated-text`** — Truncate text to one line or N lines with an ellipsis, revealing the full text in a tooltip only when it overflows.
+- **`truncated-text`** — Truncate text to one line or N lines with an ellipsis, revealing the full text in a tooltip only when it overflows — with per-region control over the tab stop.
 
 ## Data
 
@@ -107,10 +107,10 @@ component and never an icon.
 
 - **`action-bar`** — Floating contextual bar — status region + action children, CSS-only enter/exit, raised band. Bulk selection, unsaved changes, and batch progress are recipes over it.
 - **`alert`** — A status banner — five semantic variants, an optional icon, and an optional dismiss button.
-- **`progress`** — A determinate horizontal progress bar for measurable, ongoing tasks — built on Base UI Progress.
+- **`progress`** — A horizontal progress bar for measurable, ongoing tasks — determinate or a sweeping indeterminate segment, built on Base UI Progress.
 - **`progress-indicator`** — A compact circular pie-fill progress indicator (0–100%) with optional visible percentage variants.
 - **`provider`** — The single app-root wrapper — theme (next-themes), Sonner toasts, tooltip coordination, and text direction in one mount-once component.
-- **`skeleton`** — A token-driven loading placeholder — line, circle, rect, card shapes, configurable count, reduced-motion-aware pulse.
+- **`skeleton`** — A token-driven loading placeholder — line, circle, rect, card shapes, a configurable count, and a pulse that stops under reduced motion.
 - **`sonner`** — Brief, non-blocking notifications — a token-styled Sonner toaster with success/error/warning/info variants that follows the theme.
 - **`spinner`** — An indeterminate loading indicator — a spinning icon inheriting currentColor, four sizes, role=status by default.
 

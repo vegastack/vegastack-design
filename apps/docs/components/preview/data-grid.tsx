@@ -81,7 +81,7 @@ export function dataGrid(): ReactNode {
       header: "Stage",
       sortable: true,
       minWidth: 110,
-      render: (deal) => <Badge variant="subtle">{deal.stage}</Badge>,
+      render: (deal) => <Badge variant="soft">{deal.stage}</Badge>,
     },
     {
       key: "owner",

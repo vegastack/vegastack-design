@@ -233,6 +233,19 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
   every icon-only action is `IconButton`, which makes the missing `aria-label` a type error and now
   owns `shape="square" | "round"`.
   [docs](https://design.vegastack.com/docs/components/icon-button)
+- **Badge speaks the same variant vocabulary as Button.** `variant` is now
+  `solid · soft · outline · minimal`: `subtle` is renamed **`soft`**, with no alias — a stale
+  `variant="subtle"` is a type error. The three sizes become three REAL heights, `sm` **16px** ·
+  `md` **20px** · `lg` **24px**; `sm` used to be `md` with 2px less horizontal padding, which is a
+  padding value, not a size. `minimal` loses its horizontal padding too, so it sits flush in a table
+  cell instead of faking a pill, and it now carries a **leading dot by default** — a badge with no
+  container has nothing but colour left to signal status with (WCAG 1.4.1). Pass `dot={false}` to opt
+  out, or the new `icon` prop to take the dot's place.
+  [docs](https://design.vegastack.com/docs/components/badge)
+- **`Kbd` defaults to `os="other"`.** It reads no `navigator` — that is what keeps it server-safe —
+  so the platform is the caller's to resolve: run `usePlatform()` and pass the answer down. The old
+  default shipped mac glyphs to a Windows majority. `TooltipKbd` takes the same `os` prop.
+  [docs](https://design.vegastack.com/docs/components/kbd)
 - **`disabled` is `aria-disabled`, not the native attribute.** Button, IconButton and SplitButton
   keep their pointer events and stay focusable when disabled, so a Tooltip can explain why the action
   is unavailable. Base UI still suppresses activation. Code asserting `element.disabled` should read
@@ -291,6 +304,38 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
   hovers in both. The current sidebar row rests on `surface-3` so hovering it still moves.
   [docs](https://design.vegastack.com/docs/components/button) ·
   [`273a602`](https://github.com/VegaStack/vegastack-design/commit/273a602)
+- **Twelve components are server-safe again.** Avatar, Button, Collapsible, Field, Progress,
+  Resizable, ScrollArea, Separator, Slider, Switch, Tabs and Toggle carried
+  `"use client"` without touching a hook or a handler. A client module poisons every RSC importer
+  downstream — `buttonVariants` could not be read from a server component. 84 client leaves in the
+  registry became 72.
+- **Reduced motion is stated once, globally.** All seventeen `motion-reduce:` copies across eleven
+  components were deleted — the registry now carries zero. The `base.css` reset owns the rule with the
+  one sanctioned `!important`, so a per-component restatement adds nothing and is a second copy that
+  can drift. One copy looked load-bearing and exposed a hole in the reset instead: it zeroed
+  animation _duration_ but not _delay_, so `StaggeredTextReveal` still played its words out one by one
+  over the full stagger window. The reset now zeros `animation-delay` and `transition-delay` too, so
+  the component restates nothing and the rule holds with no carve-out.
+- **`TruncatedText` gains `focusable`,** with a `TruncationFocusProvider` that sets it for a whole
+  region. Clipped text becomes a Tooltip trigger and takes a tab stop — in a 50-row table that is 50
+  extra tab stops layered on a grid's own roving focus, and CSS truncation never hides anything from
+  a screen reader, so the tooltip only ever served sighted keyboard users. `IconText`,
+  `TableCellText` and `RelativeTime` take the same prop.
+  [docs](https://design.vegastack.com/docs/components/truncated-text)
+- **One key chip.** `TooltipKbd` renders `Kbd size="xs"` instead of restyling a second `<kbd>`, so a
+  shortcut hint reads identically wherever it appears — and inherits the OS rewrite. `Kbd`'s three
+  sizes now use one type role (`text-code-sm`); `md` reached the same 12px through `text-sm`, the
+  same pixel size named twice. The meaningless `pointer-events-none` on a `<kbd>` is gone.
+  [docs](https://design.vegastack.com/docs/components/kbd)
+- **`StatusIcon` sizes are role tokens** — `--icon-inline` / `default` / `action` / `feature`
+  (14 / 16 / 20 / 24px), the ladder Spinner already uses, instead of raw `size-N` steps spelling the
+  same four values. A `Skeleton` line moves to the text radius (`rounded-sm`): 8px on a 16px bar
+  reads as a pill, not as text.
+  [docs](https://design.vegastack.com/docs/components/status-icon)
+- **`text-xs` is mono-only.** Seven sites across Attachment, AudioPlayer, Chart and
+  ProgressIndicator were reaching 11px in Geist Sans for density; sans copy now floors at
+  `text-sm` (12px).
+  [docs](https://design.vegastack.com/docs/foundations/typography)
 - **ComparisonMatrix**, **PricingSection** — the promoted column and the highlighted plan used
   `info` (blue). `info` is links and informational UI only; promotion is a neutral ladder rung.
   [docs](https://design.vegastack.com/docs/components/comparison-matrix) ·
@@ -304,6 +349,18 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
   `2px` outline under `forced-colors: active`, once, for every text-entry control.
   [docs](https://design.vegastack.com/docs/foundations/colors) ·
   [`273a602`](https://github.com/VegaStack/vegastack-design/commit/273a602)
+- **An indeterminate `Progress` no longer reads as 100% complete.** Base UI writes no inline width
+  when `value` is `null`, so an indicator styled only for the determinate case inherited the track's
+  full width — an upload in progress looked finished. It is now a 35% segment sweeping the track on
+  the one sanctioned looping utility, `motion-indeterminate`, whose keyframes rest on the same frame
+  at both ends so reduced motion leaves a static segment rather than a full bar.
+  [docs](https://design.vegastack.com/docs/components/progress)
+- **`RelativeTime` no longer renders an empty first frame.** A relative label needs `Date.now()`,
+  which the server cannot reproduce, so it used to render `""` until hydration — a visible pop and a
+  layout shift on every row of a list. Server and hydration render now agree on the **absolute** date
+  (`"Mar 15, 2025"`), derived from the target instant alone, and the swap to the relative label is a
+  text change inside a box that is already the right size.
+  [docs](https://design.vegastack.com/docs/components/relative-time)
 - **Media chrome no longer inverts in dark** — the video scrim and its controls were built from
   `primary`, which flips with the theme, so in dark the scrim rendered near-white with near-black
   icons. New theme-invariant `--media-scrim`, `--media-scrim-strong` and `--media-foreground`
@@ -341,6 +398,11 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
 - **`@vegastack/design`** → **`0.4.0`** — exports the `surfaceInteractive` and `fillInteractive`
   hover/pressed recipes, plus the `FillTone` type.
 - **`@vegastack/design-tokens`** also drops the retired `--shadow-lit` token.
+- **`@vegastack/design-tokens`** adds `--duration-indeterminate` (1200ms) and the
+  `motion-indeterminate` utility — the ONE sanctioned looping animation.
+- **`@vegastack/design-tokens`** extends the `prefers-reduced-motion` reset with
+  `animation-delay: 0s` / `transition-delay: 0s`, so a staggered entrance lands on its end state at
+  once instead of sequencing over its delay window.
 - The design-system registry (`@vegastack/ui`) bumps 0.6.0 → 0.7.0.
 
 ### 📚 Docs
@@ -352,6 +414,15 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
 - **Elevation** — "the two roles" is now "the one role"; every foundations page that named
   `shadow-lit` was corrected.
   [docs](https://design.vegastack.com/docs/foundations/elevation)
+- **Badge** — a "Minimal — the dense-table treatment" section, real pixel sizes on the Sizes
+  section, and a playground that gained the `bordered` switch and emits `dot={false}` when the
+  switch disagrees with the variant's own default.
+  [docs](https://design.vegastack.com/docs/components/badge)
+- **Progress**, **RelativeTime**, **TruncatedText**, **Kbd**, **StatusIcon**, **Skeleton** — each
+  page now explains the mechanism rather than the class name: why an indeterminate bar is a segment,
+  why the first paint is an absolute date, why a grid turns tab stops off, and where reduced motion
+  is actually handled. A duplicate empty heading on the Progress page is gone.
+  [docs](https://design.vegastack.com/docs/components/progress)
 - **Colors** — a new surface-ladder specimen renders both themes side by side with the rungs and
   their alpha twins; the sidebar section now says the rail is aliases, not a second palette.
   [docs](https://design.vegastack.com/docs/foundations/colors) ·

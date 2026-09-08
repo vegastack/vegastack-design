@@ -1,4 +1,4 @@
-// @vegastack staggered-text-reveal@0.6.0 sha256-vLDRt6nqr9sHkoZWYLjyCg0IppsSi8NDUoNMSufP+yI=
+// @vegastack staggered-text-reveal@0.6.0 sha256-fgtjNQouY4VHRPhJGouN6uAyqN7N1sxa63HGO3Hw6LI=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -32,12 +32,10 @@ export interface StaggeredTextRevealProps extends Omit<
  * --duration-fast` — no randomness, no measured layout — so the same `text`
  * always produces the same timeline (VRT-stable once animations settle).
  *
- * Reduced motion: the global `prefers-reduced-motion: reduce` reset in
- * `packages/design-tokens/src/base.css` collapses `motion-enter-up`'s duration to
- * ~0, and this component ALSO zeros the delay itself
- * (`motion-reduce:[animation-delay:0s]`) — without that, words would still
- * visibly stagger in over real time (just with an instant pop each), which
- * is not the "static end state" reduced motion requires.
+ * Reduced motion: entirely the global `prefers-reduced-motion: reduce` reset in
+ * `packages/design-tokens/src/base.css`, which zeros animation DURATION *and*
+ * DELAY — so every word lands on its end state at once. The component states
+ * nothing about reduced motion itself; that rule lives in one place (audit Di1).
  *
  * Compose it inside a heading — it renders a `<span>`, not a heading element,
  * so it never changes the semantic structure of its container.
@@ -69,7 +67,6 @@ export function StaggeredTextReveal({
               "motion-enter-up inline-block",
               "[animation-delay:calc(var(--stagger-i)*var(--stagger-step))]",
               "[animation-fill-mode:backwards]",
-              "motion-reduce:[animation-delay:0s]",
             )}
             style={
               {

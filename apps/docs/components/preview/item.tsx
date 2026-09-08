@@ -122,7 +122,7 @@ export function itemDemoActions(): ReactNode {
           <ItemDescription>2.4 MB · Uploaded 3 days ago</ItemDescription>
         </ItemContent>
         <ItemActions>
-          <Badge variant="subtle" intent="info">
+          <Badge variant="soft" intent="info">
             Shared
           </Badge>
           <IconButton aria-label="More actions" variant="ghost" size="sm">

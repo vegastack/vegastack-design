@@ -1,4 +1,4 @@
-// @vegastack status-icon@0.6.0 sha256-I3duWL1W4My4oftBHF0ctoK4oA1wf4Ztqq9wsC0GdFI=
+// @vegastack status-icon@0.6.0 sha256-VkURggASjADD3bgb948IVxjUpT1L6WzcD64N0PB6PCg=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -7,8 +7,12 @@ import { cn } from "@vegastack/design";
 
 /**
  * StatusIcon variants — `status` selects the semantic color token, `size` maps
- * to the shared `size-*` scale. Color is conveyed through `currentColor`, so
- * every status maps to a semantic text token (no hardcoded hex, no raw
+ * to the `--icon-*` role tokens (14 / 16 / 20 / 24px), the same ladder Spinner
+ * uses. Raw `size-N` steps were the previous spelling of the same four values
+ * (audit B2-08); naming the role is what makes the ladder re-skinnable.
+ *
+ * Color is conveyed through `currentColor`, so every status maps to a semantic
+ * text token (no hardcoded hex, no raw
  * palette): `todo` → `text-muted-foreground`, `progress` → `text-info-text`,
  * `blocked` → `text-destructive-text`, `done` → `text-success-text`.
  */
@@ -21,10 +25,10 @@ export const statusIconVariants = cva("inline-block shrink-0", {
       done: "text-success-text",
     },
     size: {
-      xs: "size-3.5",
-      sm: "size-4",
-      md: "size-5",
-      lg: "size-6",
+      xs: "size-(--icon-inline)",
+      sm: "size-(--icon-default)",
+      md: "size-(--icon-action)",
+      lg: "size-(--icon-feature)",
     },
   },
   defaultVariants: { status: "todo", size: "md" },
@@ -64,8 +68,9 @@ export interface StatusIconProps
    */
   status?: "todo" | "progress" | "blocked" | "done";
   /**
-   * Size variant — mirrors the rest of the scale and maps to the `size-*`
-   * tokens.
+   * Size variant — mirrors the rest of the scale and maps to the `--icon-*` role
+   * tokens: `xs` inline (14px), `sm` default (16px), `md` action (20px), `lg`
+   * feature (24px).
    * @default 'md'
    */
   size?: "xs" | "sm" | "md" | "lg";
@@ -84,8 +89,8 @@ export interface StatusIconProps
  * `StatusIcon` — a small status indicator icon for the canonical task states
  * `todo` / `progress` / `blocked` / `done`. Each status maps to a `lucide-react`
  * icon and a semantic color token via `currentColor` (no hardcoded colors). The
- * `progress` status spins its `Loader` icon and respects
- * `prefers-reduced-motion` (`motion-reduce:animate-none`).
+ * `progress` status spins its `Loader` icon; reduced motion is handled globally
+ * by the `base.css` reset, never restated here.
  *
  * Accessible by default: it renders `role="img"` with an `aria-label` derived
  * from `status` (or the `label` prop). When adjacent text already states the
@@ -117,7 +122,7 @@ export function StatusIcon({
       data-size={size}
       className={cn(
         statusIconVariants({ status, size }),
-        status === "progress" && "animate-spin motion-reduce:animate-none",
+        status === "progress" && "animate-spin",
         className,
       )}
       {...(decorative

@@ -40,7 +40,8 @@ muted), `progress` (spinning `Loader`, info), `blocked` (`CircleAlert`, destruct
 
 ### Sizes
 
-`xs`, `sm`, `md`, and `lg` — mapped to the `size-*` token scale.
+`xs` (14px), `sm` (16px), `md` (20px), `lg` (24px) — the `--icon-*` role tokens
+(`inline` / `default` / `action` / `feature`), the same ladder Spinner uses.
 
 <ComponentPreview
   name="statusIconSizes"
@@ -87,14 +88,14 @@ recommended accessible pattern.
   to make the icon decorative (`aria-hidden`) and avoid a redundant announcement.
 - Color is conveyed through a semantic token (`currentColor`) only — never rely on color alone to
   communicate the status; the distinct icon shapes carry the meaning too.
-- The `progress` spin animation is disabled under `prefers-reduced-motion: reduce`
-  (`motion-reduce:animate-none`).
+- The `progress` spin stops under `prefers-reduced-motion: reduce` through the global
+  reset in `base.css`, which every component inherits rather than restating.
 
 | Concern         | Behavior                                                      |
 | --------------- | ------------------------------------------------------------- |
 | Role            | `role="img"` unless `label=""` (decorative, `aria-hidden`)    |
 | Accessible name | `aria-label` from `label`, or a default derived from `status` |
-| Reduced motion  | `progress` animation removed under `prefers-reduced-motion`   |
+| Reduced motion  | `progress` animation frozen by the global `base.css` reset    |
 
 ## Do / Don't
 

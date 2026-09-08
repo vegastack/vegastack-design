@@ -1,4 +1,4 @@
-// @vegastack dashboard-01@0.6.0 sha256-awH7HB+/CTrStQspu95O8afvNerzKRgXPBkFIV1F8J8=
+// @vegastack dashboard-01@0.6.0 sha256-RUCKZFatOmHR77xC0R3ENYW/5Kzs0Vqe/UPEzexamV0=
 
 "use client";
 
@@ -81,7 +81,7 @@ export function StatCards({ stats, loading = false }: StatCardsProps) {
                       {stat.label}
                     </CardTitle>
                     <Badge
-                      variant="subtle"
+                      variant="soft"
                       intent={
                         trend === "up"
                           ? "success"

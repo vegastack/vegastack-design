@@ -20,13 +20,16 @@ export function badge(): ReactNode {
 export function badgeVariants(): ReactNode {
   return (
     <Wrapper>
-      <Badge variant="subtle" intent="info">
-        Subtle
-      </Badge>
       <Badge variant="solid" intent="info">
         Solid
       </Badge>
-      <Badge variant="minimal" intent="info" dot>
+      <Badge variant="soft" intent="info">
+        Soft
+      </Badge>
+      <Badge variant="outline" intent="info">
+        Outline
+      </Badge>
+      <Badge variant="minimal" intent="info">
         Minimal
       </Badge>
     </Wrapper>
@@ -128,7 +131,7 @@ export function badgeAnimateIn(): ReactNode {
             Verified
           </Badge>
         ) : (
-          <Badge variant="subtle" intent="default">
+          <Badge variant="soft" intent="default">
             Pending
           </Badge>
         )}
@@ -161,9 +164,33 @@ export function badgeStates(): ReactNode {
         <Check />
         Verified
       </Badge>
-      <Badge variant="minimal" intent="info">
-        <Star />
-        Minimal
+      <Badge variant="minimal" intent="info" icon={<Star />}>
+        Minimal + icon
+      </Badge>
+    </Wrapper>
+  );
+}
+
+export function badgeMinimal(): ReactNode {
+  // `minimal` (audit D8) is the dense-table treatment: no container, no padding, and a
+  // leading dot by DEFAULT so the status never rests on colour alone. `size="sm"` is the
+  // real 16px tier that goes with it. An `icon` takes the dot's place.
+  return (
+    <Wrapper>
+      <Badge variant="minimal" intent="success" size="sm">
+        Active
+      </Badge>
+      <Badge variant="minimal" intent="warning" size="sm">
+        Pending
+      </Badge>
+      <Badge variant="minimal" intent="destructive" size="sm">
+        Failed
+      </Badge>
+      <Badge variant="minimal" intent="default" size="sm" dot={false}>
+        Archived
+      </Badge>
+      <Badge variant="minimal" intent="success" size="sm" icon={<Check />}>
+        Paid
       </Badge>
     </Wrapper>
   );

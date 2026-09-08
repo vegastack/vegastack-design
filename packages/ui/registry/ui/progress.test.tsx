@@ -66,7 +66,8 @@ test("applies className to the root and trackClassName to the track", async () =
     '[data-slot="progress-indicator"]',
   )!;
   expect(indicator.className).toContain("bg-success");
-  expect(indicator.className).toContain("motion-reduce:transition-none");
+  // Reduced motion is the global base.css reset's job; a component never restates it.
+  expect(indicator.className).not.toContain("motion-reduce:");
 });
 
 test("no a11y violations with an accessible name", async () => {

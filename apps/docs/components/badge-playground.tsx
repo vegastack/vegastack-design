@@ -8,11 +8,12 @@ import {
 } from "@/components/playground";
 
 type BadgePlaygroundKey =
-  "variant" | "intent" | "size" | "dot" | "loading" | "animateIn";
+  "variant" | "intent" | "size" | "dot" | "bordered" | "loading" | "animateIn";
 
 const VARIANT_OPTIONS = [
-  { value: "subtle", label: "Subtle" },
   { value: "solid", label: "Solid" },
+  { value: "soft", label: "Soft" },
+  { value: "outline", label: "Outline" },
   { value: "minimal", label: "Minimal" },
 ] as const;
 
@@ -25,9 +26,9 @@ const INTENT_OPTIONS = [
 ] as const;
 
 const SIZE_OPTIONS = [
-  { value: "sm", label: "Small" },
-  { value: "md", label: "Medium" },
-  { value: "lg", label: "Large" },
+  { value: "sm", label: "Small (16px)" },
+  { value: "md", label: "Medium (20px)" },
+  { value: "lg", label: "Large (24px)" },
 ] as const;
 
 const badgePlaygroundConfig: PlaygroundConfig<BadgePlaygroundKey> = {
@@ -37,7 +38,7 @@ const badgePlaygroundConfig: PlaygroundConfig<BadgePlaygroundKey> = {
       key: "variant",
       label: "Variant",
       options: VARIANT_OPTIONS,
-      defaultValue: "subtle",
+      defaultValue: "soft",
     },
     {
       type: "select",
@@ -54,6 +55,7 @@ const badgePlaygroundConfig: PlaygroundConfig<BadgePlaygroundKey> = {
       defaultValue: "md",
     },
     { type: "switch", key: "dot", label: "Dot", defaultValue: false },
+    { type: "switch", key: "bordered", label: "Bordered", defaultValue: false },
     { type: "switch", key: "loading", label: "Loading", defaultValue: false },
     {
       type: "switch",
@@ -73,6 +75,7 @@ const badgePlaygroundConfig: PlaygroundConfig<BadgePlaygroundKey> = {
       intent={state.intent as BadgeProps["intent"]}
       size={state.size as BadgeProps["size"]}
       dot={Boolean(state.dot)}
+      bordered={Boolean(state.bordered)}
       loading={Boolean(state.loading)}
       animateIn={Boolean(state.animateIn)}
     >
@@ -81,10 +84,15 @@ const badgePlaygroundConfig: PlaygroundConfig<BadgePlaygroundKey> = {
   ),
   toCode: (state) => {
     const props: string[] = [];
-    if (state.variant !== "subtle") props.push(`variant="${state.variant}"`);
+    if (state.variant !== "soft") props.push(`variant="${state.variant}"`);
     if (state.intent !== "default") props.push(`intent="${state.intent}"`);
     if (state.size !== "md") props.push(`size="${state.size}"`);
-    if (state.dot) props.push("dot");
+    // `minimal` carries the dot by default, so the switch only earns a prop when it
+    // DISAGREES with the variant's own default.
+    if (state.dot !== (state.variant === "minimal")) {
+      props.push(state.dot ? "dot" : "dot={false}");
+    }
+    if (state.bordered) props.push("bordered");
     if (state.loading) props.push("loading");
     if (state.animateIn) props.push("animateIn");
     const propsString = props.length > 0 ? ` ${props.join(" ")}` : "";
@@ -94,8 +102,8 @@ const badgePlaygroundConfig: PlaygroundConfig<BadgePlaygroundKey> = {
 
 /**
  * `BadgePlayground` — interactive props playground for `Badge` (variant / intent / size /
- * dot / loading / animateIn), backed by the generic {@link PropsPlayground}. Registered in
- * `mdx.tsx`, adopted in `content/docs/components/badge.mdx`.
+ * dot / bordered / loading / animateIn), backed by the generic {@link PropsPlayground}.
+ * Registered in `mdx.tsx`, adopted in `content/docs/components/badge.mdx`.
  */
 export function BadgePlayground() {
   return <PropsPlayground {...badgePlaygroundConfig} />;

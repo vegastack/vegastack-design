@@ -102,7 +102,7 @@ const columns: DataListColumn<Person>[] = [
     key: "status",
     header: "Status",
     render: (p) => (
-      <Badge variant="subtle" intent={STATUS[p.status].color} dot size="sm">
+      <Badge variant="soft" intent={STATUS[p.status].color} dot size="sm">
         {STATUS[p.status].label}
       </Badge>
     ),

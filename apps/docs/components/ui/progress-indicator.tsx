@@ -1,4 +1,4 @@
-// @vegastack progress-indicator@0.6.0 sha256-GQ0NMS2/geUquX/Paa357J20X/LtPuaIui6zeb1DxZc=
+// @vegastack progress-indicator@0.6.0 sha256-JiTJqcfx7hocJ0oap//huci0JlNQD7Ni2MsH+qBeU2Y=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -228,7 +228,7 @@ export function ProgressIndicator({
     lg: "text-2xl",
   }[size ?? "md"];
   const containedValueLabelClassName = {
-    xs: "text-xs",
+    xs: "text-sm",
     sm: "text-sm",
     md: "text-base",
     lg: "text-xl",
@@ -367,7 +367,7 @@ export function ProgressIndicator({
             strokeDasharray={`${progressDash} ${progressCircumference}`}
             strokeLinecap={isContainedValue ? "round" : undefined}
             transform={`rotate(-90 ${center} ${center})`}
-            className="transition-[stroke-dasharray] duration-base ease-standard motion-reduce:transition-none"
+            className="transition-[stroke-dasharray] duration-base ease-standard"
           />
         )}
       </svg>

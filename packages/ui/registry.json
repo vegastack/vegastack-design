@@ -185,7 +185,7 @@
       "name": "badge",
       "type": "registry:ui",
       "title": "Badge",
-      "description": "A compact status or label chip. 3 variants × semantic colors × 4 sizes, with dot, loading, and icon support.",
+      "description": "A compact status or label chip — solid / soft / outline / minimal × 5 semantic colors × 3 real size tiers, with a dot, a leading icon, and loading.",
       "categories": ["data-display"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -425,7 +425,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/kbd"],
       "files": [
         {
           "path": "packages/ui/registry/ui/tooltip.tsx",
@@ -520,7 +520,7 @@
       "name": "kbd",
       "type": "registry:ui",
       "title": "Kbd",
-      "description": "A styled keyboard-key indicator — OS-aware modifier glyphs, a keys array, and small sizes.",
+      "description": "The one keyboard-key chip — modifier labels the caller resolves per platform, a keys array, and three inline sizes.",
       "categories": ["data-display"],
       "dependencies": [
         "class-variance-authority@^0.7.1",
@@ -545,7 +545,7 @@
       "name": "skeleton",
       "type": "registry:ui",
       "title": "Skeleton",
-      "description": "A token-driven loading placeholder — line, circle, rect, card shapes, configurable count, reduced-motion-aware pulse.",
+      "description": "A token-driven loading placeholder — line, circle, rect, card shapes, a configurable count, and a pulse that stops under reduced motion.",
       "categories": ["feedback"],
       "dependencies": [
         "class-variance-authority@^0.7.1",
@@ -1002,7 +1002,7 @@
       "name": "progress",
       "type": "registry:ui",
       "title": "Progress",
-      "description": "A determinate horizontal progress bar for measurable, ongoing tasks — built on Base UI Progress.",
+      "description": "A horizontal progress bar for measurable, ongoing tasks — determinate or a sweeping indeterminate segment, built on Base UI Progress.",
       "categories": ["feedback"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -1311,7 +1311,7 @@
       "name": "truncated-text",
       "type": "registry:ui",
       "title": "Truncated Text",
-      "description": "Truncate text to one line or N lines with an ellipsis, revealing the full text in a tooltip only when it overflows.",
+      "description": "Truncate text to one line or N lines with an ellipsis, revealing the full text in a tooltip only when it overflows — with per-region control over the tab stop.",
       "categories": ["data-display"],
       "dependencies": [
         "@vegastack/design@^0.3.2",
@@ -1797,7 +1797,10 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": ["@vegastack/tooltip"],
+      "registryDependencies": [
+        "@vegastack/tooltip",
+        "@vegastack/truncated-text"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/relative-time.tsx",

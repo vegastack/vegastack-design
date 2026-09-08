@@ -16,9 +16,11 @@ import {
 function Subject({
   side,
   withKbd = false,
+  kbdOs,
 }: {
   side?: "top" | "right" | "bottom" | "left";
   withKbd?: boolean;
+  kbdOs?: "mac" | "other";
 } = {}) {
   return (
     <TooltipProvider>
@@ -26,7 +28,7 @@ function Subject({
         <TooltipTrigger>Open settings</TooltipTrigger>
         <TooltipContent side={side}>
           Settings
-          {withKbd ? <TooltipKbd keys={["⌘", "K"]} /> : null}
+          {withKbd ? <TooltipKbd keys={["⌘", "K"]} os={kbdOs} /> : null}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -116,8 +118,8 @@ test("forwards portal, positioner, viewport props, and accepts functional offset
   ).toContain("consumer-viewport");
 });
 
-test("renders a keyboard shortcut hint", async () => {
-  const screen = await render(<Subject withKbd />);
+test("renders a keyboard shortcut hint through the one Kbd chip", async () => {
+  const screen = await render(<Subject withKbd kbdOs="mac" />);
   await userEvent.hover(screen.getByRole("button", { name: "Open settings" }));
   await expect.element(screen.getByRole("tooltip")).toBeInTheDocument();
   const kbd = screen.container.ownerDocument.querySelector(
@@ -125,7 +127,24 @@ test("renders a keyboard shortcut hint", async () => {
   );
   expect(kbd).not.toBeNull();
   expect(kbd?.querySelectorAll("kbd")).toHaveLength(2);
-  expect(kbd?.textContent).toBe("⌘K");
+  // Routing through `Kbd` buys the mac glyph its spoken name: `⌘` alone is
+  // announced as "place of interest sign" (or skipped), so the chip pairs it
+  // with sr-only text. Visually it is still `⌘K`.
+  expect(kbd?.textContent).toBe("⌘CommandK");
+  expect(kbd?.querySelector(".sr-only")?.textContent).toBe("Command");
+});
+
+test("the shortcut hint takes its platform labels from the caller, not the DOM", async () => {
+  // `os` defaults to `"other"` — the SSR-safe fallback `usePlatform()` returns —
+  // so a hint rendered without a resolved platform reads `Ctrl`, never a mac
+  // glyph a Windows user does not have (audit B2-07).
+  const screen = await render(<Subject withKbd />);
+  await userEvent.hover(screen.getByRole("button", { name: "Open settings" }));
+  await expect.element(screen.getByRole("tooltip")).toBeInTheDocument();
+  const kbd = screen.container.ownerDocument.querySelector(
+    '[data-slot="tooltip-kbd"]',
+  );
+  expect(kbd?.textContent).toBe("CtrlK");
 });
 
 test("no a11y violations (closed)", async () => {
