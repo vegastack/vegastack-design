@@ -2,7 +2,12 @@ import "./contrast.css"; // compiled Tailwind + @vegastack token theme (Vite via
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { afterEach, describe, expect, test } from "vitest";
-import { cn, fillInteractive, surfaceInteractive } from "@vegastack/design";
+import {
+  cn,
+  fillInteractive,
+  selectedChipVariants,
+  surfaceInteractive,
+} from "@vegastack/design";
 
 /**
  * Surface-ladder token gate (audit 2026-09-07, F1). Runs against the COMPILED theme so it measures
@@ -186,5 +191,89 @@ describe("hover/pressed recipe", () => {
     expect(sheet.some((r) => r.includes("hover\\:bg-surface-2"))).toBe(true);
     expect(sheet.some((r) => r.includes("active\\:bg-surface-3"))).toBe(true);
     expect(button.className).toContain("hover:bg-surface-2");
+  });
+});
+
+/**
+ * The selected-chip recipe (audit B6-02/D20, N1). Tabs `pill`/`chip`, `Segmented` and pressed
+ * `Toggle`/`ToggleGroup` had drifted into four different selected looks; this is the guard that
+ * they cannot drift again, and that the SELECTED chip keeps both of its steps.
+ */
+describe("selected-chip recipe", () => {
+  test("the chip is the ladder's PRESSED rung in alpha form, on a rung-1 track", () => {
+    expect(selectedChipVariants.track).toBe("bg-surface-1");
+    // `--alpha-ink-tint` (10%) is the same alpha as `--alpha-pressed`; the ink-tint names are what
+    // the chip's own hover step (`-strong`) hangs off, which the ladder twins do not have.
+    expect(selectedChipVariants.pressed).toContain(
+      "data-pressed:bg-foreground/(--alpha-ink-tint)",
+    );
+    expect(selectedChipVariants.active).toContain(
+      "data-[active]:bg-foreground/(--alpha-ink-tint)",
+    );
+  });
+
+  test("a SELECTED chip still hovers and still presses", () => {
+    for (const [state, rules] of [
+      ["data-pressed", selectedChipVariants.pressed],
+      ["data-[active]", selectedChipVariants.active],
+    ] as const) {
+      // Rest, then hover strengthens the tint, then press drops back to preview the release.
+      // Without all three the probe's `active-same-as-hover` fires on the chip users click most.
+      expect(rules).toContain(
+        `${state}:hover:bg-foreground/(--alpha-ink-tint-strong)`,
+      );
+      expect(rules).toContain(
+        `${state}:active:bg-foreground/(--alpha-ink-tint)`,
+      );
+      // The UNselected steps are guarded to the complementary selector, so the two sets are
+      // mutually exclusive rather than racing on specificity.
+      expect(rules).toContain(
+        `not-${state}:hover:bg-foreground/(--alpha-hover)`,
+      );
+      expect(rules).toContain(
+        `not-${state}:active:bg-foreground/(--alpha-pressed)`,
+      );
+    }
+  });
+
+  test("cn() keeps every rule — no variant chain collapses into another", () => {
+    const merged = cn(
+      "rounded-sm",
+      selectedChipVariants.item,
+      selectedChipVariants.pressed,
+    );
+    for (const rule of selectedChipVariants.pressed.split(" ")) {
+      expect(merged).toContain(rule);
+    }
+  });
+
+  test("the recipe compiles and the chip paints against its track", async () => {
+    const screen = await render(
+      <div className={cn("rounded-md p-0.5", selectedChipVariants.track)}>
+        <button
+          type="button"
+          data-pressed=""
+          className={cn(
+            "rounded-sm",
+            selectedChipVariants.item,
+            selectedChipVariants.pressed,
+          )}
+        >
+          selected
+        </button>
+      </div>,
+    );
+    const chip = screen.getByRole("button").element() as HTMLButtonElement;
+    const sheet = [...document.styleSheets].flatMap((s) => {
+      try {
+        return [...s.cssRules].map((r) => r.cssText);
+      } catch {
+        return [];
+      }
+    });
+    // The scanner saw the literal, so the selected fill exists as a real compiled utility.
+    expect(sheet.some((r) => r.includes("alpha-ink-tint"))).toBe(true);
+    // …and the chip actually paints, rather than staying transparent on its track.
+    expect(getComputedStyle(chip).backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
   });
 });
