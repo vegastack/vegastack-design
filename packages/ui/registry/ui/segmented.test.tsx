@@ -125,7 +125,9 @@ test("the SELECTED chip keeps a hover and a pressed step (B6-02, active-same-as-
 
 test("Segmented, Tabs and Toggle share ONE selected-chip recipe (B6-02)", async () => {
   const screen = await render(<Basic />);
-  const chip = screen.getByRole("button", { name: "Monthly" }).element();
+  const chipLocator = screen.getByRole("button", { name: "Monthly" });
+  await expect.element(chipLocator).toBeInTheDocument();
+  const chip = chipLocator.element();
   // The recipe is a single exported literal; asserting the chip actually carries it is what stops
   // a fifth "selected look" being hand-written into any one of the four consumers again.
   for (const rule of selectedChipVariants.pressed.split(" ")) {

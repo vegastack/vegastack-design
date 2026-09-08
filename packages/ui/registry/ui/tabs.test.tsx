@@ -228,7 +228,12 @@ test("pill and chip tabs wear the SHARED selected-chip recipe; line does not (B6
         <TabsContent value="overview">O</TabsContent>
       </Tabs>,
     );
-    const tab = screen.getByRole("tab", { name: "Overview" }).element();
+    // `render` commits through Base UI's own layout effects, so the trigger is not in the DOM on
+    // the tick the promise resolves — take the element only after an awaited assertion has
+    // retried it into existence, never straight off the locator.
+    const tabLocator = screen.getByRole("tab", { name: "Overview" });
+    await expect.element(tabLocator).toBeInTheDocument();
+    const tab = tabLocator.element();
     for (const rule of selectedChipVariants.active.split(" ")) {
       expect(tab.className).toContain(rule);
     }
@@ -237,13 +242,17 @@ test("pill and chip tabs wear the SHARED selected-chip recipe; line does not (B6
   // `line` has no chip at all — its active state is the moving underline, so taking the chip fill
   // would paint a plate under the indicator.
   const line = await render(<Basic variant="line" />);
-  const lineTab = line.getByRole("tab", { name: "Overview" }).element();
+  const lineTabLocator = line.getByRole("tab", { name: "Overview" });
+  await expect.element(lineTabLocator).toBeInTheDocument();
+  const lineTab = lineTabLocator.element();
   expect(lineTab.className).not.toContain("data-[active]:bg-foreground");
 });
 
 test("the line tab's hover wash is held OFF the indicator rail (SP-02)", async () => {
   const horizontal = await render(<Basic variant="line" />);
-  const hTab = horizontal.getByRole("tab", { name: "Overview" }).element();
+  const hTabLocator = horizontal.getByRole("tab", { name: "Overview" });
+  await expect.element(hTabLocator).toBeInTheDocument();
+  const hTab = hTabLocator.element();
   const list = horizontal.getByRole("tablist").element();
   // The list draws the rule the underline rides; a hover fill that ends exactly on it reads as a
   // rendering bug rather than a state (design.md §Hover geometry).
@@ -265,7 +274,9 @@ test("the line tab's hover wash is held OFF the indicator rail (SP-02)", async (
       <TabsContent value="overview">O</TabsContent>
     </Tabs>,
   );
-  const vTab = vertical.getByRole("tab", { name: "Overview" }).element();
+  const vTabLocator = vertical.getByRole("tab", { name: "Overview" });
+  await expect.element(vTabLocator).toBeInTheDocument();
+  const vTab = vTabLocator.element();
   const vList = vertical.getByRole("tablist").element();
   expect(vTab.className).toContain(
     "group-data-[orientation=vertical]/tabs:group-data-[variant=line]/tabs-list:ms-1",

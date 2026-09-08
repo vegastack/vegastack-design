@@ -329,6 +329,21 @@ pointer targets` — `mobile-chromium-dark` only, 879/880 passing, with all five
   `apps/docs/vrt/contracts.spec.ts`, which runs against the docs page's real built CSS. Any geometry
   assertion belongs in the contract lane, not the unit lane.
 
+- **A locator read straight off `render()` is a race, and the shared Ryzen boxes expose it.** Two of
+  N1's new tabs tests took `screen.getByRole("tab", …).element()` on the tick `await render(...)`
+  resolved. Base UI's Tabs commits its list through layout effects, so under load the container was
+  still empty and the locator threw `Cannot find element` — green on an idle Mac, red on a loaded
+  box. **Root cause:** `.element()` resolves once; only `await expect.element(...)` retries. **Fix:**
+  every `.element()` in the new tabs and segmented assertions is preceded by an awaited
+  `toBeInTheDocument()`. Take an element off a locator only after an awaited assertion has found it.
+
+- **`contracts-run.mjs` predicted the full-sweep test count from routes alone.** Adding the SP-02
+  named geometry test to `contracts.spec.ts` made `--list` report 884 where the run expected 880, and
+  the cross-check correctly refused to adjust to it. **Root cause:** the expectation was
+  `routes × assertions × projects`, which has no term for a test that is not generated per route.
+  **Fix:** `FIXED_TEST_TITLES` names such tests explicitly and `FULL_TEST_COUNT` adds them; the count
+  stays a contract that a new named test must update deliberately.
+
 ---
 
 ## 2026-09-07 — 439 reduced-motion effects with no dependency array, and a reduced-motion assertion that could not fail
