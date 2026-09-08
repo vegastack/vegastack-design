@@ -183,6 +183,16 @@ data-slot="icon-button">`. The literal follows the spread, so `IconButton` overw
   alone; that remains **G1-b (#49)**'s call. No timeout was widened and nothing retries an assertion:
   only the scroll setup step retries, which is why this is not "re-run until green" — the same failure
   mode the VRT baselines were deleted for.
+- **Second manifestation, same race, still open (observed 2026-09-08, M2 #36).** With the 320px check
+  hardened, the full sweep on `audit/m2-rich-text-toolbars` (a branch that touches nothing on that
+  route) failed instead on `/docs/components/relative-time retains focus visibility and effective 24px
+pointer targets` — `mobile-chromium-dark` only, 879/880 passing, with all five probe points
+  reporting `"hit": null` for a control whose visual box measures 27.0×21.0px. A `null` hit is
+  `document.elementFromPoint` finding nothing at the point, which is what a mid-re-render fixture
+  looks like to the pointer probe. So the probe fix
+  above closed the window on the scroll step but not on the target-floor step, which resolves and
+  measures its own element handles. Owning batch for the second fix: **G1-b (#49)**, alongside the
+  `.first()` fixture-selection call it already holds. Not fixed here — M2 owns no part of that route.
 
 ## 2026-09-07 — `design:sync:check` cannot see prose that names a deleted token
 
