@@ -77,13 +77,30 @@ test("announces the copy via a visually-hidden live region", async () => {
   await screen.getByRole("button", { name: "Copy" }).click();
   await expect.element(screen.getByRole("status")).toHaveTextContent("Copied");
 
-  // Reverts to empty once the "Copied" state times out.
+  // The button's own label reverts once the "Copied" window times out. The live region
+  // does NOT: a region is announced when its content CHANGES, so blanking it would be an
+  // extra no-op mutation, and its stale text is never read on its own.
   await expect
     .element(screen.getByRole("button", { name: "Copy" }))
     .toBeInTheDocument();
   expect(screen.container.querySelector('[role="status"]')?.textContent).toBe(
-    "",
+    "Copied",
   );
+});
+
+test("copying twice in a row re-announces rather than being swallowed", async () => {
+  const screen = await render(<CopyButton value="copy-me" />);
+  await screen.getByRole("button", { name: "Copy" }).click();
+  const first = screen.container.querySelector('[data-slot="announcer"]')
+    ?.firstElementChild;
+  await expect
+    .element(screen.getByRole("button", { name: "Copy" }))
+    .toBeInTheDocument();
+  await screen.getByRole("button", { name: "Copy" }).click();
+  const second = screen.container.querySelector('[data-slot="announcer"]')
+    ?.firstElementChild;
+  expect(second?.textContent).toBe("Copied");
+  expect(second).not.toBe(first);
 });
 
 test('reverts to "Copy" after the timeout elapses', async () => {

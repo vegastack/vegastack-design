@@ -262,20 +262,18 @@ test("chip value truncates within max-w-xs — the value span carries min-w-0 al
 });
 
 /* ---------------------------------------------------------------------------------------------
- * Touch-target remediation (WCAG 2.5.8) — effective hit-area measurement (FilterChip remove `×`).
+ * Touch-target remediation (WCAG 2.5.8) — effective hit-area measurement (the chip's remove `×`).
  *
  * Unlike checkbox/radio/slider/switch, this target does NOT use a `::before` pseudo-element — see
- * the comment on the button's className in filter-bar.tsx: native `<button>` elements clip
- * overflowing generated content to their own border box once nested a couple of levels deep (a
- * genuine Chromium behavior, verified by hand — identical CSS on a `<span>` at the same depth is
- * NOT clipped), so a pseudo would compute correctly via getComputedStyle but never actually be
- * hit-testable. Instead the button's REAL border-box grows from size-5 (20px) to size-6 (24px),
- * with compensating margins keeping its visual footprint and the × glyph's centered position
- * byte-for-byte unchanged. That means this suite doesn't need the getComputedStyle(el, '::before')
- * trick at all — the real box IS the hit area, so a plain mirror of `width`/`height`/margins is
- * enough for a REAL getBoundingClientRect() + elementFromPoint() measurement (this harness runs
- * without compiled Tailwind, same as every other file in this remediation, so `size-6` etc. still
- * need a literal mirror to resolve to real CSS here).
+ * the comment on `ChipRemove` in chip.tsx: native `<button>` elements clip overflowing generated
+ * content to their own border box once nested a couple of levels deep (a genuine Chromium
+ * behavior, verified by hand — identical CSS on a `<span>` at the same depth is NOT clipped), so a
+ * pseudo would compute correctly via getComputedStyle but never actually be hit-testable. The
+ * shared `ChipRemove` is instead a real 24x24 `IconButton size="xs"`. That means this suite doesn't
+ * need the getComputedStyle(el, '::before') trick at all — the real box IS the hit area, so a plain
+ * mirror of `width`/`height` is enough for a REAL getBoundingClientRect() + elementFromPoint()
+ * measurement (this harness runs without compiled Tailwind, same as every other file in this
+ * remediation, so `--size-xs` still needs a literal mirror to resolve to real CSS here).
  * ------------------------------------------------------------------------------------------- */
 
 function injectFilterChipRemoveHitAreaMirror(): () => void {
@@ -283,13 +281,13 @@ function injectFilterChipRemoveHitAreaMirror(): () => void {
   style.textContent = `
     body { margin: 24px; }
     [data-slot="filter-chip"] { display: inline-flex; align-items: center; }
-    [data-slot="filter-chip-remove"] { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; width: 24px; height: 24px; margin-right: -4px; }
+    [data-slot="chip-remove"] { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; width: 24px; height: 24px; }
   `;
   document.head.appendChild(style);
   return () => document.head.removeChild(style);
 }
 
-test("remove button's real border-box (grown from 20px to 24px) is >= 24x24", async () => {
+test("the shared remove control's real border-box is >= 24x24", async () => {
   const cleanup = injectFilterChipRemoveHitAreaMirror();
   try {
     const screen = await render(
@@ -306,7 +304,7 @@ test("remove button's real border-box (grown from 20px to 24px) is >= 24x24", as
   }
 });
 
-test("a point 1px inside the grown box on every edge — beyond where the old 20px box ended — still hits and fires onRemove", async () => {
+test("a point 1px inside the real 24px box still hits and fires onRemove", async () => {
   const cleanup = injectFilterChipRemoveHitAreaMirror();
   try {
     const onRemove = vi.fn();
@@ -317,8 +315,7 @@ test("a point 1px inside the grown box on every edge — beyond where the old 20
       .getByRole("button", { name: "Remove Status filter" })
       .element() as HTMLElement;
     const rect = el.getBoundingClientRect();
-    // 1px inside the top-left corner of the real 24px box — 3px further in than the old 20px
-    // box's edge would have reached (old box was inset 2px on every side within this same box).
+    // 1px inside the top-left corner of the real 24px box.
     const x = rect.left + 1;
     const y = rect.top + 1;
     const hit = document.elementFromPoint(x, y);

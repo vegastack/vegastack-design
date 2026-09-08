@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "535d2e88d8862143585b67fc69685fdfc85c0b004bd2bd24f0c506242785adfc",
+  "contractSha256": "382dbe45ee460bda2f907b04d825f90f7bfe25da753be33cec71d9ae5af2164c",
   "inventory": {
-    "expected": 556,
-    "actual": 556,
-    "unique": 556
+    "expected": 558,
+    "actual": 558,
+    "unique": 558
   },
   "classes": {
-    "components": 110,
+    "components": 111,
     "animatedIcons": 439,
-    "hooks": 6,
+    "hooks": 7,
     "blocks": 1
   },
   "waves": {
@@ -111,11 +111,12 @@
       ]
     },
     "Data display": {
-      "expected": 10,
-      "actual": 10,
+      "expected": 11,
+      "actual": 11,
       "members": [
         "card",
         "chart",
+        "chip",
         "comparison-matrix",
         "data-grid",
         "data-list",
@@ -167,10 +168,11 @@
       ]
     },
     "Hooks": {
-      "expected": 6,
-      "actual": 6,
+      "expected": 7,
+      "actual": 7,
       "members": [
         "use-animation-replay",
+        "use-announcer",
         "use-drag-reorder",
         "use-file-drop",
         "use-list-nav",
@@ -631,7 +633,7 @@
       ]
     }
   },
-  "componentRoutes": 110,
+  "componentRoutes": 111,
   "blockRoutes": 1,
   "crossBrowserSmokeFiles": 14,
   "modeledExemptions": 4

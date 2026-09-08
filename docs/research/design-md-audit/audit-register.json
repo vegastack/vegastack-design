@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "535d2e88d8862143585b67fc69685fdfc85c0b004bd2bd24f0c506242785adfc",
+  "contractSha256": "382dbe45ee460bda2f907b04d825f90f7bfe25da753be33cec71d9ae5af2164c",
   "expectedCounts": {
-    "totalRegistryItems": 556,
-    "components": 110,
+    "totalRegistryItems": 558,
+    "components": 111,
     "animatedIcons": 439,
-    "hooks": 6,
+    "hooks": 7,
     "blocks": 1
   },
   "records": [
@@ -658,6 +658,17 @@
         "packages/ui/registry/ui/number-field.tsx"
       ],
       "docsSlug": "/docs/components/number-field",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chip",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chip.tsx"
+      ],
+      "docsSlug": "/docs/components/chip",
       "contractStatus": "reconciled"
     },
     {
@@ -6058,6 +6069,17 @@
       "family": "hook",
       "sourceFiles": [
         "packages/ui/registry/ui/use-animation-replay.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "use-announcer",
+      "inventoryClass": "hook",
+      "wave": "Hooks",
+      "family": "hook",
+      "sourceFiles": [
+        "packages/ui/registry/ui/use-announcer.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

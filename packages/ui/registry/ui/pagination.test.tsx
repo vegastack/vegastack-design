@@ -43,11 +43,28 @@ function Pager() {
   );
 }
 
-test("renders a labelled navigation landmark", async () => {
+test("renders a navigation landmark named 'Pagination' by default", async () => {
   const screen = await render(<Pager />);
+  const nav = screen.getByRole("navigation", { name: "Pagination" }).element();
+  await expect.element(screen.getByRole("navigation")).toBeInTheDocument();
+  // `<nav>` IS the landmark — restating role="navigation" adds nothing (B5-08).
+  expect(nav.hasAttribute("role")).toBe(false);
+});
+
+test("aria-label is overridable, so two pagers on a page stay landmark-unique", async () => {
+  const screen = await render(
+    <div>
+      <Pagination aria-label="Search results pagination" />
+      <Pagination aria-label="Invoices pagination" />
+    </div>,
+  );
   await expect
-    .element(screen.getByRole("navigation", { name: "pagination" }))
+    .element(screen.getByRole("navigation", { name: "Search results pagination" }))
     .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("navigation", { name: "Invoices pagination" }))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(screen.container);
 });
 
 test("renders the numbered page links", async () => {

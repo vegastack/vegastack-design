@@ -24,7 +24,7 @@ test("renders hue chips with the tag-token classes and data-hue", async () => {
   const neutral = (
     screen.getByText("Neutral").element() as HTMLElement
   ).closest('[data-slot="tag"]') as HTMLElement;
-  expect(neutral.className).toContain("bg-muted");
+  expect(neutral.className).toContain("bg-surface-1");
 });
 
 test("group announces as a list with one listitem per tag", async () => {
@@ -80,7 +80,7 @@ test("onRemove renders a labelled remove button and fires", async () => {
   await expectNoA11yViolations(screen.container);
 });
 
-test("overflow chip keeps 20px pill geometry inside a true 24px target", async () => {
+test("overflow chip IS a chip — one pill that is its own 28px pointer target", async () => {
   const screen = await render(
     <TagGroup max={1} aria-label="Categories">
       <Tag>One</Tag>
@@ -90,14 +90,38 @@ test("overflow chip keeps 20px pill geometry inside a true 24px target", async (
   const overflow = screen
     .getByRole("button", { name: "Show 1 more tags" })
     .element();
-  expect(overflow.className).toContain("h-(--size-xs)");
-  expect(overflow.className).toContain("min-w-(--size-xs)");
+  // No inner visual span and no hit-area pseudo any more: the chip's real border box is
+  // the target, so nothing can clip it below the 24px floor.
+  expect(overflow.dataset.slot).toBe("tag-group-overflow");
+  expect(overflow.dataset.size).toBe("sm");
+  expect(overflow.className).toContain("h-(--size-sm)");
   expect(overflow.className).toContain("rounded-full");
-  expect(overflow.className).toContain("justify-center");
-  expect(overflow.className).toContain("appearance-none");
-  const visual = overflow.querySelector("span");
-  expect(visual?.className).toContain("h-5");
-  expect(visual?.className).toContain("rounded-full");
+  expect(overflow.querySelector("span")).toBeNull();
+  // The one interactive chip carries the shared hover/pressed recipe verbatim.
+  expect(overflow.className).toContain("hover:bg-surface-2");
+  expect(overflow.className).toContain("active:bg-surface-3");
+});
+
+test("a Tag is the Chip primitive at the inline tier, with a real 24px remove control", async () => {
+  const screen = await render(
+    <TagGroup aria-label="Categories">
+      <Tag hue="blue" onRemove={() => {}} removeLabel="Remove API">
+        API
+      </Tag>
+    </TagGroup>,
+  );
+  const tag = screen.getByText("API").element().closest("[data-slot='tag']");
+  expect(tag).not.toBeNull();
+  expect((tag as HTMLElement).dataset.hue).toBe("blue");
+  expect((tag as HTMLElement).dataset.size).toBe("sm");
+  const remove = screen.getByRole("button", { name: "Remove API" }).element();
+  // The shared ChipRemove — a real 24x24 IconButton, not the `::before` hit area that
+  // native <button> clipping made un-hittable (B5-03). The real-geometry proof lives in
+  // chip.test.tsx, which mirrors the compiled CSS this harness does not build.
+  expect(remove.dataset.slot).toBe("chip-remove");
+  expect(remove.className).toContain("w-(--size-xs)");
+  expect(remove.className).toContain("h-(--size-xs)");
+  expect(remove.className).toContain("rounded-full");
 });
 
 test("forwards refs to tag and group roots", async () => {
