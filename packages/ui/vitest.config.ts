@@ -6,20 +6,36 @@ import { fileURLToPath } from "node:url";
 const r = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 
 export default defineConfig({
-  // Tailwind v4 compiles `test/contrast.css` (the only CSS import in the suite) so the rendered
-  // color-contrast a11y gate runs against REAL token colors. Other test files import no CSS, so they
-  // stay fast structural a11y checks, unaffected by this plugin.
+  // Tailwind v4 compiles the two CSS entries in the suite — `test/contrast.css` (rendered
+  // color-contrast gate) and `test/geometry.css` (the behaviour contracts) — so both run against
+  // REAL token colors and REAL compiled dimensions. Other test files import no CSS, so they stay
+  // fast structural a11y checks, unaffected by this plugin.
   plugins: [tailwindcss()],
   resolve: {
     // Single React instance — Base UI subpaths (e.g. `@base-ui/react/field`) get
     // pre-bundled into their own optimized chunk; without deduping, that chunk
     // can resolve a second React and crash on `useId` (null React internals).
     dedupe: ["react", "react-dom"],
+    // Order matters: Vite takes the first matching alias prefix, so every more-specific entry
+    // must precede the shorter one it would otherwise be swallowed by.
     alias: {
+      // The next three entries exist for `geometry.browser.test.tsx`, which mounts the docs
+      // preview fixtures. Those fixtures import components as `@/components/ui/<name>` — inside
+      // the docs app that means the generated copy-in. Point them at the CANONICAL registry
+      // instead: the copy-in is byte-identical (asserted by `registry:build` idempotency) and is
+      // proven as a distribution surface by `verify-shadcn-consume`, so this lane never needs to
+      // reach into the docs app for component source at all.
+      "@/components/preview": r("../../apps/docs/components/preview"),
       "@/components/ui": r("./registry/ui"),
       "@/components": r("./registry"),
+      // The docs app's `@/lib/cn` re-exports `cn` from `@vegastack/design`; the registry's own
+      // re-export is `registry/lib/utils`. Same binding, canonical source. Precedes `@/lib`.
+      "@/lib/cn": r("./registry/lib/utils"),
       "@/lib": r("./registry/lib"),
       "@/hooks": r("./registry/hooks"),
+      // One fixture uses `next/dynamic` for a bundler reason that does not exist here.
+      // See `test/next-dynamic-stub.tsx`.
+      "next/dynamic": r("./test/next-dynamic-stub.tsx"),
     },
   },
   optimizeDeps: {
@@ -102,7 +118,22 @@ export default defineConfig({
       // but Firefox (and WebKit) inherit the OS locale — on a non-US host (e.g. en-IN/en-GB)
       // Intl.DateTimeFormat then renders "1 Jun 2026" instead of "Jun 1, 2026", and every
       // test that asserts a US-formatted date times out on the cross-engine lane only.
-      provider: playwright({ contextOptions: { locale: "en-US" } }),
+      //
+      // `reducedMotion: "reduce"` is deliberately NOT set here, even though the geometry
+      // contracts want it. `contextOptions` apply to every file in the run, and measured
+      // 2026-09-08 it turns `contrast.browser.test.tsx` red in both themes ("expected >=1px
+      // outline offset, got 0px"): the token base stylesheet's sanctioned
+      // `prefers-reduced-motion` override starts matching and the focus ring is read
+      // mid-transition. The geometry lane neutralises motion in its own stylesheet instead —
+      // see the block at the end of `test/geometry.css`.
+      //
+      // `colorScheme` is likewise left at Playwright's default (light), which is the single
+      // scheme the geometry lane asserts; nothing there applies the `.dark` class.
+      provider: playwright({
+        contextOptions: {
+          locale: "en-US",
+        },
+      }),
       headless: true,
       instances: [{ browser: "chromium" }],
     },
