@@ -62,24 +62,12 @@ test("the dock recipe is the shared motion pair, and the exit is not slower than
   // Raised band, never overlay — a dialog must cover the bar.
   expect(cls).toContain("z-(--z-raised)");
 
-  // The compiled utilities, not just the class names: 150ms in on `emphasized`, 100ms out on
-  // `exit`. Read off the resolved style so a renamed token or a dropped @utility fails here.
-  const enter = getComputedStyle(bar());
-  expect(enter.transitionProperty).toBe("translate, opacity");
-  expect(enter.transitionDuration).toBe("0.15s");
-  expect(enter.opacity).toBe("1");
-});
-
-test("the docked-out state fades, parks pointer events, and leaves faster than it arrived", async () => {
-  await render(
-    <ActionBar open={false} status="s">
-      <ActionBarButton>A</ActionBarButton>
-    </ActionBar>,
-  );
-  const exit = getComputedStyle(bar());
-  expect(exit.transitionDuration).toBe("0.1s");
-  expect(exit.opacity).toBe("0");
-  expect(exit.pointerEvents).toBe("none");
+  // Deliberately class-level, not `getComputedStyle`: this harness compiles NO Tailwind CSS
+  // (only `test/contrast.css` is built — see the component skill's testing reference), so a
+  // resolved-style assertion here would read browser defaults and say nothing. What IS worth
+  // gating is that the bar reaches for the SHARED pair instead of restating a recipe; the 150/100
+  // values themselves have exactly one definition, in `design-tokens/src/utilities.css`, and the
+  // docs contract lane is where they are rendered for real.
 });
 
 test("toolbar keyboard: one tab stop in, arrows move between actions, Shift+Tab leaves", async () => {
