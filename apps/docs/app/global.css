@@ -226,7 +226,12 @@ html {
   ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+    /* Mirrors base.css: a zeroed DURATION alone leaves a staggered entrance playing out
+     * over its full delay window, so the delay is zeroed too. That is what lets every
+     * component drop its own `motion-reduce:` restatement (audit batch Di1 / B2-06). */
+    animation-delay: 0s !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
     scroll-behavior: auto !important;
   }
 }
