@@ -1,4 +1,4 @@
-// @vegastack combobox@0.6.0 sha256-oVapNIoPjBK9tWb9L9BQ+Ttxm4Fe4f9Dkv1KKs+Q4l4=
+// @vegastack combobox@0.6.0 sha256-2iOLz+SAWe11y1qHkINeSDKert68Z7wSzahK7t3gfA8=
 
 "use client";
 
@@ -7,19 +7,14 @@ import { Combobox as BaseCombobox } from "@base-ui/react/combobox";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Check, ChevronsUpDown, X } from "lucide-react";
 import { cn, FLOATING, surfaceInteractive } from "@vegastack/design";
-import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { Chip, ChipRemove } from "@/components/ui/chip";
-
-function mergeStateClassName<State>(
-  className: string,
-  userClassName: string | ((state: State) => string | undefined) | undefined,
-) {
-  if (typeof userClassName === "function") {
-    return (state: State) => cn(className, userClassName(state));
-  }
-
-  return cn(className, userClassName);
-}
+import {
+  FloatingSurface,
+  menuItemVariants,
+  menuLabelClassName,
+  PanelSearchFrame,
+  panelSearchInputClassName,
+} from "@/components/ui/floating-surface";
 
 /* ------------------------------------------------------------------------------------------------
  * Combobox — a filterable, keyboard-navigable listbox behind a text input. Built on

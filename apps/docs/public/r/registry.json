@@ -471,7 +471,8 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/chip"
+        "@vegastack/chip",
+        "@vegastack/floating-surface"
       ],
       "files": [
         {
@@ -484,7 +485,7 @@
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.6.0",
-        "integrity": "sha256-oVapNIoPjBK9tWb9L9BQ+Ttxm4Fe4f9Dkv1KKs+Q4l4="
+        "integrity": "sha256-2iOLz+SAWe11y1qHkINeSDKert68Z7wSzahK7t3gfA8="
       }
     },
     {

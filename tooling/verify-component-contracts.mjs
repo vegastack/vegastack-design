@@ -547,7 +547,7 @@ assert(
 
 const expected = {
   totalRegistryItems: 559,
-  components: 111,
+  components: 112,
   animatedIcons: 439,
   hooks: 7,
   blocks: 1,
