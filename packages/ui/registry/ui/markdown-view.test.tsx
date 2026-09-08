@@ -86,8 +86,12 @@ test("MarkdownView and TextEdit wear the identical prose recipe", async () => {
   }
 
   // And neither adds typography of its own: what is left over is structural only.
-  const extras = [...renderedClasses, ...editedClasses].filter(
-    (rule) => !recipe.includes(rule),
+  // `tiptap` and `ProseMirror` are the editor's own marker classes on the editable root — the first
+  // from @tiptap/react, the second written by prosemirror-view (`attrs.class = "ProseMirror"`).
+  // They carry no typography, and they are not ours to add or remove.
+  const editorMarkers = new Set(["tiptap", "ProseMirror"]);
+  const extras = [...new Set([...renderedClasses, ...editedClasses])].filter(
+    (rule) => !recipe.includes(rule) && !editorMarkers.has(rule),
   );
   expect(extras.sort()).toEqual([
     "min-h-24",
@@ -95,7 +99,6 @@ test("MarkdownView and TextEdit wear the identical prose recipe", async () => {
     "outline-none",
     "px-3",
     "py-2.5",
-    "tiptap",
   ]);
 
   // Both actually rendered the elements the recipe styles.
