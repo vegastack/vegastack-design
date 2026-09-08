@@ -27,6 +27,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { ROOT } from "./change-set.mjs";
+import { ensureBuildOutputs } from "./derived-build-outputs.mjs";
 
 export const SCHEMA = 1;
 export const RECEIPT_PATH = join(ROOT, ".gates/receipt.json");
@@ -85,6 +86,9 @@ export function installedToolchain() {
 
 /** The contract SHA-256 the generated surfaces were derived from. */
 export function contractSha256() {
+  // `contract-routes.generated.ts` is an untracked build output since WP4/R4, so a receipt written
+  // in a tree where nothing has run `prepare:content` would otherwise throw here.
+  ensureBuildOutputs();
   const generated = readFileSync(
     join(ROOT, "apps/docs/vrt/contract-routes.generated.ts"),
     "utf8",

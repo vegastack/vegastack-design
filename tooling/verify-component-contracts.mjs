@@ -16,8 +16,15 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 import prettier from "prettier";
+import { ensureBuildOutputs } from "./lib/derived-build-outputs.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+
+// This verifier reads the contract-derived BUILD OUTPUTS (route lists, icon gallery, smoke
+// inventory) and asserts they reconcile with the contract. They are untracked since WP4/R4, so in a
+// fresh clone they may not exist yet; generate them first. That also makes THIS the check that
+// catches a stale generator — regenerate, then reconcile, rather than comparing a checked-in file.
+ensureBuildOutputs({ force: true });
 const readJson = (path) => JSON.parse(readFileSync(join(root, path), "utf8"));
 const registry = readJson("packages/ui/registry.json");
 const contractsPath = "packages/ui/component-contracts.json";

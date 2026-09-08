@@ -1,7 +1,21 @@
+import { readFileSync } from "node:fs";
 import { defineConfig, mergeConfig } from "vitest/config";
 import baseConfig from "./vitest.config";
-import smokeTests from "./contract-smoke-tests.generated.json";
 import { crossEngineInstances } from "./webkit-lane";
+// @ts-expect-error — plain .mjs tooling helper, no type declarations by design
+import { ensureBuildOutputs } from "../../tooling/lib/derived-build-outputs.mjs";
+
+// `contract-smoke-tests.generated.json` is an untracked BUILD OUTPUT (WP4/R4). This config is read
+// at load time, before any script in this package has had a chance to run, so it generates the file
+// on demand rather than importing it — a static `import … from "./contract-smoke-tests.generated.json"`
+// would make a fresh clone fail to even parse the config.
+ensureBuildOutputs();
+const smokeTests: string[] = JSON.parse(
+  readFileSync(
+    new URL("./contract-smoke-tests.generated.json", import.meta.url),
+    "utf8",
+  ),
+);
 
 // Phase M cross-browser smoke lane (CX-13): the motion pack's three mechanisms — keyed presence,
 // replay APIs, and the CSS motion-* utilities — run against real WebKit and Firefox engines, not

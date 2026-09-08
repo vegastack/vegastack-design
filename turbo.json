@@ -5,8 +5,24 @@
   "globalEnv": ["SITE_VISIBILITY"],
   "globalDependencies": ["tooling/**"],
   "tasks": {
+    "prepare:content": {
+      "inputs": [
+        "$TURBO_ROOT$/packages/ui/component-contracts.json",
+        "$TURBO_ROOT$/packages/ui/registry/ui/icons/**",
+        "content/**",
+        "source.config.ts"
+      ],
+      "outputs": [
+        "lib/home-component-catalog.generated.ts",
+        "components/animated-icon-gallery.generated.tsx",
+        "vrt/contract-routes.generated.ts",
+        "vrt/icon-chunks.generated.ts",
+        "contract-smoke-tests.generated.json",
+        ".source/**"
+      ]
+    },
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "prepare:content"],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**", "out/**"]
     },
     "dev": {
@@ -14,7 +30,7 @@
       "persistent": true
     },
     "lint": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build", "prepare:content"]
     },
     // `@vegastack/design-tokens#lint` reads its OWN build output: `verify-theme-parity.mjs` and
     // `contrast-check.mjs` both take `dist/theme.css`. The generic `lint` above depends on `^build`
@@ -26,7 +42,7 @@
       "dependsOn": ["^build", "build"]
     },
     "test": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "prepare:content"],
       "outputs": ["coverage/**"]
     },
     // `@vegastack/ui#test` READS FILES OUTSIDE ITS OWN PACKAGE, and turbo's default input set is
@@ -51,7 +67,7 @@
       ]
     },
     "typecheck": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build", "prepare:content"]
     }
   },
   "remoteCache": {

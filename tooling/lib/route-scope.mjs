@@ -24,8 +24,14 @@
 import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { ensureBuildOutputs } from "./derived-build-outputs.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
+
+// `icon-chunks.generated.ts` below is a BUILD OUTPUT, not repository content (WP4/R4), so a fresh
+// clone reaches this module before any build has written it. Generating on demand costs ~90 ms and
+// keeps the read that follows unconditional.
+ensureBuildOutputs();
 
 const CONTRACTS = JSON.parse(
   readFileSync(join(ROOT, "packages/ui/component-contracts.json"), "utf8"),
