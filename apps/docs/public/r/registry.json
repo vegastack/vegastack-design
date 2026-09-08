@@ -1121,7 +1121,7 @@
         "whenToUse": "Building or restyling an anchored overlay, a menu-like list, or a search row inside a panel — compose this rather than restating the plumbing.",
         "whenNotToUse": "Product UI: install the overlay you actually want (Popover, DropdownMenu, Command); they already compose it.",
         "version": "0.6.0",
-        "integrity": "sha256-dLymwQ/Jn0u1aVEjDSAbc4Av40DgYwhziDs/HZffmfc="
+        "integrity": "sha256-2U2Y3Y7txMmdMMSmWcE/qsH0JI1HKfLVjzrrVfe8GFk="
       }
     },
     {

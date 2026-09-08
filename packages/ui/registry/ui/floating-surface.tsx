@@ -1,4 +1,4 @@
-// @vegastack floating-surface@0.6.0 sha256-dLymwQ/Jn0u1aVEjDSAbc4Av40DgYwhziDs/HZffmfc=
+// @vegastack floating-surface@0.6.0 sha256-2U2Y3Y7txMmdMMSmWcE/qsH0JI1HKfLVjzrrVfe8GFk=
 
 "use client";
 
@@ -146,8 +146,9 @@ type FloatingPartProps = {
 type FloatingPassthroughProps = object;
 
 /** Props accepted by `FloatingSurface`. */
-export interface FloatingSurfaceProps extends
-  VariantProps<typeof floatingPopupVariants> {
+export interface FloatingSurfaceProps extends VariantProps<
+  typeof floatingPopupVariants
+> {
   /** The Base UI namespace parts this surface renders. */
   parts: FloatingSurfaceParts;
   /**
@@ -259,8 +260,8 @@ export function FloatingSurface({
   const viewportElement =
     Viewport && renderViewport ? (
       <Viewport
-        {...viewportRest}
         data-slot={`${slot}-viewport`}
+        {...viewportRest}
         className={mergeStateClassName(
           cn(
             themeScope,
@@ -279,16 +280,20 @@ export function FloatingSurface({
     <Portal {...portalProps}>
       <Positioner
         {...positioning}
-        {...positionerRest}
         data-slot={`${slot}-positioner`}
+        {...positionerRest}
         className={mergeStateClassName(
           cn(themeScope, FLOATING_POSITIONER),
           positionerClassName,
         )}
       >
         <Popup
-          {...popupRest}
+          // The slot is a DEFAULT, not an override: a composing component (`EmojiPicker`,
+          // `DatePicker`, `ColorPicker`) names its own popup by passing `data-slot` through, and
+          // its tests and contract routes select on that name. Spreading after the default is what
+          // lets it win.
           data-slot={popupSlot ?? `${slot}-content`}
+          {...popupRest}
           className={mergeStateClassName(
             cn(
               themeScope,
@@ -345,8 +350,8 @@ export function FloatingArrow({
   const Arrow = element as React.ComponentType<FloatingPartProps>;
   return (
     <Arrow
-      {...props}
       data-slot={slot}
+      {...props}
       className={mergeStateClassName(
         tone === "panel"
           ? "data-[side=bottom]:-top-1.5 data-[side=top]:-bottom-1.5 data-[side=left]:-right-1.5 data-[side=right]:-left-1.5"
@@ -629,7 +634,11 @@ export function createMenuParts(prefix: string): MenuParts {
     );
   }
 
-  function RadioItem({ className, children, ...props }: MenuPartRadioItemProps) {
+  function RadioItem({
+    className,
+    children,
+    ...props
+  }: MenuPartRadioItemProps) {
     return (
       <Menu.RadioItem
         data-slot={`${prefix}-radio-item`}
