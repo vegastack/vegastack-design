@@ -329,13 +329,21 @@ pointer targets` — `mobile-chromium-dark` only, 879/880 passing, with all five
   `apps/docs/vrt/contracts.spec.ts`, which runs against the docs page's real built CSS. Any geometry
   assertion belongs in the contract lane, not the unit lane.
 
-- **A locator read straight off `render()` is a race, and the shared Ryzen boxes expose it.** Two of
-  N1's new tabs tests took `screen.getByRole("tab", …).element()` on the tick `await render(...)`
-  resolved. Base UI's Tabs commits its list through layout effects, so under load the container was
-  still empty and the locator threw `Cannot find element` — green on an idle Mac, red on a loaded
-  box. **Root cause:** `.element()` resolves once; only `await expect.element(...)` retries. **Fix:**
-  every `.element()` in the new tabs and segmented assertions is preceded by an awaited
-  `toBeInTheDocument()`. Take an element off a locator only after an awaited assertion has found it.
+- **Calling `unmount()` mid-test poisons every later `render()` in the file.** Two of N1's new tabs
+  tests rendered several variants in one test and called `screen.unmount()` between them, to keep
+  the page-scoped `getByRole("tab", { name: "Overview" })` unambiguous. The next `render()` then
+  produced a permanently EMPTY container — Chromium reported `Cannot find element`, React logged
+  "overlapping act() calls", and a 15s retry never resolved it. Deterministic, not a race:
+  reproduced identically on the Mac and on the Ryzen box, and the same test passed when run alone
+  with `-t`. **Root cause:** `vitest-browser-react` owns unmounting through its per-test cleanup;
+  an explicit `unmount()` inside a test leaves React mid-`act()`, and the container mounted after
+  it never commits. **Fix:** the tests render every variant with a DISTINCT accessible name and
+  unmount nothing — the auto-cleanup disposes of all of them. Two related rules fell out and are
+  worth carrying: locator names match as substrings, so a sibling trigger named "Overview line
+  activity" makes `{ name: "Overview line" }` a strict-mode violation (`exact: true` is the fix);
+  and `.element()` resolves once, so take an element only after an awaited assertion has found it.
+  `dropzone.test.tsx:490` still calls `unmount()`, and is safe only because it is that file's last
+  test — a latent trap for whoever appends to it.
 
 - **`contracts-run.mjs` predicted the full-sweep test count from routes alone.** Adding the SP-02
   named geometry test to `contracts.spec.ts` made `--list` report 884 where the run expected 880, and

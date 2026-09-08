@@ -217,43 +217,72 @@ test("chip variant: free-standing list, active trigger raises to a hairline chip
   expect(document.querySelector('[data-slot="tabs-indicator"]')).toBeNull();
 });
 
+/**
+ * Every render in these two tests carries a DISTINCT tab label, and none of them unmounts.
+ * `vitest-browser-react` queries the page, not the returned container, so two live renders sharing
+ * the label "Overview" would be ambiguous — and calling `unmount()` mid-test to dodge that leaves
+ * React mid-`act()`, after which the next `render()` in the file never commits at all (a
+ * deterministic empty container, not a race; `docs/ledger/bugs.md`, 2026-09-08). Unique names are
+ * the fix; the per-test auto-cleanup disposes of all of them.
+ */
+function LineTabs({ label, vertical }: { label: string; vertical?: boolean }) {
+  return (
+    <Tabs
+      defaultValue="overview"
+      orientation={vertical ? "vertical" : "horizontal"}
+    >
+      <TabsList variant="line">
+        <TabsTrigger value="overview">{label}</TabsTrigger>
+        <TabsTrigger value="activity">{`${label} activity`}</TabsTrigger>
+      </TabsList>
+      <TabsContent value="overview">O</TabsContent>
+      <TabsContent value="activity">A</TabsContent>
+    </Tabs>
+  );
+}
+
 test("pill and chip tabs wear the SHARED selected-chip recipe; line does not (B6-02)", async () => {
   for (const variant of ["pill", "chip"] as const) {
     const screen = await render(
       <Tabs defaultValue="overview">
         <TabsList variant={variant}>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="activity">Activity</TabsTrigger>
+          <TabsTrigger value="overview">{`Overview ${variant}`}</TabsTrigger>
+          <TabsTrigger value="activity">{`Activity ${variant}`}</TabsTrigger>
         </TabsList>
         <TabsContent value="overview">O</TabsContent>
       </Tabs>,
     );
-    // `render` commits through Base UI's own layout effects, so the trigger is not in the DOM on
-    // the tick the promise resolves — take the element only after an awaited assertion has
-    // retried it into existence, never straight off the locator.
-    const tabLocator = screen.getByRole("tab", { name: "Overview" });
+    // Base UI commits the list through its own layout effects, so the trigger is not in the DOM on
+    // the tick `render` resolves — take the element only after an awaited assertion has retried it
+    // into existence, never straight off the locator.
+    const tabLocator = screen.getByRole("tab", { name: `Overview ${variant}` });
     await expect.element(tabLocator).toBeInTheDocument();
     const tab = tabLocator.element();
     for (const rule of selectedChipVariants.active.split(" ")) {
       expect(tab.className).toContain(rule);
     }
-    screen.unmount();
   }
   // `line` has no chip at all — its active state is the moving underline, so taking the chip fill
   // would paint a plate under the indicator.
-  const line = await render(<Basic variant="line" />);
-  const lineTabLocator = line.getByRole("tab", { name: "Overview" });
+  const lineTabLocator = (
+    await render(<LineTabs label="Overview line" />)
+  ).getByRole("tab", { name: "Overview line", exact: true });
   await expect.element(lineTabLocator).toBeInTheDocument();
-  const lineTab = lineTabLocator.element();
-  expect(lineTab.className).not.toContain("data-[active]:bg-foreground");
+  expect(lineTabLocator.element().className).not.toContain(
+    "data-[active]:bg-foreground",
+  );
 });
 
 test("the line tab's hover wash is held OFF the indicator rail (SP-02)", async () => {
-  const horizontal = await render(<Basic variant="line" />);
-  const hTabLocator = horizontal.getByRole("tab", { name: "Overview" });
+  const horizontal = await render(<LineTabs label="Overview horizontal" />);
+  // `exact` because the sibling trigger's name ("… activity") contains this one's.
+  const hTabLocator = horizontal.getByRole("tab", {
+    name: "Overview horizontal",
+    exact: true,
+  });
   await expect.element(hTabLocator).toBeInTheDocument();
   const hTab = hTabLocator.element();
-  const list = horizontal.getByRole("tablist").element();
+  const list = hTab.closest('[data-slot="tabs-list"]') as HTMLElement;
   // The list draws the rule the underline rides; a hover fill that ends exactly on it reads as a
   // rendering bug rather than a state (design.md §Hover geometry).
   expect(list.className).toContain(
@@ -262,22 +291,18 @@ test("the line tab's hover wash is held OFF the indicator rail (SP-02)", async (
   expect(hTab.className).toContain(
     "group-data-[orientation=horizontal]/tabs:group-data-[variant=line]/tabs-list:mb-1",
   );
-  horizontal.unmount();
 
   // The vertical variant mirrors it onto the inline-start rail (logical, so RTL follows).
   const vertical = await render(
-    <Tabs defaultValue="overview" orientation="vertical">
-      <TabsList variant="line">
-        <TabsTrigger value="overview">Overview</TabsTrigger>
-        <TabsTrigger value="activity">Activity</TabsTrigger>
-      </TabsList>
-      <TabsContent value="overview">O</TabsContent>
-    </Tabs>,
+    <LineTabs label="Overview vertical" vertical />,
   );
-  const vTabLocator = vertical.getByRole("tab", { name: "Overview" });
+  const vTabLocator = vertical.getByRole("tab", {
+    name: "Overview vertical",
+    exact: true,
+  });
   await expect.element(vTabLocator).toBeInTheDocument();
   const vTab = vTabLocator.element();
-  const vList = vertical.getByRole("tablist").element();
+  const vList = vTab.closest('[data-slot="tabs-list"]') as HTMLElement;
   expect(vTab.className).toContain(
     "group-data-[orientation=vertical]/tabs:group-data-[variant=line]/tabs-list:ms-1",
   );
