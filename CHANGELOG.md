@@ -33,7 +33,7 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   `size` prop, the `startAnimation`/`stopAnimation` handle and the `AnimatedIcon` wrapper API are
   unchanged.
   [docs](https://design.vegastack.com/docs/foundations/icons) ·
-  [`ee89631`](https://github.com/VegaStack/vegastack-design/commit/ee89631)
+  [`cb20de9`](https://github.com/VegaStack/vegastack-design/commit/cb20de9)
 - **Animated icons** — reduced motion is now a live subscription to
   `(prefers-reduced-motion: reduce)`, so turning the preference on settles every mounted icon
   immediately instead of only affecting icons mounted afterwards. Motion's own hooks cannot do this:
@@ -49,7 +49,7 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   because an explicit `reducedMotion="never"` is byte-identical to no provider at all and honouring
   it would switch reduced motion off for everyone who configured nothing.
   [docs](https://design.vegastack.com/docs/foundations/icons) ·
-  [`ee89631`](https://github.com/VegaStack/vegastack-design/commit/ee89631)
+  [`cb20de9`](https://github.com/VegaStack/vegastack-design/commit/cb20de9)
 
 ### 🛠 CLI & tooling
 
@@ -68,7 +68,7 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   hand-edited path or timing value is rejected outright, and carries a `--self-test` that proves
   fifteen distinct regressions are rejected.
   [docs](https://design.vegastack.com/docs/foundations/icons) ·
-  [`ee89631`](https://github.com/VegaStack/vegastack-design/commit/ee89631)
+  [`cb20de9`](https://github.com/VegaStack/vegastack-design/commit/cb20de9)
 
 ### 📦 npm
 
@@ -172,17 +172,17 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
   it was written without a dependency array. It now runs when the preference changes, once, in the
   factory.
   [docs](https://design.vegastack.com/docs/foundations/icons) ·
-  [`ee89631`](https://github.com/VegaStack/vegastack-design/commit/ee89631)
+  [`cb20de9`](https://github.com/VegaStack/vegastack-design/commit/cb20de9)
 - **Docs** — each tile in the icon gallery was a focusable `<div>` with no role, so all 439 were
   reachable by keyboard and announced as nothing. Each is now a real `<button>`.
   [docs](https://design.vegastack.com/docs/foundations/icons) ·
-  [`ee89631`](https://github.com/VegaStack/vegastack-design/commit/ee89631)
+  [`cb20de9`](https://github.com/VegaStack/vegastack-design/commit/cb20de9)
 - **Docs** — the icon gallery was inert on touch. A tile drives its icon through a ref, and holding
   the ref suppresses every trigger the icon provides for itself, including its tap-to-play
   `pointerdown`; the tile replaced hover and focus but not that one, so on a phone nothing in the
   gallery ever moved. Tiles now carry the tap driver too, under the same pointer-type rules.
   [docs](https://design.vegastack.com/docs/foundations/icons) ·
-  [`ee89631`](https://github.com/VegaStack/vegastack-design/commit/ee89631)
+  [`cb20de9`](https://github.com/VegaStack/vegastack-design/commit/cb20de9)
 
 ### ⚠️ Breaking
 
@@ -250,7 +250,7 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
   **`ChevronsDownUpIconHandle` → `ChevronFirstIconHandle`**. Consumers of the old name must rename;
   no compatibility alias is kept.
   [docs](https://design.vegastack.com/docs/foundations/icons) ·
-  [`ee89631`](https://github.com/VegaStack/vegastack-design/commit/ee89631)
+  [`cb20de9`](https://github.com/VegaStack/vegastack-design/commit/cb20de9)
 
 ### 🗑 Removed / renamed
 
