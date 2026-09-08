@@ -1,4 +1,6 @@
-// @vegastack tabs@0.6.0 sha256-oVeNOfzPaH/RRqTG13zdCrAs7W46YuBgxF3sCd1i2QY=
+// @vegastack tabs@0.6.0 sha256-XvOmHb4qspaPz6imIubTRsdVD3z+A8bECVCOplV8S9A=
+
+"use client";
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
