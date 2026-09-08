@@ -255,6 +255,9 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
+      "registryDependencies": [
+        "@vegastack/chip"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/tag-group.tsx",
@@ -266,7 +269,7 @@
         "whenToUse": "Decorative record labels/categories in rows that may overflow — the label voice.",
         "whenNotToUse": "Status signals (Badge) or interactive filters (Combobox chips).",
         "version": "0.6.0",
-        "integrity": "sha256-MmzpdaHOznWi/OG1R1+kYPQ5/Jbw1q5QdZ4qttaFwEY="
+        "integrity": "sha256-TYHxQwKu8kw71eppG4PKz2uw4qSfHepU42FsmGA/f88="
       }
     },
     {
@@ -465,7 +468,9 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/chip"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/combobox.tsx",
@@ -477,7 +482,7 @@
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.6.0",
-        "integrity": "sha256-6BMVwBjqMGHB7a/yqgC/Cx9bTLftqB+lfUDxeQy9Oi0="
+        "integrity": "sha256-oVapNIoPjBK9tWb9L9BQ+Ttxm4Fe4f9Dkv1KKs+Q4l4="
       }
     },
     {
@@ -1350,7 +1355,7 @@
         "whenToUse": "Navigate paged content — a long list/table split across numbered pages.",
         "whenNotToUse": "Infinite scroll / 'load more' feeds, or tab-style switching.",
         "version": "0.6.0",
-        "integrity": "sha256-8fgEfWZPTJhgqGFUztZA1tFjVJt88Vyb+/aNzvjZ9D8="
+        "integrity": "sha256-BC7m9tu/JYOgR+Z4Ev+1UFYMGmIEvXBBZS5cCSpqy7I="
       }
     },
     {
@@ -1566,7 +1571,8 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/icon-button"
+        "@vegastack/icon-button",
+        "@vegastack/use-announcer"
       ],
       "files": [
         {
@@ -1579,7 +1585,7 @@
         "whenToUse": "Copy a short opaque value — API key, invite link, ID, snippet — with clear confirmation.",
         "whenNotToUse": "Long-form content to read/edit, or when there is no discrete value to copy.",
         "version": "0.6.0",
-        "integrity": "sha256-XvRZDw6l5GPxka51kntjL5Wn/5g/kzLvQjtRVL5OD0U="
+        "integrity": "sha256-nkc87Mbyvgpx+lxBx2+B8hRV87P+NoT9e3kFH2ty7tQ="
       }
     },
     {
@@ -1688,10 +1694,11 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/field-inline",
-        "@vegastack/spinner",
         "@vegastack/auto-save-input",
-        "@vegastack/select"
+        "@vegastack/field-inline",
+        "@vegastack/select",
+        "@vegastack/spinner",
+        "@vegastack/use-announcer"
       ],
       "files": [
         {
@@ -1704,7 +1711,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), whole forms (Field), or plain click-to-edit with a synchronous commit and no status (FieldInline alone).",
         "version": "0.6.0",
-        "integrity": "sha256-ZfJnuInJsoH5E9QiuFUXAEZ8LPkxHO8OAxh9OwKW6TA="
+        "integrity": "sha256-AmGXK2vvytY6hmOQRcw1qmrZIDjn5Xcd0lFc4sfEA2A="
       }
     },
     {
@@ -1739,6 +1746,37 @@
       }
     },
     {
+      "name": "chip",
+      "type": "registry:ui",
+      "title": "Chip",
+      "description": "The one labelled pill primitive — 10 decorative hues, two tiers, an optional selection rung, and a real 24x24 remove control. Behind Tag, FilterChip and Combobox chips.",
+      "categories": [
+        "display"
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.3.2",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/icon-button"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/chip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/chip.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A labelled, optionally removable pill — a record label, an applied filter, a selected value in a multi-select.",
+        "whenNotToUse": "A status signal (Badge) or a clickable action (Button); a Chip's root is not interactive.",
+        "version": "0.6.0",
+        "integrity": "sha256-OIzwdiV/chXBquNGgOMu8SQgmhogjxBjUCbLkKJerCs="
+      }
+    },
+    {
       "name": "chip-input",
       "type": "registry:ui",
       "title": "Chip Input",
@@ -1754,7 +1792,8 @@
       "registryDependencies": [
         "@vegastack/input",
         "@vegastack/tag-group",
-        "@vegastack/use-animation-replay"
+        "@vegastack/use-animation-replay",
+        "@vegastack/use-announcer"
       ],
       "files": [
         {
@@ -1767,7 +1806,7 @@
         "whenToUse": "Entering an open set of short tokens — tags, e-mail recipients, domains, webhook events — where values are typed or pasted, not picked from a finite list.",
         "whenNotToUse": "Selection from a known item set (Combobox multiple), or a read-only label list (TagGroup).",
         "version": "0.6.0",
-        "integrity": "sha256-XH8zY3j0UE6HssTFSF3Azie6X6idg2gstdWjAzwG/yE="
+        "integrity": "sha256-ul54z28NcyaN7aoUYFLJmq9stCzVPwRMNO6M/xZeJa8="
       }
     },
     {
@@ -1953,7 +1992,7 @@
         "whenToUse": "User-orderable single lists — settings sections, pipeline stages, ordered taxonomies — where the host persists (and may refuse) the order.",
         "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
         "version": "0.6.0",
-        "integrity": "sha256-6auPAYnj+ID5Wyp9YDT64hbdQ55wduevKa1GGJonDH8="
+        "integrity": "sha256-ms5/NqaCJ/vnO6CGcmj3E8u3qlbtBM3JeF+NjBe+2xk="
       }
     },
     {
@@ -1991,7 +2030,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.6.0",
-        "integrity": "sha256-HG12Y2MNbjX+3OGnD2fpLEi2eftsi1kThMOTkTFnsmI="
+        "integrity": "sha256-VKSxa3rM+1MvG9xxWc7jaqJ509LrMjSzxp/gFfmjXZo="
       }
     },
     {
@@ -2020,7 +2059,7 @@
         "whenToUse": "A visible upload surface — drop files, click to browse, paste — that hands accepted File[]s to the host and typed rejections back.",
         "whenNotToUse": "Chrome-less acquisition inside another surface (compose use-file-drop directly) or rendering upload progress (Attachment).",
         "version": "0.6.0",
-        "integrity": "sha256-cj71V+hXHTaAqHLHunt18hu4FLuT6JlyQzGcJKEEMog="
+        "integrity": "sha256-kzivMaC5NU6IzTNITP7xaNPxhQznIi3np5Xdlv1buOU="
       }
     },
     {
@@ -2526,8 +2565,8 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/chip",
         "@vegastack/dropdown-menu",
-        "@vegastack/icon-button",
         "@vegastack/input"
       ],
       "files": [
@@ -2541,7 +2580,7 @@
         "whenToUse": "Filter toolbars for lists/tables — active filters as removable chips + an Add-filter menu + optional search.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.6.0",
-        "integrity": "sha256-CAHOLV1Orxu5rRE4MOzSkPKhvjk63MAruEsjs9VqvCw="
+        "integrity": "sha256-/Qas08vBvSdUl4AhLjQACT9eWcFOPksFXNXVXDiBHSE="
       }
     },
     {
@@ -2765,7 +2804,8 @@
         "@vegastack/editable-cell",
         "@vegastack/empty",
         "@vegastack/skeleton",
-        "@vegastack/table"
+        "@vegastack/table",
+        "@vegastack/use-announcer"
       ],
       "files": [
         {
@@ -2778,7 +2818,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.6.0",
-        "integrity": "sha256-fJLqYRvi/OFSacHpbP9VNaWsaVzouP8JI/UBWm6TC4I="
+        "integrity": "sha256-JCbYTEI1uKzdQIgZw34hNHhR3SNcXz3ikdUqNLNYATA="
       }
     },
     {
@@ -2927,6 +2967,32 @@
       }
     },
     {
+      "name": "use-announcer",
+      "type": "registry:hook",
+      "title": "useAnnouncer",
+      "description": "The one polite live region — announce(text) plus a stable Announcer component, sequence-keyed so an identical consecutive announcement is still spoken.",
+      "categories": [
+        "hook"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-announcer.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-announcer.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Any component that must tell a screen-reader user something happened with no focus change — a row moved, an entry was rejected, a save failed.",
+        "whenNotToUse": "Content that is visible on screen anyway and already announced by focus, or an assertive alert (role=alert is a separate policy).",
+        "version": "0.6.0",
+        "integrity": "sha256-El1R0kKLLYWcz5Sc1XAhwpz0Thn6Rvgnoqa27RMYUCA="
+      }
+    },
+    {
       "name": "use-animation-replay",
       "type": "registry:hook",
       "title": "useAnimationReplay / useShakeOnInvalid",
@@ -2963,7 +3029,9 @@
         "@atlaskit/pragmatic-drag-and-drop@^2.0.1",
         "@atlaskit/pragmatic-drag-and-drop-hitbox@^2.0.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/use-announcer"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/use-drag-reorder.ts",
@@ -2975,7 +3043,7 @@
         "whenToUse": "Any reorder-by-drag surface — sortable lists, board cards, a future bespoke drag surface — where pointer, keyboard move mode, announcements, and server-refusable drops must all work from one API.",
         "whenNotToUse": "File drag-in (use-file-drop), resizing panes (Resizable), or single-axis value dragging (Slider).",
         "version": "0.6.0",
-        "integrity": "sha256-77TPQoOYpsv39DUiP5535wS5tRSU2mFFGJvk2LfYEsA="
+        "integrity": "sha256-HxMZDQNzeSUpddV6ANXqisfAjcfW4cjaVk2EmUu0NFc="
       }
     },
     {
@@ -2989,7 +3057,9 @@
       "dependencies": [
         "react-dropzone@^19.1.1"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/use-announcer"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/use-file-drop.ts",
@@ -3001,7 +3071,7 @@
         "whenToUse": "Any surface that acquires files — a Dropzone, a rich-text composer accepting pasted screenshots, a bespoke drop target — where drag-depth handling, accept matching, and typed rejections should be correct by construction.",
         "whenNotToUse": "Rendering upload state (Attachment) or persisting uploads — acquisition ends at the File[] callback.",
         "version": "0.6.0",
-        "integrity": "sha256-Vaa8XD0Sa9bWpwTx5mFZTZaY4Km5oPVKalUnX1iUZuU="
+        "integrity": "sha256-+rgYeal6RpLl4YVe73gfS/hDLHkbomk3FkVbQ0ac4LM="
       }
     },
     {

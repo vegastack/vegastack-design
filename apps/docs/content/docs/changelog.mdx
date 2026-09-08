@@ -265,6 +265,30 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
   no compatibility alias is kept.
   [docs](/docs/foundations/icons) ·
   [`cb20de9`](https://github.com/VegaStack/vegastack-design/commit/cb20de9)
+- **`useDragReorder` and `useFileDrop` return `Announcer`, not `getLiveRegionProps()`.** Render
+  `<reorder.Announcer />` / `<drop.Announcer />` in place of
+  `<span {...reorder.getLiveRegionProps()} />`. The props-getter shape could not keep the region
+  mounted across an announcement, which is the property that makes it audible.
+  [docs](/docs/components/sortable-list)
+- **`Pagination` no longer hard-codes its accessible name.** It renders a plain `<nav>` (no
+  `role="navigation"`) and `aria-label` defaults to "Pagination". A page with more than one pager
+  must name each one — two identically named landmarks are an axe `landmark-unique` failure.
+  [docs](/docs/components/pagination)
+
+### 🧩 New components
+
+- **`chip`** — THE labelled pill, and the only one. `hue` (10 decorative tag hues, or neutral) ×
+  `size` (`sm` 28px inline · `md` 32px control-scale) × `active` (the neutral chip's promotion to
+  the `surface-2` selection rung), with `onRemove` mounting a round ghost `IconButton size="xs"`
+  whose **real** border box is 24×24. `Tag`, `FilterChip`, `ComboboxChip` and ChipInput's chips are
+  all this one primitive composed through Base UI `render`.
+  [docs](/docs/components/chip)
+- **`use-announcer`** — the one polite live region. Destructure `announce` and `Announcer` from
+  `useAnnouncer()` and render the `Announcer` element once per component. It keeps the region
+  mounted and observed from first paint, re-keys it per call so an identical consecutive
+  announcement is still spoken, and holds its state outside the host so announcing no longer
+  re-renders a whole DataGrid.
+  [docs](/docs/guides/components)
 
 ### 🗑 Removed / renamed
 
@@ -277,8 +301,29 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
   `warning-outline` / `info-outline`** — seven variants that baked a colour into a name, replaced by
   the `tone` axis.
   [docs](/docs/components/button)
+- **`TagHue`** — the hue vocabulary moved to the Chip primitive and is exported as **`ChipHue`**
+  from `@vegastack/chip`. `Tag`'s `hue` prop is unchanged; only the type's name and home moved.
+  [docs](/docs/components/chip)
 
 ### 🔧 Changed components
+
+- **Tag**, **FilterChip**, **ComboboxChip**, **ChipInput** — all four are now the `chip` primitive.
+  Three consequences are visible: a `Tag` is 28px rather than 20px and a `FilterChip` is a pill
+  rather than a rounded rectangle (chips are `rounded-full` by doctrine); the neutral chip rests on
+  `surface-1` and an applied filter sits on `surface-2` instead of the `accent` alias; and every
+  remove control is the same 24×24 target.
+  [docs](/docs/components/chip)
+- **TagGroup** — the `+N` overflow control is itself a chip, so the whole 28px pill is the pointer
+  target and its hover/pressed steps come from the shared `surfaceInteractive` recipe rather than a
+  hand-written descendant selector.
+  [docs](/docs/components/tag-group)
+- **EditableCell**, **ChipInput**, **DataGrid**, **CopyButton**, **SortableList**, **Board**,
+  **Dropzone** — all announce through `use-announcer`, one live region each. EditableCell's visible
+  status slot is no longer itself a live region, so it stops announcing its own icon swaps.
+  [docs](/docs/components/editable-cell)
+- **Pagination** — `PaginationLink`'s hover and pressed steps come from `surfaceInteractive`
+  instead of restated `hover:bg-surface-2` / `active:bg-surface-3` literals.
+  [docs](/docs/components/pagination)
 
 - **IconButton everywhere.** The dismiss, pager and toggle controls that were hand-rolled
   `<button>` elements in Alert, AnnouncementBanner, Dialog, Sheet, Pagination, OnboardingChecklist

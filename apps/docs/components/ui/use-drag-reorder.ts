@@ -1,8 +1,12 @@
-// @vegastack use-drag-reorder@0.6.0 sha256-77TPQoOYpsv39DUiP5535wS5tRSU2mFFGJvk2LfYEsA=
+// @vegastack use-drag-reorder@0.6.0 sha256-HxMZDQNzeSUpddV6ANXqisfAjcfW4cjaVk2EmUu0NFc=
 
 "use client";
 
 import * as React from "react";
+import {
+  useAnnouncer,
+  type AnnouncerProps,
+} from "@/components/ui/use-announcer";
 import {
   draggable,
   dropTargetForElements,
@@ -180,14 +184,11 @@ export interface UseDragReorderReturn {
     "data-drop-container": string;
     "data-drop-over": "" | undefined;
   };
-  /** Props for the consumer-rendered polite live region. */
-  getLiveRegionProps: () => {
-    role: "status";
-    "aria-live": "polite";
-    "aria-atomic": "true";
-    className: string;
-    children: React.ReactNode;
-  };
+  /**
+   * The polite live region every reorder announcement speaks through — the shared
+   * `useAnnouncer` node. Render it once, anywhere inside the list.
+   */
+  Announcer: React.ComponentType<AnnouncerProps>;
   /** Id currently dragged by pointer, or in keyboard move mode. */
   activeId: string | null;
   /** The move currently awaiting its `onReorder` promise. */
@@ -227,7 +228,7 @@ function positionOf(
  * //     <GripVertical />
  * //   </IconButton>
  * // </li>
- * // <span {...reorder.getLiveRegionProps()} />
+ * // <reorder.Announcer />
  */
 export function useDragReorder({
   lists,
@@ -242,10 +243,6 @@ export function useDragReorder({
   const [pending, setPending] = React.useState<DragReorderMove | null>(null);
   const [dropEdges, setDropEdges] = React.useState<Record<string, Edge>>({});
   const [overContainer, setOverContainer] = React.useState<string | null>(null);
-  const [announcement, setAnnouncementState] = React.useState({
-    text: "",
-    seq: 0,
-  });
 
   const announceRef = React.useRef<DragReorderAnnouncements>(
     DEFAULT_ANNOUNCEMENTS,
@@ -263,9 +260,7 @@ export function useDragReorder({
   canDropInContainerRef.current = canDropInContainer;
   const pendingSeq = React.useRef(0);
 
-  const announce = React.useCallback((text: string) => {
-    setAnnouncementState((prev) => ({ text, seq: prev.seq + 1 }));
-  }, []);
+  const { announce, Announcer } = useAnnouncer();
 
   const isDisabled = React.useCallback((id: string) => {
     const value = disabledRef.current;
@@ -695,17 +690,7 @@ export function useDragReorder({
       "data-drop-container": container,
       "data-drop-over": overContainer === container ? "" : undefined,
     }),
-    getLiveRegionProps: () => ({
-      role: "status",
-      "aria-live": "polite",
-      "aria-atomic": "true",
-      className: "sr-only",
-      children: React.createElement(
-        "span",
-        { key: announcement.seq },
-        announcement.text,
-      ),
-    }),
+    Announcer,
     activeId,
     pending,
     requestMove,

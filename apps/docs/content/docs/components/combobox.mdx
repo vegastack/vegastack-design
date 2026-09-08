@@ -256,6 +256,12 @@ function child rendering one `ComboboxChip` + `ComboboxChipRemove` per selected 
 > `ComboboxChipRemove` via assistive tech or an accessibility-tree-based test query. Sighted pointer
 > users can still click it either way.
 
+`ComboboxChip` and `ComboboxChipRemove` are the [`Chip`](/docs/components/chip) primitive and its
+remove control, composed onto Base UI's own `Combobox.Chip` / `Combobox.ChipRemove` through `render`
+— so a selected value here is geometrically the same object as a `Tag` or a filter chip, and its
+remove control is a real 24×24 target. (It previously shipped as a bare 16px box with no hit-area
+expansion at all: a WCAG 2.5.8 failure, now covered by the contract lane.)
+
 ### States
 
 <ComponentPreview

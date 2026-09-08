@@ -1,4 +1,4 @@
-// @vegastack pagination@0.6.0 sha256-8fgEfWZPTJhgqGFUztZA1tFjVJt88Vyb+/aNzvjZ9D8=
+// @vegastack pagination@0.6.0 sha256-BC7m9tu/JYOgR+Z4Ev+1UFYMGmIEvXBBZS5cCSpqy7I=
 
 "use client";
 
@@ -12,22 +12,27 @@ import {
   ChevronUp,
   MoreHorizontal,
 } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { cn, surfaceInteractive } from "@vegastack/design";
 import { IconButton } from "@/components/ui/icon-button";
 
 /** Props accepted by `Pagination`. */
 export type PaginationProps = React.ComponentPropsWithRef<"nav">;
 
 /**
- * `Pagination` — the navigation landmark for paged content. Renders a
- * `<nav role="navigation" aria-label="pagination">`. Links use Base UI
- * `useRender` composition for router integration, so the module keeps a client
- * boundary even though the emitted DOM is presentational. Compose with
- * `PaginationContent`, `PaginationItem`, `PaginationLink`,
- * `PaginationPrevious`, `PaginationNext`, and `PaginationEllipsis`.
+ * `Pagination` — the navigation landmark for paged content. Renders a plain `<nav>`: `<nav>` IS the
+ * navigation landmark, so restating `role="navigation"` adds nothing, and the hard-coded
+ * `aria-label="pagination"` it used to carry made every additional pager on a page an axe
+ * `landmark-unique` failure (audit B5-08 — the docs page shows six). The label now defaults to
+ * "Pagination" and **must** be overridden whenever a page has more than one: name what is being
+ * paged ("Search results pagination", "Invoices pagination").
+ *
+ * Links use Base UI `useRender` composition for router integration, so the module keeps a client
+ * boundary even though the emitted DOM is presentational. Compose with `PaginationContent`,
+ * `PaginationItem`, `PaginationLink`, `PaginationPrevious`, `PaginationNext`, and
+ * `PaginationEllipsis`.
  *
  * @example
- * <Pagination>
+ * <Pagination aria-label="Search results pagination">
  *   <PaginationContent>
  *     <PaginationItem>
  *       <PaginationPrevious href="?page=1" />
@@ -47,11 +52,14 @@ export type PaginationProps = React.ComponentPropsWithRef<"nav">;
  *   </PaginationContent>
  * </Pagination>
  */
-function Pagination({ className, ...props }: PaginationProps) {
+function Pagination({
+  className,
+  "aria-label": ariaLabel,
+  ...props
+}: PaginationProps) {
   return (
     <nav
-      role="navigation"
-      aria-label="pagination"
+      aria-label={ariaLabel ?? "Pagination"}
       data-slot="pagination"
       className={cn("mx-auto flex w-full justify-center", className)}
       {...props}
@@ -96,11 +104,16 @@ function PaginationItem({ className, ...props }: PaginationItemProps) {
  * Pagination link variants — styled like a ghost button. The active (current)
  * page is the one selection in the control, so it carries the **primary** fill
  * (`bg-primary` + `primary-foreground`); inactive pages are ghost and lift to
- * the neutral `accent` on hover. Disabled prev/next dim to 50% opacity. Every
+ * the surface ladder’s hover rung. Disabled prev/next dim to 50% opacity. Every
  * value is a semantic token (no hardcoded colors).
  */
 export const paginationLinkVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border border-transparent bg-clip-padding text-label whitespace-nowrap tabular-nums select-none hover:bg-surface-2 hover:text-foreground active:bg-surface-3 aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim) [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
+  cn(
+    "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border border-transparent bg-clip-padding text-label whitespace-nowrap tabular-nums select-none hover:text-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim) [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-default)",
+    // A page link is a transparent control on a known surface, so its two steps come from THE
+    // recipe rather than a restated `hover:bg-*` literal (`design.md` §Hover geometry).
+    surfaceInteractive,
+  ),
   {
     variants: {
       isActive: {

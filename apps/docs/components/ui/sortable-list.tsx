@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.6.0 sha256-6auPAYnj+ID5Wyp9YDT64hbdQ55wduevKa1GGJonDH8=
+// @vegastack sortable-list@0.6.0 sha256-ms5/NqaCJ/vnO6CGcmj3E8u3qlbtBM3JeF+NjBe+2xk=
 
 "use client";
 
@@ -274,7 +274,7 @@ export function SortableList({
           );
         })}
       </ItemGroup>
-      <span {...reorder.getLiveRegionProps()} />
+      <reorder.Announcer />
     </div>
   );
 }

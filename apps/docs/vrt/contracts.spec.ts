@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
 import { COMPONENT_ROUTES } from "./contract-routes.generated";
 
 const INTERACTIVE_SELECTOR = [
@@ -330,6 +330,93 @@ test.describe("component contract — narrow reflow and RTL", () => {
  * `docs/ledger/bugs.md`, 2026-07-25. **Do not cite forced-colors focus visibility as covered until
  * this is closed.**
  */
+/**
+ * The 24px pointer-target pass, extracted so it can also run over a fixture that is NOT its
+ * route's first one — see `EXTRA_TARGET_FIXTURES` below.
+ */
+async function assertPointerTargets(
+  controls: Locator,
+  count: number,
+  label: string,
+): Promise<void> {
+  for (let index = 0; index < count; index++) {
+    const control = controls.nth(index);
+    if (!(await control.isVisible()) || (await control.isDisabled())) continue;
+    if ((await control.getAttribute("aria-hidden")) === "true") continue;
+    if ((await control.getAttribute("aria-disabled")) === "true") continue;
+
+    const pointerState = await control.evaluate((element) => ({
+      pointerEvents: getComputedStyle(element).pointerEvents,
+      visuallyHidden: element.classList.contains("sr-only"),
+      slot: element.getAttribute("data-slot"),
+      active: element.getAttribute("data-active"),
+      tabIndex: element instanceof HTMLElement ? element.tabIndex : -1,
+    }));
+    // State-driven controls such as MessageScroller's inactive jump button
+    // remain mounted for stable transitions but are deliberately removed
+    // from pointer and keyboard interaction. Skip only their pointer probe;
+    // the keyboard branch still catches any erroneously tabbable one.
+    // Skip links are likewise keyboard-only until focus reveals them.
+    const inactiveMountedControl =
+      pointerState.slot === "message-scroller-button" &&
+      pointerState.active === "false" &&
+      pointerState.tabIndex < 0 &&
+      pointerState.pointerEvents === "none";
+    const hasPointerTarget =
+      !pointerState.visuallyHidden && !inactiveMountedControl;
+
+    if (hasPointerTarget) {
+      // `scrollIntoViewIfNeeded` treats an element beneath a sticky header as
+      // visible. Centre every pointer target so docs-shell overlays cannot
+      // steal a valid component hit during the probe.
+      await control.evaluate((element) =>
+        element.scrollIntoView({ block: "center", inline: "center" }),
+      );
+    }
+
+    const usesInlineTextException = await control.evaluate(
+      (element) =>
+        element instanceof HTMLAnchorElement &&
+        getComputedStyle(element).display === "inline",
+    );
+    if (hasPointerTarget && !usesInlineTextException) {
+      const probe = await effectiveTargetProbe(control);
+      // (1) size — sub-pixel tolerance only, so a genuinely undersized control still fails.
+      expect(
+        {
+          width: probe.effective.width >= 23.5,
+          height: probe.effective.height >= 23.5,
+        },
+        `interactive control ${index} on ${label} must be at least 24×24 including any -inset-* hit area (measured ${probe.effective.width.toFixed(2)}×${probe.effective.height.toFixed(2)}px)`,
+      ).toEqual({ width: true, height: true });
+      // (2) obstruction — nothing else may own the interior of the centred 24px square.
+      expect(
+        probe.misses,
+        `interactive control ${index} on ${label} must own a centred >=24px effective pointer target (visual ${probe.rect.width.toFixed(1)}×${probe.rect.height.toFixed(1)}px)`,
+      ).toEqual([]);
+    }
+  }
+}
+
+/**
+ * Fixtures that are NOT their route's first `[data-vrt-preview]`, and therefore fall outside the
+ * `.first()` probe, but carry a control the 24px floor must still cover.
+ *
+ * `comboboxMultiple` is the case that proved the gap: `ComboboxChipRemove` shipped as a bare 16px
+ * box with no hit-area expansion at all — a WCAG 2.5.8 failure this lane never saw, because
+ * `/docs/components/combobox` measures `comboboxGroups` (audit 2026-09-07, B5-03). Probing EVERY
+ * fixture on every route is the root fix and belongs to G1-b, because it surfaces defects across
+ * many components at once; this map closes the one hole that has evidence behind it.
+ *
+ * Add an entry only with that kind of evidence, and delete the map once the lane probes every
+ * fixture. These fixtures are probed INSIDE the per-route test below rather than in a test of
+ * their own, so `contracts-run.mjs`'s exact "routes x assertions x projects" count model — which
+ * fails closed on any shape change — keeps holding.
+ */
+const EXTRA_TARGET_FIXTURES: Record<string, readonly string[]> = {
+  "/docs/components/combobox": ["comboboxMultiple"],
+};
+
 test.describe("component contract — forced colors and target floor", () => {
   for (const route of COMPONENT_ROUTES) {
     test(`${route} retains focus visibility and effective 24px pointer targets`, async ({
@@ -348,63 +435,24 @@ test.describe("component contract — forced colors and target floor", () => {
       await expect(fixture).toBeVisible();
       const controls = fixture.locator(INTERACTIVE_SELECTOR);
       const count = await controls.count();
-      for (let index = 0; index < count; index++) {
-        const control = controls.nth(index);
-        if (!(await control.isVisible()) || (await control.isDisabled()))
-          continue;
-        if ((await control.getAttribute("aria-hidden")) === "true") continue;
-        if ((await control.getAttribute("aria-disabled")) === "true") continue;
+      await assertPointerTargets(controls, count, route);
 
-        const pointerState = await control.evaluate((element) => ({
-          pointerEvents: getComputedStyle(element).pointerEvents,
-          visuallyHidden: element.classList.contains("sr-only"),
-          slot: element.getAttribute("data-slot"),
-          active: element.getAttribute("data-active"),
-          tabIndex: element instanceof HTMLElement ? element.tabIndex : -1,
-        }));
-        // State-driven controls such as MessageScroller's inactive jump button
-        // remain mounted for stable transitions but are deliberately removed
-        // from pointer and keyboard interaction. Skip only their pointer probe;
-        // the keyboard branch below still catches any erroneously tabbable one.
-        // Skip links are likewise keyboard-only until focus reveals them.
-        const inactiveMountedControl =
-          pointerState.slot === "message-scroller-button" &&
-          pointerState.active === "false" &&
-          pointerState.tabIndex < 0 &&
-          pointerState.pointerEvents === "none";
-        const hasPointerTarget =
-          !pointerState.visuallyHidden && !inactiveMountedControl;
-
-        if (hasPointerTarget) {
-          // `scrollIntoViewIfNeeded` treats an element beneath a sticky header as
-          // visible. Centre every pointer target so docs-shell overlays cannot
-          // steal a valid component hit during the probe.
-          await control.evaluate((element) =>
-            element.scrollIntoView({ block: "center", inline: "center" }),
-          );
-        }
-
-        const usesInlineTextException = await control.evaluate(
-          (element) =>
-            element instanceof HTMLAnchorElement &&
-            getComputedStyle(element).display === "inline",
+      for (const name of EXTRA_TARGET_FIXTURES[route] ?? []) {
+        const extra = page.locator(`[data-vrt-preview="${name}"]`);
+        await expect(extra).toBeVisible();
+        const extraControls = extra.locator(INTERACTIVE_SELECTOR);
+        const extraCount = await extraControls.count();
+        // A named fixture that exposes nothing would pass silently — the same failure mode
+        // `contracts-run.mjs` guards against for its own `--grep`.
+        expect(
+          extraCount,
+          `fixture ${name} on ${route} exposed no interactive control to probe`,
+        ).toBeGreaterThan(0);
+        await assertPointerTargets(
+          extraControls,
+          extraCount,
+          `${route} (${name})`,
         );
-        if (hasPointerTarget && !usesInlineTextException) {
-          const probe = await effectiveTargetProbe(control);
-          // (1) size — sub-pixel tolerance only, so a genuinely undersized control still fails.
-          expect(
-            {
-              width: probe.effective.width >= 23.5,
-              height: probe.effective.height >= 23.5,
-            },
-            `interactive control ${index} on ${route} must be at least 24×24 including any -inset-* hit area (measured ${probe.effective.width.toFixed(2)}×${probe.effective.height.toFixed(2)}px)`,
-          ).toEqual({ width: true, height: true });
-          // (2) obstruction — nothing else may own the interior of the centred 24px square.
-          expect(
-            probe.misses,
-            `interactive control ${index} on ${route} must own a centred >=24px effective pointer target (visual ${probe.rect.width.toFixed(1)}×${probe.rect.height.toFixed(1)}px)`,
-          ).toEqual([]);
-        }
       }
 
       // ── keyboard pass ──────────────────────────────────────────────────────────────────────────

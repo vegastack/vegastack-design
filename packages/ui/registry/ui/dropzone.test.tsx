@@ -319,7 +319,7 @@ test("the hook alone powers a chrome-less consumer (rich-text composer path)", a
           <input {...drop.inputProps} aria-label="Attach" />
           <p>Write something…</p>
         </div>
-        <span {...drop.getLiveRegionProps()} />
+        <drop.Announcer />
       </div>
     );
   }

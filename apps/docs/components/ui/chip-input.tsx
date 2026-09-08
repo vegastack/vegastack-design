@@ -1,4 +1,4 @@
-// @vegastack chip-input@0.6.0 sha256-XH8zY3j0UE6HssTFSF3Azie6X6idg2gstdWjAzwG/yE=
+// @vegastack chip-input@0.6.0 sha256-ul54z28NcyaN7aoUYFLJmq9stCzVPwRMNO6M/xZeJa8=
 
 "use client";
 
@@ -7,6 +7,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@vegastack/design";
 import { Input } from "@/components/ui/input";
 import { Tag } from "@/components/ui/tag-group";
+import { useAnnouncer } from "@/components/ui/use-announcer";
 import {
   mergeRefs,
   useShakeOnInvalid,
@@ -192,17 +193,10 @@ export function ChipInput({
   const isControlled = controlledValue !== undefined;
   const chips = isControlled ? controlledValue : internalValue;
   const [draft, setDraft] = React.useState("");
-  const [announcement, setAnnouncementState] = React.useState({
-    text: "",
-    seq: 0,
-  });
-  // Sequence-keyed so an IDENTICAL consecutive announcement (a second rejected
-  // duplicate) still mutates the DOM and re-announces.
-  const setAnnouncement = React.useCallback(
-    (text: string) =>
-      setAnnouncementState((prev) => ({ text, seq: prev.seq + 1 })),
-    [],
-  );
+  // One announcer, one policy, one live region — `use-announcer` owns the
+  // sequence keying that makes an IDENTICAL consecutive announcement (a second
+  // rejected duplicate) mutate the DOM and re-announce.
+  const { announce: setAnnouncement, Announcer } = useAnnouncer();
   const describeId = React.useId();
 
   const commitValue = React.useCallback(
@@ -381,14 +375,7 @@ export function ChipInput({
       <span id={describeId} className="sr-only">
         Some entries are invalid
       </span>
-      <span
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-        className="sr-only"
-      >
-        <span key={announcement.seq}>{announcement.text}</span>
-      </span>
+      <Announcer />
     </div>
   );
 }

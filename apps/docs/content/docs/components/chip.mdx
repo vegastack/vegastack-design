@@ -1,0 +1,105 @@
+---
+title: Chip
+description: The one labelled pill — 10 decorative hues, two tiers, an optional selection rung, and a real 24px remove control.
+audience: public
+preview: chip
+---
+
+## Installation
+
+```npm
+npx shadcn@latest add @vegastack/chip
+```
+
+## Usage
+
+```tsx
+import { Chip } from "@/components/ui/chip";
+
+<Chip hue="blue" onRemove={() => removeLabel("API")} removeLabel="Remove API">
+  API
+</Chip>;
+```
+
+`Chip` is the primitive behind `Tag`, `FilterChip`, `ChipInput`'s chips and `ComboboxChip`.
+Reach for it directly when you need a labelled pill that none of those already is; reach for
+the named component when one of them fits, so the page keeps its vocabulary.
+
+## Examples
+
+### Two tiers
+
+`sm` (28px) is the inline tag tier — tags in a record row, chips inside a field. `md` (32px)
+is the standalone control tier: it lines up with the Buttons, Inputs and Selects beside it,
+which is why an applied filter in a `FilterBar` uses it.
+
+<ComponentPreview name="chipSizes" file="components/preview/chip.tsx" />
+
+### The 10-hue palette
+
+Chips ride the `--tag-{hue}` token trios (`-subtle` fill, `-text` ink, base accent) — 10
+chromatic hues plus the neutral chip, each AA-gated in both themes by the token contrast
+gate. Hue is a **decorative label colour**: it never signals status (that is `Badge`'s five
+semantic intents).
+
+<ComponentPreview name="chipHues" file="components/preview/chip.tsx" />
+
+### Removable
+
+`onRemove` mounts the remove control: a round, ghost `IconButton` whose **real** border box is
+24×24, so the WCAG 2.5.8 target is the button itself and no clipping ancestor can shrink it.
+Always name what is being removed with `removeLabel`.
+
+<ComponentPreview name="chipRemovable" file="components/preview/chip.tsx" />
+
+### Selected
+
+`active` promotes the neutral chip from its rest fill (`surface-1`) to the selection rung
+(`surface-2`) — the same step every selected surface in the system takes. It is ignored for a
+chromatic hue, whose tint already carries the meaning.
+
+### Composing another engine's chip
+
+A chip whose behaviour belongs to another primitive keeps that primitive and wears this
+geometry through Base UI `render`. That is exactly how `ComboboxChip` works:
+
+```tsx
+<Chip size="sm" active render={<Combobox.Chip />}>
+  Design
+  <ChipRemove aria-label="Remove Design" render={<Combobox.ChipRemove />} />
+</Chip>
+```
+
+### Chip vs Badge
+
+|        | `Badge`                     | `Chip`                                 |
+| ------ | --------------------------- | -------------------------------------- |
+| Voice  | status (5 semantic intents) | label / selection (10 decorative hues) |
+| Root   | not interactive             | not interactive                        |
+| Extras | dot, loading, animate-in    | remove control, selection rung         |
+
+## API Reference
+
+### Chip
+
+<AutoTypeTable path="../../packages/ui/registry/ui/chip.tsx" name="ChipProps" />
+
+### ChipRemove
+
+`ChipRemove` takes every `IconButton` prop; `aria-label` is required. Render it yourself only
+when the remove control belongs to another engine — otherwise pass `onRemove` to `Chip`.
+
+## Accessibility
+
+- The chip root is **not** interactive and has no hover or pressed state. Nothing happens when you click it, so nothing pretends otherwise.
+- The remove control is a real 24×24 `IconButton`, so its pointer target is its own border box (WCAG 2.5.8) rather than an invisible pseudo-element a nested `<button>` would clip.
+- `removeLabel` names what is removed — “Remove SaaS”, not “Remove”.
+- Hue is decorative. Never let a chip colour be the only signal of status or meaning.
+- Wrap a growable label in `<span className="min-w-0 truncate">` so a long value ellipsises instead of stretching the row.
+
+## Do / Don't
+
+<DoDont
+  do="Use one Chip for every labelled pill, and name every remove control after what it removes."
+  dont="Hand-roll a pill with its own height, radius and a sub-24px remove button."
+/>

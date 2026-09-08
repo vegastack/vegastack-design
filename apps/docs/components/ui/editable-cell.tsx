@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.6.0 sha256-ZfJnuInJsoH5E9QiuFUXAEZ8LPkxHO8OAxh9OwKW6TA=
+// @vegastack editable-cell@0.6.0 sha256-AmGXK2vvytY6hmOQRcw1qmrZIDjn5Xcd0lFc4sfEA2A=
 
 "use client";
 
@@ -7,6 +7,7 @@ import { Check, X } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { FieldInline } from "@/components/ui/field-inline";
 import { Spinner } from "@/components/ui/spinner";
+import { useAnnouncer } from "@/components/ui/use-announcer";
 import type { AutoSaveStatus } from "@/components/ui/auto-save-input";
 import {
   Select,
@@ -213,17 +214,9 @@ export function EditableCell({
   // resolve (the host has updated `value`) and on reject (the display snaps
   // back to `value` — the revert).
   const [pendingValue, setPendingValue] = React.useState<string | null>(null);
-  const [announcement, setAnnouncementState] = React.useState({
-    text: "",
-    seq: 0,
-  });
-  // Sequence-keyed so an IDENTICAL consecutive announcement still mutates the
-  // DOM (a same-string setState is a React bail-out and never re-announces).
-  const setAnnouncement = React.useCallback(
-    (text: string) =>
-      setAnnouncementState((prev) => ({ text, seq: prev.seq + 1 })),
-    [],
-  );
+  // `use-announcer` owns the live region and the sequence keying that makes an
+  // IDENTICAL consecutive announcement ("Save failed" twice) still re-announce.
+  const { announce: setAnnouncement, Announcer } = useAnnouncer();
   // Guards a stale promise settling after a newer commit started.
   const commitSeq = React.useRef(0);
 
@@ -358,16 +351,14 @@ export function EditableCell({
       className={cn("inline-flex min-w-0 items-center gap-1.5", className)}
     >
       {editorSurface}
-      <span
-        data-slot="editable-cell-status"
-        className={statusSlotClasses}
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-      >
+      {/* The VISIBLE indicator is decorative — every glyph is `aria-hidden`, and the
+          announcement is the `Announcer` sibling below. Keeping the live region off this
+          span is what holds the one-region-per-component rule: a status slot that is also
+          a live region announces its own icon swaps. */}
+      <span data-slot="editable-cell-status" className={statusSlotClasses}>
         {/* Keyed presence: each indicator remounts on status change so its
             mount animation replays. Color never carries status alone — the
-            icon shape differs per state and the sr-only text announces it. */}
+            icon shape differs per state and the announcer speaks it. */}
         {status === "saving" ? (
           // Decorative (label="") — the sr-only sibling announces "Saving…".
           <Spinner size="sm" label="" />
@@ -384,10 +375,8 @@ export function EditableCell({
             aria-hidden
           />
         ) : null}
-        <span key={announcement.seq} className="sr-only">
-          {announcement.text}
-        </span>
       </span>
+      <Announcer />
     </span>
   );
 }

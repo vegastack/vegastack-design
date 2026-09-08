@@ -28,6 +28,7 @@ export * from "./slider";
 export * from "./toggle";
 export * from "./toggle-group";
 export * from "./segmented";
+export * from "./chip";
 export * from "./tag-group";
 export * from "./stat";
 export * from "./property-list";

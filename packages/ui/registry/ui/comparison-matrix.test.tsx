@@ -39,6 +39,43 @@ test("boolean availability renders sr-labelled glyphs, values render literally",
   await expect.element(screen.getByText("Unlimited")).toBeInTheDocument();
 });
 
+test("omitting highlightedIndex promotes no column at all", async () => {
+  await render(
+    <ComparisonMatrix plans={["Starter", "Team", "Enterprise"]}>
+      <ComparisonGroup>Support</ComparisonGroup>
+      <ComparisonRow
+        feature="Email support"
+        availability={[true, true, true]}
+      />
+    </ComparisonMatrix>,
+  );
+  expect(document.querySelectorAll('td[class*="bg-surface-2"]').length).toBe(0);
+  expect(document.querySelectorAll('th[class*="bg-surface-2"]').length).toBe(0);
+});
+
+test("unknownLabel overrides the copy for an unsupplied cell", async () => {
+  await render(
+    <ComparisonMatrix plans={["Free", "Plus", "Pro"]}>
+      <ComparisonGroup>Support</ComparisonGroup>
+      <ComparisonRow
+        feature="Response time"
+        availability={["48h"]}
+        unknownLabel="Ask sales"
+      />
+    </ComparisonMatrix>,
+  );
+  // Two of the three plans are unsupplied, so BOTH say "Ask sales".
+  const unknown = document.querySelectorAll(
+    '[data-slot="comparison-row"] .sr-only',
+  );
+  expect(
+    [...unknown].map((n) => n.textContent).filter((t) => t === "Ask sales")
+      .length,
+  ).toBe(2);
+  // The default copy must not leak through alongside the override.
+  expect(document.body.textContent).not.toContain("Not specified");
+});
+
 test("highlighted column cells carry the neutral hover-rung tint", async () => {
   await render(<Example />);
   // The highlight is a NEUTRAL rung of the surface ladder, never `info` — `info` is reserved for

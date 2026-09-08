@@ -19,7 +19,7 @@ import {
 export function pagination(): ReactNode {
   return (
     <Wrapper>
-      <Pagination>
+      <Pagination aria-label="Search results pagination">
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious href="#" />
@@ -56,7 +56,7 @@ export function paginationRouting(): ReactNode {
   // here a plain `<a>` stands in to show the composition renders unchanged.
   return (
     <Wrapper>
-      <Pagination>
+      <Pagination aria-label="Routed pages pagination">
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious render={<a href="#prev" />} />
@@ -89,7 +89,7 @@ export function paginationSizes(): ReactNode {
           <span className="text-muted-foreground w-14 text-right font-mono text-sm">
             {size}
           </span>
-          <Pagination>
+          <Pagination aria-label={`${size} pages pagination`}>
             <PaginationContent>
               <PaginationItem>
                 <PaginationLink href="#" size={size}>
@@ -117,7 +117,7 @@ export function paginationSizes(): ReactNode {
 export function paginationFirstPage(): ReactNode {
   return (
     <Wrapper>
-      <Pagination>
+      <Pagination aria-label="First-page pagination">
         <PaginationContent>
           <PaginationItem>
             {/* `aria-disabled="true"` is enough — PaginationLink enforces the tab-order
@@ -150,7 +150,7 @@ export function paginationFirstPage(): ReactNode {
 export function paginationLastPage(): ReactNode {
   return (
     <Wrapper>
-      <Pagination>
+      <Pagination aria-label="Last-page pagination">
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious href="#" />

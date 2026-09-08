@@ -1,12 +1,12 @@
-// @vegastack filter-bar@0.6.0 sha256-CAHOLV1Orxu5rRE4MOzSkPKhvjk63MAruEsjs9VqvCw=
+// @vegastack filter-bar@0.6.0 sha256-/Qas08vBvSdUl4AhLjQACT9eWcFOPksFXNXVXDiBHSE=
 
 "use client";
 
 import * as React from "react";
-import { ListFilterPlus, X } from "lucide-react";
+import { ListFilterPlus } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
-import { IconButton } from "@/components/ui/icon-button";
+import { Chip } from "@/components/ui/chip";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -44,9 +44,9 @@ export interface FilterBarFilter {
   /** Invoked when the chip's remove (`×`) control is activated. */
   onRemove: () => void;
   /**
-   * Whether the chip reads as an active selection (neutral `accent` tint). An
-   * applied filter is a selection, so this defaults to `true`; set `false` for a
-   * neutral presence-only chip.
+   * Whether the chip reads as an active selection (the `surface-2` selection
+   * rung). An applied filter is a selection, so this defaults to `true`; set
+   * `false` for a presence-only chip on the rest fill.
    * @default true
    */
   active?: boolean;
@@ -130,8 +130,7 @@ export interface FilterBarProps extends Omit<
   addFilterMenuAlign?: DropdownMenuContentProps["align"];
   /**
    * Controlled search/query input config. Omit to hide the search field.
-
-   * @default = null && "ml-auto")
+   * @default undefined
    */
   search?: FilterBarSearch;
   /** Props forwarded to the underlying search {@link Input}.
@@ -148,13 +147,13 @@ export interface FilterBarProps extends Omit<
 }
 
 /* ------------------------------------------------------------------------------------------------
- * FilterChip — a removable Badge-like pill (label[: value] + × button)
+ * FilterChip — a removable filter pill (label + value + remove control)
  * ----------------------------------------------------------------------------------------------*/
 
 /** Props accepted by `FilterChip`. */
 export interface FilterChipProps extends Omit<
-  React.ComponentPropsWithRef<"div">,
-  "onRemove"
+  React.ComponentPropsWithRef<"span">,
+  "onRemove" | "children"
 > {
   /** The filter's name (muted leading text). */
   label: React.ReactNode;
@@ -177,8 +176,8 @@ export interface FilterChipProps extends Omit<
   removeLabel?: string;
   /**
    * Whether the chip reads as an active selection. An active chip takes the
-   * neutral selection tint (`bg-accent` + `text-foreground`); an inactive chip
-   * stays a plain surface.
+   * selection rung (`surface-2`); an inactive chip keeps a filled control's rest
+   * fill (`surface-1`).
    * @default true
    */
   active?: boolean;
@@ -186,11 +185,11 @@ export interface FilterChipProps extends Omit<
 
 /**
  * `FilterChip` — a single removable filter pill: a `label`, an optional `value`
- * after a colon, and a trailing `×` button that fires `onRemove`. An applied
- * filter is a selection, so it carries the neutral `accent` tint by default; pass
- * `active={false}` for a plain presence chip. Control-scale (`h-(--size-md) rounded-md`),
- * token-only styling. Purely presentational; the {@link FilterBar} renders one
- * per active filter.
+ * after a colon, and a trailing `×` control that fires `onRemove`. The {@link Chip}
+ * primitive at the standalone (`md`, 32px) tier, so it lines up with the Buttons and
+ * Inputs beside it in the bar. An applied filter is a selection, so it carries the
+ * selection rung by default; pass `active={false}` for a plain presence chip.
+ * Purely presentational; the {@link FilterBar} renders one per active filter.
  *
  * @example
  * <FilterChip label="Status" value="Active" onRemove={clearStatus} />
@@ -210,67 +209,24 @@ export function FilterChip({
     (typeof label === "string" ? `Remove ${label} filter` : "Remove filter");
 
   return (
-    <div
+    <Chip
       data-slot="filter-chip"
-      data-active={active ? "" : undefined}
-      className={cn(
-        // 14px (`text-base`) — every 32px (h-(--size-md)) control shares the md type tier (register P2-19).
-        "inline-flex h-(--size-md) max-w-xs shrink-0 items-center gap-1 rounded-md border pr-1 pl-2.5 text-base",
-        // Active = a true selection → neutral accent tint; otherwise a plain surface.
-        active
-          ? "border-border bg-accent text-foreground"
-          : "border-border bg-background text-foreground",
-        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-compact)",
-        className,
-      )}
+      size="md"
+      active={active}
+      onRemove={onRemove}
+      removeLabel={computedRemoveLabel}
+      className={cn("max-w-xs", className)}
       {...props}
     >
       {/* The icon + label stay muted in BOTH states so the label/value hierarchy
           (muted key, emphasized value) survives activation — the active state is
-          carried by the chip's accent surface, not by flattening the text tiers. */}
+          carried by the chip's surface rung, not by flattening the text tiers. */}
       {icon != null ? (
         <span className="shrink-0 text-muted-foreground">{icon}</span>
       ) : null}
       <span className="shrink-0 text-muted-foreground">{label}</span>
-      {value != null ? (
-        <span className="min-w-0 truncate font-medium">{value}</span>
-      ) : null}
-      <IconButton
-        type="button"
-        variant="ghost"
-        size="xs"
-        onClick={onRemove}
-        aria-label={computedRemoveLabel}
-        data-slot="filter-chip-remove"
-        className={cn(
-          // Grows the button's REAL border-box from size-5 (20px) to size-6 (24px) —
-          // WCAG 2.5.8's 24×24 CSS px minimum — instead of an invisible `::before`
-          // hit-area expansion. A pseudo-element was tried first, but native
-          // `<button>` elements (Tailwind Preflight sets `appearance: button`) clip
-          // overflowing generated content to their own border box once nested a
-          // couple of levels deep (verified by hand: identical CSS on a `<span>` at
-          // the same nesting depth is NOT clipped) — the pseudo computes correctly
-          // via `getComputedStyle` but is never actually hit-testable beyond the
-          // visible box, so it silently fails to expand anything. Growing the real
-          // box sidesteps that bug entirely.
-          //
-          // `ml-0.5` (+2px) → dropped to 0, and `-mr-0.5` (-2px) → `-mr-1` (-4px): the
-          // box grows 2px on each side (20→24), so the LEFT margin loses the 2px it
-          // used to add (keeping the left edge fixed) and the RIGHT margin gains an
-          // extra -2px (absorbing the 2px the right edge now extends further into the
-          // chip's own `pr-1`), so the total space this control consumes end-to-end —
-          // and therefore its visual footprint and the × glyph's centered position
-          // inside it (`items-center justify-center`, unaffected by the bigger box) —
-          // is byte-for-byte identical to before (both resolve to 28px total).
-          "-me-1",
-          active
-            ? "text-foreground hover:bg-foreground/(--alpha-ink-tint) hover:text-foreground"
-            : "text-muted-foreground hover:text-foreground",
-        )}
-      >
-        <X className="size-(--icon-compact)" aria-hidden />
-      </IconButton>
-    </div>
+      {value != null ? <span className="min-w-0 truncate">{value}</span> : null}
+    </Chip>
   );
 }
 

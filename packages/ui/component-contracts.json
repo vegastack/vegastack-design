@@ -12,10 +12,10 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 556,
-    "components": 110,
+    "totalRegistryItems": 558,
+    "components": 111,
     "animatedIcons": 439,
-    "hooks": 6,
+    "hooks": 7,
     "blocks": 1
   },
   "expectedWaveCounts": {
@@ -23,10 +23,10 @@
     "Forms/editing": 22,
     "Navigation/layout": 14,
     "Overlays": 13,
-    "Data display": 10,
+    "Data display": 11,
     "Content/marketing": 22,
     "AI/chat": 6,
-    "Hooks": 6,
+    "Hooks": 7,
     "Block": 1,
     "Animated icons": 439
   },
@@ -113,14 +113,15 @@
     ],
     "Data display": [
       "card",
-      "table",
-      "data-list",
-      "data-grid",
       "chart",
+      "chip",
       "comparison-matrix",
+      "data-grid",
+      "data-list",
+      "progress-indicator",
       "property-list",
       "stat",
-      "progress-indicator",
+      "table",
       "timeline"
     ],
     "Content/marketing": [
@@ -157,6 +158,7 @@
     ],
     "Hooks": [
       "use-animation-replay",
+      "use-announcer",
       "use-drag-reorder",
       "use-file-drop",
       "use-list-nav",
@@ -2004,15 +2006,6 @@
           }
         },
         {
-          "name": "TagHue",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/tag-group.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
           "name": "TagProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/tag-group.tsx",
@@ -2065,7 +2058,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/tag-group",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/chip"],
       "npmDependencies": [
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.3.2",
@@ -2085,10 +2078,6 @@
       "dataAttributes": {
         "Tag": {
           "attributes": [
-            {
-              "name": "data-hue",
-              "values": []
-            },
             {
               "name": "data-slot",
               "values": ["tag"]
@@ -4310,7 +4299,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/combobox",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/chip"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
@@ -12344,7 +12333,11 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/copy-button",
-      "registryDependencies": ["@vegastack/button", "@vegastack/icon-button"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/icon-button",
+        "@vegastack/use-announcer"
+      ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.3.2",
@@ -12857,10 +12850,11 @@
       "engines": [],
       "docsSlug": "/docs/components/editable-cell",
       "registryDependencies": [
-        "@vegastack/field-inline",
-        "@vegastack/spinner",
         "@vegastack/auto-save-input",
-        "@vegastack/select"
+        "@vegastack/field-inline",
+        "@vegastack/select",
+        "@vegastack/spinner",
+        "@vegastack/use-announcer"
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
@@ -13018,6 +13012,166 @@
       }
     },
     {
+      "name": "chip",
+      "registryType": "registry:ui",
+      "title": "Chip",
+      "summary": "The one labelled pill primitive — 10 decorative hues, two tiers, an optional selection rung, and a real 24x24 remove control. Behind Tag, FilterChip and Combobox chips.",
+      "family": "display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/chip.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Chip",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chip.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "ChipHue",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ChipProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ChipRemove",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chip.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "IconButton",
+            "rationale": "Delegating wrapper — the ref rides the props spread onto the composed IconButton."
+          }
+        },
+        {
+          "name": "ChipRemoveProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ChipSize",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "hue",
+            "values": [
+              "blue",
+              "cyan",
+              "green",
+              "lime",
+              "magenta",
+              "neutral",
+              "orange",
+              "pink",
+              "purple",
+              "red",
+              "yellow"
+            ],
+            "evidence": "packages/ui/registry/ui/chip.tsx: HUE_CLASSES record keyed by ChipHue"
+          }
+        ]
+      },
+      "sizes": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["md", "sm"],
+            "evidence": "packages/ui/registry/ui/chip.tsx: SIZE_CLASSES record keyed by ChipSize"
+          }
+        ]
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "active", "removable", "disabled"],
+          "evidence": "`active` swaps the neutral chip onto the selection rung; `onRemove` mounts the remove control; Base UI's data-disabled dims and inerts a composed chip."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["labeled", "focus-visible"],
+          "evidence": "The remove control is an IconButton, so a missing aria-label is a type error, and it inherits the global 2px focus-visible outline."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "pressed", "selected", "disabled"],
+          "evidence": "Hover/pressed live on the composed ghost IconButton (surface ladder rungs 2 and 3); `active` is the selection rung; data-disabled dims."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "A chip is a shrink-0 flex row inside a wrapping group; the caller wraps the growable part in min-w-0 truncate."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed; colour changes are immediate by doctrine."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/chip",
+      "registryDependencies": ["@vegastack/icon-button"],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.3.2",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/chip.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      },
+      "previewModule": "chip",
+      "dataAttributes": {
+        "ChipRemove": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["chip-remove"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
       "name": "chip-input",
       "registryType": "registry:ui",
       "title": "Chip Input",
@@ -13111,7 +13265,8 @@
       "registryDependencies": [
         "@vegastack/input",
         "@vegastack/tag-group",
-        "@vegastack/use-animation-replay"
+        "@vegastack/use-animation-replay",
+        "@vegastack/use-announcer"
       ],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
@@ -17405,9 +17560,9 @@
       "docsSlug": "/docs/components/filter-bar",
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/chip",
         "@vegastack/dropdown-menu",
-        "@vegastack/input",
-        "@vegastack/icon-button"
+        "@vegastack/input"
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
@@ -17429,12 +17584,8 @@
         "FilterChip": {
           "attributes": [
             {
-              "name": "data-active",
-              "values": [""]
-            },
-            {
               "name": "data-slot",
-              "values": ["filter-chip", "filter-chip-remove"]
+              "values": ["filter-chip"]
             }
           ],
           "cssVariables": []
@@ -18803,7 +18954,8 @@
         "@vegastack/editable-cell",
         "@vegastack/empty",
         "@vegastack/skeleton",
-        "@vegastack/table"
+        "@vegastack/table",
+        "@vegastack/use-announcer"
       ],
       "npmDependencies": [
         "@tanstack/react-table@^8.21.3",
@@ -23928,6 +24080,98 @@
       }
     },
     {
+      "name": "use-announcer",
+      "registryType": "registry:hook",
+      "title": "useAnnouncer",
+      "summary": "The one polite live region — announce(text) plus a stable Announcer component, sequence-keyed so an identical consecutive announcement is still spoken.",
+      "family": "hook",
+      "wave": "Hooks",
+      "sourceFiles": ["packages/ui/registry/ui/use-announcer.ts"],
+      "publicSymbols": [
+        {
+          "name": "AnnouncerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-announcer.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseAnnouncerResult",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-announcer.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "useAnnouncer",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-announcer.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["empty", "announcing"],
+          "evidence": "The store starts at the shared EMPTY snapshot and increments a sequence per announce, so a repeated identical string still replaces the DOM node."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["live-region-polite"],
+          "evidence": "The hook's entire purpose: one role=status aria-live=polite aria-atomic sr-only node per announcing component, mounted from first paint."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render visual states."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "The region is sr-only; consumers own layout."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/guides/components",
+      "registryDependencies": [],
+      "npmDependencies": ["@vegastack/design@^0.3.2"],
+      "testFiles": ["packages/ui/registry/ui/use-announcer.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      }
+    },
+    {
       "name": "use-drag-reorder",
       "registryType": "registry:hook",
       "title": "useDragReorder",
@@ -24045,7 +24289,7 @@
         }
       ],
       "docsSlug": "/docs/guides/components",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/use-announcer"],
       "npmDependencies": [
         "@atlaskit/pragmatic-drag-and-drop@^2.0.1",
         "@atlaskit/pragmatic-drag-and-drop-hitbox@^2.0.0"
@@ -24170,7 +24414,7 @@
         }
       ],
       "docsSlug": "/docs/guides/components",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/use-announcer"],
       "npmDependencies": ["react-dropzone@^19.1.1"],
       "testFiles": ["packages/ui/registry/ui/dropzone.test.tsx"],
       "coverage": {

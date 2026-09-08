@@ -54,3 +54,22 @@ export function comparisonMatrix(): ReactNode {
     </Wrapper>
   );
 }
+
+export function comparisonMatrixUnknown(): ReactNode {
+  // No promoted column, and two rows whose `availability` is SHORTER than `plans`. The matrix
+  // holds every column open and says "Not specified" rather than shifting the row left or
+  // asserting "not included" — an unsupplied value is not a negative claim.
+  return (
+    <Wrapper className="items-stretch">
+      <ComparisonMatrix plans={["Starter", "Team", "Enterprise"]}>
+        <ComparisonGroup>Support</ComparisonGroup>
+        <ComparisonRow
+          feature="Email support"
+          availability={[true, true, true]}
+        />
+        <ComparisonRow feature="Response time" availability={["48h", "8h"]} />
+        <ComparisonRow feature="Named contact" availability={[false]} />
+      </ComparisonMatrix>
+    </Wrapper>
+  );
+}

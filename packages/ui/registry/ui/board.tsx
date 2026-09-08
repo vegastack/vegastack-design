@@ -1,4 +1,4 @@
-// @vegastack board@0.6.0 sha256-HG12Y2MNbjX+3OGnD2fpLEi2eftsi1kThMOTkTFnsmI=
+// @vegastack board@0.6.0 sha256-VKSxa3rM+1MvG9xxWc7jaqJ509LrMjSzxp/gFfmjXZo=
 
 "use client";
 
@@ -618,7 +618,7 @@ export function Board<T>({
           );
         })}
       </div>
-      <span {...reorder.getLiveRegionProps()} />
+      <reorder.Announcer />
     </div>
   );
 }

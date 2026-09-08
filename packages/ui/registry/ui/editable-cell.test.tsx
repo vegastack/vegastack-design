@@ -116,10 +116,10 @@ test("a rejected commit reverts the display to `value` and announces it", async 
   await expect
     .element(screen.getByRole("button", { name: "Account name" }))
     .toHaveTextContent("Acme");
-  const status = document.querySelector(
-    '[data-slot="editable-cell-status"]',
+  const announcer = document.querySelector(
+    '[data-slot="announcer"]',
   ) as HTMLElement;
-  expect(status.textContent).toContain("Save failed — value reverted");
+  expect(announcer.textContent).toContain("Save failed — value reverted");
 });
 
 test("controlled status wins over the internal machine", async () => {
@@ -315,10 +315,10 @@ test("a CONTROLLED status change announces through the live region (the grid rec
   const screen = await render(
     <EditableCell value="Acme" label="Account name" onCommit={() => {}} />,
   );
+  // The live region is the shared `useAnnouncer` node, a SIBLING of the visible status
+  // slot: a status slot that were also a live region would announce its own icon swaps.
   const region = () =>
-    document.querySelector(
-      '[data-slot="editable-cell-status"] .sr-only',
-    ) as HTMLElement;
+    document.querySelector('[data-slot="announcer"]') as HTMLElement;
   expect(region().textContent).toBe("");
   await screen.rerender(
     <EditableCell

@@ -1,10 +1,10 @@
-// @vegastack tag-group@0.6.0 sha256-MmzpdaHOznWi/OG1R1+kYPQ5/Jbw1q5QdZ4qttaFwEY=
+// @vegastack tag-group@0.6.0 sha256-TYHxQwKu8kw71eppG4PKz2uw4qSfHepU42FsmGA/f88=
 
 "use client";
 
 import * as React from "react";
-import { X } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { cn, surfaceInteractive } from "@vegastack/design";
+import { Chip, type ChipHue } from "@/components/ui/chip";
 
 /* ------------------------------------------------------------------------------------------------
  * TagGroup / Tag — the record-tag system (Wave 2c, from the app-teardown categories-field
@@ -12,44 +12,11 @@ import { cn } from "@vegastack/design";
  * inline expansion. Distinct from `Badge`: a Badge is a STATUS voice (5 semantic intents, pill),
  * a Tag is a LABEL voice (10 decorative hues, pill-shaped, removable, overflows in groups).
  *
- * The chip formula (both themes, AA-gated in contrast-check.mjs): `tag-{hue}-subtle` fill +
- * `tag-{hue}-text` text + a hairline border of the hue text at the outline alpha — the crisp
- * bordered-tint read the teardown found on every Attio tag surface.
+ * A `Tag` IS a `Chip` at the inline (`sm`) tier (audit 2026-09-07, B5-03): the hue formula, the
+ * geometry and the real 24×24 remove control all live in `chip.tsx` now, and this file owns only
+ * what is genuinely about a GROUP of tags — the `+N` overflow disclosure and the focus move that
+ * has to follow it.
  * ----------------------------------------------------------------------------------------------*/
-
-/** The tag hues — the 10-hue token palette plus the neutral `muted` chip. */
-export type TagHue =
-  | "neutral"
-  | "blue"
-  | "cyan"
-  | "green"
-  | "lime"
-  | "yellow"
-  | "orange"
-  | "red"
-  | "pink"
-  | "magenta"
-  | "purple";
-
-/** Static class literals per hue (full strings so the Tailwind scanner sees them). */
-const HUE_CLASSES: Record<TagHue, string> = {
-  neutral: "bg-muted text-muted-foreground border-border",
-  blue: "bg-tag-blue-subtle text-tag-blue-text border-tag-blue-text/(--alpha-outline-border)",
-  cyan: "bg-tag-cyan-subtle text-tag-cyan-text border-tag-cyan-text/(--alpha-outline-border)",
-  green:
-    "bg-tag-green-subtle text-tag-green-text border-tag-green-text/(--alpha-outline-border)",
-  lime: "bg-tag-lime-subtle text-tag-lime-text border-tag-lime-text/(--alpha-outline-border)",
-  yellow:
-    "bg-tag-yellow-subtle text-tag-yellow-text border-tag-yellow-text/(--alpha-outline-border)",
-  orange:
-    "bg-tag-orange-subtle text-tag-orange-text border-tag-orange-text/(--alpha-outline-border)",
-  red: "bg-tag-red-subtle text-tag-red-text border-tag-red-text/(--alpha-outline-border)",
-  pink: "bg-tag-pink-subtle text-tag-pink-text border-tag-pink-text/(--alpha-outline-border)",
-  magenta:
-    "bg-tag-magenta-subtle text-tag-magenta-text border-tag-magenta-text/(--alpha-outline-border)",
-  purple:
-    "bg-tag-purple-subtle text-tag-purple-text border-tag-purple-text/(--alpha-outline-border)",
-};
 
 /** Props for the decorative {@link Tag} label chip. */
 export interface TagProps extends React.ComponentPropsWithRef<"span"> {
@@ -58,7 +25,7 @@ export interface TagProps extends React.ComponentPropsWithRef<"span"> {
    * signal (that's `Badge`'s job).
    * @default 'neutral'
    */
-  hue?: TagHue;
+  hue?: ChipHue;
   /**
    * Render a remove affordance and call this when it is activated. The button
    * is labelled "Remove {label}" from the tag's text content via `removeLabel`.
@@ -73,8 +40,8 @@ export interface TagProps extends React.ComponentPropsWithRef<"span"> {
 }
 
 /**
- * `Tag` — one label chip. Compose a leading icon as the first child; pass
- * `onRemove` (+ `removeLabel`) for an editable tag field.
+ * `Tag` — one label chip: the {@link Chip} primitive at the inline (`sm`) tier. Compose a leading
+ * icon as the first child; pass `onRemove` (+ `removeLabel`) for an editable tag field.
  *
  * @example
  * <Tag hue="blue" onRemove={() => removeTag('API')} removeLabel="Remove API">API</Tag>
@@ -89,33 +56,18 @@ export function Tag({
   ...props
 }: TagProps) {
   return (
-    <span
+    <Chip
       ref={ref}
       data-slot="tag"
-      data-hue={hue}
-      className={cn(
-        "inline-flex h-5 w-fit max-w-full min-w-0 shrink-0 items-center gap-1 rounded-full border px-1.5 text-label-sm whitespace-nowrap",
-        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-compact)",
-        HUE_CLASSES[hue],
-        className,
-      )}
+      hue={hue}
+      size="sm"
+      onRemove={onRemove}
+      removeLabel={removeLabel ?? "Remove tag"}
+      className={className}
       {...props}
     >
       <span className="min-w-0 truncate">{children}</span>
-      {onRemove ? (
-        <button
-          type="button"
-          aria-label={removeLabel ?? "Remove tag"}
-          onClick={onRemove}
-          className={cn(
-            // 24px touch target via an invisible hit-area; the glyph stays compact.
-            "relative inline-flex shrink-0 appearance-none items-center justify-center rounded-(--radius-xs) opacity-(--opacity-hint) transition-opacity duration-fast ease-standard before:absolute before:-inset-2 before:content-[''] hover:opacity-100",
-          )}
-        >
-          <X aria-hidden />
-        </button>
-      ) : null}
-    </span>
+    </Chip>
   );
 }
 
@@ -206,26 +158,31 @@ export function TagGroup({
         // overflow control rides inside one. No aria-expanded: the button
         // REPLACES itself with the expanded tags rather than toggling a region.
         <span role="listitem" className="inline-flex">
-          <button
-            type="button"
+          {/* The overflow control IS a chip — one geometry, and the whole pill is the pointer
+              target, so the 24px floor is met by the real box with nothing to clip. It is the
+              one interactive chip in the system, so it is also the one that carries the
+              hover/pressed recipe; a plain Tag has neither, because clicking one does nothing.
+
+              `min-w-(--size-sm)` is load-bearing, not decoration: a chip is `w-fit`, and "+2"
+              at the sm tier measures 23.8px wide — under the 24px floor, which the contract
+              lane caught. Flooring the width at the tier's own height makes the short cases a
+              circle and lets longer counts ("+12") grow past it. */}
+          <Chip
+            size="sm"
             data-slot="tag-group-overflow"
+            render={<button type="button" />}
             aria-label={expandLabel ?? `Show ${hiddenCount} more tags`}
             onClick={() => {
               focusOnExpandRef.current = true;
               setExpanded(true);
             }}
             className={cn(
-              // The interactive box owns a true 24px target. Its child keeps
-              // the visible overflow chip at the compact 20px tag height, so
-              // clipping ancestors cannot erase an out-of-bounds pseudo target.
-              "inline-flex h-(--size-xs) min-w-(--size-xs) shrink-0 appearance-none items-center justify-center rounded-full text-label-sm text-muted-foreground select-none",
-              "hover:text-foreground hover:[&>span]:bg-surface-2 active:[&>span]:bg-surface-3",
+              "min-w-(--size-sm) justify-center text-muted-foreground select-none hover:text-foreground",
+              surfaceInteractive,
             )}
           >
-            <span className="inline-flex h-5 items-center rounded-full border border-border bg-transparent px-1.5">
-              +{hiddenCount}
-            </span>
-          </button>
+            +{hiddenCount}
+          </Chip>
         </span>
       ) : null}
     </div>

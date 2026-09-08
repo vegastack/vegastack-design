@@ -219,6 +219,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
+      "registryDependencies": ["@vegastack/chip"],
       "files": [
         {
           "path": "packages/ui/registry/ui/tag-group.tsx",
@@ -400,7 +401,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/chip"],
       "files": [
         {
           "path": "packages/ui/registry/ui/combobox.tsx",
@@ -1363,7 +1364,11 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": ["@vegastack/button", "@vegastack/icon-button"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/icon-button",
+        "@vegastack/use-announcer"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/copy-button.tsx",
@@ -1468,10 +1473,11 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/field-inline",
-        "@vegastack/spinner",
         "@vegastack/auto-save-input",
-        "@vegastack/select"
+        "@vegastack/field-inline",
+        "@vegastack/select",
+        "@vegastack/spinner",
+        "@vegastack/use-announcer"
       ],
       "files": [
         {
@@ -1513,6 +1519,32 @@
       }
     },
     {
+      "name": "chip",
+      "type": "registry:ui",
+      "title": "Chip",
+      "description": "The one labelled pill primitive — 10 decorative hues, two tiers, an optional selection rung, and a real 24x24 remove control. Behind Tag, FilterChip and Combobox chips.",
+      "categories": ["display"],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.24.0",
+        "@vegastack/design@^0.3.2",
+        "@vegastack/design-tokens@^0.2.0"
+      ],
+      "registryDependencies": ["@vegastack/icon-button"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/chip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/chip.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A labelled, optionally removable pill — a record label, an applied filter, a selected value in a multi-select.",
+        "whenNotToUse": "A status signal (Badge) or a clickable action (Button); a Chip's root is not interactive.",
+        "version": "0.6.0"
+      }
+    },
+    {
       "name": "chip-input",
       "type": "registry:ui",
       "title": "Chip Input",
@@ -1526,7 +1558,8 @@
       "registryDependencies": [
         "@vegastack/input",
         "@vegastack/tag-group",
-        "@vegastack/use-animation-replay"
+        "@vegastack/use-animation-replay",
+        "@vegastack/use-announcer"
       ],
       "files": [
         {
@@ -2195,8 +2228,8 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/chip",
         "@vegastack/dropdown-menu",
-        "@vegastack/icon-button",
         "@vegastack/input"
       ],
       "files": [
@@ -2404,7 +2437,8 @@
         "@vegastack/editable-cell",
         "@vegastack/empty",
         "@vegastack/skeleton",
-        "@vegastack/table"
+        "@vegastack/table",
+        "@vegastack/use-announcer"
       ],
       "files": [
         {
@@ -2548,6 +2582,27 @@
       }
     },
     {
+      "name": "use-announcer",
+      "type": "registry:hook",
+      "title": "useAnnouncer",
+      "description": "The one polite live region — announce(text) plus a stable Announcer component, sequence-keyed so an identical consecutive announcement is still spoken.",
+      "categories": ["hook"],
+      "dependencies": ["@vegastack/design@^0.3.2"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-announcer.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-announcer.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Any component that must tell a screen-reader user something happened with no focus change — a row moved, an entry was rejected, a save failed.",
+        "whenNotToUse": "Content that is visible on screen anyway and already announced by focus, or an assertive alert (role=alert is a separate policy).",
+        "version": "0.6.0"
+      }
+    },
+    {
       "name": "use-animation-replay",
       "type": "registry:hook",
       "title": "useAnimationReplay / useShakeOnInvalid",
@@ -2578,7 +2633,7 @@
         "@atlaskit/pragmatic-drag-and-drop@^2.0.1",
         "@atlaskit/pragmatic-drag-and-drop-hitbox@^2.0.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/use-announcer"],
       "files": [
         {
           "path": "packages/ui/registry/ui/use-drag-reorder.ts",
@@ -2599,7 +2654,7 @@
       "description": "File acquisition (drop, browse, paste) over the sanctioned react-dropzone engine — typed rejection reasons aligned with AttachmentState, announcement payload, window-level missed-drop protection.",
       "categories": ["hook"],
       "dependencies": ["react-dropzone@^19.1.1"],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/use-announcer"],
       "files": [
         {
           "path": "packages/ui/registry/ui/use-file-drop.ts",

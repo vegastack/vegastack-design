@@ -29,9 +29,9 @@ import { Tag, TagGroup } from "@/components/ui/tag-group";
 ### The 10-hue palette
 
 Tags ride the `--tag-{hue}` token trios (`-subtle` fill, `-text` ink, base accent) — 10
-chromatic hues plus the neutral `muted` chip, each AA-gated in both themes by the token
-contrast gate. Hue is a **decorative label color**: it never signals status (that's `Badge`'s
-five semantic intents).
+chromatic hues plus the neutral chip on the surface ladder's rest fill, each AA-gated in both
+themes by the token contrast gate. Hue is a **decorative label color**: it never signals status
+(that's `Badge`'s five semantic intents).
 
 <ComponentPreview name="tagGroupHues" file="components/preview/tag-group.tsx" />
 
@@ -49,6 +49,11 @@ five semantic intents).
 are announced; the overflow control lives inside its own `listitem`.
 
 ### Badge vs Tag
+
+A `Tag` **is** the [`Chip`](/docs/components/chip) primitive at the inline (`sm`) tier — the hue
+formula, the geometry and the 24×24 remove control all live there, and this component adds the
+group: the `role="list"` semantics, the `+N` overflow disclosure and the focus move that follows
+it. Reach for `Chip` directly only when you need a pill that is not one of a group.
 
 |        | `Badge`                     | `Tag`                         |
 | ------ | --------------------------- | ----------------------------- |
@@ -76,7 +81,7 @@ are announced; the overflow control lives inside its own `listitem`.
 
 - Give each `TagGroup` an `aria-label` or another accessible name; it exposes list/listitem semantics.
 - Supply a specific `removeLabel` whenever a tag is removable, such as “Remove SaaS”.
-- Remove and overflow controls keep compact glyphs while expanding their effective target to at least 24px.
+- The remove control's REAL border box is 24×24 (a round ghost `IconButton`), and the `+N` overflow control is itself a 28px chip — neither relies on an invisible pseudo-element a nested `<button>` would clip.
 - Hue is decorative. Do not rely on a tag color alone to communicate status or meaning.
 
 ## Do / Don't

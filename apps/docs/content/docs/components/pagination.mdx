@@ -55,12 +55,11 @@ Try every page-link size on a live pagination bar, then copy the generated JSX.
 
 ## Anatomy
 
-`Pagination` is a compound component built from a presentational
-`<nav role="navigation" aria-label="pagination">` wrapping an unordered list of page controls.
-Compose the parts inside the root — every part exposes a `data-slot`:
+`Pagination` is a compound component built from a presentational `<nav>` wrapping an unordered
+list of page controls. Compose the parts inside the root — every part exposes a `data-slot`:
 
 ```tsx
-<Pagination>
+<Pagination aria-label="Search results pagination">
   <PaginationContent>
     <PaginationItem>
       <PaginationPrevious href="?page=1" />
@@ -83,7 +82,7 @@ Compose the parts inside the root — every part exposes a `data-slot`:
 </Pagination>
 ```
 
-- `Pagination` — the navigation landmark (`data-slot="pagination"`). Renders `<nav role="navigation" aria-label="pagination">`.
+- `Pagination` — the navigation landmark (`data-slot="pagination"`). Renders a plain `<nav>` — `<nav>` **is** the landmark, so no explicit `role` — labelled "Pagination" unless you pass your own `aria-label`.
 - `PaginationContent` — the list of controls (`<ul>`, `data-slot="pagination-content"`). Flex-aligned with a consistent gap.
 - `PaginationItem` — a single list slot (`<li>`, `data-slot="pagination-item"`).
 - `PaginationLink` — a navigable page link (`<a>`, `data-slot="pagination-link"`). Styled like a ghost/outline button; set `isActive` on the current page and choose a `size`. Supports the Base UI `render` prop for client-side routing.
@@ -178,8 +177,12 @@ element accepts (`<nav>`, `<ul>`, `<li>`, `<span>`), plus `className` and
 
 ## Accessibility
 
-- The root is a navigation landmark: `<nav role="navigation" aria-label="pagination">`, so assistive tech
-  announces and lists it distinctly from other `<nav>` regions.
+- The root is a navigation landmark: a plain `<nav aria-label="Pagination">`. `<nav>` already carries
+  the landmark role, so the component does not restate it.
+- **Name every pager on a page that has more than one.** Two landmarks with the same accessible name
+  are an axe `landmark-unique` failure and give screen-reader users no way to tell them apart. Pass
+  `aria-label="Search results pagination"`, `aria-label="Invoices pagination"`, and so on — the
+  default "Pagination" is correct only when the page has exactly one.
 - The active page uses `aria-current="page"`, so it is announced as the current location in the set.
 - Previous/Next controls carry an explicit `aria-label` ("Go to previous page" / "Go to next page") so the
   icon-only direction is still meaningful to screen readers.
@@ -198,6 +201,6 @@ element accepts (`<nav>`, `<ul>`, `<li>`, `<span>`), plus `className` and
 ## Do / Don't
 
 <DoDont
-  do="Mark the current page with isActive so it gets aria-current='page' and the active styling, and give icon-only Previous/Next controls a clear label."
-  dont="Render the active page as a plain non-link or omit Previous/Next labels — screen-reader users lose the current position and direction."
+  do="Mark the current page with isActive so it gets aria-current='page', give icon-only Previous/Next controls a clear label, and name each pager when a page has more than one."
+  dont="Render the active page as a plain non-link, omit Previous/Next labels, or leave two pagers sharing the default 'Pagination' name."
 />

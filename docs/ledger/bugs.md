@@ -297,6 +297,40 @@ re-diagnose it, and because a race that flakes under load is a real race.
   contains zero `motion-reduce:` utilities. **Rule of thumb:** if a component seems to need its own
   `motion-reduce:` variant, the global reset is missing a property — widen the reset, do not grant an
   exception. A duration-only reset is an incomplete one; delay is motion too.
+---
+
+## 2026-09-08 — The 24px floor never saw the combobox chips, and Tag's hit area never existed
+
+- **`ComboboxChipRemove` shipped a 16px target with no expansion at all** (`combobox.tsx`,
+  pre-T2): `size-4` with no `::before`, no padding, nothing. That is a straight WCAG 2.5.8 failure
+  in shipped code, and the contract lane's target-floor probe never saw it — the probe measures
+  `page.locator("[data-vrt-preview]").first()`, and `/docs/components/combobox`'s first fixture is
+  `comboboxGroups`, which has no chips. **Root cause: one fixture per route.** Fixed at the
+  component (every chip's remove control is now `ChipRemove`, a real 24×24 `IconButton`) and
+  narrowly at the gate: `contracts.spec.ts` gained an `EXTRA_TARGET_FIXTURES` map that probes named
+  non-first fixtures, with `comboboxMultiple` as its first and only entry, and a guard that fails
+  when a named fixture exposes no control (a scope that matches nothing must not pass silently).
+  Probing EVERY fixture on every route is the root fix and stays G1-b's, because it surfaces
+  defects across many components at once — see the 2026-09-07 entry above, which measured 12
+  failures from moving the probe by one fixture.
+
+- **`Tag`'s remove control had a hit area that was measurable and un-hittable.** It used
+  `before:absolute before:-inset-2` on a native `<button>`. Tailwind Preflight sets
+  `appearance: button`, and Chromium clips a nested `<button>`'s generated content to its own
+  border box — so `getComputedStyle(el, '::before')` reported a 24px box that `elementFromPoint`
+  never resolved to the control. `filter-bar.tsx` had already discovered this in situ and worked
+  around it by growing the real box with compensating margins, complete with a twenty-line comment;
+  `tag-group.tsx` never got the memo, and nothing tested it, because the assertion available in the
+  CSS-less unit harness is `getComputedStyle` — which reports the lie. **Fix:** `ChipRemove`'s real
+  border box is 24×24 for every chip, and `chip.test.tsx` proves it with a style-mirror plus a real
+  `elementFromPoint` hit that then fires `onRemove`. A pseudo-element hit area on a native
+  `<button>` is now a known-bad pattern: grow the real box.
+
+- **Five live regions were mounted, but their state was in the wrong place.** Each of the
+  hand-rolled `{ text, seq }` announcers held its state in the HOST component, so every
+  announcement re-rendered the whole DataGrid / Board / drop surface — invisible in tests, real on
+  a thousand-row grid. `useAnnouncer` keeps the state in a per-hook store that only the region
+  subscribes to. Same visible behaviour, one `<span>` re-rendered instead of a grid.
 
 ---
 
