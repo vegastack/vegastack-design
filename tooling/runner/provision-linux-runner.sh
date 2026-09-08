@@ -11,14 +11,25 @@
 #   converges Docker, the runner tarball, the registration, and the systemd service, and it never
 #   prints the registration token.
 #
+# THE TOKEN NEVER APPEARS IN A COMMAND LINE.
+#   /proc/<pid>/cmdline is world-readable, so anything passed as an argv element is visible to every
+#   local user in `ps` for as long as the process lives — this script's own argv, and config.sh's.
+#   So there is no `--token` flag: the token is read from $RUNNER_TOKEN or from STDIN, and handed to
+#   the runner through the environment input the runner itself supports
+#   (`ACTIONS_RUNNER_INPUT_<ARG>`; actions/runner 2.337.0 CommandSettings.cs), never as `--token`.
+#   Environment is not in `ps` output, and /proc/<pid>/environ is readable only by the owner.
+#
 # RUN IT ON THE BOX, as the admin user (not root; the script uses sudo where it must):
 #   RUNNER_TOKEN=<token> bash provision-linux-runner.sh
-#   bash provision-linux-runner.sh --token <token>
-#   bash provision-linux-runner.sh --deregister --token <removal-token>
+#   printf %s "<token>" | bash provision-linux-runner.sh
+#   printf %s "<removal-token>" | bash provision-linux-runner.sh --deregister
 #
-# The token is a registration token minted on a machine holding repo-admin credentials:
-#   gh api -X POST repos/VegaStack/vegastack-design/actions/runners/registration-token --jq .token
-# It expires in one hour. Mint one per box, immediately before running.
+# From your machine, so the token is never on a command line at EITHER end:
+#   gh api -X POST repos/VegaStack/vegastack-design/actions/runners/registration-token --jq .token \
+#     | ssh <box> 'RUNNER_TOKEN=$(cat) bash /tmp/provision-linux-runner.sh --prepull-image'
+#
+# The token is minted on a machine holding repo-admin credentials. It expires in one hour. Mint one
+# per box, immediately before running.
 #
 # Full procedure, prerequisites, and de-enrolment: docs/runbooks/ci-runner-provisioning-linux.md
 
@@ -43,9 +54,14 @@ PREPULL_IMAGE=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --token)
-      TOKEN="${2:-}"
-      shift 2
+    --token | --token=*)
+      # Deliberately rejected rather than silently ignored: it used to be accepted, and a stale
+      # runbook line or muscle memory would otherwise leak the token into `ps` without a word.
+      echo "ERROR: --token is not accepted — argv is world-readable in ps." >&2
+      echo "       Pass the token as RUNNER_TOKEN in the environment, or on stdin:" >&2
+      echo "         RUNNER_TOKEN=<token> bash $0" >&2
+      echo "         printf %s '<token>' | bash $0" >&2
+      exit 2
       ;;
     --deregister)
       MODE="deregister"
@@ -56,7 +72,7 @@ while [ $# -gt 0 ]; do
       shift
       ;;
     -h | --help)
-      sed -n '2,30p' "$0"
+      sed -n '2,40p' "$0"
       exit 0
       ;;
     *)
@@ -65,6 +81,14 @@ while [ $# -gt 0 ]; do
       ;;
   esac
 done
+
+# Stdin is the second accepted channel, and only when the environment did not supply one. `read -r`
+# on a pipe with no trailing newline still yields the line (non-zero status), which is why the exit
+# status is not checked here.
+if [ -z "$TOKEN" ] && [ ! -t 0 ]; then
+  IFS= read -r TOKEN || true
+fi
+TOKEN="$(printf '%s' "$TOKEN" | tr -d '[:space:]')"
 
 log() { printf '\n==> %s\n' "$*"; }
 # svc.sh refuses to run unless the CWD is the runner root ("Must run from runner root or install is
@@ -84,24 +108,57 @@ sudo -n true 2>/dev/null || die "passwordless sudo is required"
 RUNNER_NAME="${RUNNER_NAME:-$(hostname -s)}"
 
 # ---------------------------------------------------------------------------- de-enrol
+# FAILURE IS NOT SUCCESS. This block used to swallow every error (`svc stop || true`,
+# `svc uninstall || true`) and then print "De-enrolled" regardless — so a box whose service was
+# still installed and still running read as retired. Every step now propagates, and the final state
+# is VERIFIED (unit gone, listener gone) before anything claims success.
 if [ "$MODE" = "deregister" ]; then
   log "De-enrolling $RUNNER_NAME"
   [ -d "$RUNNER_DIR" ] || die "no runner directory at $RUNNER_DIR"
+
+  # svc.sh writes the systemd unit name here at install time and deletes the file on uninstall, so
+  # capture it BEFORE uninstalling: it is the only precise handle on this runner's unit, and a glob
+  # over actions.runner.* would also match an unrelated runner on the same box.
+  SERVICE_UNIT=""
+  [ -f "$RUNNER_DIR/.service" ] && SERVICE_UNIT="$(tr -d '[:space:]' <"$RUNNER_DIR/.service")"
+
   if svc status >/dev/null 2>&1; then
-    svc stop || true
-    svc uninstall || true
-  fi
-  if [ -n "$TOKEN" ]; then
-    (cd "$RUNNER_DIR" && ./config.sh remove --token "$TOKEN")
+    svc stop || die "svc.sh stop failed — the runner service is still running; NOT de-enrolled"
+    svc uninstall || die "svc.sh uninstall failed — the systemd unit is still installed; NOT de-enrolled"
   else
-    echo "no --token/RUNNER_TOKEN given: the service is removed locally, but the runner entry"
+    log "no installed service reported by svc.sh — continuing to the local registration"
+  fi
+
+  if [ -n "$TOKEN" ]; then
+    # Same env-input channel as configure: a removal token in argv is world-readable in `ps`.
+    (cd "$RUNNER_DIR" && ACTIONS_RUNNER_INPUT_TOKEN="$TOKEN" ./config.sh remove) ||
+      die "config.sh remove failed — the runner is still registered with GitHub; NOT de-enrolled"
+  else
+    echo "no RUNNER_TOKEN given (env or stdin): the service is removed locally, but the runner entry"
     echo "must be deleted in GitHub (Settings → Actions → Runners) or with a removal token."
   fi
-  log "De-enrolled. $RUNNER_DIR left in place; remove it by hand if the box is being retired."
+
+  # -------------------------------------------------------------------------- verify, then claim
+  if [ -n "$SERVICE_UNIT" ]; then
+    if systemctl list-unit-files --no-legend --no-pager "$SERVICE_UNIT" 2>/dev/null | grep -q .; then
+      die "systemd still knows $SERVICE_UNIT after uninstall — NOT de-enrolled"
+    fi
+    if systemctl is-active --quiet "$SERVICE_UNIT" 2>/dev/null; then
+      die "$SERVICE_UNIT is still active after uninstall — NOT de-enrolled"
+    fi
+  fi
+  # Conservative on purpose: ANY surviving listener fails this. A second runner for another repo on
+  # the same box would trip it, which is loud and correctable — unlike a silent false success.
+  if pgrep -f 'Runner\.Listener' >/dev/null 2>&1; then
+    die "a Runner.Listener process is still running — NOT de-enrolled: $(pgrep -af 'Runner\.Listener' | head -3)"
+  fi
+
+  log "De-enrolled and verified (unit removed, no listener running)."
+  echo "$RUNNER_DIR left in place; remove it by hand if the box is being retired."
   exit 0
 fi
 
-[ -n "$TOKEN" ] || die "a registration token is required (--token or RUNNER_TOKEN)"
+[ -n "$TOKEN" ] || die "a registration token is required: pass it as RUNNER_TOKEN in the environment, or on stdin"
 
 # ---------------------------------------------------------------------------- Docker CE
 if command -v docker >/dev/null 2>&1; then
@@ -192,14 +249,19 @@ elif [ -f "$RUNNER_DIR/.runner" ]; then
 else
   log "Configuring runner $RUNNER_NAME for $REPO_URL"
   # --unattended keeps it non-interactive; --replace takes over a stale entry of the same name on
-  # GitHub. The token is passed to config.sh only — never echoed.
+  # GitHub.
+  #
+  # THE TOKEN GOES THROUGH THE ENVIRONMENT, NOT ARGV. actions/runner resolves every command argument
+  # from `ACTIONS_RUNNER_INPUT_<ARG>` when the flag is absent (CommandSettings.cs, 2.337.0), so
+  # `ACTIONS_RUNNER_INPUT_TOKEN` is the supported equivalent of `--token`. Passing it as `--token`
+  # put a live registration token in /proc/<pid>/cmdline, which every local user can read from `ps`
+  # for the lifetime of the process.
   (
     cd "$RUNNER_DIR"
-    ./config.sh \
+    ACTIONS_RUNNER_INPUT_TOKEN="$TOKEN" ./config.sh \
       --unattended \
       --replace \
       --url "$REPO_URL" \
-      --token "$TOKEN" \
       --name "$RUNNER_NAME" \
       --labels "$RUNNER_LABELS" \
       --work _work

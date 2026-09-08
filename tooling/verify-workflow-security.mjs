@@ -3,6 +3,8 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { parse as parseYaml } from "yaml";
+
 // DISCOVER every workflow rather than auditing a hard-coded list: a list meant a newly added
 // .github/workflows/*.yml was silently exempt from every generic check below (unpinned actions,
 // credential-persisting checkout, stray OIDC, script injection). The named set is still asserted
@@ -97,34 +99,82 @@ const GITHUB_HOSTED_JOBS = {
 const RECEIPT_GUARD_WORKFLOWS = ["ci.yml", "release.yml", "deploy.yml"];
 
 /**
- * Job name → its `runs-on` value, for one workflow source. Only keys under the top-level `jobs:`
- * mapping count, and a job whose `runs-on` is absent or written in the block/mapping form is
- * returned as `null` rather than omitted — an omitted job would be silently exempt from the
- * allowlist below, which is the exact fail-open this gate exists to prevent.
+ * Job name → its parsed job mapping, for one workflow.
+ *
+ * STRUCTURAL, not regex-over-text, and that distinction is the whole point. The previous
+ * implementation walked lines and only recognised a job whose key sat at exactly two spaces of
+ * indentation followed by a newline — so a FLOW-STYLE job
+ * (`hidden: {runs-on: ubuntu-latest, container: "node:24", steps: [{run: echo bypass}]}`) was not a
+ * job as far as this gate was concerned. It ran on billed capacity, in a banned container, and both
+ * the gate and its negative harness reported clean. YAML has one meaning; the parser is the only
+ * thing that knows it.
  */
-function jobRunners(source) {
-  const runners = new Map();
-  const lines = source.split("\n");
-  let inJobs = false;
-  let current = null;
-  for (const line of lines) {
-    if (/^jobs:\s*$/.test(line)) {
-      inJobs = true;
-      continue;
-    }
-    if (/^\S/.test(line)) inJobs = false;
-    if (!inJobs) continue;
-    const job = /^ {2}([a-zA-Z0-9_-]+):\s*$/.exec(line);
-    if (job) {
-      current = job[1];
-      runners.set(current, null);
-      continue;
-    }
-    const runsOn = /^ {4}runs-on:[ \t]*(\S.*?)\s*$/.exec(line);
-    if (runsOn && current) runners.set(current, runsOn[1]);
+function workflowJobs(name, source) {
+  let document;
+  try {
+    document = parseYaml(source);
+  } catch (error) {
+    assert.fail(`${name}: is not parseable YAML — ${error.message}`);
   }
-  return runners;
+  assert.ok(
+    document && typeof document === "object" && !Array.isArray(document),
+    `${name}: top level is not a YAML mapping`,
+  );
+  const jobs = document.jobs;
+  assert.ok(
+    jobs && typeof jobs === "object" && !Array.isArray(jobs),
+    `${name}: has no top-level \`jobs\` mapping`,
+  );
+  for (const [job, body] of Object.entries(jobs)) {
+    assert.ok(
+      body && typeof body === "object" && !Array.isArray(body),
+      `${name}: job ${job} is not a mapping`,
+    );
+  }
+  return { document, jobs: new Map(Object.entries(jobs)) };
 }
+
+/** Render a parsed `runs-on` the way the workflow files write it, for readable failures. */
+function formatRunner(value) {
+  if (Array.isArray(value)) return `[${value.join(", ")}]`;
+  if (typeof value === "string") return value;
+  return JSON.stringify(value);
+}
+
+/**
+ * The container image a job declares, or `undefined` when it declares no container. Both the
+ * shorthand (`container: img`) and the mapping (`container: {image: img}`) forms are recognised; a
+ * mapping with no `image` yields `null`, which the caller rejects rather than skipping.
+ */
+function containerImage(job) {
+  const container = job.container;
+  if (container === undefined || container === null) return undefined;
+  if (typeof container === "string") return container;
+  if (typeof container === "object" && !Array.isArray(container))
+    return typeof container.image === "string" ? container.image : null;
+  return null;
+}
+
+/**
+ * An Actions expression with the `${{ }}` wrapper and incidental whitespace normalised away, so an
+ * `if:` written either way compares equal.
+ */
+function normalizeExpression(value) {
+  if (typeof value !== "string") return "";
+  return value
+    .replace(/\$\{\{/g, " ")
+    .replace(/\}\}/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// This repository is PUBLIC and the Linux boxes are on the LAN with a persistent pnpm store that
+// survives every job. A `pull_request` from a fork would execute attacker-authored code there —
+// poisoning the store, reading the host, and holding a foothold on the network. GitHub's
+// "require approval for outside collaborators" setting is defence in depth but is a repo SETTING,
+// invisible to this tree; this condition is the part that lives in code.
+const FORK_GUARD =
+  "github.event.pull_request.head.repo.full_name == github.repository";
 
 /**
  * Yield every line that ends up inside a `run:` script — both the inline form (`run: echo hi`) and
@@ -186,55 +236,6 @@ function stepBlocks(source) {
     i = end - 1;
   }
   return blocks;
-}
-
-/**
- * Jobs that declare a `container:`, as `[job, image]` pairs. The image is returned — not just the
- * job name — because on the Linux runners a container is ALLOWED, and what then has to be asserted
- * is WHICH image: one whose browsers do not match the installed Playwright produces failures that
- * are not defects. Both the inline (`container: img`) and mapping (`container:` / `  image: img`)
- * forms are recognised; a mapping with no `image:` yields `null`, which the caller rejects rather
- * than skipping.
- */
-function containerJobs(source) {
-  const found = [];
-  const lines = source.split("\n");
-  let inJobs = false;
-  let current = null;
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    if (/^jobs:\s*$/.test(line)) {
-      inJobs = true;
-      continue;
-    }
-    if (/^\S/.test(line)) inJobs = false;
-    if (!inJobs) continue;
-    const job = /^ {2}([a-zA-Z0-9_-]+):\s*$/.exec(line);
-    if (job) {
-      current = job[1];
-      continue;
-    }
-    const container = /^ {4}container:[ \t]*(\S.*?)?\s*$/.exec(line);
-    if (!container || !current) continue;
-    if (container[1]) {
-      found.push([current, container[1]]);
-      continue;
-    }
-    let image = null;
-    for (let j = i + 1; j < lines.length; j++) {
-      const body = lines[j];
-      if (body.trim() === "") continue;
-      const indent = body.length - body.trimStart().length;
-      if (indent <= 4) break;
-      const match = /^ {6}image:[ \t]*(\S+)\s*$/.exec(body);
-      if (match) {
-        image = match[1];
-        break;
-      }
-    }
-    found.push([current, image]);
-  }
-  return found;
 }
 
 /**
@@ -305,7 +306,15 @@ for (const [name, source] of Object.entries(sources)) {
   // reason those boxes exist. Everywhere else the ban stands unchanged, and
   // tooling/verify-workflow-security-negative.mjs proves both halves by mutation.
   const linuxJobs = new Set(LINUX_JOBS[name] ?? []);
-  for (const [job, image] of containerJobs(source)) {
+  const { jobs } = workflowJobs(name, source);
+  assert.ok(
+    jobs.size > 0,
+    `${name}: no jobs found — the parser or the file changed shape`,
+  );
+
+  for (const [job, body] of jobs) {
+    const image = containerImage(body);
+    if (image === undefined) continue;
     assert.ok(
       linuxJobs.has(job),
       `${name}: job ${job} declares a container but is not in LINUX_JOBS. Containers are Linux-only ` +
@@ -321,25 +330,47 @@ for (const [name, source] of Object.entries(sources)) {
     );
   }
 
-  // A container's default shell is `sh`. `set -o pipefail` — which every hardened run body here uses
-  // — is a bashism, so without a bash default the job dies on "Illegal option -o pipefail" and reads
-  // as a repository failure. This exact assertion existed before, guarding the old Playwright
-  // container, and was deleted with it; the first Linux proof run reproduced the failure within
-  // minutes. It is only meaningful for container jobs, which is why it is scoped to LINUX_JOBS.
   for (const job of linuxJobs) {
-    assert.match(
-      jobBlock(source, job),
-      /^    defaults:\n      run:\n        shell: bash$/m,
+    const body = jobs.get(job);
+    assert.ok(body, `${name}: LINUX_JOBS lists ${job}, which no longer exists`);
+
+    // The container is REQUIRED, not merely permitted. Allowing it without requiring it made the
+    // exception one-directional: deleting the `container:` block left the job running bare on the
+    // host, where the browsers are whatever the box happens to have — the exact "failures that are
+    // not defects" this pin exists to prevent — and every assertion still passed.
+    const image = containerImage(body);
+    assert.equal(
+      image,
+      PLAYWRIGHT_IMAGE,
+      `${name}: job ${job} is a LAN Linux browser job and must declare the pinned Playwright ` +
+        `container ${PLAYWRIGHT_IMAGE}; it declares ${image === undefined ? "no container at all" : (image ?? "a container with no image")}. ` +
+        `Bare on the host it would run whatever browsers the box has.`,
+    );
+
+    // A container's default shell is `sh`. `set -o pipefail` — which every hardened run body here
+    // uses — is a bashism, so without a bash default the job dies on "Illegal option -o pipefail"
+    // and reads as a repository failure. This exact assertion existed before, guarding the old
+    // Playwright container, and was deleted with it; the first Linux proof run reproduced the
+    // failure within minutes.
+    assert.equal(
+      body.defaults?.run?.shell,
+      "bash",
       `${name}: job ${job} runs in a container without \`defaults.run.shell: bash\`. The container's ` +
         `default shell is sh, so \`set -o pipefail\` fails with "Illegal option -o pipefail".`,
+    );
+
+    // Fork pull requests must never reach the LAN boxes. See FORK_GUARD above.
+    assert.ok(
+      normalizeExpression(body.if).includes(FORK_GUARD),
+      `${name}: job ${job} runs on the LAN Linux boxes but is not guarded against fork pull ` +
+        `requests. Add \`if: ${FORK_GUARD}\` — this repository is public, and a fork PR would ` +
+        `otherwise execute untrusted code on the LAN with a persistent pnpm store.`,
     );
   }
 
   const allowed = new Set(GITHUB_HOSTED_JOBS[name] ?? []);
-  const runners = jobRunners(source);
-  assert.ok(
-    runners.size > 0,
-    `${name}: no jobs found — the parser or the file changed shape`,
+  const runners = new Map(
+    [...jobs].map(([job, body]) => [job, body["runs-on"]]),
   );
 
   // The receipt guard is load-bearing: it is the only thing that checks the browser lanes ran.
@@ -358,11 +389,12 @@ for (const [name, source] of Object.entries(sources)) {
     );
   }
 
-  for (const [job, runner] of runners) {
+  for (const [job, value] of runners) {
     assert.ok(
-      runner !== null,
-      `${name}: job ${job} has no inline \`runs-on: <value>\`; the block/mapping form would skip the runner allowlist`,
+      value !== undefined && value !== null,
+      `${name}: job ${job} declares no \`runs-on\`; a job without one would skip the runner allowlist`,
     );
+    const runner = formatRunner(value);
     if (allowed.has(job)) {
       assert.equal(
         runner,
@@ -512,9 +544,11 @@ assert.match(
   /probe-deployment\.mjs/,
   "deploy.yml: the boundary job must execute the canonical production probe",
 );
-assert.doesNotMatch(
-  publicVerificationJob,
-  /^    if:/m,
+assert.equal(
+  workflowJobs("deploy.yml", sources["deploy.yml"]).jobs.get(
+    "verify-public-boundary",
+  ).if,
+  undefined,
   "deploy.yml: the production boundary probe must run after every deploy",
 );
 

@@ -15,9 +15,15 @@
 //
 //   The ban is now CONDITIONAL — a job in LINUX_JOBS may run the pinned Playwright container on the
 //   LAN Debian boxes — which makes mutation coverage load-bearing rather than merely prudent: a
-//   conditional exception is exactly the shape that quietly widens into a hole. Four cases below pin
-//   it shut from both sides (wrong image, arbitrary image, un-allowlisted job on the Linux label,
-//   allowlisted job moved off it).
+//   conditional exception is exactly the shape that quietly widens into a hole. Cases below pin it
+//   shut from every side (wrong image, arbitrary image, the container REMOVED, un-allowlisted job on
+//   the Linux label, allowlisted job moved off it, and the fork guard removed).
+//
+//   One case is not a mutation of policy but of SHAPE: a flow-style job. Regex-over-text discovery
+//   recognised only `  name:` at exactly two spaces followed by a newline, so a job written inline in
+//   flow style was invisible to the gate AND to this harness — both reported clean while it ran on
+//   billed capacity in a banned container. The gate now parses with the `yaml` package; this case is
+//   the proof, and it PASSES the pre-fix gate.
 //
 // HOW
 //   Each case copies the real workflows into a scratch directory, applies one mutation, and runs the
@@ -64,18 +70,54 @@ const CASES = [
     expect: /declares a container but is not in LINUX_JOBS/,
   },
   {
+    // FLOW STYLE. The gate used to discover jobs by walking lines for a `  name:` key at exactly two
+    // spaces of indentation — so this job, which YAML says is an ordinary job on billed capacity in a
+    // banned container running an arbitrary command, was invisible to every assertion below. The gate
+    // now parses each workflow with the `yaml` package and evaluates `jobs` as an object.
+    id: "a flow-style job hiding a banned container on billed capacity",
+    file: "ci.yml",
+    mutateAfter: (source) =>
+      `${source.trimEnd()}\n  hidden: {runs-on: ubuntu-latest, container: "node:24", steps: [{run: echo bypass}]}\n`,
+    expect: /declares a container but is not in LINUX_JOBS/,
+  },
+  {
+    // The image tag is derived from the workflow rather than typed here: a hardcoded `v1.61.0` made
+    // this case a HARNESS BUG the moment the lockfile's playwright version moved, and a harness bug
+    // reads exactly like a gate that stopped being exercised.
     id: "a container on the Linux runner pinned to the WRONG playwright version",
     file: "verify-linux.yml",
-    find: "      image: mcr.microsoft.com/playwright:v1.61.0-noble",
-    replace: "      image: mcr.microsoft.com/playwright:v1.55.0-noble",
+    mutateAfter: (source) =>
+      source.replace(
+        /(image: mcr\.microsoft\.com\/playwright:v)\d+\.\d+\.\d+(-noble)/,
+        "$11.55.0$2",
+      ),
     expect: /the only sanctioned\s+image is/,
   },
   {
     id: "a container smuggled onto the Linux runner as an arbitrary image",
     file: "verify-linux.yml",
-    find: "      image: mcr.microsoft.com/playwright:v1.61.0-noble",
-    replace: "      image: node:24",
+    mutateAfter: (source) =>
+      source.replace(
+        /image: mcr\.microsoft\.com\/playwright:v\d+\.\d+\.\d+-noble/,
+        "image: node:24",
+      ),
     expect: /the only sanctioned\s+image is/,
+  },
+  {
+    // The exception was one-directional: a container was PERMITTED on these jobs but not REQUIRED, so
+    // deleting the block left the job running bare on the host with whatever browsers it has.
+    id: "the pinned container REMOVED from the Linux browser job",
+    file: "verify-linux.yml",
+    mutateAfter: (source) =>
+      source.replace(/^ {4}container:\n(?: {6}.*\n| *\n)*/m, ""),
+    expect: /must declare the pinned Playwright\s+container/,
+  },
+  {
+    id: "the fork guard removed from the Linux browser job",
+    file: "verify-linux.yml",
+    find: "    if: github.event.pull_request.head.repo.full_name == github.repository\n",
+    replace: "",
+    expect: /not guarded against fork pull\s+requests/,
   },
   {
     id: "the container job losing its bash default (sh cannot do `set -o pipefail`)",
@@ -293,8 +335,9 @@ if (failures > 0) {
   process.exit(1);
 }
 console.log(
-  `\n✓ workflow-security-negative: all ${CASES.length} mutations rejected — the container ban and ` +
-    `its single pinned-image exception, the runner ` +
+  `\n✓ workflow-security-negative: all ${CASES.length} mutations rejected — flow-style job ` +
+    `discovery, the container ban and its single pinned-image exception (required, not merely ` +
+    `permitted), the fork guard on the LAN runners, the runner ` +
     `allowlist (all three directions), receipt-guard presence and wiring, shell injection, credential ` +
     `persistence, token scope, pull_request_target, stray OIDC, publish dependencies, and the ` +
     `unconditional production-boundary chain`,

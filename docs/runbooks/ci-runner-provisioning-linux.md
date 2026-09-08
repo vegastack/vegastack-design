@@ -43,27 +43,54 @@ On **your machine** (the one minting the token): `gh` authenticated with **admin
 
 - **Not enrolled in Cloudflare WARP / Access device posture.** `deploy.yml`'s
   `verify-public-boundary` proves that an anonymous request to `/r/*` is rejected. From an enrolled
-  device that request is authenticated, so a broken boundary would return 200 and the probe would
-  pass falsely. Today that probe runs on the minis, but the same rule applies to any runner: an
-  enrolled box must never host it.
+  device that request is authenticated, so `/r/*` returns **200** — and `expectProtected()` in
+  `apps/docs/scripts/probe-deployment.mjs` fails fast on an anonymous 200 and asserts against it. So
+  an enrolled box does **not** produce a false pass: it **fails the deploy loudly**, for a reason
+  that is not a defect. That is fail-safe, and it is still why the prohibition stands — a runner that
+  blocks every deploy on its own network posture is useless. Today the probe runs on the minis; the
+  same rule applies to any runner that might host it.
 - **Not a machine holding production credentials** beyond what the workflows inject. Self-hosted
   runners execute repository code; treat the box as compromised-if-the-repo-is.
 - **Not a shared developer workstation.** The runner service runs continuously and the work
   directory is wiped per job.
 
+### Fork pull requests must never reach these boxes
+
+This repository is **public**, and the LAN boxes carry a pnpm store that survives every job. A
+`pull_request` from a fork runs attacker-authored code, so two things keep it off the hardware:
+
+1. **In code, and gated.** Every job on `[self-hosted, linux, vsk-runner]` carries
+   `if: github.event.pull_request.head.repo.full_name == github.repository`.
+   `tooling/verify-workflow-security.mjs` requires it on every job in `LINUX_JOBS`, and the negative
+   harness proves its removal is rejected.
+2. **In repo settings, by MK.** Set **Settings → Actions → General → Fork pull request workflows from
+   outside collaborators** to **"Require approval for all outside collaborators"**. Agents cannot
+   change repository settings, so this half is a manual, one-time action and is **not** asserted by
+   any gate — if it is not set, item 1 is the only thing between a fork PR and the LAN.
+
 ## Enrol
 
-```bash
-# 1. On your machine — mint a registration token (valid ONE HOUR, one per box).
-TOKEN=$(gh api -X POST repos/VegaStack/vegastack-design/actions/runners/registration-token --jq .token)
+**The token never appears in a command line, on either machine.** `/proc/<pid>/cmdline` is
+world-readable, so anything in argv is visible in `ps` to every local user for the life of the
+process — and `ssh <box> "RUNNER_TOKEN='$TOKEN' …"` puts it in the argv of `ssh` locally _and_ of the
+remote shell. Pipe it instead. The script accepts the token **only** from `$RUNNER_TOKEN` or
+**stdin**, and hands it to `config.sh` through `ACTIONS_RUNNER_INPUT_TOKEN` (the runner's supported
+env equivalent of `--token`). There is no `--token` flag any more; passing one is refused with an
+explanatory error.
 
-# 2. Copy the script to the box.
+```bash
+# 1. Copy the script to the box.
 scp tooling/runner/provision-linux-runner.sh <box>:/tmp/provision-linux-runner.sh
 
-# 3. Run it there as the admin user. --prepull-image fetches the Playwright container now
-#    (~2 GB) so the first CI run does not pay for it.
-ssh <box> "RUNNER_TOKEN='$TOKEN' bash /tmp/provision-linux-runner.sh --prepull-image"
+# 2. Mint a registration token (valid ONE HOUR, one per box) and pipe it straight to the box.
+#    --prepull-image fetches the Playwright container now (~2 GB) so the first CI run does not.
+gh api -X POST repos/VegaStack/vegastack-design/actions/runners/registration-token --jq .token \
+  | ssh <box> 'RUNNER_TOKEN=$(cat) bash /tmp/provision-linux-runner.sh --prepull-image'
 ```
+
+The single quotes matter: `$(cat)` must be evaluated by the **remote** shell, which reads the token
+from the ssh channel's stdin. If you are already on the box:
+`printf %s '<token>' | bash /tmp/provision-linux-runner.sh`.
 
 The script is **idempotent**: re-running it skips Docker if present, skips the tarball if the pinned
 version is already unpacked, leaves an existing matching registration alone, and reinstalls/restarts
@@ -94,8 +121,13 @@ ssh <box> 'sudo docker run --rm mcr.microsoft.com/playwright:v1.61.0-noble node 
 
 `/opt/vsk-runner/pnpm-store` on the host, created 0777 by the script and bind-mounted into the job
 container as `/pnpm-store` via `container.volumes` in the workflow. The job then runs
-`pnpm config set store-dir /pnpm-store --global`, so `pnpm install --frozen-lockfile` links from the
-store instead of re-downloading the graph into a throwaway container.
+`pnpm install --frozen-lockfile --store-dir /pnpm-store`, so the install links from the store instead
+of re-downloading the graph into a throwaway container.
+
+`--store-dir` on the install, **not** `pnpm config set store-dir /pnpm-store --global`: the image has
+no `PNPM_HOME` on `PATH`, so the global config write exits 1 with _"global bin directory is not in
+PATH"_ (observed in run 34254795914). The flag is the only form that works there, and it must name
+the same path the volume mounts.
 
 If the workflow's mount path and this path ever disagree, installs silently fall back to a
 container-local store and every run pays full download cost — that is the failure mode to look for
@@ -106,15 +138,21 @@ Safe to delete at any time (`sudo rm -rf /opt/vsk-runner/pnpm-store/*`); the nex
 ## De-enrol
 
 ```bash
-# Removal token (a registration token also works for `config.sh remove` on recent runners):
-TOKEN=$(gh api -X POST repos/VegaStack/vegastack-design/actions/runners/remove-token --jq .token)
-ssh <box> "bash /tmp/provision-linux-runner.sh --deregister --token '$TOKEN'"
+# Removal token (a registration token also works for `config.sh remove` on recent runners),
+# piped over stdin for the same reason as enrolment.
+gh api -X POST repos/VegaStack/vegastack-design/actions/runners/remove-token --jq .token \
+  | ssh <box> 'RUNNER_TOKEN=$(cat) bash /tmp/provision-linux-runner.sh --deregister'
 ```
 
-That stops and uninstalls the systemd service and removes the local registration. Without a token it
-still removes the service locally and tells you to delete the runner entry in
-**Settings → Actions → Runners**. The runner directory is left in place; delete
-`~/actions-runner` by hand if the box is being retired.
+That stops and uninstalls the systemd service, removes the local registration, and then **verifies**
+the end state before reporting anything: the systemd unit named in `~/actions-runner/.service` must
+be gone and inactive, and no `Runner.Listener` process may survive. Any failing step — `svc.sh stop`,
+`svc.sh uninstall`, `config.sh remove` — aborts non-zero with a message saying the box is **NOT**
+de-enrolled. It never prints success over a failure.
+
+Without a token it still removes the service locally and tells you to delete the runner entry in
+**Settings → Actions → Runners**. The runner directory is left in place; delete `~/actions-runner` by
+hand if the box is being retired.
 
 ## Troubleshooting
 
@@ -126,11 +164,23 @@ still removes the service locally and tells you to delete the runner entry in
 | Runner shows `offline` seconds after install                   | The listener takes a moment to connect. Re-check after ~15s.                                                             |
 | Job cannot start the container                                 | Docker not running (`sudo systemctl status docker`), or the user is not in the `docker` group. Re-run the script.        |
 | Install step suddenly slow                                     | The pnpm store mount path drifted from `/opt/vsk-runner/pnpm-store`. See above.                                          |
+| `ERROR: --token is not accepted`                               | Deliberate: argv is world-readable in `ps`. Pass the token via `RUNNER_TOKEN` or stdin — see **Enrol**.                  |
+| `NOT de-enrolled` from `--deregister`                          | A real failure, not noise: the service, unit, or listener survived. Fix the reported step and re-run.                    |
 
 ## Where this is enforced
 
-`tooling/verify-workflow-security.mjs` treats the Linux runners as a second allowlisted runner class
-(`LINUX_JOBS`): only listed jobs may use `runs-on: [self-hosted, linux, vsk-runner]`, only those jobs
-may declare a `container:`, and the image must equal the Playwright version resolved in
-`pnpm-lock.yaml`. `tooling/verify-workflow-security-negative.mjs` proves each of those rejections by
-mutation. Containers remain banned outright on the mac-mini jobs.
+`tooling/verify-workflow-security.mjs` parses every workflow with the `yaml` package — structurally,
+not by regex over text, because a flow-style job slipped past line-based discovery entirely — and
+treats the Linux runners as a second allowlisted runner class (`LINUX_JOBS`). For those jobs it
+requires:
+
+- `runs-on: [self-hosted, linux, vsk-runner]`, and no other job may use that label;
+- a `container:` — **required**, not merely permitted — whose image equals
+  `mcr.microsoft.com/playwright:v<version>-noble` for the `playwright` version resolved in
+  `pnpm-lock.yaml`;
+- `defaults.run.shell: bash`, because the container's default shell is `sh`;
+- the fork guard `if: github.event.pull_request.head.repo.full_name == github.repository`.
+
+`tooling/verify-workflow-security-negative.mjs` proves each of those rejections by mutation, including
+the flow-style job the pre-fix gate accepted. Containers remain banned outright on the mac-mini jobs.
+The one thing no gate can assert is the repository setting under **Fork pull requests** above.

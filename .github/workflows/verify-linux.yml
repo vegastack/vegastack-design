@@ -20,6 +20,13 @@ concurrency:
 
 jobs:
   verify-linux:
+    # FORK GUARD. This repository is PUBLIC, and these are LAN boxes with a pnpm store that persists
+    # across jobs. A pull request from a fork would execute attacker-authored code on the network —
+    # so it never reaches them. verify-workflow-security.mjs requires this condition on every job in
+    # LINUX_JOBS, and its negative harness proves the removal is rejected. MK should additionally set
+    # Settings → Actions → "Require approval for all outside collaborators" (a repo setting, which
+    # nothing in this tree can assert).
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, linux, vsk-runner]
     container:
       # Pinned to the `playwright` version in pnpm-lock.yaml; verify-workflow-security.mjs reads the
