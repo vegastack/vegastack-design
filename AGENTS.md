@@ -60,7 +60,7 @@ confirm against 1–4 first. Locked decisions stay locked regardless of where th
 | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | Add or change a component, hook, or block                  | Load the **`component`** skill                                                           |
 | Review or audit this repo — gates, compliance, drift, bugs | Load the **`review`** skill                                                              |
-| Release, publish, deploy, or write a changelog entry       | Load the **`ship`** skill                                                                |
+| Release, publish, deploy, or write a changeset entry       | Load the **`ship`** skill                                                                |
 | A git hook blocked a commit, or `pnpm verify` failed       | Load the **`gates`** skill                                                               |
 | Plan a non-trivial change                                  | Write a plan to `docs/plans/`, present it, wait for approval (§Planning)                 |
 | Write or change a docs page                                | §Docs authoring below, then the `component` skill §6                                     |
@@ -254,6 +254,7 @@ The same discipline governs every other generated surface:
 | -------------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------- |
 | `packages/ui/registry/ui/*`            | `pnpm registry:build`                  | docs copy-in, `public/r/*.json`                                                 |
 | `packages/ui/component-contracts.json` | `pnpm design:derived`                  | component matrix, the public skill roster, this file's §Numbers — all committed |
+| `.changeset/*.md`                      | `node tooling/changelog-assemble.mjs`  | the `/CHANGELOG.md` release entry (at version time only)                        |
 | `/CHANGELOG.md`                        | `node tooling/sync-changelog.mjs`      | the docs Changelog page                                                         |
 | `skills/public/**`                     | `node tooling/sync-package-skills.mjs` | `packages/design/skills/**` (shipped in npm)                                    |
 | `design.md`                            | `pnpm design:sync`                     | its derived doc surfaces                                                        |
@@ -314,12 +315,12 @@ import and the run HANGS on pre-transform errors rather than failing.
 
 **What CI runs.** Every row is executed; nothing is taken on trust. The receipt-attested rows are gone.
 
-| gate                                                                                               | runs where                                      |
-| -------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| `pnpm verify` — typecheck, lint, `design:verify`, browser unit + axe + geometry, design CLI tests  | `ci.yml`, `release.yml`, `deploy.yml`, on Linux |
-| `pnpm typecheck && pnpm lint && pnpm design:verify` (no browser) — the cross-platform signal       | `ci.yml`'s `verify-macos`, on the minis         |
-| `pnpm verify:release` — BOTH docs matrices, links, registry idempotency, consume, three engines    | `deploy.yml`, before `build-sign-deploy`        |
-| `vrt-review` pixels                                                                                | local `/ship` step, never a gate                |
+| gate                                                                                              | runs where                                      |
+| ------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `pnpm verify` — typecheck, lint, `design:verify`, browser unit + axe + geometry, design CLI tests | `ci.yml`, `release.yml`, `deploy.yml`, on Linux |
+| `pnpm typecheck && pnpm lint && pnpm design:verify` (no browser) — the cross-platform signal      | `ci.yml`'s `verify-macos`, on the minis         |
+| `pnpm verify:release` — BOTH docs matrices, links, registry idempotency, consume, three engines   | `deploy.yml`, before `build-sign-deploy`        |
+| `vrt-review` pixels                                                                               | local `/ship` step, never a gate                |
 
 `.gates/receipt.json`, every `receipt-guard` job, `.husky/pre-push`, route scoping
 (`tooling/lib/route-scope.mjs`), and the change classifier were **removed** by
@@ -401,8 +402,13 @@ anything:
   merging the reviewed Version Packages PR authorizes npm publication; manually dispatching Deploy
   authorizes the registry/docs release. MK may be the actor, but each outward step still requires its
   own explicit MK decision under the `ship` skill.
-- **The changelog is a system.** `/CHANGELOG.md` is canonical, with a fixed section vocabulary
-  (`🧩/🔧/🗑/🛠/📦/📚/🐛/⚠️`). Edit it, run the sync, never touch the generated docs page.
+- **The changelog is a system, and it is assembled.** Per PR the only changelog artefact is a
+  **changeset** whose body opens with one of the fixed section emoji
+  (`🧩/🔧/🗑/🛠/📦/📚/🐛/⚠️`); `tooling/changeset-lint.mjs` rejects a body with no marker, two
+  markers, or no text. Per version, `pnpm run version-packages` runs
+  `tooling/changelog-assemble.mjs` before `changeset version` and writes the `/CHANGELOG.md` entry,
+  then `sync-changelog` regenerates the docs page. **Nobody hand-edits `/CHANGELOG.md` between
+  releases**, and nobody ever touches the generated docs page.
 - **Production has one boundary contract.** Every deploy verifies that all non-registry routes are
   public, `/internal/*` remains undiscoverable/noindex, and `/r/*` rejects anonymous requests while
   accepting and cryptographically validating the service-token response. The retired cutover history

@@ -2,6 +2,11 @@
 
 Enforced by `tooling/changelog-lint.mjs` — deviations fail lint.
 
+**The file is assembled, not hand-written.** `tooling/changelog-assemble.mjs` builds each release
+entry from the pending changesets during `pnpm run version-packages`; a PR writes a changeset and
+nothing else. This document is what the assembler emits, and what a changeset body must therefore
+contain — read it as the shape of a changeset body plus the entry scaffolding around it.
+
 ## Entry heading
 
 ```markdown
@@ -25,9 +30,29 @@ Enforced by `tooling/changelog-lint.mjs` — deviations fail lint.
 ### ⚠️ Breaking
 ```
 
+## Changeset bodies (the source of every bullet)
+
+```markdown
+---
+"@vegastack/ui": minor
+---
+
+🔧 **Button** — what changed and why it matters to a consumer.
+[docs](https://design.vegastack.com/docs/components/button)
+```
+
+- The body OPENS with exactly one section emoji from the vocabulary above; the assembler strips it
+  and files the bullet under that section. Two markers, no marker, or no text is a
+  `tooling/changeset-lint.mjs` failure.
+- An **empty** changeset (frontmatter naming no package) carrying body text is valid and IS
+  assembled — the changelog line for a change that publishes nothing.
+- The assembler appends the commit sha of the changeset file when the body carries no commit link,
+  and generates the `📦 npm` bullets from the release plan, so an author writes neither.
+- Multi-line bodies keep their line breaks; continuation lines are indented into the bullet.
+
 ## Bullets
 
-One bullet per change. Shape:
+One bullet per change, as the assembler emits it. Shape:
 
 ```markdown
 - **ComponentName** — what changed and why it matters to a consumer (one or two sentences).
