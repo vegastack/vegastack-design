@@ -20,9 +20,13 @@ self-hosted runners (provenance disabled; no `NPM_TOKEN`).
 pnpm release:preflight        # ~5min, in place, restores the tree on exit
 ```
 
-It simulates a version bump and runs the whole chain — version-sync, both authorities, the
-classifier, the receipt-carry proof, and a full `shadcn` consume round-trip. A release is a chain,
-and a defect anywhere fails all of it.
+It simulates a version bump and runs the whole chain — version-sync, both authorities, and a full
+`shadcn` consume round-trip. A release is a chain, and a defect anywhere fails all of it.
+
+> **Stale under the verification rebuild.** `verify-release-chain.mjs` still asserts the receipt
+> carry, which `docs/plans/2026-09-08-verification-rebuild.md` removed along with `.gates/`. It is
+> scheduled for deletion in WP3; until then a failure in its receipt-carry step is the script being
+> out of date, not the release being broken. Every other step of it is current.
 
 **This exists because a release once took seven merge-and-watch cycles**, each one discovering the
 next broken link ~25 minutes later. Five of those seven would have surfaced in this single run. If it
@@ -40,37 +44,23 @@ include those outputs with the component change before rerunning preflight; neve
 
 ```bash
 pnpm design:derived
-git status --porcelain          # must be empty except .gates/ — see below if it is not
-pnpm gates:ship                 # THE full local sweep. ~20min. Writes .gates/receipt.json.
+git status --porcelain          # must be empty — see below if it is not
+pnpm verify                     # typecheck · lint · design:verify · the browser suite. <2min.
+pnpm verify:release             # docs export · links · metadata · registry · consume · 3 engines. ~12min.
 node tooling/changelog-lint.mjs
 SITE_VISIBILITY=private pnpm --filter @vegastack/docs build
 ```
 
-`pnpm gates:ship` is not a convenience wrapper — it is the release's evidence. It runs the full lint
-chain, `typecheck`, the browser-unit suite, the cross-engine smoke, the complete three-engine suite,
-`registry:build` idempotency, the `shadcn` consume round-trip, and **all 96 contract routes**, then
-writes `.gates/receipt.json` binding those results to a tree hash.
+**CI executes both of these itself.** `deploy.yml` runs `pnpm verify && pnpm verify:release` on the
+LAN Linux runners in the pinned Playwright container before `build-sign-deploy` starts, so a deploy
+cannot happen without them. Running them here is about finding a failure in two minutes instead of
+twelve on a dispatched workflow — it is not the evidence, and there is no receipt to commit.
 
-**No CI runner executes a browser.** `deploy.yml`'s `receipt-guard` demands a receipt with all three
-browser lanes present and passing, which only this command produces — so a deploy is impossible
-without it. That also means a partial sweep is not a shortcut here; it is a blocked deploy.
-
-**Run this BEFORE committing, then commit `.gates/receipt.json` together with the release.**
-`.gates/` is excluded from the tree hash the receipt binds to, so including it in the commit cannot
-invalidate it — but committing FIRST leaves a receipt describing the previous tree, which every
-workflow's `receipt-guard` rejects. `gates push` checks this and refuses the push with the fix, so
-the mistake is cheap; do not rely on that.
-
-Then read the reports rather than trusting the exit code — the `gates` skill covers how to classify
-each failure at its root:
-
-```bash
-cat .gates/ship.json                                    # per-gate status and duration
-node -p "const r=require('./.gates/contracts.json'); r.status+' · '+r.executed+' executed · '+r.scope.reason"
-```
-
-A contracts entry reporting `status: "skipped"` or `executed: 0` after `gates:ship` is a defect, not a
-pass: `ship` runs `--all`, so an empty scope means the runner or the route set is wrong.
+That is the change from the previous topology: `pnpm gates:ship` used to be the release's ONLY
+evidence, because no CI runner could launch a browser, and its `.gates/receipt.json` had to be
+committed with the release and had to describe exactly the pushed tree. Both the sweep command and
+the receipt are gone (`docs/plans/2026-09-08-verification-rebuild.md`, R1). Failures are ordinary
+command output now — the `gates` skill covers how to classify one at its root.
 
 **If `git status` is not empty:** that is the signal, not an obstacle. Either the regenerated
 surfaces above changed (commit them with the work that caused them) or there is unrelated
@@ -83,17 +73,15 @@ Then find out what the push will actually DO, before pushing:
 node tooling/release-classify.mjs        # origin/main → HEAD
 ```
 
-It extracts `release.yml`'s `detect` step verbatim and runs it, printing which gates the receipt must
-carry, whether the quality gate runs, and whether the run opens a Version PR or publishes. Reconcile
-that against what you expect. **A surprise here is the finding** — most often a gate you assumed was
-required is not. Exit 1 means the step left an output unset, which in an `if:` reads as false, so the
-requirement it drives is silently RELAXED rather than failed.
+It extracts `release.yml`'s `detect` step verbatim and runs it, printing whether the quality gate
+runs and whether the run opens a Version PR or publishes. Reconcile that against what you expect.
+**A surprise here is the finding.** Exit 1 means the step left an output unset, which in an `if:`
+reads as false, so the requirement it drives is silently RELAXED rather than failed.
 
-The classification itself lives in `tooling/classify-change.mjs` (`pnpm classify`), which that step
-calls; `tooling/verify-classify-change.mjs` proves it against real history, including that a genuine
-Version Packages commit — 1058 files whose only diff is a re-stamped provenance header — requires no
-contract lane at all. Run it again on the Version PR
-branch before merging it (`--before main --after changeset-release/main`).
+Its `contracts` / `unit` / `smoke` outputs no longer drive anything: they existed to tell
+`receipt-guard` which lanes the receipt had to carry, and CI now simply runs every lane. Read
+`publish` and `has_changesets`; ignore the rest. (The classifier and this wrapper are both scheduled
+for deletion in WP3.)
 
 ## 1a. What the gates cannot see
 
@@ -109,14 +97,11 @@ have shipped.
   changes how a component behaves in a way `design.md` describes in prose, `design.md` is part of the
   release. So is the matching consumer-facing foundations page under
   `apps/docs/content/docs/foundations/`.
-- **A receipt that describes a different tree.** The four browser lanes are attested rather than
-  re-executed by CI, so `.gates/receipt.json` is the release's only evidence they ran. If you commit
-  anything after `gates:ship`, the receipt no longer covers the tree and every workflow will reject
-  it. Re-run the sweep; do not hand-edit the receipt. Confirm before pushing:
-
-  ```bash
-  pnpm gates:verify-receipt --contracts true --unit true --smoke true
-  ```
+- **A verification result that describes a different tree.** This used to be enforced by binding a
+  receipt to a tree hash. It no longer is — and it no longer needs to be, because CI re-runs
+  `pnpm verify` against the pushed commit itself. What is still on you is the ordering: run the
+  checks, then commit, then push, and read the CI result rather than assuming your local run stands
+  in for it.
 
 ## 1b. Visual review
 
@@ -178,17 +163,14 @@ Commit changesets + CHANGELOG.md + the regenerated page together.
 
 ## 4. Version PR → publish
 
-**The Version PR carries its receipt forward automatically, and you should know why.** A receipt is
-bound to a tree hash, and `changeset version` + `version-sync` move that hash — versions, package
-CHANGELOGs, consumed changesets, and a re-stamped provenance header in 1082 files. Nothing a browser
-gate can observe changes, so `pnpm run version-packages` ends by running
-`tooling/gate-receipt-carry.mjs`, which rewrites only the receipt's tree-bound facts (`tree`,
-`treeFiles`, and the contract SHA) and records `carriedFrom`. `receipt-guard` then re-derives the
-proof from git and rejects the carry if anything real changed. Without this the Version PR would
-fail the guard and no publish could ever happen.
-
-If `gate-receipt-carry` REFUSES, do not work around it: something other than a version bump is in
-that branch, and the browser gates have to run against it.
+**The Version PR no longer needs a receipt carried forward.** `pnpm run version-packages` is
+`changeset version && version-sync`, and that is all it is. It used to end with
+`tooling/gate-receipt-carry.mjs`, because a receipt was bound to a tree hash and `changeset version`
+moves that hash — versions, package CHANGELOGs, consumed changesets, and a re-stamped provenance
+header across ~1082 files — while changing nothing a browser gate can observe. Without a carry every
+Version PR failed `receipt-guard` and no publish was reachable at all. CI now re-runs `pnpm verify`
+against the Version PR's own commit, so the whole mechanism (`receipt-guard`, the carry, and the
+`versionBumpOnly` proof it rested on) is deleted rather than replaced.
 
 Changes reach `main` through a **reviewed PR**, not a direct push (`docs/RELEASING.md` step 4 is
 canonical). MK approval is required before the change PR is merged. GitHub Team cannot provide
@@ -208,8 +190,8 @@ until [ "$(gh run view <id> -R VegaStack/vegastack-design --json status --jq .st
 **A green PR page is not evidence the gates ran.** `main` carries no branch protection and no
 required status checks (`gh api repos/VegaStack/vegastack-design/branches/main/protection` → 404), so
 a red or skipped check does not block a merge. Read the run's job list and confirm the jobs you
-expected actually executed — a skipped job looks identical to an absent one, and `receipt-guard` is
-the one whose absence would matter most:
+expected actually executed — a skipped job looks identical to an absent one, and `quality-gate` (the
+job that runs `pnpm verify`) is the one whose absence would matter most:
 
 ```bash
 gh run view <id> -R VegaStack/vegastack-design --json jobs \

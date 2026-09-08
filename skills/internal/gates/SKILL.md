@@ -1,103 +1,76 @@
 ---
 name: gates
-description: Read and act on the local verification gates in the vegastack-design repo — interpret a failed pre-commit or pre-push run, classify each failure at its root cause, and explain what the gate receipt means. Use when a git hook blocked a commit or push, when .gates/last-failure.json exists, when asked why CI rejected a receipt, or when asked to run the gate ladder before shipping.
+description: Interpret a blocked commit or a failed verification run in the vegastack-design repo — what the pre-commit hook checks, what `pnpm verify` runs, and how to classify a failure at its root cause rather than working around it. Use when a git hook blocked a commit, when `pnpm verify` or CI failed and the cause is not obvious, or when asked what the verification ladder is.
 ---
 
-# Interpret the gate ladder
+# Interpret a failed verification run
 
-The gates are programmatic; the interpretation is yours. Every gate writes structured JSON precisely
-so that you can say **what** broke and **why**, instead of handing a developer raw output.
+> **This skill is being retired.** The gate ladder it documented — `pnpm gates:commit/push/component/ship`,
+> the `.gates/` report directory, and the `.gates/receipt.json` attestation — was removed by
+> `docs/plans/2026-09-08-verification-rebuild.md`. What remains is three commands and two hooks, and
+> they are short enough that this page is mostly the reasoning, not a procedure. WP6 folds the
+> remainder into the `review` skill and deletes this directory.
 
 **Never self-clear a failure.** Classify it, fix the root cause, re-run. If a failure looks
 environmental, say so with the evidence and let MK decide — the same discipline
 `skills/internal/ship/references/visual-review.md` imposes on pixels.
 
-## 1. Read the reports first
+## The ladder, in full
 
 ```bash
-cat .gates/last-failure.json      # the failing gate, its assertion, file:line, raw output slice
-ls .gates/                        # commit.json · push.json · ship.json · contracts.json · receipt.json
+pnpm check:component <name>   # ~5s     design-lint · typecheck · that one component's test
+pnpm verify                   # <2min   typecheck · lint · design:verify · the browser suite
+pnpm verify:release           # ~12min  docs export · links · metadata · registry · consume · 3 engines
 ```
 
-`.gates/last-failure.json` exists only while a run is failing; a passing run deletes it. Its
-`reports` array lists the per-gate JSON worth opening next. Read the report, not just the exit code.
+`pnpm verify` is the whole gate. It is byte-for-byte the command `ci.yml` runs on a pull request,
+`release.yml` runs before a publish, and `deploy.yml` runs before a deploy — so a green run here is a
+green run there, and a red one here is exactly the failure CI will report. Nothing is scoped to a
+diff, nothing is attested, and nothing is bound to a tree hash.
 
-## 2. Classify every failure before fixing anything
+`pnpm verify:release` runs only in `deploy.yml`. Run it locally only when you are investigating
+something that lives in it: the docs export, the link or metadata checks, the shadcn consume
+round-trip, or a cross-engine difference.
 
-Four categories, and they need different responses. Getting the category wrong wastes the fix.
+## The hooks
 
-| Category                   | How it looks                                                                                                                       | What to do                                                                                                                                  |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Token / rule violation** | `design-lint` names a rule and a `file:line`                                                                                       | Fix at the source. The rule vocabulary is `skills/internal/review/references/lint-rules.md`; never widen a rule to pass.                    |
-| **Real regression**        | a contract assertion fails with measured numbers — a control under 24×24, `scrollWidth > clientWidth` at 320px, no focus indicator | Fix the component. The numbers in the message are the specification.                                                                        |
-| **Stale generated file**   | `design:derived:check`, `sync-changelog --check`, or the registry idempotency step reports drift                                   | Regenerate through the authority (`pnpm design:derived`, `pnpm registry:build`) and commit the output. Never hand-edit a generated file.    |
-| **Flake**                  | passes on re-run with no change; timing or animation wording in the message                                                        | Say it is a flake AND why you believe that. Do not retry silently — a flake that is really a race will come back on someone else's machine. |
+- **`pre-commit`** — `tooling/design-lint.mjs` over the registry, plus `prettier --check` on the
+  staged set (symlinks excluded — `.claude/skills/*` and `.agents/skills/*` are links, and prettier
+  would check the target). ~4 s. It is the cheapest possible signal and blocks nothing that matters:
+  a commit is not a publication boundary, and WIP commits, `--amend`, and `rebase -i` all fire it.
+- **`commit-msg`** — the conventional-commit prefix.
+- **There is no `pre-push` hook**, and `--no-verify` / `HUSKY=0` are no longer policy words. CI
+  executes the same command you do, so a local run before pushing is a convenience rather than a
+  gate. Nothing is lost by skipping it except your own turnaround.
 
-## 3. The contract lane, specifically
+## Reading a failure
 
-`.gates/contracts.json` carries the scope decision, not just the result. Read `scope.reason` before
-`results` — a green run over the wrong routes is the failure mode this whole design guards against.
+Failures now arrive as ordinary command output in the terminal that ran them; there is no
+`.gates/` directory and no JSON report to read. `pnpm verify` names the step it stopped at
+(`verify: FAILED at lint`), and each step's own output follows the conventions of the tool under it.
 
-```bash
-node -p "const r=require('./.gates/contracts.json'); [r.status, r.scope.reason, r.scope.routes.length+' routes', r.executed+' executed'].join(' · ')"
-```
+Classify against the root, not the symptom:
 
-- `status: "skipped"` means **no contract surface changed**. Report it as skipped. It is not evidence
-  that the contracts pass.
-- `status: "no-evidence"` means a non-empty scope executed zero tests. That is a defect in the scope
-  or the spec, never a pass.
-- A failure lists `failures[]` with `title`, `project`, and the assertion message. The project name
-  matters: a failure only in `mobile-chromium` is a narrow-viewport problem, only in `*-dark` is a
-  token problem.
+| What you see                                          | Root cause                                                                                                                                                       |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `design-lint` rule id                                 | A build rule in AGENTS.md § Build rules. `skills/internal/review/references/lint-rules.md` explains each id.                                                     |
+| `design:derived:check` or `design:sync:check` fails   | A generated surface is stale. Run `pnpm design:derived` / `pnpm design:sync` — never hand-edit the output.                                                       |
+| `registry:build` leaves a dirty tree                  | The same, for the registry's three stamped surfaces.                                                                                                             |
+| The browser suite HANGS rather than failing           | Something invoked `pnpm --filter @vegastack/ui test` directly. Turbo's `^build` is what builds `@vegastack/design`'s gitignored dist; go through `pnpm verify`.  |
+| `ENOENT … design-tokens/dist/theme.css`               | A bare `turbo run lint` in a tree whose token dist was never built. `turbo.json` declares that dependency; if you see it, the declaration is wrong, not the run. |
+| A contract assertion (320px reflow, RTL, 24px target) | `packages/ui/test/geometry.browser.test.tsx`. A real defect in the named fixture — read the assertion, not the stack.                                            |
+| Green locally, red in CI                              | Compare Node versions first (`.node-version`, `engine-strict=true`), then look for something uncommitted. The commands are identical by construction.            |
 
-Re-run one route while iterating:
+## What went away, and what replaced it
 
-```bash
-node tooling/contracts-run.mjs --routes /docs/components/<name>
-```
+| Gone                                                | Replaced by                                                                                    |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `.gates/receipt.json` and every `receipt-guard` job | CI **executes** the browser lanes on the LAN Linux runners in the pinned Playwright container. |
+| `pnpm gates:commit/push/component/ship`             | `pnpm check:component <name>` · `pnpm verify` · `pnpm verify:release`                          |
+| `.husky/pre-push`                                   | Nothing. CI runs the same command.                                                             |
+| `pnpm classify` and route scoping                   | Nothing. Every run is the full two-minute loop; there is nothing left to scope.                |
+| The `gates-digest` SessionStart hook                | Nothing. There is no report to digest.                                                         |
 
-## 4. Explain the receipt honestly when asked
-
-`.gates/receipt.json` binds the browser lanes to a tree hash. It is **attestation, not proof** —
-`--no-verify`, or `HUSKY=0`, plus a hand-edited JSON defeats it. Its value is that skipping a browser
-gate becomes visible and auditable instead of silent. Say that plainly; a receipt read as proof is
-worse than no receipt.
-
-Common CI rejections and what each actually means:
-
-| `verify-gate-receipt` says                                      | Cause                                                       | Fix                                                               |
-| --------------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------- |
-| produced against tree X but this tree is Y                      | code changed after the gates ran                            | `pnpm gates:push`, commit the receipt                             |
-| requires the `contracts` gate and the receipt does not carry it | the change touched a contract surface the local run skipped | re-run `pnpm gates:push` on the current tree                      |
-| ran against @playwright/test A but this tree pins B             | gates ran on a stale install                                | `pnpm install`, re-run                                            |
-| reports pass but executed 0 tests                               | an empty scope reported as green                            | investigate the scope; do not re-run hoping it changes            |
-| was deliberately skipped … needs MK acknowledgement             | `GATES_SKIP` was used                                       | MK's call, not yours. Present the reason recorded in the receipt. |
-
-## 5. Running the ladder
-
-```bash
-pnpm gates:commit                 # ~3s   static gates, staged files
-pnpm gates:push                   # ~35-80s  + unit · smoke · scoped contracts, writes the receipt
-pnpm gates:component <name>       # the inner loop while building one component
-pnpm gates:ship                   # the full sweep — /ship requires it
-```
-
-`--verbose` streams each gate instead of capturing it. Use it when a gate hangs; the captured form is
-better for everything else because it keeps a green ladder to four lines.
-
-## 6. The ordering that matters
-
-**Run the gates BEFORE committing, then commit the code and `.gates/receipt.json` together.**
-
-That works because `.gates/` is excluded from the tree hash the receipt binds to — so adding the
-receipt to the commit cannot invalidate the receipt it wrote. Commit FIRST and the receipt in `HEAD`
-describes the _previous_ tree, and every workflow's `receipt-guard` rejects the push.
-
-`gates push` checks this itself and refuses the push with the exact fix, so the mistake costs
-seconds rather than a red CI run eight minutes later. If you see it:
-
-```bash
-git add .gates/receipt.json && git commit --amend --no-edit && git push
-```
-
-The gates already passed at that point — only the record was missing from the commit.
+The receipt was **attestation, not proof** — `--no-verify` plus a hand-edited JSON defeated it — and
+it existed only because no free runner could launch a browser. On 2026-09-07 the LAN Debian boxes ran
+Chromium, Firefox, and WebKit. The premise was gone, so the mechanism went with it.

@@ -15,8 +15,9 @@ concurrency:
   group: production-docs
   cancel-in-progress: false
 
-# RUNNER TOPOLOGY. Every job runs on the self-hosted runners (`[self-hosted, vsk-runners-mac-mini]`) — no
-# GitHub-hosted job, because an account-level billing lock suspended hosted runners. That lock also
+# RUNNER TOPOLOGY. Every job runs on self-hosted hardware — the mac minis, except `verify`, which
+# needs the pinned Playwright container and therefore the LAN Linux boxes. No GitHub-hosted job,
+# because an account-level billing lock suspended hosted runners. That lock also
 # exhausts Actions artifact storage, so build → sign → deploy can no longer hand the built docs between
 # jobs as artifacts; they are merged into one `build-sign-deploy` job (see its header for the tradeoff).
 # Notes per job:
@@ -31,15 +32,15 @@ concurrency:
 #                      could silently authenticate an "anonymous" request. Fail-safe if it were: such a
 #                      request returns 200 and expectProtected() fails the deploy loudly.
 #
-# THE CONTRACT GATE THAT USED TO LIVE HERE IS GONE, AND WAS REPLACED RATHER THAN DROPPED.
-# It ran the 864 behaviour contracts on four billed `ubuntu-latest` shards (~135 minutes per deploy)
-# and existed because `main` carries no branch protection, `ci.yml` fires only on `pull_request`, and
-# `release.yml`'s gate was conditional — so a direct push to `main` could reach a deploy having never
-# executed a single contract assertion. That reasoning still holds, so `receipt-guard` below now
-# closes the same hole for ~seconds: it demands a receipt covering the deployed tree with ALL THREE
-# browser lanes present and passing, which only `pnpm gates:ship` (a full 108-route sweep) produces.
-# A deploy therefore still cannot happen without a complete contract run — the run just happened on a
-# developer machine, and the receipt is how this workflow knows it did.
+# THE FULL SWEEP RUNS HERE, AND IT IS EXECUTED RATHER THAN ATTESTED.
+# `main` carries no branch protection and `ci.yml` fires only on `pull_request`, so a direct push to
+# main could otherwise reach a deploy having never executed a single browser assertion. The `verify`
+# job below closes that hole by RUNNING the work: `pnpm verify` (typecheck, lint, design:verify, the
+# browser suite) followed by `pnpm verify:release` (the docs export, link and metadata checks, the
+# registry build and its idempotency, the shadcn consume round-trip, and the complete unit suite in
+# all three engines) in the pinned Playwright container on the LAN Linux boxes. It replaces the
+# `receipt-guard` job, which demanded a receipt from a local `pnpm gates:ship` sweep and could only
+# ever be attestation (docs/plans/2026-09-08-verification-rebuild.md, R1).
 
 jobs:
   ref-guard:
@@ -55,31 +56,37 @@ jobs:
             exit 1
           }
 
-  # The browser half, attested rather than executed. Unlike ci.yml and release.yml this job requires
-  # ALL THREE browser lanes unconditionally: a production deploy is the one step that must be preceded
-  # by a complete local sweep, and only `pnpm gates:ship` — which runs the full 108-route contract
-  # suite, the three-engine unit suite, and the cross-engine smoke — produces a receipt that satisfies
-  # it. Conditional requirements would let a docs-only deploy through on a partial sweep, which is
-  # exactly the hole the deleted hosted gate existed to close.
+  # The whole verification ladder, executed. This is the one place `verify:release` runs: it is
+  # measured in the tens of minutes (the docs export alone is ~3 min cold, the consume round-trip
+  # ~4 min, the three-engine suite ~2 min), which is affordable exactly once, at the outward step,
+  # and nowhere else.
   #
-  # A receipt is ATTESTATION, NOT PROOF (tooling/lib/gate-receipt.mjs). For an outward deploy that
-  # residual trust is bounded by the fact that dispatching this workflow is itself an explicit MK
-  # decision on a ref that ref-guard has already pinned to main.
-  receipt-guard:
+  # No fork guard: deploy.yml is `workflow_dispatch` from a ref `ref-guard` has already pinned to
+  # main, so no fork-authored code can reach it. verify-workflow-security.mjs requires the guard on
+  # the jobs of a workflow with a `pull_request` trigger.
+  verify:
     needs: ref-guard
-    runs-on: [self-hosted, vsk-runners-mac-mini]
+    runs-on: [self-hosted, linux, vsk-runner]
+    container:
+      image: mcr.microsoft.com/playwright:v1.61.0-noble
+      volumes:
+        - /opt/vsk-runner/pnpm-store:/pnpm-store
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
           persist-credentials: false
           ref: ${{ github.sha }}
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with: { node-version: 24 }
-      - name: Require a full-sweep gate receipt for the deployed tree
+      - name: Enable corepack
         run: |
           set -euo pipefail
-          node tooling/verify-gate-receipt.mjs --contracts true --unit true --smoke true
+          corepack enable
+      - run: pnpm install --frozen-lockfile --store-dir /pnpm-store
+      - run: pnpm verify
+      - run: pnpm verify:release
 
   # Build, sign, and deploy in ONE job. These were three isolated jobs (build-curated → sign-curated →
   # deploy-curated) that passed the built docs between them as artifacts. Actions artifact storage is
@@ -87,13 +94,13 @@ jobs:
   # impossible — the steps run in a single job instead, in the same build → sign → reverify → deploy
   # order. TRADEOFF: repository build code now shares a job with the OIDC signing token and the
   # Cloudflare deploy credential, which the three-job split deliberately kept apart. It is bounded by
-  # ref-guard (main only), receipt-guard (a full local sweep), and the fact that dispatching this
+  # ref-guard (main only), the `verify` job (a full sweep, executed), and the fact that dispatching this
   # workflow is an explicit MK action. Restore the isolated split once artifact storage is available.
   # GitHub OIDC is minted by the Actions control plane and works on self-hosted runners; the Sigstore
   # signer identity is the workflow ref (deploy.yml@refs/heads/main), not the runner, so the certificate
   # identity probe-deployment.mjs pins is unchanged.
   build-sign-deploy:
-    needs: receipt-guard
+    needs: verify
     runs-on: [self-hosted, vsk-runners-mac-mini]
     permissions:
       contents: read

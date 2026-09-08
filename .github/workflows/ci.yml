@@ -5,110 +5,94 @@ on:
 permissions:
   contents: read
 
-# Self-hosted capacity is finite: a superseded push must not keep a mini busy.
+# Self-hosted capacity is finite: a superseded push must not keep a runner busy.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-# THIS WORKFLOW COSTS NOTHING. Every job runs on the self-hosted mac minis, because after the
-# local-first migration nothing here drives a browser: the Vitest browser suite, the cross-engine
-# smoke, and the 864 behaviour contracts all run in `.husky/pre-push` on a developer machine and are
-# attested by `.gates/receipt.json`, which `receipt-guard` below verifies against the pushed tree.
+# THIS WORKFLOW COSTS NOTHING, AND IT EXECUTES EVERYTHING IT CLAIMS.
 #
-# Before the migration this workflow was ~110 billable minutes per push (a ~10-17min `verify` plus
-# four ~25min contract shards, re-paid on every push because `cancel-in-progress` restarts it).
-# The mini already proved it can run everything that remains: in job 89606685733,
-# `pnpm design:verify`, `pnpm typecheck`, and `pnpm lint` all passed there and only `pnpm test`
-# failed, on the Mach-bootstrap browser-launch bug recorded in AGENTS.md § Locked decisions.
+# Until 2026-09-08 the browser lanes ran only in `.husky/pre-push` and were ATTESTED here by
+# `.gates/receipt.json`, because no free runner could launch a browser: the mac minis' Actions runner
+# has no per-user Mach bootstrap namespace, so every Chromium launch died with `bootstrap_look_up …
+# Unknown service name (1102)`. On 2026-09-07 the two LAN Debian boxes ran Chromium, Firefox and
+# WebKit under Playwright inside the pinned image. The premise of the receipt system was gone, so the
+# receipt system is gone (docs/plans/2026-09-08-verification-rebuild.md, R1).
 #
-# The runner allowlist in tooling/verify-workflow-security.mjs enforces this — `ci.yml` maps to an
-# EMPTY set of GitHub-hosted jobs, so adding one fails that gate rather than quietly costing money.
+# What replaces it is one command. `pnpm verify` here is byte-for-byte the command a developer runs
+# before pushing and the command `release.yml` and `deploy.yml` run — typecheck, lint, design:verify,
+# and the @vegastack/ui browser suite (unit + axe + the geometry contracts). Nothing is bound to a
+# tree hash, nothing is attested, and everything trusted was executed.
+#
+# Both jobs are self-hosted, so a pull request still costs zero billable minutes. The runner
+# allowlist in tooling/verify-workflow-security.mjs enforces that — `ci.yml` maps to an EMPTY set of
+# GitHub-hosted jobs, so adding one fails that gate rather than quietly costing money.
 jobs:
-  # Everything that executes repository code and needs no browser. Independently re-executed here
-  # rather than trusted from the receipt — that split is the whole reliability argument, and it is
-  # written out in AGENTS.md § Verification ladder.
+  # The real gate: the full command, browsers included, on the LAN Linux boxes in the pinned
+  # Playwright image. Budget 3-4 minutes.
   verify:
+    # FORK GUARD. This repository is PUBLIC, and these are LAN boxes with a pnpm store that persists
+    # across jobs. A pull request from a fork would execute attacker-authored code on the network — so
+    # it never reaches them. verify-workflow-security.mjs requires this condition on every job in
+    # LINUX_JOBS, and its negative harness proves the removal is rejected. MK should additionally set
+    # Settings → Actions → "Require approval for all outside collaborators" (a repo setting, which
+    # nothing in this tree can assert).
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, linux, vsk-runner]
+    container:
+      # Pinned to the `playwright` version in pnpm-lock.yaml; verify-workflow-security.mjs reads the
+      # lockfile and fails if the two drift, because a container whose browsers do not match the
+      # installed Playwright reports failures that are not defects.
+      image: mcr.microsoft.com/playwright:v1.61.0-noble
+      # Persistent host store, created by tooling/runner/provision-linux-runner.sh. Without it every
+      # run re-downloads the whole dependency graph into a throwaway container.
+      volumes:
+        - /opt/vsk-runner/pnpm-store:/pnpm-store
+    # A container's default shell is `sh`, not bash: without this, `set -o pipefail` in any run body
+    # dies with "Illegal option -o pipefail" and the job fails for a reason that is not a defect.
+    # Observed on the first proof run (34249693688). verify-workflow-security.mjs now requires it.
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      # The image ships Node 24.16 and corepack; no setup-node step is needed (and setup-node's tool
+      # cache would be thrown away with the container anyway).
+      - name: Enable corepack
+        run: |
+          set -euo pipefail
+          corepack enable
+          node -v
+          pnpm -v
+      # `--store-dir` rather than `pnpm config set`: the container has no PNPM_HOME on PATH, so
+      # `pnpm config set --global` exits 1 ("global bin directory is not in PATH"). The flag is the
+      # only form that works here, and it must name the same host path the volume above mounts.
+      - run: pnpm install --frozen-lockfile --store-dir /pnpm-store
+      - run: pnpm verify
+
+  # The cross-platform static signal the minis already gave, at ~2 minutes instead of ~13. No
+  # browser (they cannot launch one) and NO `setup-node` cache step: restoring the pnpm cache was
+  # measured at 7-7.7 of that 13 minutes, and Node is preinstalled on the minis per
+  # docs/runbooks/ci-runner-provisioning-macos.md.
+  #
+  # It is deliberately NOT the whole of `pnpm verify` — the browser suite is the one part that cannot
+  # run here, and the Linux job above already executed it against the same tree.
+  verify-macos:
+    # The minis are also LAN hardware with a persistent workspace. They carried no fork guard at all
+    # until this rewrite; they need the same one for the same reason.
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, vsk-runners-mac-mini]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
-          fetch-depth: 0 # needed for `changeset status --since=origin/main`
           persist-credentials: false
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      # Self-contained on a clean checkout: design:verify builds the gitignored token dist before
-      # checking generated design.md, the 538-item contracts, contrast, dark/marketing parity, RSC
-      # safety, and the five negative fixtures — including the route-scope, classifier, and
-      # gate-receipt ones this topology depends on.
-      - run: pnpm design:verify
-      # Workspace gates (Turborepo, package-scoped). Root-level `pnpm exec tsc/vitest` do NOT
-      # resolve the per-package tsconfig path aliases / vitest configs and fail before validating
-      # anything — always go through the package scripts.
-      - run: pnpm typecheck # turbo run typecheck — per-package `tsc --noEmit`
-      # `pnpm lint` includes verify-hooks-installed.mjs, so a tree whose hooks are missing, emptied,
-      # or unwired fails HERE. That matters more than it looks: those hooks are the only place the
-      # browser lanes run, and husky's dispatcher exits 0 silently when a committed hook is absent.
+      # ORDER MATTERS: typecheck runs `prepare:content` for @vegastack/docs, which the docs lint
+      # chain needs. `pnpm lint` ends in `turbo run lint`, and `design:verify` builds the token dist
+      # the parity and contrast checks read.
+      - run: pnpm typecheck
       - run: pnpm lint
-      # `@vegastack/design`'s tests are three plain `node test/*.mjs` files and run here.
-      # `@vegastack/ui`'s are Vitest browser mode and run in the pre-push hook — hence the filter
-      # rather than a bare `pnpm test`.
-      - run: pnpm exec turbo run test --filter=@vegastack/design
-      - name: Build private-discovery matrix
-        run: SITE_VISIBILITY=private pnpm build
-      - name: Build public-discovery matrix
-        run: SITE_VISIBILITY=public pnpm --filter @vegastack/docs build
-      - run: pnpm registry:build
-      # `registry:build` stamps THREE surfaces (registry JSON in apps/docs/public/r, the registry
-      # SOURCE in packages/ui/registry/ui, and the docs copy-in in apps/docs/components/ui). Check
-      # the FULL worktree — not just public/r — so an un-stamped copy-in, drifted source, or any
-      # other registry-build side-effect fails CI (Codex R11: public/r-only was too narrow).
-      - name: Require registry build idempotency
-        run: |
-          set -euo pipefail
-          git status --porcelain > "$RUNNER_TEMP/git-status"
-          if [ -s "$RUNNER_TEMP/git-status" ]; then
-            echo "::error title=Generated registry drift::registry:build changed the checked-out commit."
-            cat "$RUNNER_TEMP/git-status"
-            exit 1
-          fi
-      # Prove the built registry is actually CONSUMABLE end-to-end (not just hash-green): registry
-      # fetch + transitive registryDependencies + shipped-verifier integrity preflight + alias
-      # rewrite + post-write verify + tsc of the consumed output. Entirely offline — every server it
-      # needs is a 127.0.0.1 sidecar — so it is safe on a self-hosted runner. Measured at 3m45s and
-      # single-threaded, which makes it the longest lane here.
-      - run: pnpm registry:verify-consume
-      - run: pnpm exec changeset status --since=origin/main
-
-  # The browser half. Nothing here executes a browser — it verifies that something did, on a
-  # developer machine, against exactly this content.
-  #
-  # A receipt is ATTESTATION, NOT PROOF: `--no-verify` (or `HUSKY=0`) plus a hand-edited JSON defeats
-  # it. What it buys is that skipping a browser gate becomes visible and auditable instead of silent.
-  # tooling/lib/gate-receipt.mjs states this in full; do not let it be read as more than it is.
-  receipt-guard:
-    runs-on: [self-hosted, vsk-runners-mac-mini]
-    steps:
-      # Check out the BRANCH TIP, not the PR merge commit. The receipt is bound to the tree the
-      # developer actually tested and pushed; the merge commit's tree also contains whatever landed
-      # on main since, which the developer never ran the gates against. Verifying the merge result
-      # would therefore always fail for a stale branch, for a reason that is not a defect.
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-          ref: ${{ github.event.pull_request.head.sha }}
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with: { node-version: 24 }
-      # No `pnpm install`: the guard and the classifier are dependency-free Node scripts reading git
-      # and committed JSON. Keeping it that way makes this job seconds rather than minutes, and means
-      # a broken lockfile cannot mask a missing receipt.
-      - name: Verify the gate receipt covers this tree
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: |
-          set -euo pipefail
-          node tooling/classify-change.mjs --before "$BASE_SHA" --after "$HEAD_SHA"
-          node tooling/verify-gate-receipt.mjs --before "$BASE_SHA" --after "$HEAD_SHA"
+      - run: pnpm design:verify

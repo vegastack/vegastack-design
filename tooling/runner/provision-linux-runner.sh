@@ -266,7 +266,7 @@ fi
 log "Ensuring the persistent pnpm store at $PNPM_STORE_HOST_DIR"
 sudo mkdir -p "$PNPM_STORE_HOST_DIR"
 # 0755 root:root, NOT 0777. The job container declares no `user:` and no `options:` in
-# .github/workflows/verify-linux.yml, and the mcr.microsoft.com/playwright image's default user is
+# .github/workflows/ci.yml, and the mcr.microsoft.com/playwright image's default user is
 # root — so the process writing this store IS root, and root writes through a 0755 root-owned
 # directory regardless. 0777 bought nothing and gave every unprivileged local account on the box
 # write access to a directory whose contents are linked straight into a CI job's node_modules.
