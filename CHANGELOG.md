@@ -89,7 +89,9 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   (PageHeader's back affordance) instead of acquiring `role="button"`.
   [docs](https://design.vegastack.com/docs/components/icon-button)
 - **A loading Button no longer changes width.** The spinner is taken out of flow and stacked over the
-  label, which keeps its box behind `visibility: hidden`; previously a "Save changes" button jumped
+  label, which keeps its box behind `opacity-0` — not `visibility: hidden`, which would drop the
+  label out of the accessibility tree and leave a pending button with no name; previously a "Save
+  changes" button jumped
   about 20px the moment a request started.
   [docs](https://design.vegastack.com/docs/components/button)
 - **Button**, **Select**, **Sidebar**, **Toggle**, **Tabs**, **Table**, **DataGrid**, **DataList**,
