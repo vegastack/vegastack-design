@@ -1842,6 +1842,26 @@ renders inside does.
 - **Colour + size do hierarchy work:** `foreground` heading over `muted-foreground` body reads as clear levels even at one weight.
 - **Apply the type tokens** — never hand-set font-size, line-height, weight, or tracking.
 
+### Prose — one recipe, no second opinion
+
+Content the system did not author element-by-element — markdown rendered by `react-markdown`, rich text
+inside a ProseMirror contenteditable, a body of copy from a CMS — is styled by **one recipe**: `prose` /
+`proseClassName` from `@vegastack/design`. It is a class string per element (h1–h6, p, marks, ul/ol/li,
+blockquote, inline code, a bare `pre`, `hr`, GFM tables, `img`), worn as a **single class on the prose
+root**, and every surface that renders prose wears the same one. `MarkdownView` and `TextEdit` are the
+two in-tree consumers, and they render identical computed styles because they are the identical string —
+a fact a unit test measures off the resolved cascade rather than off matching class names. There is no
+`@tailwindcss/typography` dependency: the recipe is semantic tokens, so prose tracks the theme.
+
+**It is expressed as descendant variants (`[&_h1]:…`), and that is not a style preference.** Neither
+consumer can put a class on the elements: ProseMirror owns the editor's DOM and react-markdown's output
+is reachable only through an override map. It also settles a cascade trap — `[&_h1]:mt-6` compiles at
+specificity (0,1,1) and a plain `.mt-6` on the element at (0,1,0), so an element-level class silently
+**loses** to a root-level descendant rule. The two forms cannot coexist on one tree; a component-map
+override that sets a typography class is a no-op that reads like an override. Restyle prose by composing
+`prose`, never by re-entering the map. A fenced code block delegates to `CodeBlock`, whose own `pre` the
+recipe deliberately excludes so the panel is not drawn twice.
+
 ## Layout
 
 - **Spacing** uses Tailwind v4’s 4px base scale. Rhythm: 8px inside a group, 16px between groups, 32–40px between sections. Cards use 16px padding (12px compact via `size="sm"`; there is no separate "hero" size).
@@ -1922,6 +1942,16 @@ A looping animation is likewise banned with one exception: `motion-indeterminate
 of an indeterminate `Progress`, whose keyframes start and end on the same resting frame so the reset
 leaves a static 35% segment rather than a bar that reads as complete. AI surfaces define
 streaming reveal, a "thinking" pulse, and tool-progress.
+
+**An exit is never slower than its enter.** A **docked control** — a bottom action bar, a floating
+scroll-to-edge button — arrives in **150ms** on `emphasized` and leaves in **100ms** on `exit`, and it
+translates and fades but **does not scale**: scale reads as a popup, and a bar sliding off its own edge
+does not need it. That pair is the `motion-dock-in` / `motion-dock-out` utilities, which own the timing,
+the fade and the inert-while-parked guard; the travel DISTANCE stays at the call site, because it is
+per-dock geometry (a bottom bar clears its own height plus the safe-area inset; an edge button clears
+100%) and because a `translate` declaration inside the utility would clobber a horizontally-centred
+bar's composed transform. 100ms has exactly this one role, which is why it lives in the utility that
+names it rather than becoming a fifth global duration token (audit D11, amendment #7).
 
 ## Shapes
 

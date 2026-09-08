@@ -30,6 +30,7 @@ disappears entirely under OS "Reduce Motion".
 | `motion-enter-up`   | Fades in while rising 4px — "slides up into place"                                                            | `FieldError` messages, chat `Message`/`Bubble` `animateIn` (opt-in), `SkeletonReveal`, `StaggeredTextReveal` | Submit an empty required Field; the error slides up                              |
 | `motion-shake`      | A quick decaying left-right wiggle (±4px)                                                                     | `Input`, `Checkbox`, `RadioGroup`, `OTPInput` — fires automatically on becoming invalid                      | Enter a wrong OTP in the demo; the field shakes once                             |
 | `motion-flash`      | A 2px semantic accent ring expands and settles around changed content                                         | Live updates that need a brief, non-status highlight                                                         | Update a live value and apply `--vs-flash-color` for its semantic accent         |
+| `motion-dock-in` / `motion-dock-out` | A docked control slides in from its edge and fades — and leaves faster than it arrived, without scaling       | `ActionBar`, `MessageScrollerButton`                                                                                                | Select a row in the Action Bar demo, then clear the selection                    |
 | `--ease-spring`     | The bouncy arrival curve (CSS `linear()` spring) powering the pop                                             | The easing inside `motion-pop-in`; available to any `transition-*` pair                                      | It's the personality inside the pop, not a separate effect                       |
 | `AnimatedNumber`    | Numbers count smoothly up/down to their new value, locale/currency aware                                      | dashboard-01 stat cards, its own component page                                                              | Change the value in the [Animated Number](/docs/components/animated-number) demo |
 | Keyed presence      | A changed icon/label is _replaced_ by a freshly-animated one instead of mutating in place                     | copy-button, password-input, auto-save-input, split-button                                                   | The mechanism behind the pop-in sightings above                                  |
@@ -39,7 +40,7 @@ disappears entirely under OS "Reduce Motion".
 
 ## Mechanism matrix
 
-Base UI's `data-starting-style` / `data-ending-style` attributes can't express everything — three
+Base UI's `data-starting-style` / `data-ending-style` attributes can't express everything — four
 mechanisms cover the system, each with a defined home:
 
 | Mechanism                | What it's for                                                                                                                                            | How it works                                                                                                                                                                                                                                                                                                        |
@@ -47,6 +48,7 @@ mechanisms cover the system, each with a defined home:
 | **Base UI lifecycle**    | Overlays & disclosures — dialog, sheet, popover, menus, select, tooltip, hover-card, accordion, collapsible, tabs indicator                              | Plain CSS `transition-*` driven by `data-[starting-style]` / `data-[ending-style]` (+ `--transform-origin`, `--accordion-panel-height`). Interruptible by construction — a transition reverses mid-flight if state flips back.                                                                                      |
 | **Keyed presence**       | Icon/text swaps & arrivals — copy-button ✓, auto-save status, notification-bell badge, `Badge`/`Marker`/`Message`/`Bubble` `animateIn`, `SkeletonReveal` | The swapped element gets a React `key` tied to its state, so a state change **remounts** it and its `motion-*` mount animation plays once: `motion-pop-in` (scale 0.9→1 + fade, `--ease-spring`) for swaps/badges, `motion-enter-up` (fade + 4px rise) for content arrivals.                                        |
 | **Explicit replay APIs** | Effects that must re-run on demand — error **shake**, success **check draw**, **number** ticks                                                           | `useAnimationReplay` / `useShakeOnInvalid` (class-toggle + `animationend` cleanup — replays `motion-shake` without remounting, so a focused input keeps focus/caret); the lucide-animated icons' imperative `startAnimation()` handle (the check's `pathLength` draw-in lives there); `AnimatedNumber`'s rAF tween. |
+| **Docked presence**      | A control that stays mounted at a viewport edge and flips `data-active` — `ActionBar`, `MessageScrollerButton`                                                         | The `motion-dock-in` / `motion-dock-out` pair: a transition, not a keyed animation, so it reverses mid-flight. 150ms in on `emphasized`, 100ms out on `exit`, translate + fade, **no scale** — an exit is never slower than its enter. The utilities own the timing, the fade and the parked `pointer-events: none`; the travel distance stays at the call site, because it is per-dock geometry and a `translate` inside the utility would clobber a centred bar's composed transform. |
 
 `Field` shakes once when it _transitions_ into invalid, taking every control it wraps with it —
 the motion belongs to the field, not to the individual control, so `Input`, `Textarea`, `Checkbox`,
@@ -57,7 +59,9 @@ so it mounts fresh on every new error.
 ## Sanctioned utilities
 
 `motion-pop-in`, `motion-enter-up`, `motion-shake`, `motion-flash` (from `@vegastack/design-tokens/utilities.css`) are the
-only mount-animation classes; everything else is a `transition-*` + token pair. Raw motion values —
+only mount-animation classes, and `motion-dock-in` / `motion-dock-out` — from the same file — are the
+one sanctioned _transition_ pair, for a docked control that stays mounted and flips `data-active`;
+everything else is a `transition-*` + token pair. Raw motion values —
 `animate-[…]`, `cubic-bezier(…)`, `linear(…)`, `duration-[…]`, `ease-[…]` — are lint-banned
 (`raw-motion`); every `transition-*` must carry `duration-*` **and** `ease-*` in the same class
 string (`transition-pairing`).

@@ -68,7 +68,9 @@ Always use the utility, never a raw value.
 | Type     | `text-{xs…3xl}` · `text-h1…h4` · `text-label` · `text-mono-label` · `text-display-{sm,md,lg,xl}` |
 | Font     | `font-sans` `font-mono` `font-serif`                                                             |
 | Motion   | `duration-{fast,base,slow}` paired with `ease-{standard,emphasized,exit,spring}`                 |
-| Entrance | `motion-pop-in` `motion-enter-up` `motion-shake`                                                 |
+| Entrance | `motion-pop-in` `motion-enter-up` `motion-shake` `motion-flash`                                  |
+| Docked   | `motion-dock-in` / `motion-dock-out` — a control parked at a viewport edge, 150ms in / 100ms out |
+| Prose    | `proseClassName` from `@vegastack/design` — the whole rendered-rich-text recipe, one class       |
 
 **Hover and pressed come from a recipe, never a literal.** Import the two class strings rather than
 writing `hover:bg-*` by hand — that is how a control gets both steps and stays on the ladder:
@@ -86,6 +88,23 @@ import { cn, surfaceInteractive, fillInteractive } from "@vegastack/design";
 ```
 
 A **solid** fill uses neither — it steps through its own darker `-hover` / `-active` tokens.
+
+**Rendered rich text comes from a recipe too.** Anything the system did not author element by element
+— markdown, a contenteditable, CMS copy — wears one class on its root:
+
+```tsx
+import { cn, proseClassName } from "@vegastack/design";
+
+<div
+  className={cn(proseClassName, className)}
+  dangerouslySetInnerHTML={html}
+/>;
+```
+
+`MarkdownView` and `TextEdit` both wear it, so they render identical typography. It is expressed as
+descendant rules (`[&_h1]:…`), which means an element-level class on a child **loses** to it
+(specificity (0,1,0) against (0,1,1)) — restyle by composing `prose` (the per-element record), never
+by setting a class on the rendered element.
 
 `secondary`, `muted`, `accent` and the `sidebar-*` family are **aliases** of ladder rungs
 (`secondary` = `muted` = `surface-1`, `accent` = `sidebar-accent` = `surface-2`, `sidebar` = `card`).

@@ -115,6 +115,22 @@ data-slot="icon-button">`. The literal follows the spread, so `IconButton` overw
 
 ---
 
+## 2026-09-08 — TextEdit lit every link in the document when the editor was hovered
+
+- **Symptom.** Hovering anywhere inside a `TextEdit` surface dimmed **every** link in the edited
+  document to the hover ink at once, instead of the one under the pointer. Found while extracting the
+  shared prose recipe (audit B4-09), not reported.
+- **Root cause: the variants were in the wrong order.** `text-edit.tsx` wrote
+  `hover:[&_a]:text-info-text/(--alpha-link-hover)`, which Tailwind compiles to `.editor:hover a` —
+  "when the EDITOR is hovered, every descendant `a`". The intended rule is `[&_a]:hover:…` →
+  `.editor a:hover`. `MarkdownView` never had the bug, because it set the hover on the element
+  itself; that the two sides of one recipe disagreed is exactly what B4-09 predicted.
+- **Fix.** The shared `prose` recipe in `@vegastack/design` states it once, as
+  `[&_a]:hover:text-info-text/(--alpha-link-hover)`, and both surfaces wear the same string. A unit
+  test compares the two surfaces' **computed** styles rather than their class names, so the next
+  divergence of this kind fails a gate instead of being read past.
+- **Class:** silent visual defect, pre-existing since the editor shipped. Not caught by any lint: the
+  variant order is legal Tailwind and both orders compile.
 
 ## 2026-09-08 — The `relative-time` 320px contract fails nondeterministically under the full sweep
 

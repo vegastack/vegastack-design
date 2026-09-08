@@ -47,8 +47,11 @@ remote images send no referrer:
 
 ### Default
 
-Headings, paragraphs, inline code, links, lists, and blockquotes — styled with
-semantic tokens (no `@tailwindcss/typography` dependency).
+Headings, paragraphs, inline code, links, lists, and blockquotes — styled by the
+shared `prose` recipe from `@vegastack/design`, worn as one class on the root (no
+`@tailwindcss/typography` dependency). [`TextEdit`](/docs/components/text-edit)
+wears the same string, so rendered markdown and edited rich text are the same
+typography rather than two that agree by review.
 
 <ComponentPreview
   name="markdownView"
