@@ -2427,7 +2427,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.6.0",
-        "integrity": "sha256-boJzOSRGDoOtlgHMEXY+LDuL4iQZOSid15HiujC5aaY="
+        "integrity": "sha256-JFfko0tyBmuo+CCI9uBOAEaTwqWTmK8Q2WsgdvbMSjQ="
       }
     },
     {
@@ -3276,6 +3276,7 @@
         "rich-text"
       ],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "@tiptap/react@^3",
         "@tiptap/starter-kit@^3",
         "@tiptap/pm@^3",
@@ -3297,7 +3298,7 @@
         "whenToUse": "Short-to-medium rich text — comments, descriptions, release notes — via controlled HTML.",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.6.0",
-        "integrity": "sha256-2HjCjd+o5bwsA7dgt+L7dDne98B0s2OitgF2VQX5Pds="
+        "integrity": "sha256-biPOpS2Lo2uXZ6+ExAKW5WjErggxQVg0bXLDTpoulpU="
       }
     },
     {

@@ -3126,6 +3126,7 @@
         "rich-text"
       ],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "@tiptap/react@^3",
         "@tiptap/starter-kit@^3",
         "@tiptap/pm@^3",
