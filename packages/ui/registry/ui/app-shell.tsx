@@ -114,7 +114,7 @@ export function AppShell({
       <a
         href="#main-content"
         data-slot="app-shell-skip-link"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:start-2 focus:z-(--z-overlay) focus:rounded-md focus:border focus:border-border focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-foreground focus:shadow-overlay focus-visible:outline-ring"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:start-2 focus:z-(--z-overlay) focus:rounded-md focus:border focus:border-border focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-foreground focus:shadow-overlay"
       >
         {skipLinkLabel}
       </a>
@@ -216,7 +216,9 @@ export function AppShellHeader({
 }
 
 /** Props accepted by `AppShellContent`. */
-export interface AppShellContentProps extends React.ComponentProps<"main"> {
+// Typed off `div`, not `main`: `landmark` decides which of the two is actually rendered, and a
+// `div` ref narrows to either element while a `main` (HTMLElement) ref does not.
+export interface AppShellContentProps extends React.ComponentProps<"div"> {
   /**
    * Panel treatment mirroring the sibling `Sidebar`/`AppShellSidebar`'s `variant` — pass the SAME
    * value on both so the shell reads as one consistent layout. Applied directly as a prop here
@@ -224,6 +226,19 @@ export interface AppShellContentProps extends React.ComponentProps<"main"> {
    * @default 'sidebar'
    */
   variant?: "sidebar" | "floating" | "inset";
+  /**
+   * Which landmark this region claims. `main` (the default) is what a real application wants —
+   * one `<main>` per document, and the skip link's target.
+   *
+   * `region` renders a `<div role="region">` instead, for the case where the shell is EMBEDDED in
+   * a page that already owns a `<main>`: a docs preview, a design gallery, a shell shown inside a
+   * larger document. Two `<main>` elements in one document is a real defect (axe
+   * `landmark-no-duplicate-main`), and it was one this system's own showcase kept hitting. A
+   * `region` needs an accessible name to be exposed as a landmark at all, so pass `aria-label`
+   * with it; without one it is simply a plain container, which is also a correct outcome here.
+   * @default 'main'
+   */
+  landmark?: "main" | "region";
 }
 
 /**
@@ -270,12 +285,17 @@ export interface AppShellContentProps extends React.ComponentProps<"main"> {
 export function AppShellContent({
   className,
   variant = "sidebar",
+  landmark = "main",
   ...props
 }: AppShellContentProps) {
+  const Element = landmark === "main" ? "main" : "div";
   return (
-    <main
+    <Element
+      // The skip-link target moves with the region either way; `tabIndex={-1}` keeps it
+      // programmatically focusable without joining the Tab order.
       id="main-content"
       tabIndex={-1}
+      role={landmark === "region" ? "region" : undefined}
       data-slot="app-shell-content"
       data-variant={variant}
       className={cn(

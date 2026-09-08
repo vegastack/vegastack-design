@@ -57,6 +57,37 @@ export function ScrollBar({
   );
 }
 
+/**
+ * Internal hook: report whether `node` can actually scroll on either axis.
+ *
+ * A scroll region has to be keyboard-reachable — arrow keys need somewhere to land — but only
+ * once there is something to scroll. An unconditional `tabIndex={0}` puts a tab stop in every
+ * ScrollArea whose content happens to fit, which is a stop that announces nothing and does
+ * nothing (B6-06, TD-4). Measured on mount and on resize of the viewport AND its element
+ * children, so content that grows into overflow flips the stop back on.
+ *
+ * The same measurement in text form is `useOverflow` in `truncated-text.tsx`; this one watches
+ * BOTH axes (a viewport can scroll either way) and is kept local rather than imported, because
+ * that module carries a Tooltip disclosure every ScrollArea consumer would then pay for.
+ */
+function useScrollable(node: HTMLElement | null): boolean {
+  const [scrollable, setScrollable] = React.useState(false);
+  React.useEffect(() => {
+    if (!node) return;
+    const check = () =>
+      setScrollable(
+        node.scrollHeight > node.clientHeight + 1 ||
+          node.scrollWidth > node.clientWidth + 1,
+      );
+    check();
+    const observer = new ResizeObserver(check);
+    observer.observe(node);
+    for (const child of Array.from(node.children)) observer.observe(child);
+    return () => observer.disconnect();
+  }, [node]);
+  return scrollable;
+}
+
 /** Props for the scroll viewport and its generated scrollbar axes. */
 export interface ScrollAreaProps extends React.ComponentProps<
   typeof BaseScrollArea.Root
@@ -102,6 +133,8 @@ export function ScrollArea({
   "aria-labelledby": ariaLabelledBy,
   ...props
 }: ScrollAreaProps) {
+  const [viewport, setViewport] = React.useState<HTMLDivElement | null>(null);
+  const scrollable = useScrollable(viewport);
   return (
     <BaseScrollArea.Root
       data-slot="scroll-area"
@@ -109,11 +142,16 @@ export function ScrollArea({
       {...props}
     >
       <BaseScrollArea.Viewport
+        ref={setViewport}
         data-slot="scroll-area-viewport"
-        tabIndex={0}
+        // A tab stop only once there is something to scroll (B6-06/TD-4), and the ring turns
+        // INWARD because the Root clips (`overflow-hidden`), which used to eat an outward-offset
+        // outline on every one of these viewports (SP-03).
+        tabIndex={scrollable ? 0 : undefined}
+        data-scrollable={scrollable ? "" : undefined}
         aria-label={ariaLabel}
         aria-labelledby={ariaLabelledBy}
-        className="size-full overscroll-contain rounded-[inherit]"
+        className="size-full overscroll-contain rounded-[inherit] focus-visible:-outline-offset-2"
       >
         {children}
       </BaseScrollArea.Viewport>

@@ -103,7 +103,7 @@ export function appShellDemo(): ReactNode {
               </BreadcrumbList>
             </Breadcrumb>
           </AppShellHeader>
-          <AppShellContent>
+          <AppShellContent landmark="region" aria-label="Page content">
             <div className="grid grid-cols-1 gap-4 p-4 @sm/app-shell-content:grid-cols-2 @lg/app-shell-content:grid-cols-4">
               {STAT_CARDS.map((label) => (
                 <div
@@ -154,7 +154,11 @@ export function appShellInset(): ReactNode {
               Dashboard
             </span>
           </AppShellHeader>
-          <AppShellContent variant="inset">
+          <AppShellContent
+            variant="inset"
+            landmark="region"
+            aria-label="Page content"
+          >
             <p className="p-4 text-base text-muted-foreground">
               The content region is the rounded panel — pass the same{" "}
               <code>variant</code> to both <code>AppShellSidebar</code> and{" "}
@@ -199,7 +203,7 @@ export function appShellFloating(): ReactNode {
               Dashboard
             </span>
           </AppShellHeader>
-          <AppShellContent>
+          <AppShellContent landmark="region" aria-label="Page content">
             <p className="p-4 text-base text-muted-foreground">
               <code>floating</code> styles the rail itself — the content region
               needs no matching
@@ -258,7 +262,7 @@ export function appShellMobile(): ReactNode {
               Mobile dashboard
             </span>
           </AppShellHeader>
-          <AppShellContent>
+          <AppShellContent landmark="region" aria-label="Page content">
             <p className="p-4 text-base text-muted-foreground">
               Use the menu trigger to open navigation over this content.
             </p>

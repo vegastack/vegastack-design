@@ -464,7 +464,7 @@ export function sidebarInset(): ReactNode {
           </SidebarContent>
           <SidebarRail />
         </Sidebar>
-        <SidebarInset>
+        <SidebarInset landmark="region" aria-label="Page content">
           <div className="p-4 text-base text-muted-foreground">
             Page content sits in the rounded inset panel; drag the thin edge
             strip (<code>SidebarRail</code>) or use the trigger to collapse the

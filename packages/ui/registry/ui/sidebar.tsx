@@ -863,7 +863,23 @@ export function SidebarRail({ className, ...props }: SidebarRailProps) {
 }
 
 /** Props accepted by `SidebarInset`. */
-export interface SidebarInsetProps extends React.ComponentProps<"main"> {}
+// Typed off `div`, not `main`: `landmark` decides which of the two is actually rendered, and a
+// `div` ref narrows to either element while a `main` (HTMLElement) ref does not.
+export interface SidebarInsetProps extends React.ComponentProps<"div"> {
+  /**
+   * Which landmark this region claims. `main` (the default) is what a real application wants —
+   * one `<main>` per document.
+   *
+   * `region` renders a `<div role="region">` instead, for the case where the shell is EMBEDDED in
+   * a page that already owns a `<main>`: a docs preview, a design gallery, a shell shown inside a
+   * larger document. Two `<main>` elements in one document is a real defect (axe
+   * `landmark-no-duplicate-main`). A `region` needs an accessible name to be exposed as a landmark
+   * at all, so pass `aria-label` with it; without one it is simply a plain container, which is
+   * also a correct outcome here. Mirrors `AppShellContent`'s prop of the same name.
+   * @default 'main'
+   */
+  landmark?: "main" | "region";
+}
 
 /**
  * `SidebarInset` — the main-content wrapper to render as `Sidebar`'s sibling when using
@@ -880,9 +896,15 @@ export interface SidebarInsetProps extends React.ComponentProps<"main"> {}
  *   <SidebarInset>…page content…</SidebarInset>
  * </SidebarProvider>
  */
-export function SidebarInset({ className, ...props }: SidebarInsetProps) {
+export function SidebarInset({
+  className,
+  landmark = "main",
+  ...props
+}: SidebarInsetProps) {
+  const Element = landmark === "main" ? "main" : "div";
   return (
-    <main
+    <Element
+      role={landmark === "region" ? "region" : undefined}
       data-slot="sidebar-inset"
       className={cn(
         "relative flex min-h-svh w-full flex-1 flex-col bg-background",
