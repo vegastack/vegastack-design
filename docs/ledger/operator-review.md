@@ -600,6 +600,49 @@ idempotency check would fail after anyone ran the formatter.
 
 ---
 
+## 2026-09-08 — N1 navigation/layout judgment calls
+
+**1. The selected chip's track is `surface-1`, not `surface-2` — and the chip is the ALPHA rung.**
+
+- **Options:** (a) the batch brief's parenthetical — muted track → `surface-2`, raised chip →
+  opaque `surface-3`; (b) track → `surface-1` (the ladder's well rung), chip → the pressed/selected
+  rung in its **alpha** form, `bg-foreground/(--alpha-ink-tint)`.
+- **Why (b):** `design.md` §Surfaces names the "tab-list rail" as `surface-1` in so many words, and
+  it outranks a brief in the truth hierarchy. (a) also breaks in two places on contact: a track at
+  `surface-2` IS the hover rung, so an unselected chip hovering onto it would be invisible, and its
+  pressed rung would be indistinguishable from selected. Separately, an opaque `surface-3` chip has
+  no rung left above it — and this batch's whole fix-round item is that a SELECTED chip must still
+  hover and still press. The alpha form has that headroom by construction
+  (`--alpha-ink-tint` → `-strong` on hover → back on press), it is the form §Surfaces explicitly
+  hands to "a chip on a well", and it is what F1 had already landed on `Toggle` — so adopting it
+  made Toggle's existing look the shared recipe rather than a fifth variant of it.
+- **Needs MK:** confirm the visual read. In light theme the chip is now one step DARKER than its
+  track rather than a white plate on grey — that is the direction F1's ladder mandates ("selected is
+  the pressed rung"), but it is a visible change to Tabs `pill`, Tabs `chip` and `Segmented`, and
+  the before/after belongs in the wave's pixel review.
+
+**2. `useScrollable` is local to `scroll-area.tsx` rather than shared from `truncated-text.tsx`.**
+
+- **Options:** (a) export `useOverflow` from `truncated-text.tsx` and consume it, as the issue text
+  suggests; (b) create a new `use-overflow` registry hook item; (c) a local hook in `scroll-area.tsx`.
+- **Why (c):** (a) makes every ScrollArea consumer install `@vegastack/truncated-text` and, through
+  it, `@vegastack/tooltip` — the exact weight `sidebar.tsx` already refuses to take on for the same
+  reason, in a comment. (b) is T1's call, not N1's: the T1 issue (#38) names the same extraction, so
+  creating the registry item here would collide with a sibling batch and move the 556-item count
+  under two owners. The measurement also differs — `useOverflow` watches ONE axis for clipped text;
+  a viewport can scroll either way. Board's column viewports are `ScrollArea`s, so they inherit the
+  fix without any sharing at all; only `MessageScroller` keeps its own viewport, and it needed the
+  inset ring, not the tab-stop rule.
+- **Revisit:** when T1 lands a shared hook, `useScrollable` should collapse into it.
+
+**3. B6-11's "segmented has no sizes/disabled/icon fixture" was already stale.**
+
+- The preview at `apps/docs/components/preview/segmented.tsx` already renders both sizes, a disabled
+  segment and both icon+label and icon-only forms. Nothing was added there; the finding was written
+  against an earlier tree. Recorded rather than silently skipped.
+
+---
+
 ## 2026-09-07 — Fo1 forms: five calls the issue did not settle
 
 - **`fieldControl` is a class STRING in `@vegastack/design`, not a `cva` exported from `input.tsx`.**

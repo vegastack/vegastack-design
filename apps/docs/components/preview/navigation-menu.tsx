@@ -73,3 +73,45 @@ export function navigationMenu(): ReactNode {
     </Wrapper>
   );
 }
+
+// Constrained to a phone-ish width: the shared panel takes the positioner's
+// width below `sm`, so the mega-menu grid collapses to a single stacked column
+// instead of overflowing the viewport. One trigger keeps the narrow nav row
+// from wrapping.
+export function navigationMenuMobile(): ReactNode {
+  return (
+    <Wrapper className="min-h-72 items-start justify-center pt-4">
+      <div className="w-full max-w-xs">
+        <NavigationMenu aria-label="Example narrow site navigation">
+          <NavigationMenuList>
+            <NavigationMenuItem>
+              <NavigationMenuTrigger>Platform</NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <div className="flex w-full flex-col gap-1">
+                  <NavigationMenuGridLink
+                    href="#nav-mobile-ai"
+                    title="Ask AI"
+                    description="Search and create with AI"
+                    icon={<Sparkles />}
+                  />
+                  <NavigationMenuGridLink
+                    href="#nav-mobile-data"
+                    title="Data model"
+                    description="Sync and enrich your data"
+                    icon={<Database />}
+                  />
+                </div>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink href="#nav-mobile-pricing">
+                Pricing
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+          <NavigationMenuPanel />
+        </NavigationMenu>
+      </div>
+    </Wrapper>
+  );
+}

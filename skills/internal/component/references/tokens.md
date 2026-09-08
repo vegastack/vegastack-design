@@ -56,6 +56,25 @@ neither — it owns darker `-hover`/`-active` steps already; a soft fill steps t
 **Every control needs a pressed step.** Hover moves one rung, pressing moves one more; a hover wash
 is inset ≥4px from any container hairline and inherits the container's inner radius.
 
+**A "raised chip on a muted track" has its own recipe — do not hand-roll a fifth one.**
+`selectedChipVariants` is the single formula behind Tabs `pill`/`chip`, `Segmented`, and pressed
+`Toggle`/`ToggleGroup`:
+
+```tsx
+import { cn, selectedChipVariants } from "@vegastack/design";
+
+selectedChipVariants.track; // "bg-surface-1" — the well the chips sit in
+selectedChipVariants.item; // reserved transparent hairline + the muted→ink text step
+selectedChipVariants.pressed; // the state rules keyed on Base UI's `data-pressed`
+selectedChipVariants.active; // …and the same rules keyed on `data-active` (Tabs)
+```
+
+The chip is the pressed/selected rung in its ALPHA form, because the backdrop is a well — and
+because that is the only form with anywhere left to climb: a SELECTED chip must still hover
+(`--alpha-ink-tint-strong`) and still press (back to the resting tint). Never guard the selected
+state out of hover/press with `not-data-pressed:` / `not-data-[active]:`; that is the defect this
+recipe exists to prevent, not a pattern.
+
 ### The rest
 
 `bg-primary` / `text-muted-foreground` / `border-border` / per-family

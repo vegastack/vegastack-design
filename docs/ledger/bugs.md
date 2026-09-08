@@ -300,6 +300,37 @@ pointer targets` — `mobile-chromium-dark` only, 879/880 passing, with all five
   examples that define their own variables. Like every other gate here it needs a negative fixture —
   a file naming a nonexistent token, proving the lint fails — or it is an assumption.
 
+---
+
+## 2026-09-08 — N1: three defects the audit findings understated
+
+- **A selected chip was excluded from hover AND press, in two components.** `segmented.tsx` and
+  `tabs.tsx` guarded their state rules with `not-data-pressed:` / `not-data-[active]:`, so the
+  SELECTED chip had rest == hover == active. The audit filed this under B6-02 as "three overlapping
+  recipes" (a bloat finding); the interaction consequence is the sharper one — the control a user
+  is most likely to click was the only one in the group that answered nothing. **Root cause:** the
+  exclusion was written to stop the unselected hover from painting over the selected fill, which is
+  a specificity worry, not a design intent. **Fix:** the shared recipe gives the selected state its
+  OWN hover and pressed rules keyed on the same attribute, so the two sets are mutually exclusive
+  and never race — and expresses the chip as an alpha so there is a rung above it to move to.
+
+- **`AppShellContent`'s and `SidebarInset`'s props were typed off `main`, which blocks the landmark
+  escape.** Adding `landmark="region"` means the rendered tag becomes `main | div`, and
+  `React.ComponentProps<"main">` carries `Ref<HTMLElement>` — not assignable to a `div`'s
+  `Ref<HTMLDivElement>` (the reverse direction is fine). Typecheck caught it. **Fix:** both prop
+  interfaces are typed off `div`, which narrows to either element. Worth knowing for any other
+  component that grows a variable tag: type the props off the NARROWER element.
+
+- **The browser-unit suite cannot assert compiled geometry, and it is easy to forget.** The first
+  draft of the SP-02 tab-rail test measured `getBoundingClientRect()` gaps. `packages/ui/vitest.config.ts`
+  says it plainly — only `test/contrast.css` is compiled, "other test files import no CSS" — so
+  `mb-1` would never have applied and the assertion would have measured an unstyled element. **Fix:**
+  the class rules are asserted in the unit suite; the MEASURED gap went into
+  `apps/docs/vrt/contracts.spec.ts`, which runs against the docs page's real built CSS. Any geometry
+  assertion belongs in the contract lane, not the unit lane.
+
+---
+
 ## 2026-09-07 — 439 reduced-motion effects with no dependency array, and a reduced-motion assertion that could not fail
 
 Two defects in the same contract, found while replacing the per-icon controllers with one factory

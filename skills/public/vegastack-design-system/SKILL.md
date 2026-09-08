@@ -106,6 +106,27 @@ descendant rules (`[&_h1]:…`), which means an element-level class on a child *
 (specificity (0,1,0) against (0,1,1)) — restyle by composing `prose` (the per-element record), never
 by setting a class on the rendered element.
 
+**A selected chip on a muted track has a third recipe.** If you are building a view switcher, a
+segmented control or chip-shaped tabs of your own, take `selectedChipVariants` rather than inventing
+a selected look — it is the same formula `Tabs`, `Segmented` and `Toggle` use:
+
+```tsx
+import { cn, selectedChipVariants } from "@vegastack/design";
+
+<div className={cn("rounded-md p-0.5", selectedChipVariants.track)}>
+  <Toggle
+    className={cn(
+      "rounded-sm",
+      selectedChipVariants.item,
+      selectedChipVariants.pressed,
+    )}
+  />
+</div>;
+```
+
+Use `.pressed` for a control whose selected state is Base UI's `data-pressed` and `.active` for one
+using `data-active`. The selected chip keeps its own hover and pressed steps — never guard them off.
+
 `secondary`, `muted`, `accent` and the `sidebar-*` family are **aliases** of ladder rungs
 (`secondary` = `muted` = `surface-1`, `accent` = `sidebar-accent` = `surface-2`, `sidebar` = `card`).
 They still compile; name the rung in new code.
