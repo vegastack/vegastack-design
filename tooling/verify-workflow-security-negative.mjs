@@ -112,12 +112,72 @@ const CASES = [
       source.replace(/^ {4}container:\n(?: {6}.*\n| *\n)*/m, ""),
     expect: /must declare the pinned Playwright\s+container/,
   },
+  // ---------------------------------------------------------------- flow-style STEPS
+  // The job-level flow-style case above proved the gate discovers jobs structurally. These prove the
+  // same for the three rules that walk STEPS. Each was regex-over-text until 2026-09-09 — `uses:`
+  // matched by a line pattern, checkout steps carved out by an indentation-based `stepBlocks()`, run
+  // bodies reassembled by `runScriptLines()` — and each therefore passed a step written in flow
+  // style. All three are applied to BOTH a mac-mini workflow and the container workflow, because the
+  // two travel different paths through the gate and only one of them was ever exercised.
+  ...["ci.yml", "verify-linux.yml"].flatMap((file) => [
+    {
+      id: `an UNPINNED action smuggled in as a flow-style step (${file})`,
+      file,
+      mutateAfter: (source) =>
+        `${source.trimEnd()}\n      - {uses: "evil/backdoor@main"}\n`,
+      expect: /not pinned to a full commit SHA/,
+    },
+    {
+      id: `a flow-style checkout that PERSISTS its credential (${file})`,
+      file,
+      // Placed IMMEDIATELY AFTER a compliant checkout, which is where the old text-based
+      // `stepBlocks()` was genuinely blind: it carved blocks by indentation, so a flow-style step
+      // was absorbed into the PRECEDING block — and that block already contained
+      // `persist-credentials: false`, satisfying the assertion on the attacker's behalf. Appended at
+      // the end of the file the same mutation was caught, but by the wrong step's text, which is
+      // luck rather than coverage.
+      mutateAfter: (source) =>
+        source.replace(
+          "          persist-credentials: false\n",
+          '          persist-credentials: false\n      - {uses: "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803"}\n',
+        ),
+      expect: /checkout persists a token/,
+    },
+    {
+      id: `an expression interpolated into a flow-style run: body (${file})`,
+      file,
+      mutateAfter: (source) =>
+        `${source.trimEnd()}\n` +
+        '      - {run: "echo ${{ github.event.pull_request.title }}"}\n',
+      expect: /interpolated directly into a run: script/,
+    },
+  ]),
+  // ---------------------------------------------------------------- fork guard, exactly
+  // `.includes()` is not a guard. Both of these CONTAIN the guard verbatim and evaluate to true for
+  // every fork pull request, so a substring test documented the protection and disabled it in the
+  // same line. The gate now compares the normalised expression for equality.
+  {
+    id: "the fork guard neutralised with `|| true`",
+    file: "verify-linux.yml",
+    find: "    if: github.event.pull_request.head.repo.full_name == github.repository\n",
+    replace:
+      "    if: github.event.pull_request.head.repo.full_name == github.repository || true\n",
+    expect: /is not exactly the fork/,
+  },
+  {
+    id: "the fork guard INVERTED and neutralised — `!(…) || true`",
+    file: "verify-linux.yml",
+    find: "    if: github.event.pull_request.head.repo.full_name == github.repository\n",
+    replace:
+      "    if: ${{ !(github.event.pull_request.head.repo.full_name == github.repository) || true }}\n",
+    expect: /is not exactly the fork/,
+  },
   {
     id: "the fork guard removed from the Linux browser job",
     file: "verify-linux.yml",
     find: "    if: github.event.pull_request.head.repo.full_name == github.repository\n",
     replace: "",
-    expect: /not guarded against fork pull\s+requests/,
+    expect: /is not exactly the fork.*got `\(no if:\)`/s,
   },
   {
     id: "the container job losing its bash default (sh cannot do `set -o pipefail`)",
@@ -335,9 +395,11 @@ if (failures > 0) {
   process.exit(1);
 }
 console.log(
-  `\n✓ workflow-security-negative: all ${CASES.length} mutations rejected — flow-style job ` +
-    `discovery, the container ban and its single pinned-image exception (required, not merely ` +
-    `permitted), the fork guard on the LAN runners, the runner ` +
+  `\n✓ workflow-security-negative: all ${CASES.length} mutations rejected — flow-style job AND STEP ` +
+    `discovery (unpinned action, credential-persisting checkout, and run-body interpolation, each ` +
+    `written in flow style, in two workflows), the container ban and its single pinned-image ` +
+    `exception (required, not merely permitted), the fork guard on the LAN runners — required ` +
+    `EXACTLY, so \`|| true\` and \`!(…) || true\` are both rejected — the runner ` +
     `allowlist (all three directions), receipt-guard presence and wiring, shell injection, credential ` +
     `persistence, token scope, pull_request_target, stray OIDC, publish dependencies, and the ` +
     `unconditional production-boundary chain`,

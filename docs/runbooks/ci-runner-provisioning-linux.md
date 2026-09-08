@@ -78,15 +78,33 @@ remote shell. Pipe it instead. The script accepts the token **only** from `$RUNN
 env equivalent of `--token`). There is no `--token` flag any more; passing one is refused with an
 explanatory error.
 
+**The Playwright image tag is never typed, on either machine.** `pnpm-lock.yaml` is its only
+authority — `tooling/verify-workflow-security.mjs` pins the workflow's `container.image` to the
+`playwright` version resolved there, and refuses a literal tag anywhere under `tooling/runner/` or
+`docs/runbooks/`. Read it out of the repo you are standing in and hand it to the box:
+
 ```bash
+# 0. The tag, derived. Every occurrence is read and they must agree (a pnpm lockfile names the
+#    package under both `packages:` and `snapshots:`); two versions means there is no single
+#    correct image, and both the script and the gate stop rather than guess.
+PW=$(sed -n 's/^  playwright@\(.*\):$/\1/p' pnpm-lock.yaml | sort -u)
+[ "$(printf '%s\n' "$PW" | wc -l)" -eq 1 ] || echo "lockfile resolves more than one playwright"
+# equivalently: PW=$(node -p "/^  playwright@(.*):$/m.exec(require('fs').readFileSync('pnpm-lock.yaml','utf8'))[1]")
+
 # 1. Copy the script to the box.
 scp tooling/runner/provision-linux-runner.sh <box>:/tmp/provision-linux-runner.sh
 
 # 2. Mint a registration token (valid ONE HOUR, one per box) and pipe it straight to the box.
-#    --prepull-image fetches the Playwright container now (~2 GB) so the first CI run does not.
+#    --prepull-image fetches the Playwright container now (~2 GB) so the first CI run does not;
+#    without a version it is REFUSED rather than pulling a guessed tag.
 gh api -X POST repos/VegaStack/vegastack-design/actions/runners/registration-token --jq .token \
-  | ssh <box> 'RUNNER_TOKEN=$(cat) bash /tmp/provision-linux-runner.sh --prepull-image'
+  | ssh <box> "PLAYWRIGHT_VERSION=$PW RUNNER_TOKEN=\$(cat) \
+      bash /tmp/provision-linux-runner.sh --prepull-image"
 ```
+
+`$PW` is expanded locally (it is a version string, not a secret); `\$(cat)` is escaped so the
+**remote** shell reads the token from the ssh channel's stdin. Running from a clone of this repo on
+the box needs neither — the script finds `pnpm-lock.yaml` next to itself and derives the tag.
 
 The single quotes matter: `$(cat)` must be evaluated by the **remote** shell, which reads the token
 from the ssh channel's stdin. If you are already on the box:
@@ -100,7 +118,9 @@ What it does, in order: install Docker CE from Docker's apt repo (suite pinned t
 codename from `/etc/os-release`, not `lsb_release`) → enable `docker` → add the user to the `docker`
 group → create the persistent pnpm store → download and SHA-256-verify the runner tarball →
 `config.sh --unattended --replace --labels self-hosted,linux,vsk-runner --name <hostname>` →
-`svc.sh install <user>` + `start` → print a health summary.
+`svc.sh install $(id -un)` + `start` → print a health summary. A service that is already installed
+is stopped and uninstalled first, and **a failure there aborts** — installing over a listener that
+refused to stop would leave two runners sharing one directory.
 
 ## Health check
 
@@ -114,13 +134,17 @@ On the box itself:
 
 ```bash
 ssh <box> 'cd ~/actions-runner && sudo ./svc.sh status'   # svc.sh MUST run from the runner root
-ssh <box> 'sudo docker run --rm mcr.microsoft.com/playwright:v1.61.0-noble node -v'
+ssh <box> "sudo docker run --rm mcr.microsoft.com/playwright:v$PW-noble node -v"   # $PW from step 0
 ```
 
 ## The persistent pnpm store
 
-`/opt/vsk-runner/pnpm-store` on the host, created 0777 by the script and bind-mounted into the job
-container as `/pnpm-store` via `container.volumes` in the workflow. The job then runs
+`/opt/vsk-runner/pnpm-store` on the host, created **0755 root:root** by the script and bind-mounted
+into the job container as `/pnpm-store` via `container.volumes` in the workflow. Root-owned and not
+world-writable is sufficient because the job container declares no `user:` and no `options:`, and
+the `mcr.microsoft.com/playwright` image's default user is root — the process writing the store _is_
+root. It was 0777 until 2026-09-09, which gave every unprivileged local account on the box write
+access to a directory whose contents are linked straight into a CI job's `node_modules`. The job then runs
 `pnpm install --frozen-lockfile --store-dir /pnpm-store`, so the install links from the store instead
 of re-downloading the graph into a throwaway container.
 

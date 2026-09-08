@@ -177,36 +177,48 @@ const FORK_GUARD =
   "github.event.pull_request.head.repo.full_name == github.repository";
 
 /**
- * Yield every line that ends up inside a `run:` script — both the inline form (`run: echo hi`) and
- * the block-scalar form (`run: |` followed by an indented body, optionally introduced by `- `).
- * Line-based rather than one regex: the list-item form (`- run: |`) shifts the body indent relative
- * to the `run:` key, which a single pattern silently failed to match — so the rule reported clean.
+ * Every step of one job, as parsed YAML.
+ *
+ * STRUCTURAL, for the same reason `workflowJobs` is. The three checks that walk steps — action
+ * SHA-pinning, `persist-credentials: false` on checkout, and `${{ }}` interpolated into a `run:`
+ * body — all used to read the raw text: `uses:` was matched by a line regex, checkout steps were
+ * carved out by an indentation-based `stepBlocks()`, and run bodies were reassembled by
+ * `runScriptLines()`. All three were blind to flow style, so
+ * `steps: [{uses: "evil/backdoor@main"}]`, a flow-style checkout with no `persist-credentials`, and
+ * `steps: [{run: "echo ${{ github.event.pull_request.title }}"}]` each passed the gate untouched.
+ * YAML has one meaning; the parser is the only thing that knows it.
  */
-function runScriptLines(source) {
-  const out = [];
-  const lines = source.split("\n");
-  for (let i = 0; i < lines.length; i++) {
-    const match = /^(\s*)(-\s+)?run:\s*(\|[-+]?|>[-+]?)?[ \t]*(.*)$/.exec(
-      lines[i],
+function jobSteps(workflow, job, body) {
+  const steps = body.steps;
+  if (steps === undefined) return [];
+  assert.ok(
+    Array.isArray(steps),
+    `${workflow}: job ${job} has a \`steps\` key that is not a list`,
+  );
+  return steps.map((step, index) => {
+    assert.ok(
+      step && typeof step === "object" && !Array.isArray(step),
+      `${workflow}: job ${job} step ${index} is not a mapping`,
     );
-    if (!match) continue;
-    const [, indent, dash, blockScalar, inline] = match;
-    if (!blockScalar) {
-      if (inline) out.push({ line: i + 1, text: inline });
-      continue;
-    }
-    // Body belongs to this scalar while it is blank or indented deeper than the `run:` key itself
-    // (accounting for the `- ` prefix, which shifts the key right without changing the mapping).
-    const keyIndent = indent.length + (dash ? dash.length : 0);
-    for (let j = i + 1; j < lines.length; j++) {
-      const body = lines[j];
-      if (body.trim() === "") continue;
-      const bodyIndent = body.length - body.trimStart().length;
-      if (bodyIndent <= keyIndent) break;
-      out.push({ line: j + 1, text: body });
-    }
-  }
-  return out;
+    return {
+      step,
+      label: `job ${job} step ${index}${step.name ? ` (${step.name})` : ""}`,
+    };
+  });
+}
+
+/**
+ * `with:` of a step as a mapping, or an empty mapping when it declares none — so an ABSENT `with:`
+ * and an absent key inside it fail the same way rather than being skipped.
+ */
+function stepWith(workflow, label, step) {
+  const value = step.with;
+  if (value === undefined || value === null) return {};
+  assert.ok(
+    typeof value === "object" && !Array.isArray(value),
+    `${workflow}: ${label} has a \`with\` that is not a mapping`,
+  );
+  return value;
 }
 
 function jobBlock(source, name) {
@@ -219,28 +231,16 @@ function jobBlock(source, name) {
   return marker + (nextJob === -1 ? remainder : remainder.slice(0, nextJob));
 }
 
-function stepBlocks(source) {
-  const lines = source.split("\n");
-  const blocks = [];
-  for (let i = 0; i < lines.length; i++) {
-    const start = /^(\s*)-\s+(?:name|uses|run):/.exec(lines[i]);
-    if (!start) continue;
-    const indent = start[1].length;
-    let end = i + 1;
-    while (
-      end < lines.length &&
-      !new RegExp(`^\\s{${indent}}-\\s+(?:name|uses|run):`).test(lines[end])
-    )
-      end++;
-    blocks.push(lines.slice(i, end).join("\n"));
-    i = end - 1;
-  }
-  return blocks;
-}
-
 /**
  * The `playwright` version pnpm actually installs, read from the lockfile rather than hardcoded —
  * a hardcoded copy would let this gate agree with itself while disagreeing with the tree.
+ *
+ * EVERY occurrence is read, not the first. A pnpm lockfile names each package twice — once under
+ * `packages:` and once under `snapshots:` — and would name it more than twice if two versions were
+ * resolved for different importers. Taking `.exec()`'s first match silently picked whichever came
+ * first in the file and pinned the container to it, so a tree that installs two Playwright versions
+ * would have had one of them running against the other's browsers. They must agree, and a
+ * disagreement is a failure with both versions named, not a coin flip.
  */
 function lockfilePlaywrightVersion() {
   // Resolved from THIS FILE, not the cwd: the workflow directory is read cwd-relative on purpose so
@@ -251,13 +251,28 @@ function lockfilePlaywrightVersion() {
     fileURLToPath(new URL("../pnpm-lock.yaml", import.meta.url)),
     "utf8",
   );
-  const match = /^ {2}playwright@(\d+\.\d+\.\d+):$/m.exec(lock);
+  const versions = [...lock.matchAll(/^ {2}playwright@([^\s:]+):$/gm)].map(
+    (match) => match[1],
+  );
   assert.ok(
-    match,
+    versions.length > 0,
     "pnpm-lock.yaml: could not find the resolved `playwright` package version — the lockfile " +
       "changed shape, so the container-image pin below would silently stop being checked",
   );
-  return match[1];
+  const distinct = [...new Set(versions)];
+  assert.equal(
+    distinct.length,
+    1,
+    `pnpm-lock.yaml resolves ${distinct.length} different \`playwright\` versions (${distinct.join(", ")}). ` +
+      `The container image can only pin one, so one lane would run against the wrong browsers. ` +
+      `Dedupe the lockfile before pinning.`,
+  );
+  assert.match(
+    distinct[0],
+    /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/,
+    `pnpm-lock.yaml: \`playwright@${distinct[0]}\` is not a plain version — the container tag is built from it`,
+  );
+  return distinct[0];
 }
 
 const PLAYWRIGHT_VERSION = lockfilePlaywrightVersion();
@@ -269,26 +284,6 @@ for (const [name, source] of Object.entries(sources)) {
     /\bTURBO_TOKEN\b|\bTURBO_TEAM\b/,
     `${name}: remote-cache credentials must not be workflow-wide`,
   );
-  for (const match of source.matchAll(
-    /^\s*-?\s*uses:\s*([^\s#]+)(?:\s+#.*)?$/gm,
-  )) {
-    const reference = match[1];
-    assert.match(
-      reference,
-      /@[0-9a-f]{40}$/,
-      `${name}: action is not pinned to a full commit SHA: ${reference}`,
-    );
-  }
-  const checkoutSteps = stepBlocks(source).filter((block) =>
-    block.includes("actions/checkout@"),
-  );
-  for (const block of checkoutSteps) {
-    assert.match(
-      block,
-      /persist-credentials:\s*false/,
-      `${name}: checkout persists a token`,
-    );
-  }
   // CONTAINERS ARE BANNED OUTRIGHT, and that is now a simplification rather than a restriction.
   // A container is Linux-only, so it cannot start on the macOS minis at all; and the one job that
   // legitimately needed one — `release.yml`'s `quality-gate`, which ran the three-engine suite in the
@@ -311,6 +306,60 @@ for (const [name, source] of Object.entries(sources)) {
     jobs.size > 0,
     `${name}: no jobs found — the parser or the file changed shape`,
   );
+
+  // ---------------------------------------------------------------- per-step rules, structurally
+  for (const [job, body] of jobs) {
+    // A job may call a reusable workflow instead of declaring steps; that reference is an action
+    // reference too and must be pinned the same way.
+    if (typeof body.uses === "string") {
+      assert.match(
+        body.uses,
+        /@[0-9a-f]{40}$/,
+        `${name}: job ${job} calls a reusable workflow that is not pinned to a full commit SHA: ${body.uses}`,
+      );
+    }
+    for (const { step, label } of jobSteps(name, job, body)) {
+      if (step.uses !== undefined) {
+        assert.equal(
+          typeof step.uses,
+          "string",
+          `${name}: ${label} has a \`uses\` that is not a string`,
+        );
+        assert.match(
+          step.uses,
+          /@[0-9a-f]{40}$/,
+          `${name}: action is not pinned to a full commit SHA: ${step.uses} (${label})`,
+        );
+        // A checkout that persists its token leaves the workflow's credential in .git/config for
+        // every later step — including any that runs repository-authored code.
+        if (/^actions\/checkout@/.test(step.uses)) {
+          assert.equal(
+            stepWith(name, label, step)["persist-credentials"],
+            false,
+            `${name}: checkout persists a token (${label})`,
+          );
+        }
+      }
+      // Script injection: a `${{ … }}` expression inside a `run:` body is substituted as raw text
+      // BEFORE bash parses the line, so any shell metacharacter in an attacker-influenced value
+      // executes. Pass such values through `env:` and reference them as "$VAR" instead.
+      // Only `run:` BODIES are scanned — `if:`/`env:`/`with:` expressions are evaluated by Actions
+      // itself, never by a shell, and are legitimate.
+      if (step.run !== undefined) {
+        assert.equal(
+          typeof step.run,
+          "string",
+          `${name}: ${label} has a \`run\` that is not a string`,
+        );
+        const expression = /\$\{\{\s*([^}]+?)\s*\}\}/.exec(step.run);
+        assert.ok(
+          !expression,
+          `${name}: \`\${{ ${expression?.[1]} }}\` is interpolated directly into a run: script ` +
+            `(${label}) — pass it via env: and reference "$VAR" (shell-injection risk)`,
+        );
+      }
+    }
+  }
 
   for (const [job, body] of jobs) {
     const image = containerImage(body);
@@ -360,11 +409,19 @@ for (const [name, source] of Object.entries(sources)) {
     );
 
     // Fork pull requests must never reach the LAN boxes. See FORK_GUARD above.
-    assert.ok(
-      normalizeExpression(body.if).includes(FORK_GUARD),
-      `${name}: job ${job} runs on the LAN Linux boxes but is not guarded against fork pull ` +
-        `requests. Add \`if: ${FORK_GUARD}\` — this repository is public, and a fork PR would ` +
-        `otherwise execute untrusted code on the LAN with a persistent pnpm store.`,
+    //
+    // EXACT EQUALITY, not `.includes()`. A substring test is not a guard: an `if:` reading
+    // `<the guard> || true`, or `!(<the guard>) || true`, CONTAINS the guard verbatim and evaluates
+    // to true for every fork PR — the condition would have been documented, asserted, and inert.
+    // Only the `${{ }}` wrapper and incidental whitespace are normalised away; any other addition is
+    // a deliberate widening and must be re-reviewed here rather than slipped in beside it.
+    assert.equal(
+      normalizeExpression(body.if),
+      FORK_GUARD,
+      `${name}: job ${job} runs on the LAN Linux boxes but its \`if:\` is not exactly the fork ` +
+        `guard. Expected \`${FORK_GUARD}\`, got \`${normalizeExpression(body.if) || "(no if:)"}\`. ` +
+        `This repository is public, and a fork PR would otherwise execute untrusted code on the LAN ` +
+        `with a persistent pnpm store.`,
     );
   }
 
@@ -453,20 +510,6 @@ for (const [name, source] of Object.entries(sources)) {
     /^\s*pull_request_target\s*:/m,
     `${name}: pull_request_target grants a privileged token to fork-authored code`,
   );
-
-  // Script injection: a `${{ … }}` expression inside a `run:` body is substituted as raw text
-  // BEFORE bash parses the line, so any shell metacharacter in an attacker-influenced value
-  // executes. Pass such values through `env:` and reference them as "$VAR" instead.
-  // Only `run:` BODIES are scanned — `if:`/`env:`/`with:` expressions are evaluated by Actions
-  // itself, never by a shell, and are legitimate.
-  for (const { line, text } of runScriptLines(source)) {
-    const expression = /\$\{\{\s*([^}]+?)\s*\}\}/.exec(text);
-    if (!expression) continue;
-    assert.fail(
-      `${name}:${line}: \`\${{ ${expression[1]} }}\` is interpolated directly into a run: script — ` +
-        `pass it via env: and reference "$VAR" (shell-injection risk)`,
-    );
-  }
 }
 
 for (const [name, source] of Object.entries(sources)) {
@@ -618,5 +661,53 @@ assert.doesNotMatch(
 );
 assert.match(sources["release.yml"], /npm install -g npm@11\.16\.0/);
 assert.doesNotMatch(sources["release.yml"], /npm@latest/);
+
+// ---------------------------------------------------------------------------------------------
+// THE PLAYWRIGHT TAG HAS EXACTLY ONE AUTHORITY: pnpm-lock.yaml.
+//
+// The gate derives the sanctioned image from the lockfile, but the provisioning script and its
+// runbook each carried their OWN literal `mcr.microsoft.com/playwright:v1.61.0-noble`. Nothing
+// compared them, so a Playwright bump would have moved the workflow (checked) while the box
+// pre-pulled and the runbook documented a stale image — the exact "browsers do not match the
+// installed Playwright" failure the pin exists to prevent, arriving as a mystery on the hardware.
+// The script now derives the tag from the lockfile or requires it to be passed in, and this
+// assertion keeps a literal from creeping back into either surface.
+//
+// The workflow files are deliberately NOT covered: a literal there is REQUIRED (Actions cannot read
+// a lockfile) and is checked against pnpm-lock.yaml above, which is what makes it safe.
+{
+  const scanned = [
+    fileURLToPath(new URL("runner", import.meta.url)),
+    fileURLToPath(new URL("../docs/runbooks", import.meta.url)),
+  ];
+  const literalTag = /playwright:v\d/;
+  for (const directory of scanned) {
+    const entries = readdirSync(directory, {
+      recursive: true,
+      withFileTypes: true,
+    });
+    const files = entries.filter((entry) => entry.isFile());
+    assert.ok(
+      files.length > 0,
+      `${directory}: no files found — this assertion would silently check nothing`,
+    );
+    for (const entry of files) {
+      const path = join(entry.parentPath ?? entry.path, entry.name);
+      const contents = readFileSync(path, "utf8");
+      const offending = contents
+        .split("\n")
+        .map((text, index) => ({ text, line: index + 1 }))
+        .filter(({ text }) => literalTag.test(text));
+      assert.equal(
+        offending.length,
+        0,
+        `${path}:${offending[0]?.line}: hardcoded Playwright image tag — ` +
+          `\`${offending[0]?.text.trim()}\`. The tag has one authority (the \`playwright\` version in ` +
+          `pnpm-lock.yaml); a second copy here drifts silently on the next bump. Derive it, or accept ` +
+          `it as --playwright-version / $PLAYWRIGHT_VERSION.`,
+      );
+    }
+  }
+}
 
 console.log("verify-workflow-security: passed");

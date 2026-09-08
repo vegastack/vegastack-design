@@ -19,14 +19,25 @@
 #   (`ACTIONS_RUNNER_INPUT_<ARG>`; actions/runner 2.337.0 CommandSettings.cs), never as `--token`.
 #   Environment is not in `ps` output, and /proc/<pid>/environ is readable only by the owner.
 #
+# THE PLAYWRIGHT IMAGE TAG IS NEVER HARDCODED HERE.
+#   The `playwright` version in pnpm-lock.yaml is the single authority, and
+#   tooling/verify-workflow-security.mjs pins the workflow's container image to it. A second literal
+#   in this script would drift on the next bump: the box would pre-pull an image the workflow no
+#   longer uses, and the first CI run after the bump would pay the full pull it was meant to avoid.
+#   So the tag is DERIVED — from pnpm-lock.yaml when this script runs inside a checkout, otherwise
+#   from --playwright-version / $PLAYWRIGHT_VERSION, which the runbook shows you reading out of the
+#   repo on your own machine. Without one, --prepull-image is refused rather than guessed.
+#
 # RUN IT ON THE BOX, as the admin user (not root; the script uses sudo where it must):
 #   RUNNER_TOKEN=<token> bash provision-linux-runner.sh
 #   printf %s "<token>" | bash provision-linux-runner.sh
 #   printf %s "<removal-token>" | bash provision-linux-runner.sh --deregister
 #
-# From your machine, so the token is never on a command line at EITHER end:
+# From your machine, so the token is never on a command line at EITHER end, with the image tag read
+# out of the repo you are standing in:
 #   gh api -X POST repos/VegaStack/vegastack-design/actions/runners/registration-token --jq .token \
-#     | ssh <box> 'RUNNER_TOKEN=$(cat) bash /tmp/provision-linux-runner.sh --prepull-image'
+#     | ssh <box> "PLAYWRIGHT_VERSION=$(sed -n 's/^  playwright@\(.*\):$/\1/p' pnpm-lock.yaml | sort -u) \
+#         RUNNER_TOKEN=\$(cat) bash /tmp/provision-linux-runner.sh --prepull-image"
 #
 # The token is minted on a machine holding repo-admin credentials. It expires in one hour. Mint one
 # per box, immediately before running.
@@ -46,14 +57,27 @@ RUNNER_DIR="${RUNNER_DIR:-$HOME/actions-runner}"
 # `pnpm install --frozen-lockfile` is a link-from-store rather than a network fetch. Documented in
 # the runbook; the workflow's `container.volumes` must agree with this path.
 PNPM_STORE_HOST_DIR="${PNPM_STORE_HOST_DIR:-/opt/vsk-runner/pnpm-store}"
-PLAYWRIGHT_IMAGE="${PLAYWRIGHT_IMAGE:-mcr.microsoft.com/playwright:v1.61.0-noble}"
 
 TOKEN="${RUNNER_TOKEN:-}"
 MODE="install"
 PREPULL_IMAGE=0
+# May be empty. Resolved below from the flag, the environment, or a lockfile — never a literal.
+PLAYWRIGHT_VERSION="${PLAYWRIGHT_VERSION:-}"
 
 while [ $# -gt 0 ]; do
   case "$1" in
+    --playwright-version)
+      PLAYWRIGHT_VERSION="${2:-}"
+      [ -n "$PLAYWRIGHT_VERSION" ] || {
+        echo "ERROR: --playwright-version needs a value (e.g. 1.61.0)" >&2
+        exit 2
+      }
+      shift 2
+      ;;
+    --playwright-version=*)
+      PLAYWRIGHT_VERSION="${1#*=}"
+      shift
+      ;;
     --token | --token=*)
       # Deliberately rejected rather than silently ignored: it used to be accepted, and a stale
       # runbook line or muscle memory would otherwise leak the token into `ps` without a word.
@@ -72,7 +96,9 @@ while [ $# -gt 0 ]; do
       shift
       ;;
     -h | --help)
-      sed -n '2,40p' "$0"
+      # Bounded by the header's last line rather than a line number, which went stale the first time
+      # the header grew.
+      sed -n '2,/^# Full procedure/p' "$0"
       exit 0
       ;;
     *)
@@ -91,6 +117,36 @@ fi
 TOKEN="$(printf '%s' "$TOKEN" | tr -d '[:space:]')"
 
 log() { printf '\n==> %s\n' "$*"; }
+
+# ---------------------------------------------------------------------------- Playwright image tag
+# Read EVERY `playwright@<version>:` key, not the first. A pnpm lockfile names each package twice
+# (once under `packages:`, once under `snapshots:`), and would name it more often if two versions
+# were resolved — in which case there is no single correct image and guessing one is worse than
+# stopping.
+lockfile_playwright_version() {
+  local lock="$1" versions count
+  [ -f "$lock" ] || return 1
+  versions="$(sed -n 's/^  playwright@\([^:]*\):$/\1/p' "$lock" | sort -u)"
+  [ -n "$versions" ] || return 1
+  count="$(printf '%s\n' "$versions" | wc -l | tr -d ' ')"
+  if [ "$count" -ne 1 ]; then
+    printf 'ERROR: %s resolves %s different playwright versions:\n' "$lock" "$count" >&2
+    printf '%s\n' "$versions" | sed 's/^/  /' >&2
+    return 1
+  fi
+  printf '%s' "$versions"
+}
+
+# The script is normally copied to /tmp on the box, where there is no checkout — so the lockfile is
+# a bonus, not the plan. When it IS present (running from a clone) it wins nothing over an explicit
+# flag: an operator naming a version means it.
+if [ -z "$PLAYWRIGHT_VERSION" ]; then
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  PLAYWRIGHT_VERSION="$(lockfile_playwright_version "$SCRIPT_DIR/../../pnpm-lock.yaml" || true)"
+fi
+PLAYWRIGHT_IMAGE=""
+[ -z "$PLAYWRIGHT_VERSION" ] ||
+  PLAYWRIGHT_IMAGE="mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble"
 # svc.sh refuses to run unless the CWD is the runner root ("Must run from runner root or install is
 # corrupt"), so never invoke it by absolute path.
 svc() { (cd "$RUNNER_DIR" && sudo ./svc.sh "$@"); }
@@ -191,11 +247,17 @@ fi
 
 sudo systemctl enable --now docker
 
-if id -nG "$USER" | tr ' ' '\n' | grep -qx docker; then
-  log "$USER is already in the docker group"
+# `id -un`, not $USER. $USER is set by LOGIN shells; an ssh command invocation
+# (`ssh box 'bash script.sh'`) runs a non-login shell where it is frequently UNSET — and under
+# `set -u` an unset variable is a hard exit, so the script would abort here in exactly the
+# non-interactive path the runbook prescribes. `id -un` asks the kernel.
+RUNNER_SERVICE_USER="$(id -un)"
+
+if id -nG "$RUNNER_SERVICE_USER" | tr ' ' '\n' | grep -qx docker; then
+  log "$RUNNER_SERVICE_USER is already in the docker group"
 else
-  log "Adding $USER to the docker group"
-  sudo usermod -aG docker "$USER"
+  log "Adding $RUNNER_SERVICE_USER to the docker group"
+  sudo usermod -aG docker "$RUNNER_SERVICE_USER"
   echo "NOTE: group membership applies to NEW logins. The runner service picks it up when it starts"
   echo "      below, because systemd starts it fresh; an interactive shell needs a re-login."
 fi
@@ -203,12 +265,24 @@ fi
 # ---------------------------------------------------------------------------- pnpm store
 log "Ensuring the persistent pnpm store at $PNPM_STORE_HOST_DIR"
 sudo mkdir -p "$PNPM_STORE_HOST_DIR"
-# The Playwright image runs as root, so the store must be writable by it; 0777 is deliberate on a
-# LAN CI box whose only job is this repository, and keeps the directory usable if the container
-# user ever changes.
-sudo chmod 0777 "$PNPM_STORE_HOST_DIR"
+# 0755 root:root, NOT 0777. The job container declares no `user:` and no `options:` in
+# .github/workflows/verify-linux.yml, and the mcr.microsoft.com/playwright image's default user is
+# root — so the process writing this store IS root, and root writes through a 0755 root-owned
+# directory regardless. 0777 bought nothing and gave every unprivileged local account on the box
+# write access to a directory whose contents are linked straight into a CI job's node_modules.
+# If a future workflow ever adds `options: --user <uid>`, this becomes owned by that uid instead;
+# it does not go back to world-writable.
+sudo chown root:root "$PNPM_STORE_HOST_DIR"
+sudo chmod 0755 "$PNPM_STORE_HOST_DIR"
 
 if [ "$PREPULL_IMAGE" -eq 1 ]; then
+  # REFUSED, not guessed. A wrong tag pre-pulls an image the workflow will not use: the pull cost
+  # this flag exists to avoid is simply paid by the first CI run, silently.
+  [ -n "$PLAYWRIGHT_IMAGE" ] || die "--prepull-image needs the Playwright version, and no
+       pnpm-lock.yaml was found next to this script. Pass it explicitly:
+         --playwright-version <version>, or PLAYWRIGHT_VERSION=<version>
+       Read it from the repo on your own machine with
+         sed -n 's/^  playwright@\(.*\):\$/\1/p' pnpm-lock.yaml | sort -u"
   log "Pre-pulling $PLAYWRIGHT_IMAGE (first CI run would otherwise pay for it)"
   sudo docker pull "$PLAYWRIGHT_IMAGE"
 fi
@@ -269,12 +343,21 @@ else
 fi
 
 # ---------------------------------------------------------------------------- systemd service
+# FAILURE IS NOT SUCCESS HERE EITHER. This block used to read `svc stop || true` /
+# `svc uninstall || true` — the same swallow that `--deregister` was fixed for, and with a worse
+# ending: a stop that failed left the OLD listener running while `svc install` + `svc start`
+# happily added a second one, so the box would run two runners off one directory and the script
+# would report a clean provision. A service that is not installed is fine (that is the first-run
+# case, and `svc status` gates for it); a service that exists and refuses to stop is not.
 log "Installing and starting the systemd service"
 if svc status >/dev/null 2>&1; then
-  svc stop || true
-  svc uninstall || true
+  log "An existing service is installed — stopping and uninstalling it before reinstalling"
+  svc stop || die "svc.sh stop failed — an existing runner service is still running. Installing over
+       it would leave two listeners on one runner directory; fix the service, then re-run."
+  svc uninstall || die "svc.sh uninstall failed — the old systemd unit is still installed; not
+       reinstalling over it."
 fi
-svc install "$USER"
+svc install "$RUNNER_SERVICE_USER"
 svc start
 
 # ---------------------------------------------------------------------------- health summary
@@ -285,7 +368,9 @@ echo "runner labels:  $RUNNER_LABELS"
 echo "runner version: $RUNNER_VERSION"
 echo "runner dir:     $RUNNER_DIR"
 echo "docker:         $(docker --version 2>/dev/null || sudo docker --version)"
-echo "pnpm store:     $PNPM_STORE_HOST_DIR"
+echo "service user:   $RUNNER_SERVICE_USER"
+echo "pnpm store:     $PNPM_STORE_HOST_DIR (0755 root:root)"
+echo "playwright:     ${PLAYWRIGHT_IMAGE:-<not resolved — pass --playwright-version to pre-pull>}"
 echo
 svc status || true
 echo
