@@ -865,3 +865,31 @@ to the iframe` for one file, with **1488 tests passed and zero assertion failure
 - **Handled by re-running the full ladder and by fixing the real defect, never by `GATES_SKIP` or
   `--no-verify`.** Recorded because the receipt on the branch shows only the passing run, and a
   reviewer should know what was re-run and on what evidence each failure was classified.
+
+## 2026-09-08 — The remote gates boxes replay a pre-rebase CSS chunk from a cache nothing clears
+
+- **What happened:** F2's finishing `pnpm gates:push` on a Ryzen box failed the contract lane
+  because the docs build failed: `design-lint --docs-shell --emitted-css` reported **10 offenders**,
+  every one a `@tailwindcss/typography` `.prose :where(…)` heavy weight (600/800/900). The same
+  commit built clean on the Mac — "2 built stylesheet(s) on-system".
+- **Root cause, and it is not the branch.** The rule that neutralises those weights,
+  `.prose :is(h1, h2, h3, h4, h5, h6, dt, thead th) { font-weight: var(--font-weight-medium) }` in
+  `apps/docs/app/global.css`, was introduced by **Do1-a (`d5c960a3`)**. The box's emitted chunk did
+  not contain that rule at all (`grep -c 'prose :is('` → local 1, box 0) while the box's
+  `global.css` was byte-identical and its tree clean at the pushed HEAD. The box had simply replayed
+  a Turbopack cache written before this worktree was rebased onto Do1-a.
+- **Why nothing cleaned it.** `remote-gates-v2.sh` rsyncs with `--exclude '.next' --exclude
+'apps/docs/out'` (correctly — they are build artifacts), and its remote reset ends in
+  `git clean -qfd`, which does **not** remove ignored files. So `apps/docs/.next` on the box is
+  immune to both the sync and the reset, and outlives every rebase.
+- **The class to recognise:** an emitted-CSS or built-artifact gate that fails ONLY on the remote box
+  while the identical tree passes locally is a stale remote build cache until proven otherwise —
+  diff the built artifact for the rule you expect, do not start editing source. The tell is that the
+  offending rules all belong to a dependency's defaults and the _override_ is the thing missing.
+- **Handling:** `rm -rf apps/docs/.next apps/docs/out` on the box, then re-ran the full ladder. Not
+  masked and not skipped: the rebuild is the stricter option, since it removes the cache the failing
+  run depended on.
+- **This will hit every batch still in flight.** Any agent whose worktree was rebased across Do1-a
+  and whose box worktree predates that rebase will see these exact 10 offenders. Clearing the two
+  directories on the box is the fix; the durable fix is for the runner to clear them (or to pass
+  `git clean -qfdx`) and belongs to whoever owns `remote-gates-v2.sh`, not to a component batch.
