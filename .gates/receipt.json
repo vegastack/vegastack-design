@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "tree": "tree-2366066044e6778314138a0a8df86059a69834a8",
-  "treeFiles": 2702,
-  "head": "fde4299ff51bab4ef88c3fe5db63f8e71849db72",
-  "writtenAt": "2026-09-08T06:43:18.552Z",
+  "tree": "tree-3b3a7791ab829eaf21034f9406d0b743147bccbb",
+  "treeFiles": 2706,
+  "head": "5dc0bc0dc5df7b5178a48069790e31005c392681",
+  "writtenAt": "2026-09-08T08:34:38.954Z",
   "mode": "push",
   "base": {
     "ref": "origin/main",
-    "sha": "d5c960a3e704f730893303fe0aef1d4b49812ce3"
+    "sha": "065315d56e23fd33614f6c9e9a9965f166c063e1"
   },
   "host": {
     "platform": "linux",
@@ -18,33 +18,33 @@
     "@playwright/test": "1.61.0",
     "playwright": "1.61.0"
   },
-  "contractSha256": "51844ec0709812640e8328430f5dfb8a99a98b81754c496baa39b348f315937a",
+  "contractSha256": "f457c02d2434762a6299f70bccd7b8ca55765a7c33597e42a6122a0434cc43f3",
   "classified": {
     "contracts": true,
     "unit": true,
     "smoke": true,
-    "contractsReason": "global surface changed (apps/docs/components/foundations.tsx, apps/docs/vrt/contracts.spec.ts, packages/design-tokens/tokens/semantic.tokens.json)"
+    "contractsReason": "global surface changed (apps/docs/components/animated-icon-gallery.generated.tsx, apps/docs/components/attachment-playground.tsx, apps/docs/components/avatar-playground.tsx, +32 more)"
   },
   "gates": {
     "typecheck": {
       "status": "pass",
-      "durationMs": 35542
+      "durationMs": 38409
     },
     "lint": {
       "status": "pass",
-      "durationMs": 18515
+      "durationMs": 19732
     },
     "unit": {
       "status": "pass",
-      "durationMs": 57061
+      "durationMs": 34679
     },
     "smoke": {
       "status": "pass",
-      "durationMs": 25464
+      "durationMs": 23987
     },
     "contracts": {
       "status": "pass",
-      "durationMs": 569914,
+      "durationMs": 571574,
       "executed": 880,
       "full": true,
       "scopeRoutes": 110
