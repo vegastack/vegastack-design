@@ -1331,6 +1331,28 @@ count`, so a page that loads with unread items sits still; the cue additionally 
   `origin/main` @ `9c33dfaf`. D1 is a dependency batch; a component change is the wrong instrument
   for a docs-harness race, and a speculative one that the evidence contradicts is the wrong change
   entirely.
+- **The `provider` unit flake finally has a mechanism, and it is not contention.** Two earlier
+  entries filed `provider.test.tsx > useVegaStackTheme exposes resolvedTheme` under "machine
+  contention" on the strength of `Matcher did not succeed in time`. The final sweep for this branch
+  printed the real error underneath it: `strict mode violation: page.getByRole('button') resolved to
+2 elements` — the probe button, and a second `aria-label="Close toast"` button.
+- **Root cause: sonner's toast store is a module singleton, and the file's first test leaves a toast
+  in it.** Test 1 (`mounts exactly one Sonner toaster by default`) calls
+  `toast("Provider toast works")`. Sonner's `TOAST_LIFETIME` is **4000 ms**, and the store lives at
+  module scope, so the toast survives React unmount — every later `VegaStackProvider` in the file
+  mounts a fresh `Toaster` that re-renders the still-live toast, with our default `closeButton =
+true` giving it a button. Test 4's unscoped `getByRole("button")` then matches two elements.
+- **The timing is the proof.** Re-run alone on a quiet box the file passes **8/8**, but that one test
+  takes **4247 ms** against ~20 ms for its siblings: the locator retries until the toast expires at
+  4000 ms and then succeeds. Under a loaded full sweep the matcher's budget runs out before the toast
+  does, and the same test fails. "Passes in isolation" was never contention — it was the retry loop
+  outliving a 4-second timer.
+- **Not D1's, and not a dependency regression.** The branch touches neither `provider.test.tsx` nor
+  `sonner.tsx`. The one bump in range is `sonner ^2.0.7 → ^2.0.8`, and its entire public delta is an
+  added optional `customAriaLabel` — `TOAST_LIFETIME` is 4000 in both, verified by unpacking both
+  tarballs and diffing `dist/`. The defect is pre-existing and the fix is a test change (scope the
+  locator to the rendered container, or dismiss the toast in test 1's cleanup), which is a component
+  batch's call, not a dependency batch's.
 
 ---
 
