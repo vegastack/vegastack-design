@@ -409,42 +409,13 @@ async function assertPointerTargets(
  * many components at once; this map closes the one hole that has evidence behind it.
  *
  * Add an entry only with that kind of evidence, and delete the map once the lane probes every
- * fixture.
+ * fixture. These fixtures are probed INSIDE the per-route test below rather than in a test of
+ * their own, so `contracts-run.mjs`'s exact "routes x assertions x projects" count model — which
+ * fails closed on any shape change — keeps holding.
  */
 const EXTRA_TARGET_FIXTURES: Record<string, readonly string[]> = {
   "/docs/components/combobox": ["comboboxMultiple"],
 };
-
-test.describe("component contract — target floor on non-first fixtures", () => {
-  for (const [route, fixtures] of Object.entries(EXTRA_TARGET_FIXTURES)) {
-    test(`${route} keeps effective 24px pointer targets on ${fixtures.join(", ")}`, async ({
-      page,
-    }, testInfo) => {
-      await page.setViewportSize({ width: 320, height: 812 });
-      await establishLane(page, testInfo.project.name);
-      await page.emulateMedia({
-        forcedColors: "active",
-        reducedMotion: "reduce",
-      });
-      await page.goto(route);
-      await page.waitForLoadState("networkidle");
-
-      for (const name of fixtures) {
-        const fixture = page.locator(`[data-vrt-preview="${name}"]`);
-        await expect(fixture).toBeVisible();
-        const controls = fixture.locator(INTERACTIVE_SELECTOR);
-        const count = await controls.count();
-        // A scope that matched nothing would pass silently — the same failure mode
-        // `contracts-run.mjs` guards against for its own `--grep`.
-        expect(
-          count,
-          `fixture ${name} on ${route} exposed no interactive control to probe`,
-        ).toBeGreaterThan(0);
-        await assertPointerTargets(controls, count, `${route} (${name})`);
-      }
-    });
-  }
-});
 
 test.describe("component contract — forced colors and target floor", () => {
   for (const route of COMPONENT_ROUTES) {
@@ -465,6 +436,24 @@ test.describe("component contract — forced colors and target floor", () => {
       const controls = fixture.locator(INTERACTIVE_SELECTOR);
       const count = await controls.count();
       await assertPointerTargets(controls, count, route);
+
+      for (const name of EXTRA_TARGET_FIXTURES[route] ?? []) {
+        const extra = page.locator(`[data-vrt-preview="${name}"]`);
+        await expect(extra).toBeVisible();
+        const extraControls = extra.locator(INTERACTIVE_SELECTOR);
+        const extraCount = await extraControls.count();
+        // A named fixture that exposes nothing would pass silently — the same failure mode
+        // `contracts-run.mjs` guards against for its own `--grep`.
+        expect(
+          extraCount,
+          `fixture ${name} on ${route} exposed no interactive control to probe`,
+        ).toBeGreaterThan(0);
+        await assertPointerTargets(
+          extraControls,
+          extraCount,
+          `${route} (${name})`,
+        );
+      }
 
       // ── keyboard pass ──────────────────────────────────────────────────────────────────────────
       //
