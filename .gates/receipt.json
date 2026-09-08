@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "tree": "tree-0f87b2393a725de2f7342f8d63b9e9a8447a9b50",
-  "treeFiles": 2713,
-  "head": "f0b43d7b1910e0b630f050bec366e66d26b1739d",
-  "writtenAt": "2026-09-08T12:41:43.744Z",
+  "tree": "tree-4d1130f9dcf7bcc2e719997fecd0d09c95ac2c45",
+  "treeFiles": 2717,
+  "head": "d259b174c656945c0fe647cb2417d7574d4f08bd",
+  "writtenAt": "2026-09-08T10:01:30.601Z",
   "mode": "push",
   "base": {
     "ref": "origin/main",
-    "sha": "f1d7d2fbc5f9c52aa13ff9ddfc869cb71c6ae163"
+    "sha": "8ce8de4d8b45936c44023e6d3cd39e7494db48cd"
   },
   "host": {
     "platform": "linux",
@@ -18,36 +18,36 @@
     "@playwright/test": "1.61.0",
     "playwright": "1.61.0"
   },
-  "contractSha256": "535d2e88d8862143585b67fc69685fdfc85c0b004bd2bd24f0c506242785adfc",
+  "contractSha256": "382dbe45ee460bda2f907b04d825f90f7bfe25da753be33cec71d9ae5af2164c",
   "classified": {
     "contracts": true,
     "unit": true,
     "smoke": true,
-    "contractsReason": "global surface changed (apps/docs/app/global.css, apps/docs/components/animated-icon-gallery.generated.tsx, apps/docs/components/badge-playground.tsx, +8 more)"
+    "contractsReason": "global surface changed (apps/docs/components/animated-icon-gallery.generated.tsx, apps/docs/components/preview/index.tsx, apps/docs/components/ui/use-announcer.ts, +9 more)"
   },
   "gates": {
     "typecheck": {
       "status": "pass",
-      "durationMs": 28549
+      "durationMs": 96429
     },
     "lint": {
       "status": "pass",
-      "durationMs": 19374
+      "durationMs": 43327
     },
     "unit": {
       "status": "pass",
-      "durationMs": 62363
+      "durationMs": 86650
     },
     "smoke": {
       "status": "pass",
-      "durationMs": 38428
+      "durationMs": 33335
     },
     "contracts": {
       "status": "pass",
-      "durationMs": 563437,
-      "executed": 880,
+      "durationMs": 1039555,
+      "executed": 888,
       "full": true,
-      "scopeRoutes": 110
+      "scopeRoutes": 111
     }
   },
   "skips": []
