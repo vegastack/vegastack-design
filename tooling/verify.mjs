@@ -62,6 +62,23 @@ const MODES = {
   // site is public, so the private matrix is a regression guard on a configuration that is not
   // currently deployed — DROPPING IT is a defensible saving, and an MK decision, not an agent's.
   release: [
+    // Self-contained on purpose. Every later stage assumes the workspace dists exist
+    // (`packages/design-tokens/dist`, `packages/design/dist`, `packages/ui/dist`): the docs build
+    // and the consume round-trip both import `@vegastack/design`, and neither runs through turbo's
+    // `^build`. In `deploy.yml` this was masked because `pnpm verify` runs first; run standalone on
+    // a clean checkout it failed with 1,228 TS2307 errors. Building here makes the documented
+    // standalone command true wherever it is run, and it is a turbo cache hit right after `verify`.
+    {
+      name: "workspace build (turbo, everything but docs)",
+      argv: [
+        "pnpm",
+        "exec",
+        "turbo",
+        "run",
+        "build",
+        "--filter=!@vegastack/docs",
+      ],
+    },
     {
       name: "docs build (SITE_VISIBILITY=private)",
       argv: ["pnpm", "-F", "@vegastack/docs", "build"],
