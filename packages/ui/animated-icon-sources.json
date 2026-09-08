@@ -4,2634 +4,3073 @@
   "items": [
     {
       "license": "MIT",
+      "moduleSha256": "2528d0c56491afdce32ea2a0209e268e49f322b41ef1d72dfeabdb8010ebba3f",
       "name": "a-arrow-down",
       "sha256": "f9d5d75e5b6db9d8dab783096274bbedc3d6e53919ccb5d7cb12de99532cd33a",
       "url": "https://lucide-animated.com/r/a-arrow-down.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "ddeeb51c82ca4341cf28450575374baeeb6828352b21be67b44210006dbad365",
       "name": "a-arrow-up",
       "sha256": "d25448f023cd45442d51c96fa0f883566976a3e0932233f8b7ea32ef2f4b1cb4",
       "url": "https://lucide-animated.com/r/a-arrow-up.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "c889bef7d47f69e6d7113ae138b13616140279ca3161f2bdfc0c6adf334e15d2",
       "name": "accessibility",
       "sha256": "b69a590bb0f744eb92c276a9d388b4420e6bc269f92e53768fb8fd7cfb7b42a7",
       "url": "https://lucide-animated.com/r/accessibility.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "d9fc458472d799b31d2f01a8c10c1048a0649cce0bb6a43534db329612a67622",
       "name": "activity",
       "sha256": "aac1c5b9b02a2b8dbb5cbd532fa4c1ce6fad110da36e80526970147b6dafab80",
       "url": "https://lucide-animated.com/r/activity.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "0ec03944df4ade7303a431b51f6ca81e6469b4d1d0bc929be30a447f91e7e1f6",
       "name": "air-vent",
       "sha256": "7d6a3b7151820de5e60604517e1f695759a888cc561a7fffb7afda2fbf327017",
       "url": "https://lucide-animated.com/r/air-vent.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "e5f3d4af9fa277999efefd78bdb8599200da223659d9fb84c134569c862b36c4",
       "name": "airplane",
       "sha256": "df2f37aad5cf9b6c9682263ba859c917324ed11a25558a9d594e6001f195b317",
       "url": "https://lucide-animated.com/r/airplane.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "eb49f087175f37cbbb7265a617f442bd41cb15c3fd60b0e33a4dc9324d20c031",
       "name": "airplay",
       "sha256": "1cd19c0b5d0a652d7f010dc38b6e3565c29b6621f2e3f450e9feab1cbf693beb",
       "url": "https://lucide-animated.com/r/airplay.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "3f64f4965911c051d0b1e400e6b6041454a8e6688b779b4c0a398f74adffad64",
       "name": "alarm-clock",
       "sha256": "63e47ec864a6bd820a94bca9cf42925711127560371412069f251a2767ad94b9",
       "url": "https://lucide-animated.com/r/alarm-clock.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "911a3d7bc7011d1f9d011d2d9e0cc91cb03755be49f082e3103f2dc144f426ee",
       "name": "alarm-clock-check",
       "sha256": "a0043eb80c156558e7753afcfbf316914a897cecb73622c50b600cdc8fc05497",
       "url": "https://lucide-animated.com/r/alarm-clock-check.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "a41a13c170c038eb7fb989f69328106210af0e5211faa2ba5aadfd95e8587393",
       "name": "alarm-clock-minus",
       "sha256": "1eb2cb0200ebd529f87c20136950006f79eb0b1344043bdb949feac9c08b0a83",
       "url": "https://lucide-animated.com/r/alarm-clock-minus.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "bc1f64bef339b08ef9143c9ec3a8a3646062cb66c62ef0b4f73f2b19c6cc8797",
       "name": "alarm-clock-plus",
       "sha256": "9918571fbf3cbc8867923ba462a65d85cdfe964bbbfeaf3df3759346077a14de",
       "url": "https://lucide-animated.com/r/alarm-clock-plus.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "b9776f8ac1559a901c61cbac47035e275392be3a0760d83d9690664b71e94088",
       "name": "alarm-smoke",
       "sha256": "2541a75c30c4d63e212ff3ce99fed5802974689e19b7cbb7d33aa3e4420c6c82",
       "url": "https://lucide-animated.com/r/alarm-smoke.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "4c1752137d5bd7460b087db52d2fa8cdcec9138d33680b4c52d859cf7652ad50",
       "name": "align-center",
       "sha256": "f3b17b43c706646ee7ca2ce600c58816d9bd84fe2aa8dd4f38e515b8e00561b7",
       "url": "https://lucide-animated.com/r/align-center.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "e25f07d19dbde09b21343f7653dd4aab000bb33a1673b7b7e5b334c309f401cf",
       "name": "align-horizontal",
       "sha256": "4a3928afcf703614a12e2a1001e0d71444e972cd01aa8316210d64c41fb9fa71",
       "url": "https://lucide-animated.com/r/align-horizontal.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "33bd0102d0852dd41180e5ccb6fd43def017bbb5caf3140ec5ff1eb2d6467331",
       "name": "align-left",
       "sha256": "3f0d34c2d9ca549bdd519d7699c72da9dd6402812dc85e7299ca3bb36f89e498",
       "url": "https://lucide-animated.com/r/align-left.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "a6e97e24f29c2a93af935d8dbd7c3264812d70b798273dcaf78347fe6c70ee42",
       "name": "align-right",
       "sha256": "d46880949d1f534fde160fab1aa2e1becbea2298c0ef2370e1dc2aef123713a1",
       "url": "https://lucide-animated.com/r/align-right.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "2300cf7bf9407fed68e88f57553f94d73c3b2cfb99fb601f3ce5afa2dbaa8ecd",
       "name": "align-vertical",
       "sha256": "e4b52167a01beabf883b84cff8ba4129884e6873dc8c1879d5ed8e55279db664",
       "url": "https://lucide-animated.com/r/align-vertical.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "6084024230060cc2ab559f82773a2929a95811da3ad5e495e86fd66519ea7c49",
       "name": "ambulance",
       "sha256": "4e222f1443528f102cec5552b9c64b1bd5ae67411219f681f56a9ba4e9fe0808",
       "url": "https://lucide-animated.com/r/ambulance.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "c0f95e4c2b68ace8e3749f508d849a7a1d40dd287de6d4f31c206c0efb7423dd",
       "name": "angry",
       "sha256": "6847ee7b9c8eb144945349f3175253180851316d63428e206994d8f3146ea21b",
       "url": "https://lucide-animated.com/r/angry.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "d1c25cbb2a45a715f2a525d5e6b364244275c553e7b95282720455fd160440fe",
       "name": "annoyed",
       "sha256": "07c7b0719149fb078a6247ea7364658a031e7e35124ed16bc61347fc16bb80b3",
       "url": "https://lucide-animated.com/r/annoyed.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "299c04ae0a94723c4dd8c9d15a1ecdf8561c4a099a478a9a3498ff70aa0b934a",
       "name": "archive",
       "sha256": "1f3cfe7013e90f7b478336938a7066e16166be3d6de28141cc9c49481bf211b7",
       "url": "https://lucide-animated.com/r/archive.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "405589f67e63c3bb8388e6a6c03118361553cfee7900334bc994247086733299",
       "name": "arrow-big-down",
       "sha256": "21b8675c245307d3b6f2764e93c0ad0c9651dc02741a79a2151ec6adb7371395",
       "url": "https://lucide-animated.com/r/arrow-big-down.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "96f0b00df5c9ddc52a6c755dcb96e8d40562a0dd0657fc6b587fe2d977c3f1cc",
       "name": "arrow-big-down-dash",
       "sha256": "8982970199a2800b0aba22c136c7677dece31df12df7fc9381df99228acf9172",
       "url": "https://lucide-animated.com/r/arrow-big-down-dash.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "99346de974f209ddb4be61ac6b5eed4cd92d995372daf732cb32456a9c4ed5d0",
       "name": "arrow-big-left",
       "sha256": "44b4edd27701692aa8a12e1f2f0ca6b5b1c90668c0a3a1deedd4e0df857d77bd",
       "url": "https://lucide-animated.com/r/arrow-big-left.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "9866359505d38fd4083c57c17c8e1c68f30eff5655d3f98bd70651790eb7ae5d",
       "name": "arrow-big-left-dash",
       "sha256": "66249ac04fb85b429e3b4c81f1cb2c1b50bfb01f1bd9a12b6d6aeb3ffd6c0908",
       "url": "https://lucide-animated.com/r/arrow-big-left-dash.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "46f9bdb946129420147106ead3d83ab5e29ab58902b0b2e7a5967be52816fe6f",
       "name": "arrow-big-right",
       "sha256": "e7f0ba36e38876fb4a6c3b4f4d39af51b24b409f03b79f33035047a9988ea0ee",
       "url": "https://lucide-animated.com/r/arrow-big-right.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "bd51e8aae542b1a505a040dd4faa7722814ee1c34f3d8f52dd088b4f606ea571",
       "name": "arrow-big-right-dash",
       "sha256": "36153219658e11dc246b78cdb5c4d7bfb0bb1042bf6bad20b1cdb7c651604ffb",
       "url": "https://lucide-animated.com/r/arrow-big-right-dash.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "6a1a71d2c4628ec97e19242ef4594a8721591da83837bdfbe2b3706d2334f124",
       "name": "arrow-big-up",
       "sha256": "64380c902181ac2b41a9d5808b4daa84617297982e04e50dd0c3d063ee1f6202",
       "url": "https://lucide-animated.com/r/arrow-big-up.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "fd4b89ec1493c1bdcbf962a49c7113ab30eb19c3f1eb3808dbae32896324b952",
       "name": "arrow-big-up-dash",
       "sha256": "0d62275e12ee62ef5894f835b2e3f7a04d062cb3843a66669f286eadb2bfa7a0",
       "url": "https://lucide-animated.com/r/arrow-big-up-dash.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "26f519fe264dc8d43a94a787b1bfb21360b3d1c5d56bf9501f0d218989c579b3",
       "name": "arrow-down",
       "sha256": "b44b61fedfd3c1cfdfce5dc9f304eb5d5119fb152be5f02c1c76ea89aa08e098",
       "url": "https://lucide-animated.com/r/arrow-down.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "bac3dcbb9a92d0c962dce33063b9232b4d7d2621a5dde36fa68931d1a33e1123",
       "name": "arrow-down-0-1",
       "sha256": "134566143917c59559d42e35a9afa6de05c4a2492e60d2f79e091b8bbafffac9",
       "url": "https://lucide-animated.com/r/arrow-down-0-1.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "b5acf28dbcdcc86ace09bd343dab22a5e396953b7121620fbf53d30cb70a8298",
       "name": "arrow-down-1-0",
       "sha256": "5ea99187e40e532a85130f106e58f8b78b7559778f16212917df9de6592a2054",
       "url": "https://lucide-animated.com/r/arrow-down-1-0.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "dcdd5df8fc39879663f71c00906e8c4f3f6228fe2e4fb731eb85011292864ce8",
       "name": "arrow-down-a-z",
       "sha256": "4ce5bec8d2319335cd74f16f3075d42272186753b7a821eccba4df496d728f37",
       "url": "https://lucide-animated.com/r/arrow-down-a-z.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "b3ef8ac35863e269ff96b374ba0bc1e87762126d4eb9dada6757769ba4165ca4",
       "name": "arrow-down-left",
       "sha256": "460eb1632d69da8280374b741dfa5015c2ae3b5d6aa8f4dd5f7828b62d33bf41",
       "url": "https://lucide-animated.com/r/arrow-down-left.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "bd01d7dada21adb5fe2ff54a2265a1b558bd0d1c7d470a62b20ad88157a71aa8",
       "name": "arrow-down-right",
       "sha256": "fc28a4c76486cb0f3d3c7e0698976b6dd766f341cf757ae6ce3b02e61f7fae33",
       "url": "https://lucide-animated.com/r/arrow-down-right.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "886f046614d6f9a01e8a493439816285c62add4a54fce5190491611927a65bfd",
       "name": "arrow-down-z-a",
       "sha256": "1b4d35a56c253f2ca79c98653011f57c7e6669eb5af74d0f9ed1a8c468fb51b9",
       "url": "https://lucide-animated.com/r/arrow-down-z-a.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "ed9dc6a27800be75cd56eefadf7093181be740c6eec65bca4c0805630f8c80ab",
       "name": "arrow-left",
       "sha256": "75a80f3cb8f442f5e20d59383a20a703fd667e74b371e35471b617f71dcb17bf",
       "url": "https://lucide-animated.com/r/arrow-left.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "924b31ce5987b295ebb35138fda95cf36274ae521e999f512a2fdc29396294a9",
       "name": "arrow-right",
       "sha256": "6fe1f98cf37f915dede1523af7e18fc18e4e22640c3660025f9236e32af20154",
       "url": "https://lucide-animated.com/r/arrow-right.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "80b0d54dcf2a8477878e6483b4a4bb011f52edc4cfa6238f91ba657c0c8708ce",
       "name": "arrow-up",
       "sha256": "4be2c00ad6445c6d2eae81d172abdc8a37c91fc515f98864a231e337e460ef4f",
       "url": "https://lucide-animated.com/r/arrow-up.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "026d5fd848107c1490533dc9ebb0a71101ce65e97e39ec11e979dbbaa6f94a58",
       "name": "arrow-up-left",
       "sha256": "d406ee736490c2e65e6430703df599e3710ccb4b6da4cf355e77695a2451363f",
       "url": "https://lucide-animated.com/r/arrow-up-left.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "813a69d67f57e648132348805113e2c2e7eb3f0cf8914e622874943bb39f9d83",
       "name": "arrow-up-right",
       "sha256": "1f058c6566ba4f49fc6c38d3761beda8b27e7284b92c0b7dd2e6d9b824d60da9",
       "url": "https://lucide-animated.com/r/arrow-up-right.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "cdf6f7356cde088f56accf4720ed39b85d3ec4f4e592d64a644e917323390233",
       "name": "at-sign",
       "sha256": "fd6082e602381440be511ab811512b0b3a6615b121a474941e8577521fba5da4",
       "url": "https://lucide-animated.com/r/at-sign.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "2245b404db20cff3f79a5b514d57fc6adb0cce4872a9523b52f4f9c5aa7d5abb",
       "name": "atom",
       "sha256": "45804e424485939da29588c378203b46408efd4d589af2fcd04ed0bc4d42f09b",
       "url": "https://lucide-animated.com/r/atom.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "0add6b4e5f81e7df1c3b6213fe6978bbb7f5696fceea018478cecce9e0ee8dc1",
       "name": "attach-file",
       "sha256": "00998dec0fb492ffc89e404e9e64242a292be7225bc7874c357c5ddddb11e079",
       "url": "https://lucide-animated.com/r/attach-file.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "2ab85f0b946f8654cc74443b8fd69cde6557a50abc8ecf62e482f916ab7c9e5f",
       "name": "audio-lines",
       "sha256": "112d8e18cffef410c40028fa7cb7bdeda2cbe8bde96975e1e1df953bd4cb5ee1",
       "url": "https://lucide-animated.com/r/audio-lines.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "4c6585348cb41d494642e24b53e21d70cf0b59e075c227cd92f32280a8f9bd2a",
       "name": "axe",
       "sha256": "76980856689aedb3dfb7283001c2c150918234b68030c2f4e644f0f829e70f94",
       "url": "https://lucide-animated.com/r/axe.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "27359c885056d2cbc9498cdb1a6413656fc9664f808aae0a4ca884adae8748c7",
       "name": "badge-alert",
       "sha256": "7f878a3b03c567e8afee85bb1dbce7f095604a06992aa43dcf78b5e72d602307",
       "url": "https://lucide-animated.com/r/badge-alert.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "1cb43a3c233191b6c04b321c6f43fea7112741a950dc8f3c0a2149a31ea80cda",
       "name": "badge-percent",
       "sha256": "1f999d9ff9986ddfc35f483a7edbc87654f8cf0e16a20eef9400112e2d94f2f8",
       "url": "https://lucide-animated.com/r/badge-percent.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "9ba89bb72062973bfad96249228b4f99d2dfdb3cf976b454e51e6512f4daaf85",
       "name": "ban",
       "sha256": "bfa5a44371d77f2bc6e2f7292851647d5490fef7a9b38e4c1413961140bed92d",
       "url": "https://lucide-animated.com/r/ban.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "760badf5693d57a44f124f8146b7bf49e2ddb6870eb7cd6c26276df8454818a8",
       "name": "banana",
       "sha256": "7ba5efafdec056b3e4eb78b6ed87e2053d11bf68120c8ab19ba24658c8513952",
       "url": "https://lucide-animated.com/r/banana.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "f60f4018fdba5b4a980286c8762ba139c9955513daded8291ea1d4202643250b",
       "name": "battery",
       "sha256": "b4168cff5e25275b99a46235a3c768ab530f21169a7a092688544c7c15da1af5",
       "url": "https://lucide-animated.com/r/battery.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "b4c7bacb9d26a80970cd73335a706ec1122e871cb44180050a848d855c49e0fb",
       "name": "battery-charging",
       "sha256": "4379e6634bd0764024be2d07f2250f430485064a97fe8e1b664c924dc3e81add",
       "url": "https://lucide-animated.com/r/battery-charging.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "30f50e629c3c32c73c9f3a776933d1cc017520cf5a502790397ed7505bd105b8",
       "name": "battery-full",
       "sha256": "00cd4a4349e45f56b09355147ad68b7736f3f46b4126621580cb2e22e1748950",
       "url": "https://lucide-animated.com/r/battery-full.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "ca92721ffdbcf7eb2765e16a9b5e050fff09863fab5ba850d82f2aab1a6180ae",
       "name": "battery-low",
       "sha256": "2c1efe7cb560c9863b33731cf7cfdfc61895011df9eeb64efd3bf57e558a61ac",
       "url": "https://lucide-animated.com/r/battery-low.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "a4f804e07484f88ee38696b69bc953ba263267489d8d671693e9c527f715aea9",
       "name": "battery-medium",
       "sha256": "afd5d1cb41843cfc72d74b6f17a87ad47527babca9051dd086753f2c981e8f54",
       "url": "https://lucide-animated.com/r/battery-medium.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "cbfeb341016e6896666c2e4f5d770cfc7a5acf711508ce928ad98a9305a94c9b",
       "name": "battery-plus",
       "sha256": "33055032cfed3b251211fb988b70522ec59a1f58e90e81c45e39f053f66101a7",
       "url": "https://lucide-animated.com/r/battery-plus.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "606863b8231a9db140e52f399b47b410bc502bc0ef0f8b1fb034f075d29e1f90",
       "name": "battery-warning",
       "sha256": "4a61b63ae9883d0ecd5984eb4a9ecc0fc2ca0c33f58b512fb6db71a1a992b9e7",
       "url": "https://lucide-animated.com/r/battery-warning.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "17e3a3fda80cbb708b7a68950703649675ff81b686fe8a1769476512ad86f821",
       "name": "bell",
       "sha256": "94759eaa75ea50c86273b46d4bf6a0e1512bac3023c35046a923eb214970d7c5",
       "url": "https://lucide-animated.com/r/bell.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "a8636796a43e80d2173820074c0b6280ae3fa6ff73655819d503a33e742293f5",
       "name": "bell-electric",
       "sha256": "808694a05b251500b1834a5e5c10bbffaaa29d48eb4cebc13509e4c9874a8c7e",
       "url": "https://lucide-animated.com/r/bell-electric.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "cc88f70447dfdf542b7c2c426a497b6889458a74eb21b784ee0cb378747802b5",
       "name": "biceps-flexed",
       "sha256": "7b0b60705fc4d6e01305d2ba2d2be0071f1f2db14aa9573a2aa7aedeb68addb0",
       "url": "https://lucide-animated.com/r/biceps-flexed.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "01f7cd8a7829d72ef8bb31a81f5df82aa1eef29b764dbaed6ec0a96f9391f020",
       "name": "blocks",
       "sha256": "c917b77942ec417976372c95754270115dc1ad81b3ab78fdbca547349921a4a9",
       "url": "https://lucide-animated.com/r/blocks.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "6f125e7a9ac009feb18347716c5bde35c3a1fba0dae316c6ffe4ca167ec8b5ec",
       "name": "bluetooth",
       "sha256": "1d14888cafb0a5c16a6e751fb155bca0547d781d615370e19791b2fe1789a92b",
       "url": "https://lucide-animated.com/r/bluetooth.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "b6d91d04554e39b940a3a8d2602781496241f5138224a853fb01c8bb1fb88cd9",
       "name": "bluetooth-connected",
       "sha256": "d532fb64c702e1d0ffc1219c52844f34aa06124b72fc70992e74f25c338313f1",
       "url": "https://lucide-animated.com/r/bluetooth-connected.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "6611daaafd18dd59b34130e4f4be3f100188246105b096b8445675645fd7adf8",
       "name": "bluetooth-off",
       "sha256": "5bdb531f58c2511ce94b397279c7268e2430259d63a2ed5f7970e5fc7e58df1e",
       "url": "https://lucide-animated.com/r/bluetooth-off.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "a68232843acac50ee01009137f036333578dbadd2f7a05601529ae61a7cb71b4",
       "name": "bluetooth-searching",
       "sha256": "1bedf8752e3ef32b9a8dc7168653327897e60f053b706cf39b60f5ac7ef17ef1",
       "url": "https://lucide-animated.com/r/bluetooth-searching.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "8ae7e7cea5896a716acbc96d0cdc2d17e5a1e992618513dab5a0ef1827def55c",
       "name": "bold",
       "sha256": "d450b4ecbcf3d6d294b2331f99774d85cfb4d179fc42ceed30bd182747fd3a22",
       "url": "https://lucide-animated.com/r/bold.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "2331c79381aa6405ac964e579ccf602e8b471a7c8641eac223b2d67854a2f145",
       "name": "bone",
       "sha256": "6b85e70dcee55ca2ce621f37308c05e300e04fc22f412314cf385daae251d549",
       "url": "https://lucide-animated.com/r/bone.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "c26dac6504c4bbf8a02baa99294046053ecbc44116e84a28484eb3de72cd6238",
       "name": "book-text",
       "sha256": "15fb7dbe80b967b0e4e3105011e84ad0c15c475159e771c4a3324af0961b003c",
       "url": "https://lucide-animated.com/r/book-text.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "4a3aac69d252f90ab871c11adf2459727d802a703f3417021281d894c9763539",
       "name": "bookmark",
       "sha256": "3cc4e20a194b9c2c329b4603b29ac3eb35e6b3f2e16124d5f936abdf7b2e9918",
       "url": "https://lucide-animated.com/r/bookmark.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "5c436d38a1337beeeccda2e7b590586dc48ae6e21d12597d5820b370d21b55ca",
       "name": "bookmark-check",
       "sha256": "b4ffeac36c81c0066a62572db0b5178c36a3d352f3329147c759608ed331a9af",
       "url": "https://lucide-animated.com/r/bookmark-check.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "d2dac1ec69052556da27f40bcceecfac316c244e28d82030b216173060a88ab7",
       "name": "bookmark-minus",
       "sha256": "c7fa31a3d6f509216147a165a7ee3ff3a890368f3eb330991515a77035fa4a83",
       "url": "https://lucide-animated.com/r/bookmark-minus.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "3c9608d7baed386ba425ffba6c40b76bfe000e951d18609d9aaad4796b1ef591",
       "name": "bookmark-plus",
       "sha256": "699a8b9e8e01c8ee47188b318e972663316db49834915ca885cb006a5484fd82",
       "url": "https://lucide-animated.com/r/bookmark-plus.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "78f2674641519e7133e314d6dbf3d8c22a02ca28b87529b3b9e084a947f8080c",
       "name": "bookmark-x",
       "sha256": "c339eaad84dfe10e3e2222c068f0688ab2a600c773ca8ee335021fb824cf7dc9",
       "url": "https://lucide-animated.com/r/bookmark-x.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "7a0a40c021966af9518f1d9543fe266d0bf56f2b1459b15c25305faffe31dbe8",
       "name": "bot",
       "sha256": "44fb0b37f7951ea756cfd44944d9f61d8584525d1335e47ca06cc71cd70c65dc",
       "url": "https://lucide-animated.com/r/bot.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "815ab4dd86e5a32ce01ce64db03cca5f0e40c77544e8e5e8e56fc2b021efa059",
       "name": "bot-message-square",
       "sha256": "2411098f9e20b11a6aa41f340478ea146cb77bbd8066a11c4a31287a14b17e1c",
       "url": "https://lucide-animated.com/r/bot-message-square.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "d78a7856f4c3a1e54a3f889fbd1cc065bde4b87ca9fd12b78b020417f1e68f74",
       "name": "box",
       "sha256": "3500282062a22ffaef37931ffd5040e96fee2d35e38b76abad02234738541be4",
       "url": "https://lucide-animated.com/r/box.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "9e729c67243c63116d1b0a81d016ba5ad5bceff0f79c74ff3adda5974e6b0421",
       "name": "boxes",
       "sha256": "9bc53d7cf27250703b271e8c2fb84b9f6aeef6e0c670f14c54763e544bb56082",
       "url": "https://lucide-animated.com/r/boxes.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "9fbe43d82af5df31728de0efde6a7094687f05ae465e6891e87c729ebb910994",
       "name": "brain",
       "sha256": "8d37f6f12d0abb25183877016edce7c9d4835fc2fe91b27af5b365f0f9c6ed38",
       "url": "https://lucide-animated.com/r/brain.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "05598e41c9adfd5f1e65b64a7517e18fd5222c8b2772c3deda12c78149e02956",
       "name": "briefcase-business",
       "sha256": "18b57fb99ab553a9c262316fb2e315549fac33379ace0d7e8db6bedb48a3fe48",
       "url": "https://lucide-animated.com/r/briefcase-business.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "68594e1d6746bc7fed04c94a1cb29a6389de0c2de7cda108bb0f4c05786d69af",
       "name": "calendar-check",
       "sha256": "007ad35fa2b147121878276b13aa1333831a76c62c415e37218ec2989736bd34",
       "url": "https://lucide-animated.com/r/calendar-check.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "60dad03cf7bb9b48e759242f8ff66d05a49bfcc426e78fc1aa2c00ff4cb5612d",
       "name": "calendar-check-2",
       "sha256": "a462ba7771a9424e778ddfe427609e8c20b06c8b7bac0ea6072bcfbebc151988",
       "url": "https://lucide-animated.com/r/calendar-check-2.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "32d181aed48cb97b1f0e1797cc6d18fa090bb4700be58e0a1b090fd1b5e95333",
       "name": "calendar-cog",
       "sha256": "b5354b13c6c8aed92ba5605d37494ca8362128968f6d0249a93dcc4d78efe5f5",
       "url": "https://lucide-animated.com/r/calendar-cog.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "a4e51c759f0eaa6a511dd1c0539e78641ab9276959190ed9fbc3ebabe23c192c",
       "name": "calendar-days",
       "sha256": "bff536d87f818512cbcc670e457f6334797df514fffe78d919e03f1a92577c0c",
       "url": "https://lucide-animated.com/r/calendar-days.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "9d2c7236071c224c7c21a86c64aa938fe8006a4d65c53b63c660b4212785f6d4",
       "name": "cart",
       "sha256": "07e0471643d79e055fc061b06fe3a8c10081be539bb7ad7e9e2a33a9baa38124",
       "url": "https://lucide-animated.com/r/cart.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "d513afb22d1c61ab1ba96dbecf582f760b331ef956a568ddd9631985ac8f02a0",
       "name": "cast",
       "sha256": "a51d449938c573b975d936808b06cb082d2ef23563e86dd98468060a573447a5",
       "url": "https://lucide-animated.com/r/cast.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "1defb1b97ac593b75eff55a952f19c036f306436733fea8a8abd7eee33ba1110",
       "name": "cctv",
       "sha256": "219d7075cbb0223c56a49c5eb80e2ddf551bb8b0394e2390d4f441cf3e5cab94",
       "url": "https://lucide-animated.com/r/cctv.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "40f0d5c119e0dab07fb24ba2651639d084e90a82ef307735eeeb5918d7d6d705",
       "name": "chart-bar-decreasing",
       "sha256": "7bc88fae82342a2b5a3735570cf1dc2b77c13ac1a11430e195c48473018a973b",
       "url": "https://lucide-animated.com/r/chart-bar-decreasing.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "9333fe08f234ab2673be50faa8ae0bc450f5f773334f737bd1427820b4ce6fe8",
       "name": "chart-bar-increasing",
       "sha256": "452dd513aa0c522081e0b625d1d776567b49fdcd741770bde53e0eda4f68a484",
       "url": "https://lucide-animated.com/r/chart-bar-increasing.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "ce32dad0ffd04d56cf8b27ae0fe85e34c145af202c8aa7985fc67d0e0879850b",
       "name": "chart-column-decreasing",
       "sha256": "009a84e4356226ade00fd3f741c24cc69df5d873c95ee78ee1ba5bc8ce172916",
       "url": "https://lucide-animated.com/r/chart-column-decreasing.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "0765b9bd9c9c6b2c89ea2d7063c77eae97f338f4990887a7ecf36c495471c975",
       "name": "chart-column-increasing",
       "sha256": "8a81031522eb71bd043cb1689adefb805746d4f068bddefa6dbc72efec7c7f3d",
       "url": "https://lucide-animated.com/r/chart-column-increasing.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "492c9ab4f66cb3418668ffde022712f98d70f3532e8f954301af0822e77c0d26",
       "name": "chart-line",
       "sha256": "2ea5bff317d97821b62d62bc1b12943ef51231f07c411321a8d810a03a87dc03",
       "url": "https://lucide-animated.com/r/chart-line.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "e9c9f212fc10d48e58041356c80f4a6b9de918b59947ff6e18e334bd8fdeda7a",
       "name": "chart-no-axes-column-decreasing",
       "sha256": "2de664e71c6a98828e36ff0851428f85eb92778ea207e359b4fd9ba12c4d5279",
       "url": "https://lucide-animated.com/r/chart-no-axes-column-decreasing.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "68b349002b73e9cd692ae17318127c891a77d7fd023c7dc7129e88ac267f239b",
       "name": "chart-no-axes-column-increasing",
       "sha256": "ce10eeb40cfebb01b6e5c8c9c9a9548fcf912e0f9160cb35033b4de9c9811743",
       "url": "https://lucide-animated.com/r/chart-no-axes-column-increasing.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "914a438cc59080194a2204e92930e44329aebee3c0d925c3a4b2d80400b3f587",
       "name": "chart-pie",
       "sha256": "31d4e08e1e6fe8ff7351b777760fd980fd265f885ac789d9fa34932751140c7a",
       "url": "https://lucide-animated.com/r/chart-pie.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "f7eb9b7fd4c1aa2c4b0cafe9818c882c4bba5d6db035678ad2c4d4ec7cf600e1",
       "name": "chart-scatter",
       "sha256": "5dda43ec067fc059ee07bf8b4e503449b686cc637e2b32b614f154f62fa67b2a",
       "url": "https://lucide-animated.com/r/chart-scatter.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "cdb961f2d8d9bffb4127b70fc77b62cc75c3d054fda196e6b3895591024dc351",
       "name": "chart-spline",
       "sha256": "040b462d961681970355839c68a2ffba82dac737d57b635f1d8d89068c432a74",
       "url": "https://lucide-animated.com/r/chart-spline.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "a05d5973b1a70641dbcca0483010bc67035ef8eb39de258d8b0607b79013d56c",
       "name": "check",
       "sha256": "59fb298bbff88ab0900d718ec16ee4da46489ad2f75289d59ff2bcb28b7e79bf",
       "url": "https://lucide-animated.com/r/check.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "6ab961cb28fa404ea7b5871cb533d2864b93cd664ca622f3b024b19fd4ebc80e",
       "name": "check-check",
       "sha256": "b8487f93af26ee4c1f5040368e5766293625ab649b156806e3e768ab4169115c",
       "url": "https://lucide-animated.com/r/check-check.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "522da803c00a0ce395c7dc94e7592dfad5d60f47ced116393f7e71da9d3e0756",
       "name": "chess-bishop",
       "sha256": "d287c61d48c02e000d3e49c9d0a40606271d76faf0f177242fb210ac5ebc9f78",
       "url": "https://lucide-animated.com/r/chess-bishop.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "0505912b2c163c98e1852e3d601b30330cb5807e705d0a97bd4ca1bf7e1a04e1",
       "name": "chess-king",
       "sha256": "f89d31f4efd13d2445a72fca793e535e2174257559ff9048aef8dd142b645bc7",
       "url": "https://lucide-animated.com/r/chess-king.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "5e6cc6523a31eee4af2dd23e9fa7426e315cdcf49a49a7f215e124cbb82129ae",
       "name": "chess-knight",
       "sha256": "400007f67a4b13575a973a02deca451eb5b2f217a7cf7e0f429dffb7f3b306ff",
       "url": "https://lucide-animated.com/r/chess-knight.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "824c0bf22b13fc6d9338b6554b5d7dadbb3c0886eff1661e9011d51ef523e6d8",
       "name": "chess-pawn",
       "sha256": "1ac6c0d7eccb3a5d357dc79dd62dadaa53b3da49a10e384f6a654bc34595a7f2",
       "url": "https://lucide-animated.com/r/chess-pawn.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "7234b6697ad7313cfc25d2221c6cfcb2c5be875d5d88919f339273fce6dc0eae",
       "name": "chevron-down",
       "sha256": "0b7507c689924b6c241b76d3f1b3db759aebc0f03477f12d78f5abf7b1fc4337",
       "url": "https://lucide-animated.com/r/chevron-down.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "9cdf64848418f0b59495492eb8fe236bb2e07aba52dd92bb1399d78269567c85",
       "name": "chevron-first",
       "sha256": "fc68fcb30b2a7144bee7892f25f9eadb55c4f2c3063d81dab9664cd79c00f590",
       "url": "https://lucide-animated.com/r/chevron-first.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "ab7be21a9db66ec7570ff23e5c9cc3dd5b7f40fdf73acc465d3919ff24703aa6",
       "name": "chevron-left",
       "sha256": "668497cd8b8847dce514d8152a07588bdc9c47774c47d8d8eed3fb68e0d55311",
       "url": "https://lucide-animated.com/r/chevron-left.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "5a2a9453427dbd292a75bbce3b7044fdf48589299ae9ac6f8be425f6e0ea3585",
       "name": "chevron-right",
       "sha256": "cd32fc299213e35cddc5c95b1aff7734a0b058a0689f31b717e6312948149d88",
       "url": "https://lucide-animated.com/r/chevron-right.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "4a60309cfabec1581a4cb4f7244b8b44998ca16216dad765569cde87bea433f6",
       "name": "chevron-up",
       "sha256": "a987c1e30bd66deb2eb6d519246111309cc5749e831f95b57c56fec64376a30d",
       "url": "https://lucide-animated.com/r/chevron-up.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "5241a00aa4e59a466ce42f816e4c487eebbcd9e6f4a657de308c25b5b191453a",
       "name": "chevrons-down-up",
       "sha256": "b0f5fda5c6dfff690dec0d7d742006d1e42b52c4fcba6534d4de7978abdf2d31",
       "url": "https://lucide-animated.com/r/chevrons-down-up.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "88851f77807d51a54263b4644e41b087309a00623b422c7bbf1705930def9d86",
       "name": "chevrons-left-right",
       "sha256": "91f72a1eb401998e1bb517ef273d3c8b559750b70fe23051d48f9df9047a6c10",
       "url": "https://lucide-animated.com/r/chevrons-left-right.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "cbb0ce01612471ef74c0534ff093909ef7f9ce88d4a343a36aef9cbc7f38cd6b",
       "name": "chevrons-right-left",
       "sha256": "aac4a4cf774c985bdd953706d45f197a30e05415a55cf2e9baa8eeebfc5754ab",
       "url": "https://lucide-animated.com/r/chevrons-right-left.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "eaf3cad083fa88591ec65caa6495ce437e471a0f56e46c65a7f9699bd41ce3e5",
       "name": "chevrons-up-down",
       "sha256": "5cfc88ab9875868aa408b34180f83c947737ab0854c32957f46484a2b5264876",
       "url": "https://lucide-animated.com/r/chevrons-up-down.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "abfe3033260d5eb7ed63a92f2d6b1e4d9099d8c4226fa8396bcd9555c2eea632",
       "name": "chrome",
       "sha256": "918f91e5b3619c2a2e404acbea69ff7d7fb4267245861cac39a346b3753140bc",
       "url": "https://lucide-animated.com/r/chrome.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "58bd4cf9dc42ded2b2e21a999e5817f402047b4f96bad1bb1dd362905d57d6e3",
       "name": "circle-check",
       "sha256": "851c10822b523186c08ef29e2971b86a222839f5fdbf354a4af022743847b912",
       "url": "https://lucide-animated.com/r/circle-check.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "eae68ee76ae8057dd33fb26718e1e45617a6c7905238f90afc42a6dc231520b6",
       "name": "circle-chevron-down",
       "sha256": "d89e709da6e2f8132c0df18d8a8cf9169a78aee3c0a2fb215ff42a6a83989a6c",
       "url": "https://lucide-animated.com/r/circle-chevron-down.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "3adbf61f4b49f5a6e18e268ad8ddd8dd1fd5fcb5e2691cc92e7dc25d3af0ea40",
       "name": "circle-chevron-left",
       "sha256": "744a19665f9e99e6d7f72bb24bda047120c29a286e1e5a674a134f0f6b392e78",
       "url": "https://lucide-animated.com/r/circle-chevron-left.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "a95e5d9c88eb5f60db2fa8098425d6859b66d954724a172ad5bebd06406a89d0",
       "name": "circle-chevron-right",
       "sha256": "842079b8f5efab7e8638ea8b604841af2a5a9c05cfe7816cbb161225e5935675",
       "url": "https://lucide-animated.com/r/circle-chevron-right.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "e73f321b75782d600f6d242c3f88a2e551109a9cfc0401c7aaedb22c539f7583",
       "name": "circle-chevron-up",
       "sha256": "2c41ebc765a780465bc9dceaf677d7e1abb9bda540d7aaf7cef8207ff3732653",
       "url": "https://lucide-animated.com/r/circle-chevron-up.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "1e9036e4075a4f47d466658df87296562d7d390f0f64c0ba48b3801e25818334",
       "name": "circle-dashed",
       "sha256": "2eed9e7daf44d0bf362f0b34997d30a170665ec522a8cdeca79d20d692e27593",
       "url": "https://lucide-animated.com/r/circle-dashed.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "7e31ae84e976a034788905a58eba8ec1269afe5aebd1cabfb7e3c9193892380b",
       "name": "circle-dollar-sign",
       "sha256": "2617cf20d766d9af656d43d467df51e53260aa02ade32a50721dd8422f4325f0",
       "url": "https://lucide-animated.com/r/circle-dollar-sign.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "1444594665747e42867ad4743f0c6b8d8f962be132c5287c2f4041f6b9dbe795",
       "name": "circle-help",
       "sha256": "47e7d6e920f31689c9f2a7c16f39f876ef066f0941f89e0a884f9841dfb7884e",
       "url": "https://lucide-animated.com/r/circle-help.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "000ba8ca90f1e1aec04a025e104abf4f68aee7fb88dd1beef3ed3cef044d7825",
       "name": "clap",
       "sha256": "8b4788b70382913e7f698e41345941d74edb793b9e1fb196cc59d43cae745437",
       "url": "https://lucide-animated.com/r/clap.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "c3eca42129537d1d94f4c2649fb6c6836c0180d1633b6beb3f9c50a32db5ddb1",
       "name": "clipboard-check",
       "sha256": "95f687aa3d5f80c86cec9b389e392e89a49898b4e9dc0b5e1e23a95ec9ecfbfb",
       "url": "https://lucide-animated.com/r/clipboard-check.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "8657fb29a5c1773670277dd9acd8fbe9e1a5fc2bf1a60950a428eaa6d11dcded",
       "name": "clock",
       "sha256": "d8d7b89a0cafd66027baab8f84af7d7fd0c4bcfb5d20ff4e842b28429f2fad86",
       "url": "https://lucide-animated.com/r/clock.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "9359288113c9118d49d41a2eb2fb5c836794accb038849de6754f01d299e5d9f",
       "name": "cloud-cog",
       "sha256": "057c1459e1c38329aa52203854e2d0a713910876c5bd2ee027ad50e2c0faafe9",
       "url": "https://lucide-animated.com/r/cloud-cog.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "6fe334d9f709e9e709ff8d7316544d8e964f10e055f8e9113b41bcdc60c76621",
       "name": "cloud-download",
       "sha256": "27a628fcaf36a69c3baf3b3643f22776c07747a4bd064807591de1f8f3fd6bcd",
       "url": "https://lucide-animated.com/r/cloud-download.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "8fc2f78025ae3fa5f52e64fdc5ecdb4b0c3981f2356992523b12dba96c623d97",
       "name": "cloud-lightning",
       "sha256": "c9f371f9ec32c71ab6134569969459de74b73d8eeb6a382d4664792e80d7b353",
       "url": "https://lucide-animated.com/r/cloud-lightning.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "875066a83ee87b08e2f299c97a3d71278238fe6caa1af9b8b0203fe3db63afb5",
       "name": "cloud-rain",
       "sha256": "a1480ef706ce1c90d9d56eb35719d5950ff547653b5f8feb94c4c0c9d4dfa783",
       "url": "https://lucide-animated.com/r/cloud-rain.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "8e32838d4689bc81f313dbb0350bdd116a62ad4877e8339d4452f612d983e4d0",
       "name": "cloud-rain-wind",
       "sha256": "5f52e916071c7f56945d81fa17c74fc60ae7f2e3d3271b6b0f59eb48bdc4b6b9",
       "url": "https://lucide-animated.com/r/cloud-rain-wind.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "cdd575000a8b3b6d1711abfd4833c77635408a4417664f42fa8216715a938555",
       "name": "cloud-snow",
       "sha256": "c32f2074cbad782abb09eb57cbfacb263025cccb8ddb36a7b6fa636015a93f72",
       "url": "https://lucide-animated.com/r/cloud-snow.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "6a3a67f7c8d5796fd3b238d9ceda50261354d27c9dd84cdacfccfbfbe69ee160",
       "name": "cloud-sun",
       "sha256": "db46116a0fbb6f9af67fa0dd1997d0d6bb1c8c707ede13742ae0dc74507ec62f",
       "url": "https://lucide-animated.com/r/cloud-sun.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "a02f1c85b0704d966913480ee743e06836253076b3207a70c968e5c33fffea1f",
       "name": "cloud-upload",
       "sha256": "ce1f2812ec16f9620d9ed821a0618cd66b40f6d88ddd55d0f931e9e25abed728",
       "url": "https://lucide-animated.com/r/cloud-upload.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "0073ef68ee81e233aac94c35ffbd27229db1505ebecae061f680e6e4b8db9f3d",
       "name": "coffee",
       "sha256": "5cd26a7bc8904705d408302882d652a0d4e9b9749ae85f2eb5d34b53b9f27167",
       "url": "https://lucide-animated.com/r/coffee.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "4c54ec5352d71df662367a963cdfcd032453b1e2928dfc95bcbd817539f6b239",
       "name": "cog",
       "sha256": "f9dc90ebf518d24a23d33d89ca3a6fb25ebb77e6a2fc1cab321c9b4a2af3ed35",
       "url": "https://lucide-animated.com/r/cog.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "6278a6224af6dd340f41fa760eff6dcb1f7939fb448811a0b534f4775fa5fee7",
       "name": "compass",
       "sha256": "f445f24cf9782463f43c392d16b671f6a80d52cb5948ae59379beed54d6285af",
       "url": "https://lucide-animated.com/r/compass.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "ea7521f92f30379ec013d40fbb96ab1edf2790101c0679bbefe9a989e2eead90",
       "name": "concierge-bell",
       "sha256": "b5ca54336828e390ee0c4c261ed8153e964bbdc749a9f852b0c583d1422ca731",
       "url": "https://lucide-animated.com/r/concierge-bell.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "100d226e2e1c73e852ac742f93bc074469c57a6d8ed76e9b68dd0903074d4b52",
       "name": "connect",
       "sha256": "83800a69b2c9c04e7092de490b6bce63fda501202ab5ea4faee091f3beba7e71",
       "url": "https://lucide-animated.com/r/connect.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "352a7ffdaabd49c531e00738fb5ece4765ff217b827d842671892ecf620fd891",
       "name": "construction",
       "sha256": "d48e5b53a75db30a460fce11f2ef8417f752d92f68491876f7c2974b8f8edca3",
       "url": "https://lucide-animated.com/r/construction.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "3faf51d0d09226af8b5f074c97d6cba586c37a889fc3b94d1af05bd5e4d21e55",
       "name": "contrast",
       "sha256": "4ea29872a8943703ed0ccc7adca18663e97d7689ff9196533a0a5532f8705a66",
       "url": "https://lucide-animated.com/r/contrast.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "114d589fbb3126a7c3bc8cd1cc7cbbcbb3b5d465fc623eb8299284871c14affc",
       "name": "cooking-pot",
       "sha256": "0b5d667bb8856b3f61d6233d05b4ac700fca252a172c08d3fdd4221a593af403",
       "url": "https://lucide-animated.com/r/cooking-pot.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "0b9c60722e4da613568c6d6ca3d14ede8f192472130ab9791e088bdaefb40d1f",
       "name": "copy",
       "sha256": "8854d8eac44a73c18c3af656348f9a4f6c0920499cbba63c33288047cf54c052",
       "url": "https://lucide-animated.com/r/copy.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "a1121c74df053bf3412b92f5ccebb49bf35c350ac0e845ed2331b39646ebb663",
       "name": "corner-down-left",
       "sha256": "47b6751892f2781e8cd335ff7db73ed412b20e421411e97de26502b87284fcfe",
       "url": "https://lucide-animated.com/r/corner-down-left.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "d4e0b4f378d4aa1e0c6c73259f638013b57583215a994af844c75a4f6ea248ab",
       "name": "corner-down-right",
       "sha256": "27173787b68391228369ca5744ad78fb376c99fc3f11066eb6149a7f4bf25ac6",
       "url": "https://lucide-animated.com/r/corner-down-right.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "40df89be6d0f52eae8674fcdfc85abbe8906188e117affabac5b326464e004c7",
       "name": "corner-left-down",
       "sha256": "bc8165728d295d626a06dc27349d93006cfa45d6c47a2b75cb2a02be03952b30",
       "url": "https://lucide-animated.com/r/corner-left-down.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "b982de76e1e4239393f09052b30be08ce98bcff9187e22bfcbab96cfeb123780",
       "name": "corner-left-up",
       "sha256": "9c16faee4c483ccd5341e5c9e78a11d326dd755248f0a1e108b4187f18bc26c1",
       "url": "https://lucide-animated.com/r/corner-left-up.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "2b747e54205be50d5245e48b43f1c83bb61a50f696e86cb3ba0caf75506652f5",
       "name": "corner-right-down",
       "sha256": "0ac3dcc8b18e60e8fba33bfb1ffa41f956d94f39e9031f1f0bf452c9cd67ff41",
       "url": "https://lucide-animated.com/r/corner-right-down.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "1b11e07cf3f6f4696d992c0444e772e7e5ba25f7d8639e6453ba3302258c4102",
       "name": "corner-right-up",
       "sha256": "e46ed6cd3960641924a7caf34933cc2d22b36a630a18ca54146271c886b2078f",
       "url": "https://lucide-animated.com/r/corner-right-up.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "bdb996e3f69231899ba4668e2d0a14f244e3b39b752aa7c4fdba13e8a27a795e",
       "name": "corner-up-left",
       "sha256": "d059e477aceac6ebabf0a27ff60497b6707e2228344cb551c3562092ea32b2d4",
       "url": "https://lucide-animated.com/r/corner-up-left.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "bca628c274103eeb1a4e6cf37b53aa16c4bbe3effbb10f23b778e7e23bcf1e61",
       "name": "corner-up-right",
       "sha256": "73104074d70e87bac2844ff844d909f75a2150d96a4e4e08aab7ef6be6854c81",
       "url": "https://lucide-animated.com/r/corner-up-right.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "7d835e9b7a73b20f06c0b52e3c84c1628f7efa1f21c2ed54d4e42df03165e70f",
       "name": "cpu",
       "sha256": "c4c95032cbe32a02591bbd3cb11a5e0bbe7876c77a34b7bbff42a9d701f1bf26",
       "url": "https://lucide-animated.com/r/cpu.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "cef719e5e77479033b433634e5939134a62b515a96ada83fbaa118f5790d4561",
       "name": "credit-card",
       "sha256": "7689422c4ccdd2c1c04d3a37df9c28e84f96f65dfc6dde2e8e4406db916d2100",
       "url": "https://lucide-animated.com/r/credit-card.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "ed1c06ae294427f9715903f1b75c2764fbc813f3933c3cb4d9ffbb9daa84dd22",
       "name": "cup-soda",
       "sha256": "1528c67b7cba8d1dd7fd77852a2c93799aca908fdc304f018a74dc1f437c8ec1",
       "url": "https://lucide-animated.com/r/cup-soda.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "a43c7d721e4714dc89d8fbf64b56ec48a78b3a8cdae5ed04f4e6ea13c15850f5",
       "name": "cursor-click",
       "sha256": "594d4415c7a2ca733fd6e98f51a4cf87b0f1608715cb6603577c8f05e68438b0",
       "url": "https://lucide-animated.com/r/cursor-click.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "a51f1aa7d7861aa818854276f77533acaf4801c4601c9289e3753fc21553c8b0",
       "name": "database-backup",
       "sha256": "04090859ff313a62055e3a4539792c18fa728f975926b5c7b4de8dfea0590f31",
       "url": "https://lucide-animated.com/r/database-backup.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "81dbb34799d1e5e2eb24f8e6a0dd53eb628782a4bf2e2562a48327cc602f7b22",
       "name": "delete",
       "sha256": "c6dc682df91ca3a48b5ceb4cf4da6b2cdb6ea073a4ee020e6a10fe8c9c20b69f",
       "url": "https://lucide-animated.com/r/delete.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "af318c1420a72e8c94125846b66d55ca4da3fb6f21b8f28062219d5e5ea2653b",
       "name": "disc-3",
       "sha256": "a340f8f03fa8313426d8bc010d6b3d78091ab13e0778b314d815f5c1b185711a",
       "url": "https://lucide-animated.com/r/disc-3.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "27020a82dd9da109e86f32a31dec3b1e95d47dc2833b3f9278a17bce60ac1217",
       "name": "discord",
       "sha256": "5c45c2170235c02adee38664e988d0df372e8e2e4ca3bd22e2f09941dcb0336a",
       "url": "https://lucide-animated.com/r/discord.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "11c39ab13d18ed8f42b8f12dca523d9441403e959d48d608aca8891cad808d06",
       "name": "dollar-sign",
       "sha256": "54da3ec5b680a4012c46cfc68b7c10036d5b5d2c92c5980cfc0174128caf32e7",
       "url": "https://lucide-animated.com/r/dollar-sign.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "f927a72944dc6da129e6be8e6e4cb3c6f8f1e549b0f5903cd66dbcab855045e4",
       "name": "download",
       "sha256": "0ed66e1c4473f8004e6b455d968697fb6250ea51c3943f4d7e09b1364e0d2792",
       "url": "https://lucide-animated.com/r/download.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "164d5b8a1283f8b5ea2808fb0eeafd034f09f94526a500fadf37570d35229aee",
       "name": "downvote",
       "sha256": "79828c072776986d7e31f0717db9daf0afeec5aecdfae735e12904602262b7ff",
       "url": "https://lucide-animated.com/r/downvote.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "4442a304365f7bc2dd9ec70530bc8f4ccb68a65c16f8c353eeb559dc11cbde45",
       "name": "dribbble",
       "sha256": "0315650b09aff9b78a50e4a4e6db916be497ace48ba591d4caf5a57739150e97",
       "url": "https://lucide-animated.com/r/dribbble.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "36a4f7836773556932efdc99ec517496e29339d1589143f7ff6060747372e1c9",
       "name": "droplet",
       "sha256": "3f1a2de6db0b4f2bf9171441904685d3aaed45d116e449a265d3b91cc405a27b",
       "url": "https://lucide-animated.com/r/droplet.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "ecb0eb3e6c0ee03fe6dcaad77a3955f7a4cb31afee3eebf83a84d3e9ce392c50",
       "name": "drum",
       "sha256": "a50df13d05b85c2888b184d553374300bd8da4bcec95b62313999a693e72a5fe",
       "url": "https://lucide-animated.com/r/drum.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "4d0c971d10f16fdbed4be116c4079997bd81eb07b51ae1db244f18cbc417194c",
       "name": "earth",
       "sha256": "02ebe1984d09f742f425d0a77a1ea2e2deb6ade88442de1bcd2354c4390adbc3",
       "url": "https://lucide-animated.com/r/earth.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "f8912f2b6ef20be051dad8e878a3636f8d8dbd25b1b689819929052c8589327c",
       "name": "euro",
       "sha256": "4b7371f232f5478de9c566a6e6e5d793cc0826b2064102b80b99a89ffc24fde9",
       "url": "https://lucide-animated.com/r/euro.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "3f07423e0be86130a698572d0697f1b4d9fec506f9375aa66f7a4eeff20e4ee8",
       "name": "ev-charger",
       "sha256": "ae73249cf31574dce95631ee581ff953fb0271a434b202140d21cd506917e923",
       "url": "https://lucide-animated.com/r/ev-charger.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "c11ec53164dc4b5ebcf9eb87d15b359fbea332d3aad45df83599ac305b367227",
       "name": "expand",
       "sha256": "f0d61df1aed10b68f381a8b457879b6dbe369c55720d83b5dc0777a9f4255f56",
       "url": "https://lucide-animated.com/r/expand.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "64ca7ca6c6f26a0f123da61dfa9a4a5e3620ce5954f8ae58eb2574ef68a7ea90",
       "name": "eye",
       "sha256": "5e2e042da88b97d1499b0a7180a568514220f2cadddffb24ecadd935fa11324e",
       "url": "https://lucide-animated.com/r/eye.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "b6779a4b65f17410e98abcb7db989bf175e5ac6eee3f343da9dabbef803e65bd",
       "name": "eye-off",
       "sha256": "845bc7f5d9e21c01e76435c909ddaf5e073efd33c7308317484e6dc642072681",
       "url": "https://lucide-animated.com/r/eye-off.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "0acb61618acedf79b0a039e3f5bf435531f085ef19c0a356c40e159ec5899d06",
       "name": "facebook",
       "sha256": "e933534c6c1c0e2dbf5369024ed241b48c92718e39f68485621d06701e0348aa",
       "url": "https://lucide-animated.com/r/facebook.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "e7ec789797559e1118f25eeb8274094a048b53eb7a7d2cc3a3ac8c6d30f7df7f",
       "name": "fan",
       "sha256": "3448944f9ee1ca4bdb8cff1fe7d09d4cfa7dc5f6720a4f7241fc77c6e601e1d5",
       "url": "https://lucide-animated.com/r/fan.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "f483a95c7b065f3e036fc51ef5f7b5788aad80f6f0d4bd027f183d32488ab657",
       "name": "feather",
       "sha256": "f742ba7861489a0458a423f1f922966793c4e731226acfbb97a99ac90459a66c",
       "url": "https://lucide-animated.com/r/feather.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "05090ac074b8d778825361c0f0c2332f6fec2e9faf5ea9627983552ca0153633",
       "name": "figma",
       "sha256": "57cee59d6fdbe4d896b6983d51df6d42a9faf659304ba73c1b13822ebdf49566",
       "url": "https://lucide-animated.com/r/figma.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "a09facc8c905507a7d94bd42688adcbf9496d13d9524ecd4407ef544377d84cf",
       "name": "file-chart-line",
       "sha256": "fc80590cc4a61c6a69d3fe19aa9154a715c7d05c3182be8570989216ce4e79d9",
       "url": "https://lucide-animated.com/r/file-chart-line.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "2c0bd6466a5d63bc267bdb72cdfc8a9f2ea7459aff49bbef5f670d3aabad8a8b",
       "name": "file-check",
       "sha256": "9ff641802b769e6fef34f11596d0fbfec4e0eb4c24f50b7270148b1f792e6a2a",
       "url": "https://lucide-animated.com/r/file-check.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "7981c1db161860382c604c22393aae44859c00be0f582700dbe7b56efc79ffb6",
       "name": "file-check-2",
       "sha256": "391f40ea893081ee7728ffdc8cd5fc770ad28d47b1f68797f9a896e075a3e452",
       "url": "https://lucide-animated.com/r/file-check-2.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "5c403d2c254f8dda442338315f6e2505ca1b32d5b42f1b4c653ecb45072a0776",
       "name": "file-cog",
       "sha256": "6a109eddd2f36f5f19070a9e207f3f79cd7f5a490e7cb4aa5f452f74c2d781ab",
       "url": "https://lucide-animated.com/r/file-cog.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "a29fdd0b6f4e908b01c5a26cfa7378ef176269af8e36826874c78c257a2db8f0",
       "name": "file-pen-line",
       "sha256": "b8bd4fe5b963af799406bd6bd60269283985ad94366db00d48d75c7739fde9f6",
       "url": "https://lucide-animated.com/r/file-pen-line.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "811ed008a65bd54df0d68095033d88caa121277a74452e84bf8b8170be750757",
       "name": "file-stack",
       "sha256": "f83de11885e191f6aa94fa1c923b2dc2884eb036d5fae985185b168d6722b180",
       "url": "https://lucide-animated.com/r/file-stack.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "ea096effe4a3f9fa7704041c30f76ac7f992eaabb51019343be755471e298430",
       "name": "file-text",
       "sha256": "8f01570965f44e845a59805687437566be563c6a460bf715da202fa7da0411c4",
       "url": "https://lucide-animated.com/r/file-text.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "af68c9fed0f0edb549e0680fa4ad3fc29f61446fa927de6c67ab7dc17880afd7",
       "name": "fingerprint",
       "sha256": "7dd497c1d43991b71c42ba63305618a7afe5ac227ecf4928257ae34e512fd335",
       "url": "https://lucide-animated.com/r/fingerprint.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "59389b5c5bca579519868a7bf182018583c300b5d44f9abb98fcfe6e4318e0e2",
       "name": "fish-symbol",
       "sha256": "618e5b4476bc33ce76e9de32a229fb3b08a8e8f6cb115b4eb17b48d79dbbc5f6",
       "url": "https://lucide-animated.com/r/fish-symbol.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "c56cff59f5264e41969fdff3455c30634674d169c888b38e9e694fe3baf57492",
       "name": "flame",
       "sha256": "d0a17d9c2a953a05708d1e267d54f24acd718e99daab7f7f1e4d4f01694645c4",
       "url": "https://lucide-animated.com/r/flame.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "0cab2c861a8c9950582d9a70a206590e09325e8cf752473b92ba5ace1d960a89",
       "name": "flask",
       "sha256": "56115ad23232856faa56bf1d947c1da11ffd0ff1663d5e0af0d97f50ccfe6e69",
       "url": "https://lucide-animated.com/r/flask.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "9a15349e0db31156bfbb74b94a0539ba7a6f3e0b1eb59d180ba740c6eed013b6",
       "name": "folder-archive",
       "sha256": "aba507d3897f2d8160c07a7a70342224d8f936bb1e609f1c2c4408a09662dbfa",
       "url": "https://lucide-animated.com/r/folder-archive.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "bb64c1674eaf031ed4d2526b1dc1a78951dd32f6541aa3135e77600a0475c390",
       "name": "folder-check",
       "sha256": "1f9edfcaea7b9101f9a8d16b41e5ffa8765e951eed868aded86e4de9812f28eb",
       "url": "https://lucide-animated.com/r/folder-check.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "24facfeb0a9572312edebff256e8449ab4a3378bcebf2744c69e6943ca35a685",
       "name": "folder-clock",
       "sha256": "479abf17678210be1760625913c381af1261a02cffe74ec1c73c1395fa7793f2",
       "url": "https://lucide-animated.com/r/folder-clock.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "30404db0b886fd87301a0e2b644a86170be8a6157bfe319534ff6a081b446ad5",
       "name": "folder-code",
       "sha256": "57c0ee4ffc784296e5e6d5debde8b196755fd356e7a67ee53b130c43ce537fd4",
       "url": "https://lucide-animated.com/r/folder-code.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "7dc4de6845ee3f2e5e1d08ea7ae2479736d982510f70817f33c5d49e1dbbe6a5",
       "name": "folder-cog",
       "sha256": "8ffa6eeba32c1550ca2d29e69c0f682a4f4d2a5406ac635d9ae302b4026c9bd9",
       "url": "https://lucide-animated.com/r/folder-cog.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "9b4a771ffbba66c92491ded24d4436e636dbd20deb9a81e854afb42a0a75e0c4",
       "name": "folder-dot",
       "sha256": "5fe9cc9b164a867d532cd985bd3babdfce461c18fdb0eb82cbabcac63927a91a",
       "url": "https://lucide-animated.com/r/folder-dot.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "caf71e8d846b73d4795273a210397efe463b8e3f29e5a6d15cb0104517e5f07a",
       "name": "folder-down",
       "sha256": "7be3fa009c47dffffdd55549bcca5dbfc4712c8c216025f9626795c9904aec2b",
       "url": "https://lucide-animated.com/r/folder-down.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "3d2ff3005eb1c5d6dd23e16549f70efd300f064327758ae1524a563c285b9dee",
       "name": "folder-git",
       "sha256": "0514c9dfde9293e33f28602167956bb8675380aae7f413dc81466d661088f228",
       "url": "https://lucide-animated.com/r/folder-git.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "6bdc056b2e8232685534963c48bd78dc86c53353bcdf1e70206e8cc2a9d8e7d6",
       "name": "folder-git-2",
       "sha256": "833b5b02d187ece942bf6d3a20e3bded8fa606145dae469f83fc96b724e9e4d1",
       "url": "https://lucide-animated.com/r/folder-git-2.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "968e11fa4dfa1bb3b0eb1a7639980e916a8232a8b92c9f9f1cf1df521b1db6f8",
       "name": "folder-heart",
       "sha256": "771b680c3bb96b6daad4e9d2f754d2df3e6455d91c3baa97c08cf95880f2fedf",
       "url": "https://lucide-animated.com/r/folder-heart.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "258792e68556178e7cd9c8e56debc531cafa04c6c4aaaf062c8cd5cee01d39b2",
       "name": "folder-input",
       "sha256": "3fdd95d39ed8583ac9ae72457593191eaba6250a41d372313da5dd620d9b8947",
       "url": "https://lucide-animated.com/r/folder-input.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "7271eb4ccc6869242bec402c4bfc7f22148f5d1cafcf53678f2cc017fb0d2a23",
       "name": "folder-kanban",
       "sha256": "b1a5c5c560a6b300f69407e5097b82e284c91ce70078d3392f48902d4b140675",
       "url": "https://lucide-animated.com/r/folder-kanban.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "334db714f077ced8e5ff492ab0cde5c6d516b118117cda7b5b93d07cba21bd57",
       "name": "folder-key",
       "sha256": "d007f9b36a8c358ddad13eac18a016ac9f874c227928b0d98df2a16b565c54f1",
       "url": "https://lucide-animated.com/r/folder-key.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "4952cd2149f0f5a4bcac4237669c7dcf4cd7cd36ee98d4a9903ff4025d0ef430",
       "name": "folder-lock",
       "sha256": "b2f2a4c159204040709c388e8b69453bf885156184f66fa1e328f9dfde4ece19",
       "url": "https://lucide-animated.com/r/folder-lock.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "f486be6109e99c81a08d024b3956955e3b9c54c524915c5ba7b3a9bf35e4087b",
       "name": "folder-minus",
       "sha256": "9e79d375e155ae778a92e915d0868cb6f8710e79fa211202a65ae8b26b9ca37a",
       "url": "https://lucide-animated.com/r/folder-minus.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "f834837ab665512dacad6bc5c0fd1f2f694a58b4484be88fe30714841ee25a78",
       "name": "folder-open",
       "sha256": "72d8d277ece1340b6be36613f57f9dcaf878b8e8c6c3555b31e1feb0591ef51b",
       "url": "https://lucide-animated.com/r/folder-open.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "2917a38ebffd7af5c54a4b90bff686148b664ce776c7fa7764739f2b4e546ace",
       "name": "folder-output",
       "sha256": "02697657d5509f0b34f4f6f5548eb3b8831c310d8060ff34c1f41b185861e145",
       "url": "https://lucide-animated.com/r/folder-output.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "6815fb074b44ab41a3ef84522024918159f05e92c80832865211491bc3a44572",
       "name": "folder-plus",
       "sha256": "c23f1be1f4327a97581211c1f54277b23cb06c2b79360a0c9b99b222f07eb19b",
       "url": "https://lucide-animated.com/r/folder-plus.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "b24a551d14b47fbbb4b7f06a3076c6dacd5e5b887269712f0039a376e1cecadb",
       "name": "folder-root",
       "sha256": "cac6ee092fdc2196304898d09c087827ca7efa13104e8a51d4a368a918063ac7",
       "url": "https://lucide-animated.com/r/folder-root.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "1fea4bd7e3f3192201bfc09ac9e098779e8e74e77825b9765ad6253dadf264e1",
       "name": "folder-sync",
       "sha256": "20278b776dce9d080e76421cd7504817df6ea8b2b2160107ecbe72c4e268f684",
       "url": "https://lucide-animated.com/r/folder-sync.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "94fa97ee53d6a58f2d08eb86b3ba3ed59f1343961ea19923924a412ff693303d",
       "name": "folder-tree",
       "sha256": "d11136ab30ab0cb8d820d89fc0d9e4deb348db11ea3a82588637d480f61891a2",
       "url": "https://lucide-animated.com/r/folder-tree.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "a1019b9c9067af90651b4680ed5b128af39a3710902e7ce204f5c96ec1aea83a",
       "name": "folder-up",
       "sha256": "dbc8547ec7c2d5275d1a6cdb00190aa97a64fbfeb2cd70df76cf41abf1f30653",
       "url": "https://lucide-animated.com/r/folder-up.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "1754252d5e482a7efa78f04499aa1d497a0d708229ec6b12b15e4c6004506f86",
       "name": "folder-x",
       "sha256": "af32dd5a0aedd3d2f12d590317847045c6365e23c37406a1ca15cfc82de03574",
       "url": "https://lucide-animated.com/r/folder-x.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "b4fd7ee0a44731c841fc9a1cce415328d7247f1c89ee0a14d8fb82a234c11b5c",
       "name": "folders",
       "sha256": "c5e67dbed3aa2879b049eeca2a0940a28130502dca168144b232a96f223006cd",
       "url": "https://lucide-animated.com/r/folders.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "750a9f05e7ab7344e3f50afc6b2fba7490e6411c1e87273a9227bdf3db078a8f",
       "name": "frame",
       "sha256": "eaec9f969c8c1312a64dd36d4581745318cc95047812bad7c4c0f82257f8c2a2",
       "url": "https://lucide-animated.com/r/frame.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "35ea4872afb7f4b4311d2a3573fc1f5811ef5da728a3cd071eb07f6dab99eea1",
       "name": "frown",
       "sha256": "fc32e8769f2e6cb7a8b4f68297802484043b3cddaa8aa6fec08f3ff3a58f86ef",
       "url": "https://lucide-animated.com/r/frown.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "374f555bf04593de62309042f65f1a805c3a000f489d9821359f89a279c38441",
       "name": "gallery-horizontal-end",
       "sha256": "42048419e10fbb7c69112ed964e81d5e2316dce624c72751602373a7b1447654",
       "url": "https://lucide-animated.com/r/gallery-horizontal-end.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "3a90412d8347bfa8be717a6db3aebd96d7c8ed5bc889bd3d9bc3c6cc5bff0cea",
       "name": "gallery-thumbnails",
       "sha256": "9b77125c3dc74305da359113d06fe348584018a4e779c0f304b9feeca17f1b12",
       "url": "https://lucide-animated.com/r/gallery-thumbnails.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "65c9ef11a071317d0d2de206778794092a29dd7dcfb0c5d6c04738f36841dc69",
       "name": "gallery-vertical-end",
       "sha256": "d3571e20915958b851f09d88c5f88a34c70ca3073c9b905693899fc3bfa97aa6",
       "url": "https://lucide-animated.com/r/gallery-vertical-end.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "476dcfefa5e83e6431b6502ef124440d7c11bd703d84a9513c666f02bf512bd6",
       "name": "gauge",
       "sha256": "c840df02e1b818f8d2529a68093a44aaad47951305c1ac7db9f60bc84fcd9701",
       "url": "https://lucide-animated.com/r/gauge.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "7c606e622be6935d4dd251f6a599722b27a3bdcfee7ac39233b5ccd9646eb0ff",
       "name": "gavel",
       "sha256": "b0149ccc1f2bc67c579692225b9733c7e49472f3054404ff9490d38f6308f355",
       "url": "https://lucide-animated.com/r/gavel.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "32e4933feb6d6cbd0fc843473dd91cae93b29b9791a8aedfade4dc079aed31a1",
       "name": "georgian-lari",
       "sha256": "bd776d3a6bc75c8bd3dfa35d4937bf0be513c7aa78e6d186eb64e5bce92cd5eb",
       "url": "https://lucide-animated.com/r/georgian-lari.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "b01a40f0d3680d0ff6b1fdacc34ce6e743c17ef8eb2f72ee228dc24b5e1eb2cb",
       "name": "git-branch",
       "sha256": "9930ac5f6e49418ae18f0ff7a01d816f6e0067441be05e0e9f3cdbb740558b69",
       "url": "https://lucide-animated.com/r/git-branch.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "739260028acc0692f7ccacdf4a270a7c9c124c17125bfa4c26a216158942c142",
       "name": "git-commit-horizontal",
       "sha256": "4156075499b8a3af91755d662ef50e3305851ad722958963811fedc3b40f0989",
       "url": "https://lucide-animated.com/r/git-commit-horizontal.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "8277aba20a47621a1da718bbde93d8376010a859110bc3b92d1f29b2748148d4",
       "name": "git-commit-vertical",
       "sha256": "07542a22d8c3db629d568736abc154feaa7bd946693a8420b9ee2dc46080c289",
       "url": "https://lucide-animated.com/r/git-commit-vertical.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "66a6c8d5de5275ce42f0bec40becbe9f7418a80b7a7f04c415f0a0cf3fb1f12e",
       "name": "git-compare",
       "sha256": "4f87fc1efb3247296203862aa8dd56a48fa80eeccc1ab7dd030771c001050b0e",
       "url": "https://lucide-animated.com/r/git-compare.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "f1f93c6157f393b6584d8dc2698148117a58508307c22a26300fcdb6e49c5043",
       "name": "git-compare-arrows",
       "sha256": "5acb048152e609d073658037cec1e64d036decfb8d7eade7dcec227c6854cd28",
       "url": "https://lucide-animated.com/r/git-compare-arrows.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "c376e16e043f4e10c287ae84f30aa3338c56112d93681c557982588b35f877ac",
       "name": "git-fork",
       "sha256": "8d3c3fe5780c97356601194d186bb21f87405a80a520f4a5b121a262e5127472",
       "url": "https://lucide-animated.com/r/git-fork.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "2e66ff18c820438dccef0843e817ec5a7ab44ffd1dd7bfbdccc5f34379aa37ff",
       "name": "git-graph",
       "sha256": "afae503be4fb40ab3cde72611fd8850f0840d9b17e7bd9aac53be633663b90d9",
       "url": "https://lucide-animated.com/r/git-graph.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "f4291c992f28226574d4650fbb7eb6ba373898d353c8cc29d991bf3653132646",
       "name": "git-merge",
       "sha256": "356a4f330ea22716208eb434ada37f6b0fc1fb7fe92dd771aa805547b148f36b",
       "url": "https://lucide-animated.com/r/git-merge.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "494913d752570ac294bebdc418db970661568860f9d6dfecbd1b829388de0f90",
       "name": "git-pull-request",
       "sha256": "69336abde45dd8a4a98ce1a7ae1676c92fab59ffb8029a9ec7d1eea8f5ab0b93",
       "url": "https://lucide-animated.com/r/git-pull-request.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "60fe54577fafe70df94dfd6e1384a0f497a65dc2f5d0d9fd1cf59c3897689839",
       "name": "git-pull-request-closed",
       "sha256": "2d9a323c3896f11e0d677d3c24d35f2b4d49a5d69d22a2eac13a7d5586e228c9",
       "url": "https://lucide-animated.com/r/git-pull-request-closed.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "f7f0b292db76dc39383107dde2b895bcff364245e3bd11be5ff2ce4f22ce2bb7",
       "name": "git-pull-request-create",
       "sha256": "388836b17548a35b1832aa825f54d4e0ea997cc600d7d9f3977ac7ca85a6b23a",
       "url": "https://lucide-animated.com/r/git-pull-request-create.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "3c380dab7b410b6359332319981ac7a0905132c89ac8cfeae28d0b33bbd67d5d",
       "name": "github",
       "sha256": "44c18bf3c30423ccb7ebe8324de020ed66e137d59a3fc4f8277bb60e35edf753",
       "url": "https://lucide-animated.com/r/github.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "18eeb3edaa494abb9be6f69a31b17c4c8896d4f0044e61faaf1dcafdad6fee5b",
       "name": "gitlab",
       "sha256": "58a64b1cb8d0a1ad89fcd310107f9138e1104ca6518494d6bce235e4639c7d35",
       "url": "https://lucide-animated.com/r/gitlab.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "123152c31ac2e8990c4e0b71aa5e24d3e6334dd5eb2e71ee08135b18b69e1288",
       "name": "graduation-cap",
-      "sha256": "213077b0da5eb5676080c8819cdf983d1a7a26ebb2ef032810fb29dde26a4d70",
+      "sha256": "9b42578b1d73185f67fa2f0ceed373db3cfd2f574a04d19eef5424ce9253d418",
       "url": "https://lucide-animated.com/r/graduation-cap.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "b2e30d2e11315dd21853e9e1bb75f617f99a11db1414d34b3f9c28a4ed0570e2",
       "name": "grip",
       "sha256": "9baa1b38118c0e9eb03914232423590c98cfae484a62f2b34ad3a4b2f2d921dc",
       "url": "https://lucide-animated.com/r/grip.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "8e2807df0a36d64c99570a6c85fa4f803960eeea53a4ed4575a14b3f0fe41e2f",
       "name": "grip-horizontal",
       "sha256": "34d7e5ef71f6afcbfb3ab59e2553292eadd742c1d05db787568cc1959727cd57",
       "url": "https://lucide-animated.com/r/grip-horizontal.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "dcc7b2da8343b691ea9aa613ba69e83e16d7773690d1d6ae57948978aaf17815",
       "name": "grip-vertical",
       "sha256": "f01d553481ca0ce80260e15a425b998bda5578e44f558fe3ba6402be4096720c",
       "url": "https://lucide-animated.com/r/grip-vertical.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "3c0cc2b69228291372c303f63f883fe7a6c4daab42fdaf31fa6f77b9e8d5feff",
       "name": "hammer",
       "sha256": "3a1b0d205cae7e699e419caa22b06f67a9478104bc84a5e58f1f6b7543c4b0ad",
       "url": "https://lucide-animated.com/r/hammer.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "36dd5021336a5e816a16df79032c1069ae9b7dc1eef57bdedc4eb8130ddf5cd8",
       "name": "hand",
       "sha256": "c131540417379466717c82c42f2590c80d9defdc5e7456571894a8b9ce880384",
       "url": "https://lucide-animated.com/r/hand.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "5bb871d34e406ea16f1957e939af382ce900aa7fb98a8046dbdb3cdd8a66f4f6",
       "name": "hand-coins",
       "sha256": "3a364485da607dd91cd9b06c17f2c08c1a25879405d8933c3a3634c50a6ed9b2",
       "url": "https://lucide-animated.com/r/hand-coins.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "9db2b202556c43dd47470b240edadf4e4090f72dd9d5b17fc36c1349d2b3b62e",
       "name": "hand-fist",
       "sha256": "1f9419dad8f2059ea0522ae3e0a520cb53bec57dd356aa1b6d030c6700660c0e",
       "url": "https://lucide-animated.com/r/hand-fist.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "13779f0be0373b8f2b41ef7922534880b16d6ce8ce82503dc01bdb3f548a7fbc",
       "name": "hand-grab",
       "sha256": "cf8a2ae6e0a4e609949ab8ac98eb6d5c191a6e77ff28b53ce0e0e321a6a9ca01",
       "url": "https://lucide-animated.com/r/hand-grab.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "fdecf09878030635470e96acae0eb68f4a22dedcf5ba90d26ffa5f1d526ab2ed",
       "name": "hand-heart",
       "sha256": "bbd7e4a2ec7d8df227ebab4acf1c3e2f1be6a38c8c17e0e38514e4fd19a1da14",
       "url": "https://lucide-animated.com/r/hand-heart.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "6ae51ced834574960b3de9391cf94e90af78c2732b29e60ffdbacf5e8c6e233e",
       "name": "hand-helping",
       "sha256": "a1e7bcae19c6aa995e4aaffae9752d3f5380b2fa5fe9afb776a5ff0edb818c5c",
       "url": "https://lucide-animated.com/r/hand-helping.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "ff451c0788b47296b1ee7285e41c5bfe30f9f34e44a1c00a8dd155642cb7f260",
       "name": "hand-metal",
       "sha256": "44f672e46c8c24b587c81e0916a3bae60a251ba28dc7a8472d8450ce7b4a4ecd",
       "url": "https://lucide-animated.com/r/hand-metal.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "92e0b35623572d52422c0b2cce56c4a1bd13057cf5f47e57e19dff34579480dc",
       "name": "hard-drive-download",
       "sha256": "9c654d28216dcb6afd9dc11114d51c755846f186d08284f96ef6c7598a4c8126",
       "url": "https://lucide-animated.com/r/hard-drive-download.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "6a53ededcf693577d59d7bb10af96d053d4f9088f9c2aeb07862ccaec6b3f645",
       "name": "hard-drive-upload",
       "sha256": "ef3378433468ad3d7b2c6b774befefc419ed95c3a7cf7210c54e80dd90683460",
       "url": "https://lucide-animated.com/r/hard-drive-upload.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "4da32fc0564157250f2c8dc8c65876cd57a4460a3c4f558dd00d565d1dab3d40",
       "name": "heart",
       "sha256": "f591a13886307584ca95d2058df050a765d73431d9d95ecb4034e85086f7f738",
       "url": "https://lucide-animated.com/r/heart.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "772afa9cdb86d6f71a59f72e38d6f133d2108d5cd291ffbbf6aa23570b40053f",
       "name": "heart-handshake",
       "sha256": "aa7336d90a9989bebe4fce0a18d7e04b118ba1512a5af20bb45a17dd5a4dee09",
       "url": "https://lucide-animated.com/r/heart-handshake.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "2cb29768646f052012118d3d0d8724f5fb783e8d78c422c7c1c97002dd628c26",
       "name": "heart-pulse",
       "sha256": "a342f1ed545308789d4224ac71af69502e7d7b3d5384e7342e9d5b32a5bca734",
       "url": "https://lucide-animated.com/r/heart-pulse.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "43963014d1c49a2a0518d1bcba55a6dcf93a2536c0124ead1a69c601a27dc2e2",
       "name": "history",
       "sha256": "bb6b022562f32036e7050e1516b718e63a0ad437ca1e0161ba1f6b3ef7d60ba8",
       "url": "https://lucide-animated.com/r/history.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "1f4755aea12588f3dbfd01bedde04e69b6f12e138fb8577abdf833cde1ec9f4c",
       "name": "home",
       "sha256": "199925a5d12ac003c8d6e40a563f97123980166aeb59a27f2079df8594dda00a",
       "url": "https://lucide-animated.com/r/home.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "3cb9a3794cd0cfca1e5853608a9d115430651acd67df663ca18f6c7b88781cb5",
       "name": "hourglass",
       "sha256": "d4a997ca14a137bc6c86e7332ac39725251836b0c1f320346b8bf7e5be99773e",
       "url": "https://lucide-animated.com/r/hourglass.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "2d0a88a6dff8de76a18a83f4631ecf03806b7663e2aa0623b18884789439777f",
       "name": "id-card",
       "sha256": "611eac8b69e6c7a0017183d718a05a9d7253a7233959b58ed46368b64c34df79",
       "url": "https://lucide-animated.com/r/id-card.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "68800f38289fd5cc9486ddec41d2461ff3e999fb088d4906868f0f5d1fdba252",
       "name": "indian-rupee",
       "sha256": "70d77645e5492ef5872f7be53704151fc9e1edaac22c124dac4e5b32938a6d1d",
       "url": "https://lucide-animated.com/r/indian-rupee.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "98b85a6edab12fac6ca3811915463be24a6a481d32137c1a8c4ae8f808e8f77a",
       "name": "instagram",
       "sha256": "fe9441a042096ce16add085ff796f136f7f33c2e1220f434f5614513a9a4c219",
       "url": "https://lucide-animated.com/r/instagram.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "1a788371ae9c8aa5e9f3783d27929c320c870930cedef056cebdaf01d091aec9",
       "name": "italic",
       "sha256": "6e5cb3151d7bb047d38043f05d2bec99eb3257741c5dad834aee976d04df3503",
       "url": "https://lucide-animated.com/r/italic.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "f5d1974c8f8c9cfba794eba3d2f81350bb2aa75c5a86b1235fa6c7ef1aa76299",
       "name": "japanese-yen",
       "sha256": "439a044372d9049017865b855064d893a97f542603e1c8427ad169397e51a158",
       "url": "https://lucide-animated.com/r/japanese-yen.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "6c4965413254beabd7c9f0b8fe9f5f5f9f2b6dc12ae53e373d07311d0b84d21c",
       "name": "key",
       "sha256": "fc893edcea2de9fc88b7854ea80b616bd4bddd373b7c1118f44e1668e0cda350",
       "url": "https://lucide-animated.com/r/key.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "79c771f938674a5f643cf677fe3cae61ae6a0a366a74c6ee9b26feaff1a751ad",
       "name": "key-circle",
       "sha256": "71a7f500958443b74a5c3a2025758e06c90f7e45f878dae0f80b770f3e038173",
       "url": "https://lucide-animated.com/r/key-circle.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "bbfd1f9a734e5996b0669096a8d93f53cd7eb76dc2db38c7089706c035eb6dd0",
       "name": "key-square",
       "sha256": "4e2f554de9d3a34865ceb7766b9a148bc3e2400795fbae5984f58a1623586803",
       "url": "https://lucide-animated.com/r/key-square.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "47476f6222e7b9f8e4750b4db54aaf3acda17b27b2c1a8486de8eb408e3dd184",
       "name": "keyboard",
       "sha256": "43265f3c41789e412b8102f7fc3c673a40462d80a880ec2a2799206eb6de1fab",
       "url": "https://lucide-animated.com/r/keyboard.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "c17cf223373f68e866acb963cf0865061be13ecf45ea00030619313c3939b295",
       "name": "languages",
       "sha256": "80cf43f4bd1f9d5cd97793ce42e392de9a9cdbe2fff03ff270a2ff239bd62b8f",
       "url": "https://lucide-animated.com/r/languages.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "fec950dffdcf5b5fe1bfb9b33bfe16eb9f11c02cc55885b5a5ee38a2ba9a5060",
       "name": "laptop-minimal-check",
       "sha256": "2f912ecc11ab68ba8417f46b549187dca3f344644a85d6e6022cad3dbb02f1f2",
       "url": "https://lucide-animated.com/r/laptop-minimal-check.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "c092eb9343c6d923f6182aa63dbdd624680151a439fb54742da7038f43272a37",
       "name": "laugh",
       "sha256": "2ea224dd67d8d7a35d54107f75bc2b056f2ff3d7d321e162ae95aa347812b09f",
       "url": "https://lucide-animated.com/r/laugh.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "586f7099e339a59d5f4a7f824aa9e81f599846d5627b75c7a2cfb6f3242c55a1",
       "name": "layers",
       "sha256": "44fe6249ba1c3f89e8238e2bfd1e79fe38655ac9291d835583b1f96383d6e94e",
       "url": "https://lucide-animated.com/r/layers.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "7c59cc58c1cf88ab0e24545d7647e00d15edf176997ec4fe97c424c8fb218afc",
       "name": "layout-grid",
       "sha256": "11acfb3ab8abe7d47369d9c2bad6ffa97bcd0d2ed0cd2515a5d00c346bbad7e7",
       "url": "https://lucide-animated.com/r/layout-grid.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "a8388a11477c5900227884799bad3b43887231836fa68cd8a7ee52b755474afd",
       "name": "layout-panel-top",
       "sha256": "9ab367183fea48d2b9b4b65862c95f4eb4cbc51421206445c3e95f5fb9b79385",
       "url": "https://lucide-animated.com/r/layout-panel-top.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "c4113bdf832923130bb356228e1e68da3542a929e98091a03ccb1de5caec8e4f",
       "name": "link",
       "sha256": "1028dcb9020fae2c5381261f1b3d993456272ecc86f14d9d2a78c9ae1564910f",
       "url": "https://lucide-animated.com/r/link.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "c41c419d0d1902be319947b7957b0a0ff52a026c27b6e013c9b08c3cad93fab4",
       "name": "linkedin",
       "sha256": "9ee0f679da1ccd89c754a063b9e749857ff083deec42f5060f201f88cf26e57d",
       "url": "https://lucide-animated.com/r/linkedin.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "c1ab87d4375e0c5feb38c1984eeaf1f421bf9eae07d2f2b4ddcc6d124a5bbfc1",
       "name": "loader",
       "sha256": "1f7f5432f4afe38df6747f09579355ad69dc33a3cf36fd8a053115ba4c87e1af",
       "url": "https://lucide-animated.com/r/loader.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "ad0b6c1b21d8142045495295ad8c98b31fc50bd9ad61d1d3ccd498212934b5c9",
       "name": "loader-circle",
       "sha256": "a242e6e82c23ba055ad39e19e5c1e497a8b5f6e8c0719672849253f5a1caf75a",
       "url": "https://lucide-animated.com/r/loader-circle.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "04024de2b5a63317531d908f224e7daa308547ff0ac1826b0ea606fd1d0f4127",
       "name": "loader-pinwheel",
       "sha256": "1007821e979e5a52fd33e4cd95d73c1ee9f800b248e37eb01d0bc84719084bf0",
       "url": "https://lucide-animated.com/r/loader-pinwheel.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "67304484a506c92c31f1d3b059a935ab68e4e428ffc81f9f1b2d6b8388e6bef6",
       "name": "lock",
       "sha256": "44fb37887218f4bbfbd6152c88a5ca29111bf6497e4adf20b4a8411546c57dcd",
       "url": "https://lucide-animated.com/r/lock.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "d0221bca4993450958a50e75e756af508af69faa4b08d5708edbd4391a2ee358",
       "name": "lock-keyhole",
       "sha256": "ee233fd5eb71315a44238b33dc5d4ca40ed203d09097d5fae3d1a2b1eb2b4ad0",
       "url": "https://lucide-animated.com/r/lock-keyhole.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "4f40148531524ee82714a8af9eff969f34c6b424e44fc95642271f8ca3a880b7",
       "name": "lock-keyhole-open",
       "sha256": "1efbc2b8580a099aa31c8d66fb2189d5e157a66e2a0661f0631a5e8aa12e23ab",
       "url": "https://lucide-animated.com/r/lock-keyhole-open.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "9f8999405367e71002025655db9a142e929708a27404b69a50dddfd710e2749b",
       "name": "lock-open",
       "sha256": "3509f84a8e2b29bdcb4c80bd33fb97a42d498d9ac084438a891b0bd5b30d9352",
       "url": "https://lucide-animated.com/r/lock-open.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "b5a0d8ea6ec413912ec54b70d46dd165d6e40d17f931ef2485336721f35a7537",
       "name": "login",
       "sha256": "4661ff050d78d17ff2d37781e6b5136b34fbff4550cbcec377cb753de632a7f9",
       "url": "https://lucide-animated.com/r/login.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "a1ae406b383272b78c2684f2effbe35dc7b12d2039d40d8cd4b0b4de0ce92b25",
       "name": "logout",
       "sha256": "ece281e6909d2578db1f119e1d5d02f4ea82f29c0dbc4089d8a257ce809c2e1e",
       "url": "https://lucide-animated.com/r/logout.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "4a923e19622131df12fb338f3d6d109918f28badb163ba52717fa9e907c82e8b",
       "name": "mail-check",
       "sha256": "4a646f992a79d4253a9980e7a77e5a5a1efc8e8a6fcd1edbfb60ba7ef6c33583",
       "url": "https://lucide-animated.com/r/mail-check.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "ebcc4e90fdb9f08ba56731a453d9f49466a38f8e4444b4b789c27a3d0af6c115",
       "name": "mailbox",
       "sha256": "a433be2f8f22635630935d34ae474ee47c4f7da7b909254d1de4cb8f60534a69",
       "url": "https://lucide-animated.com/r/mailbox.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "e5e09de65f1866f1d7407f0f6970302dd93296754198ec5182d9e4c34200fefa",
       "name": "map-pin",
       "sha256": "e27c93ee719cc55ab6ee1dca924fa393f9c92bad64e061c6185ffa17829e9bca",
       "url": "https://lucide-animated.com/r/map-pin.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "30c9441dd369a6bf57f426c39ec72f3c5f7b8ef424a37bf46c8db7cc036d1b7d",
       "name": "map-pin-check",
       "sha256": "11b942e38a677a333534f9bd98955dd9f7746f169ee7c4906bbd86935ceb3dd4",
       "url": "https://lucide-animated.com/r/map-pin-check.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "1e1becdf540e3f513b5aa301c02d2a3afb4b562a7a7160e36d48784049becc0b",
       "name": "map-pin-check-inside",
       "sha256": "0b4dbf4553cf18e515f2bff99360435c88e679b9aa98b4ab610f31ec26c64187",
       "url": "https://lucide-animated.com/r/map-pin-check-inside.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "c122364f9895f7044667f56eeb9f7aebbeac4d1d04a2e01e50f0870e481c8d8a",
       "name": "map-pin-house",
       "sha256": "1bb28bcfb1be4b221e89595f43cb95a90c423a52143be93b202700e878760968",
       "url": "https://lucide-animated.com/r/map-pin-house.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "42e13cdd6f91540cb6f2210dbcb738714e096ff0ce32d87c91cc369d429dad57",
       "name": "map-pin-minus",
       "sha256": "54345ee8dccc63b390e8591df5a96a760eea951944fc80c8bd544eb1ca92dce0",
       "url": "https://lucide-animated.com/r/map-pin-minus.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "19dbce2be8cc6534535444a05280f85f7486e4c81d87c752d1990c56e4c0cff0",
       "name": "map-pin-minus-inside",
       "sha256": "cb9dab2c47f003a82bebb25640be312927c3a8506c3dcf8d4b040c6a8db94758",
       "url": "https://lucide-animated.com/r/map-pin-minus-inside.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "63a013959100c319f08a712504ee63fe15b0d09f458522bc39193bfdbd259eeb",
       "name": "map-pin-off",
       "sha256": "afe98c0fe71b02bfac2bd13332f9230463184c4c43b2bed5ddede330152d29c3",
       "url": "https://lucide-animated.com/r/map-pin-off.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "36b83517f60f7f1a276eb66121546fc498629231dae7bd940812b071b548505f",
       "name": "map-pin-plus",
       "sha256": "214e2b9fb540badff6a8562526889ab831ae770296f424178b323fb65f536b62",
       "url": "https://lucide-animated.com/r/map-pin-plus.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "9629dcee5518c2e44301d58aa43e49e7ae93ae78962e4bba191895076b61cdb8",
       "name": "map-pin-plus-inside",
       "sha256": "61abf1fb36e94d1cbf1b291a0651d51b3f5bee682244e3fe283e89bb9912a3f6",
       "url": "https://lucide-animated.com/r/map-pin-plus-inside.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "1f1113b357e1e682051cbf7f017e1882ab3b73045b5ca51ec3c12ff103b3aa50",
       "name": "map-pin-x-inside",
       "sha256": "b94669dff324d4a7b0b457cf27f9fbda2b9f8c51be98c783953b76a7154b812d",
       "url": "https://lucide-animated.com/r/map-pin-x-inside.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "80cda21a368d22b19573904a1384fa09e7c6bcf6d8dd5e33afca9e02a4cb2a33",
       "name": "maximize",
       "sha256": "a2d1ef73cc5bc134cfcd3f8d561e1ce32cff8b24bd02c75e3a2ac53788ae7f99",
       "url": "https://lucide-animated.com/r/maximize.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "fd14af352f4ab14327f0798bbfd2aa965e5880c105870ce56953bbea17ef1015",
       "name": "maximize-2",
       "sha256": "fac72bc52d3c4f3b29f30ed9f7244943b6ed7c2e07e73feba1825d4f80c50c39",
       "url": "https://lucide-animated.com/r/maximize-2.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "b9524d07188c8accfed7b2cace4e95484fffce02af5f0b85e5dd2eaa9530b8cb",
       "name": "meh",
       "sha256": "a24bfbe78c87611b99684112ff28fe54d1f81b18d5c44297af5f010ac3c0758a",
       "url": "https://lucide-animated.com/r/meh.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "b5098b7ca38faf5c1e393d697317be93f1a4d87e56742e0543548bdda6a3a00f",
       "name": "menu",
-      "sha256": "31476b02ecdc83fbf6e5680308253e6ea3261d95f570618f11ed449323673c11",
+      "sha256": "fbcb1463bb1637a8e735833e7eabbecc34644c6cceb1bded34945e24e61809a5",
       "url": "https://lucide-animated.com/r/menu.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "d4cad20645f2b3b8998a25649e32814a21dc936dc82bc7eb3041c17f94a58535",
       "name": "message-circle",
       "sha256": "5ac22575feced47c2244a723f5797fd2105f54878847eeca914f9101b4f27787",
       "url": "https://lucide-animated.com/r/message-circle.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "857a364d8670350cb9610c46bbd853201dc391f65776015c15f16798cf73d58d",
       "name": "message-circle-check",
       "sha256": "160db66c7f25a2131461760c317c8462b7e90762c65b9d0dca606f0581259537",
       "url": "https://lucide-animated.com/r/message-circle-check.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "943eb4ff29883c7ee49c13926356e6d1bd5914cec9d0ff379eb6d78ad69db76f",
       "name": "message-circle-dashed",
       "sha256": "cdf0b4cc6ceb5fb01199d1ba2b86d1cf31eaba429cb115aaa1ce254ef4de1cb9",
       "url": "https://lucide-animated.com/r/message-circle-dashed.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "9a954f084d4b6de9888190aa2163fae7eacc093aa2489ac9ec4a1e5652028d2d",
       "name": "message-circle-more",
       "sha256": "9ae0f61dcae3bb2cc70d3b4dac07a352c95b24281d6a4b058a5dc3650b6d380b",
       "url": "https://lucide-animated.com/r/message-circle-more.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "0bac4da4cb95b9246ff98344df89c54ba49b8e978f9d1f14e0bf41d575a78451",
       "name": "message-circle-plus",
       "sha256": "a10bc87b13006e536e4cc9238f98a89eaf699d6e045dbcb14967c6f8eba59d2a",
       "url": "https://lucide-animated.com/r/message-circle-plus.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "b181f1c52151fc2d1ed7299db9695461b6f28a358a6f40e944973994409f6fae",
       "name": "message-circle-x",
       "sha256": "362244dad8441b064c3c22675acc8d945412aa019e753d9d9c0e8bba22e9c812",
       "url": "https://lucide-animated.com/r/message-circle-x.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "088c6717d250a7d6eb26aa5de227a6b19e0dc599909864cf2447dbc0fb8b4bcb",
       "name": "message-square",
       "sha256": "074fe78309991dc0b2e6274b977d2858a220a623c6c67ce628ae1c3ad9883fe6",
       "url": "https://lucide-animated.com/r/message-square.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "9e60302446376b150d1bd6c562fcaab68862942602968901b79f127a2bee108c",
       "name": "message-square-check",
       "sha256": "7f633479eb2cba3a412709b41763e8b58a945681bebf61b6665e04fde3bf0642",
       "url": "https://lucide-animated.com/r/message-square-check.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "56fd4ed2ecd7a6b654eb8b39f5f676ca649fb0cbbdc666917ab7fe0a1f387448",
       "name": "message-square-dashed",
       "sha256": "335378a064a8fbb1813a8db63960f191f806b4a695a051b84e069f63a0648a26",
       "url": "https://lucide-animated.com/r/message-square-dashed.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "4c550954c6770dd09c398e4c7c4555a1f262b325cfca94ec5bb493f781714d9e",
       "name": "message-square-more",
       "sha256": "b586e611ee3339765e653fc80bd94ffb4743a60cdf2e1e719e1bfbc63878e071",
       "url": "https://lucide-animated.com/r/message-square-more.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "b0c2de704f07a4c548b04b36090b8c6e8e2ceaa10e3d241f7609a21f1b02c236",
       "name": "message-square-plus",
       "sha256": "0b4e719b6944b2097709578cc644eaf34396e751545a740b077e99bf15766ca8",
       "url": "https://lucide-animated.com/r/message-square-plus.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "3d95dacd774a02c3f357ee3609b8701c7761e899531f546444bef791c09760ef",
       "name": "message-square-x",
       "sha256": "8986250eef39294fa3c9fa7302c164418321b0a4f0bb7a02dc2c943d4a2ab156",
       "url": "https://lucide-animated.com/r/message-square-x.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "5724dedde5b0fcf60b80bd217f2ad882b36d1652a705e45affa6fa45fdda4310",
       "name": "mic",
       "sha256": "1af4cb97ea6e144d2b22257ebec960f3e157497712236f2caf85de154917d6f4",
       "url": "https://lucide-animated.com/r/mic.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "5f794477c49069ece469d9f591253f7df455c8f46631cc2c932a5b90ae3efe3b",
       "name": "mic-off",
       "sha256": "6b2ced67a8905b62f305fc414b0613a33f77bf4216c57dae7f80334b1c6751e3",
       "url": "https://lucide-animated.com/r/mic-off.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "0de75699976946ca523549314f9f500d4376215fb1af54e2d665672cf6a8940c",
       "name": "minimize",
       "sha256": "7f6d4d96cf12f4a4210c33dd93f5ebcb4b2dd66ec133b19269041d69b804d1de",
       "url": "https://lucide-animated.com/r/minimize.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "d7687f34f4e3d5656b1795cc59621542d835352d9ee6d623408b1222b74b141a",
       "name": "monitor-check",
       "sha256": "01aead3d4890cd799cec3c31ef38c468ec76c9478a45054d5a3ab47a185d3eeb",
       "url": "https://lucide-animated.com/r/monitor-check.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "7fdd3f0dc34c01f57b8a10b19b64f2229433fc35c4f3bae2cc605786252d2c81",
       "name": "moon",
       "sha256": "a5ac18f27e618026a069b406c5275b31823375a8b09b486878742dce2ce675e6",
       "url": "https://lucide-animated.com/r/moon.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "48a241156ff5757b0ec4e2f61b0d0f1a12544eed771fe6e8bc64e4d4cdefd707",
       "name": "nfc",
       "sha256": "3563e9843ba51b12313dd636cef014667a91ab76e8a040327013c2541bbaf188",
       "url": "https://lucide-animated.com/r/nfc.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "59c6eab19ef91eddac421b7266eb150058b8f56b1fcb1bd7badeed09af5d5b8b",
       "name": "panel-left-close",
       "sha256": "53ab0ef0003a470e5e64071ff9fa60892f417492889fd5fd36b6c310dddf041d",
       "url": "https://lucide-animated.com/r/panel-left-close.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "d6db6560c5d04cc967ccbccd94ece357b29435545fe976f02d35754d6d93b0db",
       "name": "panel-left-open",
       "sha256": "c084e776d07f1ba41a45157fed9910a38267e676b90804bc07e44cf7583fcc01",
       "url": "https://lucide-animated.com/r/panel-left-open.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "bc0e0bac0d874d8d3dbc2f6fdf2c73200de0ce55ee9bbb966e6a265f97390ac5",
       "name": "panel-right-open",
       "sha256": "cf93a3fbd5e15d9ef9b5175d236f6476135c755ffe02b00903fdbdfe37ae6f69",
       "url": "https://lucide-animated.com/r/panel-right-open.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "3bf7cea6ac8145d594c69499d69697c169153d36a9bb3ec39960a2150e7bf08c",
       "name": "party-popper",
       "sha256": "f9d651c09f761d4e933e8610eeda9d2f84bc9806b8183909690ec6c34f61b1a7",
       "url": "https://lucide-animated.com/r/party-popper.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "b58cf282cd37b329b3b9ae3c32bb69ed86de5053b3613776420b5a71cc951db6",
       "name": "pause",
       "sha256": "36b5a1fc3ddabd4a76a1c8a67f8c4b07a71184c60f80a4da2a6218db9889b99a",
       "url": "https://lucide-animated.com/r/pause.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "36a145978eeb3d05865354e93816ee7512ce6fa9baaa26ce7675c0e115e6fce6",
       "name": "pen-tool",
       "sha256": "10dfc6c68032bf4555b16780704eb789bc16d39a229788c883dbd289cb0842ef",
       "url": "https://lucide-animated.com/r/pen-tool.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "862a2d0086f8c0d10d6cf08677fc80a1511660613d6e62140c31f44334cd6635",
       "name": "philippine-peso",
       "sha256": "c6e33b85f95b08fda8cc68b19aaaeb19067e838d4a343e9638df843c2959b25b",
       "url": "https://lucide-animated.com/r/philippine-peso.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "b5b47b6eda589d6aca6ba357c85d8f590eaf79284ec081df9b43a671d5162c87",
       "name": "phone",
       "sha256": "637c9fb0d8906a7047dbd31751081b6b269e48d8cc188b42f0c16d416378c82e",
       "url": "https://lucide-animated.com/r/phone.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "95d8150d7f35050657e578386675cddb1d7f3e2fb3e231f448b92ca6d7eca761",
       "name": "phone-call",
       "sha256": "b1aaf220dff896189f0d1e6776a8923617becaf4cfe3d0d43cacd408ae58f156",
       "url": "https://lucide-animated.com/r/phone-call.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "cb57a3804638d00e55779610d97f9d2bc4ce1a0591090c10fd4276d540297ef3",
       "name": "phone-forwarded",
       "sha256": "fff51fdb6088d5be3f9da56cf9bd276fa05eec0e08813a6d8c16922aae54e5e2",
       "url": "https://lucide-animated.com/r/phone-forwarded.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "74a692bf036db2f7bea5d4cb09fa43fcb494a49a3404c4516980c07dcf454694",
       "name": "phone-incoming",
       "sha256": "efbb7ee3717d668f22cfe5a51d0768a7ef40be66025279b5ab3b2d97adab885a",
       "url": "https://lucide-animated.com/r/phone-incoming.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "e63b64164e807e807cc82dba012505924ca532d18aafb6fb6d1bd454572dfc69",
       "name": "phone-missed",
       "sha256": "b83f2aa6a892c0969ecc1d71abe164ba917f123b14c620df7cc9f61101afd0d6",
       "url": "https://lucide-animated.com/r/phone-missed.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "d0034eabba243d6e9e760ebf8513886cd4aa4f09870db25f1d9c85517786705b",
       "name": "phone-off",
       "sha256": "11f16cfbf246543213aaadfeecc92381753bb6d33acecf9bf6198c29ee465346",
       "url": "https://lucide-animated.com/r/phone-off.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "3251df8ec9a3f8889def5fccb8d829e46a56242db0ac911e6844f799cb1647cb",
       "name": "pickaxe",
       "sha256": "5b54be719484151033a88d865817aecd2b0571365e02ba5162f137f003caba61",
       "url": "https://lucide-animated.com/r/pickaxe.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "eff38ebef783780f14976536b30004e034459e21300d2871b1d6c94944a3c56f",
       "name": "play",
       "sha256": "76a7e3834f3a1b4db62548fb479fe068b8b58ec71b0c7197c0c17025251a9ef4",
       "url": "https://lucide-animated.com/r/play.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "9a55d0aee6eefbfffe557eed7098f9d2e5fb400049607bfbdfad776a4bc8db1a",
       "name": "plug-zap",
       "sha256": "4b8aa83c66e3609156637252ee5f479652e3e5ee674d944f72a2fcfab4b056ed",
       "url": "https://lucide-animated.com/r/plug-zap.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "f475dd9f57832a06f004cddf5d2f00934aef02bd0beac2c1758727226ffc659c",
       "name": "plus",
       "sha256": "baa31a4993141486dc53980b89eb49b19525dd388f11ba586dcb7900c676fec0",
       "url": "https://lucide-animated.com/r/plus.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "8d538dcf16a3983f102dde4bcf87036010e77eebcd0662ab9c069ec55442f694",
       "name": "pound-sterling",
       "sha256": "da1d9b37cd51ddb0cbdae1e10f7535c1a84fd80240aaf8ae5336bdfb92117759",
       "url": "https://lucide-animated.com/r/pound-sterling.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "7fb2302c259873ced8c238f324e0f1e474dde922321b4d0663d8874763d565a7",
       "name": "projector",
       "sha256": "4aa42eeaa2f8d191bcaf7ea04df976275c2485a1bcc79e2324f6591cda28adc8",
       "url": "https://lucide-animated.com/r/projector.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "9eaa31cce5b0ec0c3bbf675008aaf1c58c7b1457d399f1a7e85f99157b2a7682",
       "name": "rabbit",
       "sha256": "cacdad4415b06410ef81f25d0d10f15712099a6709fd355c875052e0b7d9feb0",
       "url": "https://lucide-animated.com/r/rabbit.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "93779704d145287525ce855c935ef5682ae569087f58ce182639781c2a577144",
       "name": "radio",
       "sha256": "103663896f65f90eb2d0834524538c6526d5b689d33c19ff1150c180877d27d0",
       "url": "https://lucide-animated.com/r/radio.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "f2a290f78d442741de8a0f9d0a34fba63c6c4700e3d3c8e52b901871af9c0c78",
       "name": "radio-tower",
       "sha256": "91b80511d1bca79ebc1f717dbb08d4ff8e799997b60e1051f13857231300f46b",
       "url": "https://lucide-animated.com/r/radio-tower.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "ac7b1fb517b8923d0df6baf18ab7add0702260516b118cf4a3122cafcae0dc66",
       "name": "receipt",
       "sha256": "ea37b3c1742c108362865f227d0a8637ce22b73a0defa2831e77104c7fd257a8",
       "url": "https://lucide-animated.com/r/receipt.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "04b08b5649c6a3baa425b4b60febd8cdd2b88a39e8d6e5784afdd39d6ebbc190",
       "name": "receipt-cent",
       "sha256": "4c82ae7c71aeca478dc155ca3c3113d20985ed0786082f76f7cc3e3398da6461",
       "url": "https://lucide-animated.com/r/receipt-cent.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "344b0a070a9985c2dbd03f75a1f0a5058ae6111b52041c1889fc54c0e7e55966",
       "name": "receipt-euro",
       "sha256": "7da29b983d25c3b9065fe803ea041ebac629fdbf77cfa5f6e15e6db36c9fd2e0",
       "url": "https://lucide-animated.com/r/receipt-euro.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "a798b29be69d2953fd8cc067a95cb81078e2803a187b44ed59e9f7f73eb6df8c",
       "name": "receipt-indian-rupee",
       "sha256": "7fb578e1bbd77383fccdd07f989d2126703d36c1993a921892fdcccc8bfd9480",
       "url": "https://lucide-animated.com/r/receipt-indian-rupee.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "e2f55912991266d3f8eaa3540e764622666a17a666944a6396f05fb8c1a97b4f",
       "name": "receipt-japanese-yen",
       "sha256": "5066e73cfe15c57e94f0f6731ad72ef7cdb39c52f8a02fc78d7962177dfbcba7",
       "url": "https://lucide-animated.com/r/receipt-japanese-yen.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "b629cabb0e16c5e3377295ab9eee4e242e0925e6e67b7ffbb3bfc3a17a84031d",
       "name": "receipt-pound-sterling",
       "sha256": "51313b26321b78866c8633c1d20df4dd852c5135e8db396891a321d5b57f35ce",
       "url": "https://lucide-animated.com/r/receipt-pound-sterling.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "6a79a1942bc43ac4a30edc7687a8f5674a2626825068bdeffa42507ab71dca9e",
       "name": "receipt-russian-ruble",
       "sha256": "1c532028a03cc97aa328c49dc6d788f7651a1e16521768d8252fc09714190a8b",
       "url": "https://lucide-animated.com/r/receipt-russian-ruble.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "ceafbb9ca40c9afa02f72034ae003fb29a261e577babfba7b67c5f346fe7b86f",
       "name": "receipt-swiss-franc",
       "sha256": "42852df8984f869bc44a83a19056cdeff583bfd9a4612967416d5c94a2ac2d2f",
       "url": "https://lucide-animated.com/r/receipt-swiss-franc.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "79b0c30c6dcf041fc9164fe7bb31f2f062e80e72827f76f104e39555cb875138",
       "name": "receipt-text",
       "sha256": "b89fa9dfbd54b8a25005dffe3c6765ecf3246fe5ecbbf301bcee5b141b377db9",
       "url": "https://lucide-animated.com/r/receipt-text.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "014d677069ad1f7a3497e72f6e46c151a56de1536276f138125dbad38dca1911",
       "name": "receipt-turkish-lira",
       "sha256": "83e12ec8c418d71151cefb3425e0fd336cc795a7a90d98720ba67b974f17ee1d",
       "url": "https://lucide-animated.com/r/receipt-turkish-lira.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "bb5015bc5578646164cfcc87c3beb14fa2e35d88af510af6732358fd20260489",
       "name": "redo",
       "sha256": "cd9bf0b97b5b3d5814f9673cf8a062f1ab2e0a409a697a6bf4b09de454e81364",
       "url": "https://lucide-animated.com/r/redo.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "0a8d4d9fe043b5cb32bf6512ddf3865aef55751f52b5d5ca883a9a188cda9a44",
       "name": "redo-dot",
       "sha256": "a4d81c73552e80625dddba89b93ed6e9aea3fc10fde011d7393c3f6fa348a557",
       "url": "https://lucide-animated.com/r/redo-dot.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "dbfd527a9237e265d67242f4c45dd6ff18342d35025576f84f99d7aa214d8fa5",
       "name": "refresh-ccw",
       "sha256": "974910801af191b848d6a84b548e945dbce03b941fcd2d5844f48fd0e993a70b",
       "url": "https://lucide-animated.com/r/refresh-ccw.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "518a208af329ba179977a573cdcd4f7d1f5a361c2ee8cb5ca54ce205082ccbdf",
       "name": "refresh-ccw-dot",
       "sha256": "48c772e5510a30b3e81c159445517099ebd4df7a551968360acd5c6b324a3262",
       "url": "https://lucide-animated.com/r/refresh-ccw-dot.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "6f34de56a4d0869cb03253589423400d0957df9c15b9bacafce1af1666df4d71",
       "name": "refresh-cw",
       "sha256": "a6d4495667c8cac9b264d797b8aa228bb6bd5233cef501f61de67e4d08310102",
       "url": "https://lucide-animated.com/r/refresh-cw.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "14bb95509fab1c03a9a8c7629bbe6ccec8220ba2e4a7bc1e5ab617a68e60e212",
       "name": "refresh-cw-off",
       "sha256": "c4ca87ffa6e19bb94ec3456876e3e5f86b02c6528932204096b6cede65c4cdca",
       "url": "https://lucide-animated.com/r/refresh-cw-off.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "e2f53ce50a9cee9f79336ba83ffb1c5ca733ec53423a09e6be5bcb3b0515c160",
       "name": "rocket",
       "sha256": "661a7590d1b8eb5b4187c7994dfa1cee203c2f432b81281641cb6716ea7f4d31",
       "url": "https://lucide-animated.com/r/rocket.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "700898d2ffe82086f9eefc67843e4ded96b973c300e9a01d79c6f53cdd0cc119",
       "name": "rocking-chair",
       "sha256": "4766fd18b2f440d9ed65f72c04ef043b9df6ab9b870a30d863c4db5a4cc24984",
       "url": "https://lucide-animated.com/r/rocking-chair.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "0e816aa0ce4703db7a0627dd348b491956aa1efb016c020b0c43232320f9cfa2",
       "name": "roller-coaster",
       "sha256": "f1b886a944b6a9f3941f3ec47a9626b014f4e5578e498cdd99bd837d31c4df0a",
       "url": "https://lucide-animated.com/r/roller-coaster.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "5070e12b15bbb9bb75d5bb266b40dab4a02c24752a593d644e53f70ac26fb89c",
       "name": "rotate-ccw",
       "sha256": "cd92711b8eee9b530ad8ff4970f134b1704490b6f1635156aad89af566bfede6",
       "url": "https://lucide-animated.com/r/rotate-ccw.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "5836c4202cce004e235344335eddae915248a14f9c673b40040beb73c3004bb6",
       "name": "rotate-cw",
       "sha256": "8c20316e50c75936a261db0dbd37d035d20ef6b5f08d3301fb915da43ea42c30",
       "url": "https://lucide-animated.com/r/rotate-cw.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "14a1ade6d774d916fb2526625fbe18476bb6341932c142cfd14480ed3e1c9fa8",
       "name": "route",
       "sha256": "67c6e9e418e1c8517561793a1c5b41b128f978284e4349e85d2549570b6f0dbc",
       "url": "https://lucide-animated.com/r/route.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "62ab4f882be7cadcbfc6c489fe3668f7d75a23274c5b6ace6bffb8bb46b7444a",
       "name": "router",
       "sha256": "e57081054b3b4eef5fb0223d6e78314dd71181f503ac9d14ecbdeb8b9b562491",
       "url": "https://lucide-animated.com/r/router.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "f27d5dd42006d04b129c5b8a0333abdcd5bd57c09c15597b6061569f071e6a6c",
       "name": "russian-ruble",
       "sha256": "4ba2329ff4577fd8b4e34799b1bdc524e8a3d11fae1183000037971417a53cc1",
       "url": "https://lucide-animated.com/r/russian-ruble.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "dbfced1e0a3caf3d834ac29e3f05e04a0bffde8ea0923924d78f772fe9974dd0",
       "name": "satellite-dish",
       "sha256": "4a985c140e44c2bed2614ceec3ce60e57e6c8b268062bb06dd07278f1332a219",
       "url": "https://lucide-animated.com/r/satellite-dish.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "935d44ba16fb38bc60a585c8c5f0020c6bc182b74869849b8dab4cfbb220d30f",
       "name": "saudi-riyal",
       "sha256": "1b040f13378d7330a9b699091e036552d04776883a5600a83eeac45bdfa2fe15",
       "url": "https://lucide-animated.com/r/saudi-riyal.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "fe3dc4b0b6cb1675ae61b0258f1dda836bde8ed7f211076838bf18ba2615725e",
       "name": "scan-face",
       "sha256": "7268c924b715798d510af38473866b1ec652a93dc081d794b9f66eb442571bc7",
       "url": "https://lucide-animated.com/r/scan-face.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "34c7bf7b83b49058a87f5fe92aa9b67e9bd01b3da5fc38b969568289ab3b4535",
       "name": "scan-text",
       "sha256": "47e6aa30a97a94aebc0ffd44b3f2cd09632ab6260dc39e159347165405a1ce4d",
       "url": "https://lucide-animated.com/r/scan-text.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "6dc98c67561de981e3b4f26f579dea36402489c7f89bb34f888631bf82ae3285",
       "name": "search",
       "sha256": "cbe4c3b09a8e5611517a525b38f6136558a59414451e25c77d72376a1115261b",
       "url": "https://lucide-animated.com/r/search.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "7a1a2571d7e3b2228aef7fdcd59f8f3127ccd66feac3cb531f0f40f58921e5f0",
       "name": "send",
       "sha256": "2937ca6491362baf048f44e4502a5c7e8749611b9ea406b33272772d7873bedd",
       "url": "https://lucide-animated.com/r/send.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "883dc6a7310bd08221110e9791eab8fc5c52ff6c1d55bc98a1c349da159579d0",
       "name": "settings",
       "sha256": "dccbe307789095c85bd7847c383360e721bd235c42c95c069d6fc28b0fde22bc",
       "url": "https://lucide-animated.com/r/settings.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "eb91a8dd5ce86e007af0de0ba2136485388688d8f11db9054f58a9394efd3ce9",
       "name": "shield-check",
       "sha256": "7fe067dfcc345616d5723c35c3a4db3c9793b5e4c82537f30e208b46ba908fc3",
       "url": "https://lucide-animated.com/r/shield-check.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "c4b8043d46caf8fb0dd5dbe60a4ba8ea92c8043e98680838344650f25cec4b48",
       "name": "ship",
       "sha256": "52e7ea46b9930067b2f72b1fda4ef12031222f0a8887a79c7fbdba18a2cae965",
       "url": "https://lucide-animated.com/r/ship.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "38fec94c99aa9ea2a9e7914c4ad9e036f0a2107176c6eaefce54108ff608ecf2",
       "name": "shower-head",
       "sha256": "b1c4398ecbaf069a2fa56d880c607b2411b2a220fe868eba6481bd46dd5dd207",
       "url": "https://lucide-animated.com/r/shower-head.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "896caa891c98d2d2c02b102a7d4c6e33bdba22c6c7816af60bbe07522d9b25f5",
       "name": "shrink",
       "sha256": "18bae040382c61d4260589bb869e5cac57863ff27b30d2d690e5afc66c5ec263",
       "url": "https://lucide-animated.com/r/shrink.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "f517e7a518d60c81ef8b883ae5dfd1f0727b3e5ab5d5cd8d5c6660be9af7754f",
       "name": "sliders-horizontal",
       "sha256": "ee29c0f32d5f0f5b15d6a75d388ef8d2a465f88ab69128a77061e14f1357965b",
       "url": "https://lucide-animated.com/r/sliders-horizontal.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "b073047e3933d154999b4b4661d8b1bffb175f4739b677802782587813041727",
       "name": "smartphone-charging",
       "sha256": "b88e70272ab456d77ce37d51012649343e04a8ed099f945f8f798e9af8202358",
       "url": "https://lucide-animated.com/r/smartphone-charging.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "3c12667130914d308fe2887f67ebf6dd7399ce3f8105409d2e3e61c855d53195",
       "name": "smartphone-nfc",
       "sha256": "6929869892f62c2e6e9648cba55f72afc456a8d248d6b56d8eca003a761ff1f5",
       "url": "https://lucide-animated.com/r/smartphone-nfc.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "1a1204fd449e9a71789f313c51b558329c29e671463c489852989ac6bbdb0bb0",
       "name": "smile",
       "sha256": "f3e9a5904d8ebb9f500f2672cdb020d97c78192d97b56265b7648c4132d1813e",
       "url": "https://lucide-animated.com/r/smile.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "85100e3cc36659c6f4fe3449141d7dd663fe85e2c1934ce765709beded43963c",
       "name": "smile-plus",
       "sha256": "0384925e11deba79d557e850905a41473f88884a267363386ec184b2be113373",
       "url": "https://lucide-animated.com/r/smile-plus.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "ad97dca138928f57a03caa07ca3d6677885bae30049428713129b1f7de77a2dc",
       "name": "snowflake",
       "sha256": "c36b32470c9412b1e47589784707426ae61fed180d99a12784c9f2298ede7709",
       "url": "https://lucide-animated.com/r/snowflake.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "ec32387c7884d98c74b97fe1c465e615b364e40ce0777809ccfa8834000360a2",
       "name": "sparkles",
       "sha256": "af95efcbb6a9d3a88495037461fa220969cb68f28ab019a00af153d725a12d54",
       "url": "https://lucide-animated.com/r/sparkles.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "34dc02fd922a364f11950f36e8a6050bc15c9fd26d1157112953161cbc8e9dc8",
       "name": "square-activity",
       "sha256": "ab6f185b96fc3b4a3ac16cecdc20adb1ef49cd158e0a913d956ab1178b5935f0",
       "url": "https://lucide-animated.com/r/square-activity.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "ef88f9869f45118e1ed610e5992a7147696b907b8eab01dc7918f25b3e0d08ed",
       "name": "square-arrow-down",
       "sha256": "65e173511f08f6cedefd79b3d45f3f24e0204606eee4b2094f4380c3e7dbddeb",
       "url": "https://lucide-animated.com/r/square-arrow-down.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "03d8f469042b97ced758e7bb34e676934fbe40e6157c5d71d8c92596fbce65c6",
       "name": "square-arrow-left",
       "sha256": "3f82f1c09ff14198fb53b673331559df873bf8ed014a79906237f132c5abb901",
       "url": "https://lucide-animated.com/r/square-arrow-left.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "c5800d5f84baa217393deaa8ded074ae0f1423a01fa62ee7e221442f59da7ef7",
       "name": "square-arrow-right",
       "sha256": "7c9ed824b6d8704bf31d3b39a635ae18f7c13c232832c8162e880c5f888806e1",
       "url": "https://lucide-animated.com/r/square-arrow-right.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "aa06825add3a5529c048769a3d611305e73caa8ff28d344d1ac59fbb1be3ee1f",
       "name": "square-arrow-up",
       "sha256": "9136258d88e2e34b7d2371d8c36a26aaaec930238c72c8b52bcb89587900e693",
       "url": "https://lucide-animated.com/r/square-arrow-up.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "a561c3e5efc0c0e97a5e1d6026747ad3e5e8fb1fb22a6118f76f9c33b903ac36",
       "name": "square-chevron-down",
       "sha256": "efb9852ce71adca0cbadbd4e52eb9f6c70042777c8fa7905dc87f82c5f5a78e8",
       "url": "https://lucide-animated.com/r/square-chevron-down.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "38094bf4cf43b6fdc9cd283ecc085143b6213057bc8acdd32e7e5b1435079642",
       "name": "square-chevron-left",
       "sha256": "429eccdf4483e12a34a801126e27e9726da4d0f3045b6bf31c332631eca77161",
       "url": "https://lucide-animated.com/r/square-chevron-left.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "7b5d353a54953716033708098f2f44a15678040fe7af14c6d87e29f8d47d20fd",
       "name": "square-chevron-right",
       "sha256": "f78ce9e94426f1b196a407e89c28c61aff219cc8161c88530e50e7134b25b467",
       "url": "https://lucide-animated.com/r/square-chevron-right.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "2a2c060b0bdf25b5956098fc4022321c4ece7cb632cf3870f5d96d85f43e9f30",
       "name": "square-chevron-up",
       "sha256": "23d95678e62f212c9ec2659b3959793a2fcaddbd34baba71556b57cdc5dd82cb",
       "url": "https://lucide-animated.com/r/square-chevron-up.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "912e5c8bde3652072ba89a063d53a62653fd4b83d31c9eaa54b374d251e4e536",
       "name": "square-pen",
       "sha256": "016578564470e51acae32e1d04c92b36d3cda6eb0e3e74bf6d44e34e38639622",
       "url": "https://lucide-animated.com/r/square-pen.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "c175fd1ea96b41b8ecf86527441a89dcff60f42f25994b3d3ac8f243fed914a8",
       "name": "square-stack",
       "sha256": "4525de78ee6421d26734e10d995b49461b6e9c1562bcff3ff6a5458b029f7396",
       "url": "https://lucide-animated.com/r/square-stack.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "12bb9330c6ac7a48f807322cd95215e80e62339c42a9eeb7ca32e6ba38763faa",
       "name": "stamp",
       "sha256": "e66f64e9d3486de0e9ef3704bd0e14c057f703b2ba50620ed6814510e3841d1a",
       "url": "https://lucide-animated.com/r/stamp.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "0e20903efc4afcace10e23c0a1f50b03b885fbc85d082500aa912b5feec6a158",
       "name": "stethoscope",
-      "sha256": "8b08a0659253f90e4e67c603f5f75b5b403d10184629e35ac00d5caf0f3b3753",
+      "sha256": "6b6fdd39570783862ee679b21f90523db0446ad60703111fecca965a630ec33b",
       "url": "https://lucide-animated.com/r/stethoscope.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "0c9f64568268debde9a8b2093b0c37994641792dcb8f8c2f43e5a5e4bb1dca3c",
       "name": "sun",
       "sha256": "925ae0ab36e1c38732b27b4741649226620582bbdfbfec767f5714f834234cd1",
       "url": "https://lucide-animated.com/r/sun.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "c2da5652963b980152c1a18102353387a6600c048a21561bcb8cb8dcffafd170",
       "name": "sun-dim",
       "sha256": "2e2cf4489ecb5bf9d35dddfe19c6585eaa82973a64e9d7940ef21ce2e923ffe0",
       "url": "https://lucide-animated.com/r/sun-dim.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "f583c417e156f9ec861783eb7daa17b2d11a02c2e90ff834798cc41fc22a72da",
       "name": "sun-medium",
       "sha256": "9cda571edd8d7572a23a8b028d4f07eed59cdf98fc6f7e02de40b91ee152e78f",
       "url": "https://lucide-animated.com/r/sun-medium.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "17b659efe184602c34b8eea9cdc0dee9c27798766524095484062db20603e990",
       "name": "sun-moon",
       "sha256": "f100f5046636e8f8c774e6ed65d8a1e5d2c580d05b283ef2f15fede82a9677d4",
       "url": "https://lucide-animated.com/r/sun-moon.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "d6c521d87377965607185d123c6da6d8d499abbd62e52b92f7e245ae0dd05962",
       "name": "sunset",
       "sha256": "58dee827f567137cd0f700b04fdbf5d21f6860649f039402eeef66bb7f93fe15",
       "url": "https://lucide-animated.com/r/sunset.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "6bd06d0a98f96e226992da88ced54c238600f565e2a01fad1a563818dfc21e77",
       "name": "swiss-franc",
       "sha256": "f1f6d53c16d237d1848eb319145bfd682979fe19d7b5906f0a1429c68ad6aacd",
       "url": "https://lucide-animated.com/r/swiss-franc.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "ce5a61ef6971417270d343717962960928e5638d6de915b4dcdd27a6bbb00979",
       "name": "switch-camera",
       "sha256": "703b63feef01af87f0e87138b1d65fb478715aa85daa44724ae1d8d05748eadb",
       "url": "https://lucide-animated.com/r/switch-camera.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "e024f84c5e18860c6bf43b4fbf67559d9a1fb729a7a8fd804a9053ecd4d30033",
       "name": "syringe",
       "sha256": "a3edd6059c99ca40c3ae795afd37fffc4c861340c2406672c702e8fc6261c78e",
       "url": "https://lucide-animated.com/r/syringe.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "4a95d9726ec3ef863ebe2cf6d9f4f7880447c196c6a6e3895bc5b444a98ebe2f",
       "name": "telescope",
       "sha256": "69be519cc81a192b59cdae72d9f35085ac2b5f2bfc6d5204e5dd5c0ecf338b95",
       "url": "https://lucide-animated.com/r/telescope.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "569e30f0b224de34b22c0ef78be18048aca1c06d2a00c0f16669246dd7edf48b",
       "name": "terminal",
       "sha256": "a45a6580385c9d150e00592ddd7ab4a14a97ba8eedca521436d639f7f3d05d12",
       "url": "https://lucide-animated.com/r/terminal.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "11fb415abb4ad4a92f2d69a1244168a7e6fee8a2207179ea7d40474e096248b7",
       "name": "thermometer",
       "sha256": "906571363e33f49b65df4ae5e2df2f849e4d71166ae853592e40361bd18cde2f",
       "url": "https://lucide-animated.com/r/thermometer.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "6ed998718eb092bfe14c829c930d7e960009c2e777ba1be0413604be26571351",
       "name": "timer",
       "sha256": "59c5d5abd43962ffc45021c2b87fb9985ff2bd98983978b226f63f1ca0dbcb72",
       "url": "https://lucide-animated.com/r/timer.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "f6af0ae00589ac6ac5d132f38dc31d053b08602c7c0300625fc0ab739736c1d9",
       "name": "tornado",
       "sha256": "402c79f84c48848ab19232c598096dc3c483f9048e02e977efe42fa3b1c7e189",
       "url": "https://lucide-animated.com/r/tornado.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "3eddb90dbc6a0ac2f73f5353c3daf1b63dc2c8a41667b007852c3f42dd703b7a",
       "name": "train-track",
       "sha256": "899a54d4b10e67283c64052bf028db96b5908d3031f08061e132ad3e7e4b89ba",
       "url": "https://lucide-animated.com/r/train-track.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "61db044fe18eb1b16595fbe521f48a834ce4027fdcb8342518dd056121800376",
       "name": "trending-down",
       "sha256": "67f09f743716aa20b6484747f396ebec73ba57e70c3ea94bfcacad133f7cbc7f",
       "url": "https://lucide-animated.com/r/trending-down.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "58398ec94d631b6655fa3ad19a0235ac8ae60bfa9d8e9163653f0c2c028b9a53",
       "name": "trending-up",
       "sha256": "3c27cfe0962ef24f2caef717e8b0bebb7f3766f2e89d5620e574f04ce27805d4",
       "url": "https://lucide-animated.com/r/trending-up.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "e388fe51b0440bd739a650611ed6a4d85dfd2103845e57cade0f3d29b1e8f752",
       "name": "trending-up-down",
       "sha256": "2606692765cae78fc63ee2919393fd45a16f0c19e35e02a0d77fd4c760f1a675",
       "url": "https://lucide-animated.com/r/trending-up-down.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "40e2e68bc6817b27b88caca817f465854dc5137e11ffc0e5b9abab8ee2e298bd",
       "name": "truck",
       "sha256": "ca725a3e9fa73affdffc503182fd09a2232851cba85f30cd8218a5e52c31b6d7",
       "url": "https://lucide-animated.com/r/truck.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "4f293661f2b8d5a0f0c4b7c65c003b14ddc4c4e98f4a0fc94ba7de1df8a36569",
       "name": "turkish-lira",
       "sha256": "3e40eaf6829416a7b53f72f0da53dc7980a62c65f4e1a676398935dfa36f3db8",
       "url": "https://lucide-animated.com/r/turkish-lira.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "3b080ff19302c317ced1cd938883b5f032c9de6378ac74685d3a7977ddd21b27",
       "name": "twitch",
       "sha256": "224871d948870252651cc9146372f497c8a0b9c1c04e6553fbda2d34b278145d",
       "url": "https://lucide-animated.com/r/twitch.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "0526aaaa939b4637985ccf881608fa3b91fe807488d65ce7503202332fd3f311",
       "name": "twitter",
       "sha256": "bed5feea36c0170d249c6d17ccd34093d621e9fe1b2fcb4a1d5ae3ba9a25df15",
       "url": "https://lucide-animated.com/r/twitter.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "9921a54ac9842fe3bee9caaf25e564c5179f1ebee0e29811bbfc1e3ab1846d17",
       "name": "underline",
       "sha256": "17b46b363d83f7cb83d0887ee9fab37b04d5de491b492a78d41025c6a8a57299",
       "url": "https://lucide-animated.com/r/underline.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "06c085be5987eb42f0cf6451ca07b7fe737d8221076b9c6fc0e955b9bcb9719c",
       "name": "undo",
       "sha256": "67aff97e1beb3662e117ada03921cf56006cba1e5542d3940d47d17774f24808",
       "url": "https://lucide-animated.com/r/undo.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "c2ef593fc346d16588cc6c174ffd9b06e95550e9b0f7eb39ffbceb6bf1025c97",
       "name": "undo-dot",
       "sha256": "c6ff37996219668bb6abc0b29dc4c88d11bb6500b531c7452bbb8608a356fc5e",
       "url": "https://lucide-animated.com/r/undo-dot.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "e68876af284066d594a32229a0764734f14fa5652bc043df08cedf4b4a67b56f",
       "name": "upload",
       "sha256": "bd897b41a23e7238e63b7d62070a64a7268db3dfcbfcf18f70568ee376139593",
       "url": "https://lucide-animated.com/r/upload.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "e8e8d83fd875dd88b468747f8a83f0be5bda8d9226c4dba1350752171bf6bd93",
       "name": "upvote",
       "sha256": "2aed54925bd22672c68f4c6daa1064a00456d81911b2647d1a74818a5f250cd5",
       "url": "https://lucide-animated.com/r/upvote.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "e14f55512e53820d1d2afc6e4daf4de7a8d1d8000f493cf71f56f60a4e83be7f",
       "name": "user",
       "sha256": "93568ef754f8ea9fa6065985a81f9ab329fd1ede8db4fdf445a35f79453fa4cf",
       "url": "https://lucide-animated.com/r/user.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "6934ad40f391d4983464615ea2ab1ea390428f17044e24d483abae1915badbca",
       "name": "user-check",
       "sha256": "bba76efb639151054c075b11cce867ca0b9cfeb9bf577dd7761632a5e0255c49",
       "url": "https://lucide-animated.com/r/user-check.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "60b8d1b8b5a516f01ca3b2c693f33cbd4c12da58140680ec0364ac2a215c51a9",
       "name": "user-round-check",
       "sha256": "3800c8ff7970dd1b923c4bb448fa49ef2a0db030b4dcf05618abffe96d3453c8",
       "url": "https://lucide-animated.com/r/user-round-check.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "755ee63c3a1fdc527a511a957d550d9763b74a18ec93eba623481aa549202ba1",
       "name": "user-round-cog",
-      "sha256": "8652e36bc8c00eec44740bbe5304c90d9dac74880abc27249574f390af50c5de",
+      "sha256": "fab57b76fb4a11ebcf03e1539977328eef5d8ea1d298b1064f4244413fef8aad",
       "url": "https://lucide-animated.com/r/user-round-cog.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "9065b461038538ceedb922a020aeba4a9769bcf2446cb7d4142122905d6837cf",
       "name": "user-round-plus",
       "sha256": "4a165aedbebe482175d70fe00276b21fb512f0f2ecfe48c68be20c175a8f9352",
       "url": "https://lucide-animated.com/r/user-round-plus.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "4a8d91ffc0d72848cc6f08e007b46e91a404f6bc9a7d4740475f3cf80692479b",
       "name": "users",
       "sha256": "a9d4fd9a4c8b4c6e8aef1f727699281ec32388d5749f9de1c7c0cdce1c684ac7",
       "url": "https://lucide-animated.com/r/users.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "32c59db58d33967efee578614719ad75b5616e771e5c5391dbe1dc80a8f62095",
       "name": "users-round",
       "sha256": "a3a6146b6204a106f62711fb36d3c8eb6d03a4ce15dfae6f594f875d86eed095",
       "url": "https://lucide-animated.com/r/users-round.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "d8ef94c6b9369402b97923a9cb53c009efe17b373df5ad20ed2669a8058c17c8",
       "name": "vibrate",
       "sha256": "0743a35f1eb5315b70e7909e9f77643848a994b54edf6227d407ba94193b5ff0",
       "url": "https://lucide-animated.com/r/vibrate.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "cbdaaf88ca9a0aa1f90a2d82b99584e695f1c5d527310dc2f538cc61fdbbe538",
       "name": "volume",
       "sha256": "3b149806bcb5e3a860aa41f27355970f8fef702e7b9a369381b90355a71f7e42",
       "url": "https://lucide-animated.com/r/volume.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "67a663298ca72112985cbd6e71d05368b9126398ec948fd185b95117dd5eafb4",
       "name": "wallet",
       "sha256": "8928f5d90a35b86609ee29d091d787da45e0f31cc9650d0cce4b4ab2146d58b9",
       "url": "https://lucide-animated.com/r/wallet.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "e3392a9f8873911ad00d8f99d62bab98b1e8229859b728eeaaeb85a490c307fd",
       "name": "washing-machine",
       "sha256": "163d6e3c569423efb3d869b4d4635c11541b31f7eb4fcc61c66a13d7431888b5",
       "url": "https://lucide-animated.com/r/washing-machine.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "0ed2b3ab1b363fd51eb93090cf345f068c0e496e6c7f5d8527c6a903348268ad",
       "name": "waves",
       "sha256": "f1f590067f3a23d77eb4d03e151a5f05d7c859cf80fd00e4c2286da9bf75953f",
       "url": "https://lucide-animated.com/r/waves.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "b59f68a76a06badfa03f217a9da741a1bd6657b8ba15ba13d4b7860e04150d38",
       "name": "waves-ladder",
       "sha256": "a5cb111b4707fd46b695e67858808474e136ff79a3f5f79136b93f2fa84fbc05",
       "url": "https://lucide-animated.com/r/waves-ladder.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "2c9450b1b0c605bf5016390c838bb2a151a02d577bc896b5fd76fa4cc2c40d5f",
       "name": "waypoints",
       "sha256": "e73f33f353fd6049c170a62640fb7fa6ea1d81838d36fce2cb0521562ffbb754",
       "url": "https://lucide-animated.com/r/waypoints.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "d73bfb6d1da946b7dbe43316d94c71d941c849121f90558c71c09009d68c185a",
       "name": "webhook",
       "sha256": "0843eeec6330e61431789c8ec43480d5bb242ebfeb82b3f35ed96c38de02fdb6",
       "url": "https://lucide-animated.com/r/webhook.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "3bd1321c2bf81e4b5946d1292d66dacfc94fac1a7ad13e1d33d2cd652d61aa67",
       "name": "wifi",
       "sha256": "19cc426e41f936ceb0a1558e11f965d22960a4aadc01a075ed92e87be3629eb8",
       "url": "https://lucide-animated.com/r/wifi.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "047ed812d3f7f512d73492972d078c5350fecf933126087c39e19ecfdc20f021",
       "name": "wifi-cog",
       "sha256": "a5e19702402a3e395e9b6c49898ba7b59b18a303fdfe3af339a6581b82a83264",
       "url": "https://lucide-animated.com/r/wifi-cog.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "afa56544bd2211db5342da7de96307bfed8c51c3341c1ea8568f6e1553ba44be",
       "name": "wifi-low",
       "sha256": "fc7d1dd10d91dff0da8f4b819cdf25df31fa64be88b9578b0b7a222db6ddc092",
       "url": "https://lucide-animated.com/r/wifi-low.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "afa08261b37beff3f4c73549be72f0ee3cee6f94b2f44cd019897f3863fc0700",
       "name": "wifi-pen",
       "sha256": "aef78eb07f968e8e87fdce3aa57662fd62531d5870156c480f2b07ad308221b0",
       "url": "https://lucide-animated.com/r/wifi-pen.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "1fa0a30e01634dd24a4c17891a11fe103f53a70c42574b26f53cc62410a06653",
       "name": "wifi-sync",
       "sha256": "518e79600f3cdf5459f1e73ac53a7be068bb85eb2983ce269bf8469efb3ca48a",
       "url": "https://lucide-animated.com/r/wifi-sync.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "a407d3020ba688fe614d5ab6ebbc62195677f17432d77505253470617f09c098",
       "name": "wind",
       "sha256": "37f587e4ec286c79e7009cce64f7057e7683c354236c49fe993a6c5cfec67949",
       "url": "https://lucide-animated.com/r/wind.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "6b0ac44ce9f84f02c04d2e285a8a5a03c26fe1688dc4f4e9a3a7be2534d447f6",
       "name": "wind-arrow-down",
       "sha256": "0dec2e053a0a23348614643b5a327b1fb5c356eec9cd6da67d15d2b1f08590af",
       "url": "https://lucide-animated.com/r/wind-arrow-down.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "f4b082fd01796ac8cee9516b136704b55a9a3b375923db5a7f14594bc4030c18",
       "name": "workflow",
       "sha256": "568ea9a5c149353e574f7872a697163c34bc7bb858c85885e40841b3728f29eb",
       "url": "https://lucide-animated.com/r/workflow.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "c71c53e5e89787fc26e86417d9f43aca25ebfccb776a2f3ffb3be5234a1bb50d",
       "name": "wrench",
       "sha256": "88225b4cac6d0d9ebcaecc63dd3d906e2b76bd0bd3383d9a106f0e1f21a63671",
       "url": "https://lucide-animated.com/r/wrench.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "caa8326bb3416bb9db20e293a5590aa66f52ce45fb0e7d69029698769cbb6777",
       "name": "x",
       "sha256": "c2e4d76fa360c12f482147bc1656c2cf0305cb480ec22aa9834b4cb315ce03f4",
       "url": "https://lucide-animated.com/r/x.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "9683213dbf2e18d217f8d79d7883789f4bbca48134236b998fb03f2a4594a4f2",
       "name": "youtube",
       "sha256": "f39fc4be1f868d850d56008d64211ce5f3a3eb7335809a4c5ca37796a3d30d74",
       "url": "https://lucide-animated.com/r/youtube.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "1d20ec3aa0769fafc1319bf60bb0b75d6fb43e320376c67040f710c2cb4b5e45",
       "name": "zap",
       "sha256": "0da92ec0871cf4c26fae6e6a6da0bd0415710d4fdc06687469b68b54a4d7ed96",
       "url": "https://lucide-animated.com/r/zap.json"
     },
     {
       "license": "MIT",
+      "moduleSha256": "f58ec926d5f09e8f82c85183fa527cb9ee3ee33cae32e6c2d39126b5d4d19b18",
       "name": "zap-off",
       "sha256": "a6391c344da9c0577b89abc6d9058e85c050fbb9cc6904b8863b049985fc78e1",
       "url": "https://lucide-animated.com/r/zap-off.json"

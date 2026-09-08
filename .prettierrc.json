@@ -1,0 +1,14 @@
+{
+  "overrides": [
+    {
+      "files": [
+        "packages/ui/registry/ui/icons/*.tsx",
+        "apps/docs/components/ui/icons/*.tsx"
+      ],
+      "options": {
+        "printWidth": 200,
+        "objectWrap": "collapse"
+      }
+    }
+  ]
+}

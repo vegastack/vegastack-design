@@ -1,7 +1,11 @@
 {
   "extends": "@vegastack/typescript-config/react-library.json",
+  // No `outDir`: tsup owns `dist` (see tsup.config.ts) and this config is
+  // `noEmit`, so the option emitted nothing — it only made tsc infer a `rootDir`
+  // of `packages/ui` and reject any file outside it. The browser suite is the
+  // only runner in the repo that can exercise `apps/docs`'s gallery tile, so
+  // `animated-icons.test.tsx` imports it across that boundary deliberately.
   "compilerOptions": {
-    "outDir": "dist",
     "paths": {
       "@/components/ui/*": ["./registry/ui/*"],
       "@/components/*": ["./registry/*"],

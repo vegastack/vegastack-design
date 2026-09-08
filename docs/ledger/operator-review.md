@@ -54,6 +54,171 @@ gate _claimed_, not a change of direction — no F1 decision is re-opened.
   a page+card specimen would have shown two identical columns and taught nothing.
 
 **Needs MK:** nothing. Every item is a document or gate catching up to shipped, decided behaviour.
+## 2026-09-07 — Animated icons: three calls from the Codex round on PR #57 (issue #46)
+
+**1. `chevron-first`'s handle type is a RENAME, not an alias removal — and the rename is kept.**
+
+- **What was actually there:** upstream copy-pasted `chevron-first`'s `displayName` from another
+  icon, so its primary exported interface was `ChevronsDownUpIconHandle` and `ChevronFirstIconHandle`
+  was the `@deprecated` alias _of_ it. The other seven icons in the same list are the ordinary shape
+  (primary survives, `@deprecated` alias deleted). The first changelog draft counted all eight as
+  alias removals, which described the opposite of what happened to this one.
+- **Options:** (a) keep `ChevronsDownUpIconHandle` as the surviving name, matching the old primary;
+  (b) keep `ChevronFirstIconHandle`, matching the exported component symbol and the registry item
+  name; (c) keep both.
+- **Chosen: (b).** The exported symbol is what consumers import and what `component-contracts.json`
+  pins, and a handle type whose name disagrees with its own icon is the upstream bug, not a
+  contract. (c) is a compatibility alias, which the audit mandate forbids outright. Documented as a
+  breaking rename with both names named, so a consumer of the old name can act on it.
+
+**2. Reduced motion is a hand-rolled store, not a Motion hook — and that is a deliberate cost.**
+
+- **Why:** neither Motion hook can express "live". In 12.42.2 `useReducedMotion()` is
+  `useState(prefersReducedMotion.current)` — one read of a module singleton captured at first import,
+  its own source carrying a `TODO` about not updating — and `useReducedMotionConfig()` composes
+  `<MotionConfig>` over that same one-shot value. The previous implementation therefore claimed a
+  behaviour it did not have: an icon already on screen when the user turned the preference on kept
+  animating. The factory now subscribes to the media query through `useSyncExternalStore` and keeps
+  the `<MotionConfig>` override by reading `MotionConfigContext` directly.
+- **The cost:** `MotionConfigContext` is a public export of `motion/react` but is not part of the
+  documented hook surface, so a future Motion major could move it. **D3 (motion 13) compatibility:**
+  this is one import in one file, `tooling/verify-animated-icons.mjs` asserts each half of the
+  mechanism separately, and the suite tests a live media-query transition in both directions — so a
+  break surfaces as a named gate failure, not as silently dead reduced-motion support. If Motion
+  ever ships a subscribing hook, delete the store and the override branch and use it.
+
+**2b. `<MotionConfig reducedMotion>` overrides in ONE direction only — this is a deliberate
+capability loss, and it needs MK's eye.**
+
+- **What forced the call:** `MotionConfigContext`'s default value is `reducedMotion: "never"` —
+  Motion does not auto-reduce; an app opts in with `"user"`. And `MotionConfig` merges over its
+  parent, so an explicit `<MotionConfig reducedMotion="never">` and **no `<MotionConfig>` at all**
+  produce identical context values. Nothing public can tell them apart. Honouring `"never"` as an
+  opt-out therefore also switches reduced motion off for every consumer who configured nothing,
+  which is how both `useReducedMotionConfig()` and my first fix for it ended up ignoring the OS
+  preference entirely (see `bugs.md`, 2026-09-07 (d)).
+- **Options:** (a) honour `"never"`, and accept that the un-configured tree — almost every consumer
+  — never reduces motion; (b) ignore `"never"`, so the OS preference always wins and only
+  `"always"` can add reduction; (c) reach into React internals to capture the default context object
+  and compare identity, recovering both behaviours.
+- **Chosen: (b).** (a) is a WCAG failure on the default path and contradicts what the docs page
+  promises. (c) depends on `MotionConfigContext._currentValue`, a private React field, to keep an
+  escape hatch whose only purpose is to animate against a user's explicitly stated preference —
+  paying in fragility for a capability the design system should probably not offer. (b) fails safe:
+  the worst outcome is a consumer who wanted motion getting stillness.
+- **What it costs:** a consumer cannot force full motion for icons. `<MotionConfig
+reducedMotion="never">` is now inert for them. **Needs MK:** confirm that trade, or say that the
+  escape hatch must exist and take option (c).
+
+**3. The animated-icon gate now pins each generated module by hash.**
+
+- **The hole:** `animated-icon-sources.json` pinned only the SHA-256 of the bytes fetched from
+  upstream. Nothing bound those to the module generated from them, so editing a digit of a glyph
+  path left all 439 icons passing — every remaining assertion is a schema check, and a hand-edited
+  path is still schema-valid. Reported by Codex as a fail-open gate; reproduced exactly.
+- **Chosen:** the manifest carries `moduleSha256` per icon — the hash of the generated module body
+  with the `registry:build` provenance header excluded, which is precisely the slice the mirror
+  itself compares when deciding a file changed — and the verifier recomputes it from disk. The
+  mirror stamps it on every write run and re-checks it under `--check`. Two of the fifteen
+  `--self-test` mutations (a glyph-path edit and a timing edit that uses a _sanctioned_ duration)
+  exist specifically to prove nothing else in the gate can catch these.
+
+---
+
+## 2026-09-07 — Animated-icon factory: seven calls D28 did not settle (issue #46)
+
+D28 fixed the architecture ("factory + data modules") and the constraints ("public icon names and
+the `AnimatedIcon` wrapper API stay unchanged"). These seven were left open and were decided here.
+
+**1. Host element — an `inline-flex` `<span>`.**
+
+- **Options:** (a) keep the block-level `<div>`; (b) an `inline-flex` `<span>`; (c) make the `<svg>`
+  itself the root and drop the host entirely.
+- **Why (b):** (a) is the audit's own finding — an icon sits inside a line of text and a block box
+  there breaks the line. (c) is leanest but changes the public prop type from HTML attributes to SVG
+  attributes, which breaks `AnimatedIcon`'s `as` contract and every consumer spreading `className`,
+  `role` or a data attribute — a wrapper-API change D28 forbids. (b) fixes the layout bug and keeps
+  the prop surface, at the cost of one type change: `AnimatedIconComponent` and the icon props move
+  from `HTMLDivElement` to `HTMLSpanElement`. **Needs MK:** that is a public type change and is why
+  `@vegastack/design` takes a minor, not a patch.
+
+**2. Subpath — `@vegastack/design/create-animated-icon`, not `./icons`.**
+
+- **Options:** (a) export the factory from the existing `./icons` entry; (b) a new subpath.
+- **Why (b):** `./icons` deliberately imports no `motion` — it carries `Icon`/`BrandIcon`, which a
+  consumer uses without any animation engine. Putting the factory there would force `motion` into
+  their graph and make the whole entry client-only. This is the same reason `./theme-scope` is
+  already separate. `motion` becomes an **optional** peer dependency of `@vegastack/design`.
+
+**3. Choreography is a closure, not a step table.**
+
+- **Options:** (a) reify every icon's start/stop into declarative step data; (b) let the 49
+  non-default icons carry a small `start`/`stop` closure over the factory's context.
+- **Why (b):** 390 of 439 icons need neither — they take the factory's default play/rest pair and say
+  nothing. Of the rest, the choreography is genuinely per-icon (awaited sequences, `Promise.all`,
+  a 1.5s deferred hide, a re-entrancy latch). A declarative step language rich enough to express all
+  of that would be a worse, less readable encoding of the same four lines, and every construct would
+  need its own interpreter in the factory. The duplication D28 targets — the controller — is gone
+  either way; what remains per icon is irreducibly per-icon. The factory supplies the primitives
+  (`run`/`reset`/`set`/`after`/`flags`) so a closure never touches React.
+
+**4. A reviewed override table for six icons, and a hard failure otherwise.**
+
+- Six icons (`wifi-low`, `projector`, `phone-call`, `satellite-dish`, `keyboard`, `volume`) reached
+  for a component-local helper, a timer, or React state that the mechanical rewriter cannot express.
+  Rather than approximate them, `CHOREOGRAPHY_OVERRIDES` in the mirror carries a hand-reviewed
+  transcription for each, reachable **only** after the mechanical path has refused the icon. A new
+  archetype therefore throws instead of silently taking the default. Upstream cannot change one of
+  these without failing the manifest's SHA-256 first.
+
+**5. The icon gallery keeps its route.** See the separate entry below — the measurement changed the
+answer.
+
+**6. The acceptance thresholds were estimates, and one was not met.** The issue predicted
+`< 12,000` lines and a `≥ 2 MB` drop in `apps/docs/public/r`. Measured on the branch head:
+**12,951 lines** (from 79,078, −83.6%; 599,280 bytes from 2,158,838, i.e. 0.57 MiB from 2.06 MiB)
+and a **1.56 MiB** registry drop (4,697,592 → 3,061,351 bytes, i.e. 4.48 → 2.92 MiB). Neither
+threshold is met. The residual is upstream path geometry and Motion variant data — the per-icon
+payload itself — so closing the remaining gap would mean discarding upstream choreography, not
+removing duplication. The one lever that would move the line count is `printWidth`, and widening it
+to hit `< 12,000` would be gaming the target rather than removing anything, so `printWidth` stays at 200. **Needs MK:** accept the measured numbers, or say which data should be dropped.
+
+_Corrected 2026-09-07 (Codex round on PR #57): the figures first recorded here (12,823 lines,
+1.57 MB) predated later commits on the branch and were never re-measured. Every number above is
+re-measured at the branch head; `CHANGELOG.md` and the changeset carry the same figures._
+
+**7. Formatting for generated data files.** A root `.prettierrc.json` now sets `printWidth: 200` and
+`objectWrap: "collapse"` for the two icon directories only (no repo-wide options are set, so nothing
+else changes). Without it the mirror's output and `pnpm format` would disagree and the mirror's
+idempotency check would fail after anyone ran the formatter.
+
+## 2026-09-07 — The icon gallery keeps its route; the refactor was the fix (issue #46)
+
+**Decision:** Do not split `/docs/foundations/icons` into its own route segment.
+
+- **Options:** (a) a dedicated `app/docs/foundations/icons/` segment; (b) remove `IconGallery` from
+  the global MDX map and import it inside the MDX file; (c) leave the routing alone.
+- **Why (c):** the gallery's own JSDoc records that (b) was already tried and measured — a dynamic
+  `import()` isolated the wall into its own chunk but left `button.html`'s total script payload
+  unchanged, because the catch-all `app/docs/[[...slug]]` route has **one** client-reference manifest
+  shared by every docs page. Moving the import into the MDX lands in that same manifest, so it buys
+  nothing. That leaves (a), which is the only mechanism that would work — and it is out of this
+  issue's lane: the route slug is pinned in `component-contracts.json` and consumed by
+  `tooling/lib/route-scope.mjs`, `verify-route-scope.mjs`, `verify-component-contracts.mjs`,
+  `apps/docs/vrt/page-routes.ts` and `vrt-review.mjs`, all of which G1-a owns, and
+  `apps/docs/app/**` is declared global for both pixel lanes so the change forces a full sweep on
+  every subsequent edit.
+- **What the refactor itself did to the number — measured, with a caveat.** After this change every
+  docs page loads 26 scripts totalling **3,645 KB**. The gallery's JSDoc records **3,873 KB** for the
+  same page before it. That is a ~228 KB improvement, but the two figures were taken on different
+  content at different times and **the baseline was not rebuilt here**, so treat the delta as
+  indicative rather than exact. The shared-manifest problem is unchanged: every docs page still
+  carries the wall.
+- **Revisit — this is still the largest client cost on every docs route.** A dedicated route segment
+  remains the right fix and should be scoped as its own issue against the route-scope owners.
+  **Needs MK.**
+
+---
 
 ## 2026-09-07 — F1 surface ladder: eye-tuned rung values and the `bg-muted` mapping
 

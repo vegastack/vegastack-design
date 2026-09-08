@@ -21,19 +21,22 @@ export interface AnimatedIconHandle {
 
 /**
  * Shape of a mirrored `lucide-animated` icon component: a React 19 function
- * component that accepts a runtime CSS length, spreads `div` props, and exposes an
- * {@link AnimatedIconHandle}. This is what `shadcn add @vegastack/<icon>`
+ * component that accepts a runtime CSS length, spreads `span` props, and exposes
+ * an {@link AnimatedIconHandle}. This is what `shadcn add @vegastack/<icon>`
  * copies in (e.g. `ActivityIcon`).
+ *
+ * The host is an `inline-flex` `<span>`: an icon sits inside a line of text, and
+ * a block-level box there is a layout bug.
  */
 export type AnimatedIconComponent = React.ComponentType<
   { size?: number | string; ref?: React.Ref<AnimatedIconHandle> } & Omit<
-    React.HTMLAttributes<HTMLDivElement>,
+    React.HTMLAttributes<HTMLSpanElement>,
     "ref"
   >
 >;
 
 export interface AnimatedIconProps extends Omit<
-  React.HTMLAttributes<HTMLDivElement>,
+  React.HTMLAttributes<HTMLSpanElement>,
   "ref"
 > {
   /** A mirrored lucide-animated icon component, e.g. `import { ActivityIcon } from '@/components/ui/activity'`. */
@@ -59,10 +62,14 @@ export interface AnimatedIconProps extends Omit<
  * animation (pointer/focus/touch auto-trigger where provided upstream; or call
  * `ref.current.startAnimation()`).
  *
- * Deliberately imports no `motion` — the mirrored icon component carries that
- * dependency, so the base package stays lightweight. Every generated mirror reads
- * Motion's `useReducedMotion()` preference intrinsically and settles immediately at
- * its static resting state when the user requests reduced motion.
+ * Deliberately imports no `motion` — the mirrored icon carries that dependency
+ * through `@vegastack/design/create-animated-icon`, so this entry stays
+ * lightweight for consumers who only use `Icon`/`BrandIcon`. Every mirrored icon
+ * is gated on `prefers-reduced-motion` intrinsically (in the factory, once, as a
+ * live subscription) and settles immediately at its static resting state when
+ * the user requests reduced motion. No <MotionConfig> is required;
+ * <MotionConfig reducedMotion="always"> can add reduction, but nothing can take
+ * the OS preference away.
  *
  * @example
  * 'use client';

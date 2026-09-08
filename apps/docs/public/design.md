@@ -1911,6 +1911,24 @@ state. Never inline an ad-hoc `<svg>` as an icon; never mix icon libraries.
 With text that can wrap, align the icon to the **first line**, not the block midpoint: use an
 `items-start` row and a line-height-sized icon wrapper. Keep the icon optically equal to the text size.
 
+**The factory owns the controller; icons are data.** Every mirrored lucide-animated icon is a
+`createAnimatedIcon({ … })` call describing only its geometry, its Motion variants, and — where
+upstream choreography is not a plain play/rest pair — its start/stop steps. The controller lives once
+in `@vegastack/design/create-animated-icon`: the animation controls, the reduced-motion gate, the
+imperative `startAnimation`/`stopAnimation` handle, and the multi-input trigger rules (hover plays on
+a fine pointer, a tap plays on touch, focus plays and blur rests, and every one of them stands down
+once a consumer attaches a ref — including the tap driver, so a ref-controlled icon that omits its
+own `pointerdown` handler is dead on touch). The host is an **`inline-flex` `<span>`** — an icon sits
+inside a line of text, so a block-level box there is a layout bug. Reduced motion is a **live
+subscription** to `prefers-reduced-motion`, not a one-shot read: turning the preference on settles
+every icon already on screen. `<MotionConfig reducedMotion="always">` adds reduction on top; the
+override is **one-way**, because Motion's default context value is `reducedMotion: "never"` and is
+indistinguishable from an explicit one, so honouring it would disable reduced motion for every
+consumer who mounts no `MotionConfig`.
+A behaviour that belongs to every icon belongs in the factory; a generated icon module that contains
+a hook, an event handler, or any JSX is a defect the gate rejects — and each generated module is
+pinned by SHA-256 in the mirror manifest, so a hand-edited path or timing value is rejected too.
+
 ## Components
 
 Each component composes from tokens (frontmatter `recipes` gives the compact machine recipes). One control-height scale —

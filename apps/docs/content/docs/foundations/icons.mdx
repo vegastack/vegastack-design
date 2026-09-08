@@ -34,9 +34,31 @@ import { ActivityIcon } from "@/components/ui/icons/activity";
 <AnimatedIcon as={ActivityIcon} size="md" aria-label="Activity" />;
 ```
 
-Every generated mirror handles `prefers-reduced-motion` intrinsically: playback becomes a no-op and
-the icon returns immediately to its static resting state. A consumer-level `MotionConfig` may still
-coordinate other application motion, but it is not required for VegaStack icon safety.
+**The factory owns the controller; icons are data.** A mirrored icon is a `createAnimatedIcon({ … })`
+call describing its geometry, its Motion variants, and — where upstream choreography is not a plain
+play/rest pair — its start/stop steps. Everything shared lives once in
+`@vegastack/design/create-animated-icon`: the animation controls, the reduced-motion gate, the
+imperative handle, and the trigger rules (hover plays on a fine pointer, a tap plays on touch, focus
+plays and blur rests, and all of them stand down once you attach a ref, so your handler becomes the
+only driver). The host is an `inline-flex` `<span>`, so an icon sits on the text baseline instead of
+breaking the line.
+
+Reduced motion is intrinsic: playback becomes a no-op and the icon returns immediately to its static
+resting state. The preference is **subscribed to, not sampled once** — turning it on settles every
+icon already on screen, not just the ones mounted afterwards. An explicit
+`<MotionConfig reducedMotion="always">` adds reduction on top of it, so an application that already
+coordinates its motion centrally gets icons for free — and no `MotionConfig` is required for
+VegaStack icon safety.
+
+The override is **one-way on purpose**. Motion's own default is `reducedMotion: "never"`, and
+`MotionConfig` merges over its parent, so an explicit `reducedMotion="never"` and no `MotionConfig`
+at all produce identical context values — nothing can tell them apart. Honouring `"never"` as an
+opt-out would therefore switch reduced motion off for every consumer who configured nothing, so the
+OS preference always wins unless you ask for more reduction, never less.
+
+Attaching a ref makes your handler the only driver, which includes the tap driver: on a touch device
+there is no hover and no focus, so a ref-controlled icon needs a `pointerdown` handler of its own or
+it will never play.
 
 <IconGallery />
 
