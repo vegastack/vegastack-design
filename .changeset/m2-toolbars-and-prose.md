@@ -7,8 +7,9 @@ Rich text is one recipe, and the bars that promise arrow-key traversal now imple
 - **MarkdownView and TextEdit share the `prose` recipe.** Both restated the same heading, paragraph,
   list, quote and code recipe in their own grammar and had already drifted (`h4`–`h6`, tables and
   images existed on one side only). They now wear the same class from `@vegastack/design`, so
-  rendered markdown and edited rich text are one typography — asserted by comparing computed styles,
-  not class names. TextEdit's fenced-code block stops being a third copy of `CodeBlock`'s surface,
+  rendered markdown and edited rich text are one typography — asserted structurally: a unit test
+  requires every rule of the recipe on both roots, and no typography of their own.
+  TextEdit's fenced-code block stops being a third copy of `CodeBlock`'s surface,
   and the editor's links no longer all light up when the editor itself is hovered.
 - **TextEdit's formatting row is a Base UI `Toolbar`** — one tab stop, arrow keys across three
   labelled groups, `Shift`+`Tab` out. It was a `role="toolbar"` of eight independent tab stops.
