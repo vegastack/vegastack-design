@@ -61,7 +61,7 @@ pnpm install                   # also wires the git hooks (husky, via `prepare`)
 pnpm dev                       # docs showcase on :3000
 pnpm check:component <name>    # the inner loop: design-lint · typecheck · that unit test
 pnpm verify                    # THE command: typecheck · lint · design:verify · browser suite
-pnpm verify:release            # the outward-step extras: docs export · consume round-trip · 3 engines
+pnpm verify:release            # the outward-step extras: both docs matrices · consume · 3 engines
 pnpm run clean                 # report only; `pnpm run clean --after-run|--weekly` reclaims
 pnpm registry:build            # after any canonical component edit
 ```

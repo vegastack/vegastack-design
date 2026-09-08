@@ -19,8 +19,8 @@ environmental, say so with the evidence and let MK decide — the same disciplin
 
 ```bash
 pnpm check:component <name>   # ~5s     design-lint · typecheck · that one component's test
-pnpm verify                   # <2min   typecheck · lint · design:verify · the browser suite
-pnpm verify:release           # ~12min  docs export · links · metadata · registry · consume · 3 engines
+pnpm verify                   # ~2.5min typecheck · lint · design:verify · browser suite · design CLI tests
+pnpm verify:release           # ~7min   BOTH docs matrices · links · registry · consume · 3 engines
 ```
 
 `pnpm verify` is the whole gate. It is byte-for-byte the command `ci.yml` runs on a pull request,

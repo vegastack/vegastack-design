@@ -45,10 +45,9 @@ include those outputs with the component change before rerunning preflight; neve
 ```bash
 pnpm design:derived
 git status --porcelain          # must be empty — see below if it is not
-pnpm verify                     # typecheck · lint · design:verify · the browser suite. <2min.
-pnpm verify:release             # docs export · links · metadata · registry · consume · 3 engines. ~12min.
+pnpm verify                     # typecheck · lint · design:verify · browser suite · design CLI tests. ~2.5min.
+pnpm verify:release             # BOTH docs matrices · links · registry · consume · 3 engines. ~7min.
 node tooling/changelog-lint.mjs
-SITE_VISIBILITY=private pnpm --filter @vegastack/docs build
 ```
 
 **CI executes both of these itself.** `deploy.yml` runs `pnpm verify && pnpm verify:release` on the

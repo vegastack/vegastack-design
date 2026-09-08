@@ -87,7 +87,7 @@ under two minutes on a developer machine.
 ```bash
 pnpm check:component button    # ~5s   design-lint · typecheck · that one component's test
 pnpm verify                    # <2min the whole thing — this is what CI runs
-pnpm verify:release            # ~12min docs export · links · metadata · registry · consume · 3 engines
+pnpm verify:release            # ~7min  BOTH docs matrices · links · registry · consume · 3 engines
 pnpm clean                     # dry-run report of reclaimable local scratch
 node tooling/workspace-clean.mjs --weekly   # actually reclaim it
 ```
