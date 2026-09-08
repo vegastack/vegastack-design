@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "tree": "tree-a5b571c9f08e3b8d90d8c9a663fc7e64aac78fcd",
-  "treeFiles": 2701,
-  "head": "97e8506b67915a5e41abdfaddc1fe4b0b8999b3a",
-  "writtenAt": "2026-09-07T18:34:08.570Z",
+  "tree": "tree-2366066044e6778314138a0a8df86059a69834a8",
+  "treeFiles": 2702,
+  "head": "fde4299ff51bab4ef88c3fe5db63f8e71849db72",
+  "writtenAt": "2026-09-08T06:43:18.552Z",
   "mode": "push",
   "base": {
     "ref": "origin/main",
-    "sha": "9c33dfaf6fa8c38dc2e1e009620ecb06d86dc4ff"
+    "sha": "d5c960a3e704f730893303fe0aef1d4b49812ce3"
   },
   "host": {
     "platform": "linux",
@@ -23,28 +23,28 @@
     "contracts": true,
     "unit": true,
     "smoke": true,
-    "contractsReason": "global surface changed (apps/docs/app/(home)/page.tsx, apps/docs/app/docs/[[...slug]]/page.tsx, apps/docs/app/docs/layout.tsx, +73 more)"
+    "contractsReason": "global surface changed (apps/docs/components/foundations.tsx, apps/docs/vrt/contracts.spec.ts, packages/design-tokens/tokens/semantic.tokens.json)"
   },
   "gates": {
     "typecheck": {
       "status": "pass",
-      "durationMs": 43777
+      "durationMs": 35542
     },
     "lint": {
       "status": "pass",
-      "durationMs": 19701
+      "durationMs": 18515
     },
     "unit": {
       "status": "pass",
-      "durationMs": 52681
+      "durationMs": 57061
     },
     "smoke": {
       "status": "pass",
-      "durationMs": 26254
+      "durationMs": 25464
     },
     "contracts": {
       "status": "pass",
-      "durationMs": 577155,
+      "durationMs": 569914,
       "executed": 880,
       "full": true,
       "scopeRoutes": 110

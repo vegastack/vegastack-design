@@ -311,8 +311,11 @@ everything its underlying element accepts (`<div>`, `<h3>`, `<ul>`, `<li>`,
 - The active item sets `aria-current="page"` in addition to the visual highlight, so assistive tech
   announces the current location.
 - `SidebarMenuButton` and `SidebarTrigger` are real `<button>` (or `<a>`) elements. On hover/press
-  they highlight with `bg-sidebar-accent text-sidebar-accent-foreground`, and the active row adds a
-  leading rail plus `data-[active=true]:bg-sidebar-accent`. Neither element carries a per-component
+  they climb the surface ladder through the shared `surfaceInteractive` recipe (`hover:bg-surface-2
+active:bg-surface-3`, with `text-sidebar-accent-foreground`). The active row adds a leading rail and
+  **rests** on `data-[active=true]:bg-surface-3`, then steps back DOWN to `surface-2` on hover and
+  returns to `surface-3` while pressed — so a selected row still visibly moves under the cursor.
+  Neither element carries a per-component
   `:focus-visible` style — keyboard focus relies on the design system's global `:focus-visible`
   outline ring (`outline-ring`, since they never set `outline: none`). Consumers who do not load the
   global focus rule fall back to the user-agent default outline, so verify a visible focus indicator

@@ -4,6 +4,57 @@ Every judgment-call / assumption / best-guess decision made instead of pausing �
 
 ---
 
+## 2026-09-07 — F1 follow-up: reconciling the doctrine, the guides and the media gate with the ladder
+
+**Context:** a post-merge Codex review of F1 (#32, `9c33dfaf`) found that the token layer moved but
+several prose and gate surfaces did not. Every item below is a correction to what a document or a
+gate _claimed_, not a change of direction — no F1 decision is re-opened.
+
+**Decisions taken instead of pausing:**
+
+- **The switch off-track is `surface-3`, and design.md now says so twice.** `design.md` had two
+  contradictory statements: the wells bullet listed the switch off-track under `surface-1`, and the
+  Components line still named the **deleted** `track` token. The source (`switch.tsx`) is
+  `bg-surface-3`, and the `surface-3` token description already documents "the switch off-track", so
+  the source and the token were right and both prose sites were wrong. Written up as an explicit
+  exception ("a pressed-weight affordance, not a well") rather than silently deleting the mention,
+  because a reader who finds a well-weight rail and a pressed-weight rail needs to know which is
+  which. The same carve-out was added to `skills/internal/component/references/tokens.md`, and the
+  `/CHANGELOG.md` 0.7.0 bullet that asserted all three tracks were `surface-1` was corrected — 0.7.0
+  is unreleased, so this is a fix to an unshipped claim, not a rewrite of history.
+- **The chromatic ramp is eight tokens, not seven (design.md) or six (colors.mdx).** F1 added a
+  precomposed `<family>-subtle-active`; neither count was updated. Verified against
+  `dist/theme.css` (`--info`, `-hover`, `-active`, `-foreground`, `-subtle`, `-subtle-hover`,
+  `-subtle-active`, `-text`) rather than counting the DTCG source, because four of the eight are
+  derived by `sd-hooks.mjs` and never appear there. `colors.mdx`'s theme-split sentence was corrected
+  at the same time: `-subtle-hover`/`-subtle-active` ARE theme-aware (confirmed in the `.dark` block),
+  while `-hover`/`-active` are emitted only in the light run.
+- **`media-foreground` on `media-scrim` is gated at AA text (4.5:1), not the 3:1 non-text floor.**
+  The token contract permitted labels on the soft scrim while the gate only checked it as a graphic —
+  a contract wider than its enforcement. Two options: narrow the contract to send all text to
+  `media-scrim-strong`, or raise the gate. **Chose to raise the gate**, because the pair already
+  measures **5.22:1** over the white worst case, so the stricter floor costs nothing today and simply
+  makes a future scrim retune fail loudly; narrowing instead would have invalidated shipped media
+  chrome that legitimately labels on the soft scrim. Proven falsifiable: temporarily raising the floor
+  to 6:1 fails both themes at 5.22:1. The three media token `$description`s now state where text is
+  allowed and which floor enforces it. Check count unchanged (434) — a floor moved, no pair added.
+- **`secondary` and the text-entry fill claims in design.md's Components section were simply wrong.**
+  `secondary` was described as "card fill + the one border"; it is `bg-secondary` (= `surface-1`) over
+  the shared `border-transparent` base. `Input/Select/Textarea` were described as "`secondary` fill";
+  they are `bg-transparent` with a dark-only `bg-input/(--alpha-input)` wash. Both corrected from the
+  registry source. The second was outside the reported finding but is the same drift in the same
+  paragraph, so fixing one and leaving the other would have been arbitrary.
+- **The `SurfaceLadder` alpha-twin specimen was rebuilt to paint real composites.** It labelled two
+  swatches `--alpha-hover` / `--alpha-pressed` while filling them with `var(--surface-2)` /
+  `var(--surface-3)` — the opaque rungs. That made the panel unfalsifiable: it could not drift from
+  its own label, and it demonstrated the opposite of the twins' claim (that they composite onto a
+  backdrop that is _not_ a rung). It now mixes `foreground` at each alpha over **three** hosts (page,
+  card, well) in both themes, with the opaque rung shown beside each wash for comparison and labelled
+  as such. Three hosts rather than the two asked for: in light, `card` **is** the page colour (P1), so
+  a page+card specimen would have shown two identical columns and taught nothing.
+
+**Needs MK:** nothing. Every item is a document or gate catching up to shipped, decided behaviour.
+
 ## 2026-09-07 — F1 surface ladder: eye-tuned rung values and the `bg-muted` mapping
 
 **Decision:** ship the ladder at values that differ from `03-proposals.md` §P1's start values wherever the contrast gate said P1's number could not hold, and keep `bg-muted` on the sites where it already means "rung 1".

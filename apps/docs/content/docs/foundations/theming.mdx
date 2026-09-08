@@ -59,8 +59,9 @@ The link between the two is the `@theme inline` block, which maps each raw token
 ```
 
 Because the bridge points at `var(--primary)` (not a baked value), it is **transparent to overrides**.
-Change `--primary` and `--color-primary` follows automatically, so `bg-primary`,
-`bg-primary/(--alpha-surface-subtle)`, and the `--ring`-keyed focus outline all repaint at once.
+Change `--primary` and `--color-primary` follows automatically, so `bg-primary`, the ladder recipe's
+alpha washes (`hover:bg-primary/(--alpha-hover)`, `active:bg-primary/(--alpha-pressed)` — what
+`fillInteractive.primary` expands to), and the `--ring`-keyed focus outline all repaint at once.
 
 The bridge also exposes the non-color scales as Tailwind theme keys:
 

@@ -24,17 +24,19 @@ visual values, enforced by `tooling/design-lint.mjs`. Token names verified again
 
 Neutral surfaces and every interaction step are ONE ladder. Reach for a rung by name:
 
-| token           | role                                                                                        |
-| --------------- | ------------------------------------------------------------------------------------------- |
-| `bg-background` | the page                                                                                    |
-| `bg-card`       | every surface — card, popover, sheet, dialog, sidebar rail (`popover`/`sidebar` ARE `card`) |
-| `bg-surface-1`  | the rest fill of a filled control (soft button, kbd, chip, tab rail) and every well/track   |
-| `bg-surface-2`  | **hover**                                                                                   |
-| `bg-surface-3`  | **pressed / selected** (`data-selected:bg-surface-3`)                                       |
+| token           | role                                                                                                           |
+| --------------- | -------------------------------------------------------------------------------------------------------------- |
+| `bg-background` | the page                                                                                                       |
+| `bg-card`       | every surface — card, popover, sheet, dialog, sidebar rail (`popover`/`sidebar` ARE `card`)                    |
+| `bg-surface-1`  | the rest fill of a filled control (soft button, kbd, chip, tab rail) and every well (not the switch off-track) |
+| `bg-surface-2`  | **hover**                                                                                                      |
+| `bg-surface-3`  | **pressed / selected** (`data-selected:bg-surface-3`)                                                          |
 
 `secondary`, `muted`, `accent` and every `sidebar-*` name are **ALIASES** of these rungs
 (`secondary` = `muted` = `surface-1`, `accent` = `sidebar-accent` = `surface-2`, `sidebar` = `card`).
-They compile, but new code names the rung. There is no `track` token — tracks are `surface-1`.
+They compile, but new code names the rung. There is no `track` token: the slider rail, progress track,
+skeleton and every well are `surface-1`; the **switch off-track is `surface-3`** (a pressed-weight
+affordance, not a well).
 
 **Never write a `hover:bg-*` literal.** Both washes come from the recipes exported by
 `@vegastack/design`:

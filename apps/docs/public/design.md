@@ -22,8 +22,8 @@ generated:
       sha256: "bade126afb17ad70f251299bce42d2885f4b94e137a88e2e24479cbcbdbd6994"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 34354
-      sha256: "a95f9f5086fd438d947c0d038d6adb3197f8ab4aad0ae54a4c3d751dc9912f61"
+      bytes: 34882
+      sha256: "ba9ff51ea3f34734bf41b82afc34c93800946926af44552853c99671238cfe25"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
       bytes: 11802
@@ -304,15 +304,15 @@ themes:
     media-foreground:
       type: "color"
       value: "oklch(0.985 0.003 75)"
-      description: "Theme-invariant media chrome ink: the warm off-white used for every icon, label and track drawn over media-scrim. Not overridden in dark on purpose."
+      description: "Theme-invariant media chrome ink: the warm off-white used for every icon, label and track drawn over media-scrim or media-scrim-strong. Labels are allowed on EITHER scrim — both are gated at the AA text floor (4.5:1) against this ink over the white worst case. Not overridden in dark on purpose."
     media-scrim:
       type: "color"
       value: "oklch(0.13 0.002 75 / 0.6)"
-      description: "THEME-INVARIANT media chrome scrim (B4-01): the gradient/backdrop behind controls laid over video or imagery. Always a warm-black alpha, never a theme token, so the chrome reads dark-scrim + light-ink in both themes (`primary` flips with the theme and inverted the chrome in dark). media-foreground clears 5.2:1 on it over a white worst-case backdrop."
+      description: "THEME-INVARIANT media chrome scrim (B4-01): the gradient/backdrop behind controls laid over video or imagery. Always a warm-black alpha, never a theme token, so the chrome reads dark-scrim + light-ink in both themes (`primary` flips with the theme and inverted the chrome in dark). TEXT IS PERMITTED on this scrim: media-foreground clears 5.2:1 on it over a white worst-case backdrop, and tooling/contrast-check.mjs gates the pair at the AA TEXT floor (4.5:1), not the 3:1 non-text floor — so a retune that thins this scrim under AA fails the build rather than silently demoting its labels."
     media-scrim-strong:
       type: "color"
       value: "oklch(0.13 0.002 75 / 0.8)"
-      description: "Theme-invariant strong scrim for opaque media pills (volume popover, time badge) — 11:1 for media-foreground over a white worst case."
+      description: "Theme-invariant strong scrim for opaque media pills (volume popover, time badge) — 11:1 for media-foreground over a white worst case. Use it for any block of media text that needs headroom beyond the soft scrim's ~5.2:1, and for text over unusually bright or busy frames."
     motion-blur:
       type: "dimension"
       value: "2px"
@@ -1086,15 +1086,15 @@ themes:
     media-foreground:
       type: "color"
       value: "oklch(0.985 0.003 75)"
-      description: "Theme-invariant media chrome ink: the warm off-white used for every icon, label and track drawn over media-scrim. Not overridden in dark on purpose."
+      description: "Theme-invariant media chrome ink: the warm off-white used for every icon, label and track drawn over media-scrim or media-scrim-strong. Labels are allowed on EITHER scrim — both are gated at the AA text floor (4.5:1) against this ink over the white worst case. Not overridden in dark on purpose."
     media-scrim:
       type: "color"
       value: "oklch(0.13 0.002 75 / 0.6)"
-      description: "THEME-INVARIANT media chrome scrim (B4-01): the gradient/backdrop behind controls laid over video or imagery. Always a warm-black alpha, never a theme token, so the chrome reads dark-scrim + light-ink in both themes (`primary` flips with the theme and inverted the chrome in dark). media-foreground clears 5.2:1 on it over a white worst-case backdrop."
+      description: "THEME-INVARIANT media chrome scrim (B4-01): the gradient/backdrop behind controls laid over video or imagery. Always a warm-black alpha, never a theme token, so the chrome reads dark-scrim + light-ink in both themes (`primary` flips with the theme and inverted the chrome in dark). TEXT IS PERMITTED on this scrim: media-foreground clears 5.2:1 on it over a white worst-case backdrop, and tooling/contrast-check.mjs gates the pair at the AA TEXT floor (4.5:1), not the 3:1 non-text floor — so a retune that thins this scrim under AA fails the build rather than silently demoting its labels."
     media-scrim-strong:
       type: "color"
       value: "oklch(0.13 0.002 75 / 0.8)"
-      description: "Theme-invariant strong scrim for opaque media pills (volume popover, time badge) — 11:1 for media-foreground over a white worst case."
+      description: "Theme-invariant strong scrim for opaque media pills (volume popover, time badge) — 11:1 for media-foreground over a white worst case. Use it for any block of media text that needs headroom beyond the soft scrim's ~5.2:1, and for text over unusually bright or busy frames."
     motion-blur:
       type: "dimension"
       value: "2px"
@@ -1667,7 +1667,8 @@ shadcn component registry.
 
 **Light and dark are co-primary** — neither is derived; every token is authored and contrast-validated in
 both. The aesthetic is **warm-neutral, restrained, futuristic**: surfaces are a barely-warm white (deep,
-non-espresso near-black in dark), articulated by a **single solid hairline border**, not heavy fills
+non-espresso near-black in dark), articulated by a **single derived alpha hairline** (`foreground` at
+`--alpha-border` — 8% light / 14% dark), not heavy fills
 or shadows. The **neutral-ink primary does the bulk of the work**; colour is rationed and meaningful.
 
 **Key characteristics**
@@ -1678,7 +1679,7 @@ or shadows. The **neutral-ink primary does the bulk of the work**; colour is rat
 - **Scales are tokens.** Colour, control sizes (`--size-*`), radius (`--radius-*`), the two sanctioned shadows (`--shadow-overlay` / `--shadow-lit`), motion, and type (`--text-*`) are all DTCG tokens — change one, every component re-skins.
 - **Neutral-ink primary.** The default action is a charcoal/near-white neutral (Vercel-style), not a colour. Almost every button is `primary`.
 - **One rationed chromatic.** `info` (blue) = links and informational UI — the whole colour budget beyond status. The neutral-ink `primary` carries the key action, AI/agent surfaces, and selected/active state.
-- **One border, flat by default.** A single solid warm-neutral border carries all separation. Only overlays get `shadow-overlay`; only primary actions get the restrained `shadow-lit` finish.
+- **One border, flat by default.** A single warm-neutral hairline carries all separation, and it is an **alpha**: `border` is DERIVED as `foreground` at `--alpha-border` (8% light / 14% dark), so the same line reads on the page, on a card, in a well and on a dark band. Only overlays get `shadow-overlay`; only primary actions get the restrained `shadow-lit` finish.
 - **Restrained headlines, crisp body.** Functional headings and the display hero both render at weight 400; 14px body; weight tops out at a rare 600 emphasis (D3), never a UI default.
 - **One neutral focus outline.** A 2px `:focus-visible` outline in the `ring` token (= primary ink), centralized — never a colour or glow, so the accent stays free.
 - **AA by contract.** Every gated foreground/background pair clears WCAG 2.2 AA in both themes, enforced by a fail-closed build gate.
@@ -1734,8 +1735,10 @@ and each has an **alpha twin** so the same rung composites onto any backdrop.
   `overlay` for the modal scrim. No `border-strong` / `overlay-border` / ad-hoc line token; overlays
   separate via the shadow, not a heavier border.
 - **`ring`** is the focus basis and equals **`primary`** (neutral ink) — see Accessibility.
-- **Tracks and wells are `surface-1`** — slider rail, progress track, switch off-track, skeleton,
-  code block, disabled field. There is no separate `track` token; it was deleted into the ladder.
+- **Tracks and wells are `surface-1`** — slider rail, progress track, skeleton, code block,
+  disabled field. The **switch off-track is the exception: `surface-3`**, because it is a pressed /
+  selected-weight affordance rather than a well, and it must read against the thumb. There is no
+  separate `track` token; it was deleted into the ladder.
 
 ### Hover geometry
 
@@ -1764,8 +1767,10 @@ and each has an **alpha twin** so the same rung composites onto any backdrop.
 ### Chromatic colour — rationed
 
 The chrome is warm-neutral; colour carries meaning and is **rationed to one chromatic accent (blue) + three
-status hues**. Each family is a seven-token ramp (`fill` / `hover` / `active` / `foreground` / `subtle` /
-`subtle-hover` / `text`). All use **warm-off-white on-fill text** uniformly; `hover`/`active` darken so contrast only rises. `subtle`
+status hues**. Each family is an eight-token ramp (`fill` / `hover` / `active` / `foreground` / `subtle` /
+`subtle-hover` / `subtle-active` / `text`) — `subtle-active` is the soft fill's PRESSED step, precomposed
+like `subtle-hover` because an `active:bg-<fam>/(--alpha-pressed)` would replace the tint instead of
+stepping it. All use **warm-off-white on-fill text** uniformly; `hover`/`active` darken so contrast only rises. `subtle`
 (soft tinted background) and `text` (readable colour for page/alert) adapt per theme.
 
 | Family        | Role                                      | Fill (sRGB render of the shipped OKLCH) | On-fill                           | Hue             |
@@ -1921,16 +1926,16 @@ Each component composes from tokens (frontmatter `recipes` gives the compact mac
 inputs, and selects (inputs/selects use sm–lg only) so they line up; padding-x xs 8 / sm 10 / md 12 / lg 16
 (buttons), 12 (inputs). Tokenised as `--size-{xs,sm,md,lg}`.
 
-- **Button** — the CORE variants: `primary` (neutral-ink fill, the default for everything, including the single key action or an AI moment); `secondary` (card fill + the one border) and `ghost` (transparent, neutral `accent` hover) for lower emphasis; `destructive` for danger — **soft-only** (`destructive.subtle` fill + `.text`; D4 — the destructive Button never uses the solid fill). The SHIPPED surface is wider (15 variants × 8 sizes): `outline`, `link`, `glass`, the soft `success`/`warning`/`info` family mirrors of `destructive`, the four `{family}-outline` tints, the marketing `cta`, and the `icon`/`icon-*` size tiers — all documented per-variant in the Button docs page; this section names only the canonical core. Sizes `xs`(24, icon affordances)/`sm`(28)/`default`(32)/`lg`(40). Radius `md`; `text-base`/500 label. **Hover/active darken within the button's own colour** — nothing borrows a hue.
+- **Button** — the CORE variants: `primary` (neutral-ink fill, the default for everything, including the single key action or an AI moment); `secondary` (the rung-1 fill — `bg-secondary` = `surface-1` — over the shared transparent base border, NOT a bordered card) and `ghost` (transparent, hovering to the rung-2 wash) for lower emphasis; `destructive` for danger — **soft-only** (`destructive.subtle` fill + `.text`; D4 — the destructive Button never uses the solid fill). The SHIPPED surface is wider (15 variants × 8 sizes): `outline`, `link`, `glass`, the soft `success`/`warning`/`info` family mirrors of `destructive`, the four `{family}-outline` tints, the marketing `cta`, and the `icon`/`icon-*` size tiers — all documented per-variant in the Button docs page; this section names only the canonical core. Sizes `xs`(24, icon affordances)/`sm`(28)/`default`(32)/`lg`(40). Radius `md`; `text-base`/500 label. **Hover/active darken within the button's own colour** — nothing borrows a hue.
 - **States** (every button) — default · hover · focus · active · disabled (`opacity-(--opacity-dim)`, 50% + `not-allowed`) · loading (spinner honouring reduced-motion). **Focus = the neutral 2px `:focus-visible` outline (`ring` token = primary ink)** — never a box-shadow glow.
-- **Input / Select / Textarea** — `secondary` fill, the one `border`, radius `md`, 32px. **Consistent border scale (one alpha step, no per-mode opacity hacks): rest = `border`/`input`; focus/active = `ring/70`; error = `destructive-border/70`.** The error ink is the ONE deliberate per-theme exception in this scale: `destructive` is tuned as a solid button fill carrying light text, and at 70% on the dark ground it measures **1.92:1** — under the 3:1 WCAG 1.4.11 floor for a non-text indicator — while lightening `destructive` itself would drop `destructive-foreground` on the solid button below 4.5:1. So the border has its own role, `destructive-border` (light `red.700` → 4.24:1, dark `red.400` → 4.00:1). The _alpha_ stays identical across themes; only the ink re-grounds. `tooling/contrast-check.mjs` gates this pair composited over background/card/popover/muted/secondary in both themes. Text-entry fields (Input, Textarea, Field control, OTP slots) use the darkened `ring/70` border as their _sole_ focus indicator — no outline (a raw text input can't distinguish mouse from keyboard, so the border is the one consistent cue for both click and Tab). Button-style triggers (Select, date-picker, country-select, color-picker — built on the `outline` Button variant) darken the border to `ring/70` on focus AND add the neutral 2px outline for keyboard nav (`:focus-visible` only). Never a colour, never a glow. Error = `destructive/70` border + `destructive.text` helper. Disabled = reduced opacity + `not-allowed`.
+- **Input / Select / Textarea** — transparent fill on the page (dark adds `bg-input/(--alpha-input)` so the field reads as a well against the dark ground), the one `border`, radius `md`, 32px. **Consistent border scale (one alpha step, no per-mode opacity hacks): rest = `border`/`input`; focus/active = `ring/70`; error = `destructive-border/70`.** The error ink is the ONE deliberate per-theme exception in this scale: `destructive` is tuned as a solid button fill carrying light text, and at 70% on the dark ground it measures **1.92:1** — under the 3:1 WCAG 1.4.11 floor for a non-text indicator — while lightening `destructive` itself would drop `destructive-foreground` on the solid button below 4.5:1. So the border has its own role, `destructive-border` (light `red.700` → 4.24:1, dark `red.400` → 4.00:1). The _alpha_ stays identical across themes; only the ink re-grounds. `tooling/contrast-check.mjs` gates this pair composited over background/card/popover/muted/secondary in both themes. Text-entry fields (Input, Textarea, Field control, OTP slots) use the darkened `ring/70` border as their _sole_ focus indicator — no outline (a raw text input can't distinguish mouse from keyboard, so the border is the one consistent cue for both click and Tab). Button-style triggers (Select, date-picker, country-select, color-picker — built on the `outline` Button variant) darken the border to `ring/70` on focus AND add the neutral 2px outline for keyboard nav (`:focus-visible` only). Never a colour, never a glow. Error = `destructive/70` border + `destructive.text` helper. Disabled = reduced opacity + `not-allowed`.
 - **Card / Panel** — `card` surface, the one `border`, radius `lg`, **flat (no shadow)**.
 - **Badge / Chip / Tag** — radius `full`; status/info badges use `{family}.subtle` + `{family}.text` (+ a 6px dot); neutral badge uses `muted`.
 - **Alert** — `{family}.subtle` background + `{family}.text`, radius `md`, **always paired with an icon** (never colour alone). Info alerts use `info` (blue).
 - **Dialog / Modal** — `popover` surface, the one `border`, radius `lg`, `shadow-overlay`, over the `overlay` scrim. Title `text-h3`/`h4`; actions right-aligned (`ghost` Cancel + intent button).
 - **Dropdown / Menu / Popover / Tooltip / Command palette** — `popover` surface, the one `border`, `shadow-overlay`; items use neutral `accent` hover at radius `sm`; destructive items use `destructive.text`; the selected command row uses `accent`.
 - **Tabs / Segmented** — underline or pill; the **active** tab underline / segment uses `primary` (selection).
-- **Switch / Checkbox / Radio** — neutral **`primary`** ink when on/checked, off-track = `track`; **Slider** fill = **`primary`**; radius `full` (switch/radio/thumb) or `sm` (checkbox).
+- **Switch / Checkbox / Radio** — neutral **`primary`** ink when on/checked, switch off-track = **`surface-3`** (the pressed rung; there is no `track` token); **Slider** fill = **`primary`**; radius `full` (switch/radio/thumb) or `sm` (checkbox).
 - **Navigation** — breadcrumb (`muted-foreground`, current = `foreground`), pagination (active = `primary`).
 - **Avatars · progress · skeleton** — avatar = `accent` fill + initials; progress/ring fill = `primary`; skeleton shimmer = neutral.
 - **Content links** — `info` (blue), underlined at rest, and still protected by the global neutral
@@ -2149,7 +2154,7 @@ weight ladder as computed, the fullscreen focus trap, the skip link, and named t
 > `@vegastack/design-tokens`** (DTCG → OKLCH) with a CI drift-check, so the spec can't diverge from the shipped
 > tokens; the prose layer (Overview, Voice, Do/Don't, Accessibility) is hand-authored. An early single-accent
 > exploration is archived at `docs/research/design-comparison/proposed-design-system.html` (superseded — it
-> predates the locked decisions: solid border, neutral 2px ring, separate `info`=blue; not current). The live
+> predates the locked decisions: the one derived alpha hairline, neutral 2px ring, separate `info`=blue; not current). The live
 > showcase is the Fumadocs site under `apps/docs/`; decision history, the build plan, and the v2 rollout
 > ledger live in `docs/plans/`. Append-only normative `VS-*` rule IDs and external-source dispositions live
 > in `docs/research/design-md-audit/unified-reference.md`.

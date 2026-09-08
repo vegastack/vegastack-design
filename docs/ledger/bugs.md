@@ -4,6 +4,86 @@ Every bug found + root cause + fix. Append-only.
 
 ---
 
+## 2026-09-08 — The `relative-time` 320px contract fails nondeterministically under the full sweep
+
+- **Symptom.** `/docs/components/relative-time contains its primary fixture at 320px` fails with
+  `locator.scrollIntoViewIfNeeded: Element is not attached to the DOM` — but only in the FULL
+  110-route sweep, and in a **different subset of Chromium projects each run**. It blocks
+  `pnpm gates:push` for any change whose scope is global, so no such change can produce a receipt.
+- **Proven pre-existing, not caused by any branch.** Four runs on the Ryzen `gates2` box:
+  - `origin/main` @ `9c33dfaf`, unmodified — that one route in isolation: **8/8 pass**.
+  - `origin/main` @ `9c33dfaf`, unmodified — `pnpm contracts:all` (880 checks): **1 failed**,
+    `chromium-dark`.
+  - `audit/f1-docfix` (docs/doctrine only) — `gates:push` full sweep: 3 failed — `chromium`,
+    `chromium-dark`, `mobile-chromium`.
+  - `audit/f1-docfix` — the same sweep rerun: 2 failed — `chromium-dark`, `mobile-chromium`.
+
+  The unmodified base fails the identical check, and the failing project set varies run to run: this
+  is a race, and it is on `main`.
+
+- **Root cause: the probe races the component's own clock.** `relative-time.tsx` runs a
+  self-rescheduling `setTimeout` that calls `setClock`, so the fixture re-renders on a timer.
+  `contracts.spec.ts:269-271` resolves `page.locator("[data-vrt-preview]").first()`, asserts it
+  visible, then calls `scrollIntoViewIfNeeded()`, which waits for the element to be _stable_. Under
+  the loaded parallel sweep a tick lands inside that window and the handle goes stale. Isolated, the
+  machine is fast enough that the window closes before a tick arrives — which is exactly why an
+  isolated rerun "proves" nothing here and the sweep is the only place it shows.
+- **Corroborated structurally: the detaching node is a Fumadocs `<Tabs>` panel child.**
+  `apps/docs/components/component-preview.tsx:75-87` puts `data-vrt-preview` on a `div` INSIDE
+  `<Tabs>` (`fumadocs-ui` 16.11.5) — a client tab host that can remount its panel, so the measured
+  node is detachable for reasons that have nothing to do with the component under test. Two things
+  follow. First, a `RelativeTime` `dateTime`-hydration change was tried and did NOT stop the failure,
+  which is what rules the component out as the sole trigger. Second, the same detach window is open
+  on **every** contract route, not just the ones whose fixture keeps a timer — which is the second
+  reason the fix belongs in the probe. Confirming the exact remount trigger inside `<Tabs>` would
+  need a `MutationObserver` probe on the box and is not worth a sweep slot; it would change nothing
+  about the fix.
+- **Systemic fix — the probe, not the fixture.** Fixed at the root in `apps/docs/vrt/contracts.spec.ts`
+  (the 320px reflow check): the bare `await fixture.scrollIntoViewIfNeeded()` is now a bounded retry —
+  `expect.poll` around a 2s-timeout scroll that swallows the detachment and lets the locator re-resolve
+  on the next attempt. A Playwright locator is lazy and re-resolves per action, so the retry lands on
+  the fixture's post-re-render element instead of a stale handle. This is deliberately a fix to the
+  PROBE and not a pin on `relative-time`: every fixture that legitimately re-renders on its own timer
+  hits the same window, so pinning one component's clock would leave the trap armed for the next one.
+- **What it did NOT change.** The assertions are untouched — the scroll is a setup step for the
+  `scrollWidth <= clientWidth` reflow check, which still fails on a real 320px overflow, and the RTL
+  containment and 24px target-floor checks are unmodified. The `.first()` fixture selection is left
+  alone; that remains **G1-b (#49)**'s call. No timeout was widened and nothing retries an assertion:
+  only the scroll setup step retries, which is why this is not "re-run until green" — the same failure
+  mode the VRT baselines were deleted for.
+
+## 2026-09-07 — `design:sync:check` cannot see prose that names a deleted token
+
+- **Symptom.** F1 deleted `track`, `--alpha-surface-subtle`, `--alpha-fill-hover` and
+  `--alpha-input-hover`, and every gate stayed green while six documents kept teaching them:
+  `design.md` named `track` as the switch off-track, `theming.mdx:63` and `colors.mdx:171` both
+  taught `bg-primary/(--alpha-surface-subtle)` as the canonical override example, and the internal
+  token skill described `surface-1` as covering "every well/track". A reader following the guides
+  would have written a class that compiles to nothing — Tailwind emits
+  `color-mix(… var(--alpha-surface-subtle) …)` for an undefined variable and the wash silently
+  vanishes. Found by a post-merge Codex review, not by any gate.
+- **Root cause: `tooling/sync-design-md.mjs` verifies the GENERATED regions and nothing else.** It
+  reconciles the resolved-token tables, the recipe references and the foundation tables — surfaces it
+  writes itself — so a token that disappears from `dist/theme.css` disappears from those tables too
+  and the check stays green. The **hand-authored prose** around them, in `design.md`, the foundations
+  MDX and the skills, is never cross-referenced against the built token set. Deleting a token is
+  therefore the one token change with no failing gate anywhere: adding or retuning one moves a
+  generated table, but removing one only invalidates prose.
+- **Same class as the `class-histogram` blind spot**: a gate that regenerates its own evidence, or
+  only checks what it generates, cannot catch a claim it never reads.
+- **Fix applied here is manual** — every occurrence corrected by grep across `design.md`, the
+  foundations MDX, the component MDX and both skill trees.
+- **Recommended structural fix (for G1-b): a token-reference lint.** Walk `design.md`,
+  `apps/docs/content/docs/foundations/*.mdx`, `apps/docs/content/docs/components/*.mdx` and
+  `skills/{internal,public}/**`; extract every `--*` custom property and every backticked semantic
+  token name; fail on any that is absent from `packages/design-tokens/dist/theme.css`. It must run
+  inside `pnpm design:verify` so it is one of the rows CI **re-executes** for free rather than an
+  attested one. Two carve-outs are needed and should be explicit, not inferred: an allowlist for
+  historical records that name a token precisely _because_ it was deleted (`/CHANGELOG.md`, the
+  generated `changelog.mdx`, `docs/plans/**`, `docs/audits/**`, `design-v1.md`), and for consumer-side
+  examples that define their own variables. Like every other gate here it needs a negative fixture —
+  a file naming a nonexistent token, proving the lint fails — or it is an assumption.
+
 ## 2026-09-07 — Two defects the audit did not name, found while building the surface ladder
 
 - **A light-only alias leaks the light value into `.dark`.** `chart-single` was authored once, in

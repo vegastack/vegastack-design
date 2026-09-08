@@ -69,13 +69,14 @@ it.
 
 ## Per-family variants
 
-Each chromatic family (`info`, `destructive`, `success`, `warning`) ships **six real tokens** — no opacity-derived colors:
+Each chromatic family (`info`, `destructive`, `success`, `warning`) ships **eight real tokens** — no opacity-derived colors:
 
 - **fill** (`--info`) + **foreground** (`--info-foreground`) — the solid surface and its on-fill text.
-- **hover** / **active** (`--info-hover`, `--info-active`) — the interaction-state fills (`hover:bg-info-hover active:bg-info-active`).
+- **hover** / **active** (`--info-hover`, `--info-active`) — the interaction-state fills of the **solid** (`hover:bg-info-hover active:bg-info-active`).
 - **subtle** (`--info-subtle`) + **text** (`--info-text`) — the soft tinted background (badges, alerts) and the page-readable on-surface color.
+- **subtle-hover** / **subtle-active** (`--info-subtle-hover`, `--info-subtle-active`) — the hover and pressed steps of the **soft** fill. Both are precomposed at build time (the fill composited over `subtle`) and AA-gated against `--info-text`, because an alpha wash such as `active:bg-info/(--alpha-pressed)` would _replace_ the tint rather than step it.
 
-`subtle` and `text` are **theme-aware** (distinct light/dark values); `fill` / `hover` / `active` / `foreground` are **theme-independent** — the same saturated mark with white text in both themes, so a `bg-destructive` button reads the same way on a light or dark page. The neutral action color mirrors this with `--primary-hover` / `--primary-active`, and `--muted-foreground-faint` is the deliberately sub-AA tone reserved for placeholders.
+`subtle`, `subtle-hover`, `subtle-active` and `text` are **theme-aware** (distinct light/dark values); `fill` / `hover` / `active` / `foreground` are **theme-independent** — the same saturated mark with white text in both themes, so a `bg-destructive` button reads the same way on a light or dark page. The neutral action color mirrors this with `--primary-hover` / `--primary-active`, and `--muted-foreground-faint` is the deliberately sub-AA tone reserved for placeholders.
 
 ## Charts — categorical series
 
@@ -167,8 +168,9 @@ Redefine a single variable in your app's global CSS and **every component repain
 ```
 
 Because components reference `--primary` through the `@theme inline` bridge (`--color-primary:
-var(--primary)`), the override flows to `bg-primary`, semantic alpha roles such as
-`bg-primary/(--alpha-surface-subtle)`, and focus outlines everywhere.
+var(--primary)`), the override flows to `bg-primary`, the ladder's alpha washes
+(`hover:bg-primary/(--alpha-hover)` / `active:bg-primary/(--alpha-pressed)` — the
+`fillInteractive.primary` recipe), and focus outlines everywhere.
 
 <DoDont
   do="Use semantic tokens: bg-primary, text-muted-foreground, border-border."
