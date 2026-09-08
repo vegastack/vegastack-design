@@ -61,6 +61,18 @@ test("the wall caps at wallColumns but drops columns when the row is narrow", as
   expect(list.classList).not.toContain("grid-cols-4");
 });
 
+test("the wall's grid track is CSS the engine actually accepts", async () => {
+  // The unit harness compiles no Tailwind, so the class above proves only that the right STRING
+  // is emitted. If the track were invalid CSS, `grid-template-columns` would silently fall back
+  // to `none` and the wall would collapse to one column with nothing failing. Feeding the value
+  // through CSSOM is a real parse: an invalid declaration round-trips as "".
+  const probe = document.createElement("div");
+  for (const columns of [2, 3, 4]) {
+    probe.style.gridTemplateColumns = `repeat(auto-fill,minmax(max(calc(var(--spacing)*32),100%/${columns}),1fr))`;
+    expect(probe.style.gridTemplateColumns).not.toBe("");
+  }
+});
+
 test("omits the label when not provided", async () => {
   const screen = await render(<LogoRow items={items} />);
   expect(
