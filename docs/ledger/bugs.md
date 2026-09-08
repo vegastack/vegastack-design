@@ -94,7 +94,7 @@ Every bug found + root cause + fix. Append-only.
   `IconButton` it renders. The DOM said `data-slot="icon-button"`, in all three engines, and the
   test that asserted the intended value failed on Chromium, Firefox and WebKit alike.
 - **Root cause.** `icon-button.tsx` renders `<Button {...props} size={sizeMap[size]}
-  data-slot="icon-button">`. The literal follows the spread, so `IconButton` overwrites any
+data-slot="icon-button">`. The literal follows the spread, so `IconButton` overwrites any
   `data-slot` a caller passes — silently, and for every caller. It is not specific to this batch:
   `page-header.tsx` passes `data-slot="page-header-back"` and has been losing it since it was
   written, which is why nothing had noticed.
@@ -107,6 +107,11 @@ Every bug found + root cause + fix. Append-only.
   the DOM; the attribute is only ever checked on the component that owns it. A generic rule is
   plausible (a component that spreads props must not write a `data-slot` literal after the spread)
   and belongs with design-lint's AST rules, not here.
+- **Root fix landed elsewhere (2026-09-08).** F2 (#60, `8ce8de4d`) destructured `data-slot` out of
+  the props and now renders `data-slot={dataSlot ?? "icon-button"}`, so a caller's slot survives and
+  `page-header`'s `page-header-back` works again. `PasswordInput` keeps the plain
+  `data-slot="icon-button"`: the toggle is an IconButton and nothing needs to name it otherwise. The
+  design-lint rule above is still unwritten and still belongs with G1-b.
 
 ---
 
