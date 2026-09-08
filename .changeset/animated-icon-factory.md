@@ -3,28 +3,20 @@
 "@vegastack/ui": minor
 ---
 
-Animated icons: one factory, 439 data modules.
-
-`@vegastack/design` gains the `@vegastack/design/create-animated-icon` subpath exporting
-`createAnimatedIcon`, which owns the animation controls, the reduced-motion gate, the imperative
-`startAnimation`/`stopAnimation` handle and the multi-input trigger rules that used to be duplicated
-into every mirrored icon. `motion` becomes an optional peer dependency — only an animated icon pulls
-it in, so `Icon`/`BrandIcon` consumers are unaffected. The icon host is now an `inline-flex` `<span>`
-rather than a block-level `<div>`, and `AnimatedIconComponent` types it as `HTMLSpanElement`.
-
-Reduced motion is a live subscription to `(prefers-reduced-motion: reduce)` rather than either of
-Motion's hooks, both of which read a module singleton once at first import and never update, so a
-mounted icon now settles the moment the preference is turned on. It is also honoured at all on the
-un-configured tree: `useReducedMotionConfig()` returns `false` whenever the context says
-`reducedMotion: "never"`, which is Motion's **default**, so previously an application that mounted no
-`<MotionConfig>` ignored the preference entirely. `<MotionConfig reducedMotion="always">` can add
-reduction on top; the override is one-way, since an explicit `"never"` cannot be told apart from no
-provider at all.
-
-`@vegastack/ui`'s 439 registry icon items are regenerated as data modules (79,078 lines → 12,951).
-Public icon names, the `size` prop and the handle API are unchanged. Seven icons drop a
-`@deprecated` handle alias that upstream naming quirks had left behind. `chevron-first` is a rename
-rather than an alias removal — upstream copy-pasted its `displayName` from another icon, so the
-primary interface was `ChevronsDownUpIconHandle` with `ChevronFirstIconHandle` as its `@deprecated`
-alias; the exported component symbol is authoritative, so the surviving name is
-`ChevronFirstIconHandle` and `ChevronsDownUpIconHandle` is gone.
+🛠 **Animated icons are one factory plus 439 data modules.** Every mirrored `lucide-animated`
+icon used to carry its own copy of the controller — the animation controls, the reduced-motion gate,
+five pointer/focus handlers, the imperative handle and a block-level host — so a change to any of
+that meant regenerating 439 files and trusting that all 439 agreed. The controller now lives once in
+`createAnimatedIcon`, exported from the new `@vegastack/design/create-animated-icon` subpath, and
+each icon is a `createAnimatedIcon({ … })` call describing only its geometry, its Motion variants,
+and (for 49 icons) its non-default start/stop steps. `motion` becomes an OPTIONAL peer dependency —
+only an animated icon pulls it in, so `Icon`/`BrandIcon` consumers are unaffected. The corpus went
+from 79,078 lines to 12,951 (-84%) and from 2.06 MiB to 0.57 MiB of source; the served registry fell
+from 4.48 MiB to 2.92 MiB. `tooling/mirror-animated-icons.mjs` emits the data modules and fails
+closed on any upstream archetype it cannot model; `tooling/verify-animated-icons.mjs` asserts the
+controller contract once against the factory, holds every module to a schema whose central clause is
+that a data module contains no controller at all, pins each generated module by SHA-256 in
+`packages/ui/animated-icon-sources.json` so a hand-edited path or timing value is rejected outright,
+and carries a `--self-test` that proves fifteen distinct regressions are rejected.
+[docs](https://design.vegastack.com/docs/foundations/icons) ·
+[`cb20de9`](https://github.com/VegaStack/vegastack-design/commit/cb20de9)

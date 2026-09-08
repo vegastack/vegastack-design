@@ -2,13 +2,14 @@
 "@vegastack/design-tokens": minor
 ---
 
-Surface ladder. Adds `surface-1` / `surface-2` / `surface-3` — the rest-fill/well, hover and
-pressed/selected rungs — with the theme-invariant alpha twins `--alpha-hover` (7%) and
-`--alpha-pressed` (10%). `border` and `input` become a derived `foreground` alpha
-(`--alpha-border`, 8% light / 14% dark) so one hairline reads on any surface, light `card`
-collapses to the page colour, `popover` becomes `card`, and `secondary` / `muted` / `accent` /
-`sidebar-*` become aliases of ladder rungs with no independent values. Removes `track`. Adds
-theme-invariant `--media-scrim`, `--media-scrim-strong` and `--media-foreground`, `--chart-single`,
-and the layout scale `--layout-header-height`, `--sidebar-width-mobile`,
-`--layout-overlay-max-height`, `--panel-width-sm|md|lg`. Text-entry controls gain a real outline
-under `forced-colors: active`.
+⚠️ **Surface tokens are now one ladder.** `surface-1` / `surface-2` / `surface-3` — the
+rest-fill/well, hover and pressed/selected rungs — arrive with the theme-invariant alpha twins
+`--alpha-hover` (7%) and `--alpha-pressed` (10%). `secondary`, `muted` and `accent` were a single
+OKLCH value under three names, so no hover or pressed state could be seen on a card. They are now
+**aliases** of ladder rungs and have no independent values: `secondary` = `muted` = `surface-1`,
+`accent` = `sidebar-accent` = `surface-2`, `sidebar` = `card`, `sidebar-border` = `border`,
+`sidebar-ring` = `ring`. Existing `bg-muted` / `bg-accent` / `bg-sidebar-*` utilities keep compiling
+and keep their rest appearance; only `accent` moves (one rung darker, because it is the hover rung).
+Name the rung in new code.
+[docs](https://design.vegastack.com/docs/foundations/colors) ·
+[`0e88dc5`](https://github.com/VegaStack/vegastack-design/commit/0e88dc5)

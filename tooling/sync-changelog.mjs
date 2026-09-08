@@ -12,6 +12,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { ASSEMBLED_MARKER_RE } from "./changelog-assemble.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const SRC = join(ROOT, "CHANGELOG.md");
@@ -32,6 +33,12 @@ if (firstEntry === -1) {
   process.exit(1);
 }
 let body = src.slice(firstEntry + 1).trim();
+// The assembler's provenance line is CHANGELOG.md bookkeeping, not content — and MDX has no HTML
+// comments, so injecting one would break the page build outright.
+body = body.replace(
+  new RegExp(`\\n${ASSEMBLED_MARKER_RE.source.slice(1, -1)}\\n\\n`, "gm"),
+  "\n",
+);
 // site-absolute → root-relative (so lint-links checks them as internal pages)
 body = body.replaceAll("https://design.vegastack.com/docs/", "/docs/");
 

@@ -109,6 +109,18 @@ jobs:
   # A changeset-bearing, reviewed main commit creates or updates the Version Packages PR. This job
   # has write authority for that PR but cannot mint npm OIDC. Merging the reviewed Version PR is the
   # separate human action that authorizes publication on the next main run.
+  #
+  # The version command is `pnpm run version-packages`:
+  #   changelog-assemble → changeset version → version-sync → sync-changelog
+  # The ROOT CHANGELOG.md entry is assembled HERE, from the pending changesets, rather than
+  # hand-written per PR (docs/plans/2026-09-08-verification-rebuild.md, R5). Assembly runs FIRST
+  # because `changeset version` deletes the changesets it consumes. Everything the command writes —
+  # package versions, package CHANGELOGs, re-stamped `public/r`, the root CHANGELOG entry and the
+  # regenerated docs Changelog page — is committed onto the Version PR by the changesets action,
+  # which commits the whole working-tree diff its version command produced.
+  #
+  # `fetch-depth: 0` is load-bearing for more than the changesets action: changelog-assemble reads
+  # `git log` to attach each bullet's commit sha.
   version-pr:
     needs: [changes, quality-gate]
     if: >-

@@ -134,8 +134,24 @@ pnpm changeset
 - A change under `skills/public/**` ships inside `@vegastack/design` and IS consumer-visible —
   it needs its own changeset (patch for a wording fix, minor for new guidance). Changes under
   `skills/internal/**` are not published and need none.
-- Body: one sentence, imperative, states the consumer-visible effect. It lands verbatim in
-  the package CHANGELOG.
+- Body: **opens with one of the eight CHANGELOG section emoji**, then one sentence, imperative,
+  stating the consumer-visible effect. The marker selects the section the release entry will place
+  it under; the rest lands verbatim in the package CHANGELOG. Exactly one marker per changeset — a
+  change that belongs in two sections is two changesets.
+
+```
+---
+"@vegastack/ui": minor
+---
+
+🔧 **Button** — `variant` × `tone` replaces fifteen hand-maintained variants.
+```
+
+`🧩 New components` · `🔧 Changed components` · `🗑 Removed / renamed` · `🛠 CLI & tooling` ·
+`📦 npm` · `📚 Docs` · `🐛 Fixed` · `⚠️ Breaking`. An **empty** changeset (`---\n---`) with body
+text is valid and IS assembled — that is how a tooling or CI change with no package bump still
+gets a changelog line. `tooling/changeset-lint.mjs` (in `pnpm lint`) rejects a body with no
+marker, two markers, or no text.
 
 **Workflow edits and changesets — check the precondition before applying the workaround.** The
 Actions `GITHUB_TOKEN` cannot push `.github/workflows/*`, so the standing advice is to land workflow
@@ -146,24 +162,50 @@ your PR buys nothing, and you end up with a changeset-only PR describing already
 the recovery path below instead; it is one action. This was applied wrongly on 2026-07-25 precisely
 because the rule was followed without checking the condition it depends on.
 
-## 3. Root CHANGELOG.md entry
+## 3. Root CHANGELOG.md entry — assembled, not written
 
-Add or extend the entry for the NEXT design-system version (= the `@vegastack/ui` version
-after bump) at the TOP of `/CHANGELOG.md`, following
-[references/changelog-format.md](references/changelog-format.md) exactly. Then:
+**Nobody hand-edits `/CHANGELOG.md` between releases.** The release entry is assembled from the
+pending changesets by `tooling/changelog-assemble.mjs`, once per version, inside
+`pnpm run version-packages` — so a PR's only changelog artefact is its changeset, and branches stop
+colliding on the top of one shared file. Format and conventions:
+[references/changelog-format.md](references/changelog-format.md).
+
+Preview what the next entry will say, and prove every pending changeset can be placed:
 
 ```bash
-node tooling/changelog-lint.mjs        # vocabulary, dates, shas, doc links
-node tooling/sync-changelog.mjs        # regenerate the docs changelog page
-pnpm --filter @vegastack/docs lint     # includes the sync drift gate
+node tooling/changelog-assemble.mjs --dry-run   # print the entry; touch nothing
+node tooling/changelog-assemble.mjs --check     # exit 1 if a changeset carries no section marker
+node tooling/changelog-lint.mjs                 # vocabulary, dates, shas, doc links (on the file as it is)
 ```
 
-Commit changesets + CHANGELOG.md + the regenerated page together.
+Assembly runs BEFORE `changeset version` (which deletes the changesets it consumes) and takes the
+heading version from `changeset status`, changesets' own release plan. `--check` and assembly FAIL
+on a changeset with no marker; `changeset-lint` runs the same rule per PR, over every pending
+changeset with no grandfather list, so a failure here means someone bypassed the lint.
+
+**Idempotency is keyed on the assembled marker, not the version.** A written entry carries
+`<!-- assembled from N changesets: <fingerprint> -->` under its heading (stripped from the docs
+page, which is MDX and has no HTML comments). Re-running over the same pending set is a no-op.
+A `## [x.y.z]` heading with NO marker is a hand-written entry for the version about to be released,
+and the assembler **refuses**, loudly, with the reconciliation steps — because exiting 0 there
+would let `changeset version` delete every pending changeset whose prose was never placed. That is
+not hypothetical: `main` carried exactly such an entry, hand-written by the audit train, when this
+gate was written.
+
+**When a hand-written edit is legitimate — and when it is not.** The exception is bounded to the
+**Version PR, after assembly has already written the heading**: the entry exists, the changesets
+are consumed, and the release needs a line no changeset carried (a migration note, a summary
+paragraph). Edit `/CHANGELOG.md` inside that PR, then `node tooling/sync-changelog.mjs`.
+
+Never hand-write an entry for an **upcoming** version on `main`. Between releases the only
+changelog artefact is a changeset; a `## [x.y.z]` heading for a version that has not been assembled
+yet is the failure mode above, and reconciling one back into changesets is a day of work.
 
 ## 4. Version PR → publish
 
 **The Version PR no longer needs a receipt carried forward.** `pnpm run version-packages` is
-`changeset version && version-sync`, and that is all it is. It used to end with
+`changelog-assemble && changeset version && version-sync && sync-changelog` — assemble the release
+entry, bump, re-stamp the registry, regenerate the docs Changelog page — and that is all it is. It used to end with
 `tooling/gate-receipt-carry.mjs`, because a receipt was bound to a tree hash and `changeset version`
 moves that hash — versions, package CHANGELOGs, consumed changesets, and a re-stamped provenance
 header across ~1082 files — while changing nothing a browser gate can observe. Without a carry every

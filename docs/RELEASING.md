@@ -34,15 +34,19 @@ distribution channels, both already wired:
 2. `npm run registry:build` — regenerates the docs copy-in + per-item JSON and **re-stamps the
    SHA-256 integrity + provenance header**. The changed hash is the machine-readable "this changed"
    signal consumers' `vegastack-design check-updates` reads.
-3. `pnpm changeset` — bump `@vegastack/ui` (and any other changed package). **List the affected
-   component name(s) in the summary** — `@vegastack/ui`'s generated `CHANGELOG.md` is the
-   consumer-facing "what changed per version".
+3. `pnpm changeset` — bump `@vegastack/ui` (and any other changed package). **The summary opens
+   with one of the eight root-CHANGELOG section emoji** (`🧩 🔧 🗑 🛠 📦 📚 🐛 ⚠️`) and **lists the
+   affected component name(s)** — the marker selects the section the release entry will place the
+   line under, and the rest is the consumer-facing "what changed per version" in
+   `@vegastack/ui`'s generated `CHANGELOG.md`. `tooling/changeset-lint.mjs` (in `pnpm lint`)
+   rejects a body with no marker, two markers, or no text. **The changeset is the only changelog
+   artefact a PR writes; `/CHANGELOG.md` is not hand-edited between releases.**
 4. PR → review → merge to `main`. `release.yml` runs the full unprivileged gate (typecheck, lint,
    test, all-browser smoke, build, `registry:build` idempotency, `registry:verify-consume`), plus
    the 864-check component contract suite when the visual surface changed. A
    changeset-bearing run then uses its version job to update the **Version Packages** PR.
-   Review its package versions, generated changelogs, registry item versions, and regenerated
-   `/r/*`; merging that PR is the separate human action that authorizes the next main run's isolated
+   Review its package versions, generated changelogs, the assembled root `CHANGELOG.md` entry and
+   the regenerated docs Changelog page, registry item versions, and regenerated `/r/*`; merging that PR is the separate human action that authorizes the next main run's isolated
    npm OIDC publish job, which runs on a mini token-free via trusted publishing (provenance disabled).
    The private source repository means npm provenance attestations are unavailable regardless, so none
    is claimed.
@@ -124,6 +128,25 @@ later want a second machine independently re-running the browser lanes.
 **Screenshots are not part of CI.** Pixel comparison is a local `/ship` step —
 `node tooling/vrt-review.mjs` — reviewed by a human. Rationale and evidence:
 `docs/ledger/operator-review.md`, 2026-07-25.
+
+### The changelog
+
+Two files, one direction, and no per-PR hand edit:
+
+```
+.changeset/*.md  --changelog-assemble-->  /CHANGELOG.md  --sync-changelog-->  docs/changelog.mdx
+```
+
+Per PR, the changelog artefact is the **changeset**, whose body opens with a section-vocabulary
+emoji. Per version, `pnpm run version-packages` — `changelog-assemble`, then `changeset version`,
+`version-sync`, `sync-changelog` — assembles the `## [x.y.z] — Month D, YYYY` entry at the top of
+`/CHANGELOG.md`, groups the lines under the fixed sections, appends the `📦 npm` versions
+from the release plan, and regenerates the docs page. The Version PR carries all of it.
+`tooling/changelog-lint.mjs` still validates the assembled file (vocabulary, dates, descending
+order, commit shas, docs links) inside the docs lint chain.
+
+Rationale: `/CHANGELOG.md` is one list at the top of one file, so every branch editing it collided
+with every other. `docs/plans/2026-09-08-verification-rebuild.md` R5.
 
 ### Versioning model
 
