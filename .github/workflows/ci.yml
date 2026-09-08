@@ -57,6 +57,13 @@ jobs:
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
+          # FULL HISTORY. `design:verify` runs tooling/verify-classify-change.mjs, whose fixtures are
+          # real commits (a Version Packages commit, a component edit) — a shallow clone fails with
+          # "the Version Packages commit (bcd59ada) is not in this repository", which the fixture
+          # deliberately treats as a hard error rather than a skip. Run 34276178797 hit exactly that
+          # in the container; the mac mini did not, only because its persistent work directory
+          # already had the objects from an earlier deep fetch. Depending on that is not a plan.
+          fetch-depth: 0
           persist-credentials: false
       # The runner's work directory is owned by the HOST runner user; inside the container the job
       # runs as root, so every `git` call refuses the repository with "detected dubious ownership"
@@ -95,6 +102,13 @@ jobs:
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
+          # FULL HISTORY. `design:verify` runs tooling/verify-classify-change.mjs, whose fixtures are
+          # real commits (a Version Packages commit, a component edit) — a shallow clone fails with
+          # "the Version Packages commit (bcd59ada) is not in this repository", which the fixture
+          # deliberately treats as a hard error rather than a skip. Run 34276178797 hit exactly that
+          # in the container; the mac mini did not, only because its persistent work directory
+          # already had the objects from an earlier deep fetch. Depending on that is not a plan.
+          fetch-depth: 0
           persist-credentials: false
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
       - run: pnpm install --frozen-lockfile
