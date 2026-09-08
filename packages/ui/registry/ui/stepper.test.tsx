@@ -269,3 +269,26 @@ test("focus indicator: nothing in the stepper strips the outline", async () => {
   );
   expect(offenders).toEqual([]);
 });
+
+test("the navigable label is a link-variant Button, not a reshaped ghost", async () => {
+  // B7-09: the old label stripped a ghost Button's height and padding to fake inline text.
+  const steps: StepperStep[] = [
+    { id: "a", label: "First", state: "complete" },
+    { id: "b", label: "Second", state: "current" },
+  ];
+  const screen = await render(
+    <Stepper
+      aria-label="Flow"
+      steps={steps}
+      navigable
+      onStepSelect={vi.fn()}
+    />,
+  );
+  const label = screen.container.querySelector(
+    'button[data-slot="stepper-label"]',
+  ) as HTMLElement;
+  expect(label).not.toBeNull();
+  expect(label.className).toContain("underline");
+  expect(label.className).not.toContain("h-auto");
+  expect(label.className).not.toContain("py-0");
+});

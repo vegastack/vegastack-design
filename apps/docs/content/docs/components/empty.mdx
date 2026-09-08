@@ -1,6 +1,6 @@
 ---
 title: Empty
-description: A zero-data placeholder — icon, title, description, and actions, with intent tints and an optional dashed border.
+description: A zero-data placeholder — icon, title, description, and actions, with intent tints and a plain, card, or dashed container.
 audience: public
 preview: emptyDemo
 ---
@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/empty";
 import { Inbox } from "lucide-react";
 
-<Empty bordered>
+<Empty variant="dashed">
   <EmptyHeader>
     <EmptyMedia>
       <Inbox />
@@ -36,7 +36,7 @@ import { Inbox } from "lucide-react";
 
 ## Examples
 
-Combine size, surface, and the dashed border with the media chip's variant and intent, then copy the generated JSX.
+Combine the container variant and size with the media chip's variant and intent, then copy the generated JSX.
 
 <EmptyPlayground />
 
@@ -45,7 +45,7 @@ Combine size, surface, and the dashed border with the media chip's variant and i
 `Empty` is a compound component. Compose the parts inside the root:
 
 ```tsx
-<Empty bordered size="md" surface="transparent">
+<Empty variant="dashed" size="md">
   <EmptyHeader>
     <EmptyMedia intent="default">{/* lucide icon */}</EmptyMedia>
     <EmptyTitle>Title</EmptyTitle>
@@ -55,9 +55,9 @@ Combine size, surface, and the dashed border with the media chip's variant and i
 </Empty>
 ```
 
-- `Empty` — the centered container (`data-slot="empty"`). Owns `size`, `bordered`, and `surface`.
+- `Empty` — the centered container (`data-slot="empty"`). Owns `size` and `variant`.
 - `EmptyMedia` — a tinted circular chip around a `lucide-react` icon (`data-slot="empty-media"`, decorative `aria-hidden`). Owns the `intent` tint.
-- `EmptyTitle` — the primary heading (`<h3>`, `data-slot="empty-title"`).
+- `EmptyTitle` — the primary heading (`<h3>` by default, `data-slot="empty-title"`). Owns `as`, so the page picks the heading level.
 - `EmptyDescription` — supporting body text (`<p>`, `data-slot="empty-description"`).
 - `EmptyContent` — a centered row of call-to-action controls (`data-slot="empty-content"`).
 
@@ -68,21 +68,17 @@ standalone, and `lg` (`py-16`) for full-page zero-data screens.
 
 <ComponentPreview name="emptyDemoSizes" file="components/preview/empty.tsx" />
 
-## Surfaces
+## Variants
 
-`surface` switches the background — `transparent` (the default) inherits the parent surface and is
-usually paired with `bordered` for a drop-zone outline, while `card` paints a filled `bg-card`
-panel that reads as a self-contained block on any background.
+`variant` is the one container axis. `plain` (the default) has no border and no fill, so the block
+blends into the surrounding layout; `dashed` draws the classic drop-zone outline; `card` paints a
+filled `bg-card` panel with the one hairline, which reads as a self-contained block on any
+background. There is no way to ask for a dashed card — that combination had no defined outcome.
 
 <ComponentPreview
   name="emptyDemoSurfaces"
   file="components/preview/empty.tsx"
 />
-
-## Border
-
-`bordered` is `false` by default — a borderless empty blends into the surrounding layout. Set
-`bordered` to draw the classic dashed "drop zone" outline.
 
 <ComponentPreview
   name="emptyDemoBorderless"
@@ -99,11 +95,10 @@ a common compact form — for example, a "no filters applied" hint.
   file="components/preview/empty.tsx"
 />
 
-## Size × surface matrix
+## Variant × size matrix
 
-The three root axes — `size`, `surface`, and `bordered` — combine freely. This grid crosses
-`surface` (transparent vs. card) with `size` (sm vs. lg) to show how padding, panel fill, and the
-dashed outline interact.
+The two root axes combine freely. This grid crosses `variant` (dashed vs. card) with `size`
+(sm vs. lg) to show how padding, panel fill, and the dashed outline interact.
 
 <ComponentPreview name="emptyDemoMatrix" file="components/preview/empty.tsx" />
 
@@ -115,6 +110,19 @@ dashed outline interact.
 zero-data states.
 
 <ComponentPreview name="emptyDemoIntents" file="components/preview/empty.tsx" />
+
+## Illustration & value tiers
+
+The empty-state system spans eight tiers; two are Wave-2 additions. `EmptyIllustration`
+renders one of six built-in monoline drawings (`clipboard`, `bell`, `search`, `box`, `error`,
+`not-found`) on a faint grid-paper ground — all `currentColor`, so the error tier is just
+`text-destructive-text` on the media slot, no extra asset. `EmptyValue` is the inline tier: a
+single faint phrase for a value slot ("No value", "Set a value…").
+
+<ComponentPreview
+  name="emptyIllustrations"
+  file="components/preview/empty.tsx"
+/>
 
 ## API Reference
 
@@ -155,7 +163,7 @@ zero-data states.
 
 ## Accessibility
 
-- The title renders as a real `<h3>` heading so assistive technology can navigate to it.
+- The title renders as a real heading (`<h3>` by default) so assistive technology can navigate to it. Set `as` to match the page's outline — `h2` when the empty state replaces a whole page body, `p` when the surrounding card already carries the heading.
 - The icon chip is decorative (`aria-hidden`) — meaning is carried by the title and description text, never by the icon or color alone.
 - Action controls inside `EmptyContent` are real buttons/links with their own accessible names and `:focus-visible` rings.
 - The container is non-interactive; keyboard focus order flows through the action controls only.
@@ -170,17 +178,4 @@ zero-data states.
 <DoDont
   do="Pair a clear title with a description and a single primary action that resolves the empty state — e.g. Create your first project."
   dont="Leave a blank area or show only a spinner — distinguish empty (no data) from loading and explain what the user can do next."
-/>
-
-## Illustration & value tiers
-
-The empty-state system spans eight tiers; two are Wave-2 additions. `EmptyIllustration`
-renders one of six built-in monoline drawings (`clipboard`, `bell`, `search`, `box`, `error`,
-`not-found`) on a faint grid-paper ground — all `currentColor`, so the error tier is just
-`text-destructive-text` on the media slot, no extra asset. `EmptyValue` is the inline tier: a
-single faint phrase for a value slot ("No value", "Set a value…").
-
-<ComponentPreview
-  name="emptyIllustrations"
-  file="components/preview/empty.tsx"
 />

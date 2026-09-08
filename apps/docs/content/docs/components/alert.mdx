@@ -45,7 +45,7 @@ Try every intent with the icon and dismiss options, then copy the generated JSX.
 </Alert>
 ```
 
-- `Alert` — the client root banner (`role="alert"`, `data-slot="alert"`). Owns the intent, leading icon, and optional dismiss/self-dismiss behavior.
+- `Alert` — the client root banner (`data-slot="alert"`). Owns the intent, leading icon, live-region policy, and optional dismiss/self-dismiss behavior.
 - `AlertTitle` — the bold leading line (`data-slot="alert-title"`).
 - `AlertDescription` — supporting body text (`data-slot="alert-description"`).
 - `AlertActions` — a row of action controls below the description (`data-slot="alert-actions"`).
@@ -91,6 +91,32 @@ gutter and action layout read consistently across every tone.
 
 <ComponentPreview name="alertMatrix" file="components/preview/alert.tsx" />
 
+## Live announcements
+
+Static alerts announce nothing. Set `live` when the banner is the RESULT of an action — a failed
+save, a warning raised by what was just submitted — and a `destructive` or `warning` intent becomes
+an assertive `role="alert"`. Everything else, `live` or not, stays a polite `role="status"`.
+
+```tsx
+// static — rendered with the page, announces nothing
+<Alert intent="info">
+  <AlertTitle>Two seats remain on this plan</AlertTitle>
+</Alert>
+
+// runtime — announced assertively the moment it mounts
+<Alert intent="destructive" live>
+  <AlertTitle>Payment declined</AlertTitle>
+  <AlertDescription>Update the card on file and try again.</AlertDescription>
+</Alert>
+```
+
+## Strip variant
+
+`variant="strip"` is the compact single-line info ribbon — centered icon + copy, tighter
+padding — for settings banners and inline notices (distinct from the block alert).
+
+<ComponentPreview name="alertStrip" file="components/preview/alert.tsx" />
+
 ## API Reference
 
 ### Alert
@@ -123,7 +149,8 @@ gutter and action layout read consistently across every tone.
 
 ## Accessibility
 
-- The root renders with `role="alert"`, so assistive technology announces its contents when it appears.
+- The root is a polite `role="status"` region by default, for every intent. A live region that is already in the DOM when the page loads announces nothing, so a page carrying three static alerts stays silent instead of interrupting three times.
+- Pass `live` for a banner that appears (or re-words) in response to something the user did. With `live`, a `destructive` or `warning` intent escalates to the assertive `role="alert"` — the only case WAI-ARIA reserves an interruption for; the other intents stay polite.
 - The leading icon is decorative (`aria-hidden`); meaning is carried by the title and description text.
 - The dismiss button is a native `<button type="button">` with an accessible label (`dismissLabel`, default `"Dismiss"`).
 - The dismiss button shows a `:focus-visible` ring (`outline-ring`) — never `outline: none`.
@@ -139,10 +166,3 @@ gutter and action layout read consistently across every tone.
   do="Use the intent that matches the message — destructive for errors, success for confirmations."
   dont="Use an Alert for transient feedback after an action — use a toast instead."
 />
-
-## Strip variant
-
-`variant="strip"` is the compact single-line info ribbon — centered icon + copy, tighter
-padding — for settings banners and inline notices (distinct from the block alert).
-
-<ComponentPreview name="alertStrip" file="components/preview/alert.tsx" />

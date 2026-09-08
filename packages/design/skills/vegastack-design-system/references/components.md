@@ -63,7 +63,7 @@ component and never an icon.
 - **`card`** — A borders-only content surface — no shadows, with composable header, content, and footer parts.
 - **`chart`** — A themed Recharts wrapper — token-only series colors (--chart-1…--chart-8), a bordered tooltip/legend, and Recharts' own built-in keyboard + screen-reader layer.
 - **`collapsible`** — A single toggleable open/close region with an animated height, built on Base UI Collapsible.
-- **`empty`** — A zero-data placeholder — icon, title, description, actions, with intent tints and an optional dashed border.
+- **`empty`** — A zero-data placeholder — icon, title, description, actions, with intent tints and a plain, card, or dashed container.
 - **`item`** — A compact anatomy row for list/feed content — media, title, description, actions, groupable with dividers.
 - **`kbd`** — The one keyboard-key chip — modifier labels the caller resolves per platform, a keys array, and three inline sizes.
 - **`markdown-view`** — Render a markdown string to safe, token-styled HTML — headings, lists, code, blockquotes, links, GFM tables — XSS-safe, no raw HTML.

@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 export function emptyDemo(): ReactNode {
   return (
     <Wrapper>
-      <Empty bordered className="w-full max-w-md">
+      <Empty variant="dashed" className="w-full max-w-md">
         <EmptyHeader>
           <EmptyMedia>
             <Inbox />
@@ -40,7 +40,7 @@ export function emptyDemoSizes(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch gap-4">
       {(["sm", "md", "lg"] as const).map((size) => (
-        <Empty key={size} bordered size={size} className="w-full">
+        <Empty key={size} variant="dashed" size={size} className="w-full">
           <EmptyHeader>
             <EmptyMedia>
               <Inbox />
@@ -60,24 +60,23 @@ export function emptyDemoSizes(): ReactNode {
 export function emptyDemoSurfaces(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch gap-4">
-      <Empty surface="transparent" bordered className="w-full">
+      <Empty variant="dashed" className="w-full">
         <EmptyHeader>
           <EmptyMedia>
             <Inbox />
           </EmptyMedia>
-          <EmptyTitle>Transparent surface</EmptyTitle>
+          <EmptyTitle>Dashed</EmptyTitle>
           <EmptyDescription>
-            Inherits the parent background — pair with <code>bordered</code> for
-            a drop-zone outline.
+            The drop-zone outline over the parent background — no fill.
           </EmptyDescription>
         </EmptyHeader>
       </Empty>
-      <Empty surface="card" className="w-full">
+      <Empty variant="card" className="w-full">
         <EmptyHeader>
           <EmptyMedia>
             <Inbox />
           </EmptyMedia>
-          <EmptyTitle>Card surface</EmptyTitle>
+          <EmptyTitle>Card</EmptyTitle>
           <EmptyDescription>
             Filled <code>bg-card</code> panel — a self-contained block that
             reads on any background.
@@ -113,7 +112,7 @@ export function emptyDemoBorderless(): ReactNode {
 export function emptyDemoIconless(): ReactNode {
   return (
     <Wrapper>
-      <Empty bordered className="w-full max-w-md">
+      <Empty variant="dashed" className="w-full max-w-md">
         <EmptyHeader>
           <EmptyTitle>No filters applied</EmptyTitle>
           <EmptyDescription>
@@ -129,13 +128,12 @@ export function emptyDemoIconless(): ReactNode {
 export function emptyDemoMatrix(): ReactNode {
   return (
     <Wrapper className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
-      {(["transparent", "card"] as const).map((surface) =>
+      {(["dashed", "card"] as const).map((variant) =>
         (["sm", "lg"] as const).map((size) => (
           <Empty
-            key={`${surface}-${size}`}
-            surface={surface}
+            key={`${variant}-${size}`}
+            variant={variant}
             size={size}
-            bordered={surface === "transparent"}
             className="w-full"
           >
             <EmptyHeader>
@@ -143,10 +141,10 @@ export function emptyDemoMatrix(): ReactNode {
                 <Search />
               </EmptyMedia>
               <EmptyTitle>
-                {surface} · {size}
+                {variant} · {size}
               </EmptyTitle>
               <EmptyDescription>
-                surface=<code>{surface}</code> × size=<code>{size}</code>
+                variant=<code>{variant}</code> × size=<code>{size}</code>
               </EmptyDescription>
             </EmptyHeader>
           </Empty>
@@ -159,7 +157,7 @@ export function emptyDemoMatrix(): ReactNode {
 export function emptyDemoIntents(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch gap-4">
-      <Empty bordered className="w-full">
+      <Empty variant="dashed" className="w-full">
         <EmptyHeader>
           <EmptyMedia intent="default">
             <Users />
@@ -175,7 +173,7 @@ export function emptyDemoIntents(): ReactNode {
           </Button>
         </EmptyContent>
       </Empty>
-      <Empty bordered className="w-full">
+      <Empty variant="dashed" className="w-full">
         <EmptyHeader>
           <EmptyMedia intent="info">
             <Search />
@@ -191,7 +189,7 @@ export function emptyDemoIntents(): ReactNode {
           </Button>
         </EmptyContent>
       </Empty>
-      <Empty bordered className="w-full">
+      <Empty variant="dashed" className="w-full">
         <EmptyHeader>
           <EmptyMedia intent="destructive">
             <FileX />
@@ -215,7 +213,7 @@ export function emptyIllustrations(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch gap-4">
       <div className="grid gap-4 sm:grid-cols-3">
-        <Empty size="sm" bordered>
+        <Empty size="sm" variant="dashed">
           <EmptyHeader>
             <EmptyMedia variant="default">
               <EmptyIllustration
@@ -229,7 +227,7 @@ export function emptyIllustrations(): ReactNode {
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
-        <Empty size="sm" bordered>
+        <Empty size="sm" variant="dashed">
           <EmptyHeader>
             <EmptyMedia variant="default" className="text-destructive-text">
               <EmptyIllustration name="error" />
@@ -240,7 +238,7 @@ export function emptyIllustrations(): ReactNode {
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
-        <Empty size="sm" bordered>
+        <Empty size="sm" variant="dashed">
           <EmptyHeader>
             <EmptyMedia variant="default">
               <EmptyIllustration

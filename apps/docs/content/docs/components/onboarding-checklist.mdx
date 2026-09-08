@@ -34,7 +34,7 @@ npx shadcn@latest add @vegastack/onboarding-checklist
 ## State model
 
 The HOST owns completion (`done` per item + the `done/total` counts) and each step's action;
-the component owns layout, the segmented progress bar (announced via `progressbar`), and the
+the component owns layout, the progress maths, and the
 collapse-to-pill toggle (`collapsed`/`defaultCollapsed`/`onCollapsedChange`).
 
 ## API Reference
@@ -55,7 +55,7 @@ collapse-to-pill toggle (`collapsed`/`defaultCollapsed`/`onCollapsedChange`).
 
 ## Accessibility
 
-- The segmented meter is one named `progressbar`; its decorative segments stay hidden from assistive technology.
+- The segmented meter is a composed [`ProgressIndicator`](/docs/components/progress-indicator) in `segments` mode — one named `progressbar` for the whole card, with its decorative segments hidden from assistive technology.
 - Collapse and expand controls expose complete action labels, and the collapsed pill preserves the current count in visible text.
 - Completed items are disabled and use a check plus struck label, so completion is never communicated by color alone.
 

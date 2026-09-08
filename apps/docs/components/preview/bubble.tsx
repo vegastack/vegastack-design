@@ -299,11 +299,7 @@ export function bubbleTooltip(): ReactNode {
             <Tooltip>
               <TooltipTrigger
                 render={
-                  <Button
-                    variant="ghost"
-                    size="xs"
-                    aria-label="Read receipt"
-                  >
+                  <Button variant="ghost" size="xs" aria-label="Read receipt">
                     <Check />
                   </Button>
                 }

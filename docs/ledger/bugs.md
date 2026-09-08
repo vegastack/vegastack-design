@@ -1177,3 +1177,38 @@ ghost takes its own` expected the neutral ghost to compute `rgb(1, 2, 3)` (its h
 - **Rule this reinforces:** an audit finding that says "the library already does X" is a claim about
   a specific installed version. Check it against that version's shipped code before deleting
   anything an assertion depends on.
+
+## 2026-09-08 — The notification badge popped on renders that carried no notification
+
+- **Symptom:** `NotificationBell`'s `motion-pop-in` fired on an arbitrary later render rather than on
+  the render where the unread count went up. The file documented the defect itself and left it.
+- **Root cause, two mechanisms in one component.** `mountedRef.current` was READ during render while
+  the effect that flips it schedules no re-render, so on the commit after mount the class was still
+  withheld and first appeared on whatever unrelated re-render happened next — a parent state change
+  animated the badge with nothing behind it. The two display modes then replayed the cue by
+  REMOUNTING (dot mode via conditional render, count mode via `key={displayCount}`), which is why a
+  class toggle looked impossible: a toggled class never reaches a freshly remounted element.
+- **Systemic fix:** hold `previousCount` in STATE and compare it in an effect — a real
+  render-to-render comparison instead of a ref read — then drive `useAnimationReplay`, which is the
+  system-wide class-toggle primitive. The `key` is gone. On the first commit `previousCount ===
+count`, so a page that loads with unread items sits still; the cue additionally requires the
+  RENDERED badge to change, so 100 → 101 (both `"99+"`) and a dot that was already showing play
+  nothing.
+- **The class to recognise:** any value read during render but written only from an effect is not
+  state, and the render that observes it is not the render you think it is. If the reason a component
+  cannot use the shared replay primitive is that it replays by remount, the remount is the bug.
+
+## 2026-09-08 — An ARIA role that requires a parent, applied by default
+
+- **Symptom:** axe `aria-required-parent` (critical) on every standalone `Item` fixture — six
+  occurrences in the audit sweep. `Timeline` documented `role="none"` as the prescribed workaround,
+  and its own tests asserted the workaround as the "documented composition".
+- **Root cause:** `Item` applied `role="listitem"` whenever `render` was absent. `listitem` requires
+  a `list` ancestor, and `ItemGroup` — the only `role="list"` container in the anatomy — was optional.
+  The default was therefore correct only in the composition that happened to wrap it.
+- **Systemic fix:** `ItemGroup` provides a React context; `Item` takes the role only inside it, and
+  renders no role at all outside. `Timeline` needs no plumbing, and its workaround note, MDX guidance
+  and test name are gone with it.
+- **The class to recognise:** a component that ships a workaround prop for its own default has the
+  default wrong. `option`, `treeitem` and `gridcell` are the same shape of hazard — the container
+  must license the role, never a default.

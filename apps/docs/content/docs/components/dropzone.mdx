@@ -20,7 +20,7 @@ import { Dropzone } from "@/components/ui/dropzone";
   accept={{ "image/*": [".png", ".jpg"] }}
   onFilesAccepted={(files) => stageUploads(files)}
 >
-  <Empty size="sm" bordered>
+  <Empty size="sm" variant="dashed">
     <EmptyHeader>
       <EmptyTitle>Drop images here</EmptyTitle>
       <EmptyDescription>or click to browse</EmptyDescription>
@@ -41,7 +41,7 @@ the visual state machine". The two meet at a plain `File[]` callback.
 | --------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | Upload lifecycle, progress  | Host + [`Attachment`](/docs/components/attachment)'s state machine                                            |
 | Drop/paste/browse behaviour | `use-file-drop` — compose it directly for chrome-less surfaces (a rich-text composer accepting pasted images) |
-| The dashed idle affordance  | Children — compose `Empty bordered`, "the classic drop-zone look"                                             |
+| The dashed idle affordance  | Children — compose `Empty variant="dashed"`, "the classic drop-zone look"                                     |
 | Rendering staged files      | Host, never internal — no `attachments` prop by design                                                        |
 
 ## Examples

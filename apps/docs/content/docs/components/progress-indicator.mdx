@@ -119,7 +119,9 @@ Both `shape` outlines across the full fill range — the squircle's pie wedge re
 ### Segments mode
 
 Pass `segments={n}` to render a dash row instead of the radial glyph — `round(value/max × n)`
-bars filled. Use it for step counts (checklists, setup progress), not smooth percentages.
+bars filled. Use it for step counts (checklists, setup progress), not smooth percentages. Add
+`segmentsFill` when the row should span its container rather than sit inline as a compact meter;
+that is the form [`OnboardingChecklist`](/docs/components/onboarding-checklist) composes.
 
 <ComponentPreview
   name="progressIndicatorSegments"

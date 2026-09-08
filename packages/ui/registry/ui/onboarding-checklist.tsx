@@ -1,4 +1,4 @@
-// @vegastack onboarding-checklist@0.6.0 sha256-WAJMEZn4k98on5l/u/u7x4ifv5euvEbPKIpsQzaCiuE=
+// @vegastack onboarding-checklist@0.6.0 sha256-033ro+6sGSx+hymyj+0hFEwIB3U1izo9824mYmRRzN8=
 
 "use client";
 
@@ -6,12 +6,14 @@ import * as React from "react";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn, surfaceInteractive } from "@vegastack/design";
 import { IconButton } from "@/components/ui/icon-button";
+import { ProgressIndicator } from "@/components/ui/progress-indicator";
 
 /* ------------------------------------------------------------------------------------------------
  * OnboardingChecklist — the getting-started card (Wave 4, from the app teardown's floating
  * checklist): a title + "n of N" progress + segmented dash bar + icon action rows, collapsible
  * to a compact progress pill. Presentational: the HOST owns step state (`done` per item) and
  * what each action does; the component owns layout, progress math, and the collapse toggle.
+ * The dash bar IS `ProgressIndicator segments` — this file owns no second `role="progressbar"`.
  * ----------------------------------------------------------------------------------------------*/
 
 /** Props accepted by `OnboardingChecklist`. */
@@ -141,26 +143,17 @@ export function OnboardingChecklist({
         </span>{" "}
         steps completed
       </p>
-      {/* Segmented dash progress — one bar per step, matching ProgressIndicator's segments voice. */}
-      <div
-        role="progressbar"
-        aria-valuenow={Math.round((clampedDone / clampedTotal) * 100)}
-        aria-valuemin={0}
-        aria-valuemax={100}
+      {/* Segmented dash progress — the primitive, not a second copy of it (B7-04). One
+          `role="progressbar"` lives in `ProgressIndicator`; this component owns only the maths. */}
+      <ProgressIndicator
+        segments={clampedTotal}
+        segmentsFill
+        size="md"
+        value={clampedDone}
+        max={clampedTotal}
         aria-label={`${clampedDone} of ${clampedTotal} steps completed`}
-        className="mt-2 flex items-center gap-1"
-      >
-        {Array.from({ length: clampedTotal }, (_, i) => (
-          <span
-            key={i}
-            aria-hidden
-            className={cn(
-              "h-1 flex-1 rounded-full bg-primary transition-opacity duration-base ease-standard",
-              i < clampedDone ? undefined : "opacity-(--opacity-track)",
-            )}
-          />
-        ))}
-      </div>
+        className="mt-2"
+      />
       <ul className="mt-3 flex list-none flex-col gap-0.5 p-0">{children}</ul>
     </section>
   );

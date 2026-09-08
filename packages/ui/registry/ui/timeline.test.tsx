@@ -131,15 +131,15 @@ test("no a11y violations — entries, separators, time elements", async () => {
   await expectNoA11yViolations(screen.container);
 });
 
-test("no a11y violations — the DOCUMENTED composition (Item rows with role=none)", async () => {
-  // Item's default role="listitem" inside a <li> nests listitem-in-listitem
-  // (axe aria-required-parent, critical) — the docs prescribe role="none".
+test("no a11y violations — plain Item rows inside TimelineItem", async () => {
+  // An `Item` outside an `ItemGroup` renders with NO role, so it can never nest
+  // listitem-in-listitem inside Timeline's <li> (axe aria-required-parent, critical).
   const { Item, ItemContent, ItemTitle } = await import("./item");
   const screen = await render(
     <Timeline aria-label="Activity">
       <TimelineSeparator>Today</TimelineSeparator>
       <TimelineItem>
-        <Item size="sm" role="none">
+        <Item size="sm">
           <ItemContent>
             <ItemTitle>Deal moved to Won</ItemTitle>
           </ItemContent>

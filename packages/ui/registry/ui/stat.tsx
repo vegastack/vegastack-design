@@ -1,4 +1,4 @@
-// @vegastack stat@0.6.0 sha256-AtNs95bbUmEZe7gbG32yOyymdti5POvza5H6udP92eE=
+// @vegastack stat@0.6.0 sha256-IoEJ2wMVDf+gfomcqp07A8bZGijrdNAJg3Q3y9hcTAc=
 
 "use client";
 
@@ -52,12 +52,7 @@ export interface StatProps extends React.ComponentPropsWithRef<"div"> {
  *   <StatDelta intent="up">+12% this month</StatDelta>
  * </Stat>
  */
-export function Stat({
-  className,
-  size = "md",
-  ref,
-  ...props
-}: StatProps) {
+export function Stat({ className, size = "md", ref, ...props }: StatProps) {
   return (
     <StatSizeContext.Provider value={size}>
       <div

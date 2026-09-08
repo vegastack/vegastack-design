@@ -2521,6 +2521,10 @@
               "values": []
             },
             {
+              "name": "data-live",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
               "values": [
                 "alert",
@@ -6072,7 +6076,7 @@
       "name": "empty",
       "registryType": "registry:ui",
       "title": "Empty",
-      "summary": "A zero-data placeholder — icon, title, description, actions, with intent tints and an optional dashed border.",
+      "summary": "A zero-data placeholder — icon, title, description, actions, with intent tints and a plain, card, or dashed container.",
       "family": "data-display",
       "wave": "Content/marketing",
       "sourceFiles": ["packages/ui/registry/ui/empty.tsx"],
@@ -6229,6 +6233,15 @@
           }
         },
         {
+          "name": "EmptyTitleAs",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/empty.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "EmptyTitleProps",
           "kind": "type",
           "source": "packages/ui/registry/ui/empty.tsx",
@@ -6249,6 +6262,15 @@
         },
         {
           "name": "EmptyValueProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/empty.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmptyVariant",
           "kind": "type",
           "source": "packages/ui/registry/ui/empty.tsx",
           "ref": {
@@ -6361,15 +6383,15 @@
         "Empty": {
           "attributes": [
             {
-              "name": "data-bordered",
-              "values": [""]
+              "name": "data-size",
+              "values": []
             },
             {
               "name": "data-slot",
               "values": ["empty"]
             },
             {
-              "name": "data-surface",
+              "name": "data-variant",
               "values": []
             }
           ],
@@ -12166,6 +12188,10 @@
         "ProgressIndicator": {
           "attributes": [
             {
+              "name": "data-segments-fill",
+              "values": [""]
+            },
+            {
               "name": "data-shape",
               "values": ["segments"]
             },
@@ -15935,8 +15961,9 @@
       "docsSlug": "/docs/components/notification-bell",
       "registryDependencies": [
         "@vegastack/badge",
+        "@vegastack/button",
         "@vegastack/icon-button",
-        "@vegastack/button"
+        "@vegastack/use-animation-replay"
       ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
@@ -16068,7 +16095,10 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/onboarding-checklist",
-      "registryDependencies": ["@vegastack/icon-button"],
+      "registryDependencies": [
+        "@vegastack/icon-button",
+        "@vegastack/progress-indicator"
+      ],
       "npmDependencies": [
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.3.2",
@@ -21329,6 +21359,10 @@
       "dataAttributes": {
         "AnnouncementBanner": {
           "attributes": [
+            {
+              "name": "data-live",
+              "values": [""]
+            },
             {
               "name": "data-slot",
               "values": [

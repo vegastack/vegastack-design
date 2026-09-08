@@ -40,9 +40,7 @@ export function pricingSection(): ReactNode {
             "Permission controls",
             "Advanced reporting",
           ]}
-          action={
-            <Button className="w-full">Continue with Pro</Button>
-          }
+          action={<Button className="w-full">Continue with Pro</Button>}
           highlighted
         />
         <PlanCard

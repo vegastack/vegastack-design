@@ -144,3 +144,23 @@ test("no a11y violations — expanded", async () => {
   const screen = await render(<Demo defaultValue={["shipping"]} />);
   await expectNoA11yViolations(screen.container);
 });
+
+test("the trigger hovers with the row wash, not a link underline", async () => {
+  // B7-08: underline-on-hover is the link affordance. A disclosure takes `surfaceInteractive`,
+  // which needs the inner radius and the 4px inset design.md Hover geometry requires.
+  const screen = await render(<Demo />);
+  const trigger = screen.container.querySelector(
+    '[data-slot="accordion-trigger"]',
+  ) as HTMLElement;
+  expect(trigger.className).not.toContain("hover:underline");
+  expect(trigger.className).toContain("hover:bg-surface-2");
+  expect(trigger.className).toContain("active:bg-surface-3");
+  expect(trigger.className).toContain("rounded-md");
+  // Positive padding only — a negative margin would bleed the wash past the root at 320px.
+  expect(trigger.className).toContain("px-2");
+  expect(trigger.className).not.toContain("-mx-");
+  const item = screen.container.querySelector(
+    '[data-slot="accordion-item"]',
+  ) as HTMLElement;
+  expect(item.className).toContain("py-1");
+});

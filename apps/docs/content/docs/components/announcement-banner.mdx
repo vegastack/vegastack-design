@@ -36,8 +36,14 @@ icon, message, and action — rather than a second banner component.
 ## Dismissal
 
 Uncontrolled by default (the banner removes itself). Pass `onDismiss` to own it — persist the
-choice and stop rendering; the button then only notifies. `role="status"` keeps the message
-polite for screen readers.
+choice and stop rendering; the button then only notifies.
+
+## Live announcements
+
+A page-top band that exists at load is chrome, so it carries **no** live role — announcing it would
+compete with the page's own heading for the first thing a screen reader user hears. Pass `live`
+only for a banner that mounts (or re-words) after the page has settled; it then becomes a polite
+`role="status"` region.
 
 ## API Reference
 
@@ -48,7 +54,7 @@ polite for screen readers.
 
 ## Accessibility
 
-- The banner is a polite status region, so keep its message brief and avoid continuously changing content.
+- The banner carries no live role at load. With `live` it is a polite status region, so keep its message brief and avoid continuously changing content.
 - The dismiss control has a caller-overridable accessible name and a minimum 24px hit area.
 - A composed action must keep visible link or button text; dismissal is never the only way to continue.
 

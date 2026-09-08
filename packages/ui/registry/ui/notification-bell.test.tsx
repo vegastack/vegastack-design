@@ -95,31 +95,63 @@ test("no a11y violations", async () => {
 });
 
 /* ---------------------------------------------------------------------------------------------
- * Motion: static unread state stays still on initial mount. Later unread/count changes add
- * `motion-pop-in`; the count badge remounts whenever the DISPLAYED value changes.
+ * Motion (B7-03). The pop is a CLASS TOGGLE via `useAnimationReplay`, never a remount, and it is
+ * gated on the count RISING after mount into a badge that visibly changed. `replay()` re-applies
+ * the class one animation frame later — that is what makes a CSS animation restart — so every
+ * assertion that expects the class waits for it rather than reading the same tick.
  * ------------------------------------------------------------------------------------------- */
+
+const badgeOf = (container: HTMLElement) =>
+  container.querySelector('[data-slot="notification-bell-badge"]');
 
 test("does not animate static unread state on initial mount", async () => {
   const countScreen = await render(<NotificationBell count={3} />);
-  const countBadge = countScreen.container.querySelector(
-    '[data-slot="notification-bell-badge"]',
+  expect(badgeOf(countScreen.container)?.className).not.toContain(
+    "motion-pop-in",
   );
-  expect(countBadge?.className).not.toContain("motion-pop-in");
 
   const dotScreen = await render(<NotificationBell count={3} dot />);
-  const dotBadge = dotScreen.container.querySelector(
-    '[data-slot="notification-bell-badge"]',
+  expect(badgeOf(dotScreen.container)?.className).not.toContain(
+    "motion-pop-in",
   );
-  expect(dotBadge?.className).not.toContain("motion-pop-in");
 });
 
-test("adds motion-pop-in when unread activity appears after mount", async () => {
+test("pops exactly once when unread activity appears after mount", async () => {
   const screen = await render(<NotificationBell count={0} />);
+  const badgeBefore = badgeOf(screen.container);
+  expect(badgeBefore).toBeNull();
+
   await screen.rerender(<NotificationBell count={1} />);
-  const badge = screen.container.querySelector(
-    '[data-slot="notification-bell-badge"]',
+  await vi.waitFor(() =>
+    expect(badgeOf(screen.container)?.className).toContain("motion-pop-in"),
   );
-  expect(badge?.className).toContain("motion-pop-in");
+
+  // A re-render that changes nothing the badge shows must not re-arm the cue.
+  await screen.rerender(<NotificationBell count={1} />);
+  const badge = badgeOf(screen.container) as HTMLElement;
+  badge.dispatchEvent(new AnimationEvent("animationend", { bubbles: true }));
+  await vi.waitFor(() =>
+    expect(badgeOf(screen.container)?.className).not.toContain("motion-pop-in"),
+  );
+});
+
+test("a re-render with an UNCHANGED count never pops the badge", async () => {
+  // The defect this replaces: a mount ref read during render meant the class first landed on
+  // whatever unrelated re-render happened next, popping the badge with no new activity behind it.
+  const screen = await render(<NotificationBell count={3} />);
+  for (let i = 0; i < 3; i += 1) {
+    await screen.rerender(<NotificationBell count={3} aria-label="Alerts" />);
+  }
+  await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+  expect(badgeOf(screen.container)?.className).not.toContain("motion-pop-in");
+});
+
+test("a FALLING count never pops the badge", async () => {
+  const screen = await render(<NotificationBell count={5} />);
+  await screen.rerender(<NotificationBell count={2} />);
+  await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+  expect(badgeOf(screen.container)?.className).not.toContain("motion-pop-in");
+  expect(badgeOf(screen.container)?.textContent).toBe("2");
 });
 
 test("treats non-finite counts as zero", async () => {
@@ -131,33 +163,29 @@ test("treats non-finite counts as zero", async () => {
   ).toBeNull();
 });
 
-test("replays the pop (remounts the badge node) when the displayed count changes", async () => {
+test("replays the pop on the SAME node when the displayed count rises", async () => {
   const screen = await render(<NotificationBell count={3} />);
-  const badgeBefore = screen.container.querySelector(
-    '[data-slot="notification-bell-badge"]',
-  );
+  const badgeBefore = badgeOf(screen.container);
   expect(badgeBefore).not.toBeNull();
 
   await screen.rerender(<NotificationBell count={4} />);
-  const badgeAfter = screen.container.querySelector(
-    '[data-slot="notification-bell-badge"]',
+  await vi.waitFor(() =>
+    expect(badgeOf(screen.container)?.className).toContain("motion-pop-in"),
   );
-  expect(badgeAfter).not.toBeNull();
-  expect(badgeAfter).not.toBe(badgeBefore);
+  // The class toggle must not depend on a remount — that was the other half of B7-03.
+  expect(badgeOf(screen.container)).toBe(badgeBefore);
 });
 
 test('does not replay when the displayed count is unchanged (both cap to "99+")', async () => {
   const screen = await render(<NotificationBell count={150} />);
-  const badgeBefore = screen.container.querySelector(
-    '[data-slot="notification-bell-badge"]',
-  );
+  const badgeBefore = badgeOf(screen.container);
 
   await screen.rerender(<NotificationBell count={200} />);
-  const badgeAfter = screen.container.querySelector(
-    '[data-slot="notification-bell-badge"]',
-  );
+  await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+  const badgeAfter = badgeOf(screen.container);
   expect(badgeAfter?.textContent).toBe("99+");
   expect(badgeAfter).toBe(badgeBefore);
+  expect(badgeAfter?.className).not.toContain("motion-pop-in");
 });
 
 test("rapid successive count changes settle on the final value without crashing", async () => {

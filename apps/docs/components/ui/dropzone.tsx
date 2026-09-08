@@ -1,4 +1,4 @@
-// @vegastack dropzone@0.6.0 sha256-kzivMaC5NU6IzTNITP7xaNPxhQznIi3np5Xdlv1buOU=
+// @vegastack dropzone@0.6.0 sha256-Vwd6Sb76aDlvgqHnN85zOyKVPN/DZqotMZU2wLZmc28=
 
 "use client";
 
@@ -31,7 +31,7 @@ to a native input, and no VegaStack control can substitute for the file-picker b
 Deliberately NOT done here:
 - No `attachments` prop and no internal `Attachment` rendering — the host owns the
   staged-file list and its lifecycle.
-- No dashed-border re-implementation. Consumers compose `Empty bordered` (its prop
+- No dashed-border re-implementation. Consumers compose `Empty variant="dashed"` (its prop
   doc literally reads "the classic 'drop zone' look") or any content as children.
 --- */
 
@@ -53,7 +53,7 @@ export interface DropzoneProps extends Omit<
    * @default "Upload files"
    */
   "aria-label"?: string;
-  /** The idle affordance — typically `Empty bordered` content. */
+  /** The idle affordance — typically `Empty variant="dashed"` content. */
   children: React.ReactNode;
   /** Extra classes for the drop surface.
    * @default undefined
@@ -79,7 +79,7 @@ export interface DropzoneProps extends Omit<
  *   onFilesAccepted={(files) => stageUploads(files)}
  *   onFilesRejected={(rejections) => flagRejections(rejections)}
  * >
- *   <Empty size="sm" bordered>
+ *   <Empty size="sm" variant="dashed">
  *     <EmptyHeader>
  *       <EmptyTitle>Drop images here</EmptyTitle>
  *       <EmptyDescription>or click to browse — PNG or JPG</EmptyDescription>

@@ -38,7 +38,34 @@ test("renders title and description content", async () => {
     .toBeInTheDocument();
 });
 
-test("Item defaults to role=listitem, data-slot=item", async () => {
+test("a standalone Item (no ItemGroup) renders NO role", async () => {
+  // `role="listitem"` without a `list` ancestor is an axe `aria-required-parent` CRITICAL
+  // (B7-01). Only `ItemGroup` — the one `role="list"` container — licenses the role.
+  const screen = await render(
+    <Item>
+      <ItemContent>
+        <ItemTitle>Standalone</ItemTitle>
+      </ItemContent>
+    </Item>,
+  );
+  const item = screen.container.querySelector('[data-slot="item"]');
+  expect(item).not.toBeNull();
+  expect(item).not.toHaveAttribute("role");
+});
+
+test("no a11y violations: a standalone Item has no aria-required-parent", async () => {
+  const screen = await render(
+    <Item variant="outline">
+      <ItemContent>
+        <ItemTitle>Standalone</ItemTitle>
+        <ItemDescription>Supporting text.</ItemDescription>
+      </ItemContent>
+    </Item>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("Item inside ItemGroup takes role=listitem, data-slot=item", async () => {
   const screen = await render(
     <ItemGroup>
       <Item>
@@ -76,13 +103,15 @@ test("ItemGroup exposes role=list and groups multiple Items", async () => {
   expect(items.length).toBe(2);
 });
 
-test("a role prop explicitly passed overrides the listitem default", async () => {
+test("a role prop explicitly passed wins over the group-licensed default", async () => {
   const screen = await render(
-    <Item role="button">
-      <ItemContent>
-        <ItemTitle>Custom role</ItemTitle>
-      </ItemContent>
-    </Item>,
+    <ItemGroup>
+      <Item role="button">
+        <ItemContent>
+          <ItemTitle>Custom role</ItemTitle>
+        </ItemContent>
+      </Item>
+    </ItemGroup>,
   );
   const item = screen.container.querySelector('[data-slot="item"]');
   expect(item).toHaveAttribute("role", "button");
@@ -368,4 +397,30 @@ test("no a11y violations: link item (render prop)", async () => {
     </Item>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+test("ItemTitle is the system list-row type — 14/500, dropping to 12/500 at size=sm", async () => {
+  // D24: a 12px Item title next to a 14px Sidebar row read as two systems.
+  const screen = await render(
+    <ItemGroup>
+      <Item>
+        <ItemContent>
+          <ItemTitle>Roomy</ItemTitle>
+          <ItemDescription>Supporting text.</ItemDescription>
+        </ItemContent>
+      </Item>
+    </ItemGroup>,
+  );
+  const title = screen.container.querySelector(
+    '[data-slot="item-title"]',
+  ) as HTMLElement;
+  const description = screen.container.querySelector(
+    '[data-slot="item-description"]',
+  ) as HTMLElement;
+  expect(title.className).toContain("text-label");
+  expect(title.className).toContain("group-data-[size=sm]/item:text-label-sm");
+  expect(description.className).toContain("text-sm");
+  // The old 12px title read `text-sm font-medium`; both are gone from the roomy tier.
+  expect(title.className).not.toContain("text-sm ");
+  expect(title.className).not.toContain("font-medium");
 });
