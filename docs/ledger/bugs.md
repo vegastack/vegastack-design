@@ -162,6 +162,53 @@ data-slot="icon-button">`. The literal follows the spread, so `IconButton` overw
 - **Class:** silent visual defect, pre-existing since the editor shipped. Not caught by any lint: the
   variant order is legal Tailwind and both orders compile.
 
+## 2026-09-08 — Mk1: three defects the type system could not see
+
+### `ParticleField` froze the brand colour of the theme it mounted in
+
+- **Symptom.** Toggling light→dark left the particle field painted in the LIGHT `--brand`
+  (`oklch(0.6 …)` vs dark's `oklch(0.86 …)`) until something forced a remount.
+- **Root cause.** The ink was read ONCE, into a `const`, at the top of the draw effect — and that
+  effect is keyed on `ready`, `count`, `seed` and reduced-motion, none of which a theme change
+  touches. So the value was captured for the lifetime of the effect by construction. The `rAF` loop
+  then reused the stale `const` on every frame; nothing was "invalidated late", the dependency
+  simply did not exist.
+- **Fix.** Read `getComputedStyle(canvas).color` per frame. `.color` rather than
+  `.getPropertyValue('--brand')` because the canvas carries `text-brand`: `color` is the RESOLVED
+  value the cascade produced, so a local theme scope or a token override is honoured too and
+  `currentColor` needs no separate fallback. A computed-style read per frame is a recalc the browser
+  has already done for that element by the time `rAF` runs.
+- **The reduced-motion branch needed a separate fix, and this is the part worth remembering.** That
+  branch paints exactly one frame by design, so "read it per frame" fixes nothing there — it would
+  have kept the bug for precisely the users least able to tolerate a wrong-contrast field. It now
+  observes `class`/`data-theme` on `document.documentElement` (next-themes writes `class`, D30; a
+  scoped override writes `data-theme`) and repaints. **A per-frame fix is not a fix for a
+  zero-frame path.**
+
+### `useIsMobile` reported `false` on the server, so a phone got the desktop layout
+
+- **Symptom.** SSR rendered the desktop branch of every JS-driven layout on a phone until an effect
+  ran — Board enabled pointer drag and then disabled it.
+- **Root cause.** `useState(false)` + `useEffect`. `false` was not a considered default, it was the
+  only value the pattern can express: the effect cannot run on the server, so the first render is
+  always the literal. The same shape was copied into five files.
+- **Fix.** `useSyncExternalStore` with a `getServerSnapshot` the caller supplies
+  (`serverFallback`), so the server answer is a declared design decision rather than an artefact of
+  the hook's implementation.
+
+### `usePlatform`'s `isTouch` was frozen at the post-hydration value
+
+- **Symptom.** A drag affordance gated on `isTouch` never updated when the primary pointer changed.
+- **Root cause.** The hook's own module doc asserted "the platform cannot change mid-session", which
+  is true of the OS and **false of the pointer** — a 2-in-1 detaching its keyboard changes
+  `(pointer: coarse)` live. One correct claim was over-generalised to cover a second, different fact,
+  and the empty dependency array followed from the wrong half.
+- **Fix.** The two halves are now read differently: OS stays a one-shot `navigator` read; touch is
+  the live `(pointer: coarse)` query through `useMediaQuery`. The module doc states which is which
+  and why.
+
+---
+
 ## 2026-09-08 — The `relative-time` 320px contract fails nondeterministically under the full sweep
 
 - **Symptom.** `/docs/components/relative-time contains its primary fixture at 320px` fails with
