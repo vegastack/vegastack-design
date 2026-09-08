@@ -305,12 +305,12 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
   hovers in both. The current sidebar row rests on `surface-3` so hovering it still moves.
   [docs](/docs/components/button) ·
   [`273a602`](https://github.com/VegaStack/vegastack-design/commit/273a602)
-- **Twelve components are server-safe again.** Avatar, Badge (via Spinner), Button, Collapsible,
-  Field, Progress, Resizable, ScrollArea, Separator, Slider, Switch, Tabs and Toggle carried
+- **Twelve components are server-safe again.** Avatar, Button, Collapsible, Field, Progress,
+  Resizable, ScrollArea, Separator, Slider, Switch, Tabs and Toggle carried
   `"use client"` without touching a hook or a handler. A client module poisons every RSC importer
   downstream — `buttonVariants` could not be read from a server component. 84 client leaves in the
   registry became 72.
-- **Reduced motion is stated once, globally.** All thirteen `motion-reduce:` copies across eleven
+- **Reduced motion is stated once, globally.** All seventeen `motion-reduce:` copies across eleven
   components were deleted — the registry now carries zero. The `base.css` reset owns the rule with the
   one sanctioned `!important`, so a per-component restatement adds nothing and is a second copy that
   can drift. One copy looked load-bearing and exposed a hole in the reset instead: it zeroed

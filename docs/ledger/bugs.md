@@ -245,6 +245,31 @@ re-diagnose it, and because a race that flakes under load is a real race.
   conclusion independently.
 ---
 
+## 2026-09-07 — Making a leaf server-safe silently breaks its Story explorer
+
+- **Removing `"use client"` from a storied component broke `next build`.** Dropping the directive
+  from `avatar`, `button`, `progress`, `separator`, `slider` and `toggle` turned each into a plain
+  server function. `@fumadocs/story` (1.2.0) builds `{ Component, displayName, presets }` in the
+  story module and hands it to its OWN `"use client"` `WithControl` renderer — and only a _client
+  reference_ survives that boundary. The export failed prerendering `/docs/components/avatar` with
+  `Functions cannot be passed directly to Client Components`, naming the offending `Component` key.
+  Both of the package's `defineStory` variants (the build-plugin one in `dist/client/compiled.js` and
+  the RSC one in `dist/index.js`) pass `Component` across that boundary, so there is no server-safe
+  path in this version. **Fix:** re-export through a `"use client"` shim
+  (`apps/docs/components/stories/<name>.client.ts`) — the pattern already in the tree for
+  `label`/`kbd`/`skeleton`/`spinner`/`status-icon`/`textarea`/`progress-indicator`, and for
+  `switch`/`checkbox` via `story-shims.tsx`. The docs Explorer, not the component, owns that
+  boundary; no canonical source changed. After rebasing onto Do1-a (which retired 24 Explorers under
+  DD-3), only `slider` still has one, so `slider.client.ts` is the single shim this batch ships — but
+  the trap is unchanged for the six Explorers that remain.
+- **Why no gate caught it.** `verify-rsc-safety`, `verify-ui-use-client`, `design-lint`, `typecheck`
+  and the 864 behaviour contracts were all green — the failure only exists in the static export, and
+  the docs build is not in `gates:push`. **Rule of thumb:** deleting a `"use client"` directive is a
+  distribution change; run `pnpm --filter @vegastack/docs build` before believing it, and check
+  `apps/docs/components/stories/` for a story that names the component.
+
+---
+
 ## 2026-09-07 — Two undeclared registry dependencies, surfaced by consolidating the leaves
 
 - **`tooltip` imported `Kbd` without declaring `@vegastack/kbd`; `relative-time` imported
