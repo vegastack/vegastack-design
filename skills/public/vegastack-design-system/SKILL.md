@@ -38,6 +38,14 @@ Rules that decide most component questions:
 - **`segmented`** for 2–5 exclusive options inline; **`tabs`** when the choice switches page regions.
 - **`alert` variant=strip** for in-content notices and plan/trial rows; **`announcement-banner`** only
   for the full-width inverse strip at the very top of the page.
+- **`chip` is the ONE pill** — `hue` × `size` (`sm` inline · `md` control-scale) × `active`, with
+  `onRemove` giving a real 24×24 remove control. `Tag`, `FilterChip` and `ComboboxChip` are that
+  primitive composed through `render`; never hand-roll a pill with its own height, radius, or a
+  sub-24px `×`. A **`badge`** is the different job: status, never removable, never a selection.
+- **`useAnnouncer` is the one live region** — `const { announce, Announcer } = useAnnouncer()`, one
+  `<Announcer />` per component, mounted for its life. It keeps the region observed from first paint
+  and re-keys it per call, so repeating an identical string still announces. Do not hand-roll a
+  `role="status"` node with a `{text, seq}` counter.
 - **`code-block`** for static syntax-highlighted source; **`terminal`** for command sessions.
 - **`navigation-menu`** is top-level site navigation with panels, not a menu inside a page.
 - **Marketing components** (`marketing-surface`, `section-header`, `figure-frame`, `terminal`,
@@ -139,6 +147,7 @@ contract.
 - Set `outline-none` without providing another focus affordance.
 - Pull in a second icon library or hand-write an inline `<svg>` as an icon.
 - Put `uppercase` on non-mono type, or on anything above 14px.
+- Hand-roll a removable pill, or a `role="status"` live region with its own sequence counter.
 
 ## Reference
 

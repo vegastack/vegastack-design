@@ -39,6 +39,36 @@ test("boolean availability renders sr-labelled glyphs, values render literally",
   await expect.element(screen.getByText("Unlimited")).toBeInTheDocument();
 });
 
+test("omitting highlightedIndex promotes no column at all", async () => {
+  await render(
+    <ComparisonMatrix plans={["Starter", "Team", "Enterprise"]}>
+      <ComparisonGroup>Support</ComparisonGroup>
+      <ComparisonRow
+        feature="Email support"
+        availability={[true, true, true]}
+      />
+    </ComparisonMatrix>,
+  );
+  expect(document.querySelectorAll('td[class*="bg-surface-2"]').length).toBe(0);
+  expect(document.querySelectorAll('th[class*="bg-surface-2"]').length).toBe(0);
+});
+
+test("unknownLabel overrides the copy for an unsupplied cell", async () => {
+  const screen = await render(
+    <ComparisonMatrix plans={["Free", "Plus", "Pro"]}>
+      <ComparisonGroup>Support</ComparisonGroup>
+      <ComparisonRow
+        feature="Response time"
+        availability={["48h"]}
+        unknownLabel="Ask sales"
+      />
+    </ComparisonMatrix>,
+  );
+  await expect.element(screen.getByText("Ask sales")).toBeInTheDocument();
+  // The default copy must not leak through alongside the override.
+  expect(document.body.textContent).not.toContain("Not specified");
+});
+
 test("highlighted column cells carry the neutral hover-rung tint", async () => {
   await render(<Example />);
   // The highlight is a NEUTRAL rung of the surface ladder, never `info` — `info` is reserved for

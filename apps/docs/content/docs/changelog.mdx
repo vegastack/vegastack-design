@@ -12,179 +12,6 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 ## [0.7.0] — September 7, 2026
 
-### 🔧 Changed components
-
-- **Button**, **Select**, **Sidebar**, **Toggle**, **Tabs**, **Table**, **DataGrid**, **DataList**,
-  **Board**, **Item**, **Pagination**, **NavigationMenu**, **Combobox**, **DatePicker**, **Dialog**,
-  **Sheet**, **Popover**, **HoverCard**, **Segmented**, **TagGroup**, **Bubble**, **Card**,
-  **AppShell**, **EmojiPicker**, **FieldInline**, **MessageScroller**, **NumberField**,
-  **OnboardingChecklist**, **ShortcutOverlay**, **Sonner**, **Switch**, **ToolCallChip** and the
-  **dashboard-01** block — every hover now climbs one rung and **every control has a pressed
-  step**. Previously only the solid primary Button darkened on `:active`; a state probe found 268
-  elements where pressing changed nothing. Select's trigger hovered only in dark mode; it now
-  hovers in both. The current sidebar row rests on `surface-3` so hovering it still moves.
-  [docs](/docs/components/button) ·
-  [`273a602`](https://github.com/VegaStack/vegastack-design/commit/273a602)
-- **ComparisonMatrix**, **PricingSection** — the promoted column and the highlighted plan used
-  `info` (blue). `info` is links and informational UI only; promotion is a neutral ladder rung.
-  [docs](/docs/components/comparison-matrix) ·
-  [`273a602`](https://github.com/VegaStack/vegastack-design/commit/273a602)
-- **Animated icons** — the host element is now an `inline-flex` `<span>` rather than a block-level
-  `<div>`, so an icon placed in a line of text no longer breaks the line box. Public icon names, the
-  `size` prop, the `startAnimation`/`stopAnimation` handle and the `AnimatedIcon` wrapper API are
-  unchanged.
-  [docs](/docs/foundations/icons) ·
-  [`cb20de9`](https://github.com/VegaStack/vegastack-design/commit/cb20de9)
-- **Animated icons** — reduced motion is now a live subscription to
-  `(prefers-reduced-motion: reduce)`, so turning the preference on settles every mounted icon
-  immediately instead of only affecting icons mounted afterwards. Motion's own hooks cannot do this:
-  in 12.42.2 `useReducedMotion()` is `useState(prefersReducedMotion.current)` — a one-shot read of a
-  module singleton captured at first import, with a standing `TODO` about not updating — and
-  `useReducedMotionConfig()` layers `<MotionConfig>` on that same one-shot value.
-- **Animated icons** — the OS reduced-motion preference was never consulted at all unless the
-  application happened to mount a `<MotionConfig>`. `useReducedMotionConfig()` returns `false`
-  outright when the context says `reducedMotion: "never"`, and `"never"` is precisely Motion's
-  **default** context value — so on the un-configured tree that almost every consumer has, icons
-  animated regardless of the preference. The factory now treats the preference as the base value and
-  lets `<MotionConfig reducedMotion="always">` add reduction on top; the override is one-way,
-  because an explicit `reducedMotion="never"` is byte-identical to no provider at all and honouring
-  it would switch reduced motion off for everyone who configured nothing.
-  [docs](/docs/foundations/icons) ·
-  [`cb20de9`](https://github.com/VegaStack/vegastack-design/commit/cb20de9)
-
-### 🛠 CLI & tooling
-
-- **Animated icons are one factory plus 439 data modules.** Every mirrored `lucide-animated` icon
-  used to carry its own copy of the controller — the animation controls, the reduced-motion gate,
-  five pointer/focus handlers, the imperative handle and a block-level host — so a change to any of
-  that meant regenerating 439 files and trusting that all 439 agreed. The controller now lives once
-  in `createAnimatedIcon`, and each icon is a `createAnimatedIcon({ … })` call describing only its
-  geometry, its Motion variants, and (for 49 icons) its non-default start/stop steps. The corpus
-  went from 79,078 lines to 12,951 (-84%) and from 2.06 MiB to 0.57 MiB of source; the served
-  registry fell from 4.48 MiB to 2.92 MiB. `tooling/mirror-animated-icons.mjs` emits the data
-  modules and fails closed on any upstream archetype it cannot model;
-  `tooling/verify-animated-icons.mjs` asserts the controller contract once against the factory,
-  holds every module to a schema whose central clause is that a data module contains no controller
-  at all, pins each generated module by SHA-256 in `packages/ui/animated-icon-sources.json` so a
-  hand-edited path or timing value is rejected outright, and carries a `--self-test` that proves
-  fifteen distinct regressions are rejected.
-  [docs](/docs/foundations/icons) ·
-  [`cb20de9`](https://github.com/VegaStack/vegastack-design/commit/cb20de9)
-
-### 📦 npm
-
-- **`@vegastack/design-tokens`** → **`0.4.0`** — the surface ladder (`surface-1/2/3`), the alpha
-  twins `--alpha-hover` / `--alpha-pressed` / `--alpha-border`, theme-invariant media tokens,
-  `--chart-single`, and the layout scale `--layout-header-height` / `--sidebar-width-mobile` /
-  `--layout-overlay-max-height` / `--panel-width-sm|md|lg`.
-- **`@vegastack/design`** → **`0.4.0`** — exports the `surfaceInteractive` and `fillInteractive`
-  hover/pressed recipes, plus the `FillTone` type; adds the
-  `@vegastack/design/create-animated-icon` subpath exporting `createAnimatedIcon`, and declares
-  `motion` as an optional peer dependency (only an animated icon pulls it in; `Icon`/`BrandIcon`
-  still do not). `AnimatedIconComponent` now types its host as `HTMLSpanElement`.
-- The design-system registry (`@vegastack/ui`) bumps 0.6.0 → 0.7.0.
-
-### 📚 Docs
-
-- **Colors** — a new surface-ladder specimen renders both themes side by side with the rungs and
-  their alpha twins; the sidebar section now says the rail is aliases, not a second palette.
-  [docs](/docs/foundations/colors) ·
-  [`6c1b7bf`](https://github.com/VegaStack/vegastack-design/commit/6c1b7bf)
-- **One page canon, for humans and agents alike — the infrastructure, and three reference pages.**
-  The canon defines a fixed page shape whose machine-readable half is generated from the two
-  authorities rather than typed: Install from `registry.json` (the `shadcn add` command, the
-  registry dependencies and the sanctioned engines), Anatomy from the contract's new
-  `dataAttributes`, the states-tested table from the contract's `states`, and a per-item Changelog
-  filtered out of this file. This release ships those generated sections as MDX components and
-  places them on **three reference pages** (button, dialog, data-grid); the remaining 107 pages
-  keep their current bodies and are migrated to the canon in the next release. The canon table is
-  `design.md` §Docs canon — the target shape, not a description of every page today.
-  [canon](/docs/components/button)
-- **The markdown export is real markdown.** The per-page `.md` route and `llms-full.txt` previously
-  emitted `<AutoTypeTable …/>` and `<ComponentPreview …/>` verbatim — 107 of 110 component pages
-  and 260 occurrences in `llms-full.txt` — so an agent reading the docs saw no props and no example
-  code at all. Every MDX component now renders to markdown: the exact fixture source the Code tab
-  shows, the flat prop tables, the install steps, the do/don't pairs. Browser-only surfaces are
-  replaced by a one-line note rather than dropped silently.
-- **API tables are flat and expanded, on every page at once.** One table per exported part — name,
-  the literal union (`"default" | "secondary" | …`, not `union`), the `@default` value, the
-  description — instead of collapsed accordion rows. This one lands everywhere immediately: the
-  renderer is registered under the legacy `AutoTypeTable` name the 107 unmigrated pages author, so
-  no page body had to change for it. Own props only, and a part with no own props of its own gets one
-  sentence instead of the 138 "(no own props)" placeholder rows that filled 18 pages. A second
-  table lists the `data-*` attributes and CSS variables the part exposes.
-  [example](/docs/components/dialog)
-- **`llms.txt` carries the registry roster and the skill roster** — every installable item with its
-  page and its `shadcn add` target, and the public agent skills — so an agent can go from "I need a
-  data grid" to the page and the install command without scraping.
-  [guide](/docs/guides/agent-skills)
-- **The docs shell obeys the design system it documents.** Fumadocs' chrome and the typography
-  plugin are compiled against Tailwind's stock theme, so headings, sidebar titles and prose
-  `<strong>` rendered at weight 600–900 in a system whose ladder is 400/500, cards used
-  `rounded-xl`, and popovers used the stock shadow ladder. All of it is remapped to system values
-  once. Demos also sat on the 15px/28px prose base because the product type scope re-bound the
-  `--type-*` vars but not the inherited `font-size`. [foundations](/docs/foundations/typography)
-- **Fullscreen preview is the system `Dialog`.** The old overlay declared `role="dialog"
-aria-modal="true"` and had no focus trap — Tab walked straight out into the hidden chrome behind
-  it. Copy Prompt moved once into the page header (it was repeated six times on the Button page),
-  the hero preview renders through the same frame as every other example, a skip link is now the
-  first tab stop on every page, and the icon-gallery tile is a real labelled button instead of 439
-  nameless focusable `div`s. [accessibility](/docs/foundations/accessibility)
-
-### 🛠 CLI & tooling
-
-- **`verify-docs-export`** fails the docs build on any JSX tag surviving outside a code fence, any
-  unresolved export placeholder, or any empty API table — the regression guard for the export
-  above — and enforces that a page carries either a curated playground or the Story explorer, never
-  both.
-- **`verify-docs-base-mirror`** diffs the rule blocks `apps/docs/app/global.css` hand-copies from
-  `base.css`, which had no gate. It counts `@apply` as a declaration: the focus ring is expressed
-  only that way on both sides, so filtering `@`-prefixed lines compared that block as empty against
-  empty and could never fail.
-- **`design-lint --docs-shell --emitted-css`** reads the BUILT stylesheet, because the shell's
-  off-system values are compiled in by dependencies and never appear in this repo's source.
-- **`verify-component-contracts --write-data-attributes`** extracts each part's `data-*` attributes
-  and CSS variables from the canonical source through the TypeScript AST; the default mode fails
-  when the contract drifts from the source.
-- Each of the four ships a negative self-test, so none of them can pass by never having run — and
-  so does `verify-component-contracts`, whose `--self-test` drifts a `dataAttributes` record in
-  memory and requires the reconciliation to reject it.
-- **`verify-mdx-manifest`** (docs `lint`) proves the agent export fails closed on the three
-  failures that leave no artefact behind for the gate above to find: an MDX component no manifest
-  entry classifies, a placeholder whose runtime renderer is missing (nested ones included), and a
-  component registered in the MDX map but absent from the manifest. Before it, the first rendered
-  to a single space and the second to its bare children.
-
-### 🐛 Fixed
-
-- **Text-entry focus under forced colours** — Input, Textarea, NumberField, OTPInput and TextEdit
-  signal focus with a border tint and `outline-none`. Windows High Contrast replaces `border-color`
-  outright, so a focused field showed no indicator at all. The token layer now paints a real
-  `2px` outline under `forced-colors: active`, once, for every text-entry control.
-  [docs](/docs/foundations/colors) ·
-  [`273a602`](https://github.com/VegaStack/vegastack-design/commit/273a602)
-- **Media chrome no longer inverts in dark** — the video scrim and its controls were built from
-  `primary`, which flips with the theme, so in dark the scrim rendered near-white with near-black
-  icons. New theme-invariant `--media-scrim`, `--media-scrim-strong` and `--media-foreground`
-  tokens keep overlay chrome dark-scrim + light-ink in both themes.
-  [docs](/docs/foundations/colors) ·
-  [`0e88dc5`](https://github.com/VegaStack/vegastack-design/commit/0e88dc5)
-- **Animated icons** — the reduced-motion effect ran after _every_ render in all 439 icons, because
-  it was written without a dependency array. It now runs when the preference changes, once, in the
-  factory.
-  [docs](/docs/foundations/icons) ·
-  [`cb20de9`](https://github.com/VegaStack/vegastack-design/commit/cb20de9)
-- **Docs** — each tile in the icon gallery was a focusable `<div>` with no role, so all 439 were
-  reachable by keyboard and announced as nothing. Each is now a real `<button>`.
-  [docs](/docs/foundations/icons) ·
-  [`cb20de9`](https://github.com/VegaStack/vegastack-design/commit/cb20de9)
-- **Docs** — the icon gallery was inert on touch. A tile drives its icon through a ref, and holding
-  the ref suppresses every trigger the icon provides for itself, including its tap-to-play
-  `pointerdown`; the tile replaced hover and focus but not that one, so on a phone nothing in the
-  gallery ever moved. Tiles now carry the tap driver too, under the same pointer-type rules.
-  [docs](/docs/foundations/icons) ·
-  [`cb20de9`](https://github.com/VegaStack/vegastack-design/commit/cb20de9)
-
 ### ⚠️ Breaking
 
 - **Surface tokens are now one ladder.** `secondary`, `muted` and `accent` were a single OKLCH
@@ -234,37 +61,34 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
   every icon-only action is `IconButton`, which makes the missing `aria-label` a type error and now
   owns `shape="square" | "round"`.
   [docs](/docs/components/icon-button)
-- **Badge speaks the same variant vocabulary as Button.** `variant` is now
-  `solid · soft · outline · minimal`: `subtle` is renamed **`soft`**, with no alias — a stale
-  `variant="subtle"` is a type error. The three sizes become three REAL heights, `sm` **16px** ·
-  `md` **20px** · `lg` **24px**; `sm` used to be `md` with 2px less horizontal padding, which is a
-  padding value, not a size. `minimal` loses its horizontal padding too, so it sits flush in a table
-  cell instead of faking a pill, and it now carries a **leading dot by default** — a badge with no
-  container has nothing but colour left to signal status with (WCAG 1.4.1). Pass `dot={false}` to opt
-  out, or the new `icon` prop to take the dot's place.
-  [docs](/docs/components/badge)
-- **`Kbd` defaults to `os="other"`.** It reads no `navigator` — that is what keeps it server-safe —
-  so the platform is the caller's to resolve: run `usePlatform()` and pass the answer down. The old
-  default shipped mac glyphs to a Windows majority. `TooltipKbd` takes the same `os` prop.
-  [docs](/docs/components/kbd)
 - **`disabled` is `aria-disabled`, not the native attribute.** Button, IconButton and SplitButton
   keep their pointer events and stay focusable when disabled, so a Tooltip can explain why the action
   is unavailable. Base UI still suppresses activation. Code asserting `element.disabled` should read
   `aria-disabled` instead.
   [docs](/docs/components/button)
-- **Seven animated icons drop a deprecated handle alias; an eighth renames its handle type.**
-  `BotMessageSquareHandle`, `ConciergeBellHandle`, `KeyIconHandle` (on both `key-circle` and
-  `key-square`), `RefreshCCWIconWIcon` (on `refresh-cw`), `ActivityIconHandle` (on
-  `square-activity`) and `ZapHandle` were `@deprecated` aliases left behind by upstream naming
-  quirks; each of those icons still exports its `<Name>IconHandle` and only the alias is gone.
-  `chevron-first` is the different case and is a **rename, not an alias removal**: upstream had
-  copy-pasted a `displayName` from another icon, so the primary interface was called
-  `ChevronsDownUpIconHandle` and `ChevronFirstIconHandle` was the `@deprecated` alias of it. The
-  exported component symbol is authoritative, so the name that survives is the one that matches it —
-  **`ChevronsDownUpIconHandle` → `ChevronFirstIconHandle`**. Consumers of the old name must rename;
-  no compatibility alias is kept.
-  [docs](/docs/foundations/icons) ·
-  [`cb20de9`](https://github.com/VegaStack/vegastack-design/commit/cb20de9)
+- **`useDragReorder` and `useFileDrop` return `Announcer`, not `getLiveRegionProps()`.** Render
+  `<reorder.Announcer />` / `<drop.Announcer />` in place of
+  `<span {...reorder.getLiveRegionProps()} />`. The props-getter shape could not keep the region
+  mounted across an announcement, which is the property that makes it audible.
+  [docs](/docs/components/sortable-list)
+- **`Pagination` no longer hard-codes its accessible name.** It renders a plain `<nav>` (no
+  `role="navigation"`) and `aria-label` defaults to "Pagination". A page with more than one pager
+  must name each one — two identically named landmarks are an axe `landmark-unique` failure.
+  [docs](/docs/components/pagination)
+
+### 🧩 New components
+
+- **`chip`** — THE labelled pill, and the only one. `hue` (10 decorative tag hues, or neutral) ×
+  `size` (`sm` 28px inline · `md` 32px control-scale) × `active` (the neutral chip's promotion to
+  the `surface-2` selection rung), with `onRemove` mounting a round ghost `IconButton size="xs"`
+  whose **real** border box is 24×24. `Tag`, `FilterChip`, `ComboboxChip` and ChipInput's chips are
+  all this one primitive composed through Base UI `render`.
+  [docs](/docs/components/chip)
+- **`use-announcer`** — the one polite live region. `const { announce, Announcer } =
+useAnnouncer()`; render `<Announcer />` once per component. It keeps the region mounted and
+  observed from first paint, re-keys it per call so an identical consecutive announcement is still
+  spoken, and holds its state outside the host so announcing no longer re-renders a whole DataGrid.
+  [docs](/docs/guides/components)
 
 ### 🗑 Removed / renamed
 
@@ -277,8 +101,29 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
   `warning-outline` / `info-outline`** — seven variants that baked a colour into a name, replaced by
   the `tone` axis.
   [docs](/docs/components/button)
+- **`TagHue`** — the hue vocabulary moved to the Chip primitive and is exported as **`ChipHue`**
+  from `@vegastack/chip`. `Tag`'s `hue` prop is unchanged; only the type's name and home moved.
+  [docs](/docs/components/chip)
 
 ### 🔧 Changed components
+
+- **Tag**, **FilterChip**, **ComboboxChip**, **ChipInput** — all four are now the `chip` primitive.
+  Three consequences are visible: a `Tag` is 28px rather than 20px and a `FilterChip` is a pill
+  rather than a rounded rectangle (chips are `rounded-full` by doctrine); the neutral chip rests on
+  `surface-1` and an applied filter sits on `surface-2` instead of the `accent` alias; and every
+  remove control is the same 24×24 target.
+  [docs](/docs/components/chip)
+- **TagGroup** — the `+N` overflow control is itself a chip, so the whole 28px pill is the pointer
+  target and its hover/pressed steps come from the shared `surfaceInteractive` recipe rather than a
+  hand-written descendant selector.
+  [docs](/docs/components/tag-group)
+- **EditableCell**, **ChipInput**, **DataGrid**, **CopyButton**, **SortableList**, **Board**,
+  **Dropzone** — all announce through `use-announcer`, one live region each. EditableCell's visible
+  status slot is no longer itself a live region, so it stops announcing its own icon swaps.
+  [docs](/docs/components/editable-cell)
+- **Pagination** — `PaginationLink`'s hover and pressed steps come from `surfaceInteractive`
+  instead of restated `hover:bg-surface-2` / `active:bg-surface-3` literals.
+  [docs](/docs/components/pagination)
 
 - **IconButton everywhere.** The dismiss, pager and toggle controls that were hand-rolled
   `<button>` elements in Alert, AnnouncementBanner, Dialog, Sheet, Pagination, OnboardingChecklist
@@ -305,38 +150,6 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
   hovers in both. The current sidebar row rests on `surface-3` so hovering it still moves.
   [docs](/docs/components/button) ·
   [`273a602`](https://github.com/VegaStack/vegastack-design/commit/273a602)
-- **Twelve components are server-safe again.** Avatar, Button, Collapsible, Field, Progress,
-  Resizable, ScrollArea, Separator, Slider, Switch, Tabs and Toggle carried
-  `"use client"` without touching a hook or a handler. A client module poisons every RSC importer
-  downstream — `buttonVariants` could not be read from a server component. 84 client leaves in the
-  registry became 72.
-- **Reduced motion is stated once, globally.** All seventeen `motion-reduce:` copies across eleven
-  components were deleted — the registry now carries zero. The `base.css` reset owns the rule with the
-  one sanctioned `!important`, so a per-component restatement adds nothing and is a second copy that
-  can drift. One copy looked load-bearing and exposed a hole in the reset instead: it zeroed
-  animation _duration_ but not _delay_, so `StaggeredTextReveal` still played its words out one by one
-  over the full stagger window. The reset now zeros `animation-delay` and `transition-delay` too, so
-  the component restates nothing and the rule holds with no carve-out.
-- **`TruncatedText` gains `focusable`,** with a `TruncationFocusProvider` that sets it for a whole
-  region. Clipped text becomes a Tooltip trigger and takes a tab stop — in a 50-row table that is 50
-  extra tab stops layered on a grid's own roving focus, and CSS truncation never hides anything from
-  a screen reader, so the tooltip only ever served sighted keyboard users. `IconText`,
-  `TableCellText` and `RelativeTime` take the same prop.
-  [docs](/docs/components/truncated-text)
-- **One key chip.** `TooltipKbd` renders `Kbd size="xs"` instead of restyling a second `<kbd>`, so a
-  shortcut hint reads identically wherever it appears — and inherits the OS rewrite. `Kbd`'s three
-  sizes now use one type role (`text-code-sm`); `md` reached the same 12px through `text-sm`, the
-  same pixel size named twice. The meaningless `pointer-events-none` on a `<kbd>` is gone.
-  [docs](/docs/components/kbd)
-- **`StatusIcon` sizes are role tokens** — `--icon-inline` / `default` / `action` / `feature`
-  (14 / 16 / 20 / 24px), the ladder Spinner already uses, instead of raw `size-N` steps spelling the
-  same four values. A `Skeleton` line moves to the text radius (`rounded-sm`): 8px on a 16px bar
-  reads as a pill, not as text.
-  [docs](/docs/components/status-icon)
-- **`text-xs` is mono-only.** Seven sites across Attachment, AudioPlayer, Chart and
-  ProgressIndicator were reaching 11px in Geist Sans for density; sans copy now floors at
-  `text-sm` (12px).
-  [docs](/docs/foundations/typography)
 - **ComparisonMatrix**, **PricingSection** — the promoted column and the highlighted plan used
   `info` (blue). `info` is links and informational UI only; promotion is a neutral ladder rung.
   [docs](/docs/components/comparison-matrix) ·
@@ -350,18 +163,6 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
   `2px` outline under `forced-colors: active`, once, for every text-entry control.
   [docs](/docs/foundations/colors) ·
   [`273a602`](https://github.com/VegaStack/vegastack-design/commit/273a602)
-- **An indeterminate `Progress` no longer reads as 100% complete.** Base UI writes no inline width
-  when `value` is `null`, so an indicator styled only for the determinate case inherited the track's
-  full width — an upload in progress looked finished. It is now a 35% segment sweeping the track on
-  the one sanctioned looping utility, `motion-indeterminate`, whose keyframes rest on the same frame
-  at both ends so reduced motion leaves a static segment rather than a full bar.
-  [docs](/docs/components/progress)
-- **`RelativeTime` no longer renders an empty first frame.** A relative label needs `Date.now()`,
-  which the server cannot reproduce, so it used to render `""` until hydration — a visible pop and a
-  layout shift on every row of a list. Server and hydration render now agree on the **absolute** date
-  (`"Mar 15, 2025"`), derived from the target instant alone, and the swap to the relative label is a
-  text change inside a box that is already the right size.
-  [docs](/docs/components/relative-time)
 - **Media chrome no longer inverts in dark** — the video scrim and its controls were built from
   `primary`, which flips with the theme, so in dark the scrim rendered near-white with near-black
   icons. New theme-invariant `--media-scrim`, `--media-scrim-strong` and `--media-foreground`
@@ -399,11 +200,6 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
 - **`@vegastack/design`** → **`0.4.0`** — exports the `surfaceInteractive` and `fillInteractive`
   hover/pressed recipes, plus the `FillTone` type.
 - **`@vegastack/design-tokens`** also drops the retired `--shadow-lit` token.
-- **`@vegastack/design-tokens`** adds `--duration-indeterminate` (1200ms) and the
-  `motion-indeterminate` utility — the ONE sanctioned looping animation.
-- **`@vegastack/design-tokens`** extends the `prefers-reduced-motion` reset with
-  `animation-delay: 0s` / `transition-delay: 0s`, so a staggered entrance lands on its end state at
-  once instead of sequencing over its delay window.
 - The design-system registry (`@vegastack/ui`) bumps 0.6.0 → 0.7.0.
 
 ### 📚 Docs
@@ -415,15 +211,6 @@ aria-modal="true"` and had no focus trap — Tab walked straight out into the hi
 - **Elevation** — "the two roles" is now "the one role"; every foundations page that named
   `shadow-lit` was corrected.
   [docs](/docs/foundations/elevation)
-- **Badge** — a "Minimal — the dense-table treatment" section, real pixel sizes on the Sizes
-  section, and a playground that gained the `bordered` switch and emits `dot={false}` when the
-  switch disagrees with the variant's own default.
-  [docs](/docs/components/badge)
-- **Progress**, **RelativeTime**, **TruncatedText**, **Kbd**, **StatusIcon**, **Skeleton** — each
-  page now explains the mechanism rather than the class name: why an indeterminate bar is a segment,
-  why the first paint is an absolute date, why a grid turns tab stops off, and where reduced motion
-  is actually handled. A duplicate empty heading on the Progress page is gone.
-  [docs](/docs/components/progress)
 - **Colors** — a new surface-ladder specimen renders both themes side by side with the rungs and
   their alpha twins; the sidebar section now says the rail is aliases, not a second palette.
   [docs](/docs/foundations/colors) ·

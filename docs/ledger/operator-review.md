@@ -230,6 +230,82 @@ idempotency check would fail after anyone ran the formatter.
 - **`TruncationFocusProvider` ships without its consumers.** `TruncatedText` / `IconText` / `TableCellText` / `RelativeTime` all take `focusable`, and the provider that sets a region-wide default is exported — but nothing wraps `DataList` / `DataGrid` in it yet, because those files belong to T1 (tables) and the brief made the wiring conditional on T1 having merged first. It has not. So the D9 default (`false` inside a grid) is currently reachable only by an explicit `focusable={false}` or a hand-placed provider. Docs and JSDoc were written to describe the mechanism and the contract rather than claim the hosts already adopt it. **T1 owes the two-line wrap.** Until then a truncated grid cell still takes a tab stop — the pre-existing behaviour, so nothing regressed; the fix just is not complete.
 
 
+---
+
+## 2026-09-08 — T2 judgment calls (chip tiers, the announcer's shape, what did NOT fold in)
+
+**1. The chip tiers are `sm` 28px and `md` 32px — not 24px — and that forces a 2px hover inset.**
+
+- **Options:** (a) `sm` = 24px (`--size-xs`), matching ComboboxChip's shipped height and closest to
+  Tag's 20px; (b) `sm` = 28px (`--size-sm`), `md` = 32px (`--size-md`).
+- **Why (b):** `design.md` §Components states the control scale as "**xs 24 (Button only)** / sm 28
+  / md 32 / lg 40". A chip may not use the xs tier, and a 24px chip cannot hold a 24px remove
+  control at all. So `sm` is 28px, and `Tag` grows 20 → 28px — the largest visible change in this
+  batch.
+- **The cost, stated plainly:** a 24×24 remove control inside a 28px pill leaves a **2px** inset,
+  where §Hover geometry (F1's amendment 2) asks for ≥4px. 24px is a WCAG floor and 28px is the
+  system's tier; they cannot both be honoured, and the target wins. Written into `design.md`'s Chip
+  bullet rather than left as an undocumented deviation. **Flagged for MK:** the alternative is a
+  32px-only chip, which would make every inline tag as tall as a Button.
+
+**2. Chips are `rounded-full` at both tiers, so `FilterChip` stops being a rounded rectangle.**
+
+- `design.md` §Shapes: "`full` is for inherently round / tag-like objects (avatars, switch tracks,
+  badges/chips…)". `FilterChip` and `ComboboxChip` shipped `rounded-md`. One primitive cannot hold
+  two radii without becoming two recipes again, and the doctrine already named the answer, so both
+  moved to `full`. This is a visible change to the FilterBar and to combobox multi-select.
+
+**3. `active` is a NEUTRAL-only promotion.**
+
+- A chromatic hue already carries "this is a labelled thing"; layering a selection rung on top of a
+  tinted fill would produce a colour no token defines. So `active` promotes only the neutral chip,
+  `surface-1` → `surface-2`, and is ignored for a hue. Documented on the prop and in the docs page.
+
+**4. `useAnnouncer` returns a component, and that forced an external store.**
+
+- **Options:** (a) return the rendered element; (b) return a `useCallback`-wrapped component;
+  (c) return a store-backed component memoised on a ref-held store.
+- **Why (c):** the issue specifies `{ announce, Announcer }`, and (b) is a trap — a component whose
+  _type_ identity changes is unmounted and remounted by React, which destroys the live region the
+  platform is observing on every single announcement, i.e. it would silently break the thing the
+  hook exists to guarantee. (c) keeps one stable type for the hook's life and, as a bonus, keeps
+  announcement state out of the host. ~40 extra lines, all of them load-bearing.
+
+**5. The hooks' `getLiveRegionProps()` was renamed, not kept alongside.**
+
+- `useDragReorder`/`useFileDrop` now return `Announcer`. A props-getter cannot express "this node
+  must stay mounted for the component's life", which is half the contract. Per the batch mandate —
+  no shims — the old getter is gone; Board, SortableList and Dropzone (and their tests) are
+  updated. **Cross-batch note for MK:** those three files are not in T2's stated file list but had
+  to move with the API.
+
+**6. CopyButton's live region no longer blanks after the timeout.**
+
+- It used to render `copied ? copiedLabel : ""`, so the region emptied when the button reverted. A
+  live region is announced when its content _changes_; blanking it is a second, silent mutation for
+  no benefit, and the stale text is never read on its own. The region now keeps "Copied", and a new
+  test proves that copying twice in a row still re-announces (previously it could not — the
+  same-string setState was a React bail-out).
+
+**7. What deliberately did NOT fold into Chip.**
+
+- **`Badge bordered`** stays a Badge (the audit says so): status voice, never removable, never a
+  selection. **`ToolCallChip`** and Tabs' `chip` variant were not touched — the first is an AI
+  surface with its own state machine, the second is N1's `selectedChip` recipe.
+
+**8. Two files outside the batch's stated boundary were edited, both unavoidably.**
+
+- `tooling/design-lint.mjs` — `RAW_INTERACTIVE_EXEMPTIONS` for `tag-group.tsx` drops from 2 raw
+  `<button>`s to 1 (tag removal is now `ChipRemove`); the counts are exact, so leaving it would
+  fail the gate. The brief explicitly permits this one.
+- `tooling/verify-component-contracts.mjs` — the inventory expectations are hard-coded there as a
+  second authority (`totalRegistryItems`, `components`, `hooks`, the per-wave counts and member
+  lists). Adding any registry item requires editing it. **Flagged for MK:** that duplication means
+  every future component batch edits a gate script; deriving those numbers from
+  `component-contracts.json` and keeping only the _self-test_ hard-coded would remove the class.
+
+---
+
 ## 2026-09-07 — F1 surface ladder: eye-tuned rung values and the `bg-muted` mapping
 
 **Decision:** ship the ladder at values that differ from `03-proposals.md` §P1's start values wherever the contrast gate said P1's number could not hold, and keep `bg-muted` on the sites where it already means "rung 1".

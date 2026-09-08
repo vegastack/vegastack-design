@@ -196,13 +196,21 @@ Contract for every new animated element:
   Base UI's `data-[highlighted]`/`data-[selected]`/`data-[focused]` styling. `outline-none` on a
   genuinely non-focusable fixed viewport container (a dialog's outer positioner) is fine; a new
   blanket file exemption needs a one-line rationale in `OUTLINE_NONE_EXEMPT`.
-- **Live regions** — a visually hidden `role="status" aria-live="polite"` node holding ONLY the text
-  that should be announced (see `copy-button.tsx`, `auto-save-input.tsx`, `AnimatedNumber`). Announce
-  the destination, never every intermediate frame. Base UI's `Combobox.Empty`/`Combobox.Status` (and
-  `CommandEmpty`/`CommandLoading`) are ALREADY live regions: they must stay mounted — toggle their
-  CHILDREN, never wrap the component in a conditional, and keep them as SIBLINGS of the listbox
-  (nesting `role="status"` inside `role="listbox"` trips `aria-required-children` — a real bug fixed
-  in the Command rebuild).
+- **Live regions — use `useAnnouncer`; do not hand-roll one.** `const { announce, Announcer } =
+useAnnouncer()` (`registry/ui/use-announcer.ts`), one `<Announcer />` per component, mounted for
+  its whole life. The hook owns the three things a hand-rolled region gets wrong: it is mounted
+  **empty from first paint** (a region inserted at the moment it gains text is often never
+  announced), its child is **keyed by a monotonic sequence** so repeating an identical string still
+  re-announces (a same-value `setState` is a React bail-out), and its state lives in the hook's own
+  store so an announcement re-renders the region rather than the host. It replaced five identical
+  `{text, seq}` copies in this registry — writing a sixth is the defect, not the fix. Announce the
+  **destination**, never every intermediate frame; `role="alert"` stays a separate, per-component
+  decision (polite `status` by default, `alert` only for destructive/warning content rendered after
+  mount). A visible status slot is never also the live region — it would announce its own icon
+  swaps. Base UI's `Combobox.Empty`/`Combobox.Status` (and `CommandEmpty`/`CommandLoading`) are
+  ALREADY live regions: they must stay mounted — toggle their CHILDREN, never wrap the component in
+  a conditional, and keep them as SIBLINGS of the listbox (nesting `role="status"` inside
+  `role="listbox"` trips `aria-required-children` — a real bug fixed in the Command rebuild).
 - **Keyboard** — every interactive affordance reachable and operable by keyboard alone. Base UI gives
   this for free for its own interaction model; anything hand-rolled (a custom roving-tabindex group,
   a hit-area expansion) needs its own keyboard test.

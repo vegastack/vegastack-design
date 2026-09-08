@@ -63,3 +63,55 @@ test("has no accessibility violations", async () => {
   const screen = await render(<Example />);
   await expectNoA11yViolations(screen.container);
 });
+
+test("a value truncates inside its own column instead of widening the list", async () => {
+  const screen = await render(
+    <PropertyList aria-label="Record details">
+      <PropertyRow>
+        <PropertyLabel icon={<Globe />}>Domains</PropertyLabel>
+        <PropertyValue>
+          marketing.internal.example-corporation.com
+        </PropertyValue>
+      </PropertyRow>
+    </PropertyList>,
+  );
+  const value = screen
+    .getByText("marketing.internal.example-corporation.com")
+    .element() as HTMLElement;
+  // `truncate` alone is not enough: without `min-w-0` the grid track is forced to the
+  // value's content width and the whole list widens instead of the value ellipsising.
+  expect(value.className).toContain("truncate");
+  expect(value.className).toContain("min-w-0");
+});
+
+test("a single value can opt into wrapping without the list opting in", async () => {
+  const screen = await render(
+    <PropertyList aria-label="Record details">
+      <PropertyRow>
+        <PropertyLabel icon={<Globe />}>Domains</PropertyLabel>
+        <PropertyValue className="overflow-visible whitespace-normal">
+          a very long value that is allowed to wrap over several lines
+        </PropertyValue>
+      </PropertyRow>
+    </PropertyList>,
+  );
+  const value = screen
+    .getByText("a very long value that is allowed to wrap over several lines")
+    .element() as HTMLElement;
+  expect(value.className).toContain("whitespace-normal");
+  expect(value.className).toContain("overflow-visible");
+});
+
+test("each property is one grid row of exactly one dt and one dd", async () => {
+  await render(<Example />);
+  const rows = document.querySelectorAll('[data-slot="property-row"]');
+  expect(rows.length).toBe(2);
+  for (const row of rows) {
+    expect(row.querySelectorAll('dt[data-slot="property-label"]').length).toBe(
+      1,
+    );
+    expect(row.querySelectorAll('dd[data-slot="property-value"]').length).toBe(
+      1,
+    );
+  }
+});

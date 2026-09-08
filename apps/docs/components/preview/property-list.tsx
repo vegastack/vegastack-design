@@ -53,3 +53,31 @@ export function propertyList(): ReactNode {
     </Wrapper>
   );
 }
+
+export function propertyListNarrow(): ReactNode {
+  // The pane at its narrowest: a long value truncates inside its own column instead of
+  // widening the list, and an unset property reads as an honest empty value rather than a
+  // blank row.
+  return (
+    <Wrapper>
+      <PropertyList aria-label="Record details" className="w-full max-w-64">
+        <PropertyRow>
+          <PropertyLabel icon={<Globe />}>Domains</PropertyLabel>
+          <PropertyValue>
+            marketing.internal.example-corporation.com
+          </PropertyValue>
+        </PropertyRow>
+        <PropertyRow>
+          <PropertyLabel icon={<Building2 />}>Name</PropertyLabel>
+          <PropertyValue>Example Corporation Holdings</PropertyValue>
+        </PropertyRow>
+        <PropertyRow>
+          <PropertyLabel icon={<Users />}>Team</PropertyLabel>
+          <PropertyValue>
+            <EmptyValue>Set a value…</EmptyValue>
+          </PropertyValue>
+        </PropertyRow>
+      </PropertyList>
+    </Wrapper>
+  );
+}

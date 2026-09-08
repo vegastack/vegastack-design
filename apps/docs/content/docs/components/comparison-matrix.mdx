@@ -41,6 +41,18 @@ plans are available off-screen.
   file="components/preview/comparison-matrix.tsx"
 />
 
+### Unknown cells and no promoted plan
+
+`highlightedIndex` is optional — omit it and no column is promoted. When a row's `availability`
+array is **shorter** than `plans`, the matrix holds every column open and marks the missing cells
+"Not specified" (overridable per row with `unknownLabel`) rather than shifting the row left or
+silently reading as "not included". An unsupplied value is not a negative claim.
+
+<ComponentPreview
+  name="comparisonMatrixUnknown"
+  file="components/preview/comparison-matrix.tsx"
+/>
+
 ## API Reference
 
 ### ComparisonMatrix

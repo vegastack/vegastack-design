@@ -22,8 +22,8 @@ generated:
       sha256: "bade126afb17ad70f251299bce42d2885f4b94e137a88e2e24479cbcbdbd6994"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 34780
-      sha256: "bf0997bdef1c56a426d936b6aaa4d0b8564d9b0c415c7054e641d10cb3504b4f"
+      bytes: 34433
+      sha256: "4d2a3c16d03cdf49f29cae66e67e2f8d57af5c41522304e52709d955e5145367"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
       bytes: 11669
@@ -212,10 +212,6 @@ themes:
     duration-fast:
       type: "duration"
       value: "150ms"
-    duration-indeterminate:
-      type: "duration"
-      value: "1200ms"
-      description: "1200ms — the loop cadence of the ONE sanctioned looping utility, `motion-indeterminate` (an indeterminate Progress sweep; audit M-06). Not an interaction duration: interactions use fast/base/slow."
     duration-slow:
       type: "duration"
       value: "300ms"
@@ -995,10 +991,6 @@ themes:
     duration-fast:
       type: "duration"
       value: "150ms"
-    duration-indeterminate:
-      type: "duration"
-      value: "1200ms"
-      description: "1200ms — the loop cadence of the ONE sanctioned looping utility, `motion-indeterminate` (an indeterminate Progress sweep; audit M-06). Not an interaction duration: interactions use fast/base/slow."
     duration-slow:
       type: "duration"
       value: "300ms"
@@ -1809,11 +1801,7 @@ renders inside does.
 - **Body** `text-base`(14/21, **default**) — chosen for the reading-heavy surfaces of an agentic-
   enterprise product (logs, descriptions, agent output). `text-lg`(16/24) for leads.
 - **Core scale** `text-xs`(11) → `text-3xl`(24) — the CAP; `text-4xl` and above is off-scale and
-  lint-banned, use a display-tier utility instead. **`text-xs` is mono-only** (TD-3, 2026-09-07):
-  11px is reserved for the code/data roles, and sans copy floors at `text-sm`(12). Seven sites
-  across four components were reaching 11px in Geist Sans for density; they now sit at 12. If a
-  surface still feels too loud at 12, the answer is hierarchy — weight, colour, spacing — not a
-  smaller size the type scale does not offer.
+  lint-banned, use a display-tier utility instead.
 - **Display tier** `text-display-sm/md/lg/xl` (32/40/56/72), weight **400** throughout, tokenized
   tracking tightening −0.04em → −0.06em as size grows — marketing/docs heroes only (§Brand & marketing).
 - **Functional headings** `text-h1`(24) → `text-h3`(18) at **400**; `text-h4`(16) at **500**.
@@ -1892,25 +1880,7 @@ content's intrinsic size throughout close so text does not reflow. Avoid long, l
 **honour `prefers-reduced-motion`**: the global reset collapses `motion-*` keyframes to their resting end
 state, spinners freeze, skeletons go solid, transitions drop to 0 — and a dedicated
 `::view-transition-group/old/new(*)` kill switch covers route-change snapshots the universal `*` reset
-can't reach (they live outside normal element matching, on the root's snapshot layer).
-**Reduced motion is global and is never restated in a component** (audit B2-06, 2026-09-07). The
-`base.css` block owns it with the one sanctioned `!important`, so it already wins over any authored
-duration; a per-component `motion-reduce:animate-none` / `motion-reduce:transition-none` adds nothing
-and is a second copy of a rule that can then drift. Every such copy was deleted — the repo now contains
-**zero** `motion-reduce:` utilities, and that is the enforceable statement of the rule. The one case that
-looked like a genuine exception forced a fix to the reset instead of an exception to the doctrine: the
-block zeroed `animation-duration` and `iteration-count` but not `animation-delay`, so a staggered
-entrance still played out over its full real-time delay window (each word popping instantly, one after
-another) — a moving sequence, not the static end state reduced motion promises. The reset now also zeros
-`animation-delay` and `transition-delay`, `staggered-text-reveal` restates nothing, and the rule holds
-without a carve-out. When a component appears to need its own `motion-reduce:` variant, the reset is
-missing a property; fix the reset. The `data-drag-pending` pulses in
-`board` and `sortable-list` are NOT such a case and went with the rest: `animate-pulse` resolves to
-`opacity: 1` at both ends, so a 0.01ms single iteration already lands on the same resting frame
-`animate-none` would. Anything else is banned.
-A looping animation is likewise banned with one exception: `motion-indeterminate`, the sweeping segment
-of an indeterminate `Progress`, whose keyframes start and end on the same resting frame so the reset
-leaves a static 35% segment rather than a bar that reads as complete. AI surfaces define
+can't reach (they live outside normal element matching, on the root's snapshot layer). AI surfaces define
 streaming reveal, a "thinking" pulse, and tool-progress.
 
 ## Shapes
@@ -1941,24 +1911,6 @@ state. Never inline an ad-hoc `<svg>` as an icon; never mix icon libraries.
 With text that can wrap, align the icon to the **first line**, not the block midpoint: use an
 `items-start` row and a line-height-sized icon wrapper. Keep the icon optically equal to the text size.
 
-**The factory owns the controller; icons are data.** Every mirrored lucide-animated icon is a
-`createAnimatedIcon({ … })` call describing only its geometry, its Motion variants, and — where
-upstream choreography is not a plain play/rest pair — its start/stop steps. The controller lives once
-in `@vegastack/design/create-animated-icon`: the animation controls, the reduced-motion gate, the
-imperative `startAnimation`/`stopAnimation` handle, and the multi-input trigger rules (hover plays on
-a fine pointer, a tap plays on touch, focus plays and blur rests, and every one of them stands down
-once a consumer attaches a ref — including the tap driver, so a ref-controlled icon that omits its
-own `pointerdown` handler is dead on touch). The host is an **`inline-flex` `<span>`** — an icon sits
-inside a line of text, so a block-level box there is a layout bug. Reduced motion is a **live
-subscription** to `prefers-reduced-motion`, not a one-shot read: turning the preference on settles
-every icon already on screen. `<MotionConfig reducedMotion="always">` adds reduction on top; the
-override is **one-way**, because Motion's default context value is `reducedMotion: "never"` and is
-indistinguishable from an explicit one, so honouring it would disable reduced motion for every
-consumer who mounts no `MotionConfig`.
-A behaviour that belongs to every icon belongs in the factory; a generated icon module that contains
-a hook, an event handler, or any JSX is a defect the gate rejects — and each generated module is
-pinned by SHA-256 in the mirror manifest, so a hand-edited path or timing value is rejected too.
-
 ## Components
 
 Each component composes from tokens (frontmatter `recipes` gives the compact machine recipes). One control-height scale —
@@ -1974,14 +1926,14 @@ private size vocabulary.
 - **States** (every button) — default · hover · focus · active · disabled (`opacity-(--opacity-dim)`, 50% + `not-allowed`) · loading (spinner honouring reduced-motion). **Focus = the neutral 2px `:focus-visible` outline (`ring` token = primary ink)** — never a box-shadow glow.
 - **Input / Select / Textarea** — transparent fill on the page (dark adds `bg-input/(--alpha-input)` so the field reads as a well against the dark ground), the one `border`, radius `md`, 32px. **Consistent border scale (one alpha step, no per-mode opacity hacks): rest = `border`/`input`; focus/active = `ring/70`; error = `destructive-border/70`.** The error ink is the ONE deliberate per-theme exception in this scale: `destructive` is tuned as a solid button fill carrying light text, and at 70% on the dark ground it measures **1.92:1** — under the 3:1 WCAG 1.4.11 floor for a non-text indicator — while lightening `destructive` itself would drop `destructive-foreground` on the solid button below 4.5:1. So the border has its own role, `destructive-border` (light `red.700` → 4.24:1, dark `red.400` → 4.00:1). The _alpha_ stays identical across themes; only the ink re-grounds. `tooling/contrast-check.mjs` gates this pair composited over background/card/popover/muted/secondary in both themes. Text-entry fields (Input, Textarea, Field control, OTP slots) use the darkened `ring/70` border as their _sole_ focus indicator — no outline (a raw text input can't distinguish mouse from keyboard, so the border is the one consistent cue for both click and Tab). Button-style triggers (Select, date-picker, country-select, color-picker — built on the `outline` Button variant) darken the border to `ring/70` on focus AND add the neutral 2px outline for keyboard nav (`:focus-visible` only). Never a colour, never a glow. Error = `destructive/70` border + `destructive.text` helper. Disabled = reduced opacity + `not-allowed`.
 - **Card / Panel** — `card` surface, the one `border`, radius `lg`, **flat (no shadow)**.
-- **Badge / Chip / Tag** — the SAME variant vocabulary as Button: `solid` (family fill + on-colour ink) · `soft` (`{family}.subtle` + `{family}.text`, the default) · `outline` (hairline, no fill — the Attio tag chip, also reachable as `bordered` on `soft`) · `minimal`. Radius `full`, except `minimal`, which has no container at all. Neutral resolves to `muted`. **Three REAL size tiers — `sm` 16px · `md` 20px · `lg` 24px** (D8, 2026-09-07): `sm` used to be `md` with 2px less horizontal padding, which is a padding value, not a size; it is now the dense-table chip. **`minimal` is ink only** — no background, no border, and no horizontal padding, so it aligns flush in a table cell instead of faking a pill — and it carries a **leading dot by default**, because a badge with no container has nothing but colour left to signal status with (1.4.1). An `icon` takes the dot's place; `dot={false}` opts out. The dot is 6px (8px at `lg`).
+- **Badge vs Chip — two voices, one shape.** Radius `full` for both. A **Badge** is the STATUS voice: `{family}.subtle` + `{family}.text` (+ a 6px dot), never removable, never a selection. A **Chip** is the LABEL/SELECTION voice, and there is exactly **one** of it (audit B5-03, 2026-09-07): `hue` (the 10 decorative `--tag-*` trios, or neutral) × `size` (`sm` 28px inline tier · `md` 32px control tier) × `active` (the neutral chip's promotion to the selection rung `surface-2`). `Tag`, `FilterChip`, `ComboboxChip` and ChipInput's chips are all that one primitive composed through Base UI `render` — nothing re-derives a pill's height, radius or rest fill. **A chip's root is not interactive and therefore has no hover and no pressed step**; clicking one does nothing, and the ladder is reserved for controls. **Its remove control is a round ghost `IconButton size="xs"` whose REAL border box is 24×24** — the WCAG 2.5.8 target is the button, never an invisible `::before` (Preflight's `appearance: button` clips a nested `<button>`'s generated content to its own border box, so a pseudo hit area there is measurable and un-hittable). At the `sm` tier that 24px control inside a 28px pill leaves a 2px inset rather than the ≥4px §Hover geometry asks for: 24px is a floor and 28px is the tier, so the two cannot both be honoured, and the target wins.
 - **Alert** — `{family}.subtle` background + `{family}.text`, radius `md`, **always paired with an icon** (never colour alone). Info alerts use `info` (blue).
 - **Dialog / Modal** — `popover` surface, the one `border`, radius `lg`, `shadow-overlay`, over the `overlay` scrim. Title `text-h3`/`h4`; actions right-aligned (`ghost` Cancel + intent button).
 - **Dropdown / Menu / Popover / Tooltip / Command palette** — `popover` surface, the one `border`, `shadow-overlay`; items use neutral `accent` hover at radius `sm`; destructive items use `destructive.text`; the selected command row uses `accent`.
 - **Tabs / Segmented** — underline or pill; the **active** tab underline / segment uses `primary` (selection).
 - **Switch / Checkbox / Radio** — neutral **`primary`** ink when on/checked, switch off-track = **`surface-3`** (the pressed rung; there is no `track` token); **Slider** fill = **`primary`**; radius `full` (switch/radio/thumb) or `sm` (checkbox).
-- **Navigation** — breadcrumb (`muted-foreground`, current = `foreground`), pagination (active = `primary`).
-- **Avatars · progress · skeleton** — avatar = `accent` fill + initials; progress/ring fill = `primary`; skeleton shimmer = neutral, at the **text radius** (`sm`) on a line placeholder, since an 8px radius on a 16px bar reads as a pill rather than as text. **An indeterminate `Progress` is a distinct visual, never a full bar**: Base UI writes no width when `value` is `null`, so a bar styled only for the determinate case reads as 100% complete. It renders a 35% segment sweeping the track (`motion-indeterminate`), and `aria-valuenow` is omitted.
+- **Navigation** — breadcrumb (`muted-foreground`, current = `foreground`), pagination (active = `primary`). `Pagination` renders a plain `<nav>`: `<nav>` IS the navigation landmark, so no `role="navigation"`, and its `aria-label` defaults to "Pagination" but MUST be overridden when a page carries more than one pager — two identically named landmarks are an axe `landmark-unique` failure (audit B5-08).
+- **Avatars · progress · skeleton** — avatar = `accent` fill + initials; progress/ring fill = `primary`; skeleton shimmer = neutral.
 - **Content links** — `info` (blue), underlined at rest, and still protected by the global neutral
   focus-visible outline. Navigation and button-like anchors may use their spatial/control affordance
   instead, but must not lose the focus outline.
@@ -2041,6 +1993,7 @@ Copy is part of the design — precise, no filler.
 - **Focus = a border-tint or the native outline — never a box-shadow ring/glow.** Text-entry fields (Input, Textarea, Field control, OTP slots) show ONLY a border-tint (`border-ring/(--alpha-tint-border)`, on plain `focus` not `focus-visible` — a raw text field can't distinguish mouse from keyboard, so the border is the one cue for both). Every other interactive element — buttons, button-style triggers, menu items, portaled overlay surfaces — shows the centralized **2px `:focus-visible` outline** in the `ring` token (= `primary` ink), defined once in `base.css`. Mouse clicks show nothing outside text fields. The `ring` token is one value, so it re-skins globally — change `ring`, every focus state follows.
 - **The one permitted component-local focus deviation: the offset, and only when the outline would not be painted at all.** A focusable element whose outline cannot render outside its border box — an `overflow-hidden` ancestor, or a mask utility such as `scroll-fade-x` (a `mask-image` clips everything the element paints to that box) — keeps the same outline pulled inside with `focus-visible:-outline-offset-2`. Width, colour, and token stay centralized; only the offset inverts. A border-tint is **not** an alternative here: `forced-colors: active` replaces `border-color` outright, so a tint on a non-text-entry control leaves the forced palette with no indicator at all. Terminal's scrollable command pane is the reference case (`docs/ledger/bugs.md`, 2026-07-25).
 - **Never signal by colour alone** (1.4.1) — pair status colour with an icon or label.
+- **Live regions — one hook, one node, one policy** (audit B5-05 / amendment 8, 2026-09-07). Politeness is decided first: `role="status"` `aria-live="polite"` by **default**, and `role="alert"` only for destructive or warning content rendered after mount (D23). Every polite announcement then goes through **`useAnnouncer`** — `const { announce, Announcer } = useAnnouncer()` — and a component renders **exactly one** `<Announcer />`, for its whole life. Three properties are non-negotiable and are why this is a hook rather than a snippet: the region is **mounted empty from first paint** (a region inserted at the moment it gains text is frequently never announced, because the platform was not observing it); its child is **keyed by a monotonic sequence**, so announcing the identical string twice in a row still mutates the DOM and is still spoken (a same-value `setState` is a React bail-out); and the state lives in the hook's own store, so an announcement re-renders the region, not the host. Announce the **destination**, never every intermediate frame — "Moved Design to position 3 of 7", not one message per pointer move. A live region is never also a visible status slot: a slot that renders icons would announce its own icon swaps.
 - **Target size** (2.5.8) — every interactive target has a ≥24×24px hit area or the permitted spacing;
   prefer ≥44×44px for primary mobile actions. Validate invisible hit areas with an actual hit-test boundary
   probe, not computed styles alone.
