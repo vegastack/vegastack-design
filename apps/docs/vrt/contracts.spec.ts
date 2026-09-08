@@ -272,7 +272,7 @@ test.describe("component contract — narrow reflow and RTL", () => {
       // `setTimeout`, which `setClock` then fires — can detach between the visibility
       // assertion and the scroll, failing with "Element is not attached to the DOM".
       // Locators re-resolve on every attempt, so a bounded retry rides the re-render
-      // out instead of racing it. See `docs/ledger/bugs.md`, 2026-09-07.
+      // out instead of racing it. See `docs/ledger/bugs.md`, 2026-09-08.
       await expect
         .poll(async () => {
           try {
