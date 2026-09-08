@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "tree": "tree-32e032f2efa03e2ad9261c4cc6ac42b739e0f61b",
-  "treeFiles": 2728,
-  "head": "664858d672d3545c65942a8f32f4aaadf019424b",
-  "writtenAt": "2026-09-08T18:43:25.356Z",
+  "tree": "tree-ab21425e42c6c7651b8fc75167e32c423919eac1",
+  "treeFiles": 2732,
+  "head": "65deaa3d7725fdb6c723123b1fdcf2abfbcc57ff",
+  "writtenAt": "2026-09-08T19:36:03.936Z",
   "mode": "push",
   "base": {
     "ref": "origin/main",
-    "sha": "f8ca47caf722f39c0c12b083e1a722cfbdbce901"
+    "sha": "aded783897b915e0da8a062e08fab672bd2000ea"
   },
   "host": {
     "platform": "darwin",
@@ -21,30 +21,31 @@
   "contractSha256": "9b3dd62e1fb3c6060d7cafc10d7effb6457b693b81f0cfcbc15dcf5afdf9fa8c",
   "classified": {
     "contracts": true,
-    "unit": true,
+    "unit": false,
     "smoke": true,
-    "contractsReason": "global surface changed (packages/ui/test/geometry.css, packages/ui/test/next-dynamic-stub.tsx)"
+    "contractsReason": "global surface changed (.node-version, .npmrc)"
   },
   "gates": {
     "typecheck": {
       "status": "pass",
-      "durationMs": 6238
+      "durationMs": 9704
     },
     "lint": {
       "status": "pass",
-      "durationMs": 10426
+      "durationMs": 11092
     },
     "unit": {
-      "status": "pass",
-      "durationMs": 59653
+      "status": "skipped",
+      "durationMs": 0,
+      "reason": "no component or package source changed"
     },
     "smoke": {
       "status": "pass",
-      "durationMs": 63791
+      "durationMs": 60357
     },
     "contracts": {
       "status": "pass",
-      "durationMs": 725708,
+      "durationMs": 303592,
       "executed": 888,
       "full": true,
       "scopeRoutes": 111
