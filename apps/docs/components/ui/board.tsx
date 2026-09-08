@@ -1,4 +1,4 @@
-// @vegastack board@0.6.0 sha256-fCzH95Ru8dNGjRXUp9Jdq6vuT0Haw5h4McKCfiTmjlI=
+// @vegastack board@0.6.0 sha256-VKSxa3rM+1MvG9xxWc7jaqJ509LrMjSzxp/gFfmjXZo=
 
 "use client";
 
@@ -352,7 +352,7 @@ export function Board<T>({
                 // PAGE's scroll width (measured; the 320px reflow contract catches it).
                 className="relative h-auto min-h-48 w-(--size-lg) shrink-0 flex-col items-center gap-2 rounded-lg bg-card px-1 py-3"
               >
-                <Badge variant="subtle" size="sm">
+                <Badge variant="soft" size="sm">
                   {column.items.length}
                 </Badge>
                 <span
@@ -388,7 +388,7 @@ export function Board<T>({
                   className="flex min-w-0 items-center gap-2 text-label-sm text-muted-foreground"
                 >
                   <span className="min-w-0 truncate">{column.title}</span>
-                  <Badge variant="subtle" size="sm">
+                  <Badge variant="soft" size="sm">
                     {column.items.length}
                   </Badge>
                 </CardTitle>
@@ -451,7 +451,7 @@ export function Board<T>({
                                 "data-[drop-edge=bottom]:before:absolute data-[drop-edge=bottom]:before:inset-x-0 data-[drop-edge=bottom]:before:-bottom-1 data-[drop-edge=bottom]:before:h-0.5 data-[drop-edge=bottom]:before:bg-primary data-[drop-edge=bottom]:before:content-['']",
                                 // Lift = dim; flat by doctrine, never a shadow.
                                 "data-dragging:opacity-(--opacity-dim)",
-                                "data-drag-pending:animate-pulse motion-reduce:data-drag-pending:animate-none",
+                                "data-drag-pending:animate-pulse",
                               )}
                             >
                               <div

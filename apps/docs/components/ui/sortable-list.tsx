@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.6.0 sha256-kw1GZ3ZE2njgEAiYBVD8hcIjZLOcvdGrqhyf5BOe1rU=
+// @vegastack sortable-list@0.6.0 sha256-ms5/NqaCJ/vnO6CGcmj3E8u3qlbtBM3JeF+NjBe+2xk=
 
 "use client";
 
@@ -184,7 +184,7 @@ export function SortableList({
                 "data-dragging:opacity-(--opacity-dim)",
                 // A server-gated move in flight shimmers (the one sanctioned
                 // loader animation), instantly static under reduced motion.
-                "data-drag-pending:animate-pulse motion-reduce:data-drag-pending:animate-none",
+                "data-drag-pending:animate-pulse",
               )}
             >
               {rowDisabled ? null : (
