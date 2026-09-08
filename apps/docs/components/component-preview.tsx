@@ -22,19 +22,16 @@ import {
  * Without `file` (the frontmatter hero, DC-05) only the "Preview" tab renders, in the same frame
  * as every other example.
  *
- * `hero` suppresses the `data-vrt-preview` key, and that is load-bearing rather than cosmetic.
- * That attribute is the probe key for two lanes, and `contracts.spec.ts` probes
- * `page.locator("[data-vrt-preview]").first()` — so the fixture that gets measured is simply the
- * FIRST one carrying the key in DOM order, per route. Nothing chooses it: not
- * `component-contracts.json`, not the page frontmatter. The hero renders above every body example,
- * so stamping it would not add coverage — it would silently MOVE the blocking gate from the
- * documented example fixture to the hero, on all 110 routes, as a side effect of a chrome change.
- * The hero therefore renders identical chrome and stays out of the probe, which keeps the measured
- * fixture exactly the one `main` measured. Measured: moving it fails timeline, data-grid and
- * text-edit on the 24px target floor — real, previously unmeasured defects, recorded in
- * `docs/ledger/bugs.md` (2026-09-07) with the one-line reproduction, for the component batches to
- * fix. Probing EVERY contract-listed fixture instead of `.first()` is the root fix, raised for
- * G1-b.
+ * `hero` suppresses the `data-vrt-preview` key. The two Playwright lanes that probed that
+ * attribute over the built docs export — the contract suite and the before/after pixel capture —
+ * were deleted with the attestation stack, so nothing reads it as a probe key today; the blocking
+ * visual gate is `packages/ui/test/geometry.browser.test.tsx`, which mounts EVERY preview fixture
+ * from the barrel and needs no marker. The attribute is kept as a stable hook for ad-hoc local
+ * inspection, and the hero stays out of it so a chrome change cannot silently change what a
+ * hand-run probe measures. Historical note: while the probe was live it measured only the FIRST
+ * keyed fixture per route, and stamping the hero was measured to fail timeline, data-grid and
+ * text-edit on the 24px target floor — real defects recorded in `docs/ledger/bugs.md`
+ * (2026-09-07). The geometry suite now measures all of them, so that gap is closed at the root.
  */
 export async function ComponentPreview({
   name,

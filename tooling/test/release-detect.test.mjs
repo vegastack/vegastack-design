@@ -68,6 +68,12 @@ function fixture({ changesets = [], commits = [] } = {}) {
     git("config", "user.name", "t");
     for (const files of commits) {
       for (const [path, content] of Object.entries(files)) {
+        // `null` DELETES the path in that commit — which is what `changeset version` does to
+        // `.changeset/*.md`, and the only way to build a ref whose tree differs from the disk.
+        if (content === null) {
+          rmSync(join(repo, path), { force: true });
+          continue;
+        }
         mkdirSync(join(repo, path, ".."), { recursive: true });
         writeFileSync(join(repo, path), content);
       }
@@ -132,6 +138,58 @@ describe("release-detect", () => {
     });
     const { outputs } = runIn(repo, ["--before", "HEAD~1", "--after", "HEAD"]);
     expect(outputs).toEqual({ has_changesets: "false", publish: "false" });
+  });
+
+  /**
+   * THE VERSION-PR CASE, and the reason `--after` governs the changeset read at all. `changeset
+   * version` consumes `.changeset/*.md`, so the commit under test carries none while the runner's
+   * working tree may still hold them. Reading the tree answers a different question and flips
+   * `has_changesets` — which is exactly the wrong answer for the push that should PUBLISH.
+   */
+  const CHANGESET = '---\n"@vegastack/design": patch\n---\n\nfix\n';
+
+  it("reads .changeset from --after, not from the working tree", () => {
+    const repo = fixture({
+      commits: [
+        { ".changeset/pending-0.md": CHANGESET },
+        {
+          ".changeset/pending-0.md": null,
+          "packages/design/CHANGELOG.md": "# 1.0.1\n",
+        },
+      ],
+    });
+    // The tree disagrees with the ref, the way a Version-PR runner's tree does.
+    writeFileSync(join(repo, ".changeset/pending-0.md"), CHANGESET);
+
+    const { outputs } = runIn(repo, ["--before", "HEAD~1", "--after", "HEAD"]);
+    expect(outputs.has_changesets).toBe("false");
+    // …and the range still reaches the release path, because `packages/` changed.
+    expect(outputs.publish).toBe("true");
+  });
+
+  it("sees a changeset that exists at --after but not in the working tree", () => {
+    const repo = fixture({
+      commits: [
+        { "docs/a.md": "one\n" },
+        { ".changeset/pending-0.md": CHANGESET },
+      ],
+    });
+    rmSync(join(repo, ".changeset/pending-0.md"), { force: true });
+
+    const { outputs } = runIn(repo, ["--before", "HEAD~1", "--after", "HEAD"]);
+    expect(outputs).toEqual({ has_changesets: "true", publish: "true" });
+  });
+
+  it("falls back to the working tree when no ref is given", () => {
+    const repo = fixture({
+      commits: [
+        { ".changeset/pending-0.md": CHANGESET },
+        { ".changeset/pending-0.md": null },
+      ],
+    });
+    writeFileSync(join(repo, ".changeset/pending-0.md"), CHANGESET);
+
+    expect(runIn(repo).outputs.has_changesets).toBe("true");
   });
 
   it("rejects an unknown flag rather than silently ignoring it", () => {

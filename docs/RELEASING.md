@@ -76,8 +76,9 @@ workflow changes out of a changeset-bearing push if package work unexpectedly be
 `deploy.yml`'s `verify` each run `pnpm verify` — typecheck, lint, `design:verify`, and the
 `@vegastack/ui` browser suite including the geometry contracts — on the LAN Linux runners inside the
 pinned Playwright container. `deploy.yml` adds `pnpm verify:release` (docs export, links, metadata,
-registry build and idempotency, the shadcn consume round-trip, and the complete suite in all three
-engines) before `build-sign-deploy` starts.
+the docs-shell contracts over that export plus their self-test, registry build and idempotency, the
+shadcn consume round-trip, and the complete suite in all three engines) before `build-sign-deploy`
+starts.
 
 Until 2026-09-08 none of that ran in CI: no free runner could launch a browser, so those lanes ran in
 `.husky/pre-push` and a local full-sweep command on a developer machine and were **attested** by

@@ -8,6 +8,7 @@
 //   node docs/audits/2026-09-07-system-audit/capture.mjs --routes button,input   # or --all
 //   --port <n>   use an already running `serve out` on that port (else one is started)
 //   --no-focus   skip the Tab-walk lane
+//   --list       print the contract routes it would capture, and exit
 //
 // Output: docs/audits/2026-09-07-system-audit/captures/<route>/…  (gitignored, evidence only)
 import { createRequire } from "node:module";
@@ -18,37 +19,31 @@ import { createServer } from "node:net";
 
 const root = path.resolve(import.meta.dirname, "../../..");
 const docs = path.join(root, "apps/docs");
-const require = createRequire(path.join(docs, "package.json"));
-const { chromium } = require("@playwright/test");
+const { chromium } = await import("playwright");
 const uiRequire = createRequire(path.join(root, "packages/ui/package.json"));
 const axeSource = fs.readFileSync(
   uiRequire.resolve("axe-core/axe.min.js"),
   "utf8",
 );
-const { COMPONENT_ROUTES, BLOCK_ROUTES } = await import(
-  path.join(docs, "vrt/contract-routes.generated.ts")
-).catch(async () => {
-  // .ts import needs a loader on some Node versions; fall back to a regex read.
-  const text = fs.readFileSync(
-    path.join(docs, "vrt/contract-routes.generated.ts"),
+// Routes come straight from the machine authority, `packages/ui/component-contracts.json`
+// (`docsSlug` per record). It used to read `apps/docs/vrt/contract-routes.generated.ts`, a build
+// output that nothing generates any more — the contract and pixel lanes that consumed it were
+// deleted with the attestation stack, and so was the generator's entry for it. The contract is one
+// hop closer to the authority and cannot go stale.
+const contracts = JSON.parse(
+  fs.readFileSync(
+    path.join(root, "packages/ui/component-contracts.json"),
     "utf8",
-  );
-  const grab = (name) =>
-    [
-      ...text.matchAll(
-        new RegExp(`export const ${name} = \\[([^\\]]*)\\]`, "s"),
-      ),
-    ][0]?.[1]
-      .match(/"[^"]+"/g)
-      ?.map((s) => s.slice(1, -1)) ?? [];
-  return {
-    COMPONENT_ROUTES: grab("COMPONENT_ROUTES"),
-    BLOCK_ROUTES: grab("BLOCK_ROUTES"),
-  };
-});
+  ),
+);
+const COMPONENT_ROUTES = contracts.components
+  .map((record) => record.docsSlug)
+  .sort();
+const BLOCK_ROUTES = contracts.blocks.map((record) => record.docsSlug).sort();
+const allRoutes = [...COMPONENT_ROUTES, ...BLOCK_ROUTES];
 
 const args = process.argv.slice(2);
-const opt = { routes: null, all: false, port: null, focus: true };
+const opt = { routes: null, all: false, port: null, focus: true, list: false };
 for (let i = 0; i < args.length; i++) {
   const a = args[i];
   if (a === "--all") opt.all = true;
@@ -59,8 +54,15 @@ for (let i = 0; i < args.length; i++) {
       .filter(Boolean);
   else if (a === "--port") opt.port = Number(args[++i]);
   else if (a === "--no-focus") opt.focus = false;
+  else if (a === "--list" || a === "--help" || a === "-h") opt.list = true;
 }
-const allRoutes = [...COMPONENT_ROUTES, ...BLOCK_ROUTES];
+if (opt.list) {
+  console.log(
+    `capture: ${allRoutes.length} contract routes (${COMPONENT_ROUTES.length} components + ${BLOCK_ROUTES.length} blocks)`,
+  );
+  for (const route of allRoutes) console.log(`  ${route}`);
+  process.exit(0);
+}
 const routes = opt.all
   ? allRoutes
   : (opt.routes ?? []).map((r) =>

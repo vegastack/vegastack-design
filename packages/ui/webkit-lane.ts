@@ -1,7 +1,8 @@
-// Host-conditional WebKit for the two cross-engine browser lanes — the cross-browser smoke subset
-// (vitest.smoke.config.ts) and the full three-engine suite (vitest.all-browsers.config.ts). Both
-// add WebKit + Firefox on top of the base Chromium config; this module decides whether WebKit is
-// actually included on the current host.
+// Host-conditional WebKit for the cross-engine browser lane — the full three-engine suite
+// (vitest.all-browsers.config.ts), run by `pnpm verify:release`. It adds WebKit + Firefox on top of
+// the base Chromium config; this module decides whether WebKit is actually included on the current
+// host. (There was a second consumer, the risk-selected smoke subset; it was deleted with the
+// attestation stack, since the release run covers everything it sampled.)
 //
 // WHY (2026-08-28): Playwright's WebKit render child (WebContent) links the system WebKit.framework
 // by ABSOLUTE path and needs the `_OBJC_CLASS_$__WKBrowserContext` symbol. webkit-2311 targets the

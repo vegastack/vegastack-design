@@ -269,14 +269,16 @@ target: "@ui/<name>.tsx" }]` — the `@ui/` placeholder, never a hard-coded path
    states, motion, engines, or test files) the component's record in
    [`packages/ui/component-contracts.json`](../../../packages/ui/component-contracts.json), then run
    `pnpm design:derived`. It refreshes the committed prose surfaces (the component matrix, the
-   public skill roster, AGENTS.md § Numbers) — commit those — and it regenerates
-   `apps/docs/vrt/contract-routes.generated.ts`, the route list consumed by BOTH the contract gate
-   (`contracts.spec.ts`) and the local before/after capture (`components.spec.ts`). That route list
-   and its four sibling `*.generated.*` files are **untracked build outputs**: `prepare:content`
-   writes them, `.gitignore` excludes them, and there is nothing to stage — the authority you commit
-   is the contract record. Never hand-edit a generated file. Both suites cover all four Playwright
-   lanes from that one route — do not author a per-page `describe`, and never leave a skipped visual
-   test (rejected by `tooling/content-lint.mjs`).
+   public skill roster, the audit register, AGENTS.md § Numbers, README § Inventory) — commit those
+   — and it writes the two **untracked build outputs**,
+   `apps/docs/lib/home-component-catalog.generated.ts` and
+   `apps/docs/components/animated-icon-gallery.generated.tsx` (`tooling/lib/derived-build-outputs.mjs`
+   is the list). `prepare:content` writes those, `.gitignore` excludes them, and there is nothing to
+   stage — the authority you commit is the contract record. No lane consumes a generated route list
+   any more: the contract and pixel suites that did were deleted, and the blocking visual gate
+   (`packages/ui/test/geometry.browser.test.tsx`) reads the preview barrel directly. Never
+   hand-edit a generated file, and never leave a skipped visual test (rejected by
+   `tooling/content-lint.mjs`).
 
 ## 7. Verify
 

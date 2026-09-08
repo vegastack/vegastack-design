@@ -14,38 +14,35 @@
 //
 //   node docs/audits/2026-09-07-system-audit/probe-states.mjs --routes tabs,button   # or --all
 //   --port <n>  reuse a running `serve out`
+//   --list      print the contract routes it would probe, and exit
 
-import { createRequire } from "node:module";
 import fs from "node:fs";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { createServer } from "node:net";
-import { ensureBuildOutputs } from "../../../tooling/lib/derived-build-outputs.mjs";
-
-// `contract-routes.generated.ts` read below is a gitignored BUILD OUTPUT (WP4/R4), so this probe
-// can run before any build has written it. Generate on demand — a no-op stat when it is present.
-ensureBuildOutputs();
 
 const root = path.resolve(import.meta.dirname, "../../..");
 const docs = path.join(root, "apps/docs");
-const require = createRequire(path.join(docs, "package.json"));
-const { chromium } = require("@playwright/test");
-const text = fs.readFileSync(
-  path.join(docs, "vrt/contract-routes.generated.ts"),
-  "utf8",
+const { chromium } = await import("playwright");
+// Routes come straight from the machine authority, `packages/ui/component-contracts.json`
+// (`docsSlug` per record). It used to read `apps/docs/vrt/contract-routes.generated.ts`, a build
+// output that nothing generates any more — the contract and pixel lanes that consumed it were
+// deleted with the attestation stack, and so was the generator's entry for it. The contract is one
+// hop closer to the authority and cannot go stale.
+const contracts = JSON.parse(
+  fs.readFileSync(
+    path.join(root, "packages/ui/component-contracts.json"),
+    "utf8",
+  ),
 );
-const grab = (name) =>
-  [
-    ...text.matchAll(
-      new RegExp(`export const ${name} = \\[([^\\]]*)\\]`, "gs"),
-    ),
-  ][0]?.[1]
-    ?.match(/"[^"]+"/g)
-    ?.map((s) => s.slice(1, -1)) ?? [];
-const allRoutes = [...grab("COMPONENT_ROUTES"), ...grab("BLOCK_ROUTES")];
+const COMPONENT_ROUTES = contracts.components
+  .map((record) => record.docsSlug)
+  .sort();
+const BLOCK_ROUTES = contracts.blocks.map((record) => record.docsSlug).sort();
+const allRoutes = [...COMPONENT_ROUTES, ...BLOCK_ROUTES];
 
 const args = process.argv.slice(2);
-const opt = { routes: null, all: false, port: null, dark: false };
+const opt = { routes: null, all: false, port: null, dark: false, list: false };
 for (let i = 0; i < args.length; i++) {
   const a = args[i];
   if (a === "--all") opt.all = true;
@@ -56,6 +53,14 @@ for (let i = 0; i < args.length; i++) {
       .filter(Boolean);
   else if (a === "--port") opt.port = Number(args[++i]);
   else if (a === "--dark") opt.dark = true;
+  else if (a === "--list" || a === "--help" || a === "-h") opt.list = true;
+}
+if (opt.list) {
+  console.log(
+    `probe-states: ${allRoutes.length} contract routes (${COMPONENT_ROUTES.length} components + ${BLOCK_ROUTES.length} blocks)`,
+  );
+  for (const route of allRoutes) console.log(`  ${route}`);
+  process.exit(0);
 }
 const routes = opt.all
   ? allRoutes

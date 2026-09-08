@@ -31,8 +31,9 @@
 // this they were executed by no gate at all — not `pnpm lint`, not CI, not the release chain.
 //
 // RELEASE — the outward-step extras, run only by deploy.yml (and by hand before a deploy):
-//   the docs export in BOTH visibility matrices, the link check, the registry build and its
-//   idempotency assertion, the real `shadcn add` consume round-trip, and the three-engine suite.
+//   the docs export in BOTH visibility matrices, the link check, the docs-shell contracts over that
+//   export (and their self-test), the registry build and its idempotency assertion, the real
+//   `shadcn add` consume round-trip, and the three-engine suite.
 
 import { spawn } from "node:child_process";
 import { constants } from "node:os";
@@ -103,6 +104,20 @@ const MODES = {
     {
       name: "docs lint:links (public)",
       argv: ["pnpm", "-F", "@vegastack/docs", "lint:links"],
+      env: { SITE_VISIBILITY: "public" },
+    },
+    // Reads the PUBLIC export the two steps above left on disk, in a real browser: the docs shell
+    // must obey the design system it documents (DC-01/02/03/06/12). `--self-test` follows it
+    // immediately because it needs the same built export and would otherwise have to rebuild — it
+    // cannot live in `pnpm test:tooling`, which runs with no docs build at all.
+    {
+      name: "docs shell contracts (public)",
+      argv: ["node", "tooling/verify-docs-shell.mjs"],
+      env: { SITE_VISIBILITY: "public" },
+    },
+    {
+      name: "docs shell contracts --self-test",
+      argv: ["node", "tooling/verify-docs-shell.mjs", "--self-test"],
       env: { SITE_VISIBILITY: "public" },
     },
     { name: "registry:build", argv: ["pnpm", "registry:build"] },

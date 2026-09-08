@@ -25,5 +25,7 @@ changeset invalidates; the contract verifier is the durable authority.)
 No lower-severity deferral is approved by this document. The independent hit-area closeout's two
 verifier P1s, two target-width P1s, and two geometry/tolerance P2s were all corrected before the
 final registry build, and the geometry/tolerance contract they cover is now enforced continuously by
-the pointer-target probe in `apps/docs/vrt/contracts.spec.ts`. Any remaining entry is an
+the pointer-target probe in `packages/ui/test/geometry.browser.test.tsx` (it lived in
+`apps/docs/vrt/contracts.spec.ts` when this ledger was written; that suite was deleted in 2026-09
+and the probe was ported into the browser-unit gate). Any remaining entry is an
 acceptance-evidence blocker named explicitly in `zero-gap-proof.md`, not an unrecorded code deferral.

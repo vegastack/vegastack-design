@@ -317,8 +317,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "marker",
       "dataAttributes": {
@@ -529,8 +528,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "message",
       "dataAttributes": {
@@ -791,8 +789,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "bubble",
       "dataAttributes": {
@@ -1052,8 +1049,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "message-scroller",
       "dataAttributes": {
@@ -1445,8 +1441,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "attachment",
       "dataAttributes": {
@@ -1624,8 +1619,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "tool-call-chip",
       "dataAttributes": {
@@ -1814,8 +1808,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "button",
       "dataAttributes": {
@@ -1962,8 +1955,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "badge",
       "dataAttributes": {}
@@ -2072,8 +2064,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "tag-group",
       "dataAttributes": {
@@ -2286,8 +2277,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "stat",
       "dataAttributes": {
@@ -2517,8 +2507,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "alert",
       "dataAttributes": {
@@ -2669,8 +2658,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "selected"
+        "vrt": "required"
       },
       "previewModule": "input",
       "dataAttributes": {
@@ -2989,8 +2977,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "field",
       "dataAttributes": {
@@ -3369,8 +3356,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "dialog",
       "dataAttributes": {
@@ -3736,8 +3722,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "select",
       "dataAttributes": {
@@ -4313,8 +4298,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "combobox",
       "dataAttributes": {
@@ -4650,8 +4634,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "tooltip",
       "dataAttributes": {
@@ -5035,8 +5018,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "dropdown-menu",
       "dataAttributes": {
@@ -5213,8 +5195,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "tabs",
       "dataAttributes": {
@@ -5465,8 +5446,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "card",
       "dataAttributes": {
@@ -5659,8 +5639,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "kbd",
       "dataAttributes": {
@@ -5818,8 +5797,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "selected"
+        "vrt": "required"
       },
       "previewModule": "skeleton",
       "dataAttributes": {
@@ -5950,8 +5928,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "spinner",
       "dataAttributes": {
@@ -6062,8 +6039,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "separator",
       "dataAttributes": {
@@ -6364,8 +6340,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "empty",
       "dataAttributes": {
@@ -6586,8 +6561,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "selected"
+        "vrt": "required"
       },
       "previewModule": "checkbox",
       "dataAttributes": {
@@ -6723,8 +6697,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "switch",
       "dataAttributes": {
@@ -6878,8 +6851,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "avatar",
       "dataAttributes": {
@@ -6990,8 +6962,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "label",
       "dataAttributes": {
@@ -7105,8 +7076,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "textarea",
       "dataAttributes": {
@@ -7260,8 +7230,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "radio-group",
       "dataAttributes": {
@@ -7377,8 +7346,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "slider",
       "dataAttributes": {
@@ -7498,8 +7466,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "toggle",
       "dataAttributes": {
@@ -7627,8 +7594,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "toggle-group",
       "dataAttributes": {
@@ -7797,8 +7763,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "segmented",
       "dataAttributes": {
@@ -7979,8 +7944,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "accordion",
       "dataAttributes": {
@@ -8148,8 +8112,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "collapsible",
       "dataAttributes": {
@@ -8577,8 +8540,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "floating-surface",
       "dataAttributes": {
@@ -8813,8 +8775,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "popover",
       "dataAttributes": {
@@ -9126,8 +9087,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "alert-dialog",
       "dataAttributes": {
@@ -9321,8 +9281,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "progress",
       "dataAttributes": {
@@ -9593,8 +9552,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "breadcrumb",
       "dataAttributes": {
@@ -9890,8 +9848,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "navigation-menu",
       "dataAttributes": {
@@ -10256,8 +10213,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "sheet",
       "dataAttributes": {
@@ -10485,8 +10441,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "hover-card",
       "dataAttributes": {
@@ -10861,8 +10816,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "context-menu",
       "dataAttributes": {
@@ -11121,8 +11075,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "pagination",
       "dataAttributes": {
@@ -11286,8 +11239,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "scroll-area",
       "dataAttributes": {
@@ -11443,8 +11395,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "resizable",
       "dataAttributes": {
@@ -11693,8 +11644,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "table",
       "dataAttributes": {
@@ -11888,8 +11838,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "status-icon",
       "dataAttributes": {
@@ -12047,8 +11996,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "selected"
+        "vrt": "required"
       },
       "previewModule": "progress-indicator",
       "dataAttributes": {
@@ -12231,8 +12179,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "truncated-text",
       "dataAttributes": {
@@ -12395,8 +12342,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "icon-button",
       "dataAttributes": {
@@ -12504,8 +12450,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "selected"
+        "vrt": "required"
       },
       "previewModule": "copy-button",
       "dataAttributes": {
@@ -12622,8 +12567,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "selected"
+        "vrt": "required"
       },
       "previewModule": "password-input",
       "dataAttributes": {
@@ -12745,8 +12689,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "otp-input",
       "dataAttributes": {
@@ -12857,8 +12800,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "split-button",
       "dataAttributes": {
@@ -13022,8 +12964,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "editable-cell",
       "dataAttributes": {
@@ -13138,8 +13079,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "number-field",
       "dataAttributes": {
@@ -13309,8 +13249,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "chip",
       "dataAttributes": {
@@ -13434,8 +13373,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "chip-input",
       "dataAttributes": {
@@ -13550,8 +13488,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "action-bar",
       "dataAttributes": {
@@ -13692,8 +13629,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "stepper",
       "dataAttributes": {
@@ -13850,8 +13786,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "timeline",
       "dataAttributes": {
@@ -13994,8 +13929,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "shortcut-overlay",
       "dataAttributes": {
@@ -14150,8 +14084,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "filter-bar-managed",
       "dataAttributes": {
@@ -14303,8 +14236,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "selected"
+        "vrt": "required"
       },
       "previewModule": "sortable-list",
       "dataAttributes": {
@@ -14474,8 +14406,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "selected"
+        "vrt": "required"
       },
       "previewModule": "board",
       "dataAttributes": {
@@ -14624,8 +14555,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "selected"
+        "vrt": "required"
       },
       "previewModule": "dropzone",
       "dataAttributes": {
@@ -14759,8 +14689,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "field-inline",
       "dataAttributes": {
@@ -14866,8 +14795,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "relative-time",
       "dataAttributes": {
@@ -15011,8 +14939,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "settings-row",
       "dataAttributes": {
@@ -15162,8 +15089,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "image",
       "dataAttributes": {
@@ -15324,8 +15250,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "audio-player",
       "dataAttributes": {
@@ -15492,8 +15417,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "video-player",
       "dataAttributes": {
@@ -15611,8 +15535,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "selected"
+        "vrt": "required"
       },
       "previewModule": "notification-bell",
       "dataAttributes": {
@@ -15743,8 +15666,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "onboarding-checklist",
       "dataAttributes": {
@@ -15880,8 +15802,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "markdown-view",
       "dataAttributes": {
@@ -15982,8 +15903,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "code-block",
       "dataAttributes": {
@@ -16109,8 +16029,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "sonner",
       "dataAttributes": {
@@ -16227,8 +16146,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "provider",
       "dataAttributes": {}
@@ -16537,8 +16455,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "command",
       "dataAttributes": {
@@ -16753,8 +16670,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "page-header",
       "dataAttributes": {
@@ -17224,8 +17140,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "sidebar",
       "dataAttributes": {
@@ -17548,8 +17463,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "app-shell",
       "dataAttributes": {
@@ -17746,8 +17660,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "filter-bar",
       "dataAttributes": {
@@ -17891,8 +17804,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "selected"
+        "vrt": "required"
       },
       "previewModule": "auto-save-input",
       "dataAttributes": {
@@ -18023,8 +17935,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "country-select",
       "dataAttributes": {
@@ -18174,8 +18085,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "region-select",
       "dataAttributes": {
@@ -18410,8 +18320,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "date-picker",
       "dataAttributes": {
@@ -18603,8 +18512,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "color-picker",
       "dataAttributes": {
@@ -18758,8 +18666,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "emoji-picker",
       "dataAttributes": {
@@ -18936,8 +18843,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "data-list",
       "dataAttributes": {
@@ -19141,8 +19047,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected"
+        "vrt": "required"
       },
       "previewModule": "data-grid",
       "dataAttributes": {
@@ -19333,8 +19238,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "property-list",
       "dataAttributes": {
@@ -19691,8 +19595,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "item",
       "dataAttributes": {
@@ -19979,8 +19882,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "chart",
       "dataAttributes": {
@@ -20102,8 +20004,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "selected"
+        "vrt": "required"
       },
       "previewModule": "animated-number",
       "dataAttributes": {
@@ -20234,8 +20135,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "text-edit",
       "dataAttributes": {
@@ -20342,8 +20242,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "marketing-surface",
       "dataAttributes": {}
@@ -20439,8 +20338,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "section-header",
       "dataAttributes": {
@@ -20551,8 +20449,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "figure-frame",
       "dataAttributes": {
@@ -20674,8 +20571,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "terminal",
       "dataAttributes": {
@@ -20795,8 +20691,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "logo-row",
       "dataAttributes": {
@@ -20906,8 +20801,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "testimonial",
       "dataAttributes": {
@@ -21013,8 +20907,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "announcement-banner",
       "dataAttributes": {
@@ -21138,8 +21031,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "ruled-band",
       "dataAttributes": {
@@ -21277,8 +21169,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "pricing-section",
       "dataAttributes": {
@@ -21428,8 +21319,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "comparison-matrix",
       "dataAttributes": {
@@ -21555,8 +21445,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "staggered-text-reveal",
       "dataAttributes": {
@@ -21666,8 +21555,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "particle-field",
       "dataAttributes": {
@@ -24245,8 +24133,7 @@
         "docs": "shared-guide-only",
         "navigation": "exempt",
         "preview": "exempt",
-        "vrt": "exempt",
-        "crossBrowserSmoke": "selected"
+        "vrt": "exempt"
       }
     },
     {
@@ -24337,8 +24224,7 @@
         "docs": "shared-guide-only",
         "navigation": "exempt",
         "preview": "exempt",
-        "vrt": "exempt",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "exempt"
       }
     },
     {
@@ -24471,8 +24357,7 @@
         "docs": "shared-guide-only",
         "navigation": "exempt",
         "preview": "exempt",
-        "vrt": "exempt",
-        "crossBrowserSmoke": "selected"
+        "vrt": "exempt"
       }
     },
     {
@@ -24593,8 +24478,7 @@
         "docs": "shared-guide-only",
         "navigation": "exempt",
         "preview": "exempt",
-        "vrt": "exempt",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "exempt"
       }
     },
     {
@@ -24694,8 +24578,7 @@
         "docs": "shared-guide-only",
         "navigation": "exempt",
         "preview": "exempt",
-        "vrt": "exempt",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "exempt"
       }
     },
     {
@@ -24804,8 +24687,7 @@
         "docs": "shared-guide-only",
         "navigation": "exempt",
         "preview": "exempt",
-        "vrt": "exempt",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "exempt"
       }
     },
     {
@@ -24878,8 +24760,7 @@
         "docs": "shared-guide-only",
         "navigation": "exempt",
         "preview": "exempt",
-        "vrt": "exempt",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "exempt"
       }
     }
   ],
@@ -25140,8 +25021,7 @@
         "docs": "required",
         "navigation": "required",
         "preview": "required",
-        "vrt": "required",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
+        "vrt": "required"
       },
       "previewModule": "dashboard-01"
     }
@@ -25154,8 +25034,7 @@
         "per-item-test",
         "per-item-docs-page",
         "per-item-navigation-entry",
-        "per-item-preview-module",
-        "per-item-VRT-route"
+        "per-item-preview-module"
       ],
       "rationale": "The 439 deterministic generated mirrors share one schema, generator, icon gallery, and Icons foundation page; exact membership and every source export remain fail-closed."
     },
@@ -25170,12 +25049,6 @@
         "rendered-a11y-states"
       ],
       "rationale": "Pure hooks have source and browser tests but no independently rendered component surface; use-animation-replay is additionally exercised by the three-engine release run."
-    },
-    {
-      "id": "cross-browser-smoke-is-risk-selected",
-      "appliesTo": ["components[*]", "hooks[*]", "blocks[*]"],
-      "exemptFrom": ["universal-cross-browser-selection"],
-      "rationale": "Every run of `pnpm verify` — local and CI — runs the complete browser-unit suite in Chromium; `pnpm verify:release` runs the complete suite in all three engines before a deploy. The risk-selected cross-engine smoke lane was deleted with the attestation stack; the release run covers everything it sampled."
     },
     {
       "id": "sonner-human-facing-alias",

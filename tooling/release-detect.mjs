@@ -12,7 +12,8 @@
 // is the release path decision, and only that.
 //
 // OUTPUTS (printed, and written as key=value to $GITHUB_OUTPUT when it is set)
-//   has_changesets   pending changesets exist, so the run opens a Version PR rather than publishing
+//   has_changesets   pending changesets exist AT `--after` (working tree when no ref is given), so
+//                    the run opens a Version PR rather than publishing
 //   publish          the release path is reachable for this push
 
 import { spawnSync } from "node:child_process";
@@ -39,11 +40,46 @@ for (let index = 0; index < argv.length; index += 1) {
   }
 }
 
+/**
+ * The pending changesets AT `--after`, not in the working tree.
+ *
+ * REF-ACCURATE ON PURPOSE. `release.yml` calls this with the push's `before`/`after` shas, and the
+ * only question it answers is "what does THAT COMMIT do". A working-tree read is the same thing
+ * only by accident — it differs exactly in the case that matters most, the **Version PR**:
+ * `changeset version` CONSUMES `.changeset/*.md`, so a checkout of the version commit has none
+ * while a runner whose tree was written by an earlier step may still. The shell classifier this
+ * replaces read `git ls-tree "$after" .changeset/`; dropping that was a silent behaviour change.
+ * With no `--after` (a developer asking about the tree in front of them) the working tree IS the
+ * right answer, and stays the fallback — as it is when the ref does not resolve.
+ */
 const changesetFiles = (() => {
-  try {
-    return readdirSync(join(ROOT, ".changeset")).filter(
-      (name) => name.endsWith(".md") && name !== "README.md",
+  const isChangeset = (name) => name.endsWith(".md") && name !== "README.md";
+  if (options.after) {
+    const listed = spawnSync(
+      "git",
+      ["ls-tree", "--name-only", `${options.after}:.changeset`],
+      { cwd: ROOT, encoding: "utf8" },
     );
+    // status !== 0 covers both "the ref does not resolve" and "that commit has no .changeset/".
+    if (listed.status === 0)
+      return (listed.stdout ?? "")
+        .split("\n")
+        .map((name) => name.trim())
+        .filter((name) => name && isChangeset(name));
+    if (
+      spawnSync(
+        "git",
+        ["rev-parse", "--verify", "--quiet", `${options.after}^{commit}`],
+        {
+          cwd: ROOT,
+          encoding: "utf8",
+        },
+      ).status === 0
+    )
+      return []; // the commit exists and simply carries no .changeset/ directory
+  }
+  try {
+    return readdirSync(join(ROOT, ".changeset")).filter(isChangeset);
   } catch {
     return [];
   }

@@ -11,7 +11,7 @@ Vitest browser mode (real Chromium), `vitest-browser-react`, `axe-core` via `vit
 - [Compiled-CSS exception files](#compiled-css-exception-files)
 - [Accessibility assertions](#accessibility-assertions)
 - [Running tests](#running-tests)
-- [Cross-browser smoke lane](#cross-browser-smoke-lane)
+- [Cross-browser](#cross-browser)
 
 ## Rendering and querying
 
@@ -83,14 +83,16 @@ cd packages/ui && pnpm exec vitest run registry/ui/<name>.test.tsx   # scoped, w
 pnpm test                                                            # full suite, before the gate
 ```
 
-## Cross-browser smoke lane
+## Cross-browser
 
 ```bash
-pnpm --filter @vegastack/ui test:smoke        # WebKit + Firefox, contract-selected subset
-pnpm --filter @vegastack/ui test:all-browsers # complete suite in all three engines (main/release)
+pnpm --filter @vegastack/ui test:all-browsers # complete suite in all three engines
 ```
 
-`test:smoke` is a deliberate SUBSET run against real WebKit and Firefox via `vitest.smoke.config.ts`.
-Add a file to its `include` list ONLY if it exercises a motion mechanism (replay APIs, keyed
-presence, `AnimatedNumber`) or another evidenced cross-engine risk. Not every new component needs
-this — the full unit suite already runs on every PR in Chromium.
+There is **no smoke subset any more**. The risk-selected WebKit/Firefox lane
+(`vitest.smoke.config.ts`, `test:smoke`, and the `coverage.crossBrowserSmoke` selection that
+generated its file list) was deleted with the attestation stack: it existed to keep a pre-push hook
+cheap, and there is no pre-push hook. `pnpm verify` runs the complete suite in Chromium on every
+push and pull request; `pnpm verify:release` runs the complete suite in all three engines before a
+deploy. Nothing to opt a new component into — the release run already covers everything the subset
+sampled.

@@ -286,7 +286,7 @@ cd ../vegastack-design-starter && pnpm check-updates
 
 Expect `up to date` for everything except items you just changed (those show `⬆`/`≈` —
 correct). If the release changed the starter's own components, pull them
-(`shadcn add @vegastack/<name> --overwrite`), rerun `pnpm test:smoke`, commit.
+(`shadcn add @vegastack/<name> --overwrite`), rerun the starter's own smoke suite, commit.
 
 ## Failure recovery
 
@@ -294,18 +294,19 @@ correct). If the release changed the starter's own components, pull them
   tip. Once the workflow commits are ancestors of the remote `main`, the version branch carries no
   workflow diff and the push succeeds. This is the recovery referenced in §2 — it is one action, and
   it is why splitting a PR to avoid the edge is usually not worth it.
-- Contract gate red → download the artifact and READ it before re-running. Re-running a browser gate
-  to see the failure again is how a release loses a day:
+- A browser gate is red in CI → there is **no artifact to download and no Playwright report**. The
+  Playwright-over-the-docs-export contract lane and its failure artifacts were deleted; the browser
+  gates are now vitest browser-mode suites inside `pnpm verify`, and the run log IS the report. The
+  same command reproduces the failure locally, deterministically, because CI runs exactly it:
 
   ```bash
-  gh run download <id> -R VegaStack/vegastack-design -n contracts-failure-<id> -D /tmp/cf
-  open /tmp/cf/playwright-report/index.html          # or: pnpm exec playwright show-trace /tmp/cf/test-results/**/trace.zip
+  pnpm verify                                              # the whole gate, as CI runs it
+  pnpm exec turbo run test --filter=@vegastack/ui          # just the browser suite
+  pnpm check:component <name>                              # one component, ~5s
   ```
 
-  Then reproduce locally — the same failure is deterministic:
-  `cd apps/docs && pnpm exec playwright test contracts.spec.ts -g "<route>"`.
-  **If the artifact is empty, that is its own bug** — the reporter or trace setting in
-  `apps/docs/playwright.config.ts` regressed, and the gate has gone back to being undiagnosable.
+  For a release-only failure (both docs matrices, links, the docs-shell contracts, the consume
+  round-trip, three engines): `pnpm verify:release`.
 
 - Deploy "Asset too large" → a page exceeds Cloudflare's 25 MiB limit; the deploy log names
   it. Usually Story-controls type explosion — see `apps/docs/components/stories/story-shims.tsx`.
