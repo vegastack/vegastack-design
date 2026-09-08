@@ -84,10 +84,11 @@ npm package versions are listed per entry. This page is generated from the repo'
   whose **real** border box is 24×24. `Tag`, `FilterChip`, `ComboboxChip` and ChipInput's chips are
   all this one primitive composed through Base UI `render`.
   [docs](/docs/components/chip)
-- **`use-announcer`** — the one polite live region. `const { announce, Announcer } =
-useAnnouncer()`; render `<Announcer />` once per component. It keeps the region mounted and
-  observed from first paint, re-keys it per call so an identical consecutive announcement is still
-  spoken, and holds its state outside the host so announcing no longer re-renders a whole DataGrid.
+- **`use-announcer`** — the one polite live region. Destructure `announce` and `Announcer` from
+  `useAnnouncer()` and render the `Announcer` element once per component. It keeps the region
+  mounted and observed from first paint, re-keys it per call so an identical consecutive
+  announcement is still spoken, and holds its state outside the host so announcing no longer
+  re-renders a whole DataGrid.
   [docs](/docs/guides/components)
 
 ### 🗑 Removed / renamed

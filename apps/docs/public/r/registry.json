@@ -2986,7 +2986,7 @@
         "whenToUse": "Any component that must tell a screen-reader user something happened with no focus change — a row moved, an entry was rejected, a save failed.",
         "whenNotToUse": "Content that is visible on screen anyway and already announced by focus, or an assertive alert (role=alert is a separate policy).",
         "version": "0.6.0",
-        "integrity": "sha256-Scdg8LoRraxIpNgjzrn1tuYWY+2dy8Lgd0jPEcY/ieo="
+        "integrity": "sha256-El1R0kKLLYWcz5Sc1XAhwpz0Thn6Rvgnoqa27RMYUCA="
       }
     },
     {

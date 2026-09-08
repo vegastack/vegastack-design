@@ -42,8 +42,8 @@ Rules that decide most component questions:
   `onRemove` giving a real 24×24 remove control. `Tag`, `FilterChip` and `ComboboxChip` are that
   primitive composed through `render`; never hand-roll a pill with its own height, radius, or a
   sub-24px `×`. A **`badge`** is the different job: status, never removable, never a selection.
-- **`useAnnouncer` is the one live region** — `const { announce, Announcer } = useAnnouncer()`, one
-  `<Announcer />` per component, mounted for its life. It keeps the region observed from first paint
+- **`useAnnouncer` is the one live region** — destructure `announce` and `Announcer` from it and
+  render ONE `Announcer` element per component, mounted for its life. It keeps the region observed from first paint
   and re-keys it per call, so repeating an identical string still announces. Do not hand-roll a
   `role="status"` node with a `{text, seq}` counter.
 - **`code-block`** for static syntax-highlighted source; **`terminal`** for command sessions.

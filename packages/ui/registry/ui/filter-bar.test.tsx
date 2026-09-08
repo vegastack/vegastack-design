@@ -160,11 +160,13 @@ test("FilterBar forwards ref to the root element", async () => {
 });
 
 test("FilterChip forwards ref to the root element", async () => {
-  const ref = React.createRef<HTMLDivElement>();
+  // The root is the Chip primitive's <span>, not a <div>: a chip is an inline object that sits
+  // in a wrapping row of chips, and Chip renders a span.
+  const ref = React.createRef<HTMLSpanElement>();
   await render(
     <FilterChip ref={ref} label="Status" value="Open" onRemove={() => {}} />,
   );
-  expect(ref.current).toBeInstanceOf(HTMLDivElement);
+  expect(ref.current).toBeInstanceOf(HTMLSpanElement);
   expect(ref.current?.dataset.slot).toBe("filter-chip");
 });
 
@@ -240,7 +242,12 @@ test("active chip keeps the muted label / emphasized value hierarchy", async () 
   expect(icon.className).toContain("text-muted-foreground");
   const value = screen.getByText("In Progress").element() as HTMLElement;
   expect(value.className).not.toContain("text-muted-foreground");
-  expect(value.className).toContain("font-medium");
+  // The 500 weight comes from the chip's `text-label` voice, not a `font-medium` on the value —
+  // `font-medium` outside a `text-label*` role is exactly what the type ladder forbids. The
+  // hierarchy is carried by ink: muted key, foreground value.
+  expect(value.className).not.toContain("font-medium");
+  const chip = value.closest('[data-slot="filter-chip"]') as HTMLElement;
+  expect(chip.className).toContain("text-label");
 });
 
 test("chip value truncates within max-w-xs — the value span carries min-w-0 alongside its shrink-0 label sibling", async () => {

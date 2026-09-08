@@ -196,9 +196,9 @@ Contract for every new animated element:
   Base UI's `data-[highlighted]`/`data-[selected]`/`data-[focused]` styling. `outline-none` on a
   genuinely non-focusable fixed viewport container (a dialog's outer positioner) is fine; a new
   blanket file exemption needs a one-line rationale in `OUTLINE_NONE_EXEMPT`.
-- **Live regions — use `useAnnouncer`; do not hand-roll one.** `const { announce, Announcer } =
-useAnnouncer()` (`registry/ui/use-announcer.ts`), one `<Announcer />` per component, mounted for
-  its whole life. The hook owns the three things a hand-rolled region gets wrong: it is mounted
+- **Live regions — use `useAnnouncer`; do not hand-roll one.** Destructure `announce` and
+  `Announcer` from `useAnnouncer()` (`registry/ui/use-announcer.ts`) and render ONE `Announcer`
+  element per component, mounted for its whole life. The hook owns the three things a hand-rolled region gets wrong: it is mounted
   **empty from first paint** (a region inserted at the moment it gains text is often never
   announced), its child is **keyed by a monotonic sequence** so repeating an identical string still
   re-announces (a same-value `setState` is a React bail-out), and its state lives in the hook's own

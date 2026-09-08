@@ -1,4 +1,4 @@
-// @vegastack use-announcer@0.6.0 sha256-Scdg8LoRraxIpNgjzrn1tuYWY+2dy8Lgd0jPEcY/ieo=
+// @vegastack use-announcer@0.6.0 sha256-El1R0kKLLYWcz5Sc1XAhwpz0Thn6Rvgnoqa27RMYUCA=
 
 "use client";
 
@@ -8,7 +8,7 @@ import { cn } from "@vegastack/design";
 /* ---
 `useAnnouncer` exists because the SAME twelve lines were written five times in this registry —
 `editable-cell`, `chip-input`, `data-grid`, `use-drag-reorder` and `use-file-drop` each kept a
-`{ text, seq }` state, a `setState((prev) => ({ text, seq: prev.seq + 1 }))` updater and a
+`{ text, seq }` state, an updater that incremented the counter alongside the text, and a
 `<span role="status" aria-live="polite" aria-atomic><span key={seq}>` node, with the same comment
 explaining the sequence counter (audit 2026-09-07, B5-05 / 04-cross-cutting §1). One hook, one
 policy, one node per announcing component.

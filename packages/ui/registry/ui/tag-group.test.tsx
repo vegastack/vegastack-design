@@ -75,8 +75,12 @@ test("onRemove renders a labelled remove button and fires", async () => {
   await userEvent.click(screen.getByRole("button", { name: "Remove SaaS" }));
   expect(onRemove).toHaveBeenCalledTimes(1);
   const remove = screen.getByRole("button", { name: "Remove SaaS" }).element();
-  expect(remove.className).toContain("appearance-none");
-  expect(remove.className).toContain("before:-inset-2");
+  // The shared ChipRemove: a round ghost IconButton whose REAL box is the target. The old
+  // `before:-inset-2` hit area was never hit-testable — Chromium clips a nested <button>'s
+  // generated content to its own border box (see chip.test.tsx for the elementFromPoint proof).
+  expect(remove.dataset.slot).toBe("chip-remove");
+  expect(remove.className).toContain("rounded-full");
+  expect(remove.className).not.toContain("before:-inset-2");
   await expectNoA11yViolations(screen.container);
 });
 
