@@ -16,6 +16,15 @@
     "lint": {
       "dependsOn": ["^build"]
     },
+    // `@vegastack/design-tokens#lint` reads its OWN build output: `verify-theme-parity.mjs` and
+    // `contrast-check.mjs` both take `dist/theme.css`. The generic `lint` above depends on `^build`
+    // — UPSTREAM packages — and design-tokens has no upstream, so nothing built it. `pnpm lint` in a
+    // clean checkout therefore failed with `ENOENT … dist/theme.css`, and only passed today because
+    // the root `lint` script happens to run `design:verify` (which builds tokens) first. A task must
+    // declare the inputs it reads; ordering by luck is not a dependency.
+    "@vegastack/design-tokens#lint": {
+      "dependsOn": ["^build", "build"]
+    },
     "test": {
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"]

@@ -1,26 +1,4 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "//": "A hook cannot call a model, so the model has to be handed the facts. These two events read .gates/last-failure.json and inject a compact digest, so a blocked commit or push is already in context on the next turn with no copy-paste. tooling/gates-digest.mjs prints nothing when there is no failure, which is why this is safe to run on every prompt.",
-  "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node tooling/gates-digest.mjs"
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node tooling/gates-digest.mjs"
-          }
-        ]
-      }
-    ]
-  }
+  "//": "No hooks. `tooling/gates-digest.mjs` used to inject a digest of `.gates/last-failure.json` on SessionStart and UserPromptSubmit; the gate ladder and `.gates/` are both gone (docs/plans/2026-09-08-verification-rebuild.md §3.5-3.6), so there is no report to digest and nothing to inject. There is one command — `pnpm verify` — and its output is in the terminal where it ran."
 }
