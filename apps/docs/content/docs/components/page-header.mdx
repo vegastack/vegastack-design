@@ -131,8 +131,13 @@ disclosure on devices that can't hover (see `TruncatedText`):
 ### Favorite star
 
 The star is controlled when you pass `active`, or uncontrolled when you pass `defaultActive`. It
-reports the next state through `onToggle`. Pass `disabled` to remove it from the tab order. The
-preview shows a controlled star (click to toggle) above a disabled one:
+reports the next state through `onToggle`. Pass `disabled` to remove it from the tab order.
+
+The active star fills with **neutral ink**, not warning yellow. The status hues are rationed to
+actual status, and a favourite is a user's own mark rather than a caution — the fill is what carries
+the on/off read, so the colour was never doing that work.
+
+The preview shows a controlled star (click to toggle) above a disabled one:
 
 <ComponentPreview
   name="pageHeaderFavoriteControlled"

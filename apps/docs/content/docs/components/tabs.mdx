@@ -68,8 +68,13 @@ each `TabsTrigger` to a `TabsContent` by `value`:
 ### Variants
 
 `line` (a moving underline tracks the active tab, the default) and `pill` (a muted track where the
-active tab becomes a raised `bg-background` chip). Both support a leading icon composed as the first
-child and a trailing `count` badge.
+active tab raises on the shared selected-chip recipe). Both support a leading icon composed as the
+first child and a trailing `count` badge.
+
+On `line`, the trigger's hover wash is deliberately held one 4px step off the rule the underline
+rides along — a wash that runs flush into a container hairline reads as a rendering bug rather than
+a state. The gap is a logical margin, so the vertical variant mirrors it onto the inline-start rail
+and RTL follows without a second rule.
 
 <ComponentPreview name="tabsVariants" file="components/preview/tabs.tsx" />
 
@@ -96,7 +101,8 @@ is skipped by keyboard navigation, and cannot be selected:
 ### Chip variant
 
 `variant="chip"` renders free-standing tabs on the 28px chrome scale — no track, no
-underline; the active tab raises to a `secondary` chip with the one hairline. The dense
+underline; the active tab raises on the same selected-chip recipe `pill` uses — the
+pressed/selected rung with the one hairline, and it keeps its own hover and pressed steps. The dense
 record-page treatment; pair with `count` for per-tab totals. For tab sets that outgrow their
 container, compose an overflow menu ("+N more") from `DropdownMenu` — the list itself scrolls
 with an edge fade by default.

@@ -215,7 +215,11 @@ function RouteFocus() {
   targeting `AppShellContent`'s `#main-content`. Tab once on page load to reach it.
 - **Landmark trio.** `AppShellHeader` is a `banner` (`<header>`, never nested inside `<main>`),
   `AppShellSidebar` is a `navigation` (`<nav aria-label="Main navigation">`, overridable), and
-  `AppShellContent` is the single `main` on the page.
+  `AppShellContent` is the single `main` on the page. If the shell is **embedded** in a page that
+  already owns a `<main>` — a docs preview, a gallery, a shell shown inside a larger document — pass
+  `landmark="region"` (with an `aria-label`) so it renders a `<div role="region">` instead. Two
+  `<main>` elements in one document is a real defect; this escape exists so the answer is never to
+  delete the landmark from the component. `SidebarInset` carries the same prop.
 - **Mobile trigger.** `SidebarTrigger` always renders in `AppShellHeader` — below the mobile
   breakpoint it's the only way to open the sidebar, and it's never nested inside the collapsible
   rail it controls (see `sidebar.tsx`'s own composition note).
