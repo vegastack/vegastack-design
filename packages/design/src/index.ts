@@ -74,6 +74,27 @@ export type { ClassValue };
 export const surfaceInteractive = "hover:bg-surface-2 active:bg-surface-3";
 
 /**
+ * The GROUP-SCOPED twin of {@link surfaceInteractive}, for the one geometry where the two rungs
+ * cannot live on the interactive element itself: a wash painted by an INNER chip inset from a
+ * container hairline (`design.md` §Hover geometry — "a wash is inset ≥4px from a container hairline
+ * and inherits its inner radius"). NumberField's steppers are the case: the button is full-height and
+ * flush to the field's border, so its own background would run into that hairline; a `size-full` chip
+ * inside the button's `p-1` paints the inset wash instead, and it must react to the BUTTON's hover.
+ *
+ * The group is named `wash` rather than left unnamed so a consumer's own `group` on an ancestor of a
+ * copied-in component cannot fire it. Put `group/wash` on the interactive element, this string on the
+ * chip. Everything else spreads {@link surfaceInteractive} directly — a group indirection where the
+ * element can carry the rungs itself is noise.
+ *
+ * @example
+ * <button className="group/wash p-1">
+ *   <span className={cn("size-full rounded-sm", surfaceInteractiveGroup)} />
+ * </button>
+ */
+export const surfaceInteractiveGroup =
+  "group-hover/wash:bg-surface-2 group-active/wash:bg-surface-3";
+
+/**
  * The inks a translucent hover/pressed wash can be composited from — the neutral ink and the five
  * chromatic families the Button matrix and its outline/soft variants use.
  */

@@ -1,4 +1,4 @@
-// @vegastack switch@0.6.0 sha256-XYap1jxnM+Z/EXG7X+w6tCo12pYTUngEw8MucnzAdbw=
+// @vegastack switch@0.6.0 sha256-cY70Ner6BSEC2rOr+5OV6+LAQ+rvWgENiJyJMub0GMA=
 
 "use client";
 
@@ -68,7 +68,8 @@ export const switchThumbVariants = cva(
     variants: {
       size: {
         sm: "size-2.5 data-checked:translate-x-3 rtl:data-checked:-translate-x-3",
-        md: "size-3.5 data-checked:translate-x-4 rtl:data-checked:-translate-x-4",
+        md:
+          "size-3.5 data-checked:translate-x-4 rtl:data-checked:-translate-x-4",
         lg: "size-4.5 data-checked:translate-x-5 rtl:data-checked:-translate-x-5",
       },
     },
@@ -120,7 +121,12 @@ export interface SwitchProps
  * // Controlled
  * <Switch checked={enabled} onCheckedChange={setEnabled} aria-label="Enabled" />
  */
-export function Switch({ className, size = "md", ref, ...props }: SwitchProps) {
+export function Switch({
+  className,
+  size = "md",
+  ref,
+  ...props
+}: SwitchProps) {
   return (
     <BaseSwitch.Root
       ref={ref}

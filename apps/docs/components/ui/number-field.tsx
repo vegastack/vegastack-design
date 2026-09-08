@@ -1,11 +1,15 @@
-// @vegastack number-field@0.6.0 sha256-DaT0d617aew3AptGjtblFcr0R03LZijA2M1cLwuumgw=
+// @vegastack number-field@0.6.0 sha256-MOgwBomBHfYlP9BCFK0OJJKMF2mEL3xlvVieO59uJeY=
 
 "use client";
 
 import * as React from "react";
 import { Minus, Plus } from "lucide-react";
 import { NumberField as BaseNumberField } from "@base-ui/react/number-field";
-import { cn, fieldControlGroup } from "@vegastack/design";
+import {
+  cn,
+  fieldControlGroup,
+  surfaceInteractiveGroup,
+} from "@vegastack/design";
 
 /* ---
 `NumberField` exists because the roster had no numeric input at all: quantities, limits,
@@ -126,7 +130,7 @@ const addonClasses =
  * root's `overflow-hidden` cannot clip it.
  */
 const stepperClasses =
-  "group/stepper flex h-full w-(--size-sm) shrink-0 items-center justify-center p-1 text-muted-foreground " +
+  "group/wash flex h-full w-(--size-sm) shrink-0 items-center justify-center p-1 text-muted-foreground " +
   "hover:text-foreground " +
   "focus-visible:-outline-offset-2 " +
   "disabled:opacity-(--opacity-dim) " +
@@ -140,11 +144,16 @@ const stepperClasses =
  * because of exactly this defect. `p-1` on the button insets the chip by 4px and `rounded-sm`
  * gives it a corner of its own, so a 28×32 stepper hovers as a 20×24 chip. The button keeps the
  * full pointer target and the ink step; only the paint moved inward.
+ *
+ * The two rungs themselves are NOT written here: `surfaceInteractiveGroup` is the group-scoped
+ * twin of `@vegastack/design`'s `surfaceInteractive`, so this chip climbs the same ladder as every
+ * other transparent control and retuning the ladder is still one edit.
  */
-const stepperFillClasses =
-  "flex size-full items-center justify-center rounded-sm " +
-  "group-hover/stepper:bg-surface-2 group-active/stepper:bg-surface-3 " +
-  "group-disabled/stepper:bg-transparent group-data-disabled/stepper:bg-transparent";
+const stepperFillClasses = cn(
+  "flex size-full items-center justify-center rounded-sm",
+  surfaceInteractiveGroup,
+  "group-disabled/wash:bg-transparent group-data-disabled/wash:bg-transparent",
+);
 
 /**
  * `NumberField` — a locale-aware numeric input on Base UI's NumberField, in

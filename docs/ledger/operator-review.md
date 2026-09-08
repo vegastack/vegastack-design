@@ -76,6 +76,36 @@ boundary contract every deploy probes. `pnpm run clean` was kept for the same re
 documented interface to the cleanup `pnpm verify` runs in its `finally`.
 
 ---
+## 2026-09-08 — Fo1 fix round: the stepper wash climbs the ladder through a group-scoped twin
+
+**Context:** the Codex review of F1 routed two items to Fo1 — `number-field.tsx` hand-wrote
+`hover:bg-surface-2 active:bg-surface-3` instead of spreading `surfaceInteractive`, and the
+`auto-save-input` preview painted a legacy `hover:bg-accent` wash with no pressed step.
+
+**Decisions taken instead of pausing:**
+
+- **A new export, `surfaceInteractiveGroup`, rather than a literal or a restructure.** The stepper's
+  wash is deliberately an inset chip inside the button (SP-02: a full-bleed fill ran into the field's
+  hairline), so the two rungs must fire on the BUTTON's hover while painting on a child — which
+  `surfaceInteractive` cannot express. Three options were weighed: (a) keep the literal, which is the
+  defect the finding names; (b) drop the child and use `p-1 bg-clip-content` on the button, which does
+  inset the paint natively but silently changes the chip's corner radius and needs a `not-disabled:`
+  re-write of the recipe to keep a disabled stepper from lighting up — a pixel change on a one-sweep
+  budget; (c) export the group-scoped twin once, documented as the single geometry that needs it.
+  Chose (c): the rungs stay written once, the shipped geometry is unchanged, and the API cost is one
+  named export with an explicit "everything else spreads `surfaceInteractive`" note. The group is
+  named `wash` (not left unnamed) so a consumer's own `group` on an ancestor of a copied-in component
+  cannot fire it.
+- **The preview's record selector became a real `Button`, not a re-tokenised `<button>`.** The chip
+  was a hand-rolled `border + hover:bg-accent` with no pressed step. Rather than swap the wash for a
+  recipe and keep the hand-rolled element, it is now `Button variant="soft" | "outline" size="sm"`
+  with `aria-pressed` — the selected/rest pair the system already ships, hover and pressed rungs
+  included. A preview that hand-rolls a control the system exports is itself the finding.
+
+**Needs MK:** nothing. Both are corrections routed by review; neither re-opens a decision.
+
+---
+
 
 ## 2026-09-07 — F1 follow-up: reconciling the doctrine, the guides and the media gate with the ladder
 

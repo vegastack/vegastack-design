@@ -1751,7 +1751,10 @@ and each has an **alpha twin** so the same rung composites onto any backdrop.
 - **One hover mechanism.** Every wash comes from the two recipes exported by `@vegastack/design`:
   `surfaceInteractive` (`hover:bg-surface-2 active:bg-surface-3`) for a control on a known surface,
   and `fillInteractive.<tone>` (`hover:bg-<tone>/(--alpha-hover) active:bg-<tone>/(--alpha-pressed)`)
-  for one on an unknown backdrop or in its own hue. No component writes its own `hover:bg-*`
+  for one on an unknown backdrop or in its own hue. `surfaceInteractiveGroup` is the same two rungs
+  scoped to `group/wash`, for the one geometry where they cannot sit on the interactive element
+  itself — a wash painted by an inner chip inset from a container hairline, which is NumberField's ±
+  steppers and nothing else so far. No component writes its own `hover:bg-*`
   literal, and **an opacity dim (`/80`) is never a hover state** — it thins the fill instead of
   moving it.
 - **A control with no surface signals in ink, both ways.** An accordion header, a link-like trigger
