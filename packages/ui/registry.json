@@ -2270,6 +2270,7 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
+        "@vegastack/icon-button",
         "@vegastack/separator",
         "@vegastack/sheet",
         "@vegastack/skeleton",

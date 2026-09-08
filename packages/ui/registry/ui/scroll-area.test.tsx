@@ -37,8 +37,48 @@ test("marks up the root and viewport slots", async () => {
     .element()
     .querySelector('[data-slot="scroll-area-viewport"]');
   expect(viewport).not.toBeNull();
-  expect(viewport).toHaveAttribute("tabindex", "0");
   expect(viewport).toHaveAttribute("aria-label", "Release notes");
+});
+
+test("overflowing content makes the viewport a tab stop with an INSET ring", async () => {
+  const screen = await render(
+    <ScrollArea
+      data-testid="area"
+      aria-label="Release notes"
+      className="h-32 w-48"
+    >
+      <LongContent />
+    </ScrollArea>,
+  );
+  const viewport = screen
+    .getByTestId("area")
+    .element()
+    .querySelector('[data-slot="scroll-area-viewport"]') as HTMLElement;
+  // Measured in an effect, so poll rather than reading once.
+  await expect.poll(() => viewport.getAttribute("tabindex")).toBe("0");
+  expect(viewport).toHaveAttribute("data-scrollable", "");
+  // SP-03: the Root clips (`overflow-hidden`), so an OUTWARD ring would be cut off.
+  expect(viewport.className).toContain("focus-visible:-outline-offset-2");
+});
+
+test("content that fits adds NO tab stop (B6-06/TD-4)", async () => {
+  const screen = await render(
+    <ScrollArea
+      data-testid="area"
+      aria-label="Short note"
+      className="h-32 w-48"
+    >
+      <p>Fits easily</p>
+    </ScrollArea>,
+  );
+  const viewport = screen
+    .getByTestId("area")
+    .element()
+    .querySelector('[data-slot="scroll-area-viewport"]') as HTMLElement;
+  await expect.element(screen.getByText("Fits easily")).toBeInTheDocument();
+  // A scroll region with nothing to scroll is a tab stop that announces nothing and does nothing.
+  await expect.poll(() => viewport.getAttribute("tabindex")).toBe(null);
+  expect(viewport).not.toHaveAttribute("data-scrollable");
 });
 
 test("applies the className to the container (size constraint)", async () => {

@@ -1,4 +1,4 @@
-// @vegastack segmented@0.6.0 sha256-ei4jWxyv+hl/2yXvpbdRqNfCUEXYoKfV5ruRdtaNOWc=
+// @vegastack segmented@0.6.0 sha256-ojw+sgvrHc0lqYt51EmVZdYVORmlrwnSRuz4twjVHkQ=
 
 "use client";
 
@@ -6,7 +6,7 @@ import * as React from "react";
 import { ToggleGroup as BaseToggleGroup } from "@base-ui/react/toggle-group";
 import { Toggle as BaseToggle } from "@base-ui/react/toggle";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@vegastack/design";
+import { cn, selectedChipVariants } from "@vegastack/design";
 
 /* ------------------------------------------------------------------------------------------------
  * Segmented — the canonical segmented control (Wave 2, promoted from the ToggleGroup recipe after
@@ -28,7 +28,10 @@ const SegmentedContext = React.createContext<{ size: "md" | "lg" }>({
 });
 
 export const segmentedVariants = cva(
-  "inline-flex w-fit items-center gap-0.5 rounded-md bg-surface-1 p-0.5 text-muted-foreground",
+  cn(
+    "inline-flex w-fit items-center gap-0.5 rounded-md p-0.5 text-muted-foreground",
+    selectedChipVariants.track,
+  ),
   {
     variants: {
       size: {
@@ -44,9 +47,14 @@ export const segmentedVariants = cva(
 
 export const segmentedItemVariants = cva(
   cn(
-    "inline-flex min-w-0 shrink-0 items-center justify-center gap-1.5 rounded-sm border border-transparent text-label-sm whitespace-nowrap select-none",
-    "hover:text-foreground not-data-pressed:hover:bg-surface-2 not-data-pressed:active:bg-surface-3",
-    "data-pressed:border-border data-pressed:bg-background data-pressed:text-foreground",
+    "inline-flex min-w-0 shrink-0 items-center justify-center gap-1.5 rounded-sm text-label-sm whitespace-nowrap select-none",
+    // The look — rest, hover, pressed AND selected — is the shared recipe, so a Segmented chip and
+    // a pill/chip tab cannot drift apart again (B6-02). It also keeps the SELECTED chip stepping:
+    // before this, `not-data-pressed:` excluded the selected chip from hover and press entirely, so
+    // the one chip a user is most likely to click was the one that answered nothing (the probe's
+    // `active-same-as-hover`).
+    selectedChipVariants.item,
+    selectedChipVariants.pressed,
     "disabled:pointer-events-none disabled:opacity-(--opacity-dim)",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-(--icon-compact)",
   ),
@@ -180,7 +188,8 @@ export interface SegmentedItemProps
 
 /**
  * `SegmentedItem` — one chip in a `Segmented` control. Identify it with `value`;
- * the selected chip raises to `background` with the one hairline border
+ * the selected chip raises on the shared `selectedChipVariants` recipe — the
+ * pressed/selected rung with the one hairline border
  * (`data-pressed`). Compose a leading icon as the first child.
  *
  * @example

@@ -1,4 +1,4 @@
-// @vegastack page-header@0.6.0 sha256-Cp0KOoeLD/zGoivbg/nK/kA/ODtZsThpu8roBfLJOIc=
+// @vegastack page-header@0.6.0 sha256-QOVuaUAJ3GiAOKcw5zNGuBM3h8Y0qX7cF0Utonzx53c=
 
 "use client";
 
@@ -148,7 +148,10 @@ function FavoriteStar({
       data-active={isActive ? "" : undefined}
       className="shrink-0 text-muted-foreground hover:text-foreground"
     >
-      <Star className={cn(isActive && "fill-current text-warning-text")} />
+      {/* Neutral ink, not warning yellow (D21). Doctrine rations the status hues to actual
+          status; a favourite is a user's own mark, not a caution — Linear and Vercel both fill
+          the star with the foreground ink, and the FILL alone already carries the on/off read. */}
+      <Star className={cn(isActive && "fill-current text-foreground")} />
     </IconButton>
   );
 }
@@ -226,7 +229,9 @@ export function PageHeader({
                 size="sm"
                 aria-label={backLabel}
                 data-slot="page-header-back"
-                className="-ml-2 shrink-0"
+                // Logical, not physical: `-ml-2` pulled the back affordance the WRONG way in RTL
+                // (B6-05). The anchor form beside it already used `-ms-2`.
+                className="-ms-2 shrink-0"
                 onClick={onBack}
               >
                 <ChevronLeft />

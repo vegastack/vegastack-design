@@ -11445,6 +11445,10 @@
         "ScrollArea": {
           "attributes": [
             {
+              "name": "data-scrollable",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
               "values": [
                 "scroll-area",
@@ -17569,6 +17573,7 @@
       "engines": [],
       "docsSlug": "/docs/components/sidebar",
       "registryDependencies": [
+        "@vegastack/icon-button",
         "@vegastack/separator",
         "@vegastack/sheet",
         "@vegastack/skeleton",
@@ -17716,6 +17721,15 @@
             {
               "name": "data-slot",
               "values": ["sidebar-separator"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SidebarTrigger": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["sidebar-trigger"]
             }
           ],
           "cssVariables": []

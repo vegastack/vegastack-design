@@ -2,6 +2,7 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
+import { selectedChipVariants } from "@vegastack/design";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
 
@@ -92,10 +93,13 @@ test("line variant renders the moving indicator", async () => {
   ).not.toBeNull();
 });
 
-test("content panel carries an explicit focus-visible outline class", async () => {
+test("content panel leaves the focus ring to the global rule (B6-10)", async () => {
   const screen = await render(<Basic />);
   const panel = screen.container.querySelector('[data-slot="tabs-content"]');
-  expect(panel?.className).toContain("focus-visible:outline-ring");
+  // The panel used to restate `focus-visible:outline-2 outline-offset-1 outline-ring`, which is
+  // exactly the centralized `:focus-visible` rule — two copies that could only drift apart.
+  expect(panel?.className).not.toContain("outline-ring");
+  expect(panel?.className).not.toContain("focus-visible:outline");
 });
 
 test("vertical orientation is reflected on the root", async () => {
@@ -211,4 +215,65 @@ test("chip variant: free-standing list, active trigger raises to a hairline chip
   await expect.element(active).toHaveAttribute("data-active");
   // No underline indicator is rendered for chip lists.
   expect(document.querySelector('[data-slot="tabs-indicator"]')).toBeNull();
+});
+
+test("pill and chip tabs wear the SHARED selected-chip recipe; line does not (B6-02)", async () => {
+  for (const variant of ["pill", "chip"] as const) {
+    const screen = await render(
+      <Tabs defaultValue="overview">
+        <TabsList variant={variant}>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="activity">Activity</TabsTrigger>
+        </TabsList>
+        <TabsContent value="overview">O</TabsContent>
+      </Tabs>,
+    );
+    const tab = screen.getByRole("tab", { name: "Overview" }).element();
+    for (const rule of selectedChipVariants.active.split(" ")) {
+      expect(tab.className).toContain(rule);
+    }
+    screen.unmount();
+  }
+  // `line` has no chip at all — its active state is the moving underline, so taking the chip fill
+  // would paint a plate under the indicator.
+  const line = await render(<Basic variant="line" />);
+  const lineTab = line.getByRole("tab", { name: "Overview" }).element();
+  expect(lineTab.className).not.toContain("data-[active]:bg-foreground");
+});
+
+test("the line tab's hover wash is held OFF the indicator rail (SP-02)", async () => {
+  const horizontal = await render(<Basic variant="line" />);
+  const hTab = horizontal.getByRole("tab", { name: "Overview" }).element();
+  const list = horizontal.getByRole("tablist").element();
+  // The list draws the rule the underline rides; a hover fill that ends exactly on it reads as a
+  // rendering bug rather than a state (design.md §Hover geometry).
+  expect(list.className).toContain(
+    "group-data-[orientation=horizontal]/tabs:border-b",
+  );
+  expect(hTab.className).toContain(
+    "group-data-[orientation=horizontal]/tabs:group-data-[variant=line]/tabs-list:mb-1",
+  );
+  horizontal.unmount();
+
+  // The vertical variant mirrors it onto the inline-start rail (logical, so RTL follows).
+  const vertical = await render(
+    <Tabs defaultValue="overview" orientation="vertical">
+      <TabsList variant="line">
+        <TabsTrigger value="overview">Overview</TabsTrigger>
+        <TabsTrigger value="activity">Activity</TabsTrigger>
+      </TabsList>
+      <TabsContent value="overview">O</TabsContent>
+    </Tabs>,
+  );
+  const vTab = vertical.getByRole("tab", { name: "Overview" }).element();
+  const vList = vertical.getByRole("tablist").element();
+  expect(vTab.className).toContain(
+    "group-data-[orientation=vertical]/tabs:group-data-[variant=line]/tabs-list:ms-1",
+  );
+  expect(vList.className).toContain(
+    "group-data-[orientation=vertical]/tabs:border-s",
+  );
+  // The MEASURED gap lives in the contract lane (`apps/docs/vrt/contracts.spec.ts`), which runs
+  // against real compiled CSS — this suite imports none, so a pixel assertion here would only
+  // prove that an unstyled element has no margin.
 });

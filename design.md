@@ -1743,7 +1743,14 @@ and each has an **alpha twin** so the same rung composites onto any backdrop.
 ### Hover geometry
 
 - **A hover wash is inset ≥4px from any container hairline** and **inherits the container's inner
-  radius**. A wash that runs flush into the border reads as a rendering bug, not a state.
+  radius**. A wash that runs flush into the border reads as a rendering bug, not a state. The
+  canonical offender was the underline `Tabs` variant, whose trigger fill ended exactly on the rule
+  the indicator rides (SP-02); the inset is a LOGICAL margin so the vertical variant mirrors onto
+  the inline-start rail and RTL follows for free. See §Components · Tabs.
+- **Selected is not exempt from either step.** A chip that is already selected still hovers and
+  still presses — see the `selectedChipVariants` entry in §Components. Excluding it (the
+  `not-data-pressed:` / `not-data-[active]:` guard this system used to write) is how the one
+  control a user is most likely to click ends up being the one that answers nothing.
 - **A pressed step exists on every control.** Hover moves one rung; pressing moves one more. A
   control that changes nothing on `:active` is unfinished.
 - **Selected is the pressed rung**, not a fourth step (`data-selected:bg-surface-3`) — which is why
@@ -1794,6 +1801,11 @@ stepping it. All use **warm-off-white on-fill text** uniformly; `hover`/`active`
 
 - **`primary` (neutral) is the default AND the accent** — it carries almost every action plus the value/selection accents: the single most important action, AI/agent surfaces, active tab underline, current page, slider/progress fill, selected date, and checked switch/checkbox/radio and the select checkmark. There is no separate accent hue.
 - **`info` (blue) is for links and informational UI ONLY** — text links, info alerts and badges. This is the conventional "blue = link/info," and the only chromatic accent. It is **never** promotion, selection or emphasis: a highlighted pricing plan, a promoted comparison column, a selected row and a neutral empty state all take a ladder rung (`surface-2`/`surface-3`) or `primary`, never `info`.
+- **A status hue means status, not sentiment.** The favourite star in `PageHeader` was filled with
+  `warning` ink, which reads as caution on a control that means "I marked this" (D21). It fills with
+  `foreground` — the FILL is what carries the on/off state; the colour was never doing that work.
+  Same test for anything else reaching for a status hue: if nothing is actually wrong, warning is
+  not the token.
 - **Keep blue out of action clusters.** `info` (≈256°) is link/info **text** only. Actions are neutral `primary`, so a blue link never competes with an action for "which is clickable?"
 - For a solid button use `{family}.fill` + white text; for an alert/badge use `{family}.subtle` + `{family}.text`; for hover/active step to `.hover` / `.active`.
 
@@ -1892,6 +1904,23 @@ recipe deliberately excludes so the panel is not drawn twice.
   overscroll and never disable browser zoom.
 - **RTL:** use logical properties and start/end alignment, keep directional icons semantic, and test
   mirrored navigation, mixed-script content, numbers, and long localized labels.
+- **One `<main>` per document, and the shell says so out loud.** `AppShellContent` and
+  `SidebarInset` both render a real `<main id="main-content" tabIndex={-1}>` — correct in an
+  application, wrong the moment a shell is EMBEDDED in a page that already owns one, which is what
+  the docs showcase does on every shell and sidebar fixture (axe `landmark-no-duplicate-main`,
+  B6-07). Both take `landmark="region"` for that case; it renders a `<div role="region">` and wants
+  an `aria-label`. Never solve a duplicate landmark by deleting the landmark from the component.
+- **A scroll region is a tab stop only once it can scroll.** Keyboard users need somewhere for the
+  arrow keys to land, so a scrollable viewport is focusable — but an unconditional `tabIndex={0}`
+  puts a stop in every region whose content happens to fit, announcing nothing and doing nothing
+  (B6-06, TD-4). Measure, and turn the ring INWARD (`focus-visible:-outline-offset-2`): these
+  viewports sit under a clipping ancestor, which is where 19 focus rings were being cut in half
+  (SP-03).
+- **Persistence is the host's policy, never the component's.** A design-system component may offer
+  a convenience — `SidebarProvider` writes the `sidebar_state` cookie so the rail survives a reload
+  — but it must be switchable and must not be the only way state escapes. `persist` (default `true`,
+  D22) gates the write alone; `onOpenChange` fires either way, so an app under a consent regime, or
+  with a store of its own, turns the cookie off and loses nothing.
 
 ## Elevation & depth
 
@@ -2045,7 +2074,9 @@ private size vocabulary.
 - **One list-item recipe** — menu items, checkbox/radio items, submenu triggers, select options, combobox options and command rows are `menuItemVariants`. The highlight climbs the surface ladder (`data-highlighted` → rung 2, pressed/selected → rung 3) at radius `md`, which inside the list's 4px padding keeps every wash inset from the popup hairline and concentric with the popup's `lg` corner. Destructive rows use `destructive.text` over a destructive alpha wash.
 - **Search inside a panel is a header row, never a nested box** (B8-04/B9-11). A bordered `Input` inside a bordered popup draws two borders. `PanelSearchFrame` is the recipe: sticky, full-bleed, a leading `Search` glyph, no box of its own, a hairline below, at `--size-md` (or `--size-lg` for a palette in a dialog). Command, the Combobox popup input, EmojiPicker and ShortcutOverlay all use it.
 - **Sheet is a Drawer** (D15). It runs on Base UI's `Drawer` — swipe-to-dismiss, snap points, and a virtual-keyboard provider for sheets containing fields — because Base UI's own guidance is that a positioned Dialog is the right answer only when you need none of those, and an edge panel needs all three. `side` lives on the root (it picks the dismiss gesture as well as the edge); `size` (`sm · md · lg · full`) reads as a width for a left/right sheet and a height for a top/bottom one, from the same `--panel-width-*` vocabulary.
-- **Tabs / Segmented** — underline or pill; the **active** tab underline / segment uses `primary` (selection).
+- **Tabs / Segmented — one selected-chip recipe, and it is the only one** (audit B6-02/D20, 2026-09-07). Every "raised chip on a muted track" in the system — Tabs `pill`, Tabs `chip`, `Segmented`, and pressed `Toggle`/`ToggleGroup` — takes `selectedChipVariants` from `@vegastack/design`; before it, those four had drifted into four different selected looks (`bg-background`, `bg-secondary` + hairline, `bg-foreground/10`, and a fourth). The track is the ladder's well rung (`surface-1`) and the chip is the **pressed/selected rung in its ALPHA form** — `bg-foreground/(--alpha-ink-tint)` — because a chip on a well is exactly the case §Surfaces hands to the alpha twin. That is also what keeps the SELECTED chip alive: it strengthens to `--alpha-ink-tint-strong` on hover and drops back to the resting tint on press, so the one chip a user is most likely to click is not the one that answers nothing (the state probe's `active-same-as-hover`). An opaque `surface-3` chip has no rung left to climb, which is why the alpha form is the recipe and not a shortcut to it. Tabs keeps all three variants: `line` (the moving `primary` underline), `pill` and `chip` (the shared recipe at the 32px and 28px scales).
+- **The `line` tab's hover wash never reaches the rail** — see §Hover geometry. The underline variant's list draws the rule its indicator rides on, so the trigger is held one 4px step off it with a LOGICAL margin (`mb-1` horizontal, `ms-1` on the vertical variant's inline-start rail, so RTL mirrors itself). The measured gap is a contract-lane check, not a screenshot.
+- **Tabs / Segmented** — the **active** tab underline / segment uses `primary` (selection).
 - **Switch / Checkbox / Radio** — neutral **`primary`** ink when on/checked, switch off-track = **`surface-3`** (the pressed rung; there is no `track` token); **Slider** fill = **`primary`**; radius `full` (switch/radio/thumb) or `sm` (checkbox).
 - **Navigation** — breadcrumb (`muted-foreground`, current = `foreground`), pagination (active = `primary`). `Pagination` renders a plain `<nav>`: `<nav>` IS the navigation landmark, so no `role="navigation"`, and its `aria-label` defaults to "Pagination" but MUST be overridden when a page carries more than one pager — two identically named landmarks are an axe `landmark-unique` failure (audit B5-08).
 - **Avatars · progress · skeleton** — avatar = `accent` fill + initials; progress/ring fill = `primary`; skeleton shimmer = neutral, at the **text radius** (`sm`) on a line placeholder, since an 8px radius on a 16px bar reads as a pill rather than as text. **An indeterminate `Progress` is a distinct visual, never a full bar**: Base UI writes no width when `value` is `null`, so a bar styled only for the determinate case reads as 100% complete. It renders a 35% segment sweeping the track (`motion-indeterminate`), and `aria-valuenow` is omitted.

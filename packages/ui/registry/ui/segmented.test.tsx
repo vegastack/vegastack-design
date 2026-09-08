@@ -2,6 +2,7 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
+import { selectedChipVariants } from "@vegastack/design";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Segmented, SegmentedItem } from "./segmented";
 
@@ -97,6 +98,41 @@ test("size flows from the track to items via context and is exposed as data-size
   await expect.element(track).toHaveAttribute("data-size", "lg");
   expect(track.element().className).toContain("rounded-md");
   expect(item.element().className).toContain("rounded-sm");
+});
+
+test("the SELECTED chip keeps a hover and a pressed step (B6-02, active-same-as-hover)", async () => {
+  const screen = await render(<Basic />);
+  const selected = screen.getByRole("button", { name: "Monthly" });
+  await expect.element(selected).toHaveAttribute("aria-pressed", "true");
+  const className = selected.element().className;
+  // The chip used to be excluded from both states by `not-data-pressed:`, so the one segment a
+  // user is most likely to press answered nothing at all. Hover strengthens the ink tint;
+  // pressing drops back to the resting tint to preview the release.
+  expect(className).toContain(
+    "data-pressed:hover:bg-foreground/(--alpha-ink-tint-strong)",
+  );
+  expect(className).toContain(
+    "data-pressed:active:bg-foreground/(--alpha-ink-tint)",
+  );
+  // …and the unselected chips keep their own two rungs, guarded so the two sets never collide.
+  expect(className).toContain(
+    "not-data-pressed:hover:bg-foreground/(--alpha-hover)",
+  );
+  expect(className).toContain(
+    "not-data-pressed:active:bg-foreground/(--alpha-pressed)",
+  );
+});
+
+test("Segmented, Tabs and Toggle share ONE selected-chip recipe (B6-02)", async () => {
+  const screen = await render(<Basic />);
+  const chip = screen.getByRole("button", { name: "Monthly" }).element();
+  // The recipe is a single exported literal; asserting the chip actually carries it is what stops
+  // a fifth "selected look" being hand-written into any one of the four consumers again.
+  for (const rule of selectedChipVariants.pressed.split(" ")) {
+    expect(chip.className).toContain(rule);
+  }
+  const track = screen.getByRole("group", { name: "Billing cycle" }).element();
+  expect(track.className).toContain(selectedChipVariants.track);
 });
 
 test("forwards refs to track and item roots", async () => {
