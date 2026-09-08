@@ -189,10 +189,11 @@ test("the toggle is an IconButton with the ghost recipe and an accessible name",
   });
   await expect.element(toggle).toHaveAttribute("data-slot", "icon-button");
   await expect.element(toggle).toHaveAttribute("data-variant", "ghost");
-  // `icon-xs`, not `xs`: `IconButton`'s square sizes map onto `Button`'s icon-* vocabulary, and
-  // it is `Button` that writes `data-size`. Asserting the mapped value is the point — it is the
-  // one that decides the rendered 24px box.
-  await expect.element(toggle).toHaveAttribute("data-size", "icon-xs");
+  // `Button` is what writes `data-size`, and since F2 retired the icon-* size tier there is one
+  // vocabulary: `IconButton size="xs"` passes `xs` straight through and the square geometry comes
+  // from `iconButtonGeometry`. Asserting the value Button actually renders is the point — it is the
+  // one that decides the 24px box.
+  await expect.element(toggle).toHaveAttribute("data-size", "xs");
 });
 
 test("rapid double-toggle settles on the correct icon and type without crashing", async () => {
