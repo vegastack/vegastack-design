@@ -1,4 +1,4 @@
-// @vegastack particle-field@0.6.0 sha256-mcxerM9MKP6lLWUdtNWYSa6hPV2HzjaO671MO72hbeE=
+// @vegastack particle-field@0.6.0 sha256-QbM27eCIOUT/Zn7ztXiMFa7Qr2o4vczACSChbjqVHJE=
 
 "use client";
 
@@ -84,7 +84,12 @@ export interface ParticleFieldProps extends Omit<
  * for the reference usage.
  *
  * **Reduced motion**: renders exactly ONE static frame (no `requestAnimationFrame`
- * loop at all) when `prefers-reduced-motion: reduce`.
+ * loop at all) when `prefers-reduced-motion: reduce`, repainted on a theme change so the
+ * ink follows the theme in this branch too.
+ *
+ * **Theme-following**: the particle ink is the canvas's own resolved `color` (it carries
+ * `text-brand`), read per frame rather than captured once at mount — so toggling light/dark
+ * recolours the field in place, with no remount.
  *
  * **Deterministic**: particle positions/velocities come from a seeded PRNG
  * (mulberry32) — never `Math.random()` — so the same `seed` always produces
@@ -161,12 +166,24 @@ export function ParticleField({
     const particles = createParticles(clampedCount, seed);
     const dpr =
       typeof window === "undefined" ? 1 : window.devicePixelRatio || 1;
-    // `currentColor` is the CSS-native fallback when the token stylesheet is unavailable (for
-    // example, the CSS-less unit harness); the canvas itself carries `text-brand`, so production
-    // rendering still resolves the semantic theme token with no duplicated color literal.
-    const brand = (
-      getComputedStyle(canvas).getPropertyValue("--brand") || "currentColor"
-    ).trim();
+
+    // Read the ink PER FRAME, from the canvas's own resolved `color`.
+    //
+    // This effect is keyed on `ready`/`count`/`seed`/reduced-motion — deliberately NOT on the
+    // theme, which nothing here can observe. Reading `--brand` once at effect start therefore
+    // FROZE the value of whichever theme the field mounted in: light `--brand` is oklch(0.6 …)
+    // and dark is oklch(0.86 …), so toggling to dark left the particles painted at the light
+    // value until something forced a remount.
+    //
+    // `getComputedStyle(canvas).color` (not `.getPropertyValue('--brand')`) because the canvas
+    // carries `text-brand`: `color` is the RESOLVED value the cascade produced, so a local theme
+    // scope or a token override is honoured too, and `currentColor` needs no separate fallback.
+    // A computed-style read per frame is a style recalc the browser has already done for this
+    // element by the time rAF runs — it is cheap enough to be the honest fix rather than
+    // subscribing a MutationObserver to a class attribute somewhere up the tree.
+    function readInk(): string {
+      return getComputedStyle(canvas!).color || "currentColor";
+    }
 
     function resize() {
       const rect = canvas!.getBoundingClientRect();
@@ -179,7 +196,7 @@ export function ParticleField({
       const w = canvas!.width;
       const h = canvas!.height;
       ctx!.clearRect(0, 0, w, h);
-      ctx!.fillStyle = brand;
+      ctx!.fillStyle = readInk();
       for (const p of particles) {
         ctx!.globalAlpha = p.alpha;
         ctx!.beginPath();
@@ -192,7 +209,20 @@ export function ParticleField({
 
     if (prefersReducedMotion) {
       drawFrame();
-      return;
+      // The animated branch below re-reads the ink every frame, so a theme toggle repaints
+      // itself. This branch paints ONCE by design (reduced motion means no rAF loop at all),
+      // so it needs an explicit trigger or it would keep the frozen-ink bug for exactly the
+      // users least able to tolerate a wrong-contrast field. A theme change lands as an
+      // attribute write on the document element — `class` for next-themes (the sanctioned
+      // engine, D30) and `data-theme` for a scoped override — so observing those two
+      // attributes covers both without coupling to either implementation.
+      if (typeof MutationObserver === "undefined") return;
+      const themeObserver = new MutationObserver(() => drawFrame());
+      themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["class", "data-theme"],
+      });
+      return () => themeObserver.disconnect();
     }
 
     let raf: number | null = null;

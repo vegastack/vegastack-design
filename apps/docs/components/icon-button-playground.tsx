@@ -10,12 +10,7 @@ import {
 } from "@/components/playground";
 
 type IconButtonPlaygroundKey =
-  | "variant"
-  | "tone"
-  | "size"
-  | "shape"
-  | "disabled"
-  | "loading";
+  "variant" | "tone" | "size" | "shape" | "disabled" | "loading";
 
 /** The Button matrix passes straight through the wrapper. */
 const VARIANT_OPTIONS = [

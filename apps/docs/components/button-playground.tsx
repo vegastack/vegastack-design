@@ -7,12 +7,7 @@ import {
   type PlaygroundConfig,
 } from "@/components/playground";
 
-type ButtonPlaygroundKey =
-  | "variant"
-  | "tone"
-  | "size"
-  | "disabled"
-  | "loading";
+type ButtonPlaygroundKey = "variant" | "tone" | "size" | "disabled" | "loading";
 
 /** The six shapes. `cta` is brand-locked and ignores `tone`. */
 const VARIANT_OPTIONS = [

@@ -165,6 +165,84 @@ test("sets data-drawn once the first frame has painted", async () => {
   });
 });
 
+/* -------------------------------------------------------------------------------------------
+ * Theme-following (B9-09). The ink used to be captured ONCE, at effect start, into a `const`.
+ * The draw effect is keyed on ready/count/seed/reduced-motion — nothing it can observe changes
+ * when the theme does — so a light-mounted field kept the light `--brand` (oklch(0.6 …)) after
+ * a toggle to dark (oklch(0.86 …)) until something forced a remount.
+ *
+ * The fix reads the canvas's own RESOLVED `color` per frame. This harness compiles no Tailwind,
+ * so `text-brand` resolves to nothing and the canvas simply INHERITS `color` from its ancestor
+ * — which is what makes the mechanism testable here: change the inherited colour, and the ink
+ * must follow, on the SAME element, with no remount.
+ * ----------------------------------------------------------------------------------------- */
+
+function themed(color: string, children: React.ReactNode) {
+  return (
+    <div style={{ position: "relative", width: 200, height: 200, color }}>
+      {children}
+    </div>
+  );
+}
+
+test("animated field repaints in the new ink when the theme changes, without remounting", async () => {
+  // The rAF loop is the path that re-reads per frame, so this test needs motion ON.
+  restoreMatchMedia?.();
+  restoreMatchMedia = mockReducedMotion(false);
+
+  const screen = await render(
+    themed(
+      "rgb(255, 0, 0)",
+      <ParticleField seed={5} count={16} data-testid="field" />,
+    ),
+  );
+  const el = screen.getByTestId("field").element() as HTMLElement;
+  const canvas = el.querySelector("canvas") as HTMLCanvasElement;
+  await vi.waitFor(() => expect(el.hasAttribute("data-drawn")).toBe(true));
+
+  let before = "";
+  await vi.waitFor(() => {
+    before = canvas.toDataURL();
+    expect(before.length).toBeGreaterThan(64);
+  });
+
+  // A theme toggle, as the cascade delivers it: the resolved colour changes.
+  (el.parentElement as HTMLElement).style.color = "rgb(0, 0, 255)";
+
+  await vi.waitFor(() => {
+    expect(canvas.toDataURL()).not.toBe(before);
+  });
+
+  // Same element throughout — the recolour is a repaint, not a remount.
+  expect(el.querySelector("canvas")).toBe(canvas);
+});
+
+test("the static reduced-motion frame follows a theme change too", async () => {
+  // This branch paints once by design, so it needs an explicit trigger — a theme change
+  // lands as an attribute write on the document element.
+  const screen = await render(
+    themed(
+      "rgb(255, 0, 0)",
+      <ParticleField seed={6} count={16} data-testid="field" />,
+    ),
+  );
+  const el = screen.getByTestId("field").element() as HTMLElement;
+  const canvas = el.querySelector("canvas") as HTMLCanvasElement;
+  await vi.waitFor(() => expect(el.hasAttribute("data-drawn")).toBe(true));
+  const before = canvas.toDataURL();
+
+  try {
+    (el.parentElement as HTMLElement).style.color = "rgb(0, 0, 255)";
+    document.documentElement.setAttribute("data-theme", "dark");
+    await vi.waitFor(() => {
+      expect(canvas.toDataURL()).not.toBe(before);
+    });
+    expect(el.querySelector("canvas")).toBe(canvas);
+  } finally {
+    document.documentElement.removeAttribute("data-theme");
+  }
+});
+
 test("no a11y violations", async () => {
   const screen = await render(<ParticleField />);
   await expectNoA11yViolations(screen.container);

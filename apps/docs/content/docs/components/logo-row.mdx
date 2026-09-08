@@ -41,7 +41,13 @@ placeholder names on marketing pages until real, cleared logos exist.
 ### Wall variant
 
 `variant="wall"` lays the wordmarks out as a hairline-cell grid — the cell borders form the
-grid, no gaps. Set `wallColumns` to 2, 3, or 4.
+grid, no gaps. `wallColumns` (2, 3, or 4) is the MAXIMUM number of columns: the track is
+`auto-fill` over an 8rem cell floor, so the wall drops to fewer columns by itself when the row is
+narrow rather than squeezing four 80px cells onto a 320px screen. The seams are logical
+(`border-s`), so an RTL page keeps its inner rules instead of doubling the outer edge.
+
+Marks rest in `text-muted-foreground` and lift to `text-foreground` on hover, with no underline —
+a wall of underlined text reads as a paragraph of links rather than as marks.
 
 <ComponentPreview name="logoRowWall" file="components/preview/logo-row.tsx" />
 

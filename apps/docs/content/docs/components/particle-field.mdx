@@ -41,10 +41,23 @@ code-splitting (not loading the component's JS at all until needed), wrap the **
 call site in `next/dynamic(() => import(...), { ssr: false })` — see the docs-home hero for the
 reference usage.
 
-### Reduced motion & determinism
+### Determinism
+
+The layout is deterministic per `seed`, so the same seed always paints the same field and a
+screenshot never drifts.
+
+<ComponentPreview
+  name="particleFieldSeeds"
+  file="components/preview/particle-field.tsx"
+/>
+
+### Reduced motion & theme
 
 Renders exactly **one static frame** (no `requestAnimationFrame` loop at all) under
-`prefers-reduced-motion: reduce`. Particle positions come from a seeded PRNG (mulberry32) — never
+`prefers-reduced-motion: reduce`, repainted when the theme changes so this branch follows the
+theme too. The particle ink is the canvas's own resolved `color` (it carries `text-brand`), read
+per frame rather than captured once at mount — so toggling light/dark recolours the field in
+place, with no remount. Particle positions come from a seeded PRNG (mulberry32) — never
 `Math.random()` — so the same `seed` always produces the same layout. `count` is capped
 (`PARTICLE_FIELD_MAX_COUNT`) regardless of the value passed, so it stays subtle and performant by
 construction. The root element carries `data-drawn` once the first frame has actually painted —
@@ -61,7 +74,8 @@ wait on that attribute instead of guessing a delay (a VRT harness should).
 
 - Purely decorative — rendered `aria-hidden="true"` in full; it never carries content a screen
   reader needs.
-- Respects `prefers-reduced-motion: reduce` by rendering one static frame.
+- Respects `prefers-reduced-motion: reduce` by rendering one static frame — which still follows a
+  theme change, so a reduced-motion user never sees the wrong-theme ink.
 
 ## Do / Don't
 

@@ -15134,6 +15134,15 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "SettingsSectionTitleTag",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/settings-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -21902,6 +21911,10 @@
         "StaggeredTextReveal": {
           "attributes": [
             {
+              "name": "data-revealed",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
               "values": ["staggered-text-reveal", "staggered-text-reveal-word"]
             }
@@ -25014,7 +25027,10 @@
       "docsSlug": "/docs/guides/components",
       "registryDependencies": ["@vegastack/use-announcer"],
       "npmDependencies": ["react-dropzone@^19.1.1"],
-      "testFiles": ["packages/ui/registry/ui/dropzone.test.tsx"],
+      "testFiles": [
+        "packages/ui/registry/ui/use-file-drop.test.tsx",
+        "packages/ui/registry/ui/dropzone.test.tsx"
+      ],
       "coverage": {
         "source": "required",
         "test": "required",

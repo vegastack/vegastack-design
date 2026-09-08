@@ -1,4 +1,4 @@
-// @vegastack pricing-section@0.6.0 sha256-+rXtivScl2T9fM+k9REDtLKnayRwNiGtby5AjfXteXg=
+// @vegastack pricing-section@0.6.0 sha256-MxV00VAwMh8gbnvgchGzXpmIV6X40SwVN7OYedpXjf4=
 
 import * as React from "react";
 import { Check } from "lucide-react";
@@ -11,8 +11,9 @@ import { Badge } from "@/components/ui/badge";
  * PricingSection / PlanCard — the marketing pricing family (Wave 4, from the pricing-page
  * teardown): hairline plan cards with a mono price display (an IMPROVEMENT over the reference —
  * numerals are mono per the system's numbers rule), check feature lists, in-card CTA slot, and
- * a primary-ink border + neutral "Popular" badge for the promoted plan (promotion is neutral
- * primary/ladder, never `info` — blue is links and informational UI only). Server-safe;
+ * a `surface-3` rung + alpha-`primary` hairline + neutral "Popular" badge for the promoted plan
+ * (promotion is neutral primary/ladder, never `info` — blue is links and informational UI only).
+ * Server-safe;
  * billing toggles compose from `Segmented` at the call site.
  * ----------------------------------------------------------------------------------------------*/
 
@@ -53,7 +54,8 @@ export interface PlanCardProps extends React.ComponentPropsWithRef<"div"> {
   /** The plan's CTA (a full-width Button). @default undefined */
   action?: React.ReactNode;
   /**
-   * Promote this plan: primary-ink border + the "Popular" badge.
+   * Promote this plan: lifts the card onto the `surface-3` rung, tints its hairline
+   * `primary`, and shows the "Popular" badge.
    * @default false
    */
   highlighted?: boolean;
@@ -95,7 +97,12 @@ export function PlanCard({
       data-highlighted={highlighted ? "" : undefined}
       className={cn(
         "relative flex min-w-0 flex-col gap-4 rounded-lg border border-border bg-card p-4 text-card-foreground",
-        highlighted && "border-primary",
+        // Promotion is a LADDER RUNG plus a tinted hairline, never a hue: the promoted card
+        // lifts off the page onto `surface-3` (the same rung selection uses) and draws its
+        // border as `primary` at the outline-border alpha. A full-strength `border-primary`
+        // read as an error/active-form state next to the neutral cards, and `info` — which
+        // this used before F1 — is reserved for links and informational messages.
+        highlighted && "bg-surface-3 border-primary/(--alpha-outline-border)",
         className,
       )}
       {...props}

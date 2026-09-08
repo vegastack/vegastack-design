@@ -58,7 +58,9 @@ const dialogPlaygroundConfig: PlaygroundConfig<DialogPlaygroundKey> = {
         </DialogHeader>
         <DialogFooter>
           <DialogClose render={<Button variant="outline">Cancel</Button>} />
-          <Button variant="soft" tone="destructive">Delete</Button>
+          <Button variant="soft" tone="destructive">
+            Delete
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

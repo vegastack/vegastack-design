@@ -130,8 +130,13 @@ export function DashboardPage({
             </Button>
           }
         >
+          {/* `maxItems={2}` keeps the header ONE line at 320px, where the trail used to
+              wrap under the sidebar trigger. It is a no-op for this two-item trail — the
+              point is that a consumer who extends the trail (the normal thing to do with a
+              starter block) inherits the collapse instead of re-discovering the wrap. */}
           <Breadcrumb>
             <BreadcrumbTrail
+              maxItems={2}
               items={[{ label: "Home", href: "/" }, { label: "Dashboard" }]}
             />
           </Breadcrumb>

@@ -133,7 +133,10 @@ danger-zone intro.
 
 ## Accessibility
 
-- `SettingsSection` renders its `title` as a real `<h3>` so the page outline stays meaningful — keep
+- `SettingsSection` renders its `title` as a real heading — `<h3>` by default, or whatever
+  `titleAs` names (`h2`…`h6`). A settings page nests sections at different depths, and the level
+  is a document-structure fact the page owns: pick the one that continues the outline, so heading
+  navigation stays meaningful. The visual size never changes. Keep
   one section per heading and order them logically.
 - Pass `controlId` when the row contains a form control with a matching `id`; the row label becomes a
   real `<label htmlFor={controlId}>`. For composite controls that do not expose an input id, keep an

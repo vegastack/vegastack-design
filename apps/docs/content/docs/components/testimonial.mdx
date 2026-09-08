@@ -57,7 +57,10 @@ other is a single emphasis span inside [`SectionHeader`](/docs/components/sectio
 
 - Renders a semantic `<figure>` / `<blockquote>` / `<figcaption>` structure — the quote is a real
   `<blockquote>`, the attribution a real `<figcaption>`.
-- Pass `quote` WITHOUT its own quotation marks — the component wraps it in curly quotes
+- Pass `quote` WITHOUT its own quotation marks — it renders inside a `<q>`, so the browser
+  inserts the pair the ACTIVE LANGUAGE uses (`„…“`, `« … »`, `「…」`) rather than English curly
+  quotes everywhere. Set `lang` on the element or an ancestor to pick the pair. The marks are not
+  in the text content, so a copy of the quote is clean
   automatically.
 - The decorative middot between name and role is `aria-hidden`.
 
@@ -65,5 +68,5 @@ other is a single emphasis span inside [`SectionHeader`](/docs/components/sectio
 
 <DoDont
   do="Keep the quote short — it's a display-scale pull-quote, not a paragraph."
-  dont="Wrap the quote text in your own quotation marks — Testimonial adds curly quotes for you."
+  dont="Wrap the quote text in your own quotation marks — Testimonial adds the locale's own pair for you."
 />

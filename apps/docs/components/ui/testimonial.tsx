@@ -1,4 +1,4 @@
-// @vegastack testimonial@0.6.0 sha256-WefY9FJ9NM+sC+6OEYql6pvxAjw907rWD5inHlL0bUI=
+// @vegastack testimonial@0.6.0 sha256-57OA/PVQ0pfFLFsXfRjot7uczTlrdgwxp/G97/Vxfwg=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -9,8 +9,10 @@ export interface TestimonialProps extends Omit<
   "role"
 > {
   /**
-   * The quote text, WITHOUT its own quotation marks — the component wraps it
-   * in curly quotes. Rendered serif italic (`font-serif italic`, the
+   * The quote text, WITHOUT its own quotation marks — it renders inside a `<q>`,
+   * so the browser inserts the pair the ACTIVE LANGUAGE uses (`„…“`, `« … »`,
+   * `「…」`) rather than English curly quotes everywhere. Set `lang` on this
+   * element or an ancestor to pick the pair. Rendered serif italic (`font-serif italic`, the
    * Newsreader display-emphasis accent) at `text-display-sm` — the sanctioned
    * pull-quote use of the serif accent (audit 17-brand-direction §Typography
    * roles: display emphasis + pull-quotes ONLY, never running body text).
@@ -48,11 +50,16 @@ export function Testimonial({
       className={cn("flex flex-col gap-4", className)}
       {...props}
     >
+      {/* The quotation marks come from CSS `quotes`, not from characters in the markup.
+          `<q>` makes the browser insert the pair for the ACTIVE language — „…“ in German,
+          « … » in French, 「…」 in Japanese — where a hard-coded “…” shipped English
+          punctuation to every locale. `quotes: auto` is the explicit opt-in to that
+          language-driven behaviour. */}
       <blockquote
         data-slot="testimonial-quote"
         className="text-balance font-serif text-display-sm text-foreground italic"
       >
-        “{quote}”
+        <q className="[quotes:auto]">{quote}</q>
       </blockquote>
       <figcaption
         data-slot="testimonial-attribution"

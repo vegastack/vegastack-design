@@ -84,6 +84,20 @@ test("section renders its title and description", async () => {
   await expect.element(screen.getByText("body")).toBeInTheDocument();
 });
 
+test("titleAs picks the heading level so a page keeps a valid outline", async () => {
+  // A settings page nests sections at different depths; a hard-coded <h3> everywhere
+  // breaks heading navigation for a screen-reader user.
+  const screen = await render(
+    <SettingsSection titleAs="h2" title="Notifications" />,
+  );
+  const title = screen.container.querySelector(
+    '[data-slot="settings-section-title"]',
+  );
+  expect(title?.tagName).toBe("H2");
+  // The visual role is unchanged — only the document structure moves.
+  expect(title?.classList.contains("text-h4")).toBe(true);
+});
+
 test("compound parts each expose their data-slot", async () => {
   const screen = await render(
     <SettingsSection title="Account">
@@ -105,6 +119,10 @@ test("compound parts each expose their data-slot", async () => {
     container.querySelector('[data-slot="settings-section-title"]'),
   ).not.toBeNull();
   expect(container.querySelector('[data-slot="settings-card"]')).not.toBeNull();
+  // Default level is unchanged (h3) — titleAs only makes it choosable.
+  expect(
+    container.querySelector('[data-slot="settings-section-title"]')?.tagName,
+  ).toBe("H3");
   expect(container.querySelectorAll('[data-slot="settings-row"]')).toHaveLength(
     2,
   );
