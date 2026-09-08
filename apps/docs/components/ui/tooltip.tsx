@@ -1,10 +1,11 @@
-// @vegastack tooltip@0.6.0 sha256-aBk9xxfkmsxKUo/Gt+5T29sybI1I7zB85YwpG+hJuFg=
+// @vegastack tooltip@0.6.0 sha256-yhChnF13G2LYwGdMTowFupaJIELbFwl6hWOaCACSN9U=
 
 "use client";
 
 import * as React from "react";
 import { Tooltip as BaseTooltip } from "@base-ui/react/tooltip";
 import { cn, FLOATING } from "@vegastack/design";
+import { Kbd } from "@/components/ui/kbd";
 import {
   FloatingArrow,
   FloatingSurface,
@@ -221,37 +222,47 @@ export function TooltipArrow(props: TooltipArrowProps) {
   );
 }
 
-/**
- * `TooltipKbd` — render a keyboard shortcut hint inside a tooltip. Each key is
- * a `<kbd>` styled with `bg-muted` / `text-muted-foreground`. Pass a single
- * string (`"⌘K"` is split per character) or an array of key tokens.
- */
+/** Props accepted by `TooltipKbd`. */
 export interface TooltipKbdProps extends React.ComponentProps<"span"> {
   /** The shortcut — a string (split per glyph) or explicit key tokens. */
   keys: string | readonly string[];
+  /**
+   * Platform label mode, forwarded to `Kbd`. Resolve it at the call site with
+   * `usePlatform()`; the default matches that hook's SSR fallback.
+   * @default 'other'
+   */
+  os?: "mac" | "other";
 }
 
-/** `TooltipKbd` renders a sequence of compact keyboard-key labels.
+/**
+ * `TooltipKbd` — a keyboard shortcut hint inside a tooltip. Pass a single string
+ * (`"⌘K"` is split per character) or an array of key tokens.
+ *
+ * It renders `Kbd size="xs"` rather than restyling its own `<kbd>`: there is one
+ * key chip in the system and this is not a second one (audit B2-07). That also
+ * buys it the OS rewrite — a Windows reader sees `Ctrl`, not `⌘`.
  *
  * @example
- * <TooltipKbd />
+ * const { os } = usePlatform();
+ * <TooltipKbd keys={["⌘", "K"]} os={os === "mac" ? "mac" : "other"} />
  */
-export function TooltipKbd({ keys, className, ...props }: TooltipKbdProps) {
+export function TooltipKbd({
+  keys,
+  os = "other",
+  className,
+  ...props
+}: TooltipKbdProps) {
   const tokens = Array.isArray(keys) ? keys : [...(keys as string)];
   return (
-    <span
+    <Kbd
+      // Kbd's `keys` form spreads these onto its KbdGroup root, so the documented
+      // `data-slot="tooltip-kbd"` hook survives the consolidation.
       data-slot="tooltip-kbd"
-      className={cn("inline-flex shrink-0 items-center gap-0.5", className)}
+      keys={tokens}
+      size="xs"
+      os={os}
+      className={className}
       {...props}
-    >
-      {tokens.map((key, i) => (
-        <kbd
-          key={`${key}-${i}`}
-          className="inline-flex h-4 min-w-4 items-center justify-center rounded border border-border bg-muted px-1 font-mono text-sm leading-none font-medium text-muted-foreground"
-        >
-          {key}
-        </kbd>
-      ))}
-    </span>
+    />
   );
 }
