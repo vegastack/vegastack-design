@@ -61,7 +61,7 @@ confirm against 1–4 first. Locked decisions stay locked regardless of where th
 | Add or change a component, hook, or block                  | Load the **`component`** skill                                                           |
 | Review or audit this repo — gates, compliance, drift, bugs | Load the **`review`** skill                                                              |
 | Release, publish, deploy, or write a changelog entry       | Load the **`ship`** skill                                                                |
-| A git hook blocked a commit or push; a gate report to read | Load the **`gates`** skill                                                               |
+| A git hook blocked a commit, or `pnpm verify` failed       | Load the **`gates`** skill                                                               |
 | Plan a non-trivial change                                  | Write a plan to `docs/plans/`, present it, wait for approval (§Planning)                 |
 | Write or change a docs page                                | §Docs authoring below, then the `component` skill §6                                     |
 | Understand what a component does                           | `docs/ledger/component-matrix.md`, or the MDX page                                       |
@@ -81,7 +81,8 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
 `docs/gap-analysis.md` — historical records, so read them for _why_, never for _what is true now_.
 
 - **Stack** — `@base-ui/react` primitives via shadcn `--base base`; Tailwind v4; Next 16; React 19;
-  Node ≥24.14; pnpm 11; Turborepo 2.
+  Node pinned to 24.20.0 by pnpm (`devEngines.runtime`, `onFail: download`) and run for every script
+  whatever the host has on PATH; pnpm 11; Turborepo 2.
 - **Distribution is hybrid** — public npm (`@vegastack/design` + zero-dep
   `@vegastack/design-tokens`) plus a private shadcn registry for components (copy-in).
 - **Component model A (own it), no `Vega*` prefix** — export `Button`, not `VegaButton`. There is no
@@ -92,34 +93,28 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
   `@theme inline` bridge). Runtime font/ease vars are `--font-family-*` / `--motion-ease-*`, never
   self-referential.
 - **Docs** — Fumadocs, static export to Cloudflare Workers Static Assets. Storybook is deferred.
-- **Verification is local-first; CI verifies that it happened.** Decided 2026-07-25 (Option A), plan
-  in `docs/plans/2026-07-25-cicd-local-first-revamp.md`. **No CI runner executes a browser.** The
-  browser-unit suite, the cross-engine smoke, the three-engine suite, and the 864 behaviour contracts
-  all run in `.husky/pre-push` (scoped) and `pnpm gates:ship` (full) on a developer machine. Each run
-  writes `.gates/receipt.json`, bound to a git tree hash of the working tree with `.gates/` excluded,
-  and every workflow's `receipt-guard` job rejects a push whose receipt does not cover the pushed
-  tree. The free mac minis independently **re-execute** the entire non-browser half.
-  Measured: ~1,892 billable minutes over 7.2 days became ~100-150 per month, and a pull request now
-  costs zero.
-- **A receipt is attestation, not proof, and that is written down on purpose.** `--no-verify`,
-  `HUSKY=0`, or a hand-edited JSON defeats it. What it buys is that skipping a browser gate becomes a
-  visible, auditable act instead of a silent one — and under Option A that is the entire guarantee on
-  those four lanes. Seven of eleven gate rows remain machine-verified for free; the split is stated
-  row by row in § Verification ladder. When more than one person merges component changes
-  independently, the answer is required status checks plus a second machine re-running the lanes, not
-  a cleverer receipt. **One carry is legitimate and checkable:** `changeset version` moves the tree
-  hash while changing no code a browser gate can observe, so `tooling/gate-receipt-carry.mjs` carries
-  the receipt across a version bump and stamps `carriedFrom`. The guard re-derives that proof from git
-  (`versionBumpOnly`) and rejects any carry hiding a real change — without it every Version PR would
-  fail `receipt-guard` and no npm publish could ever happen.
-  `tooling/verify-hooks-installed.mjs` runs inside `pnpm lint` because a tree
-  whose hooks are missing or unwired has no browser verification at all, and husky's dispatcher exits
-  **zero** when a committed hook is absent.
+- **CI executes the browser lanes; nothing is attested.** Decided 2026-09-08, plan in
+  `docs/plans/2026-09-08-verification-rebuild.md`. One command — `pnpm verify` — runs on a laptop, on
+  a pull request, before a publish, and before a deploy, on the LAN Linux runners inside the pinned
+  `mcr.microsoft.com/playwright` container whose tag is derived from `pnpm-lock.yaml`. This
+  **supersedes** the local-first topology decided 2026-07-25 (`2026-07-25-cicd-local-first-revamp.md`,
+  Option A): `.gates/receipt.json`, every `receipt-guard` job, the receipt carry, the change
+  classifier, route scoping, `.husky/pre-push`, and `tooling/verify-hooks-installed.mjs` are all
+  deleted. A receipt was attestation, not proof — `--no-verify` plus a hand-edited JSON defeated it —
+  and it existed only because no free runner could launch a browser. On 2026-09-07 the LAN Debian
+  boxes ran Chromium, Firefox, and WebKit. The premise was gone, so the mechanism went with it. A
+  pull request, a release, and a deploy still each cost zero billable minutes.
+- **Job containers are required on Linux and banned on the minis.** A container is Linux-only and
+  cannot start on the macOS minis at all; on the Linux runners the pinned Playwright image is what
+  makes a box interchangeable, so `tooling/verify-workflow-security.mjs` REQUIRES it (not merely
+  permits it) on every `LINUX_JOBS` entry and rejects it everywhere else. The negative harness proves
+  both halves by mutation. This narrows the previous outright ban.
 - **Pixels stay a local review step**, unchanged: `node tooling/vrt-review.mjs` captures the base ref
   and the working tree on one machine and emits a before/after report a human reads during `/ship`.
   No screenshot is ever committed.
-- **No CI job is GitHub-hosted — every job runs on the self-hosted mac minis.** A pull request, a
-  release, and a deploy each cost zero billable minutes. The empty allowlist is enforced in
+- **No CI job is GitHub-hosted.** Every job runs on self-hosted hardware — the mac minis for
+  credential-only work and the cross-platform static signal, the LAN Debian boxes for the three
+  verification jobs. A pull request, a release, and a deploy each cost zero billable minutes. The empty allowlist is enforced in
   `tooling/verify-workflow-security.mjs`, not a convention, and
   `tooling/verify-workflow-security-negative.mjs` proves a move back onto `ubuntu-latest` is rejected
   in either direction. Two release jobs and three deploy jobs used to be hosted; all five moved, and
@@ -146,10 +141,6 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
     loudly, rather than passing falsely.
   - Nothing is downgraded: publishing keeps the same short-lived, workflow-bound OIDC auth it always
     had; the only change is where the job runs and that provenance (never actually emitted) is off.
-- **Job containers are banned outright.** They are Linux-only and cannot start on the macOS minis,
-  and the one job that legitimately needed one — the three-engine suite in the digest-pinned
-  Playwright image, because bare `ubuntu-latest` WebKit could not settle the compiled-CSS Toaster
-  contrast check — no longer runs in CI at all. That suite takes 1m39s locally.
 - **The minis still cannot launch browsers, and it no longer blocks anything.** Their Actions runner
   has no per-user Mach bootstrap namespace, so every Chromium launch dies with `bootstrap_look_up
 org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` and SIGTRAP —
@@ -277,106 +268,86 @@ prove it worked, and the risks. Historical plans stay — they are the decision 
 
 ### Verification ladder
 
-Four tiers. Run the cheapest one that can disprove your change, then widen. The git hooks run tiers 1
-and 2 automatically; `pnpm gates:*` is the same ladder invoked by hand.
+Three commands. `pnpm verify` is the gate: it is byte-for-byte what `ci.yml` runs on a pull request,
+what `release.yml` runs before a publish, and what `deploy.yml` runs before a deploy — so a green run
+here is a green run there. Nothing is scoped to a diff and nothing is attested.
 
 ```bash
-pnpm gates:commit                 # ~3s      static gates over the STAGED set. Never a browser.
-pnpm gates:component <name>       # ~25s     design-lint · that component's unit test · its routes
-pnpm gates:push                   # ~35-80s  typecheck · lint · unit · smoke · SCOPED contracts
-pnpm gates:ship                   # ~20min   the full sweep, then vrt-review. /ship requires it.
+pnpm check:component <name>   # ~5s     design-lint · typecheck · that one component's test
+pnpm verify                   # ~2.5min typecheck · lint · design:verify · browser suite · design CLI tests
+pnpm verify:release           # deploy   BOTH docs matrices · links · registry · consume · 3 engines
+pnpm run clean                # report only; `--after-run` / `--weekly` reclaim, `--dry-run` never removes
 ```
+
+`pnpm verify` ends by running `tooling/workspace-clean.mjs --after-run` unconditionally — pass or
+fail — and preserves the run's exit code, so a failed run leaves a clean tree rather than a directory
+of test artifacts. `pnpm verify:release` runs only in `deploy.yml`.
 
 Individual gates, when you want one directly:
 
 ```bash
 node tooling/design-lint.mjs packages/ui/registry   # token + AST rules on component source
 pnpm typecheck                                       # workspace-wide
-pnpm --filter @vegastack/ui test                     # browser-mode unit + axe
-pnpm --filter @vegastack/ui test:smoke               # WebKit + Firefox, contract-selected subset
+pnpm exec turbo run test --filter=@vegastack/ui      # browser-mode unit + axe + geometry contracts
+pnpm exec turbo run test --filter=@vegastack/design  # the vegastack-design CLI node suite
 pnpm --filter @vegastack/ui test:all-browsers        # the complete suite in three engines
-pnpm contracts                                       # behaviour contracts, SCOPED to the diff
-pnpm contracts:all                                   # all 108 routes / 864 checks
-pnpm classify                                        # which gates this change requires, and why
-pnpm lint                                            # the full gate chain — see package.json
+pnpm lint                                            # the full static gate chain — see package.json
 pnpm registry:build && git status --porcelain        # must be idempotent: clean tree after
 pnpm design:derived && git status --porcelain        # contract-derived surfaces must be current
 node tooling/vrt-review.mjs                          # before/after pixels — review, not a gate
 ```
 
-**What CI re-executes versus what it takes on trust.** Every browser lane is attested; everything
-else is independently re-run for free on the minis. Do not blur this line in review.
+Go through turbo (or `pnpm verify`) for the browser suite rather than
+`pnpm --filter @vegastack/ui test`: turbo's `test` task dependsOn `^build`, and the suite imports
+`@vegastack/design`, whose dist is gitignored. Run bare in a clean checkout, vite cannot resolve that
+import and the run HANGS on pre-transform errors rather than failing.
 
-| gate                                                                                                                                                                                               | runs where               | CI                                     |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | -------------------------------------- |
-| static gates, `design:verify`, `typecheck`, `lint`, `registry:build` idempotency, `design:derived:check`, `registry:verify-consume`, both `SITE_VISIBILITY` builds, `@vegastack/design` node tests | hook **and** mini        | **re-executed**                        |
-| `@vegastack/ui` browser unit + axe · cross-engine smoke · three-engine suite · 864 behaviour contracts                                                                                             | hook / `gates:ship` only | **attested** via `.gates/receipt.json` |
-| `vrt-review` pixels                                                                                                                                                                                | `/ship` only             | review step, never a gate              |
+**What CI runs.** Every row is executed; nothing is taken on trust. The receipt-attested rows are gone.
 
-Scope is decided by `tooling/lib/route-scope.mjs`, shared by the contract lane and the pixel lane with
-per-lane overrides. Anything unrecognised forces a full sweep — over-capturing costs minutes,
-under-capturing ships an unverified change. `tooling/verify-route-scope.mjs` proves both directions,
-including the one path the two lanes classify OPPOSITELY (`contracts.spec.ts` cannot move a pixel, but
-it IS the contract assertions).
+| gate                                                                                               | runs where                                      |
+| -------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `pnpm verify` — typecheck, lint, `design:verify`, browser unit + axe + geometry, design CLI tests  | `ci.yml`, `release.yml`, `deploy.yml`, on Linux |
+| `pnpm typecheck && pnpm lint && pnpm design:verify` (no browser) — the cross-platform signal       | `ci.yml`'s `verify-macos`, on the minis         |
+| `pnpm verify:release` — BOTH docs matrices, links, registry idempotency, consume, three engines    | `deploy.yml`, before `build-sign-deploy`        |
+| `vrt-review` pixels                                                                                | local `/ship` step, never a gate                |
+
+`.gates/receipt.json`, every `receipt-guard` job, `.husky/pre-push`, route scoping
+(`tooling/lib/route-scope.mjs`), and the change classifier were **removed** by
+`docs/plans/2026-09-08-verification-rebuild.md`. They existed because no free runner could launch a
+browser; the LAN Linux runners can, inside the pinned Playwright container, so the lanes are executed
+rather than attested. `--no-verify` and `HUSKY=0` stop being policy words.
 
 `pnpm lint` is the umbrella: shadcn base check, skill lint, the public-skill mirror, security
-boundaries, workflow security, secret scan, `design:verify` (token build, design.md sync, contract
-reconciliation, public API docs, animated icons, theme parity, portal theme scope, **RSC safety**,
-toaster mirror, structural design-lint, negative registry-integrity fixtures), then per-package lint.
+boundaries, workflow security (+ its negative harness), secret scan, the `tooling` vitest project,
+`design:verify` (token build, design.md sync, contract reconciliation, public API docs, animated
+icons, theme parity, portal theme scope, **RSC safety**, toaster mirror, structural design-lint,
+negative registry-integrity fixtures), then per-package lint.
 
 Every gate fails closed. A gate that has never been observed failing is an assumption — that is why
-`verify-design-lint-structural.mjs` and `verify-registry-integrity-negative.mjs` exist.
+`verify-design-lint-structural.mjs`, `verify-registry-integrity-negative.mjs`, and
+`verify-workflow-security-negative.mjs` exist.
 
-**The component contract suite is the blocking visual-surface gate — it now blocks locally.**
-`apps/docs/vrt/contracts.spec.ts` runs 864 checks over every component route — 320px reflow, RTL
-containment, effective 24px pointer targets, and a focus-indicator check. It takes no screenshots and
-needs no baselines, so it cannot be cleared by regenerating its own evidence.
-
-**The focus-indicator check currently cannot fail, and must not be cited as coverage.** Measured
-2026-07-25: it runs under `forcedColors: "active"`, where Chromium paints its own ≥2px focus ring, so
-deleting the design system's `:focus-visible` rule leaves all 864 checks green. Its fallback branch is
-also unconditionally true, because forced-colors repaints borders on focus. Pre-existing — reproduced
-against the spec before that day's rewrite. Reflow, RTL, and the 24px target floor are unaffected and
-demonstrably still fail on real defects. Evidence, reproduction, and why the fix is scoped separately:
-`docs/ledger/bugs.md`, 2026-07-25. It runs in
-`.husky/pre-push` scoped to the routes the diff can reach, and in full at `/ship`; no CI runner
-executes it, and `receipt-guard` rejects a push whose receipt lacks it when the change required it.
-
-```bash
-pnpm contracts                                  # scoped to the diff — measured 24s for one route
-pnpm contracts:all                              # all 108 routes / 864 checks — measured ~14m
-node tooling/contracts-run.mjs --routes /docs/components/button
-```
-
-Always go through `tooling/contracts-run.mjs` rather than calling Playwright directly. It owns the
-docs build through turbo (a 2.9s cache hit instead of a ~1m40 rebuild per invocation), reserves and
-reaps a free port so two runs cannot collide, cross-checks the `--grep` against `--list` before
-running so an anchoring mistake cannot produce a green run over the wrong tests, and fails when a
-non-empty scope executes zero tests.
+**The geometry contracts are the blocking visual-surface gate.**
+`packages/ui/test/geometry.browser.test.tsx` mounts every preview fixture with the real compiled token
+CSS and asserts 320px reflow, RTL containment, and an effective 24px pointer target measured with a
+real `elementFromPoint` probe. It takes no screenshots and needs no baselines, so it cannot be cleared
+by regenerating its own evidence, and it runs inside `pnpm verify` — locally and in CI. The
+`apps/docs/vrt/contracts.spec.ts` suite it replaced also carried a focus-indicator check that could
+not fail (it ran under `forcedColors: "active"`, where Chromium paints its own ring); that half was
+dropped rather than ported. Evidence: `docs/ledger/bugs.md`, 2026-07-25.
 
 **Pixel comparison is a local `/ship` step, not a gate.** `node tooling/vrt-review.mjs` captures the
 affected routes at the branch's merge-base and again at the working tree, on one machine minutes
-apart, then writes `.vrt-review/report.json` plus before/after/diff PNGs. Only routes the change can
-reach are captured; a change touching no visual surface captures nothing and reports SKIPPED. It
-exits 0 for any pixel outcome and 2 only when it could not produce a report — a pixel difference is
-not a defect, and only a human can say whether it was intended. Procedure: the `ship` skill.
+apart, then writes `.vrt-review/report.json` plus before/after/diff PNGs. It exits 0 for any pixel
+outcome and 2 only when it could not produce a report — a pixel difference is not a defect, and only
+a human can say whether it was intended. Procedure: the `ship` skill.
 
-Two costs are accepted deliberately. **Nothing enforces layout drift in CI** — the price of removing a
-gate whose only escape hatch was overwriting the evidence under review, on a team with no shared
-platform to regenerate baselines on. And **a component change can reach `main` having had only its
-SCOPED routes checked**, because the full sweep is a `/ship` gate; `receipt-guard` enforces that the
-scoped lane ran and covered the changed routes' dependency closure, and the unconditional full-sweep
-requirement in `deploy.yml` means nothing reaches production without one. Revisit both if several
-people begin merging component changes independently — the before/after tool can be pointed at a PR's
-base ref with no redesign, and required status checks would convert the attested rows back into
-enforced ones.
+One cost is accepted deliberately: **nothing enforces layout drift in CI** — the price of removing a
+gate whose only escape hatch was overwriting the evidence under review.
 
-Cross-browser policy: `pre-push` runs the Chromium unit suite plus the contract-selected
-WebKit/Firefox risk smoke (measured 16s each); `/ship` additionally runs the complete suite in all
-three engines (measured 1m39s). The smoke selection is generated from
-`coverage.crossBrowserSmoke: "selected"` in `packages/ui/component-contracts.json` — add a component
-to it only for motion or another evidenced cross-engine risk, never by editing the generated
-`contract-smoke-tests.generated.json`.
+Cross-browser policy: `pnpm verify` runs Chromium; `pnpm verify:release` runs the complete suite in
+all three engines, in `deploy.yml`. The cross-engine risk smoke and its generated selection are gone
+with the receipt topology — the release run covers everything they sampled.
 
 ### Docs authoring
 
@@ -439,16 +410,17 @@ packages/
   ui/              PRIVATE registry workspace — canonical component sources + registry.json
 apps/docs/         Fumadocs showcase, guides, and the registry host (public/r)
 tooling/           registry hashing/verification · design-lint · content, changelog, skill lints
-  gates.mjs          the gate ladder — commit · push · component · ship
-  contracts-run.mjs  the scoped behaviour-contract runner (owns the build and the server)
-  classify-change.mjs which gates a change requires; the workflows call this, not shell
-  lib/               route-scope · change-set · gate-receipt — shared by the runners and the guards
-.husky/            pre-commit · commit-msg · pre-push. The only place browser lanes run.
-.gates/            gate reports (gitignored) + receipt.json (COMMITTED — CI verifies it)
+  verify.mjs         `pnpm verify` and `verify:release` — two modes, per-step env, cleanup finally
+  workspace-clean.mjs  scratch reclamation: --after-run / --weekly, with a sticky --dry-run
+  pre-commit.mjs     the pre-commit hook body (design-lint + prettier over the staged set)
+  test/              the `tooling` vitest project, run by `pnpm lint`
+  runner/            provision-linux-runner.sh — enrol a Debian box as an Actions runner
+.husky/            pre-commit · commit-msg. No pre-push; CI runs the same command.
 skills/internal/   maintainer skills (never published)
 skills/public/     consumer skills (mirrored into @vegastack/design)
+docs/runbooks/     developer-machine-setup · ci-runner-provisioning-{linux,macos}
 docs/              requirements · gap analysis · plans · ledgers · research
-.github/workflows/ ci · release · deploy · runner-diagnostics
+.github/workflows/ ci · release · deploy
 ```
 
 `packages/ui/registry/ui/` holds components and hooks; `packages/ui/registry/blocks/` holds

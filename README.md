@@ -11,7 +11,7 @@ distributed **hybrid**: two public npm packages + a private, Sigstore-signed sha
 
 | Surface                 | Where                                                                                                                                                         |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Docs, showcase & guides | **https://design.vegastack.com** (target: public; broad SSO remains until approved cutover)                                                                   |
+| Docs, showcase & guides | **https://design.vegastack.com** (public — every non-registry route is anonymous; `/internal/*` is unlisted and `noindex`)                                    |
 | Component registry      | `https://design.vegastack.com/r/*` (Cloudflare Access service token)                                                                                          |
 | npm                     | [`@vegastack/design`](https://www.npmjs.com/package/@vegastack/design) · [`@vegastack/design-tokens`](https://www.npmjs.com/package/@vegastack/design-tokens) |
 | Release history         | [CHANGELOG.md](CHANGELOG.md) (canonical → generates the docs Changelog page)                                                                                  |
@@ -27,14 +27,13 @@ packages/
   design/          cn() · icon runtime (./icons) · Tailwind v4 preset · vegastack-design CLI
   ui/              PRIVATE registry workspace — canonical component sources + registry.json
 apps/docs/         Fumadocs showcase + guides + the registry host (public/r)
-tooling/           the gate ladder · registry hashing/verification · design-lint · lints
-.husky/            pre-commit · commit-msg · pre-push — where the browser gates actually run
-.gates/            gate reports (gitignored) + receipt.json (committed; CI verifies it)
-skills/internal/   maintainer skills — component · review · ship · gates
+tooling/           verify.mjs (the one command) · registry hashing/verification · design-lint · lints
+.husky/            pre-commit · commit-msg — cheap static signal only; no browser, no pre-push
+skills/internal/   maintainer skills — component · review · ship · gates (being retired)
 skills/public/     consumer skills — shipped inside @vegastack/design (see skills/README.md)
-.github/workflows/ ci · release (npm OIDC) · deploy · runner-diagnostics
-                   everything that runs repository code is on the free mac minis; seven
-                   hosted jobs remain, each for a hard reason — see AGENTS.md for the split
+.github/workflows/ ci · release (npm OIDC) · deploy
+                   every job is self-hosted: the LAN Linux boxes run `pnpm verify` in the
+                   pinned Playwright container, the mac minis run the static half
 ```
 
 Skills are symlinked into `.claude/skills/` and `.agents/skills/`, so both Claude Code and Codex
@@ -60,15 +59,16 @@ is generated (CI fails on drift).
 ```bash
 pnpm install                   # also wires the git hooks (husky, via `prepare`)
 pnpm dev                       # docs showcase on :3000
-pnpm gates:component <name>    # the inner loop: design-lint · that unit test · its contract routes
-pnpm gates:push                # what pre-push runs: typecheck · lint · unit · smoke · scoped contracts
-pnpm gates:ship                # the full sweep — required before any release
+pnpm check:component <name>    # the inner loop: design-lint · typecheck · that unit test
+pnpm verify                    # THE command: typecheck · lint · design:verify · browser suite
+pnpm verify:release            # the outward-step extras: both docs matrices · consume · 3 engines
+pnpm run clean                 # report only; `pnpm run clean --after-run|--weekly` reclaims
 pnpm registry:build            # after any canonical component edit
 ```
 
-The git hooks run the first two tiers automatically. **`pnpm install` is what installs them** — a
-clone that skips it has no browser verification at all, which is why `pnpm lint` includes
-`tooling/verify-hooks-installed.mjs`.
+`pnpm verify` is byte-for-byte what CI executes on the Linux runner, so a green local run and a
+green check mean the same thing. The pre-commit hook (design-lint + prettier on the staged set,
+~4s) is convenience, not a gate — nothing is attested any more, and everything CI trusts, CI ran.
 
 ## Releasing
 
@@ -82,20 +82,19 @@ preflight → changesets → changelog entry → Version PR → **npm OIDC publi
 ## Verification culture
 
 Fail-closed gates end to end: design-lint (token-only styling) · browser-mode unit tests + axe ·
-768 component behaviour contracts (320px reflow, RTL, 24px pointer targets — the focus-indicator
-check is a known no-op under forced-colors, see docs/ledger/bugs.md 2026-07-25) ·
+geometry contracts over every preview fixture (320px reflow, RTL containment, 24px pointer
+targets) in the same browser suite ·
 real-CLI consume verification (contract-driven across every registry item and both layouts) ·
 registry integrity (SHA-256 + Sigstore) · changelog, skill, and link lints. The **reference
 consumer** (`vegastack-design-starter`, local repo) is the executable ground truth for every guide
 claim.
 
-**Verification is local-first, and the split is deliberate.** Every browser lane runs on a developer
-machine through the git hooks; CI independently **re-executes** the entire non-browser half on the
-free mac minis and **verifies** the browser half through `.gates/receipt.json`, a receipt bound to a
-git tree hash. That receipt is attestation, not proof — `--no-verify` plus a hand-edited JSON defeats
-it. What it buys is that skipping a browser gate is visible instead of silent. AGENTS.md
-§ Verification ladder states row by row which gates are re-executed and which are attested; do not
-blur that line.
+**Everything CI trusts, CI executed.** There is one command — `pnpm verify` — and the LAN Linux
+runners run it inside the pinned Playwright container (`mcr.microsoft.com/playwright:v1.61.0-noble`)
+on every pull request, on the release push, and before every deploy. The mac minis run the static
+half in parallel for the cross-platform signal. Nothing is bound to a tree hash and nothing is
+attested: the receipt system existed only because no free runner could launch a browser, and that
+stopped being true on 2026-09-07.
 
 Pixel comparison is deliberately **not** a gate. `node tooling/vrt-review.mjs` captures the affected
 routes at the branch's merge-base and again at the working tree, on one machine, and emits a

@@ -16,11 +16,10 @@ Proven end to end on 2026-07-26. Follow it in this order.
 
 1. `pnpm release:preflight` — the whole chain against a simulated bump. Fix everything it reports
    before touching a branch.
-2. `pnpm gates:ship` — **not `gates:push`**. `deploy.yml` demands all three browser lanes
-   unconditionally, and the receipt carry PRESERVES gate results across the version bump. A
-   full-sweep receipt committed once therefore survives to the deploy; a `gates:push` receipt does
-   not, and costs an extra ~25-minute cycle to redo.
-3. Commit code **and** `.gates/receipt.json` together, then push. (§12)
+2. `pnpm verify`, then `pnpm verify:release`. CI runs both itself — `deploy.yml` runs them on the
+   Linux runners before anything outward happens — so this is about finding a failure in minutes
+   rather than on a dispatched workflow. There is no receipt and no sweep to preserve.
+3. Commit and push. Read the CI result; do not treat the local run as standing in for it.
 4. Merge the change PR → `version-pr` opens the Version PR.
 5. Merge the Version PR → `publish` → npm.
 6. `node tooling/vrt-review.mjs`, then dispatch `deploy.yml`.
@@ -37,8 +36,7 @@ comparing the newest run id before and after rather than trusting the command's 
 ## 0. The meta-rule
 
 **Never discover release blockers serially.** A release is a chain — bump → sync → build → consume →
-classify → carry → guard → publish. A defect anywhere fails the whole thing, and each discovery costs
-a full cycle. Run the whole chain locally first:
+publish. A defect anywhere fails the whole thing, and each discovery costs a full cycle. Run the whole chain locally first:
 
 ```bash
 node tooling/verify-release-chain.mjs     # ~5min, no network, no side effects
@@ -68,17 +66,21 @@ about the next minor.
   `packages/ui/registry.json`, and that gate compares them. Fixing one alone fails the other.
 - **Knock-on:** changing the contract JSON moves its SHA-256, so `version-sync` runs
   **`pnpm design:derived` inside the production command** and its output is part of the same commit.
-  The carry updates the receipt's contract SHA only after the version-only proof succeeds; otherwise
-  the independent guard rejects the Version PR even when its tree hash was carried correctly.
 
-## 3. A pure version bump must require no gate
+## 3. A pure version bump must require no gate — HISTORICAL
+
+_The mechanism below is gone: there is no receipt, no `receipt-guard`, and no per-lane requirement.
+CI runs `pnpm verify` against every commit including a Version PR's. Kept for the reasoning._
 
 - **Symptom:** `receipt-guard` demands the `unit` lane; the carried receipt records it skipped.
 - **Cause:** `packages/ui/package.json` matches the unit-lane surface, so a version bump looked like a
   package change. The publish path could never open.
 - **Now:** `classify-change` short-circuits on `versionBumpOnly`. Run 30172679327.
 
-## 4. The receipt cannot cross a version bump on its own
+## 4. The receipt cannot cross a version bump on its own — HISTORICAL
+
+_Same: `gate-receipt-carry` and the guard it fed are both deleted. Kept because it is the clearest
+statement of why binding evidence to a tree hash was fragile in the first place._
 
 - **Symptom:** `receipt-guard` rejects the Version PR; no publish is reachable.
 - **Cause:** `changeset version` + `version-sync` move the tree hash — versions, package CHANGELOGs,
@@ -168,17 +170,21 @@ painted`). 1251/1255 passed.
 - **Rule:** re-run the single file before concluding anything, and state all three facts. A flake that
   is really a race will come back on someone else's machine.
 
-## 11c. Never edit files while a gates run is in flight
+## 11c. Never edit files while a verification run is in flight
 
-The receipt hashes the working tree when the run FINISHES. Edit anything mid-run and it attests a tree
-the gates never executed against — the exact fail-open the receipt exists to prevent. Write first,
-then gate.
+The reason has changed but the rule has not. A receipt used to hash the working tree when the run
+FINISHED, so a mid-run edit attested a tree the gates never executed against. There is no receipt
+now — but a mid-run edit still means the result on your screen describes a tree that no longer
+exists, and vitest's watch-free `run` mode will happily have transformed half of each. Write first,
+then verify.
 
-## 12. Receipt ordering
+## 12. Receipt ordering — RESOLVED, the receipt is gone
 
-Run `pnpm gates:push` **before** committing, then commit code and `.gates/receipt.json` together.
-`.gates/` is excluded from the tree hash, so including it cannot invalidate the receipt. Commit first
-and HEAD carries a receipt for the previous tree. `gates push` now blocks on this.
+Historical. `pnpm gates:push` had to run BEFORE committing, and `.gates/receipt.json` had to be
+committed together with the code, or HEAD carried a receipt for the previous tree and every
+workflow's `receipt-guard` rejected the push. The receipt, the guard, and `.gates/` were all deleted
+by `docs/plans/2026-09-08-verification-rebuild.md`; CI re-runs `pnpm verify` against the pushed
+commit instead. Nothing about commit ordering matters any more.
 
 ## 13. `continue-on-error` steps report `conclusion: success`
 

@@ -19,6 +19,12 @@ export default defineConfig(async () =>
         // actionability timeout. Focused reproductions remain green, confirming
         // resource contention rather than component defects.
         maxWorkers: 1,
+        // ONE retry, release lane only. Measured 2026-09-09 on a loaded Mac: two Firefox tests
+        // (`animated-icons` touch-pointer hover, `stacking` toast-over-dialog) failed in the
+        // 258-file run and passed 48/48 when re-run alone, unchanged from main. A retry costs
+        // nothing on a green run and turns a load flake into a labelled "retried" result instead
+        // of a seven-minute `verify:release` re-run. A test that fails twice still fails the lane.
+        retry: 1,
         browser: {
           enabled: true,
           headless: true,

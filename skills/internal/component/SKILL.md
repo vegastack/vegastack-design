@@ -273,12 +273,12 @@ target: "@ui/<name>.tsx" }]` — the `@ui/` placeholder, never a hard-coded path
 
 ## 7. Verify
 
-**The inner loop while you work** — design-lint, this component's unit test, and the contract routes
-its dependency closure reaches. Measured ~25s once the docs export is warm, so run it after every
-meaningful edit rather than saving verification for the end:
+**The inner loop while you work** — design-lint over the registry, a workspace typecheck, and this
+component's own unit test. Measured ~5s, so run it after every meaningful edit rather than saving
+verification for the end:
 
 ```bash
-pnpm gates:component <name>
+pnpm check:component <name>
 ```
 
 Then the full local gate before calling the component done:
@@ -302,16 +302,15 @@ Then prove the behaviour contract and review the pixels. These are different thi
 substitutes for the other.
 
 ```bash
-pnpm contracts                                 # BLOCKING. 320px reflow · RTL · 24px targets (see below re: focus)
+pnpm verify                                    # BLOCKING. Includes 320px reflow · RTL · 24px targets
 node tooling/vrt-review.mjs                    # REVIEW. before/after on this machine; exits 0 either way
 ```
 
-1. The contract suite is the gate, and it is now a LOCAL gate — no CI runner executes a browser, so
-   `.husky/pre-push` is where it blocks and `.gates/receipt.json` is how CI knows it ran. A red result
-   is a defect in the component, not in the suite. Reproduce one route with
-   `node tooling/contracts-run.mjs --routes /docs/components/<name>`; always go through that wrapper
-   rather than Playwright directly, because it owns the turbo-cached build, reserves a free port, and
-   cross-checks its own `--grep` so a scoped run cannot pass by matching nothing.
+1. The geometry contracts are the gate, and they live in
+   `packages/ui/test/geometry.browser.test.tsx` — inside the vitest browser suite, so `pnpm verify`
+   runs them and so does CI, on the LAN Linux runners in the pinned Playwright container. A red
+   result is a defect in the component, not in the suite. Reproduce one fixture with
+   `pnpm --filter @vegastack/ui exec vitest run test/geometry.browser.test.tsx -t <fixture>`.
 2. The review tool captures the branch's merge-base and the working tree, then writes
    `.vrt-review/report.json` plus before/after/diff PNGs. **Read the images** for every entry whose
    `status` is not `unchanged`, classify each intended / unintended / uncertain, and present the

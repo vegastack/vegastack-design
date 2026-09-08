@@ -68,20 +68,27 @@ workflow changes out of a changeset-bearing push if package work unexpectedly be
 
 ## Where the jobs run
 
-**No CI runner executes a browser.** The browser-unit suite, the cross-engine smoke, the three-engine
-suite, and the 864 behaviour contracts run on a developer machine — scoped in `.husky/pre-push`, in
-full under `pnpm gates:ship` — and each run writes `.gates/receipt.json`, bound to a git tree hash of
-the working tree with `.gates/` excluded. Every workflow has a `receipt-guard` job that rejects a push
-whose receipt does not cover the pushed tree. A receipt is **attestation, not proof**; see
-`tooling/lib/gate-receipt.mjs` and AGENTS.md § Locked decisions for exactly what that does and does
-not buy.
+**CI executes the browser lanes.** `ci.yml`'s `verify`, `release.yml`'s `quality-gate`, and
+`deploy.yml`'s `verify` each run `pnpm verify` — typecheck, lint, `design:verify`, and the
+`@vegastack/ui` browser suite including the geometry contracts — on the LAN Linux runners inside the
+pinned Playwright container. `deploy.yml` adds `pnpm verify:release` (docs export, links, metadata,
+registry build and idempotency, the shadcn consume round-trip, and the complete suite in all three
+engines) before `build-sign-deploy` starts.
 
-**Every job runs on the self-hosted mac minis** (`runs-on: [self-hosted, vsk-runners-mac-mini]`) —
-`ci.yml`, `release.yml`, and `deploy.yml` in full. **A pull request, a release, and a deploy each cost
-zero billable minutes.** No job is GitHub-hosted; the empty allowlist is enforced in
-`tooling/verify-workflow-security.mjs` and negative-tested in
-`tooling/verify-workflow-security-negative.mjs`, which rejects a move back onto `ubuntu-latest` in
-either direction. Five jobs used to be hosted; each moved without losing a property that existed:
+Until 2026-09-08 none of that ran in CI: no free runner could launch a browser, so those lanes ran in
+`.husky/pre-push` and `pnpm gates:ship` on a developer machine and were **attested** by
+`.gates/receipt.json`, which a `receipt-guard` job in each workflow verified against the pushed tree.
+The LAN Debian boxes can launch all three engines, so the receipt, the guard, the `pre-push` hook, and
+`.gates/` were all deleted (`docs/plans/2026-09-08-verification-rebuild.md`).
+
+**Every job runs on self-hosted hardware** — the mac minis
+(`runs-on: [self-hosted, vsk-runners-mac-mini]`) for everything that needs a credential rather than a
+browser, and the LAN Linux boxes (`[self-hosted, linux, vsk-runner]`) for the three verification jobs
+above. **A pull request, a release, and a deploy each cost zero billable minutes.** No job is
+GitHub-hosted; the empty allowlist is enforced in `tooling/verify-workflow-security.mjs` and
+negative-tested in `tooling/verify-workflow-security-negative.mjs`, which rejects a move back onto
+`ubuntu-latest` in either direction. Five jobs used to be hosted; each moved without losing a property
+that existed:
 
 - **`release.yml` `publish`** — token-free npm OIDC **trusted publishing**, which works on self-hosted
   runners. Only the provenance _bundle_ requires a GitHub-hosted runner, so it sets

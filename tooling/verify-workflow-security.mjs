@@ -43,9 +43,12 @@ const SELF_HOSTED = "[self-hosted, vsk-runners-mac-mini]";
 // moved OFF them loses the only lane that actually executes a browser in CI.
 const LINUX_RUNNER = "[self-hosted, linux, vsk-runner]";
 const LINUX_JOBS = {
-  // WP0 acceptance: prove the Linux boxes run the browser unit suite in the pinned Playwright
-  // image. WP2 folds this into ci.yml; this entry moves with it, it does not get deleted.
-  "verify-linux.yml": ["verify-linux"],
+  // Every job that EXECUTES a browser. Since WP2 that is the whole verification ladder: `pnpm verify`
+  // on a pull request, before a publish, and — with `pnpm verify:release` after it — before a deploy.
+  // The WP0 acceptance workflow (`verify-linux.yml`) was folded into `ci.yml`'s `verify` and deleted.
+  "ci.yml": ["verify"],
+  "release.yml": ["quality-gate"],
+  "deploy.yml": ["verify"],
 };
 // A key naming a workflow that no longer exists would make its exception vanish silently, and the
 // container ban would then read as enforced on a file nobody checks.
@@ -56,20 +59,19 @@ for (const name of Object.keys(LINUX_JOBS)) {
   );
 }
 //
-// NO BROWSER RUNS IN CI AT ALL. That is the whole point of the local-first topology
-// (docs/plans/2026-07-25-cicd-local-first-revamp.md): the Vitest browser suite, the cross-engine
-// smoke, the three-engine suite, and the 864 behaviour contracts run in `.husky/pre-push` on a
-// developer machine and are attested by `.gates/receipt.json`, which the `receipt-guard` job in each
-// workflow verifies against the pushed tree. So the mac minis' inability to launch Chromium — a host
-// bug, recorded in AGENTS.md § Locked decisions — no longer blocks anything, and every job that
-// executes repository code is free.
+// CI EXECUTES THE BROWSER LANES. It did not until 2026-09-08: under the local-first topology they ran
+// only in `.husky/pre-push` and were ATTESTED by `.gates/receipt.json`, which a `receipt-guard` job in
+// each workflow verified against the pushed tree. That existed because no free runner could launch a
+// browser — the minis' Actions runner has no per-user Mach bootstrap namespace. The LAN Linux boxes
+// can, inside the pinned image, so the receipt system and its guard jobs are deleted
+// (docs/plans/2026-09-08-verification-rebuild.md, R1) and every LINUX_JOBS entry above runs
+// `pnpm verify` for real. The minis still cannot launch a browser and no longer need to.
 //
-// NO JOB IS GITHUB-HOSTED. Every job in every workflow runs on the mac minis, so a pull request, a
-// release, and a deploy each cost zero billable minutes — the topology after GitHub-hosted capacity
-// became unavailable. Two release jobs and three deploy jobs used to be on ubuntu-latest; all moved,
-// and none of the moves lost a property that actually existed:
+// NO JOB IS GITHUB-HOSTED. Every job runs on self-hosted hardware — the mac minis, plus the LAN
+// Debian boxes for the LINUX_JOBS entries above — so a pull request, a release, and a deploy each
+// cost zero billable minutes. Two release jobs and three deploy jobs used to be on ubuntu-latest;
+// all moved, and none of the moves lost a property that actually existed:
 //
-//   release.yml package-build — builds the two public dists into the artifact `publish` consumes.
 //   release.yml publish — publishes token-free over npm OIDC TRUSTED PUBLISHING, which works on
 //     self-hosted runners (sibling repo vegastack/vegafactory publishes the same way). Only the
 //     provenance BUNDLE requires a GitHub-hosted runner (npm rejects a self-hosted one with E422), so
@@ -92,11 +94,14 @@ const GITHUB_HOSTED_JOBS = {
 };
 
 /**
- * Every workflow must carry a `receipt-guard` job. It is the ONLY mechanism by which a push carries
- * evidence that the browser lanes ran, so a workflow that quietly loses it would validate the
- * non-browser half and call that a pass.
+ * Every workflow that gates an outward step must EXECUTE the browser lanes, not attest them.
+ *
+ * This replaces the `receipt-guard` presence-and-wiring assertions. Requiring a named job to exist
+ * was the right shape while a receipt was the only evidence a push carried; the evidence is now the
+ * run itself, so what has to be asserted is that a browser-capable job actually invokes
+ * `pnpm verify` — a workflow that quietly stopped would otherwise validate nothing and call it a pass.
  */
-const RECEIPT_GUARD_WORKFLOWS = ["ci.yml", "release.yml", "deploy.yml"];
+const MUST_RUN_VERIFY = ["ci.yml", "release.yml", "deploy.yml"];
 
 /**
  * Job name → its parsed job mapping, for one workflow.
@@ -407,22 +412,35 @@ for (const [name, source] of Object.entries(sources)) {
       `${name}: job ${job} runs in a container without \`defaults.run.shell: bash\`. The container's ` +
         `default shell is sh, so \`set -o pipefail\` fails with "Illegal option -o pipefail".`,
     );
+  }
 
-    // Fork pull requests must never reach the LAN boxes. See FORK_GUARD above.
-    //
-    // EXACT EQUALITY, not `.includes()`. A substring test is not a guard: an `if:` reading
-    // `<the guard> || true`, or `!(<the guard>) || true`, CONTAINS the guard verbatim and evaluates
-    // to true for every fork PR — the condition would have been documented, asserted, and inert.
-    // Only the `${{ }}` wrapper and incidental whitespace are normalised away; any other addition is
-    // a deliberate widening and must be re-reviewed here rather than slipped in beside it.
-    assert.equal(
-      normalizeExpression(body.if),
-      FORK_GUARD,
-      `${name}: job ${job} runs on the LAN Linux boxes but its \`if:\` is not exactly the fork ` +
-        `guard. Expected \`${FORK_GUARD}\`, got \`${normalizeExpression(body.if) || "(no if:)"}\`. ` +
-        `This repository is public, and a fork PR would otherwise execute untrusted code on the LAN ` +
-        `with a persistent pnpm store.`,
-    );
+  // ---------------------------------------------------------------- the fork guard, on EVERY job
+  //
+  // Only for a workflow a fork can actually trigger. `release.yml` fires on `push` to main and
+  // `deploy.yml` on `workflow_dispatch` from a ref `ref-guard` pins to main; neither can carry
+  // fork-authored code, and an `if:` that is always false on the only events a workflow receives is
+  // not a gate, it is a job that never runs.
+  //
+  // It applies to every job, not only the Linux ones. The mac minis are LAN hardware with a
+  // persistent workspace for the same reasons the Debian boxes are, and until this rewrite they
+  // carried no guard at all — a fork PR executed on them on every push.
+  //
+  // EXACT EQUALITY, not `.includes()`. A substring test is not a guard: an `if:` reading
+  // `<the guard> || true`, or `!(<the guard>) || true`, CONTAINS the guard verbatim and evaluates to
+  // true for every fork PR — the condition would have been documented, asserted, and inert. Only the
+  // `${{ }}` wrapper and incidental whitespace are normalised away; any other addition is a
+  // deliberate widening and must be re-reviewed here rather than slipped in beside it.
+  if (/^\s*pull_request\s*:/m.test(source)) {
+    for (const [job, body] of jobs) {
+      assert.equal(
+        normalizeExpression(body.if),
+        FORK_GUARD,
+        `${name}: job ${job} runs on a fork-triggerable workflow but its \`if:\` is not exactly the ` +
+          `fork guard. Expected \`${FORK_GUARD}\`, got \`${normalizeExpression(body.if) || "(no if:)"}\`. ` +
+          `This repository is public, and a fork PR would otherwise execute untrusted code on LAN ` +
+          `hardware with a persistent pnpm store.`,
+      );
+    }
   }
 
   const allowed = new Set(GITHUB_HOSTED_JOBS[name] ?? []);
@@ -430,19 +448,30 @@ for (const [name, source] of Object.entries(sources)) {
     [...jobs].map(([job, body]) => [job, body["runs-on"]]),
   );
 
-  // The receipt guard is load-bearing: it is the only thing that checks the browser lanes ran.
-  if (RECEIPT_GUARD_WORKFLOWS.includes(name)) {
+  // The one command must actually be invoked, and on a machine that can run it.
+  if (MUST_RUN_VERIFY.includes(name)) {
+    const invocations = [...jobs]
+      .filter(([job, body]) =>
+        jobSteps(name, job, body).some(
+          ({ step }) =>
+            typeof step.run === "string" &&
+            /^\s*pnpm verify\s*$/m.test(step.run),
+        ),
+      )
+      .map(([job]) => job);
     assert.ok(
-      runners.has("receipt-guard"),
-      `${name}: has no \`receipt-guard\` job. Under the local-first topology the browser lanes run ` +
-        `only in .husky/pre-push, so without this job the workflow validates the non-browser half and ` +
-        `reports that as a pass.`,
+      invocations.length > 0,
+      `${name}: no job runs \`pnpm verify\`. That command IS the verification — typecheck, lint, ` +
+        `design:verify, and the @vegastack/ui browser suite — so a workflow without it validates ` +
+        `nothing and reports that as a pass.`,
     );
-    const guard = jobBlock(source, "receipt-guard");
-    assert.match(
-      guard,
-      /verify-gate-receipt\.mjs/,
-      `${name}: receipt-guard does not run tooling/verify-gate-receipt.mjs`,
+    // …and in a LINUX_JOBS job. `pnpm verify` on a mini dies on the Chromium launch, so a `verify`
+    // that drifted onto one is a broken gate rather than a moved one.
+    assert.ok(
+      invocations.some((job) => linuxJobs.has(job)),
+      `${name}: \`pnpm verify\` runs only in ${invocations.join(", ")}, none of which is a LINUX_JOBS ` +
+        `entry. The mac minis cannot launch a browser, so the suite would fail there for a reason ` +
+        `that is not a defect.`,
     );
   }
 
@@ -541,7 +570,28 @@ assert.doesNotMatch(
 // under the billing lock, so the built docs cannot be handed between separate jobs. It carries the
 // single OIDC token and runs after the receipt guard.
 const buildSignDeployJob = jobBlock(sources["deploy.yml"], "build-sign-deploy");
-assert.match(buildSignDeployJob, /^    needs: receipt-guard$/m);
+// The deploy cannot start until the full sweep has RUN. `main` has no branch protection and `ci.yml`
+// fires only on `pull_request`, so without this edge a direct push to main could reach production
+// having executed no browser assertion at all.
+assert.match(
+  buildSignDeployJob,
+  /^    needs: verify$/m,
+  "deploy.yml: build-sign-deploy must depend on the `verify` job",
+);
+{
+  const verifyJob = jobBlock(sources["deploy.yml"], "verify");
+  assert.match(
+    verifyJob,
+    /^      - run: pnpm verify$/m,
+    "deploy.yml: the verify job must run `pnpm verify`",
+  );
+  assert.match(
+    verifyJob,
+    /^      - run: pnpm verify:release$/m,
+    "deploy.yml: the verify job must run `pnpm verify:release` — the docs export, links, metadata, " +
+      "registry idempotency, the consume round-trip, and the three-engine suite run nowhere else",
+  );
+}
 assert.match(
   buildSignDeployJob,
   /id-token: write/,
@@ -638,10 +688,13 @@ assert.match(
 );
 // The quality gate itself must be gated on the receipt: validating the non-browser half while the
 // browser half was never attested is the exact fail-open this topology has to avoid.
+// `quality-gate` is now the verification itself rather than a job gated behind an attestation, so
+// what has to hold is that it EXECUTES the one command. (That it does so on a browser-capable runner
+// is asserted by MUST_RUN_VERIFY above.)
 assert.match(
   jobBlock(sources["release.yml"], "quality-gate"),
-  /^    needs: \[changes, receipt-guard\]$/m,
-  "release.yml: quality-gate must depend on receipt-guard",
+  /^      - run: pnpm verify$/m,
+  "release.yml: quality-gate must run `pnpm verify` — it is the only verification in the release chain",
 );
 assert.doesNotMatch(sources["release.yml"], /^  environment-guard:$/m);
 assert.doesNotMatch(sources["release.yml"], /^    environment:/m);
@@ -650,10 +703,10 @@ assert.doesNotMatch(
   /npm-production/,
   "release.yml: publishing must not depend on a reviewer-gated GitHub environment (unavailable on this plan)",
 );
-assert.match(
-  sources["release.yml"],
-  /git status --porcelain > "\$RUNNER_TEMP\/git-status"/,
-);
+// The registry-build idempotency check moved out of release.yml with the rest of `quality-gate`'s
+// hand-assembled step list: `pnpm verify` does not build the registry, and `pnpm verify:release` —
+// which does, and asserts the tree afterwards through tooling/assert-clean-tree.mjs — runs in
+// deploy.yml. The fragile command-substitution form must still never come back anywhere.
 assert.doesNotMatch(
   sources["release.yml"],
   /test -z "\$\(git status --porcelain\)"/,

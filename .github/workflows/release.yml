@@ -11,7 +11,8 @@ permissions:
 env:
   SITE_VISIBILITY: public
 
-# COST SHAPE. Nothing here is GitHub-hosted. Every job runs on the self-hosted mac minis, so a
+# COST SHAPE. Nothing here is GitHub-hosted. Every job runs on self-hosted hardware — the mac minis,
+# except `quality-gate`, which needs a container and therefore the LAN Linux boxes — so a
 # release costs zero billable minutes — required after an account-level billing lock suspended all
 # GitHub-hosted runners (hosted jobs start with zero steps executed). That same lock exhausts Actions
 # artifact storage, so this workflow uses NO cross-job artifacts: the single `publish` job builds the
@@ -24,8 +25,10 @@ env:
 #
 # The move to self-hosted mirrors sibling repo vegastack/vegafactory, which publishes the same way.
 #
-# The browser lanes are not here at all: they run in `.husky/pre-push` and are attested by
-# `.gates/receipt.json`, which `receipt-guard` verifies.
+# VERIFICATION. `quality-gate` runs `pnpm verify` — the same command a developer runs, and the same
+# command `ci.yml` runs — in the pinned Playwright container on the LAN Linux boxes, so the browser
+# lanes are EXECUTED here rather than attested. The `receipt-guard` job that used to stand in for
+# them is deleted along with `.gates/` (docs/plans/2026-09-08-verification-rebuild.md, R1).
 jobs:
   # What does this push require, and what will it DO? One authority, called rather than reimplemented
   # in shell — tooling/classify-change.mjs. That logic lived here as bash and was wrong in both
@@ -62,64 +65,46 @@ jobs:
           # on main; without asking the registry, no later push would ever set publish=true again.
           node tooling/classify-change.mjs --before "$BEFORE" --after "$CURRENT_SHA" --check-npm
 
-  # The browser half, attested rather than executed. See ci.yml's `receipt-guard` for what a receipt
-  # is and is not. The requirements come from `changes` above so this job and the local runner cannot
-  # disagree about what was needed.
-  receipt-guard:
-    needs: changes
-    runs-on: [self-hosted, vsk-runners-mac-mini]
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-          ref: ${{ github.sha }}
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with: { node-version: 24 }
-      - name: Verify the gate receipt covers this commit
-        env:
-          NEEDS_CONTRACTS: ${{ needs.changes.outputs.contracts }}
-          NEEDS_UNIT: ${{ needs.changes.outputs.unit }}
-          NEEDS_SMOKE: ${{ needs.changes.outputs.smoke }}
-        run: |
-          set -euo pipefail
-          node tooling/verify-gate-receipt.mjs \
-            --contracts "$NEEDS_CONTRACTS" \
-            --unit "$NEEDS_UNIT" \
-            --smoke "$NEEDS_SMOKE"
-
-  # Repository code and dependencies are validated without write or OIDC authority. Free, on a mini,
-  # and with no container: the container existed only for the three-engine browser suite, which now
-  # runs locally.
+  # Repository code and dependencies are validated without write or OIDC authority — by EXECUTING the
+  # one command, browsers included, in the pinned Playwright container on the LAN Linux boxes. This
+  # job used to run a hand-assembled subset on a mini and take the browser half on trust from a
+  # receipt; `pnpm verify` is that same subset plus the browser suite, and it is the identical
+  # command ci.yml and every developer run.
+  #
+  # No fork guard here: release.yml triggers on `push` to main only, so there is no fork-authored ref
+  # for one to guard. verify-workflow-security.mjs requires the guard exactly on the jobs of a
+  # workflow that has a `pull_request` trigger.
   quality-gate:
-    needs: [changes, receipt-guard]
+    needs: changes
     if: needs.changes.outputs.publish == 'true'
-    runs-on: [self-hosted, vsk-runners-mac-mini]
+    runs-on: [self-hosted, linux, vsk-runner]
+    container:
+      image: mcr.microsoft.com/playwright:v1.61.0-noble
+      volumes:
+        - /opt/vsk-runner/pnpm-store:/pnpm-store
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
           persist-credentials: false
           ref: ${{ github.sha }}
-      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with: { node-version: 24, cache: pnpm }
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck
-      - run: pnpm lint
-      - run: pnpm exec turbo run test --filter=@vegastack/design
-      - run: pnpm build
-      - run: pnpm registry:build
-      - name: Require registry build idempotency
+      # The runner's work directory is owned by the HOST runner user; inside the container the job
+      # runs as root, so every `git` call refuses the repository with "detected dubious ownership"
+      # (observed in run 34275909973: `tooling/secret-scan.mjs` shells out to `git ls-files` and died
+      # with exit 128 mid-`pnpm lint`). This is git's uid check, not a permissions problem, and it hits
+      # every tool in the chain that reads git — the secret scan, workspace-clean's tracked-path
+      # refusal, and the registry integrity test's restore proof.
+      - name: Trust the checkout inside the container
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - name: Enable corepack
         run: |
           set -euo pipefail
-          git status --porcelain > "$RUNNER_TEMP/git-status"
-          if [ -s "$RUNNER_TEMP/git-status" ]; then
-            echo "::error title=Generated registry drift::registry:build changed the checked-out release commit."
-            cat "$RUNNER_TEMP/git-status"
-            exit 1
-          fi
-      - run: pnpm registry:verify-consume
+          corepack enable
+      - run: pnpm install --frozen-lockfile --store-dir /pnpm-store
+      - run: pnpm verify
 
   # A changeset-bearing, reviewed main commit creates or updates the Version Packages PR. This job
   # has write authority for that PR but cannot mint npm OIDC. Merging the reviewed Version PR is the

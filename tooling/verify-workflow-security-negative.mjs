@@ -13,6 +13,12 @@
 //   and the runner allowlist is the only thing preventing a job from silently moving back onto billed
 //   capacity. Both are asserted here by mutation.
 //
+//   Since WP2 the `receipt-guard` cases are gone with the guard itself, and what replaced them is
+//   asserted the same way: that a job actually runs `pnpm verify`, that it runs on a browser-capable
+//   runner, that the deploy waits for it, and that `pnpm verify:release` still runs there. An
+//   assertion that the browser lanes RAN is only as good as the proof that something still invokes
+//   them.
+//
 //   The ban is now CONDITIONAL — a job in LINUX_JOBS may run the pinned Playwright container on the
 //   LAN Debian boxes — which makes mutation coverage load-bearing rather than merely prudent: a
 //   conditional exception is exactly the shape that quietly widens into a hole. Cases below pin it
@@ -64,9 +70,8 @@ const CASES = [
   {
     id: "container on a mac-mini job",
     file: "ci.yml",
-    find: "  verify:\n    runs-on: [self-hosted, vsk-runners-mac-mini]\n",
-    replace:
-      "  verify:\n    runs-on: [self-hosted, vsk-runners-mac-mini]\n    container: node:24\n",
+    find: "  verify-macos:\n",
+    replace: "  verify-macos:\n    container: node:24\n",
     expect: /declares a container but is not in LINUX_JOBS/,
   },
   {
@@ -85,7 +90,7 @@ const CASES = [
     // this case a HARNESS BUG the moment the lockfile's playwright version moved, and a harness bug
     // reads exactly like a gate that stopped being exercised.
     id: "a container on the Linux runner pinned to the WRONG playwright version",
-    file: "verify-linux.yml",
+    file: "ci.yml",
     mutateAfter: (source) =>
       source.replace(
         /(image: mcr\.microsoft\.com\/playwright:v)\d+\.\d+\.\d+(-noble)/,
@@ -95,7 +100,7 @@ const CASES = [
   },
   {
     id: "a container smuggled onto the Linux runner as an arbitrary image",
-    file: "verify-linux.yml",
+    file: "ci.yml",
     mutateAfter: (source) =>
       source.replace(
         /image: mcr\.microsoft\.com\/playwright:v\d+\.\d+\.\d+-noble/,
@@ -107,81 +112,168 @@ const CASES = [
     // The exception was one-directional: a container was PERMITTED on these jobs but not REQUIRED, so
     // deleting the block left the job running bare on the host with whatever browsers it has.
     id: "the pinned container REMOVED from the Linux browser job",
-    file: "verify-linux.yml",
+    file: "ci.yml",
     mutateAfter: (source) =>
       source.replace(/^ {4}container:\n(?: {6}.*\n| *\n)*/m, ""),
     expect: /must declare the pinned Playwright\s+container/,
+  },
+  // ---------------------------------------------------------------- the one command actually runs
+  //
+  // These replace the `receipt-guard` presence-and-wiring cases. The guard existed because the
+  // browser lanes ran only on a developer machine; they now run in CI, and what has to be pinned shut
+  // is that they are still INVOKED, and still on a machine that can launch a browser.
+  {
+    id: "`pnpm verify` removed from ci.yml entirely",
+    file: "ci.yml",
+    find: "      - run: pnpm verify\n",
+    replace: "      - run: echo verified\n",
+    expect: /no job runs `pnpm verify`/,
+  },
+  {
+    id: "`pnpm verify` moved off the browser-capable runner onto a mini",
+    file: "ci.yml",
+    mutateAfter: (source) =>
+      source
+        .replace("      - run: pnpm verify\n", "      - run: echo skipped\n")
+        .replace(
+          "      - run: pnpm design:verify\n",
+          "      - run: pnpm design:verify\n      - run: pnpm verify\n",
+        ),
+    expect: /none of which is a LINUX_JOBS\s+entry/,
+  },
+  {
+    id: "the release quality gate no longer runs the one command",
+    file: "release.yml",
+    find: "      - run: pnpm verify\n",
+    replace: "      - run: echo quality\n",
+    expect: /no job runs `pnpm verify`/,
+  },
+  {
+    id: "the deploy loses `pnpm verify:release` (docs export, consume, three engines)",
+    file: "deploy.yml",
+    find: "      - run: pnpm verify:release\n",
+    replace: "",
+    expect: /must run `pnpm verify:release`/,
+  },
+  {
+    id: "the deploy no longer waits for the verify job",
+    file: "deploy.yml",
+    find: "  build-sign-deploy:\n    needs: verify\n",
+    replace: "  build-sign-deploy:\n    needs: ref-guard\n",
+    expect: /build-sign-deploy must depend on the `verify` job/,
   },
   // ---------------------------------------------------------------- flow-style STEPS
   // The job-level flow-style case above proved the gate discovers jobs structurally. These prove the
   // same for the three rules that walk STEPS. Each was regex-over-text until 2026-09-09 — `uses:`
   // matched by a line pattern, checkout steps carved out by an indentation-based `stepBlocks()`, run
   // bodies reassembled by `runScriptLines()` — and each therefore passed a step written in flow
-  // style. All three are applied to BOTH a mac-mini workflow and the container workflow, because the
-  // two travel different paths through the gate and only one of them was ever exercised.
-  ...["ci.yml", "verify-linux.yml"].flatMap((file) => [
+  // style. All three are applied to BOTH a mac-mini job and a container job, because the two travel
+  // different paths through the gate and only one of them was ever exercised. Appending to the end of
+  // `ci.yml` lands in `verify-macos`; the `-container` variants insert into `ci.yml`'s Linux `verify`.
+  ...[
     {
-      id: `an UNPINNED action smuggled in as a flow-style step (${file})`,
-      file,
+      label: "mini job",
+      apply: (source, step) => `${source.trimEnd()}\n${step}`,
+    },
+    {
+      label: "container job",
+      apply: (source, step) =>
+        source.replace(
+          "      - run: pnpm verify\n",
+          `${step}      - run: pnpm verify\n`,
+        ),
+    },
+  ].flatMap(({ label, apply }) => [
+    {
+      id: `an UNPINNED action smuggled in as a flow-style step (${label})`,
+      file: "ci.yml",
       mutateAfter: (source) =>
-        `${source.trimEnd()}\n      - {uses: "evil/backdoor@main"}\n`,
+        apply(source, '      - {uses: "evil/backdoor@main"}\n'),
       expect: /not pinned to a full commit SHA/,
     },
     {
-      id: `a flow-style checkout that PERSISTS its credential (${file})`,
-      file,
-      // Placed IMMEDIATELY AFTER a compliant checkout, which is where the old text-based
-      // `stepBlocks()` was genuinely blind: it carved blocks by indentation, so a flow-style step
-      // was absorbed into the PRECEDING block — and that block already contained
-      // `persist-credentials: false`, satisfying the assertion on the attacker's behalf. Appended at
-      // the end of the file the same mutation was caught, but by the wrong step's text, which is
-      // luck rather than coverage.
+      id: `an expression interpolated into a flow-style run: body (${label})`,
+      file: "ci.yml",
       mutateAfter: (source) =>
-        source.replace(
-          "          persist-credentials: false\n",
-          '          persist-credentials: false\n      - {uses: "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803"}\n',
+        apply(
+          source,
+          '      - {run: "echo ${{ github.event.pull_request.title }}"}\n',
         ),
-      expect: /checkout persists a token/,
-    },
-    {
-      id: `an expression interpolated into a flow-style run: body (${file})`,
-      file,
-      mutateAfter: (source) =>
-        `${source.trimEnd()}\n` +
-        '      - {run: "echo ${{ github.event.pull_request.title }}"}\n',
       expect: /interpolated directly into a run: script/,
     },
   ]),
+  {
+    id: "a flow-style checkout that PERSISTS its credential",
+    file: "ci.yml",
+    // Placed IMMEDIATELY AFTER a compliant checkout, which is where the old text-based
+    // `stepBlocks()` was genuinely blind: it carved blocks by indentation, so a flow-style step was
+    // absorbed into the PRECEDING block — and that block already contained
+    // `persist-credentials: false`, satisfying the assertion on the attacker's behalf. Appended at
+    // the end of the file the same mutation was caught, but by the wrong step's text, which is luck
+    // rather than coverage.
+    mutateAfter: (source) =>
+      source.replace(
+        "          persist-credentials: false\n",
+        '          persist-credentials: false\n      - {uses: "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803"}\n',
+      ),
+    expect: /checkout persists a token/,
+  },
+  {
+    id: "a flow-style checkout that PERSISTS its credential (container job, release.yml)",
+    file: "release.yml",
+    // After the LAST line of the checkout's `with:` mapping rather than in the middle of it — an
+    // insertion between two `with:` keys is not a step at all, it is unparseable YAML, and the gate
+    // would then reject it for the wrong reason.
+    mutateAfter: (source) =>
+      source.replace(
+        "          ref: ${{ github.sha }}\n",
+        '          ref: ${{ github.sha }}\n      - {uses: "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803"}\n',
+      ),
+    expect: /checkout persists a token/,
+  },
   // ---------------------------------------------------------------- fork guard, exactly
   // `.includes()` is not a guard. Both of these CONTAIN the guard verbatim and evaluate to true for
   // every fork pull request, so a substring test documented the protection and disabled it in the
-  // same line. The gate now compares the normalised expression for equality.
+  // same line. The gate now compares the normalised expression for equality — and since WP2 it does
+  // so for EVERY job of a fork-triggerable workflow, not only the Linux ones: the minis are LAN
+  // hardware too and carried no guard at all until then.
   {
     id: "the fork guard neutralised with `|| true`",
-    file: "verify-linux.yml",
+    file: "ci.yml",
     find: "    if: github.event.pull_request.head.repo.full_name == github.repository\n",
     replace:
       "    if: github.event.pull_request.head.repo.full_name == github.repository || true\n",
-    expect: /is not exactly the fork/,
+    expect: /is not exactly the\s+fork guard/,
   },
   {
     id: "the fork guard INVERTED and neutralised — `!(…) || true`",
-    file: "verify-linux.yml",
+    file: "ci.yml",
     find: "    if: github.event.pull_request.head.repo.full_name == github.repository\n",
     replace:
       "    if: ${{ !(github.event.pull_request.head.repo.full_name == github.repository) || true }}\n",
-    expect: /is not exactly the fork/,
+    expect: /is not exactly the\s+fork guard/,
   },
   {
     id: "the fork guard removed from the Linux browser job",
-    file: "verify-linux.yml",
+    file: "ci.yml",
     find: "    if: github.event.pull_request.head.repo.full_name == github.repository\n",
     replace: "",
-    expect: /is not exactly the fork.*got `\(no if:\)`/s,
+    expect: /is not exactly the.*got `\(no if:\)`/s,
+  },
+  {
+    id: "the fork guard removed from the MAC MINI job (unguarded until WP2)",
+    file: "ci.yml",
+    mutateAfter: (source) => {
+      const guard =
+        "    if: github.event.pull_request.head.repo.full_name == github.repository\n";
+      const last = source.lastIndexOf(guard);
+      return source.slice(0, last) + source.slice(last + guard.length);
+    },
+    expect: /job verify-macos .*is not exactly the/s,
   },
   {
     id: "the container job losing its bash default (sh cannot do `set -o pipefail`)",
-    file: "verify-linux.yml",
+    file: "ci.yml",
     find: "    defaults:\n      run:\n        shell: bash\n",
     replace: "",
     expect: /without `defaults.run.shell: bash`/,
@@ -189,13 +281,15 @@ const CASES = [
   {
     id: "a mini job moved onto the Linux runners without being allowlisted",
     file: "ci.yml",
-    find: "  verify:\n    runs-on: [self-hosted, vsk-runners-mac-mini]\n",
-    replace: "  verify:\n    runs-on: [self-hosted, linux, vsk-runner]\n",
+    // REPLACE the existing `runs-on`, never prepend a second one: two `runs-on` keys in one job is
+    // unparseable YAML, so the gate would reject the mutation without ever reaching the allowlist.
+    find: "    runs-on: [self-hosted, vsk-runners-mac-mini]",
+    replace: "    runs-on: [self-hosted, linux, vsk-runner]",
     expect: /must run on \[self-hosted, vsk-runners-mac-mini\]/,
   },
   {
     id: "the Linux browser job moved off the Linux runners",
-    file: "verify-linux.yml",
+    file: "ci.yml",
     find: "    runs-on: [self-hosted, linux, vsk-runner]",
     replace: "    runs-on: [self-hosted, vsk-runners-mac-mini]",
     expect: /recorded as a LAN Linux job but runs on/,
@@ -203,8 +297,8 @@ const CASES = [
   {
     id: "a free mini job moved onto billed capacity",
     file: "ci.yml",
-    find: "  verify:\n    runs-on: [self-hosted, vsk-runners-mac-mini]\n",
-    replace: "  verify:\n    runs-on: ubuntu-latest\n",
+    find: "    runs-on: [self-hosted, vsk-runners-mac-mini]",
+    replace: "    runs-on: ubuntu-latest",
     expect: /must run on \[self-hosted, vsk-runners-mac-mini\]/,
   },
   {
@@ -231,20 +325,6 @@ const CASES = [
     replace:
       "env:\n  SITE_VISIBILITY: public\n  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}",
     expect: /token-free OIDC trusted publishing/,
-  },
-  {
-    id: "the receipt guard deleted from ci.yml",
-    file: "ci.yml",
-    find: "  receipt-guard:\n",
-    replace: "  receipt-guard-disabled:\n",
-    expect: /has no `receipt-guard` job/,
-  },
-  {
-    id: "a receipt guard that does not verify the receipt",
-    file: "ci.yml",
-    find: "node tooling/verify-gate-receipt.mjs --before",
-    replace: "echo skipping --before",
-    expect: /receipt-guard does not run tooling\/verify-gate-receipt\.mjs/,
   },
   {
     id: "shell injection through a run: body",
@@ -278,9 +358,8 @@ const CASES = [
   {
     id: "stray OIDC in ci.yml",
     file: "ci.yml",
-    find: "    runs-on: [self-hosted, vsk-runners-mac-mini]\n    steps:\n      - uses: actions/checkout",
-    replace:
-      "    runs-on: [self-hosted, vsk-runners-mac-mini]\n    permissions:\n      id-token: write\n    steps:\n      - uses: actions/checkout",
+    find: "  verify-macos:\n",
+    replace: "  verify-macos:\n    permissions:\n      id-token: write\n",
     expect: /OIDC/,
   },
   {
@@ -294,15 +373,8 @@ const CASES = [
     expect: /quality-gate to have SUCCEEDED/,
   },
   {
-    id: "quality-gate no longer depends on the receipt guard",
-    file: "release.yml",
-    find: "    needs: [changes, receipt-guard]",
-    replace: "    needs: [changes]",
-    expect: /quality-gate must depend on receipt-guard/,
-  },
-  {
     id: "the fragile clean-tree check reintroduced",
-    file: "release.yml",
+    file: "deploy.yml",
     find: '          git status --porcelain > "$RUNNER_TEMP/git-status"',
     replace: '          test -z "$(git status --porcelain)"',
     expect: /command-substitution clean check|git status --porcelain/,
@@ -397,10 +469,12 @@ if (failures > 0) {
 console.log(
   `\n✓ workflow-security-negative: all ${CASES.length} mutations rejected — flow-style job AND STEP ` +
     `discovery (unpinned action, credential-persisting checkout, and run-body interpolation, each ` +
-    `written in flow style, in two workflows), the container ban and its single pinned-image ` +
-    `exception (required, not merely permitted), the fork guard on the LAN runners — required ` +
-    `EXACTLY, so \`|| true\` and \`!(…) || true\` are both rejected — the runner ` +
-    `allowlist (all three directions), receipt-guard presence and wiring, shell injection, credential ` +
+    `written in flow style, against both a mac-mini job and a container job), the container ban and ` +
+    `its single pinned-image exception (required, not merely permitted), the fork guard on EVERY job ` +
+    `of a fork-triggerable workflow — the minis included, and required EXACTLY, so \`|| true\` and ` +
+    `\`!(…) || true\` are both rejected — the runner allowlist (all three directions), the one ` +
+    `command actually being invoked on a browser-capable runner in all three workflows, the deploy's ` +
+    `dependency on it, \`verify:release\` still running there, shell injection, credential ` +
     `persistence, token scope, pull_request_target, stray OIDC, publish dependencies, and the ` +
     `unconditional production-boundary chain`,
 );
