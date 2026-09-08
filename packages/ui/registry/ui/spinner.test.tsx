@@ -43,11 +43,3 @@ test("forwards ref to the underlying svg element", async () => {
   expect(ref.current).toBeInstanceOf(SVGSVGElement);
   expect(ref.current?.dataset.slot).toBe("spinner");
 });
-
-// TEMPORARY — negative proof for the WP2 PR: CI `verify` must go red on a broken unit test.
-// Removed in the commit immediately after the failing run is recorded.
-test("deliberately broken assertion (negative proof)", async () => {
-  const ref = React.createRef<SVGSVGElement>();
-  await render(<Spinner ref={ref} />);
-  expect(ref.current?.dataset.slot).toBe("not-a-spinner");
-});
