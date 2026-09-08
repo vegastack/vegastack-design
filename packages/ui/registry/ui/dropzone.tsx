@@ -3,7 +3,7 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import {
   useFileDrop,
   type FileDropRejection,
@@ -108,12 +108,8 @@ export function Dropzone({
   };
   // Both refs are load-bearing: the engine's gates its keyboard + drag-depth
   // paths on rootRef; the consumer's is the public contract. Merge, never pick.
-  const mergedRef = React.useCallback(
-    (node: HTMLDivElement | null) => {
-      engineRef.current = node;
-      if (typeof ref === "function") ref(node);
-      else if (ref) ref.current = node;
-    },
+  const mergedRef = React.useMemo(
+    () => mergeRefs(engineRef, ref),
     [engineRef, ref],
   );
 

@@ -1,14 +1,24 @@
-// @vegastack use-platform@0.6.0 sha256-vobYLXqPR5RN/dw/6ze6yj4V+XyVttN0BcDUBNHfBEY=
+// @vegastack use-platform@0.6.0 sha256-AtAx07xw68JoMp3OeLqYHXbT+PQjT8+YyqKs6Fn+MkA=
 
 "use client";
 
 import * as React from "react";
+
+import { useMediaQuery } from "@/components/ui/use-media-query";
 
 /* ---
 `usePlatform` exists because nothing in the system detects the platform: `Kbd`'s `os`
 prop rewrites ⌘⇧⌥ to Ctrl/Shift/Alt but is manual, so every consumer either guesses,
 hardcodes ⌘, or ships the wrong modifier to half its users. This hook is the missing
 detector — caller-side only.
+
+The two halves answer differently, so they are read differently:
+- **OS** is a one-shot `navigator` read. It cannot change mid-session, so it is state
+  corrected once after hydration — no subscription to leak.
+- **Pointer** is `(pointer: coarse)` through `useMediaQuery`, the system's one matchMedia
+  subscription. It CAN change mid-session (a 2-in-1 detaching its keyboard, a tablet
+  gaining a stylus), and a component that gates a drag affordance on `isTouch` has to
+  follow that, so this half stays live rather than frozen at the post-hydration value.
 
 Deliberately NOT done here:
 - No wiring into `Kbd`. `kbd.tsx` has no 'use client' and must keep none — calling a
@@ -18,8 +28,6 @@ Deliberately NOT done here:
 - No user-agent sniffing beyond the platform string. Browser identity, versions, and
   feature detection are out of scope; this answers only "which modifier conventions and
   which pointer" — the two things UI copy actually branches on.
-- No live re-detection. The platform cannot change mid-session; only the initial
-  post-hydration correction updates state, so there is no subscription to leak.
 --- */
 
 /** Operating-system family, as UI copy cares about it (modifier keys, shortcuts). */
@@ -43,7 +51,8 @@ export interface UsePlatformOptions {
    */
   fallbackOs?: PlatformOS;
   /**
-   * Touch state reported before the real value lands.
+   * Touch state reported on the server render and the client's hydration
+   * render, before the real `(pointer: coarse)` query is read.
    * @default false
    */
   fallbackIsTouch?: boolean;
@@ -73,12 +82,14 @@ export function detectPlatformOs(raw: string): PlatformOS {
  * `usePlatform` — SSR-safe platform detection: `{ os, isTouch }`. The server
  * render and the client's hydration render both report the caller-supplied
  * fallbacks (so markup agrees on first paint and React never warns about a
- * hydration mismatch — the `useIsMobile` pattern); the real values land in a
- * client-only effect immediately after hydration.
+ * hydration mismatch); the real values land immediately after hydration.
  *
- * The OS is read from `navigator.userAgentData.platform` with a
- * `navigator.platform` fallback; touch from the `(pointer: coarse)` media
- * query. Pair with `Kbd` on the caller side:
+ * The OS is read once from `navigator.userAgentData.platform` with a
+ * `navigator.platform` fallback — it cannot change mid-session. Touch is the
+ * live `(pointer: coarse)` media query through `useMediaQuery`, because the
+ * primary pointer CAN change mid-session (a 2-in-1 detaching its keyboard), and
+ * a drag affordance gated on `isTouch` has to follow it. Pair with `Kbd` on the
+ * caller side:
  *
  * @example
  * const { os } = usePlatform();
@@ -93,10 +104,7 @@ export function usePlatform({
   fallbackOs = "other",
   fallbackIsTouch = false,
 }: UsePlatformOptions = {}): PlatformInfo {
-  const [platform, setPlatform] = React.useState<PlatformInfo>({
-    os: fallbackOs,
-    isTouch: fallbackIsTouch,
-  });
+  const [os, setOs] = React.useState<PlatformOS>(fallbackOs);
 
   React.useEffect(() => {
     if (typeof navigator === "undefined") return;
@@ -104,19 +112,20 @@ export function usePlatform({
       userAgentData?: { platform?: string };
     };
     const raw = nav.userAgentData?.platform ?? nav.platform ?? "";
-    let os = detectPlatformOs(raw);
+    let detected = detectPlatformOs(raw);
     // Engines without userAgentData (Firefox, Safari) report
     // navigator.platform "Linux armv8l" on Android — the string never says
     // "android". The user agent does, everywhere.
-    if (os === "linux" && /android/i.test(nav.userAgent ?? "")) os = "other";
-    const isTouch =
-      typeof window !== "undefined" &&
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(pointer: coarse)").matches;
-    setPlatform((prev) =>
-      prev.os === os && prev.isTouch === isTouch ? prev : { os, isTouch },
-    );
+    if (detected === "linux" && /android/i.test(nav.userAgent ?? ""))
+      detected = "other";
+    setOs(detected);
   }, []);
 
-  return platform;
+  const isTouch = useMediaQuery("(pointer: coarse)", {
+    serverFallback: fallbackIsTouch,
+  });
+
+  // A NEW object identity only when a field actually changed, so a consumer that
+  // depends on the returned object (an effect dep, a memo key) is not woken every render.
+  return React.useMemo(() => ({ os, isTouch }), [os, isTouch]);
 }

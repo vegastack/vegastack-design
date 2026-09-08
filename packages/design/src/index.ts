@@ -1,5 +1,11 @@
 import { clsx, type ClassValue } from "clsx";
 import { extendTailwindMerge } from "tailwind-merge";
+// TYPE-ONLY. This entry is server-safe by contract (see the @internal note below and
+// tsup.config.ts): it must not touch a React runtime value, because under the
+// `react-server` condition most React hooks are `undefined` and any Server Component
+// importing `cn` would crash on import. `import type` is erased at build, so `mergeRefs`
+// can be typed against React's ref shapes without pulling React into the module graph.
+import type * as React from "react";
 
 /**
  * tailwind-merge extended to treat EVERY custom design-token font size as a
@@ -244,3 +250,46 @@ export const FLOATING = {
  * `./prose.ts` for why it is expressed as descendant variants rather than per-element classes.
  */
 export { prose, proseClassName, type ProseElement } from "./prose";
+
+/**
+ * Fan one DOM node out to several refs — a forwarded `ref` prop plus one or more internal
+ * refs — as a single ref callback. Skips `null`/`undefined` entries, so an optional
+ * forwarded ref needs no guard at the call site. Handles both ref shapes React 19 accepts:
+ * a callback ref is invoked, an object ref has its `.current` assigned.
+ *
+ * This lives in `@vegastack/design` rather than in any one component because ref-as-prop
+ * (React 19, no `forwardRef`) makes "the component needs the node AND has to forward it"
+ * the normal case, not a special one — it was hand-inlined in nine registry files and
+ * exported from `use-animation-replay` before this. It touches no React runtime value
+ * (only ref objects the caller already holds), so it is server-safe like `cn`.
+ *
+ * **Not memoized.** Calling it produces a NEW function every time, and React detaches a
+ * changed ref callback (calls it with `null`) and reattaches it on every render. Wrap the
+ * CALL at the call site when the inputs are stable:
+ *
+ * @example
+ * const mergedRef = React.useMemo(() => mergeRefs(ref, internalRef), [ref]);
+ * return <input ref={mergedRef} />;
+ *
+ * @example
+ * // A ref callback that also does work — merge it with the forwarded ref
+ * const setRef = React.useCallback(
+ *   (node: HTMLDivElement | null) => { setContainer(node); },
+ *   [],
+ * );
+ * const mergedRef = React.useMemo(() => mergeRefs(ref, setRef), [ref, setRef]);
+ */
+export function mergeRefs<T>(
+  ...refs: Array<React.Ref<T> | null | undefined>
+): React.RefCallback<T> {
+  return (node: T | null) => {
+    for (const ref of refs) {
+      if (ref == null) continue;
+      if (typeof ref === "function") {
+        ref(node);
+      } else {
+        (ref as React.RefObject<T | null>).current = node;
+      }
+    }
+  };
+}

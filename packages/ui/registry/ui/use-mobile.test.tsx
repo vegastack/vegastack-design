@@ -53,8 +53,14 @@ async function withMatchMedia(
   }
 }
 
-function Harness({ breakpoint }: { breakpoint?: number }) {
-  const isMobile = useIsMobile(breakpoint);
+function Harness({
+  breakpoint,
+  serverFallback,
+}: {
+  breakpoint?: number;
+  serverFallback?: boolean;
+}) {
+  const isMobile = useIsMobile(breakpoint, { serverFallback });
   return <span data-testid="result">{String(isMobile)}</span>;
 }
 
@@ -101,6 +107,36 @@ test("updates live when the media query change event fires", async () => {
     await expect
       .element(screen.getByTestId("result"))
       .toHaveTextContent("true");
+  });
+});
+
+test("serverFallback decides what a matchMedia-less render reports", async () => {
+  // The pre-rewrite hook hard-coded `false` here, so a phone rendered the DESKTOP branch of
+  // every JS layout until an effect ran. A mobile-first surface now declares the fallback.
+  const original = window.matchMedia;
+  // @ts-expect-error — simulate an environment with no matchMedia (the SSR pass).
+  delete window.matchMedia;
+  try {
+    const screen = await render(<Harness serverFallback />);
+    await expect
+      .element(screen.getByTestId("result"))
+      .toHaveTextContent("true");
+  } finally {
+    window.matchMedia = original;
+  }
+});
+
+test("a real viewport query still wins over serverFallback", async () => {
+  // `serverFallback: true` must not pin the hook to `true` once the query is readable.
+  await withMatchMedia("(max-width: 767px)", async (dispatchChange) => {
+    const screen = await render(<Harness serverFallback />);
+    await expect
+      .element(screen.getByTestId("result"))
+      .toHaveTextContent("true");
+    dispatchChange(false);
+    await expect
+      .element(screen.getByTestId("result"))
+      .toHaveTextContent("false");
   });
 });
 

@@ -100,7 +100,8 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/icon-button"
+        "@vegastack/icon-button",
+        "@vegastack/use-media-query"
       ],
       "files": [
         {
@@ -2924,7 +2925,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/use-media-query"],
       "files": [
         {
           "path": "packages/ui/registry/ui/animated-number.tsx",
@@ -3083,7 +3084,7 @@
         "hook"
       ],
       "dependencies": [],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/use-media-query"],
       "files": [
         {
           "path": "packages/ui/registry/ui/use-platform.ts",
@@ -3098,15 +3099,34 @@
       }
     },
     {
+      "name": "use-media-query",
+      "type": "registry:hook",
+      "title": "useMediaQuery / usePrefersReducedMotion",
+      "description": "The system's one matchMedia subscription — useSyncExternalStore with a declared serverFallback, so SSR renders the branch the caller chose instead of a hard-coded false. usePrefersReducedMotion is the named reduced-motion reader over it.",
+      "categories": ["hook"],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-media-query.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-media-query.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "JavaScript genuinely has to branch on a media query — mounting a different component tree, skipping a requestAnimationFrame loop, enabling pointer drag.",
+        "whenNotToUse": "A purely visual responsive change: a Tailwind breakpoint or a container query does it in CSS with no hydration cost.",
+        "version": "0.6.0"
+      }
+    },
+    {
       "name": "use-mobile",
       "type": "registry:hook",
       "title": "useIsMobile",
-      "description": "SSR-safe viewport-width hook — reports whether the viewport is below a breakpoint (default 768px), live across resizes.",
-      "categories": [
-        "hook"
-      ],
+      "description": "SSR-safe viewport-width hook over use-media-query — reports whether the viewport is below a breakpoint (default 768px), live across resizes, with a caller-declared server fallback.",
+      "categories": ["hook"],
       "dependencies": [],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/use-media-query"],
       "files": [
         {
           "path": "packages/ui/registry/ui/use-mobile.ts",
@@ -15391,7 +15411,7 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/use-media-query"],
       "files": [
         {
           "path": "packages/ui/registry/ui/particle-field.tsx",

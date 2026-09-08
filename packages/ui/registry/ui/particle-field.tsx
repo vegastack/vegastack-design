@@ -1,9 +1,10 @@
-// @vegastack particle-field@0.6.0 sha256-N3qRCTmu1O72+6FvJ7ktcBtDZa9odj7IKQ8MMBGr4G0=
+// @vegastack particle-field@0.6.0 sha256-mcxerM9MKP6lLWUdtNWYSa6hPV2HzjaO671MO72hbeE=
 
 "use client";
 
 import * as React from "react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
+import { usePrefersReducedMotion } from "@/components/ui/use-media-query";
 
 /**
  * Deterministic seeded PRNG (mulberry32) — NEVER `Math.random()` at render.
@@ -46,25 +47,6 @@ function createParticles(count: number, seed: number): Particle[] {
     vy: (rand() - 0.5) * 0.00035,
     alpha: 0.08 + rand() * 0.18,
   }));
-}
-
-/** Same SSR-safe pattern as `animated-number.tsx`'s `usePrefersReducedMotion`. */
-function usePrefersReducedMotion(): boolean {
-  const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(false);
-  React.useEffect(() => {
-    if (
-      typeof window === "undefined" ||
-      typeof window.matchMedia !== "function"
-    )
-      return;
-    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setPrefersReducedMotion(mql.matches);
-    const onChange = (event: MediaQueryListEvent) =>
-      setPrefersReducedMotion(event.matches);
-    mql.addEventListener("change", onChange);
-    return () => mql.removeEventListener("change", onChange);
-  }, []);
-  return prefersReducedMotion;
 }
 
 /** Props accepted by `ParticleField`. */
@@ -129,14 +111,7 @@ export function ParticleField({
 }: ParticleFieldProps) {
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
   const [container, setContainer] = React.useState<HTMLDivElement | null>(null);
-  const setMergedRef = React.useCallback(
-    (instance: HTMLDivElement | null) => {
-      setContainer(instance);
-      if (typeof ref === "function") ref(instance);
-      else if (ref) ref.current = instance;
-    },
-    [ref],
-  );
+  const setMergedRef = React.useMemo(() => mergeRefs(setContainer, ref), [ref]);
 
   const prefersReducedMotion = usePrefersReducedMotion();
   const clampedCount = Math.max(0, Math.min(count, PARTICLE_FIELD_MAX_COUNT));

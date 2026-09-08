@@ -44,21 +44,21 @@ export interface SplitButtonAction {
  */
 export type SplitButtonProps = Omit<ButtonOwnProps, "render"> &
   ButtonAppearance & {
-  /** The primary action's label. */
-  children: React.ReactNode;
-  /**
-   * Accessible name for the dropdown trigger (the chevron has no visible text).
-   * @default 'More options'
-   */
-  menuLabel?: string;
-  /**
-   * Alignment of the dropdown relative to the trigger.
-   * @default 'end'
-   */
-  menuAlign?: DropdownMenuContentProps["align"];
-  /** Props forwarded to the {@link DropdownMenuContent}. */
-  menuContentProps?: Omit<DropdownMenuContentProps, "align" | "children">;
-} & (
+    /** The primary action's label. */
+    children: React.ReactNode;
+    /**
+     * Accessible name for the dropdown trigger (the chevron has no visible text).
+     * @default 'More options'
+     */
+    menuLabel?: string;
+    /**
+     * Alignment of the dropdown relative to the trigger.
+     * @default 'end'
+     */
+    menuAlign?: DropdownMenuContentProps["align"];
+    /** Props forwarded to the {@link DropdownMenuContent}. */
+    menuContentProps?: Omit<DropdownMenuContentProps, "align" | "children">;
+  } & (
     | {
         /**
          * Secondary actions shown in the dropdown.

@@ -180,6 +180,7 @@
         "use-file-drop",
         "use-inline-edit",
         "use-list-nav",
+        "use-media-query",
         "use-mobile",
         "use-platform"
       ]

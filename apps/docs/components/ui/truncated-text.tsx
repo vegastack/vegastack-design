@@ -3,7 +3,7 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import {
   Tooltip,
   TooltipContent,
@@ -274,14 +274,7 @@ export function TruncatedText({
   // Compose the internal measurement callback ref with the consumer's `ref` so BOTH
   // observe the same rendered element: `setNode` drives the overflow ResizeObserver while
   // the forwarded ref reaches the consumer. Re-created only when the consumer ref changes.
-  const setMergedRef = React.useCallback(
-    (instance: HTMLElement | null) => {
-      setNode(instance);
-      if (typeof ref === "function") ref(instance);
-      else if (ref) ref.current = instance;
-    },
-    [ref],
-  );
+  const setMergedRef = React.useMemo(() => mergeRefs(setNode, ref), [ref]);
 
   // Detect whether the text is *actually* clipped (shared measurement — see `useOverflow`):
   // single-line compares scroll/client width, multi-line compares height. Re-measured on
