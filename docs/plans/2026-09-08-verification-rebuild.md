@@ -86,10 +86,34 @@ Nothing is bound to a tree hash; nothing is attested; everything that is trusted
 
 ```
 check:component <name>   node tooling/design-lint.mjs packages/ui/registry && pnpm -F @vegastack/ui exec tsc --noEmit && pnpm -F @vegastack/ui exec vitest run registry/ui/<name>.test.tsx
-verify                   pnpm typecheck && pnpm lint && pnpm design:verify && pnpm -F @vegastack/ui test ; node tooling/workspace-clean.mjs --after-run
-verify:release           pnpm -F @vegastack/docs build && pnpm -F @vegastack/docs lint:links && pnpm -F @vegastack/docs verify:metadata && pnpm registry:build && pnpm registry:verify-consume && pnpm -F @vegastack/ui test:all-browsers
+verify                   node tooling/verify.mjs
+verify:release           node tooling/verify.mjs release
 clean                    node tooling/workspace-clean.mjs
 ```
+
+**Both `verify` and `verify:release` are MODES OF ONE SCRIPT** (`tooling/verify.mjs`), not shell
+chains. Three reasons, each already paid for:
+
+1. The cleanup must run pass or fail and must not change the exit code — a `&&` chain has no
+   `finally`.
+2. `SITE_VISIBILITY=public a && b` sets the variable for `a` ONLY. `verify:release` was first written
+   that way, so `verify:metadata` ran with the variable unset, defaulted to `private`, and failed
+   with `robots metadata missing noindex`. Env is per step in the script; every step declares its own.
+3. Ctrl-C must not leave Playwright artifacts behind. SIGINT/SIGTERM kill the running child, run the
+   same cleanup, and exit 130.
+
+`verify` runs `typecheck` → `lint` → `design:verify` → `turbo run test --filter=@vegastack/ui
+--filter=@vegastack/design`. The second filter is not decoration: `@vegastack/design`'s three node
+tests (`compare`, `check-updates`, `skills-install`) gate the `vegastack-design` CLI that consumers
+run, and until this round they were executed by **no gate at all** — not `pnpm lint`, not CI, not the
+release chain.
+
+`verify:release` builds the docs export **in both `SITE_VISIBILITY` matrices**: private → its
+`verify:metadata`, then public → its `verify:metadata` → `lint:links`. One export cannot prove both
+contracts (`private` requires `noindex` everywhere; `public` requires a complete discovery corpus with
+`/internal/*` still excluded). It costs one extra `next build` at release only. Production is public,
+so the private matrix is a regression guard on a configuration that is not currently deployed —
+**dropping it entirely is a defensible saving and an MK decision, not an agent's.**
 
 `pnpm lint` becomes a single `turbo run lint` plus `tooling` vitest project (see 3.3). `design:verify`
 keeps only product invariants (3.3). `gates:*` scripts are removed.
@@ -169,10 +193,19 @@ Target: ~7,000 lines under `tooling/`, every remaining check runs under vitest w
   Budget 3–4 min. Store cache: pnpm store on a host volume mounted into the container
   (`--mount type=bind`), so install is ~15 s.
 - **`verify-macos`** — `runs-on: [self-hosted, vsk-runners-mac-mini]`, no `setup-node` cache
-  (Node preinstalled on the minis via the runbook), steps: checkout · `pnpm install` ·
-  `pnpm typecheck && pnpm lint && pnpm design:verify` (no browser). Keeps the cross-platform
-  static signal the minis already gave, at ~2 min instead of ~13.
+  (Node comes from pnpm's `devEngines.runtime` pin, not the host), steps: checkout ·
+  `pnpm install` · `pnpm typecheck && pnpm lint && pnpm design:verify` (no browser) ·
+  `changeset status --since=origin/main`. Keeps the cross-platform static signal the minis already
+  gave, at ~2 min instead of ~13. The changeset step is restored verbatim from the pre-rebuild
+  `ci.yml`: it is blocking, it costs a second, and without it a change to a published package can
+  merge with nothing to publish.
 - No docs builds, no consume round-trip on a PR.
+
+**The Node version is pinned by pnpm, not by any runner.** `devEngines.runtime` in `package.json`
+names node 24.20.0 with `onFail: download`; pnpm resolves it into `pnpm-lock.yaml` with a per-platform
+checksum and runs every script with it. `.node-version` and `engines` are advisory around that pin —
+the runbooks used to claim `engine-strict` enforced `.node-version`, which it never did (it checks
+`engines`, which read `>=24.14.0`, so the development Mac ran the suite on 25.9 while CI ran 24).
 
 `release.yml`: unchanged in intent. `receipt-guard` removed; `quality-gate` runs `pnpm verify` in the
 Linux container. Version PR step gains `node tooling/changelog-assemble.mjs` before

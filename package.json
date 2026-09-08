@@ -4,7 +4,14 @@
   "type": "module",
   "packageManager": "pnpm@11.7.0",
   "engines": {
-    "node": ">=24.14.0"
+    "node": ">=24.14.0 <26"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.20.0",
+      "onFail": "download"
+    }
   },
   "scripts": {
     "build": "turbo run build",
@@ -21,7 +28,7 @@
     "registry:verify-consume": "node tooling/verify-shadcn-consume.mjs",
     "check:component": "sh -c 'node tooling/design-lint.mjs packages/ui/registry && pnpm -F @vegastack/ui exec tsc --noEmit && pnpm -F @vegastack/ui exec vitest run \"registry/ui/$1.test.tsx\"' --",
     "verify": "node tooling/verify.mjs",
-    "verify:release": "SITE_VISIBILITY=public pnpm -F @vegastack/docs build && pnpm -F @vegastack/docs lint:links && pnpm -F @vegastack/docs verify:metadata && pnpm registry:build && node tooling/assert-clean-tree.mjs 'the tree after registry:build' && pnpm registry:verify-consume && pnpm -F @vegastack/ui test:all-browsers",
+    "verify:release": "node tooling/verify.mjs release",
     "clean": "node tooling/workspace-clean.mjs",
     "design:sync": "node tooling/sync-design-md.mjs",
     "design:sync:check": "node tooling/sync-design-md.mjs --check",

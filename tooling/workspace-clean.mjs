@@ -16,10 +16,16 @@
 //   against that rule immediately before deleting it rather than trusting the list above it.
 //
 // MODES
-//   --dry-run   (default) print what would be removed, and the bytes, and remove nothing.
 //   --after-run remove the per-run test artifacts. Called by `pnpm verify` in a `finally`.
 //   --weekly    additionally prune stale turbo cache, merged agent worktrees, and Playwright
 //               browser builds that do not match the pinned version.
+//   (no mode)   report only — the same as passing --dry-run.
+//
+//   --dry-run   NOT a mode: a sticky boolean that suppresses every removal, whatever mode is also
+//               given, and in either order. It used to be a third mode, so `--dry-run --weekly`
+//               (the obvious way to preview the destructive mode) silently DELETED — the last flag
+//               won. A flag whose whole purpose is "do not delete" must not be cancellable by
+//               another argument. `tooling/test/workspace-clean.test.mjs` asserts both orders.
 //
 // Exit codes: 0 on success (including "nothing to do"). Non-zero only if a removal that was
 // attempted actually failed — a refusal (a dirty worktree) is reported and is NOT a failure, because
@@ -48,7 +54,10 @@ const SELF_DIR = fileURLToPath(new URL(".", import.meta.url));
  */
 function parseArgs(argv) {
   const args = {
-    mode: "dry-run",
+    mode: "report",
+    // Sticky, and independent of `mode` — see the MODES note at the top of this file. `--dry-run`
+    // used to assign to `mode`, so `--dry-run --weekly` deleted for real.
+    dryRun: false,
     root: resolve(SELF_DIR, ".."),
     quiet: false,
   };
@@ -56,7 +65,7 @@ function parseArgs(argv) {
     const arg = argv[index];
     if (arg === "--after-run") args.mode = "after-run";
     else if (arg === "--weekly") args.mode = "weekly";
-    else if (arg === "--dry-run") args.mode = "dry-run";
+    else if (arg === "--dry-run") args.dryRun = true;
     else if (arg === "--quiet") args.quiet = true;
     else if (arg === "--root") args.root = resolve(argv[++index]);
     else if (arg.startsWith("--root=")) args.root = resolve(arg.slice(7));
@@ -66,11 +75,12 @@ function parseArgs(argv) {
   return args;
 }
 
-const USAGE = `Usage: node tooling/workspace-clean.mjs [--dry-run|--after-run|--weekly] [--root <dir>] [--quiet]
+const USAGE = `Usage: node tooling/workspace-clean.mjs [--after-run|--weekly] [--dry-run] [--root <dir>] [--quiet]
 
-  --dry-run    (default) report what would be removed; remove nothing
+  (no mode)    report what would be removed; remove nothing
   --after-run  remove per-run test artifacts (called by \`pnpm verify\`)
   --weekly     also prune stale turbo cache, merged agent worktrees, and stale Playwright browsers
+  --dry-run    remove nothing, whatever mode is given and in either order
 `;
 
 // ------------------------------------------------------------------ what may ever be removed
@@ -424,7 +434,8 @@ function main(argv = process.argv.slice(2)) {
   const log = (line) => {
     if (!args.quiet) console.log(line);
   };
-  const dryRun = mode === "dry-run";
+  // `--dry-run` wins over any mode; with no mode at all the default is report-only.
+  const dryRun = args.dryRun || mode === "report";
 
   /** @type {{path: string, size: number}[]} */
   const planned = [];
@@ -445,7 +456,7 @@ function main(argv = process.argv.slice(2)) {
 
   for (const path of collectAfterRun(root)) add(path);
 
-  if (mode === "weekly" || dryRun) {
+  if (mode === "weekly" || mode === "report") {
     for (const path of collectStaleTurboCache(root)) add(path);
 
     const worktrees = collectMergedWorktrees(root);
@@ -469,7 +480,7 @@ function main(argv = process.argv.slice(2)) {
   const total = planned.reduce((sum, item) => sum + item.size, 0);
 
   log(
-    `workspace-clean: ${mode}${dryRun ? " (nothing will be removed)" : ""} — ` +
+    `workspace-clean: ${mode}${dryRun ? " --dry-run (nothing will be removed)" : ""} — ` +
       `${planned.length} path(s), ${bytes(total)}`,
   );
   for (const item of planned)

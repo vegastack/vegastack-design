@@ -11,7 +11,7 @@ distributed **hybrid**: two public npm packages + a private, Sigstore-signed sha
 
 | Surface                 | Where                                                                                                                                                         |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Docs, showcase & guides | **https://design.vegastack.com** (target: public; broad SSO remains until approved cutover)                                                                   |
+| Docs, showcase & guides | **https://design.vegastack.com** (public — every non-registry route is anonymous; `/internal/*` is unlisted and `noindex`)                                    |
 | Component registry      | `https://design.vegastack.com/r/*` (Cloudflare Access service token)                                                                                          |
 | npm                     | [`@vegastack/design`](https://www.npmjs.com/package/@vegastack/design) · [`@vegastack/design-tokens`](https://www.npmjs.com/package/@vegastack/design-tokens) |
 | Release history         | [CHANGELOG.md](CHANGELOG.md) (canonical → generates the docs Changelog page)                                                                                  |
@@ -62,7 +62,7 @@ pnpm dev                       # docs showcase on :3000
 pnpm check:component <name>    # the inner loop: design-lint · typecheck · that unit test
 pnpm verify                    # THE command: typecheck · lint · design:verify · browser suite
 pnpm verify:release            # the outward-step extras: docs export · consume round-trip · 3 engines
-pnpm clean                     # report (or, with --after-run/--weekly, reclaim) local scratch
+pnpm run clean                 # report only; `pnpm run clean --after-run|--weekly` reclaims
 pnpm registry:build            # after any canonical component edit
 ```
 

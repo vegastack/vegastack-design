@@ -29,6 +29,27 @@
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"]
     },
+    // `@vegastack/ui#test` READS FILES OUTSIDE ITS OWN PACKAGE, and turbo's default input set is
+    // package-local. `test/geometry.browser.test.tsx` imports `@/components/preview` — aliased in
+    // `packages/ui/vitest.config.ts` to `apps/docs/components/preview` — and mounts every fixture it
+    // exports; `test/geometry.css` additionally `@source`s that directory and `preview-controls.tsx`
+    // so their wrapper utilities compile. With only the package defaults hashed, editing a preview
+    // fixture left the hash unchanged and turbo REPLAYED a green run over source it had never
+    // executed — a cache hit that is indistinguishable from verification.
+    //
+    // `$TURBO_DEFAULT$` keeps the package-local defaults (respecting .gitignore); the two
+    // `$TURBO_ROOT$` globs add exactly what the alias and the `@source` globs reach. Every other
+    // `@/…` specifier in those fixtures resolves back into `packages/ui/registry` (see the alias
+    // table), so nothing else in `apps/docs` is an input.
+    "@vegastack/ui#test": {
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/apps/docs/components/preview/**",
+        "$TURBO_ROOT$/apps/docs/components/preview-controls.tsx"
+      ]
+    },
     "typecheck": {
       "dependsOn": ["^build"]
     }

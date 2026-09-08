@@ -1,57 +1,185 @@
 #!/usr/bin/env node
-// `pnpm verify` — the ONE command. Identical on a laptop, on the Linux CI runner, and in the
-// release chain (docs/plans/2026-09-08-verification-rebuild.md § 3).
+// `pnpm verify` (and `pnpm verify:release`) — the ONE command, in two modes. Identical on a laptop,
+// on the Linux CI runner, and in the release chain (docs/plans/2026-09-08-verification-rebuild.md
+// § 3.1 / § 3.4).
 //
-// It is a script rather than a shell one-liner for exactly one reason: the cleanup step must run
-// whether the run passed or failed, and the run's exit code must survive it. A `&&` chain cannot
-// express a `finally`, and `a && b ; c ; exit $?` in a package.json string is the kind of thing that
-// silently starts reporting the cleanup's exit code instead of the suite's.
+// It is a script rather than a shell one-liner for three reasons, and each of them has already bitten
+// this repository:
 //
-// STEP ORDER IS DELIBERATE — cheapest disproof first:
+//   1. The cleanup step must run whether the run passed or failed, and the run's exit code must
+//      survive it. A `&&` chain cannot express a `finally`, and `a && b ; c ; exit $?` in a
+//      package.json string is the kind of thing that silently starts reporting the cleanup's exit
+//      code instead of the suite's.
+//   2. `SITE_VISIBILITY=public cmd-a && cmd-b` sets the variable for cmd-a ONLY. The release chain
+//      was written that way, so `verify:metadata` ran with SITE_VISIBILITY unset, defaulted to
+//      `private`, and failed with `robots metadata missing noindex`. Env belongs to a step here, and
+//      every step declares its own.
+//   3. Ctrl-C must not leave a directory of Playwright artifacts behind. SIGINT/SIGTERM are handled
+//      below: the running child is killed, the same cleanup runs, and the process exits 130.
+//
+// VERIFY — STEP ORDER IS DELIBERATE, cheapest disproof first:
 //   typecheck      the whole workspace compiles at all
 //   lint           the static gate chain (which itself ends in `turbo run lint`)
 //   design:verify  the product invariants: tokens, contracts, RSC safety, theme parity, …
-//   test (ui)      the browser suite: unit + axe + the geometry contracts from WP1
+//   test           the browser suite (@vegastack/ui) AND the @vegastack/design node suite
 //
-// The browser suite runs THROUGH TURBO, not `pnpm --filter @vegastack/ui test`. Turbo's `test` task
-// dependsOn `^build`, and the suite imports `@vegastack/design`, whose dist is gitignored. Run bare
-// in a clean checkout, vite cannot resolve that import and the run HANGS on pre-transform errors
-// rather than failing — reproduced on vsk-node-05 during WP0.
+// The suites run THROUGH TURBO, not `pnpm --filter … test`. Turbo's `test` task dependsOn `^build`,
+// and the browser suite imports `@vegastack/design`, whose dist is gitignored. Run bare in a clean
+// checkout, vite cannot resolve that import and the run HANGS on pre-transform errors rather than
+// failing — reproduced on vsk-node-05 during WP0. `@vegastack/design`'s three node tests
+// (`compare`, `check-updates`, `skills-install`) gate the CLI that consumers actually run; before
+// this they were executed by no gate at all — not `pnpm lint`, not CI, not the release chain.
+//
+// RELEASE — the outward-step extras, run only by deploy.yml (and by hand before a deploy):
+//   the docs export in BOTH visibility matrices, the link check, the registry build and its
+//   idempotency assertion, the real `shadcn add` consume round-trip, and the three-engine suite.
 
-import { spawnSync } from "node:child_process";
+import { spawn } from "node:child_process";
+import { constants } from "node:os";
 
-const STEPS = [
-  { name: "typecheck", argv: ["pnpm", "typecheck"] },
-  { name: "lint", argv: ["pnpm", "lint"] },
-  { name: "design:verify", argv: ["pnpm", "design:verify"] },
-  {
-    name: "test (@vegastack/ui)",
-    argv: ["pnpm", "exec", "turbo", "run", "test", "--filter=@vegastack/ui"],
-  },
-];
+const MODES = {
+  verify: [
+    { name: "typecheck", argv: ["pnpm", "typecheck"] },
+    { name: "lint", argv: ["pnpm", "lint"] },
+    { name: "design:verify", argv: ["pnpm", "design:verify"] },
+    {
+      name: "test (@vegastack/ui, @vegastack/design)",
+      argv: [
+        "pnpm",
+        "exec",
+        "turbo",
+        "run",
+        "test",
+        "--filter=@vegastack/ui",
+        "--filter=@vegastack/design",
+      ],
+    },
+  ],
+  // Both SITE_VISIBILITY matrices are built, because `verify:metadata` asserts a DIFFERENT contract
+  // in each: under `private` every route must carry `noindex`, under `public` the discovery corpus
+  // (sitemap, robots, canonical, OG) must be complete and `/internal/*` must still be excluded. One
+  // export cannot prove both. Cost: one extra `next build` (~1 min) at release only. The production
+  // site is public, so the private matrix is a regression guard on a configuration that is not
+  // currently deployed — DROPPING IT is a defensible saving, and an MK decision, not an agent's.
+  release: [
+    {
+      name: "docs build (SITE_VISIBILITY=private)",
+      argv: ["pnpm", "-F", "@vegastack/docs", "build"],
+      env: { SITE_VISIBILITY: "private" },
+    },
+    {
+      name: "docs verify:metadata (private)",
+      argv: ["pnpm", "-F", "@vegastack/docs", "verify:metadata"],
+      env: { SITE_VISIBILITY: "private" },
+    },
+    {
+      name: "docs build (SITE_VISIBILITY=public)",
+      argv: ["pnpm", "-F", "@vegastack/docs", "build"],
+      env: { SITE_VISIBILITY: "public" },
+    },
+    {
+      name: "docs verify:metadata (public)",
+      argv: ["pnpm", "-F", "@vegastack/docs", "verify:metadata"],
+      env: { SITE_VISIBILITY: "public" },
+    },
+    // Links last of the export checks: it reads the PUBLIC export left on disk by the step above.
+    {
+      name: "docs lint:links (public)",
+      argv: ["pnpm", "-F", "@vegastack/docs", "lint:links"],
+      env: { SITE_VISIBILITY: "public" },
+    },
+    { name: "registry:build", argv: ["pnpm", "registry:build"] },
+    {
+      name: "registry:build idempotency",
+      argv: [
+        "node",
+        "tooling/assert-clean-tree.mjs",
+        "the tree after registry:build",
+      ],
+    },
+    {
+      name: "registry:verify-consume",
+      argv: ["pnpm", "registry:verify-consume"],
+    },
+    {
+      name: "test:all-browsers (@vegastack/ui)",
+      argv: ["pnpm", "-F", "@vegastack/ui", "test:all-browsers"],
+    },
+  ],
+};
 
-function run([command, ...args]) {
-  return (
-    spawnSync(command, args, { stdio: "inherit", shell: false }).status ?? 1
+const mode = process.argv[2] ?? "verify";
+if (!Object.hasOwn(MODES, mode)) {
+  console.error(
+    `verify: unknown mode ${mode} — expected one of ${Object.keys(MODES).join(", ")}`,
   );
+  process.exit(2);
 }
+const label = mode === "verify" ? "verify" : "verify:release";
+
+// ------------------------------------------------------------------ child process + signals
+
+/** The child of the step currently running, so a signal handler can kill it. */
+let child = null;
+/** The signal that interrupted the run, if any. Set once; a second Ctrl-C is a no-op here. */
+let interrupted = null;
+
+function run([command, ...args], env) {
+  return new Promise((resolve) => {
+    child = spawn(command, args, {
+      stdio: "inherit",
+      shell: false,
+      env: env ? { ...process.env, ...env } : process.env,
+    });
+    child.on("error", (error) => {
+      child = null;
+      console.error(`${label}: cannot spawn ${command} — ${error.message}`);
+      resolve(1);
+    });
+    child.on("close", (code, signal) => {
+      child = null;
+      // A child killed by a signal reports `code === null`; 128+n is the shell convention and keeps
+      // "died on SIGSEGV" distinguishable from "exited 1".
+      if (signal) resolve(128 + (constants.signals[signal] ?? 0));
+      else resolve(code ?? 1);
+    });
+  });
+}
+
+// Ctrl-C in a terminal delivers SIGINT to the whole foreground process group, so the child usually
+// dies on its own — but `kill -INT <pid>` (and a supervisor's SIGTERM) targets this process alone,
+// and then nothing would stop the child. Kill it explicitly, and let the normal flow fall through to
+// the cleanup below rather than exiting from inside the handler: an interrupted run must leave the
+// tree as clean as a failed one.
+for (const signal of ["SIGINT", "SIGTERM"]) {
+  process.on(signal, () => {
+    if (interrupted !== null) return;
+    interrupted = signal;
+    console.error(`\n${label}: ${signal} — stopping, then cleaning up`);
+    if (child !== null) child.kill(signal);
+  });
+}
+
+// ------------------------------------------------------------------ the run
 
 const started = Date.now();
 let status = 0;
 let failed = null;
 
-for (const step of STEPS) {
-  console.log(`\n[1mverify: ${step.name}[0m`);
-  status = run(step.argv);
+for (const step of MODES[mode]) {
+  if (interrupted !== null) break;
+  console.log(`\n[1m${label}: ${step.name}[0m`);
+  status = await run(step.argv, step.env);
   if (status !== 0) {
     failed = step.name;
     break;
   }
 }
 
-// The `finally`. Unconditional, and its own failure must not mask the run's result: a cleanup that
-// could turn a red run green (or a green run red) would be worse than no cleanup at all.
-const cleanup = run([
+// The `finally`. Unconditional — pass, fail, or interrupt — and its own failure must not mask the
+// run's result: a cleanup that could turn a red run green (or a green run red) would be worse than
+// no cleanup at all.
+const cleanup = await run([
   "node",
   "tooling/workspace-clean.mjs",
   "--after-run",
@@ -59,11 +187,17 @@ const cleanup = run([
 ]);
 if (cleanup !== 0)
   console.error(
-    "verify: workspace-clean --after-run failed; the verification result below is unaffected",
+    `${label}: workspace-clean --after-run failed; the verification result below is unaffected`,
   );
 
 const seconds = ((Date.now() - started) / 1000).toFixed(1);
-if (status === 0) console.log(`\n[32mverify: passed[0m in ${seconds}s`);
-else console.error(`\n[31mverify: FAILED at ${failed}[0m after ${seconds}s`);
+if (interrupted !== null) {
+  console.error(
+    `\n[31m${label}: INTERRUPTED (${interrupted})[0m after ${seconds}s — workspace cleaned`,
+  );
+  process.exit(130);
+}
+if (status === 0) console.log(`\n[32m${label}: passed[0m in ${seconds}s`);
+else console.error(`\n[31m${label}: FAILED at ${failed}[0m after ${seconds}s`);
 
 process.exit(status);

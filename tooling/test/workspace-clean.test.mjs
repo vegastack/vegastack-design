@@ -102,6 +102,25 @@ describe("--dry-run", () => {
     run([]);
     expect(existsSync(join(root, "apps/docs/test-results"))).toBe(true);
   });
+
+  // REGRESSION, both orders. `--dry-run` used to assign to `mode`, so the last flag on the command
+  // line won and `--dry-run --weekly` — the obvious way to preview the one destructive mode —
+  // DELETED. A flag whose entire purpose is "remove nothing" must not be cancellable by another
+  // argument, and "it works if you put it last" is not a property anyone can be expected to know.
+  for (const argv of [
+    ["--dry-run", "--after-run"],
+    ["--after-run", "--dry-run"],
+  ]) {
+    it(`removes nothing with \`${argv.join(" ")}\``, () => {
+      const output = run(argv);
+      for (const rel of [...AFTER_RUN, ...SURVIVORS])
+        expect(
+          existsSync(join(root, rel)),
+          `${rel} must survive ${argv.join(" ")}`,
+        ).toBe(true);
+      expect(output).toMatch(/--dry-run \(nothing will be removed\)/);
+    });
+  }
 });
 
 describe("--after-run", () => {
@@ -197,6 +216,28 @@ describe("--weekly", () => {
     for (const rel of AFTER_RUN)
       expect(existsSync(join(root, rel)), `${rel} must be removed`).toBe(false);
   });
+
+  // The case the mode-based parser got wrong: `--dry-run --weekly` removed a merged worktree AND
+  // every after-run path, because `--weekly` overwrote the mode `--dry-run` had just set.
+  for (const argv of [
+    ["--dry-run", "--weekly"],
+    ["--weekly", "--dry-run"],
+  ]) {
+    it(`removes nothing with \`${argv.join(" ")}\``, () => {
+      const worktree = withWorktree({});
+      const output = run(argv);
+      expect(
+        existsSync(worktree),
+        `a merged worktree must survive ${argv.join(" ")}`,
+      ).toBe(true);
+      for (const rel of AFTER_RUN)
+        expect(
+          existsSync(join(root, rel)),
+          `${rel} must survive ${argv.join(" ")}`,
+        ).toBe(true);
+      expect(output).toMatch(/--dry-run \(nothing will be removed\)/);
+    });
+  }
 });
 
 describe("safety", () => {

@@ -81,7 +81,8 @@ Do not re-open these. The original rationale is in `docs/requirements.md` §3 an
 `docs/gap-analysis.md` — historical records, so read them for _why_, never for _what is true now_.
 
 - **Stack** — `@base-ui/react` primitives via shadcn `--base base`; Tailwind v4; Next 16; React 19;
-  Node ≥24.14; pnpm 11; Turborepo 2.
+  Node pinned to 24.20.0 by pnpm (`devEngines.runtime`, `onFail: download`) and run for every script
+  whatever the host has on PATH; pnpm 11; Turborepo 2.
 - **Distribution is hybrid** — public npm (`@vegastack/design` + zero-dep
   `@vegastack/design-tokens`) plus a private shadcn registry for components (copy-in).
 - **Component model A (own it), no `Vega*` prefix** — export `Button`, not `VegaButton`. There is no
@@ -273,9 +274,9 @@ here is a green run there. Nothing is scoped to a diff and nothing is attested.
 
 ```bash
 pnpm check:component <name>   # ~5s     design-lint · typecheck · that one component's test
-pnpm verify                   # <2min   typecheck · lint · design:verify · the browser suite
-pnpm verify:release           # ~12min  docs export · links · metadata · registry · consume · 3 engines
-pnpm clean                    # dry-run report of reclaimable local scratch
+pnpm verify                   # ~2.5min typecheck · lint · design:verify · browser suite · design CLI tests
+pnpm verify:release           # deploy   BOTH docs matrices · links · registry · consume · 3 engines
+pnpm run clean                # report only; `--after-run` / `--weekly` reclaim, `--dry-run` never removes
 ```
 
 `pnpm verify` ends by running `tooling/workspace-clean.mjs --after-run` unconditionally — pass or
@@ -288,6 +289,7 @@ Individual gates, when you want one directly:
 node tooling/design-lint.mjs packages/ui/registry   # token + AST rules on component source
 pnpm typecheck                                       # workspace-wide
 pnpm exec turbo run test --filter=@vegastack/ui      # browser-mode unit + axe + geometry contracts
+pnpm exec turbo run test --filter=@vegastack/design  # the vegastack-design CLI node suite
 pnpm --filter @vegastack/ui test:all-browsers        # the complete suite in three engines
 pnpm lint                                            # the full static gate chain — see package.json
 pnpm registry:build && git status --porcelain        # must be idempotent: clean tree after
@@ -304,9 +306,9 @@ import and the run HANGS on pre-transform errors rather than failing.
 
 | gate                                                                                               | runs where                                      |
 | -------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| `pnpm verify` — typecheck, lint, `design:verify`, browser unit + axe + geometry contracts          | `ci.yml`, `release.yml`, `deploy.yml`, on Linux |
+| `pnpm verify` — typecheck, lint, `design:verify`, browser unit + axe + geometry, design CLI tests  | `ci.yml`, `release.yml`, `deploy.yml`, on Linux |
 | `pnpm typecheck && pnpm lint && pnpm design:verify` (no browser) — the cross-platform signal       | `ci.yml`'s `verify-macos`, on the minis         |
-| `pnpm verify:release` — docs export, links, metadata, registry idempotency, consume, three engines | `deploy.yml`, before `build-sign-deploy`        |
+| `pnpm verify:release` — BOTH docs matrices, links, registry idempotency, consume, three engines    | `deploy.yml`, before `build-sign-deploy`        |
 | `vrt-review` pixels                                                                                | local `/ship` step, never a gate                |
 
 `.gates/receipt.json`, every `receipt-guard` job, `.husky/pre-push`, route scoping
@@ -408,8 +410,8 @@ packages/
   ui/              PRIVATE registry workspace — canonical component sources + registry.json
 apps/docs/         Fumadocs showcase, guides, and the registry host (public/r)
 tooling/           registry hashing/verification · design-lint · content, changelog, skill lints
-  verify.mjs         `pnpm verify` — the one command, with the unconditional cleanup finally
-  workspace-clean.mjs  --dry-run / --after-run / --weekly scratch reclamation
+  verify.mjs         `pnpm verify` and `verify:release` — two modes, per-step env, cleanup finally
+  workspace-clean.mjs  scratch reclamation: --after-run / --weekly, with a sticky --dry-run
   pre-commit.mjs     the pre-commit hook body (design-lint + prettier over the staged set)
   test/              the `tooling` vitest project, run by `pnpm lint`
   runner/            provision-linux-runner.sh — enrol a Debian box as an Actions runner

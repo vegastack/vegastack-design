@@ -13,12 +13,12 @@ probe.
 
 ## What must be installed
 
-| Thing             | How                                                                                | Why                                                                        |
-| ----------------- | ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| Node              | The exact version in `.node-version`, via a version manager or the official pkg    | `.npmrc` sets `engine-strict=true`; a mismatch fails install, not later    |
-| corepack          | Ships with Node — `corepack enable` once, as the runner user                       | pnpm comes from `packageManager` in `package.json`, never a global install |
-| git               | Xcode command line tools                                                           | `actions/checkout` and every gate that reads history                       |
-| The Actions agent | GitHub's standard self-hosted installer, labels `self-hosted,vsk-runners-mac-mini` | —                                                                          |
+| Thing             | How                                                                                | Why                                                                                                  |
+| ----------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Node              | Any Node ≥24.14 — enough to run `corepack`/`pnpm`                                  | pnpm downloads the PINNED runtime (`devEngines.runtime`, node 24.20.0) and runs every script with it |
+| corepack          | Ships with Node — `corepack enable` once, as the runner user                       | pnpm comes from `packageManager` in `package.json`, never a global install                           |
+| git               | Xcode command line tools                                                           | `actions/checkout` and every gate that reads history                                                 |
+| The Actions agent | GitHub's standard self-hosted installer, labels `self-hosted,vsk-runners-mac-mini` | —                                                                                                    |
 
 That is the whole list.
 
@@ -67,10 +67,35 @@ repository setting; nothing in this tree can assert it.
 
 ## Health check
 
+**The minis are ORG-level runners, so the repository endpoint cannot see them.** This runbook used to
+print `gh api repos/VegaStack/vegastack-design/actions/runners`, which lists only the two repo-level
+Linux boxes (`vsk-node-05`, `vsk-node-07`) — an operator following it saw no minis and had no way to
+tell "not registered" from "not visible at this scope". Verified 2026-09-09.
+
+Ask a recent run which machine actually took the job. This needs only the `repo` scope every operator
+already has:
+
 ```bash
-gh api repos/VegaStack/vegastack-design/actions/runners --jq '.runners[] | {name, status, labels: [.labels[].name]}'
+RUN=$(gh run list --workflow=ci.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+gh api "repos/VegaStack/vegastack-design/actions/runs/$RUN/jobs" \
+  --jq '.jobs[] | {name, runner_name, conclusion}'
 ```
 
-Every mini should read `online` with `vsk-runners-mac-mini` among its labels. A job queued against a
-label no runner carries waits forever rather than failing, so an offline runner looks like a hung
-pull request.
+`verify-macos` must report a `runner_name` of `vsk-runner-mac-mini-1` or `-2`, and `verify` a
+`runner_name` of `vsk-node-05` or `-07`. A mini that has gone offline shows up as a **queued job that
+never starts** — a job queued against a label no runner carries waits forever rather than failing, so
+an offline runner looks like a hung pull request, not a red one. `gh run list` showing a CI run stuck
+`in_progress` with no `verify-macos` job started is that symptom.
+
+The direct runner listing needs the `admin:org` scope, which the default `gh auth login` does not
+grant (`gh api orgs/VegaStack/actions/runners` returns **403 "You must be an org admin or have the
+runners and runner groups fine-grained permission"**). If you have it:
+
+```bash
+gh auth refresh -h github.com -s admin:org   # once
+gh api orgs/VegaStack/actions/runners --jq '.runners[] | {name, status, labels: [.labels[].name]}'
+```
+
+Every mini should then read `online` with `vsk-runners-mac-mini` among its labels. Otherwise the
+GitHub UI at **Organization → Settings → Actions → Runners** shows the same thing with no scope
+change.

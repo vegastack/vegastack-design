@@ -9,20 +9,25 @@ exists to make that true.
 
 ## 1. Node
 
-The version is pinned in `.node-version` at the repository root, and `.npmrc` sets
-`engine-strict=true`, so a mismatched Node fails at install rather than three steps later inside a
-build tool with an unrelated-looking error.
+**You do not have to do anything.** pnpm owns the Node version: `devEngines.runtime` in
+`package.json` pins **node 24.20.0** with `onFail: download`, pnpm resolves it into `pnpm-lock.yaml`
+with a per-platform checksum, downloads it once, and runs every script — every gate — with it,
+whatever Node is on your PATH.
 
 ```bash
-cat .node-version              # the one version, everywhere
-fnm use || nvm use || mise use # whichever manager you run; all three read .node-version
-node -v                        # must match
+node -v            # whatever your shell has; it does not matter
+pnpm exec node -v  # v24.20.0 — what `pnpm verify` and CI actually run
 ```
 
-If you have no version manager, install the exact version from nodejs.org. Do not run "whatever Node
-you had" — the development Mac ran 25.9 against `engines: >=24.14` while CI ran 24, which is three
-runtimes for one repository and exactly the class of difference that produces a failure nobody can
-reproduce.
+If those two differ, that is correct and expected. On the development Mac they read v25.9.0 and
+v24.20.0 respectively.
+
+This replaces a claim that was never true. Until 2026-09-09 this runbook said `.node-version` was
+enforced by `engine-strict`; it was not — `engine-strict` checks `package.json` `engines`, which read
+`>=24.14.0`, so the Mac ran the whole suite on 25.9 and installed cleanly while CI ran 24. `engines`
+is now `>=24.14.0 <26` (a guard against a major-version surprise, not a pin), and `.node-version`
+survives as **advisory only**, for fnm/nvm/mise users who want their shell Node to match. Nothing in
+the build reads it. Bump `.node-version`, `devEngines.runtime`, and `engines` together.
 
 ## 2. pnpm, via corepack
 
@@ -93,7 +98,7 @@ node tooling/workspace-clean.mjs --weekly   # actually reclaim it
 
 | Symptom                                                       | Cause                                                                                                                                                    |
 | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Unsupported engine` at install                               | Wrong Node. `engine-strict=true` is doing its job — see §1.                                                                                              |
+| `Unsupported engine` at install                               | Node outside `engines` (`>=24.14.0 <26`). Rare now that pnpm downloads the pinned runtime — see §1.                                                      |
 | `pnpm install` picks a different pnpm                         | A global pnpm shadows corepack. `npm rm -g pnpm`, then `corepack enable`.                                                                                |
 | The browser suite HANGS instead of failing                    | You ran `pnpm --filter @vegastack/ui test` directly. Go through `pnpm verify` — turbo's `^build` is what builds `@vegastack/design`'s gitignored `dist`. |
 | `Executable doesn't exist at …/ms-playwright/…`               | §4 was skipped.                                                                                                                                          |
