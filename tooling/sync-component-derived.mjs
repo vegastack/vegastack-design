@@ -22,11 +22,35 @@ import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { isBuildOutput } from "./lib/derived-build-outputs.mjs";
+import {
+  BUILD_OUTPUTS_BY_PACKAGE,
+  isBuildOutput,
+} from "./lib/derived-build-outputs.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const check = process.argv.includes("--check");
 const buildOutputsOnly = process.argv.includes("--build-outputs");
+// `--only <workspace>` narrows `--build-outputs` to the files that workspace owns. Each workspace's
+// `prepare:content` passes its own package dir, so the two parallel writers no longer race on the
+// same paths and turbo's package-scoped `outputs` can capture a complete, cacheable set.
+const onlyPackage = (() => {
+  const index = process.argv.indexOf("--only");
+  if (index === -1) return null;
+  const value = process.argv[index + 1];
+  if (!value || !(value in BUILD_OUTPUTS_BY_PACKAGE)) {
+    console.error(
+      `✗ sync-component-derived: --only expects one of ${Object.keys(BUILD_OUTPUTS_BY_PACKAGE).join(", ")}; received ${value ?? "nothing"}`,
+    );
+    process.exit(1);
+  }
+  if (!buildOutputsOnly) {
+    console.error("✗ sync-component-derived: --only requires --build-outputs");
+    process.exit(1);
+  }
+  return value;
+})();
+const inSelectedPackage = (relative) =>
+  !onlyPackage || BUILD_OUTPUTS_BY_PACKAGE[onlyPackage].includes(relative);
 const contractPath = join(root, "packages/ui/component-contracts.json");
 const contractBytes = readFileSync(contractPath);
 const contracts = JSON.parse(contractBytes);
@@ -469,6 +493,7 @@ let written = 0;
 for (const [relative, expected] of outputs) {
   const generated = isBuildOutput(relative);
   if (buildOutputsOnly && !generated) continue;
+  if (generated && !inSelectedPackage(relative)) continue;
   // A build output is not tracked, so `--check` has nothing to assert about it.
   if (check && generated) continue;
   const absolute = join(root, relative);
@@ -489,12 +514,17 @@ for (const [relative, expected] of outputs) {
   }
 }
 
-const buildOutputCount = [...outputs.keys()].filter(isBuildOutput).length;
+const buildOutputCount = [...outputs.keys()].filter(
+  (relative) => isBuildOutput(relative) && inSelectedPackage(relative),
+).length;
 
 if (stale) process.exit(1);
 if (buildOutputsOnly)
-  console.log(
-    `✓ contract-derived build outputs current (${written} rewritten of ${buildOutputCount})`,
+  // STDERR, not stdout: this runs inside `ensureBuildOutputs()`, which is called from
+  // `lib/route-scope.mjs` on the path that produces `classify-change --json`. On stdout the line
+  // corrupted that JSON on the first run in a fresh clone.
+  console.error(
+    `✓ contract-derived build outputs current (${written} rewritten of ${buildOutputCount}${onlyPackage ? ` for ${onlyPackage}` : ""})`,
   );
 else if (check)
   console.log(

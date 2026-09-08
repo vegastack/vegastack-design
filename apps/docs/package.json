@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "prepare:content": "node ../../tooling/sync-component-derived.mjs --build-outputs && fumadocs-mdx",
+    "prepare:content": "node ../../tooling/sync-component-derived.mjs --build-outputs --only apps/docs && fumadocs-mdx",
     "build": "pnpm prepare:content && next build && tsx scripts/generate-markdown.ts && pnpm verify:metadata && pnpm verify:export && pnpm verify:emitted-css",
     "dev": "pnpm prepare:content && next dev",
     "start": "serve out",

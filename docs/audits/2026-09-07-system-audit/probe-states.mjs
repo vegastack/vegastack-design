@@ -20,6 +20,11 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { createServer } from "node:net";
+import { ensureBuildOutputs } from "../../../tooling/lib/derived-build-outputs.mjs";
+
+// `contract-routes.generated.ts` read below is a gitignored BUILD OUTPUT (WP4/R4), so this probe
+// can run before any build has written it. Generate on demand — a no-op stat when it is present.
+ensureBuildOutputs();
 
 const root = path.resolve(import.meta.dirname, "../../..");
 const docs = path.join(root, "apps/docs");

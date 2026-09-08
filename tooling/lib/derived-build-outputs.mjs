@@ -21,14 +21,27 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
+/**
+ * Repo-relative paths of every gitignored, contract-derived file, GROUPED BY THE WORKSPACE THAT
+ * OWNS THEM. The grouping is load-bearing for turbo: a task's `outputs` can only name files under
+ * its own package directory, so one shared `prepare:content` that writes all five would let a cache
+ * hit in either workspace restore an incomplete set. Each workspace's script now passes
+ * `--only <package>` and writes only its own files, and `turbo.json` carries a package-scoped
+ * `<pkg>#prepare:content` whose `outputs` are exactly that package's list. It also removes the race
+ * two parallel writers had on the same five paths.
+ */
+export const BUILD_OUTPUTS_BY_PACKAGE = {
+  "apps/docs": [
+    "apps/docs/lib/home-component-catalog.generated.ts",
+    "apps/docs/components/animated-icon-gallery.generated.tsx",
+    "apps/docs/vrt/contract-routes.generated.ts",
+    "apps/docs/vrt/icon-chunks.generated.ts",
+  ],
+  "packages/ui": ["packages/ui/contract-smoke-tests.generated.json"],
+};
+
 /** Repo-relative paths of every gitignored, contract-derived file. */
-export const BUILD_OUTPUTS = [
-  "apps/docs/lib/home-component-catalog.generated.ts",
-  "apps/docs/components/animated-icon-gallery.generated.tsx",
-  "apps/docs/vrt/contract-routes.generated.ts",
-  "apps/docs/vrt/icon-chunks.generated.ts",
-  "packages/ui/contract-smoke-tests.generated.json",
-];
+export const BUILD_OUTPUTS = Object.values(BUILD_OUTPUTS_BY_PACKAGE).flat();
 
 export const isBuildOutput = (relative) => BUILD_OUTPUTS.includes(relative);
 
@@ -49,7 +62,13 @@ export function ensureBuildOutputs({ force = false } = {}) {
   execFileSync(
     process.execPath,
     [join(ROOT, "tooling/sync-component-derived.mjs"), "--build-outputs"],
-    { cwd: ROOT, stdio: "inherit" },
+    // STDOUT is CLOSED on purpose. `classify-change --json` and every consumer of it
+    // (`verify-gate-receipt.mjs`, `verify-classify-change.mjs`) parse this process's STDOUT, and
+    // `lib/route-scope.mjs` calls this on a cold clone where the outputs are missing. Letting the
+    // generator inherit STDOUT put its progress line in front of the JSON and broke both verifiers
+    // with `Unexpected token '✓'` on the first run in a virgin clone. The generator writes progress
+    // to stderr anyway; this is the belt to that suspenders.
+    { cwd: ROOT, stdio: ["ignore", "ignore", "inherit"] },
   );
   return true;
 }
