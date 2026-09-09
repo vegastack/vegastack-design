@@ -743,6 +743,7 @@ idempotency check would fail after anyone ran the formatter.
   `component-contracts.json` and keeping only the _self-test_ hard-coded would remove the class.
 
 ---
+
 ## 2026-09-07 — T1 tables and grids: the judgment calls the issue did not settle
 
 **Decision summary:** the issue's Do-list was followed as written; these are the choices it left open.

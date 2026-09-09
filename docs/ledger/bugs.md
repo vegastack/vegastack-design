@@ -29,6 +29,7 @@ Every bug found + root cause + fix. Append-only.
   flagged rather than changed inside a component batch.
 - **Class:** fail-open verification gap, pre-existing since the lane was written (WP1). Nothing
   reported it because a missing utility makes a contract weaker, never red.
+
 ## 2026-09-09 — A selection checkbox's hit area lived in the NEXT cell, and only the obstruction probe could see it (T1)
 
 - **Symptom.** After T1 moved the sort header onto the system `Button`,

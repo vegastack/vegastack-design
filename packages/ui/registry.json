@@ -12842,7 +12842,10 @@
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "registryDependencies": ["@vegastack/copy-button", "@vegastack/use-overflow"],
+      "registryDependencies": [
+        "@vegastack/copy-button",
+        "@vegastack/use-overflow"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/terminal.tsx",

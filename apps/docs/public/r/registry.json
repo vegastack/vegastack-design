@@ -85,7 +85,7 @@
         "whenToUse": "The speech surface inside a Message - sent/received styling, reactions, interactive bubbles.",
         "whenNotToUse": "Non-conversational callouts - use Alert or Card.",
         "version": "0.6.0",
-        "integrity": "sha256-J3+6R9Twe+lIXwXgNqFZ2cbzeIc+8fcJXPGDctF03sw="
+        "integrity": "sha256-v/sYP7QYxIsZ4T6yEWblbgoWcESqNu4aVv1qm1Tg6QI="
       }
     },
     {
@@ -149,7 +149,7 @@
         "whenToUse": "A file attached to a chat message or a message-compose input - a chip/thumbnail with name, size, upload progress, and a remove action.",
         "whenNotToUse": "A generic file upload/drop zone with no chat context - reach for Empty (bordered drop zone) or a form Field instead.",
         "version": "0.6.0",
-        "integrity": "sha256-o0dmj8n5wnbDX2EEIxV2hiFou4+c/tvmecqDmpjJnTY="
+        "integrity": "sha256-rP78aP9evCTIRVG3MLZoIndQoiLQuu0l3Gh6kbvfA1g="
       }
     },
     {
@@ -240,7 +240,7 @@
         "whenToUse": "Label or annotate status, counts, or categories — e.g. Active, Beta, 3 New.",
         "whenNotToUse": "Anything clickable — use a Button; a Badge is a non-interactive label.",
         "version": "0.6.0",
-        "integrity": "sha256-EYnhy2yIXziTJwUCp7TAdaln8o7N/Zuj+iOQnK6drg8="
+        "integrity": "sha256-9+gxMxWoDkRGSEt3LGYEoSDtsjQM6mqaensVA4+KE/Y="
       }
     },
     {
@@ -356,7 +356,7 @@
         "whenToUse": "Single-line text entry — email, password, search, URL/slug with a domain prefix, numbers, etc.",
         "whenNotToUse": "Multi-line text (use a textarea) or choosing from fixed options (use a select/radio).",
         "version": "0.6.0",
-        "integrity": "sha256-c/0A+LCIDOZhbAvt9XOvoWSPU3qH5cdRS9SEt81D8MI="
+        "integrity": "sha256-tx3uNmA1NW8BLsqWcvDNv0teSQbZnvi0uWFjUqUVi8Y="
       }
     },
     {
@@ -832,7 +832,7 @@
         "whenToUse": "Settings that apply instantly — notifications, dark mode, feature flags.",
         "whenNotToUse": "Inside a form needing a Submit step — use a Checkbox.",
         "version": "0.6.0",
-        "integrity": "sha256-zf3sWxAtDHsY+RuvSCXQkk7Hvf8sIqoEQn96EJhBnN0="
+        "integrity": "sha256-iopBYGVR6/+f1kxdfbOX0IasJ40qrLCpkh4eN4khaww="
       }
     },
     {
@@ -972,7 +972,7 @@
         "whenToUse": "An imprecise value over a bounded range — volume, brightness, a price filter.",
         "whenNotToUse": "Exact values or large/open ranges (number input); on/off (Switch).",
         "version": "0.6.0",
-        "integrity": "sha256-ymGwnurk0I8Y27gSAm7QPCwDFLDG4BYkgX1AXzCGIKQ="
+        "integrity": "sha256-a305cyjnAor3we5oI/y1+kx2JwN/kLG1STpCzwsyklc="
       }
     },
     {
@@ -1481,7 +1481,7 @@
         "whenToUse": "User-adjustable split layouts — code editor panes, sidebar + content, inspector panels.",
         "whenNotToUse": "Fixed layouts, or layouts that only need to collapse/expand (Collapsible) without a drag/resize affordance.",
         "version": "0.6.0",
-        "integrity": "sha256-/9Hyb848WsZ+jVHYmTFrHsdGVjJ/2fxE5sTeQTroU08="
+        "integrity": "sha256-nCxTqNB9CqkrbThEHXg5u07+j9AuFDHoG/cG76No8gw="
       }
     },
     {
@@ -1662,7 +1662,7 @@
         "whenToUse": "Copy a short opaque value — API key, invite link, ID, snippet — with clear confirmation.",
         "whenNotToUse": "Long-form content to read/edit, or when there is no discrete value to copy.",
         "version": "0.6.0",
-        "integrity": "sha256-Hs3H+9eOl5lTyvgrOogE9qeCdEoQKMl08KS/bKj7AF0="
+        "integrity": "sha256-BQoDj8skCHcKA2zvzQYlrCpvztaWv5efjZuTbLt5d/E="
       }
     },
     {
@@ -1721,7 +1721,7 @@
         "whenToUse": "A short fixed-length verification code — 2FA/MFA, email/SMS OTP.",
         "whenNotToUse": "Free-form/variable-length text (Input) or a single masked secret (Password Input).",
         "version": "0.6.0",
-        "integrity": "sha256-EpR0P97KR9H3MGb9cbsTt3Nizbii1JX2v1R/+h0P2z4="
+        "integrity": "sha256-e/YNwCbeeiRC6oSK/Tn+7sR6XOu1YwUt0ImAnHSIkJA="
       }
     },
     {
@@ -1817,7 +1817,7 @@
         "whenToUse": "Any numeric value — quantities, limits, percentages, money (format={{ style: 'currency', currency }}) — where parsing, locale formatting, and stepping should be correct by construction.",
         "whenNotToUse": "Free-text that merely contains digits (phone numbers, postal codes, ids) — formatting/stepping semantics would fight the value; use Input.",
         "version": "0.6.0",
-        "integrity": "sha256-MOgwBomBHfYlP9BCFK0OJJKMF2mEL3xlvVieO59uJeY="
+        "integrity": "sha256-qFQEf8whKlV1ZHY8rRHdwewN9joIjmSkpt1qWnD0o9o="
       }
     },
     {
@@ -1848,7 +1848,7 @@
         "whenToUse": "A labelled, optionally removable pill — a record label, an applied filter, a selected value in a multi-select.",
         "whenNotToUse": "A status signal (Badge) or a clickable action (Button); a Chip's root is not interactive.",
         "version": "0.6.0",
-        "integrity": "sha256-OIzwdiV/chXBquNGgOMu8SQgmhogjxBjUCbLkKJerCs="
+        "integrity": "sha256-ZKhvTlOSuNhUe5NlfSASdQXtlKDZ565NC7SKM3q7uKs="
       }
     },
     {
@@ -3182,7 +3182,7 @@
         "whenToUse": "Any component that must tell a screen-reader user something happened with no focus change — a row moved, an entry was rejected, a save failed.",
         "whenNotToUse": "Content that is visible on screen anyway and already announced by focus, or an assertive alert (role=alert is a separate policy).",
         "version": "0.6.0",
-        "integrity": "sha256-El1R0kKLLYWcz5Sc1XAhwpz0Thn6Rvgnoqa27RMYUCA="
+        "integrity": "sha256-BH6rnEijAO8ATl8bXMEHk5Bigl4M0kLtwNmXenhScKs="
       }
     },
     {
@@ -3470,7 +3470,7 @@
         "whenToUse": "Short-to-medium rich text — comments, descriptions, release notes — via controlled HTML.",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.6.0",
-        "integrity": "sha256-biPOpS2Lo2uXZ6+ExAKW5WjErggxQVg0bXLDTpoulpU="
+        "integrity": "sha256-e3kT8GSTlbKC6ztvUjk/w7MusSgNShEwlVpl+/of4e8="
       }
     },
     {
