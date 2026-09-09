@@ -5,6 +5,7 @@ Vitest browser mode (real Chromium), `vitest-browser-react`, `axe-core` via `vit
 ## Contents
 
 - [Rendering and querying](#rendering-and-querying)
+- [Locators and text match EXACTLY](#locators-and-text-match-exactly)
 - [The CSS-less harness](#the-css-less-harness)
 - [Style-mirror technique](#style-mirror-technique)
 - [elementFromPoint boundary probes](#elementfrompoint-boundary-probes)
@@ -26,6 +27,43 @@ Query via `screen.getByRole(...)`; assert via `await expect.element(locator)` wi
 `.toBeInTheDocument()` / `.toHaveAttribute(...)` / `.toHaveClass(...)`.
 
 `userEvent` comes from `vitest/browser`, **not** `@testing-library/user-event`.
+
+## Locators and text match EXACTLY
+
+Vitest 5 matches locator text and accessible names **whole-string** by default
+(`browser.locators.exact`, previously a substring match), and `toHaveTextContent` is whole-string
+equality that no longer accepts a RegExp. This is not a detail — it changes what a passing query
+proves, and it caught real sloppiness on the way in (`getByRole('tab', { name: 'A' })` was silently
+resolving a tab whose accessible name is `Activity3`).
+
+So write the WHOLE name, including the parts a component appends for assistive technology:
+
+```tsx
+// a trailing count badge is part of the trigger's accessible name
+screen.getByRole("tab", { name: "Activity3" });
+// an sr-only external-link affordance is part of the link's
+screen.getByRole("link", { name: "link (opens in new tab)" });
+// an sr-only state prefix is part of the row's text
+screen.getByText("Met: At least 8 characters");
+```
+
+That is a feature: the query now asserts the accessible name a screen-reader user hears, so a
+component that changes its sr-only text fails the test instead of sliding past a substring.
+
+Reach for a partial match only when the omitted part is genuinely not the component's contract —
+a host-dependent time of day, say. Then say so locally, never globally:
+
+| want                                | use                                            |
+| ----------------------------------- | ---------------------------------------------- |
+| partial / RegExp text on an element | `toMatchTextContent(...)` (the old `toHave…`)  |
+| partial locator text                | `getByText("…", { exact: false })` or a RegExp |
+
+**Never** set `browser.locators.exact: false` in `vitest.config.ts` to make a query pass — that
+turns the strictness off for the whole suite to hide one loose assertion.
+
+When the name changes with the state under test — `AutoSaveInput`'s polite status text lives inside
+its `<label>`, so the field is `Display name` at rest and `Display name Saving` mid-save — query by
+role instead of restating a moving target.
 
 ## The CSS-less harness
 

@@ -57,7 +57,8 @@ test("arrow-key keyboard navigation moves between tabs", async () => {
   // Manual activation: arrow moves focus, Enter activates.
   await userEvent.keyboard("{ArrowRight}{Enter}");
   await expect
-    .element(screen.getByRole("tab", { name: "Activity" }))
+    // The trigger renders a trailing count badge, so its accessible name is "Activity3".
+    .element(screen.getByRole("tab", { name: "Activity3" }))
     .toHaveAttribute("data-active");
   await expect.element(screen.getByText("Activity panel")).toBeInTheDocument();
 });
@@ -176,7 +177,7 @@ test("horizontal list scrolls with a scroll-fade edge affordance (clipped tabs r
       "group-data-[orientation=horizontal]/tabs:scrollbar-none",
     ),
   ).toBe(true);
-  const trigger = screen.getByRole("tab", { name: "A" }).element();
+  const trigger = screen.getByRole("tab", { name: "Overview" }).element();
   expect(trigger.classList.contains("focus-visible:-outline-offset-2")).toBe(
     true,
   );

@@ -195,8 +195,12 @@ test("no a11y violations — saving", async () => {
     );
     await screen.getByLabelText("Display name").fill("Ada");
     await vi.advanceTimersByTimeAsync(800);
+    // Vitest 5 locators match the accessible name EXACTLY. The polite status text lives
+    // inside the <label>, so once saving starts the field's accessible name becomes
+    // "Display name Saving" — query by role instead of restating a name that changes with
+    // the state under test.
     await expect
-      .element(screen.getByLabelText("Display name"))
+      .element(screen.getByRole("textbox"))
       .toHaveAttribute("data-state", "saving");
     // axe-core's async run relies on real timers internally; fake timers left
     // active here hang it indefinitely. The "saving" status is pinned by the
@@ -221,8 +225,9 @@ test("no a11y violations — error", async () => {
     );
     await screen.getByLabelText("Display name").fill("x");
     await vi.advanceTimersByTimeAsync(800);
+    // Same as the "saving" test: the accessible name is "Display name Save failed" here.
     await expect
-      .element(screen.getByLabelText("Display name"))
+      .element(screen.getByRole("textbox"))
       .toHaveAttribute("data-state", "error");
     // See the "saving" test above: axe-core's async run needs real timers.
     vi.useRealTimers();

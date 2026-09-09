@@ -29,7 +29,9 @@ function Example(
 
 test("renders progress copy, segmented bar, and step rows", async () => {
   const screen = await render(<Example />);
-  await expect.element(screen.getByText("steps completed")).toBeInTheDocument();
+  await expect
+    .element(screen.getByText("1 of 3 steps completed"))
+    .toBeInTheDocument();
   const bar = screen.getByRole("progressbar");
   await expect.element(bar).toHaveAttribute("aria-valuenow", "33");
   // B7-04: the bar IS `ProgressIndicator segments` — there is exactly ONE role="progressbar"
@@ -52,11 +54,19 @@ test("collapses to the progress pill and expands back", async () => {
   await userEvent.click(
     screen.getByRole("button", { name: "Collapse checklist" }),
   );
-  const pill = screen.getByRole("button", { name: "Expand checklist" });
-  await expect.element(pill).toHaveTextContent("1/3");
+  // WCAG 2.2 SC 2.5.3 (Label in Name): the collapsed pill has no aria-label, so its
+  // accessible name is the VISIBLE title and progress with `expandLabel` appended as
+  // sr-only text. Vitest 5 matches names exactly, so this now asserts that contract.
+  const pill = screen.getByRole("button", {
+    // No separator text nodes between the parts, so the name concatenates flush.
+    name: "Getting started1/3Expand checklist",
+  });
+  await expect.element(pill).toMatchTextContent("1/3");
   await expectNoA11yViolations(screen.container);
   await userEvent.click(pill);
-  await expect.element(screen.getByText("steps completed")).toBeInTheDocument();
+  await expect
+    .element(screen.getByText("1 of 3 steps completed"))
+    .toBeInTheDocument();
   await expectNoA11yViolations(screen.container);
 });
 

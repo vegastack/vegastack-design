@@ -87,7 +87,10 @@ test("renders the search input and all items", async () => {
   await expect.element(screen.getByPlaceholder("Search…")).toBeInTheDocument();
   await expect.element(screen.getByText("Calendar")).toBeInTheDocument();
   await expect.element(screen.getByText("Search Emoji")).toBeInTheDocument();
-  await expect.element(screen.getByText("Profile")).toBeInTheDocument();
+  // The item renders its shortcut inside the option, so its text is "Profile⌘P".
+  await expect
+    .element(screen.getByRole("option", { name: "Profile⌘P" }))
+    .toBeInTheDocument();
 });
 
 test("renders group headings", async () => {

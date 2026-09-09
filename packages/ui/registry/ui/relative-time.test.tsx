@@ -183,7 +183,9 @@ test("reveals the absolute date-time on focus", async () => {
   await userEvent.tab();
   const tip = screen.getByRole("tooltip");
   await expect.element(tip).toBeInTheDocument();
-  await expect.element(tip).toHaveTextContent("January 15, 2026");
+  // The tooltip also renders the time of day, which depends on the host timezone —
+  // `toHaveTextContent` is whole-string in Vitest 5, so this is the partial matcher.
+  await expect.element(tip).toMatchTextContent("January 15, 2026");
 });
 
 test("accepts a custom tooltip label", async () => {
