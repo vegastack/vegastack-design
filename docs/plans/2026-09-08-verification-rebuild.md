@@ -182,6 +182,22 @@ Also deleted: `apps/docs/vrt/` (all of it), `apps/docs/playwright.config.ts`,
 
 Target: ~7,000 lines under `tooling/`, every remaining check runs under vitest with one report.
 
+> **This target was wrong, and it is withdrawn (MK, 2026-09-09).** Measured after WP0–WP6:
+> `tooling/` is **18,333 lines across 60 `.mjs` files**, against a pre-rebuild baseline of 16,257
+> across 54. WP3 did delete 5,331 lines of attestation, and the deletion was real — but the same
+> rebuild added `verify.mjs`, `workspace-clean.mjs`, `verify-docs-shell.mjs`, `changelog-assemble.mjs`,
+> `changeset-lint.mjs`, `release-detect.mjs`, `lib/fs.mjs`, six files in `tooling/test/`, and the
+> runner provisioning script. The line count was never a proxy for the thing being fixed; the thing
+> being fixed was one command instead of a four-tier ladder, and that landed.
+>
+> **WP3b — migrating the ~30 surviving verifiers into the vitest `tooling` project — is dropped, not
+> deferred.** It buys legibility, not coverage: every one of those scripts already fails closed and
+> turbo caches the chain. A third of them (`verify-component-contracts` 1,274 lines,
+> `verify-animated-icons` 1,077, `design-lint` 1,074 — itself a CLI other scripts spawn,
+> `verify-shadcn-consume` 1,028 which stands up sidecar servers, `mirror-animated-icons` 2,437)
+> are tools rather than assertions, and translating them risks losing a fail-closed property for a
+> readability gain. Do not treat the numbers above as an unmet requirement.
+
 ### 3.4 CI
 
 `ci.yml` (pull_request):
@@ -286,7 +302,7 @@ Each package is one PR, mergeable on green, and leaves the repo working. Total: 
 | 0   | Linux runner online (R1, R2)                       | `tooling/runner/provision-linux-runner.sh`, `docs/runbooks/ci-runner-provisioning-linux.md`, `.node-version`, `engine-strict`                                   | —                                                                                                                              | `gh api …/actions/runners` lists both boxes `online`; a throwaway workflow runs `pnpm -F @vegastack/ui test` green in the container                                  |
 | 1   | Geometry contracts under vitest (R3)               | `packages/ui/test/geometry.browser.test.tsx`; vitest alias + `@source`                                                                                          | nothing yet                                                                                                                    | new test green in ≤ 60 s extra on the Mac **and** on the runner; it fails when `min-w-0` is removed from one truncating fixture (negative proof, recorded in the PR) |
 | 2   | `pnpm verify` + `pnpm verify:release`; CI executes | scripts (§3.1); `ci.yml`, `release.yml`, `deploy.yml` rewritten (§3.4); `tooling/workspace-clean.mjs`; `docs/runbooks/developer-machine-setup.md`, `…-macos.md` | `receipt-guard` jobs, `runner-diagnostics.yml`, `.husky/pre-push`, `.gates/`, `verify-workflow-security-negative`              | a PR to this branch gets a green `verify` from the Linux runner in ≤ 4 min; `verify-macos` ≤ 2 min                                                                   |
-| 3   | Delete the attestation stack                       | `tooling/test/*.test.mjs` for the kept invariants                                                                                                               | every script in §3.3 "Delete"; `apps/docs/vrt/`, `playwright.config.ts`, `tsconfig.vrt.json`, smoke config, `@playwright/test` | `pnpm verify` green; `wc -l tooling/**/*.mjs` ≤ 8,000; `pnpm lint` runs one vitest `tooling` project                                                                 |
+| 3   | Delete the attestation stack                       | `tooling/test/*.test.mjs` for the kept invariants                                                                                                               | every script in §3.3 "Delete"; `apps/docs/vrt/`, `playwright.config.ts`, `tsconfig.vrt.json`, smoke config, `@playwright/test` | `pnpm verify` green; `pnpm lint` runs one vitest `tooling` project. (The `≤ 8,000` line gate was withdrawn on 2026-09-09 — see § 3.3.)                               |
 | 4   | Generated docs files ungenerated from git (R4)     | `prepare:content` generates them; `.gitignore` entries                                                                                                          | the four committed generated files                                                                                             | `pnpm verify` and `pnpm verify:release` green from a clean clone                                                                                                     |
 | 5   | Changelog per version (R5)                         | `tooling/changelog-assemble.mjs` + test; `release.yml` step                                                                                                     | the per-PR changelog obligation in skills                                                                                      | a dry run on the pending changesets produces a valid `CHANGELOG.md` entry that `changelog-lint` accepts and `sync-changelog` injects                                 |
 | 6   | Rulebook and skills                                | rewritten `AGENTS.md`, `ship`/`review`/`component` skills, `docs/RELEASING.md`                                                                                  | `skills/internal/gates/`, both symlinks; the CI history prose (moved to the ledger)                                            | `skill-lint`, `sync-package-skills --check`, `design:sync:check` green; `wc -l AGENTS.md` ≤ 150                                                                      |

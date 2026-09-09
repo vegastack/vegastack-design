@@ -4,6 +4,61 @@ Every judgment-call / assumption / best-guess decision made instead of pausing �
 
 ---
 
+## 2026-09-09 — post-rebuild audit: two fail-opens, a wrong plan target, and main left unprotected
+
+**Context:** after WP0–WP6 landed, an adversarial audit went through the three workflows and the two
+paths the rebuild rewrote but never executed — `deploy.yml` (last real run 2026-09-05) and
+`release.yml`'s `publish` job (skipped on every run since). What follows is what it found, what was
+fixed, and the three calls MK made.
+
+**Fixed the same day.**
+
+- **The release path had been dead since WP5.** Every `Release` run on `main` failed at `version-pr`
+  because the job checks out a detached HEAD, so `changeset status` — newly reached through
+  `changelog-assemble.mjs` — could not find where HEAD diverged from `main`. One step,
+  `git branch -f main "$GITHUB_SHA"`, fixed it (#81); two consecutive green runs and a Version PR
+  carrying the assembled `[0.7.0]` entry are the proof.
+- **A stale docs build cache accused the shell of drift.** `turbopackFileSystemCacheForBuild` can
+  serve a stylesheet compiled before a `global.css` change, and `verify:emitted-css` reads the built
+  CSS — so `verify:release` reported ten off-ladder font weights on a tree that builds clean. CI never
+  sees it (`actions/checkout` runs `git clean -ffdx`), which is exactly why it cost a local run an
+  hour. Release mode now clears `.next` and `out` first (#84). **The audit's conclusion that
+  production would ship an off-system shell was wrong** and is recorded here so it is not repeated.
+- **`assert-clean-tree` called any untracked file "registry drift"** — a lie in the direction that
+  wastes the most time. It now snapshots before the build and compares after (#84).
+- **The cross-engine lane could silently become two engines.** Nothing set `WEBKIT_LANE`, so the
+  default was `auto`: a WebKit that stopped launching would print a banner and continue, while
+  `AGENTS.md`, `verify.mjs` and the `ship` skill all promised three engines to a deploy that relies on
+  it. CI now defaults to `require` (#85). `auto` still covers the developer Mac that physically cannot
+  run WebKit.
+- **`.claude/worktrees/` had never been gitignored** (pre-existing, not a rebuild regression). One
+  `git add -A` staged 22 embedded repositories holding the audit epic's unpushed commits (#82).
+
+**MK's calls, 2026-09-09.**
+
+1. **WP3b is dropped, not deferred, and the plan's line target is withdrawn.** `tooling/` is 18,333
+   lines across 60 files against a "~7,000" target and a 16,257 baseline — the rebuild deleted 5,331
+   lines of attestation and added more in new commands, tests and runbooks. The count was never a
+   proxy for the thing being fixed. Migrating the surviving verifiers into the vitest project buys
+   legibility, not coverage, and risks losing a fail-closed property in translation. See § 3.3 of the
+   plan, now annotated.
+2. **`main` stays unprotected — deliberately.** There is no required review and no required check;
+   the reviewed-PR flow `docs/RELEASING.md` describes is convention, and anything holding a token can
+   push straight to `main`. MK accepted this while the audit epic is merging quickly, on the grounds
+   that required checks would slow a train that is already gated by `pnpm verify` on every PR. **This
+   is a choice, not an oversight — revisit when the epic lands.** The exposure it leaves: a direct
+   push to `main` skips `ci.yml` entirely (it triggers on `pull_request` only).
+3. **`quality-gate` must become unconditional.** It runs only when the release detector reports
+   `publish == 'true'`, which is currently always true because `release-detect --check-npm` is
+   fail-open — `npm view` run from the repo root hits `EBADDEVENGINES` against the `devEngines` pin and
+   the script reads the error as "unpublished". Fixing the detector therefore OPENS a hole in which a
+   push to `main` touching no package with no changeset is verified by nothing. The two must land
+   together; noted here because the sequencing is the trap, not either change alone.
+
+**Still true and unfixed at the time of writing:** `deploy.yml` has still never run in its current
+form, and the `publish` job has still never run since the rebuild. Neither can be exercised without
+an MK-gated dispatch, so both remain unproven by execution rather than by reading.
+
 ## 2026-09-09 — rulebook rewrite: history moved out of AGENTS.md
 
 **Context:** WP6 of `docs/plans/2026-09-08-verification-rebuild.md` cut `AGENTS.md` from 478 lines
@@ -76,6 +131,7 @@ boundary contract every deploy probes. `pnpm run clean` was kept for the same re
 documented interface to the cleanup `pnpm verify` runs in its `finally`.
 
 ---
+
 ## 2026-09-08 — Fo1 fix round: the stepper wash climbs the ladder through a group-scoped twin
 
 **Context:** the Codex review of F1 routed two items to Fo1 — `number-field.tsx` hand-wrote
