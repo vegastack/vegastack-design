@@ -5,7 +5,9 @@ the ordered steps an agent or a maintainer follows, and defers to this file for 
 actually is — where jobs run, how publishing authenticates, what the changelog system is, and what a
 consumer does downstream. When the two disagree, the enforcing script wins over both.
 
-How VegaStack ships updates from this **private** GitHub repo, and how downstream pulls them. Two
+How VegaStack ships updates from this **public** GitHub repo, and how downstream pulls them.
+`gh repo view --json visibility` is the authority and answers `PUBLIC`; the repository was made
+public before the 0.3.x releases, and what is private is the **registry**, not the source. Two
 distribution channels, both already wired:
 
 - **npm packages** (`@vegastack/design` + `@vegastack/design-tokens`) → prepared by `release.yml`
@@ -14,8 +16,10 @@ distribution channels, both already wired:
   trusted publishing works on self-hosted runners; only the provenance _bundle_ requires a
   GitHub-hosted runner (npm rejects a self-hosted one with **E422**), so `publish` calls
   `npm publish --no-provenance` directly — the `NPM_CONFIG_PROVENANCE` env is not honoured by the
-  changesets action's OIDC path. The repo is public, so a hosted runner could attach provenance, but
-  hosted runners are billing-locked, so releases currently ship without an attestation.
+  changesets action's OIDC path. **Provenance is off because the runner is self-hosted, not because
+  of repository visibility** — a public repo is exactly what makes provenance possible in principle,
+  and a hosted runner could attach it, but hosted runners are billing-locked. Releases therefore ship
+  without an attestation, and none is claimed anywhere.
   **No `NPM_TOKEN` exists** and the account keeps 2FA. One-time setup (already done): each package on
   npmjs.com has a Trusted Publisher entry → GitHub Actions → `vegastack/vegastack-design` →
   `release.yml`; identity is repository + `release.yml`, no GitHub environment. (The very first 0.1.0
@@ -29,9 +33,10 @@ distribution channels, both already wired:
   so there is **no auto-push** (that's the shadcn model; whole-item integrity/content is the update
   signal, with a preserved provenance header used only as an optional fast path).
 
-> The registry is **not** served from the private GitHub repo directly — shadcn's `owner/repo/item`
-> address form doesn't support private repos. GitHub is the source; the signed `/r/*` is served from
-> Cloudflare (`design.vegastack.com/r/`) behind Cloudflare Access service tokens.
+> The registry is **not** served from GitHub. The source repo is public, so serving `/r/*` from it
+> would make the registry public too — the access boundary is Cloudflare's, not GitHub's. The signed
+> `/r/*` is served from Cloudflare (`design.vegastack.com/r/`) behind Cloudflare Access service
+> tokens, which is what keeps the component registry private while the source is not.
 
 ## Release a component update (maintainer)
 
@@ -51,23 +56,25 @@ distribution channels, both already wired:
    changeset-bearing run then uses its version job to update the **Version Packages** PR.
    Review its package versions, generated changelogs, the assembled root `CHANGELOG.md` entry and
    the regenerated docs Changelog page, registry item versions, and regenerated `/r/*`; merging that PR is the separate human action that authorizes the next main run's isolated
-   npm OIDC publish job, which runs on a mini token-free via trusted publishing (provenance disabled).
-   The private source repository means npm provenance attestations are unavailable regardless, so none
-   is claimed.
-5. **Publish the registry**: run the **Deploy** workflow (`deploy.yml`, manual, from `main`). It
-   builds/tests without credentials, uploads a validated artifact, signs it in the only OIDC-capable
-   job, and reverifies it in the credential-only job before pinned Wrangler uses the existing
-   repository Cloudflare secrets. The manual dispatch is the explicit outward-deploy approval.
+   npm OIDC publish job, which runs on a mini token-free via trusted publishing (provenance disabled
+   because the runner is self-hosted — npm rejects a self-hosted provenance bundle with E422 — not
+   because of repository visibility). **No git tag and no GitHub release is created**; see
+   § Tags and GitHub releases below.
+5. **Publish the registry**: run the **Deploy** workflow (`deploy.yml`, manual, from `main`). One
+   job, `build-sign-deploy`, builds and verifies the export, signs the curated manifest (Sigstore
+   keyless over GitHub OIDC), re-verifies the signature, and only then lets pinned Wrangler use the
+   existing repository Cloudflare secrets. The manual dispatch is the explicit outward-deploy
+   approval.
    The live probe requires every non-registry route to be anonymously reachable, requires
    `/internal/*` to remain unlisted with `noindex`/`no-store`, and requires `/r/*` to reject
    anonymous requests while accepting the service token. It also proves the representative live
    registry item's exact version, integrity hash, and signed-manifest membership. The new registry
    versions are then _available_—consumers still pull them.
 
-This is the approved GitHub Team/private-repository operating model. Required-reviewer environment
-protection is unavailable on this plan, so releases do not depend on GitHub Environments or change the
-proven repository + `release.yml` trusted-publisher identity; publishing is gated by the reviewed
-Version PR merge. Independent review belongs at the change PR and Version Packages PR; MK may initiate a
+This is the approved operating model for a **public** repository on a GitHub Team plan whose hosted
+runners are billing-locked. Required-reviewer environment protection is unavailable on this plan, so
+releases do not depend on GitHub Environments or change the proven repository + `release.yml`
+trusted-publisher identity; publishing is gated by the reviewed Version PR merge. Independent review belongs at the change PR and Version Packages PR; MK may initiate a
 run, but every changeset push, Version PR merge, and deploy dispatch remains a separate explicit MK
 decision under the `ship` skill.
 
@@ -158,6 +165,31 @@ with every other. `docs/plans/2026-09-08-verification-rebuild.md` R5.
 items to the same number; `check-updates` compares by **integrity hash**, so a component only reports
 an update when its content actually changed (no false positives from the global bump). The changeset
 summary + `@vegastack/ui` CHANGELOG tell consumers _which_ components moved.
+
+### Tags and GitHub releases
+
+**A release creates neither, deliberately.** `git tag` still shows `@vegastack/design@0.1.1` through
+`@vegastack/design@0.3.1` and `@vegastack/design-tokens@0.2.0` — artefacts of the old
+`changesets/action` publish path. That path was replaced on 2026-09-04 by a direct per-package
+`npm publish --access public --no-provenance` loop, because the changesets action's OIDC path does
+not honour `NPM_CONFIG_PROVENANCE` and npm rejected the self-hosted provenance bundle with E422
+(`docs/plans/2026-09-04-self-hosted-release-and-deploy.md` § 2, where the loss of automatic tags and
+GitHub releases is recorded as the accepted trade-off). Since then `packages/design` has published
+0.3.2 with no tag, and there is no GitHub release for it.
+
+Nothing consumes them, which is why the trade-off stands rather than being repaid:
+
+- `/CHANGELOG.md` links **commits** (`.../commit/<sha>`), never tags; `tooling/changelog-lint.mjs`
+  validates commit shas and docs links and knows nothing about tags.
+- No script, workflow, skill, or docs page reads a tag, `refs/tags`, or a `releases/tag` URL — the
+  only mention of tags anywhere in the tree is the trade-off note cited above.
+- The published npm versions are themselves the immutable, verifiable release markers, and the
+  registry has its own: `meta.integrity` plus the Sigstore-signed manifest.
+
+So the tags that exist are historical residue, not a series with a gap in it; do not backfill them.
+If a tag is ever genuinely wanted (a `git log <tag>..HEAD` range, a GitHub release page), that is a
+new decision, and the fix is a step in `release.yml`'s `publish` job after the publish loop — not a
+manual `git tag`, which would create a tag for a version that may not have reached npm.
 
 ## Receive an update (downstream)
 
