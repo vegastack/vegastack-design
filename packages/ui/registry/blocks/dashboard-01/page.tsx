@@ -1,4 +1,4 @@
-// @vegastack dashboard-01@0.6.0 sha256-vulxkBnXhFo4bjaxTWtBDoaUXhmdrjPxusWR8GsOxjk=
+// @vegastack dashboard-01@0.7.0 sha256-A8xdKAFUYg9CKl/Ndx/yo7GGudaxU7p3DTFII2mnwiA=
 
 /**
  * `page.tsx` — registry:page, target `app/dashboard/page.tsx`. The dashboard-01 block's sample

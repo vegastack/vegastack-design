@@ -1,5 +1,84 @@
 # @vegastack/design
 
+## 0.4.0
+
+### Minor Changes
+
+- [#77](https://github.com/vegastack/vegastack-design/pull/77) [`7915a71`](https://github.com/vegastack/vegastack-design/commit/7915a71edd32c5038e08145fb4e8192fef1f9098) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **Animated icons** — the reduced-motion effect ran after _every_ render in all 439 icons,
+  because it was written without a dependency array. It now runs when the preference changes, once, in
+  the factory.
+  [docs](https://design.vegastack.com/docs/foundations/icons) ·
+  [`cb20de9`](https://github.com/VegaStack/vegastack-design/commit/cb20de9)
+
+- [#57](https://github.com/vegastack/vegastack-design/pull/57) [`f1d7d2f`](https://github.com/vegastack/vegastack-design/commit/f1d7d2fbc5f9c52aa13ff9ddfc869cb71c6ae163) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🛠 **Animated icons are one factory plus 439 data modules.** Every mirrored `lucide-animated`
+  icon used to carry its own copy of the controller — the animation controls, the reduced-motion gate,
+  five pointer/focus handlers, the imperative handle and a block-level host — so a change to any of
+  that meant regenerating 439 files and trusting that all 439 agreed. The controller now lives once in
+  `createAnimatedIcon`, exported from the new `@vegastack/design/create-animated-icon` subpath, and
+  each icon is a `createAnimatedIcon({ … })` call describing only its geometry, its Motion variants,
+  and (for 49 icons) its non-default start/stop steps. `motion` becomes an OPTIONAL peer dependency —
+  only an animated icon pulls it in, so `Icon`/`BrandIcon` consumers are unaffected. The corpus went
+  from 79,078 lines to 12,951 (-84%) and from 2.06 MiB to 0.57 MiB of source; the served registry fell
+  from 4.48 MiB to 2.92 MiB. `tooling/mirror-animated-icons.mjs` emits the data modules and fails
+  closed on any upstream archetype it cannot model; `tooling/verify-animated-icons.mjs` asserts the
+  controller contract once against the factory, holds every module to a schema whose central clause is
+  that a data module contains no controller at all, pins each generated module by SHA-256 in
+  `packages/ui/animated-icon-sources.json` so a hand-edited path or timing value is rejected outright,
+  and carries a `--self-test` that proves fifteen distinct regressions are rejected.
+  [docs](https://design.vegastack.com/docs/foundations/icons) ·
+  [`cb20de9`](https://github.com/VegaStack/vegastack-design/commit/cb20de9)
+
+- [#77](https://github.com/vegastack/vegastack-design/pull/77) [`7915a71`](https://github.com/vegastack/vegastack-design/commit/7915a71edd32c5038e08145fb4e8192fef1f9098) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **Animated icons** — the host element is now an `inline-flex` `<span>` rather than a
+  block-level `<div>`, so an icon placed in a line of text no longer breaks the line box, and
+  `AnimatedIconComponent` types its host as `HTMLSpanElement`. Reduced motion is now a live
+  subscription to `(prefers-reduced-motion: reduce)`, so turning the preference on settles every
+  mounted icon immediately instead of only affecting icons mounted afterwards. Motion's own hooks
+  cannot do this: in 12.42.2 `useReducedMotion()` is `useState(prefersReducedMotion.current)` — a
+  one-shot read of a module singleton captured at first import, with a standing `TODO` about not
+  updating — and `useReducedMotionConfig()` layers `<MotionConfig>` on that same one-shot value. Worse,
+  the OS preference was never consulted at all unless the application happened to mount a
+  `<MotionConfig>`: `useReducedMotionConfig()` returns `false` outright when the context says
+  `reducedMotion: "never"`, and `"never"` is precisely Motion's **default** context value. The factory
+  now treats the preference as the base value and lets `<MotionConfig reducedMotion="always">` add
+  reduction on top; the override is one-way, because an explicit `reducedMotion="never"` is
+  byte-identical to no provider at all and honouring it would switch reduced motion off for everyone
+  who configured nothing. Public icon names, the `size` prop and the `startAnimation`/`stopAnimation`
+  handle are unchanged.
+  [docs](https://design.vegastack.com/docs/foundations/icons) ·
+  [`cb20de9`](https://github.com/VegaStack/vegastack-design/commit/cb20de9)
+
+- [#55](https://github.com/vegastack/vegastack-design/pull/55) [`9c33dfa`](https://github.com/vegastack/vegastack-design/commit/9c33dfaf6fa8c38dc2e1e009620ecb06d86dc4ff) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **`surfaceInteractive` and `fillInteractive`** — the two hover/pressed recipes, exported
+  from `@vegastack/design` so no component writes a `hover:bg-*` literal again. `surfaceInteractive`
+  (`hover:bg-surface-2 active:bg-surface-3`) is for a control on a known ladder surface;
+  `fillInteractive.<tone>` (`hover:bg-<tone>/(--alpha-hover) active:bg-<tone>/(--alpha-pressed)`) is
+  for one on an unknown backdrop or hovering in its own hue. The `FillTone` type ships with them.
+  [docs](https://design.vegastack.com/docs/foundations/colors) ·
+  [`0e88dc5`](https://github.com/VegaStack/vegastack-design/commit/0e88dc5)
+
+- [#67](https://github.com/vegastack/vegastack-design/pull/67) [`9fbeb65`](https://github.com/vegastack/vegastack-design/commit/9fbeb655379d401a1479212671073bafc7978f64) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📦 **`@vegastack/design` exports the field-chrome recipes.** `fieldControl` and `fieldControlGroup`
+  are the one border/hover/focus/invalid/disabled grammar every text-entry control wears, so Input,
+  Textarea, NumberField, OTP slots, the Select trigger, the Combobox input and ChipInput can stop
+  keeping private copies of it. Three border rungs and no more: `border-input` at rest, the neutral
+  `--alpha-border-subtle` ink on hover, the `ring` tint on focus. Hover is guarded by `not-disabled:`
+  because a disabled control keeps its pointer events so a Tooltip can explain it. Every element
+  wearing the wrapper recipe must also carry a bare `data-field-group` attribute — that is what
+  `@vegastack/design-tokens`' `base.css` hooks to paint the forced-colours focus outline on the group,
+  whose `overflow-hidden` would otherwise clip the inner input's own.
+
+  Also `surfaceInteractiveGroup` — the group-scoped twin of `surfaceInteractive`, for the one geometry
+  where the two ladder rungs cannot sit on the interactive element itself: a wash painted by an inner
+  chip inset from a container hairline (NumberField's ± steppers). The rungs stay written once.
+  [docs](https://design.vegastack.com/docs/components/input)
+
+### Patch Changes
+
+- [#60](https://github.com/vegastack/vegastack-design/pull/60) [`8ce8de4`](https://github.com/vegastack/vegastack-design/commit/8ce8de4d8b45936c44023e6d3cd39e7494db48cd) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📚 **The shipped design-system skill** is refreshed for Button's `variant × tone` matrix, the
+  single `xs · sm · md · lg` size vocabulary, and `IconButton` as the only icon-only path. No runtime
+  code changed.
+  [guide](https://design.vegastack.com/docs/guides/agent-skills)
+- Updated dependencies [[`42aa455`](https://github.com/vegastack/vegastack-design/commit/42aa455b00d1a50bb919ecfb7112a1e4f8c5d244), [`7915a71`](https://github.com/vegastack/vegastack-design/commit/7915a71edd32c5038e08145fb4e8192fef1f9098), [`7915a71`](https://github.com/vegastack/vegastack-design/commit/7915a71edd32c5038e08145fb4e8192fef1f9098), [`7915a71`](https://github.com/vegastack/vegastack-design/commit/7915a71edd32c5038e08145fb4e8192fef1f9098), [`7915a71`](https://github.com/vegastack/vegastack-design/commit/7915a71edd32c5038e08145fb4e8192fef1f9098), [`7915a71`](https://github.com/vegastack/vegastack-design/commit/7915a71edd32c5038e08145fb4e8192fef1f9098), [`065315d`](https://github.com/vegastack/vegastack-design/commit/065315d56e23fd33614f6c9e9a9965f166c063e1), [`7915a71`](https://github.com/vegastack/vegastack-design/commit/7915a71edd32c5038e08145fb4e8192fef1f9098), [`9c33dfa`](https://github.com/vegastack/vegastack-design/commit/9c33dfaf6fa8c38dc2e1e009620ecb06d86dc4ff), [`7915a71`](https://github.com/vegastack/vegastack-design/commit/7915a71edd32c5038e08145fb4e8192fef1f9098), [`8ce8de4`](https://github.com/vegastack/vegastack-design/commit/8ce8de4d8b45936c44023e6d3cd39e7494db48cd), [`9fbeb65`](https://github.com/vegastack/vegastack-design/commit/9fbeb655379d401a1479212671073bafc7978f64)]:
+  - @vegastack/design-tokens@0.4.0
+
 ## 0.3.2
 
 ### Patch Changes

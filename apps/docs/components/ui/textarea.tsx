@@ -1,4 +1,4 @@
-// @vegastack textarea@0.6.0 sha256-0VtRCzDrVBtUMD5Q+sICrKCZd6kCwYn6HmzNqk8rdgA=
+// @vegastack textarea@0.7.0 sha256-3Jp98eCjQBoW/ZGtPvbTmfos5UNaG8WDmcGyyJmfZpc=
 
 import * as React from "react";
 import { cn, fieldControl } from "@vegastack/design";

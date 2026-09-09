@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.6.0 sha256-AolZnaXrTvsNZwtUh/MArbz8UMAUj30ON7SrbGT5R9w=
+// @vegastack app-shell@0.7.0 sha256-7qnObCOVHJmQES9JyJ+7gMLLszjTG+vX2wViiQ/calo=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";

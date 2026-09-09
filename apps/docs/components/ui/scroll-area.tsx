@@ -1,4 +1,4 @@
-// @vegastack scroll-area@0.6.0 sha256-Bx2QDy2TSpvdIzwoO9EhmIIJLa8nf1IocBX0V/kboMc=
+// @vegastack scroll-area@0.7.0 sha256-odFwo18gnd8qhYyqaLRx1qtJXDh87jHapxNJPNqQKJc=
 
 import * as React from "react";
 import { ScrollArea as BaseScrollArea } from "@base-ui/react/scroll-area";
