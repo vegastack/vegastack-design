@@ -1,14 +1,15 @@
 // Opens each overlay component in its docs preview and screenshots the OPEN state (light + dark).
-import { createRequire } from "node:module";
 import fs from "node:fs";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { createServer } from "node:net";
 const root = path.resolve(import.meta.dirname, "../../..");
 const docs = path.join(root, "apps/docs");
-const { chromium } = createRequire(path.join(docs, "package.json"))(
-  "@playwright/test",
-);
+// Playwright comes from the ROOT workspace, the same way `probe-states.mjs` takes it. It used to
+// be resolved through `apps/docs`'s own `@playwright/test`, which went with the attestation stack
+// on 2026-09-08 — so this script threw `Cannot find module '@playwright/test'` before it opened a
+// single page.
+const { chromium } = await import("playwright");
 const port = await new Promise((ok) => {
   const p = createServer();
   p.listen(0, "127.0.0.1", () => {
@@ -22,6 +23,23 @@ const server = spawn("pnpm", ["exec", "serve", "out", "-l", String(port)], {
   detached: true,
 });
 await new Promise((r) => setTimeout(r, 1500));
+// Every popup surface this probe measures. Most floating surfaces are `<slot>-content`
+// (`FloatingSurface`'s default), but three name their popup after the component itself by passing
+// `data-slot` through — ColorPicker, EmojiPicker and HoverCard — so `[data-slot$='content']` alone
+// silently measured nothing for them and the surface pass reported an empty `info` array. Toast is
+// `[data-slot=toast]`; it was `[data-sonner-toast]` until the O2 migration replaced sonner with
+// Base UI Toast, and nothing updated the selector.
+const POPUP_SELECTOR = [
+  "[data-slot$='content']",
+  "[data-slot$='-popup']",
+  "[data-slot=sheet-content]",
+  "[data-slot=toast]",
+  "[data-slot=command]",
+  "[data-slot=color-picker]",
+  "[data-slot=emoji-picker]",
+  "[data-slot=hover-card]",
+].join(", ");
+
 const out = path.join(import.meta.dirname, "captures", "_overlays");
 fs.mkdirSync(out, { recursive: true });
 const browser = await chromium.launch();
@@ -42,7 +60,8 @@ const cases = [
   ["popover", "popoverForm", "click"],
   ["hover-card", "hoverCardSides", "hover"],
   ["tooltip", "tooltipSides", "hover"],
-  ["toast", "sonnerVariants", "click:all"],
+  // `toastTypes` — the sonner-era `sonnerVariants` fixture went with the O2 migration.
+  ["toast", "toastTypes", "click:all"],
   ["date-picker", "datePicker", "click"],
   ["color-picker", "colorPicker", "click"],
   ["emoji-picker", "emojiPicker", "click"],
@@ -93,10 +112,11 @@ for (const dark of [false, true]) {
         await pick.click();
         await page.keyboard.press("ArrowDown");
       }
-      await page.waitForTimeout(500);
-      const info = await page.evaluate(() => {
-        const sel =
-          "[data-slot$='content'], [data-slot=sheet-content], [data-sonner-toast], [data-slot=command], [data-slot=navigation-menu-popup]";
+      // Same delay gate the motion pass already respected: HoverCard opens on
+      // `TIMINGS.hoverOpenDelayMs` (700ms), so a flat 500ms wait screenshotted a closed card and
+      // measured an empty surface every run.
+      await page.waitForTimeout(action === "hover" ? 1600 : 500);
+      const info = await page.evaluate((sel) => {
         const els = [...document.querySelectorAll(sel)].filter(
           (e) => e.getBoundingClientRect().width > 0,
         );
@@ -114,7 +134,7 @@ for (const dark of [false, true]) {
             font: cs.fontSize,
           };
         });
-      });
+      }, POPUP_SELECTOR);
       const name = `${route}__${dark ? "dark" : "light"}.png`;
       await page.screenshot({ path: path.join(out, name), fullPage: false });
       results.push({ route, dark, info });
@@ -175,9 +195,7 @@ const motion = [];
       // HoverCard is delay-gated (TIMINGS.hoverOpenDelayMs = 700), so a 600ms wait measured an
       // empty page and reported no timing at all. Wait past the open delay plus the transition.
       await page.waitForTimeout(action === "hover" ? 1600 : 600);
-      const read = await page.evaluate(() => {
-        const sel =
-          "[data-slot$='content'], [data-slot=sheet-content], [data-sonner-toast], [data-slot=command], [data-slot=navigation-menu-popup]";
+      const read = await page.evaluate((sel) => {
         return [...document.querySelectorAll(sel)]
           .filter((e) => e.getBoundingClientRect().width > 0)
           .slice(0, 2)
@@ -190,7 +208,7 @@ const motion = [];
               padTop: cs.paddingTop,
             };
           });
-      });
+      }, POPUP_SELECTOR);
       motion.push({ route, read });
       console.log("MOTION", route, JSON.stringify(read));
     } catch (e) {

@@ -1,4 +1,4 @@
-// @vegastack number-field@0.6.0 sha256-qFQEf8whKlV1ZHY8rRHdwewN9joIjmSkpt1qWnD0o9o=
+// @vegastack number-field@0.6.0 sha256-ht4xRa175a4VnayIkQh2e48xX22W1054yver9C0ck7Q=
 
 "use client";
 
@@ -117,9 +117,38 @@ const sizeClasses = {
   lg: "h-(--size-lg)",
 } as const;
 
-/** Addon-slot classes — identical to `Input`'s. */
-const addonClasses =
-  "flex shrink-0 items-center text-muted-foreground select-none whitespace-nowrap";
+/**
+ * Addon-slot classes — `Input`'s, plus the rules an INTERACTIVE addon needs. The suffix slot is
+ * the documented seat for the money recipe's currency `Select` (see `suffix`), and a pressable
+ * control dropped in there inherited two defects the steppers had already been fixed for
+ * (appearance probe 2026-09-07, SP-02/SP-03 residue):
+ *
+ *   - its hover wash ran flush into the field's top and bottom hairlines — a `sm` trigger is 28px
+ *     inside a 30px inner box, so the wash sat 1px off the rule and read as a rendering bug;
+ *   - its `:focus-visible` outline is drawn OUTSIDE its box, and the root is `overflow-hidden`,
+ *     so the ring was clipped away on both edges.
+ *
+ * Both are fixed here rather than at each call site, because the slot is what knows it lives
+ * inside a clipping, hairlined group: the span stretches to the full inner height, insets its
+ * content by 4px (design.md's hover-geometry floor), and hands a button child the inner radius
+ * and the sanctioned negative outline offset. A text or icon addon is untouched — the rules are
+ * scoped to a `button` child.
+ */
+// `join(" ")`, not `+`: a trailing space inside a concatenated string literal is invisible to the
+// reader and removable by a formatter, and when one goes the two class names weld into a token
+// Tailwind never compiles and nothing errors on (commit b2c2e964 did exactly that to four sites in
+// this repo). An array cannot be broken that way.
+const addonClasses = [
+  "flex shrink-0 self-stretch items-center py-1 text-muted-foreground select-none whitespace-nowrap",
+  "[&>button]:relative [&>button]:h-full [&>button]:rounded-sm [&>button]:focus-visible:-outline-offset-2",
+  // The 4px inset leaves a 22px control in an `md` field, under the 24px pointer floor — the two
+  // rules cannot both be paid for out of 32px of height. So the PAINT is inset and the TARGET is
+  // not: the standard invisible hit area gives the control back the 4px it just gave up, exactly
+  // as `RelativeTime`, `Marker` and `Switch` do. It reaches into this slot's own padding, so the
+  // root's `overflow-hidden` never clips it (a clipped area stops being hit-testable — see the
+  // `timeline` entry in the bugs ledger).
+  "[&>button]:before:absolute [&>button]:before:inset-x-0 [&>button]:before:-inset-y-1 [&>button]:before:content-['']",
+].join(" ");
 
 /**
  * Full-height stepper buttons flanking the field ([−] input [+]): each is the

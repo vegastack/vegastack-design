@@ -1718,6 +1718,14 @@ and each has an **alpha twin** so the same rung composites onto any backdrop.
   `bg-surface-2` are interchangeable by eye — use the alpha form when the backdrop is _not_ a ladder
   surface (a kbd inside a hovered row, a chip on a well, chrome over media) or when a control hovers
   in its own hue. Both alphas are theme-invariant.
+- **A wash on a rung is body ink only.** The twins compose, so a badge that paints
+  `--alpha-hover` on top of a control that is itself `--alpha-ink-tint` over `surface-1` ends up two
+  washes deep on rung 1 — and `muted-foreground` does not survive that. Measured dark:
+  4.48:1 on a single wash over `surface-1`, and 3.43:1 once a selected chip's tint is underneath
+  (Tabs' count badge shipped at exactly that, caught by the 2026-09-07 appearance probes). So
+  **`text-muted-foreground` is not available on a translucent wash over a ladder rung** — keep
+  `foreground` and let size and fill do the de-emphasis. `contrast-check.mjs` gates the body-ink
+  half of that rule on every rung and every wash; the muted half is the prohibition above.
 - **`secondary`, `muted`, `accent` and the whole `sidebar-*` family are ALIASES**, kept so
   shadcn-shaped code keeps compiling: `secondary` = `muted` = `surface-1`, `accent` =
   `sidebar-accent` = `surface-2`, `sidebar` = `card`, `sidebar-border` = `border`, `sidebar-ring` =

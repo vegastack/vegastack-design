@@ -132,6 +132,36 @@ const SELECTOR = [
   "li[data-slot]",
 ].join(",");
 
+/** Roles that name a control the pointer can act on — see `interactive` below. */
+const INTERACTIVE_ROLES = new Set([
+  "button",
+  "link",
+  "checkbox",
+  "radio",
+  "switch",
+  "tab",
+  "menuitem",
+  "menuitemcheckbox",
+  "menuitemradio",
+  "option",
+  "combobox",
+  "slider",
+  "spinbutton",
+  "textbox",
+  "searchbox",
+  "treeitem",
+  "row",
+]);
+
+/**
+ * Containers that `[tabindex='0']` drags in. A tab panel and a scroll region are focusable so a
+ * keyboard user can reach their content — they are not controls, they have no hover state to
+ * miss, and an INACTIVE panel never becomes scroll-visible, which timed Playwright out and
+ * reported five `probe-error`s per Tabs page.
+ */
+const NON_CONTROL_SELECTOR =
+  "[role=tabpanel], [role=region], [role=group], [role=list], [role=presentation], [role=none]";
+
 // Runs in the page: collect candidate elements inside a preview, deduped by visual signature.
 const collectFn = (previewIndex) => {
   const preview = document.querySelectorAll("[data-vrt-preview]")[previewIndex];
@@ -151,6 +181,7 @@ const collectFn = (previewIndex) => {
     )
       continue;
     if (el.closest("[aria-hidden=true]")) continue;
+    if (el.matches(window.__NON_CONTROL)) continue;
     const sig = `${el.tagName}|${el.getAttribute("role") ?? ""}|${el.getAttribute("data-slot") ?? ""}|${el.className?.toString().slice(0, 80)}|${el.parentElement?.tagName}`;
     const n = (seen.get(sig) ?? 0) + 1;
     seen.set(sig, n);
@@ -197,6 +228,18 @@ const snapshotFn = (id) => {
     "transform",
   ];
   const style = Object.fromEntries(pick.map((p) => [p, cs[p]]));
+  // The system's hover wash is frequently painted on an INSET CHILD, not on the control itself —
+  // that is the SP-02 recipe ("a wash is inset >=4px from a container hairline"), and NumberField's
+  // steppers, Tabs' triggers and every `group/wash` control use it. Reading only the element's own
+  // computed style therefore reported a working hover as `hover-invisible`. Fold the first few
+  // descendants' fill and ink into the comparison so an inset chip counts as a visible change.
+  const descendants = [...el.querySelectorAll("*")].slice(0, 8);
+  style.descendantPaint = descendants
+    .map((node) => {
+      const ncs = getComputedStyle(node);
+      return `${ncs.backgroundColor}/${ncs.color}/${ncs.opacity}`;
+    })
+    .join("|");
   // ancestors (up to 5) with border or overflow or radius, and where our edges sit relative to them
   const rel = [];
   let a = el.parentElement;
@@ -226,6 +269,12 @@ const snapshotFn = (id) => {
       radius: parseFloat(acs.borderTopLeftRadius),
       padding: parseFloat(acs.paddingLeft),
       hasBg: acs.backgroundColor !== "rgba(0, 0, 0, 0)",
+      rect: { w: ar.width, h: ar.height },
+      // A text-entry control's focus affordance is a BORDER TINT ON THE GROUP, not an outline on
+      // the input (design.md — the ring would be clipped by the group's `overflow-hidden`, which is
+      // why the tint exists). Record what the ancestor paints so `focus-none` can see it; reading
+      // only the input reported every `fieldControlGroup` field as having no focus indicator.
+      paint: `${acs.borderTopColor}/${acs.boxShadow}/${acs.outlineStyle}`,
     });
     a = a.parentElement;
     depth++;
@@ -236,8 +285,54 @@ const snapshotFn = (id) => {
     style,
     rel,
     radius: parseFloat(cs.borderTopLeftRadius),
+    // Did THIS element open a popup? A trigger's open state legitimately carries the hover tone
+    // (Base UI paints `data-popup-open` with the same wash), so a press that opens a menu is not a
+    // missing pressed step. Read from the element, not the document, so a stray open surface
+    // elsewhere cannot mask a real defect.
+    expanded:
+      el.getAttribute("aria-expanded") === "true" ||
+      el.hasAttribute("data-popup-open") ||
+      el.hasAttribute("data-open"),
+    // The current page / step / tab is deliberately inert to hover in several components
+    // (`PaginationLink` pins `hover:bg-primary` on the active page on purpose — you are already
+    // there). Marked here so `hover-invisible` can honour that rather than re-reporting it.
+    current: el.hasAttribute("aria-current"),
   };
 };
+
+/**
+ * Close anything the previous element's press opened. Every dropdown, select, combobox and
+ * split-button trigger opens a surface on pointer-down, and a live overlay sits ON TOP of the next
+ * element the probe wants to hover — so the pointer lands on the popup and the "hover" reading is
+ * just the resting style again. Escape closes every Base UI surface; the poll is what makes this a
+ * measurement rather than a hope, and a surface that refuses to close is reported instead of
+ * silently poisoning the rest of the route.
+ */
+// What counts as "open". NOT `[data-slot$='content']`: `FloatingSurface` names a popup
+// `<slot>-content`, but so are a dozen STATIC parts (`tabs-content`, `accordion-content`,
+// `card-content`), and a selector that matches those reports ten permanently-open overlays on a
+// page that has none. A floating surface is identifiable by its POSITIONER, which Base UI mounts
+// only while the surface is open — plus the modal roles, which are portalled without one.
+const OPEN_OVERLAY_SELECTOR =
+  "[data-slot$='-positioner'], [role=dialog], [role=alertdialog], [role=menu], [role=listbox]";
+async function dismissOverlays(page) {
+  const open = () =>
+    page.evaluate(
+      (sel) =>
+        [...document.querySelectorAll(sel)].filter(
+          (el) => el.getBoundingClientRect().width > 0,
+        ).length,
+      OPEN_OVERLAY_SELECTOR,
+    );
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if ((await open()) === 0) return true;
+    await page.keyboard.press("Escape");
+    await sleep(120);
+  }
+  const left = await open();
+  if (left) console.warn(`  ! ${left} overlay(s) would not dismiss`);
+  return left === 0;
+}
 
 const browser = await chromium.launch();
 const index = [];
@@ -262,9 +357,13 @@ try {
         { timeout: 10000 },
       )
       .catch(() => {});
-    await page.evaluate((sel) => {
-      window.__SEL = sel;
-    }, SELECTOR);
+    await page.evaluate(
+      ([sel, nonControl]) => {
+        window.__SEL = sel;
+        window.__NON_CONTROL = nonControl;
+      },
+      [SELECTOR, NON_CONTROL_SELECTOR],
+    );
     await sleep(200);
     const previewCount = await page.locator("[data-vrt-preview]").count();
     const record = { route, elements: [] };
@@ -292,6 +391,14 @@ try {
           const active = await page.evaluate(snapshotFn, e.id);
           await page.mouse.up();
           await sleep(60);
+          // The press above OPENS a menu/popover on every dropdown, select and split-button
+          // trigger, and nothing used to close it — so the NEXT element was hovered underneath a
+          // live overlay, the pointer landed on the popup instead of the control, and its `hover`
+          // snapshot came back identical to `rest`. That is the entire "SplitButton's primary half
+          // has no hover" finding of 2026-09-07: 10 of 12 primaries were measured through an open
+          // menu, and the two that read correctly were the two whose predecessor happened not to
+          // open one. Dismiss before moving on, and verify it actually closed.
+          await dismissOverlays(page);
           // keyboard focus: focus programmatically then dispatch a keydown so :focus-visible applies
           await page.evaluate((id) => {
             const el = document.querySelector(`[data-probe-id="${id}"]`);
@@ -314,20 +421,31 @@ try {
               same(rest, hover, "borderTopColor") &&
               same(rest, hover, "opacity") &&
               same(rest, hover, "textDecorationLine") &&
-              same(rest, hover, "boxShadow")
+              same(rest, hover, "boxShadow") &&
+              same(rest, hover, "descendantPaint")
             );
+          // A ROLE ALLOWLIST, not "has a role at all". `[tabindex='0']` sweeps focusable
+          // NON-controls into the collection — a `role="tabpanel"` is the common one — and treating
+          // those as controls demanded a hover state from a panel. Only roles that name something
+          // pressable, checkable or selectable qualify.
           const interactive =
             ["button", "a", "input", "textarea", "select", "summary"].includes(
               e.tag,
-            ) || !!e.role;
+            ) || INTERACTIVE_ROLES.has(e.role ?? "");
+          // An element that paints nothing (an `opacity: 0` native <select> stretched over a
+          // styled caption, for instance) has no visual state to get wrong — every paint flag
+          // below is meaningless on it.
+          const paints = parseFloat(rest.style.opacity) > 0;
           if (
             interactive &&
+            paints &&
             !hoverVisible &&
+            !rest.current &&
             rest.style.cursor !== "default" &&
             !["input", "textarea", "select"].includes(e.tag)
           )
             flags.push("hover-invisible");
-          if (hover && !same(rest, hover, "backgroundColor")) {
+          if (paints && hover && !same(rest, hover, "backgroundColor")) {
             for (const a of hover.rel) {
               const sides = ["top", "bottom", "left", "right"].filter(
                 (s) => a.bw[s] > 0 && a.touch[s],
@@ -344,9 +462,20 @@ try {
               Math.abs(hover.rect.h - rest.rect.h) > 0.5)
           )
             flags.push("hover-layout-shift");
-          // radius: element hugging a rounded ancestor corner
+          // radius: element hugging a rounded ancestor corner.
+          //
+          // A FULLY ROUNDED box is excluded on both sides. `rounded-full` compiles to
+          // `border-radius: calc(infinity * 1px)`, which computes to a clamped multi-million-pixel
+          // value (33554400 in Chromium) — comparing that against a child's 8px radius produced
+          // `hover-radius-mismatch:8vs33554400` on every pill in the system (Bubble was the
+          // standing example). A pill's corner is a semicircle: a child inside it is not "hugging a
+          // corner with the wrong inner radius", there is no shared corner to match. Treat any
+          // radius at or above half the box's short side as a pill and skip the comparison.
+          const isPill = (radius, box) =>
+            radius >= Math.min(box.w, box.h) / 2 - 0.5;
           for (const a of rest.rel) {
-            if (a.radius > 2 && rest.radius >= 0) {
+            if (isPill(a.radius, a.rect ?? rest.rect)) continue;
+            if (paints && a.radius > 2 && rest.radius >= 0) {
               const corner =
                 (a.touch.top && a.touch.left) ||
                 (a.touch.bottom && a.touch.left) ||
@@ -377,11 +506,15 @@ try {
             const ow = parseFloat(focus.style.outlineWidth) || 0;
             const oo = parseFloat(focus.style.outlineOffset) || 0;
             const hasOutline = focus.style.outlineStyle !== "none" && ow > 0;
+            const ancestorFocusPaint = focus.rel.some(
+              (a, i) => a.paint !== rest.rel[i]?.paint,
+            );
             const focusVisible =
               hasOutline ||
               !same(rest, focus, "borderTopColor") ||
               !same(rest, focus, "boxShadow") ||
-              !same(rest, focus, "backgroundColor");
+              !same(rest, focus, "backgroundColor") ||
+              ancestorFocusPaint;
             if (
               interactive &&
               !focusVisible &&
@@ -411,10 +544,15 @@ try {
             active &&
             hoverVisible &&
             same(hover, active, "backgroundColor") &&
+            same(hover, active, "descendantPaint") &&
             same(hover, active, "transform") &&
             same(hover, active, "opacity") &&
             same(hover, active, "color") &&
-            (e.tag === "button" || e.role === "tab" || e.role === "button")
+            (e.tag === "button" || e.role === "tab" || e.role === "button") &&
+            // …unless the press OPENED something. A menu/select/popover trigger is styled by its
+            // `data-popup-open` state, which carries the hover tone by design, so "pressed looks
+            // like hovered" is the intended reading of an open trigger — not a missing rung.
+            !active.expanded
           )
             flags.push("active-same-as-hover");
 

@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.6.0 sha256-UMmFYPeqo/3Zd1/tpaDJEGFDY2wtPgcZ9mO5+Kttbns=
+// @vegastack date-picker@0.6.0 sha256-AyMNsNBn5+XQj2ntnw4cUtgS+I8fM+oLUKdyBiLeomY=
 
 "use client";
 
@@ -50,6 +50,22 @@ const DEFAULT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   month: "short",
   day: "numeric",
 };
+
+/**
+ * The `data-day` hook: the cell's calendar date as a stable `YYYY-MM-DD` string, built from the
+ * LOCAL date parts (never `toISOString()`, which converts to UTC and shifts the day either side of
+ * midnight for most of the world). It replaced `toLocaleDateString()`, which made a machine hook
+ * change shape per locale — `6/25/2026` on an `en-US` runtime, `25/06/2026` on `en-GB` — so a
+ * statically exported page rendered one form and hydrated into the other. That is a text/attribute
+ * hydration mismatch on every day cell, and it is what made `/docs/components/date-picker` throw
+ * React #418 in every capture lane (appearance probe 2026-09-07). A `data-*` selector must be the
+ * same string everywhere; formatting for humans is `formatDate`'s job.
+ */
+function dayKey(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
+}
 
 /** Format a single date with `Intl.DateTimeFormat`. */
 function formatDate(
@@ -306,7 +322,7 @@ export function CalendarDayButton({
       ref={ref}
       type="button"
       data-slot="calendar-day"
-      data-day={day.date.toLocaleDateString()}
+      data-day={dayKey(day.date)}
       data-today={modifiers.today ? "" : undefined}
       data-selected-single={isSelectedSingle ? "" : undefined}
       data-range-start={modifiers.range_start ? "" : undefined}

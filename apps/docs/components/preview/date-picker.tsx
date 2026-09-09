@@ -14,6 +14,15 @@ import {
   type DateRange,
 } from "@/components/ui/date-picker";
 
+/**
+ * These pages are STATICALLY EXPORTED, so the trigger label is formatted once on the build host
+ * and then hydrated in a browser that may resolve a different default locale — `Jun 24, 2026`
+ * against `24 Jun 2026`. That is a text hydration mismatch (React #418), and it is what every
+ * capture lane hit on this route until the fixtures pinned a locale. Any prerendered
+ * `Intl.DateTimeFormat` output needs an explicit locale; the picker takes one.
+ */
+const DOCS_LOCALE = "en-US";
+
 /** A fixed reference month so the preview is stable: June 2026. */
 const REF = new Date(2026, 5, 12);
 /** Selected day within the reference month (the primary-filled cell). */
@@ -30,6 +39,7 @@ export function datePicker(): ReactNode {
         <DatePicker
           value={date}
           onValueChange={setDate}
+          locale={DOCS_LOCALE}
           aria-label="Pick a date"
         />
       </div>
@@ -54,6 +64,7 @@ export function datePickerPresets(): ReactNode {
           value={date}
           onValueChange={setDate}
           presets={defaultDatePresets()}
+          locale={DOCS_LOCALE}
           aria-label="Pick a date"
         />
       </div>
@@ -74,6 +85,7 @@ export function datePickerRange(): ReactNode {
           value={range}
           onValueChange={setRange}
           presets={defaultRangePresets()}
+          locale={DOCS_LOCALE}
           aria-label="Pick a date range"
         />
       </div>
@@ -122,6 +134,7 @@ export function datePickerDisabledDates(): ReactNode {
           onValueChange={setDate}
           presets={presets}
           disabledDates={blocked}
+          locale={DOCS_LOCALE}
           aria-label="Pick a date"
         />
       </div>
@@ -142,7 +155,12 @@ export function datePickerDisabled(): ReactNode {
   return (
     <Wrapper>
       <div className="w-full max-w-(--panel-width-sm)">
-        <DatePicker value={SELECTED} disabled aria-label="Pick a date" />
+        <DatePicker
+          value={SELECTED}
+          disabled
+          locale={DOCS_LOCALE}
+          aria-label="Pick a date"
+        />
       </div>
     </Wrapper>
   );
@@ -186,6 +204,7 @@ export function datePickerSingleMonthRange(): ReactNode {
           value={range}
           onValueChange={setRange}
           numberOfMonths={1}
+          locale={DOCS_LOCALE}
           aria-label="Pick a date range"
         />
       </div>
@@ -258,6 +277,7 @@ function DatePickerFormattingDemo(): ReactNode {
             <DatePicker
               value={date}
               onValueChange={setDate}
+              locale={DOCS_LOCALE}
               aria-label={row.label}
               {...row.props}
             />

@@ -144,6 +144,16 @@ The trigger label is formatted with native `Intl.DateTimeFormat` — no date lib
 never an ISO string and never the browser's date-input format. Pass `formatOptions` for any
 other shape and `locale` for a BCP-47 locale.
 
+<Callout type="warn">
+  **Prerendering a formatted date needs an explicit `locale`.** With no
+  `locale`, the label follows whichever locale the runtime resolves — which is
+  the build machine on the server and the visitor's browser on the client. When
+  those differ (`Jun 24, 2026` against `24 Jun 2026`) React reports a hydration
+  mismatch and re-renders the tree. Pass `locale` on any picker that renders a
+  value in server-rendered or statically exported markup; every example on this
+  page does.
+</Callout>
+
 <Callout type="info">
   Use `DatePicker` wherever you'd reach for `<input type="date">`. The native input summons the
   OS picker, which ignores the design tokens and differs per browser and platform; this

@@ -11,7 +11,18 @@ import { VegaStackProvider } from "@vegastack/ui";
 // registry/copy-in divergence would surface here). `VegaStackProvider` therefore runs with
 // `toaster={false}` so we don't double-mount a portal toaster; the package's own Toaster is
 // covered by its package tests + the reconciliation in src/provider/toaster.tsx.
-import { Toaster } from "@/components/ui/toast";
+//
+// The copy-in's `ToastProvider` comes with it, and it MUST: `toast.tsx` calls
+// `Toast.createToastManager()` at module scope, so the copy-in and the package mirror each own a
+// separate store. A viewport renders whatever the nearest `ToastProvider` is BOUND to, and every
+// preview on this site calls the copy-in `toast()` — so the copy-in Toaster has to sit under the
+// copy-in provider or the two halves talk to different stores and nothing ever appears. Under
+// `sonner` (pre-O2) the emitter was global and this composition happened to work; after the
+// migration it silently stopped, which is how a dead Toast page shipped to production. The
+// package's `ToastProvider` stays mounted above (it is unconditional, by design) and is simply
+// shadowed. Gated by `tooling/verify-provider-dogfood.mjs`; pinned by
+// `packages/ui/test/toast-manager-binding.browser.test.tsx`.
+import { ToastProvider, Toaster } from "@/components/ui/toast";
 import { type ReactNode } from "react";
 
 export function Provider({ children }: { children: ReactNode }) {
@@ -29,8 +40,10 @@ export function Provider({ children }: { children: ReactNode }) {
     // non-editable element is a hazard on 110 interactive component pages.
     <RootProvider search={{ SearchDialog }} theme={{ enabled: false }}>
       <VegaStackProvider toaster={false}>
-        {children}
-        <Toaster />
+        <ToastProvider>
+          {children}
+          <Toaster />
+        </ToastProvider>
       </VegaStackProvider>
     </RootProvider>
   );

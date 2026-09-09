@@ -577,7 +577,7 @@
         "whenToUse": "Organize related content into peer sections the user switches between in place; count badges surface pending items.",
         "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), or sections that must be visible at once.",
         "version": "0.6.0",
-        "integrity": "sha256-XvOmHb4qspaPz6imIubTRsdVD3z+A8bECVCOplV8S9A="
+        "integrity": "sha256-MyhwqqR5aUIemoCwI0mK0tk5b9fkejkk5snlPDbygrU="
       }
     },
     {
@@ -1817,7 +1817,7 @@
         "whenToUse": "Any numeric value — quantities, limits, percentages, money (format={{ style: 'currency', currency }}) — where parsing, locale formatting, and stepping should be correct by construction.",
         "whenNotToUse": "Free-text that merely contains digits (phone numbers, postal codes, ids) — formatting/stepping semantics would fight the value; use Input.",
         "version": "0.6.0",
-        "integrity": "sha256-qFQEf8whKlV1ZHY8rRHdwewN9joIjmSkpt1qWnD0o9o="
+        "integrity": "sha256-ht4xRa175a4VnayIkQh2e48xX22W1054yver9C0ck7Q="
       }
     },
     {
@@ -2875,7 +2875,7 @@
         "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.6.0",
-        "integrity": "sha256-UMmFYPeqo/3Zd1/tpaDJEGFDY2wtPgcZ9mO5+Kttbns="
+        "integrity": "sha256-AyMNsNBn5+XQj2ntnw4cUtgS+I8fM+oLUKdyBiLeomY="
       }
     },
     {
