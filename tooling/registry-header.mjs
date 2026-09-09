@@ -66,6 +66,9 @@ function resolveDocsCopyPath(target) {
 const registrySourceRoots = [
   join(repoRoot, "packages/ui/registry/ui"),
   join(repoRoot, "packages/ui/registry/blocks"),
+  // `registry:lib` items (pure data/helper modules with no React in them) live here and install
+  // under the consumer's `lib` alias rather than `components/ui`.
+  join(repoRoot, "packages/ui/registry/lib"),
 ];
 function resolveRegistrySourcePath(sourcePath) {
   const candidate = resolveInside(repoRoot, sourcePath);

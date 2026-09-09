@@ -3,8 +3,10 @@ import { render } from "vitest-browser-react";
 import { expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { RegionSelect, getRegionsByCountry, hasRegions } from "./region-select";
-import { REGIONS_BY_COUNTRY } from "./region-select-data";
+import { RegionSelect } from "./region-select";
+
+/* The dataset assertions (REGIONS, getRegions, the 45/1187 counts) moved to
+   registry/lib/geo-data.test.ts with the data itself (audit B8-02 / D27). */
 
 test("renders a combobox trigger with the placeholder for a country with states", async () => {
   const screen = await render(
@@ -26,7 +28,6 @@ test("opens the popover and lists states, then filters as you type", async () =>
   const screen = await render(<RegionSelect country="US" />);
   await screen.getByRole("combobox").click();
 
-  // Popover + Command portal to <body>; query there.
   await expect.element(screen.getByText("California")).toBeInTheDocument();
   await expect.element(screen.getByText("Texas")).toBeInTheDocument();
 
@@ -43,37 +44,67 @@ test("shows the empty state when nothing matches the query", async () => {
   await expect.element(screen.getByText("No state found.")).toBeInTheDocument();
 });
 
-test("selecting a state fires onValueChange with its code", async () => {
-  const onValueChange = vi.fn();
+// AUDIT B8-02 — the acceptance test for the single selection path. The old build computed the
+// value inside each item's `onClick` and left the Combobox root's `onValueChange` unwired, so a
+// pointer click and keyboard Enter (which the ROOT handles) reached the value by two different
+// routes. Both modalities are asserted against ONE expectation here: if the two ever diverge
+// again, exactly one of these two assertions fails.
+test("pointer click and keyboard Enter select through the same code path", async () => {
+  const onPointer = vi.fn();
+  const onKeyboard = vi.fn();
+  // Two live instances rather than a render/unmount pair: unmounting mid-test tears down the
+  // shared container and every later render in the file lands in a detached node.
   const screen = await render(
-    <RegionSelect country="US" onValueChange={onValueChange} />,
+    <>
+      <RegionSelect
+        country="US"
+        aria-label="Pointer state"
+        onValueChange={onPointer}
+      />
+      <RegionSelect
+        country="US"
+        aria-label="Keyboard state"
+        onValueChange={onKeyboard}
+      />
+    </>,
   );
-  await screen.getByRole("combobox").click();
-  await screen.getByText("California").click();
-  expect(onValueChange).toHaveBeenCalledWith("CA");
+
+  await screen.getByRole("combobox", { name: "Pointer state" }).click();
+  await screen.getByPlaceholder("Search states…").fill("Texas");
+  await screen.getByRole("option", { name: "Texas" }).click();
+
+  await screen.getByRole("combobox", { name: "Keyboard state" }).click();
+  await screen.getByPlaceholder("Search states…").fill("Texas");
+  await userEvent.keyboard("{Enter}");
+
+  expect(onPointer).toHaveBeenCalledWith("TX");
+  expect(onKeyboard).toHaveBeenCalledWith("TX");
+  expect(onKeyboard.mock.calls).toEqual(onPointer.mock.calls);
 });
 
-test("selecting the already-selected state clears it", async () => {
+// AUDIT B8-02 — the explicit replacement for the old click-again-to-clear toggle.
+test("the clear control resets the value, and re-picking the selected state keeps it", async () => {
   const onValueChange = vi.fn();
   const screen = await render(
     <RegionSelect country="US" value="CA" onValueChange={onValueChange} />,
   );
-  await screen.getByRole("combobox", { name: /california/i }).click();
-  // Target the listbox option (the trigger also shows "California" as its label).
-  await screen.getByRole("option", { name: "California" }).click();
+  await screen.getByRole("button", { name: "Clear state" }).click();
   expect(onValueChange).toHaveBeenCalledWith("");
+
+  onValueChange.mockClear();
+  await screen.getByRole("combobox").click();
+  await screen.getByRole("option", { name: "California" }).click();
+  // No toggle-to-clear: selecting what is already selected is a no-op or a re-select, never "".
+  expect(onValueChange).not.toHaveBeenCalledWith("");
 });
 
-test("keyboard: typing then Enter selects the highlighted state", async () => {
-  const onValueChange = vi.fn();
+test("clearable can be turned off", async () => {
   const screen = await render(
-    <RegionSelect country="US" onValueChange={onValueChange} />,
+    <RegionSelect country="US" value="CA" clearable={false} />,
   );
-  await screen.getByRole("combobox").click();
-  const input = screen.getByPlaceholder("Search states…");
-  await input.fill("Texas");
-  await userEvent.keyboard("{Enter}");
-  expect(onValueChange).toHaveBeenCalledWith("TX");
+  expect(
+    screen.container.querySelector('[data-slot="region-select-clear"]'),
+  ).toBeNull();
 });
 
 test("falls back to a text input for a country with no states data", async () => {
@@ -130,53 +161,6 @@ test("className applies to the fallback input for countries without state data",
     .toHaveClass("input-probe");
 });
 
-test("dataset helpers resolve states case-insensitively", () => {
-  expect(hasRegions("us")).toBe(true);
-  expect(hasRegions("SG")).toBe(false);
-  expect(getRegionsByCountry("ca")).toBe(REGIONS_BY_COUNTRY.CA);
-  expect(getRegionsByCountry("ZZ")).toEqual([]);
-});
-
-test("ships the full platform subdivision dataset (45 countries, 1187 subdivisions)", () => {
-  expect(Object.keys(REGIONS_BY_COUNTRY)).toHaveLength(45);
-  const total = Object.values(REGIONS_BY_COUNTRY).reduce(
-    (n, s) => n + s.length,
-    0,
-  );
-  expect(total).toBe(1187);
-  // Each block is keyed by an alpha-2 country code and has unique subdivision codes.
-  for (const [country, states] of Object.entries(REGIONS_BY_COUNTRY)) {
-    expect(country).toMatch(/^[A-Z]{2}$/);
-    expect(states.length).toBeGreaterThan(0);
-    const codes = new Set(states.map((s) => s.code));
-    expect(codes.size).toBe(states.length); // no duplicate codes within a country
-    for (const s of states) {
-      expect(s.code.length).toBeGreaterThan(0);
-      expect(s.name.length).toBeGreaterThan(0);
-    }
-  }
-});
-
-test("resolves subdivisions for countries the compact dataset lacked", () => {
-  // Russia, Turkey, Ukraine, Nigeria, etc. were absent from the prior 9-country list.
-  expect(hasRegions("RU")).toBe(true);
-  expect(getRegionsByCountry("RU").find((s) => s.code === "MOW")?.name).toBe(
-    "Moscow",
-  );
-  expect(hasRegions("TR")).toBe(true);
-  expect(getRegionsByCountry("TR").find((s) => s.code === "34")?.name).toBe(
-    "İstanbul",
-  );
-  expect(hasRegions("NG")).toBe(true);
-  expect(getRegionsByCountry("ng").find((s) => s.code === "LA")?.name).toBe(
-    "Lagos",
-  );
-  expect(hasRegions("JP")).toBe(true);
-  expect(getRegionsByCountry("JP").find((s) => s.code === "13")?.name).toBe(
-    "Tokyo",
-  );
-});
-
 test("no a11y violations — disabled", async () => {
   const screen = await render(
     <RegionSelect country="US" disabled aria-label="State" />,
@@ -184,8 +168,10 @@ test("no a11y violations — disabled", async () => {
   await expectNoA11yViolations(screen.container);
 });
 
-test("no a11y violations (closed)", async () => {
-  const screen = await render(<RegionSelect country="US" aria-label="State" />);
+test("no a11y violations (closed, with a clearable value)", async () => {
+  const screen = await render(
+    <RegionSelect country="US" value="CA" aria-label="State" />,
+  );
   await expectNoA11yViolations(screen.container);
 });
 

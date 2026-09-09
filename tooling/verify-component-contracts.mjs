@@ -551,11 +551,12 @@ assert(
 );
 
 const expected = {
-  totalRegistryItems: 563,
-  components: 114,
+  totalRegistryItems: 566,
+  components: 115,
   animatedIcons: 439,
   hooks: 9,
   blocks: 1,
+  libs: 2,
 };
 for (const [key, value] of Object.entries(expected)) {
   assert(
@@ -566,7 +567,7 @@ for (const [key, value] of Object.entries(expected)) {
 
 const expectedWaves = {
   "Core controls": 24,
-  "Forms/editing": 22,
+  "Forms/editing": 23,
   "Navigation/layout": 14,
   Overlays: 14,
   "Data display": 11,
@@ -625,6 +626,7 @@ const expectedComponentWaveMembers = {
     "combobox",
     "country-select",
     "region-select",
+    "searchable-select",
     "date-picker",
     "filter-bar",
     "tag-group",
@@ -750,6 +752,11 @@ const registryHooks = registry.items.filter(
 const registryBlocks = registry.items.filter(
   (item) => item.type === "registry:block",
 );
+// `registry:lib` — a pure data/helper module with no React in it, installed under the consumer's
+// `lib` alias. It renders nothing, so it carries no docs page, preview, VRT route or wave.
+const registryLibs = registry.items.filter(
+  (item) => item.type === "registry:lib",
+);
 assert(
   registryComponents.length === expected.components,
   `registry component count must be ${expected.components}`,
@@ -767,6 +774,10 @@ assert(
   `registry block count must be ${expected.blocks}`,
 );
 assert(
+  registryLibs.length === expected.libs,
+  `registry lib count must be ${expected.libs}`,
+);
+assert(
   registryComponents.some((item) => item.name === "icon-button"),
   "icon-button must be modeled as a component",
 );
@@ -779,6 +790,7 @@ const components = contracts.components ?? [];
 const icons = contracts.animatedIcons?.members ?? [];
 const hooks = contracts.hooks ?? [];
 const blocks = contracts.blocks ?? [];
+const libs = contracts.libs ?? [];
 assert(
   components.length === expected.components,
   `contracts.components must contain ${expected.components} records`,
@@ -795,8 +807,12 @@ assert(
   blocks.length === expected.blocks,
   `contracts.blocks must contain ${expected.blocks} record`,
 );
+assert(
+  libs.length === expected.libs,
+  `contracts.libs must contain ${expected.libs} record`,
+);
 
-const modeled = [...components, ...icons, ...hooks, ...blocks];
+const modeled = [...components, ...icons, ...hooks, ...blocks, ...libs];
 const modeledNames = modeled.map((record) => record.name);
 assert(
   modeledNames.length === expected.totalRegistryItems,
@@ -1072,6 +1088,16 @@ for (const record of hooks) {
   validateRichRecord(record, item, `hook ${record.name}`);
 }
 
+for (const record of libs) {
+  const item = registryByName.get(record.name);
+  assert(
+    item && registryLibs.includes(item),
+    `lib ${record.name} does not map to a registry lib`,
+  );
+  if (!item) continue;
+  validateRichRecord(record, item, `lib ${record.name}`);
+}
+
 for (const record of blocks) {
   const item = registryByName.get(record.name);
   assert(
@@ -1119,6 +1145,25 @@ sameStrings(
   modeledTopLevel,
   topLevelCanonical,
   "top-level canonical source inventory",
+);
+// The same parity for `registry:lib` sources. `utils.ts` is the repo-local `@/lib/utils` shim
+// (a re-export of `cn` so canonical sources resolve in-tree) — never a registry item, never
+// shipped, so it is the one exempt file here.
+const canonicalLibFiles = readdirSync(join(root, "packages/ui/registry/lib"), {
+  withFileTypes: true,
+})
+  .filter(
+    (entry) =>
+      entry.isFile() &&
+      /\.tsx?$/.test(entry.name) &&
+      !/\.test\.tsx?$/.test(entry.name) &&
+      entry.name !== "utils.ts",
+  )
+  .map((entry) => `packages/ui/registry/lib/${entry.name}`);
+sameStrings(
+  libs.flatMap((record) => record.sourceFiles),
+  canonicalLibFiles,
+  "canonical registry:lib source inventory",
 );
 const iconFiles = readdirSync(join(root, "packages/ui/registry/ui/icons"))
   .filter((name) => name.endsWith(".tsx"))
@@ -1363,7 +1408,7 @@ if (problems.length > 0) {
 
 console.log("✓ verify-component-contracts: complete registry reconciliation");
 console.log(
-  `  inventory: ${modeledNames.length} unique items (${components.length} components + ${icons.length} animated icons + ${hooks.length} hooks + ${blocks.length} block)`,
+  `  inventory: ${modeledNames.length} unique items (${components.length} components + ${icons.length} animated icons + ${hooks.length} hooks + ${blocks.length} block + ${libs.length} libs)`,
 );
 console.log(
   `  component audit matrix: ${components.length}/${components.length} source + test + docs + nav + preview contracts reconciled`,

@@ -269,6 +269,12 @@ by eight branches.
 For component `<name>` (PascalCase `<Name>`), in dependency order:
 
 1. **`packages/ui/registry/ui/<name>.tsx`** — or `.ts` for a pure hook (`type: registry:hook`).
+   A module with **no React in it at all** — a dataset, a lookup, an exported class-string recipe —
+   is a `registry:lib` instead: it lives in `packages/ui/registry/lib/<name>.ts`, targets
+   `@lib/<name>.ts`, is imported as `@/lib/<name>`, and is modeled in the contract's `libs` bucket
+   (family `lib`, wave `Libs`) with `docs: "shared-guide-only"` — no docs page, no preview, no VRT
+   route, but a test file is still required. `geo-data` and `drag-item` are the two. Reach for it
+   when two components would otherwise carry the same bulk data or the same class string.
    `'use client'` only if interactive. JSDoc every exported prop (`@default` where relevant) so
    `AutoTypeTable` renders correctly; JSDoc the component with an `@example`. Export a named
    `<Name>Props` and any `<name>Variants` CVA.

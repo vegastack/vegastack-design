@@ -47,7 +47,10 @@ Every bug found + root cause + fix. Append-only.
   - 24px size floor: `breadcrumbCollapsed`, `breadcrumbEllipsisMenu`, `breadcrumbTrail` — the
     ellipsis/collapsed-crumb trigger measures 20.00×20.00 (**fixed by N1, 2026-09-09 — see the
     entry below**); `datePickerDropdownCaption` — caption
-    dropdown 50.36×21.00; `iconText`, `iconTextSides` — focusable truncation trigger 206.00×21.00;
+    dropdown 50.36×21.00 (**fixed in P1, #45**: the `dropdown_root` now takes `self-stretch`, so the
+    `absolute inset-0` `<select>` fills the 32px caption row; re-measured at 50.36×21.00 before the
+    fix, passes after, and the map entry is deleted); `iconText`, `iconTextSides` — focusable
+    truncation trigger 206.00×21.00;
     `markerLinkButton` — marker link 270.00×21.00; `messageScrollerVisibility` — control 99.00×16.00;
     `stepperVertical` — vertical step 152.08×23.00; `tabsChip` — chip tab 237.97×21.00.
   - 24px obstruction (5-point probe, 0.5px inset): `actionBarPending` — the pending ActionBar
@@ -1573,3 +1576,24 @@ were loaded)`, reported as an _unhandled_ error originating in `registry/ui/text
   belong to `@vegastack/design` and reach a test only through its built dist — so Vite printed
   `Failed to resolve dependency: clsx, present in client 'optimizeDeps.include'` on every run. Both
   entries removed; the rest of the pre-bundle list is real and still earns its keep.
+
+## 2026-09-08 — RegionSelect's keyboard and pointer selection were two different code paths
+
+- **Symptom:** none visible, which is the point. Both modalities produced a plausible value, so no
+  test and no manual pass caught it.
+- **Root cause:** `region-select.tsx` computed the next value inside each `ComboboxItem`'s `onClick`
+  (including a re-select-to-clear toggle) and left the Combobox root's `onValueChange` deliberately
+  unwired, with a source comment explaining that this avoided "a second, conflicting change signal".
+  Base UI routes a keyboard <kbd>Enter</kbd> on a highlighted item through the ROOT, not through the
+  item's click handler — so Enter and a pointer click reached the public value by two independent
+  routes. They happened to agree on the plain-selection case and disagreed on the toggle case: only
+  the pointer path could clear.
+- **Resolution:** selection runs through `value`/`onValueChange` and nothing else (the preset
+  `searchable-select` now owns that path for every data-fed picker), and clearing is an explicit
+  control rather than a toggle. Both `searchable-select.test.tsx` and `region-select.test.tsx` assert
+  the two modalities against ONE expectation — `expect(onKeyboard.mock.calls).toEqual(onPointer.mock.calls)`
+  — so a future divergence fails exactly one of the two assertions rather than passing both.
+- **Rule this reinforces:** when a component composes a headless primitive, the primitive's own
+  value channel is the only place selection may be computed. A handler on a rendered part is a
+  second channel by definition, and "avoiding a conflicting signal" by not wiring the first one
+  inverts the fix.

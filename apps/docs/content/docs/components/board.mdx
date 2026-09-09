@@ -54,6 +54,20 @@ the move, so the card simply stays.
 
 <ComponentPreview name="boardGated" file="components/preview/board.tsx" />
 
+### Locked lanes, the keyboard path, and column height
+
+A column with `droppable: false` renders as an inert drop target that states its `lockedReason`
+rather than silently refusing. Every card's "Move card" menu is the lossless keyboard and
+assistive-tech equivalent of a drag, and it stays available for lanes the pointer path refuses —
+which is also why the grab cursor appears only where a pointer drag can actually start (not under
+`dragDisabled`, not below the mobile breakpoint, not in `readOnly`).
+
+`columnMaxHeight` caps the scrolling card list. It defaults to the shared overlay ceiling token; a
+board inside a shorter shell passes its own CSS length instead of the component assuming a viewport
+reservation.
+
+<ComponentPreview name="boardLanes" file="components/preview/board.tsx" />
+
 ## API Reference
 
 <AutoTypeTable

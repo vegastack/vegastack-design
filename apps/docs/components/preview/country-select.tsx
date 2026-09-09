@@ -3,7 +3,14 @@
 import * as React from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/country-select` (dogfoods the registry).
-import { CountrySelect, type Country } from "@/components/ui/country-select";
+import { CountrySelect } from "@/components/ui/country-select";
+import type { Country } from "@/lib/geo-data";
+
+/*
+ * The control itself is `w-full` like every other form field (audit B8-03/B8-02): these examples
+ * constrain it with a `max-w-*` PARENT, which is exactly how a consumer sizes it inside a form
+ * column. Nothing here sets a width on the control.
+ */
 
 /**
  * Default example — a searchable country combobox pre-selected to the US (flag +
@@ -14,10 +21,10 @@ export function countrySelect() {
   const [value, setValue] = React.useState<string>("US");
   return (
     <Wrapper>
-      <div className="w-64">
+      <div className="w-full max-w-(--panel-width-sm)">
         <CountrySelect value={value} onValueChange={setValue} />
       </div>
-      <div className="w-64">
+      <div className="w-full max-w-(--panel-width-sm)">
         <CountrySelect value="FR" disabled />
       </div>
     </Wrapper>
@@ -29,7 +36,7 @@ export function countrySelectEmpty() {
   const [value, setValue] = React.useState<string>();
   return (
     <Wrapper>
-      <div className="w-64">
+      <div className="w-full max-w-(--panel-width-sm)">
         <CountrySelect
           value={value}
           onValueChange={setValue}
@@ -48,10 +55,10 @@ export function countrySelectVariants() {
   const [value, setValue] = React.useState<string>("US");
   return (
     <Wrapper>
-      <div className="w-64">
+      <div className="w-full max-w-(--panel-width-sm)">
         <CountrySelect value={value} onValueChange={setValue} />
       </div>
-      <div className="w-64">
+      <div className="w-full max-w-(--panel-width-sm)">
         <CountrySelect value="FR" disabled />
       </div>
     </Wrapper>
@@ -73,7 +80,7 @@ export function countrySelectCustom() {
   const [value, setValue] = React.useState<string>("DE");
   return (
     <Wrapper>
-      <div className="w-64">
+      <div className="w-full max-w-(--panel-width-sm)">
         <CountrySelect
           value={value}
           onValueChange={setValue}

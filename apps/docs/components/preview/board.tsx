@@ -111,3 +111,57 @@ export function boardGated(): ReactNode {
     </Wrapper>
   );
 }
+
+/**
+ * Locked lanes, the keyboard move path, and `columnMaxHeight`. "Archive" is
+ * `droppable: false` with a `lockedReason`, so it renders as an inert drop
+ * target that says why; every card's "Move card" menu is the lossless keyboard
+ * and assistive-tech equivalent of a drag, and it stays available for lanes the
+ * pointer path refuses. `columnMaxHeight` caps the scrolling card list — the
+ * default is the shared overlay ceiling token, but a board inside a shorter
+ * shell passes its own length rather than the component assuming a viewport
+ * reservation (audit B8-06).
+ */
+export function boardLanes(): ReactNode {
+  const [columns, setColumns] = useState<BoardColumn<Deal>[]>([
+    {
+      id: "active",
+      title: "Active",
+      items: [
+        { id: "l1", name: "Acme renewal", amount: "$12,400", owner: "PS" },
+        { id: "l2", name: "Globex expansion", amount: "$48,000", owner: "MK" },
+        { id: "l3", name: "Initech pilot", amount: "$9,800", owner: "AL" },
+        { id: "l4", name: "Umbrella retainer", amount: "$3,100", owner: "PS" },
+      ],
+    },
+    { id: "hold", title: "On hold", items: [] },
+    {
+      id: "archive",
+      title: "Archive",
+      items: [
+        { id: "l5", name: "Soylent lapse", amount: "$1,200", owner: "AL" },
+      ],
+      droppable: false,
+      lockedReason: "Archived deals move by automation",
+    },
+  ]);
+  return (
+    <Wrapper className="block">
+      <Board<Deal>
+        aria-label="Pipeline with a locked lane"
+        columns={columns}
+        columnMaxHeight="14rem"
+        getItemId={(deal) => deal.id}
+        renderCard={(deal) => (
+          <>
+            <span className="min-w-0 truncate font-medium">{deal.name}</span>
+            <span className="text-sm text-muted-foreground">{deal.amount}</span>
+          </>
+        )}
+        onMove={({ id, to }) =>
+          setColumns((prev) => applyMove(prev, id, to.container, to.index))
+        }
+      />
+    </Wrapper>
+  );
+}

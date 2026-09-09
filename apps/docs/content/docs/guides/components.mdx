@@ -8,7 +8,7 @@ VegaStack components are **copy-in**: `shadcn add` writes real source files into
 your repo and you own them. Nothing updates behind your back; updates are _pulled_
 when you decide. This page is the full lifecycle.
 
-## The four item kinds
+## The five item kinds
 
 | Kind                      | Example                                                                                                                                                                                                   | Behavior                                                                                                           |
 | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
@@ -16,6 +16,7 @@ when you decide. This page is the full lifecycle.
 | Hook (`registry:hook`)    | `@vegastack/use-media-query`, `@vegastack/use-mobile`, `@vegastack/use-list-nav`, `@vegastack/use-platform`, `@vegastack/use-drag-reorder`, `@vegastack/use-file-drop`, `@vegastack/use-animation-replay` | plain `.ts` into `components/ui/`, same tracking                                                                   |
 | Icon item                 | `@vegastack/icon-arrow-right`                                                                                                                                                                             | one animated-icon mirror per item — 439 of them; bare names never collide with components                          |
 | Block (`registry:block`)  | `@vegastack/dashboard-01`                                                                                                                                                                                 | a multi-file **starter composition** (page + components + data) you own outright — deliberately NOT update-tracked |
+| Lib (`registry:lib`)      | `@vegastack/geo-data`, `@vegastack/drag-item`                                                                                                                               | plain `.ts` into your `lib/` alias — data and class-string recipes with no React in them, pulled in automatically as a dependency of the components that read them, and installed **once** however many of those you add |
 
 ## Adding
 

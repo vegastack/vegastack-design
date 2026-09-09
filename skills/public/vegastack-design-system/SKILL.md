@@ -35,6 +35,10 @@ Rules that decide most component questions:
 - **One size vocabulary everywhere** — `xs · sm · md · lg`, with `md` the default. No component has a
   size called `default`.
 - **Compose `app-shell`** for a sidebar + header + main layout — never hand-roll the landmark trio.
+- **`select`** for a short fixed option set; **`searchable-select`** when the list is long enough to
+  need a search field (it is the preset `country-select` and `region-select` are built from — reach
+  for it before composing `combobox` by hand); **`combobox`** directly only for free text,
+  suggestions or multi-select chips.
 - **`segmented`** for 2–5 exclusive options inline; **`tabs`** when the choice switches page regions.
 - **`alert` variant=strip** for in-content notices and plan/trial rows; **`announcement-banner`** only
   for the full-width inverse strip at the very top of the page.
@@ -188,6 +192,8 @@ contract.
   chrome.
 - Implement every applicable state: default, hover, focus, loading, empty, error, success, disabled.
 - Put `truncate` on an inner span, with `min-w-0` on the flex container.
+- Let the parent decide a form control's width — every control is `w-full` and takes its height from
+  the `--size-*` scale.
 
 **Don't**
 
@@ -198,6 +204,8 @@ contract.
 - Pull in a second icon library or hand-write an inline `<svg>` as an icon.
 - Put `uppercase` on non-mono type, or on anything above 14px.
 - Hand-roll a removable pill, or a `role="status"` live region with its own sequence counter.
+- Give a form control a fixed width (`w-56`, `w-64`) — it reads fine on the page it was tuned for
+  and overflows at 320px. Constrain the parent instead.
 
 ## Reference
 

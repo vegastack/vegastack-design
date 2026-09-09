@@ -30,6 +30,7 @@
     "switch",
     "select",
     "combobox",
+    "searchable-select",
     "country-select",
     "region-select",
     "date-picker",

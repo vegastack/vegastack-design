@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**114 components**, plus 439 animated-icon items, 9 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-platform`), and 1 starter block (`dashboard-01`) — 563 registry items in total.
+**115 components**, plus 439 animated-icon items, 9 hooks (`use-animation-replay`, `use-announcer`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-platform`), 1 starter block (`dashboard-01`), and 2 data libs (`geo-data`, `drag-item`) — 566 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so `icon-button` is the
@@ -27,7 +27,7 @@ component and never an icon.
 - **`chip-input`** — Free-token entry field — Enter/comma/paste commits chips, Backspace removes, per-chip validation marks invalid entries instead of dropping them. Combobox field chrome + real Tag chips.
 - **`color-picker`** — A swatch-triggered popover presenting a grid of preset colors — pick one, fire onValueChange, mark the selection.
 - **`combobox`** — A filterable, keyboard-navigable listbox behind a text input — type-to-filter, grouped items, async status, and a multi-select chip mode.
-- **`country-select`** — A searchable country combobox returning the ISO 3166-1 alpha-2 code, with flag + name. Built on Combobox.
+- **`country-select`** — A searchable country picker returning the ISO 3166-1 alpha-2 code, with flag + name. A thin wrapper over SearchableSelect fed by the geo-data item.
 - **`date-picker`** — Pick a single date or a date range from a calendar popover — token-styled, keyboard-navigable, with optional quick presets.
 - **`dropzone`** — File acquisition surface — drop, click-to-browse, and paste — as a thin shell over use-file-drop; the surface is the named focusable control over a hidden picker-bridge input; data-dragging/data-drag-invalid styling flags.
 - **`editable-cell`** — Inline-editable value with an async commit lifecycle — optimistic display, saving/saved/error status, revert on a rejected write, and a typed text/select/custom editor registry.
@@ -40,7 +40,8 @@ component and never an icon.
 - **`otp-input`** — A multi-slot one-time-passcode input — keyboard navigation, paste distribution, masking, disabled, built on Base UI OTP Field.
 - **`password-input`** — A password field with a show/hide eye toggle and an optional live requirements checklist.
 - **`radio-group`** — A set of mutually-exclusive options — single selection, arrow-key navigation, disabled, built on Base UI Radio Group.
-- **`region-select`** — A searchable combobox of states/provinces for a country, with a free-text fallback for countries with no subdivisions.
+- **`region-select`** — A searchable picker of states/provinces for a country, with a free-text fallback for countries with no subdivisions. A thin wrapper over SearchableSelect fed by the geo-data item.
+- **`searchable-select`** — The Select-shaped Combobox preset: a full-width trigger, an in-panel search field, a check on the selected row and an optional clear control. Single-select, controlled through value/onValueChange.
 - **`select`** — A dropdown for choosing one option — trigger with value and chevron, grouped scrollable popup, full keyboard navigation, animated enter/exit.
 - **`slider`** — Pick a number or a [from, to] range from a continuous track — keyboard accessible, with optional steps. Built on Base UI Slider.
 - **`switch`** — An on/off toggle for instant, self-saving binary settings — built on Base UI Switch.

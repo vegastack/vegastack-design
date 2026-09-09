@@ -168,3 +168,61 @@ export function dropzoneRejections(): ReactNode {
     </Wrapper>
   );
 }
+
+/**
+ * Drag-over states — `dragState` paints them without a live `DataTransfer`, which neither a static
+ * documentation example nor the behaviour-contract lane can synthesise. The OUTLINE is on the
+ * dropzone surface itself (audit B8-07), so the feedback survives a child that is not an `Empty`:
+ * the third card here holds a plain panel and still outlines. An `Empty variant="dashed"` child can tint
+ * its dashed border in step through `group-data-dragging/dropzone`.
+ */
+export function dropzoneDragging(): ReactNode {
+  const noop = () => {};
+  return (
+    <Wrapper className="grid gap-3 sm:grid-cols-3">
+      <Dropzone
+        aria-label="Valid payload"
+        dragState="dragging"
+        onFilesAccepted={noop}
+      >
+        <Empty
+          size="sm"
+          variant="dashed"
+          className="group-data-dragging/dropzone:border-primary/(--alpha-outline-border)"
+        >
+          <EmptyHeader>
+            <EmptyTitle>Release to upload</EmptyTitle>
+            <EmptyDescription>A valid payload is hovering</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      </Dropzone>
+      <Dropzone
+        aria-label="Refused payload"
+        dragState="drag-invalid"
+        accept={{ "image/*": [".png"] }}
+        onFilesAccepted={noop}
+      >
+        <Empty
+          size="sm"
+          variant="dashed"
+          className="group-data-drag-invalid/dropzone:border-destructive/(--alpha-outline-border)"
+        >
+          <EmptyHeader>
+            <EmptyTitle>Not accepted</EmptyTitle>
+            <EmptyDescription>This file type is refused</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      </Dropzone>
+      <Dropzone
+        aria-label="Custom child"
+        dragState="dragging"
+        onFilesAccepted={noop}
+      >
+        <div className="rounded-lg bg-surface-1 p-4 text-center text-sm text-muted-foreground">
+          A non-Empty child still shows the drag state — the outline belongs to
+          the surface.
+        </div>
+      </Dropzone>
+    </Wrapper>
+  );
+}

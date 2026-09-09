@@ -1,10 +1,11 @@
-// @vegastack board@0.6.0 sha256-SaSoIIFDfnPG1CB7BdhE404PwJj0TAjCeowgSf9DxHo=
+// @vegastack board@0.6.0 sha256-DxE3Oo7U6aux7of1ihsMfo94OJSfp4mGXOhwDlK5CzM=
 
 "use client";
 
 import * as React from "react";
 import { EllipsisVertical } from "lucide-react";
 import { cn, surfaceInteractive } from "@vegastack/design";
+import { dragItemClasses } from "@/lib/drag-item";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -125,6 +126,14 @@ export interface BoardProps<T> {
    */
   columnWidth?: string;
   /**
+   * Maximum height of a column's scrolling card list, as a CSS length, applied
+   * through the `--board-column-max-height` custom property. The default is the
+   * shared overlay ceiling token — a board inside a shorter shell passes its own
+   * length rather than the component assuming a viewport reservation.
+   * @default "var(--layout-overlay-max-height)"
+   */
+  columnMaxHeight?: string;
+  /**
    * Extra per-column header action (a filter menu, an add button) rendered in
    * the column's `CardAction` seat.
 
@@ -179,6 +188,7 @@ export function Board<T>({
   onMove,
   onCardActivate,
   columnWidth = "18rem",
+  columnMaxHeight = "var(--layout-overlay-max-height)",
   renderColumnAction,
   dragDisabled = false,
   "aria-label": ariaLabel = "Board",
@@ -211,13 +221,17 @@ export function Board<T>({
     return map;
   }, [columns, getItemId]);
 
+  // Pointer drags are off on mobile and by prop; the card surface reads the SAME flag for its
+  // cursor, so the grab affordance can never promise a drag the engine will refuse (audit B8-06).
+  const pointerDisabled = dragDisabled || isMobile;
+
   const reorder = useDragReorder({
     lists,
     onReorder: onMove,
     axis: "vertical",
     // Pointer drags disable on mobile / by prop; the keyboard move mode and
     // the Move menu — the lossless paths — always survive.
-    pointerDisabled: dragDisabled || isMobile,
+    pointerDisabled,
     disabled: (id) => {
       const owner = itemsById.get(id)?.column;
       return owner ? isReadOnly(owner) : true;
@@ -321,7 +335,12 @@ export function Board<T>({
       role="group"
       aria-label={ariaLabel}
       // Only a --* custom property — the class consumes it (contract-clean).
-      style={{ ["--board-column-width"]: columnWidth } as React.CSSProperties}
+      style={
+        {
+          ["--board-column-width"]: columnWidth,
+          ["--board-column-max-height"]: columnMaxHeight,
+        } as React.CSSProperties
+      }
       className={cn("w-full max-w-full min-w-0", className)}
     >
       <div
@@ -397,7 +416,7 @@ export function Board<T>({
                 ) : null}
               </CardHeader>
               <CardContent className="px-2">
-                <ScrollArea className="max-h-(--layout-overlay-max-height)">
+                <ScrollArea className="max-h-(--board-column-max-height)">
                   <div
                     data-slot="board-column-body"
                     ref={
@@ -449,14 +468,8 @@ export function Board<T>({
                               data-drop-edge={itemProps["data-drop-edge"]}
                               data-drag-pending={itemProps["data-drag-pending"]}
                               data-slot="board-card"
-                              className={cn(
-                                "relative",
-                                "data-[drop-edge=top]:before:absolute data-[drop-edge=top]:before:inset-x-0 data-[drop-edge=top]:before:-top-1 data-[drop-edge=top]:before:h-0.5 data-[drop-edge=top]:before:bg-primary data-[drop-edge=top]:before:content-['']",
-                                "data-[drop-edge=bottom]:before:absolute data-[drop-edge=bottom]:before:inset-x-0 data-[drop-edge=bottom]:before:-bottom-1 data-[drop-edge=bottom]:before:h-0.5 data-[drop-edge=bottom]:before:bg-primary data-[drop-edge=bottom]:before:content-['']",
-                                // Lift = dim; flat by doctrine, never a shadow.
-                                "data-dragging:opacity-(--opacity-dim)",
-                                "data-drag-pending:animate-pulse",
-                              )}
+                              // The ONE drag-item recipe, shared with SortableList.
+                              className={dragItemClasses}
                             >
                               <div
                                 role="button"
@@ -491,9 +504,17 @@ export function Board<T>({
                                 }}
                                 onClick={() => onCardActivate?.(item)}
                                 className={cn(
-                                  "flex w-full min-w-0 cursor-grab flex-col gap-1 rounded-md border border-border bg-card p-3 text-start text-base",
+                                  "flex w-full min-w-0 flex-col gap-1 rounded-md border border-border bg-card p-3 text-start text-base",
                                   surfaceInteractive,
-                                  readOnly && "cursor-default",
+                                  // The grab cursor promises a pointer drag, so it appears
+                                  // only where one can actually start: not in `readOnly`, and
+                                  // not when the pointer path is off (`dragDisabled`, or below
+                                  // the 768px breakpoint where the menu is the only path).
+                                  // Previously every card claimed a drag a tablet could not
+                                  // begin (audit B8-06).
+                                  !pointerDisabled && !readOnly
+                                    ? "cursor-grab"
+                                    : "cursor-default",
                                 )}
                               >
                                 {renderCard(item, column)}

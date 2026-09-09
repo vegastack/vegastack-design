@@ -88,3 +88,41 @@ export function sortableListGated(): ReactNode {
     </Wrapper>
   );
 }
+
+/**
+ * The menu path — the lossless equivalent of a drag. Every enabled row carries a
+ * "Move …" menu with Move up / Move down / Move to top / Move to bottom, so the
+ * whole ordering is reachable without a pointer and without entering keyboard
+ * move mode. It is also the only path on a locked row's neighbours once the
+ * pointer path is unavailable (audit B8-12). The drop-edge hairline, the lift
+ * dim and the pending shimmer all come from the shared `drag-item` recipe, the
+ * same one `Board` uses.
+ */
+export function sortableListMenu(): ReactNode {
+  const [items, setItems] = useState<SortableListItem[]>([
+    { id: "overview", label: "Overview" },
+    { id: "members", label: "Members" },
+    { id: "billing", label: "Billing" },
+    { id: "audit", label: "Audit log" },
+  ]);
+  return (
+    <Wrapper className="block">
+      <div className="mx-auto w-full max-w-sm">
+        <SortableList
+          aria-label="Navigation sections"
+          items={items}
+          renderItem={(item) => (
+            <span className="min-w-0 truncate">{item.label}</span>
+          )}
+          onReorder={({ id, to }) =>
+            setItems((prev) => applyMove(prev, id, to.index))
+          }
+        />
+        <p className="mt-2 text-sm text-muted-foreground">
+          Open a row’s menu to move it without dragging — the same reorder
+          callback runs, so the host cannot tell the paths apart.
+        </p>
+      </div>
+    </Wrapper>
+  );
+}

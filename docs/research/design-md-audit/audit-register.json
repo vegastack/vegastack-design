@@ -2,13 +2,14 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "30237ede0d40991c0d71280e523619d0f4e4995f915dd1e1af8613aff921e5f5",
+  "contractSha256": "a1850f03b5c5415416aee62c9462f180b4b442832dfc78c76d6346497db4d718",
   "expectedCounts": {
-    "totalRegistryItems": 563,
-    "components": 114,
+    "totalRegistryItems": 566,
+    "components": 115,
     "animatedIcons": 439,
     "hooks": 9,
-    "blocks": 1
+    "blocks": 1,
+    "libs": 2
   },
   "records": [
     {
@@ -1018,10 +1019,20 @@
       "wave": "Forms/editing",
       "family": "form",
       "sourceFiles": [
-        "packages/ui/registry/ui/region-select.tsx",
-        "packages/ui/registry/ui/region-select-data.ts"
+        "packages/ui/registry/ui/region-select.tsx"
       ],
       "docsSlug": "/docs/components/region-select",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "searchable-select",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/searchable-select.tsx"
+      ],
+      "docsSlug": "/docs/components/searchable-select",
       "contractStatus": "reconciled"
     },
     {
@@ -6209,6 +6220,28 @@
         "packages/ui/registry/blocks/dashboard-01/components/recent-activity.tsx"
       ],
       "docsSlug": "/docs/blocks/dashboard-01",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "geo-data",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/geo-data.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "drag-item",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/drag-item.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"
     }
   ]

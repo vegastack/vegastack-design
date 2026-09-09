@@ -50,6 +50,20 @@ so the order simply stays.
   file="components/preview/sortable-list.tsx"
 />
 
+### The menu path
+
+Every enabled row carries a "Move …" menu — Move up / Move down / Move to top / Move to bottom — so
+the whole ordering is reachable without a pointer and without entering keyboard move mode. It runs
+the same `onReorder` callback as a drag, so the host cannot tell the paths apart.
+
+The drop-edge hairline, the lift dim and the pending shimmer come from the shared `drag-item`
+recipe — the same one `Board` uses, installed once as its own registry item.
+
+<ComponentPreview
+  name="sortableListMenu"
+  file="components/preview/sortable-list.tsx"
+/>
+
 ## API Reference
 
 <AutoTypeTable

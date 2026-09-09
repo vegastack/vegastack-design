@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.6.0 sha256-be2zp7iLpt89AyJ7LzECLsl1UmkVQ8KDKk5eWHmcN9c=
+// @vegastack date-picker@0.6.0 sha256-UMmFYPeqo/3Zd1/tpaDJEGFDY2wtPgcZ9mO5+Kttbns=
 
 "use client";
 
@@ -114,30 +114,36 @@ export function Calendar({
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
+      // `around` moves the two nav buttons INTO each month as siblings of the caption
+      // (react-day-picker v10 renders them absolutely-positioned over the month otherwise). That
+      // is what lets the month be a real `auto 1fr auto` grid: no absolute nav, and no `px-7`
+      // hand-tuned clearance under it (audit B8-03). It also puts the tab order in visual order.
+      navLayout="around"
       className={cn("group/calendar p-3", className)}
       classNames={{
         root: cn("w-fit", defaultClassNames.root),
-        months: cn(
-          "relative flex flex-col gap-4 md:flex-row",
-          defaultClassNames.months,
-        ),
-        month: cn("flex w-full flex-col gap-4", defaultClassNames.month),
-        nav: cn(
-          "absolute inset-x-0 top-0 flex w-full items-center justify-between gap-1",
-          defaultClassNames.nav,
+        months: cn("flex flex-col gap-4 md:flex-row", defaultClassNames.months),
+        // The month is the grid: `[prev] [caption] [next]` on row 1, the day grid spanning all
+        // three on row 2. Every cell is placed EXPLICITLY because a two-month range renders the
+        // prev button only on the first month and the next button only on the last — auto
+        // placement would slide the second month's caption into column 1. `col-start-1` is the
+        // inline start, so RTL mirrors the trio for free.
+        month: cn(
+          "grid w-full grid-cols-[auto_1fr_auto] items-center gap-x-1 gap-y-4",
+          defaultClassNames.month,
         ),
         button_previous: cn(
-          "inline-flex size-(--size-sm) items-center justify-center rounded-md text-muted-foreground select-none hover:text-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
+          "col-start-1 row-start-1 inline-flex size-(--size-sm) items-center justify-center rounded-md text-muted-foreground select-none hover:text-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
           surfaceInteractive,
           defaultClassNames.button_previous,
         ),
         button_next: cn(
-          "inline-flex size-(--size-sm) items-center justify-center rounded-md text-muted-foreground select-none hover:text-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
+          "col-start-3 row-start-1 inline-flex size-(--size-sm) items-center justify-center rounded-md text-muted-foreground select-none hover:text-foreground aria-disabled:pointer-events-none aria-disabled:opacity-(--opacity-dim)",
           surfaceInteractive,
           defaultClassNames.button_next,
         ),
         month_caption: cn(
-          "flex h-(--size-sm) w-full items-center justify-center px-7",
+          "col-start-2 row-start-1 flex h-(--size-sm) items-center justify-center",
           defaultClassNames.month_caption,
         ),
         caption_label: cn(
@@ -154,7 +160,13 @@ export function Calendar({
           // label). The chevron actually lives INSIDE the caption-label <span> child
           // (react-day-picker v10 renders Dropdown as root > [select, span[label, chevron]]),
           // so the child span gets the same inline-flex treatment via `[&>span]`.
-          "relative inline-flex items-center rounded-md",
+          // `self-stretch` is the pointer-target floor, not a layout choice: the row is
+          // `h-(--size-sm)` (32px) but an `items-center` child collapses to its 21px line box,
+          // and the real control is the `<select>` stretched over this root (`absolute inset-0`),
+          // so the effective target was 21px tall — under the 24px WCAG 2.5.8 floor. Stretching
+          // the root hands the select the row's full height. Nothing here paints, so the label
+          // and chevron stay exactly where they were (this root centres them).
+          "relative inline-flex items-center self-stretch rounded-md",
           "[&>span]:inline-flex [&>span]:items-center [&>span]:gap-1",
           defaultClassNames.dropdown_root,
         ),
@@ -162,7 +174,10 @@ export function Calendar({
           "absolute inset-0 bg-popover opacity-0",
           defaultClassNames.dropdown,
         ),
-        month_grid: cn("w-full border-collapse", defaultClassNames.month_grid),
+        month_grid: cn(
+          "col-span-3 col-start-1 row-start-2 w-full border-collapse",
+          defaultClassNames.month_grid,
+        ),
         weekdays: cn("flex", defaultClassNames.weekdays),
         weekday: cn(
           "flex-1 rounded-md text-label-sm text-muted-foreground select-none",
@@ -305,10 +320,16 @@ export function CalendarDayButton({
         surfaceInteractive,
         // Today: a quiet neutral ring so it reads even when not selected.
         "data-[today]:ring-2 data-[today]:ring-ring/(--alpha-outline-soft)",
-        // Selected single + range ends: solid primary surface (selection = primary ink).
-        "data-[selected-single]:bg-primary data-[selected-single]:text-primary-foreground data-[selected-single]:ring-0 data-[selected-single]:hover:bg-primary",
-        "data-[range-start]:rounded-s-md data-[range-start]:bg-primary data-[range-start]:text-primary-foreground data-[range-start]:ring-0 data-[range-start]:hover:bg-primary",
-        "data-[range-end]:rounded-e-md data-[range-end]:bg-primary data-[range-end]:text-primary-foreground data-[range-end]:ring-0 data-[range-end]:hover:bg-primary",
+        // Selected single + range ends: the F2 `solid` recipe (selection = primary ink). A solid
+        // owns its own darker hover/pressed steps — `bg-primary hover:bg-primary-hover
+        // active:bg-primary-active`, exactly what `buttonVariants({ variant: "solid" })` compiles
+        // to through `--btn-fill*`. It deliberately does NOT use `fillInteractive.primary`: that
+        // recipe composites an alpha wash, which over a solid only thins it (see the note on
+        // `fillInteractive` in `@vegastack/design`). Before this the selected day pinned
+        // `hover:bg-primary` and had no pressed rung at all (audit fix round, Codex/F1).
+        "data-[selected-single]:bg-primary data-[selected-single]:text-primary-foreground data-[selected-single]:ring-0 data-[selected-single]:hover:bg-primary-hover data-[selected-single]:active:bg-primary-active",
+        "data-[range-start]:rounded-s-md data-[range-start]:bg-primary data-[range-start]:text-primary-foreground data-[range-start]:ring-0 data-[range-start]:hover:bg-primary-hover data-[range-start]:active:bg-primary-active",
+        "data-[range-end]:rounded-e-md data-[range-end]:bg-primary data-[range-end]:text-primary-foreground data-[range-end]:ring-0 data-[range-end]:hover:bg-primary-hover data-[range-end]:active:bg-primary-active",
         // Range middle: the hover rung, square corners.
         "data-[range-middle]:rounded-none data-[range-middle]:bg-surface-2 data-[range-middle]:text-foreground",
         className,
@@ -547,7 +568,10 @@ export function DatePicker({
             data-empty={value ? undefined : ""}
             aria-label={ariaLabel}
             className={cn(
-              "w-(--panel-width-sm) justify-start gap-2 font-normal data-[empty]:text-muted-foreground",
+              // `w-full` like Input/Select/Combobox — the ONE width rule for form controls
+              // (design.md §Form controls). A fixed `--panel-width-*` trigger overflowed a 320px
+              // content area and was the only fixed-width control in the system (audit B8-03).
+              "w-full justify-start gap-2 font-normal data-[empty]:text-muted-foreground",
               className,
             )}
           >
@@ -753,7 +777,8 @@ export function DateRangePicker({
             data-empty={value?.from ? undefined : ""}
             aria-label={ariaLabel}
             className={cn(
-              "w-(--panel-width-md) justify-start gap-2 font-normal data-[empty]:text-muted-foreground",
+              // `w-full` — see the single DatePicker's note above (audit B8-03).
+              "w-full justify-start gap-2 font-normal data-[empty]:text-muted-foreground",
               className,
             )}
           >

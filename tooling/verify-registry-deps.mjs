@@ -64,8 +64,14 @@ function minimumOfRange(range) {
   return m ? m[1] : null;
 }
 
+// A registry item is imported either through the `ui` alias (`registry:ui` / `registry:hook`) or
+// the `lib` alias (`registry:lib` — pure data/helper modules such as `geo-data`). Both resolve to
+// an item NAME, so both must be reconciled against `registryDependencies`; without the second arm
+// a `@vegastack/geo-data` dependency would read as a phantom.
 function registrySpecifier(specifier) {
-  return /^@\/components\/ui\/([a-z0-9-]+)(?:\/|$)/.exec(specifier)?.[1];
+  return /^@\/(?:components\/ui|lib)\/([a-z0-9-]+)(?:\/|$)/.exec(
+    specifier,
+  )?.[1];
 }
 
 function importedRegistryItems(src, path) {
