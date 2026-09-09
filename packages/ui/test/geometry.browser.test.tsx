@@ -119,26 +119,29 @@ const EXCLUDED: Record<string, Partial<Record<Assertion, string>>> = {
   // `elementFromPoint` resolves the probe points to another element. Miss counts are out of the
   // five points probed (four edges of the centred square, plus its centre).
   //
-  // Both entries below were RE-MEASURED on 2026-09-09 and both are real. Neither can be closed
-  // without a decision that changes something a user can see, so both are open questions for MK
-  // rather than a fix somebody can just make — see `docs/ledger/bugs.md` (2026-09-09).
+  // ONE entry left, and it is ACCEPTED rather than outstanding — MK, 2026-09-10. The `timeline`
+  // entry that stood beside it was closed the same day by `group-last/timeline-item:pb-1`.
+  //
+  // This is the one shape of "obstruction" the probe reports that is not a defect, so read the
+  // reasoning before adding a second one like it: two targets genuinely cannot both own the same
+  // pixel, and WCAG 2.2 §2.5.8 does not ask them to. Its key-terms note is explicit — "if two or
+  // more targets are overlapping, the overlapping area should not be included in the measurement
+  // of the target size" — so the SC measures each target's MINIMUM BOUNDING BOX with the shared
+  // area removed; it never requires an unobstructed centred square. This probe does require one,
+  // deliberately, because that stricter shape is what catches a control buried under an overlay
+  // (`attachmentImageThumbnail`, 2026-09-09, was genuinely unclickable). The right answer to the
+  // gap between the two is a named exclusion here, never a looser probe.
   resizableNested: {
     target:
-      "obstruction: control 0 (the outer vertical handle, visual 1.0x254.0, its 24px `after` hit " +
-      "area passes the size floor) misses 3 of 5 points — at a nested T-junction the inner " +
-      "horizontal handle's own 24px hit area crosses the outer handle's centre, and the inner " +
-      "one is deeper in the DOM so it wins the pointer. Two perpendicular drag targets cannot " +
-      "both own the 24x24 square where they meet; which one should is a design decision",
-  },
-  timeline: {
-    target:
-      "obstruction: control 2 (the LAST item's RelativeTime, visual 60.7x21.0) misses 1 of 5 " +
-      "points — its `-inset-y-1` hit area reaches 4px below the row, but `timeline-content` " +
-      "drops its bottom padding on the last item (`group-last/timeline-item:pb-0`), so the " +
-      "overhang escapes every ancestor box and Chromium stops hit-testing it: the effective " +
-      "target is clipped to the row's own 23px. Proved 2026-09-09 by adding 8px of padding to " +
-      "the last <li>, which restores ownership of the same point. Closing it means either " +
-      "trailing whitespace under the last row or a taller row — both visible",
+      "ACCEPTED overlap, not a defect (MK 2026-09-10, `docs/ledger/bugs.md`). Control 0 is the " +
+      "outer vertical handle, visual 1.0x254.0, hit area 24.0x254.0; the nested horizontal " +
+      "handle's own 24px hit area crosses it at the T-junction and, being deeper in the DOM, " +
+      "wins the shared band. Measured 2026-09-10: outer `after` spans x 94.6-118.6 over the full " +
+      "254px; inner `after` spans y 141.0-165.0 from x 107.1 rightwards, so the shared band is " +
+      "~11.5x24 and the outer handle keeps 12.5px of exclusive width across it and its full 24px " +
+      "over the other 230px of its length. Under §2.5.8's overlap rule both handles still measure " +
+      "far beyond 24x24. Whichever handle won, the other would lose the same square, so this is a " +
+      "property of two crossing targets and not a tunable; 3 of 5 centred points miss",
   },
 };
 
