@@ -836,6 +836,16 @@ for (const record of components) {
   );
   if (!item) continue;
   validateRichRecord(record, item, `component ${record.name}`);
+  // Canon row 0's `status` and `since` live here and are written onto the page by
+  // `tooling/sync-component-derived.mjs`. The vocabulary is checked once, at the authority.
+  assert(
+    ["stable", "preview", "deprecated"].includes(record.status),
+    `component ${record.name}: status must be stable | preview | deprecated (found ${JSON.stringify(record.status)})`,
+  );
+  assert(
+    typeof record.since === "string" && /^\d+\.\d+\.\d+$/.test(record.since),
+    `component ${record.name}: since must be a semver version (found ${JSON.stringify(record.since)})`,
+  );
   const expectedDataAttributes = computeDataAttributes(record);
   if (writeDataAttributes) {
     record.dataAttributes = expectedDataAttributes;

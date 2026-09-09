@@ -22,7 +22,7 @@ concurrency:
 # THIS WORKFLOW COSTS NOTHING, AND IT EXECUTES EVERYTHING IT CLAIMS.
 #
 # Until 2026-09-08 the browser lanes ran only in `.husky/pre-push` and were ATTESTED here by
-# `.gates/receipt.json`, because no free runner could launch a browser: the mac minis' Actions runner
+# `.gates/receipt.json`, because no free runner could launch a browser: the mac mini's Actions runner
 # has no per-user Mach bootstrap namespace, so every Chromium launch died with `bootstrap_look_up …
 # Unknown service name (1102)`. On 2026-09-07 the two LAN Debian boxes ran Chromium, Firefox and
 # WebKit under Playwright inside the pinned image. The premise of the receipt system was gone, so the
@@ -97,15 +97,15 @@ jobs:
       - run: pnpm install --frozen-lockfile --store-dir /pnpm-store
       - run: pnpm verify
 
-  # The cross-platform static signal the minis already gave, at ~2 minutes instead of ~13. No
+  # The cross-platform static signal the mac mini already gave, at ~2 minutes instead of ~13. No
   # browser (they cannot launch one) and NO `setup-node` cache step: restoring the pnpm cache was
-  # measured at 7-7.7 of that 13 minutes, and Node is preinstalled on the minis per
+  # measured at 7-7.7 of that 13 minutes, and Node is preinstalled on the mac mini per
   # docs/runbooks/ci-runner-provisioning-macos.md.
   #
   # It is deliberately NOT the whole of `pnpm verify` — the browser suite is the one part that cannot
   # run here, and the Linux job above already executed it against the same tree.
   verify-macos:
-    # The minis are also LAN hardware with a persistent workspace. They carried no fork guard at all
+    # The mac mini is also LAN hardware with a persistent workspace. Its jobs carried no fork guard at all
     # until this rewrite; they need the same one for the same reason.
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, vsk-runners-mac-mini]
@@ -128,7 +128,7 @@ jobs:
       # line of repository code has run. Worse, the action exports `PNPM_HOME` pointing INSIDE that
       # directory, and pnpm derives its default store from `PNPM_HOME` — so the wiped bootstrap
       # directory was also the project store. That is why every macOS install logged
-      # `reused 0, downloaded 1136`: the "persistent store" on the minis never survived a job.
+      # `reused 0, downloaded 1136`: the "persistent store" on the mac mini never survived a job.
       # `runner.temp` is per-agent and cleared per job, so the bootstrap can never collide;
       # `$RUNNER_WORKSPACE` is per-agent and PERSISTS, so the store is a real cache again.
       # Issue #94.

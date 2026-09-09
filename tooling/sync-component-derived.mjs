@@ -408,6 +408,56 @@ const componentCountCatalogBody = `Browse the ${contracts.components.length}-com
 Menus & Commands, Navigation, Layout & Structure, Data Display, Feedback & Status, Content & Typography,
 Chat & Communication, and Brand & Marketing. Start with [Button](/docs/components/button).`;
 
+/**
+ * Rewrite one component page's CONTRACT-OWNED frontmatter fields (canon row 0's `status` and
+ * `since`) from the contract record.
+ *
+ * These were 116 hand-typed strings — `status: stable` on every page because no machine authority
+ * recorded status at all, and a `since` derived once from `git log --follow`. Both are now plain
+ * recorded data on the contract record, and this makes the page a generated surface of it: a page
+ * cannot claim a status or an origin version the contract does not hold, and `--check` fails when
+ * one drifts.
+ *
+ * FAILS CLOSED on a page that does not already declare the field. Inserting it would guess a
+ * position inside someone's frontmatter; the honest answer is that the page is malformed, which is
+ * also what `content-lint`'s canon row 0 rule says about it.
+ */
+function injectFrontmatterFields(file, fields) {
+  const path = join(root, file);
+  const src = readFileSync(path, "utf8");
+  // Scoped to the frontmatter block, never the body: a `status:` inside a code fence is prose about
+  // a component, not the page's own metadata, and rewriting it would be a silent content edit.
+  const frontmatter = /^---\n([\s\S]*?)\n---/.exec(src);
+  if (!frontmatter) {
+    console.error(
+      `✗ sync-component-derived: ${file} has no YAML frontmatter block to write.`,
+    );
+    process.exit(1);
+  }
+  let block = frontmatter[1];
+  for (const [key, value] of Object.entries(fields)) {
+    const pattern = new RegExp(`^${key}:[^\\n]*$`, "m");
+    if (!pattern.test(block)) {
+      console.error(
+        `✗ sync-component-derived: ${file} has no \`${key}:\` frontmatter line to write — canon row 0 requires one.`,
+      );
+      process.exit(1);
+    }
+    block = block.replace(pattern, `${key}: ${value}`);
+  }
+  const next =
+    src.slice(0, frontmatter.index + 4) +
+    block +
+    src.slice(frontmatter.index + frontmatter[0].length - 4);
+  if (next === src) return false;
+  if (check) {
+    console.error(`✗ stale generated contract surface: ${file} (frontmatter)`);
+    process.exit(1);
+  }
+  writeFileSync(path, next);
+  return true;
+}
+
 /** Replace a marked region in a markdown file, failing closed if the markers are gone. */
 function injectRegion(file, startMarker, endMarker, body, label) {
   const path = join(root, file);
@@ -474,6 +524,15 @@ if (!buildOutputsOnly) {
     componentCountCatalogBody,
     "COMPONENT_COUNT_CATALOG",
   );
+  for (const record of contracts.components) {
+    if (
+      injectFrontmatterFields(`apps/docs/content${record.docsSlug}.mdx`, {
+        status: record.status,
+        since: record.since,
+      })
+    )
+      console.log(`✓ wrote ${record.docsSlug}.mdx (frontmatter)`);
+  }
 }
 
 let stale = 0;
@@ -516,5 +575,5 @@ if (buildOutputsOnly)
   );
 else if (check)
   console.log(
-    `✓ committed component-derived surfaces are current (${outputs.size - buildOutputCount} files + 4 marked regions; ${allRecords.length}/${allRecords.length} items)`,
+    `✓ committed component-derived surfaces are current (${outputs.size - buildOutputCount} files + 4 marked regions + status/since frontmatter on ${contracts.components.length} component pages; ${allRecords.length}/${allRecords.length} items)`,
   );

@@ -262,7 +262,7 @@ const CASES = [
   // `.includes()` is not a guard. Both of these CONTAIN the guard verbatim and evaluate to true for
   // every fork pull request, so a substring test documented the protection and disabled it in the
   // same line. The gate now compares the normalised expression for equality — and since WP2 it does
-  // so for EVERY job of a fork-triggerable workflow, not only the Linux ones: the minis are LAN
+  // so for EVERY job of a fork-triggerable workflow, not only the Linux ones: the mac mini is LAN
   // hardware too and carried no guard at all until then.
   {
     id: "the fork guard neutralised with `|| true`",
@@ -650,7 +650,7 @@ const CASES = [
     expect:
       /grants OIDC \(`id-token: write`\) at WORKFLOW level|missing read-only workflow token/,
   },
-  // ------------------------------------------------- the mac minis' shared pnpm store (issue #94)
+  // ------------------------------------------------- the mac mini's shared pnpm store (issue #94)
   //
   // Two runner agents, one machine, one home directory. Every mutation here puts a pnpm directory
   // back into that shared space, which is what produced `ENOTEMPTY` inside `pnpm/action-setup` on
@@ -771,7 +771,7 @@ console.log(
     `discovery (unpinned action, credential-persisting checkout, and run-body interpolation, each ` +
     `written in flow style, against both a mac-mini job and a container job), the container ban and ` +
     `its single pinned-image exception (required, not merely permitted), the fork guard on EVERY job ` +
-    `of a fork-triggerable workflow — the minis included, and required EXACTLY, so \`|| true\` and ` +
+    `of a fork-triggerable workflow — the mac-mini jobs included, and required EXACTLY, so \`|| true\` and ` +
     `\`!(…) || true\` are both rejected — the runner allowlist (all three directions), the one ` +
     `command actually being invoked on a browser-capable runner in all three workflows, the deploy's ` +
     `dependency on it, \`verify:release\` still running there, shell injection, credential ` +
@@ -784,7 +784,7 @@ console.log(
     `three workflows, the dispatched sha on every outward checkout, \`--frozen-lockfile\` on every ` +
     `install, a concurrency group and a bounded \`timeout-minutes\` on every job, the macOS lane's ` +
     `required steps, exact permission sets on every job that holds more than the default, and — ` +
-    `since issue #94 — the mac minis' pnpm topology: a job-private bootstrap directory, a ` +
+    `since issue #94 — the mac mini's pnpm topology: a job-private bootstrap directory, a ` +
     `per-agent persistent store on every install, and no setup-node package-manager cache on a ` +
     `mini, each of which otherwise puts pnpm state back into the home directory the machine's ` +
     `two runner agents share`,

@@ -15,7 +15,7 @@ concurrency:
   group: production-docs
   cancel-in-progress: false
 
-# RUNNER TOPOLOGY. Every job runs on self-hosted hardware — the mac minis, except `verify`, which
+# RUNNER TOPOLOGY. Every job runs on self-hosted hardware — the mac mini, except `verify`, which
 # needs the pinned Playwright container and therefore the LAN Linux boxes. No GitHub-hosted job,
 # because an account-level billing lock suspended hosted runners. That lock also
 # exhausts Actions artifact storage, so build → sign → deploy can no longer hand the built docs between
@@ -219,8 +219,8 @@ jobs:
   # must be anonymously reachable, internal operations pages must remain outside discovery and carry
   # noindex/no-store headers, and `/r/*` must reject anonymous requests while accepting the service
   # token. The signed manifest and the deployed tree's exact registry version are also verified.
-  # Runs on the minis. The proof depends on the request originating OUTSIDE the trusted network: the
-  # minis must NOT be enrolled in Cloudflare Access device posture / WARP. This is fail-safe if they
+  # Runs on the mac mini. The proof depends on the request originating OUTSIDE the trusted network:
+  # the mac mini must NOT be enrolled in Cloudflare Access device posture / WARP. This is fail-safe if they
   # were — an authenticated "anonymous" /r/* request would return 200 and expectProtected() would fail
   # the deploy loudly (probe-deployment.mjs), rather than passing falsely.
   verify-public-boundary:

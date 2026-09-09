@@ -122,11 +122,11 @@ function sectionBody(source, title) {
 }
 
 /**
- * Every canon violation on ONE component page. Pure: the caller supplies the page source and the
- * number of exported component parts the contract records, so the self-test can drive it with
- * fixtures instead of files.
+ * Every canon violation on ONE component page. Pure: the caller supplies the page source, the
+ * number of exported component parts the contract records, and the contract's own `status`/`since`
+ * for the item, so the self-test can drive it with fixtures instead of files.
  */
-export function canonProblems(relative, source, componentParts) {
+export function canonProblems(relative, source, componentParts, contract) {
   const problems = [];
   const name = basename(relative, ".mdx");
   const say = (rule, message) =>
@@ -157,6 +157,30 @@ export function canonProblems(relative, source, componentParts) {
       say(
         "docs-canon-frontmatter",
         `canon row 0: missing \`${key}:\` frontmatter.`,
+      );
+  }
+
+  // `status` and `since` are CONTRACT-owned: `packages/ui/component-contracts.json` records them,
+  // `tooling/sync-component-derived.mjs` writes them onto the page, and this rejects a page that
+  // says something else. Before Do1-c they were 116 hand-typed `status: stable` strings and a
+  // `git log --follow` derivation — a value an agent would quote back as fact, with nothing to stop
+  // it going stale or being wrong (`media-player-controls` was: `--follow` walked into the
+  // audio-player source the file was extracted from and reported the wrong release).
+  // FAILS CLOSED on a page with no contract record: an unrecorded component is exactly the case
+  // where a hand-typed status would go unchecked.
+  for (const key of ["status", "since"]) {
+    const declared = field(key);
+    if (!declared) continue; // already reported as missing above
+    const expected = contract?.[key];
+    if (!expected)
+      say(
+        "docs-canon-frontmatter",
+        `canon row 0: no \`${key}\` in component-contracts.json for "${name}" — the page's \`${key}: ${declared}\` has no authority behind it.`,
+      );
+    else if (declared !== expected)
+      say(
+        "docs-canon-frontmatter",
+        `canon row 0: \`${key}: ${declared}\` disagrees with component-contracts.json ("${expected}") — the contract is the authority; run \`pnpm design:derived\`.`,
       );
   }
 
@@ -251,17 +275,22 @@ export function canonProblems(relative, source, componentParts) {
   return problems;
 }
 
-/** Exported component parts per registry item, from the machine authority. */
-function componentPartCounts() {
+/**
+ * What the machine authority says about each registry item: how many exported component parts it
+ * has (canon row 4), and the `status`/`since` its page must declare (canon row 0).
+ */
+function contractRecords() {
   const inventory = JSON.parse(readFileSync(CONTRACTS, "utf8"));
-  const counts = new Map();
+  const records = new Map();
   for (const record of inventory.components)
-    counts.set(
-      record.name,
-      record.publicSymbols.filter((symbol) => symbol.kind === "component")
-        .length,
-    );
-  return counts;
+    records.set(record.name, {
+      parts: record.publicSymbols.filter(
+        (symbol) => symbol.kind === "component",
+      ).length,
+      status: record.status,
+      since: record.since,
+    });
+  return records;
 }
 
 /**
@@ -329,6 +358,16 @@ function selfTest() {
       "docs-canon-frontmatter",
     ],
     [
+      "a status the contract does not hold",
+      good.replace("status: stable", "status: preview"),
+      "docs-canon-frontmatter",
+    ],
+    [
+      "a since the contract does not hold",
+      good.replace("since: 0.1.0", "since: 0.4.0"),
+      "docs-canon-frontmatter",
+    ],
+    [
       "a non-canon section",
       good.replace("## Usage", "## How it works"),
       "docs-canon-sections",
@@ -382,17 +421,30 @@ function selfTest() {
       good.replace(/## Anatomy\n\n<Anatomy name="widget" \/>\n\n/, ""),
       "docs-canon-sections",
     ],
+    [
+      "a page with no contract record at all",
+      good,
+      "docs-canon-frontmatter",
+      null,
+    ],
   ];
 
+  // What the contract says about `widget`, matching the conforming fixture.
+  const record = { status: "stable", since: "0.1.0" };
   let failures = 0;
-  if (canonProblems("widget.mdx", good, 4).length > 0) {
+  const clean = canonProblems("widget.mdx", good, 4, record);
+  if (clean.length > 0) {
     failures++;
     console.log(
-      `✗ content-lint --self-test: the conforming fixture reported ${canonProblems("widget.mdx", good, 4).join("; ")}`,
+      `✗ content-lint --self-test: the conforming fixture reported ${clean.join("; ")}`,
     );
   }
-  for (const [label, fixture, rule] of cases) {
-    const reported = canonProblems("widget.mdx", fixture, 4);
+  // A case may pass `null` for the contract to drive the "no record at all" path; every other case
+  // gets `record`. `undefined` is deliberately NOT the sentinel — a destructuring default would
+  // silently substitute `record` and the fail-closed case would never be observed failing.
+  for (const [label, fixture, rule, ...rest] of cases) {
+    const contract = rest.length > 0 ? rest[0] : record;
+    const reported = canonProblems("widget.mdx", fixture, 4, contract);
     if (!reported.some((problem) => problem.includes(`[${rule}]`))) {
       failures++;
       console.log(
@@ -554,14 +606,16 @@ for (const dir of VISUAL_SCAN_DIRS) {
 }
 
 // The page canon, over every component page.
-const partCounts = componentPartCounts();
+const records = contractRecords();
 for (const file of readdirSync(COMPONENT_PAGES_DIR).sort()) {
   if (!file.endsWith(".mdx")) continue;
   const relative = `apps/docs/content/docs/components/${file}`;
+  const record = records.get(basename(file, ".mdx"));
   const problems = canonProblems(
     relative,
     readFileSync(join(COMPONENT_PAGES_DIR, file), "utf8"),
-    partCounts.get(basename(file, ".mdx")) ?? 0,
+    record?.parts ?? 0,
+    record,
   );
   violations += problems.length;
   for (const problem of problems) console.log(problem);

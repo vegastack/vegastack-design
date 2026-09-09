@@ -11,7 +11,7 @@ permissions:
 env:
   SITE_VISIBILITY: public
 
-# COST SHAPE. Nothing here is GitHub-hosted. Every job runs on self-hosted hardware — the mac minis,
+# COST SHAPE. Nothing here is GitHub-hosted. Every job runs on self-hosted hardware — the mac mini,
 # except `quality-gate`, which needs a container and therefore the LAN Linux boxes — so a
 # release costs zero billable minutes — required after an account-level billing lock suspended all
 # GitHub-hosted runners (hosted jobs start with zero steps executed). That same lock exhausts Actions
@@ -165,7 +165,7 @@ jobs:
       # `PNPM_HOME` — the throwaway bootstrap directory above — so it would restore a tarball
       # into a path the next job deletes, and save an empty one back. The store below is the
       # cache. docs/runbooks/ci-runner-provisioning-macos.md measured the restore at 7-7.7
-      # minutes of a 13-minute job and banned it on the minis; this is that ban, applied.
+      # minutes of a 13-minute job and banned it on the mac mini; this is that ban, applied.
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with: { node-version: 24 }
       - run: pnpm install --frozen-lockfile --ignore-scripts --store-dir "$RUNNER_WORKSPACE/pnpm-store"

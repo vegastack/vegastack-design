@@ -27,7 +27,7 @@ const sources = Object.fromEntries(
   ]),
 );
 
-// The default runner class is the macOS mac minis. `runs-on` is an ALLOWLIST, not a free choice, and
+// The default runner class is the macOS mac mini (ONE machine, two runner agents). `runs-on` is an ALLOWLIST, not a free choice, and
 // the GitHub-hosted allowlist below is EMPTY in all three workflows: no job here may run on billed
 // capacity, and adding one fails this gate rather than quietly costing money. A job moved off its
 // recorded class in the other direction can break publishing or void a boundary proof, so both
@@ -36,7 +36,7 @@ const SELF_HOSTED = "[self-hosted, vsk-runners-mac-mini]";
 //
 // SECOND RUNNER CLASS: the two LAN Debian boxes (`vsk-node-05`, `vsk-node-07`), enrolled by
 // tooling/runner/provision-linux-runner.sh with the labels `self-hosted,linux,vsk-runner`. They
-// exist for the one thing the minis cannot do: start a container and run a real browser. A job on
+// exist for the one thing the mac mini cannot do: start a container and run a real browser. A job on
 // them is still zero-billable — they are self-hosted hardware on the LAN.
 //
 // Membership is an ALLOWLIST, not a free choice, for the same reason the mac-mini rule is: a job
@@ -63,12 +63,12 @@ for (const name of Object.keys(LINUX_JOBS)) {
 // CI EXECUTES THE BROWSER LANES. It did not until 2026-09-08: under the local-first topology they ran
 // only in `.husky/pre-push` and were ATTESTED by `.gates/receipt.json`, which a `receipt-guard` job in
 // each workflow verified against the pushed tree. That existed because no free runner could launch a
-// browser — the minis' Actions runner has no per-user Mach bootstrap namespace. The LAN Linux boxes
+// browser — the mac mini's Actions runner has no per-user Mach bootstrap namespace. The LAN Linux boxes
 // can, inside the pinned image, so the receipt system and its guard jobs are deleted
 // (docs/plans/2026-09-08-verification-rebuild.md, R1) and every LINUX_JOBS entry above runs
-// `pnpm verify` for real. The minis still cannot launch a browser and no longer need to.
+// `pnpm verify` for real. The mac mini still cannot launch a browser and no longer needs to.
 //
-// NO JOB IS GITHUB-HOSTED. Every job runs on self-hosted hardware — the mac minis, plus the LAN
+// NO JOB IS GITHUB-HOSTED. Every job runs on self-hosted hardware — the mac mini, plus the LAN
 // Debian boxes for the LINUX_JOBS entries above — so a pull request, a release, and a deploy each
 // cost zero billable minutes. Two release jobs and three deploy jobs used to be on ubuntu-latest;
 // all moved, and none of the moves lost a property that actually existed:
@@ -82,7 +82,7 @@ for (const name of Object.keys(LINUX_JOBS)) {
 //     signer identity is the workflow ref, not the runner, so cosign verification is unaffected), and
 //     deploys to Cloudflare. Build+sign+deploy were three isolated jobs handing docs over as artifacts;
 //     Actions artifact storage is unavailable under the billing lock, so they are merged into one job.
-//   deploy.yml verify-public-boundary — the proof needs an OUTSIDE-the-network origin, so the minis
+//   deploy.yml verify-public-boundary — the proof needs an OUTSIDE-the-network origin, so the mac mini
 //     must not be enrolled in Cloudflare Access device posture / WARP. Fail-safe if they were: an
 //     authenticated "anonymous" /r/* request returns 200 and the probe fails the deploy loudly.
 //
@@ -326,7 +326,7 @@ for (const [name, source] of Object.entries(sources)) {
   // CONTAINERS ARE ALLOWED IN EXACTLY ONE PLACE: a job in LINUX_JOBS, running the pinned Playwright
   // image whose version is read from pnpm-lock.yaml. That is the entire reason the LAN Debian boxes
   // exist, and the pin is what makes one box interchangeable with the other. Everywhere else a
-  // container is rejected — it is Linux-only, so it cannot start on the macOS minis at all, and a job
+  // container is rejected — it is Linux-only, so it cannot start on the macOS mac mini at all, and a job
   // that declares one there is a job that was moved without saying so.
   //
   // The exception is REQUIRED, not merely permitted: a LINUX_JOBS job that dropped its `container:`
@@ -475,7 +475,7 @@ for (const [name, source] of Object.entries(sources)) {
     }
   }
 
-  // A HUNG JOB IS A HELD RUNNER. The pool is a handful of LAN Debian boxes plus the minis, and the
+  // A HUNG JOB IS A HELD RUNNER. The pool is a handful of LAN Debian boxes plus the mac mini's two agents, and the
   // Actions default is 360 minutes — six hours of one of them, per hung job. deploy.yml makes it
   // worse:
   // `cancel-in-progress: false` means a hung run is never superseded, so every later deploy queues
@@ -544,7 +544,7 @@ for (const [name, source] of Object.entries(sources)) {
     assert.ok(
       linuxJobs.has(job),
       `${name}: job ${job} declares a container but is not in LINUX_JOBS. Containers are Linux-only ` +
-        `and cannot start on the self-hosted macOS minis at all; only a job on ${LINUX_RUNNER} may ` +
+        `and cannot start on the self-hosted macOS mac mini at all; only a job on ${LINUX_RUNNER} may ` +
         `declare one.`,
     );
     assert.equal(
@@ -593,7 +593,7 @@ for (const [name, source] of Object.entries(sources)) {
   // fork-authored code, and an `if:` that is always false on the only events a workflow receives is
   // not a gate, it is a job that never runs.
   //
-  // It applies to every job, not only the Linux ones. The mac minis are LAN hardware with a
+  // It applies to every job, not only the Linux ones. The mac mini is LAN hardware with a
   // persistent workspace for the same reasons the Debian boxes are, and until this rewrite they
   // carried no guard at all — a fork PR executed on them on every push.
   //
@@ -642,7 +642,7 @@ for (const [name, source] of Object.entries(sources)) {
     assert.ok(
       invocations.some((job) => linuxJobs.has(job)),
       `${name}: \`pnpm verify\` runs only in ${invocations.join(", ")}, none of which is a LINUX_JOBS ` +
-        `entry. The mac minis cannot launch a browser, so the suite would fail there for a reason ` +
+        `entry. The mac mini cannot launch a browser, so the suite would fail there for a reason ` +
         `that is not a defect.`,
     );
   }

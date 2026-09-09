@@ -33,7 +33,7 @@ skills/internal/   maintainer skills — component · review · ship
 skills/public/     consumer skills — shipped inside @vegastack/design (see skills/README.md)
 .github/workflows/ ci · release (npm OIDC) · deploy
                    every job is self-hosted: the LAN Linux boxes run `pnpm verify` in the
-                   pinned Playwright container, the mac minis run the static half
+                   pinned Playwright container, the mac mini runs the static half
 ```
 
 Skills are symlinked into `.claude/skills/` and `.agents/skills/`, so both Claude Code and Codex
@@ -92,8 +92,8 @@ claim.
 
 **Everything CI trusts, CI executed.** There is one command — `pnpm verify` — and the LAN Linux
 runners run it inside the pinned Playwright container (`mcr.microsoft.com/playwright:v1.61.0-noble`)
-on every pull request, on the release push, and before every deploy. The mac minis run the static
-half in parallel for the cross-platform signal. Nothing is bound to a tree hash and nothing is
+on every pull request, on the release push, and before every deploy. The mac mini — one machine
+hosting two runner agents — runs the static half in parallel for the cross-platform signal. Nothing is bound to a tree hash and nothing is
 attested; the attestation system that used to stand in for a browser was removed on 2026-09-08, once
 free runners could launch one.
 
