@@ -241,6 +241,16 @@ html {
     transition-delay: 0s !important;
     scroll-behavior: auto !important;
   }
+
+  /* Mirrors base.css: the `*` reset above never reaches the ::view-transition-* pseudo-element
+     tree (it lives on the root's snapshot layer, outside normal element matching), so a
+     route-change cross-fade/morph needs its own kill switch. Enforced as a mirrored pair by
+     tooling/verify-docs-base-mirror.mjs. */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }
 
 /* Scroll-lock scrollbar-compensation override — the ONE non-reduced-motion `!important` exception

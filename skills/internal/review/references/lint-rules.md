@@ -170,6 +170,25 @@ in both directions, so an added or removed rule fails the build until this file 
     the component has stopped styling itself and started styling its children's internals from the
     outside (`audio-player` held 76). Give the child a `data-slot` and let it own the rule.
 
+39. **`fill-token-as-text`** — a solid status fill used as a text ink: `text-destructive`,
+    `text-success`, `text-warning`, `text-info` (bare — every suffixed form, `-text`, `-foreground`,
+    `-border`, `-subtle*`, is untouched). Each family ships `<family>-text` as its page-readable
+    half, and that is the token `contrast-check.mjs` measures; a FILL used as text sits outside
+    every pair list the gate has, so it is unmeasured by construction. `bubble`'s destructive
+    variant shipped `text-destructive` over its own fill at 5.24/4.31/4.44:1 light and
+    2.56/2.37/1.78:1 dark with every gate green (audit 2026-09-09, HIGH-1). `text-primary` and
+    `text-brand` are deliberately NOT in the rule: both are gated as 1.4.11 markers, and their call
+    sites set `currentColor` for a GRAPHIC — a radial progress arc, a copied-state icon, the
+    `ParticleField` canvas, the terminal prompt sigil — not for prose. Brand LABELS take
+    `brand-text`.
+40. **`field-group-pairing`** — a file that names `fieldControlGroup` and never renders
+    `data-field-group`. The recipe paints the bordered field WRAPPER and `base.css` hangs the
+    forced-colours focus outline off the bare attribute, because the group's `overflow-hidden`
+    clips the inner control's own outline. It is one contract in two places, and nothing enforced
+    it: all four consumers were correct, and a fifth that forgot would lose the outline in High
+    Contrast with no error (audit 2026-09-09, LOW-14). File-scoped, because the recipe and the
+    attribute land on the same element.
+
 Two rules of issue #49 §7 are deliberately NOT in this file, and their absence is recorded rather
 than accidental: `text-xs-mono` (TD-3) has zero registry offenders but eight in the docs shell, each
 a typographic decision on a public page that no lane can review; and `no-raw-size` /
@@ -184,7 +203,12 @@ sequences them behind (112 / 37 / 29 offenders measured 2026-09-09). See
   the declaration, and the element paints its inherited value. design-lint checks the token
   vocabulary; only this checks existence. Contract = the built token theme plus Tailwind's own, plus
   file-locals, a closed list of Base UI runtime variables, and the chart series keys (scoped by FILE
-  — a bare `/^--color-/` exemption would swallow every colour-token typo).
+  — a bare `/^--color-/` exemption would swallow every colour-token typo). Its roots are the
+  registry, the two docs component trees, and — since 2026-09-09 — `packages/design/src`, which
+  owns every shared class recipe (`fieldControl`, `fieldControlGroup`, `selectedChipVariants`,
+  `fillInteractive`, `surfaceInteractive`, `prose`) and was previously unscanned: appending
+  `bg-foreground/(--alpha-does-not-exist)` to `index.ts` exited 0 (MEDIUM-4). design-lint itself now
+  runs there too, via `packages/design`'s own `lint` script.
 - **`tooling/verify-test-css-layers.mjs`** — every compiled-CSS test lane must import the layer set
   `packages/design/preset.css` ships. A lane missing `utilities.css` measures fixtures stripped of
   every custom `@utility`, silently.

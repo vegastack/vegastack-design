@@ -84,6 +84,14 @@ const AA_NONTEXT = 3;
 // surfaces (page, card, popover, well) — nobody draws a chart on a hovered row, and the locked
 // brand value (CX-9) measures 2.92:1 on the light pressed rung, so it is deliberately not gated
 // there.
+//
+// `brand` is a MARKER value and nothing here promotes it: the comment used to add that it "only
+// ever sits on the resting surfaces", which a shipped component falsified — the `cta` Button
+// painted its 0.75rem/400 mono label in `text-brand` over its own faint brand wash and measured
+// 3.41:1 in light, a live WCAG 1.4.3 failure on the public docs site (audit 2026-09-09, HIGH-2).
+// Brand TEXT now reads through `brand-text`, gated at AA in the BRAND_TEXT block below; `brand`
+// itself keeps the 3:1 marker floor for the dot/sparkline/prompt-glyph roles and for the cta's
+// outline and wash, which are non-text.
 const NONTEXT = ["ring", "primary"];
 const FOCUS_SURFACES = [
   "background",
@@ -101,6 +109,23 @@ const MARKER_SURFACES = [
   "popover",
   "surface-1",
   "sidebar",
+];
+// Brand TEXT (`brand-text`) is not a marker: it is the `cta` Button's label ink, so it takes the
+// AA text floor on every surface a CTA can be mounted on — including the hover/pressed rungs a
+// CTA inside a hovered card can sit over.
+const BRAND_TEXT_SURFACES = [
+  "background",
+  "card",
+  "popover",
+  "surface-1",
+  "surface-2",
+  "surface-3",
+];
+// The three washes the `cta` variant itself paints under its own label.
+const BRAND_WASH_ALPHAS = [
+  "alpha-surface-faint",
+  "alpha-hover",
+  "alpha-pressed",
 ];
 
 // Charts and tags are categorical color, not status or action color. Their strokes, dots, and
@@ -422,6 +447,85 @@ for (const [theme, vars] of Object.entries(themes)) {
         );
     }
   }
+  // BRAND TEXT (WCAG 1.4.3, >=4.5:1) — added 2026-09-09 after HIGH-2.
+  // The `cta` Button is the one sanctioned brand button (design.md §Brand). Its label is
+  // `--text-mono-label`, 0.75rem/400 — NORMAL text, so it takes the 4.5:1 floor, not the 3:1
+  // large-text or non-text one. It renders on whatever ground the CTA is placed on: the marketing
+  // ground (`.vs-marketing`, which re-binds these same vars to the dark half), and — until the
+  // scoping question is settled — a plain product surface. So `brand-text` is gated on every
+  // resting surface AND on the three brand washes the cta itself paints underneath its own label
+  // (`alpha-surface-faint` at rest, `alpha-hover`, `alpha-pressed`), in both themes.
+  {
+    const ink = vars["brand-text"];
+    const wash = vars.brand;
+    if (!ink || !wash) {
+      fail(`${theme}: brand-text/brand missing — fail-closed`);
+    } else {
+      for (const surface of BRAND_TEXT_SURFACES) {
+        const bg = vars[surface];
+        if (!bg) {
+          fail(
+            `${theme}: ${surface} missing for brand-text contrast — fail-closed`,
+          );
+          continue;
+        }
+        checked++;
+        const plain = contrast(ink, bg);
+        if (plain < AA_NORMAL)
+          fail(
+            `${theme}: brand-text on ${surface} = ${plain.toFixed(2)}:1 (WCAG AA needs ${AA_NORMAL}:1)`,
+          );
+        for (const alphaName of BRAND_WASH_ALPHAS) {
+          const a = alphas[alphaName];
+          if (a == null) {
+            fail(
+              `${theme}: ${alphaName} missing for the brand wash — fail-closed`,
+            );
+            continue;
+          }
+          checked++;
+          const composite = compositeLinear(wash, a, bg);
+          const ratio = contrastCompositeBg(ink, composite);
+          if (ratio < AA_NORMAL)
+            fail(
+              `${theme}: brand-text on brand@${Math.round(a * 100)}% over ${surface} = ${ratio.toFixed(2)}:1 (WCAG AA needs ${AA_NORMAL}:1)`,
+            );
+        }
+      }
+    }
+  }
+
+  // LINK HOVER DIM (WCAG 1.4.3, >=4.5:1) — added 2026-09-09 after MEDIUM-3.
+  // `hover:text-(--btn-link)/(--alpha-link-hover)` (Button `link`), `prose.a`'s hover, and
+  // PropertyList's link all composite a `<family>-text` ink against the page at
+  // `--alpha-link-hover`. The gate measured the SOLID ink and never the composite — the same
+  // shape as bug #100 on the focus border — and at 80% the light composites shipped at
+  // 4.03–4.11:1 for success/info/warning. A hover state is still text.
+  for (const family of [...SUBTLE_FAMILIES, "primary"]) {
+    const ink = vars[`${family}-text`] ?? vars[family];
+    const a = alphas["alpha-link-hover"];
+    if (!ink || a == null) {
+      fail(`${theme}: ${family}-text/alpha-link-hover missing — fail-closed`);
+      continue;
+    }
+    for (const surface of ["background", "card", "popover"]) {
+      const bg = vars[surface];
+      if (!bg) {
+        fail(
+          `${theme}: ${surface} missing for the link-hover composite — fail-closed`,
+        );
+        continue;
+      }
+      checked++;
+      const composite = compositeLinear(ink, a, bg);
+      const ratio = contrastCompositeBg(bg, composite);
+      if (ratio < AA_NORMAL)
+        fail(
+          `${theme}: link hover ${family}-text@${Math.round(a * 100)}% on ${surface} = ${ratio.toFixed(2)}:1 (WCAG AA needs ${AA_NORMAL}:1)`,
+        );
+    }
+  }
+
   // INVALID-STATE BORDER (WCAG 1.4.11, >=3:1). This is the ONE error affordance on every text
   // entry and choice control — Input, Textarea, Select, Combobox, Checkbox, Radio, OTP, Switch,
   // Toggle, Button, TextEdit all render `border-destructive-border/(--alpha-tint-border)`. It is a

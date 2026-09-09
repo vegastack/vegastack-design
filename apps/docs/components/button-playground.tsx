@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { Button, type ButtonAppearance } from "@/components/ui/button";
+import { MarketingSurface } from "@/components/ui/marketing-surface";
 import {
   PropsPlayground,
   type PlaygroundConfig,
@@ -75,16 +76,28 @@ const buttonPlaygroundConfig: PlaygroundConfig<ButtonPlaygroundKey> = {
     { type: "switch", key: "disabled", label: "Disabled", defaultValue: false },
     { type: "switch", key: "loading", label: "Loading", defaultValue: false },
   ],
-  render: (state): ReactNode => (
-    <Button
-      {...resolveAppearance(String(state.variant), String(state.tone))}
-      size={state.size as "xs" | "sm" | "md" | "lg"}
-      disabled={Boolean(state.disabled)}
-      loading={Boolean(state.loading)}
-    >
-      Save changes
-    </Button>
-  ),
+  render: (state): ReactNode => {
+    const button = (
+      <Button
+        {...resolveAppearance(String(state.variant), String(state.tone))}
+        size={state.size as "xs" | "sm" | "md" | "lg"}
+        disabled={Boolean(state.disabled)}
+        loading={Boolean(state.loading)}
+      >
+        Save changes
+      </Button>
+    );
+    // `cta` is the marketing recipe (design.md §Brand & marketing), so the playground shows it on
+    // the ground it is written for rather than on the plain docs page. Before this the CTA
+    // rendered straight onto the light page — which is where its 3.41:1 label was shipping live.
+    return state.variant === "cta" ? (
+      <MarketingSurface className="flex w-full justify-center rounded-lg px-6 py-8">
+        {button}
+      </MarketingSurface>
+    ) : (
+      button
+    );
+  },
   toCode: (state) => {
     const appearance = resolveAppearance(
       String(state.variant),
@@ -101,7 +114,10 @@ const buttonPlaygroundConfig: PlaygroundConfig<ButtonPlaygroundKey> = {
     if (state.disabled) props.push("disabled");
     if (state.loading) props.push("loading");
     const propsString = props.length > 0 ? ` ${props.join(" ")}` : "";
-    return `<Button${propsString}>Save changes</Button>`;
+    const element = `<Button${propsString}>Save changes</Button>`;
+    return appearance.variant === "cta"
+      ? `<MarketingSurface>\n  ${element}\n</MarketingSurface>`
+      : element;
   },
 };
 

@@ -181,6 +181,13 @@ const ROOTS = [
   "packages/ui/registry",
   "apps/docs/components/preview",
   "apps/docs/components/ui",
+  // The shared recipes (`fieldControl`, `fieldControlGroup`, `selectedChipVariants`,
+  // `fillInteractive`, `surfaceInteractive`, `prose`) are class-literal source too, and they name
+  // `--alpha-hover`, `--alpha-pressed`, `--alpha-ink-tint`, `--alpha-tint-border`,
+  // `--alpha-link-hover` and more. A typo here reaches every component at once, and until
+  // 2026-09-09 this root was not scanned at all: appending
+  // `bg-foreground/(--alpha-does-not-exist)` to `index.ts` still exited 0 (audit MEDIUM-4).
+  "packages/design/src",
 ];
 
 function sourceFiles() {

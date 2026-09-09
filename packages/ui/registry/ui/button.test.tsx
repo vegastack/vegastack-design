@@ -141,7 +141,10 @@ test("cta variant carries the sharp radius, brand outline, and mono-uppercase cl
   expect(btn.classList.contains("text-mono-label")).toBe(true);
   expect(btn.classList.contains("font-mono")).toBe(true);
   expect(btn.classList.contains("uppercase")).toBe(true);
-  expect(btn.classList.contains("text-brand")).toBe(true);
+  // The label ink is `brand-text`, the page-readable half of the family — never the 3.5:1
+  // `brand` marker, which measured 3.41:1 as this label in light (HIGH-2, 2026-09-09).
+  expect(btn.classList.contains("text-brand-text")).toBe(true);
+  expect(btn.classList.contains("text-brand")).toBe(false);
 });
 
 test("cta variant composes a trailing icon as a child, not baked in", async () => {

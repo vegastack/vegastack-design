@@ -117,8 +117,13 @@ export type FillTone =
  * The ALPHA twin of {@link surfaceInteractive}: the same two rungs composited from an ink at
  * `--alpha-hover` / `--alpha-pressed`, for a control whose backdrop is not a ladder surface (a kbd
  * inside a hovered row, a chip on a well, chrome over media) or one that hovers in its OWN hue (the
- * outline/soft status buttons). `foreground` is the neutral twin — it measures within 0.003 L of
- * `surface-2`/`surface-3` on the page in both themes and is AA-gated over page, card and popover.
+ * outline/soft status buttons). `foreground` is the neutral twin, and it is anchored to a DIFFERENT
+ * host per theme: in light it lands within 0.003 L of `surface-2`/`surface-3` over the page
+ * (measured L 0.9430 vs 0.945 and 0.9210 vs 0.922), but the dark ladder is CARD-anchored — over the
+ * dark `card` it is within 0.003 (0.2665 vs 0.269, 0.2918 vs 0.290), while over the dark
+ * `background` it is Δ0.028 / Δ0.023, a full rung off (measured 2026-09-09, LOW-7). Read that as
+ * the constraint it is: the alpha twin substitutes for the opaque rung on the surface a control of
+ * that theme actually sits on. It is AA-gated over page, card and popover in both themes.
  *
  * Solid fills do NOT use this: a solid already owns its darker `<tone>-hover` / `<tone>-active`
  * steps (`bg-primary hover:bg-primary-hover active:bg-primary-active`) — an alpha over a solid
@@ -222,10 +227,14 @@ export const fieldControlGroup = [
  * existed the four wrote four different selected looks (`bg-background`, `bg-secondary` + hairline,
  * `bg-foreground/10`); audit 2026-09-07 B6-02.
  *
- * The track is the ladder's well rung (`surface-1`); the chip is the PRESSED/SELECTED rung
- * (§Surfaces) expressed in its **alpha** form — `bg-foreground/(--alpha-ink-tint)` composites to
- * within a hair of `surface-3` over the track, and doctrine reaches for the alpha twin exactly here
- * ("a chip on a well"). Being an alpha is also what lets the SELECTED chip keep stepping: a hovered
+ * The track is the ladder's well rung (`surface-1`); the chip is the ladder's alpha form of the
+ * pressed/selected step (§Surfaces) — `bg-foreground/(--alpha-ink-tint)`, which doctrine reaches
+ * for exactly here ("a chip on a well"). Over the `surface-1` track it composites to L 0.899 light
+ * / 0.318 dark, which is Δ0.023 / Δ0.028 PAST `surface-3` — a full extra rung, since the ladder's
+ * own step is 0.021–0.033 (measured 2026-09-09, LOW-6; the doc used to claim "within a hair of
+ * `surface-3`", which is only true of the twin composited over the PAGE, not over the track).
+ * That extra rung is deliberate and is what makes a selected chip read as raised off its own
+ * track rather than level with it. Being an alpha is also what lets the SELECTED chip keep stepping: a hovered
  * selected chip strengthens to `--alpha-ink-tint-strong` and a pressed one drops back to the resting
  * tint (previewing the release), so no state ever reads as dead — an opaque `surface-3` chip would
  * have nowhere left to climb.

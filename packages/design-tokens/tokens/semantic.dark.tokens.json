@@ -466,23 +466,16 @@
       "components": [0.86, 0.21, 148],
       "alpha": 1
     },
-    "$description": "The phosphor-green brand accent, DARK half \u2014 MK's pick (13.3:1 on the dark canvas). Marker roles only."
+    "$description": "The phosphor-green brand accent, DARK half \u2014 MK's pick (13.3:1 on the dark canvas). Marker roles plus the `cta` Button's wash/outline."
   },
-  "alpha-soft-hover": {
-    "$type": "dimension",
+  "brand-text": {
+    "$type": "color",
     "$value": {
-      "value": 30,
-      "unit": "%"
+      "colorSpace": "oklch",
+      "components": [0.86, 0.21, 148],
+      "alpha": 1
     },
-    "$description": "Dark half of the theme-split soft-surface hover wash."
-  },
-  "alpha-soft-surface": {
-    "$type": "dimension",
-    "$value": {
-      "value": 20,
-      "unit": "%"
-    },
-    "$description": "Dark half of the theme-split soft-surface resting wash."
+    "$description": "The page-readable brand ink, DARK half. On the dark and marketing grounds the marker value already measures 12.2:1 as a label, so brand-text and brand carry the SAME value here \u2014 the split exists because the light half cannot."
   },
   "alpha-border": {
     "$type": "dimension",

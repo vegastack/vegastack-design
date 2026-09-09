@@ -178,7 +178,7 @@ describe("hover/pressed recipe", () => {
     );
   });
 
-  test("the recipe classes compile: hover and active paint distinct rungs", async () => {
+  test("the recipe classes compile, and its two rungs are the ladder's own", async () => {
     const screen = await render(
       <button
         type="button"
@@ -195,9 +195,17 @@ describe("hover/pressed recipe", () => {
         return [];
       }
     });
-    // Both utilities exist in the compiled stylesheet (the scanner saw the recipe literal).
-    expect(sheet.some((r) => r.includes("hover\\:bg-surface-2"))).toBe(true);
-    expect(sheet.some((r) => r.includes("active\\:bg-surface-3"))).toBe(true);
+    // Both utilities exist in the compiled stylesheet (the scanner saw the recipe literal). The
+    // test used to be called "hover and active paint distinct rungs" and never measured a rung —
+    // distinctness is covered by the ladder-monotonicity test above, and the name overstated what
+    // this one proves (audit 2026-09-09, LOW-15). What it proves is COMPILATION, plus that each
+    // utility resolves to the ladder rung it is named for rather than to nothing.
+    const hoverRule = sheet.find((r) => r.includes("hover\\:bg-surface-2"));
+    const activeRule = sheet.find((r) => r.includes("active\\:bg-surface-3"));
+    expect(hoverRule).toBeDefined();
+    expect(activeRule).toBeDefined();
+    expect(hoverRule).toContain("var(--surface-2)");
+    expect(activeRule).toContain("var(--surface-3)");
     expect(button.className).toContain("hover:bg-surface-2");
   });
 });
@@ -279,8 +287,16 @@ describe("selected-chip recipe", () => {
         return [];
       }
     });
-    // The scanner saw the literal, so the selected fill exists as a real compiled utility.
-    expect(sheet.some((r) => r.includes("alpha-ink-tint"))).toBe(true);
+    // The scanner saw the literal, so the selected fill exists as a real compiled UTILITY. Match
+    // the escaped selector, not the bare token name: `theme.css`'s `:root` declares
+    // `--alpha-ink-tint`, so `r.includes("alpha-ink-tint")` was true whether or not the utility
+    // ever compiled — a vacuous assertion (audit 2026-09-09, MEDIUM-5). The sibling assertion at
+    // the recipe test above already matched escaped selectors; this one did not.
+    expect(
+      sheet.some((r) =>
+        r.includes("data-pressed\\:bg-foreground\\/\\(--alpha-ink-tint\\)"),
+      ),
+    ).toBe(true);
     // …and the chip actually paints, rather than staying transparent on its track.
     expect(getComputedStyle(chip).backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
   });

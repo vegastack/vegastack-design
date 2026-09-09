@@ -175,6 +175,20 @@ const RULES = [
   },
   // T2 — zero hardcoded opacity: color-alpha modifiers must route through an `--alpha-*` token
   // (`bg-destructive/(--alpha-surface-faint)`), never a raw `/NN` step.
+  // A solid status FILL is never a text ink. `destructive`/`success`/`warning`/`info` are tuned as
+  // button/badge fills that carry their own `-foreground` ink; the page-readable half of each
+  // family is `<family>-text`, which contrast-check gates at AA on every surface the family paints.
+  // `text-destructive` and friends sit outside every pair list the gate knows about, so a fill used
+  // as body text is invisible to it — `bubble`'s destructive variant shipped that way and measured
+  // 2.56:1 in dark (audit 2026-09-09, HIGH-1). `-text`, `-foreground`, `-border`, `-subtle*` and
+  // every other suffix are untouched; so are `text-primary` and `text-brand`, which are gated as
+  // 1.4.11 markers and whose call sites set `currentColor` for a GRAPHIC (a radial progress arc, a
+  // copied-state icon, the ParticleField canvas, the terminal prompt sigil), not for prose.
+  {
+    id: "fill-token-as-text",
+    re: /\btext-(?:destructive|success|warning|info)(?![a-z0-9-])/g,
+    msg: "solid status fill used as a text ink (use text-<family>-text, the page-readable half of the family, or -foreground on the family's own fill)",
+  },
   {
     id: "raw-alpha",
     re: /\b(?:bg|text|border|ring|outline|fill|stroke|divide|from|via|to|accent|caret|decoration|shadow)-[a-z][a-z0-9-]*\/\d+(?:\.\d+)?\b/g,
@@ -532,6 +546,14 @@ for (const root of ROOTS) {
         .map((t) => t[1])
         .filter((t) => t !== "transition-none" && t !== "transition-discrete");
       if (tokens.length === 0) continue;
+      // A literal whose ENTIRE text is the bare word `transition` is a plain identifier, not a
+      // class string. `packages/design/src/icons/create-animated-icon.tsx` lists Motion's own prop
+      // names — `"transition"` among them — and a data literal is not a motion declaration; that
+      // single false positive is what kept this root outside design-lint entirely (audit
+      // 2026-09-09, MEDIUM-4). The exemption is deliberately the exact string and nothing else:
+      // `"transition-opacity"`, `"flex transition"` and `"hover:transition"` all still fail, so
+      // every literal that names a property, a variant or a companion utility is still gated.
+      if (lit.trim() === "transition") continue;
       const hasDuration = MOTION_DURATION_UTILITY.test(lit);
       const hasEase = MOTION_EASE_UTILITY.test(lit);
       const rawSteps = [...lit.matchAll(RAW_MOTION_STEP)].map((m) => m[1]);
@@ -545,6 +567,25 @@ for (const root of ROOTS) {
         );
         violations++;
       }
+    }
+
+    // FIELD-GROUP PAIRING (audit 2026-09-09, LOW-14). `fieldControlGroup` paints a bordered field
+    // WRAPPER, and `base.css` hangs the forced-colours focus outline off the bare `data-field-group`
+    // attribute — because the inner input's own outline is clipped by the group's `overflow-hidden`,
+    // which is exactly how a High Contrast user lost the caret location on an addon field. The two
+    // are one contract with nothing enforcing it: all four consumers are correct today, and a fifth
+    // that imports the recipe and forgets the attribute loses the outline with no error anywhere.
+    // File-scoped on purpose — the recipe and the attribute land on the same element, so a file
+    // that names one and not the other is the defect, and a file that names both is fine.
+    if (/\bfieldControlGroup\b/.test(src) && !/data-field-group/.test(src)) {
+      const line =
+        lines.findIndex((text) => /\bfieldControlGroup\b/.test(text)) + 1;
+      console.log(
+        `${file}:${line} [field-group-pairing] imports/uses fieldControlGroup but never renders ` +
+          `data-field-group — base.css hangs the forced-colours focus outline off that attribute, ` +
+          `and the group's overflow-hidden clips the inner control's own outline`,
+      );
+      violations++;
     }
 
     // ── G1-b rules (issue #49 §7) — all literal-scoped, all with a negative fixture in

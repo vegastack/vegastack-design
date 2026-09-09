@@ -73,7 +73,7 @@ export function radioGroupInvalid(): ReactNode {
           <RadioGroupItem value="pro" aria-invalid />
         </Field>
       </RadioGroup>
-      <p className="text-base text-destructive" role="alert">
+      <p className="text-base text-destructive-text" role="alert">
         Select a plan to continue.
       </p>
     </Wrapper>

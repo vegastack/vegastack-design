@@ -47,7 +47,7 @@ export function spinnerColors(): ReactNode {
       <span className="text-success-text">
         <Spinner label="" />
       </span>
-      <span className="text-destructive">
+      <span className="text-destructive-text">
         <Spinner label="" />
       </span>
       {/* In-button: the spinner inherits the button's text color via currentColor. */}

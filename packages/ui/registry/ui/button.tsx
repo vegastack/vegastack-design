@@ -1,4 +1,4 @@
-// @vegastack button@0.6.0 sha256-9PVBhV8RKhUYX/qUb5IEOhDkjN6CVjUGshD2wjVg0CI=
+// @vegastack button@0.6.0 sha256-H/62wvwafkbH6aqoCocCkeQ8dFLiw+ubNJSRSo5k43g=
 
 import * as React from "react";
 import { cva } from "class-variance-authority";
@@ -113,14 +113,27 @@ export const buttonVariants = cva(
         // A text link dims on hover and re-inks on press — the pressed step of a link is solid ink.
         link: "text-(--btn-link) underline underline-offset-4 hover:text-(--btn-link)/(--alpha-link-hover) active:text-(--btn-link)",
         // Marketing CTA (audit 17-brand-direction §Color & surface + §Shape): the ONE sanctioned
-        // use of the `--brand` phosphor accent as a button — accent-outline, sharp corners
-        // (rounded-(--radius-sharp), rationed per D18), mono-uppercase label (the brand voice
-        // layer). `rounded-(--radius-sharp)` / `text-mono-label` win over the base string's
-        // `rounded-md` / `text-label` via later-in-source-order cascade — the SAME mechanism the
-        // `outline` variant above relies on. `cta` is brand-locked: it reads no tone var, and the
-        // type forbids passing `tone` with it. Compose a trailing chevron as a CHILD (e.g.
-        // `<ChevronRight />`) — this variant is style-only, it never bakes in an icon.
-        cta: "rounded-(--radius-sharp) border-brand/(--alpha-outline-border) bg-brand/(--alpha-surface-faint) font-mono text-mono-label text-brand uppercase hover:border-brand hover:bg-brand/(--alpha-hover) active:bg-brand/(--alpha-pressed)",
+        // use of the `--brand` phosphor accent as a button — accent-outline over a faint brand
+        // wash, sharp corners (rounded-(--radius-sharp), rationed per D18), mono-uppercase label
+        // (the brand voice layer). `rounded-(--radius-sharp)` / `text-mono-label` win over the base
+        // string's `rounded-md` / `text-label` via later-in-source-order cascade — the SAME
+        // mechanism the `outline` variant above relies on. `cta` is brand-locked: it reads no tone
+        // var, and the type forbids passing `tone` with it. Compose a trailing chevron as a CHILD
+        // (e.g. `<ChevronRight />`) — this variant is style-only, it never bakes in an icon.
+        //
+        // The LABEL is `brand-text`, not `brand`. `--text-mono-label` is 0.75rem/400 — normal text
+        // under WCAG 1.4.3, so 4.5:1 — and `brand` is a 3.5:1 MARKER value: `text-brand` over this
+        // variant's own faint wash measured 3.41 rest / 3.33 hover / 3.21 pressed in light
+        // (2026-09-09, HIGH-2), shipped live on the docs button playground. `brand-text` is the
+        // page-readable half of the family, the same role every status family ships, and equals
+        // `brand` on the dark and `.vs-marketing` grounds where the marker value already read at
+        // 12.2:1. Re-measured over the cta's own faces: light 5.93 / 5.80 / 5.59, dark 11.41 /
+        // 10.90 / 10.13. contrast-check gates it on every surface a CTA can be mounted on.
+        //
+        // NOT settled here: whether `cta` should be TYPE-BOUND to `MarketingSurface`. Nothing
+        // scopes it today, and the doctrine calls it a marketing recipe — an open question for MK
+        // (see the PR that introduced `brand-text`). The ink fix stands either way.
+        cta: "rounded-(--radius-sharp) border-brand/(--alpha-outline-border) bg-brand/(--alpha-surface-faint) font-mono text-mono-label text-brand-text uppercase hover:border-brand hover:bg-brand/(--alpha-hover) active:bg-brand/(--alpha-pressed)",
       },
       size: {
         // One vocabulary, `xs · sm · md · lg`, the same names the `--size-*` tokens carry

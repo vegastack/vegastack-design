@@ -85,7 +85,7 @@
         "whenToUse": "The speech surface inside a Message - sent/received styling, reactions, interactive bubbles.",
         "whenNotToUse": "Non-conversational callouts - use Alert or Card.",
         "version": "0.6.0",
-        "integrity": "sha256-v/sYP7QYxIsZ4T6yEWblbgoWcESqNu4aVv1qm1Tg6QI="
+        "integrity": "sha256-ZAdPW5A3B6aHs5qnRUOlXalEFvcDGOMKIIGKuFohrsw="
       }
     },
     {
@@ -208,7 +208,7 @@
         "whenToUse": "Any clickable action — submit, confirm, destructive, etc.",
         "whenNotToUse": "Navigation to a URL — use a link styled as a button (variant=link).",
         "version": "0.6.0",
-        "integrity": "sha256-9PVBhV8RKhUYX/qUb5IEOhDkjN6CVjUGshD2wjVg0CI="
+        "integrity": "sha256-H/62wvwafkbH6aqoCocCkeQ8dFLiw+ubNJSRSo5k43g="
       }
     },
     {
