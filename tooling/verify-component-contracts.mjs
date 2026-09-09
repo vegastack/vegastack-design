@@ -18,6 +18,10 @@ import prettier from "prettier";
 import { ensureBuildOutputs } from "./lib/derived-build-outputs.mjs";
 
 import { ROOT as root, relativeToRoot, walk } from "./lib/fs.mjs";
+import {
+  isGeneratedAnimatedIcon,
+  registryFilePaths,
+} from "./lib/animated-icon-inventory.mjs";
 
 // This verifier reads the contract-derived BUILD OUTPUTS (the icon gallery and the home catalog)
 // and asserts they reconcile with the contract. They are untracked since WP4/R4, so in a fresh
@@ -55,12 +59,6 @@ function sameStrings(actual, expected, label) {
   }
 }
 
-function registryFilePaths(item) {
-  return (item.files ?? []).map((file) =>
-    typeof file === "string" ? file : file.path,
-  );
-}
-
 function expectedEnginePackages(dependencies = []) {
   const packages = new Set();
   for (const dependency of dependencies) {
@@ -88,14 +86,6 @@ function expectedEnginePackages(dependencies = []) {
     if (dependency.startsWith("react-dropzone")) packages.add("react-dropzone");
   }
   return sorted(packages);
-}
-
-function isGeneratedAnimatedIcon(item) {
-  return (
-    item.type === "registry:ui" &&
-    registryFilePaths(item).length === 1 &&
-    registryFilePaths(item)[0].startsWith("packages/ui/registry/ui/icons/")
-  );
 }
 
 function extractExports(source) {
@@ -970,9 +960,13 @@ assert(
   contracts.expectedWaveCounts?.Block === 1,
   "expectedWaveCounts.Block must be 1",
 );
+// DERIVED, like `expectedCounts.animatedIcons` above: the count comes off `packages/ui/registry.json`,
+// which is a different file from the `component-contracts.json` value being checked, so this
+// reconciles two authorities rather than comparing a number with a copy of itself.
 assert(
-  contracts.expectedWaveCounts?.["Animated icons"] === 467,
-  "expectedWaveCounts[Animated icons] must be 467",
+  contracts.expectedWaveCounts?.["Animated icons"] === registryIcons.length,
+  `expectedWaveCounts[Animated icons] is ${contracts.expectedWaveCounts?.["Animated icons"]} but ` +
+    `packages/ui/registry.json holds ${registryIcons.length} animated icons`,
 );
 
 const sharedIcon = contracts.animatedIcons?.sharedContract;

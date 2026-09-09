@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Fail-closed contract verifier for the animated-icon corpus.
 //
-// The corpus is one factory plus 467 data modules, so this script is split the
+// The corpus is one factory plus one data module per mirrored icon, so this script is split the
 // same way. The controller contract — reduced motion, the imperative handle, the
 // multi-input trigger rules, the host element — is asserted ONCE against
 // `createAnimatedIcon`. Each mirrored module is then held to a schema whose most
@@ -31,10 +31,21 @@ import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 import ts from "typescript";
 
+import {
+  ANIMATED_ICON_SOURCE_DIR,
+  animatedIconCount,
+} from "./lib/animated-icon-inventory.mjs";
+
 const sha256 = (value) => createHash("sha256").update(value).digest("hex");
 
-const EXPECTED_COUNT = 467;
-const SOURCE_DIR = "packages/ui/registry/ui/icons";
+// DERIVED, not declared. `packages/ui/registry.json` is the machine authority for inventory
+// (AGENTS.md § Truth hierarchy, rank 2) and nothing generates it, so it states independently how
+// many animated icons VegaStack ships. Every corpus assertion below therefore compares the manifest
+// and the module directory — the two things THIS gate exists to police — against a THIRD file that
+// neither of them produces. Deriving the number from the manifest instead would have made
+// `itemCount must be N` a tautology; this does not.
+const EXPECTED_COUNT = animatedIconCount();
+const SOURCE_DIR = ANIMATED_ICON_SOURCE_DIR;
 const MANIFEST_PATH = "packages/ui/animated-icon-sources.json";
 const FACTORY_PATH = "packages/design/src/icons/create-animated-icon.tsx";
 const WRAPPER_PATH = "packages/design/src/icons/animated-icon.tsx";

@@ -25,6 +25,7 @@ import {
   assertWritablePathInside,
   resolveInside,
 } from "./safe-path.mjs";
+import { animatedIconCount } from "./lib/animated-icon-inventory.mjs";
 
 const REGISTRY = "https://lucide-animated.com/r";
 const INDEX_URL = `${REGISTRY}/registry.json`;
@@ -37,7 +38,17 @@ const MANIFEST_PATH = resolveInside(
 const SAFE_SOURCE_DIR = existsSync(SOURCE_DIR)
   ? assertExistingPathInside(REPO_ROOT, SOURCE_DIR)
   : assertWritablePathInside(REPO_ROOT, SOURCE_DIR);
-const EXPECTED_COUNT = 467;
+// DERIVED from `packages/ui/registry.json` — the hand-declared inventory authority (AGENTS.md
+// § Truth hierarchy, rank 2), which nothing in this pipeline generates. The two guards below
+// therefore stay real comparisons: `refreshManifest` holds the LIVE upstream index against what the
+// registry declares we ship, and `readManifest` holds the COMMITTED manifest against the same. The
+// manifest is deliberately not the authority — it is the artefact both guards are policing, and a
+// check that derives its expectation from its own subject cannot fail.
+//
+// Adopting an upstream change therefore starts in `packages/ui/registry.json`: declare the items,
+// then `--refresh`, then `pnpm registry:build` and `pnpm design:derived`. That is the same order
+// the count literal used to impose, minus the four hand-edits.
+const EXPECTED_COUNT = animatedIconCount();
 const CONCURRENCY = 12;
 
 const args = new Set(process.argv.slice(2));
@@ -2271,7 +2282,8 @@ async function refreshManifest() {
   ].sort();
   if (names.length !== EXPECTED_COUNT) {
     throw new Error(
-      `upstream index: expected ${EXPECTED_COUNT} unique items, found ${names.length}`,
+      `upstream index: packages/ui/registry.json declares ${EXPECTED_COUNT} animated icons, ` +
+        `lucide-animated now publishes ${names.length}. Reconcile the registry first, then refresh.`,
     );
   }
   const items = await pool(names, CONCURRENCY, async (name) =>
