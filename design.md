@@ -2389,7 +2389,7 @@ docs route reads `page.data.registry` alone, so a page with a missing or wrong v
 content-lint instead of silently composing the wrong `shadcn add` target. Rows 3 and 6 stay
 conditional; row 4 is required wherever the contract exposes more than one component part.
 
-**Row 0's `status` and `since` are machine authorities, not prose (Do1-c, 2026-09-10).** Both are
+**Row 0's `status` and `since` are machine authorities, not prose (Do1-c, 2026-09-09).** Both are
 recorded per component in `packages/ui/component-contracts.json`, written onto the page by
 `pnpm design:derived`, and compared against the contract by `content-lint` — so a page cannot claim
 a status or an origin version the contract does not hold, and neither can be hand-edited into

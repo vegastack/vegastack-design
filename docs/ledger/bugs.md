@@ -4,6 +4,110 @@ Every bug found + root cause + fix. Append-only.
 
 ---
 
+## 2026-09-09 — The last two geometry-lane exclusions: `timeline` fixed, `resizableNested` accepted
+
+The two entries left open for MK at the head of the 2026-09-09 round are both closed as decisions.
+One was a real defect and is fixed; the other is not a defect and the exclusion stays, with the
+lane still re-checking it in expect-failure mode.
+
+### FIXED — `timeline`: paint containment ate the last row's hit area
+
+- **Symptom.** `EXCLUDED.timeline.target`: control 2, the LAST item's `RelativeTime`, visual
+  60.70×21.00, missed **1 of 5** probe points — the bottom one.
+- **Root cause, and it is not the one recorded.** `TimelineItem`'s `<li>` carries
+  `[content-visibility:auto]` for render skipping on long feeds. `content-visibility: auto` brings
+  **paint containment** with it, so the `<li>` clips whatever a descendant paints outside its
+  padding box, and a clipped area stops being hit-testable. `RelativeTime` grows its pointer target
+  with `before:absolute before:inset-x-0 before:-inset-y-1` — 4px below the 21px line box. On every
+  row but the last, `timeline-content`'s `pb-5` leaves 20px of padding for that overhang to live
+  in. On the last row `group-last/timeline-item:pb-0` left none, so the overhang fell outside the
+  containment box and Chromium stopped hit-testing it. The 2026-09-09 note said "the overhang
+  escapes every ancestor box"; the ancestor that matters is the one _clipping_, which is why the
+  scripted probe found that padding on the `<li>` restored ownership while padding on the `<ol>` or
+  the wrapper did not.
+- **Measured 2026-09-09, before.** The row's border box ends at y = **267.000**. The centred 24px
+  square's bottom probe point sits at y = **268.00** (1.0px below the row). Its `::before` hit area
+  reaches y = **271.000**, so the SIZE fact passed at 60.70×**29.00** — but `elementFromPoint` at
+  (263.65, 268.00) resolved to the demo's own wrapper `<div>`, not to the `<time>`. Effective
+  target: the row's own 23px, under the 24px floor.
+- **Fix.** `group-last/timeline-item:pb-1` on `timeline-content` — MK's choice, 2026-09-09, as the
+  smallest visible change that fixes a real 1px shortfall instead of reshaping the row.
+- **4px verified sufficient, not assumed.** With `pb-1` the clipping padding box ends at y =
+  **271.000** and the same bottom point at y = **268.00** resolves to the control: **0 of 5** points
+  missed, `misses: []`. The margin is **3.0px** — the point needs 1.0px of the 4.0px. The smallest
+  value that would clear the floor is therefore `pb-px` (1px), which would leave **0.0px** of
+  headroom on a sub-pixel-positioned row; 4px is the exact depth of the `-inset-y-1` hit area, so
+  the padding and the thing it has to contain are the same number and stay that way.
+- **Guarded against a tidy-up.** The `pb-1` carries a comment naming the containment, the
+  measurement and the consequence of shrinking it back, because `pb-0` on a last child otherwise
+  reads as obviously correct.
+- The `EXCLUDED.timeline` entry is DELETED. Guard 2 makes that mandatory rather than optional: with
+  the fix in and the entry still present the lane fails "the exclusion is stale".
+
+### ACCEPTED, NOT A DEFECT — `resizableNested`: two crossing targets
+
+- **Symptom.** `EXCLUDED.resizableNested.target`: control 0, the outer vertical handle, visual
+  1.00×254.00, misses **3 of 5** points to the nested horizontal handle.
+- **Measured 2026-09-09.** Outer vertical handle border box x **106.094–107.094**, y
+  **26.000–280.000**; its `after` hit area (`after:start-1/2 after:w-6 after:-translate-x-1/2`)
+  spans x **94.594–118.594** over the full 254px. Nested horizontal handle border box x
+  **107.094–294.000**, y **152.500–153.500**; its `after` spans y **141.000–165.000** across that
+  full width. The shared band is therefore about **11.5×24** at the T-junction, and the inner
+  handle wins it by being deeper in the DOM. Probe detail: the left point (95.09, 153.00) and the
+  centre (106.59, 153.00) resolve to the outer handle; the right (118.09, 153.00) and both vertical
+  points (106.59, 141.50 / 164.50) resolve to the inner one. A 0.5px x-scan across the junction puts
+  the ownership flip at x ≈ 106.6.
+- **What WCAG 2.2 §2.5.8 actually requires.** The SC is _"The size of the target for pointer inputs
+  is at least 24 by 24 CSS pixels"_, with five exceptions — Spacing, Equivalent, Inline, User Agent
+  Control, Essential. None of them is engaged here, and none is needed: the criterion is about
+  SIZE, measured on the _minimum bounding box_, and its key terms are explicit about this exact
+  situation — _"if two or more targets are overlapping, the overlapping area should not be included
+  in the measurement of the target size, except when the overlapping targets perform the same action
+  or open the same page"_ (W3C, Understanding SC 2.5.8 Target Size (Minimum),
+  <https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html>). Remove the shared band
+  and the outer handle is still a 24×254 strip with an 11.5×24 notch: 24px wide over 230 of its
+  254px, and 12.5px of exclusive width even across the notch. The nested handle is 24×186.9 with
+  nothing taken from it. Both pass §2.5.8 by a wide margin. Nowhere does the SC require an
+  unobstructed centred 24×24 square; that is this lane's own, stricter, deliberate shape.
+- **Why not fix it anyway.** The three candidates from #110 were (a) accept and document, (b) let
+  the outer handle win by narrowing a nested handle near its ends, (c) offset nested groups so
+  handles never meet.
+  - **(b) is not contained.** `ResizableHandle` has no idea it is nested — nesting is a fact about
+    the _tree_, not the handle — so making the inner handle yield needs a nesting signal that does
+    not exist: a new prop, a context, or a descendant selector reaching across two panel groups.
+    That is the machinery MK ruled out, bought for nothing: it does not make both targets own the
+    square, it only moves which one loses it, and it takes the loss out of the handle whose
+    _extreme endpoint_ is the loss (the inner handle's very start) versus the outer handle's
+    _middle_. Neither is obviously better, and the pointer ambiguity a user experiences at a
+    crossing is unchanged by either.
+  - **(c) changes visible panel geometry** — nested splits would no longer meet — to buy the same
+    nothing. Rejected.
+  - **(a) is the answer.** Two perpendicular targets cannot both own the pixel where they cross;
+    whichever wins, the other loses. That is a property of overlapping targets, not a defect in
+    this component, and the spec already says so.
+- **The exclusion STAYS, with its measurement**, rewritten to record the decision rather than an
+  open question. It is still executed in expect-failure mode every run, so if the component or the
+  probe ever changes such that the outer handle does own all five points, the lane goes red and the
+  entry has to be deleted.
+- **The lane is not weakened.** The obstruction probe keeps requiring an unobstructed centred
+  square, because that stricter shape is what caught `attachmentImageThumbnail` on 2026-09-09 — a
+  24×24 remove button that was genuinely unclickable under its own trigger. The gap between the
+  probe and the SC is paid for with one named exclusion, never with a looser probe.
+
+### Evidence
+
+- `geometry.browser.test.tsx`: **554 passed (554)**.
+- Non-vacuity re-proved on this tree, not asserted: deleting
+  `:focus-visible { @apply outline-2 outline-offset-1 outline-ring }` from
+  `packages/design-tokens/src/base.css` and rebuilding the token package turns **263 of 554** red —
+  the same 263 as #107 and #110 — and restoring it (byte-identical, `git diff` empty) returns
+  **554 passed (554)**.
+- Registry counts unmoved: 596 = 116 components · 467 animated icons · 10 hooks · 1 block · 2 libs.
+- Exclusion map after this round: **one** entry, `resizableNested.target`, accepted. `UNSWEPT` is
+  unchanged at one entry (`relativeTimeLive`).
+
+---
+
 ## 2026-09-09 — The last 11 geometry-lane defects: 9 closed, 2 open for MK
 
 - **Scope.** The 11 exclusions left in `packages/ui/test/geometry.browser.test.tsx` after N1

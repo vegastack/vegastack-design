@@ -2359,14 +2359,14 @@ rather than on the colour. Both re-proved after the change: deleting the `:focus
 still turns 263 of 554 red naming `outline-style: auto`, and deleting the tint from `fieldControl`
 turns the text-entry fixtures red naming "no border-colour change".
 
-## 2026-09-10 — Do1-c: `status` and `since` became data, and the mac minis became one machine
+## 2026-09-09 — Do1-c: `status` and `since` became data, and the mac minis became one machine
 
 **Do1-b left two of canon row 0's fields as claims nothing checked.** `status` was 116 identical
 hand-typed `stable` strings, written that way because no machine authority recorded status at all —
 a value an agent would quote back as fact, with nothing to stop it going stale. `since` was worse:
 it was _derived_ from `git log --follow`, which reproduced every enumerated CHANGELOG list it could
 be checked against, and still needed one hand override (`provider` → 0.2.0). MK ruled the
-derivation out on 2026-09-10 — "100% appropriate and stable and deterministic without complexity" —
+derivation out on 2026-09-09 — "100% appropriate and stable and deterministic without complexity" —
 and both fields moved onto `packages/ui/component-contracts.json` as plain recorded data, with
 `pnpm design:derived` writing them onto the page and `content-lint` rejecting a page that disagrees.
 
@@ -2400,7 +2400,7 @@ rare enough that this would otherwise first be observed working on the day it wa
 **One machine, two agents.** #94/#104 established that `vsk-runner-mac-mini-1` and `-2` are two
 runner agents on `patrick-mac-mini`, and fixed the pnpm paths accordingly, but the plural "the mac
 minis" survived in AGENTS.md, both runbooks, README, RELEASING, the `ship` skill and the workflow
-comments. MK confirmed the topology on 2026-09-10 and it is now stated where it is load-bearing:
+comments. MK confirmed the topology on 2026-09-09 and it is now stated where it is load-bearing:
 the capacity is **two concurrent jobs on one host**, there is no second machine to fail over to, and
 `ship`'s triage line no longer tells an operator that "both minis are busy or offline" when the real
 question is whether one machine is up.

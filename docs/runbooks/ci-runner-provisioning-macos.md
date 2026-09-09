@@ -4,7 +4,7 @@
 AGENTS on a single machine: both report `Machine name: 'patrick-mac-mini'` in their job banner, both
 run as the user `vegastack-runners`, and they differ only in their runner root
 (`~/actions-runner/runner-1/_work` and `…/runner-2/_work`). Everything else in `$HOME` is shared.
-Verified 2026-09-09 from run 34335229569, and re-confirmed by MK on 2026-09-10.
+Verified 2026-09-09 from run 34335229569, and re-confirmed by MK on 2026-09-09.
 
 Read every plural in this tree that way. The capacity of the macOS class is **two concurrent jobs on
 one host**, not two hosts: there is no second machine to fail over to, the two agents contend for the
