@@ -1435,3 +1435,40 @@ to the iframe` for one file, with **1488 tests passed and zero assertion failure
 - **The Base UI version this was written against is 1.6.0, not 1.8.** D1 (#34) had not merged when
   this branch was cut. Drawer's swipe/snap-point/virtual-keyboard API is what 1.6.0 ships. If D1
   lands first, re-read Drawer's release notes before assuming the props still line up.
+
+## 2026-09-08 — C1: reconciling the disclosure hover with the hover-geometry rule
+
+- **The conflict.** Audit B7-08 says Accordion and Collapsible must stop hovering with
+  `hover:underline` (that is the link affordance) and take the row wash. `design.md` § Hover geometry
+  says a wash must be inset ≥4px from a container hairline and carry the container's inner radius —
+  and it explicitly sanctioned ink-both-ways for "an accordion header", precisely because the header
+  sits flush against the item rule. F1 had already given both triggers an ink pressed step under that
+  clause. Taken literally, the two documents cannot both be satisfied by a class swap.
+- **What was chosen.** The migration the same doctrine bullet already describes: _"when such a
+  control is later given padding and an inner radius, it moves to the recipes — both steps
+  together."_ Each trigger now carries `-mx-2 px-2 rounded-md`, and `AccordionItem` carries `py-1`,
+  which buys the inner radius and the 4px inset while the label stays aligned with the panel content
+  and the row keeps its original height (item `py-1` + trigger `py-2` = the old trigger `py-3`).
+  `design.md` was amended in the same change: the ink clause no longer names the accordion header,
+  and underline-on-hover is now stated as link-only.
+- **Why not the alternative.** Keeping ink and merely deleting the underline would have left the
+  hover with no rung to move to — the resting ink is already `foreground`, so "brighter ink" has
+  nowhere to go, and the control would have had a pressed state with no hover state.
+
+## 2026-09-08 — C1: `EmptyTitle` takes `as`, not Base UI `render`
+
+- The issue text offers "`render`/`as`". `render` is not available here: `empty.tsx` is server-safe
+  (no `'use client'`, enforced by `verify-rsc-safety.mjs`), and Base UI's `useRender` is a hook —
+  adopting it would have made the whole file client-only to let a page choose a heading level.
+- `as` is an existing house pattern for exactly this (`TruncatedText`), and the union
+  (`h1`…`h6` | `p`) is narrower and better documented than an arbitrary render prop for a part whose
+  only real question is "which heading level, or none".
+
+## 2026-09-08 — C1: five unrelated registry sources were restamped
+
+- `badge`, `copy-button`, `split-button`, `stat` and `switch` appear in the C1 diff with a
+  prettier reflow plus a new `meta.integrity`. `shadcn build` formats file content on its way into
+  `public/r/*.json` and `registry-header.mjs` stamps that content's hash back onto the source, so
+  running `registry:build` on the branch normalised five files whose formatting predated it. The
+  tree is idempotent after the change (two consecutive `registry:build` runs leave it clean); the
+  five files carry no behavioural edit. Re-verified after the rebase onto merged F2.

@@ -92,3 +92,76 @@ test("no a11y violations", async () => {
   );
   await expectNoA11yViolations(screen.container);
 });
+
+/* ------------------------------------------------------------------------------------------------
+ * Coverage added for B7-10 — the audit found six tests and no assertion on the footer wash, the
+ * density contract, or a header that carries its own action.
+ * ----------------------------------------------------------------------------------------------*/
+
+test("the footer is a real wash, not a bare row", async () => {
+  const screen = await render(
+    <Card>
+      <CardHeader>
+        <CardTitle>Usage</CardTitle>
+      </CardHeader>
+      <CardContent>4,102 runs</CardContent>
+      <CardFooter>Updated 2 minutes ago</CardFooter>
+    </Card>,
+  );
+  const footer = screen.container.querySelector(
+    '[data-slot="card-footer"]',
+  ) as HTMLElement;
+  expect(footer).not.toBeNull();
+  // The footer reads as a distinct band; a card is flat (borders-only canon), so the separation
+  // is a surface rung PLUS the hairline — never a shadow.
+  expect(footer.className).toContain("bg-surface-1");
+  expect(footer.className).toContain("border-t");
+  expect(footer.className).not.toContain("shadow-");
+});
+
+test("density reaches the parts through the root's group, not per-part props", async () => {
+  // The parts carry `group-data-[size=sm]/card:*`, which resolves ONLY because the root declares
+  // `group/card` AND `data-size`. Asserting the pair is what catches a root that stops naming the
+  // group — the failure mode that would silently leave every part at the roomy tier.
+  // NOTE: computed padding cannot be asserted here. The browser-unit env mounts components without
+  // the compiled Tailwind sheet, so every `getComputedStyle(...).padding*` reads `0px` and such a
+  // test either fails for the wrong reason or passes vacuously. Real geometry is the contract lane.
+  const screen = await render(
+    <Card size="sm">
+      <CardHeader>
+        <CardTitle>Dense</CardTitle>
+      </CardHeader>
+      <CardContent>Body</CardContent>
+      <CardFooter>Footer</CardFooter>
+    </Card>,
+  );
+  const root = screen.container.querySelector(
+    '[data-slot="card"]',
+  ) as HTMLElement;
+  expect(root.className).toContain("group/card");
+  expect(root).toHaveAttribute("data-size", "sm");
+  for (const slot of ["card-content", "card-footer"]) {
+    const part = screen.container.querySelector(
+      `[data-slot="${slot}"]`,
+    ) as HTMLElement;
+    expect(part.className).toContain("group-data-[size=sm]/card:");
+  }
+});
+
+test.each(["sm", "md"] as const)(
+  "a card is flat at size=%s — the hairline does the work, never a shadow",
+  async (size) => {
+    const screen = await render(
+      <Card size={size}>
+        <CardContent>Body</CardContent>
+      </Card>,
+    );
+    const root = screen.container.querySelector(
+      '[data-slot="card"]',
+    ) as HTMLElement;
+    // Class-level, not `getComputedStyle().boxShadow` — with no compiled sheet in this env that
+    // reads "none" for any markup at all, so it is an assertion that cannot fail.
+    expect(root.className).not.toMatch(/(^|\s)shadow-/);
+    expect(root.className).toContain("border-border");
+  },
+);

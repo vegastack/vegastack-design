@@ -2248,7 +2248,8 @@
       "registryDependencies": [
         "@vegastack/badge",
         "@vegastack/button",
-        "@vegastack/icon-button"
+        "@vegastack/icon-button",
+        "@vegastack/use-animation-replay"
       ],
       "files": [
         {
@@ -2277,7 +2278,8 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/icon-button"
+        "@vegastack/icon-button",
+        "@vegastack/progress-indicator"
       ],
       "files": [
         {

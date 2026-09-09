@@ -123,11 +123,7 @@ export function checkboxSizeStateMatrix(): ReactNode {
           {/* default row */}
           <span className="font-mono">default</span>
           <Checkbox size="md" aria-label="Default unchecked" />
-          <Checkbox
-            size="md"
-            defaultChecked
-            aria-label="Default checked"
-          />
+          <Checkbox size="md" defaultChecked aria-label="Default checked" />
           <Checkbox
             size="md"
             indeterminate={mixedDefault === "indeterminate"}

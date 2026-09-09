@@ -60,21 +60,39 @@ test("applies the icon intent data attribute", async () => {
   expect(icon).toHaveAttribute("data-intent", "destructive");
 });
 
-test("bordered adds the dashed-border data attribute", async () => {
+test.each(["plain", "card", "dashed"] as const)(
+  "variant=%s is reported on the root",
+  async (variant) => {
+    const screen = await render(
+      <Empty variant={variant}>
+        <EmptyHeader>
+          <EmptyTitle>Drop files here</EmptyTitle>
+        </EmptyHeader>
+      </Empty>,
+    );
+    const root = screen.container.querySelector('[data-slot="empty"]');
+    expect(root).toHaveAttribute("data-variant", variant);
+  },
+);
+
+test('variant="dashed" draws the drop-zone outline and no fill', async () => {
   const screen = await render(
-    <Empty bordered>
+    <Empty variant="dashed">
       <EmptyHeader>
         <EmptyTitle>Drop files here</EmptyTitle>
       </EmptyHeader>
     </Empty>,
   );
-  const root = screen.container.querySelector('[data-slot="empty"]');
-  expect(root).toHaveAttribute("data-bordered", "");
+  const root = screen.container.querySelector(
+    '[data-slot="empty"]',
+  ) as HTMLElement;
+  expect(root.className).toContain("border-dashed");
+  expect(root.className).not.toContain("bg-card");
 });
 
-test('surface="card" carries a border so it stays self-contained on card-colored canvases', async () => {
+test('variant="card" carries a border so it stays self-contained on card-colored canvases', async () => {
   const screen = await render(
-    <Empty surface="card">
+    <Empty variant="card">
       <EmptyHeader>
         <EmptyTitle>No results</EmptyTitle>
       </EmptyHeader>
@@ -87,6 +105,28 @@ test('surface="card" carries a border so it stays self-contained on card-colored
   // docs promise "a self-contained block on any background" (borders-only canon).
   expect(root.className).toContain("bg-card");
   expect(root.className).toContain("border-border");
+  // The one border axis: a card is never also dashed (B7-07).
+  expect(root.className).not.toContain("border-dashed");
+});
+
+test("EmptyTitle renders as h3 by default and honours the as prop", async () => {
+  const screen = await render(
+    <>
+      <Empty>
+        <EmptyHeader>
+          <EmptyTitle>Default heading</EmptyTitle>
+        </EmptyHeader>
+      </Empty>
+      <Empty>
+        <EmptyHeader>
+          <EmptyTitle as="h2">Page-level heading</EmptyTitle>
+        </EmptyHeader>
+      </Empty>
+    </>,
+  );
+  const titles = screen.container.querySelectorAll('[data-slot="empty-title"]');
+  expect(titles[0]?.tagName).toBe("H3");
+  expect(titles[1]?.tagName).toBe("H2");
 });
 
 test("renders action controls", async () => {
@@ -122,7 +162,7 @@ test("icon chip is decorative (aria-hidden)", async () => {
 
 test("no a11y violations", async () => {
   const screen = await render(
-    <Empty bordered>
+    <Empty variant="dashed">
       <EmptyHeader>
         <EmptyMedia>
           <Inbox />

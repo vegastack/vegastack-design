@@ -1,8 +1,8 @@
-// @vegastack collapsible@0.6.0 sha256-VTFzJu56e4p8obgyuqA16YOUnusVHSNqnAjQ2lnE5+w=
+// @vegastack collapsible@0.6.0 sha256-xkrxW6WK/21RrX5dsfQnP7MnTTSVazE6YOFOgMw+L30=
 
 import * as React from "react";
 import { Collapsible as BaseCollapsible } from "@base-ui/react/collapsible";
-import { cn } from "@vegastack/design";
+import { cn, surfaceInteractive } from "@vegastack/design";
 
 /* ------------------------------------------------------------------------------------------------
  * Collapsible — a single toggleable open/close region with an animated height, built on Base UI's
@@ -76,10 +76,13 @@ export function CollapsibleTrigger({
       ref={ref}
       data-slot="collapsible-trigger"
       className={cn(
-        "group/collapsible-trigger inline-flex min-h-(--size-xs) items-center justify-between gap-2 text-label text-foreground select-none",
-        "hover:underline",
-        // Pressed step for an ink-signalled trigger — see the note in accordion.tsx.
-        "active:text-muted-foreground",
+        "group/collapsible-trigger inline-flex min-h-(--size-xs) items-center justify-between gap-2 rounded-md text-label text-foreground select-none",
+        // A disclosure is not a link, so it does not hover with a link's underline (B7-08). It
+        // takes the row wash, with the padding and inner radius design.md § Hover geometry
+        // requires — see the longer note in accordion.tsx. Positive padding only; a negative
+        // margin would bleed the wash outside the root's content box.
+        "px-2",
+        surfaceInteractive,
         // Base UI surfaces root-level `disabled` as a `data-disabled` attribute
         // on the trigger (no native `disabled` attribute), so style both.
         "disabled:pointer-events-none disabled:opacity-(--opacity-dim)",

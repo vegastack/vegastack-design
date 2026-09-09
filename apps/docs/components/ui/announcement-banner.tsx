@@ -1,4 +1,4 @@
-// @vegastack announcement-banner@0.6.0 sha256-eTKTqIIaSDa4ZRbFZuw3sXGacHVxZZUr8D7k80GJAeM=
+// @vegastack announcement-banner@0.6.0 sha256-ff9+6c9I3UjOp0k6cQ1KzW128c7UvsnFGVNzAD3nUaQ=
 
 "use client";
 
@@ -32,6 +32,14 @@ export interface AnnouncementBannerProps extends React.ComponentPropsWithRef<"di
   onDismiss?: () => void;
   /** Accessible name for the dismiss control. @default 'Dismiss announcement' */
   dismissLabel?: string;
+  /**
+   * Mark this strip as a runtime announcement — mounted (or re-worded) after the page settled.
+   * Only then does it become a polite `role="status"` live region. The default is deliberately NO
+   * live role: a page-top band that is in the DOM at load is chrome, and announcing it competes
+   * with the page's own heading for the first thing a screen reader user hears (D23).
+   * @default false
+   */
+  live?: boolean;
 }
 
 /**
@@ -52,6 +60,7 @@ export function AnnouncementBanner({
   dismissable = false,
   onDismiss,
   dismissLabel = "Dismiss announcement",
+  live = false,
   children,
   ref,
   ...props
@@ -66,7 +75,17 @@ export function AnnouncementBanner({
   return (
     <div
       ref={ref}
-      role="status"
+      // D23: no live role at load. A `status` region that already exists when the page loads
+      // announces nothing anyway; keeping the role off makes the intent explicit and leaves the
+      // band as ordinary chrome. `live` opts a runtime banner into the polite region.
+      {...(live
+        ? {
+            role: "status" as const,
+            "aria-live": "polite" as const,
+            "aria-atomic": true,
+          }
+        : undefined)}
+      data-live={live ? "" : undefined}
       data-slot="announcement-banner"
       className={cn(
         "flex w-full items-center justify-center gap-3 bg-foreground px-4 py-2 text-base text-background",

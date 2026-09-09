@@ -67,7 +67,7 @@ Mix the row's surface, density, and media treatment, then copy the generated JSX
 ```
 
 - `Item` — the row container (`data-slot="item"`). Owns `variant`, `size`, and the `render`
-  composition prop. `role="listitem"` by default.
+  composition prop. Takes `role="listitem"` only inside an `ItemGroup`.
 - `ItemMedia` — the leading visual slot (`data-slot="item-media"`). Owns the `variant` chip style.
 - `ItemContent` — the flexible text column (`data-slot="item-content"`).
 - `ItemTitle` — the primary label (`data-slot="item-title"`).
@@ -104,7 +104,7 @@ the media nudges down to align with the title instead of the row's vertical cent
 
 Pass `render` to turn the whole row into a single focusable control — an `<a>` for navigation, a
 `<button>` for an action. The row keeps the composed element's native `link`/`button` role instead
-of the default `listitem` role, so it stays fully operable and discoverable by assistive tech.
+of taking `listitem`, so it stays fully operable and discoverable by assistive tech.
 
 <ComponentPreview name="itemDemoLink" file="components/preview/item.tsx" />
 
@@ -143,11 +143,15 @@ everything its underlying element accepts (a `<div>`, or a `<p>` for
 
 ## Accessibility
 
-- A non-interactive `Item` renders `role="listitem"` by default, pairing with `ItemGroup`'s
-  `role="list"` so assistive tech announces the row count and position.
+- `ItemGroup` is what licenses the row role: inside it, a non-interactive `Item` renders
+  `role="listitem"` and pairs with the group's `role="list"`, so assistive tech announces the row
+  count and position.
+- A standalone `Item` — one used on its own, or as the content of some other list's `<li>` — takes
+  no ARIA role at all. A `listitem` with no `list` parent is an axe `aria-required-parent`
+  critical, which is why `Timeline` rows need no `role` plumbing of their own.
 - An interactive `Item` (`render={<a />}` or `render={<button />}`) keeps its native `link` /
-  `button` role instead — ARIA has no dual-role concept, and forcing `listitem` onto it would hide
-  the interactive affordance. Compose interactive rows standalone, or alongside non-interactive
+  `button` role even inside a group — ARIA has no dual-role concept, and forcing `listitem` onto it
+  would hide the interactive affordance. Compose interactive rows standalone, or alongside non-interactive
   rows in a group, rather than as the _only_ children of a `role="list"` `ItemGroup`.
 - `ItemSeparator` is decorative (`role="presentation"`, `aria-hidden`) — it never breaks the
   `ItemGroup`'s list structure for assistive tech.

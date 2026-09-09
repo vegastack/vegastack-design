@@ -28,12 +28,12 @@ export function timeline(): ReactNode {
         <Timeline aria-label="Deal activity">
           <TimelineSeparator>Today</TimelineSeparator>
           <TimelineItem node={<StatusIcon status="done" size="sm" label="" />}>
-            <Item size="sm" role="none">
+            <Item size="sm">
               <ItemContent>
                 <ItemTitle>Deal moved to Won</ItemTitle>
                 <ItemDescription>Acme renewal · $12,400</ItemDescription>
               </ItemContent>
-              <ItemContent className="text-sm text-muted-foreground">
+              <ItemContent className="text-muted-foreground">
                 <RelativeTime
                   date={hoursAgo(2)}
                   now={NOW.getTime()}
@@ -43,14 +43,14 @@ export function timeline(): ReactNode {
             </Item>
           </TimelineItem>
           <TimelineItem node={<Avatar size="xs" fallback="PS" />}>
-            <Item size="sm" role="none">
+            <Item size="sm">
               <ItemContent>
                 <ItemTitle>Priya logged a call</ItemTitle>
                 <ItemDescription>
                   Pricing review with procurement
                 </ItemDescription>
               </ItemContent>
-              <ItemContent className="text-sm text-muted-foreground">
+              <ItemContent className="text-muted-foreground">
                 <RelativeTime
                   date={hoursAgo(5)}
                   now={NOW.getTime()}
@@ -61,11 +61,11 @@ export function timeline(): ReactNode {
           </TimelineItem>
           <TimelineSeparator>Yesterday</TimelineSeparator>
           <TimelineItem>
-            <Item size="sm" role="none">
+            <Item size="sm">
               <ItemContent>
                 <ItemTitle>Proposal sent</ItemTitle>
               </ItemContent>
-              <ItemContent className="text-sm text-muted-foreground">
+              <ItemContent className="text-muted-foreground">
                 <RelativeTime
                   date={hoursAgo(30)}
                   now={NOW.getTime()}
@@ -97,7 +97,7 @@ export function timelineLinked(): ReactNode {
           <TimelineItem
             node={<StatusIcon status="progress" size="sm" label="" />}
           >
-            <Item size="sm" role="none">
+            <Item size="sm">
               <ItemContent>
                 <ItemTitle>Sending…</ItemTitle>
               </ItemContent>
@@ -106,10 +106,55 @@ export function timelineLinked(): ReactNode {
           <TimelineItem
             node={<StatusIcon status="blocked" size="sm" label="" />}
           >
-            <Item size="sm" role="none">
+            <Item size="sm">
               <ItemContent>
                 <ItemTitle>4 bounced</ItemTitle>
                 <ItemDescription>Marked as failed, not hidden</ItemDescription>
+              </ItemContent>
+            </Item>
+          </TimelineItem>
+        </Timeline>
+      </div>
+    </Wrapper>
+  );
+}
+
+export function timelineGrouped(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <div className="mx-auto w-full max-w-md">
+        <Timeline aria-label="Deployment history">
+          <TimelineSeparator>This week</TimelineSeparator>
+          <TimelineItem node={<StatusIcon status="done" size="sm" label="" />}>
+            <Item size="sm">
+              <ItemContent>
+                <ItemTitle>main@a1f7c2 deployed</ItemTitle>
+                <ItemDescription>
+                  Production · 42s · triggered by Priya Sharma
+                </ItemDescription>
+              </ItemContent>
+            </Item>
+          </TimelineItem>
+          <TimelineItem
+            node={<StatusIcon status="blocked" size="sm" label="" />}
+          >
+            <Item size="sm">
+              <ItemContent>
+                <ItemTitle>main@9c0e11 failed</ItemTitle>
+                <ItemDescription>
+                  Build step exceeded the 10-minute limit
+                </ItemDescription>
+              </ItemContent>
+            </Item>
+          </TimelineItem>
+          <TimelineSeparator>Last week</TimelineSeparator>
+          <TimelineItem node={<Avatar size="xs" fallback="AL" />}>
+            <Item size="sm">
+              <ItemContent>
+                <ItemTitle>Ada rolled back to main@77b4de</ItemTitle>
+                <ItemDescription>
+                  Reason: checkout regression on Safari
+                </ItemDescription>
               </ItemContent>
             </Item>
           </TimelineItem>

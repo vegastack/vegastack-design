@@ -153,10 +153,6 @@ const EXCLUDED: Record<string, Partial<Record<Assertion, string>>> = {
   messageScrollerVisibility: {
     target: "size: control 2 measures 99.00×16.00 — height short",
   },
-  stepperVertical: {
-    target:
-      "size: control 0 (vertical step) measures 152.08×23.00 — height short by 1px",
-  },
   tabsChip: {
     target: "size: control 3 (chip tab) measures 237.97×21.00 — height short",
   },

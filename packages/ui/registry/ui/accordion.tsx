@@ -1,11 +1,11 @@
-// @vegastack accordion@0.6.0 sha256-Jcu8acVwWLccr307lEb2cjbITPvpQImtJUxX8fWEYG4=
+// @vegastack accordion@0.6.0 sha256-/v5q81grUwFgYYJBUk/XJ5WSfAN0sMLgfI3bcN71Zh8=
 
 "use client";
 
 import * as React from "react";
 import { Accordion as BaseAccordion } from "@base-ui/react/accordion";
 import { ChevronDown } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { cn, surfaceInteractive } from "@vegastack/design";
 
 /* ------------------------------------------------------------------------------------------------
  * Accordion (Root) — groups the collapsible items and owns single/multiple open behavior.
@@ -74,7 +74,12 @@ export function AccordionItem({
     <BaseAccordion.Item
       ref={ref}
       data-slot="accordion-item"
-      className={cn("border-b border-border last:border-b-0", className)}
+      className={cn(
+        // `py-1` gives the trigger wash its ≥4px inset from the bottom rule (design.md § Hover
+        // geometry) while the header row keeps the height it had.
+        "border-b border-border py-1 last:border-b-0",
+        className,
+      )}
       {...props}
     />
   );
@@ -111,12 +116,18 @@ export function AccordionTrigger({
         ref={ref}
         data-slot="accordion-trigger"
         className={cn(
-          "group/accordion-trigger flex flex-1 items-center justify-between gap-4 py-3 text-start text-label text-foreground ",
-          "hover:underline",
-          // Ink-signalled control: its hover is the underline, so its PRESSED step is ink too.
-          // A background wash here would run flush into the item hairline (design.md Hover
-          // geometry); converting the pair to a wash belongs with the accordion geometry pass.
-          "active:text-muted-foreground",
+          "group/accordion-trigger flex flex-1 items-center justify-between gap-4 rounded-md py-2 text-start text-label text-foreground",
+          // Underline-on-hover is the LINK affordance and belongs to links only (B7-08). A
+          // disclosure hovers with the row wash, which needs the geometry design.md § Hover
+          // geometry demands: an inner radius and a ≥4px inset from the item hairline. The
+          // trigger supplies both — `px-2` and `rounded-md` here, `py-1` on `AccordionItem` to
+          // hold the wash off the bottom rule. That is the migration design.md sanctions: once an
+          // ink-signalled control is given padding and an inner radius, it moves to the recipes,
+          // both steps together. The padding is POSITIVE, never a negative margin: a wash bled
+          // outward past the item's content box overflows the root at 320px. `AccordionContent`
+          // carries the same `px-2` so the label stays aligned with the panel body.
+          "px-2",
+          surfaceInteractive,
           // Base UI surfaces item/root-level `disabled` as a `data-disabled` attribute
           // on the trigger (no native `disabled` attribute), so style both.
           "disabled:pointer-events-none disabled:opacity-(--opacity-dim)",
@@ -179,7 +190,8 @@ export function AccordionContent({
       )}
       {...props}
     >
-      <div className="pb-3">{children}</div>
+      {/* Matches the trigger's `px-2` so the panel body lines up under its label. */}
+      <div className="px-2 pb-3">{children}</div>
     </BaseAccordion.Panel>
   );
 }

@@ -90,7 +90,7 @@ test("renders columns with counts, cards as list items, and a locked empty lane"
   await expect.element(board).toBeInTheDocument();
   expect(columnCards("lead")).toEqual(["Acme", "Globex"]);
   expect(columnCards("won")).toEqual(["Initech"]);
-  // Empty non-droppable lane names its lock reason, using Empty bordered.
+  // Empty non-droppable lane names its lock reason, using Empty variant="dashed".
   const parked = document.querySelector('[data-column="parked"]')!;
   expect(parked.textContent).toContain("Closed deals only move by automation");
   expect(

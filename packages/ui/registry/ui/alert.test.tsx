@@ -4,14 +4,14 @@ import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Alert, AlertTitle, AlertDescription } from "./alert";
 
-test("renders title and description content with role=alert", async () => {
+test("renders title and description content with the polite role=status", async () => {
   const screen = await render(
     <Alert>
       <AlertTitle>Heads up</AlertTitle>
       <AlertDescription>Something happened.</AlertDescription>
     </Alert>,
   );
-  const alert = screen.getByRole("alert");
+  const alert = screen.getByRole("status");
   await expect.element(alert).toBeInTheDocument();
   await expect.element(screen.getByText("Heads up")).toBeInTheDocument();
   await expect
@@ -26,7 +26,7 @@ test("applies variant data attribute and default variant", async () => {
     </Alert>,
   );
   await expect
-    .element(screen.getByRole("alert"))
+    .element(screen.getByRole("status"))
     .toHaveAttribute("data-intent", "success");
 });
 
@@ -59,10 +59,10 @@ test("self-dismisses (removes from DOM) when no onDismiss provided", async () =>
       <AlertTitle>Closable</AlertTitle>
     </Alert>,
   );
-  await expect.element(screen.getByRole("alert")).toBeInTheDocument();
+  await expect.element(screen.getByRole("status")).toBeInTheDocument();
   await screen.getByRole("button", { name: "Dismiss" }).click();
   await vi.waitFor(() =>
-    expect(screen.container.querySelector('[role="alert"]')).toBeNull(),
+    expect(screen.container.querySelector('[data-slot="alert"]')).toBeNull(),
   );
 });
 
@@ -98,7 +98,56 @@ test("strip variant renders the compact ribbon with data-variant", async () => {
       <AlertDescription>Changes apply to all workspaces.</AlertDescription>
     </Alert>,
   );
-  const alert = screen.getByRole("alert");
+  const alert = screen.getByRole("status");
   await expect.element(alert).toHaveAttribute("data-variant", "strip");
   expect((alert.element() as HTMLElement).className).toContain("py-2");
 });
+
+/* ------------------------------------------------------------------------------------------------
+ * Live-region policy (D23 / B7-02)
+ * ----------------------------------------------------------------------------------------------*/
+
+test.each(["default", "info", "success", "warning", "destructive"] as const)(
+  "a STATIC alert is the polite role=status — intent=%s",
+  async (intent) => {
+    const screen = await render(
+      <Alert intent={intent}>
+        <AlertTitle>Static</AlertTitle>
+      </Alert>,
+    );
+    const root = screen.container.querySelector('[data-slot="alert"]');
+    // A page carrying several static alerts must not announce several interruptions: a live
+    // region already in the DOM at load announces nothing at all.
+    expect(root).toHaveAttribute("role", "status");
+    expect(root).not.toHaveAttribute("data-live");
+  },
+);
+
+test.each(["destructive", "warning"] as const)(
+  "a LIVE %s alert escalates to the assertive role=alert",
+  async (intent) => {
+    const screen = await render(
+      <Alert intent={intent} live>
+        <AlertTitle>Runtime</AlertTitle>
+      </Alert>,
+    );
+    const root = screen.container.querySelector('[data-slot="alert"]');
+    expect(root).toHaveAttribute("role", "alert");
+    expect(root).toHaveAttribute("aria-live", "assertive");
+    expect(root).toHaveAttribute("data-live", "");
+  },
+);
+
+test.each(["default", "info", "success"] as const)(
+  "a LIVE %s alert stays polite — only destructive/warning interrupt",
+  async (intent) => {
+    const screen = await render(
+      <Alert intent={intent} live>
+        <AlertTitle>Runtime</AlertTitle>
+      </Alert>,
+    );
+    const root = screen.container.querySelector('[data-slot="alert"]');
+    expect(root).toHaveAttribute("role", "status");
+    expect(root).toHaveAttribute("aria-live", "polite");
+  },
+);

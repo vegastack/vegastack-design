@@ -16,8 +16,7 @@ import {
   type PlaygroundConfig,
 } from "@/components/playground";
 
-type EmptyPlaygroundKey =
-  "size" | "variant" | "intent" | "surface" | "bordered";
+type EmptyPlaygroundKey = "size" | "variant" | "intent" | "container";
 
 const SIZE_OPTIONS = [
   { value: "sm", label: "Small" },
@@ -36,9 +35,10 @@ const INTENT_OPTIONS = [
   { value: "destructive", label: "Destructive" },
 ] as const;
 
-const SURFACE_OPTIONS = [
-  { value: "transparent", label: "Transparent" },
+const CONTAINER_OPTIONS = [
+  { value: "plain", label: "Plain" },
   { value: "card", label: "Card" },
+  { value: "dashed", label: "Dashed" },
 ] as const;
 
 const emptyPlaygroundConfig: PlaygroundConfig<EmptyPlaygroundKey> = {
@@ -66,12 +66,11 @@ const emptyPlaygroundConfig: PlaygroundConfig<EmptyPlaygroundKey> = {
     },
     {
       type: "select",
-      key: "surface",
-      label: "Surface",
-      options: SURFACE_OPTIONS,
-      defaultValue: "transparent",
+      key: "container",
+      label: "Container",
+      options: CONTAINER_OPTIONS,
+      defaultValue: "plain",
     },
-    { type: "switch", key: "bordered", label: "Bordered", defaultValue: false },
   ],
   render: (state): ReactNode => (
     // The outer div is preview-only chrome (constrains the demo width); the generated JSX
@@ -79,8 +78,7 @@ const emptyPlaygroundConfig: PlaygroundConfig<EmptyPlaygroundKey> = {
     <div className="w-full max-w-md">
       <Empty
         size={state.size as EmptyProps["size"]}
-        surface={state.surface as EmptyProps["surface"]}
-        bordered={Boolean(state.bordered)}
+        variant={state.container as EmptyProps["variant"]}
       >
         <EmptyHeader>
           <EmptyMedia
@@ -98,9 +96,8 @@ const emptyPlaygroundConfig: PlaygroundConfig<EmptyPlaygroundKey> = {
   toCode: (state) => {
     const rootProps: string[] = [];
     if (state.size !== "md") rootProps.push(`size="${state.size}"`);
-    if (state.surface !== "transparent")
-      rootProps.push(`surface="${state.surface}"`);
-    if (state.bordered) rootProps.push("bordered");
+    if (state.container !== "plain")
+      rootProps.push(`variant="${state.container}"`);
     const mediaProps: string[] = [];
     if (state.variant !== "icon") mediaProps.push(`variant="${state.variant}"`);
     if (state.intent !== "default") mediaProps.push(`intent="${state.intent}"`);
@@ -120,7 +117,7 @@ const emptyPlaygroundConfig: PlaygroundConfig<EmptyPlaygroundKey> = {
 
 /**
  * `EmptyPlayground` — interactive props playground for `Empty` (size / media variant / intent /
- * surface / bordered), backed by the generic {@link PropsPlayground}. Registered in `mdx.tsx`,
+ * container variant), backed by the generic {@link PropsPlayground}. Registered in `mdx.tsx`,
  * adopted in `content/docs/components/empty.mdx`.
  */
 export function EmptyPlayground() {

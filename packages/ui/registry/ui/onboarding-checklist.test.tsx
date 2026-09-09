@@ -32,6 +32,14 @@ test("renders progress copy, segmented bar, and step rows", async () => {
   await expect.element(screen.getByText("steps completed")).toBeInTheDocument();
   const bar = screen.getByRole("progressbar");
   await expect.element(bar).toHaveAttribute("aria-valuenow", "33");
+  // B7-04: the bar IS `ProgressIndicator segments` — there is exactly ONE role="progressbar"
+  // in the tree, and it belongs to the primitive rather than a second hand-rolled copy.
+  expect(screen.container.querySelectorAll('[role="progressbar"]').length).toBe(
+    1,
+  );
+  expect(bar.element()).toHaveAttribute("data-slot", "progress-indicator");
+  expect(bar.element()).toHaveAttribute("data-shape", "segments");
+  expect(bar.element()).toHaveAttribute("data-segments-fill", "");
   const doneItem = document.querySelector(
     '[data-slot="onboarding-checklist-item"][data-done]',
   ) as HTMLButtonElement;
@@ -70,4 +78,90 @@ test("step activation fires the host handler", async () => {
 test("has no accessibility violations", async () => {
   const screen = await render(<Example />);
   await expectNoA11yViolations(screen.container);
+});
+
+/* ------------------------------------------------------------------------------------------------
+ * Coverage added for B7-10 — four tests left the progress maths, the controlled collapse and the
+ * done-row contract unasserted.
+ * ----------------------------------------------------------------------------------------------*/
+
+// Each case renders on its own, because `getByRole` here resolves against the PAGE: two
+// `render()` calls in one test leave both roots mounted and the query matches both progress bars.
+test("progress clamps ABOVE the total — a complete checklist reads 100", async () => {
+  const screen = await render(
+    <OnboardingChecklist done={9} total={3}>
+      <OnboardingChecklistItem>Only step</OnboardingChecklistItem>
+    </OnboardingChecklist>,
+  );
+  await expect
+    .element(screen.getByRole("progressbar"))
+    .toHaveAttribute("aria-valuenow", "100");
+  await expect.element(screen.getByText("3 of 3")).toBeInTheDocument();
+});
+
+test("progress clamps BELOW zero — a negative count reads 0", async () => {
+  const screen = await render(
+    <OnboardingChecklist done={-4} total={3}>
+      <OnboardingChecklistItem>Only step</OnboardingChecklistItem>
+    </OnboardingChecklist>,
+  );
+  await expect
+    .element(screen.getByRole("progressbar"))
+    .toHaveAttribute("aria-valuenow", "0");
+  await expect.element(screen.getByText("0 of 3")).toBeInTheDocument();
+});
+
+test("controlled collapse defers to the host and never self-toggles", async () => {
+  const onCollapsedChange = vi.fn();
+  const screen = await render(
+    <OnboardingChecklist
+      done={1}
+      total={2}
+      collapsed={false}
+      onCollapsedChange={onCollapsedChange}
+    >
+      <OnboardingChecklistItem>Step</OnboardingChecklistItem>
+    </OnboardingChecklist>,
+  );
+  await userEvent.click(
+    screen.getByRole("button", { name: "Collapse checklist" }),
+  );
+  expect(onCollapsedChange).toHaveBeenCalledWith(true);
+  // The host did not change `collapsed`, so the card must still be expanded.
+  await expect
+    .element(screen.getByRole("button", { name: "Collapse checklist" }))
+    .toBeInTheDocument();
+});
+
+test("a done row is inert and does not call the host handler", async () => {
+  const onClick = vi.fn();
+  const screen = await render(
+    <OnboardingChecklist done={1} total={1}>
+      <OnboardingChecklistItem done onClick={onClick}>
+        Sync email account
+      </OnboardingChecklistItem>
+    </OnboardingChecklist>,
+  );
+  const row = screen.container.querySelector(
+    '[data-slot="onboarding-checklist-item"]',
+  ) as HTMLButtonElement;
+  expect(row.disabled).toBe(true);
+  expect(row.className).toContain("data-done:line-through");
+  expect(onClick).not.toHaveBeenCalled();
+});
+
+test("the collapsed pill keeps its visible label inside its accessible name", async () => {
+  // WCAG 2.2 SC 2.5.3 (Label in Name): an aria-label here would REPLACE the visible
+  // "Getting started 1/2" text, breaking speech input.
+  const screen = await render(
+    <OnboardingChecklist done={1} total={2} defaultCollapsed>
+      <OnboardingChecklistItem>Step</OnboardingChecklistItem>
+    </OnboardingChecklist>,
+  );
+  const pill = screen
+    .getByRole("button", { name: /Expand checklist/ })
+    .element() as HTMLElement;
+  expect(pill).not.toHaveAttribute("aria-label");
+  expect(pill.textContent).toContain("Getting started");
+  expect(pill.textContent).toContain("1/2");
 });

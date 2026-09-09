@@ -23,11 +23,11 @@ import {
 <Timeline aria-label="Activity">
   <TimelineSeparator>Today</TimelineSeparator>
   <TimelineItem node={<StatusIcon status="done" size="sm" label="" />}>
-    <Item size="sm" role="none">
+    <Item size="sm">
       <ItemContent>
         <ItemTitle>Deal moved to Won</ItemTitle>
       </ItemContent>
-      <ItemContent className="text-sm text-muted-foreground">
+      <ItemContent className="text-muted-foreground">
         <RelativeTime date={when} now={now} refresh={false} />
       </ItemContent>
     </Item>
@@ -75,6 +75,17 @@ the timeline.
   file="components/preview/timeline.tsx"
 />
 
+### Day grouping
+
+`TimelineSeparator` renders a computed group header through `Marker`'s separator
+variant. The component imposes no grouping of its own — the host decides where a
+day boundary falls and emits a separator there.
+
+<ComponentPreview
+  name="timelineGrouped"
+  file="components/preview/timeline.tsx"
+/>
+
 ## API Reference
 
 <AutoTypeTable
@@ -96,9 +107,9 @@ hides via `:last-child`).
 
 ## Accessibility
 
-- Compose non-interactive `Item` rows with `role="none"` — the `<li>` is
-  already the list item, and `Item`'s default `role="listitem"` would nest
-  invalidly. A `render`-composed interactive row needs nothing.
+- Compose `Item` rows directly — an `Item` outside an `ItemGroup` carries no
+  ARIA role, so the `<li>` stays the only list item and nothing nests invalidly.
+  A `render`-composed interactive row keeps its native `link`/`button` role.
 - An `<ol>` of `<li>` entries, labelled via `aria-label`; group separators are
   real list items (an `<ol>` may only contain list items) rendered through
   `Marker`'s separator variant — wrap their children in a heading element when
@@ -108,7 +119,10 @@ hides via `:last-child`).
   alone. Superseded entries need a text signal, never strike-through alone.
 - Give each entry a `<time dateTime>` — `RelativeTime` renders one, with its
   deliberate no-`aria-live` policy (a feed that re-announces every minute is
-  noise).
+  noise). Leave the timestamp column at the row's own type size: `RelativeTime`
+  is a focusable tooltip trigger, and its invisible hit area is sized against a
+  14px line box, so shrinking it to `text-sm` drops the effective target under
+  the 24px floor.
 
 ## Do / Don't
 

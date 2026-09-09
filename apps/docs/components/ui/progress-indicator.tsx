@@ -1,4 +1,4 @@
-// @vegastack progress-indicator@0.6.0 sha256-JiTJqcfx7hocJ0oap//huci0JlNQD7Ni2MsH+qBeU2Y=
+// @vegastack progress-indicator@0.6.0 sha256-QGeNyW6F3HdpCrisv3wpstVCGXKxYeF3yXforfSLfcA=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -123,11 +123,19 @@ export interface ProgressIndicatorProps
    * `round(value / max × segments)` of them filled in `currentColor` and the
    * rest on the track opacity. Use for step counts ("2 of 6 steps"), not for
    * smooth percentages — the radial glyph stays the default. Takes precedence
-   * over `shape` when set; minimum 2.
+   * over `shape` when set; minimum 1 (a one-step scale is a single full bar, never a
+   * radial glyph).
 
    * @default undefined
    */
   segments?: number;
+  /**
+   * Stretch the segment bars to share the available inline width instead of taking the fixed
+   * per-size bar width. For a segmented bar that spans a card (the onboarding-checklist voice)
+   * rather than a compact inline meter. Only meaningful with `segments`.
+   * @default false
+   */
+  segmentsFill?: boolean;
   /**
    * Size variant — mirrors the system scale and maps to the `size-*` tokens.
    * `xs` (14px), `sm` (16px), `md` (20px), `lg` (24px).
@@ -186,6 +194,7 @@ export function ProgressIndicator({
   variant = "default",
   shape = "circle",
   segments,
+  segmentsFill = false,
   value = 0,
   max = 100,
   "aria-label": ariaLabel,
@@ -240,7 +249,7 @@ export function ProgressIndicator({
 
   // Dash-segment mode: a row of bars, filled count derived from the same
   // clamped percentage. Server-safe like the radial glyph (pure markup).
-  if (segments != null && segments >= 2) {
+  if (segments != null && segments >= 1) {
     const count = Math.floor(segments);
     const filled = Math.round((percent / 100) * count);
     const barSize = {
@@ -256,6 +265,7 @@ export function ProgressIndicator({
         data-variant={variant}
         data-size={size}
         data-shape="segments"
+        data-segments-fill={segmentsFill ? "" : undefined}
         data-value={percent}
         role="progressbar"
         aria-valuenow={percent}
@@ -265,6 +275,7 @@ export function ProgressIndicator({
         className={cn(
           "inline-flex shrink-0 items-center gap-1 text-primary",
           variant === "inline-value" && "gap-2",
+          segmentsFill && "flex w-full shrink",
           className,
         )}
         {...props}
@@ -276,6 +287,9 @@ export function ProgressIndicator({
             className={cn(
               "rounded-full bg-current transition-opacity duration-base ease-standard",
               barSize,
+              // `segmentsFill` keeps the per-size HEIGHT and drops the fixed width so the row of
+              // bars shares the container's inline size evenly.
+              segmentsFill && "w-auto min-w-0 flex-1",
               i < filled ? undefined : "opacity-(--opacity-track)",
             )}
           />

@@ -59,7 +59,7 @@ export function dropzone(): ReactNode {
             )
           }
         >
-          <Empty size="sm" bordered>
+          <Empty size="sm" variant="dashed">
             <EmptyHeader>
               <EmptyTitle>Drop images here</EmptyTitle>
               <EmptyDescription>
@@ -139,7 +139,7 @@ export function dropzoneRejections(): ReactNode {
             ])
           }
         >
-          <Empty size="sm" bordered>
+          <Empty size="sm" variant="dashed">
             <EmptyHeader>
               <EmptyTitle>Files up to 200 KB</EmptyTitle>
               <EmptyDescription>

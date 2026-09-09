@@ -361,7 +361,7 @@ export function dataListCustomEmpty(): ReactNode {
         data={[]}
         getRowId={(p) => p.id}
         emptyState={
-          <Empty size="sm" surface="card">
+          <Empty size="sm" variant="card">
             <EmptyHeader>
               <EmptyMedia>
                 <Search />

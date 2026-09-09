@@ -141,3 +141,18 @@ test("no a11y violations — disabled", async () => {
   );
   await expectNoA11yViolations(screen.container);
 });
+
+test("the trigger hovers with the row wash, not a link underline", async () => {
+  // B7-08 — see the matching accordion assertion.
+  const screen = await render(<Basic />);
+  const trigger = screen.container.querySelector(
+    '[data-slot="collapsible-trigger"]',
+  ) as HTMLElement;
+  expect(trigger.className).not.toContain("hover:underline");
+  expect(trigger.className).toContain("hover:bg-surface-2");
+  expect(trigger.className).toContain("active:bg-surface-3");
+  expect(trigger.className).toContain("rounded-md");
+  // Positive padding only — a negative margin would bleed the wash past the root at 320px.
+  expect(trigger.className).toContain("px-2");
+  expect(trigger.className).not.toContain("-mx-");
+});

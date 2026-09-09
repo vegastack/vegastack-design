@@ -1,4 +1,4 @@
-// @vegastack dashboard-01@0.6.0 sha256-vulxkBnXhFo4bjaxTWtBDoaUXhmdrjPxusWR8GsOxjk=
+// @vegastack dashboard-01@0.6.0 sha256-qC0v10OK4O0fjSpM9jQynC6UCiTW5+WOxSRJIZ7Y9M4=
 
 /**
  * `page.tsx` — registry:page, target `app/dashboard/page.tsx`. The dashboard-01 block's sample
@@ -85,7 +85,7 @@ function RegionError({
   description: string;
 }) {
   return (
-    <Empty size="sm" bordered>
+    <Empty size="sm" variant="dashed">
       <EmptyHeader>
         <EmptyMedia intent="destructive">
           <AlertTriangle />

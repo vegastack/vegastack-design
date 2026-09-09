@@ -1,4 +1,4 @@
-// @vegastack item@0.6.0 sha256-AcmMAypqLNYuNVtu9OCVDa36iVt/X+UwQss6D2qUurw=
+// @vegastack item@0.6.0 sha256-Ykv/M0Vxxy9tC2qB25gcCUgr8LenlDiEX8KImznAigI=
 
 "use client";
 
@@ -11,10 +11,18 @@ import { Separator } from "@/components/ui/separator";
 /* ------------------------------------------------------------------------------------------------
  * Item — a compact row for list/feed content (a person, a file, a notification, a settings row).
  * Built on Base UI `useRender` so the whole row can become an `<a>` or `<button>` for an
- * interactive item; a plain `div` otherwise. `role="listitem"` by default (pair with `ItemGroup`'s
- * `role="list"`) — override via an explicit `role` prop for a standalone item outside a group.
+ * interactive item; a plain `div` otherwise. `role="listitem"` is applied ONLY inside an
+ * `ItemGroup` (which provides `role="list"` and the context that licenses it) — a standalone row
+ * carries no ARIA role, so it can never raise `aria-required-parent`.
  * Every value is a semantic Tailwind token (no hardcoded colors, no raw palettes).
  * ----------------------------------------------------------------------------------------------*/
+
+/**
+ * Is this row inside an `ItemGroup`? `ItemGroup` is the only `role="list"` container in this
+ * anatomy, so it is the only thing that can license a child's `role="listitem"` (ARIA
+ * `aria-required-parent`). Default `false` — a standalone `Item` renders with no role.
+ */
+const ItemGroupContext = React.createContext(false);
 
 export const itemVariants = cva(
   "group/item relative flex w-full flex-wrap items-center rounded-md border border-transparent text-base [&_svg]:pointer-events-none [&_svg]:shrink-0 [&:is(a,button)]:hover:bg-surface-2 [&:is(a,button)]:active:bg-surface-3",
@@ -81,9 +89,11 @@ export interface ItemProps
  * `Item` — a compound-anatomy row: compose `ItemMedia`, `ItemContent` (with `ItemTitle` /
  * `ItemDescription`), and `ItemActions` inside it, optionally wrapped by `ItemHeader` /
  * `ItemFooter` for multi-row layouts. Group multiple rows in an `ItemGroup` (`role="list"`)
- * separated by `ItemSeparator`. `role="listitem"` by default — dropped automatically when
- * `render` composes an interactive element (`<a>`/`<button>`), so its native `link`/`button` role
- * is never clobbered by a conflicting `listitem` role.
+ * separated by `ItemSeparator`. `role="listitem"` is applied only when the row is inside an
+ * `ItemGroup` — a `listitem` with no `list` ancestor is an axe `aria-required-parent` critical, so
+ * a standalone row gets no role at all. It is also dropped when `render` composes an interactive
+ * element (`<a>`/`<button>`), so its native `link`/`button` role is never clobbered. Pass an
+ * explicit `role` to override either decision (it always wins).
  *
  * @example
  * <Item variant="outline">
@@ -109,17 +119,24 @@ export function Item({
   ref,
   ...props
 }: ItemProps) {
+  const inGroup = React.useContext(ItemGroupContext);
+
   return useRender({
     render: render ?? <div />,
     defaultTagName: "div",
     ref, // forward the consumer ref onto the rendered (or composed) element
     props: {
-      // `role="listitem"` only applies to the default (non-interactive) `div` tag. ARIA has no
-      // dual-role concept: forcing it onto a `render`-composed `<a>`/`<button>` would replace —
-      // not augment — that element's native `link`/`button` role, silently hiding the interactive
-      // affordance from assistive tech. An interactive `Item` keeps its native role instead; group
-      // semantics are still conveyed by the surrounding `ItemGroup` (`role="list"`).
-      ...(render ? {} : { role: "listitem" }),
+      // `role="listitem"` is licensed by TWO conditions, both required.
+      // 1. The row is inside an `ItemGroup`, which is the only thing in this file that renders
+      //    `role="list"`. ARIA requires a `listitem` to have a `list` parent; a standalone Item
+      //    claiming the role is an axe `aria-required-parent` CRITICAL, which is why Timeline
+      //    previously had to document a `role="none"` workaround.
+      // 2. The row is not `render`-composed. ARIA has no dual-role concept: forcing `listitem`
+      //    onto a composed `<a>`/`<button>` would replace — not augment — that element's native
+      //    `link`/`button` role, silently hiding the interactive affordance from assistive tech.
+      //    Group membership is still conveyed by the surrounding `ItemGroup`.
+      // An explicit `role` in `props` overrides both, because `...props` is spread last.
+      ...(inGroup && !render ? { role: "listitem" } : {}),
       "data-slot": "item",
       "data-variant": variant,
       "data-size": size,
@@ -238,7 +255,11 @@ export function ItemTitle({ className, ref, ...props }: ItemTitleProps) {
       ref={ref}
       data-slot="item-title"
       className={cn(
-        "flex w-fit items-center gap-2 text-sm leading-snug font-medium text-foreground",
+        // D24: the row title is the system's list-row type — `text-label` (14/500), matching
+        // Sidebar menu rows, DataList cells, menu items and Message rows. The denser `size="sm"`
+        // tier drops to `text-label-sm` (12/500) so a compact list keeps its 12/12 rhythm.
+        "flex w-fit items-center gap-2 leading-snug text-label text-foreground",
+        "group-data-[size=sm]/item:text-label-sm",
         className,
       )}
       {...props}
@@ -348,20 +369,23 @@ export function ItemFooter({ className, ref, ...props }: ItemFooterProps) {
 /** Props accepted by `ItemGroup`. */
 export type ItemGroupProps = React.ComponentPropsWithRef<"div">;
 
-/** `ItemGroup` — groups `Item` rows as a semantic list (`role="list"`).
+/** `ItemGroup` — groups `Item` rows as a semantic list (`role="list"`). It is also what licenses
+ * each child `Item`'s `role="listitem"`: outside a group, an `Item` renders with no role at all.
  *
  * @example
  * <ItemGroup />
  */
 export function ItemGroup({ className, ref, ...props }: ItemGroupProps) {
   return (
-    <div
-      ref={ref}
-      role="list"
-      data-slot="item-group"
-      className={cn("group/item-group flex flex-col", className)}
-      {...props}
-    />
+    <ItemGroupContext.Provider value>
+      <div
+        ref={ref}
+        role="list"
+        data-slot="item-group"
+        className={cn("group/item-group flex flex-col", className)}
+        {...props}
+      />
+    </ItemGroupContext.Provider>
   );
 }
 

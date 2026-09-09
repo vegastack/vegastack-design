@@ -213,6 +213,21 @@ Contract for every new animated element:
   ALREADY live regions: they must stay mounted — toggle their CHILDREN, never wrap the component in
   a conditional, and keep them as SIBLINGS of the listbox (nesting `role="status"` inside
   `role="listbox"` trips `aria-required-children` — a real bug fixed in the Command rebuild).
+- **Live regions are polite by default; assertive is opt-in and rare (D23).** A region already in the
+  DOM at page load announces nothing, so `role="status"` is free on a static surface — while
+  `role="alert"` is ASSERTIVE and interrupts the screen reader mid-sentence. So a visible status
+  surface (Alert) is `role="status"` for every intent, and takes the assertive `alert` role only when
+  the caller passes an explicit `live` prop AND the intent is `destructive`/`warning` — i.e. the
+  message appeared after mount because of something the user did. **Page chrome present at load gets
+  no live role at all** (`AnnouncementBanner`): announcing it competes with the page's own heading.
+  Test the policy, not the markup: a static banner must resolve to `status`, a live destructive one
+  to `alert`.
+- **A role that requires a parent is licensed by a CONTEXT, never by a default.** `role="listitem"`
+  needs a `list` ancestor, `option` a `listbox`, `gridcell` a `grid`. A part that applies such a role
+  unconditionally is an axe `aria-required-parent` critical the moment anyone uses it standalone —
+  and the workaround it forces on consumers (`role="none"`) is the tell. Have the container provide a
+  React context and the child take the role only inside it; outside, render no role at all. `Item` /
+  `ItemGroup` is the reference case (B7-01).
 - **Keyboard** — every interactive affordance reachable and operable by keyboard alone. Base UI gives
   this for free for its own interaction model; anything hand-rolled (a custom roving-tabindex group,
   a hit-area expansion) needs its own keyboard test.
@@ -220,7 +235,12 @@ Contract for every new animated element:
   `Field`) fires only on a live false→true
   transition, so a form pre-rendered with server-side errors does not shake on first paint. Apply the
   same "reacts to a live transition, not to initial state" discipline to any new auto-triggered
-  motion.
+  motion. Two mechanisms are wrong and were removed from `NotificationBell` (B7-03): a ref read
+  during render (the effect that flips it schedules no re-render, so the class lands on whatever
+  unrelated re-render happens next), and replaying by `key`-remount (a class toggle cannot reach a
+  freshly remounted node). Hold the previous value in STATE, compare it in an effect, and drive the
+  replay through `useAnimationReplay` — and gate the cue on what the user can actually SEE changing,
+  not on the raw prop.
 - **Cursor cues** — do not force `cursor-default` onto native standard controls or restate
   `cursor-pointer` on a native link (`standard-control-cursor`); `cursor-default` on a text-entry
   control destroys its I-beam affordance.

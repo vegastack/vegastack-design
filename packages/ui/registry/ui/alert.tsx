@@ -1,4 +1,4 @@
-// @vegastack alert@0.6.0 sha256-+ZCqAY4vQ3DAk9Q9nebrdUWqxR6J6RCOWTt56c/V2eM=
+// @vegastack alert@0.6.0 sha256-ySsK+MB3IXUzoHro0pmwhWzlDrHV3+x3eYBwzlFFAOs=
 
 "use client";
 
@@ -109,13 +109,35 @@ export interface AlertProps
    * @default "Dismiss"
    */
   dismissLabel?: string;
+  /**
+   * Mark this alert as a runtime announcement — it appeared (or its copy changed) AFTER the page
+   * had settled, in response to something the user did. Only then does an assertive
+   * `role="alert"` become correct, and only for `destructive`/`warning`; every other intent stays
+   * polite. Leave `false` for a statically rendered banner: a `status` region that is already in
+   * the DOM at load announces nothing, so a page of three static alerts stays silent instead of
+   * interrupting three times (D23, WAI-ARIA `alert` is for time-sensitive, important messages).
+   * @default false
+   */
+  live?: boolean;
 }
 
+/** Intents whose runtime announcement is urgent enough for an assertive `role="alert"` (D23). */
+const ASSERTIVE_INTENTS: ReadonlySet<AlertIntent> = new Set([
+  "destructive",
+  "warning",
+]);
+
 /**
- * `Alert` — a presentational status banner with `role="alert"`. Compose with
+ * `Alert` — a presentational status banner. Compose with
  * `AlertTitle`, `AlertDescription`, and `AlertActions`. Supports five status
  * variants, an optional leading icon, and an optional self-managing dismiss
  * button. Client-only because the dismiss button can manage local visibility.
+ *
+ * **Live-region policy (D23).** The banner is a polite `role="status"` by default, which announces
+ * nothing when it is already present at page load and announces politely when it appears later.
+ * Pass `live` for a banner rendered in response to a user action; with `live`, a `destructive` or
+ * `warning` intent escalates to the assertive `role="alert"` — the only case that earns an
+ * interruption.
  *
  * @example
  * <Alert intent="success">
@@ -141,6 +163,7 @@ function Alert({
   dismissable = false,
   onDismiss,
   dismissLabel = "Dismiss",
+  live = false,
   children,
   ...props
 }: AlertProps) {
@@ -155,10 +178,19 @@ function Alert({
 
   const DefaultIcon = VARIANT_ICON[intent];
   const leadingIcon = hideIcon ? null : (icon ?? <DefaultIcon aria-hidden />);
+  // D23. `status` (implicit `aria-live="polite"`) is the default for every intent: a live region
+  // already in the DOM at load announces nothing, so a static banner is silent, and a banner that
+  // appears later is announced at the next pause. `live` says this banner IS a runtime
+  // announcement — and only then does a destructive/warning intent earn the assertive `alert`
+  // role, which interrupts whatever the screen reader is saying.
+  const assertive = live && ASSERTIVE_INTENTS.has(intent);
 
   return (
     <div
-      role="alert"
+      role={assertive ? "alert" : "status"}
+      aria-live={assertive ? "assertive" : "polite"}
+      aria-atomic={live ? true : undefined}
+      data-live={live ? "" : undefined}
       data-slot="alert"
       data-variant={variant}
       data-intent={intent}
