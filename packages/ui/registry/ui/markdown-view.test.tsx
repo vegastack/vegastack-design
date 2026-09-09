@@ -56,8 +56,8 @@ test("MarkdownView and TextEdit wear the identical prose recipe", async () => {
   // to different styles. That is deliberate. This harness builds no Tailwind CSS (only
   // `test/contrast.css`), so a `getComputedStyle` comparison would find both surfaces at browser
   // defaults and pass no matter how far they had drifted — a green test asserting nothing. The
-  // rendered pixels are covered where real CSS exists: the docs contract lane and the capture
-  // harness.
+  // rendered pixels are covered where real CSS exists: `design-lint --emitted-css`, which reads the
+  // built stylesheet and rejects a prose default no override actually covers.
   const screen = await render(
     <div>
       <MarkdownView>{"# Title\n\nA paragraph with `code` in it."}</MarkdownView>

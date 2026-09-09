@@ -1850,7 +1850,8 @@ inside a ProseMirror contenteditable, a body of copy from a CMS — is styled by
 blockquote, inline code, a bare `pre`, `hr`, GFM tables, `img`), worn as a **single class on the prose
 root**, and every surface that renders prose wears the same one. `MarkdownView` and `TextEdit` are the
 two in-tree consumers, and they render identical computed styles because they are the identical string —
-a fact a unit test measures off the resolved cascade rather than off matching class names. There is no
+a fact a unit test asserts structurally: every rule of the recipe is required on both roots, and neither
+root may carry typography of its own. There is no
 `@tailwindcss/typography` dependency: the recipe is semantic tokens, so prose tracks the theme.
 
 **It is expressed as descendant variants (`[&_h1]:…`), and that is not a style preference.** Neither
