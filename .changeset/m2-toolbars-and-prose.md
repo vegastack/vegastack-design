@@ -2,7 +2,7 @@
 "@vegastack/ui": minor
 ---
 
-Rich text is one recipe, and the bars that promise arrow-key traversal now implement it.
+🔧 **Rich text is one recipe**, and the bars that promise arrow-key traversal now implement it.
 
 - **MarkdownView and TextEdit share the `prose` recipe.** Both restated the same heading, paragraph,
   list, quote and code recipe in their own grammar and had already drifted (`h4`–`h6`, tables and

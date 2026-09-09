@@ -2,7 +2,7 @@
 "@vegastack/design": minor
 ---
 
-Exports the `prose` recipe — one token vocabulary for rendered rich text, so a surface the system
+📦 **`@vegastack/design`** — exports the `prose` recipe — one token vocabulary for rendered rich text, so a surface the system
 did not author element by element (markdown, a contenteditable, CMS copy) is styled by one class on
 its root. `proseClassName` is the whole recipe; `prose` is the per-element record it composes from,
 keyed by the `ProseElement` type.
