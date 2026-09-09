@@ -1,9 +1,9 @@
 # Visual review during a release
 
-**There is no capture tool.** The before/after pixel lane (`tooling/vrt-review.mjs`, `.vrt-review/`,
-the Playwright fixture and full-page projects) was deleted with the rest of the attestation stack —
-`docs/plans/2026-09-08-verification-rebuild.md` § 3.3. Nothing in this repository takes a screenshot,
-and nothing ever committed one.
+**There is no capture tool.** The before/after pixel lane — its script, its output directory, and its
+Playwright fixture and full-page projects — was removed on 2026-09-08 with the rest of the
+attestation stack (`docs/plans/2026-09-08-verification-rebuild.md` § 3.3). Nothing in this repository
+takes a screenshot, and nothing ever committed one.
 
 What remains is a gate and a human, and this file is about the human half.
 

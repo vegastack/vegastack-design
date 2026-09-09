@@ -13,15 +13,17 @@ Claude-specific notes:
   A new skill needs symlinks in **both** `.claude/skills/` and `.agents/skills/` (Codex reads the
   latter) — `tooling/skill-lint.mjs` fails closed if either is missing or stale.
 - **There is one verification command, and no session hooks.** `pnpm verify` — typecheck, lint,
-  `design:verify`, and the `@vegastack/ui` browser suite — is what a developer runs, what `ci.yml`
-  runs on a pull request, and what `release.yml` and `deploy.yml` run before anything outward. A
-  failure is ordinary terminal output; `.claude/settings.json` runs no session hooks, because there
-  is no gate report to digest. Load the `review` skill to classify a failure at its root, and never
-  self-clear one.
+  `design:verify`, the `@vegastack/ui` browser suite, and the `@vegastack/design` CLI tests — is what
+  a developer runs, what `ci.yml` runs on a pull request, and what `release.yml` and `deploy.yml` run
+  before anything outward (`deploy.yml` adds `pnpm verify:release`). A failure presents as one report
+  in ordinary terminal output: the run prints each stage as it starts and ends with
+  `verify: FAILED at <stage>`, so the failing stage is named and reproducing it is re-running that
+  one stage. `.claude/settings.json` runs no session hooks, because there is no gate report to
+  inject. Load the `review` skill to classify a failure at its root, and never self-clear one.
 - **Creating a top-level skills directory that did not exist at session start requires a restart**
   before Claude Code watches it. Edits to an existing skill are picked up live.
 
 One rule worth repeating every session: **`/ship` (publish, Version-PR merge, deploy) is always MK's
 decision — prepare, present, and wait for an explicit "yes proceed"; never auto-ship.** Each gate is
 separate; approval for one is not approval for the next. (Canonical statement in AGENTS.md
-§ Releasing.)
+§ Review, and releasing.)

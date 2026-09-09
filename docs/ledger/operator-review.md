@@ -4,6 +4,79 @@ Every judgment-call / assumption / best-guess decision made instead of pausing �
 
 ---
 
+## 2026-09-09 — rulebook rewrite: history moved out of AGENTS.md
+
+**Context:** WP6 of `docs/plans/2026-09-08-verification-rebuild.md` cut `AGENTS.md` from 478 lines
+back to a rulebook. Everything below was TRUE when it was written and is preserved here as the
+record; none of it is a current rule, and nothing here should be quoted as present behaviour.
+Original decision dates are kept.
+
+- **Why the attestation existed at all (decided 2026-07-25, deleted 2026-09-08).** No free runner
+  could launch a browser, so the browser-unit suite, the cross-engine smoke, the three-engine suite,
+  and the 864 behaviour contracts ran in the pre-push hook and in a local full-sweep command, and
+  each run wrote `.gates/receipt.json` bound to a tree hash of the working tree with `.gates/`
+  excluded. Every workflow's `receipt-guard` job rejected a push whose receipt did not cover the
+  pushed tree. It was written down at the time that a receipt is **attestation, not proof** —
+  `--no-verify`, `HUSKY=0`, or a hand-edited JSON defeated it — and what it bought was that skipping
+  a browser gate became a visible, auditable act. Seven of eleven gate rows stayed machine-verified,
+  and the split was published row by row. `tooling/gate-receipt-carry.mjs` existed for the one
+  legitimate carry: `changeset version` moved the tree hash while changing no code a browser gate
+  could observe, so without it every Version PR failed `receipt-guard` and no npm publish was
+  reachable at all. The measured saving that justified the topology: ~1,892 billable minutes over
+  7.2 days became ~100–150 per month, with a pull request costing zero. On 2026-09-07 the LAN Debian
+  boxes ran Chromium, Firefox, and WebKit under Playwright; the premise was gone, and R1 deleted the
+  mechanism rather than maintaining evidence about evidence.
+- **Why the minis could not run browsers.** Their Actions runner had no per-user Mach bootstrap
+  namespace, so every Chromium launch died with `bootstrap_look_up
+org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` and SIGTRAP
+  (`launchd manager: System`, `gui domain: MISSING`), while the identical suite passed locally on
+  the same OS and CPU. The fix was always host-side — reinstall the runner as a LaunchAgent inside a
+  logged-in session — and it is now optional: the Linux boxes execute the browser lanes, and the
+  minis keep the credential-only jobs and the cross-platform static signal.
+- **Why job containers were banned outright, and why R2 narrowed it.** The ban was written for the
+  minis, which are macOS and cannot start a Linux container at all. The one job that legitimately
+  needed one — the three-engine suite in the digest-pinned Playwright image, because bare
+  `ubuntu-latest` WebKit could not settle the compiled-CSS Toaster contrast check — stopped running
+  in CI. On the LAN Linux runners the pinned image is what makes a box interchangeable, so the
+  workflow-security gate now REQUIRES a container there and rejects one everywhere else.
+- **npm provenance, and the E422 story.** npm trusted publishing works on self-hosted runners; only
+  the provenance _bundle_ requires a GitHub-hosted runner, and npm rejects a self-hosted bundle with
+  **E422**. `NPM_CONFIG_PROVENANCE` is not honoured by the changesets action's OIDC path, so
+  `publish` calls `npm publish --no-provenance` directly. Hosted runners could attach provenance but
+  are billing-locked, so releases ship without an attestation. npm's public docs claim self-hosted
+  is unsupported for trusted publishing; that is stale — sibling repo `vegastack/vegafactory`
+  published `@vegastack/skills` 0.16.1–0.17.0 from self-hosted runs on 2026-09-01, token-free OIDC,
+  no attestations. Empirical reality outranked the docs, and still does.
+- **The focus-indicator check that could not fail (measured 2026-07-25, dropped 2026-09-08).** The
+  retired `apps/docs/vrt/contracts.spec.ts` ran under `forcedColors: "active"`, where Chromium
+  paints its own ≥2px focus ring and forced-colors repaints borders on focus — so both branches of
+  the assertion were unconditionally true, and deleting the design system's `:focus-visible` rule
+  left every check green. It was never coverage, it was documented as such, and R3 dropped that half
+  rather than porting it. Reflow, RTL containment, and the 24px target floor did fail on real
+  defects and were ported verbatim into `packages/ui/test/geometry.browser.test.tsx`. Evidence:
+  `docs/ledger/bugs.md`, 2026-07-25.
+- **The pixel-review lane (deleted 2026-09-08).** It captured the base ref and the working tree on
+  one machine and emitted a before/after report a human read during `/ship`. It exited 0 for any
+  pixel outcome, produced zero recorded findings in its life, and no screenshot was ever committed.
+  Its stated cost is now the accepted one: nothing enforces layout drift in CI, which was the price
+  of removing a gate whose only escape hatch was overwriting the evidence under review.
+- **Route scoping and the cross-browser policy (deleted 2026-09-08).** `tooling/lib/route-scope.mjs`
+  decided which routes a change could reach, shared by the contract and pixel lanes with per-lane
+  overrides and proved in both directions by its verifier; the pre-push hook ran a contract-selected
+  WebKit/Firefox risk smoke generated from `coverage.crossBrowserSmoke`. Both are gone because the
+  loop they optimised is now short enough that scoping has nothing to optimise: `pnpm verify` runs
+  everything, and `pnpm verify:release` runs all three engines before a deploy.
+
+**Judgment calls made in this rewrite, rather than pausing:** the work package's deletion list named
+the retired contract-suite commands, the CI attested-versus-executed table, and the attestation
+paragraphs; each was removed. Three things on no list were KEPT in `AGENTS.md` because a script
+enforces them and losing the rule would lose the enforcement — the empty GitHub-hosted-runner
+allowlist (with the negative harness that proves it), the no-`NPM_TOKEN` rule, and the production
+boundary contract every deploy probes. `pnpm run clean` was kept for the same reason: it is the
+documented interface to the cleanup `pnpm verify` runs in its `finally`.
+
+---
+
 ## 2026-09-07 — F1 follow-up: reconciling the doctrine, the guides and the media gate with the ladder
 
 **Context:** a post-merge Codex review of F1 (#32, `9c33dfaf`) found that the token layer moved but
@@ -54,6 +127,7 @@ gate _claimed_, not a change of direction — no F1 decision is re-opened.
   a page+card specimen would have shown two identical columns and taught nothing.
 
 **Needs MK:** nothing. Every item is a document or gate catching up to shipped, decided behaviour.
+
 ## 2026-09-07 — Animated icons: three calls from the Codex round on PR #57 (issue #46)
 
 **1. `chevron-first`'s handle type is a RENAME, not an alias removal — and the rename is kept.**
@@ -228,7 +302,6 @@ idempotency check would fail after anyone ran the formatter.
 - **The last surviving `motion-reduce:` was removed by widening the reset, not by keeping an exception (uncovered by the decision register — flagged for MK).** `staggered-text-reveal` zeroed its own per-word `animation-delay` under reduced motion, and that was genuinely load-bearing: `base.css` zeroed `animation-duration` and `iteration-count` but never `animation-delay`, so without the component's copy a reduced-motion reader still watched words appear one after another across the whole stagger window — instant pops in sequence, which is still motion. Options: (a) keep it as the doctrine's one permanent carve-out, as the in-progress draft did; (b) add `animation-delay: 0s !important` / `transition-delay: 0s !important` to the reduced-motion block and delete the copy. Chose (b): `design.md` §Motion now states "reduced motion is global and is never restated in a component", and a rule with a standing exception is a rule that erodes — and the exception existed only because the reset was incomplete, which is a defect in the reset, not a property of the component. `staggered-text-reveal` is the ONLY `animation-delay` user in the repo, so the blast radius of the widened reset is that one component plus any future consumer-authored delay, where zeroing is the correct behaviour anyway. Cost: this touches `@vegastack/design-tokens` published CSS (minor changeset), which is a wider surface than a display-leaf batch would normally move. **Needs MK:** confirm the reset is the right home for this rather than a documented per-component exception.
 - **`CommandShortcut` was NOT converted to `Kbd`,** despite the batch task line asking for it. Two authorities say otherwise and both outrank the task line: the audit finding itself (`02-batch-02-display-leaves.md` B2-07) defers `command.tsx`'s shortcut chips to Batch 3, and `command.tsx`'s own source carries a prior audit-reviewed decision that palette shortcut hints are plain muted text on purpose — chip-styled keys would make every palette row read busier than the menus beside it. Converting it would have re-opened a settled call and stolen scope from O1. **Flagged for MK:** if the intent really is chips in the palette, that is one render change in Batch 3, not here.
 - **`TruncationFocusProvider` ships without its consumers.** `TruncatedText` / `IconText` / `TableCellText` / `RelativeTime` all take `focusable`, and the provider that sets a region-wide default is exported — but nothing wraps `DataList` / `DataGrid` in it yet, because those files belong to T1 (tables) and the brief made the wiring conditional on T1 having merged first. It has not. So the D9 default (`false` inside a grid) is currently reachable only by an explicit `focusable={false}` or a hand-placed provider. Docs and JSDoc were written to describe the mechanism and the contract rather than claim the hosts already adopt it. **T1 owes the two-line wrap.** Until then a truncated grid cell still takes a tab stop — the pre-existing behaviour, so nothing regressed; the fix just is not complete.
-
 
 ---
 
@@ -1144,6 +1217,7 @@ to the iframe` for one file, with **1488 tests passed and zero assertion failure
   and whose box worktree predates that rebase will see these exact 10 offenders. Clearing the two
   directories on the box is the fix; the durable fix is for the runner to clear them (or to pass
   `git clean -qfdx`) and belongs to whoever owns `remote-gates-v2.sh`, not to a component batch.
+
 ## O1 · Overlays (#40) — judgment calls
 
 - **`floating-surface` ships as a registry `lib`-style item, not a `@vegastack/design` export.** The

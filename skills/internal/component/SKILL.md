@@ -1,6 +1,6 @@
 ---
 name: component
-description: The authoring contract for adding a NEW component to the vegastack-design repo or changing an existing one — single-source-of-truth workflow, motion mechanism choice, naming/API canon, responsive and accessibility checklists, the eight files every component needs, and the local verify gate. Use when asked to add, build, scaffold, update, change, fix, or refactor a component, hook, or block in this repo.
+description: The authoring contract for adding a NEW component to the vegastack-design repo or changing an existing one — single-source-of-truth workflow, motion mechanism choice, naming/API canon, responsive and accessibility checklists, the four artefacts every PR carries, and the local verify loop. Use when asked to add, build, scaffold, update, change, fix, or refactor a component, hook, or block in this repo.
 ---
 
 # Authoring or changing a component
@@ -17,10 +17,11 @@ for the Base UI / Tailwind / React versions in `package.json`. Anything in `docs
 point-in-time record of a past decision, not a description of the system today — use it to learn why
 something was chosen, never to confirm that it still holds.
 
-**`design.md` is living, and it is part of the change.** If a component's direction changes —
-a new variant axis, a retired token, a different interaction model — `design.md` must move with it in
-the same change. `pnpm design:sync:check` gates the derived surfaces, but it cannot tell you the
-prose has gone stale; that judgment is yours.
+**`design.md` is living, and a direction change owes it an update — in the wave PR, not this one.**
+If a component's direction changes (a new variant axis, a retired token, a different interaction
+model), record what `design.md` now has to say and carry it in the doctrine PR that closes the wave;
+`pnpm design:sync:check` gates only the derived surfaces and cannot tell you the prose went stale, so
+that judgment is yours and skipping it is how the doctrine rots.
 
 Deep reference, loaded on demand:
 
@@ -53,7 +54,7 @@ additive-only, so a renamed or removed item's stale JSON would otherwise linger 
 source file with a dead identity.
 
 Changing an existing component follows the same path: edit canonical → `registry:build` (the
-re-stamped integrity IS the change signal downstream) → tests → contract suite → visual review →
+re-stamped integrity IS the change signal downstream) → tests → `pnpm verify` → a look at the page →
 changeset.
 
 ## 1. Tokens
@@ -222,9 +223,17 @@ Contract for every new animated element:
   `cursor-pointer` on a native link (`standard-control-cursor`); `cursor-default` on a text-entry
   control destroys its I-beam affordance.
 
-## 6. Files to write
+## 6. What a PR carries
 
-For component `<name>` (PascalCase `<Name>`):
+**Four artefacts per PR: the source, its test, its MDX page, and a changeset.** Everything else in
+this list travels WITH one of those four — the preview and barrel entry belong to the page, the
+registry item and the contract record belong to the source — and none of them is a separate errand.
+What does NOT belong in a component PR: `design.md`, the skills and their mirror, the ledgers, and
+`AGENTS.md`. Those move once per wave or release, in a PR that touches nothing else, so that a
+component change is never blocked on doctrine prose and doctrine is never edited eight times a week
+by eight branches.
+
+For component `<name>` (PascalCase `<Name>`), in dependency order:
 
 1. **`packages/ui/registry/ui/<name>.tsx`** — or `.ts` for a pure hook (`type: registry:hook`).
    `'use client'` only if interactive. JSDoc every exported prop (`@default` where relevant) so
@@ -282,46 +291,35 @@ target: "@ui/<name>.tsx" }]` — the `@ui/` placeholder, never a hard-coded path
 
 ## 7. Verify
 
-**The inner loop while you work** — design-lint over the registry, a workspace typecheck, and this
-component's own unit test. Measured ~5s, so run it after every meaningful edit rather than saving
-verification for the end:
+**Two commands, and one of them is a person.** `pnpm check:component <name>` is the inner loop —
+design-lint over the registry, a workspace typecheck, and this component'''s own unit test, measured
+~5s — so run it after every meaningful edit rather than saving verification for the end. `pnpm verify`
+is what you run before opening the PR: typecheck, lint, `design:verify`, and the whole browser suite
+including the geometry contracts. It is byte-for-byte what CI executes, so there is nothing further to
+run and nothing to attest.
 
 ```bash
-pnpm check:component <name>
-```
-
-Then the full local gate before calling the component done:
-
-```bash
-node tooling/design-lint.mjs packages/ui/registry     # token-only + a11y AST rules
-cd packages/ui && pnpm exec tsc --noEmit && pnpm exec vitest run && cd ../..
-pnpm registry:build                                    # validate → hash → stamp → verify-deps
-pnpm design:derived                                    # contract-derived surfaces stay current
-pnpm design:verify                                     # RSC safety, contract reconciliation, +14 more
-pnpm registry:verify-consume                           # real `shadcn add` round-trip
-pnpm dlx shadcn@latest add @vegastack/<name> -y -o     # copy-in renders (serve public/r locally)
-```
-
-`design-lint` + `tsc` + `vitest` + `registry:build` passing is **not** the whole gate —
-`pnpm design:verify` can fail while all of those are green (it owns RSC safety, contract
-reconciliation, public API docs, theme parity, and the portal/mirror checks). Run it before calling
-a component done, or `pnpm lint`, which includes it.
-
-Then prove the behaviour contract, and look at the component yourself. These are different things
-and neither substitutes for the other.
-
-```bash
-pnpm verify                                    # BLOCKING. Includes 320px reflow · RTL · 24px targets
+pnpm check:component <name>                    # ~5s, after every edit
+pnpm registry:build                            # after any canonical edit: validate → hash → stamp → verify-deps
+pnpm design:derived                            # after any contract-record edit; commit what it changes
+pnpm verify                                    # BLOCKING, before the PR. Includes 320px reflow · RTL · 24px targets
 pnpm -F @vegastack/docs dev                    # REVIEW. open the page and look at it
 ```
 
-1. The geometry contracts are the gate, and they live in
+A green `design-lint` + `tsc` + `vitest` + `registry:build` is **not** the gate: `pnpm design:verify`
+(inside `pnpm verify`) can fail while all four are green, because it owns RSC safety, contract
+reconciliation, public API docs, theme parity, and the portal/mirror checks. Two release-only checks
+are worth running by hand when a change touches distribution — `pnpm registry:verify-consume` (the
+real `shadcn add` round-trip) and `pnpm dlx shadcn@latest add @vegastack/<name> -y -o` against a
+locally served `public/r` — but `pnpm verify:release` runs both before any deploy.
+
+1. The geometry contracts are the blocking visual-surface gate, in
    `packages/ui/test/geometry.browser.test.tsx` — inside the vitest browser suite, so `pnpm verify`
-   runs them and so does CI, on the LAN Linux runners in the pinned Playwright container. A red
-   result is a defect in the component, not in the suite. Reproduce one fixture with
+   runs them and so does CI, on the LAN Linux runners in the pinned Playwright container. A red result
+   is a defect in the component, not in the suite. Reproduce one fixture with
    `pnpm --filter @vegastack/ui exec vitest run test/geometry.browser.test.tsx -t <fixture>`.
-2. There is **no pixel-capture tool**: the before/after lane was deleted with the attestation stack
-   (`docs/plans/2026-09-08-verification-rebuild.md` § 3.3), and no screenshot is taken or committed
+2. There is **no pixel-capture tool** — that lane was removed on 2026-09-08
+   (`docs/plans/2026-09-08-verification-rebuild.md` § 3.3) and no screenshot is taken or committed
    anywhere. The visual half is a person opening the docs page in light and dark, at narrow and wide,
-   and exercising every state — rest, hover, pressed, focus-visible, disabled.
+   exercising every state — rest, hover, pressed, focus-visible, disabled.
 3. "The gate is green" is not a visual verdict. Say what you looked at, or say you did not look.

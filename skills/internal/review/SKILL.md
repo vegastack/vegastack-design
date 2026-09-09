@@ -30,9 +30,10 @@ For a full-system round, scope to a named surface set (`packages/*`, `apps/docs`
 `skills/`, the built registry under `apps/docs/public/r`) rather than "everything", so coverage is
 checkable afterwards.
 
-## 2. Run the gates
+## 2. Run `pnpm verify`, then read the one report
 
-Never open with a code read. Open by running the gates: a finding the build already catches is not
+Never open with a code read. The audit half is one command and its output: `pnpm verify` names the
+stage it failed at, and every stage below is inside it. A finding the build already catches is not
 worth a review slot, and a green claim that is actually red is the most valuable finding available.
 
 ```bash
@@ -102,7 +103,18 @@ Work these in order; each is a distinct failure class, not a checklist to skim.
    (`className`/`render`/CVA/`data-*`/ref/slots), a11y (keyboard + ARIA + `:focus-visible` + axe),
    JSDoc feeding `AutoTypeTable`.
 5. **Fail-closed gates.** Prove each one fails on a negative case. A gate never observed failing is
-   an assumption, not a gate.
+   an assumption, not a gate. Four gates in this tree carry their own proof, and they are the models
+   to hold a new gate against: `verify-docs-shell --self-test` (mutates the built export and requires
+   its own contracts to fail), `verify-workflow-security-negative.mjs` (proves a move back onto a
+   hosted runner, or a dropped container, is rejected in both directions),
+   `verify-design-lint-structural.mjs` and `verify-registry-integrity-negative.mjs` (negative
+   fixtures for the AST passes and for tampered `meta.integrity`), and `changeset-lint` (rejects a
+   changeset body with no marker, two markers, or no text, with no grandfather list). The geometry
+   lane is proved differently, and worth understanding before trusting it: a compiled-CSS sentinel
+   fails the run if the real token CSS did not load (without it every reflow assertion would pass
+   vacuously over unstyled fixtures), and each exclusion is per assertion, still EXECUTED in
+   expect-failure mode, so an exclusion that has been fixed turns red instead of rotting. A gate
+   whose only failure mode is "it did not run" is fail-open.
 6. **Security and trust boundaries.** Registry integrity (hash + Sigstore identity pinning), workflow
    permissions, secret handling, the approval topology. Over-broad is a finding even if nothing has
    exploited it.
@@ -159,13 +171,13 @@ pointer target), which run inside `pnpm verify` and therefore inside CI, taking 
 needing no baselines. There is no pixel lane and no baseline of any kind — a claim that "the pixel
 review passed" describes a tool that no longer exists.
 
-**The receipt is gone, and so is the review obligation it created.** Until 2026-09-08 no CI runner
-executed a browser, the lanes were attested by `.gates/receipt.json`, and a review that accepted "CI
-was green" had accepted an attestation rather than a run. CI now executes the same `pnpm verify` on
-the LAN Linux runners, so the reviewable question is simply whether the check ran and what it said.
-If you find a workflow, script, or skill still referring to `.gates/`, `receipt-guard`, `pnpm
-classify`, `pnpm gates:*`, `vrt-review`, or `contracts-run`, that is a finding — it is stale prose,
-not a mechanism.
+**Attestation is gone, and so is the review obligation it created.** Until 2026-09-08 no CI runner
+executed a browser and the lanes were attested by a committed evidence file, so a review that
+accepted "CI was green" had accepted an attestation rather than a run. CI now executes the same
+`pnpm verify` on the LAN Linux runners, and the reviewable question is simply whether the check ran
+and what it said. Prose naming any of the removed machinery — the evidence file and its guard jobs,
+the change classifier, route scoping, the pixel lane, the Playwright-over-the-export contract runner
+— is a finding: it describes a mechanism that no longer exists.
 
 - **No committed screenshot, and no capture lane to produce one.**
   `tooling/verify-workflow-security.mjs` rejects any workflow reaching for the removed baseline
