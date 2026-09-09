@@ -2,19 +2,16 @@
 title: Message Scroller
 description: A virtualised conversation viewport that pins to the latest message, preserves prepend position, and provides a jump-to-latest control.
 audience: public
+registry: message-scroller
+status: stable
+since: 0.1.0
+a11y: focusable scrollable region
 preview: messageScroller
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/message-scroller
-```
-
-This component is built on the headless `@shadcn/react/message-scroller`
-primitive (installed automatically) — the one primitive in the system beyond
-Base UI. It supplies the scroll/anchor/visibility engine; this wrapper is the
-token-styled skin.
+<InstallSteps name="message-scroller" />
 
 ## Usage
 
@@ -66,6 +63,8 @@ overflow and scroll.
   our [`Button`](/docs/components/button) and animates in only when scrolled away.
   Place it as a **direct child of `MessageScroller`, alongside the viewport** (not
   inside it) so it pins to the frame and floats over the bottom edge.
+
+<Anatomy name="message-scroller" />
 
 ### Hooks
 
@@ -220,7 +219,7 @@ the viewport via its `visibleMessageIds` array.
 
 ### MessageScrollerButton
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/message-scroller.tsx"
   name="MessageScrollerButtonProps"
 />
@@ -240,9 +239,15 @@ the content takes `aria-busy`.
 - The slide/fade animations honour `prefers-reduced-motion` via the shared motion
   tokens.
 
+<StatesTested name="message-scroller" />
+
 ## Do / Don't
 
 <DoDont
   do="Use a Message Scroller for live chat/AI threads that must auto-scroll, virtualise long histories, and offer a jump-to-latest control."
   dont="Use it for a short, static list that already fits — render Message rows in a plain container or a Scroll Area instead."
 />
+
+## Changelog
+
+<ComponentChangelog name="message-scroller" />

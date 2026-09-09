@@ -2,14 +2,16 @@
 title: Stat
 description: A labelled value block — muted label over a value, an honest faint empty state, and an optional delta line. Two scales.
 audience: public
+registry: stat
+status: stable
+since: 0.3.0
+a11y: label and value pair
 preview: stat
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/stat
-```
+<InstallSteps name="stat" />
 
 ## Usage
 
@@ -42,6 +44,13 @@ When there is no value, render `StatEmpty` ("No connection", "No team") in the f
 placeholder register — never a dash or a zero that would read as data. This mirrors the
 system-wide inline-empty tier (`EmptyValue`).
 
+## Anatomy
+
+`Stat` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="stat" />
+
 ## Examples
 
 The default scale suits record highlights; the tile preview exercises the large value scale and
@@ -55,7 +64,7 @@ all three delta intents.
 
 ### Stat
 
-<AutoTypeTable path="../../packages/ui/registry/ui/stat.tsx" name="StatProps" />
+<ApiTable path="../../packages/ui/registry/ui/stat.tsx" name="StatProps" />
 
 ### StatLabel, StatValue, and StatEmpty
 
@@ -64,10 +73,7 @@ elements.
 
 ### StatDelta
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/stat.tsx"
-  name="StatDeltaProps"
-/>
+<ApiTable path="../../packages/ui/registry/ui/stat.tsx" name="StatDeltaProps" />
 
 ## Accessibility
 
@@ -76,9 +82,15 @@ elements.
 - Use `StatEmpty` for missing data instead of a dash or a misleading numeric zero.
 - Tabular numerals keep changing values aligned without changing their spoken representation.
 
+<StatesTested name="stat" />
+
 ## Do / Don't
 
 <DoDont
   do="Pair every value with a concise label and write delta text that remains meaningful without color."
   dont="Animate rapidly changing metrics in a live region or substitute zero for unknown data."
 />
+
+## Changelog
+
+<ComponentChangelog name="stat" />

@@ -2,17 +2,16 @@
 title: Text Edit
 description: A Tiptap-based rich-text editor with a compact, token-styled toolbar and markdown-ish input — controlled HTML in, HTML out.
 audience: public
+registry: text-edit
+status: stable
+since: 0.1.0
+a11y: multiline textbox + APG toolbar
 preview: textEdit
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/text-edit
-```
-
-This also pulls in `@vegastack/toggle` (the toolbar buttons) and installs the Tiptap peer
-dependencies: `@tiptap/react`, `@tiptap/starter-kit`, and `@tiptap/pm`.
+<InstallSteps name="text-edit" />
 
 ## Usage
 
@@ -142,7 +141,7 @@ fires it with the current HTML. It's presentational only: the **host** decides w
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/text-edit.tsx"
   name="TextEditProps"
 />
@@ -175,9 +174,15 @@ fires it with the current HTML. It's presentational only: the **host** decides w
 | <kbd>←</kbd> / <kbd>→</kbd> _(in the toolbar)_        | Move between formatting controls; focus wraps at either end.                                                                              |
 | <kbd>Shift</kbd> + <kbd>Tab</kbd> _(in the toolbar)_  | Leave the toolbar in one press, rather than stepping back through every button.                                                           |
 
+<StatesTested name="text-edit" />
+
 ## Do / Don't
 
 <DoDont
   do="Use TextEdit for short-to-medium rich text — comments, descriptions, release notes — and drive it with controlled value/onValueChange HTML."
   dont="Use it for plain single-line input (use Input) or for collaborative real-time docs (use the deferred text-edit-collab)."
 />
+
+## Changelog
+
+<ComponentChangelog name="text-edit" />

@@ -2,14 +2,16 @@
 title: Figure Frame
 description: A sharp-cornered media frame with an optional mono FIG-annotation caption.
 audience: public
+registry: figure-frame
+status: stable
+since: 0.1.0
+a11y: figure with caption
 preview: figureFrame
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/figure-frame
-```
+<InstallSteps name="figure-frame" />
 
 ## Usage
 
@@ -54,7 +56,7 @@ to CTAs, chips, and figure frames (audit 17-brand-direction §Shape). Product su
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/figure-frame.tsx"
   name="FigureFrameProps"
 />
@@ -69,9 +71,15 @@ to CTAs, chips, and figure frames (audit 17-brand-direction §Shape). Product su
 - The framed media (an `<img>`, video, or live demo) must carry its own accessible description
   (e.g. `alt` text) — `FigureFrame` adds no accessibility semantics to its children.
 
+<StatesTested name="figure-frame" />
+
 ## Do / Don't
 
 <DoDont
   do="Use FigureFrame to frame a single screenshot, video, or live demo on a marketing surface."
   dont="Nest multiple unrelated pieces of content inside one FigureFrame — it's a frame for ONE figure."
 />
+
+## Changelog
+
+<ComponentChangelog name="figure-frame" />

@@ -2,24 +2,16 @@ import { defineConfig, defineDocs } from "fumadocs-mdx/config";
 import lastModified from "fumadocs-mdx/plugins/last-modified";
 import { z } from "zod";
 import { metaSchema } from "fumadocs-core/source/schema";
-import {
-  remarkAutoTypeTable,
-  createGenerator,
-  createFileSystemGeneratorCache,
-} from "fumadocs-typescript";
 import { transformerTwoslash } from "fumadocs-twoslash";
 import { rehypeCodeDefaultOptions } from "fumadocs-core/mdx-plugins";
 import { stringifyMdxForAgents } from "./lib/mdx-markdown";
 import { PAGE_STATUSES } from "./lib/shared";
 
-const generator = createGenerator({
-  cache: createFileSystemGeneratorCache(".next/fumadocs-typescript"),
-});
-
 /**
- * Frontmatter — canon row 0 (`08-docs-structure.md` §2). `registry`, `status`, `since` and `a11y`
- * are validated on shape now and become REQUIRED for component pages when Do1-b migrates every
- * page; until then a page may omit them and the header simply shows nothing.
+ * Frontmatter — canon row 0 (`design.md` § Docs canon). `registry`, `status`, `since` and `a11y`
+ * are shape-validated here and are REQUIRED on every component page; `tooling/content-lint.mjs`
+ * owns that requirement, because the schema is shared with the guide and foundation collections
+ * where the four fields do not apply.
  *
  * Self-contained shallow schema (the fields the showcase actually uses). Extending fumadocs'
  * `pageSchema` trips TS2589 ("Type instantiation is excessively deep") under TS 6 + Zod 4 during
@@ -87,7 +79,6 @@ export default defineConfig({
   // Git-derived `lastModified` on every doc — rendered as DocsPage's `lastUpdate` stamp.
   plugins: [lastModified()],
   mdxOptions: {
-    remarkPlugins: [[remarkAutoTypeTable, { generator }]],
     rehypeCodeOptions: {
       themes: { light: "github-light", dark: "github-dark" },
       langs: ["js", "jsx", "ts", "tsx", "css", "bash"],

@@ -2,14 +2,16 @@
 title: Tabs
 description: A set of layered sections — line or pill variants, optional icons and count badges, horizontal or vertical orientation, full keyboard navigation.
 audience: public
+registry: tabs
+status: stable
+since: 0.1.0
+a11y: APG tabs
 preview: tabs
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/tabs
-```
+<InstallSteps name="tabs" />
 
 ## Usage
 
@@ -28,16 +30,12 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 </Tabs>;
 ```
 
-## Playground
-
-Switch between the variants and orientations, then copy the generated JSX.
-
-<TabsPlayground />
-
 ## Anatomy
 
 `Tabs` is a compound component built on Base UI Tabs. Compose the parts inside the root, matching
 each `TabsTrigger` to a `TabsContent` by `value`:
+
+<Anatomy name="tabs" />
 
 ```tsx
 <Tabs defaultValue="overview" orientation="horizontal">
@@ -109,29 +107,32 @@ with an edge fade by default.
 
 <ComponentPreview name="tabsChip" file="components/preview/tabs.tsx" />
 
+## Playground
+
+Switch between the variants and orientations, then copy the generated JSX.
+
+<TabsPlayground />
+
 ## API Reference
 
 ### Tabs
 
-<AutoTypeTable path="../../packages/ui/registry/ui/tabs.tsx" name="TabsProps" />
+<ApiTable path="../../packages/ui/registry/ui/tabs.tsx" name="TabsProps" />
 
 ### TabsList
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/tabs.tsx"
-  name="TabsListProps"
-/>
+<ApiTable path="../../packages/ui/registry/ui/tabs.tsx" name="TabsListProps" />
 
 ### TabsTrigger
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/tabs.tsx"
   name="TabsTriggerProps"
 />
 
 ### TabsContent
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/tabs.tsx"
   name="TabsContentProps"
 />
@@ -154,9 +155,15 @@ with an edge fade by default.
 | <kbd>Home</kbd> / <kbd>End</kbd>    | Move focus to the first / last tab.                                            |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused tab.                                                      |
 
+<StatesTested name="tabs" />
+
 ## Do / Don't
 
 <DoDont
   do="Keep tab labels short and parallel, match each trigger to a panel by value, and use a count badge to surface pending items."
   dont="Use tabs for sequential steps (use a stepper/wizard) or nest tabs more than one level deep."
 />
+
+## Changelog
+
+<ComponentChangelog name="tabs" />

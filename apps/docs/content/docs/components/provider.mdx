@@ -2,17 +2,16 @@
 title: Provider
 description: The single app-root wrapper — theme, toasts, tooltip coordination, and text direction. Mount it once; every VegaStack component below it just works.
 audience: public
+registry: provider
+status: stable
+since: 0.2.0
+a11y: no rendered UI
 preview: providerDemo
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/provider
-```
-
-The install also pulls the `toast` item (the `ToastProvider` + `Toaster` the provider mounts)
-if you don't already have it.
+<InstallSteps name="provider" />
 
 ## Usage
 
@@ -109,7 +108,7 @@ All remaining props pass through to next-themes — e.g. force a default:
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/provider.tsx"
   name="VegaStackProviderProps"
 />
@@ -122,9 +121,15 @@ portal. Toast announcements come from the toast viewport's labelled live region 
 full-page transition flash on theme switch, complementing the global
 `prefers-reduced-motion` reset in the base layer.
 
+<StatesTested name="provider" />
+
 ## Do / Don't
 
 <DoDont
   do="Mount VegaStackProvider once at the app root and build your theme toggle on useVegaStackTheme."
   dont="Nest providers or mount a second Toaster — toasts will double-render; pass toaster={false} instead."
 />
+
+## Changelog
+
+<ComponentChangelog name="provider" />

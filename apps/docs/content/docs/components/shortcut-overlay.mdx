@@ -2,14 +2,16 @@
 title: Shortcut Overlay
 description: The ?-triggered dialog listing keyboard shortcuts, rendered from a declaration registry — declare once with a category, never hand-list.
 audience: public
+registry: shortcut-overlay
+status: stable
+since: 0.4.0
+a11y: description list in a dialog
 preview: shortcutOverlay
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/shortcut-overlay
-```
+<InstallSteps name="shortcut-overlay" />
 
 ## Usage
 
@@ -60,14 +62,14 @@ The filter appears automatically past ten shortcuts (or force it with
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/shortcut-overlay.tsx"
   name="ShortcutOverlayProps"
 />
 
 ### Shortcut definition
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/shortcut-overlay.tsx"
   name="ShortcutDefinition"
 />
@@ -87,9 +89,15 @@ The filter appears automatically past ten shortcuts (or force it with
 | <kbd>?</kbd>      | Open the overlay (outside text fields). |
 | <kbd>Escape</kbd> | Close it.                               |
 
+<StatesTested name="shortcut-overlay" />
+
 ## Do / Don't
 
 <DoDont
   do="Keep one shortcut registry and feed the overlay, tooltips, and Command rows from it."
   dont="Hand-list shortcuts in dialog markup — it goes stale the day someone adds a binding."
 />
+
+## Changelog
+
+<ComponentChangelog name="shortcut-overlay" />

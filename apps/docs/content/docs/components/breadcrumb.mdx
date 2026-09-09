@@ -2,14 +2,16 @@
 title: Breadcrumb
 description: A hierarchical navigation trail — links, separators, the current page, and ellipsis collapse for long paths.
 audience: public
+registry: breadcrumb
+status: stable
+since: 0.1.0
+a11y: APG breadcrumb
 preview: breadcrumb
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/breadcrumb
-```
+<InstallSteps name="breadcrumb" />
 
 ## Usage
 
@@ -41,6 +43,8 @@ import {
 
 `Breadcrumb` is a compound component built from a presentational `<nav aria-label="breadcrumb">`
 wrapping an ordered list. Compose the parts inside the root — every part exposes a `data-slot`:
+
+<Anatomy name="breadcrumb" />
 
 ```tsx
 <Breadcrumb>
@@ -179,21 +183,21 @@ import Link from "next/link";
 
 ### BreadcrumbLink
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/breadcrumb.tsx"
   name="BreadcrumbLinkProps"
 />
 
 ### BreadcrumbCollapsed
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/breadcrumb.tsx"
   name="BreadcrumbCollapsedProps"
 />
 
 ### BreadcrumbTrail
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/breadcrumb.tsx"
   name="BreadcrumbTrailProps"
 />
@@ -202,7 +206,7 @@ import Link from "next/link";
 
 The item shape consumed by `BreadcrumbCollapsed` and `BreadcrumbTrail`:
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/breadcrumb.tsx"
   name="BreadcrumbSegment"
 />
@@ -233,9 +237,15 @@ each accepts everything its underlying native element accepts (`<nav>`, `<ol>`,
 | <kbd>Tab</kbd>   | Move focus through the breadcrumb links. |
 | <kbd>Enter</kbd> | Follow the focused link.                 |
 
+<StatesTested name="breadcrumb" />
+
 ## Do / Don't
 
 <DoDont
   do="Mark the last segment as BreadcrumbPage so the current location is announced and not a dead link."
   dont="Make the current page a clickable link, or use a breadcrumb as primary navigation — it reflects location, it isn't a menu."
 />
+
+## Changelog
+
+<ComponentChangelog name="breadcrumb" />

@@ -2,14 +2,16 @@
 title: Auto Save Input
 description: An input that debounces edits and persists them via an async onSave, with an inline idle/saving/saved/error status.
 audience: public
+registry: auto-save-input
+status: stable
+since: 0.1.0
+a11y: native input + status region
 preview: autoSaveInput
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/auto-save-input
-```
+<InstallSteps name="auto-save-input" />
 
 ## Usage
 
@@ -87,7 +89,7 @@ baseline.
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/auto-save-input.tsx"
   name="AutoSaveInputProps"
 />
@@ -128,9 +130,15 @@ saving).
 | Any text key | Edits the value and (re)starts the debounce timer. |
 | `Tab`        | Moves focus to/from the field as a normal input.   |
 
+<StatesTested name="auto-save-input" />
+
 ## Do / Don't
 
 <DoDont
   do="Use defaultValue for an uncontrolled draft, value/onValueChange for a controlled draft, and keep persistence/toasts in onSave/onStatusChange."
   dont="Name an initial uncontrolled value value, or rely on color alone for save status."
 />
+
+## Changelog
+
+<ComponentChangelog name="auto-save-input" />

@@ -2,14 +2,16 @@
 title: Progress
 description: A horizontal progress bar for measurable, ongoing tasks — determinate or indeterminate, built on Base UI Progress.
 audience: public
+registry: progress
+status: stable
+since: 0.1.0
+a11y: ARIA progressbar
 preview: progress
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/progress
-```
+<InstallSteps name="progress" />
 
 ## Usage
 
@@ -22,12 +24,6 @@ import { Progress } from "@/components/ui/progress";
 <ComponentPreview name="progress" file="components/preview/progress.tsx" />
 
 ## Examples
-
-### Playground
-
-Adjust the bar's value and size — the fill sweeps to each new value — then copy the generated JSX.
-
-<ProgressPlayground />
 
 ### Anatomy
 
@@ -141,9 +137,15 @@ Use Base UI's `render` to swap the root element while keeping the `role="progres
   file="components/preview/progress.tsx"
 />
 
+## Playground
+
+Adjust the bar's value and size — the fill sweeps to each new value — then copy the generated JSX.
+
+<ProgressPlayground />
+
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/progress.tsx"
   name="ProgressProps"
 />
@@ -163,9 +165,15 @@ Use Base UI's `render` to swap the root element while keeping the `role="progres
 | `aria-valuemin` / `aria-valuemax` | Bounds of the scale (`0` and `max`)                     |
 | `aria-label` / `aria-labelledby`  | Accessible name (author-provided)                       |
 
+<StatesTested name="progress" />
+
 ## Do / Don't
 
 <DoDont
   do="Use Progress for a task with a start and an end — uploads, multi-step forms, onboarding completion — and pass value={null} when the duration is genuinely unknown."
   dont="Use Progress for a wait with no notion of completion at all — a Spinner says that better."
 />
+
+## Changelog
+
+<ComponentChangelog name="progress" />

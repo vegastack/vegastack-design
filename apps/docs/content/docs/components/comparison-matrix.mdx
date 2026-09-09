@@ -2,14 +2,16 @@
 title: Comparison Matrix
 description: A plan-feature matrix with accessible availability cells and a highlighted plan column.
 audience: public
+registry: comparison-matrix
+status: stable
+since: 0.3.0
+a11y: native table semantics
 preview: comparisonMatrix
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/comparison-matrix
-```
+<InstallSteps name="comparison-matrix" />
 
 ## Usage
 
@@ -26,6 +28,13 @@ import {
   <ComparisonRow feature="Seats" availability={["3", "Unlimited"]} />
 </ComparisonMatrix>;
 ```
+
+## Anatomy
+
+`Comparison Matrix` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="comparison-matrix" />
 
 ## Examples
 
@@ -57,7 +66,7 @@ silently reading as "not included". An unsupplied value is not a negative claim.
 
 ### ComparisonMatrix
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/comparison-matrix.tsx"
   name="ComparisonMatrixProps"
 />
@@ -68,7 +77,7 @@ silently reading as "not included". An unsupplied value is not a negative claim.
 
 ### ComparisonRow
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/comparison-matrix.tsx"
   name="ComparisonRowProps"
 />
@@ -86,9 +95,15 @@ included") — never bare dots. Literal values ("3 seats") render as-is. The enc
 | <kbd>Shift</kbd> + mouse wheel      | Scroll horizontally where the platform supports it.    |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused plan action.                      |
 
+<StatesTested name="comparison-matrix" />
+
 ## Do / Don't
 
 <DoDont
   do="Use row and column headers, pair boolean glyphs with text alternatives, and keep plan order consistent across breakpoints."
   dont="Communicate availability by color alone or use a comparison table for unrelated marketing copy."
 />
+
+## Changelog
+
+<ComponentChangelog name="comparison-matrix" />

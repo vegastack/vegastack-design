@@ -2,16 +2,16 @@
 title: Date Picker
 description: Pick a single date or a date range from a calendar popover — token-styled, keyboard-navigable, with optional quick presets.
 audience: public
+registry: date-picker
+status: stable
+since: 0.1.0
+a11y: APG date picker dialog
 preview: datePicker
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/date-picker
-```
-
-> Requires `react-day-picker@^10` as a peer dependency — `shadcn add` lists it; install it if your project doesn't already have it.
+<InstallSteps name="date-picker" />
 
 ## Usage
 
@@ -23,6 +23,13 @@ function Example() {
   return <DatePicker value={date} onValueChange={setDate} />;
 }
 ```
+
+## Anatomy
+
+`Date Picker` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="date-picker" />
 
 ## Examples
 
@@ -152,28 +159,28 @@ other shape and `locale` for a BCP-47 locale.
 
 ### DatePicker
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/date-picker.tsx"
   name="DatePickerProps"
 />
 
 ### DateRangePicker
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/date-picker.tsx"
   name="DateRangePickerProps"
 />
 
 ### Calendar
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/date-picker.tsx"
   name="CalendarProps"
 />
 
 ### CalendarDayButton
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/date-picker.tsx"
   name="CalendarDayButtonProps"
 />
@@ -184,7 +191,7 @@ The shape of each entry in `DatePicker`'s `presets` array.
 
 ### DatePreset
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/date-picker.tsx"
   name="DatePreset"
 />
@@ -195,7 +202,7 @@ The shape of each entry in `DateRangePicker`'s `presets` array.
 
 ### DateRangePreset
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/date-picker.tsx"
   name="DateRangePreset"
 />
@@ -254,9 +261,15 @@ Re-exported from `react-day-picker`. `DateRange` is the shape of a range `value`
 | <kbd>Home</kbd> / <kbd>End</kbd>                    | Move to the first / last day of the week.                                 |
 | <kbd>Esc</kbd>                                      | Close the popover and return focus to the trigger.                        |
 
+<StatesTested name="date-picker" />
+
 ## Do / Don't
 
 <DoDont
   do="Use a DatePicker for a single calendar date and a DateRangePicker for a span. Give the trigger an aria-label (or a Field label), and pass disabledDates to block invalid days. Format with the consumer's locale via the locale prop."
   dont="Don't use a date picker for free-form or partial dates (a plain Input with a mask is better), and don't rely on color alone to mark the selection — the state styling already encodes selection, today, and disabled."
 />
+
+## Changelog
+
+<ComponentChangelog name="date-picker" />

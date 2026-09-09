@@ -2,14 +2,16 @@
 title: Dropzone
 description: File acquisition — drop, browse, or paste — as a thin shell over the use-file-drop hook; the drop surface is the named, focusable control.
 audience: public
+registry: dropzone
+status: stable
+since: 0.4.0
+a11y: button-role drop surface
 preview: dropzone
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/dropzone
-```
+<InstallSteps name="dropzone" />
 
 ## Usage
 
@@ -74,14 +76,14 @@ an automated check can synthesise. It is presentation only: a real drag always w
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/dropzone.tsx"
   name="DropzoneProps"
 />
 
 ### Rejection shape
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/use-file-drop.ts"
   name="FileDropRejection"
 />
@@ -110,9 +112,15 @@ an automated check can synthesise. It is presentation only: a real drag always w
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the file browser.                |
 | <kbd>⌘</kbd>+<kbd>V</kbd>           | Paste files while inside the surface. |
 
+<StatesTested name="dropzone" />
+
 ## Do / Don't
 
 <DoDont
   do="Meet Attachment at a plain File[] — stage files in your state and render their upload lifecycle with Attachment's state machine."
   dont="Ask Dropzone to render attachments or own uploads — acquisition and upload state are separate jobs on purpose."
 />
+
+## Changelog
+
+<ComponentChangelog name="dropzone" />

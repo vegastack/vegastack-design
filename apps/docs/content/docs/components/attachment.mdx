@@ -2,14 +2,16 @@
 title: Attachment
 description: A file chip / thumbnail card for chat and message-compose surfaces — media slot, name + meta, uploading/error/complete states, and remove/download actions.
 audience: public
+registry: attachment
+status: stable
+since: 0.1.0
+a11y: labelled media tile
 preview: attachmentFileChip
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/attachment
-```
+<InstallSteps name="attachment" />
 
 ## Usage
 
@@ -42,12 +44,6 @@ import { FileText } from "lucide-react";
 </Attachment>;
 ```
 
-## Playground
-
-Step through the lifecycle states, densities, orientations, and media treatments, then copy the generated JSX.
-
-<AttachmentPlayground />
-
 ## Anatomy
 
 There is no headless `@shadcn/react` Attachment primitive published (0.2.1
@@ -55,6 +51,8 @@ exports only `./message-scroller`), so — like the rest of the chat family
 ([`Message`](/docs/components/message), [`Bubble`](/docs/components/bubble),
 [`Marker`](/docs/components/marker)) — `Attachment` is fully self-owned: plain
 CVA + `data-slot`/`data-*` styling, no new npm dependency.
+
+<Anatomy name="attachment" />
 
 - `Attachment` — the root chip/card (`data-slot="attachment"`). Owns `state`,
   `size`, `orientation`.
@@ -133,39 +131,45 @@ state.
   file="components/preview/attachment.tsx"
 />
 
+## Playground
+
+Step through the lifecycle states, densities, orientations, and media treatments, then copy the generated JSX.
+
+<AttachmentPlayground />
+
 ## API Reference
 
 ### Attachment
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/attachment.tsx"
   name="AttachmentProps"
 />
 
 ### AttachmentMedia
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/attachment.tsx"
   name="AttachmentMediaProps"
 />
 
 ### AttachmentDescription
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/attachment.tsx"
   name="AttachmentDescriptionProps"
 />
 
 ### AttachmentProgress
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/attachment.tsx"
   name="AttachmentProgressProps"
 />
 
 ### AttachmentTrigger
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/attachment.tsx"
   name="AttachmentTriggerProps"
 />
@@ -199,9 +203,15 @@ aria-live="polite"`, the same pattern as
   stacking band; place `AttachmentTrigger` first in JSX so the actions stay on
   top and clickable.
 
+<StatesTested name="attachment" />
+
 ## Do / Don't
 
 <DoDont
   do="Pair a live AttachmentDescription with AttachmentProgress while uploading, and always include the file name in the remove IconButton's aria-label."
   dont="Rely on the border/icon color alone to convey the error state, or drop AttachmentTitle's truncation by overriding className with `whitespace-normal`."
 />
+
+## Changelog
+
+<ComponentChangelog name="attachment" />

@@ -148,9 +148,6 @@ export function DataAttributesRows({ data }: { data: ContractDataAttributes }) {
  * name · literal type · default · description (DS-02). Own props only; a part without own
  * props gets ONE sentence, never placeholder rows (DS-03). When the contract records `data-*`
  * attributes or CSS variables for the part, a second small table follows (canon row 7).
- *
- * Registered in the MDX map under BOTH `ApiTable` and the legacy `AutoTypeTable` name so the
- * existing pages render the new table without a body rewrite; Do1-b renames the usages.
  */
 export async function ApiTable({ path, name }: ApiTableProps) {
   const docs = await getApiDocs({ path, name });

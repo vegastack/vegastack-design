@@ -2,14 +2,16 @@
 title: Chip
 description: The one labelled pill — 10 decorative hues, two tiers, an optional selection rung, and a real 24px remove control.
 audience: public
+registry: chip
+status: stable
+since: 0.7.0
+a11y: non-interactive label + remove button
 preview: chip
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/chip
-```
+<InstallSteps name="chip" />
 
 ## Usage
 
@@ -24,6 +26,13 @@ import { Chip } from "@/components/ui/chip";
 `Chip` is the primitive behind `Tag`, `FilterChip`, `ChipInput`'s chips and `ComboboxChip`.
 Reach for it directly when you need a labelled pill that none of those already is; reach for
 the named component when one of them fits, so the page keeps its vocabulary.
+
+## Anatomy
+
+`Chip` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="chip" />
 
 ## Examples
 
@@ -82,7 +91,7 @@ geometry through Base UI `render`. That is exactly how `ComboboxChip` works:
 
 ### Chip
 
-<AutoTypeTable path="../../packages/ui/registry/ui/chip.tsx" name="ChipProps" />
+<ApiTable path="../../packages/ui/registry/ui/chip.tsx" name="ChipProps" />
 
 ### ChipRemove
 
@@ -97,9 +106,15 @@ when the remove control belongs to another engine — otherwise pass `onRemove` 
 - Hue is decorative. Never let a chip colour be the only signal of status or meaning.
 - Wrap a growable label in `<span className="min-w-0 truncate">` so a long value ellipsises instead of stretching the row.
 
+<StatesTested name="chip" />
+
 ## Do / Don't
 
 <DoDont
   do="Use one Chip for every labelled pill, and name every remove control after what it removes."
   dont="Hand-roll a pill with its own height, radius and a sub-24px remove button."
 />
+
+## Changelog
+
+<ComponentChangelog name="chip" />

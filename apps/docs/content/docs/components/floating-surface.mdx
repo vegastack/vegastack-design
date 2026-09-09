@@ -2,18 +2,16 @@
 title: Floating Surface
 description: The shared floating-overlay module — one Portal/Positioner/Popup composer, the popup surface recipes, the list-item recipe, and the in-panel search row.
 audience: public
+registry: floating-surface
+status: stable
+since: 0.7.0
+a11y: Base UI popup primitives
 preview: floatingSurface
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/floating-surface
-```
-
-<RegistryInstallCallout />
-
-Every overlay in the system already depends on it, so `shadcn add @vegastack/popover` (or any menu, select, combobox or command item) installs it for you. Add it directly only when you are building a new anchored surface of your own.
+<InstallSteps name="floating-surface" />
 
 ## Usage
 
@@ -44,6 +42,13 @@ It is a module of recipes and one composer, not a rendered component you place i
 ```
 
 `parts` stays structural on purpose: each overlay hands in its OWN Base UI parts, so `PopoverContent`, `SelectContent` and friends keep their precise Base UI prop types. Only the internal hand-off is generic.
+
+## Anatomy
+
+`Floating Surface` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="floating-surface" />
 
 ## Examples
 
@@ -85,28 +90,28 @@ Turn `focusTint` off when the field is autofocused as the panel opens — a perm
 
 ### FloatingSurface
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/floating-surface.tsx"
   name="FloatingSurfaceProps"
 />
 
 ### FloatingSurfaceParts
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/floating-surface.tsx"
   name="FloatingSurfaceParts"
 />
 
 ### FloatingArrow
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/floating-surface.tsx"
   name="FloatingArrowProps"
 />
 
 ### PanelSearchFrame
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/floating-surface.tsx"
   name="PanelSearchFrameProps"
 />
@@ -115,7 +120,7 @@ Turn `focusTint` off when the field is autofocused as the panel opens — a perm
 
 `createMenuParts(prefix)` returns `Group`, `RadioGroup`, `Item`, `CheckboxItem`, `RadioItem`, `Label`, `Separator`, `Shortcut` and `SubTrigger`, each already carrying `<prefix>-<part>` as its `data-slot`.
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/floating-surface.tsx"
   name="MenuPartItemProps"
 />
@@ -128,9 +133,15 @@ Turn `focusTint` off when the field is autofocused as the panel opens — a perm
 - Rows are washed on `data-highlighted`, which Base UI sets for keyboard navigation as well as pointer hover, so keyboard users see the same affordance as mouse users.
 - `PanelSearchFrame` renders only chrome — the field inside it keeps its own accessible name (`aria-label` or a wired label).
 
+<StatesTested name="floating-surface" />
+
 ## Do / Don't
 
 <DoDont
   do="Compose FloatingSurface and menuItemVariants when you build a new anchored overlay or list surface, so it inherits the system's surface, motion, and highlight ladder for free."
   dont="Restate the Portal/Positioner/Popup plumbing, a row's hover wash, or a panel search row in a component. That is exactly the duplication this module replaced — and it drifts."
 />
+
+## Changelog
+
+<ComponentChangelog name="floating-surface" />

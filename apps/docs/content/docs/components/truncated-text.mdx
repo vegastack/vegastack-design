@@ -2,14 +2,16 @@
 title: Truncated Text
 description: Truncate text to one line or N lines with an ellipsis — and reveal the full text in a tooltip only when it actually overflows.
 audience: public
+registry: truncated-text
+status: stable
+since: 0.1.0
+a11y: measured overflow disclosure
 preview: truncatedText
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/truncated-text
-```
+<InstallSteps name="truncated-text" />
 
 ## Usage
 
@@ -34,11 +36,12 @@ clamping), and a second tap, <kbd>Esc</kbd>, or blur re-clamps it. Hover-capable
 devices are unaffected, and keyboard focus keeps opening the Tooltip exactly as
 before on every device.
 
-## Playground
+## Anatomy
 
-Change the line budget, tooltip side, and rendered element on an overflowing string, then copy the generated JSX.
+`Truncated Text` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
 
-<TruncatedTextPlayground />
+<Anatomy name="truncated-text" />
 
 ## Examples
 
@@ -164,32 +167,38 @@ only way to read the text at all.
 <TableCellText text={longNote} focusable />
 ```
 
+## Playground
+
+Change the line budget, tooltip side, and rendered element on an overflowing string, then copy the generated JSX.
+
+<TruncatedTextPlayground />
+
 ## API Reference
 
 ### TruncationFocusProvider
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/truncated-text.tsx"
   name="TruncationFocusProviderProps"
 />
 
 ### TruncatedText
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/truncated-text.tsx"
   name="TruncatedTextProps"
 />
 
 ### IconText
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/truncated-text.tsx"
   name="IconTextProps"
 />
 
 ### TableCellText
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/truncated-text.tsx"
   name="TableCellTextProps"
 />
@@ -223,9 +232,15 @@ only way to read the text at all.
 | <kbd>Esc</kbd>                      | Dismiss the open tooltip, or (touch fallback) re-clamp an expanded disclosure. |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | (Touch fallback only) Toggle the expand/collapse disclosure.                   |
 
+<StatesTested name="truncated-text" />
+
 ## Do / Don't
 
 <DoDont
   do="Constrain the parent (a cell or max-w wrapper) and let TruncatedText clamp the text to fit — the full value stays one hover away."
   dont="Truncate essential, action-bearing text behind a tooltip — a tooltip isn't reliably reachable on touch; show the full value or use a different layout."
 />
+
+## Changelog
+
+<ComponentChangelog name="truncated-text" />

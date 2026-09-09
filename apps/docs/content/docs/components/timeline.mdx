@@ -2,14 +2,16 @@
 title: Timeline
 description: Rail geometry for chronological records — a continuous connector with a node per entry; rows are Item parts, timestamps are RelativeTime.
 audience: public
+registry: timeline
+status: stable
+since: 0.4.0
+a11y: ordered list of items
 preview: timeline
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/timeline
-```
+<InstallSteps name="timeline" />
 
 ## Usage
 
@@ -53,6 +55,13 @@ would fork `Item`'s vocabulary.
 | Live bottom-pinned feeds     | [`MessageScroller`](/docs/components/message-scroller) — a different job |
 | Virtualization               | Not needed: entries carry `content-visibility` render skipping built in  |
 
+## Anatomy
+
+`Timeline` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="timeline" />
+
 ## Examples
 
 ### Anatomy
@@ -88,14 +97,14 @@ day boundary falls and emits a separator there.
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/timeline.tsx"
   name="TimelineProps"
 />
 
 ### Item
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/timeline.tsx"
   name="TimelineItemProps"
 />
@@ -124,9 +133,15 @@ hides via `:last-child`).
   14px line box, so shrinking it to `text-sm` drops the effective target under
   the 24px floor.
 
+<StatesTested name="timeline" />
+
 ## Do / Don't
 
 <DoDont
   do="Compose Item parts inside TimelineItem and pass RelativeTime a fixed `now` for deterministic SSR."
   dont="Reach for MessageScroller for a static chronological record — the live-feed primitive is dead weight without prepend-on-scroll behaviour."
 />
+
+## Changelog
+
+<ComponentChangelog name="timeline" />

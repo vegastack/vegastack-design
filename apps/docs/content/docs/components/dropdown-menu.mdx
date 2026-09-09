@@ -2,14 +2,16 @@
 title: Dropdown Menu
 description: A menu of actions triggered by a button — items, submenus, separators, labels, shortcuts, and checkbox/radio selections.
 audience: public
+registry: dropdown-menu
+status: stable
+since: 0.1.0
+a11y: APG menu button
 preview: dropdownMenu
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/dropdown-menu
-```
+<InstallSteps name="dropdown-menu" />
 
 ## Usage
 
@@ -35,6 +37,8 @@ import { Button } from "@/components/ui/button";
 
 `DropdownMenu` is a compound component built on Base UI's `Menu`. The trigger and the content
 sit inside the root; the content portals to `<body>` and positions itself against the trigger.
+
+<Anatomy name="dropdown-menu" />
 
 ```tsx
 <DropdownMenu>
@@ -85,7 +89,7 @@ item, a destructive action, and a nested submenu.
   file="components/preview/dropdown-menu.tsx"
 />
 
-## Items
+### Items
 
 Items take leading `lucide-react` icons as children, a trailing `DropdownMenuShortcut`, and a
 `tone="destructive"` for delete/remove actions. Use `inset` to align items that have no leading
@@ -103,7 +107,7 @@ icon with those that do.
 </DropdownMenuItem>
 ```
 
-## Inset alignment
+### Inset alignment
 
 When a menu mixes items that have a leading icon (or a checkbox/radio indicator) with items
 that don't, add `inset` to the icon-less items — and to a `DropdownMenuLabel` — so their text
@@ -125,7 +129,7 @@ lines up with the indented rows instead of jumping back to the edge.
 </DropdownMenuGroup>
 ```
 
-## Checkbox & radio items
+### Checkbox & radio items
 
 `DropdownMenuCheckboxItem` toggles a setting and stays open on click; `DropdownMenuRadioGroup`
 wraps `DropdownMenuRadioItem`s for single-select.
@@ -141,7 +145,7 @@ wraps `DropdownMenuRadioItem`s for single-select.
 </DropdownMenuRadioGroup>
 ```
 
-## Submenus
+### Submenus
 
 Nest a `DropdownMenuSub` to reveal a second-level popup. The trigger shows a trailing chevron and
 opens on hover or with the <kbd>→</kbd> arrow key.
@@ -160,98 +164,98 @@ opens on hover or with the <kbd>→</kbd> arrow key.
 
 ### DropdownMenu
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/dropdown-menu.tsx"
   name="DropdownMenuProps"
 />
 
 ### DropdownMenuTrigger
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/dropdown-menu.tsx"
   name="DropdownMenuTriggerProps"
 />
 
 ### DropdownMenuGroup
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/dropdown-menu.tsx"
   name="DropdownMenuGroupProps"
 />
 
 ### DropdownMenuSub
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/dropdown-menu.tsx"
   name="DropdownMenuSubProps"
 />
 
 ### DropdownMenuRadioGroup
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/dropdown-menu.tsx"
   name="DropdownMenuRadioGroupProps"
 />
 
 ### DropdownMenuContent
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/dropdown-menu.tsx"
   name="DropdownMenuContentProps"
 />
 
 ### DropdownMenuItem
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/dropdown-menu.tsx"
   name="DropdownMenuItemProps"
 />
 
 ### DropdownMenuCheckboxItem
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/dropdown-menu.tsx"
   name="DropdownMenuCheckboxItemProps"
 />
 
 ### DropdownMenuRadioItem
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/dropdown-menu.tsx"
   name="DropdownMenuRadioItemProps"
 />
 
 ### DropdownMenuLabel
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/dropdown-menu.tsx"
   name="DropdownMenuLabelProps"
 />
 
 ### DropdownMenuSeparator
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/dropdown-menu.tsx"
   name="DropdownMenuSeparatorProps"
 />
 
 ### DropdownMenuShortcut
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/dropdown-menu.tsx"
   name="DropdownMenuShortcutProps"
 />
 
 ### DropdownMenuSubTrigger
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/dropdown-menu.tsx"
   name="DropdownMenuSubTriggerProps"
 />
 
 ### DropdownMenuSubContent
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/dropdown-menu.tsx"
   name="DropdownMenuSubContentProps"
 />
@@ -272,9 +276,15 @@ opens on hover or with the <kbd>→</kbd> arrow key.
 | <kbd>Enter</kbd> / <kbd>Space</kbd>                | Activate the focused item.                                    |
 | <kbd>A</kbd>–<kbd>Z</kbd>                          | Typeahead — jump to the next item matching the typed letters. |
 
+<StatesTested name="dropdown-menu" />
+
 ## Do / Don't
 
 <DoDont
   do="Group related actions with a label and separate destructive actions with a separator."
   dont="Use a dropdown menu for selecting a single value from a form — use a Select instead."
 />
+
+## Changelog
+
+<ComponentChangelog name="dropdown-menu" />

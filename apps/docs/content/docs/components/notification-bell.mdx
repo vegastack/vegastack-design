@@ -2,14 +2,16 @@
 title: Notification Bell
 description: A bell icon button with an unread-count badge overlay — presentational; the app supplies the count.
 audience: public
+registry: notification-bell
+status: stable
+since: 0.1.0
+a11y: native button with counted name
 preview: notificationBell
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/notification-bell
-```
+<InstallSteps name="notification-bell" />
 
 ## Usage
 
@@ -25,12 +27,6 @@ component just renders a bell [`IconButton`](/docs/components/icon-button) with 
 at the top inline-end edge.
 
 ## Examples
-
-### Playground
-
-Try the count values — including the 99+ overflow — and the dot mode, then copy the generated JSX.
-
-<NotificationBellPlayground />
 
 ### Counts and indicators
 
@@ -76,13 +72,19 @@ the count-folded accessible name).
   file="components/preview/notification-bell.tsx"
 />
 
+## Playground
+
+Try the count values — including the 99+ overflow — and the dot mode, then copy the generated JSX.
+
+<NotificationBellPlayground />
+
 ## API Reference
 
 `NotificationBell` adds the three props below and inherits the rest from
 [`IconButtonProps`](/docs/components/icon-button#api-reference) (e.g. `size`, `variant`, `disabled`,
 `loading`, `render`, `onClick`), minus `children` / `aria-label` / `label`, which it manages.
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/notification-bell.tsx"
   name="NotificationBellProps"
 />
@@ -106,9 +108,15 @@ the count-folded accessible name).
 | <kbd>Space</kbd> | Activate the bell             |
 | <kbd>Tab</kbd>   | Move focus to / from the bell |
 
+<StatesTested name="notification-bell" />
+
 ## Do / Don't
 
 <DoDont
   do="Pass the unread count from your app's own data and let the component announce it."
   dont="Fetch inside the bell or hand-write the count into aria-label — it's appended for you."
 />
+
+## Changelog
+
+<ComponentChangelog name="notification-bell" />

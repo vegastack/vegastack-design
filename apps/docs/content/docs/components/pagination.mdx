@@ -2,14 +2,16 @@
 title: Pagination
 description: Page navigation — previous/next, numbered page links, an ellipsis for long ranges, and the active page.
 audience: public
+registry: pagination
+status: stable
+since: 0.1.0
+a11y: navigation landmark
 preview: pagination
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/pagination
-```
+<InstallSteps name="pagination" />
 
 ## Usage
 
@@ -47,16 +49,12 @@ import {
 </Pagination>;
 ```
 
-## Playground
-
-Try every page-link size on a live pagination bar, then copy the generated JSX.
-
-<PaginationPlayground />
-
 ## Anatomy
 
 `Pagination` is a compound component built from a presentational `<nav>` wrapping an unordered
 list of page controls. Compose the parts inside the root — every part exposes a `data-slot`:
+
+<Anatomy name="pagination" />
 
 ```tsx
 <Pagination aria-label="Search results pagination">
@@ -155,11 +153,17 @@ items of a known list; keep `Pagination` for numbered page navigation.
   file="components/preview/pagination.tsx"
 />
 
+## Playground
+
+Try every page-link size on a live pagination bar, then copy the generated JSX.
+
+<PaginationPlayground />
+
 ## API Reference
 
 ### PaginationLink
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/pagination.tsx"
   name="PaginationLinkProps"
 />
@@ -198,9 +202,15 @@ element accepts (`<nav>`, `<ul>`, `<li>`, `<span>`), plus `className` and
 | <kbd>Tab</kbd>   | Move focus through the pagination controls. |
 | <kbd>Enter</kbd> | Follow the focused page link.               |
 
+<StatesTested name="pagination" />
+
 ## Do / Don't
 
 <DoDont
   do="Mark the current page with isActive so it gets aria-current='page', give icon-only Previous/Next controls a clear label, and name each pager when a page has more than one."
   dont="Render the active page as a plain non-link, omit Previous/Next labels, or leave two pagers sharing the default 'Pagination' name."
 />
+
+## Changelog
+
+<ComponentChangelog name="pagination" />

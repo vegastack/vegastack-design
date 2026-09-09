@@ -303,10 +303,15 @@ function CommandAsyncDemo() {
 function CommandDialogDemo() {
   const [open, setOpen] = React.useState(false);
 
-  // Toggle on ⌘K / Ctrl+K — the app owns this binding (the component is presentational).
+  // The app owns this binding (the component is presentational). A consuming app uses ⌘K, and the
+  // page's code sample shows exactly that — but THIS docs site already owns ⌘K for its own search
+  // dialog, and Fumadocs' `SearchProvider` toggles on `window` without consulting
+  // `event.defaultPrevented`, so a second ⌘K handler here opened both dialogs stacked
+  // (`docs/ledger/bugs.md`, 2026-09-08). The demo therefore takes ⌘J, a chord the site does not
+  // claim; the shortcut chip and the page note both say so.
   React.useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+      if (e.key === "j" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         setOpen((prev) => !prev);
       }
@@ -320,7 +325,7 @@ function CommandDialogDemo() {
       <Button variant="outline" onClick={() => setOpen(true)}>
         <Search />
         Open command menu
-        <CommandShortcut>⌘K</CommandShortcut>
+        <CommandShortcut>⌘J</CommandShortcut>
       </Button>
       <CommandDialog
         open={open}

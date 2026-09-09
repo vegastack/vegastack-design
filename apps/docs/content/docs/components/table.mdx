@@ -2,14 +2,16 @@
 title: Table
 description: Styled semantic table primitives — a scrollable container plus header, body, footer, row, head, cell, and caption parts.
 audience: public
+registry: table
+status: stable
+since: 0.1.0
+a11y: native table semantics
 preview: table
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/table
-```
+<InstallSteps name="table" />
 
 ## Usage
 
@@ -46,6 +48,8 @@ import {
 `Table` is a set of flat, server-safe primitives that map directly onto native table elements. The
 root `Table` wraps a `<table>` in a horizontally scrollable container so wide tables never overflow
 their parent. Every part forwards its ref and exposes a `data-slot`:
+
+<Anatomy name="table" />
 
 ```tsx
 <Table>
@@ -144,10 +148,7 @@ owns `overflow-x-auto`. Use `containerProps` to attach sticky headers, a
 fixed-height viewport, or a virtualizer's scroll element; the `<table>` itself
 cannot own a scroll viewport.
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/table.tsx"
-  name="TableProps"
-/>
+<ApiTable path="../../packages/ui/registry/ui/table.tsx" name="TableProps" />
 
 `TableHeader`, `TableBody`, `TableFooter`, `TableRow`, `TableHead`,
 `TableCell`, and `TableCaption` add no props of their own — each accepts
@@ -177,9 +178,15 @@ everything its underlying native element accepts (`<thead>`, `<tbody>`,
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused control.                                                      |
 | <kbd>←</kbd> / <kbd>→</kbd>         | Scroll the focused table viewport horizontally.                                    |
 
+<StatesTested name="table" />
+
 ## Do / Don't
 
 <DoDont
   do="Use TableCaption and scope='col' headers, name the viewport with scrollLabel, and reserve whitespace-nowrap for figures and mono values."
   dont="Use a Table for page layout — it's for tabular data only; use a grid/flex layout instead."
 />
+
+## Changelog
+
+<ComponentChangelog name="table" />

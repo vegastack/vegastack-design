@@ -2,14 +2,16 @@
 title: Context Menu
 description: A menu of actions revealed by right-clicking (or long-pressing) a target — items, submenus, separators, labels, shortcuts, and checkbox/radio selections.
 audience: public
+registry: context-menu
+status: stable
+since: 0.1.0
+a11y: APG menu
 preview: contextMenu
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/context-menu
-```
+<InstallSteps name="context-menu" />
 
 ## Usage
 
@@ -35,6 +37,8 @@ import {
 `ContextMenu` is a compound component built on Base UI's `ContextMenu`. Unlike `DropdownMenu`, the
 trigger is a right-click target area (not a button); the content portals to `<body>` and positions
 itself against the pointer where the menu was opened.
+
+<Anatomy name="context-menu" />
 
 ```tsx
 <ContextMenu>
@@ -85,7 +89,7 @@ item, a destructive action, and a nested submenu.
   file="components/preview/context-menu.tsx"
 />
 
-## Items
+### Items
 
 Items take leading `lucide-react` icons as children, a trailing `ContextMenuShortcut`, and a
 `tone="destructive"` for delete/remove actions. Use `inset` to align items that have no leading
@@ -121,7 +125,7 @@ padding so icon-less rows line up with the indicator column of checkbox / radio 
 <ContextMenuSubTrigger inset>More tools</ContextMenuSubTrigger>
 ```
 
-## Checkbox & radio items
+### Checkbox & radio items
 
 `ContextMenuCheckboxItem` toggles a setting and stays open on click; `ContextMenuRadioGroup`
 wraps `ContextMenuRadioItem`s for single-select.
@@ -137,7 +141,7 @@ wraps `ContextMenuRadioItem`s for single-select.
 </ContextMenuRadioGroup>
 ```
 
-## Submenus
+### Submenus
 
 Nest a `ContextMenuSub` to reveal a second-level popup. The trigger shows a trailing chevron and
 opens on hover or with the <kbd>→</kbd> arrow key.
@@ -156,98 +160,98 @@ opens on hover or with the <kbd>→</kbd> arrow key.
 
 ### ContextMenu
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/context-menu.tsx"
   name="ContextMenuProps"
 />
 
 ### ContextMenuTrigger
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/context-menu.tsx"
   name="ContextMenuTriggerProps"
 />
 
 ### ContextMenuGroup
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/context-menu.tsx"
   name="ContextMenuGroupProps"
 />
 
 ### ContextMenuSub
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/context-menu.tsx"
   name="ContextMenuSubProps"
 />
 
 ### ContextMenuRadioGroup
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/context-menu.tsx"
   name="ContextMenuRadioGroupProps"
 />
 
 ### ContextMenuContent
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/context-menu.tsx"
   name="ContextMenuContentProps"
 />
 
 ### ContextMenuItem
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/context-menu.tsx"
   name="ContextMenuItemProps"
 />
 
 ### ContextMenuCheckboxItem
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/context-menu.tsx"
   name="ContextMenuCheckboxItemProps"
 />
 
 ### ContextMenuRadioItem
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/context-menu.tsx"
   name="ContextMenuRadioItemProps"
 />
 
 ### ContextMenuLabel
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/context-menu.tsx"
   name="ContextMenuLabelProps"
 />
 
 ### ContextMenuSeparator
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/context-menu.tsx"
   name="ContextMenuSeparatorProps"
 />
 
 ### ContextMenuShortcut
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/context-menu.tsx"
   name="ContextMenuShortcutProps"
 />
 
 ### ContextMenuSubTrigger
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/context-menu.tsx"
   name="ContextMenuSubTriggerProps"
 />
 
 ### ContextMenuSubContent
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/context-menu.tsx"
   name="ContextMenuSubContentProps"
 />
@@ -269,9 +273,15 @@ opens on hover or with the <kbd>→</kbd> arrow key.
 | <kbd>Enter</kbd> / <kbd>Space</kbd>                        | Activate the focused item.                                    |
 | <kbd>A</kbd>–<kbd>Z</kbd>                                  | Typeahead — jump to the next item matching the typed letters. |
 
+<StatesTested name="context-menu" />
+
 ## Do / Don't
 
 <DoDont
   do="Mirror the actions a user expects on the target (copy, rename, delete) and put destructive actions last, behind a separator."
   dont="Hide primary actions only behind a right-click — surface essential actions in visible UI too, since context menus aren't discoverable on touch."
 />
+
+## Changelog
+
+<ComponentChangelog name="context-menu" />

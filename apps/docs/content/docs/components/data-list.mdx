@@ -2,14 +2,16 @@
 title: Data List
 description: A generic, typed data table — configurable columns, row selection, sortable headers, plus loading and empty states.
 audience: public
+registry: data-list
+status: stable
+since: 0.1.0
+a11y: native table semantics
 preview: dataList
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/data-list
-```
+<InstallSteps name="data-list" />
 
 ## Usage
 
@@ -42,6 +44,8 @@ are all fully typed against your data.
 [`data-table-parts`](/docs/components/data-table-parts): the sort header, the selection cells, the
 skeleton rows, the empty row and the column class rules it has in common with
 [`DataGrid`](/docs/components/data-grid).
+
+<Anatomy name="data-list" />
 
 ```tsx
 <DataList<T>
@@ -235,7 +239,7 @@ grouping, inline editing, multi-key sort, column management, virtualization — 
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/data-list.tsx"
   name="DataListProps"
 />
@@ -261,7 +265,7 @@ put the hooks in that component:
 selection without threading state through the row type. Existing two-argument
 render functions keep working unchanged.
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/data-list.tsx"
   name="DataListColumn"
 />
@@ -329,9 +333,15 @@ was cleared (the third click on a header).
 | <kbd>Tab</kbd>                      | Move focus between sortable headers, row checkboxes, and (when activatable) each row's first-cell action button. |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused sort header, toggle the focused checkbox, or activate the focused row.                      |
 
+<StatesTested name="data-list" />
+
 ## Do / Don't
 
 <DoDont
   do="Pass a stable getRowId (a real record id) so selection survives sorting and data refreshes."
   dont="Rely on the default index-based row id when rows can re-order — selection will jump to the wrong rows."
 />
+
+## Changelog
+
+<ComponentChangelog name="data-list" />

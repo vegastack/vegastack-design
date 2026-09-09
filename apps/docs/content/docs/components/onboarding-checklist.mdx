@@ -2,14 +2,16 @@
 title: Onboarding Checklist
 description: A getting-started card — segmented progress and step rows, collapsible to a progress pill.
 audience: public
+registry: onboarding-checklist
+status: stable
+since: 0.3.0
+a11y: ARIA progressbar + checkboxes
 preview: onboardingChecklist
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/onboarding-checklist
-```
+<InstallSteps name="onboarding-checklist" />
 
 ## Usage
 
@@ -24,6 +26,19 @@ npx shadcn@latest add @vegastack/onboarding-checklist
 </OnboardingChecklist>
 ```
 
+### State model
+
+The HOST owns completion (`done` per item + the `done/total` counts) and each step's action;
+the component owns layout, the progress maths, and the
+collapse-to-pill toggle (`collapsed`/`defaultCollapsed`/`onCollapsedChange`).
+
+## Anatomy
+
+`Onboarding Checklist` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="onboarding-checklist" />
+
 ## Examples
 
 <ComponentPreview
@@ -31,24 +46,18 @@ npx shadcn@latest add @vegastack/onboarding-checklist
   file="components/preview/onboarding-checklist.tsx"
 />
 
-## State model
-
-The HOST owns completion (`done` per item + the `done/total` counts) and each step's action;
-the component owns layout, the progress maths, and the
-collapse-to-pill toggle (`collapsed`/`defaultCollapsed`/`onCollapsedChange`).
-
 ## API Reference
 
 ### OnboardingChecklist
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/onboarding-checklist.tsx"
   name="OnboardingChecklistProps"
 />
 
 ### OnboardingChecklistItem
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/onboarding-checklist.tsx"
   name="OnboardingChecklistItemProps"
 />
@@ -64,9 +73,15 @@ collapse-to-pill toggle (`collapsed`/`defaultCollapsed`/`onCollapsedChange`).
 | <kbd>Tab</kbd>                      | Move through the collapse control and unfinished steps.    |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Collapse, expand, or activate the focused unfinished step. |
 
+<StatesTested name="onboarding-checklist" />
+
 ## Do / Don't
 
 <DoDont
   do="Keep done and total synchronized with the visible steps, and use concise verb-first step labels."
   dont="Mark a step complete from presentation state alone or leave a completed step keyboard-activatable."
 />
+
+## Changelog
+
+<ComponentChangelog name="onboarding-checklist" />

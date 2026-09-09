@@ -2,14 +2,16 @@
 title: Stepper
 description: A bounded linear process as an ordered list — complete/current/upcoming/error states, aria-current="step", advance gating, and focus that follows the process.
 audience: public
+registry: stepper
+status: stable
+since: 0.4.0
+a11y: ordered list with aria-current
 preview: stepper
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/stepper
-```
+<InstallSteps name="stepper" />
 
 ## Usage
 
@@ -71,17 +73,14 @@ disabled steps never do.
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/stepper.tsx"
   name="StepperProps"
 />
 
 ### Step
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/stepper.tsx"
-  name="StepperStep"
-/>
+<ApiTable path="../../packages/ui/registry/ui/stepper.tsx" name="StepperStep" />
 
 ## Accessibility
 
@@ -100,9 +99,15 @@ disabled steps never do.
 | <kbd>Tab</kbd>                      | Reach completed steps (navigable mode only). |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Revisit the focused completed step.          |
 
+<StatesTested name="stepper" />
+
 ## Do / Don't
 
 <DoDont
   do="Model a failed step as state: 'error' with a description — the flow's record should say what needs attention."
   dont="Reach for Tabs because the layout looks similar — tab semantics promise free navigation a wizard doesn't offer."
 />
+
+## Changelog
+
+<ComponentChangelog name="stepper" />

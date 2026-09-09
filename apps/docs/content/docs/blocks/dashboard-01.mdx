@@ -2,6 +2,7 @@
 title: dashboard-01
 description: A ready-to-pull AI dashboard with sidebar navigation, stat cards, a usage chart, and recent activity built from VegaStack components.
 audience: public
+registry: dashboard-01
 preview: dashboard01Demo
 ---
 
@@ -19,7 +20,7 @@ This mirrors shadcn/ui's own `sidebar` (component) ↔ `dashboard-01` (block) sp
 mechanics live in `app-shell`/`sidebar` (pulled and updated forever), the page-specific nav items,
 stat cards, and sample data live here (expected to diverge per app from day one).
 
-## Installation
+## Install
 
 ```npm
 npx shadcn@latest add @vegastack/dashboard-01
@@ -187,12 +188,12 @@ with `refresh={false}` (which also suppresses its internal re-render timer) — 
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/blocks/dashboard-01/page.tsx"
   name="DashboardPageProps"
 />
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/blocks/dashboard-01/components/app-sidebar.tsx"
   name="AppSidebarProps"
 />

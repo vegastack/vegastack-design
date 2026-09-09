@@ -2,14 +2,16 @@
 title: Field
 description: A form-field wrapper — label, inline label action, description, and error/success message, built on Base UI Field.
 audience: public
+registry: field
+status: stable
+since: 0.1.0
+a11y: labelled field with description and error
 preview: field
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/field
-```
+<InstallSteps name="field" />
 
 ## Usage
 
@@ -26,13 +28,14 @@ it composes the parts for you. Built on [Base UI Field](https://base-ui.com/reac
 which auto-wires `aria-describedby` and `aria-invalid` between the label, control, description, and
 error — no manual ARIA wiring.
 
+## Anatomy
+
+`Field` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="field" />
+
 ## Examples
-
-### Playground
-
-Try every orientation with a description, an error message, and the disabled state, then copy the generated JSX.
-
-<FieldPlayground />
 
 ### Anatomy
 
@@ -174,18 +177,21 @@ function SignupForm() {
 }
 ```
 
+## Playground
+
+Try every orientation with a description, an error message, and the disabled state, then copy the generated JSX.
+
+<FieldPlayground />
+
 ## API Reference
 
 ### Field
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/field.tsx"
-  name="FieldProps"
-/>
+<ApiTable path="../../packages/ui/registry/ui/field.tsx" name="FieldProps" />
 
 ### FieldRoot
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/field.tsx"
   name="FieldRootProps"
 />
@@ -217,9 +223,15 @@ takes Base UI's `match` to control when the message shows).
 | <kbd>Tab</kbd>   | Move focus into the field control.                  |
 | <kbd>Enter</kbd> | Submit the surrounding form (single-line controls). |
 
+<StatesTested name="field" />
+
 ## Do / Don't
 
 <DoDont
   do="Pair every control with a Field so it gets a label, description, and an accessible error."
   dont="Hand-wire htmlFor/aria-describedby/aria-invalid — Field does it for you via Base UI."
 />
+
+## Changelog
+
+<ComponentChangelog name="field" />

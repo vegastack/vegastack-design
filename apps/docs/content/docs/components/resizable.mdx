@@ -2,14 +2,16 @@
 title: Resizable
 description: Draggable, keyboard-resizable split panes — horizontal or vertical, nestable, with an optional collapsible panel. Built on react-resizable-panels.
 audience: public
+registry: resizable
+status: stable
+since: 0.1.0
+a11y: ARIA window splitter
 preview: resizable
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/resizable
-```
+<InstallSteps name="resizable" />
 
 ## Usage
 
@@ -40,17 +42,13 @@ a bare number (`defaultSize={30}`) as **pixels** — for a percentage, pass a st
 `defaultSize="30"` (30%) or `defaultSize="30%"`. Other CSS units (`px`, `em`, `rem`, `vh`, `vw`) are
 also accepted as explicit string suffixes.
 
-## Playground
-
-Try both split axes and the optional grip glyph — the divider stays live to drag — then copy the generated JSX.
-
-<ResizablePlayground />
-
 ## Anatomy
 
 `Resizable` is three flat, unstyled-by-default parts composing the headless
 [`react-resizable-panels`](https://react-resizable-panels.vercel.app/) engine — no Base UI here (the
 one other sanctioned exception besides `MessageScroller`; Base UI has no split-pane primitive).
+
+<Anatomy name="resizable" />
 
 ```tsx
 <ResizablePanelGroup orientation="horizontal">
@@ -120,6 +118,12 @@ state.
   name="resizableCollapsible"
   file="components/preview/resizable.tsx"
 />
+
+## Playground
+
+Try both split axes and the optional grip glyph — the divider stays live to drag — then copy the generated JSX.
+
+<ResizablePlayground />
 
 ## API Reference
 
@@ -284,9 +288,15 @@ suffixes are also accepted.
 | <kbd>Home</kbd>             | Jump the panel before the handle to its minimum size.  |
 | <kbd>End</kbd>              | Jump the panel before the handle to its maximum size.  |
 
+<StatesTested name="resizable" />
+
 ## Do / Don't
 
 <DoDont
   do="Set minSize/maxSize on every panel so a drag or keyboard resize can't collapse content to an unusable sliver — and give every ResizableHandle a descriptive aria-label."
   dont="Forget the group's own bounded height/width, or pass a bare number expecting a percentage — defaultSize={30} is 30 pixels, not 30%."
 />
+
+## Changelog
+
+<ComponentChangelog name="resizable" />

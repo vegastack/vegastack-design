@@ -2,14 +2,16 @@
 title: Icon Button
 description: A square or round icon-only action button — a thin Button wrapper that requires an accessible label.
 audience: public
+registry: icon-button
+status: stable
+since: 0.1.0
+a11y: native button (aria-label required)
 preview: iconButton
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/icon-button
-```
+<InstallSteps name="icon-button" />
 
 ## Usage
 
@@ -28,13 +30,6 @@ sanctioned icon-only path — `Button` has no icon size tier — so an unlabeled
 compile.
 
 ## Examples
-
-### Playground
-
-Try the pass-through `variant × tone` matrix, the size scale, `shape`, and the disabled / loading
-states, then copy the generated JSX.
-
-<IconButtonPlayground />
 
 ### Variants
 
@@ -88,9 +83,16 @@ unavailable; `loading` stacks a spinner over the icon, sets `aria-busy`, and hol
   file="components/preview/icon-button.tsx"
 />
 
+## Playground
+
+Try the pass-through `variant × tone` matrix, the size scale, `shape`, and the disabled / loading
+states, then copy the generated JSX.
+
+<IconButtonPlayground />
+
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/icon-button.tsx"
   name="IconButtonOwnProps"
 />
@@ -135,9 +137,15 @@ import { iconButtonGeometry } from "@/components/ui/icon-button";
 | <kbd>Space</kbd> | Activate the button             |
 | <kbd>Tab</kbd>   | Move focus to / from the button |
 
+<StatesTested name="icon-button" />
+
 ## Do / Don't
 
 <DoDont
   do="Always give an aria-label that names the action — 'Delete row', not 'Trash'."
   dont="Render an IconButton with text children — use a Button with an icon and a label instead."
 />
+
+## Changelog
+
+<ComponentChangelog name="icon-button" />

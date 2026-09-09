@@ -2,14 +2,16 @@
 title: App Shell
 description: A shared dashboard layout with skip-linked sidebar, header, and scrollable main region composed from VegaStack navigation primitives.
 audience: public
+registry: app-shell
+status: stable
+since: 0.1.0
+a11y: landmark regions + skip link
 preview: appShellDemo
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/app-shell
-```
+<InstallSteps name="app-shell" />
 
 ## Usage
 
@@ -55,6 +57,8 @@ import { Button } from "@/components/ui/button";
 not a new primitive. It wraps `SidebarProvider` and renders a skip-to-content link as the first
 focusable element; you compose `AppShellSidebar` as one child and your own content column (a plain
 `flex h-svh flex-col` `<div>`) wrapping `AppShellHeader` + `AppShellContent` as the other:
+
+<Anatomy name="app-shell" />
 
 ```tsx
 <AppShell defaultOpen keyboardShortcut mobileBreakpoint={768}>
@@ -176,35 +180,35 @@ function RouteFocus() {
 
 ### AppShell
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/app-shell.tsx"
   name="AppShellProps"
 />
 
 ### AppShellSidebar
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/app-shell.tsx"
   name="AppShellSidebarProps"
 />
 
 ### AppShellHeader
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/app-shell.tsx"
   name="AppShellHeaderProps"
 />
 
 ### AppShellContent
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/app-shell.tsx"
   name="AppShellContentProps"
 />
 
 ### AppShellSkeleton
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/app-shell.tsx"
   name="AppShellSkeletonProps"
 />
@@ -235,9 +239,15 @@ function RouteFocus() {
 | <kbd>Enter</kbd> on the skip link         | Move focus to `AppShellContent`'s `<main>`.                                                         |
 | <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>B</kbd> | Toggle the sidebar (desktop) or the mobile sheet — customizable/disableable via `keyboardShortcut`. |
 
+<StatesTested name="app-shell" />
+
 ## Do / Don't
 
 <DoDont
   do="Compose the landmark trio once, keep the mobile trigger in AppShellHeader, and preserve the skip-link target."
   dont="Hand-roll another sidebar/header/main shell or nest the banner landmark inside main content."
 />
+
+## Changelog
+
+<ComponentChangelog name="app-shell" />

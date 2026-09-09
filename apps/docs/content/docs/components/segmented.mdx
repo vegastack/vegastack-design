@@ -2,14 +2,16 @@
 title: Segmented
 description: A single-select, always-one-selected view/mode switcher — a muted track with a raised active chip. The canonical segmented-control formula.
 audience: public
+registry: segmented
+status: stable
+since: 0.3.0
+a11y: APG toolbar of toggle buttons
 preview: segmented
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/segmented
-```
+<InstallSteps name="segmented" />
 
 ## Usage
 
@@ -21,6 +23,13 @@ import { Segmented, SegmentedItem } from "@/components/ui/segmented";
   <SegmentedItem value="annual">Annual</SegmentedItem>
 </Segmented>;
 ```
+
+## Anatomy
+
+`Segmented` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="segmented" />
 
 ## Examples
 
@@ -59,14 +68,14 @@ Keyboard: arrow keys move focus, Space/Enter selects (Base UI Toggle Group contr
 
 ### Segmented
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/segmented.tsx"
   name="SegmentedProps"
 />
 
 ### SegmentedItem
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/segmented.tsx"
   name="SegmentedItemProps"
 />
@@ -83,9 +92,15 @@ Keyboard: arrow keys move focus, Space/Enter selects (Base UI Toggle Group contr
 | <kbd>Arrow Left</kbd> / <kbd>Arrow Right</kbd> | Move focus between enabled segments. |
 | <kbd>Space</kbd> / <kbd>Enter</kbd>            | Select the focused segment.          |
 
+<StatesTested name="segmented" />
+
 ## Do / Don't
 
 <DoDont
   do="Use Segmented for a short set of peer modes where one option must remain active."
   dont="Use it to switch content panels or for selections that may be empty or multiple."
 />
+
+## Changelog
+
+<ComponentChangelog name="segmented" />

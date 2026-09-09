@@ -101,8 +101,6 @@ const RENDERERS: Record<
   ComponentPreview: componentPreviewMarkdown,
   ApiTable: (data) =>
     apiTableMarkdown(attr(data, "path")!, attr(data, "name")!),
-  AutoTypeTable: (data) =>
-    apiTableMarkdown(attr(data, "path")!, attr(data, "name")!),
   InstallSteps: (data) => {
     const steps = getInstallSteps(attr(data, "name")!);
     return steps

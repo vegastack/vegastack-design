@@ -2,14 +2,16 @@
 title: Bubble
 description: A chat speech bubble — seven token-driven variants (incl. a brand-tinted surface), start/end alignment, interactive content, and a floating reactions chip.
 audience: public
+registry: bubble
+status: stable
+since: 0.1.0
+a11y: presentational surface
 preview: bubble
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/bubble
-```
+<InstallSteps name="bubble" />
 
 ## Usage
 
@@ -21,16 +23,12 @@ import { Bubble, BubbleContent } from "@/components/ui/bubble";
 </Bubble>;
 ```
 
-## Playground
-
-Try all seven surface variants, both alignments, and the opt-in entry animation — each change replays it — then copy the generated JSX.
-
-<BubblePlayground />
-
 ## Anatomy
 
 A `Bubble` skins its `BubbleContent` child via the `variant` — the surface
 colour lives on the content element so padding and the rounded corners stay put.
+
+<Anatomy name="bubble" />
 
 - `Bubble` — the container (`data-slot="bubble"`, `data-variant`, `data-align`).
   Inside a [`Message`](/docs/components/message) the row's `align` is inherited.
@@ -122,14 +120,17 @@ A read-receipt check icon in a reaction chip with a
 
 <ComponentPreview name="bubbleTooltip" file="components/preview/bubble.tsx" />
 
+## Playground
+
+Try all seven surface variants, both alignments, and the opt-in entry animation — each change replays it — then copy the generated JSX.
+
+<BubblePlayground />
+
 ## API Reference
 
 ### Bubble
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/bubble.tsx"
-  name="BubbleProps"
-/>
+<ApiTable path="../../packages/ui/registry/ui/bubble.tsx" name="BubbleProps" />
 
 ### BubbleContent
 
@@ -137,14 +138,14 @@ The `render` prop turns the surface into an interactive element — pass
 `render={<button />}` (or an `a`) for a tappable quick-reply or link bubble; it
 then gets a hover surface and the global `:focus-visible` outline.
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/bubble.tsx"
   name="BubbleContentProps"
 />
 
 ### BubbleReactions
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/bubble.tsx"
   name="BubbleReactionsProps"
 />
@@ -166,9 +167,15 @@ then gets a hover surface and the global `:focus-visible` outline.
 - `BubbleReactions` is presentational — give interactive reaction controls their
   own accessible labels.
 
+<StatesTested name="bubble" />
+
 ## Do / Don't
 
 <DoDont
   do="Use Bubble inside a Message, picking a variant for sent vs received and align for the side."
   dont="Use Bubble for non-conversational callouts — reach for Alert or Card instead."
 />
+
+## Changelog
+
+<ComponentChangelog name="bubble" />

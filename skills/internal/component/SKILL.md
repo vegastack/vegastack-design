@@ -276,7 +276,7 @@ For component `<name>` (PascalCase `<Name>`), in dependency order:
    route, but a test file is still required. `geo-data` and `drag-item` are the two. Reach for it
    when two components would otherwise carry the same bulk data or the same class string.
    `'use client'` only if interactive. JSDoc every exported prop (`@default` where relevant) so
-   `AutoTypeTable` renders correctly; JSDoc the component with an `@example`. Export a named
+   `ApiTable` renders correctly; JSDoc the component with an `@example`. Export a named
    `<Name>Props` and any `<name>Variants` CVA.
 2. **`packages/ui/registry/ui/<name>.test.tsx`** — default render, every interactive behavior, every
    variant/size data attribute, every applicable state, ref forwarding, and at least one
@@ -286,10 +286,18 @@ For component `<name>` (PascalCase `<Name>`), in dependency order:
    compound sub-part access, not just interactivity). Named example functions each wrapped in
    `<Wrapper>`, importing from `@/components/ui/<name>`. Export `<name>()` plus
    `<name>Variants()`/`<name>Sizes()`/`<name>States()` as applicable.
-4. **`apps/docs/content/docs/components/<name>.mdx`** — frontmatter `title`/`description`/`preview`;
-   section order Installation → Usage → Examples (`<ComponentPreview …/>`) → API Reference
-   (`<AutoTypeTable path="../../packages/ui/registry/ui/<name>.tsx" name="<Name>Props" />`) →
-   Accessibility (keyboard table) → Do/Don't (`<DoDont …/>`). Add Anatomy for compound components.
+4. **`apps/docs/content/docs/components/<name>.mdx`** — written to `design.md` § Docs canon, which
+   `tooling/content-lint.mjs` enforces. Frontmatter (row 0): `title`, `description`, `audience`,
+   `registry` (the item name — required, never inferred from the slug), `status`, `since`, `a11y`,
+   `preview`. Sections, in this order and no others:
+   Install (`<InstallSteps name="<name>" />`) → Usage → Scope (composites) →
+   Anatomy (`<Anatomy name="<name>" />`, required when the item exports more than one component
+   part) → Examples (`<ComponentPreview …/>`) → Playground (a curated `<…Playground />`, or the
+   Story explorer where none exists, or neither — never both, DD-3) → API Reference
+   (`<ApiTable path="../../packages/ui/registry/ui/<name>.tsx" name="<Name>Props" />`) →
+   Accessibility (keyboard table + `<StatesTested name="<name>" />`) → Do/Don't (`<DoDont …/>`) →
+   Changelog (`<ComponentChangelog name="<name>" />`). Nothing follows Do/Don't except Changelog,
+   and the generated halves are never hand-typed.
    **No `{@link}`** — MDX parses `{…}` as JS; use inline code.
 5. **`registry.json` item** — `type`, `title`, `description`, `categories`, `dependencies`, and
    **`registryDependencies` namespaced `@vegastack/<name>`**

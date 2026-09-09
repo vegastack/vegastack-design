@@ -2,14 +2,16 @@
 title: Alert Dialog
 description: A modal confirmation dialog with four semantic intents, backdrop lock, and deliberate cancel/confirm actions.
 audience: public
+registry: alert-dialog
+status: stable
+since: 0.1.0
+a11y: APG alert dialog (modal)
 preview: alertDialog
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/alert-dialog
-```
+<InstallSteps name="alert-dialog" />
 
 ## Usage
 
@@ -60,6 +62,8 @@ for destructive or irreversible confirmations; for everything else use `Dialog`.
 
 `AlertDialog` is a compound component built on Base UI's AlertDialog. Compose the parts inside the
 root:
+
+<Anatomy name="alert-dialog" />
 
 ```tsx
 <AlertDialog>
@@ -135,14 +139,14 @@ middle scrolls.
 
 ### AlertDialogContent
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/alert-dialog.tsx"
   name="AlertDialogContentProps"
 />
 
 ### AlertDialogAction
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/alert-dialog.tsx"
   name="AlertDialogActionProps"
 />
@@ -170,9 +174,15 @@ own — they accept everything the underlying Base UI part or element accepts (`
 | <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Move focus between Cancel and Action — trapped within the open dialog. |
 | <kbd>Esc</kbd>                                     | Close the dialog (treated as cancel).                                  |
 
+<StatesTested name="alert-dialog" />
+
 ## Do / Don't
 
 <DoDont
   do="Use an AlertDialog for destructive or irreversible confirmations, match the Action intent to the consequence, and put Cancel before Action in the footer."
   dont="Use an AlertDialog for routine, dismissable content — use a Dialog instead. Don't bury the confirm action behind a neutral tint when it's destructive."
 />
+
+## Changelog
+
+<ComponentChangelog name="alert-dialog" />

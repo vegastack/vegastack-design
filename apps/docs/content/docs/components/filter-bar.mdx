@@ -2,14 +2,16 @@
 title: Filter Bar
 description: A row of removable filter chips, an "Add filter" dropdown, and an optional search input — for building list and table filter toolbars.
 audience: public
+registry: filter-bar
+status: stable
+since: 0.1.0
+a11y: named ARIA group
 preview: filterBar
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/filter-bar
-```
+<InstallSteps name="filter-bar" />
 
 ## Usage
 
@@ -35,6 +37,13 @@ import { FilterBar } from "@/components/ui/filter-bar";
 `FilterBar` is **presentational** — it never holds filter state. You own the array of active
 `filters` and update it in each filter's `onRemove`; you decide what an `addFilters` option does in
 `onAddFilter`; and `search` is a controlled `value` / `onValueChange` pair.
+
+## Anatomy
+
+`Filter Bar` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="filter-bar" />
 
 ## Examples
 
@@ -153,14 +162,14 @@ the fully-stateful nested builder is [`FilterBuilder`](/docs/components/filter-b
 
 ### FilterBar
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/filter-bar.tsx"
   name="FilterBarProps"
 />
 
 ### FilterChip
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/filter-bar.tsx"
   name="FilterChipProps"
 />
@@ -171,7 +180,7 @@ The shape of each entry in `FilterBar`'s `filters` array — one removable chip.
 
 ### FilterBarFilter
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/filter-bar.tsx"
   name="FilterBarFilter"
 />
@@ -182,7 +191,7 @@ The shape of each entry in the declarative `addFilters` menu.
 
 ### FilterBarAddOption
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/filter-bar.tsx"
   name="FilterBarAddOption"
 />
@@ -193,7 +202,7 @@ The controlled `search` config passed to `FilterBar`.
 
 ### FilterBarSearch
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/filter-bar.tsx"
   name="FilterBarSearch"
 />
@@ -219,9 +228,15 @@ The controlled `search` config passed to `FilterBar`.
 | <kbd>↑</kbd> / <kbd>↓</kbd>         | Move between options in the open "Add filter" menu.                                           |
 | <kbd>Esc</kbd>                      | Close the open "Add filter" menu.                                                             |
 
+<StatesTested name="filter-bar" />
+
 ## Do / Don't
 
 <DoDont
   do="Keep filter state in the host and reflect it through filters/onRemove and onAddFilter — show a chip for every active filter so users can see and remove each one."
   dont="Put filtering logic inside the bar or render an 'Add filter' option for a filter that's already active — hide active options from the menu instead."
 />
+
+## Changelog
+
+<ComponentChangelog name="filter-bar" />

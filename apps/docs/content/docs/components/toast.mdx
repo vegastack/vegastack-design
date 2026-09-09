@@ -2,14 +2,16 @@
 title: Toast
 description: Brief, non-blocking notifications — a stacking Base UI Toast surface with success, error, warning, info and loading types, promise toasts and swipe-to-dismiss.
 audience: public
+registry: toast
+status: stable
+since: 0.7.0
+a11y: labelled live region
 preview: toastDemo
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/toast
-```
+<InstallSteps name="toast" />
 
 ## Usage
 
@@ -44,15 +46,11 @@ export default function RootLayout({ children }) {
 }
 ```
 
-## Playground
-
-Compose a type and an optional description, fire the toast, then copy the matching call.
-
-<ToastPlayground />
-
 ## Anatomy
 
 The default `<Toast>` assembles these parts; export them individually to build your own list.
+
+<Anatomy name="toast" />
 
 ```tsx
 <ToastProvider>
@@ -183,6 +181,12 @@ The enter, exit, stack and expand transitions are CSS transitions, so the design
 `loading` spinner carries `motion-reduce:animate-none`. Nothing about dismissal depends on an
 animation completing.
 
+## Playground
+
+Compose a type and an optional description, fire the toast, then copy the matching call.
+
+<ToastPlayground />
+
 ## API Reference
 
 `toast(title, options?)` is an imperative function, so its methods are documented by hand below.
@@ -252,17 +256,14 @@ a toast needs no hook.
 
 ### `ToastProviderProps`
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/toast.tsx"
   name="ToastProviderProps"
 />
 
 ### `ToasterProps`
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/toast.tsx"
-  name="ToasterProps"
-/>
+<ApiTable path="../../packages/ui/registry/ui/toast.tsx" name="ToasterProps" />
 
 ## Accessibility
 
@@ -281,9 +282,15 @@ a toast needs no hook.
   Escape.
 - The dismiss control is 24px, meeting the pointer-target floor without an extra hit area.
 
+<StatesTested name="toast" />
+
 ## Do / Don't
 
 <DoDont
   do="Use Toast for brief, non-blocking confirmations — 'Saved', 'Copied', 'Invitation sent' — and for the loading → success arc of an async action."
   dont="Use Toast for errors the user must resolve or destructive confirmations — use an inline message or a Dialog."
 />
+
+## Changelog
+
+<ComponentChangelog name="toast" />

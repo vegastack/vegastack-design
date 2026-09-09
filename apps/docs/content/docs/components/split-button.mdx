@@ -2,14 +2,16 @@
 title: Split Button
 description: A primary action joined to a dropdown of related secondary actions — one default click, plus a chevron menu.
 audience: public
+registry: split-button
+status: stable
+since: 0.1.0
+a11y: native button + APG menu button
 preview: splitButton
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/split-button
-```
+<InstallSteps name="split-button" />
 
 ## Usage
 
@@ -32,19 +34,14 @@ import { ArrowRight, Copy } from "lucide-react";
 </SplitButton>;
 ```
 
-## Playground
-
-Try the `variant × tone` matrix and every size on the joined control, flip the second menu action
-destructive, and toggle the disabled / loading states, then copy the generated JSX.
-
-<SplitButtonPlayground />
-
 ## Anatomy
 
 `SplitButton` composes a `Button` for the primary action with a `DropdownMenu` whose
 trigger is a second, chevron-only `Button`. The two halves are joined into one control: the primary
 is `rounded-l`, the trigger is `rounded-r`, and a shared 1px seam (`-ml-px`) overlaps their borders.
 The dropdown content portals to `<body>` and positions itself against the trigger.
+
+<Anatomy name="split-button" />
 
 ```tsx
 <div data-slot="split-button">
@@ -135,18 +132,25 @@ the dimmed “Send to channel” row.
 </SplitButton>
 ```
 
+## Playground
+
+Try the `variant × tone` matrix and every size on the joined control, flip the second menu action
+destructive, and toggle the disabled / loading states, then copy the generated JSX.
+
+<SplitButtonPlayground />
+
 ## API Reference
 
 ### SplitButton
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/split-button.tsx"
   name="SplitButtonProps"
 />
 
 ### SplitButtonAction
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/split-button.tsx"
   name="SplitButtonAction"
 />
@@ -165,9 +169,15 @@ the dimmed “Send to channel” row.
 | <kbd>↑</kbd> / <kbd>↓</kbd>         | Move between menu items (wraps at the ends).                          |
 | <kbd>Esc</kbd>                      | Close the menu and return focus to the trigger.                       |
 
+<StatesTested name="split-button" />
+
 ## Do / Don't
 
 <DoDont
   do="Put the single most common action on the primary half and the related variants in the menu."
   dont="Stuff unrelated actions into the menu — if the items aren't variants of the primary, use a Dropdown Menu instead."
 />
+
+## Changelog
+
+<ComponentChangelog name="split-button" />

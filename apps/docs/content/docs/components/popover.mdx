@@ -2,14 +2,16 @@
 title: Popover
 description: A click-triggered floating panel for arbitrary content — positioning, an optional arrow, and built-in dismiss.
 audience: public
+registry: popover
+status: stable
+since: 0.1.0
+a11y: APG dialog (non-modal)
 preview: popover
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/popover
-```
+<InstallSteps name="popover" />
 
 ## Usage
 
@@ -35,15 +37,11 @@ import { Button } from "@/components/ui/button";
 </Popover>;
 ```
 
-## Playground
-
-Pick a side and toggle the arrow, open the popover, then copy the generated JSX.
-
-<PopoverPlayground />
-
 ## Anatomy
 
 `Popover` is a compound component built on Base UI's Popover. Compose the parts inside the root:
+
+<Anatomy name="popover" />
 
 ```tsx
 <Popover>
@@ -114,53 +112,59 @@ By default a popover is modal — it locks background scroll so anchored pickers
   file="components/preview/popover.tsx"
 />
 
+## Playground
+
+Pick a side and toggle the arrow, open the popover, then copy the generated JSX.
+
+<PopoverPlayground />
+
 ## API Reference
 
 ### Popover
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/popover.tsx"
   name="PopoverProps"
 />
 
 ### PopoverTrigger
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/popover.tsx"
   name="PopoverTriggerProps"
 />
 
 ### PopoverContent
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/popover.tsx"
   name="PopoverContentProps"
 />
 
 ### PopoverClose
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/popover.tsx"
   name="PopoverCloseProps"
 />
 
 ### PopoverArrow
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/popover.tsx"
   name="PopoverArrowProps"
 />
 
 ### PopoverTitle
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/popover.tsx"
   name="PopoverTitleProps"
 />
 
 ### PopoverDescription
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/popover.tsx"
   name="PopoverDescriptionProps"
 />
@@ -178,9 +182,15 @@ By default a popover is modal — it locks background scroll so anchored pickers
 | <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Move focus between controls inside the open panel. |
 | <kbd>Esc</kbd>                                     | Close the popover and return focus to the trigger. |
 
+<StatesTested name="popover" />
+
 ## Do / Don't
 
 <DoDont
   do="Use a Popover for lightweight, optional content tied to a trigger — a settings form, a color picker, extra detail. Include a PopoverTitle when the panel has a heading."
   dont="Use a Popover for content that must block the rest of the page or demands a decision — use a Dialog instead. And don't put a tooltip's worth of plain text in one — use a Tooltip."
 />
+
+## Changelog
+
+<ComponentChangelog name="popover" />

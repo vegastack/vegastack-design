@@ -2,16 +2,18 @@
 title: Marker
 description: An inline conversation marker — status lines, system notes, and labelled dividers — built on Base UI render, polymorphic to a link or button.
 audience: public
+registry: marker
+status: stable
+since: 0.1.0
+a11y: decorative icon + text
 preview: marker
 ---
 
 import { story } from "@/components/stories/marker.story";
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/marker
-```
+<InstallSteps name="marker" />
 
 ## Usage
 
@@ -26,19 +28,13 @@ import { Marker, MarkerContent, MarkerIcon } from "@/components/ui/marker";
 </Marker>;
 ```
 
-## Explorer
-
-Every `Marker` prop, auto-generated from its TypeScript types.
-
-<StoryExplorer>
-  <story.WithControl />
-</StoryExplorer>
-
 ## Anatomy
 
 A `Marker` is a single inline row inside a conversation. `MarkerIcon` is a
 decorative leading slot; `MarkerContent` is the (wrapping) text. The root is a
 `group/marker`, so content can react to the chosen `variant`.
+
+<Anatomy name="marker" />
 
 - `Marker` — the row (`data-slot="marker"`, `data-variant`). Built on Base UI
   `useRender`, so `render` turns it into any element (a link, a button).
@@ -117,14 +113,19 @@ the marker itself isn't the link target.
   file="components/preview/marker.tsx"
 />
 
+## Playground
+
+Every `Marker` prop, auto-generated from its TypeScript types.
+
+<StoryExplorer>
+  <story.WithControl />
+</StoryExplorer>
+
 ## API Reference
 
 ### Marker
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/marker.tsx"
-  name="MarkerProps"
-/>
+<ApiTable path="../../packages/ui/registry/ui/marker.tsx" name="MarkerProps" />
 
 ### MarkerIcon
 
@@ -133,7 +134,7 @@ is `aria-hidden` and sizes any bare `svg` child to `size-4`.
 
 ### MarkerIcon
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/marker.tsx"
   name="MarkerIconProps"
 />
@@ -146,7 +147,7 @@ hover-brightening link affordance.
 
 ### MarkerContent
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/marker.tsx"
   name="MarkerContentProps"
 />
@@ -161,9 +162,15 @@ hover-brightening link affordance.
   live region when its text updates.
 - A streaming `shimmer` marker honours `prefers-reduced-motion` (the sweep stops).
 
+<StatesTested name="marker" />
+
 ## Do / Don't
 
 <DoDont
   do="Use a Marker for inline thread annotations — a status line, a date divider, or a small action row."
   dont="Use it as a standalone status chip outside a conversation — reach for Badge, or Alert for a full banner."
 />
+
+## Changelog
+
+<ComponentChangelog name="marker" />

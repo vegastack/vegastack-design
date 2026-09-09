@@ -2,14 +2,16 @@
 title: Ruled Band
 description: A hairline-bounded editorial strip with mono-label ends — changelog and serial-number furniture.
 audience: public
+registry: ruled-band
+status: stable
+since: 0.3.0
+a11y: presentational page furniture
 preview: ruledBand
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/ruled-band
-```
+<InstallSteps name="ruled-band" />
 
 ## Usage
 
@@ -19,6 +21,19 @@ npx shadcn@latest add @vegastack/ruled-band
   <RuledBandLabel className="uppercase">39 updates</RuledBandLabel>
 </RuledBand>
 ```
+
+### Voice
+
+`RuledBandLabel` bakes in the mono-label voice; `uppercase` stays call-site-applied because
+uppercase is mono-exclusive (D20). Use for editorial meta — dates, counts, serials, section
+codes — not for interactive headers (that's `PageHeader`).
+
+## Anatomy
+
+`Ruled Band` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="ruled-band" />
 
 ## Examples
 
@@ -34,17 +49,11 @@ furniture around content rather than as a lone strip.
   file="components/preview/ruled-band.tsx"
 />
 
-## Voice
-
-`RuledBandLabel` bakes in the mono-label voice; `uppercase` stays call-site-applied because
-uppercase is mono-exclusive (D20). Use for editorial meta — dates, counts, serials, section
-codes — not for interactive headers (that's `PageHeader`).
-
 ## API Reference
 
 ### RuledBand
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/ruled-band.tsx"
   name="RuledBandProps"
 />
@@ -59,9 +68,15 @@ codes — not for interactive headers (that's `PageHeader`).
 - Labels are real text in document order; use a heading outside the band when it introduces a section.
 - Uppercase content remains in the named mono-label role at a readable 12px floor.
 
+<StatesTested name="ruled-band" />
+
 ## Do / Don't
 
 <DoDont
   do="Use short dates, counts, serials, or editorial metadata at the two ends of the band."
   dont="Place buttons or a page title in the band, or use its rules as a substitute for content hierarchy."
 />
+
+## Changelog
+
+<ComponentChangelog name="ruled-band" />

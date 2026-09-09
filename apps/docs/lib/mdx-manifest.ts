@@ -24,7 +24,6 @@
 export const RUNTIME_PLACEHOLDERS = new Set([
   "ComponentPreview",
   "ApiTable",
-  "AutoTypeTable",
   "InstallSteps",
   "Anatomy",
   "StatesTested",

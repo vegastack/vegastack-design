@@ -2,14 +2,16 @@
 title: Skeleton
 description: A token-driven loading placeholder — line, circle, rect, and card shapes, a configurable line count, and a pulse that stops under reduced motion.
 audience: public
+registry: skeleton
+status: stable
+since: 0.1.0
+a11y: decorative placeholder (aria-hidden)
 preview: skeleton
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/skeleton
-```
+<InstallSteps name="skeleton" />
 
 ## Usage
 
@@ -27,13 +29,14 @@ Skeleton is purely presentational and server-safe. Mark the surrounding region
 `aria-busy="true"` while data loads so assistive tech announces the loading state —
 the skeletons themselves are decorative and hidden from the accessibility tree.
 
+## Anatomy
+
+`Skeleton` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="skeleton" />
+
 ## Examples
-
-### Playground
-
-Switch between the four shapes and stack multiple placeholders, then copy the generated JSX.
-
-<SkeletonPlayground />
 
 ### Shapes
 
@@ -112,16 +115,22 @@ import { Skeleton, SkeletonReveal } from "@/components/ui/skeleton";
   file="components/preview/skeleton.tsx"
 />
 
+## Playground
+
+Switch between the four shapes and stack multiple placeholders, then copy the generated JSX.
+
+<SkeletonPlayground />
+
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/skeleton.tsx"
   name="SkeletonProps"
 />
 
 ### SkeletonReveal
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/skeleton.tsx"
   name="SkeletonRevealProps"
 />
@@ -139,9 +148,15 @@ import { Skeleton, SkeletonReveal } from "@/components/ui/skeleton";
   every animation, so the placeholder stays static. The component does not restate
   that rule — one reset owns it, so it can never drift per component.
 
+<StatesTested name="skeleton" />
+
 ## Do / Don't
 
 <DoDont
   do="Mirror the real content's shape and size, mark the container aria-busy, and keep the placeholder decorative."
   dont="Animate a bare spinner-less skeleton without aria-busy, or use a different layout than the loaded content (causing a jarring shift)."
 />
+
+## Changelog
+
+<ComponentChangelog name="skeleton" />

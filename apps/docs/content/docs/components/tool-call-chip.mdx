@@ -2,14 +2,16 @@
 title: Tool Call Chip
 description: An agent-activity chip — tool action label plus muted result meta, optionally rendered as a button.
 audience: public
+registry: tool-call-chip
+status: stable
+since: 0.3.0
+a11y: non-interactive label
 preview: toolCallChip
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/tool-call-chip
-```
+<InstallSteps name="tool-call-chip" />
 
 ## Usage
 
@@ -21,6 +23,12 @@ import { ToolCallChip } from "@/components/ui/tool-call-chip";
 </ToolCallChip>;
 ```
 
+### Chat family
+
+Sits alongside `Marker` (status lines), `Attachment` (files/artifacts), and `CodeBlock`
+(results) — the four pieces that turn a `Message` stream into an agent transcript. See the
+[agent transcript recipe](/docs/components/message#agent-transcripts).
+
 ## Examples
 
 <ComponentPreview
@@ -28,26 +36,20 @@ import { ToolCallChip } from "@/components/ui/tool-call-chip";
   file="components/preview/tool-call-chip.tsx"
 />
 
-## States
+### States
 
 Compose the leading slot per state: a `Spinner` while the tool runs (label only, no meta yet),
 the tool's icon once finished (label + result meta). The chip itself never animates — arrival
 into a transcript can opt into `motion-enter-up` at the call site.
 
-## Interactive chips
+### Interactive chips
 
 Pass `render={<button />}` when activating the chip reveals the call's detail (arguments,
 raw result). Give the button a complete `aria-label` — label and meta read as one phrase.
 
-## Chat family
-
-Sits alongside `Marker` (status lines), `Attachment` (files/artifacts), and `CodeBlock`
-(results) — the four pieces that turn a `Message` stream into an agent transcript. See the
-[agent transcript recipe](/docs/components/message#agent-transcripts).
-
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/tool-call-chip.tsx"
   name="ToolCallChipProps"
 />
@@ -63,9 +65,15 @@ Sits alongside `Marker` (status lines), `Attachment` (files/artifacts), and `Cod
 | <kbd>Tab</kbd>                      | Move to an interactive chip; static chips are skipped. |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate a chip composed as a button.                  |
 
+<StatesTested name="tool-call-chip" />
+
 ## Do / Don't
 
 <DoDont
   do="Use a short past- or present-tense action label and reserve meta for compact result context."
   dont="Use the chip as an unlabeled icon button or stream rapidly changing progress into its meta text."
 />
+
+## Changelog
+
+<ComponentChangelog name="tool-call-chip" />

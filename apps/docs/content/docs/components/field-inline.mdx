@@ -2,14 +2,16 @@
 title: Field Inline
 description: Click-to-edit text — displays a value, swaps to a focused input on click, commits on Enter or blur, cancels on Escape.
 audience: public
+registry: field-inline
+status: stable
+since: 0.1.0
+a11y: button-to-editor disclosure
 preview: fieldInline
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/field-inline
-```
+<InstallSteps name="field-inline" />
 
 ## Usage
 
@@ -30,12 +32,6 @@ The example above is interactive: click the value to enter edit mode, then press
 <kbd>Enter</kbd> to commit or <kbd>Escape</kbd> to cancel.
 
 ## Examples
-
-### Playground
-
-Toggle borderless, disabled, and read-only on a click-to-edit value, then copy the generated JSX.
-
-<FieldInlinePlayground />
 
 ### Empty state
 
@@ -81,9 +77,15 @@ element from the tab order when a roving focus model owns reachability. After
 a keyboard commit or cancel, focus returns to the display element (a
 blur-commit never steals focus back).
 
+## Playground
+
+Toggle borderless, disabled, and read-only on a click-to-edit value, then copy the generated JSX.
+
+<FieldInlinePlayground />
+
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/field-inline.tsx"
   name="FieldInlineProps"
 />
@@ -108,9 +110,15 @@ blur-commit never steals focus back).
   recolor, not a 2px ring. The error message announces as a polite `role="status"`, matching
   [`Field`](/docs/components/field).
 
+<StatesTested name="field-inline" />
+
 ## Do / Don't
 
 <DoDont
   do="Prefer a meaningful label or aria-labelledby, and use placeholder for the visible empty state."
   dont="Treat onCommit like an onChange — it fires once per commit (only when changed), not on every keystroke."
 />
+
+## Changelog
+
+<ComponentChangelog name="field-inline" />

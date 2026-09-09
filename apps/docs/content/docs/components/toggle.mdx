@@ -2,14 +2,16 @@
 title: Toggle
 description: A two-state button that can be pressed on or off — bold/italic, mute, pin.
 audience: public
+registry: toggle
+status: stable
+since: 0.1.0
+a11y: toggle button (aria-pressed)
 preview: toggle
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/toggle
-```
+<InstallSteps name="toggle" />
 
 ## Usage
 
@@ -34,12 +36,6 @@ const [bold, setBold] = useState(false);
 
 ## Examples
 
-### Playground
-
-Try the three sizes and the disabled and default-pressed states, then copy the generated JSX.
-
-<TogglePlayground />
-
 ### Sizes & States
 
 One look (**no variant prop**) in three sizes (`sm`, `md`, `lg`). Icons compose as children via
@@ -56,12 +52,15 @@ selection (single/multi) belongs in `ToggleGroup`, whose pressed items take the 
   file="components/preview/toggle.tsx"
 />
 
+## Playground
+
+Try the three sizes and the disabled and default-pressed states, then copy the generated JSX.
+
+<TogglePlayground />
+
 ## API Reference
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/toggle.tsx"
-  name="ToggleProps"
-/>
+<ApiTable path="../../packages/ui/registry/ui/toggle.tsx" name="ToggleProps" />
 
 ## Accessibility
 
@@ -72,9 +71,15 @@ selection (single/multi) belongs in `ToggleGroup`, whose pressed items take the 
 - Icon-only toggles **must** have an `aria-label` (or visible text) so the action is announced.
 - `disabled` removes the toggle from the tab order and blocks interaction.
 
+<StatesTested name="toggle" />
+
 ## Do / Don't
 
 <DoDont
   do="Use a Toggle for a binary on/off control that stays in the UI, like a bold or mute button — and give icon-only toggles an aria-label."
   dont="Use a Toggle for a one-shot action (use a Button) or for mutually-exclusive options (use a ToggleGroup or Radio Group)."
 />
+
+## Changelog
+
+<ComponentChangelog name="toggle" />

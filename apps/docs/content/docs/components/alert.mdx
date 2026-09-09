@@ -2,14 +2,16 @@
 title: Alert
 description: A status banner — five intents (default and four status colors), an optional icon, and an optional dismiss button.
 audience: public
+registry: alert
+status: stable
+since: 0.1.0
+a11y: ARIA status region
 preview: alert
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/alert
-```
+<InstallSteps name="alert" />
 
 ## Usage
 
@@ -27,71 +29,7 @@ import {
 </Alert>;
 ```
 
-## Examples
-
-Try every intent with the icon and dismiss options, then copy the generated JSX.
-
-<AlertPlayground />
-
-## Anatomy
-
-`Alert` is a compound component. Compose the parts inside the root:
-
-```tsx
-<Alert intent="success" dismissable onDismiss={handleDismiss}>
-  <AlertTitle>Title</AlertTitle>
-  <AlertDescription>Supporting description text.</AlertDescription>
-  <AlertActions>{/* action buttons */}</AlertActions>
-</Alert>
-```
-
-- `Alert` — the client root banner (`data-slot="alert"`). Owns the intent, leading icon, live-region policy, and optional dismiss/self-dismiss behavior.
-- `AlertTitle` — the bold leading line (`data-slot="alert-title"`).
-- `AlertDescription` — supporting body text (`data-slot="alert-description"`).
-- `AlertActions` — a row of action controls below the description (`data-slot="alert-actions"`).
-
-## Variants
-
-`default`, plus four semantic statuses — `info`, `success`, `warning`, `destructive` —
-each with a matching leading icon and status color tokens (`bg-X-subtle text-X-text border-X/20`).
-
-The `strip` layout variant is a compact single-line ribbon (icon + message + action, optional
-dismiss). It is the base pattern for in-content notices and plan/trial rows — there is no separate
-"inline banner" or "plan banner" component. For the full-width inverse strip across the top of a
-page, use [`AnnouncementBanner`](/docs/components/announcement-banner) instead.
-
-<ComponentPreview name="alertVariants" file="components/preview/alert.tsx" />
-
-## Dismissable
-
-Set `dismissable` to render a close button. Provide `onDismiss` to control visibility yourself, or
-omit it to let the alert remove itself from the DOM.
-
-<ComponentPreview name="alertDismissable" file="components/preview/alert.tsx" />
-
-## Actions & controlled dismiss
-
-Add an `AlertActions` row for follow-up controls, and pass `onDismiss` to drive visibility from your
-own state instead of letting the alert self-remove. This is the recommended production path — it keeps
-the alert in React's control so you can re-show it, log the dismissal, or coordinate other UI.
-
-<ComponentPreview name="alertActions" file="components/preview/alert.tsx" />
-
-## Icon options
-
-Pass a custom leading `icon` (any `lucide-react` element) to override the intent's default, or set
-`hideIcon` to drop the leading icon gutter entirely.
-
-<ComponentPreview name="alertIconOptions" file="components/preview/alert.tsx" />
-
-## Variant matrix
-
-Each intent rendered in its plain (icon-only) form and again with an `AlertActions` row, so the icon
-gutter and action layout read consistently across every tone.
-
-<ComponentPreview name="alertMatrix" file="components/preview/alert.tsx" />
-
-## Live announcements
+### Live announcements
 
 Static alerts announce nothing. Set `live` when the banner is the RESULT of an action — a failed
 save, a warning raised by what was just submitted — and a `destructive` or `warning` intent becomes
@@ -110,39 +48,104 @@ an assertive `role="alert"`. Everything else, `live` or not, stays a polite `rol
 </Alert>
 ```
 
-## Strip variant
+## Anatomy
+
+`Alert` is a compound component. Compose the parts inside the root:
+
+<Anatomy name="alert" />
+
+```tsx
+<Alert intent="success" dismissable onDismiss={handleDismiss}>
+  <AlertTitle>Title</AlertTitle>
+  <AlertDescription>Supporting description text.</AlertDescription>
+  <AlertActions>{/* action buttons */}</AlertActions>
+</Alert>
+```
+
+- `Alert` — the client root banner (`data-slot="alert"`). Owns the intent, leading icon, live-region policy, and optional dismiss/self-dismiss behavior.
+- `AlertTitle` — the bold leading line (`data-slot="alert-title"`).
+- `AlertDescription` — supporting body text (`data-slot="alert-description"`).
+- `AlertActions` — a row of action controls below the description (`data-slot="alert-actions"`).
+
+## Examples
+
+### Variants
+
+`default`, plus four semantic statuses — `info`, `success`, `warning`, `destructive` —
+each with a matching leading icon and status color tokens (`bg-X-subtle text-X-text border-X/20`).
+
+The `strip` layout variant is a compact single-line ribbon (icon + message + action, optional
+dismiss). It is the base pattern for in-content notices and plan/trial rows — there is no separate
+"inline banner" or "plan banner" component. For the full-width inverse strip across the top of a
+page, use [`AnnouncementBanner`](/docs/components/announcement-banner) instead.
+
+<ComponentPreview name="alertVariants" file="components/preview/alert.tsx" />
+
+### Dismissable
+
+Set `dismissable` to render a close button. Provide `onDismiss` to control visibility yourself, or
+omit it to let the alert remove itself from the DOM.
+
+<ComponentPreview name="alertDismissable" file="components/preview/alert.tsx" />
+
+### Actions & controlled dismiss
+
+Add an `AlertActions` row for follow-up controls, and pass `onDismiss` to drive visibility from your
+own state instead of letting the alert self-remove. This is the recommended production path — it keeps
+the alert in React's control so you can re-show it, log the dismissal, or coordinate other UI.
+
+<ComponentPreview name="alertActions" file="components/preview/alert.tsx" />
+
+### Icon options
+
+Pass a custom leading `icon` (any `lucide-react` element) to override the intent's default, or set
+`hideIcon` to drop the leading icon gutter entirely.
+
+<ComponentPreview name="alertIconOptions" file="components/preview/alert.tsx" />
+
+### Variant matrix
+
+Each intent rendered in its plain (icon-only) form and again with an `AlertActions` row, so the icon
+gutter and action layout read consistently across every tone.
+
+<ComponentPreview name="alertMatrix" file="components/preview/alert.tsx" />
+
+### Strip variant
 
 `variant="strip"` is the compact single-line info ribbon — centered icon + copy, tighter
 padding — for settings banners and inline notices (distinct from the block alert).
 
 <ComponentPreview name="alertStrip" file="components/preview/alert.tsx" />
 
+## Playground
+
+Try every intent with the icon and dismiss options, then copy the generated JSX.
+
+<AlertPlayground />
+
 ## API Reference
 
 ### Alert
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/alert.tsx"
-  name="AlertProps"
-/>
+<ApiTable path="../../packages/ui/registry/ui/alert.tsx" name="AlertProps" />
 
 ### AlertTitle
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/alert.tsx"
   name="AlertTitleProps"
 />
 
 ### AlertDescription
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/alert.tsx"
   name="AlertDescriptionProps"
 />
 
 ### AlertActions
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/alert.tsx"
   name="AlertActionsProps"
 />
@@ -160,9 +163,15 @@ padding — for settings banners and inline notices (distinct from the block ale
 | <kbd>Tab</kbd>                      | Move focus to the dismiss button (when `dismissable`). |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused dismiss button.                   |
 
+<StatesTested name="alert" />
+
 ## Do / Don't
 
 <DoDont
   do="Use the intent that matches the message — destructive for errors, success for confirmations."
   dont="Use an Alert for transient feedback after an action — use a toast instead."
 />
+
+## Changelog
+
+<ComponentChangelog name="alert" />

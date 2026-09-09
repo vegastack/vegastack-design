@@ -2,14 +2,16 @@
 title: Announcement Banner
 description: A dismissible one-line announcement — the full-width inverse page-top band.
 audience: public
+registry: announcement-banner
+status: stable
+since: 0.3.0
+a11y: ARIA status region (opt-in)
 preview: announcementBanner
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/announcement-banner
-```
+<InstallSteps name="announcement-banner" />
 
 ## Usage
 
@@ -19,6 +21,20 @@ npx shadcn@latest add @vegastack/announcement-banner
 </AnnouncementBanner>
 ```
 
+### When to use
+
+`AnnouncementBanner` is the one full-width inverse strip that spans the top of a page (foreground
+fill, on-background text, centered copy). For an in-content notice or a plan/trial row, use
+[`Alert`](/docs/components/alert) with `variant="strip"` — a compact single-line ribbon with an
+icon, message, and action — rather than a second banner component.
+
+### Live announcements
+
+A page-top band that exists at load is chrome, so it carries **no** live role — announcing it would
+compete with the page's own heading for the first thing a screen reader user hears. Pass `live`
+only for a banner that mounts (or re-words) after the page has settled; it then becomes a polite
+`role="status"` region.
+
 ## Examples
 
 <ComponentPreview
@@ -26,28 +42,14 @@ npx shadcn@latest add @vegastack/announcement-banner
   file="components/preview/announcement-banner.tsx"
 />
 
-## When to use
-
-`AnnouncementBanner` is the one full-width inverse strip that spans the top of a page (foreground
-fill, on-background text, centered copy). For an in-content notice or a plan/trial row, use
-[`Alert`](/docs/components/alert) with `variant="strip"` — a compact single-line ribbon with an
-icon, message, and action — rather than a second banner component.
-
-## Dismissal
+### Dismissal
 
 Uncontrolled by default (the banner removes itself). Pass `onDismiss` to own it — persist the
 choice and stop rendering; the button then only notifies.
 
-## Live announcements
-
-A page-top band that exists at load is chrome, so it carries **no** live role — announcing it would
-compete with the page's own heading for the first thing a screen reader user hears. Pass `live`
-only for a banner that mounts (or re-words) after the page has settled; it then becomes a polite
-`role="status"` region.
-
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/announcement-banner.tsx"
   name="AnnouncementBannerProps"
 />
@@ -63,9 +65,15 @@ only for a banner that mounts (or re-words) after the page has settled; it then 
 | <kbd>Tab</kbd>                      | Move to the optional action and dismiss control. |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused button.                     |
 
+<StatesTested name="announcement-banner" />
+
 ## Do / Don't
 
 <DoDont
   do="Announce one timely change and offer at most one direct follow-up action."
   dont="Use a banner for validation errors, multi-step forms, or content that needs an interruptive alert."
 />
+
+## Changelog
+
+<ComponentChangelog name="announcement-banner" />

@@ -239,7 +239,7 @@ data-slot="icon-button">`. The literal follows the spread, so `IconButton` overw
 
 ---
 
-## 2026-09-08 — ⌘K on `/docs/components/command` opens two dialogs at once (found, not fixed)
+## 2026-09-08 — ⌘K on `/docs/components/command` opens two dialogs at once (FIXED 2026-09-09, Do1-b)
 
 - **Symptom.** On the Command page, pressing ⌘K (Ctrl+K) opens the fixture's `CommandDialog` **and**
   the Fumadocs site search dialog, stacked.
@@ -257,6 +257,14 @@ data-slot="icon-button">`. The literal follows the spread, so `IconButton` overw
   site hotkey is not the escape hatch the audit note implied. D2's remit is dependency migration,
   not fixture behaviour. Owner: Do1-b (docs pages/fixtures).
 - **Reproduction.** Build the docs, open `/docs/components/command`, press ⌘K: two dialogs.
+- **Fix (2026-09-09, Do1-b).** `apps/docs/components/preview/command.tsx`'s `CommandDialogDemo`
+  binds ⌘J / Ctrl+J instead, and its `CommandShortcut` chip reads ⌘J. The chord is the only thing
+  that changed: the component is untouched, the page's code sample still shows ⌘K (which is what a
+  consuming app binds), and a blockquote above the example says the live demo uses ⌘J because this
+  site already owns ⌘K. Scoping the demo's listener to the preview frame and passing
+  `hotKey: []` were both rejected — the first is a focus heuristic that breaks the moment the
+  dialog portals to `<body>`, the second makes Fumadocs' `every()` vacuously true and opens site
+  search on every keystroke (already recorded above).
 
 ## 2026-09-08 — The `relative-time` 320px contract fails nondeterministically under the full sweep
 

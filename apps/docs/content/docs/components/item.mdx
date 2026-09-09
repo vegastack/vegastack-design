@@ -2,14 +2,16 @@
 title: Item
 description: A compact anatomy row for list/feed content — media, title, description, and actions, groupable with dividers.
 audience: public
+registry: item
+status: stable
+since: 0.1.0
+a11y: list and listitem semantics
 preview: itemDemo
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/item
-```
+<InstallSteps name="item" />
 
 ## Usage
 
@@ -38,11 +40,14 @@ import { Mail } from "lucide-react";
 </Item>;
 ```
 
+## Anatomy
+
+`Item` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="item" />
+
 ## Examples
-
-Mix the row's surface, density, and media treatment, then copy the generated JSX.
-
-<ItemPlayground />
 
 ### Anatomy
 
@@ -116,22 +121,25 @@ inside `ItemContent` for multi-row layouts like a comment or activity feed.
 
 <ComponentPreview name="itemDemoGroup" file="components/preview/item.tsx" />
 
+## Playground
+
+Mix the row's surface, density, and media treatment, then copy the generated JSX.
+
+<ItemPlayground />
+
 ## API Reference
 
 ### Item
 
-<AutoTypeTable path="../../packages/ui/registry/ui/item.tsx" name="ItemProps" />
+<ApiTable path="../../packages/ui/registry/ui/item.tsx" name="ItemProps" />
 
 ### ItemMedia
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/item.tsx"
-  name="ItemMediaProps"
-/>
+<ApiTable path="../../packages/ui/registry/ui/item.tsx" name="ItemMediaProps" />
 
 ### ItemSeparator
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/item.tsx"
   name="ItemSeparatorProps"
 />
@@ -165,9 +173,15 @@ everything its underlying element accepts (a `<div>`, or a `<p>` for
 | <kbd>Enter</kbd> | Activate a focused link/button `Item`, or a focused action control.          |
 | <kbd>Space</kbd> | Activate a focused button `Item`, or a focused action control.               |
 
+<StatesTested name="item" />
+
 ## Do / Don't
 
 <DoDont
   do="Put the row's meaning in ItemTitle and ItemDescription — ItemMedia's icon or image stays decorative."
   dont="Make the whole row a link AND nest another link or button inside ItemActions — a control can't be both a landmark link and contain interactive descendants without confusing keyboard/AT navigation."
 />
+
+## Changelog
+
+<ComponentChangelog name="item" />

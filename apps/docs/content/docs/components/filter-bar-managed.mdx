@@ -2,14 +2,16 @@
 title: Filter Builder
 description: The stateful nested and/or filter builder — host-injected field grammar, per-type value editors, depth and condition caps, FilterChip summary.
 audience: public
+registry: filter-bar-managed
+status: stable
+since: 0.4.0
+a11y: nested fieldset/legend groups
 preview: filterBarManaged
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/filter-bar-managed
-```
+<InstallSteps name="filter-bar-managed" />
 
 ## Usage
 
@@ -82,21 +84,21 @@ inert.
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/filter-bar-managed.tsx"
   name="FilterBuilderProps"
 />
 
 ### Field definition
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/filter-bar-managed.tsx"
   name="FilterField"
 />
 
 ### Value editor contract
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/filter-bar-managed.tsx"
   name="FilterValueEditorProps"
 />
@@ -119,9 +121,15 @@ inert.
 | <kbd>Tab</kbd>                      | Move through field, operator, value, remove.  |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the focused picker or activate a button. |
 
+<StatesTested name="filter-bar-managed" />
+
 ## Do / Don't
 
 <DoDont
   do="Inject the grammar: keep field keys, operators, and value editors in your app and pass them as vocabulary."
   dont="Ask the component to validate field semantics or serialise the tree — that adopts one app's AST into the design system."
 />
+
+## Changelog
+
+<ComponentChangelog name="filter-bar-managed" />

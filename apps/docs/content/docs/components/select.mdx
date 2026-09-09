@@ -2,14 +2,16 @@
 title: Select
 description: A dropdown for choosing one option — trigger with value and chevron, grouped and scrollable popup, full keyboard navigation, and animated enter/exit.
 audience: public
+registry: select
+status: stable
+since: 0.1.0
+a11y: APG select-only combobox
 preview: select
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/select
-```
+<InstallSteps name="select" />
 
 ## Usage
 
@@ -41,13 +43,14 @@ option in the trigger instead of its raw `value`. Control the selection with `va
 `onValueChange`, or leave it uncontrolled with `defaultValue`. Add the `multiple` prop to collect
 several values at once (see [Multiple selection](#multiple-selection)).
 
+## Anatomy
+
+`Select` is a compound component. Every exported part, with the
+`data-slot` it renders (generated from the canonical source):
+
+<Anatomy name="select" />
+
 ## Examples
-
-### Playground
-
-Try every trigger size and the disabled state on a small option list, then copy the generated JSX.
-
-<SelectPlayground />
 
 ### Anatomy
 
@@ -174,67 +177,70 @@ import {
 </Field>;
 ```
 
+## Playground
+
+Try every trigger size and the disabled state on a small option list, then copy the generated JSX.
+
+<SelectPlayground />
+
 ## API Reference
 
 ### Select
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/select.tsx"
-  name="SelectProps"
-/>
+<ApiTable path="../../packages/ui/registry/ui/select.tsx" name="SelectProps" />
 
 ### SelectTrigger
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/select.tsx"
   name="SelectTriggerProps"
 />
 
 ### SelectValue
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/select.tsx"
   name="SelectValueProps"
 />
 
 ### SelectContent
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/select.tsx"
   name="SelectContentProps"
 />
 
 ### SelectList
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/select.tsx"
   name="SelectListProps"
 />
 
 ### SelectItem
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/select.tsx"
   name="SelectItemProps"
 />
 
 ### SelectGroup
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/select.tsx"
   name="SelectGroupProps"
 />
 
 ### SelectLabel
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/select.tsx"
   name="SelectLabelProps"
 />
 
 ### SelectSeparator
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/select.tsx"
   name="SelectSeparatorProps"
 />
@@ -254,9 +260,15 @@ import {
 | <kbd>A</kbd>–<kbd>Z</kbd>           | Type-ahead — jump to the option starting with the typed characters. |
 | <kbd>Esc</kbd>                      | Close the popup without changing the selection.                     |
 
+<StatesTested name="select" />
+
 ## Do / Don't
 
 <DoDont
   do="Pass an items map so the trigger shows the selected option's label, and group long lists with SelectLabel and SelectSeparator."
   dont="Use a Select for boolean on/off (use a Switch), or omit the SelectValue placeholder."
 />
+
+## Changelog
+
+<ComponentChangelog name="select" />

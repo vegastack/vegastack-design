@@ -2,14 +2,16 @@
 title: Badge
 description: A compact status or label chip — 4 variants × 5 semantic colors × 3 real size tiers, with a dot, a leading icon, and loading.
 audience: public
+registry: badge
+status: stable
+since: 0.1.0
+a11y: non-interactive label
 preview: badge
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/badge
-```
+<InstallSteps name="badge" />
 
 ## Usage
 
@@ -22,12 +24,6 @@ import { Badge } from "@/components/ui/badge";
 ```
 
 ## Examples
-
-### Playground
-
-Mix variant, color, size, and the dot / loading / animate-in states, then copy the generated JSX.
-
-<BadgePlayground />
 
 ### Variants
 
@@ -94,12 +90,15 @@ it for you.
 
 <ComponentPreview name="badgeTagChips" file="components/preview/badge.tsx" />
 
+## Playground
+
+Mix variant, color, size, and the dot / loading / animate-in states, then copy the generated JSX.
+
+<BadgePlayground />
+
 ## API Reference
 
-<AutoTypeTable
-  path="../../packages/ui/registry/ui/badge.tsx"
-  name="BadgeProps"
-/>
+<ApiTable path="../../packages/ui/registry/ui/badge.tsx" name="BadgeProps" />
 
 ## Accessibility
 
@@ -114,9 +113,15 @@ it for you.
 - Use `render` to compose with a link when a badge needs to navigate, keeping the surrounding text as
   the accessible name.
 
+<StatesTested name="badge" />
+
 ## Do / Don't
 
 <DoDont
   do="Use a semantic color to signal status — success for active, destructive for errors — with text that states the meaning."
   dont="Rely on the dot or color alone to convey state, or use a Badge as a clickable button."
 />
+
+## Changelog
+
+<ComponentChangelog name="badge" />

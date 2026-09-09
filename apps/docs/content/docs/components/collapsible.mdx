@@ -2,14 +2,16 @@
 title: Collapsible
 description: A single toggleable open/close region with an animated height, built on Base UI Collapsible.
 audience: public
+registry: collapsible
+status: stable
+since: 0.1.0
+a11y: APG disclosure
 preview: collapsible
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/collapsible
-```
+<InstallSteps name="collapsible" />
 
 ## Usage
 
@@ -35,6 +37,8 @@ import { ChevronDown } from "lucide-react";
 ## Anatomy
 
 `Collapsible` is a compound component built on Base UI's Collapsible. Compose the parts inside the root:
+
+<Anatomy name="collapsible" />
 
 ```tsx
 <Collapsible>
@@ -112,9 +116,15 @@ Collapsible](https://base-ui.com/react/components/collapsible) part accepts
 | <kbd>Enter</kbd> / <kbd>Space</kbd>                | Toggle the region open or closed when the trigger is focused.             |
 | <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Move focus to and from the trigger, then into the revealed panel content. |
 
+<StatesTested name="collapsible" />
+
 ## Do / Don't
 
 <DoDont
   do="Use a Collapsible for a single, self-contained show/hide region — extra detail, an optional form section, a 'read more'."
   dont="Stack several Collapsibles to fake an accordion where only one opens at a time — use an Accordion, which coordinates a single-open group."
 />
+
+## Changelog
+
+<ComponentChangelog name="collapsible" />

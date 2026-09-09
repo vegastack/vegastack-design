@@ -2,14 +2,16 @@
 title: Chip Input
 description: Free-token entry — Enter or comma commits, delimited pastes split into chips, and per-chip validation keeps invalid entries visible instead of dropping them.
 audience: public
+registry: chip-input
+status: stable
+since: 0.4.0
+a11y: labelled token input
 preview: chipInput
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/chip-input
-```
+<InstallSteps name="chip-input" />
 
 ## Usage
 
@@ -58,7 +60,7 @@ are fixed or removed.
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/chip-input.tsx"
   name="ChipInputProps"
 />
@@ -81,9 +83,15 @@ are fixed or removed.
 | <kbd>Backspace</kbd> (empty input) | Remove the last chip.                           |
 | <kbd>Tab</kbd>                     | Move between the input and chip remove buttons. |
 
+<StatesTested name="chip-input" />
+
 ## Do / Don't
 
 <DoDont
   do="Validate per chip and let malformed entries stay visible and flagged — the user pasted them for a reason."
   dont="Reject invalid entries silently on commit — a dropped address in a 20-recipient paste is data loss the user won't notice."
 />
+
+## Changelog
+
+<ComponentChangelog name="chip-input" />

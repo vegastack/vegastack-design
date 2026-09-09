@@ -15,7 +15,7 @@ import {
  *   children: `Callout`, `Steps`/`Step`, `Tabs`/`Tab`, `Files`/`Folder`/`File`, `TypeTable`,
  *   `DoDont`, `RegistryInstallCallout`, and the `CodeBlockTabs` the ```npm fence expands into.
  * - **Deferred to runtime** — elements that need the file system or the type generator
- *   (`ComponentPreview`, `ApiTable`/`AutoTypeTable`, the generated sections). They become the
+ *   (`ComponentPreview`, `ApiTable`, the generated sections). They become the
  *   `\0{json}\0` placeholders `renderPlaceholder()` resolves in `lib/markdown-export.ts`, with
  *   block children stringified as flow (fumadocs' own `placeholder()` uses phrasing, which glues
  *   paragraphs together).

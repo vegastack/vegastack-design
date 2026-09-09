@@ -2,14 +2,16 @@
 title: Page Header
 description: The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star.
 audience: public
+registry: page-header
+status: stable
+since: 0.1.0
+a11y: banner landmark
 preview: pageHeader
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/page-header
-```
+<InstallSteps name="page-header" />
 
 ## Usage
 
@@ -38,6 +40,8 @@ app-local behavior such as closing a picker or returning to a non-URL state.
 left **title block** (back button, `<h1>`, favorite star, description) and a right **actions block**
 (actions + secondary menu), followed by any `children` (tabs, search bars). Every region exposes a
 `data-slot` for styling and testing:
+
+<Anatomy name="page-header" />
 
 ```tsx
 <PageHeader
@@ -188,14 +192,14 @@ Compose your own overflow menu (e.g. a `DropdownMenu` with an `IconButton` trigg
 
 ### PageHeader
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/page-header.tsx"
   name="PageHeaderProps"
 />
 
 ### PageHeaderFavorite
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/page-header.tsx"
   name="PageHeaderFavorite"
 />
@@ -227,9 +231,15 @@ must be placed elsewhere.
 | <kbd>Enter</kbd> | Follow the back link, or activate the focused button.           |
 | <kbd>Space</kbd> | Activate the focused button (back / favorite / action).         |
 
+<StatesTested name="page-header" />
+
 ## Do / Don't
 
 <DoDont
   do="Keep one PageHeader (one h1) per page, use backHref for routing, and reserve onBack for app-local behavior."
   dont="Stack multiple PageHeaders or nest an h1 inside another heading — and don't hardcode navigation inside the header."
 />
+
+## Changelog
+
+<ComponentChangelog name="page-header" />

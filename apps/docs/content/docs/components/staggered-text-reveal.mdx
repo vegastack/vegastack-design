@@ -2,14 +2,16 @@
 title: Staggered Text Reveal
 description: Display text whose words rise in when they scroll into view, staggered one motion-enter-up step apart.
 audience: public
+registry: staggered-text-reveal
+status: stable
+since: 0.1.0
+a11y: text-preserving spans
 preview: staggeredTextReveal
 ---
 
-## Installation
+## Install
 
-```npm
-npx shadcn@latest add @vegastack/staggered-text-reveal
-```
+<InstallSteps name="staggered-text-reveal" />
 
 ## Usage
 
@@ -72,7 +74,7 @@ reduced motion requires.
 
 ## API Reference
 
-<AutoTypeTable
+<ApiTable
   path="../../packages/ui/registry/ui/staggered-text-reveal.tsx"
   name="StaggeredTextRevealProps"
 />
@@ -83,9 +85,15 @@ reduced motion requires.
 - Reading order and accessible text remain the original sentence; visual word wrappers do not split the spoken phrase.
 - Reduced-motion mode removes both the entrance duration and its stagger delay, leaving the static final state.
 
+<StatesTested name="staggered-text-reveal" />
+
 ## Do / Don't
 
 <DoDont
   do="Compose it inside a real heading element for a hero headline."
   dont="Use it for body copy or anywhere the staggered entrance would repeat on every re-render/scroll."
 />
+
+## Changelog
+
+<ComponentChangelog name="staggered-text-reveal" />
