@@ -1706,6 +1706,16 @@ The alternative — moving the AGENTS.md half to the wave PR and shipping D1 wit
 ledger only — is still open and is flagged for MK on PR #72. It costs a second PR and a window in
 which the two documents disagree.
 
+**Two defects the rebase surfaced, both real and both fixed at the root.** CI run 34326426938 failed
+at `test (@vegastack/ui, @vegastack/design)` on a duplicated `prosemirror-model` — `pnpm install`
+after the tiptap bump re-resolved only what it had to, leaving 1.25.9 and 1.25.11 side by side;
+`pnpm dedupe` collapsed it (`docs/ledger/bugs.md`, 2026-09-09). Then Fo1 (#67) merged mid-rebase
+carrying `registry/ui/field-form.test.tsx`, which exists to fail the TYPECHECK when the RHF/Zod
+surface drifts — and it did, because `@hookform/resolvers@5.4.0`'s `zodResolver` overloads reject a
+schema built by the zod 4.5.4 this batch installs. Taken to 5.9.1 rather than holding zod back or
+loosening the test. Both are the same lesson in different clothes: a version bump is not finished
+when `pnpm install` exits.
+
 Also rebased away, as the rule requires: the hand-written `## [0.7.0]` CHANGELOG entry and its
 generated docs page (WP5 made that a build output — the prose now lives in five changesets under
 `.changeset/`), two `chore(gates)` receipt commits, two `chore(derived)` restamps, and five
