@@ -1,6 +1,6 @@
 {
   "indexUrl": "https://lucide-animated.com/r/registry.json",
-  "itemCount": 439,
+  "itemCount": 467,
   "items": [
     {
       "license": "MIT",
@@ -424,6 +424,13 @@
     },
     {
       "license": "MIT",
+      "moduleSha256": "411a55aee2db1ff338e314ee2df4f4154da774593d9f8a8388093e3910ac738a",
+      "name": "binary",
+      "sha256": "68b5e602aeabe2fb3d8c5bf894c60e8ea3b3075162ab4a33ef6a150a2ad2d614",
+      "url": "https://lucide-animated.com/r/binary.json"
+    },
+    {
+      "license": "MIT",
       "moduleSha256": "01f7cd8a7829d72ef8bb31a81f5df82aa1eef29b764dbaed6ec0a96f9391f020",
       "name": "blocks",
       "sha256": "c917b77942ec417976372c95754270115dc1ad81b3ab78fdbca547349921a4a9",
@@ -788,6 +795,20 @@
     },
     {
       "license": "MIT",
+      "moduleSha256": "10ba3e0f7c1827327e7054e169c46d0313ad12bf6b37f127bc2ce958368e463a",
+      "name": "cigarette",
+      "sha256": "876c6f019cdb6d6949a2f7f6e6062bd32d800d32f9aa2dc043574ad1c9117b88",
+      "url": "https://lucide-animated.com/r/cigarette.json"
+    },
+    {
+      "license": "MIT",
+      "moduleSha256": "d8f14d893416a433310a46aa383b20302fcc444009b28aa911a1a3dab471f6f3",
+      "name": "cigarette-off",
+      "sha256": "0fc7fea23accb297f761e7b4fcc64ff964d627c950749b4a3adc7a97bbe7f1a8",
+      "url": "https://lucide-animated.com/r/cigarette-off.json"
+    },
+    {
+      "license": "MIT",
       "moduleSha256": "58bd4cf9dc42ded2b2e21a999e5817f402047b4f96bad1bb1dd362905d57d6e3",
       "name": "circle-check",
       "sha256": "851c10822b523186c08ef29e2971b86a222839f5fdbf354a4af022743847b912",
@@ -837,6 +858,13 @@
     },
     {
       "license": "MIT",
+      "moduleSha256": "7935d7258b651e7fa97627ac43556815103755c58fbf7feeffa70ab763d1c14c",
+      "name": "circle-gauge",
+      "sha256": "84add505b810585cd5d71456874c65d56dcdc2958c994e9a05e79696339a7dc7",
+      "url": "https://lucide-animated.com/r/circle-gauge.json"
+    },
+    {
+      "license": "MIT",
       "moduleSha256": "1444594665747e42867ad4743f0c6b8d8f962be132c5287c2f4041f6b9dbe795",
       "name": "circle-help",
       "sha256": "47e7d6e920f31689c9f2a7c16f39f876ef066f0941f89e0a884f9841dfb7884e",
@@ -862,6 +890,13 @@
       "name": "clock",
       "sha256": "d8d7b89a0cafd66027baab8f84af7d7fd0c4bcfb5d20ff4e842b28429f2fad86",
       "url": "https://lucide-animated.com/r/clock.json"
+    },
+    {
+      "license": "MIT",
+      "moduleSha256": "5c33e4cb40f8f111f1b9caf34a539fdc681b83c2bd0d39e8adde06d848ddd90c",
+      "name": "cloud-backup",
+      "sha256": "a33829ff024b39b81ae0e6ca6fdb01f9d12cb5646678ca21fc899d7c6827e55f",
+      "url": "https://lucide-animated.com/r/cloud-backup.json"
     },
     {
       "license": "MIT",
@@ -911,6 +946,13 @@
       "name": "cloud-sun",
       "sha256": "db46116a0fbb6f9af67fa0dd1997d0d6bb1c8c707ede13742ae0dc74507ec62f",
       "url": "https://lucide-animated.com/r/cloud-sun.json"
+    },
+    {
+      "license": "MIT",
+      "moduleSha256": "dabe503e8af1efd8923d5dc05fd8aaa3c793ae719b0d68f4cedcc72f09c15970",
+      "name": "cloud-sync",
+      "sha256": "4cc1f80475823c1eb4385981436238a28025c62f8926f9f2c09de48fd009bdde",
+      "url": "https://lucide-animated.com/r/cloud-sync.json"
     },
     {
       "license": "MIT",
@@ -1163,6 +1205,13 @@
       "name": "expand",
       "sha256": "f0d61df1aed10b68f381a8b457879b6dbe369c55720d83b5dc0777a9f4255f56",
       "url": "https://lucide-animated.com/r/expand.json"
+    },
+    {
+      "license": "MIT",
+      "moduleSha256": "35b5f2738dd1f94ecf3e46b41b4aff7bc0cd2a0253bcbade6c44c528594bbfbe",
+      "name": "external-link",
+      "sha256": "3d635427fce3bffe72dd246c88d9f8db096f1ed88406837d5863f2674dd1a026",
+      "url": "https://lucide-animated.com/r/external-link.json"
     },
     {
       "license": "MIT",
@@ -1698,6 +1747,13 @@
     },
     {
       "license": "MIT",
+      "moduleSha256": "ed3a6b3429829ee952d884a10199e842037ff9162928ac0dc3ddc78c7bc6115f",
+      "name": "hat-glasses",
+      "sha256": "1c3a442e14688b4e39007f7aa1b352e94b182e29f67648dfbdad27417ae0655b",
+      "url": "https://lucide-animated.com/r/hat-glasses.json"
+    },
+    {
+      "license": "MIT",
       "moduleSha256": "4da32fc0564157250f2c8dc8c65876cd57a4460a3c4f558dd00d565d1dab3d40",
       "name": "heart",
       "sha256": "f591a13886307584ca95d2058df050a765d73431d9d95ecb4034e85086f7f738",
@@ -1845,10 +1901,31 @@
     },
     {
       "license": "MIT",
+      "moduleSha256": "fdd788a5fdc823689eb5a62dc9d38949420f20634a7de5e2f6576913378bb7a6",
+      "name": "leaf",
+      "sha256": "1fab137107a654fc4a3024236cb4b8e26c40e385f265fd711fa7e2c457c2ba32",
+      "url": "https://lucide-animated.com/r/leaf.json"
+    },
+    {
+      "license": "MIT",
+      "moduleSha256": "38b19d3534831932a2eb68bd78035252dc89873bfd9c5ddac288e8369c624551",
+      "name": "leafy-green",
+      "sha256": "e17d469870720c9b57c869a7593bbd1f8a9be3649bc35b59121421dba7562a5d",
+      "url": "https://lucide-animated.com/r/leafy-green.json"
+    },
+    {
+      "license": "MIT",
       "moduleSha256": "c4113bdf832923130bb356228e1e68da3542a929e98091a03ccb1de5caec8e4f",
       "name": "link",
       "sha256": "1028dcb9020fae2c5381261f1b3d993456272ecc86f14d9d2a78c9ae1564910f",
       "url": "https://lucide-animated.com/r/link.json"
+    },
+    {
+      "license": "MIT",
+      "moduleSha256": "35ca3ee7e07dfb2f85d9ff18f0a0944bca263e34337a47d2ec204a3b22390a57",
+      "name": "link-2",
+      "sha256": "9ba81aa79c767cba7fec89d017243f4036943448d192f1242d651575368cf8da",
+      "url": "https://lucide-animated.com/r/link-2.json"
     },
     {
       "license": "MIT",
@@ -2146,6 +2223,13 @@
     },
     {
       "license": "MIT",
+      "moduleSha256": "d246c6db0a6b86cc8b3cd49462eeb4b8ee000e3eeb12defd85c9a65d0a19064f",
+      "name": "monitor-cog",
+      "sha256": "76d6a21b8f2437a2c789949866ffebe2940f30a698be2fc0c609c327face81bc",
+      "url": "https://lucide-animated.com/r/monitor-cog.json"
+    },
+    {
+      "license": "MIT",
       "moduleSha256": "7fdd3f0dc34c01f57b8a10b19b64f2229433fc35c4f3bae2cc605786252d2c81",
       "name": "moon",
       "sha256": "a5ac18f27e618026a069b406c5275b31823375a8b09b486878742dce2ce675e6",
@@ -2157,6 +2241,13 @@
       "name": "nfc",
       "sha256": "3563e9843ba51b12313dd636cef014667a91ab76e8a040327013c2541bbaf188",
       "url": "https://lucide-animated.com/r/nfc.json"
+    },
+    {
+      "license": "MIT",
+      "moduleSha256": "c9c422a9c96ecfb80938e9e195de917c98a4837a91062797ce15fd2359ae6242",
+      "name": "palette",
+      "sha256": "0a4775cb3330855040672add71281c125eeb9477fa8e375b8a6c217871121756",
+      "url": "https://lucide-animated.com/r/palette.json"
     },
     {
       "license": "MIT",
@@ -2255,6 +2346,20 @@
       "name": "pickaxe",
       "sha256": "5b54be719484151033a88d865817aecd2b0571365e02ba5162f137f003caba61",
       "url": "https://lucide-animated.com/r/pickaxe.json"
+    },
+    {
+      "license": "MIT",
+      "moduleSha256": "c2d1514688fd351dee26278c4fb4fe63e161e7b2d5f36c203d2b6afbdda1fa8a",
+      "name": "plane-landing",
+      "sha256": "a22507194fcb06303ba4aaed26526c758086ba29babcf2c77de5eea6c363181c",
+      "url": "https://lucide-animated.com/r/plane-landing.json"
+    },
+    {
+      "license": "MIT",
+      "moduleSha256": "1c25156bf6fc64ca28cf24bfcb67856e7ea119596f33a55b95b02a64a0598b60",
+      "name": "plane-takeoff",
+      "sha256": "022e142bc715c0f2371a227f4d237c258c9e997fe145ba26c4297c23604e9049",
+      "url": "https://lucide-animated.com/r/plane-takeoff.json"
     },
     {
       "license": "MIT",
@@ -2524,6 +2629,27 @@
     },
     {
       "license": "MIT",
+      "moduleSha256": "3766e5fb001e49dae7839ac9e9ab0b74bf24523eb3ee8002de322c5e5d3ea818",
+      "name": "server",
+      "sha256": "dc9a054cd366df9dd6600f2edc08a3b6928015a2d8b37eee23119c5dc390b5fa",
+      "url": "https://lucide-animated.com/r/server.json"
+    },
+    {
+      "license": "MIT",
+      "moduleSha256": "62d78f8f69f6bf25753797de8e3e7a0ff8ebc70c7d43ede43446f5463f2c5290",
+      "name": "server-cog",
+      "sha256": "71a800d2da36b02af7255484031f0bcac06ccf9f13c52d993653060bfa8c5c7d",
+      "url": "https://lucide-animated.com/r/server-cog.json"
+    },
+    {
+      "license": "MIT",
+      "moduleSha256": "c17c80622094f3be2c03b234e7f3f2461c2d016b9f66d4d26813b2342593de3d",
+      "name": "server-crash",
+      "sha256": "72007d40c1a1f52a2e4e2c340d2eafc141bb9370105d92ab8cd9f4fa1af216cc",
+      "url": "https://lucide-animated.com/r/server-crash.json"
+    },
+    {
+      "license": "MIT",
       "moduleSha256": "883dc6a7310bd08221110e9791eab8fc5c52ff6c1d55bc98a1c349da159579d0",
       "name": "settings",
       "sha256": "dccbe307789095c85bd7847c383360e721bd235c42c95c069d6fc28b0fde22bc",
@@ -2545,10 +2671,24 @@
     },
     {
       "license": "MIT",
+      "moduleSha256": "c5584665eef3f7c3024cefd4cceedb71b47a972a83e0409821da16cbd53020da",
+      "name": "ship-wheel",
+      "sha256": "6e185f0a61c5d74d6d01462f4a8488191dc57ed74e94556b19ad08a85013db4c",
+      "url": "https://lucide-animated.com/r/ship-wheel.json"
+    },
+    {
+      "license": "MIT",
       "moduleSha256": "38fec94c99aa9ea2a9e7914c4ad9e036f0a2107176c6eaefce54108ff608ecf2",
       "name": "shower-head",
       "sha256": "b1c4398ecbaf069a2fa56d880c607b2411b2a220fe868eba6481bd46dd5dd207",
       "url": "https://lucide-animated.com/r/shower-head.json"
+    },
+    {
+      "license": "MIT",
+      "moduleSha256": "0a1816f7d97efb444b36a6999f5ac927b16efe59b939a916ca16d0b1cc5d7c8d",
+      "name": "shredder",
+      "sha256": "29c7ac027c9205ff9cf9721e1034336084e5cb549145c9674416e962b9d8b90a",
+      "url": "https://lucide-animated.com/r/shredder.json"
     },
     {
       "license": "MIT",
@@ -2601,10 +2741,24 @@
     },
     {
       "license": "MIT",
+      "moduleSha256": "32648e926fc9d4610bafce2b498b9ee26ccee3c70297903223db38152b3ddad4",
+      "name": "soup",
+      "sha256": "88764bf6074a5d19f02989c6cbc83a21727391a51066d71e89346c523b80cddc",
+      "url": "https://lucide-animated.com/r/soup.json"
+    },
+    {
+      "license": "MIT",
       "moduleSha256": "ec32387c7884d98c74b97fe1c465e615b364e40ce0777809ccfa8834000360a2",
       "name": "sparkles",
       "sha256": "af95efcbb6a9d3a88495037461fa220969cb68f28ab019a00af153d725a12d54",
       "url": "https://lucide-animated.com/r/sparkles.json"
+    },
+    {
+      "license": "MIT",
+      "moduleSha256": "4f6b5bcef10bd2f351a1d68a297c4c3321b598bd3beafd081bbf7ba95f3d1202",
+      "name": "spray-can",
+      "sha256": "d1d162366fe444f349428c08888f52b7223aed7e35ccf71f4a88581e98eb70c6",
+      "url": "https://lucide-animated.com/r/spray-can.json"
     },
     {
       "license": "MIT",
@@ -2776,6 +2930,13 @@
     },
     {
       "license": "MIT",
+      "moduleSha256": "70373ef0405348d35d043e0171a4a8782d8de435cf32b3c33b6029aa96bff7ff",
+      "name": "ticket",
+      "sha256": "b97fcba56ba9adb0d4d5cdabade981c530c5297c19c2f4ebeff297842ae1157b",
+      "url": "https://lucide-animated.com/r/ticket.json"
+    },
+    {
+      "license": "MIT",
       "moduleSha256": "6ed998718eb092bfe14c829c930d7e960009c2e777ba1be0413604be26571351",
       "name": "timer",
       "sha256": "59c5d5abd43962ffc45021c2b87fb9985ff2bd98983978b226f63f1ca0dbcb72",
@@ -2794,6 +2955,20 @@
       "name": "train-track",
       "sha256": "899a54d4b10e67283c64052bf028db96b5908d3031f08061e132ad3e7e4b89ba",
       "url": "https://lucide-animated.com/r/train-track.json"
+    },
+    {
+      "license": "MIT",
+      "moduleSha256": "967cdd9ae1fa4efd2f9aaeaee25b872c78c1f8b6c80bc79a0af44893cbcc1e55",
+      "name": "tree-deciduous",
+      "sha256": "50f086e201e7bac66cca52a20becefd77cae06f420313f58979492f66d514679",
+      "url": "https://lucide-animated.com/r/tree-deciduous.json"
+    },
+    {
+      "license": "MIT",
+      "moduleSha256": "fe70a405be9e5b9dbb212f2e19bb3a8ea869b9a2cf7d329e6d1e98aa78907e05",
+      "name": "tree-pine",
+      "sha256": "4d65d48a6a99ba110c434c16b25f99e796ca54569ed1df9ebbdf5ab161b2c892",
+      "url": "https://lucide-animated.com/r/tree-pine.json"
     },
     {
       "license": "MIT",
@@ -2895,6 +3070,13 @@
     },
     {
       "license": "MIT",
+      "moduleSha256": "58d55f577fcae75bbdf9147399f5a56a578473bf51cf0ebfd89d1a9e6789173a",
+      "name": "user-plus",
+      "sha256": "afd9f578d9a7d149b6d0179b1a7bde751b7275ad83aed7becb53a8e887b923d4",
+      "url": "https://lucide-animated.com/r/user-plus.json"
+    },
+    {
+      "license": "MIT",
       "moduleSha256": "60b8d1b8b5a516f01ca3b2c693f33cbd4c12da58140680ec0364ac2a215c51a9",
       "name": "user-round-check",
       "sha256": "3800c8ff7970dd1b923c4bb448fa49ef2a0db030b4dcf05618abffe96d3453c8",
@@ -2962,6 +3144,20 @@
       "name": "waves",
       "sha256": "f1f590067f3a23d77eb4d03e151a5f05d7c859cf80fd00e4c2286da9bf75953f",
       "url": "https://lucide-animated.com/r/waves.json"
+    },
+    {
+      "license": "MIT",
+      "moduleSha256": "a0bc5b88cf0541f3b290695f382a2992667b36fa05a2b1c185da6638cac51caf",
+      "name": "waves-arrow-down",
+      "sha256": "d0d569e3e3fd861442c42015321da1d505207280c5da07de3cd91305b409bef7",
+      "url": "https://lucide-animated.com/r/waves-arrow-down.json"
+    },
+    {
+      "license": "MIT",
+      "moduleSha256": "51dcbfdaf85605a7b56df1b09d92ad8496fdfec859adca839aab3850be84ba57",
+      "name": "waves-arrow-up",
+      "sha256": "96ca083d0bd84efffc191adf60d487c4bc18159aacddc306aac28cb885022a8d",
+      "url": "https://lucide-animated.com/r/waves-arrow-up.json"
     },
     {
       "license": "MIT",

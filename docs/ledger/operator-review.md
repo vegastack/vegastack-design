@@ -2205,3 +2205,32 @@ joiner rather than the author (it false-positived on `sidebar.tsx`'s cookie stri
 literal in this codebase is prose — markdown fixtures, placeholder copy — whose blank lines are
 content. Consistent with `design.md`'s treatment of class strings as single-line units that `cn()`
 joins. Flagged rather than assumed.
+
+---
+
+## Icons · adopting the 28 new `lucide-animated` icons (#92) — judgment calls
+
+- **The Motion vocabulary was extended rather than the icons trimmed.** Four of the 28 introduced
+  timing values `tooling/verify-animated-icons.mjs` had never observed: durations 0.12s (`binary`)
+  and 0.32s (`hat-glasses`), and easings `[0.65, 0, 0.35, 1]` (`palette`) and `[0.25, 1, 0.5, 1]`
+  (`plane-landing`, `plane-takeoff`). That gate exists so a refresh "cannot silently introduce a new
+  timing/easing language", and it did its job: nothing was silent. Both durations fall inside the
+  existing 0.01s–6s ladder beside 0.1/0.15/0.28/0.35, and both easings are ordinary cubic-bezier
+  curves of the same class as the already-sanctioned `[0.42, 0, 0.58, 1]` and `[0.4, 0, 0.2, 1]`.
+  The alternative — excluding four icons to keep the vocabulary frozen — would have made the corpus
+  a partial mirror, which is the one thing the manifest's item-count pin is designed to prevent.
+- **`spray-can` needed a new SHAPE, not just a new value, and got the narrowest one.** Its six dots
+  share one variant resolver whose duration is `1.05 + index * 0.06` — a per-element staggered
+  duration, where every prior icon staggered only its `delay`. Allowing any non-constant duration
+  would have re-opened exactly the fail-open Codex closed on this gate. Instead the verifier
+  decomposes `<base> + <resolverParam> * <step>`, holds the base to `SANCTIONED_DURATION_SECONDS`
+  and the step to a new one-entry `SANCTIONED_DURATION_STAGGER_STEPS`, and rejects every other
+  expression as before. A self-test mutation proves the step half can fail.
+- **`EXPECTED_COUNT` stays a hand-maintained literal.** `mirror-animated-icons.mjs` and
+  `verify-animated-icons.mjs` each pin the icon count, `packages/ui/registry/ui/animated-icons.test.tsx`
+  pins it a third time, and `verify-component-contracts.mjs` pins it a fourth through
+  `expectedWaveCounts["Animated icons"]` — the one icon-count literal that survived G1-b deriving the
+  registry partition from `registry.items`. Deriving them from the
+  manifest would make the number self-maintaining and therefore unable to detect the thing it exists
+  to detect — an upstream corpus that grew while nobody looked. They are double-entry, not a
+  fail-open, and are left as literals deliberately; this issue is the process that updates them.

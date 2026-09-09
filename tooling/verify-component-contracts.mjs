@@ -971,8 +971,8 @@ assert(
   "expectedWaveCounts.Block must be 1",
 );
 assert(
-  contracts.expectedWaveCounts?.["Animated icons"] === 439,
-  "expectedWaveCounts[Animated icons] must be 439",
+  contracts.expectedWaveCounts?.["Animated icons"] === 467,
+  "expectedWaveCounts[Animated icons] must be 467",
 );
 
 const sharedIcon = contracts.animatedIcons?.sharedContract;
@@ -1058,7 +1058,7 @@ const animatedSourceManifest = readJson(
 assert(
   animatedSourceManifest.itemCount === expected.animatedIcons &&
     animatedSourceManifest.items?.length === expected.animatedIcons,
-  "animated-icon source manifest must contain all 439 items",
+  `animated-icon source manifest must contain all ${expected.animatedIcons} items`,
 );
 sameStrings(
   animatedSourceManifest.items?.map((item) => `icon-${item.name}`) ?? [],

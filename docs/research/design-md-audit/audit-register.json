@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "004822341111b7bf7dd1fcbdb5a14e7669c8223d08ea8e3177e358d1fcdd410e",
+  "contractSha256": "8e32b22a6533de57198e4ededf5b74f5cf47e328f6a8568537820b2b68824095",
   "expectedCounts": {
-    "totalRegistryItems": 568,
+    "totalRegistryItems": 596,
     "components": 116,
-    "animatedIcons": 439,
+    "animatedIcons": 467,
     "hooks": 10,
     "blocks": 1,
     "libs": 2
@@ -1951,6 +1951,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "icon-binary",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/binary.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "icon-blocks",
       "inventoryClass": "animated-icon",
       "wave": "Animated icons",
@@ -2523,6 +2534,28 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "icon-cigarette",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/cigarette.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "icon-cigarette-off",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/cigarette-off.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "icon-circle-check",
       "inventoryClass": "animated-icon",
       "wave": "Animated icons",
@@ -2600,6 +2633,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "icon-circle-gauge",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/circle-gauge.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "icon-circle-help",
       "inventoryClass": "animated-icon",
       "wave": "Animated icons",
@@ -2639,6 +2683,17 @@
       "family": "animated-icon",
       "sourceFiles": [
         "packages/ui/registry/ui/icons/clock.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "icon-cloud-backup",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/cloud-backup.tsx"
       ],
       "docsSlug": "/docs/foundations/icons",
       "contractStatus": "reconciled"
@@ -2716,6 +2771,17 @@
       "family": "animated-icon",
       "sourceFiles": [
         "packages/ui/registry/ui/icons/cloud-sun.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "icon-cloud-sync",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/cloud-sync.tsx"
       ],
       "docsSlug": "/docs/foundations/icons",
       "contractStatus": "reconciled"
@@ -3112,6 +3178,17 @@
       "family": "animated-icon",
       "sourceFiles": [
         "packages/ui/registry/ui/icons/expand.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "icon-external-link",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/external-link.tsx"
       ],
       "docsSlug": "/docs/foundations/icons",
       "contractStatus": "reconciled"
@@ -3953,6 +4030,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "icon-hat-glasses",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/hat-glasses.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "icon-heart",
       "inventoryClass": "animated-icon",
       "wave": "Animated icons",
@@ -4184,12 +4272,45 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "icon-leaf",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/leaf.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "icon-leafy-green",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/leafy-green.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "icon-link",
       "inventoryClass": "animated-icon",
       "wave": "Animated icons",
       "family": "animated-icon",
       "sourceFiles": [
         "packages/ui/registry/ui/icons/link.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "icon-link-2",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/link-2.tsx"
       ],
       "docsSlug": "/docs/foundations/icons",
       "contractStatus": "reconciled"
@@ -4657,6 +4778,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "icon-monitor-cog",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/monitor-cog.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "icon-moon",
       "inventoryClass": "animated-icon",
       "wave": "Animated icons",
@@ -4674,6 +4806,17 @@
       "family": "animated-icon",
       "sourceFiles": [
         "packages/ui/registry/ui/icons/nfc.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "icon-palette",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/palette.tsx"
       ],
       "docsSlug": "/docs/foundations/icons",
       "contractStatus": "reconciled"
@@ -4828,6 +4971,28 @@
       "family": "animated-icon",
       "sourceFiles": [
         "packages/ui/registry/ui/icons/pickaxe.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "icon-plane-landing",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/plane-landing.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "icon-plane-takeoff",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/plane-takeoff.tsx"
       ],
       "docsSlug": "/docs/foundations/icons",
       "contractStatus": "reconciled"
@@ -5251,6 +5416,39 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "icon-server",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/server.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "icon-server-cog",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/server-cog.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "icon-server-crash",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/server-crash.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "icon-settings",
       "inventoryClass": "animated-icon",
       "wave": "Animated icons",
@@ -5284,12 +5482,34 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "icon-ship-wheel",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/ship-wheel.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "icon-shower-head",
       "inventoryClass": "animated-icon",
       "wave": "Animated icons",
       "family": "animated-icon",
       "sourceFiles": [
         "packages/ui/registry/ui/icons/shower-head.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "icon-shredder",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/shredder.tsx"
       ],
       "docsSlug": "/docs/foundations/icons",
       "contractStatus": "reconciled"
@@ -5372,12 +5592,34 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "icon-soup",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/soup.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "icon-sparkles",
       "inventoryClass": "animated-icon",
       "wave": "Animated icons",
       "family": "animated-icon",
       "sourceFiles": [
         "packages/ui/registry/ui/icons/sparkles.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "icon-spray-can",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/spray-can.tsx"
       ],
       "docsSlug": "/docs/foundations/icons",
       "contractStatus": "reconciled"
@@ -5647,6 +5889,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "icon-ticket",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/ticket.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "icon-timer",
       "inventoryClass": "animated-icon",
       "wave": "Animated icons",
@@ -5675,6 +5928,28 @@
       "family": "animated-icon",
       "sourceFiles": [
         "packages/ui/registry/ui/icons/train-track.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "icon-tree-deciduous",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/tree-deciduous.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "icon-tree-pine",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/tree-pine.tsx"
       ],
       "docsSlug": "/docs/foundations/icons",
       "contractStatus": "reconciled"
@@ -5834,6 +6109,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "icon-user-plus",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/user-plus.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "icon-user-round-check",
       "inventoryClass": "animated-icon",
       "wave": "Animated icons",
@@ -5939,6 +6225,28 @@
       "family": "animated-icon",
       "sourceFiles": [
         "packages/ui/registry/ui/icons/waves.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "icon-waves-arrow-down",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/waves-arrow-down.tsx"
+      ],
+      "docsSlug": "/docs/foundations/icons",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "icon-waves-arrow-up",
+      "inventoryClass": "animated-icon",
+      "wave": "Animated icons",
+      "family": "animated-icon",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icons/waves-arrow-up.tsx"
       ],
       "docsSlug": "/docs/foundations/icons",
       "contractStatus": "reconciled"
