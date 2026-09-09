@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "0db476d12b9b35e1b42e31856c588582983ea8d72a1d55baa5be583c721fcd12",
+  "contractSha256": "b21b1140f199777b9d42505b601436d027f758082fe14b2277b6bd19e4679d9c",
   "expectedCounts": {
-    "totalRegistryItems": 562,
+    "totalRegistryItems": 563,
     "components": 114,
     "animatedIcons": 439,
-    "hooks": 8,
+    "hooks": 9,
     "blocks": 1
   },
   "records": [
@@ -6162,6 +6162,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "use-platform",
+      "inventoryClass": "hook",
+      "wave": "Hooks",
+      "family": "hook",
+      "sourceFiles": [
+        "packages/ui/registry/ui/use-platform.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "use-media-query",
       "inventoryClass": "hook",
       "wave": "Hooks",
@@ -6179,17 +6190,6 @@
       "family": "hook",
       "sourceFiles": [
         "packages/ui/registry/ui/use-mobile.ts"
-      ],
-      "docsSlug": "/docs/guides/components",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "use-platform",
-      "inventoryClass": "hook",
-      "wave": "Hooks",
-      "family": "hook",
-      "sourceFiles": [
-        "packages/ui/registry/ui/use-platform.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

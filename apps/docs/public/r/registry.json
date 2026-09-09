@@ -328,7 +328,7 @@
         "whenToUse": "Persistent, in-page status messages — info, success, warning, or error context tied to surrounding content.",
         "whenNotToUse": "Transient feedback after a user action — use a toast instead.",
         "version": "0.6.0",
-        "integrity": "sha256-+ZCqAY4vQ3DAk9Q9nebrdUWqxR6J6RCOWTt56c/V2eM="
+        "integrity": "sha256-ySsK+MB3IXUzoHro0pmwhWzlDrHV3+x3eYBwzlFFAOs="
       }
     },
     {
@@ -745,7 +745,7 @@
         "whenToUse": "When a list, table, or panel has no content — communicate the zero state and offer the next action.",
         "whenNotToUse": "While loading (skeleton/spinner) or for transient post-action feedback (toast).",
         "version": "0.6.0",
-        "integrity": "sha256-tYUBzfQLn5CqmL5SnPH/JXxBeyad8WKRK7JN2O3zkAc="
+        "integrity": "sha256-ZKxH0kyt8JpnYoIa5g98+piEFEOz+WOVI8onEvbAI5w="
       }
     },
     {
@@ -1089,7 +1089,7 @@
         "whenToUse": "Group related content into collapsible sections — FAQs, settings groups.",
         "whenNotToUse": "Hiding critical content, or sequential steps (stepper).",
         "version": "0.6.0",
-        "integrity": "sha256-Jcu8acVwWLccr307lEb2cjbITPvpQImtJUxX8fWEYG4="
+        "integrity": "sha256-/v5q81grUwFgYYJBUk/XJ5WSfAN0sMLgfI3bcN71Zh8="
       }
     },
     {
@@ -1117,7 +1117,7 @@
         "whenToUse": "A single show/hide region — extra detail, an optional form section, 'read more'.",
         "whenNotToUse": "Several coordinated sections where one opens at a time — use Accordion.",
         "version": "0.6.0",
-        "integrity": "sha256-VTFzJu56e4p8obgyuqA16YOUnusVHSNqnAjQ2lnE5+w="
+        "integrity": "sha256-xkrxW6WK/21RrX5dsfQnP7MnTTSVazE6YOFOgMw+L30="
       }
     },
     {
@@ -1565,7 +1565,7 @@
         "whenToUse": "A compact determinate percentage glyph — inline beside a label or metric, or with a visible percentage value.",
         "whenNotToUse": "Indefinite waits (Spinner) or wide tasks where a linear Progress bar reads better.",
         "version": "0.6.0",
-        "integrity": "sha256-JiTJqcfx7hocJ0oap//huci0JlNQD7Ni2MsH+qBeU2Y="
+        "integrity": "sha256-QGeNyW6F3HdpCrisv3wpstVCGXKxYeF3yXforfSLfcA="
       }
     },
     {
@@ -1932,7 +1932,7 @@
         "whenToUse": "Any bounded linear process — onboarding, wizards, checkout, import flows — where progress, a failed step, and the reason an advance is blocked must be communicated.",
         "whenNotToUse": "Free navigation between peer views (Tabs), compact progress where a step list is too heavy (ProgressIndicator segments), or unordered checklists (OnboardingChecklist).",
         "version": "0.6.0",
-        "integrity": "sha256-yEIDh//DSHyvpk5IHhewYDJcyfFpaSndXMXWvgMMXpo="
+        "integrity": "sha256-o600IEYNc/SvJj7xUbUMBjEPpPd85F6vyFQYQS03oeg="
       }
     },
     {
@@ -1961,7 +1961,7 @@
         "whenToUse": "Chronological records — activity feeds, audit trails, delivery logs — where entries need a visible temporal thread (rail + node) and rows compose Item/RelativeTime/Avatar.",
         "whenNotToUse": "Live bottom-pinned conversation feeds (MessageScroller), bounded processes with gating (Stepper), or plain lists with no temporal thread (ItemGroup).",
         "version": "0.6.0",
-        "integrity": "sha256-MUG5G4+zCSCS81dnJWOtLOAd9sMj+W0mODUAjqm0u+c="
+        "integrity": "sha256-tPd2vuAewAELfsDgoBqdLjJrlRXfZDi8YcO7NGIOKKA="
       }
     },
     {
@@ -2099,7 +2099,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.6.0",
-        "integrity": "sha256-VKSxa3rM+1MvG9xxWc7jaqJ509LrMjSzxp/gFfmjXZo="
+        "integrity": "sha256-SaSoIIFDfnPG1CB7BdhE404PwJj0TAjCeowgSf9DxHo="
       }
     },
     {
@@ -2128,7 +2128,7 @@
         "whenToUse": "A visible upload surface — drop files, click to browse, paste — that hands accepted File[]s to the host and typed rejections back.",
         "whenNotToUse": "Chrome-less acquisition inside another surface (compose use-file-drop directly) or rendering upload progress (Attachment).",
         "version": "0.6.0",
-        "integrity": "sha256-u4W+v4+Q+mXiP7Cogudfj3W0APwaDJYyXlxgm5zDpSo="
+        "integrity": "sha256-7N//3dA5xP+0e3OhOTOxTH8uJYor0ly9xXKXkE1RrQo="
       }
     },
     {
@@ -2354,7 +2354,8 @@
       "registryDependencies": [
         "@vegastack/badge",
         "@vegastack/button",
-        "@vegastack/icon-button"
+        "@vegastack/icon-button",
+        "@vegastack/use-animation-replay"
       ],
       "files": [
         {
@@ -2367,7 +2368,7 @@
         "whenToUse": "A bell trigger surfacing an unread count in app chrome — app owns the count and handler.",
         "whenNotToUse": "The notifications panel itself, or a generic count badge (Badge).",
         "version": "0.6.0",
-        "integrity": "sha256-6B7fsa/A/aT5daG94RRLyoh+8NpI6RSdCzsNkK4DxbY="
+        "integrity": "sha256-O3o/LIgA2tm6ItS1baStL+BfmvmvZk/lw7iMXkMvoV0="
       }
     },
     {
@@ -2384,7 +2385,8 @@
         "@vegastack/design-tokens@^0.2.0"
       ],
       "registryDependencies": [
-        "@vegastack/icon-button"
+        "@vegastack/icon-button",
+        "@vegastack/progress-indicator"
       ],
       "files": [
         {
@@ -2397,7 +2399,7 @@
         "whenToUse": "Product onboarding/setup checklists that live in the chrome.",
         "whenNotToUse": "Linear multi-step forms (compose Field/Progress) or task lists (app domain).",
         "version": "0.6.0",
-        "integrity": "sha256-WAJMEZn4k98on5l/u/u7x4ifv5euvEbPKIpsQzaCiuE="
+        "integrity": "sha256-033ro+6sGSx+hymyj+0hFEwIB3U1izo9824mYmRRzN8="
       }
     },
     {
@@ -3007,7 +3009,7 @@
         "whenToUse": "A row of structured content in a feed, list, or panel — a person, file, notification, or settings link — with optional media and trailing actions.",
         "whenNotToUse": "Tabular/sortable data with columns (use Table or DataList) or a zero-data placeholder (use Empty).",
         "version": "0.6.0",
-        "integrity": "sha256-AcmMAypqLNYuNVtu9OCVDa36iVt/X+UwQss6D2qUurw="
+        "integrity": "sha256-Ykv/M0Vxxy9tC2qB25gcCUgr8LenlDiEX8KImznAigI="
       }
     },
     {
@@ -15698,7 +15700,7 @@
         "whenToUse": "Starting a new AI-platform-style dashboard route — pull once and own it (not hash-tracked/re-pulled like app-shell).",
         "whenNotToUse": "You just need the shared shell mechanics across many routes — install app-shell/sidebar directly instead.",
         "version": "0.6.0",
-        "integrity": "sha256-v3kOWBs/Dkmjb8qKjmOb/Pgpztp1mPAQUW3DNzLnmoE="
+        "integrity": "sha256-1x7kwIi0qj3rgWVVHXXFqYSaJS7BabQyDTqYlWNH1MU="
       }
     },
     {
@@ -15896,7 +15898,7 @@
         "whenToUse": "One temporary message with one action (releases, promos, sync prompts).",
         "whenNotToUse": "Status feedback (Alert/Toast) or permanent notices (Alert strip).",
         "version": "0.6.0",
-        "integrity": "sha256-eTKTqIIaSDa4ZRbFZuw3sXGacHVxZZUr8D7k80GJAeM="
+        "integrity": "sha256-ff9+6c9I3UjOp0k6cQ1KzW128c7UvsnFGVNzAD3nUaQ="
       }
     },
     {
