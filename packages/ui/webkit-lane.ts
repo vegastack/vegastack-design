@@ -80,10 +80,24 @@ async function webkitLaunches(): Promise<boolean> {
 let webkitDecision: Promise<boolean> | undefined;
 function includeWebkit(): Promise<boolean> {
   return (webkitDecision ??= (async () => {
+    // THE DEFAULT IS HOST-DEPENDENT, AND THAT IS THE POINT.
+    //
+    // `auto` exists for one reason: a developer Mac outside WebKit's ~26.2–26.5 window physically
+    // cannot launch it, and failing the whole cross-engine lane there would be noise. CI is the
+    // opposite case. The Linux runners launch all three engines (measured on vsk-node-05), and
+    // `AGENTS.md`, `tooling/verify.mjs` and the `ship` skill all describe `verify:release` as running
+    // "the complete suite in all three engines" — a claim a deploy is allowed to rely on.
+    //
+    // Under `auto`, a WebKit that stopped launching in CI would print a banner nobody reads and the
+    // lane would quietly become two engines, with the release gate still reporting success. Nothing
+    // in the workflows set `WEBKIT_LANE`, so that was the live behaviour: a fail-open in the one lane
+    // whose entire purpose is to catch engine-specific defects. CI therefore defaults to `require`
+    // and fails closed; an explicit `WEBKIT_LANE` still wins everywhere, so a runner with a genuinely
+    // broken WebKit can be unblocked deliberately and visibly rather than by accident.
     const mode = (
       process.env.WEBKIT_LANE ??
       process.env.SMOKE_WEBKIT ??
-      "auto"
+      (process.env.CI ? "require" : "auto")
     ).toLowerCase();
     if (mode === "off" || mode === "false" || mode === "0") {
       console.warn(
