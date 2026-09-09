@@ -2832,8 +2832,8 @@
       "description": "The system's one drag engine seam — Pragmatic drag-and-drop pointer/touch mechanics plus the house keyboard move mode, live-region vocabulary, and async pending/rejected drop contract. One API for single lists and cross-container boards.",
       "categories": ["hook"],
       "dependencies": [
-        "@atlaskit/pragmatic-drag-and-drop@^2.0.1",
-        "@atlaskit/pragmatic-drag-and-drop-hitbox@^2.0.0"
+        "@atlaskit/pragmatic-drag-and-drop@^3.1.0",
+        "@atlaskit/pragmatic-drag-and-drop-hitbox@^2.2.0"
       ],
       "registryDependencies": ["@vegastack/use-announcer"],
       "files": [
@@ -2876,7 +2876,7 @@
       "title": "useFileDrop",
       "description": "File acquisition (drop, browse, paste) over the sanctioned react-dropzone engine — typed rejection reasons aligned with AttachmentState, announcement payload, window-level missed-drop protection.",
       "categories": ["hook"],
-      "dependencies": ["react-dropzone@^19.1.1"],
+      "dependencies": ["react-dropzone@^20.1.1"],
       "registryDependencies": ["@vegastack/use-announcer"],
       "files": [
         {
@@ -3031,7 +3031,7 @@
       "title": "AArrowDown",
       "description": "Animated a arrow down icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3053,7 +3053,7 @@
       "title": "AArrowUp",
       "description": "Animated a arrow up icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3075,7 +3075,7 @@
       "title": "Accessibility",
       "description": "Animated accessibility icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3097,7 +3097,7 @@
       "title": "Activity",
       "description": "Animated activity icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3119,7 +3119,7 @@
       "title": "AirVent",
       "description": "Animated air vent icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3141,7 +3141,7 @@
       "title": "Airplane",
       "description": "Animated airplane icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3163,7 +3163,7 @@
       "title": "Airplay",
       "description": "Animated airplay icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3185,7 +3185,7 @@
       "title": "AlarmClock",
       "description": "Animated alarm clock icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3207,7 +3207,7 @@
       "title": "AlarmClockCheck",
       "description": "Animated alarm clock check icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3229,7 +3229,7 @@
       "title": "AlarmClockMinus",
       "description": "Animated alarm clock minus icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3251,7 +3251,7 @@
       "title": "AlarmClockPlus",
       "description": "Animated alarm clock plus icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3273,7 +3273,7 @@
       "title": "AlarmSmoke",
       "description": "Animated alarm smoke icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3295,7 +3295,7 @@
       "title": "AlignCenter",
       "description": "Animated align center icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3317,7 +3317,7 @@
       "title": "AlignHorizontal",
       "description": "Animated align horizontal icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3339,7 +3339,7 @@
       "title": "AlignLeft",
       "description": "Animated align left icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3361,7 +3361,7 @@
       "title": "AlignRight",
       "description": "Animated align right icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3383,7 +3383,7 @@
       "title": "AlignVertical",
       "description": "Animated align vertical icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3405,7 +3405,7 @@
       "title": "Ambulance",
       "description": "Animated ambulance icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3427,7 +3427,7 @@
       "title": "Angry",
       "description": "Animated angry icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3449,7 +3449,7 @@
       "title": "Annoyed",
       "description": "Animated annoyed icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3471,7 +3471,7 @@
       "title": "Archive",
       "description": "Animated archive icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3493,7 +3493,7 @@
       "title": "ArrowBigDown",
       "description": "Animated arrow big down icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3515,7 +3515,7 @@
       "title": "ArrowBigDownDash",
       "description": "Animated arrow big down dash icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3537,7 +3537,7 @@
       "title": "ArrowBigLeft",
       "description": "Animated arrow big left icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3559,7 +3559,7 @@
       "title": "ArrowBigLeftDash",
       "description": "Animated arrow big left dash icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3581,7 +3581,7 @@
       "title": "ArrowBigRight",
       "description": "Animated arrow big right icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3603,7 +3603,7 @@
       "title": "ArrowBigRightDash",
       "description": "Animated arrow big right dash icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3625,7 +3625,7 @@
       "title": "ArrowBigUp",
       "description": "Animated arrow big up icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3647,7 +3647,7 @@
       "title": "ArrowBigUpDash",
       "description": "Animated arrow big up dash icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3669,7 +3669,7 @@
       "title": "ArrowDown",
       "description": "Animated arrow down icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3691,7 +3691,7 @@
       "title": "ArrowDown01",
       "description": "Animated arrow down 0 1 icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3713,7 +3713,7 @@
       "title": "ArrowDown10",
       "description": "Animated arrow down 1 0 icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3735,7 +3735,7 @@
       "title": "ArrowDownAZ",
       "description": "Animated arrow down a z icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3757,7 +3757,7 @@
       "title": "ArrowDownLeft",
       "description": "Animated arrow down left icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3779,7 +3779,7 @@
       "title": "ArrowDownRight",
       "description": "Animated arrow down right icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3801,7 +3801,7 @@
       "title": "ArrowDownZA",
       "description": "Animated arrow down z a icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3823,7 +3823,7 @@
       "title": "ArrowLeft",
       "description": "Animated arrow left icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3845,7 +3845,7 @@
       "title": "ArrowRight",
       "description": "Animated arrow right icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3867,7 +3867,7 @@
       "title": "ArrowUp",
       "description": "Animated arrow up icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3889,7 +3889,7 @@
       "title": "ArrowUpLeft",
       "description": "Animated arrow up left icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3911,7 +3911,7 @@
       "title": "ArrowUpRight",
       "description": "Animated arrow up right icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3933,7 +3933,7 @@
       "title": "AtSign",
       "description": "Animated at sign icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3955,7 +3955,7 @@
       "title": "Atom",
       "description": "Animated atom icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3977,7 +3977,7 @@
       "title": "AttachFile",
       "description": "Animated attach file icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -3999,7 +3999,7 @@
       "title": "AudioLines",
       "description": "Animated audio lines icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4021,7 +4021,7 @@
       "title": "Axe",
       "description": "Animated axe icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4043,7 +4043,7 @@
       "title": "BadgeAlert",
       "description": "Animated badge alert icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4065,7 +4065,7 @@
       "title": "BadgePercent",
       "description": "Animated badge percent icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4087,7 +4087,7 @@
       "title": "Ban",
       "description": "Animated ban icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4109,7 +4109,7 @@
       "title": "Banana",
       "description": "Animated banana icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4131,7 +4131,7 @@
       "title": "Battery",
       "description": "Animated battery icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4153,7 +4153,7 @@
       "title": "BatteryCharging",
       "description": "Animated battery charging icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4175,7 +4175,7 @@
       "title": "BatteryFull",
       "description": "Animated battery full icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4197,7 +4197,7 @@
       "title": "BatteryLow",
       "description": "Animated battery low icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4219,7 +4219,7 @@
       "title": "BatteryMedium",
       "description": "Animated battery medium icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4241,7 +4241,7 @@
       "title": "BatteryPlus",
       "description": "Animated battery plus icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4263,7 +4263,7 @@
       "title": "BatteryWarning",
       "description": "Animated battery warning icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4285,7 +4285,7 @@
       "title": "Bell",
       "description": "Animated bell icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4307,7 +4307,7 @@
       "title": "BellElectric",
       "description": "Animated bell electric icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4329,7 +4329,7 @@
       "title": "BicepsFlexed",
       "description": "Animated biceps flexed icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4351,7 +4351,7 @@
       "title": "Blocks",
       "description": "Animated blocks icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4373,7 +4373,7 @@
       "title": "Bluetooth",
       "description": "Animated bluetooth icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4395,7 +4395,7 @@
       "title": "BluetoothConnected",
       "description": "Animated bluetooth connected icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4417,7 +4417,7 @@
       "title": "BluetoothOff",
       "description": "Animated bluetooth off icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4439,7 +4439,7 @@
       "title": "BluetoothSearching",
       "description": "Animated bluetooth searching icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4461,7 +4461,7 @@
       "title": "Bold",
       "description": "Animated bold icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4483,7 +4483,7 @@
       "title": "Bone",
       "description": "Animated bone icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4505,7 +4505,7 @@
       "title": "BookText",
       "description": "Animated book text icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4527,7 +4527,7 @@
       "title": "Bookmark",
       "description": "Animated bookmark icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4549,7 +4549,7 @@
       "title": "BookmarkCheck",
       "description": "Animated bookmark check icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4571,7 +4571,7 @@
       "title": "BookmarkMinus",
       "description": "Animated bookmark minus icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4593,7 +4593,7 @@
       "title": "BookmarkPlus",
       "description": "Animated bookmark plus icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4615,7 +4615,7 @@
       "title": "BookmarkX",
       "description": "Animated bookmark x icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4637,7 +4637,7 @@
       "title": "Bot",
       "description": "Animated bot icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4659,7 +4659,7 @@
       "title": "BotMessageSquare",
       "description": "Animated bot message square icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4681,7 +4681,7 @@
       "title": "Box",
       "description": "Animated box icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4703,7 +4703,7 @@
       "title": "Boxes",
       "description": "Animated boxes icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4725,7 +4725,7 @@
       "title": "Brain",
       "description": "Animated brain icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4747,7 +4747,7 @@
       "title": "BriefcaseBusiness",
       "description": "Animated briefcase business icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4769,7 +4769,7 @@
       "title": "CalendarCheck",
       "description": "Animated calendar check icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4791,7 +4791,7 @@
       "title": "CalendarCheck2",
       "description": "Animated calendar check 2 icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4813,7 +4813,7 @@
       "title": "CalendarCog",
       "description": "Animated calendar cog icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4835,7 +4835,7 @@
       "title": "CalendarDays",
       "description": "Animated calendar days icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4857,7 +4857,7 @@
       "title": "Cart",
       "description": "Animated cart icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4879,7 +4879,7 @@
       "title": "Cast",
       "description": "Animated cast icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4901,7 +4901,7 @@
       "title": "Cctv",
       "description": "Animated cctv icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4923,7 +4923,7 @@
       "title": "ChartBarDecreasing",
       "description": "Animated chart bar decreasing icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4945,7 +4945,7 @@
       "title": "ChartBarIncreasing",
       "description": "Animated chart bar increasing icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4967,7 +4967,7 @@
       "title": "ChartColumnDecreasing",
       "description": "Animated chart column decreasing icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -4989,7 +4989,7 @@
       "title": "ChartColumnIncreasing",
       "description": "Animated chart column increasing icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5011,7 +5011,7 @@
       "title": "ChartLine",
       "description": "Animated chart line icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5033,7 +5033,7 @@
       "title": "ChartNoAxesColumnDecreasing",
       "description": "Animated chart no axes column decreasing icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5055,7 +5055,7 @@
       "title": "ChartNoAxesColumnIncreasing",
       "description": "Animated chart no axes column increasing icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5077,7 +5077,7 @@
       "title": "ChartPie",
       "description": "Animated chart pie icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5099,7 +5099,7 @@
       "title": "ChartScatter",
       "description": "Animated chart scatter icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5121,7 +5121,7 @@
       "title": "ChartSpline",
       "description": "Animated chart spline icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5143,7 +5143,7 @@
       "title": "Check",
       "description": "Animated check icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5165,7 +5165,7 @@
       "title": "CheckCheck",
       "description": "Animated check check icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5187,7 +5187,7 @@
       "title": "ChessBishop",
       "description": "Animated chess bishop icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5209,7 +5209,7 @@
       "title": "ChessKing",
       "description": "Animated chess king icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5231,7 +5231,7 @@
       "title": "ChessKnight",
       "description": "Animated chess knight icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5253,7 +5253,7 @@
       "title": "ChessPawn",
       "description": "Animated chess pawn icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5275,7 +5275,7 @@
       "title": "ChevronDown",
       "description": "Animated chevron down icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5297,7 +5297,7 @@
       "title": "ChevronFirst",
       "description": "Animated chevron first icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5319,7 +5319,7 @@
       "title": "ChevronLeft",
       "description": "Animated chevron left icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5341,7 +5341,7 @@
       "title": "ChevronRight",
       "description": "Animated chevron right icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5363,7 +5363,7 @@
       "title": "ChevronUp",
       "description": "Animated chevron up icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5385,7 +5385,7 @@
       "title": "ChevronsDownUp",
       "description": "Animated chevrons down up icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5407,7 +5407,7 @@
       "title": "ChevronsLeftRight",
       "description": "Animated chevrons left right icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5429,7 +5429,7 @@
       "title": "ChevronsRightLeft",
       "description": "Animated chevrons right left icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5451,7 +5451,7 @@
       "title": "ChevronsUpDown",
       "description": "Animated chevrons up down icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5473,7 +5473,7 @@
       "title": "Chrome",
       "description": "Animated chrome icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5495,7 +5495,7 @@
       "title": "CircleCheck",
       "description": "Animated circle check icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5517,7 +5517,7 @@
       "title": "CircleChevronDown",
       "description": "Animated circle chevron down icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5539,7 +5539,7 @@
       "title": "CircleChevronLeft",
       "description": "Animated circle chevron left icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5561,7 +5561,7 @@
       "title": "CircleChevronRight",
       "description": "Animated circle chevron right icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5583,7 +5583,7 @@
       "title": "CircleChevronUp",
       "description": "Animated circle chevron up icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5605,7 +5605,7 @@
       "title": "CircleDashed",
       "description": "Animated circle dashed icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5627,7 +5627,7 @@
       "title": "CircleDollarSign",
       "description": "Animated circle dollar sign icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5649,7 +5649,7 @@
       "title": "CircleHelp",
       "description": "Animated circle help icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5671,7 +5671,7 @@
       "title": "Clap",
       "description": "Animated clap icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5693,7 +5693,7 @@
       "title": "ClipboardCheck",
       "description": "Animated clipboard check icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5715,7 +5715,7 @@
       "title": "Clock",
       "description": "Animated clock icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5737,7 +5737,7 @@
       "title": "CloudCog",
       "description": "Animated cloud cog icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5759,7 +5759,7 @@
       "title": "CloudDownload",
       "description": "Animated cloud download icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5781,7 +5781,7 @@
       "title": "CloudLightning",
       "description": "Animated cloud lightning icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5803,7 +5803,7 @@
       "title": "CloudRain",
       "description": "Animated cloud rain icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5825,7 +5825,7 @@
       "title": "CloudRainWind",
       "description": "Animated cloud rain wind icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5847,7 +5847,7 @@
       "title": "CloudSnow",
       "description": "Animated cloud snow icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5869,7 +5869,7 @@
       "title": "CloudSun",
       "description": "Animated cloud sun icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5891,7 +5891,7 @@
       "title": "CloudUpload",
       "description": "Animated cloud upload icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5913,7 +5913,7 @@
       "title": "Coffee",
       "description": "Animated coffee icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5935,7 +5935,7 @@
       "title": "Cog",
       "description": "Animated cog icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5957,7 +5957,7 @@
       "title": "Compass",
       "description": "Animated compass icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -5979,7 +5979,7 @@
       "title": "ConciergeBell",
       "description": "Animated concierge bell icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6001,7 +6001,7 @@
       "title": "Connect",
       "description": "Animated connect icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6023,7 +6023,7 @@
       "title": "Construction",
       "description": "Animated construction icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6045,7 +6045,7 @@
       "title": "Contrast",
       "description": "Animated contrast icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6067,7 +6067,7 @@
       "title": "CookingPot",
       "description": "Animated cooking pot icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6089,7 +6089,7 @@
       "title": "Copy",
       "description": "Animated copy icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6111,7 +6111,7 @@
       "title": "CornerDownLeft",
       "description": "Animated corner down left icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6133,7 +6133,7 @@
       "title": "CornerDownRight",
       "description": "Animated corner down right icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6155,7 +6155,7 @@
       "title": "CornerLeftDown",
       "description": "Animated corner left down icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6177,7 +6177,7 @@
       "title": "CornerLeftUp",
       "description": "Animated corner left up icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6199,7 +6199,7 @@
       "title": "CornerRightDown",
       "description": "Animated corner right down icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6221,7 +6221,7 @@
       "title": "CornerRightUp",
       "description": "Animated corner right up icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6243,7 +6243,7 @@
       "title": "CornerUpLeft",
       "description": "Animated corner up left icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6265,7 +6265,7 @@
       "title": "CornerUpRight",
       "description": "Animated corner up right icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6287,7 +6287,7 @@
       "title": "Cpu",
       "description": "Animated cpu icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6309,7 +6309,7 @@
       "title": "CreditCard",
       "description": "Animated credit card icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6331,7 +6331,7 @@
       "title": "CupSoda",
       "description": "Animated cup soda icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6353,7 +6353,7 @@
       "title": "CursorClick",
       "description": "Animated cursor click icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6375,7 +6375,7 @@
       "title": "DatabaseBackup",
       "description": "Animated database backup icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6397,7 +6397,7 @@
       "title": "Delete",
       "description": "Animated delete icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6419,7 +6419,7 @@
       "title": "Disc3",
       "description": "Animated disc 3 icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6441,7 +6441,7 @@
       "title": "Discord",
       "description": "Animated discord icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6463,7 +6463,7 @@
       "title": "DollarSign",
       "description": "Animated dollar sign icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6485,7 +6485,7 @@
       "title": "Download",
       "description": "Animated download icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6507,7 +6507,7 @@
       "title": "Downvote",
       "description": "Animated downvote icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6529,7 +6529,7 @@
       "title": "Dribbble",
       "description": "Animated dribbble icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6551,7 +6551,7 @@
       "title": "Droplet",
       "description": "Animated droplet icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6573,7 +6573,7 @@
       "title": "Drum",
       "description": "Animated drum icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6595,7 +6595,7 @@
       "title": "Earth",
       "description": "Animated earth icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6617,7 +6617,7 @@
       "title": "Euro",
       "description": "Animated euro icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6639,7 +6639,7 @@
       "title": "EvCharger",
       "description": "Animated ev charger icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6661,7 +6661,7 @@
       "title": "Expand",
       "description": "Animated expand icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6683,7 +6683,7 @@
       "title": "Eye",
       "description": "Animated eye icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6705,7 +6705,7 @@
       "title": "EyeOff",
       "description": "Animated eye off icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6727,7 +6727,7 @@
       "title": "Facebook",
       "description": "Animated facebook icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6749,7 +6749,7 @@
       "title": "Fan",
       "description": "Animated fan icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6771,7 +6771,7 @@
       "title": "Feather",
       "description": "Animated feather icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6793,7 +6793,7 @@
       "title": "Figma",
       "description": "Animated figma icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6815,7 +6815,7 @@
       "title": "FileChartLine",
       "description": "Animated file chart line icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6837,7 +6837,7 @@
       "title": "FileCheck",
       "description": "Animated file check icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6859,7 +6859,7 @@
       "title": "FileCheck2",
       "description": "Animated file check 2 icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6881,7 +6881,7 @@
       "title": "FileCog",
       "description": "Animated file cog icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6903,7 +6903,7 @@
       "title": "FilePenLine",
       "description": "Animated file pen line icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6925,7 +6925,7 @@
       "title": "FileStack",
       "description": "Animated file stack icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6947,7 +6947,7 @@
       "title": "FileText",
       "description": "Animated file text icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6969,7 +6969,7 @@
       "title": "Fingerprint",
       "description": "Animated fingerprint icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -6991,7 +6991,7 @@
       "title": "FishSymbol",
       "description": "Animated fish symbol icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7013,7 +7013,7 @@
       "title": "Flame",
       "description": "Animated flame icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7035,7 +7035,7 @@
       "title": "Flask",
       "description": "Animated flask icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7057,7 +7057,7 @@
       "title": "FolderArchive",
       "description": "Animated folder archive icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7079,7 +7079,7 @@
       "title": "FolderCheck",
       "description": "Animated folder check icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7101,7 +7101,7 @@
       "title": "FolderClock",
       "description": "Animated folder clock icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7123,7 +7123,7 @@
       "title": "FolderCode",
       "description": "Animated folder code icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7145,7 +7145,7 @@
       "title": "FolderCog",
       "description": "Animated folder cog icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7167,7 +7167,7 @@
       "title": "FolderDot",
       "description": "Animated folder dot icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7189,7 +7189,7 @@
       "title": "FolderDown",
       "description": "Animated folder down icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7211,7 +7211,7 @@
       "title": "FolderGit",
       "description": "Animated folder git icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7233,7 +7233,7 @@
       "title": "FolderGit2",
       "description": "Animated folder git 2 icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7255,7 +7255,7 @@
       "title": "FolderHeart",
       "description": "Animated folder heart icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7277,7 +7277,7 @@
       "title": "FolderInput",
       "description": "Animated folder input icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7299,7 +7299,7 @@
       "title": "FolderKanban",
       "description": "Animated folder kanban icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7321,7 +7321,7 @@
       "title": "FolderKey",
       "description": "Animated folder key icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7343,7 +7343,7 @@
       "title": "FolderLock",
       "description": "Animated folder lock icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7365,7 +7365,7 @@
       "title": "FolderMinus",
       "description": "Animated folder minus icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7387,7 +7387,7 @@
       "title": "FolderOpen",
       "description": "Animated folder open icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7409,7 +7409,7 @@
       "title": "FolderOutput",
       "description": "Animated folder output icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7431,7 +7431,7 @@
       "title": "FolderPlus",
       "description": "Animated folder plus icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7453,7 +7453,7 @@
       "title": "FolderRoot",
       "description": "Animated folder root icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7475,7 +7475,7 @@
       "title": "FolderSync",
       "description": "Animated folder sync icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7497,7 +7497,7 @@
       "title": "FolderTree",
       "description": "Animated folder tree icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7519,7 +7519,7 @@
       "title": "FolderUp",
       "description": "Animated folder up icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7541,7 +7541,7 @@
       "title": "FolderX",
       "description": "Animated folder x icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7563,7 +7563,7 @@
       "title": "Folders",
       "description": "Animated folders icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7585,7 +7585,7 @@
       "title": "Frame",
       "description": "Animated frame icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7607,7 +7607,7 @@
       "title": "Frown",
       "description": "Animated frown icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7629,7 +7629,7 @@
       "title": "GalleryHorizontalEnd",
       "description": "Animated gallery horizontal end icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7651,7 +7651,7 @@
       "title": "GalleryThumbnails",
       "description": "Animated gallery thumbnails icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7673,7 +7673,7 @@
       "title": "GalleryVerticalEnd",
       "description": "Animated gallery vertical end icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7695,7 +7695,7 @@
       "title": "Gauge",
       "description": "Animated gauge icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7717,7 +7717,7 @@
       "title": "Gavel",
       "description": "Animated gavel icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7739,7 +7739,7 @@
       "title": "GeorgianLari",
       "description": "Animated georgian lari icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7761,7 +7761,7 @@
       "title": "GitBranch",
       "description": "Animated git branch icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7783,7 +7783,7 @@
       "title": "GitCommitHorizontal",
       "description": "Animated git commit horizontal icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7805,7 +7805,7 @@
       "title": "GitCommitVertical",
       "description": "Animated git commit vertical icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7827,7 +7827,7 @@
       "title": "GitCompare",
       "description": "Animated git compare icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7849,7 +7849,7 @@
       "title": "GitCompareArrows",
       "description": "Animated git compare arrows icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7871,7 +7871,7 @@
       "title": "GitFork",
       "description": "Animated git fork icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7893,7 +7893,7 @@
       "title": "GitGraph",
       "description": "Animated git graph icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7915,7 +7915,7 @@
       "title": "GitMerge",
       "description": "Animated git merge icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7937,7 +7937,7 @@
       "title": "GitPullRequest",
       "description": "Animated git pull request icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7959,7 +7959,7 @@
       "title": "GitPullRequestClosed",
       "description": "Animated git pull request closed icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -7981,7 +7981,7 @@
       "title": "GitPullRequestCreate",
       "description": "Animated git pull request create icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8003,7 +8003,7 @@
       "title": "Github",
       "description": "Animated github icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8025,7 +8025,7 @@
       "title": "Gitlab",
       "description": "Animated gitlab icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8047,7 +8047,7 @@
       "title": "GraduationCap",
       "description": "Animated graduation cap icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8069,7 +8069,7 @@
       "title": "Grip",
       "description": "Animated grip icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8091,7 +8091,7 @@
       "title": "GripHorizontal",
       "description": "Animated grip horizontal icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8113,7 +8113,7 @@
       "title": "GripVertical",
       "description": "Animated grip vertical icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8135,7 +8135,7 @@
       "title": "Hammer",
       "description": "Animated hammer icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8157,7 +8157,7 @@
       "title": "Hand",
       "description": "Animated hand icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8179,7 +8179,7 @@
       "title": "HandCoins",
       "description": "Animated hand coins icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8201,7 +8201,7 @@
       "title": "HandFist",
       "description": "Animated hand fist icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8223,7 +8223,7 @@
       "title": "HandGrab",
       "description": "Animated hand grab icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8245,7 +8245,7 @@
       "title": "HandHeart",
       "description": "Animated hand heart icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8267,7 +8267,7 @@
       "title": "HandHelping",
       "description": "Animated hand helping icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8289,7 +8289,7 @@
       "title": "HandMetal",
       "description": "Animated hand metal icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8311,7 +8311,7 @@
       "title": "HardDriveDownload",
       "description": "Animated hard drive download icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8333,7 +8333,7 @@
       "title": "HardDriveUpload",
       "description": "Animated hard drive upload icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8355,7 +8355,7 @@
       "title": "Heart",
       "description": "Animated heart icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8377,7 +8377,7 @@
       "title": "HeartHandshake",
       "description": "Animated heart handshake icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8399,7 +8399,7 @@
       "title": "HeartPulse",
       "description": "Animated heart pulse icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8421,7 +8421,7 @@
       "title": "History",
       "description": "Animated history icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8443,7 +8443,7 @@
       "title": "Home",
       "description": "Animated home icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8465,7 +8465,7 @@
       "title": "Hourglass",
       "description": "Animated hourglass icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8487,7 +8487,7 @@
       "title": "IdCard",
       "description": "Animated id card icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8509,7 +8509,7 @@
       "title": "IndianRupee",
       "description": "Animated indian rupee icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8531,7 +8531,7 @@
       "title": "Instagram",
       "description": "Animated instagram icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8553,7 +8553,7 @@
       "title": "Italic",
       "description": "Animated italic icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8575,7 +8575,7 @@
       "title": "JapaneseYen",
       "description": "Animated japanese yen icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8597,7 +8597,7 @@
       "title": "Key",
       "description": "Animated key icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8619,7 +8619,7 @@
       "title": "KeyCircle",
       "description": "Animated key circle icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8641,7 +8641,7 @@
       "title": "KeySquare",
       "description": "Animated key square icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8663,7 +8663,7 @@
       "title": "Keyboard",
       "description": "Animated keyboard icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8685,7 +8685,7 @@
       "title": "Languages",
       "description": "Animated languages icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8707,7 +8707,7 @@
       "title": "LaptopMinimalCheck",
       "description": "Animated laptop minimal check icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8729,7 +8729,7 @@
       "title": "Laugh",
       "description": "Animated laugh icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8751,7 +8751,7 @@
       "title": "Layers",
       "description": "Animated layers icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8773,7 +8773,7 @@
       "title": "LayoutGrid",
       "description": "Animated layout grid icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8795,7 +8795,7 @@
       "title": "LayoutPanelTop",
       "description": "Animated layout panel top icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8817,7 +8817,7 @@
       "title": "Link",
       "description": "Animated link icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8839,7 +8839,7 @@
       "title": "Linkedin",
       "description": "Animated linkedin icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8861,7 +8861,7 @@
       "title": "Loader",
       "description": "Animated loader icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8883,7 +8883,7 @@
       "title": "LoaderCircle",
       "description": "Animated loader circle icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8905,7 +8905,7 @@
       "title": "LoaderPinwheel",
       "description": "Animated loader pinwheel icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8927,7 +8927,7 @@
       "title": "Lock",
       "description": "Animated lock icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8949,7 +8949,7 @@
       "title": "LockKeyhole",
       "description": "Animated lock keyhole icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8971,7 +8971,7 @@
       "title": "LockKeyholeOpen",
       "description": "Animated lock keyhole open icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -8993,7 +8993,7 @@
       "title": "LockOpen",
       "description": "Animated lock open icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9015,7 +9015,7 @@
       "title": "Login",
       "description": "Animated login icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9037,7 +9037,7 @@
       "title": "Logout",
       "description": "Animated logout icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9059,7 +9059,7 @@
       "title": "MailCheck",
       "description": "Animated mail check icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9081,7 +9081,7 @@
       "title": "Mailbox",
       "description": "Animated mailbox icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9103,7 +9103,7 @@
       "title": "MapPin",
       "description": "Animated map pin icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9125,7 +9125,7 @@
       "title": "MapPinCheck",
       "description": "Animated map pin check icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9147,7 +9147,7 @@
       "title": "MapPinCheckInside",
       "description": "Animated map pin check inside icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9169,7 +9169,7 @@
       "title": "MapPinHouse",
       "description": "Animated map pin house icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9191,7 +9191,7 @@
       "title": "MapPinMinus",
       "description": "Animated map pin minus icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9213,7 +9213,7 @@
       "title": "MapPinMinusInside",
       "description": "Animated map pin minus inside icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9235,7 +9235,7 @@
       "title": "MapPinOff",
       "description": "Animated map pin off icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9257,7 +9257,7 @@
       "title": "MapPinPlus",
       "description": "Animated map pin plus icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9279,7 +9279,7 @@
       "title": "MapPinPlusInside",
       "description": "Animated map pin plus inside icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9301,7 +9301,7 @@
       "title": "MapPinXInside",
       "description": "Animated map pin x inside icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9323,7 +9323,7 @@
       "title": "Maximize",
       "description": "Animated maximize icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9345,7 +9345,7 @@
       "title": "Maximize2",
       "description": "Animated maximize 2 icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9367,7 +9367,7 @@
       "title": "Meh",
       "description": "Animated meh icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9389,7 +9389,7 @@
       "title": "Menu",
       "description": "Animated menu icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9411,7 +9411,7 @@
       "title": "MessageCircle",
       "description": "Animated message circle icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9433,7 +9433,7 @@
       "title": "MessageCircleCheck",
       "description": "Animated message circle check icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9455,7 +9455,7 @@
       "title": "MessageCircleDashed",
       "description": "Animated message circle dashed icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9477,7 +9477,7 @@
       "title": "MessageCircleMore",
       "description": "Animated message circle more icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9499,7 +9499,7 @@
       "title": "MessageCirclePlus",
       "description": "Animated message circle plus icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9521,7 +9521,7 @@
       "title": "MessageCircleX",
       "description": "Animated message circle x icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9543,7 +9543,7 @@
       "title": "MessageSquare",
       "description": "Animated message square icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9565,7 +9565,7 @@
       "title": "MessageSquareCheck",
       "description": "Animated message square check icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9587,7 +9587,7 @@
       "title": "MessageSquareDashed",
       "description": "Animated message square dashed icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9609,7 +9609,7 @@
       "title": "MessageSquareMore",
       "description": "Animated message square more icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9631,7 +9631,7 @@
       "title": "MessageSquarePlus",
       "description": "Animated message square plus icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9653,7 +9653,7 @@
       "title": "MessageSquareX",
       "description": "Animated message square x icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9675,7 +9675,7 @@
       "title": "Mic",
       "description": "Animated mic icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9697,7 +9697,7 @@
       "title": "MicOff",
       "description": "Animated mic off icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9719,7 +9719,7 @@
       "title": "Minimize",
       "description": "Animated minimize icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9741,7 +9741,7 @@
       "title": "MonitorCheck",
       "description": "Animated monitor check icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9763,7 +9763,7 @@
       "title": "Moon",
       "description": "Animated moon icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9785,7 +9785,7 @@
       "title": "Nfc",
       "description": "Animated nfc icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9807,7 +9807,7 @@
       "title": "PanelLeftClose",
       "description": "Animated panel left close icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9829,7 +9829,7 @@
       "title": "PanelLeftOpen",
       "description": "Animated panel left open icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9851,7 +9851,7 @@
       "title": "PanelRightOpen",
       "description": "Animated panel right open icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9873,7 +9873,7 @@
       "title": "PartyPopper",
       "description": "Animated party popper icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9895,7 +9895,7 @@
       "title": "Pause",
       "description": "Animated pause icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9917,7 +9917,7 @@
       "title": "PenTool",
       "description": "Animated pen tool icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9939,7 +9939,7 @@
       "title": "PhilippinePeso",
       "description": "Animated philippine peso icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9961,7 +9961,7 @@
       "title": "Phone",
       "description": "Animated phone icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -9983,7 +9983,7 @@
       "title": "PhoneCall",
       "description": "Animated phone call icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10005,7 +10005,7 @@
       "title": "PhoneForwarded",
       "description": "Animated phone forwarded icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10027,7 +10027,7 @@
       "title": "PhoneIncoming",
       "description": "Animated phone incoming icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10049,7 +10049,7 @@
       "title": "PhoneMissed",
       "description": "Animated phone missed icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10071,7 +10071,7 @@
       "title": "PhoneOff",
       "description": "Animated phone off icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10093,7 +10093,7 @@
       "title": "Pickaxe",
       "description": "Animated pickaxe icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10115,7 +10115,7 @@
       "title": "Play",
       "description": "Animated play icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10137,7 +10137,7 @@
       "title": "PlugZap",
       "description": "Animated plug zap icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10159,7 +10159,7 @@
       "title": "Plus",
       "description": "Animated plus icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10181,7 +10181,7 @@
       "title": "PoundSterling",
       "description": "Animated pound sterling icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10203,7 +10203,7 @@
       "title": "Projector",
       "description": "Animated projector icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10225,7 +10225,7 @@
       "title": "Rabbit",
       "description": "Animated rabbit icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10247,7 +10247,7 @@
       "title": "Radio",
       "description": "Animated radio icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10269,7 +10269,7 @@
       "title": "RadioTower",
       "description": "Animated radio tower icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10291,7 +10291,7 @@
       "title": "Receipt",
       "description": "Animated receipt icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10313,7 +10313,7 @@
       "title": "ReceiptCent",
       "description": "Animated receipt cent icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10335,7 +10335,7 @@
       "title": "ReceiptEuro",
       "description": "Animated receipt euro icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10357,7 +10357,7 @@
       "title": "ReceiptIndianRupee",
       "description": "Animated receipt indian rupee icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10379,7 +10379,7 @@
       "title": "ReceiptJapaneseYen",
       "description": "Animated receipt japanese yen icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10401,7 +10401,7 @@
       "title": "ReceiptPoundSterling",
       "description": "Animated receipt pound sterling icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10423,7 +10423,7 @@
       "title": "ReceiptRussianRuble",
       "description": "Animated receipt russian ruble icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10445,7 +10445,7 @@
       "title": "ReceiptSwissFranc",
       "description": "Animated receipt swiss franc icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10467,7 +10467,7 @@
       "title": "ReceiptText",
       "description": "Animated receipt text icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10489,7 +10489,7 @@
       "title": "ReceiptTurkishLira",
       "description": "Animated receipt turkish lira icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10511,7 +10511,7 @@
       "title": "Redo",
       "description": "Animated redo icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10533,7 +10533,7 @@
       "title": "RedoDot",
       "description": "Animated redo dot icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10555,7 +10555,7 @@
       "title": "RefreshCcw",
       "description": "Animated refresh ccw icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10577,7 +10577,7 @@
       "title": "RefreshCcwDot",
       "description": "Animated refresh ccw dot icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10599,7 +10599,7 @@
       "title": "RefreshCw",
       "description": "Animated refresh cw icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10621,7 +10621,7 @@
       "title": "RefreshCwOff",
       "description": "Animated refresh cw off icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10643,7 +10643,7 @@
       "title": "Rocket",
       "description": "Animated rocket icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10665,7 +10665,7 @@
       "title": "RockingChair",
       "description": "Animated rocking chair icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10687,7 +10687,7 @@
       "title": "RollerCoaster",
       "description": "Animated roller coaster icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10709,7 +10709,7 @@
       "title": "RotateCcw",
       "description": "Animated rotate ccw icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10731,7 +10731,7 @@
       "title": "RotateCw",
       "description": "Animated rotate cw icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10753,7 +10753,7 @@
       "title": "Route",
       "description": "Animated route icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10775,7 +10775,7 @@
       "title": "Router",
       "description": "Animated router icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10797,7 +10797,7 @@
       "title": "RussianRuble",
       "description": "Animated russian ruble icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10819,7 +10819,7 @@
       "title": "SatelliteDish",
       "description": "Animated satellite dish icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10841,7 +10841,7 @@
       "title": "SaudiRiyal",
       "description": "Animated saudi riyal icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10863,7 +10863,7 @@
       "title": "ScanFace",
       "description": "Animated scan face icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10885,7 +10885,7 @@
       "title": "ScanText",
       "description": "Animated scan text icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10907,7 +10907,7 @@
       "title": "Search",
       "description": "Animated search icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10929,7 +10929,7 @@
       "title": "Send",
       "description": "Animated send icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10951,7 +10951,7 @@
       "title": "Settings",
       "description": "Animated settings icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10973,7 +10973,7 @@
       "title": "ShieldCheck",
       "description": "Animated shield check icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -10995,7 +10995,7 @@
       "title": "Ship",
       "description": "Animated ship icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11017,7 +11017,7 @@
       "title": "ShowerHead",
       "description": "Animated shower head icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11039,7 +11039,7 @@
       "title": "Shrink",
       "description": "Animated shrink icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11061,7 +11061,7 @@
       "title": "SlidersHorizontal",
       "description": "Animated sliders horizontal icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11083,7 +11083,7 @@
       "title": "SmartphoneCharging",
       "description": "Animated smartphone charging icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11105,7 +11105,7 @@
       "title": "SmartphoneNfc",
       "description": "Animated smartphone nfc icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11127,7 +11127,7 @@
       "title": "Smile",
       "description": "Animated smile icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11149,7 +11149,7 @@
       "title": "SmilePlus",
       "description": "Animated smile plus icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11171,7 +11171,7 @@
       "title": "Snowflake",
       "description": "Animated snowflake icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11193,7 +11193,7 @@
       "title": "Sparkles",
       "description": "Animated sparkles icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11215,7 +11215,7 @@
       "title": "SquareActivity",
       "description": "Animated square activity icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11237,7 +11237,7 @@
       "title": "SquareArrowDown",
       "description": "Animated square arrow down icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11259,7 +11259,7 @@
       "title": "SquareArrowLeft",
       "description": "Animated square arrow left icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11281,7 +11281,7 @@
       "title": "SquareArrowRight",
       "description": "Animated square arrow right icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11303,7 +11303,7 @@
       "title": "SquareArrowUp",
       "description": "Animated square arrow up icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11325,7 +11325,7 @@
       "title": "SquareChevronDown",
       "description": "Animated square chevron down icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11347,7 +11347,7 @@
       "title": "SquareChevronLeft",
       "description": "Animated square chevron left icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11369,7 +11369,7 @@
       "title": "SquareChevronRight",
       "description": "Animated square chevron right icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11391,7 +11391,7 @@
       "title": "SquareChevronUp",
       "description": "Animated square chevron up icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11413,7 +11413,7 @@
       "title": "SquarePen",
       "description": "Animated square pen icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11435,7 +11435,7 @@
       "title": "SquareStack",
       "description": "Animated square stack icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11457,7 +11457,7 @@
       "title": "Stamp",
       "description": "Animated stamp icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11479,7 +11479,7 @@
       "title": "Stethoscope",
       "description": "Animated stethoscope icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11501,7 +11501,7 @@
       "title": "Sun",
       "description": "Animated sun icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11523,7 +11523,7 @@
       "title": "SunDim",
       "description": "Animated sun dim icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11545,7 +11545,7 @@
       "title": "SunMedium",
       "description": "Animated sun medium icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11567,7 +11567,7 @@
       "title": "SunMoon",
       "description": "Animated sun moon icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11589,7 +11589,7 @@
       "title": "Sunset",
       "description": "Animated sunset icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11611,7 +11611,7 @@
       "title": "SwissFranc",
       "description": "Animated swiss franc icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11633,7 +11633,7 @@
       "title": "SwitchCamera",
       "description": "Animated switch camera icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11655,7 +11655,7 @@
       "title": "Syringe",
       "description": "Animated syringe icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11677,7 +11677,7 @@
       "title": "Telescope",
       "description": "Animated telescope icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11699,7 +11699,7 @@
       "title": "Terminal",
       "description": "Animated terminal icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11721,7 +11721,7 @@
       "title": "Thermometer",
       "description": "Animated thermometer icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11743,7 +11743,7 @@
       "title": "Timer",
       "description": "Animated timer icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11765,7 +11765,7 @@
       "title": "Tornado",
       "description": "Animated tornado icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11787,7 +11787,7 @@
       "title": "TrainTrack",
       "description": "Animated train track icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11809,7 +11809,7 @@
       "title": "TrendingDown",
       "description": "Animated trending down icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11831,7 +11831,7 @@
       "title": "TrendingUp",
       "description": "Animated trending up icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11853,7 +11853,7 @@
       "title": "TrendingUpDown",
       "description": "Animated trending up down icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11875,7 +11875,7 @@
       "title": "Truck",
       "description": "Animated truck icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11897,7 +11897,7 @@
       "title": "TurkishLira",
       "description": "Animated turkish lira icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11919,7 +11919,7 @@
       "title": "Twitch",
       "description": "Animated twitch icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11941,7 +11941,7 @@
       "title": "Twitter",
       "description": "Animated twitter icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11963,7 +11963,7 @@
       "title": "Underline",
       "description": "Animated underline icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -11985,7 +11985,7 @@
       "title": "Undo",
       "description": "Animated undo icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12007,7 +12007,7 @@
       "title": "UndoDot",
       "description": "Animated undo dot icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12029,7 +12029,7 @@
       "title": "Upload",
       "description": "Animated upload icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12051,7 +12051,7 @@
       "title": "Upvote",
       "description": "Animated upvote icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12073,7 +12073,7 @@
       "title": "User",
       "description": "Animated user icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12095,7 +12095,7 @@
       "title": "UserCheck",
       "description": "Animated user check icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12117,7 +12117,7 @@
       "title": "UserRoundCheck",
       "description": "Animated user round check icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12139,7 +12139,7 @@
       "title": "UserRoundCog",
       "description": "Animated user round cog icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12161,7 +12161,7 @@
       "title": "UserRoundPlus",
       "description": "Animated user round plus icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12183,7 +12183,7 @@
       "title": "Users",
       "description": "Animated users icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12205,7 +12205,7 @@
       "title": "UsersRound",
       "description": "Animated users round icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12227,7 +12227,7 @@
       "title": "Vibrate",
       "description": "Animated vibrate icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12249,7 +12249,7 @@
       "title": "Volume",
       "description": "Animated volume icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12271,7 +12271,7 @@
       "title": "Wallet",
       "description": "Animated wallet icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12293,7 +12293,7 @@
       "title": "WashingMachine",
       "description": "Animated washing machine icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12315,7 +12315,7 @@
       "title": "Waves",
       "description": "Animated waves icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12337,7 +12337,7 @@
       "title": "WavesLadder",
       "description": "Animated waves ladder icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12359,7 +12359,7 @@
       "title": "Waypoints",
       "description": "Animated waypoints icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12381,7 +12381,7 @@
       "title": "Webhook",
       "description": "Animated webhook icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12403,7 +12403,7 @@
       "title": "Wifi",
       "description": "Animated wifi icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12425,7 +12425,7 @@
       "title": "WifiCog",
       "description": "Animated wifi cog icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12447,7 +12447,7 @@
       "title": "WifiLow",
       "description": "Animated wifi low icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12469,7 +12469,7 @@
       "title": "WifiPen",
       "description": "Animated wifi pen icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12491,7 +12491,7 @@
       "title": "WifiSync",
       "description": "Animated wifi sync icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12513,7 +12513,7 @@
       "title": "Wind",
       "description": "Animated wind icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12535,7 +12535,7 @@
       "title": "WindArrowDown",
       "description": "Animated wind arrow down icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12557,7 +12557,7 @@
       "title": "Workflow",
       "description": "Animated workflow icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12579,7 +12579,7 @@
       "title": "Wrench",
       "description": "Animated wrench icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12601,7 +12601,7 @@
       "title": "X",
       "description": "Animated x icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12623,7 +12623,7 @@
       "title": "Youtube",
       "description": "Animated youtube icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12645,7 +12645,7 @@
       "title": "Zap",
       "description": "Animated zap icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {
@@ -12667,7 +12667,7 @@
       "title": "ZapOff",
       "description": "Animated zap off icon — Motion-powered (hover or imperative trigger).",
       "categories": ["icons"],
-      "dependencies": ["motion@^12.42.2", "@vegastack/design@^0.3.2"],
+      "dependencies": ["motion@^13.2.0", "@vegastack/design@^0.3.2"],
       "registryDependencies": [],
       "files": [
         {

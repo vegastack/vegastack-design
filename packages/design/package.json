@@ -80,7 +80,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "lucide-react": "^1.24.0",
-    "motion": "^12.42.2",
+    "motion": "^13.2.0",
     "thesvg": "^3.2.6",
     "tailwindcss": "catalog:"
   },
@@ -107,7 +107,7 @@
     "@vegastack/typescript-config": "workspace:*",
     "eslint": "^10.10.0",
     "lucide-react": "^1.42.0",
-    "motion": "^12.42.2",
+    "motion": "^13.2.0",
     "react": "catalog:",
     "react-dom": "catalog:",
     "tailwindcss": "catalog:",

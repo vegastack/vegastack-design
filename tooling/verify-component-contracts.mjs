@@ -1016,7 +1016,7 @@ sameStrings(
 );
 sameStrings(
   sharedIcon?.npmDependencies ?? [],
-  ["motion@^12.42.2", "@vegastack/design@^0.1.0"],
+  ["motion@^13.2.0", "@vegastack/design@^0.1.0"],
   "animated icon shared npmDependencies",
 );
 

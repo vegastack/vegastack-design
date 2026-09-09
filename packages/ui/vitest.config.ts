@@ -125,9 +125,10 @@ export default defineConfig({
       "@tanstack/react-table",
       "@tanstack/react-virtual",
       "react-dropzone",
-      "@atlaskit/pragmatic-drag-and-drop/combine",
-      "@atlaskit/pragmatic-drag-and-drop/element/adapter",
-      "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge",
+      "@atlaskit/pragmatic-drag-and-drop/utils/combine",
+      "@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter",
+      "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/attach-closest-edge",
+      "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/extract-closest-edge",
     ],
   },
   test: {

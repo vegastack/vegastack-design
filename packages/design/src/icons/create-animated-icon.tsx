@@ -15,7 +15,7 @@ const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
 /**
  * Motion does not ship a hook that tracks the OS preference over time. In
- * 12.42.2 `useReducedMotion()` is literally
+ * 13.2.0 `useReducedMotion()` is literally
  * `useState(prefersReducedMotion.current)` — a one-shot read of a module
  * singleton captured on first import, with a standing `TODO` in its source
  * about not updating — and `useReducedMotionConfig()` layers `<MotionConfig>`

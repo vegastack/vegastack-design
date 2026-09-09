@@ -23013,7 +23013,7 @@
       ],
       "docsSlug": "/docs/foundations/icons",
       "registryDependencies": [],
-      "npmDependencies": ["motion@^12.42.2", "@vegastack/design@^0.1.0"],
+      "npmDependencies": ["motion@^13.2.0", "@vegastack/design@^0.1.0"],
       "coverage": {
         "source": "required-per-member",
         "test": "all-member-browser-import plus generator invariants",
@@ -25787,8 +25787,8 @@
       "docsSlug": "/docs/guides/components",
       "registryDependencies": ["@vegastack/use-announcer"],
       "npmDependencies": [
-        "@atlaskit/pragmatic-drag-and-drop@^2.0.1",
-        "@atlaskit/pragmatic-drag-and-drop-hitbox@^2.0.0"
+        "@atlaskit/pragmatic-drag-and-drop@^3.1.0",
+        "@atlaskit/pragmatic-drag-and-drop-hitbox@^2.2.0"
       ],
       "testFiles": ["packages/ui/registry/ui/use-drag-reorder.test.tsx"],
       "coverage": {
@@ -25910,7 +25910,7 @@
       ],
       "docsSlug": "/docs/guides/components",
       "registryDependencies": ["@vegastack/use-announcer"],
-      "npmDependencies": ["react-dropzone@^19.1.1"],
+      "npmDependencies": ["react-dropzone@^20.1.1"],
       "testFiles": [
         "packages/ui/registry/ui/use-file-drop.test.tsx",
         "packages/ui/registry/ui/dropzone.test.tsx"

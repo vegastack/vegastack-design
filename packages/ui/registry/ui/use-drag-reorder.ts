@@ -1,4 +1,4 @@
-// @vegastack use-drag-reorder@0.6.0 sha256-HxMZDQNzeSUpddV6ANXqisfAjcfW4cjaVk2EmUu0NFc=
+// @vegastack use-drag-reorder@0.6.0 sha256-jtUwVKak2U+m00QI8SlmMwYnLQe7x1MM0/lI9s4kXR4=
 
 "use client";
 
@@ -11,13 +11,11 @@ import {
   draggable,
   dropTargetForElements,
   monitorForElements,
-} from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
-import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
-import {
-  attachClosestEdge,
-  extractClosestEdge,
-  type Edge,
-} from "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge";
+} from "@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter";
+import { combine } from "@atlaskit/pragmatic-drag-and-drop/utils/combine";
+import { attachClosestEdge } from "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/attach-closest-edge";
+import { extractClosestEdge } from "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/extract-closest-edge";
+import type { Edge } from "@atlaskit/pragmatic-drag-and-drop-hitbox/types";
 
 /* ---
 `use-drag-reorder` is the ONE file that imports the drag engine
