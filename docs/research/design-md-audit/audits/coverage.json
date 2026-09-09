@@ -1,28 +1,29 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "9ff46ff7b47fd1786462830550a299edbc4f0d3867ec1cf9b847f7e920491ffd",
+  "contractSha256": "f1a6b385afc23c1e4b1581799f39632c196a3827dd4809fd27db37b630046019",
   "inventory": {
-    "expected": 560,
-    "actual": 560,
-    "unique": 560
+    "expected": 562,
+    "actual": 562,
+    "unique": 562
   },
   "classes": {
-    "components": 113,
+    "components": 114,
     "animatedIcons": 439,
-    "hooks": 7,
+    "hooks": 8,
     "blocks": 1
   },
   "waves": {
     "Core controls": {
-      "expected": 23,
-      "actual": 23,
+      "expected": 24,
+      "actual": 24,
       "members": [
         "animated-number",
         "avatar",
         "badge",
         "button",
         "checkbox",
+        "checkbox-group",
         "copy-button",
         "icon-button",
         "input",
@@ -170,13 +171,14 @@
       ]
     },
     "Hooks": {
-      "expected": 7,
-      "actual": 7,
+      "expected": 8,
+      "actual": 8,
       "members": [
         "use-animation-replay",
         "use-announcer",
         "use-drag-reorder",
         "use-file-drop",
+        "use-inline-edit",
         "use-list-nav",
         "use-mobile",
         "use-platform"
@@ -635,7 +637,7 @@
       ]
     }
   },
-  "componentRoutes": 113,
+  "componentRoutes": 114,
   "blockRoutes": 1,
   "modeledExemptions": 3
 }
