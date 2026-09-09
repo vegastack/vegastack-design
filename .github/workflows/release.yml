@@ -229,7 +229,16 @@ jobs:
       - name: Pin npm to the reviewed OIDC-capable release
         # npm >= 11.5.1 speaks OIDC trusted publishing; this is the reviewed pin.
         run: npm install -g npm@11.16.0
-      - run: pnpm install --frozen-lockfile --store-dir "$RUNNER_WORKSPACE/pnpm-store"
+      # `--ignore-scripts`, like `version-pr`. This job holds the npm OIDC token, so a dependency's
+      # install script would execute with publishing authority — and the `Reject publish-time
+      # lifecycle code` guard below only inspects the two PUBLIC packages' own `scripts`, never a
+      # dependency's. `pnpm-workspace.yaml`'s `allowBuilds` bounds what could run to
+      # esbuild/sharp/workerd, so this closed an asymmetry rather than an open door; the OIDC job
+      # should still be the tightest thing in the tree. It costs this job nothing: both builds below
+      # and `verify-package-exports.mjs` are green without lifecycle scripts (esbuild's binary comes
+      # from its optional platform package, not its install script). verify-workflow-security.mjs
+      # pins the flag per job, in both directions.
+      - run: pnpm install --frozen-lockfile --ignore-scripts --store-dir "$RUNNER_WORKSPACE/pnpm-store"
       # Build ONLY the two PUBLIC packages. `@vegastack/ui` is private by the locked distribution model
       # and must never be published.
       - run: pnpm --filter @vegastack/design-tokens build

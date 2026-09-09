@@ -643,12 +643,16 @@ const CASES = [
     expect: /job publish must declare exactly/,
   },
   {
+    // ONE expectation, not an alternation. `/A|B/` passes when the gate rejects for EITHER reason,
+    // which is the exact rot shape #104 found: the case keeps passing after the rule it is named for
+    // stops firing. Observed 2026-09-09: this mutation rejects with the WORKFLOW-level OIDC message
+    // (adding a key under `permissions:` leaves `/^permissions:\n  contents: read$/m` matching, so
+    // the read-only-token assertion never fires), so that is the only branch worth asserting.
     id: "OIDC granted at workflow level instead of one job",
     file: "release.yml",
     find: "permissions:\n  contents: read\n",
     replace: "permissions:\n  contents: read\n  id-token: write\n",
-    expect:
-      /grants OIDC \(`id-token: write`\) at WORKFLOW level|missing read-only workflow token/,
+    expect: /grants OIDC \(`id-token: write`\) at WORKFLOW level/,
   },
   // ------------------------------------------------- the mac mini's shared pnpm store (issue #94)
   //
@@ -700,7 +704,135 @@ const CASES = [
     find: "    permissions:\n      contents: read\n    steps:",
     replace:
       "    permissions:\n      contents: read\n      id-token: write\n    steps:",
-    expect: /unexpected OIDC permission scope|must declare exactly/,
+    // Single branch, for the reason recorded on the workflow-level case above. Observed 2026-09-09:
+    // this rejects with the OIDC-scope message, naming both holding jobs.
+    expect: /unexpected OIDC permission scope/,
+  },
+  // ------------------------------------------------ the verification command, and its exit code
+  //
+  // Reproduced against the pre-fix gate on 2026-09-09, exit 0 on all three. The presence check read
+  // `/^\s*pnpm verify\s*$/m` — MULTILINE — so it matched the command on its own line INSIDE a block
+  // scalar, while the `if:`/`continue-on-error` effectiveness rules keyed off an exact whole-body
+  // match and therefore did not see that step as a verification step at all. `deploy.yml` and
+  // `release.yml` survived only by accident, on extra literal `- run: pnpm verify` assertions that
+  // `ci.yml` never had. Both halves now agree: the command IS the body, and no body may discard an
+  // exit code.
+  {
+    id: "pnpm verify wrapped in a block scalar that swallows its exit code",
+    file: "ci.yml",
+    mutateAfter: (source) =>
+      source.replace(
+        "      - run: pnpm verify\n",
+        "      - run: |\n          set +e\n          pnpm verify\n          exit 0\n",
+      ),
+    expect: /contains `set \+e`/,
+  },
+  {
+    // The same hole with NO suppression at all, so it is the whole-body identity that rejects it
+    // rather than the exit-code rule — the two are independent, and this case proves the first.
+    id: "pnpm verify demoted to a line inside a block scalar",
+    file: "ci.yml",
+    mutateAfter: (source) =>
+      source.replace(
+        "      - run: pnpm verify\n",
+        '      - run: |\n          echo "about to verify"\n          pnpm verify\n',
+      ),
+    expect: /no job runs `pnpm verify` as the ENTIRE body/,
+  },
+  {
+    id: "verify:release neutered with `|| true` inside a block scalar",
+    file: "deploy.yml",
+    mutateAfter: (source) =>
+      source.replace(
+        "      - run: pnpm verify:release\n",
+        "      - run: |\n          pnpm verify:release || true\n",
+      ),
+    expect: /contains `\|\| true`/,
+  },
+  // ----------------------------------------------------- the three-engine lane, disarmed by env:
+  //
+  // All three ACCEPTED by the pre-fix gate, exit 0. `packages/ui/webkit-lane.ts` defaults to
+  // `require` under CI and honours an explicit WEBKIT_LANE/SMOKE_WEBKIT; in a workflow that knob
+  // quietly drops `verify:release` to chromium+firefox while AGENTS.md, tooling/verify.mjs,
+  // docs/RELEASING.md and the `ship` skill all promise three engines — and the deploy goes green.
+  // Clearing CI is the same fail-open written the other way round.
+  {
+    id: "WEBKIT_LANE=off at workflow level",
+    file: "deploy.yml",
+    mutateAfter: (source) =>
+      source.replace(
+        "env:\n  SITE_VISIBILITY: public\n",
+        "env:\n  SITE_VISIBILITY: public\n  WEBKIT_LANE: 'off'\n",
+      ),
+    expect: /workflow level declares `env\.WEBKIT_LANE`/,
+  },
+  {
+    id: "WEBKIT_LANE=off on the deploy's verify JOB",
+    file: "deploy.yml",
+    mutateAfter: (source) =>
+      source.replace(
+        "  verify:\n    needs: ref-guard\n",
+        "  verify:\n    needs: ref-guard\n    env:\n      WEBKIT_LANE: 'off'\n",
+      ),
+    expect: /job verify declares `env\.WEBKIT_LANE`/,
+  },
+  {
+    id: "SMOKE_WEBKIT=0 on ci.yml's browser job",
+    file: "ci.yml",
+    mutateAfter: (source) =>
+      source.replace(
+        "  verify:\n",
+        "  verify:\n    env:\n      SMOKE_WEBKIT: '0'\n",
+      ),
+    expect: /job verify declares `env\.SMOKE_WEBKIT`/,
+  },
+  {
+    id: "CI cleared on the verify:release STEP",
+    file: "deploy.yml",
+    mutateAfter: (source) =>
+      source.replace(
+        "      - run: pnpm verify:release\n",
+        "      - run: pnpm verify:release\n        env:\n          CI: ''\n",
+      ),
+    expect: /declares `env\.CI`/,
+  },
+  // ------------------------------------------ lifecycle scripts in the authority-holding jobs
+  //
+  // The gate ACCEPTED dropping `--ignore-scripts` from `version-pr`, and `publish` — which holds the
+  // npm OIDC token — never carried it at all. The flag is now pinned per job in BOTH directions, so
+  // neither losing it where it is required nor gaining it where the tree must actually build can
+  // drift in silently.
+  {
+    id: "--ignore-scripts dropped from the Version-PR install",
+    file: "release.yml",
+    mutateAfter: (source) =>
+      source.replace(
+        '--frozen-lockfile --ignore-scripts --store-dir "$RUNNER_WORKSPACE/pnpm-store"\n      - uses: changesets/action',
+        '--frozen-lockfile --store-dir "$RUNNER_WORKSPACE/pnpm-store"\n      - uses: changesets/action',
+      ),
+    expect: /job version-pr step \d+ installs WITHOUT `--ignore-scripts`/,
+  },
+  {
+    id: "--ignore-scripts dropped from the npm-OIDC publish install",
+    file: "release.yml",
+    mutateAfter: (source) =>
+      source.replace(
+        '--frozen-lockfile --ignore-scripts --store-dir "$RUNNER_WORKSPACE/pnpm-store"\n      # Build ONLY',
+        '--frozen-lockfile --store-dir "$RUNNER_WORKSPACE/pnpm-store"\n      # Build ONLY',
+      ),
+    expect: /job publish step \d+ installs WITHOUT `--ignore-scripts`/,
+  },
+  {
+    // The other direction. A build job that quietly gains the flag installs a tree whose sanctioned
+    // `allowBuilds` scripts never ran, and then verifies or deploys it.
+    id: "--ignore-scripts added to a job that must actually build",
+    file: "ci.yml",
+    mutateAfter: (source) =>
+      source.replace(
+        "pnpm install --frozen-lockfile --store-dir /pnpm-store",
+        "pnpm install --frozen-lockfile --ignore-scripts --store-dir /pnpm-store",
+      ),
+    expect: /installs WITH `--ignore-scripts`, which is pinned to the/,
   },
 ];
 
@@ -787,5 +919,10 @@ console.log(
     `since issue #94 — the mac mini's pnpm topology: a job-private bootstrap directory, a ` +
     `per-agent persistent store on every install, and no setup-node package-manager cache on a ` +
     `mini, each of which otherwise puts pnpm state back into the home directory the machine's ` +
-    `two runner agents share`,
+    `two runner agents share — and, since 2026-09-09, the three fail-opens an adversarial review ` +
+    `reproduced at exit 0: \`pnpm verify\` demoted to a LINE inside a block scalar (with and without ` +
+    `a \`set +e\`/\`exit 0\` wrapper, and \`|| true\` on \`verify:release\`), the WebKit lane disarmed ` +
+    `by a WEBKIT_LANE / SMOKE_WEBKIT / cleared-CI \`env:\` at workflow, job or step level, and ` +
+    `\`--ignore-scripts\` drifting off either authority-holding release job — or onto a job that has ` +
+    `to build`,
 );

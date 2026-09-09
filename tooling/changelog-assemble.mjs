@@ -470,8 +470,18 @@ function main() {
     cwd: ROOT,
     stdio: "pipe",
   });
+  // SAY THAT THE FILE IS NOW DIRTY, because the next command in `pnpm version-packages` is
+  // `changeset version` — and when THAT fails, changesets prints "no files should have been
+  // affected", which is false for this one. The ordering cannot be swapped (assembly must read the
+  // changesets that `changeset version` deletes), so the message is what gets to be honest: a run
+  // that dies after this point leaves /CHANGELOG.md modified, and re-running is safe because
+  // idempotency here is keyed on the assembled-from marker, not on the version.
   console.log(
-    `✓ changelog-assemble: wrote the [${version}] entry from ${changesets.length} changeset(s)`,
+    `✓ changelog-assemble: wrote the [${version}] entry from ${changesets.length} changeset(s).\n` +
+      `  /CHANGELOG.md IS NOW MODIFIED, before \`changeset version\` has run. If the next step ` +
+      `fails, changesets will say "no files should have been affected" — that is true of every ` +
+      `file except this one. Re-running \`pnpm version-packages\` is safe: the entry carries an ` +
+      `assembled-from marker and a second pass over the same changesets is a no-op.`,
   );
 }
 

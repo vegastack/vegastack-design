@@ -9,7 +9,23 @@
    The `@source` globs must cover BOTH halves of what gets mounted: the canonical component
    sources (the class literals inside each component's CVA) and the docs preview fixtures (the
    composition classes the examples add, including `Wrapper`'s layout utilities). A missing glob
-   here does not error — it silently drops utilities and turns a real contract into a no-op. */
+   here does not error — it silently drops utilities and turns a real contract into a no-op.
+
+   TWO GLOBS WERE REMOVED ON 2026-09-09 BECAUSE THEY WERE THAT NO-OP IN REVERSE — declared, and
+   measured by nothing. An adversarial review deleted both and this lane stayed 590/590 green:
+
+     `../../design/src/index.ts`, commented as "the surfaceInteractive / fillInteractive recipe
+       literals". Those recipes change a BACKGROUND COLOUR; this lane measures reflow, containment
+       and pointer targets, so no assertion here could ever have seen them. They are now measured
+       where colour is — `button-matrix.browser.test.tsx`, over `contrast.css`, which mounts the
+       chromatic tones and the group-scoped wash and fails if the rules are absent. That glob is
+       load-bearing THERE (proven by deleting it: two assertions go red).
+
+     `../../../apps/docs/components/preview-controls.tsx`. Docs chrome, not a fixture. This lane
+       mounts the preview barrel's exports and nothing else — see "FIXTURE-LOCAL CONTROLS" in
+       geometry.browser.test.tsx — so that file is never on the page.
+
+   The preview glob below IS load-bearing: deleting it turns 13 fixtures red. */
 @import "tailwindcss";
 @import "@vegastack/design-tokens/theme.css";
 @import "@vegastack/design-tokens/base.css";
@@ -19,12 +35,18 @@
    lane measured a layout no user ever sees. That is the same fail-open the @source comment above
    warns about, one layer up. Motion is still neutralised by the reduced-motion block below. */
 @import "@vegastack/design-tokens/utilities.css";
+/* `tw-animate-css` — the `animate-in`/`fade-in`/`zoom-in`/`slide-in-from-*` family that
+   `@vegastack/design/preset.css` ships to every consumer, and which no lane imported until
+   2026-09-09. The gate that keeps these lanes in lockstep with production matched only
+   `@vegastack/design-tokens/<layer>.css`, so this import was invisible to it. Zero classes from it
+   are used in this tree today, which is exactly why it had to be added rather than dropped: an
+   undefined utility compiles to NOTHING with no error, so the first fixture to wear one would have
+   been measured without it. */
+@import "tw-animate-css";
 
 @source '../registry/ui/**/*.tsx';
 @source '../registry/blocks/**/*.tsx';
-@source '../../design/src/index.ts'; /* the surfaceInteractive / fillInteractive recipe literals */
 @source '../../../apps/docs/components/preview/**/*.tsx';
-@source '../../../apps/docs/components/preview-controls.tsx';
 /* The lane's own compiled-CSS sentinel (`w-6 h-6 min-w-0 truncate`, asserted in `beforeAll`)
    lives in the test file, so it needs a glob of its own — the sentinel exists to prove this
    stylesheet reached the page at all, and it can only do that if its utilities compile. */

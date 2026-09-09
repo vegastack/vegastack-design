@@ -31,7 +31,7 @@
 // attempted actually failed — a refusal (a dirty worktree) is reported and is NOT a failure, because
 // the operator has to decide what to do with the work in it.
 
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import {
   existsSync,
   lstatSync,
@@ -166,23 +166,50 @@ function git(root, args) {
   }).trim();
 }
 
-/** Tracked files never get removed. A path git knows about is a bug in the list, not scratch. */
-function isTracked(root, path) {
+/**
+ * Is this path tracked by git?
+ *
+ *   "tracked"    git listed it — never remove it, it is not scratch
+ *   "untracked"  git answered, and said no
+ *   "unknown"    git could not answer at all
+ *
+ * THE THIRD ANSWER IS THE POINT. This used to `return false` from the catch, which folded "git said
+ * no" and "git could not answer" into the same word — and the second case is real: inside the
+ * pinned Playwright container the workspace is owned by the host runner user while the job runs as
+ * root, so every `git` call exits 128 with "detected dubious ownership" until
+ * `safe.directory` is set (observed in run 34275909973, and the reason each container job carries a
+ * `Trust the checkout inside the container` step). With git unable to answer, EVERY path read as
+ * untracked and the tracked-path refusal — the one thing standing between this script and a
+ * committed file — silently stopped existing. `--error-unmatch` exits non-zero for an untracked
+ * path too, so the two are separated by what git says, not by whether it failed.
+ */
+function trackedState(root, path) {
   const rel = relative(root, resolve(path));
-  try {
-    const out = execFileSync(
-      "git",
-      ["ls-files", "--error-unmatch", "--", rel],
-      {
-        cwd: root,
-        encoding: "utf8",
-        stdio: ["ignore", "pipe", "ignore"],
-      },
-    );
-    return out.trim().length > 0;
-  } catch {
-    return false;
-  }
+  const result = spawnSync("git", ["ls-files", "--error-unmatch", "--", rel], {
+    cwd: root,
+    encoding: "utf8",
+  });
+  if (result.error)
+    return {
+      state: "unknown",
+      reason: `git did not run (${result.error.code ?? result.error.message})`,
+    };
+  if (result.signal)
+    return { state: "unknown", reason: `git was killed (${result.signal})` };
+  if (result.status === 0) return { state: "tracked" };
+  // Two answers count as "git said no". The documented pathspec miss, and "there is no repository
+  // here at all" — a `--root` outside any working tree, where nothing CAN be tracked. Anything else
+  // — a repository git refuses (dubious ownership, exit 128), a broken index — is not an answer.
+  const stderr = (result.stderr ?? "").trim();
+  if (
+    (result.status === 1 && /did not match any file/i.test(stderr)) ||
+    /not a git repository/i.test(stderr)
+  )
+    return { state: "untracked" };
+  return {
+    state: "unknown",
+    reason: `git exited ${result.status}${stderr ? `: ${stderr.split("\n")[0]}` : ""}`,
+  };
 }
 
 // ------------------------------------------------------------------ the modes
@@ -410,10 +437,20 @@ function main(argv = process.argv.slice(2)) {
 
   const add = (path) => {
     assertRemovable(root, path);
-    if (isTracked(root, path)) {
+    const tracked = trackedState(root, path);
+    if (tracked.state === "tracked") {
       refusals.push({
         path,
         reason: "git tracks this path — it is not scratch",
+      });
+      return;
+    }
+    // FAIL CLOSED ON "I DO NOT KNOW". A path this script cannot prove is untracked is a path it
+    // must not remove; guessing here is how a committed file gets deleted by a cleanup pass.
+    if (tracked.state === "unknown") {
+      refusals.push({
+        path,
+        reason: `cannot establish whether git tracks this path (${tracked.reason}) — refusing rather than guessing`,
       });
       return;
     }

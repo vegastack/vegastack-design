@@ -70,9 +70,14 @@ jobs:
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
-          # FULL HISTORY. `tooling/secret-scan.mjs` (inside `pnpm lint`) walks tracked history, and a
-          # shallow clone fails it. Kept here as well as on `verify-macos`, which needs a resolvable
-          # base for `changeset status --since=origin/main`, so the two lanes see the same checkout.
+          # FULL HISTORY, for `tooling/changelog-lint.mjs` (inside `pnpm lint` → `turbo run lint` →
+          # apps/docs). It probes every commit sha the CHANGELOG links with
+          # `git merge-base --is-ancestor <sha> HEAD`, which a shallow clone answers wrongly.
+          #
+          # NOT for the secret scan. `tooling/secret-scan.mjs` reads `git ls-files --cached --others`
+          # and then the FILES ON DISK — the working tree, never a historical blob — so a key that
+          # was committed and later deleted passes it (reproduced 2026-09-09). Three comments in this
+          # repository claimed otherwise; the claim, not the scanner, was the defect.
           fetch-depth: 0
           persist-credentials: false
       # The runner's work directory is owned by the HOST runner user; inside the container the job
@@ -115,8 +120,9 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           # FULL HISTORY. The `changeset status --since=origin/main` step at the bottom of this job
-          # needs a resolvable base, and `tooling/secret-scan.mjs` walks tracked history. A shallow
-          # clone fails both.
+          # needs a resolvable base, and `tooling/changelog-lint.mjs` (inside `pnpm lint`) needs the
+          # ancestry of every commit sha the CHANGELOG links. A shallow clone fails both. It is NOT
+          # for the secret scan — see the `verify` job above for why that claim was false.
           fetch-depth: 0
           persist-credentials: false
       # JOB-PRIVATE BOOTSTRAP DIRECTORY, AND A PER-AGENT STORE. Both mini runners

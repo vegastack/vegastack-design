@@ -191,6 +191,31 @@ describe("release-detect", () => {
     expect(outputs).toEqual({ has_changesets: "false", publish: "false" });
   });
 
+  // AN UNANSWERABLE RANGE IS NOT AN EMPTY ONE.
+  //
+  // `git diff --name-only <before>..<after>` used to be read as `.stdout ?? ""`, so a diff that
+  // could not run — an unresolvable ref, a shallow clone, a spawn failure — produced `[]`, which is
+  // the same value as "this push touched no packages/ file". The comment above the code said the
+  // range was "treated as unknown"; it was not. `--check-npm` is what kept it from ever shipping a
+  // wrong decision in release.yml, and a backstop is not the signal being right.
+  it("an unresolvable range is UNKNOWN, not 'nothing changed'", () => {
+    const repo = fixture({
+      commits: [{ "docs/a.md": "one\n" }, { "docs/b.md": "two\n" }],
+    });
+    const { status, stderr, outputs } = runIn(repo, [
+      "--before",
+      "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+      "--after",
+      "HEAD",
+    ]);
+    expect(stderr).toMatch(/could not be queried/);
+    expect(stderr).toMatch(/is NOT established/);
+    // Nothing else could have set publish here, so the run fails rather than reporting a
+    // publish=false it never established.
+    expect(outputs.publish).toBe("false");
+    expect(status).toBe(1);
+  });
+
   /**
    * THE VERSION-PR CASE, and the reason `--after` governs the changeset read at all. `changeset
    * version` consumes `.changeset/*.md`, so the commit under test carries none while the runner's

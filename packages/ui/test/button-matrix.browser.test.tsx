@@ -2,7 +2,12 @@ import "./contrast.css"; // compiled Tailwind + @vegastack token theme (Vite via
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
-import { expect, test } from "vitest";
+import { describe, expect, test } from "vitest";
+import {
+  cn,
+  fillInteractive,
+  surfaceInteractiveGroup,
+} from "@vegastack/design";
 import { Button, type ButtonTone } from "../registry/ui/button";
 import { IconButton } from "../registry/ui/icon-button";
 
@@ -225,4 +230,186 @@ test("IconButton is a true square at every size, and shape=round is round", asyn
   expect(radius).toBeGreaterThanOrEqual(
     round.getBoundingClientRect().height / 2,
   );
+});
+
+/* ────────────────────────────────────────────────────────────────────────────────────────────────
+ * THE HOVER/PRESSED RECIPES ACTUALLY COMPILE — and the `@source` glob that makes them compile is
+ * load-bearing because of these assertions.
+ *
+ * `contrast.css` and `geometry.css` both declared
+ * an `@source` glob pointing at `packages/design/src/index.ts`, commented as the one that compiles
+ * the surfaceInteractive / fillInteractive recipe literals,
+ * and an adversarial review (2026-09-09) deleted it from BOTH and got 590/590 green: the glob was a
+ * comment, not a gate. Two things made it inert.
+ *
+ *   1. Tailwind v4 AUTO-DETECTS sources under the Vite root, which here is `packages/ui`. Every
+ *      `hover:bg-surface-2` / `active:bg-surface-3` written literally in a component or a `.test.tsx`
+ *      (there are many — `item.tsx`, `tabs.tsx`, `data-list.tsx`, several `toContain` assertions)
+ *      compiles those two utilities whether or not the recipe file is ever scanned.
+ *   2. The one place that DID assert "the recipe classes compile"
+ *      (`surface-ladder.browser.test.tsx`) writes the same two literals into its own source three
+ *      lines above, so it was measuring its own file.
+ *
+ * The classes that exist ONLY in `packages/design/src/index.ts` are the ones asserted below:
+ * `surfaceInteractiveGroup`'s two group-scoped wash rungs and every CHROMATIC `fillInteractive` tone
+ * (primary, destructive, success, warning, info — `foreground` and `brand` are also written
+ * literally elsewhere in this package, so they prove nothing on their own). Delete the glob and
+ * these rules are absent from the compiled sheet; change a rung in the recipe and the value
+ * assertion moves. Nothing here restates a class literal — every string comes from the imported
+ * constants at run time, so this file cannot become its own source the way `surface-ladder` did.
+ * ─────────────────────────────────────────────────────────────────────────────────────────────── */
+
+/**
+ * Every STYLE rule in every reachable stylesheet, as its own text.
+ *
+ * Descending matters. Taking only the top-level rules hands back one `@layer utilities { … }` blob
+ * that contains the entire sheet, so "the rule for this class also declares a background-color"
+ * would be true of any class whatsoever. A style rule's own `cssText` still carries the `@supports`
+ * fallback nested inside it, which is where the `color-mix()` value lives.
+ */
+function compiledRules(): string[] {
+  const texts: string[] = [];
+  const walk = (rules: CSSRuleList) => {
+    for (const rule of [...rules]) {
+      if ("selectorText" in rule) {
+        texts.push(rule.cssText);
+        continue;
+      }
+      const nested = (rule as CSSGroupingRule).cssRules;
+      if (nested) walk(nested);
+    }
+  };
+  for (const sheet of [...document.styleSheets]) {
+    try {
+      walk(sheet.cssRules);
+    } catch {
+      // A stylesheet this page cannot read tells us nothing either way.
+    }
+  }
+  return texts;
+}
+
+const escapeForRegExp = (character: string) =>
+  /[.*+?^${}()|[\]\\/]/.test(character) ? `\\${character}` : character;
+
+/**
+ * A pattern matching the class as Tailwind EMITS it in a selector — every character that is not
+ * `[A-Za-z0-9_-]` may or may not carry a CSS backslash escape, and the ones that are also regular
+ * expression metacharacters have to be escaped for this pattern too.
+ */
+function selectorFor(className: string) {
+  return new RegExp(
+    `\\.${[...className]
+      .map((character) =>
+        /[A-Za-z0-9_-]/.test(character)
+          ? character
+          : `\\\\?${escapeForRegExp(character)}`,
+      )
+      .join("")}`,
+  );
+}
+
+/**
+ * The custom properties a `bg-*` recipe class must resolve through, derived from the class STRING
+ * rather than restated — writing `--color-primary`'s utility here would put the candidate back in
+ * this file's source and re-create the exact self-measurement this block exists to avoid.
+ */
+function expectedVariables(className: string) {
+  const match =
+    /:bg-([a-z0-9-]+)(?:\/\((--[a-z-]+)\))?$/.exec(className) ?? undefined;
+  expect(
+    match,
+    `${className} is not a recognisable bg-* recipe class`,
+  ).toBeTruthy();
+  // Tailwind emits the RAW token variable (`var(--surface-2)`), not the `--color-*` theme alias.
+  return [`--${match![1]}`, ...(match![2] ? [match![2]] : [])];
+}
+
+describe("the hover/pressed recipes compile from @vegastack/design", () => {
+  // The chromatic tones only. `foreground` and `brand` are ALSO written as literals elsewhere under
+  // the Vite root, so they would compile with the glob deleted and prove nothing.
+  const CHROMATIC = [
+    "primary",
+    "destructive",
+    "success",
+    "warning",
+    "info",
+  ] as const;
+
+  test("every recipe class the design package owns has a compiled rule with its token", async () => {
+    // Mount them, so the assertion is over classes something in this page actually wears rather
+    // than over a stylesheet nobody uses.
+    await render(
+      <div>
+        <div className={cn("size-8", surfaceInteractiveGroup)} />
+        {CHROMATIC.map((tone) => (
+          <button
+            key={tone}
+            type="button"
+            aria-label={tone}
+            className={cn("size-8", fillInteractive[tone])}
+          />
+        ))}
+      </div>,
+    );
+
+    const rules = compiledRules();
+    const classes = [
+      ...surfaceInteractiveGroup.split(" "),
+      ...CHROMATIC.flatMap((tone) => fillInteractive[tone].split(" ")),
+    ];
+    expect(classes.length, "the recipes resolved to nothing").toBeGreaterThan(
+      10,
+    );
+
+    for (const className of classes) {
+      const selector = selectorFor(className);
+      const rule = rules.find((text) => selector.test(text));
+      expect(
+        rule,
+        `\`${className}\` has NO compiled rule. It exists only in packages/design/src/index.ts, so ` +
+          `the \`@source '../../design/src/index.ts'\` glob in test/contrast.css is what makes it ` +
+          `compile — a missing glob drops the rule silently and every hover/pressed assertion over ` +
+          `it passes against nothing.`,
+      ).toBeTruthy();
+      expect(
+        rule,
+        `${className} compiled without a background-color`,
+      ).toContain("background-color");
+      for (const variable of expectedVariables(className)) {
+        expect(
+          rule,
+          `${className} compiled without ${variable} — the rung it paints moved`,
+        ).toContain(variable);
+      }
+    }
+  });
+
+  test("a chromatic wash is actually painted on hover", async () => {
+    const screen = await render(
+      <div>
+        {/* Parking space for the pointer — the page is shared across files. */}
+        <div data-testid="away" style={{ height: 240 }} />
+        <button
+          type="button"
+          data-testid="washed"
+          aria-label="Approve"
+          className={cn("size-8", fillInteractive.success)}
+        />
+      </div>,
+    );
+    const at = (id: string) =>
+      screen.container.querySelector<HTMLElement>(`[data-testid="${id}"]`)!;
+
+    await userEvent.hover(at("away"));
+    const rest = getComputedStyle(at("washed")).backgroundColor;
+
+    await userEvent.hover(at("washed"));
+    const hovered = getComputedStyle(at("washed")).backgroundColor;
+
+    expect(
+      hovered,
+      "the fillInteractive hover rung painted nothing — the recipe compiled but does not apply",
+    ).not.toBe(rest);
+  });
 });
