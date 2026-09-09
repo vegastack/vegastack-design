@@ -66,6 +66,7 @@ collapse-to-pill toggle (`collapsed`/`defaultCollapsed`/`onCollapsedChange`).
 
 - The segmented meter is a composed [`ProgressIndicator`](/docs/components/progress-indicator) in `segments` mode — one named `progressbar` for the whole card, with its decorative segments hidden from assistive technology.
 - Collapse and expand controls expose complete action labels, and the collapsed pill preserves the current count in visible text.
+- The collapsed pill takes its accessible name from that visible text (WCAG 2.2 SC 2.5.3, Label in Name), so it carries no `aria-label`. Its parts are spaced by layout rather than by whitespace, so screen-reader-only separators keep the name from running together: it announces as `Getting started, 2/6, Expand checklist`.
 - Completed items are disabled and use a check plus struck label, so completion is never communicated by color alone.
 
 | Key                                 | Action                                                     |

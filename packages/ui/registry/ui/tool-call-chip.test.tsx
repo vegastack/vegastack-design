@@ -43,3 +43,19 @@ test("has no accessibility violations", async () => {
   const screen = await render(<ToolCallChip label="Created workflow" />);
   await expectNoA11yViolations(screen.container);
 });
+
+test("composed as a control, label and meta stay separate phrases (issue 103)", async () => {
+  const screen = await render(
+    <ToolCallChip
+      render={<button type="button" />}
+      label="Search files"
+      meta="1.2s"
+    />,
+  );
+  // `render={<button/>}` is a documented composition (the component styles `:is(button)`),
+  // and it is the case where the chip gets an accessible name from its contents. The label
+  // and meta are `gap`-spaced siblings, so this read "Search files1.2s" before issue 103.
+  await expect
+    .element(screen.getByRole("button", { name: "Search files, 1.2s" }))
+    .toBeInTheDocument();
+});

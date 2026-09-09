@@ -204,7 +204,12 @@ test("collapsed columns render as an expandable strip; expanded-from-collapsed i
   const columns = makeColumns();
   columns[1] = { ...columns[1]!, collapsed: true };
   const screen = await render(<Controlled initial={columns} />);
-  const strip = screen.getByRole("button", { name: /Expand column/ });
+  // The WHOLE accessible name: the count Badge, the vertical title and the sr-only action
+  // text are `gap`-spaced siblings with no whitespace between them, so before issue 103 this read
+  // "1WonExpand column, read-only". A regex here would not have seen that.
+  const strip = screen.getByRole("button", {
+    name: "1, Won, Expand column, read-only",
+  });
   await expect.element(strip).toBeInTheDocument();
   expect(document.querySelector('[data-column="won"]')).toBeNull();
   await strip.click();

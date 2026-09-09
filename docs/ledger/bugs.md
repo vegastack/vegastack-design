@@ -1849,3 +1849,54 @@ were loaded)`, reported as an _unhandled_ error originating in `registry/ui/text
   and only that one demo's live clock is not; the race cannot recur because nothing measured has a
   timer.
 - Verified by reading the fixture and the lane, not by trusting the plan.
+
+---
+
+## 2026-09-09 — FIXED: composite controls announced as one run-together string (#103)
+
+- **Mechanism.** Where a control takes its accessible name from contents, and those contents are
+  sibling ELEMENTS spaced by CSS `gap` rather than by whitespace, there is no whitespace text node
+  between them — so accessible-name computation concatenates them flush. The composition is not the
+  bug: it is what keeps the visible label inside the accessible name (WCAG 2.2 SC 2.5.3, Label in
+  Name). Only the computed NAME was wrong.
+- **Found by** the Vitest 5 migration (#102): whole-string locator matching forced the
+  `OnboardingChecklist` test to state the pill's real name, `Getting started1/3Expand checklist`.
+  The prior assertion was a substring, which passed regardless. That is the durable lesson — a
+  substring assertion on an accessible name cannot observe this defect class.
+- **Swept, not spot-fixed.** Every export of the docs preview barrel (553 fixtures) was mounted and
+  every interactive element's accessible name computed, then read for the shape. Eight components
+  produced a run-together name and were fixed with screen-reader-only separators (`sr-only` is
+  `position: absolute`, so it is out of flow: the name changes, the `gap` layout does not, and no
+  whitespace hack was reintroduced):
+
+  | Component                                                 | Before                               | After                                    |
+  | --------------------------------------------------------- | ------------------------------------ | ---------------------------------------- |
+  | `OnboardingChecklist` collapsed pill                      | `Getting started1/3Expand checklist` | `Getting started, 1/3, Expand checklist` |
+  | `TabsTrigger` with `count`                                | `Activity3`                          | `Activity, 3`                            |
+  | `Stepper` navigable step                                  | `Upload fileCompleted`               | `Upload file, Completed`                 |
+  | `Board` collapsed column                                  | `1WonExpand column, read-only`       | `1, Won, Expand column, read-only`       |
+  | `DataGrid` primary cell, merged mobile columns            | `Acme renewalOpen300`                | `Acme renewal, Open, 300`                |
+  | `CommandShortcut`                                         | `Profile⌘P`                          | `Profile, ⌘P`                            |
+  | `DropdownMenu`/`ContextMenu` shortcut (`createMenuParts`) | `Settings⌘S`                         | `Settings, ⌘S`                           |
+  | `Kbd` multi-key                                           | `CommandK`                           | `Command, K`                             |
+  | `ToolCallChip` composed as a button                       | `Search files1.2s`                   | `Search files, 1.2s`                     |
+
+- **`Command`'s `Profile⌘P` — judged, then FIXED, and this is the reasoning so nobody re-opens it.**
+  The issue's guess was that a shortcut appended to a label is a common, well-understood pattern and
+  therefore probably fine. Measured, it is two separable claims:
+  1. **The concatenation is real and is the same defect.** `Profile⌘P` is one token to the name
+     computation, exactly like `Activity3`. There is no reason for the palette row to be the one
+     place the fix does not apply, so it got the same `sr-only` separator: `Profile, ⌘P`.
+  2. **The key TEXT is deliberately left alone, and that part IS accepted.** `⌘` is announced
+     inconsistently (JAWS/NVDA say "place of interest sign" or skip it), but the shortcut string is
+     the CALLER's content — `CommandShortcut` receives `⌘P` as children and cannot know which glyphs
+     it holds. The repo already owns the answer for a caller that needs spoken keys: `Kbd` pairs each
+     mac glyph with an `sr-only` word (`⌘` → "Command"), and `CommandShortcut`'s own doc comment
+     already points callers there. Rewriting caller content inside the shortcut span was rejected.
+- **Accepted, not fixed: `board-card-surface` in the docs preview** (`Acme renewalPS$12,400`). That
+  string comes from the fixture's `renderCard`, which is HOST-supplied JSX — the component owns the
+  card's role and focus behaviour, not the markup inside it. Flagged for MK as a docs-example
+  question (should the shipped example model the separator?), not fixed here, because a preview only
+  composes.
+- **Assertions state WHOLE names.** Every touched test asserts the complete accessible name; none
+  asserts a substring, and `browser.locators.exact` stays at its Vitest 5 default.

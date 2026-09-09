@@ -57,8 +57,9 @@ test("arrow-key keyboard navigation moves between tabs", async () => {
   // Manual activation: arrow moves focus, Enter activates.
   await userEvent.keyboard("{ArrowRight}{Enter}");
   await expect
-    // The trigger renders a trailing count badge, so its accessible name is "Activity3".
-    .element(screen.getByRole("tab", { name: "Activity3" }))
+    // The trigger renders a trailing count badge; the `sr-only` ", " it now carries is what
+    // keeps the name from concatenating flush ("Activity3" before issue 103).
+    .element(screen.getByRole("tab", { name: "Activity, 3" }))
     .toHaveAttribute("data-active");
   await expect.element(screen.getByText("Activity panel")).toBeInTheDocument();
 });
@@ -313,4 +314,29 @@ test("the line tab's hover wash is held OFF the indicator rail (SP-02)", async (
   // The MEASURED gap lives in the contract lane (`apps/docs/vrt/contracts.spec.ts`), which runs
   // against real compiled CSS — this suite imports none, so a pixel assertion here would only
   // prove that an unstyled element has no margin.
+});
+
+test("a counted trigger separates its label from its count (issue 103)", async () => {
+  const screen = await render(
+    <Tabs defaultValue="overview">
+      <TabsList>
+        <TabsTrigger value="overview">Overview</TabsTrigger>
+        <TabsTrigger value="activity" count={12}>
+          Activity
+        </TabsTrigger>
+      </TabsList>
+      <TabsContent value="overview">Overview panel</TabsContent>
+      <TabsContent value="activity">Activity panel</TabsContent>
+    </Tabs>,
+  );
+  // WHOLE name. The count badge is a `gap`-spaced sibling of the label, so without the
+  // sr-only separator this reads "Activity12".
+  await expect
+    .element(screen.getByRole("tab", { name: "Activity, 12" }))
+    .toBeInTheDocument();
+  // …and the separator is spoken only: no visible node carries the comma.
+  const trigger = screen.getByRole("tab", { name: "Activity, 12" }).element();
+  expect(
+    trigger.querySelector('[data-slot="tabs-trigger-count"]')!.textContent,
+  ).toBe("12");
 });

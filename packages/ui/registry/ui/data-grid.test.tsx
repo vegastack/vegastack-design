@@ -171,6 +171,13 @@ test("responsive revelation: an oversized column merges into the primary cell", 
   const merged = document.querySelector('[data-slot="data-grid-merged"]');
   expect(merged?.textContent).toContain("Open");
   expect(merged?.textContent).toContain("300");
+  // The merged stack is a sibling of the primary value and its rows are siblings of each
+  // other, none of them separated by a whitespace text node — so the primary cell's WHOLE
+  // accessible name concatenated flush ("Acme renewalOpen300") before issue 103.
+  const primary = document.querySelector(
+    '[data-slot="data-grid-cell"]',
+  ) as HTMLElement;
+  expect(primary.textContent).toBe("Acme, Open, 300");
   // Nothing was dropped, so there is nothing to report.
   expect(
     document.querySelector('[data-slot="data-grid-hidden-hint"]'),

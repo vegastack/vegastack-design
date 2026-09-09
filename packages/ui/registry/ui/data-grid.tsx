@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.6.0 sha256-5AW8IW2+YAup+ZSsjWXwjyjM126SHiZxMgLz56NYiP4=
+// @vegastack data-grid@0.6.0 sha256-mUBW6B0lYCI/lYC/hAHzP7fhq37jQjkpW4JFZ1jjwRM=
 
 "use client";
 
@@ -943,20 +943,33 @@ export function DataGrid<T>({
                 />
               )}
               {isPrimary && mergedColumns.length > 0 ? (
-                <span
-                  data-slot="data-grid-merged"
-                  className="mt-0.5 flex min-w-0 flex-col gap-0.5 text-sm text-muted-foreground"
-                >
-                  {mergedColumns.map((merged) => (
-                    <span key={merged.key} className="min-w-0 truncate">
-                      <Cell
-                        column={merged}
-                        row={row}
-                        context={{ rowId: id, selected: isSelected }}
-                      />
-                    </span>
-                  ))}
-                </span>
+                <>
+                  {/* The merged stack is a sibling of the primary value, and its rows are
+                      siblings of each other, all spaced by layout rather than by whitespace
+                      text nodes — so the cell's accessible name would concatenate flush
+                      ("Acme renewal$12,400" — issue 103). `sr-only` is out of flow: spoken,
+                      never laid out. */}
+                  <span className="sr-only">, </span>
+                  <span
+                    data-slot="data-grid-merged"
+                    className="mt-0.5 flex min-w-0 flex-col gap-0.5 text-sm text-muted-foreground"
+                  >
+                    {mergedColumns.map((merged, mergedIndex) => (
+                      <React.Fragment key={merged.key}>
+                        {mergedIndex > 0 ? (
+                          <span className="sr-only">, </span>
+                        ) : null}
+                        <span className="min-w-0 truncate">
+                          <Cell
+                            column={merged}
+                            row={row}
+                            context={{ rowId: id, selected: isSelected }}
+                          />
+                        </span>
+                      </React.Fragment>
+                    ))}
+                  </span>
+                </>
               ) : null}
             </TableCell>
           );

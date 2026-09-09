@@ -87,9 +87,11 @@ test("renders the search input and all items", async () => {
   await expect.element(screen.getByPlaceholder("Search…")).toBeInTheDocument();
   await expect.element(screen.getByText("Calendar")).toBeInTheDocument();
   await expect.element(screen.getByText("Search Emoji")).toBeInTheDocument();
-  // The item renders its shortcut inside the option, so its text is "Profile⌘P".
+  // The item renders its shortcut inside the option, so the hint joins the option's
+  // accessible name. `CommandShortcut` contributes an `sr-only` ", " so the two do not
+  // concatenate flush ("Profile⌘P" before issue 103). Asserted WHOLE, never as a substring.
   await expect
-    .element(screen.getByRole("option", { name: "Profile⌘P" }))
+    .element(screen.getByRole("option", { name: "Profile, ⌘P" }))
     .toBeInTheDocument();
 });
 
