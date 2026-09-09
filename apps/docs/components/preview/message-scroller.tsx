@@ -282,7 +282,11 @@ function VisibilityOutline({ ids }: { ids: string[] }) {
           type="button"
           onClick={() => scrollToMessage(id, { align: "start" })}
           className={cn(
-            "text-left text-sm hover:text-foreground",
+            // A 16px `text-sm` line box is under the 24px pointer-target floor
+            // (WCAG 2.2 §2.5.8), and at a 20px pitch an invisible hit area could only
+            // reach 24px by overlapping its neighbour's. So the entry itself is 24px
+            // tall, which puts the pitch at 28px and leaves each target its own square.
+            "flex min-h-(--size-xs) items-center text-left text-sm hover:text-foreground",
             currentAnchorId === id
               ? "font-medium text-foreground"
               : "text-muted-foreground",

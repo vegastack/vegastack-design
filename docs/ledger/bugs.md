@@ -4,6 +4,61 @@ Every bug found + root cause + fix. Append-only.
 
 ---
 
+## 2026-09-09 — The last 11 geometry-lane defects: 9 closed, 2 open for MK
+
+- **Scope.** The 11 exclusions left in `packages/ui/test/geometry.browser.test.tsx` after N1
+  (3 breadcrumb triggers) and P1 (the date-picker caption) closed 4 of the original 15.
+- **Every number was RE-MEASURED first**, because each recorded measurement predates M2's fix to
+  the lane itself (`test/geometry.css` was missing the `utilities.css` import, so `@utility`
+  classes compiled to empty rules), G1-b's `verify-test-css-layers.mjs`, the move to Vitest 5 and
+  #107's focus handling. Deleting an exclusion and running the lane is the only honest way to read
+  one, since the map re-executes every exclusion in expect-failure mode. Ten of the eleven
+  re-measured exactly as recorded. **`timeline` did not**: recorded as "control 0, 63.4×16.0, the
+  separator marker owns the centre of the adjacent link"; it is control **2**, **60.7×21.0**, and
+  the separator marker owns nothing — see below.
+
+### Closed
+
+| Fixture                            | Re-measured                                                                              | Root cause                                                                                                                                                                                                                                                                                                                                                | Fix                                                                                                                                                                             |
+| ---------------------------------- | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `scrollFadeEdge`, `scrollFadeSize` | scrollWidth 332 > clientWidth 320 (reflow + RTL)                                         | the demo lays two `w-40` panels side by side inside a `flex gap-6`; 160+24+160 does not fit 320                                                                                                                                                                                                                                                           | `flex-wrap justify-center` on the demo row. At the docs' own width both panels still sit side by side                                                                           |
+| `iconText`, `iconTextSides`        | control 0, 206.00×21.00                                                                  | `IconText`'s row becomes a Tooltip trigger (and a `role="button"` disclosure on touch) when the label clips, but nothing brought the 21px `text-base` line box to 24px. `TruncatedText` uses `min-h-(--size-xs)` because its focusable element IS the `overflow-hidden` truncating box; `IconText`'s row is not, so a pseudo-element works                | `relative before:absolute before:inset-x-0 before:-inset-y-1` on the row, applied exactly when the row is a tab stop → 206.00×29.00. Same shape `RelativeTime` already uses     |
+| `markerLinkButton`                 | controls 0 and 1, 270.00×21.00                                                           | a `Marker` rendered as `<a>`/`<button>` IS the control, and the row is a 21px line box                                                                                                                                                                                                                                                                    | `[&:is(a,button)]:before:…-inset-y-1` on the `default` and `border` variants (not the base: `separator` spends both pseudo-elements on its divider lines) → 270.00×29.00        |
+| `messageScrollerVisibility`        | controls 2–9, 99.00×16.00                                                                | the demo's own `VisibilityOutline` buttons are bare 16px `text-sm` line boxes on a 20px pitch. A hit area cannot reach 24px there without overlapping the neighbour's — measured: at a 24px pitch the neighbour wins the probe point                                                                                                                      | the entry itself is `min-h-(--size-xs)`, which puts the pitch at 28px and gives every target its own square                                                                     |
+| `attachmentImageThumbnail`         | control 0, visual 24.0×24.0, 5/5 probe points lost to `[data-slot="attachment-trigger"]` | the demo composed `AttachmentActions` BEFORE `AttachmentTrigger`. Both share the `z-(--z-raised)` band, so DOM order decides the pointer — and the component's own doc comment and `attachment.mdx` both say the trigger goes first. The remove button was not merely undersized, it was **unclickable**                                                  | reordered the demo. No component change: the contract was already right and already documented                                                                                  |
+| `actionBarPending`                 | control 0, visual 58.6×28.0, 5/5 points resolve to the toolbar root                      | NOT a component defect. `ActionBar` marks its action group `inert` while a bulk operation is in flight (deliberately, so the keyboard cannot re-trigger it either); an inert subtree is not hit-testable, so the first non-inert element under the pointer is the toolbar. The lane's `isDisabled` knew `:disabled` and `[aria-disabled]` but not `inert` | `isDisabled` now also skips `[inert]`. WCAG 2.2 §2.5.8 sizes targets that "accept a pointer action"; an inert control accepts none, for the same reason a disabled one does not |
+| `tabsChip`                         | control 3, 237.97×21.00                                                                  | NOT a chip tab — control 3 is the `role="tabpanel"`, which matches the probe only through the `tabindex="0"` Base UI gives it for the APG reason (a panel with no focusable content must stay keyboard-reachable). It accepts no pointer action; its height was just the height of "Record overview panel."                                               | the target probe skips `role="tabpanel"`. Scoped to that role alone — a `role="separator"` resize handle is focusable AND a drag target and must keep being measured            |
+
+### Open — needs MK
+
+- **`resizableNested`** — control 0, the outer vertical handle, visual 1.0×254.0 (its 24px `after`
+  hit area passes the size floor), **3 of 5 points** lost to the inner horizontal handle. At a
+  nested T-junction two perpendicular 24px drag targets cross, and the inner handle is deeper in
+  the DOM so it wins the pointer. This is not tunable: whichever handle owns the 24×24 square where
+  they meet, the other one loses it. Options: (a) the outer handle wins by narrowing a nested
+  handle's hit area near its ends; (b) accept the overlap and document it; (c) offset nested groups
+  so handles never meet. All three change how the control behaves under the pointer.
+- **`timeline`** — control 2, the LAST item's `RelativeTime`, visual 60.7×21.0, **1 of 5 points**.
+  Its `-inset-y-1` hit area reaches 4px below the row, but `timeline-content` drops its bottom
+  padding on the last item (`group-last/timeline-item:pb-0`) so the overhang escapes every ancestor
+  box, and Chromium stops hit-testing it there — the effective target is clipped to the row's own
+  **23px**. Proved by scripted probe on 2026-09-09: adding 8px of padding to the last `<li>`
+  restores ownership of the identical point, while adding it to the `<ol>` or to the wrapper does
+  not. Nothing obstructs anything; the recorded "the separator marker owns the centre" was wrong.
+  Options: (a) `group-last/timeline-item:pb-1` — 4px of trailing whitespace under the last row;
+  (b) a ≥24px timeline row. Both are visible, so neither is an agent's call.
+
+### Evidence
+
+- `geometry.browser.test.tsx`: **554 passed (554)**.
+- Non-vacuity re-proved on the same tree, not asserted: deleting
+  `:focus-visible { @apply outline-2 outline-offset-1 outline-ring }` from
+  `packages/design-tokens/src/base.css` and rebuilding the token package turns **263 of 554** red,
+  each naming `outline-style: auto`; restoring it returns 554/554.
+- Registry counts unmoved: 596 = 116 components · 467 animated icons · 10 hooks · 1 block · 2 libs.
+
+---
+
 ## 2026-09-09 — The geometry lane compiled no `@utility` at all, so custom utilities measured as nothing
 
 - **Symptom.** M2 replaced `MessageScrollerButton`'s inline
@@ -88,6 +143,11 @@ Every bug found + root cause + fix. Append-only.
 - **Ownership:** component work for the audit epic #31's end round, routed per owning batch; the
   rebuild did not touch component sources. Fix at the component (invisible ≥24px hit area or a real
   24px control), then delete the map entry — the expect-failure guard forces that order.
+- **Resolved 2026-09-09** — see "The last 11 geometry-lane defects" at the head of this file. All
+  15 were re-measured after M2 fixed the lane's own stylesheet; 13 are closed and 2
+  (`resizableNested`, `timeline`) are open for MK. Two of the measurements above are WRONG and
+  corrected there: `timeline` is control **2** at **60.7×21.0** (not control 0 at 63.4×16.0) and
+  nothing obstructs it, and `tabsChip`'s "chip tab" is the `role="tabpanel"`, not a tab.
 
 ## 2026-09-09 — `docs-shell.spec.ts` asserted two properties the built site does not have, and no gate ever ran it
 

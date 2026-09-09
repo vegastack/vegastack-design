@@ -146,7 +146,10 @@ export function scrollFadeHorizontal(): ReactNode {
 export function scrollFadeEdge(): ReactNode {
   return (
     <Wrapper>
-      <div className="flex gap-6">
+      {/* `flex-wrap`: two 160px panels plus the gap exceed a 320px viewport, so the pair
+          stacks rather than forcing the page to scroll sideways (WCAG 2.2 §1.4.10). At the
+          docs' own width both still sit side by side, unchanged. */}
+      <div className="flex flex-wrap justify-center gap-6">
         {(["scroll-fade-t", "scroll-fade-b"] as const).map((edge) => (
           <div key={edge} className="flex flex-col items-center gap-2">
             <span className="font-mono text-sm text-muted-foreground">
@@ -176,7 +179,8 @@ export function scrollFadeEdge(): ReactNode {
 export function scrollFadeSize(): ReactNode {
   return (
     <Wrapper>
-      <div className="flex gap-6">
+      {/* `flex-wrap` for the same reason as `scrollFadeEdge` — see the note there. */}
+      <div className="flex flex-wrap justify-center gap-6">
         {(["scroll-fade-4", "scroll-fade-24"] as const).map((size) => (
           <div key={size} className="flex flex-col items-center gap-2">
             <span className="font-mono text-sm text-muted-foreground">
