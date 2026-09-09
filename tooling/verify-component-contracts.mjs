@@ -286,7 +286,7 @@ function dataAttributesProblem(record, expected) {
  *
  * The reconciliation's own green run only shows that the contract currently matches the source.
  * It says nothing about whether a mismatch would be CAUGHT, and a gate never observed failing is
- * an assumption (AGENTS.md § Verification ladder). So this drifts a real component record in
+ * an assumption (AGENTS.md § Verification). So this drifts a real component record in
  * memory — four ways, each a distinct shape of rot — and requires every one to be rejected, then
  * requires the pristine record to pass.
  *

@@ -28,7 +28,7 @@ packages/
   ui/              PRIVATE registry workspace — canonical component sources + registry.json
 apps/docs/         Fumadocs showcase + guides + the registry host (public/r)
 tooling/           verify.mjs (the one command) · registry hashing/verification · design-lint · lints
-.husky/            pre-commit · commit-msg — cheap static signal only; no browser, no pre-push
+.husky/            pre-commit · commit-msg — a cheap static signal only; no hook runs a browser
 skills/internal/   maintainer skills — component · review · ship
 skills/public/     consumer skills — shipped inside @vegastack/design (see skills/README.md)
 .github/workflows/ ci · release (npm OIDC) · deploy
@@ -50,9 +50,10 @@ Components exist in three synced places; **edit ONLY the canonical source**
 pnpm run registry:build   # regenerates docs copy-in + item JSON, re-stamps integrity
 ```
 
-Never hand-edit `apps/docs/components/ui/*` or `apps/docs/public/r/*`. Same discipline for
-the changelog: edit `/CHANGELOG.md`, run `node tooling/sync-changelog.mjs` — the docs page
-is generated (CI fails on drift).
+Never hand-edit `apps/docs/components/ui/*` or `apps/docs/public/r/*`. Same discipline for the
+changelog, one step further back: a PR writes a **changeset**, `pnpm run version-packages` assembles
+the `/CHANGELOG.md` entry from the pending changesets at version time, and `sync-changelog.mjs`
+regenerates the docs page (CI fails on drift). Nobody hand-edits `/CHANGELOG.md` between releases.
 
 ## Everyday commands
 
@@ -73,8 +74,8 @@ green check mean the same thing. The pre-commit hook (design-lint + prettier on 
 ## Releasing
 
 Use the **ship skill** (`skills/internal/ship/SKILL.md` — auto-discovered by Claude Code and Codex):
-preflight → changesets → changelog entry → Version PR → **npm OIDC publish** (tokenless,
-2FA intact) → registry deploy → Access verification.
+preflight → changesets → Version PR (which assembles the changelog entry) → **npm OIDC publish**
+(tokenless, 2FA intact) → registry deploy → Access verification.
 
 **Shipping is always MK's decision** — agents prepare and stop for an explicit
 "yes proceed" per outward step. Full reference: [docs/RELEASING.md](docs/RELEASING.md).
@@ -93,13 +94,13 @@ claim.
 runners run it inside the pinned Playwright container (`mcr.microsoft.com/playwright:v1.61.0-noble`)
 on every pull request, on the release push, and before every deploy. The mac minis run the static
 half in parallel for the cross-platform signal. Nothing is bound to a tree hash and nothing is
-attested: the receipt system existed only because no free runner could launch a browser, and that
-stopped being true on 2026-09-07.
+attested; the attestation system that used to stand in for a browser was removed on 2026-09-08, once
+free runners could launch one.
 
 No lane in this repository takes a screenshot. The blocking visual-surface gate is
 `packages/ui/test/geometry.browser.test.tsx`, which measures reflow, RTL containment, and effective
 pointer-target size against the real compiled token CSS — so it cannot be cleared by regenerating its
-own evidence. See AGENTS.md § Verification ladder.
+own evidence. See AGENTS.md § Verification — three loops.
 
 Counts are generated from `packages/ui/component-contracts.json` — see AGENTS.md § Numbers rather
 than trusting a number written down here.

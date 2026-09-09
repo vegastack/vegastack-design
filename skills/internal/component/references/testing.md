@@ -91,8 +91,8 @@ pnpm --filter @vegastack/ui test:all-browsers # complete suite in all three engi
 
 There is **no smoke subset any more**. The risk-selected WebKit/Firefox lane
 (`vitest.smoke.config.ts`, `test:smoke`, and the `coverage.crossBrowserSmoke` selection that
-generated its file list) was deleted with the attestation stack: it existed to keep a pre-push hook
-cheap, and there is no pre-push hook. `pnpm verify` runs the complete suite in Chromium on every
-push and pull request; `pnpm verify:release` runs the complete suite in all three engines before a
+generated its file list) was removed on 2026-09-08 with the attestation stack: it existed to keep a
+local pre-commit-time hook cheap, and no hook runs a browser now. `pnpm verify` runs the complete
+suite in Chromium on every push and pull request; `pnpm verify:release` runs the complete suite in all three engines before a
 deploy. Nothing to opt a new component into — the release run already covers everything the subset
 sampled.

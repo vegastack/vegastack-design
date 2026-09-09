@@ -6,7 +6,7 @@ others: exercise the whole chain in one pass before starting.** `pnpm verify:rel
 does that; it simulates a version bump in a throwaway worktree and asserts every link. It would have
 found five of these at once.
 
-Nothing here is theoretical. Each has a run id.
+Nothing here is theoretical: each was observed on a real release run.
 
 ---
 
@@ -18,7 +18,7 @@ Proven end to end on 2026-07-26. Follow it in this order.
    before touching a branch.
 2. `pnpm verify`, then `pnpm verify:release`. CI runs both itself — `deploy.yml` runs them on the
    Linux runners before anything outward happens — so this is about finding a failure in minutes
-   rather than on a dispatched workflow. There is no receipt and no sweep to preserve.
+   rather than on a dispatched workflow. Nothing is carried forward — CI executes the same commands.
 3. Commit and push. Read the CI result; do not treat the local run as standing in for it.
 4. Merge the change PR → `version-pr` opens the Version PR.
 5. Merge the Version PR → `publish` → npm.
@@ -57,7 +57,7 @@ about the next minor.
 - **Why it hid:** 0.1.0 → 0.1.1 still satisfied `^0.1.0`. The first minor bump broke it.
 - **Blast radius if shipped:** every `shadcn add @vegastack/<component>` installs the PREVIOUS runtime
   beneath components built against the new tokens. **npm versions are immutable** — unrecoverable.
-- **Now:** `version-sync` rewrites the ranges in both authorities. Run 30172679327.
+- **Now:** `version-sync` rewrites the ranges in both authorities.
 
 ## 2. The two authorities must move together
 
@@ -67,28 +67,15 @@ about the next minor.
 - **Knock-on:** changing the contract JSON moves its SHA-256, so `version-sync` runs
   **`pnpm design:derived` inside the production command** and its output is part of the same commit.
 
-## 3. A pure version bump must require no gate — HISTORICAL
+## 3-4. Version-bump gate exemptions — REMOVED 2026-09-08
 
-_The mechanism below is gone: there is no receipt, no `receipt-guard`, and no per-lane requirement.
-CI runs `pnpm verify` against every commit including a Version PR's. Kept for the reasoning._
-
-- **Symptom:** `receipt-guard` demands the `unit` lane; the carried receipt records it skipped.
-- **Cause:** `packages/ui/package.json` matches the unit-lane surface, so a version bump looked like a
-  package change. The publish path could never open.
-- **Then:** `classify-change` short-circuited on `versionBumpOnly`. Run 30172679327. Both the
-  classifier and the receipt it fed are now deleted; CI simply runs every lane on every commit.
-
-## 4. The receipt cannot cross a version bump on its own — HISTORICAL
-
-_Same: `gate-receipt-carry` and the guard it fed are both deleted. Kept because it is the clearest
-statement of why binding evidence to a tree hash was fragile in the first place._
-
-- **Symptom:** `receipt-guard` rejects the Version PR; no publish is reachable.
-- **Cause:** `changeset version` + `version-sync` move the tree hash — versions, package CHANGELOGs,
-  consumed changesets, and a re-stamped provenance header in 1082 files. Measured: 77a346c0 → 1b5796df.
-- **Unfixable by re-running gates:** that branch is bot-authored and browsers cannot run in CI.
-- **Then:** `gate-receipt-carry` carried it and the guard re-derived the proof. Both are deleted:
-  `pnpm run version-packages` is `changeset version && version-sync` and nothing else.
+Two entries lived here: a pure version bump had to be exempted from the per-lane requirement, and the
+attested evidence file had to be carried across `changeset version` because that command moves the
+tree hash (versions, package CHANGELOGs, consumed changesets, and a re-stamped provenance header in
+1082 files) while changing nothing a browser gate can observe. Both mechanisms were deleted on
+2026-09-08; CI runs every lane on every commit, the Version PR included. The reasoning is preserved in
+`docs/ledger/operator-review.md`, 2026-09-09 — it is the clearest statement of why binding evidence to
+a tree hash was fragile.
 
 ## 5. Never anchor a cross-machine proof to a tree hash
 
@@ -96,7 +83,7 @@ statement of why binding evidence to a tree hash was fragile in the first place.
 - **Cause:** `workingTreeContentHash()` builds its tree through a throwaway index, so the object is
   **dangling** — never reachable from a ref, therefore never pushed, therefore absent everywhere else.
 - **Rule:** a tree hash is fine for "does this describe the same content" (both sides recompute it).
-  It is useless as a **diff endpoint**. Anchor those to commits. Run 30168750521.
+  It is useless as a **diff endpoint**. Anchor those to commits.
 
 ## 6. version-sync must not reformat what it rewrites
 
@@ -145,7 +132,7 @@ statement of why binding evidence to a tree hash was fragile in the first place.
 ## 10. `pnpm lint` ≠ `turbo run lint`
 
 The umbrella adds `design:verify`, the security gates, secret-scan, and every negative fixture.
-`gates push` runs the umbrella for exactly this reason — a green `turbo run lint` proves less than it
+`pnpm verify` runs the umbrella for exactly this reason — a green `turbo run lint` proves less than it
 appears to.
 
 ## 11. Reaping a server: kill the group, and filter the port
@@ -173,19 +160,17 @@ painted`). 1251/1255 passed.
 
 ## 11c. Never edit files while a verification run is in flight
 
-The reason has changed but the rule has not. A receipt used to hash the working tree when the run
-FINISHED, so a mid-run edit attested a tree the gates never executed against. There is no receipt
-now — but a mid-run edit still means the result on your screen describes a tree that no longer
+The reason has changed but the rule has not. Evidence used to be hashed from the working tree when a
+run FINISHED, so a mid-run edit attested a tree the gates never executed against; that mechanism was
+removed on 2026-09-08, but a mid-run edit still means the result on your screen describes a tree that no longer
 exists, and vitest's watch-free `run` mode will happily have transformed half of each. Write first,
 then verify.
 
-## 12. Receipt ordering — RESOLVED, the receipt is gone
+## 12. Commit ordering — RESOLVED 2026-09-08
 
-Historical. `pnpm gates:push` had to run BEFORE committing, and `.gates/receipt.json` had to be
-committed together with the code, or HEAD carried a receipt for the previous tree and every
-workflow's `receipt-guard` rejected the push. The receipt, the guard, and `.gates/` were all deleted
-by `docs/plans/2026-09-08-verification-rebuild.md`; CI re-runs `pnpm verify` against the pushed
-commit instead. Nothing about commit ordering matters any more.
+Verification used to have to run BEFORE committing, and its evidence file had to be committed with
+the code, or every workflow rejected the push. That whole mechanism was removed on 2026-09-08: CI
+re-runs `pnpm verify` against the pushed commit, so nothing about commit ordering matters any more.
 
 ## 13. `continue-on-error` steps report `conclusion: success`
 
@@ -207,23 +192,24 @@ Two false diagnoses in one session came from a stale `origin/main`. Any classifi
 > result or a cutover phase as a current deploy expectation.
 
 - npm: `@vegastack/design@0.2.0`, `@vegastack/design-tokens@0.2.0` (from 0.1.1 / 0.1.0).
-- `deploy-curated`: `Verified OK` (cosign, before deploying) then `Uploaded 1477 of 1477 assets`.
+- `build-sign-deploy` (then three jobs, `sign-curated` → `deploy-curated`; folded into one on
+  2026-09-05): `Verified OK` (cosign, before deploying) then `Uploaded 1477 of 1477 assets`.
 - `verify-protected-boundary` against `https://design.vegastack.com`: `/` and `/docs/*` return **302**
   to Cloudflare Access, and every `/r/*` path rejects anonymous while accepting the service token.
   **302 is the correct pre-cutover state, not a failure** — the public-docs cutover is separate.
 - Independently confirmed by hand: `/` → 302 to `peerxp.cloudflareaccess.com`, `/r/registry.json` → 403.
 - Billed minutes for the publish run: **0** — every job runs on the self-hosted mac minis, including
-  `publish`, `sign-curated`, `deploy-curated` and the boundary probe. No job is GitHub-hosted.
+  `publish`, `build-sign-deploy` and the boundary probe. No job is GitHub-hosted.
 
 ## 15. A successful upload can still end in a failed deployment workflow
 
-Run `30309811715` uploaded the signed production artifact successfully, then failed only in the
+One deploy run uploaded the signed production artifact successfully, then failed only in the
 final boundary probe because the repository still expected `/internal/*` to be SSO-only after the
 operator had intentionally made the whole non-registry site public. The recovery is to align the
 verifier with the approved boundary, not to roll Cloudflare back: remove the obsolete cutover phase,
 assert public/noindex/no-store on every exported internal derivative, keep anonymous `/r/*`
 fail-closed, and validate a representative registry item's exact workspace version, hash, and signed
-manifest entry. Treat `deploy-curated` success and final workflow success as separate evidence.
+manifest entry. Treat `build-sign-deploy` success and final workflow success as separate evidence.
 
 Two recovery-specific follow-ons:
 
@@ -241,8 +227,8 @@ correctly leaves `publish=false` and cannot re-publish by accident.
 
 ## The one thing still open
 
-**The forced-colors focus assertion cannot fail.** Chromium paints its own ≥2px ring in that mode and
-forced-colors repaints borders, so both branches of `hasOutline || hasTextEntryTint` are always true —
-deleting the design system's focus ring leaves all 768 checks green. Pre-existing, reproduced against
-the spec before the 2026-07-25 rewrite. Fixing it changes what 192 checks assert, so it is scoped
-separately. **Until then it is not coverage.** Evidence: `docs/ledger/bugs.md`, 2026-07-25.
+Nothing from the verification rebuild is outstanding. The forced-colors focus assertion that used to
+be listed here as un-failable was not ported into the geometry lane on 2026-09-08 — it was dropped,
+because it could not fail (Chromium paints its own ring in that mode). Manual forced-colors focus
+review is now a judgment step, not a gate: `skills/internal/review/references/lint-rules.md` says
+where and how. Evidence: `docs/ledger/bugs.md`, 2026-07-25.

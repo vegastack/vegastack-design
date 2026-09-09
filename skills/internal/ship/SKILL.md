@@ -20,7 +20,8 @@ self-hosted runners (provenance disabled; no `NPM_TOKEN`).
 pnpm release:preflight        # = `pnpm verify:release`; the same command deploy.yml runs
 ```
 
-It runs both docs-visibility matrices, the link check, the registry build and its idempotency
+It runs both docs-visibility matrices with their metadata contracts, the link check, the docs-shell
+contracts over the public export and their `--self-test`, the registry build and its idempotency
 assertion, a full `shadcn` consume round-trip, and the complete unit suite in all three engines. A
 release is a chain, and a defect anywhere fails all of it.
 
@@ -42,20 +43,17 @@ include those outputs with the component change before rerunning preflight; neve
 pnpm design:derived
 git status --porcelain          # must be empty — see below if it is not
 pnpm verify                     # typecheck · lint · design:verify · browser suite · design CLI tests. ~2.5min.
-pnpm verify:release             # BOTH docs matrices · links · registry · consume · 3 engines. ~7min.
+pnpm verify:release             # BOTH docs matrices · links · docs shell · registry · consume · 3 engines. ~7min.
 node tooling/changelog-lint.mjs
 ```
 
 **CI executes both of these itself.** `deploy.yml` runs `pnpm verify && pnpm verify:release` on the
 LAN Linux runners in the pinned Playwright container before `build-sign-deploy` starts, so a deploy
 cannot happen without them. Running them here is about finding a failure in two minutes instead of
-twelve on a dispatched workflow — it is not the evidence, and there is no receipt to commit.
-
-That is the change from the previous topology: `pnpm gates:ship` used to be the release's ONLY
-evidence, because no CI runner could launch a browser, and its `.gates/receipt.json` had to be
-committed with the release and had to describe exactly the pushed tree. Both the sweep command and
-the receipt are gone (`docs/plans/2026-09-08-verification-rebuild.md`, R1). Failures are ordinary
-command output now — the `review` skill covers how to classify one at its root.
+twelve on a dispatched workflow — it is not the evidence, and there is nothing to commit alongside
+the release. The local full-sweep command and the attested evidence file it wrote were removed on
+2026-09-08 (`docs/plans/2026-09-08-verification-rebuild.md`, R1); a failure is now ordinary command
+output, and the `review` skill covers how to classify one at its root.
 
 **If `git status` is not empty:** that is the signal, not an obstacle. Either the regenerated
 surfaces above changed (commit them with the work that caused them) or there is unrelated
@@ -87,11 +85,10 @@ have shipped.
   changes how a component behaves in a way `design.md` describes in prose, `design.md` is part of the
   release. So is the matching consumer-facing foundations page under
   `apps/docs/content/docs/foundations/`.
-- **A verification result that describes a different tree.** This used to be enforced by binding a
-  receipt to a tree hash. It no longer is — and it no longer needs to be, because CI re-runs
-  `pnpm verify` against the pushed commit itself. What is still on you is the ordering: run the
-  checks, then commit, then push, and read the CI result rather than assuming your local run stands
-  in for it.
+- **A verification result that describes a different tree.** Nothing binds your local run to what you
+  push, and nothing needs to, because CI re-runs `pnpm verify` against the pushed commit itself. What
+  is still on you is the ordering: run the checks, then commit, then push, and read the CI result
+  rather than assuming your local run stands in for it.
 
 ## 1b. Visual review
 
@@ -187,15 +184,12 @@ yet is the failure mode above, and reconciling one back into changesets is a day
 
 ## 4. Version PR → publish
 
-**The Version PR no longer needs a receipt carried forward.** `pnpm run version-packages` is
+**The Version PR is just a version bump now.** `pnpm run version-packages` is
 `changelog-assemble && changeset version && version-sync && sync-changelog` — assemble the release
-entry, bump, re-stamp the registry, regenerate the docs Changelog page — and that is all it is. It used to end with
-`tooling/gate-receipt-carry.mjs`, because a receipt was bound to a tree hash and `changeset version`
-moves that hash — versions, package CHANGELOGs, consumed changesets, and a re-stamped provenance
-header across ~1082 files — while changing nothing a browser gate can observe. Without a carry every
-Version PR failed `receipt-guard` and no publish was reachable at all. CI now re-runs `pnpm verify`
-against the Version PR's own commit, so the whole mechanism (`receipt-guard`, the carry, and the
-`versionBumpOnly` proof it rested on) is deleted rather than replaced.
+entry, bump, re-stamp the registry, regenerate the docs Changelog page — and that is all it is. The
+carry step it used to end with, and the guard job that made the carry necessary, were removed on
+2026-09-08: CI simply re-runs `pnpm verify` against the Version PR's own commit, which a bot-authored
+branch can pass like any other.
 
 Changes reach `main` through a **reviewed PR**, not a direct push (`docs/RELEASING.md` step 4 is
 canonical). MK approval is required before the change PR is merged. GitHub Team cannot provide

@@ -1,7 +1,7 @@
 // The changeset → CHANGELOG section contract, proved on fixtures.
 //
 // The gate is only worth having if it FAILS on the four shapes below; a linter that has never
-// been observed rejecting anything is an assumption (AGENTS.md § Verification ladder).
+// been observed rejecting anything is an assumption (AGENTS.md § Verification).
 import { describe, expect, test } from "vitest";
 import {
   resolveSection,

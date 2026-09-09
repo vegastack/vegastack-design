@@ -1,5 +1,10 @@
 # Releasing — shipping component & package updates
 
+**This file is the reference; `skills/internal/ship/SKILL.md` is the procedure.** The ship skill owns
+the ordered steps an agent or a maintainer follows, and defers to this file for what the topology
+actually is — where jobs run, how publishing authenticates, what the changelog system is, and what a
+consumer does downstream. When the two disagree, the enforcing script wins over both.
+
 How VegaStack ships updates from this **private** GitHub repo, and how downstream pulls them. Two
 distribution channels, both already wired:
 
@@ -41,9 +46,8 @@ distribution channels, both already wired:
    `@vegastack/ui`'s generated `CHANGELOG.md`. `tooling/changeset-lint.mjs` (in `pnpm lint`)
    rejects a body with no marker, two markers, or no text. **The changeset is the only changelog
    artefact a PR writes; `/CHANGELOG.md` is not hand-edited between releases.**
-4. PR → review → merge to `main`. `release.yml` runs the full unprivileged gate (typecheck, lint,
-   test, all-browser smoke, build, `registry:build` idempotency, `registry:verify-consume`), plus
-   the 864-check component contract suite when the visual surface changed. A
+4. PR → review → merge to `main`. `release.yml`'s unprivileged `quality-gate` runs `pnpm verify` —
+   the same command a developer runs — on the LAN Linux runners in the pinned Playwright container. A
    changeset-bearing run then uses its version job to update the **Version Packages** PR.
    Review its package versions, generated changelogs, the assembled root `CHANGELOG.md` entry and
    the regenerated docs Changelog page, registry item versions, and regenerated `/r/*`; merging that PR is the separate human action that authorizes the next main run's isolated
@@ -80,11 +84,9 @@ the docs-shell contracts over that export plus their self-test, registry build a
 shadcn consume round-trip, and the complete suite in all three engines) before `build-sign-deploy`
 starts.
 
-Until 2026-09-08 none of that ran in CI: no free runner could launch a browser, so those lanes ran in
-`.husky/pre-push` and a local full-sweep command on a developer machine and were **attested** by
-`.gates/receipt.json`, which a `receipt-guard` job in each workflow verified against the pushed tree.
-The LAN Debian boxes can launch all three engines, so the receipt, the guard, the `pre-push` hook, and
-`.gates/` were all deleted (`docs/plans/2026-09-08-verification-rebuild.md`).
+None of that ran in CI before 2026-09-08, when the browser lanes were attested rather than executed;
+that whole mechanism was removed by `docs/plans/2026-09-08-verification-rebuild.md`, and the history
+is in `docs/ledger/operator-review.md`, 2026-09-09.
 
 **Every job runs on self-hosted hardware** — the mac minis
 (`runs-on: [self-hosted, vsk-runners-mac-mini]`) for everything that needs a credential rather than a
@@ -103,11 +105,13 @@ that existed:
   separate `package-build` job that handed the dist over as an artifact was removed: with token-free
   OIDC there is no credential to isolate from the build, and Actions artifact storage is unavailable
   under the billing lock, so cross-job artifacts fail.)
-- **`deploy.yml` `sign-curated`** — keeps GitHub OIDC (Sigstore keyless signing). GitHub OIDC is
-  minted by the Actions control plane and works on self-hosted runners, and the signer certificate
-  identity is the workflow ref (`deploy.yml@refs/heads/main`), not the runner, so `cosign verify-blob`
-  is unaffected.
-- **`deploy.yml` `deploy-curated`** — credential-only Cloudflare deploy; nothing is runner-specific.
+- **`deploy.yml` `build-sign-deploy`** — one job that builds the export, signs the curated
+  manifest (Sigstore keyless, GitHub OIDC), re-verifies it, and deploys with the Cloudflare credential.
+  GitHub OIDC is minted by the Actions control plane and works on self-hosted runners, and the signer
+  certificate identity is the workflow ref (`deploy.yml@refs/heads/main`), not the runner, so
+  `cosign verify-blob` is unaffected. The three-job split (`build-curated` → `sign-curated` →
+  `deploy-curated`) was folded into this one job on 2026-09-05 because Actions artifact storage is
+  unavailable under the billing lock; restore the split once it is.
 - **`deploy.yml` `verify-public-boundary`** — asserts every non-registry route is anonymously
   reachable and anonymous `/r/*` requests are rejected. Its proof depends on originating **outside**
   the trusted network, so the minis must **not** be enrolled in Cloudflare Access device posture /
@@ -115,21 +119,19 @@ that existed:
   and the probe (`apps/docs/scripts/probe-deployment.mjs`, `expectProtected`) would fail the deploy
   loudly, not pass falsely.
 
-Job containers are banned outright. They are Linux-only and cannot start on the minis, and the one job
-that legitimately needed one — the three-engine suite in the digest-pinned Playwright image, because
-bare `ubuntu-latest` WebKit could not settle the compiled-CSS Toaster contrast check — no longer runs
-in CI. That suite takes 1m39s locally.
+Job containers are **required** on the Linux runners and impossible on the minis. A container is
+Linux-only and cannot start on macOS at all; on the Linux boxes the pinned
+`mcr.microsoft.com/playwright` image (tag derived from `pnpm-lock.yaml`) is what makes a box
+interchangeable, so `tooling/verify-workflow-security.mjs` requires it there and rejects it
+everywhere else, with the negative harness proving both halves by mutation. The minis still cannot
+launch a browser, which under this topology blocks nothing; fixing it — reinstalling their Actions
+runner as a LaunchAgent inside a logged-in session — is optional, and worth doing only if you later
+want a second machine independently re-running the browser lanes.
 
-The minis still cannot launch Chromium (no per-user Mach bootstrap namespace; `bootstrap_look_up
-org.chromium.Chromium.MachPortRendezvousServer.1: Unknown service name (1102)` and SIGTRAP,
-reconfirmed in run `30150905149`). Under this topology that blocks nothing. Fixing it — reinstall the
-Actions runner as a LaunchAgent inside a logged-in session — is optional, and worth doing only if you
-later want a second machine independently re-running the browser lanes.
-
-**Screenshots are not part of anything.** The pixel-capture lane was deleted with the rest of the
-attestation stack; the blocking visual-surface gate is the geometry contract suite inside
-`pnpm verify`, which takes no screenshots. Rationale and evidence:
-`docs/ledger/operator-review.md`, 2026-07-25.
+**Screenshots are not part of anything.** The pixel-capture lane was removed on 2026-09-08 with the
+rest of the attestation stack; the blocking visual-surface gate is
+`packages/ui/test/geometry.browser.test.tsx` inside `pnpm verify`, which takes no screenshots.
+Rationale and evidence: `docs/ledger/operator-review.md`, 2026-07-25 and 2026-09-09.
 
 ### The changelog
 
