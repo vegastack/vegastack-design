@@ -1,4 +1,4 @@
-// @vegastack stepper@0.6.0 sha256-bJ1A/GDKMXOZRR5oIlSL7e5UClOzzuTsuza1BPK51YQ=
+// @vegastack stepper@0.6.0 sha256-o600IEYNc/SvJj7xUbUMBjEPpPd85F6vyFQYQS03oeg=
 
 "use client";
 
@@ -207,10 +207,7 @@ export function Stepper({
         const labelContent = (
           <>
             <span className="min-w-0 truncate">{step.label}</span>
-            {/* Leading comma: the state text is a sibling of the label with no whitespace text
-                node between them, so a navigable step's accessible name would otherwise
-                concatenate flush ("Map columnsCompleted" — issue 103). */}
-            <span className="sr-only">, {STATE_TEXT[step.state]}</span>
+            <span className="sr-only">{STATE_TEXT[step.state]}</span>
           </>
         );
 

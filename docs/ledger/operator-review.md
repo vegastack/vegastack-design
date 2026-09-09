@@ -2530,3 +2530,39 @@ append-only ledger is for, and they were left alone.
   pre-empted here.
 - **Board Needs-MK #11** (the hover-literal wording) is answered by the reconciliation above, but
   the answer is wider than the wording MK agreed to. Confirm the wider form.
+
+## 2026-09-09 — #103/#109 withdrawn, and one uncovered decision taken
+
+**The decision recorded above on this date is void.** It chose between three ways to separate the
+parts of a composite name; the correct answer was that they were already separated. Accname step 2F
+spaces any child whose computed `display` is not `inline`, a flex container blockifies its children,
+and all nine call sites are flex — so the "flush" names it was reasoning about only exist in a realm
+that loads no CSS, which is what the unit suite is. `docs/ledger/bugs.md` (same date) carries the
+per-site measurements. The separators are reverted; nothing was kept.
+
+**Uncovered decision D-N1 — where accessible-name assertions live.** The audit decisions cover
+neither this defect class nor its verification. Two options were open: make the unit suite import
+compiled CSS, or move name assertions into a lane that already does. The second was chosen, as
+`packages/ui/test/accessible-name.browser.test.tsx`. Making the unit suite load CSS would change the
+rendering conditions of every one of the ~110 existing test files — several of which deliberately
+inject a minimal style mirror precisely because they run unstyled (`data-grid.test.tsx`'s
+`injectGridMirror`, `data-list`'s precedent) — for a benefit only accessible-name assertions need.
+The new lane is ~1s and matches the shape `geometry.browser.test.tsx` and `contrast.browser.test.tsx`
+already established: one stylesheet, one concern, `verify-test-css-layers.mjs` keeping its layer set
+in lockstep with production.
+
+**Uncovered decision D-N2 — `app-shell.tsx` takes a client boundary.** `AppShell`'s skip link and
+`AppShellContent`'s `id` were both the literal `main-content`, so a page with two shells published
+the id twice and every skip link resolved to the first region (measured: the docs `app-shell` page
+renders four embedded previews). The fix generates the id once with `React.useId()` and shares it
+down, which needs `createContext`/`useContext` — both `undefined` under the `react-server` condition
+— so the file is now `"use client"`. It is the narrowest available boundary: the shell root is
+already a client boundary in practice because `AppShell` renders `SidebarProvider`, and a consumer's
+page content still renders on the server and arrives as `children`. `AppShellHeader` and
+`AppShellContent` becoming client components is the cost; there is no server-safe way for two
+sibling components to share a generated id. Flagged for MK in the PR.
+
+**A `mergeRefs` lint rule, because the class reopened.** Mk1 swept hand-rolled ref merges to
+`mergeRefs` from `@vegastack/design`; `table-scroll-region.tsx` then landed in T1 with a fresh one
+and nothing noticed, because the sweep was a one-time grep and not a gate. `design-lint` now owns
+the rule (`hand-rolled-ref-merge`) with a fixture in the structural negative harness.

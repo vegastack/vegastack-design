@@ -176,7 +176,7 @@
         "whenToUse": "Tool invocations in an agent/chat transcript (searched, executed, created).",
         "whenNotToUse": "Status badges (Badge) or long-running task rows (Marker + Spinner).",
         "version": "0.6.0",
-        "integrity": "sha256-63ImzkC9ZOWz8BZtscndxZ6vm4t0HgvE3uW5krPjhFI="
+        "integrity": "sha256-eOq9D/VPQVo5rFVSZNF56AHYZqqEDVgvpcJrwPAyHqg="
       }
     },
     {
@@ -577,7 +577,7 @@
         "whenToUse": "Organize related content into peer sections the user switches between in place; count badges surface pending items.",
         "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), or sections that must be visible at once.",
         "version": "0.6.0",
-        "integrity": "sha256-MEynbCYWyqHUXEf0OiF5oMzW9O1Qd/kDYqRdqYE7p9I="
+        "integrity": "sha256-XvOmHb4qspaPz6imIubTRsdVD3z+A8bECVCOplV8S9A="
       }
     },
     {
@@ -632,7 +632,7 @@
         "whenToUse": "Display a keyboard shortcut or key in menus, tooltips, command palettes, help text.",
         "whenNotToUse": "As an interactive control or to capture keystrokes — Kbd is presentational only.",
         "version": "0.6.0",
-        "integrity": "sha256-fFaI66ahgOZV3tzqROf6L1t4V9F+1TcC8uGW2MsrVS8="
+        "integrity": "sha256-ZOjYrF92aqd0+ZMbKWUB4zsmcjcV14MsXkCqdljuH50="
       }
     },
     {
@@ -1147,7 +1147,7 @@
         "whenToUse": "Building or restyling an anchored overlay, a menu-like list, or a search row inside a panel — compose this rather than restating the plumbing.",
         "whenNotToUse": "Product UI: install the overlay you actually want (Popover, DropdownMenu, Command); they already compose it.",
         "version": "0.6.0",
-        "integrity": "sha256-YzAg6iqECkwlCGp0S0DYLC5dZQ1QL5W51Xfz3e28yjg="
+        "integrity": "sha256-2U2Y3Y7txMmdMMSmWcE/qsH0JI1HKfLVjzrrVfe8GFk="
       }
     },
     {
@@ -1515,7 +1515,7 @@
         "whenToUse": "Display tabular data with header/body/footer rows — lists, comparisons, summaries.",
         "whenNotToUse": "Page layout or non-tabular content — use a grid/flex layout.",
         "version": "0.6.0",
-        "integrity": "sha256-sCbqtkxrdZrZXMXS2BSfvygVVZ0kJnxmFFgDFU0gF0c="
+        "integrity": "sha256-7fyRVbJNSYyg+69Y6ezBkgXyTItqszXI2W1B1Osq8dA="
       }
     },
     {
@@ -1940,7 +1940,7 @@
         "whenToUse": "Any bounded linear process — onboarding, wizards, checkout, import flows — where progress, a failed step, and the reason an advance is blocked must be communicated.",
         "whenNotToUse": "Free navigation between peer views (Tabs), compact progress where a step list is too heavy (ProgressIndicator segments), or unordered checklists (OnboardingChecklist).",
         "version": "0.6.0",
-        "integrity": "sha256-bJ1A/GDKMXOZRR5oIlSL7e5UClOzzuTsuza1BPK51YQ="
+        "integrity": "sha256-o600IEYNc/SvJj7xUbUMBjEPpPd85F6vyFQYQS03oeg="
       }
     },
     {
@@ -2109,7 +2109,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.6.0",
-        "integrity": "sha256-8YU6gMKJNHts86fh6l9dbwLhc9Fyi5X0d0hMp6vlWTY="
+        "integrity": "sha256-DxE3Oo7U6aux7of1ihsMfo94OJSfp4mGXOhwDlK5CzM="
       }
     },
     {
@@ -2409,7 +2409,7 @@
         "whenToUse": "Product onboarding/setup checklists that live in the chrome.",
         "whenNotToUse": "Linear multi-step forms (compose Field/Progress) or task lists (app domain).",
         "version": "0.6.0",
-        "integrity": "sha256-UBX6hd6mRnJnM9u5Keuc1eWiZnmHb8a1KnngkV3Kygg="
+        "integrity": "sha256-033ro+6sGSx+hymyj+0hFEwIB3U1izo9824mYmRRzN8="
       }
     },
     {
@@ -2562,7 +2562,7 @@
         "whenToUse": "A keyboard-first command palette or fuzzy-search picker — global ⌘K, action launchers, searchable lists.",
         "whenNotToUse": "A simple form select (Select), a small static action menu (DropdownMenu).",
         "version": "0.6.0",
-        "integrity": "sha256-xO7h31irdeb8shTw/QdSOoUm6tLwcag4Vl3rMGHZ6Oc="
+        "integrity": "sha256-usBgFHH2gHN0+lpH6cFCHYRA9R6zSDN/JqUXwVYCad8="
       }
     },
     {
@@ -2660,7 +2660,7 @@
         "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app.",
         "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
         "version": "0.6.0",
-        "integrity": "sha256-oLkmrhzc8btY6SQ7MzSR1/xJnvNi1MUc6mSk/nBUxXM="
+        "integrity": "sha256-fYPSTfJn493O/wmTjn6gbPOAAL40FF4JpM2Y/028GKs="
       }
     },
     {
@@ -2978,7 +2978,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.6.0",
-        "integrity": "sha256-mUBW6B0lYCI/lYC/hAHzP7fhq37jQjkpW4JFZ1jjwRM="
+        "integrity": "sha256-5AW8IW2+YAup+ZSsjWXwjyjM126SHiZxMgLz56NYiP4="
       }
     },
     {

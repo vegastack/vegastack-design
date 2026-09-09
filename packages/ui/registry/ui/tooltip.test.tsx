@@ -130,9 +130,7 @@ test("renders a keyboard shortcut hint through the one Kbd chip", async () => {
   // Routing through `Kbd` buys the mac glyph its spoken name: `⌘` alone is
   // announced as "place of interest sign" (or skipped), so the chip pairs it
   // with sr-only text. Visually it is still `⌘K`.
-  // The ", " between the two chips is the issue 103 separator: without it a control that took
-  // this hint into its accessible name would read "CommandK".
-  expect(kbd?.textContent).toBe("⌘Command, K");
+  expect(kbd?.textContent).toBe("⌘CommandK");
   expect(kbd?.querySelector(".sr-only")?.textContent).toBe("Command");
 });
 
@@ -146,7 +144,7 @@ test("the shortcut hint takes its platform labels from the caller, not the DOM",
   const kbd = screen.container.ownerDocument.querySelector(
     '[data-slot="tooltip-kbd"]',
   );
-  expect(kbd?.textContent).toBe("Ctrl, K");
+  expect(kbd?.textContent).toBe("CtrlK");
 });
 
 test("no a11y violations (closed)", async () => {

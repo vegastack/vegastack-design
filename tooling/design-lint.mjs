@@ -1082,6 +1082,53 @@ for (const root of tokenCssRoots) {
           }
         }
       }
+      // (i) hand-rolled ref merge. `mergeRefs` (`@vegastack/design`) is the ONE implementation of
+      // "feed this node to my own ref AND to the consumer's". Under React 19 ref-as-prop, a
+      // component that needs the node and must also forward it is the NORMAL case, so the pattern
+      // reappears constantly — it was hand-inlined in nine registry files before `mergeRefs`
+      // existed. Mk1 swept those; `table-scroll-region.tsx` then landed in T1 with a fresh copy and
+      // nothing noticed, because a one-time grep is not a gate. This is the gate.
+      //
+      // The signature is unambiguous and cannot be written by accident: the same identifier is
+      // tested with `typeof x === "function"` AND assigned through `x.current = …`. That pair is a
+      // ref fan-out and nothing else. A component that only reads `ref.current`, or only branches
+      // on some unrelated callable prop, matches neither half.
+      {
+        const callableTested = new Set();
+        const currentAssigned = new Set();
+        const nameOf = (expr) => (ts.isIdentifier(expr) ? expr.text : null);
+        const collect = (node) => {
+          if (
+            ts.isBinaryExpression(node) &&
+            node.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken &&
+            ts.isTypeOfExpression(node.left) &&
+            ts.isStringLiteral(node.right) &&
+            node.right.text === "function"
+          ) {
+            const name = nameOf(node.left.expression);
+            if (name) callableTested.add(name);
+          }
+          if (
+            ts.isBinaryExpression(node) &&
+            node.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
+            ts.isPropertyAccessExpression(node.left) &&
+            node.left.name.text === "current"
+          ) {
+            const name = nameOf(node.left.expression);
+            if (name) currentAssigned.add(name);
+          }
+          ts.forEachChild(node, collect);
+        };
+        collect(sf);
+        for (const name of callableTested) {
+          if (!currentAssigned.has(name)) continue;
+          console.log(
+            `${file}:1 [hand-rolled-ref-merge] '${name}' is fanned out by hand; use mergeRefs from @vegastack/design (wrap the call in useMemo — it is not memoized)`,
+          );
+          violations++;
+        }
+      }
+
       const rawInteractiveCounts = {
         button: 0,
         input: 0,

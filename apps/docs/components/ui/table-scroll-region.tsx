@@ -1,9 +1,9 @@
-// @vegastack table@0.6.0 sha256-sCbqtkxrdZrZXMXS2BSfvygVVZ0kJnxmFFgDFU0gF0c=
+// @vegastack table@0.6.0 sha256-7fyRVbJNSYyg+69Y6ezBkgXyTItqszXI2W1B1Osq8dA=
 
 "use client";
 
 import * as React from "react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import { useOverflow } from "@/components/ui/use-overflow";
 
 /** Props for `TableScrollRegion` — the scroll viewport that wraps a `<table>`. */
@@ -53,16 +53,12 @@ export function TableScrollRegion({
   const [node, setNode] = React.useState<HTMLDivElement | null>(null);
   const scrollable = useOverflow(node, { axis: "either" });
 
-  // The measured node and any consumer ref must be the SAME element, so the
-  // callback ref feeds both rather than the component owning one of them.
-  const setRefs = React.useCallback(
-    (element: HTMLDivElement | null) => {
-      setNode(element);
-      if (typeof ref === "function") ref(element);
-      else if (ref) ref.current = element;
-    },
-    [ref],
-  );
+  // The measured node and any consumer ref must be the SAME element, so one callback ref feeds
+  // both rather than the component owning one of them. `mergeRefs` is the ONE implementation of
+  // that fan-out (`@vegastack/design`); branching on the ref's own callable-ness here would be the
+  // tenth copy of a thing that already exists, and `design-lint`'s `hand-rolled-ref-merge` rule now
+  // rejects it. `mergeRefs` is not memoized, so the call is wrapped.
+  const setRefs = React.useMemo(() => mergeRefs(setNode, ref), [ref]);
 
   const name = label ?? ariaLabel;
 

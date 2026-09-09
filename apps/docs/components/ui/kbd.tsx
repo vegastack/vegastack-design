@@ -1,4 +1,4 @@
-// @vegastack kbd@0.6.0 sha256-fFaI66ahgOZV3tzqROf6L1t4V9F+1TcC8uGW2MsrVS8=
+// @vegastack kbd@0.6.0 sha256-ZOjYrF92aqd0+ZMbKWUB4zsmcjcV14MsXkCqdljuH50=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -168,19 +168,14 @@ export function Kbd({
         {...props}
       >
         {keys.map((key, i) => (
-          <React.Fragment key={`${key}-${i}`}>
-            {/* The chips are flex siblings spaced by `gap`, so inside anything that takes its
-                accessible name from its contents they would concatenate flush ("CommandK" —
-                issue 103). `sr-only` is out of flow: spoken, never laid out. */}
-            {i > 0 ? <span className="sr-only">, </span> : null}
-            <kbd
-              data-slot="kbd"
-              data-size={size}
-              className={cn(kbdVariants({ size }))}
-            >
-              <KeyContent token={key} isMac={isMac} />
-            </kbd>
-          </React.Fragment>
+          <kbd
+            key={`${key}-${i}`}
+            data-slot="kbd"
+            data-size={size}
+            className={cn(kbdVariants({ size }))}
+          >
+            <KeyContent token={key} isMac={isMac} />
+          </kbd>
         ))}
       </KbdGroup>
     );

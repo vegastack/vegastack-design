@@ -136,7 +136,9 @@ test("the skip link is the first focusable element in the shell", async () => {
   // WebKit follows the host platform's Full Keyboard Access preference when synthesizing Tab,
   // so a Tab key is not a portable way to prove DOM sequential-focus order. The platform-neutral
   // contract is that this native link is tabbable and precedes every other focus candidate.
-  expect(skipLink).toHaveAttribute("href", "#main-content");
+  expect(skipLink.getAttribute("href")).toBe(
+    `#${screen.container.querySelector("main")!.id}`,
+  );
   expect((skipLink as HTMLElement).tabIndex).toBe(0);
   expect(sequentialFocusCandidates[0]).toBe(skipLink);
 
@@ -144,10 +146,64 @@ test("the skip link is the first focusable element in the shell", async () => {
   expect(document.activeElement).toBe(skipLink);
 });
 
-test("activating the skip link moves focus to #main-content", async () => {
+test("activating the skip link moves focus to this shell's own content region", async () => {
   const screen = await render(<Demo />);
+  const main = screen.container.querySelector("main")!;
   await screen.getByText("Skip to content").click();
-  expect(document.activeElement?.id).toBe("main-content");
+  expect(document.activeElement).toBe(main);
+});
+
+test("two shells on one page each skip to their OWN content region", async () => {
+  // The id used to be the literal "main-content" on every AppShellContent and the literal
+  // "#main-content" on every skip link, so a page with two shells published the id twice and
+  // EVERY skip link resolved to the first one — measured on the docs app-shell page, which
+  // renders four `landmark="region"` shells. Nothing caught it: axe dropped the non-ARIA
+  // `duplicate-id` rule, and the geometry lane mounts one fixture at a time.
+  const screen = await render(
+    <>
+      <AppShell>
+        <AppShellContent landmark="region" aria-label="First">
+          First
+        </AppShellContent>
+      </AppShell>
+      <AppShell>
+        <AppShellContent landmark="region" aria-label="Second">
+          Second
+        </AppShellContent>
+      </AppShell>
+    </>,
+  );
+  const [firstShell, secondShell] = Array.from(
+    screen.container.querySelectorAll('[data-slot="app-shell"]'),
+  );
+  const regions = Array.from(
+    screen.container.querySelectorAll('[data-slot="app-shell-content"]'),
+  );
+  const ids = regions.map((region) => region.id);
+  expect(new Set(ids).size).toBe(2);
+  expect(ids.every(Boolean)).toBe(true);
+
+  for (const [index, shell] of [firstShell, secondShell].entries()) {
+    const link = shell!.querySelector<HTMLAnchorElement>(
+      '[data-slot="app-shell-skip-link"]',
+    )!;
+    expect(link.getAttribute("href")).toBe(`#${ids[index]}`);
+    link.click();
+    expect(document.activeElement).toBe(regions[index]);
+  }
+});
+
+test("an explicit contentId wins over the generated one, on both halves", async () => {
+  const screen = await render(
+    <AppShell contentId="workspace-main">
+      <AppShellContent>Content</AppShellContent>
+    </AppShell>,
+  );
+  const link = screen.container.querySelector(
+    '[data-slot="app-shell-skip-link"]',
+  )!;
+  expect(link.getAttribute("href")).toBe("#workspace-main");
+  expect(screen.container.querySelector("main")!.id).toBe("workspace-main");
 });
 
 /* ---------------------------------------------------------------------------------------------
@@ -202,10 +258,16 @@ test("header omits the actions slot entirely when no actions are passed", async 
  * Content region.
  * ------------------------------------------------------------------------------------------- */
 
-test("AppShellContent is the #main-content landmark and carries the named container-query class", async () => {
+test("AppShellContent is the shell's skip-link landmark and carries the named container-query class", async () => {
   const screen = await render(<Demo />);
   const main = screen.getByRole("main").element();
-  expect(main.id).toBe("main-content");
+  // The id is generated per shell, so it is asserted by its RELATIONSHIP to the skip link
+  // rather than by a literal — a literal is exactly what made every shell publish the same one.
+  const link = screen.container.querySelector(
+    '[data-slot="app-shell-skip-link"]',
+  )!;
+  expect(main.id).toBeTruthy();
+  expect(link.getAttribute("href")).toBe(`#${main.id}`);
   expect(main.getAttribute("tabindex")).toBe("-1");
   expect(main.className).toContain("@container/app-shell-content");
 });
