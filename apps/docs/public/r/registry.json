@@ -1817,11 +1817,7 @@
         "whenToUse": "Any numeric value — quantities, limits, percentages, money (format={{ style: 'currency', currency }}) — where parsing, locale formatting, and stepping should be correct by construction.",
         "whenNotToUse": "Free-text that merely contains digits (phone numbers, postal codes, ids) — formatting/stepping semantics would fight the value; use Input.",
         "version": "0.6.0",
-<<<<<<< HEAD
-        "integrity": "sha256-ht4xRa175a4VnayIkQh2e48xX22W1054yver9C0ck7Q="
-=======
-        "integrity": "sha256-eRM7KOZiS8NkeCW9OwCW2two9E7Bw9iGxN4fqwPg8f4="
->>>>>>> 416d91ab (fix(ui): repair four class-glue defects and the unlabelled Field Textarea)
+        "integrity": "sha256-WJGlgcqSc+coUbawQO+apI2ZRwe5J2MaKwRa7SIaFYY="
       }
     },
     {
