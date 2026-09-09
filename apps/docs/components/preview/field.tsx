@@ -128,9 +128,15 @@ export function fieldDisabled(): ReactNode {
 }
 
 /**
- * `borderless` flattens the child control regardless of its type — the override
- * map targets `input`, `textarea`, and `select-trigger` slots alike, keeping each
- * one's `:focus-visible` ring intact for inline editing.
+ * `borderless` flattens the child control regardless of its type — the override map targets
+ * `input`, `textarea`, `field-control` and `select-trigger` slots alike, and stands down on focus
+ * so each control keeps its own focus affordance for inline editing. For the text-entry slots that
+ * affordance is the BORDER TINT, not a ring: they carry `outline-hidden` precisely to suppress the
+ * global `:focus-visible` outline (AGENTS.md § Accessibility). `select-trigger` is the one child
+ * here that is a button rather than text entry, and it does keep the ring.
+ *
+ * The override also stands down while the control is invalid, so a flattened field still shows the
+ * destructive hairline at rest rather than error copy alone.
  */
 export function fieldBorderless(): ReactNode {
   return (

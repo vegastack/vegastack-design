@@ -4,122 +4,142 @@ Every bug found + root cause + fix. Append-only.
 
 ---
 
-## 2026-09-09 — Appearance probes: a dead Toast page in production, and four more
+## 2026-09-09 — Class glue: five seams, four broken controls, and a switch with no track
 
-The 2026-09-07 appearance probes (117 routes, 918 elements, both themes, three LAN Debian boxes)
-raised seven findings in this batch. Five were real defects — one of them live on
-`design.vegastack.com` — one was a probe artefact, and one no longer reproduced.
+Five places in the registry concatenated two adjacent class string literals with `+` and **no
+separating space**. JavaScript welds them into one word, so the last utility of the left literal and
+the first of the right literal are BOTH destroyed. `#107` fixed one instance (in `input.tsx`) and
+recorded that `class-whitespace` could not see it; five more were still on `main`, and
+`node tooling/design-lint.mjs packages/ui/registry` reported **clean** over all of them.
 
-### FIXED — the docs site had TWO toast managers, so no toast could ever appear
+Every measurement below was taken in Chromium against compiled token CSS, before and after.
 
-- **Symptom.** Clicking all five triggers in the `toastTypes` fixture on `/docs/components/toast`
-  produced **0** `[data-slot="toast"]` nodes over 5s, in both themes, with no console error. The
-  viewport mounted (`z-index: 60`) and stayed 0px tall. Live in production.
-- **Root cause.** `toast.tsx` calls `Toast.createToastManager()` at MODULE scope. The surface
-  exists in two modules — the canonical registry item (copied into `apps/docs/components/ui/`) and
-  its byte-for-byte package mirror re-exported by `@vegastack/ui` — so the site loaded two stores.
-  `apps/docs/components/provider.tsx` mounted the COPY-IN `<Toaster/>` inside `VegaStackProvider`,
-  whose `ToastProvider` binds the PACKAGE manager. A viewport renders whatever the nearest provider
-  is bound to; every preview's `toast()` writes to the copy-in's. The two halves talked to different
-  stores. Nothing errors on that path: the copy-in manager simply has no subscriber.
-  Under `sonner` the emitter was global and the same composition worked, so the O2 Base UI
-  migration is where it broke — and it broke silently, because no test rendered that composition
-  and no gate said the two had to match. The copy-in Toaster was therefore not being dogfooded
-  either, which is the entire point of the copy-in.
-- **Fix.** The copy-in brings its own `ToastProvider`: the docs provider now nests
-  `<ToastProvider><Toaster/></ToastProvider>` from `@/components/ui/toast` inside
-  `VegaStackProvider toaster={false}`. One live manager, both dogfoods intact — the package
-  provider still owns theme, direction and tooltips, and the registry copy-in still owns the toast
-  surface.
-- **Measured after, on the rebuilt export.** Five triggers clicked → **5** toasts, light and dark,
-  zero console errors; the first toast measures 320×58 at (936, 818), `opacity: 1`.
-- **Two gates, both observed failing on the pre-fix tree.**
-  `packages/ui/test/toast-manager-binding.browser.test.tsx` renders the docs composition and polls
-  for the toast node (pre-fix: "expected false to be true", 0 nodes), and pins the inverse — a
-  viewport bound to another module's manager shows nothing. `verify-provider-dogfood.mjs` gained
-  the structural rule: whichever module the rendered `<Toaster/>` is imported from, a
-  `<ToastProvider>` from that same module must be rendered too (pre-fix: exit 1, "renders
-  `<Toaster/>` from '@/components/ui/toast' but no `<ToastProvider>` from the same module").
+### The four controls
 
-### FIXED — Tabs' count badge stacked two washes and put muted ink under AA
+| site                    | glued into                                                                | measured before                                                                         | measured after                                                                                       |
+| ----------------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `switch.tsx:19` + `:25` | `p-0.5bg-surface-3`, `data-checked:bg-primarynot-disabled:hover:border-…` | track `background-color: rgba(0, 0, 0, 0)` and `padding: 0px` **unchecked AND checked** | off `oklch(0.922 0.003 75)` (`--surface-3`), on `oklch(0.353 0.003 75)` (`--primary`), padding `2px` |
+| `switch.tsx:64`         | `ease-standarddata-unchecked:translate-x-0`                               | thumb `transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1)` (Tailwind's default)   | `cubic-bezier(0.2, 0, 0, 1)` (`--motion-ease-standard`)                                              |
+| `otp-input.tsx:125`     | `outline-hiddencaret-foreground`                                          | focused slot `outline-style: solid`, `outline-width: 2px`                               | `outline-style: none`, border tint on focus                                                          |
+| `number-field.tsx:134`  | `text-muted-foregroundhover:text-foreground`                              | stepper `color: oklch(0.145 0.003 75)` (`--foreground`), no hover step                  | `oklch(0.439 0.003 75)` (`--muted-foreground`)                                                       |
 
-- **Symptom.** axe `color-contrast`, **serious**, on `[data-slot="tabs-trigger-count"]`, fixture
-  `tabsVariants`, lane `1280-dark-ltr`. Light passed.
-- **Root cause.** The badge paints `bg-foreground/(--alpha-hover)` over WHATEVER the trigger paints,
-  and on a `pill`/`chip` list the trigger is itself `bg-foreground/(--alpha-ink-tint)` over the
-  `surface-1` track (`selectedChipVariants`). Two washes deep on rung 1, `text-muted-foreground`
-  does not clear AA. Reproduced with compiled tokens: **3.43:1** selected and **4.05:1** unselected
-  (dark; axe's own numbers). The component's own prop doc said "the active tab brightens it" — the
-  class that did so had been lost.
-- **Gate gap, and it is the real finding.** `contrast-check.mjs` checks TOKEN pairs. Its ladder
-  composite hosts only `background`/`card`/`popover`, deliberately — the note in the file says a
-  filled control steps the opaque rungs instead. `selectedChipVariants` breaks that assumption: it
-  paints an alpha tint ON `surface-1`. The composite that shipped was outside the gate's list.
-- **Fix.** The count takes `text-foreground` (worst case **7.28:1**, dark, on a hovered selected
-  chip over the track). `contrast-check.mjs` gained the rung composite — `--alpha-hover`,
-  `--alpha-pressed`, `--alpha-ink-tint`, `--alpha-ink-tint-strong` over `surface-1/2/3`, body ink,
-  both themes (448 → **472** checks, all pass) — and `design.md` § Surfaces records the prohibition
-  the gate cannot express: **muted ink is not available on a translucent wash over a rung.**
-- **Test observed failing.** `test/contrast.browser.test.tsx` gained "Tabs count badge" for both
-  themes, rendering all three variants selected and unselected. Pre-fix the dark case failed with
-  the two ratios above; post-fix both pass.
+**The Switch is the severe one.** With `bg-surface-3` and `data-checked:bg-primary` both destroyed,
+the track had no colour in either state: on/off was conveyed only by thumb position, and the thumb is
+`bg-background` on a `background` page. The one rung that survived its own seam was
+`not-disabled:data-checked:hover:bg-primary-hover`, so a **hovered checked** switch painted — the
+control appeared under the cursor and nowhere else. It shipped that way, mirrored byte-for-byte into
+`apps/docs/components/ui/switch.tsx` and `public/r/switch.json`, so consumers had it too.
 
-### FIXED — a prerendered DatePicker threw React #418 in every non-`en-US` browser
+### Root cause of the BLINDNESS, which is the part that matters
 
-- **Symptom.** `/docs/components/date-picker` raised React #418 (`args[]=text`) in every capture
-  lane, both themes, and took 12 `probe-error` timeouts with it.
-- **Root cause.** `Intl` output that differs between the build host and the browser. Two sources:
-  the `data-day` hook was `day.date.toLocaleDateString()` — `6/25/2026` prerendered on an `en-US`
-  build host, `25/06/2026` hydrated in an `en-GB` browser, on every day cell — and the trigger
-  label's `formatDate` ran with no `locale`, which resolves to the runtime's.
-- **Fix.** `data-day` is now a stable `YYYY-MM-DD` built from the LOCAL date parts (never
-  `toISOString()`, which shifts the day across UTC). A `data-*` selector must be one string
-  everywhere; formatting for humans is `formatDate`'s job, and it was the only consumer of that
-  attribute. The docs fixtures pin `locale` on all seven pickers, since a statically exported page
-  is read from every locale on earth, and the page now carries a callout saying so.
-- **Measured after.** `en-GB`, `de-DE`, `ja-JP`, `fr-FR`, `en-AU` against the rebuilt export: zero
-  page errors and zero console errors (pre-fix, `en-GB` threw #418 on load).
+`design-lint` reads one string literal at a time. `transition-pairing` found `ease-standard` inside
+the switch thumb's literal and passed — while the element it produced carried no ease token at all.
+That is a rule reporting green over the opposite of what it asserts, and no literal-scoped rule can
+ever see it: the defect lives at the seam BETWEEN two literals, which only exists in the AST.
 
-### FIXED — NumberField's addon slot let an interactive control paint into the field's hairline
+### Fix
 
-- **Symptom.** `hover-touches-border:div[number-field]:top+bottom` plus `focus-clipped` on the
-  currency `Select` trigger in the money recipe — a 28px `sm` trigger inside a 30px inner box sits
-  1px off the rule on both edges, and the root's `overflow-hidden` clipped its focus ring.
-- **Root cause.** SP-02/SP-03 residue: the steppers were fixed with an inset chip and a negative
-  outline offset, but the addon slots — the documented seat for the money recipe's `Select` — were
-  never given the same treatment, so anything pressable dropped in there inherited the old defects.
-- **Fix.** In `number-field.tsx`, the addon slots stretch to the full inner height, inset their
-  content by 4px, and hand a `button` child the inner radius and the sanctioned
-  `focus-visible:-outline-offset-2`. Scoped to a `button` child, so a text or icon addon is
-  untouched. Fixed in the component, not at the call site: the slot is what knows it lives inside a
-  clipping, hairlined group.
-- **Measured after.** `probe-states --routes number-field`: the `select-trigger` element carries
-  **no flags** (was `hover-touches-border` + `focus-clipped`).
+1. All five seams converted to the `[…].join(" ")` form `input.tsx` already used.
+2. **`design-lint` gained a structural `class-glue` rule** over `BinaryExpression` `+`
+   concatenation in a class context: flag any `"…a" + "b…"` where the left literal does not end in
+   whitespace and the right does not begin with it. Run over the registry it named exactly the five
+   canonical seams and nothing else; over `apps/docs/components/preview` and the docs shell it
+   found nothing. Padding the seam with a space is NOT an accepted fix — `class-whitespace` rejects
+   a leading or trailing space inside a class literal, so `+`-concatenated class literals have no
+   correct form and the array is the only one.
+3. A negative specimen in `tooling/verify-design-lint-structural.mjs`, **observed failing** with the
+   rule disabled: `✗ design-lint accepted two class literals concatenated with no separating
+space …` while `design-lint` itself printed `✓ design-lint: clean` over the same specimen — the
+   fail-open, reproduced in one run.
+4. `packages/ui/test/control-paint.browser.test.tsx`, a new compiled-CSS lane that asserts the
+   RESULT rather than the shape of the source, so a future defect that destroys the same utilities
+   by a different mechanism is caught too. All seven assertions observed failing against the
+   pre-fix tree.
 
-### NOT A DEFECT — "SplitButton's primary half has no hover" was the probe measuring through an
+### Prose this falsified
 
-open menu
+`design.md` § Surfaces ("the switch off-track is the exception: `surface-3`"), § Components
+("neutral `primary` ink when on/checked, switch off-track = `surface-3`") and `switch.tsx`'s own
+JSDoc all described a control that painted nothing. The prose was right and the code was wrong, so
+the code moved; the measurements above are the proof the prose is now true.
 
-- **Reported.** 10 of 12 `split-button-primary` elements measured `hover.backgroundColor ===
-rest.backgroundColor`; the adjacent trigger half did change. Recorded as SP-04 still open.
-- **What actually happened.** `probe-states.mjs` presses the mouse to sample the `active` state and
-  never dismissed what that press opened. Every dropdown trigger opens a menu on pointer-down, and
-  the live overlay then sat on top of the NEXT element, so the pointer landed on the popup and the
-  `hover` snapshot came back equal to `rest`. The two primaries that read correctly are exactly the
-  two whose predecessor happened not to open a menu — the first element on the route, and the one
-  after the `loading` trigger, which carries `data-loading:pointer-events-none`.
-- **Verified.** With the probe dismissing overlays between elements, `split-button` reports
-  **24 probed, 0 flagged** — every variant, tone and size hovers and presses correctly. The
-  component is unchanged.
+---
 
-### NOT REPRODUCED — the docs export builds from cold
+## 2026-09-09 — `<Field label><Textarea /></Field>` produced an unlabelled textarea (axe critical)
 
-Reported as `@vegastack/design-tokens` being absent from the docs dependency graph. On
-`c68a35b2` it is a `workspace:*` dependency of `apps/docs` and
-`pnpm turbo run build --filter @vegastack/docs --dry=json` lists `@vegastack/design-tokens#build`
-among `@vegastack/docs#build`'s dependencies. A cold build (`rm -rf packages/*/dist
-apps/docs/.next apps/docs/out`) succeeded in 3m19s with no manual token build. Fixed ahead of this
-round; no change made.
+**Symptom, measured.** `Textarea` rendered a raw `<textarea>`, so Base UI's Field context wired
+nothing to it:
+
+```
+B-textarea: for=base-ui-_r_4_   ctrl={"id":null,"label":null,"ariaLabelledby":null,
+                                      "ariaDescribedby":null,"ariaInvalid":null}
+axe: [critical] label — Form elements must have labels (1 node: textarea)
+```
+
+The `<label for>` pointed at an id no element had; the error message was not `aria-describedby`
+linked; the control was not `aria-invalid`, so an invalid `Field > Textarea` painted the **neutral**
+`--input` hairline (`oklch(0.145 0.003 75 / 0.08)`) while its own error copy said otherwise. Every
+sibling control — `Input`, `FieldControl`, `ChipInput`, `OTPInput` — is a Base UI control and was
+already wired. This was a **shipped, documented pattern**:
+`apps/docs/components/preview/field.tsx` uses exactly it.
+
+**Why no gate saw it.** The one test combining the two (`field.test.tsx`) passed
+`aria-label="Notes body"` on the Textarea — supplying the accessible name the wiring was failing to
+provide — and asserted only `motion-shake`, with no axe call. The `Field` axe tests all used
+`FieldControl`; the `Textarea` axe tests all wrapped it in an explicit `<label>`. Nothing ran axe
+over the composition itself.
+
+**Fix.** `Textarea` renders through Base UI's `Field.Control render={<textarea />}`, like every
+sibling. It takes `'use client'` as a consequence — it now consumes Field context, so the
+server-safe claim in its JSDoc was false the moment the fix landed and was removed rather than
+weakened. Standalone use is unchanged (Base UI's Field parts fall back to a default context).
+
+**Measured after.** `id` non-empty and equal to `label[for]`; `aria-labelledby` set;
+`aria-describedby` links BOTH the description and the error; `aria-invalid="true"`; the border reads
+`oklab(0.505 0.188899 0.0984184 / 0.7)`, byte-identical to a reference `<Input aria-invalid />`; axe
+reports no violations.
+
+**Gates.** The masking `aria-label` is gone from `field.test.tsx`; two new tests assert the wiring
+and an axe-clean render of `<Field label="Notes"><Textarea /></Field>` with no `aria-label`, plus a
+standalone-Textarea test so the non-Field path stays covered. Both observed failing on the pre-fix
+component (`AssertionError: expected '' not to be ''` on the id; and, isolated,
+`[critical] label: Form elements must have labels`).
+
+---
+
+## 2026-09-09 — Five follow-ons from the same round
+
+- **The geometry lane's focus probe accepted the wrong affordance.** `focusIndicatorProblem` passed a
+  control as soon as it presented an authored ≥2px outline, so the OTP slot passed its focus
+  assertion **because** `outline-hidden` had been destroyed. For the text-entry set
+  (`input`, `textarea`, `field-control`, `otp-input-slot`, `combobox-input`) only the border-tint
+  branch now counts, and `outline-style` must additionally be `none`. Observed failing on the
+  reintroduced defect: `control 0 (input data-slot=otp-input-slot) is a text-entry control
+presenting outline-style "solid" (2px)`. **`select-trigger` was deliberately left out of the
+  set** although the finding named it: measured, a focused `[data-slot=select-trigger]` computes
+  `outline-style: solid`, `outline-width: 2px`, which is its documented design — it wears
+  `fieldControl` for chrome while remaining a button.
+- **`aria-invalid` was accepted and inert on two controls.** `<OTPInput aria-invalid />` put the
+  attribute on `OTPField.Root`, where the slots never saw it, and measured the neutral
+  `oklch(0.145 0.003 75 / 0.08)`; it is now forwarded to every slot. `<NumberField aria-invalid />`
+  put it on the `[data-field-group]` element itself, and `fieldControlGroup`'s `has-aria-invalid:`
+  is a `:has()` over DESCENDANTS, so it matched nothing; the recipe now carries the self form
+  alongside. Both measure `oklab(0.505 0.188899 0.0984184 / 0.7)` after. The `Field` path was
+  already correct (the state arrives as `data-invalid`) and was not touched.
+- **A read-only `EditableCell` with a `select` editor rendered the raw value.** `won` where the
+  editable cell rendered `Closed Won`, so the same column read differently depending on a permission
+  the reader cannot see. The read-only path now resolves the option label, falling back to the raw
+  value for an unrecognised one.
+- **The published audit skill would have flagged a legitimate `z-(--z-toast)` as an error.**
+  `skills/public/vegastack-design-audit/SKILL.md` still said "two bands only" where `design-lint`
+  enforces three. Corrected and re-mirrored into `packages/design/skills/`.
+- **A `borderless` `Field` had no resting border when invalid.** `BORDERLESS` was scoped
+  `:not(:focus)` only, so `border-transparent` outranked the destructive tint the same way it had
+  outranked the focus tint before `#100`; an invalid inline-edit field measured
+  `border-color: rgba(0, 0, 0, 0)` at rest. Scoped `:not(:focus):not([aria-invalid='true'])
+:not([data-invalid])` instead of documenting the gap — error copy and the shake are real, but a
+  flattened field is exactly where a resting cue matters most, and every other field in the system
+  shows one.
 
 ---
 

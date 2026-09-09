@@ -215,6 +215,12 @@ export const fieldControlGroup = [
   "not-has-disabled:not-data-disabled:hover:border-foreground/(--alpha-border-subtle)",
   "focus-within:border-ring/(--alpha-tint-border)",
   "data-focused:border-ring/(--alpha-tint-border)",
+  // Both the SELF and the DESCENDANT form of the invalid tint (2026-09-09). `has-aria-invalid:` is
+  // a `:has()` over descendants, so a group that carries `aria-invalid` on ITSELF — which is where
+  // `<NumberField aria-invalid />` lands the attribute, on the `[data-field-group]` element —
+  // matched nothing and measured the neutral `--input` border. Inside a `Field` the state arrives
+  // as `data-invalid` on the group and was always correct; this is the standalone path.
+  "not-focus-within:aria-invalid:border-destructive-border/(--alpha-tint-border)",
   "not-focus-within:has-aria-invalid:border-destructive-border/(--alpha-tint-border)",
   "not-focus-within:data-invalid:border-destructive-border/(--alpha-tint-border)",
   "has-disabled:cursor-not-allowed has-disabled:bg-surface-1 has-disabled:opacity-(--opacity-dim)",

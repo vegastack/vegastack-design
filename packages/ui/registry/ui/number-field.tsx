@@ -1,4 +1,4 @@
-// @vegastack number-field@0.6.0 sha256-ht4xRa175a4VnayIkQh2e48xX22W1054yver9C0ck7Q=
+// @vegastack number-field@0.6.0 sha256-WJGlgcqSc+coUbawQO+apI2ZRwe5J2MaKwRa7SIaFYY=
 
 "use client";
 
@@ -158,12 +158,13 @@ const addonClasses = [
  * (never `outline-none` — P0-02) with the sanctioned negative offset so the
  * root's `overflow-hidden` cannot clip it.
  */
-const stepperClasses =
-  "group/wash flex h-full w-(--size-sm) shrink-0 items-center justify-center p-1 text-muted-foreground" +
-  "hover:text-foreground " +
-  "focus-visible:-outline-offset-2 " +
-  "disabled:opacity-(--opacity-dim) " +
-  "data-disabled:opacity-(--opacity-dim)";
+const stepperClasses = [
+  "group/wash flex h-full w-(--size-sm) shrink-0 items-center justify-center p-1 text-muted-foreground",
+  "hover:text-foreground",
+  "focus-visible:-outline-offset-2",
+  "disabled:opacity-(--opacity-dim)",
+  "data-disabled:opacity-(--opacity-dim)",
+].join(" ");
 
 /**
  * The stepper's wash is an INSET CHIP inside the button, never the button's own background

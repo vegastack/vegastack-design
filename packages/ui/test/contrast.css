@@ -24,3 +24,9 @@
 @source '../registry/ui/**/*.tsx';
 @source '../../design/src/index.ts'; /* the surfaceInteractive / fillInteractive recipe literals */
 @source './contrast.browser.test.tsx';
+/* The control-paint contracts share THIS stylesheet rather than adding a fifth compiled-CSS entry.
+   Measured 2026-09-09: a newly added entry, compiled concurrently with this one and geometry.css
+   under the suite's four workers, was served to the page as a PARTIAL sheet (98 rules) in roughly
+   one run in three, and never updated — every colour assertion in that run measured an unstyled
+   page. Reusing a warm, proven entry removes the concurrent compile rather than papering over it. */
+@source './control-paint.browser.test.tsx';

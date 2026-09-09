@@ -388,7 +388,7 @@
         "whenToUse": "Wrap any form control to give it a label, description, and accessible error/success message with auto-wired ARIA.",
         "whenNotToUse": "A bare control with its own label already wired — Field is for the label+message+a11y scaffold.",
         "version": "0.6.0",
-        "integrity": "sha256-W5HVSCYjlQTL7to9t/xXZoLt7IEMz2sfOk5ceyK2WbY="
+        "integrity": "sha256-0nL4qRXG0kzbUD42W/tERePupAn1ENsgw//HS1YzuxM="
       }
     },
     {
@@ -832,7 +832,7 @@
         "whenToUse": "Settings that apply instantly — notifications, dark mode, feature flags.",
         "whenNotToUse": "Inside a form needing a Submit step — use a Checkbox.",
         "version": "0.6.0",
-        "integrity": "sha256-iopBYGVR6/+f1kxdfbOX0IasJ40qrLCpkh4eN4khaww="
+        "integrity": "sha256-lG5tgdh5uVOBRT38lEDNdc8Axsa0wktvs7X19LSBt8M="
       }
     },
     {
@@ -915,7 +915,7 @@
         "whenToUse": "Multi-line free text — descriptions, comments, messages, notes.",
         "whenNotToUse": "Single-line entry (input), rich text (editor), or fixed options (select).",
         "version": "0.6.0",
-        "integrity": "sha256-0VtRCzDrVBtUMD5Q+sICrKCZd6kCwYn6HmzNqk8rdgA="
+        "integrity": "sha256-YdW7RTFRo92caDtDZq7zAxzKNhTl5/XcYExY+HZlUIg="
       }
     },
     {
@@ -1721,7 +1721,7 @@
         "whenToUse": "A short fixed-length verification code — 2FA/MFA, email/SMS OTP.",
         "whenNotToUse": "Free-form/variable-length text (Input) or a single masked secret (Password Input).",
         "version": "0.6.0",
-        "integrity": "sha256-e/YNwCbeeiRC6oSK/Tn+7sR6XOu1YwUt0ImAnHSIkJA="
+        "integrity": "sha256-LEceVjUn3YmLHlPZj15C75s8WZu3Nl7+Y/1PpAvmz5c="
       }
     },
     {
@@ -1788,7 +1788,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), whole forms (Field), or plain click-to-edit with a synchronous commit and no status (FieldInline alone).",
         "version": "0.6.0",
-        "integrity": "sha256-X4R1h3mD8Oj2S3BffLDCR/KyMLD6Gi6SE3Wiiw8QV0c="
+        "integrity": "sha256-v9ZrsjT5D64K6uscIswRoeKiyHofuj2EJw6F5MVcQ6o="
       }
     },
     {
@@ -1817,7 +1817,7 @@
         "whenToUse": "Any numeric value — quantities, limits, percentages, money (format={{ style: 'currency', currency }}) — where parsing, locale formatting, and stepping should be correct by construction.",
         "whenNotToUse": "Free-text that merely contains digits (phone numbers, postal codes, ids) — formatting/stepping semantics would fight the value; use Input.",
         "version": "0.6.0",
-        "integrity": "sha256-ht4xRa175a4VnayIkQh2e48xX22W1054yver9C0ck7Q="
+        "integrity": "sha256-WJGlgcqSc+coUbawQO+apI2ZRwe5J2MaKwRa7SIaFYY="
       }
     },
     {

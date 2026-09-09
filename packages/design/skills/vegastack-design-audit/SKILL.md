@@ -70,7 +70,9 @@ rg -n '\b(rounded-xl|rounded-2xl|rounded-3xl|text-4xl|text-5xl|text-6xl|font-bol
 - `font-bold`/`font-semibold` — the weight ladder is 400/500, owned by the type roles. **error**
 - `transition-all` / `transition-colors` — colour changes are immediate; enumerate the causal
   opacity, transform, or geometry properties. **error**
-- a raw `z-N` — two bands only: `z-(--z-raised)`, `z-(--z-overlay)`. **error**
+- a raw `z-N` — three token bands only: `z-(--z-raised)` (local raises), `z-(--z-overlay)` (portaled
+  surfaces), `z-(--z-toast)` (the toast stack alone). DOM order resolves nesting within a band.
+  **error**
 - a raw `opacity-NN` — use an `--opacity-*` role (`opacity-0`/`opacity-100` are exempt). **warning**
 - raw `tracking-*`, `shadow-*`, `blur-*` — owned by the type and effect roles. **warning**
 - a raw `/NN` colour-alpha step — use an `--alpha-*` role. Alpha and opacity are different roles and

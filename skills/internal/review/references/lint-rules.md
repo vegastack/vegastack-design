@@ -177,7 +177,6 @@ in both directions, so an added or removed rule fails the build until this file 
 39. **`descendant-override-density`** — more than 20 `[&…]:` overrides in one class literal. Past that
     the component has stopped styling itself and started styling its children's internals from the
     outside (`audio-player` held 76). Give the child a `data-slot` and let it own the rule.
-
 40. **`fill-token-as-text`** — a solid status fill used as a text ink: `text-destructive`,
     `text-success`, `text-warning`, `text-info` (bare — every suffixed form, `-text`, `-foreground`,
     `-border`, `-subtle*`, is untouched). Each family ships `<family>-text` as its page-readable
@@ -196,6 +195,17 @@ in both directions, so an added or removed rule fails the build until this file 
     it: all four consumers were correct, and a fifth that forgot would lose the outline in High
     Contrast with no error (audit 2026-09-09, LOW-14). File-scoped, because the recipe and the
     attribute land on the same element.
+42. **`class-glue`** — two adjacent class string literals concatenated with `+` and NO separating
+    space, so JavaScript welds them into one word and the utility on BOTH sides of the seam is
+    destroyed (`"…p-0.5" + "bg-surface-3 …"` ships `p-0.5bg-surface-3`, which Tailwind never emits
+    and the browser silently drops). **AST-only, and it has to be**: every other rule reads one
+    literal at a time, so `transition-pairing` finds `ease-standard` in the left literal and passes
+    while the rendered element has no ease token at all. Four instances shipped to consumers under a
+    clean `design-lint` — the Switch measured `background-color: rgba(0, 0, 0, 0)` in both states
+    (2026-09-09). The ONLY sanctioned fix is `[…].join(" ")`, the form `input.tsx` uses: padding the
+    seam with a space is itself a `class-whitespace` violation, so `+`-concatenated class literals
+    have no correct form. Not a violation: `"text-" + size` (a deliberate build, not two literals)
+    and a prose message split across lines (no class context on either side).
 
 Two rules of issue #49 §7 are deliberately NOT in this file, and their absence is recorded rather
 than accidental: `text-xs-mono` (TD-3) has zero registry offenders but eight in the docs shell, each

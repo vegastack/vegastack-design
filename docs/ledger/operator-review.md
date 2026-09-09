@@ -4,46 +4,54 @@ Every judgment-call / assumption / best-guess decision made instead of pausing �
 
 ---
 
-## 2026-09-09 — Appearance-probe fixes: five calls made without pausing
+## 2026-09-09 — Forms-and-overlays fix round: five calls the brief did not settle
 
-- **The docs toast composition: nest the copy-in provider, rather than add a `toastManager` prop to
-  `VegaStackProvider`.** Three options. (a) Drop the package provider and use the registry copy-in
-  end to end — rejected, `verify-provider-dogfood.mjs` exists precisely to keep the published
-  entrypoint consumed by the showcase. (b) Give `VegaStackProvider` (and its canonical registry
-  twin) an optional `toastManager` prop and pass the copy-in's — correct, but it adds public API to
-  a registry item to serve exactly one consumer: `@vegastack/ui` is private, so no external
-  consumer can mix the two modules in the first place, and a copy-in consumer's provider and toast
-  already come from the same module. (c) Nest the copy-in `ToastProvider` — three lines, no API
-  change, one live manager, both dogfoods intact. Chose (c). The cost is that the package's
-  `ToastProvider` above it is inert on this site; nothing in the docs imports the package `toast()`,
-  and the new gate would catch it if that changed.
-- **The Tabs count badge takes body ink, rather than keeping muted ink and changing the fill.**
-  Inheriting the trigger's ink (muted at rest, `foreground` when active — what the prop doc claimed)
-  still leaves an unselected `pill` count at 4.48:1 in dark, under AA by a hair. An opaque fill can
-  read as invisible on the rung the trigger has just hovered to. `text-foreground` clears every
-  stack in both themes with 7.28:1 at the worst, and the badge stays quiet through size and fill.
-  It does mean the count is brighter than its own label on a resting tab — deliberate, and the way
-  GitHub and Linear paint a tab counter.
-- **The contrast gate learned the rung composite for BODY INK only.** Adding `muted-foreground`
-  over a wash on a rung would fail the gate permanently (3.11–4.48:1 dark) and could only be
-  answered by retuning tokens. So the gate asserts what must hold and `design.md` states the
-  prohibition — muted ink is not available there. If MK would rather the tokens moved so muted ink
-  survives a wash on a rung, that is a retune, not a lint.
-- **DatePicker: fixed the `data-day` hook in the component, pinned `locale` in the fixtures, and
-  left the `locale` default alone.** A locale-formatted `data-*` attribute is indefensible and was
-  fixed outright. The visible label is a different question: following the viewer's locale is the
-  right default for a date, and it is inherently unstable under SSR/static export. Pinning the
-  fixtures fixes the public page; the callout tells consumers the rule. **What is left for MK:
-  should `locale` default to a fixed value so a consumer SSR'ing `<DatePicker value={d}/>` cannot
-  hit this?** That changes documented behaviour of a shipped component, so it was not decided here.
-- **Probe changes go beyond the four the brief named.** Dismissing overlays, the `aria-current`
-  rule, the pill-radius rule and the `opacity: 0` rule were asked for. Three more were added
-  because each was producing the same class of false positive on every run: an inset-chip wash
-  (the system's own SP-02 recipe) read as `hover-invisible` on every stepper; a text-entry field
-  whose focus affordance is a border tint on the GROUP read as `focus-none`; and `[tabindex='0']`
-  swept `role="tabpanel"` containers in, demanding hover states from panels and timing out on
-  inactive ones. Net effect on the six routes re-run: split-button 21 → 0 flags, number-field 9 →
-  0, pagination 5 → 0, tabs 6 → 0, date-picker 1 → 0, bubble 3 → 2.
+- **`select-trigger` is NOT in the text-entry focus set.** The M1 finding listed
+  `[data-slot=select-trigger]` among the controls that must present `outline-style: none` and the
+  border tint. Measured before acting: a focused `SelectTrigger` computes `outline-style: solid`,
+  `outline-width: 2px`. That is deliberate and documented on the component — it wears `fieldControl`
+  for its chrome while remaining a **button**, and buttons keep the centralized `:focus-visible`
+  ring. Including it would have failed a correct control, so the set is the five genuine text-entry
+  slots and the reason is written into the constant's JSDoc.
+- **`Textarea` takes `'use client'`.** Rendering through `Field.Control` is the only fix that makes
+  Field's context reach it, and consuming context means a client boundary. It is a leaf control, the
+  same boundary `Input` already has, so this stays inside "`'use client'` only at the lowest
+  interactive leaf". The alternative — having `Field` reach into `[data-slot=textarea]` and hand it
+  ids from the outside — would reimplement Base UI's wiring in a descendant selector and drift the
+  moment Base UI changes it. The now-false "server-safe — no hooks, no `'use client'`" line was
+  deleted from the JSDoc rather than softened.
+- **`borderless` + invalid was FIXED, not documented.** The finding offered either. A flattened
+  field is where a resting cue matters most, and every other field in the system shows one; leaving
+  it to error copy alone would have been the only field in the system whose invalid state is
+  invisible until focus. Scoped `:not(:focus):not([aria-invalid='true']):not([data-invalid])` —
+  both attribute spellings, because the recipe's two halves use different ones.
+- **The class-glue rule accepts no trailing-space fix.** The finding's rule shape allows
+  `"…a " + "b…"`. `class-whitespace` independently rejects a leading or trailing space inside a
+  class literal, so that form is a violation of a different rule; `[…].join(" ")` is therefore the
+  only correct form, and the rule's message and the review skill's rule list both say so rather
+  than offering a fix that another gate rejects.
+- **The control-paint lane parks nothing and disables hover instead.** Its fixtures mount inside a
+  `pointer-events: none` stage. Measured 2026-09-09: without it, roughly half the runs where this
+  file shared the suite with the other form tests measured `:hover` state, because the Playwright
+  pointer keeps the previous file's position and a top-left fixture lands under it — the reference
+  `<Input aria-invalid />` painted `--alpha-border-subtle` and the NumberField stepper painted
+  `hover:text-foreground`, both of them the components behaving correctly. Moving the pointer
+  instead (`userEvent.hover` from `@vitest/browser/context`) was tried and rejected: importing that
+  module here triggered a mid-run dependency re-optimisation that reloaded live pages and turned
+  30 unrelated tests red across four other files. `pointer-events: none` changes none of the
+  properties the lane reads and does not stop `element.focus()`. Six consecutive full-set runs
+  green after the change.
+
+### Left for MK / a later PR
+
+- **`component-contracts.json`'s `textarea` summary still says "a focus-visible ring".** Text entry
+  signals focus with the border tint, not a ring, so the summary is false — but it is the machine
+  authority, and editing it moves the contract SHA and therefore AGENTS.md § Numbers, which this PR
+  deliberately does not touch. Flagged for the wave PR.
+- **AGENTS.md § Build rules says "two z-bands only".** `design-lint` enforces three
+  (`z-(--z-raised)`, `z-(--z-overlay)`, `z-(--z-toast)`). The published skill said the same and was
+  corrected here; AGENTS.md is out of this PR's scope by the same rule that keeps doctrine edits in
+  the wave PR.
 
 ---
 

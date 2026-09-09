@@ -15,11 +15,13 @@ const invalidDir = join(scratch, "packages/ui/registry/ui/invalid");
 const vocabularyDir = join(scratch, "packages/ui/registry/ui/vocabulary");
 const rawStepsDir = join(scratch, "packages/ui/registry/ui/raw-steps");
 const fieldGroupDir = join(scratch, "packages/ui/registry/ui/field-group");
+const classGlueDir = join(scratch, "packages/ui/registry/ui/class-glue");
 const validDir = join(scratch, "packages/ui/registry/ui/valid");
 mkdirSync(invalidDir, { recursive: true });
 mkdirSync(vocabularyDir, { recursive: true });
 mkdirSync(rawStepsDir, { recursive: true });
 mkdirSync(fieldGroupDir, { recursive: true });
+mkdirSync(classGlueDir, { recursive: true });
 mkdirSync(validDir, { recursive: true });
 
 try {
@@ -192,6 +194,8 @@ export function Textarea(props: ComponentProps<'textarea'>) {
     <div className="bg-border hover:bg-primary data-[separator=active]:bg-primary" />{/* the pressed rung is component state */}
     <div className="translate-x-1 motion-reduce:transform-none" />{/* suppresses the END STATE, which base.css does not */}
     <div className="max-w-[calc(100vw-var(--spacing)*8)]" />{/* a viewport bound whose inset is a token */}
+    <div className={["flex items-center", "gap-2 rounded-md"].join(" ")} />{/* the canonical multi-fragment join \u2014 cannot express the class-glue bug, and is the ONLY sanctioned form: padding a seam with a trailing/leading space is itself a class-whitespace violation */}
+    <div title={"a sentence split across two source lines " + "is prose, not a class seam"} />{/* no class context on either side */}
     <p>{"a multi-line literal mentioning max-h-40\\n\\nkeeps its blank lines: it is prose, not a class string"}</p>
   </>;
 }
@@ -266,6 +270,44 @@ export function Textarea(props: ComponentProps<'textarea'>) {
     process.exit(1);
   }
 
+  // ── class-glue (2026-09-09) ───────────────────────────────────────────────────────────────────
+  // Two adjacent class literals joined by `+` with no separating space. The seam is invisible to
+  // every literal-scoped rule: the specimen below PASSES `transition-pairing` (the left literal
+  // contains `duration-fast ease-standard`) while the element it ships carries neither, because
+  // `ease-standard` was concatenated into `ease-standarddata-checked:translate-x-4`. That is the
+  // exact shape of the four live defects found on `main` (switch ×2, otp-input, number-field), and
+  // the reason this rule reads the AST rather than the literal.
+  writeFileSync(
+    join(classGlueDir, "class-glue.tsx"),
+    `const glued =
+  "block rounded-full transition-transform duration-fast ease-standard" +
+  "data-checked:translate-x-4";
+
+export function Glue() {
+  return <div className={glued}>Glued</div>;
+}
+`,
+  );
+
+  const classGlue = spawnSync(
+    process.execPath,
+    ["tooling/design-lint.mjs", classGlueDir],
+    { cwd: ROOT, encoding: "utf8" },
+  );
+  const classGlueOutput = `${classGlue.stdout ?? ""}\n${classGlue.stderr ?? ""}`;
+  if (
+    classGlue.status === 0 ||
+    !classGlueOutput.includes("[class-glue]") ||
+    !classGlueOutput.includes("ease-standarddata-checked:translate-x-4")
+  ) {
+    console.error(
+      "\u2717 design-lint accepted two class literals concatenated with no separating space \u2014 " +
+        "the seam destroys the utility on BOTH sides and no literal-scoped rule can see it",
+    );
+    console.error(classGlueOutput.trim());
+    process.exit(1);
+  }
+
   const valid = spawnSync(
     process.execPath,
     ["tooling/design-lint.mjs", validDir],
@@ -282,10 +324,10 @@ export function Textarea(props: ComponentProps<'textarea'>) {
 
   console.log(
     `✓ design-lint structural specimens: ${requiredIds.length} structural + ${vocabularyIds.length} ` +
-      `token-vocabulary rules fail closed, raw motion steps are rejected as a pairing, an unpaired fieldControlGroup is rejected and a paired one is not; the reviewed ` +
-      `Textarea adapter passes, and with it six deliberate non-violations (same-fill hover, ` +
+      `token-vocabulary rules fail closed, raw motion steps are rejected as a pairing, a class seam with no separating space is rejected, an unpaired fieldControlGroup is rejected and a paired one is not; the reviewed ` +
+      `Textarea adapter passes, and with it eight deliberate non-violations (same-fill hover, ` +
       `hover:bg-transparent, a state-expressed pressed rung, motion-reduce end-state suppression, ` +
-      `a token viewport calc, and multi-line prose)`,
+      `a token viewport calc, multi-line prose, and two class-seam non-violations)`,
   );
 } finally {
   rmSync(scratch, { recursive: true, force: true });

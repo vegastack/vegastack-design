@@ -1,4 +1,4 @@
-// @vegastack switch@0.6.0 sha256-iopBYGVR6/+f1kxdfbOX0IasJ40qrLCpkh4eN4khaww=
+// @vegastack switch@0.6.0 sha256-lG5tgdh5uVOBRT38lEDNdc8Axsa0wktvs7X19LSBt8M=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -15,17 +15,25 @@ export const switchVariants = cva(
   // Invalid carries NO visual treatment on the control itself — no destructive track border and no
   // status dot. `aria-invalid` stays on the DOM as the semantic cue, and the wrapping `Field`
   // supplies the associated error copy, which is the only invalid affordance the switch needs.
-  "group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent bg-clip-padding p-0.5" +
-    "bg-surface-3 data-checked:bg-primary" +
+  // `.join(" ")`, not `+`. Two of these fragments used to be concatenated with no separator, so the
+  // track shipped `p-0.5bg-surface-3` and `data-checked:bg-primarynot-disabled:hover:border-…`:
+  // FOUR utilities vanished at once and the switch measured `background-color: rgba(0,0,0,0)` and
+  // `padding: 0px` in BOTH states — a track with no colour, on/off conveyed only by thumb position,
+  // and paint appearing only under the cursor because the hovered-checked rung survived its own
+  // seam (2026-09-09). An array removes the seam; `class-glue` in `design-lint` now rejects it.
+  [
+    "group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent bg-clip-padding p-0.5",
+    "bg-surface-3 data-checked:bg-primary",
     // The switch was the one control in the batch with NO hover treatment at all (audit SP-04).
     // Its track already sits on the ladder's top rung, so there is no rung left to climb: the
     // hover step is the same neutral BORDER tint the checkbox and radio wear, which the
     // transparent border + `bg-clip-padding` were already reserving space for — so nothing
     // moves when it appears. Checked, the filled track takes the solid's own darker rungs.
-    "not-disabled:hover:border-foreground/(--alpha-border-subtle) " +
-    "not-disabled:data-checked:hover:bg-primary-hover not-disabled:data-checked:active:bg-primary-active " +
+    "not-disabled:hover:border-foreground/(--alpha-border-subtle)",
+    "not-disabled:data-checked:hover:bg-primary-hover not-disabled:data-checked:active:bg-primary-active",
     // D7: no `pointer-events-none` — a disabled control stays hoverable for its Tooltip.
     "disabled:cursor-not-allowed disabled:opacity-(--opacity-dim)",
+  ].join(" "),
   {
     variants: {
       size: {
@@ -60,8 +68,14 @@ export const switchVariants = cva(
  * and a token-driven `transition`.
  */
 export const switchThumbVariants = cva(
-  "pointer-events-none block rounded-full bg-background ring-0 transition-transform duration-fast ease-standard" +
+  // `.join(" ")`, not `+` — see the track above. This seam compiled to
+  // `ease-standarddata-unchecked:translate-x-0`, so the thumb ran on Tailwind's default
+  // `cubic-bezier(0.4, 0, 0.2, 1)` instead of `--motion-ease-standard`, while
+  // `transition-pairing` read `ease-standard` in the literal and passed (2026-09-09).
+  [
+    "pointer-events-none block rounded-full bg-background ring-0 transition-transform duration-fast ease-standard",
     "data-unchecked:translate-x-0",
+  ].join(" "),
   {
     variants: {
       size: {

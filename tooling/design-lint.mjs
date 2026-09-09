@@ -388,6 +388,75 @@ function staticStringLiterals(file, src) {
   return literals;
 }
 
+// §Build-rules class-glue — two ADJACENT string literals joined by `+` with no separating space.
+// JavaScript concatenates them into one word, so the last utility of the left literal and the first
+// of the right literal are BOTH destroyed: `"…p-0.5" + "bg-surface-3 …"` ships `p-0.5bg-surface-3`,
+// which Tailwind never emits and the browser silently drops. The defect is invisible to every rule
+// that reads a literal on its own — `transition-pairing` finds `ease-standard` in the left literal
+// and passes while the rendered element has no ease token at all (four live instances on `main`,
+// 2026-09-09: switch.tsx ×2, otp-input.tsx, number-field.tsx). So it has to be seen STRUCTURALLY,
+// at the seam, which is a `BinaryExpression` and not a literal.
+//
+// Only literal+literal seams are inspected: `"text-" + size` is a deliberate build, not a glue.
+// The class-context guard is `LOOKS_LIKE_CLASS_STRING` on either side, so a concatenated prose
+// message (an error string split across lines) is not a violation.
+// The canonical fix is the `[...].join(" ")` form `input.tsx` uses, which cannot express this bug.
+// Padding the seam with a space instead is NOT a fix: `class-whitespace` rejects a leading or
+// trailing space inside a class literal, so `+`-concatenated class literals have no correct form.
+function classConcatGlueSites(file, src) {
+  if (!/\.tsx?$/.test(file)) return [];
+  const sourceFile = sourceFileFor(file, src);
+  const sites = [];
+  // The literal ADJACENT to the seam on the left. `a + b + c` parses left-associatively as
+  // `(a + b) + c`, so for the outer node the neighbour is the inner node's own right operand.
+  const adjacentLeft = (node) => {
+    if (ts.isStringLiteral(node)) return node;
+    if (
+      ts.isBinaryExpression(node) &&
+      node.operatorToken.kind === ts.SyntaxKind.PlusToken
+    ) {
+      return ts.isStringLiteral(node.right) ? node.right : null;
+    }
+    if (ts.isParenthesizedExpression(node))
+      return adjacentLeft(node.expression);
+    return null;
+  };
+  const visit = (node) => {
+    if (
+      ts.isBinaryExpression(node) &&
+      node.operatorToken.kind === ts.SyntaxKind.PlusToken &&
+      ts.isStringLiteral(node.right)
+    ) {
+      const left = adjacentLeft(node.left);
+      const right = node.right;
+      if (left) {
+        const l = left.text;
+        const r = right.text;
+        const classContext =
+          LOOKS_LIKE_CLASS_STRING.test(l) || LOOKS_LIKE_CLASS_STRING.test(r);
+        if (
+          classContext &&
+          l !== "" &&
+          r !== "" &&
+          !/\s$/.test(l) &&
+          !/^\s/.test(r)
+        ) {
+          sites.push({
+            line:
+              sourceFile.getLineAndCharacterOfPosition(
+                right.getStart(sourceFile),
+              ).line + 1,
+            glued: `${l.split(/\s+/).at(-1)}${r.split(/\s+/)[0]}`,
+          });
+        }
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return sites;
+}
+
 function renderOmitLines(file, src) {
   if (!/\.tsx?$/.test(file)) return [];
   const sourceFile = sourceFileFor(file, src);
@@ -774,6 +843,16 @@ for (const root of ROOTS) {
         );
         violations++;
       }
+    }
+
+    for (const { line, glued } of classConcatGlueSites(file, src)) {
+      console.log(
+        `${file}:${line} [class-glue] two adjacent class literals are concatenated with no separating space — ` +
+          `the shipped element gets "${glued}", destroying the utility on BOTH sides of the seam. ` +
+          `Join the fragments with [\u2026].join(" ") \u2014 the form input.tsx uses, and the only sanctioned ` +
+          `one, since padding the seam with a trailing/leading space is itself a class-whitespace violation.`,
+      );
+      violations++;
     }
 
     if (!RENDER_OMIT_EXEMPT.test(file)) {

@@ -236,8 +236,14 @@ test("borderless flattens the RESTING border only, so the focus tint survives", 
   // a text-entry control carries `outline-hidden`, so a borderless field had no focus affordance at
   // all. This file has no compiled CSS, so it can only assert the class contract; the rendered
   // proof is `fieldBorderless` in `test/geometry.browser.test.tsx`, which failed until this landed.
+  //
+  // The invalid state is excluded for the same reason (2026-09-09): unscoped, `border-transparent`
+  // outranked the destructive tint too, so a borderless field that failed validation measured a
+  // resting `rgba(0, 0, 0, 0)` border. Both spellings are excluded — `aria-invalid` on a native
+  // control, Base UI's `data-invalid` on a Select trigger. The rendered proof is
+  // `borderlessInvalidRestingBorder` in `test/control-paint.browser.test.tsx`.
   expect(root.className).toContain(
-    "[&_[data-slot=field-control]:not(:focus)]:border-transparent",
+    "[&_[data-slot=field-control]:not(:focus):not([aria-invalid='true']):not([data-invalid])]:border-transparent",
   );
   expect(root.className).not.toContain(
     "[&_[data-slot=field-control]]:border-none",
@@ -347,8 +353,11 @@ test("Textarea inside a Field shakes too — the behaviour it never had of its o
         <button type="button" onClick={() => setError("Required")}>
           fail
         </button>
+        {/* Deliberately NO `aria-label`. It used to carry one, which supplied the accessible
+            name Field's own wiring was failing to give the Textarea and hid an axe-critical
+            unlabelled control behind a passing shake assertion (2026-09-09). */}
         <Field label="Notes" error={error}>
-          <Textarea aria-label="Notes body" />
+          <Textarea />
         </Field>
       </div>
     );
@@ -360,6 +369,55 @@ test("Textarea inside a Field shakes too — the behaviour it never had of its o
   expect(root.className).not.toContain("motion-shake");
   await screen.getByRole("button", { name: "fail" }).click();
   await expect.element(root).toHaveClass("motion-shake");
+});
+
+test("Field wires a Textarea exactly as it wires every other control", async () => {
+  // The composition the docs preview ships, with NO `aria-label` on the Textarea. Before
+  // `Textarea` rendered through Base UI's `Field.Control` (2026-09-09) this produced an element
+  // Field's context wired NOTHING to: `id`, `aria-labelledby`, `aria-describedby` and
+  // `aria-invalid` were all null, the `<label for>` pointed at an id no element had, and axe
+  // reported `label` at CRITICAL. Every assertion below failed on the raw `<textarea>`.
+  const screen = await render(
+    <Field label="Notes" description="Optional context." error="Required">
+      <Textarea />
+    </Field>,
+  );
+  const textarea = screen.container.querySelector(
+    "textarea",
+  ) as HTMLTextAreaElement;
+  const label = screen.container.querySelector("label") as HTMLLabelElement;
+
+  expect(textarea.id).not.toBe("");
+  expect(label.htmlFor).toBe(textarea.id);
+  expect(textarea.getAttribute("aria-labelledby")).not.toBeNull();
+  expect(textarea.getAttribute("aria-invalid")).toBe("true");
+  // Both the description and the error are linked, not just one of them.
+  const describedBy = (textarea.getAttribute("aria-describedby") ?? "").split(
+    " ",
+  );
+  expect(describedBy.length).toBeGreaterThanOrEqual(2);
+  for (const id of describedBy)
+    expect(screen.container.querySelector(`#${id}`)).not.toBeNull();
+
+  // The name the wiring produces, asserted through the accessibility tree rather than the DOM.
+  await expect.element(screen.getByLabelText("Notes")).toBeInTheDocument();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("Textarea outside a Field still labels and behaves normally", async () => {
+  // Base UI's Field parts fall back to a default context, so the standalone path must be
+  // untouched by the Field.Control rewiring.
+  const screen = await render(
+    <Textarea aria-label="Standalone notes" defaultValue="hello" />,
+  );
+  const textarea = screen.container.querySelector(
+    "textarea",
+  ) as HTMLTextAreaElement;
+  expect(textarea.value).toBe("hello");
+  await expect
+    .element(screen.getByLabelText("Standalone notes"))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(screen.container);
 });
 
 test("no a11y violations — error and helper text together", async () => {
