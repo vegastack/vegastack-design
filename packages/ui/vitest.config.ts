@@ -111,15 +111,17 @@ export default defineConfig({
       // events fired mid-run and reloaded live test pages, failing every test in the file that was
       // executing (measured 2026-09-07: dropzone 20/20 failed cold, 20/20 passed warm). Listing them
       // makes the first run behave like every later one. The set is the union of the three reload
-      // events; a new engine or shared runtime import belongs here on the day it is added.
+      // events, minus anything this workspace does not itself depend on — `clsx` and
+      // `tailwind-merge` are @vegastack/design's dependencies and reach a test only through its
+      // built dist, so naming them here produced "Failed to resolve dependency … present in client
+      // 'optimizeDeps.include'" on every run. A new engine or shared runtime import belongs here on
+      // the day it is added.
       "react",
       "react/jsx-runtime",
       "react/jsx-dev-runtime",
       "vitest-browser-react",
       "axe-core",
       "class-variance-authority",
-      "clsx",
-      "tailwind-merge",
       "lucide-react",
       "@tanstack/react-table",
       "@tanstack/react-virtual",

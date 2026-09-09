@@ -1391,3 +1391,32 @@ true` giving it a button. Test 4's unscoped `getByRole("button")` then matches t
   strengthening is to replace the `cat-file -e` probe with `git merge-base --is-ancestor`, with a
   documented allowance for entries that legitimately cite commits from before a history rewrite.
   Flagged for #49 rather than fixed in #34.
+
+---
+
+## 2026-09-09 — tiptap 3.31.3 loads prosemirror-model twice, and TextEdit's suite dies on it
+
+- **Symptom:** `pnpm verify` fails at `test (@vegastack/ui, @vegastack/design)` with
+  `RangeError: Can not convert <> to a Fragment (looks like multiple versions of prosemirror-model
+were loaded)`, reported as an _unhandled_ error originating in `registry/ui/text-edit.test.tsx`.
+  Two `[tiptap warn]: prosemirror-model is loaded more than once` lines precede it. It reproduces on
+  the Linux runner and not on a warm Mac worktree, which is the classic shape of a lockfile defect
+  rather than a code one.
+- **Root cause: a partially-resolved lockfile, not tiptap.** `@tiptap/pm@3.31.3` declares
+  `prosemirror-model` directly and resolved to **1.25.11**, while its own siblings
+  (`prosemirror-commands`, `prosemirror-transform`, `prosemirror-schema-list`, …) were left pinned at
+  the **1.25.9** the pre-bump lockfile already carried. `pnpm install` after a version bump only
+  re-resolves what it must, so both versions survived — `node_modules/.pnpm` held
+  `prosemirror-model@1.25.9` and `prosemirror-model@1.25.11` side by side. ProseMirror compares node
+  types by object identity, so a fragment built by one copy is unconvertible by the other.
+- **Fix:** `pnpm dedupe`, which collapsed the tree to a single `prosemirror-model@1.25.11` and
+  removed 34 packages. `text-edit.test.tsx` passes 18/18 afterwards.
+- **Rule:** a dependency bump that moves a package with peer-shaped internals (ProseMirror, React,
+  anything comparing by identity) is not finished at `pnpm install`. Run `pnpm dedupe` and check the
+  lockfile for two entries of the same package before pushing. `pnpm why <pkg>` shows the split;
+  `grep -n '^  <pkg>@' pnpm-lock.yaml` is the fastest check.
+- **Second defect found in the same run, unrelated:** `packages/ui/vitest.config.ts` listed `clsx`
+  and `tailwind-merge` in `optimizeDeps.include`. Neither is a dependency of `@vegastack/ui` — they
+  belong to `@vegastack/design` and reach a test only through its built dist — so Vite printed
+  `Failed to resolve dependency: clsx, present in client 'optimizeDeps.include'` on every run. Both
+  entries removed; the rest of the pre-bundle list is real and still earns its keep.
