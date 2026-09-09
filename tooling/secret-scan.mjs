@@ -1,5 +1,20 @@
 #!/usr/bin/env node
 // Local, deterministic high-confidence credential gate. It never prints matched values.
+//
+// SCOPE: THE WORKING TREE, NOT HISTORY. This scans the files `git ls-files --cached --others`
+// lists, read from DISK. It never opens a historical blob, so a credential that was committed and
+// then deleted passes — reproduced 2026-09-09: commit a high-entropy key, `git rm` it, commit
+// again, and this exits 0; restore the file and it exits 1 with one finding. Three comments (in
+// `.github/workflows/ci.yml`, twice) justified `fetch-depth: 0` with "walks tracked history"; the
+// claim was the defect and is corrected there. `fetch-depth: 0` is needed by
+// `tooling/changelog-lint.mjs` and by `changeset status --since=origin/main`, not by this file.
+//
+// What that scope BUYS is that the gate is about what this tree publishes: it catches the commit
+// that introduces a key before it lands, which is the only moment a scan can still help — once a
+// secret reaches a public remote, rotation is the remedy and rewriting history is not. Adding a
+// history walk (`git rev-list --objects --all` + `cat-file --batch`, ~9k objects here) would cost
+// seconds per run on every lane to re-report keys that are already public and already rotated. If
+// it is ever wanted, it belongs in a separate, occasional command — not inside `pnpm lint`.
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";

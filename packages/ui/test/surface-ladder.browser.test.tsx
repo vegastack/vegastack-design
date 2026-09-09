@@ -178,6 +178,17 @@ describe("hover/pressed recipe", () => {
     );
   });
 
+  // WHAT COMPILES THESE TWO UTILITIES IS THIS FILE, NOT THE RECIPE'S SOURCE — worth saying, because
+  // the assertion below reads as proof of the opposite. Tailwind v4 auto-detects sources under the
+  // Vite root (`packages/ui`), and the test above writes `hover:bg-surface-2 active:bg-surface-3`
+  // into this file as a string literal; several components spell the same pair out too. Deleting
+  // `contrast.css`'s `@source '../../design/src/index.ts'` therefore left this green (audit
+  // 2026-09-09), which is how a no-op glob survived review.
+  //
+  // Keep it: "each utility resolves to the rung it is named for" is still worth pinning. The proof
+  // that the DESIGN PACKAGE is what compiles the recipes lives in `button-matrix.browser.test.tsx`,
+  // over the classes that exist nowhere else — the chromatic `fillInteractive` tones and
+  // `surfaceInteractiveGroup` — and it restates no class literal of its own.
   test("the recipe classes compile, and its two rungs are the ladder's own", async () => {
     const screen = await render(
       <button
@@ -195,7 +206,8 @@ describe("hover/pressed recipe", () => {
         return [];
       }
     });
-    // Both utilities exist in the compiled stylesheet (the scanner saw the recipe literal). The
+    // Both utilities exist in the compiled stylesheet — compiled from a literal in this tree, per
+    // the note above this test, not necessarily from the recipe's own source. The
     // test used to be called "hover and active paint distinct rungs" and never measured a rung —
     // distinctness is covered by the ladder-monotonicity test above, and the name overstated what
     // this one proves (audit 2026-09-09, LOW-15). What it proves is COMPILATION, plus that each

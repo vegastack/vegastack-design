@@ -136,6 +136,28 @@ describe("--after-run", () => {
     expect(second).toMatch(/0 path\(s\)/);
   });
 
+  // "GIT SAID NO" AND "GIT COULD NOT ANSWER" ARE DIFFERENT ANSWERS.
+  //
+  // The tracked-path refusal used to run `git ls-files --error-unmatch` inside a try/catch and
+  // return `false` from the catch, so any git failure read as "untracked" and every path became
+  // removable. That is not hypothetical: inside the pinned Playwright container the workspace is
+  // owned by the host runner user while the job runs as root, and every git call exits 128 with
+  // "detected dubious ownership" until `safe.directory` is set — which is exactly when the only
+  // guard against deleting a committed file would have evaporated. A repository git refuses is
+  // simulated here with a corrupt gitfile (`fatal: invalid gitfile format`, exit 128), which is the
+  // same shape of answer. "There is no repository here at all" stays removable, because then
+  // nothing CAN be tracked — the other fixtures in this file rely on it.
+  it("refuses every path when git cannot answer at all", () => {
+    writeFileSync(join(root, ".git"), "not a gitfile\n");
+    const output = run(["--after-run"]);
+    expect(output).toMatch(/cannot establish whether git tracks this path/);
+    for (const rel of AFTER_RUN)
+      expect(
+        existsSync(join(root, rel)),
+        `${rel} must survive a git that cannot answer`,
+      ).toBe(true);
+  });
+
   // `FORBIDDEN_SEGMENTS` is the last line of defence, checked per path rather than per list.
   // A package that ships its own `.vitest` directory must survive even though the name matches
   // the artifact directory the script removes at the workspace root.

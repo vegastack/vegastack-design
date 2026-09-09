@@ -200,8 +200,31 @@ function stepIdentity(step) {
   return "(unnamed step)";
 }
 
-/** The commands that ARE the verification. A step running one of these may carry no `if:`. */
+/**
+ * The commands that ARE the verification. A step running one of these may carry no `if:`.
+ *
+ * Membership is by WHOLE `run:` BODY (`step.run.trim()`), and the presence check in MUST_RUN_VERIFY
+ * uses the same identity for the same reason — see the comment there.
+ */
 const VERIFICATION_COMMANDS = new Set(["pnpm verify", "pnpm verify:release"]);
+
+/**
+ * Environment variables no workflow, job, or step may set, because they choose how much of the
+ * browser suite runs. `WEBKIT_LANE` and `SMOKE_WEBKIT` are read directly by
+ * `packages/ui/webkit-lane.ts`; `CI` is what makes its default `require` rather than `auto`, so
+ * setting it to an empty string is the same fail-open written the other way round.
+ */
+const LANE_CONTROL_ENV = new Set(["WEBKIT_LANE", "SMOKE_WEBKIT", "CI"]);
+
+/**
+ * `<workflow>` → `<job>` → whether that job's `pnpm install` must pass `--ignore-scripts`.
+ *
+ * Pinned in BOTH directions: a job listed `true` that loses the flag fails, and a job not listed
+ * that gains it fails. See the rule itself for why these two jobs and no others.
+ */
+const INSTALL_IGNORE_SCRIPTS = {
+  "release.yml": { "version-pr": true, publish: true },
+};
 
 /**
  * The ceiling on `timeout-minutes`. Every job must declare one — the Actions default is 360 minutes,
@@ -456,23 +479,115 @@ for (const [name, source] of Object.entries(sources)) {
     }
   }
 
-  // EVERY install is frozen. `--no-frozen-lockfile` lets pnpm resolve a dependency the lockfile does
-  // not name, so the tree that is verified, published, or deployed is not the tree that was reviewed
-  // — and on the LAN boxes it also writes that resolution into the shared store.
+  // NO `run:` BODY MAY DISCARD AN EXIT CODE. `continue-on-error` is not the only way to forge a
+  // pass: a body that opens `set +e` and closes `exit 0`, or that ends a command with `|| true`,
+  // reports success no matter what the command did — and it does so INSIDE the step, where every
+  // structural assertion about that step still holds. This is what made the block-scalar `pnpm
+  // verify` mutation work. Suppression is banned outright rather than reasoned about per step: none
+  // of these bodies has a use for it, and `|| { … exit 1; }` (deploy.yml's ref guard) is the shape a
+  // body reaches for when it genuinely wants to handle a failure.
   for (const [job, body] of jobs) {
+    for (const { step, label } of jobSteps(name, job, body)) {
+      if (typeof step.run !== "string") continue;
+      const suppression = [
+        [
+          /^\s*set\s+\+e\b/m,
+          "`set +e` (errors stop being fatal from that line on)",
+        ],
+        [
+          /\|\|\s*(?:true|:)\s*$/m,
+          "`|| true` (the command's failure is discarded)",
+        ],
+        [
+          /^\s*exit\s+0\s*$/m,
+          "a bare `exit 0` (the body reports success unconditionally)",
+        ],
+      ].find(([pattern]) => pattern.test(step.run));
+      assert.ok(
+        !suppression,
+        `${name}: ${label} contains ${suppression?.[1]}. A run body that discards an exit code is ` +
+          `\`continue-on-error\` written in shell: the step passes, the job passes, and the work it ` +
+          `names may have failed. Let the command's own exit code be the step's.`,
+      );
+    }
+  }
+
+  // EVERY install is frozen, LINE BY LINE. `--no-frozen-lockfile` lets pnpm resolve a dependency the
+  // lockfile does not name, so the tree that is verified, published, or deployed is not the tree that
+  // was reviewed — and on the LAN boxes it also writes that resolution into the shared store. The
+  // per-LINE scope matters for the same reason the whole-body `pnpm verify` match does: a body
+  // carrying two installs satisfied a whole-body `assert.match` on the strength of either one.
+  //
+  // `--ignore-scripts` is pinned PER JOB rather than banned or required globally. `version-pr` and
+  // `publish` are the two jobs that hold authority a dependency's install script would inherit —
+  // `contents: write` + `pull-requests: write` for the first, the npm OIDC token for the second — and
+  // the "reject publish-time lifecycle code" guard in `publish` only inspects the two PUBLIC
+  // packages' own `scripts`, never a dependency's. `pnpm-workspace.yaml`'s `allowBuilds` bounds what
+  // can run to esbuild/sharp/workerd, which is why this was asymmetry rather than an open door; the
+  // OIDC job should still be the tightest thing in the tree. Verified 2026-09-09 that the flag costs
+  // `publish` nothing: `pnpm install --frozen-lockfile --ignore-scripts` followed by both
+  // `pnpm --filter @vegastack/design{-tokens,} build` and `verify-package-exports.mjs` is green —
+  // esbuild's binary arrives through its optional platform package, not its install script.
+  //
+  // The other installs must NOT carry it: ci/deploy build the docs and the token dists, which need
+  // the sanctioned build scripts to have run. Both directions are pinned, so neither can drift.
+  for (const [job, body] of jobs) {
+    const ignoreScripts = INSTALL_IGNORE_SCRIPTS[name]?.[job] === true;
     for (const { step, label } of jobSteps(name, job, body)) {
       if (typeof step.run !== "string" || !/\bpnpm install\b/.test(step.run))
         continue;
-      assert.doesNotMatch(
-        step.run,
-        /--no-frozen-lockfile/,
-        `${name}: ${label} installs with \`--no-frozen-lockfile\` — the run would resolve dependencies ` +
-          `the reviewed lockfile does not name`,
-      );
-      assert.match(
-        step.run,
-        /--frozen-lockfile/,
-        `${name}: ${label} runs \`pnpm install\` without \`--frozen-lockfile\``,
+      for (const line of step.run.split("\n")) {
+        if (!/\bpnpm install\b/.test(line)) continue;
+        assert.doesNotMatch(
+          line,
+          /--no-frozen-lockfile/,
+          `${name}: ${label} installs with \`--no-frozen-lockfile\` — the run would resolve dependencies ` +
+            `the reviewed lockfile does not name`,
+        );
+        assert.match(
+          line,
+          /--frozen-lockfile/,
+          `${name}: ${label} runs \`pnpm install\` without \`--frozen-lockfile\``,
+        );
+        assert.equal(
+          /--ignore-scripts\b/.test(line),
+          ignoreScripts,
+          ignoreScripts
+            ? `${name}: ${label} installs WITHOUT \`--ignore-scripts\`. This job holds write or npm ` +
+                `OIDC authority, and a dependency's install script would run under it — the ` +
+                `publish-time lifecycle guard only inspects the two public packages' own scripts.`
+            : `${name}: ${label} installs WITH \`--ignore-scripts\`, which is pinned to the ` +
+                `authority-holding release jobs only. This job builds, and the sanctioned ` +
+                `\`allowBuilds\` scripts must run for it to build the real tree.`,
+        );
+      }
+    }
+  }
+
+  // NO WORKFLOW, JOB, OR STEP `env:` MAY REACH INTO THE LANE SELECTOR. `packages/ui/webkit-lane.ts`
+  // defaults to `require` under `CI` — three engines, failing closed — and honours an explicit
+  // `WEBKIT_LANE`/`SMOKE_WEBKIT` so a host with a genuinely broken WebKit can be unblocked
+  // deliberately. In a WORKFLOW that knob is a switch that turns the third engine off while
+  // AGENTS.md, tooling/verify.mjs, docs/RELEASING.md and the `ship` skill all promise three, and the
+  // deploy still goes green. Clearing `CI` does the same thing from the other side: it drops the lane
+  // back to `auto`, where a WebKit that cannot launch is a banner nobody reads. All three were
+  // ACCEPTED by this gate on 2026-09-09 — at workflow level, at job level, and on the
+  // `pnpm verify:release` step itself.
+  for (const [scope, env] of [
+    ["workflow level", document.env],
+    ...[...jobs].flatMap(([job, body]) => [
+      [`job ${job}`, body.env],
+      ...jobSteps(name, job, body).map(({ step, label }) => [label, step.env]),
+    ]),
+  ]) {
+    if (!env || typeof env !== "object") continue;
+    for (const key of Object.keys(env)) {
+      assert.ok(
+        !LANE_CONTROL_ENV.has(key),
+        `${name}: ${scope} declares \`env.${key}\`. That variable selects how many browser engines ` +
+          `the suite runs (packages/ui/webkit-lane.ts): setting it — or clearing \`CI\` — silently ` +
+          `reduces \`verify:release\` to two engines while every surface in the repository promises ` +
+          `three, and the run still reports success.`,
       );
     }
   }
@@ -623,21 +738,39 @@ for (const [name, source] of Object.entries(sources)) {
   );
 
   // The one command must actually be invoked, and on a machine that can run it.
+  //
+  // THE COMMAND MUST BE THE WHOLE `run:` BODY, NOT A LINE INSIDE ONE. This assertion used to read
+  // `/^\s*pnpm verify\s*$/m` — MULTILINE — so it matched `pnpm verify` sitting on its own line
+  // anywhere in a block scalar. The effectiveness rules below key off
+  // `VERIFICATION_COMMANDS.has(step.run.trim())`, an exact WHOLE-BODY match, so a block-scalar body
+  // was not a verification step as far as they were concerned and escaped both the `if:` ban and the
+  // `continue-on-error` reasoning. The two disagreeing was the hole:
+  //
+  //     - run: |
+  //         set +e
+  //         pnpm verify
+  //         exit 0
+  //
+  // satisfied "the command is invoked" while the job reported success over a red suite, and ci.yml —
+  // which unlike deploy.yml and release.yml carries no extra literal `- run: pnpm verify` assertion —
+  // had nothing else to catch it. Both halves now agree on the same identity: the command IS the body.
+  // (`stripRun` below independently rejects `set +e`/`|| true` in ANY run body, so the wrapper form
+  // fails twice over.)
   if (MUST_RUN_VERIFY.includes(name)) {
     const invocations = [...jobs]
       .filter(([job, body]) =>
         jobSteps(name, job, body).some(
           ({ step }) =>
-            typeof step.run === "string" &&
-            /^\s*pnpm verify\s*$/m.test(step.run),
+            typeof step.run === "string" && step.run.trim() === "pnpm verify",
         ),
       )
       .map(([job]) => job);
     assert.ok(
       invocations.length > 0,
-      `${name}: no job runs \`pnpm verify\`. That command IS the verification — typecheck, lint, ` +
-        `design:verify, and the @vegastack/ui browser suite — so a workflow without it validates ` +
-        `nothing and reports that as a pass.`,
+      `${name}: no job runs \`pnpm verify\` as the ENTIRE body of a \`run:\` step. That command IS ` +
+        `the verification — typecheck, lint, design:verify, and the @vegastack/ui browser suite — so ` +
+        `a workflow without it validates nothing and reports that as a pass. A block scalar that ` +
+        `merely CONTAINS the line does not count: the surrounding shell can discard its exit code.`,
     );
     // …and in a LINUX_JOBS job. `pnpm verify` on a mini dies on the Chromium launch, so a `verify`
     // that drifted onto one is a broken gate rather than a moved one.

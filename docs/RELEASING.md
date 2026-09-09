@@ -41,7 +41,7 @@ distribution channels, both already wired:
 ## Release a component update (maintainer)
 
 1. Edit the **canonical** source only: `packages/ui/registry/ui/<name>.tsx`.
-2. `npm run registry:build` — regenerates the docs copy-in + per-item JSON and **re-stamps the
+2. `pnpm registry:build` — regenerates the docs copy-in + per-item JSON and **re-stamps the
    SHA-256 integrity + provenance header**. The changed hash is the machine-readable "this changed"
    signal consumers' `vegastack-design check-updates` reads.
 3. `pnpm changeset` — bump `@vegastack/ui` (and any other changed package). **The summary opens

@@ -12,6 +12,14 @@
    `tooling/verify-test-css-layers.mjs`. */
 @import "@vegastack/design-tokens/base.css";
 @import "@vegastack/design-tokens/utilities.css";
+/* `tw-animate-css` — the `animate-in`/`fade-in`/`zoom-in`/`slide-in-from-*` family that
+   `@vegastack/design/preset.css` ships to every consumer, and which no lane imported until
+   2026-09-09. The gate that keeps these lanes in lockstep with production matched only
+   `@vegastack/design-tokens/<layer>.css`, so this import was invisible to it. Zero classes from it
+   are used in this tree today, which is exactly why it had to be added rather than dropped: an
+   undefined utility compiles to NOTHING with no error, so the first fixture to wear one would have
+   been measured without it. */
+@import "tw-animate-css";
 
 @source '../registry/ui/**/*.tsx';
 @source './stacking.browser.test.tsx';

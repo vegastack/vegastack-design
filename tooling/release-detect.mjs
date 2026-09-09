@@ -119,18 +119,38 @@ const changesetFiles = (() => {
 })();
 const hasChangesets = changesetFiles.length > 0;
 
-/** Files changed in the range, when one was given. An unresolvable range is treated as "unknown". */
-const changed =
+/**
+ * Files changed in the range, when one was given — and, separately, whether git could ANSWER.
+ *
+ * The comment above this used to say "an unresolvable range is treated as unknown" while the code
+ * read `.stdout ?? ""` and produced `[]`: a `git diff` that could not run (a shallow clone, a
+ * missing ref, a spawn failure) was indistinguishable from a push that touched no `packages/` file,
+ * and the run reported `publish=false` on the strength of a question that was never answered.
+ * `--check-npm` backstopped it in the release workflow, which is why it never shipped a wrong
+ * decision; a backstop is not the same as the signal being right. The failure is now carried, and
+ * joins the npm unknowns below so `decisiveUnknown` fails the run rather than guessing.
+ */
+const rangeDiff =
   options.before && options.after
-    ? (
-        spawnSync(
-          "git",
-          ["diff", "--name-only", `${options.before}..${options.after}`],
-          { cwd: ROOT, encoding: "utf8", maxBuffer: 256 * 1024 * 1024 },
-        ).stdout ?? ""
+    ? spawnSync(
+        "git",
+        ["diff", "--name-only", `${options.before}..${options.after}`],
+        { cwd: ROOT, encoding: "utf8", maxBuffer: 256 * 1024 * 1024 },
       )
-        .split("\n")
-        .filter(Boolean)
+    : undefined;
+const rangeUnknown =
+  rangeDiff === undefined
+    ? undefined
+    : rangeDiff.error
+      ? `git did not run (${rangeDiff.error.code ?? rangeDiff.error.message})`
+      : rangeDiff.signal
+        ? `git was killed (${rangeDiff.signal})`
+        : rangeDiff.status !== 0
+          ? `git exited ${rangeDiff.status}: ${(rangeDiff.stderr ?? "").trim().split("\n")[0]}`
+          : undefined;
+const changed =
+  rangeDiff && !rangeUnknown
+    ? (rangeDiff.stdout ?? "").split("\n").filter(Boolean)
     : [];
 
 /**
@@ -215,7 +235,12 @@ function queryRegistry(name, cwd) {
  * push able to set this true. Opt-in because it needs network.
  */
 const unpublished = [];
-const unknown = [];
+const unknown = rangeUnknown
+  ? [
+      `git diff ${options.before}..${options.after}: ${rangeUnknown} — ` +
+        `whether \`packages/\` changed in this range is NOT established`,
+    ]
+  : [];
 if (options.checkNpm) {
   const cwd = npmScratchDirectory();
   try {
@@ -268,7 +293,7 @@ console.log(
 );
 if (unknown.length > 0)
   console.error(
-    "release-detect: the npm registry could not be queried, so NOTHING was concluded from it:\n" +
+    "release-detect: a signal could not be queried, so NOTHING was concluded from it:\n" +
       unknown.map((line) => `  ${line}`).join("\n") +
       (decisiveUnknown
         ? "\n  It was the only thing that could have set publish=true, so this run FAILS rather " +
