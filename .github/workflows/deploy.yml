@@ -37,8 +37,9 @@ concurrency:
 # main could otherwise reach a deploy having never executed a single browser assertion. The `verify`
 # job below closes that hole by RUNNING the work: `pnpm verify` (typecheck, lint, design:verify, the
 # browser suite) followed by `pnpm verify:release` (the docs export, link and metadata checks, the
-# registry build and its idempotency, the shadcn consume round-trip, and the complete unit suite in
-# all three engines) in the pinned Playwright container on the LAN Linux boxes. It replaces the
+# docs-shell contracts in a real browser over that export, the registry build and its idempotency,
+# the shadcn consume round-trip, and the complete unit suite in all three engines) in the pinned
+# Playwright container on the LAN Linux boxes. It replaces the
 # `receipt-guard` job, which demanded a receipt from a local `pnpm gates:ship` sweep and could only
 # ever be attestation (docs/plans/2026-09-08-verification-rebuild.md, R1).
 

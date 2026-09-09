@@ -4,6 +4,61 @@ Every bug found + root cause + fix. Append-only.
 
 ---
 
+## 2026-09-09 — `docs-shell.spec.ts` asserted two properties the built site does not have, and no gate ever ran it
+
+- **Found while** restoring the five docs-shell assertions WP3 deleted, as
+  `tooling/verify-docs-shell.mjs` (release stage). Re-implemented faithfully from
+  `origin/main:apps/docs/vrt/docs-shell.spec.ts`, **two of the five failed immediately** against a
+  fresh `SITE_VISIBILITY=public` export of that same tree.
+
+- **1. The background-isolation probe read the wrong node.** The spec asserted
+  `article.closest("[aria-hidden='true']") !== null` once the fullscreen preview is open. Measured
+  against `@base-ui/react` 1.6.0: the two isolation markers land at **different depths** — the
+  outside subtree ROOT (`#nd-docs-layout`) gets `data-base-ui-inert`, while `aria-hidden="true"` is
+  applied to the outside elements one level in, i.e. the article's own children (`H1`, `P`,
+  `H2#installation`, …) and never to `<article>` itself. So `article.closest(…)` is `false` on a
+  correctly isolated page. Fixed by probing `article h1` for the AT marker and `article` for the
+  inert marker.
+
+- **2. The fullscreen focus trap does not hold — OPEN DEFECT.** The spec's 25-step Tab walk allowed
+  only `dialog`, `guard` and `body`. Measured on a fresh public export of this tree, four
+  consecutive runs of the same walk (`D`=dialog, `g`=Base UI focus guard, `chrome`=a body-level
+  anchor outside the docs layout, `NAV`=inside `#nd-docs-layout`):
+
+  ```
+  run 0  D g body chrome chrome D D g body chrome D D g body chrome chrome chrome D D g body chrome chrome chrome D
+  run 1  D g D D g body D D g body chrome D D g body chrome chrome chrome NAV D g body chrome chrome D
+  run 2  D D g body chrome chrome chrome NAV NAV NAV D D g body chrome D D g body chrome chrome chrome NAV D g
+  run 3  NAV D D g body chrome chrome chrome NAV NAV NAV NAV D D g D D g body chrome chrome chrome NAV D D
+  ```
+
+  Focus leaves the dialog in **every** run and reaches the docs **navigation** in three of four.
+  Mechanism: Base UI 1.6.0 `aria-hidden`s outside elements but never sets `inert`, so they stay in
+  the tab order, and the inside guard drops focus to `<body>` instead of cycling — from which Tab
+  restarts at the top of the document. Deterministic in _that_ it leaks, non-deterministic in
+  _where_.
+
+  **Not fixed here, and not asserted here.** The fix is a shell change (make the outside subtrees
+  genuinely untabbable while a modal is open) or a Base UI upgrade, neither of which belongs in a
+  verification PR. Asserting it would ship a permanently red release gate; asserting a
+  watered-down version would ship a false coverage claim — the exact failure mode of the
+  forced-colors focus check. So `verify-docs-shell.mjs` asserts the two DC-03 halves that DO hold
+  (background isolation and its release on close, Escape) and prints a `! NOT ASSERTED` line naming
+  this defect on every run, pass or fail.
+
+- **Root cause of both: the file was executed by no gate.** It was the `@vegastack/docs` `test`
+  script, reachable only through a root `pnpm test` that nothing in the ladder or in CI ran — the
+  hooks ran `gates:push` (unit + smoke + contracts) and no CI runner launched a browser. A spec that
+  nothing runs drifts silently; both defects above predate WP3 and neither was ever reported.
+
+- **Fix.** `tooling/verify-docs-shell.mjs`, wired into `pnpm verify:release` right after
+  `docs lint:links (public)`, with a `--self-test` in the same stage that injects nine defects (at
+  least one per assertion) and requires each to be rejected. Reproduction for the open focus leak:
+  `SITE_VISIBILITY=public pnpm -F @vegastack/docs build`, then open
+  `/docs/components/button`, click "Fullscreen preview", and press Tab six times.
+
+---
+
 ## 2026-09-08 — The `relative-time` 320px contract fails nondeterministically under the full sweep
 
 - **Symptom.** `/docs/components/relative-time contains its primary fixture at 320px` fails with
@@ -243,6 +298,7 @@ re-diagnose it, and because a race that flakes under load is a real race.
 - **Why the spec and not the component:** the contract lane must tolerate fixtures that legitimately
   re-render, or every future self-updating component becomes unverifiable. Both branches reached that
   conclusion independently.
+
 ---
 
 ## 2026-09-07 — Making a leaf server-safe silently breaks its Story explorer
@@ -297,6 +353,7 @@ re-diagnose it, and because a race that flakes under load is a real race.
   contains zero `motion-reduce:` utilities. **Rule of thumb:** if a component seems to need its own
   `motion-reduce:` variant, the global reset is missing a property — widen the reset, do not grant an
   exception. A duration-only reset is an incomplete one; delay is motion too.
+
 ---
 
 ## 2026-09-08 — The 24px floor never saw the combobox chips, and Tag's hit area never existed
@@ -897,6 +954,7 @@ ghost takes its own` expected the neutral ghost to compute `rgb(1, 2, 3)` (its h
   window in the target-floor check needs the same bounded retry the scroll step got, or the probe
   should re-measure the rect inside the poll. Until then a globally-scoped change can lose a full
   sweep to it, and the correct handling is a re-run plus an isolated confirmation — never `GATES_SKIP`.
+
 ## 2026-09-07 — Audit finding B3-10 was wrong: Base UI does NOT set `role="tooltip"`
 
 - **Symptom:** B3-10 ("Tooltip drops explicit `role`") asserted that Base UI's Tooltip popup already

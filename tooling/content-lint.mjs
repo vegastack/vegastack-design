@@ -3,11 +3,10 @@
 // consumer-facing commands. VegaStack consumes current shadcn Base UI support via
 // `pnpm dlx shadcn@latest`; old pinned `shadcn@4.7.0` snippets silently drift back
 // toward the pre-Base workflow.
-import { readdirSync, readFileSync, statSync } from "node:fs";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+import { fatal, ROOT, walk as walkTree } from "./lib/fs.mjs";
 
 const STALE_SHADCN_RE = /\b(?:npx\s+)?shadcn@4\.7\.0\b/g;
 
@@ -18,35 +17,38 @@ const PUBLIC_DOCS_DIR = join(ROOT, "apps/docs/content/docs");
 const INTERNAL_DOCS_DIR = join(ROOT, "apps/docs/content/internal");
 const DOCS_GLOBAL_CSS = join(ROOT, "apps/docs/app/global.css");
 
-// Deferred-visual-coverage rot (Codex R14). `apps/docs/vrt/contracts.spec.ts` is the blocking gate
-// and derives its routes from the component contract, so a skipped visual `describe` in a spec — or
-// in an authoring skill that teaches the workflow — leaves a component with NO active behaviour
-// coverage while reading as covered. Reject it, scoped to the specs plus the skill markdown.
-const VISUAL_SCAN_DIRS = [join(ROOT, "apps/docs/vrt"), join(ROOT, "skills")];
+// Deferred-visual-coverage rot (Codex R14). The geometry contracts in
+// `packages/ui/test/geometry.browser.test.tsx` are the blocking visual-surface gate and derive their
+// fixtures from the preview barrel, so a skipped visual `describe` — in a test, or in an authoring
+// skill that teaches the workflow — leaves a component with NO active behaviour coverage while
+// reading as covered. Reject it, scoped to the browser tests plus the skill markdown.
+const VISUAL_SCAN_DIRS = [join(ROOT, "packages/ui/test"), join(ROOT, "skills")];
 const VISUAL_EXT = /\.(md|mdx|ts|tsx|mts|cts|js|mjs|cjs|jsx)$/;
 // A SKIPPED visual describe — `describe.skip(`, `test.describe.skip(`, `it.skip(` style calls.
 const SKIPPED_DESCRIBE_RE = /\b(?:test\.|it\.)?describe\.skip\s*\(/g;
 // Committed screenshots were removed on 2026-07-25: captures are local, before/after, and never
 // stored. Guidance that still tells an author to commit or regenerate a baseline sends them to a
 // workflow that no longer exists — and `tooling/verify-workflow-security.mjs` will reject it.
-// `--update-snapshots` is deliberately NOT matched: it is how tooling/vrt-review.mjs writes the
-// base-ref capture, and with no persistent baseline there is nothing for it to silently overwrite.
+// `--update-snapshots` is deliberately NOT matched: no lane in this repository writes a persistent
+// baseline any more, so there is nothing for it to silently overwrite.
 const COMMITTED_BASELINE_RE =
   /commit\s+(?:the\s+)?(?:VRT\s+)?baselines?|update_baselines|verify:vrt-baselines/g;
 
-function walk(dir, out = [], ext = /\.(md|mdx)$/) {
-  let entries;
+/**
+ * FAILS CLOSED on an unreadable root. The previous walker returned `[]` when `readdirSync` threw,
+ * so a moved `skills/` or `apps/docs/content` tree read as clean — the exact fail-open
+ * design-lint.mjs had already fixed for its own roots (audit TG-07). Exit 2 is "could not run",
+ * which is the truthful answer when the thing to lint is not there.
+ */
+function walk(dir, ext = /\.(md|mdx)$/) {
   try {
-    entries = readdirSync(dir);
-  } catch {
-    return out;
+    return walkTree(dir, { include: (relative) => ext.test(relative) });
+  } catch (error) {
+    return fatal(
+      "content-lint",
+      `cannot read root '${dir.replace(ROOT + "/", "")}': ${error.message} — an unreadable root is not a clean one`,
+    );
   }
-  for (const name of entries) {
-    const p = join(dir, name);
-    if (statSync(p).isDirectory()) walk(p, out, ext);
-    else if (ext.test(name)) out.push(p);
-  }
-  return out;
 }
 
 let violations = 0;
@@ -69,7 +71,7 @@ for (const [dir, expectedAudience] of [
   [PUBLIC_DOCS_DIR, "public"],
   [INTERNAL_DOCS_DIR, "internal"],
 ]) {
-  for (const file of walk(dir, [], /\.mdx$/)) {
+  for (const file of walk(dir, /\.mdx$/)) {
     const contents = readFileSync(file, "utf8");
     const frontmatterMatch = contents.match(/^---\n([\s\S]*?)\n---/);
     const relative = file.replace(ROOT + "/", "");
@@ -158,7 +160,7 @@ for (const dir of SCAN_DIRS) {
 // Reject stale visual-coverage guidance: skipped visual describes + committed-baseline instructions.
 const seenVisualFiles = new Set();
 for (const dir of VISUAL_SCAN_DIRS) {
-  for (const file of walk(dir, [], VISUAL_EXT)) {
+  for (const file of walk(dir, VISUAL_EXT)) {
     if (seenVisualFiles.has(file)) continue;
     seenVisualFiles.add(file);
     const lines = readFileSync(file, "utf8").split("\n");
@@ -167,12 +169,12 @@ for (const dir of VISUAL_SCAN_DIRS) {
         {
           re: SKIPPED_DESCRIBE_RE,
           label: "visual-skip",
-          msg: "a skipped visual `describe.skip(` leaves a component with no active behaviour coverage — the contract suite derives its routes from packages/ui/component-contracts.json, so add the component contract instead of skipping.",
+          msg: "a skipped visual `describe.skip(` leaves a component with no active behaviour coverage — the geometry contracts derive their fixtures from the preview barrel, so add the preview and the component contract instead of skipping.",
         },
         {
           re: COMMITTED_BASELINE_RE,
           label: "committed-baseline",
-          msg: "committed screenshot baselines were removed on 2026-07-25 — captures are local before/after via `node tooling/vrt-review.mjs` and are never committed. Rewrite this guidance.",
+          msg: "committed screenshot baselines were removed on 2026-07-25 and no capture lane replaced them — the blocking visual-surface gate is the geometry contract suite, which takes no screenshots. Rewrite this guidance.",
         },
       ]) {
         re.lastIndex = 0;

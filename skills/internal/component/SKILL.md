@@ -269,14 +269,16 @@ target: "@ui/<name>.tsx" }]` — the `@ui/` placeholder, never a hard-coded path
    states, motion, engines, or test files) the component's record in
    [`packages/ui/component-contracts.json`](../../../packages/ui/component-contracts.json), then run
    `pnpm design:derived`. It refreshes the committed prose surfaces (the component matrix, the
-   public skill roster, AGENTS.md § Numbers) — commit those — and it regenerates
-   `apps/docs/vrt/contract-routes.generated.ts`, the route list consumed by BOTH the contract gate
-   (`contracts.spec.ts`) and the local before/after capture (`components.spec.ts`). That route list
-   and its four sibling `*.generated.*` files are **untracked build outputs**: `prepare:content`
-   writes them, `.gitignore` excludes them, and there is nothing to stage — the authority you commit
-   is the contract record. Never hand-edit a generated file. Both suites cover all four Playwright
-   lanes from that one route — do not author a per-page `describe`, and never leave a skipped visual
-   test (rejected by `tooling/content-lint.mjs`).
+   public skill roster, the audit register, AGENTS.md § Numbers, README § Inventory) — commit those
+   — and it writes the two **untracked build outputs**,
+   `apps/docs/lib/home-component-catalog.generated.ts` and
+   `apps/docs/components/animated-icon-gallery.generated.tsx` (`tooling/lib/derived-build-outputs.mjs`
+   is the list). `prepare:content` writes those, `.gitignore` excludes them, and there is nothing to
+   stage — the authority you commit is the contract record. No lane consumes a generated route list
+   any more: the contract and pixel suites that did were deleted, and the blocking visual gate
+   (`packages/ui/test/geometry.browser.test.tsx`) reads the preview barrel directly. Never
+   hand-edit a generated file, and never leave a skipped visual test (rejected by
+   `tooling/content-lint.mjs`).
 
 ## 7. Verify
 
@@ -305,12 +307,12 @@ pnpm dlx shadcn@latest add @vegastack/<name> -y -o     # copy-in renders (serve 
 reconciliation, public API docs, theme parity, and the portal/mirror checks). Run it before calling
 a component done, or `pnpm lint`, which includes it.
 
-Then prove the behaviour contract and review the pixels. These are different things and neither
-substitutes for the other.
+Then prove the behaviour contract, and look at the component yourself. These are different things
+and neither substitutes for the other.
 
 ```bash
 pnpm verify                                    # BLOCKING. Includes 320px reflow · RTL · 24px targets
-node tooling/vrt-review.mjs                    # REVIEW. before/after on this machine; exits 0 either way
+pnpm -F @vegastack/docs dev                    # REVIEW. open the page and look at it
 ```
 
 1. The geometry contracts are the gate, and they live in
@@ -318,8 +320,8 @@ node tooling/vrt-review.mjs                    # REVIEW. before/after on this ma
    runs them and so does CI, on the LAN Linux runners in the pinned Playwright container. A red
    result is a defect in the component, not in the suite. Reproduce one fixture with
    `pnpm --filter @vegastack/ui exec vitest run test/geometry.browser.test.tsx -t <fixture>`.
-2. The review tool captures the branch's merge-base and the working tree, then writes
-   `.vrt-review/report.json` plus before/after/diff PNGs. **Read the images** for every entry whose
-   `status` is not `unchanged`, classify each intended / unintended / uncertain, and present the
-   verdict. No screenshot is committed — `.gitignore` excludes both output directories.
-3. A run that captured nothing prints SKIPPED. That is not evidence of a clean diff.
+2. There is **no pixel-capture tool**: the before/after lane was deleted with the attestation stack
+   (`docs/plans/2026-09-08-verification-rebuild.md` § 3.3), and no screenshot is taken or committed
+   anywhere. The visual half is a person opening the docs page in light and dark, at narrow and wide,
+   and exercising every state — rest, hover, pressed, focus-visible, disabled.
+3. "The gate is green" is not a visual verdict. Say what you looked at, or say you did not look.

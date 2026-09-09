@@ -2,7 +2,7 @@
 
 Every entry here cost a full merge-and-watch cycle on 2026-07-25/26. Seven cycles, because each
 blocker was found _serially_ — fix, push, merge, watch, discover the next one. **The lesson above all
-others: exercise the whole chain in one pass before starting.** `node tooling/verify-release-chain.mjs`
+others: exercise the whole chain in one pass before starting.** `pnpm verify:release`
 does that; it simulates a version bump in a throwaway worktree and asserts every link. It would have
 found five of these at once.
 
@@ -22,7 +22,7 @@ Proven end to end on 2026-07-26. Follow it in this order.
 3. Commit and push. Read the CI result; do not treat the local run as standing in for it.
 4. Merge the change PR → `version-pr` opens the Version PR.
 5. Merge the Version PR → `publish` → npm.
-6. `node tooling/vrt-review.mjs`, then dispatch `deploy.yml`.
+6. Review the affected docs routes by hand, then dispatch `deploy.yml`.
 
 **`publish` showing "Skipped" on step 4 is CORRECT** — that is the two-phase changesets model. It
 runs only when `has_changesets == 'false'`, i.e. after the Version PR merges. Do not treat it as a
@@ -39,7 +39,7 @@ comparing the newest run id before and after rather than trusting the command's 
 publish. A defect anywhere fails the whole thing, and each discovery costs a full cycle. Run the whole chain locally first:
 
 ```bash
-node tooling/verify-release-chain.mjs     # ~5min, no network, no side effects
+pnpm verify:release                      # the release half of the one command
 ```
 
 Second rule: **most of these only appear on a MINOR bump.** The 0.1.0 → 0.1.1 release exercised none
@@ -75,7 +75,8 @@ CI runs `pnpm verify` against every commit including a Version PR's. Kept for th
 - **Symptom:** `receipt-guard` demands the `unit` lane; the carried receipt records it skipped.
 - **Cause:** `packages/ui/package.json` matches the unit-lane surface, so a version bump looked like a
   package change. The publish path could never open.
-- **Now:** `classify-change` short-circuits on `versionBumpOnly`. Run 30172679327.
+- **Then:** `classify-change` short-circuited on `versionBumpOnly`. Run 30172679327. Both the
+  classifier and the receipt it fed are now deleted; CI simply runs every lane on every commit.
 
 ## 4. The receipt cannot cross a version bump on its own — HISTORICAL
 
@@ -86,8 +87,8 @@ statement of why binding evidence to a tree hash was fragile in the first place.
 - **Cause:** `changeset version` + `version-sync` move the tree hash — versions, package CHANGELOGs,
   consumed changesets, and a re-stamped provenance header in 1082 files. Measured: 77a346c0 → 1b5796df.
 - **Unfixable by re-running gates:** that branch is bot-authored and browsers cannot run in CI.
-- **Now:** `gate-receipt-carry` carries it, the guard re-derives the proof. If the carry **refuses**,
-  do not work around it — something other than a version bump is in that branch.
+- **Then:** `gate-receipt-carry` carried it and the guard re-derived the proof. Both are deleted:
+  `pnpm run version-packages` is `changeset version && version-sync` and nothing else.
 
 ## 5. Never anchor a cross-machine proof to a tree hash
 
@@ -123,7 +124,7 @@ statement of why binding evidence to a tree hash was fragile in the first place.
   awaiting publication** — fold the fix in before the Version PR is opened, or land it after the
   publish. Verified live: it stranded 0.2.0 on main with 0.1.1 on npm.
 - **Recovery:** delete the empty changeset, and make sure `publish` can still become true —
-  `classify-change --check-npm` asks the registry what is actually published, so an interrupted
+  `release-detect --check-npm` asks the registry what is actually published, so an interrupted
   release resumes instead of needing a human to guess.
 
 ## 8. Generated surfaces vs prettier
@@ -235,7 +236,7 @@ Two recovery-specific follow-ons:
   the complete rerun, so no assertion or timeout budget was weakened. The ship ladder now also
   awaits its cold docs warm-up before the complete browser lane, matching its stated ordering.
 
-After publishing, `classify-change --check-npm` reports nothing unpublished, so a later docs-only push
+After publishing, `release-detect --check-npm` reports nothing unpublished, so a later docs-only push
 correctly leaves `publish=false` and cannot re-publish by accident.
 
 ## The one thing still open

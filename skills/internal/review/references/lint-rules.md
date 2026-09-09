@@ -75,8 +75,11 @@ in both directions, so an added or removed rule fails the build until this file 
     offset inside `calc()` must itself be a token — `calc(100dvh-2rem)` still fails despite the
     viewport unit.
 22. **`transition-pairing`** — a string literal containing a `transition*` utility without BOTH a
-    `duration-*` and an `ease-*` token in the SAME literal (`transition-none`/`-discrete` exempt).
-    Catches the silent-inherit-default-curve bug class.
+    duration token (`duration-fast`/`-base`/`-slow`) and an ease token
+    (`ease-standard`/`-emphasized`/`-exit`/`-spring`) in the SAME literal, or carrying any raw
+    Tailwind step (`duration-300`, `ease-in-out`, …) — the message names the raw step.
+    `transition-none`/`-discrete` are exempt, and `duration-0` is a legal structural modifier that
+    does not satisfy the pairing by itself. Catches the silent-inherit-default-curve bug class.
 23. **`color-transition`** / **`transition-all`** — `transition-colors`, any `transition-[…]` naming a
     colour property, and `transition-all` are banned. Colour changes are immediate; enumerate the
     causal opacity/transform/geometry properties instead.
@@ -100,8 +103,14 @@ in both directions, so an added or removed rule fails the build until this file 
     `focus-visible:border-…` tint on one element, and under `forced-colors: active` the tint is
     erased while `outline-none` (unlike `outline-hidden`) emits no forced-colors carve-out — so the
     element had no indicator at all and no lint rule could see it (`docs/ledger/bugs.md`,
-    2026-07-25). The real gate is `contracts.spec.ts`'s forced-colors focus assertion; treat this
-    rule as a smell detector, not proof.
+    2026-07-25). **No gate covers this today.** The forced-colors focus assertion that was named
+    here lived in `contracts.spec.ts`, which was deleted with the attestation stack — and it could
+    never have caught this anyway: it ran under `forcedColors: "active"`, where Chromium paints its
+    own ≥2px ring, so it stayed green over a deleted focus rule (same ledger entry). Nothing
+    replaced it. So a reviewer must do it by hand: for any file that suppresses a focus outline,
+    open the element in a browser, turn forced colors on (Chrome DevTools → Rendering → Emulate CSS
+    media feature forced-colors: active), Tab to it, and confirm a visible indicator. Treat this
+    rule as a smell detector pointing at the elements worth that check, never as proof.
 27. **`inline-style`** (§7.1, multi-line-aware) — a `style={…}` attribute whose object literal sets any
     key that is not a `--*` custom property, unless it is the one documented exception (a dynamic
     `backgroundColor`/`background` on `color-picker.tsx`'s swatch fill — no Tailwind utility can

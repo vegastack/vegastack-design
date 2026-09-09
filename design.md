@@ -2200,8 +2200,15 @@ that survives outside a code fence, any unresolved placeholder, and any empty AP
 are compiled against Tailwind's stock theme, so their weights, radii and shadows are remapped to
 system values once in `apps/docs/app/global.css`, and `design-lint --docs-shell --emitted-css`
 reads the BUILT stylesheet to prove it — source linting cannot see a value this repo never wrote.
-`apps/docs/vrt/docs-shell.spec.ts` asserts the rest in a browser: the product type scope, the
-weight ladder as computed, the fullscreen focus trap, the skip link, and named tab stops.
+`tooling/verify-docs-shell.mjs` asserts the rest in a real browser against the built public export,
+in `pnpm verify:release`: the product type scope (including inside a portal), the weight ladder as
+computed, the fullscreen preview's background isolation and Escape, the skip link as the first tab
+stop, and named tab stops. Its `--self-test` runs in the same stage and injects, per assertion, the
+defect that assertion exists to catch — so none of them can quietly go fail-open. **One half of
+DC-03 is a known open defect and is deliberately NOT asserted:** the fullscreen focus trap does not
+hold — focus leaves the dialog and reaches the docs navigation — and the script prints a
+`NOT ASSERTED` line for it on every run rather than claiming coverage it does not have. Measurement,
+four-run trace and reproduction: `docs/ledger/bugs.md`, 2026-09-09.
 
 ---
 

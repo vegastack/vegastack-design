@@ -51,7 +51,7 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { ROOT } from "./lib/change-set.mjs";
+import { ROOT } from "./lib/fs.mjs";
 
 const GATE = join(ROOT, "tooling/verify-workflow-security.mjs");
 const WORKFLOWS = join(ROOT, ".github/workflows");

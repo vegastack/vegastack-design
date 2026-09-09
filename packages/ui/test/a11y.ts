@@ -27,7 +27,7 @@ import { expect } from "vitest";
  * WCAG 2.2 result depends on compiled dimensions and pseudo-element hit areas that
  * are intentionally absent here; enabling it produced false failures on raw test
  * triggers. The compiled docs contract uses real `elementFromPoint` boundary probes
- * across every component route instead (`apps/docs/vrt/contracts.spec.ts`).
+ * across every preview fixture instead (`packages/ui/test/geometry.browser.test.tsx`).
  */
 export async function expectNoA11yViolations(
   el: Element,

@@ -111,7 +111,7 @@
 [data-base-ui-portal] {
   /* DC-01 / DD-5: the scope re-binds the ladder AND sets the inherited base, so a demo (or a
      portaled popup) that relies on inheritance renders at the product 14/21, not the 15/28
-     prose base of the Fumadocs page around it. Asserted by `vrt/docs-shell.spec.ts`. */
+     prose base of the Fumadocs page around it. Asserted by `tooling/verify-docs-shell.mjs`. */
   font-size: var(--type-product-base);
   line-height: var(--type-product-base--line-height);
   --type-xs: var(--type-product-xs);
