@@ -2464,16 +2464,16 @@
       }
     },
     {
-      "name": "sonner",
+      "name": "toast",
       "type": "registry:ui",
       "title": "Toast",
-      "description": "Brief, non-blocking notifications — a token-styled Sonner toaster with success/error/warning/info variants that follows the theme.",
+      "description": "Brief, non-blocking notifications — a stacking Base UI Toast surface with success, error, warning, info and loading types, promise toasts and swipe-to-dismiss.",
       "categories": [
         "feedback"
       ],
       "dependencies": [
-        "sonner@^2.0.7",
-        "next-themes@0.4.6",
+        "@base-ui/react@^1.6.0",
+        "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
@@ -2481,32 +2481,33 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "packages/ui/registry/ui/sonner.tsx",
+          "path": "packages/ui/registry/ui/toast.tsx",
           "type": "registry:ui",
-          "target": "@ui/sonner.tsx"
+          "target": "@ui/toast.tsx"
         }
       ],
       "meta": {
-        "whenToUse": "Brief confirmations of an action — 'Saved', 'Copied', 'Invitation sent'.",
+        "whenToUse": "Brief confirmations of an action — 'Saved', 'Copied', 'Invitation sent' — and the loading → success/error arc of an async one.",
         "whenNotToUse": "Errors the user must resolve, destructive confirmations, or essential info — use inline or a Dialog.",
         "version": "0.6.0",
-        "integrity": "sha256-s9CKftCkpKrCTzzRsNMAGTFexrjAEMymaHc6YVYcZdI="
+        "integrity": "sha256-PiCYpgrb/doHUocgL1zQzXK02Llno724t8mG6DtcLVw="
       }
     },
     {
       "name": "provider",
       "type": "registry:ui",
       "title": "Provider",
-      "description": "The single app-root wrapper — theme (next-themes), Sonner toasts, tooltip coordination, and text direction in one mount-once component.",
+      "description": "The single app-root wrapper — theme (next-themes), Base UI toasts, tooltip delays, and text direction in one mount-once component.",
       "categories": [
         "feedback"
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "next-themes@0.4.6"
+        "next-themes@0.4.6",
+        "@vegastack/design@^0.3.2"
       ],
       "registryDependencies": [
-        "@vegastack/sonner"
+        "@vegastack/toast"
       ],
       "files": [
         {
@@ -2519,7 +2520,7 @@
         "whenToUse": "Once, around your app root (layout.tsx) — every VegaStack component below it gets dark mode, working toast() calls, shared tooltip delays, and direction context.",
         "whenNotToUse": "Anywhere below the root, or a second time — the bundled Toaster is a mount-once portal; pass toaster={false} if you must render your own.",
         "version": "0.6.0",
-        "integrity": "sha256-j7RJm9M0bbnthF2SXN8AfSKfoZqUnnPm169og/MPM8E="
+        "integrity": "sha256-/1Lm+mys3qMElbs2skMk+TG7shwwu1SCSQEk0iYofZw="
       }
     },
     {

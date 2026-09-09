@@ -38,9 +38,14 @@ necessary, its border/radius must communicate hierarchy rather than duplicate th
 
 ## Stacking bands
 
-Use `z-(--z-raised)` for a local raise inside a component and `z-(--z-overlay)` for portaled
-surfaces. Raw z-index ladders are forbidden. Sonner manages its documented toast layer above modal
-content so a toast remains visible when emitted from a dialog.
+Three bands, all tokens: `z-(--z-raised)` for a local raise inside a component,
+`z-(--z-overlay)` for portaled surfaces, and `z-(--z-toast)` for the toast stack alone. Within a
+band, DOM order resolves nesting. Raw z-index ladders are forbidden.
+
+The toast band exists because DOM order cannot express its rule. The toast viewport mounts with the
+app provider, before any dialog opens, so on mount order alone every later dialog would cover it —
+yet a toast fired from inside a modal has to stay visible. One band above the portal band is the
+whole of that exception, and nothing else may claim it.
 
 <DoDont
   do="Use border-border for flat surfaces and shadow-overlay for real overlays — nothing else casts a shadow."

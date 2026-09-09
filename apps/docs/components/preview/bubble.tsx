@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { Check, ChevronDown, Info } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/bubble` (dogfoods the registry) → auto-scanned.
 import {

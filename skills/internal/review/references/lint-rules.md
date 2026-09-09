@@ -36,9 +36,10 @@ in both directions, so an added or removed rule fails the build until this file 
    sizes are dot-glyph geometry, not icon scale, and stay allowed.
 8. **`direct-lucide-size`** — a `size`/`width`/`height` prop passed directly to a lucide component.
    That bypasses the `--icon-*` roles.
-9. **`raw-z-index`** — any `z-N` literal. Two bands only: `z-(--z-raised)` (10, local) and
-   `z-(--z-overlay)` (50, portaled). Sonner is the one documented library-level exception — asserted
-   by test, not lint-suppressed.
+9. **`raw-z-index`** — any `z-N` literal. Three bands: `z-(--z-raised)` (10, local),
+   `z-(--z-overlay)` (50, portaled) and `z-(--z-toast)` (60, the toast stack alone, claimed only by
+   `toast.tsx`). No library-level exception remains; the toast-above-modal rule is asserted by test
+   in `test/stacking.browser.test.tsx`.
 10. **`raw-alpha`** — a color-alpha modifier as a raw `/NN` step (`bg-foreground/20`). Route through
     an `--alpha-*` role token.
 11. **`raw-opacity`** — a raw `opacity-NN` other than `opacity-0`/`opacity-100` (exempt structural

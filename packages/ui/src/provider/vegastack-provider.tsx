@@ -4,14 +4,15 @@
 // (`packages/ui/registry/ui/provider.tsx`) so the npm build and the registry copy-in do
 // not diverge. Keep them identical (composition order + props + defaults); the only
 // intentional differences are the Toaster import path (`./toaster` here vs the consumer
-// alias `@/components/ui/sonner` there) and the registry header stamp. If they must
+// alias `@/components/ui/toast` there) and the registry header stamp. If they must
 // differ, change ONLY the registry source and re-mirror here — do not let behaviour drift.
 
 import * as React from "react";
+import { TIMINGS } from "@vegastack/design";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { Tooltip } from "@base-ui/react/tooltip";
 import { DirectionProvider } from "@base-ui/react/direction-provider";
-import { Toaster } from "./toaster";
+import { ToastProvider, Toaster } from "./toaster";
 
 export interface VegaStackProviderProps extends Omit<
   React.ComponentProps<typeof NextThemesProvider>,
@@ -31,14 +32,14 @@ export interface VegaStackProviderProps extends Omit<
 
 /**
  * `VegaStackProvider` — single root wrapper bundling theme (next-themes),
- * toasts (Sonner), tooltip coordination, and text direction. Wrap your app
- * root with it exactly once.
+ * toasts (Base UI Toast), tooltip coordination, and text direction. Wrap your
+ * app root with it exactly once.
  *
  * The host `<html>` needs `suppressHydrationWarning` (next-themes mutates it).
  *
- * The `toaster` prop lets a host suppress (`false`) or replace the bundled
- * `<Toaster />` — necessary because a Sonner toaster is a mount-once portal that
- * must not be mounted twice.
+ * `ToastProvider` always mounts — it is the context the imperative `toast()`
+ * writes into. The `toaster` prop suppresses (`false`) or replaces only the
+ * VISIBLE viewport, which is the part that must not be mounted twice.
  */
 export function VegaStackProvider({
   children,
@@ -57,9 +58,14 @@ export function VegaStackProvider({
       {...themeProps}
     >
       <DirectionProvider direction={direction}>
-        <Tooltip.Provider>
-          {children}
-          {toasterNode}
+        <Tooltip.Provider
+          delay={TIMINGS.tooltipOpenDelayMs}
+          closeDelay={TIMINGS.tooltipCloseDelayMs}
+        >
+          <ToastProvider>
+            {children}
+            {toasterNode}
+          </ToastProvider>
         </Tooltip.Provider>
       </DirectionProvider>
     </NextThemesProvider>

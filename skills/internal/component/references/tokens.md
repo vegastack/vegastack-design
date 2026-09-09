@@ -158,12 +158,16 @@ Layout dimension tokens: `--layout-header-height` (3.5rem), `--sidebar-width` / 
 
 ## Z-index
 
-Two bands only: `z-(--z-raised)` (10, local raises inside a component's own stacking context) and
+Three bands: `z-(--z-raised)` (10, local raises inside a component's own stacking context),
 `z-(--z-overlay)` (50, every portaled surface — DOM order resolves nesting since Base UI appends
-portals to `<body>`, which is `isolate`).
+portals to `<body>`, which is `isolate`), and `z-(--z-toast)` (60, the toast stack alone).
 
-Raw `z-N` is lint-banned (`raw-z-index`). Sonner is the ONE documented exception (it mounts before
-dialog portals; its library z is load-bearing).
+The toast band exists because DOM order cannot express its rule: the toast viewport mounts with the
+app provider, before any dialog opens, so on mount order every later dialog would cover it — yet a
+toast fired from inside a modal must stay visible. `toast.tsx` is the only file allowed to name it,
+and the stack counts DOWN from it by `--toast-index`.
+
+Raw `z-N` is lint-banned (`raw-z-index`), with no library-level exception left.
 
 ## Type scale
 

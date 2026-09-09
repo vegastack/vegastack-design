@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { TIMINGS } from "@vegastack/design";
-import { toast } from "@/components/ui/sonner";
+import { toast } from "@/components/ui/toast";
 
 export type MarkdownCopyStatus = "idle" | "loading" | "copied";
 

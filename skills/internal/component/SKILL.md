@@ -91,8 +91,7 @@ Contract for every new animated element:
   keyframes to their end state automatically (every keyframe's `to` equals the resting style) — as
   long as a component-local override does not fight it.
 - `animate-spin`/`animate-pulse` are the only sanctioned raw Tailwind animation utilities.
-- Excluded by design, do not add speculatively: avatar hover-lift, card 3D tilt, FAB morph. Toast
-  motion is sonner-owned.
+- Excluded by design, do not add speculatively: avatar hover-lift, card 3D tilt, FAB morph.
 
 ## 3. Naming and API canon
 
@@ -191,7 +190,7 @@ Contract for every new animated element:
   box is ≥24×24. Verify with a real `elementFromPoint` boundary probe — `getComputedStyle` alone can
   lie (see [references/testing.md](references/testing.md)).
 - **Safe-area insets** — any surface pinned to a viewport edge adds `env(safe-area-inset-*)` alongside
-  its own spacing: `calc(var(--spacing) * N + env(safe-area-inset-top))` (see `sonner.tsx`,
+  its own spacing: `calc(var(--spacing) * N + env(safe-area-inset-top))` (see `toast.tsx`,
   `sheet.tsx`). Zero cost where the env var is 0.
 - **`dvh` not `vh`** for viewport-relative heights that must survive mobile browser chrome
   show/hide. `svh` is the deliberate exception for a shell that should collapse to the SMALLEST

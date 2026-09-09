@@ -3,7 +3,7 @@
 // directive at the very top of dist/index.js.
 //
 // WHY: every module the entry re-exports (provider/toaster/use-vegastack-theme) is client-only
-// (next-themes + Base UI context, Sonner, React hooks). tsup/esbuild STRIP the source `'use client'`
+// (next-themes + Base UI context, Base UI Toast, React hooks). tsup/esbuild STRIP the source `'use client'`
 // directive when bundling, so the emitted dist/index.js would otherwise start with imports/comments.
 // Next App Router needs the directive at the TOP of the module — without it, importing
 // `VegaStackProvider` from a server `app/layout.tsx` breaks at build time. packages/ui/tsup.config.ts

@@ -48,9 +48,9 @@ Or one import that bundles all of it plus tw-animate:
 ```
 
 **No manual `@source` is required.** The preset already declares `@source` for the classes that live
-inside the published builds — the icon runtime, and the provider/Toaster classNames (sonner emits
-`group-[.toaster]:bg-popover`-style classes that Tailwind must be told to generate). Your own
-application and component source is scanned by Tailwind as usual.
+inside the published builds — the icon runtime, and the compiled Toaster (its surface, stacking
+and status-tint classes live in `@vegastack/ui/dist`, and Tailwind has to be told to generate them).
+Your own application and component source is scanned by Tailwind as usual.
 
 ## 3. Wrap the app root in the provider
 
@@ -58,7 +58,7 @@ application and component source is scanned by Tailwind as usual.
 npx shadcn@latest add @vegastack/provider
 ```
 
-This copies `VegaStackProvider` and `useVegaStackTheme` into your project, composing the `sonner`
+This copies `VegaStackProvider` and `useVegaStackTheme` into your project, composing the `toast`
 Toaster item.
 
 ```tsx
@@ -70,7 +70,7 @@ import { VegaStackProvider } from "@/components/ui/provider";
 </body>;
 ```
 
-It bundles theme (next-themes, class-based dark), the Sonner toaster, and the Base UI tooltip and
+It bundles theme (next-themes, class-based dark), the Base UI toast stack, and the tooltip and
 direction providers.
 
 **The `isolate` is required, not cosmetic.** Overlay components (Dialog, Sheet, Popover, Tooltip,

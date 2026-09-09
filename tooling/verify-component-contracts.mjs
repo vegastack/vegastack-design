@@ -72,7 +72,6 @@ function expectedEnginePackages(dependencies = []) {
     if (dependency === "motion" || dependency.startsWith("motion@"))
       packages.add("motion");
     if (dependency.startsWith("@tiptap/")) packages.add("tiptap");
-    if (dependency.startsWith("sonner")) packages.add("sonner");
     if (dependency.startsWith("next-themes")) packages.add("next-themes");
     if (dependency.startsWith("react-day-picker"))
       packages.add("react-day-picker");
@@ -665,7 +664,7 @@ const expectedComponentWaveMembers = {
     "dropdown-menu",
     "context-menu",
     "emoji-picker",
-    "sonner",
+    "toast",
     "provider",
     "action-bar",
     "shortcut-overlay",

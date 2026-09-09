@@ -2,30 +2,30 @@ import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { VegaStackProvider, useVegaStackTheme } from "./provider";
-import { toast } from "./sonner";
+import { toast } from "./toast";
 
 /** Poll until a mounted toast carrying `text` is in the portal under <body>. */
 async function waitForToast(text: string) {
   await expect
     .poll(() => {
-      const t = document.querySelector(
-        '[data-sonner-toast][data-mounted="true"]',
-      );
+      const t = document.querySelector('[data-slot="toast"]');
       return t?.textContent?.includes(text) ?? false;
     })
     .toBe(true);
 }
 
 /**
- * Sonner's toast store is a MODULE SINGLETON, so a toast fired by one test outlives that test's
- * React tree for its full `TOAST_LIFETIME` (4000ms) and keeps rendering — close button and all —
+ * `toastManager` is a MODULE SINGLETON, so a toast fired by one test outlives that test's React
+ * tree for its full auto-dismiss timeout and keeps rendering — action and close button and all —
  * into whatever the next test mounts. Draining it explicitly is the only way a later test in this
- * file can assert on "the button it rendered" without racing a 4-second timer.
+ * file can assert on "the button it rendered" without racing that timer. (Carried over from the
+ * sonner-era helper D1 added; the leak is the store's, not the renderer's, so it survived the
+ * migration.)
  */
 async function drainToasts() {
   toast.dismiss();
   await expect
-    .poll(() => document.querySelectorAll("[data-sonner-toast]").length)
+    .poll(() => document.querySelectorAll('[data-slot="toast"]').length)
     .toBe(0);
 }
 
@@ -38,27 +38,31 @@ test("renders children", async () => {
   await expect.element(screen.getByText("app content")).toBeInTheDocument();
 });
 
-test("mounts exactly one Sonner toaster by default, and toast() reaches it", async () => {
+test("mounts exactly one toast viewport by default, and toast() reaches it", async () => {
   await render(
     <VegaStackProvider>
       <div>app</div>
     </VegaStackProvider>,
   );
-  // Sonner mounts its list container lazily — fire a toast, then assert exactly ONE
-  // toaster region exists and the toast reached it.
+  // The viewport mounts with the provider; fire a toast, then assert exactly ONE
+  // viewport exists and the toast reached it.
   toast("Provider toast works");
   await waitForToast("Provider toast works");
-  expect(document.querySelectorAll("[data-sonner-toaster]").length).toBe(1);
+  expect(document.querySelectorAll('[data-slot="toast-viewport"]').length).toBe(
+    1,
+  );
   await drainToasts();
 });
 
-test("toaster={false} suppresses the bundled toaster (double-mount escape hatch)", async () => {
+test("toaster={false} suppresses the bundled viewport (double-mount escape hatch)", async () => {
   await render(
     <VegaStackProvider toaster={false}>
       <div>app</div>
     </VegaStackProvider>,
   );
-  expect(document.querySelectorAll("[data-sonner-toaster]").length).toBe(0);
+  expect(document.querySelectorAll('[data-slot="toast-viewport"]').length).toBe(
+    0,
+  );
 });
 
 test("toaster accepts a replacement element instead of the default", async () => {
@@ -67,7 +71,9 @@ test("toaster accepts a replacement element instead of the default", async () =>
       <div>app</div>
     </VegaStackProvider>,
   );
-  expect(document.querySelectorAll("[data-sonner-toaster]").length).toBe(0);
+  expect(document.querySelectorAll('[data-slot="toast-viewport"]').length).toBe(
+    0,
+  );
   expect(
     document.querySelector('[data-testid="custom-toaster"]'),
   ).not.toBeNull();

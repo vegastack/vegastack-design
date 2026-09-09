@@ -88,10 +88,9 @@ export default defineConfig({
       "@tiptap/react",
       "@tiptap/starter-kit",
       "@base-ui/react/direction-provider",
-      // Sonner (Toaster) + next-themes (its `useTheme`) — pre-bundle so they
-      // share the single deduped React copy (otherwise `useContext`/`useId`
-      // resolve a second React and crash with null internals).
-      "sonner",
+      // next-themes (the provider's `useTheme`) — pre-bundle so it shares the single
+      // deduped React copy (otherwise `useContext`/`useId` resolve a second React and
+      // crash with null internals).
       "next-themes",
       // react-hook-form + the zod resolver back the documented Field form-integration
       // test. Pre-bundle them for the same reason: otherwise their optimized chunk

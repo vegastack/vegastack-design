@@ -299,7 +299,7 @@ test("no a11y violations on a rendered chart with accessibilityLayer", async () 
   );
   // color-contrast: semantic Tailwind tokens (fill-muted-foreground, bg-popover, …) aren't compiled
   // in this fast unit-test environment, so axe can't resolve real colors — same documented exemption
-  // as text-edit.test.tsx / sonner.test.tsx. Real contrast is proven by the compiled-CSS gate
+  // as text-edit.test.tsx / toast.test.tsx. Real contrast is proven by the compiled-CSS gate
   // test/contrast.browser.test.tsx.
   await expectNoA11yViolations(screen.container, ["color-contrast"]);
 });

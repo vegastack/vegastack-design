@@ -7,7 +7,7 @@ import { afterEach, expect, test } from "vitest";
 import { Badge } from "../registry/ui/badge";
 import { Alert, AlertTitle, AlertDescription } from "../registry/ui/alert";
 import { Button } from "../registry/ui/button";
-import { Toaster, toast } from "../registry/ui/sonner";
+import { ToastProvider, Toaster, toast } from "../registry/ui/toast";
 import { TextEdit } from "../registry/ui/text-edit";
 import { ColorPicker } from "../registry/ui/color-picker";
 import { LogoRow } from "../registry/ui/logo-row";
@@ -27,7 +27,7 @@ import { LogoRow } from "../registry/ui/logo-row";
  * without compiled CSS, so semantic tokens don't resolve there). Each such component is rendered
  * here with REAL compiled token colors and audited in both themes — making the per-component
  * suppression's compensating coverage real and explicit:
- *   - Sonner `Toaster` — default/success/error/warning/info toast surfaces (bg-popover /
+ *   - `Toaster` — default/success/error/warning/info toast surfaces (bg-popover /
  *     text-popover-foreground + the per-status tints + muted description text).
  *   - `TextEdit` — its token-styled prose + muted placeholder/blockquote surfaces.
  *   - `ColorPicker` (opened) — the trigger + popover chrome. The swatch fills are DYNAMIC,
@@ -312,7 +312,8 @@ async function chromeContrastViolations(context: Element) {
   );
 }
 
-// Sonner + Popover PORTAL their DOM to `<body>`, which sits OUTSIDE any `.dark` wrapper element —
+// The toast viewport + Popover PORTAL their DOM to `<body>`, which sits OUTSIDE any `.dark`
+// wrapper element —
 // so for those components the dark tokens (scoped under `.dark` in the compiled theme) only resolve
 // when `.dark` is on a body ancestor. We therefore toggle `.dark` on `<html>` for the portaled dark
 // tests, and always clear it afterwards so the next light audit isn't contaminated.
@@ -325,18 +326,19 @@ type ToastVariant = "default" | "success" | "error" | "warning" | "info";
 /**
  * Fire one toast of a given variant.
  *
- * `duration: Infinity` is REQUIRED, not tidiness. Sonner's default lifetime is 4s
- * (`TOAST_LIFETIME`), and this audit fires a toast, polls for its enter animation, then runs a full
- * axe pass over `document.body`. On a slow CI runner that exceeds 4s, so Sonner began the EXIT
- * animation while axe was measuring, and axe composited the near-black text against the toast's
- * ~10%-opacity surface: `#e3e3e2` on `#fefdfc`, a 1.26:1 "failure" that no token could ever produce
- * (release run 30143769219 — and on an even slower runner the enter poll itself timed out,
- * run 30140043824). Passing `Infinity` makes Sonner skip the auto-dismiss timer entirely
- * (`sonner/dist/index.mjs`: `if (… toast.duration === Infinity …) return`), so the audit owns the
- * toast's lifetime instead of racing it. `auditToast` already dismisses explicitly.
+ * `timeout: 0` is REQUIRED, not tidiness. This audit fires a toast, polls for its enter animation,
+ * then runs a full axe pass over `document.body` — and the default lifetime is 5s. When the axe
+ * pass pushes past that, the toast starts its EXIT transition while axe is still measuring, and axe
+ * composites the near-black ink against a partly transparent surface: a 1.26:1 "failure" no token
+ * could ever produce (that is the bug the sonner-era version of this test hit twice, release runs
+ * 30143769219 and 30140043824). `timeout: 0` disables the auto-dismiss timer outright, so the audit
+ * owns the toast's lifetime instead of racing it. `auditToast` already dismisses explicitly.
  */
 function fireToast(variant: ToastVariant, message: string) {
-  const options = { duration: Number.POSITIVE_INFINITY } as const;
+  const options = {
+    timeout: 0,
+    description: "Supporting detail line",
+  } as const;
   if (variant === "success") toast.success(message, options);
   else if (variant === "error") toast.error(message, options);
   else if (variant === "warning") toast.warning(message, options);
@@ -347,8 +349,8 @@ function fireToast(variant: ToastVariant, message: string) {
 /**
  * Show ONE toast, wait for its enter-animation to fully settle (opacity → 1), audit color-contrast,
  * then dismiss it and wait for the portal to clear. We audit one variant at a time on purpose:
- * when toasts stack, Sonner intentionally scales + dims the toasts *behind* the front one (a visual
- * de-emphasis, not a token color), and axe would flag those blended/dimmed back toasts. Auditing a
+ * when toasts stack, the ones *behind* the front toast are deliberately scaled down and clipped (a
+ * visual de-emphasis, not a token color), and axe would flag those blended back toasts. Auditing a
  * single front toast at full opacity measures each variant's REAL token colors with no stacking
  * artifact. Returns the contrast-violation summaries (empty on pass).
  */
@@ -358,7 +360,7 @@ async function auditToast(variant: ToastVariant, message: string) {
     .poll(
       () => {
         const t = document.querySelector(
-          '[data-sonner-toast][data-mounted="true"]',
+          '[data-slot="toast"]',
         ) as HTMLElement | null;
         if (!t || !t.textContent?.includes(message)) return false;
         // Only audit once the enter animation has finished (mid-animation opacity blends colors).
@@ -370,7 +372,7 @@ async function auditToast(variant: ToastVariant, message: string) {
   const violations = await contrastViolations(document.body);
   toast.dismiss();
   await expect
-    .poll(() => document.querySelectorAll("[data-sonner-toast]").length, {
+    .poll(() => document.querySelectorAll('[data-slot="toast"]').length, {
       timeout: 2000,
     })
     .toBe(0);
@@ -380,9 +382,13 @@ async function auditToast(variant: ToastVariant, message: string) {
 /** Mount the Toaster (in the given theme) and audit every variant, one fully-settled toast at a time. */
 async function auditAllToasts(dark: boolean) {
   if (dark) document.documentElement.classList.add("dark");
-  // Pin the theme explicitly so the audited DOM is deterministic (next-themes resolves to a
-  // concrete value); the `<html>.dark` toggle above drives the compiled tokens on the portal.
-  await render(<Toaster theme={dark ? "dark" : "light"} />);
+  // The `<html>.dark` toggle above is what drives the compiled tokens on the portal — the toast
+  // surface reads them straight from the cascade, with no theme prop of its own.
+  await render(
+    <ToastProvider>
+      <Toaster />
+    </ToastProvider>,
+  );
   const variants: Array<[ToastVariant, string]> = [
     ["default", "Plain notification"],
     ["success", "Saved successfully"],
@@ -432,11 +438,12 @@ test("rendered color-contrast passes WCAG 2.2 AA — dark theme", async () => {
   ).toEqual([]);
 });
 
-// ── Sonner Toaster ─────────────────────────────────────────────────────────────────────────────
+// ── Toaster ────────────────────────────────────────────────────────────────────────────────────
 // Toasts portal to <body>, so audit the whole document. Each variant exercises a different token
 // pair: the base toast (bg-popover / text-popover-foreground), the muted description, and the
-// per-status tints (bg-success-subtle + text-success, etc.) plus their lucide status icons. Audited one
-// fully-settled toast at a time (see `auditToast` — avoids Sonner's stacking-dim false positive).
+// per-status tints (bg-success-subtle + text-success-text, etc.) plus their lucide status icons.
+// Audited one fully-settled toast at a time (see `auditToast` — avoids the stacking-dim false
+// positive).
 
 test("Toaster color-contrast passes WCAG AA — light theme", async () => {
   const failures = await auditAllToasts(false);

@@ -155,7 +155,7 @@ curl -s -o /dev/null -w "%{http_code}" \
 pnpm dlx shadcn@latest add @vegastack/provider
 ```
 
-This copies `components/ui/provider.tsx` (+ its `sonner` Toaster dependency) into
+This copies `components/ui/provider.tsx` (+ its `toast` dependency) into
 your repo. Now **edit** your existing `app/layout.tsx` — keep the `globals.css`
 import and the font setup the scaffold gave you; the change is the provider import,
 the wrapper, and `suppressHydrationWarning`. The complete edited file:
@@ -321,7 +321,8 @@ preset import:
 
 **3. Keep `tsconfig` at `strict`.** Registry components are authored against
 `strict` alone. Stricter flags will fail on code you are not allowed to edit —
-`exactOptionalPropertyTypes` breaks `sonner.tsx`'s `theme` prop, and a copied
+`exactOptionalPropertyTypes` in particular rejects the optional-prop pass-through
+every wrapper component uses, and a copied
 component must never be patched to satisfy a consumer's compiler settings (an edit
 reads as permanent drift against `check-updates`). Put the stricter flags on the
 packages you author instead.

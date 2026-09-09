@@ -11,7 +11,7 @@ import { VegaStackProvider } from "@vegastack/ui";
 // registry/copy-in divergence would surface here). `VegaStackProvider` therefore runs with
 // `toaster={false}` so we don't double-mount a portal toaster; the package's own Toaster is
 // covered by its package tests + the reconciliation in src/provider/toaster.tsx.
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/toast";
 import { type ReactNode } from "react";
 
 export function Provider({ children }: { children: ReactNode }) {

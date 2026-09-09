@@ -35,7 +35,7 @@ export default function RootLayout({
 | Wiring                                                                   | Without the provider you get                                        |
 | ------------------------------------------------------------------------ | ------------------------------------------------------------------- |
 | **Dark mode** — next-themes, `attribute="class"`, system-aware, no-flash | toggles that do nothing; `.dark` never reaches `<html>`             |
-| **Toaster** — the global Sonner portal                                   | `toast(...)` calls that **silently do nothing** — no error anywhere |
+| **Toasts** — `ToastProvider` plus the `Toaster` portal                   | `toast(...)` calls that **silently do nothing** — no error anywhere |
 | **Tooltip coordination** — Base UI `Tooltip.Provider`                    | every tooltip re-waits its full open delay; toolbars feel broken    |
 | **Text direction** — Base UI `DirectionProvider`                         | RTL layouts break                                                   |
 

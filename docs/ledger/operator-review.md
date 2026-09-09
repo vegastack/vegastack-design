@@ -781,6 +781,75 @@ idempotency check would fail after anyone ran the formatter.
   forward every prop adds a component and hides where `value` goes. Both are reversible if a consumer
   needs them; neither is worth shipping speculatively.
 
+---
+
+## 2026-09-08 — O2 toasts on Base UI: four calls the decision register did not cover
+
+**Context:** issue #41 / audit D13 says "migrate to Base UI Toast keeping our style and design
+system — supporting all variants and features Base UI Toast offers". Four things the brief asserted
+turned out to conflict with something higher in the truth hierarchy, so each was decided against the
+enforcing source and is recorded here rather than silently absorbed.
+
+- **The destructive type is spelled `error`, not `destructive`.** The brief lists the type
+  vocabulary as `default | success | warning | destructive | info`. Base UI's own manager
+  (`@base-ui/react/toast/store.js`) writes `type: 'loading'` and then `type: 'success' | 'error'`
+  inside `promise()`, and its auto-dismiss timer is keyed off the literal string `loading`
+  (`nextToast.type !== 'loading'`). Renaming those would leave every promise-driven toast unstyled
+  and every loading toast auto-dismissing. **Chosen:** the type STRINGS follow the engine
+  (`default · success · error · warning · info · loading`) and the TOKENS follow the house families
+  — an `error` toast paints `destructive`. **Alternative considered:** reimplement `promise()` to
+  emit our names. **Why not:** it duplicates the engine's state machine to win a spelling, and the
+  engine is the enforcing source. Side benefit: `toast.error(…)` is unchanged for callers.
+
+- **The surface is `popover`, not `surface-2`.** The brief says "`surface-2` on `card`". F1 landed
+  first and its token doctrine is explicit: "Every floating surface is the card surface +
+  `shadow-overlay`; never a lighter or darker rung of its own" (`popover`'s `$description`), and
+  `surface-2` is documented as the hover rung, not an elevation. **Chosen:** the floating-family
+  recipe (popover ground, one hairline, `rounded-lg`, `shadow-overlay`, `p-4` per D14). Typed toasts
+  take Alert's tint recipe verbatim. **Why:** two status surfaces that mean the same thing should not
+  be two designs, and Alert's `{family}-subtle` + `{family}-text` pair is the one already gated for
+  contrast in both themes.
+
+- **The tone icon is a local map, not `StatusIcon`.** The brief says "tone strip via `StatusIcon`".
+  `StatusIcon`'s vocabulary is `todo · progress · blocked · done` — it cannot express `warning` or
+  `info`, so it does not fit. It is also structurally impossible here: `toast.tsx` is mirrored
+  byte-for-byte into `packages/ui/src/provider/toaster.tsx`, a file with no `@/components/ui/*`
+  alias, so the module may not import another registry item at all. **Chosen:** a five-entry local
+  icon map using the same lucide icons and semantic tokens Alert uses. **Cost:** a five-line
+  duplication of Alert's `VARIANT_ICON`. **Alternative considered:** a shared `status-vocabulary`
+  module. **Why not now:** it is a real refactor across Alert, Stepper and StatusIcon, and it belongs
+  to whoever owns that vocabulary, not to a toast migration.
+
+- **A third z band, `--z-toast` (60), was added.** The brief says to delete the sonner z-index
+  exception. Deleting it without a replacement would have been a regression, not a cleanup: the
+  toast viewport mounts with the app provider, before any dialog exists, so within the single
+  `--z-overlay` band DOM order puts every later-opened dialog on top of it — and
+  `test/stacking.browser.test.tsx` asserts the opposite ("a toast fired while a Dialog is open stays
+  visible above it"). **Chosen:** promote the exemption from a library's private z-index to a real
+  token with exactly one caller, and say so in `design.md`, `elevation.mdx`, `tokens.md`,
+  `lint-rules.md` and the lint's own message. **Flagged for MK:** this widens the published
+  `@vegastack/design-tokens` surface by one variable. The alternative — leaving toasts inside the
+  overlay band — loses a behaviour the system has always had.
+
+**Also decided, smaller:**
+
+- **The toaster mirror gate is kept and re-pointed, not deleted** (the brief left this open). The
+  private package's provider still imports a Toaster from `./toaster`, so the drift the gate exists
+  to catch is still possible; deleting it would leave that unguarded. `sync-toaster-mirror.mjs` now
+  mirrors `registry/ui/toast.tsx`, and its `pnpm lint` wiring is unchanged.
+- **Toast motion is `duration-base` (200ms), not `duration-fast`.** D11 assigns 150ms to floating
+  surfaces and 200ms to the modal family but does not name toasts. A toast travels in from beyond a
+  viewport edge — the Sheet gesture, not the anchored-popup gesture — and 150ms reads clipped over
+  that distance. Recorded in `design.md` §Motion and `motion.mdx`.
+- **`--alpha-border-soft` now has no in-repo caller** (it existed for the sonner toast tint). It is
+  published token surface, so it is kept with its description updated to say exactly that; retiring
+  it is a token-batch decision.
+- **`Toaster`'s custom renderer is `renderToast`, not `render`.** `render` is Base UI's polymorphic
+  element prop, which the viewport keeps (the `render-contract` lint requires it); the two collide
+  in the props type.
+
+---
+
 ## 2026-09-07 — F1 surface ladder: eye-tuned rung values and the `bg-muted` mapping
 
 **Decision:** ship the ladder at values that differ from `03-proposals.md` §P1's start values wherever the contrast gate said P1's number could not hold, and keep `bg-muted` on the sites where it already means "rung 1".

@@ -11,8 +11,8 @@ preview: providerDemo
 npx shadcn@latest add @vegastack/provider
 ```
 
-The install also pulls the `sonner` item (the Toaster the provider mounts) if you
-don't already have it.
+The install also pulls the `toast` item (the `ToastProvider` + `Toaster` the provider mounts)
+if you don't already have it.
 
 ## Usage
 
@@ -44,7 +44,7 @@ export default function RootLayout({
 | Wiring                                                         | Without the provider                                                                                    |
 | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | **Dark mode** (next-themes, `attribute="class"`, system-aware) | Theme toggles do nothing; the `.dark` class never reaches `<html>`                                      |
-| **Toaster** (the global Sonner portal)                         | Every `toast(...)` call — from CopyButton, forms, anywhere — silently does nothing. No error, no toast. |
+| **Toasts** (`ToastProvider` + the `Toaster` portal)            | Every `toast(...)` call — from CopyButton, forms, anywhere — silently does nothing. No error, no toast. |
 | **Tooltip coordination** (Base UI `Tooltip.Provider`)          | Tooltips lose shared-delay: hover across a toolbar and each tooltip re-waits the full open delay        |
 | **Text direction** (Base UI `DirectionProvider`)               | RTL layouts break for direction-aware components                                                        |
 
@@ -117,7 +117,7 @@ All remaining props pass through to next-themes — e.g. force a default:
 ## Accessibility
 
 The provider renders no visible UI of its own — context providers plus the Toaster
-portal. Toast announcements are handled by Sonner's built-in live region (see
+portal. Toast announcements come from the toast viewport's labelled live region (see
 [Toast](/docs/components/toast)); `disableTransitionOnChange` prevents a
 full-page transition flash on theme switch, complementing the global
 `prefers-reduced-motion` reset in the base layer.

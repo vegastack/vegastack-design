@@ -1,3 +1,5 @@
+// @vegastack toast@0.6.0 sha256-PiCYpgrb/doHUocgL1zQzXK02Llno724t8mG6DtcLVw=
+
 "use client";
 
 // Canonical registry source for the Toast surface. The package provider

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "a550d6f511a539a8d09a6fb1c39f795fb3d7241872247b173728b0e89441d8ac",
+  "contractSha256": "30237ede0d40991c0d71280e523619d0f4e4995f915dd1e1af8613aff921e5f5",
   "expectedCounts": {
     "totalRegistryItems": 563,
     "components": 114,
@@ -914,12 +914,12 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "sonner",
+      "name": "toast",
       "inventoryClass": "component",
       "wave": "Overlays",
       "family": "feedback",
       "sourceFiles": [
-        "packages/ui/registry/ui/sonner.tsx"
+        "packages/ui/registry/ui/toast.tsx"
       ],
       "docsSlug": "/docs/components/toast",
       "contractStatus": "reconciled"

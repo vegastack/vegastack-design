@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 import { Wrapper } from "./wrapper";
 
 // TextEdit pulls in Tiptap; keep it out of the all-preview barrel's initial module graph.

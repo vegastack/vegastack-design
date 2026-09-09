@@ -268,6 +268,20 @@ export const TIMINGS = {
   hoverOpenDelayMs: 700,
   /** Hover delay before a rich preview closes — lets the pointer travel into the card. */
   hoverCloseDelayMs: 300,
+  /**
+   * Hover delay before a tooltip opens. A tooltip is a cheap label, not a preview, so it is
+   * deliberately much faster than {@link TIMINGS.hoverOpenDelayMs} — long enough that sweeping
+   * across a toolbar does not flash five tips, short enough that a deliberate hover feels
+   * instant. Base UI's `Tooltip.Provider` grouping then opens adjacent tips with no delay at
+   * all. Set once, in the app-root provider.
+   */
+  tooltipOpenDelayMs: 300,
+  /**
+   * Delay before a tooltip closes. Zero: a tooltip has nothing to travel into (it is not
+   * hoverable content, unlike a HoverCard), so holding it after the pointer leaves only
+   * obscures what the user moved on to.
+   */
+  tooltipCloseDelayMs: 0,
 } as const;
 
 /**

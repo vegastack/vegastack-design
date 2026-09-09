@@ -108,7 +108,7 @@
       "dropdown-menu",
       "context-menu",
       "emoji-picker",
-      "sonner",
+      "toast",
       "provider",
       "action-bar",
       "shortcut-overlay"
@@ -16375,47 +16375,353 @@
       }
     },
     {
-      "name": "sonner",
+      "name": "toast",
       "registryType": "registry:ui",
       "title": "Toast",
-      "summary": "Brief, non-blocking notifications — a token-styled Sonner toaster with success/error/warning/info variants that follows the theme.",
+      "summary": "Brief, non-blocking notifications — a stacking Base UI Toast surface with success, error, warning, info and loading types, promise toasts and swipe-to-dismiss.",
       "family": "feedback",
       "wave": "Overlays",
-      "sourceFiles": ["packages/ui/registry/ui/sonner.tsx"],
+      "sourceFiles": ["packages/ui/registry/ui/toast.tsx"],
       "publicSymbols": [
         {
-          "name": "toast",
-          "kind": "re-export",
-          "source": "packages/ui/registry/ui/sonner.tsx",
+          "name": "ToastType",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/toast.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "re-export symbols do not expose a rendered DOM instance or ref contract."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
-          "name": "Toaster",
+          "name": "ToastData",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ToastItem",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ToastOptions",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ToastUpdateOptions",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ToastPromiseOptions",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "toastManager",
+          "kind": "value",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Imperative/manager exports do not render a DOM instance or accept a ref."
+          }
+        },
+        {
+          "name": "toast",
+          "kind": "value",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Imperative/manager exports do not render a DOM instance or accept a ref."
+          }
+        },
+        {
+          "name": "useToast",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Imperative/manager exports do not render a DOM instance or accept a ref."
+          }
+        },
+        {
+          "name": "ToastProviderProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ToastProvider",
           "kind": "component",
-          "source": "packages/ui/registry/ui/sonner.tsx",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Imperative/manager exports do not render a DOM instance or accept a ref."
+          }
+        },
+        {
+          "name": "ToastPosition",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ToastViewportProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ToastViewport",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/toast.tsx",
           "ref": {
             "status": "observed",
-            "target": "SonnerToaster",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/sonner.tsx."
+            "target": "BaseToast.Viewport",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/toast.tsx."
+          }
+        },
+        {
+          "name": "ToastRootProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ToastRoot",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "BaseToast.Root",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/toast.tsx."
+          }
+        },
+        {
+          "name": "ToastContentProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ToastContent",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "BaseToast.Content",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/toast.tsx."
+          }
+        },
+        {
+          "name": "ToastTitleProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ToastTitle",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "BaseToast.Title",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/toast.tsx."
+          }
+        },
+        {
+          "name": "ToastDescriptionProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ToastDescription",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "BaseToast.Description",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/toast.tsx."
+          }
+        },
+        {
+          "name": "ToastActionProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ToastAction",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "BaseToast.Action",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/toast.tsx."
+          }
+        },
+        {
+          "name": "ToastCloseProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ToastClose",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "BaseToast.Close",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/toast.tsx."
+          }
+        },
+        {
+          "name": "ToastPositionerProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ToastPositioner",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "BaseToast.Positioner",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/toast.tsx."
+          }
+        },
+        {
+          "name": "ToastArrowProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ToastArrow",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "BaseToast.Arrow",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/toast.tsx."
+          }
+        },
+        {
+          "name": "ToastPortalProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ToastPortal",
+          "kind": "re-export",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Imperative/manager exports do not render a DOM instance or accept a ref."
+          }
+        },
+        {
+          "name": "ToastProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "Toast",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "ToastRoot",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/toast.tsx."
           }
         },
         {
           "name": "ToasterProps",
           "kind": "interface",
-          "source": "packages/ui/registry/ui/sonner.tsx",
+          "source": "packages/ui/registry/ui/toast.tsx",
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "Toaster",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Mount-once portal host: Base UI owns the rendered DOM and there is no single consumer-referenceable root, so a forwarded ref would have no target."
+          }
         }
       ],
       "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "status": "observed",
+        "dimensions": ["type", "anchor", "position"],
+        "rationale": "toastVariants declares the type tint and the stack anchor; toastViewportVariants declares the six pinning positions."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -16425,20 +16731,41 @@
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "error", "success"],
-          "evidence": "Observed from branches, state attributes, and inline source contract."
+          "values": [
+            "default",
+            "success",
+            "error",
+            "warning",
+            "info",
+            "loading",
+            "expanded",
+            "swiping",
+            "limited"
+          ],
+          "evidence": "Observed from the cva type/anchor branches and Base UI's data-expanded / data-swiping / data-limited state attributes."
         },
         "accessibility": {
           "status": "covered",
           "values": [
             "native-or-base-ui-semantics",
-            "browser-accessibility-test"
+            "browser-accessibility-test",
+            "keyboard-navigation",
+            "live-region"
           ],
-          "evidence": "packages/ui/registry/ui/sonner.tsx + packages/ui/registry/ui/sonner.test.tsx"
+          "evidence": "packages/ui/registry/ui/toast.tsx + packages/ui/registry/ui/toast.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "hover", "error", "success"],
+          "values": [
+            "default",
+            "hover",
+            "focus",
+            "success",
+            "error",
+            "warning",
+            "info",
+            "loading"
+          ],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
@@ -16448,33 +16775,24 @@
         "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
       },
       "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
+        "status": "observed",
+        "mechanisms": ["css-transition"],
         "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
+          "status": "covered",
+          "rationale": "Enter/exit/stack transforms are CSS transitions, which the global prefers-reduced-motion reset in base.css neutralizes; the loading spinner carries motion-reduce:animate-none."
         }
       },
-      "engines": [
-        {
-          "package": "next-themes",
-          "role": "theme runtime engine"
-        },
-        {
-          "package": "sonner",
-          "role": "toast renderer/behavior engine"
-        }
-      ],
+      "engines": [],
       "docsSlug": "/docs/components/toast",
       "registryDependencies": [],
       "npmDependencies": [
-        "sonner@^2.0.7",
-        "next-themes@0.4.6",
+        "@base-ui/react@^1.6.0",
+        "class-variance-authority@^0.7.1",
         "lucide-react@^1.24.0",
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
-      "testFiles": ["packages/ui/registry/ui/sonner.test.tsx"],
+      "testFiles": ["packages/ui/registry/ui/toast.test.tsx"],
       "coverage": {
         "source": "required",
         "test": "required",
@@ -16483,16 +16801,97 @@
         "preview": "required",
         "vrt": "required"
       },
-      "previewModule": "sonner",
+      "previewModule": "toast",
       "dataAttributes": {
-        "Toaster": {
-          "attributes": [],
-          "cssVariables": [
-            "--border-radius",
-            "--normal-bg",
-            "--normal-border",
-            "--normal-text"
-          ]
+        "ToastViewport": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["toast-viewport"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ToastRoot": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["toast"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ToastContent": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["toast-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ToastTitle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["toast-title"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ToastDescription": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["toast-description"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ToastAction": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["toast-action"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ToastClose": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["toast-close"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ToastPositioner": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["toast-positioner"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ToastArrow": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["toast-arrow"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "Toast": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["toast-icon"]
+            }
+          ],
+          "cssVariables": []
         }
       }
     },
@@ -16500,7 +16899,7 @@
       "name": "provider",
       "registryType": "registry:ui",
       "title": "Provider",
-      "summary": "The single app-root wrapper — theme (next-themes), Sonner toasts, tooltip coordination, and text direction in one mount-once component.",
+      "summary": "The single app-root wrapper — theme (next-themes), Base UI toasts, tooltip delays, and text direction in one mount-once component.",
       "family": "feedback",
       "wave": "Overlays",
       "sourceFiles": ["packages/ui/registry/ui/provider.tsx"],
@@ -16589,8 +16988,12 @@
         }
       ],
       "docsSlug": "/docs/components/provider",
-      "registryDependencies": ["@vegastack/sonner"],
-      "npmDependencies": ["@base-ui/react@^1.6.0", "next-themes@0.4.6"],
+      "registryDependencies": ["@vegastack/toast"],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "next-themes@0.4.6",
+        "@vegastack/design@^0.3.2"
+      ],
       "testFiles": ["packages/ui/registry/ui/provider.test.tsx"],
       "coverage": {
         "source": "required",
@@ -25708,12 +26111,6 @@
         "rendered-a11y-states"
       ],
       "rationale": "Pure hooks have source and browser tests but no independently rendered component surface; use-animation-replay is additionally exercised by the three-engine release run."
-    },
-    {
-      "id": "sonner-human-facing-alias",
-      "appliesTo": ["sonner"],
-      "exemptFrom": ["registry-name-equals-docs-slug"],
-      "rationale": "Registry source is sonner.tsx while the human-facing page is /docs/components/toast; previewModule remains sonner and all mappings are checked."
     }
   ]
 }

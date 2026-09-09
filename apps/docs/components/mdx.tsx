@@ -63,7 +63,7 @@ import { SelectPlayground } from "@/components/select-playground";
 import { SeparatorPlayground } from "@/components/separator-playground";
 import { SheetPlayground } from "@/components/sheet-playground";
 import { SkeletonPlayground } from "@/components/skeleton-playground";
-import { SonnerPlayground } from "@/components/sonner-playground";
+import { ToastPlayground } from "@/components/toast-playground";
 import { SpinnerPlayground } from "@/components/spinner-playground";
 import { SplitButtonPlayground } from "@/components/split-button-playground";
 import { StatusIconPlayground } from "@/components/status-icon-playground";
@@ -155,7 +155,7 @@ export function getMDXComponents(components?: MDXComponents) {
     SeparatorPlayground,
     SheetPlayground,
     SkeletonPlayground,
-    SonnerPlayground,
+    ToastPlayground,
     SpinnerPlayground,
     SplitButtonPlayground,
     StatusIconPlayground,

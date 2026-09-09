@@ -93,7 +93,7 @@ const VEGASTACK_DEP_PKGS = [
 //   split-button   — → button + dropdown-menu.
 //   data-list      — → table + checkbox + skeleton + empty-state (deep fan-out).
 //   field          — hidden-dependency regression guard: must bring input on a clean install.
-//   sonner         — dependency-sensitive provider/toaster item.
+//   toast          — dependency-sensitive provider/toaster item.
 //   text-edit      — heavy rich-text dependency graph.
 //   country-select — search/select graph with popover + command + button.
 const REAL_CRITICAL_GRAPHS = [
@@ -101,7 +101,7 @@ const REAL_CRITICAL_GRAPHS = [
   "split-button",
   "data-list",
   "field",
-  "sonner",
+  "toast",
   "text-edit",
   "country-select",
 ];
