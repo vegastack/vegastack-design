@@ -1,4 +1,4 @@
-// @vegastack field@0.6.0 sha256-W5HVSCYjlQTL7to9t/xXZoLt7IEMz2sfOk5ceyK2WbY=
+// @vegastack field@0.6.0 sha256-0nL4qRXG0kzbUD42W/tERePupAn1ENsgw//HS1YzuxM=
 
 "use client";
 
@@ -407,12 +407,22 @@ const CONTROL_SLOTS =
  * won in every state. A text-entry control carries `outline-hidden`, so a borderless field had no
  * focus affordance at all. Standing the override down on focus restores the documented behaviour
  * without giving the flattened control a resting border.
+ *
+ * It is scoped past the INVALID state for the same reason (2026-09-09). `border-transparent`
+ * outranked `fieldControl`'s invalid tint identically, so a borderless field that failed validation
+ * measured a resting `border-color: rgba(0, 0, 0, 0)` — error copy and the shake fired, but the
+ * control itself carried no resting cue at all, which is the one state where a flattened field most
+ * needs one. Both attribute forms are excluded because the two halves of the recipe are spelled
+ * differently: `aria-invalid` on the native control, Base UI's `data-invalid` on a Select trigger.
+ *
+ * `.join(" ")`, not `+` — see `design-lint`'s `class-glue` rule.
  */
-const BORDERLESS =
-  "[&_[data-slot=field-control]:not(:focus)]:border-transparent [&_[data-slot=field-control]]:bg-transparent [&_[data-slot=field-control]]:px-0 [&_[data-slot=field-control]]:shadow-none " +
-  "[&_[data-slot=input]:not(:focus)]:border-transparent [&_[data-slot=input]]:bg-transparent [&_[data-slot=input]]:px-0 [&_[data-slot=input]]:shadow-none " +
-  "[&_[data-slot=textarea]:not(:focus)]:border-transparent [&_[data-slot=textarea]]:bg-transparent [&_[data-slot=textarea]]:px-0 [&_[data-slot=textarea]]:shadow-none " +
-  "[&_[data-slot=select-trigger]:not(:focus)]:border-transparent [&_[data-slot=select-trigger]]:bg-transparent [&_[data-slot=select-trigger]]:px-0 [&_[data-slot=select-trigger]]:shadow-none";
+const BORDERLESS = [
+  "[&_[data-slot=field-control]:not(:focus):not([aria-invalid='true']):not([data-invalid])]:border-transparent [&_[data-slot=field-control]]:bg-transparent [&_[data-slot=field-control]]:px-0 [&_[data-slot=field-control]]:shadow-none",
+  "[&_[data-slot=input]:not(:focus):not([aria-invalid='true']):not([data-invalid])]:border-transparent [&_[data-slot=input]]:bg-transparent [&_[data-slot=input]]:px-0 [&_[data-slot=input]]:shadow-none",
+  "[&_[data-slot=textarea]:not(:focus):not([aria-invalid='true']):not([data-invalid])]:border-transparent [&_[data-slot=textarea]]:bg-transparent [&_[data-slot=textarea]]:px-0 [&_[data-slot=textarea]]:shadow-none",
+  "[&_[data-slot=select-trigger]:not(:focus):not([aria-invalid='true']):not([data-invalid])]:border-transparent [&_[data-slot=select-trigger]]:bg-transparent [&_[data-slot=select-trigger]]:px-0 [&_[data-slot=select-trigger]]:shadow-none",
+].join(" ");
 
 /**
  * `Field` — the ergonomic, prop-driven form-field wrapper. Composes a Base UI

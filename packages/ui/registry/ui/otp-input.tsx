@@ -1,4 +1,4 @@
-// @vegastack otp-input@0.6.0 sha256-e/YNwCbeeiRC6oSK/Tn+7sR6XOu1YwUt0ImAnHSIkJA=
+// @vegastack otp-input@0.6.0 sha256-LEceVjUn3YmLHlPZj15C75s8WZu3Nl7+Y/1PpAvmz5c=
 
 "use client";
 
@@ -120,9 +120,15 @@ const slotSizeClasses = {
   lg: "size-(--size-lg) text-xl",
 } as const;
 
-const slotClasses =
-  "relative flex items-center justify-center text-center font-mono text-foreground outline-hidden" +
-  "caret-foreground focus:z-(--z-raised)";
+// `.join(" ")`, not `+`. These two fragments were concatenated with no separator, so the slot
+// shipped `outline-hiddencaret-foreground` and BOTH utilities vanished: a focused slot measured
+// `outline-style: solid` / `outline-width: 2px`, the only text-entry surface in the system wearing
+// the global focus ring — contradicting the JSDoc above it and AGENTS.md § Accessibility
+// (2026-09-09). `class-glue` in `design-lint` now rejects the seam.
+const slotClasses = [
+  "relative flex items-center justify-center text-center font-mono text-foreground outline-hidden",
+  "caret-foreground focus:z-(--z-raised)",
+].join(" ");
 
 const separatorClasses =
   "select-none px-0.5 font-mono text-base text-muted-foreground";
@@ -173,6 +179,7 @@ export function OTPInput({
   separatorClassName,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
+  "aria-invalid": ariaInvalid,
   size = "md",
   ref,
   ...props
@@ -202,6 +209,13 @@ export function OTPInput({
       aria-label={
         index === 0 ? undefined : `Character ${index + 1} of ${length}`
       }
+      // `aria-invalid` is forwarded to every SLOT, not left on the root (2026-09-09). The root is a
+      // plain container: `aria-invalid` there is ignored by assistive tech AND invisible to
+      // `fieldControl`, whose destructive tint is a `aria-invalid:` variant on the control itself —
+      // so `<OTPInput aria-invalid />` measured the neutral `--input` border and announced nothing.
+      // The `Field` path is unaffected: there the invalid state arrives through Base UI's context
+      // as `data-invalid` on each slot, which `fieldControl` already reads.
+      aria-invalid={ariaInvalid}
       className={cn(
         fieldControl,
         slotClasses,

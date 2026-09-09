@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.6.0 sha256-X4R1h3mD8Oj2S3BffLDCR/KyMLD6Gi6SE3Wiiw8QV0c=
+// @vegastack editable-cell@0.6.0 sha256-v9ZrsjT5D64K6uscIswRoeKiyHofuj2EJw6F5MVcQ6o=
 
 "use client";
 
@@ -326,9 +326,19 @@ export function EditableCell({
     // stays permanently in display mode (`editing={false}`) and its activation
     // only raises our edit state, which swaps in the custom editor above.
     const isCustom = editor.type === "custom";
+    // A READ-ONLY select cell reaches this branch (the editable one returns above), and it must
+    // read the same as the editable one: the option's LABEL, not its stored value. It rendered the
+    // raw value — `won` where the editable cell showed `Closed Won` — so the same column read
+    // differently depending on a permission the reader cannot see (2026-09-09). An unrecognised
+    // value falls back to itself rather than rendering blank.
+    const displayText =
+      editor.type === "select"
+        ? (editor.options.find((option) => option.value === displayValue)
+            ?.label ?? displayValue)
+        : displayValue;
     editorSurface = (
       <FieldInline
-        value={displayValue}
+        value={displayText}
         label={label}
         placeholder={editor.type === "text" ? editor.placeholder : undefined}
         onCommit={handleCommit}

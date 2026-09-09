@@ -241,6 +241,45 @@ test("readOnly renders plain text with no edit affordance", async () => {
   await expect.element(screen.getByText("Acme")).toBeInTheDocument();
 });
 
+test("a read-only select cell shows the option LABEL, not the stored value", async () => {
+  // The editable select cell renders `Closed Won` (the option label); the read-only branch fell
+  // through to `FieldInline value={displayValue}` and rendered the raw `won` instead, so the same
+  // column read differently depending on a permission the reader cannot see (2026-09-09).
+  const screen = await render(
+    <EditableCell
+      value="won"
+      label="Stage"
+      readOnly
+      editor={{
+        type: "select",
+        options: [
+          { value: "open", label: "Open" },
+          { value: "won", label: "Closed Won" },
+        ],
+      }}
+      onCommit={() => {}}
+    />,
+  );
+  await expect.element(screen.getByText("Closed Won")).toBeInTheDocument();
+  expect(screen.container.textContent).not.toContain("won");
+});
+
+test("a read-only select cell falls back to the raw value for an unknown option", async () => {
+  const screen = await render(
+    <EditableCell
+      value="archived"
+      label="Stage"
+      readOnly
+      editor={{
+        type: "select",
+        options: [{ value: "open", label: "Open" }],
+      }}
+      onCommit={() => {}}
+    />,
+  );
+  await expect.element(screen.getByText("archived")).toBeInTheDocument();
+});
+
 test("disabled keeps the display visible but blocks editing", async () => {
   const screen = await render(
     <EditableCell

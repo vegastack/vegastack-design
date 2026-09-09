@@ -355,6 +355,29 @@ const AUTHORED_OUTLINE =
   /^(?:solid|dashed|dotted|double|groove|ridge|inset|outset)$/;
 
 /**
+ * The TEXT-ENTRY set, for which branch (A) is not an acceptable answer (2026-09-09).
+ *
+ * AGENTS.md § Accessibility: "visible `:focus-visible` (text-entry fields use a border tint
+ * instead)". These controls carry `outline-hidden` precisely so the global ring does NOT paint on
+ * them, and the border tint is their whole affordance. The generic predicate below accepted
+ * whichever branch happened to be true, so a text-entry control that had LOST its `outline-hidden`
+ * passed on the ring it is not supposed to have: `otp-input-slot` measured
+ * `outline-style: solid / 2px` here and this assertion went green, because a class-glue defect had
+ * destroyed `outline-hidden` and handed it branch (A). Pinning the set to branch (B) — and
+ * asserting `outline-style: none` outright — is what makes that visible.
+ *
+ * `select-trigger` is deliberately NOT in this set, though the finding that produced this change
+ * listed it. Measured 2026-09-09: a focused `[data-slot=select-trigger]` computes
+ * `outline-style: solid`, `outline-width: 2px`. That is by design and documented on the component
+ * ("button-style trigger: the centralized base.css `:focus-visible` outline also applies for
+ * keyboard nav", select.tsx) — it wears `fieldControl` for its CHROME while remaining a button.
+ * Adding it here would fail a correct control.
+ */
+const TEXT_ENTRY_SLOTS =
+  "[data-slot=input],[data-slot=textarea],[data-slot=field-control]," +
+  "[data-slot=otp-input-slot],[data-slot=combobox-input]";
+
+/**
  * The wrapper that owns a text-entry control's focus affordance, if any.
  *
  * AGENTS.md § Accessibility: "visible `:focus-visible` (text-entry fields use a border tint
@@ -400,6 +423,11 @@ const focusSignature = (control: Element): FocusSignature => ({
  *
  * There is no third branch and no fallback. The predecessor check had one ("forced colours repaints
  * borders on focus") that was unconditionally true, which is what made the whole assertion vacuous.
+ *
+ * The branches are NOT interchangeable (2026-09-09). For {@link TEXT_ENTRY_SLOTS} only (B) counts,
+ * and `outline-style` must additionally be `none`: those controls suppress the global ring on
+ * purpose, so an outline on one is a defect rather than an alternative affordance. Letting (A)
+ * answer for them is how a destroyed `outline-hidden` on the OTP slot passed this very assertion.
  */
 function focusIndicatorProblem(
   control: Element,
@@ -407,12 +435,33 @@ function focusIndicatorProblem(
 ): string | null {
   const style = getComputedStyle(control);
   const width = Number.parseFloat(style.outlineWidth);
-  if (AUTHORED_OUTLINE.test(style.outlineStyle) && width >= 2) return null;
+  const textEntry = control.matches(TEXT_ENTRY_SLOTS);
+
+  // Text entry takes branch (B) and ONLY branch (B) — and must first prove it is not wearing the
+  // ring it suppresses. `outline-hidden` compiles to a TRANSPARENT 2px outline (kept so
+  // `forced-colors: active` has something to repaint), which computes as `outline-style: none`;
+  // anything else means the suppression was lost.
+  if (textEntry && style.outlineStyle !== "none") {
+    return (
+      `is a text-entry control presenting outline-style "${style.outlineStyle}" ` +
+      `(${style.outlineWidth}). Text entry suppresses the global :focus-visible ring with ` +
+      `\`outline-hidden\` and signals focus with the border tint instead (AGENTS.md ` +
+      `\u00a7 Accessibility) — an outline here means the suppression was lost`
+    );
+  }
+  if (!textEntry && AUTHORED_OUTLINE.test(style.outlineStyle) && width >= 2)
+    return null;
 
   const focused = focusSignature(control);
   if (focused.borders.some((border, index) => border !== rest.borders[index]))
     return null;
 
+  if (textEntry)
+    return (
+      `is a text-entry control with no border tint on focus: no border-colour change on the ` +
+      `control, its [data-field-group], or its wrapper. The tint IS the affordance for this set ` +
+      `(AGENTS.md \u00a7 Accessibility), and the global ring is suppressed here`
+    );
   return style.outlineStyle === "auto"
     ? `presents only the USER AGENT's focus ring (outline-style: auto, ${style.outlineWidth}). ` +
         `The design system's own ring is missing, and the browser's is not the contract — a ` +
