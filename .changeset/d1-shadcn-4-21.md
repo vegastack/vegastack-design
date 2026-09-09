@@ -9,4 +9,3 @@ so no audit tool would have flagged the gap. `shadcn build` output is byte-ident
 default for generated `lib/utils`; **we did not adopt it** — `cn()` keeps coming from
 `@vegastack/design`, which is a locked decision, and the change is registry _content_, not CLI
 behaviour.
-[`dd4173e`](https://github.com/VegaStack/vegastack-design/commit/dd4173e)

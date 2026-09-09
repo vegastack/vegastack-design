@@ -13,5 +13,4 @@ declared `@shadcn/react` range moves to `^0.3.1`; it and `date-picker` carry new
 Two user-visible upstream changes are kept as shipped: a `readOnly` Select/Combobox now opens and
 browses (reached through `editable-cell`), and start/end-aligned popups take their pop-in
 `--transform-origin` from the aligned edge.
-[docs](https://design.vegastack.com/docs/components/message-scroller) ·
-[`e519fa6`](https://github.com/VegaStack/vegastack-design/commit/e519fa6)
+[docs](https://design.vegastack.com/docs/components/message-scroller)

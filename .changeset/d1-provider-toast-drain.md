@@ -6,4 +6,3 @@ singleton, so a toast fired by one test kept rendering — close button and all 
 the same file for its full 4 s lifetime, and an unscoped `getByRole("button")` there became a
 strict-mode violation under load. The toast is now dismissed and drained where it is fired, and the
 theme probe is queried by accessible name. Test-only; no component changed.
-[`ed2a5fa`](https://github.com/VegaStack/vegastack-design/commit/ed2a5fa)

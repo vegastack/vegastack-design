@@ -10,4 +10,3 @@ moderate · 2 low)** before to **47 (0 critical · 24 high · 21 moderate · 2 l
 remaining finding is a transitive dev-tool dependency with no path into published output.
 `style-dictionary` is held at 5.5.2 deliberately: 5.5.3 touches `color/css` alpha precision, which is
 token CSS output, and 5.5.2 already carries the fix.
-[`dd4173e`](https://github.com/VegaStack/vegastack-design/commit/dd4173e)
