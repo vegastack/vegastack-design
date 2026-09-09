@@ -32,13 +32,20 @@ import {
  *   - The dark and forced-colors lanes. Neither ever produced a finding. Dark surfaces stay
  *     covered by `contrast.browser.test.tsx`, which runs axe over real compiled colors in both
  *     themes.
- *   - The focus-indicator assertion. Measured 2026-07-25 to be UNABLE TO FAIL: it ran under
+ *   - The forced-colors focus check. Measured 2026-07-25 to be UNABLE TO FAIL: it ran under
  *     `forcedColors: "active"`, where Chromium paints its own ≥2px ring, so deleting the design
  *     system's `:focus-visible` rule left all 864 checks green — and its fallback branch was
- *     unconditionally true too, because forced-colors repaints borders on focus. Carrying a
- *     no-op forward would be carrying a false coverage claim forward. See `docs/ledger/bugs.md`,
- *     2026-07-25. Focus visibility is therefore NOT covered by this file and must not be cited
- *     as covered; restoring it in normal colours is separately scoped work.
+ *     unconditionally true too, because forced-colors repaints borders on focus. See
+ *     `docs/ledger/bugs.md`, 2026-07-25. It is REPLACED, not carried, by assertion (4) below,
+ *     which measures the design system's OWN ring in normal colours and rejects the user agent's
+ *     (`outline-style: auto`) explicitly — the exact substitution the old check could not see.
+ *
+ *     PROVED NON-VACUOUS, 2026-09-09. Deleting the one rule
+ *     `:focus-visible { @apply outline-2 outline-offset-1 outline-ring }` from
+ *     `packages/design-tokens/src/base.css` and rebuilding the token package turns 262 of this
+ *     file's 541 fixtures RED, each naming `outline-style: auto`; restoring it returns 541/541.
+ *     The check it replaces stayed 864/864 green under the same deletion. Re-run that experiment
+ *     before trusting any future edit to `focusIndicatorProblem`.
  *
  * ─────────────────────────────────────────────────────────────────────────────────────────────
  * SEMANTIC DIFFERENCES FROM THE OLD LANE — read before comparing coverage claims
@@ -75,7 +82,7 @@ import {
 
 // ── exclusions ──────────────────────────────────────────────────────────────────────────────────
 
-type Assertion = "reflow" | "rtl" | "target";
+type Assertion = "reflow" | "rtl" | "target" | "focus";
 
 /**
  * Fixtures excluded from ONE assertion each, with the reason and the measurement behind it.
@@ -102,6 +109,88 @@ type Assertion = "reflow" | "rtl" | "target";
  * were both exempting assertions that PASS. A flat list would have carried both indefinitely.
  */
 const EXCLUDED: Record<string, Partial<Record<Assertion, string>>> = {
+  // ── focus indicator ───────────────────────────────────────────────────────────────────────
+  // EVERY entry below is a text-entry control, and every one of them fails the SAME way: on
+  // focus its computed `border-color` is `oklab(0.145 0.000776457 0.00289778 / 0.08)` — the
+  // resting `--input` colour — where the sanctioned tint
+  // (`focus:border-ring/(--alpha-tint-border)`, `fieldSurface` in `@vegastack/design`) should
+  // produce `--ring` at 70%, around `oklab(0.353 … / 0.7)`. `outline-style` is `none` on these
+  // controls by design: a text field cannot tell mouse from keyboard, so the border tint IS its
+  // whole focus affordance. It is not appearing, so they have none.
+  //
+  // Measured 2026-09-09 while adding this assertion, and NOT a probe artefact — each of these was
+  // checked directly: the utility is in the compiled sheet
+  // (`.focus\:border-ring\/\(--alpha-tint-border\):focus { border-color: color-mix(in oklab,
+  // var(--ring) var(--alpha-tint-border), transparent) }`), `--ring` computes to
+  // `oklch(0.353 0.003 75)` at both `:root` and the control, `--alpha-tint-border` computes to
+  // `70%`, `CSS.supports` accepts `color-mix`, and `control.matches(":focus")` is true. The rule
+  // matches and the computed value is still the resting one. Diagnosing which declaration wins is
+  // component/token work, not gate work: written up in `docs/ledger/bugs.md` (2026-09-09) and
+  // flagged for MK rather than fixed here.
+  //
+  // These entries are SELF-INVALIDATING, like every other entry in this map: `runAssertion` still
+  // executes an excluded assertion in expect-failure mode, so the day the tint lands, each of
+  // these turns red with "the exclusion is stale" and must be deleted. Nobody has to remember.
+  chipInputValidation: {
+    focus:
+      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
+  },
+  fieldBorderless: {
+    focus:
+      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
+  },
+  fieldStates: {
+    focus:
+      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
+  },
+  inputAddonStates: {
+    focus:
+      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
+  },
+  inputStates: {
+    focus:
+      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
+  },
+  otpInputField: {
+    focus:
+      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
+  },
+  otpInputStates: {
+    focus:
+      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
+  },
+  passwordInput: {
+    focus:
+      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
+  },
+  passwordInputStates: {
+    focus:
+      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
+  },
+  textareaStates: {
+    focus:
+      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
+  },
+  textEdit: {
+    focus:
+      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
+  },
+  textEditHeights: {
+    focus:
+      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
+  },
+  textEditInvalid: {
+    focus:
+      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
+  },
+  textEditStates: {
+    focus:
+      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
+  },
+  textEditSubmit: {
+    focus:
+      "focus: text-entry border tint absent — border-color stays oklab(0.145 0.000776457 0.00289778 / 0.08) (the resting --input) on :focus; expected --ring at --alpha-tint-border (70%)",
+  },
   // ── reflow / RTL ──────────────────────────────────────────────────────────────────────────
   // The demo lays two fixed-width scroll panels side by side, which do not fit a 320px viewport.
   // The docs route absorbed that inside `PreviewFrameContainer`'s `overflow-x-auto`, so the
@@ -358,6 +447,83 @@ function effectiveTargetProbe(element: Element) {
   };
 }
 
+// ── the focus-indicator probe (assertion 4) ─────────────────────────────────────────────────────
+
+/**
+ * A CSS outline style that somebody AUTHORED. `auto` is deliberately excluded: it is the user
+ * agent's own focus ring, and accepting it is exactly how the predecessor check became unable to
+ * fail. Measured 2026-09-09 in this lane: with `@vegastack/design-tokens/base.css`'s
+ * `:focus-visible { @apply outline-2 outline-offset-1 outline-ring }` in place a focused Button
+ * computes `outline-style: solid`; with that one rule deleted and the token package rebuilt, the
+ * same Button computes `outline-style: auto` — same element, same width, same colour. `auto` vs an
+ * authored style is the ONLY signal that separates the design system's ring from Chromium's, so it
+ * is the signal this assertion is built on.
+ */
+const AUTHORED_OUTLINE =
+  /^(?:solid|dashed|dotted|double|groove|ridge|inset|outset)$/;
+
+/**
+ * The wrapper that owns a text-entry control's focus affordance, if any.
+ *
+ * AGENTS.md § Accessibility: "visible `:focus-visible` (text-entry fields use a border tint
+ * instead)". The tint is applied by `fieldSurface` / `fieldGroupSurface` in `@vegastack/design` —
+ * `focus:border-ring/(--alpha-tint-border)` on the control, `focus-within:border-…` on the group —
+ * so the element whose border changes may be an ancestor of the focused control.
+ */
+function tintCarriers(control: Element): Element[] {
+  return [
+    control,
+    control.closest("[data-field-group]"),
+    control.closest('[data-slot="text-edit"]'),
+    control.parentElement,
+  ].filter((element): element is Element => element instanceof Element);
+}
+
+type FocusSignature = { outlineStyle: string; borders: string[] };
+
+const focusSignature = (control: Element): FocusSignature => ({
+  outlineStyle: getComputedStyle(control).outlineStyle,
+  borders: tintCarriers(control).map(
+    (element) => getComputedStyle(element).borderColor,
+  ),
+});
+
+/**
+ * Does this control present a focus indicator? Returns `null` when it does, or the reason it does
+ * not — worded so the reader can tell WHICH of the two sanctioned affordances was expected.
+ *
+ * Two branches, both of them non-vacuous:
+ *
+ *   (A) an AUTHORED outline of at least 2px. Deleting the design system's `:focus-visible` rule
+ *       collapses this to `auto` (the user agent's ring), which is rejected.
+ *   (B) the sanctioned text-entry border tint: the control, its field group, or its immediate
+ *       wrapper changes `border-color` between rest and focus. Deleting the tint from
+ *       `fieldSurface` collapses this to an unchanged colour, which is rejected.
+ *
+ * There is no third branch and no fallback. The predecessor check had one ("forced colours repaints
+ * borders on focus") that was unconditionally true, which is what made the whole assertion vacuous.
+ */
+function focusIndicatorProblem(
+  control: Element,
+  rest: FocusSignature,
+): string | null {
+  const style = getComputedStyle(control);
+  const width = Number.parseFloat(style.outlineWidth);
+  if (AUTHORED_OUTLINE.test(style.outlineStyle) && width >= 2) return null;
+
+  const focused = focusSignature(control);
+  if (focused.borders.some((border, index) => border !== rest.borders[index]))
+    return null;
+
+  return style.outlineStyle === "auto"
+    ? `presents only the USER AGENT's focus ring (outline-style: auto, ${style.outlineWidth}). ` +
+        `The design system's own ring is missing, and the browser's is not the contract — a ` +
+        `forced-colors or non-Chromium user gets nothing. Expected an authored >=2px outline ` +
+        `from :focus-visible, or the text-entry border tint`
+    : `presents no focus indicator: outline-style "${style.outlineStyle}" (${style.outlineWidth}) ` +
+        `and no border-colour change on the control, its [data-field-group], or its wrapper`;
+}
+
 // ── helpers ─────────────────────────────────────────────────────────────────────────────────────
 
 /**
@@ -429,6 +595,19 @@ async function runAssertion(
         `failure is dead coverage that reads as a known defect.`,
     );
   }
+}
+
+/** A short, locatable identity for a control in a failure message. */
+function describe(element: Element) {
+  const slot = element.getAttribute("data-slot");
+  const role = element.getAttribute("role");
+  return [
+    element.tagName.toLowerCase(),
+    slot && `data-slot=${slot}`,
+    role && `role=${role}`,
+  ]
+    .filter(Boolean)
+    .join(" ");
 }
 
 /** Playwright's `isVisible`, in plain DOM: a non-empty box that is not `visibility: hidden`. */
@@ -661,6 +840,54 @@ for (const [name, fixture] of FIXTURES) {
           `interactive control ${index} in ${name} must own a centred >=24px effective pointer target (visual ${probe.rect.width.toFixed(1)}×${probe.rect.height.toFixed(1)}px)`,
         ).toEqual([]);
       }
+    });
+
+    // (4) the focus indicator, per focusable control in the fixture.
+    //
+    // This replaces the check deleted on 2026-09-08 as a documented no-op. That one ran under
+    // `forcedColors: "active"`, where Chromium paints its own ring, so it stayed green with the
+    // design system's `:focus-visible` rule deleted. This one runs in normal colours and REJECTS
+    // the user agent's ring by name (`outline-style: auto`), which is the whole difference.
+    //
+    // Focus is applied programmatically. Measured 2026-09-09 in this lane: `element.focus()` DOES
+    // match `:focus-visible` here (Chromium's script-focus heuristic), so the keyboard-tab path
+    // `contrast.browser.test.tsx` needs for its four surface specimens is not needed for a sweep
+    // of this size — and a per-control tab walk would be O(controls²) trusted keypresses.
+    await runAssertion(name, "focus", () => {
+      const controls = [
+        ...screen.baseElement.querySelectorAll(INTERACTIVE_SELECTOR),
+      ];
+      const problems: string[] = [];
+      for (const [index, control] of controls.entries()) {
+        if (!isVisible(control) || isDisabled(control)) continue;
+        if (control.getAttribute("aria-hidden") === "true") continue;
+        if (control.classList.contains("sr-only")) continue;
+        // Not focusable at all: a `[role="option"]` inside a listbox that owns focus itself, a
+        // `[role="menuitem"]` under a roving tabindex whose active item is elsewhere. Focus
+        // indication is the business of whatever CAN hold focus.
+        if (!(control instanceof HTMLElement) || control.tabIndex < 0) continue;
+
+        const rest = focusSignature(control);
+        control.focus();
+        // A component may redirect focus (a wrapper hands it to its inner input). Measure whatever
+        // actually holds focus, and only when it is this control or inside it — otherwise the
+        // control never took focus and nothing about ITS indicator was demonstrated.
+        const active = document.activeElement;
+        if (active !== control && !control.contains(active)) continue;
+        const focused = active instanceof HTMLElement ? active : control;
+        const problem = focusIndicatorProblem(
+          focused,
+          focused === control ? rest : focusSignature(focused),
+        );
+        if (problem)
+          problems.push(`control ${index} (${describe(focused)}) ${problem}`);
+      }
+      (document.activeElement as HTMLElement | null)?.blur?.();
+      expect(
+        problems,
+        `${name}: every focusable control must show a focus indicator the design system owns ` +
+          `(WCAG 2.2 §2.4.11/§2.4.13, AGENTS.md § Accessibility)`,
+      ).toEqual([]);
     });
   });
 }
