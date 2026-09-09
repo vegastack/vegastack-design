@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Fail-closed contract verifier for the animated-icon corpus.
 //
-// The corpus is one factory plus 439 data modules, so this script is split the
+// The corpus is one factory plus 467 data modules, so this script is split the
 // same way. The controller contract — reduced motion, the imperative handle, the
 // multi-input trigger rules, the host element — is asserted ONCE against
 // `createAnimatedIcon`. Each mirrored module is then held to a schema whose most
@@ -33,7 +33,7 @@ import ts from "typescript";
 
 const sha256 = (value) => createHash("sha256").update(value).digest("hex");
 
-const EXPECTED_COUNT = 439;
+const EXPECTED_COUNT = 467;
 const SOURCE_DIR = "packages/ui/registry/ui/icons";
 const MANIFEST_PATH = "packages/ui/animated-icon-sources.json";
 const FACTORY_PATH = "packages/design/src/icons/create-animated-icon.tsx";
@@ -54,10 +54,15 @@ const pinnedSymbols = new Map(
 // renderer-engine layer. Keeping the observed archetypes explicit means a mirror
 // refresh cannot silently introduce a new timing/easing language.
 const SANCTIONED_DURATION_SECONDS = new Set([
-  0, 0.01, 0.1, 0.15, 0.2, 0.25, 0.28, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6,
-  0.7, 0.75, 0.8, 0.9, 0.95, 1, 1.05, 1.1, 1.2, 1.4, 1.5, 1.6, 1.8, 2, 2.4, 2.5,
-  6,
+  0, 0.01, 0.1, 0.12, 0.15, 0.2, 0.25, 0.28, 0.3, 0.32, 0.35, 0.4, 0.45, 0.5,
+  0.55, 0.6, 0.7, 0.75, 0.8, 0.9, 0.95, 1, 1.05, 1.1, 1.2, 1.4, 1.5, 1.6, 1.8,
+  2, 2.4, 2.5, 6,
 ]);
+// A per-element staggered duration grows by a fixed step per variant-resolver
+// index (`spray-can`'s six dots). Only the step is listed here; the base is held
+// to SANCTIONED_DURATION_SECONDS above, so a stagger cannot smuggle in a timing
+// the flat vocabulary would have rejected.
+const SANCTIONED_DURATION_STAGGER_STEPS = new Set([0.06]);
 const SANCTIONED_EASINGS = new Set([
   '"circIn"',
   '"easeIn"',
@@ -67,9 +72,11 @@ const SANCTIONED_EASINGS = new Set([
   "CUSTOM_EASING",
   '["easeInOut", "easeOut", "easeOut"]',
   '["easeInOut", "easeInOut", "easeOut", "easeOut"]',
+  "[0.25, 1, 0.5, 1]",
   "[0.34, 1.56, 0.64, 1]",
   "[0.4, 0, 0.2, 1]",
   "[0.42, 0, 0.58, 1]",
+  "[0.65, 0, 0.35, 1]",
   "[0.68, -0.6, 0.32, 1.6]",
   "easeInOut",
   "easeOut",
@@ -714,9 +721,48 @@ function numericValue(node, constants) {
   }
 }
 
+/**
+ * Decompose `<base> + <resolverIndex> * <step>` (either operand order) into its
+ * two constant parts. Returns undefined for anything else, so a duration that is
+ * an arbitrary expression still fails closed. The multiplier is deliberately the
+ * only opaque part: it is the variant resolver's own `custom` index, whose range
+ * is fixed by the element list rather than by the timing vocabulary.
+ */
+function staggeredDuration(node, constants, resolverParams) {
+  if (!ts.isBinaryExpression(node)) return undefined;
+  if (node.operatorToken.kind !== ts.SyntaxKind.PlusToken) return undefined;
+  for (const [baseNode, stepNode] of [
+    [node.left, node.right],
+    [node.right, node.left],
+  ]) {
+    const base = numericValue(baseNode, constants);
+    if (base === undefined || !SANCTIONED_DURATION_SECONDS.has(base)) continue;
+    if (
+      !ts.isBinaryExpression(stepNode) ||
+      stepNode.operatorToken.kind !== ts.SyntaxKind.AsteriskToken
+    ) {
+      continue;
+    }
+    for (const [indexNode, scaleNode] of [
+      [stepNode.left, stepNode.right],
+      [stepNode.right, stepNode.left],
+    ]) {
+      if (!ts.isIdentifier(indexNode) || !resolverParams.has(indexNode.text)) {
+        continue;
+      }
+      const step = numericValue(scaleNode, constants);
+      if (step !== undefined && SANCTIONED_DURATION_STAGGER_STEPS.has(step)) {
+        return { base, step };
+      }
+    }
+  }
+  return undefined;
+}
+
 /** Motion timing archetypes, unchanged from the pre-factory corpus. */
 function verifyMotionValues(file, fail, stats) {
   const constants = new Map();
+  const resolverParams = new Set();
   walk(file, (node) => {
     if (
       ts.isVariableDeclaration(node) &&
@@ -725,6 +771,13 @@ function verifyMotionValues(file, fail, stats) {
       ts.isNumericLiteral(node.initializer)
     ) {
       constants.set(node.name.text, Number(node.initializer.text));
+    }
+    if (ts.isArrowFunction(node)) {
+      for (const parameter of node.parameters) {
+        if (ts.isIdentifier(parameter.name)) {
+          resolverParams.add(parameter.name.text);
+        }
+      }
     }
   });
   walk(file, (node) => {
@@ -743,11 +796,19 @@ function verifyMotionValues(file, fail, stats) {
       if (duration === undefined || !Number.isFinite(duration)) {
         // A duration may legitimately be a value bound inside an enclosing
         // variant resolver (e.g. a computed `delay`); those are opaque here.
-        if (!/^[A-Za-z_$][\w$]*$/.test(value)) {
+        if (/^[A-Za-z_$][\w$]*$/.test(value)) return;
+        const stagger = staggeredDuration(
+          node.initializer,
+          constants,
+          resolverParams,
+        );
+        if (!stagger) {
           fail(
             `duration must resolve from sanctioned numeric constants, got ${value}`,
           );
+          return;
         }
+        stats.durations.push(stagger.base);
         return;
       }
       stats.durations.push(duration);
@@ -900,6 +961,38 @@ function selfTest() {
         writeFileSync(
           path,
           readFileSync(path, "utf8").replace("duration: 0.5", "duration: 0.4"),
+        );
+      },
+    ],
+    [
+      // The stagger carve-out validates the base and the step separately, so
+      // prove the step half can reject: an off-vocabulary increment must fail
+      // even though the base (1.05) is sanctioned.
+      "an unsanctioned staggered-duration step",
+      (dir) => {
+        const path = join(dir, "icons", "spray-can.tsx");
+        writeFileSync(
+          path,
+          readFileSync(path, "utf8").replace(
+            "duration: 1.05 + index * 0.06",
+            "duration: 1.05 + index * 0.37",
+          ),
+        );
+      },
+    ],
+    [
+      // The same fail-open Codex found on `bell`, re-asserted on one of the 28
+      // icons adopted in the 439 -> 467 refresh: a well-formed path edit in a
+      // NEW module must be caught by the generated-module hash too.
+      "a hand-edited glyph path in a newly adopted icon",
+      (dir) => {
+        const path = join(dir, "icons", "leaf.tsx");
+        const source = readFileSync(path, "utf8");
+        const match = source.match(/"M[^"]{12,}"/);
+        if (!match) throw new Error("leaf.tsx: no glyph path to mutate");
+        writeFileSync(
+          path,
+          source.replace(match[0], `${match[0].slice(0, -2)}9"`),
         );
       },
     ],

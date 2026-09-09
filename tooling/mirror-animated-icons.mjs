@@ -37,7 +37,7 @@ const MANIFEST_PATH = resolveInside(
 const SAFE_SOURCE_DIR = existsSync(SOURCE_DIR)
   ? assertExistingPathInside(REPO_ROOT, SOURCE_DIR)
   : assertWritablePathInside(REPO_ROOT, SOURCE_DIR);
-const EXPECTED_COUNT = 439;
+const EXPECTED_COUNT = 467;
 const CONCURRENCY = 12;
 
 const args = new Set(process.argv.slice(2));

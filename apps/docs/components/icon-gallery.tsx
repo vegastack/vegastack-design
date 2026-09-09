@@ -34,7 +34,7 @@ const BRANDS = [github, slack, figma];
 /**
  * Live gallery — renders `Icon` (lucide) + `BrandIcon` (thesvg) from `@vegastack/design/icons`.
  *
- * PERF (measured, unresolved): this is registered in the GLOBAL MDX component map, so the 439
+ * PERF (measured, unresolved): this is registered in the GLOBAL MDX component map, so the 467
  * motion client components behind `AnimatedIconWall` reach the client graph of EVERY docs route —
  * `/docs/components/button` ships ~2.27 MB of icon-wall JS for a wall it never renders.
  *

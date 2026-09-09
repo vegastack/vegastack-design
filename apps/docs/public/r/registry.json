@@ -5154,6 +5154,34 @@
       }
     },
     {
+      "name": "icon-binary",
+      "type": "registry:ui",
+      "title": "Binary",
+      "description": "Animated binary icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/binary.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/binary.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/binary.json",
+        "license": "MIT",
+        "integrity": "sha256-kCQiKLWWaHJvr3+IpllK6fDOTWvpB1HZFIAPdXlXs/w="
+      }
+    },
+    {
       "name": "icon-blocks",
       "type": "registry:ui",
       "title": "Blocks",
@@ -6610,6 +6638,62 @@
       }
     },
     {
+      "name": "icon-cigarette",
+      "type": "registry:ui",
+      "title": "Cigarette",
+      "description": "Animated cigarette icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/cigarette.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/cigarette.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/cigarette.json",
+        "license": "MIT",
+        "integrity": "sha256-1OCDBsbQqxrVQD54d+xDOR4lfSgy8N2x3fb1cgMcrqY="
+      }
+    },
+    {
+      "name": "icon-cigarette-off",
+      "type": "registry:ui",
+      "title": "CigaretteOff",
+      "description": "Animated cigarette off icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/cigarette-off.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/cigarette-off.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/cigarette-off.json",
+        "license": "MIT",
+        "integrity": "sha256-iQXHpu6GoagsEPLql0FhDT3jEoHdjPvL94C37ag/Qfg="
+      }
+    },
+    {
       "name": "icon-circle-check",
       "type": "registry:ui",
       "title": "CircleCheck",
@@ -6806,6 +6890,34 @@
       }
     },
     {
+      "name": "icon-circle-gauge",
+      "type": "registry:ui",
+      "title": "CircleGauge",
+      "description": "Animated circle gauge icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/circle-gauge.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/circle-gauge.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/circle-gauge.json",
+        "license": "MIT",
+        "integrity": "sha256-mW7gCmC2prLAu/kx1GsSQnNPhf0QrSxlJ/VcXpAp29c="
+      }
+    },
+    {
       "name": "icon-circle-help",
       "type": "registry:ui",
       "title": "CircleHelp",
@@ -6915,6 +7027,34 @@
         "upstream": "https://lucide-animated.com/r/clock.json",
         "license": "MIT",
         "integrity": "sha256-NS48CVlaN6kIofKv9d6ZmoVL2iFHp8hlGdfeCVGdPDQ="
+      }
+    },
+    {
+      "name": "icon-cloud-backup",
+      "type": "registry:ui",
+      "title": "CloudBackup",
+      "description": "Animated cloud backup icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/cloud-backup.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/cloud-backup.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/cloud-backup.json",
+        "license": "MIT",
+        "integrity": "sha256-dbPv2F0TdPTwtfsszlFVvMSXCPHgisLL6CGYysBawtQ="
       }
     },
     {
@@ -7111,6 +7251,34 @@
         "upstream": "https://lucide-animated.com/r/cloud-sun.json",
         "license": "MIT",
         "integrity": "sha256-m3Q5259s2/9Pl5eDhVs0eB+dM/c62ne/znH6bufYq4s="
+      }
+    },
+    {
+      "name": "icon-cloud-sync",
+      "type": "registry:ui",
+      "title": "CloudSync",
+      "description": "Animated cloud sync icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/cloud-sync.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/cloud-sync.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/cloud-sync.json",
+        "license": "MIT",
+        "integrity": "sha256-xFzUynnmhdPIZvBY+03cKdEnvweCxLzD90HScxuPzbM="
       }
     },
     {
@@ -8119,6 +8287,34 @@
         "upstream": "https://lucide-animated.com/r/expand.json",
         "license": "MIT",
         "integrity": "sha256-whPLS/YvUYcdRGXwKYuUgZ5HuuNlOOOh5XOTS1P87fA="
+      }
+    },
+    {
+      "name": "icon-external-link",
+      "type": "registry:ui",
+      "title": "ExternalLink",
+      "description": "Animated external link icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/external-link.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/external-link.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/external-link.json",
+        "license": "MIT",
+        "integrity": "sha256-dnoQTjSTB0sttARIsbhAA1WMZaCFsmaFlpsi4FdFlPQ="
       }
     },
     {
@@ -10250,6 +10446,34 @@
       }
     },
     {
+      "name": "icon-hat-glasses",
+      "type": "registry:ui",
+      "title": "HatGlasses",
+      "description": "Animated hat glasses icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/hat-glasses.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/hat-glasses.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/hat-glasses.json",
+        "license": "MIT",
+        "integrity": "sha256-+mgypPl9gOv3d3c/SsUCOnlGsSyHe4NOVwlfXw1D0To="
+      }
+    },
+    {
       "name": "icon-heart",
       "type": "registry:ui",
       "title": "Heart",
@@ -10838,6 +11062,62 @@
       }
     },
     {
+      "name": "icon-leaf",
+      "type": "registry:ui",
+      "title": "Leaf",
+      "description": "Animated leaf icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/leaf.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/leaf.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/leaf.json",
+        "license": "MIT",
+        "integrity": "sha256-85MluAq+HiZAaWEc8VAGZW5riz48Qe44t5uo3WM1YpI="
+      }
+    },
+    {
+      "name": "icon-leafy-green",
+      "type": "registry:ui",
+      "title": "LeafyGreen",
+      "description": "Animated leafy green icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/leafy-green.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/leafy-green.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/leafy-green.json",
+        "license": "MIT",
+        "integrity": "sha256-0FHqy5CeORrjf7CqOwgy4TBn94jPY8jPFXz/pFmu6is="
+      }
+    },
+    {
       "name": "icon-link",
       "type": "registry:ui",
       "title": "Link",
@@ -10863,6 +11143,34 @@
         "upstream": "https://lucide-animated.com/r/link.json",
         "license": "MIT",
         "integrity": "sha256-2Nqv2KgEyNR6CYVGSvqCnRpOc6hiphl9Ktx3f3tQAyg="
+      }
+    },
+    {
+      "name": "icon-link-2",
+      "type": "registry:ui",
+      "title": "Link2",
+      "description": "Animated link 2 icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/link-2.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/link-2.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/link-2.json",
+        "license": "MIT",
+        "integrity": "sha256-1r2lOoB9gDvI+gHTANXDFrU9vJCWw9XMSp44jrXQzG8="
       }
     },
     {
@@ -12042,6 +12350,34 @@
       }
     },
     {
+      "name": "icon-monitor-cog",
+      "type": "registry:ui",
+      "title": "MonitorCog",
+      "description": "Animated monitor cog icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/monitor-cog.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/monitor-cog.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/monitor-cog.json",
+        "license": "MIT",
+        "integrity": "sha256-z6yddPFxm4KGiTuS8ErQ0DuQ+7QsjUVUPeyQG8gOoYk="
+      }
+    },
+    {
       "name": "icon-moon",
       "type": "registry:ui",
       "title": "Moon",
@@ -12095,6 +12431,34 @@
         "upstream": "https://lucide-animated.com/r/nfc.json",
         "license": "MIT",
         "integrity": "sha256-90L0uX87j5yaKlKylVlr+C/7jJbtG5qmMx1PLNZ7pkU="
+      }
+    },
+    {
+      "name": "icon-palette",
+      "type": "registry:ui",
+      "title": "Palette",
+      "description": "Animated palette icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/palette.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/palette.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/palette.json",
+        "license": "MIT",
+        "integrity": "sha256-HvBinNalU8bCUBAiz1uCXdccc80hFg6luoZ85+qTugI="
       }
     },
     {
@@ -12487,6 +12851,62 @@
         "upstream": "https://lucide-animated.com/r/pickaxe.json",
         "license": "MIT",
         "integrity": "sha256-X6bSgjNuMGP3XkeXo4AEpwrGe34K2wp+6+0/+y3Pnas="
+      }
+    },
+    {
+      "name": "icon-plane-landing",
+      "type": "registry:ui",
+      "title": "PlaneLanding",
+      "description": "Animated plane landing icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/plane-landing.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/plane-landing.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/plane-landing.json",
+        "license": "MIT",
+        "integrity": "sha256-4kbJCRt5nBQR0xAHQgdKCllR4i80mZqOF52ZIJhYU1o="
+      }
+    },
+    {
+      "name": "icon-plane-takeoff",
+      "type": "registry:ui",
+      "title": "PlaneTakeoff",
+      "description": "Animated plane takeoff icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/plane-takeoff.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/plane-takeoff.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/plane-takeoff.json",
+        "license": "MIT",
+        "integrity": "sha256-pwBIZg+RvejPxjI4Rl2SkYFcNNphmMXNVESl0GH8AVM="
       }
     },
     {
@@ -13554,6 +13974,90 @@
       }
     },
     {
+      "name": "icon-server",
+      "type": "registry:ui",
+      "title": "Server",
+      "description": "Animated server icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/server.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/server.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/server.json",
+        "license": "MIT",
+        "integrity": "sha256-J1KQMeVTKY17f931a2IsiIP0ahG/tbMr02aSE6QLLHs="
+      }
+    },
+    {
+      "name": "icon-server-cog",
+      "type": "registry:ui",
+      "title": "ServerCog",
+      "description": "Animated server cog icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/server-cog.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/server-cog.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/server-cog.json",
+        "license": "MIT",
+        "integrity": "sha256-ZRDlfb/Uo8vwxspkwMn5P7AZwZ7pYrSG+Nz2SC0tPMs="
+      }
+    },
+    {
+      "name": "icon-server-crash",
+      "type": "registry:ui",
+      "title": "ServerCrash",
+      "description": "Animated server crash icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/server-crash.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/server-crash.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/server-crash.json",
+        "license": "MIT",
+        "integrity": "sha256-htwPbaVbPKIDx+K7e+0YBKQ/qmi23VfP4BJE4d7nokg="
+      }
+    },
+    {
       "name": "icon-settings",
       "type": "registry:ui",
       "title": "Settings",
@@ -13638,6 +14142,34 @@
       }
     },
     {
+      "name": "icon-ship-wheel",
+      "type": "registry:ui",
+      "title": "ShipWheel",
+      "description": "Animated ship wheel icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/ship-wheel.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/ship-wheel.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/ship-wheel.json",
+        "license": "MIT",
+        "integrity": "sha256-zS1P5dF2tDQgEhXDOM5OXfsquBfATnb532gkIa765/k="
+      }
+    },
+    {
       "name": "icon-shower-head",
       "type": "registry:ui",
       "title": "ShowerHead",
@@ -13663,6 +14195,34 @@
         "upstream": "https://lucide-animated.com/r/shower-head.json",
         "license": "MIT",
         "integrity": "sha256-ZS19bGNMRYecyDcMXUoPLVVXB+akA6K3YRAmEj/DBwM="
+      }
+    },
+    {
+      "name": "icon-shredder",
+      "type": "registry:ui",
+      "title": "Shredder",
+      "description": "Animated shredder icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/shredder.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/shredder.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/shredder.json",
+        "license": "MIT",
+        "integrity": "sha256-sEhtg2IkWLGPvPtEDVl5IPMPPQXscJaGpBFbIrN3K9M="
       }
     },
     {
@@ -13862,6 +14422,34 @@
       }
     },
     {
+      "name": "icon-soup",
+      "type": "registry:ui",
+      "title": "Soup",
+      "description": "Animated soup icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/soup.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/soup.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/soup.json",
+        "license": "MIT",
+        "integrity": "sha256-vskaKIDqtuk1Xoj/JTQssubtayCWkoQ4aVPFpEhJcgo="
+      }
+    },
+    {
       "name": "icon-sparkles",
       "type": "registry:ui",
       "title": "Sparkles",
@@ -13887,6 +14475,34 @@
         "upstream": "https://lucide-animated.com/r/sparkles.json",
         "license": "MIT",
         "integrity": "sha256-a8ROURhb5d5V+xmD3UYU/kHl5S7WTH+Ym956IKDvMuw="
+      }
+    },
+    {
+      "name": "icon-spray-can",
+      "type": "registry:ui",
+      "title": "SprayCan",
+      "description": "Animated spray can icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/spray-can.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/spray-can.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/spray-can.json",
+        "license": "MIT",
+        "integrity": "sha256-+u9s7q/J6yVFDq/dmmOpncteimgIcYiW1TAnOp6hbzA="
       }
     },
     {
@@ -14562,6 +15178,34 @@
       }
     },
     {
+      "name": "icon-ticket",
+      "type": "registry:ui",
+      "title": "Ticket",
+      "description": "Animated ticket icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/ticket.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/ticket.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/ticket.json",
+        "license": "MIT",
+        "integrity": "sha256-gQ0qnZyPPz2bBB+43pN991OemvPkCYXW2SoYpoCq1cQ="
+      }
+    },
+    {
       "name": "icon-timer",
       "type": "registry:ui",
       "title": "Timer",
@@ -14643,6 +15287,62 @@
         "upstream": "https://lucide-animated.com/r/train-track.json",
         "license": "MIT",
         "integrity": "sha256-Dj6ut5pVcGo8wMsgCRoqq3wmJ31cX09NIJ2RaBomnyA="
+      }
+    },
+    {
+      "name": "icon-tree-deciduous",
+      "type": "registry:ui",
+      "title": "TreeDeciduous",
+      "description": "Animated tree deciduous icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/tree-deciduous.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/tree-deciduous.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/tree-deciduous.json",
+        "license": "MIT",
+        "integrity": "sha256-FKG0+6uP6z77t0b33dJvxDXjYx71KKO1enKK+tC8bpU="
+      }
+    },
+    {
+      "name": "icon-tree-pine",
+      "type": "registry:ui",
+      "title": "TreePine",
+      "description": "Animated tree pine icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/tree-pine.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/tree-pine.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/tree-pine.json",
+        "license": "MIT",
+        "integrity": "sha256-balgXFlRF5eEx+5mnFOUM06cGn4ebFO+VuGIhf1l/mM="
       }
     },
     {
@@ -15038,6 +15738,34 @@
       }
     },
     {
+      "name": "icon-user-plus",
+      "type": "registry:ui",
+      "title": "UserPlus",
+      "description": "Animated user plus icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/user-plus.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/user-plus.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/user-plus.json",
+        "license": "MIT",
+        "integrity": "sha256-vuSGkTZqZgGyitzWaXCMce4qsFZHF4AC6nHKKj9Gyko="
+      }
+    },
+    {
       "name": "icon-user-round-check",
       "type": "registry:ui",
       "title": "UserRoundCheck",
@@ -15315,6 +16043,62 @@
         "upstream": "https://lucide-animated.com/r/waves.json",
         "license": "MIT",
         "integrity": "sha256-pJYn+DKjHjWWcTvGpuG6G2Z98gDLOfRBqRFQTRPW32k="
+      }
+    },
+    {
+      "name": "icon-waves-arrow-down",
+      "type": "registry:ui",
+      "title": "WavesArrowDown",
+      "description": "Animated waves arrow down icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/waves-arrow-down.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/waves-arrow-down.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/waves-arrow-down.json",
+        "license": "MIT",
+        "integrity": "sha256-mA9ig2wI7hNTfMn3nzqOPw8MuwT+IKHXxsqa6T4weT4="
+      }
+    },
+    {
+      "name": "icon-waves-arrow-up",
+      "type": "registry:ui",
+      "title": "WavesArrowUp",
+      "description": "Animated waves arrow up icon — Motion-powered (hover or imperative trigger).",
+      "categories": [
+        "icons"
+      ],
+      "dependencies": [
+        "motion@^13.2.0",
+        "@vegastack/design@^0.3.2"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icons/waves-arrow-up.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icons/waves-arrow-up.tsx"
+        }
+      ],
+      "meta": {
+        "version": "0.6.0",
+        "source": "lucide-animated",
+        "upstream": "https://lucide-animated.com/r/waves-arrow-up.json",
+        "license": "MIT",
+        "integrity": "sha256-V4w2BFEGleiWLYykYnxfkD/dOKtTKj3xo0g7/znkFmE="
       }
     },
     {

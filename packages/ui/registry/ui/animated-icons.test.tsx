@@ -134,17 +134,17 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-// A 439-icon render sweep legitimately outlives the 15s default in the slowest
+// A 467-icon render sweep legitimately outlives the 15s default in the slowest
 // engine (measured 20s in Firefox under load), so it carries its own timeout.
 test(
-  "renders all 439 icons and exercises every reduced-motion imperative handle",
+  "renders all 467 icons and exercises every reduced-motion imperative handle",
   { timeout: 60_000 },
   async () => {
     mockReducedMotion(true);
     const entries = Object.entries(ICON_MODULES).sort(([a], [b]) =>
       a.localeCompare(b),
     );
-    expect(entries).toHaveLength(439);
+    expect(entries).toHaveLength(467);
     const refs = new Map(
       entries.map(([path]) => [path, React.createRef<AnimationHandle>()]),
     );
@@ -168,7 +168,7 @@ test(
     const roots = screen.container.querySelectorAll<HTMLElement>(
       "[data-animated-icon-source]",
     );
-    expect(roots).toHaveLength(439);
+    expect(roots).toHaveLength(467);
     for (const root of roots) {
       // An icon sits inside a line of text: the host must be an inline box, not
       // the block-level <div> the per-icon controllers used to render. This

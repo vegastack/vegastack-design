@@ -12,9 +12,9 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 568,
+    "totalRegistryItems": 596,
     "components": 116,
-    "animatedIcons": 439,
+    "animatedIcons": 467,
     "hooks": 10,
     "blocks": 1,
     "libs": 2
@@ -29,7 +29,7 @@
     "AI/chat": 6,
     "Hooks": 10,
     "Block": 1,
-    "Animated icons": 439
+    "Animated icons": 467
   },
   "expectedWaveMembers": {
     "Core controls": [
@@ -23328,6 +23328,11 @@
         "publicSymbols": ["BicepsFlexedIcon", "BicepsFlexedIconHandle"]
       },
       {
+        "name": "icon-binary",
+        "sourceFile": "packages/ui/registry/ui/icons/binary.tsx",
+        "publicSymbols": ["BinaryIcon", "BinaryIconHandle"]
+      },
+      {
         "name": "icon-blocks",
         "sourceFile": "packages/ui/registry/ui/icons/blocks.tsx",
         "publicSymbols": ["BlocksIcon", "BlocksIconHandle"]
@@ -23621,6 +23626,16 @@
         "publicSymbols": ["ChromeIcon", "ChromeIconHandle"]
       },
       {
+        "name": "icon-cigarette",
+        "sourceFile": "packages/ui/registry/ui/icons/cigarette.tsx",
+        "publicSymbols": ["CigaretteIcon", "CigaretteIconHandle"]
+      },
+      {
+        "name": "icon-cigarette-off",
+        "sourceFile": "packages/ui/registry/ui/icons/cigarette-off.tsx",
+        "publicSymbols": ["CigaretteOffIcon", "CigaretteOffIconHandle"]
+      },
+      {
         "name": "icon-circle-check",
         "sourceFile": "packages/ui/registry/ui/icons/circle-check.tsx",
         "publicSymbols": ["CircleCheckIcon", "CircleCheckIconHandle"]
@@ -23665,6 +23680,11 @@
         "publicSymbols": ["CircleDollarSignIcon", "CircleDollarSignIconHandle"]
       },
       {
+        "name": "icon-circle-gauge",
+        "sourceFile": "packages/ui/registry/ui/icons/circle-gauge.tsx",
+        "publicSymbols": ["CircleGaugeIcon", "CircleGaugeIconHandle"]
+      },
+      {
         "name": "icon-circle-help",
         "sourceFile": "packages/ui/registry/ui/icons/circle-help.tsx",
         "publicSymbols": ["CircleHelpIcon", "CircleHelpIconHandle"]
@@ -23683,6 +23703,11 @@
         "name": "icon-clock",
         "sourceFile": "packages/ui/registry/ui/icons/clock.tsx",
         "publicSymbols": ["ClockIcon", "ClockIconHandle"]
+      },
+      {
+        "name": "icon-cloud-backup",
+        "sourceFile": "packages/ui/registry/ui/icons/cloud-backup.tsx",
+        "publicSymbols": ["CloudBackupIcon", "CloudBackupIconHandle"]
       },
       {
         "name": "icon-cloud-cog",
@@ -23718,6 +23743,11 @@
         "name": "icon-cloud-sun",
         "sourceFile": "packages/ui/registry/ui/icons/cloud-sun.tsx",
         "publicSymbols": ["CloudSunIcon", "CloudSunIconHandle"]
+      },
+      {
+        "name": "icon-cloud-sync",
+        "sourceFile": "packages/ui/registry/ui/icons/cloud-sync.tsx",
+        "publicSymbols": ["CloudSyncIcon", "CloudSyncIconHandle"]
       },
       {
         "name": "icon-cloud-upload",
@@ -23898,6 +23928,11 @@
         "name": "icon-expand",
         "sourceFile": "packages/ui/registry/ui/icons/expand.tsx",
         "publicSymbols": ["ExpandIcon", "ExpandIconHandle"]
+      },
+      {
+        "name": "icon-external-link",
+        "sourceFile": "packages/ui/registry/ui/icons/external-link.tsx",
+        "publicSymbols": ["ExternalLinkIcon", "ExternalLinkIconHandle"]
       },
       {
         "name": "icon-eye",
@@ -24304,6 +24339,11 @@
         "publicSymbols": ["HardDriveUploadIcon", "HardDriveUploadIconHandle"]
       },
       {
+        "name": "icon-hat-glasses",
+        "sourceFile": "packages/ui/registry/ui/icons/hat-glasses.tsx",
+        "publicSymbols": ["HatGlassesIcon", "HatGlassesIconHandle"]
+      },
+      {
         "name": "icon-heart",
         "sourceFile": "packages/ui/registry/ui/icons/heart.tsx",
         "publicSymbols": ["HeartIcon", "HeartIconHandle"]
@@ -24412,9 +24452,24 @@
         "publicSymbols": ["LayoutPanelTopIcon", "LayoutPanelTopIconHandle"]
       },
       {
+        "name": "icon-leaf",
+        "sourceFile": "packages/ui/registry/ui/icons/leaf.tsx",
+        "publicSymbols": ["LeafIcon", "LeafIconHandle"]
+      },
+      {
+        "name": "icon-leafy-green",
+        "sourceFile": "packages/ui/registry/ui/icons/leafy-green.tsx",
+        "publicSymbols": ["LeafyGreenIcon", "LeafyGreenIconHandle"]
+      },
+      {
         "name": "icon-link",
         "sourceFile": "packages/ui/registry/ui/icons/link.tsx",
         "publicSymbols": ["LinkIcon", "LinkIconHandle"]
+      },
+      {
+        "name": "icon-link-2",
+        "sourceFile": "packages/ui/registry/ui/icons/link-2.tsx",
+        "publicSymbols": ["Link2Icon", "Link2IconHandle"]
       },
       {
         "name": "icon-linkedin",
@@ -24657,6 +24712,11 @@
         "publicSymbols": ["MonitorCheckIcon", "MonitorCheckIconHandle"]
       },
       {
+        "name": "icon-monitor-cog",
+        "sourceFile": "packages/ui/registry/ui/icons/monitor-cog.tsx",
+        "publicSymbols": ["MonitorCogIcon", "MonitorCogIconHandle"]
+      },
+      {
         "name": "icon-moon",
         "sourceFile": "packages/ui/registry/ui/icons/moon.tsx",
         "publicSymbols": ["MoonIcon", "MoonIconHandle"]
@@ -24665,6 +24725,11 @@
         "name": "icon-nfc",
         "sourceFile": "packages/ui/registry/ui/icons/nfc.tsx",
         "publicSymbols": ["NfcIcon", "NfcIconHandle"]
+      },
+      {
+        "name": "icon-palette",
+        "sourceFile": "packages/ui/registry/ui/icons/palette.tsx",
+        "publicSymbols": ["PaletteIcon", "PaletteIconHandle"]
       },
       {
         "name": "icon-panel-left-close",
@@ -24735,6 +24800,16 @@
         "name": "icon-pickaxe",
         "sourceFile": "packages/ui/registry/ui/icons/pickaxe.tsx",
         "publicSymbols": ["PickaxeIcon", "PickaxeIconHandle"]
+      },
+      {
+        "name": "icon-plane-landing",
+        "sourceFile": "packages/ui/registry/ui/icons/plane-landing.tsx",
+        "publicSymbols": ["PlaneLandingIcon", "PlaneLandingIconHandle"]
+      },
+      {
+        "name": "icon-plane-takeoff",
+        "sourceFile": "packages/ui/registry/ui/icons/plane-takeoff.tsx",
+        "publicSymbols": ["PlaneTakeoffIcon", "PlaneTakeoffIconHandle"]
       },
       {
         "name": "icon-play",
@@ -24945,6 +25020,21 @@
         "publicSymbols": ["SendIcon", "SendIconHandle"]
       },
       {
+        "name": "icon-server",
+        "sourceFile": "packages/ui/registry/ui/icons/server.tsx",
+        "publicSymbols": ["ServerIcon", "ServerIconHandle"]
+      },
+      {
+        "name": "icon-server-cog",
+        "sourceFile": "packages/ui/registry/ui/icons/server-cog.tsx",
+        "publicSymbols": ["ServerCogIcon", "ServerCogIconHandle"]
+      },
+      {
+        "name": "icon-server-crash",
+        "sourceFile": "packages/ui/registry/ui/icons/server-crash.tsx",
+        "publicSymbols": ["ServerCrashIcon", "ServerCrashIconHandle"]
+      },
+      {
         "name": "icon-settings",
         "sourceFile": "packages/ui/registry/ui/icons/settings.tsx",
         "publicSymbols": ["SettingsIcon", "SettingsIconHandle"]
@@ -24960,9 +25050,19 @@
         "publicSymbols": ["ShipIcon", "ShipIconHandle"]
       },
       {
+        "name": "icon-ship-wheel",
+        "sourceFile": "packages/ui/registry/ui/icons/ship-wheel.tsx",
+        "publicSymbols": ["ShipWheelIcon", "ShipWheelIconHandle"]
+      },
+      {
         "name": "icon-shower-head",
         "sourceFile": "packages/ui/registry/ui/icons/shower-head.tsx",
         "publicSymbols": ["ShowerHeadIcon", "ShowerHeadIconHandle"]
+      },
+      {
+        "name": "icon-shredder",
+        "sourceFile": "packages/ui/registry/ui/icons/shredder.tsx",
+        "publicSymbols": ["ShredderIcon", "ShredderIconHandle"]
       },
       {
         "name": "icon-shrink",
@@ -25006,9 +25106,19 @@
         "publicSymbols": ["SnowflakeIcon", "SnowflakeIconHandle"]
       },
       {
+        "name": "icon-soup",
+        "sourceFile": "packages/ui/registry/ui/icons/soup.tsx",
+        "publicSymbols": ["SoupIcon", "SoupIconHandle"]
+      },
+      {
         "name": "icon-sparkles",
         "sourceFile": "packages/ui/registry/ui/icons/sparkles.tsx",
         "publicSymbols": ["SparklesIcon", "SparklesIconHandle"]
+      },
+      {
+        "name": "icon-spray-can",
+        "sourceFile": "packages/ui/registry/ui/icons/spray-can.tsx",
+        "publicSymbols": ["SprayCanIcon", "SprayCanIconHandle"]
       },
       {
         "name": "icon-square-activity",
@@ -25140,6 +25250,11 @@
         "publicSymbols": ["ThermometerIcon", "ThermometerIconHandle"]
       },
       {
+        "name": "icon-ticket",
+        "sourceFile": "packages/ui/registry/ui/icons/ticket.tsx",
+        "publicSymbols": ["TicketIcon", "TicketIconHandle"]
+      },
+      {
         "name": "icon-timer",
         "sourceFile": "packages/ui/registry/ui/icons/timer.tsx",
         "publicSymbols": ["TimerIcon", "TimerIconHandle"]
@@ -25153,6 +25268,16 @@
         "name": "icon-train-track",
         "sourceFile": "packages/ui/registry/ui/icons/train-track.tsx",
         "publicSymbols": ["TrainTrackIcon", "TrainTrackIconHandle"]
+      },
+      {
+        "name": "icon-tree-deciduous",
+        "sourceFile": "packages/ui/registry/ui/icons/tree-deciduous.tsx",
+        "publicSymbols": ["TreeDeciduousIcon", "TreeDeciduousIconHandle"]
+      },
+      {
+        "name": "icon-tree-pine",
+        "sourceFile": "packages/ui/registry/ui/icons/tree-pine.tsx",
+        "publicSymbols": ["TreePineIcon", "TreePineIconHandle"]
       },
       {
         "name": "icon-trending-down",
@@ -25225,6 +25350,11 @@
         "publicSymbols": ["UserCheckIcon", "UserCheckIconHandle"]
       },
       {
+        "name": "icon-user-plus",
+        "sourceFile": "packages/ui/registry/ui/icons/user-plus.tsx",
+        "publicSymbols": ["UserPlusIcon", "UserPlusIconHandle"]
+      },
+      {
         "name": "icon-user-round-check",
         "sourceFile": "packages/ui/registry/ui/icons/user-round-check.tsx",
         "publicSymbols": ["UserRoundCheckIcon", "UserRoundCheckIconHandle"]
@@ -25273,6 +25403,16 @@
         "name": "icon-waves",
         "sourceFile": "packages/ui/registry/ui/icons/waves.tsx",
         "publicSymbols": ["WavesIcon", "WavesIconHandle"]
+      },
+      {
+        "name": "icon-waves-arrow-down",
+        "sourceFile": "packages/ui/registry/ui/icons/waves-arrow-down.tsx",
+        "publicSymbols": ["WavesArrowDownIcon", "WavesArrowDownIconHandle"]
+      },
+      {
+        "name": "icon-waves-arrow-up",
+        "sourceFile": "packages/ui/registry/ui/icons/waves-arrow-up.tsx",
+        "publicSymbols": ["WavesArrowUpIcon", "WavesArrowUpIconHandle"]
       },
       {
         "name": "icon-waves-ladder",
@@ -26677,7 +26817,7 @@
         "per-item-navigation-entry",
         "per-item-preview-module"
       ],
-      "rationale": "The 439 deterministic generated mirrors share one schema, generator, icon gallery, and Icons foundation page; exact membership and every source export remain fail-closed."
+      "rationale": "The 467 deterministic generated mirrors share one schema, generator, icon gallery, and Icons foundation page; exact membership and every source export remain fail-closed."
     },
     {
       "id": "pure-hooks-do-not-render",

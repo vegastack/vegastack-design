@@ -17,5 +17,5 @@ closed on any upstream archetype it cannot model; `tooling/verify-animated-icons
 controller contract once against the factory, holds every module to a schema whose central clause is
 that a data module contains no controller at all, pins each generated module by SHA-256 in
 `packages/ui/animated-icon-sources.json` so a hand-edited path or timing value is rejected outright,
-and carries a `--self-test` that proves fifteen distinct regressions are rejected.
+and carries a `--self-test` that proves seventeen distinct regressions are rejected.
 [docs](https://design.vegastack.com/docs/foundations/icons)
