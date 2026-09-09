@@ -2392,6 +2392,67 @@ outer `MarketingSurface` wraps the entire page, and the rest of `/docs` stays th
 product surface — a single, deliberate temperature boundary at the home→docs navigation, not an
 alternating pattern within one page.
 
+## Toolchain — two pinned decisions
+
+Both were taken by MK on 2026-09-09, and both are decisions to **hold a version**, which is the kind
+of decision that rots quietly unless the reason is written down beside it. Each carries the evidence
+that made it, so the next agent re-measures rather than re-argues.
+
+### TypeScript stays at 6.0.3
+
+`typescript@7.0.2` is the latest release; this repo pins `6.0.3` through the pnpm catalog, and that
+is deliberate.
+
+**Nothing downstream forces the upgrade.** `next@16.3.4` declares no `typescript` peer at all, and
+`react@19.2.8` declares no peers whatsoever, so a consumer's own TypeScript version is unconstrained
+by anything this system publishes.
+
+**The lint toolchain forbids it.** `typescript-eslint@8.70.0` — the latest published release — and
+the ten `@typescript-eslint/*` packages in the tree at the same version declare
+`typescript: ">=4.8.4 <6.1.0"` wherever they declare the peer at all (the meta package plus
+`eslint-plugin`, `parser`, `project-service`, `tsconfig-utils`, `type-utils` and `typescript-estree`;
+`scope-manager`, `types`, `utils` and `visitor-keys` declare none). No shipped typescript-eslint
+supports TypeScript 7. `twoslash@0.3.9` caps its peer at `^5.5.0 || ^6.0.0` for the same reason.
+Upgrading would run every type-aware ESLint rule on a compiler the rule authors have not validated —
+trading a real, enforced gate for a version number.
+
+**fumadocs at 7.0.2 is not drift.** `@fumadocs/story@1.3.0` and `fumadocs-typescript@5.4.0` each
+declare `typescript: "~7.0.2"` as a **direct dependency**, not a peer, for their own type-table
+generation. They get their own copy; nothing in this repo type-checks against it. A pnpm override
+forcing them to `^6.0.3` would violate a range they declare, to fix a problem that does not exist.
+
+**Revisit when typescript-eslint ships TypeScript 7 support** — that is the single unblocking
+condition, and the check is one `npm view typescript-eslint peerDependencies` away.
+
+### `tw-animate-css` stays in the public preset
+
+`packages/design/preset.css` opens with `@import "tw-animate-css"`, and the package is a regular
+dependency of `@vegastack/design`. A review proposed removing it as dead weight, having measured
+zero `animate-in` / `fade-in` / `zoom-in` / `slide-in-from-*` usages in this repo. That measurement
+is correct and it counts the wrong population: **the preset is consumer-facing API, and consumers are
+not in this repo.**
+
+It is documented as such in two places a consumer reads before anything else.
+`guides/quickstart.mdx` states that `preset.css` bundles it; `guides/troubleshooting.mdx` gives
+`Can't resolve 'tw-animate-css'` its own section, and records that `@vegastack/design` older than
+0.1.1 marked it an **optional peer that pnpm never installed** — bundling it _was_ the fix. Removing
+it now would re-open that closed defect in a subtler form: rather than failing the build, a
+consumer's `animate-in` would compile to nothing and their UI would silently stop animating.
+
+**The split is deliberate, and it is the point.** Our own components stay on the system's motion
+vocabulary — the `motion-*` utilities and the token `duration-*`/`ease-*` pairs — and `design-lint`
+rejects arbitrary animation values (`animate-[…]`, `duration-[…]`, `ease-[…]`, raw `cubic-bezier()`)
+in our source, which is why the usage count in this tree is zero and should stay zero. Consumers get
+the escape hatch, because a design system that ships a Tailwind preset ships the utilities that
+preset promises.
+
+**The two halves can no longer drift apart.** `tooling/verify-test-css-layers.mjs` takes the
+`@import` **specifier** as its unit rather than matching only the token layers, so every compiled-CSS
+test lane is required to import exactly what production imports — `tw-animate-css` included. Before
+that change no lane imported it and nothing said so: a `tw-animate-css` utility with no definition
+compiles to nothing, exactly like a missing `@utility`, and a lane would have measured a fixture
+stripped of its enter animation without failing.
+
 ## Docs canon
 
 A component's documentation page is part of the component, not a follow-up, and it serves humans

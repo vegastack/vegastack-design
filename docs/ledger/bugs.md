@@ -14,6 +14,34 @@ recorded that `class-whitespace` could not see it; five more were still on `main
 
 Every measurement below was taken in Chromium against compiled token CSS, before and after.
 
+### Where the seams came from: a fix caused them (recorded 2026-09-09, close-out)
+
+**A gate-correctness fix introduced all four defects, and the record should say so plainly.** G1-b
+(#99, `b2c2e964`) added `prettier --check .` to the front of `pnpm lint` — 13 files were unformatted
+on `origin/main` — and landed the one-off `prettier --write` in the same commit. Prettier strips
+trailing whitespace, **including whitespace inside a string literal that ends a line before a `+`**.
+That is what welded the seams. The diff is unambiguous:
+
+```
+-  "…bg-clip-padding p-0.5  " +
+-    "bg-surface-3 data-checked:bg-primary " +
++  "…bg-clip-padding p-0.5" +
++    "bg-surface-3 data-checked:bg-primary" +
+```
+
+Two spaces and one space, removed by a formatter, destroying `p-0.5`, `bg-surface-3`,
+`data-checked:bg-primary`, `ease-standard`, `data-unchecked:translate-x-0`, `outline-hidden`,
+`caret-foreground`, `text-muted-foreground` and `hover:text-foreground` on the way out. The Switch
+then shipped with no track colour in either state, in both themes.
+
+**The fix was correct and the check should stay.** The lesson is not "don't format"; it is that
+the trailing space was load-bearing and nothing said so — a formatting gate landed over a
+formatting-sensitive construct, and no rule connected the two. `#107` fixed exactly one instance,
+in `input.tsx`, and recorded that `class-whitespace` could not see it; **nobody swept for the
+rest**, so five seams stayed on `main` for the remainder of the epic while `design-lint` printed
+`✓ clean` over them. The structural `class-glue` rule below is the root fix precisely because it
+makes the construct illegal rather than asking a formatter to be careful with it.
+
 ### The four controls
 
 | site                    | glued into                                                                | measured before                                                                         | measured after                                                                                       |
@@ -140,6 +168,125 @@ presenting outline-style "solid" (2px)`. **`select-trigger` was deliberately lef
 :not([data-invalid])` instead of documenting the gap — error copy and the shake are real, but a
   flattened field is exactly where a resting cue matters most, and every other field in the system
   shows one.
+
+---
+
+## 2026-09-09 — Appearance probes: a dead Toast page in production, and four more
+
+The 2026-09-07 appearance probes (117 routes, 918 elements, both themes, three LAN Debian boxes)
+raised seven findings in this batch. Five were real defects — one of them live on
+`design.vegastack.com` — one was a probe artefact, and one no longer reproduced.
+
+### FIXED — the docs site had TWO toast managers, so no toast could ever appear
+
+- **Symptom.** Clicking all five triggers in the `toastTypes` fixture on `/docs/components/toast`
+  produced **0** `[data-slot="toast"]` nodes over 5s, in both themes, with no console error. The
+  viewport mounted (`z-index: 60`) and stayed 0px tall. Live in production.
+- **Root cause.** `toast.tsx` calls `Toast.createToastManager()` at MODULE scope. The surface
+  exists in two modules — the canonical registry item (copied into `apps/docs/components/ui/`) and
+  its byte-for-byte package mirror re-exported by `@vegastack/ui` — so the site loaded two stores.
+  `apps/docs/components/provider.tsx` mounted the COPY-IN `<Toaster/>` inside `VegaStackProvider`,
+  whose `ToastProvider` binds the PACKAGE manager. A viewport renders whatever the nearest provider
+  is bound to; every preview's `toast()` writes to the copy-in's. The two halves talked to different
+  stores. Nothing errors on that path: the copy-in manager simply has no subscriber.
+  Under `sonner` the emitter was global and the same composition worked, so the O2 Base UI
+  migration is where it broke — and it broke silently, because no test rendered that composition
+  and no gate said the two had to match. The copy-in Toaster was therefore not being dogfooded
+  either, which is the entire point of the copy-in.
+- **Fix.** The copy-in brings its own `ToastProvider`: the docs provider now nests
+  `<ToastProvider><Toaster/></ToastProvider>` from `@/components/ui/toast` inside
+  `VegaStackProvider toaster={false}`. One live manager, both dogfoods intact — the package
+  provider still owns theme, direction and tooltips, and the registry copy-in still owns the toast
+  surface.
+- **Measured after, on the rebuilt export.** Five triggers clicked → **5** toasts, light and dark,
+  zero console errors; the first toast measures 320×58 at (936, 818), `opacity: 1`.
+- **Two gates, both observed failing on the pre-fix tree.**
+  `packages/ui/test/toast-manager-binding.browser.test.tsx` renders the docs composition and polls
+  for the toast node (pre-fix: "expected false to be true", 0 nodes), and pins the inverse — a
+  viewport bound to another module's manager shows nothing. `verify-provider-dogfood.mjs` gained
+  the structural rule: whichever module the rendered `<Toaster/>` is imported from, a
+  `<ToastProvider>` from that same module must be rendered too (pre-fix: exit 1, "renders
+  `<Toaster/>` from '@/components/ui/toast' but no `<ToastProvider>` from the same module").
+
+### FIXED — Tabs' count badge stacked two washes and put muted ink under AA
+
+- **Symptom.** axe `color-contrast`, **serious**, on `[data-slot="tabs-trigger-count"]`, fixture
+  `tabsVariants`, lane `1280-dark-ltr`. Light passed.
+- **Root cause.** The badge paints `bg-foreground/(--alpha-hover)` over WHATEVER the trigger paints,
+  and on a `pill`/`chip` list the trigger is itself `bg-foreground/(--alpha-ink-tint)` over the
+  `surface-1` track (`selectedChipVariants`). Two washes deep on rung 1, `text-muted-foreground`
+  does not clear AA. Reproduced with compiled tokens: **3.43:1** selected and **4.05:1** unselected
+  (dark; axe's own numbers). The component's own prop doc said "the active tab brightens it" — the
+  class that did so had been lost.
+- **Gate gap, and it is the real finding.** `contrast-check.mjs` checks TOKEN pairs. Its ladder
+  composite hosts only `background`/`card`/`popover`, deliberately — the note in the file says a
+  filled control steps the opaque rungs instead. `selectedChipVariants` breaks that assumption: it
+  paints an alpha tint ON `surface-1`. The composite that shipped was outside the gate's list.
+- **Fix.** The count takes `text-foreground` (worst case **7.28:1**, dark, on a hovered selected
+  chip over the track). `contrast-check.mjs` gained the rung composite — `--alpha-hover`,
+  `--alpha-pressed`, `--alpha-ink-tint`, `--alpha-ink-tint-strong` over `surface-1/2/3`, body ink,
+  both themes (448 → **472** checks, all pass) — and `design.md` § Surfaces records the prohibition
+  the gate cannot express: **muted ink is not available on a translucent wash over a rung.**
+- **Test observed failing.** `test/contrast.browser.test.tsx` gained "Tabs count badge" for both
+  themes, rendering all three variants selected and unselected. Pre-fix the dark case failed with
+  the two ratios above; post-fix both pass.
+
+### FIXED — a prerendered DatePicker threw React #418 in every non-`en-US` browser
+
+- **Symptom.** `/docs/components/date-picker` raised React #418 (`args[]=text`) in every capture
+  lane, both themes, and took 12 `probe-error` timeouts with it.
+- **Root cause.** `Intl` output that differs between the build host and the browser. Two sources:
+  the `data-day` hook was `day.date.toLocaleDateString()` — `6/25/2026` prerendered on an `en-US`
+  build host, `25/06/2026` hydrated in an `en-GB` browser, on every day cell — and the trigger
+  label's `formatDate` ran with no `locale`, which resolves to the runtime's.
+- **Fix.** `data-day` is now a stable `YYYY-MM-DD` built from the LOCAL date parts (never
+  `toISOString()`, which shifts the day across UTC). A `data-*` selector must be one string
+  everywhere; formatting for humans is `formatDate`'s job, and it was the only consumer of that
+  attribute. The docs fixtures pin `locale` on all seven pickers, since a statically exported page
+  is read from every locale on earth, and the page now carries a callout saying so.
+- **Measured after.** `en-GB`, `de-DE`, `ja-JP`, `fr-FR`, `en-AU` against the rebuilt export: zero
+  page errors and zero console errors (pre-fix, `en-GB` threw #418 on load).
+
+### FIXED — NumberField's addon slot let an interactive control paint into the field's hairline
+
+- **Symptom.** `hover-touches-border:div[number-field]:top+bottom` plus `focus-clipped` on the
+  currency `Select` trigger in the money recipe — a 28px `sm` trigger inside a 30px inner box sits
+  1px off the rule on both edges, and the root's `overflow-hidden` clipped its focus ring.
+- **Root cause.** SP-02/SP-03 residue: the steppers were fixed with an inset chip and a negative
+  outline offset, but the addon slots — the documented seat for the money recipe's `Select` — were
+  never given the same treatment, so anything pressable dropped in there inherited the old defects.
+- **Fix.** In `number-field.tsx`, the addon slots stretch to the full inner height, inset their
+  content by 4px, and hand a `button` child the inner radius and the sanctioned
+  `focus-visible:-outline-offset-2`. Scoped to a `button` child, so a text or icon addon is
+  untouched. Fixed in the component, not at the call site: the slot is what knows it lives inside a
+  clipping, hairlined group.
+- **Measured after.** `probe-states --routes number-field`: the `select-trigger` element carries
+  **no flags** (was `hover-touches-border` + `focus-clipped`).
+
+### NOT A DEFECT — "SplitButton's primary half has no hover" was the probe measuring through an
+
+open menu
+
+- **Reported.** 10 of 12 `split-button-primary` elements measured `hover.backgroundColor ===
+rest.backgroundColor`; the adjacent trigger half did change. Recorded as SP-04 still open.
+- **What actually happened.** `probe-states.mjs` presses the mouse to sample the `active` state and
+  never dismissed what that press opened. Every dropdown trigger opens a menu on pointer-down, and
+  the live overlay then sat on top of the NEXT element, so the pointer landed on the popup and the
+  `hover` snapshot came back equal to `rest`. The two primaries that read correctly are exactly the
+  two whose predecessor happened not to open a menu — the first element on the route, and the one
+  after the `loading` trigger, which carries `data-loading:pointer-events-none`.
+- **Verified.** With the probe dismissing overlays between elements, `split-button` reports
+  **24 probed, 0 flagged** — every variant, tone and size hovers and presses correctly. The
+  component is unchanged.
+
+### NOT REPRODUCED — the docs export builds from cold
+
+Reported as `@vegastack/design-tokens` being absent from the docs dependency graph. On
+`c68a35b2` it is a `workspace:*` dependency of `apps/docs` and
+`pnpm turbo run build --filter @vegastack/docs --dry=json` lists `@vegastack/design-tokens#build`
+among `@vegastack/docs#build`'s dependencies. A cold build (`rm -rf packages/*/dist
+apps/docs/.next apps/docs/out`) succeeded in 3m19s with no manual token build. Fixed ahead of this
+round; no change made.
 
 ---
 
