@@ -63,6 +63,20 @@ git rebase origin/main
 
 Expect conflicts in the files below, on every batch. Resolve in this order.
 
+> **`--ours` and `--theirs` are inverted during a rebase, and getting it wrong silently keeps the
+> wrong file.** A rebase replays your commits on top of `main`, so `HEAD` is `main`: `--ours` gives
+> you **`main`'s** version and `--theirs` gives you **your branch's**. That is the opposite of a
+> merge. Verified on this repo's git:
+>
+> ```
+> during a rebase of feature onto main:
+>   git checkout --ours   f.txt  →  MAIN-VERSION
+>   git checkout --theirs f.txt  →  FEATURE-VERSION
+> ```
+>
+> Every "take `main`'s side" instruction below therefore means `--ours`. After resolving, read the
+> file before staging it rather than trusting the flag.
+
 ### 2a. Always resolve as **delete** — the rebuild removed these files
 
 `git rm` them and continue. They are conflicts only because your branch edited a file `main`
@@ -95,9 +109,9 @@ there into changesets, and `tooling/changelog-assemble.mjs` now writes the entry
 from those changesets (R5). A hand-written heading for an unreleased version makes the assembler
 **fail**, on purpose.
 
-1. Resolve the conflict by taking `main`'s file unchanged: `git checkout --theirs CHANGELOG.md`
-   during a rebase, then confirm with `grep '^## \[' CHANGELOG.md | head -1` that the top entry is
-   `[0.6.0]`.
+1. Resolve the conflict by taking `main`'s file unchanged: `git checkout --ours CHANGELOG.md`
+   (per the warning above, during a rebase `--ours` is `main`), then confirm with
+   `grep '^## \[' CHANGELOG.md | head -1` that the top entry is `[0.6.0]`.
 2. Move each bullet your batch had added into a changeset, one bullet per changeset file:
 
 ```markdown
@@ -118,7 +132,7 @@ the release entry would look like. A change spanning two sections is two changes
 `AGENTS.md` went from 478 lines to 150. It is a rulebook now; the narrative history moved to
 `docs/ledger/operator-review.md`. Your branch's diff will not apply, and most of it should not.
 
-1. Take `main`'s file: `git checkout --theirs AGENTS.md`.
+1. Take `main`'s file: `git checkout --ours AGENTS.md`.
 2. Re-add **only** the durable rule your batch introduced, in the section where it belongs
    (usually § Build rules), in one or two sentences. Do not restore any paragraph you find missing:
    it was deleted deliberately.
