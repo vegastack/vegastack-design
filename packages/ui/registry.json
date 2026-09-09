@@ -86,7 +86,7 @@
       "description": "A virtualised, auto-scrolling conversation viewport - pins to the latest message, preserves position on prepend, tracks the anchor, and a floating scroll-to-end button.",
       "categories": ["communication"],
       "dependencies": [
-        "@shadcn/react@^0.2.1",
+        "@shadcn/react@^0.3.1",
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],

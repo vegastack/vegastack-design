@@ -1046,7 +1046,7 @@
         "@vegastack/use-media-query"
       ],
       "npmDependencies": [
-        "@shadcn/react@^0.2.1",
+        "@shadcn/react@^0.3.1",
         "@vegastack/design@^0.3.2",
         "@vegastack/design-tokens@^0.2.0"
       ],
