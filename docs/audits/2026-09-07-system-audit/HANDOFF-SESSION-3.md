@@ -100,7 +100,7 @@ both jobs executed: `gh pr merge <n> --squash --delete-branch`. Comment on epic 
 5. End round: area-partitioned Opus reviewers with an adversarial checklist (Codex unavailable until
    2026-09-15); one fix pass over `briefs/fix-round.md` + the 15 geometry defects + focus trap;
    `pnpm verify && pnpm verify:release` green (release on a box or the Mac per MK); both-theme state probe
-   (`tooling/audit/probe-states.mjs`, hover-only pass first); `node $OPS/counts.mjs` to zero; final
+   (`docs/audits/2026-09-07-system-audit/probe-states.mjs`, hover-only pass first); `node $OPS/counts.mjs <repoRoot>` to zero; final
    report: merged PRs, Version PR #56 awaiting MK's publish decision, deploy awaiting dispatch, every
    Needs-MK item, anything left out.
 
@@ -111,3 +111,47 @@ both jobs executed: `gh pr merge <n> --squash --delete-branch`. Comment on epic 
 `HANDOFF-SESSION-2.md`, `HANDOFF-SESSION-3.md` from the previous tip (`6319a002`) into
 `docs/audits/2026-09-07-system-audit/`, commit, `git push --force-with-lease`. Keep the board current
 at every state change; it is the record MK reads.
+
+## 6. Lessons and tools carried from sessions 1–3 (checklist — all still apply)
+
+- **Boxes.** Five Debian Ryzen boxes (`gates`, `gates2`, `gates3`, `gates4`, `gates5`; inventory,
+  aliases, sudo, provisioning in `HANDOFF-SESSION-2.md` §4 and memory `ryzen-gates-boxes`). New box:
+  `$OPS/onboard-box.sh <alias> <ip> <user> <pw>` (~10 min, ends with an 8/8 acceptance). **One browser
+  run per box at a time**; `gates`/`gates2` are also the GitHub Actions runners, so manual runs go to
+  `gates3/4/5`. `$OPS/remote-gates-v3.sh <worktree> -- <cmd>` mirrors + rsyncs + runs any command on the
+  first free box and rsyncs `.vrt-review/ .audit/` back (delete its dead receipt check first). Mirrors
+  are pushed with `-c core.hooksPath=/dev/null`; never do that to `origin`.
+- **Audit probes and captures** live in `docs/audits/2026-09-07-system-audit/` (`probe-states.mjs`,
+  `probe-overlays.mjs`, `probe-forced-colors.mjs`, `capture.mjs`, `histogram.mjs`, `graph.mjs`), NOT in
+  `tooling/`. They need a Playwright install and a docs export; run them on a box, batched per wave, and
+  first confirm they still run after WP3 deleted `@playwright/test` from the docs app (use the
+  `@vegastack/ui` Playwright if needed). Every `pnpm gates:push` mention in `HANDOFF-PROMPT.md` now reads
+  `pnpm verify`.
+- **Codex** (when credits return 2026-09-15): `node /Users/mk/.claude/remote/plugins/d103eaf5306c5227/scripts/codex-companion.mjs
+task --background --write --model gpt-5.6-sol --effort high "<prompt>"` from a review worktree of the PR
+  head; `status <id> --json` / `result <id>` from the SAME cwd; the sandbox is read-only/no-network without
+  `--write`; validate every finding by execution before acting (`$OPS/codex-*-result.md` are the three
+  past reviews and their triage).
+- **Agents.** Opus 5 high reasoning; one-line prompts pointing at a brief file + worktree + HEAD + known
+  state; ≤ 8 concurrent; a "completed" notice that reads as waiting is a yield — never relaunch on it;
+  after a 429 wave relaunch only agents with a `failed` notice (a survivor + a relaunch = duplicate →
+  `TaskStop`); no two agents in one worktree; check `ToolSearch select:SendMessage` before assuming agents
+  cannot be messaged; Bash foreground max 10 min → `run_in_background` + `until … sleep` loops.
+- **Git.** Worktrees fetch `main` only → push with `--force-with-lease=<branch>:<old-sha>`; after a
+  rebase across the rebuild diff `turbo.json AGENTS.md .gitignore package.json` against main; modify/delete
+  on generated files and `.gates/receipt.json` → delete; keep both sides of ledgers; `design.md` by hand
+  then `pnpm design:sync`; `component-contracts.json` both sides then the verifier; conventional commit
+  types; prettier runs in `pre-commit` (format docs before committing); a `packages/*` change needs a
+  changeset whose body starts with a section emoji; PR body per `_common.md` (decisions, docs URLs read
+  for the installed version, evidence by execution, left-out, Needs MK); comment CI run ids on the PR.
+- **Known flakes** (recognise, then read before re-running): `relative-time` self-rescheduling fixture;
+  `provider.test.tsx` toast leak (fixed in D1); cold-worktree Vite dep-optimizer storm (`useState` of
+  null / iframe disconnect); `ERR_INSUFFICIENT_RESOURCES` / `Page crashed` under load; stale `.next`
+  cache; `pnpm lint` needs network (`ui.shadcn.com`). The unit lane failed in 16 of 25 loaded sweeps.
+- **Board and reporting.** `$OPS/board-wt` + `$OPS/board-push.sh "<subject>"`; sections Progress
+  snapshot (with effort-weighted %: S1/M2/L3/XL5 × implement 60 / review 25 / merge 15), Board, Counts
+  (`counts.mjs` baseline vs latest), Needs MK (1–19 so far), Log; comment on epic #31 after each wave;
+  `HOLD-STATE.md` is the 03:25 snapshot taken when MK paused the session.
+- **MK's working preferences** (memory `mk-audit-preferences`, `mk-dev-first-then-verify`): probe real
+  interaction states, brutal/no-bloat, Geist/Linear/Raycast as benchmarks, merge on green without
+  per-batch reviewers, one consolidated end round, honest answers about speed and bottlenecks.
